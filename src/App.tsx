@@ -235,7 +235,13 @@ function getDisplay(type: IViewType) {
 async function refreshData() {
   // log('refreshData in App - get data and redraw content');
   // go to the DB to retreive updated data
-  const modelNames = await getDbModelNames();
+  let modelNames: string[] = [];
+  try{
+    modelNames = await getDbModelNames();
+  } catch(error){
+    alert('error contacting database');
+    return;
+  }
   const model = await getDbModel(modelName);
 
   // log(`got ${modelNames.length} modelNames`);
