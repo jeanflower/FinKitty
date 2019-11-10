@@ -6,11 +6,22 @@
     "@types/jest": "24.0.22",
     "@types/node": "12.12.7",
     "@types/react": "16.9.11",
+    "@types/react-data-grid": "^4.0.4",
     "@types/react-dom": "16.9.4",
+    "@types/selenium-webdriver": "^4.0.5",
+    "aws-sdk": "^2.568.0",
+    "babel-loader": "^8.0.6",
+    "bootstrap": "^4.3.1",
+    "chrome-headless": "^0.1.5",
+    "chromedriver": "^78.0.1",
+    "jquery": "^1.9.1",
+    "popper.js": "^1.16.0",
     "react": "^16.11.0",
+    "react-data-grid": "^6.1.0",
     "react-dom": "^16.11.0",
     "react-scripts": "3.2.0",
-    "typescript": "3.7.2"
+    "selenium-webdriver": "^4.0.0-alpha.5",
+    "typescript": "^3.7.2"
   },
   "scripts": {
     "start": "react-scripts start",

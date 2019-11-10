@@ -1,0 +1,404 @@
+import {
+  deleteAllData,
+  ensureDbTables,
+  submitIDbModel,
+  submitIDbSettings,
+} from '../../database/dynamo';
+import {
+  annually,
+  assetChartHint,
+  assetChartVal,
+  assetChartView,
+  birthDate,
+  birthDateHint,
+  CASH_ASSET_NAME,
+  cpi,
+  cpiHint,
+  expenseChartFocus,
+  expenseChartFocusAll,
+  expenseChartFocusHint,
+  fine,
+  incomeChartFocus,
+  incomeChartFocusAll,
+  incomeChartFocusHint,
+  roiEnd,
+  roiEndHint,
+  roiStart,
+  roiStartHint,
+  singleAssetName,
+  singleAssetNameHint,
+  viewDetail,
+  viewDetailHint,
+  viewFrequency,
+  viewFrequencyHint,
+} from '../../stringConstants';
+import {
+  IDbAsset,
+  IDbExpense,
+  IDbIncome,
+  IDbModelData,
+  IDbSetting,
+  IDbTransaction,
+} from '../../types/interfaces';
+import {
+  log, printDebug,
+} from '../../utils';
+export const simpleAsset: IDbAsset = {
+  NAME: 'NoName',
+  CATEGORY: '',
+  ASSET_START: '1 Jan 2017',
+  ASSET_VALUE: '0',
+  ASSET_GROWTH: '0',
+  ASSET_LIABILITY: '',
+  ASSET_PURCHASE_PRICE: '0',
+};
+export const simpleExpense: IDbExpense = {
+  NAME: 'NoName',
+  CATEGORY: '',
+  START: '1 Jan 2017',
+  END: '1 Jan 2017',
+  VALUE: '0.0',
+  VALUE_SET: '1 Jan 2017',
+  CPI_IMMUNE: false,
+  GROWTH: '0.0',
+};
+export const simpleIncome: IDbIncome = {
+  NAME: 'NoName',
+  CATEGORY: '',
+  START: '1 Jan 2017',
+  END: '1 Jan 2017',
+  VALUE: '0.0',
+  VALUE_SET: '1 Jan 2017',
+  CPI_IMMUNE: false,
+  GROWTH: '0.0',
+  LIABILITY: '',
+};
+export const simpleTransaction: IDbTransaction = {
+  NAME: 'NoName',
+  TRANSACTION_FROM: '',
+  TRANSACTION_FROM_ABSOLUTE: true,
+  TRANSACTION_FROM_VALUE: '0',
+  TRANSACTION_TO: '',
+  TRANSACTION_TO_ABSOLUTE: true,
+  TRANSACTION_TO_VALUE: '0',
+  TRANSACTION_DATE: '1 Jan 2017',
+  TRANSACTION_STOP_DATE: '', // for regular transactions
+  TRANSACTION_RECURRENCE: '',
+  CATEGORY: '',
+};
+export const browserTestSettings: IDbSetting[] = [
+  {
+    NAME: roiStart,
+    VALUE: '1 Jan 2019',
+    HINT: roiStartHint,
+  },
+  {
+    NAME: roiEnd,
+    VALUE: '1 Feb 2019',
+    HINT: roiEndHint,
+  },
+  {
+    NAME: assetChartView,
+    VALUE: assetChartVal, // could be 'deltas'
+    HINT: assetChartHint,
+  },
+  {
+    NAME: viewFrequency,
+    VALUE: annually, // could be 'Monthly'
+    HINT: viewFrequencyHint,
+  },
+  {
+    NAME: viewDetail,
+    VALUE: fine, // could be coarse
+    HINT: viewDetailHint,
+  },
+  {
+    NAME: cpi,
+    VALUE: '2.5',
+    HINT: cpiHint,
+  },
+  {
+    NAME: 'stockMarketGrowth',
+    VALUE: '6.236',
+    HINT: 'Custom setting for stock market growth',
+  },
+  {
+    NAME: singleAssetName,
+    VALUE: CASH_ASSET_NAME,
+    HINT: singleAssetNameHint,
+  },
+  {
+    NAME: expenseChartFocus,
+    VALUE: expenseChartFocusAll,
+    HINT: expenseChartFocusHint,
+  },
+  {
+    NAME: incomeChartFocus,
+    VALUE: incomeChartFocusAll,
+    HINT: incomeChartFocusHint,
+  },
+  {
+    NAME: birthDate,
+    VALUE: '',
+    HINT: birthDateHint,
+  },
+];
+
+const serverUri = 'http://localhost:3000/#';
+const webdriver = require('selenium-webdriver');
+const chromeDriver = require('chromedriver');
+
+export const dBSleep = 1500; // time to round trip through DB
+export const calcSleep = 1000; // time to recalculate charts etc
+export const shortSleep = 200;
+
+export function getDriver(headless = true) {
+  // from 
+  // https://jakebinstein.com/blog/how-to-set-browser-capabilities-in-webdriverjs-example-headless-mode/
+  
+  // User-set variables
+  const browserName = 'chrome'; // Switch to 'firefox' if desired
+  const capabilityName = 'goog:chromeOptions'; // Switch to 'moz:firefoxOptions' if desired
+    
+  // Set up the commandline options for launching the driver.
+  // In this example, I'm using various headless options.
+  var browserOptions = {
+    'args': [
+      '--headless',
+      '--disable-gpu',
+      '--no-sandbox'
+    ]
+  };
+    
+  // Set up the browser capabilities.
+  // Some lines could be condensed into one-liners if that's your preferred style.
+  var browserCapabilities = browserName === 'chrome'
+    ? webdriver.Capabilities.chrome()
+    : webdriver.Capabilities.firefox();
+  browserCapabilities = browserCapabilities.set(capabilityName, browserOptions);
+  var builder = new webdriver.Builder().forBrowser(browserName);
+  var driver = builder.withCapabilities(browserCapabilities).build();
+
+  return driver;
+}
+
+// Use sleeps to hack page-not-yet-ready issues. TODO : do better.
+export function sleep(
+  ms: number,
+  message: string,
+) {
+  if (printDebug()) {
+    log(`sleep for ${ms}ms: ${message}`);
+  }
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function gotoManageModels(
+  driver: any,
+) {
+  const btnMms = await driver.findElements(webdriver.By.id(
+    'btn-Manage models',
+  ));
+  // log(`btnMms.length = ${btnMms.length}`);
+  expect(btnMms.length === 1).toBe(true);
+  await btnMms[0].click();
+  await sleep(shortSleep, '--- after browser shows models');
+}
+
+export async function selectModel(
+  driver: any,
+  testDataModelName: string,
+) {
+  await gotoManageModels(driver);
+
+  const btnData = await driver.findElements(
+    webdriver.By.id(`btn-${testDataModelName}`),
+  );
+  if (btnData[0] !== undefined) {
+    await btnData[0].click();
+  } else {
+    log('BUG : can\'t see model in model list');
+    await sleep(10000, 'BUG : can\'t see model in model list? lengthen dBSleep?');
+  }
+}
+export async function beforeAllWork(
+  driver: any,
+  testDataModelName: string,
+  model: IDbModelData,
+) {
+  jest.setTimeout(60000); // allow time for all these tests to run
+  await deleteAllData(testDataModelName);
+  await ensureDbTables(testDataModelName);
+  await submitIDbModel(model, testDataModelName);
+  await sleep(
+    1000, // was dBSleep
+    `--- after submit model ${testDataModelName} to DB`,
+  );
+
+  await driver.get('about:blank');
+  await driver.get(serverUri);
+  await sleep(
+    2500, // was calcSleep twice
+    '--- after browser loads URI',
+  );
+
+  await gotoManageModels(driver);
+  await selectModel(driver, testDataModelName);
+  await sleep(calcSleep, '--- after model selected');
+}
+
+export async function cleanUpWork(
+  driver: any,
+  testDataModelName: string,
+) {
+  await gotoManageModels(driver);
+
+  return new Promise(async (resolve) => {
+    // log(`in clean up model`);
+    // log(`go seek model_input name`);
+    // log(`seek btn-${testDataModelName}`);
+    const selectModelButton = await driver.findElement(
+      webdriver.By.id(`btn-${testDataModelName}`),
+    );
+    await selectModelButton.click();
+    // log(`model name = ${content}`);
+    // log(`go find delete model button`);
+    const btnDms = await driver.findElements(webdriver.By.id(
+      'btn-Delete model (cannot be undone)',
+    ));
+    expect(btnDms.length === 1).toBe(true);
+    // log(`got delete model button`);
+    await btnDms[0].click();
+    // log(`clicked delete model button`);
+    await sleep(shortSleep, 'after delete model is clicked');
+    const alert = driver.switchTo().alert();
+    const alertText = await alert.getText();
+    expect(alertText).toEqual(`delete all data in model ${testDataModelName} - you sure?`);
+    // log(`alertText = ${alertText}`);
+    await alert.accept();
+    // log(`accepted alert`);
+    await sleep(
+      1000, // dBSleep, e.g. 6 Get coarse view charts 03
+      'after accepting confirm dialog',
+    );
+    // log(`deleted model`);
+    resolve();
+  });
+}
+
+// click something to refresh page // hack!
+export async function refreshPage(
+  driver: any,
+  testDataModelName: string,
+) {
+  // log('in refreshPage');
+  await selectModel(driver, testDataModelName);
+  await sleep(calcSleep, 'after refreshing a page');
+}
+
+export function writeTestCode(ary: any[]) {
+  let result = '';
+  result += `expect(ary.length).toEqual(${ary.length});\n`;
+  for (let i = 0; i < ary.length; i += 1) {
+    result += `expect(ary[${i}].name).toEqual('${ary[i].name}');\n`;
+    result += `expect(ary[${i}].type).toEqual('${ary[i].type}');\n`;
+    result += `expect(ary[${i}].showInLegend).toEqual(${ary[i].showInLegend});\n`;
+    result += `expect(ary[${i}].dataPoints.length).toEqual(`
+      + `${ary[i].dataPoints.length});\n`;
+    for (let j = 0; j < ary[i].dataPoints.length; j += 1) {
+      result += `expect(ary[${i}].dataPoints[${j}].label).toEqual('`
+        + `${ary[i].dataPoints[j].label}');\n`;
+      result += `expect(ary[${i}].dataPoints[${j}].y).toEqual(`
+        + `${ary[i].dataPoints[j].y});\n`;
+      result += `expect(ary[${i}].dataPoints[${j}].ttip).toEqual('`
+        + `${ary[i].dataPoints[j].ttip}');\n`;
+    }
+  }
+
+  log(result);
+}
+
+export async function getChartData(
+  driver: any,
+  label: string,
+) {
+  // locate the asset text dump
+  const divElement = await driver.findElement(
+    webdriver.By.id(label),
+  );
+  // extract the content
+  const content = await divElement.getAttribute('value');
+  // log(`content = ${content}`);
+  // check the content matches our expectations
+  const ary = JSON.parse(content);
+  return ary;
+}
+
+export async function getAssetChartData(
+  driver: any,
+) {
+  const header = await driver.findElements(webdriver.By.id(
+    'AssetsHeader',
+  ));
+  if (header.length === 0) {
+    const btn = await driver.findElements(webdriver.By.id(
+      'btn-Assets',
+    ));
+    expect(btn.length === 1).toBe(true);
+    await btn[0].click();
+    await sleep(shortSleep, '--- after click Assets');
+    // log('switched to assets view');
+  } else {
+    // log('already in assets view');
+  }
+
+  return getChartData(driver, 'assetDataDump');
+}
+export async function getExpenseChartData(
+  driver: any,
+) {
+  const header = await driver.findElements(webdriver.By.id(
+    'ExpensesHeader',
+  ));
+  if (header.length === 0) {
+    const btn = await driver.findElements(webdriver.By.id(
+      'btn-Expenses',
+    ));
+    expect(btn.length === 1).toBe(true);
+    await btn[0].click();
+    await sleep(shortSleep, '--- after click Expenses');
+  }
+  return getChartData(driver, 'expenseDataDump');
+}
+export async function getIncomeChartData(
+  driver: any,
+) {
+  const header = await driver.findElements(webdriver.By.id(
+    'IncomesHeader',
+  ));
+  if (header.length === 0) {
+    const btn = await driver.findElements(webdriver.By.id(
+      'btn-Incomes',
+    ));
+    expect(btn.length === 1).toBe(true);
+    await btn[0].click();
+    await sleep(shortSleep, '--- after click Incomes');
+  }
+  return getChartData(driver, 'incomeDataDump');
+}
+
+export async function submitSettingChange(
+  driver: any,
+  testDataModelName: string,
+  forSubmission: IDbSetting,
+
+) {
+  await submitIDbSettings([forSubmission], testDataModelName);
+  sleep(
+    2500, // was dBSleep 6 Get coarse view charts 03
+    'after submitting a new setting',
+  ); // go to DB and back - takes longer
+  // log('go to refreshPage');
+  await refreshPage(driver, testDataModelName);
+  // log('page refreshed');
+}
