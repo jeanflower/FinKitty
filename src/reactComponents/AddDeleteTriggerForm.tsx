@@ -49,7 +49,10 @@ export function newTriggerButtonData(
 
       const element = document.getElementById(selectId);
       if (element !== null && element instanceof HTMLInputElement) {
-        element.value = defaultValue;
+        // log(`set trigger selection ${nameString}`);
+        element.value = nameString;
+      } else {
+        // log(`not setting trigger selection ${nameString}`);
       }
     },
   };

@@ -53,7 +53,7 @@ function assetOptions(
   });
   // remove optionData whose text is taxPot
   optionData = optionData.filter((od) =>
-    od.text !== taxPot
+    od.text !== taxPot,
   );
   const options = optionData.map((bd) =>
     <option

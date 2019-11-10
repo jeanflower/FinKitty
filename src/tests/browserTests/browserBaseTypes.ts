@@ -146,7 +146,6 @@ export const browserTestSettings: IDbSetting[] = [
 
 const serverUri = 'http://localhost:3000/#';
 const webdriver = require('selenium-webdriver');
-const chromeDriver = require('chromedriver');
 
 export const dBSleep = 1500; // time to round trip through DB
 export const calcSleep = 1000; // time to recalculate charts etc

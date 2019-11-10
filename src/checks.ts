@@ -271,7 +271,7 @@ export function checkTransaction(
     triggers,
   } = model;
   const assetsForChecking = assets.filter((a) =>
-    a.NAME !== taxPot
+    a.NAME !== taxPot,
   );
   if (t.NAME.length === 0) {
     return 'Transaction name needs some characters';

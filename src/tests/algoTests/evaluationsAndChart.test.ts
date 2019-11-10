@@ -57,11 +57,9 @@ import {
 } from '../../types/interfaces';
 import { IEvaluation } from '../../types/interfaces';
 import {
-  getSettings,
   log,
   printDebug,
   setSetting,
-  showObj,
   suppressLogs,
   unSuppressLogs,
   // showObj,
@@ -3706,7 +3704,63 @@ describe('evaluations tests', () => {
       evals,
     );
 
-    // printTestCodeForChart(result);
+    //printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(1);
+    expect(result.expensesData[0].item.NAME).toBe('Food');
+    {
+    const chartPts = result.expensesData[0].chartDataPoints;
+    expect(chartPts.length).toBe(7);
+    expectChartData(chartPts, 0, 'Thu Mar 15 2018', 0,    -1);
+    expectChartData(chartPts, 1, 'Sun Apr 15 2018', 140,    -1);
+    expectChartData(chartPts, 2, 'Tue May 15 2018', 140,    -1);
+    expectChartData(chartPts, 3, 'Fri Jun 15 2018', 0,    -1);
+    expectChartData(chartPts, 4, 'Sun Jul 15 2018', 0,    -1);
+    expectChartData(chartPts, 5, 'Wed Aug 15 2018', 0,    -1);
+    expectChartData(chartPts, 6, 'Sat Sep 15 2018', 0,    -1);
+    }
+    
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(3);
+    expect(result.assetData[0].item.NAME).toBe('Stf1');
+    {
+    const chartPts = result.assetData[0].chartDataPoints;
+    expect(chartPts.length).toBe(7);
+    expectChartData(chartPts, 0, 'Thu Mar 15 2018', 151,    -1);
+    expectChartData(chartPts, 1, 'Sun Apr 15 2018', 151,    -1);
+    expectChartData(chartPts, 2, 'Tue May 15 2018', 51,    -1);
+    expectChartData(chartPts, 3, 'Fri Jun 15 2018', 0,    -1);
+    expectChartData(chartPts, 4, 'Sun Jul 15 2018', 0,    -1);
+    expectChartData(chartPts, 5, 'Wed Aug 15 2018', 0,    -1);
+    expectChartData(chartPts, 6, 'Sat Sep 15 2018', 0,    -1);
+    }
+    
+    expect(result.assetData[1].item.NAME).toBe('Stf2');
+    {
+    const chartPts = result.assetData[1].chartDataPoints;
+    expect(chartPts.length).toBe(7);
+    expectChartData(chartPts, 0, 'Thu Mar 15 2018', 152,    -1);
+    expectChartData(chartPts, 1, 'Sun Apr 15 2018', 152,    -1);
+    expectChartData(chartPts, 2, 'Tue May 15 2018', 117,    -1);
+    expectChartData(chartPts, 3, 'Fri Jun 15 2018', 28,    -1);
+    expectChartData(chartPts, 4, 'Sun Jul 15 2018', 28,    -1);
+    expectChartData(chartPts, 5, 'Wed Aug 15 2018', 28,    -1);
+    expectChartData(chartPts, 6, 'Sat Sep 15 2018', 28,    -1);
+    }
+    
+    expect(result.assetData[2].item.NAME).toBe('Cash');
+    {
+    const chartPts = result.assetData[2].chartDataPoints;
+    expect(chartPts.length).toBe(7);
+    expectChartData(chartPts, 0, 'Thu Mar 15 2018', 5,    -1);
+    expectChartData(chartPts, 1, 'Sun Apr 15 2018', -135,    -1);
+    expectChartData(chartPts, 2, 'Tue May 15 2018', -140,    -1);
+    expectChartData(chartPts, 3, 'Fri Jun 15 2018', 0,    -1);
+    expectChartData(chartPts, 4, 'Sun Jul 15 2018', 0,    -1);
+    expectChartData(chartPts, 5, 'Wed Aug 15 2018', 0,    -1);
+    expectChartData(chartPts, 6, 'Sat Sep 15 2018', 0,    -1);
+    }
+
     done();
   });
 
@@ -6284,6 +6338,36 @@ describe('evaluations tests', () => {
 
     // printTestCodeForChart(result);
 
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(1);
+    expect(result.incomesData[0].item.NAME).toBe('java');
+    {
+    const chartPts = result.incomesData[0].chartDataPoints;
+    expect(chartPts.length).toBe(3);
+    expectChartData(chartPts, 0, 'Thu Mar 01 2018', 0,    -1);
+    expectChartData(chartPts, 1, 'Sun Apr 01 2018', 30000,    -1);
+    expectChartData(chartPts, 2, 'Tue May 01 2018', 0,    -1);
+    }
+    
+    expect(result.assetData.length).toBe(2);
+    expect(result.assetData[0].item.NAME).toBe('Cash');
+    {
+    const chartPts = result.assetData[0].chartDataPoints;
+    expect(chartPts.length).toBe(3);
+    expectChartData(chartPts, 0, 'Thu Mar 01 2018', 0,    -1);
+    expectChartData(chartPts, 1, 'Sun Apr 01 2018', 28500,    -1);
+    expectChartData(chartPts, 2, 'Tue May 01 2018', 22435.36, 2);
+    }
+    
+    expect(result.assetData[1].item.NAME).toBe('Pnsh');
+    {
+    const chartPts = result.assetData[1].chartDataPoints;
+    expect(chartPts.length).toBe(3);
+    expectChartData(chartPts, 0, 'Thu Mar 01 2018', 0,    -1);
+    expectChartData(chartPts, 1, 'Sun Apr 01 2018', 1500,    -1);
+    expectChartData(chartPts, 2, 'Tue May 01 2018', 1500,    -1);
+    }
+    
     done();
   });
 
@@ -8570,7 +8654,6 @@ describe('evaluations tests', () => {
     for (const key of settingsKeys) {
       const modelAndRoi = getModelCrystallizedPension();
       const model = modelAndRoi.model;
-      const roi = modelAndRoi.roi;
 
       setSetting(model.settings, key, 'nonsense');
 
