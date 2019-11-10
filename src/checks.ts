@@ -30,6 +30,7 @@ import {
   singleAssetName,
   viewDetail,
   viewFrequency,
+  taxPot,
 } from './stringConstants';
 import {
   IDbAsset,
@@ -73,7 +74,7 @@ function checkTransactionWords(
     // the word is an income
     // this only happens for transactions called Pension*
     if (!name.startsWith(pension)) {
-      log(`BUG : transaction ${name} from income
+      log(`Transaction ${name} from income
         ${word} must be pension-related`);
       return false;
     }
@@ -269,6 +270,9 @@ export function checkTransaction(
     expenses,
     triggers,
   } = model;
+  const assetsForChecking = assets.filter((a) =>
+    a.NAME !== taxPot
+  );
   if (t.NAME.length === 0) {
     return 'Transaction name needs some characters';
   }
@@ -283,7 +287,7 @@ export function checkTransaction(
       t.TRANSACTION_FROM,
       t.TRANSACTION_DATE,
       triggers,
-      assets,
+      assetsForChecking,
       incomes,
     )) {
       // log(`split up t.TRANSACTION_FROM ${t.TRANSACTION_FROM}`);
@@ -298,12 +302,12 @@ export function checkTransaction(
           word,
           t.TRANSACTION_DATE,
           triggers,
-          assets,
+          assetsForChecking,
           incomes,
         )) {
           // flag a problem
-          return 'BUG transaction from non existant asset (could '
-            + `be before start date) : ${showObj(word)}`;
+          return 'Transaction from unrecognised asset (could '
+            + `be typo or before asset start date?) : ${showObj(word)}`;
         }
       }
     }
@@ -314,7 +318,7 @@ export function checkTransaction(
     }
   }
   if (t.TRANSACTION_TO !== '') {
-    const a = assets.find(as => (as.NAME === t.TRANSACTION_TO));
+    const a = assetsForChecking.find(as => (as.NAME === t.TRANSACTION_TO));
     if (a === undefined) {
       // not an asset
       // maybe the transaction is a Revalue?
@@ -325,29 +329,29 @@ export function checkTransaction(
           // revalue an expense?
           const exp = expenses.find(e => (e.NAME === t.TRANSACTION_TO));
           if (exp === undefined) {
-            return `BUG transaction to unrecognised asset : ${showObj(t)}`;
+            return `Transaction to unrecognised asset : ${t.TRANSACTION_TO}`;
           }
           // transacting on an expense - check dates
           if (getTriggerDate(exp.START, triggers)
             > getTriggerDate(t.TRANSACTION_DATE, triggers)) {
-            return `BUG transaction ${t.NAME} dated before start `
-              + `of affected expense : ${showObj(t)}`;
+            return `Transaction ${t.NAME} dated before start `
+              + `of affected expense : ${exp.NAME}`;
           }
         } else {
           // transacting on an income - check dates
           if (getTriggerDate(i.START, triggers)
             > getTriggerDate(t.TRANSACTION_DATE, triggers)) {
-            return `BUG transaction ${t.NAME} dated before start `
-              + `of affected income : ${showObj(t)}`;
+            return `Transaction ${t.NAME} dated before start `
+              + `of affected income : ${i.NAME}`;
           }
         }
       } else {
-        return `BUG transaction to unrecognised asset : ${showObj(t)}`;
+        return `Transaction to unrecognised asset : ${t.TRANSACTION_TO}`;
       }
     } else if (getTriggerDate(a.ASSET_START, triggers)
       > getTriggerDate(t.TRANSACTION_DATE, triggers)
     ) {
-      return `BUG transaction dated before to asset : ${showObj(t)}`;
+      return `Transaction dated before to asset : ${t.TRANSACTION_TO}`;
     }
     // log(`to asset starts ${getTriggerDate(a.ASSET_START, triggers)}`);
     if (t.TRANSACTION_TO_VALUE === '') {

@@ -11,6 +11,7 @@ import {
 import Button from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
 import Input from './Input';
+import { taxPot } from '../stringConstants';
 
 interface IEditFormState {
   NAME: string;
@@ -39,7 +40,7 @@ function assetOptions(
   selectId: string,
   handleChange: any,
 ) {
-  const optionData = model.assets.map((asset) => {
+  let optionData = model.assets.map((asset) => {
     return {
       text: asset.NAME,
       action: (e: any) => {
@@ -50,6 +51,10 @@ function assetOptions(
       },
     };
   });
+  // remove optionData whose text is taxPot
+  optionData = optionData.filter((od) =>
+    od.text !== taxPot
+  );
   const options = optionData.map((bd) =>
     <option
       value={bd.text}
