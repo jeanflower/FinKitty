@@ -5,7 +5,7 @@ export const incomeTax = 'IncomeTax';
 export const nationalInsurance = 'NI';
 export const crystallizedPension = 'CrystallizedPension';
 export const cgt = 'CGT';
-
+export const sampleModel = 'SampleModel';
 export const roiEnd = 'End of view range';
 export const roiStart = 'Beginning of view range';
 export const roiStartHint = 'Date at the start of range to be plotted';

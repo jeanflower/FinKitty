@@ -119,6 +119,9 @@ export class AddDeleteTransactionForm extends Component<IEditProps, IEditFormSta
 
     this.handleDateChange = this.handleDateChange.bind(this);
     this.setDate = this.setDate.bind(this);
+    
+    this.handleStopDateChange = this.handleStopDateChange.bind(this);
+    this.setStopDate = this.setStopDate.bind(this);
 
     this.add = this.add.bind(this);
     this.delete = this.delete.bind(this);

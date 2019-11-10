@@ -99,6 +99,7 @@ import {
   viewDetail,
   viewDetailHint,
   viewFrequency,
+  sampleModel,
 } from './stringConstants';
 import {
   IChartData,
@@ -125,7 +126,7 @@ import {
 
 const CanvasJSChart = CanvasJSReact.CanvasJSChart;
 
-export let modelName: string = 'default';
+export let modelName: string = sampleModel;
 
 interface IViewType {
   lc: string;
@@ -859,7 +860,7 @@ export class App extends Component<{}, IAppState> {
       modelNames,
       async (model: string) => {
         await deleteAllTables(model);
-        await updateModelName('default');
+        await updateModelName(sampleModel);
         await refreshData();
       },
       'del',
@@ -988,7 +989,7 @@ export class App extends Component<{}, IAppState> {
                 await deleteAllTables(name);
                 if (modelName === name) {
                   // log('switch to default model');
-                  await updateModelName('default');
+                  await updateModelName(sampleModel);
                 }
                 // log(`deleted`);
                 await refreshData(); // lazy! overkill if modelName !== name

@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { log, printDebug, showObj } from '../utils';
 import Button from './Button';
 import Input from './Input';
+import { sampleModel } from '../stringConstants';
 
 interface IModelManagementFormState {
   NAME: string;
@@ -138,7 +139,7 @@ export class ModelManagementForm
     // log('deleting something ' + showObj(this));
     const response = await this.props.deleteFunction(this.state.NAME);
     if (response === true) {
-      this.setState({ NAME: 'default' });
+      this.setState({ NAME: sampleModel });
     }
   }
 }
