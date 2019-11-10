@@ -153,35 +153,35 @@ const overview: IViewType = { lc: 'Overview' };
 const helpText: Map<string, string> = new Map();
 helpText.set(
   homeView.lc,
-  'Help text for home page.',
+  'Create or load a model.',
 );
 helpText.set(
   expensesView.lc,
-  'Help text for expenses page.',
+  'Create, view or edit expenses.',
 );
 helpText.set(
   incomesView.lc,
-  'Help text for incomes page.',
+  'Create, view or edit incomes.',
 );
 helpText.set(
   transactionsView.lc,
-  'Help text for transactions page.',
+  'Create, view or edit transactions.',
 );
 helpText.set(
   assetsView.lc,
-  'Help text for assets page.',
+  'Create, view or edit assets.',
 );
 helpText.set(
   triggersView.lc,
-  'Help text for important dates page.',
+  'Create, view or update important dates.',
 );
 helpText.set(
   manageModelsView.lc,
-  'Help text for manage models page.',
+  'Create, clone, dump, delete models.',
 );
 helpText.set(
   settingsView.lc,
-  'Help text for settings page.',
+  'Settings page.',
 );
 helpText.set(
   overview.lc,

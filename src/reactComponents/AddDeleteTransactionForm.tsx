@@ -119,7 +119,7 @@ export class AddDeleteTransactionForm extends Component<IEditProps, IEditFormSta
 
     this.handleDateChange = this.handleDateChange.bind(this);
     this.setDate = this.setDate.bind(this);
-    
+
     this.handleStopDateChange = this.handleStopDateChange.bind(this);
     this.setStopDate = this.setStopDate.bind(this);
 
@@ -213,7 +213,7 @@ export class AddDeleteTransactionForm extends Component<IEditProps, IEditFormSta
       <div className="row">
         <div className="col">
           <Input
-            title="Transaction recurrence (optional):"
+            title="Transaction recurrence, e.g. 6m, 2y (optional):"
             inputtype="text"
             name="recurrence"
             value={this.state.TRANSACTION_RECURRENCE}
@@ -238,7 +238,7 @@ export class AddDeleteTransactionForm extends Component<IEditProps, IEditFormSta
       <div className="row">
         <div className="col">
           <Input
-            title="Category for view (optional):"
+            title="Category (optional):"
             inputtype="text"
             name="category"
             value={this.state.CATEGORY}

@@ -142,7 +142,7 @@ export class AddDeleteIncomeForm extends Component<IEditProps, IEditFormState> {
       <div className="row">
         <div className="col">
           <Input
-            title="Annual growth (excluding inflation):"
+            title="Annual growth percentage (excluding inflation):"
             inputtype="text"
             name="growth"
             value={this.state.GROWTH}
@@ -174,7 +174,7 @@ export class AddDeleteIncomeForm extends Component<IEditProps, IEditFormState> {
         </div> {/* end col */}
         <div className="col">
           <Input
-            title="Category for view (optional):"
+            title="Category (optional):"
             inputtype="text"
             name="category"
             value={this.state.CATEGORY}
