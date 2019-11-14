@@ -15,12 +15,13 @@ export const cpi = 'cpi';
 export const cpiHint = 'Annual rate of inflation';
 
 export const viewDetail = 'View detail';
-export const viewDetailHint = 'View detail (\'Categorised view\' or \'Detailed view\')';
+export const viewDetailHint =
+  "View detail ('Categorised view' or 'Detailed view')";
 export const coarse = 'Categorised view';
 export const fine = 'Detailed view';
 
 export const viewFrequency = 'View frequency';
-export const viewFrequencyHint = 'Data plotted \'monthly\' or \'annually\'';
+export const viewFrequencyHint = "Data plotted 'monthly' or 'annually'";
 export const annually = 'Annually';
 export const monthly = 'Monthly';
 
@@ -28,18 +29,21 @@ export const singleAssetName = 'Asset name';
 export const singleAssetNameHint = 'Name of asset for single-asset chart';
 
 export const assetChartView = 'Type of view for single-asset chart';
-export const assetChartHint = 'Single-asset chart uses setting \'+\', \'-\', \'+-\' or \'val\'';
+export const assetChartHint =
+  "Single-asset chart uses setting '+', '-', '+-' or 'val'";
 export const assetChartVal = 'val';
 export const assetChartAdditions = '+';
 export const assetChartReductions = '-';
 export const assetChartDeltas = '+-';
 
 export const expenseChartFocus = 'Focus of expenses chart';
-export const expenseChartFocusHint = 'Expenses chart can display a category, a single expense, or \'All\'';
+export const expenseChartFocusHint =
+  "Expenses chart can display a category, a single expense, or 'All'";
 export const expenseChartFocusAll = 'All';
 
 export const incomeChartFocus = 'Focus of incomes chart';
-export const incomeChartFocusHint = 'Incomes chart can display a category, a single income, or \'All\'';
+export const incomeChartFocusHint =
+  "Incomes chart can display a category, a single income, or 'All'";
 export const incomeChartFocusAll = 'All';
 
 export const conditional = 'Conditional';

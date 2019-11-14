@@ -1,27 +1,23 @@
 import React, { Component } from 'react';
 
-import { IDbModelData, IDbTrigger } from '../types/interfaces';
+import { DbModelData, DbTrigger } from '../types/interfaces';
 import { log, printDebug, showObj } from '../utils';
 import Button from './Button';
 import Input from './Input';
 
-interface IEditFormState {
+interface EditFormState {
   NAME: string;
   TRIGGER_DATE: string;
 }
-interface IEditProps {
+interface EditProps {
   checkFunction: any;
   submitFunction: any;
   deleteFunction: any;
   showTriggerTable: any;
-  model: IDbModelData;
+  model: DbModelData;
 }
 
-export function newTriggerButtonData(
-  submitTrigger: any,
-  selectId: string,
-  defaultValue: string,
-) {
+export function newTriggerButtonData(submitTrigger: any, selectId: string) {
   return {
     text: 'Make new important date',
     action: async (e: any) => {
@@ -57,10 +53,10 @@ export function newTriggerButtonData(
     },
   };
 }
-export class AddDeleteTriggerForm extends Component<IEditProps, IEditFormState> {
-  public defaultState: IEditFormState;
+export class AddDeleteTriggerForm extends Component<EditProps, EditFormState> {
+  public defaultState: EditFormState;
 
-  constructor(props: IEditProps) {
+  constructor(props: EditProps) {
     super(props);
     if (printDebug()) {
       log(`props for AddDeleteIncomeForm has
@@ -81,8 +77,7 @@ export class AddDeleteTriggerForm extends Component<IEditProps, IEditFormState> 
 
   public render() {
     return (
-      <form className="container-fluid"
-        onSubmit={this.add}>
+      <form className="container-fluid" onSubmit={this.add}>
         Name:
         <Input
           inputtype={'text'}
@@ -102,7 +97,9 @@ export class AddDeleteTriggerForm extends Component<IEditProps, IEditFormState> 
         <Button
           action={this.add}
           type={'primary'}
-          title={'Create new important date (over-writes any existing with the same name)'}
+          title={
+            'Create new important date (over-writes any existing with the same name)'
+          }
           id="addTrigger"
         />{' '}
         <Button
@@ -128,7 +125,7 @@ export class AddDeleteTriggerForm extends Component<IEditProps, IEditFormState> 
     e.preventDefault();
 
     // log('adding something ' + showObj(this));
-    const trigger: IDbTrigger = {
+    const trigger: DbTrigger = {
       NAME: this.state.NAME,
       TRIGGER_DATE: new Date(this.state.TRIGGER_DATE),
     };
@@ -136,7 +133,7 @@ export class AddDeleteTriggerForm extends Component<IEditProps, IEditFormState> 
     if (message.length > 0) {
       alert(message);
     } else {
-      await this.props.submitFunction( trigger );
+      await this.props.submitFunction(trigger);
       // alert('added new important date');
       this.props.showTriggerTable();
       // clear fields

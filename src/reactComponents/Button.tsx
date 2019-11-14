@@ -1,15 +1,13 @@
-/* eslint-disable */
-import { prependOnceListener } from 'cluster';
 import React from 'react';
 
-interface IButtonProps {
+interface ButtonProps {
   type: string;
   id: string;
   action: any;
   title: string;
 }
 
-const Button = (props: IButtonProps) => {
+const Button = (props: ButtonProps) => {
   let className = '';
   if (props.type === 'primary') {
     className = 'btn btn-primary';
@@ -22,11 +20,7 @@ const Button = (props: IButtonProps) => {
     <button
       onClick={props.action}
       id={props.id} // id can be checked by selenium
-      type={
-        props.type === 'primary'
-          ? 'submit'
-          : 'button'
-      }
+      type={props.type === 'primary' ? 'submit' : 'button'}
       className={className}
     >
       {props.title}

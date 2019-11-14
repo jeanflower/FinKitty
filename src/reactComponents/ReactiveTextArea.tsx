@@ -1,15 +1,19 @@
 import React from 'react';
 // import { showObj } from '../AppLogic'
 
-interface IReactiveTextAreaProps {
+interface ReactiveTextAreaProps {
   identifier: string;
   message: string;
 }
-class ReactiveTextArea extends React.Component<IReactiveTextAreaProps, {}> {
+class ReactiveTextArea extends React.Component<ReactiveTextAreaProps, {}> {
   public render() {
     return (
-      <div style={{display: 'none'}}>
-        <textarea readOnly id={this.props.identifier} value={this.props.message} />
+      <div style={{ display: 'none' }}>
+        <textarea
+          readOnly
+          id={this.props.identifier}
+          value={this.props.message}
+        />
       </div>
     );
   }

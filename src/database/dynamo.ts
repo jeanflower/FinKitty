@@ -1,24 +1,26 @@
 import AWS from 'aws-sdk';
 import {
-  IDbAsset,
-  IDbAssetDynamo,
-  IDbExpense,
-  IDbExpenseDynamo,
-  IDbIncome,
-  IDbIncomeDynamo,
-  IDbItem,
-  IDbModelData,
-  IDbSetting,
-  IDbSettingDynamo,
-  IDbTransaction,
-  IDbTransactionDynamo,
-  IDbTrigger,
-  IDbTriggerDynamo,
+  DbAsset,
+  DbAssetDynamo,
+  DbExpense,
+  DbExpenseDynamo,
+  DbIncome,
+  DbIncomeDynamo,
+  DbItem,
+  DbModelData,
+  DbSetting,
+  DbSettingDynamo,
+  DbTransaction,
+  DbTransactionDynamo,
+  DbTrigger,
+  DbTriggerDynamo,
 } from '../types/interfaces';
 import {
   log,
-  makeBooleanFromString, makeStringFromBoolean,
-  printDebug, showObj,
+  makeBooleanFromString,
+  makeStringFromBoolean,
+  printDebug,
+  showObj,
 } from '../utils';
 
 import {
@@ -57,8 +59,14 @@ export const ASSETS_TABLE = 'ASSETS';
 export const TRANSACTIONS_TABLE = 'TRANSACTIONS';
 export const SETTINGS_TABLE = 'GLOBALS'; // e.g. cpi
 
-const tablesArray = [INCOMES_TABLE, EXPENSES_TABLE, TRIGGERS_TABLE,
-  ASSETS_TABLE, TRANSACTIONS_TABLE, SETTINGS_TABLE];
+const tablesArray = [
+  INCOMES_TABLE,
+  EXPENSES_TABLE,
+  TRIGGERS_TABLE,
+  ASSETS_TABLE,
+  TRANSACTIONS_TABLE,
+  SETTINGS_TABLE,
+];
 
 const CREATE_TABLE_ERROR = 'failed to create table';
 const NO_SUCH_TABLE_ERROR = 'unrecognised table name';
@@ -161,15 +169,16 @@ async function getModelNames(ddb: any) {
 
   // remove the "INCOMES" stub from the table name
   // to get the model name
-  let modelNames = incomeDbTables.map(
-    incomeTableName => incomeTableName.substring(stub.length),
+  let modelNames = incomeDbTables.map(incomeTableName =>
+    incomeTableName.substring(stub.length),
   );
   // log(`modelNames = ${modelNames}`);
 
   // Only allow modelNames out of we also have corresponding
   // other tables too. (NB no checks for table data consistency)
-  modelNames = modelNames.filter((incomeTable) => {
-    for (const tableStub of tablesArray) { /* eslint-disable-line no-restricted-syntax */
+  modelNames = modelNames.filter(incomeTable => {
+    for (const tableStub of tablesArray) {
+      /* eslint-disable-line no-restricted-syntax */
       if (tableStub !== stub) {
         if (dBTableNames.indexOf(tableStub + incomeTable) === -1) {
           return false; // not a model name (missing table)
@@ -204,7 +213,7 @@ async function debugSyncs(message: string) {
     log(`.... waiting after ${message}`);
   }
   if (doSleep) {
-    await (sleep(50));
+    await sleep(50);
   }
   if (printDebug()) {
     log(`done waiting after ${message}`);
@@ -226,7 +235,9 @@ async function createTable(ddb: any, tableName: string) {
     await new Promise((resolve, reject) => {
       ddb.createTable(params, (err: any, data: any) => {
         if (err) {
-          log(`error from createTable : ${showObj(params)}, ${err}${err.stack}`);
+          log(
+            `error from createTable : ${showObj(params)}, ${err}${err.stack}`,
+          );
           reject(err);
         } else {
           resolve(data);
@@ -293,14 +304,16 @@ async function putItem(ddb: any, params: any) {
 async function submitDBSetting(
   ddb: any,
   modelName: string,
-  item: IDbSettingDynamo,
+  item: DbSettingDynamo,
 ) {
   if (printDebug()) {
     log(`item is ${showObj(item)}`);
   }
 
-  if (isEmptyData(item.NAME.S, 'item name')
-    || isEmptyData(item.VALUE.S, 'item value')) {
+  if (
+    isEmptyData(item.NAME.S, 'item name') ||
+    isEmptyData(item.VALUE.S, 'item value')
+  ) {
     return;
   }
 
@@ -311,22 +324,19 @@ async function submitDBSetting(
   await putItem(ddb, params);
 }
 
-async function submitAsset(
-  ddb: any,
-  modelName: string,
-  asset: IDbAssetDynamo,
-) {
+async function submitAsset(ddb: any, modelName: string, asset: DbAssetDynamo) {
   if (printDebug()) {
     log(`asset is ${showObj(asset)}`);
   }
 
-  if (isEmptyData(asset.NAME.S, 'asset name')
-    || isEmptyData(asset.ASSET_START.S, 'asset start')
-    || isEmptyData(asset.ASSET_VALUE.N, 'asset value')
-    || isEmptyData(asset.ASSET_GROWTH.S, 'asset growth')
-    || isEmptyData(asset.ASSET_LIABILITY.S, 'asset liability')
-    || isEmptyData(asset.CATEGORY.S, 'category')
-    || isEmptyData(asset.ASSET_PURCHASE_PRICE.N, 'asset purchase price')
+  if (
+    isEmptyData(asset.NAME.S, 'asset name') ||
+    isEmptyData(asset.ASSET_START.S, 'asset start') ||
+    isEmptyData(asset.ASSET_VALUE.N, 'asset value') ||
+    isEmptyData(asset.ASSET_GROWTH.S, 'asset growth') ||
+    isEmptyData(asset.ASSET_LIABILITY.S, 'asset liability') ||
+    isEmptyData(asset.CATEGORY.S, 'category') ||
+    isEmptyData(asset.ASSET_PURCHASE_PRICE.N, 'asset purchase price')
   ) {
     return;
   }
@@ -342,109 +352,65 @@ async function addRequiredSettings(ddb: any, tableName: string): Promise<any> {
   const modelName = tableName.substring(SETTINGS_TABLE.length);
   // log(`modelName is ${modelName}`);
   await Promise.all([
-    submitDBSetting(
-      ddb,
-      modelName,
-      {
-        NAME: { S: cpi },
-        VALUE: { S: '2.5' },
-        HINT: { S: cpiHint },
-      },
-    ),
-    submitDBSetting(
-      ddb,
-      modelName,
-      {
-        NAME: { S: assetChartView },
-        VALUE: { S: assetChartVal },
-        HINT: { S: assetChartHint },
-      },
-    ),
-    submitDBSetting(
-      ddb,
-      modelName,
-      {
-        NAME: { S: viewFrequency },
-        VALUE: { S: monthly },
-        HINT: { S: viewFrequencyHint },
-      },
-    ),
-    submitDBSetting(
-      ddb,
-      modelName,
-      {
-        NAME: { S: viewDetail },
-        VALUE: { S: fine },
-        HINT: { S: viewDetailHint },
-      },
-    ),
-    submitDBSetting(
-      ddb,
-      modelName,
-      {
-        NAME: { S: roiStart },
-        VALUE: { S: '1 Jan 2017' },
-        HINT: { S: roiStartHint },
-      },
-    ),
-    submitDBSetting(
-      ddb,
-      modelName,
-      {
-        NAME: { S: roiEnd },
-        VALUE: { S: '1 Jan 2020' },
-        HINT: { S: roiEndHint },
-      },
-    ),
-    submitDBSetting(
-      ddb,
-      modelName,
-      {
-        NAME: { S: singleAssetName },
-        VALUE: { S: CASH_ASSET_NAME },
-        HINT: { S: singleAssetNameHint },
-      },
-    ),
-    submitDBSetting(
-      ddb,
-      modelName,
-      {
-        NAME: { S: expenseChartFocus },
-        VALUE: { S: expenseChartFocusAll },
-        HINT: { S: expenseChartFocusHint },
-      },
-    ),
-    submitDBSetting(
-      ddb,
-      modelName,
-      {
-        NAME: { S: incomeChartFocus },
-        VALUE: { S: incomeChartFocusAll },
-        HINT: { S: incomeChartFocusHint },
-      },
-    ),
-    submitDBSetting(
-      ddb,
-      modelName,
-      {
-        NAME: { S: birthDate },
-        VALUE: { S: 'None' },
-        HINT: { S: birthDateHint },
-      },
-    ),
-    submitAsset(
-      ddb,
-      modelName,
-      {
-        NAME: { S: CASH_ASSET_NAME },
-        CATEGORY: { S: translateForDB('') },
-        ASSET_START: { S: '1 Jan 1990' },
-        ASSET_VALUE: { N: '0.0' },
-        ASSET_GROWTH: { S: '0.0' },
-        ASSET_LIABILITY: { S: translateForDB('') },
-        ASSET_PURCHASE_PRICE: { N: '0.0' },
-      },
-    ),
+    submitDBSetting(ddb, modelName, {
+      NAME: { S: cpi },
+      VALUE: { S: '2.5' },
+      HINT: { S: cpiHint },
+    }),
+    submitDBSetting(ddb, modelName, {
+      NAME: { S: assetChartView },
+      VALUE: { S: assetChartVal },
+      HINT: { S: assetChartHint },
+    }),
+    submitDBSetting(ddb, modelName, {
+      NAME: { S: viewFrequency },
+      VALUE: { S: monthly },
+      HINT: { S: viewFrequencyHint },
+    }),
+    submitDBSetting(ddb, modelName, {
+      NAME: { S: viewDetail },
+      VALUE: { S: fine },
+      HINT: { S: viewDetailHint },
+    }),
+    submitDBSetting(ddb, modelName, {
+      NAME: { S: roiStart },
+      VALUE: { S: '1 Jan 2017' },
+      HINT: { S: roiStartHint },
+    }),
+    submitDBSetting(ddb, modelName, {
+      NAME: { S: roiEnd },
+      VALUE: { S: '1 Jan 2020' },
+      HINT: { S: roiEndHint },
+    }),
+    submitDBSetting(ddb, modelName, {
+      NAME: { S: singleAssetName },
+      VALUE: { S: CASH_ASSET_NAME },
+      HINT: { S: singleAssetNameHint },
+    }),
+    submitDBSetting(ddb, modelName, {
+      NAME: { S: expenseChartFocus },
+      VALUE: { S: expenseChartFocusAll },
+      HINT: { S: expenseChartFocusHint },
+    }),
+    submitDBSetting(ddb, modelName, {
+      NAME: { S: incomeChartFocus },
+      VALUE: { S: incomeChartFocusAll },
+      HINT: { S: incomeChartFocusHint },
+    }),
+    submitDBSetting(ddb, modelName, {
+      NAME: { S: birthDate },
+      VALUE: { S: 'None' },
+      HINT: { S: birthDateHint },
+    }),
+    submitAsset(ddb, modelName, {
+      NAME: { S: CASH_ASSET_NAME },
+      CATEGORY: { S: translateForDB('') },
+      ASSET_START: { S: '1 Jan 1990' },
+      ASSET_VALUE: { N: '0.0' },
+      ASSET_GROWTH: { S: '0.0' },
+      ASSET_LIABILITY: { S: translateForDB('') },
+      ASSET_PURCHASE_PRICE: { N: '0.0' },
+    }),
   ]);
 }
 
@@ -466,9 +432,7 @@ async function ensureDbTable(ddb: any, tableName: string) {
 
 export async function ensureDbTables(modelName: string) {
   const ddb = setupDDB();
-  const results = tablesArray.map(
-    t => ensureDbTable(ddb, t + modelName),
-  );
+  const results = tablesArray.map(t => ensureDbTable(ddb, t + modelName));
   await Promise.all(results);
   await debugSyncs(`ensureDbTables completed for ${modelName}`);
 }
@@ -498,14 +462,16 @@ async function deleteItem(ddb: any, params: any) {
 async function submitTrigger(
   ddb: any,
   modelName: string,
-  trigger: IDbTriggerDynamo,
+  trigger: DbTriggerDynamo,
 ) {
   if (printDebug()) {
     log(`trigger is ${showObj(trigger)}`);
   }
 
-  if (isEmptyData(trigger.NAME.S, 'name')
-    || isEmptyData(trigger.TRIGGER_DATE.N, 'date')) {
+  if (
+    isEmptyData(trigger.NAME.S, 'name') ||
+    isEmptyData(trigger.TRIGGER_DATE.N, 'date')
+  ) {
     return;
   }
 
@@ -519,21 +485,28 @@ async function submitTrigger(
 async function submitDBTransaction(
   ddb: any,
   modelName: string,
-  transaction: IDbTransactionDynamo,
+  transaction: DbTransactionDynamo,
 ) {
   if (printDebug()) {
     log(`transaction is ${showObj(transaction)}`);
   }
 
-  if (isEmptyData(transaction.NAME.S, 'transaction name')
-    || isEmptyData(transaction.TRANSACTION_DATE.S, 'transaction date')
-    || isEmptyData(transaction.TRANSACTION_FROM.S, 'transaction from')
-    || isEmptyData(transaction.TRANSACTION_TO.S, 'transaction to')
-    || isEmptyData(transaction.TRANSACTION_FROM_VALUE.N, 'transaction from value')
-    || isEmptyData(transaction.TRANSACTION_TO_VALUE.N, 'transaction to value')
-    || isEmptyData(transaction.TRANSACTION_STOP_DATE.S, 'transaction stop date')
-    || isEmptyData(transaction.TRANSACTION_RECURRENCE.S, 'transaction recurrence')
-    || isEmptyData(transaction.CATEGORY.S, 'category')
+  if (
+    isEmptyData(transaction.NAME.S, 'transaction name') ||
+    isEmptyData(transaction.TRANSACTION_DATE.S, 'transaction date') ||
+    isEmptyData(transaction.TRANSACTION_FROM.S, 'transaction from') ||
+    isEmptyData(transaction.TRANSACTION_TO.S, 'transaction to') ||
+    isEmptyData(
+      transaction.TRANSACTION_FROM_VALUE.N,
+      'transaction from value',
+    ) ||
+    isEmptyData(transaction.TRANSACTION_TO_VALUE.N, 'transaction to value') ||
+    isEmptyData(transaction.TRANSACTION_STOP_DATE.S, 'transaction stop date') ||
+    isEmptyData(
+      transaction.TRANSACTION_RECURRENCE.S,
+      'transaction recurrence',
+    ) ||
+    isEmptyData(transaction.CATEGORY.S, 'category')
   ) {
     log(`BUG: empty fields in transaction for DB ${showObj(transaction)}`);
     return;
@@ -549,20 +522,22 @@ async function submitDBTransaction(
 async function submitExpense(
   ddb: any,
   modelName: string,
-  expense: IDbExpenseDynamo,
+  expense: DbExpenseDynamo,
 ) {
   if (printDebug()) {
     log(`expense is ${showObj(expense)}`);
   }
 
-  if (isEmptyData(expense.START.S, 'expense start')
-    || isEmptyData(expense.END.S, 'expense end')
-    || isEmptyData(expense.NAME.S, 'expense name')
-    || isEmptyData(expense.VALUE.N, 'expense value')
-    || isEmptyData(expense.VALUE_SET.S, 'expense value set')
-    || isEmptyData(expense.CATEGORY.S, 'category')
-    || isEmptyData(expense.GROWTH.N, 'expense growth')
-    || isEmptyData(expense.CPI_IMMUNE.S, 'expense immune to CPI')) {
+  if (
+    isEmptyData(expense.START.S, 'expense start') ||
+    isEmptyData(expense.END.S, 'expense end') ||
+    isEmptyData(expense.NAME.S, 'expense name') ||
+    isEmptyData(expense.VALUE.N, 'expense value') ||
+    isEmptyData(expense.VALUE_SET.S, 'expense value set') ||
+    isEmptyData(expense.CATEGORY.S, 'category') ||
+    isEmptyData(expense.GROWTH.N, 'expense growth') ||
+    isEmptyData(expense.CPI_IMMUNE.S, 'expense immune to CPI')
+  ) {
     return;
   }
 
@@ -576,21 +551,23 @@ async function submitExpense(
 async function submitIncome(
   ddb: any,
   modelName: string,
-  income: IDbIncomeDynamo,
+  income: DbIncomeDynamo,
 ) {
   if (printDebug()) {
     log(`income is ${showObj(income)}`);
   }
 
-  if (isEmptyData(income.START.S, 'income start')
-    || isEmptyData(income.END.S, 'income end')
-    || isEmptyData(income.NAME.S, 'income name')
-    || isEmptyData(income.VALUE.N, 'income value')
-    || isEmptyData(income.VALUE_SET.S, 'income value set')
-    || isEmptyData(income.GROWTH.N, 'income growth')
-    || isEmptyData(income.CATEGORY.S, 'category')
-    || isEmptyData(income.CPI_IMMUNE.S, 'income immune to CPI')
-    || isEmptyData(income.LIABILITY.S, 'income liability')) {
+  if (
+    isEmptyData(income.START.S, 'income start') ||
+    isEmptyData(income.END.S, 'income end') ||
+    isEmptyData(income.NAME.S, 'income name') ||
+    isEmptyData(income.VALUE.N, 'income value') ||
+    isEmptyData(income.VALUE_SET.S, 'income value set') ||
+    isEmptyData(income.GROWTH.N, 'income growth') ||
+    isEmptyData(income.CATEGORY.S, 'category') ||
+    isEmptyData(income.CPI_IMMUNE.S, 'income immune to CPI') ||
+    isEmptyData(income.LIABILITY.S, 'income liability')
+  ) {
     return;
   }
 
@@ -635,14 +612,14 @@ export async function deleteTransaction(name: string, modelName: string) {
 }
 
 export async function submitIDbExpenses(
-  expenseInputs: IDbExpense[],
+  expenseInputs: DbExpense[],
   modelName: string,
 ) {
   const ddb = setupDDB();
 
   await Promise.all(
-    expenseInputs.map((expenseInput) => {
-      const expenseData: IDbExpenseDynamo = {
+    expenseInputs.map(expenseInput => {
+      const expenseData: DbExpenseDynamo = {
         END: { S: expenseInput.END },
         CPI_IMMUNE: {
           S: makeStringFromBoolean(expenseInput.CPI_IMMUNE),
@@ -661,14 +638,14 @@ export async function submitIDbExpenses(
 }
 
 export async function submitIDbSettings(
-  inputs: IDbSetting[],
+  inputs: DbSetting[],
   modelName: string,
 ) {
   const ddb = setupDDB();
 
   await Promise.all(
-    inputs.map((input) => {
-      const data: IDbSettingDynamo = {
+    inputs.map(input => {
+      const data: DbSettingDynamo = {
         NAME: { S: input.NAME },
         VALUE: { S: translateForDB(input.VALUE) },
         HINT: { S: translateForDB(input.HINT) },
@@ -679,15 +656,12 @@ export async function submitIDbSettings(
   await debugSyncs(`submitIDbSettings to ${modelName}`);
 }
 
-export async function submitIDbIncomes(
-  incomes: IDbIncome[],
-  modelName: string,
-) {
+export async function submitIDbIncomes(incomes: DbIncome[], modelName: string) {
   const ddb = setupDDB();
 
   await Promise.all(
-    incomes.map((incomeInput) => {
-      const incomeData: IDbIncomeDynamo = {
+    incomes.map(incomeInput => {
+      const incomeData: DbIncomeDynamo = {
         END: { S: incomeInput.END },
         CPI_IMMUNE: { S: incomeInput.CPI_IMMUNE ? 'T' : 'F' },
         GROWTH: { N: `${incomeInput.GROWTH}` },
@@ -705,14 +679,14 @@ export async function submitIDbIncomes(
 }
 
 export async function submitIDbTriggers(
-  triggers: IDbTrigger[],
+  triggers: DbTrigger[],
   modelName: string,
 ) {
   const ddb = setupDDB();
 
   await Promise.all(
-    triggers.map((triggerInput: IDbTrigger) => {
-      const triggerData: IDbTriggerDynamo = {
+    triggers.map((triggerInput: DbTrigger) => {
+      const triggerData: DbTriggerDynamo = {
         TRIGGER_DATE: { N: `${triggerInput.TRIGGER_DATE.getTime()}` },
         NAME: { S: triggerInput.NAME },
       };
@@ -722,17 +696,14 @@ export async function submitIDbTriggers(
   await debugSyncs(`submitIDbTriggers to ${modelName}`);
 }
 
-export async function submitIDbAssets(
-  assets: IDbAsset[],
-  modelName: string,
-) {
+export async function submitIDbAssets(assets: DbAsset[], modelName: string) {
   const ddb = setupDDB();
 
   // log(`go to submit assets to ${modelName}`);
 
   await Promise.all(
-    assets.map((assetInput) => {
-      const assetData: IDbAssetDynamo = {
+    assets.map(assetInput => {
+      const assetData: DbAssetDynamo = {
         ASSET_GROWTH: { S: assetInput.ASSET_GROWTH },
         NAME: { S: assetInput.NAME },
         ASSET_START: { S: assetInput.ASSET_START }, // use triggers
@@ -749,14 +720,14 @@ export async function submitIDbAssets(
 }
 
 export async function submitIDbTransactions(
-  inputs: IDbTransaction[],
+  inputs: DbTransaction[],
   modelName: string,
 ) {
   const ddb = setupDDB();
 
   await Promise.all(
-    inputs.map((input) => {
-      const data: IDbTransactionDynamo = {
+    inputs.map(input => {
+      const data: DbTransactionDynamo = {
         TRANSACTION_DATE: { S: translateForDB(input.TRANSACTION_DATE) }, // use triggers
         TRANSACTION_FROM: { S: translateForDB(input.TRANSACTION_FROM) }, // which asset
         TRANSACTION_FROM_ABSOLUTE: {
@@ -769,8 +740,12 @@ export async function submitIDbTransactions(
           BOOL: input.TRANSACTION_TO_ABSOLUTE,
         },
         TRANSACTION_TO_VALUE: { N: `${input.TRANSACTION_TO_VALUE}` },
-        TRANSACTION_STOP_DATE: { S: translateForDB(input.TRANSACTION_STOP_DATE) }, // use triggers
-        TRANSACTION_RECURRENCE: { S: translateForDB(input.TRANSACTION_RECURRENCE) },
+        TRANSACTION_STOP_DATE: {
+          S: translateForDB(input.TRANSACTION_STOP_DATE),
+        }, // use triggers
+        TRANSACTION_RECURRENCE: {
+          S: translateForDB(input.TRANSACTION_RECURRENCE),
+        },
         CATEGORY: { S: translateForDB(input.CATEGORY) },
       };
       return submitDBTransaction(ddb, modelName, data);
@@ -779,10 +754,7 @@ export async function submitIDbTransactions(
   return debugSyncs(`submitIDbTransactions to ${modelName}`);
 }
 
-export async function submitIDbModel(
-  model: IDbModelData,
-  modelName: string,
-) {
+export async function submitIDbModel(model: DbModelData, modelName: string) {
   return Promise.all([
     submitIDbExpenses(model.expenses, modelName),
     submitIDbIncomes(model.incomes, modelName),
@@ -793,10 +765,7 @@ export async function submitIDbModel(
   ]);
 }
 
-async function getDBData(
-  ddb: any,
-  tableName: string,
-): Promise<any[]> {
+async function getDBData(ddb: any, tableName: string): Promise<any[]> {
   const params = {
     TableName: tableName,
   };
@@ -818,7 +787,7 @@ async function getDBData(
     if (printDebug()) {
       log(`from scan, got ${dbData.Items.length} data items`);
     }
-    dbData.Items.forEach((element: IDbSettingDynamo) => {
+    dbData.Items.forEach((element: DbSettingDynamo) => {
       if (printDebug()) {
         log(`db element is ${showObj(element)}`);
       }
@@ -833,16 +802,16 @@ async function getDBData(
 async function getTransactionData(
   ddb: any,
   tableName: string,
-): Promise<IDbTransaction[]> {
+): Promise<DbTransaction[]> {
   const dbItems = await getDBData(ddb, tableName);
-  const result: IDbTransaction[] = [];
-  dbItems.forEach((element: IDbTransactionDynamo) => {
+  const result: DbTransaction[] = [];
+  dbItems.forEach((element: DbTransactionDynamo) => {
     if (printDebug()) {
       log(`db element is ${showObj(element)}`);
     }
 
     // log(` element.TRANSACTION_FROM_ABSOLUTE.BOOL = ${ element.TRANSACTION_FROM_ABSOLUTE.BOOL}`)
-    const item: IDbTransaction = {
+    const item: DbTransaction = {
       NAME: element.NAME.S,
       TRANSACTION_FROM: translateFromDB(element.TRANSACTION_FROM.S),
       TRANSACTION_FROM_ABSOLUTE: element.TRANSACTION_FROM_ABSOLUTE.BOOL,
@@ -865,15 +834,15 @@ async function getTransactionData(
 async function getSettingsData(
   ddb: any,
   tableName: string,
-): Promise<IDbSetting[]> {
+): Promise<DbSetting[]> {
   const dbItems = await getDBData(ddb, tableName);
-  const result: IDbSetting[] = [];
-  dbItems.forEach((element: IDbSettingDynamo) => {
+  const result: DbSetting[] = [];
+  dbItems.forEach((element: DbSettingDynamo) => {
     if (printDebug()) {
       log(`db element is ${showObj(element)}`);
     }
 
-    const item: IDbSetting = {
+    const item: DbSetting = {
       NAME: element.NAME.S,
       VALUE: translateFromDB(element.VALUE.S),
       HINT: translateFromDB(element.HINT.S),
@@ -887,14 +856,14 @@ async function getSettingsData(
 async function getTriggerData(
   ddb: any,
   tableName: string,
-): Promise<IDbTrigger[]> {
+): Promise<DbTrigger[]> {
   const dbItems = await getDBData(ddb, tableName);
-  const result: IDbTrigger[] = [];
-  dbItems.forEach((element: IDbTriggerDynamo) => {
+  const result: DbTrigger[] = [];
+  dbItems.forEach((element: DbTriggerDynamo) => {
     if (printDebug()) {
       log(`db element is ${showObj(element)}`);
     }
-    const item: IDbTrigger = {
+    const item: DbTrigger = {
       NAME: element.NAME.S,
       TRIGGER_DATE: new Date(parseInt(element.TRIGGER_DATE.N, 10)),
     };
@@ -904,17 +873,14 @@ async function getTriggerData(
   return result;
 }
 
-async function getAssetData(
-  ddb: any,
-  tableName: string,
-): Promise<IDbAsset[]> {
+async function getAssetData(ddb: any, tableName: string): Promise<DbAsset[]> {
   const dbItems = await getDBData(ddb, tableName);
-  const result: IDbAsset[] = [];
-  dbItems.forEach((element: IDbAssetDynamo) => {
+  const result: DbAsset[] = [];
+  dbItems.forEach((element: DbAssetDynamo) => {
     if (printDebug()) {
       log(`db element is ${showObj(element)}`);
     }
-    const item: IDbAsset = {
+    const item: DbAsset = {
       NAME: element.NAME.S,
       ASSET_START: element.ASSET_START.S,
       ASSET_VALUE: element.ASSET_VALUE.N,
@@ -932,14 +898,14 @@ async function getAssetData(
 async function getExpenseData(
   ddb: any,
   tableName: string,
-): Promise<IDbExpense[]> {
+): Promise<DbExpense[]> {
   const dbItems = await getDBData(ddb, tableName);
-  const result: IDbExpense[] = [];
-  dbItems.forEach((element: IDbExpenseDynamo) => {
+  const result: DbExpense[] = [];
+  dbItems.forEach((element: DbExpenseDynamo) => {
     if (printDebug()) {
       log(`db element is ${showObj(element)}`);
     }
-    const item: IDbExpense = {
+    const item: DbExpense = {
       NAME: element.NAME.S,
       VALUE: element.VALUE.N,
       VALUE_SET: element.VALUE_SET.S,
@@ -955,17 +921,14 @@ async function getExpenseData(
   return result;
 }
 
-async function getIncomeData(
-  ddb: any,
-  tableName: string,
-): Promise<IDbIncome[]> {
+async function getIncomeData(ddb: any, tableName: string): Promise<DbIncome[]> {
   const dbItems = await getDBData(ddb, tableName);
-  const result: IDbIncome[] = [];
-  dbItems.forEach((element: IDbIncomeDynamo) => {
+  const result: DbIncome[] = [];
+  dbItems.forEach((element: DbIncomeDynamo) => {
     if (printDebug()) {
       log(`db element is ${showObj(element)}`);
     }
-    const item: IDbIncome = {
+    const item: DbIncome = {
       NAME: element.NAME.S,
       VALUE: element.VALUE.N,
       VALUE_SET: element.VALUE_SET.S,
@@ -982,12 +945,9 @@ async function getIncomeData(
   return result;
 }
 
-async function getItemData(
-  ddb: any,
-  tableName: string,
-): Promise<IDbItem[]> {
+async function getItemData(ddb: any, tableName: string): Promise<DbItem[]> {
   // log(`go get Item data from ${tableName}`);
-  let list: IDbItem[] = [];
+  let list: DbItem[] = [];
   if (tableName.startsWith(EXPENSES_TABLE)) {
     list = await getExpenseData(ddb, tableName);
   } else if (tableName.startsWith(INCOMES_TABLE)) {
@@ -1008,12 +968,12 @@ async function getItemData(
     if (a.NAME === b.NAME) {
       return 0;
     }
-    return (a.NAME <= b.NAME) ? -1 : 1;
+    return a.NAME <= b.NAME ? -1 : 1;
   });
   return list;
 }
 
-async function getDbItems(tableName: string): Promise<IDbItem[]> {
+async function getDbItems(tableName: string): Promise<DbItem[]> {
   const ddb = setupDDB();
 
   // const NUM_RETRIES = 5;
@@ -1023,7 +983,10 @@ async function getDbItems(tableName: string): Promise<IDbItem[]> {
     // we _do_ want to wait each time
     // (the linter warns that await-in-loop is a bad idea!)
     // https://eslint.org/docs/rules/no-await-in-loop
-    const result = await getItemData(ddb, tableName); /* eslint-disable-line no-await-in-loop */
+    const result = await getItemData(
+      ddb,
+      tableName,
+    ); /* eslint-disable-line no-await-in-loop */
     if (printDebug()) {
       log(`Returning item data from DB ${showObj(result)}`);
     }
@@ -1040,32 +1003,32 @@ async function getDbItems(tableName: string): Promise<IDbItem[]> {
   return [];
 }
 
-async function getDbTriggers(modelName: string): Promise<IDbTrigger[]> {
+async function getDbTriggers(modelName: string): Promise<DbTrigger[]> {
   const result: any = await getDbItems(TRIGGERS_TABLE + modelName);
   // log('got triggers '+showObj(result));
   return result;
 }
-async function getDbExpenses(modelName: string): Promise<IDbExpense[]> {
+async function getDbExpenses(modelName: string): Promise<DbExpense[]> {
   const result: any = await getDbItems(EXPENSES_TABLE + modelName);
   // log('got expenses '+showObj(result));
   return result;
 }
-async function getDbIncomes(modelName: string): Promise<IDbIncome[]> {
+async function getDbIncomes(modelName: string): Promise<DbIncome[]> {
   const result: any = await getDbItems(INCOMES_TABLE + modelName);
   // log('got incomes '+showObj(result));
   return result;
 }
-export async function getDbAssets(modelName: string): Promise<IDbAsset[]> {
+export async function getDbAssets(modelName: string): Promise<DbAsset[]> {
   const result: any = await getDbItems(ASSETS_TABLE + modelName);
   // log('got assets '+showObj(result));
   return result;
 }
-async function getDbTransactions(modelName: string): Promise<IDbTransaction[]> {
+async function getDbTransactions(modelName: string): Promise<DbTransaction[]> {
   const result: any = await getDbItems(TRANSACTIONS_TABLE + modelName);
   // log('got transactions '+showObj(result));
   return result;
 }
-async function getDbSettings(modelName: string): Promise<IDbSetting[]> {
+async function getDbSettings(modelName: string): Promise<DbSetting[]> {
   const result: any = await getDbItems(SETTINGS_TABLE + modelName);
   // log('got settings '+showObj(result));
   return result;
@@ -1092,7 +1055,7 @@ async function deleteTable(tableName: string) {
   // log(`go to delete ${tableName}`);
   const ddb = setupDDB();
 
-  if (!await tableExists(ddb, tableName)) {
+  if (!(await tableExists(ddb, tableName))) {
     // log(`!!no table to delete '${tableName}'`);
     return debugSyncs(`delete table found no ${tableName}`);
   }
@@ -1101,7 +1064,7 @@ async function deleteTable(tableName: string) {
     TableName: tableName,
   };
 
-  await ddb.deleteTable(params, (err: any/* , data: any */) => {
+  await ddb.deleteTable(params, (err: any /* , data: any */) => {
     if (err) {
       log(`Unable to delete table. Error JSON:${JSON.stringify(err, null, 2)}`);
     } else {
@@ -1114,7 +1077,7 @@ async function deleteTable(tableName: string) {
 async function clearTable(tableName: string) {
   const ddb = setupDDB();
 
-  if (!await tableExists(ddb, tableName)) {
+  if (!(await tableExists(ddb, tableName))) {
     await debugSyncs(`clearTable found absent ${tableName}`);
     // log(`!!no table to delete '${tableName}'`);
     // log(`${tableName} doesn't exist, ensure it exists`);
@@ -1128,7 +1091,7 @@ async function clearTable(tableName: string) {
     TableName: tableName,
   };
 
-  await ddb.deleteTable(params, (err: any/* , data: any */) => {
+  await ddb.deleteTable(params, (err: any /* , data: any */) => {
     if (err) {
       log(`Unable to delete table. Error JSON:${JSON.stringify(err, null, 2)}`);
     } else {
@@ -1142,32 +1105,32 @@ async function clearTable(tableName: string) {
 }
 
 export async function makeAssetsCopy(oldName: string, newName: string) {
-  const x: IDbAsset[] = await getDbAssets(oldName);
+  const x: DbAsset[] = await getDbAssets(oldName);
   await clearTable(ASSETS_TABLE + newName);
   return submitIDbAssets(x, newName);
 }
 export async function makeExpensesCopy(oldName: string, newName: string) {
-  const x: IDbExpense[] = await getDbExpenses(oldName);
+  const x: DbExpense[] = await getDbExpenses(oldName);
   await clearTable(EXPENSES_TABLE + newName);
   return submitIDbExpenses(x, newName);
 }
 export async function makeIncomesCopy(oldName: string, newName: string) {
-  const x: IDbIncome[] = await getDbIncomes(oldName);
+  const x: DbIncome[] = await getDbIncomes(oldName);
   await clearTable(INCOMES_TABLE + newName);
   return submitIDbIncomes(x, newName);
 }
 export async function makeSettingsCopy(oldName: string, newName: string) {
-  const x: IDbSetting[] = await getDbSettings(oldName);
+  const x: DbSetting[] = await getDbSettings(oldName);
   await clearTable(SETTINGS_TABLE + newName);
   return submitIDbSettings(x, newName);
 }
 export async function makeTransactionsCopy(oldName: string, newName: string) {
-  const x: IDbTransaction[] = await getDbTransactions(oldName);
+  const x: DbTransaction[] = await getDbTransactions(oldName);
   await clearTable(TRANSACTIONS_TABLE + newName);
   return submitIDbTransactions(x, newName);
 }
 export async function makeTriggersCopy(oldName: string, newName: string) {
-  const x: IDbTrigger[] = await getDbTriggers(oldName);
+  const x: DbTrigger[] = await getDbTriggers(oldName);
   await clearTable(TRIGGERS_TABLE + newName);
   return submitIDbTriggers(x, newName);
 }

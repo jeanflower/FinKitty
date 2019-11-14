@@ -1,23 +1,26 @@
 import React, { Component } from 'react';
 
-import { IDbTrigger } from '../types/interfaces';
+import { DbTrigger } from '../types/interfaces';
 import { newTriggerButtonData } from './AddDeleteTriggerForm';
 
 const welcomeString = 'Choose a date (optional)';
 
-interface ITriggerOptionListProps {
-  triggers: IDbTrigger[];
+interface TriggerOptionListProps {
+  triggers: DbTrigger[];
   handleChange: (value: string) => void;
-  submitTrigger: (trigger: IDbTrigger) => void;
+  submitTrigger: (trigger: DbTrigger) => void;
   selectId: string;
 }
-interface ITriggerOptionListState {
+interface TriggerOptionListState {
   selectedItem: string;
 }
 
-export class TriggerOptionList extends Component<ITriggerOptionListProps, ITriggerOptionListState> {
+export class TriggerOptionList extends Component<
+  TriggerOptionListProps,
+  TriggerOptionListState
+> {
   public render() {
-    const optionData = this.props.triggers.map((trigger) => {
+    const optionData = this.props.triggers.map(trigger => {
       return {
         text: trigger.NAME,
         action: (e: any) => {
@@ -28,12 +31,10 @@ export class TriggerOptionList extends Component<ITriggerOptionListProps, ITrigg
         },
       };
     });
-    optionData.push(newTriggerButtonData(
-      this.props.submitTrigger,
-      this.props.selectId,
-      welcomeString,
-    ));
-    const options = optionData.map((bd) =>
+    optionData.push(
+      newTriggerButtonData(this.props.submitTrigger, this.props.selectId),
+    );
+    const options = optionData.map(bd => (
       <option
         value={bd.text}
         id={`option-useTrigger-${bd.text}`}
@@ -41,14 +42,14 @@ export class TriggerOptionList extends Component<ITriggerOptionListProps, ITrigg
         className="text-muted"
       >
         {bd.text}
-      </option>,
-    );
+      </option>
+    ));
     return (
       <select
         className="custom-select"
         id={this.props.selectId}
-        onChange={(e) => {
-          const found = optionData.find((od) => {
+        onChange={e => {
+          const found = optionData.find(od => {
             return od.text === e.target.value;
           });
           if (found !== undefined) {
@@ -56,7 +57,7 @@ export class TriggerOptionList extends Component<ITriggerOptionListProps, ITrigg
           }
         }}
       >
-      <option>{welcomeString}</option>
+        <option>{welcomeString}</option>
         {options}
       </select>
     );

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
 import { checkIncomeLiability } from '../checks';
-import { IDbIncome, IDbModelData } from '../types/interfaces';
+import { DbIncome, DbModelData } from '../types/interfaces';
 import {
   checkTriggerDate,
   log,
@@ -13,7 +13,7 @@ import Button from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
 import Input from './Input';
 
-interface IEditFormState {
+interface EditFormState {
   NAME: string;
   VALUE: string;
   VALUE_SET: string;
@@ -24,21 +24,21 @@ interface IEditFormState {
   LIABILITY: string;
   CATEGORY: string;
 }
-interface IEditProps {
+interface EditProps {
   checkFunction: any;
   submitFunction: any;
   deleteFunction: any;
   submitTrigger: any;
-  model: IDbModelData;
+  model: DbModelData;
 }
-export class AddDeleteIncomeForm extends Component<IEditProps, IEditFormState> {
-  public defaultState: IEditFormState;
+export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
+  public defaultState: EditFormState;
 
   private valueSetSelectID = 'valueSetSelect';
   private incomeStartSelectID = 'incomeStartSelect';
   private incomeEndSelectID = 'incomeEndSelect';
 
-  constructor(props: IEditProps) {
+  constructor(props: EditProps) {
     super(props);
     if (printDebug()) {
       log(`props for AddDeleteIncomeForm has
@@ -79,122 +79,130 @@ export class AddDeleteIncomeForm extends Component<IEditProps, IEditFormState> {
   public render() {
     // log('rendering an AddDeleteIncomeForm');
     return (
-      <form
-        className="container-fluid"
-        onSubmit={this.add}
-      >
-      <div className="row">
-        <div className="col">
-          <Input
-            title="Income name:"
-            inputtype="text"
-            name="name"
-            value={this.state.NAME}
-            placeholder="Enter name"
-            handlechange={this.handleNameChange}
-          />
-        </div> {/* end col */}
-        <div className="col">
-          <Input
-            title="Income value (amount per month):"
-            inputtype="text"
-            name="value"
-            value={this.state.VALUE}
-            placeholder="Enter value"
-            handlechange={this.handleValueChange}
-          />
-        </div> {/* end col */}
-      </div>{/* end row */}
+      <form className="container-fluid" onSubmit={this.add}>
+        <div className="row">
+          <div className="col">
+            <Input
+              title="Income name:"
+              inputtype="text"
+              name="name"
+              value={this.state.NAME}
+              placeholder="Enter name"
+              handlechange={this.handleNameChange}
+            />
+          </div>{' '}
+          {/* end col */}
+          <div className="col">
+            <Input
+              title="Income value (amount per month):"
+              inputtype="text"
+              name="value"
+              value={this.state.VALUE}
+              placeholder="Enter value"
+              handlechange={this.handleValueChange}
+            />
+          </div>{' '}
+          {/* end col */}
+        </div>
+        {/* end row */}
 
-      <div className="container-fluid">
-        {/* fills width */}
-        <DateSelectionRow
-          introLabel="Date on which the income value is set:"
-          setDateFunction={this.setValueSet}
-          selectID={this.valueSetSelectID}
-          inputName="income valuation date"
-          inputValue={this.state.VALUE_SET}
-          onChangeHandler={this.handleValueSetChange}
-          triggers={this.props.model.triggers}
-          submitTrigger={this.props.submitTrigger}
+        <div className="container-fluid">
+          {/* fills width */}
+          <DateSelectionRow
+            introLabel="Date on which the income value is set:"
+            setDateFunction={this.setValueSet}
+            selectID={this.valueSetSelectID}
+            inputName="income valuation date"
+            inputValue={this.state.VALUE_SET}
+            onChangeHandler={this.handleValueSetChange}
+            triggers={this.props.model.triggers}
+            submitTrigger={this.props.submitTrigger}
+          />
+          <DateSelectionRow
+            introLabel="Date on which the income starts:"
+            setDateFunction={this.setStart}
+            selectID="incomeStartSelect"
+            inputName="start date"
+            inputValue={this.state.START}
+            onChangeHandler={this.handleStartChange}
+            triggers={this.props.model.triggers}
+            submitTrigger={this.props.submitTrigger}
+          />
+          <DateSelectionRow
+            introLabel="Date on which the income ends:"
+            setDateFunction={this.setEnd}
+            selectID="incomeEndSelect"
+            inputName="end date"
+            inputValue={this.state.END}
+            onChangeHandler={this.handleEndChange}
+            triggers={this.props.model.triggers}
+            submitTrigger={this.props.submitTrigger}
+          />
+        </div>
+        <div className="row">
+          <div className="col">
+            <Input
+              title="Annual growth percentage (excluding inflation):"
+              inputtype="text"
+              name="growth"
+              value={this.state.GROWTH}
+              placeholder="Enter growth"
+              handlechange={this.handleGrowthChange}
+            />
+          </div>{' '}
+          {/* end col */}
+          <div className="col">
+            <Input
+              title="Is value immune to inflation?:"
+              inputtype="text"
+              name="cpi-immune"
+              value={this.state.CPI_IMMUNE}
+              placeholder="Enter T/F"
+              handlechange={this.handleFixedChange}
+            />
+          </div>{' '}
+          {/* end col */}
+        </div>
+        {/* end row */}
+        <div className="row">
+          <div className="col">
+            <Input
+              title="Taxable liability (e.g. empty or IncomeJoe or NIJane):"
+              inputtype="text"
+              name="taxable"
+              value={this.state.LIABILITY}
+              placeholder="Enter tax liability"
+              handlechange={this.handleLiabilityChange}
+            />
+          </div>{' '}
+          {/* end col */}
+          <div className="col">
+            <Input
+              title="Category (optional):"
+              inputtype="text"
+              name="category"
+              value={this.state.CATEGORY}
+              placeholder="category"
+              handlechange={this.handleCategoryChange}
+            />
+          </div>{' '}
+          {/* end col */}
+        </div>
+        {/* end row */}
+        <Button
+          action={this.add}
+          type={'primary'}
+          title={
+            'Create new income (over-writes any existing with the same name)'
+          }
+          id="addIncome"
         />
-        <DateSelectionRow
-          introLabel="Date on which the income starts:"
-          setDateFunction={this.setStart}
-          selectID="incomeStartSelect"
-          inputName="start date"
-          inputValue={this.state.START}
-          onChangeHandler={this.handleStartChange}
-          triggers={this.props.model.triggers}
-          submitTrigger={this.props.submitTrigger}
+        <Button
+          action={this.delete}
+          type={'secondary'}
+          title={'Delete any income with this name'}
+          id="deleteIncome"
         />
-        <DateSelectionRow
-          introLabel="Date on which the income ends:"
-          setDateFunction={this.setEnd}
-          selectID="incomeEndSelect"
-          inputName="end date"
-          inputValue={this.state.END}
-          onChangeHandler={this.handleEndChange}
-          triggers={this.props.model.triggers}
-          submitTrigger={this.props.submitTrigger}
-        />
-      </div>
-      <div className="row">
-        <div className="col">
-          <Input
-            title="Annual growth percentage (excluding inflation):"
-            inputtype="text"
-            name="growth"
-            value={this.state.GROWTH}
-            placeholder="Enter growth"
-            handlechange={this.handleGrowthChange}
-          />
-        </div> {/* end col */}
-        <div className="col">
-          <Input
-            title="Is value immune to inflation?:"
-            inputtype="text"
-            name="cpi-immune"
-            value={this.state.CPI_IMMUNE}
-            placeholder="Enter T/F"
-            handlechange={this.handleFixedChange}
-          />
-        </div> {/* end col */}
-      </div>{/* end row */}
-      <div className="row">
-        <div className="col">
-          <Input
-            title="Taxable liability (e.g. empty or IncomeJoe or NIJane):"
-            inputtype="text"
-            name="taxable"
-            value={this.state.LIABILITY}
-            placeholder="Enter tax liability"
-            handlechange={this.handleLiabilityChange}
-          />
-        </div> {/* end col */}
-        <div className="col">
-          <Input
-            title="Category (optional):"
-            inputtype="text"
-            name="category"
-            value={this.state.CATEGORY}
-            placeholder="category"
-            handlechange={this.handleCategoryChange}
-          />
-        </div> {/* end col */}
-      </div>{/* end row */}
-      <Button
-        action={this.add}
-        type={'primary'}
-        title={'Create new income (over-writes any existing with the same name)'}
-        id="addIncome"
-      />
-      <Button
-        action={this.delete}
-        type={'secondary'}
-        title={'Delete any income with this name'}
-        id="deleteIncome"
-      />
       </form>
     );
   }
@@ -233,7 +241,7 @@ export class AddDeleteIncomeForm extends Component<IEditProps, IEditFormState> {
     this.resetValueSetSelect();
   }
   private setStart(value: string): void {
-    this.setState({START: value});
+    this.setState({ START: value });
   }
   private handleStartChange(e: any): void {
     const value = e.target.value;
@@ -241,7 +249,7 @@ export class AddDeleteIncomeForm extends Component<IEditProps, IEditFormState> {
     this.resetStartSelect();
   }
   private setEnd(value: string): void {
-    this.setState({END: value});
+    this.setState({ END: value });
   }
   private handleEndChange(e: any): void {
     const value = e.target.value;
@@ -298,7 +306,7 @@ export class AddDeleteIncomeForm extends Component<IEditProps, IEditFormState> {
       return;
     }
     const s = this.state.CPI_IMMUNE.toLowerCase();
-    if (!((s === 'f') || (s === 't') || (s === 'false') || (s === 'true'))) {
+    if (!(s === 'f' || s === 't' || s === 'false' || s === 'true')) {
       alert(`Fixed '${this.state.CPI_IMMUNE}' should be a True/False value`);
       return;
     }
@@ -309,7 +317,7 @@ export class AddDeleteIncomeForm extends Component<IEditProps, IEditFormState> {
     }
 
     // log('adding something ' + showObj(this));
-    const income: IDbIncome = {
+    const income: DbIncome = {
       NAME: this.state.NAME,
       VALUE: this.state.VALUE,
       VALUE_SET: this.state.VALUE_SET,
@@ -324,7 +332,7 @@ export class AddDeleteIncomeForm extends Component<IEditProps, IEditFormState> {
     if (message.length > 0) {
       alert(message);
     } else {
-      this.props.submitFunction( income );
+      this.props.submitFunction(income);
       alert('added new income');
       // clear fields
       this.setState(this.defaultState);

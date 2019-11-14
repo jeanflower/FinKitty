@@ -29,42 +29,41 @@ import {
   viewFrequency,
 } from './stringConstants';
 import {
-  IChartDataPoint,
-  IDataForView,
-  IDbItemCategory,
-  IDbModelData,
-  IDbSetting,
-  IEvaluation,
-  IInterval,
+  ChartDataPoint,
+  DataForView,
+  DbItemCategory,
+  DbModelData,
+  DbSetting,
+  Evaluation,
+  Interval,
 } from './types/interfaces';
-import {
-  getSettings,
-  log,
-  makeTwoDP,
-  printDebug,
-  showObj,
-} from './utils';
+import { getSettings, log, makeTwoDP, printDebug, showObj } from './utils';
 
-function logMapOfMap(twoMap: any, display: boolean = false) {
+function logMapOfMap(twoMap: any, display = false) {
   if (display) {
     log('twoMap:');
-    for (const [key, value] of twoMap) { /* eslint-disable-line no-restricted-syntax */
+    for (const [key, value] of twoMap) {
+      /* eslint-disable-line no-restricted-syntax */
       log(`twoMap[${key}]...`);
-      for (const [key2, value2] of value) { /* eslint-disable-line no-restricted-syntax */
+      for (const [key2, value2] of value) {
+        /* eslint-disable-line no-restricted-syntax */
         log(`twoMap[${key}][${key2}]=${value2}`);
       }
     }
   }
 }
 
-function logMapOfMapofMap(threeMap: any, display: boolean = false) {
+function logMapOfMapofMap(threeMap: any, display = false) {
   if (display) {
     log('threeMap:');
-    for (const [key, value] of threeMap) { /* eslint-disable-line no-restricted-syntax */
+    for (const [key, value] of threeMap) {
+      /* eslint-disable-line no-restricted-syntax */
       log(`threeMap[${key}]...`);
-      for (const [key2, value2] of value) { /* eslint-disable-line no-restricted-syntax */
+      for (const [key2, value2] of value) {
+        /* eslint-disable-line no-restricted-syntax */
         log(`threeMap[${key}][${key2}]...`);
-        for (const [key3, value3] of value2) { /* eslint-disable-line no-restricted-syntax */
+        for (const [key3, value3] of value2) {
+          /* eslint-disable-line no-restricted-syntax */
           log(`threeMap[${key}][${key2}][${key3}] = ${showObj(value3)}`);
         }
       }
@@ -72,10 +71,7 @@ function logMapOfMapofMap(threeMap: any, display: boolean = false) {
   }
 }
 
-function getCategoryFromItems(
-  name: string,
-  items: IDbItemCategory[],
-) {
+function getCategoryFromItems(name: string, items: DbItemCategory[]) {
   const found = items.find(i => i.NAME === name);
   if (found !== undefined) {
     if (found.CATEGORY.length > 0) {
@@ -87,33 +83,18 @@ function getCategoryFromItems(
   return undefined;
 }
 
-function getCategory(
-  name: string,
-  model: IDbModelData,
-) {
-  let category: string|undefined = getCategoryFromItems(
-    name,
-    model.incomes,
-  );
+function getCategory(name: string, model: DbModelData) {
+  let category: string | undefined = getCategoryFromItems(name, model.incomes);
   if (category === undefined) {
-    category = getCategoryFromItems(
-      name,
-      model.expenses,
-    );
+    category = getCategoryFromItems(name, model.expenses);
   }
   if (category === undefined) {
-    category = getCategoryFromItems(
-      name,
-      model.assets,
-    );
+    category = getCategoryFromItems(name, model.assets);
   }
   if (category === undefined) {
-    category = getCategoryFromItems(
-      name,
-      model.transactions,
-    );
+    category = getCategoryFromItems(name, model.transactions);
   }
-  const found = model.transactions.find((i) => {
+  const found = model.transactions.find(i => {
     const source1 = makeSourceForFromChange(i);
     if (source1 === name) {
       return true;
@@ -136,17 +117,17 @@ function makeChartDataPoints(
   dateNameValueMap: Map<string, Map<string, number>>,
   dates: Date[],
   items: string[],
-  settings: IDbSetting[],
-): Array<{ name: string; chartDataPoints: IChartDataPoint[] }> {
+  settings: DbSetting[],
+): Array<{ name: string; chartDataPoints: ChartDataPoint[] }> {
   // log(`make chart data for ${items}`);
   logMapOfMap(dateNameValueMap);
   const chartDataPointMap = new Map<
     string, // name
-    IChartDataPoint[]
+    ChartDataPoint[]
   >();
 
-  dates.forEach((date) => {
-    items.forEach((item) => {
+  dates.forEach(date => {
+    items.forEach(item => {
       const dateString = date.toDateString();
       let value = 0.0;
       // log(`get data from map for date ${dateString}`);
@@ -186,26 +167,25 @@ function makeChartDataPoints(
         } else {
           // log(`no birthDate given, dataLabel = ${dataLabel}`);
         }
-        chartArray.push(
-          {
-            label: dataLabel,
-            y: value,
-            ttip: `${parseFloat(twoDPstring).toFixed(2)} at ${dateString}`,
-          },
-        );
+        chartArray.push({
+          label: dataLabel,
+          y: value,
+          ttip: `${parseFloat(twoDPstring).toFixed(2)} at ${dateString}`,
+        });
       }
     });
   });
   const result = [];
-  for (const [item, array] of chartDataPointMap) { /* eslint-disable-line no-restricted-syntax */
+  for (const [item, array] of chartDataPointMap) {
+    /* eslint-disable-line no-restricted-syntax */
     result.push({ name: item, chartDataPoints: array });
   }
 
   if (printDebug()) {
-    result.forEach((entry) => {
+    result.forEach(entry => {
       log(
-        `item ${showObj(entry.name)} has chart points `
-        + `${showObj(entry.chartDataPoints)}`,
+        `item ${showObj(entry.name)} has chart points ` +
+          `${showObj(entry.chartDataPoints)}`,
       );
     });
   }
@@ -222,12 +202,12 @@ function assignCategories(
   >,
   allDates: Date[],
   items: string[],
-  model: IDbModelData,
+  model: DbModelData,
 ) {
   const categoryNames = new Set<string>();
   const mapForChart = new Map<string, Map<string, number>>();
-  allDates.forEach((date) => {
-    items.forEach((item) => {
+  allDates.forEach(date => {
+    items.forEach(item => {
       const d = date.toDateString();
 
       const NVM = dateNameValueMap.get(d);
@@ -275,14 +255,14 @@ function filterItems(
   >,
   allDates: Date[],
   names: string[],
-  model: IDbModelData,
+  model: DbModelData,
   focus: string,
 ) {
   // log(`filter items by ${focus}`);
   const categoryNames = new Set<string>();
   const mapForChart = new Map<string, Map<string, number>>();
-  allDates.forEach((date) => {
-    names.forEach((item) => {
+  allDates.forEach(date => {
+    names.forEach(item => {
       const d = date.toDateString();
 
       const NVM = dateNameValueMap.get(d);
@@ -350,9 +330,9 @@ function checkDateValueMapsExist(
 }
 
 export function makeChartDataFromEvaluations(
-  roi: IInterval,
-  model: IDbModelData,
-  evaluations: IEvaluation[],
+  roi: Interval,
+  model: DbModelData,
+  evaluations: Evaluation[],
 ) {
   const expenseFocus: string = getSettings(
     model.settings,
@@ -364,21 +344,9 @@ export function makeChartDataFromEvaluations(
     incomeChartFocus,
     incomeChartFocusAll,
   );
-  const assetName = getSettings(
-    model.settings,
-    singleAssetName,
-    allAssets,
-  );
-  const detail: string = getSettings(
-    model.settings,
-    viewDetail,
-    fine,
-  );
-  const frequency: string = getSettings(
-    model.settings,
-    viewFrequency,
-    monthly,
-  );
+  const assetName = getSettings(model.settings, singleAssetName, allAssets);
+  const detail: string = getSettings(model.settings, viewDetail, fine);
+  const frequency: string = getSettings(model.settings, viewFrequency, monthly);
   const assetChartSetting: string = getSettings(
     model.settings,
     assetChartView,
@@ -387,7 +355,7 @@ export function makeChartDataFromEvaluations(
 
   // log(`assetName = ${assetName}`);
 
-  const result: IDataForView = {
+  const result: DataForView = {
     expensesData: [],
     incomesData: [],
     assetData: [],
@@ -398,13 +366,13 @@ export function makeChartDataFromEvaluations(
   // so we can draw that data into the chart view
   // for expense/income/asset
   const nameToTypeMap = new Map<string, string>();
-  model.expenses.forEach((expense) => {
+  model.expenses.forEach(expense => {
     nameToTypeMap.set(expense.NAME, evaluationType.expense);
   });
-  model.incomes.forEach((income) => {
+  model.incomes.forEach(income => {
     nameToTypeMap.set(income.NAME, evaluationType.income);
   });
-  model.assets.forEach((asset) => {
+  model.assets.forEach(asset => {
     nameToTypeMap.set(asset.NAME, evaluationType.asset);
   });
   nameToTypeMap.set(taxPot, evaluationType.asset);
@@ -418,11 +386,7 @@ export function makeChartDataFromEvaluations(
   } else {
     freqString = '1y';
   }
-  const allDates: Date[] = generateSequenceOfDates(
-    roi,
-    freqString,
-    addPreDate,
-  );
+  const allDates: Date[] = generateSequenceOfDates(roi, freqString, addPreDate);
   // log(`dates for chart = ${showObj(allDates)}`);
   // type, date, name, value
   const typeDateNameValueMap = new Map<
@@ -455,10 +419,8 @@ export function makeChartDataFromEvaluations(
   const prevEvalAssetValue = new Map<string, number>();
   // prev is used to calc + or -
 
-  evaluations.forEach((evaln) => {
-    const firstDateAfterEvaln = allDates.find(
-      d => d >= evaln.date,
-    );
+  evaluations.forEach(evaln => {
+    const firstDateAfterEvaln = allDates.find(d => d >= evaln.date);
     if (firstDateAfterEvaln === undefined) {
       // no need to capture data from this evaluation
       // it's after all our dates for the chart
@@ -468,14 +430,17 @@ export function makeChartDataFromEvaluations(
     // is present in the typeDateNameValueMap
     const evalnType = nameToTypeMap.get(evaln.name);
     if (evalnType === undefined) {
-      checkEvalnType(// could print 'BUG'
+      checkEvalnType(
+        // could print 'BUG'
         evaln,
         nameToTypeMap,
       );
       return; // don't include in chart
     }
-    if (evalnType === evaluationType.income
-      || evalnType === evaluationType.expense) {
+    if (
+      evalnType === evaluationType.income ||
+      evalnType === evaluationType.expense
+    ) {
       if (evaln.source === revalue) {
         // expenses and incomes are accumulated for the chart data
         // each evaulation of an income or an expense
@@ -493,10 +458,7 @@ export function makeChartDataFromEvaluations(
     // log(`processing ${showObj(evaln)}`);
 
     // Get a map ready to hold date->Map(name->value)
-    checkDateValueMapsExist(
-      typeDateNameValueMap,
-      evalnType,
-    );
+    checkDateValueMapsExist(typeDateNameValueMap, evalnType);
     const dateNameValueMap = typeDateNameValueMap.get(evalnType);
     if (dateNameValueMap !== undefined) {
       const date = firstDateAfterEvaln.toDateString();
@@ -511,8 +473,7 @@ export function makeChartDataFromEvaluations(
         // log(`set data for ${evalnType}, ${date}, `
         //   +`${evaln.name}, ${evaln.value}, ${evaln.source}`);
         const existingValue = nameValueMap.get(evaln.name);
-        if (existingValue === undefined
-          || evalnType === evaluationType.asset) {
+        if (existingValue === undefined || evalnType === evaluationType.asset) {
           // don't show taxPot as an asset
           // (its in our data so we can show it in
           // "detailed" asset view)
@@ -531,16 +492,16 @@ export function makeChartDataFromEvaluations(
       }
     }
 
-    if (evaln.name === assetName
-      || (assetName === allAssets
-        && assetNames.indexOf(evaln.name) >= 0
-        && evaln.name !== taxPot)
-      || (getCategory(evaln.name, model) === assetName)) {
+    if (
+      evaln.name === assetName ||
+      (assetName === allAssets &&
+        assetNames.indexOf(evaln.name) >= 0 &&
+        evaln.name !== taxPot) ||
+      getCategory(evaln.name, model) === assetName
+    ) {
       // log(`Asset ${evaln.name}\t${evaln.value}\t${evaln.source}`
       //   +`\t${evaln.date.toDateString()}\t`);
-      const singleAssetDateNameValueMap = typeDateNameValueMap.get(
-        assetName,
-      );
+      const singleAssetDateNameValueMap = typeDateNameValueMap.get(assetName);
       if (singleAssetDateNameValueMap !== undefined) {
         const date = firstDateAfterEvaln.toDateString();
         if (!singleAssetDateNameValueMap.has(date)) {
@@ -584,13 +545,13 @@ export function makeChartDataFromEvaluations(
               // log(`no pre-existing delta`);
             }
             if (
-              assetChartSetting === assetChartAdditions
-              && valueForChart < 0
+              assetChartSetting === assetChartAdditions &&
+              valueForChart < 0
             ) {
               // log(`suppress -ve deltas when looking for additions`);
             } else if (
-              assetChartSetting === assetChartReductions
-              && valueForChart > 0
+              assetChartSetting === assetChartReductions &&
+              valueForChart > 0
             ) {
               // log(`suppress +ve deltas when looking for reductions`);
             } else if (valueForChart === 0) {
@@ -704,8 +665,7 @@ export function makeChartDataFromEvaluations(
     // (i.e. in the chart legend)
     // when we plot deltas, additions or reductions,
     // use the source as the item
-    if (assetNames.includes(assetName)
-     || assetChartSetting !== assetChartVal) {
+    if (assetNames.includes(assetName) || assetChartSetting !== assetChartVal) {
       items = assetValueSources;
     } else if (assetName === allAssets) {
       // when showing all assets and values,
@@ -715,9 +675,11 @@ export function makeChartDataFromEvaluations(
       items = assetValueSources;
     }
 
-    if (assetName !== allAssets
-      && !assetNames.includes(assetName)
-      && assetChartSetting === assetChartVal) {
+    if (
+      assetName !== allAssets &&
+      !assetNames.includes(assetName) &&
+      assetChartSetting === assetChartVal
+    ) {
       items = items.filter(i => assetNames.includes(i));
     }
 
@@ -729,7 +691,7 @@ export function makeChartDataFromEvaluations(
       model.settings,
     );
     // log(`done making asset points@`);
-    assetPoints.forEach((pr) => {
+    assetPoints.forEach(pr => {
       result.assetData.push({
         item: { NAME: pr.name },
         chartDataPoints: pr.chartDataPoints,
@@ -749,14 +711,16 @@ export function makeChartDataFromEvaluations(
       expenseNames,
       model.settings,
     );
-    expensePoints.forEach((pr) => {
+    expensePoints.forEach(pr => {
       result.expensesData.push({
         item: { NAME: pr.name },
         chartDataPoints: pr.chartDataPoints,
       });
     });
   }
-  const incomeDateNameValueMap = typeDateNameValueMap.get(evaluationType.income);
+  const incomeDateNameValueMap = typeDateNameValueMap.get(
+    evaluationType.income,
+  );
   if (incomeDateNameValueMap !== undefined) {
     const incomePoints = makeChartDataPoints(
       incomeDateNameValueMap,
@@ -764,7 +728,7 @@ export function makeChartDataFromEvaluations(
       incomeNames,
       model.settings,
     );
-    incomePoints.forEach((pr) => {
+    incomePoints.forEach(pr => {
       result.incomesData.push({
         item: { NAME: pr.name },
         chartDataPoints: pr.chartDataPoints,
@@ -776,16 +740,14 @@ export function makeChartDataFromEvaluations(
   return result;
 }
 
-export function makeChartData(
-  model: IDbModelData,
-): IDataForView {
+export function makeChartData(model: DbModelData): DataForView {
   // log('in makeChartData');
   const evaluations = getEvaluations(model);
   if (evaluations.length === 0) {
     // don't do more work
     // skip settings-exist checks
     // stop unnecessary error reports
-    const emptyData: IDataForView = {
+    const emptyData: DataForView = {
       expensesData: [],
       incomesData: [],
       assetData: [],
@@ -805,9 +767,5 @@ export function makeChartData(
   };
 
   // log(`roi is ${showObj(roi)}`);
-  return makeChartDataFromEvaluations(
-    roi,
-    model,
-    evaluations,
-  );
+  return makeChartDataFromEvaluations(roi, model, evaluations);
 }

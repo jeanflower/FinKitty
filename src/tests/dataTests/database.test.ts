@@ -1,11 +1,3 @@
-/* eslint-disable */
-
-import {
-  log,
-  // printDebug,
-  showObj,
-} from '../../utils';
-
 import {
   deleteAllAssets,
   deleteAllTables,
@@ -16,14 +8,12 @@ import {
 
 const modelName = 'DatabaseTestData';
 
-import { IDbAsset } from '../../types/interfaces';
-import {
-  testAssets01,
-} from './databaseTestData01';
+import { DbAsset } from '../../types/interfaces';
+import { testAssets01 } from './databaseTestData01';
 
 const sampleAssets = testAssets01;
 
-function sameAsset(a: IDbAsset, b: IDbAsset) {
+function sameAsset(a: DbAsset, b: DbAsset) {
   // log(a.NAME === b.NAME);
   // log(a.ASSET_GROWTH === b.ASSET_GROWTH);
   // log(a.ASSET_LIABILITY === b.ASSET_LIABILITY);
@@ -31,13 +21,14 @@ function sameAsset(a: IDbAsset, b: IDbAsset) {
   // log(a.ASSET_START === b.ASSET_START);
   // log(a.ASSET_VALUE === b.ASSET_VALUE);
   // log(a.CATEGORY === b.CATEGORY);
-  const result = a.NAME === b.NAME
-    && a.ASSET_GROWTH === b.ASSET_GROWTH
-    && a.ASSET_LIABILITY === b.ASSET_LIABILITY
-    && a.ASSET_PURCHASE_PRICE === b.ASSET_PURCHASE_PRICE
-    && a.ASSET_START === b.ASSET_START
-    && a.ASSET_VALUE === b.ASSET_VALUE
-    && a.CATEGORY === b.CATEGORY;
+  const result =
+    a.NAME === b.NAME &&
+    a.ASSET_GROWTH === b.ASSET_GROWTH &&
+    a.ASSET_LIABILITY === b.ASSET_LIABILITY &&
+    a.ASSET_PURCHASE_PRICE === b.ASSET_PURCHASE_PRICE &&
+    a.ASSET_START === b.ASSET_START &&
+    a.ASSET_VALUE === b.ASSET_VALUE &&
+    a.CATEGORY === b.CATEGORY;
   // log(result);
   return result;
 }
@@ -72,7 +63,7 @@ describe('database work', () => {
     // log(`sampleAssets = ${showObj(sampleAssets)}`);
 
     sampleAssets.sort((a, b) => {
-      if ( a.NAME < b.NAME ) {
+      if (a.NAME < b.NAME) {
         return -1;
       } else if (a.NAME > b.NAME) {
         return 1;
@@ -82,7 +73,7 @@ describe('database work', () => {
     });
 
     assets.sort((a, b) => {
-      if ( a.NAME < b.NAME ) {
+      if (a.NAME < b.NAME) {
         return -1;
       } else if (a.NAME > b.NAME) {
         return 1;
@@ -106,7 +97,7 @@ describe('database work', () => {
     assets = await getDbAssets(modelName);
 
     assets.sort((a, b) => {
-      if ( a.NAME < b.NAME ) {
+      if (a.NAME < b.NAME) {
         return -1;
       } else if (a.NAME > b.NAME) {
         return 1;
@@ -137,7 +128,7 @@ describe('database work', () => {
     expect(assets.length).toBe(6);
 
     assets.sort((a, b) => {
-      if ( a.NAME < b.NAME ) {
+      if (a.NAME < b.NAME) {
         return -1;
       } else if (a.NAME > b.NAME) {
         return 1;

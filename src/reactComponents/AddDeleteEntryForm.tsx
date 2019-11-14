@@ -4,15 +4,15 @@ import { log, printDebug, showObj } from '../utils';
 import Button from './Button';
 import Input from './Input';
 
-interface IEditFormState {
+interface EditFormState {
   NAME: string;
 }
-interface IEditProps {
+interface EditProps {
   submitFunction: any;
   deleteFunction: any;
 }
-export class AddDeleteEntryForm extends Component<IEditProps, IEditFormState> {
-  constructor(props: IEditProps) {
+export class AddDeleteEntryForm extends Component<EditProps, EditFormState> {
+  constructor(props: EditProps) {
     super(props);
     if (printDebug()) {
       log('props for EditForm: ' + showObj(props));
@@ -28,8 +28,7 @@ export class AddDeleteEntryForm extends Component<IEditProps, IEditFormState> {
   }
   public render() {
     return (
-      <form className="container-fluid"
-        onSubmit={this.add}>
+      <form className="container-fluid" onSubmit={this.add}>
         <Input
           inputtype={'text'}
           name={'name'}

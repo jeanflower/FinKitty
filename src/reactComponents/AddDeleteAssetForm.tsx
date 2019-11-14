@@ -1,18 +1,13 @@
 import React, { Component } from 'react';
 
 import { checkAssetLiability } from '../checks';
-import { IDbAsset, IDbModelData } from '../types/interfaces';
-import {
-  checkTriggerDate,
-  log,
-  printDebug,
-  showObj,
-} from '../utils';
+import { DbAsset, DbModelData } from '../types/interfaces';
+import { checkTriggerDate, log, printDebug, showObj } from '../utils';
 import Button from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
 import Input from './Input';
 
-interface IEditFormState {
+interface EditFormState {
   NAME: string;
   ASSET_VALUE: string;
   ASSET_START: string;
@@ -21,21 +16,21 @@ interface IEditFormState {
   ASSET_LIABILITY: string;
   CATEGORY: string;
 }
-interface IEditProps {
+interface EditProps {
   checkFunction: any;
   submitFunction: any;
   deleteFunction: any;
   submitTrigger: any;
-  model: IDbModelData;
+  model: DbModelData;
 }
-export class AddDeleteAssetForm extends Component<IEditProps, IEditFormState> {
-  public defaultState: IEditFormState;
+export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
+  public defaultState: EditFormState;
 
   private valueSetSelectID = 'valueSetSelect';
   private assetStartSelectID = 'assetStartSelect';
   private assetEndSelectID = 'assetEndSelect';
 
-  constructor(props: IEditProps) {
+  constructor(props: EditProps) {
     super(props);
     if (printDebug()) {
       log(`props for AddDeleteAssetForm has
@@ -70,102 +65,110 @@ export class AddDeleteAssetForm extends Component<IEditProps, IEditFormState> {
   public render() {
     // log('rendering an AddDeleteAssetForm');
     return (
-      <form
-        className="container-fluid"
-        onSubmit={this.add}
-      >
-      <div className="row">
-        <div className="col">
-          <Input
-            title="Asset name:"
-            inputtype="text"
-            name="name"
-            value={this.state.NAME}
-            placeholder="Enter name"
-            handlechange={this.handleNameChange}
-          />
-        </div> {/* end col */}
-        <div className="col">
-          <Input
-            title="Asset value:"
-            inputtype="text"
-            name="value"
-            value={this.state.ASSET_VALUE}
-            placeholder="Enter value"
-            handlechange={this.handleValueChange}
-          />
-        </div> {/* end col */}
-      </div>{/* end row */}
+      <form className="container-fluid" onSubmit={this.add}>
+        <div className="row">
+          <div className="col">
+            <Input
+              title="Asset name:"
+              inputtype="text"
+              name="name"
+              value={this.state.NAME}
+              placeholder="Enter name"
+              handlechange={this.handleNameChange}
+            />
+          </div>{' '}
+          {/* end col */}
+          <div className="col">
+            <Input
+              title="Asset value:"
+              inputtype="text"
+              name="value"
+              value={this.state.ASSET_VALUE}
+              placeholder="Enter value"
+              handlechange={this.handleValueChange}
+            />
+          </div>{' '}
+          {/* end col */}
+        </div>
+        {/* end row */}
 
-      <div className="container-fluid">
-        {/* fills width */}
-        <DateSelectionRow
-          introLabel="Date on which the asset starts:"
-          setDateFunction={this.setStart}
-          selectID="assetStartSelect"
-          inputName="start date"
-          inputValue={this.state.ASSET_START}
-          onChangeHandler={this.handleStartChange}
-          triggers={this.props.model.triggers}
-          submitTrigger={this.props.submitTrigger}
+        <div className="container-fluid">
+          {/* fills width */}
+          <DateSelectionRow
+            introLabel="Date on which the asset starts:"
+            setDateFunction={this.setStart}
+            selectID="assetStartSelect"
+            inputName="start date"
+            inputValue={this.state.ASSET_START}
+            onChangeHandler={this.handleStartChange}
+            triggers={this.props.model.triggers}
+            submitTrigger={this.props.submitTrigger}
+          />
+        </div>
+        <div className="row">
+          <div className="col">
+            <Input
+              title="Annual growth percentage (excluding inflation):"
+              inputtype="text"
+              name="growth"
+              value={this.state.ASSET_GROWTH}
+              placeholder="Enter growth"
+              handlechange={this.handleGrowthChange}
+            />
+          </div>{' '}
+          {/* end col */}
+          <div className="col">
+            <Input
+              title="Liability (e.g. 'CGTJoe'):"
+              inputtype="text"
+              name="liability"
+              value={this.state.ASSET_LIABILITY}
+              placeholder="Enter liability"
+              handlechange={this.handleLiabilityChange}
+            />
+          </div>{' '}
+          {/* end col */}
+        </div>
+        {/* end row */}
+        <div className="row">
+          <div className="col">
+            <Input
+              title="Category (optional):"
+              inputtype="text"
+              name="category"
+              value={this.state.CATEGORY}
+              placeholder="category"
+              handlechange={this.handleCategoryChange}
+            />
+          </div>{' '}
+          {/* end col */}
+          <div className="col">
+            <Input
+              title="Original purchase price (for CGT purposes):"
+              inputtype="text"
+              name="purchase"
+              value={this.state.ASSET_PURCHASE_PRICE}
+              placeholder="purchase"
+              handlechange={this.handlePurchasePriceChange}
+            />
+          </div>{' '}
+          {/* end col */}
+        </div>
+        {/* end row */}
+        <Button
+          action={this.add}
+          type={'primary'}
+          title={
+            'Create new asset (over-writes any existing with the same name)'
+          }
+          id="addAsset"
         />
-      </div>
-      <div className="row">
-        <div className="col">
-          <Input
-            title="Annual growth percentage (excluding inflation):"
-            inputtype="text"
-            name="growth"
-            value={this.state.ASSET_GROWTH}
-            placeholder="Enter growth"
-            handlechange={this.handleGrowthChange}
-          />
-        </div> {/* end col */}
-        <div className="col">
-          <Input
-            title="Liability (e.g. 'CGTJoe'):"
-            inputtype="text"
-            name="liability"
-            value={this.state.ASSET_LIABILITY}
-            placeholder="Enter liability"
-            handlechange={this.handleLiabilityChange}
-          />
-        </div> {/* end col */}
-      </div>{/* end row */}
-      <div className="row">
-        <div className="col">
-          <Input
-            title="Category (optional):"
-            inputtype="text"
-            name="category"
-            value={this.state.CATEGORY}
-            placeholder="category"
-            handlechange={this.handleCategoryChange}
-          />
-        </div> {/* end col */}
-        <div className="col">
-          <Input
-            title="Original purchase price (for CGT purposes):"
-            inputtype="text"
-            name="purchase"
-            value={this.state.ASSET_PURCHASE_PRICE}
-            placeholder="purchase"
-            handlechange={this.handlePurchasePriceChange}
-          />
-        </div> {/* end col */}
-      </div>{/* end row */}
-      <Button
-        action={this.add}
-        type={'primary'}
-        title={'Create new asset (over-writes any existing with the same name)'}
-        id="addAsset"
-      />
-      <Button
-        action={this.delete}
-        type={'secondary'}
-        title={'Delete any asset with this name'}
-        id="deleteAsset"
-      />
+        <Button
+          action={this.delete}
+          type={'secondary'}
+          title={'Delete any asset with this name'}
+          id="deleteAsset"
+        />
       </form>
     );
   }
@@ -195,7 +198,7 @@ export class AddDeleteAssetForm extends Component<IEditProps, IEditFormState> {
     this.setState({ ASSET_VALUE: value });
   }
   private setStart(value: string): void {
-    this.setState({ASSET_START: value});
+    this.setState({ ASSET_START: value });
   }
   private handleStartChange(e: any): void {
     const value = e.target.value;
@@ -213,10 +216,15 @@ export class AddDeleteAssetForm extends Component<IEditProps, IEditFormState> {
 
     let isNotANumber = Number.isNaN(parseFloat(this.state.ASSET_VALUE));
     if (isNotANumber) {
-      alert(`Asset value ${this.state.ASSET_VALUE} should be a numerical value`);
+      alert(
+        `Asset value ${this.state.ASSET_VALUE} should be a numerical value`,
+      );
       return;
     }
-    const date = checkTriggerDate(this.state.ASSET_START, this.props.model.triggers);
+    const date = checkTriggerDate(
+      this.state.ASSET_START,
+      this.props.model.triggers,
+    );
     const isNotADate = date === undefined;
     if (isNotADate) {
       alert(`Start date '${this.state.ASSET_START}' should be a date`);
@@ -224,7 +232,9 @@ export class AddDeleteAssetForm extends Component<IEditProps, IEditFormState> {
     }
     isNotANumber = Number.isNaN(parseFloat(this.state.ASSET_GROWTH));
     if (isNotANumber) {
-      alert(`Growth value '${this.state.ASSET_GROWTH}' should be a numerical value`);
+      alert(
+        `Growth value '${this.state.ASSET_GROWTH}' should be a numerical value`,
+      );
       return;
     }
     const liabilityMessage = checkAssetLiability(this.state.ASSET_LIABILITY);
@@ -238,7 +248,7 @@ export class AddDeleteAssetForm extends Component<IEditProps, IEditFormState> {
     }
 
     // log('adding something ' + showObj(this));
-    const asset: IDbAsset = {
+    const asset: DbAsset = {
       NAME: this.state.NAME,
       ASSET_VALUE: this.state.ASSET_VALUE,
       ASSET_START: this.state.ASSET_START,
@@ -251,7 +261,7 @@ export class AddDeleteAssetForm extends Component<IEditProps, IEditFormState> {
     if (message.length > 0) {
       alert(message);
     } else {
-      this.props.submitFunction( asset );
+      this.props.submitFunction(asset);
       alert('added new asset');
       // clear fields
       this.setState(this.defaultState);

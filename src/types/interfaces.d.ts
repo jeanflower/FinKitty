@@ -1,44 +1,44 @@
-export interface IDbItem {
+export interface DbItem {
   NAME: string;
 }
-export interface IDbItemCategory extends IDbItem {
+export interface DbItemCategory extends DbItem {
   CATEGORY: string;
 }
-export interface IDbSetting extends IDbItem {
+export interface DbSetting extends DbItem {
   VALUE: string;
   HINT: string;
 }
-export interface IDbDynamoItem {
+export interface DbDynamoItem {
   NAME: { S: string };
 }
-export interface IDbDynamoItemCategory extends IDbDynamoItem {
+export interface DbDynamoItemCategory extends DbDynamoItem {
   CATEGORY: { S: string };
 }
-export interface IDbSettingDynamo extends IDbDynamoItem {
+export interface DbSettingDynamo extends DbDynamoItem {
   VALUE: { S: string };
   HINT: { S: string };
 }
-export interface IDbTrigger extends IDbItem {
+export interface DbTrigger extends DbItem {
   TRIGGER_DATE: Date;
 }
-export interface IDbTriggerDynamo extends IDbDynamoItem {
+export interface DbTriggerDynamo extends DbDynamoItem {
   TRIGGER_DATE: { N: string };
 }
-export interface IDbAsset extends IDbItemCategory {
+export interface DbAsset extends DbItemCategory {
   ASSET_START: string;
   ASSET_VALUE: string;
   ASSET_GROWTH: string;
   ASSET_LIABILITY: string; // e.g. JoeIncome if growth accumulates as income tax liability
   ASSET_PURCHASE_PRICE: string;
 }
-export interface IDbAssetDynamo extends IDbDynamoItemCategory {
+export interface DbAssetDynamo extends DbDynamoItemCategory {
   ASSET_START: { S: string };
   ASSET_VALUE: { N: string };
   ASSET_GROWTH: { S: string };
   ASSET_LIABILITY: { S: string };
   ASSET_PURCHASE_PRICE: { N: string };
 }
-export interface IDbExpense extends IDbItemCategory {
+export interface DbExpense extends DbItemCategory {
   START: string;
   END: string;
   VALUE: string;
@@ -46,7 +46,7 @@ export interface IDbExpense extends IDbItemCategory {
   GROWTH: string;
   CPI_IMMUNE: boolean;
 }
-export interface IDbExpenseDynamo extends IDbDynamoItemCategory {
+export interface DbExpenseDynamo extends DbDynamoItemCategory {
   START: { S: string };
   END: { S: string };
   VALUE: { N: string };
@@ -54,7 +54,7 @@ export interface IDbExpenseDynamo extends IDbDynamoItemCategory {
   GROWTH: { N: string };
   CPI_IMMUNE: { S: string };
 }
-export interface IDbIncome extends IDbItemCategory {
+export interface DbIncome extends DbItemCategory {
   START: string;
   END: string;
   VALUE: string;
@@ -63,7 +63,7 @@ export interface IDbIncome extends IDbItemCategory {
   CPI_IMMUNE: boolean;
   LIABILITY: string; // e.g. "IncomeTaxJoe NIJoe"
 }
-export interface IDbIncomeDynamo extends IDbDynamoItemCategory {
+export interface DbIncomeDynamo extends DbDynamoItemCategory {
   START: { S: string };
   END: { S: string };
   VALUE: { N: string };
@@ -101,7 +101,7 @@ export interface IDbIncomeDynamo extends IDbDynamoItemCategory {
 //  to_absolute: false
 // If there's also a fixed value charge for SellHouse, we could
 // log a separate transaction.
-export interface IDbTransaction extends IDbItemCategory {
+export interface DbTransaction extends DbItemCategory {
   // NAME:
   // special starting words : Conditional, Pension, PensionSS
   // see tests for examples
@@ -115,7 +115,7 @@ export interface IDbTransaction extends IDbItemCategory {
   TRANSACTION_STOP_DATE: string; // for regular transactions
   TRANSACTION_RECURRENCE: string;
 }
-export interface IDbTransactionDynamo extends IDbDynamoItemCategory {
+export interface DbTransactionDynamo extends DbDynamoItemCategory {
   TRANSACTION_DATE: { S: string };
   TRANSACTION_FROM: { S: string }; // can be 'None' e.g. for windfalls to cash
   TRANSACTION_FROM_ABSOLUTE: { BOOL: boolean };
@@ -127,53 +127,48 @@ export interface IDbTransactionDynamo extends IDbDynamoItemCategory {
   TRANSACTION_TO_VALUE: { N: string };
 }
 
-export interface IDatedThing {
+export interface DatedThing {
   date: Date | undefined;
   name: string;
   type: string;
 }
-export interface IInterval {
+export interface Interval {
   start: Date;
   end: Date;
 }
-export interface IIntervalAndChange {
-  bucket: IInterval;
-  from_value_abs: number;
-  to_value_abs: number;
-}
-export interface IChartDataPoint {
+export interface ChartDataPoint {
   label: string;
   y: number;
   ttip: string;
 }
-export interface IChartData {
+export interface ChartData {
   type: string;
   name: string;
-  dataPoints: IChartDataPoint[];
+  dataPoints: ChartDataPoint[];
 }
-export interface IItemChartData {
-  item: IDbItem;
-  chartDataPoints: IChartDataPoint[];
-}
-
-export interface IDataForView {
-  assetData: IItemChartData[]; // for chart views
-  expensesData: IItemChartData[]; // for chart view
-  incomesData: IItemChartData[]; // for chart view
+export interface ItemChartData {
+  item: DbItem;
+  chartDataPoints: ChartDataPoint[];
 }
 
-export interface IEvaluation {
+export interface DataForView {
+  assetData: ItemChartData[]; // for chart views
+  expensesData: ItemChartData[]; // for chart view
+  incomesData: ItemChartData[]; // for chart view
+}
+
+export interface Evaluation {
   name: string; // what's being evaluated (e.g. Cash)
   date: Date;
   value: number;
   source: string; // the source of the change for this evaluation
 }
 
-export interface IDbModelData {
-  triggers: IDbTrigger[];
-  expenses: IDbExpense[];
-  incomes: IDbIncome[];
-  transactions: IDbTransaction[];
-  assets: IDbAsset[];
-  settings: IDbSetting[];
+export interface DbModelData {
+  triggers: DbTrigger[];
+  expenses: DbExpense[];
+  incomes: DbIncome[];
+  transactions: DbTransaction[];
+  assets: DbAsset[];
+  settings: DbSetting[];
 }

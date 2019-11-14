@@ -28,14 +28,15 @@ import {
   viewFrequencyHint,
 } from '../../stringConstants';
 import {
-  IDbAsset,
-  IDbExpense,
-  IDbIncome,
-  IDbSetting,
-  IDbTransaction,
-  IDbTrigger,
+  DbAsset,
+  DbExpense,
+  DbIncome,
+  DbSetting,
+  DbTransaction,
+  DbTrigger,
 } from '../../types/interfaces';
-const simpleAsset: IDbAsset = {
+
+const simpleAsset: DbAsset = {
   NAME: 'NoName',
   CATEGORY: '',
   ASSET_START: '1 Jan 2017',
@@ -44,7 +45,7 @@ const simpleAsset: IDbAsset = {
   ASSET_LIABILITY: '',
   ASSET_PURCHASE_PRICE: '0',
 };
-const simpleExpense: IDbExpense = {
+const simpleExpense: DbExpense = {
   NAME: 'NoName',
   CATEGORY: '',
   START: '1 Jan 2017',
@@ -54,7 +55,7 @@ const simpleExpense: IDbExpense = {
   CPI_IMMUNE: false,
   GROWTH: '0.0',
 };
-const simpleIncome: IDbIncome = {
+const simpleIncome: DbIncome = {
   NAME: 'NoName',
   CATEGORY: '',
   START: '1 Jan 2017',
@@ -65,7 +66,7 @@ const simpleIncome: IDbIncome = {
   GROWTH: '0',
   LIABILITY: '',
 };
-const simpleTransaction: IDbTransaction = {
+const simpleTransaction: DbTransaction = {
   NAME: 'NoName',
   TRANSACTION_FROM: '',
   TRANSACTION_FROM_ABSOLUTE: true,
@@ -79,7 +80,7 @@ const simpleTransaction: IDbTransaction = {
   CATEGORY: '',
 };
 
-export const testTriggers01: IDbTrigger[] = [
+export const testTriggers01: DbTrigger[] = [
   {
     NAME: 'TransferMortgage',
     TRIGGER_DATE: new Date('Jan 01 2028'),
@@ -94,7 +95,7 @@ export const testTriggers01: IDbTrigger[] = [
   },
 ];
 
-export const testExpenses01: IDbExpense[] = [
+export const testExpenses01: DbExpense[] = [
   {
     ...simpleExpense,
     NAME: 'Look after dogs',
@@ -127,7 +128,7 @@ export const testExpenses01: IDbExpense[] = [
   },
 ];
 
-export const testIncomes01: IDbIncome[] = [
+export const testIncomes01: DbIncome[] = [
   {
     ...simpleIncome,
     NAME: 'Main income',
@@ -158,7 +159,7 @@ export const testIncomes01: IDbIncome[] = [
   },
 ];
 
-export const testAssets01: IDbAsset[] = [
+export const testAssets01: DbAsset[] = [
   {
     ...simpleAsset,
     NAME: CASH_ASSET_NAME,
@@ -198,7 +199,7 @@ export const testAssets01: IDbAsset[] = [
   },
 ];
 
-export const testTransactions01: IDbTransaction[] = [
+export const testTransactions01: DbTransaction[] = [
   {
     ...simpleTransaction,
     NAME: 'Each month buy food',
@@ -263,7 +264,7 @@ export const testTransactions01: IDbTransaction[] = [
   },
 ];
 
-export const testSettings01: IDbSetting[] = [
+export const testSettings01: DbSetting[] = [
   {
     NAME: roiStart,
     VALUE: '1 Jan 2019',

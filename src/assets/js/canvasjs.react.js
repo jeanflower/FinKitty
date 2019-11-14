@@ -1,4 +1,4 @@
-/*eslint-disable */
+/* eslint-disable */
 var React = require('react');
 var CanvasJS = require('./canvasjs.min').default;
 

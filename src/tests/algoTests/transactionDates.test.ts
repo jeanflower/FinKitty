@@ -1,16 +1,7 @@
-/* eslint-disable */
 import { generateSequenceOfDates } from '../../evaluations';
-import {
-  monthly,
-} from '../../stringConstants';
-import { IDbAsset } from '../../types/interfaces';
-import {
-  log,
-  // printDebug,
-  showObj,
-} from '../../utils';
+import { DbAsset } from '../../types/interfaces';
 
-export const testAsset: IDbAsset = {
+export const testAsset: DbAsset = {
   NAME: 'test_asset',
   CATEGORY: '',
   ASSET_START: 'Jan 2017',

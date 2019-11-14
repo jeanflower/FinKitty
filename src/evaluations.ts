@@ -1,6 +1,4 @@
-import {
-  checkData,
-} from './checks';
+import { checkData } from './checks';
 import {
   annually,
   CASH_ASSET_NAME,
@@ -19,16 +17,16 @@ import {
   taxPot,
 } from './stringConstants';
 import {
-  IDatedThing,
-  IDbAsset,
-  IDbExpense,
-  IDbIncome,
-  IDbModelData,
-  IDbSetting,
-  IDbTransaction,
-  IDbTrigger,
-  IEvaluation,
-  IInterval,
+  DatedThing,
+  DbAsset,
+  DbExpense,
+  DbIncome,
+  DbModelData,
+  DbSetting,
+  DbTransaction,
+  DbTrigger,
+  Evaluation,
+  Interval,
 } from './types/interfaces';
 import {
   getMonthlyGrowth,
@@ -65,9 +63,9 @@ function parseRecurrenceString(recurrence: string) {
 }
 
 export function generateSequenceOfDates(
-  roi: IInterval,
-  frequency: string, /* e.g. 1m or 1y */
-  addPreDate: boolean = false,
+  roi: Interval,
+  frequency: string /* e.g. 1m or 1y */,
+  addPreDate = false,
 ): Date[] {
   const result: Date[] = [];
   const freq = parseRecurrenceString(frequency);
@@ -110,7 +108,7 @@ export function generateSequenceOfDates(
   return result;
 }
 
-export function generateTaxYearSequenceDates(roi: IInterval): Date[] {
+export function generateTaxYearSequenceDates(roi: Interval): Date[] {
   const result: Date[] = [];
 
   let numYearsAdvanced = 0;
@@ -148,10 +146,10 @@ export const momentType = {
   transaction: 'Transaction',
 };
 
-export function sortByDate(arrayOfDatedThings: IDatedThing[]) {
+export function sortByDate(arrayOfDatedThings: DatedThing[]) {
   if (printDebug()) {
     log('before date sort --------------');
-    arrayOfDatedThings.forEach((t) => {
+    arrayOfDatedThings.forEach(t => {
       log(`t.name = ${t.name}, ${t.type}, ${t.date}`);
     });
   }
@@ -188,13 +186,13 @@ export function sortByDate(arrayOfDatedThings: IDatedThing[]) {
       // dates equal, cash status matches
       // if an asset has started, that's a special case
       if (
-        a.type === momentType.assetStart
-        && b.type !== momentType.assetStart
+        a.type === momentType.assetStart &&
+        b.type !== momentType.assetStart
       ) {
         result = 1;
       } else if (
-        b.type === momentType.assetStart
-        && a.type !== momentType.assetStart
+        b.type === momentType.assetStart &&
+        a.type !== momentType.assetStart
       ) {
         result = -1;
       }
@@ -229,7 +227,7 @@ export function sortByDate(arrayOfDatedThings: IDatedThing[]) {
 
   if (printDebug()) {
     log('after date sort --------------');
-    arrayOfDatedThings.forEach((t) => {
+    arrayOfDatedThings.forEach(t => {
       log(`t.name = ${t.name}, ${t.type}, ${t.date}`);
     });
   }
@@ -243,7 +241,7 @@ export const evaluationType = {
 
 function setValue(
   values: Map<string, number>,
-  evaluations: IEvaluation[],
+  evaluations: Evaluation[],
   date: Date,
   name: string,
   newValue: number,
@@ -252,15 +250,15 @@ function setValue(
   if (printDebug()) {
     if (values.get(name) === undefined) {
       log(
-        `setting first value of ${name}, `
-        + `date = ${date.toDateString()}, `
-        + `newValue = ${newValue}`,
+        `setting first value of ${name}, ` +
+          `date = ${date.toDateString()}, ` +
+          `newValue = ${newValue}`,
       );
     } else {
       log(
-        `setting value of ${name}, `
-        + `date = ${date.toDateString()}, `
-        + `newValue = ${newValue}`,
+        `setting value of ${name}, ` +
+          `date = ${date.toDateString()}, ` +
+          `newValue = ${newValue}`,
       );
     }
   }
@@ -275,14 +273,11 @@ function setValue(
   // log(`add evaluation ${showObj(evaln)}`);
   evaluations.push(evaln);
   if (printDebug()) {
-    log(
-      `date = ${date}, `
-      + `name = ${name}, `
-      + `value = ${values.get(name)}`,
-    );
+    log(`date = ${date}, name = ${name}, value = ${values.get(name)}`);
   }
   if (printDebug()) {
-    for (const key of values.keys()) { /* eslint-disable-line no-restricted-syntax */
+    for (const key of values.keys()) {
+      /* eslint-disable-line no-restricted-syntax */
       log(`values.get(${key}) = ${values.get(key)}`);
     }
   }
@@ -300,12 +295,12 @@ function diffMonths(d1: Date, d2: Date) {
   return months <= 0 ? 0 : months;
 }
 
-interface IMoment {
+interface Moment {
   date: Date;
   name: string;
   type: string;
   setValue: number | undefined;
-  transaction: IDbTransaction | undefined;
+  transaction: DbTransaction | undefined;
 }
 
 export function getYearOfTaxYear(d: Date) {
@@ -334,7 +329,9 @@ function updateValueForCPI(
 ) {
   const numYears = dateNow.getFullYear() - dateSet.getFullYear();
   // log(`update tax bands after ${numYears} have passed at ${cpiVal} rate`)
-  const result = Math.exp(Math.log(origValue) + numYears * (Math.log(1.0 + cpiVal / 100.0)));
+  const result = Math.exp(
+    Math.log(origValue) + numYears * Math.log(1.0 + cpiVal / 100.0),
+  );
   // log(`update tax band from ${origValue} to ${result}`);
   return result;
 }
@@ -403,9 +400,10 @@ function calculateTaxPayable(income: number, d: Date, cpiVal: number) {
   //   + `${incomeInLowTaxBand} + ${incomeInHighTaxBand} + `
   //   + `${incomeInTopTaxBand}`);
 
-  taxPayable = lowTaxRate * incomeInLowTaxBand
-    + highTaxRate * incomeInHighTaxBand
-    + topTaxRate * incomeInTopTaxBand;
+  taxPayable =
+    lowTaxRate * incomeInLowTaxBand +
+    highTaxRate * incomeInHighTaxBand +
+    topTaxRate * incomeInTopTaxBand;
 
   // log(`taxPayable from income ${income} is ${taxPayable}`);
   return taxPayable;
@@ -456,8 +454,7 @@ function calculateNIPayable(income: number, d: Date, cpiVal: number) {
   // log(`${income} = ${incomeInNoNIBand} + `
   //    + `${incomeInLowNIBand} + ${incomeInHighNIBand}`);
 
-  NIPayable = lowNIRate * incomeInLowNIBand
-    + highNIRate * incomeInHighNIBand;
+  NIPayable = lowNIRate * incomeInLowNIBand + highNIRate * incomeInHighNIBand;
 
   // log(`NI = ${lowNIRate * incomeInLowNIBand} + `
   //  + `${highNIRate * incomeInHighNIBand} = ${NIPayable}`);
@@ -490,7 +487,7 @@ function adjustCash(
   amount: number,
   d: Date,
   values: Map<string, number>,
-  evaluations: IEvaluation[],
+  evaluations: Evaluation[],
   source: string, // what led to the change
 ) {
   const cashValue = values.get(CASH_ASSET_NAME);
@@ -516,7 +513,7 @@ function payIncomeTax(
   income: number,
   cpiVal: number,
   values: Map<string, number>,
-  evaluations: IEvaluation[],
+  evaluations: Evaluation[],
   source: string, // e.g. IncomeTaxJoe
 ) {
   // log(`pay income tax on ${income} for date ${startOfTaxYear}`);
@@ -525,13 +522,7 @@ function payIncomeTax(
   // log(`taxDue for ${source} on ${startOfTaxYear} = ${taxDue}`);
   if (taxDue > 0) {
     // log('in payIncomeTax, adjustCash:');
-    adjustCash(
-      -taxDue,
-      startOfTaxYear,
-      values,
-      evaluations,
-      source,
-    );
+    adjustCash(-taxDue, startOfTaxYear, values, evaluations, source);
     let taxValue = values.get(taxPot);
     if (taxValue === undefined) {
       taxValue = 0.0;
@@ -554,7 +545,7 @@ function payNI(
   income: number,
   cpiVal: number,
   values: Map<string, number>,
-  evaluations: IEvaluation[],
+  evaluations: Evaluation[],
   source: string, // e.g. NIJoe
 ) {
   // log(`pay NI on ${income} for date ${startOfTaxYear}`);
@@ -563,8 +554,7 @@ function payNI(
   // log(`taxDue = ${taxDue}`);
   if (NIDue > 0) {
     // log('in payNI, adjustCash:');
-    adjustCash(-NIDue, startOfTaxYear,
-      values, evaluations, source);
+    adjustCash(-NIDue, startOfTaxYear, values, evaluations, source);
 
     let taxValue = values.get(taxPot);
     if (taxValue === undefined) {
@@ -588,7 +578,7 @@ function payCGT(
   gain: number,
   cpiVal: number,
   values: Map<string, number>,
-  evaluations: IEvaluation[],
+  evaluations: Evaluation[],
   source: string, // e.g. 'CGTJoe'
 ) {
   // log(`pay CGT on ${gain} for date ${startOfTaxYear}`);
@@ -598,8 +588,7 @@ function payCGT(
   // log(`taxDue = ${taxDue}`);
   if (CGTDue > 0) {
     // log('in payCGT, adjustCash:');
-    adjustCash(-CGTDue, startOfTaxYear,
-      values, evaluations, source);
+    adjustCash(-CGTDue, startOfTaxYear, values, evaluations, source);
     let taxValue = values.get(taxPot);
     if (taxValue === undefined) {
       taxValue = 0.0;
@@ -622,27 +611,24 @@ function OptimizeIncomeTax(
   values: Map<string, number>,
   person: string,
   liableIncomeInTaxYear: Map<string, Map<string, number>>,
-  evaluations: IEvaluation[],
+  evaluations: Evaluation[],
 ) {
   // log(`settle up income tax for ${person} and ${amount} on ${date}`);
-  const noTaxBand = updateValueForCPI(
-    taxBandsSet,
-    date,
-    noTaxBandSet,
-    cpiVal,
-  );
+  const noTaxBand = updateValueForCPI(taxBandsSet, date, noTaxBandSet, cpiVal);
   if (amount > noTaxBand) {
     return;
   }
   const unusedAllowance = noTaxBand - amount;
   // if we have unused allowance, see
   // have we got some crystallised pension we can use?
-  for (const valueKey of values.keys()) { /* eslint-disable-line no-restricted-syntax */
+  for (const valueKey of values.keys()) {
+    /* eslint-disable-line no-restricted-syntax */
     // log(`values.get(${key}) = ${values.get(key)}`);
     if (valueKey.startsWith(crystallizedPension)) {
       // is it for the right person?
-      const liability = `${incomeTax}`
-        + `${valueKey.substr(crystallizedPension.length)}`;
+      const liability = `${incomeTax}${valueKey.substr(
+        crystallizedPension.length,
+      )}`;
       // e.g. IncomeTaxJoe
       // log(`liability = ${liability}`);
       if (liability === person) {
@@ -671,12 +657,22 @@ function OptimizeIncomeTax(
           // log(`valueKey = ${valueKey}`);
           // log(`liability = ${liability}`);
           // log('in settleIncomeTax, setValue:');
-          setValue(values, evaluations, date,
-            CASH_ASSET_NAME, cashVal + amountToTransfer,
-            valueKey); // e.g. 'CrystallizedPensionNorwich'
-          setValue(values, evaluations, date,
-            valueKey, pensionVal - amountToTransfer,
-            liability); // e.g. 'IncomeTaxJoe'
+          setValue(
+            values,
+            evaluations,
+            date,
+            CASH_ASSET_NAME,
+            cashVal + amountToTransfer,
+            valueKey,
+          ); // e.g. 'CrystallizedPensionNorwich'
+          setValue(
+            values,
+            evaluations,
+            date,
+            valueKey,
+            pensionVal - amountToTransfer,
+            liability,
+          ); // e.g. 'IncomeTaxJoe'
         }
       }
     }
@@ -688,15 +684,17 @@ function settleUpTax(
   startYearOfTaxYear: number,
   cpiVal: number,
   values: Map<string, number>,
-  evaluations: IEvaluation[],
+  evaluations: Evaluation[],
 ) {
   const date = new Date(startYearOfTaxYear + 1, 3, 5);
   // before going to pay income tax,
   // see if there's a wise move to use up unused income tax allowance
   // for each person
-  for (const [key, value] of liableIncomeInTaxYear) { /* eslint-disable-line no-restricted-syntax */
+  for (const [key, value] of liableIncomeInTaxYear) {
+    /* eslint-disable-line no-restricted-syntax */
     if (key === 'income' && value !== undefined) {
-      for (const [person, amount] of value) { /* eslint-disable-line no-restricted-syntax */
+      for (const [person, amount] of value) {
+        /* eslint-disable-line no-restricted-syntax */
         OptimizeIncomeTax(
           date,
           cpiVal,
@@ -710,9 +708,11 @@ function settleUpTax(
     }
   }
 
-  for (const [key, value] of liableIncomeInTaxYear) { /* eslint-disable-line no-restricted-syntax */
+  for (const [key, value] of liableIncomeInTaxYear) {
+    /* eslint-disable-line no-restricted-syntax */
     if (key === 'income' && value !== undefined) {
-      for (const [person, amount] of value) { /* eslint-disable-line no-restricted-syntax */
+      for (const [person, amount] of value) {
+        /* eslint-disable-line no-restricted-syntax */
         // log(`go to pay income tax for ${person}`);
         const taxPaid = payIncomeTax(
           date,
@@ -729,13 +729,16 @@ function settleUpTax(
         value.set(person, 0);
       }
     } else if (key === nationalInsurance && value !== undefined) {
-      for (const [person, amount] of value) { /* eslint-disable-line no-restricted-syntax */
-        const NIPaid = payNI(new Date(startYearOfTaxYear + 1, 3, 5),
+      for (const [person, amount] of value) {
+        /* eslint-disable-line no-restricted-syntax */
+        const NIPaid = payNI(
+          new Date(startYearOfTaxYear + 1, 3, 5),
           amount,
           cpiVal,
           values,
           evaluations,
-          person); // e.g. 'NIJoe'
+          person,
+        ); // e.g. 'NIJoe'
         if (printDebug()) {
           log(`${person} paid NI ${NIPaid} for ${date}`);
         }
@@ -743,13 +746,16 @@ function settleUpTax(
         value.set(person, 0);
       }
     } else if (key === 'cgt' && value !== undefined) {
-      for (const [person, amount] of value) { /* eslint-disable-line no-restricted-syntax */
-        payCGT(new Date(startYearOfTaxYear + 1, 3, 5),
+      for (const [person, amount] of value) {
+        /* eslint-disable-line no-restricted-syntax */
+        payCGT(
+          new Date(startYearOfTaxYear + 1, 3, 5),
           amount,
           cpiVal,
           values,
           evaluations,
-          person); // e.g. 'CGTJoe'
+          person,
+        ); // e.g. 'CGTJoe'
         // log('resetting liableIncomeInTaxYear');
         value.set(person, 0);
       }
@@ -784,11 +790,11 @@ function handleLiability(
 
 function handleIncome(
   incomeValue: number,
-  moment: IMoment,
+  moment: Moment,
   values: Map<string, number>,
-  evaluations: IEvaluation[],
-  triggers: IDbTrigger[],
-  pensionTransactions: IDbTransaction[],
+  evaluations: Evaluation[],
+  triggers: DbTrigger[],
+  pensionTransactions: DbTransaction[],
   liabilitiesMap: Map<string, string>,
   liableIncomeInTaxYear: Map<string, Map<string, number>>,
   sourceDescription: string,
@@ -805,7 +811,7 @@ function handleIncome(
     // asset growth does not transfer money into cash
     amountForCashIncrement = 0;
   }
-  pensionTransactions.forEach((transaction) => {
+  pensionTransactions.forEach(transaction => {
     const tFromValue = parseFloat(transaction.TRANSACTION_FROM_VALUE);
     const tToValue = parseFloat(transaction.TRANSACTION_TO_VALUE);
 
@@ -851,11 +857,14 @@ function handleIncome(
         // log(`new pensionValue is ${pensionValue}`);
         // log(`income source = ${transaction.NAME}`);
         // log('in handleIncome, setValue:');
-        setValue(values, evaluations,
+        setValue(
+          values,
+          evaluations,
           moment.date,
           transaction.TRANSACTION_TO,
           pensionValue,
-          transaction.NAME);
+          transaction.NAME,
+        );
       }
     }
   });
@@ -867,7 +876,8 @@ function handleIncome(
     adjustCash(
       amountForCashIncrement,
       moment.date,
-      values, evaluations,
+      values,
+      evaluations,
       sourceDescription,
     );
   }
@@ -877,7 +887,7 @@ function handleIncome(
   // log(`liabilityList = ${liabilityList}`);
   if (liabilityList !== undefined) {
     const words: string[] = liabilityList.split(separator);
-    words.forEach((liability) => {
+    words.forEach(liability => {
       // log(`liability = ${liability}`);
       if (liability.startsWith(incomeTax)) {
         // log(`IncomeTax due on ${amountForIncomeTax} for ${showObj(moment.name)}`);
@@ -902,7 +912,7 @@ function handleIncome(
 }
 
 function logExpenseGrowth(
-  expense: IDbExpense,
+  expense: DbExpense,
   cpiVal: number,
   growths: Map<string, number>,
 ) {
@@ -914,7 +924,7 @@ function logExpenseGrowth(
 }
 
 function logIncomeGrowth(
-  income: IDbIncome,
+  income: DbIncome,
   cpiVal: number,
   growths: Map<string, number>,
 ) {
@@ -927,10 +937,10 @@ function logIncomeGrowth(
 }
 
 function logAssetGrowth(
-  asset: IDbAsset,
+  asset: DbAsset,
   cpiVal: number,
   growths: Map<string, number>,
-  settings: IDbSetting[],
+  settings: DbSetting[],
 ) {
   // log(`stored growth is ${asset.ASSET_GROWTH}`);
   let growth: number = parseFloat(asset.ASSET_GROWTH);
@@ -946,8 +956,10 @@ function logAssetGrowth(
     growth = parseFloat(settingVal);
     if (Number.isNaN(growth)) {
       if (settingVal === 'None') {
-        log('BUG : cant parse setting value for asset growth '
-          + `${asset.ASSET_GROWTH} = ${settingVal}`);
+        log(
+          'BUG : cant parse setting value for asset growth ' +
+            `${asset.ASSET_GROWTH} = ${settingVal}`,
+        );
         growth = 0.0;
       }
     }
@@ -960,10 +972,7 @@ function logAssetGrowth(
   growths.set(asset.NAME, monthlyInf);
 }
 
-function getGrowth(
-  name: string,
-  growths: Map<string, number>,
-) {
+function getGrowth(name: string, growths: Map<string, number>) {
   let result = growths.get(name);
   if (result === undefined) {
     log(`Bug : Undefined growth value for ${name}!`);
@@ -973,16 +982,17 @@ function getGrowth(
 }
 
 function getMonthlyMoments(
-  x: { // could be an income or an expense
-    NAME: string,
-    START: string, // trigger string
-    END: string, // trigger string
-    VALUE: string,
-    VALUE_SET: string, // trigger string
+  x: {
+    // could be an income or an expense
+    NAME: string;
+    START: string; // trigger string
+    END: string; // trigger string
+    VALUE: string;
+    VALUE_SET: string; // trigger string
   },
   type: string,
   monthlyInf: number,
-  triggers: IDbTrigger[],
+  triggers: DbTrigger[],
   rOIEndDate: Date,
 ) {
   let endDate = getTriggerDate(x.END, triggers);
@@ -994,8 +1004,8 @@ function getMonthlyMoments(
     end: endDate,
   };
   const dates = generateSequenceOfDates(roi, '1m');
-  const newMoments: IMoment[] = dates.map((date) => {
-    const result: IMoment = {
+  const newMoments: Moment[] = dates.map(date => {
+    const result: Moment = {
       date,
       name: x.NAME,
       type,
@@ -1020,9 +1030,7 @@ function getMonthlyMoments(
     const from = getTriggerDate(x.VALUE_SET, triggers);
     const to = getTriggerDate(x.START, triggers);
     if (from > to) {
-      log(
-        `BUG : income/expense start value set after start date ${x.NAME}`,
-      );
+      log(`BUG : income/expense start value set after start date ${x.NAME}`);
     }
     // log(`${x.NAME} grew between ${from} and ${to}`);
     const numMonths = diffMonths(from, to);
@@ -1042,8 +1050,8 @@ function getMonthlyMoments(
 }
 
 function getAssetMonthlyMoments(
-  asset: IDbAsset,
-  triggers: IDbTrigger[],
+  asset: DbAsset,
+  triggers: DbTrigger[],
   rOIEndDate: Date,
 ) {
   const roi = {
@@ -1053,8 +1061,8 @@ function getAssetMonthlyMoments(
   // log(`roi = ${showObj(roi)}`)
   const dates = generateSequenceOfDates(roi, '1m');
   // log(`dates = ${showObj(dates)}`)
-  const newMoments = dates.map((date) => {
-    const result: IMoment = {
+  const newMoments = dates.map(date => {
+    const result: Moment = {
       date,
       name: asset.NAME,
       type: momentType.asset,
@@ -1071,11 +1079,11 @@ function getAssetMonthlyMoments(
 }
 
 function getTransactionMoments(
-  transaction: IDbTransaction,
-  triggers: IDbTrigger[],
+  transaction: DbTransaction,
+  triggers: DbTrigger[],
   rOIEndDate: Date,
 ) {
-  const newMoments: IMoment[] = [];
+  const newMoments: Moment[] = [];
   if (transaction.NAME.startsWith(pension)) {
     // we don't track pension actions here
     // (see pensionTransactions, reviewed during processIncome)
@@ -1087,12 +1095,15 @@ function getTransactionMoments(
     // use ROI to limit number of moments generated
     let stop = rOIEndDate;
     if (transaction.TRANSACTION_STOP_DATE !== '') {
-      const transStop = getTriggerDate(transaction.TRANSACTION_STOP_DATE, triggers);
+      const transStop = getTriggerDate(
+        transaction.TRANSACTION_STOP_DATE,
+        triggers,
+      );
       if (stop > transStop) {
         stop = transStop;
       }
     }
-    const sequenceRoi: IInterval = {
+    const sequenceRoi: Interval = {
       start: getTriggerDate(transaction.TRANSACTION_DATE, triggers),
       end: stop,
     };
@@ -1100,7 +1111,7 @@ function getTransactionMoments(
       sequenceRoi,
       transaction.TRANSACTION_RECURRENCE,
     );
-    transactionDates.forEach((d) => {
+    transactionDates.forEach(d => {
       newMoments.push({
         name: transaction.NAME,
         date: d,
@@ -1128,25 +1139,33 @@ function getTransactionMoments(
 // tells us this.  For now, allo cash and mortgages
 // to go negative at will.
 function assetAllowedNegative(assetName: string) {
-  return assetName === CASH_ASSET_NAME
-  || assetName.includes('mortgage')
-  || assetName.includes('Mortgage');
+  return (
+    assetName === CASH_ASSET_NAME ||
+    assetName.includes('mortgage') ||
+    assetName.includes('Mortgage')
+  );
 }
 
 function revalueApplied(
-  t: IDbTransaction,
-  moment: IMoment,
+  t: DbTransaction,
+  moment: Moment,
   values: Map<string, number>,
-  evaluations: IEvaluation[],
+  evaluations: Evaluation[],
 ) {
   const tToValue = parseFloat(t.TRANSACTION_TO_VALUE);
   if (t.NAME.startsWith(revalue)) {
     // log(`it's a revaluation`)
     if (t.TRANSACTION_FROM !== '') {
-      log(`WARNING : FROM supplied for a revaluation transaction ${showObj(t)}`);
+      log(
+        `WARNING : FROM supplied for a revaluation transaction ${showObj(t)}`,
+      );
     }
     if (!t.TRANSACTION_TO_ABSOLUTE) {
-      log(`WARNING : proportional value supplied for a revaluation transaction ${showObj(t)}`);
+      log(
+        `WARNING : proportional value supplied for a revaluation transaction ${showObj(
+          t,
+        )}`,
+      );
     }
     // log(`passing ${t.TRANSACTION_TO_VALUE} as new value of ${moment.name}`);
     // log('in revalueApplied, setValue:');
@@ -1164,41 +1183,44 @@ function revalueApplied(
 }
 
 function calculateFromChange(
-  t: IDbTransaction,
+  t: DbTransaction,
   preToValue: number | undefined,
   preFromValue: number,
   fromWord: string,
-): number|undefined {
+): number | undefined {
   const tFromValue = parseFloat(t.TRANSACTION_FROM_VALUE);
   const tToValue = parseFloat(t.TRANSACTION_TO_VALUE);
 
   let fromChange = 0;
   // log(`t.TRANSACTION_FROM_VALUE = ${t.TRANSACTION_FROM_VALUE}`)
-  if (t.NAME.startsWith(conditional)
-    && preToValue === undefined) {
-    throw new Error('Bug : conditional transaction to undefined value '
-    + `${showObj(t)}`);
-  } else if (t.NAME.startsWith(conditional)
-    && preToValue !== undefined
-    && preToValue >= 0) {
+  if (t.NAME.startsWith(conditional) && preToValue === undefined) {
+    throw new Error(
+      `Bug : conditional transaction to undefined value ${showObj(t)}`,
+    );
+  } else if (
+    t.NAME.startsWith(conditional) &&
+    preToValue !== undefined &&
+    preToValue >= 0
+  ) {
     // don't need to maintain this
     // log(`no need to maintain ${t.TRANSACTION_TO} from ${t.TRANSACTION_FROM} `
     //   +`as targetValue = ${targetValue}`)
     return undefined;
   } else if (t.TRANSACTION_FROM_ABSOLUTE) {
     fromChange = tFromValue;
-    if (t.NAME.startsWith(conditional)
-      && preToValue !== undefined
-      && preToValue > -fromChange
-      && !t.TRANSACTION_TO_ABSOLUTE
-      && tToValue === 1.0) {
+    if (
+      t.NAME.startsWith(conditional) &&
+      preToValue !== undefined &&
+      preToValue > -fromChange &&
+      !t.TRANSACTION_TO_ABSOLUTE &&
+      tToValue === 1.0
+    ) {
       // log(`cap conditional amount - we only need ${preToValue}`);
       fromChange = -preToValue;
     }
   } else {
     // relative amounts behave differently for conditionals
-    if (t.NAME.startsWith(conditional)
-      && !t.TRANSACTION_TO_ABSOLUTE) {
+    if (t.NAME.startsWith(conditional) && !t.TRANSACTION_TO_ABSOLUTE) {
       if (preToValue !== undefined) {
         // proportion of target
         // log(`use proportion of target amount; proportion of ${preToValue}`);
@@ -1211,8 +1233,7 @@ function calculateFromChange(
     }
   }
   // Allow some assets to become negative but not others
-  if (!assetAllowedNegative(fromWord)
-    && fromChange > preFromValue) {
+  if (!assetAllowedNegative(fromWord) && fromChange > preFromValue) {
     if (t.NAME.startsWith(conditional)) {
       // transfer as much as we have
       // log(`transfer only ${value} because we don't have ${fromChange}`);
@@ -1225,8 +1246,7 @@ function calculateFromChange(
     }
   }
   if (fromWord !== undefined) {
-    if (!assetAllowedNegative(fromWord)
-      && preFromValue <= 0) {
+    if (!assetAllowedNegative(fromWord) && preFromValue <= 0) {
       // we cannot help
       return undefined;
     }
@@ -1236,10 +1256,10 @@ function calculateFromChange(
 }
 
 function calculateToChange(
-  t: IDbTransaction,
+  t: DbTransaction,
   preToValue: number | undefined,
   fromChange: number | undefined,
-  moment: IMoment,
+  moment: Moment,
 ) {
   let toChange = 0;
   if (t.TRANSACTION_TO === '') {
@@ -1249,16 +1269,17 @@ function calculateToChange(
   // log(`t.TRANSACTION_TO = ${t.TRANSACTION_TO}`)
   // log(`before transaction, toValue = ${toValue}`)
   if (preToValue === undefined) {
-    throw new Error('Bug : transacting to unvalued asset '
-      + `${showObj(moment)}`);
+    throw new Error(`Bug : transacting to unvalued asset ${showObj(moment)}`);
   }
   // log(`t.TRANSACTION_TO_VALUE = ${t.TRANSACTION_TO_VALUE}`);
   if (t.TRANSACTION_TO_ABSOLUTE) {
     toChange = tToValue;
   } else {
     if (fromChange === undefined) {
-      throw new Error('Bug : transacting to proportion of undefined fromChange'
-        + `${showObj(moment)}`);
+      throw new Error(
+        'Bug : transacting to proportion of undefined fromChange' +
+          `${showObj(moment)}`,
+      );
     }
     // proportion of the amount taken from from_asset
     toChange = tToValue * fromChange;
@@ -1267,13 +1288,13 @@ function calculateToChange(
 }
 
 function handleCGTLiability(
-  t: IDbTransaction,
+  t: DbTransaction,
   fromWord: string,
   preFromValue: number,
   fromChange: number,
-  moment: IMoment,
+  moment: Moment,
   values: Map<string, number>,
-  evaluations: IEvaluation[],
+  evaluations: Evaluation[],
   liabliitiesMap: Map<string, string>,
   liableIncomeInTaxYear: Map<string, Map<string, number>>,
 ) {
@@ -1285,9 +1306,7 @@ function handleCGTLiability(
   }
   const liabilityWords = liabilities.split(separator);
   // log(`liabilityWords = ${liabilityWords}`);
-  const cgtLiability = liabilityWords.find(
-    word => word.startsWith(cgt),
-  );
+  const cgtLiability = liabilityWords.find(word => word.startsWith(cgt));
   // log(`cgtLiability = ${cgtLiability}`);
   if (cgtLiability === undefined) {
     return;
@@ -1330,18 +1349,16 @@ function handleCGTLiability(
   }
 }
 
-export function makeSourceForFromChange(t: IDbTransaction) {
+export function makeSourceForFromChange(t: DbTransaction) {
   let sourceDescription = t.NAME;
   if (sourceDescription.startsWith(conditional)) {
-    sourceDescription = sourceDescription.substr(
-      conditional.length + 1,
-    );
+    sourceDescription = sourceDescription.substr(conditional.length + 1);
   }
   // log(`sourceDescription = ${sourceDescription}`);
   return sourceDescription;
 }
 
-export function makeSourceForToChange(t: IDbTransaction, fromWord: string) {
+export function makeSourceForToChange(t: DbTransaction, fromWord: string) {
   let source = t.NAME;
   if (source.startsWith(conditional)) {
     source = fromWord;
@@ -1350,13 +1367,13 @@ export function makeSourceForToChange(t: IDbTransaction, fromWord: string) {
 }
 
 function processTransactionFromTo(
-  t: IDbTransaction,
+  t: DbTransaction,
   fromWord: string,
-  moment: IMoment,
+  moment: Moment,
   values: Map<string, number>,
-  evaluations: IEvaluation[],
-  triggers: IDbTrigger[],
-  pensionTransactions: IDbTransaction[],
+  evaluations: Evaluation[],
+  triggers: DbTrigger[],
+  pensionTransactions: DbTransaction[],
   liabliitiesMap: Map<string, string>,
   liableIncomeInTaxYear: Map<string, Map<string, number>>,
 ) {
@@ -1374,12 +1391,7 @@ function processTransactionFromTo(
 
   let fromChange;
   if (preFromValue !== undefined) {
-    fromChange = calculateFromChange(
-      t,
-      preToValue,
-      preFromValue,
-      fromWord,
-    );
+    fromChange = calculateFromChange(t, preToValue, preFromValue, fromWord);
     // Transaction is permitted to be blocked by the calculation
     // of fromChange - e.g. if it would require an asset to become
     // a not-premitted value (e.g. shares become negative).
@@ -1391,17 +1403,11 @@ function processTransactionFromTo(
   // Determine how to change the To asset.
   let toChange;
   if (preToValue !== undefined) {
-    toChange = calculateToChange(
-      t,
-      preToValue,
-      fromChange,
-      moment,
-    );
+    toChange = calculateToChange(t, preToValue, fromChange, moment);
   }
 
   // apply fromChange
-  if (fromChange !== undefined
-    && preFromValue !== undefined) {
+  if (fromChange !== undefined && preFromValue !== undefined) {
     handleCGTLiability(
       t,
       fromWord,
@@ -1433,8 +1439,10 @@ function processTransactionFromTo(
     // (it's liable to income tax)
     // log(`transacting ${fromChange} from ${fromWord}
     // into ${t.TRANSACTION_TO}`);
-    if (fromWord.startsWith(crystallizedPension)
-      && t.TRANSACTION_TO === CASH_ASSET_NAME) {
+    if (
+      fromWord.startsWith(crystallizedPension) &&
+      t.TRANSACTION_TO === CASH_ASSET_NAME
+    ) {
       // log(`register ${toChange} pension withdrawal as liable for income tax`);
       handleIncome(
         toChange,
@@ -1449,8 +1457,10 @@ function processTransactionFromTo(
       );
     } else {
       if (preToValue === undefined) {
-        throw new Error('Bug : transacting to adjust undefined toValue'
-        + `${showObj(moment)}`);
+        throw new Error(
+          'Bug : transacting to adjust undefined toValue' +
+            `${showObj(moment)}`,
+        );
       }
       // log('in processTransactionFromTo, setValue:');
       setValue(
@@ -1466,13 +1476,15 @@ function processTransactionFromTo(
 }
 
 function processTransactionTo(
-  t: IDbTransaction,
-  moment: IMoment,
+  t: DbTransaction,
+  moment: Moment,
   values: Map<string, number>,
-  evaluations: IEvaluation[],
+  evaluations: Evaluation[],
 ) {
   if (!t.TRANSACTION_FROM_ABSOLUTE) {
-    throw new Error(`BUG : transacting from a proportional amount of undefined ${showObj(t)}`);
+    throw new Error(
+      `BUG : transacting from a proportional amount of undefined ${showObj(t)}`,
+    );
   }
   const tToValue = parseFloat(t.TRANSACTION_TO_VALUE);
   const fromChange = parseFloat(t.TRANSACTION_FROM_VALUE);
@@ -1498,23 +1510,16 @@ function processTransactionTo(
     // log(`fromChange for the "TO" part of this transaction = ${fromChange}`);
     value += change;
     // log('in processTransactionTo, setValue:');
-    setValue(
-      values,
-      evaluations,
-      moment.date,
-      t.TRANSACTION_TO,
-      value,
-      t.NAME,
-    );
+    setValue(values, evaluations, moment.date, t.TRANSACTION_TO, value, t.NAME);
   }
 }
 
 function processTransactionMoment(
-  moment: IMoment,
+  moment: Moment,
   values: Map<string, number>,
-  evaluations: IEvaluation[],
-  triggers: IDbTrigger[],
-  pensionTransactions: IDbTransaction[],
+  evaluations: Evaluation[],
+  triggers: DbTrigger[],
+  pensionTransactions: DbTransaction[],
   liabliitiesMap: Map<string, string>,
   liableIncomeInTaxYear: Map<string, Map<string, number>>,
 ) {
@@ -1546,7 +1551,7 @@ function processTransactionMoment(
     // we can sometimes see multiple 'FROM's
     // handle one word at a time TODO make comma-separated!
     const words = t.TRANSACTION_FROM.split(separator);
-    words.forEach((fromWord) => {
+    words.forEach(fromWord => {
       // log(`process a transaction from ${fromWord}`);
       processTransactionFromTo(
         t,
@@ -1561,26 +1566,22 @@ function processTransactionMoment(
       );
     });
   } else if (t.TRANSACTION_FROM === '' && t.TRANSACTION_TO !== '') {
-    processTransactionTo(
-      t,
-      moment,
-      values,
-      evaluations,
-    );
+    processTransactionTo(t, moment, values, evaluations);
   }
 }
 
 function logPensionIncomeLiabilities(
-  t: IDbTransaction,
+  t: DbTransaction,
   liabilitiesMap: Map<string, string>,
 ) {
   // log(`see if ${t.NAME} needs a tax liability`);
   // e.g. CrystallizedPensionJoe
   const words = t.TRANSACTION_FROM.split(separator);
-  words.forEach((word) => {
+  words.forEach(word => {
     if (word.startsWith(crystallizedPension)) {
-      const liability = `${incomeTax}`
-        + `${word.substr(crystallizedPension.length)}`;
+      const liability = `${incomeTax}${word.substr(
+        crystallizedPension.length,
+      )}`;
       // e.g. IncomeTaxJoe
       // log(`logging liability for crystallized pension ${liability}`);
       liabilitiesMap.set(t.NAME, liability);
@@ -1589,7 +1590,7 @@ function logPensionIncomeLiabilities(
 }
 
 function logAssetIncomeLiabilities(
-  a: IDbAsset,
+  a: DbAsset,
   liabilitiesMap: Map<string, string>,
 ) {
   // log(`see if ${t.NAME} needs a tax liability`);
@@ -1598,18 +1599,19 @@ function logAssetIncomeLiabilities(
     // log(`logging liability ${showObj(a)}`);
     liabilitiesMap.set(a.NAME, a.ASSET_LIABILITY);
   } else if (a.NAME.startsWith(crystallizedPension)) {
-    const liability = `${incomeTax}`
-      + `${a.NAME.substr(crystallizedPension.length)}`;
+    const liability = `${incomeTax}${a.NAME.substr(
+      crystallizedPension.length,
+    )}`;
     // e.g. IncomeTaxJoe
     liabilitiesMap.set(a.NAME, liability);
   }
 }
 
 function logPurchaseValues(
-  a: IDbAsset,
+  a: DbAsset,
   values: Map<string, number>,
-  evaluations: IEvaluation[],
-  triggers: IDbTrigger[],
+  evaluations: Evaluation[],
+  triggers: DbTrigger[],
 ) {
   if (a.ASSET_LIABILITY.includes(cgt)) {
     // log('in logPurchaseValues, setValue:');
@@ -1626,13 +1628,11 @@ function logPurchaseValues(
 
 // This is the key entry point for code calling from outside
 // this file.
-export function getEvaluations(
-  data: IDbModelData,
-): IEvaluation[] {
+export function getEvaluations(data: DbModelData): Evaluation[] {
   const message = checkData(data);
   if (message.length > 0) {
     log(message);
-    const result: IEvaluation[] = [];
+    const result: Evaluation[] = [];
     return result;
   }
   // log('in getEvaluations');
@@ -1646,7 +1646,7 @@ export function getEvaluations(
 
   // Calculate a set of "moments" for each transaction/income/expense...
   // each has a date - we'll process these in date order.
-  let allMoments: IMoment[] = [];
+  let allMoments: Moment[] = [];
 
   // Calculate a monthly growth once per item,
   // refer to this map for each indiviual moment.
@@ -1660,7 +1660,7 @@ export function getEvaluations(
   const liabilitiesMap = new Map<string, string>([]);
 
   // Some transactions affect income processing.
-  const pensionTransactions: IDbTransaction[] = [];
+  const pensionTransactions: DbTransaction[] = [];
 
   // Keep track of current value of any expense, income or asset
   const values = new Map<string, number>([]);
@@ -1671,12 +1671,12 @@ export function getEvaluations(
   values.set(cpi, cpiInitialVal);
 
   // A historical record of evaluations (useful for creating trends or charts)
-  const evaluations: IEvaluation[] = [];
+  const evaluations: Evaluation[] = [];
 
   // For each expense, work out monthly growth and
   // a set of moments starting when the expense began,
   // ending when the roi ends.
-  data.expenses.forEach((expense) => {
+  data.expenses.forEach(expense => {
     logExpenseGrowth(expense, cpiInitialVal, growths);
     const monthlyInf = getGrowth(expense.NAME, growths);
     const newMoments = getMonthlyMoments(
@@ -1692,7 +1692,7 @@ export function getEvaluations(
   // For each income, work out monthly growth and
   // a set of moments starting when the income began,
   // ending when the roi ends.
-  data.incomes.forEach((income) => {
+  data.incomes.forEach(income => {
     logIncomeGrowth(income, cpiInitialVal, growths);
     const monthlyInf = getGrowth(income.NAME, growths);
     const newMoments = getMonthlyMoments(
@@ -1709,21 +1709,24 @@ export function getEvaluations(
   // log(`liabilitiesMap = ...`);
   // liabilitiesMap.forEach((value, key)=>{log(`{\`${key}\`, \`${value}\`}`)});
 
-  data.assets.forEach((asset) => {
+  data.assets.forEach(asset => {
     logAssetGrowth(asset, cpiInitialVal, growths, data.settings);
     const newMoments = getAssetMonthlyMoments(asset, data.triggers, roiEndDate);
     allMoments = allMoments.concat(newMoments);
 
     logAssetIncomeLiabilities(asset, liabilitiesMap);
 
-    logPurchaseValues(asset, values,
-      evaluations, data.triggers);
+    logPurchaseValues(asset, values, evaluations, data.triggers);
   });
 
-  data.transactions.forEach((transaction) => {
+  data.transactions.forEach(transaction => {
     // one-off asset-asset transactions generate a single moment
     // recurring asset-asset transactions generate a sequence of moments
-    const newMoments = getTransactionMoments(transaction, data.triggers, roiEndDate);
+    const newMoments = getTransactionMoments(
+      transaction,
+      data.triggers,
+      roiEndDate,
+    );
     allMoments = allMoments.concat(newMoments);
 
     // some transactions affect income processing
@@ -1738,15 +1741,17 @@ export function getEvaluations(
 
   // log(`pensionTransactions = ${pensionTransactions}`);
 
-  const datedMoments = allMoments.filter(moment => (moment.date !== undefined));
-  const unDatedMoments = allMoments.filter(moment => (moment.date === undefined));
+  const datedMoments = allMoments.filter(moment => moment.date !== undefined);
+  const unDatedMoments = allMoments.filter(moment => moment.date === undefined);
 
   // Process the moments in dat order
   sortByDate(datedMoments);
 
   let startYearOfTaxYear;
   if (datedMoments.length > 0) {
-    startYearOfTaxYear = getYearOfTaxYear(datedMoments[datedMoments.length - 1].date);
+    startYearOfTaxYear = getYearOfTaxYear(
+      datedMoments[datedMoments.length - 1].date,
+    );
   }
   // we track different types of income liability for different individuals
   // the outer map has a key for "cgt", "incomeTax" and "NI".
@@ -1771,8 +1776,10 @@ export function getEvaluations(
     const momentsTaxYear = getYearOfTaxYear(moment.date);
     // log(`momentsTaxYear = ${momentsTaxYear}`);
     // log(`startYearOfTaxYear = ${startYearOfTaxYear}`);
-    if (startYearOfTaxYear !== undefined
-      && momentsTaxYear > startYearOfTaxYear) {
+    if (
+      startYearOfTaxYear !== undefined &&
+      momentsTaxYear > startYearOfTaxYear
+    ) {
       // change of tax year - report count of moments
       // log('change of tax year...');
       settleUpTax(
@@ -1796,9 +1803,9 @@ export function getEvaluations(
         liableIncomeInTaxYear,
       );
     } else if (
-      moment.type === momentType.expenseStart
-      || moment.type === momentType.incomeStart
-      || moment.type === momentType.assetStart
+      moment.type === momentType.expenseStart ||
+      moment.type === momentType.incomeStart ||
+      moment.type === momentType.assetStart
     ) {
       // Starts of assets are well defined
       // log(`start moment ${moment.name}, ${moment.type}`)
@@ -1854,22 +1861,21 @@ export function getEvaluations(
         // data to plot.
         // if(change!==0){ TODO - do we want to log no-change evaluations?
         // log('in getEvaluations, setValue:');
-        setValue(
-          values,
-          evaluations,
-          moment.date,
-          moment.name,
-          x,
-          'growth',
-        );
+        setValue(values, evaluations, moment.date, moment.name, x, 'growth');
         // }
         if (moment.type === momentType.asset) {
           // some assets experience growth which is
           // liable for tax
           // log(`asset moment for growth : ${moment.date}, ${moment.name}`);
           handleIncome(
-            change, moment, values, evaluations, data.triggers,
-            pensionTransactions, liabilitiesMap, liableIncomeInTaxYear,
+            change,
+            moment,
+            values,
+            evaluations,
+            data.triggers,
+            pensionTransactions,
+            liabilitiesMap,
+            liableIncomeInTaxYear,
             moment.name,
           );
         } else if (moment.type === momentType.income) {
@@ -1886,11 +1892,7 @@ export function getEvaluations(
           );
         } else if (moment.type === momentType.expense) {
           // log('in getEvaluations, adjustCash:');
-          adjustCash(
-            -x, moment.date,
-            values, evaluations,
-            moment.name,
-          );
+          adjustCash(-x, moment.date, values, evaluations, moment.name);
         }
       } else {
         log(`Bug : Undefined value for ${showObj(moment)}!`);
@@ -1922,7 +1924,7 @@ export function getEvaluations(
   }
 
   if (printDebug()) {
-    evaluations.forEach((evalns) => {
+    evaluations.forEach(evalns => {
       log(showObj(evalns));
     });
   }

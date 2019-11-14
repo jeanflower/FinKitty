@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import CanvasJSReact from './assets/js/canvasjs.react';
-import {
-  makeChartData,
-} from './charting';
+import { makeChartData } from './charting';
 import {
   checkAsset,
   checkData,
@@ -10,6 +8,9 @@ import {
   checkIncome,
   checkTransaction,
   checkTrigger,
+
+
+  
 } from './checks';
 import {
   deleteAllAssets,
@@ -45,24 +46,12 @@ import {
   sampleTriggers,
 } from './models/sampleData';
 // } from './models/outsideGit/RealData';
-import {
-  AddDeleteAssetForm,
-} from './reactComponents/AddDeleteAssetForm';
-import {
-  AddDeleteEntryForm,
-} from './reactComponents/AddDeleteEntryForm';
-import {
-  AddDeleteExpenseForm,
-} from './reactComponents/AddDeleteExpenseForm';
-import {
-  AddDeleteIncomeForm,
-} from './reactComponents/AddDeleteIncomeForm';
-import {
-  AddDeleteTransactionForm,
-} from './reactComponents/AddDeleteTransactionForm';
-import {
-  AddDeleteTriggerForm,
-} from './reactComponents/AddDeleteTriggerForm';
+import { AddDeleteAssetForm } from './reactComponents/AddDeleteAssetForm';
+import { AddDeleteEntryForm } from './reactComponents/AddDeleteEntryForm';
+import { AddDeleteExpenseForm } from './reactComponents/AddDeleteExpenseForm';
+import { AddDeleteIncomeForm } from './reactComponents/AddDeleteIncomeForm';
+import { AddDeleteTransactionForm } from './reactComponents/AddDeleteTransactionForm';
+import { AddDeleteTriggerForm } from './reactComponents/AddDeleteTriggerForm';
 import Button from './reactComponents/Button';
 import DataGrid from './reactComponents/DataGrid';
 import { ModelManagementForm } from './reactComponents/ModelManagementForm';
@@ -102,17 +91,17 @@ import {
   sampleModel,
 } from './stringConstants';
 import {
-  IChartData,
-//  IChartDataPoint,
-  IDataForView,
-  IDbAsset,
-  IDbExpense,
-  IDbIncome,
-  IDbModelData,
-  IDbSetting,
-  IDbTransaction,
-  IDbTrigger,
-  IItemChartData,
+  ChartData,
+  //  IChartDataPoint,
+  DataForView,
+  DbAsset,
+  DbExpense,
+  DbIncome,
+  DbModelData,
+  DbSetting,
+  DbTransaction,
+  DbTrigger,
+  ItemChartData,
 } from './types/interfaces';
 import {
   getSettings,
@@ -124,71 +113,45 @@ import {
 } from './utils';
 // import './bootstrap.css'
 
-const CanvasJSChart = CanvasJSReact.CanvasJSChart;
+const { CanvasJSChart } = CanvasJSReact;
 
 export let modelName: string = sampleModel;
 
-interface IViewType {
+interface ViewType {
   lc: string;
 }
-const homeView: IViewType = { lc: 'Home' };
-const expensesView: IViewType = { lc: 'Expenses' };
-const incomesView: IViewType = { lc: 'Incomes' };
-const transactionsView: IViewType = { lc: 'Transactions' };
-const assetsView: IViewType = { lc: 'Assets' };
-const triggersView: IViewType = { lc: 'Important dates' };
-const manageModelsView: IViewType = { lc: 'Manage models' };
-const settingsView: IViewType = { lc: 'Settings' };
-const expensesChart: IViewType = { lc: 'Expenses chart' };
-const incomesChart: IViewType = { lc: 'Incomes chart' };
-const assetsChart: IViewType = { lc: 'Assets chart' };
-const expensesTable: IViewType = { lc: 'Expenses table' };
-const incomesTable: IViewType = { lc: 'Incomes table' };
-const assetsTable: IViewType = { lc: 'Assets table' };
-const transactionsTable: IViewType = { lc: 'Transactions table' };
-const triggersTable: IViewType = { lc: 'Important dates' };
-const settingsTable: IViewType = { lc: 'Settings table' };
-const overview: IViewType = { lc: 'Overview' };
+const homeView: ViewType = { lc: 'Home' };
+const expensesView: ViewType = { lc: 'Expenses' };
+const incomesView: ViewType = { lc: 'Incomes' };
+const transactionsView: ViewType = { lc: 'Transactions' };
+const assetsView: ViewType = { lc: 'Assets' };
+const triggersView: ViewType = { lc: 'Important dates' };
+const manageModelsView: ViewType = { lc: 'Manage models' };
+const settingsView: ViewType = { lc: 'Settings' };
+const expensesChart: ViewType = { lc: 'Expenses chart' };
+const incomesChart: ViewType = { lc: 'Incomes chart' };
+const assetsChart: ViewType = { lc: 'Assets chart' };
+const expensesTable: ViewType = { lc: 'Expenses table' };
+const incomesTable: ViewType = { lc: 'Incomes table' };
+const assetsTable: ViewType = { lc: 'Assets table' };
+const transactionsTable: ViewType = { lc: 'Transactions table' };
+const triggersTable: ViewType = { lc: 'Important dates' };
+const settingsTable: ViewType = { lc: 'Settings table' };
+const overview: ViewType = { lc: 'Overview' };
 
 const helpText: Map<string, string> = new Map();
-helpText.set(
-  homeView.lc,
-  'Create or load a model.',
-);
-helpText.set(
-  expensesView.lc,
-  'Create, view or edit expenses.',
-);
-helpText.set(
-  incomesView.lc,
-  'Create, view or edit incomes.',
-);
-helpText.set(
-  transactionsView.lc,
-  'Create, view or edit transactions.',
-);
-helpText.set(
-  assetsView.lc,
-  'Create, view or edit assets.',
-);
-helpText.set(
-  triggersView.lc,
-  'Create, view or update important dates.',
-);
-helpText.set(
-  manageModelsView.lc,
-  'Create, clone, dump, delete models.',
-);
-helpText.set(
-  settingsView.lc,
-  'Settings page.',
-);
-helpText.set(
-  overview.lc,
-  'Help text for overview page.',
-);
+helpText.set(homeView.lc, 'Create or load a model.');
 
-const show = new Map<IViewType, any>([
+helpText.set(expensesView.lc, 'Create, view or edit expenses.');
+helpText.set(incomesView.lc, 'Create, view or edit incomes.');
+helpText.set(transactionsView.lc, 'Create, view or edit transactions.');
+helpText.set(assetsView.lc, 'Create, view or edit assets.');
+helpText.set(triggersView.lc, 'Create, view or update important dates.');
+helpText.set(manageModelsView.lc, 'Create, clone, dump, delete models.');
+helpText.set(settingsView.lc, 'Settings page.');
+helpText.set(overview.lc, 'Help text for overview page.');
+
+const show = new Map<ViewType, any>([
   [homeView, { display: true }],
   [manageModelsView, { display: false }],
   [settingsView, { display: false }],
@@ -199,7 +162,7 @@ const show = new Map<IViewType, any>([
   [triggersView, { display: false }],
   [overview, { display: false }],
 ]);
-const showContent = new Map<IViewType, any>([
+const showContent = new Map<ViewType, any>([
   [incomesChart, { display: false }],
   [expensesChart, { display: false }],
   [assetsChart, { display: false }],
@@ -213,22 +176,7 @@ const showContent = new Map<IViewType, any>([
 
 let reactAppComponent: App;
 
-function toggle(type: IViewType) {
-  for (const k of show.keys()) {
-    if (k !== type) {
-      show.set(k, { display: false });
-    }
-  }
-  show.set(type, { display: true });
-  refreshData();
-}
-function toggleCharts(type: IViewType) {
-  showContent.set(type, {
-    display: !showContent.get(type).display,
-  });
-  refreshData();
-}
-function getDisplay(type: IViewType) {
+function getDisplay(type: ViewType) {
   const result = show.get(type).display;
   return result;
 }
@@ -237,9 +185,9 @@ async function refreshData() {
   // log('refreshData in App - get data and redraw content');
   // go to the DB to retreive updated data
   let modelNames: string[] = [];
-  try{
+  try {
     modelNames = await getDbModelNames();
-  } catch(error){
+  } catch (error) {
     alert('error contacting database');
     return;
   }
@@ -263,36 +211,30 @@ async function refreshData() {
     ASSET_LIABILITY: '',
     ASSET_PURCHASE_PRICE: '0',
     CATEGORY: 'Tax',
-    });
+  });
 
   // log(`modelNames = ${modelNames}`);
 
-  const result: IDataForView = makeChartData(model);
+  const result: DataForView = makeChartData(model);
 
-  result.expensesData.sort((a, b) =>
-    (a.item.NAME < b.item.NAME ? 1 : -1),
-  );
-  result.incomesData.sort((a, b) =>
-    (a.item.NAME < b.item.NAME ? 1 : -1),
-  );
-  result.assetData.sort((a, b) =>
-    (a.item.NAME < b.item.NAME ? 1 : -1),
-  );
+  result.expensesData.sort((a, b) => (a.item.NAME < b.item.NAME ? 1 : -1));
+  result.incomesData.sort((a, b) => (a.item.NAME < b.item.NAME ? 1 : -1));
+  result.assetData.sort((a, b) => (a.item.NAME < b.item.NAME ? 1 : -1));
 
   if (printDebug()) {
-    result.assetData.forEach((entry) => {
+    result.assetData.forEach(entry => {
       log(
         `single asset item ${showObj(entry.item)} has chart points ` +
-        `${showObj(entry.chartDataPoints)}`,
+          `${showObj(entry.chartDataPoints)}`,
       );
     });
   }
 
   // get the data out of the object we got back
   // = result.triggers;
-  const expensesData = result.expensesData;
-  const incomesData = result.incomesData;
-  const assetData = result.assetData;
+  const { expensesData } = result;
+  const { incomesData } = result;
+  const { assetData } = result;
 
   if (printDebug()) {
     log('in refreshData');
@@ -301,53 +243,69 @@ async function refreshData() {
     log(` assetData = ${assetData}`);
   }
 
-  const expensesChartData = expensesData.map((x: IItemChartData) => ({
+  const expensesChartData = expensesData.map((x: ItemChartData) => ({
     dataPoints: x.chartDataPoints,
     name: x.item.NAME,
     type: 'stackedColumn',
     showInLegend: true,
   }));
-  const incomesChartData = incomesData.map((x: IItemChartData) => ({
+  const incomesChartData = incomesData.map((x: ItemChartData) => ({
     dataPoints: x.chartDataPoints,
     name: x.item.NAME,
     type: 'stackedColumn',
     showInLegend: true,
   }));
-  const singleAssetChartData
-    = assetData.map((x: IItemChartData) => ({
-      dataPoints: x.chartDataPoints,
-      name: x.item.NAME,
-      type: 'stackedColumn',
-      showInLegend: true,
-    }));
+  const singleAssetChartData = assetData.map((x: ItemChartData) => ({
+    dataPoints: x.chartDataPoints,
+    name: x.item.NAME,
+    type: 'stackedColumn',
+    showInLegend: true,
+  }));
 
   if (reactAppComponent !== undefined) {
     // log(`go setState with modelNames = ${modelNames}`);
 
     // setState on a reactComponent triggers update of view
-    reactAppComponent.setState({
-      modelData: model,
-      expensesChartData,
-      incomesChartData,
-      singleAssetChartData,
-      modelNamesData: modelNames,
-    }, () => {
-      // setState is async
-      // do logging after setState using the 2nd argument
-      // https://www.freecodecamp.org/news/get-pro-with-react-setstate-in-10-minutes-d38251d1c781/
-      if (printDebug()) {
-        log(
-          `reactAppComponent.state.expensesChartDataValue = ${
-          reactAppComponent.state.expensesChartData
-          }`,
-        );
-        reactAppComponent.state.expensesChartData.map((obj: IChartData) =>
-          log(`obj is ${showObj(obj)}`),
-        );
-      }
-    });
+    reactAppComponent.setState(
+      {
+        modelData: model,
+        expensesChartData,
+        incomesChartData,
+        singleAssetChartData,
+        modelNamesData: modelNames,
+      },
+      () => {
+        // setState is async
+        // do logging after setState using the 2nd argument
+        // https://www.freecodecamp.org/news/get-pro-with-react-setstate-in-10-minutes-d38251d1c781/
+        if (printDebug()) {
+          log(
+            `reactAppComponent.state.expensesChartDataValue = ${reactAppComponent.state.expensesChartData}`,
+          );
+          reactAppComponent.state.expensesChartData.map((obj: ChartData) =>
+            log(`obj is ${showObj(obj)}`),
+          );
+        }
+      },
+    );
   }
-  // log('-------------end of refreshData-----------------');
+}
+
+function toggle(type: ViewType) {
+  for (const k of show.keys()) {
+    if (k !== type) {
+      show.set(k, { display: false });
+    }
+  }
+  show.set(type, { display: true });
+  refreshData();
+}
+
+function toggleCharts(type: ViewType) {
+  showContent.set(type, {
+    display: !showContent.get(type).display,
+  });
+  refreshData();
 }
 
 function checkModelData() {
@@ -358,7 +316,13 @@ function checkModelData() {
     alert(response);
   }
 }
-
+async function submitExpense(expenseInput: DbExpense) {
+  if (printDebug()) {
+    log(`in submitExpense with input : ${showObj(expenseInput)}`);
+  }
+  await submitIDbExpenses([expenseInput], modelName);
+  await refreshData();
+}
 export async function submitNewExpense(name: string) {
   submitExpense({
     NAME: name,
@@ -371,18 +335,18 @@ export async function submitNewExpense(name: string) {
     CPI_IMMUNE: false,
   });
 }
-async function submitExpense(expenseInput: IDbExpense) {
-  if (printDebug()) {
-    log(`in submitExpense with input : ${showObj(expenseInput)}`);
-  }
-  await submitIDbExpenses([expenseInput], modelName);
-  await refreshData();
-}
-async function submitIncome(incomeInput: IDbIncome) {
+async function submitIncome(incomeInput: DbIncome) {
   if (printDebug()) {
     log(`in submitIncome with input : ${showObj(incomeInput)}`);
   }
   await submitIDbIncomes([incomeInput], modelName);
+  await refreshData();
+}
+async function submitTrigger(trigger: DbTrigger) {
+  if (printDebug()) {
+    log(`go to submitTriggers with input : ${showObj(trigger)}`);
+  }
+  await submitIDbTriggers([trigger], modelName);
   await refreshData();
 }
 export async function submitNewTrigger(name: string) {
@@ -391,11 +355,11 @@ export async function submitNewTrigger(name: string) {
     TRIGGER_DATE: new Date(),
   });
 }
-async function submitTrigger(trigger: IDbTrigger) {
+async function submitAsset(assetInput: DbAsset) {
   if (printDebug()) {
-    log(`go to submitTriggers with input : ${showObj(trigger)}`);
+    log(`in submitAsset with input : ${showObj(assetInput)}`);
   }
-  await submitIDbTriggers([trigger], modelName);
+  await submitIDbAssets([assetInput], modelName);
   await refreshData();
 }
 export async function submitNewAsset(name: string) {
@@ -409,11 +373,11 @@ export async function submitNewAsset(name: string) {
     ASSET_PURCHASE_PRICE: '0',
   });
 }
-async function submitAsset(assetInput: IDbAsset) {
+async function submitTransaction(input: DbTransaction) {
   if (printDebug()) {
-    log(`in submitAsset with input : ${showObj(assetInput)}`);
+    log(`in submitTransaction with input : ${showObj(input)}`);
   }
-  await submitIDbAssets([assetInput], modelName);
+  await submitIDbTransactions([input], modelName);
   await refreshData();
 }
 export async function submitNewTransaction(name: string) {
@@ -431,11 +395,12 @@ export async function submitNewTransaction(name: string) {
     TRANSACTION_RECURRENCE: '',
   });
 }
-async function submitTransaction(input: IDbTransaction) {
+
+async function submitSetting(input: DbSetting) {
   if (printDebug()) {
-    log(`in submitTransaction with input : ${showObj(input)}`);
+    log(`in submitSetting with input : ${showObj(input)}`);
   }
-  await submitIDbTransactions([input], modelName);
+  await submitIDbSettings([input], modelName);
   await refreshData();
 }
 export async function submitNewSetting(name: string) {
@@ -445,19 +410,19 @@ export async function submitNewSetting(name: string) {
     HINT: '',
   });
 }
-async function submitSetting(input: IDbSetting) {
-  if (printDebug()) {
-    log(`in submitSetting with input : ${showObj(input)}`);
-  }
-  await submitIDbSettings([input], modelName);
-  await refreshData();
-}
 
 function prohibitEditOfName() {
   alert('prohibit edit of name');
 }
 
-function handleExpenseGridRowsUpdated({ fromRow, toRow, updated }: any) {
+function checkBoolean(input: string) {
+  if (input !== 't' && input !== 'f' && input !== 'T' && input !== 'F') {
+    return false;
+  }
+  return true;
+}
+
+function handleExpenseGridRowsUpdated() {
   // log('handleExpenseGridRowsUpdated', arguments);
   const expense = arguments[0].fromRowData;
   // log('old expense '+showObj(expense));
@@ -473,10 +438,10 @@ function handleExpenseGridRowsUpdated({ fromRow, toRow, updated }: any) {
   // log('new expense '+showObj(expense));
   const checksOK = checkBoolean(expense.CPI_IMMUNE);
   if (!checksOK) {
-    alert(`Whether expense is CPI-immune should be 't' or 'f'`);
+    alert("Whether expense is CPI-immune should be 't' or 'f'");
     expense[arguments[0].cellKey] = oldValue;
   } else {
-    const expenseForSubmission: IDbExpense = {
+    const expenseForSubmission: DbExpense = {
       NAME: expense.NAME,
       CATEGORY: expense.CATEGORY,
       START: expense.START,
@@ -499,18 +464,7 @@ function handleExpenseGridRowsUpdated({ fromRow, toRow, updated }: any) {
     }
   }
 }
-function checkBoolean(input: string) {
-  if (
-    input !== 't'
-    && input !== 'f'
-    && input !== 'T'
-    && input !== 'F'
-  ) {
-    return false;
-  }
-  return true;
-}
-function handleIncomeGridRowsUpdated({ fromRow, toRow, updated }: any) {
+function handleIncomeGridRowsUpdated() {
   // log('handleIncomeGridRowsUpdated', arguments);
   const income = arguments[0].fromRowData;
   // log('old income '+showObj(income));
@@ -526,10 +480,10 @@ function handleIncomeGridRowsUpdated({ fromRow, toRow, updated }: any) {
   // log('new income '+showObj(income));
   const checksOK = checkBoolean(income.CPI_IMMUNE);
   if (!checksOK) {
-    alert(`Whether income is CPI-immune should be 't' or 'f'`);
+    alert("Whether income is CPI-immune should be 't' or 'f'");
     income[arguments[0].cellKey] = oldValue;
   } else {
-    const incomeForSubmission: IDbIncome = {
+    const incomeForSubmission: DbIncome = {
       NAME: income.NAME,
       CATEGORY: income.CATEGORY,
       START: income.START,
@@ -553,7 +507,7 @@ function handleIncomeGridRowsUpdated({ fromRow, toRow, updated }: any) {
   }
   // log('incomeForSubmission '+showObj(incomeForSubmission));
 }
-function handleTriggerGridRowsUpdated({ fromRow, toRow, updated }: any) {
+function handleTriggerGridRowsUpdated() {
   // log('handleTriggerGridRowsUpdated', arguments);
   const trigger = arguments[0].fromRowData;
   if (arguments[0].cellKey === 'NAME') {
@@ -565,13 +519,11 @@ function handleTriggerGridRowsUpdated({ fromRow, toRow, updated }: any) {
   const oldValue = trigger[arguments[0].cellKey];
   trigger[arguments[0].cellKey] = arguments[0].updated[arguments[0].cellKey];
   // log(`submitTrigger(trigger) has trigger = ${showObj(trigger)}`);
-  const forSubmit: IDbTrigger = {
+  const forSubmit: DbTrigger = {
     NAME: trigger.NAME,
     TRIGGER_DATE: new Date(trigger.TRIGGER_DATE),
   };
-  const checks = checkTrigger(
-    forSubmit,
-  );
+  const checks = checkTrigger(forSubmit);
   if (checks === '') {
     submitTrigger(forSubmit);
   } else {
@@ -579,7 +531,7 @@ function handleTriggerGridRowsUpdated({ fromRow, toRow, updated }: any) {
     trigger[arguments[0].cellKey] = oldValue;
   }
 }
-function handleAssetGridRowsUpdated({ fromRow, toRow, updated }: any) {
+function handleAssetGridRowsUpdated() {
   // log('handleAssetGridRowsUpdated', arguments);
   const asset = arguments[0].fromRowData;
   if (arguments[0].cellKey === 'NAME') {
@@ -598,7 +550,7 @@ function handleAssetGridRowsUpdated({ fromRow, toRow, updated }: any) {
     asset[arguments[0].cellKey] = oldValue;
   }
 }
-function handleTransactionGridRowsUpdated({ fromRow, toRow, updated }: any) {
+function handleTransactionGridRowsUpdated() {
   // log('handleTransactionGridRowsUpdated', arguments);
   const gridData = arguments[0].fromRowData;
   if (arguments[0].cellKey === 'NAME') {
@@ -608,19 +560,18 @@ function handleTransactionGridRowsUpdated({ fromRow, toRow, updated }: any) {
     return;
   }
   const oldValue = gridData[arguments[0].cellKey];
-  gridData[arguments[0].cellKey] =
-    arguments[0].updated[arguments[0].cellKey];
+  gridData[arguments[0].cellKey] = arguments[0].updated[arguments[0].cellKey];
   let checksOK = checkBoolean(gridData.TRANSACTION_FROM_ABSOLUTE);
   if (!checksOK) {
-    alert(`From absolute value should be 't' or 'f'`);
+    alert("From absolute value should be 't' or 'f'");
     gridData[arguments[0].cellKey] = oldValue;
   } else {
     checksOK = checkBoolean(gridData.TRANSACTION_TO_ABSOLUTE);
     if (!checksOK) {
-      alert(`To absolute value should be 't' or 'f'`);
+      alert("To absolute value should be 't' or 'f'");
       gridData[arguments[0].cellKey] = oldValue;
     } else {
-      const transaction: IDbTransaction = {
+      const transaction: DbTransaction = {
         TRANSACTION_DATE: gridData.TRANSACTION_DATE,
         TRANSACTION_FROM: gridData.TRANSACTION_FROM,
         TRANSACTION_FROM_ABSOLUTE: makeBooleanFromString(
@@ -650,7 +601,7 @@ function handleTransactionGridRowsUpdated({ fromRow, toRow, updated }: any) {
     }
   }
 }
-function handleSettingGridRowsUpdated({ fromRow, toRow, updated }: any) {
+function handleSettingGridRowsUpdated() {
   // log('handleSettingGridRowsUpdated', arguments);
   const x = arguments[0].fromRowData;
   if (arguments[0].cellKey === 'NAME') {
@@ -662,7 +613,7 @@ function handleSettingGridRowsUpdated({ fromRow, toRow, updated }: any) {
   // log('old expense '+showObj(expense));
   x[arguments[0].cellKey] = arguments[0].updated[arguments[0].cellKey];
   // log('new expense '+showObj(expense));
-  const forSubmission: IDbSetting = {
+  const forSubmission: DbSetting = {
     NAME: x.NAME,
     VALUE: x.VALUE,
     HINT: x.HINT,
@@ -727,11 +678,11 @@ export async function updateModelName(newValue: string) {
   await refreshData();
 }
 
-interface IAppState {
-  modelData: IDbModelData;
-  expensesChartData: IChartData[];
-  incomesChartData: IChartData[];
-  singleAssetChartData: IChartData[];
+interface AppState {
+  modelData: DbModelData;
+  expensesChartData: ChartData[];
+  incomesChartData: ChartData[];
+  singleAssetChartData: ChartData[];
   modelNamesData: string[];
 }
 
@@ -747,7 +698,7 @@ const defaultChartSettings = {
     fontFamily: 'Helvetica',
     fontWeight: 'normal',
     horizontalAlign: 'right', // left, center ,right
-    verticalAlign: 'center',  // top, center, bottom
+    verticalAlign: 'center', // top, center, bottom
   },
 };
 
@@ -773,7 +724,130 @@ function makeReactVisChartData(x: IChartData): IReactVisChartPoint[] {
   return result;
 }
 */
-export class App extends Component<{}, IAppState> {
+
+// generates text for SampleData.ts
+export async function stringifyDB(): Promise<string> {
+  let result = '';
+  /* eslint-disable no-multi-str */
+  result +=
+    "import {\n\
+      CASH_ASSET_NAME,\n\
+      singleAssetChartView,\n\
+      cpi,\n\
+      roiEnd,\n\
+      roiStart,\n\
+      viewDetail,\n\
+      viewFrequency,\n\
+      birthDate,\n\
+     } from './assets';\n" +
+    "import {\n\
+      IDbAsset,\n\
+      IDbExpense,\n\
+      IDbIncome,\n\
+      IDbSetting, \n\
+      IDbTransaction,\n\
+      IDbTrigger,\n\
+    } from './common/interfaces';\n\n";
+  /* eslint-disable no-multi-str */
+
+  const model = await getDbModel(modelName);
+
+  result += 'export const sampleTriggers: IDbTrigger[] = ';
+  const trigs: DbTrigger[] = model.triggers;
+  result += '[\n';
+  trigs.forEach(trig => {
+    result += '\t{\n';
+    result += `\t\tNAME: '${trig.NAME}',\n`;
+    result += `\t\tTRIGGER_DATE: new Date('${trig.TRIGGER_DATE.toDateString()}'),\n`;
+    result += '\t},\n';
+  });
+  result += '];\n\n';
+
+  result += 'export const sampleExpenses: IDbExpense[] = ';
+  result += showObj(model.expenses);
+  result += ';\n\n';
+
+  result += 'export const sampleIncomes: IDbIncome[] = ';
+  result += showObj(model.incomes);
+  result += ';\n\n';
+
+  result += 'export const sampleAssets: IDbAsset[] = ';
+  result += showObj(model.assets);
+  result += ';\n\n';
+
+  result += 'export const sampleTransactions: IDbTransaction[] = ';
+  result += showObj(model.transactions);
+  result += ';\n';
+
+  result += 'export const sampleSettings: IDbSetting[] = ';
+  result += showObj(model.settings);
+  result += ';\n';
+
+  result = result.replace(/"NAME"/g, 'NAME');
+  result = result.replace(/"VALUE"/g, 'VALUE');
+  result = result.replace(/"HINT"/g, 'HINT');
+  result = result.replace(/"VALUE_SET"/g, 'VALUE_SET');
+  result = result.replace(/"CATEGORY"/g, 'CATEGORY');
+  result = result.replace(/"START"/g, 'START');
+  result = result.replace(/"END"/g, 'END');
+  result = result.replace(/"GROWTH"/g, 'GROWTH');
+  result = result.replace(/"CPI_IMMUNE"/g, 'CPI_IMMUNE');
+  result = result.replace(/"LIABILITY"/g, 'LIABILITY');
+  result = result.replace(/"ASSET_START"/g, 'ASSET_START');
+  result = result.replace(/"ASSET_VALUE"/g, 'ASSET_VALUE');
+  result = result.replace(/"ASSET_GROWTH"/g, 'ASSET_GROWTH');
+  result = result.replace(/"ASSET_LIABILITY"/g, 'ASSET_LIABILITY');
+  result = result.replace(/"ASSET_PURCHASE_PRICE"/g, 'ASSET_PURCHASE_PRICE');
+  result = result.replace(/"TRANSACTION_FROM"/g, 'TRANSACTION_FROM');
+  result = result.replace(
+    /"TRANSACTION_FROM_ABSOLUTE"/g,
+    'TRANSACTION_FROM_ABSOLUTE',
+  );
+  result = result.replace(
+    /"TRANSACTION_FROM_VALUE"/g,
+    'TRANSACTION_FROM_VALUE',
+  );
+  result = result.replace(/"TRANSACTION_TO"/g, 'TRANSACTION_TO');
+  result = result.replace(
+    /"TRANSACTION_TO_ABSOLUTE"/g,
+    'TRANSACTION_TO_ABSOLUTE',
+  );
+  result = result.replace(/"TRANSACTION_TO_VALUE"/g, 'TRANSACTION_TO_VALUE');
+  result = result.replace(/"TRANSACTION_DATE"/g, 'TRANSACTION_DATE');
+  result = result.replace(/"TRANSACTION_STOP_DATE"/g, 'TRANSACTION_STOP_DATE');
+  result = result.replace(
+    /"TRANSACTION_RECURRENCE"/g,
+    'TRANSACTION_RECURRENCE',
+  );
+  let re = new RegExp(`\"+${CASH_ASSET_NAME}\"`, 'g'); // eslint-disable-line no-useless-escape
+  result = result.replace(re, 'CASH_ASSET_NAME');
+  re = new RegExp(`\"+${assetChartView}\"`, 'g'); // eslint-disable-line no-useless-escape
+  result = result.replace(re, 'assetChartView');
+  re = new RegExp(`\"+${singleAssetName}\"`, 'g'); // eslint-disable-line no-useless-escape
+  result = result.replace(re, 'singleAssetName');
+  re = new RegExp(`\"+${expenseChartFocus}\"`, 'g'); // eslint-disable-line no-useless-escape
+  result = result.replace(re, 'expenseChartFocus');
+  re = new RegExp(`\"+${incomeChartFocus}\"`, 'g'); // eslint-disable-line no-useless-escape
+  result = result.replace(re, 'incomeChartFocus');
+  re = new RegExp(`\"+${roiEnd}\"`, 'g'); // eslint-disable-line no-useless-escape
+  result = result.replace(re, 'roiEnd');
+  re = new RegExp(`\"+${roiStart}\"`, 'g'); // eslint-disable-line no-useless-escape
+  result = result.replace(re, 'roiStart');
+  re = new RegExp(`\"+${viewFrequency}\"`, 'g'); // eslint-disable-line no-useless-escape
+  result = result.replace(re, 'viewFrequency');
+  re = new RegExp(`\"+${viewDetail}\"`, 'g'); // eslint-disable-line no-useless-escape
+  result = result.replace(re, 'viewDetail');
+  re = new RegExp(`\"+${cpi}\"`, 'g'); // eslint-disable-line no-useless-escape
+  result = result.replace(re, 'cpi');
+  re = new RegExp(`\"+${birthDate}\"`, 'g'); // eslint-disable-line no-useless-escape
+  result = result.replace(re, 'birthDate');
+
+  result = result.replace(/"/g, "'");
+
+  return result;
+}
+
+export class App extends Component<{}, AppState> {
   constructor(props: {}) {
     super(props);
     reactAppComponent = this;
@@ -793,6 +867,7 @@ export class App extends Component<{}, IAppState> {
       modelNamesData: [],
     };
   }
+
   public render() {
     if (printDebug()) {
       log('in render');
@@ -800,48 +875,38 @@ export class App extends Component<{}, IAppState> {
     return (
       <div>
         <nav className="navbar fixed-top navbar-light bg-dark">
-        <header>
-        {this.navigationDiv()}
-        </header>
+          <header>{this.navigationDiv()}</header>
         </nav>
-        <div style={{paddingTop: '100px'}}>
-        {this.homeDiv()}
-        {this.overviewDiv()}
-        {this.manageModelsDiv()}
-        {this.settingsDiv()}
-        {this.incomesDiv()}
-        {this.expensesDiv()}
-        {this.assetsDiv()}
-        {this.transactionsDiv()}
-        {this.triggersDiv()}
+        <div style={{ paddingTop: '100px' }}>
+          {this.homeDiv()}
+          {this.overviewDiv()}
+          {this.manageModelsDiv()}
+          {this.settingsDiv()}
+          {this.incomesDiv()}
+          {this.expensesDiv()}
+          {this.assetsDiv()}
+          {this.transactionsDiv()}
+          {this.triggersDiv()}
         </div>
       </div>
     );
   }
 
-  private modelList(
-    modelNames: string[],
-    actionOnSelect: any,
-    idKey: string,
-  ) {
+  private modelList(modelNames: string[], actionOnSelect: any, idKey: string) {
     // log(`models = ${models}`)
-    const buttons = modelNames.map((model) =>
-        <Button
-          key={model}
-          action={(e: any) => {
-            e.persist();
-            actionOnSelect(model);
-          }}
-          title={model}
-          id={`btn-${idKey}-${model}`}
-          type="secondary"
-          />,
-    );
-    return (
-      <div role="group">
-        {buttons}
-      </div>
-    );
+    const buttons = modelNames.map(model => (
+      <Button
+        key={model}
+        action={(e: any) => {
+          e.persist();
+          actionOnSelect(model);
+        }}
+        title={model}
+        id={`btn-${idKey}-${model}`}
+        type="secondary"
+      />
+    ));
+    return <div role="group">{buttons}</div>;
   }
 
   private modelListForOverview(modelNames: string[]) {
@@ -866,6 +931,7 @@ export class App extends Component<{}, IAppState> {
       'del',
     );
   }
+
   private homeDiv() {
     if (!show.get(homeView).display) {
       return;
@@ -875,34 +941,37 @@ export class App extends Component<{}, IAppState> {
       <div style={{ display: getDisplay(homeView) ? 'block' : 'none' }}>
         <h1 id="WelcomeHeader">Welcome!</h1>
         <Button
-            id="startNewModel"
-            action={async () => {
-              const promptResponse = prompt('Provide a name for your model');
-              if (promptResponse === null) {
-                return;
-              }
-              if (this.state.modelNamesData.find((model) => {
-                return model === promptResponse;
-              })) {
-                alert(`There's already a model with that name`);
-                return;
-              }
-              await updateModelName(promptResponse);
-              // log(`created new model`);
-              toggle(triggersView);
-            }}
-            title="New model"
-            type="secondary"
-            />
-        <br/><br/>
+          id="startNewModel"
+          action={async () => {
+            const promptResponse = prompt('Provide a name for your model');
+            if (promptResponse === null) {
+              return;
+            }
+            if (
+              this.state.modelNamesData.find(model => model === promptResponse)
+            ) {
+              alert("There's already a model with that name");
+              return;
+            }
+            await updateModelName(promptResponse);
+            // log(`created new model`);
+            toggle(triggersView);
+          }}
+          title="New model"
+          type="secondary"
+        />
+        <br />
+        <br />
         Review or edit an existing model:
         {this.modelListForOverview(this.state.modelNamesData)}
-        <br/><br/>
+        <br />
+        <br />
         Delete an existing model:
         {this.modelListForDelete(this.state.modelNamesData)}
       </div>
     );
   }
+
   private manageModelsDiv() {
     if (!show.get(manageModelsView).display) {
       return;
@@ -932,7 +1001,9 @@ export class App extends Component<{}, IAppState> {
                     submitIDbAssets(sampleAssets, modelName),
                     submitIDbTransactions(sampleTransactions, modelName),
                     submitIDbSettings(sampleSettings, modelName),
-                  ]).then(() => refreshData())));
+                  ]).then(() => refreshData()),
+                ),
+              );
             }}
             title="Replace with data from sample"
             type="secondary"
@@ -947,9 +1018,9 @@ export class App extends Component<{}, IAppState> {
                 deleteAllAssets(modelName),
                 deleteAllTransactions(modelName),
                 deleteAllSettings(modelName),
-              ]).then(
-                () => ensureDbTables(modelName).then(
-                  () => refreshData()));
+              ]).then(() =>
+                ensureDbTables(modelName).then(() => refreshData()),
+              );
             }}
             title="Clear data"
             type="secondary"
@@ -965,7 +1036,7 @@ export class App extends Component<{}, IAppState> {
           <Button
             id="logData"
             action={() => {
-              stringifyDB().then((x) => log(x));
+              stringifyDB().then(x => log(x));
             }}
             title="Log data to console"
             type="secondary"
@@ -985,7 +1056,9 @@ export class App extends Component<{}, IAppState> {
             }}
             deleteFunction={async (name: string) => {
               // log(`delete model ${name}`);
-              if (window.confirm(`delete all data in model ${name} - you sure?`)) {
+              if (
+                window.confirm(`delete all data in model ${name} - you sure?`)
+              ) {
                 await deleteAllTables(name);
                 if (modelName === name) {
                   // log('switch to default model');
@@ -1003,40 +1076,44 @@ export class App extends Component<{}, IAppState> {
       </div>
     );
   }
+
   private settingsDiv() {
     if (!show.get(settingsView).display) {
       return;
     }
-    const tableVisible = showContent.get(settingsTable).display
-      && this.state.modelData.settings.length > 0;
+    const tableVisible =
+      showContent.get(settingsTable).display &&
+      this.state.modelData.settings.length > 0;
     return (
       <div style={{ display: getDisplay(settingsView) ? 'block' : 'none' }}>
         <fieldset>
-          <h2 id="SettingsHeader">Model {modelName}: Settings</h2>
+          <h2 id="SettingsHeader">
+            Model
+            {modelName}: Settings
+          </h2>
           <Button
             action={(event: any) => {
               event.persist();
               toggleCharts(settingsTable);
             }}
-            title={`${showContent.get(settingsTable).display
-              ? 'Hide '
-              : 'Show '}${settingsTable.lc}`}
-            type={showContent.get(settingsTable).display
-              ? 'primary'
-              : 'secondary'}
+            title={`${
+              showContent.get(settingsTable).display ? 'Hide ' : 'Show '
+            }${settingsTable.lc}`}
+            type={
+              showContent.get(settingsTable).display ? 'primary' : 'secondary'
+            }
             key={settingsTable.lc}
             id="toggleSettingsChart"
           />
           <div
             className="dataGridSettings"
-            style={{ display: tableVisible
-              ? 'block'
-              : 'none',
+            style={{
+              display: tableVisible ? 'block' : 'none',
             }}
           >
             <DataGrid
               handleGridRowsUpdated={handleSettingGridRowsUpdated}
-              rows={this.state.modelData.settings.map((obj: IDbSetting) => {
+              rows={this.state.modelData.settings.map((obj: DbSetting) => {
                 showObj(`obj = ${obj}`);
                 const result = {
                   NAME: obj.NAME,
@@ -1064,18 +1141,19 @@ export class App extends Component<{}, IAppState> {
               ]}
             />
           </div>
-          <p/>
+          <p />
           <div className="addNewSetting">
             <h4> Add or delete setting </h4>
             <AddDeleteEntryForm
-              submitFunction = {submitNewSetting}
-              deleteFunction = {deleteSettingFromTable}
+              submitFunction={submitNewSetting}
+              deleteFunction={deleteSettingFromTable}
             />
           </div>
         </fieldset>
       </div>
     );
   }
+
   private getExpenseChartFocus() {
     if (this.state.modelData.settings.length === 0) {
       // data not yet loaded
@@ -1088,8 +1166,9 @@ export class App extends Component<{}, IAppState> {
     );
     return categoryName;
   }
+
   private makeFiltersList(
-    gridData: Array<{ CATEGORY: string, NAME: string }>,
+    gridData: Array<{ CATEGORY: string; NAME: string }>,
     selectedChartFocus: string,
     settingName: string,
     defaultSetting: string,
@@ -1100,14 +1179,14 @@ export class App extends Component<{}, IAppState> {
     // defaultSetting = expenseChartFocusAll
     // hint = expenseChartFocusHint
     const categories = [defaultSetting];
-    gridData.forEach((e) => {
+    gridData.forEach(e => {
       let candidate = defaultSetting;
       candidate = e.NAME;
       if (categories.indexOf(candidate) < 0) {
         categories.push(candidate);
       }
     });
-    gridData.forEach((e) => {
+    gridData.forEach(e => {
       let candidate = defaultSetting;
       if (e.CATEGORY !== '') {
         candidate = e.CATEGORY;
@@ -1116,181 +1195,186 @@ export class App extends Component<{}, IAppState> {
         }
       }
     });
-    const buttons = categories.map((category) =>
-        <Button
-          key={category}
-          action={(e: any) => {
-            e.persist();
-            // when a button is clicked,
-            // go to change the settings value
-            const forSubmission: IDbSetting = {
-              NAME: settingName,
-              VALUE: category,
-              HINT: hint,
-            };
-            submitSetting(forSubmission);
-          }}
-          title={category}
-          type={(category === selectedChartFocus)
-            ? 'primary' : 'secondary'}
-          id={`select-${category}`}
-        />,
-    );
-    return (
-      <div role="group">
-        {buttons}
-      </div>
-    );
+    const buttons = categories.map(category => (
+      <Button
+        key={category}
+        action={(e: any) => {
+          e.persist();
+          // when a button is clicked,
+          // go to change the settings value
+          const forSubmission: DbSetting = {
+            NAME: settingName,
+            VALUE: category,
+            HINT: hint,
+          };
+          submitSetting(forSubmission);
+        }}
+        title={category}
+        type={category === selectedChartFocus ? 'primary' : 'secondary'}
+        id={`select-${category}`}
+      />
+    ));
+    return <div role="group">{buttons}</div>;
   }
+
   private expensesDiv() {
     if (!show.get(expensesView).display) {
       return;
     }
-    const chartVisible = showContent.get(expensesChart).display
-      && this.state.modelData.expenses.length > 0;
-    const tableVisible = showContent.get(expensesTable).display
-      && this.state.modelData.expenses.length > 0;
+    const chartVisible =
+      showContent.get(expensesChart).display &&
+      this.state.modelData.expenses.length > 0;
+    const tableVisible =
+      showContent.get(expensesTable).display &&
+      this.state.modelData.expenses.length > 0;
     return (
       <div style={{ display: getDisplay(expensesView) ? 'block' : 'none' }}>
-        <h2 id="ExpensesHeader">Model {modelName}: Expenses</h2>
+        <h2 id="ExpensesHeader">
+          Model
+          {modelName}: Expenses
+        </h2>
         <Button
           action={(event: any) => {
             event.persist();
             toggleCharts(expensesChart);
           }}
-          title={`${showContent.get(expensesChart).display
-            ? 'Hide '
-            : 'Show '}${expensesChart.lc}`}
-          type={showContent.get(expensesChart).display
-            ? 'primary'
-            : 'secondary'}
+          title={`${
+            showContent.get(expensesChart).display ? 'Hide ' : 'Show '
+          }${expensesChart.lc}`}
+          type={
+            showContent.get(expensesChart).display ? 'primary' : 'secondary'
+          }
           key={expensesChart.lc}
-          id={`toggle-expensesChart`}
+          id="toggle-expensesChart"
         />
         <Button
           action={(event: any) => {
             event.persist();
             toggleCharts(expensesTable);
           }}
-          title={`${showContent.get(expensesTable).display
-            ? 'Hide '
-            : 'Show '}${expensesTable.lc}`}
-          type={showContent.get(expensesTable).display
-            ? 'primary'
-            : 'secondary'}
+          title={`${
+            showContent.get(expensesTable).display ? 'Hide ' : 'Show '
+          }${expensesTable.lc}`}
+          type={
+            showContent.get(expensesTable).display ? 'primary' : 'secondary'
+          }
           key={expensesTable.lc}
-          id={`toggle-expensesTable`}
+          id="toggle-expensesTable"
         />
-        <div style={{ display: chartVisible
-          ? 'block'
-          : 'none'}}>
-        <ReactiveTextArea
-          identifier="expenseDataDump"
-          message={showObj(this.state.expensesChartData)}
-        />
-        <h3>Expense types</h3>:
-        {this.makeFiltersList(
+        <div
+          style={{
+            display: chartVisible ? 'block' : 'none',
+          }}
+        >
+          <ReactiveTextArea
+            identifier="expenseDataDump"
+            message={showObj(this.state.expensesChartData)}
+          />
+          <h3>Expense types</h3>:
+          {this.makeFiltersList(
             this.state.modelData.expenses,
             this.getExpenseChartFocus(),
             expenseChartFocus,
             expenseChartFocusAll,
             expenseChartFocusHint,
-        )}
-        {this.coarseFineList()}
-        <fieldset>
-          <ReactiveTextArea
-            identifier="expensesDataDump"
-            message={showObj(this.state.expensesChartData)}
-          />
-          <CanvasJSChart
-            options={{
-              ...defaultChartSettings,
-              data: this.state.expensesChartData,
-            }}
-          />
-        </fieldset>
-        </div>
-        <div style={{ display: tableVisible
-          ? 'block'
-          : 'none'}}>
-        <fieldset>
-          <div className="dataGridExpenses">
-            <DataGrid
-              handleGridRowsUpdated={handleExpenseGridRowsUpdated}
-              rows={this.state.modelData.expenses.map((obj: IDbExpense) => {
-                const result = {
-                  END: obj.END,
-                  CPI_IMMUNE:
-                    makeStringFromBoolean(obj.CPI_IMMUNE),
-                  GROWTH: obj.GROWTH,
-                  CATEGORY: obj.CATEGORY,
-                  NAME: obj.NAME,
-                  START: obj.START,
-                  VALUE: obj.VALUE,
-                  VALUE_SET: obj.VALUE_SET,
-                };
-                return result;
-              })}
-              columns={[
-                {
-                  ...defaultColumn,
-                  key: 'NAME',
-                  name: 'name',
-                },
-                {
-                  ...defaultColumn,
-                  key: 'VALUE',
-                  name: 'start value',
-                },
-                {
-                  ...defaultColumn,
-                  key: 'VALUE_SET',
-                  name: 'value date',
-                },
-                {
-                  ...defaultColumn,
-                  key: 'START',
-                  name: 'start',
-                },
-                {
-                  ...defaultColumn,
-                  key: 'END',
-                  name: 'end',
-                },
-                {
-                  ...defaultColumn,
-                  key: 'GROWTH',
-                  name: 'annual growth',
-                },
-                {
-                  ...defaultColumn,
-                  key: 'CPI_IMMUNE',
-                  name: 'cpi-immune',
-                },
-                {
-                  ...defaultColumn,
-                  key: 'CATEGORY',
-                  name: 'category',
-                },
-              ]}
+          )}
+          {this.coarseFineList()}
+          <fieldset>
+            <ReactiveTextArea
+              identifier="expensesDataDump"
+              message={showObj(this.state.expensesChartData)}
             />
-          </div>
-          <p/>
-        </fieldset>
+            <CanvasJSChart
+              options={{
+                ...defaultChartSettings,
+                data: this.state.expensesChartData,
+              }}
+            />
+          </fieldset>
+        </div>
+        <div
+          style={{
+            display: tableVisible ? 'block' : 'none',
+          }}
+        >
+          <fieldset>
+            <div className="dataGridExpenses">
+              <DataGrid
+                handleGridRowsUpdated={handleExpenseGridRowsUpdated}
+                rows={this.state.modelData.expenses.map((obj: DbExpense) => {
+                  const result = {
+                    END: obj.END,
+                    CPI_IMMUNE: makeStringFromBoolean(obj.CPI_IMMUNE),
+                    GROWTH: obj.GROWTH,
+                    CATEGORY: obj.CATEGORY,
+                    NAME: obj.NAME,
+                    START: obj.START,
+                    VALUE: obj.VALUE,
+                    VALUE_SET: obj.VALUE_SET,
+                  };
+                  return result;
+                })}
+                columns={[
+                  {
+                    ...defaultColumn,
+                    key: 'NAME',
+                    name: 'name',
+                  },
+                  {
+                    ...defaultColumn,
+                    key: 'VALUE',
+                    name: 'start value',
+                  },
+                  {
+                    ...defaultColumn,
+                    key: 'VALUE_SET',
+                    name: 'value date',
+                  },
+                  {
+                    ...defaultColumn,
+                    key: 'START',
+                    name: 'start',
+                  },
+                  {
+                    ...defaultColumn,
+                    key: 'END',
+                    name: 'end',
+                  },
+                  {
+                    ...defaultColumn,
+                    key: 'GROWTH',
+                    name: 'annual growth',
+                  },
+                  {
+                    ...defaultColumn,
+                    key: 'CPI_IMMUNE',
+                    name: 'cpi-immune',
+                  },
+                  {
+                    ...defaultColumn,
+                    key: 'CATEGORY',
+                    name: 'category',
+                  },
+                ]}
+              />
+            </div>
+            <p />
+          </fieldset>
         </div>
         <div className="addNewExpense">
           <h4> Add or delete expense </h4>
           <AddDeleteExpenseForm
-            checkFunction = {checkExpense}
-            submitFunction = {submitExpense}
-            deleteFunction = {deleteExpenseFromTable}
-            submitTrigger = {submitTrigger}
-            model = {this.state.modelData}
+            checkFunction={checkExpense}
+            submitFunction={submitExpense}
+            deleteFunction={deleteExpenseFromTable}
+            submitTrigger={submitTrigger}
+            model={this.state.modelData}
           />
         </div>
       </div>
     );
   }
+
   private getIncomeChartFocus() {
     if (this.state.modelData.settings.length === 0) {
       // data not yet loaded
@@ -1303,232 +1387,259 @@ export class App extends Component<{}, IAppState> {
     );
     return categoryName;
   }
+
   private incomesDiv() {
     if (!show.get(incomesView).display) {
       return;
     }
     // log('rendering an incomesDiv');
-    const chartVisible = showContent.get(incomesChart).display
-      && this.state.modelData.incomes.length > 0;
-    const tableVisible = showContent.get(incomesTable).display
-      && this.state.modelData.incomes.length > 0;
+    const chartVisible =
+      showContent.get(incomesChart).display &&
+      this.state.modelData.incomes.length > 0;
+    const tableVisible =
+      showContent.get(incomesTable).display &&
+      this.state.modelData.incomes.length > 0;
     return (
       <div style={{ display: getDisplay(incomesView) ? 'block' : 'none' }}>
-        <h2 id="IncomesHeader">Model {modelName}: Incomes</h2>
+        <h2 id="IncomesHeader">
+          Model
+          {modelName}: Incomes
+        </h2>
         <Button
           action={(event: any) => {
             event.persist();
             toggleCharts(incomesChart);
           }}
-          title={`${showContent.get(incomesChart).display
-            ? 'Hide '
-            : 'Show '}${incomesChart.lc}`}
-          type={showContent.get(incomesChart).display
-            ? 'primary'
-            : 'secondary'}
+          title={`${showContent.get(incomesChart).display ? 'Hide ' : 'Show '}${
+            incomesChart.lc
+          }`}
+          type={showContent.get(incomesChart).display ? 'primary' : 'secondary'}
           key={incomesChart.lc}
-          id={`toggle-incomesChart`}
+          id="toggle-incomesChart"
         />
         <Button
           action={(event: any) => {
             event.persist();
             toggleCharts(incomesTable);
           }}
-          title={`${showContent.get(incomesTable).display
-            ? 'Hide '
-            : 'Show '}${incomesTable.lc}`}
-          type={showContent.get(incomesTable).display
-            ? 'primary'
-            : 'secondary'}
+          title={`${showContent.get(incomesTable).display ? 'Hide ' : 'Show '}${
+            incomesTable.lc
+          }`}
+          type={showContent.get(incomesTable).display ? 'primary' : 'secondary'}
           key={incomesTable.lc}
-          id={`toggle-incomesTable`}
+          id="toggle-incomesTable"
         />
-        <div style={{ display: chartVisible
-          ? 'block'
-          : 'none'}}>
-        <h3>Income types</h3>:
-        {this.makeFiltersList(
+        <div
+          style={{
+            display: chartVisible ? 'block' : 'none',
+          }}
+        >
+          <h3>Income types</h3>:
+          {this.makeFiltersList(
             this.state.modelData.incomes,
             this.getIncomeChartFocus(),
             incomeChartFocus,
             incomeChartFocusAll,
             incomeChartFocusHint,
-        )}
-        {this.coarseFineList()}
-        <fieldset>
-          <ReactiveTextArea
-            identifier="incomeDataDump"
-            message={showObj(this.state.incomesChartData)}
-          />
-          <CanvasJSChart
-            options={{
-              ...defaultChartSettings,
-              data: this.state.incomesChartData,
-            }}
-          />
-          </fieldset>
-          </div>
-          <div style={{ display: tableVisible
-          ? 'block'
-          : 'none'}}>
+          )}
+          {this.coarseFineList()}
           <fieldset>
-          <div className="dataGridIncomes">
-            <DataGrid
-              handleGridRowsUpdated={handleIncomeGridRowsUpdated}
-              rows={this.state.modelData.incomes.map((obj: IDbIncome) => {
-                const result = {
-                  END: obj.END,
-                  CPI_IMMUNE:
-                    makeStringFromBoolean(obj.CPI_IMMUNE),
-                  GROWTH: obj.GROWTH,
-                  NAME: obj.NAME,
-                  START: obj.START,
-                  VALUE: obj.VALUE,
-                  VALUE_SET: obj.VALUE_SET,
-                  LIABILITY: obj.LIABILITY,
-                  CATEGORY: obj.CATEGORY,
-                };
-                // log(`passing ${showObj(result)}`);
-                return result;
-              })}
-              columns={[
-                {
-                  ...defaultColumn,
-                  key: 'NAME',
-                  name: 'name',
-                },
-                {
-                  ...defaultColumn,
-                  key: 'VALUE',
-                  name: 'start value',
-                },
-                {
-                  ...defaultColumn,
-                  key: 'VALUE_SET',
-                  name: 'value date',
-                },
-                {
-                  ...defaultColumn,
-                  key: 'START',
-                  name: 'start',
-                },
-                {
-                  ...defaultColumn,
-                  key: 'END',
-                  name: 'end',
-                },
-                {
-                  ...defaultColumn,
-                  key: 'GROWTH',
-                  name: 'annual growth',
-                },
-                {
-                  ...defaultColumn,
-                  key: 'CPI_IMMUNE',
-                  name: 'cpi-immune',
-                },
-                {
-                  ...defaultColumn,
-                  key: 'LIABILITY',
-                  name: 'taxable?',
-                },
-                {
-                  ...defaultColumn,
-                  key: 'CATEGORY',
-                  name: 'category',
-                },
-              ]}
+            <ReactiveTextArea
+              identifier="incomeDataDump"
+              message={showObj(this.state.incomesChartData)}
             />
-          </div>
-          <p/>
-        </fieldset>
+            <CanvasJSChart
+              options={{
+                ...defaultChartSettings,
+                data: this.state.incomesChartData,
+              }}
+            />
+          </fieldset>
+        </div>
+        <div
+          style={{
+            display: tableVisible ? 'block' : 'none',
+          }}
+        >
+          <fieldset>
+            <div className="dataGridIncomes">
+              <DataGrid
+                handleGridRowsUpdated={handleIncomeGridRowsUpdated}
+                rows={this.state.modelData.incomes.map((obj: DbIncome) => {
+                  const result = {
+                    END: obj.END,
+                    CPI_IMMUNE: makeStringFromBoolean(obj.CPI_IMMUNE),
+                    GROWTH: obj.GROWTH,
+                    NAME: obj.NAME,
+                    START: obj.START,
+                    VALUE: obj.VALUE,
+                    VALUE_SET: obj.VALUE_SET,
+                    LIABILITY: obj.LIABILITY,
+                    CATEGORY: obj.CATEGORY,
+                  };
+                  // log(`passing ${showObj(result)}`);
+                  return result;
+                })}
+                columns={[
+                  {
+                    ...defaultColumn,
+                    key: 'NAME',
+                    name: 'name',
+                  },
+                  {
+                    ...defaultColumn,
+                    key: 'VALUE',
+                    name: 'start value',
+                  },
+                  {
+                    ...defaultColumn,
+                    key: 'VALUE_SET',
+                    name: 'value date',
+                  },
+                  {
+                    ...defaultColumn,
+                    key: 'START',
+                    name: 'start',
+                  },
+                  {
+                    ...defaultColumn,
+                    key: 'END',
+                    name: 'end',
+                  },
+                  {
+                    ...defaultColumn,
+                    key: 'GROWTH',
+                    name: 'annual growth',
+                  },
+                  {
+                    ...defaultColumn,
+                    key: 'CPI_IMMUNE',
+                    name: 'cpi-immune',
+                  },
+                  {
+                    ...defaultColumn,
+                    key: 'LIABILITY',
+                    name: 'taxable?',
+                  },
+                  {
+                    ...defaultColumn,
+                    key: 'CATEGORY',
+                    name: 'category',
+                  },
+                ]}
+              />
+            </div>
+            <p />
+          </fieldset>
+        </div>
+        <div className="addNewIncome">
+          <h4> Add or delete income </h4>
+          <AddDeleteIncomeForm
+            checkFunction={checkIncome}
+            submitFunction={submitIncome}
+            deleteFunction={deleteIncomeFromTable}
+            submitTrigger={submitTrigger}
+            model={this.state.modelData}
+          />
+        </div>
       </div>
-      <div className="addNewIncome">
-        <h4> Add or delete income </h4>
-        <AddDeleteIncomeForm
-          checkFunction = {checkIncome}
-          submitFunction = {submitIncome}
-          deleteFunction = {deleteIncomeFromTable}
-          submitTrigger = {submitTrigger}
-          model = {this.state.modelData}
-        />
-      </div>
-    </div>
     );
   }
+
   private overviewDiv() {
     if (!show.get(overview).display) {
       return;
     }
     return (
       <div style={{ display: getDisplay(overview) ? 'block' : 'none' }}>
-        <h2 id="OverviewHeader">Model {modelName}: Overview</h2>
-        This model has
-        &nbsp;{this.state.modelData.triggers.length} important dates,
-        &nbsp;{this.state.modelData.incomes.length} incomes,
-        &nbsp;{this.state.modelData.expenses.length} expenses,
-        &nbsp;{this.state.modelData.assets.length} assets,
-        &nbsp;{this.state.modelData.transactions.length} transactions and
-        &nbsp;{this.state.modelData.settings.length} settings.
-        <br/><br/>
-        The
-        &nbsp;<Button
-          action={() => {toggle(triggersView); }}
-          type={'secondary'}
-          title={'important dates'}
+        <h2 id="OverviewHeader">
+          Model
+          {modelName}: Overview
+        </h2>
+        This model has &nbsp;
+        {this.state.modelData.triggers.length} important dates, &nbsp;
+        {this.state.modelData.incomes.length} incomes, &nbsp;
+        {this.state.modelData.expenses.length} expenses, &nbsp;
+        {this.state.modelData.assets.length} assets, &nbsp;
+        {this.state.modelData.transactions.length} transactions and &nbsp;
+        {this.state.modelData.settings.length} settings.
+        <br />
+        <br />
+        The &nbsp;
+        <Button
+          action={() => {
+            toggle(triggersView);
+          }}
+          type="secondary"
+          title="important dates"
           id="switchToTriggers"
-        />&nbsp;
-        are called
+        />
+        &nbsp; are called
         {this.state.modelData.triggers.map(t => ` "${t.NAME}"`)}
-        <br/><br/>
-        The
-        &nbsp;<Button
-          action={() => {toggle(incomesView); }}
-          type={'secondary'}
-          title={'incomes'}
+        <br />
+        <br />
+        The &nbsp;
+        <Button
+          action={() => {
+            toggle(incomesView);
+          }}
+          type="secondary"
+          title="incomes"
           id="switchToIncomes"
-        />&nbsp;
-        are called
+        />
+        &nbsp; are called
         {this.state.modelData.incomes.map(t => ` "${t.NAME}"`)}
-        <br/><br/>
-        The
-        &nbsp;<Button
-          action={() => {toggle(expensesView); }}
-          type={'secondary'}
-          title={'expenses'}
+        <br />
+        <br />
+        The &nbsp;
+        <Button
+          action={() => {
+            toggle(expensesView);
+          }}
+          type="secondary"
+          title="expenses"
           id="switchToExpenses"
-         />&nbsp;
-         are called
+        />
+        &nbsp; are called
         {this.state.modelData.expenses.map(t => ` "${t.NAME}"`)}
-        <br/><br/>
-        The
-        &nbsp;<Button
-          action={() => {toggle(assetsView); }}
-          type={'secondary'}
-          title={'assets'}
+        <br />
+        <br />
+        The &nbsp;
+        <Button
+          action={() => {
+            toggle(assetsView);
+          }}
+          type="secondary"
+          title="assets"
           id="switchToAssets"
-        />&nbsp;
-        are called
+        />
+        &nbsp; are called
         {this.state.modelData.assets.map(t => ` "${t.NAME}"`)}
-        <br/><br/>
-        The
-        &nbsp;<Button
-          action={() => {toggle(transactionsView); }}
-          type={'secondary'}
-          title={'transactions'}
+        <br />
+        <br />
+        The &nbsp;
+        <Button
+          action={() => {
+            toggle(transactionsView);
+          }}
+          type="secondary"
+          title="transactions"
           id="switchToTransactions"
-        />&nbsp;
-        are called
+        />
+        &nbsp; are called
         {this.state.modelData.transactions.map(t => ` "${t.NAME}"`)}
-        <br/><br/>
-        The
-        &nbsp;<Button
-          action={() => {toggle(settingsView); }}
-          type={'secondary'}
-          title={'settings'}
+        <br />
+        <br />
+        The &nbsp;
+        <Button
+          action={() => {
+            toggle(settingsView);
+          }}
+          type="secondary"
+          title="settings"
           id="switchToSettings"
-        />&nbsp;
-        are called
+        />
+        &nbsp; are called
         {this.state.modelData.settings.map(t => ` "${t.NAME}"`)}
       </div>
     );
@@ -1538,64 +1649,70 @@ export class App extends Component<{}, IAppState> {
     if (!show.get(triggersView).display) {
       return;
     }
-    const chartVisible = showContent.get(triggersTable).display
-      && this.state.modelData.triggers.length > 0;
+    const chartVisible =
+      showContent.get(triggersTable).display &&
+      this.state.modelData.triggers.length > 0;
     return (
       <div style={{ display: getDisplay(triggersView) ? 'block' : 'none' }}>
-        <h2 id="TriggersHeader">Model {modelName}: Important dates</h2>
+        <h2 id="TriggersHeader">
+          Model
+          {modelName}: Important dates
+        </h2>
         <Button
           action={(event: any) => {
             event.persist();
             toggleCharts(triggersTable);
           }}
-          title={`${showContent.get(triggersTable).display
-            ? 'Hide '
-            : 'Show '}${triggersTable.lc}`}
-          type={showContent.get(triggersTable).display
-            ? 'primary'
-            : 'secondary'}
+          title={`${
+            showContent.get(triggersTable).display ? 'Hide ' : 'Show '
+          }${triggersTable.lc}`}
+          type={
+            showContent.get(triggersTable).display ? 'primary' : 'secondary'
+          }
           key={triggersTable.lc}
-          id={`toggle-triggersChart`}
+          id="toggle-triggersChart"
         />
-        <div style={{ display: chartVisible
-          ? 'block'
-          : 'none'}}>
-        <fieldset>
-          <div className="dataGridTriggers">
-            <DataGrid
-              handleGridRowsUpdated={handleTriggerGridRowsUpdated}
-              rows={this.state.modelData.triggers.map((obj: IDbTrigger) => {
-                const result = {
-                  TRIGGER_DATE: obj.TRIGGER_DATE.toDateString(),
-                  NAME: obj.NAME,
-                };
-                return result;
-              })}
-              columns={[
-                {
-                  ...defaultColumn,
-                  key: 'NAME',
-                  name: 'name',
-                  // sortable: true // TODO
-                },
-                {
-                  ...defaultColumn,
-                  key: 'TRIGGER_DATE',
-                  name: 'date',
-                },
-              ]}
-            />
-          </div>
+        <div
+          style={{
+            display: chartVisible ? 'block' : 'none',
+          }}
+        >
+          <fieldset>
+            <div className="dataGridTriggers">
+              <DataGrid
+                handleGridRowsUpdated={handleTriggerGridRowsUpdated}
+                rows={this.state.modelData.triggers.map((obj: DbTrigger) => {
+                  const result = {
+                    TRIGGER_DATE: obj.TRIGGER_DATE.toDateString(),
+                    NAME: obj.NAME,
+                  };
+                  return result;
+                })}
+                columns={[
+                  {
+                    ...defaultColumn,
+                    key: 'NAME',
+                    name: 'name',
+                    // sortable: true // TODO
+                  },
+                  {
+                    ...defaultColumn,
+                    key: 'TRIGGER_DATE',
+                    name: 'date',
+                  },
+                ]}
+              />
+            </div>
           </fieldset>
         </div>
-        <p/>
+        <p />
         <div className="addNewTrigger">
           <h4> Add or delete important date </h4>
           <AddDeleteTriggerForm
-            checkFunction = {checkTrigger}
-            submitFunction = {submitTrigger}
-            deleteFunction = {deleteTriggerFromTable}
-            showTriggerTable = {() => {
+            checkFunction={checkTrigger}
+            submitFunction={submitTrigger}
+            deleteFunction={deleteTriggerFromTable}
+            showTriggerTable={() => {
               // force show if we have exactly one trigger
               // log(`has ${this.state.modelData.triggers} triggers...`)
               if (this.state.modelData.triggers.length === 1) {
@@ -1604,12 +1721,13 @@ export class App extends Component<{}, IAppState> {
                 });
               }
             }}
-            model = {this.state.modelData}
+            model={this.state.modelData}
           />
         </div>
       </div>
     );
   }
+
   private getSingleAssetName() {
     if (this.state.modelData.settings.length === 0) {
       // data not yet loaded
@@ -1622,49 +1740,41 @@ export class App extends Component<{}, IAppState> {
     );
     return assetName;
   }
+
   private assetsList() {
-    const assets: string[] = this.state.modelData.assets.map(
-      (data) => {
-        return data.NAME;
-      },
-    );
+    const assets: string[] = this.state.modelData.assets.map(data => data.NAME);
     assets.unshift(allAssets);
-    this.state.modelData.assets.forEach(
-      (data) => {
-        const cat = data.CATEGORY;
-        if (cat !== '') {
-          if (assets.indexOf(cat) < 0) {
-            assets.push(cat);
-          }
+    this.state.modelData.assets.forEach(data => {
+      const cat = data.CATEGORY;
+      if (cat !== '') {
+        if (assets.indexOf(cat) < 0) {
+          assets.push(cat);
         }
-      },
-    );
+      }
+    });
     const selectedAsset = this.getSingleAssetName();
-    const buttons = assets.map((asset) =>
-        <Button
-          key={asset}
-          action={(e: any) => {
-            e.persist();
-            // when a button is clicked,
-            // go to change the settings value
-            const forSubmission: IDbSetting = {
-              NAME: singleAssetName,
-              VALUE: asset,
-              HINT: singleAssetNameHint,
-            };
-            submitSetting(forSubmission);
-          }}
-          title={asset}
-          type={(asset === selectedAsset) ? 'primary' : 'secondary'}
-          id={`chooseSingelAssetSetting`}
-        />,
-    );
-    return (
-      <div role="group">
-        {buttons}
-      </div>
-    );
+    const buttons = assets.map(asset => (
+      <Button
+        key={asset}
+        action={(e: any) => {
+          e.persist();
+          // when a button is clicked,
+          // go to change the settings value
+          const forSubmission: DbSetting = {
+            NAME: singleAssetName,
+            VALUE: asset,
+            HINT: singleAssetNameHint,
+          };
+          submitSetting(forSubmission);
+        }}
+        title={asset}
+        type={asset === selectedAsset ? 'primary' : 'secondary'}
+        id="chooseSingelAssetSetting"
+      />
+    ));
+    return <div role="group">{buttons}</div>;
   }
+
   private getSingleAssetView() {
     if (this.state.modelData.settings.length === 0) {
       // data not yet loaded
@@ -1677,6 +1787,7 @@ export class App extends Component<{}, IAppState> {
     );
     return assetName;
   }
+
   private assetViewTypeList() {
     const viewTypes: string[] = [
       assetChartVal,
@@ -1685,32 +1796,28 @@ export class App extends Component<{}, IAppState> {
       assetChartDeltas,
     ];
     const selectedSingleAssetView = this.getSingleAssetView();
-    const buttons = viewTypes.map((viewType) =>
-        <Button
-          key={viewType}
-          action={(e: any) => {
-            e.persist();
-            // when a button is clicked,
-            // go to change the settings value
-            const forSubmission: IDbSetting = {
-              NAME: assetChartView,
-              VALUE: viewType,
-              HINT: assetChartHint,
-            };
-            submitSetting(forSubmission);
-          }}
-          title={viewType}
-          type={(viewType === selectedSingleAssetView)
-            ? 'primary' : 'secondary'}
-          id="chooseAssetChartType"
-        />,
-    );
-    return (
-      <div role="group">
-        {buttons}
-      </div>
-    );
+    const buttons = viewTypes.map(viewType => (
+      <Button
+        key={viewType}
+        action={(e: any) => {
+          e.persist();
+          // when a button is clicked,
+          // go to change the settings value
+          const forSubmission: DbSetting = {
+            NAME: assetChartView,
+            VALUE: viewType,
+            HINT: assetChartHint,
+          };
+          submitSetting(forSubmission);
+        }}
+        title={viewType}
+        type={viewType === selectedSingleAssetView ? 'primary' : 'secondary'}
+        id="chooseAssetChartType"
+      />
+    ));
+    return <div role="group">{buttons}</div>;
   }
+
   private getCoarseFineView() {
     if (this.state.modelData.settings.length === 0) {
       // data not yet loaded
@@ -1723,60 +1830,57 @@ export class App extends Component<{}, IAppState> {
     );
     return assetName;
   }
+
   private coarseFineList() {
-    const viewTypes: string[] = [
-      coarse,
-      fine,
-    ];
+    const viewTypes: string[] = [coarse, fine];
     const selectedCoarseFineView = this.getCoarseFineView();
-    const buttons = viewTypes.map((viewType) =>
-        <Button
-          key={viewType}
-          action={(e: any) => {
-            e.persist();
-            // when a button is clicked,
-            // go to change the settings value
-            const forSubmission: IDbSetting = {
-              NAME: viewDetail,
-              VALUE: viewType,
-              HINT: viewDetailHint,
-            };
-            submitSetting(forSubmission);
-          }}
-          title={viewType}
-          type={(viewType === selectedCoarseFineView)
-            ? 'primary' : 'secondary'}
-          id="chooseViewDetailType"
-        />,
-    );
-    return (
-      <div role="group">
-        {buttons}
-      </div>
-    );
+    const buttons = viewTypes.map(viewType => (
+      <Button
+        key={viewType}
+        action={(e: any) => {
+          e.persist();
+          // when a button is clicked,
+          // go to change the settings value
+          const forSubmission: DbSetting = {
+            NAME: viewDetail,
+            VALUE: viewType,
+            HINT: viewDetailHint,
+          };
+          submitSetting(forSubmission);
+        }}
+        title={viewType}
+        type={viewType === selectedCoarseFineView ? 'primary' : 'secondary'}
+        id="chooseViewDetailType"
+      />
+    ));
+    return <div role="group">{buttons}</div>;
   }
+
   private assetsDiv() {
     if (!show.get(assetsView).display) {
       return;
     }
-    const chartVisible = showContent.get(assetsChart).display
-      && this.state.modelData.assets.length > 0;
-    const tableVisible = showContent.get(assetsTable).display
-      && this.state.modelData.assets.length > 0;
+    const chartVisible =
+      showContent.get(assetsChart).display &&
+      this.state.modelData.assets.length > 0;
+    const tableVisible =
+      showContent.get(assetsTable).display &&
+      this.state.modelData.assets.length > 0;
     return (
       <div style={{ display: getDisplay(assetsView) ? 'block' : 'none' }}>
-        <h2 id="AssetsHeader">Model {modelName}: Assets</h2>
+        <h2 id="AssetsHeader">
+          Model
+          {modelName}: Assets
+        </h2>
         <Button
           action={(event: any) => {
             event.persist();
             toggleCharts(assetsChart);
           }}
-          title={`${showContent.get(assetsChart).display
-            ? 'Hide '
-            : 'Show '}${assetsChart.lc}`}
-          type={showContent.get(assetsChart).display
-            ? 'primary'
-            : 'secondary'}
+          title={`${showContent.get(assetsChart).display ? 'Hide ' : 'Show '}${
+            assetsChart.lc
+          }`}
+          type={showContent.get(assetsChart).display ? 'primary' : 'secondary'}
           key={assetsChart.lc}
           id="toggleAssetsChart"
         />
@@ -1785,155 +1889,163 @@ export class App extends Component<{}, IAppState> {
             event.persist();
             toggleCharts(assetsTable);
           }}
-          title={`${showContent.get(assetsTable).display
-            ? 'Hide '
-            : 'Show '}${assetsTable.lc}`}
-          type={showContent.get(assetsTable).display
-            ? 'primary'
-            : 'secondary'}
+          title={`${showContent.get(assetsTable).display ? 'Hide ' : 'Show '}${
+            assetsTable.lc
+          }`}
+          type={showContent.get(assetsTable).display ? 'primary' : 'secondary'}
           key={assetsTable.lc}
           id="toggleAssetsTable"
         />
-        <div style={{ display: chartVisible
-          ? 'block'
-          : 'none'}}>
-        {this.assetsList()}
-        <h3>Asset view type:</h3>
-        {this.assetViewTypeList()}
-        {this.coarseFineList()}
-        <ReactiveTextArea
+        <div
+          style={{
+            display: chartVisible ? 'block' : 'none',
+          }}
+        >
+          {this.assetsList()}
+          <h3>Asset view type:</h3>
+          {this.assetViewTypeList()}
+          {this.coarseFineList()}
+          <ReactiveTextArea
             identifier="assetDataDump"
             message={showObj(this.state.singleAssetChartData)}
           />
-        <CanvasJSChart
-          options={{
-            ...defaultChartSettings,
-            data: this.state.singleAssetChartData,
-          }}
-        />
+          <CanvasJSChart
+            options={{
+              ...defaultChartSettings,
+              data: this.state.singleAssetChartData,
+            }}
+          />
         </div>
-        <div style={{ display: tableVisible
-          ? 'block'
-          : 'none'}}>
-        <fieldset>
-          <h3>Assets</h3>
-          <div className="dataGridAssets">
-            <DataGrid
-              handleGridRowsUpdated={handleAssetGridRowsUpdated}
-              rows={this.state.modelData.assets.map((obj: IDbAsset) => {
-                const result: IDbAsset = {
-                  ASSET_GROWTH: obj.ASSET_GROWTH,
-                  NAME: obj.NAME,
-                  CATEGORY: obj.CATEGORY,
-                  ASSET_START: obj.ASSET_START,
-                  ASSET_VALUE: obj.ASSET_VALUE,
-                  ASSET_LIABILITY: obj.ASSET_LIABILITY,
-                  ASSET_PURCHASE_PRICE: obj.ASSET_PURCHASE_PRICE,
-                };
-                return result;
-              })}
-              columns={[
-                {
-                  ...defaultColumn,
-                  key: 'NAME',
-                  name: 'name',
-                },
-                {
-                  ...defaultColumn,
-                  key: 'ASSET_VALUE',
-                  name: 'value',
-                },
-                {
-                  ...defaultColumn,
-                  key: 'ASSET_START',
-                  name: 'start',
-                },
-                {
-                  ...defaultColumn,
-                  key: 'ASSET_GROWTH',
-                  name: 'growth',
-                },
-                {
-                  ...defaultColumn,
-                  key: 'ASSET_LIABILITY',
-                  name: 'liability',
-                },
-                {
-                  ...defaultColumn,
-                  key: 'ASSET_PURCHASE_PRICE',
-                  name: 'purchase price',
-                },
-                {
-                  ...defaultColumn,
-                  key: 'CATEGORY',
-                  name: 'category',
-                },
-              ]}
-            />
-          </div>
-          <p/>
-        </fieldset>
+        <div
+          style={{
+            display: tableVisible ? 'block' : 'none',
+          }}
+        >
+          <fieldset>
+            <h3>Assets</h3>
+            <div className="dataGridAssets">
+              <DataGrid
+                handleGridRowsUpdated={handleAssetGridRowsUpdated}
+                rows={this.state.modelData.assets.map((obj: DbAsset) => {
+                  const result: DbAsset = {
+                    ASSET_GROWTH: obj.ASSET_GROWTH,
+                    NAME: obj.NAME,
+                    CATEGORY: obj.CATEGORY,
+                    ASSET_START: obj.ASSET_START,
+                    ASSET_VALUE: obj.ASSET_VALUE,
+                    ASSET_LIABILITY: obj.ASSET_LIABILITY,
+                    ASSET_PURCHASE_PRICE: obj.ASSET_PURCHASE_PRICE,
+                  };
+                  return result;
+                })}
+                columns={[
+                  {
+                    ...defaultColumn,
+                    key: 'NAME',
+                    name: 'name',
+                  },
+                  {
+                    ...defaultColumn,
+                    key: 'ASSET_VALUE',
+                    name: 'value',
+                  },
+                  {
+                    ...defaultColumn,
+                    key: 'ASSET_START',
+                    name: 'start',
+                  },
+                  {
+                    ...defaultColumn,
+                    key: 'ASSET_GROWTH',
+                    name: 'growth',
+                  },
+                  {
+                    ...defaultColumn,
+                    key: 'ASSET_LIABILITY',
+                    name: 'liability',
+                  },
+                  {
+                    ...defaultColumn,
+                    key: 'ASSET_PURCHASE_PRICE',
+                    name: 'purchase price',
+                  },
+                  {
+                    ...defaultColumn,
+                    key: 'CATEGORY',
+                    name: 'category',
+                  },
+                ]}
+              />
+            </div>
+            <p />
+          </fieldset>
         </div>
         <div className="addNewAsset">
           <h4> Add or delete asset </h4>
           <AddDeleteAssetForm
-            checkFunction = {checkAsset}
-            submitFunction = {submitAsset}
-            deleteFunction = {deleteAssetFromTable}
-            submitTrigger = {submitTrigger}
-            model = {this.state.modelData}
+            checkFunction={checkAsset}
+            submitFunction={submitAsset}
+            deleteFunction={deleteAssetFromTable}
+            submitTrigger={submitTrigger}
+            model={this.state.modelData}
           />
         </div>
       </div>
     );
   }
+
   private transactionsDiv() {
     if (!show.get(transactionsView).display) {
       return;
     }
-    const tableVisible = showContent.get(transactionsTable).display
-      && this.state.modelData.transactions.length > 0;
+    const tableVisible =
+      showContent.get(transactionsTable).display &&
+      this.state.modelData.transactions.length > 0;
     return (
       <div style={{ display: getDisplay(transactionsView) ? 'block' : 'none' }}>
-        <h2 id="TransactionsHeader">Model {modelName}: Transactions</h2>
+        <h2 id="TransactionsHeader">
+          Model
+          {modelName}: Transactions
+        </h2>
         <Button
           action={(event: any) => {
             event.persist();
             toggleCharts(transactionsTable);
           }}
-          title={`${showContent.get(transactionsTable).display
-            ? 'Hide '
-            : 'Show '}${transactionsTable.lc}`}
-          type={showContent.get(transactionsTable).display
-            ? 'primary'
-            : 'secondary'}
+          title={`${
+            showContent.get(transactionsTable).display ? 'Hide ' : 'Show '
+          }${transactionsTable.lc}`}
+          type={
+            showContent.get(transactionsTable).display ? 'primary' : 'secondary'
+          }
           key={transactionsTable.lc}
           id="toggleTransactionsChart"
         />
         <fieldset>
           <div
             className="dataGridTransactions"
-            style={{ display: tableVisible
-              ? 'block'
-              : 'none',
+            style={{
+              display: tableVisible ? 'block' : 'none',
             }}
           >
             <DataGrid
               handleGridRowsUpdated={handleTransactionGridRowsUpdated}
               rows={this.state.modelData.transactions.map(
-                (obj: IDbTransaction) => {
+                (obj: DbTransaction) => {
                   // log(`obj.TRANSACTION_FROM_ABSOLUTE = ${obj.TRANSACTION_FROM_ABSOLUTE}`)
                   const result = {
                     TRANSACTION_DATE: obj.TRANSACTION_DATE,
                     TRANSACTION_FROM: obj.TRANSACTION_FROM,
                     TRANSACTION_FROM_VALUE: obj.TRANSACTION_FROM_VALUE,
-                    TRANSACTION_FROM_ABSOLUTE:
-                      makeStringFromBoolean(obj.TRANSACTION_FROM_ABSOLUTE),
+                    TRANSACTION_FROM_ABSOLUTE: makeStringFromBoolean(
+                      obj.TRANSACTION_FROM_ABSOLUTE,
+                    ),
                     NAME: obj.NAME,
                     TRANSACTION_TO: obj.TRANSACTION_TO,
                     TRANSACTION_TO_VALUE: obj.TRANSACTION_TO_VALUE,
-                    TRANSACTION_TO_ABSOLUTE:
-                      makeStringFromBoolean(obj.TRANSACTION_TO_ABSOLUTE),
+                    TRANSACTION_TO_ABSOLUTE: makeStringFromBoolean(
+                      obj.TRANSACTION_TO_ABSOLUTE,
+                    ),
                     TRANSACTION_STOP_DATE: obj.TRANSACTION_STOP_DATE,
                     TRANSACTION_RECURRENCE: obj.TRANSACTION_RECURRENCE,
                     CATEGORY: obj.CATEGORY,
@@ -2000,15 +2112,15 @@ export class App extends Component<{}, IAppState> {
               ]}
             />
           </div>
-          <p/>
+          <p />
           <div className="addNewTransaction">
             <h4> Add or delete transaction </h4>
             <AddDeleteTransactionForm
-              checkFunction = {checkTransaction}
-              submitFunction = {submitTransaction}
-              deleteFunction = {deleteTransactionFromTable}
-              submitTrigger = {submitTrigger}
-              model = {this.state.modelData}
+              checkFunction={checkTransaction}
+              submitFunction={submitTransaction}
+              deleteFunction={deleteTransactionFromTable}
+              submitTrigger={submitTrigger}
+              model={this.state.modelData}
             />
           </div>
         </fieldset>
@@ -2017,7 +2129,7 @@ export class App extends Component<{}, IAppState> {
   }
 
   private buttonList(views: any[]) {
-    const buttons = views.map((view) =>
+    const buttons = views.map(view => (
       <Button
         action={(event: any) => {
           event.persist();
@@ -2027,156 +2139,41 @@ export class App extends Component<{}, IAppState> {
         type={show.get(view).display ? 'primary' : 'secondary'}
         key={view.lc}
         id={`btn-${view.lc}`}
-    />,
-    );
-    return (
-      <div role="group">
-        {buttons}
-      </div>
-    );
+      />
+    ));
+    return <div role="group">{buttons}</div>;
   }
+
   private makeHelpText() {
     const it = show.keys();
     let entry = it.next();
     while (!entry.done) {
       if (getDisplay(entry.value)) {
-        return (<h4 className="text-white">
-          {helpText.get(entry.value.lc)}
-        </h4>);
+        return <h4 className="text-white">{helpText.get(entry.value.lc)}</h4>;
       }
       entry = it.next();
     }
-    return;
   }
+
   private navigationDiv() {
     return (
       <div>
-      {this.buttonList([ // this is show.keys() but this is ordered
-        homeView,
-        overview,
-        triggersView,
-        incomesView,
-        expensesView,
-        assetsView,
-        transactionsView,
-        settingsView,
-        manageModelsView,
-      ])
-      }
-      {this.makeHelpText()}
+        {this.buttonList([
+          // this is show.keys() but this is ordered
+          homeView,
+          overview,
+          triggersView,
+          incomesView,
+          expensesView,
+          assetsView,
+          transactionsView,
+          settingsView,
+          manageModelsView,
+        ])}
+        {this.makeHelpText()}
       </div>
     );
   }
-}
-
-// generates text for SampleData.ts
-export async function stringifyDB(): Promise<string> {
-  let result = '';
-/* eslint-disable no-multi-str */
-  result +=
-    'import {\n\
-      CASH_ASSET_NAME,\n\
-      singleAssetChartView,\n\
-      cpi,\n\
-      roiEnd,\n\
-      roiStart,\n\
-      viewDetail,\n\
-      viewFrequency,\n\
-      birthDate,\n\
-     } from \'./assets\';\n' +
-    'import {\n\
-      IDbAsset,\n\
-      IDbExpense,\n\
-      IDbIncome,\n\
-      IDbSetting, \n\
-      IDbTransaction,\n\
-      IDbTrigger,\n\
-    } from \'./common/interfaces\';\n\n';
-/* eslint-disable no-multi-str */
-
-  const model = await getDbModel(modelName);
-
-  result += 'export const sampleTriggers: IDbTrigger[] = ';
-  const trigs: IDbTrigger[] = model.triggers;
-  result += '[\n';
-  trigs.forEach((trig) => {
-    result += '\t{\n';
-    result += `\t\tNAME: '${trig.NAME}',\n`;
-    result += `\t\tTRIGGER_DATE: new Date('${trig.TRIGGER_DATE.toDateString()}'),\n`;
-    result += '\t},\n';
-  });
-  result += '];\n\n';
-
-  result += 'export const sampleExpenses: IDbExpense[] = ';
-  result += showObj(model.expenses);
-  result += ';\n\n';
-
-  result += 'export const sampleIncomes: IDbIncome[] = ';
-  result += showObj(model.incomes);
-  result += ';\n\n';
-
-  result += 'export const sampleAssets: IDbAsset[] = ';
-  result += showObj(model.assets);
-  result += ';\n\n';
-
-  result += 'export const sampleTransactions: IDbTransaction[] = ';
-  result += showObj(model.transactions);
-  result += ';\n';
-
-  result += 'export const sampleSettings: IDbSetting[] = ';
-  result += showObj(model.settings);
-  result += ';\n';
-
-  result = result.replace(/"NAME"/g, 'NAME');
-  result = result.replace(/"VALUE"/g, 'VALUE');
-  result = result.replace(/"HINT"/g, 'HINT');
-  result = result.replace(/"VALUE_SET"/g, 'VALUE_SET');
-  result = result.replace(/"CATEGORY"/g, 'CATEGORY');
-  result = result.replace(/"START"/g, 'START');
-  result = result.replace(/"END"/g, 'END');
-  result = result.replace(/"GROWTH"/g, 'GROWTH');
-  result = result.replace(/"CPI_IMMUNE"/g, 'CPI_IMMUNE');
-  result = result.replace(/"LIABILITY"/g, 'LIABILITY');
-  result = result.replace(/"ASSET_START"/g, 'ASSET_START');
-  result = result.replace(/"ASSET_VALUE"/g, 'ASSET_VALUE');
-  result = result.replace(/"ASSET_GROWTH"/g, 'ASSET_GROWTH');
-  result = result.replace(/"ASSET_LIABILITY"/g, 'ASSET_LIABILITY');
-  result = result.replace(/"ASSET_PURCHASE_PRICE"/g, 'ASSET_PURCHASE_PRICE');
-  result = result.replace(/"TRANSACTION_FROM"/g, 'TRANSACTION_FROM');
-  result = result.replace(/"TRANSACTION_FROM_ABSOLUTE"/g, 'TRANSACTION_FROM_ABSOLUTE');
-  result = result.replace(/"TRANSACTION_FROM_VALUE"/g, 'TRANSACTION_FROM_VALUE');
-  result = result.replace(/"TRANSACTION_TO"/g, 'TRANSACTION_TO');
-  result = result.replace(/"TRANSACTION_TO_ABSOLUTE"/g, 'TRANSACTION_TO_ABSOLUTE');
-  result = result.replace(/"TRANSACTION_TO_VALUE"/g, 'TRANSACTION_TO_VALUE');
-  result = result.replace(/"TRANSACTION_DATE"/g, 'TRANSACTION_DATE');
-  result = result.replace(/"TRANSACTION_STOP_DATE"/g, 'TRANSACTION_STOP_DATE');
-  result = result.replace(/"TRANSACTION_RECURRENCE"/g, 'TRANSACTION_RECURRENCE');
-  let re = new RegExp(`\"+${CASH_ASSET_NAME}\"`, 'g'); // eslint-disable-line no-useless-escape
-  result = result.replace(re, 'CASH_ASSET_NAME');
-  re = new RegExp(`\"+${assetChartView}\"`, 'g'); // eslint-disable-line no-useless-escape
-  result = result.replace(re, 'assetChartView');
-  re = new RegExp(`\"+${singleAssetName}\"`, 'g'); // eslint-disable-line no-useless-escape
-  result = result.replace(re, 'singleAssetName');
-  re = new RegExp(`\"+${expenseChartFocus}\"`, 'g'); // eslint-disable-line no-useless-escape
-  result = result.replace(re, 'expenseChartFocus');
-  re = new RegExp(`\"+${incomeChartFocus}\"`, 'g'); // eslint-disable-line no-useless-escape
-  result = result.replace(re, 'incomeChartFocus');
-  re = new RegExp(`\"+${roiEnd}\"`, 'g'); // eslint-disable-line no-useless-escape
-  result = result.replace(re, 'roiEnd');
-  re = new RegExp(`\"+${roiStart}\"`, 'g'); // eslint-disable-line no-useless-escape
-  result = result.replace(re, 'roiStart');
-  re = new RegExp(`\"+${viewFrequency}\"`, 'g'); // eslint-disable-line no-useless-escape
-  result = result.replace(re, 'viewFrequency');
-  re = new RegExp(`\"+${viewDetail}\"`, 'g'); // eslint-disable-line no-useless-escape
-  result = result.replace(re, 'viewDetail');
-  re = new RegExp(`\"+${cpi}\"`, 'g'); // eslint-disable-line no-useless-escape
-  result = result.replace(re, 'cpi');
-  re = new RegExp(`\"+${birthDate}\"`, 'g'); // eslint-disable-line no-useless-escape
-  result = result.replace(re, 'birthDate');
-
-  result = result.replace(/"/g, '\'');
-
-  return result;
 }
 
 export default App;

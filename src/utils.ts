@@ -1,6 +1,6 @@
-import { IDbSetting, IDbTrigger } from './types/interfaces';
+import { DbSetting, DbTrigger } from './types/interfaces';
 
-export function printDebug() {
+export function printDebug(): boolean {
   return false;
 }
 
@@ -29,7 +29,7 @@ export function unSuppressLogs() {
 }
 
 export function makeBooleanFromString(s: string) {
-  const result = (s === 'T') || (s === 't') || (s === 'True') || (s === 'true');
+  const result = s === 'T' || s === 't' || s === 'True' || s === 'true';
   // log(`convert ${s} to boolean and get ${result}`);
   return result;
 }
@@ -51,14 +51,9 @@ export function getMonthlyGrowth(annualPercentage: number) {
   return monthlyGrowth;
 }
 
-export function checkTriggerDate(
-  triggerName: string,
-  triggers: IDbTrigger[],
-) {
+export function checkTriggerDate(triggerName: string, triggers: DbTrigger[]) {
   // log('look for '+triggerName+'in '+triggers.map(showObj))
-  const matched = triggers.filter(
-    trigger => (trigger.NAME === triggerName),
-  );
+  const matched = triggers.filter(trigger => trigger.NAME === triggerName);
   // log('matched = '+showObj(matched));
   let result;
   if (matched.length !== 0) {
@@ -77,10 +72,7 @@ export function checkTriggerDate(
 }
 
 // Suppresses any not-understood values and returns new Date()
-export function getTriggerDate(
-  triggerName: string,
-  triggers: IDbTrigger[],
-) {
+export function getTriggerDate(triggerName: string, triggers: DbTrigger[]) {
   const checkResult = checkTriggerDate(triggerName, triggers);
   if (checkResult === undefined) {
     return new Date();
@@ -95,7 +87,7 @@ export function makeTwoDP(x: number) {
 }
 
 export function getSettings(
-  settings: IDbSetting[],
+  settings: DbSetting[],
   key: string,
   fallbackVal: string,
 ) {
@@ -118,10 +110,10 @@ export function getSettings(
 }
 
 export function setSetting(
-  settings: IDbSetting[],
+  settings: DbSetting[],
   key: string,
   val: string,
-  hint: string = '',
+  hint = '',
 ) {
   const idx = settings.findIndex(x => x.NAME === key);
   if (idx === -1) {

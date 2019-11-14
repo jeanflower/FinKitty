@@ -5,15 +5,15 @@ import ReactDataGrid from 'react-data-grid';
  * Samples:
  * https://adazzle.github.io/react-data-grid/examples.html#/all-features
  */
-interface IDataGridProps {
+interface DataGridProps {
   handleGridRowsUpdated: any; // TODO any
-  rows: any[];  // TODO any
+  rows: any[]; // TODO any
   columns: any[]; // TODO any
 }
-interface IDataGridState {
+interface DataGridState {
   rows: any[]; // TODO any
 }
-class DataGrid extends React.Component<IDataGridProps, IDataGridState> {
+class DataGrid extends React.Component<DataGridProps, DataGridState> {
   public rowGetter(i: number) {
     // log('in rowgetter, this.props.rows = '+this.props.rows);
     return this.props.rows[i];
@@ -22,14 +22,14 @@ class DataGrid extends React.Component<IDataGridProps, IDataGridState> {
     return this.props.rows.length;
   }
   public onGridRowsUpdated = ({ fromRow, toRow, updated }: any) => {
-    this.setState((state) => {
+    this.setState(state => {
       const rows = state.rows.slice();
       for (let i = fromRow; i <= toRow; i++) {
         rows[i] = { ...rows[i], ...updated };
       }
       return { rows };
     });
-  }
+  };
   public render() {
     return (
       <ReactDataGrid

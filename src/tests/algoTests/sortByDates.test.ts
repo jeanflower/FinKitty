@@ -1,17 +1,16 @@
-/* eslint-disable */
 import { getYearOfTaxYear, momentType, sortByDate } from '../../evaluations';
 import { CASH_ASSET_NAME } from '../../stringConstants';
-import { IDatedThing } from '../../types/interfaces';
+import { DatedThing } from '../../types/interfaces';
 
 describe('sortByDate', () => {
   it('sort empty list', () => {
-    const arr: IDatedThing[] = [];
+    const arr: DatedThing[] = [];
     sortByDate(arr);
     expect(arr.length).toBe(0);
   });
 
   it('sort list length 1', () => {
-    const x1: IDatedThing = {
+    const x1: DatedThing = {
       date: new Date('May 2, 2018 00:00:00'),
       name: 'A',
       type: 'X',
@@ -23,12 +22,12 @@ describe('sortByDate', () => {
   });
 
   it('later Date comes first', () => {
-    const x1: IDatedThing = {
+    const x1: DatedThing = {
       date: new Date('May 2, 2018 00:00:00'),
       name: 'A',
       type: 'X',
     };
-    const x2: IDatedThing = {
+    const x2: DatedThing = {
       date: new Date('May 3, 2018 00:00:00'),
       name: 'A',
       type: 'X',
@@ -46,12 +45,12 @@ describe('sortByDate', () => {
   });
 
   it('later Date prioritised over name (1)', () => {
-    const x1: IDatedThing = {
+    const x1: DatedThing = {
       date: new Date('May 2, 2018 00:00:00'),
       name: 'A',
       type: 'X',
     };
-    const x2: IDatedThing = {
+    const x2: DatedThing = {
       date: new Date('May 3, 2018 00:00:00'),
       name: 'B',
       type: 'X',
@@ -69,12 +68,12 @@ describe('sortByDate', () => {
   });
 
   it('later Date prioritised over name (2)', () => {
-    const x1: IDatedThing = {
+    const x1: DatedThing = {
       date: new Date('May 2, 2018 00:00:00'),
       name: 'B',
       type: 'X',
     };
-    const x2: IDatedThing = {
+    const x2: DatedThing = {
       date: new Date('May 3, 2018 00:00:00'),
       name: 'A',
       type: 'X',
@@ -91,12 +90,12 @@ describe('sortByDate', () => {
     expect(arr2[1]).toBe(x1);
   });
   it('later Date prioritised over type (1)', () => {
-    const x1: IDatedThing = {
+    const x1: DatedThing = {
       date: new Date('May 2, 2018 00:00:00'),
       name: 'A',
       type: 'X',
     };
-    const x2: IDatedThing = {
+    const x2: DatedThing = {
       date: new Date('May 3, 2018 00:00:00'),
       name: 'A',
       type: 'Y',
@@ -113,12 +112,12 @@ describe('sortByDate', () => {
     expect(arr2[1]).toBe(x1);
   });
   it('later Date prioritised over type (2)', () => {
-    const x1: IDatedThing = {
+    const x1: DatedThing = {
       date: new Date('May 2, 2018 00:00:00'),
       name: 'A',
       type: 'Y',
     };
-    const x2: IDatedThing = {
+    const x2: DatedThing = {
       date: new Date('May 3, 2018 00:00:00'),
       name: 'A',
       type: 'X',
@@ -136,12 +135,12 @@ describe('sortByDate', () => {
   });
 
   it('later name comes first', () => {
-    const x1: IDatedThing = {
+    const x1: DatedThing = {
       date: new Date('May 2, 2018 00:00:00'),
       name: 'A',
       type: 'X',
     };
-    const x2: IDatedThing = {
+    const x2: DatedThing = {
       date: new Date('May 2, 2018 00:00:00'),
       name: 'B',
       type: 'X',
@@ -159,12 +158,12 @@ describe('sortByDate', () => {
   });
 
   it('later name prioritised over type (1)', () => {
-    const x1: IDatedThing = {
+    const x1: DatedThing = {
       date: new Date('May 2, 2018 00:00:00'),
       name: 'A',
       type: 'X',
     };
-    const x2: IDatedThing = {
+    const x2: DatedThing = {
       date: new Date('May 2, 2018 00:00:00'),
       name: 'B',
       type: 'Y',
@@ -181,12 +180,12 @@ describe('sortByDate', () => {
     expect(arr2[1]).toBe(x1);
   });
   it('later name prioritised over type (2)', () => {
-    const x1: IDatedThing = {
+    const x1: DatedThing = {
       date: new Date('May 2, 2018 00:00:00'),
       name: 'A',
       type: 'Y',
     };
-    const x2: IDatedThing = {
+    const x2: DatedThing = {
       date: new Date('May 2, 2018 00:00:00'),
       name: 'B',
       type: 'X',
@@ -203,12 +202,12 @@ describe('sortByDate', () => {
     expect(arr2[1]).toBe(x1);
   });
   it('later type comes first', () => {
-    const x1: IDatedThing = {
+    const x1: DatedThing = {
       date: new Date('May 2, 2018 00:00:00'),
       name: 'A',
       type: 'X',
     };
-    const x2: IDatedThing = {
+    const x2: DatedThing = {
       date: new Date('May 2, 2018 00:00:00'),
       name: 'A',
       type: 'Y',
@@ -226,12 +225,12 @@ describe('sortByDate', () => {
   });
 
   it('undefined Dates come last', () => {
-    const x1: IDatedThing = {
+    const x1: DatedThing = {
       date: undefined,
       name: 'A',
       type: 'X',
     };
-    const x2: IDatedThing = {
+    const x2: DatedThing = {
       date: new Date('May 2, 2018 00:00:00'),
       name: 'A',
       type: 'X',
@@ -249,12 +248,12 @@ describe('sortByDate', () => {
   });
 
   it('undefined Dates prioritise over name (1)', () => {
-    const x1: IDatedThing = {
+    const x1: DatedThing = {
       date: undefined,
       name: 'B',
       type: 'X',
     };
-    const x2: IDatedThing = {
+    const x2: DatedThing = {
       date: new Date('May 2, 2018 00:00:00'),
       name: 'A',
       type: 'X',
@@ -272,12 +271,12 @@ describe('sortByDate', () => {
   });
 
   it('undefined Dates prioritise over name (2)', () => {
-    const x1: IDatedThing = {
+    const x1: DatedThing = {
       date: undefined,
       name: 'A',
       type: 'X',
     };
-    const x2: IDatedThing = {
+    const x2: DatedThing = {
       date: new Date('May 2, 2018 00:00:00'),
       name: 'B',
       type: 'X',
@@ -295,12 +294,12 @@ describe('sortByDate', () => {
   });
 
   it('undefined Dates prioritise over type (1)', () => {
-    const x1: IDatedThing = {
+    const x1: DatedThing = {
       date: undefined,
       name: 'A',
       type: 'X',
     };
-    const x2: IDatedThing = {
+    const x2: DatedThing = {
       date: new Date('May 2, 2018 00:00:00'),
       name: 'A',
       type: 'Y',
@@ -318,12 +317,12 @@ describe('sortByDate', () => {
   });
 
   it('undefined Dates prioritise over type (2)', () => {
-    const x1: IDatedThing = {
+    const x1: DatedThing = {
       date: undefined,
       name: 'A',
       type: 'Y',
     };
-    const x2: IDatedThing = {
+    const x2: DatedThing = {
       date: new Date('May 2, 2018 00:00:00'),
       name: 'A',
       type: 'X',
@@ -341,12 +340,12 @@ describe('sortByDate', () => {
   });
 
   it('CASH assets come last (1)', () => {
-    const x1: IDatedThing = {
+    const x1: DatedThing = {
       date: new Date('May 2, 2018 00:00:00'),
       name: CASH_ASSET_NAME,
       type: 'X',
     };
-    const x2: IDatedThing = {
+    const x2: DatedThing = {
       date: new Date('May 2, 2018 00:00:00'),
       name: 'A',
       type: 'X',
@@ -364,12 +363,12 @@ describe('sortByDate', () => {
   });
 
   it('CASH assets come last (2)', () => {
-    const x1: IDatedThing = {
+    const x1: DatedThing = {
       date: new Date('May 2, 2018 00:00:00'),
       name: CASH_ASSET_NAME,
       type: 'X',
     };
-    const x2: IDatedThing = {
+    const x2: DatedThing = {
       date: new Date('May 2, 2018 00:00:00'),
       name: 'Z',
       type: 'X',
@@ -387,12 +386,12 @@ describe('sortByDate', () => {
   });
 
   it('Asset starts come last (1)', () => {
-    const x1: IDatedThing = {
+    const x1: DatedThing = {
       date: new Date('May 2, 2018 00:00:00'),
       name: 'X',
       type: momentType.assetStart,
     };
-    const x2: IDatedThing = {
+    const x2: DatedThing = {
       date: new Date('May 2, 2018 00:00:00'),
       name: 'X',
       type: 'A',
@@ -410,12 +409,12 @@ describe('sortByDate', () => {
   });
 
   it('Asset starts come last (2)', () => {
-    const x1: IDatedThing = {
+    const x1: DatedThing = {
       date: new Date('May 2, 2018 00:00:00'),
       name: 'X',
       type: momentType.assetStart,
     };
-    const x2: IDatedThing = {
+    const x2: DatedThing = {
       date: new Date('May 2, 2018 00:00:00'),
       name: 'X',
       type: 'Z',
@@ -433,12 +432,12 @@ describe('sortByDate', () => {
   });
 
   it('AssetStarts come after Assets', () => {
-    const x1: IDatedThing = {
+    const x1: DatedThing = {
       date: new Date('May 2, 2018 00:00:00'),
       name: 'X',
       type: momentType.assetStart,
     };
-    const x2: IDatedThing = {
+    const x2: DatedThing = {
       date: new Date('May 2, 2018 00:00:00'),
       name: 'X',
       type: momentType.asset,
@@ -456,12 +455,12 @@ describe('sortByDate', () => {
   });
 
   it('Assets come last (1)', () => {
-    const x1: IDatedThing = {
+    const x1: DatedThing = {
       date: new Date('May 2, 2018 00:00:00'),
       name: 'X',
       type: momentType.asset,
     };
-    const x2: IDatedThing = {
+    const x2: DatedThing = {
       date: new Date('May 2, 2018 00:00:00'),
       name: 'X',
       type: 'A',
@@ -479,12 +478,12 @@ describe('sortByDate', () => {
   });
 
   it('Assets come last (2)', () => {
-    const x1: IDatedThing = {
+    const x1: DatedThing = {
       date: new Date('May 2, 2018 00:00:00'),
       name: 'X',
       type: momentType.asset,
     };
-    const x2: IDatedThing = {
+    const x2: DatedThing = {
       date: new Date('May 2, 2018 00:00:00'),
       name: 'X',
       type: 'Z',
@@ -500,7 +499,6 @@ describe('sortByDate', () => {
     expect(arr2[0]).toBe(x2);
     expect(arr2[1]).toBe(x1);
   });
-
 });
 
 describe('getYearOfTaxYear', () => {

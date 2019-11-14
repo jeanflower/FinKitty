@@ -4,16 +4,18 @@ import {
   roiEnd,
   roiStart,
 } from '../../stringConstants';
-import {
-  IDbModelData,
-} from '../../types/interfaces';
+import { DbModelData } from '../../types/interfaces';
 import { setSetting } from '../../utils';
 import {
-  browserTestSettings, simpleAsset, simpleExpense, simpleIncome, simpleTransaction,
+  browserTestSettings,
+  simpleAsset,
+  simpleExpense,
+  simpleIncome,
+  simpleTransaction,
 } from './browserBaseTypes';
 
 export function getTestModel01() {
-  const model: IDbModelData = {
+  const model: DbModelData = {
     expenses: [
       {
         ...simpleExpense,
@@ -161,9 +163,7 @@ export function getTestModel01() {
         CATEGORY: 'pay mortgage',
       },
     ],
-    settings: [
-      ...browserTestSettings,
-    ],
+    settings: [...browserTestSettings],
     triggers: [
       {
         NAME: 'TransferMortgage',

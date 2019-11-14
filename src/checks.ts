@@ -1,6 +1,4 @@
-import {
-  evaluationType,
-} from './evaluations';
+import { evaluationType } from './evaluations';
 import {
   allAssets,
   annually,
@@ -33,14 +31,14 @@ import {
   taxPot,
 } from './stringConstants';
 import {
-  IDbAsset,
-  IDbExpense,
-  IDbIncome,
-  IDbModelData,
-  IDbSetting,
-  IDbTransaction,
-  IDbTrigger,
-  IEvaluation,
+  DbAsset,
+  DbExpense,
+  DbIncome,
+  DbModelData,
+  DbSetting,
+  DbTransaction,
+  DbTrigger,
+  Evaluation,
 } from './types/interfaces';
 import {
   checkTriggerDate,
@@ -54,22 +52,27 @@ function checkTransactionWords(
   name: string,
   word: string,
   date: string,
-  triggers: IDbTrigger[],
-  assets: IDbAsset[],
-  incomes: IDbIncome[],
+  triggers: DbTrigger[],
+  assets: DbAsset[],
+  incomes: DbIncome[],
 ) {
   // log(`date for check = ${getTriggerDate(date, triggers)}`);
-  const a = assets.find(as => (as.NAME === word)
-    && (getTriggerDate(as.ASSET_START, triggers)
-      <= getTriggerDate(date, triggers)));
+  const a = assets.find(
+    as =>
+      as.NAME === word &&
+      getTriggerDate(as.ASSET_START, triggers) <=
+        getTriggerDate(date, triggers),
+  );
   if (a !== undefined) {
     return true;
   }
 
   // maybe t.TRANSACTION_FROM is the name of an income
-  let i = incomes.find(is => ((is.NAME === word)
-    && (getTriggerDate(is.START, triggers)
-      <= getTriggerDate(date, triggers))));
+  let i = incomes.find(
+    is =>
+      is.NAME === word &&
+      getTriggerDate(is.START, triggers) <= getTriggerDate(date, triggers),
+  );
   if (i !== undefined) {
     // the word is an income
     // this only happens for transactions called Pension*
@@ -82,9 +85,11 @@ function checkTransactionWords(
   }
 
   // maybe t.TRANSACTION_FROM is an income liability
-  i = incomes.find(is => (is.LIABILITY.includes(word)
-    && (getTriggerDate(is.START, triggers)
-      <= getTriggerDate(date, triggers))));
+  i = incomes.find(
+    is =>
+      is.LIABILITY.includes(word) &&
+      getTriggerDate(is.START, triggers) <= getTriggerDate(date, triggers),
+  );
   if (i !== undefined) {
     // the word is an income liability
     return true;
@@ -94,28 +99,22 @@ function checkTransactionWords(
 }
 function checkDate(d: Date) {
   // log(`checking date ${d}`);
-  if (Number.isNaN(d.getTime())
-    || d < new Date('1 Jan 1870')
-    || d > new Date('1 Jan 2199')) {
+  if (
+    Number.isNaN(d.getTime()) ||
+    d < new Date('1 Jan 1870') ||
+    d > new Date('1 Jan 2199')
+  ) {
     return false;
   }
   return true;
 }
-export function checkAssetLiability(
-  l: string,
-) {
-  if (l.length > 0
-    && !l.startsWith(cgt)
-    && !l.startsWith(incomeTax)) {
-    return `Asset liability ${l} `
-    + `should start with ${cgt} or ${incomeTax}`;
+export function checkAssetLiability(l: string) {
+  if (l.length > 0 && !l.startsWith(cgt) && !l.startsWith(incomeTax)) {
+    return `Asset liability ${l} should start with ${cgt} or ${incomeTax}`;
   }
   return '';
 }
-export function checkAsset(
-  a: IDbAsset,
-  model: IDbModelData,
-): string {
+export function checkAsset(a: DbAsset, model: DbModelData): string {
   // log(`checkAsset ${showObj(a)}`);
   if (a.NAME.length === 0) {
     return 'Asset name needs some characters';
@@ -134,11 +133,7 @@ export function checkAsset(
   }
 
   if (Number.isNaN(parseFloat(a.ASSET_GROWTH))) {
-    const settingVal = getSettings(
-      model.settings,
-      a.ASSET_GROWTH,
-      'missing',
-    );
+    const settingVal = getSettings(model.settings, a.ASSET_GROWTH, 'missing');
     if (settingVal === 'missing') {
       return `Asset growth set to '${a.ASSET_GROWTH}'
         but no corresponding setting found`;
@@ -166,35 +161,39 @@ export function checkAsset(
   return '';
 }
 
-export function checkIncomeLiability(
-  l: string,
-) {
-  if (l.length > 0
-    && !l.startsWith(incomeTax)
-    && !l.startsWith(nationalInsurance)) {
-    return `Income liability '${l}' should begin with `
-      + `'${incomeTax}' or '${nationalInsurance}'`;
+export function checkIncomeLiability(l: string) {
+  if (
+    l.length > 0 &&
+    !l.startsWith(incomeTax) &&
+    !l.startsWith(nationalInsurance)
+  ) {
+    return (
+      `Income liability '${l}' should begin with ` +
+      `'${incomeTax}' or '${nationalInsurance}'`
+    );
   }
   return '';
 }
-export function checkIncome(
-  i: IDbIncome,
-  model: IDbModelData,
-): string {
+export function checkIncome(i: DbIncome, model: DbModelData): string {
   if (i.NAME.length === 0) {
     return 'Income name needs some characters';
   }
   // log(`checking ${showObj(i)}`);
   const parts = i.LIABILITY.split(separator);
-  for (const l of parts) { /* eslint-disable-line no-restricted-syntax */
-    if (l.length > 0
-      && !l.startsWith(incomeTax)
-      && !l.startsWith(nationalInsurance)) {
+  for (const l of parts) {
+    /* eslint-disable-line no-restricted-syntax */
+    if (
+      l.length > 0 &&
+      !l.startsWith(incomeTax) &&
+      !l.startsWith(nationalInsurance)
+    ) {
       const x = checkIncomeLiability(l);
       if (x.length > 0) {
-        return `Income liability for '${i.NAME}' has parts '${parts}' `
-        + `but the part '${l}' should begin with `
-        + `'${incomeTax}' or '${nationalInsurance}'`;
+        return (
+          `Income liability for '${i.NAME}' has parts '${parts}' ` +
+          `but the part '${l}' should begin with ` +
+          `'${incomeTax}' or '${nationalInsurance}'`
+        );
       }
     }
   }
@@ -229,10 +228,7 @@ export function checkIncome(
   return '';
 }
 
-export function checkExpense(
-  e: IDbExpense,
-  model: IDbModelData,
-): string {
+export function checkExpense(e: DbExpense, model: DbModelData): string {
   if (e.NAME.length === 0) {
     return 'Expense name needs some characters';
   }
@@ -259,20 +255,10 @@ export function checkExpense(
   }
   return '';
 }
-export function checkTransaction(
-  t: IDbTransaction,
-  model: IDbModelData,
-): string {
+export function checkTransaction(t: DbTransaction, model: DbModelData): string {
   // log(`checking transaction ${showObj(t)}`);
-  const {
-    assets,
-    incomes,
-    expenses,
-    triggers,
-  } = model;
-  const assetsForChecking = assets.filter((a) =>
-    a.NAME !== taxPot,
-  );
+  const { assets, incomes, expenses, triggers } = model;
+  const assetsForChecking = assets.filter(a => a.NAME !== taxPot);
   if (t.NAME.length === 0) {
     return 'Transaction name needs some characters';
   }
@@ -282,14 +268,16 @@ export function checkTransaction(
   }
   // log(`transaction date ${getTriggerDate(t.TRANSACTION_DATE, triggers)}`);
   if (t.TRANSACTION_FROM !== '') {
-    if (!checkTransactionWords(
-      t.NAME,
-      t.TRANSACTION_FROM,
-      t.TRANSACTION_DATE,
-      triggers,
-      assetsForChecking,
-      incomes,
-    )) {
+    if (
+      !checkTransactionWords(
+        t.NAME,
+        t.TRANSACTION_FROM,
+        t.TRANSACTION_DATE,
+        triggers,
+        assetsForChecking,
+        incomes,
+      )
+    ) {
       // log(`split up t.TRANSACTION_FROM ${t.TRANSACTION_FROM}`);
       const words = t.TRANSACTION_FROM.split(separator);
       // log(`words ${showObj(words)}`);
@@ -297,17 +285,21 @@ export function checkTransaction(
       for (let i = 0; i < arrayLength; i += 1) {
         const word = words[i];
         // log(`word to check is ${word}`);
-        if (!checkTransactionWords(
-          t.NAME,
-          word,
-          t.TRANSACTION_DATE,
-          triggers,
-          assetsForChecking,
-          incomes,
-        )) {
+        if (
+          !checkTransactionWords(
+            t.NAME,
+            word,
+            t.TRANSACTION_DATE,
+            triggers,
+            assetsForChecking,
+            incomes,
+          )
+        ) {
           // flag a problem
-          return 'Transaction from unrecognised asset (could '
-            + `be typo or before asset start date?) : ${showObj(word)}`;
+          return (
+            'Transaction from unrecognised asset (could ' +
+            `be typo or before asset start date?) : ${showObj(word)}`
+          );
         }
       }
     }
@@ -318,38 +310,47 @@ export function checkTransaction(
     }
   }
   if (t.TRANSACTION_TO !== '') {
-    const a = assetsForChecking.find(as => (as.NAME === t.TRANSACTION_TO));
+    const a = assetsForChecking.find(as => as.NAME === t.TRANSACTION_TO);
     if (a === undefined) {
       // not an asset
       // maybe the transaction is a Revalue?
       if (t.NAME.startsWith(revalue)) {
         // revalue an income?
-        const i = incomes.find(ic => (ic.NAME === t.TRANSACTION_TO));
+        const i = incomes.find(ic => ic.NAME === t.TRANSACTION_TO);
         if (i === undefined) {
           // revalue an expense?
-          const exp = expenses.find(e => (e.NAME === t.TRANSACTION_TO));
+          const exp = expenses.find(e => e.NAME === t.TRANSACTION_TO);
           if (exp === undefined) {
             return `Transaction to unrecognised asset : ${t.TRANSACTION_TO}`;
           }
           // transacting on an expense - check dates
-          if (getTriggerDate(exp.START, triggers)
-            > getTriggerDate(t.TRANSACTION_DATE, triggers)) {
-            return `Transaction ${t.NAME} dated before start `
-              + `of affected expense : ${exp.NAME}`;
+          if (
+            getTriggerDate(exp.START, triggers) >
+            getTriggerDate(t.TRANSACTION_DATE, triggers)
+          ) {
+            return (
+              `Transaction ${t.NAME} dated before start ` +
+              `of affected expense : ${exp.NAME}`
+            );
           }
         } else {
           // transacting on an income - check dates
-          if (getTriggerDate(i.START, triggers)
-            > getTriggerDate(t.TRANSACTION_DATE, triggers)) {
-            return `Transaction ${t.NAME} dated before start `
-              + `of affected income : ${i.NAME}`;
+          if (
+            getTriggerDate(i.START, triggers) >
+            getTriggerDate(t.TRANSACTION_DATE, triggers)
+          ) {
+            return (
+              `Transaction ${t.NAME} dated before start ` +
+              `of affected income : ${i.NAME}`
+            );
           }
         }
       } else {
         return `Transaction to unrecognised asset : ${t.TRANSACTION_TO}`;
       }
-    } else if (getTriggerDate(a.ASSET_START, triggers)
-      > getTriggerDate(t.TRANSACTION_DATE, triggers)
+    } else if (
+      getTriggerDate(a.ASSET_START, triggers) >
+      getTriggerDate(t.TRANSACTION_DATE, triggers)
     ) {
       return `Transaction dated before to asset : ${t.TRANSACTION_TO}`;
     }
@@ -363,32 +364,30 @@ export function checkTransaction(
 
   const tToValue = parseFloat(t.TRANSACTION_TO_VALUE);
   if (t.NAME.startsWith(conditional)) {
-    if (!t.TRANSACTION_FROM_ABSOLUTE
-      && (t.TRANSACTION_TO_ABSOLUTE || (tToValue !== 1.0))) {
-      log('WARNING : unexpected stopping condition implemented for'
-        + `${t.NAME}`);
+    if (
+      !t.TRANSACTION_FROM_ABSOLUTE &&
+      (t.TRANSACTION_TO_ABSOLUTE || tToValue !== 1.0)
+    ) {
+      log(`WARNING : unexpected stopping condition implemented for ${t.NAME}`);
     }
   }
 
   const tFromValue = parseFloat(t.TRANSACTION_FROM_VALUE);
   // log(`transaction ${showObj(t)} appears OK`);
-  if (!t.TRANSACTION_FROM_ABSOLUTE
-    && tFromValue > 1.0
-  ) {
+  if (!t.TRANSACTION_FROM_ABSOLUTE && tFromValue > 1.0) {
     log(`WARNING : not-absolute value from ${tFromValue} > 1.0`);
   }
-  if (!t.TRANSACTION_TO_ABSOLUTE
-    && tToValue > 1.0
-    && !t.NAME.startsWith(pension)
+  if (
+    !t.TRANSACTION_TO_ABSOLUTE &&
+    tToValue > 1.0 &&
+    !t.NAME.startsWith(pension)
   ) {
     log(`WARNING : not-absolute value to ${tToValue} > 1.0`);
   }
   return '';
 }
 
-export function checkTrigger(
-  t: IDbTrigger,
-): string {
+export function checkTrigger(t: DbTrigger): string {
   if (t.NAME.length === 0) {
     return 'Trigger name needs some characters';
   }
@@ -398,45 +397,47 @@ export function checkTrigger(
   return '';
 }
 
-function checkViewFrequency(
-  settings: IDbSetting[],
-) {
+function checkViewFrequency(settings: DbSetting[]) {
   const vf = getSettings(settings, viewFrequency, 'noneFound');
   if (vf !== 'noneFound') {
-    if ((vf.substring(0, 5).toLowerCase()
-      !== monthly.substring(0, 5).toLowerCase())
-      && (vf.substring(0, 6).toLowerCase()
-        !== annually.substring(0, 6).toLowerCase())) {
-      return `"${viewFrequency}" setting should be "${monthly}" `
-        + `or "${annually}"`;
+    if (
+      vf.substring(0, 5).toLowerCase() !==
+        monthly.substring(0, 5).toLowerCase() &&
+      vf.substring(0, 6).toLowerCase() !==
+        annually.substring(0, 6).toLowerCase()
+    ) {
+      return (
+        `"${viewFrequency}" setting should be "${monthly}" ` +
+        `or "${annually}"`
+      );
     }
   } else {
-    return `"${viewFrequency}" setting should be present `
-      + `(value "${monthly}" or "${annually})"`;
+    return (
+      `"${viewFrequency}" setting should be present ` +
+      `(value "${monthly}" or "${annually})"`
+    );
   }
   return '';
 }
-function checkViewDetail(
-  settings: IDbSetting[],
-) {
+function checkViewDetail(settings: DbSetting[]) {
   const vf = getSettings(settings, viewDetail, 'noneFound');
   if (vf !== 'noneFound') {
-    if ((vf.substring(0, 5).toLowerCase()
-      !== coarse.substring(0, 5).toLowerCase())
-      && (vf.substring(0, 4).toLowerCase()
-        !== fine.substring(0, 4).toLowerCase())) {
-      return `"${viewDetail}" setting should be "${coarse}" `
-        + `or "${fine}"`;
+    if (
+      vf.substring(0, 5).toLowerCase() !==
+        coarse.substring(0, 5).toLowerCase() &&
+      vf.substring(0, 4).toLowerCase() !== fine.substring(0, 4).toLowerCase()
+    ) {
+      return `"${viewDetail}" setting should be "${coarse}" or "${fine}"`;
     }
   } else {
-    return `"${viewDetail}" setting should be present, `
-    + `(value "${coarse}" or "${fine}")`;
+    return (
+      `"${viewDetail}" setting should be present, ` +
+      `(value "${coarse}" or "${fine}")`
+    );
   }
   return '';
 }
-function checkViewROI(
-  settings: IDbSetting[],
-) {
+function checkViewROI(settings: DbSetting[]) {
   // log(`check settings ${showObj(settings)}`);
   const start = getSettings(settings, roiStart, 'noneFound');
   if (start === 'noneFound') {
@@ -460,28 +461,30 @@ function checkViewROI(
   return '';
 }
 
-function checkViewType(
-  settings: IDbSetting[],
-): string {
+function checkViewType(settings: DbSetting[]): string {
   const type = getSettings(settings, assetChartView, 'noneFound');
   if (type === 'noneFound') {
-    return `"${assetChartView}" should be present in settings (value is `
-      + `"${assetChartVal}", "${assetChartAdditions}", `
-      + `"${assetChartReductions}" or "${assetChartDeltas}"`;
+    return (
+      `"${assetChartView}" should be present in settings (value is ` +
+      `"${assetChartVal}", "${assetChartAdditions}", ` +
+      `"${assetChartReductions}" or "${assetChartDeltas}"`
+    );
   }
-  if (type !== assetChartVal
-    && type !== assetChartAdditions
-    && type !== assetChartReductions
-    && type !== assetChartDeltas) {
-    return `"${assetChartView}" in settings should have value `
-      + `"${assetChartVal}", "${assetChartAdditions}", `
-      + `"${assetChartReductions}" or "${assetChartDeltas}"`;
+  if (
+    type !== assetChartVal &&
+    type !== assetChartAdditions &&
+    type !== assetChartReductions &&
+    type !== assetChartDeltas
+  ) {
+    return (
+      `"${assetChartView}" in settings should have value ` +
+      `"${assetChartVal}", "${assetChartAdditions}", ` +
+      `"${assetChartReductions}" or "${assetChartDeltas}"`
+    );
   }
   return '';
 }
-function checkDateOfBirth(
-  settings: IDbSetting[],
-): string {
+function checkDateOfBirth(settings: DbSetting[]): string {
   const doc = getSettings(settings, birthDate, '');
   if (doc === '') {
     return '';
@@ -492,9 +495,7 @@ function checkDateOfBirth(
   }
   return '';
 }
-function checkCpi(
-  settings: IDbSetting[],
-): string {
+function checkCpi(settings: DbSetting[]): string {
   const stringVal = getSettings(settings, cpi, '');
   const val = parseFloat(stringVal);
   if (Number.isNaN(val)) {
@@ -502,49 +503,53 @@ function checkCpi(
   }
   return '';
 }
-function checkSingleAssetName(model: IDbModelData) {
+function checkSingleAssetName(model: DbModelData) {
   const val = getSettings(model.settings, singleAssetName, '');
   if (val === allAssets) {
     return '';
   }
-  if (model.assets.filter(a =>
-    a.NAME === val || a.CATEGORY === val,
-  ).length > 0) {
+  if (
+    model.assets.filter(a => a.NAME === val || a.CATEGORY === val).length > 0
+  ) {
     return '';
   }
-  return `Settings for '${singleAssetName}' should be '${allAssets}'`
-    + ` or one of the asset names or one of the asset categories (not ${val})`;
+  return (
+    `Settings for '${singleAssetName}' should be '${allAssets}'` +
+    ` or one of the asset names or one of the asset categories (not ${val})`
+  );
 }
-function checkExpenseChartFocus(model: IDbModelData) {
+function checkExpenseChartFocus(model: DbModelData) {
   const val = getSettings(model.settings, expenseChartFocus, '');
   if (val === expenseChartFocusAll) {
     return '';
   }
-  if (model.expenses.filter(a =>
-    a.NAME === val || a.CATEGORY === val,
-  ).length > 0) {
+  if (
+    model.expenses.filter(a => a.NAME === val || a.CATEGORY === val).length > 0
+  ) {
     return '';
   }
-  return `Settings for '${expenseChartFocus}' should be '${expenseChartFocusAll}'`
-    + ` or one of the expense names or one of the expense categories (not ${val})`;
+  return (
+    `Settings for '${expenseChartFocus}' should be '${expenseChartFocusAll}'` +
+    ` or one of the expense names or one of the expense categories (not ${val})`
+  );
 }
-function checkIncomeChartFocus(model: IDbModelData) {
+function checkIncomeChartFocus(model: DbModelData) {
   const val = getSettings(model.settings, incomeChartFocus, '');
   if (val === incomeChartFocusAll) {
     return '';
   }
-  if (model.incomes.filter(a =>
-    a.NAME === val || a.CATEGORY === val,
-  ).length > 0) {
+  if (
+    model.incomes.filter(a => a.NAME === val || a.CATEGORY === val).length > 0
+  ) {
     return '';
   }
-  return `Settings for '${incomeChartFocus}' should be '${incomeChartFocusAll}'`
-    + ` or one of the income names or one of the income categories (not ${val})`;
+  return (
+    `Settings for '${incomeChartFocus}' should be '${incomeChartFocusAll}'` +
+    ` or one of the income names or one of the income categories (not ${val})`
+  );
 }
 
-export function checkData(
-  model: IDbModelData,
-): string {
+export function checkData(model: DbModelData): string {
   // log('checking data...');
   let message = checkViewFrequency(model.settings);
   if (message.length > 0) {
@@ -599,31 +604,36 @@ export function checkData(
   // which is too heavyweight for this guide to allow them.
   // Separately, loops should be avoided in favor of array iterations.
   // (no-restricted-syntax)
-  for (const t of model.transactions) { /* eslint-disable-line no-restricted-syntax */
+  for (const t of model.transactions) {
+    /* eslint-disable-line no-restricted-syntax */
     message = checkTransaction(t, model);
     if (message.length > 0) {
       return message;
     }
   }
-  for (const a of model.assets) { /* eslint-disable-line no-restricted-syntax */
+  for (const a of model.assets) {
+    /* eslint-disable-line no-restricted-syntax */
     message = checkAsset(a, model);
     if (message.length > 0) {
       return message;
     }
   }
-  for (const i of model.incomes) { /* eslint-disable-line no-restricted-syntax */
+  for (const i of model.incomes) {
+    /* eslint-disable-line no-restricted-syntax */
     message = checkIncome(i, model);
     if (message.length > 0) {
       return message;
     }
   }
-  for (const e of model.expenses) { /* eslint-disable-line no-restricted-syntax */
+  for (const e of model.expenses) {
+    /* eslint-disable-line no-restricted-syntax */
     message = checkExpense(e, model);
     if (message.length > 0) {
       return message;
     }
   }
-  for (const t of model.triggers) { /* eslint-disable-line no-restricted-syntax */
+  for (const t of model.triggers) {
+    /* eslint-disable-line no-restricted-syntax */
     message = checkTrigger(t);
     if (message.length > 0) {
       return message;
@@ -632,7 +642,7 @@ export function checkData(
   return '';
 }
 export function checkEvalnType(
-  evaln: IEvaluation,
+  evaln: Evaluation,
   nameToTypeMap: Map<string, string>,
 ) {
   // expect 'PurchaseAssetName' as valuation for cgt purposes
