@@ -8,9 +8,6 @@ import {
   checkIncome,
   checkTransaction,
   checkTrigger,
-
-
-  
 } from './checks';
 import {
   deleteAllAssets,
