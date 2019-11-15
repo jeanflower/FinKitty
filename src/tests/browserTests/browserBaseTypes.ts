@@ -186,21 +186,21 @@ export function sleep(ms: number, message: string) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function gotoManageModels(driver: any) {
-  const btnMms = await driver.findElements(
-    webdriver.By.id('btn-Manage models'),
+async function gotoHomePage(driver: any) {
+  const btnHome = await driver.findElements(
+    webdriver.By.id('btn-Home'),
   );
   // log(`btnMms.length = ${btnMms.length}`);
-  expect(btnMms.length === 1).toBe(true);
-  await btnMms[0].click();
-  await sleep(shortSleep, '--- after browser shows models');
+  expect(btnHome.length === 1).toBe(true);
+  await btnHome[0].click();
+  await sleep(shortSleep, '--- on home page');
 }
 
 export async function selectModel(driver: any, testDataModelName: string) {
-  await gotoManageModels(driver);
+  await gotoHomePage(driver);
 
   const btnData = await driver.findElements(
-    webdriver.By.id(`btn-${testDataModelName}`),
+    webdriver.By.id(`btn-overview-${testDataModelName}`),
   );
   if (btnData[0] !== undefined) {
     await btnData[0].click();
@@ -233,31 +233,24 @@ export async function beforeAllWork(
     '--- after browser loads URI',
   );
 
-  await gotoManageModels(driver);
   await selectModel(driver, testDataModelName);
   await sleep(calcSleep, '--- after model selected');
 }
 
 export async function cleanUpWork(driver: any, testDataModelName: string) {
-  await gotoManageModels(driver);
+  await gotoHomePage(driver);
 
   return new Promise(async resolve => {
     // log(`in clean up model`);
     // log(`go seek model_input name`);
     // log(`seek btn-${testDataModelName}`);
-    const selectModelButton = await driver.findElement(
-      webdriver.By.id(`btn-${testDataModelName}`),
+
+    const deleteModelButton = await driver.findElement(
+      webdriver.By.id(`btn-del-${testDataModelName}`),
     );
-    await selectModelButton.click();
+    await deleteModelButton.click();
     // log(`model name = ${content}`);
     // log(`go find delete model button`);
-    const btnDms = await driver.findElements(
-      webdriver.By.id('btn-Delete model (cannot be undone)'),
-    );
-    expect(btnDms.length === 1).toBe(true);
-    // log(`got delete model button`);
-    await btnDms[0].click();
-    // log(`clicked delete model button`);
     await sleep(shortSleep, 'after delete model is clicked');
     const alert = driver.switchTo().alert();
     const alertText = await alert.getText();

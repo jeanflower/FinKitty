@@ -903,9 +903,13 @@ export class App extends Component<{}, AppState> {
     return this.modelList(
       modelNames,
       async (model: string) => {
-        await deleteAllTables(model);
-        await updateModelName(sampleModel);
-        await refreshData();
+        if (
+          window.confirm(`delete all data in model ${model} - you sure?`)
+        ) {
+          await deleteAllTables(model);
+          await updateModelName(sampleModel);
+          await refreshData();
+        }
       },
       'del',
     );
@@ -1032,23 +1036,6 @@ export class App extends Component<{}, AppState> {
             saveAsFunction={(name: string) => {
               // log(`save as ${name}`);
               saveModelAs(name);
-            }}
-            deleteFunction={async (name: string) => {
-              // log(`delete model ${name}`);
-              if (
-                window.confirm(`delete all data in model ${name} - you sure?`)
-              ) {
-                await deleteAllTables(name);
-                if (modelName === name) {
-                  // log('switch to default model');
-                  await updateModelName(sampleModel);
-                }
-                // log(`deleted`);
-                await refreshData(); // lazy! overkill if modelName !== name
-                return true;
-              }
-              // log(`not deleted`);
-              return false;
             }}
           />
         </fieldset>

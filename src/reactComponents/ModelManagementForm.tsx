@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import { log, printDebug, showObj } from '../utils';
 import Button from './Button';
 import Input from './Input';
-import { sampleModel } from '../stringConstants';
 
 interface ModelManagementFormState {
   NAME: string;
@@ -13,7 +12,6 @@ interface ModelManagementProps {
   models: string[];
   viewFunction: any;
   saveAsFunction: any;
-  deleteFunction: any;
 }
 export class ModelManagementForm extends Component<
   ModelManagementProps,
@@ -34,8 +32,6 @@ export class ModelManagementForm extends Component<
     this.handleName = this.handleName.bind(this);
     this.view = this.view.bind(this);
     this.saveAs = this.saveAs.bind(this);
-    this.delete = this.delete.bind(this);
-    this.flip = this.flip.bind(this);
   }
 
   public render() {
@@ -62,22 +58,10 @@ export class ModelManagementForm extends Component<
             id="viewModel"
           />{' '}
           <Button
-            action={this.flip}
-            type={'secondary'}
-            title={'Switch models for comparison'}
-            id="switchModel"
-          />{' '}
-          <Button
             action={this.saveAs}
             type={'secondary'}
             title={'Save as (overwites any existing)'}
             id="saveAsModel"
-          />{' '}
-          <Button
-            action={this.delete}
-            type={'secondary'}
-            title={'Delete model (cannot be undone)'}
-            id={`btn-${'Delete model (cannot be undone)'}`}
           />{' '}
         </form>
       </div>
@@ -121,25 +105,9 @@ export class ModelManagementForm extends Component<
     // log('adding something ' + showObj(this));
     this.props.viewFunction(this.state.NAME);
   }
-  private flip(e: any) {
-    e.preventDefault();
-    // log('adding something ' + showObj(this));
-    const nextName: string = this.props.viewFunction(this.state.NAME);
-    this.setState({
-      NAME: nextName,
-    });
-  }
   private saveAs(e: any) {
     e.preventDefault();
     // log('adding something ' + showObj(this));
     this.props.saveAsFunction(this.state.NAME);
-  }
-  private async delete(e: any) {
-    e.preventDefault();
-    // log('deleting something ' + showObj(this));
-    const response = await this.props.deleteFunction(this.state.NAME);
-    if (response === true) {
-      this.setState({ NAME: sampleModel });
-    }
   }
 }
