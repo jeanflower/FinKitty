@@ -24,6 +24,7 @@ import {
 } from '../utils';
 
 import {
+  allItems,
   assetChartHint,
   assetChartVal,
   assetChartView,
@@ -33,19 +34,17 @@ import {
   cpi,
   cpiHint,
   expenseChartFocus,
-  expenseChartFocusAll,
   expenseChartFocusHint,
   fine,
   incomeChartFocus,
-  incomeChartFocusAll,
   incomeChartFocusHint,
   monthly,
   roiEnd,
   roiEndHint,
   roiStart,
   roiStartHint,
-  singleAssetName,
-  singleAssetNameHint,
+  assetChartFocus,
+  assetChartFocusHint,
   viewDetail,
   viewDetailHint,
   viewFrequency,
@@ -383,18 +382,18 @@ async function addRequiredSettings(ddb: any, tableName: string): Promise<any> {
       HINT: { S: roiEndHint },
     }),
     submitDBSetting(ddb, modelName, {
-      NAME: { S: singleAssetName },
+      NAME: { S: assetChartFocus },
       VALUE: { S: CASH_ASSET_NAME },
-      HINT: { S: singleAssetNameHint },
+      HINT: { S: assetChartFocusHint },
     }),
     submitDBSetting(ddb, modelName, {
       NAME: { S: expenseChartFocus },
-      VALUE: { S: expenseChartFocusAll },
+      VALUE: { S: allItems },
       HINT: { S: expenseChartFocusHint },
     }),
     submitDBSetting(ddb, modelName, {
       NAME: { S: incomeChartFocus },
-      VALUE: { S: incomeChartFocusAll },
+      VALUE: { S: allItems },
       HINT: { S: incomeChartFocusHint },
     }),
     submitDBSetting(ddb, modelName, {

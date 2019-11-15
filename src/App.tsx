@@ -59,7 +59,7 @@ import {
 } from './reactComponents/ReactVisExample';
 */
 import {
-  allAssets,
+  allItems,
   assetChartAdditions,
   assetChartDeltas,
   assetChartHint,
@@ -71,16 +71,14 @@ import {
   coarse,
   cpi,
   expenseChartFocus,
-  expenseChartFocusAll,
   expenseChartFocusHint,
   fine,
   incomeChartFocus,
-  incomeChartFocusAll,
   incomeChartFocusHint,
   roiEnd,
   roiStart,
-  singleAssetName,
-  singleAssetNameHint,
+  assetChartFocus,
+  assetChartFocusHint,
   taxPot,
   viewDetail,
   viewDetailHint,
@@ -138,7 +136,6 @@ const overview: ViewType = { lc: 'Overview' };
 
 const helpText: Map<string, string> = new Map();
 helpText.set(homeView.lc, 'Create or load a model.');
-
 helpText.set(expensesView.lc, 'Create, view or edit expenses.');
 helpText.set(incomesView.lc, 'Create, view or edit incomes.');
 helpText.set(transactionsView.lc, 'Create, view or edit transactions.');
@@ -159,6 +156,7 @@ const show = new Map<ViewType, any>([
   [triggersView, { display: false }],
   [overview, { display: false }],
 ]);
+
 const showContent = new Map<ViewType, any>([
   [incomesChart, { display: false }],
   [expensesChart, { display: false }],
@@ -298,7 +296,7 @@ function toggle(type: ViewType) {
   refreshData();
 }
 
-function toggleCharts(type: ViewType) {
+function toggleDisplay(type: ViewType) {
   showContent.set(type, {
     display: !showContent.get(type).display,
   });
@@ -820,7 +818,7 @@ export async function stringifyDB(): Promise<string> {
   result = result.replace(re, 'CASH_ASSET_NAME');
   re = new RegExp(`\"+${assetChartView}\"`, 'g'); // eslint-disable-line no-useless-escape
   result = result.replace(re, 'assetChartView');
-  re = new RegExp(`\"+${singleAssetName}\"`, 'g'); // eslint-disable-line no-useless-escape
+  re = new RegExp(`\"+${assetChartFocus}\"`, 'g'); // eslint-disable-line no-useless-escape
   result = result.replace(re, 'singleAssetName');
   re = new RegExp(`\"+${expenseChartFocus}\"`, 'g'); // eslint-disable-line no-useless-escape
   result = result.replace(re, 'expenseChartFocus');
@@ -1091,7 +1089,7 @@ export class App extends Component<{}, AppState> {
           <Button
             action={(event: any) => {
               event.persist();
-              toggleCharts(settingsTable);
+              toggleDisplay(settingsTable);
             }}
             title={`${
               showContent.get(settingsTable).display ? 'Hide ' : 'Show '
@@ -1154,12 +1152,12 @@ export class App extends Component<{}, AppState> {
   private getExpenseChartFocus() {
     if (this.state.modelData.settings.length === 0) {
       // data not yet loaded
-      return expenseChartFocusAll;
+      return allItems;
     }
     const categoryName = getSettings(
       this.state.modelData.settings,
       expenseChartFocus,
-      expenseChartFocusAll, // default fallback
+      allItems, // default fallback
     );
     return categoryName;
   }
@@ -1233,7 +1231,7 @@ export class App extends Component<{}, AppState> {
         <Button
           action={(event: any) => {
             event.persist();
-            toggleCharts(expensesChart);
+            toggleDisplay(expensesChart);
           }}
           title={`${
             showContent.get(expensesChart).display ? 'Hide ' : 'Show '
@@ -1247,7 +1245,7 @@ export class App extends Component<{}, AppState> {
         <Button
           action={(event: any) => {
             event.persist();
-            toggleCharts(expensesTable);
+            toggleDisplay(expensesTable);
           }}
           title={`${
             showContent.get(expensesTable).display ? 'Hide ' : 'Show '
@@ -1272,7 +1270,7 @@ export class App extends Component<{}, AppState> {
             this.state.modelData.expenses,
             this.getExpenseChartFocus(),
             expenseChartFocus,
-            expenseChartFocusAll,
+            allItems,
             expenseChartFocusHint,
           )}
           {this.coarseFineList()}
@@ -1375,12 +1373,12 @@ export class App extends Component<{}, AppState> {
   private getIncomeChartFocus() {
     if (this.state.modelData.settings.length === 0) {
       // data not yet loaded
-      return incomeChartFocusAll;
+      return allItems;
     }
     const categoryName = getSettings(
       this.state.modelData.settings,
       incomeChartFocus,
-      incomeChartFocusAll, // default fallback
+      allItems, // default fallback
     );
     return categoryName;
   }
@@ -1405,7 +1403,7 @@ export class App extends Component<{}, AppState> {
         <Button
           action={(event: any) => {
             event.persist();
-            toggleCharts(incomesChart);
+            toggleDisplay(incomesChart);
           }}
           title={`${showContent.get(incomesChart).display ? 'Hide ' : 'Show '}${
             incomesChart.lc
@@ -1417,7 +1415,7 @@ export class App extends Component<{}, AppState> {
         <Button
           action={(event: any) => {
             event.persist();
-            toggleCharts(incomesTable);
+            toggleDisplay(incomesTable);
           }}
           title={`${showContent.get(incomesTable).display ? 'Hide ' : 'Show '}${
             incomesTable.lc
@@ -1436,7 +1434,7 @@ export class App extends Component<{}, AppState> {
             this.state.modelData.incomes,
             this.getIncomeChartFocus(),
             incomeChartFocus,
-            incomeChartFocusAll,
+            allItems,
             incomeChartFocusHint,
           )}
           {this.coarseFineList()}
@@ -1658,7 +1656,7 @@ export class App extends Component<{}, AppState> {
         <Button
           action={(event: any) => {
             event.persist();
-            toggleCharts(triggersTable);
+            toggleDisplay(triggersTable);
           }}
           title={`${
             showContent.get(triggersTable).display ? 'Hide ' : 'Show '
@@ -1732,7 +1730,7 @@ export class App extends Component<{}, AppState> {
     }
     const assetName = getSettings(
       this.state.modelData.settings,
-      singleAssetName,
+      assetChartFocus,
       CASH_ASSET_NAME, // default fallback
     );
     return assetName;
@@ -1740,7 +1738,7 @@ export class App extends Component<{}, AppState> {
 
   private assetsList() {
     const assets: string[] = this.state.modelData.assets.map(data => data.NAME);
-    assets.unshift(allAssets);
+    assets.unshift(allItems);
     this.state.modelData.assets.forEach(data => {
       const cat = data.CATEGORY;
       if (cat !== '') {
@@ -1758,9 +1756,9 @@ export class App extends Component<{}, AppState> {
           // when a button is clicked,
           // go to change the settings value
           const forSubmission: DbSetting = {
-            NAME: singleAssetName,
+            NAME: assetChartFocus,
             VALUE: asset,
-            HINT: singleAssetNameHint,
+            HINT: assetChartFocusHint,
           };
           submitSetting(forSubmission);
         }}
@@ -1872,7 +1870,7 @@ export class App extends Component<{}, AppState> {
         <Button
           action={(event: any) => {
             event.persist();
-            toggleCharts(assetsChart);
+            toggleDisplay(assetsChart);
           }}
           title={`${showContent.get(assetsChart).display ? 'Hide ' : 'Show '}${
             assetsChart.lc
@@ -1884,7 +1882,7 @@ export class App extends Component<{}, AppState> {
         <Button
           action={(event: any) => {
             event.persist();
-            toggleCharts(assetsTable);
+            toggleDisplay(assetsTable);
           }}
           title={`${showContent.get(assetsTable).display ? 'Hide ' : 'Show '}${
             assetsTable.lc
@@ -2007,7 +2005,7 @@ export class App extends Component<{}, AppState> {
         <Button
           action={(event: any) => {
             event.persist();
-            toggleCharts(transactionsTable);
+            toggleDisplay(transactionsTable);
           }}
           title={`${
             showContent.get(transactionsTable).display ? 'Hide ' : 'Show '

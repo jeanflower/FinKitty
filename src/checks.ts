@@ -1,6 +1,6 @@
 import { evaluationType } from './evaluations';
 import {
-  allAssets,
+  allItems,
   annually,
   assetChartAdditions,
   assetChartDeltas,
@@ -13,10 +13,8 @@ import {
   conditional,
   cpi,
   expenseChartFocus,
-  expenseChartFocusAll,
   fine,
   incomeChartFocus,
-  incomeChartFocusAll,
   incomeTax,
   monthly,
   nationalInsurance,
@@ -25,7 +23,7 @@ import {
   roiEnd,
   roiStart,
   separator,
-  singleAssetName,
+  assetChartFocus,
   viewDetail,
   viewFrequency,
   taxPot,
@@ -504,8 +502,8 @@ function checkCpi(settings: DbSetting[]): string {
   return '';
 }
 function checkSingleAssetName(model: DbModelData) {
-  const val = getSettings(model.settings, singleAssetName, '');
-  if (val === allAssets) {
+  const val = getSettings(model.settings, assetChartFocus, '');
+  if (val === allItems) {
     return '';
   }
   if (
@@ -514,13 +512,13 @@ function checkSingleAssetName(model: DbModelData) {
     return '';
   }
   return (
-    `Settings for '${singleAssetName}' should be '${allAssets}'` +
+    `Settings for '${assetChartFocus}' should be '${allItems}'` +
     ` or one of the asset names or one of the asset categories (not ${val})`
   );
 }
 function checkExpenseChartFocus(model: DbModelData) {
   const val = getSettings(model.settings, expenseChartFocus, '');
-  if (val === expenseChartFocusAll) {
+  if (val === allItems) {
     return '';
   }
   if (
@@ -529,13 +527,13 @@ function checkExpenseChartFocus(model: DbModelData) {
     return '';
   }
   return (
-    `Settings for '${expenseChartFocus}' should be '${expenseChartFocusAll}'` +
+    `Settings for '${expenseChartFocus}' should be '${allItems}'` +
     ` or one of the expense names or one of the expense categories (not ${val})`
   );
 }
 function checkIncomeChartFocus(model: DbModelData) {
   const val = getSettings(model.settings, incomeChartFocus, '');
-  if (val === incomeChartFocusAll) {
+  if (val === allItems) {
     return '';
   }
   if (
@@ -544,7 +542,7 @@ function checkIncomeChartFocus(model: DbModelData) {
     return '';
   }
   return (
-    `Settings for '${incomeChartFocus}' should be '${incomeChartFocusAll}'` +
+    `Settings for '${incomeChartFocus}' should be '${allItems}'` +
     ` or one of the income names or one of the income categories (not ${val})`
   );
 }

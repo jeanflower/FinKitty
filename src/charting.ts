@@ -6,7 +6,7 @@ import {
   makeSourceForFromChange,
 } from './evaluations';
 import {
-  allAssets,
+  allItems,
   assetChartAdditions,
   assetChartReductions,
   assetChartVal,
@@ -14,16 +14,14 @@ import {
   birthDate,
   coarse,
   expenseChartFocus,
-  expenseChartFocusAll,
   fine,
   incomeChartFocus,
-  incomeChartFocusAll,
   monthly,
   revalue,
   roiEnd,
   roiStart,
   separator,
-  singleAssetName,
+  assetChartFocus,
   taxPot,
   viewDetail,
   viewFrequency,
@@ -337,14 +335,14 @@ export function makeChartDataFromEvaluations(
   const expenseFocus: string = getSettings(
     model.settings,
     expenseChartFocus,
-    expenseChartFocusAll,
+    allItems,
   );
   const incomeFocus: string = getSettings(
     model.settings,
     incomeChartFocus,
-    incomeChartFocusAll,
+    allItems,
   );
-  const assetName = getSettings(model.settings, singleAssetName, allAssets);
+  const assetName = getSettings(model.settings, assetChartFocus, allItems);
   const detail: string = getSettings(model.settings, viewDetail, fine);
   const frequency: string = getSettings(model.settings, viewFrequency, monthly);
   const assetChartSetting: string = getSettings(
@@ -443,7 +441,7 @@ export function makeChartDataFromEvaluations(
     ) {
       if (evaln.source === revalue) {
         // expenses and incomes are accumulated for the chart data
-        // each evaulation of an income or an expense
+        // each evaluation of an income or an expense
         // represents money coming in or going out
         // but the exception is a revaluation.
         // A revaluation of income or expense isn't included
@@ -494,7 +492,7 @@ export function makeChartDataFromEvaluations(
 
     if (
       evaln.name === assetName ||
-      (assetName === allAssets &&
+      (assetName === allItems &&
         assetNames.indexOf(evaln.name) >= 0 &&
         evaln.name !== taxPot) ||
       getCategory(evaln.name, model) === assetName
@@ -592,7 +590,7 @@ export function makeChartDataFromEvaluations(
       }
       assetNames = [...categories.sources];
     }
-    if (expenseFocus === expenseChartFocusAll) {
+    if (expenseFocus === allItems) {
       // unfocussed expense views can have coarse views
       dateNameValueMap = typeDateNameValueMap.get(evaluationType.expense);
       if (dateNameValueMap !== undefined) {
@@ -606,7 +604,7 @@ export function makeChartDataFromEvaluations(
         expenseNames = [...categories.sources];
       }
     }
-    if (incomeFocus === incomeChartFocusAll) {
+    if (incomeFocus === allItems) {
       // unfocussed income views can have coarse views
       dateNameValueMap = typeDateNameValueMap.get(evaluationType.income);
       if (dateNameValueMap !== undefined) {
@@ -623,7 +621,7 @@ export function makeChartDataFromEvaluations(
   }
 
   // log(`compare ${expenseChartFocus} against ${expenseChartFocusAll}`);
-  if (expenseFocus !== expenseChartFocusAll) {
+  if (expenseFocus !== allItems) {
     // apply a filter to expense data
     // focussed expense views have fewer items displayed
     const dateNameValueMap = typeDateNameValueMap.get(evaluationType.expense);
@@ -638,7 +636,7 @@ export function makeChartDataFromEvaluations(
       typeDateNameValueMap.set(evaluationType.expense, focusItems.map);
     }
   }
-  if (incomeFocus !== incomeChartFocusAll) {
+  if (incomeFocus !== allItems) {
     // apply a filter to income data
     // focussed income views have fewer items displayed
     const dateNameValueMap = typeDateNameValueMap.get(evaluationType.income);
@@ -667,7 +665,7 @@ export function makeChartDataFromEvaluations(
     // use the source as the item
     if (assetNames.includes(assetName) || assetChartSetting !== assetChartVal) {
       items = assetValueSources;
-    } else if (assetName === allAssets) {
+    } else if (assetName === allItems) {
       // when showing all assets and values,
       // use assetNames (not sources)
       items = assetNames;
@@ -676,7 +674,7 @@ export function makeChartDataFromEvaluations(
     }
 
     if (
-      assetName !== allAssets &&
+      assetName !== allItems &&
       !assetNames.includes(assetName) &&
       assetChartSetting === assetChartVal
     ) {

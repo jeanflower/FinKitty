@@ -4,7 +4,7 @@
 import { makeChartDataFromEvaluations } from '../../charting';
 import { getEvaluations } from '../../evaluations';
 import {
-  allAssets,
+  allItems,
   annually,
   assetChartAdditions,
   assetChartDeltas,
@@ -21,11 +21,9 @@ import {
   cpiHint,
   crystallizedPension,
   expenseChartFocus,
-  expenseChartFocusAll,
   expenseChartFocusHint,
   fine,
   incomeChartFocus,
-  incomeChartFocusAll,
   incomeChartFocusHint,
   incomeTax,
   monthly,
@@ -35,8 +33,8 @@ import {
   roiStart,
   roiStartHint,
   separator,
-  singleAssetName,
-  singleAssetNameHint,
+  assetChartFocus,
+  assetChartFocusHint,
   viewDetail,
   viewDetailHint,
   viewFrequency,
@@ -113,18 +111,18 @@ const defaultSettings: DbSetting[] = [
   { ...simpleSetting, NAME: viewDetail, VALUE: fine },
   { ...simpleSetting, NAME: assetChartView, VALUE: assetChartVal },
   {
-    NAME: singleAssetName,
-    VALUE: allAssets,
-    HINT: singleAssetNameHint,
+    NAME: assetChartFocus,
+    VALUE: allItems,
+    HINT: assetChartFocusHint,
   },
   {
     NAME: expenseChartFocus,
-    VALUE: expenseChartFocusAll,
+    VALUE: allItems,
     HINT: expenseChartFocusHint,
   },
   {
     NAME: incomeChartFocus,
-    VALUE: incomeChartFocusAll,
+    VALUE: allItems,
     HINT: incomeChartFocusHint,
   },
   {
@@ -429,9 +427,9 @@ export function getModelCrystallizedPension() {
     ],
     settings: [
       {
-        NAME: singleAssetName,
-        VALUE: allAssets,
-        HINT: singleAssetNameHint,
+        NAME: assetChartFocus,
+        VALUE: allItems,
+        HINT: assetChartFocusHint,
       },
       {
         NAME: roiStart,
@@ -445,12 +443,12 @@ export function getModelCrystallizedPension() {
       },
       {
         NAME: expenseChartFocus,
-        VALUE: expenseChartFocusAll,
+        VALUE: allItems,
         HINT: expenseChartFocusHint,
       },
       {
         NAME: incomeChartFocus,
-        VALUE: incomeChartFocusAll,
+        VALUE: allItems,
         HINT: incomeChartFocusHint,
       },
       {
@@ -1555,7 +1553,7 @@ describe('evaluations tests', () => {
     };
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
-    setSetting(model.settings, singleAssetName, 'savings');
+    setSetting(model.settings, assetChartFocus, 'savings');
     setSetting(model.settings, viewFrequency, annually);
     setSetting(model.settings, assetChartView, assetChartDeltas);
 
@@ -3342,11 +3340,11 @@ describe('evaluations tests', () => {
     };
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
-    setSetting(model.settings, singleAssetName, CASH_ASSET_NAME);
+    setSetting(model.settings, assetChartFocus, CASH_ASSET_NAME);
     setSetting(model.settings, assetChartView, assetChartDeltas);
 
     const x = model.settings.find(s => {
-      return s.NAME === singleAssetName;
+      return s.NAME === assetChartFocus;
     });
     if (x !== undefined) {
       x.VALUE = CASH_ASSET_NAME;
@@ -8379,7 +8377,7 @@ describe('evaluations tests', () => {
     const model = modelAndRoi.model;
     const roi = modelAndRoi.roi;
 
-    setSetting(model.settings, singleAssetName, 'Accessible');
+    setSetting(model.settings, assetChartFocus, 'Accessible');
     setSetting(model.settings, viewDetail, coarse);
 
     const evals: Evaluation[] = getEvaluations(model);
@@ -8416,7 +8414,7 @@ describe('evaluations tests', () => {
     const model = modelAndRoi.model;
     const roi = modelAndRoi.roi;
 
-    setSetting(model.settings, singleAssetName, 'Accessible');
+    setSetting(model.settings, assetChartFocus, 'Accessible');
     setSetting(model.settings, viewDetail, fine);
 
     const evals: Evaluation[] = getEvaluations(model);
@@ -8744,7 +8742,7 @@ describe('evaluations tests', () => {
       ],
     ];
 
-    setSetting(model.settings, singleAssetName, 'Accessible');
+    setSetting(model.settings, assetChartFocus, 'Accessible');
     setSetting(model.settings, viewDetail, coarse);
 
     const evals: Evaluation[] = getEvaluations(model);
@@ -8786,7 +8784,7 @@ describe('evaluations tests', () => {
     // test that this income doesn't appear in the assets graph!
     model.incomes[0].CATEGORY = 'Accessible';
 
-    setSetting(model.settings, singleAssetName, 'Accessible');
+    setSetting(model.settings, assetChartFocus, 'Accessible');
     setSetting(model.settings, viewDetail, fine);
 
     const evals: Evaluation[] = getEvaluations(model);
@@ -8863,7 +8861,7 @@ describe('evaluations tests', () => {
     }
 
     expect(result.assetData[1].item.NAME).toBe(
-      'MoveRemainingPension' + separator + '' + crystallizedPension + 'Joe',
+      'MoveRemainingPension' + separator + crystallizedPension + 'Joe',
     );
     {
       const chartPts = result.assetData[1].chartDataPoints;
@@ -8980,7 +8978,7 @@ describe('evaluations tests', () => {
     }
 
     expect(result.assetData[3].item.NAME).toBe(
-      'MoveRemainingPension' + separator + '' + crystallizedPension + 'Joe',
+      'MoveRemainingPension' + separator + crystallizedPension + 'Joe',
     );
     {
       const chartPts = result.assetData[3].chartDataPoints;
@@ -9002,7 +9000,7 @@ describe('evaluations tests', () => {
       roiEnd,
       assetChartView,
       cpi,
-      singleAssetName,
+      assetChartFocus,
       expenseChartFocus,
       incomeChartFocus,
     ];

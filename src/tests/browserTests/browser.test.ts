@@ -24,8 +24,8 @@ import {
   roiEnd,
   roiEndHint,
   separator,
-  singleAssetName,
-  singleAssetNameHint,
+  assetChartFocus,
+  assetChartFocusHint,
   viewDetail,
   viewDetailHint,
 } from '../../stringConstants';
@@ -623,9 +623,9 @@ describe('Chrome Interaction', () => {
     // existing value for singleAssetName was allAssets;
     // now overwrite that for cash
     let forSubmission = {
-      NAME: singleAssetName,
+      NAME: assetChartFocus,
       VALUE: CASH_ASSET_NAME,
-      HINT: singleAssetNameHint,
+      HINT: assetChartFocusHint,
     };
 
     await submitSettingChange(driver, testDataModelName, forSubmission);
@@ -656,7 +656,7 @@ describe('Chrome Interaction', () => {
     forSubmission = {
       NAME: assetChartView,
       VALUE: assetChartAdditions,
-      HINT: singleAssetNameHint,
+      HINT: assetChartFocusHint,
     };
     await submitSettingChange(driver, testDataModelName, forSubmission);
 
@@ -732,7 +732,7 @@ describe('Chrome Interaction', () => {
     forSubmission = {
       NAME: assetChartView,
       VALUE: assetChartReductions,
-      HINT: singleAssetNameHint,
+      HINT: assetChartFocusHint,
     };
     await submitSettingChange(driver, testDataModelName, forSubmission);
 
@@ -792,7 +792,7 @@ describe('Chrome Interaction', () => {
     forSubmission = {
       NAME: assetChartView,
       VALUE: assetChartDeltas,
-      HINT: singleAssetNameHint,
+      HINT: assetChartFocusHint,
     };
     await submitSettingChange(driver, testDataModelName, forSubmission);
 
@@ -928,9 +928,9 @@ describe('Chrome Interaction', () => {
     };
     await submitSettingChange(driver, testDataModelName, forSubmission);
     forSubmission = {
-      NAME: singleAssetName,
+      NAME: assetChartFocus,
       VALUE: 'Accessible',
-      HINT: singleAssetNameHint,
+      HINT: assetChartFocusHint,
     };
     await submitSettingChange(driver, testDataModelName, forSubmission);
     const ary = await getAssetChartData(driver);
