@@ -137,11 +137,11 @@ export class AddDeleteTransactionForm extends Component<
           <div className="col">
             <Input
               title="Transaction name:"
-              inputtype="text"
+              type="text"
               name="name"
               value={this.state.NAME}
               placeholder="Enter name"
-              handlechange={this.handleNameChange}
+              onChange={this.handleNameChange}
             />
           </div>{' '}
           {/* end col */}
@@ -195,22 +195,22 @@ export class AddDeleteTransactionForm extends Component<
           <div className="col">
             <Input
               title="How much to take (can be % of asset value):"
-              inputtype="text"
+              type="text"
               name="fromValue"
               value={this.state.TRANSACTION_FROM_INPUT_VALUE}
               placeholder="Enter from value"
-              handlechange={this.handleFromValueChange}
+              onChange={this.handleFromValueChange}
             />
           </div>{' '}
           {/* end col */}
           <div className="col">
             <Input
               title="How much to add (can be % of transaction amount):"
-              inputtype="text"
+              type="text"
               name="toValue"
               value={this.state.TRANSACTION_TO_INPUT_VALUE}
               placeholder="Enter to value"
-              handlechange={this.handleToValueChange}
+              onChange={this.handleToValueChange}
             />
           </div>{' '}
           {/* end col */}
@@ -220,11 +220,11 @@ export class AddDeleteTransactionForm extends Component<
           <div className="col">
             <Input
               title="Transaction recurrence, e.g. 6m, 2y (optional):"
-              inputtype="text"
+              type="text"
               name="recurrence"
               value={this.state.TRANSACTION_RECURRENCE}
               placeholder="Enter recurrence"
-              handlechange={this.handleRecurrenceChange}
+              onChange={this.handleRecurrenceChange}
             />
           </div>{' '}
           {/* end col */}
@@ -248,11 +248,11 @@ export class AddDeleteTransactionForm extends Component<
           <div className="col">
             <Input
               title="Category (optional):"
-              inputtype="text"
+              type="text"
               name="category"
               value={this.state.CATEGORY}
               placeholder="category"
-              handlechange={this.handleCategoryChange}
+              onChange={this.handleCategoryChange}
             />
           </div>{' '}
           {/* end col */}

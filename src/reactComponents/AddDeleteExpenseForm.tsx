@@ -80,22 +80,22 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
           <div className="col">
             <Input
               title="Expense name:"
-              inputtype="text"
+              type="text"
               name="name"
               value={this.state.NAME}
               placeholder="Enter name"
-              handlechange={this.handleNameChange}
+              onChange={this.handleNameChange}
             />
           </div>{' '}
           {/* end col */}
           <div className="col">
             <Input
               title="Expense value (amount per month):"
-              inputtype="text"
+              type="text"
               name="value"
               value={this.state.VALUE}
               placeholder="Enter value"
-              handlechange={this.handleValueChange}
+              onChange={this.handleValueChange}
             />
           </div>{' '}
           {/* end col */}
@@ -139,22 +139,22 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
           <div className="col">
             <Input
               title="Annual growth percentage (excluding inflation):"
-              inputtype="text"
+              type="text"
               name="growth"
               value={this.state.GROWTH}
               placeholder="Enter growth"
-              handlechange={this.handleGrowthChange}
+              onChange={this.handleGrowthChange}
             />
           </div>{' '}
           {/* end col */}
           <div className="col">
             <Input
               title="Is value immune to inflation?:"
-              inputtype="text"
+              type="text"
               name="cpi-immune"
               value={this.state.CPI_IMMUNE}
               placeholder="Enter T/F"
-              handlechange={this.handleFixedChange}
+              onChange={this.handleFixedChange}
             />
           </div>{' '}
           {/* end col */}
@@ -164,11 +164,11 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
           <div className="col">
             <Input
               title="Category (optional):"
-              inputtype="text"
+              type="text"
               name="category"
               value={this.state.CATEGORY}
               placeholder="category"
-              handlechange={this.handleCategoryChange}
+              onChange={this.handleCategoryChange}
             />
           </div>{' '}
           {/* end col */}

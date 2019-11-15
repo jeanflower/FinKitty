@@ -30,11 +30,11 @@ export class AddDeleteEntryForm extends Component<EditProps, EditFormState> {
     return (
       <form className="container-fluid" onSubmit={this.add}>
         <Input
-          inputtype={'text'}
+          type={'text'}
           name={'name'}
           value={this.state.NAME}
           placeholder={'Enter name'}
-          handlechange={this.handleName}
+          onChange={this.handleName}
         />{' '}
         <Button
           action={this.add}

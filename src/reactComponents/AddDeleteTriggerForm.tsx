@@ -80,19 +80,19 @@ export class AddDeleteTriggerForm extends Component<EditProps, EditFormState> {
       <form className="container-fluid" onSubmit={this.add}>
         Name:
         <Input
-          inputtype={'text'}
+          type={'text'}
           name={'name'}
           value={this.state.NAME}
           placeholder={'Enter name'}
-          handlechange={this.handleName}
+          onChange={this.handleName}
         />{' '}
         Date:
         <Input
-          inputtype={'text'}
+          type={'text'}
           name={'date'}
           value={this.state.TRIGGER_DATE}
           placeholder={'Enter date'}
-          handlechange={this.handleValueChange}
+          onChange={this.handleValueChange}
         />{' '}
         <Button
           action={this.add}

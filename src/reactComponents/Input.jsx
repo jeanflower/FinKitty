@@ -11,9 +11,9 @@ const Input = props => {
         className='form-control'
         id={props.name}
         name={props.name}
-        type={props.inputtype}
+        type={props.type}
         value={props.value}
-        onChange={props.handlechange}
+        onChange={props.onChange}
         onBlur={props.onBlur}
         placeholder={props.placeholder}
       />

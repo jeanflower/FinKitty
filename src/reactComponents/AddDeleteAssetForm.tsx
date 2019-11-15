@@ -70,22 +70,22 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
           <div className="col">
             <Input
               title="Asset name:"
-              inputtype="text"
+              type="text"
               name="name"
               value={this.state.NAME}
               placeholder="Enter name"
-              handlechange={this.handleNameChange}
+              onChange={this.handleNameChange}
             />
           </div>{' '}
           {/* end col */}
           <div className="col">
             <Input
               title="Asset value:"
-              inputtype="text"
+              type="text"
               name="value"
               value={this.state.ASSET_VALUE}
               placeholder="Enter value"
-              handlechange={this.handleValueChange}
+              onChange={this.handleValueChange}
             />
           </div>{' '}
           {/* end col */}
@@ -109,22 +109,22 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
           <div className="col">
             <Input
               title="Annual growth percentage (excluding inflation):"
-              inputtype="text"
+              type="text"
               name="growth"
               value={this.state.ASSET_GROWTH}
               placeholder="Enter growth"
-              handlechange={this.handleGrowthChange}
+              onChange={this.handleGrowthChange}
             />
           </div>{' '}
           {/* end col */}
           <div className="col">
             <Input
               title="Liability (e.g. 'CGTJoe'):"
-              inputtype="text"
+              type="text"
               name="liability"
               value={this.state.ASSET_LIABILITY}
               placeholder="Enter liability"
-              handlechange={this.handleLiabilityChange}
+              onChange={this.handleLiabilityChange}
             />
           </div>{' '}
           {/* end col */}
@@ -134,22 +134,22 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
           <div className="col">
             <Input
               title="Category (optional):"
-              inputtype="text"
+              type="text"
               name="category"
               value={this.state.CATEGORY}
               placeholder="category"
-              handlechange={this.handleCategoryChange}
+              onChange={this.handleCategoryChange}
             />
           </div>{' '}
           {/* end col */}
           <div className="col">
             <Input
               title="Original purchase price (for CGT purposes):"
-              inputtype="text"
+              type="text"
               name="purchase"
               value={this.state.ASSET_PURCHASE_PRICE}
               placeholder="purchase"
-              handlechange={this.handlePurchasePriceChange}
+              onChange={this.handlePurchasePriceChange}
             />
           </div>{' '}
           {/* end col */}

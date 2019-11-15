@@ -45,12 +45,12 @@ export class ModelManagementForm extends Component<
         {this.modelList(this.props.models)}
         <form className="container-fluid" onSubmit={this.view}>
           <Input
-            inputtype={'text'}
+            type={'text'}
             title={'Manage model : name'}
             name={'input-model-name'}
             value={this.state.NAME}
             placeholder={'Enter name'}
-            handlechange={this.handleName}
+            onChange={this.handleName}
           />{' '}
           <Button
             action={(event: any) => {
