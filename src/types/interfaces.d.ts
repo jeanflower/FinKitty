@@ -128,7 +128,7 @@ export interface DbTransactionDynamo extends DbDynamoItemCategory {
 }
 
 export interface DatedThing {
-  date: Date | undefined;
+  date: Date;
   name: string;
   type: string;
 }
