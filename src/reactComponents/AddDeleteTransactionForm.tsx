@@ -16,17 +16,17 @@ import { taxPot } from '../stringConstants';
 interface EditFormState {
   NAME: string;
   CATEGORY: string;
-  TRANSACTION_FROM: string;
-  TRANSACTION_FROM_ABSOLUTE: string;
-  TRANSACTION_FROM_VALUE: string;
-  TRANSACTION_FROM_INPUT_VALUE: string;
-  TRANSACTION_TO: string;
-  TRANSACTION_TO_ABSOLUTE: string;
-  TRANSACTION_TO_VALUE: string;
-  TRANSACTION_TO_INPUT_VALUE: string;
-  TRANSACTION_DATE: string;
-  TRANSACTION_STOP_DATE: string; // for regular transactions
-  TRANSACTION_RECURRENCE: string;
+  FROM: string;
+  FROM_ABSOLUTE: string;
+  FROM_VALUE: string;
+  FROM_INPUT_VALUE: string;
+  TO: string;
+  TO_ABSOLUTE: string;
+  TO_VALUE: string;
+  TO_INPUT_VALUE: string;
+  DATE: string;
+  STOP_DATE: string; // for regular transactions
+  RECURRENCE: string;
 }
 interface EditProps {
   checkFunction: any;
@@ -96,17 +96,17 @@ export class AddDeleteTransactionForm extends Component<
     this.defaultState = {
       NAME: '',
       CATEGORY: '',
-      TRANSACTION_FROM: '',
-      TRANSACTION_FROM_ABSOLUTE: '',
-      TRANSACTION_FROM_VALUE: '',
-      TRANSACTION_FROM_INPUT_VALUE: '',
-      TRANSACTION_TO: '',
-      TRANSACTION_TO_ABSOLUTE: '',
-      TRANSACTION_TO_VALUE: '',
-      TRANSACTION_TO_INPUT_VALUE: '',
-      TRANSACTION_DATE: '',
-      TRANSACTION_STOP_DATE: '',
-      TRANSACTION_RECURRENCE: '',
+      FROM: '',
+      FROM_ABSOLUTE: '',
+      FROM_VALUE: '',
+      FROM_INPUT_VALUE: '',
+      TO: '',
+      TO_ABSOLUTE: '',
+      TO_VALUE: '',
+      TO_INPUT_VALUE: '',
+      DATE: '',
+      STOP_DATE: '',
+      RECURRENCE: '',
     };
 
     this.state = this.defaultState;
@@ -155,7 +155,7 @@ export class AddDeleteTransactionForm extends Component<
             setDateFunction={this.setDate}
             selectID="transactionDateSelect"
             inputName="date"
-            inputValue={this.state.TRANSACTION_DATE}
+            inputValue={this.state.DATE}
             onChangeHandler={this.handleDateChange}
             triggers={this.props.model.triggers}
             submitTrigger={this.props.submitTrigger}
@@ -197,7 +197,7 @@ export class AddDeleteTransactionForm extends Component<
               title="How much to take (can be % of asset value):"
               type="text"
               name="fromValue"
-              value={this.state.TRANSACTION_FROM_INPUT_VALUE}
+              value={this.state.FROM_INPUT_VALUE}
               placeholder="Enter from value"
               onChange={this.handleFromValueChange}
             />
@@ -208,7 +208,7 @@ export class AddDeleteTransactionForm extends Component<
               title="How much to add (can be % of transaction amount):"
               type="text"
               name="toValue"
-              value={this.state.TRANSACTION_TO_INPUT_VALUE}
+              value={this.state.TO_INPUT_VALUE}
               placeholder="Enter to value"
               onChange={this.handleToValueChange}
             />
@@ -222,7 +222,7 @@ export class AddDeleteTransactionForm extends Component<
               title="Transaction recurrence, e.g. 6m, 2y (optional):"
               type="text"
               name="recurrence"
-              value={this.state.TRANSACTION_RECURRENCE}
+              value={this.state.RECURRENCE}
               placeholder="Enter recurrence"
               onChange={this.handleRecurrenceChange}
             />
@@ -237,7 +237,7 @@ export class AddDeleteTransactionForm extends Component<
             setDateFunction={this.setStopDate}
             selectID="transactionStopDateSelect"
             inputName="stopDate"
-            inputValue={this.state.TRANSACTION_STOP_DATE}
+            inputValue={this.state.STOP_DATE}
             onChangeHandler={this.handleStopDateChange}
             triggers={this.props.model.triggers}
             submitTrigger={this.props.submitTrigger}
@@ -284,12 +284,12 @@ export class AddDeleteTransactionForm extends Component<
   private handleFromChange(value: string) {
     // log(`from value changed to ${value}`);
     this.setState({
-      TRANSACTION_FROM: value,
+      FROM: value,
     });
   }
   private handleToChange(value: string) {
     this.setState({
-      TRANSACTION_TO: value,
+      TO: value,
     });
   }
   private parseValue(input: string) {
@@ -314,26 +314,26 @@ export class AddDeleteTransactionForm extends Component<
     const value = e.target.value;
     const parseResult = this.parseValue(value);
     this.setState({
-      TRANSACTION_FROM_ABSOLUTE: makeStringFromBoolean(parseResult.absolute),
+      FROM_ABSOLUTE: makeStringFromBoolean(parseResult.absolute),
     });
     this.setState({
-      TRANSACTION_FROM_VALUE: parseResult.value,
+      FROM_VALUE: parseResult.value,
     });
     this.setState({
-      TRANSACTION_FROM_INPUT_VALUE: value,
+      FROM_INPUT_VALUE: value,
     });
   }
   private handleToValueChange(e: any) {
     const value = e.target.value;
     const parseResult = this.parseValue(value);
     this.setState({
-      TRANSACTION_TO_ABSOLUTE: makeStringFromBoolean(parseResult.absolute),
+      TO_ABSOLUTE: makeStringFromBoolean(parseResult.absolute),
     });
     this.setState({
-      TRANSACTION_TO_VALUE: parseResult.value,
+      TO_VALUE: parseResult.value,
     });
     this.setState({
-      TRANSACTION_TO_INPUT_VALUE: value,
+      TO_INPUT_VALUE: value,
     });
   }
   private handleCategoryChange(e: any) {
@@ -345,11 +345,11 @@ export class AddDeleteTransactionForm extends Component<
   private handleRecurrenceChange(e: any) {
     const value = e.target.value;
     this.setState({
-      TRANSACTION_RECURRENCE: value,
+      RECURRENCE: value,
     });
   }
   private setDate(value: string): void {
-    this.setState({ TRANSACTION_DATE: value });
+    this.setState({ DATE: value });
   }
   private handleDateChange(e: any): void {
     const value = e.target.value;
@@ -357,7 +357,7 @@ export class AddDeleteTransactionForm extends Component<
     this.resetDateSelect();
   }
   private setStopDate(value: string): void {
-    this.setState({ TRANSACTION_STOP_DATE: value });
+    this.setState({ STOP_DATE: value });
   }
   private handleStopDateChange(e: any): void {
     const value = e.target.value;
@@ -381,9 +381,9 @@ export class AddDeleteTransactionForm extends Component<
   private add(e: any): void {
     e.preventDefault();
 
-    let fromAbsolute = this.state.TRANSACTION_FROM_ABSOLUTE;
-    let fromValue = this.state.TRANSACTION_FROM_VALUE;
-    if (this.state.TRANSACTION_FROM === '') {
+    let fromAbsolute = this.state.FROM_ABSOLUTE;
+    let fromValue = this.state.FROM_VALUE;
+    if (this.state.FROM === '') {
       if (fromAbsolute === '') {
         log('setting fromAbsolute = True');
         fromAbsolute = 'True';
@@ -392,9 +392,9 @@ export class AddDeleteTransactionForm extends Component<
         fromValue = '0';
       }
     }
-    let toAbsolute = this.state.TRANSACTION_TO_ABSOLUTE;
-    let toValue = this.state.TRANSACTION_TO_VALUE;
-    if (this.state.TRANSACTION_TO === '') {
+    let toAbsolute = this.state.TO_ABSOLUTE;
+    let toValue = this.state.TO_VALUE;
+    if (this.state.TO === '') {
       if (toAbsolute === '') {
         toAbsolute = 'True';
       }
@@ -413,15 +413,15 @@ export class AddDeleteTransactionForm extends Component<
     const transaction: DbTransaction = {
       NAME: this.state.NAME,
       CATEGORY: this.state.CATEGORY,
-      TRANSACTION_FROM: this.state.TRANSACTION_FROM,
-      TRANSACTION_FROM_ABSOLUTE: makeBooleanFromString(fromAbsolute),
-      TRANSACTION_FROM_VALUE: fromValue,
-      TRANSACTION_TO: this.state.TRANSACTION_TO,
-      TRANSACTION_TO_ABSOLUTE: makeBooleanFromString(toAbsolute),
-      TRANSACTION_TO_VALUE: toValue,
-      TRANSACTION_DATE: this.state.TRANSACTION_DATE,
-      TRANSACTION_STOP_DATE: this.state.TRANSACTION_STOP_DATE,
-      TRANSACTION_RECURRENCE: this.state.TRANSACTION_RECURRENCE,
+      FROM: this.state.FROM,
+      FROM_ABSOLUTE: makeBooleanFromString(fromAbsolute),
+      FROM_VALUE: fromValue,
+      TO: this.state.TO,
+      TO_ABSOLUTE: makeBooleanFromString(toAbsolute),
+      TO_VALUE: toValue,
+      DATE: this.state.DATE,
+      STOP_DATE: this.state.STOP_DATE,
+      RECURRENCE: this.state.RECURRENCE,
     };
     // log('adding something ' + showObj(transaction));
     const message = this.props.checkFunction(transaction, this.props.model);

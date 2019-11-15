@@ -57,7 +57,7 @@ export function checkTriggerDate(triggerName: string, triggers: DbTrigger[]) {
   // log('matched = '+showObj(matched));
   let result;
   if (matched.length !== 0) {
-    result = new Date(matched[0].TRIGGER_DATE); // copy
+    result = new Date(matched[0].DATE); // copy
   } else {
     const dateTry = new Date(triggerName);
     if (dateTry.getTime()) {

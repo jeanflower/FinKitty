@@ -127,7 +127,7 @@ export class AddDeleteTriggerForm extends Component<EditProps, EditFormState> {
     // log('adding something ' + showObj(this));
     const trigger: DbTrigger = {
       NAME: this.state.NAME,
-      TRIGGER_DATE: new Date(this.state.TRIGGER_DATE),
+      DATE: new Date(this.state.TRIGGER_DATE),
     };
     const message = this.props.checkFunction(trigger, this.props.model);
     if (message.length > 0) {

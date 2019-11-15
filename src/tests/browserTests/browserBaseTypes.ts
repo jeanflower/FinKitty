@@ -45,11 +45,11 @@ import webdriver from 'selenium-webdriver';
 export const simpleAsset: DbAsset = {
   NAME: 'NoName',
   CATEGORY: '',
-  ASSET_START: '1 Jan 2017',
-  ASSET_VALUE: '0',
-  ASSET_GROWTH: '0',
-  ASSET_LIABILITY: '',
-  ASSET_PURCHASE_PRICE: '0',
+  START: '1 Jan 2017',
+  VALUE: '0',
+  GROWTH: '0',
+  LIABILITY: '',
+  PURCHASE_PRICE: '0',
 };
 export const simpleExpense: DbExpense = {
   NAME: 'NoName',
@@ -74,15 +74,15 @@ export const simpleIncome: DbIncome = {
 };
 export const simpleTransaction: DbTransaction = {
   NAME: 'NoName',
-  TRANSACTION_FROM: '',
-  TRANSACTION_FROM_ABSOLUTE: true,
-  TRANSACTION_FROM_VALUE: '0',
-  TRANSACTION_TO: '',
-  TRANSACTION_TO_ABSOLUTE: true,
-  TRANSACTION_TO_VALUE: '0',
-  TRANSACTION_DATE: '1 Jan 2017',
-  TRANSACTION_STOP_DATE: '', // for regular transactions
-  TRANSACTION_RECURRENCE: '',
+  FROM: '',
+  FROM_ABSOLUTE: true,
+  FROM_VALUE: '0',
+  TO: '',
+  TO_ABSOLUTE: true,
+  TO_VALUE: '0',
+  DATE: '1 Jan 2017',
+  STOP_DATE: '', // for regular transactions
+  RECURRENCE: '',
   CATEGORY: '',
 };
 export const browserTestSettings: DbSetting[] = [

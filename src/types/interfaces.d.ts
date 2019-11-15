@@ -19,24 +19,24 @@ export interface DbSettingDynamo extends DbDynamoItem {
   HINT: { S: string };
 }
 export interface DbTrigger extends DbItem {
-  TRIGGER_DATE: Date;
+  DATE: Date;
 }
 export interface DbTriggerDynamo extends DbDynamoItem {
-  TRIGGER_DATE: { N: string };
+  DATE: { N: string };
 }
 export interface DbAsset extends DbItemCategory {
-  ASSET_START: string;
-  ASSET_VALUE: string;
-  ASSET_GROWTH: string;
-  ASSET_LIABILITY: string; // e.g. JoeIncome if growth accumulates as income tax liability
-  ASSET_PURCHASE_PRICE: string;
+  START: string;
+  VALUE: string;
+  GROWTH: string;
+  LIABILITY: string; // e.g. JoeIncome if growth accumulates as income tax liability
+  PURCHASE_PRICE: string;
 }
 export interface DbAssetDynamo extends DbDynamoItemCategory {
-  ASSET_START: { S: string };
-  ASSET_VALUE: { N: string };
-  ASSET_GROWTH: { S: string };
-  ASSET_LIABILITY: { S: string };
-  ASSET_PURCHASE_PRICE: { N: string };
+  START: { S: string };
+  VALUE: { N: string };
+  GROWTH: { S: string };
+  LIABILITY: { S: string };
+  PURCHASE_PRICE: { N: string };
 }
 export interface DbExpense extends DbItemCategory {
   START: string;
@@ -105,26 +105,26 @@ export interface DbTransaction extends DbItemCategory {
   // NAME:
   // special starting words : Conditional, Pension, PensionSS
   // see tests for examples
-  TRANSACTION_FROM: string;
-  TRANSACTION_FROM_ABSOLUTE: boolean;
-  TRANSACTION_FROM_VALUE: string;
-  TRANSACTION_TO: string;
-  TRANSACTION_TO_ABSOLUTE: boolean;
-  TRANSACTION_TO_VALUE: string;
-  TRANSACTION_DATE: string;
-  TRANSACTION_STOP_DATE: string; // for regular transactions
-  TRANSACTION_RECURRENCE: string;
+  FROM: string;
+  FROM_ABSOLUTE: boolean;
+  FROM_VALUE: string;
+  TO: string;
+  TO_ABSOLUTE: boolean;
+  TO_VALUE: string;
+  DATE: string;
+  STOP_DATE: string; // for regular transactions
+  RECURRENCE: string;
 }
 export interface DbTransactionDynamo extends DbDynamoItemCategory {
-  TRANSACTION_DATE: { S: string };
-  TRANSACTION_FROM: { S: string }; // can be 'None' e.g. for windfalls to cash
-  TRANSACTION_FROM_ABSOLUTE: { BOOL: boolean };
-  TRANSACTION_FROM_VALUE: { N: string };
-  TRANSACTION_RECURRENCE: { S: string };
-  TRANSACTION_STOP_DATE: { S: string }; // can be 'None' e.g. for non-recurrent cases
-  TRANSACTION_TO: { S: string }; // can be 'None' e.g. for one-off expenses out of cash
-  TRANSACTION_TO_ABSOLUTE: { BOOL: boolean };
-  TRANSACTION_TO_VALUE: { N: string };
+  DATE: { S: string };
+  FROM: { S: string }; // can be 'None' e.g. for windfalls to cash
+  FROM_ABSOLUTE: { BOOL: boolean };
+  FROM_VALUE: { N: string };
+  RECURRENCE: { S: string };
+  STOP_DATE: { S: string }; // can be 'None' e.g. for non-recurrent cases
+  TO: { S: string }; // can be 'None' e.g. for one-off expenses out of cash
+  TO_ABSOLUTE: { BOOL: boolean };
+  TO_VALUE: { N: string };
 }
 
 export interface DatedThing {

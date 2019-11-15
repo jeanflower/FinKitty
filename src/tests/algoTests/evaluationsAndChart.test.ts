@@ -66,11 +66,11 @@ import {
 const simpleAsset: DbAsset = {
   NAME: 'NoName',
   CATEGORY: '',
-  ASSET_START: '1 Jan 2017',
-  ASSET_VALUE: '0',
-  ASSET_GROWTH: '0',
-  ASSET_LIABILITY: '',
-  ASSET_PURCHASE_PRICE: '0',
+  START: '1 Jan 2017',
+  VALUE: '0',
+  GROWTH: '0',
+  LIABILITY: '',
+  PURCHASE_PRICE: '0',
 };
 const simpleExpense: DbExpense = {
   NAME: 'NoName',
@@ -138,15 +138,15 @@ const defaultSettings: DbSetting[] = [
 ];
 const simpleTransaction: DbTransaction = {
   NAME: 'NoName',
-  TRANSACTION_FROM: '',
-  TRANSACTION_FROM_ABSOLUTE: true,
-  TRANSACTION_FROM_VALUE: '0',
-  TRANSACTION_TO: '',
-  TRANSACTION_TO_ABSOLUTE: true,
-  TRANSACTION_TO_VALUE: '0',
-  TRANSACTION_DATE: '1 Jan 2017',
-  TRANSACTION_STOP_DATE: '', // for regular transactions
-  TRANSACTION_RECURRENCE: '',
+  FROM: '',
+  FROM_ABSOLUTE: true,
+  FROM_VALUE: '0',
+  TO: '',
+  TO_ABSOLUTE: true,
+  TO_VALUE: '0',
+  DATE: '1 Jan 2017',
+  STOP_DATE: '', // for regular transactions
+  RECURRENCE: '',
   CATEGORY: '',
 };
 
@@ -332,21 +332,21 @@ export function getModelCoarseAndFine() {
       {
         ...simpleAsset,
         NAME: CASH_ASSET_NAME,
-        ASSET_START: 'April 1 2018',
-        ASSET_VALUE: '500',
+        START: 'April 1 2018',
+        VALUE: '500',
         CATEGORY: 'Accessible',
       },
       {
         ...simpleAsset,
         NAME: 'stocks',
-        ASSET_START: 'April 1 2018',
-        ASSET_VALUE: '500',
+        START: 'April 1 2018',
+        VALUE: '500',
       },
       {
         ...simpleAsset,
         NAME: 'savings',
-        ASSET_START: 'June 1 2018',
-        ASSET_VALUE: '500',
+        START: 'June 1 2018',
+        VALUE: '500',
         CATEGORY: 'Accessible',
       },
     ],
@@ -403,25 +403,25 @@ export function getModelCrystallizedPension() {
       {
         ...simpleAsset,
         NAME: 'AvailablePensionTaxFree',
-        ASSET_START: 'Apr 06 2019',
+        START: 'Apr 06 2019',
         CATEGORY: 'B',
       },
       {
         ...simpleAsset,
         NAME: CASH_ASSET_NAME,
-        ASSET_START: 'Apr 06 2019',
+        START: 'Apr 06 2019',
       },
       {
         ...simpleAsset,
         NAME: crystallizedPension + 'Joe',
-        ASSET_START: 'Apr 06 2019',
+        START: 'Apr 06 2019',
         CATEGORY: 'B',
       },
       {
         ...simpleAsset,
         NAME: 'EmploymentPension',
-        ASSET_START: 'Apr 06 2019',
-        ASSET_VALUE: '100000',
+        START: 'Apr 06 2019',
+        VALUE: '100000',
         CATEGORY: 'B',
       },
     ],
@@ -471,28 +471,28 @@ export function getModelCrystallizedPension() {
     transactions: [
       {
         NAME: 'MoveQuarterPension',
-        TRANSACTION_FROM: 'EmploymentPension',
-        TRANSACTION_FROM_ABSOLUTE: false,
-        TRANSACTION_FROM_VALUE: '0.25',
-        TRANSACTION_TO: 'AvailablePensionTaxFree',
-        TRANSACTION_TO_ABSOLUTE: false,
-        TRANSACTION_TO_VALUE: '0.98',
-        TRANSACTION_DATE: 'Oct 04 2024',
-        TRANSACTION_STOP_DATE: '1 January 2018',
-        TRANSACTION_RECURRENCE: '',
+        FROM: 'EmploymentPension',
+        FROM_ABSOLUTE: false,
+        FROM_VALUE: '0.25',
+        TO: 'AvailablePensionTaxFree',
+        TO_ABSOLUTE: false,
+        TO_VALUE: '0.98',
+        DATE: 'Oct 04 2024',
+        STOP_DATE: '1 January 2018',
+        RECURRENCE: '',
         CATEGORY: 'D',
       },
       {
         NAME: 'MoveRemainingPension',
-        TRANSACTION_FROM: 'EmploymentPension',
-        TRANSACTION_FROM_ABSOLUTE: false,
-        TRANSACTION_FROM_VALUE: '1',
-        TRANSACTION_TO: crystallizedPension + 'Joe',
-        TRANSACTION_TO_ABSOLUTE: false,
-        TRANSACTION_TO_VALUE: '0.98',
-        TRANSACTION_DATE: 'Oct 05 2024',
-        TRANSACTION_STOP_DATE: '1 January 2018',
-        TRANSACTION_RECURRENCE: '',
+        FROM: 'EmploymentPension',
+        FROM_ABSOLUTE: false,
+        FROM_VALUE: '1',
+        TO: crystallizedPension + 'Joe',
+        TO_ABSOLUTE: false,
+        TO_VALUE: '0.98',
+        DATE: 'Oct 05 2024',
+        STOP_DATE: '1 January 2018',
+        RECURRENCE: '',
         CATEGORY: '',
       },
     ],
@@ -946,7 +946,7 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'valueSetTrigger',
-          TRIGGER_DATE: new Date('January 1 2017'),
+          DATE: new Date('January 1 2017'),
         },
       ],
       expenses: [
@@ -1408,23 +1408,23 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: 'Acash',
-          ASSET_START: 'January 1 2018',
-          ASSET_VALUE: '500',
-          ASSET_GROWTH: '12',
+          START: 'January 1 2018',
+          VALUE: '500',
+          GROWTH: '12',
         },
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
-          ASSET_START: 'January 1 2018',
-          ASSET_VALUE: '500',
-          ASSET_GROWTH: '12',
+          START: 'January 1 2018',
+          VALUE: '500',
+          GROWTH: '12',
         },
         {
           ...simpleAsset,
           NAME: 'Zcash',
-          ASSET_START: 'January 1 2018',
-          ASSET_VALUE: '500',
-          ASSET_GROWTH: '12',
+          START: 'January 1 2018',
+          VALUE: '500',
+          GROWTH: '12',
         },
       ],
       settings: [...defaultSettings],
@@ -1489,9 +1489,9 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: 'savings',
-          ASSET_START: 'January 1 2018',
-          ASSET_VALUE: '500',
-          ASSET_GROWTH: '12',
+          START: 'January 1 2018',
+          VALUE: '500',
+          GROWTH: '12',
         },
       ],
       settings: [...defaultSettings],
@@ -1544,9 +1544,9 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: 'savings',
-          ASSET_START: 'January 1 2018',
-          ASSET_VALUE: '500',
-          ASSET_GROWTH: '12',
+          START: 'January 1 2018',
+          VALUE: '500',
+          GROWTH: '12',
         },
       ],
       settings: [...defaultSettings],
@@ -1624,16 +1624,16 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'then',
-          TRIGGER_DATE: new Date('January 1 2018'),
+          DATE: new Date('January 1 2018'),
         },
       ],
       assets: [
         {
           ...simpleAsset,
           NAME: 'savings',
-          ASSET_START: 'then',
-          ASSET_VALUE: '500',
-          ASSET_GROWTH: '12',
+          START: 'then',
+          VALUE: '500',
+          GROWTH: '12',
         },
       ],
       settings: [...defaultSettings],
@@ -1760,17 +1760,17 @@ describe('evaluations tests', () => {
         {
           ...simpleTransaction,
           NAME: 'buy food',
-          TRANSACTION_FROM: 'MyCa',
-          TRANSACTION_FROM_VALUE: '100',
-          TRANSACTION_DATE: 'January 2 2018',
+          FROM: 'MyCa',
+          FROM_VALUE: '100',
+          DATE: 'January 2 2018',
         },
       ],
       assets: [
         {
           ...simpleAsset,
           NAME: 'MyCa',
-          ASSET_START: 'January 1 2018',
-          ASSET_VALUE: '500',
+          START: 'January 1 2018',
+          VALUE: '500',
         },
       ],
       settings: [...defaultSettings],
@@ -1822,18 +1822,18 @@ describe('evaluations tests', () => {
         {
           ...simpleTransaction,
           NAME: 'Each month buy food',
-          TRANSACTION_FROM: 'MyCa',
-          TRANSACTION_FROM_VALUE: '100',
-          TRANSACTION_DATE: 'January 2 2018',
-          TRANSACTION_RECURRENCE: '1m',
+          FROM: 'MyCa',
+          FROM_VALUE: '100',
+          DATE: 'January 2 2018',
+          RECURRENCE: '1m',
         },
       ],
       assets: [
         {
           ...simpleAsset,
           NAME: 'MyCa',
-          ASSET_START: 'January 1 2018',
-          ASSET_VALUE: '500',
+          START: 'January 1 2018',
+          VALUE: '500',
         },
       ],
       settings: [...defaultSettings],
@@ -1887,18 +1887,18 @@ describe('evaluations tests', () => {
         {
           ...simpleTransaction,
           NAME: 'Each month buy food',
-          TRANSACTION_FROM: 'MyCa',
-          TRANSACTION_FROM_VALUE: '100',
-          TRANSACTION_DATE: 'January 2 2018',
-          TRANSACTION_RECURRENCE: '2m',
+          FROM: 'MyCa',
+          FROM_VALUE: '100',
+          DATE: 'January 2 2018',
+          RECURRENCE: '2m',
         },
       ],
       assets: [
         {
           ...simpleAsset,
           NAME: 'MyCa',
-          ASSET_START: 'January 1 2018',
-          ASSET_VALUE: '500',
+          START: 'January 1 2018',
+          VALUE: '500',
         },
       ],
       settings: [...defaultSettings],
@@ -1956,18 +1956,18 @@ describe('evaluations tests', () => {
         {
           ...simpleTransaction,
           NAME: 'Each month buy food',
-          TRANSACTION_FROM: 'MyCa',
-          TRANSACTION_FROM_VALUE: '100',
-          TRANSACTION_DATE: 'January 2 2018',
-          TRANSACTION_RECURRENCE: '2y',
+          FROM: 'MyCa',
+          FROM_VALUE: '100',
+          DATE: 'January 2 2018',
+          RECURRENCE: '2y',
         },
       ],
       assets: [
         {
           ...simpleAsset,
           NAME: 'MyCa',
-          ASSET_START: 'January 1 2018',
-          ASSET_VALUE: '500',
+          START: 'January 1 2018',
+          VALUE: '500',
         },
       ],
       settings: [...defaultSettings],
@@ -2028,27 +2028,27 @@ describe('evaluations tests', () => {
         {
           ...simpleTransaction,
           NAME: 'Monthly buy food',
-          TRANSACTION_FROM: 'MyCa',
-          TRANSACTION_FROM_VALUE: '100',
-          TRANSACTION_TO: 'Food',
-          TRANSACTION_TO_VALUE: '80',
-          TRANSACTION_DATE: 'January 2 2018',
-          TRANSACTION_STOP_DATE: 'March 1 2018',
-          TRANSACTION_RECURRENCE: '1m',
+          FROM: 'MyCa',
+          FROM_VALUE: '100',
+          TO: 'Food',
+          TO_VALUE: '80',
+          DATE: 'January 2 2018',
+          STOP_DATE: 'March 1 2018',
+          RECURRENCE: '1m',
         },
       ],
       assets: [
         {
           ...simpleAsset,
           NAME: 'MyCa',
-          ASSET_START: 'January 1 2018',
-          ASSET_VALUE: '320',
+          START: 'January 1 2018',
+          VALUE: '320',
         },
         {
           ...simpleAsset,
           NAME: 'Food',
-          ASSET_START: 'January 1 2018',
-          ASSET_VALUE: '20',
+          START: 'January 1 2018',
+          VALUE: '20',
         },
       ],
       settings: [...defaultSettings],
@@ -2123,35 +2123,35 @@ describe('evaluations tests', () => {
         {
           ...simpleTransaction,
           NAME: 'Each month buy food',
-          TRANSACTION_FROM: 'MyCa',
-          TRANSACTION_FROM_VALUE: '100',
-          TRANSACTION_TO: 'Food',
-          TRANSACTION_TO_VALUE: '80',
-          TRANSACTION_DATE: 'January 2 2018',
-          TRANSACTION_STOP_DATE: '',
-          TRANSACTION_RECURRENCE: '1m',
+          FROM: 'MyCa',
+          FROM_VALUE: '100',
+          TO: 'Food',
+          TO_VALUE: '80',
+          DATE: 'January 2 2018',
+          STOP_DATE: '',
+          RECURRENCE: '1m',
         },
         {
           ...simpleTransaction,
           NAME: 'get paid',
-          TRANSACTION_FROM_VALUE: '100',
-          TRANSACTION_TO: 'MyCa',
-          TRANSACTION_TO_VALUE: '200',
-          TRANSACTION_DATE: 'April 2 2018',
+          FROM_VALUE: '100',
+          TO: 'MyCa',
+          TO_VALUE: '200',
+          DATE: 'April 2 2018',
         },
       ],
       assets: [
         {
           ...simpleAsset,
           NAME: 'MyCa',
-          ASSET_START: 'January 1 2018',
-          ASSET_VALUE: '220',
+          START: 'January 1 2018',
+          VALUE: '220',
         },
         {
           ...simpleAsset,
           NAME: 'Food',
-          ASSET_START: 'January 1 2018',
-          ASSET_VALUE: '20',
+          START: 'January 1 2018',
+          VALUE: '20',
         },
       ],
       settings: [...defaultSettings],
@@ -2235,29 +2235,29 @@ describe('evaluations tests', () => {
         {
           ...simpleTransaction,
           NAME: 'Sell all Stff',
-          TRANSACTION_FROM: 'Stff',
-          TRANSACTION_FROM_ABSOLUTE: false,
-          TRANSACTION_FROM_VALUE: '1.0',
-          TRANSACTION_TO: 'MyCa',
-          TRANSACTION_TO_ABSOLUTE: false,
-          TRANSACTION_TO_VALUE: '0.5',
-          TRANSACTION_DATE: 'January 3 2018',
+          FROM: 'Stff',
+          FROM_ABSOLUTE: false,
+          FROM_VALUE: '1.0',
+          TO: 'MyCa',
+          TO_ABSOLUTE: false,
+          TO_VALUE: '0.5',
+          DATE: 'January 3 2018',
         },
       ],
       assets: [
         {
           ...simpleAsset,
           NAME: 'Stff',
-          ASSET_START: 'January 2 2018',
-          ASSET_VALUE: '222',
-          ASSET_GROWTH: '12',
+          START: 'January 2 2018',
+          VALUE: '222',
+          GROWTH: '12',
         },
         {
           ...simpleAsset,
           NAME: 'MyCa',
-          ASSET_START: 'January 1 2018',
-          ASSET_VALUE: '10',
-          ASSET_GROWTH: '12',
+          START: 'January 1 2018',
+          VALUE: '10',
+          GROWTH: '12',
         },
       ],
       settings: [...defaultSettings],
@@ -2325,29 +2325,29 @@ describe('evaluations tests', () => {
         {
           ...simpleTransaction,
           NAME: 'Sell all Stff',
-          TRANSACTION_FROM: 'Stff',
-          TRANSACTION_FROM_ABSOLUTE: false,
-          TRANSACTION_FROM_VALUE: '0.5',
-          TRANSACTION_TO: 'MyCa',
-          TRANSACTION_TO_ABSOLUTE: false,
-          TRANSACTION_TO_VALUE: '1.0',
-          TRANSACTION_DATE: 'January 2 2018',
+          FROM: 'Stff',
+          FROM_ABSOLUTE: false,
+          FROM_VALUE: '0.5',
+          TO: 'MyCa',
+          TO_ABSOLUTE: false,
+          TO_VALUE: '1.0',
+          DATE: 'January 2 2018',
         },
       ],
       assets: [
         {
           ...simpleAsset,
           NAME: 'Stff',
-          ASSET_START: 'January 2 2018',
-          ASSET_VALUE: '222',
-          ASSET_GROWTH: '12',
+          START: 'January 2 2018',
+          VALUE: '222',
+          GROWTH: '12',
         },
         {
           ...simpleAsset,
           NAME: 'MyCa',
-          ASSET_START: 'January 2 2018',
-          ASSET_VALUE: '10',
-          ASSET_GROWTH: '12',
+          START: 'January 2 2018',
+          VALUE: '10',
+          GROWTH: '12',
         },
       ],
       settings: [...defaultSettings],
@@ -2419,27 +2419,27 @@ describe('evaluations tests', () => {
         {
           ...simpleTransaction,
           NAME: 'Conditional Sell Stff if I need to',
-          TRANSACTION_FROM: 'Stff',
-          TRANSACTION_FROM_VALUE: '50',
-          TRANSACTION_TO: CASH_ASSET_NAME,
-          TRANSACTION_TO_VALUE: '50',
-          TRANSACTION_DATE: 'February 2 2018',
-          TRANSACTION_STOP_DATE: '',
-          TRANSACTION_RECURRENCE: '1m',
+          FROM: 'Stff',
+          FROM_VALUE: '50',
+          TO: CASH_ASSET_NAME,
+          TO_VALUE: '50',
+          DATE: 'February 2 2018',
+          STOP_DATE: '',
+          RECURRENCE: '1m',
         },
       ],
       assets: [
         {
           ...simpleAsset,
           NAME: 'Stff',
-          ASSET_START: 'January 2 2018',
-          ASSET_VALUE: '222',
+          START: 'January 2 2018',
+          VALUE: '222',
         },
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
-          ASSET_START: 'January 2 2018',
-          ASSET_VALUE: '15',
+          START: 'January 2 2018',
+          VALUE: '15',
         },
       ],
       settings: [...defaultSettings],
@@ -2570,28 +2570,28 @@ describe('evaluations tests', () => {
         {
           ...simpleTransaction,
           NAME: 'Conditional Sell Stff if I need to',
-          TRANSACTION_FROM: 'Stff',
-          TRANSACTION_FROM_ABSOLUTE: false,
-          TRANSACTION_FROM_VALUE: '1.0',
-          TRANSACTION_TO: CASH_ASSET_NAME,
-          TRANSACTION_TO_ABSOLUTE: false,
-          TRANSACTION_TO_VALUE: '1.0',
-          TRANSACTION_DATE: 'February 2 2018',
-          TRANSACTION_RECURRENCE: '1m',
+          FROM: 'Stff',
+          FROM_ABSOLUTE: false,
+          FROM_VALUE: '1.0',
+          TO: CASH_ASSET_NAME,
+          TO_ABSOLUTE: false,
+          TO_VALUE: '1.0',
+          DATE: 'February 2 2018',
+          RECURRENCE: '1m',
         },
       ],
       assets: [
         {
           ...simpleAsset,
           NAME: 'Stff',
-          ASSET_START: 'January 2 2018',
-          ASSET_VALUE: '222',
+          START: 'January 2 2018',
+          VALUE: '222',
         },
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
-          ASSET_START: 'January 2 2018',
-          ASSET_VALUE: '15',
+          START: 'January 2 2018',
+          VALUE: '15',
         },
       ],
       settings: [...defaultSettings],
@@ -2724,27 +2724,27 @@ describe('evaluations tests', () => {
         {
           ...simpleTransaction,
           NAME: 'Conditional Sell Stff if I need to',
-          TRANSACTION_FROM: 'Stff',
-          TRANSACTION_FROM_VALUE: '20',
-          TRANSACTION_TO: CASH_ASSET_NAME,
-          TRANSACTION_TO_ABSOLUTE: false,
-          TRANSACTION_TO_VALUE: '1.0',
-          TRANSACTION_DATE: 'February 2 2018',
-          TRANSACTION_RECURRENCE: '1m',
+          FROM: 'Stff',
+          FROM_VALUE: '20',
+          TO: CASH_ASSET_NAME,
+          TO_ABSOLUTE: false,
+          TO_VALUE: '1.0',
+          DATE: 'February 2 2018',
+          RECURRENCE: '1m',
         },
       ],
       assets: [
         {
           ...simpleAsset,
           NAME: 'Stff',
-          ASSET_START: 'January 2 2018',
-          ASSET_VALUE: '222',
+          START: 'January 2 2018',
+          VALUE: '222',
         },
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
-          ASSET_START: 'January 2 2018',
-          ASSET_VALUE: '15',
+          START: 'January 2 2018',
+          VALUE: '15',
         },
       ],
       settings: [...defaultSettings],
@@ -2877,26 +2877,26 @@ describe('evaluations tests', () => {
         {
           ...simpleTransaction,
           NAME: 'Conditional Sell Stff more than once if I need to',
-          TRANSACTION_FROM: 'Stff',
-          TRANSACTION_FROM_VALUE: '50',
-          TRANSACTION_TO: CASH_ASSET_NAME,
-          TRANSACTION_TO_VALUE: '50',
-          TRANSACTION_DATE: 'February 2 2018',
-          TRANSACTION_RECURRENCE: '1m',
+          FROM: 'Stff',
+          FROM_VALUE: '50',
+          TO: CASH_ASSET_NAME,
+          TO_VALUE: '50',
+          DATE: 'February 2 2018',
+          RECURRENCE: '1m',
         },
       ],
       assets: [
         {
           ...simpleAsset,
           NAME: 'Stff',
-          ASSET_START: 'January 2 2018',
-          ASSET_VALUE: '222',
+          START: 'January 2 2018',
+          VALUE: '222',
         },
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
-          ASSET_START: 'January 2 2018',
-          ASSET_VALUE: '15',
+          START: 'January 2 2018',
+          VALUE: '15',
         },
       ],
       settings: [...defaultSettings],
@@ -3034,26 +3034,26 @@ describe('evaluations tests', () => {
         {
           ...simpleTransaction,
           NAME: 'Conditional Sell Stff more than once if I need to',
-          TRANSACTION_FROM: 'Stff',
-          TRANSACTION_FROM_VALUE: '50',
-          TRANSACTION_TO: CASH_ASSET_NAME,
-          TRANSACTION_TO_VALUE: '50',
-          TRANSACTION_DATE: 'March 2 2018',
-          TRANSACTION_RECURRENCE: '1m',
+          FROM: 'Stff',
+          FROM_VALUE: '50',
+          TO: CASH_ASSET_NAME,
+          TO_VALUE: '50',
+          DATE: 'March 2 2018',
+          RECURRENCE: '1m',
         },
       ],
       assets: [
         {
           ...simpleAsset,
           NAME: 'Stff',
-          ASSET_START: 'March 2 2018',
-          ASSET_VALUE: '72',
+          START: 'March 2 2018',
+          VALUE: '72',
         },
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
-          ASSET_START: 'March 2 2018',
-          ASSET_VALUE: '15',
+          START: 'March 2 2018',
+          VALUE: '15',
         },
       ],
       settings: [...defaultSettings],
@@ -3171,27 +3171,27 @@ describe('evaluations tests', () => {
         {
           ...simpleTransaction,
           NAME: 'Conditional Sell Stff more than once if I need to',
-          TRANSACTION_FROM: 'Stff',
-          TRANSACTION_FROM_VALUE: '50',
-          TRANSACTION_TO: CASH_ASSET_NAME,
-          TRANSACTION_TO_ABSOLUTE: false,
-          TRANSACTION_TO_VALUE: '1.0',
-          TRANSACTION_DATE: 'March 2 2018',
-          TRANSACTION_RECURRENCE: '1m',
+          FROM: 'Stff',
+          FROM_VALUE: '50',
+          TO: CASH_ASSET_NAME,
+          TO_ABSOLUTE: false,
+          TO_VALUE: '1.0',
+          DATE: 'March 2 2018',
+          RECURRENCE: '1m',
         },
       ],
       assets: [
         {
           ...simpleAsset,
           NAME: 'Stff',
-          ASSET_START: 'March 2 2018',
-          ASSET_VALUE: '72',
+          START: 'March 2 2018',
+          VALUE: '72',
         },
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
-          ASSET_START: 'March 2 2018',
-          ASSET_VALUE: '15',
+          START: 'March 2 2018',
+          VALUE: '15',
         },
       ],
       settings: [...defaultSettings],
@@ -3306,34 +3306,34 @@ describe('evaluations tests', () => {
         {
           ...simpleTransaction,
           NAME: 'Conditional Sell Stff if I need to',
-          TRANSACTION_FROM: 'Stf1' + separator + 'Stf2',
-          TRANSACTION_FROM_ABSOLUTE: false,
-          TRANSACTION_FROM_VALUE: '1.0',
-          TRANSACTION_TO: CASH_ASSET_NAME,
-          TRANSACTION_TO_ABSOLUTE: false,
-          TRANSACTION_TO_VALUE: '1.0',
-          TRANSACTION_DATE: 'February 2 2018',
-          TRANSACTION_RECURRENCE: '1m',
+          FROM: 'Stf1' + separator + 'Stf2',
+          FROM_ABSOLUTE: false,
+          FROM_VALUE: '1.0',
+          TO: CASH_ASSET_NAME,
+          TO_ABSOLUTE: false,
+          TO_VALUE: '1.0',
+          DATE: 'February 2 2018',
+          RECURRENCE: '1m',
         },
       ],
       assets: [
         {
           ...simpleAsset,
           NAME: 'Stf1',
-          ASSET_START: 'January 2 2018',
-          ASSET_VALUE: '7',
+          START: 'January 2 2018',
+          VALUE: '7',
         },
         {
           ...simpleAsset,
           NAME: 'Stf2',
-          ASSET_START: 'January 2 2018',
-          ASSET_VALUE: '100',
+          START: 'January 2 2018',
+          VALUE: '100',
         },
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
-          ASSET_START: 'January 2 2018',
-          ASSET_VALUE: '15',
+          START: 'January 2 2018',
+          VALUE: '15',
         },
       ],
       settings: [...defaultSettings],
@@ -3522,34 +3522,34 @@ describe('evaluations tests', () => {
         {
           ...simpleTransaction,
           NAME: 'Conditional Sell Stff if I need to',
-          TRANSACTION_FROM: 'Stf1' + separator + 'Stf2',
-          TRANSACTION_FROM_ABSOLUTE: true,
-          TRANSACTION_FROM_VALUE: '100',
-          TRANSACTION_TO: CASH_ASSET_NAME,
-          TRANSACTION_TO_ABSOLUTE: false,
-          TRANSACTION_TO_VALUE: '1.0',
-          TRANSACTION_DATE: 'February 2 2018',
-          TRANSACTION_RECURRENCE: '1m',
+          FROM: 'Stf1' + separator + 'Stf2',
+          FROM_ABSOLUTE: true,
+          FROM_VALUE: '100',
+          TO: CASH_ASSET_NAME,
+          TO_ABSOLUTE: false,
+          TO_VALUE: '1.0',
+          DATE: 'February 2 2018',
+          RECURRENCE: '1m',
         },
       ],
       assets: [
         {
           ...simpleAsset,
           NAME: 'Stf1',
-          ASSET_START: 'January 2 2018',
-          ASSET_VALUE: '151',
+          START: 'January 2 2018',
+          VALUE: '151',
         },
         {
           ...simpleAsset,
           NAME: 'Stf2',
-          ASSET_START: 'January 2 2018',
-          ASSET_VALUE: '152',
+          START: 'January 2 2018',
+          VALUE: '152',
         },
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
-          ASSET_START: 'January 2 2018',
-          ASSET_VALUE: '5',
+          START: 'January 2 2018',
+          VALUE: '5',
         },
       ],
       settings: [...defaultSettings],
@@ -3699,9 +3699,9 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: assetName,
-          ASSET_START: 'December 31 2017',
-          ASSET_VALUE: '500',
-          ASSET_GROWTH: '12',
+          START: 'December 31 2017',
+          VALUE: '500',
+          GROWTH: '12',
         },
       ],
       settings: [...defaultSettings],
@@ -3786,8 +3786,8 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
-          ASSET_START: 'January 1 2018',
-          ASSET_VALUE: '500',
+          START: 'January 1 2018',
+          VALUE: '500',
         },
       ],
       settings: [...defaultSettings],
@@ -3896,8 +3896,8 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
-          ASSET_START: 'January 1 2018',
-          ASSET_VALUE: '500',
+          START: 'January 1 2018',
+          VALUE: '500',
         },
       ],
       settings: [...defaultSettings],
@@ -4010,8 +4010,8 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
-          ASSET_START: 'March 1 2018',
-          ASSET_VALUE: '500',
+          START: 'March 1 2018',
+          VALUE: '500',
         },
       ],
       settings: [...defaultSettings],
@@ -4112,8 +4112,8 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
-          ASSET_START: 'April 1 2018',
-          ASSET_VALUE: '500',
+          START: 'April 1 2018',
+          VALUE: '500',
         },
       ],
       settings: [...defaultSettings],
@@ -4190,8 +4190,8 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
-          ASSET_START: 'April 1 2018',
-          ASSET_VALUE: '500',
+          START: 'April 1 2018',
+          VALUE: '500',
         },
       ],
       settings: [...defaultSettings],
@@ -4267,8 +4267,8 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
-          ASSET_START: 'April 1 2018',
-          ASSET_VALUE: '500',
+          START: 'April 1 2018',
+          VALUE: '500',
         },
       ],
       settings: [...defaultSettings],
@@ -4346,8 +4346,8 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
-          ASSET_START: 'April 1 2018',
-          ASSET_VALUE: '500',
+          START: 'April 1 2018',
+          VALUE: '500',
         },
       ],
       settings: [...defaultSettings],
@@ -4427,8 +4427,8 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
-          ASSET_START: 'April 1 2018',
-          ASSET_VALUE: '500',
+          START: 'April 1 2018',
+          VALUE: '500',
         },
       ],
       settings: [
@@ -4601,8 +4601,8 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
-          ASSET_START: 'April 1 2018',
-          ASSET_VALUE: '500',
+          START: 'April 1 2018',
+          VALUE: '500',
         },
       ],
       settings: [...defaultSettings],
@@ -4697,8 +4697,8 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
-          ASSET_START: 'April 1 2018',
-          ASSET_VALUE: '500',
+          START: 'April 1 2018',
+          VALUE: '500',
         },
       ],
       settings: [...defaultSettings],
@@ -4796,8 +4796,8 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
-          ASSET_START: 'April 1 2018',
-          ASSET_VALUE: '500',
+          START: 'April 1 2018',
+          VALUE: '500',
         },
       ],
       settings: [...defaultSettings],
@@ -4892,8 +4892,8 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
-          ASSET_START: 'April 1 2018',
-          ASSET_VALUE: '1000',
+          START: 'April 1 2018',
+          VALUE: '1000',
         },
       ],
       settings: [...defaultSettings],
@@ -4988,8 +4988,8 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
-          ASSET_START: 'April 1 2018',
-          ASSET_VALUE: '500',
+          START: 'April 1 2018',
+          VALUE: '500',
         },
       ],
       settings: [...defaultSettings],
@@ -5087,8 +5087,8 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
-          ASSET_START: 'April 1 2018',
-          ASSET_VALUE: '500',
+          START: 'April 1 2018',
+          VALUE: '500',
         },
       ],
       settings: [...defaultSettings],
@@ -5175,8 +5175,8 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
-          ASSET_START: 'March 1 2018',
-          ASSET_VALUE: '500',
+          START: 'March 1 2018',
+          VALUE: '500',
         },
       ],
       settings: [...defaultSettings],
@@ -5252,8 +5252,8 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
-          ASSET_START: 'March 1 2018',
-          ASSET_VALUE: '500',
+          START: 'March 1 2018',
+          VALUE: '500',
         },
       ],
       settings: [...defaultSettings],
@@ -5331,8 +5331,8 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
-          ASSET_START: 'March 1 2018',
-          ASSET_VALUE: '500',
+          START: 'March 1 2018',
+          VALUE: '500',
         },
       ],
       settings: [...defaultSettings],
@@ -5411,8 +5411,8 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
-          ASSET_START: 'March 1 2018',
-          ASSET_VALUE: '500',
+          START: 'March 1 2018',
+          VALUE: '500',
         },
       ],
       settings: [...defaultSettings],
@@ -5480,18 +5480,18 @@ describe('evaluations tests', () => {
         {
           ...simpleTransaction,
           NAME: 'Each month buy food',
-          TRANSACTION_FROM: CASH_ASSET_NAME,
-          TRANSACTION_FROM_VALUE: '100',
-          TRANSACTION_DATE: 'January 2 2018',
-          TRANSACTION_RECURRENCE: '1m',
+          FROM: CASH_ASSET_NAME,
+          FROM_VALUE: '100',
+          DATE: 'January 2 2018',
+          RECURRENCE: '1m',
         },
       ],
       assets: [
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
-          ASSET_START: 'January 1 2018',
-          ASSET_VALUE: '500',
+          START: 'January 1 2018',
+          VALUE: '500',
         },
       ],
       settings: [...defaultSettings],
@@ -5580,11 +5580,11 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'javaStartTrigger',
-          TRIGGER_DATE: new Date('March 10 2018'),
+          DATE: new Date('March 10 2018'),
         },
         {
           NAME: 'javaStopTrigger',
-          TRIGGER_DATE: new Date('April 9 2018'),
+          DATE: new Date('April 9 2018'),
         },
       ],
       incomes: [
@@ -5603,26 +5603,26 @@ describe('evaluations tests', () => {
         {
           ...simpleTransaction,
           NAME: 'PensionContribution', // kicks in when we see income tagged '+incomeTax+'Joe
-          TRANSACTION_FROM: 'java', // not an asset but an income!!
-          TRANSACTION_FROM_ABSOLUTE: false,
-          TRANSACTION_FROM_VALUE: '0.05', // percentage of income transferred to pension
-          TRANSACTION_TO: 'Pnsh', // name of pension (an asset)
-          TRANSACTION_TO_ABSOLUTE: false,
-          TRANSACTION_TO_VALUE: '1.0', // all of what is removed from income goes
-          TRANSACTION_DATE: 'javaStartTrigger', // match the income start date
-          TRANSACTION_STOP_DATE: 'javaStopTrigger', // match the income stop date
+          FROM: 'java', // not an asset but an income!!
+          FROM_ABSOLUTE: false,
+          FROM_VALUE: '0.05', // percentage of income transferred to pension
+          TO: 'Pnsh', // name of pension (an asset)
+          TO_ABSOLUTE: false,
+          TO_VALUE: '1.0', // all of what is removed from income goes
+          DATE: 'javaStartTrigger', // match the income start date
+          STOP_DATE: 'javaStopTrigger', // match the income stop date
         },
       ],
       assets: [
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
-          ASSET_START: 'March 1 2018',
+          START: 'March 1 2018',
         },
         {
           ...simpleAsset,
           NAME: 'Pnsh',
-          ASSET_START: 'March 1 2018',
+          START: 'March 1 2018',
         },
       ],
       settings: [...defaultSettings],
@@ -5700,11 +5700,11 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'javaStartTrigger',
-          TRIGGER_DATE: new Date('March 10 2018'),
+          DATE: new Date('March 10 2018'),
         },
         {
           NAME: 'javaStopTrigger',
-          TRIGGER_DATE: new Date('April 9 2018'),
+          DATE: new Date('April 9 2018'),
         },
       ],
       incomes: [
@@ -5723,26 +5723,26 @@ describe('evaluations tests', () => {
         {
           ...simpleTransaction,
           NAME: 'PensionContribution', // kicks in when we see income tagged '+incomeTax+'Joe
-          TRANSACTION_FROM: 'java', // not an asset but an income!!
-          TRANSACTION_FROM_ABSOLUTE: false,
-          TRANSACTION_FROM_VALUE: '0.05', // percentage of income transferred to pension
-          TRANSACTION_TO: 'Pnsh', // name of pension (an asset)
-          TRANSACTION_TO_ABSOLUTE: false,
-          TRANSACTION_TO_VALUE: '3.0', // all of what is removed from income goes
-          TRANSACTION_DATE: 'javaStartTrigger', // match the income start date
-          TRANSACTION_STOP_DATE: 'javaStopTrigger', // match the income stop date
+          FROM: 'java', // not an asset but an income!!
+          FROM_ABSOLUTE: false,
+          FROM_VALUE: '0.05', // percentage of income transferred to pension
+          TO: 'Pnsh', // name of pension (an asset)
+          TO_ABSOLUTE: false,
+          TO_VALUE: '3.0', // all of what is removed from income goes
+          DATE: 'javaStartTrigger', // match the income start date
+          STOP_DATE: 'javaStopTrigger', // match the income stop date
         },
       ],
       assets: [
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
-          ASSET_START: 'March 1 2018',
+          START: 'March 1 2018',
         },
         {
           ...simpleAsset,
           NAME: 'Pnsh',
-          ASSET_START: 'March 1 2018',
+          START: 'March 1 2018',
         },
       ],
       settings: [...defaultSettings],
@@ -5820,11 +5820,11 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'javaStartTrigger',
-          TRIGGER_DATE: new Date('April 7 2017'),
+          DATE: new Date('April 7 2017'),
         },
         {
           NAME: 'javaStopTrigger',
-          TRIGGER_DATE: new Date('April 4 2018'),
+          DATE: new Date('April 4 2018'),
         },
       ],
       incomes: [
@@ -5843,26 +5843,26 @@ describe('evaluations tests', () => {
         {
           ...simpleTransaction,
           NAME: 'PensionContribution', // kicks in when we see income tagged '+incomeTax+'Joe
-          TRANSACTION_FROM: 'java', // not an asset but an income!!
-          TRANSACTION_FROM_ABSOLUTE: false,
-          TRANSACTION_FROM_VALUE: '0.05', // percentage of income transferred to pension
-          TRANSACTION_TO: 'Pnsh', // name of pension (an asset)
-          TRANSACTION_TO_ABSOLUTE: false,
-          TRANSACTION_TO_VALUE: '3.0', // all of what is removed from income goes
-          TRANSACTION_DATE: 'javaStartTrigger', // match the income start date
-          TRANSACTION_STOP_DATE: 'javaStopTrigger', // match the income stop date
+          FROM: 'java', // not an asset but an income!!
+          FROM_ABSOLUTE: false,
+          FROM_VALUE: '0.05', // percentage of income transferred to pension
+          TO: 'Pnsh', // name of pension (an asset)
+          TO_ABSOLUTE: false,
+          TO_VALUE: '3.0', // all of what is removed from income goes
+          DATE: 'javaStartTrigger', // match the income start date
+          STOP_DATE: 'javaStopTrigger', // match the income stop date
         },
       ],
       assets: [
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
-          ASSET_START: 'March 1 2017',
+          START: 'March 1 2017',
         },
         {
           ...simpleAsset,
           NAME: 'Pnsh',
-          ASSET_START: 'March 1 2017',
+          START: 'March 1 2017',
         },
       ],
       settings: [...defaultSettings],
@@ -5997,11 +5997,11 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'javaStartTrigger',
-          TRIGGER_DATE: new Date('March 10 2018'),
+          DATE: new Date('March 10 2018'),
         },
         {
           NAME: 'javaStopTrigger',
-          TRIGGER_DATE: new Date('April 9 2018'),
+          DATE: new Date('April 9 2018'),
         },
       ],
       incomes: [
@@ -6020,26 +6020,26 @@ describe('evaluations tests', () => {
         {
           ...simpleTransaction,
           NAME: 'PensionSSContribution', // kicks in when we see income tagged '+incomeTax+'Joe
-          TRANSACTION_FROM: 'java', // not an asset but an income!!
-          TRANSACTION_FROM_ABSOLUTE: false,
-          TRANSACTION_FROM_VALUE: '0.05', // percentage of income transferred to pension
-          TRANSACTION_TO: 'Pnsh', // name of pension (an asset)
-          TRANSACTION_TO_ABSOLUTE: false,
-          TRANSACTION_TO_VALUE: '3.0', // all of what is removed from income goes
-          TRANSACTION_DATE: 'javaStartTrigger', // match the income start date
-          TRANSACTION_STOP_DATE: 'javaStopTrigger', // match the income stop date
+          FROM: 'java', // not an asset but an income!!
+          FROM_ABSOLUTE: false,
+          FROM_VALUE: '0.05', // percentage of income transferred to pension
+          TO: 'Pnsh', // name of pension (an asset)
+          TO_ABSOLUTE: false,
+          TO_VALUE: '3.0', // all of what is removed from income goes
+          DATE: 'javaStartTrigger', // match the income start date
+          STOP_DATE: 'javaStopTrigger', // match the income stop date
         },
       ],
       assets: [
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
-          ASSET_START: 'March 1 2018',
+          START: 'March 1 2018',
         },
         {
           ...simpleAsset,
           NAME: 'Pnsh',
-          ASSET_START: 'March 1 2018',
+          START: 'March 1 2018',
         },
       ],
       settings: [...defaultSettings],
@@ -6120,11 +6120,11 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'javaStartTrigger',
-          TRIGGER_DATE: new Date('March 10 2018'),
+          DATE: new Date('March 10 2018'),
         },
         {
           NAME: 'javaStopTrigger',
-          TRIGGER_DATE: new Date('April 9 2018'),
+          DATE: new Date('April 9 2018'),
         },
       ],
       incomes: [
@@ -6143,33 +6143,33 @@ describe('evaluations tests', () => {
         {
           ...simpleTransaction,
           NAME: 'OneOff pension contribution', //
-          TRANSACTION_FROM: 'Cash',
-          TRANSACTION_FROM_VALUE: '1500', // a one-off payment
-          TRANSACTION_TO: 'Pnsh', // name of pension (an asset)
-          TRANSACTION_TO_ABSOLUTE: false,
-          TRANSACTION_TO_VALUE: '1.0', // all of what is removed from cash goes
-          TRANSACTION_DATE: 'March 20 2018', // match the income start date
+          FROM: 'Cash',
+          FROM_VALUE: '1500', // a one-off payment
+          TO: 'Pnsh', // name of pension (an asset)
+          TO_ABSOLUTE: false,
+          TO_VALUE: '1.0', // all of what is removed from cash goes
+          DATE: 'March 20 2018', // match the income start date
         },
         {
           // when you fill in a tax return...
           ...simpleTransaction,
           NAME: 'Reduction in income liability', //
-          TRANSACTION_FROM: incomeTax + 'Joe', // an income - reduce the liability
-          TRANSACTION_FROM_ABSOLUTE: true,
-          TRANSACTION_FROM_VALUE: '1500', // a one-off payment
-          TRANSACTION_DATE: 'March 20 2018',
+          FROM: incomeTax + 'Joe', // an income - reduce the liability
+          FROM_ABSOLUTE: true,
+          FROM_VALUE: '1500', // a one-off payment
+          DATE: 'March 20 2018',
         },
       ],
       assets: [
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
-          ASSET_START: 'March 1 2018',
+          START: 'March 1 2018',
         },
         {
           ...simpleAsset,
           NAME: 'Pnsh',
-          ASSET_START: 'March 1 2018',
+          START: 'March 1 2018',
         },
       ],
       settings: [...defaultSettings],
@@ -6252,25 +6252,25 @@ describe('evaluations tests', () => {
           // when you take cash from your pension pot
           ...simpleTransaction,
           NAME: 'get some pension', //
-          TRANSACTION_FROM: crystallizedPension + 'Joe', // name is important
-          TRANSACTION_FROM_VALUE: '30000', // a one-off payment
-          TRANSACTION_TO: CASH_ASSET_NAME,
-          TRANSACTION_TO_ABSOLUTE: false,
-          TRANSACTION_TO_VALUE: '1.0', // all of what is removed goes to cash
-          TRANSACTION_DATE: 'March 20 2018',
+          FROM: crystallizedPension + 'Joe', // name is important
+          FROM_VALUE: '30000', // a one-off payment
+          TO: CASH_ASSET_NAME,
+          TO_ABSOLUTE: false,
+          TO_VALUE: '1.0', // all of what is removed goes to cash
+          DATE: 'March 20 2018',
         },
       ],
       assets: [
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
-          ASSET_START: 'March 1 2018',
+          START: 'March 1 2018',
         },
         {
           ...simpleAsset,
           NAME: crystallizedPension + 'Joe', // name is important - will be '+incomeTax+'Joe
-          ASSET_START: 'March 1 2018',
-          ASSET_VALUE: '60000',
+          START: 'March 1 2018',
+          VALUE: '60000',
         },
       ],
       settings: [...defaultSettings],
@@ -6359,34 +6359,34 @@ describe('evaluations tests', () => {
           // when you take cash from your pension pot
           ...simpleTransaction,
           NAME: 'Conditional get some pension', // if cash needs it
-          TRANSACTION_FROM: crystallizedPension + 'Joe', // name is important
-          TRANSACTION_FROM_VALUE: '50000', // a one-off absolute-value payment
-          TRANSACTION_TO: CASH_ASSET_NAME,
-          TRANSACTION_TO_ABSOLUTE: false,
-          TRANSACTION_TO_VALUE: '1.0', // all of what is removed goes to cash
-          TRANSACTION_DATE: 'Feb 3 2018',
+          FROM: crystallizedPension + 'Joe', // name is important
+          FROM_VALUE: '50000', // a one-off absolute-value payment
+          TO: CASH_ASSET_NAME,
+          TO_ABSOLUTE: false,
+          TO_VALUE: '1.0', // all of what is removed goes to cash
+          DATE: 'Feb 3 2018',
         },
         {
           // when you take cash from your pension pot
           ...simpleTransaction,
           NAME: 'Buy food', //
-          TRANSACTION_FROM: CASH_ASSET_NAME,
-          TRANSACTION_FROM_VALUE: '30010', // a one-off payment
-          TRANSACTION_DATE: 'Jan 21 2018',
+          FROM: CASH_ASSET_NAME,
+          FROM_VALUE: '30010', // a one-off payment
+          DATE: 'Jan 21 2018',
         },
       ],
       assets: [
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
-          ASSET_START: 'Dec 1, 2017',
-          ASSET_VALUE: '10',
+          START: 'Dec 1, 2017',
+          VALUE: '10',
         },
         {
           ...simpleAsset,
           NAME: crystallizedPension + 'Joe', // name is important - will be '+incomeTax+'Joe
-          ASSET_START: 'Dec 1, 2017',
-          ASSET_VALUE: '60000',
+          START: 'Dec 1, 2017',
+          VALUE: '60000',
         },
       ],
       settings: [...defaultSettings],
@@ -6543,35 +6543,35 @@ describe('evaluations tests', () => {
           // when you take cash from your pension pot
           ...simpleTransaction,
           NAME: 'Conditional get some pension', // if cash needs it
-          TRANSACTION_FROM: crystallizedPension + 'Joe', // name is important
-          TRANSACTION_FROM_ABSOLUTE: false,
-          TRANSACTION_FROM_VALUE: '1.0', // whatever is needed
-          TRANSACTION_TO: CASH_ASSET_NAME,
-          TRANSACTION_TO_ABSOLUTE: false,
-          TRANSACTION_TO_VALUE: '1.0', // all of what is removed goes to cash
-          TRANSACTION_DATE: 'Feb 3 2018',
+          FROM: crystallizedPension + 'Joe', // name is important
+          FROM_ABSOLUTE: false,
+          FROM_VALUE: '1.0', // whatever is needed
+          TO: CASH_ASSET_NAME,
+          TO_ABSOLUTE: false,
+          TO_VALUE: '1.0', // all of what is removed goes to cash
+          DATE: 'Feb 3 2018',
         },
         {
           // when you take cash from your pension pot
           ...simpleTransaction,
           NAME: 'Buy food', //
-          TRANSACTION_FROM: CASH_ASSET_NAME,
-          TRANSACTION_FROM_VALUE: '30010', // a one-off payment
-          TRANSACTION_DATE: 'Jan 21 2018',
+          FROM: CASH_ASSET_NAME,
+          FROM_VALUE: '30010', // a one-off payment
+          DATE: 'Jan 21 2018',
         },
       ],
       assets: [
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
-          ASSET_START: 'Dec 1, 2017',
-          ASSET_VALUE: '10',
+          START: 'Dec 1, 2017',
+          VALUE: '10',
         },
         {
           ...simpleAsset,
           NAME: crystallizedPension + 'Joe', // name is important - will be '+incomeTax+'Joe
-          ASSET_START: 'Dec 1, 2017',
-          ASSET_VALUE: '60000',
+          START: 'Dec 1, 2017',
+          VALUE: '60000',
         },
       ],
       settings: [...defaultSettings],
@@ -6728,37 +6728,37 @@ describe('evaluations tests', () => {
           // when you take cash from your pension pot
           ...simpleTransaction,
           NAME: 'Conditional get some pension', // if cash needs it
-          TRANSACTION_FROM: crystallizedPension + 'Joe', // name is important
-          TRANSACTION_FROM_ABSOLUTE: false,
-          TRANSACTION_FROM_VALUE: '1.0', // whatever is needed
-          TRANSACTION_TO: CASH_ASSET_NAME,
-          TRANSACTION_TO_ABSOLUTE: false,
-          TRANSACTION_TO_VALUE: '1.0', // all of what is removed goes to cash
-          TRANSACTION_DATE: 'Feb 3 2018',
-          TRANSACTION_STOP_DATE: 'April 3 2018',
-          TRANSACTION_RECURRENCE: '1m',
+          FROM: crystallizedPension + 'Joe', // name is important
+          FROM_ABSOLUTE: false,
+          FROM_VALUE: '1.0', // whatever is needed
+          TO: CASH_ASSET_NAME,
+          TO_ABSOLUTE: false,
+          TO_VALUE: '1.0', // all of what is removed goes to cash
+          DATE: 'Feb 3 2018',
+          STOP_DATE: 'April 3 2018',
+          RECURRENCE: '1m',
         },
         {
           // when you take cash from your pension pot
           ...simpleTransaction,
           NAME: 'Buy food', //
-          TRANSACTION_FROM: CASH_ASSET_NAME,
-          TRANSACTION_FROM_VALUE: '30010', // a one-off payment
-          TRANSACTION_DATE: 'Jan 21 2018',
+          FROM: CASH_ASSET_NAME,
+          FROM_VALUE: '30010', // a one-off payment
+          DATE: 'Jan 21 2018',
         },
       ],
       assets: [
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
-          ASSET_START: 'Dec 1, 2017',
-          ASSET_VALUE: '10',
+          START: 'Dec 1, 2017',
+          VALUE: '10',
         },
         {
           ...simpleAsset,
           NAME: crystallizedPension + 'Joe', // name is important - will be '+incomeTax+'Joe
-          ASSET_START: 'Dec 1, 2017',
-          ASSET_VALUE: '60000',
+          START: 'Dec 1, 2017',
+          VALUE: '60000',
         },
       ],
       settings: [...defaultSettings],
@@ -6915,43 +6915,43 @@ describe('evaluations tests', () => {
           // when you take cash from your pension pot
           ...simpleTransaction,
           NAME: 'Conditional get some pension', // if cash needs it
-          TRANSACTION_FROM:
+          FROM:
             'Stocks' + separator + '' + crystallizedPension + 'Joe', // name is important
-          TRANSACTION_FROM_ABSOLUTE: false,
-          TRANSACTION_FROM_VALUE: '1.0', // whatever is needed
-          TRANSACTION_TO: CASH_ASSET_NAME,
-          TRANSACTION_TO_ABSOLUTE: false,
-          TRANSACTION_TO_VALUE: '1.0', // all of what is removed goes to cash
-          TRANSACTION_DATE: 'Feb 3 2018',
-          TRANSACTION_STOP_DATE: 'April 3 2018',
-          TRANSACTION_RECURRENCE: '1m',
+          FROM_ABSOLUTE: false,
+          FROM_VALUE: '1.0', // whatever is needed
+          TO: CASH_ASSET_NAME,
+          TO_ABSOLUTE: false,
+          TO_VALUE: '1.0', // all of what is removed goes to cash
+          DATE: 'Feb 3 2018',
+          STOP_DATE: 'April 3 2018',
+          RECURRENCE: '1m',
         },
         {
           ...simpleTransaction,
           NAME: 'Buy food', //
-          TRANSACTION_FROM: CASH_ASSET_NAME,
-          TRANSACTION_FROM_VALUE: '30010', // a one-off payment
-          TRANSACTION_DATE: 'Jan 21 2018',
+          FROM: CASH_ASSET_NAME,
+          FROM_VALUE: '30010', // a one-off payment
+          DATE: 'Jan 21 2018',
         },
       ],
       assets: [
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
-          ASSET_START: 'Dec 1, 2017',
-          ASSET_VALUE: '10',
+          START: 'Dec 1, 2017',
+          VALUE: '10',
         },
         {
           ...simpleAsset,
           NAME: 'Stocks',
-          ASSET_START: 'Dec 1, 2017',
-          ASSET_VALUE: '50',
+          START: 'Dec 1, 2017',
+          VALUE: '50',
         },
         {
           ...simpleAsset,
           NAME: crystallizedPension + 'Joe', // name is important - will be '+incomeTax+'Joe
-          ASSET_START: 'Dec 1, 2017',
-          ASSET_VALUE: '60000',
+          START: 'Dec 1, 2017',
+          VALUE: '60000',
         },
       ],
       settings: [...defaultSettings],
@@ -7126,27 +7126,27 @@ describe('evaluations tests', () => {
           // when you take cash from your pension pot
           ...simpleTransaction,
           NAME: 'Each month GetSomePension', //
-          TRANSACTION_FROM: crystallizedPension + 'Joe', // name is important
-          TRANSACTION_FROM_VALUE: '2500', // a monthly payment
-          TRANSACTION_TO: CASH_ASSET_NAME,
-          TRANSACTION_TO_ABSOLUTE: false,
-          TRANSACTION_TO_VALUE: '1.0', // all of what is removed goes to cash
-          TRANSACTION_DATE: 'April 7 2018',
-          TRANSACTION_STOP_DATE: 'April 4 2019',
-          TRANSACTION_RECURRENCE: '1m',
+          FROM: crystallizedPension + 'Joe', // name is important
+          FROM_VALUE: '2500', // a monthly payment
+          TO: CASH_ASSET_NAME,
+          TO_ABSOLUTE: false,
+          TO_VALUE: '1.0', // all of what is removed goes to cash
+          DATE: 'April 7 2018',
+          STOP_DATE: 'April 4 2019',
+          RECURRENCE: '1m',
         },
       ],
       assets: [
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
-          ASSET_START: 'April 6 2018',
+          START: 'April 6 2018',
         },
         {
           ...simpleAsset,
           NAME: crystallizedPension + 'Joe', // name is important - will be '+incomeTax+'Joe
-          ASSET_START: 'April 6 2018',
-          ASSET_VALUE: '60000',
+          START: 'April 6 2018',
+          VALUE: '60000',
         },
       ],
       settings: [...defaultSettings],
@@ -7463,13 +7463,13 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
-          ASSET_START: 'March 1 2018',
+          START: 'March 1 2018',
         },
         {
           ...simpleAsset,
           NAME: crystallizedPension + 'Joe', // name is important - will be '+incomeTax+'Joe
-          ASSET_START: 'March 1 2018',
-          ASSET_VALUE: '60000',
+          START: 'March 1 2018',
+          VALUE: '60000',
         },
       ],
       settings: [...defaultSettings],
@@ -7596,15 +7596,15 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: 'savings',
-          ASSET_START: 'January 1 2018',
-          ASSET_VALUE: '500000',
-          ASSET_GROWTH: '12',
-          ASSET_LIABILITY: incomeTax + 'Joe',
+          START: 'January 1 2018',
+          VALUE: '500000',
+          GROWTH: '12',
+          LIABILITY: incomeTax + 'Joe',
         },
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
-          ASSET_START: 'January 1 2018',
+          START: 'January 1 2018',
         },
       ],
       settings: [...defaultSettings],
@@ -7678,27 +7678,27 @@ describe('evaluations tests', () => {
         {
           ...simpleTransaction,
           NAME: 'sell some shares',
-          TRANSACTION_FROM: 'Shrs',
-          TRANSACTION_FROM_VALUE: '20000',
-          TRANSACTION_TO: CASH_ASSET_NAME,
-          TRANSACTION_TO_ABSOLUTE: false,
-          TRANSACTION_TO_VALUE: '1.0',
-          TRANSACTION_DATE: 'January 2 2018',
+          FROM: 'Shrs',
+          FROM_VALUE: '20000',
+          TO: CASH_ASSET_NAME,
+          TO_ABSOLUTE: false,
+          TO_VALUE: '1.0',
+          DATE: 'January 2 2018',
         },
       ],
       assets: [
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
-          ASSET_START: 'January 1 2018',
+          START: 'January 1 2018',
         },
         {
           ...simpleAsset,
           NAME: 'Shrs',
-          ASSET_START: 'January 1 2018',
-          ASSET_VALUE: '300000',
-          ASSET_LIABILITY: `${cgt}Joe`,
-          ASSET_PURCHASE_PRICE: '50000',
+          START: 'January 1 2018',
+          VALUE: '300000',
+          LIABILITY: `${cgt}Joe`,
+          PURCHASE_PRICE: '50000',
         },
       ],
       settings: [...defaultSettings],
@@ -7776,37 +7776,37 @@ describe('evaluations tests', () => {
         {
           ...simpleTransaction,
           NAME: 'sell some shares',
-          TRANSACTION_FROM: 'Shrs',
-          TRANSACTION_FROM_VALUE: '20000',
-          TRANSACTION_TO: CASH_ASSET_NAME,
-          TRANSACTION_TO_ABSOLUTE: false,
-          TRANSACTION_TO_VALUE: '1.0',
-          TRANSACTION_DATE: 'January 2 2018',
+          FROM: 'Shrs',
+          FROM_VALUE: '20000',
+          TO: CASH_ASSET_NAME,
+          TO_ABSOLUTE: false,
+          TO_VALUE: '1.0',
+          DATE: 'January 2 2018',
         },
         {
           ...simpleTransaction,
           NAME: 'sell some more shares',
-          TRANSACTION_FROM: 'Shrs',
-          TRANSACTION_FROM_VALUE: '20000',
-          TRANSACTION_TO: CASH_ASSET_NAME,
-          TRANSACTION_TO_ABSOLUTE: false,
-          TRANSACTION_TO_VALUE: '1.0',
-          TRANSACTION_DATE: 'January 3 2018',
+          FROM: 'Shrs',
+          FROM_VALUE: '20000',
+          TO: CASH_ASSET_NAME,
+          TO_ABSOLUTE: false,
+          TO_VALUE: '1.0',
+          DATE: 'January 3 2018',
         },
       ],
       assets: [
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
-          ASSET_START: 'January 1 2018',
+          START: 'January 1 2018',
         },
         {
           ...simpleAsset,
           NAME: 'Shrs',
-          ASSET_START: 'January 1 2018',
-          ASSET_VALUE: '300000',
-          ASSET_LIABILITY: `${cgt}Joe`,
-          ASSET_PURCHASE_PRICE: '50000',
+          START: 'January 1 2018',
+          VALUE: '300000',
+          LIABILITY: `${cgt}Joe`,
+          PURCHASE_PRICE: '50000',
         },
       ],
       settings: [...defaultSettings],
@@ -7888,23 +7888,23 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: 'Shr1',
-          ASSET_START: 'January 1 2018',
-          ASSET_VALUE: '100',
-          ASSET_GROWTH: 'shareGrowth',
+          START: 'January 1 2018',
+          VALUE: '100',
+          GROWTH: 'shareGrowth',
         },
         {
           ...simpleAsset,
           NAME: 'Shr2',
-          ASSET_START: 'January 1 2018',
-          ASSET_VALUE: '200',
-          ASSET_GROWTH: 'shareGrowth',
+          START: 'January 1 2018',
+          VALUE: '200',
+          GROWTH: 'shareGrowth',
         },
         {
           ...simpleAsset,
           NAME: 'Shr3',
-          ASSET_START: 'January 1 2018',
-          ASSET_VALUE: '200',
-          ASSET_GROWTH: '1.0',
+          START: 'January 1 2018',
+          VALUE: '200',
+          GROWTH: '1.0',
         },
       ],
       settings: [
@@ -7991,16 +7991,16 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
-          ASSET_START: roi.start,
+          START: roi.start,
         },
       ],
       transactions: [
         {
           ...simpleTransaction,
           NAME: 'Revalue of phone bill',
-          TRANSACTION_TO: 'Phon',
-          TRANSACTION_TO_VALUE: '5',
-          TRANSACTION_DATE: 'March 5 2018',
+          TO: 'Phon',
+          TO_VALUE: '5',
+          DATE: 'March 5 2018',
         },
       ],
       expenses: [
@@ -8086,7 +8086,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
-          ASSET_START: roi.start,
+          START: roi.start,
         },
       ],
       incomes: [
@@ -8105,9 +8105,9 @@ describe('evaluations tests', () => {
         {
           ...simpleTransaction,
           NAME: 'Revalue of paper round',
-          TRANSACTION_TO: 'PRnd',
-          TRANSACTION_TO_VALUE: '10', // pay rise!
-          TRANSACTION_DATE: 'March 5 2018',
+          TO: 'PRnd',
+          TO_VALUE: '10', // pay rise!
+          DATE: 'March 5 2018',
         },
       ],
       settings: [...defaultSettings],
@@ -8185,18 +8185,18 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: 'savings',
-          ASSET_START: 'January 1 2018',
-          ASSET_VALUE: '500',
-          ASSET_GROWTH: '12',
+          START: 'January 1 2018',
+          VALUE: '500',
+          GROWTH: '12',
         },
       ],
       transactions: [
         {
           ...simpleTransaction,
           NAME: 'Revalue of savings',
-          TRANSACTION_TO: 'savings',
-          TRANSACTION_TO_VALUE: '300', // market crash!
-          TRANSACTION_DATE: 'March 5 2018',
+          TO: 'savings',
+          TO_VALUE: '300', // market crash!
+          DATE: 'March 5 2018',
         },
       ],
       settings: [...defaultSettings],
@@ -8733,11 +8733,11 @@ describe('evaluations tests', () => {
         {
           ...simpleTransaction,
           NAME: 'move money',
-          TRANSACTION_FROM: 'stocks',
-          TRANSACTION_FROM_VALUE: '100',
-          TRANSACTION_TO: CASH_ASSET_NAME,
-          TRANSACTION_TO_VALUE: '100',
-          TRANSACTION_DATE: 'May 1, 2018',
+          FROM: 'stocks',
+          FROM_VALUE: '100',
+          TO: CASH_ASSET_NAME,
+          TO_VALUE: '100',
+          DATE: 'May 1, 2018',
         },
       ],
     ];
@@ -9036,9 +9036,9 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: 'Shr1',
-          ASSET_START: 'January 1 2018',
-          ASSET_VALUE: '100',
-          ASSET_GROWTH: 'shareGrowth',
+          START: 'January 1 2018',
+          VALUE: '100',
+          GROWTH: 'shareGrowth',
         },
       ],
       settings: [
@@ -9084,8 +9084,8 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: 'Shr1',
-          ASSET_START: 'January 1 2018',
-          ASSET_VALUE: 'nonsense',
+          START: 'January 1 2018',
+          VALUE: 'nonsense',
         },
       ],
       settings: [

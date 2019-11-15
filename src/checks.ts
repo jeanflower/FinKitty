@@ -58,14 +58,14 @@ function checkTransactionWords(
   const a = assets.find(
     as =>
       as.NAME === word &&
-      getTriggerDate(as.ASSET_START, triggers) <=
+      getTriggerDate(as.START, triggers) <=
         getTriggerDate(date, triggers),
   );
   if (a !== undefined) {
     return true;
   }
 
-  // maybe t.TRANSACTION_FROM is the name of an income
+  // maybe t.FROM is the name of an income
   let i = incomes.find(
     is =>
       is.NAME === word &&
@@ -82,7 +82,7 @@ function checkTransactionWords(
     return true;
   }
 
-  // maybe t.TRANSACTION_FROM is an income liability
+  // maybe t.FROM is an income liability
   i = incomes.find(
     is =>
       is.LIABILITY.includes(word) &&
@@ -120,41 +120,41 @@ export function checkAsset(a: DbAsset, model: DbModelData): string {
   if (a.NAME.split(separator).length !== 1) {
     return `Asset name '${a.NAME}' should not contain '${separator}'`;
   }
-  if (a.ASSET_LIABILITY.length > 0) {
-    if (a.ASSET_LIABILITY.includes(separator)) {
-      return `Unexpected multiple asset liabilities for ${a.ASSET_LIABILITY}`;
+  if (a.LIABILITY.length > 0) {
+    if (a.LIABILITY.includes(separator)) {
+      return `Unexpected multiple asset liabilities for ${a.LIABILITY}`;
     }
-    const x = checkAssetLiability(a.ASSET_LIABILITY);
+    const x = checkAssetLiability(a.LIABILITY);
     if (x.length > 0) {
       return x;
     }
   }
 
-  if (Number.isNaN(parseFloat(a.ASSET_GROWTH))) {
-    const settingVal = getSettings(model.settings, a.ASSET_GROWTH, 'missing');
+  if (Number.isNaN(parseFloat(a.GROWTH))) {
+    const settingVal = getSettings(model.settings, a.GROWTH, 'missing');
     if (settingVal === 'missing') {
-      return `Asset growth set to '${a.ASSET_GROWTH}'
+      return `Asset growth set to '${a.GROWTH}'
         but no corresponding setting found`;
     }
     if (Number.isNaN(parseFloat(settingVal))) {
-      return `Asset growth set to '${a.ASSET_GROWTH}'
+      return `Asset growth set to '${a.GROWTH}'
         but corresponding setting not a number`;
     }
   }
 
-  if (Number.isNaN(parseFloat(a.ASSET_VALUE))) {
-    return `Asset value '${a.ASSET_VALUE}' is not a number`;
+  if (Number.isNaN(parseFloat(a.VALUE))) {
+    return `Asset value '${a.VALUE}' is not a number`;
   }
 
-  if (Number.isNaN(parseFloat(a.ASSET_PURCHASE_PRICE))) {
-    return `Asset purchase price '${a.ASSET_PURCHASE_PRICE}'
+  if (Number.isNaN(parseFloat(a.PURCHASE_PRICE))) {
+    return `Asset purchase price '${a.PURCHASE_PRICE}'
       is not a number`;
   }
 
-  const d = checkTriggerDate(a.ASSET_START, model.triggers);
+  const d = checkTriggerDate(a.START, model.triggers);
   if (d === undefined || !checkDate(d)) {
     return `Asset start date doesn't make sense :
-      ${showObj(a.ASSET_START)}`;
+      ${showObj(a.START)}`;
   }
   return '';
 }
@@ -260,24 +260,24 @@ export function checkTransaction(t: DbTransaction, model: DbModelData): string {
   if (t.NAME.length === 0) {
     return 'Transaction name needs some characters';
   }
-  const d = checkTriggerDate(t.TRANSACTION_DATE, triggers);
+  const d = checkTriggerDate(t.DATE, triggers);
   if (d === undefined || !checkDate(d)) {
-    return `Transaction has bad date : ${showObj(t.TRANSACTION_DATE)}`;
+    return `Transaction has bad date : ${showObj(t.DATE)}`;
   }
-  // log(`transaction date ${getTriggerDate(t.TRANSACTION_DATE, triggers)}`);
-  if (t.TRANSACTION_FROM !== '') {
+  // log(`transaction date ${getTriggerDate(t.DATE, triggers)}`);
+  if (t.FROM !== '') {
     if (
       !checkTransactionWords(
         t.NAME,
-        t.TRANSACTION_FROM,
-        t.TRANSACTION_DATE,
+        t.FROM,
+        t.DATE,
         triggers,
         assetsForChecking,
         incomes,
       )
     ) {
-      // log(`split up t.TRANSACTION_FROM ${t.TRANSACTION_FROM}`);
-      const words = t.TRANSACTION_FROM.split(separator);
+      // log(`split up t.FROM ${t.FROM}`);
+      const words = t.FROM.split(separator);
       // log(`words ${showObj(words)}`);
       const arrayLength = words.length;
       for (let i = 0; i < arrayLength; i += 1) {
@@ -287,7 +287,7 @@ export function checkTransaction(t: DbTransaction, model: DbModelData): string {
           !checkTransactionWords(
             t.NAME,
             word,
-            t.TRANSACTION_DATE,
+            t.DATE,
             triggers,
             assetsForChecking,
             incomes,
@@ -301,30 +301,30 @@ export function checkTransaction(t: DbTransaction, model: DbModelData): string {
         }
       }
     }
-    if (t.TRANSACTION_FROM_VALUE === '') {
-      return `Transaction from ${t.TRANSACTION_FROM} needs a non-empty from value`;
-    } else if (Number.isNaN(parseFloat(t.TRANSACTION_FROM_VALUE))) {
-      return `Transaction from value ${t.TRANSACTION_FROM_VALUE} isn't a number`;
+    if (t.FROM_VALUE === '') {
+      return `Transaction from ${t.FROM} needs a non-empty from value`;
+    } else if (Number.isNaN(parseFloat(t.FROM_VALUE))) {
+      return `Transaction from value ${t.FROM_VALUE} isn't a number`;
     }
   }
-  if (t.TRANSACTION_TO !== '') {
-    const a = assetsForChecking.find(as => as.NAME === t.TRANSACTION_TO);
+  if (t.TO !== '') {
+    const a = assetsForChecking.find(as => as.NAME === t.TO);
     if (a === undefined) {
       // not an asset
       // maybe the transaction is a Revalue?
       if (t.NAME.startsWith(revalue)) {
         // revalue an income?
-        const i = incomes.find(ic => ic.NAME === t.TRANSACTION_TO);
+        const i = incomes.find(ic => ic.NAME === t.TO);
         if (i === undefined) {
           // revalue an expense?
-          const exp = expenses.find(e => e.NAME === t.TRANSACTION_TO);
+          const exp = expenses.find(e => e.NAME === t.TO);
           if (exp === undefined) {
-            return `Transaction to unrecognised asset : ${t.TRANSACTION_TO}`;
+            return `Transaction to unrecognised asset : ${t.TO}`;
           }
           // transacting on an expense - check dates
           if (
             getTriggerDate(exp.START, triggers) >
-            getTriggerDate(t.TRANSACTION_DATE, triggers)
+            getTriggerDate(t.DATE, triggers)
           ) {
             return (
               `Transaction ${t.NAME} dated before start ` +
@@ -335,7 +335,7 @@ export function checkTransaction(t: DbTransaction, model: DbModelData): string {
           // transacting on an income - check dates
           if (
             getTriggerDate(i.START, triggers) >
-            getTriggerDate(t.TRANSACTION_DATE, triggers)
+            getTriggerDate(t.DATE, triggers)
           ) {
             return (
               `Transaction ${t.NAME} dated before start ` +
@@ -344,39 +344,39 @@ export function checkTransaction(t: DbTransaction, model: DbModelData): string {
           }
         }
       } else {
-        return `Transaction to unrecognised asset : ${t.TRANSACTION_TO}`;
+        return `Transaction to unrecognised asset : ${t.TO}`;
       }
     } else if (
-      getTriggerDate(a.ASSET_START, triggers) >
-      getTriggerDate(t.TRANSACTION_DATE, triggers)
+      getTriggerDate(a.START, triggers) >
+      getTriggerDate(t.DATE, triggers)
     ) {
-      return `Transaction dated before to asset : ${t.TRANSACTION_TO}`;
+      return `Transaction dated before to asset : ${t.TO}`;
     }
     // log(`to asset starts ${getTriggerDate(a.ASSET_START, triggers)}`);
-    if (t.TRANSACTION_TO_VALUE === '') {
-      return `Transaction to ${t.TRANSACTION_TO} needs a non-empty to value`;
-    } else if (Number.isNaN(parseFloat(t.TRANSACTION_TO_VALUE))) {
-      return `Transaction to value ${t.TRANSACTION_TO_VALUE} isn't a number`;
+    if (t.TO_VALUE === '') {
+      return `Transaction to ${t.TO} needs a non-empty to value`;
+    } else if (Number.isNaN(parseFloat(t.TO_VALUE))) {
+      return `Transaction to value ${t.TO_VALUE} isn't a number`;
     }
   }
 
-  const tToValue = parseFloat(t.TRANSACTION_TO_VALUE);
+  const tToValue = parseFloat(t.TO_VALUE);
   if (t.NAME.startsWith(conditional)) {
     if (
-      !t.TRANSACTION_FROM_ABSOLUTE &&
-      (t.TRANSACTION_TO_ABSOLUTE || tToValue !== 1.0)
+      !t.FROM_ABSOLUTE &&
+      (t.TO_ABSOLUTE || tToValue !== 1.0)
     ) {
       log(`WARNING : unexpected stopping condition implemented for ${t.NAME}`);
     }
   }
 
-  const tFromValue = parseFloat(t.TRANSACTION_FROM_VALUE);
+  const tFromValue = parseFloat(t.FROM_VALUE);
   // log(`transaction ${showObj(t)} appears OK`);
-  if (!t.TRANSACTION_FROM_ABSOLUTE && tFromValue > 1.0) {
+  if (!t.FROM_ABSOLUTE && tFromValue > 1.0) {
     log(`WARNING : not-absolute value from ${tFromValue} > 1.0`);
   }
   if (
-    !t.TRANSACTION_TO_ABSOLUTE &&
+    !t.TO_ABSOLUTE &&
     tToValue > 1.0 &&
     !t.NAME.startsWith(pension)
   ) {
@@ -389,8 +389,8 @@ export function checkTrigger(t: DbTrigger): string {
   if (t.NAME.length === 0) {
     return 'Trigger name needs some characters';
   }
-  if (!checkDate(t.TRIGGER_DATE)) {
-    return `Your important dats is not valid : ${t.TRIGGER_DATE}`;
+  if (!checkDate(t.DATE)) {
+    return `Your important dats is not valid : ${t.DATE}`;
   }
   return '';
 }

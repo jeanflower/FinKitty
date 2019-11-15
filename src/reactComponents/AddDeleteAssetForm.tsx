@@ -250,12 +250,12 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
     // log('adding something ' + showObj(this));
     const asset: DbAsset = {
       NAME: this.state.NAME,
-      ASSET_VALUE: this.state.ASSET_VALUE,
-      ASSET_START: this.state.ASSET_START,
-      ASSET_GROWTH: this.state.ASSET_GROWTH,
+      VALUE: this.state.ASSET_VALUE,
+      START: this.state.ASSET_START,
+      GROWTH: this.state.ASSET_GROWTH,
       CATEGORY: this.state.CATEGORY,
-      ASSET_PURCHASE_PRICE: purchasePrice,
-      ASSET_LIABILITY: this.state.ASSET_LIABILITY,
+      PURCHASE_PRICE: purchasePrice,
+      LIABILITY: this.state.ASSET_LIABILITY,
     };
     const message = this.props.checkFunction(asset, this.props.model);
     if (message.length > 0) {

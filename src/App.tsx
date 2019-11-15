@@ -200,11 +200,11 @@ async function refreshData() {
 
   model.assets.push({
     NAME: taxPot,
-    ASSET_START: '1 Jan 2018',
-    ASSET_VALUE: '0',
-    ASSET_GROWTH: '0',
-    ASSET_LIABILITY: '',
-    ASSET_PURCHASE_PRICE: '0',
+    START: '1 Jan 2018',
+    VALUE: '0',
+    GROWTH: '0',
+    LIABILITY: '',
+    PURCHASE_PRICE: '0',
     CATEGORY: 'Tax',
   });
 
@@ -347,7 +347,7 @@ async function submitTrigger(trigger: DbTrigger) {
 export async function submitNewTrigger(name: string) {
   submitTrigger({
     NAME: name,
-    TRIGGER_DATE: new Date(),
+    DATE: new Date(),
   });
 }
 async function submitAsset(assetInput: DbAsset) {
@@ -361,11 +361,11 @@ export async function submitNewAsset(name: string) {
   submitAsset({
     NAME: name,
     CATEGORY: '',
-    ASSET_START: '1 January 2018',
-    ASSET_VALUE: '0',
-    ASSET_GROWTH: '0',
-    ASSET_LIABILITY: '',
-    ASSET_PURCHASE_PRICE: '0',
+    START: '1 January 2018',
+    VALUE: '0',
+    GROWTH: '0',
+    LIABILITY: '',
+    PURCHASE_PRICE: '0',
   });
 }
 async function submitTransaction(input: DbTransaction) {
@@ -379,15 +379,15 @@ export async function submitNewTransaction(name: string) {
   submitTransaction({
     NAME: name,
     CATEGORY: '',
-    TRANSACTION_FROM: '',
-    TRANSACTION_TO: '',
-    TRANSACTION_FROM_VALUE: '0',
-    TRANSACTION_TO_VALUE: '0',
-    TRANSACTION_FROM_ABSOLUTE: true,
-    TRANSACTION_TO_ABSOLUTE: true,
-    TRANSACTION_DATE: '1 January 2018',
-    TRANSACTION_STOP_DATE: '1 January 2018',
-    TRANSACTION_RECURRENCE: '',
+    FROM: '',
+    TO: '',
+    FROM_VALUE: '0',
+    TO_VALUE: '0',
+    FROM_ABSOLUTE: true,
+    TO_ABSOLUTE: true,
+    DATE: '1 January 2018',
+    STOP_DATE: '1 January 2018',
+    RECURRENCE: '',
   });
 }
 
@@ -516,7 +516,7 @@ function handleTriggerGridRowsUpdated() {
   // log(`submitTrigger(trigger) has trigger = ${showObj(trigger)}`);
   const forSubmit: DbTrigger = {
     NAME: trigger.NAME,
-    TRIGGER_DATE: new Date(trigger.TRIGGER_DATE),
+    DATE: new Date(trigger.TRIGGER_DATE),
   };
   const checks = checkTrigger(forSubmit);
   if (checks === '') {
@@ -556,31 +556,31 @@ function handleTransactionGridRowsUpdated() {
   }
   const oldValue = gridData[arguments[0].cellKey];
   gridData[arguments[0].cellKey] = arguments[0].updated[arguments[0].cellKey];
-  let checksOK = checkBoolean(gridData.TRANSACTION_FROM_ABSOLUTE);
+  let checksOK = checkBoolean(gridData.FROM_ABSOLUTE);
   if (!checksOK) {
     alert("From absolute value should be 't' or 'f'");
     gridData[arguments[0].cellKey] = oldValue;
   } else {
-    checksOK = checkBoolean(gridData.TRANSACTION_TO_ABSOLUTE);
+    checksOK = checkBoolean(gridData.TO_ABSOLUTE);
     if (!checksOK) {
       alert("To absolute value should be 't' or 'f'");
       gridData[arguments[0].cellKey] = oldValue;
     } else {
       const transaction: DbTransaction = {
-        TRANSACTION_DATE: gridData.TRANSACTION_DATE,
-        TRANSACTION_FROM: gridData.TRANSACTION_FROM,
-        TRANSACTION_FROM_ABSOLUTE: makeBooleanFromString(
-          gridData.TRANSACTION_FROM_ABSOLUTE,
+        DATE: gridData.DATE,
+        FROM: gridData.FROM,
+        FROM_ABSOLUTE: makeBooleanFromString(
+          gridData.FROM_ABSOLUTE,
         ),
-        TRANSACTION_FROM_VALUE: gridData.TRANSACTION_FROM_VALUE,
+        FROM_VALUE: gridData.FROM_VALUE,
         NAME: gridData.NAME,
-        TRANSACTION_TO: gridData.TRANSACTION_TO,
-        TRANSACTION_TO_ABSOLUTE: makeBooleanFromString(
-          gridData.TRANSACTION_TO_ABSOLUTE,
+        TO: gridData.TO,
+        TO_ABSOLUTE: makeBooleanFromString(
+          gridData.TO_ABSOLUTE,
         ),
-        TRANSACTION_TO_VALUE: gridData.TRANSACTION_TO_VALUE,
-        TRANSACTION_STOP_DATE: gridData.TRANSACTION_STOP_DATE,
-        TRANSACTION_RECURRENCE: gridData.TRANSACTION_RECURRENCE,
+        TO_VALUE: gridData.TO_VALUE,
+        STOP_DATE: gridData.STOP_DATE,
+        RECURRENCE: gridData.RECURRENCE,
         CATEGORY: gridData.CATEGORY,
       };
       const checks = checkTransaction(
@@ -753,7 +753,7 @@ export async function stringifyDB(): Promise<string> {
   trigs.forEach(trig => {
     result += '\t{\n';
     result += `\t\tNAME: '${trig.NAME}',\n`;
-    result += `\t\tTRIGGER_DATE: new Date('${trig.TRIGGER_DATE.toDateString()}'),\n`;
+    result += `\t\tTRIGGER_DATE: new Date('${trig.DATE.toDateString()}'),\n`;
     result += '\t},\n';
   });
   result += '];\n\n';
@@ -793,26 +793,26 @@ export async function stringifyDB(): Promise<string> {
   result = result.replace(/"ASSET_GROWTH"/g, 'ASSET_GROWTH');
   result = result.replace(/"ASSET_LIABILITY"/g, 'ASSET_LIABILITY');
   result = result.replace(/"ASSET_PURCHASE_PRICE"/g, 'ASSET_PURCHASE_PRICE');
-  result = result.replace(/"TRANSACTION_FROM"/g, 'TRANSACTION_FROM');
+  result = result.replace(/"FROM"/g, 'FROM');
   result = result.replace(
-    /"TRANSACTION_FROM_ABSOLUTE"/g,
-    'TRANSACTION_FROM_ABSOLUTE',
+    /"FROM_ABSOLUTE"/g,
+    'FROM_ABSOLUTE',
   );
   result = result.replace(
-    /"TRANSACTION_FROM_VALUE"/g,
-    'TRANSACTION_FROM_VALUE',
+    /"FROM_VALUE"/g,
+    'FROM_VALUE',
   );
-  result = result.replace(/"TRANSACTION_TO"/g, 'TRANSACTION_TO');
+  result = result.replace(/"TO"/g, 'TO');
   result = result.replace(
-    /"TRANSACTION_TO_ABSOLUTE"/g,
-    'TRANSACTION_TO_ABSOLUTE',
+    /"TO_ABSOLUTE"/g,
+    'TO_ABSOLUTE',
   );
-  result = result.replace(/"TRANSACTION_TO_VALUE"/g, 'TRANSACTION_TO_VALUE');
-  result = result.replace(/"TRANSACTION_DATE"/g, 'TRANSACTION_DATE');
-  result = result.replace(/"TRANSACTION_STOP_DATE"/g, 'TRANSACTION_STOP_DATE');
+  result = result.replace(/"TO_VALUE"/g, 'TO_VALUE');
+  result = result.replace(/"DATE"/g, 'DATE');
+  result = result.replace(/"STOP_DATE"/g, 'STOP_DATE');
   result = result.replace(
-    /"TRANSACTION_RECURRENCE"/g,
-    'TRANSACTION_RECURRENCE',
+    /"RECURRENCE"/g,
+    'RECURRENCE',
   );
   let re = new RegExp(`\"+${CASH_ASSET_NAME}\"`, 'g'); // eslint-disable-line no-useless-escape
   result = result.replace(re, 'CASH_ASSET_NAME');
@@ -1678,7 +1678,7 @@ export class App extends Component<{}, AppState> {
                 handleGridRowsUpdated={handleTriggerGridRowsUpdated}
                 rows={this.state.modelData.triggers.map((obj: DbTrigger) => {
                   const result = {
-                    TRIGGER_DATE: obj.TRIGGER_DATE.toDateString(),
+                    TRIGGER_DATE: obj.DATE.toDateString(),
                     NAME: obj.NAME,
                   };
                   return result;
@@ -1923,13 +1923,13 @@ export class App extends Component<{}, AppState> {
                 handleGridRowsUpdated={handleAssetGridRowsUpdated}
                 rows={this.state.modelData.assets.map((obj: DbAsset) => {
                   const result: DbAsset = {
-                    ASSET_GROWTH: obj.ASSET_GROWTH,
+                    GROWTH: obj.GROWTH,
                     NAME: obj.NAME,
                     CATEGORY: obj.CATEGORY,
-                    ASSET_START: obj.ASSET_START,
-                    ASSET_VALUE: obj.ASSET_VALUE,
-                    ASSET_LIABILITY: obj.ASSET_LIABILITY,
-                    ASSET_PURCHASE_PRICE: obj.ASSET_PURCHASE_PRICE,
+                    START: obj.START,
+                    VALUE: obj.VALUE,
+                    LIABILITY: obj.LIABILITY,
+                    PURCHASE_PRICE: obj.PURCHASE_PRICE,
                   };
                   return result;
                 })}
@@ -2027,22 +2027,22 @@ export class App extends Component<{}, AppState> {
               handleGridRowsUpdated={handleTransactionGridRowsUpdated}
               rows={this.state.modelData.transactions.map(
                 (obj: DbTransaction) => {
-                  // log(`obj.TRANSACTION_FROM_ABSOLUTE = ${obj.TRANSACTION_FROM_ABSOLUTE}`)
+                  // log(`obj.FROM_ABSOLUTE = ${obj.FROM_ABSOLUTE}`)
                   const result = {
-                    TRANSACTION_DATE: obj.TRANSACTION_DATE,
-                    TRANSACTION_FROM: obj.TRANSACTION_FROM,
-                    TRANSACTION_FROM_VALUE: obj.TRANSACTION_FROM_VALUE,
-                    TRANSACTION_FROM_ABSOLUTE: makeStringFromBoolean(
-                      obj.TRANSACTION_FROM_ABSOLUTE,
+                    DATE: obj.DATE,
+                    FROM: obj.FROM,
+                    FROM_VALUE: obj.FROM_VALUE,
+                    FROM_ABSOLUTE: makeStringFromBoolean(
+                      obj.FROM_ABSOLUTE,
                     ),
                     NAME: obj.NAME,
-                    TRANSACTION_TO: obj.TRANSACTION_TO,
-                    TRANSACTION_TO_VALUE: obj.TRANSACTION_TO_VALUE,
-                    TRANSACTION_TO_ABSOLUTE: makeStringFromBoolean(
-                      obj.TRANSACTION_TO_ABSOLUTE,
+                    TO: obj.TO,
+                    TO_VALUE: obj.TO_VALUE,
+                    TO_ABSOLUTE: makeStringFromBoolean(
+                      obj.TO_ABSOLUTE,
                     ),
-                    TRANSACTION_STOP_DATE: obj.TRANSACTION_STOP_DATE,
-                    TRANSACTION_RECURRENCE: obj.TRANSACTION_RECURRENCE,
+                    STOP_DATE: obj.STOP_DATE,
+                    RECURRENCE: obj.RECURRENCE,
                     CATEGORY: obj.CATEGORY,
                   };
                   return result;
@@ -2056,47 +2056,47 @@ export class App extends Component<{}, AppState> {
                 },
                 {
                   ...defaultColumn,
-                  key: 'TRANSACTION_FROM',
+                  key: 'FROM',
                   name: 'from asset',
                 },
                 {
                   ...defaultColumn,
-                  key: 'TRANSACTION_TO',
+                  key: 'TO',
                   name: 'to asset',
                 },
                 {
                   ...defaultColumn,
-                  key: 'TRANSACTION_FROM_VALUE',
+                  key: 'FROM_VALUE',
                   name: 'from value',
                 },
                 {
                   ...defaultColumn,
-                  key: 'TRANSACTION_FROM_ABSOLUTE',
+                  key: 'FROM_ABSOLUTE',
                   name: 'absolute',
                 },
                 {
                   ...defaultColumn,
-                  key: 'TRANSACTION_TO_VALUE',
+                  key: 'TO_VALUE',
                   name: 'to value',
                 },
                 {
                   ...defaultColumn,
-                  key: 'TRANSACTION_TO_ABSOLUTE',
+                  key: 'TO_ABSOLUTE',
                   name: 'absolute',
                 },
                 {
                   ...defaultColumn,
-                  key: 'TRANSACTION_DATE',
+                  key: 'DATE',
                   name: 'date',
                 },
                 {
                   ...defaultColumn,
-                  key: 'TRANSACTION_RECURRENCE',
+                  key: 'RECURRENCE',
                   name: 'recurrence',
                 },
                 {
                   ...defaultColumn,
-                  key: 'TRANSACTION_STOP_DATE',
+                  key: 'STOP_DATE',
                   name: 'stop',
                 },
                 {

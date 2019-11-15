@@ -38,11 +38,11 @@ import {
 const simpleAsset: DbAsset = {
   NAME: 'NoName',
   CATEGORY: '',
-  ASSET_START: '1 Jan 2017',
-  ASSET_VALUE: '0',
-  ASSET_GROWTH: '0',
-  ASSET_LIABILITY: '',
-  ASSET_PURCHASE_PRICE: '0',
+  START: '1 Jan 2017',
+  VALUE: '0',
+  GROWTH: '0',
+  LIABILITY: '',
+  PURCHASE_PRICE: '0',
 };
 const simpleExpense: DbExpense = {
   NAME: 'NoName',
@@ -67,30 +67,30 @@ const simpleIncome: DbIncome = {
 };
 const simpleTransaction: DbTransaction = {
   NAME: 'NoName',
-  TRANSACTION_FROM: '',
-  TRANSACTION_FROM_ABSOLUTE: true,
-  TRANSACTION_FROM_VALUE: '0',
-  TRANSACTION_TO: '',
-  TRANSACTION_TO_ABSOLUTE: true,
-  TRANSACTION_TO_VALUE: '0',
-  TRANSACTION_DATE: '1 Jan 2017',
-  TRANSACTION_STOP_DATE: '', // for regular transactions
-  TRANSACTION_RECURRENCE: '',
+  FROM: '',
+  FROM_ABSOLUTE: true,
+  FROM_VALUE: '0',
+  TO: '',
+  TO_ABSOLUTE: true,
+  TO_VALUE: '0',
+  DATE: '1 Jan 2017',
+  STOP_DATE: '', // for regular transactions
+  RECURRENCE: '',
   CATEGORY: '',
 };
 
 export const testTriggers01: DbTrigger[] = [
   {
     NAME: 'TransferMortgage',
-    TRIGGER_DATE: new Date('Jan 01 2028'),
+    DATE: new Date('Jan 01 2028'),
   },
   {
     NAME: 'StopMainWork',
-    TRIGGER_DATE: new Date('Dec 31 2050'),
+    DATE: new Date('Dec 31 2050'),
   },
   {
     NAME: 'GetRidOfCar',
-    TRIGGER_DATE: new Date('Dec 31 2025'),
+    DATE: new Date('Dec 31 2025'),
   },
 ];
 
@@ -162,38 +162,38 @@ export const testAssets01: DbAsset[] = [
   {
     ...simpleAsset,
     NAME: CASH_ASSET_NAME,
-    ASSET_START: 'December 2017',
-    ASSET_VALUE: '2000',
+    START: 'December 2017',
+    VALUE: '2000',
   },
   {
     ...simpleAsset,
     NAME: 'Stocks',
-    ASSET_START: 'December 2017',
-    ASSET_VALUE: '4000',
-    ASSET_GROWTH: 'stockMarketGrowth',
+    START: 'December 2017',
+    VALUE: '4000',
+    GROWTH: 'stockMarketGrowth',
     CATEGORY: 'stock',
   },
   {
     ...simpleAsset,
     NAME: 'ISAs',
-    ASSET_START: 'December 2019',
-    ASSET_VALUE: '2000',
-    ASSET_GROWTH: 'stockMarketGrowth',
+    START: 'December 2019',
+    VALUE: '2000',
+    GROWTH: 'stockMarketGrowth',
     CATEGORY: 'stock',
   },
   {
     ...simpleAsset,
     NAME: 'EarlyMortgage',
-    ASSET_START: '1 January 2018',
-    ASSET_VALUE: '-234000', // how much was borrowed
-    ASSET_GROWTH: '2.33', // good rate for early part of deal (excl cpi)
+    START: '1 January 2018',
+    VALUE: '-234000', // how much was borrowed
+    GROWTH: '2.33', // good rate for early part of deal (excl cpi)
     CATEGORY: 'mortgage',
   },
   {
     ...simpleAsset,
     NAME: 'LateMortgage',
-    ASSET_START: '1 January 2018',
-    ASSET_GROWTH: '4.66', // after rate goes up (excl cpi)
+    START: '1 January 2018',
+    GROWTH: '4.66', // after rate goes up (excl cpi)
     CATEGORY: 'mortgage',
   },
 ];
@@ -202,63 +202,63 @@ export const testTransactions01: DbTransaction[] = [
   {
     ...simpleTransaction,
     NAME: 'Each month buy food',
-    TRANSACTION_FROM: CASH_ASSET_NAME,
-    TRANSACTION_FROM_VALUE: '200',
-    TRANSACTION_DATE: 'January 2 2018',
-    TRANSACTION_RECURRENCE: '1m',
+    FROM: CASH_ASSET_NAME,
+    FROM_VALUE: '200',
+    DATE: 'January 2 2018',
+    RECURRENCE: '1m',
     CATEGORY: 'living costs',
   },
   {
     ...simpleTransaction,
     NAME: 'Revalue stocks after loss in 2020 market crash',
-    TRANSACTION_TO: 'Stocks',
-    TRANSACTION_TO_ABSOLUTE: true,
-    TRANSACTION_TO_VALUE: '3000',
-    TRANSACTION_DATE: 'January 2 2020',
+    TO: 'Stocks',
+    TO_ABSOLUTE: true,
+    TO_VALUE: '3000',
+    DATE: 'January 2 2020',
   },
   {
     ...simpleTransaction,
     NAME: 'SellCar',
-    TRANSACTION_TO: CASH_ASSET_NAME,
-    TRANSACTION_TO_ABSOLUTE: true,
-    TRANSACTION_TO_VALUE: '1000',
-    TRANSACTION_DATE: 'GetRidOfCar',
+    TO: CASH_ASSET_NAME,
+    TO_ABSOLUTE: true,
+    TO_VALUE: '1000',
+    DATE: 'GetRidOfCar',
   },
   {
     ...simpleTransaction,
     NAME: 'switchMortgage', // at a predetermined time, rate switched
-    TRANSACTION_FROM: 'EarlyMortgage',
-    TRANSACTION_FROM_ABSOLUTE: false,
-    TRANSACTION_FROM_VALUE: '1', // all of debt at old rate
-    TRANSACTION_TO: 'LateMortgage',
-    TRANSACTION_TO_ABSOLUTE: false,
-    TRANSACTION_TO_VALUE: '1', // becomes all of debt at new rate
-    TRANSACTION_DATE: 'TransferMortgage',
+    FROM: 'EarlyMortgage',
+    FROM_ABSOLUTE: false,
+    FROM_VALUE: '1', // all of debt at old rate
+    TO: 'LateMortgage',
+    TO_ABSOLUTE: false,
+    TO_VALUE: '1', // becomes all of debt at new rate
+    DATE: 'TransferMortgage',
   },
   {
     ...simpleTransaction,
     NAME: 'Conditional pay early mortgage',
-    TRANSACTION_FROM: CASH_ASSET_NAME,
-    TRANSACTION_FROM_VALUE: '1500', // a regular monthly payment
-    TRANSACTION_TO: 'EarlyMortgage',
-    TRANSACTION_TO_ABSOLUTE: false,
-    TRANSACTION_TO_VALUE: '1', // all of amount paid goes to mortgage
-    TRANSACTION_DATE: '1 January 2018',
-    TRANSACTION_STOP_DATE: 'TransferMortgage',
-    TRANSACTION_RECURRENCE: '1m',
+    FROM: CASH_ASSET_NAME,
+    FROM_VALUE: '1500', // a regular monthly payment
+    TO: 'EarlyMortgage',
+    TO_ABSOLUTE: false,
+    TO_VALUE: '1', // all of amount paid goes to mortgage
+    DATE: '1 January 2018',
+    STOP_DATE: 'TransferMortgage',
+    RECURRENCE: '1m',
     CATEGORY: 'pay mortgage',
   },
   {
     ...simpleTransaction,
     NAME: 'Conditional pay late mortgage',
-    TRANSACTION_FROM: CASH_ASSET_NAME,
-    TRANSACTION_FROM_VALUE: '1500',
-    TRANSACTION_TO: 'LateMortgage',
-    TRANSACTION_TO_ABSOLUTE: false,
-    TRANSACTION_TO_VALUE: '1',
-    TRANSACTION_DATE: 'TransferMortgage',
-    TRANSACTION_STOP_DATE: '1 January 2040',
-    TRANSACTION_RECURRENCE: '1m',
+    FROM: CASH_ASSET_NAME,
+    FROM_VALUE: '1500',
+    TO: 'LateMortgage',
+    TO_ABSOLUTE: false,
+    TO_VALUE: '1',
+    DATE: 'TransferMortgage',
+    STOP_DATE: '1 January 2040',
+    RECURRENCE: '1m',
     CATEGORY: 'pay mortgage',
   },
 ];

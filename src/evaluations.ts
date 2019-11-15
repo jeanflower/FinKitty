@@ -812,24 +812,24 @@ function handleIncome(
     amountForCashIncrement = 0;
   }
   pensionTransactions.forEach(transaction => {
-    const tFromValue = parseFloat(transaction.TRANSACTION_FROM_VALUE);
-    const tToValue = parseFloat(transaction.TRANSACTION_TO_VALUE);
+    const tFromValue = parseFloat(transaction.FROM_VALUE);
+    const tToValue = parseFloat(transaction.TO_VALUE);
 
-    if (getTriggerDate(transaction.TRANSACTION_DATE, triggers) > moment.date) {
+    if (getTriggerDate(transaction.DATE, triggers) > moment.date) {
       return;
     }
     // log(`see if ${showObj(transaction)} should affect `
     //  +`this handleIncome moment ${showObj(moment)}`);
-    if (moment.name === transaction.TRANSACTION_FROM) {
+    if (moment.name === transaction.FROM) {
       // log(`matched transaction ${showObj(transaction)}`);
 
       let cashToDivert = 0;
-      if (transaction.TRANSACTION_FROM_ABSOLUTE) {
+      if (transaction.FROM_ABSOLUTE) {
         cashToDivert = tFromValue;
       } else {
         // e.g. employee chooses 5% pension contribution
         cashToDivert = tFromValue * amountForCashIncrement;
-        // log(`cashToDivert = ${transaction.TRANSACTION_FROM_VALUE} * ${amountForCashIncrement}`);
+        // log(`cashToDivert = ${transaction.FROM_VALUE} * ${amountForCashIncrement}`);
       }
       amountForCashIncrement -= cashToDivert;
       amountForIncomeTax -= cashToDivert;
@@ -839,14 +839,14 @@ function handleIncome(
       }
 
       let amountForPension = 0;
-      if (transaction.TRANSACTION_TO_ABSOLUTE) {
+      if (transaction.TO_ABSOLUTE) {
         amountForPension = tToValue;
       } else {
         // e.g. employer increments employee's pension contribution
         amountForPension = tToValue * cashToDivert;
       }
-      let pensionValue = values.get(transaction.TRANSACTION_TO);
-      if (transaction.TRANSACTION_TO === '') {
+      let pensionValue = values.get(transaction.TO);
+      if (transaction.TO === '') {
         if (printDebug()) {
           log('pension contributions going into void');
         }
@@ -861,7 +861,7 @@ function handleIncome(
           values,
           evaluations,
           moment.date,
-          transaction.TRANSACTION_TO,
+          transaction.TO,
           pensionValue,
           transaction.NAME,
         );
@@ -943,14 +943,14 @@ function logAssetGrowth(
   settings: DbSetting[],
 ) {
   // log(`stored growth is ${asset.ASSET_GROWTH}`);
-  let growth: number = parseFloat(asset.ASSET_GROWTH);
+  let growth: number = parseFloat(asset.GROWTH);
   // log(`growth is ${growth}`);
   if (Number.isNaN(growth)) {
     // log(`growth is recognised as NaN`);
-    let settingVal = getSettings(settings, asset.ASSET_GROWTH, 'None');
+    let settingVal = getSettings(settings, asset.GROWTH, 'None');
     // log(`setting value for ${asset.ASSET_GROWTH} is ${settingVal}`);
     if (settingVal === 'None') {
-      log(`BUG : no setting value for asset growth ${asset.ASSET_GROWTH}`);
+      log(`BUG : no setting value for asset growth ${asset.GROWTH}`);
       settingVal = '0.0';
     }
     growth = parseFloat(settingVal);
@@ -958,7 +958,7 @@ function logAssetGrowth(
       if (settingVal === 'None') {
         log(
           'BUG : cant parse setting value for asset growth ' +
-            `${asset.ASSET_GROWTH} = ${settingVal}`,
+            `${asset.GROWTH} = ${settingVal}`,
         );
         growth = 0.0;
       }
@@ -1055,7 +1055,7 @@ function getAssetMonthlyMoments(
   rOIEndDate: Date,
 ) {
   const roi = {
-    start: getTriggerDate(asset.ASSET_START, triggers),
+    start: getTriggerDate(asset.START, triggers),
     end: rOIEndDate,
   };
   // log(`roi = ${showObj(roi)}`)
@@ -1073,7 +1073,7 @@ function getAssetMonthlyMoments(
   });
   if (newMoments.length > 0) {
     newMoments[0].type = momentType.assetStart;
-    newMoments[0].setValue = parseFloat(asset.ASSET_VALUE);
+    newMoments[0].setValue = parseFloat(asset.VALUE);
   }
   return newMoments;
 }
@@ -1089,14 +1089,14 @@ function getTransactionMoments(
     // (see pensionTransactions, reviewed during processIncome)
     return newMoments;
   }
-  const recurrenceGiven = transaction.TRANSACTION_RECURRENCE.length > 0;
+  const recurrenceGiven = transaction.RECURRENCE.length > 0;
   if (recurrenceGiven) {
     // create a sequence of moments
     // use ROI to limit number of moments generated
     let stop = rOIEndDate;
-    if (transaction.TRANSACTION_STOP_DATE !== '') {
+    if (transaction.STOP_DATE !== '') {
       const transStop = getTriggerDate(
-        transaction.TRANSACTION_STOP_DATE,
+        transaction.STOP_DATE,
         triggers,
       );
       if (stop > transStop) {
@@ -1104,12 +1104,12 @@ function getTransactionMoments(
       }
     }
     const sequenceRoi: Interval = {
-      start: getTriggerDate(transaction.TRANSACTION_DATE, triggers),
+      start: getTriggerDate(transaction.DATE, triggers),
       end: stop,
     };
     const transactionDates = generateSequenceOfDates(
       sequenceRoi,
-      transaction.TRANSACTION_RECURRENCE,
+      transaction.RECURRENCE,
     );
     transactionDates.forEach(d => {
       newMoments.push({
@@ -1121,7 +1121,7 @@ function getTransactionMoments(
       });
     });
   } else {
-    const date = getTriggerDate(transaction.TRANSACTION_DATE, triggers);
+    const date = getTriggerDate(transaction.DATE, triggers);
     if (date < rOIEndDate) {
       newMoments.push({
         name: transaction.NAME,
@@ -1152,28 +1152,28 @@ function revalueApplied(
   values: Map<string, number>,
   evaluations: Evaluation[],
 ) {
-  const tToValue = parseFloat(t.TRANSACTION_TO_VALUE);
+  const tToValue = parseFloat(t.TO_VALUE);
   if (t.NAME.startsWith(revalue)) {
     // log(`it's a revaluation`)
-    if (t.TRANSACTION_FROM !== '') {
+    if (t.FROM !== '') {
       log(
         `WARNING : FROM supplied for a revaluation transaction ${showObj(t)}`,
       );
     }
-    if (!t.TRANSACTION_TO_ABSOLUTE) {
+    if (!t.TO_ABSOLUTE) {
       log(
         `WARNING : proportional value supplied for a revaluation transaction ${showObj(
           t,
         )}`,
       );
     }
-    // log(`passing ${t.TRANSACTION_TO_VALUE} as new value of ${moment.name}`);
+    // log(`passing ${t.TO_VALUE} as new value of ${moment.name}`);
     // log('in revalueApplied, setValue:');
     setValue(
       values,
       evaluations,
       moment.date,
-      t.TRANSACTION_TO,
+      t.TO,
       tToValue,
       revalue,
     );
@@ -1188,11 +1188,11 @@ function calculateFromChange(
   preFromValue: number,
   fromWord: string,
 ): number | undefined {
-  const tFromValue = parseFloat(t.TRANSACTION_FROM_VALUE);
-  const tToValue = parseFloat(t.TRANSACTION_TO_VALUE);
+  const tFromValue = parseFloat(t.FROM_VALUE);
+  const tToValue = parseFloat(t.TO_VALUE);
 
   let fromChange = 0;
-  // log(`t.TRANSACTION_FROM_VALUE = ${t.TRANSACTION_FROM_VALUE}`)
+  // log(`t.FROM_VALUE = ${t.FROM_VALUE}`)
   if (t.NAME.startsWith(conditional) && preToValue === undefined) {
     throw new Error(
       `Bug : conditional transaction to undefined value ${showObj(t)}`,
@@ -1203,16 +1203,16 @@ function calculateFromChange(
     preToValue >= 0
   ) {
     // don't need to maintain this
-    // log(`no need to maintain ${t.TRANSACTION_TO} from ${t.TRANSACTION_FROM} `
+    // log(`no need to maintain ${t.TO} from ${t.FROM} `
     //   +`as targetValue = ${targetValue}`)
     return undefined;
-  } else if (t.TRANSACTION_FROM_ABSOLUTE) {
+  } else if (t.FROM_ABSOLUTE) {
     fromChange = tFromValue;
     if (
       t.NAME.startsWith(conditional) &&
       preToValue !== undefined &&
       preToValue > -fromChange &&
-      !t.TRANSACTION_TO_ABSOLUTE &&
+      !t.TO_ABSOLUTE &&
       tToValue === 1.0
     ) {
       // log(`cap conditional amount - we only need ${preToValue}`);
@@ -1220,7 +1220,7 @@ function calculateFromChange(
     }
   } else {
     // relative amounts behave differently for conditionals
-    if (t.NAME.startsWith(conditional) && !t.TRANSACTION_TO_ABSOLUTE) {
+    if (t.NAME.startsWith(conditional) && !t.TO_ABSOLUTE) {
       if (preToValue !== undefined) {
         // proportion of target
         // log(`use proportion of target amount; proportion of ${preToValue}`);
@@ -1262,17 +1262,17 @@ function calculateToChange(
   moment: Moment,
 ) {
   let toChange = 0;
-  if (t.TRANSACTION_TO === '') {
+  if (t.TO === '') {
     return toChange;
   }
-  const tToValue = parseFloat(t.TRANSACTION_TO_VALUE);
-  // log(`t.TRANSACTION_TO = ${t.TRANSACTION_TO}`)
+  const tToValue = parseFloat(t.TO_VALUE);
+  // log(`t.TO = ${t.TO}`)
   // log(`before transaction, toValue = ${toValue}`)
   if (preToValue === undefined) {
     throw new Error(`Bug : transacting to unvalued asset ${showObj(moment)}`);
   }
-  // log(`t.TRANSACTION_TO_VALUE = ${t.TRANSACTION_TO_VALUE}`);
-  if (t.TRANSACTION_TO_ABSOLUTE) {
+  // log(`t.TO_VALUE = ${t.TO_VALUE}`);
+  if (t.TO_ABSOLUTE) {
     toChange = tToValue;
   } else {
     if (fromChange === undefined) {
@@ -1379,7 +1379,7 @@ function processTransactionFromTo(
 ) {
   // log(`processTransactionFromTo takes in ${t.NAME}`);
   const preFromValue = values.get(fromWord);
-  const preToValue = values.get(t.TRANSACTION_TO);
+  const preToValue = values.get(t.TO);
 
   // handle conditional transactions
   // Conditions on source/from:
@@ -1438,10 +1438,10 @@ function processTransactionFromTo(
     // then we should treat this as an income
     // (it's liable to income tax)
     // log(`transacting ${fromChange} from ${fromWord}
-    // into ${t.TRANSACTION_TO}`);
+    // into ${t.TO}`);
     if (
       fromWord.startsWith(crystallizedPension) &&
-      t.TRANSACTION_TO === CASH_ASSET_NAME
+      t.TO === CASH_ASSET_NAME
     ) {
       // log(`register ${toChange} pension withdrawal as liable for income tax`);
       handleIncome(
@@ -1467,7 +1467,7 @@ function processTransactionFromTo(
         values,
         evaluations,
         moment.date,
-        t.TRANSACTION_TO,
+        t.TO,
         preToValue + toChange,
         makeSourceForToChange(t, fromWord),
       );
@@ -1481,24 +1481,24 @@ function processTransactionTo(
   values: Map<string, number>,
   evaluations: Evaluation[],
 ) {
-  if (!t.TRANSACTION_FROM_ABSOLUTE) {
+  if (!t.FROM_ABSOLUTE) {
     throw new Error(
       `BUG : transacting from a proportional amount of undefined ${showObj(t)}`,
     );
   }
-  const tToValue = parseFloat(t.TRANSACTION_TO_VALUE);
-  const fromChange = parseFloat(t.TRANSACTION_FROM_VALUE);
+  const tToValue = parseFloat(t.TO_VALUE);
+  const fromChange = parseFloat(t.FROM_VALUE);
   // Determine how much to add to the To asset.
   // Set the increased value of the To asset accordingly.
-  // log(`t.TRANSACTION_TO = ${t.TRANSACTION_TO}`)
-  let value = values.get(t.TRANSACTION_TO);
+  // log(`t.TO = ${t.TO}`)
+  let value = values.get(t.TO);
   // log(`before transaction, value = ${value}`)
   if (value === undefined) {
     throw new Error(`Bug : transacting to unvalued asset ${showObj(moment)}`);
   } else {
     let change = 0;
-    // log(`t.TRANSACTION_TO_VALUE = ${t.TRANSACTION_TO_VALUE}`);
-    if (t.TRANSACTION_TO_ABSOLUTE) {
+    // log(`t.TO_VALUE = ${t.TO_VALUE}`);
+    if (t.TO_ABSOLUTE) {
       change = tToValue;
     } else {
       if (tToValue > 1.0) {
@@ -1510,7 +1510,7 @@ function processTransactionTo(
     // log(`fromChange for the "TO" part of this transaction = ${fromChange}`);
     value += change;
     // log('in processTransactionTo, setValue:');
-    setValue(values, evaluations, moment.date, t.TRANSACTION_TO, value, t.NAME);
+    setValue(values, evaluations, moment.date, t.TO, value, t.NAME);
   }
 }
 
@@ -1547,10 +1547,10 @@ function processTransactionMoment(
 
   // Determine how much to take off the From asset(s).
   // Set the reduced value of the From asset accordingly.
-  if (t.TRANSACTION_FROM !== '') {
+  if (t.FROM !== '') {
     // we can sometimes see multiple 'FROM's
     // handle one word at a time TODO make comma-separated!
-    const words = t.TRANSACTION_FROM.split(separator);
+    const words = t.FROM.split(separator);
     words.forEach(fromWord => {
       // log(`process a transaction from ${fromWord}`);
       processTransactionFromTo(
@@ -1565,7 +1565,7 @@ function processTransactionMoment(
         liableIncomeInTaxYear,
       );
     });
-  } else if (t.TRANSACTION_FROM === '' && t.TRANSACTION_TO !== '') {
+  } else if (t.FROM === '' && t.TO !== '') {
     processTransactionTo(t, moment, values, evaluations);
   }
 }
@@ -1576,7 +1576,7 @@ function logPensionIncomeLiabilities(
 ) {
   // log(`see if ${t.NAME} needs a tax liability`);
   // e.g. CrystallizedPensionJoe
-  const words = t.TRANSACTION_FROM.split(separator);
+  const words = t.FROM.split(separator);
   words.forEach(word => {
     if (word.startsWith(crystallizedPension)) {
       const liability = `${incomeTax}${word.substr(
@@ -1595,9 +1595,9 @@ function logAssetIncomeLiabilities(
 ) {
   // log(`see if ${t.NAME} needs a tax liability`);
   // e.g. CrystallizedPensionJoe
-  if (a.ASSET_LIABILITY !== '') {
+  if (a.LIABILITY !== '') {
     // log(`logging liability ${showObj(a)}`);
-    liabilitiesMap.set(a.NAME, a.ASSET_LIABILITY);
+    liabilitiesMap.set(a.NAME, a.LIABILITY);
   } else if (a.NAME.startsWith(crystallizedPension)) {
     const liability = `${incomeTax}${a.NAME.substr(
       crystallizedPension.length,
@@ -1613,14 +1613,14 @@ function logPurchaseValues(
   evaluations: Evaluation[],
   triggers: DbTrigger[],
 ) {
-  if (a.ASSET_LIABILITY.includes(cgt)) {
+  if (a.LIABILITY.includes(cgt)) {
     // log('in logPurchaseValues, setValue:');
     setValue(
       values,
       evaluations,
-      getTriggerDate(a.ASSET_START, triggers),
+      getTriggerDate(a.START, triggers),
       `Purchase${a.NAME}`,
-      parseFloat(a.ASSET_PURCHASE_PRICE),
+      parseFloat(a.PURCHASE_PRICE),
       `Purchase${a.NAME}`,
     );
   }

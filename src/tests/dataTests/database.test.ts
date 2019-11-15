@@ -23,11 +23,11 @@ function sameAsset(a: DbAsset, b: DbAsset) {
   // log(a.CATEGORY === b.CATEGORY);
   const result =
     a.NAME === b.NAME &&
-    a.ASSET_GROWTH === b.ASSET_GROWTH &&
-    a.ASSET_LIABILITY === b.ASSET_LIABILITY &&
-    a.ASSET_PURCHASE_PRICE === b.ASSET_PURCHASE_PRICE &&
-    a.ASSET_START === b.ASSET_START &&
-    a.ASSET_VALUE === b.ASSET_VALUE &&
+    a.GROWTH === b.GROWTH &&
+    a.LIABILITY === b.LIABILITY &&
+    a.PURCHASE_PRICE === b.PURCHASE_PRICE &&
+    a.START === b.START &&
+    a.VALUE === b.VALUE &&
     a.CATEGORY === b.CATEGORY;
   // log(result);
   return result;
@@ -120,7 +120,7 @@ describe('database work', () => {
     expect(sameAsset(assets[5], newAsset)).toBe(true);
     // log(`checked some of asset info from DB`);
 
-    newAsset.ASSET_LIABILITY = 'editedLiability';
+    newAsset.LIABILITY = 'editedLiability';
 
     await submitIDbAssets([newAsset], modelName);
     // log(`edited an asset in DB`);

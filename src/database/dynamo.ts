@@ -330,12 +330,12 @@ async function submitAsset(ddb: any, modelName: string, asset: DbAssetDynamo) {
 
   if (
     isEmptyData(asset.NAME.S, 'asset name') ||
-    isEmptyData(asset.ASSET_START.S, 'asset start') ||
-    isEmptyData(asset.ASSET_VALUE.N, 'asset value') ||
-    isEmptyData(asset.ASSET_GROWTH.S, 'asset growth') ||
-    isEmptyData(asset.ASSET_LIABILITY.S, 'asset liability') ||
+    isEmptyData(asset.START.S, 'asset start') ||
+    isEmptyData(asset.VALUE.N, 'asset value') ||
+    isEmptyData(asset.GROWTH.S, 'asset growth') ||
+    isEmptyData(asset.LIABILITY.S, 'asset liability') ||
     isEmptyData(asset.CATEGORY.S, 'category') ||
-    isEmptyData(asset.ASSET_PURCHASE_PRICE.N, 'asset purchase price')
+    isEmptyData(asset.PURCHASE_PRICE.N, 'asset purchase price')
   ) {
     return;
   }
@@ -404,11 +404,11 @@ async function addRequiredSettings(ddb: any, tableName: string): Promise<any> {
     submitAsset(ddb, modelName, {
       NAME: { S: CASH_ASSET_NAME },
       CATEGORY: { S: translateForDB('') },
-      ASSET_START: { S: '1 Jan 1990' },
-      ASSET_VALUE: { N: '0.0' },
-      ASSET_GROWTH: { S: '0.0' },
-      ASSET_LIABILITY: { S: translateForDB('') },
-      ASSET_PURCHASE_PRICE: { N: '0.0' },
+      START: { S: '1 Jan 1990' },
+      VALUE: { N: '0.0' },
+      GROWTH: { S: '0.0' },
+      LIABILITY: { S: translateForDB('') },
+      PURCHASE_PRICE: { N: '0.0' },
     }),
   ]);
 }
@@ -469,7 +469,7 @@ async function submitTrigger(
 
   if (
     isEmptyData(trigger.NAME.S, 'name') ||
-    isEmptyData(trigger.TRIGGER_DATE.N, 'date')
+    isEmptyData(trigger.DATE.N, 'date')
   ) {
     return;
   }
@@ -492,17 +492,17 @@ async function submitDBTransaction(
 
   if (
     isEmptyData(transaction.NAME.S, 'transaction name') ||
-    isEmptyData(transaction.TRANSACTION_DATE.S, 'transaction date') ||
-    isEmptyData(transaction.TRANSACTION_FROM.S, 'transaction from') ||
-    isEmptyData(transaction.TRANSACTION_TO.S, 'transaction to') ||
+    isEmptyData(transaction.DATE.S, 'transaction date') ||
+    isEmptyData(transaction.FROM.S, 'transaction from') ||
+    isEmptyData(transaction.TO.S, 'transaction to') ||
     isEmptyData(
-      transaction.TRANSACTION_FROM_VALUE.N,
+      transaction.FROM_VALUE.N,
       'transaction from value',
     ) ||
-    isEmptyData(transaction.TRANSACTION_TO_VALUE.N, 'transaction to value') ||
-    isEmptyData(transaction.TRANSACTION_STOP_DATE.S, 'transaction stop date') ||
+    isEmptyData(transaction.TO_VALUE.N, 'transaction to value') ||
+    isEmptyData(transaction.STOP_DATE.S, 'transaction stop date') ||
     isEmptyData(
-      transaction.TRANSACTION_RECURRENCE.S,
+      transaction.RECURRENCE.S,
       'transaction recurrence',
     ) ||
     isEmptyData(transaction.CATEGORY.S, 'category')
@@ -686,7 +686,7 @@ export async function submitIDbTriggers(
   await Promise.all(
     triggers.map((triggerInput: DbTrigger) => {
       const triggerData: DbTriggerDynamo = {
-        TRIGGER_DATE: { N: `${triggerInput.TRIGGER_DATE.getTime()}` },
+        DATE: { N: `${triggerInput.DATE.getTime()}` },
         NAME: { S: triggerInput.NAME },
       };
       return submitTrigger(ddb, modelName, triggerData);
@@ -703,12 +703,12 @@ export async function submitIDbAssets(assets: DbAsset[], modelName: string) {
   await Promise.all(
     assets.map(assetInput => {
       const assetData: DbAssetDynamo = {
-        ASSET_GROWTH: { S: assetInput.ASSET_GROWTH },
+        GROWTH: { S: assetInput.GROWTH },
         NAME: { S: assetInput.NAME },
-        ASSET_START: { S: assetInput.ASSET_START }, // use triggers
-        ASSET_VALUE: { N: assetInput.ASSET_VALUE },
-        ASSET_LIABILITY: { S: translateForDB(assetInput.ASSET_LIABILITY) },
-        ASSET_PURCHASE_PRICE: { N: assetInput.ASSET_PURCHASE_PRICE },
+        START: { S: assetInput.START }, // use triggers
+        VALUE: { N: assetInput.VALUE },
+        LIABILITY: { S: translateForDB(assetInput.LIABILITY) },
+        PURCHASE_PRICE: { N: assetInput.PURCHASE_PRICE },
         CATEGORY: { S: translateForDB(assetInput.CATEGORY) },
       };
 
@@ -727,23 +727,23 @@ export async function submitIDbTransactions(
   await Promise.all(
     inputs.map(input => {
       const data: DbTransactionDynamo = {
-        TRANSACTION_DATE: { S: translateForDB(input.TRANSACTION_DATE) }, // use triggers
-        TRANSACTION_FROM: { S: translateForDB(input.TRANSACTION_FROM) }, // which asset
-        TRANSACTION_FROM_ABSOLUTE: {
-          BOOL: input.TRANSACTION_FROM_ABSOLUTE,
+        DATE: { S: translateForDB(input.DATE) }, // use triggers
+        FROM: { S: translateForDB(input.FROM) }, // which asset
+        FROM_ABSOLUTE: {
+          BOOL: input.FROM_ABSOLUTE,
         },
-        TRANSACTION_FROM_VALUE: { N: `${input.TRANSACTION_FROM_VALUE}` },
+        FROM_VALUE: { N: `${input.FROM_VALUE}` },
         NAME: { S: input.NAME },
-        TRANSACTION_TO: { S: translateForDB(input.TRANSACTION_TO) }, // which asset
-        TRANSACTION_TO_ABSOLUTE: {
-          BOOL: input.TRANSACTION_TO_ABSOLUTE,
+        TO: { S: translateForDB(input.TO) }, // which asset
+        TO_ABSOLUTE: {
+          BOOL: input.TO_ABSOLUTE,
         },
-        TRANSACTION_TO_VALUE: { N: `${input.TRANSACTION_TO_VALUE}` },
-        TRANSACTION_STOP_DATE: {
-          S: translateForDB(input.TRANSACTION_STOP_DATE),
+        TO_VALUE: { N: `${input.TO_VALUE}` },
+        STOP_DATE: {
+          S: translateForDB(input.STOP_DATE),
         }, // use triggers
-        TRANSACTION_RECURRENCE: {
-          S: translateForDB(input.TRANSACTION_RECURRENCE),
+        RECURRENCE: {
+          S: translateForDB(input.RECURRENCE),
         },
         CATEGORY: { S: translateForDB(input.CATEGORY) },
       };
@@ -809,18 +809,18 @@ async function getTransactionData(
       log(`db element is ${showObj(element)}`);
     }
 
-    // log(` element.TRANSACTION_FROM_ABSOLUTE.BOOL = ${ element.TRANSACTION_FROM_ABSOLUTE.BOOL}`)
+    // log(` element.FROM_ABSOLUTE.BOOL = ${ element.FROM_ABSOLUTE.BOOL}`)
     const item: DbTransaction = {
       NAME: element.NAME.S,
-      TRANSACTION_FROM: translateFromDB(element.TRANSACTION_FROM.S),
-      TRANSACTION_FROM_ABSOLUTE: element.TRANSACTION_FROM_ABSOLUTE.BOOL,
-      TRANSACTION_FROM_VALUE: element.TRANSACTION_FROM_VALUE.N,
-      TRANSACTION_TO: translateFromDB(element.TRANSACTION_TO.S),
-      TRANSACTION_TO_ABSOLUTE: element.TRANSACTION_TO_ABSOLUTE.BOOL,
-      TRANSACTION_TO_VALUE: element.TRANSACTION_TO_VALUE.N,
-      TRANSACTION_DATE: translateFromDB(element.TRANSACTION_DATE.S),
-      TRANSACTION_STOP_DATE: translateFromDB(element.TRANSACTION_STOP_DATE.S),
-      TRANSACTION_RECURRENCE: translateFromDB(element.TRANSACTION_RECURRENCE.S),
+      FROM: translateFromDB(element.FROM.S),
+      FROM_ABSOLUTE: element.FROM_ABSOLUTE.BOOL,
+      FROM_VALUE: element.FROM_VALUE.N,
+      TO: translateFromDB(element.TO.S),
+      TO_ABSOLUTE: element.TO_ABSOLUTE.BOOL,
+      TO_VALUE: element.TO_VALUE.N,
+      DATE: translateFromDB(element.DATE.S),
+      STOP_DATE: translateFromDB(element.STOP_DATE.S),
+      RECURRENCE: translateFromDB(element.RECURRENCE.S),
       CATEGORY: translateFromDB(element.CATEGORY.S),
     };
 
@@ -864,7 +864,7 @@ async function getTriggerData(
     }
     const item: DbTrigger = {
       NAME: element.NAME.S,
-      TRIGGER_DATE: new Date(parseInt(element.TRIGGER_DATE.N, 10)),
+      DATE: new Date(parseInt(element.DATE.N, 10)),
     };
     // log(`item is ${showObj(item)}`);
     result.push(item);
@@ -881,11 +881,11 @@ async function getAssetData(ddb: any, tableName: string): Promise<DbAsset[]> {
     }
     const item: DbAsset = {
       NAME: element.NAME.S,
-      ASSET_START: element.ASSET_START.S,
-      ASSET_VALUE: element.ASSET_VALUE.N,
-      ASSET_GROWTH: element.ASSET_GROWTH.S,
-      ASSET_LIABILITY: translateFromDB(element.ASSET_LIABILITY.S),
-      ASSET_PURCHASE_PRICE: element.ASSET_PURCHASE_PRICE.N,
+      START: element.START.S,
+      VALUE: element.VALUE.N,
+      GROWTH: element.GROWTH.S,
+      LIABILITY: translateFromDB(element.LIABILITY.S),
+      PURCHASE_PRICE: element.PURCHASE_PRICE.N,
       CATEGORY: translateFromDB(element.CATEGORY.S),
     };
     // log(`item is ${showObj(item)}`);

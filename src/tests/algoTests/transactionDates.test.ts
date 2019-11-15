@@ -4,11 +4,11 @@ import { DbAsset } from '../../types/interfaces';
 export const testAsset: DbAsset = {
   NAME: 'test_asset',
   CATEGORY: '',
-  ASSET_START: 'Jan 2017',
-  ASSET_VALUE: '1.2',
-  ASSET_GROWTH: '0.0',
-  ASSET_LIABILITY: '',
-  ASSET_PURCHASE_PRICE: '0',
+  START: 'Jan 2017',
+  VALUE: '1.2',
+  GROWTH: '0.0',
+  LIABILITY: '',
+  PURCHASE_PRICE: '0',
 };
 
 describe('generateTransactionDates', () => {
