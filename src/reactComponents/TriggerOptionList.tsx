@@ -19,15 +19,15 @@ export class TriggerOptionList extends Component<
   TriggerOptionListProps,
   TriggerOptionListState
 > {
-  constructor(props: TriggerOptionListProps){
+  constructor(props: TriggerOptionListProps) {
     super(props);
-    this.state = {selectedItem: ''};
+    this.state = { selectedItem: '' };
   }
-  private newTriggerMade(e: DbTrigger){
+  private newTriggerMade(e: DbTrigger) {
     this.props.submitTrigger(e);
     this.setState({
-      ...this.state, 
-      selectedItem: e.NAME
+      ...this.state,
+      selectedItem: e.NAME,
     });
     this.props.handleChange(e.NAME);
   }

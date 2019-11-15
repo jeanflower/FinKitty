@@ -6915,8 +6915,7 @@ describe('evaluations tests', () => {
           // when you take cash from your pension pot
           ...simpleTransaction,
           NAME: 'Conditional get some pension', // if cash needs it
-          FROM:
-            'Stocks' + separator + '' + crystallizedPension + 'Joe', // name is important
+          FROM: 'Stocks' + separator + '' + crystallizedPension + 'Joe', // name is important
           FROM_ABSOLUTE: false,
           FROM_VALUE: '1.0', // whatever is needed
           TO: CASH_ASSET_NAME,

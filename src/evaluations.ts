@@ -1095,10 +1095,7 @@ function getTransactionMoments(
     // use ROI to limit number of moments generated
     let stop = rOIEndDate;
     if (transaction.STOP_DATE !== '') {
-      const transStop = getTriggerDate(
-        transaction.STOP_DATE,
-        triggers,
-      );
+      const transStop = getTriggerDate(transaction.STOP_DATE, triggers);
       if (stop > transStop) {
         stop = transStop;
       }
@@ -1169,14 +1166,7 @@ function revalueApplied(
     }
     // log(`passing ${t.TO_VALUE} as new value of ${moment.name}`);
     // log('in revalueApplied, setValue:');
-    setValue(
-      values,
-      evaluations,
-      moment.date,
-      t.TO,
-      tToValue,
-      revalue,
-    );
+    setValue(values, evaluations, moment.date, t.TO, tToValue, revalue);
     return true;
   }
   return false;
@@ -1439,10 +1429,7 @@ function processTransactionFromTo(
     // (it's liable to income tax)
     // log(`transacting ${fromChange} from ${fromWord}
     // into ${t.TO}`);
-    if (
-      fromWord.startsWith(crystallizedPension) &&
-      t.TO === CASH_ASSET_NAME
-    ) {
+    if (fromWord.startsWith(crystallizedPension) && t.TO === CASH_ASSET_NAME) {
       // log(`register ${toChange} pension withdrawal as liable for income tax`);
       handleIncome(
         toChange,

@@ -495,16 +495,10 @@ async function submitDBTransaction(
     isEmptyData(transaction.DATE.S, 'transaction date') ||
     isEmptyData(transaction.FROM.S, 'transaction from') ||
     isEmptyData(transaction.TO.S, 'transaction to') ||
-    isEmptyData(
-      transaction.FROM_VALUE.N,
-      'transaction from value',
-    ) ||
+    isEmptyData(transaction.FROM_VALUE.N, 'transaction from value') ||
     isEmptyData(transaction.TO_VALUE.N, 'transaction to value') ||
     isEmptyData(transaction.STOP_DATE.S, 'transaction stop date') ||
-    isEmptyData(
-      transaction.RECURRENCE.S,
-      'transaction recurrence',
-    ) ||
+    isEmptyData(transaction.RECURRENCE.S, 'transaction recurrence') ||
     isEmptyData(transaction.CATEGORY.S, 'category')
   ) {
     log(`BUG: empty fields in transaction for DB ${showObj(transaction)}`);

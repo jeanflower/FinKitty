@@ -58,8 +58,7 @@ function checkTransactionWords(
   const a = assets.find(
     as =>
       as.NAME === word &&
-      getTriggerDate(as.START, triggers) <=
-        getTriggerDate(date, triggers),
+      getTriggerDate(as.START, triggers) <= getTriggerDate(date, triggers),
   );
   if (a !== undefined) {
     return true;
@@ -334,8 +333,7 @@ export function checkTransaction(t: DbTransaction, model: DbModelData): string {
         } else {
           // transacting on an income - check dates
           if (
-            getTriggerDate(i.START, triggers) >
-            getTriggerDate(t.DATE, triggers)
+            getTriggerDate(i.START, triggers) > getTriggerDate(t.DATE, triggers)
           ) {
             return (
               `Transaction ${t.NAME} dated before start ` +
@@ -347,8 +345,7 @@ export function checkTransaction(t: DbTransaction, model: DbModelData): string {
         return `Transaction to unrecognised asset : ${t.TO}`;
       }
     } else if (
-      getTriggerDate(a.START, triggers) >
-      getTriggerDate(t.DATE, triggers)
+      getTriggerDate(a.START, triggers) > getTriggerDate(t.DATE, triggers)
     ) {
       return `Transaction dated before to asset : ${t.TO}`;
     }
@@ -362,10 +359,7 @@ export function checkTransaction(t: DbTransaction, model: DbModelData): string {
 
   const tToValue = parseFloat(t.TO_VALUE);
   if (t.NAME.startsWith(conditional)) {
-    if (
-      !t.FROM_ABSOLUTE &&
-      (t.TO_ABSOLUTE || tToValue !== 1.0)
-    ) {
+    if (!t.FROM_ABSOLUTE && (t.TO_ABSOLUTE || tToValue !== 1.0)) {
       log(`WARNING : unexpected stopping condition implemented for ${t.NAME}`);
     }
   }
@@ -375,11 +369,7 @@ export function checkTransaction(t: DbTransaction, model: DbModelData): string {
   if (!t.FROM_ABSOLUTE && tFromValue > 1.0) {
     log(`WARNING : not-absolute value from ${tFromValue} > 1.0`);
   }
-  if (
-    !t.TO_ABSOLUTE &&
-    tToValue > 1.0 &&
-    !t.NAME.startsWith(pension)
-  ) {
+  if (!t.TO_ABSOLUTE && tToValue > 1.0 && !t.NAME.startsWith(pension)) {
     log(`WARNING : not-absolute value to ${tToValue} > 1.0`);
   }
   return '';

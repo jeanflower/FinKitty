@@ -11,7 +11,7 @@ export const CASH_ASSET_NAME = 'Cash';
 export const taxPot = 'TaxPot';
 
 // All models have a value for CPI (can be zero),
-// which controls how values of incomes/expenses/assets 
+// which controls how values of incomes/expenses/assets
 // naturally grow over time
 export const cpi = 'cpi';
 export const cpiHint = 'Annual rate of inflation';
@@ -44,16 +44,13 @@ export const fine = 'Detailed view';
 // (set focus to All)
 // or all things in a given category
 // or an individual named thing
-export const assetChartFocus = 
-  'Focus of assets chart';
-export const assetChartFocusHint = 
+export const assetChartFocus = 'Focus of assets chart';
+export const assetChartFocusHint =
   "Assets chart can display a category, a single asset, or 'All'";
-export const expenseChartFocus = 
-  'Focus of expenses chart';
+export const expenseChartFocus = 'Focus of expenses chart';
 export const expenseChartFocusHint =
   "Expenses chart can display a category, a single expense, or 'All'";
-export const incomeChartFocus = 
-  'Focus of incomes chart';
+export const incomeChartFocus = 'Focus of incomes chart';
 export const incomeChartFocusHint =
   "Incomes chart can display a category, a single income, or 'All'";
 export const allItems = 'All';
@@ -67,7 +64,7 @@ export const assetChartAdditions = '+';
 export const assetChartReductions = '-';
 export const assetChartDeltas = '+-';
 
-// The app ships with a sample model that covers some of the 
+// The app ships with a sample model that covers some of the
 // types of assets, incomee, expenses and transactions.
 // The sample data can be loaded into a model.
 export const sampleModel = 'SampleModel';
@@ -91,27 +88,26 @@ export const crystallizedPension = 'CrystallizedPension';
 export const cgt = 'CGT';
 
 // Some transactions behave in special ways regarding income tax
-// name then 
-// PensionNorwich 
-// (transfers here reduce incomde tax liability), 
-// or PensionSSNorwich 
+// name then
+// PensionNorwich
+// (transfers here reduce incomde tax liability),
+// or PensionSSNorwich
 // (transfers here reduce income tax + NI liability)
 export const pension = 'Pension';
 export const pensionSS = 'PensionSS';
 
 // Transactions can be Conditional
 // (i.e. they're named ConditionalDoSomething)
-// the condition is that they only execute if the 
-// target asset is negative 
+// the condition is that they only execute if the
+// target asset is negative
 // (so used to keep a cash float positive, fvor example)
 export const conditional = 'Conditional';
 
 // Transactions can be Revalue
-// which simply replaces the value of an existing 
+// which simply replaces the value of an existing
 // asset/income/expense
 // with a new value obtained on a given date.
-// Supply no FROM, a name for TO 
+// Supply no FROM, a name for TO
 // and an absolute value for TO
 // Useful for recalibrating a model back with true values.
 export const revalue = 'Revalue';
-

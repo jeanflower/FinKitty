@@ -569,15 +569,11 @@ function handleTransactionGridRowsUpdated() {
       const transaction: DbTransaction = {
         DATE: gridData.DATE,
         FROM: gridData.FROM,
-        FROM_ABSOLUTE: makeBooleanFromString(
-          gridData.FROM_ABSOLUTE,
-        ),
+        FROM_ABSOLUTE: makeBooleanFromString(gridData.FROM_ABSOLUTE),
         FROM_VALUE: gridData.FROM_VALUE,
         NAME: gridData.NAME,
         TO: gridData.TO,
-        TO_ABSOLUTE: makeBooleanFromString(
-          gridData.TO_ABSOLUTE,
-        ),
+        TO_ABSOLUTE: makeBooleanFromString(gridData.TO_ABSOLUTE),
         TO_VALUE: gridData.TO_VALUE,
         STOP_DATE: gridData.STOP_DATE,
         RECURRENCE: gridData.RECURRENCE,
@@ -794,26 +790,14 @@ export async function stringifyDB(): Promise<string> {
   result = result.replace(/"ASSET_LIABILITY"/g, 'ASSET_LIABILITY');
   result = result.replace(/"ASSET_PURCHASE_PRICE"/g, 'ASSET_PURCHASE_PRICE');
   result = result.replace(/"FROM"/g, 'FROM');
-  result = result.replace(
-    /"FROM_ABSOLUTE"/g,
-    'FROM_ABSOLUTE',
-  );
-  result = result.replace(
-    /"FROM_VALUE"/g,
-    'FROM_VALUE',
-  );
+  result = result.replace(/"FROM_ABSOLUTE"/g, 'FROM_ABSOLUTE');
+  result = result.replace(/"FROM_VALUE"/g, 'FROM_VALUE');
   result = result.replace(/"TO"/g, 'TO');
-  result = result.replace(
-    /"TO_ABSOLUTE"/g,
-    'TO_ABSOLUTE',
-  );
+  result = result.replace(/"TO_ABSOLUTE"/g, 'TO_ABSOLUTE');
   result = result.replace(/"TO_VALUE"/g, 'TO_VALUE');
   result = result.replace(/"DATE"/g, 'DATE');
   result = result.replace(/"STOP_DATE"/g, 'STOP_DATE');
-  result = result.replace(
-    /"RECURRENCE"/g,
-    'RECURRENCE',
-  );
+  result = result.replace(/"RECURRENCE"/g, 'RECURRENCE');
   let re = new RegExp(`\"+${CASH_ASSET_NAME}\"`, 'g'); // eslint-disable-line no-useless-escape
   result = result.replace(re, 'CASH_ASSET_NAME');
   re = new RegExp(`\"+${assetChartView}\"`, 'g'); // eslint-disable-line no-useless-escape
@@ -2032,15 +2016,11 @@ export class App extends Component<{}, AppState> {
                     DATE: obj.DATE,
                     FROM: obj.FROM,
                     FROM_VALUE: obj.FROM_VALUE,
-                    FROM_ABSOLUTE: makeStringFromBoolean(
-                      obj.FROM_ABSOLUTE,
-                    ),
+                    FROM_ABSOLUTE: makeStringFromBoolean(obj.FROM_ABSOLUTE),
                     NAME: obj.NAME,
                     TO: obj.TO,
                     TO_VALUE: obj.TO_VALUE,
-                    TO_ABSOLUTE: makeStringFromBoolean(
-                      obj.TO_ABSOLUTE,
-                    ),
+                    TO_ABSOLUTE: makeStringFromBoolean(obj.TO_ABSOLUTE),
                     STOP_DATE: obj.STOP_DATE,
                     RECURRENCE: obj.RECURRENCE,
                     CATEGORY: obj.CATEGORY,
