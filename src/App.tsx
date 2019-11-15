@@ -516,7 +516,7 @@ function handleTriggerGridRowsUpdated() {
   // log(`submitTrigger(trigger) has trigger = ${showObj(trigger)}`);
   const forSubmit: DbTrigger = {
     NAME: trigger.NAME,
-    DATE: new Date(trigger.TRIGGER_DATE),
+    DATE: new Date(trigger.DATE),
   };
   const checks = checkTrigger(forSubmit);
   if (checks === '') {
@@ -1612,7 +1612,7 @@ export class App extends Component<{}, AppState> {
                 handleGridRowsUpdated={handleTriggerGridRowsUpdated}
                 rows={this.state.modelData.triggers.map((obj: DbTrigger) => {
                   const result = {
-                    TRIGGER_DATE: obj.DATE.toDateString(),
+                    DATE: obj.DATE.toDateString(),
                     NAME: obj.NAME,
                   };
                   return result;
@@ -1626,7 +1626,7 @@ export class App extends Component<{}, AppState> {
                   },
                   {
                     ...defaultColumn,
-                    key: 'TRIGGER_DATE',
+                    key: 'DATE',
                     name: 'date',
                   },
                 ]}

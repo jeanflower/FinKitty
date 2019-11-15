@@ -9,11 +9,11 @@ import Input from './Input';
 
 interface EditFormState {
   NAME: string;
-  ASSET_VALUE: string;
-  ASSET_START: string;
-  ASSET_GROWTH: string;
-  ASSET_PURCHASE_PRICE: string;
-  ASSET_LIABILITY: string;
+  VALUE: string;
+  START: string;
+  GROWTH: string;
+  PURCHASE_PRICE: string;
+  LIABILITY: string;
   CATEGORY: string;
 }
 interface EditProps {
@@ -38,11 +38,11 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
     }
     this.defaultState = {
       NAME: '',
-      ASSET_VALUE: '',
-      ASSET_START: '',
-      ASSET_GROWTH: '',
-      ASSET_PURCHASE_PRICE: '',
-      ASSET_LIABILITY: '',
+      VALUE: '',
+      START: '',
+      GROWTH: '',
+      PURCHASE_PRICE: '',
+      LIABILITY: '',
       CATEGORY: '',
     };
 
@@ -83,7 +83,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
               title="Asset value:"
               type="text"
               name="value"
-              value={this.state.ASSET_VALUE}
+              value={this.state.VALUE}
               placeholder="Enter value"
               onChange={this.handleValueChange}
             />
@@ -99,7 +99,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
             setDateFunction={this.setStart}
             selectID="assetStartSelect"
             inputName="start date"
-            inputValue={this.state.ASSET_START}
+            inputValue={this.state.START}
             onChangeHandler={this.handleStartChange}
             triggers={this.props.model.triggers}
             submitTrigger={this.props.submitTrigger}
@@ -111,7 +111,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
               title="Annual growth percentage (excluding inflation):"
               type="text"
               name="growth"
-              value={this.state.ASSET_GROWTH}
+              value={this.state.GROWTH}
               placeholder="Enter growth"
               onChange={this.handleGrowthChange}
             />
@@ -122,7 +122,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
               title="Liability (e.g. 'CGTJoe'):"
               type="text"
               name="liability"
-              value={this.state.ASSET_LIABILITY}
+              value={this.state.LIABILITY}
               placeholder="Enter liability"
               onChange={this.handleLiabilityChange}
             />
@@ -147,7 +147,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
               title="Original purchase price (for CGT purposes):"
               type="text"
               name="purchase"
-              value={this.state.ASSET_PURCHASE_PRICE}
+              value={this.state.PURCHASE_PRICE}
               placeholder="purchase"
               onChange={this.handlePurchasePriceChange}
             />
@@ -179,7 +179,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
   }
   private handleGrowthChange(e: any) {
     const value = e.target.value;
-    this.setState({ ASSET_GROWTH: value });
+    this.setState({ GROWTH: value });
   }
   private handleCategoryChange(e: any) {
     const value = e.target.value;
@@ -187,18 +187,18 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
   }
   private handlePurchasePriceChange(e: any) {
     const value = e.target.value;
-    this.setState({ ASSET_PURCHASE_PRICE: value });
+    this.setState({ PURCHASE_PRICE: value });
   }
   private handleLiabilityChange(e: any) {
     const value = e.target.value;
-    this.setState({ ASSET_LIABILITY: value });
+    this.setState({ LIABILITY: value });
   }
   private handleValueChange(e: any) {
     const value = e.target.value;
-    this.setState({ ASSET_VALUE: value });
+    this.setState({ VALUE: value });
   }
   private setStart(value: string): void {
-    this.setState({ ASSET_START: value });
+    this.setState({ START: value });
   }
   private handleStartChange(e: any): void {
     const value = e.target.value;
@@ -214,35 +214,28 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
   private add(e: any): void {
     e.preventDefault();
 
-    let isNotANumber = Number.isNaN(parseFloat(this.state.ASSET_VALUE));
+    let isNotANumber = Number.isNaN(parseFloat(this.state.VALUE));
     if (isNotANumber) {
-      alert(
-        `Asset value ${this.state.ASSET_VALUE} should be a numerical value`,
-      );
+      alert(`Asset value ${this.state.VALUE} should be a numerical value`);
       return;
     }
-    const date = checkTriggerDate(
-      this.state.ASSET_START,
-      this.props.model.triggers,
-    );
+    const date = checkTriggerDate(this.state.START, this.props.model.triggers);
     const isNotADate = date === undefined;
     if (isNotADate) {
-      alert(`Start date '${this.state.ASSET_START}' should be a date`);
+      alert(`Start date '${this.state.START}' should be a date`);
       return;
     }
-    isNotANumber = Number.isNaN(parseFloat(this.state.ASSET_GROWTH));
+    isNotANumber = Number.isNaN(parseFloat(this.state.GROWTH));
     if (isNotANumber) {
-      alert(
-        `Growth value '${this.state.ASSET_GROWTH}' should be a numerical value`,
-      );
+      alert(`Growth value '${this.state.GROWTH}' should be a numerical value`);
       return;
     }
-    const liabilityMessage = checkAssetLiability(this.state.ASSET_LIABILITY);
+    const liabilityMessage = checkAssetLiability(this.state.LIABILITY);
     if (liabilityMessage !== '') {
       alert(liabilityMessage);
       return;
     }
-    let purchasePrice = this.state.ASSET_PURCHASE_PRICE;
+    let purchasePrice = this.state.PURCHASE_PRICE;
     if (purchasePrice === '') {
       purchasePrice = '0';
     }
@@ -250,12 +243,12 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
     // log('adding something ' + showObj(this));
     const asset: DbAsset = {
       NAME: this.state.NAME,
-      VALUE: this.state.ASSET_VALUE,
-      START: this.state.ASSET_START,
-      GROWTH: this.state.ASSET_GROWTH,
+      VALUE: this.state.VALUE,
+      START: this.state.START,
+      GROWTH: this.state.GROWTH,
       CATEGORY: this.state.CATEGORY,
       PURCHASE_PRICE: purchasePrice,
-      LIABILITY: this.state.ASSET_LIABILITY,
+      LIABILITY: this.state.LIABILITY,
     };
     const message = this.props.checkFunction(asset, this.props.model);
     if (message.length > 0) {

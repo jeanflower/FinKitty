@@ -7,7 +7,7 @@ import Input from './Input';
 
 interface EditFormState {
   NAME: string;
-  TRIGGER_DATE: string;
+  DATE: string;
 }
 interface EditProps {
   checkFunction: any;
@@ -40,7 +40,7 @@ export function newTriggerButtonData(submitTrigger: any, selectId: string) {
       }
       await submitTrigger({
         NAME: nameString,
-        TRIGGER_DATE: dateTry,
+        DATE: dateTry,
       });
 
       const element = document.getElementById(selectId);
@@ -64,7 +64,7 @@ export class AddDeleteTriggerForm extends Component<EditProps, EditFormState> {
     }
     this.defaultState = {
       NAME: '',
-      TRIGGER_DATE: '',
+      DATE: '',
     };
 
     this.state = this.defaultState;
@@ -90,7 +90,7 @@ export class AddDeleteTriggerForm extends Component<EditProps, EditFormState> {
         <Input
           type={'text'}
           name={'date'}
-          value={this.state.TRIGGER_DATE}
+          value={this.state.DATE}
           placeholder={'Enter date'}
           onChange={this.handleValueChange}
         />{' '}
@@ -118,7 +118,7 @@ export class AddDeleteTriggerForm extends Component<EditProps, EditFormState> {
   }
   private handleValueChange(e: any) {
     const value = e.target.value;
-    this.setState({ TRIGGER_DATE: value });
+    this.setState({ DATE: value });
   }
 
   private async add(e: any) {
@@ -127,7 +127,7 @@ export class AddDeleteTriggerForm extends Component<EditProps, EditFormState> {
     // log('adding something ' + showObj(this));
     const trigger: DbTrigger = {
       NAME: this.state.NAME,
-      DATE: new Date(this.state.TRIGGER_DATE),
+      DATE: new Date(this.state.DATE),
     };
     const message = this.props.checkFunction(trigger, this.props.model);
     if (message.length > 0) {
