@@ -19,6 +19,18 @@ export class TriggerOptionList extends Component<
   TriggerOptionListProps,
   TriggerOptionListState
 > {
+  constructor(props: TriggerOptionListProps){
+    super(props);
+    this.state = {selectedItem: ''};
+  }
+  private newTriggerMade(e: DbTrigger){
+    this.props.submitTrigger(e);
+    this.setState({
+      ...this.state, 
+      selectedItem: e.NAME
+    });
+    this.props.handleChange(e.NAME);
+  }
   public render() {
     const optionData = this.props.triggers.map(trigger => {
       return {
@@ -32,7 +44,7 @@ export class TriggerOptionList extends Component<
       };
     });
     optionData.push(
-      newTriggerButtonData(this.props.submitTrigger, this.props.selectId),
+      newTriggerButtonData(this.newTriggerMade.bind(this), this.props.selectId),
     );
     const options = optionData.map(bd => (
       <option
@@ -56,6 +68,7 @@ export class TriggerOptionList extends Component<
             found.action(e);
           }
         }}
+        value={this.state.selectedItem}
       >
         <option>{welcomeString}</option>
         {options}
