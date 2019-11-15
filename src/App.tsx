@@ -903,9 +903,7 @@ export class App extends Component<{}, AppState> {
     return this.modelList(
       modelNames,
       async (model: string) => {
-        if (
-          window.confirm(`delete all data in model ${model} - you sure?`)
-        ) {
+        if (window.confirm(`delete all data in model ${model} - you sure?`)) {
           await deleteAllTables(model);
           await updateModelName(sampleModel);
           await refreshData();
@@ -965,9 +963,38 @@ export class App extends Component<{}, AppState> {
         <fieldset>
           <h2 id="ManageModelsHeader">Manage models</h2>
           <p />
-          <Button
-            id="useSampleData"
-            action={() => {
+          <ModelManagementForm
+            name={modelName}
+            models={this.state.modelNamesData}
+            selectFunction={(name: string) => {
+              // log(`view ${name}`);
+              const oldName = modelName;
+              updateModelName(name);
+              return oldName;
+            }}
+            saveAsFunction={(name: string) => {
+              // log(`save as ${name}`);
+              saveModelAs(name);
+            }}
+            clearDataFunction={() => {
+              Promise.all([
+                deleteAllExpenses(modelName),
+                deleteAllIncomes(modelName),
+                deleteAllTriggers(modelName),
+                deleteAllAssets(modelName),
+                deleteAllTransactions(modelName),
+                deleteAllSettings(modelName),
+              ]).then(() =>
+                ensureDbTables(modelName).then(() => refreshData()),
+              );
+            }}
+            checkModelDataFunction={() => {
+              checkModelData();
+            }}
+            logDataFunction={() => {
+              stringifyDB().then(x => log(x));
+            }}
+            replaceWithSampleFunction={() => {
               Promise.all([
                 deleteAllExpenses(modelName),
                 deleteAllIncomes(modelName),
@@ -988,55 +1015,6 @@ export class App extends Component<{}, AppState> {
                 ),
               );
             }}
-            title="Replace with data from sample"
-            type="secondary"
-          />
-          <Button
-            id="clearData"
-            action={() => {
-              Promise.all([
-                deleteAllExpenses(modelName),
-                deleteAllIncomes(modelName),
-                deleteAllTriggers(modelName),
-                deleteAllAssets(modelName),
-                deleteAllTransactions(modelName),
-                deleteAllSettings(modelName),
-              ]).then(() =>
-                ensureDbTables(modelName).then(() => refreshData()),
-              );
-            }}
-            title="Clear data"
-            type="secondary"
-          />
-          <Button
-            id="checkData"
-            action={() => {
-              checkModelData();
-            }}
-            title="Check data integrity"
-            type="secondary"
-          />
-          <Button
-            id="logData"
-            action={() => {
-              stringifyDB().then(x => log(x));
-            }}
-            title="Log data to console"
-            type="secondary"
-          />
-          <ModelManagementForm
-            name={modelName}
-            models={this.state.modelNamesData}
-            viewFunction={(name: string) => {
-              // log(`view ${name}`);
-              const oldName = modelName;
-              updateModelName(name);
-              return oldName;
-            }}
-            saveAsFunction={(name: string) => {
-              // log(`save as ${name}`);
-              saveModelAs(name);
-            }}
           />
         </fieldset>
       </div>
@@ -1053,10 +1031,7 @@ export class App extends Component<{}, AppState> {
     return (
       <div style={{ display: getDisplay(settingsView) ? 'block' : 'none' }}>
         <fieldset>
-          <h2 id="SettingsHeader">
-            Model
-            {modelName}: Settings
-          </h2>
+          <h2 id="SettingsHeader">Model&nbsp;{modelName}: Settings</h2>
           <Button
             action={(event: any) => {
               event.persist();
@@ -1195,10 +1170,7 @@ export class App extends Component<{}, AppState> {
       this.state.modelData.expenses.length > 0;
     return (
       <div style={{ display: getDisplay(expensesView) ? 'block' : 'none' }}>
-        <h2 id="ExpensesHeader">
-          Model
-          {modelName}: Expenses
-        </h2>
+        <h2 id="ExpensesHeader">Model&nbsp;{modelName}: Expenses</h2>
         <Button
           action={(event: any) => {
             event.persist();
@@ -1367,10 +1339,7 @@ export class App extends Component<{}, AppState> {
       this.state.modelData.incomes.length > 0;
     return (
       <div style={{ display: getDisplay(incomesView) ? 'block' : 'none' }}>
-        <h2 id="IncomesHeader">
-          Model
-          {modelName}: Incomes
-        </h2>
+        <h2 id="IncomesHeader">Model&nbsp;{modelName}: Incomes</h2>
         <Button
           action={(event: any) => {
             event.persist();
@@ -1518,10 +1487,7 @@ export class App extends Component<{}, AppState> {
     }
     return (
       <div style={{ display: getDisplay(overview) ? 'block' : 'none' }}>
-        <h2 id="OverviewHeader">
-          Model
-          {modelName}: Overview
-        </h2>
+        <h2 id="OverviewHeader">Model&nbsp;{modelName}: Overview</h2>
         This model has &nbsp;
         {this.state.modelData.triggers.length} important dates, &nbsp;
         {this.state.modelData.incomes.length} incomes, &nbsp;
@@ -1620,10 +1586,7 @@ export class App extends Component<{}, AppState> {
       this.state.modelData.triggers.length > 0;
     return (
       <div style={{ display: getDisplay(triggersView) ? 'block' : 'none' }}>
-        <h2 id="TriggersHeader">
-          Model
-          {modelName}: Important dates
-        </h2>
+        <h2 id="TriggersHeader">Model&nbsp;{modelName}: Important dates</h2>
         <Button
           action={(event: any) => {
             event.persist();
@@ -1834,10 +1797,7 @@ export class App extends Component<{}, AppState> {
       this.state.modelData.assets.length > 0;
     return (
       <div style={{ display: getDisplay(assetsView) ? 'block' : 'none' }}>
-        <h2 id="AssetsHeader">
-          Model
-          {modelName}: Assets
-        </h2>
+        <h2 id="AssetsHeader">Model&nbsp;{modelName}: Assets</h2>
         <Button
           action={(event: any) => {
             event.persist();
@@ -1969,10 +1929,7 @@ export class App extends Component<{}, AppState> {
       this.state.modelData.transactions.length > 0;
     return (
       <div style={{ display: getDisplay(transactionsView) ? 'block' : 'none' }}>
-        <h2 id="TransactionsHeader">
-          Model
-          {modelName}: Transactions
-        </h2>
+        <h2 id="TransactionsHeader">Model&nbsp;{modelName}: Transactions</h2>
         <Button
           action={(event: any) => {
             event.persist();

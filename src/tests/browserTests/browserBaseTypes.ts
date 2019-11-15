@@ -187,9 +187,7 @@ export function sleep(ms: number, message: string) {
 }
 
 async function gotoHomePage(driver: any) {
-  const btnHome = await driver.findElements(
-    webdriver.By.id('btn-Home'),
-  );
+  const btnHome = await driver.findElements(webdriver.By.id('btn-Home'));
   // log(`btnMms.length = ${btnMms.length}`);
   expect(btnHome.length === 1).toBe(true);
   await btnHome[0].click();
