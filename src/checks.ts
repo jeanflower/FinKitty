@@ -356,6 +356,22 @@ export function checkTransaction(t: DbTransaction, model: DbModelData): string {
       return `Transaction to value ${t.TO_VALUE} isn't a number`;
     }
   }
+  if(t.RECURRENCE.length > 0){
+    const lastChar = t.RECURRENCE.substring(t.RECURRENCE.length - 1);
+    // log(`lastChar of ${t.RECURRENCE} = ${lastChar}`);
+    if(!(lastChar==='m' || lastChar==='y')){
+      return `transaction recurrence '${t.RECURRENCE}' must end in m or y`;
+    }
+    const firstPart = t.RECURRENCE.substring(0, t.RECURRENCE.length - 1);
+    // log(`firstPart of ${t.RECURRENCE} = ${firstPart}`);
+
+    const val = parseFloat(firstPart);
+    // log(`val from ${t.RECURRENCE} = ${val}`);
+    if (Number.isNaN(val)) {
+      return `transaction recurrence '${t.RECURRENCE}' must `
+        + 'be a number ending in m or y';
+    }
+  }
 
   const tToValue = parseFloat(t.TO_VALUE);
   if (t.NAME.startsWith(conditional)) {
