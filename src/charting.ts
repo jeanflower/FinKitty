@@ -81,22 +81,21 @@ function getCategoryFromItems(name: string, items: DbItemCategory[]) {
   return undefined;
 }
 
-function getCategory(name: string, model: DbModelData) {
-  // log(`get category for ${name}`);
-  const firstPart = name.split(separator)[0];
-  let category: string | undefined = getCategoryFromItems(firstPart, model.incomes);
+function getCategorySub(name: string, model: DbModelData) {
+  // log(`look for category for ${name}`);
+  let category: string | undefined = getCategoryFromItems(name, model.incomes);
   if (category === undefined) {
-    category = getCategoryFromItems(firstPart, model.expenses);
+    category = getCategoryFromItems(name, model.expenses);
   }
   if (category === undefined) {
-    category = getCategoryFromItems(firstPart, model.assets);
+    category = getCategoryFromItems(name, model.assets);
   }
   if (category === undefined) {
-    category = getCategoryFromItems(firstPart, model.transactions);
+    category = getCategoryFromItems(name, model.transactions);
   }
   const foundTransaction = model.transactions.find(i => {
     const source1 = makeSourceForFromChange(i);
-    if (source1 === firstPart) {
+    if (source1 === name) {
       return true;
     }
     return false;
@@ -115,6 +114,29 @@ function getCategory(name: string, model: DbModelData) {
   }
   // log(`returning ${category}`);
   return category;
+}
+
+function getCategory(name: string, model: DbModelData) {
+  // log(`get category for ${name}`);
+  const words = name.split(separator);
+  if (words.length === 0) {
+    return '';
+  }
+  const firstPart = words[0];
+  const firstPartCat = getCategorySub(firstPart, model);
+  if (firstPartCat !== firstPart) {
+    return firstPartCat;
+  }
+  // maybe use second part? for growth or revalue
+  if (words.length > 1 && (firstPart === 'growth' || firstPart === 'Revalue')) {
+    const secondPart = words[1];
+    const secondPartCat = getCategorySub(secondPart, model);
+    if (secondPartCat !== secondPart) {
+      return firstPart + separator + secondPartCat;
+    }
+  }
+  // log(`no category for ${name}`);
+  return name;
 }
 
 function makeChartDataPoints(
@@ -697,10 +719,16 @@ export function makeChartDataFromEvaluations(
     );
     // log(`done making asset points@`);
     assetPoints.forEach(pr => {
-      result.assetData.push({
-        item: { NAME: pr.name },
-        chartDataPoints: pr.chartDataPoints,
-      });
+      if (
+        pr.chartDataPoints.findIndex(cdp => {
+          return cdp.y !== 0;
+        }) >= 0
+      ) {
+        result.assetData.push({
+          item: { NAME: pr.name },
+          chartDataPoints: pr.chartDataPoints,
+        });
+      }
     });
   }
 
@@ -717,10 +745,16 @@ export function makeChartDataFromEvaluations(
       model.settings,
     );
     expensePoints.forEach(pr => {
-      result.expensesData.push({
-        item: { NAME: pr.name },
-        chartDataPoints: pr.chartDataPoints,
-      });
+      if (
+        pr.chartDataPoints.findIndex(cdp => {
+          return cdp.y !== 0;
+        }) >= 0
+      ) {
+        result.expensesData.push({
+          item: { NAME: pr.name },
+          chartDataPoints: pr.chartDataPoints,
+        });
+      }
     });
   }
   const incomeDateNameValueMap = typeDateNameValueMap.get(
@@ -734,10 +768,16 @@ export function makeChartDataFromEvaluations(
       model.settings,
     );
     incomePoints.forEach(pr => {
-      result.incomesData.push({
-        item: { NAME: pr.name },
-        chartDataPoints: pr.chartDataPoints,
-      });
+      if (
+        pr.chartDataPoints.findIndex(cdp => {
+          return cdp.y !== 0;
+        }) >= 0
+      ) {
+        result.incomesData.push({
+          item: { NAME: pr.name },
+          chartDataPoints: pr.chartDataPoints,
+        });
+      }
     });
   }
 

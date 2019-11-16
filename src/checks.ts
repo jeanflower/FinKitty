@@ -10,7 +10,6 @@ import {
   birthDate,
   cgt,
   coarse,
-  conditional,
   cpi,
   expenseChartFocus,
   fine,
@@ -273,7 +272,7 @@ function checkTransactionTo(
 
   const i = incomes.find(ic => ic.NAME === word);
   if (i !== undefined) {
-    if (!t.NAME.startsWith(revalue)){
+    if (!t.NAME.startsWith(revalue)) {
       return `Transactions to incomes must begin '${revalue}'`;
     }
     // transacting on an income - check dates
@@ -289,7 +288,7 @@ function checkTransactionTo(
   const exp = expenses.find(e => e.NAME === word);
   if (exp !== undefined) {
     // transacting on an expense - must be a revaluation
-    if (!t.NAME.startsWith(revalue)){
+    if (!t.NAME.startsWith(revalue)) {
       return `Transactions to expenses must begin '${revalue}'`;
     }
     // transacting on an expense - check dates
