@@ -82,32 +82,38 @@ function getCategoryFromItems(name: string, items: DbItemCategory[]) {
 }
 
 function getCategory(name: string, model: DbModelData) {
-  let category: string | undefined = getCategoryFromItems(name, model.incomes);
+  // log(`get category for ${name}`);
+  const firstPart = name.split(separator)[0];
+  let category: string | undefined = getCategoryFromItems(firstPart, model.incomes);
   if (category === undefined) {
-    category = getCategoryFromItems(name, model.expenses);
+    category = getCategoryFromItems(firstPart, model.expenses);
   }
   if (category === undefined) {
-    category = getCategoryFromItems(name, model.assets);
+    category = getCategoryFromItems(firstPart, model.assets);
   }
   if (category === undefined) {
-    category = getCategoryFromItems(name, model.transactions);
+    category = getCategoryFromItems(firstPart, model.transactions);
   }
-  const found = model.transactions.find(i => {
+  const foundTransaction = model.transactions.find(i => {
     const source1 = makeSourceForFromChange(i);
-    if (source1 === name) {
+    if (source1 === firstPart) {
       return true;
     }
     return false;
   });
-  if (found !== undefined) {
-    if (found.CATEGORY.length > 0) {
-      return found.CATEGORY;
+  if (foundTransaction !== undefined) {
+    if (foundTransaction.CATEGORY.length > 0) {
+      // log(`returning transaction ${category}`);
+      return foundTransaction.CATEGORY;
     }
+    // log(`no transaction category`);
     return name;
   }
   if (category === undefined) {
+    // log(`no category`);
     return name;
   }
+  // log(`returning ${category}`);
   return category;
 }
 
@@ -332,6 +338,7 @@ export function makeChartDataFromEvaluations(
   model: DbModelData,
   evaluations: Evaluation[],
 ) {
+  // log(`entering makeChartDataFromEvaluations`);
   const expenseFocus: string = getSettings(
     model.settings,
     expenseChartFocus,

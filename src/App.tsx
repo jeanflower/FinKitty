@@ -250,7 +250,7 @@ async function refreshData() {
     type: 'stackedColumn',
     showInLegend: true,
   }));
-  const singleAssetChartData = assetData.map((x: ItemChartData) => ({
+  const assetChartData = assetData.map((x: ItemChartData) => ({
     dataPoints: x.chartDataPoints,
     name: x.item.NAME,
     type: 'stackedColumn',
@@ -266,7 +266,7 @@ async function refreshData() {
         modelData: model,
         expensesChartData,
         incomesChartData,
-        singleAssetChartData,
+        singleAssetChartData: assetChartData,
         modelNamesData: modelNames,
       },
       () => {
