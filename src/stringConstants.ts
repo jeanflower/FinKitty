@@ -111,3 +111,6 @@ export const conditional = 'Conditional';
 // and an absolute value for TO
 // Useful for recalibrating a model back with true values.
 export const revalue = 'Revalue';
+
+// Reported deltas on assets can be flagged as 'growth'
+export const growth = 'growth';

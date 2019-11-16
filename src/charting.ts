@@ -25,6 +25,7 @@ import {
   taxPot,
   viewDetail,
   viewFrequency,
+  growth,
 } from './stringConstants';
 import {
   ChartDataPoint,
@@ -128,7 +129,7 @@ function getCategory(name: string, model: DbModelData) {
     return firstPartCat;
   }
   // maybe use second part? for growth or revalue
-  if (words.length > 1 && (firstPart === 'growth' || firstPart === 'Revalue')) {
+  if (words.length > 1 && (firstPart === growth || firstPart === revalue)) {
     const secondPart = words[1];
     const secondPartCat = getCategorySub(secondPart, model);
     if (secondPartCat !== secondPart) {

@@ -38,6 +38,7 @@ import {
   viewDetail,
   viewDetailHint,
   viewFrequency,
+  growth,
 } from '../../stringConstants';
 import {
   ChartDataPoint,
@@ -1603,7 +1604,7 @@ describe('evaluations tests', () => {
     }
 
     expect(result.assetData[1].item.NAME).toBe(
-      'growth' + separator + 'savings',
+      growth + separator + 'savings',
     );
     {
       const chartPts = result.assetData[1].chartDataPoints;

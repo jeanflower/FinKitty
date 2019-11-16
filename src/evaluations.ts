@@ -15,6 +15,7 @@ import {
   roiEnd,
   separator,
   taxPot,
+  growth,
 } from './stringConstants';
 import {
   DatedThing,
@@ -1858,7 +1859,7 @@ export function getEvaluations(data: DbModelData): Evaluation[] {
         // data to plot.
         // if(change!==0){ TODO - do we want to log no-change evaluations?
         // log('in getEvaluations, setValue:');
-        setValue(values, evaluations, moment.date, moment.name, x, 'growth');
+        setValue(values, evaluations, moment.date, moment.name, x, growth);
         // }
         if (moment.type === momentType.asset) {
           // some assets experience growth which is
