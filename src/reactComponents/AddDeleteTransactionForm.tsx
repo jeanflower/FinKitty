@@ -385,7 +385,7 @@ export class AddDeleteTransactionForm extends Component<
     let fromValue = this.state.FROM_VALUE;
     if (this.state.FROM === '') {
       if (fromAbsolute === '') {
-        log('setting fromAbsolute = True');
+        // log('setting fromAbsolute = True');
         fromAbsolute = 'True';
       }
       if (fromValue === '') {

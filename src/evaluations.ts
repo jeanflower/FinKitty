@@ -1149,27 +1149,36 @@ function revalueApplied(
   values: Map<string, number>,
   evaluations: Evaluation[],
 ) {
-  const tToValue = parseFloat(t.TO_VALUE);
-  if (t.NAME.startsWith(revalue)) {
-    // log(`it's a revaluation`)
-    if (t.FROM !== '') {
-      log(
-        `WARNING : FROM supplied for a revaluation transaction ${showObj(t)}`,
-      );
-    }
+  if (!t.NAME.startsWith(revalue)) {
+    return false;
+  }
+  // log(`it's a revaluation`)
+  if (t.FROM !== '') {
+    log(
+      'WARNING : FROM supplied but no used ' +
+        `for a revaluation transaction ${showObj(t)}`,
+    );
+  }
+  let tToValue = parseFloat(t.TO_VALUE);
+  const words = t.TO.split(separator);
+  words.forEach(w => {
     if (!t.TO_ABSOLUTE) {
-      log(
-        `WARNING : proportional value supplied for a revaluation transaction ${showObj(
-          t,
-        )}`,
-      );
+      const prevValue = values.get(w);
+      if (prevValue === undefined) {
+        log(
+          'WARNING : proportional value supplied' +
+            ' for a revaluation transaction' +
+            ` with no prev value ${showObj(t)}`,
+        );
+      } else {
+        tToValue = prevValue * parseFloat(t.TO_VALUE);
+      }
     }
     // log(`passing ${t.TO_VALUE} as new value of ${moment.name}`);
     // log('in revalueApplied, setValue:');
-    setValue(values, evaluations, moment.date, t.TO, tToValue, revalue);
-    return true;
-  }
-  return false;
+    setValue(values, evaluations, moment.date, w, tToValue, revalue);
+  });
+  return true;
 }
 
 function calculateFromChange(
@@ -1192,7 +1201,9 @@ function calculateFromChange(
     preToValue !== undefined &&
     preToValue >= 0
   ) {
-    // don't need to maintain this
+    // don't need to perform this transaction
+    // no need to 'maintain' value of to-asset
+    // as it's already >= 0
     // log(`no need to maintain ${t.TO} from ${t.FROM} `
     //   +`as targetValue = ${targetValue}`)
     return undefined;
@@ -1201,12 +1212,11 @@ function calculateFromChange(
     if (
       t.NAME.startsWith(conditional) &&
       preToValue !== undefined &&
-      preToValue > -fromChange &&
       !t.TO_ABSOLUTE &&
-      tToValue === 1.0
+      preToValue > -fromChange * tToValue
     ) {
       // log(`cap conditional amount - we only need ${preToValue}`);
-      fromChange = -preToValue;
+      fromChange = -preToValue / tToValue;
     }
   } else {
     // relative amounts behave differently for conditionals
@@ -1214,7 +1224,7 @@ function calculateFromChange(
       if (preToValue !== undefined) {
         // proportion of target
         // log(`use proportion of target amount; proportion of ${preToValue}`);
-        fromChange = -preToValue * tFromValue;
+        fromChange = (-preToValue * tFromValue) / tToValue;
       }
     } else {
       // proportion of source
@@ -1520,7 +1530,7 @@ function processTransactionMoment(
   // log(`process transaction ${showObj(t)}`);
 
   // Some transactions are simple Revalues.  They have no
-  // FROM and an absolute value for TO.  Code similar to application
+  // FROM and a value for TO.  Code similar to application
   // of growth to assets, except we know the new value.
   if (revalueApplied(t, moment, values, evaluations)) {
     return;

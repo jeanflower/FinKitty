@@ -252,6 +252,60 @@ export function checkExpense(e: DbExpense, model: DbModelData): string {
   }
   return '';
 }
+function checkTransactionTo(
+  word: string,
+  t: DbTransaction,
+  assetsForChecking: DbAsset[],
+  incomes: DbIncome[],
+  expenses: DbExpense[],
+  triggers: DbTrigger[],
+) {
+  const a = assetsForChecking.find(as => as.NAME === word);
+  if (a !== undefined) {
+    if (getTriggerDate(a.START, triggers) > getTriggerDate(t.DATE, triggers)) {
+      return (
+        `Transaction ${t.NAME} dated before start ` +
+        `of affected asset : ${a.NAME}`
+      );
+    }
+    return '';
+  }
+
+  const i = incomes.find(ic => ic.NAME === word);
+  if (i !== undefined) {
+    if (!t.NAME.startsWith(revalue)){
+      return `Transactions to incomes must begin '${revalue}'`;
+    }
+    // transacting on an income - check dates
+    if (getTriggerDate(i.START, triggers) > getTriggerDate(t.DATE, triggers)) {
+      return (
+        `Transaction ${t.NAME} dated before start ` +
+        `of affected income : ${i.NAME}`
+      );
+    }
+    return '';
+  }
+
+  const exp = expenses.find(e => e.NAME === word);
+  if (exp !== undefined) {
+    // transacting on an expense - must be a revaluation
+    if (!t.NAME.startsWith(revalue)){
+      return `Transactions to expenses must begin '${revalue}'`;
+    }
+    // transacting on an expense - check dates
+    if (
+      getTriggerDate(exp.START, triggers) > getTriggerDate(t.DATE, triggers)
+    ) {
+      return (
+        `Transaction ${t.NAME} dated before start ` +
+        `of affected expense : ${exp.NAME}`
+      );
+    }
+    return '';
+  }
+  return `Transaction to unrecognised thing : ${word}`;
+}
+
 export function checkTransaction(t: DbTransaction, model: DbModelData): string {
   // log(`checking transaction ${showObj(t)}`);
   const { assets, incomes, expenses, triggers } = model;
@@ -307,59 +361,45 @@ export function checkTransaction(t: DbTransaction, model: DbModelData): string {
     }
   }
   if (t.TO !== '') {
-    const a = assetsForChecking.find(as => as.NAME === t.TO);
-    if (a === undefined) {
-      // not an asset
-      // maybe the transaction is a Revalue?
-      if (t.NAME.startsWith(revalue)) {
-        // revalue an income?
-        const i = incomes.find(ic => ic.NAME === t.TO);
-        if (i === undefined) {
-          // revalue an expense?
-          const exp = expenses.find(e => e.NAME === t.TO);
-          if (exp === undefined) {
-            return `Transaction to unrecognised asset : ${t.TO}`;
-          }
-          // transacting on an expense - check dates
-          if (
-            getTriggerDate(exp.START, triggers) >
-            getTriggerDate(t.DATE, triggers)
-          ) {
-            return (
-              `Transaction ${t.NAME} dated before start ` +
-              `of affected expense : ${exp.NAME}`
-            );
-          }
-        } else {
-          // transacting on an income - check dates
-          if (
-            getTriggerDate(i.START, triggers) > getTriggerDate(t.DATE, triggers)
-          ) {
-            return (
-              `Transaction ${t.NAME} dated before start ` +
-              `of affected income : ${i.NAME}`
-            );
-          }
+    if (t.NAME.startsWith(revalue)) {
+      const words = t.TO.split(separator);
+      for (let idx = 0; idx < words.length; idx += 1) {
+        const w = words[idx];
+        const outcome = checkTransactionTo(
+          w,
+          t,
+          assetsForChecking,
+          incomes,
+          expenses,
+          triggers,
+        );
+        if (outcome.length < 0) {
+          return outcome;
         }
-      } else {
-        return `Transaction to unrecognised asset : ${t.TO}`;
       }
-    } else if (
-      getTriggerDate(a.START, triggers) > getTriggerDate(t.DATE, triggers)
-    ) {
-      return `Transaction dated before to asset : ${t.TO}`;
+    } else {
+      const outcome = checkTransactionTo(
+        t.TO,
+        t,
+        assetsForChecking,
+        incomes,
+        expenses,
+        triggers,
+      );
+      if (outcome.length < 0) {
+        return outcome;
+      }
     }
-    // log(`to asset starts ${getTriggerDate(a.ASSET_START, triggers)}`);
     if (t.TO_VALUE === '') {
       return `Transaction to ${t.TO} needs a non-empty to value`;
     } else if (Number.isNaN(parseFloat(t.TO_VALUE))) {
       return `Transaction to value ${t.TO_VALUE} isn't a number`;
     }
   }
-  if(t.RECURRENCE.length > 0){
+  if (t.RECURRENCE.length > 0) {
     const lastChar = t.RECURRENCE.substring(t.RECURRENCE.length - 1);
     // log(`lastChar of ${t.RECURRENCE} = ${lastChar}`);
-    if(!(lastChar==='m' || lastChar==='y')){
+    if (!(lastChar === 'm' || lastChar === 'y')) {
       return `transaction recurrence '${t.RECURRENCE}' must end in m or y`;
     }
     const firstPart = t.RECURRENCE.substring(0, t.RECURRENCE.length - 1);
@@ -368,18 +408,14 @@ export function checkTransaction(t: DbTransaction, model: DbModelData): string {
     const val = parseFloat(firstPart);
     // log(`val from ${t.RECURRENCE} = ${val}`);
     if (Number.isNaN(val)) {
-      return `transaction recurrence '${t.RECURRENCE}' must `
-        + 'be a number ending in m or y';
+      return (
+        `transaction recurrence '${t.RECURRENCE}' must ` +
+        'be a number ending in m or y'
+      );
     }
   }
 
   const tToValue = parseFloat(t.TO_VALUE);
-  if (t.NAME.startsWith(conditional)) {
-    if (!t.FROM_ABSOLUTE && (t.TO_ABSOLUTE || tToValue !== 1.0)) {
-      log(`WARNING : unexpected stopping condition implemented for ${t.NAME}`);
-    }
-  }
-
   const tFromValue = parseFloat(t.FROM_VALUE);
   // log(`transaction ${showObj(t)} appears OK`);
   if (!t.FROM_ABSOLUTE && tFromValue > 1.0) {
