@@ -1872,27 +1872,27 @@ export class App extends Component<{}, AppState> {
                   },
                   {
                     ...defaultColumn,
-                    key: 'ASSET_VALUE',
+                    key: 'VALUE',
                     name: 'value',
                   },
                   {
                     ...defaultColumn,
-                    key: 'ASSET_START',
+                    key: 'START',
                     name: 'start',
                   },
                   {
                     ...defaultColumn,
-                    key: 'ASSET_GROWTH',
+                    key: 'GROWTH',
                     name: 'growth',
                   },
                   {
                     ...defaultColumn,
-                    key: 'ASSET_LIABILITY',
+                    key: 'LIABILITY',
                     name: 'liability',
                   },
                   {
                     ...defaultColumn,
-                    key: 'ASSET_PURCHASE_PRICE',
+                    key: 'PURCHASE_PRICE',
                     name: 'purchase price',
                   },
                   {
