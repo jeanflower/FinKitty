@@ -1603,9 +1603,7 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 1, 'Sat Dec 01 2018', 500, -1);
     }
 
-    expect(result.assetData[1].item.NAME).toBe(
-      growth + separator + 'savings',
-    );
+    expect(result.assetData[1].item.NAME).toBe(growth + separator + 'savings');
     {
       const chartPts = result.assetData[1].chartDataPoints;
       expect(chartPts.length).toBe(2);

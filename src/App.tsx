@@ -275,7 +275,8 @@ async function refreshData() {
         // https://www.freecodecamp.org/news/get-pro-with-react-setstate-in-10-minutes-d38251d1c781/
         if (printDebug()) {
           log(
-            `reactAppComponent.state.expensesChartDataValue = ${reactAppComponent.state.expensesChartData}`,
+            'reactAppComponent.state.expensesChartDataValue = ' +
+              `${reactAppComponent.state.expensesChartData}`,
           );
           reactAppComponent.state.expensesChartData.map((obj: ChartData) =>
             log(`obj is ${showObj(obj)}`),
