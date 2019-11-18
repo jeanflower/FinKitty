@@ -51,13 +51,26 @@ export function getMonthlyGrowth(annualPercentage: number) {
   return monthlyGrowth;
 }
 
-export function checkTriggerDate(triggerName: string, triggers: DbTrigger[]) {
+// returns a date for a trigger, or undefined
+function createTriggerDate(triggerName: string, triggers: DbTrigger[]) {
   // log('look for '+triggerName+'in '+triggers.map(showObj))
   const matched = triggers.filter(trigger => trigger.NAME === triggerName);
   // log('matched = '+showObj(matched));
-  let result;
+  let result = undefined;
   if (matched.length !== 0) {
     result = new Date(matched[0].DATE); // copy
+  }
+  return result;
+}
+
+// returns a date for a trigger or for a date string, or undefined for junk
+export function checkTriggerDate(triggerName: string, triggers: DbTrigger[]) {
+  // log('look for '+triggerName+'in '+triggers.map(showObj))
+  const matched = createTriggerDate(triggerName, triggers);
+  // log('matched = '+showObj(matched));
+  let result;
+  if (matched !== undefined) {
+    result = matched; // copy
   } else {
     const dateTry = new Date(triggerName);
     if (dateTry.getTime()) {
@@ -74,10 +87,22 @@ export function checkTriggerDate(triggerName: string, triggers: DbTrigger[]) {
 // Suppresses any not-understood values and returns new Date()
 export function getTriggerDate(triggerName: string, triggers: DbTrigger[]) {
   const checkResult = checkTriggerDate(triggerName, triggers);
-  if (checkResult === undefined) {
-    return new Date();
+  if (checkResult !== undefined) {
+    return checkResult;
   }
-  return checkResult;
+  return new Date();
+}
+
+// returns a date string for a trigger, or '' for date or junk
+export function makeTooltip(inputText: string, triggers: DbTrigger[]) {
+  if (inputText.length === 0) {
+    return '';
+  }
+  const date = createTriggerDate(inputText, triggers);
+  if (date === undefined) {
+    return '';
+  }
+  return date.toDateString();
 }
 
 export function makeTwoDP(x: number) {

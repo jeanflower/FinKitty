@@ -106,6 +106,7 @@ import {
   printDebug,
   showObj,
 } from './utils';
+import TriggerDateFormatter from './reactComponents/TriggerDateFormatter';
 // import './bootstrap.css'
 
 const { CanvasJSChart } = CanvasJSReact;
@@ -1268,16 +1269,34 @@ export class App extends Component<{}, AppState> {
                     ...defaultColumn,
                     key: 'VALUE_SET',
                     name: 'value date',
+                    formatter: (
+                      <TriggerDateFormatter
+                        triggers={this.state.modelData.triggers}
+                        value="unset"
+                      />
+                    ),
                   },
                   {
                     ...defaultColumn,
                     key: 'START',
                     name: 'start',
+                    formatter: (
+                      <TriggerDateFormatter
+                        triggers={this.state.modelData.triggers}
+                        value="unset"
+                      />
+                    ),
                   },
                   {
                     ...defaultColumn,
                     key: 'END',
                     name: 'end',
+                    formatter: (
+                      <TriggerDateFormatter
+                        triggers={this.state.modelData.triggers}
+                        value="unset"
+                      />
+                    ),
                   },
                   {
                     ...defaultColumn,
@@ -1431,16 +1450,34 @@ export class App extends Component<{}, AppState> {
                     ...defaultColumn,
                     key: 'VALUE_SET',
                     name: 'value date',
+                    formatter: (
+                      <TriggerDateFormatter
+                        triggers={this.state.modelData.triggers}
+                        value="unset"
+                      />
+                    ),
                   },
                   {
                     ...defaultColumn,
                     key: 'START',
                     name: 'start',
+                    formatter: (
+                      <TriggerDateFormatter
+                        triggers={this.state.modelData.triggers}
+                        value="unset"
+                      />
+                    ),
                   },
                   {
                     ...defaultColumn,
                     key: 'END',
                     name: 'end',
+                    formatter: (
+                      <TriggerDateFormatter
+                        triggers={this.state.modelData.triggers}
+                        value="unset"
+                      />
+                    ),
                   },
                   {
                     ...defaultColumn,
@@ -1880,6 +1917,12 @@ export class App extends Component<{}, AppState> {
                     ...defaultColumn,
                     key: 'START',
                     name: 'start',
+                    formatter: (
+                      <TriggerDateFormatter
+                        triggers={this.state.modelData.triggers}
+                        value="unset"
+                      />
+                    ),
                   },
                   {
                     ...defaultColumn,
@@ -2013,6 +2056,12 @@ export class App extends Component<{}, AppState> {
                   ...defaultColumn,
                   key: 'DATE',
                   name: 'date',
+                  formatter: (
+                    <TriggerDateFormatter
+                      triggers={this.state.modelData.triggers}
+                      value="unset"
+                    />
+                  ),
                 },
                 {
                   ...defaultColumn,

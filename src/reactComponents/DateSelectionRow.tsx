@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { DbTrigger } from '../types/interfaces';
 import { TriggerOptionList } from './TriggerOptionList';
 import ReactTooltip from 'react-tooltip';
-import { checkTriggerDate } from '../utils';
+import { makeTooltip } from '../utils';
 
 interface DateSelectionProps {
   introLabel: string;
@@ -15,16 +15,6 @@ interface DateSelectionProps {
   submitTrigger: any;
 }
 export class DateSelectionRow extends Component<DateSelectionProps, {}> {
-  private makeTooltip(inputText: string) {
-    if (inputText.length === 0) {
-      return '';
-    }
-    const date = checkTriggerDate(inputText, this.props.triggers);
-    if (date === undefined) {
-      return '';
-    }
-    return date.toDateString();
-  }
   public render() {
     // log('rendering a DateSelectionRow');
     return (
@@ -59,7 +49,7 @@ export class DateSelectionRow extends Component<DateSelectionProps, {}> {
               this.props.onChangeHandler // e.g. this.handleValueSetChange
             }
             className="form-control"
-            data-tip={this.makeTooltip(this.props.inputValue)}
+            data-tip={makeTooltip(this.props.inputValue, this.props.triggers)}
           />
         </div>
         {/* end col */}
