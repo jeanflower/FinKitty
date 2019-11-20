@@ -5,9 +5,9 @@ import { DbIncome, DbModelData } from '../types/interfaces';
 import {
   checkTriggerDate,
   log,
-  makeBooleanFromString,
   printDebug,
   showObj,
+  makeBooleanFromYesNo,
 } from '../utils';
 import Button from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
@@ -93,6 +93,18 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
           </div>{' '}
           {/* end col */}
           <div className="col">
+            <Button
+              action={this.delete}
+              type={'secondary'}
+              title={'Delete any income with this name'}
+              id="deleteIncome"
+            />
+          </div>{' '}
+          {/* end col */}
+        </div>{' '}
+        {/* end row */}
+        <div className="row">
+          <div className="col">
             <Input
               title="Income value (amount per month):"
               type="text"
@@ -157,7 +169,7 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
               type="text"
               name="cpi-immune"
               value={this.state.CPI_IMMUNE}
-              placeholder="Enter T/F"
+              placeholder="Enter Y/N"
               onChange={this.handleFixedChange}
             />
           </div>{' '}
@@ -197,12 +209,6 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
           }
           id="addIncome"
         />
-        <Button
-          action={this.delete}
-          type={'secondary'}
-          title={'Delete any income with this name'}
-          id="deleteIncome"
-        />
       </form>
     );
   }
@@ -224,7 +230,16 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
   }
   private handleFixedChange(e: any) {
     const value = e.target.value;
-    this.setState({ CPI_IMMUNE: value });
+    if(value === ''){
+      this.setState({ CPI_IMMUNE: '' });
+      return;
+    }
+    const parsedYN = makeBooleanFromYesNo(value);
+    if(parsedYN.checksOK){
+      this.setState({ CPI_IMMUNE: value });
+    } else {
+      alert(`Couldn't understand ${value} as a Yes/No value`);
+    }
   }
   private handleValueChange(e: any) {
     const value = e.target.value;
@@ -305,9 +320,9 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
       alert(`Growth value '${this.state.GROWTH}' should be a numerical value`);
       return;
     }
-    const s = this.state.CPI_IMMUNE.toLowerCase();
-    if (!(s === 'f' || s === 't' || s === 'false' || s === 'true')) {
-      alert(`Fixed '${this.state.CPI_IMMUNE}' should be a True/False value`);
+    const parseYN = makeBooleanFromYesNo(this.state.CPI_IMMUNE);
+    if(!parseYN.checksOK){
+      alert(`Fixed '${this.state.CPI_IMMUNE}' should be a Y/N value`);
       return;
     }
     const liabilityMessage = checkIncomeLiability(this.state.LIABILITY);
@@ -324,7 +339,7 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
       START: this.state.START,
       END: this.state.END,
       GROWTH: this.state.GROWTH,
-      CPI_IMMUNE: makeBooleanFromString(this.state.CPI_IMMUNE),
+      CPI_IMMUNE: parseYN.value,
       LIABILITY: this.state.LIABILITY,
       CATEGORY: this.state.CATEGORY,
     };

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
 import { DbModelData, DbTrigger } from '../types/interfaces';
-import { log, printDebug, showObj } from '../utils';
+import { log, printDebug, showObj, makeDateFromString } from '../utils';
 import Button from './Button';
 import Input from './Input';
 
@@ -33,7 +33,7 @@ export function newTriggerButtonData(submitTrigger: any, selectId: string) {
         alert(`date didn't make sense`);
         return;
       }
-      const dateTry = new Date(dateString);
+      const dateTry = makeDateFromString(dateString);
       if (!dateTry.getTime()) {
         alert(`date didn't make sense`);
         return;
@@ -78,36 +78,51 @@ export class AddDeleteTriggerForm extends Component<EditProps, EditFormState> {
   public render() {
     return (
       <form className="container-fluid" onSubmit={this.add}>
-        Name:
-        <Input
-          type={'text'}
-          name={'name'}
-          value={this.state.NAME}
-          placeholder={'Enter name'}
-          onChange={this.handleName}
-        />{' '}
-        Date:
-        <Input
-          type={'text'}
-          name={'date'}
-          value={this.state.DATE}
-          placeholder={'Enter date'}
-          onChange={this.handleValueChange}
-        />{' '}
-        <Button
-          action={this.add}
-          type={'primary'}
-          title={
-            'Create new important date (over-writes any existing with the same name)'
-          }
-          id="addTrigger"
-        />{' '}
-        <Button
-          action={this.delete}
-          type={'secondary'}
-          title={'Delete any important date with this name'}
-          id="deleteTrigger"
-        />{' '}
+        <div className="row">
+          <div className="col">
+          Name:
+          <Input
+            type={'text'}
+            name={'name'}
+            value={this.state.NAME}
+            placeholder={'Enter name'}
+            onChange={this.handleName}
+          />
+          </div>{' '}
+          {/* end col */}
+          <div className="col">
+          <Button
+            action={this.delete}
+            type={'secondary'}
+            title={'Delete any important date with this name'}
+            id="deleteTrigger"
+          />
+          </div>{' '}
+          {/* end col */}
+        </div>{' '}
+        {/* end row */}
+        <div className="row">
+          <div className="col">
+          Date:
+          <Input
+            type={'text'}
+            name={'date'}
+            value={this.state.DATE}
+            placeholder={'Enter date'}
+            onChange={this.handleValueChange}
+          />
+          <Button
+            action={this.add}
+            type={'primary'}
+            title={
+              'Create new important date (over-writes any existing with the same name)'
+            }
+            id="addTrigger"
+          />
+          </div>{' '}
+          {/* end col */}
+        </div>{' '}
+        {/* end row */}
       </form>
     );
   }
@@ -127,7 +142,7 @@ export class AddDeleteTriggerForm extends Component<EditProps, EditFormState> {
     // log('adding something ' + showObj(this));
     const trigger: DbTrigger = {
       NAME: this.state.NAME,
-      DATE: new Date(this.state.DATE),
+      DATE: makeDateFromString(this.state.DATE),
     };
     const message = this.props.checkFunction(trigger, this.props.model);
     if (message.length > 0) {

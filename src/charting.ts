@@ -36,7 +36,7 @@ import {
   Evaluation,
   Interval,
 } from './types/interfaces';
-import { getSettings, log, makeTwoDP, printDebug, showObj } from './utils';
+import { getSettings, log, makeTwoDP, printDebug, showObj, makeDateFromString } from './utils';
 
 function logMapOfMap(twoMap: any, display = false) {
   if (display) {
@@ -187,7 +187,7 @@ function makeChartDataPoints(
         const birthDateSetting = getSettings(settings, birthDate, '');
         let dataLabel = dateString;
         if (birthDateSetting !== '') {
-          const diff = date.getTime() - new Date(birthDateSetting).getTime();
+          const diff = date.getTime() - makeDateFromString(birthDateSetting).getTime();
           const age = Math.floor(diff / 31557600000); // Divide by 1000*60*60*24*365.25
           // log(`age from birthDate '${birthDateSetting}' = ${age}`);
           dataLabel = `${age}`;
@@ -801,10 +801,10 @@ export function makeChartData(model: DbModelData): DataForView {
     return emptyData;
   }
 
-  const roiStartDate: Date = new Date(
+  const roiStartDate: Date = makeDateFromString(
     getSettings(model.settings, roiStart, 'Oct 1, 2017'),
   );
-  const roiEndDate: Date = new Date(
+  const roiEndDate: Date = makeDateFromString(
     getSettings(model.settings, roiEnd, 'Oct 1, 2022'),
   );
   const roi = {

@@ -146,6 +146,15 @@ export class AddDeleteTransactionForm extends Component<
             />
           </div>{' '}
           {/* end col */}
+          <div className="col">
+            <Button
+              action={this.delete}
+              type={'secondary'}
+              title={'Delete any transaction with this name'}
+              id="deleteTransaction"
+            />
+          </div>{' '}
+          {/* end col */}
         </div>
         {/* end row */}
 
@@ -266,12 +275,6 @@ export class AddDeleteTransactionForm extends Component<
             'Create new transaction (over-writes any existing with the same name)'
           }
           id="addTransaction"
-        />
-        <Button
-          action={this.delete}
-          type={'secondary'}
-          title={'Delete any transaction with this name'}
-          id="deleteTransaction"
         />
       </form>
     );

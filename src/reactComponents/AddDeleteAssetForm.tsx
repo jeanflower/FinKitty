@@ -77,6 +77,18 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
           </div>{' '}
           {/* end col */}
           <div className="col">
+            <Button
+                action={this.delete}
+                type={'secondary'}
+                title={'Delete any asset with this name'}
+                id="deleteAsset"
+            />
+          </div>{' '}
+          {/* end col */}
+        </div>
+        {/* end row */}
+        <div className="row">
+          <div className="col">
             <Input
               title="Asset value:"
               type="text"
@@ -160,12 +172,6 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
             'Create new asset (over-writes any existing with the same name)'
           }
           id="addAsset"
-        />
-        <Button
-          action={this.delete}
-          type={'secondary'}
-          title={'Delete any asset with this name'}
-          id="deleteAsset"
         />
       </form>
     );

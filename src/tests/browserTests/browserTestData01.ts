@@ -5,7 +5,7 @@ import {
   roiStart,
 } from '../../stringConstants';
 import { DbModelData } from '../../types/interfaces';
-import { setSetting } from '../../utils';
+import { setSetting, makeDateFromString } from '../../utils';
 import {
   browserTestSettings,
   simpleAsset,
@@ -167,15 +167,15 @@ export function getTestModel01() {
     triggers: [
       {
         NAME: 'TransferMortgage',
-        DATE: new Date('Jan 01 2028'),
+        DATE: makeDateFromString('Jan 01 2028'),
       },
       {
         NAME: 'StopMainWork',
-        DATE: new Date('Dec 31 2050'),
+        DATE: makeDateFromString('Dec 31 2050'),
       },
       {
         NAME: 'GetRidOfCar',
-        DATE: new Date('Dec 31 2025'),
+        DATE: makeDateFromString('Dec 31 2025'),
       },
     ],
   };

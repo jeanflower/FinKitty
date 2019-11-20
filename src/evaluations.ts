@@ -36,6 +36,7 @@ import {
   log,
   printDebug,
   showObj,
+  makeDateFromString,
 } from './utils';
 
 function parseRecurrenceString(recurrence: string) {
@@ -337,7 +338,7 @@ function updateValueForCPI(
   return result;
 }
 
-const taxBandsSet = new Date('April 5 2018');
+const taxBandsSet = makeDateFromString('April 5 2018');
 const noTaxBandSet = 12500;
 const lowTaxBandSet = 50000;
 const highTaxBandSet = 150000;
@@ -410,7 +411,7 @@ function calculateTaxPayable(income: number, d: Date, cpiVal: number) {
   return taxPayable;
 }
 
-const NIBandsSet = new Date('April 5 2018');
+const NIBandsSet = makeDateFromString('April 5 2018');
 const noNIBandSet = 8628;
 const lowNIBandSet = 50004;
 
@@ -464,7 +465,7 @@ function calculateNIPayable(income: number, d: Date, cpiVal: number) {
   return NIPayable;
 }
 
-const CGTBandsSet = new Date('April 5 2018');
+const CGTBandsSet = makeDateFromString('April 5 2018');
 const noCGTBandSet = 12000;
 
 function calculateCGTPayable(gain: number, d: Date, cpiVal: number) {
@@ -1634,7 +1635,7 @@ export function getEvaluations(data: DbModelData): Evaluation[] {
     return result;
   }
   // log('in getEvaluations');
-  const roiEndDate: Date = new Date(
+  const roiEndDate: Date = makeDateFromString(
     getSettings(data.settings, roiEnd, '1 Jan 1999'),
   );
 

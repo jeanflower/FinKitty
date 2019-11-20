@@ -1,5 +1,6 @@
 import { DbSetting, DbTrigger } from './types/interfaces';
 import { cgt } from './stringConstants';
+import moment from 'moment';
 
 export function printDebug(): boolean {
   return false;
@@ -10,7 +11,7 @@ export function showObj(obj: any) {
 }
 
 export function endOfTime() {
-  return new Date('2100');
+  return makeDateFromString('2100');
 }
 
 let doLog = true;
@@ -202,6 +203,9 @@ export function makeStringFromValueAbsProp(value: string, absolute: boolean) {
 export function makeStringFromCashValue(input: string) {
   // formatting from 34567.23 as £34,567.23
   // log(`formatting ${input} as a cash value`);
+  if(input === ''){
+    return '';
+  }
   let n = parseFloat(input);
   const negative = n < 0;
   if (negative) {
@@ -246,7 +250,10 @@ export function getMonthlyGrowth(annualPercentage: number) {
 }
 
 // returns a date for a trigger, or undefined
-function createTriggerDate(triggerName: string, triggers: DbTrigger[]) {
+function findMatchedTriggerDate(
+  triggerName: string, 
+  triggers: DbTrigger[]
+) {
   // log('look for '+triggerName+'in '+triggers.map(showObj))
   const matched = triggers.filter(trigger => trigger.NAME === triggerName);
   // log('matched = '+showObj(matched));
@@ -257,20 +264,41 @@ function createTriggerDate(triggerName: string, triggers: DbTrigger[]) {
   return result;
 }
 
+export function makeDateFromString(input:string){
+
+  // special-case parsing for DD/MM/YYYY
+  let dateMomentObject = moment(input, "DD/MM/YYYY"); // 1st argument - string, 2nd argument - format
+  let dateObject = dateMomentObject.toDate(); // convert moment.js object to Date object  
+  if(!Number.isNaN(dateObject.getTime())){
+    // log(`converted ${input} into ${dateObject.toDateString()}`);
+    return dateObject;
+  }
+  dateMomentObject = moment(input, "DD/MM/YY"); // 1st argument - string, 2nd argument - format
+  dateObject = dateMomentObject.toDate(); // convert moment.js object to Date object  
+  if(!Number.isNaN(dateObject.getTime())){
+    // log(`converted ${input} into ${dateObject.toDateString()}`);
+    return dateObject;
+  }
+
+  const result = new Date(input);
+  // log(`converted ${input} into ${result.toDateString()}`);
+  return result;
+}
+
 // returns a date for a trigger or for a date string, or undefined for junk
-export function checkTriggerDate(triggerName: string, triggers: DbTrigger[]) {
-  // log('look for '+triggerName+'in '+triggers.map(showObj))
-  const matched = createTriggerDate(triggerName, triggers);
+export function checkTriggerDate(input: string, triggers: DbTrigger[]) {
+  // log('first look for '+input+'in '+triggers.map(showObj))
+  const matched = findMatchedTriggerDate(input, triggers);
   // log('matched = '+showObj(matched));
   let result;
   if (matched !== undefined) {
     result = matched; // copy
   } else {
-    const dateTry = new Date(triggerName);
+    const dateTry = makeDateFromString(input);
     if (dateTry.getTime()) {
       result = dateTry;
     } else {
-      log(`BUG : unknown trigger!!! ${triggerName}`);
+      // log(`BUG : unrecognised date!!! ${input}`);
       result = undefined;
     }
   }
@@ -316,11 +344,11 @@ export function makeGrowthTooltip(input: string, settings: DbSetting[]) {
   return '';
 }
 // returns a date string for a trigger, or '' for date or junk
-export function makeDateTooltip(inputText: string, triggers: DbTrigger[]) {
-  if (inputText === '') {
+export function makeDateTooltip(input: string, triggers: DbTrigger[]) {
+  if (input === '') {
     return '';
   }
-  const date = createTriggerDate(inputText, triggers);
+  const date = checkTriggerDate(input, triggers);
   if (date === undefined) {
     return '';
   }

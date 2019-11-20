@@ -111,6 +111,7 @@ import {
   makeStringFromGrowth,
   makePurchasePriceFromString,
   makeStringFromPurchasePrice,
+  makeDateFromString,
 } from './utils';
 import ToFromValueFormatter from './reactComponents/ToFromValueFormatter';
 import TriggerDateFormatter from './reactComponents/TriggerDateFormatter';
@@ -541,7 +542,7 @@ function handleTriggerGridRowsUpdated() {
   // log(`submitTrigger(trigger) has trigger = ${showObj(trigger)}`);
   const forSubmit: DbTrigger = {
     NAME: trigger.NAME,
-    DATE: new Date(trigger.DATE),
+    DATE: makeDateFromString(trigger.DATE),
   };
   const checks = checkTrigger(forSubmit);
   if (checks === '') {
@@ -2014,6 +2015,7 @@ export class App extends Component<{}, AppState> {
                     ...defaultColumn,
                     key: 'PURCHASE_PRICE',
                     name: 'purchase price',
+                    formatter: <CashValueFormatter value="unset" />,
                   },
                   {
                     ...defaultColumn,

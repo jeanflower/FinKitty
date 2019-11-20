@@ -34,6 +34,7 @@ import {
   DbTransaction,
   DbTrigger,
 } from '../../types/interfaces';
+import { makeDateFromString } from '../../utils';
 
 const simpleAsset: DbAsset = {
   NAME: 'NoName',
@@ -82,15 +83,15 @@ const simpleTransaction: DbTransaction = {
 export const testTriggers01: DbTrigger[] = [
   {
     NAME: 'TransferMortgage',
-    DATE: new Date('Jan 01 2028'),
+    DATE: makeDateFromString('Jan 01 2028'),
   },
   {
     NAME: 'StopMainWork',
-    DATE: new Date('Dec 31 2050'),
+    DATE: makeDateFromString('Dec 31 2050'),
   },
   {
     NAME: 'GetRidOfCar',
-    DATE: new Date('Dec 31 2025'),
+    DATE: makeDateFromString('Dec 31 2025'),
   },
 ];
 

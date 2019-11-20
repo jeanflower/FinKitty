@@ -14,6 +14,7 @@
     "chrome-headless": "^0.1.5",
     "chromedriver": "^78.0.1",
     "jquery": "^1.9.1",
+    "moment": "^2.24.0",
     "popper.js": "^1.16.0",
     "react": "^16.11.0",
     "react-data-grid": "^6.1.0",

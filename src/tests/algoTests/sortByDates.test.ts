@@ -1,6 +1,7 @@
 import { getYearOfTaxYear, momentType, sortByDate } from '../../evaluations';
 import { CASH_ASSET_NAME } from '../../stringConstants';
 import { DatedThing } from '../../types/interfaces';
+import { makeDateFromString } from '../../utils';
 
 describe('sortByDate', () => {
   it('sort empty list', () => {
@@ -11,7 +12,7 @@ describe('sortByDate', () => {
 
   it('sort list length 1', () => {
     const x1: DatedThing = {
-      date: new Date('May 2, 2018 00:00:00'),
+      date: makeDateFromString('May 2, 2018 00:00:00'),
       name: 'A',
       type: 'X',
     };
@@ -23,12 +24,12 @@ describe('sortByDate', () => {
 
   it('later Date comes first', () => {
     const x1: DatedThing = {
-      date: new Date('May 2, 2018 00:00:00'),
+      date: makeDateFromString('May 2, 2018 00:00:00'),
       name: 'A',
       type: 'X',
     };
     const x2: DatedThing = {
-      date: new Date('May 3, 2018 00:00:00'),
+      date: makeDateFromString('May 3, 2018 00:00:00'),
       name: 'A',
       type: 'X',
     };
@@ -46,12 +47,12 @@ describe('sortByDate', () => {
 
   it('later Date prioritised over name (1)', () => {
     const x1: DatedThing = {
-      date: new Date('May 2, 2018 00:00:00'),
+      date: makeDateFromString('May 2, 2018 00:00:00'),
       name: 'A',
       type: 'X',
     };
     const x2: DatedThing = {
-      date: new Date('May 3, 2018 00:00:00'),
+      date: makeDateFromString('May 3, 2018 00:00:00'),
       name: 'B',
       type: 'X',
     };
@@ -69,12 +70,12 @@ describe('sortByDate', () => {
 
   it('later Date prioritised over name (2)', () => {
     const x1: DatedThing = {
-      date: new Date('May 2, 2018 00:00:00'),
+      date: makeDateFromString('May 2, 2018 00:00:00'),
       name: 'B',
       type: 'X',
     };
     const x2: DatedThing = {
-      date: new Date('May 3, 2018 00:00:00'),
+      date: makeDateFromString('May 3, 2018 00:00:00'),
       name: 'A',
       type: 'X',
     };
@@ -91,12 +92,12 @@ describe('sortByDate', () => {
   });
   it('later Date prioritised over type (1)', () => {
     const x1: DatedThing = {
-      date: new Date('May 2, 2018 00:00:00'),
+      date: makeDateFromString('May 2, 2018 00:00:00'),
       name: 'A',
       type: 'X',
     };
     const x2: DatedThing = {
-      date: new Date('May 3, 2018 00:00:00'),
+      date: makeDateFromString('May 3, 2018 00:00:00'),
       name: 'A',
       type: 'Y',
     };
@@ -113,12 +114,12 @@ describe('sortByDate', () => {
   });
   it('later Date prioritised over type (2)', () => {
     const x1: DatedThing = {
-      date: new Date('May 2, 2018 00:00:00'),
+      date: makeDateFromString('May 2, 2018 00:00:00'),
       name: 'A',
       type: 'Y',
     };
     const x2: DatedThing = {
-      date: new Date('May 3, 2018 00:00:00'),
+      date: makeDateFromString('May 3, 2018 00:00:00'),
       name: 'A',
       type: 'X',
     };
@@ -136,12 +137,12 @@ describe('sortByDate', () => {
 
   it('later name comes first', () => {
     const x1: DatedThing = {
-      date: new Date('May 2, 2018 00:00:00'),
+      date: makeDateFromString('May 2, 2018 00:00:00'),
       name: 'A',
       type: 'X',
     };
     const x2: DatedThing = {
-      date: new Date('May 2, 2018 00:00:00'),
+      date: makeDateFromString('May 2, 2018 00:00:00'),
       name: 'B',
       type: 'X',
     };
@@ -159,12 +160,12 @@ describe('sortByDate', () => {
 
   it('later name prioritised over type (1)', () => {
     const x1: DatedThing = {
-      date: new Date('May 2, 2018 00:00:00'),
+      date: makeDateFromString('May 2, 2018 00:00:00'),
       name: 'A',
       type: 'X',
     };
     const x2: DatedThing = {
-      date: new Date('May 2, 2018 00:00:00'),
+      date: makeDateFromString('May 2, 2018 00:00:00'),
       name: 'B',
       type: 'Y',
     };
@@ -181,12 +182,12 @@ describe('sortByDate', () => {
   });
   it('later name prioritised over type (2)', () => {
     const x1: DatedThing = {
-      date: new Date('May 2, 2018 00:00:00'),
+      date: makeDateFromString('May 2, 2018 00:00:00'),
       name: 'A',
       type: 'Y',
     };
     const x2: DatedThing = {
-      date: new Date('May 2, 2018 00:00:00'),
+      date: makeDateFromString('May 2, 2018 00:00:00'),
       name: 'B',
       type: 'X',
     };
@@ -203,12 +204,12 @@ describe('sortByDate', () => {
   });
   it('later type comes first', () => {
     const x1: DatedThing = {
-      date: new Date('May 2, 2018 00:00:00'),
+      date: makeDateFromString('May 2, 2018 00:00:00'),
       name: 'A',
       type: 'X',
     };
     const x2: DatedThing = {
-      date: new Date('May 2, 2018 00:00:00'),
+      date: makeDateFromString('May 2, 2018 00:00:00'),
       name: 'A',
       type: 'Y',
     };
@@ -226,12 +227,12 @@ describe('sortByDate', () => {
 
   it('CASH assets come last (1)', () => {
     const x1: DatedThing = {
-      date: new Date('May 2, 2018 00:00:00'),
+      date: makeDateFromString('May 2, 2018 00:00:00'),
       name: CASH_ASSET_NAME,
       type: 'X',
     };
     const x2: DatedThing = {
-      date: new Date('May 2, 2018 00:00:00'),
+      date: makeDateFromString('May 2, 2018 00:00:00'),
       name: 'A',
       type: 'X',
     };
@@ -249,12 +250,12 @@ describe('sortByDate', () => {
 
   it('CASH assets come last (2)', () => {
     const x1: DatedThing = {
-      date: new Date('May 2, 2018 00:00:00'),
+      date: makeDateFromString('May 2, 2018 00:00:00'),
       name: CASH_ASSET_NAME,
       type: 'X',
     };
     const x2: DatedThing = {
-      date: new Date('May 2, 2018 00:00:00'),
+      date: makeDateFromString('May 2, 2018 00:00:00'),
       name: 'Z',
       type: 'X',
     };
@@ -272,12 +273,12 @@ describe('sortByDate', () => {
 
   it('Asset starts come last (1)', () => {
     const x1: DatedThing = {
-      date: new Date('May 2, 2018 00:00:00'),
+      date: makeDateFromString('May 2, 2018 00:00:00'),
       name: 'X',
       type: momentType.assetStart,
     };
     const x2: DatedThing = {
-      date: new Date('May 2, 2018 00:00:00'),
+      date: makeDateFromString('May 2, 2018 00:00:00'),
       name: 'X',
       type: 'A',
     };
@@ -295,12 +296,12 @@ describe('sortByDate', () => {
 
   it('Asset starts come last (2)', () => {
     const x1: DatedThing = {
-      date: new Date('May 2, 2018 00:00:00'),
+      date: makeDateFromString('May 2, 2018 00:00:00'),
       name: 'X',
       type: momentType.assetStart,
     };
     const x2: DatedThing = {
-      date: new Date('May 2, 2018 00:00:00'),
+      date: makeDateFromString('May 2, 2018 00:00:00'),
       name: 'X',
       type: 'Z',
     };
@@ -318,12 +319,12 @@ describe('sortByDate', () => {
 
   it('AssetStarts come after Assets', () => {
     const x1: DatedThing = {
-      date: new Date('May 2, 2018 00:00:00'),
+      date: makeDateFromString('May 2, 2018 00:00:00'),
       name: 'X',
       type: momentType.assetStart,
     };
     const x2: DatedThing = {
-      date: new Date('May 2, 2018 00:00:00'),
+      date: makeDateFromString('May 2, 2018 00:00:00'),
       name: 'X',
       type: momentType.asset,
     };
@@ -341,12 +342,12 @@ describe('sortByDate', () => {
 
   it('Assets come last (1)', () => {
     const x1: DatedThing = {
-      date: new Date('May 2, 2018 00:00:00'),
+      date: makeDateFromString('May 2, 2018 00:00:00'),
       name: 'X',
       type: momentType.asset,
     };
     const x2: DatedThing = {
-      date: new Date('May 2, 2018 00:00:00'),
+      date: makeDateFromString('May 2, 2018 00:00:00'),
       name: 'X',
       type: 'A',
     };
@@ -364,12 +365,12 @@ describe('sortByDate', () => {
 
   it('Assets come last (2)', () => {
     const x1: DatedThing = {
-      date: new Date('May 2, 2018 00:00:00'),
+      date: makeDateFromString('May 2, 2018 00:00:00'),
       name: 'X',
       type: momentType.asset,
     };
     const x2: DatedThing = {
-      date: new Date('May 2, 2018 00:00:00'),
+      date: makeDateFromString('May 2, 2018 00:00:00'),
       name: 'X',
       type: 'Z',
     };
@@ -388,19 +389,19 @@ describe('sortByDate', () => {
 
 describe('getYearOfTaxYear', () => {
   it('should handle early dates', () => {
-    const d = new Date('Jan 2, 2018 00:00:00');
+    const d = makeDateFromString('Jan 2, 2018 00:00:00');
     expect(getYearOfTaxYear(d)).toBe(2017);
   });
   it('should handle early April dates', () => {
-    const d = new Date('April 5, 2018 00:00:00');
+    const d = makeDateFromString('April 5, 2018 00:00:00');
     expect(getYearOfTaxYear(d)).toBe(2017);
   });
   it('should handle late April dates', () => {
-    const d = new Date('April 6, 2018 00:00:00');
+    const d = makeDateFromString('April 6, 2018 00:00:00');
     expect(getYearOfTaxYear(d)).toBe(2018);
   });
   it('should handle late dates', () => {
-    const d = new Date('December 6, 2018 00:00:00');
+    const d = makeDateFromString('December 6, 2018 00:00:00');
     expect(getYearOfTaxYear(d)).toBe(2018);
   });
 });

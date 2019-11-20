@@ -57,6 +57,7 @@ import {
   setSetting,
   suppressLogs,
   unSuppressLogs,
+  makeDateFromString,
   // showObj,
 } from '../../utils';
 
@@ -518,7 +519,7 @@ describe('evaluations tests', () => {
     // log(showObj(evals));
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -573,7 +574,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 1, 'Phon', 'Thu Feb 01 2018', 12.24, 2);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -632,7 +633,7 @@ describe('evaluations tests', () => {
     // log(showObj(evals));
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -678,7 +679,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 1, 'Phon', 'Thu Feb 01 2018', 12.24, 2);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -724,7 +725,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 1, 'Phon', 'Thu Feb 01 2018', 12.24, 2);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -792,7 +793,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 1, 'Phon', 'Thu Feb 01 2018', 12.34, 2);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -852,7 +853,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 1, 'Phon', 'Thu Feb 01 2018', 12.12, 2);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -912,7 +913,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 1, 'Phon', 'Thu Feb 01 2018', 13.7, 2);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -947,7 +948,7 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'valueSetTrigger',
-          DATE: new Date('January 1 2017'),
+          DATE: makeDateFromString('January 1 2017'),
         },
       ],
       expenses: [
@@ -978,7 +979,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 1, 'Phon', 'Thu Feb 01 2018', 13.7, 2);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -1036,7 +1037,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 2, 'Phon', 'Thu Mar 01 2018', 12.35, 2);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -1094,7 +1095,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 1, 'PRnd', 'Thu Feb 01 2018', 5.05, 2);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -1153,7 +1154,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 5, 'PRnd', 'Fri Jun 01 2018', 5.24, 2);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -1206,7 +1207,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 1, 'PRnd', 'Fri Feb 01 2019', 5.65, 2);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -1264,7 +1265,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 1, 'PRnd', 'Fri Feb 01 2019', 5, -1);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -1317,7 +1318,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 1, 'PRnd', 'Fri Feb 01 2019', 5.65, 2);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -1373,7 +1374,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 2, 'PRnd', 'Thu Mar 01 2018', 5.1, 2);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -1443,7 +1444,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 2, 'Zcash', 'Mon Jan 01 2018', 500, -1);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -1512,7 +1513,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 2, 'savings', 'Thu Mar 01 2018', 509.53, 2);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -1580,7 +1581,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 14, 'savings', 'Fri Mar 01 2019', 570.68, 2);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -1623,7 +1624,7 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'then',
-          DATE: new Date('January 1 2018'),
+          DATE: makeDateFromString('January 1 2018'),
         },
       ],
       assets: [
@@ -1649,7 +1650,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 1, 'savings', 'Thu Feb 01 2018', 504.74, 2);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -1717,7 +1718,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 3, 'Phon', 'Fri Feb 02 2018', 12.24, 2);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -1788,7 +1789,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 3, 'MyCa', 'Thu Mar 01 2018', 400, -1);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -1853,7 +1854,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 5, 'MyCa', 'Fri Mar 02 2018', 200, -1);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -1920,7 +1921,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 7, 'MyCa', 'Wed May 02 2018', 200, -1);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -1990,7 +1991,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 67, 'MyCa', 'Mon May 01 2023', 200, -1);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -2077,7 +2078,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 11, 'MyCa', 'Sun Apr 01 2018', 120, -1);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -2187,7 +2188,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 16, 'Food', 'Wed May 02 2018', 260, -1);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -2281,7 +2282,7 @@ describe('evaluations tests', () => {
     // log(showObj(evals));
     /*
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -2367,7 +2368,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 5, 'Stff', 'Fri Feb 02 2018', 112.05, 2);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -2488,7 +2489,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 27, 'Stff', 'Sun Sep 02 2018', 172, -1);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -2642,7 +2643,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 31, 'Stff', 'Sun Sep 02 2018', 197, -1);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -2795,7 +2796,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 31, 'Stff', 'Sun Sep 02 2018', 197, -1);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -2952,7 +2953,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 31, 'Stff', 'Sun Sep 02 2018', 72, -1);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -3101,7 +3102,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 25, 'Stff', 'Sun Sep 02 2018', 0, -1);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -3236,7 +3237,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 27, 'Stff', 'Sun Sep 02 2018', 0, -1);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -3407,7 +3408,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 42, 'Stf2', 'Sun Sep 02 2018', 82, -1);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -3608,7 +3609,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 38, 'Stf2', 'Sun Sep 02 2018', 28, -1);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -3718,7 +3719,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 3, 'PRnd', 'Thu Feb 01 2018', 5.05, 2);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -3808,7 +3809,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 6, 'Cash', 'Thu Mar 01 2018', 390, -1);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -3920,7 +3921,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 8, 'Cash', 'Thu Mar 01 2018', 1505, -1);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -4038,7 +4039,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 12, 'TaxPot', 'Fri Apr 05 2019', 2, -1);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -4133,7 +4134,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 5, 'Cash', 'Tue May 01 2018', 13004, -1);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -4209,7 +4210,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 3, 'Cash', 'Tue May 01 2018', 13005, -1);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -4288,7 +4289,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 5, 'Cash', 'Tue May 01 2018', 43060, -1);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -4367,7 +4368,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 5, 'Cash', 'Tue May 01 2018', 103055, -1);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -4624,7 +4625,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 7, 'Cash', 'Tue May 01 2018', 13004, -1);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -4720,7 +4721,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 7, 'Cash', 'Tue May 01 2018', 43060, -1);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -4819,7 +4820,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 7, 'Cash', 'Tue May 01 2018', 103055, -1);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -4917,7 +4918,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 9, 'Cash', 'Tue May 01 2018', 26008, -1);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -5011,7 +5012,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 7, 'Cash', 'Tue May 01 2018', 43060, -1);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -5110,7 +5111,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 7, 'Cash', 'Tue May 01 2018', 103055, -1);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -5197,7 +5198,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 6, 'Cash', 'Tue May 01 2018', 17756, -1);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -5274,7 +5275,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 6, 'Cash', 'Tue May 01 2018', 9216, -1);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -5353,7 +5354,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 6, 'Cash', 'Tue May 01 2018', 45636.88, 2);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -5435,7 +5436,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 8, 'Cash', 'Tue May 01 2018', 24435.36, 2);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -5534,7 +5535,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 29, 'Cash', 'Sat Mar 02 2019', -1000, -1);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -5578,11 +5579,11 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'javaStartTrigger',
-          DATE: new Date('March 10 2018'),
+          DATE: makeDateFromString('March 10 2018'),
         },
         {
           NAME: 'javaStopTrigger',
-          DATE: new Date('April 9 2018'),
+          DATE: makeDateFromString('April 9 2018'),
         },
       ],
       incomes: [
@@ -5649,7 +5650,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 12, 'Pnsh', 'Tue May 01 2018', 1500, -1);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -5698,11 +5699,11 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'javaStartTrigger',
-          DATE: new Date('March 10 2018'),
+          DATE: makeDateFromString('March 10 2018'),
         },
         {
           NAME: 'javaStopTrigger',
-          DATE: new Date('April 9 2018'),
+          DATE: makeDateFromString('April 9 2018'),
         },
       ],
       incomes: [
@@ -5769,7 +5770,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 12, 'Pnsh', 'Tue May 01 2018', 4500, -1);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -5818,11 +5819,11 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'javaStartTrigger',
-          DATE: new Date('April 7 2017'),
+          DATE: makeDateFromString('April 7 2017'),
         },
         {
           NAME: 'javaStopTrigger',
-          DATE: new Date('April 4 2018'),
+          DATE: makeDateFromString('April 4 2018'),
         },
       ],
       incomes: [
@@ -5946,7 +5947,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 69, 'Pnsh', 'Tue May 01 2018', 4500, -1);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -5995,11 +5996,11 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'javaStartTrigger',
-          DATE: new Date('March 10 2018'),
+          DATE: makeDateFromString('March 10 2018'),
         },
         {
           NAME: 'javaStopTrigger',
-          DATE: new Date('April 9 2018'),
+          DATE: makeDateFromString('April 9 2018'),
         },
       ],
       incomes: [
@@ -6066,7 +6067,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 12, 'Pnsh', 'Tue May 01 2018', 4500, -1);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -6118,11 +6119,11 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'javaStartTrigger',
-          DATE: new Date('March 10 2018'),
+          DATE: makeDateFromString('March 10 2018'),
         },
         {
           NAME: 'javaStopTrigger',
-          DATE: new Date('April 9 2018'),
+          DATE: makeDateFromString('April 9 2018'),
         },
       ],
       incomes: [
@@ -6196,7 +6197,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 13, 'Pnsh', 'Tue May 01 2018', 1500, -1);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -6314,7 +6315,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 7, 'TaxPot', 'Thu Apr 05 2018', 3500, -1);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -6488,7 +6489,7 @@ describe('evaluations tests', () => {
     );
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -6673,7 +6674,7 @@ describe('evaluations tests', () => {
     );
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -6860,7 +6861,7 @@ describe('evaluations tests', () => {
     );
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -7056,7 +7057,7 @@ describe('evaluations tests', () => {
     );
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -7375,7 +7376,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 49, 'TaxPot', 'Fri Apr 05 2019', 3500, -1);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -7530,7 +7531,7 @@ describe('evaluations tests', () => {
     );
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -7627,7 +7628,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 11, 'savings', 'Tue May 01 2018', 519249.41, 2);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -7725,7 +7726,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 15, 'Shrs', 'Tue May 01 2018', 280000, -1);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -7836,7 +7837,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 18, 'Shrs', 'Tue May 01 2018', 260000, -1);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -7936,7 +7937,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 5, 'Shr3', 'Thu Feb 01 2018', 200.17, 2);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -8037,7 +8038,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 13, 'Cash', 'Sun Apr 01 2018', -41.75, 2);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -8134,7 +8135,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 16, 'Cash', 'Tue May 01 2018', 35.43, 2);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -8211,7 +8212,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 4, 'savings', 'Sun Apr 01 2018', 302.85, 2);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -8276,7 +8277,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 4, 'savings', 'Sun Apr 01 2018', 257.18, 2);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -8353,7 +8354,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 9, 'savingsB', 'Sun Apr 01 2018', 205.75, 2);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -8448,7 +8449,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 44, 'Cash', 'Sun Jul 01 2018', 430, -1);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -8536,7 +8537,7 @@ describe('evaluations tests', () => {
     // printTestCodeForEvals(evals);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -8573,7 +8574,7 @@ describe('evaluations tests', () => {
     // printTestCodeForEvals(evals);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -8619,7 +8620,7 @@ describe('evaluations tests', () => {
     // don't assert evaluations - already done in another test
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -8706,7 +8707,7 @@ describe('evaluations tests', () => {
     // don't assert evaluations - already done in another test
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -8754,7 +8755,7 @@ describe('evaluations tests', () => {
     // don't assert evaluations - already done in another test
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -8836,7 +8837,7 @@ describe('evaluations tests', () => {
     // printTestCodeForEvals(evals);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -8878,7 +8879,7 @@ describe('evaluations tests', () => {
     // printTestCodeForEvals(evals);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -8924,7 +8925,7 @@ describe('evaluations tests', () => {
     // don't assert evaluations - already done in another test
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -8969,7 +8970,7 @@ describe('evaluations tests', () => {
     // don't assert evaluations - already done in another test
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -9015,7 +9016,7 @@ describe('evaluations tests', () => {
     // don't assert evaluations - already done in another test
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -9241,7 +9242,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 13, 'Stf', 'Wed May 02 2018', 0, -1);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -9339,7 +9340,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 15, 'Stf', 'Wed May 02 2018', 29, -1);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -9432,7 +9433,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 9, 'Cash', 'Fri Mar 02 2018', -29.25, 2);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );
@@ -9521,7 +9522,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 9, 'Cash', 'Fri Mar 02 2018', -297, -1);
 
     const result = makeChartDataFromEvaluations(
-      { start: new Date(roi.start), end: new Date(roi.end) },
+      { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
       evals,
     );

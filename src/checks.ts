@@ -43,6 +43,7 @@ import {
   getTriggerDate,
   log,
   showObj,
+  makeDateFromString,
 } from './utils';
 
 function checkTransactionWords(
@@ -97,8 +98,8 @@ function checkDate(d: Date) {
   // log(`checking date ${d}`);
   if (
     Number.isNaN(d.getTime()) ||
-    d < new Date('1 Jan 1870') ||
-    d > new Date('1 Jan 2199')
+    d < makeDateFromString('1 Jan 1870') ||
+    d > makeDateFromString('1 Jan 2199')
   ) {
     return false;
   }
@@ -482,7 +483,7 @@ function checkViewROI(settings: DbSetting[]) {
   if (start === 'noneFound') {
     return `"${roiStart}" should be present in settings (value is a date)`;
   }
-  const startDate = new Date(start);
+  const startDate = makeDateFromString(start);
   if (Number.isNaN(startDate.getTime())) {
     return `Setting "${roiStart}" should be a valid date string (e.g. 1 April 2018)`;
   }
@@ -490,7 +491,7 @@ function checkViewROI(settings: DbSetting[]) {
   if (end === 'noneFound') {
     return `"${roiEnd}" should be present in settings (value is a date)`;
   }
-  const endDate = new Date(end);
+  const endDate = makeDateFromString(end);
   if (Number.isNaN(endDate.getTime())) {
     return `Setting "${roiEnd}" should be a valid date string (e.g. 1 April 2018)`;
   }
@@ -524,11 +525,11 @@ function checkViewType(settings: DbSetting[]): string {
   return '';
 }
 function checkDateOfBirth(settings: DbSetting[]): string {
-  const doc = getSettings(settings, birthDate, '');
-  if (doc === '') {
+  const dob = getSettings(settings, birthDate, '');
+  if (dob === '') {
     return '';
   }
-  const d = new Date(doc);
+  const d = makeDateFromString(dob);
   if (!checkDate(d)) {
     return 'Date of birth should parse and be reasonable';
   }

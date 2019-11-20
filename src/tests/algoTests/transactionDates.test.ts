@@ -1,5 +1,6 @@
 import { generateSequenceOfDates } from '../../evaluations';
 import { DbAsset } from '../../types/interfaces';
+import { makeDateFromString } from '../../utils';
 
 export const testAsset: DbAsset = {
   NAME: 'test_asset',
@@ -14,8 +15,8 @@ export const testAsset: DbAsset = {
 describe('generateTransactionDates', () => {
   it('make simple pair', () => {
     const roi = {
-      start: new Date('May 1, 2018 00:00:00'),
-      end: new Date('June 30, 2018 00:00:00'),
+      start: makeDateFromString('May 1, 2018 00:00:00'),
+      end: makeDateFromString('June 30, 2018 00:00:00'),
     };
     const moments = generateSequenceOfDates(roi, '1m');
 
@@ -27,8 +28,8 @@ describe('generateTransactionDates', () => {
 
   it('short roi', () => {
     const roi = {
-      start: new Date('May 1, 2018 00:00:00'),
-      end: new Date('May 1, 2018 00:00:01'),
+      start: makeDateFromString('May 1, 2018 00:00:00'),
+      end: makeDateFromString('May 1, 2018 00:00:01'),
     };
     const moments = generateSequenceOfDates(roi, '1m');
 
@@ -39,8 +40,8 @@ describe('generateTransactionDates', () => {
 
   it('zero-length roi', () => {
     const roi = {
-      start: new Date('May 1, 2018 00:00:00'),
-      end: new Date('May 1, 2018 00:00:00'),
+      start: makeDateFromString('May 1, 2018 00:00:00'),
+      end: makeDateFromString('May 1, 2018 00:00:00'),
     };
     const moments = generateSequenceOfDates(roi, '1m');
 
@@ -49,8 +50,8 @@ describe('generateTransactionDates', () => {
 
   it('single long month roi', () => {
     const roi = {
-      start: new Date('May 1, 2018 00:00:00'),
-      end: new Date('June 1, 2018 00:00:00'),
+      start: makeDateFromString('May 1, 2018 00:00:00'),
+      end: makeDateFromString('June 1, 2018 00:00:00'),
     };
     const moments = generateSequenceOfDates(roi, '1m');
 
@@ -60,14 +61,14 @@ describe('generateTransactionDates', () => {
 
   it('make two pairs and sort', () => {
     const roi = {
-      start: new Date('May 1, 2018 00:00:00'),
-      end: new Date('June 30, 2018 00:00:00'),
+      start: makeDateFromString('May 1, 2018 00:00:00'),
+      end: makeDateFromString('June 30, 2018 00:00:00'),
     };
     let moments = generateSequenceOfDates(roi, '1m');
 
     const roi2 = {
-      start: new Date('May 2, 2018 00:00:00'),
-      end: new Date('June 30, 2018 00:00:00'),
+      start: makeDateFromString('May 2, 2018 00:00:00'),
+      end: makeDateFromString('June 30, 2018 00:00:00'),
     };
     moments = moments.concat(generateSequenceOfDates(roi2, '1m'));
     // log(`moments = ${showObj(moments)}`);
