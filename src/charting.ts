@@ -36,7 +36,14 @@ import {
   Evaluation,
   Interval,
 } from './types/interfaces';
-import { getSettings, log, makeTwoDP, printDebug, showObj, makeDateFromString } from './utils';
+import {
+  getSettings,
+  log,
+  makeTwoDP,
+  printDebug,
+  showObj,
+  makeDateFromString,
+} from './utils';
 
 function logMapOfMap(twoMap: any, display = false) {
   if (display) {
@@ -187,7 +194,8 @@ function makeChartDataPoints(
         const birthDateSetting = getSettings(settings, birthDate, '');
         let dataLabel = dateString;
         if (birthDateSetting !== '') {
-          const diff = date.getTime() - makeDateFromString(birthDateSetting).getTime();
+          const diff =
+            date.getTime() - makeDateFromString(birthDateSetting).getTime();
           const age = Math.floor(diff / 31557600000); // Divide by 1000*60*60*24*365.25
           // log(`age from birthDate '${birthDateSetting}' = ${age}`);
           dataLabel = `${age}`;

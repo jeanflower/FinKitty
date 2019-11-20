@@ -217,11 +217,6 @@ export function checkIncome(i: DbIncome, model: DbModelData): string {
       Here, start is ${startDate.toDateString()} and
       value is set ${valueSetDate.toDateString()}.`;
   }
-  if (startDate > endDate) {
-    return `Income start must be set on or before the end of the income.
-      Here, start is ${startDate.toDateString()} and
-      end is ${endDate.toDateString()}.`;
-  }
   return '';
 }
 
@@ -235,23 +230,29 @@ export function checkExpense(e: DbExpense, model: DbModelData): string {
   if (Number.isNaN(parseFloat(e.GROWTH))) {
     return `Expense growth '${e.GROWTH}' is not a number`;
   }
-  let d = checkTriggerDate(e.START, model.triggers);
-  if (d === undefined || !checkDate(d)) {
+  const startDate = checkTriggerDate(e.START, model.triggers);
+  if (startDate === undefined || !checkDate(startDate)) {
     return `Expense start date doesn't make sense :
       ${showObj(e.START)}`;
   }
-  d = checkTriggerDate(e.VALUE_SET, model.triggers);
-  if (d === undefined || !checkDate(d)) {
+  const valueSetDate = checkTriggerDate(e.VALUE_SET, model.triggers);
+  if (valueSetDate === undefined || !checkDate(valueSetDate)) {
     return `Expense value set date doesn't make sense :
       ${showObj(e.VALUE_SET)}`;
   }
-  d = checkTriggerDate(e.END, model.triggers);
-  if (d === undefined || !checkDate(d)) {
+  const endDate = checkTriggerDate(e.END, model.triggers);
+  if (endDate === undefined || !checkDate(endDate)) {
     return `Expense end date doesn't make sense :
       ${showObj(e.END)}`;
   }
+  if (valueSetDate > startDate) {
+    return `Expense value must be set on or before the start of the income.
+      Here, start is ${startDate.toDateString()} and
+      value is set ${valueSetDate.toDateString()}.`;
+  }
   return '';
 }
+
 function checkTransactionTo(
   word: string,
   t: DbTransaction,

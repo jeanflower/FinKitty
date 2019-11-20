@@ -117,7 +117,6 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
           {/* end col */}
         </div>
         {/* end row */}
-
         <div className="container-fluid">
           {/* fills width */}
           <DateSelectionRow
@@ -230,12 +229,12 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
   }
   private handleFixedChange(e: any) {
     const value = e.target.value;
-    if(value === ''){
+    if (value === '') {
       this.setState({ CPI_IMMUNE: '' });
       return;
     }
     const parsedYN = makeBooleanFromYesNo(value);
-    if(parsedYN.checksOK){
+    if (parsedYN.checksOK) {
       this.setState({ CPI_IMMUNE: value });
     } else {
       alert(`Couldn't understand ${value} as a Yes/No value`);
@@ -321,7 +320,7 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
       return;
     }
     const parseYN = makeBooleanFromYesNo(this.state.CPI_IMMUNE);
-    if(!parseYN.checksOK){
+    if (!parseYN.checksOK) {
       alert(`Fixed '${this.state.CPI_IMMUNE}' should be a Y/N value`);
       return;
     }

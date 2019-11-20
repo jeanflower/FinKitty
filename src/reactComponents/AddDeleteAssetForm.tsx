@@ -78,10 +78,10 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
           {/* end col */}
           <div className="col">
             <Button
-                action={this.delete}
-                type={'secondary'}
-                title={'Delete any asset with this name'}
-                id="deleteAsset"
+              action={this.delete}
+              type={'secondary'}
+              title={'Delete any asset with this name'}
+              id="deleteAsset"
             />
           </div>{' '}
           {/* end col */}

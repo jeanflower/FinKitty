@@ -2,6 +2,26 @@ import { DbSetting, DbTrigger } from './types/interfaces';
 import { cgt } from './stringConstants';
 import moment from 'moment';
 
+export function makeDateFromString(input: string) {
+  // special-case parsing for DD/MM/YYYY
+  let dateMomentObject = moment(input, 'DD/MM/YYYY'); // 1st argument - string, 2nd argument - format
+  let dateObject = dateMomentObject.toDate(); // convert moment.js object to Date object
+  if (!Number.isNaN(dateObject.getTime())) {
+    // log(`converted ${input} into ${dateObject.toDateString()}`);
+    return dateObject;
+  }
+  dateMomentObject = moment(input, 'DD/MM/YY'); // 1st argument - string, 2nd argument - format
+  dateObject = dateMomentObject.toDate(); // convert moment.js object to Date object
+  if (!Number.isNaN(dateObject.getTime())) {
+    // log(`converted ${input} into ${dateObject.toDateString()}`);
+    return dateObject;
+  }
+
+  const result = new Date(input);
+  // log(`converted ${input} into ${result.toDateString()}`);
+  return result;
+}
+
 export function printDebug(): boolean {
   return false;
 }
@@ -203,7 +223,7 @@ export function makeStringFromValueAbsProp(value: string, absolute: boolean) {
 export function makeStringFromCashValue(input: string) {
   // formatting from 34567.23 as £34,567.23
   // log(`formatting ${input} as a cash value`);
-  if(input === ''){
+  if (input === '') {
     return '';
   }
   let n = parseFloat(input);
@@ -250,10 +270,7 @@ export function getMonthlyGrowth(annualPercentage: number) {
 }
 
 // returns a date for a trigger, or undefined
-function findMatchedTriggerDate(
-  triggerName: string, 
-  triggers: DbTrigger[]
-) {
+function findMatchedTriggerDate(triggerName: string, triggers: DbTrigger[]) {
   // log('look for '+triggerName+'in '+triggers.map(showObj))
   const matched = triggers.filter(trigger => trigger.NAME === triggerName);
   // log('matched = '+showObj(matched));
@@ -261,27 +278,6 @@ function findMatchedTriggerDate(
   if (matched.length !== 0) {
     result = new Date(matched[0].DATE); // copy
   }
-  return result;
-}
-
-export function makeDateFromString(input:string){
-
-  // special-case parsing for DD/MM/YYYY
-  let dateMomentObject = moment(input, "DD/MM/YYYY"); // 1st argument - string, 2nd argument - format
-  let dateObject = dateMomentObject.toDate(); // convert moment.js object to Date object  
-  if(!Number.isNaN(dateObject.getTime())){
-    // log(`converted ${input} into ${dateObject.toDateString()}`);
-    return dateObject;
-  }
-  dateMomentObject = moment(input, "DD/MM/YY"); // 1st argument - string, 2nd argument - format
-  dateObject = dateMomentObject.toDate(); // convert moment.js object to Date object  
-  if(!Number.isNaN(dateObject.getTime())){
-    // log(`converted ${input} into ${dateObject.toDateString()}`);
-    return dateObject;
-  }
-
-  const result = new Date(input);
-  // log(`converted ${input} into ${result.toDateString()}`);
   return result;
 }
 

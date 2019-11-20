@@ -80,45 +80,45 @@ export class AddDeleteTriggerForm extends Component<EditProps, EditFormState> {
       <form className="container-fluid" onSubmit={this.add}>
         <div className="row">
           <div className="col">
-          Name:
-          <Input
-            type={'text'}
-            name={'name'}
-            value={this.state.NAME}
-            placeholder={'Enter name'}
-            onChange={this.handleName}
-          />
+            Name:
+            <Input
+              type={'text'}
+              name={'name'}
+              value={this.state.NAME}
+              placeholder={'Enter name'}
+              onChange={this.handleName}
+            />
           </div>{' '}
           {/* end col */}
           <div className="col">
-          <Button
-            action={this.delete}
-            type={'secondary'}
-            title={'Delete any important date with this name'}
-            id="deleteTrigger"
-          />
+            <Button
+              action={this.delete}
+              type={'secondary'}
+              title={'Delete any important date with this name'}
+              id="deleteTrigger"
+            />
           </div>{' '}
           {/* end col */}
         </div>{' '}
         {/* end row */}
         <div className="row">
           <div className="col">
-          Date:
-          <Input
-            type={'text'}
-            name={'date'}
-            value={this.state.DATE}
-            placeholder={'Enter date'}
-            onChange={this.handleValueChange}
-          />
-          <Button
-            action={this.add}
-            type={'primary'}
-            title={
-              'Create new important date (over-writes any existing with the same name)'
-            }
-            id="addTrigger"
-          />
+            Date:
+            <Input
+              type={'text'}
+              name={'date'}
+              value={this.state.DATE}
+              placeholder={'Enter date'}
+              onChange={this.handleValueChange}
+            />
+            <Button
+              action={this.add}
+              type={'primary'}
+              title={
+                'Create new important date (over-writes any existing with the same name)'
+              }
+              id="addTrigger"
+            />
           </div>{' '}
           {/* end col */}
         </div>{' '}
