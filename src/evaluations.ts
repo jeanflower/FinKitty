@@ -969,7 +969,9 @@ function logAssetGrowth(
     // log(`growth is not recognised as a NaN - assume parseFloat gave something useful`);
   }
   // log(`annual growth before cpi adjustment is ${growth}`);
-  const monthlyInf = getMonthlyGrowth(growth + cpiVal);
+  const monthlyInf = asset.CPI_IMMUNE
+    ? getMonthlyGrowth(growth)
+    : getMonthlyGrowth(growth + cpiVal);
   // log(`monthly growth is ${monthlyInf}`);
   growths.set(asset.NAME, monthlyInf);
 }

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 
 import { checkAssetLiability } from '../checks';
 import { DbAsset, DbModelData } from '../types/interfaces';
-import { checkTriggerDate, log, printDebug, showObj } from '../utils';
+import { checkTriggerDate, log, printDebug, showObj, makeBooleanFromYesNo } from '../utils';
 import Button from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
 import Input from './Input';
@@ -12,6 +12,7 @@ interface EditFormState {
   VALUE: string;
   START: string;
   GROWTH: string;
+  CPI_IMMUNE: string;
   PURCHASE_PRICE: string;
   LIABILITY: string;
   CATEGORY: string;
@@ -39,6 +40,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
       VALUE: '',
       START: '',
       GROWTH: '',
+      CPI_IMMUNE: '',
       PURCHASE_PRICE: '',
       LIABILITY: '',
       CATEGORY: '',
@@ -74,7 +76,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
               placeholder="Enter name"
               onChange={this.handleNameChange}
             />
-          </div>{' '}
+          </div>
           {/* end col */}
           <div className="col">
             <Button
@@ -83,7 +85,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
               title={'Delete any asset with this name'}
               id="deleteAsset"
             />
-          </div>{' '}
+          </div>
           {/* end col */}
         </div>
         {/* end row */}
@@ -97,8 +99,18 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
               placeholder="Enter value"
               onChange={this.handleValueChange}
             />
-          </div>{' '}
+          </div>
           {/* end col */}
+          <div className="col">
+            <Input
+              title="Category (optional):"
+              type="text"
+              name="category"
+              value={this.state.CATEGORY}
+              placeholder="category"
+              onChange={this.handleCategoryChange}
+            />
+          </div>
         </div>
         {/* end row */}
 
@@ -125,8 +137,22 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
               placeholder="Enter growth"
               onChange={this.handleGrowthChange}
             />
-          </div>{' '}
+          </div>
           {/* end col */}
+          <div className="col">
+            <Input
+              title="Is value immune to inflation?:"
+              type="text"
+              name="cpi-immune"
+              value={this.state.CPI_IMMUNE}
+              placeholder="Enter Y/N"
+              onChange={this.handleFixedChange}
+            />
+          </div>
+          {/* end col */}
+        </div>
+        {/* end row */}
+        <div className="row">
           <div className="col">
             <Input
               title="Liability (e.g. 'CGTJoe'):"
@@ -136,21 +162,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
               placeholder="Enter liability"
               onChange={this.handleLiabilityChange}
             />
-          </div>{' '}
-          {/* end col */}
-        </div>
-        {/* end row */}
-        <div className="row">
-          <div className="col">
-            <Input
-              title="Category (optional):"
-              type="text"
-              name="category"
-              value={this.state.CATEGORY}
-              placeholder="category"
-              onChange={this.handleCategoryChange}
-            />
-          </div>{' '}
+          </div>
           {/* end col */}
           <div className="col">
             <Input
@@ -161,7 +173,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
               placeholder="purchase"
               onChange={this.handlePurchasePriceChange}
             />
-          </div>{' '}
+          </div>
           {/* end col */}
         </div>
         {/* end row */}
@@ -200,6 +212,19 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
   private handleValueChange(e: any) {
     const value = e.target.value;
     this.setState({ VALUE: value });
+  }
+  private handleFixedChange(e: any) {
+    const value = e.target.value;
+    if (value === '') {
+      this.setState({ CPI_IMMUNE: '' });
+      return;
+    }
+    const parsedYN = makeBooleanFromYesNo(value);
+    if (parsedYN.checksOK) {
+      this.setState({ CPI_IMMUNE: value });
+    } else {
+      alert(`Couldn't understand ${value} as a Yes/No value`);
+    }
   }
   private setStart(value: string): void {
     this.setState({ START: value });
@@ -243,6 +268,11 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
     if (purchasePrice === '') {
       purchasePrice = '0';
     }
+    const parsedYN = makeBooleanFromYesNo(this.state.CPI_IMMUNE);
+    if (!parsedYN.checksOK) {
+      alert(`Fixed '${this.state.CPI_IMMUNE}' should be a Y/N value`);
+      return;
+    }
 
     // log('adding something ' + showObj(this));
     const asset: DbAsset = {
@@ -250,6 +280,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
       VALUE: this.state.VALUE,
       START: this.state.START,
       GROWTH: this.state.GROWTH,
+      CPI_IMMUNE: parsedYN.value,
       CATEGORY: this.state.CATEGORY,
       PURCHASE_PRICE: purchasePrice,
       LIABILITY: this.state.LIABILITY,

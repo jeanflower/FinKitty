@@ -209,15 +209,20 @@ async function refreshData() {
   model.assets.sort((a, b) => (a.NAME < b.NAME ? -1 : 1));
   modelNames.sort();
 
-  model.assets.push({
-    NAME: taxPot,
-    START: '1 Jan 2018',
-    VALUE: '0',
-    GROWTH: '0',
-    LIABILITY: '',
-    PURCHASE_PRICE: '0',
-    CATEGORY: 'Tax',
-  });
+  if(model.assets.filter((a)=>{
+    return a.NAME === taxPot;
+  }).length === 0){
+    model.assets.push({
+      NAME: taxPot,
+      START: '1 Jan 2018',
+      VALUE: '0',
+      GROWTH: '0',
+      CPI_IMMUNE: false,
+      LIABILITY: '',
+      PURCHASE_PRICE: '0',
+      CATEGORY: 'Tax',
+    });
+  }
 
   // log(`modelNames = ${modelNames}`);
 
@@ -376,6 +381,7 @@ export async function submitNewAsset(name: string) {
     START: '1 January 2018',
     VALUE: '0',
     GROWTH: '0',
+    CPI_IMMUNE: false,
     LIABILITY: '',
     PURCHASE_PRICE: '0',
   });
@@ -569,19 +575,33 @@ function handleAssetGridRowsUpdated() {
     reactAppComponent.state.modelData.settings,
   );
   const parsedPurchasePrice = makePurchasePriceFromString(asset.PURCHASE_PRICE);
+  const parsedCPIImmune = makeBooleanFromYesNo(asset.IS_CPI_IMMUNE);
   if (!parsedGrowth.checksOK) {
     alert(`asset growth ${asset.GROWTH} not understood`);
     asset[arguments[0].cellKey] = oldValue;
   } else if (!parsedValue.checksOK) {
     alert(`asset value ${asset.VALUE} not understood`);
     asset[arguments[0].cellKey] = oldValue;
+  } else if (!parsedCPIImmune.checksOK) {
+    alert(`asset value ${asset.IS_CPI_IMMUNE} not understood`);
+    asset[arguments[0].cellKey] = oldValue;
   } else {
-    asset.GROWTH = parsedGrowth.value;
-    asset.VALUE = `${parsedValue.value}`;
-    asset.PURCHASE_PRICE = parsedPurchasePrice;
-    const checks = checkAsset(asset, reactAppComponent.state.modelData);
+    const assetForSubmission: DbAsset = {
+      NAME: asset.NAME, 
+      VALUE: `${parsedValue.value}`,
+      START: asset.START,
+      LIABILITY: asset.LIABILITY,
+      GROWTH: parsedGrowth.value,
+      CPI_IMMUNE: parsedCPIImmune.value,
+      PURCHASE_PRICE: parsedPurchasePrice,
+      CATEGORY: asset.CATEGORY,
+    }
+    const checks = checkAsset(
+      assetForSubmission, 
+      reactAppComponent.state.modelData
+    );
     if (checks === '') {
-      submitAsset(asset);
+      submitAsset(assetForSubmission);
     } else {
       alert(checks);
       asset[arguments[0].cellKey] = oldValue;
@@ -1767,6 +1787,7 @@ export class App extends Component<{}, AppState> {
 
   private assetsList() {
     const assets: string[] = this.state.modelData.assets.map(data => data.NAME);
+    // log(`assets = ${assets}`);
     assets.unshift(allItems);
     this.state.modelData.assets.forEach(data => {
       const cat = data.CATEGORY;
@@ -1793,7 +1814,7 @@ export class App extends Component<{}, AppState> {
         }}
         title={asset}
         type={asset === selectedAsset ? 'primary' : 'secondary'}
-        id="chooseSingelAssetSetting"
+        id="chooseSingleAssetSetting"
       />
     ));
     return <div role="group">{buttons}</div>;
@@ -1944,7 +1965,7 @@ export class App extends Component<{}, AppState> {
               <DataGrid
                 handleGridRowsUpdated={handleAssetGridRowsUpdated}
                 rows={this.state.modelData.assets.map((obj: DbAsset) => {
-                  const result: DbAsset = {
+                  const result = {
                     GROWTH: obj.GROWTH,
                     NAME: obj.NAME,
                     CATEGORY: obj.CATEGORY,
@@ -1955,6 +1976,7 @@ export class App extends Component<{}, AppState> {
                       obj.PURCHASE_PRICE,
                       obj.LIABILITY,
                     ),
+                    IS_CPI_IMMUNE: makeYesNoFromBoolean(obj.CPI_IMMUNE),
                   };
                   return result;
                 })}
@@ -1991,6 +2013,11 @@ export class App extends Component<{}, AppState> {
                         value="unset"
                       />
                     ),
+                  },
+                  {
+                    ...defaultColumn,
+                    key: 'IS_CPI_IMMUNE',
+                    name: 'Is immune from CPI?',
                   },
                   {
                     ...defaultColumn,

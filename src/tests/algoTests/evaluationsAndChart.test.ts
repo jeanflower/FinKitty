@@ -71,6 +71,7 @@ const simpleAsset: DbAsset = {
   START: '1 Jan 2017',
   VALUE: '0',
   GROWTH: '0',
+  CPI_IMMUNE: false,
   LIABILITY: '',
   PURCHASE_PRICE: '0',
 };
@@ -899,7 +900,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('should grow even if CPI_IMMUNE', done => {
+  it('expense should grow even if CPI_IMMUNE', done => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 2, 2018 00:00:00',
@@ -1045,7 +1046,6 @@ describe('evaluations tests', () => {
           VALUE: '12.12',
           VALUE_SET: 'January 1 2018',
           GROWTH: '12.0',
-          CPI_IMMUNE: false,
         },
       ],
       settings: [...defaultSettings],
@@ -1106,7 +1106,6 @@ describe('evaluations tests', () => {
           VALUE: '5',
           VALUE_SET: 'January 1 2018',
           GROWTH: '12',
-          CPI_IMMUNE: false,
           LIABILITY: '',
         },
       ],
@@ -1589,6 +1588,186 @@ describe('evaluations tests', () => {
     done();
   });
 
+
+  it('should apply cpi to next two assets', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'April 1, 2018 00:00:00',
+    };
+    const model: DbModelData = {
+      ...simpleModel,
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'savings',
+          START: 'January 1 2018',
+          VALUE: '500',
+          GROWTH: '0.0',
+        },
+      ],
+      settings: [...defaultSettings],
+    };
+    setSetting(model.settings, roiStart, roi.start);
+    setSetting(model.settings, roiEnd, roi.end);
+    setSetting(model.settings, cpi, '12');
+
+    const evals: Evaluation[] = getEvaluations(model);
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(3);
+    expectEvals(evals, 0, 'savings', 'Mon Jan 01 2018', 500, -1);
+    // Goes up for growth
+    expectEvals(evals, 1, 'savings', 'Thu Feb 01 2018', 504.74, 2);
+    // Goes up for growth again
+    expectEvals(evals, 2, 'savings', 'Thu Mar 01 2018', 509.53, 2);
+
+    const result = makeChartDataFromEvaluations(
+      {
+        start: makeDateFromString(roi.start),
+        end: makeDateFromString(roi.end),
+      },
+      model,
+      evals,
+    );
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(1);
+    expect(result.assetData[0].item.NAME).toBe('savings');
+    {
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(4);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 500, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 504.74, 2);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 509.53, 2);
+    }
+    done();
+  });  
+
+  it('should understand CPI_IMMUNE for growing assets', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'April 1, 2018 00:00:00',
+    };
+    const model: DbModelData = {
+      ...simpleModel,
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'savings',
+          START: 'January 1 2018',
+          VALUE: '500',
+          GROWTH: '12.0',
+          CPI_IMMUNE: true,
+        },
+      ],
+      settings: [...defaultSettings],
+    };
+    setSetting(model.settings, roiStart, roi.start);
+    setSetting(model.settings, roiEnd, roi.end);
+    setSetting(model.settings, cpi, '12');
+
+    const evals: Evaluation[] = getEvaluations(model);
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(3);
+    expectEvals(evals, 0, 'savings', 'Mon Jan 01 2018', 500, -1);
+    // Goes up for growth
+    expectEvals(evals, 1, 'savings', 'Thu Feb 01 2018', 504.74, 2);
+    // Goes up for growth again
+    expectEvals(evals, 2, 'savings', 'Thu Mar 01 2018', 509.53, 2);
+
+    const result = makeChartDataFromEvaluations(
+      {
+        start: makeDateFromString(roi.start),
+        end: makeDateFromString(roi.end),
+      },
+      model,
+      evals,
+    );
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(1);
+    expect(result.assetData[0].item.NAME).toBe('savings');
+    {
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(4);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 500, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 504.74, 2);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 509.53, 2);
+    }
+    done();
+  });  
+
+  it('should keep no-growth CPI_IMMUNE assets fixed', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'April 1, 2018 00:00:00',
+    };
+    const model: DbModelData = {
+      ...simpleModel,
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'savings',
+          START: 'January 1 2018',
+          VALUE: '500',
+          GROWTH: '0.0',
+          CPI_IMMUNE: true,
+        },
+      ],
+      settings: [...defaultSettings],
+    };
+    setSetting(model.settings, roiStart, roi.start);
+    setSetting(model.settings, roiEnd, roi.end);
+    setSetting(model.settings, cpi, '12');
+
+    const evals: Evaluation[] = getEvaluations(model);
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(3);
+    expectEvals(evals, 0, 'savings', 'Mon Jan 01 2018', 500, -1);
+    // Goes up for growth
+    expectEvals(evals, 1, 'savings', 'Thu Feb 01 2018', 500, -1);
+    // Goes up for growth again
+    expectEvals(evals, 2, 'savings', 'Thu Mar 01 2018', 500, -1);
+
+    const result = makeChartDataFromEvaluations(
+      {
+        start: makeDateFromString(roi.start),
+        end: makeDateFromString(roi.end),
+      },
+      model,
+      evals,
+    );
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(1);
+    expect(result.assetData[0].item.NAME).toBe('savings');
+    {
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(4);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 500, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 500, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 500, -1);
+    }
+    done();
+  }); 
+
   it('annual chart data for assets', done => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
@@ -1747,7 +1926,6 @@ describe('evaluations tests', () => {
           VALUE: '12.12',
           VALUE_SET: 'January 1 2018',
           GROWTH: '12.0',
-          CPI_IMMUNE: false,
         },
       ],
       incomes: [
@@ -8222,7 +8400,6 @@ describe('evaluations tests', () => {
           VALUE: '12.12',
           VALUE_SET: 'January 1 2018',
           GROWTH: '12.0',
-          CPI_IMMUNE: false,
         },
       ],
       settings: [...defaultSettings],
@@ -8311,7 +8488,6 @@ describe('evaluations tests', () => {
           VALUE: '5',
           VALUE_SET: 'January 1 2018',
           GROWTH: '12',
-          CPI_IMMUNE: false,
         },
       ],
       transactions: [

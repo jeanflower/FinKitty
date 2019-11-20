@@ -5,6 +5,7 @@ import {
   getDbAssets,
   submitIDbAssets,
 } from '../../database/dynamo';
+import { log, showObj } from '../../utils';
 
 const modelName = 'DatabaseTestData';
 
@@ -14,22 +15,18 @@ import { testAssets01 } from './databaseTestData01';
 const sampleAssets = testAssets01;
 
 function sameAsset(a: DbAsset, b: DbAsset) {
-  // log(a.NAME === b.NAME);
-  // log(a.GROWTH === b.GROWTH);
-  // log(a.LIABILITY === b.LIABILITY);
-  // log(a.PURCHASE_PRICE === b.PURCHASE_PRICE);
-  // log(a.START === b.START);
-  // log(a.VALUE === b.VALUE);
-  // log(a.CATEGORY === b.CATEGORY);
   const result =
     a.NAME === b.NAME &&
     a.GROWTH === b.GROWTH &&
+    a.CPI_IMMUNE === b.CPI_IMMUNE &&
     a.LIABILITY === b.LIABILITY &&
     a.PURCHASE_PRICE === b.PURCHASE_PRICE &&
     a.START === b.START &&
     a.VALUE === b.VALUE &&
     a.CATEGORY === b.CATEGORY;
-  // log(result);
+  if(!result){
+    log(`different assets ${showObj(a)}, ${showObj(b)}`);
+  }
   return result;
 }
 

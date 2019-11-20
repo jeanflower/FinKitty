@@ -48,6 +48,7 @@ export const simpleAsset: DbAsset = {
   START: '1 Jan 2017',
   VALUE: '0',
   GROWTH: '0',
+  CPI_IMMUNE: false,
   LIABILITY: '',
   PURCHASE_PRICE: '0',
 };

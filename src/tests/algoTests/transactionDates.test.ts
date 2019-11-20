@@ -8,6 +8,7 @@ export const testAsset: DbAsset = {
   START: 'Jan 2017',
   VALUE: '1.2',
   GROWTH: '0.0',
+  CPI_IMMUNE: false,
   LIABILITY: '',
   PURCHASE_PRICE: '0',
 };

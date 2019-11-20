@@ -28,13 +28,15 @@ export interface DbAsset extends DbItemCategory {
   START: string;
   VALUE: string;
   GROWTH: string;
-  LIABILITY: string; // e.g. JoeIncome if growth accumulates as income tax liability
+  CPI_IMMUNE: boolean;
+  LIABILITY: string; // e.g. IncomeTaxJoe if growth accumulates as income tax liability
   PURCHASE_PRICE: string;
 }
 export interface DbAssetDynamo extends DbDynamoItemCategory {
   START: { S: string };
   VALUE: { N: string };
   GROWTH: { S: string };
+  CPI_IMMUNE: { S: string };
   LIABILITY: { S: string };
   PURCHASE_PRICE: { N: string };
 }
