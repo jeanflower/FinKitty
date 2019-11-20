@@ -64,12 +64,15 @@ export class AddDeleteEntryForm extends Component<EditProps, EditFormState> {
     // clear fields
     this.setState({ NAME: '' });
   }
-  private delete(e: any) {
+  private async delete(e: any) {
     e.preventDefault();
     // log('deleting something ' + showObj(this));
-    this.props.deleteFunction(this.state.NAME);
-    alert('deleted setting');
-    // clear fields
-    this.setState({ NAME: '' });
+    if (await this.props.deleteFunction(this.state.NAME)) {
+      alert('deleted setting');
+      // clear fields
+      this.setState({ NAME: '' });
+    } else {
+      alert(`failed to delete ${this.state.NAME}`);
+    }
   }
 }

@@ -444,7 +444,7 @@ async function deleteItem(ddb: any, params: any) {
     await new Promise((resolve, reject) => {
       ddb.deleteItem(params, (err: any, data: any) => {
         if (err) {
-          log(`error from deleteItem : ${err}${err.stack}`);
+          // log(`error from deleteItem : ${err}${err.stack}`);
           reject(err);
         } else {
           resolve(data);
@@ -452,7 +452,7 @@ async function deleteItem(ddb: any, params: any) {
       });
     });
   } catch (error) {
-    log(`Error deleting item ${error}`);
+    // log(`Error deleting item ${error}`);
     return false;
   }
   return true;
@@ -581,6 +581,8 @@ async function deleteDbItem(name: string, tableName: string) {
     Key: {
       NAME: { S: name },
     },
+    ExpressionAttributeNames: { '#n': 'NAME' },
+    ConditionExpression: 'attribute_exists(#n)',
   };
   return deleteItem(ddb, params);
 }

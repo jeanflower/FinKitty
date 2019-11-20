@@ -677,9 +677,11 @@ export async function deleteTransactionFromTable(name: string) {
 }
 export async function deleteExpenseFromTable(name: string) {
   // log('delete expense '+name)
-  if (deleteExpense(name, modelName)) {
+  if (await deleteExpense(name, modelName)) {
     await refreshData();
+    return true;
   }
+  return false;
 }
 export async function deleteIncomeFromTable(name: string) {
   // log('delete income '+name)

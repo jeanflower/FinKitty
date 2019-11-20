@@ -159,8 +159,11 @@ export class AddDeleteTriggerForm extends Component<EditProps, EditFormState> {
   private async delete(e: any) {
     e.preventDefault();
     // log('deleting something ' + showObj(this));
-    this.props.deleteFunction(this.state.NAME);
-    this.setState(this.defaultState);
-    alert('deleted important date');
+    if (await this.props.deleteFunction(this.state.NAME)) {
+      this.setState(this.defaultState);
+      alert('deleted important date');
+    } else {
+      alert(`failed to delete ${this.state.NAME}`);
+    }
   }
 }

@@ -265,13 +265,16 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
       this.resetStartSelect();
     }
   }
-  private delete(e: any) {
+  private async delete(e: any) {
     e.preventDefault();
     // log('deleting something ' + showObj(this));
-    this.props.deleteFunction(this.state.NAME);
-    alert('deleted asset');
-    // clear fields
-    this.setState(this.defaultState);
-    this.resetStartSelect();
+    if (await this.props.deleteFunction(this.state.NAME)) {
+      alert('deleted expense');
+      // clear fields
+      this.setState(this.defaultState);
+      this.resetStartSelect();
+    } else {
+      alert(`failed to delete ${this.state.NAME}`);
+    }
   }
 }

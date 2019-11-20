@@ -421,13 +421,16 @@ export class AddDeleteTransactionForm extends Component<
       this.resetDateSelect();
     }
   }
-  private delete(e: any) {
+  private async delete(e: any) {
     e.preventDefault();
     // log('deleting something ' + showObj(this));
-    this.props.deleteFunction(this.state.NAME);
-    alert('deleted transaction');
-    // clear fields
-    this.setState(this.defaultState);
-    this.resetDateSelect();
+    if (await this.props.deleteFunction(this.state.NAME)) {
+      alert('deleted transaction');
+      // clear fields
+      this.setState(this.defaultState);
+      this.resetDateSelect();
+    } else {
+      alert(`failed to delete ${this.state.NAME}`);
+    }
   }
 }
