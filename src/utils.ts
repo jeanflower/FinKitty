@@ -1,4 +1,5 @@
 import { DbSetting, DbTrigger } from './types/interfaces';
+import { cgt } from './stringConstants';
 
 export function printDebug(): boolean {
   return false;
@@ -39,6 +40,199 @@ export function makeStringFromBoolean(b: boolean) {
     return 'T';
   }
   return 'F';
+}
+
+export function makeBooleanFromYesNo(input: string) {
+  const result = {
+    value: true,
+    checksOK: true,
+  };
+  const lcInput = input.toLowerCase();
+  if (lcInput === 'y' || lcInput === 'yes') {
+    result.value = true;
+  } else if (lcInput === 'n' || lcInput === 'no') {
+    result.value = false;
+  } else {
+    result.checksOK = false;
+  }
+  return result;
+}
+
+export function makeYesNoFromBoolean(b: boolean) {
+  if (b) {
+    return 'Yes';
+  }
+  return 'No';
+}
+
+function isNumber(input: string) {
+  const result = {
+    value: 0.0,
+    checksOK: true,
+  };
+  const num = parseFloat(input);
+  if (num === undefined || Number.isNaN(num)) {
+    result.checksOK = false;
+    return result;
+  }
+
+  result.value = num;
+  return result;
+}
+
+function isSetting(input: string, settings: DbSetting[]) {
+  const result = {
+    value: '',
+    numFound: 1,
+  };
+  const x = settings.filter(pr => pr.NAME === input);
+  if (x.length === 1) {
+    // log(`got setting ${showObj(result)}`);
+    result.value = x[0].VALUE;
+  } else {
+    result.numFound = x.length;
+  }
+  return result;
+}
+
+export function makeGrowthFromString(input: string, settings: DbSetting[]) {
+  // log(`make growth value from string ${input}`);
+  const result = {
+    value: '',
+    checksOK: true,
+  };
+  if (input === '') {
+    result.checksOK = false;
+    return result;
+  }
+  const parseSetting = isSetting(input, settings);
+  if (parseSetting.numFound === 1) {
+    result.value = input;
+    return result;
+  }
+  const x = input.replace('%', '');
+  const num = isNumber(x);
+  if (!num.checksOK) {
+    result.checksOK = false;
+    return result;
+  }
+  result.value = x;
+  return result;
+}
+
+export function makeStringFromGrowth(input: string, settings: DbSetting[]) {
+  // log(`format growth as string; input is ${input}`);
+  const parseGrowth = isSetting(input, settings);
+  if (parseGrowth.numFound === 1) {
+    return input;
+  }
+  const parseNum = isNumber(input);
+  if (parseNum.checksOK) {
+    return `${parseFloat(input)}%`;
+  }
+  return input;
+}
+
+export function makeCashValueFromString(input: string) {
+  const result = {
+    value: 0.0,
+    checksOK: true,
+  };
+  let x = input.replace('£', '');
+  x = x.replace(',', '');
+  const parseDirectly = isNumber(x);
+  if (parseDirectly.checksOK) {
+    result.value = parseDirectly.value;
+  } else {
+    result.checksOK = false;
+  }
+  // log(`parsing ${input} as cash yields ${showObj(result)}`);
+  return result;
+}
+
+export function makeValueAbsPropFromString(input: string, assetName: string) {
+  const result = {
+    absolute: true,
+    value: input,
+    checksOK: true,
+  };
+  if (input === '' && assetName === '') {
+    result.value = '0.0';
+    return result;
+  }
+  if (input === '') {
+    result.checksOK = false;
+    return result;
+  }
+  if (input[input.length - 1] === '%') {
+    const numberPart = input.substring(0, input.length - 1);
+    const num = parseFloat(numberPart);
+    if (num !== undefined && !Number.isNaN(num)) {
+      result.absolute = false;
+      result.value = `${num / 100.0}`;
+    } else {
+      result.checksOK = false;
+    }
+  } else {
+    const parseNum = isNumber(input);
+    if (!parseNum.checksOK) {
+      const parseCashValue = makeCashValueFromString(input);
+      if (!parseCashValue.checksOK) {
+        result.checksOK = false;
+      } else {
+        result.value = `${parseCashValue.value}`;
+      }
+    } else {
+      // parses OK as a number
+    }
+  }
+  // log(`parsing ${input} makes result ${showObj(result)}`);
+  return result;
+}
+
+export function makeStringFromValueAbsProp(value: string, absolute: boolean) {
+  let result = '';
+  if (!absolute) {
+    result = `${parseFloat(value) * 100}%`;
+  } else {
+    result = value;
+  }
+  return result;
+}
+export function makeStringFromCashValue(input: string) {
+  // formatting from 34567.23 as £34,567.23
+  // log(`formatting ${input} as a cash value`);
+  let n = parseFloat(input);
+  const negative = n < 0;
+  if (negative) {
+    n *= -1;
+  }
+  let s = n.toFixed(2);
+  if (s.length > 6) {
+    s =
+      s.substring(0, s.length - 6) + ',' + s.substring(s.length - 6, s.length);
+  }
+  if (s.length > 10) {
+    s =
+      s.substring(0, s.length - 10) +
+      ',' +
+      s.substring(s.length - 10, s.length);
+  }
+  if (negative) {
+    return `-£${s}`;
+  } else {
+    return `£${s}`;
+  }
+}
+export function makeStringFromFromToValue(input: string) {
+  if (input === '') {
+    return '';
+  }
+  if (input[input.length - 1] === '%') {
+    return input;
+  } else {
+    return makeStringFromCashValue(input);
+  }
 }
 
 export function getMonthlyGrowth(annualPercentage: number) {
@@ -92,10 +286,38 @@ export function getTriggerDate(triggerName: string, triggers: DbTrigger[]) {
   }
   return new Date();
 }
-
+export function makeStringFromPurchasePrice(input: string, liability: string) {
+  if (!liability.includes(cgt)) {
+    return ''; // don't display irrelevant purchae price
+  } else {
+    return input;
+  }
+}
+export function makePurchasePriceFromString(input: string) {
+  if (input === '') {
+    return '0';
+  } else {
+    return input;
+  }
+}
+// returns a string for the value of a setting growth
+export function makeGrowthTooltip(input: string, settings: DbSetting[]) {
+  if (input === '') {
+    return '';
+  }
+  const value = isSetting(input, settings);
+  //log(`from ${input}, got settings value ${value}`);
+  if (value.numFound !== 1) {
+    return '';
+  }
+  if (isNumber(value.value)) {
+    return `${value.value}%`;
+  }
+  return '';
+}
 // returns a date string for a trigger, or '' for date or junk
-export function makeTooltip(inputText: string, triggers: DbTrigger[]) {
-  if (inputText.length === 0) {
+export function makeDateTooltip(inputText: string, triggers: DbTrigger[]) {
+  if (inputText === '') {
     return '';
   }
   const date = createTriggerDate(inputText, triggers);
@@ -116,17 +338,16 @@ export function getSettings(
   key: string,
   fallbackVal: string,
 ) {
-  const result = settings.filter(pr => pr.NAME === key);
-  if (result.length === 1) {
-    // log(`got setting ${showObj(result)}`);
-    return result[0].VALUE;
+  const searchResult = isSetting(key, settings);
+  if (searchResult.numFound === 1) {
+    return searchResult.value;
   }
-  if (result.length === 0) {
+  if (searchResult.numFound === 0) {
     log(`BUG!!! '${key}' value not found in settings list`);
     // log(`couldn't find ${key} in ${showObj(settings)}`);
     return fallbackVal;
   }
-  if (result.length > 1) {
+  if (searchResult.numFound > 1) {
     log(`BUG!!! multiple '${key}' values found in settings list`);
     // log(`couldn't find ${key} in ${showObj(settings)}`);
     throw new Error();

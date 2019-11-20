@@ -138,11 +138,14 @@ export class AddDeleteTriggerForm extends Component<EditProps, EditFormState> {
       this.props.showTriggerTable();
       // clear fields
       this.setState(this.defaultState);
+      alert('added important date OK');
     }
   }
-  private delete(e: any) {
+  private async delete(e: any) {
     e.preventDefault();
     // log('deleting something ' + showObj(this));
     this.props.deleteFunction(this.state.NAME);
+    this.setState(this.defaultState);
+    alert('deleted important date');
   }
 }

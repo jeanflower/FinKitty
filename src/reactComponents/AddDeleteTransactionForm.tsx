@@ -7,6 +7,7 @@ import {
   makeStringFromBoolean,
   printDebug,
   showObj,
+  makeValueAbsPropFromString,
 } from '../utils';
 import Button from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
@@ -292,27 +293,9 @@ export class AddDeleteTransactionForm extends Component<
       TO: value,
     });
   }
-  private parseValue(input: string) {
-    const result = {
-      absolute: true,
-      value: input,
-    };
-    if (input.length === 0) {
-      return result;
-    }
-    if (input[input.length - 1] === '%') {
-      const numberPart = input.substring(0, input.length - 1);
-      const num = parseFloat(numberPart);
-      if (num !== undefined && !Number.isNaN(num)) {
-        result.absolute = false;
-        result.value = `${num / 100.0}`;
-      }
-    }
-    return result;
-  }
   private handleFromValueChange(e: any) {
     const value = e.target.value;
-    const parseResult = this.parseValue(value);
+    const parseResult = makeValueAbsPropFromString(value, this.state.FROM);
     this.setState({
       FROM_ABSOLUTE: makeStringFromBoolean(parseResult.absolute),
     });
@@ -325,7 +308,7 @@ export class AddDeleteTransactionForm extends Component<
   }
   private handleToValueChange(e: any) {
     const value = e.target.value;
-    const parseResult = this.parseValue(value);
+    const parseResult = makeValueAbsPropFromString(value, this.state.TO);
     this.setState({
       TO_ABSOLUTE: makeStringFromBoolean(parseResult.absolute),
     });
@@ -439,5 +422,9 @@ export class AddDeleteTransactionForm extends Component<
     e.preventDefault();
     // log('deleting something ' + showObj(this));
     this.props.deleteFunction(this.state.NAME);
+    alert('deleted transaction');
+    // clear fields
+    this.setState(this.defaultState);
+    this.resetDateSelect();
   }
 }

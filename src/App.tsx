@@ -87,7 +87,6 @@ import {
 } from './stringConstants';
 import {
   ChartData,
-  //  IChartDataPoint,
   DataForView,
   DbAsset,
   DbExpense,
@@ -101,12 +100,22 @@ import {
 import {
   getSettings,
   log,
-  makeBooleanFromString,
-  makeStringFromBoolean,
+  makeBooleanFromYesNo,
+  makeYesNoFromBoolean,
   printDebug,
   showObj,
+  makeValueAbsPropFromString,
+  makeStringFromValueAbsProp,
+  makeCashValueFromString,
+  makeGrowthFromString,
+  makeStringFromGrowth,
+  makePurchasePriceFromString,
+  makeStringFromPurchasePrice,
 } from './utils';
+import ToFromValueFormatter from './reactComponents/ToFromValueFormatter';
 import TriggerDateFormatter from './reactComponents/TriggerDateFormatter';
+import GrowthFormatter from './reactComponents/GrowthFormatter';
+import CashValueFormatter from './reactComponents/CashValueFormatter';
 // import './bootstrap.css'
 
 const { CanvasJSChart } = CanvasJSReact;
@@ -412,13 +421,6 @@ function prohibitEditOfName() {
   alert('prohibit edit of name');
 }
 
-function checkBoolean(input: string) {
-  if (input !== 't' && input !== 'f' && input !== 'T' && input !== 'F') {
-    return false;
-  }
-  return true;
-}
-
 function handleExpenseGridRowsUpdated() {
   // log('handleExpenseGridRowsUpdated', arguments);
   const expense = arguments[0].fromRowData;
@@ -433,9 +435,20 @@ function handleExpenseGridRowsUpdated() {
   const oldValue = expense[arguments[0].cellKey];
   expense[arguments[0].cellKey] = arguments[0].updated[arguments[0].cellKey];
   // log('new expense '+showObj(expense));
-  const checksOK = checkBoolean(expense.CPI_IMMUNE);
-  if (!checksOK) {
-    alert("Whether expense is CPI-immune should be 't' or 'f'");
+  const parsedCPIImmune = makeBooleanFromYesNo(expense.IS_CPI_IMMUNE);
+  const parsedValue = makeCashValueFromString(expense.VALUE);
+  const parsedGrowth = makeGrowthFromString(
+    expense.GROWTH,
+    reactAppComponent.state.modelData.settings,
+  );
+  if (!parsedCPIImmune.checksOK) {
+    alert("Whether expense is CPI-immune should be 'y' or 'n'");
+    expense[arguments[0].cellKey] = oldValue;
+  } else if (!parsedValue.checksOK) {
+    alert(`Value ${expense.VALUE} can't be understood as a cash value}`);
+    expense[arguments[0].cellKey] = oldValue;
+  } else if (!parsedGrowth.checksOK) {
+    alert(`Value ${expense.GROWTH} can't be understood as a growth}`);
     expense[arguments[0].cellKey] = oldValue;
   } else {
     const expenseForSubmission: DbExpense = {
@@ -443,12 +456,12 @@ function handleExpenseGridRowsUpdated() {
       CATEGORY: expense.CATEGORY,
       START: expense.START,
       END: expense.END,
-      VALUE: expense.VALUE,
+      VALUE: `${parsedValue.value}`,
       VALUE_SET: expense.VALUE_SET,
-      GROWTH: expense.GROWTH,
-      CPI_IMMUNE: makeBooleanFromString(expense.CPI_IMMUNE),
+      GROWTH: parsedGrowth.value,
+      CPI_IMMUNE: parsedCPIImmune.value,
     };
-    log(`expenseForSubmission = ${showObj(expenseForSubmission)}`);
+    // log(`expenseForSubmission = ${showObj(expenseForSubmission)}`);
     const checks = checkExpense(
       expenseForSubmission,
       reactAppComponent.state.modelData,
@@ -475,9 +488,20 @@ function handleIncomeGridRowsUpdated() {
   const oldValue = income[arguments[0].cellKey];
   income[arguments[0].cellKey] = arguments[0].updated[arguments[0].cellKey];
   // log('new income '+showObj(income));
-  const checksOK = checkBoolean(income.CPI_IMMUNE);
-  if (!checksOK) {
-    alert("Whether income is CPI-immune should be 't' or 'f'");
+  const parsedCPIImmune = makeBooleanFromYesNo(income.IS_CPI_IMMUNE);
+  const parsedValue = makeCashValueFromString(income.VALUE);
+  const parsedGrowth = makeGrowthFromString(
+    income.GROWTH,
+    reactAppComponent.state.modelData.settings,
+  );
+  if (!parsedCPIImmune.checksOK) {
+    alert("Whether income is CPI-immune should be 'y' or 'n'");
+    income[arguments[0].cellKey] = oldValue;
+  } else if (!parsedValue.checksOK) {
+    alert(`Value ${income.VALUE} can't be understood as a cash value}`);
+    income[arguments[0].cellKey] = oldValue;
+  } else if (!parsedGrowth.checksOK) {
+    alert(`Value ${income.GROWTH} can't be understood as a growth}`);
     income[arguments[0].cellKey] = oldValue;
   } else {
     const incomeForSubmission: DbIncome = {
@@ -485,10 +509,10 @@ function handleIncomeGridRowsUpdated() {
       CATEGORY: income.CATEGORY,
       START: income.START,
       END: income.END,
-      VALUE: income.VALUE,
+      VALUE: `${parsedValue.value}`,
       VALUE_SET: income.VALUE_SET,
-      GROWTH: income.GROWTH,
-      CPI_IMMUNE: makeBooleanFromString(income.CPI_IMMUNE),
+      GROWTH: parsedGrowth.value,
+      CPI_IMMUNE: parsedCPIImmune.value,
       LIABILITY: income.LIABILITY,
     };
     const checks = checkIncome(
@@ -502,7 +526,6 @@ function handleIncomeGridRowsUpdated() {
       income[arguments[0].cellKey] = oldValue;
     }
   }
-  // log('incomeForSubmission '+showObj(incomeForSubmission));
 }
 function handleTriggerGridRowsUpdated() {
   // log('handleTriggerGridRowsUpdated', arguments);
@@ -539,14 +562,32 @@ function handleAssetGridRowsUpdated() {
   }
   const oldValue = asset[arguments[0].cellKey];
   asset[arguments[0].cellKey] = arguments[0].updated[arguments[0].cellKey];
-  const checks = checkAsset(asset, reactAppComponent.state.modelData);
-  if (checks === '') {
-    submitAsset(asset);
-  } else {
-    alert(checks);
+  const parsedValue = makeCashValueFromString(asset.VALUE);
+  const parsedGrowth = makeGrowthFromString(
+    asset.GROWTH,
+    reactAppComponent.state.modelData.settings,
+  );
+  const parsedPurchasePrice = makePurchasePriceFromString(asset.PURCHASE_PRICE);
+  if (!parsedGrowth.checksOK) {
+    alert(`asset growth ${asset.GROWTH} not understood`);
     asset[arguments[0].cellKey] = oldValue;
+  } else if (!parsedValue.checksOK) {
+    alert(`asset value ${asset.VALUE} not understood`);
+    asset[arguments[0].cellKey] = oldValue;
+  } else {
+    asset.GROWTH = parsedGrowth.value;
+    asset.VALUE = `${parsedValue.value}`;
+    asset.PURCHASE_PRICE = parsedPurchasePrice;
+    const checks = checkAsset(asset, reactAppComponent.state.modelData);
+    if (checks === '') {
+      submitAsset(asset);
+    } else {
+      alert(checks);
+      asset[arguments[0].cellKey] = oldValue;
+    }
   }
 }
+
 function handleTransactionGridRowsUpdated() {
   // log('handleTransactionGridRowsUpdated', arguments);
   const gridData = arguments[0].fromRowData;
@@ -558,39 +599,41 @@ function handleTransactionGridRowsUpdated() {
   }
   const oldValue = gridData[arguments[0].cellKey];
   gridData[arguments[0].cellKey] = arguments[0].updated[arguments[0].cellKey];
-  let checksOK = checkBoolean(gridData.FROM_ABSOLUTE);
-  if (!checksOK) {
-    alert("From absolute value should be 't' or 'f'");
+
+  const parseFrom = makeValueAbsPropFromString(
+    gridData.FROM_VALUE,
+    gridData.FROM,
+  );
+  const parseTo = makeValueAbsPropFromString(gridData.TO_VALUE, gridData.TO);
+  if (!parseFrom.checksOK) {
+    alert('From value should be a number or a number with % symbol');
+    gridData[arguments[0].cellKey] = oldValue;
+  } else if (!parseTo.checksOK) {
+    alert('To value should be a number or a number with % symbol');
     gridData[arguments[0].cellKey] = oldValue;
   } else {
-    checksOK = checkBoolean(gridData.TO_ABSOLUTE);
-    if (!checksOK) {
-      alert("To absolute value should be 't' or 'f'");
-      gridData[arguments[0].cellKey] = oldValue;
+    const transaction: DbTransaction = {
+      DATE: gridData.DATE,
+      FROM: gridData.FROM,
+      FROM_VALUE: parseFrom.value,
+      FROM_ABSOLUTE: parseFrom.absolute,
+      NAME: gridData.NAME,
+      TO: gridData.TO,
+      TO_ABSOLUTE: parseTo.absolute,
+      TO_VALUE: parseTo.value,
+      STOP_DATE: gridData.STOP_DATE,
+      RECURRENCE: gridData.RECURRENCE,
+      CATEGORY: gridData.CATEGORY,
+    };
+    const checks = checkTransaction(
+      transaction,
+      reactAppComponent.state.modelData,
+    );
+    if (checks === '') {
+      submitTransaction(transaction);
     } else {
-      const transaction: DbTransaction = {
-        DATE: gridData.DATE,
-        FROM: gridData.FROM,
-        FROM_ABSOLUTE: makeBooleanFromString(gridData.FROM_ABSOLUTE),
-        FROM_VALUE: gridData.FROM_VALUE,
-        NAME: gridData.NAME,
-        TO: gridData.TO,
-        TO_ABSOLUTE: makeBooleanFromString(gridData.TO_ABSOLUTE),
-        TO_VALUE: gridData.TO_VALUE,
-        STOP_DATE: gridData.STOP_DATE,
-        RECURRENCE: gridData.RECURRENCE,
-        CATEGORY: gridData.CATEGORY,
-      };
-      const checks = checkTransaction(
-        transaction,
-        reactAppComponent.state.modelData,
-      );
-      if (checks === '') {
-        submitTransaction(transaction);
-      } else {
-        alert(checks);
-        gridData[arguments[0].cellKey] = oldValue;
-      }
+      alert(checks);
+      gridData[arguments[0].cellKey] = oldValue;
     }
   }
 }
@@ -786,11 +829,11 @@ export async function stringifyDB(): Promise<string> {
   result = result.replace(/"GROWTH"/g, 'GROWTH');
   result = result.replace(/"CPI_IMMUNE"/g, 'CPI_IMMUNE');
   result = result.replace(/"LIABILITY"/g, 'LIABILITY');
-  result = result.replace(/"ASSET_START"/g, 'ASSET_START');
-  result = result.replace(/"ASSET_VALUE"/g, 'ASSET_VALUE');
-  result = result.replace(/"ASSET_GROWTH"/g, 'ASSET_GROWTH');
-  result = result.replace(/"ASSET_LIABILITY"/g, 'ASSET_LIABILITY');
-  result = result.replace(/"ASSET_PURCHASE_PRICE"/g, 'ASSET_PURCHASE_PRICE');
+  result = result.replace(/"START"/g, 'START');
+  result = result.replace(/"VALUE"/g, 'VALUE');
+  result = result.replace(/"GROWTH"/g, 'GROWTH');
+  result = result.replace(/"LIABILITY"/g, 'LIABILITY');
+  result = result.replace(/"PURCHASE_PRICE"/g, 'PURCHASE_PRICE');
   result = result.replace(/"FROM"/g, 'FROM');
   result = result.replace(/"FROM_ABSOLUTE"/g, 'FROM_ABSOLUTE');
   result = result.replace(/"FROM_VALUE"/g, 'FROM_VALUE');
@@ -853,6 +896,9 @@ export class App extends Component<{}, AppState> {
     if (printDebug()) {
       log('in render');
     }
+    setTimeout(() => {
+      window.dispatchEvent(new Event('resize'));
+    }, 100);
     return (
       <div>
         <nav className="navbar fixed-top navbar-light bg-dark">
@@ -1244,8 +1290,11 @@ export class App extends Component<{}, AppState> {
                 rows={this.state.modelData.expenses.map((obj: DbExpense) => {
                   const result = {
                     END: obj.END,
-                    CPI_IMMUNE: makeStringFromBoolean(obj.CPI_IMMUNE),
-                    GROWTH: obj.GROWTH,
+                    IS_CPI_IMMUNE: makeYesNoFromBoolean(obj.CPI_IMMUNE),
+                    GROWTH: makeStringFromGrowth(
+                      obj.GROWTH,
+                      this.state.modelData.settings,
+                    ),
                     CATEGORY: obj.CATEGORY,
                     NAME: obj.NAME,
                     START: obj.START,
@@ -1264,6 +1313,7 @@ export class App extends Component<{}, AppState> {
                     ...defaultColumn,
                     key: 'VALUE',
                     name: 'start value',
+                    formatter: <CashValueFormatter value="unset" />,
                   },
                   {
                     ...defaultColumn,
@@ -1302,11 +1352,17 @@ export class App extends Component<{}, AppState> {
                     ...defaultColumn,
                     key: 'GROWTH',
                     name: 'annual growth',
+                    formatter: (
+                      <GrowthFormatter
+                        settings={this.state.modelData.settings}
+                        value="unset"
+                      />
+                    ),
                   },
                   {
                     ...defaultColumn,
-                    key: 'CPI_IMMUNE',
-                    name: 'cpi-immune',
+                    key: 'IS_CPI_IMMUNE',
+                    name: 'Is immune from CPI?',
                   },
                   {
                     ...defaultColumn,
@@ -1423,8 +1479,11 @@ export class App extends Component<{}, AppState> {
                 rows={this.state.modelData.incomes.map((obj: DbIncome) => {
                   const result = {
                     END: obj.END,
-                    CPI_IMMUNE: makeStringFromBoolean(obj.CPI_IMMUNE),
-                    GROWTH: obj.GROWTH,
+                    IS_CPI_IMMUNE: makeYesNoFromBoolean(obj.CPI_IMMUNE),
+                    GROWTH: makeStringFromGrowth(
+                      obj.GROWTH,
+                      this.state.modelData.settings,
+                    ),
                     NAME: obj.NAME,
                     START: obj.START,
                     VALUE: obj.VALUE,
@@ -1445,6 +1504,7 @@ export class App extends Component<{}, AppState> {
                     ...defaultColumn,
                     key: 'VALUE',
                     name: 'start value',
+                    formatter: <CashValueFormatter value="unset" />,
                   },
                   {
                     ...defaultColumn,
@@ -1483,11 +1543,17 @@ export class App extends Component<{}, AppState> {
                     ...defaultColumn,
                     key: 'GROWTH',
                     name: 'annual growth',
+                    formatter: (
+                      <GrowthFormatter
+                        settings={this.state.modelData.settings}
+                        value="unset"
+                      />
+                    ),
                   },
                   {
                     ...defaultColumn,
-                    key: 'CPI_IMMUNE',
-                    name: 'cpi-immune',
+                    key: 'IS_CPI_IMMUNE',
+                    name: 'Is immune from CPI?',
                   },
                   {
                     ...defaultColumn,
@@ -1898,7 +1964,10 @@ export class App extends Component<{}, AppState> {
                     START: obj.START,
                     VALUE: obj.VALUE,
                     LIABILITY: obj.LIABILITY,
-                    PURCHASE_PRICE: obj.PURCHASE_PRICE,
+                    PURCHASE_PRICE: makeStringFromPurchasePrice(
+                      obj.PURCHASE_PRICE,
+                      obj.LIABILITY,
+                    ),
                   };
                   return result;
                 })}
@@ -1912,6 +1981,7 @@ export class App extends Component<{}, AppState> {
                     ...defaultColumn,
                     key: 'VALUE',
                     name: 'value',
+                    formatter: <CashValueFormatter value="unset" />,
                   },
                   {
                     ...defaultColumn,
@@ -1928,6 +1998,12 @@ export class App extends Component<{}, AppState> {
                     ...defaultColumn,
                     key: 'GROWTH',
                     name: 'growth',
+                    formatter: (
+                      <GrowthFormatter
+                        settings={this.state.modelData.settings}
+                        value="unset"
+                      />
+                    ),
                   },
                   {
                     ...defaultColumn,
@@ -2000,15 +2076,27 @@ export class App extends Component<{}, AppState> {
               rows={this.state.modelData.transactions.map(
                 (obj: DbTransaction) => {
                   // log(`obj.FROM_ABSOLUTE = ${obj.FROM_ABSOLUTE}`)
+                  let fromValueEntry = '';
+                  if (obj.FROM !== '') {
+                    fromValueEntry = makeStringFromValueAbsProp(
+                      obj.FROM_VALUE,
+                      obj.FROM_ABSOLUTE,
+                    );
+                  }
+                  let toValueEntry = '';
+                  if (obj.TO !== '') {
+                    toValueEntry = makeStringFromValueAbsProp(
+                      obj.TO_VALUE,
+                      obj.TO_ABSOLUTE,
+                    );
+                  }
                   const result = {
                     DATE: obj.DATE,
                     FROM: obj.FROM,
-                    FROM_VALUE: obj.FROM_VALUE,
-                    FROM_ABSOLUTE: makeStringFromBoolean(obj.FROM_ABSOLUTE),
+                    FROM_VALUE: fromValueEntry,
                     NAME: obj.NAME,
                     TO: obj.TO,
-                    TO_VALUE: obj.TO_VALUE,
-                    TO_ABSOLUTE: makeStringFromBoolean(obj.TO_ABSOLUTE),
+                    TO_VALUE: toValueEntry,
                     STOP_DATE: obj.STOP_DATE,
                     RECURRENCE: obj.RECURRENCE,
                     CATEGORY: obj.CATEGORY,
@@ -2029,28 +2117,20 @@ export class App extends Component<{}, AppState> {
                 },
                 {
                   ...defaultColumn,
+                  key: 'FROM_VALUE',
+                  name: 'from value',
+                  formatter: <ToFromValueFormatter value="unset" />,
+                },
+                {
+                  ...defaultColumn,
                   key: 'TO',
                   name: 'to asset',
                 },
                 {
                   ...defaultColumn,
-                  key: 'FROM_VALUE',
-                  name: 'from value',
-                },
-                {
-                  ...defaultColumn,
-                  key: 'FROM_ABSOLUTE',
-                  name: 'absolute',
-                },
-                {
-                  ...defaultColumn,
                   key: 'TO_VALUE',
                   name: 'to value',
-                },
-                {
-                  ...defaultColumn,
-                  key: 'TO_ABSOLUTE',
-                  name: 'absolute',
+                  formatter: <ToFromValueFormatter value="unset" />,
                 },
                 {
                   ...defaultColumn,
@@ -2072,6 +2152,12 @@ export class App extends Component<{}, AppState> {
                   ...defaultColumn,
                   key: 'STOP_DATE',
                   name: 'stop',
+                  formatter: (
+                    <TriggerDateFormatter
+                      triggers={this.state.modelData.triggers}
+                      value="unset"
+                    />
+                  ),
                 },
                 {
                   ...defaultColumn,

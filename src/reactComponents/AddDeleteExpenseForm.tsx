@@ -321,5 +321,11 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
     e.preventDefault();
     // log('deleting something ' + showObj(this));
     this.props.deleteFunction(this.state.NAME);
+    alert('deleted expense');
+    // clear fields
+    this.setState(this.defaultState);
+    this.resetValueSetSelect();
+    this.resetStartSelect();
+    this.resetEndSelect();
   }
 }

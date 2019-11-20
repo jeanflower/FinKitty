@@ -573,7 +573,7 @@ async function submitIncome(
 
 async function deleteDbItem(name: string, tableName: string) {
   if (printDebug()) {
-    log(`delete expense ${showObj(name)}`);
+    log(`delete ${showObj(name)}`);
   }
   const ddb = setupDDB();
   const params = {

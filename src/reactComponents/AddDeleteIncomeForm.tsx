@@ -345,5 +345,11 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
     e.preventDefault();
     // log('deleting something ' + showObj(this));
     this.props.deleteFunction(this.state.NAME);
+    alert('deleted income');
+    // clear fields
+    this.setState(this.defaultState);
+    this.resetValueSetSelect();
+    this.resetStartSelect();
+    this.resetEndSelect();
   }
 }

@@ -943,13 +943,13 @@ function logAssetGrowth(
   growths: Map<string, number>,
   settings: DbSetting[],
 ) {
-  // log(`stored growth is ${asset.ASSET_GROWTH}`);
+  // log(`stored growth is ${asset.GROWTH}`);
   let growth: number = parseFloat(asset.GROWTH);
   // log(`growth is ${growth}`);
   if (Number.isNaN(growth)) {
     // log(`growth is recognised as NaN`);
     let settingVal = getSettings(settings, asset.GROWTH, 'None');
-    // log(`setting value for ${asset.ASSET_GROWTH} is ${settingVal}`);
+    // log(`setting value for ${asset.GROWTH} is ${settingVal}`);
     if (settingVal === 'None') {
       log(`BUG : no setting value for asset growth ${asset.GROWTH}`);
       settingVal = '0.0';

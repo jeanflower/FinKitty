@@ -26,9 +26,7 @@ interface EditProps {
 export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
   public defaultState: EditFormState;
 
-  private valueSetSelectID = 'valueSetSelect';
   private assetStartSelectID = 'assetStartSelect';
-  private assetEndSelectID = 'assetEndSelect';
 
   constructor(props: EditProps) {
     super(props);
@@ -265,5 +263,9 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
     e.preventDefault();
     // log('deleting something ' + showObj(this));
     this.props.deleteFunction(this.state.NAME);
+    alert('deleted asset');
+    // clear fields
+    this.setState(this.defaultState);
+    this.resetStartSelect();
   }
 }

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { DbTrigger } from '../types/interfaces';
 import { TriggerOptionList } from './TriggerOptionList';
 import ReactTooltip from 'react-tooltip';
-import { makeTooltip } from '../utils';
+import { makeDateTooltip } from '../utils';
 
 interface DateSelectionProps {
   introLabel: string;
@@ -49,7 +49,10 @@ export class DateSelectionRow extends Component<DateSelectionProps, {}> {
               this.props.onChangeHandler // e.g. this.handleValueSetChange
             }
             className="form-control"
-            data-tip={makeTooltip(this.props.inputValue, this.props.triggers)}
+            data-tip={makeDateTooltip(
+              this.props.inputValue,
+              this.props.triggers,
+            )}
           />
         </div>
         {/* end col */}

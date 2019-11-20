@@ -15,11 +15,11 @@ const sampleAssets = testAssets01;
 
 function sameAsset(a: DbAsset, b: DbAsset) {
   // log(a.NAME === b.NAME);
-  // log(a.ASSET_GROWTH === b.ASSET_GROWTH);
-  // log(a.ASSET_LIABILITY === b.ASSET_LIABILITY);
-  // log(a.ASSET_PURCHASE_PRICE === b.ASSET_PURCHASE_PRICE);
-  // log(a.ASSET_START === b.ASSET_START);
-  // log(a.ASSET_VALUE === b.ASSET_VALUE);
+  // log(a.GROWTH === b.GROWTH);
+  // log(a.LIABILITY === b.LIABILITY);
+  // log(a.PURCHASE_PRICE === b.PURCHASE_PRICE);
+  // log(a.START === b.START);
+  // log(a.VALUE === b.VALUE);
   // log(a.CATEGORY === b.CATEGORY);
   const result =
     a.NAME === b.NAME &&
