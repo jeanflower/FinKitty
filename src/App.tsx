@@ -141,7 +141,7 @@ const expensesTable: ViewType = { lc: 'Expenses table' };
 const incomesTable: ViewType = { lc: 'Incomes table' };
 const assetsTable: ViewType = { lc: 'Assets table' };
 const transactionsTable: ViewType = { lc: 'Transactions table' };
-const triggersTable: ViewType = { lc: 'Important dates' };
+const triggersTable: ViewType = { lc: 'Important dates table' };
 const settingsTable: ViewType = { lc: 'Settings table' };
 const overview: ViewType = { lc: 'Overview' };
 
@@ -172,12 +172,12 @@ const showContent = new Map<ViewType, any>([
   [incomesChart, { display: false }],
   [expensesChart, { display: false }],
   [assetsChart, { display: false }],
-  [incomesTable, { display: false }],
-  [expensesTable, { display: false }],
-  [assetsTable, { display: false }],
-  [transactionsTable, { display: false }],
-  [triggersTable, { display: false }],
-  [settingsTable, { display: false }],
+  [incomesTable, { display: true }],
+  [expensesTable, { display: true }],
+  [assetsTable, { display: true }],
+  [transactionsTable, { display: true }],
+  [triggersTable, { display: true }],
+  [settingsTable, { display: true }],
 ]);
 
 let reactAppComponent: App;
@@ -1074,9 +1074,7 @@ export class App extends Component<{}, AppState> {
     if (!show.get(settingsView).display) {
       return;
     }
-    const tableVisible =
-      showContent.get(settingsTable).display &&
-      this.state.modelData.settings.length > 0;
+    const tableVisible = showContent.get(settingsTable).display;
     return (
       <div style={{ display: getDisplay(settingsView) ? 'block' : 'none' }}>
         <fieldset>
@@ -1211,12 +1209,8 @@ export class App extends Component<{}, AppState> {
     if (!show.get(expensesView).display) {
       return;
     }
-    const chartVisible =
-      showContent.get(expensesChart).display &&
-      this.state.modelData.expenses.length > 0;
-    const tableVisible =
-      showContent.get(expensesTable).display &&
-      this.state.modelData.expenses.length > 0;
+    const chartVisible = showContent.get(expensesChart).display;
+    const tableVisible = showContent.get(expensesTable).display;
     return (
       <div style={{ display: getDisplay(expensesView) ? 'block' : 'none' }}>
         <h2 id="ExpensesHeader">Model&nbsp;{modelName}: Expenses</h2>
@@ -1408,12 +1402,8 @@ export class App extends Component<{}, AppState> {
       return;
     }
     // log('rendering an incomesDiv');
-    const chartVisible =
-      showContent.get(incomesChart).display &&
-      this.state.modelData.incomes.length > 0;
-    const tableVisible =
-      showContent.get(incomesTable).display &&
-      this.state.modelData.incomes.length > 0;
+    const chartVisible = showContent.get(incomesChart).display;
+    const tableVisible = showContent.get(incomesTable).display;
     return (
       <div style={{ display: getDisplay(incomesView) ? 'block' : 'none' }}>
         <h2 id="IncomesHeader">Model&nbsp;{modelName}: Incomes</h2>
@@ -1686,9 +1676,7 @@ export class App extends Component<{}, AppState> {
     if (!show.get(triggersView).display) {
       return;
     }
-    const chartVisible =
-      showContent.get(triggersTable).display &&
-      this.state.modelData.triggers.length > 0;
+    const tableVisible = showContent.get(triggersTable).display;
     return (
       <div style={{ display: getDisplay(triggersView) ? 'block' : 'none' }}>
         <h2 id="TriggersHeader">Model&nbsp;{modelName}: Important dates</h2>
@@ -1708,7 +1696,7 @@ export class App extends Component<{}, AppState> {
         />
         <div
           style={{
-            display: chartVisible ? 'block' : 'none',
+            display: tableVisible ? 'block' : 'none',
           }}
         >
           <fieldset>
@@ -1894,12 +1882,8 @@ export class App extends Component<{}, AppState> {
     if (!show.get(assetsView).display) {
       return;
     }
-    const chartVisible =
-      showContent.get(assetsChart).display &&
-      this.state.modelData.assets.length > 0;
-    const tableVisible =
-      showContent.get(assetsTable).display &&
-      this.state.modelData.assets.length > 0;
+    const chartVisible = showContent.get(assetsChart).display;
+    const tableVisible = showContent.get(assetsTable).display;
     return (
       <div style={{ display: getDisplay(assetsView) ? 'block' : 'none' }}>
         <h2 id="AssetsHeader">Model&nbsp;{modelName}: Assets</h2>
@@ -2046,9 +2030,7 @@ export class App extends Component<{}, AppState> {
     if (!show.get(transactionsView).display) {
       return;
     }
-    const tableVisible =
-      showContent.get(transactionsTable).display &&
-      this.state.modelData.transactions.length > 0;
+    const tableVisible = showContent.get(transactionsTable).display;
     return (
       <div style={{ display: getDisplay(transactionsView) ? 'block' : 'none' }}>
         <h2 id="TransactionsHeader">Model&nbsp;{modelName}: Transactions</h2>
