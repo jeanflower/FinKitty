@@ -29,7 +29,7 @@ and once the Chrome extension is installed, in the ModHeader Chrome extension, i
 During development, allow cors in Chrome.  In the ModHeader extension, check the box next to "Access-Control-Allow-Origin" modification.
 
 ### Start the web server for the app
-`npm start`
+`npm start` or `./startWebServer.sh`
 
 Runs the app in the development mode.<br>
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
@@ -38,7 +38,7 @@ The page will reload if you make edits.<br>
 You will also see any lint errors in the console.
 
 ### Run the tests
-`npm test`
+`npm test` or `./startTests.sh`
 
 Launches the test runner in the interactive watch mode.<br>
 See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
@@ -47,9 +47,13 @@ The browser tests (automated with selenium) will fail unless the web server is r
 
 The selenium tests fire up and drive Chrome processes.  If the tests properly complete, the Chrome window for the tests should close down properly.  But the chromedriver process does not get cleaned up.  If the tests are interrupted (e.g. restart partway through) then the cleanup does not occur.  After a lengthy testing session, you may prefer to clean up manually; open Activity Monitor, search by the text "chrome", and in a terminal window, `killall chromedriver` and `killall "Google Chrome"`.
 
+### Linting
+Run `./lintFixes.sh` keeps things clean.
+Running the web server also reports linting issues in the console.
+
 ### Publishing to github pages
 Type
-npm run deploy
+`npm run deploy`
 and go to
 https://jeanflower.github.io/FinKitty/
 
