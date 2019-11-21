@@ -172,7 +172,7 @@ export class ModelManagementForm extends Component<
     // log('adding something ' + showObj(this));
     this.props.replaceWithSampleFunction(this.state.NAME);
   }
-  private replaceWithJSON(e: any){
+  private replaceWithJSON(e: any) {
     e.preventDefault();
     // log('adding something ' + showObj(this));
     this.props.replaceWithJSONFunction(this.state.NAME);

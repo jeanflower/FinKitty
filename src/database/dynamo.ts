@@ -105,10 +105,10 @@ function makeTableDefinition(tableName: string) {
   return params;
 }
 
-let ddb:any = undefined;
+let ddb: any = undefined;
 
 export async function setupDDB(accessKeyID: string) {
-  if(ddb !== undefined){
+  if (ddb !== undefined) {
     // log(`found DB OK`);
     return;
   }
@@ -198,7 +198,7 @@ async function getModelNames(ddb: any) {
 }
 
 export async function getDbModelNames() {
-  if(ddb === undefined) {
+  if (ddb === undefined) {
     return [];
   }
   return getModelNames(ddb);
@@ -440,7 +440,7 @@ async function ensureDbTable(ddb: any, tableName: string) {
 }
 
 export async function ensureDbTables(modelName: string) {
-  if(ddb === undefined) {
+  if (ddb === undefined) {
     return;
   }
   const results = tablesArray.map(t => ensureDbTable(ddb, t + modelName));
@@ -587,7 +587,7 @@ async function deleteDbItem(name: string, tableName: string) {
   if (printDebug()) {
     log(`delete ${showObj(name)}`);
   }
-  if(ddb === undefined) {
+  if (ddb === undefined) {
     return;
   }
   const params = {
@@ -624,7 +624,7 @@ export async function submitIDbExpenses(
   expenseInputs: DbExpense[],
   modelName: string,
 ) {
-  if(ddb === undefined) {
+  if (ddb === undefined) {
     return;
   }
 
@@ -652,7 +652,7 @@ export async function submitIDbSettings(
   inputs: DbSetting[],
   modelName: string,
 ) {
-  if(ddb === undefined) {
+  if (ddb === undefined) {
     return;
   }
 
@@ -670,7 +670,7 @@ export async function submitIDbSettings(
 }
 
 export async function submitIDbIncomes(incomes: DbIncome[], modelName: string) {
-  if(ddb === undefined) {
+  if (ddb === undefined) {
     return;
   }
 
@@ -699,7 +699,7 @@ export async function submitIDbTriggers(
   triggers: DbTrigger[],
   modelName: string,
 ) {
-  if(ddb === undefined) {
+  if (ddb === undefined) {
     return;
   }
 
@@ -715,11 +715,8 @@ export async function submitIDbTriggers(
   await debugSyncs(`submitIDbTriggers to ${modelName}`);
 }
 
-export async function submitIDbAssets(
-  assets: DbAsset[], 
-  modelName: string
-) {
-  if(ddb === undefined) {
+export async function submitIDbAssets(assets: DbAsset[], modelName: string) {
+  if (ddb === undefined) {
     return;
   }
 
@@ -750,7 +747,7 @@ export async function submitIDbTransactions(
   inputs: DbTransaction[],
   modelName: string,
 ) {
-  if(ddb === undefined) {
+  if (ddb === undefined) {
     return;
   }
 
@@ -1004,7 +1001,7 @@ async function getItemData(ddb: any, tableName: string): Promise<DbItem[]> {
 }
 
 async function getDbItems(tableName: string): Promise<DbItem[]> {
-  if(ddb === undefined) {
+  if (ddb === undefined) {
     return [];
   }
 
@@ -1085,7 +1082,7 @@ export async function getDbModel(modelName: string) {
 
 async function deleteTable(tableName: string) {
   // log(`go to delete ${tableName}`);
-  if(ddb === undefined) {
+  if (ddb === undefined) {
     return;
   }
 
@@ -1109,7 +1106,7 @@ async function deleteTable(tableName: string) {
 }
 
 async function clearTable(tableName: string) {
-  if(ddb === undefined) {
+  if (ddb === undefined) {
     return;
   }
 

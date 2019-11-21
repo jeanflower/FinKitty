@@ -220,7 +220,11 @@ async function refreshData() {
   }
 
   //log(`modelNames are ${modelNames}`);
-  if(modelNames.find((x)=>{return x === sampleModel;}) === undefined){
+  if (
+    modelNames.find(x => {
+      return x === sampleModel;
+    }) === undefined
+  ) {
     // force us to have at least the sample model
     await ensureDbTables(modelName);
     await Promise.all([
@@ -922,11 +926,11 @@ export class App extends Component<{}, AppState> {
   public constructor(props: {}) {
     super(props);
 
-    let accessKeyID = prompt("Type DB access key id");
-    if(accessKeyID !== null){
+    const accessKeyID = prompt('Type DB access key id');
+    if (accessKeyID !== null) {
       setupDDB(accessKeyID);
     }
-  
+
     reactAppComponent = this;
     refreshData();
     this.state = {
@@ -1091,15 +1095,15 @@ export class App extends Component<{}, AppState> {
             checkModelDataFunction={() => {
               checkModelData();
             }}
-            logDataForSampleFunction={() => {      
+            logDataForSampleFunction={() => {
               stringifyForSampleDataCode().then(x => log(x));
             }}
-            logDataForJSONFunction={() => {      
+            logDataForJSONFunction={() => {
               stringifyForJSON().then(x => log(x));
             }}
             replaceWithJSONFunction={() => {
               const input = prompt('Paste in JSON here');
-              if(input === null){
+              if (input === null) {
                 return;
               }
               const newModel = makeModelFromJSON(input);
@@ -1121,7 +1125,7 @@ export class App extends Component<{}, AppState> {
                     submitIDbSettings(newModel.settings, modelName),
                   ]).then(() => refreshData()),
                 ),
-              );              
+              );
             }}
             replaceWithSampleFunction={() => {
               Promise.all([
@@ -1150,45 +1154,45 @@ export class App extends Component<{}, AppState> {
     );
   }
 
-  private settingsTableDiv(){
+  private settingsTableDiv() {
     const tableVisible = showContent.get(settingsTable).display;
     return (
       <div
-      className="dataGridSettings"
-      style={{
-        display: tableVisible ? 'block' : 'none',
-      }}
-    >
-      <DataGrid
-        handleGridRowsUpdated={handleSettingGridRowsUpdated}
-        rows={this.state.modelData.settings.map((obj: DbSetting) => {
-          showObj(`obj = ${obj}`);
-          const result = {
-            NAME: obj.NAME,
-            VALUE: obj.VALUE,
-            HINT: obj.HINT,
-          };
-          return result;
-        })}
-        columns={[
-          {
-            ...defaultColumn,
-            key: 'NAME',
-            name: 'name',
-          },
-          {
-            ...defaultColumn,
-            key: 'VALUE',
-            name: 'value',
-          },
-          {
-            ...defaultColumn,
-            key: 'HINT',
-            name: 'hint',
-          },
-        ]}
-      />
-    </div>      
+        className="dataGridSettings"
+        style={{
+          display: tableVisible ? 'block' : 'none',
+        }}
+      >
+        <DataGrid
+          handleGridRowsUpdated={handleSettingGridRowsUpdated}
+          rows={this.state.modelData.settings.map((obj: DbSetting) => {
+            showObj(`obj = ${obj}`);
+            const result = {
+              NAME: obj.NAME,
+              VALUE: obj.VALUE,
+              HINT: obj.HINT,
+            };
+            return result;
+          })}
+          columns={[
+            {
+              ...defaultColumn,
+              key: 'NAME',
+              name: 'name',
+            },
+            {
+              ...defaultColumn,
+              key: 'VALUE',
+              name: 'value',
+            },
+            {
+              ...defaultColumn,
+              key: 'HINT',
+              name: 'hint',
+            },
+          ]}
+        />
+      </div>
     );
   }
 
@@ -1290,142 +1294,142 @@ export class App extends Component<{}, AppState> {
     return <div role="group">{buttons}</div>;
   }
 
-  private expensesTableDiv(){
+  private expensesTableDiv() {
     const tableVisible = showContent.get(expensesTable).display;
     return (
       <div
-      style={{
-        display: tableVisible ? 'block' : 'none',
-      }}
-    >
-      <fieldset>
-        <div className="dataGridExpenses">
-          <DataGrid
-            handleGridRowsUpdated={handleExpenseGridRowsUpdated}
-            rows={this.state.modelData.expenses.map((obj: DbExpense) => {
-              const result = {
-                END: obj.END,
-                IS_CPI_IMMUNE: makeYesNoFromBoolean(obj.CPI_IMMUNE),
-                GROWTH: makeStringFromGrowth(
-                  obj.GROWTH,
-                  this.state.modelData.settings,
-                ),
-                CATEGORY: obj.CATEGORY,
-                NAME: obj.NAME,
-                START: obj.START,
-                VALUE: obj.VALUE,
-                VALUE_SET: obj.VALUE_SET,
-              };
-              return result;
-            })}
-            columns={[
-              {
-                ...defaultColumn,
-                key: 'NAME',
-                name: 'name',
-              },
-              {
-                ...defaultColumn,
-                key: 'VALUE',
-                name: 'start value',
-                formatter: <CashValueFormatter value="unset" />,
-              },
-              {
-                ...defaultColumn,
-                key: 'VALUE_SET',
-                name: 'value date',
-                formatter: (
-                  <TriggerDateFormatter
-                    triggers={this.state.modelData.triggers}
-                    value="unset"
-                  />
-                ),
-              },
-              {
-                ...defaultColumn,
-                key: 'START',
-                name: 'start',
-                formatter: (
-                  <TriggerDateFormatter
-                    triggers={this.state.modelData.triggers}
-                    value="unset"
-                  />
-                ),
-              },
-              {
-                ...defaultColumn,
-                key: 'END',
-                name: 'end',
-                formatter: (
-                  <TriggerDateFormatter
-                    triggers={this.state.modelData.triggers}
-                    value="unset"
-                  />
-                ),
-              },
-              {
-                ...defaultColumn,
-                key: 'GROWTH',
-                name: 'annual growth',
-                formatter: (
-                  <GrowthFormatter
-                    settings={this.state.modelData.settings}
-                    value="unset"
-                  />
-                ),
-              },
-              {
-                ...defaultColumn,
-                key: 'IS_CPI_IMMUNE',
-                name: 'Is immune from CPI?',
-              },
-              {
-                ...defaultColumn,
-                key: 'CATEGORY',
-                name: 'category',
-              },
-            ]}
-          />
-        </div>
-        <p />
-      </fieldset>
-    </div>
+        style={{
+          display: tableVisible ? 'block' : 'none',
+        }}
+      >
+        <fieldset>
+          <div className="dataGridExpenses">
+            <DataGrid
+              handleGridRowsUpdated={handleExpenseGridRowsUpdated}
+              rows={this.state.modelData.expenses.map((obj: DbExpense) => {
+                const result = {
+                  END: obj.END,
+                  IS_CPI_IMMUNE: makeYesNoFromBoolean(obj.CPI_IMMUNE),
+                  GROWTH: makeStringFromGrowth(
+                    obj.GROWTH,
+                    this.state.modelData.settings,
+                  ),
+                  CATEGORY: obj.CATEGORY,
+                  NAME: obj.NAME,
+                  START: obj.START,
+                  VALUE: obj.VALUE,
+                  VALUE_SET: obj.VALUE_SET,
+                };
+                return result;
+              })}
+              columns={[
+                {
+                  ...defaultColumn,
+                  key: 'NAME',
+                  name: 'name',
+                },
+                {
+                  ...defaultColumn,
+                  key: 'VALUE',
+                  name: 'start value',
+                  formatter: <CashValueFormatter value="unset" />,
+                },
+                {
+                  ...defaultColumn,
+                  key: 'VALUE_SET',
+                  name: 'value date',
+                  formatter: (
+                    <TriggerDateFormatter
+                      triggers={this.state.modelData.triggers}
+                      value="unset"
+                    />
+                  ),
+                },
+                {
+                  ...defaultColumn,
+                  key: 'START',
+                  name: 'start',
+                  formatter: (
+                    <TriggerDateFormatter
+                      triggers={this.state.modelData.triggers}
+                      value="unset"
+                    />
+                  ),
+                },
+                {
+                  ...defaultColumn,
+                  key: 'END',
+                  name: 'end',
+                  formatter: (
+                    <TriggerDateFormatter
+                      triggers={this.state.modelData.triggers}
+                      value="unset"
+                    />
+                  ),
+                },
+                {
+                  ...defaultColumn,
+                  key: 'GROWTH',
+                  name: 'annual growth',
+                  formatter: (
+                    <GrowthFormatter
+                      settings={this.state.modelData.settings}
+                      value="unset"
+                    />
+                  ),
+                },
+                {
+                  ...defaultColumn,
+                  key: 'IS_CPI_IMMUNE',
+                  name: 'Is immune from CPI?',
+                },
+                {
+                  ...defaultColumn,
+                  key: 'CATEGORY',
+                  name: 'category',
+                },
+              ]}
+            />
+          </div>
+          <p />
+        </fieldset>
+      </div>
     );
   }
 
-  private expensesChartDiv(){
+  private expensesChartDiv() {
     const chartVisible = showContent.get(expensesChart).display;
     return (
       <div
-      style={{
-        display: chartVisible ? 'block' : 'none',
-      }}
-    >
-      <ReactiveTextArea
-        identifier="expenseDataDump"
-        message={showObj(this.state.expensesChartData)}
-      />
-      {this.makeFiltersList(
-        this.state.modelData.expenses,
-        this.getExpenseChartFocus(),
-        expenseChartFocus,
-        allItems,
-        expenseChartFocusHint,
-      )}
-      {this.coarseFineList()}
-      <fieldset>
+        style={{
+          display: chartVisible ? 'block' : 'none',
+        }}
+      >
         <ReactiveTextArea
-          identifier="expensesDataDump"
+          identifier="expenseDataDump"
           message={showObj(this.state.expensesChartData)}
         />
-        <CanvasJSChart
-          options={{
-            ...defaultChartSettings,
-            data: this.state.expensesChartData,
-          }}
-        />
-      </fieldset>
-    </div>
+        {this.makeFiltersList(
+          this.state.modelData.expenses,
+          this.getExpenseChartFocus(),
+          expenseChartFocus,
+          allItems,
+          expenseChartFocusHint,
+        )}
+        {this.coarseFineList()}
+        <fieldset>
+          <ReactiveTextArea
+            identifier="expensesDataDump"
+            message={showObj(this.state.expensesChartData)}
+          />
+          <CanvasJSChart
+            options={{
+              ...defaultChartSettings,
+              data: this.state.expensesChartData,
+            }}
+          />
+        </fieldset>
+      </div>
     );
   }
 
@@ -1490,147 +1494,147 @@ export class App extends Component<{}, AppState> {
       allItems, // default fallback
     );
     return categoryName;
-  }  
+  }
 
-  private incomesChartDiv(){
+  private incomesChartDiv() {
     const chartVisible = showContent.get(incomesChart).display;
     return (
       <div
-      style={{
-        display: chartVisible ? 'block' : 'none',
-      }}
-    >
-      {this.makeFiltersList(
-        this.state.modelData.incomes,
-        this.getIncomeChartFocus(),
-        incomeChartFocus,
-        allItems,
-        incomeChartFocusHint,
-      )}
-      {this.coarseFineList()}
-      <fieldset>
-        <ReactiveTextArea
-          identifier="incomeDataDump"
-          message={showObj(this.state.incomesChartData)}
-        />
-        <CanvasJSChart
-          options={{
-            ...defaultChartSettings,
-            data: this.state.incomesChartData,
-          }}
-        />
-      </fieldset>
-    </div>
+        style={{
+          display: chartVisible ? 'block' : 'none',
+        }}
+      >
+        {this.makeFiltersList(
+          this.state.modelData.incomes,
+          this.getIncomeChartFocus(),
+          incomeChartFocus,
+          allItems,
+          incomeChartFocusHint,
+        )}
+        {this.coarseFineList()}
+        <fieldset>
+          <ReactiveTextArea
+            identifier="incomeDataDump"
+            message={showObj(this.state.incomesChartData)}
+          />
+          <CanvasJSChart
+            options={{
+              ...defaultChartSettings,
+              data: this.state.incomesChartData,
+            }}
+          />
+        </fieldset>
+      </div>
     );
   }
 
-  private incomesTableDiv(){
+  private incomesTableDiv() {
     const tableVisible = showContent.get(incomesTable).display;
     return (
       <div
-      style={{
-        display: tableVisible ? 'block' : 'none',
-      }}
-    >
-      <fieldset>
-        <div className="dataGridIncomes">
-          <DataGrid
-            handleGridRowsUpdated={handleIncomeGridRowsUpdated}
-            rows={this.state.modelData.incomes.map((obj: DbIncome) => {
-              const result = {
-                END: obj.END,
-                IS_CPI_IMMUNE: makeYesNoFromBoolean(obj.CPI_IMMUNE),
-                GROWTH: makeStringFromGrowth(
-                  obj.GROWTH,
-                  this.state.modelData.settings,
-                ),
-                NAME: obj.NAME,
-                START: obj.START,
-                VALUE: obj.VALUE,
-                VALUE_SET: obj.VALUE_SET,
-                LIABILITY: obj.LIABILITY,
-                CATEGORY: obj.CATEGORY,
-              };
-              // log(`passing ${showObj(result)}`);
-              return result;
-            })}
-            columns={[
-              {
-                ...defaultColumn,
-                key: 'NAME',
-                name: 'name',
-              },
-              {
-                ...defaultColumn,
-                key: 'VALUE',
-                name: 'start value',
-                formatter: <CashValueFormatter value="unset" />,
-              },
-              {
-                ...defaultColumn,
-                key: 'VALUE_SET',
-                name: 'value date',
-                formatter: (
-                  <TriggerDateFormatter
-                    triggers={this.state.modelData.triggers}
-                    value="unset"
-                  />
-                ),
-              },
-              {
-                ...defaultColumn,
-                key: 'START',
-                name: 'start',
-                formatter: (
-                  <TriggerDateFormatter
-                    triggers={this.state.modelData.triggers}
-                    value="unset"
-                  />
-                ),
-              },
-              {
-                ...defaultColumn,
-                key: 'END',
-                name: 'end',
-                formatter: (
-                  <TriggerDateFormatter
-                    triggers={this.state.modelData.triggers}
-                    value="unset"
-                  />
-                ),
-              },
-              {
-                ...defaultColumn,
-                key: 'GROWTH',
-                name: 'annual growth',
-                formatter: (
-                  <GrowthFormatter
-                    settings={this.state.modelData.settings}
-                    value="unset"
-                  />
-                ),
-              },
-              {
-                ...defaultColumn,
-                key: 'IS_CPI_IMMUNE',
-                name: 'Is immune from CPI?',
-              },
-              {
-                ...defaultColumn,
-                key: 'LIABILITY',
-                name: 'taxable?',
-              },
-              {
-                ...defaultColumn,
-                key: 'CATEGORY',
-                name: 'category',
-              },
-            ]}
-          />
-        </div>
-        <p />
-      </fieldset>
-    </div>
+        style={{
+          display: tableVisible ? 'block' : 'none',
+        }}
+      >
+        <fieldset>
+          <div className="dataGridIncomes">
+            <DataGrid
+              handleGridRowsUpdated={handleIncomeGridRowsUpdated}
+              rows={this.state.modelData.incomes.map((obj: DbIncome) => {
+                const result = {
+                  END: obj.END,
+                  IS_CPI_IMMUNE: makeYesNoFromBoolean(obj.CPI_IMMUNE),
+                  GROWTH: makeStringFromGrowth(
+                    obj.GROWTH,
+                    this.state.modelData.settings,
+                  ),
+                  NAME: obj.NAME,
+                  START: obj.START,
+                  VALUE: obj.VALUE,
+                  VALUE_SET: obj.VALUE_SET,
+                  LIABILITY: obj.LIABILITY,
+                  CATEGORY: obj.CATEGORY,
+                };
+                // log(`passing ${showObj(result)}`);
+                return result;
+              })}
+              columns={[
+                {
+                  ...defaultColumn,
+                  key: 'NAME',
+                  name: 'name',
+                },
+                {
+                  ...defaultColumn,
+                  key: 'VALUE',
+                  name: 'start value',
+                  formatter: <CashValueFormatter value="unset" />,
+                },
+                {
+                  ...defaultColumn,
+                  key: 'VALUE_SET',
+                  name: 'value date',
+                  formatter: (
+                    <TriggerDateFormatter
+                      triggers={this.state.modelData.triggers}
+                      value="unset"
+                    />
+                  ),
+                },
+                {
+                  ...defaultColumn,
+                  key: 'START',
+                  name: 'start',
+                  formatter: (
+                    <TriggerDateFormatter
+                      triggers={this.state.modelData.triggers}
+                      value="unset"
+                    />
+                  ),
+                },
+                {
+                  ...defaultColumn,
+                  key: 'END',
+                  name: 'end',
+                  formatter: (
+                    <TriggerDateFormatter
+                      triggers={this.state.modelData.triggers}
+                      value="unset"
+                    />
+                  ),
+                },
+                {
+                  ...defaultColumn,
+                  key: 'GROWTH',
+                  name: 'annual growth',
+                  formatter: (
+                    <GrowthFormatter
+                      settings={this.state.modelData.settings}
+                      value="unset"
+                    />
+                  ),
+                },
+                {
+                  ...defaultColumn,
+                  key: 'IS_CPI_IMMUNE',
+                  name: 'Is immune from CPI?',
+                },
+                {
+                  ...defaultColumn,
+                  key: 'LIABILITY',
+                  name: 'taxable?',
+                },
+                {
+                  ...defaultColumn,
+                  key: 'CATEGORY',
+                  name: 'category',
+                },
+              ]}
+            />
+          </div>
+          <p />
+        </fieldset>
+      </div>
     );
   }
 
@@ -1689,108 +1693,233 @@ export class App extends Component<{}, AppState> {
           display: tableVisible ? 'block' : 'none',
         }}
       >
+        <fieldset>
+          <div className="dataGridTriggers">
+            <DataGrid
+              handleGridRowsUpdated={handleTriggerGridRowsUpdated}
+              rows={this.state.modelData.triggers.map((obj: DbTrigger) => {
+                const result = {
+                  DATE: obj.DATE.toDateString(),
+                  NAME: obj.NAME,
+                };
+                return result;
+              })}
+              columns={[
+                {
+                  ...defaultColumn,
+                  key: 'NAME',
+                  name: 'name',
+                  // sortable: true // TODO
+                },
+                {
+                  ...defaultColumn,
+                  key: 'DATE',
+                  name: 'date',
+                },
+              ]}
+            />
+          </div>
+        </fieldset>
+      </div>
+    );
+  }
+
+  private assetsChartDiv() {
+    const chartVisible = showContent.get(assetsChart).display;
+    return (
+      <div
+        style={{
+          display: chartVisible ? 'block' : 'none',
+        }}
+      >
+        {this.assetsList()}
+        {this.assetViewTypeList()}
+        {this.coarseFineList()}
+        <ReactiveTextArea
+          identifier="assetDataDump"
+          message={showObj(this.state.singleAssetChartData)}
+        />
+        <CanvasJSChart
+          options={{
+            ...defaultChartSettings,
+            data: this.state.singleAssetChartData,
+          }}
+        />
+      </div>
+    );
+  }
+
+  private assetsTableDiv() {
+    const tableVisible = showContent.get(assetsTable).display;
+    return (
+      <div
+        style={{
+          display: tableVisible ? 'block' : 'none',
+        }}
+      >
+        <fieldset>
+          <div className="dataGridAssets">
+            <DataGrid
+              handleGridRowsUpdated={handleAssetGridRowsUpdated}
+              rows={this.state.modelData.assets
+                .filter((obj: DbAsset) => {
+                  return obj.NAME !== taxPot;
+                })
+                .map((obj: DbAsset) => {
+                  const result = {
+                    GROWTH: obj.GROWTH,
+                    NAME: obj.NAME,
+                    CATEGORY: obj.CATEGORY,
+                    START: obj.START,
+                    VALUE: obj.VALUE,
+                    LIABILITY: obj.LIABILITY,
+                    PURCHASE_PRICE: makeStringFromPurchasePrice(
+                      obj.PURCHASE_PRICE,
+                      obj.LIABILITY,
+                    ),
+                    IS_CPI_IMMUNE: makeYesNoFromBoolean(obj.CPI_IMMUNE),
+                  };
+                  return result;
+                })}
+              columns={[
+                {
+                  ...defaultColumn,
+                  key: 'NAME',
+                  name: 'name',
+                },
+                {
+                  ...defaultColumn,
+                  key: 'VALUE',
+                  name: 'value',
+                  formatter: <CashValueFormatter value="unset" />,
+                },
+                {
+                  ...defaultColumn,
+                  key: 'START',
+                  name: 'start',
+                  formatter: (
+                    <TriggerDateFormatter
+                      triggers={this.state.modelData.triggers}
+                      value="unset"
+                    />
+                  ),
+                },
+                {
+                  ...defaultColumn,
+                  key: 'GROWTH',
+                  name: 'growth',
+                  formatter: (
+                    <GrowthFormatter
+                      settings={this.state.modelData.settings}
+                      value="unset"
+                    />
+                  ),
+                },
+                {
+                  ...defaultColumn,
+                  key: 'IS_CPI_IMMUNE',
+                  name: 'Is immune from CPI?',
+                },
+                {
+                  ...defaultColumn,
+                  key: 'LIABILITY',
+                  name: 'liability',
+                },
+                {
+                  ...defaultColumn,
+                  key: 'PURCHASE_PRICE',
+                  name: 'purchase price',
+                  formatter: <CashValueFormatter value="unset" />,
+                },
+                {
+                  ...defaultColumn,
+                  key: 'CATEGORY',
+                  name: 'category',
+                },
+              ]}
+            />
+          </div>
+          <p />
+        </fieldset>
+      </div>
+    );
+  }
+
+  private transactionsTableDiv() {
+    const tableVisible = showContent.get(transactionsTable).display;
+    return (
       <fieldset>
-        <div className="dataGridTriggers">
+        <div
+          className="dataGridTransactions"
+          style={{
+            display: tableVisible ? 'block' : 'none',
+          }}
+        >
           <DataGrid
-            handleGridRowsUpdated={handleTriggerGridRowsUpdated}
-            rows={this.state.modelData.triggers.map((obj: DbTrigger) => {
-              const result = {
-                DATE: obj.DATE.toDateString(),
-                NAME: obj.NAME,
-              };
-              return result;
-            })}
+            handleGridRowsUpdated={handleTransactionGridRowsUpdated}
+            rows={this.state.modelData.transactions.map(
+              (obj: DbTransaction) => {
+                // log(`obj.FROM_ABSOLUTE = ${obj.FROM_ABSOLUTE}`)
+                let fromValueEntry = '';
+                if (obj.FROM !== '') {
+                  fromValueEntry = makeStringFromValueAbsProp(
+                    obj.FROM_VALUE,
+                    obj.FROM_ABSOLUTE,
+                  );
+                }
+                let toValueEntry = '';
+                if (obj.TO !== '') {
+                  toValueEntry = makeStringFromValueAbsProp(
+                    obj.TO_VALUE,
+                    obj.TO_ABSOLUTE,
+                  );
+                }
+                const result = {
+                  DATE: obj.DATE,
+                  FROM: obj.FROM,
+                  FROM_VALUE: fromValueEntry,
+                  NAME: obj.NAME,
+                  TO: obj.TO,
+                  TO_VALUE: toValueEntry,
+                  STOP_DATE: obj.STOP_DATE,
+                  RECURRENCE: obj.RECURRENCE,
+                  CATEGORY: obj.CATEGORY,
+                };
+                return result;
+              },
+            )}
             columns={[
               {
                 ...defaultColumn,
                 key: 'NAME',
                 name: 'name',
-                // sortable: true // TODO
+              },
+              {
+                ...defaultColumn,
+                key: 'FROM',
+                name: 'from asset',
+              },
+              {
+                ...defaultColumn,
+                key: 'FROM_VALUE',
+                name: 'from value',
+                formatter: <ToFromValueFormatter value="unset" />,
+              },
+              {
+                ...defaultColumn,
+                key: 'TO',
+                name: 'to asset',
+              },
+              {
+                ...defaultColumn,
+                key: 'TO_VALUE',
+                name: 'to value',
+                formatter: <ToFromValueFormatter value="unset" />,
               },
               {
                 ...defaultColumn,
                 key: 'DATE',
                 name: 'date',
-              },
-            ]}
-          />
-        </div>
-      </fieldset>
-    </div>
-    );
-  }
-
-  private assetsChartDiv(){
-    const chartVisible = showContent.get(assetsChart).display;
-    return (<div
-      style={{
-        display: chartVisible ? 'block' : 'none',
-      }}
-    >
-      {this.assetsList()}
-      {this.assetViewTypeList()}
-      {this.coarseFineList()}
-      <ReactiveTextArea
-        identifier="assetDataDump"
-        message={showObj(this.state.singleAssetChartData)}
-      />
-      <CanvasJSChart
-        options={{
-          ...defaultChartSettings,
-          data: this.state.singleAssetChartData,
-        }}
-      />
-    </div>);
-  }
-
-  private assetsTableDiv(){
-    const tableVisible = showContent.get(assetsTable).display;
-    return (
-      <div
-      style={{
-        display: tableVisible ? 'block' : 'none',
-      }}
-    >
-      <fieldset>
-        <div className="dataGridAssets">
-          <DataGrid
-            handleGridRowsUpdated={handleAssetGridRowsUpdated}
-            rows={this.state.modelData.assets
-              .filter((obj: DbAsset) => {
-                return obj.NAME !== taxPot;
-              })
-              .map((obj: DbAsset) => {
-                const result = {
-                  GROWTH: obj.GROWTH,
-                  NAME: obj.NAME,
-                  CATEGORY: obj.CATEGORY,
-                  START: obj.START,
-                  VALUE: obj.VALUE,
-                  LIABILITY: obj.LIABILITY,
-                  PURCHASE_PRICE: makeStringFromPurchasePrice(
-                    obj.PURCHASE_PRICE,
-                    obj.LIABILITY,
-                  ),
-                  IS_CPI_IMMUNE: makeYesNoFromBoolean(obj.CPI_IMMUNE),
-                };
-                return result;
-              })}
-            columns={[
-              {
-                ...defaultColumn,
-                key: 'NAME',
-                name: 'name',
-              },
-              {
-                ...defaultColumn,
-                key: 'VALUE',
-                name: 'value',
-                formatter: <CashValueFormatter value="unset" />,
-              },
-              {
-                ...defaultColumn,
-                key: 'START',
-                name: 'start',
                 formatter: (
                   <TriggerDateFormatter
                     triggers={this.state.modelData.triggers}
@@ -1800,30 +1929,19 @@ export class App extends Component<{}, AppState> {
               },
               {
                 ...defaultColumn,
-                key: 'GROWTH',
-                name: 'growth',
+                key: 'RECURRENCE',
+                name: 'recurrence',
+              },
+              {
+                ...defaultColumn,
+                key: 'STOP_DATE',
+                name: 'stop',
                 formatter: (
-                  <GrowthFormatter
-                    settings={this.state.modelData.settings}
+                  <TriggerDateFormatter
+                    triggers={this.state.modelData.triggers}
                     value="unset"
                   />
                 ),
-              },
-              {
-                ...defaultColumn,
-                key: 'IS_CPI_IMMUNE',
-                name: 'Is immune from CPI?',
-              },
-              {
-                ...defaultColumn,
-                key: 'LIABILITY',
-                name: 'liability',
-              },
-              {
-                ...defaultColumn,
-                key: 'PURCHASE_PRICE',
-                name: 'purchase price',
-                formatter: <CashValueFormatter value="unset" />,
               },
               {
                 ...defaultColumn,
@@ -1833,119 +1951,7 @@ export class App extends Component<{}, AppState> {
             ]}
           />
         </div>
-        <p />
       </fieldset>
-    </div>
-    );
-  }
-
-  private transactionsTableDiv(){
-    const tableVisible = showContent.get(transactionsTable).display;
-    return (
-      <fieldset>
-      <div
-        className="dataGridTransactions"
-        style={{
-          display: tableVisible ? 'block' : 'none',
-        }}
-      >
-        <DataGrid
-          handleGridRowsUpdated={handleTransactionGridRowsUpdated}
-          rows={this.state.modelData.transactions.map(
-            (obj: DbTransaction) => {
-              // log(`obj.FROM_ABSOLUTE = ${obj.FROM_ABSOLUTE}`)
-              let fromValueEntry = '';
-              if (obj.FROM !== '') {
-                fromValueEntry = makeStringFromValueAbsProp(
-                  obj.FROM_VALUE,
-                  obj.FROM_ABSOLUTE,
-                );
-              }
-              let toValueEntry = '';
-              if (obj.TO !== '') {
-                toValueEntry = makeStringFromValueAbsProp(
-                  obj.TO_VALUE,
-                  obj.TO_ABSOLUTE,
-                );
-              }
-              const result = {
-                DATE: obj.DATE,
-                FROM: obj.FROM,
-                FROM_VALUE: fromValueEntry,
-                NAME: obj.NAME,
-                TO: obj.TO,
-                TO_VALUE: toValueEntry,
-                STOP_DATE: obj.STOP_DATE,
-                RECURRENCE: obj.RECURRENCE,
-                CATEGORY: obj.CATEGORY,
-              };
-              return result;
-            },
-          )}
-          columns={[
-            {
-              ...defaultColumn,
-              key: 'NAME',
-              name: 'name',
-            },
-            {
-              ...defaultColumn,
-              key: 'FROM',
-              name: 'from asset',
-            },
-            {
-              ...defaultColumn,
-              key: 'FROM_VALUE',
-              name: 'from value',
-              formatter: <ToFromValueFormatter value="unset" />,
-            },
-            {
-              ...defaultColumn,
-              key: 'TO',
-              name: 'to asset',
-            },
-            {
-              ...defaultColumn,
-              key: 'TO_VALUE',
-              name: 'to value',
-              formatter: <ToFromValueFormatter value="unset" />,
-            },
-            {
-              ...defaultColumn,
-              key: 'DATE',
-              name: 'date',
-              formatter: (
-                <TriggerDateFormatter
-                  triggers={this.state.modelData.triggers}
-                  value="unset"
-                />
-              ),
-            },
-            {
-              ...defaultColumn,
-              key: 'RECURRENCE',
-              name: 'recurrence',
-            },
-            {
-              ...defaultColumn,
-              key: 'STOP_DATE',
-              name: 'stop',
-              formatter: (
-                <TriggerDateFormatter
-                  triggers={this.state.modelData.triggers}
-                  value="unset"
-                />
-              ),
-            },
-            {
-              ...defaultColumn,
-              key: 'CATEGORY',
-              name: 'category',
-            },
-          ]}
-        />
-      </div>
-    </fieldset>
     );
   }
 
@@ -1964,7 +1970,8 @@ export class App extends Component<{}, AppState> {
           type="secondary"
           title="important dates"
           id="switchToTriggers"
-        />, &nbsp;
+        />
+        , &nbsp;
         {this.state.modelData.incomes.length} &nbsp;
         <Button
           action={() => {
@@ -1973,7 +1980,8 @@ export class App extends Component<{}, AppState> {
           type="secondary"
           title="incomes"
           id="switchToIncomes"
-        />,&nbsp;
+        />
+        ,&nbsp;
         {this.state.modelData.expenses.length} &nbsp;
         <Button
           action={() => {
@@ -1982,8 +1990,8 @@ export class App extends Component<{}, AppState> {
           type="secondary"
           title="expenses"
           id="switchToExpenses"
-        />,
-        &nbsp;
+        />
+        , &nbsp;
         {this.state.modelData.assets.length} &nbsp;
         <Button
           action={() => {
@@ -1992,8 +2000,8 @@ export class App extends Component<{}, AppState> {
           type="secondary"
           title="assets"
           id="switchToAssets"
-        />, 
-        &nbsp;
+        />
+        , &nbsp;
         {this.state.modelData.transactions.length} &nbsp;
         <Button
           action={() => {
@@ -2055,26 +2063,26 @@ export class App extends Component<{}, AppState> {
           id="toggle-triggersChart"
         />
         {this.triggersTableDiv()}
-      <p />
-      <div className="addNewTrigger">
-        <h4> Add or delete important date </h4>
-        <AddDeleteTriggerForm
-          checkFunction={checkTrigger}
-          submitFunction={submitTrigger}
-          deleteFunction={deleteTriggerFromTable}
-          showTriggerTable={() => {
-            // force show if we have exactly one trigger
-            // log(`has ${this.state.modelData.triggers} triggers...`)
-            if (this.state.modelData.triggers.length === 1) {
-              showContent.set(triggersTable, {
-                display: true,
-              });
-            }
-          }}
-          model={this.state.modelData}
-        />
+        <p />
+        <div className="addNewTrigger">
+          <h4> Add or delete important date </h4>
+          <AddDeleteTriggerForm
+            checkFunction={checkTrigger}
+            submitFunction={submitTrigger}
+            deleteFunction={deleteTriggerFromTable}
+            showTriggerTable={() => {
+              // force show if we have exactly one trigger
+              // log(`has ${this.state.modelData.triggers} triggers...`)
+              if (this.state.modelData.triggers.length === 1) {
+                showContent.set(triggersTable, {
+                  display: true,
+                });
+              }
+            }}
+            model={this.state.modelData}
+          />
+        </div>
       </div>
-    </div>
     );
   }
 
@@ -2241,8 +2249,7 @@ export class App extends Component<{}, AppState> {
           key={assetsTable.lc}
           id="toggleAssetsTable"
         />
-        {this.assetsChartDiv()};
-        {this.assetsTableDiv()};
+        {this.assetsChartDiv()};{this.assetsTableDiv()};
         <div className="addNewAsset">
           <h4> Add or delete asset </h4>
           <AddDeleteAssetForm

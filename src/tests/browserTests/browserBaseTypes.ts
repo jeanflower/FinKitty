@@ -238,9 +238,7 @@ export async function beforeAllWork(
 
   const alert = driver.switchTo().alert();
   const alertText = await alert.getText();
-  expect(alertText).toEqual(
-    `Type DB access key id`,
-  );
+  expect(alertText).toEqual(`Type DB access key id`);
   await alert.sendKeys('TestAccessKeyID');
   // log(`alertText = ${alertText}`);
   await alert.accept();

@@ -37,7 +37,6 @@ import {
   printDebug,
   showObj,
   makeDateFromString,
-  makeModelFromJSON,
 } from './utils';
 
 function parseRecurrenceString(recurrence: string) {
@@ -1630,10 +1629,11 @@ function logPurchaseValues(
 
 // This is the key entry point for code calling from outside
 // this file.
-export function getEvaluations(data_in: DbModelData): Evaluation[] {
-  // log(`received data ${showObj(data_in)}`);
+export function getEvaluations(data: DbModelData): Evaluation[] {
+  // to test JSON, we can round trip here
+  // log(`received data ${showObj(dataIn)}`);
+  // const data: DbModelData = makeModelFromJSON(JSON.stringify(dataIn));
 
-  const data: DbModelData = makeModelFromJSON(JSON.stringify(data_in));
   const message = checkData(data);
   if (message.length > 0) {
     log(message);

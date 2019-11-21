@@ -37,7 +37,7 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
         rowGetter={this.rowGetter.bind(this)}
         rowsCount={this.props.rows.length}
         onGridRowsUpdated={this.props.handleGridRowsUpdated}
-        minHeight={this.props.rows.length*35 + 50}
+        minHeight={this.props.rows.length * 35 + 50}
         // minWidth={500}
         enableCellSelect={true}
         enableRowSelect={undefined}
