@@ -1630,9 +1630,6 @@ function logPurchaseValues(
 // This is the key entry point for code calling from outside
 // this file.
 export function getEvaluations(data: DbModelData): Evaluation[] {
-  // to test JSON, we can round trip here
-  // log(`received data ${showObj(dataIn)}`);
-  // const data: DbModelData = makeModelFromJSON(JSON.stringify(dataIn));
 
   const message = checkData(data);
   if (message.length > 0) {

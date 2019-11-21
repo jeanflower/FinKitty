@@ -58,6 +58,7 @@ import {
   suppressLogs,
   unSuppressLogs,
   makeDateFromString,
+  makeModelFromJSON,
   // showObj,
 } from '../../utils';
 
@@ -268,6 +269,17 @@ function printTestCodeForChart(result: DataForView) {
     toPrint += '\n';
   }
   log(toPrint);
+}
+
+const testJSONRoundTrip = true;
+
+function getTestEvaluations(model: DbModelData): Evaluation[] {
+  if(testJSONRoundTrip){
+    return getEvaluations(model);    
+  } else {
+    return getEvaluations(
+      makeModelFromJSON(JSON.stringify(model)));
+  }
 }
 
 export function getModelFutureExpense() {
@@ -514,7 +526,9 @@ describe('evaluations tests', () => {
     const model = modelAndRoi.model;
     const roi = modelAndRoi.roi;
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getEvaluations(
+      makeModelFromJSON(JSON.stringify(model))
+    );
 
     expect(evals.length).toBe(0);
     // log(showObj(evals));
@@ -559,7 +573,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
 
     // this clumsy block is to allow printTestCodeForEvals to be "used"
@@ -634,7 +648,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
 
     expect(evals.length).toBe(0);
     // log(showObj(evals));
@@ -680,7 +694,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiEnd, roi.end);
     setSetting(model.settings, viewFrequency, annually);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
 
     expect(evals.length).toBe(2);
     expectEvals(evals, 0, 'Phon', 'Mon Jan 01 2018', 12.12, 2);
@@ -729,7 +743,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiEnd, roi.end);
     setSetting(model.settings, viewFrequency, annually);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
 
     expect(evals.length).toBe(2);
     expectEvals(evals, 0, 'Phon', 'Mon Jan 01 2018', 12.12, 2);
@@ -796,7 +810,7 @@ describe('evaluations tests', () => {
     };
     setSetting(model.settings, cpi, '12.0');
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -860,7 +874,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -925,7 +939,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -992,7 +1006,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -1053,7 +1067,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // printTestCodeForEvals(evals);
 
     expect(evals.length).toBe(3);
@@ -1114,7 +1128,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
 
     // printTestCodeForEvals(evals);
 
@@ -1173,7 +1187,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiEnd, roi.end);
     setSetting(model.settings, viewFrequency, annually);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
 
     // printTestCodeForEvals(evals);
 
@@ -1232,7 +1246,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // printTestCodeForEvals(evals);
 
     expect(evals.length).toBe(2);
@@ -1293,7 +1307,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // printTestCodeForEvals(evals);
 
     expect(evals.length).toBe(2);
@@ -1351,7 +1365,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // printTestCodeForEvals(evals);
 
     expect(evals.length).toBe(2);
@@ -1407,7 +1421,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // printTestCodeForEvals(evals);
 
     expect(evals.length).toBe(3);
@@ -1481,7 +1495,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // printTestCodeForEvals(evals);
 
     expect(evals.length).toBe(3);
@@ -1551,7 +1565,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
 
     // printTestCodeForEvals(evals);
 
@@ -1610,7 +1624,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiEnd, roi.end);
     setSetting(model.settings, cpi, '12');
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
 
     // printTestCodeForEvals(evals);
 
@@ -1670,7 +1684,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiEnd, roi.end);
     setSetting(model.settings, cpi, '12');
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
 
     // printTestCodeForEvals(evals);
 
@@ -1730,7 +1744,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiEnd, roi.end);
     setSetting(model.settings, cpi, '12');
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
 
     // printTestCodeForEvals(evals);
 
@@ -1791,7 +1805,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, viewFrequency, annually);
     setSetting(model.settings, assetChartView, assetChartDeltas);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
 
     // printTestCodeForEvals(evals);
 
@@ -1876,7 +1890,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // printTestCodeForEvals(evals);
 
     expect(evals.length).toBe(2);
@@ -1943,7 +1957,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
 
     // printTestCodeForEvals(evals);
 
@@ -2018,7 +2032,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
 
     // printTestCodeForEvals(evals);
 
@@ -2084,7 +2098,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
 
     // printTestCodeForEvals(evals);
 
@@ -2152,7 +2166,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
 
     // printTestCodeForEvals(evals);
 
@@ -2226,7 +2240,7 @@ describe('evaluations tests', () => {
 
     setSetting(model.settings, viewFrequency, monthly);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
 
     // printTestCodeForEvals(evals);
 
@@ -2308,7 +2322,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
 
     // printTestCodeForEvals(evals);
 
@@ -2414,7 +2428,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
 
     // printTestCodeForEvals(evals);
 
@@ -2523,7 +2537,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
 
     // printTestCodeForEvals(evals);
 
@@ -2613,7 +2627,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
 
     // printTestCodeForEvals(evals);
 
@@ -2708,7 +2722,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
 
     // printTestCodeForEvals(evals);
 
@@ -2863,7 +2877,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
 
     // printTestCodeForEvals(evals);
 
@@ -3019,7 +3033,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
 
     // printTestCodeForEvals(evals);
 
@@ -3174,7 +3188,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
 
     // printTestCodeForEvals(evals);
 
@@ -3334,7 +3348,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
 
     // printTestCodeForEvals(evals);
 
@@ -3475,7 +3489,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
 
     // printTestCodeForEvals(evals);
 
@@ -3629,7 +3643,7 @@ describe('evaluations tests', () => {
       x.VALUE = CASH_ASSET_NAME;
     }
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
 
     // printTestCodeForEvals(evals);
 
@@ -3838,7 +3852,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
 
     // printTestCodeForEvals(evals);
 
@@ -3993,7 +4007,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
 
     // printTestCodeForEvals(evals);
 
@@ -4082,7 +4096,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -4195,7 +4209,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -4312,7 +4326,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -4417,7 +4431,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -4498,7 +4512,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -4578,7 +4592,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -4660,7 +4674,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -4755,7 +4769,7 @@ describe('evaluations tests', () => {
     };
     setSetting(model.settings, cpi, `${smallCPI}`);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
 
     // log(`evals = ${showObj(evals)}`);
 
@@ -4918,7 +4932,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -5017,7 +5031,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -5119,7 +5133,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -5218,7 +5232,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -5317,7 +5331,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -5419,7 +5433,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -5510,7 +5524,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -5590,7 +5604,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -5672,7 +5686,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -5755,7 +5769,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -5837,7 +5851,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
 
     // printTestCodeForEvals(evals);
 
@@ -5971,7 +5985,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -6094,7 +6108,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -6217,7 +6231,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -6397,7 +6411,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -6529,7 +6543,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -6633,7 +6647,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -6752,7 +6766,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -6940,7 +6954,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -7130,7 +7144,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -7325,7 +7339,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -7523,7 +7537,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
 
     // printTestCodeForEvals(evals);
 
@@ -7849,7 +7863,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -7987,7 +8001,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
 
     // printTestCodeForEvals(evals);
 
@@ -8084,7 +8098,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
 
     // printTestCodeForEvals(evals);
 
@@ -8195,7 +8209,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
 
     // printTestCodeForEvals(evals);
 
@@ -8311,7 +8325,7 @@ describe('evaluations tests', () => {
       ],
     };
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
 
     // printTestCodeForEvals(evals);
 
@@ -8406,7 +8420,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
 
     // printTestCodeForEvals(evals);
 
@@ -8502,7 +8516,7 @@ describe('evaluations tests', () => {
     };
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
 
     // printTestCodeForEvals(evals);
 
@@ -8594,7 +8608,7 @@ describe('evaluations tests', () => {
     };
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
 
     // printTestCodeForEvals(evals);
 
@@ -8662,7 +8676,7 @@ describe('evaluations tests', () => {
     };
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
 
     // printTestCodeForEvals(evals);
 
@@ -8737,7 +8751,7 @@ describe('evaluations tests', () => {
     };
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
 
     // printTestCodeForEvals(evals);
 
@@ -8799,7 +8813,7 @@ describe('evaluations tests', () => {
 
     setSetting(model.settings, viewDetail, coarse);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -8937,7 +8951,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, assetChartFocus, 'Accessible');
     setSetting(model.settings, viewDetail, coarse);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -8977,7 +8991,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, assetChartFocus, 'Accessible');
     setSetting(model.settings, viewDetail, fine);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -9027,7 +9041,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, viewDetail, coarse);
     setSetting(model.settings, assetChartView, assetChartDeltas);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
     // don't assert evaluations - already done in another test
 
@@ -9117,7 +9131,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, viewDetail, coarse);
     setSetting(model.settings, assetChartView, assetChartReductions);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
     // don't assert evaluations - already done in another test
 
@@ -9168,7 +9182,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, viewDetail, coarse);
     setSetting(model.settings, assetChartView, assetChartAdditions);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
     // don't assert evaluations - already done in another test
 
@@ -9252,7 +9266,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, assetChartFocus, 'Accessible');
     setSetting(model.settings, viewDetail, coarse);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -9297,7 +9311,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, assetChartFocus, 'Accessible');
     setSetting(model.settings, viewDetail, fine);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -9347,7 +9361,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, viewDetail, coarse);
     setSetting(model.settings, assetChartView, assetChartAdditions);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
     // don't assert evaluations - already done in another test
 
@@ -9395,7 +9409,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, viewDetail, coarse);
     setSetting(model.settings, assetChartView, assetChartReductions);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
     // don't assert evaluations - already done in another test
 
@@ -9444,7 +9458,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, viewDetail, coarse);
     setSetting(model.settings, assetChartView, assetChartDeltas);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
     // don't assert evaluations - already done in another test
 
@@ -9517,7 +9531,7 @@ describe('evaluations tests', () => {
       setSetting(model.settings, key, 'nonsense');
 
       suppressLogs();
-      const evals: Evaluation[] = getEvaluations(model);
+      const evals: Evaluation[] = getTestEvaluations(model);
       unSuppressLogs();
       // log(`evals = ${showObj(evals)}`);
       // don't assert evaluations - already done in another test
@@ -9609,7 +9623,7 @@ describe('evaluations tests', () => {
     };
 
     suppressLogs();
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     unSuppressLogs();
     // printTestCodeForEvals(evals);
     expect(evals.length).toBe(0);
@@ -9657,7 +9671,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
 
     // printTestCodeForEvals(evals);
 
@@ -9756,7 +9770,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
 
     // printTestCodeForEvals(evals);
 
@@ -9858,7 +9872,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
 
     // printTestCodeForEvals(evals);
 
@@ -9950,7 +9964,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiStart, roi.start);
     setSetting(model.settings, roiEnd, roi.end);
 
-    const evals: Evaluation[] = getEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
 
     // printTestCodeForEvals(evals);
 
