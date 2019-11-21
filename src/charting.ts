@@ -152,7 +152,7 @@ function makeChartDataPoints(
   dates: Date[],
   items: string[],
   settings: DbSetting[],
-): Array<{ name: string; chartDataPoints: ChartDataPoint[] }> {
+): { name: string; chartDataPoints: ChartDataPoint[] }[] {
   // log(`make chart data for ${items}`);
   logMapOfMap(dateNameValueMap);
   const chartDataPointMap = new Map<

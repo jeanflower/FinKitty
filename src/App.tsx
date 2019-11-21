@@ -1177,7 +1177,7 @@ export class App extends Component<{}, AppState> {
   }
 
   private makeFiltersList(
-    gridData: Array<{ CATEGORY: string; NAME: string }>,
+    gridData: { CATEGORY: string; NAME: string }[],
     selectedChartFocus: string,
     settingName: string,
     defaultSetting: string,
