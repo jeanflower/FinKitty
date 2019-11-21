@@ -186,7 +186,26 @@ function getDisplay(type: ViewType) {
   const result = show.get(type).display;
   return result;
 }
-
+function makeJChartData(data: ItemChartData[]){
+  let chartData;
+  if(data.length > 1){
+    chartData = data.map((x: ItemChartData) => ({
+      dataPoints: x.chartDataPoints,
+      name: x.item.NAME,
+      type: 'stackedColumn',
+      showInLegend: true,
+    }));
+  } else {
+    chartData = data.map((x: ItemChartData) => ({
+      dataPoints: x.chartDataPoints,
+      name: x.item.NAME,
+      type: 'stackedColumn',
+      showInLegend: true,
+      color: '#ff9933',
+    }));
+  }  
+  return chartData;
+}
 async function refreshData() {
   // log('refreshData in App - get data and redraw content');
   // go to the DB to retreive updated data
@@ -220,11 +239,9 @@ async function refreshData() {
       CPI_IMMUNE: false,
       LIABILITY: '',
       PURCHASE_PRICE: '0',
-      CATEGORY: 'Tax',
+      CATEGORY: '',
     });
   }
-
-  // log(`modelNames = ${modelNames}`);
 
   const result: DataForView = makeChartData(model);
 
@@ -242,10 +259,7 @@ async function refreshData() {
   }
 
   // get the data out of the object we got back
-  // = result.triggers;
-  const { expensesData } = result;
-  const { incomesData } = result;
-  const { assetData } = result;
+  const { expensesData, incomesData, assetData } = result;
 
   if (printDebug()) {
     log('in refreshData');
@@ -254,24 +268,9 @@ async function refreshData() {
     log(` assetData = ${assetData}`);
   }
 
-  const expensesChartData = expensesData.map((x: ItemChartData) => ({
-    dataPoints: x.chartDataPoints,
-    name: x.item.NAME,
-    type: 'stackedColumn',
-    showInLegend: true,
-  }));
-  const incomesChartData = incomesData.map((x: ItemChartData) => ({
-    dataPoints: x.chartDataPoints,
-    name: x.item.NAME,
-    type: 'stackedColumn',
-    showInLegend: true,
-  }));
-  const assetChartData = assetData.map((x: ItemChartData) => ({
-    dataPoints: x.chartDataPoints,
-    name: x.item.NAME,
-    type: 'stackedColumn',
-    showInLegend: true,
-  }));
+  const expensesChartData = makeJChartData(expensesData);
+  const incomesChartData = makeJChartData(incomesData);
+  const assetChartData = makeJChartData(assetData);
 
   if (reactAppComponent !== undefined) {
     // log(`go setState with modelNames = ${modelNames}`);
@@ -746,7 +745,7 @@ interface AppState {
 }
 
 const defaultChartSettings = {
-  height: 500,
+  height: 400,
   toolTip: {
     content: '{name}: {ttip}',
   },
@@ -1273,7 +1272,6 @@ export class App extends Component<{}, AppState> {
             identifier="expenseDataDump"
             message={showObj(this.state.expensesChartData)}
           />
-          <h3>Expense types</h3>:
           {this.makeFiltersList(
             this.state.modelData.expenses,
             this.getExpenseChartFocus(),
@@ -1458,7 +1456,6 @@ export class App extends Component<{}, AppState> {
             display: chartVisible ? 'block' : 'none',
           }}
         >
-          <h3>Income types</h3>:
           {this.makeFiltersList(
             this.state.modelData.incomes,
             this.getIncomeChartFocus(),
@@ -1786,7 +1783,10 @@ export class App extends Component<{}, AppState> {
   }
 
   private assetsList() {
-    const assets: string[] = this.state.modelData.assets.map(data => data.NAME);
+    const assets: string[] = 
+      this.state.modelData.assets.filter(
+        (obj)=>{return obj.NAME !== taxPot}
+      ).map(data => data.NAME);
     // log(`assets = ${assets}`);
     assets.unshift(allItems);
     this.state.modelData.assets.forEach(data => {
@@ -1940,7 +1940,6 @@ export class App extends Component<{}, AppState> {
           }}
         >
           {this.assetsList()}
-          <h3>Asset view type:</h3>
           {this.assetViewTypeList()}
           {this.coarseFineList()}
           <ReactiveTextArea
@@ -1960,11 +1959,15 @@ export class App extends Component<{}, AppState> {
           }}
         >
           <fieldset>
-            <h3>Assets</h3>
             <div className="dataGridAssets">
               <DataGrid
                 handleGridRowsUpdated={handleAssetGridRowsUpdated}
-                rows={this.state.modelData.assets.map((obj: DbAsset) => {
+                rows={this.state.modelData.assets.filter(
+                  (obj: DbAsset) => {
+                    return obj.NAME !== taxPot;
+                  }
+                ).map(
+                  (obj: DbAsset) => {
                   const result = {
                     GROWTH: obj.GROWTH,
                     NAME: obj.NAME,
