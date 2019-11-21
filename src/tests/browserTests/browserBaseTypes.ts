@@ -3,6 +3,7 @@ import {
   ensureDbTables,
   submitIDbModel,
   submitIDbSettings,
+  setupDDB,
 } from '../../database/dynamo';
 import {
   allItems,
@@ -204,7 +205,7 @@ export async function selectModel(driver: any, testDataModelName: string) {
   if (btnData[0] !== undefined) {
     await btnData[0].click();
   } else {
-    log("BUG : can't see model in model list");
+    log(`BUG : can't see model ${testDataModelName} in model list`);
     await sleep(
       10000,
       "BUG : can't see model in model list? lengthen dBSleep?",
@@ -217,6 +218,9 @@ export async function beforeAllWork(
   model: DbModelData,
 ) {
   jest.setTimeout(60000); // allow time for all these tests to run
+
+  await setupDDB('TestAccessKeyID');
+
   await deleteAllData(testDataModelName);
   await ensureDbTables(testDataModelName);
   await submitIDbModel(model, testDataModelName);
@@ -231,6 +235,15 @@ export async function beforeAllWork(
     2500, // was calcSleep twice
     '--- after browser loads URI',
   );
+
+  const alert = driver.switchTo().alert();
+  const alertText = await alert.getText();
+  expect(alertText).toEqual(
+    `Type DB access key id`,
+  );
+  await alert.sendKeys('TestAccessKeyID');
+  // log(`alertText = ${alertText}`);
+  await alert.accept();
 
   await selectModel(driver, testDataModelName);
   await sleep(calcSleep, '--- after model selected');

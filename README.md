@@ -9,7 +9,9 @@ As a one-off, install dynamodb locally from here https://docs.aws.amazon.com/ama
 This uses java (Java Runtime Environment (JRE) version 6.x or newer) so you may need to install that too.
 
 Every time you want to use the page, have the dynamo DB running. Run this in the local dynamo folder.
-`java -Djava.library.path=./DynamoDBLocal_lib -jar DynamoDBLocal.jar -sharedDb --cors "*"`
+`java -Djava.library.path=./DynamoDBLocal_lib -jar DynamoDBLocal.jar --cors "*"`
+
+When the app starts, it'll request an accessID from you for database access.  That is an identifier to a local DB file.  Any data you add to the app will end up in that file.  Using the same accessID later will give you access to the data you added in a previous session.  To clear your data, you can either use the App's Manage Models tab, or delete your local file named using the access ID (for example, an access ID `access1` will create a local file called `access1_local.db`).
 
 There's a startDB.sh script in this repo, but the path to the dynamo install is hardcoded in that script so may need adjustment for your environment.
 

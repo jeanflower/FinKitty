@@ -4,6 +4,7 @@ import {
   ensureDbTables,
   getDbAssets,
   submitIDbAssets,
+  setupDDB,
 } from '../../database/dynamo';
 import { log, showObj } from '../../utils';
 
@@ -32,6 +33,8 @@ function sameAsset(a: DbAsset, b: DbAsset) {
 
 describe('database work', () => {
   beforeEach(async () => {
+    await setupDDB('TestAccessKeyID');
+
     // log(`go to clear DB and ensure blank tables`);
     await deleteAllTables(modelName);
     await ensureDbTables(modelName);

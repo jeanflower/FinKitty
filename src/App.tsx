@@ -33,6 +33,7 @@ import {
   submitIDbSettings,
   submitIDbTransactions,
   submitIDbTriggers,
+  setupDDB,
 } from './database/dynamo';
 import {
   sampleAssets,
@@ -216,6 +217,22 @@ async function refreshData() {
     alert('error contacting database');
     return;
   }
+
+  //log(`modelNames are ${modelNames}`);
+  if(modelNames.find((x)=>{return x === sampleModel;}) === undefined){
+    // force us to have at least the sample model
+    await ensureDbTables(modelName);
+    await Promise.all([
+      submitIDbExpenses(sampleExpenses, modelName),
+      submitIDbIncomes(sampleIncomes, modelName),
+      submitIDbTriggers(sampleTriggers, modelName),
+      submitIDbAssets(sampleAssets, modelName),
+      submitIDbTransactions(sampleTransactions, modelName),
+      submitIDbSettings(sampleSettings, modelName),
+    ]);
+    modelNames = await getDbModelNames();
+  }
+
   const model = await getDbModel(modelName);
 
   // log(`got ${modelNames.length} modelNames`);
@@ -898,6 +915,12 @@ export async function stringifyDB(): Promise<string> {
 export class App extends Component<{}, AppState> {
   public constructor(props: {}) {
     super(props);
+
+    let accessKeyID = prompt("Type DB access key id");
+    if(accessKeyID !== null){
+      setupDDB(accessKeyID);
+    }
+  
     reactAppComponent = this;
     refreshData();
     this.state = {

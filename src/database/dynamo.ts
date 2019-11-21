@@ -105,7 +105,14 @@ function makeTableDefinition(tableName: string) {
   return params;
 }
 
-function setupDDB() {
+let ddb:any = undefined;
+
+export async function setupDDB(accessKeyID: string) {
+  if(ddb !== undefined){
+    // log(`found DB OK`);
+    return;
+  }
+  //log(`need to set up DB`);
   // Load credentials from config.json
   // AWS.config.loadFromPath('./config.json');
   // this does not work
@@ -113,16 +120,15 @@ function setupDDB() {
   // Set the credentials and the region
   // this is insecure and the wrong way to do it
   AWS.config.update({
-    accessKeyId: 'foo',
+    accessKeyId: accessKeyID,
     secretAccessKey: 'bar',
     region: 'local',
   });
 
   // Create the DynamoDB service object
-  const ddb: any = new AWS.DynamoDB({ apiVersion: '2012-10-08' });
+  ddb = new AWS.DynamoDB({ apiVersion: '2012-10-08' });
 
   ddb.setEndpoint('http://127.0.0.1:8000');
-  return ddb;
 }
 
 async function getTableNames(ddb: any) {
@@ -192,7 +198,9 @@ async function getModelNames(ddb: any) {
 }
 
 export async function getDbModelNames() {
-  const ddb = setupDDB();
+  if(ddb === undefined) {
+    return [];
+  }
   return getModelNames(ddb);
 }
 
@@ -432,7 +440,9 @@ async function ensureDbTable(ddb: any, tableName: string) {
 }
 
 export async function ensureDbTables(modelName: string) {
-  const ddb = setupDDB();
+  if(ddb === undefined) {
+    return;
+  }
   const results = tablesArray.map(t => ensureDbTable(ddb, t + modelName));
   await Promise.all(results);
   await debugSyncs(`ensureDbTables completed for ${modelName}`);
@@ -577,7 +587,9 @@ async function deleteDbItem(name: string, tableName: string) {
   if (printDebug()) {
     log(`delete ${showObj(name)}`);
   }
-  const ddb = setupDDB();
+  if(ddb === undefined) {
+    return;
+  }
   const params = {
     TableName: tableName,
     Key: {
@@ -612,7 +624,9 @@ export async function submitIDbExpenses(
   expenseInputs: DbExpense[],
   modelName: string,
 ) {
-  const ddb = setupDDB();
+  if(ddb === undefined) {
+    return;
+  }
 
   await Promise.all(
     expenseInputs.map(expenseInput => {
@@ -638,7 +652,9 @@ export async function submitIDbSettings(
   inputs: DbSetting[],
   modelName: string,
 ) {
-  const ddb = setupDDB();
+  if(ddb === undefined) {
+    return;
+  }
 
   await Promise.all(
     inputs.map(input => {
@@ -654,7 +670,9 @@ export async function submitIDbSettings(
 }
 
 export async function submitIDbIncomes(incomes: DbIncome[], modelName: string) {
-  const ddb = setupDDB();
+  if(ddb === undefined) {
+    return;
+  }
 
   await Promise.all(
     incomes.map(incomeInput => {
@@ -681,7 +699,9 @@ export async function submitIDbTriggers(
   triggers: DbTrigger[],
   modelName: string,
 ) {
-  const ddb = setupDDB();
+  if(ddb === undefined) {
+    return;
+  }
 
   await Promise.all(
     triggers.map((triggerInput: DbTrigger) => {
@@ -695,8 +715,13 @@ export async function submitIDbTriggers(
   await debugSyncs(`submitIDbTriggers to ${modelName}`);
 }
 
-export async function submitIDbAssets(assets: DbAsset[], modelName: string) {
-  const ddb = setupDDB();
+export async function submitIDbAssets(
+  assets: DbAsset[], 
+  modelName: string
+) {
+  if(ddb === undefined) {
+    return;
+  }
 
   // log(`go to submit assets to ${modelName}`);
 
@@ -725,7 +750,9 @@ export async function submitIDbTransactions(
   inputs: DbTransaction[],
   modelName: string,
 ) {
-  const ddb = setupDDB();
+  if(ddb === undefined) {
+    return;
+  }
 
   await Promise.all(
     inputs.map(input => {
@@ -977,7 +1004,9 @@ async function getItemData(ddb: any, tableName: string): Promise<DbItem[]> {
 }
 
 async function getDbItems(tableName: string): Promise<DbItem[]> {
-  const ddb = setupDDB();
+  if(ddb === undefined) {
+    return [];
+  }
 
   // const NUM_RETRIES = 5;
   // for (let i = 0; i < NUM_RETRIES; i += 1) {
@@ -1056,7 +1085,9 @@ export async function getDbModel(modelName: string) {
 
 async function deleteTable(tableName: string) {
   // log(`go to delete ${tableName}`);
-  const ddb = setupDDB();
+  if(ddb === undefined) {
+    return;
+  }
 
   if (!(await tableExists(ddb, tableName))) {
     // log(`!!no table to delete '${tableName}'`);
@@ -1078,7 +1109,9 @@ async function deleteTable(tableName: string) {
 }
 
 async function clearTable(tableName: string) {
-  const ddb = setupDDB();
+  if(ddb === undefined) {
+    return;
+  }
 
   if (!(await tableExists(ddb, tableName))) {
     await debugSyncs(`clearTable found absent ${tableName}`);
