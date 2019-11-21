@@ -36,7 +36,7 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
   private expenseStartSelectID = 'expenseStartSelect';
   private expenseEndSelectID = 'expenseEndSelect';
 
-  constructor(props: EditProps) {
+  public constructor(props: EditProps) {
     super(props);
     if (printDebug()) {
       log(`props for AddDeleteExpenseForm has

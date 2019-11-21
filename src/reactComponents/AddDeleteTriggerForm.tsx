@@ -56,7 +56,7 @@ export function newTriggerButtonData(submitTrigger: any, selectId: string) {
 export class AddDeleteTriggerForm extends Component<EditProps, EditFormState> {
   public defaultState: EditFormState;
 
-  constructor(props: EditProps) {
+  public constructor(props: EditProps) {
     super(props);
     if (printDebug()) {
       log(`props for AddDeleteIncomeForm has

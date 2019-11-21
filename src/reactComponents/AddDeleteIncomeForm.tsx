@@ -38,7 +38,7 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
   private incomeStartSelectID = 'incomeStartSelect';
   private incomeEndSelectID = 'incomeEndSelect';
 
-  constructor(props: EditProps) {
+  public constructor(props: EditProps) {
     super(props);
     if (printDebug()) {
       log(`props for AddDeleteIncomeForm has

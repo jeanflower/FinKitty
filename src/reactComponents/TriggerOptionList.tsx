@@ -19,7 +19,7 @@ export class TriggerOptionList extends Component<
   TriggerOptionListProps,
   TriggerOptionListState
 > {
-  constructor(props: TriggerOptionListProps) {
+  public constructor(props: TriggerOptionListProps) {
     super(props);
     this.state = { selectedItem: '' };
   }

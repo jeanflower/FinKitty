@@ -12,7 +12,7 @@ interface EditProps {
   deleteFunction: any;
 }
 export class AddDeleteEntryForm extends Component<EditProps, EditFormState> {
-  constructor(props: EditProps) {
+  public constructor(props: EditProps) {
     super(props);
     if (printDebug()) {
       log('props for EditForm: ' + showObj(props));

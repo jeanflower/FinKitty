@@ -21,7 +21,7 @@ export class ModelManagementForm extends Component<
   ModelManagementProps,
   ModelManagementFormState
 > {
-  constructor(props: ModelManagementProps) {
+  public constructor(props: ModelManagementProps) {
     super(props);
 
     if (printDebug()) {

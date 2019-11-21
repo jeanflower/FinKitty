@@ -35,7 +35,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
 
   private assetStartSelectID = 'assetStartSelect';
 
-  constructor(props: EditProps) {
+  public constructor(props: EditProps) {
     super(props);
     if (printDebug()) {
       log(`props for AddDeleteAssetForm has

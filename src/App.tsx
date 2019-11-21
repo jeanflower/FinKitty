@@ -896,7 +896,7 @@ export async function stringifyDB(): Promise<string> {
 }
 
 export class App extends Component<{}, AppState> {
-  constructor(props: {}) {
+  public constructor(props: {}) {
     super(props);
     reactAppComponent = this;
     refreshData();

@@ -88,7 +88,7 @@ export class AddDeleteTransactionForm extends Component<
   private transactionDateSelectID = 'transactionDateSelect';
   private transactionStopDateSelectID = 'transactionStopDateSelect';
 
-  constructor(props: EditProps) {
+  public constructor(props: EditProps) {
     super(props);
     if (printDebug()) {
       log(`props for AddDeleteTransactionForm has

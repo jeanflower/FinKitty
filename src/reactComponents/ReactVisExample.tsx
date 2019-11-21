@@ -32,7 +32,7 @@ export class ReactVisExample extends React.Component<ReactVisChartProps, {}> {
     dataForHoveredCell: '',
   };
 
-  constructor(props: ReactVisChartProps) {
+  public constructor(props: ReactVisChartProps) {
     super(props);
   }
 
