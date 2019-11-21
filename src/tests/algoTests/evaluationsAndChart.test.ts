@@ -274,11 +274,10 @@ function printTestCodeForChart(result: DataForView) {
 const testJSONRoundTrip = true;
 
 function getTestEvaluations(model: DbModelData): Evaluation[] {
-  if(testJSONRoundTrip){
-    return getEvaluations(model);    
+  if (testJSONRoundTrip) {
+    return getEvaluations(model);
   } else {
-    return getEvaluations(
-      makeModelFromJSON(JSON.stringify(model)));
+    return getEvaluations(makeModelFromJSON(JSON.stringify(model)));
   }
 }
 
@@ -527,7 +526,7 @@ describe('evaluations tests', () => {
     const roi = modelAndRoi.roi;
 
     const evals: Evaluation[] = getEvaluations(
-      makeModelFromJSON(JSON.stringify(model))
+      makeModelFromJSON(JSON.stringify(model)),
     );
 
     expect(evals.length).toBe(0);

@@ -1630,7 +1630,6 @@ function logPurchaseValues(
 // This is the key entry point for code calling from outside
 // this file.
 export function getEvaluations(data: DbModelData): Evaluation[] {
-
   const message = checkData(data);
   if (message.length > 0) {
     log(message);
