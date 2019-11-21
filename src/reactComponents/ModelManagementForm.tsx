@@ -14,8 +14,10 @@ interface ModelManagementProps {
   saveAsFunction: any;
   clearDataFunction: any;
   checkModelDataFunction: any;
-  logDataFunction: any;
+  logDataForJSONFunction: any;
+  logDataForSampleFunction: any;
   replaceWithSampleFunction: any;
+  replaceWithJSONFunction: any;
 }
 export class ModelManagementForm extends Component<
   ModelManagementProps,
@@ -77,7 +79,15 @@ export class ModelManagementForm extends Component<
             this.replaceWithSample(e);
           }}
           title="Replace model data with sample (!)"
-          id={`btn-replace`}
+          id={`btn-replace-sample`}
+          type="secondary"
+        />
+        <Button
+          action={(e: any) => {
+            this.replaceWithJSON(e);
+          }}
+          title="Replace model data with JSON text (!)"
+          id={`btn-replace-JSON`}
           type="secondary"
         />
         <form className="container-fluid" onSubmit={this.select}>
@@ -155,11 +165,16 @@ export class ModelManagementForm extends Component<
   private logData(e: any) {
     e.preventDefault();
     // log('adding something ' + showObj(this));
-    this.props.logDataFunction(this.state.NAME);
+    this.props.logDataForJSONFunction(this.state.NAME);
   }
   private replaceWithSample(e: any) {
     e.preventDefault();
     // log('adding something ' + showObj(this));
     this.props.replaceWithSampleFunction(this.state.NAME);
+  }
+  private replaceWithJSON(e: any){
+    e.preventDefault();
+    // log('adding something ' + showObj(this));
+    this.props.replaceWithJSONFunction(this.state.NAME);
   }
 }

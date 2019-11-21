@@ -1,7 +1,16 @@
-import { DbSetting, DbTrigger } from './types/interfaces';
+import { DbSetting, DbTrigger, DbModelData } from './types/interfaces';
 import { cgt } from './stringConstants';
 import moment from 'moment';
 
+export function makeModelFromJSON(input: string){
+  const result: DbModelData = JSON.parse(input);
+  for(const t of result.triggers){
+    //log(`type of ${t.DATE} = ${typeof t.DATE}`);
+    t.DATE = new Date(t.DATE);
+    //log(`type of ${t.DATE} = ${typeof t.DATE}`);
+  }
+  return result;
+}
 export function makeDateFromString(input: string) {
   // special-case parsing for DD/MM/YYYY
   let dateMomentObject = moment(input, 'DD/MM/YYYY'); // 1st argument - string, 2nd argument - format

@@ -429,6 +429,7 @@ export function checkTransaction(t: DbTransaction, model: DbModelData): string {
 }
 
 export function checkTrigger(t: DbTrigger): string {
+  // log(`check trigger ${showObj(t)}`);
   if (t.NAME.length === 0) {
     return 'Trigger name needs some characters';
   }
@@ -591,7 +592,8 @@ function checkIncomeChartFocus(model: DbModelData) {
 }
 
 export function checkData(model: DbModelData): string {
-  // log('checking data...');
+  // log(`checking data ${showObj(model)}`);
+  // log(`check settings`);
   let message = checkViewFrequency(model.settings);
   if (message.length > 0) {
     return message;
@@ -645,6 +647,7 @@ export function checkData(model: DbModelData): string {
   // which is too heavyweight for this guide to allow them.
   // Separately, loops should be avoided in favor of array iterations.
   // (no-restricted-syntax)
+  // log(`check transactions`);
   for (const t of model.transactions) {
     /* eslint-disable-line no-restricted-syntax */
     message = checkTransaction(t, model);
@@ -652,6 +655,7 @@ export function checkData(model: DbModelData): string {
       return message;
     }
   }
+  // log(`check assets`);
   for (const a of model.assets) {
     /* eslint-disable-line no-restricted-syntax */
     message = checkAsset(a, model);
@@ -659,6 +663,7 @@ export function checkData(model: DbModelData): string {
       return message;
     }
   }
+  // log(`check incomes`);
   for (const i of model.incomes) {
     /* eslint-disable-line no-restricted-syntax */
     message = checkIncome(i, model);
@@ -666,6 +671,7 @@ export function checkData(model: DbModelData): string {
       return message;
     }
   }
+  // log(`check expenses`);
   for (const e of model.expenses) {
     /* eslint-disable-line no-restricted-syntax */
     message = checkExpense(e, model);
@@ -673,6 +679,7 @@ export function checkData(model: DbModelData): string {
       return message;
     }
   }
+  // log(`check triggers`);
   for (const t of model.triggers) {
     /* eslint-disable-line no-restricted-syntax */
     message = checkTrigger(t);

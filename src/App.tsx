@@ -113,6 +113,7 @@ import {
   makePurchasePriceFromString,
   makeStringFromPurchasePrice,
   makeDateFromString,
+  makeModelFromJSON,
 } from './utils';
 import ToFromValueFormatter from './reactComponents/ToFromValueFormatter';
 import TriggerDateFormatter from './reactComponents/TriggerDateFormatter';
@@ -803,7 +804,7 @@ function makeReactVisChartData(x: IChartData): IReactVisChartPoint[] {
 */
 
 // generates text for SampleData.ts
-export async function stringifyDB(): Promise<string> {
+async function stringifyForSampleDataCode(): Promise<string> {
   let result = '';
   /* eslint-disable no-multi-str */
   result +=
@@ -910,6 +911,11 @@ export async function stringifyDB(): Promise<string> {
   result = result.replace(/"/g, "'");
 
   return result;
+}
+
+async function stringifyForJSON(): Promise<string> {
+  const model = await getDbModel(modelName);
+  return JSON.stringify(model);
 }
 
 export class App extends Component<{}, AppState> {
@@ -1085,8 +1091,37 @@ export class App extends Component<{}, AppState> {
             checkModelDataFunction={() => {
               checkModelData();
             }}
-            logDataFunction={() => {
-              stringifyDB().then(x => log(x));
+            logDataForSampleFunction={() => {      
+              stringifyForSampleDataCode().then(x => log(x));
+            }}
+            logDataForJSONFunction={() => {      
+              stringifyForJSON().then(x => log(x));
+            }}
+            replaceWithJSONFunction={() => {
+              const input = prompt('Paste in JSON here');
+              if(input === null){
+                return;
+              }
+              const newModel = makeModelFromJSON(input);
+              Promise.all([
+                deleteAllExpenses(modelName),
+                deleteAllIncomes(modelName),
+                deleteAllTriggers(modelName),
+                deleteAllAssets(modelName),
+                deleteAllTransactions(modelName),
+                deleteAllSettings(modelName),
+              ]).then(() =>
+                ensureDbTables(modelName).then(() =>
+                  Promise.all([
+                    submitIDbExpenses(newModel.expenses, modelName),
+                    submitIDbIncomes(newModel.incomes, modelName),
+                    submitIDbTriggers(newModel.triggers, modelName),
+                    submitIDbAssets(newModel.assets, modelName),
+                    submitIDbTransactions(newModel.transactions, modelName),
+                    submitIDbSettings(newModel.settings, modelName),
+                  ]).then(() => refreshData()),
+                ),
+              );              
             }}
             replaceWithSampleFunction={() => {
               Promise.all([
