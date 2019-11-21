@@ -186,9 +186,9 @@ function getDisplay(type: ViewType) {
   const result = show.get(type).display;
   return result;
 }
-function makeJChartData(data: ItemChartData[]){
+function makeJChartData(data: ItemChartData[]) {
   let chartData;
-  if(data.length > 1){
+  if (data.length > 1) {
     chartData = data.map((x: ItemChartData) => ({
       dataPoints: x.chartDataPoints,
       name: x.item.NAME,
@@ -203,7 +203,7 @@ function makeJChartData(data: ItemChartData[]){
       showInLegend: true,
       color: '#ff9933',
     }));
-  }  
+  }
   return chartData;
 }
 async function refreshData() {
@@ -228,9 +228,11 @@ async function refreshData() {
   model.assets.sort((a, b) => (a.NAME < b.NAME ? -1 : 1));
   modelNames.sort();
 
-  if(model.assets.filter((a)=>{
-    return a.NAME === taxPot;
-  }).length === 0){
+  if (
+    model.assets.filter(a => {
+      return a.NAME === taxPot;
+    }).length === 0
+  ) {
     model.assets.push({
       NAME: taxPot,
       START: '1 Jan 2018',
@@ -586,7 +588,7 @@ function handleAssetGridRowsUpdated() {
     asset[arguments[0].cellKey] = oldValue;
   } else {
     const assetForSubmission: DbAsset = {
-      NAME: asset.NAME, 
+      NAME: asset.NAME,
       VALUE: `${parsedValue.value}`,
       START: asset.START,
       LIABILITY: asset.LIABILITY,
@@ -594,10 +596,10 @@ function handleAssetGridRowsUpdated() {
       CPI_IMMUNE: parsedCPIImmune.value,
       PURCHASE_PRICE: parsedPurchasePrice,
       CATEGORY: asset.CATEGORY,
-    }
+    };
     const checks = checkAsset(
-      assetForSubmission, 
-      reactAppComponent.state.modelData
+      assetForSubmission,
+      reactAppComponent.state.modelData,
     );
     if (checks === '') {
       submitAsset(assetForSubmission);
@@ -952,7 +954,7 @@ export class App extends Component<{}, AppState> {
         }}
         title={model}
         id={`btn-${idKey}-${model}`}
-        type="secondary"
+        type={idKey !== 'del' && modelName === model ? 'primary' : 'secondary'}
       />
     ));
     return <div role="group">{buttons}</div>;
@@ -1031,7 +1033,6 @@ export class App extends Component<{}, AppState> {
     return (
       <div style={{ display: getDisplay(manageModelsView) ? 'block' : 'none' }}>
         <fieldset>
-          <h2 id="ManageModelsHeader">Manage models</h2>
           <p />
           <ModelManagementForm
             name={modelName}
@@ -1099,7 +1100,6 @@ export class App extends Component<{}, AppState> {
     return (
       <div style={{ display: getDisplay(settingsView) ? 'block' : 'none' }}>
         <fieldset>
-          <h2 id="SettingsHeader">Model&nbsp;{modelName}: Settings</h2>
           <Button
             action={(event: any) => {
               event.persist();
@@ -1234,7 +1234,6 @@ export class App extends Component<{}, AppState> {
     const tableVisible = showContent.get(expensesTable).display;
     return (
       <div style={{ display: getDisplay(expensesView) ? 'block' : 'none' }}>
-        <h2 id="ExpensesHeader">Model&nbsp;{modelName}: Expenses</h2>
         <Button
           action={(event: any) => {
             event.persist();
@@ -1426,7 +1425,6 @@ export class App extends Component<{}, AppState> {
     const tableVisible = showContent.get(incomesTable).display;
     return (
       <div style={{ display: getDisplay(incomesView) ? 'block' : 'none' }}>
-        <h2 id="IncomesHeader">Model&nbsp;{modelName}: Incomes</h2>
         <Button
           action={(event: any) => {
             event.persist();
@@ -1601,7 +1599,6 @@ export class App extends Component<{}, AppState> {
     }
     return (
       <div style={{ display: getDisplay(overview) ? 'block' : 'none' }}>
-        <h2 id="OverviewHeader">Model&nbsp;{modelName}: Overview</h2>
         This model has &nbsp;
         {this.state.modelData.triggers.length} important dates, &nbsp;
         {this.state.modelData.incomes.length} incomes, &nbsp;
@@ -1698,7 +1695,6 @@ export class App extends Component<{}, AppState> {
     const tableVisible = showContent.get(triggersTable).display;
     return (
       <div style={{ display: getDisplay(triggersView) ? 'block' : 'none' }}>
-        <h2 id="TriggersHeader">Model&nbsp;{modelName}: Important dates</h2>
         <Button
           action={(event: any) => {
             event.persist();
@@ -1783,10 +1779,11 @@ export class App extends Component<{}, AppState> {
   }
 
   private assetsList() {
-    const assets: string[] = 
-      this.state.modelData.assets.filter(
-        (obj)=>{return obj.NAME !== taxPot}
-      ).map(data => data.NAME);
+    const assets: string[] = this.state.modelData.assets
+      .filter(obj => {
+        return obj.NAME !== taxPot;
+      })
+      .map(data => data.NAME);
     // log(`assets = ${assets}`);
     assets.unshift(allItems);
     this.state.modelData.assets.forEach(data => {
@@ -1909,7 +1906,6 @@ export class App extends Component<{}, AppState> {
     const tableVisible = showContent.get(assetsTable).display;
     return (
       <div style={{ display: getDisplay(assetsView) ? 'block' : 'none' }}>
-        <h2 id="AssetsHeader">Model&nbsp;{modelName}: Assets</h2>
         <Button
           action={(event: any) => {
             event.persist();
@@ -1962,27 +1958,26 @@ export class App extends Component<{}, AppState> {
             <div className="dataGridAssets">
               <DataGrid
                 handleGridRowsUpdated={handleAssetGridRowsUpdated}
-                rows={this.state.modelData.assets.filter(
-                  (obj: DbAsset) => {
+                rows={this.state.modelData.assets
+                  .filter((obj: DbAsset) => {
                     return obj.NAME !== taxPot;
-                  }
-                ).map(
-                  (obj: DbAsset) => {
-                  const result = {
-                    GROWTH: obj.GROWTH,
-                    NAME: obj.NAME,
-                    CATEGORY: obj.CATEGORY,
-                    START: obj.START,
-                    VALUE: obj.VALUE,
-                    LIABILITY: obj.LIABILITY,
-                    PURCHASE_PRICE: makeStringFromPurchasePrice(
-                      obj.PURCHASE_PRICE,
-                      obj.LIABILITY,
-                    ),
-                    IS_CPI_IMMUNE: makeYesNoFromBoolean(obj.CPI_IMMUNE),
-                  };
-                  return result;
-                })}
+                  })
+                  .map((obj: DbAsset) => {
+                    const result = {
+                      GROWTH: obj.GROWTH,
+                      NAME: obj.NAME,
+                      CATEGORY: obj.CATEGORY,
+                      START: obj.START,
+                      VALUE: obj.VALUE,
+                      LIABILITY: obj.LIABILITY,
+                      PURCHASE_PRICE: makeStringFromPurchasePrice(
+                        obj.PURCHASE_PRICE,
+                        obj.LIABILITY,
+                      ),
+                      IS_CPI_IMMUNE: makeYesNoFromBoolean(obj.CPI_IMMUNE),
+                    };
+                    return result;
+                  })}
                 columns={[
                   {
                     ...defaultColumn,
@@ -2065,7 +2060,6 @@ export class App extends Component<{}, AppState> {
     const tableVisible = showContent.get(transactionsTable).display;
     return (
       <div style={{ display: getDisplay(transactionsView) ? 'block' : 'none' }}>
-        <h2 id="TransactionsHeader">Model&nbsp;{modelName}: Transactions</h2>
         <Button
           action={(event: any) => {
             event.persist();
@@ -2220,7 +2214,12 @@ export class App extends Component<{}, AppState> {
     let entry = it.next();
     while (!entry.done) {
       if (getDisplay(entry.value)) {
-        return <h4 className="text-white">{helpText.get(entry.value.lc)}</h4>;
+        return (
+          <h4 className="text-white">
+            {(entry.value !== homeView ? modelName + ': ' : '') +
+              helpText.get(entry.value.lc)}
+          </h4>
+        );
       }
       entry = it.next();
     }

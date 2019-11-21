@@ -2,7 +2,13 @@ import React, { Component } from 'react';
 
 import { checkAssetLiability } from '../checks';
 import { DbAsset, DbModelData } from '../types/interfaces';
-import { checkTriggerDate, log, printDebug, showObj, makeBooleanFromYesNo } from '../utils';
+import {
+  checkTriggerDate,
+  log,
+  printDebug,
+  showObj,
+  makeBooleanFromYesNo,
+} from '../utils';
 import Button from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
 import Input from './Input';

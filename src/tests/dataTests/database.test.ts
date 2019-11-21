@@ -24,7 +24,7 @@ function sameAsset(a: DbAsset, b: DbAsset) {
     a.START === b.START &&
     a.VALUE === b.VALUE &&
     a.CATEGORY === b.CATEGORY;
-  if(!result){
+  if (!result) {
     log(`different assets ${showObj(a)}, ${showObj(b)}`);
   }
   return result;

@@ -1588,7 +1588,6 @@ describe('evaluations tests', () => {
     done();
   });
 
-
   it('should apply cpi to next two assets', done => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
@@ -1646,7 +1645,7 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 3, 'Thu Mar 01 2018', 509.53, 2);
     }
     done();
-  });  
+  });
 
   it('should understand CPI_IMMUNE for growing assets', done => {
     const roi = {
@@ -1706,7 +1705,7 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 3, 'Thu Mar 01 2018', 509.53, 2);
     }
     done();
-  });  
+  });
 
   it('should keep no-growth CPI_IMMUNE assets fixed', done => {
     const roi = {
@@ -1766,7 +1765,7 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 3, 'Thu Mar 01 2018', 500, -1);
     }
     done();
-  }); 
+  });
 
   it('annual chart data for assets', done => {
     const roi = {

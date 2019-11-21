@@ -408,7 +408,7 @@ async function addRequiredSettings(ddb: any, tableName: string): Promise<any> {
       START: { S: '1 Jan 1990' },
       VALUE: { N: '0.0' },
       GROWTH: { S: '0.0' },
-      CPI_IMMUNE: {S: makeStringFromBoolean(false)},
+      CPI_IMMUNE: { S: makeStringFromBoolean(false) },
       LIABILITY: { S: translateForDB('') },
       PURCHASE_PRICE: { N: '0.0' },
     }),

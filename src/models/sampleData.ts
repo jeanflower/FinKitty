@@ -188,6 +188,7 @@ export const sampleAssets: DbAsset[] = [
     START: '1 January 2018',
     VALUE: '-234000', // how much was borrowed
     GROWTH: '2.33', // good rate for early part of deal (excl cpi)
+    CPI_IMMUNE: true,
     CATEGORY: 'mortgage',
   },
   {
@@ -195,6 +196,7 @@ export const sampleAssets: DbAsset[] = [
     NAME: 'LateMortgage',
     START: '1 January 2018',
     GROWTH: '4.66', // after rate goes up (excl cpi)
+    CPI_IMMUNE: true,
     CATEGORY: 'mortgage',
   },
 ];
