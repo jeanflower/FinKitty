@@ -60,7 +60,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
     this.handleLiabilityChange = this.handleLiabilityChange.bind(this);
     this.handleCategoryChange = this.handleCategoryChange.bind(this);
     this.handlePurchasePriceChange = this.handlePurchasePriceChange.bind(this);
-
+    this.handleFixedChange = this.handleFixedChange.bind(this);
     this.handleStartChange = this.handleStartChange.bind(this);
     this.setStart = this.setStart.bind(this);
 
