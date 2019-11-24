@@ -1033,7 +1033,15 @@ export class App extends Component<{}, AppState> {
             if (promptResponse === null) {
               return;
             }
-            if (
+            const regex = RegExp('[a-zA-Z0-9_\\-\\.]+');
+            const whatsLeft = promptResponse.replace(regex, '');
+            log(`whatsLeft = ${whatsLeft}`);
+            if (whatsLeft !== '') {
+              alert(
+                'Model names can only contain a-z, A-Z, 0-9, _, - and . characters',
+              );
+              return;
+            } else if (
               this.state.modelNamesData.find(model => model === promptResponse)
             ) {
               alert("There's already a model with that name");
