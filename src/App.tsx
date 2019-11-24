@@ -1035,7 +1035,7 @@ export class App extends Component<{}, AppState> {
             }
             const regex = RegExp('[a-zA-Z0-9_\\-\\.]+');
             const whatsLeft = promptResponse.replace(regex, '');
-            log(`whatsLeft = ${whatsLeft}`);
+            // log(`whatsLeft = ${whatsLeft}`);
             if (whatsLeft !== '') {
               alert(
                 'Model names can only contain a-z, A-Z, 0-9, _, - and . characters',
