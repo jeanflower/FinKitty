@@ -8,6 +8,7 @@ import {
   printDebug,
   showObj,
   makeBooleanFromYesNo,
+  makeGrowthFromString,
 } from '../utils';
 import Button from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
@@ -314,8 +315,8 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
       alert(`Value set date should be a date`);
       return;
     }
-    isNotANumber = Number.isNaN(parseFloat(this.state.GROWTH));
-    if (isNotANumber) {
+    const parsedGrowth = makeGrowthFromString(this.state.GROWTH, this.props.model.settings);
+    if(!parsedGrowth.checksOK){
       alert(`Growth value '${this.state.GROWTH}' should be a numerical value`);
       return;
     }
@@ -337,7 +338,7 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
       VALUE_SET: this.state.VALUE_SET,
       START: this.state.START,
       END: this.state.END,
-      GROWTH: this.state.GROWTH,
+      GROWTH: parsedGrowth.value,
       CPI_IMMUNE: parseYN.value,
       LIABILITY: this.state.LIABILITY,
       CATEGORY: this.state.CATEGORY,

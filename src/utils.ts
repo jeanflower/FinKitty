@@ -146,7 +146,7 @@ export function makeGrowthFromString(input: string, settings: DbSetting[]) {
     result.checksOK = false;
     return result;
   }
-  result.value = x;
+  result.value = `${num.value}`;
   return result;
 }
 
