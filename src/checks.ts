@@ -46,6 +46,11 @@ import {
   makeDateFromString,
 } from './utils';
 
+export function isNumberString(input: string) {
+  const re = new RegExp('^[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)$');
+  const result = input.replace(re, '');
+  return result === '';
+}
 function checkTransactionWords(
   name: string,
   word: string,
@@ -129,23 +134,23 @@ export function checkAsset(a: DbAsset, model: DbModelData): string {
     }
   }
 
-  if (Number.isNaN(parseFloat(a.GROWTH))) {
+  if (!isNumberString(a.GROWTH)) {
     const settingVal = getSettings(model.settings, a.GROWTH, 'missing');
     if (settingVal === 'missing') {
       return `Asset growth set to '${a.GROWTH}'
         but no corresponding setting found`;
     }
-    if (Number.isNaN(parseFloat(settingVal))) {
+    if (!isNumberString(settingVal)) {
       return `Asset growth set to '${a.GROWTH}'
         but corresponding setting not a number`;
     }
   }
 
-  if (Number.isNaN(parseFloat(a.VALUE))) {
+  if (!isNumberString(a.VALUE)) {
     return `Asset value '${a.VALUE}' is not a number`;
   }
 
-  if (Number.isNaN(parseFloat(a.PURCHASE_PRICE))) {
+  if (!isNumberString(a.PURCHASE_PRICE)) {
     return `Asset purchase price '${a.PURCHASE_PRICE}'
       is not a number`;
   }
@@ -194,10 +199,10 @@ export function checkIncome(i: DbIncome, model: DbModelData): string {
       }
     }
   }
-  if (Number.isNaN(parseFloat(i.VALUE))) {
+  if (!isNumberString(i.VALUE)) {
     return `Income value '${i.VALUE}' is not a number`;
   }
-  if (Number.isNaN(parseFloat(i.GROWTH))) {
+  if (!isNumberString(i.GROWTH)) {
     return `Income growth '${i.GROWTH}' is not a number`;
   }
   const startDate = checkTriggerDate(i.START, model.triggers);
@@ -224,10 +229,10 @@ export function checkExpense(e: DbExpense, model: DbModelData): string {
   if (e.NAME.length === 0) {
     return 'Expense name needs some characters';
   }
-  if (Number.isNaN(parseFloat(e.VALUE))) {
+  if (!isNumberString(e.VALUE)) {
     return `Expense value '${e.VALUE}' is not a number`;
   }
-  if (Number.isNaN(parseFloat(e.GROWTH))) {
+  if (!isNumberString(e.GROWTH)) {
     return `Expense growth '${e.GROWTH}' is not a number`;
   }
   const startDate = checkTriggerDate(e.START, model.triggers);
@@ -357,7 +362,7 @@ export function checkTransaction(t: DbTransaction, model: DbModelData): string {
     }
     if (t.FROM_VALUE === '') {
       return `Transaction from ${t.FROM} needs a non-empty from value`;
-    } else if (Number.isNaN(parseFloat(t.FROM_VALUE))) {
+    } else if (!isNumberString(t.FROM_VALUE)) {
       return `Transaction from value ${t.FROM_VALUE} isn't a number`;
     }
   }
@@ -393,7 +398,7 @@ export function checkTransaction(t: DbTransaction, model: DbModelData): string {
     }
     if (t.TO_VALUE === '') {
       return `Transaction to ${t.TO} needs a non-empty to value`;
-    } else if (Number.isNaN(parseFloat(t.TO_VALUE))) {
+    } else if (!isNumberString(t.TO_VALUE)) {
       return `Transaction to value ${t.TO_VALUE} isn't a number`;
     }
   }

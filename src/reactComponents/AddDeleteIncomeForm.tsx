@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { checkIncomeLiability } from '../checks';
+import { checkIncomeLiability, isNumberString } from '../checks';
 import { DbIncome, DbModelData } from '../types/interfaces';
 import {
   checkTriggerDate,
@@ -230,16 +230,7 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
   }
   private handleFixedChange(e: any) {
     const value = e.target.value;
-    if (value === '') {
-      this.setState({ CPI_IMMUNE: '' });
-      return;
-    }
-    const parsedYN = makeBooleanFromYesNo(value);
-    if (parsedYN.checksOK) {
-      this.setState({ CPI_IMMUNE: value });
-    } else {
-      alert(`Couldn't understand ${value} as a Yes/No value`);
-    }
+    this.setState({ CPI_IMMUNE: value });
   }
   private handleValueChange(e: any) {
     const value = e.target.value;
@@ -292,7 +283,7 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
   private add(e: any): void {
     e.preventDefault();
 
-    const isNotANumber = Number.isNaN(parseFloat(this.state.VALUE));
+    const isNotANumber = !isNumberString(this.state.VALUE);
     if (isNotANumber) {
       alert(`Income value ${this.state.VALUE} should be a numerical value`);
       return;

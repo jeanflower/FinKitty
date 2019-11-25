@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { checkAssetLiability } from '../checks';
+import { checkAssetLiability, isNumberString } from '../checks';
 import { DbAsset, DbModelData } from '../types/interfaces';
 import {
   checkTriggerDate,
@@ -221,16 +221,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
   }
   private handleFixedChange(e: any) {
     const value = e.target.value;
-    if (value === '') {
-      this.setState({ CPI_IMMUNE: '' });
-      return;
-    }
-    const parsedYN = makeBooleanFromYesNo(value);
-    if (parsedYN.checksOK) {
-      this.setState({ CPI_IMMUNE: value });
-    } else {
-      alert(`Couldn't understand ${value} as a Yes/No value`);
-    }
+    this.setState({ CPI_IMMUNE: value });
   }
   private setStart(value: string): void {
     this.setState({ START: value });
@@ -249,7 +240,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
   private add(e: any): void {
     e.preventDefault();
 
-    let isNotANumber = Number.isNaN(parseFloat(this.state.VALUE));
+    let isNotANumber = !isNumberString(this.state.VALUE);
     if (isNotANumber) {
       alert(`Asset value ${this.state.VALUE} should be a numerical value`);
       return;
@@ -260,7 +251,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
       alert(`Start date '${this.state.START}' should be a date`);
       return;
     }
-    isNotANumber = Number.isNaN(parseFloat(this.state.GROWTH));
+    isNotANumber = !isNumberString(this.state.GROWTH);
     if (isNotANumber) {
       alert(`Growth value '${this.state.GROWTH}' should be a numerical value`);
       return;

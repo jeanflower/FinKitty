@@ -12,6 +12,7 @@ import {
 import Button from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
 import Input from './Input';
+import { isNumberString } from '../checks';
 
 interface EditFormState {
   NAME: string;
@@ -212,16 +213,7 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
   }
   private handleFixedChange(e: any) {
     const value = e.target.value;
-    if (value === '') {
-      this.setState({ CPI_IMMUNE: '' });
-      return;
-    }
-    const parsedYN = makeBooleanFromYesNo(value);
-    if (parsedYN.checksOK) {
-      this.setState({ CPI_IMMUNE: value });
-    } else {
-      alert(`Couldn't understand ${value} as a Yes/No value`);
-    }
+    this.setState({ CPI_IMMUNE: value });
   }
   private handleValueChange(e: any) {
     const value = e.target.value;
@@ -274,7 +266,7 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
   private add(e: any): void {
     e.preventDefault();
 
-    const isNotANumber = Number.isNaN(parseFloat(this.state.VALUE));
+    const isNotANumber = !isNumberString(this.state.VALUE);
     if (isNotANumber) {
       alert(`Expense value ${this.state.VALUE} should be a numerical value`);
       return;

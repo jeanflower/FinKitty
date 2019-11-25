@@ -704,19 +704,25 @@ export async function deleteTriggerFromTable(name: string) {
   // log('delete trigger '+name)
   if (deleteTrigger(name, modelName)) {
     await refreshData();
+    return true;
   }
+  return false;
 }
 export async function deleteAssetFromTable(name: string) {
   // log('delete asset '+name)
   if (deleteAsset(name, modelName)) {
     await refreshData();
+    return true;
   }
+  return false;
 }
 export async function deleteTransactionFromTable(name: string) {
   // log('delete transaction '+name)
   if (deleteTransaction(name, modelName)) {
     await refreshData();
+    return true;
   }
+  return false;
 }
 export async function deleteExpenseFromTable(name: string) {
   // log('delete expense '+name)
@@ -730,12 +736,16 @@ export async function deleteIncomeFromTable(name: string) {
   // log('delete income '+name)
   if (deleteIncome(name, modelName)) {
     await refreshData();
+    return true;
   }
+  return false;
 }
 export async function deleteSettingFromTable(name: string) {
   if (deleteSetting(name, modelName)) {
     await refreshData();
+    return true;
   }
+  return false;
 }
 async function saveModelAs(newName: string) {
   await makeDbCopy(modelName, newName);
