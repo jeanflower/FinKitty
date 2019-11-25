@@ -292,7 +292,7 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
   private add(e: any): void {
     e.preventDefault();
 
-    let isNotANumber = Number.isNaN(parseFloat(this.state.VALUE));
+    const isNotANumber = Number.isNaN(parseFloat(this.state.VALUE));
     if (isNotANumber) {
       alert(`Income value ${this.state.VALUE} should be a numerical value`);
       return;
@@ -315,8 +315,11 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
       alert(`Value set date should be a date`);
       return;
     }
-    const parsedGrowth = makeGrowthFromString(this.state.GROWTH, this.props.model.settings);
-    if(!parsedGrowth.checksOK){
+    const parsedGrowth = makeGrowthFromString(
+      this.state.GROWTH,
+      this.props.model.settings,
+    );
+    if (!parsedGrowth.checksOK) {
       alert(`Growth value '${this.state.GROWTH}' should be a numerical value`);
       return;
     }
