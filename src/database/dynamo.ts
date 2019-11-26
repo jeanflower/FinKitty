@@ -464,9 +464,10 @@ async function deleteItem(ddb: any, params: any) {
       });
     });
   } catch (error) {
-    // log(`Error deleting item ${error}`);
+    // log(`deleteItem caught error, returning false: ${error}`);
     return false;
   }
+  // log(`deleteItem returning true`);
   return true;
 }
 
@@ -588,7 +589,7 @@ async function deleteDbItem(name: string, tableName: string) {
     log(`delete ${showObj(name)}`);
   }
   if (ddb === undefined) {
-    return;
+    return false;
   }
   const params = {
     TableName: tableName,

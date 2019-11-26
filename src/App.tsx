@@ -702,15 +702,17 @@ function handleSettingGridRowsUpdated() {
 }
 export async function deleteTriggerFromTable(name: string) {
   // log('delete trigger '+name)
-  if (deleteTrigger(name, modelName)) {
+  if (await deleteTrigger(name, modelName)) {
+    log(`deleted trigger returned true`);
     await refreshData();
     return true;
   }
+  log(`deleted trigger returned false`);
   return false;
 }
 export async function deleteAssetFromTable(name: string) {
   // log('delete asset '+name)
-  if (deleteAsset(name, modelName)) {
+  if (await deleteAsset(name, modelName)) {
     await refreshData();
     return true;
   }
@@ -718,7 +720,7 @@ export async function deleteAssetFromTable(name: string) {
 }
 export async function deleteTransactionFromTable(name: string) {
   // log('delete transaction '+name)
-  if (deleteTransaction(name, modelName)) {
+  if (await deleteTransaction(name, modelName)) {
     await refreshData();
     return true;
   }
@@ -734,14 +736,14 @@ export async function deleteExpenseFromTable(name: string) {
 }
 export async function deleteIncomeFromTable(name: string) {
   // log('delete income '+name)
-  if (deleteIncome(name, modelName)) {
+  if (await deleteIncome(name, modelName)) {
     await refreshData();
     return true;
   }
   return false;
 }
 export async function deleteSettingFromTable(name: string) {
-  if (deleteSetting(name, modelName)) {
+  if (await deleteSetting(name, modelName)) {
     await refreshData();
     return true;
   }
