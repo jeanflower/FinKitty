@@ -85,8 +85,8 @@ export class AddDeleteTransactionForm extends Component<
 > {
   public defaultState: EditFormState;
 
-  private transactionDateSelectID = 'transactionDateSelect';
-  private transactionStopDateSelectID = 'transactionStopDateSelect';
+  private transactionFromSelectID = 'fromAssetSelect';
+  private transactionToSelectID = 'toAssetSelect';
 
   public constructor(props: EditProps) {
     super(props);
@@ -186,7 +186,7 @@ export class AddDeleteTransactionForm extends Component<
           <div className="col">
             {assetOptions(
               this.props.model,
-              'fromAssetSelect',
+              this.transactionFromSelectID,
               this.handleFromChange,
             )}
           </div>{' '}
@@ -194,7 +194,7 @@ export class AddDeleteTransactionForm extends Component<
           <div className="col">
             {assetOptions(
               this.props.model,
-              'toAssetSelect',
+              this.transactionToSelectID,
               this.handleToChange,
             )}
           </div>{' '}
@@ -340,7 +340,6 @@ export class AddDeleteTransactionForm extends Component<
   private handleDateChange(e: any): void {
     const value = e.target.value;
     this.setDate(value);
-    this.resetDateSelect();
   }
   private setStopDate(value: string): void {
     this.setState({ STOP_DATE: value });
@@ -348,21 +347,12 @@ export class AddDeleteTransactionForm extends Component<
   private handleStopDateChange(e: any): void {
     const value = e.target.value;
     this.setStopDate(value);
-    this.resetStopDateSelect();
   }
-  private resetDateSelect() {
-    const selector: any = document.getElementById(this.transactionDateSelectID);
+  private resetSelect(id:string){
+    const selector: any = document.getElementById(id);
     if (selector !== null) {
       selector.selectedIndex = '0';
-    }
-  }
-  private resetStopDateSelect() {
-    const selector: any = document.getElementById(
-      this.transactionStopDateSelectID,
-    );
-    if (selector !== null) {
-      selector.selectedIndex = '0';
-    }
+    }  
   }
   private add(e: any): void {
     e.preventDefault();
@@ -418,7 +408,8 @@ export class AddDeleteTransactionForm extends Component<
       alert('added new transaction');
       // clear fields
       this.setState(this.defaultState);
-      this.resetDateSelect();
+      this.resetSelect(this.transactionFromSelectID);
+      this.resetSelect(this.transactionToSelectID);
     }
   }
   private async delete(e: any) {
@@ -428,7 +419,8 @@ export class AddDeleteTransactionForm extends Component<
       alert('deleted transaction');
       // clear fields
       this.setState(this.defaultState);
-      this.resetDateSelect();
+      this.resetSelect(this.transactionFromSelectID);
+      this.resetSelect(this.transactionToSelectID);
     } else {
       alert(`failed to delete ${this.state.NAME}`);
     }
