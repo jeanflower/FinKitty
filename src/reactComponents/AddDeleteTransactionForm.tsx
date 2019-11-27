@@ -87,6 +87,8 @@ export class AddDeleteTransactionForm extends Component<
 
   private transactionFromSelectID = 'fromAssetSelect';
   private transactionToSelectID = 'toAssetSelect';
+  private transactionDateSelectID = 'transactionDateSelect';
+  private transactionStopDateSelectID = 'transactionStopDateSelect';
 
   public constructor(props: EditProps) {
     super(props);
@@ -163,7 +165,7 @@ export class AddDeleteTransactionForm extends Component<
           <DateSelectionRow
             introLabel="Date on which the transaction occurs:"
             setDateFunction={this.setDate}
-            selectID="transactionDateSelect"
+            selectID={this.transactionDateSelectID}
             inputName="date"
             inputValue={this.state.DATE}
             onChangeHandler={this.handleDateChange}
@@ -245,7 +247,7 @@ export class AddDeleteTransactionForm extends Component<
           <DateSelectionRow
             introLabel="Date on which any recurrence stops:"
             setDateFunction={this.setStopDate}
-            selectID="transactionStopDateSelect"
+            selectID={this.transactionStopDateSelectID}
             inputName="stopDate"
             inputValue={this.state.STOP_DATE}
             onChangeHandler={this.handleStopDateChange}
@@ -408,6 +410,8 @@ export class AddDeleteTransactionForm extends Component<
       alert('added new transaction');
       // clear fields
       this.setState(this.defaultState);
+      this.resetSelect(this.transactionDateSelectID);
+      this.resetSelect(this.transactionStopDateSelectID);
       this.resetSelect(this.transactionFromSelectID);
       this.resetSelect(this.transactionToSelectID);
     }
@@ -419,6 +423,8 @@ export class AddDeleteTransactionForm extends Component<
       alert('deleted transaction');
       // clear fields
       this.setState(this.defaultState);
+      this.resetSelect(this.transactionDateSelectID);
+      this.resetSelect(this.transactionStopDateSelectID);
       this.resetSelect(this.transactionFromSelectID);
       this.resetSelect(this.transactionToSelectID);
     } else {
