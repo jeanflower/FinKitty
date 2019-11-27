@@ -348,11 +348,11 @@ export class AddDeleteTransactionForm extends Component<
     const value = e.target.value;
     this.setStopDate(value);
   }
-  private resetSelect(id:string){
+  private resetSelect(id: string) {
     const selector: any = document.getElementById(id);
     if (selector !== null) {
       selector.selectedIndex = '0';
-    }  
+    }
   }
   private add(e: any): void {
     e.preventDefault();
