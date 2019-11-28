@@ -300,7 +300,7 @@ export class AddDeleteTransactionForm extends Component<
   }
   private handleFromValueChange(e: any) {
     const value = e.target.value;
-    const parseResult = makeValueAbsPropFromString(value, this.state.FROM);
+    const parseResult = makeValueAbsPropFromString(value);
     this.setState({
       FROM_ABSOLUTE: makeStringFromBoolean(parseResult.absolute),
     });
@@ -313,7 +313,7 @@ export class AddDeleteTransactionForm extends Component<
   }
   private handleToValueChange(e: any) {
     const value = e.target.value;
-    const parseResult = makeValueAbsPropFromString(value, this.state.TO);
+    const parseResult = makeValueAbsPropFromString(value);
     this.setState({
       TO_ABSOLUTE: makeStringFromBoolean(parseResult.absolute),
     });

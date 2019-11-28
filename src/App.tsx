@@ -644,14 +644,8 @@ function handleTransactionGridRowsUpdated() {
   const oldValue = gridData[arguments[0].cellKey];
   gridData[arguments[0].cellKey] = arguments[0].updated[arguments[0].cellKey];
 
-  const parseFrom = makeValueAbsPropFromString(
-    gridData.FROM_VALUE,
-    gridData.FROM,
-  );
-  const parseTo = makeValueAbsPropFromString(
-    gridData.TO_VALUE, 
-    gridData.TO,
-  );
+  const parseFrom = makeValueAbsPropFromString(gridData.FROM_VALUE);
+  const parseTo = makeValueAbsPropFromString(gridData.TO_VALUE);
   if (!parseFrom.checksOK) {
     alert('From value should be a number or a number with % symbol');
     gridData[arguments[0].cellKey] = oldValue;
@@ -963,15 +957,13 @@ export class App extends Component<{}, AppState> {
       modelNamesData: [],
     };
   }
-  public componentDidMount(){
-
+  public componentDidMount() {
     // this triggers a resize of the table columns
     // TODO : only do this if the table has not already been displayed
     // and possibly adjusted by the user
     setTimeout(() => {
       window.dispatchEvent(new Event('resize'));
     }, 100);
-
   }
 
   public render() {
@@ -1896,14 +1888,14 @@ export class App extends Component<{}, AppState> {
                   obj.FROM_ABSOLUTE,
                 );
                 if (obj.FROM === '' && fromValueEntry === '£0.00') {
-                  fromValueEntry  = '';
+                  fromValueEntry = '';
                 }
                 let toValueEntry = makeStringFromValueAbsProp(
                   obj.TO_VALUE,
                   obj.TO_ABSOLUTE,
                 );
                 if (obj.TO === '' && toValueEntry === '£0.00') {
-                  toValueEntry = ''
+                  toValueEntry = '';
                 }
                 const result = {
                   DATE: obj.DATE,

@@ -180,7 +180,7 @@ export function makeCashValueFromString(input: string) {
   return result;
 }
 
-export function makeValueAbsPropFromString(input: string, assetName: string) {
+export function makeValueAbsPropFromString(input: string) {
   const result = {
     absolute: true,
     value: input,
