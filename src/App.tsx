@@ -1887,14 +1887,15 @@ export class App extends Component<{}, AppState> {
                   obj.FROM_VALUE,
                   obj.FROM_ABSOLUTE,
                 );
-                if (obj.FROM === '' && fromValueEntry === '£0.00') {
+                // console.log(`obj.FROM = ${obj.FROM}, fromValueEntry = ${fromValueEntry}`);
+                if (obj.FROM === '' && fromValueEntry === '0') {
                   fromValueEntry = '';
                 }
                 let toValueEntry = makeStringFromValueAbsProp(
                   obj.TO_VALUE,
                   obj.TO_ABSOLUTE,
                 );
-                if (obj.TO === '' && toValueEntry === '£0.00') {
+                if (obj.TO === '' && toValueEntry === '0') {
                   toValueEntry = '';
                 }
                 const result = {
