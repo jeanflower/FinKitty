@@ -960,14 +960,22 @@ export class App extends Component<{}, AppState> {
       modelNamesData: [],
     };
   }
+  public componentDidMount(){
+
+    // this triggers a resize of the table columns
+    // TODO : only do this if the table has not already been displayed
+    // and possibly adjusted by the user
+    setTimeout(() => {
+      window.dispatchEvent(new Event('resize'));
+    }, 100);
+
+  }
 
   public render() {
     if (printDebug()) {
       log('in render');
     }
-    setTimeout(() => {
-      window.dispatchEvent(new Event('resize'));
-    }, 100);
+
     return (
       <div>
         <nav className="navbar fixed-top navbar-light bg-dark">
