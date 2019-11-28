@@ -186,12 +186,8 @@ export function makeValueAbsPropFromString(input: string, assetName: string) {
     value: input,
     checksOK: true,
   };
-  if (input === '' && assetName === '') {
-    result.value = '0.0';
-    return result;
-  }
   if (input === '') {
-    result.checksOK = false;
+    result.value = '0.0';
     return result;
   }
   if (input[input.length - 1] === '%') {

@@ -648,7 +648,10 @@ function handleTransactionGridRowsUpdated() {
     gridData.FROM_VALUE,
     gridData.FROM,
   );
-  const parseTo = makeValueAbsPropFromString(gridData.TO_VALUE, gridData.TO);
+  const parseTo = makeValueAbsPropFromString(
+    gridData.TO_VALUE, 
+    gridData.TO,
+  );
   if (!parseFrom.checksOK) {
     alert('From value should be a number or a number with % symbol');
     gridData[arguments[0].cellKey] = oldValue;
@@ -1888,19 +1891,19 @@ export class App extends Component<{}, AppState> {
             rows={this.state.modelData.transactions.map(
               (obj: DbTransaction) => {
                 // log(`obj.FROM_ABSOLUTE = ${obj.FROM_ABSOLUTE}`)
-                let fromValueEntry = '';
-                if (obj.FROM !== '') {
-                  fromValueEntry = makeStringFromValueAbsProp(
-                    obj.FROM_VALUE,
-                    obj.FROM_ABSOLUTE,
-                  );
+                let fromValueEntry = makeStringFromValueAbsProp(
+                  obj.FROM_VALUE,
+                  obj.FROM_ABSOLUTE,
+                );
+                if (obj.FROM === '' && fromValueEntry === '£0.00') {
+                  fromValueEntry  = '';
                 }
-                let toValueEntry = '';
-                if (obj.TO !== '') {
-                  toValueEntry = makeStringFromValueAbsProp(
-                    obj.TO_VALUE,
-                    obj.TO_ABSOLUTE,
-                  );
+                let toValueEntry = makeStringFromValueAbsProp(
+                  obj.TO_VALUE,
+                  obj.TO_ABSOLUTE,
+                );
+                if (obj.TO === '' && toValueEntry === '£0.00') {
+                  toValueEntry = ''
                 }
                 const result = {
                   DATE: obj.DATE,
