@@ -1768,7 +1768,7 @@ export class App extends Component<{}, AppState> {
             data: this.state.singleAssetChartData,
           }}
         />
-      </div>
+        </div>
     );
   }
 
