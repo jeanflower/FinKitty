@@ -200,19 +200,21 @@ export function makeValueAbsPropFromString(input: string) {
       result.checksOK = false;
     }
   } else {
-    const parseNum = isNumber(input);
+    const noCommas = input.replace(',','');
+    const parseNum = isNumber(noCommas);
     if (!parseNum.checksOK) {
-      const parseCashValue = makeCashValueFromString(input);
+      const parseCashValue = makeCashValueFromString(noCommas);
       if (!parseCashValue.checksOK) {
         result.checksOK = false;
       } else {
         result.value = `${parseCashValue.value}`;
       }
     } else {
+      result.value = `${parseNum.value}`;
       // parses OK as a number
     }
   }
-  // log(`parsing ${input} makes result ${showObj(result)}`);
+  log(`parsing ${input} makes result ${showObj(result)}`);
   return result;
 }
 
