@@ -292,7 +292,8 @@ export function writeTestCode(ary: any[]) {
   for (let i = 0; i < ary.length; i += 1) {
     result += `expect(ary[${i}].name).toEqual('${ary[i].name}');\n`;
     result += `expect(ary[${i}].type).toEqual('${ary[i].type}');\n`;
-    result += `expect(ary[${i}].showInLegend).toEqual(${ary[i].showInLegend});\n`;
+    result +=
+      `expect(ary[${i}].showInLegend).toEqual(${ary[i].showInLegend});\n`;
     result +=
       `expect(ary[${i}].dataPoints.length).toEqual(` +
       `${ary[i].dataPoints.length});\n`;

@@ -136,15 +136,18 @@ const assetsView: ViewType = { lc: 'Assets' };
 const triggersView: ViewType = { lc: 'Important dates' };
 const manageModelsView: ViewType = { lc: 'Manage models' };
 const settingsView: ViewType = { lc: 'Settings' };
+
 const expensesChart: ViewType = { lc: 'Expenses chart' };
 const incomesChart: ViewType = { lc: 'Incomes chart' };
 const assetsChart: ViewType = { lc: 'Assets chart' };
+
 const expensesTable: ViewType = { lc: 'Expenses table' };
 const incomesTable: ViewType = { lc: 'Incomes table' };
 const assetsTable: ViewType = { lc: 'Assets table' };
 const transactionsTable: ViewType = { lc: 'Transactions table' };
 const triggersTable: ViewType = { lc: 'Important dates table' };
 const settingsTable: ViewType = { lc: 'Settings table' };
+
 const overview: ViewType = { lc: 'Overview' };
 
 const views = new Map<
