@@ -200,7 +200,7 @@ export function makeValueAbsPropFromString(input: string) {
       result.checksOK = false;
     }
   } else {
-    const noCommas = input.replace(',','');
+    const noCommas = input.replace(',', '');
     const parseNum = isNumber(noCommas);
     if (!parseNum.checksOK) {
       const parseCashValue = makeCashValueFromString(noCommas);

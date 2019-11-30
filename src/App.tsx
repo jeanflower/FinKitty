@@ -147,46 +147,76 @@ const triggersTable: ViewType = { lc: 'Important dates table' };
 const settingsTable: ViewType = { lc: 'Settings table' };
 const overview: ViewType = { lc: 'Overview' };
 
-const views = new Map<ViewType, {
-  display: boolean, 
-  helpText: string,
-}>([
-  [homeView, { 
-    display: true,
-    helpText: 'Create or load a model',
-  }],
-  [overview, { 
-    display: true, 
-    helpText: 'Overview',
-  }],
-  [triggersView, { 
-    display: true, 
-    helpText: 'Create, view or update important dates',
-  }],
-  [incomesView, { 
-    display: true, 
-    helpText: 'Create, view or edit incomes',
-  }],
-  [expensesView, { 
-    display: true, 
-    helpText: 'Create, view or edit expenses',
-  }],
-  [assetsView, { 
-    display: true, 
-    helpText: 'Create, view or edit assets',
-  }],
-  [transactionsView, { 
-    display: true, 
-    helpText: 'Create, view or edit transactions',
-  }],
-  [settingsView, { 
-    display: true, 
-    helpText: 'Settings',
-  }],
-  [manageModelsView, { 
-    display: true, 
-    helpText: 'Create, clone, dump, delete models',
-  }],
+const views = new Map<
+  ViewType,
+  {
+    display: boolean;
+    helpText: string;
+  }
+>([
+  [
+    homeView,
+    {
+      display: true,
+      helpText: 'Create or load a model',
+    },
+  ],
+  [
+    overview,
+    {
+      display: true,
+      helpText: 'Overview',
+    },
+  ],
+  [
+    triggersView,
+    {
+      display: true,
+      helpText: 'Create, view or update important dates',
+    },
+  ],
+  [
+    incomesView,
+    {
+      display: true,
+      helpText: 'Create, view or edit incomes',
+    },
+  ],
+  [
+    expensesView,
+    {
+      display: true,
+      helpText: 'Create, view or edit expenses',
+    },
+  ],
+  [
+    assetsView,
+    {
+      display: true,
+      helpText: 'Create, view or edit assets',
+    },
+  ],
+  [
+    transactionsView,
+    {
+      display: true,
+      helpText: 'Create, view or edit transactions',
+    },
+  ],
+  [
+    settingsView,
+    {
+      display: true,
+      helpText: 'Settings',
+    },
+  ],
+  [
+    manageModelsView,
+    {
+      display: true,
+      helpText: 'Create, clone, dump, delete models',
+    },
+  ],
 ]);
 
 const showContent = new Map<ViewType, any>([
@@ -205,7 +235,7 @@ let reactAppComponent: App;
 
 function getDisplay(type: ViewType) {
   const view = views.get(type);
-  if(view === undefined){
+  if (view === undefined) {
     console.log(`Error : unrecopgnised view ${type}`);
     return false;
   }
@@ -354,7 +384,7 @@ function toggle(type: ViewType) {
   for (const k of views.keys()) {
     if (k !== type) {
       const view = views.get(k);
-      if(view === undefined){
+      if (view === undefined) {
         console.log(`Error : unrecognised view ${type}`);
         return;
       }
@@ -362,7 +392,7 @@ function toggle(type: ViewType) {
     }
   }
   const view = views.get(type);
-  if(view === undefined){
+  if (view === undefined) {
     console.log(`Error : unrecognised view ${type}`);
     return false;
   }
@@ -992,7 +1022,7 @@ export class App extends Component<{}, AppState> {
     };
   }
   public componentDidMount() {
-    toggle(homeView);    
+    toggle(homeView);
   }
 
   public render() {
@@ -1782,7 +1812,7 @@ export class App extends Component<{}, AppState> {
             data: this.state.singleAssetChartData,
           }}
         />
-        </div>
+      </div>
     );
   }
 
@@ -2278,7 +2308,8 @@ export class App extends Component<{}, AppState> {
           key={assetsTable.lc}
           id="toggleAssetsTable"
         />
-        {this.assetsChartDiv()}{this.assetsTableDiv()}
+        {this.assetsChartDiv()}
+        {this.assetsTableDiv()}
         <div className="addNewAsset">
           <h4> Add or delete asset </h4>
           <AddDeleteAssetForm
@@ -2333,13 +2364,13 @@ export class App extends Component<{}, AppState> {
     while (!entry.done) {
       const view = entry.value;
       const viewValue = views.get(view);
-      if(viewValue === undefined){
+      if (viewValue === undefined) {
         console.log(`Error : unrecognised view ${view}`);
         entry = it.next();
         continue;
       }
       const display = viewValue.display;
-    
+
       buttons.push(
         <Button
           action={(event: any) => {
@@ -2350,7 +2381,7 @@ export class App extends Component<{}, AppState> {
           type={display ? 'primary' : 'secondary'}
           key={view.lc}
           id={`btn-${view.lc}`}
-        />
+        />,
       );
       entry = it.next();
     }
@@ -2364,14 +2395,13 @@ export class App extends Component<{}, AppState> {
       if (getDisplay(entry.value)) {
         // console.log(`views.get(entry.value) = ${showObj(views.get(entry.value))}`);
         const view = views.get(entry.value);
-        if(view === undefined){
+        if (view === undefined) {
           log('Error: unrecognised view');
           return;
         }
         return (
           <h4 className="text-white">
-            {(entry.value !== homeView ? modelName + ': ' : '') +
-              view.helpText}
+            {(entry.value !== homeView ? modelName + ': ' : '') + view.helpText}
           </h4>
         );
       }
