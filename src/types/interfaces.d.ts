@@ -154,9 +154,10 @@ export interface ItemChartData {
 }
 
 export interface DataForView {
-  assetData: ItemChartData[]; // for chart views
-  expensesData: ItemChartData[]; // for chart view
-  incomesData: ItemChartData[]; // for chart view
+  assetData: ItemChartData[];
+  expensesData: ItemChartData[];
+  incomesData: ItemChartData[];
+  taxData: ItemChartData[];
 }
 
 export interface Evaluation {

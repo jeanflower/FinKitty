@@ -329,6 +329,7 @@ async function refreshData() {
   result.expensesData.sort((a, b) => (a.item.NAME < b.item.NAME ? 1 : -1));
   result.incomesData.sort((a, b) => (a.item.NAME < b.item.NAME ? 1 : -1));
   result.assetData.sort((a, b) => (a.item.NAME < b.item.NAME ? 1 : -1));
+  result.taxData.sort((a, b) => (a.item.NAME < b.item.NAME ? 1 : -1));
 
   if (printDebug()) {
     result.assetData.forEach(entry => {
@@ -340,18 +341,20 @@ async function refreshData() {
   }
 
   // get the data out of the object we got back
-  const { expensesData, incomesData, assetData } = result;
+  const { expensesData, incomesData, assetData, taxData } = result;
 
   if (printDebug()) {
     log('in refreshData');
     log(` expensesData = ${expensesData}`);
     log(` incomesData = ${incomesData}`);
     log(` assetData = ${assetData}`);
+    log(` taxData = ${taxData}`);
   }
 
   const expensesChartData = makeJChartData(expensesData);
   const incomesChartData = makeJChartData(incomesData);
   const assetChartData = makeJChartData(assetData);
+  const taxChartData = makeJChartData(taxData);
 
   if (reactAppComponent !== undefined) {
     // log(`go setState with modelNames = ${modelNames}`);
@@ -363,6 +366,7 @@ async function refreshData() {
         expensesChartData,
         incomesChartData,
         assetChartData,
+        taxChartData,
         modelNamesData: modelNames,
       },
       () => {
@@ -841,6 +845,7 @@ interface AppState {
   expensesChartData: ChartData[];
   incomesChartData: ChartData[];
   assetChartData: ChartData[];
+  taxChartData: ChartData[];
   modelNamesData: string[];
 }
 
@@ -1021,6 +1026,7 @@ export class App extends Component<{}, AppState> {
       expensesChartData: [],
       incomesChartData: [],
       assetChartData: [],
+      taxChartData: [],
       modelNamesData: [],
     };
   }
@@ -1813,6 +1819,12 @@ export class App extends Component<{}, AppState> {
           options={{
             ...defaultChartSettings,
             data: this.state.assetChartData,
+          }}
+        />
+        <CanvasJSChart
+          options={{
+            ...defaultChartSettings,
+            data: this.state.taxChartData,
           }}
         />
       </div>

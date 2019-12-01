@@ -35,6 +35,7 @@ import {
   DbSetting,
   Evaluation,
   Interval,
+  ItemChartData,
 } from './types/interfaces';
 import {
   getSettings,
@@ -152,7 +153,7 @@ function makeChartDataPoints(
   dates: Date[],
   items: string[],
   settings: DbSetting[],
-): { name: string; chartDataPoints: ChartDataPoint[] }[] {
+): ItemChartData[] {
   // log(`make chart data for ${items}`);
   logMapOfMap(dateNameValueMap);
   const chartDataPointMap = new Map<
@@ -210,20 +211,34 @@ function makeChartDataPoints(
       }
     });
   });
-  const result = [];
+  const allChartDataPoints = [];
   for (const [item, array] of chartDataPointMap) {
     /* eslint-disable-line no-restricted-syntax */
-    result.push({ name: item, chartDataPoints: array });
+    allChartDataPoints.push({ name: item, chartDataPoints: array });
   }
 
   if (printDebug()) {
-    result.forEach(entry => {
+    allChartDataPoints.forEach(entry => {
       log(
         `item ${showObj(entry.name)} has chart points ` +
           `${showObj(entry.chartDataPoints)}`,
       );
     });
   }
+  const result: ItemChartData[] = [];
+  // log(`done making asset points@`);
+  allChartDataPoints.forEach(pr => {
+    if (
+      pr.chartDataPoints.findIndex(cdp => {
+        return cdp.y !== 0;
+      }) >= 0
+    ) {
+      result.push({
+        item: { NAME: pr.name },
+        chartDataPoints: pr.chartDataPoints,
+      });
+    }
+  });
   return result;
 }
 
@@ -336,7 +351,7 @@ function filterItems(
   };
 }
 
-function checkDateValueMapsExist(
+function ensureDateValueMapsExist(
   typeDateNameValueMap: Map<
     string, // type
     Map<
@@ -364,11 +379,7 @@ function checkDateValueMapsExist(
   }
 }
 
-export function makeChartDataFromEvaluations(
-  roi: Interval,
-  model: DbModelData,
-  evaluations: Evaluation[],
-) {
+function getSettingsValues(model: DbModelData) {
   // log(`entering makeChartDataFromEvaluations`);
   const expenseFocus: string = getSettings(
     model.settings,
@@ -380,7 +391,11 @@ export function makeChartDataFromEvaluations(
     incomeChartFocus,
     allItems,
   );
-  const assetName = getSettings(model.settings, assetChartFocus, allItems);
+  const assetChartFocusName = getSettings(
+    model.settings,
+    assetChartFocus,
+    allItems,
+  );
   const detail: string = getSettings(model.settings, viewDetail, fine);
   const frequency: string = getSettings(model.settings, viewFrequency, monthly);
   const assetChartSetting: string = getSettings(
@@ -388,19 +403,16 @@ export function makeChartDataFromEvaluations(
     assetChartView,
     assetChartVal,
   );
-
-  // log(`assetName = ${assetName}`);
-
-  const result: DataForView = {
-    expensesData: [],
-    incomesData: [],
-    assetData: [],
+  return {
+    expenseFocus,
+    incomeFocus,
+    assetChartFocusName,
+    detail,
+    frequency,
+    assetChartSetting,
   };
-
-  // each expense/income/asset has a name
-  // remember, for each name, whether it's an expense/income/asset
-  // so we can draw that data into the chart view
-  // for expense/income/asset
+}
+function mapNamesToTypes(model: DbModelData) {
   const nameToTypeMap = new Map<string, string>();
   model.expenses.forEach(expense => {
     nameToTypeMap.set(expense.NAME, evaluationType.expense);
@@ -412,9 +424,10 @@ export function makeChartDataFromEvaluations(
     nameToTypeMap.set(asset.NAME, evaluationType.asset);
   });
   nameToTypeMap.set(taxPot, evaluationType.asset);
+  return nameToTypeMap;
+}
 
-  // log(`evaluations: ${showObj(evaluations)}`);
-  // log(`roi for chart = ${showObj(roi)}`);
+function generateEvaluationDates(roi: Interval, frequency: string) {
   const addPreDate = true;
   let freqString = '';
   if (frequency === monthly) {
@@ -422,7 +435,39 @@ export function makeChartDataFromEvaluations(
   } else {
     freqString = '1y';
   }
-  const allDates: Date[] = generateSequenceOfDates(roi, freqString, addPreDate);
+  return generateSequenceOfDates(roi, freqString, addPreDate);
+}
+
+export function makeChartDataFromEvaluations(
+  roi: Interval,
+  model: DbModelData,
+  evaluations: Evaluation[],
+) {
+  const {
+    expenseFocus,
+    incomeFocus,
+    assetChartFocusName,
+    detail,
+    frequency,
+    assetChartSetting,
+  } = getSettingsValues(model);
+
+  // set up empty data structure for result
+  const result: DataForView = {
+    expensesData: [],
+    incomesData: [],
+    assetData: [],
+    taxData: [],
+  };
+
+  // each expense/income/asset has a name
+  // remember, for each name, whether it's an expense/income/asset
+  // so we can draw that data into the chart view
+  // for expense/income/asset
+  const nameToTypeMap = mapNamesToTypes(model);
+
+  const allDates: Date[] = generateEvaluationDates(roi, frequency);
+
   // log(`dates for chart = ${showObj(allDates)}`);
   // type, date, name, value
   const typeDateNameValueMap = new Map<
@@ -437,7 +482,7 @@ export function makeChartDataFromEvaluations(
   >();
 
   typeDateNameValueMap.set(
-    assetName, // we will track data for this special asset
+    assetChartFocusName, // we will track data for this special asset
     new Map<
       string, // date
       Map<
@@ -494,7 +539,7 @@ export function makeChartDataFromEvaluations(
     // log(`processing ${showObj(evaln)}`);
 
     // Get a map ready to hold date->Map(name->value)
-    checkDateValueMapsExist(typeDateNameValueMap, evalnType);
+    ensureDateValueMapsExist(typeDateNameValueMap, evalnType);
     const dateNameValueMap = typeDateNameValueMap.get(evalnType);
     if (dateNameValueMap !== undefined) {
       const date = firstDateAfterEvaln.toDateString();
@@ -529,15 +574,17 @@ export function makeChartDataFromEvaluations(
     }
 
     if (
-      evaln.name === assetName ||
-      (assetName === allItems &&
+      evaln.name === assetChartFocusName ||
+      (assetChartFocusName === allItems &&
         assetNames.indexOf(evaln.name) >= 0 &&
         evaln.name !== taxPot) ||
-      getCategory(evaln.name, model) === assetName
+      getCategory(evaln.name, model) === assetChartFocusName
     ) {
       // log(`Asset ${evaln.name}\t${evaln.value}\t${evaln.source}`
       //   +`\t${evaln.date.toDateString()}\t`);
-      const assetDateNameValueMap = typeDateNameValueMap.get(assetName);
+      const assetDateNameValueMap = typeDateNameValueMap.get(
+        assetChartFocusName,
+      );
       if (assetDateNameValueMap !== undefined) {
         const date = firstDateAfterEvaln.toDateString();
         if (!assetDateNameValueMap.has(date)) {
@@ -614,7 +661,7 @@ export function makeChartDataFromEvaluations(
 
   if (detail === coarse) {
     // log('gather chart data into categories');
-    let dateNameValueMap = typeDateNameValueMap.get(assetName);
+    let dateNameValueMap = typeDateNameValueMap.get(assetChartFocusName);
     if (dateNameValueMap !== undefined) {
       const categories = assignCategories(
         dateNameValueMap,
@@ -623,7 +670,7 @@ export function makeChartDataFromEvaluations(
         model,
       );
       if (categories !== undefined) {
-        typeDateNameValueMap.set(assetName, categories.map);
+        typeDateNameValueMap.set(assetChartFocusName, categories.map);
         assetValueSources = [...categories.sources];
       }
       assetNames = [...categories.sources];
@@ -690,55 +737,46 @@ export function makeChartDataFromEvaluations(
     }
   }
 
-  const mapForChart = typeDateNameValueMap.get(assetName);
+  const mapForChart = typeDateNameValueMap.get(assetChartFocusName);
   if (mapForChart !== undefined) {
     // log(`go to make asset points@`);
     // log(`assets = ${showObj(assets)}`);
 
-    let items = [];
+    let assetChartNames = [];
     // when we plot the values of a single asset
     // we want to use assetValueSources as the chart items
     // (i.e. in the chart legend)
     // when we plot deltas, additions or reductions,
     // use the source as the item
-    if (assetNames.includes(assetName) || assetChartSetting !== assetChartVal) {
-      items = assetValueSources;
-    } else if (assetName === allItems) {
+    if (
+      assetNames.includes(assetChartFocusName) ||
+      assetChartSetting !== assetChartVal
+    ) {
+      assetChartNames = assetValueSources;
+    } else if (assetChartFocusName === allItems) {
       // when showing all assets and values,
       // use assetNames (not sources)
-      items = assetNames;
+      assetChartNames = assetNames;
     } else {
-      items = assetValueSources;
+      assetChartNames = assetValueSources;
     }
 
     if (
-      assetName !== allItems &&
-      !assetNames.includes(assetName) &&
+      assetChartFocusName !== allItems &&
+      !assetNames.includes(assetChartFocusName) &&
       assetChartSetting === assetChartVal
     ) {
-      items = items.filter(i => assetNames.includes(i));
+      assetChartNames = assetChartNames.filter(i => assetNames.includes(i));
     }
+    // log(`assetChartNames = ${showObj(assetChartNames)}`);
 
     // log(`items = ${showObj(items)}`);
-    const assetPoints = makeChartDataPoints(
+    result.assetData = makeChartDataPoints(
       mapForChart,
       allDates,
-      items,
+      assetChartNames,
       model.settings,
     );
-    // log(`done making asset points@`);
-    assetPoints.forEach(pr => {
-      if (
-        pr.chartDataPoints.findIndex(cdp => {
-          return cdp.y !== 0;
-        }) >= 0
-      ) {
-        result.assetData.push({
-          item: { NAME: pr.name },
-          chartDataPoints: pr.chartDataPoints,
-        });
-      }
-    });
   }
 
   logMapOfMapofMap(typeDateNameValueMap);
@@ -747,47 +785,23 @@ export function makeChartDataFromEvaluations(
     evaluationType.expense,
   );
   if (expenseDateNameValueMap !== undefined) {
-    const expensePoints = makeChartDataPoints(
+    result.expensesData = makeChartDataPoints(
       expenseDateNameValueMap,
       allDates,
       expenseNames,
       model.settings,
     );
-    expensePoints.forEach(pr => {
-      if (
-        pr.chartDataPoints.findIndex(cdp => {
-          return cdp.y !== 0;
-        }) >= 0
-      ) {
-        result.expensesData.push({
-          item: { NAME: pr.name },
-          chartDataPoints: pr.chartDataPoints,
-        });
-      }
-    });
   }
   const incomeDateNameValueMap = typeDateNameValueMap.get(
     evaluationType.income,
   );
   if (incomeDateNameValueMap !== undefined) {
-    const incomePoints = makeChartDataPoints(
+    result.incomesData = makeChartDataPoints(
       incomeDateNameValueMap,
       allDates,
       incomeNames,
       model.settings,
     );
-    incomePoints.forEach(pr => {
-      if (
-        pr.chartDataPoints.findIndex(cdp => {
-          return cdp.y !== 0;
-        }) >= 0
-      ) {
-        result.incomesData.push({
-          item: { NAME: pr.name },
-          chartDataPoints: pr.chartDataPoints,
-        });
-      }
-    });
   }
 
   // log(`chart data produced: ${showObj(result)}`);
@@ -805,6 +819,7 @@ export function makeChartData(model: DbModelData): DataForView {
       expensesData: [],
       incomesData: [],
       assetData: [],
+      taxData: [],
     };
     return emptyData;
   }
