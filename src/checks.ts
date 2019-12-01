@@ -550,7 +550,7 @@ function checkCpi(settings: DbSetting[]): string {
   }
   return '';
 }
-function checkSingleAssetName(model: DbModelData) {
+function checkAssetChartFocus(model: DbModelData) {
   const val = getSettings(model.settings, assetChartFocus, '');
   if (val === allItems) {
     return '';
@@ -623,7 +623,7 @@ export function checkData(model: DbModelData): string {
   if (message.length > 0) {
     return message;
   }
-  message = checkSingleAssetName(model);
+  message = checkAssetChartFocus(model);
   if (message.length > 0) {
     return message;
   }

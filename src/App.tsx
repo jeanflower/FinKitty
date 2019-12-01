@@ -333,7 +333,7 @@ async function refreshData() {
   if (printDebug()) {
     result.assetData.forEach(entry => {
       log(
-        `single asset item ${showObj(entry.item)} has chart points ` +
+        `asset item ${showObj(entry.item)} has chart points ` +
           `${showObj(entry.chartDataPoints)}`,
       );
     });
@@ -362,7 +362,7 @@ async function refreshData() {
         modelData: model,
         expensesChartData,
         incomesChartData,
-        singleAssetChartData: assetChartData,
+        assetChartData,
         modelNamesData: modelNames,
       },
       () => {
@@ -840,7 +840,7 @@ interface AppState {
   modelData: DbModelData;
   expensesChartData: ChartData[];
   incomesChartData: ChartData[];
-  singleAssetChartData: ChartData[];
+  assetChartData: ChartData[];
   modelNamesData: string[];
 }
 
@@ -890,7 +890,7 @@ async function stringifyForSampleDataCode(): Promise<string> {
   result +=
     "import {\n\
       CASH_ASSET_NAME,\n\
-      singleAssetChartView,\n\
+      assetChartView,\n\
       cpi,\n\
       roiEnd,\n\
       roiStart,\n\
@@ -970,7 +970,7 @@ async function stringifyForSampleDataCode(): Promise<string> {
   re = new RegExp(`\"+${assetChartView}\"`, 'g'); // eslint-disable-line no-useless-escape
   result = result.replace(re, 'assetChartView');
   re = new RegExp(`\"+${assetChartFocus}\"`, 'g'); // eslint-disable-line no-useless-escape
-  result = result.replace(re, 'singleAssetName');
+  result = result.replace(re, 'assetChartFocus');
   re = new RegExp(`\"+${expenseChartFocus}\"`, 'g'); // eslint-disable-line no-useless-escape
   result = result.replace(re, 'expenseChartFocus');
   re = new RegExp(`\"+${incomeChartFocus}\"`, 'g'); // eslint-disable-line no-useless-escape
@@ -1020,7 +1020,7 @@ export class App extends Component<{}, AppState> {
       },
       expensesChartData: [],
       incomesChartData: [],
-      singleAssetChartData: [],
+      assetChartData: [],
       modelNamesData: [],
     };
   }
@@ -1577,6 +1577,10 @@ export class App extends Component<{}, AppState> {
           display: chartVisible ? 'block' : 'none',
         }}
       >
+        <ReactiveTextArea
+          identifier="incomeDataDump"
+          message={showObj(this.state.incomesChartData)}
+        />
         {this.makeFiltersList(
           this.state.modelData.incomes,
           this.getIncomeChartFocus(),
@@ -1586,10 +1590,6 @@ export class App extends Component<{}, AppState> {
         )}
         {this.coarseFineList()}
         <fieldset>
-          <ReactiveTextArea
-            identifier="incomeDataDump"
-            message={showObj(this.state.incomesChartData)}
-          />
           <CanvasJSChart
             options={{
               ...defaultChartSettings,
@@ -1807,12 +1807,12 @@ export class App extends Component<{}, AppState> {
         {this.coarseFineList()}
         <ReactiveTextArea
           identifier="assetDataDump"
-          message={showObj(this.state.singleAssetChartData)}
+          message={showObj(this.state.assetChartData)}
         />
         <CanvasJSChart
           options={{
             ...defaultChartSettings,
-            data: this.state.singleAssetChartData,
+            data: this.state.assetChartData,
           }}
         />
       </div>
@@ -2151,7 +2151,7 @@ export class App extends Component<{}, AppState> {
     );
   }
 
-  private getSingleAssetName() {
+  private getAssetChartName() {
     if (this.state.modelData.settings.length === 0) {
       // data not yet loaded
       return CASH_ASSET_NAME;
@@ -2180,7 +2180,7 @@ export class App extends Component<{}, AppState> {
         }
       }
     });
-    const selectedAsset = this.getSingleAssetName();
+    const selectedAsset = this.getAssetChartName();
     const buttons = assets.map(asset => (
       <Button
         key={asset}
@@ -2197,13 +2197,13 @@ export class App extends Component<{}, AppState> {
         }}
         title={asset}
         type={asset === selectedAsset ? 'primary' : 'secondary'}
-        id="chooseSingleAssetSetting"
+        id="chooseAssetChartSetting"
       />
     ));
     return <div role="group">{buttons}</div>;
   }
 
-  private getSingleAssetView() {
+  private getAssetChartView() {
     if (this.state.modelData.settings.length === 0) {
       // data not yet loaded
       return assetChartVal;
@@ -2223,7 +2223,7 @@ export class App extends Component<{}, AppState> {
       assetChartReductions,
       assetChartDeltas,
     ];
-    const selectedSingleAssetView = this.getSingleAssetView();
+    const selectedAssetView = this.getAssetChartView();
     const buttons = viewTypes.map(viewType => (
       <Button
         key={viewType}
@@ -2239,7 +2239,7 @@ export class App extends Component<{}, AppState> {
           submitSetting(forSubmission);
         }}
         title={viewType}
-        type={viewType === selectedSingleAssetView ? 'primary' : 'secondary'}
+        type={viewType === selectedAssetView ? 'primary' : 'secondary'}
         id="chooseAssetChartType"
       />
     ));

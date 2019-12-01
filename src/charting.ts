@@ -537,13 +537,13 @@ export function makeChartDataFromEvaluations(
     ) {
       // log(`Asset ${evaln.name}\t${evaln.value}\t${evaln.source}`
       //   +`\t${evaln.date.toDateString()}\t`);
-      const singleAssetDateNameValueMap = typeDateNameValueMap.get(assetName);
-      if (singleAssetDateNameValueMap !== undefined) {
+      const assetDateNameValueMap = typeDateNameValueMap.get(assetName);
+      if (assetDateNameValueMap !== undefined) {
         const date = firstDateAfterEvaln.toDateString();
-        if (!singleAssetDateNameValueMap.has(date)) {
-          singleAssetDateNameValueMap.set(date, new Map<string, number>());
+        if (!assetDateNameValueMap.has(date)) {
+          assetDateNameValueMap.set(date, new Map<string, number>());
         }
-        const assetNameValueMap = singleAssetDateNameValueMap.get(date);
+        const assetNameValueMap = assetDateNameValueMap.get(date);
         if (assetNameValueMap !== undefined) {
           // log(`${date} asset source '${evaln.source}' and value '${evaln.value}'`);
           // log(`assetChartSetting = ${assetChartSetting}`);
