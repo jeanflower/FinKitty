@@ -213,16 +213,20 @@ export function checkIncome(i: DbIncome, model: DbModelData): string {
   const cashAssets = model.assets.filter((m)=>{
     return m.NAME === CASH_ASSET_NAME;
   });
-  const cashStarts = getTriggerDate(cashAssets[0].START, model.triggers);
-  if (startDate < cashStarts){
-    return `Income start date must be after cash starts; ${cashStarts.toDateString()}`;
+  if(cashAssets.length > 0){
+    const cashStarts = getTriggerDate(cashAssets[0].START, model.triggers);
+    if (startDate < cashStarts){
+      return `Income start date must be after cash starts; ${cashStarts.toDateString()}`;
+    }
   }
   const taxAssets = model.assets.filter((m)=>{
     return m.NAME === taxPot;
   });
-  const taxStarts = getTriggerDate(taxAssets[0].START, model.triggers);
-  if (startDate < taxStarts){
-    return `Income start date must be after taxPot starts; ${taxAssets[0].START}`;
+  if(taxAssets.length > 0){
+    const taxStarts = getTriggerDate(taxAssets[0].START, model.triggers);
+    if (startDate < taxStarts){
+      return `Income start date must be after taxPot starts; ${taxAssets[0].START}`;
+    }
   }
   const valueSetDate = checkTriggerDate(i.VALUE_SET, model.triggers);
   if (valueSetDate === undefined || !checkDate(valueSetDate)) {
