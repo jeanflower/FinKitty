@@ -1,21 +1,21 @@
 {
   "files": {
     "main.css": "/FinKitty/static/css/main.5ecd60fb.chunk.css",
-    "main.js": "/FinKitty/static/js/main.bee3c097.chunk.js",
-    "main.js.map": "/FinKitty/static/js/main.bee3c097.chunk.js.map",
+    "main.js": "/FinKitty/static/js/main.53271134.chunk.js",
+    "main.js.map": "/FinKitty/static/js/main.53271134.chunk.js.map",
     "runtime-main.js": "/FinKitty/static/js/runtime-main.12432f88.js",
     "runtime-main.js.map": "/FinKitty/static/js/runtime-main.12432f88.js.map",
-    "static/js/2.d352b96f.chunk.js": "/FinKitty/static/js/2.d352b96f.chunk.js",
-    "static/js/2.d352b96f.chunk.js.map": "/FinKitty/static/js/2.d352b96f.chunk.js.map",
+    "static/js/2.0abcb672.chunk.js": "/FinKitty/static/js/2.0abcb672.chunk.js",
+    "static/js/2.0abcb672.chunk.js.map": "/FinKitty/static/js/2.0abcb672.chunk.js.map",
     "index.html": "/FinKitty/index.html",
-    "precache-manifest.e8cc64b2b84330aced6fabddb0e277d4.js": "/FinKitty/precache-manifest.e8cc64b2b84330aced6fabddb0e277d4.js",
+    "precache-manifest.c22da47fac1cc8c212f6b7adf03d19d3.js": "/FinKitty/precache-manifest.c22da47fac1cc8c212f6b7adf03d19d3.js",
     "service-worker.js": "/FinKitty/service-worker.js",
     "static/css/main.5ecd60fb.chunk.css.map": "/FinKitty/static/css/main.5ecd60fb.chunk.css.map"
   },
   "entrypoints": [
     "static/js/runtime-main.12432f88.js",
-    "static/js/2.d352b96f.chunk.js",
+    "static/js/2.0abcb672.chunk.js",
     "static/css/main.5ecd60fb.chunk.css",
-    "static/js/main.bee3c097.chunk.js"
+    "static/js/main.53271134.chunk.js"
   ]
 }
