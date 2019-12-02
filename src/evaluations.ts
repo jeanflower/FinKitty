@@ -253,14 +253,14 @@ function setValue(
     if (values.get(name) === undefined) {
       log(
         `setting first value of ${name}, ` +
-          `date = ${date.toDateString()}, ` +
-          `newValue = ${newValue}`,
+          `newValue = ${newValue} ` +
+          `date = ${date.toDateString()}, `,
       );
     } else {
       log(
         `setting value of ${name}, ` +
-          `date = ${date.toDateString()}, ` +
-          `newValue = ${newValue}`,
+        `newValue = ${newValue} ` +
+        `date = ${date.toDateString()}, `,
       );
     }
   }
@@ -529,7 +529,7 @@ function payIncomeTax(
     if (taxValue === undefined) {
       taxValue = 0.0;
     }
-    // log('in adjustCash, setValue:');
+    // log(`setValue on taxPot: ${taxValue + taxDue}`);
     setValue(
       values,
       evaluations,
@@ -562,7 +562,7 @@ function payNI(
     if (taxValue === undefined) {
       taxValue = 0.0;
     }
-    // log('in adjustCash, setValue:');
+    // log(`setValue on taxPot: ${taxValue + NIDue}`);
     setValue(
       values,
       evaluations,
@@ -595,7 +595,7 @@ function payCGT(
     if (taxValue === undefined) {
       taxValue = 0.0;
     }
-    // log('in adjustCash, setValue:');
+    // log(`setValue on taxPot: ${taxValue + CGTDue}`);
     setValue(
       values,
       evaluations,
@@ -858,7 +858,7 @@ function handleIncome(
         pensionValue += amountForPension;
         // log(`new pensionValue is ${pensionValue}`);
         // log(`income source = ${transaction.NAME}`);
-        // log('in handleIncome, setValue:');
+        // log('in handleIncome:');
         setValue(
           values,
           evaluations,
@@ -1179,7 +1179,7 @@ function revalueApplied(
       }
     }
     // log(`passing ${t.TO_VALUE} as new value of ${moment.name}`);
-    // log('in revalueApplied, setValue:');
+    // log('in revalueApplied:');
     setValue(values, evaluations, moment.date, w, tToValue, revalue);
   });
   return true;
@@ -1815,7 +1815,7 @@ export function getEvaluations(data: DbModelData): Evaluation[] {
         break;
       }
       const incomeValue = moment.setValue;
-      // log('in getEvaluations starting something, setValue:');
+      // log('in getEvaluations starting something:');
       setValue(
         values,
         evaluations,
@@ -1861,7 +1861,7 @@ export function getEvaluations(data: DbModelData): Evaluation[] {
         // because this is how we generate monthly
         // data to plot.
         // if(change!==0){ TODO - do we want to log no-change evaluations?
-        // log('in getEvaluations, setValue:');
+        // log('in getEvaluations:');
         setValue(values, evaluations, moment.date, moment.name, x, growth);
         // }
         if (moment.type === momentType.asset) {

@@ -591,6 +591,7 @@ export function makeChartDataFromEvaluations(
         evaln.name !== taxPot) ||
       getCategory(evaln.name, model) === assetChartFocusName
     ) {
+      // log(`evaln of asset ${evaln.name} for val or delta...`);
       // direct asset data to the assets part of typeDateNameValueMap
       // and the tax part to the taxPot part of typeDateNameValueMap
       let assetDateNameValueMap;
@@ -622,15 +623,16 @@ export function makeChartDataFromEvaluations(
             assetNameValueMap.set(evaln.name, evaln.value);
           } else {
             // view a delta - what has been the change to the asset?
-            // log(`asset ${evaln.name} val is
-            //   ${evaln.value} was ${prevEvalAssetValue}`);
-            // log(`and the source of change is ${evaln.source}`);
             const mapKey = evaln.source + separator + evaln.name;
             let prevValue = 0.0;
             const mapValue = prevEvalAssetValue.get(evaln.name);
             if (mapValue !== undefined) {
               prevValue = mapValue;
             }
+            // log(`asset ${evaln.name} val is `+
+            //    `${evaln.value}, was ${prevValue}`);
+            // log(`and the source of change is ${evaln.source}`);
+            // log(`and change happened ${evaln.date}`);
             let valueForChart = evaln.value - prevValue;
             // log(`asset val change is ${valueForChart}
             //   from ${evaln.source}`);
@@ -678,6 +680,7 @@ export function makeChartDataFromEvaluations(
   // remove the 'preDate' (helped with defining first displayable bucket)
   allDates.shift();
 
+  const taxValueSources = assetValueSources;
   if (detail === coarse) {
     // log('gather chart data into categories');
     let dateNameValueMap = typeDateNameValueMap.get(assetChartFocusName);
@@ -803,7 +806,7 @@ export function makeChartDataFromEvaluations(
     result.taxData = makeChartDataPoints(
       mapForTaxChart,
       allDates,
-      assetValueSources,
+      taxValueSources,
       model.settings,
     );
   }

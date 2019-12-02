@@ -323,10 +323,10 @@ async function refreshData(goToDB = true) {
     ) {
       model.assets.push({
         NAME: taxPot,
-        START: '1 Jan 2018',
+        START: '1 Jan 2017',
         VALUE: '0',
         GROWTH: '0',
-        CPI_IMMUNE: false,
+        CPI_IMMUNE: true,
         LIABILITY: '',
         PURCHASE_PRICE: '0',
         CATEGORY: '',
