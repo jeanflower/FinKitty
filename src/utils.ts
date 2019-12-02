@@ -214,7 +214,7 @@ export function makeValueAbsPropFromString(input: string) {
       // parses OK as a number
     }
   }
-  log(`parsing ${input} makes result ${showObj(result)}`);
+  // log(`parsing ${input} makes result ${showObj(result)}`);
   return result;
 }
 

@@ -228,11 +228,11 @@ function makeChartDataPoints(
   const result: ItemChartData[] = [];
   // log(`done making asset points@`);
   allChartDataPoints.forEach(pr => {
-    if (
-      pr.chartDataPoints.findIndex(cdp => {
-        return cdp.y !== 0;
-      }) >= 0
-    ) {
+    const nonZeroInstance = pr.chartDataPoints.findIndex(cdp => {
+      return cdp.y !== 0;
+    });
+    if (nonZeroInstance >= 0) {
+      // log(`non-zero instance found ${showObj(pr)}`);
       result.push({
         item: { NAME: pr.name },
         chartDataPoints: pr.chartDataPoints,
@@ -491,6 +491,16 @@ export function makeChartDataFromEvaluations(
       >
     >(),
   );
+  typeDateNameValueMap.set(
+    taxPot, // we will track data for this special "asset"
+    new Map<
+      string, // date
+      Map<
+        string, // name
+        number // value
+      >
+    >(),
+  );
   let assetValueSources: string[] = [];
 
   let incomeNames: string[] = model.incomes.map(i => i.NAME);
@@ -572,19 +582,23 @@ export function makeChartDataFromEvaluations(
         logMapOfMapofMap(typeDateNameValueMap);
       }
     }
-
+    // accumulate data for assets (includes taxPot)
     if (
+      evaln.name === taxPot ||
       evaln.name === assetChartFocusName ||
       (assetChartFocusName === allItems &&
         assetNames.indexOf(evaln.name) >= 0 &&
         evaln.name !== taxPot) ||
       getCategory(evaln.name, model) === assetChartFocusName
     ) {
-      // log(`Asset ${evaln.name}\t${evaln.value}\t${evaln.source}`
-      //   +`\t${evaln.date.toDateString()}\t`);
-      const assetDateNameValueMap = typeDateNameValueMap.get(
-        assetChartFocusName,
-      );
+      // direct asset data to the assets part of typeDateNameValueMap
+      // and the tax part to the taxPot part of typeDateNameValueMap
+      let assetDateNameValueMap;
+      if (evaln.name === taxPot) {
+        assetDateNameValueMap = typeDateNameValueMap.get(taxPot);
+      } else {
+        assetDateNameValueMap = typeDateNameValueMap.get(assetChartFocusName);
+      }
       if (assetDateNameValueMap !== undefined) {
         const date = firstDateAfterEvaln.toDateString();
         if (!assetDateNameValueMap.has(date)) {
@@ -594,7 +608,10 @@ export function makeChartDataFromEvaluations(
         if (assetNameValueMap !== undefined) {
           // log(`${date} asset source '${evaln.source}' and value '${evaln.value}'`);
           // log(`assetChartSetting = ${assetChartSetting}`);
-          if (assetChartSetting === assetChartVal) {
+          // Either log values or deltas; taxPot always plot deltas
+          // and assets plot values or deltas according to assetChartSetting.
+          if (evaln.name !== taxPot && assetChartSetting === assetChartVal) {
+            // Log asset values.
             // log(`add data[${evaln.name}] = ${evaln.value}`);
             if (assetValueSources.indexOf(evaln.name) < 0) {
               // log(`add value source ${evaln.name}`);
@@ -628,11 +645,13 @@ export function makeChartDataFromEvaluations(
               // log(`no pre-existing delta`);
             }
             if (
+              evaln.name !== taxPot &&
               assetChartSetting === assetChartAdditions &&
               valueForChart < 0
             ) {
               // log(`suppress -ve deltas when looking for additions`);
             } else if (
+              evaln.name !== taxPot &&
               assetChartSetting === assetChartReductions &&
               valueForChart > 0
             ) {
@@ -775,6 +794,16 @@ export function makeChartDataFromEvaluations(
       mapForChart,
       allDates,
       assetChartNames,
+      model.settings,
+    );
+  }
+
+  const mapForTaxChart = typeDateNameValueMap.get(taxPot);
+  if (mapForTaxChart !== undefined) {
+    result.taxData = makeChartDataPoints(
+      mapForTaxChart,
+      allDates,
+      assetValueSources,
       model.settings,
     );
   }

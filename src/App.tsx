@@ -136,6 +136,7 @@ const assetsView: ViewType = { lc: 'Assets' };
 const triggersView: ViewType = { lc: 'Important dates' };
 const manageModelsView: ViewType = { lc: 'Manage models' };
 const settingsView: ViewType = { lc: 'Settings' };
+const taxView: ViewType = { lc: 'Tax payments' };
 
 const expensesChart: ViewType = { lc: 'Expenses chart' };
 const incomesChart: ViewType = { lc: 'Incomes chart' };
@@ -207,6 +208,13 @@ const views = new Map<
     },
   ],
   [
+    taxView,
+    {
+      display: true,
+      helpText: 'Chart of tax payments',
+    },
+  ],
+  [
     settingsView,
     {
       display: true,
@@ -265,125 +273,129 @@ function makeJChartData(data: ItemChartData[]) {
   }
   return chartData;
 }
-async function refreshData() {
+async function refreshData(goToDB = true) {
   // log('refreshData in App - get data and redraw content');
-  // go to the DB to retreive updated data
-  let modelNames: string[] = [];
-  try {
-    modelNames = await getDbModelNames();
-  } catch (error) {
-    alert('error contacting database');
-    return;
-  }
+  if (goToDB) {
+    // go to the DB to retreive updated data
+    let modelNames: string[] = [];
+    try {
+      modelNames = await getDbModelNames();
+    } catch (error) {
+      alert('error contacting database');
+      return;
+    }
 
-  //log(`modelNames are ${modelNames}`);
-  if (
-    modelNames.find(x => {
-      return x === sampleModel;
-    }) === undefined
-  ) {
-    // force us to have at least the sample model
-    await ensureDbTables(modelName);
-    await Promise.all([
-      submitIDbExpenses(sampleExpenses, modelName),
-      submitIDbIncomes(sampleIncomes, modelName),
-      submitIDbTriggers(sampleTriggers, modelName),
-      submitIDbAssets(sampleAssets, modelName),
-      submitIDbTransactions(sampleTransactions, modelName),
-      submitIDbSettings(sampleSettings, modelName),
-    ]);
-    modelNames = await getDbModelNames();
-  }
+    //log(`modelNames are ${modelNames}`);
+    if (
+      modelNames.find(x => {
+        return x === sampleModel;
+      }) === undefined
+    ) {
+      // force us to have at least the sample model
+      await ensureDbTables(modelName);
+      await Promise.all([
+        submitIDbExpenses(sampleExpenses, modelName),
+        submitIDbIncomes(sampleIncomes, modelName),
+        submitIDbTriggers(sampleTriggers, modelName),
+        submitIDbAssets(sampleAssets, modelName),
+        submitIDbTransactions(sampleTransactions, modelName),
+        submitIDbSettings(sampleSettings, modelName),
+      ]);
+      modelNames = await getDbModelNames();
+    }
 
-  const model = await getDbModel(modelName);
+    const model = await getDbModel(modelName);
 
-  // log(`got ${modelNames.length} modelNames`);
+    // log(`got ${modelNames.length} modelNames`);
 
-  model.triggers.sort((a, b) => (a.NAME < b.NAME ? -1 : 1));
-  model.expenses.sort((a, b) => (a.NAME < b.NAME ? -1 : 1));
-  model.settings.sort((a, b) => (a.NAME < b.NAME ? -1 : 1));
-  model.incomes.sort((a, b) => (a.NAME < b.NAME ? -1 : 1));
-  model.transactions.sort((a, b) => (a.NAME < b.NAME ? -1 : 1));
-  model.assets.sort((a, b) => (a.NAME < b.NAME ? -1 : 1));
-  modelNames.sort();
+    model.triggers.sort((a, b) => (a.NAME < b.NAME ? -1 : 1));
+    model.expenses.sort((a, b) => (a.NAME < b.NAME ? -1 : 1));
+    model.settings.sort((a, b) => (a.NAME < b.NAME ? -1 : 1));
+    model.incomes.sort((a, b) => (a.NAME < b.NAME ? -1 : 1));
+    model.transactions.sort((a, b) => (a.NAME < b.NAME ? -1 : 1));
+    model.assets.sort((a, b) => (a.NAME < b.NAME ? -1 : 1));
+    modelNames.sort();
 
-  if (
-    model.assets.filter(a => {
-      return a.NAME === taxPot;
-    }).length === 0
-  ) {
-    model.assets.push({
-      NAME: taxPot,
-      START: '1 Jan 2018',
-      VALUE: '0',
-      GROWTH: '0',
-      CPI_IMMUNE: false,
-      LIABILITY: '',
-      PURCHASE_PRICE: '0',
-      CATEGORY: '',
-    });
-  }
+    if (
+      model.assets.filter(a => {
+        return a.NAME === taxPot;
+      }).length === 0
+    ) {
+      model.assets.push({
+        NAME: taxPot,
+        START: '1 Jan 2018',
+        VALUE: '0',
+        GROWTH: '0',
+        CPI_IMMUNE: false,
+        LIABILITY: '',
+        PURCHASE_PRICE: '0',
+        CATEGORY: '',
+      });
+    }
 
-  const result: DataForView = makeChartData(model);
+    const result: DataForView = makeChartData(model);
 
-  result.expensesData.sort((a, b) => (a.item.NAME < b.item.NAME ? 1 : -1));
-  result.incomesData.sort((a, b) => (a.item.NAME < b.item.NAME ? 1 : -1));
-  result.assetData.sort((a, b) => (a.item.NAME < b.item.NAME ? 1 : -1));
-  result.taxData.sort((a, b) => (a.item.NAME < b.item.NAME ? 1 : -1));
+    result.expensesData.sort((a, b) => (a.item.NAME < b.item.NAME ? 1 : -1));
+    result.incomesData.sort((a, b) => (a.item.NAME < b.item.NAME ? 1 : -1));
+    result.assetData.sort((a, b) => (a.item.NAME < b.item.NAME ? 1 : -1));
+    result.taxData.sort((a, b) => (a.item.NAME < b.item.NAME ? 1 : -1));
 
-  if (printDebug()) {
-    result.assetData.forEach(entry => {
-      log(
-        `asset item ${showObj(entry.item)} has chart points ` +
-          `${showObj(entry.chartDataPoints)}`,
+    if (printDebug()) {
+      result.assetData.forEach(entry => {
+        log(
+          `asset item ${showObj(entry.item)} has chart points ` +
+            `${showObj(entry.chartDataPoints)}`,
+        );
+      });
+    }
+
+    // get the data out of the object we got back
+    const { expensesData, incomesData, assetData, taxData } = result;
+
+    if (printDebug()) {
+      log('in refreshData');
+      log(` expensesData = ${expensesData}`);
+      log(` incomesData = ${incomesData}`);
+      log(` assetData = ${assetData}`);
+      log(` taxData = ${taxData}`);
+    }
+
+    const expensesChartData = makeJChartData(expensesData);
+    const incomesChartData = makeJChartData(incomesData);
+    const assetChartData = makeJChartData(assetData);
+    const taxChartData = makeJChartData(taxData);
+
+    if (reactAppComponent !== undefined) {
+      // log(`go setState with modelNames = ${modelNames}`);
+
+      // setState on a reactComponent triggers update of view
+      reactAppComponent.setState(
+        {
+          modelData: model,
+          expensesChartData,
+          incomesChartData,
+          assetChartData,
+          taxChartData,
+          modelNamesData: modelNames,
+        },
+        () => {
+          // setState is async
+          // do logging after setState using the 2nd argument
+          // https://www.freecodecamp.org/news/get-pro-with-react-setstate-in-10-minutes-d38251d1c781/
+          if (printDebug()) {
+            log(
+              'reactAppComponent.state.expensesChartDataValue = ' +
+                `${reactAppComponent.state.expensesChartData}`,
+            );
+            reactAppComponent.state.expensesChartData.map((obj: ChartData) =>
+              log(`obj is ${showObj(obj)}`),
+            );
+          }
+        },
       );
-    });
-  }
-
-  // get the data out of the object we got back
-  const { expensesData, incomesData, assetData, taxData } = result;
-
-  if (printDebug()) {
-    log('in refreshData');
-    log(` expensesData = ${expensesData}`);
-    log(` incomesData = ${incomesData}`);
-    log(` assetData = ${assetData}`);
-    log(` taxData = ${taxData}`);
-  }
-
-  const expensesChartData = makeJChartData(expensesData);
-  const incomesChartData = makeJChartData(incomesData);
-  const assetChartData = makeJChartData(assetData);
-  const taxChartData = makeJChartData(taxData);
-
-  if (reactAppComponent !== undefined) {
-    // log(`go setState with modelNames = ${modelNames}`);
-
-    // setState on a reactComponent triggers update of view
-    reactAppComponent.setState(
-      {
-        modelData: model,
-        expensesChartData,
-        incomesChartData,
-        assetChartData,
-        taxChartData,
-        modelNamesData: modelNames,
-      },
-      () => {
-        // setState is async
-        // do logging after setState using the 2nd argument
-        // https://www.freecodecamp.org/news/get-pro-with-react-setstate-in-10-minutes-d38251d1c781/
-        if (printDebug()) {
-          log(
-            'reactAppComponent.state.expensesChartDataValue = ' +
-              `${reactAppComponent.state.expensesChartData}`,
-          );
-          reactAppComponent.state.expensesChartData.map((obj: ChartData) =>
-            log(`obj is ${showObj(obj)}`),
-          );
-        }
-      },
-    );
+    }
+  } else {
+    reactAppComponent.setState({ ...reactAppComponent.state });
   }
 }
 
@@ -404,14 +416,14 @@ function toggle(type: ViewType) {
     return false;
   }
   view.display = true;
-  refreshData();
+  refreshData(false);
 }
 
 function toggleDisplay(type: ViewType) {
   showContent.set(type, {
     display: !showContent.get(type).display,
   });
-  refreshData();
+  refreshData(false);
 }
 
 function checkModelData() {
@@ -1013,7 +1025,6 @@ export class App extends Component<{}, AppState> {
     }
 
     reactAppComponent = this;
-    refreshData();
     this.state = {
       modelData: {
         assets: [],
@@ -1029,6 +1040,7 @@ export class App extends Component<{}, AppState> {
       taxChartData: [],
       modelNamesData: [],
     };
+    refreshData();
   }
   public componentDidMount() {
     toggle(homeView);
@@ -1053,6 +1065,7 @@ export class App extends Component<{}, AppState> {
           {this.expensesDiv()}
           {this.assetsDiv()}
           {this.transactionsDiv()}
+          {this.taxDiv()}
           {this.triggersDiv()}
         </div>
       </div>
@@ -1079,8 +1092,8 @@ export class App extends Component<{}, AppState> {
   private modelListForOverview(modelNames: string[]) {
     return this.modelList(
       modelNames,
-      (model: string) => {
-        updateModelName(model);
+      async (model: string) => {
+        await updateModelName(model);
         toggle(overview);
       },
       'overview',
@@ -1821,12 +1834,6 @@ export class App extends Component<{}, AppState> {
             data: this.state.assetChartData,
           }}
         />
-        <CanvasJSChart
-          options={{
-            ...defaultChartSettings,
-            data: this.state.taxChartData,
-          }}
-        />
       </div>
     );
   }
@@ -2368,6 +2375,19 @@ export class App extends Component<{}, AppState> {
             model={this.state.modelData}
           />
         </div>
+      </div>
+    );
+  }
+
+  private taxDiv() {
+    return (
+      <div style={{ display: getDisplay(taxView) ? 'block' : 'none' }}>
+        <CanvasJSChart
+          options={{
+            ...defaultChartSettings,
+            data: this.state.taxChartData,
+          }}
+        />
       </div>
     );
   }
