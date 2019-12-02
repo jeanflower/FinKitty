@@ -259,8 +259,8 @@ function setValue(
     } else {
       log(
         `setting value of ${name}, ` +
-        `newValue = ${newValue} ` +
-        `date = ${date.toDateString()}, `,
+          `newValue = ${newValue} ` +
+          `date = ${date.toDateString()}, `,
       );
     }
   }

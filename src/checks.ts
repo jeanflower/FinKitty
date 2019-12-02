@@ -210,21 +210,21 @@ export function checkIncome(i: DbIncome, model: DbModelData): string {
   if (startDate === undefined || !checkDate(startDate)) {
     return `Income start date doesn't make sense : ${showObj(i.START)}`;
   }
-  const cashAssets = model.assets.filter((m)=>{
+  const cashAssets = model.assets.filter(m => {
     return m.NAME === CASH_ASSET_NAME;
   });
-  if(cashAssets.length > 0){
+  if (cashAssets.length > 0) {
     const cashStarts = getTriggerDate(cashAssets[0].START, model.triggers);
-    if (startDate < cashStarts){
+    if (startDate < cashStarts) {
       return `Income start date must be after cash starts; ${cashStarts.toDateString()}`;
     }
   }
-  const taxAssets = model.assets.filter((m)=>{
+  const taxAssets = model.assets.filter(m => {
     return m.NAME === taxPot;
   });
-  if(taxAssets.length > 0){
+  if (taxAssets.length > 0) {
     const taxStarts = getTriggerDate(taxAssets[0].START, model.triggers);
-    if (startDate < taxStarts){
+    if (startDate < taxStarts) {
       return `Income start date must be after taxPot starts; ${taxAssets[0].START}`;
     }
   }
