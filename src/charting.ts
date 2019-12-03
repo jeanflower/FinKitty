@@ -624,7 +624,7 @@ export function makeChartDataFromEvaluations(
           } else {
             // view a delta - what has been the change to the asset?
             let mapKey = '';
-            if(evaln.name === taxPot){
+            if (evaln.name === taxPot) {
               mapKey = evaln.source;
             } else {
               mapKey = evaln.source + separator + evaln.name;
