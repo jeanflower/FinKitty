@@ -623,7 +623,12 @@ export function makeChartDataFromEvaluations(
             assetNameValueMap.set(evaln.name, evaln.value);
           } else {
             // view a delta - what has been the change to the asset?
-            const mapKey = evaln.source + separator + evaln.name;
+            let mapKey = '';
+            if(evaln.name === taxPot){
+              mapKey = evaln.source;
+            } else {
+              mapKey = evaln.source + separator + evaln.name;
+            }
             let prevValue = 0.0;
             const mapValue = prevEvalAssetValue.get(evaln.name);
             if (mapValue !== undefined) {
