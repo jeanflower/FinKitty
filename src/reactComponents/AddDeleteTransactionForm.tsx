@@ -36,7 +36,7 @@ interface EditProps {
   submitTrigger: any;
   model: DbModelData;
 }
-function assetOptions(model: DbModelData, selectId: string, handleChange: any) {
+function assetOptions(model: DbModelData, handleChange: any) {
   let optionData = model.assets.map(asset => {
     return {
       text: asset.NAME,
@@ -63,7 +63,6 @@ function assetOptions(model: DbModelData, selectId: string, handleChange: any) {
   return (
     <select
       className="custom-select"
-      id={selectId}
       onChange={e => {
         const found = optionData.find(od => {
           return od.text === e.target.value;
@@ -87,8 +86,6 @@ export class AddDeleteTransactionForm extends Component<
 
   private transactionFromSelectID = 'fromAssetSelect';
   private transactionToSelectID = 'toAssetSelect';
-  private transactionDateSelectID = 'transactionDateSelect';
-  private transactionStopDateSelectID = 'transactionStopDateSelect';
 
   public constructor(props: EditProps) {
     super(props);
@@ -165,7 +162,6 @@ export class AddDeleteTransactionForm extends Component<
           <DateSelectionRow
             introLabel="Date on which the transaction occurs:"
             setDateFunction={this.setDate}
-            selectID={this.transactionDateSelectID}
             inputName="date"
             inputValue={this.state.DATE}
             onChangeHandler={this.handleDateChange}
@@ -186,19 +182,11 @@ export class AddDeleteTransactionForm extends Component<
         {/* end row */}
         <div className="row">
           <div className="col">
-            {assetOptions(
-              this.props.model,
-              this.transactionFromSelectID,
-              this.handleFromChange,
-            )}
+            {assetOptions(this.props.model, this.handleFromChange)}
           </div>{' '}
           {/* end col */}
           <div className="col">
-            {assetOptions(
-              this.props.model,
-              this.transactionToSelectID,
-              this.handleToChange,
-            )}
+            {assetOptions(this.props.model, this.handleToChange)}
           </div>{' '}
           {/* end col */}
         </div>
@@ -247,7 +235,6 @@ export class AddDeleteTransactionForm extends Component<
           <DateSelectionRow
             introLabel="Date on which any recurrence stops:"
             setDateFunction={this.setStopDate}
-            selectID={this.transactionStopDateSelectID}
             inputName="stopDate"
             inputValue={this.state.STOP_DATE}
             onChangeHandler={this.handleStopDateChange}
@@ -410,8 +397,6 @@ export class AddDeleteTransactionForm extends Component<
       alert('added new transaction');
       // clear fields
       this.setState(this.defaultState);
-      this.resetSelect(this.transactionDateSelectID);
-      this.resetSelect(this.transactionStopDateSelectID);
       this.resetSelect(this.transactionFromSelectID);
       this.resetSelect(this.transactionToSelectID);
     }
@@ -423,8 +408,6 @@ export class AddDeleteTransactionForm extends Component<
       alert('deleted transaction');
       // clear fields
       this.setState(this.defaultState);
-      this.resetSelect(this.transactionDateSelectID);
-      this.resetSelect(this.transactionStopDateSelectID);
       this.resetSelect(this.transactionFromSelectID);
       this.resetSelect(this.transactionToSelectID);
     } else {

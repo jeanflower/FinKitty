@@ -9,16 +9,10 @@ interface TriggerOptionListProps {
   triggers: DbTrigger[];
   handleChange: (value: string) => void;
   submitTrigger: (trigger: DbTrigger) => void;
-  selectId: string;
-}
-interface TriggerOptionListState {
   selectedItem: string;
 }
 
-export class TriggerOptionList extends Component<
-  TriggerOptionListProps,
-  TriggerOptionListState
-> {
+export class TriggerOptionList extends Component<TriggerOptionListProps, {}> {
   public constructor(props: TriggerOptionListProps) {
     super(props);
     this.state = { selectedItem: '' };
@@ -39,13 +33,11 @@ export class TriggerOptionList extends Component<
           // log(`detected action`);
           // e.persist();
           e.preventDefault();
-          this.handleChange(trigger.NAME);
+          this.props.handleChange(trigger.NAME);
         },
       };
     });
-    optionData.push(
-      newTriggerButtonData(this.newTriggerMade.bind(this), this.props.selectId),
-    );
+    optionData.push(newTriggerButtonData(this.newTriggerMade.bind(this)));
     const options = optionData.map(bd => (
       <option
         value={bd.text}
@@ -59,7 +51,6 @@ export class TriggerOptionList extends Component<
     return (
       <select
         className="custom-select"
-        id={this.props.selectId}
         onChange={e => {
           const found = optionData.find(od => {
             return od.text === e.target.value;
@@ -68,18 +59,11 @@ export class TriggerOptionList extends Component<
             found.action(e);
           }
         }}
-        value={this.state.selectedItem}
+        value={this.props.selectedItem}
       >
         <option>{welcomeString}</option>
         {options}
       </select>
     );
-  }
-  private handleChange(selection: string) {
-    this.setState({
-      ...this.state,
-      selectedItem: selection,
-    });
-    this.props.handleChange(selection);
   }
 }

@@ -17,7 +17,7 @@ interface EditProps {
   model: DbModelData;
 }
 
-export function newTriggerButtonData(submitTrigger: any, selectId: string) {
+export function newTriggerButtonData(submitTrigger: any) {
   return {
     text: 'Make new important date',
     action: async (e: any) => {
@@ -42,14 +42,6 @@ export function newTriggerButtonData(submitTrigger: any, selectId: string) {
         NAME: nameString,
         DATE: dateTry,
       });
-
-      const element = document.getElementById(selectId);
-      if (element !== null && element instanceof HTMLInputElement) {
-        // log(`set trigger selection ${nameString}`);
-        element.value = nameString;
-      } else {
-        // log(`not setting trigger selection ${nameString}`);
-      }
     },
   };
 }

@@ -35,10 +35,6 @@ interface EditProps {
 export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
   public defaultState: EditFormState;
 
-  private valueSetSelectID = 'valueSetSelect';
-  private incomeStartSelectID = 'incomeStartSelect';
-  private incomeEndSelectID = 'incomeEndSelect';
-
   public constructor(props: EditProps) {
     super(props);
     if (printDebug()) {
@@ -123,7 +119,6 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
           <DateSelectionRow
             introLabel="Date on which the income value is set:"
             setDateFunction={this.setValueSet}
-            selectID={this.valueSetSelectID}
             inputName="income valuation date"
             inputValue={this.state.VALUE_SET}
             onChangeHandler={this.handleValueSetChange}
@@ -133,7 +128,6 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
           <DateSelectionRow
             introLabel="Date on which the income starts:"
             setDateFunction={this.setStart}
-            selectID="incomeStartSelect"
             inputName="start date"
             inputValue={this.state.START}
             onChangeHandler={this.handleStartChange}
@@ -143,7 +137,6 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
           <DateSelectionRow
             introLabel="Date on which the income ends:"
             setDateFunction={this.setEnd}
-            selectID="incomeEndSelect"
             inputName="end date"
             inputValue={this.state.END}
             onChangeHandler={this.handleEndChange}
@@ -244,7 +237,6 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
   private handleValueSetChange(e: any): void {
     const value = e.target.value;
     this.setValueSet(value);
-    this.resetValueSetSelect();
   }
   private setStart(value: string): void {
     this.setState({ START: value });
@@ -252,7 +244,6 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
   private handleStartChange(e: any): void {
     const value = e.target.value;
     this.setStart(value);
-    this.resetStartSelect();
   }
   private setEnd(value: string): void {
     this.setState({ END: value });
@@ -260,25 +251,6 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
   private handleEndChange(e: any): void {
     const value = e.target.value;
     this.setEnd(value);
-    this.resetEndSelect();
-  }
-  private resetValueSetSelect() {
-    const selector: any = document.getElementById(this.valueSetSelectID);
-    if (selector !== null) {
-      selector.selectedIndex = '0';
-    }
-  }
-  private resetStartSelect() {
-    const selector: any = document.getElementById(this.incomeStartSelectID);
-    if (selector !== null) {
-      selector.selectedIndex = '0';
-    }
-  }
-  private resetEndSelect() {
-    const selector: any = document.getElementById(this.incomeEndSelectID);
-    if (selector !== null) {
-      selector.selectedIndex = '0';
-    }
   }
   private add(e: any): void {
     e.preventDefault();
@@ -345,9 +317,6 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
       alert('added new income');
       // clear fields
       this.setState(this.defaultState);
-      this.resetValueSetSelect();
-      this.resetStartSelect();
-      this.resetEndSelect();
     }
   }
   private async delete(e: any) {
@@ -357,9 +326,6 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
       alert('deleted income');
       // clear fields
       this.setState(this.defaultState);
-      this.resetValueSetSelect();
-      this.resetStartSelect();
-      this.resetEndSelect();
     } else {
       alert(`failed to delete ${this.state.NAME}`);
     }

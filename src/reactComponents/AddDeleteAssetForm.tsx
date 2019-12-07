@@ -33,8 +33,6 @@ interface EditProps {
 export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
   public defaultState: EditFormState;
 
-  private assetStartSelectID = 'assetStartSelect';
-
   public constructor(props: EditProps) {
     super(props);
     if (printDebug()) {
@@ -125,7 +123,6 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
           <DateSelectionRow
             introLabel="Date on which the asset starts:"
             setDateFunction={this.setStart}
-            selectID="assetStartSelect"
             inputName="start date"
             inputValue={this.state.START}
             onChangeHandler={this.handleStartChange}
@@ -229,13 +226,6 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
   private handleStartChange(e: any): void {
     const value = e.target.value;
     this.setStart(value);
-    this.resetStartSelect();
-  }
-  private resetStartSelect() {
-    const selector: any = document.getElementById(this.assetStartSelectID);
-    if (selector !== null) {
-      selector.selectedIndex = '0';
-    }
   }
   private add(e: any): void {
     e.preventDefault();
@@ -290,7 +280,6 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
       alert('added new asset');
       // clear fields
       this.setState(this.defaultState);
-      this.resetStartSelect();
     }
   }
   private async delete(e: any) {
@@ -300,7 +289,6 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
       alert('deleted expense');
       // clear fields
       this.setState(this.defaultState);
-      this.resetStartSelect();
     } else {
       alert(`failed to delete ${this.state.NAME}`);
     }

@@ -7,7 +7,6 @@ import { makeDateTooltip } from '../utils';
 interface DateSelectionProps {
   introLabel: string;
   setDateFunction: (value: string) => void;
-  selectID: string;
   inputName: string;
   inputValue: string;
   onChangeHandler: (e: any) => void;
@@ -29,8 +28,8 @@ export class DateSelectionRow extends Component<DateSelectionProps, {}> {
           <TriggerOptionList
             triggers={this.props.triggers}
             submitTrigger={this.props.submitTrigger}
-            selectId={this.props.selectID}
             handleChange={this.props.setDateFunction}
+            selectedItem=""
           />
         </div>
         {/* end col */}
