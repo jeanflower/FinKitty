@@ -145,7 +145,7 @@ export const browserTestSettings: DbSetting[] = [
   },
 ];
 
-const serverUri = 'http://localhost:3000/#';
+const serverUri = 'https://localhost:3000/#';
 
 export const dBSleep = 1500; // time to round trip through DB
 export const calcSleep = 1000; // time to recalculate charts etc
