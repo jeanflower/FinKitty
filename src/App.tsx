@@ -247,7 +247,7 @@ let reactAppComponent: App;
 function getDisplay(type: ViewType) {
   const view = views.get(type);
   if (view === undefined) {
-    console.log(`Error : unrecopgnised view ${type}`);
+    console.log(`Error : unrecognised view ${type}`);
     return false;
   }
   const result = view.display;
