@@ -150,8 +150,8 @@ describe('database work', () => {
     // log(`checked some asset info from DB`);
 
     // log(`go to delete all tables`);
-    // if we delete assets then query, there are none
-    // await deleteAllData(modelName);
+    // if we delete the model then query, there are no assets
+    // await deleteAllModel(modelName);
     await deleteAllAssets(modelName);
 
     // log(`deleted all data`);

@@ -34,14 +34,10 @@ import {
   submitIDbTransactions,
   submitIDbTriggers,
   setupDDB,
+  submitIDbModel,
 } from './database/dynamo';
 import {
-  sampleAssets,
-  sampleExpenses,
-  sampleIncomes,
-  sampleSettings,
-  sampleTransactions,
-  sampleTriggers,
+  sampleModel,
 } from './models/sampleData';
 // } from './models/outsideGit/RealData';
 import { AddDeleteAssetForm } from './reactComponents/AddDeleteAssetForm';
@@ -84,7 +80,7 @@ import {
   viewDetail,
   viewDetailHint,
   viewFrequency,
-  sampleModel,
+  sampleModelName,
 } from './stringConstants';
 import {
   ChartData,
@@ -123,7 +119,7 @@ import CashValueFormatter from './reactComponents/CashValueFormatter';
 
 const { CanvasJSChart } = CanvasJSReact;
 
-export let modelName: string = sampleModel;
+export let modelName: string = sampleModelName;
 
 interface ViewType {
   lc: string;
@@ -288,19 +284,12 @@ async function refreshData(goToDB = true) {
     //log(`modelNames are ${modelNames}`);
     if (
       modelNames.find(x => {
-        return x === sampleModel;
+        return x === sampleModelName;
       }) === undefined
     ) {
       // force us to have at least the sample model
       await ensureDbTables(modelName);
-      await Promise.all([
-        submitIDbExpenses(sampleExpenses, modelName),
-        submitIDbIncomes(sampleIncomes, modelName),
-        submitIDbTriggers(sampleTriggers, modelName),
-        submitIDbAssets(sampleAssets, modelName),
-        submitIDbTransactions(sampleTransactions, modelName),
-        submitIDbSettings(sampleSettings, modelName),
-      ]);
+      await submitIDbModel(sampleModel, modelName);
       modelNames = await getDbModelNames();
     }
 
@@ -1106,7 +1095,7 @@ export class App extends Component<{}, AppState> {
       async (model: string) => {
         if (window.confirm(`delete all data in model ${model} - you sure?`)) {
           await deleteAllTables(model);
-          await updateModelName(sampleModel);
+          await updateModelName(sampleModelName);
           await refreshData();
         }
       },
@@ -1235,14 +1224,8 @@ export class App extends Component<{}, AppState> {
                 deleteAllSettings(modelName),
               ]).then(() =>
                 ensureDbTables(modelName).then(() =>
-                  Promise.all([
-                    submitIDbExpenses(sampleExpenses, modelName),
-                    submitIDbIncomes(sampleIncomes, modelName),
-                    submitIDbTriggers(sampleTriggers, modelName),
-                    submitIDbAssets(sampleAssets, modelName),
-                    submitIDbTransactions(sampleTransactions, modelName),
-                    submitIDbSettings(sampleSettings, modelName),
-                  ]).then(() => refreshData()),
+                  submitIDbModel(sampleModel, modelName).then(() => 
+                    refreshData()),
                 ),
               );
             }}
