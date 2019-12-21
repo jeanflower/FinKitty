@@ -1139,7 +1139,17 @@ function getTransactionMoments(
 // TODO consider an attribute on assets which
 // tells us this.  For now, allo cash and mortgages
 // to go negative at will.
-function assetAllowedNegative(assetName: string) {
+function assetAllowedNegative(
+  assetName: string,
+  assets: DbAsset[],
+) {
+  const filteredList = assets.filter((a)=>{
+    return a.NAME === assetName;
+  });
+  if(filteredList.length === 1){
+    return filteredList[0].CAN_BE_NEGATIVE;
+  }
+  console.log(`Error : asset name ${assetName} not found in assets list`);
   return (
     assetName === CASH_ASSET_NAME ||
     assetName.includes('mortgage') ||
@@ -1190,6 +1200,7 @@ function calculateFromChange(
   preToValue: number | undefined,
   preFromValue: number,
   fromWord: string,
+  model: DbModelData,
 ): number | undefined {
   const tFromValue = parseFloat(t.FROM_VALUE);
   const tToValue = parseFloat(t.TO_VALUE);
@@ -1237,7 +1248,7 @@ function calculateFromChange(
     }
   }
   // Allow some assets to become negative but not others
-  if (!assetAllowedNegative(fromWord) && fromChange > preFromValue) {
+  if (!assetAllowedNegative(fromWord, model.assets) && fromChange > preFromValue) {
     if (t.NAME.startsWith(conditional)) {
       // transfer as much as we have
       // log(`transfer only ${value} because we don't have ${fromChange}`);
@@ -1250,7 +1261,11 @@ function calculateFromChange(
     }
   }
   if (fromWord !== undefined) {
-    if (!assetAllowedNegative(fromWord) && preFromValue <= 0) {
+    if (!assetAllowedNegative(
+        fromWord,
+        model.assets,
+      ) && preFromValue <= 0
+    ) {
       // we cannot help
       return undefined;
     }
@@ -1376,7 +1391,7 @@ function processTransactionFromTo(
   moment: Moment,
   values: Map<string, number>,
   evaluations: Evaluation[],
-  triggers: DbTrigger[],
+  model: DbModelData,
   pensionTransactions: DbTransaction[],
   liabliitiesMap: Map<string, string>,
   liableIncomeInTaxYear: Map<string, Map<string, number>>,
@@ -1395,7 +1410,13 @@ function processTransactionFromTo(
 
   let fromChange;
   if (preFromValue !== undefined) {
-    fromChange = calculateFromChange(t, preToValue, preFromValue, fromWord);
+    fromChange = calculateFromChange(
+      t, 
+      preToValue, 
+      preFromValue, 
+      fromWord,
+      model,
+    );
     // Transaction is permitted to be blocked by the calculation
     // of fromChange - e.g. if it would require an asset to become
     // a not-premitted value (e.g. shares become negative).
@@ -1450,7 +1471,7 @@ function processTransactionFromTo(
         moment,
         values,
         evaluations,
-        triggers,
+        model.triggers,
         pensionTransactions,
         liabliitiesMap,
         liableIncomeInTaxYear,
@@ -1519,7 +1540,7 @@ function processTransactionMoment(
   moment: Moment,
   values: Map<string, number>,
   evaluations: Evaluation[],
-  triggers: DbTrigger[],
+  model: DbModelData,
   pensionTransactions: DbTransaction[],
   liabliitiesMap: Map<string, string>,
   liableIncomeInTaxYear: Map<string, Map<string, number>>,
@@ -1560,7 +1581,7 @@ function processTransactionMoment(
         moment,
         values,
         evaluations,
-        triggers,
+        model,
         pensionTransactions,
         liabliitiesMap,
         liableIncomeInTaxYear,
@@ -1798,7 +1819,7 @@ export function getEvaluations(data: DbModelData): Evaluation[] {
         moment,
         values,
         evaluations,
-        data.triggers,
+        data,
         pensionTransactions,
         liabilitiesMap,
         liableIncomeInTaxYear,

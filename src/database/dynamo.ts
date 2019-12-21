@@ -417,6 +417,7 @@ async function addRequiredSettings(ddb: any, tableName: string): Promise<any> {
       VALUE: { N: '0.0' },
       GROWTH: { S: '0.0' },
       CPI_IMMUNE: { S: makeStringFromBoolean(false) },
+      CAN_BE_NEGATIVE: { S: makeStringFromBoolean(true) },
       LIABILITY: { S: translateForDB('') },
       PURCHASE_PRICE: { N: '0.0' },
     }),
@@ -730,6 +731,9 @@ export async function submitIDbAssets(assets: DbAsset[], modelName: string) {
         CPI_IMMUNE: {
           S: makeStringFromBoolean(assetInput.CPI_IMMUNE),
         },
+        CAN_BE_NEGATIVE: {
+          S: makeStringFromBoolean(assetInput.CAN_BE_NEGATIVE),
+        },
         NAME: { S: assetInput.NAME },
         START: { S: assetInput.START }, // use triggers
         VALUE: { N: assetInput.VALUE },
@@ -907,12 +911,27 @@ async function getAssetData(ddb: any, tableName: string): Promise<DbAsset[]> {
     if (printDebug()) {
       log(`db element is ${showObj(element)}`);
     }
+    // for legacy data allow load to miss CAN_BE_NEGATIVE value
+    let canBeNegative;
+    if(element.CAN_BE_NEGATIVE === undefined){
+      const assetName = element.NAME.S;
+      canBeNegative =     
+        assetName === CASH_ASSET_NAME ||
+        assetName.includes('mortgage') ||
+        assetName.includes('Mortgage');
+      if(!canBeNegative && parseFloat(element.VALUE.N) < 0){
+        canBeNegative = true;
+      }
+    } else {
+      canBeNegative = makeBooleanFromString(element.CAN_BE_NEGATIVE.S);
+    }
     const item: DbAsset = {
       NAME: element.NAME.S,
       START: element.START.S,
       VALUE: element.VALUE.N,
       GROWTH: element.GROWTH.S,
       CPI_IMMUNE: makeBooleanFromString(element.CPI_IMMUNE.S),
+      CAN_BE_NEGATIVE: canBeNegative,
       LIABILITY: translateFromDB(element.LIABILITY.S),
       PURCHASE_PRICE: element.PURCHASE_PRICE.N,
       CATEGORY: translateFromDB(element.CATEGORY.S),

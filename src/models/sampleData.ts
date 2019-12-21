@@ -27,57 +27,17 @@ import {
   viewFrequencyHint,
 } from '../stringConstants';
 import {
-  DbAsset,
-  DbExpense,
-  DbIncome,
-  DbTransaction,
   DbModelData,
 } from '../types/interfaces';
-import { makeDateFromString } from '../utils';
-const simpleAsset: DbAsset = {
-  NAME: 'NoName',
-  CATEGORY: '',
-  START: '1 Jan 2017',
-  VALUE: '0',
-  GROWTH: '0',
-  CPI_IMMUNE: false,
-  LIABILITY: '',
-  PURCHASE_PRICE: '0',
-};
-const simpleExpense: DbExpense = {
-  NAME: 'NoName',
-  CATEGORY: '',
-  START: '1 Jan 2017',
-  END: '1 Jan 2017',
-  VALUE: '0',
-  VALUE_SET: '1 Jan 2017',
-  CPI_IMMUNE: false,
-  GROWTH: '0',
-};
-const simpleIncome: DbIncome = {
-  NAME: 'NoName',
-  CATEGORY: '',
-  START: '1 Jan 2017',
-  END: '1 Jan 2017',
-  VALUE: '0',
-  VALUE_SET: '1 Jan 2017',
-  CPI_IMMUNE: false,
-  GROWTH: '0',
-  LIABILITY: '',
-};
-const simpleTransaction: DbTransaction = {
-  NAME: 'NoName',
-  FROM: '',
-  FROM_ABSOLUTE: true,
-  FROM_VALUE: '0',
-  TO: '',
-  TO_ABSOLUTE: true,
-  TO_VALUE: '0',
-  DATE: '1 Jan 2017',
-  STOP_DATE: '', // for regular transactions
-  RECURRENCE: '',
-  CATEGORY: '',
-};
+import {
+  simpleAsset,
+  simpleExpense,
+  simpleIncome,
+  simpleTransaction,
+} from './../types/simple';
+import { 
+  makeDateFromString 
+} from '../utils';
 
 export const sampleModel: DbModelData = {
   triggers: [
@@ -162,6 +122,7 @@ export const sampleModel: DbModelData = {
       NAME: CASH_ASSET_NAME,
       START: 'December 2017',
       VALUE: '2000',
+      CAN_BE_NEGATIVE: true,
     },
     {
       ...simpleAsset,

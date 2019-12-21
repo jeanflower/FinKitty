@@ -75,7 +75,7 @@ export class AddDeleteTriggerForm extends Component<EditProps, EditFormState> {
             Name:
             <Input
               type={'text'}
-              name={'name'}
+              name={'triggername'}
               value={this.state.NAME}
               placeholder={'Enter name'}
               onChange={this.handleName}

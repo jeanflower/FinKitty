@@ -30,7 +30,7 @@ export class ModelManagementForm extends Component<
       log('props for ModelManagementForm: ' + showObj(props));
     }
 
-    // log(`props.models = ${props.models}`);
+    // log(`props.name = ${props.name}`);
     this.state = {
       NAME: props.name,
     };
@@ -94,7 +94,7 @@ export class ModelManagementForm extends Component<
           <Input
             type={'text'}
             title={'Save as : provide a name'}
-            name={'input-model-name'}
+            name={'modelname'}
             value={this.state.NAME}
             placeholder={'Enter name'}
             onChange={this.handleName}

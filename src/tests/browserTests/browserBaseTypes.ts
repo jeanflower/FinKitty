@@ -33,60 +33,12 @@ import {
   viewFrequencyHint,
 } from '../../stringConstants';
 import {
-  DbAsset,
-  DbExpense,
-  DbIncome,
   DbModelData,
   DbSetting,
-  DbTransaction,
 } from '../../types/interfaces';
 import { log, printDebug } from '../../utils';
 import webdriver from 'selenium-webdriver';
 
-export const simpleAsset: DbAsset = {
-  NAME: 'NoName',
-  CATEGORY: '',
-  START: '1 Jan 2017',
-  VALUE: '0',
-  GROWTH: '0',
-  CPI_IMMUNE: false,
-  LIABILITY: '',
-  PURCHASE_PRICE: '0',
-};
-export const simpleExpense: DbExpense = {
-  NAME: 'NoName',
-  CATEGORY: '',
-  START: '1 Jan 2017',
-  END: '1 Jan 2017',
-  VALUE: '0.0',
-  VALUE_SET: '1 Jan 2017',
-  CPI_IMMUNE: false,
-  GROWTH: '0.0',
-};
-export const simpleIncome: DbIncome = {
-  NAME: 'NoName',
-  CATEGORY: '',
-  START: '1 Jan 2017',
-  END: '1 Jan 2017',
-  VALUE: '0.0',
-  VALUE_SET: '1 Jan 2017',
-  CPI_IMMUNE: false,
-  GROWTH: '0.0',
-  LIABILITY: '',
-};
-export const simpleTransaction: DbTransaction = {
-  NAME: 'NoName',
-  FROM: '',
-  FROM_ABSOLUTE: true,
-  FROM_VALUE: '0',
-  TO: '',
-  TO_ABSOLUTE: true,
-  TO_VALUE: '0',
-  DATE: '1 Jan 2017',
-  STOP_DATE: '', // for regular transactions
-  RECURRENCE: '',
-  CATEGORY: '',
-};
 export const browserTestSettings: DbSetting[] = [
   {
     NAME: roiStart,

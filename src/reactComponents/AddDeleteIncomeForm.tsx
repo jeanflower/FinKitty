@@ -82,7 +82,7 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
             <Input
               title="Income name:"
               type="text"
-              name="name"
+              name="incomename"
               value={this.state.NAME}
               placeholder="Enter name"
               onChange={this.handleNameChange}
@@ -105,7 +105,7 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
             <Input
               title="Income value (amount per month):"
               type="text"
-              name="value"
+              name="incomevalue"
               value={this.state.VALUE}
               placeholder="Enter value"
               onChange={this.handleValueChange}
@@ -149,7 +149,7 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
             <Input
               title="Annual growth percentage (excluding inflation):"
               type="text"
-              name="growth"
+              name="incomegrowth"
               value={this.state.GROWTH}
               placeholder="Enter growth"
               onChange={this.handleGrowthChange}
@@ -160,7 +160,7 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
             <Input
               title="Is value immune to inflation?:"
               type="text"
-              name="cpi-immune"
+              name="incomecpi-immune"
               value={this.state.CPI_IMMUNE}
               placeholder="Enter Y/N"
               onChange={this.handleFixedChange}
@@ -185,7 +185,7 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
             <Input
               title="Category (optional):"
               type="text"
-              name="category"
+              name="incomecategory"
               value={this.state.CATEGORY}
               placeholder="category"
               onChange={this.handleCategoryChange}

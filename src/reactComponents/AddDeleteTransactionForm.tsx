@@ -138,7 +138,7 @@ export class AddDeleteTransactionForm extends Component<
             <Input
               title="Transaction name:"
               type="text"
-              name="name"
+              name="transactionname"
               value={this.state.NAME}
               placeholder="Enter name"
               onChange={this.handleNameChange}
@@ -248,7 +248,7 @@ export class AddDeleteTransactionForm extends Component<
             <Input
               title="Category (optional):"
               type="text"
-              name="category"
+              name="transactioncategory"
               value={this.state.CATEGORY}
               placeholder="category"
               onChange={this.handleCategoryChange}

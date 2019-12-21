@@ -19,6 +19,7 @@ interface EditFormState {
   START: string;
   GROWTH: string;
   CPI_IMMUNE: string;
+  CAN_BE_NEGATIVE: string;
   PURCHASE_PRICE: string;
   LIABILITY: string;
   CATEGORY: string;
@@ -45,6 +46,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
       START: '',
       GROWTH: '',
       CPI_IMMUNE: '',
+      CAN_BE_NEGATIVE: '',
       PURCHASE_PRICE: '',
       LIABILITY: '',
       CATEGORY: '',
@@ -75,7 +77,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
             <Input
               title="Asset name:"
               type="text"
-              name="name"
+              name="assetname"
               value={this.state.NAME}
               placeholder="Enter name"
               onChange={this.handleNameChange}
@@ -98,7 +100,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
             <Input
               title="Asset value:"
               type="text"
-              name="value"
+              name="assetvalue"
               value={this.state.VALUE}
               placeholder="Enter value"
               onChange={this.handleValueChange}
@@ -109,7 +111,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
             <Input
               title="Category (optional):"
               type="text"
-              name="category"
+              name="assetcategory"
               value={this.state.CATEGORY}
               placeholder="category"
               onChange={this.handleCategoryChange}
@@ -135,7 +137,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
             <Input
               title="Annual growth percentage (excluding inflation):"
               type="text"
-              name="growth"
+              name="assetgrowth"
               value={this.state.GROWTH}
               placeholder="Enter growth"
               onChange={this.handleGrowthChange}
@@ -146,7 +148,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
             <Input
               title="Is value immune to inflation?:"
               type="text"
-              name="cpi-immune"
+              name="assetcpi-immune"
               value={this.state.CPI_IMMUNE}
               placeholder="Enter Y/N"
               onChange={this.handleFixedChange}
@@ -255,9 +257,14 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
     if (purchasePrice === '') {
       purchasePrice = '0';
     }
-    const parsedYN = makeBooleanFromYesNo(this.state.CPI_IMMUNE);
-    if (!parsedYN.checksOK) {
+    const parsedYNCPI = makeBooleanFromYesNo(this.state.CPI_IMMUNE);
+    if (!parsedYNCPI.checksOK) {
       alert(`Fixed '${this.state.CPI_IMMUNE}' should be a Y/N value`);
+      return;
+    }
+    const parsedYNNeg = makeBooleanFromYesNo(this.state.CAN_BE_NEGATIVE);
+    if (!parsedYNNeg.checksOK) {
+      alert(`Fixed '${this.state.CAN_BE_NEGATIVE}' should be a Y/N value`);
       return;
     }
 
@@ -267,7 +274,8 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
       VALUE: this.state.VALUE,
       START: this.state.START,
       GROWTH: this.state.GROWTH,
-      CPI_IMMUNE: parsedYN.value,
+      CPI_IMMUNE: parsedYNCPI.value,
+      CAN_BE_NEGATIVE: parsedYNNeg.value,
       CATEGORY: this.state.CATEGORY,
       PURCHASE_PRICE: purchasePrice,
       LIABILITY: this.state.LIABILITY,

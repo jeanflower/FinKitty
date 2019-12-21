@@ -316,6 +316,7 @@ async function refreshData(goToDB = true) {
         VALUE: '0',
         GROWTH: '0',
         CPI_IMMUNE: true,
+        CAN_BE_NEGATIVE: false,
         LIABILITY: '',
         PURCHASE_PRICE: '0',
         CATEGORY: '',
@@ -477,6 +478,7 @@ export async function submitNewAsset(name: string) {
     VALUE: '0',
     GROWTH: '0',
     CPI_IMMUNE: false,
+    CAN_BE_NEGATIVE: false,
     LIABILITY: '',
     PURCHASE_PRICE: '0',
   });
@@ -671,6 +673,7 @@ function handleAssetGridRowsUpdated() {
   );
   const parsedPurchasePrice = makePurchasePriceFromString(asset.PURCHASE_PRICE);
   const parsedCPIImmune = makeBooleanFromYesNo(asset.IS_CPI_IMMUNE);
+  const parsedCanBeNegative = makeBooleanFromYesNo(asset.CAN_BE_NEGATIVE);
   if (!parsedGrowth.checksOK) {
     alert(`asset growth ${asset.GROWTH} not understood`);
     asset[arguments[0].cellKey] = oldValue;
@@ -688,6 +691,7 @@ function handleAssetGridRowsUpdated() {
       LIABILITY: asset.LIABILITY,
       GROWTH: parsedGrowth.value,
       CPI_IMMUNE: parsedCPIImmune.value,
+      CAN_BE_NEGATIVE: parsedCanBeNegative.value,
       PURCHASE_PRICE: parsedPurchasePrice,
       CATEGORY: asset.CATEGORY,
     };
@@ -956,6 +960,7 @@ async function stringifyForSampleDataCode(): Promise<string> {
   result = result.replace(/"END"/g, 'END');
   result = result.replace(/"GROWTH"/g, 'GROWTH');
   result = result.replace(/"CPI_IMMUNE"/g, 'CPI_IMMUNE');
+  result = result.replace(/"CAN_BE_NEGATIVE"/g, 'CAN_BE_NEGATIVE');
   result = result.replace(/"LIABILITY"/g, 'LIABILITY');
   result = result.replace(/"START"/g, 'START');
   result = result.replace(/"VALUE"/g, 'VALUE');
@@ -1850,6 +1855,7 @@ export class App extends Component<{}, AppState> {
                       obj.LIABILITY,
                     ),
                     IS_CPI_IMMUNE: makeYesNoFromBoolean(obj.CPI_IMMUNE),
+                    CAN_BE_NEGATIVE: makeYesNoFromBoolean(obj.CAN_BE_NEGATIVE),
                   };
                   return result;
                 })}
@@ -1891,6 +1897,11 @@ export class App extends Component<{}, AppState> {
                   ...defaultColumn,
                   key: 'IS_CPI_IMMUNE',
                   name: 'Is immune from CPI?',
+                },
+                {
+                  ...defaultColumn,
+                  key: 'CAN_BE_NEGATIVE',
+                  name: 'Can go negative?',
                 },
                 {
                   ...defaultColumn,

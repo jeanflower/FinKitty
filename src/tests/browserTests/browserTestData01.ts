@@ -8,11 +8,13 @@ import { DbModelData } from '../../types/interfaces';
 import { setSetting, makeDateFromString } from '../../utils';
 import {
   browserTestSettings,
+} from './browserBaseTypes';
+import {
   simpleAsset,
   simpleExpense,
   simpleIncome,
   simpleTransaction,
-} from './browserBaseTypes';
+} from './../../types/simple';
 
 export function getTestModel01() {
   const model: DbModelData = {

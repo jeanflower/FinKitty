@@ -49,6 +49,8 @@ The browser tests (automated with selenium) will fail unless the web server is r
 
 The selenium tests fire up and drive Chrome processes.  If the tests properly complete, the Chrome window for the tests should close down properly.  But the chromedriver process does not get cleaned up.  If the tests are interrupted (e.g. restart partway through) then the cleanup does not occur.  After a lengthy testing session, you may prefer to clean up manually; open Activity Monitor, search by the text "chrome", and in a terminal window, `killall chromedriver` and `killall "Google Chrome"`.
 
+See coverage by typing `npm test -- --coverage`.
+
 ### Linting
 Run `./lintFixes.sh` keeps things clean.
 Running the web server also reports linting issues in the console.

@@ -43,14 +43,18 @@ import {
 import {
   ChartDataPoint,
   DataForView,
-  DbAsset,
-  DbExpense,
-  DbIncome,
   DbModelData,
   DbSetting,
-  DbTransaction,
 } from '../../types/interfaces';
-import { Evaluation } from '../../types/interfaces';
+import {
+  simpleAsset,
+  simpleExpense,
+  simpleIncome,
+  simpleTransaction,
+} from './../../types/simple';
+import { 
+  Evaluation,
+} from '../../types/interfaces';
 import {
   log,
   printDebug,
@@ -66,37 +70,6 @@ import {
 /* global expect */
 /* global describe */
 
-const simpleAsset: DbAsset = {
-  NAME: 'NoName',
-  CATEGORY: '',
-  START: '1 Jan 2017',
-  VALUE: '0',
-  GROWTH: '0',
-  CPI_IMMUNE: false,
-  LIABILITY: '',
-  PURCHASE_PRICE: '0',
-};
-const simpleExpense: DbExpense = {
-  NAME: 'NoName',
-  CATEGORY: '',
-  START: '1 Jan 2017',
-  END: '1 Jan 2017',
-  VALUE: '0',
-  VALUE_SET: '1 Jan 2017',
-  CPI_IMMUNE: false,
-  GROWTH: '0',
-};
-const simpleIncome: DbIncome = {
-  NAME: 'NoName',
-  CATEGORY: '',
-  START: '1 Jan 2017',
-  END: '1 Jan 2017',
-  VALUE: '0',
-  VALUE_SET: '1 Jan 2017',
-  CPI_IMMUNE: false,
-  GROWTH: '0',
-  LIABILITY: '',
-};
 const simpleModel: DbModelData = {
   triggers: [],
   incomes: [],
@@ -140,19 +113,6 @@ const defaultSettings: DbSetting[] = [
     HINT: birthDateHint,
   },
 ];
-const simpleTransaction: DbTransaction = {
-  NAME: 'NoName',
-  FROM: '',
-  FROM_ABSOLUTE: true,
-  FROM_VALUE: '0',
-  TO: '',
-  TO_ABSOLUTE: true,
-  TO_VALUE: '0',
-  DATE: '1 Jan 2017',
-  STOP_DATE: '', // for regular transactions
-  RECURRENCE: '',
-  CATEGORY: '',
-};
 
 function expectEvals(
   evals: Evaluation[],
@@ -274,7 +234,7 @@ function printTestCodeForChart(result: DataForView) {
 const testJSONRoundTrip = true;
 
 function getTestEvaluations(model: DbModelData): Evaluation[] {
-  if (testJSONRoundTrip) {
+  if (!testJSONRoundTrip) {
     return getEvaluations(model);
   } else {
     return getEvaluations(makeModelFromJSON(JSON.stringify(model)));
@@ -346,6 +306,7 @@ export function getModelCoarseAndFine() {
       {
         ...simpleAsset,
         NAME: CASH_ASSET_NAME,
+        CAN_BE_NEGATIVE: true,
         START: 'April 1 2018',
         VALUE: '500',
         CATEGORY: 'Accessible',
@@ -423,6 +384,7 @@ export function getModelCrystallizedPension() {
       {
         ...simpleAsset,
         NAME: CASH_ASSET_NAME,
+        CAN_BE_NEGATIVE: true,
         START: 'Apr 06 2019',
       },
       {
@@ -1477,6 +1439,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: 'January 1 2018',
           VALUE: '500',
           GROWTH: '12',
@@ -2712,6 +2675,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: 'January 2 2018',
           VALUE: '15',
         },
@@ -2867,6 +2831,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: 'January 2 2018',
           VALUE: '15',
         },
@@ -3023,6 +2988,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: 'January 2 2018',
           VALUE: '15',
         },
@@ -3178,6 +3144,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: 'January 2 2018',
           VALUE: '15',
         },
@@ -3338,6 +3305,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: 'March 2 2018',
           VALUE: '15',
         },
@@ -3479,6 +3447,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: 'March 2 2018',
           VALUE: '15',
         },
@@ -3624,6 +3593,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: 'January 2 2018',
           VALUE: '15',
         },
@@ -3842,6 +3812,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: 'January 2 2018',
           VALUE: '5',
         },
@@ -4086,6 +4057,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: 'January 1 2018',
           VALUE: '500',
         },
@@ -4199,6 +4171,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: 'January 1 2018',
           VALUE: '500',
         },
@@ -4316,6 +4289,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: 'March 1 2018',
           VALUE: '500',
         },
@@ -4421,6 +4395,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: 'April 1 2018',
           VALUE: '500',
         },
@@ -4502,6 +4477,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: 'April 1 2018',
           VALUE: '500',
         },
@@ -4582,6 +4558,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: 'April 1 2018',
           VALUE: '500',
         },
@@ -4664,6 +4641,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: 'April 1 2018',
           VALUE: '500',
         },
@@ -4748,6 +4726,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: 'April 1 2018',
           VALUE: '500',
         },
@@ -4922,6 +4901,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: 'April 1 2018',
           VALUE: '500',
         },
@@ -5021,6 +5001,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: 'April 1 2018',
           VALUE: '500',
         },
@@ -5123,6 +5104,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: 'April 1 2018',
           VALUE: '500',
         },
@@ -5222,6 +5204,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: 'April 1 2018',
           VALUE: '1000',
         },
@@ -5321,6 +5304,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: 'April 1 2018',
           VALUE: '500',
         },
@@ -5423,6 +5407,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: 'April 1 2018',
           VALUE: '500',
         },
@@ -5514,6 +5499,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: 'March 1 2018',
           VALUE: '500',
         },
@@ -5594,6 +5580,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: 'March 1 2018',
           VALUE: '500',
         },
@@ -5676,6 +5663,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: 'March 1 2018',
           VALUE: '500',
         },
@@ -5759,6 +5747,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: 'March 1 2018',
           VALUE: '500',
         },
@@ -5841,6 +5830,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: 'January 1 2018',
           VALUE: '500',
         },
@@ -5971,6 +5961,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: 'March 1 2018',
         },
         {
@@ -6094,6 +6085,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: 'March 1 2018',
         },
         {
@@ -6217,6 +6209,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: 'March 1 2017',
         },
         {
@@ -6397,6 +6390,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: 'March 1 2018',
         },
         {
@@ -6529,6 +6523,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: 'March 1 2018',
         },
         {
@@ -6632,6 +6627,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: 'March 1 2018',
         },
         {
@@ -6750,6 +6746,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: 'Dec 1, 2017',
           VALUE: '10',
         },
@@ -6938,6 +6935,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: 'Dec 1, 2017',
           VALUE: '10',
         },
@@ -7128,6 +7126,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: 'Dec 1, 2017',
           VALUE: '10',
         },
@@ -7317,6 +7316,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: 'Dec 1, 2017',
           VALUE: '10',
         },
@@ -7522,6 +7522,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: 'April 6 2018',
         },
         {
@@ -7848,6 +7849,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: 'March 1 2018',
         },
         {
@@ -7992,6 +7994,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: 'January 1 2018',
         },
       ],
@@ -8081,6 +8084,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: 'January 1 2018',
         },
         {
@@ -8192,6 +8196,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: 'January 1 2018',
         },
         {
@@ -8391,6 +8396,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: roi.start,
         },
       ],
@@ -8488,6 +8494,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: roi.start,
         },
       ],
@@ -9575,7 +9582,7 @@ describe('evaluations tests', () => {
     };
 
     suppressLogs();
-    let evals: Evaluation[] = getEvaluations(model);
+    let evals: Evaluation[] = getTestEvaluations(model);
     unSuppressLogs();
     // printTestCodeForEvals(evals);
     expect(evals.length).toBe(0);
@@ -9661,6 +9668,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: 'January 2 2018',
           VALUE: '-117',
         },
@@ -9760,6 +9768,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: 'January 2 2018',
           VALUE: '-117',
         },
@@ -9862,6 +9871,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: 'January 2 2018',
           VALUE: '-117',
         },
@@ -9954,6 +9964,7 @@ describe('evaluations tests', () => {
         {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
           START: 'January 2 2018',
           VALUE: '-617',
         },
@@ -10010,6 +10021,568 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 1, 'Thu Feb 15 2018', -308.5, 2);
       expectChartData(chartPts, 2, 'Thu Mar 15 2018', -297, -1);
     }
+
+    done();
+  });
+  it('pay off mortgage, conditional, to absolute', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'May 1, 2018 00:00:00',
+    };
+    const model: DbModelData = {
+      ...simpleModel,
+      expenses: [],
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: 'Conditional pay off mortgage',
+          FROM: CASH_ASSET_NAME,
+          FROM_VALUE: '50',
+          TO: 'Mortgage',
+          TO_VALUE: '50',
+          DATE: 'February 2 2018',
+          STOP_DATE: '',
+          RECURRENCE: '1m',
+        },
+      ],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'Mortgage',
+          CAN_BE_NEGATIVE: true,
+          START: 'January 2 2018',
+          VALUE: '-70',
+        },
+        {
+          ...simpleAsset,
+          NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
+          START: 'January 2 2018',
+          VALUE: '150',
+        },
+      ],
+      settings: [...defaultSettings],
+    };
+    setSetting(model.settings, roiStart, roi.start);
+    setSetting(model.settings, roiEnd, roi.end);
+
+    const evals: Evaluation[] = getTestEvaluations(model);
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(12);
+    expectEvals(evals, 0, 'Cash', 'Tue Jan 02 2018', 150, -1);
+    expectEvals(evals, 1, 'Mortgage', 'Tue Jan 02 2018', -70, -1);
+    expectEvals(evals, 2, 'Cash', 'Fri Feb 02 2018', 150, -1);
+    expectEvals(evals, 3, 'Mortgage', 'Fri Feb 02 2018', -70, -1);
+    expectEvals(evals, 4, 'Cash', 'Fri Feb 02 2018', 100, -1);
+    expectEvals(evals, 5, 'Mortgage', 'Fri Feb 02 2018', -20, -1);
+    expectEvals(evals, 6, 'Cash', 'Fri Mar 02 2018', 100, -1);
+    expectEvals(evals, 7, 'Mortgage', 'Fri Mar 02 2018', -20, -1);
+    expectEvals(evals, 8, 'Cash', 'Fri Mar 02 2018', 50, -1);
+    expectEvals(evals, 9, 'Mortgage', 'Fri Mar 02 2018', 30, -1);
+    expectEvals(evals, 10, 'Cash', 'Mon Apr 02 2018', 50, -1);
+    expectEvals(evals, 11, 'Mortgage', 'Mon Apr 02 2018', 30, -1);
+
+    const result = makeChartDataFromEvaluations(
+      {
+        start: makeDateFromString(roi.start),
+        end: makeDateFromString(roi.end),
+      },
+      model,
+      evals,
+    );
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(2);
+    expect(result.assetData[0].item.NAME).toBe('Mortgage');      
+    {
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(5);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0,    -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0,    -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', -70,    -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', -20,    -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 30,    -1);
+    }
+    
+    expect(result.assetData[1].item.NAME).toBe('Cash');
+    {
+      const chartPts = result.assetData[1].chartDataPoints;
+      expect(chartPts.length).toBe(5);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0,    -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0,    -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 150,    -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 100,    -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 50,    -1);
+    }
+    done();
+  });
+  it('pay off mortgage, conditional, to not absolute', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'May 1, 2018 00:00:00',
+    };
+    const model: DbModelData = {
+      ...simpleModel,
+      expenses: [],
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: 'Conditional pay off mortgage',
+          FROM: CASH_ASSET_NAME,
+          FROM_VALUE: '50',
+          TO: 'Mortgage',
+          TO_VALUE: '1.0',
+          TO_ABSOLUTE: false,
+          DATE: 'February 2 2018',
+          STOP_DATE: '',
+          RECURRENCE: '1m',
+        },
+      ],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'Mortgage',
+          CAN_BE_NEGATIVE: true,
+          START: 'January 2 2018',
+          VALUE: '-70',
+        },
+        {
+          ...simpleAsset,
+          NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
+          START: 'January 2 2018',
+          VALUE: '150',
+        },
+      ],
+      settings: [...defaultSettings],
+    };
+    setSetting(model.settings, roiStart, roi.start);
+    setSetting(model.settings, roiEnd, roi.end);
+
+    const evals: Evaluation[] = getTestEvaluations(model);
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(12);
+    expectEvals(evals, 0, 'Cash', 'Tue Jan 02 2018', 150, -1);
+    expectEvals(evals, 1, 'Mortgage', 'Tue Jan 02 2018', -70, -1);
+    expectEvals(evals, 2, 'Cash', 'Fri Feb 02 2018', 150, -1);
+    expectEvals(evals, 3, 'Mortgage', 'Fri Feb 02 2018', -70, -1);
+    expectEvals(evals, 4, 'Cash', 'Fri Feb 02 2018', 100, -1);
+    expectEvals(evals, 5, 'Mortgage', 'Fri Feb 02 2018', -20, -1);
+    expectEvals(evals, 6, 'Cash', 'Fri Mar 02 2018', 100, -1);
+    expectEvals(evals, 7, 'Mortgage', 'Fri Mar 02 2018', -20, -1);
+    expectEvals(evals, 8, 'Cash', 'Fri Mar 02 2018', 80, -1);
+    expectEvals(evals, 9, 'Mortgage', 'Fri Mar 02 2018', 0, -1);
+    expectEvals(evals, 10, 'Cash', 'Mon Apr 02 2018', 80, -1);
+    expectEvals(evals, 11, 'Mortgage', 'Mon Apr 02 2018', 0, -1);
+
+    const result = makeChartDataFromEvaluations(
+      {
+        start: makeDateFromString(roi.start),
+        end: makeDateFromString(roi.end),
+      },
+      model,
+      evals,
+    );
+
+    // printTestCodeForChart(result);
+
+     expect(result.expensesData.length).toBe(0);
+      expect(result.incomesData.length).toBe(0);
+      expect(result.assetData.length).toBe(2);
+      expect(result.assetData[0].item.NAME).toBe('Mortgage');
+      {
+        const chartPts = result.assetData[0].chartDataPoints;
+        expect(chartPts.length).toBe(5);
+        expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0,    -1);
+        expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0,    -1);
+        expectChartData(chartPts, 2, 'Thu Feb 01 2018', -70,    -1);
+        expectChartData(chartPts, 3, 'Thu Mar 01 2018', -20,    -1);
+        expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0,    -1);
+      }
+      
+      expect(result.assetData[1].item.NAME).toBe('Cash');
+      {
+        const chartPts = result.assetData[1].chartDataPoints;
+        expect(chartPts.length).toBe(5);
+        expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0,    -1);
+        expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0,    -1);
+        expectChartData(chartPts, 2, 'Thu Feb 01 2018', 150,    -1);
+        expectChartData(chartPts, 3, 'Thu Mar 01 2018', 100,    -1);
+        expectChartData(chartPts, 4, 'Sun Apr 01 2018', 80,    -1);
+      }
+    done();
+  });
+
+  it('pay off loan, conditional, to absolute', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'May 1, 2018 00:00:00',
+    };
+    const model: DbModelData = {
+      ...simpleModel,
+      expenses: [],
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: 'Conditional pay off loan',
+          FROM: CASH_ASSET_NAME,
+          FROM_VALUE: '50',
+          TO: 'Loan',
+          TO_VALUE: '50',
+          DATE: 'February 2 2018',
+          STOP_DATE: '',
+          RECURRENCE: '1m',
+        },
+      ],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'Loan',
+          CAN_BE_NEGATIVE: true,
+          START: 'January 2 2018',
+          VALUE: '-70',
+        },
+        {
+          ...simpleAsset,
+          NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
+          START: 'January 2 2018',
+          VALUE: '150',
+        },
+      ],
+      settings: [...defaultSettings],
+    };
+    setSetting(model.settings, roiStart, roi.start);
+    setSetting(model.settings, roiEnd, roi.end);
+
+    const evals: Evaluation[] = getTestEvaluations(model);
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(12);
+    expectEvals(evals, 0, 'Cash', 'Tue Jan 02 2018', 150, -1);
+    expectEvals(evals, 1, 'Loan', 'Tue Jan 02 2018', -70, -1);
+    expectEvals(evals, 2, 'Cash', 'Fri Feb 02 2018', 150, -1);
+    expectEvals(evals, 3, 'Loan', 'Fri Feb 02 2018', -70, -1);
+    expectEvals(evals, 4, 'Cash', 'Fri Feb 02 2018', 100, -1);
+    expectEvals(evals, 5, 'Loan', 'Fri Feb 02 2018', -20, -1);
+    expectEvals(evals, 6, 'Cash', 'Fri Mar 02 2018', 100, -1);
+    expectEvals(evals, 7, 'Loan', 'Fri Mar 02 2018', -20, -1);
+    expectEvals(evals, 8, 'Cash', 'Fri Mar 02 2018', 50, -1);
+    expectEvals(evals, 9, 'Loan', 'Fri Mar 02 2018', 30, -1);
+    expectEvals(evals, 10, 'Cash', 'Mon Apr 02 2018', 50, -1);
+    expectEvals(evals, 11, 'Loan', 'Mon Apr 02 2018', 30, -1);    
+
+    const result = makeChartDataFromEvaluations(
+      {
+        start: makeDateFromString(roi.start),
+        end: makeDateFromString(roi.end),
+      },
+      model,
+      evals,
+    );
+
+    // printTestCodeForChart(result);
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(2);
+    expect(result.assetData[0].item.NAME).toBe('Loan');
+    {
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(5);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0,    -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0,    -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', -70,    -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', -20,    -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 30,    -1);
+    }
+    
+    expect(result.assetData[1].item.NAME).toBe('Cash');
+    {
+      const chartPts = result.assetData[1].chartDataPoints;
+      expect(chartPts.length).toBe(5);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0,    -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0,    -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 150,    -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 100,    -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 50,    -1);
+    }
+    done();
+  });
+
+  it('pay off loan, conditional, to not absolute', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'May 1, 2018 00:00:00',
+    };
+    const model: DbModelData = {
+      ...simpleModel,
+      expenses: [],
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: 'Conditional pay off mortgage',
+          FROM: CASH_ASSET_NAME,
+          FROM_VALUE: '50',
+          TO: 'Loan',
+          TO_VALUE: '1.0',
+          TO_ABSOLUTE: false,
+          DATE: 'February 2 2018',
+          STOP_DATE: '',
+          RECURRENCE: '1m',
+        },
+      ],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'Loan',
+          CAN_BE_NEGATIVE: true,
+          START: 'January 2 2018',
+          VALUE: '-70',
+        },
+        {
+          ...simpleAsset,
+          NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
+          START: 'January 2 2018',
+          VALUE: '150',
+        },
+      ],
+      settings: [...defaultSettings],
+    };
+    setSetting(model.settings, roiStart, roi.start);
+    setSetting(model.settings, roiEnd, roi.end);
+
+    const evals: Evaluation[] = getTestEvaluations(model);
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(12);
+    expectEvals(evals, 0, 'Cash', 'Tue Jan 02 2018', 150, -1);
+    expectEvals(evals, 1, 'Loan', 'Tue Jan 02 2018', -70, -1);
+    expectEvals(evals, 2, 'Cash', 'Fri Feb 02 2018', 150, -1);
+    expectEvals(evals, 3, 'Loan', 'Fri Feb 02 2018', -70, -1);
+    expectEvals(evals, 4, 'Cash', 'Fri Feb 02 2018', 100, -1);
+    expectEvals(evals, 5, 'Loan', 'Fri Feb 02 2018', -20, -1);
+    expectEvals(evals, 6, 'Cash', 'Fri Mar 02 2018', 100, -1);
+    expectEvals(evals, 7, 'Loan', 'Fri Mar 02 2018', -20, -1);
+    expectEvals(evals, 8, 'Cash', 'Fri Mar 02 2018', 80, -1);
+    expectEvals(evals, 9, 'Loan', 'Fri Mar 02 2018', 0, -1);
+    expectEvals(evals, 10, 'Cash', 'Mon Apr 02 2018', 80, -1);
+    expectEvals(evals, 11, 'Loan', 'Mon Apr 02 2018', 0, -1);
+
+    const result = makeChartDataFromEvaluations(
+      {
+        start: makeDateFromString(roi.start),
+        end: makeDateFromString(roi.end),
+      },
+      model,
+      evals,
+    );
+
+    // printTestCodeForChart(result);
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(2);
+    expect(result.assetData[0].item.NAME).toBe('Loan');
+    {
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(5);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0,    -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0,    -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', -70,    -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', -20,    -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0,    -1);
+    }
+    
+    expect(result.assetData[1].item.NAME).toBe('Cash');
+    {
+      const chartPts = result.assetData[1].chartDataPoints;
+      expect(chartPts.length).toBe(5);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0,    -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0,    -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 150,    -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 100,    -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 80,    -1);
+    }
+  done();
+  });
+
+  it('negative value for asset which cant be negative', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'February 1, 2018 00:00:00',
+    };
+    const model: DbModelData = {
+      ...simpleModel,
+      expenses: [],
+      transactions: [],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'Loan',
+          CAN_BE_NEGATIVE: false,
+          START: 'January 2 2018',
+          VALUE: '-70',
+        },
+        {
+          ...simpleAsset,
+          NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
+          START: 'January 2 2018',
+          VALUE: '150',
+        },
+      ],
+      settings: [...defaultSettings],
+    };
+    setSetting(model.settings, roiStart, roi.start);
+    setSetting(model.settings, roiEnd, roi.end);
+
+    suppressLogs();
+    let evals: Evaluation[] = getTestEvaluations(model);
+    unSuppressLogs();
+    
+    // printTestCodeForEvals(evals);
+    expect(evals.length).toBe(0); // failure of checks!
+
+    done();
+  });
+
+  it('negative value allowed for from asset', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'February 1, 2018 00:00:00',
+    };
+    const model: DbModelData = {
+      ...simpleModel,
+      expenses: [],
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: 'Move',
+          FROM: 'aaaa',
+          FROM_VALUE: '100',
+          TO: 'bbbb',
+          TO_VALUE: '1.0',
+          TO_ABSOLUTE: false,
+          DATE: 'January 2 2018',
+        },
+      ],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'aaaa',
+          CAN_BE_NEGATIVE: true,
+          START: 'January 2 2018',
+          VALUE: '50',
+        },
+        {
+          ...simpleAsset,
+          NAME: 'bbbb',
+          START: 'January 2 2018',
+          VALUE: '0',
+        },
+      ],
+      settings: [...defaultSettings],
+    };
+    setSetting(model.settings, roiStart, roi.start);
+    setSetting(model.settings, roiEnd, roi.end);
+
+    const evals: Evaluation[] = getTestEvaluations(model);
+
+    // printTestCodeForEvals(evals);
+    expect(evals.length).toBe(4);
+    expectEvals(evals, 0, 'aaaa', 'Tue Jan 02 2018', 50, -1);
+    expectEvals(evals, 1, 'bbbb', 'Tue Jan 02 2018', 0, -1);
+    expectEvals(evals, 2, 'aaaa', 'Tue Jan 02 2018', -50, -1);
+    expectEvals(evals, 3, 'bbbb', 'Tue Jan 02 2018', 100, -1);
+
+    const result = makeChartDataFromEvaluations(
+      {
+        start: makeDateFromString(roi.start),
+        end: makeDateFromString(roi.end),
+      },
+      model,
+      evals,
+    );
+
+    //printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(0);
+
+    done();
+  });
+
+  it('negative value not allowed for from asset', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'February 1, 2018 00:00:00',
+    };
+    const model: DbModelData = {
+      ...simpleModel,
+      expenses: [],
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: 'Move',
+          FROM: 'aaaa',
+          FROM_VALUE: '100',
+          TO: 'bbbb',
+          TO_VALUE: '1.0',
+          TO_ABSOLUTE: false,
+          DATE: 'January 2 2018',
+        },
+      ],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'aaaa',
+          START: 'January 2 2018',
+          VALUE: '50',
+        },
+        {
+          ...simpleAsset,
+          NAME: 'bbbb',
+          START: 'January 2 2018',
+          VALUE: '0',
+        },
+      ],
+      settings: [...defaultSettings],
+    };
+    setSetting(model.settings, roiStart, roi.start);
+    setSetting(model.settings, roiEnd, roi.end);
+
+    const evals: Evaluation[] = getTestEvaluations(model);
+
+    // printTestCodeForEvals(evals);
+    expect(evals.length).toBe(2);
+    expectEvals(evals, 0, 'aaaa', 'Tue Jan 02 2018', 50, -1);
+    expectEvals(evals, 1, 'bbbb', 'Tue Jan 02 2018', 0, -1);
+    // transaction does not occur
+
+    const result = makeChartDataFromEvaluations(
+      {
+        start: makeDateFromString(roi.start),
+        end: makeDateFromString(roi.end),
+      },
+      model,
+      evals,
+    );
+
+    //printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(0);
 
     done();
   });

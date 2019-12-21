@@ -125,6 +125,11 @@ export function checkAsset(a: DbAsset, model: DbModelData): string {
   if (a.NAME.split(separator).length !== 1) {
     return `Asset name '${a.NAME}' should not contain '${separator}'`;
   }
+  const val = parseFloat(a.VALUE);
+  // log(`asset value is ${val}`);
+  if(val < 0 && ! a.CAN_BE_NEGATIVE){
+    return `Asset '${a.NAME}' can't be negative but has negative value '${a.VALUE}'`;
+  }
   if (a.LIABILITY.length > 0) {
     if (a.LIABILITY.includes(separator)) {
       return `Unexpected multiple asset liabilities for ${a.LIABILITY}`;

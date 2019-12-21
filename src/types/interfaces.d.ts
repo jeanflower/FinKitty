@@ -29,14 +29,25 @@ export interface DbAsset extends DbItemCategory {
   VALUE: string;
   GROWTH: string;
   CPI_IMMUNE: boolean;
+  CAN_BE_NEGATIVE: boolean;
   LIABILITY: string; // e.g. IncomeTaxJoe if growth accumulates as income tax liability
   PURCHASE_PRICE: string;
+}
+export interface DbAssetDynamov1 extends DbDynamoItemCategory {
+  START: { S: string };
+  VALUE: { N: string };
+  GROWTH: { S: string };
+  CPI_IMMUNE: { S: string };
+  // CAN_BE_NEGATIVE: { S: string };
+  LIABILITY: { S: string };
+  PURCHASE_PRICE: { N: string };
 }
 export interface DbAssetDynamo extends DbDynamoItemCategory {
   START: { S: string };
   VALUE: { N: string };
   GROWTH: { S: string };
   CPI_IMMUNE: { S: string };
+  CAN_BE_NEGATIVE: { S: string };
   LIABILITY: { S: string };
   PURCHASE_PRICE: { N: string };
 }
@@ -175,3 +186,15 @@ export interface DbModelData {
   assets: DbAsset[];
   settings: DbSetting[];
 }
+
+export const simpleAsset: DbAsset = {
+  NAME: 'NoName',
+  CATEGORY: '',
+  START: '1 Jan 2017',
+  VALUE: '0',
+  GROWTH: '0',
+  CPI_IMMUNE: false,
+  CAN_BE_NEGATIVE: false,
+  LIABILITY: '',
+  PURCHASE_PRICE: '0',
+};

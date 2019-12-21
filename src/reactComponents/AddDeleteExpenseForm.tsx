@@ -79,7 +79,7 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
             <Input
               title="Expense name:"
               type="text"
-              name="name"
+              name="expensename"
               value={this.state.NAME}
               placeholder="Enter name"
               onChange={this.handleNameChange}
@@ -102,7 +102,7 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
             <Input
               title="Expense value (amount per month):"
               type="text"
-              name="value"
+              name="expensevalue"
               value={this.state.VALUE}
               placeholder="Enter value"
               onChange={this.handleValueChange}
@@ -146,7 +146,7 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
             <Input
               title="Annual growth percentage (excluding inflation):"
               type="text"
-              name="growth"
+              name="expensegrowth"
               value={this.state.GROWTH}
               placeholder="Enter growth"
               onChange={this.handleGrowthChange}
@@ -157,7 +157,7 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
             <Input
               title="Is value immune to inflation?:"
               type="text"
-              name="cpi-immune"
+              name="expensecpi-immune"
               value={this.state.CPI_IMMUNE}
               placeholder="Enter Y/N"
               onChange={this.handleFixedChange}
@@ -171,7 +171,7 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
             <Input
               title="Category (optional):"
               type="text"
-              name="category"
+              name="expensecategory"
               value={this.state.CATEGORY}
               placeholder="category"
               onChange={this.handleCategoryChange}
