@@ -1,9 +1,4 @@
-import {
-  DbAsset,
-  DbExpense,
-  DbIncome,
-  DbTransaction,
-} from './interfaces';
+import { DbAsset, DbExpense, DbIncome, DbTransaction } from './interfaces';
 
 export const simpleAsset: DbAsset = {
   NAME: 'NoName',

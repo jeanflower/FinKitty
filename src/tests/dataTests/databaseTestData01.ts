@@ -40,9 +40,7 @@ import {
   simpleIncome,
   simpleTransaction,
 } from '../../types/simple';
-import { 
-  makeDateFromString,
-} from '../../utils';
+import { makeDateFromString } from '../../utils';
 
 export const testTriggers01: DbTrigger[] = [
   {

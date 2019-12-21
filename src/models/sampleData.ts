@@ -26,18 +26,14 @@ import {
   viewFrequency,
   viewFrequencyHint,
 } from '../stringConstants';
-import {
-  DbModelData,
-} from '../types/interfaces';
+import { DbModelData } from '../types/interfaces';
 import {
   simpleAsset,
   simpleExpense,
   simpleIncome,
   simpleTransaction,
 } from './../types/simple';
-import { 
-  makeDateFromString 
-} from '../utils';
+import { makeDateFromString } from '../utils';
 
 export const sampleModel: DbModelData = {
   triggers: [
@@ -147,6 +143,7 @@ export const sampleModel: DbModelData = {
       VALUE: '-234000', // how much was borrowed
       GROWTH: '2.33', // good rate for early part of deal (excl cpi)
       CPI_IMMUNE: true,
+      CAN_BE_NEGATIVE: true,
       CATEGORY: 'mortgage',
     },
     {
@@ -155,6 +152,7 @@ export const sampleModel: DbModelData = {
       START: '1 January 2018',
       GROWTH: '4.66', // after rate goes up (excl cpi)
       CPI_IMMUNE: true,
+      CAN_BE_NEGATIVE: true,
       CATEGORY: 'mortgage',
     },
   ],
@@ -279,4 +277,4 @@ export const sampleModel: DbModelData = {
       HINT: birthDateHint,
     },
   ],
-}
+};

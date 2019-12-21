@@ -26,7 +26,6 @@ import {
   ensureDbTables,
   getDbModel,
   getDbModelNames,
-  makeDbCopy,
   submitIDbAssets,
   submitIDbExpenses,
   submitIDbIncomes,
@@ -36,9 +35,7 @@ import {
   setupDDB,
   submitIDbModel,
 } from './database/dynamo';
-import {
-  sampleModel,
-} from './models/sampleData';
+import { sampleModel } from './models/sampleData';
 // } from './models/outsideGit/RealData';
 import { AddDeleteAssetForm } from './reactComponents/AddDeleteAssetForm';
 import { AddDeleteEntryForm } from './reactComponents/AddDeleteEntryForm';
@@ -48,7 +45,6 @@ import { AddDeleteTransactionForm } from './reactComponents/AddDeleteTransaction
 import { AddDeleteTriggerForm } from './reactComponents/AddDeleteTriggerForm';
 import Button from './reactComponents/Button';
 import DataGrid from './reactComponents/DataGrid';
-import { ModelManagementForm } from './reactComponents/ModelManagementForm';
 import ReactiveTextArea from './reactComponents/ReactiveTextArea';
 /*
 import {
@@ -63,23 +59,18 @@ import {
   assetChartReductions,
   assetChartVal,
   assetChartView,
-  birthDate,
   CASH_ASSET_NAME,
   coarse,
-  cpi,
   expenseChartFocus,
   expenseChartFocusHint,
   fine,
   incomeChartFocus,
   incomeChartFocusHint,
-  roiEnd,
-  roiStart,
   assetChartFocus,
   assetChartFocusHint,
   taxPot,
   viewDetail,
   viewDetailHint,
-  viewFrequency,
   sampleModelName,
 } from './stringConstants';
 import {
@@ -130,7 +121,6 @@ const incomesView: ViewType = { lc: 'Incomes' };
 const transactionsView: ViewType = { lc: 'Transactions' };
 const assetsView: ViewType = { lc: 'Assets' };
 const triggersView: ViewType = { lc: 'Important dates' };
-const manageModelsView: ViewType = { lc: 'Manage models' };
 const settingsView: ViewType = { lc: 'Settings' };
 const taxView: ViewType = { lc: 'Tax payments' };
 
@@ -217,13 +207,6 @@ const views = new Map<
       helpText: 'Settings',
     },
   ],
-  [
-    manageModelsView,
-    {
-      display: true,
-      helpText: 'Create, clone, dump, delete models',
-    },
-  ],
 ]);
 
 const showContent = new Map<ViewType, any>([
@@ -287,9 +270,10 @@ async function refreshData(goToDB = true) {
         return x === sampleModelName;
       }) === undefined
     ) {
+      log(`recreate sample model`);
       // force us to have at least the sample model
-      await ensureDbTables(modelName);
-      await submitIDbModel(sampleModel, modelName);
+      await ensureDbTables(sampleModelName);
+      await submitIDbModel(sampleModel, sampleModelName);
       modelNames = await getDbModelNames();
     }
 
@@ -822,22 +806,7 @@ export async function deleteSettingFromTable(name: string) {
   }
   return false;
 }
-async function saveModelAs(newName: string) {
-  await makeDbCopy(modelName, newName);
-  modelName = newName;
-  refreshData();
 
-  // note poor performance but assured consistency!!
-  //
-  // we could assuma that the same data in the DB
-  // creates the same view of the App.
-  // But we refresh in case we have
-  // a heading like `chart showing incomes for ${modelName}`
-  // where we now have a new modelName but the heading
-  // won't update otherwise.
-  // If there was any glitch or bug in writing to DB
-  // calling refresh ensures what we see is a reflection of DB.
-}
 export async function updateModelName(newValue: string) {
   // log(`model name is now ${newValue}`);
   modelName = newValue;
@@ -893,122 +862,6 @@ function makeReactVisChartData(x: IChartData): IReactVisChartPoint[] {
 }
 */
 
-// generates text for SampleData.ts
-async function stringifyForSampleDataCode(): Promise<string> {
-  let result = '';
-  /* eslint-disable no-multi-str */
-  result +=
-    "import {\n\
-      CASH_ASSET_NAME,\n\
-      assetChartView,\n\
-      cpi,\n\
-      roiEnd,\n\
-      roiStart,\n\
-      viewDetail,\n\
-      viewFrequency,\n\
-      birthDate,\n\
-     } from './assets';\n" +
-    "import {\n\
-      IDbAsset,\n\
-      IDbExpense,\n\
-      IDbIncome,\n\
-      IDbSetting, \n\
-      IDbTransaction,\n\
-      IDbTrigger,\n\
-    } from './common/interfaces';\n\n";
-  /* eslint-disable no-multi-str */
-
-  const model = await getDbModel(modelName);
-
-  result += 'export const sampleTriggers: IDbTrigger[] = ';
-  const trigs: DbTrigger[] = model.triggers;
-  result += '[\n';
-  trigs.forEach(trig => {
-    result += '\t{\n';
-    result += `\t\tNAME: '${trig.NAME}',\n`;
-    result += `\t\tTRIGGER_DATE: new Date('${trig.DATE.toDateString()}'),\n`;
-    result += '\t},\n';
-  });
-  result += '];\n\n';
-
-  result += 'export const sampleExpenses: IDbExpense[] = ';
-  result += showObj(model.expenses);
-  result += ';\n\n';
-
-  result += 'export const sampleIncomes: IDbIncome[] = ';
-  result += showObj(model.incomes);
-  result += ';\n\n';
-
-  result += 'export const sampleAssets: IDbAsset[] = ';
-  result += showObj(model.assets);
-  result += ';\n\n';
-
-  result += 'export const sampleTransactions: IDbTransaction[] = ';
-  result += showObj(model.transactions);
-  result += ';\n';
-
-  result += 'export const sampleSettings: IDbSetting[] = ';
-  result += showObj(model.settings);
-  result += ';\n';
-
-  result = result.replace(/"NAME"/g, 'NAME');
-  result = result.replace(/"VALUE"/g, 'VALUE');
-  result = result.replace(/"HINT"/g, 'HINT');
-  result = result.replace(/"VALUE_SET"/g, 'VALUE_SET');
-  result = result.replace(/"CATEGORY"/g, 'CATEGORY');
-  result = result.replace(/"START"/g, 'START');
-  result = result.replace(/"END"/g, 'END');
-  result = result.replace(/"GROWTH"/g, 'GROWTH');
-  result = result.replace(/"CPI_IMMUNE"/g, 'CPI_IMMUNE');
-  result = result.replace(/"CAN_BE_NEGATIVE"/g, 'CAN_BE_NEGATIVE');
-  result = result.replace(/"LIABILITY"/g, 'LIABILITY');
-  result = result.replace(/"START"/g, 'START');
-  result = result.replace(/"VALUE"/g, 'VALUE');
-  result = result.replace(/"GROWTH"/g, 'GROWTH');
-  result = result.replace(/"LIABILITY"/g, 'LIABILITY');
-  result = result.replace(/"PURCHASE_PRICE"/g, 'PURCHASE_PRICE');
-  result = result.replace(/"FROM"/g, 'FROM');
-  result = result.replace(/"FROM_ABSOLUTE"/g, 'FROM_ABSOLUTE');
-  result = result.replace(/"FROM_VALUE"/g, 'FROM_VALUE');
-  result = result.replace(/"TO"/g, 'TO');
-  result = result.replace(/"TO_ABSOLUTE"/g, 'TO_ABSOLUTE');
-  result = result.replace(/"TO_VALUE"/g, 'TO_VALUE');
-  result = result.replace(/"DATE"/g, 'DATE');
-  result = result.replace(/"STOP_DATE"/g, 'STOP_DATE');
-  result = result.replace(/"RECURRENCE"/g, 'RECURRENCE');
-  let re = new RegExp(`\"+${CASH_ASSET_NAME}\"`, 'g'); // eslint-disable-line no-useless-escape
-  result = result.replace(re, 'CASH_ASSET_NAME');
-  re = new RegExp(`\"+${assetChartView}\"`, 'g'); // eslint-disable-line no-useless-escape
-  result = result.replace(re, 'assetChartView');
-  re = new RegExp(`\"+${assetChartFocus}\"`, 'g'); // eslint-disable-line no-useless-escape
-  result = result.replace(re, 'assetChartFocus');
-  re = new RegExp(`\"+${expenseChartFocus}\"`, 'g'); // eslint-disable-line no-useless-escape
-  result = result.replace(re, 'expenseChartFocus');
-  re = new RegExp(`\"+${incomeChartFocus}\"`, 'g'); // eslint-disable-line no-useless-escape
-  result = result.replace(re, 'incomeChartFocus');
-  re = new RegExp(`\"+${roiEnd}\"`, 'g'); // eslint-disable-line no-useless-escape
-  result = result.replace(re, 'roiEnd');
-  re = new RegExp(`\"+${roiStart}\"`, 'g'); // eslint-disable-line no-useless-escape
-  result = result.replace(re, 'roiStart');
-  re = new RegExp(`\"+${viewFrequency}\"`, 'g'); // eslint-disable-line no-useless-escape
-  result = result.replace(re, 'viewFrequency');
-  re = new RegExp(`\"+${viewDetail}\"`, 'g'); // eslint-disable-line no-useless-escape
-  result = result.replace(re, 'viewDetail');
-  re = new RegExp(`\"+${cpi}\"`, 'g'); // eslint-disable-line no-useless-escape
-  result = result.replace(re, 'cpi');
-  re = new RegExp(`\"+${birthDate}\"`, 'g'); // eslint-disable-line no-useless-escape
-  result = result.replace(re, 'birthDate');
-
-  result = result.replace(/"/g, "'");
-
-  return result;
-}
-
-async function stringifyForJSON(): Promise<string> {
-  const model = await getDbModel(modelName);
-  return JSON.stringify(model);
-}
-
 export class App extends Component<{}, AppState> {
   public constructor(props: {}) {
     super(props);
@@ -1053,7 +906,6 @@ export class App extends Component<{}, AppState> {
         <div style={{ paddingTop: '100px' }}>
           {this.homeDiv()}
           {this.overviewDiv()}
-          {this.manageModelsDiv()}
           {this.settingsDiv()}
           {this.incomesDiv()}
           {this.expensesDiv()}
@@ -1089,6 +941,16 @@ export class App extends Component<{}, AppState> {
       async (model: string) => {
         await updateModelName(model);
         toggle(overview);
+      },
+      'overview',
+    );
+  }
+
+  private modelListForSelect(modelNames: string[]) {
+    return this.modelList(
+      modelNames,
+      async (model: string) => {
+        await updateModelName(model);
       },
       'overview',
     );
@@ -1136,106 +998,129 @@ export class App extends Component<{}, AppState> {
             }
             await updateModelName(promptResponse);
             // log(`created new model`);
-            toggle(triggersView);
+            // toggle(triggersView);
           }}
           title="New model"
           type="secondary"
         />
         <br />
         <br />
-        Review or edit an existing model:
-        {this.modelListForOverview(this.state.modelNamesData)}
+        Or select an existing model (for further actions below):
+        {this.modelListForSelect(this.state.modelNamesData)}
         <br />
-        <br />
-        Delete an existing model:
-        {this.modelListForDelete(this.state.modelNamesData)}
-      </div>
-    );
-  }
-
-  private manageModelsDiv() {
-    // log(`this.state.modelNamesData = ${this.state.modelNamesData}`);
-    return (
-      <div style={{ display: getDisplay(manageModelsView) ? 'block' : 'none' }}>
-        <fieldset>
-          <p />
-          <ModelManagementForm
-            name={modelName}
-            models={this.state.modelNamesData}
-            selectFunction={(name: string) => {
-              // log(`view ${name}`);
-              const oldName = modelName;
-              updateModelName(name);
-              return oldName;
-            }}
-            saveAsFunction={(name: string) => {
-              // log(`save as ${name}`);
-              saveModelAs(name);
-            }}
-            clearDataFunction={() => {
-              Promise.all([
-                deleteAllExpenses(modelName),
-                deleteAllIncomes(modelName),
-                deleteAllTriggers(modelName),
-                deleteAllAssets(modelName),
-                deleteAllTransactions(modelName),
-                deleteAllSettings(modelName),
-              ]).then(() =>
-                ensureDbTables(modelName).then(() => refreshData()),
-              );
-            }}
-            checkModelDataFunction={() => {
-              checkModelData();
-            }}
-            logDataForSampleFunction={() => {
-              stringifyForSampleDataCode().then(x => log(x));
-            }}
-            logDataForJSONFunction={() => {
-              stringifyForJSON().then(x => log(x));
-            }}
-            replaceWithJSONFunction={() => {
-              const input = prompt('Paste in JSON here');
-              if (input === null) {
-                return;
+        <Button
+          action={async (e: any) => {
+            if (window.confirm(`delete all data in model ${modelName} - you sure?`)) {
+              await deleteAllTables(modelName);
+              if(modelName === sampleModelName){
+                alert(`recreating sample model as default`); // TODO make "create sample" button
+                await updateModelName(sampleModelName);
+                await ensureDbTables(sampleModelName);
+                await submitIDbModel(sampleModel, sampleModelName);
+              } else {
+                await updateModelName(sampleModelName); // always exists??
               }
-              const newModel = makeModelFromJSON(input);
-              Promise.all([
-                deleteAllExpenses(modelName),
-                deleteAllIncomes(modelName),
-                deleteAllTriggers(modelName),
-                deleteAllAssets(modelName),
-                deleteAllTransactions(modelName),
-                deleteAllSettings(modelName),
-              ]).then(() =>
-                ensureDbTables(modelName).then(() =>
-                  Promise.all([
-                    submitIDbExpenses(newModel.expenses, modelName),
-                    submitIDbIncomes(newModel.incomes, modelName),
-                    submitIDbTriggers(newModel.triggers, modelName),
-                    submitIDbAssets(newModel.assets, modelName),
-                    submitIDbTransactions(newModel.transactions, modelName),
-                    submitIDbSettings(newModel.settings, modelName),
-                  ]).then(() => refreshData()),
-                ),
+              await refreshData();
+            }
+          }}
+          title="Delete model"
+          id={`btn-delete`}
+          type="secondary"
+        />
+        <Button
+          action={async (e: any) => {
+            const promptResponse = prompt('Provide a name for your model');
+            if (promptResponse === null) {
+              return;
+            }
+            const regex = RegExp('[a-zA-Z0-9_\\-\\.]+');
+            const whatsLeft = promptResponse.replace(regex, '');
+            // log(`whatsLeft = ${whatsLeft}`);
+            if (whatsLeft !== '') {
+              alert(
+                'Model names can only contain a-z, A-Z, 0-9, _, - and . characters',
               );
-            }}
-            replaceWithSampleFunction={() => {
-              Promise.all([
-                deleteAllExpenses(modelName),
-                deleteAllIncomes(modelName),
-                deleteAllTriggers(modelName),
-                deleteAllAssets(modelName),
-                deleteAllTransactions(modelName),
-                deleteAllSettings(modelName),
-              ]).then(() =>
-                ensureDbTables(modelName).then(() =>
-                  submitIDbModel(sampleModel, modelName).then(() => 
-                    refreshData()),
-                ),
-              );
-            }}
-          />
-        </fieldset>
+              return;
+            } else if (
+              this.state.modelNamesData.find(model => model === promptResponse)
+            ) {
+              alert("There's already a model with that name");
+              return;
+            }
+            const currentData = JSON.stringify(this.state.modelData);
+            await updateModelName(promptResponse);
+            const newModel = makeModelFromJSON(currentData);
+            Promise.all([
+              deleteAllExpenses(modelName),
+              deleteAllIncomes(modelName),
+              deleteAllTriggers(modelName),
+              deleteAllAssets(modelName),
+              deleteAllTransactions(modelName),
+              deleteAllSettings(modelName),
+            ]).then(() =>
+              ensureDbTables(modelName).then(() =>
+                Promise.all([
+                  submitIDbExpenses(newModel.expenses, modelName),
+                  submitIDbIncomes(newModel.incomes, modelName),
+                  submitIDbTriggers(newModel.triggers, modelName),
+                  submitIDbAssets(newModel.assets, modelName),
+                  submitIDbTransactions(newModel.transactions, modelName),
+                  submitIDbSettings(newModel.settings, modelName),
+                ]).then(() => refreshData()),
+              ),
+            );            
+          }}
+          title="Clone model"
+          id={`btn-clone`}
+          type="secondary"
+        />
+        <Button
+          action={async (e: any) => {
+            checkModelData();
+          }}
+          title="Check model"
+          id={`btn-check`}
+          type="secondary"
+        />
+        <Button
+          action={(e: any) => {
+            log(JSON.stringify(this.state.modelData));
+          }}
+          title="Dump JSON to console"
+          id={`btn-log`}
+          type="secondary"
+        />
+        <Button
+          action={(e: any) => {
+            const input = prompt('Paste in JSON here');
+            if (input === null) {
+              return;
+            }
+            const newModel = makeModelFromJSON(input);
+            Promise.all([
+              deleteAllExpenses(modelName),
+              deleteAllIncomes(modelName),
+              deleteAllTriggers(modelName),
+              deleteAllAssets(modelName),
+              deleteAllTransactions(modelName),
+              deleteAllSettings(modelName),
+            ]).then(() =>
+              ensureDbTables(modelName).then(() =>
+                Promise.all([
+                  submitIDbExpenses(newModel.expenses, modelName),
+                  submitIDbIncomes(newModel.incomes, modelName),
+                  submitIDbTriggers(newModel.triggers, modelName),
+                  submitIDbAssets(newModel.assets, modelName),
+                  submitIDbTransactions(newModel.transactions, modelName),
+                  submitIDbSettings(newModel.settings, modelName),
+                ]).then(() => refreshData()),
+              ),
+            );
+          }}
+          title="Replace model with JSON"
+          id={`btn-JSON-replace`}
+          type="secondary"
+        />
       </div>
     );
   }

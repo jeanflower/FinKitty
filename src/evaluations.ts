@@ -1139,14 +1139,11 @@ function getTransactionMoments(
 // TODO consider an attribute on assets which
 // tells us this.  For now, allo cash and mortgages
 // to go negative at will.
-function assetAllowedNegative(
-  assetName: string,
-  assets: DbAsset[],
-) {
-  const filteredList = assets.filter((a)=>{
+function assetAllowedNegative(assetName: string, assets: DbAsset[]) {
+  const filteredList = assets.filter(a => {
     return a.NAME === assetName;
   });
-  if(filteredList.length === 1){
+  if (filteredList.length === 1) {
     return filteredList[0].CAN_BE_NEGATIVE;
   }
   console.log(`Error : asset name ${assetName} not found in assets list`);
@@ -1248,7 +1245,10 @@ function calculateFromChange(
     }
   }
   // Allow some assets to become negative but not others
-  if (!assetAllowedNegative(fromWord, model.assets) && fromChange > preFromValue) {
+  if (
+    !assetAllowedNegative(fromWord, model.assets) &&
+    fromChange > preFromValue
+  ) {
     if (t.NAME.startsWith(conditional)) {
       // transfer as much as we have
       // log(`transfer only ${value} because we don't have ${fromChange}`);
@@ -1261,11 +1261,7 @@ function calculateFromChange(
     }
   }
   if (fromWord !== undefined) {
-    if (!assetAllowedNegative(
-        fromWord,
-        model.assets,
-      ) && preFromValue <= 0
-    ) {
+    if (!assetAllowedNegative(fromWord, model.assets) && preFromValue <= 0) {
       // we cannot help
       return undefined;
     }
@@ -1411,9 +1407,9 @@ function processTransactionFromTo(
   let fromChange;
   if (preFromValue !== undefined) {
     fromChange = calculateFromChange(
-      t, 
-      preToValue, 
-      preFromValue, 
+      t,
+      preToValue,
+      preFromValue,
       fromWord,
       model,
     );

@@ -127,7 +127,7 @@ export function checkAsset(a: DbAsset, model: DbModelData): string {
   }
   const val = parseFloat(a.VALUE);
   // log(`asset value is ${val}`);
-  if(val < 0 && ! a.CAN_BE_NEGATIVE){
+  if (val < 0 && !a.CAN_BE_NEGATIVE) {
     return `Asset '${a.NAME}' can't be negative but has negative value '${a.VALUE}'`;
   }
   if (a.LIABILITY.length > 0) {

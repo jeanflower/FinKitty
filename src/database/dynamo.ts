@@ -913,13 +913,13 @@ async function getAssetData(ddb: any, tableName: string): Promise<DbAsset[]> {
     }
     // for legacy data allow load to miss CAN_BE_NEGATIVE value
     let canBeNegative;
-    if(element.CAN_BE_NEGATIVE === undefined){
+    if (element.CAN_BE_NEGATIVE === undefined) {
       const assetName = element.NAME.S;
-      canBeNegative =     
+      canBeNegative =
         assetName === CASH_ASSET_NAME ||
         assetName.includes('mortgage') ||
         assetName.includes('Mortgage');
-      if(!canBeNegative && parseFloat(element.VALUE.N) < 0){
+      if (!canBeNegative && parseFloat(element.VALUE.N) < 0) {
         canBeNegative = true;
       }
     } else {
@@ -1157,47 +1157,6 @@ async function clearTable(tableName: string) {
   return debugSyncs(`clearTable ensured ${tableName}`);
 }
 
-export async function makeAssetsCopy(oldName: string, newName: string) {
-  const x: DbAsset[] = await getDbAssets(oldName);
-  await clearTable(ASSETS_TABLE + newName);
-  return submitIDbAssets(x, newName);
-}
-export async function makeExpensesCopy(oldName: string, newName: string) {
-  const x: DbExpense[] = await getDbExpenses(oldName);
-  await clearTable(EXPENSES_TABLE + newName);
-  return submitIDbExpenses(x, newName);
-}
-export async function makeIncomesCopy(oldName: string, newName: string) {
-  const x: DbIncome[] = await getDbIncomes(oldName);
-  await clearTable(INCOMES_TABLE + newName);
-  return submitIDbIncomes(x, newName);
-}
-export async function makeSettingsCopy(oldName: string, newName: string) {
-  const x: DbSetting[] = await getDbSettings(oldName);
-  await clearTable(SETTINGS_TABLE + newName);
-  return submitIDbSettings(x, newName);
-}
-export async function makeTransactionsCopy(oldName: string, newName: string) {
-  const x: DbTransaction[] = await getDbTransactions(oldName);
-  await clearTable(TRANSACTIONS_TABLE + newName);
-  return submitIDbTransactions(x, newName);
-}
-export async function makeTriggersCopy(oldName: string, newName: string) {
-  const x: DbTrigger[] = await getDbTriggers(oldName);
-  await clearTable(TRIGGERS_TABLE + newName);
-  return submitIDbTriggers(x, newName);
-}
-
-export async function makeDbCopy(oldName: string, newName: string) {
-  return Promise.all([
-    makeAssetsCopy(oldName, newName),
-    makeIncomesCopy(oldName, newName),
-    makeExpensesCopy(oldName, newName),
-    makeTriggersCopy(oldName, newName),
-    makeTransactionsCopy(oldName, newName),
-    makeSettingsCopy(oldName, newName),
-  ]);
-}
 export async function deleteAllTables(modelName: string) {
   return Promise.all(
     tablesArray.map(tableStub => deleteTable(tableStub + modelName)),

@@ -52,9 +52,7 @@ import {
   simpleIncome,
   simpleTransaction,
 } from './../../types/simple';
-import { 
-  Evaluation,
-} from '../../types/interfaces';
+import { Evaluation } from '../../types/interfaces';
 import {
   log,
   printDebug,
@@ -10098,26 +10096,26 @@ describe('evaluations tests', () => {
     expect(result.expensesData.length).toBe(0);
     expect(result.incomesData.length).toBe(0);
     expect(result.assetData.length).toBe(2);
-    expect(result.assetData[0].item.NAME).toBe('Mortgage');      
+    expect(result.assetData[0].item.NAME).toBe('Mortgage');
     {
       const chartPts = result.assetData[0].chartDataPoints;
       expect(chartPts.length).toBe(5);
-      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0,    -1);
-      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0,    -1);
-      expectChartData(chartPts, 2, 'Thu Feb 01 2018', -70,    -1);
-      expectChartData(chartPts, 3, 'Thu Mar 01 2018', -20,    -1);
-      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 30,    -1);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', -70, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', -20, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 30, -1);
     }
-    
+
     expect(result.assetData[1].item.NAME).toBe('Cash');
     {
       const chartPts = result.assetData[1].chartDataPoints;
       expect(chartPts.length).toBe(5);
-      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0,    -1);
-      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0,    -1);
-      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 150,    -1);
-      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 100,    -1);
-      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 50,    -1);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 150, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 100, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 50, -1);
     }
     done();
   });
@@ -10193,30 +10191,30 @@ describe('evaluations tests', () => {
 
     // printTestCodeForChart(result);
 
-     expect(result.expensesData.length).toBe(0);
-      expect(result.incomesData.length).toBe(0);
-      expect(result.assetData.length).toBe(2);
-      expect(result.assetData[0].item.NAME).toBe('Mortgage');
-      {
-        const chartPts = result.assetData[0].chartDataPoints;
-        expect(chartPts.length).toBe(5);
-        expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0,    -1);
-        expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0,    -1);
-        expectChartData(chartPts, 2, 'Thu Feb 01 2018', -70,    -1);
-        expectChartData(chartPts, 3, 'Thu Mar 01 2018', -20,    -1);
-        expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0,    -1);
-      }
-      
-      expect(result.assetData[1].item.NAME).toBe('Cash');
-      {
-        const chartPts = result.assetData[1].chartDataPoints;
-        expect(chartPts.length).toBe(5);
-        expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0,    -1);
-        expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0,    -1);
-        expectChartData(chartPts, 2, 'Thu Feb 01 2018', 150,    -1);
-        expectChartData(chartPts, 3, 'Thu Mar 01 2018', 100,    -1);
-        expectChartData(chartPts, 4, 'Sun Apr 01 2018', 80,    -1);
-      }
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(2);
+    expect(result.assetData[0].item.NAME).toBe('Mortgage');
+    {
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(5);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', -70, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', -20, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
+    }
+
+    expect(result.assetData[1].item.NAME).toBe('Cash');
+    {
+      const chartPts = result.assetData[1].chartDataPoints;
+      expect(chartPts.length).toBe(5);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 150, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 100, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 80, -1);
+    }
     done();
   });
 
@@ -10278,7 +10276,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 8, 'Cash', 'Fri Mar 02 2018', 50, -1);
     expectEvals(evals, 9, 'Loan', 'Fri Mar 02 2018', 30, -1);
     expectEvals(evals, 10, 'Cash', 'Mon Apr 02 2018', 50, -1);
-    expectEvals(evals, 11, 'Loan', 'Mon Apr 02 2018', 30, -1);    
+    expectEvals(evals, 11, 'Loan', 'Mon Apr 02 2018', 30, -1);
 
     const result = makeChartDataFromEvaluations(
       {
@@ -10297,22 +10295,22 @@ describe('evaluations tests', () => {
     {
       const chartPts = result.assetData[0].chartDataPoints;
       expect(chartPts.length).toBe(5);
-      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0,    -1);
-      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0,    -1);
-      expectChartData(chartPts, 2, 'Thu Feb 01 2018', -70,    -1);
-      expectChartData(chartPts, 3, 'Thu Mar 01 2018', -20,    -1);
-      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 30,    -1);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', -70, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', -20, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 30, -1);
     }
-    
+
     expect(result.assetData[1].item.NAME).toBe('Cash');
     {
       const chartPts = result.assetData[1].chartDataPoints;
       expect(chartPts.length).toBe(5);
-      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0,    -1);
-      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0,    -1);
-      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 150,    -1);
-      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 100,    -1);
-      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 50,    -1);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 150, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 100, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 50, -1);
     }
     done();
   });
@@ -10395,24 +10393,24 @@ describe('evaluations tests', () => {
     {
       const chartPts = result.assetData[0].chartDataPoints;
       expect(chartPts.length).toBe(5);
-      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0,    -1);
-      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0,    -1);
-      expectChartData(chartPts, 2, 'Thu Feb 01 2018', -70,    -1);
-      expectChartData(chartPts, 3, 'Thu Mar 01 2018', -20,    -1);
-      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0,    -1);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', -70, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', -20, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
     }
-    
+
     expect(result.assetData[1].item.NAME).toBe('Cash');
     {
       const chartPts = result.assetData[1].chartDataPoints;
       expect(chartPts.length).toBe(5);
-      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0,    -1);
-      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0,    -1);
-      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 150,    -1);
-      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 100,    -1);
-      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 80,    -1);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 150, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 100, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 80, -1);
     }
-  done();
+    done();
   });
 
   it('negative value for asset which cant be negative', done => {
@@ -10446,9 +10444,9 @@ describe('evaluations tests', () => {
     setSetting(model.settings, roiEnd, roi.end);
 
     suppressLogs();
-    let evals: Evaluation[] = getTestEvaluations(model);
+    const evals: Evaluation[] = getTestEvaluations(model);
     unSuppressLogs();
-    
+
     // printTestCodeForEvals(evals);
     expect(evals.length).toBe(0); // failure of checks!
 

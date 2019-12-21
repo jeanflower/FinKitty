@@ -32,10 +32,7 @@ import {
   viewFrequency,
   viewFrequencyHint,
 } from '../../stringConstants';
-import {
-  DbModelData,
-  DbSetting,
-} from '../../types/interfaces';
+import { DbModelData, DbSetting } from '../../types/interfaces';
 import { log, printDebug } from '../../utils';
 import webdriver from 'selenium-webdriver';
 
@@ -207,8 +204,10 @@ export async function cleanUpWork(driver: any, testDataModelName: string) {
     // log(`go seek model_input name`);
     // log(`seek btn-${testDataModelName}`);
 
+    await selectModel(driver, testDataModelName);
+
     const deleteModelButton = await driver.findElement(
-      webdriver.By.id(`btn-del-${testDataModelName}`),
+      webdriver.By.id(`btn-delete`),
     );
     await deleteModelButton.click();
     // log(`model name = ${content}`);

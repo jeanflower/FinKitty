@@ -6,9 +6,7 @@ import {
 } from '../../stringConstants';
 import { DbModelData } from '../../types/interfaces';
 import { setSetting, makeDateFromString } from '../../utils';
-import {
-  browserTestSettings,
-} from './browserBaseTypes';
+import { browserTestSettings } from './browserBaseTypes';
 import {
   simpleAsset,
   simpleExpense,
