@@ -1009,10 +1009,14 @@ export class App extends Component<{}, AppState> {
         {this.modelListForSelect(this.state.modelNamesData)}
         <br />
         <Button
-          action={async (e: any) => {
-            if (window.confirm(`delete all data in model ${modelName} - you sure?`)) {
+          action={async () => {
+            if (
+              window.confirm(
+                `delete all data in model ${modelName} - you sure?`,
+              )
+            ) {
               await deleteAllTables(modelName);
-              if(modelName === sampleModelName){
+              if (modelName === sampleModelName) {
                 alert(`recreating sample model as default`); // TODO make "create sample" button
                 await updateModelName(sampleModelName);
                 await ensureDbTables(sampleModelName);
@@ -1028,7 +1032,7 @@ export class App extends Component<{}, AppState> {
           type="secondary"
         />
         <Button
-          action={async (e: any) => {
+          action={async () => {
             const promptResponse = prompt('Provide a name for your model');
             if (promptResponse === null) {
               return;
@@ -1068,14 +1072,14 @@ export class App extends Component<{}, AppState> {
                   submitIDbSettings(newModel.settings, modelName),
                 ]).then(() => refreshData()),
               ),
-            );            
+            );
           }}
           title="Clone model"
           id={`btn-clone`}
           type="secondary"
         />
         <Button
-          action={async (e: any) => {
+          action={async () => {
             checkModelData();
           }}
           title="Check model"
@@ -1083,7 +1087,7 @@ export class App extends Component<{}, AppState> {
           type="secondary"
         />
         <Button
-          action={(e: any) => {
+          action={() => {
             log(JSON.stringify(this.state.modelData));
           }}
           title="Dump JSON to console"
@@ -1091,7 +1095,7 @@ export class App extends Component<{}, AppState> {
           type="secondary"
         />
         <Button
-          action={(e: any) => {
+          action={() => {
             const input = prompt('Paste in JSON here');
             if (input === null) {
               return;
