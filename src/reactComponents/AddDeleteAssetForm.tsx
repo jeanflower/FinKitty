@@ -61,6 +61,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
     this.handleCategoryChange = this.handleCategoryChange.bind(this);
     this.handlePurchasePriceChange = this.handlePurchasePriceChange.bind(this);
     this.handleFixedChange = this.handleFixedChange.bind(this);
+    this.handleCanBeNegativeChange = this.handleCanBeNegativeChange.bind(this);
     this.handleStartChange = this.handleStartChange.bind(this);
     this.setStart = this.setStart.bind(this);
 
@@ -154,6 +155,19 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
               onChange={this.handleFixedChange}
             />
           </div>
+          </div>
+        {/* end row */}
+        <div className="row">
+          <div className="col">
+            <Input
+              title="Can asset ever have a negative value?:"
+              type="text"
+              name="assetCanBeNegative"
+              value={this.state.CAN_BE_NEGATIVE}
+              placeholder="Enter Y/N"
+              onChange={this.handleCanBeNegativeChange}
+            />
+          </div>
           {/* end col */}
         </div>
         {/* end row */}
@@ -222,6 +236,10 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
     const value = e.target.value;
     this.setState({ CPI_IMMUNE: value });
   }
+  private handleCanBeNegativeChange(e: any) {
+    const value = e.target.value;
+    this.setState({ CAN_BE_NEGATIVE: value });
+  }  
   private setStart(value: string): void {
     this.setState({ START: value });
   }
@@ -259,12 +277,12 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
     }
     const parsedYNCPI = makeBooleanFromYesNo(this.state.CPI_IMMUNE);
     if (!parsedYNCPI.checksOK) {
-      alert(`Fixed '${this.state.CPI_IMMUNE}' should be a Y/N value`);
+      alert(`Inflation-immune: '${this.state.CPI_IMMUNE}' should be a Y/N value`);
       return;
     }
     const parsedYNNeg = makeBooleanFromYesNo(this.state.CAN_BE_NEGATIVE);
     if (!parsedYNNeg.checksOK) {
-      alert(`Fixed '${this.state.CAN_BE_NEGATIVE}' should be a Y/N value`);
+      alert(`Can be negative: '${this.state.CAN_BE_NEGATIVE}' should be a Y/N value`);
       return;
     }
 
