@@ -274,39 +274,44 @@ export async function getChartData(driver: any, label: string) {
   return ary;
 }
 
-export async function getAssetChartData(driver: any) {
-  const header = await driver.findElements(webdriver.By.id('AssetsHeader'));
+async function getTypedChartData(
+  driver: any, 
+  headerID: string,
+  switchButtonID: string,
+  dataDumpName: string,  
+  ) {
+  const header = await driver.findElements(webdriver.By.id(headerID));
   if (header.length === 0) {
-    const btn = await driver.findElements(webdriver.By.id('btn-Assets'));
+    const btn = await driver.findElements(webdriver.By.id(switchButtonID));
     expect(btn.length === 1).toBe(true);
     await btn[0].click();
-    await sleep(shortSleep, '--- after click Assets');
-    // log('switched to assets view');
-  } else {
-    // log('already in assets view');
+    await sleep(shortSleep, '--- after switching to correct context');
   }
-
-  return getChartData(driver, 'assetDataDump');
+  return getChartData(driver, dataDumpName);
+}
+export async function getAssetChartData(driver: any) {
+  return getTypedChartData(
+    driver,
+    'AssetsHeader',
+    'btn-Assets',
+    'assetDataDump',
+  );
 }
 export async function getExpenseChartData(driver: any) {
-  const header = await driver.findElements(webdriver.By.id('ExpensesHeader'));
-  if (header.length === 0) {
-    const btn = await driver.findElements(webdriver.By.id('btn-Expenses'));
-    expect(btn.length === 1).toBe(true);
-    await btn[0].click();
-    await sleep(shortSleep, '--- after click Expenses');
-  }
-  return getChartData(driver, 'expenseDataDump');
+  return getTypedChartData(
+    driver,
+    'ExpensesHeader',
+    'btn-Expenses',
+    'expenseDataDump',
+  );
 }
 export async function getIncomeChartData(driver: any) {
-  const header = await driver.findElements(webdriver.By.id('IncomesHeader'));
-  if (header.length === 0) {
-    const btn = await driver.findElements(webdriver.By.id('btn-Incomes'));
-    expect(btn.length === 1).toBe(true);
-    await btn[0].click();
-    await sleep(shortSleep, '--- after click Incomes');
-  }
-  return getChartData(driver, 'incomeDataDump');
+  return getTypedChartData(
+    driver,
+    'IncomesHeader',
+    'btn-Incomes',
+    'incomeDataDump',
+  );
 }
 
 export async function submitSettingChange(

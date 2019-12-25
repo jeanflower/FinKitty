@@ -68,44 +68,8 @@ describe('Chrome Interaction', () => {
       await cleanUpWork(driver, testDataModelName);
 
       resolve();
-    }));
-
-  it('Check income chart attribute', async done => {
-    if (doActions) {
-      done();
-      return;
-    }
-    const modelAndRoi = getTestModel01();
-    await beforeAllWork(driver, testDataModelName, modelAndRoi.model);
-
-    // locate the asset text dump
-    const divElement = await driver.findElement(
-      webdriver.By.id('incomeDataDump'),
+    })
     );
-    // extract the content
-    const content = await divElement.getAttribute('value');
-    // log(`content = ${content}`);
-    // check the content matches our expectations
-    const ary = JSON.parse(content);
-    // writeTestCode(ary);
-
-    if (ary.length !== 1) {
-      log('BUG : unexpected data length');
-      await sleep(100000, 'BUG : unexpected data length - expected one income');
-    }
-
-    expect(ary.length).toEqual(1);
-    expect(ary[0].name).toEqual('Main income');
-    expect(ary[0].type).toEqual('stackedColumn');
-    expect(ary[0].showInLegend).toEqual(true);
-    expect(ary[0].dataPoints.length).toEqual(1);
-    expect(ary[0].dataPoints[0].label).toEqual('Tue Jan 01 2019');
-    expect(ary[0].dataPoints[0].y).toEqual(39215.257112382584);
-    expect(ary[0].dataPoints[0].ttip).toEqual('39215.26 at Tue Jan 01 2019');
-
-    await cleanUpWork(driver, testDataModelName);
-    done();
-  });
 
   // the page should include a chart
   // (maybe not visible, but loaded in the document)
@@ -813,6 +777,55 @@ describe('Chrome Interaction', () => {
     expect(ary[1].dataPoints[3].label).toEqual('Sun Jul 01 2018');
     expect(ary[1].dataPoints[3].y).toEqual(430);
     expect(ary[1].dataPoints[3].ttip).toEqual('430.00 at Sun Jul 01 2018');
+
+    await cleanUpWork(driver, testDataModelName);
+    done();
+  });
+
+  it('Navigate headers', async done => {
+    log(`navigate headers test`);
+    if (!doActions) {
+      done();
+      return;
+    }
+    const modelAndRoi = getTestModel01();
+    await beforeAllWork(driver, testDataModelName, modelAndRoi.model);
+
+    let btn = await driver.findElements(webdriver.By.id('btn-Home'));
+    expect(btn.length === 1).toBe(true);
+    await btn[0].click();
+
+    btn = await driver.findElements(webdriver.By.id('btn-Overview'));
+    expect(btn.length === 1).toBe(true);
+    await btn[0].click();
+
+    btn = await driver.findElements(webdriver.By.id('btn-Important dates'));
+    expect(btn.length === 1).toBe(true);
+    await btn[0].click();
+
+    btn = await driver.findElements(webdriver.By.id('btn-Incomes'));
+    expect(btn.length === 1).toBe(true);
+    await btn[0].click();
+
+    btn = await driver.findElements(webdriver.By.id('btn-Expenses'));
+    expect(btn.length === 1).toBe(true);
+    await btn[0].click();
+
+    btn = await driver.findElements(webdriver.By.id('btn-Assets'));
+    expect(btn.length === 1).toBe(true);
+    await btn[0].click();
+
+    btn = await driver.findElements(webdriver.By.id('btn-Transactions'));
+    expect(btn.length === 1).toBe(true);
+    await btn[0].click();
+
+    btn = await driver.findElements(webdriver.By.id('btn-Tax payments'));
+    expect(btn.length === 1).toBe(true);
+    await btn[0].click();
+
+    btn = await driver.findElements(webdriver.By.id('btn-Settings'));
+    expect(btn.length === 1).toBe(true);
+    await btn[0].click();
 
     await cleanUpWork(driver, testDataModelName);
     done();
