@@ -252,6 +252,23 @@ function makeJChartData(data: ItemChartData[]) {
   }
   return chartData;
 }
+
+function lessThan(a: string, b: string){
+  if(a.toLowerCase() < b.toLowerCase()){
+    return -1;
+  }
+  if(a.toLowerCase() > b.toLowerCase()){
+    return 1;
+  }
+  if(a < b){
+    return -1;
+  }
+  if(a > b){
+    return 1;
+  }
+  return 0;
+}
+
 async function refreshData(goToDB = true) {
   // log('refreshData in App - get data and redraw content');
   if (goToDB) {
@@ -281,13 +298,13 @@ async function refreshData(goToDB = true) {
 
     // log(`got ${modelNames.length} modelNames`);
 
-    model.triggers.sort((a, b) => (a.NAME < b.NAME ? -1 : 1));
-    model.expenses.sort((a, b) => (a.NAME < b.NAME ? -1 : 1));
-    model.settings.sort((a, b) => (a.NAME < b.NAME ? -1 : 1));
-    model.incomes.sort((a, b) => (a.NAME < b.NAME ? -1 : 1));
-    model.transactions.sort((a, b) => (a.NAME < b.NAME ? -1 : 1));
-    model.assets.sort((a, b) => (a.NAME < b.NAME ? -1 : 1));
-    modelNames.sort();
+    model.triggers.sort((a, b) => lessThan(a.NAME, b.NAME));
+    model.expenses.sort((a, b) => lessThan(a.NAME, b.NAME));
+    model.settings.sort((a, b) => lessThan(a.NAME, b.NAME));
+    model.incomes.sort((a, b) => lessThan(a.NAME, b.NAME));
+    model.transactions.sort((a, b) => lessThan(a.NAME, b.NAME));
+    model.assets.sort((a, b) => lessThan(a.NAME, b.NAME));
+    modelNames.sort((a, b) => lessThan(a, b));
 
     if (
       model.assets.filter(a => {
