@@ -253,17 +253,17 @@ function makeJChartData(data: ItemChartData[]) {
   return chartData;
 }
 
-function lessThan(a: string, b: string){
-  if(a.toLowerCase() < b.toLowerCase()){
+function lessThan(a: string, b: string) {
+  if (a.toLowerCase() < b.toLowerCase()) {
     return -1;
   }
-  if(a.toLowerCase() > b.toLowerCase()){
+  if (a.toLowerCase() > b.toLowerCase()) {
     return 1;
   }
-  if(a < b){
+  if (a < b) {
     return -1;
   }
-  if(a > b){
+  if (a > b) {
     return 1;
   }
   return 0;
