@@ -969,6 +969,61 @@ export class App extends Component<{}, AppState> {
       'del',
     );
   }
+  private getNewName(): {
+    gotNameOK: boolean,
+    newName: string,
+  }{
+    const result = {
+      gotNameOK: false,
+      newName: '',
+    };
+    const promptResponse = prompt('Provide a name for your model');
+    if (promptResponse === null) {
+      return result;
+    }
+    const regex = RegExp('[a-zA-Z0-9_\\-\\.]+');
+    const whatsLeft = promptResponse.replace(regex, '');
+    // log(`whatsLeft = ${whatsLeft}`);
+    if (whatsLeft !== '') {
+      alert(
+        'Model names can only contain a-z, A-Z, 0-9, _, - and . characters',
+      );
+      return result;
+    } else if (
+      this.state.modelNamesData.find(model => model === promptResponse)
+    ) {
+      alert("There's already a model with that name");
+      return result;
+    }
+    result.gotNameOK = true;
+    result.newName = promptResponse;
+    return result;
+  }
+
+  private replaceWithModel(
+    modelName: string, 
+    newModel: DbModelData,
+  ){
+    Promise.all([
+      deleteAllExpenses(modelName),
+      deleteAllIncomes(modelName),
+      deleteAllTriggers(modelName),
+      deleteAllAssets(modelName),
+      deleteAllTransactions(modelName),
+      deleteAllSettings(modelName),
+    ]).then(() =>
+      ensureDbTables(modelName).then(() =>
+        Promise.all([
+          submitIDbExpenses(newModel.expenses, modelName),
+          submitIDbIncomes(newModel.incomes, modelName),
+          submitIDbTriggers(newModel.triggers, modelName),
+          submitIDbAssets(newModel.assets, modelName),
+          submitIDbTransactions(newModel.transactions, modelName),
+          submitIDbSettings(newModel.settings, modelName),
+        ]).then(() => refreshData()),
+      ),
+    );    
+  }
 
   private homeDiv() {
     // log(`this.state.modelNamesData = ${this.state.modelNamesData}`);
@@ -978,25 +1033,11 @@ export class App extends Component<{}, AppState> {
         <Button
           id="startNewModel"
           action={async () => {
-            const promptResponse = prompt('Provide a name for your model');
-            if (promptResponse === null) {
+            const newNameFromUser = this.getNewName();
+            if(!newNameFromUser.gotNameOK){
               return;
             }
-            const regex = RegExp('[a-zA-Z0-9_\\-\\.]+');
-            const whatsLeft = promptResponse.replace(regex, '');
-            // log(`whatsLeft = ${whatsLeft}`);
-            if (whatsLeft !== '') {
-              alert(
-                'Model names can only contain a-z, A-Z, 0-9, _, - and . characters',
-              );
-              return;
-            } else if (
-              this.state.modelNamesData.find(model => model === promptResponse)
-            ) {
-              alert("There's already a model with that name");
-              return;
-            }
-            await updateModelName(promptResponse);
+            await updateModelName(newNameFromUser.newName);
             // log(`created new model`);
             // toggle(triggersView);
           }}
@@ -1033,46 +1074,14 @@ export class App extends Component<{}, AppState> {
         />
         <Button
           action={async () => {
-            const promptResponse = prompt('Provide a name for your model');
-            if (promptResponse === null) {
-              return;
-            }
-            const regex = RegExp('[a-zA-Z0-9_\\-\\.]+');
-            const whatsLeft = promptResponse.replace(regex, '');
-            // log(`whatsLeft = ${whatsLeft}`);
-            if (whatsLeft !== '') {
-              alert(
-                'Model names can only contain a-z, A-Z, 0-9, _, - and . characters',
-              );
-              return;
-            } else if (
-              this.state.modelNamesData.find(model => model === promptResponse)
-            ) {
-              alert("There's already a model with that name");
+            const userNewName = this.getNewName();
+            if(!userNewName.gotNameOK){
               return;
             }
             const currentData = JSON.stringify(this.state.modelData);
-            await updateModelName(promptResponse);
+            await updateModelName(userNewName.newName);
             const newModel = makeModelFromJSON(currentData);
-            Promise.all([
-              deleteAllExpenses(modelName),
-              deleteAllIncomes(modelName),
-              deleteAllTriggers(modelName),
-              deleteAllAssets(modelName),
-              deleteAllTransactions(modelName),
-              deleteAllSettings(modelName),
-            ]).then(() =>
-              ensureDbTables(modelName).then(() =>
-                Promise.all([
-                  submitIDbExpenses(newModel.expenses, modelName),
-                  submitIDbIncomes(newModel.incomes, modelName),
-                  submitIDbTriggers(newModel.triggers, modelName),
-                  submitIDbAssets(newModel.assets, modelName),
-                  submitIDbTransactions(newModel.transactions, modelName),
-                  submitIDbSettings(newModel.settings, modelName),
-                ]).then(() => refreshData()),
-              ),
-            );
+            this.replaceWithModel(modelName, newModel);
           }}
           title="Clone model"
           id={`btn-clone`}
@@ -1101,25 +1110,7 @@ export class App extends Component<{}, AppState> {
               return;
             }
             const newModel = makeModelFromJSON(input);
-            Promise.all([
-              deleteAllExpenses(modelName),
-              deleteAllIncomes(modelName),
-              deleteAllTriggers(modelName),
-              deleteAllAssets(modelName),
-              deleteAllTransactions(modelName),
-              deleteAllSettings(modelName),
-            ]).then(() =>
-              ensureDbTables(modelName).then(() =>
-                Promise.all([
-                  submitIDbExpenses(newModel.expenses, modelName),
-                  submitIDbIncomes(newModel.incomes, modelName),
-                  submitIDbTriggers(newModel.triggers, modelName),
-                  submitIDbAssets(newModel.assets, modelName),
-                  submitIDbTransactions(newModel.transactions, modelName),
-                  submitIDbSettings(newModel.settings, modelName),
-                ]).then(() => refreshData()),
-              ),
-            );
+            this.replaceWithModel(modelName, newModel);
           }}
           title="Replace model with JSON"
           id={`btn-JSON-replace`}
