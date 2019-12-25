@@ -68,8 +68,7 @@ describe('Chrome Interaction', () => {
       await cleanUpWork(driver, testDataModelName);
 
       resolve();
-    })
-    );
+    }));
 
   // the page should include a chart
   // (maybe not visible, but loaded in the document)

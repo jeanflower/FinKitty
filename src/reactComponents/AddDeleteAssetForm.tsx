@@ -155,7 +155,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
               onChange={this.handleFixedChange}
             />
           </div>
-          </div>
+        </div>
         {/* end row */}
         <div className="row">
           <div className="col">
@@ -239,7 +239,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
   private handleCanBeNegativeChange(e: any) {
     const value = e.target.value;
     this.setState({ CAN_BE_NEGATIVE: value });
-  }  
+  }
   private setStart(value: string): void {
     this.setState({ START: value });
   }
@@ -277,12 +277,16 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
     }
     const parsedYNCPI = makeBooleanFromYesNo(this.state.CPI_IMMUNE);
     if (!parsedYNCPI.checksOK) {
-      alert(`Inflation-immune: '${this.state.CPI_IMMUNE}' should be a Y/N value`);
+      alert(
+        `Inflation-immune: '${this.state.CPI_IMMUNE}' should be a Y/N value`,
+      );
       return;
     }
     const parsedYNNeg = makeBooleanFromYesNo(this.state.CAN_BE_NEGATIVE);
     if (!parsedYNNeg.checksOK) {
-      alert(`Can be negative: '${this.state.CAN_BE_NEGATIVE}' should be a Y/N value`);
+      alert(
+        `Can be negative: '${this.state.CAN_BE_NEGATIVE}' should be a Y/N value`,
+      );
       return;
     }
 

@@ -935,17 +935,6 @@ export class App extends Component<{}, AppState> {
     return <div role="group">{buttons}</div>;
   }
 
-  private modelListForOverview(modelNames: string[]) {
-    return this.modelList(
-      modelNames,
-      async (model: string) => {
-        await updateModelName(model);
-        toggle(overview);
-      },
-      'overview',
-    );
-  }
-
   private modelListForSelect(modelNames: string[]) {
     return this.modelList(
       modelNames,
@@ -956,23 +945,10 @@ export class App extends Component<{}, AppState> {
     );
   }
 
-  private modelListForDelete(modelNames: string[]) {
-    return this.modelList(
-      modelNames,
-      async (model: string) => {
-        if (window.confirm(`delete all data in model ${model} - you sure?`)) {
-          await deleteAllTables(model);
-          await updateModelName(sampleModelName);
-          await refreshData();
-        }
-      },
-      'del',
-    );
-  }
   private getNewName(): {
-    gotNameOK: boolean,
-    newName: string,
-  }{
+    gotNameOK: boolean;
+    newName: string;
+  } {
     const result = {
       gotNameOK: false,
       newName: '',
@@ -1000,10 +976,7 @@ export class App extends Component<{}, AppState> {
     return result;
   }
 
-  private replaceWithModel(
-    modelName: string, 
-    newModel: DbModelData,
-  ){
+  private replaceWithModel(modelName: string, newModel: DbModelData) {
     Promise.all([
       deleteAllExpenses(modelName),
       deleteAllIncomes(modelName),
@@ -1022,7 +995,7 @@ export class App extends Component<{}, AppState> {
           submitIDbSettings(newModel.settings, modelName),
         ]).then(() => refreshData()),
       ),
-    );    
+    );
   }
 
   private homeDiv() {
@@ -1034,7 +1007,7 @@ export class App extends Component<{}, AppState> {
           id="startNewModel"
           action={async () => {
             const newNameFromUser = this.getNewName();
-            if(!newNameFromUser.gotNameOK){
+            if (!newNameFromUser.gotNameOK) {
               return;
             }
             await updateModelName(newNameFromUser.newName);
@@ -1075,7 +1048,7 @@ export class App extends Component<{}, AppState> {
         <Button
           action={async () => {
             const userNewName = this.getNewName();
-            if(!userNewName.gotNameOK){
+            if (!userNewName.gotNameOK) {
               return;
             }
             const currentData = JSON.stringify(this.state.modelData);

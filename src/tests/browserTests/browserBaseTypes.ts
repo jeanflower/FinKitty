@@ -275,11 +275,11 @@ export async function getChartData(driver: any, label: string) {
 }
 
 async function getTypedChartData(
-  driver: any, 
+  driver: any,
   headerID: string,
   switchButtonID: string,
-  dataDumpName: string,  
-  ) {
+  dataDumpName: string,
+) {
   const header = await driver.findElements(webdriver.By.id(headerID));
   if (header.length === 0) {
     const btn = await driver.findElements(webdriver.By.id(switchButtonID));
