@@ -123,6 +123,13 @@ export function getDriver(headless: boolean) {
   return driver;
 }
 
+export function bugSleep(message: string) {
+  if (printDebug()) {
+    log(`sleep for a long time: ${message}`);
+  }
+  return new Promise(resolve => setTimeout(resolve, 10000));
+}
+
 // Use sleeps to hack page-not-yet-ready issues. TODO : do better.
 export function sleep(ms: number, message: string) {
   if (printDebug()) {
@@ -149,8 +156,7 @@ export async function selectModel(driver: any, testDataModelName: string) {
     await btnData[0].click();
   } else {
     log(`BUG : can't see model ${testDataModelName} in model list`);
-    await sleep(
-      10000,
+    await bugSleep(
       "BUG : can't see model in model list? lengthen dBSleep?",
     );
   }
@@ -165,15 +171,11 @@ export async function beforeAllWork(
 ) {
   jest.setTimeout(60000); // allow time for all these tests to run
   await saveModel(testUserID, testDataModelName, model);
-  await sleep(
-    1000, // was dBSleep
-    `--- after submit model ${testDataModelName} to DB`,
-  );
 
   await driver.get('about:blank');
   await driver.get(serverUri);
   await sleep(
-    2500, // was calcSleep twice
+    1500, // was calcSleep twice
     '--- after browser loads URI',
   );
   const btnData = 

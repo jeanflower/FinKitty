@@ -56,8 +56,6 @@ describe('Chrome Interaction', () => {
       const modelAndRoi = getTestModel01();
       await beforeAllWork(driver, testDataModelName, modelAndRoi.model);
 
-      // await sleep(dBSleep, 'set up tables');
-
       if (!doActions) {
         resolve();
         return;
@@ -84,7 +82,6 @@ describe('Chrome Interaction', () => {
       const btn = await driver.findElements(webdriver.By.id('btn-Incomes'));
       expect(btn.length === 1).toBe(true);
       await btn[0].click();
-      await sleep(shortSleep, '--- after click Incomes');
 
       const chartID = 'canvasjs-react-chart-container-3'; // why 3?
       // log(`check for chart ${idToSeek}`);
@@ -125,7 +122,6 @@ describe('Chrome Interaction', () => {
       forSubmission,
     );
 
-    // sleep(2000, 'a bit of extra time');
     // log('submitted new roi setting');
 
     ary = await getAssetChartData(driver);
@@ -316,7 +312,6 @@ describe('Chrome Interaction', () => {
       done();
       return;
     }
-    await sleep(500, 'prep time...');
 
     const modelAndRoi = getModelCoarseAndFine();
     await beforeAllWork(driver, testDataModelName, modelAndRoi.model);
@@ -513,8 +508,6 @@ describe('Chrome Interaction', () => {
       modelAndRoi.model,
       forSubmission,
     );
-
-    // await sleep(2000, 'extra');
 
     let ary = await getAssetChartData(driver);
     // writeTestCode(ary);
