@@ -8,21 +8,8 @@ export interface DbSetting extends DbItem {
   VALUE: string;
   HINT: string;
 }
-export interface DbDynamoItem {
-  NAME: { S: string };
-}
-export interface DbDynamoItemCategory extends DbDynamoItem {
-  CATEGORY: { S: string };
-}
-export interface DbSettingDynamo extends DbDynamoItem {
-  VALUE: { S: string };
-  HINT: { S: string };
-}
 export interface DbTrigger extends DbItem {
   DATE: Date;
-}
-export interface DbTriggerDynamo extends DbDynamoItem {
-  DATE: { N: string };
 }
 export interface DbAsset extends DbItemCategory {
   START: string;
@@ -33,24 +20,6 @@ export interface DbAsset extends DbItemCategory {
   LIABILITY: string; // e.g. IncomeTaxJoe if growth accumulates as income tax liability
   PURCHASE_PRICE: string;
 }
-export interface DbAssetDynamov1 extends DbDynamoItemCategory {
-  START: { S: string };
-  VALUE: { N: string };
-  GROWTH: { S: string };
-  CPI_IMMUNE: { S: string };
-  // CAN_BE_NEGATIVE: { S: string };
-  LIABILITY: { S: string };
-  PURCHASE_PRICE: { N: string };
-}
-export interface DbAssetDynamo extends DbDynamoItemCategory {
-  START: { S: string };
-  VALUE: { N: string };
-  GROWTH: { S: string };
-  CPI_IMMUNE: { S: string };
-  CAN_BE_NEGATIVE: { S: string };
-  LIABILITY: { S: string };
-  PURCHASE_PRICE: { N: string };
-}
 export interface DbExpense extends DbItemCategory {
   START: string;
   END: string;
@@ -58,14 +27,6 @@ export interface DbExpense extends DbItemCategory {
   VALUE_SET: string;
   GROWTH: string;
   CPI_IMMUNE: boolean;
-}
-export interface DbExpenseDynamo extends DbDynamoItemCategory {
-  START: { S: string };
-  END: { S: string };
-  VALUE: { N: string };
-  VALUE_SET: { S: string };
-  GROWTH: { N: string };
-  CPI_IMMUNE: { S: string };
 }
 export interface DbIncome extends DbItemCategory {
   START: string;
@@ -75,15 +36,6 @@ export interface DbIncome extends DbItemCategory {
   GROWTH: string;
   CPI_IMMUNE: boolean;
   LIABILITY: string; // e.g. "IncomeTaxJoe NIJoe"
-}
-export interface DbIncomeDynamo extends DbDynamoItemCategory {
-  START: { S: string };
-  END: { S: string };
-  VALUE: { N: string };
-  VALUE_SET: { S: string };
-  GROWTH: { N: string };
-  CPI_IMMUNE: { S: string };
-  LIABILITY: { S: string };
 }
 // A transaction is an instant movement of value from
 // one asset to another.
@@ -127,17 +79,6 @@ export interface DbTransaction extends DbItemCategory {
   DATE: string;
   STOP_DATE: string; // for regular transactions
   RECURRENCE: string;
-}
-export interface DbTransactionDynamo extends DbDynamoItemCategory {
-  DATE: { S: string };
-  FROM: { S: string }; // can be 'None' e.g. for windfalls to cash
-  FROM_ABSOLUTE: { BOOL: boolean };
-  FROM_VALUE: { N: string };
-  RECURRENCE: { S: string };
-  STOP_DATE: { S: string }; // can be 'None' e.g. for non-recurrent cases
-  TO: { S: string }; // can be 'None' e.g. for one-off expenses out of cash
-  TO_ABSOLUTE: { BOOL: boolean };
-  TO_VALUE: { N: string };
 }
 
 export interface DatedThing {

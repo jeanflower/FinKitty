@@ -1,11 +1,4 @@
 import {
-  deleteAllData,
-  ensureDbTables,
-  submitIDbModel,
-  submitIDbSettings,
-  setupDDB,
-} from '../../database/dynamo';
-import {
   allItems,
   annually,
   assetChartHint,
@@ -35,6 +28,7 @@ import {
 import { DbModelData, DbSetting } from '../../types/interfaces';
 import { log, printDebug } from '../../utils';
 import webdriver from 'selenium-webdriver';
+import { saveModel } from '../../database/database';
 
 export const browserTestSettings: DbSetting[] = [
   {
@@ -161,18 +155,16 @@ export async function selectModel(driver: any, testDataModelName: string) {
     );
   }
 }
+
+export const testUserID = 'TestUserID';
+
 export async function beforeAllWork(
   driver: any,
   testDataModelName: string,
   model: DbModelData,
 ) {
   jest.setTimeout(60000); // allow time for all these tests to run
-
-  await setupDDB('TestAccessKeyID');
-
-  await deleteAllData(testDataModelName);
-  await ensureDbTables(testDataModelName);
-  await submitIDbModel(model, testDataModelName);
+  await saveModel(testUserID, testDataModelName, model);
   await sleep(
     1000, // was dBSleep
     `--- after submit model ${testDataModelName} to DB`,
@@ -184,13 +176,11 @@ export async function beforeAllWork(
     2500, // was calcSleep twice
     '--- after browser loads URI',
   );
-
-  const alert = driver.switchTo().alert();
-  const alertText = await alert.getText();
-  expect(alertText).toEqual(`Type DB access key id`);
-  await alert.sendKeys('TestAccessKeyID');
-  // log(`alertText = ${alertText}`);
-  await alert.accept();
+  const btnData = 
+    await driver.findElements(webdriver.By.id('buttonTestLogin'));
+  if (btnData[0] !== undefined) {
+    await btnData[0].click();
+  }
 
   await selectModel(driver, testDataModelName);
   await sleep(calcSleep, '--- after model selected');
@@ -234,7 +224,46 @@ export async function cleanUpWork(driver: any, testDataModelName: string) {
 export async function refreshPage(driver: any, testDataModelName: string) {
   // log('in refreshPage');
   await selectModel(driver, testDataModelName);
-  await sleep(calcSleep, 'after refreshing a page');
+  return sleep(calcSleep, 'after refreshing a page');
+}
+
+export async function submitModel(
+  driver: any,
+  testDataModelName: string,
+  model: DbModelData,
+) {
+  // log(`submitModel data ${showObj(model)}`);
+  await saveModel(testUserID, testDataModelName, model);
+  await sleep(
+    1000, // was dBSleep 6 Get coarse view charts 03
+    'after submitting a model',
+  ); // go to DB and back - takes longer
+  // log('go to refreshPage');
+  return refreshPage(driver, testDataModelName);
+  // log('page refreshed');
+}
+
+export async function submitSettingChange(
+  driver: any,
+  testDataModelName: string,
+  model: DbModelData,
+  forSubmission: DbSetting,
+) {
+  // log('go to submit model with new settings');
+  const newSettings: DbSetting[] = model.settings.map(s => {
+    if (s.NAME === forSubmission.NAME) {
+      return forSubmission;
+    } else {
+      return s;
+    }
+  });
+
+  const newModel = {
+    ...model,
+    settings: newSettings,
+  };
+  await submitModel(driver, testDataModelName, newModel);
+  return newModel;
 }
 
 export function writeTestCode(ary: any[]) {
@@ -312,19 +341,4 @@ export async function getIncomeChartData(driver: any) {
     'btn-Incomes',
     'incomeDataDump',
   );
-}
-
-export async function submitSettingChange(
-  driver: any,
-  testDataModelName: string,
-  forSubmission: DbSetting,
-) {
-  await submitIDbSettings([forSubmission], testDataModelName);
-  sleep(
-    2500, // was dBSleep 6 Get coarse view charts 03
-    'after submitting a new setting',
-  ); // go to DB and back - takes longer
-  // log('go to refreshPage');
-  await refreshPage(driver, testDataModelName);
-  // log('page refreshed');
 }

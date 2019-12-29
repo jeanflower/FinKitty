@@ -1,4 +1,4 @@
-import { log } from '../../utils';
+import { log, showObj, printDebug } from '../../utils';
 import {
   beforeAllWork,
   cleanUpWork,
@@ -118,7 +118,12 @@ describe('Chrome Interaction', () => {
       VALUE: '1 March 2018',
       HINT: roiEndHint,
     };
-    await submitSettingChange(driver, testDataModelName, forSubmission);
+    modelAndRoi.model = await submitSettingChange(
+      driver,
+      testDataModelName,
+      modelAndRoi.model,
+      forSubmission,
+    );
 
     // sleep(2000, 'a bit of extra time');
     // log('submitted new roi setting');
@@ -321,7 +326,12 @@ describe('Chrome Interaction', () => {
       VALUE: fine,
       HINT: viewDetailHint,
     };
-    await submitSettingChange(driver, testDataModelName, forSubmission);
+    modelAndRoi.model = await submitSettingChange(
+      driver,
+      testDataModelName,
+      modelAndRoi.model,
+      forSubmission
+    );
 
     let ary = await getAssetChartData(driver);
     // writeTestCode(ary);
@@ -497,8 +507,12 @@ describe('Chrome Interaction', () => {
       VALUE: CASH_ASSET_NAME,
       HINT: assetChartFocusHint,
     };
-
-    await submitSettingChange(driver, testDataModelName, forSubmission);
+    modelAndRoi.model = await submitSettingChange(
+      driver,
+      testDataModelName,
+      modelAndRoi.model,
+      forSubmission,
+    );
 
     // await sleep(2000, 'extra');
 
@@ -528,7 +542,12 @@ describe('Chrome Interaction', () => {
       VALUE: assetChartAdditions,
       HINT: assetChartFocusHint,
     };
-    await submitSettingChange(driver, testDataModelName, forSubmission);
+    modelAndRoi.model = await submitSettingChange(
+      driver,
+      testDataModelName,
+      modelAndRoi.model,
+      forSubmission,
+    );
 
     ary = await getAssetChartData(driver);
 
@@ -589,7 +608,12 @@ describe('Chrome Interaction', () => {
       VALUE: assetChartReductions,
       HINT: assetChartFocusHint,
     };
-    await submitSettingChange(driver, testDataModelName, forSubmission);
+    modelAndRoi.model = await submitSettingChange(
+      driver,
+      testDataModelName,
+      modelAndRoi.model,
+      forSubmission,
+    );
 
     ary = await getAssetChartData(driver);
     // writeTestCode(ary);
@@ -633,7 +657,12 @@ describe('Chrome Interaction', () => {
       VALUE: assetChartDeltas,
       HINT: assetChartFocusHint,
     };
-    await submitSettingChange(driver, testDataModelName, forSubmission);
+    modelAndRoi.model = await submitSettingChange(
+      driver,
+      testDataModelName,
+      modelAndRoi.model,
+      forSubmission,
+    );
 
     ary = await getAssetChartData(driver);
     // writeTestCode(ary);
@@ -733,13 +762,30 @@ describe('Chrome Interaction', () => {
       VALUE: fine,
       HINT: viewDetailHint,
     };
-    await submitSettingChange(driver, testDataModelName, forSubmission);
+    modelAndRoi.model = await submitSettingChange(
+      driver,
+      testDataModelName,
+      modelAndRoi.model,
+      forSubmission,
+    );
+    if(printDebug()){
+      log(`submitted model settings`);
+      log(`model settings = ${showObj(modelAndRoi.model.settings)}`);
+    }
     forSubmission = {
       NAME: assetChartFocus,
       VALUE: 'Accessible',
       HINT: assetChartFocusHint,
     };
-    await submitSettingChange(driver, testDataModelName, forSubmission);
+    modelAndRoi.model = await submitSettingChange(
+      driver,
+      testDataModelName,
+      modelAndRoi.model,
+      forSubmission,
+    );
+    // log(`submitted model settings`);
+    // log(`model settings = ${showObj(modelAndRoi.model.settings)}`)
+
     const ary = await getAssetChartData(driver);
     // writeTestCode(ary);
 
@@ -782,7 +828,7 @@ describe('Chrome Interaction', () => {
   });
 
   it('Navigate headers', async done => {
-    log(`navigate headers test`);
+    //log(`navigate headers test`);
     if (!doActions) {
       done();
       return;

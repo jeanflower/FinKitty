@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { useAuth0 } from './contexts/auth0-context';
 import CanvasJSReact from './assets/js/canvasjs.react';
 import { makeChartData } from './charting';
 import {
@@ -10,31 +11,13 @@ import {
   checkTrigger,
 } from './checks';
 import {
-  deleteAllAssets,
-  deleteAllExpenses,
-  deleteAllIncomes,
-  deleteAllSettings,
-  deleteAllTables,
-  deleteAllTransactions,
-  deleteAllTriggers,
-  deleteAsset,
-  deleteExpense,
-  deleteIncome,
-  deleteSetting,
-  deleteTransaction,
-  deleteTrigger,
-  ensureDbTables,
-  getDbModel,
-  getDbModelNames,
-  submitIDbAssets,
-  submitIDbExpenses,
-  submitIDbIncomes,
-  submitIDbSettings,
-  submitIDbTransactions,
-  submitIDbTriggers,
+  deleteModel,
+  getModelNames,
+  saveModel,
   setupDDB,
-  submitIDbModel,
-} from './database/dynamo';
+  loadModel,
+  ensureModel,
+} from './database/database';
 import { sampleModel } from './models/sampleData';
 // } from './models/outsideGit/RealData';
 import { AddDeleteAssetForm } from './reactComponents/AddDeleteAssetForm';
@@ -84,6 +67,7 @@ import {
   DbTransaction,
   DbTrigger,
   ItemChartData,
+  DbItem,
 } from './types/interfaces';
 import {
   getSettings,
@@ -111,6 +95,44 @@ import CashValueFormatter from './reactComponents/CashValueFormatter';
 const { CanvasJSChart } = CanvasJSReact;
 
 export let modelName: string = sampleModelName;
+let userID = '';
+
+function App() {
+  const {
+    isLoading,
+    user,
+    loginWithRedirect,
+    loginForTesting,
+    logout,
+  } = useAuth0();
+  if (!isLoading && !user) {
+    userID = '';
+    return (
+      <>
+        <h1>Welcome to Finkitty.</h1>
+        <button onClick={loginWithRedirect} id="buttonLogin">
+          Login
+        </button>
+        <button onClick={loginForTesting} id="buttonTestLogin">
+          Test
+        </button>
+      </>
+    );
+  }
+  if (!isLoading && user) {
+    userID = user.sub;
+    return (
+      <AppContent
+        logOutAction={() => {
+          return logout({ returnTo: window.location.origin });
+        }}
+        user={user}
+      ></AppContent>
+    );
+  }
+  userID = '';
+  return null;
+}
 
 interface ViewType {
   lc: string;
@@ -221,7 +243,7 @@ const showContent = new Map<ViewType, any>([
   [settingsTable, { display: true }],
 ]);
 
-let reactAppComponent: App;
+let reactAppComponent: AppContent;
 
 function getDisplay(type: ViewType) {
   const view = views.get(type);
@@ -269,13 +291,17 @@ function lessThan(a: string, b: string) {
   return 0;
 }
 
+function getUserID() {
+  return userID;
+}
+
 async function refreshData(goToDB = true) {
-  // log('refreshData in App - get data and redraw content');
+  // log('refreshData in AppContent - get data and redraw content');
   if (goToDB) {
     // go to the DB to retreive updated data
     let modelNames: string[] = [];
     try {
-      modelNames = await getDbModelNames();
+      modelNames = await getModelNames(getUserID());
     } catch (error) {
       alert('error contacting database');
       return;
@@ -289,12 +315,11 @@ async function refreshData(goToDB = true) {
     ) {
       log(`recreate sample model`);
       // force us to have at least the sample model
-      await ensureDbTables(sampleModelName);
-      await submitIDbModel(sampleModel, sampleModelName);
-      modelNames = await getDbModelNames();
+      await saveModel(getUserID(), sampleModelName, sampleModel);
+      modelNames = await getModelNames(getUserID());
     }
 
-    const model = await getDbModel(modelName);
+    const model = await loadModel(getUserID(), modelName);
 
     // log(`got ${modelNames.length} modelNames`);
 
@@ -429,7 +454,8 @@ async function submitExpense(expenseInput: DbExpense) {
   if (printDebug()) {
     log(`in submitExpense with input : ${showObj(expenseInput)}`);
   }
-  await submitIDbExpenses([expenseInput], modelName);
+  reactAppComponent.state.modelData.expenses.push(expenseInput);
+  await saveModel(getUserID(), modelName, reactAppComponent.state.modelData);
   await refreshData();
 }
 export async function submitNewExpense(name: string) {
@@ -448,14 +474,16 @@ async function submitIncome(incomeInput: DbIncome) {
   if (printDebug()) {
     log(`in submitIncome with input : ${showObj(incomeInput)}`);
   }
-  await submitIDbIncomes([incomeInput], modelName);
+  reactAppComponent.state.modelData.incomes.push(incomeInput);
+  await saveModel(getUserID(), modelName, reactAppComponent.state.modelData);
   await refreshData();
 }
 async function submitTrigger(trigger: DbTrigger) {
   if (printDebug()) {
     log(`go to submitTriggers with input : ${showObj(trigger)}`);
   }
-  await submitIDbTriggers([trigger], modelName);
+  reactAppComponent.state.modelData.triggers.push(trigger);
+  await saveModel(getUserID(), modelName, reactAppComponent.state.modelData);
   await refreshData();
 }
 export async function submitNewTrigger(name: string) {
@@ -468,7 +496,8 @@ async function submitAsset(assetInput: DbAsset) {
   if (printDebug()) {
     log(`in submitAsset with input : ${showObj(assetInput)}`);
   }
-  await submitIDbAssets([assetInput], modelName);
+  reactAppComponent.state.modelData.assets.push(assetInput);
+  await saveModel(getUserID(), modelName, reactAppComponent.state.modelData);
   await refreshData();
 }
 export async function submitNewAsset(name: string) {
@@ -488,7 +517,8 @@ async function submitTransaction(input: DbTransaction) {
   if (printDebug()) {
     log(`in submitTransaction with input : ${showObj(input)}`);
   }
-  await submitIDbTransactions([input], modelName);
+  reactAppComponent.state.modelData.transactions.push(input);
+  await saveModel(getUserID(), modelName, reactAppComponent.state.modelData);
   await refreshData();
 }
 export async function submitNewTransaction(name: string) {
@@ -511,7 +541,8 @@ async function submitSetting(input: DbSetting) {
   if (printDebug()) {
     log(`in submitSetting with input : ${showObj(input)}`);
   }
-  await submitIDbSettings([input], modelName);
+  reactAppComponent.state.modelData.settings.push(input);
+  await saveModel(getUserID(), modelName, reactAppComponent.state.modelData);
   await refreshData();
 }
 export async function submitNewSetting(name: string) {
@@ -774,60 +805,79 @@ function handleSettingGridRowsUpdated() {
   };
   submitSetting(forSubmission);
 }
-export async function deleteTriggerFromTable(name: string) {
-  // log('delete trigger '+name)
-  if (await deleteTrigger(name, modelName)) {
-    log(`deleted trigger returned true`);
-    await refreshData();
-    return true;
-  }
-  log(`deleted trigger returned false`);
-  return false;
-}
-export async function deleteAssetFromTable(name: string) {
-  // log('delete asset '+name)
-  if (await deleteAsset(name, modelName)) {
-    await refreshData();
-    return true;
-  }
-  return false;
-}
-export async function deleteTransactionFromTable(name: string) {
-  // log('delete transaction '+name)
-  if (await deleteTransaction(name, modelName)) {
-    await refreshData();
-    return true;
-  }
-  return false;
-}
-export async function deleteExpenseFromTable(name: string) {
-  // log('delete expense '+name)
-  if (await deleteExpense(name, modelName)) {
-    await refreshData();
-    return true;
-  }
-  return false;
-}
-export async function deleteIncomeFromTable(name: string) {
-  // log('delete income '+name)
-  if (await deleteIncome(name, modelName)) {
-    await refreshData();
-    return true;
-  }
-  return false;
-}
-export async function deleteSettingFromTable(name: string) {
-  if (await deleteSetting(name, modelName)) {
+
+export async function deleteItemFromModel(
+  name: string,
+  itemList: DbItem[],
+  modelName: string,
+  model: DbModelData,
+) {
+  // log('delete item '+name)
+  const idx = itemList.findIndex((i: DbItem)=>{
+    return i.NAME === name;
+  });
+  if(idx !== -1){
+    itemList.splice(idx, 1);
+    await saveModel(getUserID(), modelName, model);
     await refreshData();
     return true;
   }
   return false;
 }
 
+export async function deleteTriggerFromTable(name: string) {
+  return deleteItemFromModel(
+    name,
+    reactAppComponent.state.modelData.triggers,
+    modelName,
+    reactAppComponent.state.modelData,
+  );
+}
+export async function deleteAssetFromTable(name: string) {
+  return deleteItemFromModel(
+    name,
+    reactAppComponent.state.modelData.assets,
+    modelName,
+    reactAppComponent.state.modelData,
+  );
+}
+export async function deleteTransactionFromTable(name: string) {
+  return deleteItemFromModel(
+    name,
+    reactAppComponent.state.modelData.transactions,
+    modelName,
+    reactAppComponent.state.modelData,
+  );
+}
+export async function deleteExpenseFromTable(name: string) {
+  return deleteItemFromModel(
+    name,
+    reactAppComponent.state.modelData.expenses,
+    modelName,
+    reactAppComponent.state.modelData,
+  );
+}
+export async function deleteIncomeFromTable(name: string) {
+  return deleteItemFromModel(
+    name,
+    reactAppComponent.state.modelData.incomes,
+    modelName,
+    reactAppComponent.state.modelData,
+  );
+}
+export async function deleteSettingFromTable(name: string) {
+  return deleteItemFromModel(
+    name,
+    reactAppComponent.state.modelData.settings,
+    modelName,
+    reactAppComponent.state.modelData,
+  );
+}
+
 export async function updateModelName(newValue: string) {
   // log(`model name is now ${newValue}`);
   modelName = newValue;
-  await ensureDbTables(modelName);
+  await ensureModel(getUserID(), modelName);
   await refreshData();
 }
 
@@ -838,6 +888,10 @@ interface AppState {
   assetChartData: ChartData[];
   taxChartData: ChartData[];
   modelNamesData: string[];
+}
+interface AppProps {
+  logOutAction: any; // TODO type for function
+  user: any; // TODO
 }
 
 const defaultChartSettings = {
@@ -879,13 +933,13 @@ function makeReactVisChartData(x: IChartData): IReactVisChartPoint[] {
 }
 */
 
-export class App extends Component<{}, AppState> {
-  public constructor(props: {}) {
+export class AppContent extends Component<AppProps, AppState> {
+  public constructor(props: AppProps) {
     super(props);
 
-    const accessKeyID = prompt('Type DB access key id');
+    const accessKeyID = props.user.sub;
     if (accessKeyID !== null) {
-      setupDDB(accessKeyID);
+      setupDDB();
     }
 
     reactAppComponent = this;
@@ -993,26 +1047,10 @@ export class App extends Component<{}, AppState> {
     return result;
   }
 
-  private replaceWithModel(modelName: string, newModel: DbModelData) {
-    Promise.all([
-      deleteAllExpenses(modelName),
-      deleteAllIncomes(modelName),
-      deleteAllTriggers(modelName),
-      deleteAllAssets(modelName),
-      deleteAllTransactions(modelName),
-      deleteAllSettings(modelName),
-    ]).then(() =>
-      ensureDbTables(modelName).then(() =>
-        Promise.all([
-          submitIDbExpenses(newModel.expenses, modelName),
-          submitIDbIncomes(newModel.incomes, modelName),
-          submitIDbTriggers(newModel.triggers, modelName),
-          submitIDbAssets(newModel.assets, modelName),
-          submitIDbTransactions(newModel.transactions, modelName),
-          submitIDbSettings(newModel.settings, modelName),
-        ]).then(() => refreshData()),
-      ),
-    );
+  private async replaceWithModel(modelName: string, newModel: DbModelData) {
+    await deleteModel(getUserID(), modelName);
+    await saveModel(getUserID(), modelName, newModel);
+    await refreshData();
   }
 
   private homeDiv() {
@@ -1046,12 +1084,11 @@ export class App extends Component<{}, AppState> {
                 `delete all data in model ${modelName} - you sure?`,
               )
             ) {
-              await deleteAllTables(modelName);
+              await deleteModel(getUserID(), modelName);
               if (modelName === sampleModelName) {
                 alert(`recreating sample model as default`); // TODO make "create sample" button
                 await updateModelName(sampleModelName);
-                await ensureDbTables(sampleModelName);
-                await submitIDbModel(sampleModel, sampleModelName);
+                await saveModel(getUserID(), sampleModelName, sampleModel);
               } else {
                 await updateModelName(sampleModelName); // always exists??
               }
@@ -1087,9 +1124,23 @@ export class App extends Component<{}, AppState> {
         />
         <Button
           action={() => {
-            log(JSON.stringify(this.state.modelData));
+            const text = JSON.stringify(this.state.modelData);
+            navigator.clipboard.writeText(text).then(
+              function() {
+                alert(`model as JSON on clipboard`);
+              },
+              function(err) {
+                console.error('Async: Could not copy text: ', err);
+                alert(
+                  `sorry, something went wrong, no copy on clipboard - in console instead`,
+                );
+                log('-------- start of model --------');
+                log(text);
+                log('-------- end of model --------');
+              },
+            );
           }}
-          title="Dump JSON to console"
+          title="Copy model as JSON to clipboard"
           id={`btn-log`}
           type="secondary"
         />
@@ -2284,6 +2335,18 @@ export class App extends Component<{}, AppState> {
       );
       entry = it.next();
     }
+    buttons.push(
+      <Button
+        action={(event: any) => {
+          event.persist();
+          this.props.logOutAction();
+        }}
+        title="Log out"
+        type="primary"
+        key="Log out"
+        id={`btn-LogOut`}
+      />,
+    );
     return <div role="group">{buttons}</div>;
   }
 

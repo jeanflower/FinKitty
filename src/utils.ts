@@ -121,6 +121,9 @@ function isSetting(input: string, settings: DbSetting[]) {
     result.value = x[0].VALUE;
   } else {
     result.numFound = x.length;
+    if (result.numFound > 1) {
+      log(`multiple settings: ${showObj(x)}`);
+    }
   }
   return result;
 }
@@ -381,7 +384,8 @@ export function getSettings(
   if (searchResult.numFound > 1) {
     log(`BUG!!! multiple '${key}' values found in settings list`);
     // log(`couldn't find ${key} in ${showObj(settings)}`);
-    throw new Error();
+    throw new Error(); // serious!! shows failure in browser!!
+    //return fallbackVal;
   }
   return fallbackVal;
 }

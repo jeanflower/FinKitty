@@ -562,7 +562,7 @@ function checkDateOfBirth(settings: DbSetting[]): string {
   }
   const d = makeDateFromString(dob);
   if (!checkDate(d)) {
-    return 'Date of birth should parse and be reasonable';
+    return `Date of birth ${dob} should parse and be reasonable`;
   }
   return '';
 }
