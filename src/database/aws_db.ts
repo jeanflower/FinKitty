@@ -1,4 +1,4 @@
-import { dbInterface, cleanUp } from './database';
+import { DbInterface, cleanUp } from './database';
 import { DbModelData } from './../types/interfaces';
 
 import {
@@ -33,9 +33,8 @@ import { log, printDebug, showObj } from './../utils';
 
 import AWS from 'aws-sdk';
 
-export class AWSDB implements dbInterface{
-
-  tableName  = 'FinKittyModels';
+export class AWSDB implements DbInterface {
+  tableName = 'FinKittyModels';
   ddb: any = undefined;
 
   async setupDDB() {
@@ -43,8 +42,7 @@ export class AWSDB implements dbInterface{
       // log(`found DB OK`);
       return;
     }
-    const useLocalDB = 
-      process.env.REACT_APP_AWS_USE_LOCAL === 'true';
+    const useLocalDB = process.env.REACT_APP_AWS_USE_LOCAL === 'true';
     // log(`use local db? ${useLocalDB}`);
     const accessKeyID = useLocalDB
       ? process.env.REACT_APP_AWS_ACCESS_KEY_ID_FORLOCALACCESS
@@ -360,11 +358,7 @@ export class AWSDB implements dbInterface{
     return doDBDelete(params);
   }
 
-  async saveModel(
-    userID: string,
-    modelName: string,
-    model: DbModelData,
-  ) {
+  async saveModel(userID: string, modelName: string, model: DbModelData) {
     await this.setupDDB();
     await this.ensureTableExists();
     await this.deleteModel(userID, modelName);
@@ -444,10 +438,7 @@ export class AWSDB implements dbInterface{
     }
   }
 
-  async tryLoadModel(
-    userID: string,
-    modelName: string,
-  ): Promise<DbModelData> {
+  async tryLoadModel(userID: string, modelName: string): Promise<DbModelData> {
     await this.ensureTableExists();
 
     const params = {
@@ -499,10 +490,7 @@ export class AWSDB implements dbInterface{
   }
 
   // It's unclear that we need a retry here.
-  async loadModel(
-    userID: string,
-    modelName: string,
-  ): Promise<DbModelData> {
+  async loadModel(userID: string, modelName: string): Promise<DbModelData> {
     await this.setupDDB();
     await this.ensureTableExists();
 

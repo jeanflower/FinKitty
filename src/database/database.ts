@@ -1,16 +1,12 @@
 import { DbModelData } from './../types/interfaces';
 import { AWSDB } from './aws_db';
 
-export interface dbInterface {
-  getModelNames(userID: string): Promise<string[]>,
-  loadModel(userID: string,modelName: string): Promise<DbModelData>,
-  ensureModel(userID: string, modelName: string): any,
-  saveModel(
-    userID: string,
-    modelName: string,
-    model: DbModelData,
-  ): any,
-  deleteModel(userID: string, modelName: string): any,
+export interface DbInterface {
+  getModelNames(userID: string): Promise<string[]>;
+  loadModel(userID: string, modelName: string): Promise<DbModelData>;
+  ensureModel(userID: string, modelName: string): any;
+  saveModel(userID: string, modelName: string, model: DbModelData): any;
+  deleteModel(userID: string, modelName: string): any;
 }
 
 // note JSON stringify and back for serialisation is OK but
@@ -29,6 +25,6 @@ export function cleanUp(modelFromJSON: any): DbModelData {
 
 const db = new AWSDB();
 
-export function getDB(): dbInterface{
+export function getDB(): DbInterface {
   return db;
 }

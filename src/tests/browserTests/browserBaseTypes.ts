@@ -92,7 +92,7 @@ const serverUri = 'https://localhost:3000/#';
 
 export const dBSleep = 1500; // time to round trip through DB
 export const calcSleep = 1000; // time to recalculate charts etc
-export const shortSleep = 200;
+const shortSleep = 200;
 
 export function getDriver(headless: boolean) {
   // from
@@ -131,7 +131,7 @@ export function bugSleep(message: string) {
 }
 
 // Use sleeps to hack page-not-yet-ready issues. TODO : do better.
-export function sleep(ms: number, message: string) {
+function sleep(ms: number, message: string) {
   if (printDebug()) {
     log(`sleep for ${ms}ms: ${message}`);
   }
@@ -156,9 +156,7 @@ export async function selectModel(driver: any, testDataModelName: string) {
     await btnData[0].click();
   } else {
     log(`BUG : can't see model ${testDataModelName} in model list`);
-    await bugSleep(
-      "BUG : can't see model in model list? lengthen dBSleep?",
-    );
+    await bugSleep("BUG : can't see model in model list? lengthen dBSleep?");
   }
 }
 
@@ -178,8 +176,7 @@ export async function beforeAllWork(
     1500, // was calcSleep twice
     '--- after browser loads URI',
   );
-  const btnData = 
-    await driver.findElements(webdriver.By.id('buttonTestLogin'));
+  const btnData = await driver.findElements(webdriver.By.id('buttonTestLogin'));
   if (btnData[0] !== undefined) {
     await btnData[0].click();
   }

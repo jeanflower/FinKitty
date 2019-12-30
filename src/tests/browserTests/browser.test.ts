@@ -6,8 +6,6 @@ import {
   getDriver,
   getExpenseChartData,
   getIncomeChartData,
-  shortSleep,
-  sleep,
   submitSettingChange,
   writeTestCode,
 } from './browserBaseTypes';
@@ -325,7 +323,7 @@ describe('Chrome Interaction', () => {
       driver,
       testDataModelName,
       modelAndRoi.model,
-      forSubmission
+      forSubmission,
     );
 
     let ary = await getAssetChartData(driver);
@@ -761,7 +759,7 @@ describe('Chrome Interaction', () => {
       modelAndRoi.model,
       forSubmission,
     );
-    if(printDebug()){
+    if (printDebug()) {
       log(`submitted model settings`);
       log(`model settings = ${showObj(modelAndRoi.model.settings)}`);
     }

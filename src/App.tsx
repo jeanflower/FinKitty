@@ -10,9 +10,7 @@ import {
   checkTransaction,
   checkTrigger,
 } from './checks';
-import {
-  getDB,
-} from './database/database';
+import { getDB } from './database/database';
 import { sampleModel } from './models/sampleData';
 // } from './models/outsideGit/RealData';
 import { AddDeleteAssetForm } from './reactComponents/AddDeleteAssetForm';
@@ -445,11 +443,11 @@ function checkModelData() {
     alert(response);
   }
 }
-function updateItemList(itemList: DbItem[], newData: DbItem){
-  const idx = itemList.findIndex((i: DbItem)=>{
+function updateItemList(itemList: DbItem[], newData: DbItem) {
+  const idx = itemList.findIndex((i: DbItem) => {
     return i.NAME === newData.NAME;
   });
-  if(idx !== -1){
+  if (idx !== -1) {
     itemList.splice(idx, 1);
   }
   itemList.push(newData);
@@ -459,7 +457,11 @@ async function submitExpense(expenseInput: DbExpense) {
     log(`in submitExpense with input : ${showObj(expenseInput)}`);
   }
   updateItemList(reactAppComponent.state.modelData.expenses, expenseInput);
-  await getDB().saveModel(getUserID(), modelName, reactAppComponent.state.modelData);
+  await getDB().saveModel(
+    getUserID(),
+    modelName,
+    reactAppComponent.state.modelData,
+  );
   await refreshData();
 }
 export async function submitNewExpense(name: string) {
@@ -479,7 +481,11 @@ async function submitIncome(incomeInput: DbIncome) {
     log(`in submitIncome with input : ${showObj(incomeInput)}`);
   }
   updateItemList(reactAppComponent.state.modelData.incomes, incomeInput);
-  await getDB().saveModel(getUserID(), modelName, reactAppComponent.state.modelData);
+  await getDB().saveModel(
+    getUserID(),
+    modelName,
+    reactAppComponent.state.modelData,
+  );
   await refreshData();
 }
 async function submitTrigger(trigger: DbTrigger) {
@@ -487,7 +493,11 @@ async function submitTrigger(trigger: DbTrigger) {
     log(`go to submitTriggers with input : ${showObj(trigger)}`);
   }
   updateItemList(reactAppComponent.state.modelData.triggers, trigger);
-  await getDB().saveModel(getUserID(), modelName, reactAppComponent.state.modelData);
+  await getDB().saveModel(
+    getUserID(),
+    modelName,
+    reactAppComponent.state.modelData,
+  );
   await refreshData();
 }
 export async function submitNewTrigger(name: string) {
@@ -501,7 +511,11 @@ async function submitAsset(assetInput: DbAsset) {
     log(`in submitAsset with input : ${showObj(assetInput)}`);
   }
   updateItemList(reactAppComponent.state.modelData.assets, assetInput);
-  await getDB().saveModel(getUserID(), modelName, reactAppComponent.state.modelData);
+  await getDB().saveModel(
+    getUserID(),
+    modelName,
+    reactAppComponent.state.modelData,
+  );
   await refreshData();
 }
 export async function submitNewAsset(name: string) {
@@ -522,7 +536,11 @@ async function submitTransaction(input: DbTransaction) {
     log(`in submitTransaction with input : ${showObj(input)}`);
   }
   updateItemList(reactAppComponent.state.modelData.transactions, input);
-  await getDB().saveModel(getUserID(), modelName, reactAppComponent.state.modelData);
+  await getDB().saveModel(
+    getUserID(),
+    modelName,
+    reactAppComponent.state.modelData,
+  );
   await refreshData();
 }
 export async function submitNewTransaction(name: string) {
@@ -546,7 +564,11 @@ async function submitSetting(input: DbSetting) {
     log(`in submitSetting with input : ${showObj(input)}`);
   }
   updateItemList(reactAppComponent.state.modelData.settings, input);
-  await getDB().saveModel(getUserID(), modelName, reactAppComponent.state.modelData);
+  await getDB().saveModel(
+    getUserID(),
+    modelName,
+    reactAppComponent.state.modelData,
+  );
   await refreshData();
 }
 export async function submitNewSetting(name: string) {
@@ -817,10 +839,10 @@ export async function deleteItemFromModel(
   model: DbModelData,
 ) {
   // log('delete item '+name)
-  const idx = itemList.findIndex((i: DbItem)=>{
+  const idx = itemList.findIndex((i: DbItem) => {
     return i.NAME === name;
   });
-  if(idx !== -1){
+  if (idx !== -1) {
     itemList.splice(idx, 1);
     await getDB().saveModel(getUserID(), modelName, model);
     await refreshData();
@@ -1087,7 +1109,11 @@ export class AppContent extends Component<AppProps, AppState> {
               if (modelName === sampleModelName) {
                 alert(`recreating sample model as default`); // TODO make "create sample" button
                 await updateModelName(sampleModelName);
-                await getDB().saveModel(getUserID(), sampleModelName, sampleModel);
+                await getDB().saveModel(
+                  getUserID(),
+                  sampleModelName,
+                  sampleModel,
+                );
               } else {
                 await updateModelName(sampleModelName); // always exists??
               }
