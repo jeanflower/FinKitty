@@ -445,11 +445,20 @@ function checkModelData() {
     alert(response);
   }
 }
+function updateItemList(itemList: DbItem[], newData: DbItem){
+  const idx = itemList.findIndex((i: DbItem)=>{
+    return i.NAME === newData.NAME;
+  });
+  if(idx !== -1){
+    itemList.splice(idx, 1);
+  }
+  itemList.push(newData);
+}
 async function submitExpense(expenseInput: DbExpense) {
   if (printDebug()) {
     log(`in submitExpense with input : ${showObj(expenseInput)}`);
   }
-  reactAppComponent.state.modelData.expenses.push(expenseInput);
+  updateItemList(reactAppComponent.state.modelData.expenses, expenseInput);
   await getDB().saveModel(getUserID(), modelName, reactAppComponent.state.modelData);
   await refreshData();
 }
@@ -469,7 +478,7 @@ async function submitIncome(incomeInput: DbIncome) {
   if (printDebug()) {
     log(`in submitIncome with input : ${showObj(incomeInput)}`);
   }
-  reactAppComponent.state.modelData.incomes.push(incomeInput);
+  updateItemList(reactAppComponent.state.modelData.incomes, incomeInput);
   await getDB().saveModel(getUserID(), modelName, reactAppComponent.state.modelData);
   await refreshData();
 }
@@ -477,7 +486,7 @@ async function submitTrigger(trigger: DbTrigger) {
   if (printDebug()) {
     log(`go to submitTriggers with input : ${showObj(trigger)}`);
   }
-  reactAppComponent.state.modelData.triggers.push(trigger);
+  updateItemList(reactAppComponent.state.modelData.triggers, trigger);
   await getDB().saveModel(getUserID(), modelName, reactAppComponent.state.modelData);
   await refreshData();
 }
@@ -491,7 +500,7 @@ async function submitAsset(assetInput: DbAsset) {
   if (printDebug()) {
     log(`in submitAsset with input : ${showObj(assetInput)}`);
   }
-  reactAppComponent.state.modelData.assets.push(assetInput);
+  updateItemList(reactAppComponent.state.modelData.assets, assetInput);
   await getDB().saveModel(getUserID(), modelName, reactAppComponent.state.modelData);
   await refreshData();
 }
@@ -512,7 +521,7 @@ async function submitTransaction(input: DbTransaction) {
   if (printDebug()) {
     log(`in submitTransaction with input : ${showObj(input)}`);
   }
-  reactAppComponent.state.modelData.transactions.push(input);
+  updateItemList(reactAppComponent.state.modelData.transactions, input);
   await getDB().saveModel(getUserID(), modelName, reactAppComponent.state.modelData);
   await refreshData();
 }
@@ -536,7 +545,7 @@ async function submitSetting(input: DbSetting) {
   if (printDebug()) {
     log(`in submitSetting with input : ${showObj(input)}`);
   }
-  reactAppComponent.state.modelData.settings.push(input);
+  updateItemList(reactAppComponent.state.modelData.settings, input);
   await getDB().saveModel(getUserID(), modelName, reactAppComponent.state.modelData);
   await refreshData();
 }
