@@ -1069,7 +1069,7 @@ export class AppContent extends Component<AppProps, AppState> {
   }
 
   private async replaceWithModel(modelName: string, newModel: DbModelData) {
-    await getDB().deleteModel(getUserID(), modelName);
+    // console.log(`replace ${modelName} with new model data`);
     await getDB().saveModel(getUserID(), modelName, newModel);
     await refreshData();
   }
