@@ -11,12 +11,7 @@ import {
   checkTrigger,
 } from './checks';
 import {
-  deleteModel,
-  getModelNames,
-  saveModel,
-  setupDDB,
-  loadModel,
-  ensureModel,
+  getDB,
 } from './database/database';
 import { sampleModel } from './models/sampleData';
 // } from './models/outsideGit/RealData';
@@ -301,7 +296,7 @@ async function refreshData(goToDB = true) {
     // go to the DB to retreive updated data
     let modelNames: string[] = [];
     try {
-      modelNames = await getModelNames(getUserID());
+      modelNames = await getDB().getModelNames(getUserID());
     } catch (error) {
       alert('error contacting database');
       return;
@@ -315,24 +310,24 @@ async function refreshData(goToDB = true) {
     ) {
       log(`recreate sample model`);
       // force us to have at least the sample model
-      await saveModel(getUserID(), sampleModelName, sampleModel);
-      modelNames = await getModelNames(getUserID());
+      await getDB().saveModel(getUserID(), sampleModelName, sampleModel);
+      modelNames = await getDB().getModelNames(getUserID());
     }
 
-    const model = await loadModel(getUserID(), modelName);
+    const model = await getDB().loadModel(getUserID(), modelName);
 
     // log(`got ${modelNames.length} modelNames`);
 
-    model.triggers.sort((a, b) => lessThan(a.NAME, b.NAME));
-    model.expenses.sort((a, b) => lessThan(a.NAME, b.NAME));
-    model.settings.sort((a, b) => lessThan(a.NAME, b.NAME));
-    model.incomes.sort((a, b) => lessThan(a.NAME, b.NAME));
-    model.transactions.sort((a, b) => lessThan(a.NAME, b.NAME));
-    model.assets.sort((a, b) => lessThan(a.NAME, b.NAME));
-    modelNames.sort((a, b) => lessThan(a, b));
+    model.triggers.sort((a: any, b: any) => lessThan(a.NAME, b.NAME));
+    model.expenses.sort((a: any, b: any) => lessThan(a.NAME, b.NAME));
+    model.settings.sort((a: any, b: any) => lessThan(a.NAME, b.NAME));
+    model.incomes.sort((a: any, b: any) => lessThan(a.NAME, b.NAME));
+    model.transactions.sort((a: any, b: any) => lessThan(a.NAME, b.NAME));
+    model.assets.sort((a: any, b: any) => lessThan(a.NAME, b.NAME));
+    modelNames.sort((a: any, b: any) => lessThan(a, b));
 
     if (
-      model.assets.filter(a => {
+      model.assets.filter((a: any) => {
         return a.NAME === taxPot;
       }).length === 0
     ) {
@@ -455,7 +450,7 @@ async function submitExpense(expenseInput: DbExpense) {
     log(`in submitExpense with input : ${showObj(expenseInput)}`);
   }
   reactAppComponent.state.modelData.expenses.push(expenseInput);
-  await saveModel(getUserID(), modelName, reactAppComponent.state.modelData);
+  await getDB().saveModel(getUserID(), modelName, reactAppComponent.state.modelData);
   await refreshData();
 }
 export async function submitNewExpense(name: string) {
@@ -475,7 +470,7 @@ async function submitIncome(incomeInput: DbIncome) {
     log(`in submitIncome with input : ${showObj(incomeInput)}`);
   }
   reactAppComponent.state.modelData.incomes.push(incomeInput);
-  await saveModel(getUserID(), modelName, reactAppComponent.state.modelData);
+  await getDB().saveModel(getUserID(), modelName, reactAppComponent.state.modelData);
   await refreshData();
 }
 async function submitTrigger(trigger: DbTrigger) {
@@ -483,7 +478,7 @@ async function submitTrigger(trigger: DbTrigger) {
     log(`go to submitTriggers with input : ${showObj(trigger)}`);
   }
   reactAppComponent.state.modelData.triggers.push(trigger);
-  await saveModel(getUserID(), modelName, reactAppComponent.state.modelData);
+  await getDB().saveModel(getUserID(), modelName, reactAppComponent.state.modelData);
   await refreshData();
 }
 export async function submitNewTrigger(name: string) {
@@ -497,7 +492,7 @@ async function submitAsset(assetInput: DbAsset) {
     log(`in submitAsset with input : ${showObj(assetInput)}`);
   }
   reactAppComponent.state.modelData.assets.push(assetInput);
-  await saveModel(getUserID(), modelName, reactAppComponent.state.modelData);
+  await getDB().saveModel(getUserID(), modelName, reactAppComponent.state.modelData);
   await refreshData();
 }
 export async function submitNewAsset(name: string) {
@@ -518,7 +513,7 @@ async function submitTransaction(input: DbTransaction) {
     log(`in submitTransaction with input : ${showObj(input)}`);
   }
   reactAppComponent.state.modelData.transactions.push(input);
-  await saveModel(getUserID(), modelName, reactAppComponent.state.modelData);
+  await getDB().saveModel(getUserID(), modelName, reactAppComponent.state.modelData);
   await refreshData();
 }
 export async function submitNewTransaction(name: string) {
@@ -542,7 +537,7 @@ async function submitSetting(input: DbSetting) {
     log(`in submitSetting with input : ${showObj(input)}`);
   }
   reactAppComponent.state.modelData.settings.push(input);
-  await saveModel(getUserID(), modelName, reactAppComponent.state.modelData);
+  await getDB().saveModel(getUserID(), modelName, reactAppComponent.state.modelData);
   await refreshData();
 }
 export async function submitNewSetting(name: string) {
@@ -818,7 +813,7 @@ export async function deleteItemFromModel(
   });
   if(idx !== -1){
     itemList.splice(idx, 1);
-    await saveModel(getUserID(), modelName, model);
+    await getDB().saveModel(getUserID(), modelName, model);
     await refreshData();
     return true;
   }
@@ -877,7 +872,7 @@ export async function deleteSettingFromTable(name: string) {
 export async function updateModelName(newValue: string) {
   // log(`model name is now ${newValue}`);
   modelName = newValue;
-  await ensureModel(getUserID(), modelName);
+  await getDB().ensureModel(getUserID(), modelName);
   await refreshData();
 }
 
@@ -936,11 +931,6 @@ function makeReactVisChartData(x: IChartData): IReactVisChartPoint[] {
 export class AppContent extends Component<AppProps, AppState> {
   public constructor(props: AppProps) {
     super(props);
-
-    const accessKeyID = props.user.sub;
-    if (accessKeyID !== null) {
-      setupDDB();
-    }
 
     reactAppComponent = this;
     this.state = {
@@ -1048,8 +1038,8 @@ export class AppContent extends Component<AppProps, AppState> {
   }
 
   private async replaceWithModel(modelName: string, newModel: DbModelData) {
-    await deleteModel(getUserID(), modelName);
-    await saveModel(getUserID(), modelName, newModel);
+    await getDB().deleteModel(getUserID(), modelName);
+    await getDB().saveModel(getUserID(), modelName, newModel);
     await refreshData();
   }
 
@@ -1084,11 +1074,11 @@ export class AppContent extends Component<AppProps, AppState> {
                 `delete all data in model ${modelName} - you sure?`,
               )
             ) {
-              await deleteModel(getUserID(), modelName);
+              await getDB().deleteModel(getUserID(), modelName);
               if (modelName === sampleModelName) {
                 alert(`recreating sample model as default`); // TODO make "create sample" button
                 await updateModelName(sampleModelName);
-                await saveModel(getUserID(), sampleModelName, sampleModel);
+                await getDB().saveModel(getUserID(), sampleModelName, sampleModel);
               } else {
                 await updateModelName(sampleModelName); // always exists??
               }

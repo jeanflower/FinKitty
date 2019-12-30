@@ -28,7 +28,7 @@ import {
 import { DbModelData, DbSetting } from '../../types/interfaces';
 import { log, printDebug } from '../../utils';
 import webdriver from 'selenium-webdriver';
-import { saveModel } from '../../database/database';
+import { getDB } from '../../database/database';
 
 export const browserTestSettings: DbSetting[] = [
   {
@@ -170,7 +170,7 @@ export async function beforeAllWork(
   model: DbModelData,
 ) {
   jest.setTimeout(60000); // allow time for all these tests to run
-  await saveModel(testUserID, testDataModelName, model);
+  await getDB().saveModel(testUserID, testDataModelName, model);
 
   await driver.get('about:blank');
   await driver.get(serverUri);
@@ -235,7 +235,7 @@ export async function submitModel(
   model: DbModelData,
 ) {
   // log(`submitModel data ${showObj(model)}`);
-  await saveModel(testUserID, testDataModelName, model);
+  await getDB().saveModel(testUserID, testDataModelName, model);
   await sleep(
     1000, // was dBSleep 6 Get coarse view charts 03
     'after submitting a model',
