@@ -104,7 +104,9 @@ export class RESTDB implements DbInterface {
 
     fetch(`${url}create`, requestOptions)
       .then(response => response.text())
-      .then(result => console.log(result))
+      .then(result => {
+        // console.log(`create result = ${result}`);
+      })
       .catch(error => console.log('error', error));
     //throw new Error("Method not implemented.");
   }
