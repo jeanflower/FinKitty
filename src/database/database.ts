@@ -28,7 +28,7 @@ import {
 } from '../stringConstants';
 
 // import { AWSDB } from './aws_db';
-import { MongoDB } from './mongo_db';
+import { RESTDB } from './REST_db';
 
 export interface DbInterface {
   getModelNames(userID: string): Promise<string[]>;
@@ -125,7 +125,7 @@ export const minimalModel: DbModelData = {
 };
 
 //const db = new AWSDB();
-const db = new MongoDB();
+const db = new RESTDB();
 
 export function getDB(): DbInterface {
   return db;

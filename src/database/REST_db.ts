@@ -1,9 +1,9 @@
 import { DbInterface, minimalModel, cleanUp } from './database';
-import { DbModelData } from './../types/interfaces';
+import { DbModelData } from '../types/interfaces';
 
-const url = process.env.REACT_APP_MONGO_URL;
+const url = process.env.REACT_APP_SERVER_URL;
 
-export class MongoDB implements DbInterface {
+export class RESTDB implements DbInterface {
   getModelNames(userID: string): Promise<string[]> {
     const myHeaders = new Headers();
     myHeaders.append('Content-Type', 'application/x-www-form-urlencoded');
