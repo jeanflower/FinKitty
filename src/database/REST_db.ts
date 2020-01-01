@@ -1,7 +1,7 @@
 import { DbInterface, minimalModel, cleanUp } from './database';
 import { DbModelData } from '../types/interfaces';
 
-const url = process.env.REACT_APP_SERVER_URL;
+const url = process.env.REACT_APP_SERVER_URL_NOT_SECRET;
 
 export class RESTDB implements DbInterface {
   getModelNames(userID: string): Promise<string[]> {

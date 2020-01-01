@@ -27,7 +27,7 @@ import {
   viewFrequencyHint,
 } from '../stringConstants';
 
-// import { AWSDB } from './aws_db';
+import { AWSDB } from './aws_db';
 import { RESTDB } from './REST_db';
 
 export interface DbInterface {
@@ -124,9 +124,13 @@ export const minimalModel: DbModelData = {
   transactions: [],
 };
 
-//const db = new AWSDB();
-const db = new RESTDB();
+const awsdb = new AWSDB();
+const restdb = new RESTDB();
 
 export function getDB(): DbInterface {
-  return db;
+  if(process.env.REACT_APP_USE_AWS_NOT_SECRET==='true'){
+    return awsdb;
+  } else {
+    return restdb;
+  }
 }
