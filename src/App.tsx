@@ -117,7 +117,9 @@ function App() {
     return (
       <AppContent
         logOutAction={() => {
-          return logout({ returnTo: window.location.origin+'/FinKitty' });
+          return logout({ 
+            returnTo: window.location.origin+process.env.REACT_APP_ORIGIN_APPENDAGE
+          });
         }}
         user={user}
       ></AppContent>
