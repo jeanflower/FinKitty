@@ -2,6 +2,11 @@ import React, { Component } from 'react';
 import assetsGraph from './sampleAssetGraph.png';
 import expensesGraph from './sampleExpenseGraph.png';
 import taxGraph from './sampleTaxGraph.png';
+import { 
+  billAndBenSampleData,
+  mortgageSwitchSampleData,
+  simpleSampleData, 
+} from './models/sampleModels';
 import { useAuth0 } from './contexts/auth0-context';
 import CanvasJSReact from './assets/js/canvasjs.react';
 import { makeChartData } from './charting';
@@ -13,8 +18,7 @@ import {
   checkTransaction,
   checkTrigger,
 } from './checks';
-import { getDB } from './database/database';
-import { sampleModel } from './models/sampleData';
+import { getDB, cleanUp } from './database/database';
 // } from './models/outsideGit/RealData';
 import { AddDeleteAssetForm } from './reactComponents/AddDeleteAssetForm';
 import { AddDeleteEntryForm } from './reactComponents/AddDeleteEntryForm';
@@ -264,6 +268,20 @@ const views = new Map<
   ],
 ]);
 
+const sampleModels = [
+  {
+    name: sampleModelName,
+    model: simpleSampleData,
+  },
+  {
+    name: "Bill and Ben",
+    model: billAndBenSampleData,
+  },
+  {
+    name: "Mortgage Switch",
+    model: mortgageSwitchSampleData,
+  },
+];
 const showContent = new Map<ViewType, any>([
   [incomesChart, { display: false }],
   [expensesChart, { display: false }],
@@ -328,6 +346,10 @@ function getUserID() {
   return userID;
 }
 
+function getSampleModel(modelString: string){
+  return cleanUp(JSON.parse(modelString));
+}
+
 async function refreshData(goToDB = true) {
   // log('refreshData in AppContent - get data and redraw content');
   if (goToDB) {
@@ -339,22 +361,53 @@ async function refreshData(goToDB = true) {
       alert('error contacting database');
       return;
     }
+    // log(`got ${modelNames.length} modelNames`);
 
-    //log(`modelNames are ${modelNames}`);
+    let model;
     if (
+      modelNames.length === 0 ||
+      (modelName === sampleModelName &&
       modelNames.find(x => {
         return x === sampleModelName;
-      }) === undefined
+      }) === undefined)
     ) {
-      log(`recreate sample model`);
-      // force us to have at least the sample model
-      await getDB().saveModel(getUserID(), sampleModelName, sampleModel);
-      modelNames = await getDB().getModelNames(getUserID());
+      // log(`modelNames are ${modelNames}`);
+      // log(`does not include ${sampleModelName}, so`);
+      if(modelNames.length > 0){
+        modelName = modelNames.sort()[0];
+        log(`switch to a different modelName ${modelName}`);
+        model = await getDB().loadModel(getUserID(), modelName);
+      } else {
+        log('recreate sample models');
+        // force us to have the sample models
+        Promise.all(sampleModels.map(async (x)=>{
+          return getDB().saveModel(getUserID(), x.name, getSampleModel(x.model));
+        }));
+        modelNames = sampleModels.map((x)=>{
+          return x.name;
+        });
+        model = getSampleModel(simpleSampleData);
+        modelName = sampleModelName;
+      }
+    } else {
+      // log(`modelNames are ${modelNames}`);
+      // log(`does include ${sampleModelName}, so`)
+      // log('go load it');
+      let gotModelOK = true;
+      try{
+        // log(`look for ${modelName} from ${modelNames}`);
+        model = await getDB().loadModel(getUserID(), modelName);
+      } catch (err) {
+        console.log('no model found');
+        gotModelOK = false;
+      }
+      if(!gotModelOK || model === undefined){
+        console.log('no model found - do not try to display anything');
+        return;
+      }  
     }
 
-    const model = await getDB().loadModel(getUserID(), modelName);
-
-    // log(`got ${modelNames.length} modelNames`);
+    // log(`got ${model}`);
 
     model.triggers.sort((a: any, b: any) => lessThan(a.NAME, b.NAME));
     model.expenses.sort((a: any, b: any) => lessThan(a.NAME, b.NAME));
@@ -1149,17 +1202,20 @@ export class AppContent extends Component<AppProps, AppState> {
                 `delete all data in model ${modelName} - you sure?`,
               )
             ) {
+              // console.log(`delete model ${modelName}`);
               await getDB().deleteModel(getUserID(), modelName);
-              if (modelName === sampleModelName) {
-                alert(`recreating sample model as default`); // TODO make "create sample" button
-                await updateModelName(sampleModelName);
+              const modelNames = await getDB().getModelNames(getUserID());
+              // console.log(`model names are ${modelNames}`);
+              if(modelNames.length === 0){
+                alert('no data: recreating sample model');
+                modelName = sampleModelName;
                 await getDB().saveModel(
                   getUserID(),
-                  sampleModelName,
-                  sampleModel,
+                  modelName,
+                  cleanUp(JSON.parse(simpleSampleData)),
                 );
               } else {
-                await updateModelName(sampleModelName); // always exists??
+                modelName = modelNames.sort()[0];
               }
               await refreshData();
             }
@@ -1191,6 +1247,11 @@ export class AppContent extends Component<AppProps, AppState> {
           id={`btn-check`}
           type="secondary"
         />
+        <br />
+        <br />
+        Create new models with sample data:
+        <br />
+        { this.sampleButtonList() }
         <br />
         <br />
         Dump to a text format or restore from text format:
@@ -2385,7 +2446,7 @@ export class AppContent extends Component<AppProps, AppState> {
     );
   }
 
-  private buttonList() {
+  private viewButtonList() {
     const buttons: JSX.Element[] = [];
     const it = views.keys();
     let entry = it.next();
@@ -2427,6 +2488,25 @@ export class AppContent extends Component<AppProps, AppState> {
     );
     return <div role="group">{buttons}</div>;
   }
+  private sampleButtonList() {
+
+    const buttons: JSX.Element[] = sampleModels.map((x)=>{
+      return (<Button
+      action={async () => {
+        const userNewName = this.getNewName();
+        if (!userNewName.gotNameOK) {
+          return;
+        }
+        await updateModelName(userNewName.newName);
+        this.replaceWithModel(modelName, getSampleModel(x.model));
+      }}
+      title={`Create ${x.name} sample`}
+      id={`btn-create-${x.name}-sample`}
+      type="secondary"
+    />)
+    });
+    return <div role="group">{buttons}</div>;
+  }
 
   private makeHelpText() {
     const it = views.keys();
@@ -2452,7 +2532,7 @@ export class AppContent extends Component<AppProps, AppState> {
   private navigationDiv() {
     return (
       <div>
-        {this.buttonList()}
+        {this.viewButtonList()}
         {this.makeHelpText()}
       </div>
     );

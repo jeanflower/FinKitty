@@ -62,7 +62,7 @@ export class RESTDB implements DbInterface {
         .then(result => {
           // console.log(`in find model for ${modelName}, result = ${result}`);
           // console.log(`typeof result from find query ${typeof result}`);
-          if (result === '') {
+          if (result === '' || result === 'Query failed') {
             reject('no model found');
             return;
           }
@@ -120,6 +120,10 @@ export class RESTDB implements DbInterface {
     urlencoded.append('modelName', modelName);
     urlencoded.append('model', JSON.stringify(model));
 
+    // console.log(`update DB for user ${userID}`);
+    // console.log(`update DB for modelName ${modelName}`);
+    // console.log(`update DB for model ${JSON.stringify(model)}`);
+
     const requestOptions: {
       method: string;
       headers: Headers;
@@ -135,9 +139,18 @@ export class RESTDB implements DbInterface {
     // console.log('go to fetch for update');
 
     fetch(`${url}update`, requestOptions)
-      .then(response => response.text())
-      .then(result => console.log(result))
-      .catch(error => console.log('error', error));
+      .then(response => {
+        // console.log(`update successful`);
+        const result = response.text();
+        // console.log(`response.text() = ${result}`);
+        return result;
+      })
+      .then(result => {
+        return console.log(result); 
+      })
+      .catch(error => {
+        return console.log('error', error);
+      });
   }
 
   deleteModel(userID: string, modelName: string) {
