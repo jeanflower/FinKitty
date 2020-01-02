@@ -316,7 +316,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
     e.preventDefault();
     // log('deleting something ' + showObj(this));
     if (await this.props.deleteFunction(this.state.NAME)) {
-      alert('deleted expense');
+      alert('deleted asset');
       // clear fields
       this.setState(this.defaultState);
     } else {

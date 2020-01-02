@@ -1205,9 +1205,11 @@ function calculateFromChange(
   let fromChange = 0;
   // log(`t.FROM_VALUE = ${t.FROM_VALUE}`)
   if (t.NAME.startsWith(conditional) && preToValue === undefined) {
-    throw new Error(
-      `Bug : conditional transaction to undefined value ${showObj(t)}`,
-    );
+    log(`Bug : conditional transaction to undefined value ${showObj(t)}`);
+    //throw new Error(
+    //  `Bug : conditional transaction to undefined value ${showObj(t)}`,
+    //);
+    return undefined;
   } else if (
     t.NAME.startsWith(conditional) &&
     preToValue !== undefined &&

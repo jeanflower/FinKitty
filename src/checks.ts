@@ -27,6 +27,7 @@ import {
   viewFrequency,
   taxPot,
   CASH_ASSET_NAME,
+  conditional,
 } from './stringConstants';
 import {
   DbAsset,
@@ -342,6 +343,10 @@ export function checkTransaction(t: DbTransaction, model: DbModelData): string {
   const assetsForChecking = assets.filter(a => a.NAME !== taxPot);
   if (t.NAME.length === 0) {
     return 'Transaction name needs some characters';
+  }
+  if(t.NAME.startsWith(conditional) &&
+    t.TO === ''){
+    return 'conditional transactions need a To asset defined';
   }
   const d = checkTriggerDate(t.DATE, triggers);
   if (d === undefined || !checkDate(d)) {

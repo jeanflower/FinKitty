@@ -1,4 +1,7 @@
 import React, { Component } from 'react';
+import assetsGraph from './sampleAssetGraph.png';
+import expensesGraph from './sampleExpenseGraph.png';
+import taxGraph from './sampleTaxGraph.png';
 import { useAuth0 } from './contexts/auth0-context';
 import CanvasJSReact from './assets/js/canvasjs.react';
 import { makeChartData } from './charting';
@@ -90,6 +93,34 @@ const { CanvasJSChart } = CanvasJSReact;
 export let modelName: string = sampleModelName;
 let userID = '';
 
+function screenshotsDiv(){
+  return (
+    <>
+    <h3>Get a handle on your expenses</h3>
+    <img 
+      src={expensesGraph} 
+      alt="Sample expense graph screenshot"
+      width={500}
+      height={300}
+    ></img>
+    <h3>See the prospects for your financial health</h3>
+    <img 
+      src={assetsGraph} 
+      alt="Sample asset graph screenshot"
+      width={500}
+      height={300}
+    ></img>
+    <h3>Check on your tax payments</h3>
+    <img 
+      src={taxGraph} 
+      alt="Sample tax graph screenshot"
+      width={500}
+      height={300}
+    ></img>
+    </>
+  );
+}
+
 function App() {
   const {
     isLoading,
@@ -103,12 +134,19 @@ function App() {
     return (
       <>
         <h1>Welcome to Finkitty.</h1>
+        <div className="row">
+        <div className="col-sm mb-4">
         <button onClick={loginWithRedirect} id="buttonLogin">
           Login
         </button>
         <button onClick={loginForTesting} id="buttonTestLogin">
           Test
         </button>
+        </div>
+        <div className="col-md mb-4">
+        {screenshotsDiv()}
+        </div>
+      </div>
       </>
     );
   }
@@ -1080,7 +1118,9 @@ export class AppContent extends Component<AppProps, AppState> {
     // log(`this.state.modelNamesData = ${this.state.modelNamesData}`);
     return (
       <div style={{ display: getDisplay(homeView) ? 'block' : 'none' }}>
-        <h1 id="WelcomeHeader">Welcome!</h1>
+      <h1 id="WelcomeHeader">Welcome</h1>      
+      <div className="row">
+      <div className="col-sm mb-4">
         <Button
           id="startNewModel"
           action={async () => {
@@ -1092,13 +1132,15 @@ export class AppContent extends Component<AppProps, AppState> {
             // log(`created new model`);
             // toggle(triggersView);
           }}
-          title="New model"
+          title="Create a new model"
           type="secondary"
         />
         <br />
         <br />
-        Or select an existing model (for further actions below):
+        Select an existing model (for further actions below):
         {this.modelListForSelect(this.state.modelNamesData)}
+        <br />
+        Actions:
         <br />
         <Button
           action={async () => {
@@ -1149,6 +1191,10 @@ export class AppContent extends Component<AppProps, AppState> {
           id={`btn-check`}
           type="secondary"
         />
+        <br />
+        <br />
+        Dump to a text format or restore from text format:
+        <br />
         <Button
           action={() => {
             const text = JSON.stringify(this.state.modelData);
@@ -1184,6 +1230,11 @@ export class AppContent extends Component<AppProps, AppState> {
           id={`btn-JSON-replace`}
           type="secondary"
         />
+      </div>
+      <div className="col-md mb-4">
+      {screenshotsDiv()}
+      </div>
+      </div>
       </div>
     );
   }
