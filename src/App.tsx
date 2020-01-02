@@ -140,9 +140,45 @@ function App() {
         <h1>Welcome to Finkitty.</h1>
         <div className="row">
           <div className="col-sm mb-4">
+            To begin using this app, click below
+            <br />
+            <br />
             <button onClick={loginWithRedirect} id="buttonLogin">
-              Login
+              Login or create an account
             </button>
+            <br />
+            <br />
+            <h2> Your data </h2>Access to the app is controlled by
+            user authentication. Data is encypted before storing in a
+            database on the cloud.  You can extract your data in text format
+            if you choose to delete your data from this system.
+            <br />
+            <br />
+            <h2> Tax rules </h2>Income tax is calculated according to 
+            tax bands as at December 2019. Capital Gains tax is implemented as 
+            a somewhat simplfiied version of the real thing.  Future versions of
+            the app will allow incomes and gains to be taxed according to
+            the rules applicable at the time the income or gain was made. 
+            <br />
+            <br />
+            <h2> Assumptions </h2>In addition to the data you enter for 
+            your incomes, expenses, assets and transactions, you can
+            provide a value for CPI to influence how values change over time.
+            Future tax regime is assumed to be the latet known one.
+            Any irregular stock market crashes can be input as part of a model
+            but unless they are added, the future is assumed to progress
+            smoothly (and unrealistically) in a predictable and continuous 
+            fashion.
+            <br />
+            <br />
+            <h2> Small print </h2>This web app should not be used to make
+            important financial decisions without also getting independent 
+            advice from a qualified&nbsp;
+            <a href='https://www.fca.org.uk/consumers/finding-adviser'>
+            &nbsp;independent financial advisor </a> to validate
+            financial plans.
+            <br />
+            <br />
             <button onClick={loginForTesting} id="buttonTestLogin">
               Test
             </button>
