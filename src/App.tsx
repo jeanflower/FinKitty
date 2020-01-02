@@ -1210,13 +1210,15 @@ export class AppContent extends Component<AppProps, AppState> {
                   // log(`delete model ${modelName}`);
                   const modelNames = await getDB().getModelNames(getUserID());
                   await getDB().deleteModel(getUserID(), modelName);
-                  const idx = modelNames.findIndex((i) => {
+                  const idx = modelNames.findIndex(i => {
                     return i === modelName;
                   });
                   if (idx !== -1) {
                     modelNames.splice(idx, 1);
                   } else {
-                    log(`error, deleted ${modelName} not found in ${modelNames}`);
+                    log(
+                      `error, deleted ${modelName} not found in ${modelNames}`,
+                    );
                   }
                   // log(`model names after delete are ${modelNames}`);
                   if (modelNames.length === 0) {
