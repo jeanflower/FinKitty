@@ -1,0 +1,32 @@
+/*
+Defined benefits
+ - name of pension
+ - person because they will be liable for income tax and get tax relief
+ - contribution from which income
+ - contribution amount = £ or %
+ - annual accrual rate is a fraction (of annual income amount)
+ - whether it's salary sacrifice
+ - growth rate
+ - value - given all payments up to date value set
+ - date value set - expected to be "now" or start of model
+ - stop date 
+ - standard date of pension start
+
+Regular transaction out of income from start to stop
+Regular income when pension matures
+*/
+
+/*
+Defined contributions
+ - name of pension
+ - person because of income tax relief and income tax on crystallization
+ - contribution from which income (optional)
+ - contribution amount = £ or %
+ - employer contribution amount
+ - whether it's salary sacrifice
+ - growth rate
+ - start value
+ - start value set date - expected to be "now" or start of model
+ - stop date 
+ - Date of crystallisation
+*/

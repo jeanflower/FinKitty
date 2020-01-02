@@ -298,7 +298,7 @@ let reactAppComponent: AppContent;
 function getDisplay(type: ViewType) {
   const view = views.get(type);
   if (view === undefined) {
-    console.log(`Error : unrecognised view ${type}`);
+    log(`Error : unrecognised view ${type}`);
     return false;
   }
   const result = view.display;
@@ -381,6 +381,7 @@ async function refreshData(goToDB = true) {
         // force us to have the sample models
         Promise.all(
           sampleModels.map(async x => {
+            await getDB().ensureModel(getUserID(), x.name);
             return getDB().saveModel(
               getUserID(),
               x.name,
@@ -396,18 +397,17 @@ async function refreshData(goToDB = true) {
       }
     } else {
       // log(`modelNames are ${modelNames}`);
-      // log(`does include ${sampleModelName}, so`)
-      // log('go load it');
+      // log(`go load ${modelName}`);
       let gotModelOK = true;
       try {
         // log(`look for ${modelName} from ${modelNames}`);
         model = await getDB().loadModel(getUserID(), modelName);
       } catch (err) {
-        console.log('no model found');
+        // log('no model found');
         gotModelOK = false;
       }
       if (!gotModelOK || model === undefined) {
-        console.log('no model found - do not try to display anything');
+        log('no model found - do not try to display anything');
         return;
       }
     }
@@ -511,7 +511,7 @@ function toggle(type: ViewType) {
     if (k !== type) {
       const view = views.get(k);
       if (view === undefined) {
-        console.log(`Error : unrecognised view ${type}`);
+        log(`Error : unrecognised view ${type}`);
         return;
       }
       view.display = false;
@@ -519,7 +519,7 @@ function toggle(type: ViewType) {
   }
   const view = views.get(type);
   if (view === undefined) {
-    console.log(`Error : unrecognised view ${type}`);
+    log(`Error : unrecognised view ${type}`);
     return false;
   }
   view.display = true;
@@ -1167,7 +1167,7 @@ export class AppContent extends Component<AppProps, AppState> {
   }
 
   private async replaceWithModel(modelName: string, newModel: DbModelData) {
-    // console.log(`replace ${modelName} with new model data`);
+    // log(`replace ${modelName} with new model data`);
     await getDB().saveModel(getUserID(), modelName, newModel);
     await refreshData();
   }
@@ -1207,13 +1207,22 @@ export class AppContent extends Component<AppProps, AppState> {
                     `delete all data in model ${modelName} - you sure?`,
                   )
                 ) {
-                  // console.log(`delete model ${modelName}`);
-                  await getDB().deleteModel(getUserID(), modelName);
+                  // log(`delete model ${modelName}`);
                   const modelNames = await getDB().getModelNames(getUserID());
-                  // console.log(`model names are ${modelNames}`);
+                  await getDB().deleteModel(getUserID(), modelName);
+                  const idx = modelNames.findIndex((i) => {
+                    return i === modelName;
+                  });
+                  if (idx !== -1) {
+                    modelNames.splice(idx, 1);
+                  } else {
+                    log(`error, deleted ${modelName} not found in ${modelNames}`);
+                  }
+                  // log(`model names after delete are ${modelNames}`);
                   if (modelNames.length === 0) {
-                    alert('no data: recreating sample model');
+                    alert('no data left: recreating sample model');
                     modelName = sampleModelName;
+                    await getDB().ensureModel(getUserID(), modelName);
                     await getDB().saveModel(
                       getUserID(),
                       modelName,
@@ -1221,6 +1230,7 @@ export class AppContent extends Component<AppProps, AppState> {
                     );
                   } else {
                     modelName = modelNames.sort()[0];
+                    // log(`model name after delete is ${modelName}`);
                   }
                   await refreshData();
                 }
@@ -2010,7 +2020,7 @@ export class AppContent extends Component<AppProps, AppState> {
                   obj.FROM_VALUE,
                   obj.FROM_ABSOLUTE,
                 );
-                // console.log(`obj.FROM = ${obj.FROM}, fromValueEntry = ${fromValueEntry}`);
+                // log(`obj.FROM = ${obj.FROM}, fromValueEntry = ${fromValueEntry}`);
                 if (obj.FROM === '' && fromValueEntry === '0') {
                   fromValueEntry = '';
                 }
@@ -2457,7 +2467,7 @@ export class AppContent extends Component<AppProps, AppState> {
       const view = entry.value;
       const viewValue = views.get(view);
       if (viewValue === undefined) {
-        console.log(`Error : unrecognised view ${view}`);
+        log(`Error : unrecognised view ${view}`);
         entry = it.next();
         continue;
       }
@@ -2518,7 +2528,7 @@ export class AppContent extends Component<AppProps, AppState> {
     let entry = it.next();
     while (!entry.done) {
       if (getDisplay(entry.value)) {
-        // console.log(`views.get(entry.value) = ${showObj(views.get(entry.value))}`);
+        // log(`views.get(entry.value) = ${showObj(views.get(entry.value))}`);
         const view = views.get(entry.value);
         if (view === undefined) {
           log('Error: unrecognised view');

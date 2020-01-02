@@ -21,7 +21,7 @@ export class RESTDB implements DbInterface {
       };
       const address = `${url}models?userID=${userID}`;
       // console.log(`address for fetch is ${address}`);
-      fetch(address, requestOptions)
+      return fetch(address, requestOptions)
         .then(response => response.text())
         .then(result => {
           // console.log(result);
@@ -55,7 +55,7 @@ export class RESTDB implements DbInterface {
         redirect: 'follow',
       };
 
-      fetch(
+      return fetch(
         `${url}find?userID=${userID}&modelName=${modelName}`,
         requestOptions,
       )
@@ -103,7 +103,7 @@ export class RESTDB implements DbInterface {
     };
     // console.log(`go to fetch for create for ${modelName}`);
 
-    fetch(`${url}create`, requestOptions)
+    return fetch(`${url}create`, requestOptions)
       .then(response => response.text())
       .then(result => {
         if (printDebug()) {
@@ -141,7 +141,7 @@ export class RESTDB implements DbInterface {
 
     // console.log('go to fetch for update');
 
-    fetch(`${url}update`, requestOptions)
+    return fetch(`${url}update`, requestOptions)
       .then(response => {
         // console.log(`update successful`);
         const result = response.text();
@@ -178,7 +178,7 @@ export class RESTDB implements DbInterface {
 
     // console.log('go to fetch for delete');
 
-    fetch(`${url}delete`, requestOptions)
+    return fetch(`${url}delete`, requestOptions)
       .then(response => response.text())
       .then(result => console.log(result))
       .catch(error => console.log('error', error));
