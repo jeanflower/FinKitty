@@ -100,21 +100,25 @@ let userID = '';
 function screenshotsDiv() {
   return (
     <>
-      <h3>Get a handle on your expenses</h3>
+      <h3>Get a handle on your planned expenses</h3>
       <img
         src={expensesGraph}
         alt="Sample expense graph screenshot"
         width={500}
         height={300}
       ></img>
-      <h3>See the prospects for your financial health</h3>
+      <br />
+      <br />
+      <h3>See the prospects for your future financial health</h3>
       <img
         src={assetsGraph}
         alt="Sample asset graph screenshot"
         width={500}
         height={300}
       ></img>
-      <h3>Check on your tax payments</h3>
+      <br />
+      <br />
+      <h3>Check on your predicted tax payments</h3>
       <img
         src={taxGraph}
         alt="Sample tax graph screenshot"
@@ -137,46 +141,72 @@ function App() {
     userID = '';
     return (
       <>
-        <h1>Welcome to Finkitty.</h1>
+        <div className="page-header">
+          <h1>Finkitty <small>an app for financial kitty forecasting</small></h1>
+        </div>
         <div className="row">
           <div className="col-sm mb-4">
-            To begin using this app, click below
+          <div className="alert alert-block">
+             <h2>Get started</h2> To begin using this app, click below
             <br />
-            <br />
-            <button onClick={loginWithRedirect} id="buttonLogin">
+            <button 
+              onClick={loginWithRedirect} 
+              id="buttonLogin"
+            >
               Login or create an account
             </button>
-            <br />
-            <br />
-            <h2> Your data </h2>Access to the app is controlled by
-            user authentication. Data is encypted before storing in a
-            database on the cloud.  You can extract your data in text format
-            if you choose to delete your data from this system.
-            <br />
-            <br />
-            <h2> Tax rules </h2>Income tax is calculated according to 
-            tax bands as at December 2019. Capital Gains tax is implemented as 
-            a somewhat simplfiied version of the real thing.  Future versions of
-            the app will allow incomes and gains to be taxed according to
+            </div>
+            <div className="alert alert-block">
+             <strong>How it works</strong> Build one or more models. Each
+             tracks the financial progress of one possible world, based on
+             information you provide for that model, about expenses, incomes,
+             assets and transactions. You can log out and come back another
+             time and your models will still be available for you to explore.
+             For each model, an overview page can be printed to PDF as a 
+             take-away customisable report, which can include all the data you
+             have provided to build up the model.
+            </div>
+            <div className="alert alert-block">
+             <strong>Data security</strong> Access to the app is controlled by
+            user authentication. Web communication uses secure HTTPS protocols
+            and model data is encypted using industry-standard algorithms
+            before it is stored in a database on the cloud.  
+            You can extract all your data in readable JSON
+            text format if you choose to delete your data from this system.
+
+            For the moment, the database and server are build without
+            additional levels of health checks and full resilience.  If you
+            need guaranteed access to your data, a backup download of the 
+            JSON data and a record of the PDF overview are advised.
+            </div>
+            <div className="alert alert-block">
+            <strong>Modeling tax</strong> Income tax is calculated according to 
+            UK tax regulations as at December 2019. Capital Gains tax is 
+            implemented as 
+            a somewhat simplified version of the real thing in UK as at 
+            December 2019. Assuming ongoing development, future versions of
+            the app will calculate incomes and gains to be taxed according to
             the rules applicable at the time the income or gain was made. 
-            <br />
-            <br />
-            <h2> Assumptions </h2>In addition to the data you enter for 
-            your incomes, expenses, assets and transactions, you can
+            </div>
+            <div className="alert alert-block">
+             <strong>Modeling assumptions</strong> In addition to the 
+            data you enter for modeling 
+            incomes, expenses, assets and transactions, you can
             provide a value for CPI to influence how values change over time.
             Future tax regime is assumed to be the latet known one.
             Any irregular stock market crashes can be input as part of a model
             but unless they are added, the future is assumed to progress
             smoothly (and unrealistically) in a predictable and continuous 
             fashion.
-            <br />
-            <br />
-            <h2> Small print </h2>This web app should not be used to make
-            important financial decisions without also getting independent 
-            advice from a qualified&nbsp;
-            <a href='https://www.fca.org.uk/consumers/finding-adviser'>
-            &nbsp;independent financial advisor </a> to validate
-            financial plans.
+            </div>
+            <div className="alert alert-block">
+             <strong>Small print!</strong> This web app should not be used to make
+                important financial decisions without also getting independent 
+                advice from a qualified&nbsp;
+                <a href='https://www.fca.org.uk/consumers/finding-adviser'>
+                &nbsp;independent financial advisor </a> to validate
+                financial plans.
+            </div>
             <br />
             <br />
             <button onClick={loginForTesting} id="buttonTestLogin">
