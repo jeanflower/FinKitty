@@ -15,14 +15,11 @@ export class AWSDB implements DbInterface {
       return;
     }
     // log(`use local db? ${useLocalDB}`);
-    const accessKeyID =
-      process.env.REACT_APP_AWS_ACCESS_KEY_ID_FORLOCALACCESS;
+    const accessKeyID = process.env.REACT_APP_AWS_ACCESS_KEY_ID_FORLOCALACCESS;
     const secretAccessKey =
       process.env.REACT_APP_AWS_SECRET_ACCESS_KEY_FORLOCALACCESS;
-    const region =
-      process.env.REACT_APP_AWS_REGION_FORLOCALACCESS;
-    const endpoint =
-      process.env.REACT_APP_AWS_ENDPOINT_FORLOCALACCESS;
+    const region = process.env.REACT_APP_AWS_REGION_FORLOCALACCESS;
+    const endpoint = process.env.REACT_APP_AWS_ENDPOINT_FORLOCALACCESS;
 
     // Set the credentials and the region
     // this is insecure and the wrong way to do it

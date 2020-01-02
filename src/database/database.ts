@@ -128,7 +128,7 @@ const awsdb = new AWSDB();
 const restdb = new RESTDB();
 
 export function getDB(): DbInterface {
-  if(process.env.REACT_APP_USE_AWS_NOT_SECRET==='true'){
+  if (process.env.REACT_APP_USE_AWS_NOT_SECRET === 'true') {
     return awsdb;
   } else {
     return restdb;

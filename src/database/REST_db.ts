@@ -1,5 +1,6 @@
 import { DbInterface, minimalModel, cleanUp } from './database';
 import { DbModelData } from '../types/interfaces';
+import { printDebug } from '../utils';
 
 const url = process.env.REACT_APP_SERVER_URL_NOT_SECRET;
 
@@ -105,7 +106,9 @@ export class RESTDB implements DbInterface {
     fetch(`${url}create`, requestOptions)
       .then(response => response.text())
       .then(result => {
-        // console.log(`create result = ${result}`);
+        if (printDebug()) {
+          console.log(`create result = ${result}`);
+        }
       })
       .catch(error => console.log('error', error));
     //throw new Error("Method not implemented.");
@@ -146,7 +149,7 @@ export class RESTDB implements DbInterface {
         return result;
       })
       .then(result => {
-        return console.log(result); 
+        return console.log(result);
       })
       .catch(error => {
         return console.log('error', error);

@@ -2,10 +2,10 @@ import React, { Component } from 'react';
 import assetsGraph from './sampleAssetGraph.png';
 import expensesGraph from './sampleExpenseGraph.png';
 import taxGraph from './sampleTaxGraph.png';
-import { 
+import {
   billAndBenSampleData,
   mortgageSwitchSampleData,
-  simpleSampleData, 
+  simpleSampleData,
 } from './models/sampleModels';
 import { useAuth0 } from './contexts/auth0-context';
 import CanvasJSReact from './assets/js/canvasjs.react';
@@ -97,30 +97,30 @@ const { CanvasJSChart } = CanvasJSReact;
 export let modelName: string = sampleModelName;
 let userID = '';
 
-function screenshotsDiv(){
+function screenshotsDiv() {
   return (
     <>
-    <h3>Get a handle on your expenses</h3>
-    <img 
-      src={expensesGraph} 
-      alt="Sample expense graph screenshot"
-      width={500}
-      height={300}
-    ></img>
-    <h3>See the prospects for your financial health</h3>
-    <img 
-      src={assetsGraph} 
-      alt="Sample asset graph screenshot"
-      width={500}
-      height={300}
-    ></img>
-    <h3>Check on your tax payments</h3>
-    <img 
-      src={taxGraph} 
-      alt="Sample tax graph screenshot"
-      width={500}
-      height={300}
-    ></img>
+      <h3>Get a handle on your expenses</h3>
+      <img
+        src={expensesGraph}
+        alt="Sample expense graph screenshot"
+        width={500}
+        height={300}
+      ></img>
+      <h3>See the prospects for your financial health</h3>
+      <img
+        src={assetsGraph}
+        alt="Sample asset graph screenshot"
+        width={500}
+        height={300}
+      ></img>
+      <h3>Check on your tax payments</h3>
+      <img
+        src={taxGraph}
+        alt="Sample tax graph screenshot"
+        width={500}
+        height={300}
+      ></img>
     </>
   );
 }
@@ -139,18 +139,16 @@ function App() {
       <>
         <h1>Welcome to Finkitty.</h1>
         <div className="row">
-        <div className="col-sm mb-4">
-        <button onClick={loginWithRedirect} id="buttonLogin">
-          Login
-        </button>
-        <button onClick={loginForTesting} id="buttonTestLogin">
-          Test
-        </button>
+          <div className="col-sm mb-4">
+            <button onClick={loginWithRedirect} id="buttonLogin">
+              Login
+            </button>
+            <button onClick={loginForTesting} id="buttonTestLogin">
+              Test
+            </button>
+          </div>
+          <div className="col-md mb-4">{screenshotsDiv()}</div>
         </div>
-        <div className="col-md mb-4">
-        {screenshotsDiv()}
-        </div>
-      </div>
       </>
     );
   }
@@ -159,8 +157,9 @@ function App() {
     return (
       <AppContent
         logOutAction={() => {
-          return logout({ 
-            returnTo: window.location.origin+process.env.REACT_APP_ORIGIN_APPENDAGE
+          return logout({
+            returnTo:
+              window.location.origin + process.env.REACT_APP_ORIGIN_APPENDAGE,
           });
         }}
         user={user}
@@ -274,11 +273,11 @@ const sampleModels = [
     model: simpleSampleData,
   },
   {
-    name: "Bill and Ben",
+    name: 'Bill and Ben',
     model: billAndBenSampleData,
   },
   {
-    name: "Mortgage Switch",
+    name: 'Mortgage Switch',
     model: mortgageSwitchSampleData,
   },
 ];
@@ -346,7 +345,7 @@ function getUserID() {
   return userID;
 }
 
-function getSampleModel(modelString: string){
+function getSampleModel(modelString: string) {
   return cleanUp(JSON.parse(modelString));
 }
 
@@ -367,23 +366,29 @@ async function refreshData(goToDB = true) {
     if (
       modelNames.length === 0 ||
       (modelName === sampleModelName &&
-      modelNames.find(x => {
-        return x === sampleModelName;
-      }) === undefined)
+        modelNames.find(x => {
+          return x === sampleModelName;
+        }) === undefined)
     ) {
       // log(`modelNames are ${modelNames}`);
       // log(`does not include ${sampleModelName}, so`);
-      if(modelNames.length > 0){
+      if (modelNames.length > 0) {
         modelName = modelNames.sort()[0];
         log(`switch to a different modelName ${modelName}`);
         model = await getDB().loadModel(getUserID(), modelName);
       } else {
         log('recreate sample models');
         // force us to have the sample models
-        Promise.all(sampleModels.map(async (x)=>{
-          return getDB().saveModel(getUserID(), x.name, getSampleModel(x.model));
-        }));
-        modelNames = sampleModels.map((x)=>{
+        Promise.all(
+          sampleModels.map(async x => {
+            return getDB().saveModel(
+              getUserID(),
+              x.name,
+              getSampleModel(x.model),
+            );
+          }),
+        );
+        modelNames = sampleModels.map(x => {
           return x.name;
         });
         model = getSampleModel(simpleSampleData);
@@ -394,17 +399,17 @@ async function refreshData(goToDB = true) {
       // log(`does include ${sampleModelName}, so`)
       // log('go load it');
       let gotModelOK = true;
-      try{
+      try {
         // log(`look for ${modelName} from ${modelNames}`);
         model = await getDB().loadModel(getUserID(), modelName);
       } catch (err) {
         console.log('no model found');
         gotModelOK = false;
       }
-      if(!gotModelOK || model === undefined){
+      if (!gotModelOK || model === undefined) {
         console.log('no model found - do not try to display anything');
         return;
-      }  
+      }
     }
 
     // log(`got ${model}`);
@@ -1171,131 +1176,129 @@ export class AppContent extends Component<AppProps, AppState> {
     // log(`this.state.modelNamesData = ${this.state.modelNamesData}`);
     return (
       <div style={{ display: getDisplay(homeView) ? 'block' : 'none' }}>
-      <h1 id="WelcomeHeader">Welcome</h1>      
-      <div className="row">
-      <div className="col-sm mb-4">
-        <Button
-          id="startNewModel"
-          action={async () => {
-            const newNameFromUser = this.getNewName();
-            if (!newNameFromUser.gotNameOK) {
-              return;
-            }
-            await updateModelName(newNameFromUser.newName);
-            // log(`created new model`);
-            // toggle(triggersView);
-          }}
-          title="Create a new model"
-          type="secondary"
-        />
-        <br />
-        <br />
-        Select an existing model (for further actions below):
-        {this.modelListForSelect(this.state.modelNamesData)}
-        <br />
-        Actions:
-        <br />
-        <Button
-          action={async () => {
-            if (
-              window.confirm(
-                `delete all data in model ${modelName} - you sure?`,
-              )
-            ) {
-              // console.log(`delete model ${modelName}`);
-              await getDB().deleteModel(getUserID(), modelName);
-              const modelNames = await getDB().getModelNames(getUserID());
-              // console.log(`model names are ${modelNames}`);
-              if(modelNames.length === 0){
-                alert('no data: recreating sample model');
-                modelName = sampleModelName;
-                await getDB().saveModel(
-                  getUserID(),
-                  modelName,
-                  cleanUp(JSON.parse(simpleSampleData)),
+        <h1 id="WelcomeHeader">Welcome</h1>
+        <div className="row">
+          <div className="col-sm mb-4">
+            <Button
+              id="startNewModel"
+              action={async () => {
+                const newNameFromUser = this.getNewName();
+                if (!newNameFromUser.gotNameOK) {
+                  return;
+                }
+                await updateModelName(newNameFromUser.newName);
+                // log(`created new model`);
+                // toggle(triggersView);
+              }}
+              title="Create a new model"
+              type="secondary"
+            />
+            <br />
+            <br />
+            Select an existing model (for further actions below):
+            {this.modelListForSelect(this.state.modelNamesData)}
+            <br />
+            Actions:
+            <br />
+            <Button
+              action={async () => {
+                if (
+                  window.confirm(
+                    `delete all data in model ${modelName} - you sure?`,
+                  )
+                ) {
+                  // console.log(`delete model ${modelName}`);
+                  await getDB().deleteModel(getUserID(), modelName);
+                  const modelNames = await getDB().getModelNames(getUserID());
+                  // console.log(`model names are ${modelNames}`);
+                  if (modelNames.length === 0) {
+                    alert('no data: recreating sample model');
+                    modelName = sampleModelName;
+                    await getDB().saveModel(
+                      getUserID(),
+                      modelName,
+                      cleanUp(JSON.parse(simpleSampleData)),
+                    );
+                  } else {
+                    modelName = modelNames.sort()[0];
+                  }
+                  await refreshData();
+                }
+              }}
+              title="Delete model"
+              id={`btn-delete`}
+              type="secondary"
+            />
+            <Button
+              action={async () => {
+                const userNewName = this.getNewName();
+                if (!userNewName.gotNameOK) {
+                  return;
+                }
+                const currentData = JSON.stringify(this.state.modelData);
+                await updateModelName(userNewName.newName);
+                const newModel = makeModelFromJSON(currentData);
+                this.replaceWithModel(modelName, newModel);
+              }}
+              title="Clone model"
+              id={`btn-clone`}
+              type="secondary"
+            />
+            <Button
+              action={async () => {
+                checkModelData();
+              }}
+              title="Check model"
+              id={`btn-check`}
+              type="secondary"
+            />
+            <br />
+            <br />
+            Create new models with sample data:
+            <br />
+            {this.sampleButtonList()}
+            <br />
+            <br />
+            Dump to a text format or restore from text format:
+            <br />
+            <Button
+              action={() => {
+                const text = JSON.stringify(this.state.modelData);
+                navigator.clipboard.writeText(text).then(
+                  function() {
+                    alert(`model as JSON on clipboard`);
+                  },
+                  function(err) {
+                    console.error('Async: Could not copy text: ', err);
+                    alert(
+                      `sorry, something went wrong, no copy on clipboard - in console instead`,
+                    );
+                    log('-------- start of model --------');
+                    log(text);
+                    log('-------- end of model --------');
+                  },
                 );
-              } else {
-                modelName = modelNames.sort()[0];
-              }
-              await refreshData();
-            }
-          }}
-          title="Delete model"
-          id={`btn-delete`}
-          type="secondary"
-        />
-        <Button
-          action={async () => {
-            const userNewName = this.getNewName();
-            if (!userNewName.gotNameOK) {
-              return;
-            }
-            const currentData = JSON.stringify(this.state.modelData);
-            await updateModelName(userNewName.newName);
-            const newModel = makeModelFromJSON(currentData);
-            this.replaceWithModel(modelName, newModel);
-          }}
-          title="Clone model"
-          id={`btn-clone`}
-          type="secondary"
-        />
-        <Button
-          action={async () => {
-            checkModelData();
-          }}
-          title="Check model"
-          id={`btn-check`}
-          type="secondary"
-        />
-        <br />
-        <br />
-        Create new models with sample data:
-        <br />
-        { this.sampleButtonList() }
-        <br />
-        <br />
-        Dump to a text format or restore from text format:
-        <br />
-        <Button
-          action={() => {
-            const text = JSON.stringify(this.state.modelData);
-            navigator.clipboard.writeText(text).then(
-              function() {
-                alert(`model as JSON on clipboard`);
-              },
-              function(err) {
-                console.error('Async: Could not copy text: ', err);
-                alert(
-                  `sorry, something went wrong, no copy on clipboard - in console instead`,
-                );
-                log('-------- start of model --------');
-                log(text);
-                log('-------- end of model --------');
-              },
-            );
-          }}
-          title="Copy model as JSON to clipboard"
-          id={`btn-log`}
-          type="secondary"
-        />
-        <Button
-          action={() => {
-            const input = prompt('Paste in JSON here');
-            if (input === null) {
-              return;
-            }
-            const newModel = makeModelFromJSON(input);
-            this.replaceWithModel(modelName, newModel);
-          }}
-          title="Replace model with JSON"
-          id={`btn-JSON-replace`}
-          type="secondary"
-        />
-      </div>
-      <div className="col-md mb-4">
-      {screenshotsDiv()}
-      </div>
-      </div>
+              }}
+              title="Copy model as JSON to clipboard"
+              id={`btn-log`}
+              type="secondary"
+            />
+            <Button
+              action={() => {
+                const input = prompt('Paste in JSON here');
+                if (input === null) {
+                  return;
+                }
+                const newModel = makeModelFromJSON(input);
+                this.replaceWithModel(modelName, newModel);
+              }}
+              title="Replace model with JSON"
+              id={`btn-JSON-replace`}
+              type="secondary"
+            />
+          </div>
+          <div className="col-md mb-4">{screenshotsDiv()}</div>
+        </div>
       </div>
     );
   }
@@ -2489,21 +2492,23 @@ export class AppContent extends Component<AppProps, AppState> {
     return <div role="group">{buttons}</div>;
   }
   private sampleButtonList() {
-
-    const buttons: JSX.Element[] = sampleModels.map((x)=>{
-      return (<Button
-      action={async () => {
-        const userNewName = this.getNewName();
-        if (!userNewName.gotNameOK) {
-          return;
-        }
-        await updateModelName(userNewName.newName);
-        this.replaceWithModel(modelName, getSampleModel(x.model));
-      }}
-      title={`Create ${x.name} sample`}
-      id={`btn-create-${x.name}-sample`}
-      type="secondary"
-    />)
+    const buttons: JSX.Element[] = sampleModels.map(x => {
+      return (
+        <Button
+          action={async () => {
+            const userNewName = this.getNewName();
+            if (!userNewName.gotNameOK) {
+              return;
+            }
+            await updateModelName(userNewName.newName);
+            this.replaceWithModel(modelName, getSampleModel(x.model));
+          }}
+          title={`Create ${x.name} sample`}
+          id={`btn-create-${x.name}-sample`}
+          key={`btn-create-${x.name}-sample`}
+          type="secondary"
+        />
+      );
     });
     return <div role="group">{buttons}</div>;
   }
