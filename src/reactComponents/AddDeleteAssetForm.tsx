@@ -12,6 +12,7 @@ import {
 import Button from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
 import Input from './Input';
+import { cgt } from '../stringConstants';
 
 interface EditFormState {
   NAME: string;
@@ -174,7 +175,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
         <div className="row">
           <div className="col">
             <Input
-              title="Liability (e.g. 'CGTJoe'):"
+              title="Capital Gains Tax Liability (empty or someone's name):"
               type="text"
               name="liability"
               value={this.state.LIABILITY}
@@ -266,7 +267,12 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
       alert(`Growth value '${this.state.GROWTH}' should be a numerical value`);
       return;
     }
-    const liabilityMessage = checkAssetLiability(this.state.LIABILITY);
+    const name = this.state.LIABILITY;
+    let builtLiability = '';
+    if(name !== ''){
+      builtLiability = cgt+name;
+    }
+    const liabilityMessage = checkAssetLiability(builtLiability);
     if (liabilityMessage !== '') {
       alert(liabilityMessage);
       return;
@@ -300,7 +306,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
       CAN_BE_NEGATIVE: parsedYNNeg.value,
       CATEGORY: this.state.CATEGORY,
       PURCHASE_PRICE: purchasePrice,
-      LIABILITY: this.state.LIABILITY,
+      LIABILITY: builtLiability,
     };
     const message = this.props.checkFunction(asset, this.props.model);
     if (message.length > 0) {
