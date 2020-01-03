@@ -645,7 +645,7 @@ function OptimizeIncomeTax(
         }
         // log(`to use allowance, on ${date}, '
         //  +'move ${amountToTransfer} from ${valueKey}`);
-        const personAmountMap = liableIncomeInTaxYear.get('income');
+        const personAmountMap = liableIncomeInTaxYear.get(incomeTax);
         if (personAmountMap === undefined) {
           log('BUG!!! person has no liability');
           return;
@@ -694,7 +694,7 @@ function settleUpTax(
   // for each person
   for (const [key, value] of liableIncomeInTaxYear) {
     /* eslint-disable-line no-restricted-syntax */
-    if (key === 'income' && value !== undefined) {
+    if (key === incomeTax && value !== undefined) {
       for (const [person, amount] of value) {
         /* eslint-disable-line no-restricted-syntax */
         OptimizeIncomeTax(
@@ -712,7 +712,7 @@ function settleUpTax(
 
   for (const [key, value] of liableIncomeInTaxYear) {
     /* eslint-disable-line no-restricted-syntax */
-    if (key === 'income' && value !== undefined) {
+    if (key === incomeTax && value !== undefined) {
       for (const [person, amount] of value) {
         /* eslint-disable-line no-restricted-syntax */
         // log(`go to pay income tax for ${person}`);
@@ -895,7 +895,7 @@ function handleIncome(
         // log(`IncomeTax due on ${amountForIncomeTax} for ${showObj(moment.name)}`);
         handleLiability(
           liability,
-          'income',
+          incomeTax,
           amountForIncomeTax,
           liableIncomeInTaxYear,
         );
