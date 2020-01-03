@@ -174,7 +174,7 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
         <div className="row">
           <div className="col">
             <Input
-              title="Taxable liability (e.g. empty or IncomeTaxJoe or NIJane):"
+              title="Tax liability (empty or someone's name):"
               type="text"
               name="taxable"
               value={this.state.LIABILITY}
