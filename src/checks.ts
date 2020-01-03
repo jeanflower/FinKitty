@@ -189,6 +189,14 @@ export function checkIncome(i: DbIncome, model: DbModelData): string {
   }
   // log(`checking ${showObj(i)}`);
   const parts = i.LIABILITY.split(separator);
+  if (parts.length > 3) {
+    return (
+      `Income liability for '${i.NAME}' has parts '${parts}' ` +
+      `but should contain at most two parts`
+    );
+  }
+  let incomeTaxName = '';
+  let niName = '';
   for (const l of parts) {
     /* eslint-disable-line no-restricted-syntax */
     if (
@@ -204,6 +212,17 @@ export function checkIncome(i: DbIncome, model: DbModelData): string {
           `'${incomeTax}' or '${nationalInsurance}'`
         );
       }
+    }
+    if (l.startsWith(incomeTax)) {
+      incomeTaxName = l.substring(incomeTax.length, l.length);
+    } else if (l.startsWith(nationalInsurance)) {
+      niName = l.substring(nationalInsurance.length, l.length);
+    }
+    if (incomeTaxName !== '' && niName !== '' && incomeTaxName !== niName) {
+      return (
+        `Income liability for '${i.NAME}' has parts '${parts}' ` +
+        `but it should be the same person liable for NI and income tax'`
+      );
     }
   }
   if (!isNumberString(i.VALUE)) {

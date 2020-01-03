@@ -9,10 +9,12 @@ import {
   showObj,
   makeBooleanFromYesNo,
   makeGrowthFromString,
+  makeIncomeLiabilityFromNameAndNI,
 } from '../utils';
 import Button from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
 import Input from './Input';
+import { incomeTax, separator, nationalInsurance } from '../stringConstants';
 
 interface EditFormState {
   NAME: string;
@@ -291,7 +293,8 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
       alert(`Fixed '${this.state.CPI_IMMUNE}' should be a Y/N value`);
       return;
     }
-    const liabilityMessage = checkIncomeLiability(this.state.LIABILITY);
+    let builtLiability = makeIncomeLiabilityFromNameAndNI(this.state.LIABILITY, true);
+    const liabilityMessage = checkIncomeLiability(builtLiability);
     if (liabilityMessage !== '') {
       alert(liabilityMessage);
       return;
@@ -306,7 +309,7 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
       END: this.state.END,
       GROWTH: parsedGrowth.value,
       CPI_IMMUNE: parseYN.value,
-      LIABILITY: this.state.LIABILITY,
+      LIABILITY: builtLiability,
       CATEGORY: this.state.CATEGORY,
     };
     const message = this.props.checkFunction(income, this.props.model);

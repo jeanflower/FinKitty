@@ -1,5 +1,10 @@
 import { DbSetting, DbTrigger, DbModelData } from './types/interfaces';
-import { cgt } from './stringConstants';
+import {
+  cgt,
+  incomeTax,
+  nationalInsurance,
+  separator,
+} from './stringConstants';
 import moment from 'moment';
 
 export function makeModelFromJSON(input: string) {
@@ -57,6 +62,21 @@ export function suppressLogs() {
 }
 export function unSuppressLogs() {
   doLog = true;
+}
+
+export function makeIncomeLiabilityFromNameAndNI(name: string, NI: boolean) {
+  if (name === '') {
+    return '';
+  }
+  if (name.includes(separator)) {
+    console.log(`Error: name ${name} can't contain ${separator}`);
+    return '';
+  }
+  if (NI) {
+    return incomeTax + name + separator + nationalInsurance + name;
+  } else {
+    return incomeTax + name;
+  }
 }
 
 export function makeBooleanFromString(s: string) {

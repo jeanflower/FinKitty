@@ -36,10 +36,7 @@ interface EditProps {
   submitTrigger: any;
   model: DbModelData;
 }
-function assetOptions(
-  model: DbModelData, 
-  handleChange: any,
-  id: string) {
+function assetOptions(model: DbModelData, handleChange: any, id: string) {
   let optionData = model.assets.map(asset => {
     return {
       text: asset.NAME,
@@ -187,16 +184,18 @@ export class AddDeleteTransactionForm extends Component<
         <div className="row">
           <div className="col">
             {assetOptions(
-              this.props.model, 
+              this.props.model,
               this.handleFromChange,
-              this.transactionFromSelectID,)}
+              this.transactionFromSelectID,
+            )}
           </div>{' '}
           {/* end col */}
           <div className="col">
             {assetOptions(
-              this.props.model, 
+              this.props.model,
               this.handleToChange,
-              this.transactionToSelectID,)}
+              this.transactionToSelectID,
+            )}
           </div>{' '}
           {/* end col */}
         </div>
