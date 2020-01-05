@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/FinKitty/static/css/main.5ecd60fb.chunk.css",
-    "main.js": "/FinKitty/static/js/main.65a02a20.chunk.js",
-    "main.js.map": "/FinKitty/static/js/main.65a02a20.chunk.js.map",
+    "main.js": "/FinKitty/static/js/main.a11cbc0b.chunk.js",
+    "main.js.map": "/FinKitty/static/js/main.a11cbc0b.chunk.js.map",
     "runtime-main.js": "/FinKitty/static/js/runtime-main.36e50247.js",
     "runtime-main.js.map": "/FinKitty/static/js/runtime-main.36e50247.js.map",
     "static/js/2.4daf342b.chunk.js": "/FinKitty/static/js/2.4daf342b.chunk.js",
     "static/js/2.4daf342b.chunk.js.map": "/FinKitty/static/js/2.4daf342b.chunk.js.map",
     "index.html": "/FinKitty/index.html",
-    "precache-manifest.babe44cdb7000b6330f74ced32c63eee.js": "/FinKitty/precache-manifest.babe44cdb7000b6330f74ced32c63eee.js",
+    "precache-manifest.e57af46c750b11375f5c128600d852f0.js": "/FinKitty/precache-manifest.e57af46c750b11375f5c128600d852f0.js",
     "service-worker.js": "/FinKitty/service-worker.js",
     "static/css/main.5ecd60fb.chunk.css.map": "/FinKitty/static/css/main.5ecd60fb.chunk.css.map",
     "static/js/2.4daf342b.chunk.js.LICENSE": "/FinKitty/static/js/2.4daf342b.chunk.js.LICENSE",
@@ -20,6 +20,6 @@
     "static/js/runtime-main.36e50247.js",
     "static/js/2.4daf342b.chunk.js",
     "static/css/main.5ecd60fb.chunk.css",
-    "static/js/main.65a02a20.chunk.js"
+    "static/js/main.a11cbc0b.chunk.js"
   ]
 }
