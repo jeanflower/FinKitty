@@ -90,11 +90,15 @@ export const cgt = 'CGT';
 // Some transactions behave in special ways regarding income tax
 // name then
 // PensionNorwich
-// (transfers here reduce incomde tax liability),
+// (transfers here out of income reduce income tax liability),
 // or PensionSSNorwich
-// (transfers here reduce income tax + NI liability)
+// (transfers here out of income reduce income tax + NI liability),
+// or PensionDBCTeachers
+// (amounts here take proportion of income and add to accruing benefit value)
 export const pension = 'Pension';
 export const pensionSS = 'PensionSS';
+export const pensionDBC = 'PensionDBC';
+export const pensionTransfer = 'PensionTransfer';
 
 // Transactions can be Conditional
 // (i.e. they're named ConditionalDoSomething)

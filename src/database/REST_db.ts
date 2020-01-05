@@ -149,7 +149,7 @@ export class RESTDB implements DbInterface {
         return result;
       })
       .then(result => {
-        return console.log(result);
+        // return console.log(result);
       })
       .catch(error => {
         return console.log('error', error);

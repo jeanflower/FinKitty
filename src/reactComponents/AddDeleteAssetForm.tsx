@@ -77,7 +77,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
         <div className="row">
           <div className="col">
             <Input
-              title="Asset name:"
+              title="Asset name"
               type="text"
               name="assetname"
               value={this.state.NAME}
@@ -100,7 +100,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
         <div className="row">
           <div className="col">
             <Input
-              title="Asset value:"
+              title="Asset value"
               type="text"
               name="assetvalue"
               value={this.state.VALUE}
@@ -111,7 +111,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
           {/* end col */}
           <div className="col">
             <Input
-              title="Category (optional):"
+              title="Category (optional)"
               type="text"
               name="assetcategory"
               value={this.state.CATEGORY}
@@ -125,7 +125,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
         <div className="container-fluid">
           {/* fills width */}
           <DateSelectionRow
-            introLabel="Date on which the asset starts:"
+            introLabel="Date on which the asset starts"
             setDateFunction={this.setStart}
             inputName="start date"
             inputValue={this.state.START}
@@ -137,7 +137,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
         <div className="row">
           <div className="col">
             <Input
-              title="Annual growth percentage (excluding inflation):"
+              title="Annual growth percentage (excluding inflation, e.g. 2 for 2% p.a.)"
               type="text"
               name="assetgrowth"
               value={this.state.GROWTH}
@@ -148,7 +148,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
           {/* end col */}
           <div className="col">
             <Input
-              title="Is value immune to inflation?:"
+              title="Is value immune to inflation?"
               type="text"
               name="assetcpi-immune"
               value={this.state.CPI_IMMUNE}
@@ -161,7 +161,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
         <div className="row">
           <div className="col">
             <Input
-              title="Can asset ever have a negative value?:"
+              title="Can asset ever have a negative value?"
               type="text"
               name="assetCanBeNegative"
               value={this.state.CAN_BE_NEGATIVE}
@@ -175,7 +175,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
         <div className="row">
           <div className="col">
             <Input
-              title="Capital Gains Tax Liability (empty or someone's name):"
+              title="Capital Gains Tax Liability (empty or someone's name)"
               type="text"
               name="liability"
               value={this.state.LIABILITY}
@@ -186,7 +186,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
           {/* end col */}
           <div className="col">
             <Input
-              title="Original purchase price (for CGT purposes):"
+              title="Original purchase price (optional, needed for CGT purposes)"
               type="text"
               name="purchase"
               value={this.state.PURCHASE_PRICE}

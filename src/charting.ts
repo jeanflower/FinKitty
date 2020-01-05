@@ -26,6 +26,7 @@ import {
   viewDetail,
   viewFrequency,
   growth,
+  pensionDBC,
 } from './stringConstants';
 import {
   ChartDataPoint,
@@ -44,6 +45,7 @@ import {
   printDebug,
   showObj,
   makeDateFromString,
+  getTriggerDate,
 } from './utils';
 
 function logMapOfMap(twoMap: any, display = false) {
@@ -543,6 +545,21 @@ export function makeChartDataFromEvaluations(
         // assets.
         // log(`skip expense or income revaluation`);
         return;
+      }
+      if (evaln.name.startsWith(pensionDBC)) {
+        // log(`charting value for ${evaln.name}, ${evaln.value}`);
+        const matchingIncome = model.incomes.find(i => {
+          return i.NAME === evaln.name;
+        });
+        if (matchingIncome === undefined) {
+          throw new Error(`couldn't match income for ${evaln.name}`);
+        }
+        if (evaln.date < getTriggerDate(matchingIncome.START, model.triggers)) {
+          // we tracked this evaluation just to adjust accrued benfit
+          // but don't actually received any of this income yet...
+          // so skip for charting purposes
+          return;
+        }
       }
     }
     // log(`generate chart data for dates ${showObj(dates)}`);

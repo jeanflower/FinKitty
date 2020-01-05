@@ -39,6 +39,9 @@ import {
   viewDetailHint,
   viewFrequency,
   growth,
+  pension,
+  pensionSS,
+  pensionDBC,
 } from '../../stringConstants';
 import {
   ChartDataPoint,
@@ -61,8 +64,10 @@ import {
   unSuppressLogs,
   makeDateFromString,
   makeModelFromJSON,
+  showObj,
   // showObj,
 } from '../../utils';
+import { minimalModel } from '../../database/database';
 
 /* global it */
 /* global expect */
@@ -245,6 +250,31 @@ export function getModelFutureExpense() {
     end: 'March 1, 2017 00:00:00',
   };
   const model: DbModelData = {
+    ...minimalModel,
+    expenses: [
+      {
+        ...simpleExpense,
+        START: 'January 1 2018',
+        END: 'July 2 2018',
+        NAME: 'Phon',
+        VALUE: '99',
+        VALUE_SET: 'January 1 2018',
+        GROWTH: '12.0',
+      },
+    ],
+    settings: [...defaultSettings],
+  };
+  setSetting(model.settings, roiStart, roi.start);
+  setSetting(model.settings, roiEnd, roi.end);
+
+  return { roi, model };
+}
+export function getModelFutureExpense2() {
+  const roi = {
+    start: 'Dec 1, 2016 00:00:00',
+    end: 'March 1, 2017 00:00:00',
+  };
+  const model: DbModelData = {
     ...simpleModel,
     expenses: [
       {
@@ -264,7 +294,6 @@ export function getModelFutureExpense() {
 
   return { roi, model };
 }
-
 export function getModelCoarseAndFine() {
   const roi = {
     start: 'April 1, 2018',
@@ -481,7 +510,7 @@ export function getModelCrystallizedPension() {
 
 describe('evaluations tests', () => {
   it('should ignore future expenses A', async done => {
-    const modelAndRoi = getModelFutureExpense();
+    const modelAndRoi = getModelFutureExpense2();
     const model = modelAndRoi.model;
     const roi = modelAndRoi.roi;
 
@@ -489,8 +518,8 @@ describe('evaluations tests', () => {
       makeModelFromJSON(JSON.stringify(model)),
     );
 
-    expect(evals.length).toBe(0);
     // log(showObj(evals));
+    expect(evals.length).toBe(0);
 
     const result = makeChartDataFromEvaluations(
       {
@@ -5912,7 +5941,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('pay pension contributions simplest', done => {
+  it('pay into defined contributions pension simplest', done => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'May 2, 2018 00:00:00',
@@ -5944,7 +5973,7 @@ describe('evaluations tests', () => {
       transactions: [
         {
           ...simpleTransaction,
-          NAME: 'PensionContribution', // kicks in when we see income tagged '+incomeTax+'Joe
+          NAME: pension + 'Contribution', // kicks in when we see income java
           FROM: 'java', // not an asset but an income!!
           FROM_ABSOLUTE: false,
           FROM_VALUE: '0.05', // percentage of income transferred to pension
@@ -6036,7 +6065,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('pay pension contributions with employer contribution', done => {
+  it('pay into defined contributions pension with employer contribution', done => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'May 2, 2018 00:00:00',
@@ -6068,7 +6097,7 @@ describe('evaluations tests', () => {
       transactions: [
         {
           ...simpleTransaction,
-          NAME: 'PensionContribution', // kicks in when we see income tagged '+incomeTax+'Joe
+          NAME: pension + 'Contribution', // kicks in when we see income java
           FROM: 'java', // not an asset but an income!!
           FROM_ABSOLUTE: false,
           FROM_VALUE: '0.05', // percentage of income transferred to pension
@@ -6160,7 +6189,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('pay monthly pension contributions with employer contribution', done => {
+  it('pay monthly pay into defined contributions pension with employer contribution', done => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'May 2, 2018 00:00:00',
@@ -6192,7 +6221,7 @@ describe('evaluations tests', () => {
       transactions: [
         {
           ...simpleTransaction,
-          NAME: 'PensionContribution', // kicks in when we see income tagged '+incomeTax+'Joe
+          NAME: pension + 'Contribution', // kicks in when we see income java
           FROM: 'java', // not an asset but an income!!
           FROM_ABSOLUTE: false,
           FROM_VALUE: '0.05', // percentage of income transferred to pension
@@ -6341,7 +6370,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('pay pension contributions with salary sacrifice', done => {
+  it('pay into defined contributions pension with salary sacrifice', done => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'May 2, 2018 00:00:00',
@@ -6373,7 +6402,7 @@ describe('evaluations tests', () => {
       transactions: [
         {
           ...simpleTransaction,
-          NAME: 'PensionSSContribution', // kicks in when we see income tagged '+incomeTax+'Joe
+          NAME: pensionSS + 'Contribution', // kicks in when we see income java
           FROM: 'java', // not an asset but an income!!
           FROM_ABSOLUTE: false,
           FROM_VALUE: '0.05', // percentage of income transferred to pension
@@ -7969,6 +7998,901 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 1, 'Sun Apr 01 2018', 60000, -1);
       expectChartData(chartPts, 2, 'Tue May 01 2018', 47500, -1);
     }
+    done();
+  });
+
+  it('pay into defined benefits pension simplest', done => {
+    const roi = {
+      start: 'March 1, 2018 00:00:00',
+      end: 'August 2, 2018 00:00:00',
+    };
+    const model: DbModelData = {
+      ...simpleModel,
+      triggers: [
+        {
+          NAME: 'javaStartTrigger',
+          DATE: makeDateFromString('March 10 2018'),
+        },
+        {
+          NAME: 'javaStopTrigger',
+          DATE: makeDateFromString('April 9 2018'),
+        },
+        {
+          NAME: 'pensionStartDraw',
+          DATE: makeDateFromString('June 10 2018'),
+        },
+        {
+          NAME: 'pensionStopDraw',
+          DATE: makeDateFromString('July 9 2018'),
+        },
+      ],
+      incomes: [
+        {
+          ...simpleIncome,
+          START: 'javaStartTrigger',
+          END: 'javaStopTrigger',
+          NAME: 'java',
+          VALUE: '490000', // absurdly high single payment to trigger tax
+          VALUE_SET: 'January 1 2018',
+          LIABILITY:
+            nationalInsurance + 'Joe' + separator + '' + incomeTax + 'Joe',
+        },
+        {
+          ...simpleIncome,
+          START: 'pensionStartDraw',
+          END: 'pensionStopDraw',
+          NAME: pensionDBC + 'incomeFromNorwich',
+          VALUE: '50',
+          VALUE_SET: 'January 1 2018',
+          LIABILITY: incomeTax + 'Joe',
+        },
+      ],
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: pension + 'NorwichContribution', // kicks in when we see income java
+          FROM: 'java', // not an asset but an income!!
+          FROM_ABSOLUTE: false,
+          FROM_VALUE: '0.05', // percentage of income offered up to pension
+          TO: '', // Defined benefits schemes do not transfer amount into an asset
+          DATE: 'javaStartTrigger', // match the income start date
+          STOP_DATE: 'javaStopTrigger', // match the income stop date
+        },
+        {
+          ...simpleTransaction,
+          NAME: pensionDBC + 'NorwichBenefitAccrual', // kicks in when we see income java
+          FROM: 'java', // not an asset but an income!!
+          FROM_ABSOLUTE: false,
+          FROM_VALUE: '' + 1.0 / 49, // percentage of income offered up to pension
+          TO: pensionDBC + 'incomeFromNorwich', // not an asset but a DBC income!!
+          TO_ABSOLUTE: false,
+          TO_VALUE: '1.0',
+          DATE: 'javaStartTrigger', // match the income start date
+          STOP_DATE: 'javaStopTrigger', // match the income stop date
+        },
+      ],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
+          START: 'March 1 2018',
+        },
+      ],
+      settings: [...defaultSettings],
+    };
+    setSetting(model.settings, roiStart, roi.start);
+    setSetting(model.settings, roiEnd, roi.end);
+
+    const evals: Evaluation[] = getTestEvaluations(model);
+    // log(`evals = ${showObj(evals)}`);
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(19);
+    expectEvals(
+      evals,
+      0,
+      'PensionDBCincomeFromNorwich',
+      'Sat Feb 10 2018',
+      50,
+      -1,
+    );
+    expectEvals(evals, 1, 'Cash', 'Thu Mar 01 2018', 0, -1);
+    expectEvals(
+      evals,
+      2,
+      'PensionDBCincomeFromNorwich',
+      'Sat Mar 10 2018',
+      50,
+      -1,
+    );
+    expectEvals(evals, 3, 'java', 'Sat Mar 10 2018', 490000, -1);
+    expectEvals(
+      evals,
+      4,
+      'PensionDBCincomeFromNorwich',
+      'Sat Mar 10 2018',
+      10050,
+      -1,
+    );
+    expectEvals(evals, 5, 'Cash', 'Sat Mar 10 2018', 465500, -1);
+    expectEvals(evals, 6, 'Cash', 'Sun Apr 01 2018', 465500, -1);
+    expectEvals(evals, 7, 'Cash', 'Thu Apr 05 2018', 451734.96, 2);
+    expectEvals(evals, 8, 'TaxPot', 'Thu Apr 05 2018', 13765.04, 2);
+    expectEvals(evals, 9, 'Cash', 'Thu Apr 05 2018', 262259.96, 2);
+    expectEvals(evals, 10, 'TaxPot', 'Thu Apr 05 2018', 203240.04, 2);
+    expectEvals(
+      evals,
+      11,
+      'PensionDBCincomeFromNorwich',
+      'Tue Apr 10 2018',
+      10050,
+      -1,
+    );
+    expectEvals(evals, 12, 'Cash', 'Tue May 01 2018', 262259.96, 2);
+    expectEvals(
+      evals,
+      13,
+      'PensionDBCincomeFromNorwich',
+      'Thu May 10 2018',
+      10050,
+      -1,
+    );
+    expectEvals(evals, 14, 'Cash', 'Fri Jun 01 2018', 262259.96, 2);
+    expectEvals(
+      evals,
+      15,
+      'PensionDBCincomeFromNorwich',
+      'Sun Jun 10 2018',
+      10050,
+      -1,
+    );
+    expectEvals(evals, 16, 'Cash', 'Sun Jun 10 2018', 272309.96, 2);
+    expectEvals(evals, 17, 'Cash', 'Sun Jul 01 2018', 272309.96, 2);
+    expectEvals(evals, 18, 'Cash', 'Wed Aug 01 2018', 272309.96, 2);
+
+    const result = makeChartDataFromEvaluations(
+      {
+        start: makeDateFromString(roi.start),
+        end: makeDateFromString(roi.end),
+      },
+      model,
+      evals,
+    );
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(2);
+    expect(result.incomesData[0].item.NAME).toBe('java');
+    {
+      const chartPts = result.incomesData[0].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Thu Mar 01 2018', 0, -1);
+      expectChartData(chartPts, 1, 'Sun Apr 01 2018', 490000, -1);
+      expectChartData(chartPts, 2, 'Tue May 01 2018', 0, -1);
+      expectChartData(chartPts, 3, 'Fri Jun 01 2018', 0, -1);
+      expectChartData(chartPts, 4, 'Sun Jul 01 2018', 0, -1);
+      expectChartData(chartPts, 5, 'Wed Aug 01 2018', 0, -1);
+    }
+
+    expect(result.incomesData[1].item.NAME).toBe('PensionDBCincomeFromNorwich');
+    {
+      const chartPts = result.incomesData[1].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Thu Mar 01 2018', 0, -1);
+      expectChartData(chartPts, 1, 'Sun Apr 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Tue May 01 2018', 0, -1);
+      expectChartData(chartPts, 3, 'Fri Jun 01 2018', 0, -1);
+      expectChartData(chartPts, 4, 'Sun Jul 01 2018', 10050, -1);
+      expectChartData(chartPts, 5, 'Wed Aug 01 2018', 0, -1);
+    }
+
+    expect(result.assetData.length).toBe(1);
+    expect(result.assetData[0].item.NAME).toBe('Cash');
+    {
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Thu Mar 01 2018', 0, -1);
+      expectChartData(chartPts, 1, 'Sun Apr 01 2018', 465500, -1);
+      expectChartData(chartPts, 2, 'Tue May 01 2018', 262259.96, 2);
+      expectChartData(chartPts, 3, 'Fri Jun 01 2018', 262259.96, 2);
+      expectChartData(chartPts, 4, 'Sun Jul 01 2018', 272309.96, 2);
+      expectChartData(chartPts, 5, 'Wed Aug 01 2018', 272309.96, 2);
+    }
+
+    done();
+  });
+
+  it('pay into defined benefits pension salary sacrifice', done => {
+    const roi = {
+      start: 'March 1, 2018 00:00:00',
+      end: 'August 2, 2018 00:00:00',
+    };
+    const model: DbModelData = {
+      ...simpleModel,
+      triggers: [
+        {
+          NAME: 'javaStartTrigger',
+          DATE: makeDateFromString('March 10 2018'),
+        },
+        {
+          NAME: 'javaStopTrigger',
+          DATE: makeDateFromString('April 9 2018'),
+        },
+        {
+          NAME: 'pensionStartDraw',
+          DATE: makeDateFromString('June 10 2018'),
+        },
+        {
+          NAME: 'pensionStopDraw',
+          DATE: makeDateFromString('July 9 2018'),
+        },
+      ],
+      incomes: [
+        {
+          ...simpleIncome,
+          START: 'javaStartTrigger',
+          END: 'javaStopTrigger',
+          NAME: 'java',
+          VALUE: '490000', // absurdly high single payment to trigger tax
+          VALUE_SET: 'January 1 2018',
+          LIABILITY:
+            nationalInsurance + 'Joe' + separator + '' + incomeTax + 'Joe',
+        },
+        {
+          ...simpleIncome,
+          START: 'pensionStartDraw',
+          END: 'pensionStopDraw',
+          NAME: pensionDBC + 'incomeFromNorwich',
+          VALUE: '50',
+          VALUE_SET: 'January 1 2018',
+          LIABILITY: incomeTax + 'Joe',
+        },
+      ],
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: pensionSS + 'NorwichContribution', // kicks in when we see income java
+          FROM: 'java', // not an asset but an income!!
+          FROM_ABSOLUTE: false,
+          FROM_VALUE: '0.05', // percentage of income offered up to pension
+          TO: '', // Defined benefits schemes do not transfer amount into an asset
+          DATE: 'javaStartTrigger', // match the income start date
+          STOP_DATE: 'javaStopTrigger', // match the income stop date
+        },
+        {
+          ...simpleTransaction,
+          NAME: pensionDBC + 'NorwichBenefitAccrual', // kicks in when we see income java
+          FROM: 'java', // not an asset but an income!!
+          FROM_ABSOLUTE: false,
+          FROM_VALUE: '' + 1.0 / 49, // percentage of income offered up to pension
+          TO: pensionDBC + 'incomeFromNorwich', // not an asset but a DBC income!!
+          TO_ABSOLUTE: false,
+          TO_VALUE: '1.0',
+          DATE: 'javaStartTrigger', // match the income start date
+          STOP_DATE: 'javaStopTrigger', // match the income stop date
+        },
+      ],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
+          START: 'March 1 2018',
+        },
+      ],
+      settings: [...defaultSettings],
+    };
+    setSetting(model.settings, roiStart, roi.start);
+    setSetting(model.settings, roiEnd, roi.end);
+
+    const evals: Evaluation[] = getTestEvaluations(model);
+    // log(`evals = ${showObj(evals)}`);
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(19);
+    expectEvals(
+      evals,
+      0,
+      'PensionDBCincomeFromNorwich',
+      'Sat Feb 10 2018',
+      50,
+      -1,
+    );
+    expectEvals(evals, 1, 'Cash', 'Thu Mar 01 2018', 0, -1);
+    expectEvals(
+      evals,
+      2,
+      'PensionDBCincomeFromNorwich',
+      'Sat Mar 10 2018',
+      50,
+      -1,
+    );
+    expectEvals(evals, 3, 'java', 'Sat Mar 10 2018', 490000, -1);
+    expectEvals(
+      evals,
+      4,
+      'PensionDBCincomeFromNorwich',
+      'Sat Mar 10 2018',
+      10050,
+      -1,
+    );
+    expectEvals(evals, 5, 'Cash', 'Sat Mar 10 2018', 465500, -1);
+    expectEvals(evals, 6, 'Cash', 'Sun Apr 01 2018', 465500, -1);
+    expectEvals(evals, 7, 'Cash', 'Thu Apr 05 2018', 452224.96, 2);
+    expectEvals(evals, 8, 'TaxPot', 'Thu Apr 05 2018', 13275.04, 2);
+    expectEvals(evals, 9, 'Cash', 'Thu Apr 05 2018', 262749.96, 2);
+    expectEvals(evals, 10, 'TaxPot', 'Thu Apr 05 2018', 202750.04, 2);
+    expectEvals(
+      evals,
+      11,
+      'PensionDBCincomeFromNorwich',
+      'Tue Apr 10 2018',
+      10050,
+      -1,
+    );
+    expectEvals(evals, 12, 'Cash', 'Tue May 01 2018', 262749.96, 2);
+    expectEvals(
+      evals,
+      13,
+      'PensionDBCincomeFromNorwich',
+      'Thu May 10 2018',
+      10050,
+      -1,
+    );
+    expectEvals(evals, 14, 'Cash', 'Fri Jun 01 2018', 262749.96, 2);
+    expectEvals(
+      evals,
+      15,
+      'PensionDBCincomeFromNorwich',
+      'Sun Jun 10 2018',
+      10050,
+      -1,
+    );
+    expectEvals(evals, 16, 'Cash', 'Sun Jun 10 2018', 272799.96, 2);
+    expectEvals(evals, 17, 'Cash', 'Sun Jul 01 2018', 272799.96, 2);
+    expectEvals(evals, 18, 'Cash', 'Wed Aug 01 2018', 272799.96, 2);
+
+    const result = makeChartDataFromEvaluations(
+      {
+        start: makeDateFromString(roi.start),
+        end: makeDateFromString(roi.end),
+      },
+      model,
+      evals,
+    );
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(2);
+    expect(result.incomesData[0].item.NAME).toBe('java');
+    {
+      const chartPts = result.incomesData[0].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Thu Mar 01 2018', 0, -1);
+      expectChartData(chartPts, 1, 'Sun Apr 01 2018', 490000, -1);
+      expectChartData(chartPts, 2, 'Tue May 01 2018', 0, -1);
+      expectChartData(chartPts, 3, 'Fri Jun 01 2018', 0, -1);
+      expectChartData(chartPts, 4, 'Sun Jul 01 2018', 0, -1);
+      expectChartData(chartPts, 5, 'Wed Aug 01 2018', 0, -1);
+    }
+
+    expect(result.incomesData[1].item.NAME).toBe('PensionDBCincomeFromNorwich');
+    {
+      const chartPts = result.incomesData[1].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Thu Mar 01 2018', 0, -1);
+      expectChartData(chartPts, 1, 'Sun Apr 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Tue May 01 2018', 0, -1);
+      expectChartData(chartPts, 3, 'Fri Jun 01 2018', 0, -1);
+      expectChartData(chartPts, 4, 'Sun Jul 01 2018', 10050, -1);
+      expectChartData(chartPts, 5, 'Wed Aug 01 2018', 0, -1);
+    }
+
+    expect(result.assetData.length).toBe(1);
+    expect(result.assetData[0].item.NAME).toBe('Cash');
+    {
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Thu Mar 01 2018', 0, -1);
+      expectChartData(chartPts, 1, 'Sun Apr 01 2018', 465500, -1);
+      expectChartData(chartPts, 2, 'Tue May 01 2018', 262749.96, 2);
+      expectChartData(chartPts, 3, 'Fri Jun 01 2018', 262749.96, 2);
+      expectChartData(chartPts, 4, 'Sun Jul 01 2018', 272799.96, 2);
+      expectChartData(chartPts, 5, 'Wed Aug 01 2018', 272799.96, 2);
+    }
+
+    done();
+  });
+
+  it('pay into defined benefits pension apply cpi', done => {
+    const roi = {
+      start: 'March 1, 2018 00:00:00',
+      end: 'August 2, 2018 00:00:00',
+    };
+    const model: DbModelData = {
+      ...simpleModel,
+      triggers: [
+        {
+          NAME: 'javaStartTrigger',
+          DATE: makeDateFromString('March 10 2018'),
+        },
+        {
+          NAME: 'javaStopTrigger',
+          DATE: makeDateFromString('April 9 2018'),
+        },
+        {
+          NAME: 'pensionStartDraw',
+          DATE: makeDateFromString('June 10 2018'),
+        },
+        {
+          NAME: 'pensionStopDraw',
+          DATE: makeDateFromString('July 9 2018'),
+        },
+      ],
+      incomes: [
+        {
+          ...simpleIncome,
+          START: 'javaStartTrigger',
+          END: 'javaStopTrigger',
+          NAME: 'java',
+          VALUE: '490000', // absurdly high single payment to trigger tax
+          VALUE_SET: 'January 1 2018',
+          LIABILITY:
+            nationalInsurance + 'Joe' + separator + '' + incomeTax + 'Joe',
+        },
+        {
+          ...simpleIncome,
+          START: 'pensionStartDraw',
+          END: 'pensionStopDraw',
+          NAME: pensionDBC + 'incomeFromNorwich',
+          VALUE: '50',
+          VALUE_SET: 'January 1 2018',
+          LIABILITY: incomeTax + 'Joe',
+        },
+      ],
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: pension + 'NorwichContribution', // kicks in when we see income java
+          FROM: 'java', // not an asset but an income!!
+          FROM_ABSOLUTE: false,
+          FROM_VALUE: '0.05', // percentage of income offered up to pension
+          TO: '', // Defined benefits schemes do not transfer amount into an asset
+          DATE: 'javaStartTrigger', // match the income start date
+          STOP_DATE: 'javaStopTrigger', // match the income stop date
+        },
+        {
+          ...simpleTransaction,
+          NAME: pensionDBC + 'NorwichBenefitAccrual', // kicks in when we see income java
+          FROM: 'java', // not an asset but an income!!
+          FROM_ABSOLUTE: false,
+          FROM_VALUE: '' + 1.0 / 49, // percentage of income offered up to pension
+          TO: pensionDBC + 'incomeFromNorwich', // not an asset but a DBC income!!
+          TO_ABSOLUTE: false,
+          TO_VALUE: '1.0',
+          DATE: 'javaStartTrigger', // match the income start date
+          STOP_DATE: 'javaStopTrigger', // match the income stop date
+        },
+      ],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
+          START: 'March 1 2018',
+        },
+      ],
+      settings: [...defaultSettings],
+    };
+    setSetting(model.settings, roiStart, roi.start);
+    setSetting(model.settings, roiEnd, roi.end);
+    setSetting(model.settings, cpi, '12.0');
+
+    const evals: Evaluation[] = getTestEvaluations(model);
+    // log(`evals = ${showObj(evals)}`);
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(19);
+    expectEvals(
+      evals,
+      0,
+      'PensionDBCincomeFromNorwich',
+      'Sat Feb 10 2018',
+      50.47,
+      2,
+    );
+    expectEvals(evals, 1, 'Cash', 'Thu Mar 01 2018', 0, -1);
+    expectEvals(
+      evals,
+      2,
+      'PensionDBCincomeFromNorwich',
+      'Sat Mar 10 2018',
+      50.95,
+      2,
+    );
+    expectEvals(evals, 3, 'java', 'Sat Mar 10 2018', 499343.14, 2);
+    expectEvals(
+      evals,
+      4,
+      'PensionDBCincomeFromNorwich',
+      'Sat Mar 10 2018',
+      10241.63,
+      2,
+    );
+    expectEvals(evals, 5, 'Cash', 'Sat Mar 10 2018', 474375.98, 2);
+    expectEvals(evals, 6, 'Cash', 'Sun Apr 01 2018', 478877.23, 2);
+    expectEvals(evals, 7, 'Cash', 'Thu Apr 05 2018', 464925.33, 2);
+    expectEvals(evals, 8, 'TaxPot', 'Thu Apr 05 2018', 13951.9, 2);
+    expectEvals(evals, 9, 'Cash', 'Thu Apr 05 2018', 271456.14, 2);
+    expectEvals(evals, 10, 'TaxPot', 'Thu Apr 05 2018', 207421.09, 2);
+    expectEvals(
+      evals,
+      11,
+      'PensionDBCincomeFromNorwich',
+      'Tue Apr 10 2018',
+      10338.81,
+      2,
+    );
+    expectEvals(evals, 12, 'Cash', 'Tue May 01 2018', 274031.93, 2);
+    expectEvals(
+      evals,
+      13,
+      'PensionDBCincomeFromNorwich',
+      'Thu May 10 2018',
+      10436.91,
+      2,
+    );
+    expectEvals(evals, 14, 'Cash', 'Fri Jun 01 2018', 276632.16, 2);
+    expectEvals(
+      evals,
+      15,
+      'PensionDBCincomeFromNorwich',
+      'Sun Jun 10 2018',
+      10535.95,
+      2,
+    );
+    expectEvals(evals, 16, 'Cash', 'Sun Jun 10 2018', 287168.11, 2);
+    expectEvals(evals, 17, 'Cash', 'Sun Jul 01 2018', 289892.99, 2);
+    expectEvals(evals, 18, 'Cash', 'Wed Aug 01 2018', 292643.72, 2);
+
+    const result = makeChartDataFromEvaluations(
+      {
+        start: makeDateFromString(roi.start),
+        end: makeDateFromString(roi.end),
+      },
+      model,
+      evals,
+    );
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(2);
+    expect(result.incomesData[0].item.NAME).toBe('java');
+    {
+      const chartPts = result.incomesData[0].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Thu Mar 01 2018', 0, -1);
+      expectChartData(chartPts, 1, 'Sun Apr 01 2018', 499343.14, 2);
+      expectChartData(chartPts, 2, 'Tue May 01 2018', 0, -1);
+      expectChartData(chartPts, 3, 'Fri Jun 01 2018', 0, -1);
+      expectChartData(chartPts, 4, 'Sun Jul 01 2018', 0, -1);
+      expectChartData(chartPts, 5, 'Wed Aug 01 2018', 0, -1);
+    }
+
+    expect(result.incomesData[1].item.NAME).toBe('PensionDBCincomeFromNorwich');
+    {
+      const chartPts = result.incomesData[1].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Thu Mar 01 2018', 0, -1);
+      expectChartData(chartPts, 1, 'Sun Apr 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Tue May 01 2018', 0, -1);
+      expectChartData(chartPts, 3, 'Fri Jun 01 2018', 0, -1);
+      expectChartData(chartPts, 4, 'Sun Jul 01 2018', 10535.95, 2);
+      expectChartData(chartPts, 5, 'Wed Aug 01 2018', 0, -1);
+    }
+
+    expect(result.assetData.length).toBe(1);
+    expect(result.assetData[0].item.NAME).toBe('Cash');
+    {
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Thu Mar 01 2018', 0, -1);
+      expectChartData(chartPts, 1, 'Sun Apr 01 2018', 478877.23, 2);
+      expectChartData(chartPts, 2, 'Tue May 01 2018', 274031.93, 2);
+      expectChartData(chartPts, 3, 'Fri Jun 01 2018', 276632.16, 2);
+      expectChartData(chartPts, 4, 'Sun Jul 01 2018', 289892.99, 2);
+      expectChartData(chartPts, 5, 'Wed Aug 01 2018', 292643.72, 2);
+    }
+
+    done();
+  });
+
+  it('pay into defined benefits pension cant have TO equal cash', done => {
+    const roi = {
+      start: 'March 1, 2018 00:00:00',
+      end: 'August 2, 2018 00:00:00',
+    };
+    const model: DbModelData = {
+      ...simpleModel,
+      triggers: [
+        {
+          NAME: 'javaStartTrigger',
+          DATE: makeDateFromString('March 10 2018'),
+        },
+        {
+          NAME: 'javaStopTrigger',
+          DATE: makeDateFromString('April 9 2018'),
+        },
+        {
+          NAME: 'pensionStartDraw',
+          DATE: makeDateFromString('June 10 2018'),
+        },
+        {
+          NAME: 'pensionStopDraw',
+          DATE: makeDateFromString('July 9 2018'),
+        },
+      ],
+      incomes: [
+        {
+          ...simpleIncome,
+          START: 'javaStartTrigger',
+          END: 'javaStopTrigger',
+          NAME: 'java',
+          VALUE: '490000', // absurdly high single payment to trigger tax
+          VALUE_SET: 'January 1 2018',
+          LIABILITY:
+            nationalInsurance + 'Joe' + separator + '' + incomeTax + 'Joe',
+        },
+        {
+          ...simpleIncome,
+          START: 'pensionStartDraw',
+          END: 'pensionStopDraw',
+          NAME: pensionDBC + 'incomeFromNorwich',
+          VALUE: '50',
+          VALUE_SET: 'January 1 2018',
+          LIABILITY: incomeTax + 'Joe',
+        },
+      ],
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: pension + 'NorwichContribution', // kicks in when we see income java
+          FROM: 'java', // not an asset but an income!!
+          FROM_ABSOLUTE: false,
+          FROM_VALUE: '0.05', // percentage of income offered up to pension
+          TO: '', // Defined benefits schemes do not transfer amount into an asset
+          DATE: 'javaStartTrigger', // match the income start date
+          STOP_DATE: 'javaStopTrigger', // match the income stop date
+        },
+        {
+          ...simpleTransaction,
+          NAME: pensionDBC + 'NorwichBenefitAccrual', // kicks in when we see income java
+          FROM: 'java', // not an asset but an income!!
+          FROM_ABSOLUTE: false,
+          FROM_VALUE: '' + 1.0 / 49, // percentage of income offered up to pension
+          TO: CASH_ASSET_NAME, // should fail checks - we expect a DBC income!!
+          TO_ABSOLUTE: false,
+          TO_VALUE: '1.0',
+          DATE: 'javaStartTrigger', // match the income start date
+          STOP_DATE: 'javaStopTrigger', // match the income stop date
+        },
+      ],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
+          START: 'March 1 2018',
+        },
+      ],
+      settings: [...defaultSettings],
+    };
+    setSetting(model.settings, roiStart, roi.start);
+    setSetting(model.settings, roiEnd, roi.end);
+
+    suppressLogs();
+    const evals: Evaluation[] = getTestEvaluations(model);
+    unSuppressLogs();
+    // log(`evals = ${showObj(evals)}`);
+
+    // printTestCodeForEvals(evals);
+    expect(evals.length).toBe(0);
+
+    done();
+  });
+
+  it('pay into defined benefits pension cant have TO equal an arbitrary income', done => {
+    const roi = {
+      start: 'March 1, 2018 00:00:00',
+      end: 'August 2, 2018 00:00:00',
+    };
+    const model: DbModelData = {
+      ...simpleModel,
+      triggers: [
+        {
+          NAME: 'javaStartTrigger',
+          DATE: makeDateFromString('March 10 2018'),
+        },
+        {
+          NAME: 'javaStopTrigger',
+          DATE: makeDateFromString('April 9 2018'),
+        },
+        {
+          NAME: 'pensionStartDraw',
+          DATE: makeDateFromString('June 10 2018'),
+        },
+        {
+          NAME: 'pensionStopDraw',
+          DATE: makeDateFromString('July 9 2018'),
+        },
+      ],
+      incomes: [
+        {
+          ...simpleIncome,
+          START: 'javaStartTrigger',
+          END: 'javaStopTrigger',
+          NAME: 'java',
+          VALUE: '490000', // absurdly high single payment to trigger tax
+          VALUE_SET: 'January 1 2018',
+          LIABILITY:
+            nationalInsurance + 'Joe' + separator + '' + incomeTax + 'Joe',
+        },
+        {
+          ...simpleIncome,
+          START: 'pensionStartDraw',
+          END: 'pensionStopDraw',
+          NAME: pensionDBC + 'incomeFromNorwich',
+          VALUE: '50',
+          VALUE_SET: 'January 1 2018',
+          LIABILITY: incomeTax + 'Joe',
+        },
+      ],
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: pension + 'NorwichContribution', // kicks in when we see income java
+          FROM: 'java', // not an asset but an income!!
+          FROM_ABSOLUTE: false,
+          FROM_VALUE: '0.05', // percentage of income offered up to pension
+          TO: '', // Defined benefits schemes do not transfer amount into an asset
+          DATE: 'javaStartTrigger', // match the income start date
+          STOP_DATE: 'javaStopTrigger', // match the income stop date
+        },
+        {
+          ...simpleTransaction,
+          NAME: pensionDBC + 'NorwichBenefitAccrual', // kicks in when we see income java
+          FROM: 'java', // not an asset but an income!!
+          FROM_ABSOLUTE: false,
+          FROM_VALUE: '' + 1.0 / 49, // percentage of income offered up to pension
+          TO: 'java', // should fail checks - we expect a DBC income!!
+          TO_ABSOLUTE: false,
+          TO_VALUE: '1.0',
+          DATE: 'javaStartTrigger', // match the income start date
+          STOP_DATE: 'javaStopTrigger', // match the income stop date
+        },
+      ],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
+          START: 'March 1 2018',
+        },
+      ],
+      settings: [...defaultSettings],
+    };
+    setSetting(model.settings, roiStart, roi.start);
+    setSetting(model.settings, roiEnd, roi.end);
+
+    suppressLogs();
+    const evals: Evaluation[] = getTestEvaluations(model);
+    unSuppressLogs();
+    // log(`evals = ${showObj(evals)}`);
+
+    // printTestCodeForEvals(evals);
+    expect(evals.length).toBe(0);
+
+    done();
+  });
+
+  it('pay into defined benefits pension transaction must begin pensionDBC', done => {
+    const roi = {
+      start: 'March 1, 2018 00:00:00',
+      end: 'August 2, 2018 00:00:00',
+    };
+    const model: DbModelData = {
+      ...simpleModel,
+      triggers: [
+        {
+          NAME: 'javaStartTrigger',
+          DATE: makeDateFromString('March 10 2018'),
+        },
+        {
+          NAME: 'javaStopTrigger',
+          DATE: makeDateFromString('April 9 2018'),
+        },
+        {
+          NAME: 'pensionStartDraw',
+          DATE: makeDateFromString('June 10 2018'),
+        },
+        {
+          NAME: 'pensionStopDraw',
+          DATE: makeDateFromString('July 9 2018'),
+        },
+      ],
+      incomes: [
+        {
+          ...simpleIncome,
+          START: 'javaStartTrigger',
+          END: 'javaStopTrigger',
+          NAME: 'java',
+          VALUE: '490000', // absurdly high single payment to trigger tax
+          VALUE_SET: 'January 1 2018',
+          LIABILITY:
+            nationalInsurance + 'Joe' + separator + '' + incomeTax + 'Joe',
+        },
+        {
+          ...simpleIncome,
+          START: 'pensionStartDraw',
+          END: 'pensionStopDraw',
+          NAME: pensionDBC + 'incomeFromNorwich',
+          VALUE: '50',
+          VALUE_SET: 'January 1 2018',
+          LIABILITY: incomeTax + 'Joe',
+        },
+      ],
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: pension + 'NorwichContribution', // kicks in when we see income java
+          FROM: 'java', // not an asset but an income!!
+          FROM_ABSOLUTE: false,
+          FROM_VALUE: '0.05', // percentage of income offered up to pension
+          TO: '', // Defined benefits schemes do not transfer amount into an asset
+          DATE: 'javaStartTrigger', // match the income start date
+          STOP_DATE: 'javaStopTrigger', // match the income stop date
+        },
+        {
+          ...simpleTransaction,
+          NAME: 'NorwichBenefitAccrual', // Should trigger failure
+          FROM: 'java', // not an asset but an income!!
+          FROM_ABSOLUTE: false,
+          FROM_VALUE: '' + 1.0 / 49, // percentage of income offered up to pension
+          TO: pensionDBC + 'incomeFromNorwich', // not an asset but a DBC income!!
+          TO_ABSOLUTE: false,
+          TO_VALUE: '1.0',
+          DATE: 'javaStartTrigger', // match the income start date
+          STOP_DATE: 'javaStopTrigger', // match the income stop date
+        },
+      ],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
+          START: 'March 1 2018',
+        },
+      ],
+      settings: [...defaultSettings],
+    };
+    setSetting(model.settings, roiStart, roi.start);
+    setSetting(model.settings, roiEnd, roi.end);
+
+    suppressLogs();
+    const evals: Evaluation[] = getTestEvaluations(model);
+    unSuppressLogs();
+    // log(`evals = ${showObj(evals)}`);
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(0);
     done();
   });
 

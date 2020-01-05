@@ -16,6 +16,8 @@ import {
   separator,
   taxPot,
   growth,
+  pensionDBC,
+  pensionTransfer,
 } from './stringConstants';
 import {
   DatedThing,
@@ -254,13 +256,15 @@ function setValue(
       log(
         `setting first value of ${name}, ` +
           `newValue = ${newValue} ` +
-          `date = ${date.toDateString()}, `,
+          `date = ${date.toDateString()}, ` +
+          `source = ${source}`,
       );
     } else {
       log(
         `setting value of ${name}, ` +
           `newValue = ${newValue} ` +
-          `date = ${date.toDateString()}, `,
+          `date = ${date.toDateString()}, ` +
+          `source = ${source}`,
       );
     }
   }
@@ -293,8 +297,7 @@ function diffMonths(d1: Date, d2: Date) {
   if (d1.getDate() <= d2.getDate()) {
     months += 1;
   }
-  // log(`in diff, months = ${months}`);
-  return months <= 0 ? 0 : months;
+  return months;
 }
 
 interface Moment {
@@ -795,13 +798,35 @@ function handleIncome(
   moment: Moment,
   values: Map<string, number>,
   evaluations: Evaluation[],
-  triggers: DbTrigger[],
+  model: DbModelData,
   pensionTransactions: DbTransaction[],
   liabilitiesMap: Map<string, string>,
   liableIncomeInTaxYear: Map<string, Map<string, number>>,
   sourceDescription: string,
 ) {
   // log(`handle income value = ${incomeValue}`);
+  const triggers = model.triggers;
+
+  // log(`handle income for moment ${moment.name}`);
+
+  if (moment.name.startsWith(pensionDBC)) {
+    // This type of income has moments which fall before the
+    // income start date; allowing for other actions to
+    // influence its value
+    const income = model.incomes.find(i => {
+      return i.NAME === moment.name;
+    });
+    if (income === undefined) {
+      throw new Error(`income ${moment.name} not found in model`);
+    }
+    const incomeStartDate = getTriggerDate(income.START, triggers);
+    // log(`income start is ${incomeStartDate}, moment date is ${moment.date}`);
+    if (incomeStartDate > moment.date) {
+      // log(`skip income ${income.NAME} at moment ${moment.name}`);
+      // don't receive this income yet!
+      return;
+    }
+  }
 
   // default income increment is all of the income
   let amountForCashIncrement = incomeValue;
@@ -813,6 +838,12 @@ function handleIncome(
     // asset growth does not transfer money into cash
     amountForCashIncrement = 0;
   }
+
+  // when we receive income
+  // the amount paid to cash is sometimes
+  // reduced to account for pension contributions
+  // and it sometimes adjusts defined contributions pension asset
+  // and it sometimes adjusts defined benefits pension benefit
   pensionTransactions.forEach(transaction => {
     const tFromValue = parseFloat(transaction.FROM_VALUE);
     const tToValue = parseFloat(transaction.TO_VALUE);
@@ -825,19 +856,29 @@ function handleIncome(
     if (moment.name === transaction.FROM) {
       // log(`matched transaction ${showObj(transaction)}`);
 
-      let cashToDivert = 0;
+      let amountFrom = 0.0;
       if (transaction.FROM_ABSOLUTE) {
-        cashToDivert = tFromValue;
+        amountFrom = tFromValue;
       } else {
         // e.g. employee chooses 5% pension contribution
-        cashToDivert = tFromValue * amountForCashIncrement;
+        amountFrom = tFromValue * incomeValue;
         // log(`cashToDivert = ${transaction.FROM_VALUE} * ${amountForCashIncrement}`);
       }
-      amountForCashIncrement -= cashToDivert;
-      amountForIncomeTax -= cashToDivert;
 
-      if (transaction.NAME.startsWith(pensionSS)) {
-        amountForNI -= cashToDivert;
+      if (!transaction.NAME.startsWith(pensionDBC)) {
+        // a Defined Benefits Pension
+        // has two transactions
+        // - one flagged as pension (or pensionSS)
+        //   which will decrease cash Increment etc
+        // - another flagged as pensionDBC
+        // whose purpose is solely to setValue on the
+        // target benefit
+        amountForCashIncrement -= amountFrom;
+        amountForIncomeTax -= amountFrom;
+
+        if (transaction.NAME.startsWith(pensionSS)) {
+          amountForNI -= amountFrom;
+        }
       }
 
       let amountForPension = 0;
@@ -845,7 +886,7 @@ function handleIncome(
         amountForPension = tToValue;
       } else {
         // e.g. employer increments employee's pension contribution
-        amountForPension = tToValue * cashToDivert;
+        amountForPension = tToValue * amountFrom;
       }
       let pensionValue = values.get(transaction.TO);
       if (transaction.TO === '') {
@@ -855,6 +896,7 @@ function handleIncome(
       } else if (pensionValue === undefined) {
         log('BUG : contributing to undefined pension scheme');
       } else {
+        // log(`old pensionValue is ${pensionValue}`);
         pensionValue += amountForPension;
         // log(`new pensionValue is ${pensionValue}`);
         // log(`income source = ${transaction.NAME}`);
@@ -982,6 +1024,7 @@ function getGrowth(name: string, growths: Map<string, number>) {
     log(`Bug : Undefined growth value for ${name}!`);
     result = 0.0;
   }
+  // log(`growth for ${name} is ${result}`);
   return result;
 }
 
@@ -997,6 +1040,7 @@ function getMonthlyMoments(
   type: string,
   monthlyInf: number,
   triggers: DbTrigger[],
+  rOIStartDate: Date,
   rOIEndDate: Date,
 ) {
   let endDate = getTriggerDate(x.END, triggers);
@@ -1004,7 +1048,7 @@ function getMonthlyMoments(
     endDate = rOIEndDate;
   }
   const roi = {
-    start: getTriggerDate(x.START, triggers),
+    start: rOIStartDate,
     end: endDate,
   };
   const dates = generateSequenceOfDates(roi, '1m');
@@ -1032,24 +1076,29 @@ function getMonthlyMoments(
     let startVal = parseFloat(x.VALUE);
     // take account of VALUE_SET and CPI+GROWTH
     const from = getTriggerDate(x.VALUE_SET, triggers);
-    const to = getTriggerDate(x.START, triggers);
-    if (from > to) {
-      log(`BUG : income/expense start value set after start date ${x.NAME}`);
-    }
+    const to = roi.start;
     // log(`${x.NAME} grew between ${from} and ${to}`);
     const numMonths = diffMonths(from, to);
+    if (!x.NAME.startsWith(pensionDBC) && numMonths < 0) {
+      log(
+        `BUG : income/expense start value set ${from} after ` +
+          `start date ${to} ${x.NAME}`,
+      );
+    }
     // log(`numMonths = ${numMonths}`);
     // log(`there are ${numMonths} months between `
-    //   +`${x.VALUE_SET} and ${x.START}`)
+    //   +`${x.VALUE_SET} and ${roiStart}`)
     // apply monthlyInf
     // log(`before growth on x start value : ${startVal}`);
     for (let i = 0; i < numMonths; i += 1) {
+      // TODO: SLOW!!!!
       startVal *= 1.0 + monthlyInf;
       // log(`applied growth to x start value : ${startVal}`);
     }
+    // log(`applied growth to generate start value : ${startVal}`);
     newMoments[0].setValue = startVal;
   }
-  // log(`generated ${newMoments.length} moments for ${x.NAME}`);
+  // log(`generated ${showObj(newMoments)} for ${x.NAME}`);
   return newMoments;
 }
 
@@ -1088,9 +1137,14 @@ function getTransactionMoments(
   rOIEndDate: Date,
 ) {
   const newMoments: Moment[] = [];
-  if (transaction.NAME.startsWith(pension)) {
+  if (
+    !transaction.NAME.startsWith(pensionTransfer) &&
+    (transaction.NAME.startsWith(pension) ||
+      transaction.NAME.startsWith(pensionSS) ||
+      transaction.NAME.startsWith(pensionDBC))
+  ) {
     // we don't track pension actions here
-    // (see pensionTransactions, reviewed during processIncome)
+    // (see pensionTransactions, reviewed during handleIncome)
     return newMoments;
   }
   const recurrenceGiven = transaction.RECURRENCE.length > 0;
@@ -1139,12 +1193,9 @@ function getTransactionMoments(
 // TODO consider an attribute on assets which
 // tells us this.  For now, allo cash and mortgages
 // to go negative at will.
-function assetAllowedNegative(assetName: string, assets: DbAsset[]) {
-  const filteredList = assets.filter(a => {
-    return a.NAME === assetName;
-  });
-  if (filteredList.length === 1) {
-    return filteredList[0].CAN_BE_NEGATIVE;
+function assetAllowedNegative(assetName: string, asset: DbAsset) {
+  if (asset) {
+    return asset.CAN_BE_NEGATIVE;
   }
   console.log(`Error : asset name ${assetName} not found in assets list`);
   return (
@@ -1246,9 +1297,13 @@ function calculateFromChange(
       fromChange = preFromValue * tFromValue;
     }
   }
+  const matchingAsset = model.assets.find(a => {
+    return a.NAME === fromWord;
+  });
   // Allow some assets to become negative but not others
   if (
-    !assetAllowedNegative(fromWord, model.assets) &&
+    matchingAsset &&
+    !assetAllowedNegative(fromWord, matchingAsset) &&
     fromChange > preFromValue
   ) {
     if (t.NAME.startsWith(conditional)) {
@@ -1262,8 +1317,18 @@ function calculateFromChange(
       return undefined;
     }
   }
-  if (fromWord !== undefined) {
-    if (!assetAllowedNegative(fromWord, model.assets) && preFromValue <= 0) {
+  const matchingIncome = model.incomes.find(i => {
+    return i.NAME === fromWord;
+  });
+  if (matchingIncome && fromChange > preFromValue) {
+    log(
+      `Error: dont take more than income value ` +
+        `${preFromValue} from income ${matchingIncome.NAME}`,
+    );
+    return undefined;
+  }
+  if (matchingAsset && fromWord !== undefined) {
+    if (!assetAllowedNegative(fromWord, matchingAsset) && preFromValue <= 0) {
       // we cannot help
       return undefined;
     }
@@ -1284,9 +1349,11 @@ function calculateToChange(
   }
   const tToValue = parseFloat(t.TO_VALUE);
   // log(`t.TO = ${t.TO}`)
-  // log(`before transaction, toValue = ${toValue}`)
+  // log(`before transaction, toValue = ${tToValue}`)
   if (preToValue === undefined) {
-    throw new Error(`Bug : transacting to unvalued asset ${showObj(moment)}`);
+    throw new Error(
+      `Bug : transacting to unvalued asset ${showObj(moment)}`,
+    );
   }
   // log(`t.TO_VALUE = ${t.TO_VALUE}`);
   if (t.TO_ABSOLUTE) {
@@ -1396,7 +1463,11 @@ function processTransactionFromTo(
 ) {
   // log(`processTransactionFromTo takes in ${t.NAME}`);
   const preFromValue = values.get(fromWord);
-  const preToValue = values.get(t.TO);
+  let preToValue = values.get(t.TO);
+
+  if (t.TO !== '' && preToValue === undefined) {
+    preToValue = 0.0;
+  }
 
   // handle conditional transactions
   // Conditions on source/from:
@@ -1422,6 +1493,7 @@ function processTransactionFromTo(
       return;
     }
   }
+  // log(`for ${t.NAME}, fromChange = ${fromChange}`);
 
   // Determine how to change the To asset.
   let toChange;
@@ -1443,7 +1515,7 @@ function processTransactionFromTo(
       liableIncomeInTaxYear,
     );
     // log(`reduce ${fromWord}'s ${preFromValue} by ${fromChange}`);
-    // log('in processTransactionFromTo, setValue:');
+    // log(`in processTransactionFromTo, setValue of ${fromWord} to ${preFromValue - fromChange}`);
     setValue(
       values,
       evaluations,
@@ -1453,6 +1525,8 @@ function processTransactionFromTo(
       makeSourceForFromChange(t),
     );
   }
+
+  // log(`for ${t.NAME}, toChange = ${toChange}`);
 
   // apply toChange
   if (toChange !== undefined) {
@@ -1469,7 +1543,7 @@ function processTransactionFromTo(
         moment,
         values,
         evaluations,
-        model.triggers,
+        model,
         pensionTransactions,
         liabliitiesMap,
         liableIncomeInTaxYear,
@@ -1483,6 +1557,7 @@ function processTransactionFromTo(
         );
       }
       // log('in processTransactionFromTo, setValue:');
+      // log(`in processTransactionFromTo, setValue of ${t.TO} to ${preToValue + toChange}`);
       setValue(
         values,
         evaluations,
@@ -1697,13 +1772,20 @@ export function getEvaluations(data: DbModelData): Evaluation[] {
   // a set of moments starting when the expense began,
   // ending when the roi ends.
   data.expenses.forEach(expense => {
+    // Growth is important to set the value of the
+    // first expense.  Later expense values are not
+    // set here, but the 'moment' at which the expense
+    // changes is set here.
     logExpenseGrowth(expense, cpiInitialVal, growths);
     const monthlyInf = getGrowth(expense.NAME, growths);
+    const expenseStart = getTriggerDate(expense.START, data.triggers);
+    // log(`expense start = ${expenseStart}`);
     const newMoments = getMonthlyMoments(
       expense,
       momentType.expense,
       monthlyInf,
       data.triggers,
+      expenseStart,
       roiEndDate,
     );
     allMoments = allMoments.concat(newMoments);
@@ -1713,13 +1795,49 @@ export function getEvaluations(data: DbModelData): Evaluation[] {
   // a set of moments starting when the income began,
   // ending when the roi ends.
   data.incomes.forEach(income => {
+    // Growth is important to set the value of the
+    // first income.  Later income values are not
+    // set here, but the 'moment' at which the income
+    // changes is set here.
     logIncomeGrowth(income, cpiInitialVal, growths);
     const monthlyInf = getGrowth(income.NAME, growths);
+    const dbcTransaction = data.transactions.find(t => {
+      return t.NAME.startsWith(pensionDBC) && t.TO === income.NAME;
+    });
+    const roiStartDate = getTriggerDate(income.START, data.triggers);
+    if (dbcTransaction !== undefined) {
+      const sourceIncome = data.incomes.find(i => {
+        return dbcTransaction.FROM === i.NAME;
+      });
+      if (sourceIncome === undefined) {
+        log(
+          `Error: DBC transaction ${dbcTransaction.NAME} ` +
+            `with no source income`,
+        );
+        throw new Error(
+          `Error: DBC transaction ${dbcTransaction.NAME} ` +
+            `with no source income`,
+        );
+      }
+      const startOfSource = getTriggerDate(sourceIncome.START, data.triggers);
+      let numAdjustments = 0;
+      while (startOfSource <= roiStartDate) {
+        roiStartDate.setMonth(roiStartDate.getMonth() - 1);
+        numAdjustments += 1;
+        if (numAdjustments > 1000) {
+          throw new Error(
+            `${sourceIncome.NAME} start ${sourceIncome.START} too far ` +
+              `from ${income.NAME}'s start ${income.START}`,
+          );
+        }
+      }
+    }
     const newMoments = getMonthlyMoments(
       income,
       momentType.income,
       monthlyInf,
       data.triggers,
+      roiStartDate,
       roiEndDate,
     );
     allMoments = allMoments.concat(newMoments);
@@ -1751,7 +1869,11 @@ export function getEvaluations(data: DbModelData): Evaluation[] {
 
     // some transactions affect income processing
     // (e.g. diverting income to pensions)
-    if (transaction.NAME.startsWith(pension)) {
+    if (
+      transaction.NAME.startsWith(pension) ||
+      transaction.NAME.startsWith(pensionSS) ||
+      transaction.NAME.startsWith(pensionDBC)
+    ) {
       pensionTransactions.push(transaction);
     }
 
@@ -1827,29 +1949,29 @@ export function getEvaluations(data: DbModelData): Evaluation[] {
       moment.type === momentType.incomeStart ||
       moment.type === momentType.assetStart
     ) {
-      // Starts of assets are well defined
+      // Starts are well defined
       // log(`start moment ${moment.name}, ${moment.type}`)
       if (moment.setValue === undefined) {
         log('BUG!!! starts of income/asset/expense should have a value!');
         break;
       }
-      const incomeValue = moment.setValue;
+      const startValue = moment.setValue;
       // log('in getEvaluations starting something:');
       setValue(
         values,
         evaluations,
         moment.date,
         moment.name,
-        incomeValue,
+        startValue,
         moment.name, // e.g. Cash (it's just the starting value)
       );
       if (moment.type === momentType.incomeStart) {
         handleIncome(
-          incomeValue,
+          startValue,
           moment,
           values,
           evaluations,
-          data.triggers,
+          data,
           pensionTransactions,
           liabilitiesMap,
           liableIncomeInTaxYear,
@@ -1857,18 +1979,13 @@ export function getEvaluations(data: DbModelData): Evaluation[] {
         );
       } else if (moment.type === momentType.expenseStart) {
         // log('in getEvaluations, adjustCash:');
-        adjustCash(
-          -moment.setValue,
-          moment.date,
-          values,
-          evaluations,
-          moment.name,
-        );
+        adjustCash(-startValue, moment.date, values, evaluations, moment.name);
       }
     } else {
       // not a transaction
       // not at start of expense/income/asset
       let x = values.get(moment.name);
+      // log(`value of ${moment.name} is ${x}`);
       if (x !== undefined) {
         const inf = getGrowth(moment.name, growths);
         if (printDebug()) {
@@ -1892,7 +2009,7 @@ export function getEvaluations(data: DbModelData): Evaluation[] {
             moment,
             values,
             evaluations,
-            data.triggers,
+            data,
             pensionTransactions,
             liabilitiesMap,
             liableIncomeInTaxYear,
@@ -1904,7 +2021,7 @@ export function getEvaluations(data: DbModelData): Evaluation[] {
             moment,
             values,
             evaluations,
-            data.triggers,
+            data,
             pensionTransactions,
             liabilitiesMap,
             liableIncomeInTaxYear,

@@ -168,6 +168,7 @@ export async function beforeAllWork(
   model: DbModelData,
 ) {
   jest.setTimeout(60000); // allow time for all these tests to run
+  await getDB().ensureModel(testUserID, testDataModelName);
   await getDB().saveModel(testUserID, testDataModelName, model);
 
   await driver.get('about:blank');
@@ -266,7 +267,7 @@ export async function submitSettingChange(
 }
 
 export function writeTestCode(ary: any[]) {
-  let result = '';
+  let result = 'AUTO_GENERATED_TEST_CODE:\n';
   result += `expect(ary.length).toEqual(${ary.length});\n`;
   for (let i = 0; i < ary.length; i += 1) {
     result += `expect(ary[${i}].name).toEqual('${ary[i].name}');\n`;

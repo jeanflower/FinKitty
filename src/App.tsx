@@ -6,6 +6,7 @@ import {
   billAndBenSampleData,
   mortgageSwitchSampleData,
   simpleSampleData,
+  pension1SampleData,
 } from './models/sampleModels';
 import { useAuth0 } from './contexts/auth0-context';
 import CanvasJSReact from './assets/js/canvasjs.react';
@@ -154,6 +155,9 @@ function App() {
               <button onClick={loginWithRedirect} id="buttonLogin">
                 Login or create an account
               </button>
+              <button onClick={loginForTesting} id="buttonTestLogin">
+                Test playpen (no login)
+              </button>
             </div>
             <div className="alert alert-block">
               <strong>How it works</strong> Build one or more models. Each
@@ -204,11 +208,6 @@ function App() {
               </a>{' '}
               to validate financial plans.
             </div>
-            <br />
-            <br />
-            <button onClick={loginForTesting} id="buttonTestLogin">
-              Test
-            </button>
           </div>
           <div className="col-md mb-4">{screenshotsDiv()}</div>
         </div>
@@ -342,6 +341,10 @@ const sampleModels = [
   {
     name: 'Mortgage Switch',
     model: mortgageSwitchSampleData,
+  },
+  {
+    name: 'Pension',
+    model: pension1SampleData,
   },
 ];
 const showContent = new Map<ViewType, any>([
@@ -1889,8 +1892,10 @@ export class AppContent extends Component<AppProps, AppState> {
         <div className="addNewIncome">
           <h4> Add or delete income </h4>
           <AddDeleteIncomeForm
-            checkFunction={checkIncome}
-            submitFunction={submitIncome}
+            checkIncomeFunction={checkIncome}
+            checkTransactionFunction={checkTransaction}
+            submitIncomeFunction={submitIncome}
+            submitTransactionFunction={submitTransaction}
             deleteFunction={deleteIncomeFromTable}
             submitTrigger={submitTrigger}
             model={this.state.modelData}

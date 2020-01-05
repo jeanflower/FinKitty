@@ -77,7 +77,7 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
         <div className="row">
           <div className="col">
             <Input
-              title="Expense name:"
+              title="Expense name"
               type="text"
               name="expensename"
               value={this.state.NAME}
@@ -100,7 +100,7 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
         <div className="row">
           <div className="col">
             <Input
-              title="Expense value (amount per month):"
+              title="Expense value (amount per month)"
               type="text"
               name="expensevalue"
               value={this.state.VALUE}
@@ -114,7 +114,7 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
         <div className="container-fluid">
           {/* fills width */}
           <DateSelectionRow
-            introLabel="Date on which the expense value is set:"
+            introLabel="Date on which the expense value is set"
             setDateFunction={this.setValueSet}
             inputName="expense valuation date"
             inputValue={this.state.VALUE_SET}
@@ -123,7 +123,7 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
             submitTrigger={this.props.submitTrigger}
           />
           <DateSelectionRow
-            introLabel="Date on which the expense starts:"
+            introLabel="Date on which the expense starts"
             setDateFunction={this.setStart}
             inputName="start date"
             inputValue={this.state.START}
@@ -132,7 +132,7 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
             submitTrigger={this.props.submitTrigger}
           />
           <DateSelectionRow
-            introLabel="Date on which the expense ends:"
+            introLabel="Date on which the expense ends"
             setDateFunction={this.setEnd}
             inputName="end date"
             inputValue={this.state.END}
@@ -144,7 +144,7 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
         <div className="row">
           <div className="col">
             <Input
-              title="Annual growth percentage (excluding inflation):"
+              title="Annual growth percentage (excluding inflation, e.g. 2 for 2% p.a.)"
               type="text"
               name="expensegrowth"
               value={this.state.GROWTH}
@@ -155,7 +155,7 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
           {/* end col */}
           <div className="col">
             <Input
-              title="Is value immune to inflation?:"
+              title="Is value immune to inflation?"
               type="text"
               name="expensecpi-immune"
               value={this.state.CPI_IMMUNE}
@@ -169,7 +169,7 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
         <div className="row">
           <div className="col">
             <Input
-              title="Category (optional):"
+              title="Category (optional)"
               type="text"
               name="expensecategory"
               value={this.state.CATEGORY}

@@ -137,7 +137,7 @@ export class AddDeleteTransactionForm extends Component<
         <div className="row">
           <div className="col">
             <Input
-              title="Transaction name:"
+              title="Transaction name"
               type="text"
               name="transactionname"
               value={this.state.NAME}
@@ -161,7 +161,7 @@ export class AddDeleteTransactionForm extends Component<
         <div className="container-fluid">
           {/* fills width */}
           <DateSelectionRow
-            introLabel="Date on which the transaction occurs:"
+            introLabel="Date on which the transaction occurs"
             setDateFunction={this.setDate}
             inputName="date"
             inputValue={this.state.DATE}
@@ -203,7 +203,7 @@ export class AddDeleteTransactionForm extends Component<
         <div className="row">
           <div className="col">
             <Input
-              title="How much to take (can be % of asset value):"
+              title="How much to take (can be % of asset value)"
               type="text"
               name="fromValue"
               value={this.state.FROM_INPUT_VALUE}
@@ -214,7 +214,7 @@ export class AddDeleteTransactionForm extends Component<
           {/* end col */}
           <div className="col">
             <Input
-              title="How much to add (can be % of transaction amount):"
+              title="How much to add (can be % of transaction amount)"
               type="text"
               name="toValue"
               value={this.state.TO_INPUT_VALUE}
@@ -228,7 +228,7 @@ export class AddDeleteTransactionForm extends Component<
         <div className="row">
           <div className="col">
             <Input
-              title="Transaction recurrence, e.g. 6m, 2y (optional):"
+              title="Transaction recurrence, e.g. 6m, 2y (optional)"
               type="text"
               name="recurrence"
               value={this.state.RECURRENCE}
@@ -242,7 +242,7 @@ export class AddDeleteTransactionForm extends Component<
         <div className="container-fluid">
           {/* fills width */}
           <DateSelectionRow
-            introLabel="Date on which any recurrence stops:"
+            introLabel="Date on which any recurrence stops (optional)"
             setDateFunction={this.setStopDate}
             inputName="stopDate"
             inputValue={this.state.STOP_DATE}
@@ -255,7 +255,7 @@ export class AddDeleteTransactionForm extends Component<
         <div className="row">
           <div className="col">
             <Input
-              title="Category (optional):"
+              title="Category (optional)"
               type="text"
               name="transactioncategory"
               value={this.state.CATEGORY}

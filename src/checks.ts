@@ -28,6 +28,9 @@ import {
   taxPot,
   CASH_ASSET_NAME,
   conditional,
+  pensionSS,
+  pensionDBC,
+  pensionTransfer,
 } from './stringConstants';
 import {
   DbAsset,
@@ -71,16 +74,24 @@ function checkTransactionWords(
     return true;
   }
 
+  // log(`name = ${name} and transaction from word ${word}`);
   // maybe t.FROM is the name of an income
   let i = incomes.find(
     is =>
       is.NAME === word &&
-      getTriggerDate(is.START, triggers) <= getTriggerDate(date, triggers),
+      (name.startsWith(pensionDBC) ||
+        name.startsWith(pensionSS) ||
+        getTriggerDate(is.START, triggers) <= getTriggerDate(date, triggers)),
   );
   if (i !== undefined) {
     // the word is an income
     // this only happens for transactions called Pension*
-    if (!name.startsWith(pension)) {
+    if (
+      !name.startsWith(pension) && // transfer out of income to pension
+      !name.startsWith(pensionSS) && // transfer out of income for contribution
+      !name.startsWith(pensionDBC) && // transfer from income to pension benefit
+      !name.startsWith(pensionTransfer) // transfer from one pension to another
+    ) {
       log(`Transaction ${name} from income
         ${word} must be pension-related`);
       return false;
@@ -312,6 +323,12 @@ function checkTransactionTo(
 ) {
   const a = assetsForChecking.find(as => as.NAME === word);
   if (a !== undefined) {
+    if (t.NAME.startsWith(pensionDBC)) {
+      return (
+        `Transaction ${t.NAME} should have TO an income ` +
+        `not an asset : ${a.NAME}`
+      );
+    }
     if (getTriggerDate(a.START, triggers) > getTriggerDate(t.DATE, triggers)) {
       return (
         `Transaction ${t.NAME} dated before start ` +
@@ -323,15 +340,34 @@ function checkTransactionTo(
 
   const i = incomes.find(ic => ic.NAME === word);
   if (i !== undefined) {
-    if (!t.NAME.startsWith(revalue)) {
-      return `Transactions to incomes must begin '${revalue}'`;
+    if (
+      !t.NAME.startsWith(revalue) &&
+      !t.NAME.startsWith(pensionDBC) &&
+      !t.NAME.startsWith(pensionTransfer)
+    ) {
+      return (
+        `Transactions to incomes must begin '${revalue}' ` +
+        `or '${pensionDBC} or ${pensionTransfer}`
+      );
+    }
+    if (t.NAME.startsWith(pensionDBC)) {
+      if (!i.NAME.startsWith(pensionDBC)) {
+        return (
+          `transaction ${t.NAME} must have TO income ${t.TO} named` +
+          `starting ${pensionDBC}`
+        );
+      }
     }
     // transacting on an income - check dates
-    if (getTriggerDate(i.START, triggers) > getTriggerDate(t.DATE, triggers)) {
-      return (
-        `Transaction ${t.NAME} dated before start ` +
-        `of affected income : ${i.NAME}`
-      );
+    if (!t.NAME.startsWith(pensionDBC)) {
+      if (
+        getTriggerDate(i.START, triggers) > getTriggerDate(t.DATE, triggers)
+      ) {
+        return (
+          `Transaction ${t.NAME} dated before start ` +
+          `of affected income : ${i.NAME}`
+        );
+      }
     }
     return '';
   }
@@ -426,7 +462,7 @@ export function checkTransaction(t: DbTransaction, model: DbModelData): string {
           expenses,
           triggers,
         );
-        if (outcome.length < 0) {
+        if (outcome.length > 0) {
           return outcome;
         }
       }
@@ -439,7 +475,7 @@ export function checkTransaction(t: DbTransaction, model: DbModelData): string {
         expenses,
         triggers,
       );
-      if (outcome.length < 0) {
+      if (outcome.length > 0) {
         return outcome;
       }
     }
@@ -450,6 +486,17 @@ export function checkTransaction(t: DbTransaction, model: DbModelData): string {
     }
   }
   if (t.RECURRENCE.length > 0) {
+    if (
+      t.NAME.startsWith(pension) ||
+      t.NAME.startsWith(pensionSS) ||
+      t.NAME.startsWith(pensionDBC)
+    ) {
+      return (
+        `Pension transaction ${t.NAME} gets frequency from income, ` +
+        `should not have recurrence ${t.RECURRENCE} defined`
+      );
+    }
+
     const lastChar = t.RECURRENCE.substring(t.RECURRENCE.length - 1);
     // log(`lastChar of ${t.RECURRENCE} = ${lastChar}`);
     if (!(lastChar === 'm' || lastChar === 'y')) {
@@ -474,7 +521,12 @@ export function checkTransaction(t: DbTransaction, model: DbModelData): string {
   if (!t.FROM_ABSOLUTE && tFromValue > 1.0) {
     log(`WARNING : not-absolute value from ${tFromValue} > 1.0`);
   }
-  if (!t.TO_ABSOLUTE && tToValue > 1.0 && !t.NAME.startsWith(pension)) {
+  if (
+    !t.TO_ABSOLUTE &&
+    tToValue > 1.0 &&
+    !t.NAME.startsWith(pension) && // pensions can have employer contributions
+    !t.NAME.startsWith(pensionSS)
+  ) {
     log(`WARNING : not-absolute value to ${tToValue} > 1.0`);
   }
   return '';
