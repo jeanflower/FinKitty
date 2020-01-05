@@ -21,7 +21,7 @@ import {
   viewDetail,
   viewDetailHint,
 } from '../stringConstants';
-import { getSettings, showObj } from '../utils';
+import { getSettings, log, showObj } from '../utils';
 import Button from './reactComponents/Button';
 import {
   assetsChart,
@@ -342,7 +342,7 @@ export function assetsChartDiv(
 ) {
   const chartVisible = showContent.get(assetsChart).display;
 
-  log(`assetChartData = ${assetChartData}`);
+  // log(`assetChartData = ${assetChartData}`);
 
   return (
     <div
