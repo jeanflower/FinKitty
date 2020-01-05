@@ -1,4 +1,4 @@
-import { checkEvalnType } from './models/checks';
+import { checkEvalnType } from './checks';
 import {
   evaluationType,
   generateSequenceOfDates,
@@ -27,7 +27,7 @@ import {
   viewFrequency,
   growth,
   pensionDBC,
-} from './localization/stringConstants';
+} from '../localization/stringConstants';
 import {
   ChartDataPoint,
   DataForView,
@@ -37,7 +37,7 @@ import {
   Evaluation,
   Interval,
   ItemChartData,
-} from './types/interfaces';
+} from '../types/interfaces';
 import {
   getSettings,
   log,
@@ -46,7 +46,7 @@ import {
   showObj,
   makeDateFromString,
   getTriggerDate,
-} from './utils';
+} from '../utils';
 
 function logMapOfMap(twoMap: any, display = false) {
   if (display) {

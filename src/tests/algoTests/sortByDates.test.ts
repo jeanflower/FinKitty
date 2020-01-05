@@ -1,4 +1,4 @@
-import { getYearOfTaxYear, momentType, sortByDate } from '../../evaluations';
+import { getYearOfTaxYear, momentType, sortByDate } from '../../models/evaluations';
 import { CASH_ASSET_NAME } from '../../localization/stringConstants';
 import { DatedThing } from '../../types/interfaces';
 import { makeDateFromString } from '../../utils';

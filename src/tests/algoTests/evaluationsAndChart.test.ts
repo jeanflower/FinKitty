@@ -1,8 +1,8 @@
 // to allow final-scoping blocks for auto-generated code
 /* eslint-disable no-lone-blocks */
 
-import { makeChartDataFromEvaluations } from '../../charting';
-import { getEvaluations } from '../../evaluations';
+import { makeChartDataFromEvaluations } from '../../models/charting';
+import { getEvaluations } from '../../models/evaluations';
 import {
   allItems,
   annually,

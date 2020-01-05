@@ -1,4 +1,4 @@
-import { generateSequenceOfDates } from '../../evaluations';
+import { generateSequenceOfDates } from '../../models/evaluations';
 import { DbAsset } from '../../types/interfaces';
 import { makeDateFromString } from '../../utils';
 

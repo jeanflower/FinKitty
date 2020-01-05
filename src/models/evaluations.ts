@@ -1,4 +1,4 @@
-import { checkData } from './models/checks';
+import { checkData } from './checks';
 import {
   annually,
   CASH_ASSET_NAME,
@@ -18,7 +18,7 @@ import {
   growth,
   pensionDBC,
   pensionTransfer,
-} from './localization/stringConstants';
+} from '../localization/stringConstants';
 import {
   DatedThing,
   DbAsset,
@@ -30,7 +30,7 @@ import {
   DbTrigger,
   Evaluation,
   Interval,
-} from './types/interfaces';
+} from '../types/interfaces';
 import {
   getMonthlyGrowth,
   getSettings,
@@ -39,7 +39,7 @@ import {
   printDebug,
   showObj,
   makeDateFromString,
-} from './utils';
+} from '../utils';
 
 function parseRecurrenceString(recurrence: string) {
   const result = {

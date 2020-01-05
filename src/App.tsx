@@ -6,7 +6,7 @@ import {
   pension1ExampleData,
 } from './models/exampleModels';
 import { useAuth0 } from './contexts/auth0-context';
-import { makeChartData } from './charting';
+import { makeChartData } from './models/charting';
 import { checkData, checkTransaction, checkTrigger } from './models/checks';
 import { getDB, cleanUp } from './database/database';
 import { AddDeleteEntryForm } from './views/reactComponents/AddDeleteEntryForm';

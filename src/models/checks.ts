@@ -1,4 +1,4 @@
-import { evaluationType } from '../evaluations';
+import { evaluationType } from './evaluations';
 import {
   allItems,
   annually,
