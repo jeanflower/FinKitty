@@ -12,7 +12,7 @@ import {
 import Button from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
 import Input from './Input';
-import { taxPot } from '../../stringConstants';
+import { taxPot } from '../../localization/stringConstants';
 
 interface EditFormState {
   NAME: string;

@@ -21,7 +21,7 @@ import {
   pensionSS,
   separator,
   pensionTransfer,
-} from '../../stringConstants';
+} from '../../localization/stringConstants';
 
 interface EditFormState {
   NAME: string;

@@ -20,7 +20,7 @@ import {
   taxPot,
   viewDetail,
   viewDetailHint,
-} from '../stringConstants';
+} from '../localization/stringConstants';
 import { getSettings, log, showObj } from '../utils';
 import Button from './reactComponents/Button';
 import {

@@ -18,7 +18,7 @@ import {
   growth,
   pensionDBC,
   pensionTransfer,
-} from './stringConstants';
+} from './localization/stringConstants';
 import {
   DatedThing,
   DbAsset,

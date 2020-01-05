@@ -31,7 +31,7 @@ import {
   pensionSS,
   pensionDBC,
   pensionTransfer,
-} from './stringConstants';
+} from './localization/stringConstants';
 import {
   DbAsset,
   DbExpense,

@@ -13,7 +13,7 @@ import { AddDeleteEntryForm } from './views/reactComponents/AddDeleteEntryForm';
 import { AddDeleteTransactionForm } from './views/reactComponents/AddDeleteTransactionForm';
 import { AddDeleteTriggerForm } from './views/reactComponents/AddDeleteTriggerForm';
 import Button from './views/reactComponents/Button';
-import { taxPot, exampleModelName } from './stringConstants';
+import { taxPot, exampleModelName } from './localization/stringConstants';
 import {
   ChartData,
   DataForView,

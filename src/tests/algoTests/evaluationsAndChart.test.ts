@@ -42,7 +42,7 @@ import {
   pension,
   pensionSS,
   pensionDBC,
-} from '../../stringConstants';
+} from '../../localization/stringConstants';
 import {
   ChartDataPoint,
   DataForView,

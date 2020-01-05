@@ -25,7 +25,7 @@ import {
   assetChartFocusHint,
   viewDetail,
   viewDetailHint,
-} from '../../stringConstants';
+} from '../../localization/stringConstants';
 import {
   getModelCoarseAndFine,
   getModelFutureExpense,

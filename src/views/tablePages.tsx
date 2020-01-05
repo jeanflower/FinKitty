@@ -53,7 +53,7 @@ import {
   transactionsTable,
   triggersTable,
 } from '../App';
-import { taxPot } from '../stringConstants';
+import { taxPot } from '../localization/stringConstants';
 
 function prohibitEditOfName() {
   alert('prohibit edit of name');

@@ -27,7 +27,7 @@ import {
   viewFrequency,
   growth,
   pensionDBC,
-} from './stringConstants';
+} from './localization/stringConstants';
 import {
   ChartDataPoint,
   DataForView,

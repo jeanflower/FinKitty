@@ -3,7 +3,7 @@ import {
   incomeTax,
   roiEnd,
   roiStart,
-} from '../../stringConstants';
+} from '../../localization/stringConstants';
 import { DbModelData } from '../../types/interfaces';
 import { setSetting, makeDateFromString } from '../../utils';
 import { browserTestSettings } from './browserBaseTypes';

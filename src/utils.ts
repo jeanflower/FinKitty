@@ -4,7 +4,7 @@ import {
   incomeTax,
   nationalInsurance,
   separator,
-} from './stringConstants';
+} from './localization/stringConstants';
 import moment from 'moment';
 
 export function makeModelFromJSON(input: string) {

@@ -25,7 +25,7 @@ import {
   viewDetailHint,
   viewFrequency,
   viewFrequencyHint,
-} from '../stringConstants';
+} from '../localization/stringConstants';
 
 import { AWSDB } from './aws_db';
 import { RESTDB } from './REST_db';
