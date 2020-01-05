@@ -21,7 +21,7 @@ import {
   viewDetail,
   viewDetailHint,
 } from '../localization/stringConstants';
-import { getSettings, log, showObj } from '../utils';
+import { getSettings, showObj } from '../utils';
 import Button from './reactComponents/Button';
 import {
   assetsChart,
