@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import { DbTrigger } from '../types/interfaces';
+import { DbTrigger } from '../../types/interfaces';
 import { TriggerOptionList } from './TriggerOptionList';
 import ReactTooltip from 'react-tooltip';
-import { makeDateTooltip } from '../utils';
+import { makeDateTooltip } from '../../utils';
 
 interface DateSelectionProps {
   introLabel: string;

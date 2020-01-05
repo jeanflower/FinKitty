@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { DbExpense, DbModelData } from '../types/interfaces';
+import { DbExpense, DbModelData } from '../../types/interfaces';
 import {
   checkTriggerDate,
   log,
@@ -8,11 +8,11 @@ import {
   showObj,
   makeBooleanFromYesNo,
   makeGrowthFromString,
-} from '../utils';
+} from '../../utils';
 import Button from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
 import Input from './Input';
-import { isNumberString } from '../checks';
+import { isNumberString } from '../../checks';
 
 interface EditFormState {
   NAME: string;

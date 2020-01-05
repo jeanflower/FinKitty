@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { DbModelData, DbTransaction } from '../types/interfaces';
+import { DbModelData, DbTransaction } from '../../types/interfaces';
 import {
   log,
   makeBooleanFromString,
@@ -8,11 +8,11 @@ import {
   printDebug,
   showObj,
   makeValueAbsPropFromString,
-} from '../utils';
+} from '../../utils';
 import Button from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
 import Input from './Input';
-import { taxPot } from '../stringConstants';
+import { taxPot } from '../../stringConstants';
 
 interface EditFormState {
   NAME: string;

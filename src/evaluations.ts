@@ -1351,9 +1351,7 @@ function calculateToChange(
   // log(`t.TO = ${t.TO}`)
   // log(`before transaction, toValue = ${tToValue}`)
   if (preToValue === undefined) {
-    throw new Error(
-      `Bug : transacting to unvalued asset ${showObj(moment)}`,
-    );
+    throw new Error(`Bug : transacting to unvalued asset ${showObj(moment)}`);
   }
   // log(`t.TO_VALUE = ${t.TO_VALUE}`);
   if (t.TO_ABSOLUTE) {

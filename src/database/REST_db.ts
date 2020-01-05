@@ -1,4 +1,4 @@
-import { DbInterface, minimalModel, cleanUp } from './database';
+import { cleanUp, DbInterface, minimalModel } from './database';
 import { DbModelData } from '../types/interfaces';
 import { printDebug } from '../utils';
 
@@ -149,7 +149,9 @@ export class RESTDB implements DbInterface {
         return result;
       })
       .then(result => {
-        // return console.log(result);
+        if (printDebug()) {
+          console.log(result);
+        }
       })
       .catch(error => {
         return console.log('error', error);

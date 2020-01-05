@@ -10,7 +10,7 @@ import {
   XYPlot,
   YAxis,
 } from 'react-vis';
-import { log } from '../utils';
+import { log } from '../../utils';
 import '../utilsules/react-vis/dist/style.css';
 
 export interface ReactVisChartPoint extends VerticalBarSeriesPoint {

@@ -1,6 +1,6 @@
 import React from 'react';
-import { DbSetting } from '../types/interfaces';
-import { makeGrowthTooltip, makeStringFromGrowth } from '../utils';
+import { DbSetting } from '../../types/interfaces';
+import { makeGrowthTooltip, makeStringFromGrowth } from '../../utils';
 
 interface GrowthFormatterProps {
   value: string;

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
-import { DbModelData, DbTrigger } from '../types/interfaces';
-import { log, printDebug, showObj, makeDateFromString } from '../utils';
+import { DbModelData, DbTrigger } from '../../types/interfaces';
+import { log, printDebug, showObj, makeDateFromString } from '../../utils';
 import Button from './Button';
 import Input from './Input';
 

@@ -1,18 +1,18 @@
 import React, { Component } from 'react';
 
-import { checkAssetLiability, isNumberString } from '../checks';
-import { DbAsset, DbModelData } from '../types/interfaces';
+import { checkAssetLiability, isNumberString } from '../../checks';
+import { DbAsset, DbModelData } from '../../types/interfaces';
 import {
   checkTriggerDate,
   log,
   printDebug,
   showObj,
   makeBooleanFromYesNo,
-} from '../utils';
+} from '../../utils';
 import Button from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
 import Input from './Input';
-import { cgt } from '../stringConstants';
+import { cgt } from '../../stringConstants';
 
 interface EditFormState {
   NAME: string;

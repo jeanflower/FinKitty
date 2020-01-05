@@ -1,5 +1,5 @@
 import React from 'react';
-import { makeStringFromFromToValue } from '../utils';
+import { makeStringFromFromToValue } from '../../utils';
 // import { showObj } from '../AppLogic'
 
 interface ToFromValueFormatterProps {

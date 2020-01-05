@@ -58,13 +58,12 @@ import {
 import { Evaluation } from '../../types/interfaces';
 import {
   log,
+  makeDateFromString,
+  makeModelFromJSON,
   printDebug,
   setSetting,
   suppressLogs,
   unSuppressLogs,
-  makeDateFromString,
-  makeModelFromJSON,
-  showObj,
   // showObj,
 } from '../../utils';
 import { minimalModel } from '../../database/database';

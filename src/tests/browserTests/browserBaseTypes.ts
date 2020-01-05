@@ -149,6 +149,8 @@ async function gotoHomePage(driver: any) {
 export async function selectModel(driver: any, testDataModelName: string) {
   await gotoHomePage(driver);
 
+  await sleep(1000, 'time for buttons to appear');
+
   const btnData = await driver.findElements(
     webdriver.By.id(`btn-overview-${testDataModelName}`),
   );

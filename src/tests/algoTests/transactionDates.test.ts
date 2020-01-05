@@ -9,6 +9,7 @@ export const testAsset: DbAsset = {
   VALUE: '1.2',
   GROWTH: '0.0',
   CPI_IMMUNE: false,
+  CAN_BE_NEGATIVE: true,
   LIABILITY: '',
   PURCHASE_PRICE: '0',
 };

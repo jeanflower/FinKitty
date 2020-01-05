@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
-import { checkIncomeLiability, isNumberString } from '../checks';
-import { DbIncome, DbModelData, DbTransaction } from '../types/interfaces';
+import { checkIncomeLiability, isNumberString } from '../../checks';
+import { DbIncome, DbModelData, DbTransaction } from '../../types/interfaces';
 import {
   checkTriggerDate,
   log,
@@ -10,7 +10,7 @@ import {
   makeBooleanFromYesNo,
   makeGrowthFromString,
   makeIncomeLiabilityFromNameAndNI,
-} from '../utils';
+} from '../../utils';
 import Button from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
 import Input from './Input';
@@ -21,7 +21,7 @@ import {
   pensionSS,
   separator,
   pensionTransfer,
-} from '../stringConstants';
+} from '../../stringConstants';
 
 interface EditFormState {
   NAME: string;

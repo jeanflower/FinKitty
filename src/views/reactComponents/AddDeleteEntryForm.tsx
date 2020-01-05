@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { log, printDebug, showObj } from '../utils';
+import { log, printDebug, showObj } from '../../utils';
 import Button from './Button';
 import Input from './Input';
 

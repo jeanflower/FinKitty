@@ -1,7 +1,4 @@
 import React, { Component } from 'react';
-import assetsGraph from './sampleAssetGraph.png';
-import expensesGraph from './sampleExpenseGraph.png';
-import taxGraph from './sampleTaxGraph.png';
 import {
   billAndBenExampleData,
   mortgageSwitchExampleData,
@@ -9,54 +6,14 @@ import {
   pension1ExampleData,
 } from './models/exampleModels';
 import { useAuth0 } from './contexts/auth0-context';
-import CanvasJSReact from './assets/js/canvasjs.react';
 import { makeChartData } from './charting';
-import {
-  checkAsset,
-  checkData,
-  checkExpense,
-  checkIncome,
-  checkTransaction,
-  checkTrigger,
-} from './checks';
+import { checkData, checkTransaction, checkTrigger } from './checks';
 import { getDB, cleanUp } from './database/database';
-// } from './models/outsideGit/RealData';
-import { AddDeleteAssetForm } from './reactComponents/AddDeleteAssetForm';
-import { AddDeleteEntryForm } from './reactComponents/AddDeleteEntryForm';
-import { AddDeleteExpenseForm } from './reactComponents/AddDeleteExpenseForm';
-import { AddDeleteIncomeForm } from './reactComponents/AddDeleteIncomeForm';
-import { AddDeleteTransactionForm } from './reactComponents/AddDeleteTransactionForm';
-import { AddDeleteTriggerForm } from './reactComponents/AddDeleteTriggerForm';
-import Button from './reactComponents/Button';
-import DataGrid from './reactComponents/DataGrid';
-import ReactiveTextArea from './reactComponents/ReactiveTextArea';
-/*
-import {
-  IReactVisChartPoint,
-} from './reactComponents/ReactVisExample';
-*/
-import {
-  allItems,
-  assetChartAdditions,
-  assetChartDeltas,
-  assetChartHint,
-  assetChartReductions,
-  assetChartVal,
-  assetChartView,
-  CASH_ASSET_NAME,
-  coarse,
-  expenseChartFocus,
-  expenseChartFocusHint,
-  fine,
-  incomeChartFocus,
-  incomeChartFocusHint,
-  assetChartFocus,
-  assetChartFocusHint,
-  taxPot,
-  viewDetail,
-  viewDetailHint,
-  exampleModelName,
-} from './stringConstants';
+import { AddDeleteEntryForm } from './views/reactComponents/AddDeleteEntryForm';
+import { AddDeleteTransactionForm } from './views/reactComponents/AddDeleteTransactionForm';
+import { AddDeleteTriggerForm } from './views/reactComponents/AddDeleteTriggerForm';
+import Button from './views/reactComponents/Button';
+import { taxPot, exampleModelName } from './stringConstants';
 import {
   ChartData,
   DataForView,
@@ -70,65 +27,24 @@ import {
   ItemChartData,
   DbItem,
 } from './types/interfaces';
+import { log, makeModelFromJSON, printDebug, showObj } from './utils';
+import { loginPage } from './views/loginPage';
+import { screenshotsDiv } from './views/screenshotsPage';
 import {
-  getSettings,
-  log,
-  makeBooleanFromYesNo,
-  makeYesNoFromBoolean,
-  printDebug,
-  showObj,
-  makeValueAbsPropFromString,
-  makeStringFromValueAbsProp,
-  makeCashValueFromString,
-  makeGrowthFromString,
-  makeStringFromGrowth,
-  makePurchasePriceFromString,
-  makeStringFromPurchasePrice,
-  makeDateFromString,
-  makeModelFromJSON,
-} from './utils';
-import ToFromValueFormatter from './reactComponents/ToFromValueFormatter';
-import TriggerDateFormatter from './reactComponents/TriggerDateFormatter';
-import GrowthFormatter from './reactComponents/GrowthFormatter';
-import CashValueFormatter from './reactComponents/CashValueFormatter';
-// import './bootstrap.css'
+  settingsTableDiv,
+  transactionsTableDiv,
+  triggersTableDiv,
+} from './views/tablePages';
+import { overviewDiv } from './views/overviewPage';
+import { taxDiv } from './views/chartPages';
+import { incomesDiv } from './views/incomesPage';
+import { expensesDiv } from './views/expensesPage';
+import { assetsDiv } from './views/assetsPage';
 
-const { CanvasJSChart } = CanvasJSReact;
+// import './bootstrap.css'
 
 export let modelName: string = exampleModelName;
 let userID = '';
-
-function screenshotsDiv() {
-  return (
-    <>
-      <h3>Get a handle on your planned expenses</h3>
-      <img
-        src={expensesGraph}
-        alt="Sample expense graph screenshot"
-        width={500}
-        height={300}
-      ></img>
-      <br />
-      <br />
-      <h3>See the prospects for your future financial health</h3>
-      <img
-        src={assetsGraph}
-        alt="Sample asset graph screenshot"
-        width={500}
-        height={300}
-      ></img>
-      <br />
-      <br />
-      <h3>Check on your predicted tax payments</h3>
-      <img
-        src={taxGraph}
-        alt="Sample tax graph screenshot"
-        width={500}
-        height={300}
-      ></img>
-    </>
-  );
-}
 
 function App() {
   const {
@@ -140,79 +56,7 @@ function App() {
   } = useAuth0();
   if (!isLoading && !user) {
     userID = '';
-    return (
-      <>
-        <div className="page-header">
-          <h1>
-            Finkitty <small>an app for financial kitty forecasting</small>
-          </h1>
-        </div>
-        <div className="row">
-          <div className="col-sm mb-4">
-            <div className="alert alert-block">
-              <h2>Get started</h2> To begin using this app, click below
-              <br />
-              <button onClick={loginWithRedirect} id="buttonLogin">
-                Login or create an account
-              </button>
-              <button onClick={loginForTesting} id="buttonTestLogin">
-                Test playpen (no login)
-              </button>
-            </div>
-            <div className="alert alert-block">
-              <strong>How it works</strong> Build one or more models. Each
-              tracks the financial progress of one possible world, based on
-              information you provide for that model, about expenses, incomes,
-              assets and transactions. You can log out and come back another
-              time and your models will still be available for you to explore.
-              For each model, an overview page can be printed to PDF as a
-              take-away customisable report, which can include all the data you
-              have provided to build up the model.
-            </div>
-            <div className="alert alert-block">
-              <strong>Data security</strong> Access to the app is controlled by
-              user authentication. Web communication uses secure HTTPS protocols
-              and model data is encypted using industry-standard algorithms
-              before it is stored in a database on the cloud. You can extract
-              all your data in readable JSON text format if you choose to delete
-              your data from this system. For the moment, the database and
-              server are build without additional levels of health checks and
-              full resilience. If you need guaranteed access to your data, a
-              backup download of the JSON data and a record of the PDF overview
-              are advised.
-            </div>
-            <div className="alert alert-block">
-              <strong>Modeling tax</strong> Income tax is calculated according
-              to UK tax regulations as at December 2019. Capital Gains tax is
-              implemented as a somewhat simplified version of the real thing in
-              UK as at December 2019. Assuming ongoing development, future
-              versions of the app will calculate incomes and gains to be taxed
-              according to the rules applicable at the time the income or gain
-              was made.
-            </div>
-            <div className="alert alert-block">
-              <strong>Modeling assumptions</strong> In addition to the data you
-              enter for modeling incomes, expenses, assets and transactions, you
-              can provide a value for CPI to influence how values change over
-              time. Future tax regime is assumed to be the latet known one. Any
-              irregular stock market crashes can be input as part of a model but
-              unless they are added, the future is assumed to progress smoothly
-              (and unrealistically) in a predictable and continuous fashion.
-            </div>
-            <div className="alert alert-block">
-              <strong>Small print!</strong> This web app should not be used to
-              make important financial decisions without also getting
-              independent advice from a qualified&nbsp;
-              <a href="https://www.fca.org.uk/consumers/finding-adviser">
-                &nbsp;independent financial advisor{' '}
-              </a>{' '}
-              to validate financial plans.
-            </div>
-          </div>
-          <div className="col-md mb-4">{screenshotsDiv()}</div>
-        </div>
-      </>
-    );
+    return loginPage(loginWithRedirect, loginForTesting);
   }
   if (!isLoading && user) {
     userID = user.sub;
@@ -236,26 +80,26 @@ interface ViewType {
   lc: string;
 }
 const homeView: ViewType = { lc: 'Home' };
-const expensesView: ViewType = { lc: 'Expenses' };
-const incomesView: ViewType = { lc: 'Incomes' };
-const transactionsView: ViewType = { lc: 'Transactions' };
-const assetsView: ViewType = { lc: 'Assets' };
-const triggersView: ViewType = { lc: 'Important dates' };
-const settingsView: ViewType = { lc: 'Settings' };
-const taxView: ViewType = { lc: 'Tax payments' };
+export const expensesView: ViewType = { lc: 'Expenses' };
+export const incomesView: ViewType = { lc: 'Incomes' };
+export const transactionsView: ViewType = { lc: 'Transactions' };
+export const assetsView: ViewType = { lc: 'Assets' };
+export const triggersView: ViewType = { lc: 'Important dates' };
+export const settingsView: ViewType = { lc: 'Settings' };
+export const taxView: ViewType = { lc: 'Tax payments' };
 
-const expensesChart: ViewType = { lc: 'Expenses chart' };
-const incomesChart: ViewType = { lc: 'Incomes chart' };
-const assetsChart: ViewType = { lc: 'Assets chart' };
+export const expensesChart: ViewType = { lc: 'Expenses chart' };
+export const incomesChart: ViewType = { lc: 'Incomes chart' };
+export const assetsChart: ViewType = { lc: 'Assets chart' };
 
-const expensesTable: ViewType = { lc: 'Expenses table' };
-const incomesTable: ViewType = { lc: 'Incomes table' };
-const assetsTable: ViewType = { lc: 'Assets table' };
-const transactionsTable: ViewType = { lc: 'Transactions table' };
-const triggersTable: ViewType = { lc: 'Important dates table' };
-const settingsTable: ViewType = { lc: 'Settings table' };
+export const expensesTable: ViewType = { lc: 'Expenses table' };
+export const incomesTable: ViewType = { lc: 'Incomes table' };
+export const assetsTable: ViewType = { lc: 'Assets table' };
+export const transactionsTable: ViewType = { lc: 'Transactions table' };
+export const triggersTable: ViewType = { lc: 'Important dates table' };
+export const settingsTable: ViewType = { lc: 'Settings table' };
 
-const overview: ViewType = { lc: 'Overview' };
+export const overview: ViewType = { lc: 'Overview' };
 
 const views = new Map<
   ViewType,
@@ -347,7 +191,7 @@ const exampleModels = [
     model: pension1ExampleData,
   },
 ];
-const showContent = new Map<ViewType, any>([
+export const showContent = new Map<ViewType, any>([
   [incomesChart, { display: false }],
   [expensesChart, { display: false }],
   [assetsChart, { display: false }],
@@ -361,7 +205,7 @@ const showContent = new Map<ViewType, any>([
 
 let reactAppComponent: AppContent;
 
-function getDisplay(type: ViewType) {
+export function getDisplay(type: ViewType) {
   const view = views.get(type);
   if (view === undefined) {
     log(`Error : unrecognised view ${type}`);
@@ -572,7 +416,7 @@ async function refreshData(goToDB = true) {
   }
 }
 
-function toggle(type: ViewType) {
+export function toggle(type: ViewType) {
   for (const k of views.keys()) {
     if (k !== type) {
       const view = views.get(k);
@@ -592,7 +436,7 @@ function toggle(type: ViewType) {
   refreshData(false);
 }
 
-function toggleDisplay(type: ViewType) {
+export function toggleDisplay(type: ViewType) {
   showContent.set(type, {
     display: !showContent.get(type).display,
   });
@@ -616,7 +460,8 @@ function updateItemList(itemList: DbItem[], newData: DbItem) {
   }
   itemList.push(newData);
 }
-async function submitExpense(expenseInput: DbExpense) {
+
+export async function submitExpense(expenseInput: DbExpense) {
   if (printDebug()) {
     log(`in submitExpense with input : ${showObj(expenseInput)}`);
   }
@@ -628,6 +473,7 @@ async function submitExpense(expenseInput: DbExpense) {
   );
   await refreshData();
 }
+
 export async function submitNewExpense(name: string) {
   submitExpense({
     NAME: name,
@@ -640,7 +486,8 @@ export async function submitNewExpense(name: string) {
     CPI_IMMUNE: false,
   });
 }
-async function submitIncome(incomeInput: DbIncome) {
+
+export async function submitIncome(incomeInput: DbIncome) {
   if (printDebug()) {
     log(`in submitIncome with input : ${showObj(incomeInput)}`);
   }
@@ -652,7 +499,8 @@ async function submitIncome(incomeInput: DbIncome) {
   );
   await refreshData();
 }
-async function submitTrigger(trigger: DbTrigger) {
+
+export async function submitTrigger(trigger: DbTrigger) {
   if (printDebug()) {
     log(`go to submitTriggers with input : ${showObj(trigger)}`);
   }
@@ -664,13 +512,15 @@ async function submitTrigger(trigger: DbTrigger) {
   );
   await refreshData();
 }
+
 export async function submitNewTrigger(name: string) {
   submitTrigger({
     NAME: name,
     DATE: new Date(),
   });
 }
-async function submitAsset(assetInput: DbAsset) {
+
+export async function submitAsset(assetInput: DbAsset) {
   if (printDebug()) {
     log(`in submitAsset with input : ${showObj(assetInput)}`);
   }
@@ -682,6 +532,7 @@ async function submitAsset(assetInput: DbAsset) {
   );
   await refreshData();
 }
+
 export async function submitNewAsset(name: string) {
   submitAsset({
     NAME: name,
@@ -695,7 +546,8 @@ export async function submitNewAsset(name: string) {
     PURCHASE_PRICE: '0',
   });
 }
-async function submitTransaction(input: DbTransaction) {
+
+export async function submitTransaction(input: DbTransaction) {
   if (printDebug()) {
     log(`in submitTransaction with input : ${showObj(input)}`);
   }
@@ -707,6 +559,7 @@ async function submitTransaction(input: DbTransaction) {
   );
   await refreshData();
 }
+
 export async function submitNewTransaction(name: string) {
   submitTransaction({
     NAME: name,
@@ -723,7 +576,7 @@ export async function submitNewTransaction(name: string) {
   });
 }
 
-async function submitSetting(input: DbSetting) {
+export async function submitSetting(input: DbSetting) {
   if (printDebug()) {
     log(`in submitSetting with input : ${showObj(input)}`);
   }
@@ -735,265 +588,13 @@ async function submitSetting(input: DbSetting) {
   );
   await refreshData();
 }
+
 export async function submitNewSetting(name: string) {
   submitSetting({
     NAME: name,
     VALUE: '',
     HINT: '',
   });
-}
-
-function prohibitEditOfName() {
-  alert('prohibit edit of name');
-}
-
-function handleExpenseGridRowsUpdated() {
-  // log('handleExpenseGridRowsUpdated', arguments);
-  const expense = arguments[0].fromRowData;
-  // log('old expense '+showObj(expense));
-  if (arguments[0].cellKey === 'NAME') {
-    if (expense.NAME !== arguments[0].updated.NAME) {
-      prohibitEditOfName();
-    }
-    return;
-  }
-
-  const oldValue = expense[arguments[0].cellKey];
-  expense[arguments[0].cellKey] = arguments[0].updated[arguments[0].cellKey];
-  // log('new expense '+showObj(expense));
-  const parsedCPIImmune = makeBooleanFromYesNo(expense.IS_CPI_IMMUNE);
-  const parsedValue = makeCashValueFromString(expense.VALUE);
-  const parsedGrowth = makeGrowthFromString(
-    expense.GROWTH,
-    reactAppComponent.state.modelData.settings,
-  );
-  if (!parsedCPIImmune.checksOK) {
-    alert("Whether expense is CPI-immune should be 'y' or 'n'");
-    expense[arguments[0].cellKey] = oldValue;
-  } else if (!parsedValue.checksOK) {
-    alert(`Value ${expense.VALUE} can't be understood as a cash value}`);
-    expense[arguments[0].cellKey] = oldValue;
-  } else if (!parsedGrowth.checksOK) {
-    alert(`Value ${expense.GROWTH} can't be understood as a growth}`);
-    expense[arguments[0].cellKey] = oldValue;
-  } else {
-    const expenseForSubmission: DbExpense = {
-      NAME: expense.NAME,
-      CATEGORY: expense.CATEGORY,
-      START: expense.START,
-      END: expense.END,
-      VALUE: `${parsedValue.value}`,
-      VALUE_SET: expense.VALUE_SET,
-      GROWTH: parsedGrowth.value,
-      CPI_IMMUNE: parsedCPIImmune.value,
-    };
-    // log(`expenseForSubmission = ${showObj(expenseForSubmission)}`);
-    const checks = checkExpense(
-      expenseForSubmission,
-      reactAppComponent.state.modelData,
-    );
-    if (checks === '') {
-      submitExpense(expenseForSubmission);
-    } else {
-      alert(checks);
-      expense[arguments[0].cellKey] = oldValue;
-    }
-  }
-}
-function handleIncomeGridRowsUpdated() {
-  // log('handleIncomeGridRowsUpdated', arguments);
-  const income = arguments[0].fromRowData;
-  // log('old income '+showObj(income));
-  if (arguments[0].cellKey === 'NAME') {
-    if (income.NAME !== arguments[0].updated.NAME) {
-      prohibitEditOfName();
-    }
-    return;
-  }
-
-  const oldValue = income[arguments[0].cellKey];
-  income[arguments[0].cellKey] = arguments[0].updated[arguments[0].cellKey];
-  // log('new income '+showObj(income));
-  const parsedCPIImmune = makeBooleanFromYesNo(income.IS_CPI_IMMUNE);
-  const parsedValue = makeCashValueFromString(income.VALUE);
-  const parsedGrowth = makeGrowthFromString(
-    income.GROWTH,
-    reactAppComponent.state.modelData.settings,
-  );
-  if (!parsedCPIImmune.checksOK) {
-    alert("Whether income is CPI-immune should be 'y' or 'n'");
-    income[arguments[0].cellKey] = oldValue;
-  } else if (!parsedValue.checksOK) {
-    alert(`Value ${income.VALUE} can't be understood as a cash value}`);
-    income[arguments[0].cellKey] = oldValue;
-  } else if (!parsedGrowth.checksOK) {
-    alert(`Value ${income.GROWTH} can't be understood as a growth}`);
-    income[arguments[0].cellKey] = oldValue;
-  } else {
-    const incomeForSubmission: DbIncome = {
-      NAME: income.NAME,
-      CATEGORY: income.CATEGORY,
-      START: income.START,
-      END: income.END,
-      VALUE: `${parsedValue.value}`,
-      VALUE_SET: income.VALUE_SET,
-      GROWTH: parsedGrowth.value,
-      CPI_IMMUNE: parsedCPIImmune.value,
-      LIABILITY: income.LIABILITY,
-    };
-    const checks = checkIncome(
-      incomeForSubmission,
-      reactAppComponent.state.modelData,
-    );
-    if (checks === '') {
-      submitIncome(incomeForSubmission);
-    } else {
-      alert(checks);
-      income[arguments[0].cellKey] = oldValue;
-    }
-  }
-}
-function handleTriggerGridRowsUpdated() {
-  // log('handleTriggerGridRowsUpdated', arguments);
-  const trigger = arguments[0].fromRowData;
-  if (arguments[0].cellKey === 'NAME') {
-    if (trigger.NAME !== arguments[0].updated.NAME) {
-      prohibitEditOfName();
-    }
-    return;
-  }
-  const oldValue = trigger[arguments[0].cellKey];
-  trigger[arguments[0].cellKey] = arguments[0].updated[arguments[0].cellKey];
-  // log(`submitTrigger(trigger) has trigger = ${showObj(trigger)}`);
-  const forSubmit: DbTrigger = {
-    NAME: trigger.NAME,
-    DATE: makeDateFromString(trigger.DATE),
-  };
-  const checks = checkTrigger(forSubmit);
-  if (checks === '') {
-    submitTrigger(forSubmit);
-  } else {
-    alert(checks);
-    trigger[arguments[0].cellKey] = oldValue;
-  }
-}
-function handleAssetGridRowsUpdated() {
-  // log('handleAssetGridRowsUpdated', arguments);
-  const asset = arguments[0].fromRowData;
-  if (arguments[0].cellKey === 'NAME') {
-    if (asset.NAME !== arguments[0].updated.NAME) {
-      prohibitEditOfName();
-    }
-    return;
-  }
-  const oldValue = asset[arguments[0].cellKey];
-  asset[arguments[0].cellKey] = arguments[0].updated[arguments[0].cellKey];
-  const parsedValue = makeCashValueFromString(asset.VALUE);
-  const parsedGrowth = makeGrowthFromString(
-    asset.GROWTH,
-    reactAppComponent.state.modelData.settings,
-  );
-  const parsedPurchasePrice = makePurchasePriceFromString(asset.PURCHASE_PRICE);
-  const parsedCPIImmune = makeBooleanFromYesNo(asset.IS_CPI_IMMUNE);
-  const parsedCanBeNegative = makeBooleanFromYesNo(asset.CAN_BE_NEGATIVE);
-  if (!parsedGrowth.checksOK) {
-    alert(`asset growth ${asset.GROWTH} not understood`);
-    asset[arguments[0].cellKey] = oldValue;
-  } else if (!parsedValue.checksOK) {
-    alert(`asset value ${asset.VALUE} not understood`);
-    asset[arguments[0].cellKey] = oldValue;
-  } else if (!parsedCPIImmune.checksOK) {
-    alert(`asset value ${asset.IS_CPI_IMMUNE} not understood`);
-    asset[arguments[0].cellKey] = oldValue;
-  } else {
-    const assetForSubmission: DbAsset = {
-      NAME: asset.NAME,
-      VALUE: `${parsedValue.value}`,
-      START: asset.START,
-      LIABILITY: asset.LIABILITY,
-      GROWTH: parsedGrowth.value,
-      CPI_IMMUNE: parsedCPIImmune.value,
-      CAN_BE_NEGATIVE: parsedCanBeNegative.value,
-      PURCHASE_PRICE: parsedPurchasePrice,
-      CATEGORY: asset.CATEGORY,
-    };
-    const checks = checkAsset(
-      assetForSubmission,
-      reactAppComponent.state.modelData,
-    );
-    if (checks === '') {
-      submitAsset(assetForSubmission);
-    } else {
-      alert(checks);
-      asset[arguments[0].cellKey] = oldValue;
-    }
-  }
-}
-
-function handleTransactionGridRowsUpdated() {
-  // log('handleTransactionGridRowsUpdated', arguments);
-  const gridData = arguments[0].fromRowData;
-  if (arguments[0].cellKey === 'NAME') {
-    if (gridData.NAME !== arguments[0].updated.NAME) {
-      prohibitEditOfName();
-    }
-    return;
-  }
-  const oldValue = gridData[arguments[0].cellKey];
-  gridData[arguments[0].cellKey] = arguments[0].updated[arguments[0].cellKey];
-
-  const parseFrom = makeValueAbsPropFromString(gridData.FROM_VALUE);
-  const parseTo = makeValueAbsPropFromString(gridData.TO_VALUE);
-  if (!parseFrom.checksOK) {
-    alert('From value should be a number or a number with % symbol');
-    gridData[arguments[0].cellKey] = oldValue;
-  } else if (!parseTo.checksOK) {
-    alert('To value should be a number or a number with % symbol');
-    gridData[arguments[0].cellKey] = oldValue;
-  } else {
-    const transaction: DbTransaction = {
-      DATE: gridData.DATE,
-      FROM: gridData.FROM,
-      FROM_VALUE: parseFrom.value,
-      FROM_ABSOLUTE: parseFrom.absolute,
-      NAME: gridData.NAME,
-      TO: gridData.TO,
-      TO_ABSOLUTE: parseTo.absolute,
-      TO_VALUE: parseTo.value,
-      STOP_DATE: gridData.STOP_DATE,
-      RECURRENCE: gridData.RECURRENCE,
-      CATEGORY: gridData.CATEGORY,
-    };
-    const checks = checkTransaction(
-      transaction,
-      reactAppComponent.state.modelData,
-    );
-    if (checks === '') {
-      submitTransaction(transaction);
-    } else {
-      alert(checks);
-      gridData[arguments[0].cellKey] = oldValue;
-    }
-  }
-}
-function handleSettingGridRowsUpdated() {
-  // log('handleSettingGridRowsUpdated', arguments);
-  const x = arguments[0].fromRowData;
-  if (arguments[0].cellKey === 'NAME') {
-    if (x.NAME !== arguments[0].updated.NAME) {
-      prohibitEditOfName();
-    }
-    return;
-  }
-  // log('old expense '+showObj(expense));
-  x[arguments[0].cellKey] = arguments[0].updated[arguments[0].cellKey];
-  // log('new expense '+showObj(expense));
-  const forSubmission: DbSetting = {
-    NAME: x.NAME,
-    VALUE: x.VALUE,
-    HINT: x.HINT,
-  };
-  submitSetting(forSubmission);
 }
 
 export async function deleteItemFromModel(
@@ -1023,6 +624,7 @@ export async function deleteTriggerFromTable(name: string) {
     reactAppComponent.state.modelData,
   );
 }
+
 export async function deleteAssetFromTable(name: string) {
   return deleteItemFromModel(
     name,
@@ -1031,6 +633,7 @@ export async function deleteAssetFromTable(name: string) {
     reactAppComponent.state.modelData,
   );
 }
+
 export async function deleteTransactionFromTable(name: string) {
   return deleteItemFromModel(
     name,
@@ -1039,6 +642,7 @@ export async function deleteTransactionFromTable(name: string) {
     reactAppComponent.state.modelData,
   );
 }
+
 export async function deleteExpenseFromTable(name: string) {
   return deleteItemFromModel(
     name,
@@ -1047,6 +651,7 @@ export async function deleteExpenseFromTable(name: string) {
     reactAppComponent.state.modelData,
   );
 }
+
 export async function deleteIncomeFromTable(name: string) {
   return deleteItemFromModel(
     name,
@@ -1055,6 +660,7 @@ export async function deleteIncomeFromTable(name: string) {
     reactAppComponent.state.modelData,
   );
 }
+
 export async function deleteSettingFromTable(name: string) {
   return deleteItemFromModel(
     name,
@@ -1083,45 +689,6 @@ interface AppProps {
   logOutAction: any; // TODO type for function
   user: any; // TODO
 }
-
-const defaultChartSettings = {
-  height: 400,
-  toolTip: {
-    content: '{name}: {ttip}',
-  },
-  // width: 800,
-
-  legend: {
-    // fontSize: 30,
-    fontFamily: 'Helvetica',
-    fontWeight: 'normal',
-    horizontalAlign: 'right', // left, center ,right
-    verticalAlign: 'center', // top, center, bottom
-  },
-};
-
-const defaultColumn = {
-  editable: true,
-  resizable: true,
-};
-/*
-function convertChartDatum(z: IChartDataPoint, name: string): IReactVisChartPoint {
-  log(`IChartDataPoint z is ${showObj(z)}`);
-  const result: IReactVisChartPoint = {
-    x: z.label,
-    y: z.y,
-    ttip: `${name} ${z.ttip}`,
-  };
-  log(`converted result is ${showObj(result)}`);
-  return result;
-}
-
-function makeReactVisChartData(x: IChartData): IReactVisChartPoint[] {
-  const result = x.dataPoints.map(w => convertChartDatum(w, x.name));
-  // log(`${result}`);
-  return result;
-}
-*/
 
 export class AppContent extends Component<AppProps, AppState> {
   public constructor(props: AppProps) {
@@ -1161,13 +728,18 @@ export class AppContent extends Component<AppProps, AppState> {
         </nav>
         <div style={{ paddingTop: '100px' }}>
           {this.homeDiv()}
-          {this.overviewDiv()}
+          {overviewDiv(
+            this.state.modelData,
+            this.state.assetChartData,
+            this.state.expensesChartData,
+            this.state.incomesChartData,
+          )}
           {this.settingsDiv()}
-          {this.incomesDiv()}
-          {this.expensesDiv()}
-          {this.assetsDiv()}
+          {incomesDiv(this.state.modelData, this.state.incomesChartData)}
+          {expensesDiv(this.state.modelData, this.state.expensesChartData)}
+          {assetsDiv(this.state.modelData, this.state.assetChartData)}
           {this.transactionsDiv()}
-          {this.taxDiv()}
+          {taxDiv(this.state.taxChartData)}
           {this.triggersDiv()}
         </div>
       </div>
@@ -1381,48 +953,6 @@ export class AppContent extends Component<AppProps, AppState> {
     );
   }
 
-  private settingsTableDiv() {
-    const tableVisible = showContent.get(settingsTable).display;
-    return (
-      <div
-        className="dataGridSettings"
-        style={{
-          display: tableVisible ? 'block' : 'none',
-        }}
-      >
-        <DataGrid
-          handleGridRowsUpdated={handleSettingGridRowsUpdated}
-          rows={this.state.modelData.settings.map((obj: DbSetting) => {
-            showObj(`obj = ${obj}`);
-            const result = {
-              NAME: obj.NAME,
-              VALUE: obj.VALUE,
-              HINT: obj.HINT,
-            };
-            return result;
-          })}
-          columns={[
-            {
-              ...defaultColumn,
-              key: 'NAME',
-              name: 'name',
-            },
-            {
-              ...defaultColumn,
-              key: 'VALUE',
-              name: 'value',
-            },
-            {
-              ...defaultColumn,
-              key: 'HINT',
-              name: 'hint',
-            },
-          ]}
-        />
-      </div>
-    );
-  }
-
   private settingsDiv() {
     return (
       <div style={{ display: getDisplay(settingsView) ? 'block' : 'none' }}>
@@ -1441,7 +971,7 @@ export class AppContent extends Component<AppProps, AppState> {
             key={settingsTable.lc}
             id="toggleSettingsChart"
           />
-          {this.settingsTableDiv()}
+          {settingsTableDiv(this.state.modelData)}
           <p />
           <div className="addNewSetting">
             <h4> Add or delete setting </h4>
@@ -1451,817 +981,6 @@ export class AppContent extends Component<AppProps, AppState> {
             />
           </div>
         </fieldset>
-      </div>
-    );
-  }
-
-  private getExpenseChartFocus() {
-    if (this.state.modelData.settings.length === 0) {
-      // data not yet loaded
-      return allItems;
-    }
-    const categoryName = getSettings(
-      this.state.modelData.settings,
-      expenseChartFocus,
-      allItems, // default fallback
-    );
-    return categoryName;
-  }
-
-  private makeFiltersList(
-    gridData: { CATEGORY: string; NAME: string }[],
-    selectedChartFocus: string,
-    settingName: string,
-    defaultSetting: string,
-    hint: string,
-  ) {
-    // selectedChartFocus = this.getExpenseChartFocus()
-    // settingName = expenseChartFocus
-    // defaultSetting = expenseChartFocusAll
-    // hint = expenseChartFocusHint
-    const categories = [defaultSetting];
-    gridData.forEach(e => {
-      let candidate = defaultSetting;
-      candidate = e.NAME;
-      if (categories.indexOf(candidate) < 0) {
-        categories.push(candidate);
-      }
-    });
-    gridData.forEach(e => {
-      let candidate = defaultSetting;
-      if (e.CATEGORY !== '') {
-        candidate = e.CATEGORY;
-        if (categories.indexOf(candidate) < 0) {
-          categories.push(candidate);
-        }
-      }
-    });
-    const buttons = categories.map(category => (
-      <Button
-        key={category}
-        action={(e: any) => {
-          e.persist();
-          // when a button is clicked,
-          // go to change the settings value
-          const forSubmission: DbSetting = {
-            NAME: settingName,
-            VALUE: category,
-            HINT: hint,
-          };
-          submitSetting(forSubmission);
-        }}
-        title={category}
-        type={category === selectedChartFocus ? 'primary' : 'secondary'}
-        id={`select-${category}`}
-      />
-    ));
-    return <div role="group">{buttons}</div>;
-  }
-
-  private expensesTableDiv() {
-    const tableVisible = showContent.get(expensesTable).display;
-    return (
-      <div
-        style={{
-          display: tableVisible ? 'block' : 'none',
-        }}
-      >
-        <fieldset>
-          <div className="dataGridExpenses">
-            <DataGrid
-              handleGridRowsUpdated={handleExpenseGridRowsUpdated}
-              rows={this.state.modelData.expenses.map((obj: DbExpense) => {
-                const result = {
-                  END: obj.END,
-                  IS_CPI_IMMUNE: makeYesNoFromBoolean(obj.CPI_IMMUNE),
-                  GROWTH: makeStringFromGrowth(
-                    obj.GROWTH,
-                    this.state.modelData.settings,
-                  ),
-                  CATEGORY: obj.CATEGORY,
-                  NAME: obj.NAME,
-                  START: obj.START,
-                  VALUE: obj.VALUE,
-                  VALUE_SET: obj.VALUE_SET,
-                };
-                return result;
-              })}
-              columns={[
-                {
-                  ...defaultColumn,
-                  key: 'NAME',
-                  name: 'name',
-                },
-                {
-                  ...defaultColumn,
-                  key: 'VALUE',
-                  name: 'start value',
-                  formatter: <CashValueFormatter value="unset" />,
-                },
-                {
-                  ...defaultColumn,
-                  key: 'VALUE_SET',
-                  name: 'value date',
-                  formatter: (
-                    <TriggerDateFormatter
-                      triggers={this.state.modelData.triggers}
-                      value="unset"
-                    />
-                  ),
-                },
-                {
-                  ...defaultColumn,
-                  key: 'START',
-                  name: 'start',
-                  formatter: (
-                    <TriggerDateFormatter
-                      triggers={this.state.modelData.triggers}
-                      value="unset"
-                    />
-                  ),
-                },
-                {
-                  ...defaultColumn,
-                  key: 'END',
-                  name: 'end',
-                  formatter: (
-                    <TriggerDateFormatter
-                      triggers={this.state.modelData.triggers}
-                      value="unset"
-                    />
-                  ),
-                },
-                {
-                  ...defaultColumn,
-                  key: 'GROWTH',
-                  name: 'annual growth',
-                  formatter: (
-                    <GrowthFormatter
-                      settings={this.state.modelData.settings}
-                      value="unset"
-                    />
-                  ),
-                },
-                {
-                  ...defaultColumn,
-                  key: 'IS_CPI_IMMUNE',
-                  name: 'Is immune from CPI?',
-                },
-                {
-                  ...defaultColumn,
-                  key: 'CATEGORY',
-                  name: 'category',
-                },
-              ]}
-            />
-          </div>
-          <p />
-        </fieldset>
-      </div>
-    );
-  }
-
-  private expensesChartDiv() {
-    const chartVisible = showContent.get(expensesChart).display;
-    return (
-      <div
-        style={{
-          display: chartVisible ? 'block' : 'none',
-        }}
-      >
-        <ReactiveTextArea
-          identifier="expenseDataDump"
-          message={showObj(this.state.expensesChartData)}
-        />
-        {this.makeFiltersList(
-          this.state.modelData.expenses,
-          this.getExpenseChartFocus(),
-          expenseChartFocus,
-          allItems,
-          expenseChartFocusHint,
-        )}
-        {this.coarseFineList()}
-        <fieldset>
-          <ReactiveTextArea
-            identifier="expensesDataDump"
-            message={showObj(this.state.expensesChartData)}
-          />
-          <CanvasJSChart
-            options={{
-              ...defaultChartSettings,
-              data: this.state.expensesChartData,
-            }}
-          />
-        </fieldset>
-      </div>
-    );
-  }
-
-  private expensesDiv() {
-    return (
-      <div style={{ display: getDisplay(expensesView) ? 'block' : 'none' }}>
-        <Button
-          action={(event: any) => {
-            event.persist();
-            toggleDisplay(expensesChart);
-          }}
-          title={`${
-            showContent.get(expensesChart).display ? 'Hide ' : 'Show '
-          }${expensesChart.lc}`}
-          type={
-            showContent.get(expensesChart).display ? 'primary' : 'secondary'
-          }
-          key={expensesChart.lc}
-          id="toggle-expensesChart"
-        />
-        <Button
-          action={(event: any) => {
-            event.persist();
-            toggleDisplay(expensesTable);
-          }}
-          title={`${
-            showContent.get(expensesTable).display ? 'Hide ' : 'Show '
-          }${expensesTable.lc}`}
-          type={
-            showContent.get(expensesTable).display ? 'primary' : 'secondary'
-          }
-          key={expensesTable.lc}
-          id="toggle-expensesTable"
-        />
-        {this.expensesChartDiv()}
-        {this.expensesTableDiv()}
-        <div className="addNewExpense">
-          <h4> Add or delete expense </h4>
-          <AddDeleteExpenseForm
-            checkFunction={checkExpense}
-            submitFunction={submitExpense}
-            deleteFunction={deleteExpenseFromTable}
-            submitTrigger={submitTrigger}
-            model={this.state.modelData}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  private getIncomeChartFocus() {
-    if (this.state.modelData.settings.length === 0) {
-      // data not yet loaded
-      return allItems;
-    }
-    const categoryName = getSettings(
-      this.state.modelData.settings,
-      incomeChartFocus,
-      allItems, // default fallback
-    );
-    return categoryName;
-  }
-
-  private incomesChartDiv() {
-    const chartVisible = showContent.get(incomesChart).display;
-    return (
-      <div
-        style={{
-          display: chartVisible ? 'block' : 'none',
-        }}
-      >
-        <ReactiveTextArea
-          identifier="incomeDataDump"
-          message={showObj(this.state.incomesChartData)}
-        />
-        {this.makeFiltersList(
-          this.state.modelData.incomes,
-          this.getIncomeChartFocus(),
-          incomeChartFocus,
-          allItems,
-          incomeChartFocusHint,
-        )}
-        {this.coarseFineList()}
-        <fieldset>
-          <CanvasJSChart
-            options={{
-              ...defaultChartSettings,
-              data: this.state.incomesChartData,
-            }}
-          />
-        </fieldset>
-      </div>
-    );
-  }
-
-  private incomesTableDiv() {
-    const tableVisible = showContent.get(incomesTable).display;
-    return (
-      <div
-        style={{
-          display: tableVisible ? 'block' : 'none',
-        }}
-      >
-        <fieldset>
-          <div className="dataGridIncomes">
-            <DataGrid
-              handleGridRowsUpdated={handleIncomeGridRowsUpdated}
-              rows={this.state.modelData.incomes.map((obj: DbIncome) => {
-                const result = {
-                  END: obj.END,
-                  IS_CPI_IMMUNE: makeYesNoFromBoolean(obj.CPI_IMMUNE),
-                  GROWTH: makeStringFromGrowth(
-                    obj.GROWTH,
-                    this.state.modelData.settings,
-                  ),
-                  NAME: obj.NAME,
-                  START: obj.START,
-                  VALUE: obj.VALUE,
-                  VALUE_SET: obj.VALUE_SET,
-                  LIABILITY: obj.LIABILITY,
-                  CATEGORY: obj.CATEGORY,
-                };
-                // log(`passing ${showObj(result)}`);
-                return result;
-              })}
-              columns={[
-                {
-                  ...defaultColumn,
-                  key: 'NAME',
-                  name: 'name',
-                },
-                {
-                  ...defaultColumn,
-                  key: 'VALUE',
-                  name: 'start value',
-                  formatter: <CashValueFormatter value="unset" />,
-                },
-                {
-                  ...defaultColumn,
-                  key: 'VALUE_SET',
-                  name: 'value date',
-                  formatter: (
-                    <TriggerDateFormatter
-                      triggers={this.state.modelData.triggers}
-                      value="unset"
-                    />
-                  ),
-                },
-                {
-                  ...defaultColumn,
-                  key: 'START',
-                  name: 'start',
-                  formatter: (
-                    <TriggerDateFormatter
-                      triggers={this.state.modelData.triggers}
-                      value="unset"
-                    />
-                  ),
-                },
-                {
-                  ...defaultColumn,
-                  key: 'END',
-                  name: 'end',
-                  formatter: (
-                    <TriggerDateFormatter
-                      triggers={this.state.modelData.triggers}
-                      value="unset"
-                    />
-                  ),
-                },
-                {
-                  ...defaultColumn,
-                  key: 'GROWTH',
-                  name: 'annual growth',
-                  formatter: (
-                    <GrowthFormatter
-                      settings={this.state.modelData.settings}
-                      value="unset"
-                    />
-                  ),
-                },
-                {
-                  ...defaultColumn,
-                  key: 'IS_CPI_IMMUNE',
-                  name: 'Is immune from CPI?',
-                },
-                {
-                  ...defaultColumn,
-                  key: 'LIABILITY',
-                  name: 'taxable?',
-                },
-                {
-                  ...defaultColumn,
-                  key: 'CATEGORY',
-                  name: 'category',
-                },
-              ]}
-            />
-          </div>
-          <p />
-        </fieldset>
-      </div>
-    );
-  }
-
-  private incomesDiv() {
-    // log('rendering an incomesDiv');
-    return (
-      <div style={{ display: getDisplay(incomesView) ? 'block' : 'none' }}>
-        <Button
-          action={(event: any) => {
-            event.persist();
-            toggleDisplay(incomesChart);
-          }}
-          title={`${showContent.get(incomesChart).display ? 'Hide ' : 'Show '}${
-            incomesChart.lc
-          }`}
-          type={showContent.get(incomesChart).display ? 'primary' : 'secondary'}
-          key={incomesChart.lc}
-          id="toggle-incomesChart"
-        />
-        <Button
-          action={(event: any) => {
-            event.persist();
-            toggleDisplay(incomesTable);
-          }}
-          title={`${showContent.get(incomesTable).display ? 'Hide ' : 'Show '}${
-            incomesTable.lc
-          }`}
-          type={showContent.get(incomesTable).display ? 'primary' : 'secondary'}
-          key={incomesTable.lc}
-          id="toggle-incomesTable"
-        />
-        {this.incomesChartDiv()}
-        {this.incomesTableDiv()}
-        <div className="addNewIncome">
-          <h4> Add or delete income </h4>
-          <AddDeleteIncomeForm
-            checkIncomeFunction={checkIncome}
-            checkTransactionFunction={checkTransaction}
-            submitIncomeFunction={submitIncome}
-            submitTransactionFunction={submitTransaction}
-            deleteFunction={deleteIncomeFromTable}
-            submitTrigger={submitTrigger}
-            model={this.state.modelData}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  private triggersTableDiv() {
-    const tableVisible = showContent.get(triggersTable).display;
-    return (
-      <div
-        style={{
-          display: tableVisible ? 'block' : 'none',
-        }}
-      >
-        <fieldset>
-          <div className="dataGridTriggers">
-            <DataGrid
-              handleGridRowsUpdated={handleTriggerGridRowsUpdated}
-              rows={this.state.modelData.triggers.map((obj: DbTrigger) => {
-                const result = {
-                  DATE: obj.DATE.toDateString(),
-                  NAME: obj.NAME,
-                };
-                return result;
-              })}
-              columns={[
-                {
-                  ...defaultColumn,
-                  key: 'NAME',
-                  name: 'name',
-                  // sortable: true // TODO
-                },
-                {
-                  ...defaultColumn,
-                  key: 'DATE',
-                  name: 'date',
-                },
-              ]}
-            />
-          </div>
-        </fieldset>
-      </div>
-    );
-  }
-
-  private assetsChartDiv() {
-    const chartVisible = showContent.get(assetsChart).display;
-    return (
-      <div
-        style={{
-          display: chartVisible ? 'block' : 'none',
-        }}
-      >
-        {this.assetsList()}
-        {this.assetViewTypeList()}
-        {this.coarseFineList()}
-        <ReactiveTextArea
-          identifier="assetDataDump"
-          message={showObj(this.state.assetChartData)}
-        />
-        <CanvasJSChart
-          options={{
-            ...defaultChartSettings,
-            data: this.state.assetChartData,
-          }}
-        />
-      </div>
-    );
-  }
-
-  private assetsTableDiv() {
-    const tableVisible = showContent.get(assetsTable).display;
-    return (
-      <div
-        style={{
-          display: tableVisible ? 'block' : 'none',
-        }}
-      >
-        <fieldset>
-          <div className="dataGridAssets">
-            <DataGrid
-              handleGridRowsUpdated={handleAssetGridRowsUpdated}
-              rows={this.state.modelData.assets
-                .filter((obj: DbAsset) => {
-                  return obj.NAME !== taxPot;
-                })
-                .map((obj: DbAsset) => {
-                  const result = {
-                    GROWTH: obj.GROWTH,
-                    NAME: obj.NAME,
-                    CATEGORY: obj.CATEGORY,
-                    START: obj.START,
-                    VALUE: obj.VALUE,
-                    LIABILITY: obj.LIABILITY,
-                    PURCHASE_PRICE: makeStringFromPurchasePrice(
-                      obj.PURCHASE_PRICE,
-                      obj.LIABILITY,
-                    ),
-                    IS_CPI_IMMUNE: makeYesNoFromBoolean(obj.CPI_IMMUNE),
-                    CAN_BE_NEGATIVE: makeYesNoFromBoolean(obj.CAN_BE_NEGATIVE),
-                  };
-                  return result;
-                })}
-              columns={[
-                {
-                  ...defaultColumn,
-                  key: 'NAME',
-                  name: 'name',
-                },
-                {
-                  ...defaultColumn,
-                  key: 'VALUE',
-                  name: 'value',
-                  formatter: <CashValueFormatter value="unset" />,
-                },
-                {
-                  ...defaultColumn,
-                  key: 'START',
-                  name: 'start',
-                  formatter: (
-                    <TriggerDateFormatter
-                      triggers={this.state.modelData.triggers}
-                      value="unset"
-                    />
-                  ),
-                },
-                {
-                  ...defaultColumn,
-                  key: 'GROWTH',
-                  name: 'growth',
-                  formatter: (
-                    <GrowthFormatter
-                      settings={this.state.modelData.settings}
-                      value="unset"
-                    />
-                  ),
-                },
-                {
-                  ...defaultColumn,
-                  key: 'IS_CPI_IMMUNE',
-                  name: 'Is immune from CPI?',
-                },
-                {
-                  ...defaultColumn,
-                  key: 'CAN_BE_NEGATIVE',
-                  name: 'Can go negative?',
-                },
-                {
-                  ...defaultColumn,
-                  key: 'LIABILITY',
-                  name: 'liability',
-                },
-                {
-                  ...defaultColumn,
-                  key: 'PURCHASE_PRICE',
-                  name: 'purchase price',
-                  formatter: <CashValueFormatter value="unset" />,
-                },
-                {
-                  ...defaultColumn,
-                  key: 'CATEGORY',
-                  name: 'category',
-                },
-              ]}
-            />
-          </div>
-          <p />
-        </fieldset>
-      </div>
-    );
-  }
-
-  private transactionsTableDiv() {
-    const tableVisible = showContent.get(transactionsTable).display;
-    return (
-      <fieldset>
-        <div
-          className="dataGridTransactions"
-          style={{
-            display: tableVisible ? 'block' : 'none',
-          }}
-        >
-          <DataGrid
-            handleGridRowsUpdated={handleTransactionGridRowsUpdated}
-            rows={this.state.modelData.transactions.map(
-              (obj: DbTransaction) => {
-                // log(`obj.FROM_ABSOLUTE = ${obj.FROM_ABSOLUTE}`)
-                let fromValueEntry = makeStringFromValueAbsProp(
-                  obj.FROM_VALUE,
-                  obj.FROM_ABSOLUTE,
-                );
-                // log(`obj.FROM = ${obj.FROM}, fromValueEntry = ${fromValueEntry}`);
-                if (obj.FROM === '' && fromValueEntry === '0') {
-                  fromValueEntry = '';
-                }
-                let toValueEntry = makeStringFromValueAbsProp(
-                  obj.TO_VALUE,
-                  obj.TO_ABSOLUTE,
-                );
-                if (obj.TO === '' && toValueEntry === '0') {
-                  toValueEntry = '';
-                }
-                const result = {
-                  DATE: obj.DATE,
-                  FROM: obj.FROM,
-                  FROM_VALUE: fromValueEntry,
-                  NAME: obj.NAME,
-                  TO: obj.TO,
-                  TO_VALUE: toValueEntry,
-                  STOP_DATE: obj.STOP_DATE,
-                  RECURRENCE: obj.RECURRENCE,
-                  CATEGORY: obj.CATEGORY,
-                };
-                return result;
-              },
-            )}
-            columns={[
-              {
-                ...defaultColumn,
-                key: 'NAME',
-                name: 'name',
-              },
-              {
-                ...defaultColumn,
-                key: 'FROM',
-                name: 'from asset',
-              },
-              {
-                ...defaultColumn,
-                key: 'FROM_VALUE',
-                name: 'from value',
-                formatter: <ToFromValueFormatter value="unset" />,
-              },
-              {
-                ...defaultColumn,
-                key: 'TO',
-                name: 'to asset',
-              },
-              {
-                ...defaultColumn,
-                key: 'TO_VALUE',
-                name: 'to value',
-                formatter: <ToFromValueFormatter value="unset" />,
-              },
-              {
-                ...defaultColumn,
-                key: 'DATE',
-                name: 'date',
-                formatter: (
-                  <TriggerDateFormatter
-                    triggers={this.state.modelData.triggers}
-                    value="unset"
-                  />
-                ),
-              },
-              {
-                ...defaultColumn,
-                key: 'RECURRENCE',
-                name: 'recurrence',
-              },
-              {
-                ...defaultColumn,
-                key: 'STOP_DATE',
-                name: 'stop',
-                formatter: (
-                  <TriggerDateFormatter
-                    triggers={this.state.modelData.triggers}
-                    value="unset"
-                  />
-                ),
-              },
-              {
-                ...defaultColumn,
-                key: 'CATEGORY',
-                name: 'category',
-              },
-            ]}
-          />
-        </div>
-      </fieldset>
-    );
-  }
-
-  private overviewDiv() {
-    return (
-      <div style={{ display: getDisplay(overview) ? 'block' : 'none' }}>
-        This model has &nbsp;
-        {this.state.modelData.triggers.length} &nbsp;
-        <Button
-          action={() => {
-            toggle(triggersView);
-          }}
-          type="secondary"
-          title="important dates"
-          id="switchToTriggers"
-        />
-        , &nbsp;
-        {this.state.modelData.incomes.length} &nbsp;
-        <Button
-          action={() => {
-            toggle(incomesView);
-          }}
-          type="secondary"
-          title="incomes"
-          id="switchToIncomes"
-        />
-        ,&nbsp;
-        {this.state.modelData.expenses.length} &nbsp;
-        <Button
-          action={() => {
-            toggle(expensesView);
-          }}
-          type="secondary"
-          title="expenses"
-          id="switchToExpenses"
-        />
-        , &nbsp;
-        {this.state.modelData.assets.length} &nbsp;
-        <Button
-          action={() => {
-            toggle(assetsView);
-          }}
-          type="secondary"
-          title="assets"
-          id="switchToAssets"
-        />
-        , &nbsp;
-        {this.state.modelData.transactions.length} &nbsp;
-        <Button
-          action={() => {
-            toggle(transactionsView);
-          }}
-          type="secondary"
-          title="transactions"
-          id="switchToTransactions"
-        />
-        &nbsp; and &nbsp;
-        {this.state.modelData.settings.length} &nbsp;
-        <Button
-          action={() => {
-            toggle(settingsView);
-          }}
-          type="secondary"
-          title="settings"
-          id="switchToSettings"
-        />
-        &nbsp;.
-        <br />
-        <h2>Important dates:</h2>
-        {this.triggersTableDiv()}
-        <h2>Incomes:</h2>
-        {this.incomesTableDiv()}
-        {this.incomesChartDiv()}
-        <h2>Expenses:</h2>
-        {this.expensesTableDiv()}
-        {this.expensesChartDiv()}
-        <h2>Assets:</h2>
-        {this.assetsTableDiv()}
-        {this.assetsChartDiv()}
-        <h2>Transactions:</h2>
-        {this.transactionsTableDiv()}
-        <h2>Settings:</h2>
-        {this.settingsTableDiv()}
       </div>
     );
   }
@@ -2283,7 +1002,7 @@ export class AppContent extends Component<AppProps, AppState> {
           key={triggersTable.lc}
           id="toggle-triggersChart"
         />
-        {this.triggersTableDiv()}
+        {triggersTableDiv(this.state.modelData)}
         <p />
         <div className="addNewTrigger">
           <h4> Add or delete important date </h4>
@@ -2300,182 +1019,6 @@ export class AppContent extends Component<AppProps, AppState> {
                 });
               }
             }}
-            model={this.state.modelData}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  private getAssetChartName() {
-    if (this.state.modelData.settings.length === 0) {
-      // data not yet loaded
-      return CASH_ASSET_NAME;
-    }
-    const assetName = getSettings(
-      this.state.modelData.settings,
-      assetChartFocus,
-      CASH_ASSET_NAME, // default fallback
-    );
-    return assetName;
-  }
-
-  private assetsList() {
-    const assets: string[] = this.state.modelData.assets
-      .filter(obj => {
-        return obj.NAME !== taxPot;
-      })
-      .map(data => data.NAME);
-    // log(`assets = ${assets}`);
-    assets.unshift(allItems);
-    this.state.modelData.assets.forEach(data => {
-      const cat = data.CATEGORY;
-      if (cat !== '') {
-        if (assets.indexOf(cat) < 0) {
-          assets.push(cat);
-        }
-      }
-    });
-    const selectedAsset = this.getAssetChartName();
-    const buttons = assets.map(asset => (
-      <Button
-        key={asset}
-        action={(e: any) => {
-          e.persist();
-          // when a button is clicked,
-          // go to change the settings value
-          const forSubmission: DbSetting = {
-            NAME: assetChartFocus,
-            VALUE: asset,
-            HINT: assetChartFocusHint,
-          };
-          submitSetting(forSubmission);
-        }}
-        title={asset}
-        type={asset === selectedAsset ? 'primary' : 'secondary'}
-        id="chooseAssetChartSetting"
-      />
-    ));
-    return <div role="group">{buttons}</div>;
-  }
-
-  private getAssetChartView() {
-    if (this.state.modelData.settings.length === 0) {
-      // data not yet loaded
-      return assetChartVal;
-    }
-    const assetName = getSettings(
-      this.state.modelData.settings,
-      assetChartView,
-      assetChartVal, // default fallback
-    );
-    return assetName;
-  }
-
-  private assetViewTypeList() {
-    const viewTypes: string[] = [
-      assetChartVal,
-      assetChartAdditions,
-      assetChartReductions,
-      assetChartDeltas,
-    ];
-    const selectedAssetView = this.getAssetChartView();
-    const buttons = viewTypes.map(viewType => (
-      <Button
-        key={viewType}
-        action={(e: any) => {
-          e.persist();
-          // when a button is clicked,
-          // go to change the settings value
-          const forSubmission: DbSetting = {
-            NAME: assetChartView,
-            VALUE: viewType,
-            HINT: assetChartHint,
-          };
-          submitSetting(forSubmission);
-        }}
-        title={viewType}
-        type={viewType === selectedAssetView ? 'primary' : 'secondary'}
-        id="chooseAssetChartType"
-      />
-    ));
-    return <div role="group">{buttons}</div>;
-  }
-
-  private getCoarseFineView() {
-    if (this.state.modelData.settings.length === 0) {
-      // data not yet loaded
-      return fine;
-    }
-    const assetName = getSettings(
-      this.state.modelData.settings,
-      viewDetail,
-      fine, // default fallback
-    );
-    return assetName;
-  }
-
-  private coarseFineList() {
-    const viewTypes: string[] = [coarse, fine];
-    const selectedCoarseFineView = this.getCoarseFineView();
-    const buttons = viewTypes.map(viewType => (
-      <Button
-        key={viewType}
-        action={(e: any) => {
-          e.persist();
-          // when a button is clicked,
-          // go to change the settings value
-          const forSubmission: DbSetting = {
-            NAME: viewDetail,
-            VALUE: viewType,
-            HINT: viewDetailHint,
-          };
-          submitSetting(forSubmission);
-        }}
-        title={viewType}
-        type={viewType === selectedCoarseFineView ? 'primary' : 'secondary'}
-        id="chooseViewDetailType"
-      />
-    ));
-    return <div role="group">{buttons}</div>;
-  }
-
-  private assetsDiv() {
-    return (
-      <div style={{ display: getDisplay(assetsView) ? 'block' : 'none' }}>
-        <Button
-          action={(event: any) => {
-            event.persist();
-            toggleDisplay(assetsChart);
-          }}
-          title={`${showContent.get(assetsChart).display ? 'Hide ' : 'Show '}${
-            assetsChart.lc
-          }`}
-          type={showContent.get(assetsChart).display ? 'primary' : 'secondary'}
-          key={assetsChart.lc}
-          id="toggleAssetsChart"
-        />
-        <Button
-          action={(event: any) => {
-            event.persist();
-            toggleDisplay(assetsTable);
-          }}
-          title={`${showContent.get(assetsTable).display ? 'Hide ' : 'Show '}${
-            assetsTable.lc
-          }`}
-          type={showContent.get(assetsTable).display ? 'primary' : 'secondary'}
-          key={assetsTable.lc}
-          id="toggleAssetsTable"
-        />
-        {this.assetsChartDiv()}
-        {this.assetsTableDiv()}
-        <div className="addNewAsset">
-          <h4> Add or delete asset </h4>
-          <AddDeleteAssetForm
-            checkFunction={checkAsset}
-            submitFunction={submitAsset}
-            deleteFunction={deleteAssetFromTable}
-            submitTrigger={submitTrigger}
             model={this.state.modelData}
           />
         </div>
@@ -2500,7 +1043,7 @@ export class AppContent extends Component<AppProps, AppState> {
           key={transactionsTable.lc}
           id="toggleTransactionsChart"
         />
-        {this.transactionsTableDiv()}
+        {transactionsTableDiv(this.state.modelData)}
         <p />
         <div className="addNewTransaction">
           <h4> Add or delete transaction </h4>
@@ -2512,19 +1055,6 @@ export class AppContent extends Component<AppProps, AppState> {
             model={this.state.modelData}
           />
         </div>
-      </div>
-    );
-  }
-
-  private taxDiv() {
-    return (
-      <div style={{ display: getDisplay(taxView) ? 'block' : 'none' }}>
-        <CanvasJSChart
-          options={{
-            ...defaultChartSettings,
-            data: this.state.taxChartData,
-          }}
-        />
       </div>
     );
   }

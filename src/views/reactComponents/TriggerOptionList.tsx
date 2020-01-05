@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { DbTrigger } from '../types/interfaces';
+import { DbTrigger } from '../../types/interfaces';
 import { newTriggerButtonData } from './AddDeleteTriggerForm';
 
 const welcomeString = 'Choose a date (optional)';

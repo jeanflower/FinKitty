@@ -1,5 +1,5 @@
 import React from 'react';
-import { makeStringFromCashValue } from '../utils';
+import { makeStringFromCashValue } from '../../utils';
 // import { showObj } from '../AppLogic'
 
 interface CashValueFormatterProps {
