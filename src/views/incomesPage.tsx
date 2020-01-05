@@ -16,7 +16,7 @@ import Button from './reactComponents/Button';
 import { incomesChartDiv } from './chartPages';
 import { incomesTableDiv } from './tablePages';
 import { AddDeleteIncomeForm } from './reactComponents/AddDeleteIncomeForm';
-import { checkIncome, checkTransaction } from '../checks';
+import { checkIncome, checkTransaction } from '../models/checks';
 
 export function incomesDiv(model: DbModelData, incomesChartData: ChartData[]) {
   // log('rendering an incomesDiv');

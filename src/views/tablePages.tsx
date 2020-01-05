@@ -15,7 +15,7 @@ import {
   checkIncome,
   checkTransaction,
   checkTrigger,
-} from '../checks';
+} from '../models/checks';
 
 import DataGrid from './reactComponents/DataGrid';
 

@@ -1,4 +1,4 @@
-import { evaluationType } from './evaluations';
+import { evaluationType } from '../evaluations';
 import {
   allItems,
   annually,
@@ -31,7 +31,7 @@ import {
   pensionSS,
   pensionDBC,
   pensionTransfer,
-} from './localization/stringConstants';
+} from '../localization/stringConstants';
 import {
   DbAsset,
   DbExpense,
@@ -41,7 +41,7 @@ import {
   DbTransaction,
   DbTrigger,
   Evaluation,
-} from './types/interfaces';
+} from '../types/interfaces';
 import {
   checkTriggerDate,
   getSettings,
@@ -49,7 +49,7 @@ import {
   log,
   showObj,
   makeDateFromString,
-} from './utils';
+} from '../utils';
 
 export function isNumberString(input: string) {
   const re = new RegExp('^[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)$');

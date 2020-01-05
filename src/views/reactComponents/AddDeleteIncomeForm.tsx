@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { checkIncomeLiability, isNumberString } from '../../checks';
+import { checkIncomeLiability, isNumberString } from '../../models/checks';
 import { DbIncome, DbModelData, DbTransaction } from '../../types/interfaces';
 import {
   checkTriggerDate,

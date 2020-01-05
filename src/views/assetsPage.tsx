@@ -15,7 +15,7 @@ import Button from './reactComponents/Button';
 import { assetsChartDiv } from './chartPages';
 import { assetsTableDiv } from './tablePages';
 import { AddDeleteAssetForm } from './reactComponents/AddDeleteAssetForm';
-import { checkAsset } from './../checks';
+import { checkAsset } from '../models/checks';
 
 export function assetsDiv(model: DbModelData, assetChartData: ChartData[]) {
   return (

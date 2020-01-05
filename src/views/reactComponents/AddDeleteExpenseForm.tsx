@@ -12,7 +12,7 @@ import {
 import Button from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
 import Input from './Input';
-import { isNumberString } from '../../checks';
+import { isNumberString } from '../../models/checks';
 
 interface EditFormState {
   NAME: string;

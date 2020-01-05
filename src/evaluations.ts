@@ -1,4 +1,4 @@
-import { checkData } from './checks';
+import { checkData } from './models/checks';
 import {
   annually,
   CASH_ASSET_NAME,

@@ -1,4 +1,4 @@
-import { checkEvalnType } from './checks';
+import { checkEvalnType } from './models/checks';
 import {
   evaluationType,
   generateSequenceOfDates,

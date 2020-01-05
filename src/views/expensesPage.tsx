@@ -14,7 +14,7 @@ import Button from './reactComponents/Button';
 import { expensesChartDiv } from './chartPages';
 import { expensesTableDiv } from './tablePages';
 import { AddDeleteExpenseForm } from './reactComponents/AddDeleteExpenseForm';
-import { checkExpense } from '../checks';
+import { checkExpense } from '../models/checks';
 import { DbModelData, ChartData } from '../types/interfaces';
 
 export function expensesDiv(
