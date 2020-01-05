@@ -70,9 +70,9 @@ export class Auth0Provider extends Component {
           log(`p is ${p}`);
         }
         this.setState({ 
-          user: { sub: 'TestUserID'}, 
-          isAuthenticated: true, 
-          isLoading: false 
+          user: { sub: 'TestUserID'},
+          isAuthenticated: true,
+          isLoading: false,
         });
       },
       getTokenSilently: (...p) => auth0Client.getTokenSilently(...p),
