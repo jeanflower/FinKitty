@@ -69,7 +69,11 @@ export class Auth0Provider extends Component {
         if (printDebug) {
           log(`p is ${p}`);
         }
-        this.setState({ user: { sub: 'TestUserID'}, isAuthenticated: true, isLoading: false });
+        this.setState({ 
+          user: { sub: 'TestUserID'}, 
+          isAuthenticated: true, 
+          isLoading: false 
+        });
       },
       getTokenSilently: (...p) => auth0Client.getTokenSilently(...p),
       getIdTokenClaims: (...p) => auth0Client.getIdTokenClaims(...p),
