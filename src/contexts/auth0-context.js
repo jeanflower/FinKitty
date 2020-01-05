@@ -20,7 +20,8 @@ export class Auth0Provider extends Component {
   config = {
     domain: process.env.REACT_APP_AUTH0_DOMAIN_NOT_SECRET,
     clientId: process.env.REACT_APP_AUTH0_CLIENT_ID_NOT_SECRET,
-    redirectUri: window.location.origin+process.env.REACT_APP_ORIGIN_APPENDAGE
+    redirectUri:
+      window.location.origin+process.env.REACT_APP_ORIGIN_APPENDAGE,
   };
 
   componentDidMount() {
@@ -53,11 +54,7 @@ export class Auth0Provider extends Component {
   };
 
   render() {
-    const { 
-      auth0Client, 
-      isLoading, 
-      isAuthenticated, 
-      user } = this.state;
+    const { auth0Client, isLoading, isAuthenticated, user } = this.state;
     const { children } = this.props;
 
     const configObject = {
@@ -69,8 +66,8 @@ export class Auth0Provider extends Component {
         if (printDebug) {
           log(`p is ${p}`);
         }
-        this.setState({ 
-          user: { sub: 'TestUserID'},
+        this.setState({
+          user: { sub: 'TestUserID' },
           isAuthenticated: true,
           isLoading: false,
         });
@@ -80,6 +77,10 @@ export class Auth0Provider extends Component {
       logout: (...p) => auth0Client.logout(...p)
     };
 
-    return <Auth0Context.Provider value={configObject}>{children}</Auth0Context.Provider>;
+    return (
+      <Auth0Context.Provider value={configObject}>
+        {children}
+      </Auth0Context.Provider>
+    );
   }
 }
