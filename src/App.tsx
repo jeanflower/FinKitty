@@ -3,11 +3,11 @@ import assetsGraph from './sampleAssetGraph.png';
 import expensesGraph from './sampleExpenseGraph.png';
 import taxGraph from './sampleTaxGraph.png';
 import {
-  billAndBenSampleData,
-  mortgageSwitchSampleData,
-  simpleSampleData,
-  pension1SampleData,
-} from './models/sampleModels';
+  billAndBenExampleData,
+  mortgageSwitchExampleData,
+  simpleExampleData,
+  pension1ExampleData,
+} from './models/exampleModels';
 import { useAuth0 } from './contexts/auth0-context';
 import CanvasJSReact from './assets/js/canvasjs.react';
 import { makeChartData } from './charting';
@@ -55,7 +55,7 @@ import {
   taxPot,
   viewDetail,
   viewDetailHint,
-  sampleModelName,
+  exampleModelName,
 } from './stringConstants';
 import {
   ChartData,
@@ -95,7 +95,7 @@ import CashValueFormatter from './reactComponents/CashValueFormatter';
 
 const { CanvasJSChart } = CanvasJSReact;
 
-export let modelName: string = sampleModelName;
+export let modelName: string = exampleModelName;
 let userID = '';
 
 function screenshotsDiv() {
@@ -329,22 +329,22 @@ const views = new Map<
   ],
 ]);
 
-const sampleModels = [
+const exampleModels = [
   {
-    name: sampleModelName,
-    model: simpleSampleData,
+    name: exampleModelName,
+    model: simpleExampleData,
   },
   {
     name: 'Bill and Ben',
-    model: billAndBenSampleData,
+    model: billAndBenExampleData,
   },
   {
     name: 'Mortgage Switch',
-    model: mortgageSwitchSampleData,
+    model: mortgageSwitchExampleData,
   },
   {
     name: 'Pension',
-    model: pension1SampleData,
+    model: pension1ExampleData,
   },
 ];
 const showContent = new Map<ViewType, any>([
@@ -411,7 +411,7 @@ function getUserID() {
   return userID;
 }
 
-function getSampleModel(modelString: string) {
+function getExampleModel(modelString: string) {
   return cleanUp(JSON.parse(modelString));
 }
 
@@ -431,35 +431,35 @@ async function refreshData(goToDB = true) {
     let model;
     if (
       modelNames.length === 0 ||
-      (modelName === sampleModelName &&
+      (modelName === exampleModelName &&
         modelNames.find(x => {
-          return x === sampleModelName;
+          return x === exampleModelName;
         }) === undefined)
     ) {
       // log(`modelNames are ${modelNames}`);
-      // log(`does not include ${sampleModelName}, so`);
+      // log(`does not include ${exampleModelName}, so`);
       if (modelNames.length > 0) {
         modelName = modelNames.sort()[0];
-        log(`switch to a different modelName ${modelName}`);
+        // log(`switch to a different modelName ${modelName}`);
         model = await getDB().loadModel(getUserID(), modelName);
       } else {
-        log('recreate sample models');
-        // force us to have the sample models
+        // log('recreate example models');
+        // force us to have the example models
         Promise.all(
-          sampleModels.map(async x => {
+          exampleModels.map(async x => {
             await getDB().ensureModel(getUserID(), x.name);
             return getDB().saveModel(
               getUserID(),
               x.name,
-              getSampleModel(x.model),
+              getExampleModel(x.model),
             );
           }),
         );
-        modelNames = sampleModels.map(x => {
+        modelNames = exampleModels.map(x => {
           return x.name;
         });
-        model = getSampleModel(simpleSampleData);
-        modelName = sampleModelName;
+        model = getExampleModel(simpleExampleData);
+        modelName = exampleModelName;
       }
     } else {
       // log(`modelNames are ${modelNames}`);
@@ -1288,13 +1288,13 @@ export class AppContent extends Component<AppProps, AppState> {
                   }
                   // log(`model names after delete are ${modelNames}`);
                   if (modelNames.length === 0) {
-                    alert('no data left: recreating sample model');
-                    modelName = sampleModelName;
+                    alert('no data left: recreating example model');
+                    modelName = exampleModelName;
                     await getDB().ensureModel(getUserID(), modelName);
                     await getDB().saveModel(
                       getUserID(),
                       modelName,
-                      cleanUp(JSON.parse(simpleSampleData)),
+                      cleanUp(JSON.parse(simpleExampleData)),
                     );
                   } else {
                     modelName = modelNames.sort()[0];
@@ -1332,9 +1332,9 @@ export class AppContent extends Component<AppProps, AppState> {
             />
             <br />
             <br />
-            Create new models with sample data:
+            Create new models with example data:
             <br />
-            {this.sampleButtonList()}
+            {this.exampleButtonList()}
             <br />
             <br />
             Dump to a text format or restore from text format:
@@ -2571,8 +2571,8 @@ export class AppContent extends Component<AppProps, AppState> {
     );
     return <div role="group">{buttons}</div>;
   }
-  private sampleButtonList() {
-    const buttons: JSX.Element[] = sampleModels.map(x => {
+  private exampleButtonList() {
+    const buttons: JSX.Element[] = exampleModels.map(x => {
       return (
         <Button
           action={async () => {
@@ -2581,11 +2581,11 @@ export class AppContent extends Component<AppProps, AppState> {
               return;
             }
             await updateModelName(userNewName.newName);
-            this.replaceWithModel(modelName, getSampleModel(x.model));
+            this.replaceWithModel(modelName, getExampleModel(x.model));
           }}
-          title={`Create ${x.name} sample`}
-          id={`btn-create-${x.name}-sample`}
-          key={`btn-create-${x.name}-sample`}
+          title={`Create ${x.name} example`}
+          id={`btn-create-${x.name}-example`}
+          key={`btn-create-${x.name}-example`}
           type="secondary"
         />
       );
