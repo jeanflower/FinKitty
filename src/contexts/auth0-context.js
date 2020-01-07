@@ -1,6 +1,6 @@
 import React, { Component, createContext, useContext } from 'react';
 import createAuth0Client from '@auth0/auth0-spa-js';
-import { log, printDebug } from './../utils';
+import { log, printDebug, showObj } from './../utils';
 
 // create the context
 const Auth0Context = createContext();
@@ -19,8 +19,8 @@ export class Auth0Provider extends Component {
   };
   config = {
     domain: process.env.REACT_APP_AUTH0_DOMAIN_NOT_SECRET,
-    clientId: process.env.REACT_APP_AUTH0_CLIENT_ID_NOT_SECRET,
-    redirectUri:
+    client_id: process.env.REACT_APP_AUTH0_CLIENT_ID_NOT_SECRET,
+    redirect_uri:
       window.location.origin + process.env.REACT_APP_ORIGIN_APPENDAGE,
   };
 
@@ -30,6 +30,9 @@ export class Auth0Provider extends Component {
 
   // initialize the auth0 library
   initializeAuth0 = async () => {
+    if(printDebug()){
+      log(`auth config is ${showObj(this.config)}`);
+    }
     const auth0Client = await createAuth0Client(this.config);
     this.setState({ auth0Client });
 
