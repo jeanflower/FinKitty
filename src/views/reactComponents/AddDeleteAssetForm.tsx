@@ -12,7 +12,12 @@ import {
 import Button from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
 import Input from './Input';
-import { cgt, pension, crystallizedPension, pensionSS } from '../../localization/stringConstants';
+import {
+  cgt,
+  pension,
+  crystallizedPension,
+  pensionSS,
+} from '../../localization/stringConstants';
 
 interface EditFormState {
   NAME: string;
@@ -67,7 +72,6 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
       DCP_INCOME_SOURCE: '',
       DCP_CONTRIBUTION_AMOUNT: '',
       DCP_EMP_CONTRIBUTION_AMOUNT: '',
-
     };
 
     this.state = this.defaultState;
@@ -86,7 +90,9 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
     this.setStop = this.setStop.bind(this);
     this.setCrystallize = this.setCrystallize.bind(this);
     this.handleCrystallizeChange = this.handleCrystallizeChange.bind(this);
-    this.handleDcpIncomeSourceChange = this.handleDcpIncomeSourceChange.bind(this);
+    this.handleDcpIncomeSourceChange = this.handleDcpIncomeSourceChange.bind(
+      this,
+    );
     this.handleDcpContAmount = this.handleDcpContAmount.bind(this);
     this.handleDcpEmpContAmount = this.handleDcpEmpContAmount.bind(this);
     this.handleDcpSsChange = this.handleDcpSsChange.bind(this);
@@ -99,9 +105,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
     return (
       <div
         style={{
-          display: !this.state.inputtingDefinedContsPension
-            ? 'block'
-            : 'none',
+          display: !this.state.inputtingDefinedContsPension ? 'block' : 'none',
         }}
       >
         <div className="row">
@@ -146,14 +150,12 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
       </div>
     );
   }
-  
+
   private inputsForDCP(): React.ReactNode {
     return (
       <div
         style={{
-          display: this.state.inputtingDefinedContsPension
-            ? 'block'
-            : 'none',
+          display: this.state.inputtingDefinedContsPension ? 'block' : 'none',
         }}
       >
         <div className="container-fluid">
@@ -180,8 +182,6 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
             submitTrigger={this.props.submitTrigger}
           />
         </div>
-
-
         <div className="row">
           <div className="col">
             <Input
@@ -242,8 +242,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
             />
           </div>
           {/* end col */}
-          <div className="col">
-          </div>
+          <div className="col"></div>
           {/* end col */}
         </div>
         {/* end row */}
@@ -259,9 +258,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
           <div className="col">
             <Input
               title={`${
-                this.state.inputtingDefinedContsPension
-                  ? 'Pension'
-                  : 'Asset'
+                this.state.inputtingDefinedContsPension ? 'Pension' : 'Asset'
               } name`}
               type="text"
               name="assetname"
@@ -276,9 +273,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
               action={this.delete}
               type={'secondary'}
               title={`Delete any ${
-                this.state.inputtingDefinedContsPension
-                  ? 'pension'
-                  : 'asset'
+                this.state.inputtingDefinedContsPension ? 'pension' : 'asset'
               } with this name`}
               id="deleteAsset"
             />
@@ -303,9 +298,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
           <div className="col">
             <Input
               title={`${
-                this.state.inputtingDefinedContsPension
-                  ? 'Pension'
-                  : 'Asset'
+                this.state.inputtingDefinedContsPension ? 'Pension' : 'Asset'
               } value`}
               type="text"
               name="assetvalue"
@@ -473,11 +466,10 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
       return;
     }
 
-    if(this.state.inputtingDefinedContsPension){
-
-      const asset1Name = pension+this.state.NAME; 
-      const asset2Name = this.state.NAME+'TaxFree'; 
-      const asset3Name = crystallizedPension+this.state.LIABILITY;
+    if (this.state.inputtingDefinedContsPension) {
+      const asset1Name = pension + this.state.NAME;
+      const asset2Name = this.state.NAME + 'TaxFree';
+      const asset3Name = crystallizedPension + this.state.LIABILITY;
       const asset1: DbAsset = {
         NAME: asset1Name,
         VALUE: this.state.VALUE,
@@ -527,13 +519,13 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
       if (message.length > 0) {
         alert(message);
         return;
-      }      
+      }
 
       const parseYNSS = makeBooleanFromYesNo(this.state.DCP_SS);
       if (!parseYNSS.checksOK) {
         alert(`Salary sacrifice '${this.state.DCP_SS}' should be a Y/N value`);
         return;
-      }      
+      }
       let isNotANumber = !isNumberString(this.state.DCP_CONTRIBUTION_AMOUNT);
       if (isNotANumber) {
         alert(
@@ -551,7 +543,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
       const contPc = parseFloat(this.state.DCP_CONTRIBUTION_AMOUNT);
       const contEmpPc = parseFloat(this.state.DCP_EMP_CONTRIBUTION_AMOUNT);
 
-      const toProp = (contPc === 0) ? 0.0 : (contPc+contEmpPc)/contPc;
+      const toProp = contPc === 0 ? 0.0 : (contPc + contEmpPc) / contPc;
 
       await this.props.submitAssetFunction(asset1);
       await this.props.submitAssetFunction(asset2);
@@ -569,8 +561,11 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
         STOP_DATE: this.state.DCP_STOP, // match the income stop date
         RECURRENCE: '',
         CATEGORY: this.state.CATEGORY,
-      }
-      message = this.props.checkTransactionFunction( contributions, this.props.model);
+      };
+      message = this.props.checkTransactionFunction(
+        contributions,
+        this.props.model,
+      );
       if (message.length > 0) {
         await this.props.deleteAssetFunction(asset1);
         await this.props.deleteAssetFunction(asset2);
@@ -589,8 +584,11 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
         STOP_DATE: '',
         RECURRENCE: '',
         CATEGORY: this.state.CATEGORY,
-      }
-      message = this.props.checkTransactionFunction( crystallizeTaxFree, this.props.model);
+      };
+      message = this.props.checkTransactionFunction(
+        crystallizeTaxFree,
+        this.props.model,
+      );
       if (message.length > 0) {
         await this.props.deleteAssetFunction(asset1);
         await this.props.deleteAssetFunction(asset2);
@@ -609,8 +607,11 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
         STOP_DATE: '',
         RECURRENCE: '',
         CATEGORY: this.state.CATEGORY,
-      }
-      message = this.props.checkTransactionFunction( crystallize, this.props.model);
+      };
+      message = this.props.checkTransactionFunction(
+        crystallize,
+        this.props.model,
+      );
       if (message.length > 0) {
         await this.props.deleteAssetFunction(asset1);
         await this.props.deleteAssetFunction(asset2);

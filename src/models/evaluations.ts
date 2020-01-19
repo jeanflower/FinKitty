@@ -211,16 +211,27 @@ export function sortByDate(arrayOfDatedThings: DatedThing[]) {
       }
     }
     if (result === 0) {
-      if(a.name.startsWith(crystallizedPension) && !b.name.startsWith(crystallizedPension)){
+      if (
+        a.name.startsWith(crystallizedPension) &&
+        !b.name.startsWith(crystallizedPension)
+      ) {
         return -1;
-      } else if(!a.name.startsWith(crystallizedPension) && b.name.startsWith(crystallizedPension)){
+      } else if (
+        !a.name.startsWith(crystallizedPension) &&
+        b.name.startsWith(crystallizedPension)
+      ) {
         return 1;
       }
     }
     if (result === 0) {
       // dates equal, cash status equal, asset-start equal
       // whether it's an asset is equal
-      if(printDebug() && a.type !== 'Asset' && a.type !== 'Expense' && a.type !== 'Income'){
+      if (
+        printDebug() &&
+        a.type !== 'Asset' &&
+        a.type !== 'Expense' &&
+        a.type !== 'Income'
+      ) {
         log(`using names to order moments ${a.name}, ${a.type} and ${b.name}`);
       }
       if (a.name < b.name) {
@@ -715,7 +726,7 @@ function settleUpTax(
     if (key === incomeTax && value !== undefined) {
       for (const [person, amount] of value) {
         /* eslint-disable-line no-restricted-syntax */
-        if(doOptimizeForIncomeTax){
+        if (doOptimizeForIncomeTax) {
           OptimizeIncomeTax(
             date,
             cpiVal,

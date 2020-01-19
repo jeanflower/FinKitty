@@ -372,7 +372,7 @@ export function makeGrowthTooltip(input: string, settings: DbSetting[]) {
 // returns a date string for a trigger, or '' for date or junk
 export function makeDateTooltip(input: string, triggers: DbTrigger[]) {
   // log(`triggers.length = ${triggers.length}`);
-  let result = ''
+  let result = '';
   if (input !== '') {
     const date = checkTriggerDate(input, triggers);
     if (date !== undefined) {
