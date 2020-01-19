@@ -4,7 +4,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 ### Cloud data
 The default database is accessed through the REST calls made in REST_db.ts.
 The data is stored as triples (userID, modelName, JSON model data) with
-(userID< modelName) as a key.
+(userID, modelName) as a key.
 
 ### Offline, local data
 There is an alternative local option accessed through code in aws_db.
