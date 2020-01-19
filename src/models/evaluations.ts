@@ -211,8 +211,18 @@ export function sortByDate(arrayOfDatedThings: DatedThing[]) {
       }
     }
     if (result === 0) {
+      if(a.name.startsWith(crystallizedPension) && !b.name.startsWith(crystallizedPension)){
+        return -1;
+      } else if(!a.name.startsWith(crystallizedPension) && b.name.startsWith(crystallizedPension)){
+        return 1;
+      }
+    }
+    if (result === 0) {
       // dates equal, cash status equal, asset-start equal
       // whether it's an asset is equal
+      if(printDebug() && a.type !== 'Asset' && a.type !== 'Expense' && a.type !== 'Income'){
+        log(`using names to order moments ${a.name}, ${a.type} and ${b.name}`);
+      }
       if (a.name < b.name) {
         result = 1;
       } else if (a.name > b.name) {
@@ -225,6 +235,9 @@ export function sortByDate(arrayOfDatedThings: DatedThing[]) {
         result = 0;
       }
     }
+    if (result === 0) {
+      log(`can't order two moments named ${a.name}`);
+    }
     // log(`${showObj(a)} < ${showObj(b)} = ${result}`)
     return result;
   });
@@ -232,7 +245,7 @@ export function sortByDate(arrayOfDatedThings: DatedThing[]) {
   if (printDebug()) {
     log('after date sort --------------');
     arrayOfDatedThings.forEach(t => {
-      log(`t.name = ${t.name}, ${t.type}, ${t.date}`);
+      log(`(name, type, date) = (${t.name}, ${t.type}, ${t.date})`);
     });
   }
 }
@@ -684,6 +697,8 @@ function OptimizeIncomeTax(
   }
 }
 
+const doOptimizeForIncomeTax = true;
+
 function settleUpTax(
   liableIncomeInTaxYear: Map<string, Map<string, number>>,
   startYearOfTaxYear: number,
@@ -700,15 +715,17 @@ function settleUpTax(
     if (key === incomeTax && value !== undefined) {
       for (const [person, amount] of value) {
         /* eslint-disable-line no-restricted-syntax */
-        OptimizeIncomeTax(
-          date,
-          cpiVal,
-          amount,
-          values,
-          person,
-          liableIncomeInTaxYear,
-          evaluations,
-        );
+        if(doOptimizeForIncomeTax){
+          OptimizeIncomeTax(
+            date,
+            cpiVal,
+            amount,
+            values,
+            person,
+            liableIncomeInTaxYear,
+            evaluations,
+          );
+        }
       }
     }
   }

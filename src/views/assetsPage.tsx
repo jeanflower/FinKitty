@@ -10,12 +10,13 @@ import {
   submitAsset,
   submitTrigger,
   toggleDisplay,
+  submitTransaction,
 } from './../App';
 import Button from './reactComponents/Button';
 import { assetsChartDiv } from './chartPages';
 import { assetsTableDiv } from './tablePages';
 import { AddDeleteAssetForm } from './reactComponents/AddDeleteAssetForm';
-import { checkAsset } from '../models/checks';
+import { checkAsset, checkTransaction } from '../models/checks';
 
 export function assetsDiv(model: DbModelData, assetChartData: ChartData[]) {
   return (
@@ -49,9 +50,11 @@ export function assetsDiv(model: DbModelData, assetChartData: ChartData[]) {
       <div className="addNewAsset">
         <h4> Add or delete asset </h4>
         <AddDeleteAssetForm
-          checkFunction={checkAsset}
-          submitFunction={submitAsset}
-          deleteFunction={deleteAssetFromTable}
+          checkAssetFunction={checkAsset}
+          submitAssetFunction={submitAsset}
+          checkTransactionFunction={checkTransaction}
+          submitTransactionFunction={submitTransaction}
+          deleteAssetFunction={deleteAssetFromTable}
           submitTrigger={submitTrigger}
           model={model}
         />

@@ -371,14 +371,16 @@ export function makeGrowthTooltip(input: string, settings: DbSetting[]) {
 }
 // returns a date string for a trigger, or '' for date or junk
 export function makeDateTooltip(input: string, triggers: DbTrigger[]) {
-  if (input === '') {
-    return '';
+  // log(`triggers.length = ${triggers.length}`);
+  let result = ''
+  if (input !== '') {
+    const date = checkTriggerDate(input, triggers);
+    if (date !== undefined) {
+      result = date.toDateString();
+    }
   }
-  const date = checkTriggerDate(input, triggers);
-  if (date === undefined) {
-    return '';
-  }
-  return date.toDateString();
+  // log(`make date tooltip for ${input}: ${result}`);
+  return result;
 }
 
 export function makeTwoDP(x: number) {

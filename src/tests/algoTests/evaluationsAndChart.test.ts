@@ -7371,98 +7371,35 @@ describe('evaluations tests', () => {
 
     expect(evals.length).toBe(30);
     expectEvals(evals, 0, 'Cash', 'Fri Dec 01 2017', 10, -1);
-    expectEvals(
-      evals,
-      1,
-      crystallizedPension + 'Joe',
-      'Fri Dec 01 2017',
-      60000,
-      -1,
-    );
-    expectEvals(evals, 2, 'Stocks', 'Fri Dec 01 2017', 50, -1);
+    expectEvals(evals, 1, 'Stocks', 'Fri Dec 01 2017', 50, -1);
+    expectEvals(evals, 2, crystallizedPension + 'Joe', 'Fri Dec 01 2017', 60000, -1);
     expectEvals(evals, 3, 'Cash', 'Mon Jan 01 2018', 10, -1);
-    expectEvals(
-      evals,
-      4,
-      crystallizedPension + 'Joe',
-      'Mon Jan 01 2018',
-      60000,
-      -1,
-    );
-    expectEvals(evals, 5, 'Stocks', 'Mon Jan 01 2018', 50, -1);
+    expectEvals(evals, 4, 'Stocks', 'Mon Jan 01 2018', 50, -1);
+    expectEvals(evals, 5, crystallizedPension + 'Joe','Mon Jan 01 2018',60000,-1,);
     expectEvals(evals, 6, 'Cash', 'Sun Jan 21 2018', -30000, -1);
     expectEvals(evals, 7, 'Cash', 'Thu Feb 01 2018', -30000, -1);
-    expectEvals(
-      evals,
-      8,
-      crystallizedPension + 'Joe',
-      'Thu Feb 01 2018',
-      60000,
-      -1,
-    );
-    expectEvals(evals, 9, 'Stocks', 'Thu Feb 01 2018', 50, -1);
+    expectEvals(evals, 8, 'Stocks', 'Thu Feb 01 2018', 50, -1);
+    expectEvals(evals, 9, crystallizedPension + 'Joe','Thu Feb 01 2018',60000,-1);
     expectEvals(evals, 10, 'Stocks', 'Sat Feb 03 2018', 0, -1);
     expectEvals(evals, 11, 'Cash', 'Sat Feb 03 2018', -29950, -1);
-    expectEvals(
-      evals,
-      12,
-      crystallizedPension + 'Joe',
-      'Sat Feb 03 2018',
-      30050,
-      -1,
-    );
+    expectEvals(evals, 12, crystallizedPension + 'Joe','Sat Feb 03 2018',30050,-1);
     expectEvals(evals, 13, 'Cash', 'Sat Feb 03 2018', 0, -1);
     expectEvals(evals, 14, 'Cash', 'Thu Mar 01 2018', 0, -1);
-    expectEvals(
-      evals,
-      15,
-      crystallizedPension + 'Joe',
-      'Thu Mar 01 2018',
-      30050,
-      -1,
-    );
-    expectEvals(evals, 16, 'Stocks', 'Thu Mar 01 2018', 0, -1);
+    expectEvals(evals, 15, 'Stocks', 'Thu Mar 01 2018', 0, -1);
+    expectEvals(evals, 16, crystallizedPension + 'Joe','Thu Mar 01 2018',30050,-1);
     expectEvals(evals, 17, 'Cash', 'Sun Apr 01 2018', 0, -1);
-    expectEvals(
-      evals,
-      18,
-      crystallizedPension + 'Joe',
-      'Sun Apr 01 2018',
-      30050,
-      -1,
-    );
-    expectEvals(evals, 19, 'Stocks', 'Sun Apr 01 2018', 0, -1);
+    expectEvals(evals, 18, 'Stocks', 'Sun Apr 01 2018', 0, -1);
+    expectEvals(evals, 19, crystallizedPension + 'Joe','Sun Apr 01 2018',30050,-1);
     expectEvals(evals, 20, 'Cash', 'Thu Apr 05 2018', -3490, -1);
     expectEvals(evals, 21, 'TaxPot', 'Thu Apr 05 2018', 3490, -1);
     expectEvals(evals, 22, 'Cash', 'Tue May 01 2018', -3490, -1);
-    expectEvals(
-      evals,
-      23,
-      crystallizedPension + 'Joe',
-      'Tue May 01 2018',
-      30050,
-      -1,
-    );
-    expectEvals(evals, 24, 'Stocks', 'Tue May 01 2018', 0, -1);
+    expectEvals(evals, 23, 'Stocks', 'Tue May 01 2018', 0, -1);
+    expectEvals(evals, 24, crystallizedPension + 'Joe', 'Tue May 01 2018', 30050,-1);
     expectEvals(evals, 25, 'Cash', 'Fri Jun 01 2018', -3490, -1);
-    expectEvals(
-      evals,
-      26,
-      crystallizedPension + 'Joe',
-      'Fri Jun 01 2018',
-      30050,
-      -1,
-    );
-    expectEvals(evals, 27, 'Stocks', 'Fri Jun 01 2018', 0, -1);
+    expectEvals(evals, 26, 'Stocks', 'Fri Jun 01 2018', 0, -1);
+    expectEvals(evals, 27, crystallizedPension + 'Joe', 'Fri Jun 01 2018', 30050, -1);
     expectEvals(evals, 28, 'Cash', 'Fri Apr 05 2019', 9010, -1);
-    expectEvals(
-      evals,
-      29,
-      crystallizedPension + 'Joe',
-      'Fri Apr 05 2019',
-      17550,
-      -1,
-    );
+    expectEvals(evals, 29, crystallizedPension + 'Joe', 'Fri Apr 05 2019', 17550, -1);
 
     const result = makeChartDataFromEvaluations(
       {

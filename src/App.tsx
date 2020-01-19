@@ -40,6 +40,7 @@ import { taxDiv } from './views/chartPages';
 import { incomesDiv } from './views/incomesPage';
 import { expensesDiv } from './views/expensesPage';
 import { assetsDiv } from './views/assetsPage';
+import ReactTooltip from 'react-tooltip';
 
 // import './bootstrap.css'
 
@@ -727,6 +728,7 @@ export class AppContent extends Component<AppProps, AppState> {
           <header>{this.navigationDiv()}</header>
         </nav>
         <div style={{ paddingTop: '100px' }}>
+          <ReactTooltip />
           {this.homeDiv()}
           {overviewDiv(
             this.state.modelData,

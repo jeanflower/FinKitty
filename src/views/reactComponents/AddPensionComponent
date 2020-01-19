@@ -18,15 +18,15 @@ Regular income when pension matures
 
 /*
 Defined contributions
- - name of pension
- - person because of income tax relief and income tax on crystallization
- - contribution from which income (optional)
- - contribution amount = £ or %
- - employer contribution amount
- - whether it's salary sacrifice
- - growth rate
- - start value
- - start value set date - expected to be "now" or start of model
- - stop date 
- - Date of crystallisation
+ * name of pension
+ * person because of income tax relief and income tax on crystallization
+ * contribution from which income (optional)
+ * contribution amount = £ or %
+ * employer contribution amount
+ * whether it's salary sacrifice
+ * growth rate
+ * start value
+ * start value set date - expected to be "now" or start of model
+ * stop date 
+ * Date of crystallisation
 */

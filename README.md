@@ -60,7 +60,7 @@ The browser tests (automated with selenium) will fail unless the web server is r
 The selenium tests fire up and drive Chrome processes.  If the tests properly complete, the Chrome process for the tests should close down properly.  But the chromedriver process does not get cleaned up.  If the tests are interrupted (e.g. restart partway through) then the cleanup does not occur.  After a lengthy testing session, you may prefer to clean up manually; open Activity Monitor, search by the text "chrome", and in a terminal window, `killall chromedriver` and `killall "Google Chrome"`.
 
 See coverage by typing `npm test -- --coverage`.
-(this does not seem to work properly)
+(this seems to be dependent on changed files, not all tests)
 
 ### Linting
 Run `./lintFixes.sh` keeps things clean.
@@ -76,8 +76,6 @@ Setup was based on the guide here
 https://reactgo.com/deploy-react-app-github-pages/
 
 ### `npm run build`
-(has never been exercised on this repo)
-
 Builds the app for production to the `build` folder.<br>
 It correctly bundles React in production mode and optimizes the build for the best performance.
 

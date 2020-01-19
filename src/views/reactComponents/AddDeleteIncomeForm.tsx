@@ -175,7 +175,7 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
                 this.state.inputtingDefinedBenefitsPension
                   ? 'Pension'
                   : 'Income'
-              } value (amount before tax, per month):`}
+              } value (amount before tax, per month)`}
               type="text"
               name="incomevalue"
               value={this.state.VALUE}
@@ -382,7 +382,7 @@ DBC_TRANSFERRED_STOP
             <Input
               title="Contribution from which income"
               type="text"
-              name="incomecontribution"
+              name="incomecontributionIncome"
               value={this.state.DBC_INCOME_SOURCE}
               placeholder="Enter income"
               onChange={this.handleDbcIncomeSourceChange}
@@ -393,7 +393,7 @@ DBC_TRANSFERRED_STOP
             <Input
               title="Is contribution salary-sacrificed"
               type="text"
-              name="contributionSS"
+              name="contributionSSIncome"
               value={this.state.DBC_SS}
               placeholder="Enter Y/N"
               onChange={this.handleDbcSsChange}
@@ -407,7 +407,7 @@ DBC_TRANSFERRED_STOP
             <Input
               title="Pension contribution amount (e.g. 0.05 for 5%)"
               type="text"
-              name="contributionAmount"
+              name="contributionAmountPensionIncome"
               value={this.state.DBC_CONTRIBUTION_AMOUNT}
               placeholder="Enter amount of contributions"
               onChange={this.handleDbcContAmount}
