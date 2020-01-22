@@ -22,6 +22,7 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
     return this.props.rows.length;
   }
   public onGridRowsUpdated = ({ fromRow, toRow, updated }: any) => {
+    // log('onGridRowsUpdated');
     this.setState(state => {
       const rows = state.rows.slice();
       for (let i = fromRow; i <= toRow; i++) {
@@ -30,6 +31,10 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
       return { rows };
     });
   };
+  public onGridSort = ()=>{
+    
+  }
+
   public render() {
     return (
       <ReactDataGrid

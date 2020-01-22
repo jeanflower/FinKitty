@@ -33,6 +33,7 @@ import {
   showObj,
 } from '../utils';
 
+import NameFormatter from './reactComponents/NameFormatter';
 import ToFromValueFormatter from './reactComponents/ToFromValueFormatter';
 import TriggerDateFormatter from './reactComponents/TriggerDateFormatter';
 import GrowthFormatter from './reactComponents/GrowthFormatter';
@@ -108,7 +109,7 @@ function handleExpenseGridRowsUpdated(model: DbModelData, args: any) {
 }
 
 function handleIncomeGridRowsUpdated(model: DbModelData, args: any) {
-  // log('handleIncomeGridRowsUpdated', arguments);
+  // log('handleIncomeGridRowsUpdated');
   const income = args[0].fromRowData;
   // log('old income '+showObj(income));
   if (args[0].cellKey === 'NAME') {
@@ -335,6 +336,7 @@ export function assetsTableDiv(model: DbModelData) {
                 ...defaultColumn,
                 key: 'NAME',
                 name: 'name',
+                formatter: (<NameFormatter value="unset"/>),
               },
               {
                 ...defaultColumn,
@@ -445,6 +447,7 @@ export function transactionsTableDiv(model: DbModelData) {
               ...defaultColumn,
               key: 'NAME',
               name: 'name',
+              formatter: (<NameFormatter value="unset"/>),
             },
             {
               ...defaultColumn,
@@ -525,6 +528,7 @@ export function triggersTableDiv(model: DbModelData) {
                 ...defaultColumn,
                 key: 'NAME',
                 name: 'name',
+                formatter: (<NameFormatter value="unset"/>),
                 // sortable: true // TODO
               },
               {
@@ -553,8 +557,8 @@ export function incomesTableDiv(model: DbModelData) {
           className="dataGridIncomes"
         >
           <DataGrid
-            handleGridRowsUpdated={(args: any) => {
-              return handleIncomeGridRowsUpdated(model, args);
+            handleGridRowsUpdated={function() {
+              return handleIncomeGridRowsUpdated(model, arguments);
             }}
             rows={model.incomes.map((obj: DbIncome) => {
               const result = {
@@ -576,6 +580,7 @@ export function incomesTableDiv(model: DbModelData) {
                 ...defaultColumn,
                 key: 'NAME',
                 name: 'name',
+                formatter: (<NameFormatter value="unset"/>),
               },
               {
                 ...defaultColumn,
@@ -680,6 +685,7 @@ export function expensesTableDiv(model: DbModelData) {
                 ...defaultColumn,
                 key: 'NAME',
                 name: 'name',
+                formatter: (<NameFormatter value="unset"/>),
               },
               {
                 ...defaultColumn,
@@ -772,6 +778,7 @@ export function settingsTableDiv(model: DbModelData) {
             ...defaultColumn,
             key: 'NAME',
             name: 'name',
+            formatter: (<NameFormatter value="unset"/>),
           },
           {
             ...defaultColumn,
