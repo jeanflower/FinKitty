@@ -31,7 +31,6 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
       return { rows };
     });
   };
-  public onGridSort = () => {};
 
   public render() {
     return (
