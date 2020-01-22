@@ -868,7 +868,8 @@ export class AppContent extends Component<AppProps, AppState> {
                     await getDB().saveModel(
                       getUserID(),
                       modelName,
-                      makeModelFromJSON(simpleExampleData),                    );
+                      makeModelFromJSON(simpleExampleData),
+                    );
                   } else {
                     modelName = modelNames.sort()[0];
                     // log(`model name after delete is ${modelName}`);
