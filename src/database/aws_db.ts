@@ -1,7 +1,7 @@
-import { DbInterface, cleanUp, minimalModel } from './database';
+import { DbInterface, minimalModel } from './database';
 import { DbModelData } from './../types/interfaces';
 
-import { log, printDebug, showObj } from './../utils';
+import { log, makeModelFromJSON, printDebug, showObj } from './../utils';
 
 import AWS from 'aws-sdk';
 
@@ -372,7 +372,7 @@ export class AWSDB implements DbInterface {
             if (models.length !== 1) {
               reject(`didn't find one model; found ${models}`);
             } else {
-              resolve(cleanUp(models[0]));
+              makeModelFromJSON(models[0]);
             }
           }
         });

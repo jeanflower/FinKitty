@@ -7,6 +7,20 @@ import {
 } from './localization/stringConstants';
 import moment from 'moment';
 
+// note JSON stringify and back for serialisation is OK but
+// breaks dates (and functions too but we don't have these)
+function cleanUp(modelFromJSON: any): DbModelData {
+  return {
+    ...modelFromJSON,
+    triggers: modelFromJSON.triggers.map((t: any) => {
+      return {
+        ...t,
+        DATE: new Date(t['DATE']), // This is required!
+      };
+    }),
+  };
+}
+
 export function makeModelFromJSON(input: string) {
   const result: DbModelData = JSON.parse(input);
   for (const t of result.triggers) {
@@ -14,7 +28,7 @@ export function makeModelFromJSON(input: string) {
     t.DATE = new Date(t.DATE);
     //log(`type of ${t.DATE} = ${typeof t.DATE}`);
   }
-  return result;
+  return cleanUp(result);
 }
 export function makeDateFromString(input: string) {
   // special-case parsing for DD/MM/YYYY

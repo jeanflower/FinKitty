@@ -1,6 +1,6 @@
-import { cleanUp, DbInterface, minimalModel } from './database';
+import { DbInterface, minimalModel } from './database';
 import { DbModelData } from '../types/interfaces';
-import { printDebug } from '../utils';
+import { printDebug, makeModelFromJSON } from '../utils';
 
 const url = process.env.REACT_APP_SERVER_URL_NOT_SECRET;
 
@@ -69,7 +69,7 @@ export class RESTDB implements DbInterface {
           }
           // console.log(`result has ${JSON.parse(result).assets.length} assets`);
           try {
-            resolve(cleanUp(JSON.parse(result)));
+            resolve(makeModelFromJSON(result));
           } catch (err) {
             reject('no model found');
           }

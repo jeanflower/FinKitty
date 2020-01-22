@@ -8,7 +8,7 @@ import {
 import { useAuth0 } from './contexts/auth0-context';
 import { makeChartData } from './models/charting';
 import { checkData, checkTransaction, checkTrigger } from './models/checks';
-import { getDB, cleanUp } from './database/database';
+import { getDB } from './database/database';
 import { AddDeleteEntryForm } from './views/reactComponents/AddDeleteEntryForm';
 import { AddDeleteTransactionForm } from './views/reactComponents/AddDeleteTransactionForm';
 import { AddDeleteTriggerForm } from './views/reactComponents/AddDeleteTriggerForm';
@@ -257,7 +257,7 @@ function getUserID() {
 }
 
 function getExampleModel(modelString: string) {
-  return cleanUp(JSON.parse(modelString));
+  return makeModelFromJSON(modelString);
 }
 
 async function refreshData(goToDB = true) {
@@ -868,8 +868,7 @@ export class AppContent extends Component<AppProps, AppState> {
                     await getDB().saveModel(
                       getUserID(),
                       modelName,
-                      cleanUp(JSON.parse(simpleExampleData)),
-                    );
+                      makeModelFromJSON(simpleExampleData),                    );
                   } else {
                     modelName = modelNames.sort()[0];
                     // log(`model name after delete is ${modelName}`);

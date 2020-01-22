@@ -38,20 +38,6 @@ export interface DbInterface {
   deleteModel(userID: string, modelName: string): any;
 }
 
-// note JSON stringify and back for serialisation is OK but
-// breaks dates (and functions too but we don't have these)
-export function cleanUp(modelFromJSON: any): DbModelData {
-  return {
-    ...modelFromJSON,
-    triggers: modelFromJSON.triggers.map((t: any) => {
-      return {
-        ...t,
-        DATE: new Date(t['DATE']), // This is required!
-      };
-    }),
-  };
-}
-
 export const minimalModel: DbModelData = {
   assets: [
     {
