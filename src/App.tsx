@@ -956,6 +956,9 @@ export class AppContent extends Component<AppProps, AppState> {
   }
 
   private settingsDiv() {
+    if(!getDisplay(settingsView)){
+      return
+    }
     return (
       <div style={{ display: getDisplay(settingsView) ? 'block' : 'none' }}>
         <fieldset>
@@ -988,6 +991,10 @@ export class AppContent extends Component<AppProps, AppState> {
   }
 
   private triggersDiv() {
+    if(!getDisplay(triggersView)){
+      return
+    }
+  
     return (
       <div style={{ display: getDisplay(triggersView) ? 'block' : 'none' }}>
         <Button
@@ -1029,6 +1036,10 @@ export class AppContent extends Component<AppProps, AppState> {
   }
 
   private transactionsDiv() {
+    if(!getDisplay(transactionsView)){
+      return
+    }
+  
     return (
       <div style={{ display: getDisplay(transactionsView) ? 'block' : 'none' }}>
         <Button

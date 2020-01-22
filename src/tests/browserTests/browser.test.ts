@@ -81,7 +81,7 @@ describe('Chrome Interaction', () => {
       expect(btn.length === 1).toBe(true);
       await btn[0].click();
 
-      const chartID = 'canvasjs-react-chart-container-3'; // why 3?
+      const chartID = 'canvasjs-react-chart-container-7'; // why 7?
       // log(`check for chart ${idToSeek}`);
       const elts: WebElement[] = await driver.findElements({ id: chartID });
       expect(elts.length === 1).toBe(true);

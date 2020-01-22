@@ -551,7 +551,6 @@ export function incomesTableDiv(model: DbModelData) {
       <fieldset>
         <div
           className="dataGridIncomes"
-          data-tip={`dataGridIncomesDiv ${model.triggers.length}`}
         >
           <DataGrid
             handleGridRowsUpdated={(args: any) => {

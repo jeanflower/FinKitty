@@ -368,6 +368,10 @@ export function assetsChartDiv(
 }
 
 export function taxDiv(taxChartData: ChartData[]) {
+  if(!getDisplay(taxView)){
+    return
+  }
+
   return (
     <div style={{ display: getDisplay(taxView) ? 'block' : 'none' }}>
       <CanvasJSChart

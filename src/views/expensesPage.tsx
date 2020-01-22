@@ -21,6 +21,9 @@ export function expensesDiv(
   model: DbModelData,
   expensesChartData: ChartData[],
 ) {
+  if(!getDisplay(expensesView)){
+    return
+  }
   return (
     <div style={{ display: getDisplay(expensesView) ? 'block' : 'none' }}>
       <Button

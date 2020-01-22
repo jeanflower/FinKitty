@@ -19,6 +19,10 @@ import { AddDeleteAssetForm } from './reactComponents/AddDeleteAssetForm';
 import { checkAsset, checkTransaction } from '../models/checks';
 
 export function assetsDiv(model: DbModelData, assetChartData: ChartData[]) {
+  if(!getDisplay(assetsView)){
+    return
+  }
+
   return (
     <div style={{ display: getDisplay(assetsView) ? 'block' : 'none' }}>
       <Button

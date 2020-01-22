@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { DbTrigger } from '../../types/interfaces';
 import { TriggerOptionList } from './TriggerOptionList';
 import { makeDateTooltip } from '../../utils';
+import ReactTooltip from 'react-tooltip';
 
 interface DateSelectionProps {
   introLabel: string;
@@ -33,6 +34,7 @@ export class DateSelectionRow extends Component<DateSelectionProps, {}> {
         </div>
         {/* end col */}
         <div className="col">
+          <ReactTooltip />
           <input
             type={'text'}
             name={
