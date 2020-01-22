@@ -336,7 +336,7 @@ export function assetsTableDiv(model: DbModelData) {
                 ...defaultColumn,
                 key: 'NAME',
                 name: 'name',
-                formatter: (<NameFormatter value="unset"/>),
+                formatter: <NameFormatter value="unset" />,
               },
               {
                 ...defaultColumn,
@@ -447,7 +447,7 @@ export function transactionsTableDiv(model: DbModelData) {
               ...defaultColumn,
               key: 'NAME',
               name: 'name',
-              formatter: (<NameFormatter value="unset"/>),
+              formatter: <NameFormatter value="unset" />,
             },
             {
               ...defaultColumn,
@@ -528,7 +528,7 @@ export function triggersTableDiv(model: DbModelData) {
                 ...defaultColumn,
                 key: 'NAME',
                 name: 'name',
-                formatter: (<NameFormatter value="unset"/>),
+                formatter: <NameFormatter value="unset" />,
                 // sortable: true // TODO
               },
               {
@@ -553,9 +553,7 @@ export function incomesTableDiv(model: DbModelData) {
       }}
     >
       <fieldset>
-        <div
-          className="dataGridIncomes"
-        >
+        <div className="dataGridIncomes">
           <DataGrid
             handleGridRowsUpdated={function() {
               return handleIncomeGridRowsUpdated(model, arguments);
@@ -580,7 +578,7 @@ export function incomesTableDiv(model: DbModelData) {
                 ...defaultColumn,
                 key: 'NAME',
                 name: 'name',
-                formatter: (<NameFormatter value="unset"/>),
+                formatter: <NameFormatter value="unset" />,
               },
               {
                 ...defaultColumn,
@@ -685,7 +683,7 @@ export function expensesTableDiv(model: DbModelData) {
                 ...defaultColumn,
                 key: 'NAME',
                 name: 'name',
-                formatter: (<NameFormatter value="unset"/>),
+                formatter: <NameFormatter value="unset" />,
               },
               {
                 ...defaultColumn,
@@ -778,7 +776,7 @@ export function settingsTableDiv(model: DbModelData) {
             ...defaultColumn,
             key: 'NAME',
             name: 'name',
-            formatter: (<NameFormatter value="unset"/>),
+            formatter: <NameFormatter value="unset" />,
           },
           {
             ...defaultColumn,

@@ -368,8 +368,8 @@ export function assetsChartDiv(
 }
 
 export function taxDiv(taxChartData: ChartData[]) {
-  if(!getDisplay(taxView)){
-    return
+  if (!getDisplay(taxView)) {
+    return;
   }
 
   return (

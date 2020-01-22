@@ -19,8 +19,8 @@ import { AddDeleteIncomeForm } from './reactComponents/AddDeleteIncomeForm';
 import { checkIncome, checkTransaction } from '../models/checks';
 
 export function incomesDiv(model: DbModelData, incomesChartData: ChartData[]) {
-  if(!getDisplay(incomesView)){
-    return
+  if (!getDisplay(incomesView)) {
+    return;
   }
   // log('rendering an incomesDiv');
   return (
