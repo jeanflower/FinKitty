@@ -14,7 +14,7 @@ import {
 } from './../App';
 import Button from './reactComponents/Button';
 import { assetsOrDebtsChartDiv } from './chartPages';
-import { assetsTableDiv } from './tablePages';
+import { assetsOrDebtsTableDiv } from './tablePages';
 import { AddDeleteAssetForm } from './reactComponents/AddDeleteAssetForm';
 import { checkAsset, checkTransaction } from '../models/checks';
 
@@ -50,7 +50,7 @@ export function assetsDiv(model: DbModelData, assetChartData: ChartData[]) {
         id="toggleAssetsTable"
       />
       {assetsOrDebtsChartDiv(model, assetChartData, false)}
-      {assetsTableDiv(model, false)}
+      {assetsOrDebtsTableDiv(model, false)}
       <div className="addNewAsset">
         <h4> Add or delete asset </h4>
         <AddDeleteAssetForm

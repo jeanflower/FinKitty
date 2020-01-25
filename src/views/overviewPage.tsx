@@ -2,7 +2,7 @@ import React from 'react';
 import { DbModelData, ChartData } from '../types/interfaces';
 import Button from './reactComponents/Button';
 import {
-  assetsTableDiv,
+  assetsOrDebtsTableDiv,
   expensesTableDiv,
   incomesTableDiv,
   settingsTableDiv,
@@ -128,10 +128,10 @@ export function overviewDiv(
       {expensesTableDiv(model)}
       {expensesChartDiv(model, expensesChartData)}
       <h2>Assets:</h2>
-      {assetsTableDiv(model, false)}
+      {assetsOrDebtsTableDiv(model, false)}
       {assetsOrDebtsChartDiv(model, assetChartData, false)}
       <h2>Debts:</h2>
-      {assetsTableDiv(model, true)}
+      {assetsOrDebtsTableDiv(model, true)}
       {assetsOrDebtsChartDiv(model, debtChartData, true)}
       <h2>Transactions:</h2>
       {transactionsTableDiv(model)}

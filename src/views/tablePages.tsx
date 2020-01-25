@@ -206,7 +206,6 @@ function handleAssetGridRowsUpdated(model: DbModelData, args: any) {
   const parsedPurchasePrice = makePurchasePriceFromString(asset.PURCHASE_PRICE);
   const parsedCPIImmune = makeBooleanFromYesNo(asset.IS_CPI_IMMUNE);
   const parsedCanBeNegative = makeBooleanFromYesNo(asset.CAN_BE_NEGATIVE);
-  const parsedIsADebt = makeBooleanFromYesNo(asset.IS_A_DEBT);
 
   // negate values before sending from table
   // to model
@@ -226,9 +225,6 @@ function handleAssetGridRowsUpdated(model: DbModelData, args: any) {
   } else if (!parsedCanBeNegative.checksOK) {
     alert(`asset value ${asset.CAN_BE_NEGATIVE} not understood`);
     asset[args[0].cellKey] = oldValue;
-  } else if (!parsedIsADebt.checksOK) {
-    alert(`asset value ${asset.IS_A_DEBT} not understood`);
-    asset[args[0].cellKey] = oldValue;
   } else {
     const assetForSubmission: DbAsset = {
       NAME: asset.NAME,
@@ -238,7 +234,7 @@ function handleAssetGridRowsUpdated(model: DbModelData, args: any) {
       GROWTH: parsedGrowth.value,
       CPI_IMMUNE: parsedCPIImmune.value,
       CAN_BE_NEGATIVE: parsedCanBeNegative.value,
-      IS_A_DEBT: parsedIsADebt.value,
+      IS_A_DEBT: matchedAsset[0].IS_A_DEBT,
       PURCHASE_PRICE: parsedPurchasePrice,
       CATEGORY: asset.CATEGORY,
     };
@@ -320,7 +316,7 @@ const defaultColumn = {
   resizable: true,
 };
 
-export function assetsTableDiv(model: DbModelData, isDebt: boolean) {
+export function assetsOrDebtsTableDiv(model: DbModelData, isDebt: boolean) {
   const tableVisible = isDebt
     ? showContent.get(debtsTable).display
     : showContent.get(assetsTable).display;
@@ -356,7 +352,6 @@ export function assetsTableDiv(model: DbModelData, isDebt: boolean) {
                   ),
                   IS_CPI_IMMUNE: makeYesNoFromBoolean(obj.CPI_IMMUNE),
                   CAN_BE_NEGATIVE: makeYesNoFromBoolean(obj.CAN_BE_NEGATIVE),
-                  IS_A_DEBT: makeYesNoFromBoolean(obj.IS_A_DEBT),
                 };
                 return result;
               })}
@@ -401,11 +396,6 @@ export function assetsTableDiv(model: DbModelData, isDebt: boolean) {
                 ...defaultColumn,
                 key: 'CAN_BE_NEGATIVE',
                 name: 'Can go negative?',
-              },
-              {
-                ...defaultColumn,
-                key: 'IS_A_DEBT',
-                name: 'is a debt?',
               },
               {
                 ...defaultColumn,
