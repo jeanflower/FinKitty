@@ -207,6 +207,13 @@ function handleAssetGridRowsUpdated(model: DbModelData, args: any) {
   const parsedCPIImmune = makeBooleanFromYesNo(asset.IS_CPI_IMMUNE);
   const parsedCanBeNegative = makeBooleanFromYesNo(asset.CAN_BE_NEGATIVE);
   const parsedIsADebt = makeBooleanFromYesNo(asset.IS_A_DEBT);
+
+  // negate values before sending from table
+  // to model
+  if(matchedAsset[0].IS_A_DEBT && parsedValue.checksOK){
+    parsedValue.value = -parsedValue.value; 
+  }
+
   if (!parsedGrowth.checksOK) {
     alert(`asset growth ${asset.GROWTH} not understood`);
     asset[args[0].cellKey] = oldValue;
@@ -334,12 +341,14 @@ export function assetsTableDiv(model: DbModelData, isDebt: boolean) {
                 return obj.NAME !== taxPot && obj.IS_A_DEBT === isDebt;
               })
               .map((obj: DbAsset) => {
+                const dbValue = obj.VALUE;
+                const tableValue = isDebt ? -parseFloat(dbValue) : dbValue;
                 const result = {
                   GROWTH: obj.GROWTH,
                   NAME: obj.NAME,
                   CATEGORY: obj.CATEGORY,
                   START: obj.START,
-                  VALUE: obj.VALUE,
+                  VALUE: tableValue,
                   LIABILITY: obj.LIABILITY,
                   PURCHASE_PRICE: makeStringFromPurchasePrice(
                     obj.PURCHASE_PRICE,

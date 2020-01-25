@@ -163,6 +163,7 @@ function makeChartDataPoints(
   dates: Date[],
   items: string[],
   settings: DbSetting[],
+  negateValues: boolean = false,
 ): ItemChartData[] {
   // log(`make chart data for ${items}`);
   logMapOfMap(dateNameValueMap);
@@ -183,6 +184,9 @@ function makeChartDataPoints(
         if (mapValue !== undefined) {
           value = mapValue;
           // log(`value for ${item.NAME} from map = ${value}`);
+          if(negateValues){ // for plotting debt values we negate
+            value = -value;
+          }
         } else {
           // this type of effect; this source;
           // didn't have an effect in this date period
@@ -945,6 +949,7 @@ export function makeChartDataFromEvaluations(
       allDates,
       aDTChartNames.debtChartNames,
       model.settings,
+      true, // negate values
     );
   }
 
