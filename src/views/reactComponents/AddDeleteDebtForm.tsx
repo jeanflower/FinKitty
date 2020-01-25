@@ -237,7 +237,7 @@ export class AddDeleteDebtForm extends Component<EditProps, EditFormState> {
       alert(message);
     } else {
       await this.props.submitAssetFunction(asset);
-      alert('added new asset');
+      alert('added new debt');
       // clear fields
       this.setState(this.defaultState);
     }
@@ -246,7 +246,7 @@ export class AddDeleteDebtForm extends Component<EditProps, EditFormState> {
     e.preventDefault();
     // log('deleting something ' + showObj(this));
     if (await this.props.deleteAssetFunction(this.state.NAME)) {
-      alert('deleted asset');
+      alert('deleted debt');
       // clear fields
       this.setState(this.defaultState);
     } else {
