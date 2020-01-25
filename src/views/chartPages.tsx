@@ -254,10 +254,7 @@ function getAssetChartName(model: DbModelData) {
   return assetName;
 }
 
-function assetsOrDebtsButtonList(
-  model: DbModelData,
-  isDebt: boolean,
-) {
+function assetsOrDebtsButtonList(model: DbModelData, isDebt: boolean) {
   const assets = model.assets.filter(obj => {
     return obj.NAME !== taxPot && obj.IS_A_DEBT === isDebt;
   });
