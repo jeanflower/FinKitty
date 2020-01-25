@@ -8,6 +8,8 @@ import {
   annually,
   assetChartAdditions,
   assetChartDeltas,
+  assetChartFocus,
+  assetChartFocusHint,
   assetChartHint,
   assetChartReductions,
   assetChartVal,
@@ -20,6 +22,11 @@ import {
   cpi,
   cpiHint,
   crystallizedPension,
+  debtChartFocus,
+  debtChartFocusHint,
+  debtChartHint,
+  debtChartView,
+  debtChartVal,
   expenseChartFocus,
   expenseChartFocusHint,
   fine,
@@ -33,8 +40,6 @@ import {
   roiStart,
   roiStartHint,
   separator,
-  assetChartFocus,
-  assetChartFocusHint,
   viewDetail,
   viewDetailHint,
   viewFrequency,
@@ -72,7 +77,7 @@ import { minimalModel } from '../../database/database';
 /* global expect */
 /* global describe */
 
-const simpleModel: DbModelData = {
+const emptyModel: DbModelData = {
   triggers: [],
   incomes: [],
   expenses: [],
@@ -89,10 +94,16 @@ const defaultSettings: DbSetting[] = [
   { ...simpleSetting, NAME: viewFrequency, VALUE: monthly },
   { ...simpleSetting, NAME: viewDetail, VALUE: fine },
   { ...simpleSetting, NAME: assetChartView, VALUE: assetChartVal },
+  { ...simpleSetting, NAME: debtChartView, VALUE: debtChartVal },
   {
     NAME: assetChartFocus,
     VALUE: allItems,
     HINT: assetChartFocusHint,
+  },
+  {
+    NAME: debtChartFocus,
+    VALUE: allItems,
+    HINT: debtChartFocusHint,
   },
   {
     NAME: expenseChartFocus,
@@ -274,7 +285,7 @@ export function getModelFutureExpense2() {
     end: 'March 1, 2017 00:00:00',
   };
   const model: DbModelData = {
-    ...simpleModel,
+    ...emptyModel,
     expenses: [
       {
         ...simpleExpense,
@@ -299,7 +310,7 @@ export function getModelCoarseAndFine() {
     end: 'July 10, 2018',
   };
   const model: DbModelData = {
-    ...simpleModel,
+    ...emptyModel,
     incomes: [
       {
         ...simpleIncome,
@@ -398,7 +409,7 @@ export function getModelCrystallizedPension() {
     end: '1 April 2026',
   };
   const model: DbModelData = {
-    ...simpleModel,
+    ...emptyModel,
     incomes: [],
     assets: [
       {
@@ -434,6 +445,11 @@ export function getModelCrystallizedPension() {
         HINT: assetChartFocusHint,
       },
       {
+        NAME: debtChartFocus,
+        VALUE: allItems,
+        HINT: debtChartFocusHint,
+      },
+      {
         NAME: roiStart,
         VALUE: roi.start,
         HINT: roiStartHint,
@@ -457,6 +473,11 @@ export function getModelCrystallizedPension() {
         NAME: assetChartView,
         VALUE: assetChartVal,
         HINT: assetChartHint,
+      },
+      {
+        NAME: debtChartView,
+        VALUE: debtChartVal,
+        HINT: debtChartHint,
       },
       {
         NAME: viewDetail,
@@ -543,7 +564,7 @@ describe('evaluations tests', () => {
       end: 'March 2, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       expenses: [
         {
           ...simpleExpense,
@@ -618,7 +639,7 @@ describe('evaluations tests', () => {
       end: 'March 1, 2017 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       expenses: [
         {
           ...simpleExpense,
@@ -663,7 +684,7 @@ describe('evaluations tests', () => {
       end: 'March 2, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       expenses: [
         {
           ...simpleExpense,
@@ -712,7 +733,7 @@ describe('evaluations tests', () => {
       end: 'March 2, 2019 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       expenses: [
         {
           ...simpleExpense,
@@ -769,7 +790,7 @@ describe('evaluations tests', () => {
       end: 'March 2, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       expenses: [
         {
           ...simpleExpense,
@@ -842,7 +863,7 @@ describe('evaluations tests', () => {
       end: 'March 2, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       expenses: [
         {
           ...simpleExpense,
@@ -907,7 +928,7 @@ describe('evaluations tests', () => {
       end: 'March 2, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       expenses: [
         {
           ...simpleExpense,
@@ -970,7 +991,7 @@ describe('evaluations tests', () => {
       end: 'March 2, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       triggers: [
         {
           NAME: 'valueSetTrigger',
@@ -1037,7 +1058,7 @@ describe('evaluations tests', () => {
       end: 'April 1, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       expenses: [
         {
           ...simpleExpense,
@@ -1097,7 +1118,7 @@ describe('evaluations tests', () => {
       end: 'March 1, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       incomes: [
         {
           ...simpleIncome,
@@ -1156,7 +1177,7 @@ describe('evaluations tests', () => {
       end: 'March 1, 2019 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       incomes: [
         {
           ...simpleIncome,
@@ -1216,7 +1237,7 @@ describe('evaluations tests', () => {
       end: 'March 1, 2019 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       incomes: [
         {
           ...simpleIncome,
@@ -1276,7 +1297,7 @@ describe('evaluations tests', () => {
       end: 'March 1, 2019 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       incomes: [
         {
           ...simpleIncome,
@@ -1334,7 +1355,7 @@ describe('evaluations tests', () => {
       end: 'March 1, 2019 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       incomes: [
         {
           ...simpleIncome,
@@ -1391,7 +1412,7 @@ describe('evaluations tests', () => {
       end: 'April 1, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       incomes: [
         {
           ...simpleIncome,
@@ -1453,7 +1474,7 @@ describe('evaluations tests', () => {
       end: 'February 1, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       assets: [
         {
           ...simpleAsset,
@@ -1538,7 +1559,7 @@ describe('evaluations tests', () => {
       end: 'April 1, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       assets: [
         {
           ...simpleAsset,
@@ -1596,7 +1617,7 @@ describe('evaluations tests', () => {
       end: 'April 1, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       assets: [
         {
           ...simpleAsset,
@@ -1655,7 +1676,7 @@ describe('evaluations tests', () => {
       end: 'April 1, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       assets: [
         {
           ...simpleAsset,
@@ -1715,7 +1736,7 @@ describe('evaluations tests', () => {
       end: 'April 1, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       assets: [
         {
           ...simpleAsset,
@@ -1775,7 +1796,7 @@ describe('evaluations tests', () => {
       end: 'April 1, 2019 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       assets: [
         {
           ...simpleAsset,
@@ -1857,7 +1878,7 @@ describe('evaluations tests', () => {
       end: 'March 1, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       triggers: [
         {
           NAME: 'then',
@@ -1917,7 +1938,7 @@ describe('evaluations tests', () => {
       end: 'March 1, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       expenses: [
         {
           ...simpleExpense,
@@ -1997,7 +2018,7 @@ describe('evaluations tests', () => {
       end: 'April 1, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       transactions: [
         {
           ...simpleTransaction,
@@ -2062,7 +2083,7 @@ describe('evaluations tests', () => {
       end: 'April 1, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       transactions: [
         {
           ...simpleTransaction,
@@ -2130,7 +2151,7 @@ describe('evaluations tests', () => {
       end: 'June 1, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       transactions: [
         {
           ...simpleTransaction,
@@ -2202,7 +2223,7 @@ describe('evaluations tests', () => {
       end: 'June 1, 2023 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       transactions: [
         {
           ...simpleTransaction,
@@ -2277,7 +2298,7 @@ describe('evaluations tests', () => {
       end: 'May 1, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       transactions: [
         {
           ...simpleTransaction,
@@ -2375,7 +2396,7 @@ describe('evaluations tests', () => {
       end: 'June 1, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       transactions: [
         {
           ...simpleTransaction,
@@ -2490,7 +2511,7 @@ describe('evaluations tests', () => {
       end: 'March 1, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       transactions: [
         {
           ...simpleTransaction,
@@ -2580,7 +2601,7 @@ describe('evaluations tests', () => {
       end: 'March 1, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       transactions: [
         {
           ...simpleTransaction,
@@ -2667,7 +2688,7 @@ describe('evaluations tests', () => {
       end: 'October 1, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       expenses: [
         {
           ...simpleExpense,
@@ -2822,7 +2843,7 @@ describe('evaluations tests', () => {
       end: 'October 1, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       expenses: [
         {
           ...simpleExpense,
@@ -2980,7 +3001,7 @@ describe('evaluations tests', () => {
       end: 'October 1, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       expenses: [
         {
           ...simpleExpense,
@@ -3137,7 +3158,7 @@ describe('evaluations tests', () => {
       end: 'October 1, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       expenses: [
         {
           ...simpleExpense,
@@ -3298,7 +3319,7 @@ describe('evaluations tests', () => {
       end: 'October 1, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       expenses: [
         {
           ...simpleExpense,
@@ -3439,7 +3460,7 @@ describe('evaluations tests', () => {
       end: 'October 1, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       expenses: [
         {
           ...simpleExpense,
@@ -3572,13 +3593,13 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('conditional transaction from multiple sources', done => {
+  it('conditional transaction from multiple sources simple', done => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'October 1, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       expenses: [
         {
           ...simpleExpense,
@@ -3798,7 +3819,7 @@ describe('evaluations tests', () => {
       end: 'October 1, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       expenses: [
         {
           ...simpleExpense,
@@ -3976,7 +3997,7 @@ describe('evaluations tests', () => {
     };
     const assetName = 'sthg';
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       incomes: [
         {
           ...simpleIncome,
@@ -4059,7 +4080,7 @@ describe('evaluations tests', () => {
       end: 'March 2, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       expenses: [
         {
           ...simpleExpense,
@@ -4173,7 +4194,7 @@ describe('evaluations tests', () => {
       end: 'March 2, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       incomes: [
         {
           ...simpleIncome,
@@ -4291,7 +4312,7 @@ describe('evaluations tests', () => {
       end: 'May 2, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       incomes: [
         {
           ...simpleIncome,
@@ -4405,7 +4426,7 @@ describe('evaluations tests', () => {
       end: 'May 10, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       incomes: [
         {
           ...simpleIncome,
@@ -4488,7 +4509,7 @@ describe('evaluations tests', () => {
       end: 'May 10, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       incomes: [
         {
           ...simpleIncome,
@@ -4568,7 +4589,7 @@ describe('evaluations tests', () => {
       end: 'May 10, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       incomes: [
         {
           ...simpleIncome,
@@ -4651,7 +4672,7 @@ describe('evaluations tests', () => {
       end: 'May 10, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       incomes: [
         {
           ...simpleIncome,
@@ -4735,7 +4756,7 @@ describe('evaluations tests', () => {
     };
     const smallCPI = 0.05; // non zero cpi ensures tax bands grow over time
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       incomes: [
         {
           ...simpleIncome,
@@ -4902,7 +4923,7 @@ describe('evaluations tests', () => {
       end: 'May 10, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       incomes: [
         {
           ...simpleIncome,
@@ -5002,7 +5023,7 @@ describe('evaluations tests', () => {
       end: 'May 10, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       incomes: [
         {
           ...simpleIncome,
@@ -5105,7 +5126,7 @@ describe('evaluations tests', () => {
       end: 'May 10, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       incomes: [
         {
           ...simpleIncome,
@@ -5205,7 +5226,7 @@ describe('evaluations tests', () => {
       end: 'May 10, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       incomes: [
         {
           ...simpleIncome,
@@ -5305,7 +5326,7 @@ describe('evaluations tests', () => {
       end: 'May 10, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       incomes: [
         {
           ...simpleIncome,
@@ -5408,7 +5429,7 @@ describe('evaluations tests', () => {
       end: 'May 10, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       incomes: [
         {
           ...simpleIncome,
@@ -5509,7 +5530,7 @@ describe('evaluations tests', () => {
       end: 'May 2, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       incomes: [
         {
           ...simpleIncome,
@@ -5590,7 +5611,7 @@ describe('evaluations tests', () => {
       end: 'May 2, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       incomes: [
         {
           ...simpleIncome,
@@ -5673,7 +5694,7 @@ describe('evaluations tests', () => {
       end: 'May 2, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       incomes: [
         {
           ...simpleIncome,
@@ -5756,7 +5777,7 @@ describe('evaluations tests', () => {
       end: 'May 2, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       incomes: [
         {
           ...simpleIncome,
@@ -5841,7 +5862,7 @@ describe('evaluations tests', () => {
       end: 'April 1, 2019 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       transactions: [
         {
           ...simpleTransaction,
@@ -5946,7 +5967,7 @@ describe('evaluations tests', () => {
       end: 'May 2, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       triggers: [
         {
           NAME: 'javaStartTrigger',
@@ -6070,7 +6091,7 @@ describe('evaluations tests', () => {
       end: 'May 2, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       triggers: [
         {
           NAME: 'javaStartTrigger',
@@ -6194,7 +6215,7 @@ describe('evaluations tests', () => {
       end: 'May 2, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       triggers: [
         {
           NAME: 'javaStartTrigger',
@@ -6375,7 +6396,7 @@ describe('evaluations tests', () => {
       end: 'May 2, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       triggers: [
         {
           NAME: 'javaStartTrigger',
@@ -6502,7 +6523,7 @@ describe('evaluations tests', () => {
       end: 'May 2, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       triggers: [
         {
           NAME: 'javaStartTrigger',
@@ -6635,7 +6656,7 @@ describe('evaluations tests', () => {
       end: 'April 2, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       transactions: [
         {
           // when you take cash from your pension pot
@@ -6746,7 +6767,7 @@ describe('evaluations tests', () => {
       end: 'June 2, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       transactions: [
         {
           // when you take cash from your pension pot
@@ -6934,7 +6955,7 @@ describe('evaluations tests', () => {
       end: 'June 2, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       transactions: [
         {
           // when you take cash from your pension pot
@@ -7123,7 +7144,7 @@ describe('evaluations tests', () => {
       end: 'June 2, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       transactions: [
         {
           // when you take cash from your pension pot
@@ -7314,7 +7335,7 @@ describe('evaluations tests', () => {
       end: 'June 2, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       transactions: [
         {
           // when you take cash from your pension pot
@@ -7528,7 +7549,7 @@ describe('evaluations tests', () => {
       end: 'April 2, 2019 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       transactions: [
         {
           // when you take cash from your pension pot
@@ -7847,7 +7868,7 @@ describe('evaluations tests', () => {
       end: 'May 2, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       incomes: [
         {
           ...simpleIncome,
@@ -8006,7 +8027,7 @@ describe('evaluations tests', () => {
       end: 'August 2, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       triggers: [
         {
           NAME: 'javaStartTrigger',
@@ -8210,7 +8231,7 @@ describe('evaluations tests', () => {
       end: 'August 2, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       triggers: [
         {
           NAME: 'javaStartTrigger',
@@ -8414,7 +8435,7 @@ describe('evaluations tests', () => {
       end: 'August 2, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       triggers: [
         {
           NAME: 'javaStartTrigger',
@@ -8619,7 +8640,7 @@ describe('evaluations tests', () => {
       end: 'August 2, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       triggers: [
         {
           NAME: 'javaStartTrigger',
@@ -8713,7 +8734,7 @@ describe('evaluations tests', () => {
       end: 'August 2, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       triggers: [
         {
           NAME: 'javaStartTrigger',
@@ -8807,7 +8828,7 @@ describe('evaluations tests', () => {
       end: 'August 2, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       triggers: [
         {
           NAME: 'javaStartTrigger',
@@ -8901,7 +8922,7 @@ describe('evaluations tests', () => {
       end: 'May 2, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       transactions: [],
       assets: [
         {
@@ -8988,7 +9009,7 @@ describe('evaluations tests', () => {
       end: 'May 7, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       transactions: [
         {
           ...simpleTransaction,
@@ -9090,7 +9111,7 @@ describe('evaluations tests', () => {
       end: 'May 7, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       transactions: [
         {
           ...simpleTransaction,
@@ -9205,7 +9226,7 @@ describe('evaluations tests', () => {
       end: 'Feb 7, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       transactions: [],
       assets: [
         {
@@ -9312,7 +9333,7 @@ describe('evaluations tests', () => {
       end: 'April 2, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       assets: [
         {
           ...simpleAsset,
@@ -9410,7 +9431,7 @@ describe('evaluations tests', () => {
       end: 'June 1, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       assets: [
         {
           ...simpleAsset,
@@ -9512,7 +9533,7 @@ describe('evaluations tests', () => {
       end: 'May 1, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       assets: [
         {
           ...simpleAsset,
@@ -9579,7 +9600,7 @@ describe('evaluations tests', () => {
       end: 'May 1, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       assets: [
         {
           ...simpleAsset,
@@ -9647,7 +9668,7 @@ describe('evaluations tests', () => {
       end: 'May 1, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       assets: [
         {
           ...simpleAsset,
@@ -9733,7 +9754,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('combine chart data into categories', done => {
+  it('Check coarse, categorised, chart data data', done => {
     const modelAndRoi = getModelCoarseAndFine();
     const model = modelAndRoi.model;
     const roi = modelAndRoi.roi;
@@ -9870,6 +9891,302 @@ describe('evaluations tests', () => {
     done();
   });
 
+  it('Check fine, uncategorised, chart data data', done => {
+    const modelAndRoi = getModelCoarseAndFine();
+    const model = modelAndRoi.model;
+    const roi = modelAndRoi.roi;
+
+    setSetting(model.settings, viewDetail, fine);
+
+    const evals: Evaluation[] = getTestEvaluations(model);
+    // log(`evals = ${showObj(evals)}`);
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(45);
+    expectEvals(evals, 0, 'pet food', 'Mon Jan 01 2018', 12, -1);
+    expectEvals(evals, 1, 'broadband', 'Thu Feb 01 2018', 12, -1);
+    expectEvals(evals, 2, 'pet food', 'Thu Feb 01 2018', 12, -1);
+    expectEvals(evals, 3, 'broadband', 'Thu Mar 01 2018', 12, -1);
+    expectEvals(evals, 4, 'pet food', 'Thu Mar 01 2018', 12, -1);
+    expectEvals(evals, 5, 'Cash', 'Sun Apr 01 2018', 500, -1);
+    expectEvals(evals, 6, 'stocks', 'Sun Apr 01 2018', 500, -1);
+    expectEvals(evals, 7, 'PRn1', 'Sun Apr 01 2018', 10, -1);
+    expectEvals(evals, 8, 'Cash', 'Sun Apr 01 2018', 510, -1);
+    expectEvals(evals, 9, 'PRn2', 'Sun Apr 01 2018', 10, -1);
+    expectEvals(evals, 10, 'Cash', 'Sun Apr 01 2018', 520, -1);
+    expectEvals(evals, 11, 'PRn3', 'Sun Apr 01 2018', 10, -1);
+    expectEvals(evals, 12, 'Cash', 'Sun Apr 01 2018', 530, -1);
+    expectEvals(evals, 13, 'Phon', 'Sun Apr 01 2018', 12, -1);
+    expectEvals(evals, 14, 'Cash', 'Sun Apr 01 2018', 518, -1);
+    expectEvals(evals, 15, 'broadband', 'Sun Apr 01 2018', 12, -1);
+    expectEvals(evals, 16, 'Cash', 'Sun Apr 01 2018', 506, -1);
+    expectEvals(evals, 17, 'pet food', 'Sun Apr 01 2018', 12, -1);
+    expectEvals(evals, 18, 'Cash', 'Sun Apr 01 2018', 494, -1);
+    expectEvals(evals, 19, 'Cash', 'Tue May 01 2018', 494, -1);
+    expectEvals(evals, 20, 'stocks', 'Tue May 01 2018', 500, -1);
+    expectEvals(evals, 21, 'PRn2', 'Tue May 01 2018', 10, -1);
+    expectEvals(evals, 22, 'Cash', 'Tue May 01 2018', 504, -1);
+    expectEvals(evals, 23, 'Phon', 'Tue May 01 2018', 12, -1);
+    expectEvals(evals, 24, 'Cash', 'Tue May 01 2018', 492, -1);
+    expectEvals(evals, 25, 'broadband', 'Tue May 01 2018', 12, -1);
+    expectEvals(evals, 26, 'Cash', 'Tue May 01 2018', 480, -1);
+    expectEvals(evals, 27, 'pet food', 'Tue May 01 2018', 12, -1);
+    expectEvals(evals, 28, 'Cash', 'Tue May 01 2018', 468, -1);
+    expectEvals(evals, 29, 'Cash', 'Fri Jun 01 2018', 468, -1);
+    expectEvals(evals, 30, 'savings', 'Fri Jun 01 2018', 500, -1);
+    expectEvals(evals, 31, 'stocks', 'Fri Jun 01 2018', 500, -1);
+    expectEvals(evals, 32, 'PRn2', 'Fri Jun 01 2018', 10, -1);
+    expectEvals(evals, 33, 'Cash', 'Fri Jun 01 2018', 478, -1);
+    expectEvals(evals, 34, 'Phon', 'Fri Jun 01 2018', 12, -1);
+    expectEvals(evals, 35, 'Cash', 'Fri Jun 01 2018', 466, -1);
+    expectEvals(evals, 36, 'broadband', 'Fri Jun 01 2018', 12, -1);
+    expectEvals(evals, 37, 'Cash', 'Fri Jun 01 2018', 454, -1);
+    expectEvals(evals, 38, 'pet food', 'Fri Jun 01 2018', 12, -1);
+    expectEvals(evals, 39, 'Cash', 'Fri Jun 01 2018', 442, -1);
+    expectEvals(evals, 40, 'Cash', 'Sun Jul 01 2018', 442, -1);
+    expectEvals(evals, 41, 'savings', 'Sun Jul 01 2018', 500, -1);
+    expectEvals(evals, 42, 'stocks', 'Sun Jul 01 2018', 500, -1);
+    expectEvals(evals, 43, 'pet food', 'Sun Jul 01 2018', 12, -1);
+    expectEvals(evals, 44, 'Cash', 'Sun Jul 01 2018', 430, -1);
+
+    const result = makeChartDataFromEvaluations(
+      {
+        start: makeDateFromString(roi.start),
+        end: makeDateFromString(roi.end),
+      },
+      model,
+      evals,
+    );
+
+    // log(showObj(result));
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(3);
+    expect(result.expensesData[0].item.NAME).toBe('Phon');
+    {
+      const chartPts = result.expensesData[0].chartDataPoints;
+      expect(chartPts.length).toBe(4);
+      expectChartData(chartPts, 0, 'Sun Apr 01 2018', 12, -1);
+      expectChartData(chartPts, 1, 'Tue May 01 2018', 12, -1);
+      expectChartData(chartPts, 2, 'Fri Jun 01 2018', 12, -1);
+      expectChartData(chartPts, 3, 'Sun Jul 01 2018', 0, -1);
+    }
+
+    expect(result.expensesData[1].item.NAME).toBe('broadband');
+    {
+      const chartPts = result.expensesData[1].chartDataPoints;
+      expect(chartPts.length).toBe(4);
+      expectChartData(chartPts, 0, 'Sun Apr 01 2018', 12, -1);
+      expectChartData(chartPts, 1, 'Tue May 01 2018', 12, -1);
+      expectChartData(chartPts, 2, 'Fri Jun 01 2018', 12, -1);
+      expectChartData(chartPts, 3, 'Sun Jul 01 2018', 0, -1);
+    }
+
+    expect(result.expensesData[2].item.NAME).toBe('pet food');
+    {
+      const chartPts = result.expensesData[2].chartDataPoints;
+      expect(chartPts.length).toBe(4);
+      expectChartData(chartPts, 0, 'Sun Apr 01 2018', 12, -1);
+      expectChartData(chartPts, 1, 'Tue May 01 2018', 12, -1);
+      expectChartData(chartPts, 2, 'Fri Jun 01 2018', 12, -1);
+      expectChartData(chartPts, 3, 'Sun Jul 01 2018', 12, -1);
+    }
+
+    expect(result.incomesData.length).toBe(3);
+    expect(result.incomesData[0].item.NAME).toBe('PRn1');
+    {
+      const chartPts = result.incomesData[0].chartDataPoints;
+      expect(chartPts.length).toBe(4);
+      expectChartData(chartPts, 0, 'Sun Apr 01 2018', 10, -1);
+      expectChartData(chartPts, 1, 'Tue May 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Fri Jun 01 2018', 0, -1);
+      expectChartData(chartPts, 3, 'Sun Jul 01 2018', 0, -1);
+    }
+
+    expect(result.incomesData[1].item.NAME).toBe('PRn2');
+    {
+      const chartPts = result.incomesData[1].chartDataPoints;
+      expect(chartPts.length).toBe(4);
+      expectChartData(chartPts, 0, 'Sun Apr 01 2018', 10, -1);
+      expectChartData(chartPts, 1, 'Tue May 01 2018', 10, -1);
+      expectChartData(chartPts, 2, 'Fri Jun 01 2018', 10, -1);
+      expectChartData(chartPts, 3, 'Sun Jul 01 2018', 0, -1);
+    }
+
+    expect(result.incomesData[2].item.NAME).toBe('PRn3');
+    {
+      const chartPts = result.incomesData[2].chartDataPoints;
+      expect(chartPts.length).toBe(4);
+      expectChartData(chartPts, 0, 'Sun Apr 01 2018', 10, -1);
+      expectChartData(chartPts, 1, 'Tue May 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Fri Jun 01 2018', 0, -1);
+      expectChartData(chartPts, 3, 'Sun Jul 01 2018', 0, -1);
+    }
+
+    expect(result.assetData.length).toBe(3);
+    expect(result.assetData[0].item.NAME).toBe('Cash');
+    {
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(4);
+      expectChartData(chartPts, 0, 'Sun Apr 01 2018', 494, -1);
+      expectChartData(chartPts, 1, 'Tue May 01 2018', 468, -1);
+      expectChartData(chartPts, 2, 'Fri Jun 01 2018', 442, -1);
+      expectChartData(chartPts, 3, 'Sun Jul 01 2018', 430, -1);
+    }
+
+    expect(result.assetData[1].item.NAME).toBe('stocks');
+    {
+      const chartPts = result.assetData[1].chartDataPoints;
+      expect(chartPts.length).toBe(4);
+      expectChartData(chartPts, 0, 'Sun Apr 01 2018', 500, -1);
+      expectChartData(chartPts, 1, 'Tue May 01 2018', 500, -1);
+      expectChartData(chartPts, 2, 'Fri Jun 01 2018', 500, -1);
+      expectChartData(chartPts, 3, 'Sun Jul 01 2018', 500, -1);
+    }
+
+    expect(result.assetData[2].item.NAME).toBe('savings');
+    {
+      const chartPts = result.assetData[2].chartDataPoints;
+      expect(chartPts.length).toBe(4);
+      expectChartData(chartPts, 0, 'Sun Apr 01 2018', 0, -1);
+      expectChartData(chartPts, 1, 'Tue May 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Fri Jun 01 2018', 500, -1);
+      expectChartData(chartPts, 3, 'Sun Jul 01 2018', 500, -1);
+    }
+    done();
+  });
+
+  it('Coarse asset view for cash asset, vals, +, -, +- data1', done => {
+    const modelAndRoi = getModelCoarseAndFine();
+    const model = modelAndRoi.model;
+    const roi = modelAndRoi.roi;
+
+    setSetting(model.settings, assetChartFocus, CASH_ASSET_NAME);
+    setSetting(model.settings, viewDetail, coarse);
+
+    const evals: Evaluation[] = getTestEvaluations(model);
+    // log(`evals = ${showObj(evals)}`);
+
+    //printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(45);
+    expectEvals(evals, 0, 'pet food', 'Mon Jan 01 2018', 12, -1);
+    expectEvals(evals, 1, 'broadband', 'Thu Feb 01 2018', 12, -1);
+    expectEvals(evals, 2, 'pet food', 'Thu Feb 01 2018', 12, -1);
+    expectEvals(evals, 3, 'broadband', 'Thu Mar 01 2018', 12, -1);
+    expectEvals(evals, 4, 'pet food', 'Thu Mar 01 2018', 12, -1);
+    expectEvals(evals, 5, 'Cash', 'Sun Apr 01 2018', 500, -1);
+    expectEvals(evals, 6, 'stocks', 'Sun Apr 01 2018', 500, -1);
+    expectEvals(evals, 7, 'PRn1', 'Sun Apr 01 2018', 10, -1);
+    expectEvals(evals, 8, 'Cash', 'Sun Apr 01 2018', 510, -1);
+    expectEvals(evals, 9, 'PRn2', 'Sun Apr 01 2018', 10, -1);
+    expectEvals(evals, 10, 'Cash', 'Sun Apr 01 2018', 520, -1);
+    expectEvals(evals, 11, 'PRn3', 'Sun Apr 01 2018', 10, -1);
+    expectEvals(evals, 12, 'Cash', 'Sun Apr 01 2018', 530, -1);
+    expectEvals(evals, 13, 'Phon', 'Sun Apr 01 2018', 12, -1);
+    expectEvals(evals, 14, 'Cash', 'Sun Apr 01 2018', 518, -1);
+    expectEvals(evals, 15, 'broadband', 'Sun Apr 01 2018', 12, -1);
+    expectEvals(evals, 16, 'Cash', 'Sun Apr 01 2018', 506, -1);
+    expectEvals(evals, 17, 'pet food', 'Sun Apr 01 2018', 12, -1);
+    expectEvals(evals, 18, 'Cash', 'Sun Apr 01 2018', 494, -1);
+    expectEvals(evals, 19, 'Cash', 'Tue May 01 2018', 494, -1);
+    expectEvals(evals, 20, 'stocks', 'Tue May 01 2018', 500, -1);
+    expectEvals(evals, 21, 'PRn2', 'Tue May 01 2018', 10, -1);
+    expectEvals(evals, 22, 'Cash', 'Tue May 01 2018', 504, -1);
+    expectEvals(evals, 23, 'Phon', 'Tue May 01 2018', 12, -1);
+    expectEvals(evals, 24, 'Cash', 'Tue May 01 2018', 492, -1);
+    expectEvals(evals, 25, 'broadband', 'Tue May 01 2018', 12, -1);
+    expectEvals(evals, 26, 'Cash', 'Tue May 01 2018', 480, -1);
+    expectEvals(evals, 27, 'pet food', 'Tue May 01 2018', 12, -1);
+    expectEvals(evals, 28, 'Cash', 'Tue May 01 2018', 468, -1);
+    expectEvals(evals, 29, 'Cash', 'Fri Jun 01 2018', 468, -1);
+    expectEvals(evals, 30, 'savings', 'Fri Jun 01 2018', 500, -1);
+    expectEvals(evals, 31, 'stocks', 'Fri Jun 01 2018', 500, -1);
+    expectEvals(evals, 32, 'PRn2', 'Fri Jun 01 2018', 10, -1);
+    expectEvals(evals, 33, 'Cash', 'Fri Jun 01 2018', 478, -1);
+    expectEvals(evals, 34, 'Phon', 'Fri Jun 01 2018', 12, -1);
+    expectEvals(evals, 35, 'Cash', 'Fri Jun 01 2018', 466, -1);
+    expectEvals(evals, 36, 'broadband', 'Fri Jun 01 2018', 12, -1);
+    expectEvals(evals, 37, 'Cash', 'Fri Jun 01 2018', 454, -1);
+    expectEvals(evals, 38, 'pet food', 'Fri Jun 01 2018', 12, -1);
+    expectEvals(evals, 39, 'Cash', 'Fri Jun 01 2018', 442, -1);
+    expectEvals(evals, 40, 'Cash', 'Sun Jul 01 2018', 442, -1);
+    expectEvals(evals, 41, 'savings', 'Sun Jul 01 2018', 500, -1);
+    expectEvals(evals, 42, 'stocks', 'Sun Jul 01 2018', 500, -1);
+    expectEvals(evals, 43, 'pet food', 'Sun Jul 01 2018', 12, -1);
+    expectEvals(evals, 44, 'Cash', 'Sun Jul 01 2018', 430, -1);
+
+    const result = makeChartDataFromEvaluations(
+      {
+        start: makeDateFromString(roi.start),
+        end: makeDateFromString(roi.end),
+      },
+      model,
+      evals,
+    );
+
+    // log(showObj(result));
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(2);
+    expect(result.expensesData[0].item.NAME).toBe('comms');
+    {
+      const chartPts = result.expensesData[0].chartDataPoints;
+      expect(chartPts.length).toBe(4);
+      expectChartData(chartPts, 0, 'Sun Apr 01 2018', 24, -1);
+      expectChartData(chartPts, 1, 'Tue May 01 2018', 24, -1);
+      expectChartData(chartPts, 2, 'Fri Jun 01 2018', 24, -1);
+      expectChartData(chartPts, 3, 'Sun Jul 01 2018', 0, -1);
+    }
+
+    expect(result.expensesData[1].item.NAME).toBe('pet food');
+    {
+      const chartPts = result.expensesData[1].chartDataPoints;
+      expect(chartPts.length).toBe(4);
+      expectChartData(chartPts, 0, 'Sun Apr 01 2018', 12, -1);
+      expectChartData(chartPts, 1, 'Tue May 01 2018', 12, -1);
+      expectChartData(chartPts, 2, 'Fri Jun 01 2018', 12, -1);
+      expectChartData(chartPts, 3, 'Sun Jul 01 2018', 12, -1);
+    }
+
+    expect(result.incomesData.length).toBe(2);
+    expect(result.incomesData[0].item.NAME).toBe('PaperRound');
+    {
+      const chartPts = result.incomesData[0].chartDataPoints;
+      expect(chartPts.length).toBe(4);
+      expectChartData(chartPts, 0, 'Sun Apr 01 2018', 20, -1);
+      expectChartData(chartPts, 1, 'Tue May 01 2018', 10, -1);
+      expectChartData(chartPts, 2, 'Fri Jun 01 2018', 10, -1);
+      expectChartData(chartPts, 3, 'Sun Jul 01 2018', 0, -1);
+    }
+
+    expect(result.incomesData[1].item.NAME).toBe('PRn3');
+    {
+      const chartPts = result.incomesData[1].chartDataPoints;
+      expect(chartPts.length).toBe(4);
+      expectChartData(chartPts, 0, 'Sun Apr 01 2018', 10, -1);
+      expectChartData(chartPts, 1, 'Tue May 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Fri Jun 01 2018', 0, -1);
+      expectChartData(chartPts, 3, 'Sun Jul 01 2018', 0, -1);
+    }
+
+    expect(result.assetData.length).toBe(1);
+    expect(result.assetData[0].item.NAME).toBe('Accessible');
+    {
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(4);
+      expectChartData(chartPts, 0, 'Sun Apr 01 2018', 494, -1);
+      expectChartData(chartPts, 1, 'Tue May 01 2018', 468, -1);
+      expectChartData(chartPts, 2, 'Fri Jun 01 2018', 442, -1);
+      expectChartData(chartPts, 3, 'Sun Jul 01 2018', 430, -1);
+    }
+
+    done();
+  });
+
   it('filter chart data into single category, coarse', done => {
     const modelAndRoi = getModelCoarseAndFine();
     const model = modelAndRoi.model;
@@ -9905,6 +10222,170 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 1, 'Tue May 01 2018', 468, -1);
       expectChartData(chartPts, 2, 'Fri Jun 01 2018', 942, -1);
       expectChartData(chartPts, 3, 'Sun Jul 01 2018', 930, -1);
+    }
+
+    done();
+  });
+
+  it('filter chart data into single uncategorised asset, coarse', done => {
+    const modelAndRoi = getModelCoarseAndFine();
+    const model = modelAndRoi.model;
+    const roi = modelAndRoi.roi;
+
+    setSetting(model.settings, assetChartFocus, 'stocks');
+    setSetting(model.settings, viewDetail, coarse);
+
+    const evals: Evaluation[] = getTestEvaluations(model);
+    // log(`evals = ${showObj(evals)}`);
+
+    // printTestCodeForEvals(evals);
+
+    const result = makeChartDataFromEvaluations(
+      {
+        start: makeDateFromString(roi.start),
+        end: makeDateFromString(roi.end),
+      },
+      model,
+      evals,
+    );
+
+    // log(showObj(result));
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(2);
+    expect(result.expensesData[0].item.NAME).toBe('comms');
+    {
+      const chartPts = result.expensesData[0].chartDataPoints;
+      expect(chartPts.length).toBe(4);
+      expectChartData(chartPts, 0, 'Sun Apr 01 2018', 24, -1);
+      expectChartData(chartPts, 1, 'Tue May 01 2018', 24, -1);
+      expectChartData(chartPts, 2, 'Fri Jun 01 2018', 24, -1);
+      expectChartData(chartPts, 3, 'Sun Jul 01 2018', 0, -1);
+    }
+
+    expect(result.expensesData[1].item.NAME).toBe('pet food');
+    {
+      const chartPts = result.expensesData[1].chartDataPoints;
+      expect(chartPts.length).toBe(4);
+      expectChartData(chartPts, 0, 'Sun Apr 01 2018', 12, -1);
+      expectChartData(chartPts, 1, 'Tue May 01 2018', 12, -1);
+      expectChartData(chartPts, 2, 'Fri Jun 01 2018', 12, -1);
+      expectChartData(chartPts, 3, 'Sun Jul 01 2018', 12, -1);
+    }
+
+    expect(result.incomesData.length).toBe(2);
+    expect(result.incomesData[0].item.NAME).toBe('PaperRound');
+    {
+      const chartPts = result.incomesData[0].chartDataPoints;
+      expect(chartPts.length).toBe(4);
+      expectChartData(chartPts, 0, 'Sun Apr 01 2018', 20, -1);
+      expectChartData(chartPts, 1, 'Tue May 01 2018', 10, -1);
+      expectChartData(chartPts, 2, 'Fri Jun 01 2018', 10, -1);
+      expectChartData(chartPts, 3, 'Sun Jul 01 2018', 0, -1);
+    }
+
+    expect(result.incomesData[1].item.NAME).toBe('PRn3');
+    {
+      const chartPts = result.incomesData[1].chartDataPoints;
+      expect(chartPts.length).toBe(4);
+      expectChartData(chartPts, 0, 'Sun Apr 01 2018', 10, -1);
+      expectChartData(chartPts, 1, 'Tue May 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Fri Jun 01 2018', 0, -1);
+      expectChartData(chartPts, 3, 'Sun Jul 01 2018', 0, -1);
+    }
+
+    expect(result.assetData.length).toBe(1);
+    expect(result.assetData[0].item.NAME).toBe('stocks');
+    {
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(4);
+      expectChartData(chartPts, 0, 'Sun Apr 01 2018', 500, -1);
+      expectChartData(chartPts, 1, 'Tue May 01 2018', 500, -1);
+      expectChartData(chartPts, 2, 'Fri Jun 01 2018', 500, -1);
+      expectChartData(chartPts, 3, 'Sun Jul 01 2018', 500, -1);
+    }
+
+    done();
+  });
+
+  it('filter chart data into single categorised asset, coarse', done => {
+    const modelAndRoi = getModelCoarseAndFine();
+    const model = modelAndRoi.model;
+    const roi = modelAndRoi.roi;
+
+    setSetting(model.settings, assetChartFocus, 'savings');
+    setSetting(model.settings, viewDetail, coarse);
+
+    const evals: Evaluation[] = getTestEvaluations(model);
+    // log(`evals = ${showObj(evals)}`);
+
+    // printTestCodeForEvals(evals);
+
+    const result = makeChartDataFromEvaluations(
+      {
+        start: makeDateFromString(roi.start),
+        end: makeDateFromString(roi.end),
+      },
+      model,
+      evals,
+    );
+
+    // log(showObj(result));
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(2);
+    expect(result.expensesData[0].item.NAME).toBe('comms');
+    {
+      const chartPts = result.expensesData[0].chartDataPoints;
+      expect(chartPts.length).toBe(4);
+      expectChartData(chartPts, 0, 'Sun Apr 01 2018', 24, -1);
+      expectChartData(chartPts, 1, 'Tue May 01 2018', 24, -1);
+      expectChartData(chartPts, 2, 'Fri Jun 01 2018', 24, -1);
+      expectChartData(chartPts, 3, 'Sun Jul 01 2018', 0, -1);
+    }
+
+    expect(result.expensesData[1].item.NAME).toBe('pet food');
+    {
+      const chartPts = result.expensesData[1].chartDataPoints;
+      expect(chartPts.length).toBe(4);
+      expectChartData(chartPts, 0, 'Sun Apr 01 2018', 12, -1);
+      expectChartData(chartPts, 1, 'Tue May 01 2018', 12, -1);
+      expectChartData(chartPts, 2, 'Fri Jun 01 2018', 12, -1);
+      expectChartData(chartPts, 3, 'Sun Jul 01 2018', 12, -1);
+    }
+
+    expect(result.incomesData.length).toBe(2);
+    expect(result.incomesData[0].item.NAME).toBe('PaperRound');
+    {
+      const chartPts = result.incomesData[0].chartDataPoints;
+      expect(chartPts.length).toBe(4);
+      expectChartData(chartPts, 0, 'Sun Apr 01 2018', 20, -1);
+      expectChartData(chartPts, 1, 'Tue May 01 2018', 10, -1);
+      expectChartData(chartPts, 2, 'Fri Jun 01 2018', 10, -1);
+      expectChartData(chartPts, 3, 'Sun Jul 01 2018', 0, -1);
+    }
+
+    expect(result.incomesData[1].item.NAME).toBe('PRn3');
+    {
+      const chartPts = result.incomesData[1].chartDataPoints;
+      expect(chartPts.length).toBe(4);
+      expectChartData(chartPts, 0, 'Sun Apr 01 2018', 10, -1);
+      expectChartData(chartPts, 1, 'Tue May 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Fri Jun 01 2018', 0, -1);
+      expectChartData(chartPts, 3, 'Sun Jul 01 2018', 0, -1);
+    }
+
+    expect(result.assetData.length).toBe(1);
+    expect(result.assetData[0].item.NAME).toBe('Accessible');
+    {
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(4);
+      expectChartData(chartPts, 0, 'Sun Apr 01 2018', 0, -1);
+      expectChartData(chartPts, 1, 'Tue May 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Fri Jun 01 2018', 500, -1);
+      expectChartData(chartPts, 3, 'Sun Jul 01 2018', 500, -1);
     }
 
     done();
@@ -10461,7 +10942,7 @@ describe('evaluations tests', () => {
       end: 'Feb 7, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       transactions: [],
       assets: [
         {
@@ -10509,7 +10990,7 @@ describe('evaluations tests', () => {
       end: 'Feb 7, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       transactions: [],
       assets: [
         {
@@ -10549,7 +11030,7 @@ describe('evaluations tests', () => {
       end: 'June 1, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       expenses: [],
       transactions: [
         {
@@ -10649,7 +11130,7 @@ describe('evaluations tests', () => {
       end: 'June 1, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       expenses: [],
       transactions: [
         {
@@ -10751,7 +11232,7 @@ describe('evaluations tests', () => {
       end: 'April 1, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       expenses: [],
       transactions: [
         {
@@ -10844,7 +11325,7 @@ describe('evaluations tests', () => {
       end: 'April 1, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       expenses: [],
       transactions: [
         {
@@ -10936,7 +11417,7 @@ describe('evaluations tests', () => {
       end: 'May 1, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       expenses: [],
       transactions: [
         {
@@ -11033,7 +11514,7 @@ describe('evaluations tests', () => {
       end: 'May 1, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       expenses: [],
       transactions: [
         {
@@ -11132,7 +11613,7 @@ describe('evaluations tests', () => {
       end: 'May 1, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       expenses: [],
       transactions: [
         {
@@ -11229,7 +11710,7 @@ describe('evaluations tests', () => {
       end: 'May 1, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       expenses: [],
       transactions: [
         {
@@ -11327,7 +11808,7 @@ describe('evaluations tests', () => {
       end: 'February 1, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       expenses: [],
       transactions: [],
       assets: [
@@ -11367,7 +11848,7 @@ describe('evaluations tests', () => {
       end: 'February 1, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       expenses: [],
       transactions: [
         {
@@ -11434,7 +11915,7 @@ describe('evaluations tests', () => {
       end: 'February 1, 2018 00:00:00',
     };
     const model: DbModelData = {
-      ...simpleModel,
+      ...emptyModel,
       expenses: [],
       transactions: [
         {

@@ -66,7 +66,7 @@ export class Auth0Provider extends Component {
       user,
       loginWithRedirect: (...p) => auth0Client.loginWithRedirect(...p),
       loginForTesting: (...p) => {
-        if (printDebug) {
+        if (printDebug()) {
           log(`p is ${p}`);
         }
         this.setState({

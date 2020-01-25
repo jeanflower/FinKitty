@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
-import { checkAssetLiability, isNumberString } from '../../models/checks';
-import { DbAsset, DbModelData, DbTransaction } from '../../types/interfaces';
+import { isNumberString } from '../../models/checks';
+import { DbAsset, DbModelData } from '../../types/interfaces';
 import {
   checkTriggerDate,
   log,
@@ -69,7 +69,7 @@ export class AddDeleteDebtForm extends Component<EditProps, EditFormState> {
         <div className="row">
           <div className="col">
             <Input
-              title={"Debt name"}
+              title={'Debt name'}
               type="text"
               name="debtname"
               value={this.state.NAME}

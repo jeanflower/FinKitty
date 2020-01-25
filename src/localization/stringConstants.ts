@@ -47,6 +47,10 @@ export const fine = 'Detailed view';
 export const assetChartFocus = 'Focus of assets chart';
 export const assetChartFocusHint =
   "Assets chart can display a category, a single asset, or 'All'";
+export const debtChartFocus = 'Focus of debts chart';
+export const debtChartFocusHint =
+  "Debts chart can display a category, a single debt, or 'All'";
+
 export const expenseChartFocus = 'Focus of expenses chart';
 export const expenseChartFocusHint =
   "Expenses chart can display a category, a single expense, or 'All'";
@@ -63,6 +67,12 @@ export const assetChartVal = 'val';
 export const assetChartAdditions = '+';
 export const assetChartReductions = '-';
 export const assetChartDeltas = '+-';
+export const debtChartView = 'Type of view for debt chart';
+export const debtChartHint = "Debt chart uses setting '+', '-', '+-' or 'val'";
+export const debtChartVal = 'val';
+export const debtChartAdditions = '+';
+export const debtChartReductions = '-';
+export const debtChartDeltas = '+-';
 
 // The app ships with a sample model that covers some of the
 // types of assets, incomee, expenses and transactions.

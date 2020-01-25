@@ -31,6 +31,7 @@ import {
   pensionSS,
   pensionDBC,
   pensionTransfer,
+  debtChartFocus,
 } from '../localization/stringConstants';
 import {
   DbAsset,
@@ -655,13 +656,32 @@ function checkAssetChartFocus(model: DbModelData) {
     return '';
   }
   if (
-    model.assets.filter(a => a.NAME === val || a.CATEGORY === val).length > 0
+    model.assets.filter(
+      a => !a.IS_A_DEBT && (a.NAME === val || a.CATEGORY === val),
+    ).length > 0
   ) {
     return '';
   }
   return (
     `Settings for '${assetChartFocus}' should be '${allItems}'` +
     ` or one of the asset names or one of the asset categories (not ${val})`
+  );
+}
+function checkDebtChartFocus(model: DbModelData) {
+  const val = getSettings(model.settings, debtChartFocus, '');
+  if (val === allItems) {
+    return '';
+  }
+  if (
+    model.assets.filter(
+      a => a.IS_A_DEBT && (a.NAME === val || a.CATEGORY === val),
+    ).length > 0
+  ) {
+    return '';
+  }
+  return (
+    `Settings for '${debtChartFocus}' should be '${allItems}'` +
+    ` or one of the debt names or one of the debt categories (not ${val})`
   );
 }
 function checkExpenseChartFocus(model: DbModelData) {
@@ -723,6 +743,10 @@ export function checkData(model: DbModelData): string {
     return message;
   }
   message = checkAssetChartFocus(model);
+  if (message.length > 0) {
+    return message;
+  }
+  message = checkDebtChartFocus(model);
   if (message.length > 0) {
     return message;
   }

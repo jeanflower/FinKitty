@@ -27,6 +27,9 @@ import {
   viewFrequency,
   growth,
   pensionDBC,
+  debtChartFocus,
+  debtChartView,
+  debtChartVal,
 } from '../localization/stringConstants';
 import {
   ChartDataPoint,
@@ -163,7 +166,7 @@ function makeChartDataPoints(
   dates: Date[],
   items: string[],
   settings: DbSetting[],
-  negateValues: boolean = false,
+  negateValues = false,
 ): ItemChartData[] {
   // log(`make chart data for ${items}`);
   logMapOfMap(dateNameValueMap);
@@ -184,7 +187,8 @@ function makeChartDataPoints(
         if (mapValue !== undefined) {
           value = mapValue;
           // log(`value for ${item.NAME} from map = ${value}`);
-          if(negateValues){ // for plotting debt values we negate
+          if (negateValues) {
+            // for plotting debt values we negate
             value = -value;
           }
         } else {
@@ -256,53 +260,93 @@ function makeChartDataPoints(
   return result;
 }
 
-function displayWordAs(word: string, model: DbModelData) {
+function displayWordAs(
+  word: string,
+  model: DbModelData,
+  assetChartFocusName: string,
+  debtChartFocusName: string,
+) {
+  //log(`determine where/how to display ${showObj(word)} in a chart`);
+  const result = {
+    asset: false,
+    debt: false,
+    tax: false,
+  };
+
   if (word === taxPot) {
     // log(`display ${showObj(word)} as tax`);
-    return {
-      asset: false,
-      debt: false,
-      tax: true,
-    };
+    result.tax = true;
+    return result;
   }
   const nameMatch = model.assets.filter(a => {
     return a.NAME === word;
   });
   if (nameMatch.length !== 0) {
-    // log(`display ${showObj(word)} as asset? ${!nameMatch[0].IS_A_DEBT}`);
-    return {
-      asset: !nameMatch[0].IS_A_DEBT,
-      debt: nameMatch[0].IS_A_DEBT,
-      tax: false,
-    };
+    // log(`matched name ${word}`);
+    if (!nameMatch[0].IS_A_DEBT) {
+      // have a matching asset
+      // Include if focus is allItems or this asset name
+      if (
+        assetChartFocusName === allItems ||
+        assetChartFocusName === nameMatch[0].CATEGORY ||
+        assetChartFocusName === word
+      ) {
+        result.asset = true;
+      }
+    } else {
+      // have a matching debt
+      // Include if focus is allItems or this debt name
+      if (
+        debtChartFocusName === allItems ||
+        debtChartFocusName === nameMatch[0].CATEGORY ||
+        debtChartFocusName === word
+      ) {
+        result.debt = true;
+      }
+    }
   }
+
   const catMatch = model.assets.filter(a => {
     return a.CATEGORY === word;
   });
   if (catMatch.length !== 0) {
-    const result = {
-      asset: false,
-      debt: false,
-      tax: false,
-    };
     catMatch.forEach(a => {
+      // log(`matched category ${word}`);
       if (a.IS_A_DEBT) {
-        result.debt = true;
+        // Have a debt with a matching category
+        // Include if focus is allItems or this category name
+        if (
+          debtChartFocusName === allItems ||
+          debtChartFocusName === word ||
+          debtChartFocusName === a.NAME
+        ) {
+          result.debt = true;
+        }
       } else {
-        result.asset = true;
+        // Have an asset with a matching category
+        // Include if focus is allItems or this category name
+        if (
+          assetChartFocusName === allItems ||
+          assetChartFocusName === word ||
+          assetChartFocusName === a.NAME
+        ) {
+          result.asset = true;
+        }
       }
     });
-    // log(`display ${showObj(word)} as asset? ${result}`);
-    return result;
   }
-  // log(`display ${showObj(word)} as nothing :-(`);
-  return {
-    asset: false,
-    debt: false,
-    tax: false,
-  };
+
+  // log(`given focus ${assetChartFocusName} and ${debtChartFocusName}`);
+  // log(`display ${showObj(word)} as asset? ${showObj(result)}`);
+  return result;
 }
-function displayAs(name: string, model: DbModelData) {
+
+function displayAs(
+  name: string,
+  model: DbModelData,
+  assetChartFocusName: string,
+  debtChartFocusName: string,
+) {
   const words = name.split(separator);
   const result = {
     asset: false,
@@ -315,7 +359,7 @@ function displayAs(name: string, model: DbModelData) {
     // where to display
   }
   words.forEach(w => {
-    const x = displayWordAs(w, model);
+    const x = displayWordAs(w, model, assetChartFocusName, debtChartFocusName);
     if (x.asset) {
       result.asset = true;
     }
@@ -339,12 +383,17 @@ function displayAs(name: string, model: DbModelData) {
   }
   return result;
 }
-function makeADTChartNames(allNames: string[], model: DbModelData) {
+function makeADTChartNames(
+  allNames: string[],
+  model: DbModelData,
+  assetChartFocusName: string,
+  debtChartFocusName: string,
+) {
   // log(`allNames = ${showObj(allNames)}`)
   const assetChartNames: string[] = [];
   const debtChartNames: string[] = [];
   allNames.forEach(n => {
-    const x = displayAs(n, model);
+    const x = displayAs(n, model, assetChartFocusName, debtChartFocusName);
     if (x.asset) {
       assetChartNames.push(n);
     } else if (x.debt) {
@@ -517,6 +566,11 @@ function getSettingsValues(model: DbModelData) {
     assetChartFocus,
     allItems,
   );
+  const debtChartFocusName = getSettings(
+    model.settings,
+    debtChartFocus,
+    allItems,
+  );
   const detail: string = getSettings(model.settings, viewDetail, fine);
   const frequency: string = getSettings(model.settings, viewFrequency, monthly);
   const assetChartSetting: string = getSettings(
@@ -524,13 +578,20 @@ function getSettingsValues(model: DbModelData) {
     assetChartView,
     assetChartVal,
   );
+  const debtChartSetting: string = getSettings(
+    model.settings,
+    debtChartView,
+    debtChartVal,
+  );
   return {
     expenseFocus,
     incomeFocus,
     assetChartFocusName,
+    debtChartFocusName,
     detail,
     frequency,
     assetChartSetting,
+    debtChartSetting,
   };
 }
 function mapNamesToTypes(model: DbModelData) {
@@ -568,9 +629,11 @@ export function makeChartDataFromEvaluations(
     expenseFocus,
     incomeFocus,
     assetChartFocusName,
+    debtChartFocusName,
     detail,
     frequency,
     assetChartSetting,
+    debtChartSetting,
   } = getSettingsValues(model);
 
   // set up empty data structure for result
@@ -604,7 +667,7 @@ export function makeChartDataFromEvaluations(
   >();
 
   typeDateNameValueMap.set(
-    assetChartFocusName, // we will track data for this special asset
+    'assetOrDebtFocus', // we will track data for this special asset
     new Map<
       string, // date
       Map<
@@ -623,11 +686,20 @@ export function makeChartDataFromEvaluations(
       >
     >(),
   );
-  let assetValueSources: string[] = [];
+  let assetOrDebtValueSources: string[] = [];
 
   let incomeNames: string[] = model.incomes.map(i => i.NAME);
   let expenseNames: string[] = model.expenses.map(e => e.NAME);
-  let assetNames: string[] = model.assets.map(a => a.NAME);
+  let assetNames: string[] = model.assets
+    .filter(a => {
+      return a.IS_A_DEBT === false;
+    })
+    .map(a => a.NAME);
+  let debtNames: string[] = model.assets
+    .filter(a => {
+      return a.IS_A_DEBT === true;
+    })
+    .map(a => a.NAME);
 
   const prevEvalAssetValue = new Map<string, number>();
   // prev is used to calc + or -
@@ -716,17 +788,24 @@ export function makeChartDataFromEvaluations(
           // log(`change ${existingValue} to ${newValue}`);
           nameValueMap.set(evaln.name, newValue);
         }
-        logMapOfMapofMap(typeDateNameValueMap);
       }
     }
+
+    logMapOfMapofMap(typeDateNameValueMap);
+
     // accumulate data for assets and debts (includes taxPot)
     if (
       evaln.name === taxPot ||
       evaln.name === assetChartFocusName ||
+      evaln.name === debtChartFocusName ||
       (assetChartFocusName === allItems &&
         assetNames.indexOf(evaln.name) >= 0 &&
         evaln.name !== taxPot) ||
-      getCategory(evaln.name, model) === assetChartFocusName
+      (debtChartFocusName === allItems &&
+        debtNames.indexOf(evaln.name) >= 0 &&
+        evaln.name !== taxPot) ||
+      getCategory(evaln.name, model) === assetChartFocusName ||
+      getCategory(evaln.name, model) === debtChartFocusName
     ) {
       // log(`evaln of asset ${evaln.name} for val or delta...`);
       // direct asset data to the assets part of typeDateNameValueMap
@@ -735,7 +814,7 @@ export function makeChartDataFromEvaluations(
       if (evaln.name === taxPot) {
         assetDateNameValueMap = typeDateNameValueMap.get(taxPot);
       } else {
-        assetDateNameValueMap = typeDateNameValueMap.get(assetChartFocusName);
+        assetDateNameValueMap = typeDateNameValueMap.get('assetOrDebtFocus');
       }
       if (assetDateNameValueMap !== undefined) {
         const date = firstDateAfterEvaln.toDateString();
@@ -751,9 +830,9 @@ export function makeChartDataFromEvaluations(
           if (evaln.name !== taxPot && assetChartSetting === assetChartVal) {
             // Log asset values.
             // log(`add data[${evaln.name}] = ${evaln.value}`);
-            if (assetValueSources.indexOf(evaln.name) < 0) {
+            if (assetOrDebtValueSources.indexOf(evaln.name) < 0) {
               // log(`add value source ${evaln.name}`);
-              assetValueSources.push(evaln.name);
+              assetOrDebtValueSources.push(evaln.name);
             }
             // we display the latest evaluation, even if there
             // was one already, we overwrite the value
@@ -805,9 +884,9 @@ export function makeChartDataFromEvaluations(
             } else {
               // log(`log chart delta ${valueForChart}`);
               assetNameValueMap.set(mapKey, valueForChart);
-              if (assetValueSources.indexOf(mapKey) < 0) {
+              if (assetOrDebtValueSources.indexOf(mapKey) < 0) {
                 // log(`log chart mapKey ${mapKey}`);
-                assetValueSources.push(mapKey);
+                assetOrDebtValueSources.push(mapKey);
               }
             }
             // log(`set asset value as 'previous'
@@ -818,27 +897,29 @@ export function makeChartDataFromEvaluations(
       }
     }
   });
+
   logMapOfMapofMap(typeDateNameValueMap);
 
   // remove the 'preDate' (helped with defining first displayable bucket)
   allDates.shift();
 
-  const taxValueSources = assetValueSources;
+  const taxValueSources = assetOrDebtValueSources;
   if (detail === coarse) {
     // log('gather chart data into categories');
-    let dateNameValueMap = typeDateNameValueMap.get(assetChartFocusName);
+    let dateNameValueMap = typeDateNameValueMap.get('assetOrDebtFocus');
     if (dateNameValueMap !== undefined) {
       const categories = assignCategories(
         dateNameValueMap,
         allDates,
-        assetValueSources,
+        assetOrDebtValueSources,
         model,
       );
       if (categories !== undefined) {
-        typeDateNameValueMap.set(assetChartFocusName, categories.map);
-        assetValueSources = [...categories.sources];
+        typeDateNameValueMap.set('assetOrDebtFocus', categories.map);
+        assetOrDebtValueSources = [...categories.sources];
       }
-      assetNames = [...categories.sources];
+      assetNames = [...categories.sources]; // NQR
+      debtNames = [...categories.sources]; // NQR
     }
     if (expenseFocus === allItems) {
       // unfocussed expense views can have coarse views
@@ -902,12 +983,13 @@ export function makeChartDataFromEvaluations(
     }
   }
 
-  const mapForChart = typeDateNameValueMap.get(assetChartFocusName);
+  const mapForChart = typeDateNameValueMap.get('assetOrDebtFocus');
   if (mapForChart !== undefined) {
     // log(`go to make asset points@`);
     // log(`assets = ${showObj(assets)}`);
 
     let assetChartNames = [];
+    let debtChartNames = [];
     // when we plot the values of a single asset
     // we want to use assetValueSources as the chart items
     // (i.e. in the chart legend)
@@ -917,15 +999,14 @@ export function makeChartDataFromEvaluations(
       assetNames.includes(assetChartFocusName) ||
       assetChartSetting !== assetChartVal
     ) {
-      assetChartNames = assetValueSources;
+      assetChartNames = assetOrDebtValueSources;
     } else if (assetChartFocusName === allItems) {
       // when showing all assets and values,
       // use assetNames (not sources)
       assetChartNames = assetNames;
     } else {
-      assetChartNames = assetValueSources;
+      assetChartNames = assetOrDebtValueSources;
     }
-
     if (
       assetChartFocusName !== allItems &&
       !assetNames.includes(assetChartFocusName) &&
@@ -935,19 +1016,50 @@ export function makeChartDataFromEvaluations(
     }
     // log(`assetChartNames = ${showObj(assetChartNames)}`);
 
-    const aDTChartNames = makeADTChartNames(assetChartNames, model);
+    if (
+      debtNames.includes(debtChartFocusName) ||
+      assetChartSetting !== debtChartVal
+    ) {
+      debtChartNames = assetOrDebtValueSources;
+    } else if (debtChartFocusName === allItems) {
+      // when showing all debt and values,
+      // use debtNames (not sources)
+      debtChartNames = debtNames;
+    } else {
+      debtChartNames = assetOrDebtValueSources;
+    }
+    if (
+      debtChartFocusName !== allItems &&
+      !debtNames.includes(debtChartFocusName) &&
+      debtChartSetting === debtChartVal
+    ) {
+      debtChartNames = debtChartNames.filter(i => debtNames.includes(i));
+    }
+
+    const aDTAssetChartNames = makeADTChartNames(
+      assetChartNames,
+      model,
+      assetChartFocusName,
+      debtChartFocusName,
+    );
+    const aDTDebtChartNames = makeADTChartNames(
+      debtChartNames,
+      model,
+      assetChartFocusName,
+      debtChartFocusName,
+    );
 
     // log(`items = ${showObj(items)}`);
     result.assetData = makeChartDataPoints(
       mapForChart,
       allDates,
-      aDTChartNames.assetChartNames,
+      aDTAssetChartNames.assetChartNames,
       model.settings,
     );
     result.debtData = makeChartDataPoints(
       mapForChart,
       allDates,
-      aDTChartNames.debtChartNames,
+      aDTDebtChartNames.debtChartNames,
       model.settings,
       true, // negate values
     );

@@ -181,7 +181,7 @@ describe('Chrome Interaction', () => {
     done();
   });
 
-  it('Check coarse, categorised, chart data', async done => {
+  it('Check coarse, categorised, chart data view', async done => {
     if (!doActions) {
       done();
       return;
@@ -305,7 +305,7 @@ describe('Chrome Interaction', () => {
     done();
   });
 
-  it('Check fine, uncategorised, chart data', async done => {
+  it('Check fine, uncategorised, chart data view', async done => {
     if (!doActions) {
       done();
       return;
@@ -489,7 +489,7 @@ describe('Chrome Interaction', () => {
     done();
   });
 
-  it('Coarse asset view for cash asset, vals, +, -, +-', async done => {
+  it('Coarse asset view for cash asset, vals, +, -, +- view', async done => {
     const modelAndRoi = getModelCoarseAndFine();
     await beforeAllWork(driver, testDataModelName, modelAndRoi.model);
 

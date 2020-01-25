@@ -10,8 +10,9 @@ import {
   assetChartReductions,
   assetChartVal,
   assetChartView,
-  CASH_ASSET_NAME,
   coarse,
+  debtChartFocus,
+  debtChartFocusHint,
   expenseChartFocus,
   expenseChartFocusHint,
   fine,
@@ -242,53 +243,53 @@ export function expensesChartDiv(
   );
 }
 
-function getAssetChartName(model: DbModelData) {
+function getAssetOrDebtChartName(model: DbModelData, debt: boolean) {
   if (model.settings.length === 0) {
     // data not yet loaded
-    return CASH_ASSET_NAME;
+    return allItems;
   }
   const assetName = getSettings(
     model.settings,
-    assetChartFocus,
-    CASH_ASSET_NAME, // default fallback
+    debt ? debtChartFocus : assetChartFocus,
+    allItems, // default fallback
   );
   return assetName;
 }
 
 function assetsOrDebtsButtonList(model: DbModelData, isDebt: boolean) {
-  const assets = model.assets.filter(obj => {
+  const assetsOrDebts = model.assets.filter(obj => {
     return obj.NAME !== taxPot && obj.IS_A_DEBT === isDebt;
   });
-  const assetNames: string[] = assets.map(data => data.NAME);
-  assetNames.unshift(allItems);
+  const assetOrDebtNames: string[] = assetsOrDebts.map(data => data.NAME);
+  assetOrDebtNames.unshift(allItems);
   // log(`assetNames = ${assetNames}`);
-  assets.forEach(data => {
+  assetsOrDebts.forEach(data => {
     const cat = data.CATEGORY;
     if (cat !== '') {
-      if (assetNames.indexOf(cat) < 0) {
-        assetNames.push(cat);
+      if (assetOrDebtNames.indexOf(cat) < 0) {
+        assetOrDebtNames.push(cat);
       }
     }
   });
   // log(`assetNames with categories = ${assetNames}`);
-  const selectedAsset = getAssetChartName(model);
-  const buttons = assetNames.map(asset => (
+  const selectedAssetOrDebt = getAssetOrDebtChartName(model, isDebt);
+  const buttons = assetOrDebtNames.map(assetOrDebt => (
     <Button
-      key={asset}
+      key={assetOrDebt}
       action={(e: any) => {
         e.persist();
         // when a button is clicked,
         // go to change the settings value
         const forSubmission: DbSetting = {
-          NAME: assetChartFocus,
-          VALUE: asset,
-          HINT: assetChartFocusHint,
+          NAME: isDebt ? debtChartFocus : assetChartFocus,
+          VALUE: assetOrDebt,
+          HINT: isDebt ? debtChartFocusHint : assetChartFocusHint,
         };
         submitSetting(forSubmission);
       }}
-      title={asset}
-      type={asset === selectedAsset ? 'primary' : 'secondary'}
-      id="chooseAssetChartSetting"
+      title={assetOrDebt}
+      type={assetOrDebt === selectedAssetOrDebt ? 'primary' : 'secondary'}
+      id="chooseAssetOrDebtChartSetting"
     />
   ));
   return <div role="group">{buttons}</div>;
@@ -342,9 +343,9 @@ export function assetsOrDebtsChartDiv(
   assetChartData: ChartData[],
   isDebt: boolean,
 ) {
-  const chartVisible = isDebt ? 
-    showContent.get(debtsChart).display :
-    showContent.get(assetsChart).display;
+  const chartVisible = isDebt
+    ? showContent.get(debtsChart).display
+    : showContent.get(assetsChart).display;
 
   // log(`assetChartData = ${assetChartData}`);
 

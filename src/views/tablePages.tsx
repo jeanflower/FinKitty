@@ -209,8 +209,8 @@ function handleAssetGridRowsUpdated(model: DbModelData, args: any) {
 
   // negate values before sending from table
   // to model
-  if(matchedAsset[0].IS_A_DEBT && parsedValue.checksOK){
-    parsedValue.value = -parsedValue.value; 
+  if (matchedAsset[0].IS_A_DEBT && parsedValue.checksOK) {
+    parsedValue.value = -parsedValue.value;
   }
 
   if (!parsedGrowth.checksOK) {

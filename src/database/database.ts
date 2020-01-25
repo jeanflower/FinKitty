@@ -11,6 +11,8 @@ import {
   CASH_ASSET_NAME,
   cpi,
   cpiHint,
+  debtChartFocus,
+  debtChartFocusHint,
   expenseChartFocus,
   expenseChartFocusHint,
   fine,
@@ -91,6 +93,11 @@ export const minimalModel: DbModelData = {
       NAME: assetChartFocus,
       VALUE: CASH_ASSET_NAME,
       HINT: assetChartFocusHint,
+    },
+    {
+      NAME: debtChartFocus,
+      VALUE: allItems,
+      HINT: debtChartFocusHint,
     },
     {
       NAME: expenseChartFocus,
