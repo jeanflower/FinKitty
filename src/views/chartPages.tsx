@@ -254,24 +254,27 @@ function getAssetChartName(model: DbModelData) {
   return assetName;
 }
 
-function assetsList(model: DbModelData) {
-  const assets: string[] = model.assets
-    .filter(obj => {
-      return obj.NAME !== taxPot;
-    })
-    .map(data => data.NAME);
-  // log(`assets = ${assets}`);
-  assets.unshift(allItems);
-  model.assets.forEach(data => {
+function assetsOrDebtsButtonList(
+  model: DbModelData,
+  isDebt: boolean,
+) {
+  const assets = model.assets.filter(obj => {
+    return obj.NAME !== taxPot && obj.IS_A_DEBT === isDebt;
+  });
+  const assetNames: string[] = assets.map(data => data.NAME);
+  assetNames.unshift(allItems);
+  // log(`assetNames = ${assetNames}`);
+  assets.forEach(data => {
     const cat = data.CATEGORY;
     if (cat !== '') {
-      if (assets.indexOf(cat) < 0) {
-        assets.push(cat);
+      if (assetNames.indexOf(cat) < 0) {
+        assetNames.push(cat);
       }
     }
   });
+  // log(`assetNames with categories = ${assetNames}`);
   const selectedAsset = getAssetChartName(model);
-  const buttons = assets.map(asset => (
+  const buttons = assetNames.map(asset => (
     <Button
       key={asset}
       action={(e: any) => {
@@ -336,9 +339,10 @@ function assetViewTypeList(model: DbModelData) {
   return <div role="group">{buttons}</div>;
 }
 
-export function assetsChartDiv(
+export function assetsOrDebtsChartDiv(
   model: DbModelData,
   assetChartData: ChartData[],
+  isDebt: boolean,
 ) {
   const chartVisible = showContent.get(assetsChart).display;
 
@@ -350,7 +354,7 @@ export function assetsChartDiv(
         display: chartVisible ? 'block' : 'none',
       }}
     >
-      {assetsList(model)}
+      {assetsOrDebtsButtonList(model, isDebt)}
       {assetViewTypeList(model)}
       {coarseFineList(model)}
       <ReactiveTextArea

@@ -13,7 +13,7 @@ import {
   submitTransaction,
 } from './../App';
 import Button from './reactComponents/Button';
-import { assetsChartDiv } from './chartPages';
+import { assetsOrDebtsChartDiv } from './chartPages';
 import { assetsTableDiv } from './tablePages';
 import { AddDeleteAssetForm } from './reactComponents/AddDeleteAssetForm';
 import { checkAsset, checkTransaction } from '../models/checks';
@@ -49,7 +49,7 @@ export function debtsDiv(model: DbModelData, debtChartData: ChartData[]) {
         key={debtsTable.lc}
         id="toggleDebtsTable"
       />
-      {assetsChartDiv(model, debtChartData)}
+      {assetsOrDebtsChartDiv(model, debtChartData, true)}
       {assetsTableDiv(model, true)}
       <div className="addNewDebt">
         <h4> Add or delete debt </h4>

@@ -22,7 +22,7 @@ import {
   transactionsView,
 } from '../App';
 import {
-  assetsChartDiv,
+  assetsOrDebtsChartDiv,
   expensesChartDiv,
   incomesChartDiv,
 } from './chartPages';
@@ -34,8 +34,9 @@ export function overviewDiv(
   expensesChartData: ChartData[],
   incomesChartData: ChartData[],
 ) {
+  const doDisplay = getDisplay(overview);
   return (
-    <div style={{ display: getDisplay(overview) ? 'block' : 'none' }}>
+    <div style={{ display: doDisplay ? 'block' : 'none' }}>
       This model has &nbsp;
       {model.triggers.length} &nbsp;
       <Button
@@ -128,10 +129,10 @@ export function overviewDiv(
       {expensesChartDiv(model, expensesChartData)}
       <h2>Assets:</h2>
       {assetsTableDiv(model, false)}
-      {assetsChartDiv(model, assetChartData)}
+      {assetsOrDebtsChartDiv(model, assetChartData, false)}
       <h2>Debts:</h2>
       {assetsTableDiv(model, true)}
-      {assetsChartDiv(model, debtChartData)}
+      {assetsOrDebtsChartDiv(model, debtChartData, true)}
       <h2>Transactions:</h2>
       {transactionsTableDiv(model)}
       <h2>Settings:</h2>
