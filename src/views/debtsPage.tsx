@@ -1,9 +1,9 @@
 import React from 'react';
 import { ChartData, DbModelData } from './../types/interfaces';
 import {
-  assetsChart,
-  assetsTable,
-  assetsView,
+  debtsChart,
+  debtsTable,
+  debtsView,
   deleteAssetFromTable,
   getDisplay,
   showContent,
@@ -18,41 +18,41 @@ import { assetsTableDiv } from './tablePages';
 import { AddDeleteAssetForm } from './reactComponents/AddDeleteAssetForm';
 import { checkAsset, checkTransaction } from '../models/checks';
 
-export function assetsDiv(model: DbModelData, assetChartData: ChartData[]) {
-  if (!getDisplay(assetsView)) {
+export function debtsDiv(model: DbModelData, debtChartData: ChartData[]) {
+  if (!getDisplay(debtsView)) {
     return;
   }
 
   return (
-    <div style={{ display: getDisplay(assetsView) ? 'block' : 'none' }}>
+    <div style={{ display: getDisplay(debtsView) ? 'block' : 'none' }}>
       <Button
         action={(event: any) => {
           event.persist();
-          toggleDisplay(assetsChart);
+          toggleDisplay(debtsChart);
         }}
-        title={`${showContent.get(assetsChart).display ? 'Hide ' : 'Show '}${
-          assetsChart.lc
+        title={`${showContent.get(debtsChart).display ? 'Hide ' : 'Show '}${
+          debtsChart.lc
         }`}
-        type={showContent.get(assetsChart).display ? 'primary' : 'secondary'}
-        key={assetsChart.lc}
-        id="toggleAssetsChart"
+        type={showContent.get(debtsChart).display ? 'primary' : 'secondary'}
+        key={debtsChart.lc}
+        id="toggleDebtsChart"
       />
       <Button
         action={(event: any) => {
           event.persist();
-          toggleDisplay(assetsTable);
+          toggleDisplay(debtsTable);
         }}
-        title={`${showContent.get(assetsTable).display ? 'Hide ' : 'Show '}${
-          assetsTable.lc
+        title={`${showContent.get(debtsTable).display ? 'Hide ' : 'Show '}${
+          debtsTable.lc
         }`}
-        type={showContent.get(assetsTable).display ? 'primary' : 'secondary'}
-        key={assetsTable.lc}
-        id="toggleAssetsTable"
+        type={showContent.get(debtsTable).display ? 'primary' : 'secondary'}
+        key={debtsTable.lc}
+        id="toggleDebtsTable"
       />
-      {assetsChartDiv(model, assetChartData)}
-      {assetsTableDiv(model, false)}
-      <div className="addNewAsset">
-        <h4> Add or delete asset </h4>
+      {assetsChartDiv(model, debtChartData)}
+      {assetsTableDiv(model, true)}
+      <div className="addNewDebt">
+        <h4> Add or delete debt </h4>
         <AddDeleteAssetForm
           checkAssetFunction={checkAsset}
           submitAssetFunction={submitAsset}

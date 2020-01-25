@@ -607,6 +607,8 @@ DBC_TRANSFERRED_STOP
       if (!parseYNDBCSS.checksOK) {
         alert(`Salary sacrifice '${this.state.DBC_SS}' should be a Y/N value`);
         return;
+      } else {
+        // log(`parseYNDBCSS = ${showObj(parseYNDBCSS)}`);
       }
 
       isNotANumber = !isNumberString(this.state.DBC_CONTRIBUTION_AMOUNT);
@@ -722,7 +724,7 @@ DBC_TRANSFERRED_STOP
       }
 
       const pensionDbctran1: DbTransaction = {
-        NAME: (parseYNDBCSS ? pensionSS : pension) + this.state.NAME,
+        NAME: (parseYNDBCSS.value ? pensionSS : pension) + this.state.NAME,
         FROM: this.state.DBC_INCOME_SOURCE,
         FROM_ABSOLUTE: false,
         FROM_VALUE: this.state.DBC_CONTRIBUTION_AMOUNT,
@@ -790,18 +792,18 @@ DBC_TRANSFERRED_STOP
           RECURRENCE: '',
           CATEGORY: this.state.CATEGORY,
         };
-      }
-      message = await this.props.checkTransactionFunction(
-        pensionDbctran3,
-        this.props.model,
-      );
-      if (message.length > 0) {
-        alert(message);
-        await this.props.deleteFunction(pensionDbcIncome1);
-        if (pensionDbcIncome2) {
-          await this.props.deleteFunction(pensionDbcIncome2);
+        message = await this.props.checkTransactionFunction(
+          pensionDbctran3,
+          this.props.model,
+        );
+        if (message.length > 0) {
+          alert(message);
+          await this.props.deleteFunction(pensionDbcIncome1);
+          if (pensionDbcIncome2) {
+            await this.props.deleteFunction(pensionDbcIncome2);
+          }
+          return;
         }
-        return;
       }
 
       await this.props.submitTransactionFunction(pensionDbctran1);

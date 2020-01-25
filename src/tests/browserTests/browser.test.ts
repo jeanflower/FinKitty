@@ -81,7 +81,7 @@ describe('Chrome Interaction', () => {
       expect(btn.length === 1).toBe(true);
       await btn[0].click();
 
-      const chartID = 'canvasjs-react-chart-container-7'; // why 7?
+      const chartID = 'canvasjs-react-chart-container-9'; // why 9? 9th chart drawn?
       // log(`check for chart ${idToSeek}`);
       const elts: WebElement[] = await driver.findElements({ id: chartID });
       expect(elts.length === 1).toBe(true);
@@ -545,7 +545,7 @@ describe('Chrome Interaction', () => {
     // writeTestCode(ary);
 
     expect(ary.length).toEqual(3);
-    expect(ary[0].name).toEqual('PaperRound');
+    expect(ary[0].name).toEqual('PaperRound/Accessible');
     expect(ary[0].type).toEqual('stackedColumn');
     expect(ary[0].showInLegend).toEqual(true);
     expect(ary[0].dataPoints.length).toEqual(4);
@@ -561,7 +561,7 @@ describe('Chrome Interaction', () => {
     expect(ary[0].dataPoints[3].label).toEqual('Sun Jul 01 2018');
     expect(ary[0].dataPoints[3].y).toEqual(0);
     expect(ary[0].dataPoints[3].ttip).toEqual('0.00 at Sun Jul 01 2018');
-    expect(ary[1].name).toEqual('PRn3/Cash');
+    expect(ary[1].name).toEqual('PRn3/Accessible');
     expect(ary[1].type).toEqual('stackedColumn');
     expect(ary[1].showInLegend).toEqual(true);
     expect(ary[1].dataPoints.length).toEqual(4);
@@ -577,7 +577,7 @@ describe('Chrome Interaction', () => {
     expect(ary[1].dataPoints[3].label).toEqual('Sun Jul 01 2018');
     expect(ary[1].dataPoints[3].y).toEqual(0);
     expect(ary[1].dataPoints[3].ttip).toEqual('0.00 at Sun Jul 01 2018');
-    expect(ary[2].name).toEqual('Accessible');
+    expect(ary[2].name).toEqual('Accessible/Accessible');
     expect(ary[2].type).toEqual('stackedColumn');
     expect(ary[2].showInLegend).toEqual(true);
     expect(ary[2].dataPoints.length).toEqual(4);
@@ -610,7 +610,7 @@ describe('Chrome Interaction', () => {
     // writeTestCode(ary);
 
     expect(ary.length).toEqual(2);
-    expect(ary[0].name).toEqual('pet food/Cash');
+    expect(ary[0].name).toEqual('pet food/Accessible');
     expect(ary[0].type).toEqual('stackedColumn');
     expect(ary[0].showInLegend).toEqual(true);
     expect(ary[0].dataPoints.length).toEqual(4);
@@ -626,7 +626,7 @@ describe('Chrome Interaction', () => {
     expect(ary[0].dataPoints[3].label).toEqual('Sun Jul 01 2018');
     expect(ary[0].dataPoints[3].y).toEqual(-12);
     expect(ary[0].dataPoints[3].ttip).toEqual('-12.00 at Sun Jul 01 2018');
-    expect(ary[1].name).toEqual('comms');
+    expect(ary[1].name).toEqual('comms/Accessible');
     expect(ary[1].type).toEqual('stackedColumn');
     expect(ary[1].showInLegend).toEqual(true);
     expect(ary[1].dataPoints.length).toEqual(4);
@@ -659,7 +659,7 @@ describe('Chrome Interaction', () => {
     // writeTestCode(ary);
 
     expect(ary.length).toEqual(5);
-    expect(ary[0].name).toEqual('pet food/Cash');
+    expect(ary[0].name).toEqual('pet food/Accessible');
     expect(ary[0].type).toEqual('stackedColumn');
     expect(ary[0].showInLegend).toEqual(true);
     expect(ary[0].dataPoints.length).toEqual(4);
@@ -675,7 +675,7 @@ describe('Chrome Interaction', () => {
     expect(ary[0].dataPoints[3].label).toEqual('Sun Jul 01 2018');
     expect(ary[0].dataPoints[3].y).toEqual(-12);
     expect(ary[0].dataPoints[3].ttip).toEqual('-12.00 at Sun Jul 01 2018');
-    expect(ary[1].name).toEqual('comms');
+    expect(ary[1].name).toEqual('comms/Accessible');
     expect(ary[1].type).toEqual('stackedColumn');
     expect(ary[1].showInLegend).toEqual(true);
     expect(ary[1].dataPoints.length).toEqual(4);
@@ -691,7 +691,7 @@ describe('Chrome Interaction', () => {
     expect(ary[1].dataPoints[3].label).toEqual('Sun Jul 01 2018');
     expect(ary[1].dataPoints[3].y).toEqual(0);
     expect(ary[1].dataPoints[3].ttip).toEqual('0.00 at Sun Jul 01 2018');
-    expect(ary[2].name).toEqual('PaperRound');
+    expect(ary[2].name).toEqual('PaperRound/Accessible');
     expect(ary[2].type).toEqual('stackedColumn');
     expect(ary[2].showInLegend).toEqual(true);
     expect(ary[2].dataPoints.length).toEqual(4);
@@ -707,7 +707,7 @@ describe('Chrome Interaction', () => {
     expect(ary[2].dataPoints[3].label).toEqual('Sun Jul 01 2018');
     expect(ary[2].dataPoints[3].y).toEqual(0);
     expect(ary[2].dataPoints[3].ttip).toEqual('0.00 at Sun Jul 01 2018');
-    expect(ary[3].name).toEqual('PRn3/Cash');
+    expect(ary[3].name).toEqual('PRn3/Accessible');
     expect(ary[3].type).toEqual('stackedColumn');
     expect(ary[3].showInLegend).toEqual(true);
     expect(ary[3].dataPoints.length).toEqual(4);
@@ -723,7 +723,7 @@ describe('Chrome Interaction', () => {
     expect(ary[3].dataPoints[3].label).toEqual('Sun Jul 01 2018');
     expect(ary[3].dataPoints[3].y).toEqual(0);
     expect(ary[3].dataPoints[3].ttip).toEqual('0.00 at Sun Jul 01 2018');
-    expect(ary[4].name).toEqual('Accessible');
+    expect(ary[4].name).toEqual('Accessible/Accessible');
     expect(ary[4].type).toEqual('stackedColumn');
     expect(ary[4].showInLegend).toEqual(true);
     expect(ary[4].dataPoints.length).toEqual(4);

@@ -9987,7 +9987,7 @@ describe('evaluations tests', () => {
     // tested elsewhere
 
     expect(result.assetData.length).toBe(6);
-    expect(result.assetData[0].item.NAME).toBe('Accessible');
+    expect(result.assetData[0].item.NAME).toBe('Accessible/Accessible');
     {
       const chartPts = result.assetData[0].chartDataPoints;
       expect(chartPts.length).toBe(4);
@@ -10007,7 +10007,7 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 3, 'Sun Jul 01 2018', 0, -1);
     }
 
-    expect(result.assetData[2].item.NAME).toBe('PaperRound');
+    expect(result.assetData[2].item.NAME).toBe('PaperRound/Accessible');
     {
       const chartPts = result.assetData[2].chartDataPoints;
       expect(chartPts.length).toBe(4);
@@ -10017,7 +10017,7 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 3, 'Sun Jul 01 2018', 0, -1);
     }
 
-    expect(result.assetData[3].item.NAME).toBe('PRn3/Cash');
+    expect(result.assetData[3].item.NAME).toBe('PRn3/Accessible');
     {
       const chartPts = result.assetData[3].chartDataPoints;
       expect(chartPts.length).toBe(4);
@@ -10027,7 +10027,7 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 3, 'Sun Jul 01 2018', 0, -1);
     }
 
-    expect(result.assetData[4].item.NAME).toBe('comms');
+    expect(result.assetData[4].item.NAME).toBe('comms/Accessible');
     {
       const chartPts = result.assetData[4].chartDataPoints;
       expect(chartPts.length).toBe(4);
@@ -10037,7 +10037,7 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 3, 'Sun Jul 01 2018', 0, -1);
     }
 
-    expect(result.assetData[5].item.NAME).toBe('pet food/Cash');
+    expect(result.assetData[5].item.NAME).toBe('pet food/Accessible');
     {
       const chartPts = result.assetData[5].chartDataPoints;
       expect(chartPts.length).toBe(4);
@@ -10078,7 +10078,7 @@ describe('evaluations tests', () => {
     // don't assert about income or expense charts
 
     expect(result.assetData.length).toBe(2);
-    expect(result.assetData[0].item.NAME).toBe('comms');
+    expect(result.assetData[0].item.NAME).toBe('comms/Accessible');
     {
       const chartPts = result.assetData[0].chartDataPoints;
       expect(chartPts.length).toBe(4);
@@ -10088,7 +10088,7 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 3, 'Sun Jul 01 2018', 0, -1);
     }
 
-    expect(result.assetData[1].item.NAME).toBe('pet food/Cash');
+    expect(result.assetData[1].item.NAME).toBe('pet food/Accessible');
     {
       const chartPts = result.assetData[1].chartDataPoints;
       expect(chartPts.length).toBe(4);
@@ -10128,7 +10128,7 @@ describe('evaluations tests', () => {
 
     // don't assert about income or expense charts
     expect(result.assetData.length).toBe(4);
-    expect(result.assetData[0].item.NAME).toBe('Accessible');
+    expect(result.assetData[0].item.NAME).toBe('Accessible/Accessible');
     {
       const chartPts = result.assetData[0].chartDataPoints;
       expect(chartPts.length).toBe(4);
@@ -10148,7 +10148,7 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 3, 'Sun Jul 01 2018', 0, -1);
     }
 
-    expect(result.assetData[2].item.NAME).toBe('PaperRound');
+    expect(result.assetData[2].item.NAME).toBe('PaperRound/Accessible');
     {
       const chartPts = result.assetData[2].chartDataPoints;
       expect(chartPts.length).toBe(4);
@@ -10158,7 +10158,7 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 3, 'Sun Jul 01 2018', 0, -1);
     }
 
-    expect(result.assetData[3].item.NAME).toBe('PRn3/Cash');
+    expect(result.assetData[3].item.NAME).toBe('PRn3/Accessible');
     {
       const chartPts = result.assetData[3].chartDataPoints;
       expect(chartPts.length).toBe(4);
@@ -10306,7 +10306,7 @@ describe('evaluations tests', () => {
     expect(result.expensesData.length).toBe(0);
     expect(result.incomesData.length).toBe(0);
     expect(result.assetData.length).toBe(2);
-    expect(result.assetData[0].item.NAME).toBe('D');
+    expect(result.assetData[0].item.NAME).toBe('D/B');
     {
       const chartPts = result.assetData[0].chartDataPoints;
       expect(chartPts.length).toBe(3);
@@ -10315,9 +10315,7 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 2, 'Tue Apr 01 2025', 24500, -1);
     }
 
-    expect(result.assetData[1].item.NAME).toBe(
-      'MoveRemainingPension/CrystallizedPensionJoe',
-    );
+    expect(result.assetData[1].item.NAME).toBe('MoveRemainingPension/B');
     {
       const chartPts = result.assetData[1].chartDataPoints;
       expect(chartPts.length).toBe(3);
@@ -10354,7 +10352,7 @@ describe('evaluations tests', () => {
     expect(result.expensesData.length).toBe(0);
     expect(result.incomesData.length).toBe(0);
     expect(result.assetData.length).toBe(2);
-    expect(result.assetData[0].item.NAME).toBe('D');
+    expect(result.assetData[0].item.NAME).toBe('D/B');
     {
       const chartPts = result.assetData[0].chartDataPoints;
       expect(chartPts.length).toBe(3);
@@ -10364,7 +10362,7 @@ describe('evaluations tests', () => {
     }
 
     expect(result.assetData[1].item.NAME).toBe(
-      'MoveRemainingPension' + separator + 'EmploymentPension',
+      'MoveRemainingPension' + separator + 'B',
     );
     {
       const chartPts = result.assetData[1].chartDataPoints;
@@ -10402,8 +10400,8 @@ describe('evaluations tests', () => {
 
     expect(result.expensesData.length).toBe(0);
     expect(result.incomesData.length).toBe(0);
-    expect(result.assetData.length).toBe(3);
-    expect(result.assetData[0].item.NAME).toBe('D');
+    expect(result.assetData.length).toBe(2);
+    expect(result.assetData[0].item.NAME).toBe('D/B');
     {
       const chartPts = result.assetData[0].chartDataPoints;
       expect(chartPts.length).toBe(3);
@@ -10412,26 +10410,13 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 2, 'Tue Apr 01 2025', -500, -1);
     }
 
-    expect(result.assetData[1].item.NAME).toBe(
-      'MoveRemainingPension/EmploymentPension',
-    );
+    expect(result.assetData[1].item.NAME).toBe('MoveRemainingPension/B');
     {
       const chartPts = result.assetData[1].chartDataPoints;
       expect(chartPts.length).toBe(3);
       expectChartData(chartPts, 0, 'Sat Apr 01 2023', 0, -1);
       expectChartData(chartPts, 1, 'Mon Apr 01 2024', 0, -1);
-      expectChartData(chartPts, 2, 'Tue Apr 01 2025', -75000, -1);
-    }
-
-    expect(result.assetData[2].item.NAME).toBe(
-      'MoveRemainingPension/CrystallizedPensionJoe',
-    );
-    {
-      const chartPts = result.assetData[2].chartDataPoints;
-      expect(chartPts.length).toBe(3);
-      expectChartData(chartPts, 0, 'Sat Apr 01 2023', 0, -1);
-      expectChartData(chartPts, 1, 'Mon Apr 01 2024', 0, -1);
-      expectChartData(chartPts, 2, 'Tue Apr 01 2025', 73500, -1);
+      expectChartData(chartPts, 2, 'Tue Apr 01 2025', -1500, -1);
     }
 
     done();

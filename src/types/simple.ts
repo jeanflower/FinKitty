@@ -8,6 +8,7 @@ export const simpleAsset: DbAsset = {
   GROWTH: '0',
   CPI_IMMUNE: false,
   CAN_BE_NEGATIVE: false,
+  IS_A_DEBT: false,
   LIABILITY: '',
   PURCHASE_PRICE: '0',
 };

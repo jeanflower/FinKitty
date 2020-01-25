@@ -135,8 +135,10 @@ function getCategory(name: string, model: DbModelData) {
   }
   const firstPart = words[0];
   const firstPartCat = getCategorySub(firstPart, model);
-  if (firstPartCat !== firstPart) {
-    return firstPartCat;
+  if (words.length === 1) {
+    if (firstPartCat !== firstPart) {
+      return firstPartCat;
+    }
   }
   // maybe use second part? for growth or revalue
   if (words.length > 1 && (firstPart === growth || firstPart === revalue)) {
@@ -145,6 +147,12 @@ function getCategory(name: string, model: DbModelData) {
     if (secondPartCat !== secondPart) {
       return firstPart + separator + secondPartCat;
     }
+  }
+  // maybe use second part? for deltas
+  if (words.length > 1) {
+    const secondPart = words[1];
+    const secondPartCat = getCategorySub(secondPart, model);
+    return firstPartCat + separator + secondPartCat;
   }
   // log(`no category for ${name}`);
   return name;
@@ -244,6 +252,108 @@ function makeChartDataPoints(
   return result;
 }
 
+function displayWordAs(word: string, model: DbModelData) {
+  if (word === taxPot) {
+    // log(`display ${showObj(word)} as tax`);
+    return {
+      asset: false,
+      debt: false,
+      tax: true,
+    };
+  }
+  const nameMatch = model.assets.filter(a => {
+    return a.NAME === word;
+  });
+  if (nameMatch.length !== 0) {
+    // log(`display ${showObj(word)} as asset? ${!nameMatch[0].IS_A_DEBT}`);
+    return {
+      asset: !nameMatch[0].IS_A_DEBT,
+      debt: nameMatch[0].IS_A_DEBT,
+      tax: false,
+    };
+  }
+  const catMatch = model.assets.filter(a => {
+    return a.CATEGORY === word;
+  });
+  if (catMatch.length !== 0) {
+    const result = {
+      asset: false,
+      debt: false,
+      tax: false,
+    };
+    catMatch.forEach(a => {
+      if (a.IS_A_DEBT) {
+        result.debt = true;
+      } else {
+        result.asset = true;
+      }
+    });
+    // log(`display ${showObj(word)} as asset? ${result}`);
+    return result;
+  }
+  // log(`display ${showObj(word)} as nothing :-(`);
+  return {
+    asset: false,
+    debt: false,
+    tax: false,
+  };
+}
+function displayAs(name: string, model: DbModelData) {
+  const words = name.split(separator);
+  const result = {
+    asset: false,
+    debt: false,
+    tax: false,
+  };
+  if (words.length > 1) {
+    words.shift(); // remove the first item which is the description
+    // the second item is the thing that's affected and determine
+    // where to display
+  }
+  words.forEach(w => {
+    const x = displayWordAs(w, model);
+    if (x.asset) {
+      result.asset = true;
+    }
+    if (x.debt) {
+      result.debt = true;
+    }
+    if (x.tax) {
+      result.tax = true;
+    }
+  });
+  if (printDebug()) {
+    if (result.asset) {
+      log(`display ${name} as an asset`);
+    }
+    if (result.debt) {
+      log(`display ${name} as an debt`);
+    }
+    if (result.tax) {
+      log(`display ${name} as tax`);
+    }
+  }
+  return result;
+}
+function makeADTChartNames(allNames: string[], model: DbModelData) {
+  // log(`allNames = ${showObj(allNames)}`)
+  const assetChartNames: string[] = [];
+  const debtChartNames: string[] = [];
+  allNames.forEach(n => {
+    const x = displayAs(n, model);
+    if (x.asset) {
+      assetChartNames.push(n);
+    } else if (x.debt) {
+      debtChartNames.push(n);
+    }
+  });
+
+  return {
+    assetChartNames,
+    debtChartNames,
+  };
+}
+
 function assignCategories(
   dateNameValueMap: Map<
     string, // date
@@ -256,10 +366,12 @@ function assignCategories(
   items: string[],
   model: DbModelData,
 ) {
+  // log(`categorise these ${items}`);
   const categoryNames = new Set<string>();
   const mapForChart = new Map<string, Map<string, number>>();
   allDates.forEach(date => {
     items.forEach(item => {
+      // log(`item = ${showObj(item)}`);
       const d = date.toDateString();
 
       const NVM = dateNameValueMap.get(d);
@@ -286,8 +398,11 @@ function assignCategories(
       const existingVal = nameValueMap.get(category);
       if (existingVal === undefined) {
         nameValueMap.set(category, val);
+        // log(`set map ${category}->${val}`);
       } else {
-        nameValueMap.set(category, existingVal + val);
+        const newVal = existingVal + val;
+        nameValueMap.set(category, newVal);
+        // log(`set map ${category}->${newVal}`);
       }
     });
   });
@@ -459,6 +574,7 @@ export function makeChartDataFromEvaluations(
     expensesData: [],
     incomesData: [],
     assetData: [],
+    debtData: [],
     taxData: [],
   };
 
@@ -599,7 +715,7 @@ export function makeChartDataFromEvaluations(
         logMapOfMapofMap(typeDateNameValueMap);
       }
     }
-    // accumulate data for assets (includes taxPot)
+    // accumulate data for assets and debts (includes taxPot)
     if (
       evaln.name === taxPot ||
       evaln.name === assetChartFocusName ||
@@ -686,6 +802,7 @@ export function makeChartDataFromEvaluations(
               // log(`log chart delta ${valueForChart}`);
               assetNameValueMap.set(mapKey, valueForChart);
               if (assetValueSources.indexOf(mapKey) < 0) {
+                // log(`log chart mapKey ${mapKey}`);
                 assetValueSources.push(mapKey);
               }
             }
@@ -814,11 +931,19 @@ export function makeChartDataFromEvaluations(
     }
     // log(`assetChartNames = ${showObj(assetChartNames)}`);
 
+    const aDTChartNames = makeADTChartNames(assetChartNames, model);
+
     // log(`items = ${showObj(items)}`);
     result.assetData = makeChartDataPoints(
       mapForChart,
       allDates,
-      assetChartNames,
+      aDTChartNames.assetChartNames,
+      model.settings,
+    );
+    result.debtData = makeChartDataPoints(
+      mapForChart,
+      allDates,
+      aDTChartNames.debtChartNames,
       model.settings,
     );
   }
@@ -873,6 +998,7 @@ export function makeChartData(model: DbModelData): DataForView {
       expensesData: [],
       incomesData: [],
       assetData: [],
+      debtData: [],
       taxData: [],
     };
     return emptyData;

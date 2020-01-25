@@ -53,8 +53,10 @@ import {
   submitSetting,
   transactionsTable,
   triggersTable,
+  debtsTable,
 } from '../App';
 import { taxPot } from '../localization/stringConstants';
+import { log } from 'util';
 
 function prohibitEditOfName() {
   alert('prohibit edit of name');
@@ -190,6 +192,13 @@ function handleAssetGridRowsUpdated(model: DbModelData, args: any) {
     }
     return;
   }
+  const matchedAsset = model.assets.filter(a => {
+    return a.NAME === asset.NAME;
+  });
+  if (matchedAsset.length !== 1) {
+    log(`Error: asset ${asset.NAME} not found in model?`);
+    return;
+  }
   const oldValue = asset[args[0].cellKey];
   asset[args[0].cellKey] = args[0].updated[args[0].cellKey];
   const parsedValue = makeCashValueFromString(asset.VALUE);
@@ -197,6 +206,7 @@ function handleAssetGridRowsUpdated(model: DbModelData, args: any) {
   const parsedPurchasePrice = makePurchasePriceFromString(asset.PURCHASE_PRICE);
   const parsedCPIImmune = makeBooleanFromYesNo(asset.IS_CPI_IMMUNE);
   const parsedCanBeNegative = makeBooleanFromYesNo(asset.CAN_BE_NEGATIVE);
+  const parsedIsADebt = makeBooleanFromYesNo(asset.IS_A_DEBT);
   if (!parsedGrowth.checksOK) {
     alert(`asset growth ${asset.GROWTH} not understood`);
     asset[args[0].cellKey] = oldValue;
@@ -205,6 +215,12 @@ function handleAssetGridRowsUpdated(model: DbModelData, args: any) {
     asset[args[0].cellKey] = oldValue;
   } else if (!parsedCPIImmune.checksOK) {
     alert(`asset value ${asset.IS_CPI_IMMUNE} not understood`);
+    asset[args[0].cellKey] = oldValue;
+  } else if (!parsedCanBeNegative.checksOK) {
+    alert(`asset value ${asset.CAN_BE_NEGATIVE} not understood`);
+    asset[args[0].cellKey] = oldValue;
+  } else if (!parsedIsADebt.checksOK) {
+    alert(`asset value ${asset.IS_A_DEBT} not understood`);
     asset[args[0].cellKey] = oldValue;
   } else {
     const assetForSubmission: DbAsset = {
@@ -215,6 +231,7 @@ function handleAssetGridRowsUpdated(model: DbModelData, args: any) {
       GROWTH: parsedGrowth.value,
       CPI_IMMUNE: parsedCPIImmune.value,
       CAN_BE_NEGATIVE: parsedCanBeNegative.value,
+      IS_A_DEBT: parsedIsADebt.value,
       PURCHASE_PRICE: parsedPurchasePrice,
       CATEGORY: asset.CATEGORY,
     };
@@ -296,8 +313,10 @@ const defaultColumn = {
   resizable: true,
 };
 
-export function assetsTableDiv(model: DbModelData) {
-  const tableVisible = showContent.get(assetsTable).display;
+export function assetsTableDiv(model: DbModelData, isDebt: boolean) {
+  const tableVisible = isDebt
+    ? showContent.get(debtsTable).display
+    : showContent.get(assetsTable).display;
   return (
     <div
       style={{
@@ -312,7 +331,7 @@ export function assetsTableDiv(model: DbModelData) {
             }}
             rows={model.assets
               .filter((obj: DbAsset) => {
-                return obj.NAME !== taxPot;
+                return obj.NAME !== taxPot && obj.IS_A_DEBT === isDebt;
               })
               .map((obj: DbAsset) => {
                 const result = {
@@ -328,6 +347,7 @@ export function assetsTableDiv(model: DbModelData) {
                   ),
                   IS_CPI_IMMUNE: makeYesNoFromBoolean(obj.CPI_IMMUNE),
                   CAN_BE_NEGATIVE: makeYesNoFromBoolean(obj.CAN_BE_NEGATIVE),
+                  IS_A_DEBT: makeYesNoFromBoolean(obj.IS_A_DEBT),
                 };
                 return result;
               })}
@@ -372,6 +392,11 @@ export function assetsTableDiv(model: DbModelData) {
                 ...defaultColumn,
                 key: 'CAN_BE_NEGATIVE',
                 name: 'Can go negative?',
+              },
+              {
+                ...defaultColumn,
+                key: 'IS_A_DEBT',
+                name: 'is a debt?',
               },
               {
                 ...defaultColumn,

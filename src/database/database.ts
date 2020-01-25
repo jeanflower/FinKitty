@@ -48,6 +48,7 @@ export const minimalModel: DbModelData = {
       GROWTH: '0.0',
       CPI_IMMUNE: false,
       CAN_BE_NEGATIVE: true,
+      IS_A_DEBT: false,
       LIABILITY: '',
       PURCHASE_PRICE: '0.0',
     },

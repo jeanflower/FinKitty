@@ -28,6 +28,11 @@ export function makeModelFromJSON(input: string) {
     t.DATE = new Date(t.DATE);
     //log(`type of ${t.DATE} = ${typeof t.DATE}`);
   }
+  for (const a of result.assets) {
+    if (a.IS_A_DEBT === undefined) {
+      a.IS_A_DEBT = false;
+    }
+  }
   return cleanUp(result);
 }
 export function makeDateFromString(input: string) {

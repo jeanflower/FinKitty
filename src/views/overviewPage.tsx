@@ -11,6 +11,7 @@ import {
 } from './tablePages';
 import {
   assetsView,
+  debtsView,
   expensesView,
   getDisplay,
   incomesView,
@@ -28,7 +29,8 @@ import {
 
 export function overviewDiv(
   model: DbModelData,
-  assetsChartData: ChartData[],
+  assetChartData: ChartData[],
+  debtChartData: ChartData[],
   expensesChartData: ChartData[],
   incomesChartData: ChartData[],
 ) {
@@ -65,7 +67,12 @@ export function overviewDiv(
         id="switchToExpenses"
       />
       , &nbsp;
-      {model.assets.length} &nbsp;
+      {
+        model.assets.filter(a => {
+          return a.IS_A_DEBT === false;
+        }).length
+      }{' '}
+      &nbsp;
       <Button
         action={() => {
           toggle(assetsView);
@@ -73,6 +80,21 @@ export function overviewDiv(
         type="secondary"
         title="assets"
         id="switchToAssets"
+      />
+      , &nbsp;
+      {
+        model.assets.filter(a => {
+          return a.IS_A_DEBT === true;
+        }).length
+      }{' '}
+      &nbsp;
+      <Button
+        action={() => {
+          toggle(debtsView);
+        }}
+        type="secondary"
+        title="debts"
+        id="switchToDebts"
       />
       , &nbsp;
       {model.transactions.length} &nbsp;
@@ -105,8 +127,11 @@ export function overviewDiv(
       {expensesTableDiv(model)}
       {expensesChartDiv(model, expensesChartData)}
       <h2>Assets:</h2>
-      {assetsTableDiv(model)}
-      {assetsChartDiv(model, assetsChartData)}
+      {assetsTableDiv(model, false)}
+      {assetsChartDiv(model, assetChartData)}
+      <h2>Debts:</h2>
+      {assetsTableDiv(model, true)}
+      {assetsChartDiv(model, debtChartData)}
       <h2>Transactions:</h2>
       {transactionsTableDiv(model)}
       <h2>Settings:</h2>

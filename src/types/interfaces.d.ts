@@ -17,6 +17,7 @@ export interface DbAsset extends DbItemCategory {
   GROWTH: string;
   CPI_IMMUNE: boolean;
   CAN_BE_NEGATIVE: boolean;
+  IS_A_DEBT: boolean;
   LIABILITY: string; // e.g. IncomeTaxJoe if growth accumulates as income tax liability
   PURCHASE_PRICE: string;
 }
@@ -107,6 +108,7 @@ export interface ItemChartData {
 
 export interface DataForView {
   assetData: ItemChartData[];
+  debtData: ItemChartData[];
   expensesData: ItemChartData[];
   incomesData: ItemChartData[];
   taxData: ItemChartData[];

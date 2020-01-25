@@ -41,6 +41,7 @@ import { incomesDiv } from './views/incomesPage';
 import { expensesDiv } from './views/expensesPage';
 import { assetsDiv } from './views/assetsPage';
 import ReactTooltip from 'react-tooltip';
+import { debtsDiv } from './views/debtsPage';
 
 // import './bootstrap.css'
 
@@ -85,6 +86,7 @@ export const expensesView: ViewType = { lc: 'Expenses' };
 export const incomesView: ViewType = { lc: 'Incomes' };
 export const transactionsView: ViewType = { lc: 'Transactions' };
 export const assetsView: ViewType = { lc: 'Assets' };
+export const debtsView: ViewType = { lc: 'Debts' };
 export const triggersView: ViewType = { lc: 'Important dates' };
 export const settingsView: ViewType = { lc: 'Settings' };
 export const taxView: ViewType = { lc: 'Tax payments' };
@@ -92,10 +94,12 @@ export const taxView: ViewType = { lc: 'Tax payments' };
 export const expensesChart: ViewType = { lc: 'Expenses chart' };
 export const incomesChart: ViewType = { lc: 'Incomes chart' };
 export const assetsChart: ViewType = { lc: 'Assets chart' };
+export const debtsChart: ViewType = { lc: 'Debts chart' };
 
 export const expensesTable: ViewType = { lc: 'Expenses table' };
 export const incomesTable: ViewType = { lc: 'Incomes table' };
 export const assetsTable: ViewType = { lc: 'Assets table' };
+export const debtsTable: ViewType = { lc: 'Debts table' };
 export const transactionsTable: ViewType = { lc: 'Transactions table' };
 export const triggersTable: ViewType = { lc: 'Important dates table' };
 export const settingsTable: ViewType = { lc: 'Settings table' };
@@ -152,6 +156,13 @@ const views = new Map<
     },
   ],
   [
+    debtsView,
+    {
+      display: true,
+      helpText: 'Create, view or edit debts',
+    },
+  ],
+  [
     transactionsView,
     {
       display: true,
@@ -196,9 +207,11 @@ export const showContent = new Map<ViewType, any>([
   [incomesChart, { display: false }],
   [expensesChart, { display: false }],
   [assetsChart, { display: false }],
+  [debtsChart, { display: false }],
   [incomesTable, { display: true }],
   [expensesTable, { display: true }],
   [assetsTable, { display: true }],
+  [debtsTable, { display: true }],
   [transactionsTable, { display: true }],
   [triggersTable, { display: true }],
   [settingsTable, { display: true }],
@@ -345,6 +358,7 @@ async function refreshData(goToDB = true) {
         GROWTH: '0',
         CPI_IMMUNE: true,
         CAN_BE_NEGATIVE: false,
+        IS_A_DEBT: false,
         LIABILITY: '',
         PURCHASE_PRICE: '0',
         CATEGORY: '',
@@ -368,7 +382,7 @@ async function refreshData(goToDB = true) {
     }
 
     // get the data out of the object we got back
-    const { expensesData, incomesData, assetData, taxData } = result;
+    const { expensesData, incomesData, assetData, debtData, taxData } = result;
 
     if (printDebug()) {
       log('in refreshData');
@@ -381,6 +395,7 @@ async function refreshData(goToDB = true) {
     const expensesChartData = makeJChartData(expensesData);
     const incomesChartData = makeJChartData(incomesData);
     const assetChartData = makeJChartData(assetData);
+    const debtChartData = makeJChartData(debtData);
     const taxChartData = makeJChartData(taxData);
 
     if (reactAppComponent !== undefined) {
@@ -393,6 +408,7 @@ async function refreshData(goToDB = true) {
           expensesChartData,
           incomesChartData,
           assetChartData,
+          debtChartData,
           taxChartData,
           modelNamesData: modelNames,
         },
@@ -543,6 +559,7 @@ export async function submitNewAsset(name: string) {
     GROWTH: '0',
     CPI_IMMUNE: false,
     CAN_BE_NEGATIVE: false,
+    IS_A_DEBT: false,
     LIABILITY: '',
     PURCHASE_PRICE: '0',
   });
@@ -683,6 +700,7 @@ interface AppState {
   expensesChartData: ChartData[];
   incomesChartData: ChartData[];
   assetChartData: ChartData[];
+  debtChartData: ChartData[];
   taxChartData: ChartData[];
   modelNamesData: string[];
 }
@@ -708,6 +726,7 @@ export class AppContent extends Component<AppProps, AppState> {
       expensesChartData: [],
       incomesChartData: [],
       assetChartData: [],
+      debtChartData: [],
       taxChartData: [],
       modelNamesData: [],
     };
@@ -733,6 +752,7 @@ export class AppContent extends Component<AppProps, AppState> {
           {overviewDiv(
             this.state.modelData,
             this.state.assetChartData,
+            this.state.debtChartData,
             this.state.expensesChartData,
             this.state.incomesChartData,
           )}
@@ -740,6 +760,7 @@ export class AppContent extends Component<AppProps, AppState> {
           {incomesDiv(this.state.modelData, this.state.incomesChartData)}
           {expensesDiv(this.state.modelData, this.state.expensesChartData)}
           {assetsDiv(this.state.modelData, this.state.assetChartData)}
+          {debtsDiv(this.state.modelData, this.state.debtChartData)}
           {this.transactionsDiv()}
           {taxDiv(this.state.taxChartData)}
           {this.triggersDiv()}

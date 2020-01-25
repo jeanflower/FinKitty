@@ -477,6 +477,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
         GROWTH: this.state.GROWTH,
         CPI_IMMUNE: false,
         CAN_BE_NEGATIVE: false,
+        IS_A_DEBT: false,
         CATEGORY: this.state.CATEGORY,
         PURCHASE_PRICE: '0.0',
         LIABILITY: '',
@@ -494,6 +495,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
         GROWTH: this.state.GROWTH,
         CPI_IMMUNE: false,
         CAN_BE_NEGATIVE: false,
+        IS_A_DEBT: false,
         CATEGORY: this.state.CATEGORY,
         PURCHASE_PRICE: '0.0',
         LIABILITY: '',
@@ -511,6 +513,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
         GROWTH: this.state.GROWTH,
         CPI_IMMUNE: false,
         CAN_BE_NEGATIVE: false,
+        IS_A_DEBT: false,
         CATEGORY: this.state.CATEGORY,
         PURCHASE_PRICE: '0.0',
         LIABILITY: '',
@@ -550,7 +553,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
       await this.props.submitAssetFunction(asset3);
 
       const contributions: DbTransaction = {
-        NAME: (parseYNSS ? pensionSS : pension) + this.state.NAME,
+        NAME: (parseYNSS.value ? pensionSS : pension) + this.state.NAME,
         FROM: this.state.DCP_INCOME_SOURCE,
         FROM_ABSOLUTE: false,
         FROM_VALUE: this.state.DCP_CONTRIBUTION_AMOUNT,
@@ -664,6 +667,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
         GROWTH: this.state.GROWTH,
         CPI_IMMUNE: parsedYNCPI.value,
         CAN_BE_NEGATIVE: parsedYNNeg.value,
+        IS_A_DEBT: false,
         CATEGORY: this.state.CATEGORY,
         PURCHASE_PRICE: purchasePrice,
         LIABILITY: builtLiability,
