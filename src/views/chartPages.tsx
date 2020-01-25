@@ -31,6 +31,7 @@ import {
   submitSetting,
   showContent,
   taxView,
+  debtsChart,
 } from '../App';
 import ReactiveTextArea from './reactComponents/ReactiveTextArea';
 
@@ -341,7 +342,9 @@ export function assetsOrDebtsChartDiv(
   assetChartData: ChartData[],
   isDebt: boolean,
 ) {
-  const chartVisible = showContent.get(assetsChart).display;
+  const chartVisible = isDebt ? 
+    showContent.get(debtsChart).display :
+    showContent.get(assetsChart).display;
 
   // log(`assetChartData = ${assetChartData}`);
 
