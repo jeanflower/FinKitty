@@ -5,6 +5,7 @@ export const simpleAsset: DbAsset = {
   CATEGORY: '',
   START: '1 Jan 2017',
   VALUE: '0',
+  QUANTITY: '',
   GROWTH: '0',
   CPI_IMMUNE: false,
   CAN_BE_NEGATIVE: false,

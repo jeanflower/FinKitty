@@ -223,6 +223,7 @@ export class AddDeleteDebtForm extends Component<EditProps, EditFormState> {
     const asset: DbAsset = {
       NAME: this.state.NAME,
       VALUE: `${-parseFloat(this.state.VALUE)}`,
+      QUANTITY: '', // debts are continuous
       START: this.state.START,
       GROWTH: this.state.GROWTH,
       CPI_IMMUNE: parsedYNCPI.value,

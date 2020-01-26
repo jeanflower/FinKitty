@@ -43,7 +43,7 @@ import { assetsDiv } from './views/assetsPage';
 import ReactTooltip from 'react-tooltip';
 import { debtsDiv } from './views/debtsPage';
 
-var CryptoJS = require("crypto-js");
+import CryptoJS from 'crypto-js';
 
 // import './bootstrap.css'
 
@@ -302,12 +302,12 @@ async function refreshData(goToDB = true) {
       if (modelNames.length > 0) {
         modelName = modelNames.sort()[0];
         // log(`switch to a different modelName ${modelName}`);
-        try{
+        try {
           model = await getDB().loadModel(getUserID(), modelName);
-        } catch(err) {
+        } catch (err) {
           alert(`Cannot load ${modelName}; consider 'Force delete'?`);
         }
-        if(model === undefined){
+        if (model === undefined) {
           alert('problem with model data');
           return;
         }
@@ -367,6 +367,7 @@ async function refreshData(goToDB = true) {
         NAME: taxPot,
         START: '1 Jan 2017',
         VALUE: '0',
+        QUANTITY: '',
         GROWTH: '0',
         CPI_IMMUNE: true,
         CAN_BE_NEGATIVE: false,
@@ -569,6 +570,7 @@ export async function submitNewAsset(name: string) {
     CATEGORY: '',
     START: '1 January 2018',
     VALUE: '0',
+    QUANTITY: '',
     GROWTH: '0',
     CPI_IMMUNE: false,
     CAN_BE_NEGATIVE: false,
@@ -846,7 +848,7 @@ export class AppContent extends Component<AppProps, AppState> {
     await refreshData();
   }
 
-  private async deleteModel(modelNameForDelete: string){
+  private async deleteModel(modelNameForDelete: string) {
     if (
       window.confirm(
         `delete all data in model ${modelNameForDelete} - you sure?`,
@@ -861,9 +863,7 @@ export class AppContent extends Component<AppProps, AppState> {
       if (idx !== -1) {
         modelNames.splice(idx, 1);
       } else {
-        log(
-          `error, deleted ${modelNameForDelete} not found in ${modelNames}`,
-        );
+        log(`error, deleted ${modelNameForDelete} not found in ${modelNames}`);
       }
       // log(`model names after delete are ${modelNames}`);
       if (modelNames.length === 0) {
@@ -996,17 +996,17 @@ export class AppContent extends Component<AppProps, AppState> {
                 if (secret === null) {
                   return;
                 }
-                try{
-                  var decipher = CryptoJS.AES.decrypt(inputEnc, secret);
-                  decipher = decipher.toString(CryptoJS.enc.Utf8);
-                  log(`deciphered text ${decipher}`);
-                  if(decipher === undefined){
+                try {
+                  const decipher = CryptoJS.AES.decrypt(inputEnc, secret);
+                  const decipherString = decipher.toString(CryptoJS.enc.Utf8);
+                  log(`deciphered text ${decipherString}`);
+                  if (decipherString === undefined) {
                     alert('could not decode this data');
                   } else {
-                    const decipheredModel = makeModelFromJSON(decipher);
+                    const decipheredModel = makeModelFromJSON(decipherString);
                     checkModelData(decipheredModel);
                   }
-                } catch(err) {
+                } catch (err) {
                   alert('could not decode this data');
                 }
               }}
@@ -1026,7 +1026,6 @@ export class AppContent extends Component<AppProps, AppState> {
               id={`btn-JSON-encrypt-replace`}
               type="secondary"
             />
-
           </div>
           <div className="col-md mb-4">{screenshotsDiv()}</div>
         </div>

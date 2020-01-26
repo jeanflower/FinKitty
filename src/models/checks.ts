@@ -32,6 +32,7 @@ import {
   pensionDBC,
   pensionTransfer,
   debtChartFocus,
+  quantity,
 } from '../localization/stringConstants';
 import {
   DbAsset,
@@ -823,7 +824,8 @@ export function checkEvalnType(
 ) {
   // expect 'PurchaseAssetName' as valuation for cgt purposes
   if (evaln.name.startsWith('Purchase')) {
-    const evalnType = nameToTypeMap.get(evaln.name.substr(8));
+    // TODO codify Purchase as a const string
+    const evalnType = nameToTypeMap.get(evaln.name.substr(8)); // TODO 8 = length purchase
     if (evalnType === evaluationType.asset) {
       // don't process this evaluation
       // it was just logged to track CGT liability
@@ -834,6 +836,14 @@ export function checkEvalnType(
       return;
     }
     log(`BUG!! Purchase of non-asset? : ${showObj(evaln)}`);
+  } else if (evaln.name.startsWith(quantity)) {
+    // expect 'quantity' as keeping track of discrete assets
+    const evalnType = nameToTypeMap.get(evaln.name.substr(quantity.length));
+    if (evalnType === evaluationType.asset) {
+      // don't process this evaluation
+      // it was just logged to track CGT liability
+      return;
+    }
   } else {
     log(`BUG!! evaluation of an unknown type: ${showObj(evaln)}`);
   }

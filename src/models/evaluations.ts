@@ -18,6 +18,7 @@ import {
   growth,
   pensionDBC,
   pensionTransfer,
+  quantity,
 } from '../localization/stringConstants';
 import {
   DatedThing,
@@ -39,6 +40,7 @@ import {
   printDebug,
   showObj,
   makeDateFromString,
+  getStartQuantity,
 } from '../utils';
 
 function parseRecurrenceString(recurrence: string) {
@@ -1220,9 +1222,6 @@ function getTransactionMoments(
   return newMoments;
 }
 
-// TODO consider an attribute on assets which
-// tells us this.  For now, allo cash and mortgages
-// to go negative at will.
 function assetAllowedNegative(assetName: string, asset: DbAsset) {
   if (asset) {
     return asset.CAN_BE_NEGATIVE;
@@ -1235,11 +1234,25 @@ function assetAllowedNegative(assetName: string, asset: DbAsset) {
   );
 }
 
+function getQuantity(
+  w: string,
+  values: Map<string, number>,
+  model: DbModelData,
+) {
+  if (getStartQuantity(w, model) === undefined) {
+    return undefined;
+  }
+  const result = values.get(quantity + w);
+  // log(`current quantity for ${w} is ${result}`);
+  return result;
+}
+
 function revalueApplied(
   t: DbTransaction,
   moment: Moment,
   values: Map<string, number>,
   evaluations: Evaluation[],
+  model: DbModelData,
 ) {
   if (!t.NAME.startsWith(revalue)) {
     return false;
@@ -1255,6 +1268,7 @@ function revalueApplied(
   const words = t.TO.split(separator);
   words.forEach(w => {
     if (!t.TO_ABSOLUTE) {
+      // this is a proportional change
       const prevValue = values.get(w);
       if (prevValue === undefined) {
         log(
@@ -1264,6 +1278,14 @@ function revalueApplied(
         );
       } else {
         tToValue = prevValue * parseFloat(t.TO_VALUE);
+      }
+    } else {
+      // this is an absolute change
+      // need special handling if this applies to each
+      // unit of an asset which has a quantity
+      const q = getQuantity(w, values, model);
+      if (q !== undefined) {
+        tToValue = tToValue * q;
       }
     }
     // log(`passing ${t.TO_VALUE} as new value of ${moment.name}`);
@@ -1278,6 +1300,9 @@ function calculateFromChange(
   preToValue: number | undefined,
   preFromValue: number,
   fromWord: string,
+  moment: Moment,
+  values: Map<string, number>,
+  evaluations: Evaluation[],
   model: DbModelData,
 ): number | undefined {
   const tFromValue = parseFloat(t.FROM_VALUE);
@@ -1304,6 +1329,18 @@ function calculateFromChange(
     return undefined;
   } else if (t.FROM_ABSOLUTE) {
     fromChange = tFromValue;
+    let numberUnits = 0;
+    let unitValue = 0.0;
+    const q = getQuantity(t.FROM, values, model);
+    if (q !== undefined) {
+      // fromChange is a number of units
+      // use q to determine a proportional change
+      // for fromChange
+      numberUnits = fromChange;
+      unitValue = preFromValue / q;
+      // reset fromChange so it's a £ value
+      fromChange = numberUnits * unitValue;
+    }
     if (
       t.NAME.startsWith(conditional) &&
       preToValue !== undefined &&
@@ -1312,6 +1349,20 @@ function calculateFromChange(
     ) {
       // log(`cap conditional amount - we only need ${preToValue}`);
       fromChange = -preToValue / tToValue;
+      if (q !== undefined) {
+        numberUnits = Math.ceil(fromChange / unitValue);
+        fromChange = numberUnits * unitValue;
+      }
+    }
+    if (q !== undefined) {
+      setValue(
+        values,
+        evaluations,
+        moment.date,
+        quantity + t.FROM,
+        q - numberUnits,
+        t.FROM,
+      );
     }
   } else {
     // relative amounts behave differently for conditionals
@@ -1372,6 +1423,9 @@ function calculateToChange(
   preToValue: number | undefined,
   fromChange: number | undefined,
   moment: Moment,
+  values: Map<string, number>,
+  evaluations: Evaluation[],
+  model: DbModelData,
 ) {
   let toChange = 0;
   if (t.TO === '') {
@@ -1386,6 +1440,32 @@ function calculateToChange(
   // log(`t.TO_VALUE = ${t.TO_VALUE}`);
   if (t.TO_ABSOLUTE) {
     toChange = tToValue;
+    const q = getQuantity(t.TO, values, model);
+    if (q !== undefined) {
+      // log(`q = ${q}`);
+      // expect toChange to be an integer number
+      // adjust the quantity of items stored in values accordingly
+      // adjust the toChange value too
+      const numUnits = toChange;
+      // log(`numUnits = ${numUnits}`);
+      const currentValue = values.get(t.TO);
+      if (currentValue !== undefined) {
+        const currentUnitValue = currentValue / q;
+        // log(`currentUnitValue = ${currentUnitValue}`);
+        const newNumUnits = q + numUnits;
+        // log(`newNumUnits = ${newNumUnits}`);
+        setValue(
+          values,
+          evaluations,
+          moment.date,
+          quantity + t.TO,
+          newNumUnits,
+          t.TO,
+        );
+        toChange = numUnits * currentUnitValue;
+        // log(`toChange = ${toChange}`);
+      }
+    }
   } else {
     if (fromChange === undefined) {
       throw new Error(
@@ -1512,6 +1592,9 @@ function processTransactionFromTo(
       preToValue,
       preFromValue,
       fromWord,
+      moment,
+      values,
+      evaluations,
       model,
     );
     // Transaction is permitted to be blocked by the calculation
@@ -1526,7 +1609,15 @@ function processTransactionFromTo(
   // Determine how to change the To asset.
   let toChange;
   if (preToValue !== undefined) {
-    toChange = calculateToChange(t, preToValue, fromChange, moment);
+    toChange = calculateToChange(
+      t,
+      preToValue,
+      fromChange,
+      moment,
+      values,
+      evaluations,
+      model,
+    );
   }
 
   // apply fromChange
@@ -1658,7 +1749,7 @@ function processTransactionMoment(
   // Some transactions are simple Revalues.  They have no
   // FROM and a value for TO.  Code similar to application
   // of growth to assets, except we know the new value.
-  if (revalueApplied(t, moment, values, evaluations)) {
+  if (revalueApplied(t, moment, values, evaluations, model)) {
     return;
   }
 
@@ -1672,7 +1763,7 @@ function processTransactionMoment(
   // Set the reduced value of the From asset accordingly.
   if (t.FROM !== '') {
     // we can sometimes see multiple 'FROM's
-    // handle one word at a time TODO make comma-separated!
+    // handle one word at a time
     const words = t.FROM.split(separator);
     words.forEach(fromWord => {
       // log(`process a transaction from ${fromWord}`);
@@ -1984,7 +2075,7 @@ export function getEvaluations(data: DbModelData): Evaluation[] {
         break;
       }
       const startValue = moment.setValue;
-      // log('in getEvaluations starting something:');
+      // log(`in getEvaluations starting something: ${moment.name}`);
       setValue(
         values,
         evaluations,
@@ -2008,6 +2099,20 @@ export function getEvaluations(data: DbModelData): Evaluation[] {
       } else if (moment.type === momentType.expenseStart) {
         // log('in getEvaluations, adjustCash:');
         adjustCash(-startValue, moment.date, values, evaluations, moment.name);
+      } else if (moment.type === momentType.assetStart) {
+        // log(`at start of asset ${moment.name}`);
+        const startQ = getStartQuantity(moment.name, data);
+        if (startQ !== undefined) {
+          // log(`set quantity of asset ${moment.name} = ${startQ}`);
+          setValue(
+            values,
+            evaluations,
+            moment.date,
+            quantity + moment.name, // value of what?
+            startQ,
+            moment.name, // source
+          );
+        }
       }
     } else {
       // not a transaction
@@ -2024,7 +2129,7 @@ export function getEvaluations(data: DbModelData): Evaluation[] {
         // We _do_ want to log changes of 0
         // because this is how we generate monthly
         // data to plot.
-        // if(change!==0){ TODO - do we want to log no-change evaluations?
+        // if(change!==0){ // we _do_ want to log no-change evaluations!
         // log('in getEvaluations:');
         setValue(values, evaluations, moment.date, moment.name, x, growth);
         // }

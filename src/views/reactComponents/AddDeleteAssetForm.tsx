@@ -8,6 +8,8 @@ import {
   printDebug,
   showObj,
   makeBooleanFromYesNo,
+  makeQuantityFromString,
+  makeCashValueFromString,
 } from '../../utils';
 import Button from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
@@ -22,6 +24,7 @@ import {
 interface EditFormState {
   NAME: string;
   VALUE: string;
+  QUANTITY: string;
   START: string;
   GROWTH: string;
   CPI_IMMUNE: string;
@@ -58,6 +61,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
     this.defaultState = {
       NAME: '',
       VALUE: '',
+      QUANTITY: '',
       START: '',
       GROWTH: '',
       CPI_IMMUNE: '',
@@ -78,6 +82,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
 
     this.handleNameChange = this.handleNameChange.bind(this);
     this.handleValueChange = this.handleValueChange.bind(this);
+    this.handleQuantityChange = this.handleQuantityChange.bind(this);
     this.handleGrowthChange = this.handleGrowthChange.bind(this);
     this.handleLiabilityChange = this.handleLiabilityChange.bind(this);
     this.handleCategoryChange = this.handleCategoryChange.bind(this);
@@ -310,6 +315,17 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
           {/* end col */}
           <div className="col">
             <Input
+              title={'Quantity (optional)'}
+              type="text"
+              name="assetquantity"
+              value={this.state.QUANTITY}
+              placeholder="Enter quantity"
+              onChange={this.handleQuantityChange}
+            />
+          </div>
+          {/* end col */}
+          <div className="col">
+            <Input
               title="Category (optional)"
               type="text"
               name="assetcategory"
@@ -400,6 +416,10 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
     const value = e.target.value;
     this.setState({ VALUE: value });
   }
+  private handleQuantityChange(e: any) {
+    const value = e.target.value;
+    this.setState({ QUANTITY: value });
+  }
   private handleFixedChange(e: any) {
     const value = e.target.value;
     this.setState({ CPI_IMMUNE: value });
@@ -473,6 +493,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
       const asset1: DbAsset = {
         NAME: asset1Name,
         VALUE: this.state.VALUE,
+        QUANTITY: '', // pensions are continuous
         START: this.state.START,
         GROWTH: this.state.GROWTH,
         CPI_IMMUNE: false,
@@ -491,6 +512,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
       const asset2: DbAsset = {
         NAME: asset2Name,
         VALUE: '0.0',
+        QUANTITY: '', // pensions are continuous
         START: this.state.START,
         GROWTH: this.state.GROWTH,
         CPI_IMMUNE: false,
@@ -509,6 +531,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
       const asset3: DbAsset = {
         NAME: asset3Name,
         VALUE: '0.0',
+        QUANTITY: '', // pensions are continuous
         START: this.state.START,
         GROWTH: this.state.GROWTH,
         CPI_IMMUNE: false,
@@ -630,6 +653,26 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
       // clear fields
       this.setState(this.defaultState);
     } else {
+      let quantityScale = 1.0;
+      const parsedQuantity = makeQuantityFromString(this.state.QUANTITY);
+      if (!parsedQuantity.checksOK) {
+        alert(
+          `Quantity '${this.state.QUANTITY}' should empty or a whole number value`,
+        );
+        return;
+      }
+      if (parsedQuantity.value !== '') {
+        quantityScale = parseFloat(parsedQuantity.value);
+      }
+
+      const parsedValue = makeCashValueFromString(this.state.VALUE);
+      let numValueForSubmission = parsedValue.value;
+      if (!parsedValue.checksOK) {
+        alert(`Value '${this.state.VALUE}' not understood as a cash value`);
+        return;
+      }
+      numValueForSubmission *= quantityScale;
+
       const name = this.state.LIABILITY;
       let builtLiability = '';
       if (name !== '') {
@@ -662,7 +705,8 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
       // log('adding something ' + showObj(this));
       const asset: DbAsset = {
         NAME: this.state.NAME,
-        VALUE: this.state.VALUE,
+        VALUE: `${numValueForSubmission}`,
+        QUANTITY: this.state.QUANTITY,
         START: this.state.START,
         GROWTH: this.state.GROWTH,
         CPI_IMMUNE: parsedYNCPI.value,

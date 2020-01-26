@@ -34,10 +34,94 @@ import {
   debtChartView,
   debtChartVal,
   debtChartHint,
+  revalue,
 } from './localization/stringConstants';
 
-
 import moment from 'moment';
+
+export const minimalModel: DbModelData = {
+  assets: [
+    {
+      NAME: CASH_ASSET_NAME,
+      CATEGORY: '',
+      START: '1 Jan 1990',
+      VALUE: '0.0',
+      QUANTITY: '',
+      GROWTH: '0.0',
+      CPI_IMMUNE: false,
+      CAN_BE_NEGATIVE: true,
+      IS_A_DEBT: false,
+      LIABILITY: '',
+      PURCHASE_PRICE: '0.0',
+    },
+  ],
+  incomes: [],
+  expenses: [],
+  triggers: [],
+  settings: [
+    {
+      NAME: cpi,
+      VALUE: '2.5',
+      HINT: cpiHint,
+    },
+    {
+      NAME: assetChartView,
+      VALUE: assetChartVal,
+      HINT: assetChartHint,
+    },
+    {
+      NAME: debtChartView,
+      VALUE: debtChartVal,
+      HINT: debtChartHint,
+    },
+    {
+      NAME: viewFrequency,
+      VALUE: monthly,
+      HINT: viewFrequencyHint,
+    },
+    {
+      NAME: viewDetail,
+      VALUE: fine,
+      HINT: viewDetailHint,
+    },
+    {
+      NAME: roiStart,
+      VALUE: '1 Jan 2017',
+      HINT: roiStartHint,
+    },
+    {
+      NAME: roiEnd,
+      VALUE: '1 Jan 2020',
+      HINT: roiEndHint,
+    },
+    {
+      NAME: assetChartFocus,
+      VALUE: CASH_ASSET_NAME,
+      HINT: assetChartFocusHint,
+    },
+    {
+      NAME: debtChartFocus,
+      VALUE: allItems,
+      HINT: debtChartFocusHint,
+    },
+    {
+      NAME: expenseChartFocus,
+      VALUE: allItems,
+      HINT: expenseChartFocusHint,
+    },
+    {
+      NAME: incomeChartFocus,
+      VALUE: allItems,
+      HINT: incomeChartFocusHint,
+    },
+    {
+      NAME: birthDate,
+      VALUE: '',
+      HINT: birthDateHint,
+    },
+  ],
+  transactions: [],
+};
 
 export function makeDateFromString(input: string) {
   // special-case parsing for DD/MM/YYYY
@@ -226,6 +310,28 @@ export function makeCashValueFromString(input: string) {
   return result;
 }
 
+export function makeQuantityFromString(input: string) {
+  const result = {
+    value: '',
+    checksOK: true,
+  };
+  if (input.length === 0) {
+    return result;
+  }
+  const parseDirectly = isNumber(input);
+  if (parseDirectly.checksOK) {
+    if (parseDirectly.value === Math.floor(parseDirectly.value)) {
+      result.value = `${parseDirectly.value}`;
+    } else {
+      result.checksOK = false;
+    }
+  } else {
+    result.checksOK = false;
+  }
+  // log(`parsing ${input} as quantity yields ${showObj(result)}`);
+  return result;
+}
+
 export function makeValueAbsPropFromString(input: string) {
   const result = {
     absolute: true,
@@ -236,7 +342,17 @@ export function makeValueAbsPropFromString(input: string) {
     result.value = '0.0';
     return result;
   }
-  if (input[input.length - 1] === '%') {
+  const lastPartForUnits = input.substring(input.length - 6, input.length);
+  // log(`lastPartForUnits = ${lastPartForUnits}`);
+  if (lastPartForUnits === ' units') {
+    const numberPart = input.substring(0, input.length - 6);
+    const num = parseFloat(numberPart);
+    if (num !== undefined && !Number.isNaN(num)) {
+      result.value = numberPart;
+    } else {
+      result.checksOK = false;
+    }
+  } else if (input[input.length - 1] === '%') {
     const numberPart = input.substring(0, input.length - 1);
     const num = parseFloat(numberPart);
     if (num !== undefined && !Number.isNaN(num)) {
@@ -264,13 +380,43 @@ export function makeValueAbsPropFromString(input: string) {
   return result;
 }
 
-export function makeStringFromValueAbsProp(value: string, absolute: boolean) {
+export function getStartQuantity(w: string, model: DbModelData) {
+  // log(`try to get a quantity for ${w}`);
+  const a = model.assets.filter(a => {
+    return a.NAME === w;
+  })[0];
+  if (a === undefined) {
+    // log(`no matched asset found`);
+    return undefined;
+  }
+  if (a.QUANTITY === '') {
+    return undefined;
+  }
+  const result = parseFloat(a.QUANTITY);
+  // log(`getStartQuantity for ${w} is ${result}`);
+  return result;
+}
+
+export function makeStringFromValueAbsProp(
+  value: string,
+  absolute: boolean,
+  assetName: string,
+  model: DbModelData,
+  tname: string,
+) {
   let result = '';
-  if (!absolute) {
+  if (
+    !tname.startsWith(revalue) &&
+    getStartQuantity(assetName, model) !== undefined
+  ) {
+    // value should be an integer
+    result = value + ' units'; // TODO const string 'units'
+  } else if (!absolute) {
     result = `${parseFloat(value) * 100}%`;
   } else {
     result = value;
   }
+  // log(`string for ${value} is ${result}`);
   return result;
 }
 export function makeStringFromCashValue(input: string) {
@@ -305,7 +451,10 @@ export function makeStringFromFromToValue(input: string) {
   if (input === '') {
     return '';
   }
-  if (input[input.length - 1] === '%') {
+  if (input.substring(input.length - 6, input.length) === ' units') {
+    // TODO
+    return input;
+  } else if (input[input.length - 1] === '%') {
     return input;
   } else {
     return makeStringFromCashValue(input);
@@ -459,90 +608,56 @@ export function setSetting(
   }
 }
 
-export const minimalModel: DbModelData = {
-  assets: [
-    {
-      NAME: CASH_ASSET_NAME,
-      CATEGORY: '',
-      START: '1 Jan 1990',
-      VALUE: '0.0',
-      GROWTH: '0.0',
-      CPI_IMMUNE: false,
-      CAN_BE_NEGATIVE: true,
-      IS_A_DEBT: false,
-      LIABILITY: '',
-      PURCHASE_PRICE: '0.0',
-    },
-  ],
-  incomes: [],
-  expenses: [],
-  triggers: [],
-  settings: [
-    {
-      NAME: cpi,
-      VALUE: '2.5',
-      HINT: cpiHint,
-    },
-    {
-      NAME: assetChartView,
-      VALUE: assetChartVal,
-      HINT: assetChartHint,
-    },
-    {
-      NAME: debtChartView,
-      VALUE: debtChartVal,
-      HINT: debtChartHint,
-    },
-    {
-      NAME: viewFrequency,
-      VALUE: monthly,
-      HINT: viewFrequencyHint,
-    },
-    {
-      NAME: viewDetail,
-      VALUE: fine,
-      HINT: viewDetailHint,
-    },
-    {
-      NAME: roiStart,
-      VALUE: '1 Jan 2017',
-      HINT: roiStartHint,
-    },
-    {
-      NAME: roiEnd,
-      VALUE: '1 Jan 2020',
-      HINT: roiEndHint,
-    },
-    {
-      NAME: assetChartFocus,
-      VALUE: CASH_ASSET_NAME,
-      HINT: assetChartFocusHint,
-    },
-    {
-      NAME: debtChartFocus,
-      VALUE: allItems,
-      HINT: debtChartFocusHint,
-    },
-    {
-      NAME: expenseChartFocus,
-      VALUE: allItems,
-      HINT: expenseChartFocusHint,
-    },
-    {
-      NAME: incomeChartFocus,
-      VALUE: allItems,
-      HINT: incomeChartFocusHint,
-    },
-    {
-      NAME: birthDate,
-      VALUE: '',
-      HINT: birthDateHint,
-    },
-  ],
-  transactions: [],
-};
+function makeModelFromJSONFixDates(input: string) {
+  const result: DbModelData = JSON.parse(input);
+  for (const t of result.triggers) {
+    //log(`type of ${t.DATE} = ${typeof t.DATE}`);
+    t.DATE = new Date(t.DATE);
+    //log(`type of ${t.DATE} = ${typeof t.DATE}`);
+  }
+  for (const a of result.assets) {
+    if (a.IS_A_DEBT === undefined) {
+      a.IS_A_DEBT = false;
+    }
+  }
+  return result;
+}
+
+// note JSON stringify and back for serialisation is OK but
+// breaks dates (and functions too but we don't have these)
+function cleanUp(modelFromJSON: any): DbModelData {
+  return {
+    ...modelFromJSON,
+    assets: modelFromJSON.assets.map((a: any) => {
+      if (a.QUANTITY === undefined) {
+        return {
+          ...a,
+          QUANTITY: '',
+        };
+      } else {
+        return a;
+      }
+    }),
+    triggers: modelFromJSON.triggers.map((t: any) => {
+      return {
+        ...t,
+        DATE: new Date(t['DATE']), // This is required!
+      };
+    }),
+  };
+}
+
+export function makeCleanedModelFromJSON(input: string) {
+  const model = makeModelFromJSONFixDates(input);
+  return cleanUp(model);
+}
+
+export function getMinimalModelCopy(): DbModelData {
+  return makeCleanedModelFromJSON(JSON.stringify(minimalModel));
+}
 
 export function addRequiredEntries(model: DbModelData) {
+  const minimalModel = getMinimalModelCopy();
   minimalModel.settings.forEach(x => {
     if (
       model.settings.filter(existing => {
@@ -565,35 +680,8 @@ export function addRequiredEntries(model: DbModelData) {
   });
 }
 
-// note JSON stringify and back for serialisation is OK but
-// breaks dates (and functions too but we don't have these)
-function cleanUp(modelFromJSON: any, addMissingData: boolean): DbModelData {
-  if (addMissingData) {
-    addRequiredEntries(modelFromJSON);
-  }
-
-  return {
-    ...modelFromJSON,
-    triggers: modelFromJSON.triggers.map((t: any) => {
-      return {
-        ...t,
-        DATE: new Date(t['DATE']), // This is required!
-      };
-    }),
-  };
-}
-
-export function makeModelFromJSON(input: string, addMissingData = true) {
-  const result: DbModelData = JSON.parse(input);
-  for (const t of result.triggers) {
-    //log(`type of ${t.DATE} = ${typeof t.DATE}`);
-    t.DATE = new Date(t.DATE);
-    //log(`type of ${t.DATE} = ${typeof t.DATE}`);
-  }
-  for (const a of result.assets) {
-    if (a.IS_A_DEBT === undefined) {
-      a.IS_A_DEBT = false;
-    }
-  }
-  return cleanUp(result, addMissingData);
+export function makeModelFromJSON(input: string) {
+  const model = makeModelFromJSONFixDates(input);
+  addRequiredEntries(model);
+  return cleanUp(model);
 }

@@ -62,10 +62,10 @@ import {
 } from './../../types/simple';
 import { Evaluation } from '../../types/interfaces';
 import {
+  getMinimalModelCopy,
   log,
+  makeCleanedModelFromJSON,
   makeDateFromString,
-  makeModelFromJSON,
-  minimalModel,
   printDebug,
   setSetting,
   suppressLogs,
@@ -250,12 +250,7 @@ function getTestEvaluations(model: DbModelData): Evaluation[] {
   if (!testJSONRoundTrip) {
     return getEvaluations(model);
   } else {
-    return getEvaluations(
-      makeModelFromJSON(
-        JSON.stringify(model),
-        false, // do not add missing data!
-      ),
-    );
+    return getEvaluations(makeCleanedModelFromJSON(JSON.stringify(model)));
   }
 }
 
@@ -264,6 +259,7 @@ export function getModelFutureExpense() {
     start: 'Dec 1, 2016 00:00:00',
     end: 'March 1, 2017 00:00:00',
   };
+  const minimalModel = getMinimalModelCopy();
   const model: DbModelData = {
     ...minimalModel,
     expenses: [
@@ -540,10 +536,7 @@ describe('evaluations tests', () => {
     const roi = modelAndRoi.roi;
 
     const evals: Evaluation[] = getEvaluations(
-      makeModelFromJSON(
-        JSON.stringify(model),
-        false, // do not insert missing settings
-      ),
+      makeCleanedModelFromJSON(JSON.stringify(model)),
     );
 
     // log(showObj(evals));
@@ -11981,4 +11974,784 @@ describe('evaluations tests', () => {
 
     done();
   });
+
+  it('define three cars', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'June 1, 2018 00:00:00',
+    };
+    const minimalModel = getMinimalModelCopy();
+    const model: DbModelData = {
+      ...minimalModel,
+      assets: [
+        ...minimalModel.assets,
+        {
+          ...simpleAsset,
+          NAME: 'Cars',
+          START: 'January 2 2018',
+          VALUE: '300',
+          QUANTITY: '3',
+        },
+      ],
+      settings: [...defaultSettings],
+    };
+    model.assets.filter(a => {
+      return a.NAME === CASH_ASSET_NAME;
+    })[0].START = '1 Jan 2018';
+
+    setSetting(model.settings, roiStart, roi.start);
+    setSetting(model.settings, roiEnd, roi.end);
+
+    const evals: Evaluation[] = getTestEvaluations(model);
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(11);
+    expectEvals(evals, 0, 'Cash', 'Mon Jan 01 2018', 0, -1);
+    expectEvals(evals, 1, 'Cars', 'Tue Jan 02 2018', 300, -1);
+    expectEvals(evals, 2, 'quantityCars', 'Tue Jan 02 2018', 3, -1);
+    expectEvals(evals, 3, 'Cash', 'Thu Feb 01 2018', 0, -1);
+    expectEvals(evals, 4, 'Cars', 'Fri Feb 02 2018', 300, -1);
+    expectEvals(evals, 5, 'Cash', 'Thu Mar 01 2018', 0, -1);
+    expectEvals(evals, 6, 'Cars', 'Fri Mar 02 2018', 300, -1);
+    expectEvals(evals, 7, 'Cash', 'Sun Apr 01 2018', 0, -1);
+    expectEvals(evals, 8, 'Cars', 'Mon Apr 02 2018', 300, -1);
+    expectEvals(evals, 9, 'Cash', 'Tue May 01 2018', 0, -1);
+    expectEvals(evals, 10, 'Cars', 'Wed May 02 2018', 300, -1);
+
+    const result = makeChartDataFromEvaluations(
+      {
+        start: makeDateFromString(roi.start),
+        end: makeDateFromString(roi.end),
+      },
+      model,
+      evals,
+    );
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(1);
+    expect(result.assetData[0].item.NAME).toBe('Cars');
+    {
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 300, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 300, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 300, -1);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 300, -1);
+    }
+
+    done();
+  });
+
+  it('revalue three cars', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'June 1, 2018 00:00:00',
+    };
+    const minimalModel = getMinimalModelCopy();
+    const model: DbModelData = {
+      ...minimalModel,
+      assets: [
+        ...minimalModel.assets,
+        {
+          ...simpleAsset,
+          NAME: 'Cars',
+          START: 'January 2 2018',
+          VALUE: '300',
+          QUANTITY: '3',
+        },
+      ],
+      transactions: [
+        ...minimalModel.transactions,
+        {
+          ...simpleTransaction,
+          NAME: 'Revalue cars',
+          TO: 'Cars',
+          TO_VALUE: '50', // unit revaluation!!!
+          DATE: 'Mar 10 2018',
+        },
+      ],
+      settings: [...defaultSettings],
+    };
+    model.assets.filter(a => {
+      return a.NAME === CASH_ASSET_NAME;
+    })[0].START = '1 Jan 2018';
+
+    setSetting(model.settings, roiStart, roi.start);
+    setSetting(model.settings, roiEnd, roi.end);
+
+    const evals: Evaluation[] = getTestEvaluations(model);
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(12);
+    expectEvals(evals, 0, 'Cash', 'Mon Jan 01 2018', 0, -1);
+    expectEvals(evals, 1, 'Cars', 'Tue Jan 02 2018', 300, -1);
+    expectEvals(evals, 2, 'quantityCars', 'Tue Jan 02 2018', 3, -1);
+    expectEvals(evals, 3, 'Cash', 'Thu Feb 01 2018', 0, -1);
+    expectEvals(evals, 4, 'Cars', 'Fri Feb 02 2018', 300, -1);
+    expectEvals(evals, 5, 'Cash', 'Thu Mar 01 2018', 0, -1);
+    expectEvals(evals, 6, 'Cars', 'Fri Mar 02 2018', 300, -1);
+    expectEvals(evals, 7, 'Cars', 'Sat Mar 10 2018', 150, -1); // three at 50 each
+    expectEvals(evals, 8, 'Cash', 'Sun Apr 01 2018', 0, -1);
+    expectEvals(evals, 9, 'Cars', 'Mon Apr 02 2018', 150, -1);
+    expectEvals(evals, 10, 'Cash', 'Tue May 01 2018', 0, -1);
+    expectEvals(evals, 11, 'Cars', 'Wed May 02 2018', 150, -1);
+
+    const result = makeChartDataFromEvaluations(
+      {
+        start: makeDateFromString(roi.start),
+        end: makeDateFromString(roi.end),
+      },
+      model,
+      evals,
+    );
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(1);
+    expect(result.assetData[0].item.NAME).toBe('Cars');
+    {
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 300, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 300, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 150, -1);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 150, -1);
+    }
+
+    done();
+  });
+
+  it('buy some cars', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'June 1, 2018 00:00:00',
+    };
+    const minimalModel = getMinimalModelCopy();
+    const model: DbModelData = {
+      ...minimalModel,
+      assets: [
+        ...minimalModel.assets,
+        {
+          ...simpleAsset,
+          NAME: 'Cars',
+          START: 'January 2 2018',
+          VALUE: '300',
+          QUANTITY: '3',
+        },
+      ],
+      transactions: [
+        ...minimalModel.transactions,
+        {
+          ...simpleTransaction,
+          NAME: 'Buy some cars',
+          FROM: CASH_ASSET_NAME,
+          FROM_VALUE: '333', // this was the price for all three
+          TO: 'Cars',
+          TO_VALUE: '3', // it's a snip buying 3 for this price
+          DATE: 'Mar 10 2018',
+        },
+      ],
+      settings: [...defaultSettings],
+    };
+    model.assets.filter(a => {
+      return a.NAME === CASH_ASSET_NAME;
+    })[0].START = '1 Jan 2018';
+
+    setSetting(model.settings, roiStart, roi.start);
+    setSetting(model.settings, roiEnd, roi.end);
+
+    const evals: Evaluation[] = getTestEvaluations(model);
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(14);
+    expectEvals(evals, 0, 'Cash', 'Mon Jan 01 2018', 0, -1);
+    expectEvals(evals, 1, 'Cars', 'Tue Jan 02 2018', 300, -1);
+    expectEvals(evals, 2, 'quantityCars', 'Tue Jan 02 2018', 3, -1);
+    expectEvals(evals, 3, 'Cash', 'Thu Feb 01 2018', 0, -1);
+    expectEvals(evals, 4, 'Cars', 'Fri Feb 02 2018', 300, -1);
+    expectEvals(evals, 5, 'Cash', 'Thu Mar 01 2018', 0, -1);
+    expectEvals(evals, 6, 'Cars', 'Fri Mar 02 2018', 300, -1);
+    expectEvals(evals, 7, 'quantityCars', 'Sat Mar 10 2018', 6, -1); // now own six
+    expectEvals(evals, 8, 'Cash', 'Sat Mar 10 2018', -333, -1); // spent this money!
+    expectEvals(evals, 9, 'Cars', 'Sat Mar 10 2018', 600, -1); // value scaled up
+    expectEvals(evals, 10, 'Cash', 'Sun Apr 01 2018', -333, -1);
+    expectEvals(evals, 11, 'Cars', 'Mon Apr 02 2018', 600, -1);
+    expectEvals(evals, 12, 'Cash', 'Tue May 01 2018', -333, -1);
+    expectEvals(evals, 13, 'Cars', 'Wed May 02 2018', 600, -1);
+
+    const result = makeChartDataFromEvaluations(
+      {
+        start: makeDateFromString(roi.start),
+        end: makeDateFromString(roi.end),
+      },
+      model,
+      evals,
+    );
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(2);
+    expect(result.assetData[0].item.NAME).toBe('Cash');
+    {
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 0, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 0, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', -333, -1); // spent money
+      expectChartData(chartPts, 5, 'Tue May 01 2018', -333, -1);
+    }
+
+    expect(result.assetData[1].item.NAME).toBe('Cars');
+    {
+      const chartPts = result.assetData[1].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 300, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 300, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 600, -1); // gain in asset value
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 600, -1);
+    }
+
+    done();
+  });
+
+  it('sell some cars', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'June 1, 2018 00:00:00',
+    };
+    const minimalModel = getMinimalModelCopy();
+    const model: DbModelData = {
+      ...minimalModel,
+      assets: [
+        ...minimalModel.assets,
+        {
+          ...simpleAsset,
+          NAME: 'Cars',
+          START: 'January 2 2018',
+          VALUE: '300',
+          QUANTITY: '3',
+        },
+      ],
+      transactions: [
+        ...minimalModel.transactions,
+        {
+          ...simpleTransaction,
+          NAME: 'Sell some cars',
+          FROM: 'Cars',
+          FROM_VALUE: '2', // selling 2 of our fleet of 3
+          TO: CASH_ASSET_NAME,
+          TO_VALUE: '0.95', // sacrifice a fee
+          TO_ABSOLUTE: false,
+          DATE: 'Mar 10 2018',
+        },
+      ],
+      settings: [...defaultSettings],
+    };
+    model.assets.filter(a => {
+      return a.NAME === CASH_ASSET_NAME;
+    })[0].START = '1 Jan 2018';
+
+    setSetting(model.settings, roiStart, roi.start);
+    setSetting(model.settings, roiEnd, roi.end);
+
+    const evals: Evaluation[] = getTestEvaluations(model);
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(14);
+    expectEvals(evals, 0, 'Cash', 'Mon Jan 01 2018', 0, -1);
+    expectEvals(evals, 1, 'Cars', 'Tue Jan 02 2018', 300, -1);
+    expectEvals(evals, 2, 'quantityCars', 'Tue Jan 02 2018', 3, -1);
+    expectEvals(evals, 3, 'Cash', 'Thu Feb 01 2018', 0, -1);
+    expectEvals(evals, 4, 'Cars', 'Fri Feb 02 2018', 300, -1);
+    expectEvals(evals, 5, 'Cash', 'Thu Mar 01 2018', 0, -1);
+    expectEvals(evals, 6, 'Cars', 'Fri Mar 02 2018', 300, -1);
+    expectEvals(evals, 7, 'quantityCars', 'Sat Mar 10 2018', 1, -1);
+    expectEvals(evals, 8, 'Cars', 'Sat Mar 10 2018', 100, -1);
+    expectEvals(evals, 9, 'Cash', 'Sat Mar 10 2018', 190, -1);
+    expectEvals(evals, 10, 'Cash', 'Sun Apr 01 2018', 190, -1);
+    expectEvals(evals, 11, 'Cars', 'Mon Apr 02 2018', 100, -1);
+    expectEvals(evals, 12, 'Cash', 'Tue May 01 2018', 190, -1);
+    expectEvals(evals, 13, 'Cars', 'Wed May 02 2018', 100, -1);
+
+    const result = makeChartDataFromEvaluations(
+      {
+        start: makeDateFromString(roi.start),
+        end: makeDateFromString(roi.end),
+      },
+      model,
+      evals,
+    );
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(2);
+    expect(result.assetData[0].item.NAME).toBe('Cash');
+    {
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 0, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 0, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 190, -1);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 190, -1);
+    }
+
+    expect(result.assetData[1].item.NAME).toBe('Cars');
+    {
+      const chartPts = result.assetData[1].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 300, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 300, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 100, -1);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 100, -1);
+    }
+
+    done();
+  });
+
+  it('conditionally sell some cars need all', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'June 1, 2018 00:00:00',
+    };
+    const minimalModel = getMinimalModelCopy();
+    const model: DbModelData = {
+      ...minimalModel,
+      assets: [
+        ...minimalModel.assets,
+        {
+          ...simpleAsset,
+          NAME: 'Cars',
+          START: 'January 2 2018',
+          VALUE: '300',
+          QUANTITY: '3',
+        },
+      ],
+      transactions: [
+        ...minimalModel.transactions,
+        {
+          ...simpleTransaction,
+          NAME: 'Conditional sell some cars',
+          FROM: 'Cars',
+          FROM_VALUE: '3', // selling all if we need to
+          TO: CASH_ASSET_NAME,
+          TO_VALUE: '0.95', // sacrifice a fee
+          TO_ABSOLUTE: false,
+          DATE: 'Mar 10 2018',
+        },
+      ],
+      settings: [...defaultSettings],
+    };
+    model.assets.filter(a => {
+      return a.NAME === CASH_ASSET_NAME;
+    })[0].START = '1 Jan 2018';
+
+    setSetting(model.settings, roiStart, roi.start);
+    setSetting(model.settings, roiEnd, roi.end);
+
+    model.assets.filter(a => {
+      return a.NAME === CASH_ASSET_NAME;
+    })[0].VALUE = '-1000'; // need to sell a lot of cars!
+
+    const evals: Evaluation[] = getTestEvaluations(model);
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(14);
+    expectEvals(evals, 0, 'Cash', 'Mon Jan 01 2018', -1000, -1);
+    expectEvals(evals, 1, 'Cars', 'Tue Jan 02 2018', 300, -1);
+    expectEvals(evals, 2, 'quantityCars', 'Tue Jan 02 2018', 3, -1);
+    expectEvals(evals, 3, 'Cash', 'Thu Feb 01 2018', -1000, -1);
+    expectEvals(evals, 4, 'Cars', 'Fri Feb 02 2018', 300, -1);
+    expectEvals(evals, 5, 'Cash', 'Thu Mar 01 2018', -1000, -1);
+    expectEvals(evals, 6, 'Cars', 'Fri Mar 02 2018', 300, -1);
+    expectEvals(evals, 7, 'quantityCars', 'Sat Mar 10 2018', 0, -1);
+    expectEvals(evals, 8, 'Cars', 'Sat Mar 10 2018', 0, -1);
+    expectEvals(evals, 9, 'Cash', 'Sat Mar 10 2018', -715, -1);
+    expectEvals(evals, 10, 'Cash', 'Sun Apr 01 2018', -715, -1);
+    expectEvals(evals, 11, 'Cars', 'Mon Apr 02 2018', 0, -1);
+    expectEvals(evals, 12, 'Cash', 'Tue May 01 2018', -715, -1);
+    expectEvals(evals, 13, 'Cars', 'Wed May 02 2018', 0, -1);
+
+    const result = makeChartDataFromEvaluations(
+      {
+        start: makeDateFromString(roi.start),
+        end: makeDateFromString(roi.end),
+      },
+      model,
+      evals,
+    );
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(2);
+    expect(result.assetData[0].item.NAME).toBe('Cash');
+    {
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', -1000, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', -1000, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', -1000, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', -715, -1);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', -715, -1);
+    }
+
+    expect(result.assetData[1].item.NAME).toBe('Cars');
+    {
+      const chartPts = result.assetData[1].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 300, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 300, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 0, -1);
+    }
+
+    done();
+  });
+
+  it('conditionally sell some cars need two', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'June 1, 2018 00:00:00',
+    };
+    const minimalModel = getMinimalModelCopy();
+    const model: DbModelData = {
+      ...minimalModel,
+      assets: [
+        ...minimalModel.assets,
+        {
+          ...simpleAsset,
+          NAME: 'Cars',
+          START: 'January 2 2018',
+          VALUE: '300',
+          QUANTITY: '3',
+        },
+      ],
+      transactions: [
+        ...minimalModel.transactions,
+        {
+          ...simpleTransaction,
+          NAME: 'Conditional sell some cars',
+          FROM: 'Cars',
+          FROM_VALUE: '3', // selling all if we need to
+          TO: CASH_ASSET_NAME,
+          TO_VALUE: '0.95', // sacrifice a fee
+          TO_ABSOLUTE: false,
+          DATE: 'Mar 10 2018',
+        },
+      ],
+      settings: [...defaultSettings],
+    };
+    model.assets.filter(a => {
+      return a.NAME === CASH_ASSET_NAME;
+    })[0].START = '1 Jan 2018';
+
+    setSetting(model.settings, roiStart, roi.start);
+    setSetting(model.settings, roiEnd, roi.end);
+
+    model.assets.filter(a => {
+      return a.NAME === CASH_ASSET_NAME;
+    })[0].VALUE = '-150'; // need to sell two cars
+
+    const evals: Evaluation[] = getTestEvaluations(model);
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(14);
+    expectEvals(evals, 0, 'Cash', 'Mon Jan 01 2018', -150, -1);
+    expectEvals(evals, 1, 'Cars', 'Tue Jan 02 2018', 300, -1);
+    expectEvals(evals, 2, 'quantityCars', 'Tue Jan 02 2018', 3, -1);
+    expectEvals(evals, 3, 'Cash', 'Thu Feb 01 2018', -150, -1);
+    expectEvals(evals, 4, 'Cars', 'Fri Feb 02 2018', 300, -1);
+    expectEvals(evals, 5, 'Cash', 'Thu Mar 01 2018', -150, -1);
+    expectEvals(evals, 6, 'Cars', 'Fri Mar 02 2018', 300, -1);
+    expectEvals(evals, 7, 'quantityCars', 'Sat Mar 10 2018', 1, -1);
+    expectEvals(evals, 8, 'Cars', 'Sat Mar 10 2018', 100, -1);
+    expectEvals(evals, 9, 'Cash', 'Sat Mar 10 2018', 40, -1);
+    expectEvals(evals, 10, 'Cash', 'Sun Apr 01 2018', 40, -1);
+    expectEvals(evals, 11, 'Cars', 'Mon Apr 02 2018', 100, -1);
+    expectEvals(evals, 12, 'Cash', 'Tue May 01 2018', 40, -1);
+    expectEvals(evals, 13, 'Cars', 'Wed May 02 2018', 100, -1);
+
+    const result = makeChartDataFromEvaluations(
+      {
+        start: makeDateFromString(roi.start),
+        end: makeDateFromString(roi.end),
+      },
+      model,
+      evals,
+    );
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(2);
+    expect(result.assetData[0].item.NAME).toBe('Cash');
+    {
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', -150, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', -150, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', -150, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 40, -1);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 40, -1);
+    }
+
+    expect(result.assetData[1].item.NAME).toBe('Cars');
+    {
+      const chartPts = result.assetData[1].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 300, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 300, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 100, -1);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 100, -1);
+    }
+
+    done();
+  });
+
+  it('conditionally sell some cars need exactly two', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'June 1, 2018 00:00:00',
+    };
+    const minimalModel = getMinimalModelCopy();
+    const model: DbModelData = {
+      ...minimalModel,
+      assets: [
+        ...minimalModel.assets,
+        {
+          ...simpleAsset,
+          NAME: 'Cars',
+          START: 'January 2 2018',
+          VALUE: '300',
+          QUANTITY: '3',
+        },
+      ],
+      transactions: [
+        ...minimalModel.transactions,
+        {
+          ...simpleTransaction,
+          NAME: 'Conditional sell some cars',
+          FROM: 'Cars',
+          FROM_VALUE: '3', // selling all if we need to
+          TO: CASH_ASSET_NAME,
+          TO_VALUE: '1.0', // no fee
+          TO_ABSOLUTE: false,
+          DATE: 'Mar 10 2018',
+        },
+      ],
+      settings: [...defaultSettings],
+    };
+    model.assets.filter(a => {
+      return a.NAME === CASH_ASSET_NAME;
+    })[0].START = '1 Jan 2018';
+
+    setSetting(model.settings, roiStart, roi.start);
+    setSetting(model.settings, roiEnd, roi.end);
+
+    model.assets.filter(a => {
+      return a.NAME === CASH_ASSET_NAME;
+    })[0].VALUE = '-200'; // need to sell two cars
+
+    const evals: Evaluation[] = getTestEvaluations(model);
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(14);
+    expectEvals(evals, 0, 'Cash', 'Mon Jan 01 2018', -200, -1);
+    expectEvals(evals, 1, 'Cars', 'Tue Jan 02 2018', 300, -1);
+    expectEvals(evals, 2, 'quantityCars', 'Tue Jan 02 2018', 3, -1);
+    expectEvals(evals, 3, 'Cash', 'Thu Feb 01 2018', -200, -1);
+    expectEvals(evals, 4, 'Cars', 'Fri Feb 02 2018', 300, -1);
+    expectEvals(evals, 5, 'Cash', 'Thu Mar 01 2018', -200, -1);
+    expectEvals(evals, 6, 'Cars', 'Fri Mar 02 2018', 300, -1);
+    expectEvals(evals, 7, 'quantityCars', 'Sat Mar 10 2018', 1, -1);
+    expectEvals(evals, 8, 'Cars', 'Sat Mar 10 2018', 100, -1);
+    expectEvals(evals, 9, 'Cash', 'Sat Mar 10 2018', 0, -1);
+    expectEvals(evals, 10, 'Cash', 'Sun Apr 01 2018', 0, -1);
+    expectEvals(evals, 11, 'Cars', 'Mon Apr 02 2018', 100, -1);
+    expectEvals(evals, 12, 'Cash', 'Tue May 01 2018', 0, -1);
+    expectEvals(evals, 13, 'Cars', 'Wed May 02 2018', 100, -1);
+
+    const result = makeChartDataFromEvaluations(
+      {
+        start: makeDateFromString(roi.start),
+        end: makeDateFromString(roi.end),
+      },
+      model,
+      evals,
+    );
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(2);
+    expect(result.assetData[0].item.NAME).toBe('Cash');
+    {
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', -200, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', -200, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', -200, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 0, -1);
+    }
+
+    expect(result.assetData[1].item.NAME).toBe('Cars');
+    {
+      const chartPts = result.assetData[1].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 300, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 300, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 100, -1);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 100, -1);
+    }
+
+    done();
+  });
+
+  it('conditionally sell some cars fees matter', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'June 1, 2018 00:00:00',
+    };
+    const minimalModel = getMinimalModelCopy();
+    const model: DbModelData = {
+      ...minimalModel,
+      assets: [
+        ...minimalModel.assets,
+        {
+          ...simpleAsset,
+          NAME: 'Cars',
+          START: 'January 2 2018',
+          VALUE: '300',
+          QUANTITY: '3',
+        },
+      ],
+      transactions: [
+        ...minimalModel.transactions,
+        {
+          ...simpleTransaction,
+          NAME: 'Conditional sell some cars',
+          FROM: 'Cars',
+          FROM_VALUE: '3', // selling all if we need to
+          TO: CASH_ASSET_NAME,
+          TO_VALUE: '0.5', // big fee
+          TO_ABSOLUTE: false,
+          DATE: 'Mar 10 2018',
+        },
+      ],
+      settings: [...defaultSettings],
+    };
+    model.assets.filter(a => {
+      return a.NAME === CASH_ASSET_NAME;
+    })[0].START = '1 Jan 2018';
+
+    setSetting(model.settings, roiStart, roi.start);
+    setSetting(model.settings, roiEnd, roi.end);
+
+    model.assets.filter(a => {
+      return a.NAME === CASH_ASSET_NAME;
+    })[0].VALUE = '-75'; // less than one car but two considering fees
+
+    const evals: Evaluation[] = getTestEvaluations(model);
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(14);
+    expectEvals(evals, 0, 'Cash', 'Mon Jan 01 2018', -75, -1);
+    expectEvals(evals, 1, 'Cars', 'Tue Jan 02 2018', 300, -1);
+    expectEvals(evals, 2, 'quantityCars', 'Tue Jan 02 2018', 3, -1);
+    expectEvals(evals, 3, 'Cash', 'Thu Feb 01 2018', -75, -1);
+    expectEvals(evals, 4, 'Cars', 'Fri Feb 02 2018', 300, -1);
+    expectEvals(evals, 5, 'Cash', 'Thu Mar 01 2018', -75, -1);
+    expectEvals(evals, 6, 'Cars', 'Fri Mar 02 2018', 300, -1);
+    expectEvals(evals, 7, 'quantityCars', 'Sat Mar 10 2018', 1, -1);
+    expectEvals(evals, 8, 'Cars', 'Sat Mar 10 2018', 100, -1);
+    expectEvals(evals, 9, 'Cash', 'Sat Mar 10 2018', 25, -1);
+    expectEvals(evals, 10, 'Cash', 'Sun Apr 01 2018', 25, -1);
+    expectEvals(evals, 11, 'Cars', 'Mon Apr 02 2018', 100, -1);
+    expectEvals(evals, 12, 'Cash', 'Tue May 01 2018', 25, -1);
+    expectEvals(evals, 13, 'Cars', 'Wed May 02 2018', 100, -1);
+
+    const result = makeChartDataFromEvaluations(
+      {
+        start: makeDateFromString(roi.start),
+        end: makeDateFromString(roi.end),
+      },
+      model,
+      evals,
+    );
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(2);
+    expect(result.assetData[0].item.NAME).toBe('Cash');
+    {
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', -75, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', -75, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', -75, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 25, -1);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 25, -1);
+    }
+
+    expect(result.assetData[1].item.NAME).toBe('Cars');
+    {
+      const chartPts = result.assetData[1].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 300, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 300, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 100, -1);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 100, -1);
+    }
+
+    done();
+  });
+
+  // CGT on selling some cars ???
 });

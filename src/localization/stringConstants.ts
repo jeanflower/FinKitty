@@ -128,3 +128,6 @@ export const revalue = 'Revalue';
 
 // Reported deltas on assets can be flagged as 'growth'
 export const growth = 'growth';
+
+// Track quantities or discrete assets using this string
+export const quantity = 'quantity';

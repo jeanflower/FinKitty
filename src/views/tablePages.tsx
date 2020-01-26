@@ -31,6 +31,7 @@ import {
   makeValueAbsPropFromString,
   makeYesNoFromBoolean,
   showObj,
+  makeQuantityFromString,
 } from '../utils';
 
 import NameFormatter from './reactComponents/NameFormatter';
@@ -202,6 +203,7 @@ function handleAssetGridRowsUpdated(model: DbModelData, args: any) {
   const oldValue = asset[args[0].cellKey];
   asset[args[0].cellKey] = args[0].updated[args[0].cellKey];
   const parsedValue = makeCashValueFromString(asset.VALUE);
+  const parsedQuantity = makeQuantityFromString(asset.QUANTITY);
   const parsedGrowth = makeGrowthFromString(asset.GROWTH, model.settings);
   const parsedPurchasePrice = makePurchasePriceFromString(asset.PURCHASE_PRICE);
   const parsedCPIImmune = makeBooleanFromYesNo(asset.IS_CPI_IMMUNE);
@@ -219,6 +221,9 @@ function handleAssetGridRowsUpdated(model: DbModelData, args: any) {
   } else if (!parsedValue.checksOK) {
     alert(`asset value ${asset.VALUE} not understood`);
     asset[args[0].cellKey] = oldValue;
+  } else if (!parsedQuantity.checksOK) {
+    alert(`quantity value ${asset.QUANTITY} not understood`);
+    asset[args[0].cellKey] = oldValue;
   } else if (!parsedCPIImmune.checksOK) {
     alert(`asset value ${asset.IS_CPI_IMMUNE} not understood`);
     asset[args[0].cellKey] = oldValue;
@@ -226,9 +231,14 @@ function handleAssetGridRowsUpdated(model: DbModelData, args: any) {
     alert(`asset value ${asset.CAN_BE_NEGATIVE} not understood`);
     asset[args[0].cellKey] = oldValue;
   } else {
+    let numValueForSubmission = parsedValue.value;
+    if (parsedQuantity.value !== '') {
+      numValueForSubmission *= parseFloat(parsedQuantity.value);
+    }
     const assetForSubmission: DbAsset = {
       NAME: asset.NAME,
-      VALUE: `${parsedValue.value}`,
+      VALUE: `${numValueForSubmission}`,
+      QUANTITY: asset.QUANTITY,
       START: asset.START,
       LIABILITY: asset.LIABILITY,
       GROWTH: parsedGrowth.value,
@@ -337,14 +347,23 @@ export function assetsOrDebtsTableDiv(model: DbModelData, isDebt: boolean) {
                 return obj.NAME !== taxPot && obj.IS_A_DEBT === isDebt;
               })
               .map((obj: DbAsset) => {
-                const dbValue = obj.VALUE;
-                const tableValue = isDebt ? -parseFloat(dbValue) : dbValue;
+                const dbStringValue = obj.VALUE;
+                let displayValue = parseFloat(dbStringValue);
+                if (obj.QUANTITY !== '') {
+                  const dbQuanValue = parseFloat(obj.QUANTITY);
+                  displayValue = displayValue / dbQuanValue;
+                }
+                if (isDebt) {
+                  displayValue = -displayValue;
+                }
+                const tableValue = `${displayValue}`;
                 const result = {
                   GROWTH: obj.GROWTH,
                   NAME: obj.NAME,
                   CATEGORY: obj.CATEGORY,
                   START: obj.START,
                   VALUE: tableValue,
+                  QUANTITY: obj.QUANTITY,
                   LIABILITY: obj.LIABILITY,
                   PURCHASE_PRICE: makeStringFromPurchasePrice(
                     obj.PURCHASE_PRICE,
@@ -367,6 +386,11 @@ export function assetsOrDebtsTableDiv(model: DbModelData, isDebt: boolean) {
                 key: 'VALUE',
                 name: 'value',
                 formatter: <CashValueFormatter value="unset" />,
+              },
+              {
+                ...defaultColumn,
+                key: 'QUANTITY',
+                name: 'quantity',
               },
               {
                 ...defaultColumn,
@@ -441,6 +465,9 @@ export function transactionsTableDiv(model: DbModelData) {
             let fromValueEntry = makeStringFromValueAbsProp(
               obj.FROM_VALUE,
               obj.FROM_ABSOLUTE,
+              obj.FROM,
+              model,
+              obj.NAME,
             );
             // log(`obj.FROM = ${obj.FROM}, fromValueEntry = ${fromValueEntry}`);
             if (obj.FROM === '' && fromValueEntry === '0') {
@@ -449,6 +476,9 @@ export function transactionsTableDiv(model: DbModelData) {
             let toValueEntry = makeStringFromValueAbsProp(
               obj.TO_VALUE,
               obj.TO_ABSOLUTE,
+              obj.TO,
+              model,
+              obj.NAME,
             );
             if (obj.TO === '' && toValueEntry === '0') {
               toValueEntry = '';

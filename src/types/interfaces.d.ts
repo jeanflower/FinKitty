@@ -14,6 +14,8 @@ export interface DbTrigger extends DbItem {
 export interface DbAsset extends DbItemCategory {
   START: string;
   VALUE: string;
+  QUANTITY: string; // Quantised assets have unit prices on-screen for table value
+  // Quantised assets can only be transacted in unit integer quantities
   GROWTH: string;
   CPI_IMMUNE: boolean;
   CAN_BE_NEGATIVE: boolean;

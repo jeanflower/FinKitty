@@ -7,9 +7,11 @@ export const testAsset: DbAsset = {
   CATEGORY: '',
   START: 'Jan 2017',
   VALUE: '1.2',
+  QUANTITY: '',
   GROWTH: '0.0',
   CPI_IMMUNE: false,
   CAN_BE_NEGATIVE: true,
+  IS_A_DEBT: false,
   LIABILITY: '',
   PURCHASE_PRICE: '0',
 };
