@@ -1,6 +1,6 @@
-import { DbInterface, minimalModel } from './database';
+import { DbInterface } from './database';
 import { DbModelData } from '../types/interfaces';
-import { printDebug, makeModelFromJSON } from '../utils';
+import { makeModelFromJSON, minimalModel, printDebug } from '../utils';
 
 const url = process.env.REACT_APP_SERVER_URL_NOT_SECRET;
 
