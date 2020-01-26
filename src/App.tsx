@@ -43,6 +43,8 @@ import { assetsDiv } from './views/assetsPage';
 import ReactTooltip from 'react-tooltip';
 import { debtsDiv } from './views/debtsPage';
 
+var CryptoJS = require("crypto-js");
+
 // import './bootstrap.css'
 
 export let modelName: string = exampleModelName;
@@ -276,6 +278,7 @@ function getExampleModel(modelString: string) {
 async function refreshData(goToDB = true) {
   // log('refreshData in AppContent - get data and redraw content');
   if (goToDB) {
+    // log('refreshData do visit db');
     // go to the DB to retreive updated data
     let modelNames: string[] = [];
     try {
@@ -299,7 +302,15 @@ async function refreshData(goToDB = true) {
       if (modelNames.length > 0) {
         modelName = modelNames.sort()[0];
         // log(`switch to a different modelName ${modelName}`);
-        model = await getDB().loadModel(getUserID(), modelName);
+        try{
+          model = await getDB().loadModel(getUserID(), modelName);
+        } catch(err) {
+          alert(`Cannot load ${modelName}; consider 'Force delete'?`);
+        }
+        if(model === undefined){
+          alert('problem with model data');
+          return;
+        }
       } else {
         // log('recreate example models');
         // force us to have the example models
@@ -328,6 +339,7 @@ async function refreshData(goToDB = true) {
         model = await getDB().loadModel(getUserID(), modelName);
       } catch (err) {
         // log('no model found');
+        log(`Cannot load ${modelName}. Consider 'Force delete'?`);
         gotModelOK = false;
       }
       if (!gotModelOK || model === undefined) {
@@ -429,6 +441,7 @@ async function refreshData(goToDB = true) {
       );
     }
   } else {
+    // log('refreshData in no need to visit db');
     reactAppComponent.setState({ ...reactAppComponent.state });
   }
 }
@@ -460,8 +473,8 @@ export function toggleDisplay(type: ViewType) {
   refreshData(false);
 }
 
-function checkModelData() {
-  const response = checkData(reactAppComponent.state.modelData);
+function checkModelData(givenModel: DbModelData) {
+  const response = checkData(givenModel);
   if (response === '') {
     alert('model check all good');
   } else {
@@ -833,6 +846,43 @@ export class AppContent extends Component<AppProps, AppState> {
     await refreshData();
   }
 
+  private async deleteModel(modelNameForDelete: string){
+    if (
+      window.confirm(
+        `delete all data in model ${modelNameForDelete} - you sure?`,
+      )
+    ) {
+      // log(`delete model ${modelNameForDelete}`);
+      const modelNames = await getDB().getModelNames(getUserID());
+      await getDB().deleteModel(getUserID(), modelNameForDelete);
+      const idx = modelNames.findIndex(i => {
+        return i === modelNameForDelete;
+      });
+      if (idx !== -1) {
+        modelNames.splice(idx, 1);
+      } else {
+        log(
+          `error, deleted ${modelNameForDelete} not found in ${modelNames}`,
+        );
+      }
+      // log(`model names after delete are ${modelNames}`);
+      if (modelNames.length === 0) {
+        alert('no data left: recreating example model');
+        modelName = exampleModelName;
+        await getDB().ensureModel(getUserID(), modelName);
+        await getDB().saveModel(
+          getUserID(),
+          modelName,
+          makeModelFromJSON(simpleExampleData),
+        );
+      } else {
+        modelName = modelNames.sort()[0];
+        // log(`model name after delete is ${modelName}`);
+      }
+      await refreshData();
+    }
+  }
+
   private homeDiv() {
     // log(`this.state.modelNamesData = ${this.state.modelNamesData}`);
     return (
@@ -863,40 +913,7 @@ export class AppContent extends Component<AppProps, AppState> {
             <br />
             <Button
               action={async () => {
-                if (
-                  window.confirm(
-                    `delete all data in model ${modelName} - you sure?`,
-                  )
-                ) {
-                  // log(`delete model ${modelName}`);
-                  const modelNames = await getDB().getModelNames(getUserID());
-                  await getDB().deleteModel(getUserID(), modelName);
-                  const idx = modelNames.findIndex(i => {
-                    return i === modelName;
-                  });
-                  if (idx !== -1) {
-                    modelNames.splice(idx, 1);
-                  } else {
-                    log(
-                      `error, deleted ${modelName} not found in ${modelNames}`,
-                    );
-                  }
-                  // log(`model names after delete are ${modelNames}`);
-                  if (modelNames.length === 0) {
-                    alert('no data left: recreating example model');
-                    modelName = exampleModelName;
-                    await getDB().ensureModel(getUserID(), modelName);
-                    await getDB().saveModel(
-                      getUserID(),
-                      modelName,
-                      makeModelFromJSON(simpleExampleData),
-                    );
-                  } else {
-                    modelName = modelNames.sort()[0];
-                    // log(`model name after delete is ${modelName}`);
-                  }
-                  await refreshData();
-                }
+                this.deleteModel(modelName);
               }}
               title="Delete model"
               id={`btn-delete`}
@@ -919,7 +936,7 @@ export class AppContent extends Component<AppProps, AppState> {
             />
             <Button
               action={async () => {
-                checkModelData();
+                checkModelData(reactAppComponent.state.modelData);
               }}
               title="Check model"
               id={`btn-check`}
@@ -969,6 +986,47 @@ export class AppContent extends Component<AppProps, AppState> {
               id={`btn-JSON-replace`}
               type="secondary"
             />
+            <Button
+              action={() => {
+                const inputEnc = prompt('Enter encrypted JSON');
+                if (inputEnc === null) {
+                  return;
+                }
+                const secret = prompt('Enter secret key');
+                if (secret === null) {
+                  return;
+                }
+                try{
+                  var decipher = CryptoJS.AES.decrypt(inputEnc, secret);
+                  decipher = decipher.toString(CryptoJS.enc.Utf8);
+                  log(`deciphered text ${decipher}`);
+                  if(decipher === undefined){
+                    alert('could not decode this data');
+                  } else {
+                    const decipheredModel = makeModelFromJSON(decipher);
+                    checkModelData(decipheredModel);
+                  }
+                } catch(err) {
+                  alert('could not decode this data');
+                }
+              }}
+              title="Test encrypted JSON"
+              id={`btn-JSON-encrypt-replace`}
+              type="secondary"
+            />
+            <Button
+              action={() => {
+                const name = prompt('Force delete model name');
+                if (name === null) {
+                  return;
+                }
+                this.deleteModel(name);
+              }}
+              title="Force delete model"
+              id={`btn-JSON-encrypt-replace`}
+              type="secondary"
+            />
+
           </div>
           <div className="col-md mb-4">{screenshotsDiv()}</div>
         </div>
