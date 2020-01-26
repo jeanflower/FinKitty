@@ -4,37 +4,41 @@ import {
   incomeTax,
   nationalInsurance,
   separator,
+  CASH_ASSET_NAME,
+  cpi,
+  cpiHint,
+  assetChartView,
+  assetChartVal,
+  assetChartHint,
+  viewFrequency,
+  monthly,
+  viewFrequencyHint,
+  viewDetail,
+  fine,
+  viewDetailHint,
+  roiStart,
+  roiStartHint,
+  roiEnd,
+  roiEndHint,
+  assetChartFocus,
+  assetChartFocusHint,
+  debtChartFocus,
+  allItems,
+  debtChartFocusHint,
+  expenseChartFocus,
+  expenseChartFocusHint,
+  incomeChartFocus,
+  incomeChartFocusHint,
+  birthDate,
+  birthDateHint,
+  debtChartView,
+  debtChartVal,
+  debtChartHint,
 } from './localization/stringConstants';
+
+
 import moment from 'moment';
 
-// note JSON stringify and back for serialisation is OK but
-// breaks dates (and functions too but we don't have these)
-function cleanUp(modelFromJSON: any): DbModelData {
-  return {
-    ...modelFromJSON,
-    triggers: modelFromJSON.triggers.map((t: any) => {
-      return {
-        ...t,
-        DATE: new Date(t['DATE']), // This is required!
-      };
-    }),
-  };
-}
-
-export function makeModelFromJSON(input: string) {
-  const result: DbModelData = JSON.parse(input);
-  for (const t of result.triggers) {
-    //log(`type of ${t.DATE} = ${typeof t.DATE}`);
-    t.DATE = new Date(t.DATE);
-    //log(`type of ${t.DATE} = ${typeof t.DATE}`);
-  }
-  for (const a of result.assets) {
-    if (a.IS_A_DEBT === undefined) {
-      a.IS_A_DEBT = false;
-    }
-  }
-  return cleanUp(result);
-}
 export function makeDateFromString(input: string) {
   // special-case parsing for DD/MM/YYYY
   let dateMomentObject = moment(input, 'DD/MM/YYYY'); // 1st argument - string, 2nd argument - format
@@ -453,4 +457,143 @@ export function setSetting(
       HINT: hint,
     });
   }
+}
+
+export const minimalModel: DbModelData = {
+  assets: [
+    {
+      NAME: CASH_ASSET_NAME,
+      CATEGORY: '',
+      START: '1 Jan 1990',
+      VALUE: '0.0',
+      GROWTH: '0.0',
+      CPI_IMMUNE: false,
+      CAN_BE_NEGATIVE: true,
+      IS_A_DEBT: false,
+      LIABILITY: '',
+      PURCHASE_PRICE: '0.0',
+    },
+  ],
+  incomes: [],
+  expenses: [],
+  triggers: [],
+  settings: [
+    {
+      NAME: cpi,
+      VALUE: '2.5',
+      HINT: cpiHint,
+    },
+    {
+      NAME: assetChartView,
+      VALUE: assetChartVal,
+      HINT: assetChartHint,
+    },
+    {
+      NAME: debtChartView,
+      VALUE: debtChartVal,
+      HINT: debtChartHint,
+    },
+    {
+      NAME: viewFrequency,
+      VALUE: monthly,
+      HINT: viewFrequencyHint,
+    },
+    {
+      NAME: viewDetail,
+      VALUE: fine,
+      HINT: viewDetailHint,
+    },
+    {
+      NAME: roiStart,
+      VALUE: '1 Jan 2017',
+      HINT: roiStartHint,
+    },
+    {
+      NAME: roiEnd,
+      VALUE: '1 Jan 2020',
+      HINT: roiEndHint,
+    },
+    {
+      NAME: assetChartFocus,
+      VALUE: CASH_ASSET_NAME,
+      HINT: assetChartFocusHint,
+    },
+    {
+      NAME: debtChartFocus,
+      VALUE: allItems,
+      HINT: debtChartFocusHint,
+    },
+    {
+      NAME: expenseChartFocus,
+      VALUE: allItems,
+      HINT: expenseChartFocusHint,
+    },
+    {
+      NAME: incomeChartFocus,
+      VALUE: allItems,
+      HINT: incomeChartFocusHint,
+    },
+    {
+      NAME: birthDate,
+      VALUE: '',
+      HINT: birthDateHint,
+    },
+  ],
+  transactions: [],
+};
+
+export function addRequiredEntries(model: DbModelData) {
+  minimalModel.settings.forEach(x => {
+    if (
+      model.settings.filter(existing => {
+        return existing.NAME === x.NAME;
+      }).length === 0
+    ) {
+      log(`inserting missing data ${showObj(x)}`);
+      model.settings.push(x);
+    }
+  });
+  minimalModel.assets.forEach(x => {
+    if (
+      model.assets.filter(existing => {
+        return existing.NAME === x.NAME;
+      }).length === 0
+    ) {
+      log(`inserting missing data ${showObj(x)}`);
+      model.assets.push(x);
+    }
+  });
+}
+
+// note JSON stringify and back for serialisation is OK but
+// breaks dates (and functions too but we don't have these)
+function cleanUp(modelFromJSON: any, addMissingData: boolean): DbModelData {
+  if (addMissingData) {
+    addRequiredEntries(modelFromJSON);
+  }
+
+  return {
+    ...modelFromJSON,
+    triggers: modelFromJSON.triggers.map((t: any) => {
+      return {
+        ...t,
+        DATE: new Date(t['DATE']), // This is required!
+      };
+    }),
+  };
+}
+
+export function makeModelFromJSON(input: string, addMissingData = true) {
+  const result: DbModelData = JSON.parse(input);
+  for (const t of result.triggers) {
+    //log(`type of ${t.DATE} = ${typeof t.DATE}`);
+    t.DATE = new Date(t.DATE);
+    //log(`type of ${t.DATE} = ${typeof t.DATE}`);
+  }
+  for (const a of result.assets) {
+    if (a.IS_A_DEBT === undefined) {
+      a.IS_A_DEBT = false;
+    }
+  }
+  return cleanUp(result, addMissingData);
 }

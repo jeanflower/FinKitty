@@ -876,6 +876,8 @@ function handleIncome(
     const tFromValue = parseFloat(transaction.FROM_VALUE);
     const tToValue = parseFloat(transaction.TO_VALUE);
 
+    // log(`pension transaction ${transaction.NAME}`)
+
     if (getTriggerDate(transaction.DATE, triggers) > moment.date) {
       return;
     }

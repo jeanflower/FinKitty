@@ -65,13 +65,13 @@ import {
   log,
   makeDateFromString,
   makeModelFromJSON,
+  minimalModel,
   printDebug,
   setSetting,
   suppressLogs,
   unSuppressLogs,
   // showObj,
 } from '../../utils';
-import { minimalModel } from '../../database/database';
 
 /* global it */
 /* global expect */
@@ -250,7 +250,12 @@ function getTestEvaluations(model: DbModelData): Evaluation[] {
   if (!testJSONRoundTrip) {
     return getEvaluations(model);
   } else {
-    return getEvaluations(makeModelFromJSON(JSON.stringify(model)));
+    return getEvaluations(
+      makeModelFromJSON(
+        JSON.stringify(model),
+        false, // do not add missing data!
+      ),
+    );
   }
 }
 
@@ -535,7 +540,10 @@ describe('evaluations tests', () => {
     const roi = modelAndRoi.roi;
 
     const evals: Evaluation[] = getEvaluations(
-      makeModelFromJSON(JSON.stringify(model)),
+      makeModelFromJSON(
+        JSON.stringify(model),
+        false, // do not insert missing settings
+      ),
     );
 
     // log(showObj(evals));

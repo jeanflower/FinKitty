@@ -331,7 +331,7 @@ async function refreshData(goToDB = true) {
         gotModelOK = false;
       }
       if (!gotModelOK || model === undefined) {
-        log('no model found - do not try to display anything');
+        //log('no model found - do not try to display anything');
         return;
       }
     }

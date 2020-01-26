@@ -209,7 +209,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
         <div className="row">
           <div className="col">
             <Input
-              title="Pension contribution amount (e.g. 0.05 for 5%)"
+              title="Pension contribution amount (>0, e.g. 0.05 for 5%)"
               type="text"
               name="contributionAmountPensionAsset"
               value={this.state.DCP_CONTRIBUTION_AMOUNT}

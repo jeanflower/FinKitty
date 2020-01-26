@@ -1,7 +1,14 @@
-import { DbInterface, minimalModel } from './database';
+import { DbInterface } from './database';
 import { DbModelData } from './../types/interfaces';
 
-import { log, makeModelFromJSON, printDebug, showObj } from './../utils';
+import {
+  addRequiredEntries,
+  log,
+  makeModelFromJSON,
+  printDebug,
+  showObj,
+  minimalModel,
+} from './../utils';
 
 import AWS from 'aws-sdk';
 
@@ -178,27 +185,6 @@ export class AWSDB implements DbInterface {
     });
   }
 
-  addRequiredEntries(model: DbModelData) {
-    minimalModel.settings.forEach(x => {
-      if (
-        model.settings.filter(existing => {
-          return existing.NAME === x.NAME;
-        }).length === 0
-      ) {
-        model.settings.push(x);
-      }
-    });
-    minimalModel.assets.forEach(x => {
-      if (
-        model.assets.filter(existing => {
-          return existing.NAME === x.NAME;
-        }).length === 0
-      ) {
-        model.assets.push(x);
-      }
-    });
-  }
-
   async ensureTableExists() {
     if (!(await this.tableExists(this.ddb))) {
       // log('table does not exist!');
@@ -255,7 +241,7 @@ export class AWSDB implements DbInterface {
     await this.ensureTableExists();
     await this.deleteModel(userID, modelName);
 
-    this.addRequiredEntries(model);
+    addRequiredEntries(model);
 
     const params = {
       TableName: this.tableName,
