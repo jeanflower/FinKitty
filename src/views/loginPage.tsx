@@ -55,10 +55,10 @@ export function loginPage(loginWithRedirect: any, loginForTesting: any) {
             enter for modeling incomes, expenses, assets and transactions, you
             can provide a value for CPI to influence how values change over
             time. Future tax regime is assumed to be the latest known one. Any
-            irregular losses such as stock market crashes or
-            unexpected gains and windfalls can be input as part of a model but
-            unless they are added, the future is assumed to progress smoothly
-            (and unrealistically) in a predictable and continuous fashion.
+            irregular losses such as stock market crashes or unexpected gains
+            and windfalls can be input as part of a model but unless they are
+            added, the future is assumed to progress smoothly (and
+            unrealistically) in a predictable and continuous fashion.
           </div>
           <div className="alert alert-block">
             <strong>Small print!</strong> This web app should not be used to

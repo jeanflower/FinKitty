@@ -67,7 +67,7 @@ function App() {
     return (
       <AppContent
         logOutAction={() => {
-          if(userID === 'TestUserID'){
+          if (userID === 'TestUserID') {
             log(`logout ${userID}`);
             // try to be graceful without network connection...
             // userID = '';

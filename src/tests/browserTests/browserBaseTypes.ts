@@ -30,9 +30,11 @@ import { log, printDebug } from '../../utils';
 import webdriver from 'selenium-webdriver';
 import { getDB } from '../../database/database';
 
-function allowExtraSleeps(){
-  if(process.env.REACT_APP_SERVER_URL_NOT_SECRET
-    === 'http://localhost:3001/finkitty/'){
+function allowExtraSleeps() {
+  if (
+    process.env.REACT_APP_SERVER_URL_NOT_SECRET ===
+    'http://localhost:3001/finkitty/'
+  ) {
     // log(`don't need extra sleeps`);
     return false;
   }
@@ -152,7 +154,7 @@ async function gotoHomePage(driver: any) {
   // log(`btnMms.length = ${btnMms.length}`);
   expect(btnHome.length === 1).toBe(true);
   await btnHome[0].click();
-  if(allowExtraSleeps()){
+  if (allowExtraSleeps()) {
     await sleep(shortSleep, '--- on home page');
   }
 }
@@ -160,7 +162,7 @@ async function gotoHomePage(driver: any) {
 export async function selectModel(driver: any, testDataModelName: string) {
   await gotoHomePage(driver);
 
-  if(allowExtraSleeps()){
+  if (allowExtraSleeps()) {
     await sleep(1000, 'time for buttons to appear');
   }
 
@@ -188,7 +190,7 @@ export async function beforeAllWork(
 
   await driver.get('about:blank');
   await driver.get(serverUri);
-  if(allowExtraSleeps()){
+  if (allowExtraSleeps()) {
     await sleep(
       1500, // was calcSleep twice
       '--- after browser loads URI',
@@ -200,7 +202,7 @@ export async function beforeAllWork(
   }
 
   await selectModel(driver, testDataModelName);
-  if(allowExtraSleeps()){
+  if (allowExtraSleeps()) {
     await sleep(calcSleep, '--- after model selected');
   }
 }
@@ -221,7 +223,7 @@ export async function cleanUpWork(driver: any, testDataModelName: string) {
     await deleteModelButton.click();
     // log(`model name = ${content}`);
     // log(`go find delete model button`);
-    if(allowExtraSleeps()){
+    if (allowExtraSleeps()) {
       await sleep(shortSleep, 'after delete model is clicked');
     }
     const alert = driver.switchTo().alert();
@@ -335,7 +337,7 @@ async function getTypedChartData(
     const btn = await driver.findElements(webdriver.By.id(switchButtonID));
     expect(btn.length === 1).toBe(true);
     await btn[0].click();
-    if(allowExtraSleeps()){
+    if (allowExtraSleeps()) {
       await sleep(shortSleep, '--- after switching to correct context');
     }
   }
