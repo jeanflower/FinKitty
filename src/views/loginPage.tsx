@@ -54,8 +54,9 @@ export function loginPage(loginWithRedirect: any, loginForTesting: any) {
             <strong>Modeling assumptions</strong> In addition to the data you
             enter for modeling incomes, expenses, assets and transactions, you
             can provide a value for CPI to influence how values change over
-            time. Future tax regime is assumed to be the latet known one. Any
-            irregular stock market crashes can be input as part of a model but
+            time. Future tax regime is assumed to be the latest known one. Any
+            irregular losses such as stock market crashes or
+            unexpected gains and windfalls can be input as part of a model but
             unless they are added, the future is assumed to progress smoothly
             (and unrealistically) in a predictable and continuous fashion.
           </div>

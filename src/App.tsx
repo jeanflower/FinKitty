@@ -296,7 +296,7 @@ async function refreshData(goToDB = true) {
     try {
       modelNames = await getDB().getModelNames(getUserID());
     } catch (error) {
-      alert('error contacting database');
+      alert(`error contacting database ${error}`);
       return;
     }
     // log(`got ${modelNames.length} modelNames`);

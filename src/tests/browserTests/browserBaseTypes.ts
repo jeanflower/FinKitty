@@ -30,6 +30,15 @@ import { log, printDebug } from '../../utils';
 import webdriver from 'selenium-webdriver';
 import { getDB } from '../../database/database';
 
+function allowExtraSleeps(){
+  if(process.env.REACT_APP_SERVER_URL_NOT_SECRET
+    === 'http://localhost:3001/finkitty/'){
+    // log(`don't need extra sleeps`);
+    return false;
+  }
+  // log(`do need extra sleeps to get data`);
+  return true;
+}
 export const browserTestSettings: DbSetting[] = [
   {
     NAME: roiStart,
@@ -143,13 +152,17 @@ async function gotoHomePage(driver: any) {
   // log(`btnMms.length = ${btnMms.length}`);
   expect(btnHome.length === 1).toBe(true);
   await btnHome[0].click();
-  await sleep(shortSleep, '--- on home page');
+  if(allowExtraSleeps()){
+    await sleep(shortSleep, '--- on home page');
+  }
 }
 
 export async function selectModel(driver: any, testDataModelName: string) {
   await gotoHomePage(driver);
 
-  await sleep(1000, 'time for buttons to appear');
+  if(allowExtraSleeps()){
+    await sleep(1000, 'time for buttons to appear');
+  }
 
   const btnData = await driver.findElements(
     webdriver.By.id(`btn-overview-${testDataModelName}`),
@@ -175,17 +188,21 @@ export async function beforeAllWork(
 
   await driver.get('about:blank');
   await driver.get(serverUri);
-  await sleep(
-    1500, // was calcSleep twice
-    '--- after browser loads URI',
-  );
+  if(allowExtraSleeps()){
+    await sleep(
+      1500, // was calcSleep twice
+      '--- after browser loads URI',
+    );
+  }
   const btnData = await driver.findElements(webdriver.By.id('buttonTestLogin'));
   if (btnData[0] !== undefined) {
     await btnData[0].click();
   }
 
   await selectModel(driver, testDataModelName);
-  await sleep(calcSleep, '--- after model selected');
+  if(allowExtraSleeps()){
+    await sleep(calcSleep, '--- after model selected');
+  }
 }
 
 export async function cleanUpWork(driver: any, testDataModelName: string) {
@@ -204,7 +221,9 @@ export async function cleanUpWork(driver: any, testDataModelName: string) {
     await deleteModelButton.click();
     // log(`model name = ${content}`);
     // log(`go find delete model button`);
-    await sleep(shortSleep, 'after delete model is clicked');
+    if(allowExtraSleeps()){
+      await sleep(shortSleep, 'after delete model is clicked');
+    }
     const alert = driver.switchTo().alert();
     const alertText = await alert.getText();
     expect(alertText).toEqual(
@@ -316,7 +335,9 @@ async function getTypedChartData(
     const btn = await driver.findElements(webdriver.By.id(switchButtonID));
     expect(btn.length === 1).toBe(true);
     await btn[0].click();
-    await sleep(shortSleep, '--- after switching to correct context');
+    if(allowExtraSleeps()){
+      await sleep(shortSleep, '--- after switching to correct context');
+    }
   }
   return getChartData(driver, dataDumpName);
 }

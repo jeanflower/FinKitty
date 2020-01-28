@@ -1,11 +1,14 @@
 import { DbInterface } from './database';
 import { DbModelData } from '../types/interfaces';
-import { makeModelFromJSON, minimalModel, printDebug } from '../utils';
+import { log, makeModelFromJSON, minimalModel, printDebug } from '../utils';
 
 const url = process.env.REACT_APP_SERVER_URL_NOT_SECRET;
 
 export class RESTDB implements DbInterface {
   getModelNames(userID: string): Promise<string[]> {
+    if(printDebug()){
+      log(`url for REST requests = ${url}`);
+    }
     const myHeaders = new Headers();
     myHeaders.append('Content-Type', 'application/x-www-form-urlencoded');
 
