@@ -67,6 +67,18 @@ function App() {
     return (
       <AppContent
         logOutAction={() => {
+          if(userID === 'TestUserID'){
+            log(`logout ${userID}`);
+            // try to be graceful without network connection...
+            // userID = '';
+            // return loginPage(loginWithRedirect, loginForTesting);
+            // at the moment if there's no network access,
+            // logging out takes you to a "no network" error page
+            // but if we're using the testID we don't need to
+            // contact Auth0 ...
+            // current workaround is to navigate back in browser
+            // to get back to login page
+          }
           return logout({
             returnTo:
               window.location.origin + process.env.REACT_APP_ORIGIN_APPENDAGE,
