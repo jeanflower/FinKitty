@@ -27,15 +27,18 @@ and once the Chrome extension is installed, in the ModHeader Chrome extension, i
 
 ## Everyday scripts for developers
 
-### Allow CORS if using (non-default) local DB
-During development, allow cors in Chrome.  In the ModHeader extension, check the box next to "Access-Control-Allow-Origin" modification.
+### Run a local web server for the app
+Start the web server locally (but still use cloud db):
+`REACT_APP_ORIGIN_APPENDAGE= npm start` 
+or 
+`./startLocalWebServer.sh`
 
-### Start the web server for the app
-Switch the setting in the .env file to not use a /FinKitty appendage.
-(the github pages deployment _does_ need that appendage).
+Start the web server locally with a local db:
+`#!/bin/bash
+REACT_APP_ORIGIN_APPENDAGE= REACT_APP_SERVER_URL_NOT_SECRET=http://localhost:3001/finkitty/ npm start` 
+or 
+`./startLocalDBAndWebServer.sh`
 
-Start the web server locally:
-`npm start` or `./startWebServer.sh`
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
 Watch out for lint errors in the console.
