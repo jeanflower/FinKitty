@@ -15,33 +15,48 @@ locally and make it use a local mongo database).
 
 ## Getting started for developers
 
-### On-off setup steps
+### One-off setup steps
 Install git and npm
 
 git clone this repo, go into the finance folder, and do npm install.
 
-The non-default offline mode which uses a local database needs the browser
-to accept non-origin info from the database calls.  Use Chrome and set Access-Control-Allow-Origin (just while developing) using the ModHeader chrome extension. i.e. install this
-https://chrome.google.com/webstore/detail/modheader/idgpnmonknjnojddfkpgkljpfnnfcklj?hl=en
-and once the Chrome extension is installed, in the ModHeader Chrome extension, import the modHeader.json profile.
+This repo works stand-alone if there's a REST server
+for it to query and update.  E.g. there's a cloud server 
+running on Heroku and this app can work with that.
+
+Optionally, for local testing or development free of a network,
+install the sister repo; FinServer, which provides the required
+REST interface for finkitty to interact with. 
+https://github.com/jeanflower/FinServer
+
+The FinServer app works with a mongo database.
+There's one running in the cloud or
+install a local DB following instructions here
+https://docs.mongodb.com/manual/tutorial/install-mongodb-on-os-x/
+
+The `start*.sh` scripts expect a folder structure
+with finkitty, FinServer and mongo as sibling folders.
 
 ## Everyday scripts for developers
 
 ### Run a local web server for the app
 Start the web server locally (but still use cloud db):
-`REACT_APP_ORIGIN_APPENDAGE= npm start` 
-or 
 `./startLocalWebServer.sh`
 
-Start the web server locally with a local db:
-`#!/bin/bash
-REACT_APP_ORIGIN_APPENDAGE= REACT_APP_SERVER_URL_NOT_SECRET=http://localhost:3001/finkitty/ npm start` 
-or 
-`./startLocalDBAndWebServer.sh`
+For local database and fast, network-free development
+and testing, ensure you have FinServer and mongo
+installed, then run the four scripts in sequence
+```
+./start1LocalDB.sh
+./start2LocalRESTServer.sh
+./start3LocalDBAndWebServer.sh
+./start4Tests.sh
+```
 
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Open [https://localhost:3000](https://localhost:3000) to view it in the browser.
 
-Watch out for lint errors in the console.
+Watch out for lint errors in the console from either
+`startLocalWebServer.sh` or `start3LocalDBAndWebServer.sh`.
 
 ### Run the tests
 `npm test` or `./startTests.sh`

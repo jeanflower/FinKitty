@@ -11,7 +11,6 @@
     "@types/react-data-grid": "^4.0.4",
     "@types/react-dom": "16.9.4",
     "@types/selenium-webdriver": "^4.0.5",
-    "aws-sdk": "^2.568.0",
     "babel-loader": "^8.0.6",
     "bootstrap": "^4.3.1",
     "chrome-headless": "^0.1.5",
