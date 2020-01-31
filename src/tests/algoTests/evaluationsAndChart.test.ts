@@ -47,6 +47,7 @@ import {
   pension,
   pensionSS,
   pensionDBC,
+  total,
 } from '../../localization/stringConstants';
 import {
   ChartDataPoint,
@@ -9888,6 +9889,113 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 1, 'Tue May 01 2018', 500, -1);
       expectChartData(chartPts, 2, 'Fri Jun 01 2018', 500, -1);
       expectChartData(chartPts, 3, 'Sun Jul 01 2018', 500, -1);
+    }
+    done();
+  });
+
+  it('Check totalled, chart data data', done => {
+    const modelAndRoi = getModelCoarseAndFine();
+    const model = modelAndRoi.model;
+    const roi = modelAndRoi.roi;
+
+    setSetting(model.settings, viewDetail, total);
+
+    const evals: Evaluation[] = getTestEvaluations(model);
+    // log(`evals = ${showObj(evals)}`);
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(45);
+    expectEvals(evals, 0, 'pet food', 'Mon Jan 01 2018', 12, -1);
+    expectEvals(evals, 1, 'broadband', 'Thu Feb 01 2018', 12, -1);
+    expectEvals(evals, 2, 'pet food', 'Thu Feb 01 2018', 12, -1);
+    expectEvals(evals, 3, 'broadband', 'Thu Mar 01 2018', 12, -1);
+    expectEvals(evals, 4, 'pet food', 'Thu Mar 01 2018', 12, -1);
+    expectEvals(evals, 5, 'Cash', 'Sun Apr 01 2018', 500, -1);
+    expectEvals(evals, 6, 'stocks', 'Sun Apr 01 2018', 500, -1);
+    expectEvals(evals, 7, 'PRn1', 'Sun Apr 01 2018', 10, -1);
+    expectEvals(evals, 8, 'Cash', 'Sun Apr 01 2018', 510, -1);
+    expectEvals(evals, 9, 'PRn2', 'Sun Apr 01 2018', 10, -1);
+    expectEvals(evals, 10, 'Cash', 'Sun Apr 01 2018', 520, -1);
+    expectEvals(evals, 11, 'PRn3', 'Sun Apr 01 2018', 10, -1);
+    expectEvals(evals, 12, 'Cash', 'Sun Apr 01 2018', 530, -1);
+    expectEvals(evals, 13, 'Phon', 'Sun Apr 01 2018', 12, -1);
+    expectEvals(evals, 14, 'Cash', 'Sun Apr 01 2018', 518, -1);
+    expectEvals(evals, 15, 'broadband', 'Sun Apr 01 2018', 12, -1);
+    expectEvals(evals, 16, 'Cash', 'Sun Apr 01 2018', 506, -1);
+    expectEvals(evals, 17, 'pet food', 'Sun Apr 01 2018', 12, -1);
+    expectEvals(evals, 18, 'Cash', 'Sun Apr 01 2018', 494, -1);
+    expectEvals(evals, 19, 'Cash', 'Tue May 01 2018', 494, -1);
+    expectEvals(evals, 20, 'stocks', 'Tue May 01 2018', 500, -1);
+    expectEvals(evals, 21, 'PRn2', 'Tue May 01 2018', 10, -1);
+    expectEvals(evals, 22, 'Cash', 'Tue May 01 2018', 504, -1);
+    expectEvals(evals, 23, 'Phon', 'Tue May 01 2018', 12, -1);
+    expectEvals(evals, 24, 'Cash', 'Tue May 01 2018', 492, -1);
+    expectEvals(evals, 25, 'broadband', 'Tue May 01 2018', 12, -1);
+    expectEvals(evals, 26, 'Cash', 'Tue May 01 2018', 480, -1);
+    expectEvals(evals, 27, 'pet food', 'Tue May 01 2018', 12, -1);
+    expectEvals(evals, 28, 'Cash', 'Tue May 01 2018', 468, -1);
+    expectEvals(evals, 29, 'Cash', 'Fri Jun 01 2018', 468, -1);
+    expectEvals(evals, 30, 'savings', 'Fri Jun 01 2018', 500, -1);
+    expectEvals(evals, 31, 'stocks', 'Fri Jun 01 2018', 500, -1);
+    expectEvals(evals, 32, 'PRn2', 'Fri Jun 01 2018', 10, -1);
+    expectEvals(evals, 33, 'Cash', 'Fri Jun 01 2018', 478, -1);
+    expectEvals(evals, 34, 'Phon', 'Fri Jun 01 2018', 12, -1);
+    expectEvals(evals, 35, 'Cash', 'Fri Jun 01 2018', 466, -1);
+    expectEvals(evals, 36, 'broadband', 'Fri Jun 01 2018', 12, -1);
+    expectEvals(evals, 37, 'Cash', 'Fri Jun 01 2018', 454, -1);
+    expectEvals(evals, 38, 'pet food', 'Fri Jun 01 2018', 12, -1);
+    expectEvals(evals, 39, 'Cash', 'Fri Jun 01 2018', 442, -1);
+    expectEvals(evals, 40, 'Cash', 'Sun Jul 01 2018', 442, -1);
+    expectEvals(evals, 41, 'savings', 'Sun Jul 01 2018', 500, -1);
+    expectEvals(evals, 42, 'stocks', 'Sun Jul 01 2018', 500, -1);
+    expectEvals(evals, 43, 'pet food', 'Sun Jul 01 2018', 12, -1);
+    expectEvals(evals, 44, 'Cash', 'Sun Jul 01 2018', 430, -1);
+
+    const result = makeChartDataFromEvaluations(
+      {
+        start: makeDateFromString(roi.start),
+        end: makeDateFromString(roi.end),
+      },
+      model,
+      evals,
+    );
+
+    // log(showObj(result));
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(1);
+    expect(result.expensesData[0].item.NAME).toBe('Total');
+    {
+    const chartPts = result.expensesData[0].chartDataPoints;
+    expect(chartPts.length).toBe(4);
+    expectChartData(chartPts, 0, 'Sun Apr 01 2018', 36,    -1);
+    expectChartData(chartPts, 1, 'Tue May 01 2018', 36,    -1);
+    expectChartData(chartPts, 2, 'Fri Jun 01 2018', 36,    -1);
+    expectChartData(chartPts, 3, 'Sun Jul 01 2018', 12,    -1);
+    }
+    
+    expect(result.incomesData.length).toBe(1);
+    expect(result.incomesData[0].item.NAME).toBe('Total');
+    {
+    const chartPts = result.incomesData[0].chartDataPoints;
+    expect(chartPts.length).toBe(4);
+    expectChartData(chartPts, 0, 'Sun Apr 01 2018', 30,    -1);
+    expectChartData(chartPts, 1, 'Tue May 01 2018', 10,    -1);
+    expectChartData(chartPts, 2, 'Fri Jun 01 2018', 10,    -1);
+    expectChartData(chartPts, 3, 'Sun Jul 01 2018', 0,    -1);
+    }
+    
+    expect(result.assetData.length).toBe(1);
+    expect(result.assetData[0].item.NAME).toBe('Total');
+    {
+    const chartPts = result.assetData[0].chartDataPoints;
+    expect(chartPts.length).toBe(4);
+    expectChartData(chartPts, 0, 'Sun Apr 01 2018', 994,    -1);
+    expectChartData(chartPts, 1, 'Tue May 01 2018', 968,    -1);
+    expectChartData(chartPts, 2, 'Fri Jun 01 2018', 1442,    -1);
+    expectChartData(chartPts, 3, 'Sun Jul 01 2018', 1430,    -1);
     }
     done();
   });

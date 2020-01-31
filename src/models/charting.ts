@@ -30,6 +30,7 @@ import {
   debtChartFocus,
   debtChartView,
   debtChartVal,
+  total,
 } from '../localization/stringConstants';
 import {
   ChartDataPoint,
@@ -161,14 +162,55 @@ function getCategory(name: string, model: DbModelData) {
   return name;
 }
 
-function makeChartDataPoints(
+function totalChartDataPoints(
   dateNameValueMap: Map<string, Map<string, number>>,
   dates: Date[],
   items: string[],
+) {
+  const result = new Map<string, Map<string, number>>();
+  dates.forEach(date => {
+    let totalValue = 0.0;
+    const dateString = date.toDateString();
+    items.forEach(item => {
+      // log(`get data from map for date ${dateString}`);
+      const nameValueMap = dateNameValueMap.get(dateString);
+      if (nameValueMap !== undefined) {
+        const mapValue = nameValueMap.get(item);
+        if (mapValue !== undefined) {
+          totalValue += mapValue;
+        }
+      }
+    });
+    let nvm = result.get(dateString);
+    if (nvm === undefined) {
+      result.set(dateString, new Map<string, number>());
+      nvm = result.get(dateString);
+    }
+    if (nvm !== undefined) {
+      nvm.set('Total', totalValue);
+    }
+  });
+  logMapOfMap(result);
+  return result;
+}
+
+function makeChartDataPoints(
+  dateNameValueMapIncoming: Map<string, Map<string, number>>,
+  dates: Date[],
+  itemsIncoming: string[],
   settings: DbSetting[],
   negateValues = false,
+  totalValues = false,
 ): ItemChartData[] {
-  // log(`make chart data for ${items}`);
+  let dateNameValueMap = dateNameValueMapIncoming;
+  let items = itemsIncoming;
+  if (totalValues) {
+    // log(`total the items in map`);
+    dateNameValueMap = totalChartDataPoints(dateNameValueMap, dates, items);
+    items = ['Total'];
+  }
+
+  // log(`now make chart data for ${items}`);
   logMapOfMap(dateNameValueMap);
   const chartDataPointMap = new Map<
     string, // name
@@ -176,8 +218,8 @@ function makeChartDataPoints(
   >();
 
   dates.forEach(date => {
+    const dateString = date.toDateString();
     items.forEach(item => {
-      const dateString = date.toDateString();
       let value = 0.0;
       // log(`get data from map for date ${dateString}`);
       const nameValueMap = dateNameValueMap.get(dateString);
@@ -904,7 +946,7 @@ export function makeChartDataFromEvaluations(
   allDates.shift();
 
   const taxValueSources = assetOrDebtValueSources;
-  if (detail === coarse) {
+  if (detail === coarse || detail === total) {
     // log('gather chart data into categories');
     let dateNameValueMap = typeDateNameValueMap.get('assetOrDebtFocus');
     if (dateNameValueMap !== undefined) {
@@ -1049,19 +1091,22 @@ export function makeChartDataFromEvaluations(
       debtChartFocusName,
     );
 
-    // log(`items = ${showObj(items)}`);
     result.assetData = makeChartDataPoints(
       mapForChart,
       allDates,
       aDTAssetChartNames.assetChartNames,
       model.settings,
+      false, // don't negate
+      detail === total,
     );
+
     result.debtData = makeChartDataPoints(
       mapForChart,
       allDates,
       aDTDebtChartNames.debtChartNames,
       model.settings,
       true, // negate values
+      detail === total,
     );
   }
 
@@ -1072,6 +1117,8 @@ export function makeChartDataFromEvaluations(
       allDates,
       taxValueSources,
       model.settings,
+      false, // don't negate
+      detail === total,
     );
   }
 
@@ -1086,6 +1133,8 @@ export function makeChartDataFromEvaluations(
       allDates,
       expenseNames,
       model.settings,
+      false, // don't negate
+      detail === total,
     );
   }
   const incomeDateNameValueMap = typeDateNameValueMap.get(
@@ -1097,6 +1146,8 @@ export function makeChartDataFromEvaluations(
       allDates,
       incomeNames,
       model.settings,
+      false, // don't negate
+      detail === total,
     );
   }
 

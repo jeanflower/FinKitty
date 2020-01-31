@@ -21,6 +21,7 @@ import {
   taxPot,
   viewDetail,
   viewDetailHint,
+  total,
 } from '../localization/stringConstants';
 import { getSettings, showObj } from '../utils';
 import Button from './reactComponents/Button';
@@ -116,7 +117,7 @@ function getCoarseFineView(model: DbModelData) {
 }
 
 function coarseFineList(model: DbModelData) {
-  const viewTypes: string[] = [coarse, fine];
+  const viewTypes: string[] = [total, coarse, fine];
   const selectedCoarseFineView = getCoarseFineView(model);
   const buttons = viewTypes.map(viewType => (
     <Button

@@ -33,6 +33,7 @@ import {
   pensionTransfer,
   debtChartFocus,
   quantity,
+  total,
 } from '../localization/stringConstants';
 import {
   DbAsset,
@@ -573,7 +574,8 @@ function checkViewDetail(settings: DbSetting[]) {
     if (
       vf.substring(0, 5).toLowerCase() !==
         coarse.substring(0, 5).toLowerCase() &&
-      vf.substring(0, 4).toLowerCase() !== fine.substring(0, 4).toLowerCase()
+      vf.substring(0, 4).toLowerCase() !== fine.substring(0, 4).toLowerCase() &&
+      vf.substring(0, 4).toLowerCase() !== total.substring(0, 4).toLowerCase()
     ) {
       return `"${viewDetail}" setting should be "${coarse}" or "${fine}"`;
     }
