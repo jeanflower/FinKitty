@@ -9968,34 +9968,34 @@ describe('evaluations tests', () => {
     expect(result.expensesData.length).toBe(1);
     expect(result.expensesData[0].item.NAME).toBe('Total');
     {
-    const chartPts = result.expensesData[0].chartDataPoints;
-    expect(chartPts.length).toBe(4);
-    expectChartData(chartPts, 0, 'Sun Apr 01 2018', 36,    -1);
-    expectChartData(chartPts, 1, 'Tue May 01 2018', 36,    -1);
-    expectChartData(chartPts, 2, 'Fri Jun 01 2018', 36,    -1);
-    expectChartData(chartPts, 3, 'Sun Jul 01 2018', 12,    -1);
+      const chartPts = result.expensesData[0].chartDataPoints;
+      expect(chartPts.length).toBe(4);
+      expectChartData(chartPts, 0, 'Sun Apr 01 2018', 36, -1);
+      expectChartData(chartPts, 1, 'Tue May 01 2018', 36, -1);
+      expectChartData(chartPts, 2, 'Fri Jun 01 2018', 36, -1);
+      expectChartData(chartPts, 3, 'Sun Jul 01 2018', 12, -1);
     }
-    
+
     expect(result.incomesData.length).toBe(1);
     expect(result.incomesData[0].item.NAME).toBe('Total');
     {
-    const chartPts = result.incomesData[0].chartDataPoints;
-    expect(chartPts.length).toBe(4);
-    expectChartData(chartPts, 0, 'Sun Apr 01 2018', 30,    -1);
-    expectChartData(chartPts, 1, 'Tue May 01 2018', 10,    -1);
-    expectChartData(chartPts, 2, 'Fri Jun 01 2018', 10,    -1);
-    expectChartData(chartPts, 3, 'Sun Jul 01 2018', 0,    -1);
+      const chartPts = result.incomesData[0].chartDataPoints;
+      expect(chartPts.length).toBe(4);
+      expectChartData(chartPts, 0, 'Sun Apr 01 2018', 30, -1);
+      expectChartData(chartPts, 1, 'Tue May 01 2018', 10, -1);
+      expectChartData(chartPts, 2, 'Fri Jun 01 2018', 10, -1);
+      expectChartData(chartPts, 3, 'Sun Jul 01 2018', 0, -1);
     }
-    
+
     expect(result.assetData.length).toBe(1);
     expect(result.assetData[0].item.NAME).toBe('Total');
     {
-    const chartPts = result.assetData[0].chartDataPoints;
-    expect(chartPts.length).toBe(4);
-    expectChartData(chartPts, 0, 'Sun Apr 01 2018', 994,    -1);
-    expectChartData(chartPts, 1, 'Tue May 01 2018', 968,    -1);
-    expectChartData(chartPts, 2, 'Fri Jun 01 2018', 1442,    -1);
-    expectChartData(chartPts, 3, 'Sun Jul 01 2018', 1430,    -1);
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(4);
+      expectChartData(chartPts, 0, 'Sun Apr 01 2018', 994, -1);
+      expectChartData(chartPts, 1, 'Tue May 01 2018', 968, -1);
+      expectChartData(chartPts, 2, 'Fri Jun 01 2018', 1442, -1);
+      expectChartData(chartPts, 3, 'Sun Jul 01 2018', 1430, -1);
     }
     done();
   });
