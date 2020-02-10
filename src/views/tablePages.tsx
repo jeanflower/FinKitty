@@ -56,7 +56,12 @@ import {
   triggersTable,
   debtsTable,
 } from '../App';
-import { taxPot } from '../localization/stringConstants';
+import {
+  taxPot,
+  liquidateAsset,
+  conditional,
+  payOffDebt,
+} from '../localization/stringConstants';
 import { log } from 'util';
 
 function prohibitEditOfName() {
@@ -207,6 +212,7 @@ function handleAssetGridRowsUpdated(model: DbModelData, args: any) {
   const parsedGrowth = makeGrowthFromString(asset.GROWTH, model.settings);
   const parsedPurchasePrice = makePurchasePriceFromString(asset.PURCHASE_PRICE);
   const parsedCPIImmune = makeBooleanFromYesNo(asset.IS_CPI_IMMUNE);
+  const parsedIsADebt = makeBooleanFromYesNo(asset.IS_A_DEBT);
   const parsedCanBeNegative = makeBooleanFromYesNo(asset.CAN_BE_NEGATIVE);
 
   // negate values before sending from table
@@ -227,6 +233,9 @@ function handleAssetGridRowsUpdated(model: DbModelData, args: any) {
   } else if (!parsedCPIImmune.checksOK) {
     alert(`asset value ${asset.IS_CPI_IMMUNE} not understood`);
     asset[args[0].cellKey] = oldValue;
+  } else if (!parsedIsADebt.checksOK) {
+    alert(`asset value ${asset.IS_A_DEBT} not understood`);
+    asset[args[0].cellKey] = oldValue;
   } else if (!parsedCanBeNegative.checksOK) {
     alert(`asset value ${asset.CAN_BE_NEGATIVE} not understood`);
     asset[args[0].cellKey] = oldValue;
@@ -244,7 +253,7 @@ function handleAssetGridRowsUpdated(model: DbModelData, args: any) {
       GROWTH: parsedGrowth.value,
       CPI_IMMUNE: parsedCPIImmune.value,
       CAN_BE_NEGATIVE: parsedCanBeNegative.value,
-      IS_A_DEBT: matchedAsset[0].IS_A_DEBT,
+      IS_A_DEBT: parsedIsADebt.value,
       PURCHASE_PRICE: parsedPurchasePrice,
       CATEGORY: asset.CATEGORY,
     };
@@ -258,7 +267,11 @@ function handleAssetGridRowsUpdated(model: DbModelData, args: any) {
   }
 }
 
-function handleTransactionGridRowsUpdated(model: DbModelData, args: any) {
+function handleTransactionGridRowsUpdated(
+  model: DbModelData,
+  type: string,
+  args: any,
+) {
   // log('handleTransactionGridRowsUpdated', arguments);
   const gridData = args[0].fromRowData;
   if (args[0].cellKey === 'NAME') {
@@ -284,12 +297,15 @@ function handleTransactionGridRowsUpdated(model: DbModelData, args: any) {
       FROM: gridData.FROM,
       FROM_VALUE: parseFrom.value,
       FROM_ABSOLUTE: parseFrom.absolute,
-      NAME: gridData.NAME,
+      NAME:
+        (type === liquidateAsset || type === payOffDebt ? conditional : '') +
+        gridData.NAME,
       TO: gridData.TO,
       TO_ABSOLUTE: parseTo.absolute,
       TO_VALUE: parseTo.value,
       STOP_DATE: gridData.STOP_DATE,
       RECURRENCE: gridData.RECURRENCE,
+      TYPE: gridData.TYPE,
       CATEGORY: gridData.CATEGORY,
     };
     const checks = checkTransaction(transaction, model);
@@ -370,6 +386,7 @@ export function assetsOrDebtsTableDiv(model: DbModelData, isDebt: boolean) {
                     obj.LIABILITY,
                   ),
                   IS_CPI_IMMUNE: makeYesNoFromBoolean(obj.CPI_IMMUNE),
+                  IS_A_DEBT: makeYesNoFromBoolean(obj.IS_A_DEBT),
                   CAN_BE_NEGATIVE: makeYesNoFromBoolean(obj.CAN_BE_NEGATIVE),
                 };
                 return result;
@@ -416,6 +433,14 @@ export function assetsOrDebtsTableDiv(model: DbModelData, isDebt: boolean) {
                 key: 'IS_CPI_IMMUNE',
                 name: 'Is immune from CPI?',
               },
+              // for debugging, we can find it useful to see this column
+              /*
+              {
+                ...defaultColumn,
+                key: 'IS_A_DEBT',
+                name: 'Is debt?',
+              },
+              */
               {
                 ...defaultColumn,
                 key: 'CAN_BE_NEGATIVE',
@@ -446,56 +471,65 @@ export function assetsOrDebtsTableDiv(model: DbModelData, isDebt: boolean) {
   );
 }
 
-export function transactionsTableDiv(model: DbModelData) {
+export function transactionsTableDiv(model: DbModelData, type: string) {
   const tableVisible = showContent.get(transactionsTable).display;
   return (
     <fieldset>
       <div
-        className="dataGridTransactions"
+        className={`dataGridTransactions${type}`}
         style={{
           display: tableVisible ? 'block' : 'none',
         }}
       >
         <DataGrid
           handleGridRowsUpdated={function() {
-            return handleTransactionGridRowsUpdated(model, arguments);
+            return handleTransactionGridRowsUpdated(model, type, arguments);
           }}
-          rows={model.transactions.map((obj: DbTransaction) => {
-            // log(`obj.FROM_ABSOLUTE = ${obj.FROM_ABSOLUTE}`)
-            let fromValueEntry = makeStringFromValueAbsProp(
-              obj.FROM_VALUE,
-              obj.FROM_ABSOLUTE,
-              obj.FROM,
-              model,
-              obj.NAME,
-            );
-            // log(`obj.FROM = ${obj.FROM}, fromValueEntry = ${fromValueEntry}`);
-            if (obj.FROM === '' && fromValueEntry === '0') {
-              fromValueEntry = '';
-            }
-            let toValueEntry = makeStringFromValueAbsProp(
-              obj.TO_VALUE,
-              obj.TO_ABSOLUTE,
-              obj.TO,
-              model,
-              obj.NAME,
-            );
-            if (obj.TO === '' && toValueEntry === '0') {
-              toValueEntry = '';
-            }
-            const result = {
-              DATE: obj.DATE,
-              FROM: obj.FROM,
-              FROM_VALUE: fromValueEntry,
-              NAME: obj.NAME,
-              TO: obj.TO,
-              TO_VALUE: toValueEntry,
-              STOP_DATE: obj.STOP_DATE,
-              RECURRENCE: obj.RECURRENCE,
-              CATEGORY: obj.CATEGORY,
-            };
-            return result;
-          })}
+          rows={model.transactions
+            .filter(t => {
+              return t.TYPE === type;
+            })
+            .map((obj: DbTransaction) => {
+              // log(`obj.FROM_ABSOLUTE = ${obj.FROM_ABSOLUTE}`)
+              let fromValueEntry = makeStringFromValueAbsProp(
+                obj.FROM_VALUE,
+                obj.FROM_ABSOLUTE,
+                obj.FROM,
+                model,
+                obj.NAME,
+              );
+              // log(`obj.FROM = ${obj.FROM}, fromValueEntry = ${fromValueEntry}`);
+              if (obj.FROM === '' && fromValueEntry === '0') {
+                fromValueEntry = '';
+              }
+              let toValueEntry = makeStringFromValueAbsProp(
+                obj.TO_VALUE,
+                obj.TO_ABSOLUTE,
+                obj.TO,
+                model,
+                obj.NAME,
+              );
+              if (obj.TO === '' && toValueEntry === '0') {
+                toValueEntry = '';
+              }
+              const result = {
+                DATE: obj.DATE,
+                FROM: obj.FROM,
+                FROM_VALUE: fromValueEntry,
+                NAME:
+                  obj.NAME.startsWith(conditional) &&
+                  (type === liquidateAsset || type === payOffDebt)
+                    ? obj.NAME.substring(conditional.length, obj.NAME.length)
+                    : obj.NAME,
+                TO: obj.TO,
+                TO_VALUE: toValueEntry,
+                STOP_DATE: obj.STOP_DATE,
+                RECURRENCE: obj.RECURRENCE,
+                TYPE: obj.TYPE,
+                CATEGORY: obj.CATEGORY,
+              };
+              return result;
+            })}
           columns={[
             {
               ...defaultColumn,
@@ -538,6 +572,14 @@ export function transactionsTableDiv(model: DbModelData) {
               key: 'RECURRENCE',
               name: 'recurrence',
             },
+            // for debugging, it can be useful to see the type column
+            /*
+            {
+              ...defaultColumn,
+              key: 'TYPE',
+              name: 'type',
+            },
+            */
             {
               ...defaultColumn,
               key: 'STOP_DATE',

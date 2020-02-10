@@ -26,6 +26,12 @@ import {
   expensesChartDiv,
   incomesChartDiv,
 } from './chartPages';
+import {
+  custom,
+  autogen,
+  liquidateAsset,
+  payOffDebt,
+} from '../localization/stringConstants';
 
 export function overviewDiv(
   model: DbModelData,
@@ -130,11 +136,14 @@ export function overviewDiv(
       <h2>Assets:</h2>
       {assetsOrDebtsTableDiv(model, false)}
       {assetsOrDebtsChartDiv(model, assetChartData, false)}
+      {transactionsTableDiv(model, liquidateAsset)}
       <h2>Debts:</h2>
       {assetsOrDebtsTableDiv(model, true)}
       {assetsOrDebtsChartDiv(model, debtChartData, true)}
+      {transactionsTableDiv(model, payOffDebt)}
       <h2>Transactions:</h2>
-      {transactionsTableDiv(model)}
+      {transactionsTableDiv(model, custom)}
+      {transactionsTableDiv(model, autogen)}
       <h2>Settings:</h2>
       {settingsTableDiv(model)}
     </div>

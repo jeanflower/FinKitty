@@ -13,7 +13,12 @@ import { AddDeleteEntryForm } from './views/reactComponents/AddDeleteEntryForm';
 import { AddDeleteTransactionForm } from './views/reactComponents/AddDeleteTransactionForm';
 import { AddDeleteTriggerForm } from './views/reactComponents/AddDeleteTriggerForm';
 import Button from './views/reactComponents/Button';
-import { taxPot, exampleModelName } from './localization/stringConstants';
+import {
+  taxPot,
+  exampleModelName,
+  custom,
+  autogen,
+} from './localization/stringConstants';
 import {
   ChartData,
   DataForView,
@@ -618,6 +623,7 @@ export async function submitNewTransaction(name: string) {
     DATE: '1 January 2018',
     STOP_DATE: '1 January 2018',
     RECURRENCE: '',
+    TYPE: custom,
   });
 }
 
@@ -1129,6 +1135,7 @@ export class AppContent extends Component<AppProps, AppState> {
     if (!getDisplay(transactionsView)) {
       return;
     }
+    const tableVisible = showContent.get(transactionsTable).display;
 
     return (
       <div style={{ display: getDisplay(transactionsView) ? 'block' : 'none' }}>
@@ -1146,7 +1153,10 @@ export class AppContent extends Component<AppProps, AppState> {
           key={transactionsTable.lc}
           id="toggleTransactionsChart"
         />
-        {transactionsTableDiv(this.state.modelData)}
+        {tableVisible ? <h4>Custom transactions</h4> : ''}
+        {transactionsTableDiv(this.state.modelData, custom)}
+        {tableVisible ? <h4>Auto-generated transactions</h4> : ''}
+        {transactionsTableDiv(this.state.modelData, autogen)}
         <p />
         <div className="addNewTransaction">
           <h4> Add or delete transaction </h4>

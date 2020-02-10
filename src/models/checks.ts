@@ -34,6 +34,11 @@ import {
   debtChartFocus,
   quantity,
   total,
+  autogen,
+  custom,
+  liquidateAsset,
+  payOffDebt,
+  crystallizedPension,
 } from '../localization/stringConstants';
 import {
   DbAsset,
@@ -52,6 +57,7 @@ import {
   log,
   showObj,
   makeDateFromString,
+  isADebt,
 } from '../utils';
 
 export function isNumberString(input: string) {
@@ -395,6 +401,217 @@ function checkTransactionTo(
   return `Transaction to unrecognised thing : ${word}`;
 }
 
+function isAnIncome(name: string, model: DbModelData) {
+  return model.incomes.filter(a => a.NAME === name).length > 0;
+}
+
+function isAutogenType(t: DbTransaction, model: DbModelData) {
+  // log(`check transaction ${t.NAME}`);
+  let recognised = false;
+  /*
+    const contributions: DbTransaction = {
+      NAME: (parseYNSS.value ? pensionSS : pension) + this.state.NAME,
+      FROM: this.state.DCP_INCOME_SOURCE,
+      FROM_ABSOLUTE: false,
+      FROM_VALUE: this.state.DCP_CONTRIBUTION_AMOUNT,
+      TO: asset1Name,
+      TO_ABSOLUTE: false,
+      TO_VALUE: `${toProp}`,
+      DATE: this.state.START, // match the income start date
+      STOP_DATE: this.state.DCP_STOP, // match the income stop date
+      RECURRENCE: '',
+      CATEGORY: this.state.CATEGORY,
+      TYPE: autogen,
+    };
+*/
+  // A defined contributions pension
+  // takes money out of an income
+  // could be salary sacrifice, could be not,
+  // and puts it into an asset called pension*
+  if (
+    (t.NAME.startsWith(pension) || t.NAME.startsWith(pensionSS)) &&
+    isAnIncome(t.FROM, model) &&
+    t.TO_ABSOLUTE === false &&
+    t.TO.startsWith(pension) &&
+    t.FROM_ABSOLUTE === false
+  ) {
+    recognised = true;
+  }
+  /*
+      NAME: 'MoveTaxFreePart' + this.state.NAME,
+      FROM: asset1Name,
+      FROM_ABSOLUTE: false,
+      FROM_VALUE: '0.25', // TODO move hard coded value out of UI code
+      TO: asset2Name,
+      TO_ABSOLUTE: false,
+      TO_VALUE: `1.0`,
+      DATE: this.state.DCP_CRYSTALLIZE,
+      STOP_DATE: '',
+      RECURRENCE: '',
+      CATEGORY: this.state.CATEGORY,
+      TYPE: autogen,
+*/
+  // A defined contributions pension
+  // moves a tax free amount from the asset called pension*
+  // into another asset called TaxFree*
+  if (
+    !recognised &&
+    t.NAME.startsWith('MoveTaxFreePart') &&
+    t.FROM.startsWith(pension) &&
+    t.FROM_ABSOLUTE === false &&
+    t.TO.endsWith('TaxFree') &&
+    t.TO_ABSOLUTE === false
+  ) {
+    recognised = true;
+  }
+  /*
+      NAME: crystallizedPension + this.state.NAME,
+      FROM: asset1Name,
+      FROM_ABSOLUTE: false,
+      FROM_VALUE: '1.0',
+      TO: asset3Name,
+      TO_ABSOLUTE: false,
+      TO_VALUE: `1.0`,
+      DATE: this.state.DCP_CRYSTALLIZE, // +1 sec
+      STOP_DATE: '',
+      RECURRENCE: '',
+      CATEGORY: this.state.CATEGORY,
+      TYPE: autogen,
+*/
+
+  // A defined contributions pension
+  // after taking a tax free part,
+  // moves the rest of from the asset called pension*
+  // into another asset called crystallized*
+  if (
+    !recognised &&
+    t.NAME.startsWith(crystallizedPension) &&
+    t.FROM.startsWith(pension) &&
+    // asNumber(t.FROM_VALUE) === 1.0 &&
+    t.FROM_ABSOLUTE === false &&
+    t.TO.startsWith(crystallizedPension)
+  ) {
+    recognised = true;
+  }
+
+  /*
+      const pensionDbctran1: DbTransaction = {
+        NAME: (parseYNDBCSS.value ? pensionSS : pension) + this.state.NAME,
+        FROM: this.state.DBC_INCOME_SOURCE,
+        FROM_ABSOLUTE: false,
+        FROM_VALUE: this.state.DBC_CONTRIBUTION_AMOUNT,
+        TO: '',
+        TO_ABSOLUTE: false,
+        TO_VALUE: '0.0',
+        DATE: this.state.VALUE_SET, // match the income start date
+        STOP_DATE: this.state.DBC_STOP_SOURCE, // match the income stop date
+        RECURRENCE: '',
+        CATEGORY: this.state.CATEGORY,
+        TYPE: autogen,
+      };
+*/
+  // A defined benefits pension
+  // takes money from an income
+  // (optionally salary sacrifice)
+  // to nothing
+  if (
+    (t.NAME.startsWith(pension) || t.NAME.startsWith(pensionSS)) &&
+    isAnIncome(t.FROM, model) &&
+    t.FROM_ABSOLUTE === false &&
+    t.TO === ''
+  ) {
+    recognised = true;
+  }
+  /*
+        NAME: newIncomeName1, // kicks in when we see income java
+        FROM: this.state.DBC_INCOME_SOURCE,
+        FROM_ABSOLUTE: false,
+        FROM_VALUE: monthlyAccrualValue, // percentage of income offered up to pension
+        TO: newIncomeName1,
+        TO_ABSOLUTE: false,
+        TO_VALUE: '1.0',
+        DATE: this.state.VALUE_SET, // match the income start date
+        STOP_DATE: this.state.DBC_STOP_SOURCE, // match the income stop date
+        RECURRENCE: '',
+        CATEGORY: this.state.CATEGORY,
+        TYPE: autogen,
+*/
+  // A defined benefits pension
+  // accrues an amount to an income pensionDBC*
+  if (
+    t.NAME.startsWith(pensionDBC) &&
+    isAnIncome(t.FROM, model) &&
+    t.FROM_ABSOLUTE === false &&
+    t.TO_ABSOLUTE === false &&
+    t.TO === t.NAME
+  ) {
+    recognised = true;
+  }
+
+  /*
+          NAME: newIncomeName2,
+          FROM: newIncomeName1,
+          FROM_ABSOLUTE: false,
+          FROM_VALUE: '1.0',
+          TO: newIncomeName2,
+          TO_ABSOLUTE: false,
+          TO_VALUE: this.state.DBC_TRANSFER_PROPORTION,
+          DATE: this.state.DBC_END,
+          STOP_DATE: this.state.DBC_TRANSFERRED_STOP,
+          RECURRENCE: '',
+          CATEGORY: this.state.CATEGORY,
+          TYPE: autogen,
+*/
+  // A defined benefits pension can be transferred to someone else
+  if (
+    t.NAME.startsWith(pensionTransfer) &&
+    isAnIncome(t.FROM, model) &&
+    t.FROM.startsWith(pensionDBC) &&
+    t.FROM_ABSOLUTE === false &&
+    t.TO.startsWith(pensionTransfer) &&
+    t.TO_ABSOLUTE === false
+  ) {
+    recognised = true;
+  }
+  return recognised;
+}
+
+function isLiquidateAssetType(t: DbTransaction) {
+  // log(`check transaction ${t.NAME}`);
+  let recognised = false;
+  if (t.NAME.startsWith(conditional) && t.TO === CASH_ASSET_NAME) {
+    recognised = true;
+  }
+  return recognised;
+}
+
+function isCustomType(t: DbTransaction) {
+  // log(`check transaction ${t.NAME}`);
+  let recognised = false;
+  if (
+    !t.NAME.startsWith(conditional) &&
+    !t.NAME.startsWith(crystallizedPension) &&
+    !t.NAME.startsWith(pensionDBC) &&
+    !t.NAME.startsWith(pensionSS)
+  ) {
+    recognised = true;
+  }
+  return recognised;
+}
+
+function isPayOffDebtType(t: DbTransaction, model: DbModelData) {
+  // log(`check transaction ${t.NAME}`);
+  let recognised = false;
+  if (
+    t.NAME.startsWith(conditional) &&
+    t.FROM === CASH_ASSET_NAME &&
+    isADebt(t.TO, model)
+  ) {
+    recognised = true;
+  }
+  return recognised;
+}
+
 export function checkTransaction(t: DbTransaction, model: DbModelData): string {
   // log(`checking transaction ${showObj(t)}`);
   const { assets, incomes, expenses, triggers } = model;
@@ -515,6 +732,46 @@ export function checkTransaction(t: DbTransaction, model: DbModelData): string {
         `transaction recurrence '${t.RECURRENCE}' must ` +
         'be a number ending in m or y'
       );
+    }
+  }
+  if (
+    t.TYPE !== autogen &&
+    t.TYPE !== custom &&
+    t.TYPE !== liquidateAsset &&
+    t.TYPE !== payOffDebt
+  ) {
+    return `transaction type  ${t.TYPE} for ${t.NAME} is not one of allowed types - internal bug`;
+  }
+  if (t.TYPE === autogen) {
+    // there are a known set of type of
+    // autogenerated transactions - we should be one of these
+    const recognised = isAutogenType(t, model);
+    if (!recognised) {
+      return `autogenerated type of transaction ${t.NAME} not a recognised format`;
+    }
+  }
+  if (t.TYPE === liquidateAsset) {
+    // there are a known set of type of
+    // autogenerated transactions - we should be one of these
+    const recognised = isLiquidateAssetType(t);
+    if (!recognised) {
+      return `liquidating type of transaction ${t.NAME} not a recognised format`;
+    }
+  }
+  if (t.TYPE === payOffDebt) {
+    // there are a known set of type of
+    // autogenerated transactions - we should be one of these
+    const recognised = isPayOffDebtType(t, model);
+    if (!recognised) {
+      return `liquidating type of transaction ${t.NAME} not a recognised format`;
+    }
+  }
+  if (t.TYPE === custom) {
+    // there are a known set of type of
+    // autogenerated transactions - we should be one of these
+    const recognised = isCustomType(t);
+    if (!recognised) {
+      return `custom type of transaction ${t.NAME} not a recognised format`;
     }
   }
 

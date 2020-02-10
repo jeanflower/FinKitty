@@ -19,6 +19,7 @@ import {
   pension,
   crystallizedPension,
   pensionSS,
+  autogen,
 } from '../../localization/stringConstants';
 
 interface EditFormState {
@@ -587,6 +588,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
         STOP_DATE: this.state.DCP_STOP, // match the income stop date
         RECURRENCE: '',
         CATEGORY: this.state.CATEGORY,
+        TYPE: autogen,
       };
       message = this.props.checkTransactionFunction(
         contributions,
@@ -610,6 +612,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
         STOP_DATE: '',
         RECURRENCE: '',
         CATEGORY: this.state.CATEGORY,
+        TYPE: autogen,
       };
       message = this.props.checkTransactionFunction(
         crystallizeTaxFree,
@@ -633,6 +636,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
         STOP_DATE: '',
         RECURRENCE: '',
         CATEGORY: this.state.CATEGORY,
+        TYPE: autogen,
       };
       message = this.props.checkTransactionFunction(
         crystallize,

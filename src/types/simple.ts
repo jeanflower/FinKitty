@@ -1,4 +1,5 @@
 import { DbAsset, DbExpense, DbIncome, DbTransaction } from './interfaces';
+import { custom } from '../localization/stringConstants';
 
 export const simpleAsset: DbAsset = {
   NAME: 'NoName',
@@ -46,4 +47,5 @@ export const simpleTransaction: DbTransaction = {
   STOP_DATE: '', // for regular transactions
   RECURRENCE: '',
   CATEGORY: '',
+  TYPE: custom,
 };

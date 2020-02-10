@@ -14,9 +14,10 @@ import {
 } from './../App';
 import Button from './reactComponents/Button';
 import { assetsOrDebtsChartDiv } from './chartPages';
-import { assetsOrDebtsTableDiv } from './tablePages';
+import { assetsOrDebtsTableDiv, transactionsTableDiv } from './tablePages';
 import { AddDeleteAssetForm } from './reactComponents/AddDeleteAssetForm';
 import { checkAsset, checkTransaction } from '../models/checks';
+import { liquidateAsset } from '../localization/stringConstants';
 
 export function assetsDiv(model: DbModelData, assetChartData: ChartData[]) {
   if (!getDisplay(assetsView)) {
@@ -51,6 +52,9 @@ export function assetsDiv(model: DbModelData, assetChartData: ChartData[]) {
       />
       {assetsOrDebtsChartDiv(model, assetChartData, false)}
       {assetsOrDebtsTableDiv(model, false)}
+      <h4>Liquidate assets to keep cash afloat</h4>
+      {transactionsTableDiv(model, liquidateAsset)}
+
       <div className="addNewAsset">
         <h4> Add or delete asset </h4>
         <AddDeleteAssetForm

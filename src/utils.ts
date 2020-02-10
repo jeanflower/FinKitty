@@ -35,6 +35,7 @@ import {
   debtChartVal,
   debtChartHint,
   revalue,
+  custom,
 } from './localization/stringConstants';
 
 import moment from 'moment';
@@ -620,6 +621,11 @@ function makeModelFromJSONFixDates(input: string) {
       a.IS_A_DEBT = false;
     }
   }
+  for (const t of result.transactions) {
+    if (t.TYPE === undefined) {
+      t.TYPE = custom;
+    }
+  }
   return result;
 }
 
@@ -684,4 +690,14 @@ export function makeModelFromJSON(input: string) {
   const model = makeModelFromJSONFixDates(input);
   addRequiredEntries(model);
   return cleanUp(model);
+}
+
+export function isADebt(name: string, model: DbModelData) {
+  const matchingAsset = model.assets.find(a => {
+    return a.NAME === name;
+  });
+  if (matchingAsset === undefined) {
+    return false;
+  }
+  return matchingAsset.IS_A_DEBT;
 }

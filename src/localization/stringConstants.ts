@@ -132,3 +132,21 @@ export const growth = 'growth';
 
 // Track quantities or discrete assets using this string
 export const quantity = 'quantity';
+
+// Transaction types:
+//  Auto-generated (e.g. about pension)
+export const autogen = 'auto';
+//  Custom transaction (are still staying as transactions)
+export const custom = 'custom';
+//  Revalue incomes
+// export const revalueInc = 'revalueInc';
+//  Revalue expenses
+// export const revalueExp = 'revalueExp';
+//  Revalue assets
+// export const revalueAsset = 'revalueAsset';
+//  Liquidate assets to keep cash afloat
+// (Conditional sell to cash)
+export const liquidateAsset = 'liquidateAsset';
+//  Use cash to pay off debts
+// (Conditional cash to debt)
+export const payOffDebt = 'payOffDebt';

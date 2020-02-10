@@ -8,11 +8,19 @@ import {
   printDebug,
   showObj,
   makeValueAbsPropFromString,
+  isADebt,
 } from '../../utils';
 import Button from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
 import Input from './Input';
-import { taxPot } from '../../localization/stringConstants';
+import {
+  taxPot,
+  custom,
+  CASH_ASSET_NAME,
+  liquidateAsset,
+  conditional,
+  payOffDebt,
+} from '../../localization/stringConstants';
 
 interface EditFormState {
   NAME: string;
@@ -384,6 +392,19 @@ export class AddDeleteTransactionForm extends Component<
       alert('To absolute should be T (absolute value) or F (relative value');
       return;
     }
+    let type = custom;
+    if (
+      this.state.NAME.startsWith(conditional) &&
+      this.state.TO === CASH_ASSET_NAME
+    ) {
+      type = liquidateAsset;
+    } else if (
+      this.state.NAME.startsWith(conditional) &&
+      this.state.FROM === CASH_ASSET_NAME &&
+      isADebt(this.state.TO, this.props.model)
+    ) {
+      type = payOffDebt;
+    }
     const transaction: DbTransaction = {
       NAME: this.state.NAME,
       CATEGORY: this.state.CATEGORY,
@@ -396,6 +417,7 @@ export class AddDeleteTransactionForm extends Component<
       DATE: this.state.DATE,
       STOP_DATE: this.state.STOP_DATE,
       RECURRENCE: this.state.RECURRENCE,
+      TYPE: type,
     };
     // log('adding something ' + showObj(transaction));
     const message = this.props.checkFunction(transaction, this.props.model);

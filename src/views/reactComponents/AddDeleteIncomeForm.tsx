@@ -21,6 +21,7 @@ import {
   pensionSS,
   separator,
   pensionTransfer,
+  autogen,
 } from '../../localization/stringConstants';
 
 interface EditFormState {
@@ -735,6 +736,7 @@ DBC_TRANSFERRED_STOP
         STOP_DATE: this.state.DBC_STOP_SOURCE, // match the income stop date
         RECURRENCE: '',
         CATEGORY: this.state.CATEGORY,
+        TYPE: autogen,
       };
       message = await this.props.checkTransactionFunction(
         pensionDbctran1,
@@ -763,6 +765,7 @@ DBC_TRANSFERRED_STOP
         STOP_DATE: this.state.DBC_STOP_SOURCE, // match the income stop date
         RECURRENCE: '',
         CATEGORY: this.state.CATEGORY,
+        TYPE: autogen,
       };
       message = await this.props.checkTransactionFunction(
         pensionDbctran2,
@@ -790,6 +793,7 @@ DBC_TRANSFERRED_STOP
           STOP_DATE: this.state.DBC_TRANSFERRED_STOP,
           RECURRENCE: '',
           CATEGORY: this.state.CATEGORY,
+          TYPE: autogen,
         };
         message = await this.props.checkTransactionFunction(
           pensionDbctran3,

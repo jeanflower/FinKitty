@@ -14,9 +14,10 @@ import {
 } from './../App';
 import Button from './reactComponents/Button';
 import { assetsOrDebtsChartDiv } from './chartPages';
-import { assetsOrDebtsTableDiv } from './tablePages';
+import { assetsOrDebtsTableDiv, transactionsTableDiv } from './tablePages';
 import { checkAsset, checkTransaction } from '../models/checks';
 import { AddDeleteDebtForm } from './reactComponents/AddDeleteDebtForm';
+import { payOffDebt } from '../localization/stringConstants';
 
 export function debtsDiv(model: DbModelData, debtChartData: ChartData[]) {
   if (!getDisplay(debtsView)) {
@@ -51,6 +52,8 @@ export function debtsDiv(model: DbModelData, debtChartData: ChartData[]) {
       />
       {assetsOrDebtsChartDiv(model, debtChartData, true)}
       {assetsOrDebtsTableDiv(model, true)}
+      <h4>Pay off debts</h4>
+      {transactionsTableDiv(model, payOffDebt)}
       <div className="addNewDebt">
         <h4> Add or delete debt </h4>
         <AddDeleteDebtForm

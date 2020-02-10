@@ -69,6 +69,7 @@ export interface DbIncome extends DbItemCategory {
 //  to_absolute: false
 // If there's also a fixed value charge for SellHouse, we could
 // log a separate transaction.
+//
 export interface DbTransaction extends DbItemCategory {
   // NAME:
   // special starting words : Conditional, Pension, PensionSS
@@ -81,7 +82,8 @@ export interface DbTransaction extends DbItemCategory {
   TO_VALUE: string;
   DATE: string;
   STOP_DATE: string; // for regular transactions
-  RECURRENCE: string;
+  RECURRENCE: string; // e.g. 1m, 10y
+  TYPE: string; // see string constants
 }
 
 export interface DatedThing {
