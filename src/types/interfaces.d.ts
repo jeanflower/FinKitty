@@ -30,6 +30,7 @@ export interface DbExpense extends DbItemCategory {
   VALUE_SET: string;
   GROWTH: string;
   CPI_IMMUNE: boolean;
+  RECURRENCE: string;
 }
 export interface DbIncome extends DbItemCategory {
   START: string;

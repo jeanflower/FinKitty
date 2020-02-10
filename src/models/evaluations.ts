@@ -601,7 +601,7 @@ function payNI(
       source,
     );
   }
-  return NIDue; // just for information/debugging
+  return NIDue; // just for information
 }
 
 function payCGT(
@@ -1060,7 +1060,7 @@ function getGrowth(name: string, growths: Map<string, number>) {
   return result;
 }
 
-function getMonthlyMoments(
+function getRecurrentMoments(
   x: {
     // could be an income or an expense
     NAME: string;
@@ -1074,6 +1074,7 @@ function getMonthlyMoments(
   triggers: DbTrigger[],
   rOIStartDate: Date,
   rOIEndDate: Date,
+  recurrence: string,
 ) {
   let endDate = getTriggerDate(x.END, triggers);
   if (rOIEndDate < endDate) {
@@ -1083,7 +1084,7 @@ function getMonthlyMoments(
     start: rOIStartDate,
     end: endDate,
   };
-  const dates = generateSequenceOfDates(roi, '1m');
+  const dates = generateSequenceOfDates(roi, recurrence);
   const newMoments: Moment[] = dates.map(date => {
     const result: Moment = {
       date,
@@ -1117,16 +1118,12 @@ function getMonthlyMoments(
           `start date ${to} ${x.NAME}`,
       );
     }
-    // log(`numMonths = ${numMonths}`);
+    //log(`numMonths = ${numMonths}`);
     // log(`there are ${numMonths} months between `
-    //   +`${x.VALUE_SET} and ${roiStart}`)
+    //    +`${from} and ${to}`)
     // apply monthlyInf
     // log(`before growth on x start value : ${startVal}`);
-    for (let i = 0; i < numMonths; i += 1) {
-      // TODO: SLOW!!!!
-      startVal *= 1.0 + monthlyInf;
-      // log(`applied growth to x start value : ${startVal}`);
-    }
+    startVal *= (1.0 + monthlyInf) ** numMonths;
     // log(`applied growth to generate start value : ${startVal}`);
     newMoments[0].setValue = startVal;
   }
@@ -1899,15 +1896,34 @@ export function getEvaluations(data: DbModelData): Evaluation[] {
     const monthlyInf = getGrowth(expense.NAME, growths);
     const expenseStart = getTriggerDate(expense.START, data.triggers);
     // log(`expense start = ${expenseStart}`);
-    const newMoments = getMonthlyMoments(
+    const newMoments = getRecurrentMoments(
       expense,
       momentType.expense,
       monthlyInf,
       data.triggers,
       expenseStart,
       roiEndDate,
+      expense.RECURRENCE,
     );
     allMoments = allMoments.concat(newMoments);
+
+    const freq = parseRecurrenceString(expense.RECURRENCE);
+    if (freq.frequency !== monthly || freq.count !== 1) {
+      // scale up the stored growths value
+      const monthlyGrowth = growths.get(expense.NAME);
+      if (monthlyGrowth === undefined) {
+        log(`Error: didn't find growth of ${expense.NAME}`);
+      } else {
+        let power = freq.count;
+        if (freq.frequency === annually) {
+          power *= 12;
+        }
+        // log(`growth power up by ${power}`);
+        const growth = (1 + monthlyGrowth) ** power - 1;
+        growths.set(expense.NAME, growth);
+        // log(`growth changed from ${monthlyGrowth} to ${growth}`);
+      }
+    }
   });
 
   // For each income, work out monthly growth and
@@ -1951,13 +1967,14 @@ export function getEvaluations(data: DbModelData): Evaluation[] {
         }
       }
     }
-    const newMoments = getMonthlyMoments(
+    const newMoments = getRecurrentMoments(
       income,
       momentType.income,
       monthlyInf,
       data.triggers,
       roiStartDate,
       roiEndDate,
+      '1m', // all incomes are received monthly
     );
     allMoments = allMoments.concat(newMoments);
     liabilitiesMap.set(income.NAME, income.LIABILITY);

@@ -23,6 +23,7 @@ export const simpleExpense: DbExpense = {
   VALUE_SET: '1 Jan 2017',
   CPI_IMMUNE: false,
   GROWTH: '0.0',
+  RECURRENCE: '1m',
 };
 export const simpleIncome: DbIncome = {
   NAME: 'NoName',

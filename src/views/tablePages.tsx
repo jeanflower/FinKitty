@@ -112,6 +112,7 @@ function handleExpenseGridRowsUpdated(model: DbModelData, args: any) {
       VALUE_SET: expense.VALUE_SET,
       GROWTH: parsedGrowth.value,
       CPI_IMMUNE: parsedCPIImmune.value,
+      RECURRENCE: expense.RECURRENCE,
     };
     // log(`expenseForSubmission = ${showObj(expenseForSubmission)}`);
     const checks = checkExpense(expenseForSubmission, model);
@@ -878,6 +879,7 @@ export function expensesTableDiv(model: DbModelData) {
                 START: obj.START,
                 VALUE: obj.VALUE,
                 VALUE_SET: obj.VALUE_SET,
+                RECURRENCE: obj.RECURRENCE,
               };
               return result;
             })}
@@ -939,6 +941,11 @@ export function expensesTableDiv(model: DbModelData) {
                 ...defaultColumn,
                 key: 'IS_CPI_IMMUNE',
                 name: 'Is immune from CPI?',
+              },
+              {
+                ...defaultColumn,
+                key: 'RECURRENCE',
+                name: 'recurrence',
               },
               {
                 ...defaultColumn,

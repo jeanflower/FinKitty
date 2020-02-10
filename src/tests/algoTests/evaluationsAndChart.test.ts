@@ -889,6 +889,231 @@ describe('evaluations tests', () => {
     done();
   });
 
+  it('should one expense for 6m recurrence', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'March 2, 2018 00:00:00',
+    };
+    const model: DbModelData = {
+      ...emptyModel,
+      expenses: [
+        {
+          ...simpleExpense,
+          START: 'January 1 2018',
+          END: 'February 2 2019',
+          NAME: 'Phon',
+          VALUE: '12.12',
+          VALUE_SET: 'January 1 2018',
+          GROWTH: '12.0',
+          RECURRENCE: '6m',
+        },
+      ],
+      settings: [
+        ...defaultSettings,
+        {
+          ...simpleSetting,
+          NAME: roiStart,
+          VALUE: roi.start,
+        },
+        {
+          ...simpleSetting,
+          NAME: roiEnd,
+          VALUE: roi.end,
+        },
+      ],
+    };
+    setSetting(model.settings, cpi, '12.0');
+
+    const evals: Evaluation[] = getTestEvaluations(model);
+    // log(`evals = ${showObj(evals)}`);
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(1);
+    expectEvals(evals, 0, 'Phon', 'Mon Jan 01 2018', 12.12, 2);
+
+    const result = makeChartDataFromEvaluations(
+      {
+        start: makeDateFromString(roi.start),
+        end: makeDateFromString(roi.end),
+      },
+      model,
+      evals,
+    );
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(1);
+    expect(result.expensesData[0].item.NAME).toBe('Phon');
+    {
+      const chartPts = result.expensesData[0].chartDataPoints;
+      expect(chartPts.length).toBe(4);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 12.12, 2);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 0, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 0, -1);
+    }
+
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(0);
+    done();
+  });
+
+  it('should two expense for 2m recurrence', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'March 2, 2018 00:00:00',
+    };
+    const model: DbModelData = {
+      ...emptyModel,
+      expenses: [
+        {
+          ...simpleExpense,
+          START: 'January 1 2018',
+          END: 'February 2 2019',
+          NAME: 'Phon',
+          VALUE: '12.12',
+          VALUE_SET: 'January 1 2018',
+          GROWTH: '12.0',
+          RECURRENCE: '2m',
+        },
+      ],
+      settings: [
+        ...defaultSettings,
+        {
+          ...simpleSetting,
+          NAME: roiStart,
+          VALUE: roi.start,
+        },
+        {
+          ...simpleSetting,
+          NAME: roiEnd,
+          VALUE: roi.end,
+        },
+      ],
+    };
+    setSetting(model.settings, cpi, '12.0');
+
+    const evals: Evaluation[] = getTestEvaluations(model);
+    // log(`evals = ${showObj(evals)}`);
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(2);
+    expectEvals(evals, 0, 'Phon', 'Mon Jan 01 2018', 12.12, 2);
+    expectEvals(evals, 1, 'Phon', 'Thu Mar 01 2018', 12.56, 2);
+
+    const result = makeChartDataFromEvaluations(
+      {
+        start: makeDateFromString(roi.start),
+        end: makeDateFromString(roi.end),
+      },
+      model,
+      evals,
+    );
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(1);
+    expect(result.expensesData[0].item.NAME).toBe('Phon');
+    {
+      const chartPts = result.expensesData[0].chartDataPoints;
+      expect(chartPts.length).toBe(4);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 12.12, 2);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 0, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 12.56, 2);
+    }
+
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(0);
+    done();
+  });
+
+  it('should two expense for 1y recurrence', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'March 2, 2019 00:00:00',
+    };
+    const model: DbModelData = {
+      ...emptyModel,
+      expenses: [
+        {
+          ...simpleExpense,
+          START: 'January 1 2018',
+          END: 'February 2 2019',
+          NAME: 'Phon',
+          VALUE: '12.12',
+          VALUE_SET: 'January 1 2018',
+          GROWTH: '12.0',
+          RECURRENCE: '1y',
+        },
+      ],
+      settings: [
+        ...defaultSettings,
+        {
+          ...simpleSetting,
+          NAME: roiStart,
+          VALUE: roi.start,
+        },
+        {
+          ...simpleSetting,
+          NAME: roiEnd,
+          VALUE: roi.end,
+        },
+      ],
+    };
+    setSetting(model.settings, cpi, '12.0');
+
+    const evals: Evaluation[] = getTestEvaluations(model);
+    // log(`evals = ${showObj(evals)}`);
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(2);
+    expectEvals(evals, 0, 'Phon', 'Mon Jan 01 2018', 12.12, 2);
+    expectEvals(evals, 1, 'Phon', 'Tue Jan 01 2019', 15.03, 2);
+
+    const result = makeChartDataFromEvaluations(
+      {
+        start: makeDateFromString(roi.start),
+        end: makeDateFromString(roi.end),
+      },
+      model,
+      evals,
+    );
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(1);
+    expect(result.expensesData[0].item.NAME).toBe('Phon');
+    {
+      const chartPts = result.expensesData[0].chartDataPoints;
+      expect(chartPts.length).toBe(16);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 12.12, 2);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 0, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 0, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 0, -1);
+      expectChartData(chartPts, 6, 'Fri Jun 01 2018', 0, -1);
+      expectChartData(chartPts, 7, 'Sun Jul 01 2018', 0, -1);
+      expectChartData(chartPts, 8, 'Wed Aug 01 2018', 0, -1);
+      expectChartData(chartPts, 9, 'Sat Sep 01 2018', 0, -1);
+      expectChartData(chartPts, 10, 'Mon Oct 01 2018', 0, -1);
+      expectChartData(chartPts, 11, 'Thu Nov 01 2018', 0, -1);
+      expectChartData(chartPts, 12, 'Sat Dec 01 2018', 0, -1);
+      expectChartData(chartPts, 13, 'Tue Jan 01 2019', 15.03, 2);
+      expectChartData(chartPts, 14, 'Fri Feb 01 2019', 0, -1);
+      expectChartData(chartPts, 15, 'Fri Mar 01 2019', 0, -1);
+    }
+
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(0);
+    expect(result.debtData.length).toBe(0);
+    done();
+  });
+
   it("shouldn't see effect of cpi for cpi-immune expense", done => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',

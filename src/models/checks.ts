@@ -295,6 +295,25 @@ export function checkIncome(i: DbIncome, model: DbModelData): string {
   return '';
 }
 
+function checkRecurrence(rec: string) {
+  const lastChar = rec.substring(rec.length - 1);
+  // log(`lastChar of ${rec} = ${lastChar}`);
+  if (!(lastChar === 'm' || lastChar === 'y')) {
+    return `transaction recurrence '${rec}' must end in m or y`;
+  }
+  const firstPart = rec.substring(0, rec.length - 1);
+  // log(`firstPart of ${rec} = ${firstPart}`);
+
+  const val = parseFloat(firstPart);
+  // log(`val from ${rec} = ${val}`);
+  if (Number.isNaN(val)) {
+    return (
+      `transaction recurrence '${rec}' must ` + 'be a number ending in m or y'
+    );
+  }
+  return '';
+}
+
 export function checkExpense(e: DbExpense, model: DbModelData): string {
   if (e.NAME.length === 0) {
     return 'Expense name needs some characters';
@@ -324,6 +343,10 @@ export function checkExpense(e: DbExpense, model: DbModelData): string {
     return `Expense value must be set on or before the start of the income.
       Here, start is ${startDate.toDateString()} and
       value is set ${valueSetDate.toDateString()}.`;
+  }
+  const checkRec = checkRecurrence(e.RECURRENCE);
+  if (checkRec !== '') {
+    return checkRec;
   }
   return '';
 }
@@ -768,21 +791,9 @@ export function checkTransaction(t: DbTransaction, model: DbModelData): string {
       );
     }
 
-    const lastChar = t.RECURRENCE.substring(t.RECURRENCE.length - 1);
-    // log(`lastChar of ${t.RECURRENCE} = ${lastChar}`);
-    if (!(lastChar === 'm' || lastChar === 'y')) {
-      return `transaction recurrence '${t.RECURRENCE}' must end in m or y`;
-    }
-    const firstPart = t.RECURRENCE.substring(0, t.RECURRENCE.length - 1);
-    // log(`firstPart of ${t.RECURRENCE} = ${firstPart}`);
-
-    const val = parseFloat(firstPart);
-    // log(`val from ${t.RECURRENCE} = ${val}`);
-    if (Number.isNaN(val)) {
-      return (
-        `transaction recurrence '${t.RECURRENCE}' must ` +
-        'be a number ending in m or y'
-      );
+    const checkRec = checkRecurrence(t.RECURRENCE);
+    if (checkRec !== '') {
+      return checkRec;
     }
   }
   if (

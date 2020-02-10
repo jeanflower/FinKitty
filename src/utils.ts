@@ -650,6 +650,16 @@ function makeModelFromJSONFixDates(input: string) {
 function cleanUp(modelFromJSON: any): DbModelData {
   return {
     ...modelFromJSON,
+    expenses: modelFromJSON.expenses.map((e: any) => {
+      if (e.RECURRENCE === undefined) {
+        return {
+          ...e,
+          RECURRENCE: '1m',
+        };
+      } else {
+        return e;
+      }
+    }),
     assets: modelFromJSON.assets.map((a: any) => {
       if (a.QUANTITY === undefined) {
         return {

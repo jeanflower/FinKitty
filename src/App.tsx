@@ -522,19 +522,6 @@ export async function submitExpense(expenseInput: DbExpense) {
   await refreshData();
 }
 
-export async function submitNewExpense(name: string) {
-  submitExpense({
-    NAME: name,
-    CATEGORY: '',
-    VALUE: '0',
-    VALUE_SET: '1 January 2018',
-    START: '1 January 2018',
-    END: '1 January 2018',
-    GROWTH: '0',
-    CPI_IMMUNE: false,
-  });
-}
-
 export async function submitIncome(incomeInput: DbIncome) {
   if (printDebug()) {
     log(`in submitIncome with input : ${showObj(incomeInput)}`);

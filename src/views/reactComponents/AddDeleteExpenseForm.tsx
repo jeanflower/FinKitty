@@ -23,6 +23,7 @@ interface EditFormState {
   GROWTH: string;
   CPI_IMMUNE: string;
   CATEGORY: string;
+  RECURRENCE: string;
 }
 interface EditProps {
   checkFunction: any;
@@ -49,6 +50,7 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
       GROWTH: '',
       CPI_IMMUNE: '',
       CATEGORY: '',
+      RECURRENCE: '',
     };
 
     this.state = this.defaultState;
@@ -58,6 +60,7 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
     this.handleGrowthChange = this.handleGrowthChange.bind(this);
     this.handleFixedChange = this.handleFixedChange.bind(this);
     this.handleCategoryChange = this.handleCategoryChange.bind(this);
+    this.handleRecurrenceChange = this.handleRecurrenceChange.bind(this);
 
     this.handleValueSetChange = this.handleValueSetChange.bind(this);
     this.setValueSet = this.setValueSet.bind(this);
@@ -100,7 +103,7 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
         <div className="row">
           <div className="col">
             <Input
-              title="Expense value (amount per month)"
+              title="Expense value"
               type="text"
               name="expensevalue"
               value={this.state.VALUE}
@@ -169,6 +172,17 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
         <div className="row">
           <div className="col">
             <Input
+              title="Recurrence"
+              type="text"
+              name="expenserecurrence"
+              value={this.state.RECURRENCE}
+              placeholder="recurrence"
+              onChange={this.handleRecurrenceChange}
+            />
+          </div>{' '}
+          {/* end col */}
+          <div className="col">
+            <Input
               title="Category (optional)"
               type="text"
               name="expensecategory"
@@ -199,6 +213,10 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
   private handleGrowthChange(e: any) {
     const value = e.target.value;
     this.setState({ GROWTH: value });
+  }
+  private handleRecurrenceChange(e: any) {
+    const value = e.target.value;
+    this.setState({ RECURRENCE: value });
   }
   private handleCategoryChange(e: any) {
     const value = e.target.value;
@@ -285,6 +303,7 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
       GROWTH: parsedGrowth.value,
       CPI_IMMUNE: parsedYN.value,
       CATEGORY: this.state.CATEGORY,
+      RECURRENCE: this.state.RECURRENCE,
     };
     const message = this.props.checkFunction(expense, this.props.model);
     if (message.length > 0) {
