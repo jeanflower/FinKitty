@@ -398,6 +398,12 @@ export function getStartQuantity(w: string, model: DbModelData) {
   return result;
 }
 
+export function makeTwoDP(x: number) {
+  const result = x.toFixed(2);
+  // log(`2dp input = ${x} result = ${result}`);
+  return result;
+}
+
 export function makeStringFromValueAbsProp(
   value: string,
   absolute: boolean,
@@ -413,7 +419,23 @@ export function makeStringFromValueAbsProp(
     // value should be an integer
     result = value + ' units'; // TODO const string 'units'
   } else if (!absolute) {
-    result = `${parseFloat(value) * 100}%`;
+    const pcVal = parseFloat(value) * 100;
+    let strVal = `${pcVal}`;
+    //log(`${strVal.substring(0, strVal.length - 1)}`);
+    if (
+      strVal.substring(0, strVal.length - 1).endsWith('0000000') ||
+      strVal.substring(0, strVal.length - 1).endsWith('9999999')
+    ) {
+      strVal = makeTwoDP(pcVal);
+      if (strVal.endsWith('.00')) {
+        strVal = strVal.substring(0, strVal.length - 3);
+      } else if (strVal.endsWith('0')) {
+        strVal = strVal.substring(0, strVal.length - 1);
+      }
+    } else {
+      strVal = `${pcVal}`;
+    }
+    result = `${strVal}%`;
   } else {
     result = value;
   }
@@ -556,12 +578,6 @@ export function makeDateTooltip(input: string, triggers: DbTrigger[]) {
   return result;
 }
 
-export function makeTwoDP(x: number) {
-  const result = x.toFixed(2);
-  // log(`2dp input = ${x} result = ${result}`);
-  return result;
-}
-
 export function getSettings(
   settings: DbSetting[],
   key: string,
@@ -700,4 +716,23 @@ export function isADebt(name: string, model: DbModelData) {
     return false;
   }
   return matchingAsset.IS_A_DEBT;
+}
+export function isAnIncome(name: string, model: DbModelData) {
+  return model.incomes.filter(a => a.NAME === name).length > 0;
+}
+export function isAnExpense(name: string, model: DbModelData) {
+  return model.expenses.filter(a => a.NAME === name).length > 0;
+}
+export function isAnAsset(name: string, model: DbModelData) {
+  return model.assets.filter(a => a.NAME === name).length > 0;
+}
+export function isAnAssetOrAssets(name: string, model: DbModelData) {
+  const words = name.split(separator);
+  let ok = true;
+  words.forEach(word => {
+    if (!isAnAsset(word, model)) {
+      ok = false;
+    }
+  });
+  return ok;
 }

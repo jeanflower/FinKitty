@@ -9,6 +9,9 @@ import {
   showObj,
   makeValueAbsPropFromString,
   isADebt,
+  isAnAssetOrAssets,
+  isAnIncome,
+  isAnExpense,
 } from '../../utils';
 import Button from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
@@ -20,6 +23,10 @@ import {
   liquidateAsset,
   conditional,
   payOffDebt,
+  revalue,
+  revalueAsset,
+  revalueInc,
+  revalueExp,
 } from '../../localization/stringConstants';
 
 interface EditFormState {
@@ -404,6 +411,14 @@ export class AddDeleteTransactionForm extends Component<
       isADebt(this.state.TO, this.props.model)
     ) {
       type = payOffDebt;
+    } else if (this.state.NAME.startsWith(revalue)) {
+      if (isAnAssetOrAssets(this.state.TO, this.props.model)) {
+        type = revalueAsset;
+      } else if (isAnIncome(this.state.TO, this.props.model)) {
+        type = revalueInc;
+      } else if (isAnExpense(this.state.TO, this.props.model)) {
+        type = revalueExp;
+      }
     }
     const transaction: DbTransaction = {
       NAME: this.state.NAME,

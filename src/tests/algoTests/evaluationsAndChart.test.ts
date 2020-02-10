@@ -52,6 +52,9 @@ import {
   liquidateAsset,
   payOffDebt,
   autogen,
+  revalueExp,
+  revalueInc,
+  revalueAsset,
 } from '../../localization/stringConstants';
 import {
   ChartDataPoint,
@@ -6034,7 +6037,7 @@ describe('evaluations tests', () => {
           FROM: 'java', // not an asset but an income!!
           FROM_ABSOLUTE: false,
           FROM_VALUE: '0.05', // percentage of income transferred to pension
-          TO: pension+'Pnsh', // name of pension (an asset)
+          TO: pension + 'Pnsh', // name of pension (an asset)
           TO_ABSOLUTE: false,
           TO_VALUE: '1.0', // all of what is removed from income goes
           DATE: 'javaStartTrigger', // match the income start date
@@ -6051,7 +6054,7 @@ describe('evaluations tests', () => {
         },
         {
           ...simpleAsset,
-          NAME: pension+'Pnsh',
+          NAME: pension + 'Pnsh',
           START: 'March 1 2018',
         },
       ],
@@ -6067,18 +6070,18 @@ describe('evaluations tests', () => {
 
     expect(evals.length).toBe(13);
     expectEvals(evals, 0, 'Cash', 'Thu Mar 01 2018', 0, -1);
-    expectEvals(evals, 1, pension+'Pnsh', 'Thu Mar 01 2018', 0, -1);
+    expectEvals(evals, 1, pension + 'Pnsh', 'Thu Mar 01 2018', 0, -1);
     expectEvals(evals, 2, 'java', 'Sat Mar 10 2018', 30000, -1);
-    expectEvals(evals, 3, pension+'Pnsh', 'Sat Mar 10 2018', 1500, -1);
+    expectEvals(evals, 3, pension + 'Pnsh', 'Sat Mar 10 2018', 1500, -1);
     expectEvals(evals, 4, 'Cash', 'Sat Mar 10 2018', 28500, -1);
     expectEvals(evals, 5, 'Cash', 'Sun Apr 01 2018', 28500, -1);
-    expectEvals(evals, 6, pension+'Pnsh', 'Sun Apr 01 2018', 1500, -1);
+    expectEvals(evals, 6, pension + 'Pnsh', 'Sun Apr 01 2018', 1500, -1);
     expectEvals(evals, 7, 'Cash', 'Thu Apr 05 2018', 25935.36, 2);
     expectEvals(evals, 8, 'TaxPot', 'Thu Apr 05 2018', 2564.64, 2);
     expectEvals(evals, 9, 'Cash', 'Thu Apr 05 2018', 22735.36, 2);
     expectEvals(evals, 10, 'TaxPot', 'Thu Apr 05 2018', 5764.64, 2);
     expectEvals(evals, 11, 'Cash', 'Tue May 01 2018', 22735.36, 2);
-    expectEvals(evals, 12, pension+'Pnsh', 'Tue May 01 2018', 1500, -1);
+    expectEvals(evals, 12, pension + 'Pnsh', 'Tue May 01 2018', 1500, -1);
 
     const result = makeChartDataFromEvaluations(
       {
@@ -6112,7 +6115,7 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 2, 'Tue May 01 2018', 22735.36, 2);
     }
 
-    expect(result.assetData[1].item.NAME).toBe(pension+'Pnsh');
+    expect(result.assetData[1].item.NAME).toBe(pension + 'Pnsh');
     {
       const chartPts = result.assetData[1].chartDataPoints;
       expect(chartPts.length).toBe(3);
@@ -6159,7 +6162,7 @@ describe('evaluations tests', () => {
           FROM: 'java', // not an asset but an income!!
           FROM_ABSOLUTE: false,
           FROM_VALUE: '0.05', // percentage of income transferred to pension
-          TO: pension+'Pnsh', // name of pension (an asset)
+          TO: pension + 'Pnsh', // name of pension (an asset)
           TO_ABSOLUTE: false,
           TO_VALUE: '3.0', // all of what is removed from income goes
           DATE: 'javaStartTrigger', // match the income start date
@@ -6176,7 +6179,7 @@ describe('evaluations tests', () => {
         },
         {
           ...simpleAsset,
-          NAME: pension+'Pnsh',
+          NAME: pension + 'Pnsh',
           START: 'March 1 2018',
         },
       ],
@@ -6192,18 +6195,18 @@ describe('evaluations tests', () => {
 
     expect(evals.length).toBe(13);
     expectEvals(evals, 0, 'Cash', 'Thu Mar 01 2018', 0, -1);
-    expectEvals(evals, 1, pension+'Pnsh', 'Thu Mar 01 2018', 0, -1);
+    expectEvals(evals, 1, pension + 'Pnsh', 'Thu Mar 01 2018', 0, -1);
     expectEvals(evals, 2, 'java', 'Sat Mar 10 2018', 30000, -1);
-    expectEvals(evals, 3, pension+'Pnsh', 'Sat Mar 10 2018', 4500, -1);
+    expectEvals(evals, 3, pension + 'Pnsh', 'Sat Mar 10 2018', 4500, -1);
     expectEvals(evals, 4, 'Cash', 'Sat Mar 10 2018', 28500, -1);
     expectEvals(evals, 5, 'Cash', 'Sun Apr 01 2018', 28500, -1);
-    expectEvals(evals, 6, pension+'Pnsh', 'Sun Apr 01 2018', 4500, -1);
+    expectEvals(evals, 6, pension + 'Pnsh', 'Sun Apr 01 2018', 4500, -1);
     expectEvals(evals, 7, 'Cash', 'Thu Apr 05 2018', 25935.36, 2);
     expectEvals(evals, 8, 'TaxPot', 'Thu Apr 05 2018', 2564.64, 2);
     expectEvals(evals, 9, 'Cash', 'Thu Apr 05 2018', 22735.36, 2);
     expectEvals(evals, 10, 'TaxPot', 'Thu Apr 05 2018', 5764.64, 2);
     expectEvals(evals, 11, 'Cash', 'Tue May 01 2018', 22735.36, 2);
-    expectEvals(evals, 12, pension+'Pnsh', 'Tue May 01 2018', 4500, -1);
+    expectEvals(evals, 12, pension + 'Pnsh', 'Tue May 01 2018', 4500, -1);
 
     const result = makeChartDataFromEvaluations(
       {
@@ -6237,7 +6240,7 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 2, 'Tue May 01 2018', 22735.36, 2);
     }
 
-    expect(result.assetData[1].item.NAME).toBe(pension+'Pnsh');
+    expect(result.assetData[1].item.NAME).toBe(pension + 'Pnsh');
     {
       const chartPts = result.assetData[1].chartDataPoints;
       expect(chartPts.length).toBe(3);
@@ -6284,7 +6287,7 @@ describe('evaluations tests', () => {
           FROM: 'java', // not an asset but an income!!
           FROM_ABSOLUTE: false,
           FROM_VALUE: '0.05', // percentage of income transferred to pension
-          TO: pension+'Pnsh', // name of pension (an asset)
+          TO: pension + 'Pnsh', // name of pension (an asset)
           TO_ABSOLUTE: false,
           TO_VALUE: '3.0', // all of what is removed from income goes
           DATE: 'javaStartTrigger', // match the income start date
@@ -6301,7 +6304,7 @@ describe('evaluations tests', () => {
         },
         {
           ...simpleAsset,
-          NAME: pension+'Pnsh',
+          NAME: pension + 'Pnsh',
           START: 'March 1 2017',
         },
       ],
@@ -6317,75 +6320,75 @@ describe('evaluations tests', () => {
 
     expect(evals.length).toBe(70);
     expectEvals(evals, 0, 'Cash', 'Wed Mar 01 2017', 0, -1);
-    expectEvals(evals, 1, pension+'Pnsh', 'Wed Mar 01 2017', 0, -1);
+    expectEvals(evals, 1, pension + 'Pnsh', 'Wed Mar 01 2017', 0, -1);
     expectEvals(evals, 2, 'Cash', 'Sat Apr 01 2017', 0, -1);
-    expectEvals(evals, 3, pension+'Pnsh', 'Sat Apr 01 2017', 0, -1);
+    expectEvals(evals, 3, pension + 'Pnsh', 'Sat Apr 01 2017', 0, -1);
     expectEvals(evals, 4, 'java', 'Fri Apr 07 2017', 2500, -1);
-    expectEvals(evals, 5, pension+'Pnsh', 'Fri Apr 07 2017', 375, -1);
+    expectEvals(evals, 5, pension + 'Pnsh', 'Fri Apr 07 2017', 375, -1);
     expectEvals(evals, 6, 'Cash', 'Fri Apr 07 2017', 2375, -1);
     expectEvals(evals, 7, 'Cash', 'Mon May 01 2017', 2375, -1);
-    expectEvals(evals, 8, pension+'Pnsh', 'Mon May 01 2017', 375, -1);
+    expectEvals(evals, 8, pension + 'Pnsh', 'Mon May 01 2017', 375, -1);
     expectEvals(evals, 9, 'java', 'Sun May 07 2017', 2500, -1);
-    expectEvals(evals, 10, pension+'Pnsh', 'Sun May 07 2017', 750, -1);
+    expectEvals(evals, 10, pension + 'Pnsh', 'Sun May 07 2017', 750, -1);
     expectEvals(evals, 11, 'Cash', 'Sun May 07 2017', 4750, -1);
     expectEvals(evals, 12, 'Cash', 'Thu Jun 01 2017', 4750, -1);
-    expectEvals(evals, 13, pension+'Pnsh', 'Thu Jun 01 2017', 750, -1);
+    expectEvals(evals, 13, pension + 'Pnsh', 'Thu Jun 01 2017', 750, -1);
     expectEvals(evals, 14, 'java', 'Wed Jun 07 2017', 2500, -1);
-    expectEvals(evals, 15, pension+'Pnsh', 'Wed Jun 07 2017', 1125, -1);
+    expectEvals(evals, 15, pension + 'Pnsh', 'Wed Jun 07 2017', 1125, -1);
     expectEvals(evals, 16, 'Cash', 'Wed Jun 07 2017', 7125, -1);
     expectEvals(evals, 17, 'Cash', 'Sat Jul 01 2017', 7125, -1);
-    expectEvals(evals, 18, pension+'Pnsh', 'Sat Jul 01 2017', 1125, -1);
+    expectEvals(evals, 18, pension + 'Pnsh', 'Sat Jul 01 2017', 1125, -1);
     expectEvals(evals, 19, 'java', 'Fri Jul 07 2017', 2500, -1);
-    expectEvals(evals, 20, pension+'Pnsh', 'Fri Jul 07 2017', 1500, -1);
+    expectEvals(evals, 20, pension + 'Pnsh', 'Fri Jul 07 2017', 1500, -1);
     expectEvals(evals, 21, 'Cash', 'Fri Jul 07 2017', 9500, -1);
     expectEvals(evals, 22, 'Cash', 'Tue Aug 01 2017', 9500, -1);
-    expectEvals(evals, 23, pension+'Pnsh', 'Tue Aug 01 2017', 1500, -1);
+    expectEvals(evals, 23, pension + 'Pnsh', 'Tue Aug 01 2017', 1500, -1);
     expectEvals(evals, 24, 'java', 'Mon Aug 07 2017', 2500, -1);
-    expectEvals(evals, 25, pension+'Pnsh', 'Mon Aug 07 2017', 1875, -1);
+    expectEvals(evals, 25, pension + 'Pnsh', 'Mon Aug 07 2017', 1875, -1);
     expectEvals(evals, 26, 'Cash', 'Mon Aug 07 2017', 11875, -1);
     expectEvals(evals, 27, 'Cash', 'Fri Sep 01 2017', 11875, -1);
-    expectEvals(evals, 28, pension+'Pnsh', 'Fri Sep 01 2017', 1875, -1);
+    expectEvals(evals, 28, pension + 'Pnsh', 'Fri Sep 01 2017', 1875, -1);
     expectEvals(evals, 29, 'java', 'Thu Sep 07 2017', 2500, -1);
-    expectEvals(evals, 30, pension+'Pnsh', 'Thu Sep 07 2017', 2250, -1);
+    expectEvals(evals, 30, pension + 'Pnsh', 'Thu Sep 07 2017', 2250, -1);
     expectEvals(evals, 31, 'Cash', 'Thu Sep 07 2017', 14250, -1);
     expectEvals(evals, 32, 'Cash', 'Sun Oct 01 2017', 14250, -1);
-    expectEvals(evals, 33, pension+'Pnsh', 'Sun Oct 01 2017', 2250, -1);
+    expectEvals(evals, 33, pension + 'Pnsh', 'Sun Oct 01 2017', 2250, -1);
     expectEvals(evals, 34, 'java', 'Sat Oct 07 2017', 2500, -1);
-    expectEvals(evals, 35, pension+'Pnsh', 'Sat Oct 07 2017', 2625, -1);
+    expectEvals(evals, 35, pension + 'Pnsh', 'Sat Oct 07 2017', 2625, -1);
     expectEvals(evals, 36, 'Cash', 'Sat Oct 07 2017', 16625, -1);
     expectEvals(evals, 37, 'Cash', 'Wed Nov 01 2017', 16625, -1);
-    expectEvals(evals, 38, pension+'Pnsh', 'Wed Nov 01 2017', 2625, -1);
+    expectEvals(evals, 38, pension + 'Pnsh', 'Wed Nov 01 2017', 2625, -1);
     expectEvals(evals, 39, 'java', 'Tue Nov 07 2017', 2500, -1);
-    expectEvals(evals, 40, pension+'Pnsh', 'Tue Nov 07 2017', 3000, -1);
+    expectEvals(evals, 40, pension + 'Pnsh', 'Tue Nov 07 2017', 3000, -1);
     expectEvals(evals, 41, 'Cash', 'Tue Nov 07 2017', 19000, -1);
     expectEvals(evals, 42, 'Cash', 'Fri Dec 01 2017', 19000, -1);
-    expectEvals(evals, 43, pension+'Pnsh', 'Fri Dec 01 2017', 3000, -1);
+    expectEvals(evals, 43, pension + 'Pnsh', 'Fri Dec 01 2017', 3000, -1);
     expectEvals(evals, 44, 'java', 'Thu Dec 07 2017', 2500, -1);
-    expectEvals(evals, 45, pension+'Pnsh', 'Thu Dec 07 2017', 3375, -1);
+    expectEvals(evals, 45, pension + 'Pnsh', 'Thu Dec 07 2017', 3375, -1);
     expectEvals(evals, 46, 'Cash', 'Thu Dec 07 2017', 21375, -1);
     expectEvals(evals, 47, 'Cash', 'Mon Jan 01 2018', 21375, -1);
-    expectEvals(evals, 48, pension+'Pnsh', 'Mon Jan 01 2018', 3375, -1);
+    expectEvals(evals, 48, pension + 'Pnsh', 'Mon Jan 01 2018', 3375, -1);
     expectEvals(evals, 49, 'java', 'Sun Jan 07 2018', 2500, -1);
-    expectEvals(evals, 50, pension+'Pnsh', 'Sun Jan 07 2018', 3750, -1);
+    expectEvals(evals, 50, pension + 'Pnsh', 'Sun Jan 07 2018', 3750, -1);
     expectEvals(evals, 51, 'Cash', 'Sun Jan 07 2018', 23750, -1);
     expectEvals(evals, 52, 'Cash', 'Thu Feb 01 2018', 23750, -1);
-    expectEvals(evals, 53, pension+'Pnsh', 'Thu Feb 01 2018', 3750, -1);
+    expectEvals(evals, 53, pension + 'Pnsh', 'Thu Feb 01 2018', 3750, -1);
     expectEvals(evals, 54, 'java', 'Wed Feb 07 2018', 2500, -1);
-    expectEvals(evals, 55, pension+'Pnsh', 'Wed Feb 07 2018', 4125, -1);
+    expectEvals(evals, 55, pension + 'Pnsh', 'Wed Feb 07 2018', 4125, -1);
     expectEvals(evals, 56, 'Cash', 'Wed Feb 07 2018', 26125, -1);
     expectEvals(evals, 57, 'Cash', 'Thu Mar 01 2018', 26125, -1);
-    expectEvals(evals, 58, pension+'Pnsh', 'Thu Mar 01 2018', 4125, -1);
+    expectEvals(evals, 58, pension + 'Pnsh', 'Thu Mar 01 2018', 4125, -1);
     expectEvals(evals, 59, 'java', 'Wed Mar 07 2018', 2500, -1);
-    expectEvals(evals, 60, pension+'Pnsh', 'Wed Mar 07 2018', 4500, -1);
+    expectEvals(evals, 60, pension + 'Pnsh', 'Wed Mar 07 2018', 4500, -1);
     expectEvals(evals, 61, 'Cash', 'Wed Mar 07 2018', 28500, -1);
     expectEvals(evals, 62, 'Cash', 'Sun Apr 01 2018', 28500, -1);
-    expectEvals(evals, 63, pension+'Pnsh', 'Sun Apr 01 2018', 4500, -1);
+    expectEvals(evals, 63, pension + 'Pnsh', 'Sun Apr 01 2018', 4500, -1);
     expectEvals(evals, 64, 'Cash', 'Thu Apr 05 2018', 25935.36, 2);
     expectEvals(evals, 65, 'TaxPot', 'Thu Apr 05 2018', 2564.64, 2);
     expectEvals(evals, 66, 'Cash', 'Thu Apr 05 2018', 22735.36, 2);
     expectEvals(evals, 67, 'TaxPot', 'Thu Apr 05 2018', 5764.64, 2);
     expectEvals(evals, 68, 'Cash', 'Tue May 01 2018', 22735.36, 2);
-    expectEvals(evals, 69, pension+'Pnsh', 'Tue May 01 2018', 4500, -1);
+    expectEvals(evals, 69, pension + 'Pnsh', 'Tue May 01 2018', 4500, -1);
 
     const result = makeChartDataFromEvaluations(
       {
@@ -6419,7 +6422,7 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 2, 'Tue May 01 2018', 22735.36, 2);
     }
 
-    expect(result.assetData[1].item.NAME).toBe(pension+'Pnsh');
+    expect(result.assetData[1].item.NAME).toBe(pension + 'Pnsh');
     {
       const chartPts = result.assetData[1].chartDataPoints;
       expect(chartPts.length).toBe(3);
@@ -6466,7 +6469,7 @@ describe('evaluations tests', () => {
           FROM: 'java', // not an asset but an income!!
           FROM_ABSOLUTE: false,
           FROM_VALUE: '0.05', // percentage of income transferred to pension
-          TO: pension+'Pnsh', // name of pension (an asset)
+          TO: pension + 'Pnsh', // name of pension (an asset)
           TO_ABSOLUTE: false,
           TO_VALUE: '3.0', // all of what is removed from income goes
           DATE: 'javaStartTrigger', // match the income start date
@@ -6483,7 +6486,7 @@ describe('evaluations tests', () => {
         },
         {
           ...simpleAsset,
-          NAME: pension+'Pnsh',
+          NAME: pension + 'Pnsh',
           START: 'March 1 2018',
         },
       ],
@@ -6499,18 +6502,18 @@ describe('evaluations tests', () => {
 
     expect(evals.length).toBe(13);
     expectEvals(evals, 0, 'Cash', 'Thu Mar 01 2018', 0, -1);
-    expectEvals(evals, 1, pension+'Pnsh', 'Thu Mar 01 2018', 0, -1);
+    expectEvals(evals, 1, pension + 'Pnsh', 'Thu Mar 01 2018', 0, -1);
     expectEvals(evals, 2, 'java', 'Sat Mar 10 2018', 30000, -1);
-    expectEvals(evals, 3, pension+'Pnsh', 'Sat Mar 10 2018', 4500, -1);
+    expectEvals(evals, 3, pension + 'Pnsh', 'Sat Mar 10 2018', 4500, -1);
     expectEvals(evals, 4, 'Cash', 'Sat Mar 10 2018', 28500, -1);
     expectEvals(evals, 5, 'Cash', 'Sun Apr 01 2018', 28500, -1);
-    expectEvals(evals, 6, pension+'Pnsh', 'Sun Apr 01 2018', 4500, -1);
+    expectEvals(evals, 6, pension + 'Pnsh', 'Sun Apr 01 2018', 4500, -1);
     expectEvals(evals, 7, 'Cash', 'Thu Apr 05 2018', 26115.36, 2);
     expectEvals(evals, 8, 'TaxPot', 'Thu Apr 05 2018', 2384.64, 2);
     expectEvals(evals, 9, 'Cash', 'Thu Apr 05 2018', 22915.36, 2);
     expectEvals(evals, 10, 'TaxPot', 'Thu Apr 05 2018', 5584.64, 2);
     expectEvals(evals, 11, 'Cash', 'Tue May 01 2018', 22915.36, 2);
-    expectEvals(evals, 12, pension+'Pnsh', 'Tue May 01 2018', 4500, -1);
+    expectEvals(evals, 12, pension + 'Pnsh', 'Tue May 01 2018', 4500, -1);
 
     const result = makeChartDataFromEvaluations(
       {
@@ -6544,7 +6547,7 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 2, 'Tue May 01 2018', 22915.36, 2);
     }
 
-    expect(result.assetData[1].item.NAME).toBe(pension+'Pnsh');
+    expect(result.assetData[1].item.NAME).toBe(pension + 'Pnsh');
     {
       const chartPts = result.assetData[1].chartDataPoints;
       expect(chartPts.length).toBe(3);
@@ -6593,7 +6596,7 @@ describe('evaluations tests', () => {
           NAME: 'OneOff pension contribution', //
           FROM: 'Cash',
           FROM_VALUE: '1500', // a one-off payment
-          TO: pension+'Pnsh', // name of pension (an asset)
+          TO: pension + 'Pnsh', // name of pension (an asset)
           TO_ABSOLUTE: false,
           TO_VALUE: '1.0', // all of what is removed from cash goes
           DATE: 'March 20 2018', // match the income start date
@@ -6616,7 +6619,7 @@ describe('evaluations tests', () => {
         },
         {
           ...simpleAsset,
-          NAME: pension+'Pnsh',
+          NAME: pension + 'Pnsh',
           START: 'March 1 2018',
         },
       ],
@@ -6632,19 +6635,19 @@ describe('evaluations tests', () => {
 
     expect(evals.length).toBe(14);
     expectEvals(evals, 0, 'Cash', 'Thu Mar 01 2018', 0, -1);
-    expectEvals(evals, 1, pension+'Pnsh', 'Thu Mar 01 2018', 0, -1);
+    expectEvals(evals, 1, pension + 'Pnsh', 'Thu Mar 01 2018', 0, -1);
     expectEvals(evals, 2, 'java', 'Sat Mar 10 2018', 30000, -1);
     expectEvals(evals, 3, 'Cash', 'Sat Mar 10 2018', 30000, -1);
     expectEvals(evals, 4, 'Cash', 'Tue Mar 20 2018', 28500, -1);
-    expectEvals(evals, 5, pension+'Pnsh', 'Tue Mar 20 2018', 1500, -1);
+    expectEvals(evals, 5, pension + 'Pnsh', 'Tue Mar 20 2018', 1500, -1);
     expectEvals(evals, 6, 'Cash', 'Sun Apr 01 2018', 28500, -1);
-    expectEvals(evals, 7, pension+'Pnsh', 'Sun Apr 01 2018', 1500, -1);
+    expectEvals(evals, 7, pension + 'Pnsh', 'Sun Apr 01 2018', 1500, -1);
     expectEvals(evals, 8, 'Cash', 'Thu Apr 05 2018', 25935.36, 2);
     expectEvals(evals, 9, 'TaxPot', 'Thu Apr 05 2018', 2564.64, 2);
     expectEvals(evals, 10, 'Cash', 'Thu Apr 05 2018', 22435.36, 2);
     expectEvals(evals, 11, 'TaxPot', 'Thu Apr 05 2018', 6064.64, 2);
     expectEvals(evals, 12, 'Cash', 'Tue May 01 2018', 22435.36, 2);
-    expectEvals(evals, 13, pension+'Pnsh', 'Tue May 01 2018', 1500, -1);
+    expectEvals(evals, 13, pension + 'Pnsh', 'Tue May 01 2018', 1500, -1);
 
     const result = makeChartDataFromEvaluations(
       {
@@ -6678,7 +6681,7 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 2, 'Tue May 01 2018', 22435.36, 2);
     }
 
-    expect(result.assetData[1].item.NAME).toBe(pension+'Pnsh');
+    expect(result.assetData[1].item.NAME).toBe(pension + 'Pnsh');
     {
       const chartPts = result.assetData[1].chartDataPoints;
       expect(chartPts.length).toBe(3);
@@ -9400,11 +9403,12 @@ describe('evaluations tests', () => {
           TO: 'Phon',
           TO_VALUE: '5',
           DATE: 'March 5 2018',
+          TYPE: revalueExp,
         },
       ],
       expenses: [
         {
-          ...simpleIncome,
+          ...simpleExpense,
           START: 'January 1 2018',
           END: 'April 2 2018',
           NAME: 'Phon',
@@ -9509,6 +9513,7 @@ describe('evaluations tests', () => {
           TO: 'PRnd',
           TO_VALUE: '10', // pay rise!
           DATE: 'March 5 2018',
+          TYPE: revalueInc,
         },
       ],
       settings: [...defaultSettings],
@@ -9601,6 +9606,7 @@ describe('evaluations tests', () => {
           TO: 'savings',
           TO_VALUE: '300', // market crash!
           DATE: 'March 5 2018',
+          TYPE: revalueAsset,
         },
       ],
       settings: [...defaultSettings],
@@ -9669,6 +9675,7 @@ describe('evaluations tests', () => {
           TO_VALUE: '0.5', // market crash!
           TO_ABSOLUTE: false,
           DATE: 'March 5 2018',
+          TYPE: revalueAsset,
         },
       ],
       settings: [...defaultSettings],
@@ -9744,6 +9751,7 @@ describe('evaluations tests', () => {
           TO_VALUE: '0.5', // market crash!
           TO_ABSOLUTE: false,
           DATE: 'March 5 2018',
+          TYPE: revalueAsset,
         },
       ],
       settings: [...defaultSettings],
@@ -12251,6 +12259,7 @@ describe('evaluations tests', () => {
           TO: 'Cars',
           TO_VALUE: '50', // unit revaluation!!!
           DATE: 'Mar 10 2018',
+          TYPE: revalueAsset,
         },
       ],
       settings: [...defaultSettings],

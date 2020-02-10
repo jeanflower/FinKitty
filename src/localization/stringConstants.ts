@@ -139,11 +139,11 @@ export const autogen = 'auto';
 //  Custom transaction (are still staying as transactions)
 export const custom = 'custom';
 //  Revalue incomes
-// export const revalueInc = 'revalueInc';
+export const revalueInc = 'revalueInc';
 //  Revalue expenses
-// export const revalueExp = 'revalueExp';
+export const revalueExp = 'revalueExp';
 //  Revalue assets
-// export const revalueAsset = 'revalueAsset';
+export const revalueAsset = 'revalueAsset';
 //  Liquidate assets to keep cash afloat
 // (Conditional sell to cash)
 export const liquidateAsset = 'liquidateAsset';

@@ -12,10 +12,11 @@ import {
 } from '../App';
 import Button from './reactComponents/Button';
 import { expensesChartDiv } from './chartPages';
-import { expensesTableDiv } from './tablePages';
+import { expensesTableDiv, transactionsTableDiv } from './tablePages';
 import { AddDeleteExpenseForm } from './reactComponents/AddDeleteExpenseForm';
 import { checkExpense } from '../models/checks';
 import { DbModelData, ChartData } from '../types/interfaces';
+import { revalueExp } from '../localization/stringConstants';
 
 export function expensesDiv(
   model: DbModelData,
@@ -52,6 +53,8 @@ export function expensesDiv(
       />
       {expensesChartDiv(model, expensesChartData)}
       {expensesTableDiv(model)}
+      <h4>Revalue expenses</h4>
+      {transactionsTableDiv(model, revalueExp)}
       <div className="addNewExpense">
         <h4> Add or delete expense </h4>
         <AddDeleteExpenseForm

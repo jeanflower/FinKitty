@@ -32,6 +32,9 @@ import {
   makeYesNoFromBoolean,
   showObj,
   makeQuantityFromString,
+  isAnIncome,
+  isAnExpense,
+  isAnAssetOrAssets,
 } from '../utils';
 
 import NameFormatter from './reactComponents/NameFormatter';
@@ -61,6 +64,11 @@ import {
   liquidateAsset,
   conditional,
   payOffDebt,
+  revalueAsset,
+  revalueExp,
+  revalueInc,
+  revalue,
+  autogen,
 } from '../localization/stringConstants';
 import { log } from 'util';
 
@@ -267,6 +275,20 @@ function handleAssetGridRowsUpdated(model: DbModelData, args: any) {
   }
 }
 
+function getDbName(name: string, type: string) {
+  let prefix = '';
+  if (type === liquidateAsset || type === payOffDebt) {
+    prefix = conditional;
+  } else if (
+    type === revalueAsset ||
+    type === revalueExp ||
+    type === revalueInc
+  ) {
+    prefix = revalue;
+  }
+  return prefix + name;
+}
+
 function handleTransactionGridRowsUpdated(
   model: DbModelData,
   type: string,
@@ -292,20 +314,29 @@ function handleTransactionGridRowsUpdated(
     alert('To value should be a number or a number with % symbol');
     gridData[args[0].cellKey] = oldValue;
   } else {
+    let type = gridData.TYPE;
+    if (type === revalueAsset || type === revalueExp || type === revalueInc) {
+      // enable auto-switch of revalue types if TO changes
+      if (isAnAssetOrAssets(gridData.TO, model)) {
+        type = revalueAsset;
+      } else if (isAnIncome(gridData.TO, model)) {
+        type = revalueInc;
+      } else if (isAnExpense(gridData.TO, model)) {
+        type = revalueExp;
+      }
+    }
     const transaction: DbTransaction = {
       DATE: gridData.DATE,
       FROM: gridData.FROM,
       FROM_VALUE: parseFrom.value,
       FROM_ABSOLUTE: parseFrom.absolute,
-      NAME:
-        (type === liquidateAsset || type === payOffDebt ? conditional : '') +
-        gridData.NAME,
+      NAME: getDbName(gridData.NAME, type),
       TO: gridData.TO,
       TO_ABSOLUTE: parseTo.absolute,
       TO_VALUE: parseTo.value,
       STOP_DATE: gridData.STOP_DATE,
       RECURRENCE: gridData.RECURRENCE,
-      TYPE: gridData.TYPE,
+      TYPE: type,
       CATEGORY: gridData.CATEGORY,
     };
     const checks = checkTransaction(transaction, model);
@@ -341,6 +372,89 @@ const defaultColumn = {
   editable: true,
   resizable: true,
 };
+
+function getCols(model: DbModelData, isDebt: boolean) {
+  let cols: any[] = [
+    {
+      ...defaultColumn,
+      key: 'NAME',
+      name: 'name',
+      formatter: <NameFormatter value="unset" />,
+    },
+    {
+      ...defaultColumn,
+      key: 'VALUE',
+      name: 'value',
+      formatter: <CashValueFormatter value="unset" />,
+    },
+  ];
+  if (!isDebt) {
+    cols = cols.concat([
+      {
+        ...defaultColumn,
+        key: 'QUANTITY',
+        name: 'quantity',
+      },
+    ]);
+  }
+  cols = cols.concat([
+    {
+      ...defaultColumn,
+      key: 'START',
+      name: 'start',
+      formatter: (
+        <TriggerDateFormatter triggers={model.triggers} value="unset" />
+      ),
+    },
+    {
+      ...defaultColumn,
+      key: 'GROWTH',
+      name: 'growth',
+      formatter: <GrowthFormatter settings={model.settings} value="unset" />,
+    },
+    {
+      ...defaultColumn,
+      key: 'IS_CPI_IMMUNE',
+      name: 'Is immune from CPI?',
+    },
+    // for debugging, we can find it useful to see this column
+    /*
+    {
+      ...defaultColumn,
+      key: 'IS_A_DEBT',
+      name: 'Is debt?',
+    },
+    */
+  ]);
+  if (!isDebt) {
+    cols = cols.concat([
+      {
+        ...defaultColumn,
+        key: 'CAN_BE_NEGATIVE',
+        name: 'Can go negative?',
+      },
+      {
+        ...defaultColumn,
+        key: 'LIABILITY',
+        name: 'liability',
+      },
+      {
+        ...defaultColumn,
+        key: 'PURCHASE_PRICE',
+        name: 'purchase price',
+        formatter: <CashValueFormatter value="unset" />,
+      },
+    ]);
+  }
+  cols = cols.concat([
+    {
+      ...defaultColumn,
+      key: 'CATEGORY',
+      name: 'category',
+    },
+  ]);
+  return cols;
+}
 
 export function assetsOrDebtsTableDiv(model: DbModelData, isDebt: boolean) {
   const tableVisible = isDebt
@@ -391,84 +505,144 @@ export function assetsOrDebtsTableDiv(model: DbModelData, isDebt: boolean) {
                 };
                 return result;
               })}
-            columns={[
-              {
-                ...defaultColumn,
-                key: 'NAME',
-                name: 'name',
-                formatter: <NameFormatter value="unset" />,
-              },
-              {
-                ...defaultColumn,
-                key: 'VALUE',
-                name: 'value',
-                formatter: <CashValueFormatter value="unset" />,
-              },
-              {
-                ...defaultColumn,
-                key: 'QUANTITY',
-                name: 'quantity',
-              },
-              {
-                ...defaultColumn,
-                key: 'START',
-                name: 'start',
-                formatter: (
-                  <TriggerDateFormatter
-                    triggers={model.triggers}
-                    value="unset"
-                  />
-                ),
-              },
-              {
-                ...defaultColumn,
-                key: 'GROWTH',
-                name: 'growth',
-                formatter: (
-                  <GrowthFormatter settings={model.settings} value="unset" />
-                ),
-              },
-              {
-                ...defaultColumn,
-                key: 'IS_CPI_IMMUNE',
-                name: 'Is immune from CPI?',
-              },
-              // for debugging, we can find it useful to see this column
-              /*
-              {
-                ...defaultColumn,
-                key: 'IS_A_DEBT',
-                name: 'Is debt?',
-              },
-              */
-              {
-                ...defaultColumn,
-                key: 'CAN_BE_NEGATIVE',
-                name: 'Can go negative?',
-              },
-              {
-                ...defaultColumn,
-                key: 'LIABILITY',
-                name: 'liability',
-              },
-              {
-                ...defaultColumn,
-                key: 'PURCHASE_PRICE',
-                name: 'purchase price',
-                formatter: <CashValueFormatter value="unset" />,
-              },
-              {
-                ...defaultColumn,
-                key: 'CATEGORY',
-                name: 'category',
-              },
-            ]}
+            columns={getCols(model, isDebt)}
           />
         </div>
         <p />
       </fieldset>
     </div>
   );
+}
+
+function makeCols(model: DbModelData, type: string) {
+  let cols: any[] = [
+    {
+      ...defaultColumn,
+      key: 'NAME',
+      name: 'name',
+      formatter: <NameFormatter value="unset" />,
+    },
+  ];
+  if (type !== revalueInc && type !== revalueExp && type !== revalueAsset) {
+    cols = cols.concat([
+      {
+        ...defaultColumn,
+        key: 'FROM',
+        name: 'from',
+      },
+      {
+        ...defaultColumn,
+        key: 'FROM_VALUE',
+        name: 'from value',
+        formatter: <ToFromValueFormatter value="unset" />,
+      },
+    ]);
+  }
+  if (type === revalueInc) {
+    cols = cols.concat([
+      {
+        ...defaultColumn,
+        key: 'TO',
+        name: 'income',
+      },
+    ]);
+  } else if (type === revalueExp) {
+    cols = cols.concat([
+      {
+        ...defaultColumn,
+        key: 'TO',
+        name: 'expense',
+      },
+    ]);
+  } else if (type === revalueAsset) {
+    cols = cols.concat([
+      {
+        ...defaultColumn,
+        key: 'TO',
+        name: 'asset',
+      },
+    ]);
+  } else {
+    cols = cols.concat([
+      {
+        ...defaultColumn,
+        key: 'TO',
+        name: 'to',
+      },
+    ]);
+  }
+  cols = cols.concat([
+    {
+      ...defaultColumn,
+      key: 'TO_VALUE',
+      name: 'to value',
+      formatter: <ToFromValueFormatter value="unset" />,
+    },
+    {
+      ...defaultColumn,
+      key: 'DATE',
+      name: 'date',
+      formatter: (
+        <TriggerDateFormatter triggers={model.triggers} value="unset" />
+      ),
+    },
+  ]);
+  if (
+    type !== revalueInc &&
+    type !== revalueExp &&
+    type !== revalueAsset &&
+    type !== autogen
+  ) {
+    cols = cols.concat([
+      {
+        ...defaultColumn,
+        key: 'RECURRENCE',
+        name: 'recurrence',
+      },
+      {
+        ...defaultColumn,
+        key: 'STOP_DATE',
+        name: 'stop',
+        formatter: (
+          <TriggerDateFormatter triggers={model.triggers} value="unset" />
+        ),
+      },
+      {
+        ...defaultColumn,
+        key: 'CATEGORY',
+        name: 'category',
+      },
+    ]);
+  }
+  cols = cols.concat([
+    // for debugging, it can be useful to see the type column
+    /*
+    {
+      ...defaultColumn,
+      key: 'TYPE',
+      name: 'type',
+    },
+    */
+  ]);
+  return cols;
+}
+
+function getDisplayName(obj: any, type: string) {
+  if (
+    obj.NAME.startsWith(conditional) &&
+    (type === liquidateAsset || type === payOffDebt)
+  ) {
+    return obj.NAME.substring(conditional.length, obj.NAME.length);
+  }
+
+  if (
+    obj.NAME.startsWith(revalue) &&
+    (type === revalueAsset || type === revalueExp || type === revalueInc)
+  ) {
+    return obj.NAME.substring(revalue.length, obj.NAME.length);
+  }
+
+  return obj.NAME;
 }
 
 export function transactionsTableDiv(model: DbModelData, type: string) {
@@ -516,11 +690,7 @@ export function transactionsTableDiv(model: DbModelData, type: string) {
                 DATE: obj.DATE,
                 FROM: obj.FROM,
                 FROM_VALUE: fromValueEntry,
-                NAME:
-                  obj.NAME.startsWith(conditional) &&
-                  (type === liquidateAsset || type === payOffDebt)
-                    ? obj.NAME.substring(conditional.length, obj.NAME.length)
-                    : obj.NAME,
+                NAME: getDisplayName(obj, type),
                 TO: obj.TO,
                 TO_VALUE: toValueEntry,
                 STOP_DATE: obj.STOP_DATE,
@@ -530,70 +700,7 @@ export function transactionsTableDiv(model: DbModelData, type: string) {
               };
               return result;
             })}
-          columns={[
-            {
-              ...defaultColumn,
-              key: 'NAME',
-              name: 'name',
-              formatter: <NameFormatter value="unset" />,
-            },
-            {
-              ...defaultColumn,
-              key: 'FROM',
-              name: 'from asset',
-            },
-            {
-              ...defaultColumn,
-              key: 'FROM_VALUE',
-              name: 'from value',
-              formatter: <ToFromValueFormatter value="unset" />,
-            },
-            {
-              ...defaultColumn,
-              key: 'TO',
-              name: 'to asset',
-            },
-            {
-              ...defaultColumn,
-              key: 'TO_VALUE',
-              name: 'to value',
-              formatter: <ToFromValueFormatter value="unset" />,
-            },
-            {
-              ...defaultColumn,
-              key: 'DATE',
-              name: 'date',
-              formatter: (
-                <TriggerDateFormatter triggers={model.triggers} value="unset" />
-              ),
-            },
-            {
-              ...defaultColumn,
-              key: 'RECURRENCE',
-              name: 'recurrence',
-            },
-            // for debugging, it can be useful to see the type column
-            /*
-            {
-              ...defaultColumn,
-              key: 'TYPE',
-              name: 'type',
-            },
-            */
-            {
-              ...defaultColumn,
-              key: 'STOP_DATE',
-              name: 'stop',
-              formatter: (
-                <TriggerDateFormatter triggers={model.triggers} value="unset" />
-              ),
-            },
-            {
-              ...defaultColumn,
-              key: 'CATEGORY',
-              name: 'category',
-            },
-          ]}
+          columns={makeCols(model, type)}
         />
       </div>
     </fieldset>

@@ -14,9 +14,10 @@ import {
 } from '../App';
 import Button from './reactComponents/Button';
 import { incomesChartDiv } from './chartPages';
-import { incomesTableDiv } from './tablePages';
+import { incomesTableDiv, transactionsTableDiv } from './tablePages';
 import { AddDeleteIncomeForm } from './reactComponents/AddDeleteIncomeForm';
 import { checkIncome, checkTransaction } from '../models/checks';
+import { revalueInc } from '../localization/stringConstants';
 
 export function incomesDiv(model: DbModelData, incomesChartData: ChartData[]) {
   if (!getDisplay(incomesView)) {
@@ -51,6 +52,8 @@ export function incomesDiv(model: DbModelData, incomesChartData: ChartData[]) {
       />
       {incomesChartDiv(model, incomesChartData)}
       {incomesTableDiv(model)}
+      <h4>Revalue incomes</h4>
+      {transactionsTableDiv(model, revalueInc)}
       <div className="addNewIncome">
         <h4> Add or delete income </h4>
         <AddDeleteIncomeForm
