@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { DbExpense, DbModelData } from '../../types/interfaces';
+import { DbExpense, DbModelData, DbTransaction } from '../../types/interfaces';
 import {
   checkTriggerDate,
   log,
@@ -8,11 +8,14 @@ import {
   showObj,
   makeBooleanFromYesNo,
   makeGrowthFromString,
+  isATransaction,
+  makeValueAbsPropFromString,
 } from '../../utils';
 import Button from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
 import Input from './Input';
 import { isNumberString } from '../../models/checks';
+import { revalue, revalueExp } from '../../localization/stringConstants';
 
 interface EditFormState {
   NAME: string;
@@ -24,13 +27,20 @@ interface EditFormState {
   CPI_IMMUNE: string;
   CATEGORY: string;
   RECURRENCE: string;
+  inputting: string;
 }
+
+const inputtingRevalue = 'revalue';
+const inputtingExpense = 'expense';
+
 interface EditProps {
   checkFunction: any;
   submitFunction: any;
   deleteFunction: any;
   submitTrigger: any;
   model: DbModelData;
+  checkTransactionFunction: any;
+  submitTransactionFunction: any;
 }
 export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
   public defaultState: EditFormState;
@@ -51,6 +61,7 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
       CPI_IMMUNE: '',
       CATEGORY: '',
       RECURRENCE: '',
+      inputting: inputtingExpense,
     };
 
     this.state = this.defaultState;
@@ -61,8 +72,12 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
     this.handleFixedChange = this.handleFixedChange.bind(this);
     this.handleCategoryChange = this.handleCategoryChange.bind(this);
     this.handleRecurrenceChange = this.handleRecurrenceChange.bind(this);
+    this.setInputRevalue = this.setInputRevalue.bind(this);
+    this.setInputExpense = this.setInputExpense.bind(this);
+    this.twoExtraDates = this.twoExtraDates.bind(this);
+    this.newExpenseForm = this.newExpenseForm.bind(this);
+    this.revalue = this.revalue.bind(this);
 
-    this.handleValueSetChange = this.handleValueSetChange.bind(this);
     this.setValueSet = this.setValueSet.bind(this);
     this.handleStartChange = this.handleStartChange.bind(this);
     this.setStart = this.setStart.bind(this);
@@ -73,77 +88,12 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
     this.delete = this.delete.bind(this);
   }
 
-  public render() {
-    // log('rendering an AddDeleteExpenseForm');
+  private newExpenseForm(): React.ReactNode {
+    if (this.state.inputting !== inputtingExpense) {
+      return <div></div>;
+    }
     return (
-      <form className="container-fluid" onSubmit={this.add}>
-        <div className="row">
-          <div className="col">
-            <Input
-              title="Expense name"
-              type="text"
-              name="expensename"
-              value={this.state.NAME}
-              placeholder="Enter name"
-              onChange={this.handleNameChange}
-            />
-          </div>
-          {/* end col */}
-          <div className="col">
-            <Button
-              action={this.delete}
-              type={'secondary'}
-              title={'Delete any expense with this name'}
-              id="deleteExpense"
-            />
-          </div>
-          {/* end col */}
-        </div>
-        {/* end row */}
-        <div className="row">
-          <div className="col">
-            <Input
-              title="Expense value"
-              type="text"
-              name="expensevalue"
-              value={this.state.VALUE}
-              placeholder="Enter value"
-              onChange={this.handleValueChange}
-            />
-          </div>{' '}
-          {/* end col */}
-        </div>
-        {/* end row */}
-        <div className="container-fluid">
-          {/* fills width */}
-          <DateSelectionRow
-            introLabel="Date on which the expense value is set"
-            setDateFunction={this.setValueSet}
-            inputName="expense valuation date"
-            inputValue={this.state.VALUE_SET}
-            onChangeHandler={this.handleValueSetChange}
-            triggers={this.props.model.triggers}
-            submitTrigger={this.props.submitTrigger}
-          />
-          <DateSelectionRow
-            introLabel="Date on which the expense starts"
-            setDateFunction={this.setStart}
-            inputName="start date"
-            inputValue={this.state.START}
-            onChangeHandler={this.handleStartChange}
-            triggers={this.props.model.triggers}
-            submitTrigger={this.props.submitTrigger}
-          />
-          <DateSelectionRow
-            introLabel="Date on which the expense ends"
-            setDateFunction={this.setEnd}
-            inputName="end date"
-            inputValue={this.state.END}
-            onChangeHandler={this.handleEndChange}
-            triggers={this.props.model.triggers}
-            submitTrigger={this.props.submitTrigger}
-          />
-        </div>
+      <div>
         <div className="row">
           <div className="col">
             <Input
@@ -194,6 +144,41 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
           {/* end col */}
         </div>
         {/* end row */}
+      </div>
+    );
+  }
+
+  private twoExtraDates(): React.ReactNode {
+    if (this.state.inputting !== inputtingExpense) {
+      return <div></div>;
+    }
+    return (
+      <div>
+        <DateSelectionRow
+          introLabel="Date on which the expense starts"
+          setDateFunction={this.setStart}
+          inputName="start date"
+          inputValue={this.state.START}
+          onChangeHandler={this.handleStartChange}
+          triggers={this.props.model.triggers}
+          submitTrigger={this.props.submitTrigger}
+        />
+        <DateSelectionRow
+          introLabel="Date on which the expense ends"
+          setDateFunction={this.setEnd}
+          inputName="end date"
+          inputValue={this.state.END}
+          onChangeHandler={this.handleEndChange}
+          triggers={this.props.model.triggers}
+          submitTrigger={this.props.submitTrigger}
+        />
+      </div>
+    );
+  }
+
+  private goButton(): React.ReactNode {
+    if (this.state.inputting === inputtingExpense) {
+      return (
         <Button
           action={this.add}
           type={'primary'}
@@ -202,6 +187,101 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
           }
           id="addExpense"
         />
+      );
+    } else {
+      return (
+        <Button
+          action={this.revalue}
+          type={'primary'}
+          title={'Revalue an expense'}
+          id="revalueExpense"
+        />
+      );
+    }
+  }
+
+  public render() {
+    // log('rendering an AddDeleteExpenseForm');
+    return (
+      <form className="container-fluid" onSubmit={this.add}>
+        <div className="row">
+          <div className="col">
+            <Input
+              title="Expense name"
+              type="text"
+              name="expensename"
+              value={this.state.NAME}
+              placeholder="Enter name"
+              onChange={this.handleNameChange}
+            />
+          </div>
+          {/* end col */}
+          <div className="col">
+            <Button
+              action={this.delete}
+              type={'secondary'}
+              title={'Delete any expense with this name'}
+              id="deleteExpense"
+            />
+          </div>
+          {/* end col */}
+          <div className="col">
+            <Button
+              action={this.setInputExpense}
+              type={
+                this.state.inputting === inputtingExpense
+                  ? 'primary'
+                  : 'secondary'
+              }
+              title={'Enter a new expense'}
+              id="useExpenseInputs"
+            />
+          </div>{' '}
+          {/* end col */}
+          <div className="col">
+            <Button
+              action={this.setInputRevalue}
+              type={
+                this.state.inputting === inputtingRevalue
+                  ? 'primary'
+                  : 'secondary'
+              }
+              title={'Revalue an expense'}
+              id="useRevalueInputs"
+            />
+          </div>{' '}
+          {/* end col */}
+        </div>
+        {/* end row */}
+        <div className="row">
+          <div className="col">
+            <Input
+              title="Expense value"
+              type="text"
+              name="expensevalue"
+              value={this.state.VALUE}
+              placeholder="Enter value"
+              onChange={this.handleValueChange}
+            />
+          </div>{' '}
+          {/* end col */}
+        </div>
+        {/* end row */}
+        <div className="container-fluid">
+          {/* fills width */}
+          <DateSelectionRow
+            introLabel="Date on which the expense value is set"
+            setDateFunction={this.setValueSet}
+            inputName="expense valuation date"
+            inputValue={this.state.VALUE_SET}
+            onChangeHandler={this.handleValueSetChange}
+            triggers={this.props.model.triggers}
+            submitTrigger={this.props.submitTrigger}
+          />
+          {this.twoExtraDates()}
+        </div>
+        {this.newExpenseForm()}
+        {this.goButton()}
       </form>
     );
   }
@@ -230,6 +310,21 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
     const value = e.target.value;
     this.setState({ VALUE: value });
   }
+  private setInputRevalue(e: any) {
+    e.preventDefault();
+    this.setState({
+      ...this.state,
+      inputting: inputtingRevalue,
+    });
+  }
+  private setInputExpense(e: any) {
+    e.preventDefault();
+    this.setState({
+      ...this.state,
+      inputting: inputtingExpense,
+    });
+  }
+
   private setValueSet(value: string): void {
     this.setState({
       VALUE_SET: value,
@@ -252,6 +347,63 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
   private handleEndChange(e: any): void {
     const value = e.target.value;
     this.setEnd(value);
+  }
+  private async revalue(e: any): Promise<void> {
+    e.preventDefault();
+
+    const parseVal = makeValueAbsPropFromString(this.state.VALUE);
+    if (!parseVal.checksOK) {
+      alert(
+        `Income value ${this.state.VALUE} should be a numerical or % value`,
+      );
+      return;
+    }
+
+    const date = checkTriggerDate(
+      this.state.VALUE_SET,
+      this.props.model.triggers,
+    );
+    const isNotADate = date === undefined;
+    if (isNotADate) {
+      alert(`Value set date should be a date`);
+      return;
+    }
+
+    let count = 1;
+    while (
+      isATransaction(`${revalue} ${this.state.NAME} ${count}`, this.props.model)
+    ) {
+      count += 1;
+    }
+
+    const revalueExpenseTransaction: DbTransaction = {
+      NAME: `${revalue} ${this.state.NAME} ${count}`,
+      FROM: '',
+      FROM_ABSOLUTE: false,
+      FROM_VALUE: '0.0',
+      TO: this.state.NAME,
+      TO_ABSOLUTE: parseVal.absolute,
+      TO_VALUE: parseVal.value,
+      DATE: this.state.VALUE_SET, // match the income start date
+      TYPE: revalueExp,
+      RECURRENCE: '',
+      STOP_DATE: '',
+      CATEGORY: '',
+    };
+    const message = await this.props.checkTransactionFunction(
+      revalueExpenseTransaction,
+      this.props.model,
+    );
+    if (message.length > 0) {
+      alert(message);
+      return;
+    }
+    await this.props.submitTransactionFunction(revalueExpenseTransaction);
+
+    alert('added new data');
+    // clear fields
+    this.setState(this.defaultState);
+    return;
   }
   private add(e: any): void {
     e.preventDefault();

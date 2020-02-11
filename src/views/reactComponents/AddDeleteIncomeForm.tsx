@@ -193,7 +193,6 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
             />
           </div>{' '}
           {/* end col */}
-          {/* end col */}
           <div className="col">
             <Button
               action={this.setInputRevalue}
@@ -644,7 +643,7 @@ DBC_TRANSFERRED_STOP
       count += 1;
     }
 
-    const pensionDbctran1: DbTransaction = {
+    const revalueIncomeTransaction: DbTransaction = {
       NAME: `${revalue} ${this.state.NAME} ${count}`,
       FROM: '',
       FROM_ABSOLUTE: false,
@@ -659,14 +658,14 @@ DBC_TRANSFERRED_STOP
       CATEGORY: '',
     };
     const message = await this.props.checkTransactionFunction(
-      pensionDbctran1,
+      revalueIncomeTransaction,
       this.props.model,
     );
     if (message.length > 0) {
       alert(message);
       return;
     }
-    await this.props.submitTransactionFunction(pensionDbctran1);
+    await this.props.submitTransactionFunction(revalueIncomeTransaction);
 
     alert('added new data');
     // clear fields

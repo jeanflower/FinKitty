@@ -625,7 +625,7 @@ function isRevalueAssetType(t: DbTransaction, model: DbModelData) {
   ) {
     // log(`for ${t.NAME} is a revalueAsset`);
     recognised = true;
-/*
+    /*
   } else {
     log(`for ${t.NAME}`);
     log(`t.NAME.startsWith(revalue) is ${t.NAME.startsWith(revalue)}`);
@@ -844,8 +844,8 @@ export function checkTransaction(t: DbTransaction, model: DbModelData): string {
     const recognised = isRevalueAssetType(t, model);
     if (!recognised) {
       return `revalue asset type of transaction ${t.NAME} not a recognised format`;
-    //} else {
-    //  log(`revalue asset type of transaction ${t.NAME} is a recognised format`);
+      //} else {
+      //  log(`revalue asset type of transaction ${t.NAME} is a recognised format`);
     }
   }
   if (t.TYPE === revalueInc) {

@@ -306,7 +306,7 @@ function handleTransactionGridRowsUpdated(
   const oldValue = gridData[args[0].cellKey];
   gridData[args[0].cellKey] = args[0].updated[args[0].cellKey];
 
-  log(`gridData.FROM_VALUE = ${gridData.FROM_VALUE}`);
+  // log(`gridData.FROM_VALUE = ${gridData.FROM_VALUE}`);
   // revalue tables have a hidden FROM_VALUE column
   if (gridData.FROM_VALUE === undefined) {
     gridData.FROM_VALUE = 0.0;

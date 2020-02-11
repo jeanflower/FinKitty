@@ -9,12 +9,13 @@ import {
   submitExpense,
   submitTrigger,
   toggleDisplay,
+  submitTransaction,
 } from '../App';
 import Button from './reactComponents/Button';
 import { expensesChartDiv } from './chartPages';
 import { expensesTableDiv, transactionsTableDiv } from './tablePages';
 import { AddDeleteExpenseForm } from './reactComponents/AddDeleteExpenseForm';
-import { checkExpense } from '../models/checks';
+import { checkExpense, checkTransaction } from '../models/checks';
 import { DbModelData, ChartData } from '../types/interfaces';
 import { revalueExp } from '../localization/stringConstants';
 
@@ -63,6 +64,8 @@ export function expensesDiv(
           deleteFunction={deleteExpenseFromTable}
           submitTrigger={submitTrigger}
           model={model}
+          checkTransactionFunction={checkTransaction}
+          submitTransactionFunction={submitTransaction}
         />
       </div>
     </div>
