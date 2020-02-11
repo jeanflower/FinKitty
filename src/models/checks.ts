@@ -307,9 +307,7 @@ function checkRecurrence(rec: string) {
   const val = parseFloat(firstPart);
   // log(`val from ${rec} = ${val}`);
   if (Number.isNaN(val)) {
-    return (
-      `transaction recurrence '${rec}' must ` + 'be a number ending in m or y'
-    );
+    return `transaction recurrence '${rec}' must be a number ending in m or y`;
   }
   return '';
 }
@@ -625,7 +623,16 @@ function isRevalueAssetType(t: DbTransaction, model: DbModelData) {
     t.RECURRENCE === '' &&
     t.CATEGORY === ''
   ) {
+    // log(`for ${t.NAME} is a revalueAsset`);
     recognised = true;
+/*
+  } else {
+    log(`for ${t.NAME}`);
+    log(`t.NAME.startsWith(revalue) is ${t.NAME.startsWith(revalue)}`);
+    log(`isAnAssetOrAssets(t.TO, model) is ${isAnAssetOrAssets(t.TO, model)}`);
+    log(`t.RECURRENCE === '' is ${t.RECURRENCE === ''}`);
+    log(`t.CATEGORY === '' is ${t.CATEGORY === ''}`);
+*/
   }
   return recognised;
 }
@@ -837,6 +844,8 @@ export function checkTransaction(t: DbTransaction, model: DbModelData): string {
     const recognised = isRevalueAssetType(t, model);
     if (!recognised) {
       return `revalue asset type of transaction ${t.NAME} not a recognised format`;
+    //} else {
+    //  log(`revalue asset type of transaction ${t.NAME} is a recognised format`);
     }
   }
   if (t.TYPE === revalueInc) {
@@ -881,6 +890,7 @@ export function checkTransaction(t: DbTransaction, model: DbModelData): string {
   ) {
     log(`WARNING : not-absolute value to ${tToValue} > 1.0`);
   }
+  // log(`checkTransaction is OK for ${t.NAME}`);
   return '';
 }
 

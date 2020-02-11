@@ -306,13 +306,23 @@ function handleTransactionGridRowsUpdated(
   const oldValue = gridData[args[0].cellKey];
   gridData[args[0].cellKey] = args[0].updated[args[0].cellKey];
 
+  log(`gridData.FROM_VALUE = ${gridData.FROM_VALUE}`);
+  // revalue tables have a hidden FROM_VALUE column
+  if (gridData.FROM_VALUE === undefined) {
+    gridData.FROM_VALUE = 0.0;
+  }
+
   const parseFrom = makeValueAbsPropFromString(gridData.FROM_VALUE);
   const parseTo = makeValueAbsPropFromString(gridData.TO_VALUE);
   if (!parseFrom.checksOK) {
-    alert('From value should be a number or a number with % symbol');
+    alert(
+      `From value ${gridData.FROM_VALUE} should be a number or a number with % symbol`,
+    );
     gridData[args[0].cellKey] = oldValue;
   } else if (!parseTo.checksOK) {
-    alert('To value should be a number or a number with % symbol');
+    alert(
+      `To value ${gridData.TO_VALUE} should be a number or a number with % symbol`,
+    );
     gridData[args[0].cellKey] = oldValue;
   } else {
     let type = gridData.TYPE;
@@ -342,6 +352,7 @@ function handleTransactionGridRowsUpdated(
     };
     const checks = checkTransaction(transaction, model);
     if (checks === '') {
+      // log(`checks OK, submitting transaction`);
       submitTransaction(transaction);
     } else {
       alert(checks);

@@ -412,7 +412,10 @@ export function makeStringFromValueAbsProp(
   tname: string,
 ) {
   let result = '';
-  if (
+  // log(`value = ${value}`);
+  if (value.length === 0) {
+    return '0.0';
+  } else if (
     !tname.startsWith(revalue) &&
     getStartQuantity(assetName, model) !== undefined
   ) {
@@ -745,4 +748,7 @@ export function isAnAssetOrAssets(name: string, model: DbModelData) {
     }
   });
   return ok;
+}
+export function isATransaction(name: string, model: DbModelData) {
+  return model.transactions.filter(t => t.NAME === name).length > 0;
 }

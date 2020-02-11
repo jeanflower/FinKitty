@@ -10,6 +10,9 @@ import {
   makeBooleanFromYesNo,
   makeGrowthFromString,
   makeIncomeLiabilityFromNameAndNI,
+  isAnIncome,
+  isATransaction,
+  makeValueAbsPropFromString,
 } from '../../utils';
 import Button from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
@@ -22,6 +25,8 @@ import {
   separator,
   pensionTransfer,
   autogen,
+  revalue,
+  revalueInc,
 } from '../../localization/stringConstants';
 
 interface EditFormState {
@@ -34,7 +39,7 @@ interface EditFormState {
   CPI_IMMUNE: string;
   LIABILITY: string;
   CATEGORY: string;
-  inputtingDefinedBenefitsPension: boolean;
+  inputting: string;
   DBC_INCOME_SOURCE: string;
   DBC_CONTRIBUTION_AMOUNT: string;
   DBC_ACCRUAL: string;
@@ -46,6 +51,11 @@ interface EditFormState {
   DBC_TRANSFER_PROPORTION: string;
   DBC_TRANSFERRED_STOP: string;
 }
+
+const inputtingRevalue = 'revalue';
+const inputtingIncome = 'income';
+const inputtingPension = 'definedBenefitsPension';
+
 interface EditProps {
   checkIncomeFunction: any;
   checkTransactionFunction: any;
@@ -74,7 +84,7 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
       CPI_IMMUNE: '',
       LIABILITY: '',
       CATEGORY: '',
-      inputtingDefinedBenefitsPension: false,
+      inputting: inputtingIncome,
       DBC_INCOME_SOURCE: '',
       DBC_CONTRIBUTION_AMOUNT: '',
       DBC_ACCRUAL: '',
@@ -95,6 +105,7 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
     this.handleFixedChange = this.handleFixedChange.bind(this);
     this.handleLiabilityChange = this.handleLiabilityChange.bind(this);
     this.handleCategoryChange = this.handleCategoryChange.bind(this);
+    this.revalue = this.revalue.bind(this);
 
     this.handleDbcIncomeSourceChange = this.handleDbcIncomeSourceChange.bind(
       this,
@@ -126,7 +137,9 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
 
     this.add = this.add.bind(this);
     this.delete = this.delete.bind(this);
-    this.toggleDBPInputs = this.toggleDBPInputs.bind(this);
+    this.setInputincome = this.setInputincome.bind(this);
+    this.setInputDBP = this.setInputDBP.bind(this);
+    this.setInputRevalue = this.setInputRevalue.bind(this);
   }
 
   public render() {
@@ -149,21 +162,48 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
             <Button
               action={this.delete}
               type={'secondary'}
-              title={'Delete any income with this name'}
+              title={'Delete income'}
               id="deleteIncome"
             />
           </div>{' '}
           {/* end col */}
           <div className="col">
             <Button
-              action={this.toggleDBPInputs}
+              action={this.setInputDBP}
               type={
-                this.state.inputtingDefinedBenefitsPension
+                this.state.inputting === inputtingPension
                   ? 'primary'
                   : 'secondary'
               }
-              title={'Use Defined Benefits Pension inputs'}
+              title={'Add a pension'}
               id="useDBPInputs"
+            />
+          </div>{' '}
+          {/* end col */}
+          <div className="col">
+            <Button
+              action={this.setInputincome}
+              type={
+                this.state.inputting === inputtingIncome
+                  ? 'primary'
+                  : 'secondary'
+              }
+              title={'Add a new income'}
+              id="useIncomeInputs"
+            />
+          </div>{' '}
+          {/* end col */}
+          {/* end col */}
+          <div className="col">
+            <Button
+              action={this.setInputRevalue}
+              type={
+                this.state.inputting === inputtingRevalue
+                  ? 'primary'
+                  : 'secondary'
+              }
+              title={'Revalue an income'}
+              id="useRevalueInputs"
             />
           </div>{' '}
           {/* end col */}
@@ -173,9 +213,11 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
           <div className="col">
             <Input
               title={`${
-                this.state.inputtingDefinedBenefitsPension
+                this.state.inputting === inputtingPension
                   ? 'Pension'
-                  : 'Income'
+                  : this.state.inputting === inputtingIncome
+                  ? 'Income'
+                  : 'New income'
               } value (amount before tax, per month)`}
               type="text"
               name="incomevalue"
@@ -191,7 +233,9 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
           {/* fills width */}
           <DateSelectionRow
             introLabel={`Date on which the ${
-              this.state.inputtingDefinedBenefitsPension ? 'pension' : 'income'
+              this.state.inputting === inputtingPension
+                ? 'pension'
+                : inputtingIncome
             } value is set:`}
             setDateFunction={this.setValueSet}
             inputName="income valuation date"
@@ -203,6 +247,22 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
         </div>
         {this.inputsForGeneralIncome()}
         {this.inputsForDefinedBenefitsPensionIncome()}
+        {this.growthsEtc()}
+        {this.revalueButton()}
+      </form>
+    );
+  }
+  private growthsEtc(): React.ReactNode {
+    return (
+      <div
+        style={{
+          display:
+            this.state.inputting === inputtingIncome ||
+            this.state.inputting === inputtingPension
+              ? 'block'
+              : 'none',
+        }}
+      >
         <div className="row">
           <div className="col">
             <Input
@@ -261,16 +321,30 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
           }
           id="addIncome"
         />
-      </form>
+      </div>
+    );
+  }
+  private revalueButton(): React.ReactNode {
+    return (
+      <div
+        style={{
+          display: this.state.inputting === inputtingRevalue ? 'block' : 'none',
+        }}
+      >
+        <Button
+          action={this.revalue}
+          type={'primary'}
+          title={'Add income revaluation'}
+          id="revalueIncome"
+        />
+      </div>
     );
   }
   private inputsForGeneralIncome(): React.ReactNode {
     return (
       <div
         style={{
-          display: !this.state.inputtingDefinedBenefitsPension
-            ? 'block'
-            : 'none',
+          display: this.state.inputting === inputtingIncome ? 'block' : 'none',
         }}
       >
         <div className="container-fluid">
@@ -301,9 +375,7 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
     return (
       <div
         style={{
-          display: this.state.inputtingDefinedBenefitsPension
-            ? 'block'
-            : 'none',
+          display: this.state.inputting === inputtingPension ? 'block' : 'none',
         }}
       >
         {/*
@@ -541,6 +613,67 @@ DBC_TRANSFERRED_STOP
   private handleEndChange(e: any): void {
     this.setEnd(e.target.value);
   }
+  private async revalue(e: any): Promise<void> {
+    e.preventDefault();
+
+    if (!isAnIncome(this.state.NAME, this.props.model)) {
+      alert(`Income name ${this.state.NAME} should be an existing income`);
+      return;
+    }
+
+    const parseVal = makeValueAbsPropFromString(this.state.VALUE);
+    if (!parseVal.checksOK) {
+      alert(
+        `Income value ${this.state.VALUE} should be a numerical or % value`,
+      );
+      return;
+    }
+    const date = checkTriggerDate(
+      this.state.VALUE_SET,
+      this.props.model.triggers,
+    );
+    const isNotADate = date === undefined;
+    if (isNotADate) {
+      alert(`Value set date should be a date`);
+      return;
+    }
+    let count = 1;
+    while (
+      isATransaction(`${revalue} ${this.state.NAME} ${count}`, this.props.model)
+    ) {
+      count += 1;
+    }
+
+    const pensionDbctran1: DbTransaction = {
+      NAME: `${revalue} ${this.state.NAME} ${count}`,
+      FROM: '',
+      FROM_ABSOLUTE: false,
+      FROM_VALUE: '0.0',
+      TO: this.state.NAME,
+      TO_ABSOLUTE: parseVal.absolute,
+      TO_VALUE: parseVal.value,
+      DATE: this.state.VALUE_SET, // match the income start date
+      TYPE: revalueInc,
+      RECURRENCE: '',
+      STOP_DATE: '',
+      CATEGORY: '',
+    };
+    const message = await this.props.checkTransactionFunction(
+      pensionDbctran1,
+      this.props.model,
+    );
+    if (message.length > 0) {
+      alert(message);
+      return;
+    }
+    await this.props.submitTransactionFunction(pensionDbctran1);
+
+    alert('added new data');
+    // clear fields
+    this.setState(this.defaultState);
+    return;
+  }
+
   private async add(e: any): Promise<void> {
     e.preventDefault();
 
@@ -572,7 +705,7 @@ DBC_TRANSFERRED_STOP
       return;
     }
 
-    if (this.state.inputtingDefinedBenefitsPension) {
+    if (this.state.inputting === inputtingPension) {
       // do work to
       // (a) check integrity of inputs
       // (b) build an income for the pension, check integrity of income
@@ -866,6 +999,7 @@ DBC_TRANSFERRED_STOP
       this.setState(this.defaultState);
     }
   }
+
   private async delete(e: any) {
     e.preventDefault();
     // log('deleting something ' + showObj(this));
@@ -877,12 +1011,25 @@ DBC_TRANSFERRED_STOP
       alert(`failed to delete ${this.state.NAME}`);
     }
   }
-  private toggleDBPInputs(e: any) {
+  private setInputDBP(e: any) {
     e.preventDefault();
-    const currentState = this.state.inputtingDefinedBenefitsPension;
     this.setState({
       ...this.state,
-      inputtingDefinedBenefitsPension: !currentState,
+      inputting: inputtingPension,
+    });
+  }
+  private setInputincome(e: any) {
+    e.preventDefault();
+    this.setState({
+      ...this.state,
+      inputting: inputtingIncome,
+    });
+  }
+  private setInputRevalue(e: any) {
+    e.preventDefault();
+    this.setState({
+      ...this.state,
+      inputting: inputtingRevalue,
     });
   }
 }
