@@ -106,9 +106,9 @@ export const incomesView: ViewType = { lc: 'Incomes' };
 export const transactionsView: ViewType = { lc: 'Transactions' };
 export const assetsView: ViewType = { lc: 'Assets' };
 export const debtsView: ViewType = { lc: 'Debts' };
-export const triggersView: ViewType = { lc: 'Important dates' };
+export const triggersView: ViewType = { lc: 'Dates' };
 export const settingsView: ViewType = { lc: 'Settings' };
-export const taxView: ViewType = { lc: 'Tax payments' };
+export const taxView: ViewType = { lc: 'Tax' };
 
 export const expensesChart: ViewType = { lc: 'Expenses chart' };
 export const incomesChart: ViewType = { lc: 'Incomes chart' };
@@ -120,7 +120,7 @@ export const incomesTable: ViewType = { lc: 'Incomes table' };
 export const assetsTable: ViewType = { lc: 'Assets table' };
 export const debtsTable: ViewType = { lc: 'Debts table' };
 export const transactionsTable: ViewType = { lc: 'Transactions table' };
-export const triggersTable: ViewType = { lc: 'Important dates table' };
+export const triggersTable: ViewType = { lc: 'Dates table' };
 export const settingsTable: ViewType = { lc: 'Settings table' };
 
 export const overview: ViewType = { lc: 'Overview' };
@@ -150,7 +150,7 @@ const views = new Map<
     triggersView,
     {
       display: true,
-      helpText: 'Create, view or update important dates',
+      helpText: 'Create, view or update named dates',
     },
   ],
   [
@@ -296,7 +296,7 @@ async function refreshData(goToDB = true) {
   // log('refreshData in AppContent - get data and redraw content');
   if (goToDB) {
     // log('refreshData do visit db');
-    // go to the DB to retreive updated data
+    // go to the DB to refresh available model names
     let modelNames: string[] = [];
     try {
       modelNames = await getDB().getModelNames(getUserID());
@@ -317,7 +317,8 @@ async function refreshData(goToDB = true) {
       // log(`modelNames are ${modelNames}`);
       // log(`does not include ${exampleModelName}, so`);
       if (modelNames.length > 0) {
-        modelName = modelNames.sort()[0];
+        // log(`no model called ${exampleModelName}, so just choose the 1st one`);
+        modelName = modelNames.sort((a, b) => lessThan(a, b))[0];
         // log(`switch to a different modelName ${modelName}`);
         try {
           model = await getDB().loadModel(getUserID(), modelName);

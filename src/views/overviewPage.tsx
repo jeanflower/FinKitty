@@ -50,7 +50,7 @@ export function overviewDiv(
           toggle(triggersView);
         }}
         type="secondary"
-        title="important dates"
+        title="dates"
         id="switchToTriggers"
       />
       , &nbsp;

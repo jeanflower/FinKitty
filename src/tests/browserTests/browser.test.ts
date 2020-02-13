@@ -835,7 +835,7 @@ describe('Chrome Interaction', () => {
     expect(btn.length === 1).toBe(true);
     await btn[0].click();
 
-    btn = await driver.findElements(webdriver.By.id('btn-Important dates'));
+    btn = await driver.findElements(webdriver.By.id('btn-Dates'));
     expect(btn.length === 1).toBe(true);
     await btn[0].click();
 
@@ -855,7 +855,7 @@ describe('Chrome Interaction', () => {
     expect(btn.length === 1).toBe(true);
     await btn[0].click();
 
-    btn = await driver.findElements(webdriver.By.id('btn-Tax payments'));
+    btn = await driver.findElements(webdriver.By.id('btn-Tax'));
     expect(btn.length === 1).toBe(true);
     await btn[0].click();
 
