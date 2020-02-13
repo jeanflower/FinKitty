@@ -385,6 +385,7 @@ function handleSettingGridRowsUpdated() {
 const defaultColumn = {
   editable: true,
   resizable: true,
+  sortable: true,
 };
 
 function getCols(model: DbModelData, isDebt: boolean) {
@@ -746,7 +747,6 @@ export function triggersTableDiv(model: DbModelData) {
                 key: 'NAME',
                 name: 'name',
                 formatter: <NameFormatter value="unset" />,
-                // sortable: true // TODO
               },
               {
                 ...defaultColumn,
