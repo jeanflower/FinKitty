@@ -10,6 +10,8 @@ import {
   makeBooleanFromYesNo,
   makeQuantityFromString,
   makeCashValueFromString,
+  makeValueAbsPropFromString,
+  isATransaction,
 } from '../../utils';
 import Button from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
@@ -20,6 +22,8 @@ import {
   crystallizedPension,
   pensionSS,
   autogen,
+  revalue,
+  revalueAsset,
 } from '../../localization/stringConstants';
 
 interface EditFormState {
@@ -33,7 +37,7 @@ interface EditFormState {
   PURCHASE_PRICE: string;
   LIABILITY: string;
   CATEGORY: string;
-  inputtingDefinedContsPension: boolean;
+  inputting: string;
   DCP_STOP: string;
   DCP_CRYSTALLIZE: string;
   DCP_SS: string;
@@ -41,6 +45,11 @@ interface EditFormState {
   DCP_CONTRIBUTION_AMOUNT: string;
   DCP_EMP_CONTRIBUTION_AMOUNT: string;
 }
+
+const inputtingRevalue = 'revalue';
+const inputtingAsset = 'asset';
+const inputtingPension = 'definedContributionsPension';
+
 interface EditProps {
   checkAssetFunction: any;
   submitAssetFunction: any;
@@ -70,7 +79,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
       PURCHASE_PRICE: '',
       LIABILITY: '',
       CATEGORY: '',
-      inputtingDefinedContsPension: false,
+      inputting: inputtingAsset,
       DCP_STOP: '',
       DCP_CRYSTALLIZE: '',
       DCP_SS: '',
@@ -92,7 +101,9 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
     this.handleCanBeNegativeChange = this.handleCanBeNegativeChange.bind(this);
     this.handleStartChange = this.handleStartChange.bind(this);
     this.setStart = this.setStart.bind(this);
-    this.toggleDCPInputs = this.toggleDCPInputs.bind(this);
+    this.inputPension = this.inputPension.bind(this);
+    this.inputAsset = this.inputAsset.bind(this);
+    this.inputRevalue = this.inputRevalue.bind(this);
     this.setStop = this.setStop.bind(this);
     this.setCrystallize = this.setCrystallize.bind(this);
     this.handleCrystallizeChange = this.handleCrystallizeChange.bind(this);
@@ -105,13 +116,17 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
 
     this.add = this.add.bind(this);
     this.delete = this.delete.bind(this);
+    this.goButtons = this.goButtons.bind(this);
+    this.revalue = this.revalue.bind(this);
+    this.ValueQuantityAndCategory = this.ValueQuantityAndCategory.bind(this);
+    this.growthAndInflation = this.growthAndInflation.bind(this)
   }
 
   private inputsForGeneralAsset(): React.ReactNode {
     return (
       <div
         style={{
-          display: !this.state.inputtingDefinedContsPension ? 'block' : 'none',
+          display: this.state.inputting === inputtingAsset ? 'block' : 'none',
         }}
       >
         <div className="row">
@@ -157,11 +172,129 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
     );
   }
 
+  private growthAndInflation(): React.ReactNode {
+    if(this.state.inputting !== inputtingRevalue){
+      return (<div className="row">
+      <div className="col">
+        <Input
+          title="Annual growth percentage (excluding inflation, e.g. 2 for 2% p.a.)"
+          type="text"
+          name="assetgrowth"
+          value={this.state.GROWTH}
+          placeholder="Enter growth"
+          onChange={this.handleGrowthChange}
+        />
+      </div>
+      {/* end col */}
+      <div className="col">
+        <Input
+          title="Is value immune to inflation?"
+          type="text"
+          name="assetcpi-immune"
+          value={this.state.CPI_IMMUNE}
+          placeholder="Enter Y/N"
+          onChange={this.handleFixedChange}
+        />
+      </div>
+    </div>
+    );
+    }
+  }
+
+  private ValueQuantityAndCategory(): React.ReactNode {
+    if(this.state.inputting === inputtingRevalue){
+      return (<div className="row">
+        <div className="col">
+          <Input
+            title={`Asset value`}
+            type="text"
+            name="assetvalue"
+            value={this.state.VALUE}
+            placeholder="Enter value"
+            onChange={this.handleValueChange}
+          />    
+        </div>
+      </div>);
+    } else {
+      return (
+        <div className="row">
+          <div className="col">
+            <Input
+              title={`${
+                this.state.inputting === inputtingPension ? 'Pension' : 'Asset'
+              } value`}
+              type="text"
+              name="assetvalue"
+              value={this.state.VALUE}
+              placeholder="Enter value"
+              onChange={this.handleValueChange}
+            />
+          </div>
+          {/* end col */}
+          <div className="col">
+            <Input
+              title={'Quantity (optional)'}
+              type="text"
+              name="assetquantity"
+              value={this.state.QUANTITY}
+              placeholder="Enter quantity"
+              onChange={this.handleQuantityChange}
+            />
+          </div>
+          {/* end col */}
+          <div className="col">
+            <Input
+              title="Category (optional)"
+              type="text"
+              name="assetcategory"
+              value={this.state.CATEGORY}
+              placeholder="category"
+              onChange={this.handleCategoryChange}
+            />
+          </div>
+        </div>
+      );
+    }
+  }
+
+  private goButtons(): React.ReactNode {
+    if(this.state.inputting === inputtingAsset){
+      return (<Button
+        action={this.add}
+        type={'primary'}
+        title={
+          'Create new asset (over-writes any existing with the same name)'
+        }
+        id="addAsset"
+      />);
+    } else if(this.state.inputting === inputtingRevalue){
+      return (<Button
+        action={this.revalue}
+        type={'primary'}
+        title={
+          'Revalue this asset'
+        }
+        id="revalueAsset"
+      />);
+    } else if(this.state.inputting === inputtingRevalue){
+      return (<Button
+        action={this.add}
+        type={'primary'}
+        title={
+          'Create new pension'
+        }
+        id="addPension"
+      />);
+    } else {
+      return (<div></div>);
+    }
+  }
+
   private inputsForDCP(): React.ReactNode {
     return (
       <div
         style={{
-          display: this.state.inputtingDefinedContsPension ? 'block' : 'none',
+          display: this.state.inputting === inputtingPension ? 'block' : 'none',
         }}
       >
         <div className="container-fluid">
@@ -264,7 +397,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
           <div className="col">
             <Input
               title={`${
-                this.state.inputtingDefinedContsPension ? 'Pension' : 'Asset'
+                this.state.inputting === inputtingPension? 'Pension' : 'Asset'
               } name`}
               type="text"
               name="assetname"
@@ -278,73 +411,64 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
             <Button
               action={this.delete}
               type={'secondary'}
-              title={`Delete any ${
-                this.state.inputtingDefinedContsPension ? 'pension' : 'asset'
-              } with this name`}
+              title={`Delete ${
+                this.state.inputting === inputtingPension ? 'pension' : 'asset'
+              }`}
               id="deleteAsset"
             />
           </div>
           {/* end col */}
           <div className="col">
             <Button
-              action={this.toggleDCPInputs}
+              action={this.inputAsset}
               type={
-                this.state.inputtingDefinedContsPension
+                this.state.inputting === inputtingAsset
                   ? 'primary'
                   : 'secondary'
               }
-              title={'Use Defined Contributions Pension inputs'}
+              title={'Input new asset'}
+              id="inputAsset"
+            />
+          </div>
+          {/* end col */}
+          <div className="col">
+            <Button
+              action={this.inputPension}
+              type={
+                this.state.inputting === inputtingPension
+                  ? 'primary'
+                  : 'secondary'
+              }
+              title={'Input pension'}
               id="useDCPInputs"
             />
-          </div>{' '}
+          </div>
+          {/* end col */}
+          <div className="col">
+            <Button
+              action={this.inputRevalue}
+              type={
+                this.state.inputting === inputtingRevalue
+                  ? 'primary'
+                  : 'secondary'
+              }
+              title={'Revalue asset'}
+              id="revalueAsset"
+            />
+          </div>
           {/* end col */}
         </div>
         {/* end row */}
-        <div className="row">
-          <div className="col">
-            <Input
-              title={`${
-                this.state.inputtingDefinedContsPension ? 'Pension' : 'Asset'
-              } value`}
-              type="text"
-              name="assetvalue"
-              value={this.state.VALUE}
-              placeholder="Enter value"
-              onChange={this.handleValueChange}
-            />
-          </div>
-          {/* end col */}
-          <div className="col">
-            <Input
-              title={'Quantity (optional)'}
-              type="text"
-              name="assetquantity"
-              value={this.state.QUANTITY}
-              placeholder="Enter quantity"
-              onChange={this.handleQuantityChange}
-            />
-          </div>
-          {/* end col */}
-          <div className="col">
-            <Input
-              title="Category (optional)"
-              type="text"
-              name="assetcategory"
-              value={this.state.CATEGORY}
-              placeholder="category"
-              onChange={this.handleCategoryChange}
-            />
-          </div>
-        </div>
-        {/* end row */}
-
+        {this.ValueQuantityAndCategory()}
         <div className="container-fluid">
           {/* fills width */}
           <DateSelectionRow
             introLabel={`Date on which the ${
-              this.state.inputtingDefinedContsPension
-                ? 'pension asset begins'
-                : 'asset starts'
+              this.state.inputting === inputtingRevalue
+                ? 'revaluation occurs'
+                : this.state.inputting === inputtingPension
+                  ? 'pension asset begins'
+                  : 'asset starts'
             }`}
             setDateFunction={this.setStart}
             inputName="start date"
@@ -354,41 +478,10 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
             submitTrigger={this.props.submitTrigger}
           />
         </div>
-        <div className="row">
-          <div className="col">
-            <Input
-              title="Annual growth percentage (excluding inflation, e.g. 2 for 2% p.a.)"
-              type="text"
-              name="assetgrowth"
-              value={this.state.GROWTH}
-              placeholder="Enter growth"
-              onChange={this.handleGrowthChange}
-            />
-          </div>
-          {/* end col */}
-          <div className="col">
-            <Input
-              title="Is value immune to inflation?"
-              type="text"
-              name="assetcpi-immune"
-              value={this.state.CPI_IMMUNE}
-              placeholder="Enter Y/N"
-              onChange={this.handleFixedChange}
-            />
-          </div>
-        </div>
-        {/* end row */}
+        {this.growthAndInflation()}
         {this.inputsForGeneralAsset()}
         {this.inputsForDCP()}
-
-        <Button
-          action={this.add}
-          type={'primary'}
-          title={
-            'Create new asset (over-writes any existing with the same name)'
-          }
-          id="addAsset"
-        />
+        {this.goButtons()}
       </form>
     );
   }
@@ -467,6 +560,65 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
     this.setState({ DCP_EMP_CONTRIBUTION_AMOUNT: value });
   }
 
+  private async revalue(e: any){
+    e.preventDefault();
+
+    const parseVal = makeValueAbsPropFromString(this.state.VALUE);
+    if (!parseVal.checksOK) {
+      alert(
+        `Income value ${this.state.VALUE} should be a numerical or % value`,
+      );
+      return;
+    }
+
+    const date = checkTriggerDate(
+      this.state.START,
+      this.props.model.triggers,
+    );
+    const isNotADate = date === undefined;
+    if (isNotADate) {
+      alert(`Value set date should be a date`);
+      return;
+    }
+
+    let count = 1;
+    while (
+      isATransaction(`${revalue} ${this.state.NAME} ${count}`, this.props.model)
+    ) {
+      count += 1;
+    }
+
+    const revalueExpenseTransaction: DbTransaction = {
+      NAME: `${revalue} ${this.state.NAME} ${count}`,
+      FROM: '',
+      FROM_ABSOLUTE: false,
+      FROM_VALUE: '0.0',
+      TO: this.state.NAME,
+      TO_ABSOLUTE: parseVal.absolute,
+      TO_VALUE: parseVal.value,
+      DATE: this.state.START,
+      TYPE: revalueAsset,
+      RECURRENCE: '',
+      STOP_DATE: '',
+      CATEGORY: '',
+    };
+    // log(`adding transaction ${showObj(revalueExpenseTransaction)}`);
+    const message = await this.props.checkTransactionFunction(
+      revalueExpenseTransaction,
+      this.props.model,
+    );
+    if (message.length > 0) {
+      alert(message);
+      return;
+    }
+    await this.props.submitTransactionFunction(revalueExpenseTransaction);
+
+    alert('added new data');
+    // clear fields
+    this.setState(this.defaultState);
+    return;
+  }
+
   private async add(e: any) {
     e.preventDefault();
 
@@ -487,7 +639,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
       return;
     }
 
-    if (this.state.inputtingDefinedContsPension) {
+    if (this.state.inputting === inputtingPension) {
       const asset1Name = pension + this.state.NAME;
       const asset2Name = this.state.NAME + 'TaxFree';
       const asset3Name = crystallizedPension + this.state.LIABILITY;
@@ -742,12 +894,25 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
       alert(`failed to delete ${this.state.NAME}`);
     }
   }
-  private toggleDCPInputs(e: any) {
+  private inputPension(e: any) {
     e.preventDefault();
-    const currentState = this.state.inputtingDefinedContsPension;
     this.setState({
       ...this.state,
-      inputtingDefinedContsPension: !currentState,
+      inputting: inputtingPension,
+    });
+  }
+  private inputAsset(e: any) {
+    e.preventDefault();
+    this.setState({
+      ...this.state,
+      inputting: inputtingAsset,
+    });
+  }
+  private inputRevalue(e: any) {
+    e.preventDefault();
+    this.setState({
+      ...this.state,
+      inputting: inputtingRevalue,
     });
   }
 }

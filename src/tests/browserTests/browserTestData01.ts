@@ -3,6 +3,7 @@ import {
   incomeTax,
   roiEnd,
   roiStart,
+  payOffDebt,
 } from '../../localization/stringConstants';
 import { DbModelData } from '../../types/interfaces';
 import { setSetting, makeDateFromString } from '../../utils';
@@ -88,6 +89,7 @@ export function getTestModel01() {
         NAME: 'EarlyMortgage',
         START: '1 January 2018',
         VALUE: '-234000', // how much was borrowed
+        IS_A_DEBT: true,
         GROWTH: '2.33', // good rate for early part of deal (excl cpi)
         CATEGORY: 'mortgage',
       },
@@ -96,6 +98,7 @@ export function getTestModel01() {
         NAME: 'LateMortgage',
         START: '1 January 2018',
         GROWTH: '4.66', // after rate goes up (excl cpi)
+        IS_A_DEBT: true,
         CATEGORY: 'mortgage',
       },
     ],
@@ -148,6 +151,7 @@ export function getTestModel01() {
         STOP_DATE: 'TransferMortgage',
         RECURRENCE: '1m',
         CATEGORY: 'pay mortgage',
+        TYPE: payOffDebt,
       },
       {
         ...simpleTransaction,
@@ -161,6 +165,7 @@ export function getTestModel01() {
         STOP_DATE: '1 January 2040',
         RECURRENCE: '1m',
         CATEGORY: 'pay mortgage',
+        TYPE: payOffDebt,
       },
     ],
     settings: [...browserTestSettings],

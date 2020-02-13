@@ -297,6 +297,8 @@ function handleTransactionGridRowsUpdated(
 ) {
   // log('handleTransactionGridRowsUpdated', arguments);
   const gridData = args[0].fromRowData;
+
+  // for debugging, it can be useful to allow editing of the name
   if (args[0].cellKey === 'NAME') {
     if (gridData.NAME !== args[0].updated.NAME) {
       prohibitEditOfName();
