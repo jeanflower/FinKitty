@@ -431,7 +431,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
                   ? 'primary'
                   : 'secondary'
               }
-              title={'Input new asset'}
+              title={'Add a new asset'}
               id="inputAsset"
             />
           </div>
@@ -444,7 +444,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
                   ? 'primary'
                   : 'secondary'
               }
-              title={'Input pension'}
+              title={'Add a pension'}
               id="useDCPInputs"
             />
           </div>

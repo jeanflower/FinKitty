@@ -169,19 +169,6 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
           {/* end col */}
           <div className="col">
             <Button
-              action={this.setInputDBP}
-              type={
-                this.state.inputting === inputtingPension
-                  ? 'primary'
-                  : 'secondary'
-              }
-              title={'Add a pension'}
-              id="useDBPInputs"
-            />
-          </div>{' '}
-          {/* end col */}
-          <div className="col">
-            <Button
               action={this.setInputincome}
               type={
                 this.state.inputting === inputtingIncome
@@ -190,6 +177,19 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
               }
               title={'Add a new income'}
               id="useIncomeInputs"
+            />
+          </div>{' '}
+          {/* end col */}
+          <div className="col">
+            <Button
+              action={this.setInputDBP}
+              type={
+                this.state.inputting === inputtingPension
+                  ? 'primary'
+                  : 'secondary'
+              }
+              title={'Add a pension'}
+              id="useDBPInputs"
             />
           </div>{' '}
           {/* end col */}
@@ -231,11 +231,13 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
         <div className="container-fluid">
           {/* fills width */}
           <DateSelectionRow
-            introLabel={`Date on which the ${
+            introLabel={`${
               this.state.inputting === inputtingPension
-                ? 'pension'
-                : inputtingIncome
-            } value is set:`}
+                ? "Date on which the pension's value is set"
+                : this.state.inputting === inputtingIncome
+                ? "Date on which the new income's value is set"
+                : "Date on which the income's new value is set"
+            }`}
             setDateFunction={this.setValueSet}
             inputName="income valuation date"
             inputValue={this.state.VALUE_SET}

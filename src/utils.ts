@@ -567,6 +567,14 @@ export function makeGrowthTooltip(input: string, settings: DbSetting[]) {
   }
   return '';
 }
+
+export const dateFormatOptions = {
+  weekday: undefined,
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+};
+
 // returns a date string for a trigger, or '' for date or junk
 export function makeDateTooltip(input: string, triggers: DbTrigger[]) {
   // log(`triggers.length = ${triggers.length}`);
@@ -574,7 +582,7 @@ export function makeDateTooltip(input: string, triggers: DbTrigger[]) {
   if (input !== '') {
     const date = checkTriggerDate(input, triggers);
     if (date !== undefined) {
-      result = date.toDateString();
+      result = date.toLocaleDateString(undefined, dateFormatOptions);
     }
   }
   // log(`make date tooltip for ${input}: ${result}`);

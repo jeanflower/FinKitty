@@ -220,7 +220,7 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
             <Button
               action={this.delete}
               type={'secondary'}
-              title={'Delete any expense with this name'}
+              title={'Delete expense'}
               id="deleteExpense"
             />
           </div>
@@ -233,7 +233,7 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
                   ? 'primary'
                   : 'secondary'
               }
-              title={'Enter a new expense'}
+              title={'Add a new expense'}
               id="useExpenseInputs"
             />
           </div>{' '}

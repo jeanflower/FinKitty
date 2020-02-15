@@ -82,7 +82,7 @@ export class AddDeleteDebtForm extends Component<EditProps, EditFormState> {
             <Button
               action={this.delete}
               type={'secondary'}
-              title={`Delete any debt with this name`}
+              title={`Delete debt`}
               id="deleteAsset"
             />
           </div>

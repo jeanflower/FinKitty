@@ -165,7 +165,7 @@ export class AddDeleteTransactionForm extends Component<
             <Button
               action={this.delete}
               type={'secondary'}
-              title={'Delete any transaction with this name'}
+              title={'Delete transaction'}
               id="deleteTransaction"
             />
           </div>{' '}

@@ -837,7 +837,7 @@ export function incomesTableDiv(model: DbModelData) {
               {
                 ...defaultColumn,
                 key: 'VALUE_SET',
-                name: 'value date',
+                name: 'value set date',
                 formatter: (
                   <TriggerDateFormatter
                     triggers={model.triggers}
@@ -883,7 +883,7 @@ export function incomesTableDiv(model: DbModelData) {
               {
                 ...defaultColumn,
                 key: 'LIABILITY',
-                name: 'taxable?',
+                name: 'Tax Liability',
               },
               {
                 ...defaultColumn,
@@ -948,7 +948,7 @@ export function expensesTableDiv(model: DbModelData) {
               {
                 ...defaultColumn,
                 key: 'VALUE_SET',
-                name: 'value date',
+                name: 'value set date',
                 formatter: (
                   <TriggerDateFormatter
                     triggers={model.triggers}

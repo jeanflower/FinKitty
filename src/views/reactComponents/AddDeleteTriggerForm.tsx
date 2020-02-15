@@ -86,7 +86,7 @@ export class AddDeleteTriggerForm extends Component<EditProps, EditFormState> {
             <Button
               action={this.delete}
               type={'secondary'}
-              title={'Delete any important date with this name'}
+              title={'Delete important date'}
               id="deleteTrigger"
             />
           </div>{' '}
