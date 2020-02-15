@@ -14,7 +14,7 @@ interface DataGridProps {
 interface DataGridState {
   rows: any[]; // TODO any
   colSortIndex: string;
-  sortDirection: string;
+  sortDirection: 'ASC' | 'DESC' | 'NONE';
 }
 class DataGrid extends React.Component<DataGridProps, DataGridState> {
   public constructor(props: DataGridProps) {
@@ -22,22 +22,30 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
     this.state = {
       rows: props.rows,
       colSortIndex: '',
-      sortDirection: '',
+      sortDirection: 'NONE',
     };
   }
   public rowGetter(i: number) {
     if (printDebug()) {
       log('in rowgetter, this.props.rows = ' + this.props.rows);
     }
+    let colSortIndex = this.state.colSortIndex;
     if (this.state.sortDirection === 'NONE') {
-      return this.props.rows[i];
+      if (
+        this.props.rows.length === 0 ||
+        this.props.rows[0].index === undefined
+      ) {
+        return this.props.rows[i];
+      } else {
+        colSortIndex = 'index'; // TODO
+      }
     }
 
     //return this.props.rows.sort()[i];
     return this.props.rows.sort((a, b) => {
-      // log(`this.state.colSortIndex = ${this.state.colSortIndex}`);
-      let aVal = a[this.state.colSortIndex];
-      let bVal = b[this.state.colSortIndex];
+      // log(`colSortIndex = ${colSortIndex}`);
+      let aVal = a[colSortIndex];
+      let bVal = b[colSortIndex];
       if (printDebug()) {
         log(`aVal = ${showObj(aVal)}, bVal = ${showObj(bVal)}`);
       }
@@ -45,27 +53,52 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
         aVal = a[this.props.columns[0]];
         bVal = b[this.props.columns[0]];
       }
-      if (this.state.colSortIndex === 'DATE') {
-        aVal = new Date(aVal).getTime();
-        bVal = new Date(bVal).getTime();
+      if (
+        colSortIndex === 'DATE' ||
+        colSortIndex === 'START' ||
+        colSortIndex === 'END'
+      ) {
+        const aTimeVal = new Date(aVal).getTime();
+        const bTimeVal = new Date(bVal).getTime();
+        // log(`aTimeVal = ${aTimeVal}, bTimeVal = ${bTimeVal}`);
+        const aIsDate = !Number.isNaN(aTimeVal);
+        const bIsDate = !Number.isNaN(bTimeVal);
+        // log(`aIsDate = ${aIsDate}, bIsDate = ${bIsDate}`);
+        if (aIsDate && !bIsDate) {
+          // log('return 1');
+          return 1;
+        } else if (!aIsDate && bIsDate) {
+          // log('return -1');
+          return -1;
+        } else if (aIsDate && bIsDate) {
+          aVal = aTimeVal;
+          bVal = bTimeVal;
+        }
         //log(`aVal = ${showObj(aVal)}, bVal = ${showObj(bVal)}`);
+      } else if (colSortIndex === 'index') {
       } else if (aVal !== undefined && bVal !== undefined) {
         aVal = aVal.toUpperCase();
         bVal = bVal.toUpperCase();
       }
+      // log(`aVal = ${aVal}, bVal = ${bVal}`);
       if (aVal < bVal) {
         if (this.state.sortDirection === 'ASC') {
+          // log('return -1');
           return -1;
         } else {
+          // log('return 1');
           return 1;
         }
       } else if (aVal > bVal) {
         if (this.state.sortDirection === 'ASC') {
+          // log('return 1');
           return 1;
         } else {
+          // log('return -1');
           return -1;
         }
       } else {
+        // log('return 0');
         return 0;
       }
     })[i];

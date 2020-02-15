@@ -471,6 +471,55 @@ function getCols(model: DbModelData, isDebt: boolean) {
   return cols;
 }
 
+function addIndices(unindexedResult: any[]) {
+  const result = [];
+  for (let index = 0; index < unindexedResult.length; index++) {
+    const elt = {
+      ...unindexedResult[index],
+      index: index,
+    };
+    result.push(elt);
+  }
+  return result;
+}
+
+function assetsOrDebtsForTable(model: DbModelData, isDebt: boolean): any[] {
+  const unindexedResult = model.assets
+    .filter((obj: DbAsset) => {
+      return obj.NAME !== taxPot && obj.IS_A_DEBT === isDebt;
+    })
+    .map((obj: DbAsset) => {
+      const dbStringValue = obj.VALUE;
+      let displayValue = parseFloat(dbStringValue);
+      if (obj.QUANTITY !== '') {
+        const dbQuanValue = parseFloat(obj.QUANTITY);
+        displayValue = displayValue / dbQuanValue;
+      }
+      if (isDebt) {
+        displayValue = -displayValue;
+      }
+      const tableValue = `${displayValue}`;
+      const mapResult = {
+        GROWTH: obj.GROWTH,
+        NAME: obj.NAME,
+        CATEGORY: obj.CATEGORY,
+        START: obj.START,
+        VALUE: tableValue,
+        QUANTITY: obj.QUANTITY,
+        LIABILITY: obj.LIABILITY,
+        PURCHASE_PRICE: makeStringFromPurchasePrice(
+          obj.PURCHASE_PRICE,
+          obj.LIABILITY,
+        ),
+        IS_CPI_IMMUNE: makeYesNoFromBoolean(obj.CPI_IMMUNE),
+        IS_A_DEBT: makeYesNoFromBoolean(obj.IS_A_DEBT),
+        CAN_BE_NEGATIVE: makeYesNoFromBoolean(obj.CAN_BE_NEGATIVE),
+      };
+      return mapResult;
+    });
+  return addIndices(unindexedResult);
+}
+
 export function assetsOrDebtsTableDiv(model: DbModelData, isDebt: boolean) {
   const tableVisible = isDebt
     ? showContent.get(debtsTable).display
@@ -487,39 +536,7 @@ export function assetsOrDebtsTableDiv(model: DbModelData, isDebt: boolean) {
             handleGridRowsUpdated={function() {
               return handleAssetGridRowsUpdated(model, arguments);
             }}
-            rows={model.assets
-              .filter((obj: DbAsset) => {
-                return obj.NAME !== taxPot && obj.IS_A_DEBT === isDebt;
-              })
-              .map((obj: DbAsset) => {
-                const dbStringValue = obj.VALUE;
-                let displayValue = parseFloat(dbStringValue);
-                if (obj.QUANTITY !== '') {
-                  const dbQuanValue = parseFloat(obj.QUANTITY);
-                  displayValue = displayValue / dbQuanValue;
-                }
-                if (isDebt) {
-                  displayValue = -displayValue;
-                }
-                const tableValue = `${displayValue}`;
-                const result = {
-                  GROWTH: obj.GROWTH,
-                  NAME: obj.NAME,
-                  CATEGORY: obj.CATEGORY,
-                  START: obj.START,
-                  VALUE: tableValue,
-                  QUANTITY: obj.QUANTITY,
-                  LIABILITY: obj.LIABILITY,
-                  PURCHASE_PRICE: makeStringFromPurchasePrice(
-                    obj.PURCHASE_PRICE,
-                    obj.LIABILITY,
-                  ),
-                  IS_CPI_IMMUNE: makeYesNoFromBoolean(obj.CPI_IMMUNE),
-                  IS_A_DEBT: makeYesNoFromBoolean(obj.IS_A_DEBT),
-                  CAN_BE_NEGATIVE: makeYesNoFromBoolean(obj.CAN_BE_NEGATIVE),
-                };
-                return result;
-              })}
+            rows={assetsOrDebtsForTable(model, isDebt)}
             columns={getCols(model, isDebt)}
           />
         </div>
@@ -660,6 +677,51 @@ function getDisplayName(obj: any, type: string) {
   return obj.NAME;
 }
 
+function transactionsForTable(model: DbModelData, type: string) {
+  const unindexedRows = model.transactions
+    .filter(t => {
+      return t.TYPE === type;
+    })
+    .map((obj: DbTransaction) => {
+      // log(`obj.FROM_ABSOLUTE = ${obj.FROM_ABSOLUTE}`)
+      let fromValueEntry = makeStringFromValueAbsProp(
+        obj.FROM_VALUE,
+        obj.FROM_ABSOLUTE,
+        obj.FROM,
+        model,
+        obj.NAME,
+      );
+      // log(`obj.FROM = ${obj.FROM}, fromValueEntry = ${fromValueEntry}`);
+      if (obj.FROM === '' && fromValueEntry === '0') {
+        fromValueEntry = '';
+      }
+      let toValueEntry = makeStringFromValueAbsProp(
+        obj.TO_VALUE,
+        obj.TO_ABSOLUTE,
+        obj.TO,
+        model,
+        obj.NAME,
+      );
+      if (obj.TO === '' && toValueEntry === '0') {
+        toValueEntry = '';
+      }
+      const mapResult = {
+        DATE: obj.DATE,
+        FROM: obj.FROM,
+        FROM_VALUE: fromValueEntry,
+        NAME: getDisplayName(obj, type),
+        TO: obj.TO,
+        TO_VALUE: toValueEntry,
+        STOP_DATE: obj.STOP_DATE,
+        RECURRENCE: obj.RECURRENCE,
+        TYPE: obj.TYPE,
+        CATEGORY: obj.CATEGORY,
+      };
+      return mapResult;
+    });
+  return addIndices(unindexedRows);
+}
+
 export function transactionsTableDiv(model: DbModelData, type: string) {
   const tableVisible = showContent.get(transactionsTable).display;
   return (
@@ -674,52 +736,22 @@ export function transactionsTableDiv(model: DbModelData, type: string) {
           handleGridRowsUpdated={function() {
             return handleTransactionGridRowsUpdated(model, type, arguments);
           }}
-          rows={model.transactions
-            .filter(t => {
-              return t.TYPE === type;
-            })
-            .map((obj: DbTransaction) => {
-              // log(`obj.FROM_ABSOLUTE = ${obj.FROM_ABSOLUTE}`)
-              let fromValueEntry = makeStringFromValueAbsProp(
-                obj.FROM_VALUE,
-                obj.FROM_ABSOLUTE,
-                obj.FROM,
-                model,
-                obj.NAME,
-              );
-              // log(`obj.FROM = ${obj.FROM}, fromValueEntry = ${fromValueEntry}`);
-              if (obj.FROM === '' && fromValueEntry === '0') {
-                fromValueEntry = '';
-              }
-              let toValueEntry = makeStringFromValueAbsProp(
-                obj.TO_VALUE,
-                obj.TO_ABSOLUTE,
-                obj.TO,
-                model,
-                obj.NAME,
-              );
-              if (obj.TO === '' && toValueEntry === '0') {
-                toValueEntry = '';
-              }
-              const result = {
-                DATE: obj.DATE,
-                FROM: obj.FROM,
-                FROM_VALUE: fromValueEntry,
-                NAME: getDisplayName(obj, type),
-                TO: obj.TO,
-                TO_VALUE: toValueEntry,
-                STOP_DATE: obj.STOP_DATE,
-                RECURRENCE: obj.RECURRENCE,
-                TYPE: obj.TYPE,
-                CATEGORY: obj.CATEGORY,
-              };
-              return result;
-            })}
+          rows={transactionsForTable(model, type)}
           columns={makeCols(model, type)}
         />
       </div>
     </fieldset>
   );
+}
+function triggersForTable(model: DbModelData) {
+  const unindexedResult = model.triggers.map((obj: DbTrigger) => {
+    const mapResult = {
+      DATE: obj.DATE.toDateString(),
+      NAME: obj.NAME,
+    };
+    return mapResult;
+  });
+  return addIndices(unindexedResult);
 }
 
 export function triggersTableDiv(model: DbModelData) {
@@ -734,13 +766,7 @@ export function triggersTableDiv(model: DbModelData) {
         <div className="dataGridTriggers">
           <DataGrid
             handleGridRowsUpdated={handleTriggerGridRowsUpdated}
-            rows={model.triggers.map((obj: DbTrigger) => {
-              const result = {
-                DATE: obj.DATE.toDateString(),
-                NAME: obj.NAME,
-              };
-              return result;
-            })}
+            rows={triggersForTable(model)}
             columns={[
               {
                 ...defaultColumn,
@@ -761,6 +787,25 @@ export function triggersTableDiv(model: DbModelData) {
   );
 }
 
+function incomesForTable(model: DbModelData) {
+  const unindexedResult = model.incomes.map((obj: DbIncome) => {
+    const mapResult = {
+      END: obj.END,
+      IS_CPI_IMMUNE: makeYesNoFromBoolean(obj.CPI_IMMUNE),
+      GROWTH: makeStringFromGrowth(obj.GROWTH, model.settings),
+      NAME: obj.NAME,
+      START: obj.START,
+      VALUE: obj.VALUE,
+      VALUE_SET: obj.VALUE_SET,
+      LIABILITY: obj.LIABILITY,
+      CATEGORY: obj.CATEGORY,
+    };
+    // log(`passing ${showObj(result)}`);
+    return mapResult;
+  });
+  return addIndices(unindexedResult);
+}
+
 export function incomesTableDiv(model: DbModelData) {
   const tableVisible = showContent.get(incomesTable).display;
   return (
@@ -775,21 +820,7 @@ export function incomesTableDiv(model: DbModelData) {
             handleGridRowsUpdated={function() {
               return handleIncomeGridRowsUpdated(model, arguments);
             }}
-            rows={model.incomes.map((obj: DbIncome) => {
-              const result = {
-                END: obj.END,
-                IS_CPI_IMMUNE: makeYesNoFromBoolean(obj.CPI_IMMUNE),
-                GROWTH: makeStringFromGrowth(obj.GROWTH, model.settings),
-                NAME: obj.NAME,
-                START: obj.START,
-                VALUE: obj.VALUE,
-                VALUE_SET: obj.VALUE_SET,
-                LIABILITY: obj.LIABILITY,
-                CATEGORY: obj.CATEGORY,
-              };
-              // log(`passing ${showObj(result)}`);
-              return result;
-            })}
+            rows={incomesForTable(model)}
             columns={[
               {
                 ...defaultColumn,
@@ -868,6 +899,24 @@ export function incomesTableDiv(model: DbModelData) {
   );
 }
 
+function expensesForTable(model: DbModelData) {
+  const unindexedResult = model.expenses.map((obj: DbExpense) => {
+    const mapResult = {
+      END: obj.END,
+      IS_CPI_IMMUNE: makeYesNoFromBoolean(obj.CPI_IMMUNE),
+      GROWTH: makeStringFromGrowth(obj.GROWTH, model.settings),
+      CATEGORY: obj.CATEGORY,
+      NAME: obj.NAME,
+      START: obj.START,
+      VALUE: obj.VALUE,
+      VALUE_SET: obj.VALUE_SET,
+      RECURRENCE: obj.RECURRENCE,
+    };
+    return mapResult;
+  });
+  return addIndices(unindexedResult);
+}
+
 export function expensesTableDiv(model: DbModelData) {
   const tableVisible = showContent.get(expensesTable).display;
   return (
@@ -882,20 +931,7 @@ export function expensesTableDiv(model: DbModelData) {
             handleGridRowsUpdated={function() {
               return handleExpenseGridRowsUpdated(model, arguments);
             }}
-            rows={model.expenses.map((obj: DbExpense) => {
-              const result = {
-                END: obj.END,
-                IS_CPI_IMMUNE: makeYesNoFromBoolean(obj.CPI_IMMUNE),
-                GROWTH: makeStringFromGrowth(obj.GROWTH, model.settings),
-                CATEGORY: obj.CATEGORY,
-                NAME: obj.NAME,
-                START: obj.START,
-                VALUE: obj.VALUE,
-                VALUE_SET: obj.VALUE_SET,
-                RECURRENCE: obj.RECURRENCE,
-              };
-              return result;
-            })}
+            rows={expensesForTable(model)}
             columns={[
               {
                 ...defaultColumn,
@@ -974,6 +1010,19 @@ export function expensesTableDiv(model: DbModelData) {
   );
 }
 
+function settingsForTable(model: DbModelData) {
+  const unindexedResult = model.settings.map((obj: DbSetting) => {
+    showObj(`obj = ${obj}`);
+    const mapResult = {
+      NAME: obj.NAME,
+      VALUE: obj.VALUE,
+      HINT: obj.HINT,
+    };
+    return mapResult;
+  });
+  return addIndices(unindexedResult);
+}
+
 export function settingsTableDiv(model: DbModelData) {
   const tableVisible = showContent.get(settingsTable).display;
   return (
@@ -985,15 +1034,7 @@ export function settingsTableDiv(model: DbModelData) {
     >
       <DataGrid
         handleGridRowsUpdated={handleSettingGridRowsUpdated}
-        rows={model.settings.map((obj: DbSetting) => {
-          showObj(`obj = ${obj}`);
-          const result = {
-            NAME: obj.NAME,
-            VALUE: obj.VALUE,
-            HINT: obj.HINT,
-          };
-          return result;
-        })}
+        rows={settingsForTable(model)}
         columns={[
           {
             ...defaultColumn,
