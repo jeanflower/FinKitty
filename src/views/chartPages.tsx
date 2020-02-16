@@ -22,8 +22,11 @@ import {
   viewDetail,
   viewDetailHint,
   total,
+  viewFrequency,
+  annually,
+  monthly,
 } from '../localization/stringConstants';
-import { getSettings, showObj } from '../utils';
+import { getSettings, log, showObj, printDebug } from '../utils';
 import Button from './reactComponents/Button';
 import {
   assetsChart,
@@ -38,6 +41,7 @@ import {
 import ReactiveTextArea from './reactComponents/ReactiveTextArea';
 
 import CanvasJSReact from '../assets/js/canvasjs.react';
+import CanvasJS from '../assets/js/canvasjs.min';
 const { CanvasJSChart } = CanvasJSReact;
 
 function getIncomeChartFocus(model: DbModelData) {
@@ -141,21 +145,39 @@ function coarseFineList(model: DbModelData) {
   return <div role="group">{buttons}</div>;
 }
 
-const defaultChartSettings = {
-  height: 400,
-  toolTip: {
-    content: '{name}: {ttip}',
-  },
-  // width: 800,
+function getDefaultChartSettings(model: DbModelData){
+  const showMonth = getSettings(
+    model.settings, 
+    viewFrequency, 
+    annually,
+  ) === monthly;
+  return {
+    height: 400,
+    toolTip: {
+      content: '{name}: {ttip}',
+    },
+    // width: 800,
 
-  legend: {
-    // fontSize: 30,
-    fontFamily: 'Helvetica',
-    fontWeight: 'normal',
-    horizontalAlign: 'right', // left, center ,right
-    verticalAlign: 'center', // top, center, bottom
-  },
-};
+    legend: {
+      // fontSize: 30,
+      fontFamily: 'Helvetica',
+      fontWeight: 'normal',
+      horizontalAlign: 'right', // left, center ,right
+      verticalAlign: 'center', // top, center, bottom
+    },
+    
+    axisX:{
+      labelFormatter: function ( e: any ) {
+        if(printDebug()){
+          log(`e.value = ${e.label}`);
+        }
+        return CanvasJS.formatDate( 
+          e.label, 
+          showMonth ? 'MMM YYYY': 'YYYY');
+      }  
+    },
+  };
+}
 
 export function incomesChartDiv(
   model: DbModelData,
@@ -183,7 +205,7 @@ export function incomesChartDiv(
       <fieldset>
         <CanvasJSChart
           options={{
-            ...defaultChartSettings,
+            ...getDefaultChartSettings(model),
             data: incomesChartData,
           }}
         />
@@ -235,7 +257,7 @@ export function expensesChartDiv(
         />
         <CanvasJSChart
           options={{
-            ...defaultChartSettings,
+            ...getDefaultChartSettings(model),
             data: expensesChartData,
           }}
         />
@@ -365,7 +387,7 @@ export function assetsOrDebtsChartDiv(
       />
       <CanvasJSChart
         options={{
-          ...defaultChartSettings,
+          ...getDefaultChartSettings(model),
           data: assetChartData,
         }}
       />
@@ -373,7 +395,10 @@ export function assetsOrDebtsChartDiv(
   );
 }
 
-export function taxDiv(taxChartData: ChartData[]) {
+export function taxDiv(
+  model: DbModelData,
+  taxChartData: ChartData[],
+) {
   if (!getDisplay(taxView)) {
     return;
   }
@@ -382,7 +407,7 @@ export function taxDiv(taxChartData: ChartData[]) {
     <div style={{ display: getDisplay(taxView) ? 'block' : 'none' }}>
       <CanvasJSChart
         options={{
-          ...defaultChartSettings,
+          ...getDefaultChartSettings(model),
           data: taxChartData,
         }}
       />

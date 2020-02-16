@@ -783,7 +783,7 @@ export class AppContent extends Component<AppProps, AppState> {
           {assetsDiv(this.state.modelData, this.state.assetChartData)}
           {debtsDiv(this.state.modelData, this.state.debtChartData)}
           {this.transactionsDiv()}
-          {taxDiv(this.state.taxChartData)}
+          {taxDiv(this.state.modelData, this.state.taxChartData)}
           {this.triggersDiv()}
         </div>
       </div>
