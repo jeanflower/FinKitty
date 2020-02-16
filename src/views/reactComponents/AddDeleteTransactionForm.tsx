@@ -218,11 +218,11 @@ export class AddDeleteTransactionForm extends Component<
         <div className="row">
           <div className="col">
             <Input
-              title="How much to take (can be % of asset value)"
+              title="How much to reduce the value of the asset being sold (can be % of asset value)"
               type="text"
               name="fromValue"
               value={this.state.FROM_INPUT_VALUE}
-              placeholder="Enter from value"
+              placeholder="Enter value"
               onChange={this.handleFromValueChange}
             />
           </div>{' '}
@@ -233,7 +233,7 @@ export class AddDeleteTransactionForm extends Component<
               type="text"
               name="toValue"
               value={this.state.TO_INPUT_VALUE}
-              placeholder="Enter to value"
+              placeholder="Enter value"
               onChange={this.handleToValueChange}
             />
           </div>{' '}

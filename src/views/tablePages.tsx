@@ -637,14 +637,20 @@ function makeTransactionCols(model: DbModelData, type: string) {
         key: 'RECURRENCE',
         name: 'recurrence',
       },
-      {
-        ...defaultColumn,
-        key: 'STOP_DATE',
-        name: 'stop',
-        formatter: (
-          <TriggerDateFormatter triggers={model.triggers} value="unset" />
-        ),
-      },
+    ]);
+    if (type !== payOffDebt) {
+      cols = cols.concat([
+        {
+          ...defaultColumn,
+          key: 'STOP_DATE',
+          name: 'stop',
+          formatter: (
+            <TriggerDateFormatter triggers={model.triggers} value="unset" />
+          ),
+        },
+      ]);
+    }
+    cols = cols.concat([
       {
         ...defaultColumn,
         key: 'CATEGORY',
