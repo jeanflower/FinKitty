@@ -551,19 +551,30 @@ function makeTransactionCols(model: DbModelData, type: string) {
     },
   ];
   if (type !== revalueInc && type !== revalueExp && type !== revalueAsset) {
-    cols = cols.concat([
-      {
-        ...defaultColumn,
-        key: 'FROM',
-        name: 'from',
-      },
-      {
-        ...defaultColumn,
-        key: 'FROM_VALUE',
-        name: 'from value',
-        formatter: <ToFromValueFormatter value="unset" />,
-      },
-    ]);
+    if (type !== payOffDebt) {
+      cols = cols.concat([
+        {
+          ...defaultColumn,
+          key: 'FROM',
+          name: 'from',
+        },
+        {
+          ...defaultColumn,
+          key: 'FROM_VALUE',
+          name: 'from value',
+          formatter: <ToFromValueFormatter value="unset" />,
+        },
+      ]);
+    } else {
+      cols = cols.concat([
+        {
+          ...defaultColumn,
+          key: 'FROM_VALUE',
+          name: 'amount',
+          formatter: <ToFromValueFormatter value="unset" />,
+        },
+      ]);
+    }
   }
   if (type === revalueInc) {
     cols = cols.concat([
