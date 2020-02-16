@@ -346,17 +346,20 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
         </div>
         {/* end row */}
         <div className="row">
-          <div className="col">
-            <Input
-              title="Tax liability (empty or someone's name)"
-              type="text"
-              name="taxable"
-              value={this.state.LIABILITY}
-              placeholder="Enter tax liability"
-              onChange={this.handleLiabilityChange}
-            />
-          </div>{' '}
-          {/* end col */}
+          {this.state.inputting !== inputtingPension ? (
+            <div className="col">
+              <Input
+                title="Tax liability (empty or someone's name)"
+                type="text"
+                name="taxable"
+                value={this.state.LIABILITY}
+                placeholder="Enter tax liability"
+                onChange={this.handleLiabilityChange}
+              />
+            </div>
+          ) : (
+            ''
+          )}
           <div className="col">
             <Input
               title="Category (optional)"
@@ -560,7 +563,7 @@ DBC_TRANSFERRED_STOP
           <div className="row">
             <div className="col">
               <Input
-                title="Pension transfers to (optional)"
+                title="On death, pension transfers to (optional)"
                 type="text"
                 name="transferName"
                 value={this.state.DBC_TRANSFER_TO}
@@ -570,7 +573,7 @@ DBC_TRANSFERRED_STOP
             </div>
             <div className="col">
               <Input
-                title="Pension transfer proportion (e.g. 0.5 for 50%, optional)"
+                title="Proportion transferred on death (e.g. 0.5 for 50%, optional)"
                 type="text"
                 name="transferProportion"
                 value={this.state.DBC_TRANSFER_PROPORTION}
@@ -783,10 +786,14 @@ DBC_TRANSFERRED_STOP
       // (g) submit transactions
       // (h) reset to defaults
 
-      const builtLiability1 = makeIncomeLiabilityFromNameAndNI(
-        this.state.LIABILITY,
-        false, // no NI payable
-      );
+      const incomeSource = this.props.model.incomes.filter(i => {
+        return i.NAME === this.state.DBC_INCOME_SOURCE;
+      });
+      if (incomeSource.length === 0) {
+        alert(`no matched income found for ${this.state.DBC_INCOME_SOURCE}`);
+        return;
+      }
+      const builtLiability1 = incomeSource[0].LIABILITY;
       const liabilityMessage = checkIncomeLiability(builtLiability1);
       if (liabilityMessage !== '') {
         alert(liabilityMessage);
@@ -840,17 +847,6 @@ DBC_TRANSFERRED_STOP
       if (incomeTaxWord === undefined) {
         alert(
           `Source income '${sourceIncome.NAME}' should have an income tax liability`,
-        );
-        return;
-      }
-      const personName = incomeTaxWord.substring(
-        incomeTax.length,
-        incomeTaxWord.length,
-      );
-      if (personName !== this.state.LIABILITY) {
-        alert(
-          `Source income '${sourceIncome.NAME}' should have a same income tax liability ` +
-            `as this pension, but '${personName}' and '${this.state.LIABILITY}' are different`,
         );
         return;
       }
