@@ -25,6 +25,7 @@ import {
   viewFrequency,
   annually,
   monthly,
+  birthDate,
 } from '../localization/stringConstants';
 import { getSettings, log, showObj, printDebug } from '../utils';
 import Button from './reactComponents/Button';
@@ -145,12 +146,21 @@ function coarseFineList(model: DbModelData) {
   return <div role="group">{buttons}</div>;
 }
 
-function getDefaultChartSettings(model: DbModelData){
-  const showMonth = getSettings(
-    model.settings, 
-    viewFrequency, 
-    annually,
-  ) === monthly;
+function getDefaultChartSettings(model: DbModelData) {
+  const showMonth =
+    getSettings(
+      model.settings,
+      viewFrequency,
+      annually,
+      false, // be OK if there's no matching value
+    ) === monthly;
+  const showAge =
+    getSettings(
+      model.settings,
+      birthDate,
+      '',
+      false, // be OK if there's no matching value
+    ) !== '';
   return {
     height: 400,
     toolTip: {
@@ -165,16 +175,17 @@ function getDefaultChartSettings(model: DbModelData){
       horizontalAlign: 'right', // left, center ,right
       verticalAlign: 'center', // top, center, bottom
     },
-    
-    axisX:{
-      labelFormatter: function ( e: any ) {
-        if(printDebug()){
+
+    axisX: {
+      labelFormatter: function(e: any) {
+        if (printDebug()) {
           log(`e.value = ${e.label}`);
+          log(`showAge = ${showAge}`);
         }
-        return CanvasJS.formatDate( 
-          e.label, 
-          showMonth ? 'MMM YYYY': 'YYYY');
-      }  
+        return showAge
+          ? e.label
+          : CanvasJS.formatDate(e.label, showMonth ? 'MMM YYYY' : 'YYYY');
+      },
     },
   };
 }
@@ -395,10 +406,7 @@ export function assetsOrDebtsChartDiv(
   );
 }
 
-export function taxDiv(
-  model: DbModelData,
-  taxChartData: ChartData[],
-) {
+export function taxDiv(model: DbModelData, taxChartData: ChartData[]) {
   if (!getDisplay(taxView)) {
     return;
   }

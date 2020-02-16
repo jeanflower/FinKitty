@@ -593,13 +593,16 @@ export function getSettings(
   settings: DbSetting[],
   key: string,
   fallbackVal: string,
+  expectValue = true,
 ) {
   const searchResult = isSetting(key, settings);
   if (searchResult.numFound === 1) {
     return searchResult.value;
   }
   if (searchResult.numFound === 0) {
-    log(`BUG!!! '${key}' value not found in settings list`);
+    if (expectValue) {
+      log(`BUG!!! '${key}' value not found in settings list`);
+    }
     // log(`couldn't find ${key} in ${showObj(settings)}`);
     return fallbackVal;
   }

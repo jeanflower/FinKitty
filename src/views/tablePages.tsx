@@ -778,10 +778,12 @@ export function triggersTableDiv(model: DbModelData) {
                 ...defaultColumn,
                 key: 'DATE',
                 name: 'date',
-                formatter: <TriggerDateFormatter
-                  triggers={model.triggers}
-                  value="unset"
-                />
+                formatter: (
+                  <TriggerDateFormatter
+                    triggers={model.triggers}
+                    value="unset"
+                  />
+                ),
               },
             ]}
           />
