@@ -427,11 +427,6 @@ function getCols(model: DbModelData, isDebt: boolean) {
       name: isDebt ? 'interest rate' : 'growth',
       formatter: <GrowthFormatter settings={model.settings} value="unset" />,
     },
-    {
-      ...defaultColumn,
-      key: 'IS_CPI_IMMUNE',
-      name: 'Is immune from CPI?',
-    },
     // for debugging, we can find it useful to see this column
     /*
     {
@@ -445,8 +440,8 @@ function getCols(model: DbModelData, isDebt: boolean) {
     cols = cols.concat([
       {
         ...defaultColumn,
-        key: 'CAN_BE_NEGATIVE',
-        name: 'Can go negative?',
+        key: 'IS_CPI_IMMUNE',
+        name: 'Is immune from CPI?',
       },
       {
         ...defaultColumn,
@@ -546,7 +541,7 @@ export function assetsOrDebtsTableDiv(model: DbModelData, isDebt: boolean) {
   );
 }
 
-function makeCols(model: DbModelData, type: string) {
+function makeTransactionCols(model: DbModelData, type: string) {
   let cols: any[] = [
     {
       ...defaultColumn,
@@ -737,7 +732,7 @@ export function transactionsTableDiv(model: DbModelData, type: string) {
             return handleTransactionGridRowsUpdated(model, type, arguments);
           }}
           rows={transactionsForTable(model, type)}
-          columns={makeCols(model, type)}
+          columns={makeTransactionCols(model, type)}
         />
       </div>
     </fieldset>

@@ -18,7 +18,6 @@ interface EditFormState {
   VALUE: string;
   START: string;
   GROWTH: string;
-  CPI_IMMUNE: string;
   CATEGORY: string;
 }
 interface EditProps {
@@ -44,7 +43,6 @@ export class AddDeleteDebtForm extends Component<EditProps, EditFormState> {
       VALUE: '',
       START: '',
       GROWTH: '',
-      CPI_IMMUNE: '',
       CATEGORY: '',
     };
 
@@ -54,7 +52,6 @@ export class AddDeleteDebtForm extends Component<EditProps, EditFormState> {
     this.handleValueChange = this.handleValueChange.bind(this);
     this.handleGrowthChange = this.handleGrowthChange.bind(this);
     this.handleCategoryChange = this.handleCategoryChange.bind(this);
-    this.handleFixedChange = this.handleFixedChange.bind(this);
     this.handleStartChange = this.handleStartChange.bind(this);
     this.setStart = this.setStart.bind(this);
 
@@ -138,16 +135,6 @@ export class AddDeleteDebtForm extends Component<EditProps, EditFormState> {
             />
           </div>
           {/* end col */}
-          <div className="col">
-            <Input
-              title="Is value immune to inflation?"
-              type="text"
-              name="debtcpi-immune"
-              value={this.state.CPI_IMMUNE}
-              placeholder="Enter Y/N"
-              onChange={this.handleFixedChange}
-            />
-          </div>
         </div>
         {/* end row */}
 
@@ -179,10 +166,6 @@ export class AddDeleteDebtForm extends Component<EditProps, EditFormState> {
     const value = e.target.value;
     this.setState({ VALUE: value });
   }
-  private handleFixedChange(e: any) {
-    const value = e.target.value;
-    this.setState({ CPI_IMMUNE: value });
-  }
   private setStart(value: string): void {
     this.setState({ START: value });
   }
@@ -211,14 +194,6 @@ export class AddDeleteDebtForm extends Component<EditProps, EditFormState> {
       return;
     }
 
-    const parsedYNCPI = makeBooleanFromYesNo(this.state.CPI_IMMUNE);
-    if (!parsedYNCPI.checksOK) {
-      alert(
-        `Inflation-immune: '${this.state.CPI_IMMUNE}' should be a Y/N value`,
-      );
-      return;
-    }
-
     // log('adding something ' + showObj(this));
     const asset: DbAsset = {
       NAME: this.state.NAME,
@@ -226,7 +201,7 @@ export class AddDeleteDebtForm extends Component<EditProps, EditFormState> {
       QUANTITY: '', // debts are continuous
       START: this.state.START,
       GROWTH: this.state.GROWTH,
-      CPI_IMMUNE: parsedYNCPI.value,
+      CPI_IMMUNE: true, // debts never grow with CPI
       CAN_BE_NEGATIVE: true,
       IS_A_DEBT: true,
       CATEGORY: this.state.CATEGORY,
