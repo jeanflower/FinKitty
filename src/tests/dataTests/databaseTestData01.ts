@@ -99,7 +99,7 @@ export const testIncomes01: DbIncome[] = [
     START: '1 March 2018',
     END: 'StopMainWork',
     GROWTH: '2',
-    LIABILITY: `${incomeTax}Joe`,
+    LIABILITY: `Joe${incomeTax}`,
   },
   {
     ...simpleIncome,
