@@ -424,7 +424,7 @@ function getCols(model: DbModelData, isDebt: boolean) {
     {
       ...defaultColumn,
       key: 'GROWTH',
-      name: 'growth',
+      name: isDebt ? 'interest rate' : 'growth',
       formatter: <GrowthFormatter settings={model.settings} value="unset" />,
     },
     {
