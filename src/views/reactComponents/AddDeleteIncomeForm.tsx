@@ -65,8 +65,60 @@ interface EditProps {
   submitTrigger: any;
   model: DbModelData;
 }
+
+export function incomeOptions(
+  model: DbModelData,
+  handleChange: any,
+  id: string,
+) {
+  const optionData = model.incomes.map(income => {
+    return {
+      text: income.NAME,
+      action: (e: any) => {
+        // log(`detected action`);
+        // e.persist();
+        e.preventDefault();
+        handleChange(income.NAME);
+      },
+    };
+  });
+
+  // remove income with certain properties...
+  //optionData = optionData.filter(od => od.text !== taxPot);
+
+  const options = optionData.map(bd => (
+    <option
+      value={bd.text}
+      id={`option-income-${bd.text}`}
+      key={bd.text}
+      className="text-muted"
+    >
+      {bd.text}
+    </option>
+  ));
+  return (
+    <select
+      className="custom-select"
+      id={id}
+      onChange={e => {
+        const found = optionData.find(od => {
+          return od.text === e.target.value;
+        });
+        if (found !== undefined) {
+          found.action(e);
+        }
+      }}
+    >
+      <option>Choose an income</option>
+      {options}
+    </select>
+  );
+}
+
 export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
   public defaultState: EditFormState;
+
+  private incomeSourceSelectID = 'fromIncomeSelectIncomeForm';
 
   public constructor(props: EditProps) {
     super(props);
@@ -149,7 +201,11 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
         <div className="row">
           <div className="col">
             <Input
-              title="Income name"
+              title={
+                this.state.inputting === inputtingPension
+                  ? 'Pension name'
+                  : 'Income name'
+              }
               type="text"
               name="incomename"
               value={this.state.NAME}
@@ -372,6 +428,7 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
       </div>
     );
   }
+
   private inputsForDefinedBenefitsPensionIncome(): React.ReactNode {
     return (
       <div
@@ -453,14 +510,12 @@ DBC_TRANSFERRED_STOP
         </div>
         <div className="row">
           <div className="col">
-            <Input
-              title="Contribution from which income"
-              type="text"
-              name="incomecontributionIncome"
-              value={this.state.DBC_INCOME_SOURCE}
-              placeholder="Enter income"
-              onChange={this.handleDbcIncomeSourceChange}
-            />
+            <label>Income source</label>
+            {incomeOptions(
+              this.props.model,
+              this.handleDbcIncomeSourceChange,
+              this.incomeSourceSelectID,
+            )}
           </div>{' '}
           {/* end col */}
           <div className="col">
@@ -505,7 +560,7 @@ DBC_TRANSFERRED_STOP
           <div className="row">
             <div className="col">
               <Input
-                title="Pension transfers to"
+                title="Pension transfers to (optional)"
                 type="text"
                 name="transferName"
                 value={this.state.DBC_TRANSFER_TO}
@@ -515,7 +570,7 @@ DBC_TRANSFERRED_STOP
             </div>
             <div className="col">
               <Input
-                title="Pension transfer proportion (e.g. 0.5 for 50%)"
+                title="Pension transfer proportion (e.g. 0.5 for 50%, optional)"
                 type="text"
                 name="transferProportion"
                 value={this.state.DBC_TRANSFER_PROPORTION}
@@ -546,8 +601,8 @@ DBC_TRANSFERRED_STOP
   private handleValueChange(e: any) {
     this.setState({ VALUE: e.target.value });
   }
-  private handleDbcIncomeSourceChange(e: any) {
-    this.setState({ DBC_INCOME_SOURCE: e.target.value });
+  private handleDbcIncomeSourceChange(value: string) {
+    this.setState({ DBC_INCOME_SOURCE: value });
   }
   private handleDbcSsChange(e: any) {
     this.setState({ DBC_SS: e.target.value });
@@ -614,6 +669,12 @@ DBC_TRANSFERRED_STOP
   private handleEndChange(e: any): void {
     this.setEnd(e.target.value);
   }
+  private resetSelect(id: string) {
+    const selector: any = document.getElementById(id);
+    if (selector !== null) {
+      selector.selectedIndex = '0';
+    }
+  }
   private async revalue(e: any): Promise<void> {
     e.preventDefault();
 
@@ -672,12 +733,17 @@ DBC_TRANSFERRED_STOP
     alert('added new data');
     // clear fields
     this.setState(this.defaultState);
+    this.resetSelect(this.incomeSourceSelectID);
     return;
   }
 
   private async add(e: any): Promise<void> {
     e.preventDefault();
 
+    if (this.state.NAME === '') {
+      alert(`Income name should be non-empty`);
+      return;
+    }
     let isNotANumber = !isNumberString(this.state.VALUE);
     if (isNotANumber) {
       alert(`Income value ${this.state.VALUE} should be a numerical value`);
@@ -788,16 +854,15 @@ DBC_TRANSFERRED_STOP
         );
         return;
       }
-
-      isNotANumber = !isNumberString(this.state.DBC_TRANSFER_PROPORTION);
-      if (isNotANumber) {
-        alert(
-          `Transfer proportion ${this.state.DBC_TRANSFER_PROPORTION} should be a numerical value`,
-        );
-        return;
-      }
       let builtLiability2: string | undefined;
       if (this.state.DBC_TRANSFER_TO !== '') {
+        isNotANumber = !isNumberString(this.state.DBC_TRANSFER_PROPORTION);
+        if (isNotANumber) {
+          alert(
+            `Transfer proportion ${this.state.DBC_TRANSFER_PROPORTION} should be a numerical value`,
+          );
+          return;
+        }
         builtLiability2 = makeIncomeLiabilityFromNameAndNI(
           this.state.DBC_TRANSFER_TO,
           false, // no NI payable
@@ -952,6 +1017,7 @@ DBC_TRANSFERRED_STOP
       alert('added new data');
       // clear fields
       this.setState(this.defaultState);
+      this.resetSelect(this.incomeSourceSelectID);
       return;
     }
 
@@ -998,6 +1064,7 @@ DBC_TRANSFERRED_STOP
       alert('added new income');
       // clear fields
       this.setState(this.defaultState);
+      this.resetSelect(this.incomeSourceSelectID);
     }
   }
 

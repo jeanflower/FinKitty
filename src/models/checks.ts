@@ -67,6 +67,9 @@ import {
 } from '../utils';
 
 export function isNumberString(input: string) {
+  if (input === '') {
+    return false;
+  }
   const re = new RegExp('^[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)$');
   const result = input.replace(re, '');
   return result === '';

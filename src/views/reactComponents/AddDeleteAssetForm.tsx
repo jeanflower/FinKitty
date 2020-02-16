@@ -25,6 +25,7 @@ import {
   revalue,
   revalueAsset,
 } from '../../localization/stringConstants';
+import { incomeOptions } from './AddDeleteIncomeForm';
 
 interface EditFormState {
   NAME: string;
@@ -61,6 +62,8 @@ interface EditProps {
 }
 export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
   public defaultState: EditFormState;
+
+  private incomeSourceSelectID = 'fromIncomeSelectAssetForm';
 
   public constructor(props: EditProps) {
     super(props);
@@ -339,6 +342,14 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
           </div>{' '}
           {/* end col */}
           <div className="col">
+            <label>Income source</label>
+            {incomeOptions(
+              this.props.model,
+              this.handleDcpIncomeSourceChange,
+              this.incomeSourceSelectID,
+            )}
+          </div>{' '}
+          <div className="col">
             <Input
               title="Contribution from which income"
               type="text"
@@ -552,8 +563,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
     const value = e.target.value;
     this.setState({ DCP_SS: value });
   }
-  private handleDcpIncomeSourceChange(e: any): void {
-    const value = e.target.value;
+  private handleDcpIncomeSourceChange(value: string): void {
     this.setState({ DCP_INCOME_SOURCE: value });
   }
   private handleDcpContAmount(e: any): void {
@@ -618,6 +628,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
     alert('added new data');
     // clear fields
     this.setState(this.defaultState);
+    this.resetSelect(this.incomeSourceSelectID);
     return;
   }
 
@@ -810,6 +821,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
       alert('added assets and transactions');
       // clear fields
       this.setState(this.defaultState);
+      this.resetSelect(this.incomeSourceSelectID);
     } else {
       let quantityScale = 1.0;
       const parsedQuantity = makeQuantityFromString(this.state.QUANTITY);
@@ -882,6 +894,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
         alert('added new asset');
         // clear fields
         this.setState(this.defaultState);
+        this.resetSelect(this.incomeSourceSelectID);
       }
     }
   }
@@ -916,5 +929,11 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
       ...this.state,
       inputting: inputtingRevalue,
     });
+  }
+  private resetSelect(id: string) {
+    const selector: any = document.getElementById(id);
+    if (selector !== null) {
+      selector.selectedIndex = '0';
+    }
   }
 }
