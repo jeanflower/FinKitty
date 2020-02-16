@@ -58,7 +58,7 @@ export function getTestModel01() {
         START: '1 March 2018',
         END: 'StopMainWork',
         GROWTH: '2',
-        LIABILITY: `${incomeTax}Joe`,
+        LIABILITY: `Joe${incomeTax}`,
       },
     ],
     assets: [

@@ -846,7 +846,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
       const name = this.state.LIABILITY;
       let builtLiability = '';
       if (name !== '') {
-        builtLiability = cgt + name;
+        builtLiability = name + cgt;
       }
       const liabilityMessage = checkAssetLiability(builtLiability);
       if (liabilityMessage !== '') {

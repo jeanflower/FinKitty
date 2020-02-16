@@ -842,7 +842,7 @@ DBC_TRANSFERRED_STOP
       }
       const words = liabilities.split(separator);
       const incomeTaxWord = words.find(w => {
-        return w.startsWith(incomeTax);
+        return w.endsWith(incomeTax);
       });
       if (incomeTaxWord === undefined) {
         alert(

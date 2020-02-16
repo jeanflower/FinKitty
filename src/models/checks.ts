@@ -142,8 +142,8 @@ function checkDate(d: Date) {
   return true;
 }
 export function checkAssetLiability(l: string) {
-  if (l.length > 0 && !l.startsWith(cgt) && !l.startsWith(incomeTax)) {
-    return `Asset liability ${l} should start with ${cgt} or ${incomeTax}`;
+  if (l.length > 0 && !l.endsWith(cgt) && !l.endsWith(incomeTax)) {
+    return `Asset liability ${l} should end with ${cgt} or ${incomeTax}`;
   }
   return '';
 }
@@ -202,11 +202,11 @@ export function checkAsset(a: DbAsset, model: DbModelData): string {
 export function checkIncomeLiability(l: string) {
   if (
     l.length > 0 &&
-    !l.startsWith(incomeTax) &&
-    !l.startsWith(nationalInsurance)
+    !l.endsWith(incomeTax) &&
+    !l.endsWith(nationalInsurance)
   ) {
     return (
-      `Income liability '${l}' should begin with ` +
+      `Income liability '${l}' should end with ` +
       `'${incomeTax}' or '${nationalInsurance}'`
     );
   }
@@ -230,22 +230,22 @@ export function checkIncome(i: DbIncome, model: DbModelData): string {
     /* eslint-disable-line no-restricted-syntax */
     if (
       l.length > 0 &&
-      !l.startsWith(incomeTax) &&
-      !l.startsWith(nationalInsurance)
+      !l.endsWith(incomeTax) &&
+      !l.endsWith(nationalInsurance)
     ) {
       const x = checkIncomeLiability(l);
       if (x.length > 0) {
         return (
           `Income liability for '${i.NAME}' has parts '${parts}' ` +
-          `but the part '${l}' should begin with ` +
+          `but the part '${l}' should end with ` +
           `'${incomeTax}' or '${nationalInsurance}'`
         );
       }
     }
-    if (l.startsWith(incomeTax)) {
-      incomeTaxName = l.substring(incomeTax.length, l.length);
-    } else if (l.startsWith(nationalInsurance)) {
-      niName = l.substring(nationalInsurance.length, l.length);
+    if (l.endsWith(incomeTax)) {
+      incomeTaxName = l.substring(0, l.length - incomeTax.length);
+    } else if (l.endsWith(nationalInsurance)) {
+      niName = l.substring(0, l.length - nationalInsurance.length);
     }
     if (incomeTaxName !== '' && niName !== '' && incomeTaxName !== niName) {
       return (

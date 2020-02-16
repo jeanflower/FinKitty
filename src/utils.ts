@@ -181,9 +181,9 @@ export function makeIncomeLiabilityFromNameAndNI(name: string, NI: boolean) {
     return '';
   }
   if (NI) {
-    return incomeTax + name + separator + nationalInsurance + name;
+    return name + incomeTax + separator + name + nationalInsurance;
   } else {
-    return incomeTax + name;
+    return name + incomeTax;
   }
 }
 

@@ -4272,7 +4272,7 @@ describe('evaluations tests', () => {
           VALUE: '5',
           VALUE_SET: 'January 1 2018',
           GROWTH: '12',
-          LIABILITY: incomeTax + 'Joe',
+          LIABILITY: 'Joe' + incomeTax,
         },
       ],
       assets: [
@@ -4476,7 +4476,7 @@ describe('evaluations tests', () => {
           NAME: 'java',
           VALUE: '500',
           VALUE_SET: 'January 1 2018',
-          LIABILITY: incomeTax + 'Joe',
+          LIABILITY: 'Joe' + incomeTax,
         },
       ],
       assets: [
@@ -4594,7 +4594,7 @@ describe('evaluations tests', () => {
           NAME: 'java',
           VALUE: '12505', // two payments in two tax years
           VALUE_SET: 'January 1 2018',
-          LIABILITY: incomeTax + 'Joe',
+          LIABILITY: 'Joe' + incomeTax,
         },
       ],
       assets: [
@@ -4700,7 +4700,7 @@ describe('evaluations tests', () => {
           NAME: 'PRnd',
           VALUE: '12505', // single payment
           VALUE_SET: 'January 1 2018',
-          LIABILITY: incomeTax + 'Joe',
+          LIABILITY: 'Joe' + incomeTax,
         },
       ],
       assets: [
@@ -4863,7 +4863,7 @@ describe('evaluations tests', () => {
           NAME: 'PRnd',
           VALUE: '50100', // single payment
           VALUE_SET: 'January 1 2018',
-          LIABILITY: incomeTax + 'Joe',
+          LIABILITY: 'Joe' + incomeTax,
         },
       ],
       assets: [
@@ -4946,7 +4946,7 @@ describe('evaluations tests', () => {
           NAME: 'PRnd',
           VALUE: '150100',
           VALUE_SET: 'January 1 2018',
-          LIABILITY: incomeTax + 'Joe',
+          LIABILITY: 'Joe' + incomeTax,
         },
       ],
       assets: [
@@ -5031,7 +5031,7 @@ describe('evaluations tests', () => {
           VALUE: '1042.5', // will be taxable in 1st year but after tax bands adjust, won't be
           VALUE_SET: 'January 1 2018',
           CPI_IMMUNE: true, // fix the income and it becomes not-taxable as cpi is non zero
-          LIABILITY: incomeTax + 'Joe',
+          LIABILITY: 'Joe' + incomeTax,
         },
       ],
       assets: [
@@ -5197,7 +5197,7 @@ describe('evaluations tests', () => {
           NAME: 'PRn1',
           VALUE: '6505',
           VALUE_SET: 'January 1 2018',
-          LIABILITY: incomeTax + 'Joe',
+          LIABILITY: 'Joe' + incomeTax,
         },
         {
           ...simpleIncome,
@@ -5206,7 +5206,7 @@ describe('evaluations tests', () => {
           NAME: 'PRn2',
           VALUE: '6000', // single payment
           VALUE_SET: 'January 1 2018',
-          LIABILITY: incomeTax + 'Joe',
+          LIABILITY: 'Joe' + incomeTax,
         },
       ],
       assets: [
@@ -5297,7 +5297,7 @@ describe('evaluations tests', () => {
           NAME: 'PRn1',
           VALUE: '25100', // single payment
           VALUE_SET: 'January 1 2018',
-          LIABILITY: incomeTax + 'Joe',
+          LIABILITY: 'Joe' + incomeTax,
         },
         {
           ...simpleIncome,
@@ -5306,7 +5306,7 @@ describe('evaluations tests', () => {
           NAME: 'PRn2',
           VALUE: '25000', // single payment
           VALUE_SET: 'January 1 2018',
-          LIABILITY: incomeTax + 'Joe', // same as PRn1
+          LIABILITY: 'Joe' + incomeTax, // same as PRn1
         },
       ],
       assets: [
@@ -5400,7 +5400,7 @@ describe('evaluations tests', () => {
           NAME: 'PRn1',
           VALUE: '75100', // single payment
           VALUE_SET: 'January 1 2018',
-          LIABILITY: incomeTax + 'Joe',
+          LIABILITY: 'Joe' + incomeTax,
         },
         {
           ...simpleIncome,
@@ -5409,7 +5409,7 @@ describe('evaluations tests', () => {
           NAME: 'PRn2',
           VALUE: '75000', // single payment
           VALUE_SET: 'January 1 2018',
-          LIABILITY: incomeTax + 'Joe',
+          LIABILITY: 'Joe' + incomeTax,
         },
       ],
       assets: [
@@ -5500,7 +5500,7 @@ describe('evaluations tests', () => {
           NAME: 'PRn1',
           VALUE: '12505', // single payment
           VALUE_SET: 'January 1 2018',
-          LIABILITY: incomeTax + 'Joe',
+          LIABILITY: 'Joe' + incomeTax,
         },
         {
           ...simpleIncome,
@@ -5509,7 +5509,7 @@ describe('evaluations tests', () => {
           NAME: 'PRn2',
           VALUE: '12505', // single payment
           VALUE_SET: 'January 1 2018',
-          LIABILITY: incomeTax + 'Jane',
+          LIABILITY: 'Jane' + incomeTax,
         },
       ],
       assets: [
@@ -5600,7 +5600,7 @@ describe('evaluations tests', () => {
           NAME: 'PRn1',
           VALUE: '25100', // single payment
           VALUE_SET: 'January 1 2018',
-          LIABILITY: incomeTax + 'Joe',
+          LIABILITY: 'Joe' + incomeTax,
         },
         {
           ...simpleIncome,
@@ -5609,7 +5609,7 @@ describe('evaluations tests', () => {
           NAME: 'PRn2',
           VALUE: '25000', // single payment
           VALUE_SET: 'January 1 2018',
-          LIABILITY: incomeTax + 'Joe', // same as PRn1
+          LIABILITY: 'Joe' + incomeTax, // same as PRn1
         },
       ],
       assets: [
@@ -5703,7 +5703,7 @@ describe('evaluations tests', () => {
           NAME: 'PRn1',
           VALUE: '75100', // single payment
           VALUE_SET: 'January 1 2018',
-          LIABILITY: incomeTax + 'Joe',
+          LIABILITY: 'Joe' + incomeTax,
         },
         {
           ...simpleIncome,
@@ -5712,7 +5712,7 @@ describe('evaluations tests', () => {
           NAME: 'PRn2',
           VALUE: '75000', // single payment
           VALUE_SET: 'January 1 2018',
-          LIABILITY: incomeTax + 'Joe',
+          LIABILITY: 'Joe' + incomeTax,
         },
       ],
       assets: [
@@ -5804,7 +5804,7 @@ describe('evaluations tests', () => {
           NAME: 'java',
           VALUE: '8628', // 8628 is free of NI liability
           VALUE_SET: 'January 1 2018',
-          LIABILITY: nationalInsurance + 'Joe',
+          LIABILITY: 'Joe' + nationalInsurance,
         },
       ],
       assets: [
@@ -5885,7 +5885,7 @@ describe('evaluations tests', () => {
           NAME: 'java',
           VALUE: '8728', // 8628 is free of NI liability, expect 12 to be paid
           VALUE_SET: 'January 1 2018',
-          LIABILITY: nationalInsurance + 'Joe',
+          LIABILITY: 'Joe' + nationalInsurance,
         },
       ],
       assets: [
@@ -5968,7 +5968,7 @@ describe('evaluations tests', () => {
           NAME: 'java',
           VALUE: '50104', // 50004 is bottom of high rate band, expect 2 + 4965.12 to be paid
           VALUE_SET: 'January 1 2018',
-          LIABILITY: nationalInsurance + 'Joe',
+          LIABILITY: 'Joe' + nationalInsurance,
         },
       ],
       assets: [
@@ -6052,7 +6052,7 @@ describe('evaluations tests', () => {
           VALUE: '30000', // single payment
           VALUE_SET: 'January 1 2018',
           LIABILITY:
-            nationalInsurance + 'Joe' + separator + '' + incomeTax + 'Joe',
+            'Joe' + nationalInsurance + separator + '' + 'Joe' + incomeTax,
         },
       ],
       assets: [
@@ -6252,7 +6252,7 @@ describe('evaluations tests', () => {
           VALUE: '30000', // single payment
           VALUE_SET: 'January 1 2018',
           LIABILITY:
-            nationalInsurance + 'Joe' + separator + '' + incomeTax + 'Joe',
+            'Joe' + nationalInsurance + separator + '' + 'Joe' + incomeTax,
         },
       ],
       transactions: [
@@ -6377,7 +6377,7 @@ describe('evaluations tests', () => {
           VALUE: '30000', // single payment
           VALUE_SET: 'January 1 2018',
           LIABILITY:
-            nationalInsurance + 'Joe' + separator + '' + incomeTax + 'Joe',
+            'Joe' + nationalInsurance + separator + '' + 'Joe' + incomeTax,
         },
       ],
       transactions: [
@@ -6502,7 +6502,7 @@ describe('evaluations tests', () => {
           VALUE: '2500', // monthly payments
           VALUE_SET: 'January 1 2017',
           LIABILITY:
-            nationalInsurance + 'Joe' + separator + '' + incomeTax + 'Joe',
+            'Joe' + nationalInsurance + separator + '' + 'Joe' + incomeTax,
         },
       ],
       transactions: [
@@ -6684,7 +6684,7 @@ describe('evaluations tests', () => {
           VALUE: '30000', // single payment
           VALUE_SET: 'January 1 2018',
           LIABILITY:
-            nationalInsurance + 'Joe' + separator + '' + incomeTax + 'Joe',
+            'Joe' + nationalInsurance + separator + '' + 'Joe' + incomeTax,
         },
       ],
       transactions: [
@@ -6812,7 +6812,7 @@ describe('evaluations tests', () => {
           VALUE: '30000', // single payment
           VALUE_SET: 'January 1 2018',
           LIABILITY:
-            nationalInsurance + 'Joe' + separator + '' + incomeTax + 'Joe',
+            'Joe' + nationalInsurance + separator + '' + 'Joe' + incomeTax,
         },
       ],
       transactions: [
@@ -6830,7 +6830,7 @@ describe('evaluations tests', () => {
           // when you fill in a tax return...
           ...simpleTransaction,
           NAME: 'Reduction in income liability', //
-          FROM: incomeTax + 'Joe', // an income - reduce the liability
+          FROM: 'Joe' + incomeTax, // an income - reduce the liability
           FROM_VALUE: '1500', // a one-off payment
           DATE: 'March 20 2018',
         },
@@ -8162,7 +8162,7 @@ describe('evaluations tests', () => {
           VALUE_SET: 'January 1 2018',
           GROWTH: '0',
           CPI_IMMUNE: true,
-          LIABILITY: incomeTax + 'Joe', // no liability so doesn't affect allowance
+          LIABILITY: 'Joe' + incomeTax, // no liability so doesn't affect allowance
         },
       ],
       assets: [
@@ -8328,7 +8328,7 @@ describe('evaluations tests', () => {
           VALUE: '490000', // absurdly high single payment to trigger tax
           VALUE_SET: 'January 1 2018',
           LIABILITY:
-            nationalInsurance + 'Joe' + separator + '' + incomeTax + 'Joe',
+            'Joe' + nationalInsurance + separator + '' + 'Joe' + incomeTax,
         },
         {
           ...simpleIncome,
@@ -8337,7 +8337,7 @@ describe('evaluations tests', () => {
           NAME: pensionDBC + 'incomeFromNorwich',
           VALUE: '50',
           VALUE_SET: 'January 1 2018',
-          LIABILITY: incomeTax + 'Joe',
+          LIABILITY: 'Joe' + incomeTax,
         },
       ],
       transactions: [
@@ -8533,7 +8533,7 @@ describe('evaluations tests', () => {
           VALUE: '490000', // absurdly high single payment to trigger tax
           VALUE_SET: 'January 1 2018',
           LIABILITY:
-            nationalInsurance + 'Joe' + separator + '' + incomeTax + 'Joe',
+            'Joe' + nationalInsurance + separator + '' + 'Joe' + incomeTax,
         },
         {
           ...simpleIncome,
@@ -8542,7 +8542,7 @@ describe('evaluations tests', () => {
           NAME: pensionDBC + 'incomeFromNorwich',
           VALUE: '50',
           VALUE_SET: 'January 1 2018',
-          LIABILITY: incomeTax + 'Joe',
+          LIABILITY: 'Joe' + incomeTax,
         },
       ],
       transactions: [
@@ -8739,7 +8739,7 @@ describe('evaluations tests', () => {
           VALUE: '490000', // absurdly high single payment to trigger tax
           VALUE_SET: 'January 1 2018',
           LIABILITY:
-            nationalInsurance + 'Joe' + separator + '' + incomeTax + 'Joe',
+            'Joe' + nationalInsurance + separator + '' + 'Joe' + incomeTax,
         },
         {
           ...simpleIncome,
@@ -8748,7 +8748,7 @@ describe('evaluations tests', () => {
           NAME: pensionDBC + 'incomeFromNorwich',
           VALUE: '50',
           VALUE_SET: 'January 1 2018',
-          LIABILITY: incomeTax + 'Joe',
+          LIABILITY: 'Joe' + incomeTax,
         },
       ],
       transactions: [
@@ -8945,7 +8945,7 @@ describe('evaluations tests', () => {
           VALUE: '490000', // absurdly high single payment to trigger tax
           VALUE_SET: 'January 1 2018',
           LIABILITY:
-            nationalInsurance + 'Joe' + separator + '' + incomeTax + 'Joe',
+            'Joe' + nationalInsurance + separator + '' + 'Joe' + incomeTax,
         },
         {
           ...simpleIncome,
@@ -8954,7 +8954,7 @@ describe('evaluations tests', () => {
           NAME: pensionDBC + 'incomeFromNorwich',
           VALUE: '50',
           VALUE_SET: 'January 1 2018',
-          LIABILITY: incomeTax + 'Joe',
+          LIABILITY: 'Joe' + incomeTax,
         },
       ],
       transactions: [
@@ -9040,7 +9040,7 @@ describe('evaluations tests', () => {
           VALUE: '490000', // absurdly high single payment to trigger tax
           VALUE_SET: 'January 1 2018',
           LIABILITY:
-            nationalInsurance + 'Joe' + separator + '' + incomeTax + 'Joe',
+            'Joe' + nationalInsurance + separator + '' + 'Joe' + incomeTax,
         },
         {
           ...simpleIncome,
@@ -9049,7 +9049,7 @@ describe('evaluations tests', () => {
           NAME: pensionDBC + 'incomeFromNorwich',
           VALUE: '50',
           VALUE_SET: 'January 1 2018',
-          LIABILITY: incomeTax + 'Joe',
+          LIABILITY: 'Joe' + incomeTax,
         },
       ],
       transactions: [
@@ -9135,7 +9135,7 @@ describe('evaluations tests', () => {
           VALUE: '490000', // absurdly high single payment to trigger tax
           VALUE_SET: 'January 1 2018',
           LIABILITY:
-            nationalInsurance + 'Joe' + separator + '' + incomeTax + 'Joe',
+            'Joe' + nationalInsurance + separator + '' + 'Joe' + incomeTax,
         },
         {
           ...simpleIncome,
@@ -9144,7 +9144,7 @@ describe('evaluations tests', () => {
           NAME: pensionDBC + 'incomeFromNorwich',
           VALUE: '50',
           VALUE_SET: 'January 1 2018',
-          LIABILITY: incomeTax + 'Joe',
+          LIABILITY: 'Joe' + incomeTax,
         },
       ],
       transactions: [
@@ -9210,7 +9210,7 @@ describe('evaluations tests', () => {
           START: 'January 1 2018',
           VALUE: '500000',
           GROWTH: '12',
-          LIABILITY: incomeTax + 'Joe',
+          LIABILITY: 'Joe' + incomeTax,
         },
         {
           ...simpleAsset,
@@ -9313,7 +9313,7 @@ describe('evaluations tests', () => {
           NAME: 'Shrs',
           START: 'January 1 2018',
           VALUE: '300000',
-          LIABILITY: `${cgt}Joe`,
+          LIABILITY: `Joe${cgt}`,
           PURCHASE_PRICE: '50000',
         },
       ],
@@ -9425,7 +9425,7 @@ describe('evaluations tests', () => {
           NAME: 'Shrs',
           START: 'January 1 2018',
           VALUE: '300000',
-          LIABILITY: `${cgt}Joe`,
+          LIABILITY: `Joe${cgt}`,
           PURCHASE_PRICE: '50000',
         },
       ],

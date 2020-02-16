@@ -657,9 +657,9 @@ function OptimizeIncomeTax(
     // log(`values.get(${key}) = ${values.get(key)}`);
     if (valueKey.startsWith(crystallizedPension)) {
       // is it for the right person?
-      const liability = `${incomeTax}${valueKey.substr(
+      const liability = `${valueKey.substr(
         crystallizedPension.length,
-      )}`;
+      )}${incomeTax}`;
       // e.g. IncomeTaxJoe
       // log(`liability = ${liability}`);
       if (liability === person) {
@@ -965,7 +965,7 @@ function handleIncome(
     const words: string[] = liabilityList.split(separator);
     words.forEach(liability => {
       // log(`liability = ${liability}`);
-      if (liability.startsWith(incomeTax)) {
+      if (liability.endsWith(incomeTax)) {
         // log(`IncomeTax due on ${amountForIncomeTax} for ${showObj(moment.name)}`);
         handleLiability(
           liability,
@@ -974,7 +974,7 @@ function handleIncome(
           liableIncomeInTaxYear,
         );
       }
-      if (liability.startsWith(nationalInsurance)) {
+      if (liability.endsWith(nationalInsurance)) {
         // log(`NI moment is ${showObj(moment.name)} amount ${amountForNI}`);
         handleLiability(
           liability,
@@ -1495,7 +1495,7 @@ function handleCGTLiability(
   }
   const liabilityWords = liabilities.split(separator);
   // log(`liabilityWords = ${liabilityWords}`);
-  const cgtLiability = liabilityWords.find(word => word.startsWith(cgt));
+  const cgtLiability = liabilityWords.find(word => word.endsWith(cgt));
   // log(`cgtLiability = ${cgtLiability}`);
   if (cgtLiability === undefined) {
     return;
@@ -1790,9 +1790,9 @@ function logPensionIncomeLiabilities(
   const words = t.FROM.split(separator);
   words.forEach(word => {
     if (word.startsWith(crystallizedPension)) {
-      const liability = `${incomeTax}${word.substr(
+      const liability = `${word.substr(
         crystallizedPension.length,
-      )}`;
+      )}${incomeTax}`;
       // e.g. IncomeTaxJoe
       // log(`logging liability for crystallized pension ${liability}`);
       liabilitiesMap.set(t.NAME, liability);
@@ -1810,9 +1810,9 @@ function logAssetIncomeLiabilities(
     // log(`logging liability ${showObj(a)}`);
     liabilitiesMap.set(a.NAME, a.LIABILITY);
   } else if (a.NAME.startsWith(crystallizedPension)) {
-    const liability = `${incomeTax}${a.NAME.substr(
+    const liability = `${a.NAME.substr(
       crystallizedPension.length,
-    )}`;
+    )}${incomeTax}`;
     // e.g. IncomeTaxJoe
     liabilitiesMap.set(a.NAME, liability);
   }

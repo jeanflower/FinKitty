@@ -83,8 +83,8 @@ export const exampleModelName = 'Simple';
 // Incomes can be liable to incomeTax or NI
 // concatenate with liable person's name
 // e.g. IncomeTaxJoe or NIJane
-export const incomeTax = 'IncomeTax';
-export const nationalInsurance = 'NI';
+export const incomeTax = '(incomeTax)';
+export const nationalInsurance = '(NI)';
 
 // Assets can of the form CrystallizedPension
 // and transfer to cash is liable to income tax for
@@ -96,7 +96,7 @@ export const crystallizedPension = 'CrystallizedPension';
 // CGT calculations depend upon a PurchasePrice having been set
 // for the asset. Then, upon sale, a gain can be calculated
 // and allowed for in CGT calculation
-export const cgt = 'CGT';
+export const cgt = '(CGT)';
 
 // Some transactions behave in special ways regarding income tax
 // name then
