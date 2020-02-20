@@ -574,6 +574,16 @@ function isAutogenType(t: DbTransaction, model: DbModelData) {
     t.RECURRENCE === ''
   ) {
     recognised = true;
+    /*
+  } else {
+    log(`for ${t.NAME}`);
+    log(`t.NAME.startsWith(pension) || t.NAME.startsWith(pensionSS) = 
+      ${t.NAME.startsWith(pension) || t.NAME.startsWith(pensionSS)}`);
+    log(`isAnIncome(t.FROM, model) = ${isAnIncome(t.FROM, model)}`);
+    log(`t.FROM_ABSOLUTE === false  = ${t.FROM_ABSOLUTE === false}`);
+    log(`t.TO === ''  =${t.TO === ''}`);
+    log(`t.RECURRENCE === '' =${t.RECURRENCE === ''}`);
+  */
   }
   /*
         NAME: newIncomeName1, // kicks in when we see income java
@@ -681,7 +691,7 @@ function isRevalueAssetType(t: DbTransaction, model: DbModelData) {
     log(`isAnAssetOrAssets(t.TO, model) is ${isAnAssetOrAssets(t.TO, model)}`);
     log(`t.RECURRENCE === '' is ${t.RECURRENCE === ''}`);
     log(`t.CATEGORY === '' is ${t.CATEGORY === ''}`);
-*/
+    */
   }
   return recognised;
 }
@@ -710,6 +720,13 @@ function isRevalueExpenseType(t: DbTransaction, model: DbModelData) {
     t.CATEGORY === ''
   ) {
     recognised = true;
+    /*    
+  } else {
+    log(`for ${t.NAME}`);
+    log(`t.NAME.startsWith(revalue) =  ${t.NAME.startsWith(revalue)}`);
+    log(`t.RECURRENCE === '' ${t.RECURRENCE === ''}`);
+    log(`t.CATEGORY === '' ${t.CATEGORY === ''}`);
+*/
   }
   return recognised;
 }
@@ -724,6 +741,9 @@ function isCustomType(t: DbTransaction) {
     //!t.NAME.startsWith(pensionSS) &&
     !t.NAME.startsWith(revalue)
   ) {
+    recognised = true;
+  }
+  if (!recognised && t.NAME.startsWith(revalue) && t.RECURRENCE !== '') {
     recognised = true;
   }
   return recognised;
