@@ -267,7 +267,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
           id="revalueAsset"
         />
       );
-    } else if (this.state.inputting === inputtingRevalue) {
+    } else if (this.state.inputting === inputtingPension) {
       return (
         <Button
           action={this.add}
@@ -276,8 +276,6 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
           id="addPension"
         />
       );
-    } else {
-      return <div></div>;
     }
   }
 
@@ -325,22 +323,12 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
           </div>{' '}
           {/* end col */}
           <div className="col">
-            <label>Income source</label>
+            <label>Income from which pension contributions are madee</label>
             {incomeOptions(
               this.props.model,
               this.handleDcpIncomeSourceChange,
               this.incomeSourceSelectID,
             )}
-          </div>{' '}
-          <div className="col">
-            <Input
-              title="Income from which pension contributions are made"
-              type="text"
-              name="incomecontributionAsset"
-              value={this.state.DCP_INCOME_SOURCE}
-              placeholder="Enter income"
-              onChange={this.handleDcpIncomeSourceChange}
-            />
           </div>{' '}
           {/* end col */}
         </div>{' '}

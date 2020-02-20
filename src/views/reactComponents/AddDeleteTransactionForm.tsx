@@ -8,10 +8,6 @@ import {
   printDebug,
   showObj,
   makeValueAbsPropFromString,
-  isADebt,
-  isAnAssetOrAssets,
-  isAnIncome,
-  isAnExpense,
 } from '../../utils';
 import Button from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
@@ -19,6 +15,7 @@ import Input from './Input';
 import {
   taxPot,
   custom,
+  /*  
   CASH_ASSET_NAME,
   liquidateAsset,
   conditional,
@@ -27,6 +24,8 @@ import {
   revalueAsset,
   revalueInc,
   revalueExp,
+  revalueDebt,
+*/
 } from '../../localization/stringConstants';
 
 interface EditFormState {
@@ -399,27 +398,8 @@ export class AddDeleteTransactionForm extends Component<
       alert('To absolute should be T (absolute value) or F (relative value');
       return;
     }
-    let type = custom;
-    if (
-      this.state.NAME.startsWith(conditional) &&
-      this.state.TO === CASH_ASSET_NAME
-    ) {
-      type = liquidateAsset;
-    } else if (
-      this.state.NAME.startsWith(conditional) &&
-      this.state.FROM === CASH_ASSET_NAME &&
-      isADebt(this.state.TO, this.props.model)
-    ) {
-      type = payOffDebt;
-    } else if (this.state.NAME.startsWith(revalue)) {
-      if (isAnAssetOrAssets(this.state.TO, this.props.model)) {
-        type = revalueAsset;
-      } else if (isAnIncome(this.state.TO, this.props.model)) {
-        type = revalueInc;
-      } else if (isAnExpense(this.state.TO, this.props.model)) {
-        type = revalueExp;
-      }
-    }
+    const type = custom;
+
     const transaction: DbTransaction = {
       NAME: this.state.NAME,
       CATEGORY: this.state.CATEGORY,

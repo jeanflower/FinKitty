@@ -35,6 +35,7 @@ import {
   isAnIncome,
   isAnExpense,
   isAnAssetOrAssets,
+  isADebt,
 } from '../utils';
 
 import NameFormatter from './reactComponents/NameFormatter';
@@ -69,6 +70,7 @@ import {
   revalueInc,
   revalue,
   autogen,
+  revalueDebt,
 } from '../localization/stringConstants';
 import { log } from 'util';
 
@@ -282,6 +284,7 @@ function getDbName(name: string, type: string) {
     prefix = conditional;
   } else if (
     type === revalueAsset ||
+    type === revalueDebt ||
     type === revalueExp ||
     type === revalueInc
   ) {
@@ -328,10 +331,20 @@ function handleTransactionGridRowsUpdated(
     gridData[args[0].cellKey] = oldValue;
   } else {
     let type = gridData.TYPE;
-    if (type === revalueAsset || type === revalueExp || type === revalueInc) {
+    if (
+      type === revalueAsset ||
+      type === revalueDebt ||
+      type === revalueExp ||
+      type === revalueInc
+    ) {
       // enable auto-switch of revalue types if TO changes
-      if (isAnAssetOrAssets(gridData.TO, model)) {
+      if (isADebt(gridData.TO, model)) {
+        type = revalueDebt;
+      } else if (isAnAssetOrAssets(gridData.TO, model)) {
         type = revalueAsset;
+      } else if (isADebt(gridData.TO, model)) {
+        type = revalueDebt;
+        parseTo.value = `${-parseFloat(parseTo.value)}`;
       } else if (isAnIncome(gridData.TO, model)) {
         type = revalueInc;
       } else if (isAnExpense(gridData.TO, model)) {
@@ -446,7 +459,7 @@ function getCols(model: DbModelData, isDebt: boolean) {
       {
         ...defaultColumn,
         key: 'LIABILITY',
-        name: 'liability',
+        name: 'Tax Liability',
       },
       {
         ...defaultColumn,
@@ -550,38 +563,61 @@ function makeTransactionCols(model: DbModelData, type: string) {
       formatter: <NameFormatter value="unset" />,
     },
   ];
-  if (type !== revalueInc && type !== revalueExp && type !== revalueAsset) {
-    if (type !== payOffDebt) {
-      cols = cols.concat([
-        {
-          ...defaultColumn,
-          key: 'FROM',
-          name: 'from',
-        },
-        {
-          ...defaultColumn,
-          key: 'FROM_VALUE',
-          name: 'from value',
-          formatter: <ToFromValueFormatter value="unset" />,
-        },
-      ]);
-    } else {
-      cols = cols.concat([
-        {
-          ...defaultColumn,
-          key: 'FROM_VALUE',
-          name: 'amount',
-          formatter: <ToFromValueFormatter value="unset" />,
-        },
-      ]);
-    }
+  // FROM, FROM_VALUE display rules
+  if (
+    type === revalueInc ||
+    type === revalueExp ||
+    type === revalueAsset ||
+    type === revalueDebt
+  ) {
+    // revalues don't show FROM
+  } else if (type === payOffDebt) {
+    // we show the FROM_VALUE
+    // (from cash)
+    // as an "amount" to pay back
+    cols = cols.concat([
+      {
+        ...defaultColumn,
+        key: 'FROM_VALUE',
+        name: 'amount',
+        formatter: <ToFromValueFormatter value="unset" />,
+      },
+    ]);
+  } else {
+    // not revalues, not paying off debts,
+    // default behaviour for FROM, FROM_VALUE
+    // display
+    cols = cols.concat([
+      {
+        ...defaultColumn,
+        key: 'FROM',
+        name: 'coming from',
+      },
+      {
+        ...defaultColumn,
+        key: 'FROM_VALUE',
+        name: 'from amount',
+        formatter: <ToFromValueFormatter value="unset" />,
+      },
+    ]);
   }
+
+  // TO, TO_VALUE display rules
   if (type === revalueInc) {
+    // each revalue type in turn
+    // shows the revalue income/expense/asset/debt
+    // and the amount
     cols = cols.concat([
       {
         ...defaultColumn,
         key: 'TO',
         name: 'income',
+      },
+      {
+        ...defaultColumn,
+        key: 'TO_VALUE',
+        name: 'new value',
+        formatter: <ToFromValueFormatter value="unset" />,
       },
     ]);
   } else if (type === revalueExp) {
@@ -591,6 +627,12 @@ function makeTransactionCols(model: DbModelData, type: string) {
         key: 'TO',
         name: 'expense',
       },
+      {
+        ...defaultColumn,
+        key: 'TO_VALUE',
+        name: 'new value',
+        formatter: <ToFromValueFormatter value="unset" />,
+      },
     ]);
   } else if (type === revalueAsset) {
     cols = cols.concat([
@@ -599,36 +641,71 @@ function makeTransactionCols(model: DbModelData, type: string) {
         key: 'TO',
         name: 'asset',
       },
+      {
+        ...defaultColumn,
+        key: 'TO_VALUE',
+        name: 'new value',
+        formatter: <ToFromValueFormatter value="unset" />,
+      },
+    ]);
+  } else if (type === revalueDebt) {
+    cols = cols.concat([
+      {
+        ...defaultColumn,
+        key: 'TO',
+        name: 'debt',
+      },
+      {
+        ...defaultColumn,
+        key: 'TO_VALUE',
+        name: 'new value',
+        formatter: <ToFromValueFormatter value="unset" />,
+      },
+    ]);
+  } else {
+    // all other kinds of transaction
+    cols = cols.concat([
+      {
+        ...defaultColumn,
+        key: 'TO',
+        name: 'going to',
+      },
+      {
+        ...defaultColumn,
+        key: 'TO_VALUE',
+        name: 'to amount',
+        formatter: <ToFromValueFormatter value="unset" />,
+      },
+    ]);
+  }
+  if (type === payOffDebt) {
+    cols = cols.concat([
+      {
+        ...defaultColumn,
+        key: 'DATE',
+        name: 'payments start date',
+        formatter: (
+          <TriggerDateFormatter triggers={model.triggers} value="unset" />
+        ),
+      },
     ]);
   } else {
     cols = cols.concat([
       {
         ...defaultColumn,
-        key: 'TO',
-        name: 'to',
+        key: 'DATE',
+        name: 'date',
+        formatter: (
+          <TriggerDateFormatter triggers={model.triggers} value="unset" />
+        ),
       },
     ]);
   }
-  cols = cols.concat([
-    {
-      ...defaultColumn,
-      key: 'TO_VALUE',
-      name: 'to value',
-      formatter: <ToFromValueFormatter value="unset" />,
-    },
-    {
-      ...defaultColumn,
-      key: 'DATE',
-      name: 'date',
-      formatter: (
-        <TriggerDateFormatter triggers={model.triggers} value="unset" />
-      ),
-    },
-  ]);
   if (
     type !== revalueInc &&
     type !== revalueExp &&
     type !== revalueAsset &&
+    type !== revalueDebt &&
     type !== autogen
   ) {
     cols = cols.concat([
@@ -643,7 +720,7 @@ function makeTransactionCols(model: DbModelData, type: string) {
         {
           ...defaultColumn,
           key: 'STOP_DATE',
-          name: 'stop',
+          name: 'recurrence end date',
           formatter: (
             <TriggerDateFormatter triggers={model.triggers} value="unset" />
           ),
@@ -681,7 +758,10 @@ function getDisplayName(obj: any, type: string) {
 
   if (
     obj.NAME.startsWith(revalue) &&
-    (type === revalueAsset || type === revalueExp || type === revalueInc)
+    (type === revalueAsset ||
+      type === revalueDebt ||
+      type === revalueExp ||
+      type === revalueInc)
   ) {
     return obj.NAME.substring(revalue.length, obj.NAME.length);
   }
@@ -707,8 +787,12 @@ function transactionsForTable(model: DbModelData, type: string) {
       if (obj.FROM === '' && fromValueEntry === '0') {
         fromValueEntry = '';
       }
+      let toNumber = obj.TO_VALUE;
+      if (type === revalueDebt) {
+        toNumber = `${-parseFloat(toNumber)}`;
+      }
       let toValueEntry = makeStringFromValueAbsProp(
-        obj.TO_VALUE,
+        toNumber,
         obj.TO_ABSOLUTE,
         obj.TO,
         model,
