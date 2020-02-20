@@ -228,7 +228,7 @@ export class AddDeleteTransactionForm extends Component<
           {/* end col */}
           <div className="col">
             <Input
-              title="How much to add (can be % of transaction amount)"
+              title="How much to add to the value of the asset being purchased (can be % of transaction amount)"
               type="text"
               name="toValue"
               value={this.state.TO_INPUT_VALUE}
