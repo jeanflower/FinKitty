@@ -99,10 +99,10 @@ function handleExpenseGridRowsUpdated(model: DbModelData, args: any) {
   const oldValue = expense[args[0].cellKey];
   expense[args[0].cellKey] = args[0].updated[args[0].cellKey];
   // log('new expense '+showObj(expense));
-  const parsedCPIImmune = makeBooleanFromYesNo(expense.IS_CPI_IMMUNE);
+  const parsedGrowsWithCPI = makeBooleanFromYesNo(expense.GROWS_WITH_CPI);
   const parsedValue = makeCashValueFromString(expense.VALUE);
   const parsedGrowth = makeGrowthFromString(expense.GROWTH, model.settings);
-  if (!parsedCPIImmune.checksOK) {
+  if (!parsedGrowsWithCPI.checksOK) {
     alert("Whether expense is CPI-immune should be 'y' or 'n'");
     expense[args[0].cellKey] = oldValue;
   } else if (!parsedValue.checksOK) {
@@ -120,7 +120,7 @@ function handleExpenseGridRowsUpdated(model: DbModelData, args: any) {
       VALUE: `${parsedValue.value}`,
       VALUE_SET: expense.VALUE_SET,
       GROWTH: parsedGrowth.value,
-      CPI_IMMUNE: parsedCPIImmune.value,
+      CPI_IMMUNE: !parsedGrowsWithCPI.value,
       RECURRENCE: expense.RECURRENCE,
     };
     // log(`expenseForSubmission = ${showObj(expenseForSubmission)}`);
@@ -148,10 +148,10 @@ function handleIncomeGridRowsUpdated(model: DbModelData, args: any) {
   const oldValue = income[args[0].cellKey];
   income[args[0].cellKey] = args[0].updated[args[0].cellKey];
   // log('new income '+showObj(income));
-  const parsedCPIImmune = makeBooleanFromYesNo(income.IS_CPI_IMMUNE);
+  const parsedGrowsWithCPI = makeBooleanFromYesNo(income.GROWS_WITH_CPI);
   const parsedValue = makeCashValueFromString(income.VALUE);
   const parsedGrowth = makeGrowthFromString(income.GROWTH, model.settings);
-  if (!parsedCPIImmune.checksOK) {
+  if (!parsedGrowsWithCPI.checksOK) {
     alert("Whether income is CPI-immune should be 'y' or 'n'");
     income[args[0].cellKey] = oldValue;
   } else if (!parsedValue.checksOK) {
@@ -169,7 +169,7 @@ function handleIncomeGridRowsUpdated(model: DbModelData, args: any) {
       VALUE: `${parsedValue.value}`,
       VALUE_SET: income.VALUE_SET,
       GROWTH: parsedGrowth.value,
-      CPI_IMMUNE: parsedCPIImmune.value,
+      CPI_IMMUNE: !parsedGrowsWithCPI.value,
       LIABILITY: income.LIABILITY,
     };
     const checks = checkIncome(incomeForSubmission, model);
@@ -229,7 +229,7 @@ function handleAssetGridRowsUpdated(model: DbModelData, args: any) {
   const parsedQuantity = makeQuantityFromString(asset.QUANTITY);
   const parsedGrowth = makeGrowthFromString(asset.GROWTH, model.settings);
   const parsedPurchasePrice = makePurchasePriceFromString(asset.PURCHASE_PRICE);
-  const parsedCPIImmune = makeBooleanFromYesNo(asset.IS_CPI_IMMUNE);
+  const parsedGrowsWithCPI = makeBooleanFromYesNo(asset.GROWS_WITH_CPI);
   const parsedIsADebt = makeBooleanFromYesNo(asset.IS_A_DEBT);
   const parsedCanBeNegative = makeBooleanFromYesNo(asset.CAN_BE_NEGATIVE);
 
@@ -248,8 +248,8 @@ function handleAssetGridRowsUpdated(model: DbModelData, args: any) {
   } else if (!parsedQuantity.checksOK) {
     alert(`quantity value ${asset.QUANTITY} not understood`);
     asset[args[0].cellKey] = oldValue;
-  } else if (!parsedCPIImmune.checksOK) {
-    alert(`asset value ${asset.IS_CPI_IMMUNE} not understood`);
+  } else if (!parsedGrowsWithCPI.checksOK) {
+    alert(`asset value ${asset.GROWS_WITH_CPI} not understood`);
     asset[args[0].cellKey] = oldValue;
   } else if (!parsedIsADebt.checksOK) {
     alert(`asset value ${asset.IS_A_DEBT} not understood`);
@@ -269,7 +269,7 @@ function handleAssetGridRowsUpdated(model: DbModelData, args: any) {
       START: asset.START,
       LIABILITY: asset.LIABILITY,
       GROWTH: parsedGrowth.value,
-      CPI_IMMUNE: parsedCPIImmune.value,
+      CPI_IMMUNE: !parsedGrowsWithCPI.value,
       CAN_BE_NEGATIVE: parsedCanBeNegative.value,
       IS_A_DEBT: parsedIsADebt.value,
       PURCHASE_PRICE: parsedPurchasePrice,
@@ -460,8 +460,8 @@ function getCols(model: DbModelData, isDebt: boolean) {
     cols = cols.concat([
       {
         ...defaultColumn,
-        key: 'IS_CPI_IMMUNE',
-        name: 'is immune from CPI?',
+        key: 'GROWS_WITH_CPI',
+        name: 'grows with CPI',
       },
       {
         ...defaultColumn,
@@ -526,7 +526,7 @@ function assetsOrDebtsForTable(model: DbModelData, isDebt: boolean): any[] {
           obj.PURCHASE_PRICE,
           obj.LIABILITY,
         ),
-        IS_CPI_IMMUNE: makeYesNoFromBoolean(obj.CPI_IMMUNE),
+        GROWS_WITH_CPI: makeYesNoFromBoolean(!obj.CPI_IMMUNE),
         IS_A_DEBT: makeYesNoFromBoolean(obj.IS_A_DEBT),
         CAN_BE_NEGATIVE: makeYesNoFromBoolean(obj.CAN_BE_NEGATIVE),
       };
@@ -903,7 +903,7 @@ function incomesForTable(model: DbModelData) {
   const unindexedResult = model.incomes.map((obj: DbIncome) => {
     const mapResult = {
       END: obj.END,
-      IS_CPI_IMMUNE: makeYesNoFromBoolean(obj.CPI_IMMUNE),
+      GROWS_WITH_CPI: makeYesNoFromBoolean(!obj.CPI_IMMUNE),
       GROWTH: makeStringFromGrowth(obj.GROWTH, model.settings),
       NAME: obj.NAME,
       START: obj.START,
@@ -989,8 +989,8 @@ export function incomesTableDiv(model: DbModelData) {
               },
               {
                 ...defaultColumn,
-                key: 'IS_CPI_IMMUNE',
-                name: 'is immune from CPI?',
+                key: 'GROWS_WITH_CPI',
+                name: 'grows with CPI',
               },
               {
                 ...defaultColumn,
@@ -1015,7 +1015,7 @@ function expensesForTable(model: DbModelData) {
   const unindexedResult = model.expenses.map((obj: DbExpense) => {
     const mapResult = {
       END: obj.END,
-      IS_CPI_IMMUNE: makeYesNoFromBoolean(obj.CPI_IMMUNE),
+      GROWS_WITH_CPI: makeYesNoFromBoolean(!obj.CPI_IMMUNE),
       GROWTH: makeStringFromGrowth(obj.GROWTH, model.settings),
       CATEGORY: obj.CATEGORY,
       NAME: obj.NAME,
@@ -1100,8 +1100,8 @@ export function expensesTableDiv(model: DbModelData) {
               },
               {
                 ...defaultColumn,
-                key: 'IS_CPI_IMMUNE',
-                name: 'is immune from CPI?',
+                key: 'GROWS_WITH_CPI',
+                name: 'grows with CPI',
               },
               {
                 ...defaultColumn,
