@@ -103,7 +103,7 @@ function handleExpenseGridRowsUpdated(model: DbModelData, args: any) {
   const parsedValue = makeCashValueFromString(expense.VALUE);
   const parsedGrowth = makeGrowthFromString(expense.GROWTH, model.settings);
   if (!parsedGrowsWithCPI.checksOK) {
-    alert("Whether expense is CPI-immune should be 'y' or 'n'");
+    alert("Whether expense grows with CPI should be 'y' or 'n'");
     expense[args[0].cellKey] = oldValue;
   } else if (!parsedValue.checksOK) {
     alert(`Value ${expense.VALUE} can't be understood as a cash value}`);
@@ -152,7 +152,7 @@ function handleIncomeGridRowsUpdated(model: DbModelData, args: any) {
   const parsedValue = makeCashValueFromString(income.VALUE);
   const parsedGrowth = makeGrowthFromString(income.GROWTH, model.settings);
   if (!parsedGrowsWithCPI.checksOK) {
-    alert("Whether income is CPI-immune should be 'y' or 'n'");
+    alert("Whether income grows with CPI should be 'y' or 'n'");
     income[args[0].cellKey] = oldValue;
   } else if (!parsedValue.checksOK) {
     alert(`Value ${income.VALUE} can't be understood as a cash value}`);
