@@ -36,7 +36,7 @@ interface EditFormState {
   START: string;
   END: string;
   GROWTH: string;
-  CPI_IMMUNE: string;
+  GROWS_WITH_CPI: string;
   LIABILITY: string;
   CATEGORY: string;
   inputting: string;
@@ -133,7 +133,7 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
       START: '',
       END: '',
       GROWTH: '',
-      CPI_IMMUNE: '',
+      GROWS_WITH_CPI: '',
       LIABILITY: '',
       CATEGORY: '',
       inputting: inputtingIncome,
@@ -154,7 +154,7 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
     this.handleNameChange = this.handleNameChange.bind(this);
     this.handleValueChange = this.handleValueChange.bind(this);
     this.handleGrowthChange = this.handleGrowthChange.bind(this);
-    this.handleFixedChange = this.handleFixedChange.bind(this);
+    this.handleGrowsWithCPIChange = this.handleGrowsWithCPIChange.bind(this);
     this.handleLiabilityChange = this.handleLiabilityChange.bind(this);
     this.handleCategoryChange = this.handleCategoryChange.bind(this);
     this.revalue = this.revalue.bind(this);
@@ -334,12 +334,12 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
           {/* end col */}
           <div className="col">
             <Input
-              title="Is value immune to inflation?"
+              title="Does value grow with inflation?"
               type="text"
-              name="incomecpi-immune"
-              value={this.state.CPI_IMMUNE}
+              name="incomecpi-grows"
+              value={this.state.GROWS_WITH_CPI}
               placeholder="Enter Y/N"
-              onChange={this.handleFixedChange}
+              onChange={this.handleGrowsWithCPIChange}
             />
           </div>{' '}
           {/* end col */}
@@ -598,8 +598,8 @@ DBC_TRANSFERRED_STOP
   private handleLiabilityChange(e: any) {
     this.setState({ LIABILITY: e.target.value });
   }
-  private handleFixedChange(e: any) {
-    this.setState({ CPI_IMMUNE: e.target.value });
+  private handleGrowsWithCPIChange(e: any) {
+    this.setState({ GROWS_WITH_CPI: e.target.value });
   }
   private handleValueChange(e: any) {
     this.setState({ VALUE: e.target.value });
@@ -769,9 +769,9 @@ DBC_TRANSFERRED_STOP
       alert(`Growth value '${this.state.GROWTH}' should be a numerical value`);
       return;
     }
-    const parseYNCPIImmune = makeBooleanFromYesNo(this.state.CPI_IMMUNE);
-    if (!parseYNCPIImmune.checksOK) {
-      alert(`CPI-immune '${this.state.CPI_IMMUNE}' should be a Y/N value`);
+    const parseYNGrowsWithCPI = makeBooleanFromYesNo(this.state.GROWS_WITH_CPI);
+    if (!parseYNGrowsWithCPI.checksOK) {
+      alert(`Grows with inflation '${this.state.GROWS_WITH_CPI}' should be a Y/N value`);
       return;
     }
 
@@ -878,7 +878,7 @@ DBC_TRANSFERRED_STOP
         VALUE_SET: this.state.VALUE_SET,
         LIABILITY: builtLiability1,
         GROWTH: parsedGrowth.value,
-        CPI_IMMUNE: parseYNCPIImmune.value,
+        CPI_IMMUNE: !parseYNGrowsWithCPI.value,
         CATEGORY: this.state.CATEGORY,
       };
       let message = await this.props.checkIncomeFunction(
@@ -901,7 +901,7 @@ DBC_TRANSFERRED_STOP
           VALUE_SET: this.state.VALUE_SET,
           LIABILITY: builtLiability2,
           GROWTH: parsedGrowth.value,
-          CPI_IMMUNE: parseYNCPIImmune.value,
+          CPI_IMMUNE: !parseYNGrowsWithCPI.value,
           CATEGORY: this.state.CATEGORY,
         };
         const message = await this.props.checkIncomeFunction(
@@ -1048,7 +1048,7 @@ DBC_TRANSFERRED_STOP
       START: this.state.START,
       END: this.state.END,
       GROWTH: parsedGrowth.value,
-      CPI_IMMUNE: parseYNCPIImmune.value,
+      CPI_IMMUNE: !parseYNGrowsWithCPI.value,
       LIABILITY: builtLiability,
       CATEGORY: this.state.CATEGORY,
     };

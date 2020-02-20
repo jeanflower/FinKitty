@@ -24,7 +24,7 @@ interface EditFormState {
   START: string;
   END: string;
   GROWTH: string;
-  CPI_IMMUNE: string;
+  GROWS_WITH_CPI: string;
   CATEGORY: string;
   RECURRENCE: string;
   inputting: string;
@@ -58,7 +58,7 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
       START: '',
       END: '',
       GROWTH: '',
-      CPI_IMMUNE: '',
+      GROWS_WITH_CPI: '',
       CATEGORY: '',
       RECURRENCE: '',
       inputting: inputtingExpense,
@@ -69,7 +69,7 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
     this.handleNameChange = this.handleNameChange.bind(this);
     this.handleValueChange = this.handleValueChange.bind(this);
     this.handleGrowthChange = this.handleGrowthChange.bind(this);
-    this.handleFixedChange = this.handleFixedChange.bind(this);
+    this.handleGrowsWithCPIChange = this.handleGrowsWithCPIChange.bind(this);
     this.handleCategoryChange = this.handleCategoryChange.bind(this);
     this.handleRecurrenceChange = this.handleRecurrenceChange.bind(this);
     this.setInputRevalue = this.setInputRevalue.bind(this);
@@ -78,6 +78,7 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
     this.newExpenseForm = this.newExpenseForm.bind(this);
     this.revalue = this.revalue.bind(this);
 
+    this.handleValueSetChange = this.handleValueSetChange.bind(this);
     this.setValueSet = this.setValueSet.bind(this);
     this.handleStartChange = this.handleStartChange.bind(this);
     this.setStart = this.setStart.bind(this);
@@ -108,12 +109,12 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
           {/* end col */}
           <div className="col">
             <Input
-              title="Is value immune to inflation?"
+              title="Does value grow with inflation?"
               type="text"
-              name="expensecpi-immune"
-              value={this.state.CPI_IMMUNE}
+              name="expensecpi-grows"
+              value={this.state.GROWS_WITH_CPI}
               placeholder="Enter Y/N"
-              onChange={this.handleFixedChange}
+              onChange={this.handleGrowsWithCPIChange}
             />
           </div>{' '}
           {/* end col */}
@@ -302,9 +303,9 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
     const value = e.target.value;
     this.setState({ CATEGORY: value });
   }
-  private handleFixedChange(e: any) {
+  private handleGrowsWithCPIChange(e: any) {
     const value = e.target.value;
-    this.setState({ CPI_IMMUNE: value });
+    this.setState({ GROWS_WITH_CPI: value });
   }
   private handleValueChange(e: any) {
     const value = e.target.value;
@@ -439,9 +440,9 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
       alert(`Growth value '${this.state.GROWTH}' should be a numerical value`);
       return;
     }
-    const parsedYN = makeBooleanFromYesNo(this.state.CPI_IMMUNE);
+    const parsedYN = makeBooleanFromYesNo(this.state.GROWS_WITH_CPI);
     if (!parsedYN.checksOK) {
-      alert(`Fixed '${this.state.CPI_IMMUNE}' should be a Y/N value`);
+      alert(`Grows with inflation '${this.state.GROWS_WITH_CPI}' should be a Y/N value`);
       return;
     }
 
@@ -453,7 +454,7 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
       START: this.state.START,
       END: this.state.END,
       GROWTH: parsedGrowth.value,
-      CPI_IMMUNE: parsedYN.value,
+      CPI_IMMUNE: !parsedYN.value,
       CATEGORY: this.state.CATEGORY,
       RECURRENCE: this.state.RECURRENCE,
     };

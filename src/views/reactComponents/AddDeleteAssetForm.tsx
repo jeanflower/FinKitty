@@ -33,7 +33,7 @@ interface EditFormState {
   QUANTITY: string;
   START: string;
   GROWTH: string;
-  CPI_IMMUNE: string;
+  GROWS_WITH_INFLATION: string;
   PURCHASE_PRICE: string;
   LIABILITY: string;
   CATEGORY: string;
@@ -76,7 +76,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
       QUANTITY: '',
       START: '',
       GROWTH: '',
-      CPI_IMMUNE: '',
+      GROWS_WITH_INFLATION: '',
       PURCHASE_PRICE: '',
       LIABILITY: '',
       CATEGORY: '',
@@ -98,7 +98,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
     this.handleLiabilityChange = this.handleLiabilityChange.bind(this);
     this.handleCategoryChange = this.handleCategoryChange.bind(this);
     this.handlePurchasePriceChange = this.handlePurchasePriceChange.bind(this);
-    this.handleFixedChange = this.handleFixedChange.bind(this);
+    this.handleGrowsWithCPIChange = this.handleGrowsWithCPIChange.bind(this);
     this.handleStartChange = this.handleStartChange.bind(this);
     this.setStart = this.setStart.bind(this);
     this.inputPension = this.inputPension.bind(this);
@@ -175,12 +175,12 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
           {/* end col */}
           <div className="col">
             <Input
-              title="Is value immune to inflation?"
+              title="Does value grow with inflation?"
               type="text"
-              name="assetcpi-immune"
-              value={this.state.CPI_IMMUNE}
+              name="assetcpi-grows"
+              value={this.state.GROWS_WITH_INFLATION}
               placeholder="Enter Y/N"
-              onChange={this.handleFixedChange}
+              onChange={this.handleGrowsWithCPIChange}
             />
           </div>
         </div>
@@ -501,9 +501,9 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
     const value = e.target.value;
     this.setState({ QUANTITY: value });
   }
-  private handleFixedChange(e: any) {
+  private handleGrowsWithCPIChange(e: any) {
     const value = e.target.value;
-    this.setState({ CPI_IMMUNE: value });
+    this.setState({ GROWS_WITH_INFLATION: value });
   }
   private setStart(value: string): void {
     this.setState({ START: value });
@@ -824,10 +824,10 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
       if (purchasePrice === '') {
         purchasePrice = '0';
       }
-      const parsedYNCPI = makeBooleanFromYesNo(this.state.CPI_IMMUNE);
+      const parsedYNCPI = makeBooleanFromYesNo(this.state.GROWS_WITH_INFLATION);
       if (!parsedYNCPI.checksOK) {
         alert(
-          `Inflation-immune: '${this.state.CPI_IMMUNE}' should be a Y/N value`,
+          `Grows with CPI: '${this.state.GROWS_WITH_INFLATION}' should be a Y/N value`,
         );
         return;
       }
@@ -839,7 +839,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
         QUANTITY: this.state.QUANTITY,
         START: this.state.START,
         GROWTH: this.state.GROWTH,
-        CPI_IMMUNE: parsedYNCPI.value,
+        CPI_IMMUNE: !parsedYNCPI.value,
         CAN_BE_NEGATIVE: false,
         IS_A_DEBT: false,
         CATEGORY: this.state.CATEGORY,
