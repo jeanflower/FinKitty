@@ -1130,21 +1130,23 @@ const settingsToExcludeFromTableView = [
 ];
 
 function settingsForTable(model: DbModelData) {
-  const unindexedResult = model.settings.filter(
-    (obj: DbSetting) => {
-      return settingsToExcludeFromTableView.find((s)=>{
-        return obj.NAME === s;
-      }) === undefined;
-    }
-  ).map((obj: DbSetting) => {
-    showObj(`obj = ${obj}`);
-    const mapResult = {
-      NAME: obj.NAME,
-      VALUE: obj.VALUE,
-      HINT: obj.HINT,
-    };
-    return mapResult;
-  });
+  const unindexedResult = model.settings
+    .filter((obj: DbSetting) => {
+      return (
+        settingsToExcludeFromTableView.find(s => {
+          return obj.NAME === s;
+        }) === undefined
+      );
+    })
+    .map((obj: DbSetting) => {
+      showObj(`obj = ${obj}`);
+      const mapResult = {
+        NAME: obj.NAME,
+        VALUE: obj.VALUE,
+        HINT: obj.HINT,
+      };
+      return mapResult;
+    });
   return addIndices(unindexedResult);
 }
 
