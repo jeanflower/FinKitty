@@ -442,7 +442,9 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
     }
     const parsedYN = makeBooleanFromYesNo(this.state.GROWS_WITH_CPI);
     if (!parsedYN.checksOK) {
-      alert(`Grows with inflation '${this.state.GROWS_WITH_CPI}' should be a Y/N value`);
+      alert(
+        `Grows with inflation '${this.state.GROWS_WITH_CPI}' should be a Y/N value`,
+      );
       return;
     }
 

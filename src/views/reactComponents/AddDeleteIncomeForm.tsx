@@ -771,7 +771,9 @@ DBC_TRANSFERRED_STOP
     }
     const parseYNGrowsWithCPI = makeBooleanFromYesNo(this.state.GROWS_WITH_CPI);
     if (!parseYNGrowsWithCPI.checksOK) {
-      alert(`Grows with inflation '${this.state.GROWS_WITH_CPI}' should be a Y/N value`);
+      alert(
+        `Grows with inflation '${this.state.GROWS_WITH_CPI}' should be a Y/N value`,
+      );
       return;
     }
 
