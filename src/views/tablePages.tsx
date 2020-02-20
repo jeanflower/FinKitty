@@ -452,7 +452,7 @@ function getCols(model: DbModelData, isDebt: boolean) {
     {
       ...defaultColumn,
       key: 'IS_A_DEBT',
-      name: 'Is debt?',
+      name: 'is debt?',
     },
     */
   ]);
@@ -461,12 +461,12 @@ function getCols(model: DbModelData, isDebt: boolean) {
       {
         ...defaultColumn,
         key: 'IS_CPI_IMMUNE',
-        name: 'Is immune from CPI?',
+        name: 'is immune from CPI?',
       },
       {
         ...defaultColumn,
         key: 'LIABILITY',
-        name: 'Tax Liability',
+        name: 'tax Liability',
       },
       {
         ...defaultColumn,
@@ -791,7 +791,10 @@ function transactionsForTable(model: DbModelData, type: string) {
         obj.NAME,
       );
       // log(`obj.FROM = ${obj.FROM}, fromValueEntry = ${fromValueEntry}`);
-      if (obj.FROM === '' && fromValueEntry === '0') {
+      if (
+        obj.FROM === '' &&
+        (fromValueEntry === '0' || fromValueEntry === '0.0')
+      ) {
         fromValueEntry = '';
       }
       let toNumber = obj.TO_VALUE;
@@ -987,12 +990,12 @@ export function incomesTableDiv(model: DbModelData) {
               {
                 ...defaultColumn,
                 key: 'IS_CPI_IMMUNE',
-                name: 'Is immune from CPI?',
+                name: 'is immune from CPI?',
               },
               {
                 ...defaultColumn,
                 key: 'LIABILITY',
-                name: 'Tax Liability',
+                name: 'tax Liability',
               },
               {
                 ...defaultColumn,
@@ -1098,7 +1101,7 @@ export function expensesTableDiv(model: DbModelData) {
               {
                 ...defaultColumn,
                 key: 'IS_CPI_IMMUNE',
-                name: 'Is immune from CPI?',
+                name: 'is immune from CPI?',
               },
               {
                 ...defaultColumn,
