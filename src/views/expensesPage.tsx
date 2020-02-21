@@ -57,7 +57,7 @@ export function expensesDiv(
       <h4>Revalue expenses</h4>
       {transactionsTableDiv(model, revalueExp)}
       <div className="addNewExpense">
-        <h4> Add or delete expense </h4>
+        <h4> Add an expense </h4>
         <AddDeleteExpenseForm
           checkFunction={checkExpense}
           submitFunction={submitExpense}

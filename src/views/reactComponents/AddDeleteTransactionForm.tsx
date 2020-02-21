@@ -160,15 +160,6 @@ export class AddDeleteTransactionForm extends Component<
             />
           </div>{' '}
           {/* end col */}
-          <div className="col">
-            <Button
-              action={this.delete}
-              type={'secondary'}
-              title={'Delete transaction'}
-              id="deleteTransaction"
-            />
-          </div>{' '}
-          {/* end col */}
         </div>
         {/* end row */}
 

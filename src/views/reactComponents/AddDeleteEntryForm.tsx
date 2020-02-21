@@ -42,12 +42,6 @@ export class AddDeleteEntryForm extends Component<EditProps, EditFormState> {
           title={'Create new entry (over-writes an existing match)'}
           id="addEntry"
         />{' '}
-        <Button
-          action={this.delete}
-          type={'secondary'}
-          title={'Delete entry (loses data)'}
-          id="deleteEntry"
-        />{' '}
       </form>
     );
   }

@@ -58,7 +58,7 @@ export function debtsDiv(model: DbModelData, debtChartData: ChartData[]) {
       {transactionsTableDiv(model, payOffDebt)}
 
       <div className="addNewDebt">
-        <h4> Add or delete debt </h4>
+        <h4> Add a debt </h4>
         <AddDeleteDebtForm
           checkAssetFunction={checkAsset}
           submitAssetFunction={submitAsset}

@@ -82,15 +82,6 @@ export class AddDeleteTriggerForm extends Component<EditProps, EditFormState> {
             />
           </div>{' '}
           {/* end col */}
-          <div className="col">
-            <Button
-              action={this.delete}
-              type={'secondary'}
-              title={'Delete important date'}
-              id="deleteTrigger"
-            />
-          </div>{' '}
-          {/* end col */}
         </div>{' '}
         {/* end row */}
         <div className="row">

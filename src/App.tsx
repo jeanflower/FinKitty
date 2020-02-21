@@ -829,7 +829,7 @@ export class AppContent extends Component<AppProps, AppState> {
     if (promptResponse === null) {
       return result;
     }
-    const regex = RegExp('[a-zA-Z0-9_\\-\\.]+');
+    const regex = RegExp('[a-zA-Z0-9_\\-\\. ]+');
     const whatsLeft = promptResponse.replace(regex, '');
     // log(`whatsLeft = ${whatsLeft}`);
     if (whatsLeft !== '') {
@@ -1063,7 +1063,7 @@ export class AppContent extends Component<AppProps, AppState> {
           {settingsTableDiv(this.state.modelData)}
           <p />
           <div className="addNewSetting">
-            <h4> Add or delete setting </h4>
+            <h4> Add setting </h4>
             <AddDeleteEntryForm
               submitFunction={submitNewSetting}
               deleteFunction={deleteSettingFromTable}
@@ -1098,7 +1098,7 @@ export class AppContent extends Component<AppProps, AppState> {
         {triggersTableDiv(this.state.modelData)}
         <p />
         <div className="addNewTrigger">
-          <h4> Add or delete important date </h4>
+          <h4> Add an important date </h4>
           <AddDeleteTriggerForm
             checkFunction={checkTrigger}
             submitFunction={submitTrigger}
@@ -1147,7 +1147,7 @@ export class AppContent extends Component<AppProps, AppState> {
         {transactionsTableDiv(this.state.modelData, autogen)}
         <p />
         <div className="addNewTransaction">
-          <h4> Add or delete transaction </h4>
+          <h4> Add a transaction </h4>
           <AddDeleteTransactionForm
             checkFunction={checkTransaction}
             submitFunction={submitTransaction}

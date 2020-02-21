@@ -58,7 +58,7 @@ export function assetsDiv(model: DbModelData, assetChartData: ChartData[]) {
       {transactionsTableDiv(model, liquidateAsset)}
 
       <div className="addNewAsset">
-        <h4> Add or delete asset </h4>
+        <h4> Add an asset </h4>
         <AddDeleteAssetForm
           checkAssetFunction={checkAsset}
           submitAssetFunction={submitAsset}

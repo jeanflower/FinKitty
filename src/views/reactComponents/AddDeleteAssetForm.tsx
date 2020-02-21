@@ -396,17 +396,6 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
           {/* end col */}
           <div className="col">
             <Button
-              action={this.delete}
-              type={'secondary'}
-              title={`Delete ${
-                this.state.inputting === inputtingPension ? 'pension' : 'asset'
-              }`}
-              id="deleteAsset"
-            />
-          </div>
-          {/* end col */}
-          <div className="col">
-            <Button
               action={this.inputAsset}
               type={
                 this.state.inputting === inputtingAsset

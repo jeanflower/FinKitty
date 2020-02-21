@@ -59,6 +59,12 @@ import {
   transactionsTable,
   triggersTable,
   debtsTable,
+  deleteAssetFromTable,
+  deleteTransactionFromTable,
+  deleteSettingFromTable,
+  deleteIncomeFromTable,
+  deleteExpenseFromTable,
+  deleteTriggerFromTable,
 } from '../App';
 import {
   taxPot,
@@ -553,6 +559,7 @@ export function assetsOrDebtsTableDiv(model: DbModelData, isDebt: boolean) {
             }}
             rows={assetsOrDebtsForTable(model, isDebt)}
             columns={getCols(model, isDebt)}
+            deleteFunction={deleteAssetFromTable}
           />
         </div>
         <p />
@@ -828,6 +835,21 @@ function transactionsForTable(model: DbModelData, type: string) {
   return addIndices(unindexedRows);
 }
 
+function makeCompleteName(name: string, type: string) {
+  if (
+    type === revalueInc ||
+    type === revalueExp ||
+    type === revalueAsset ||
+    type === revalueDebt
+  ) {
+    return `${revalue}${name}`;
+  }
+  if (type === liquidateAsset || type === payOffDebt) {
+    return `${conditional}${name}`;
+  }
+  return name;
+}
+
 export function transactionsTableDiv(model: DbModelData, type: string) {
   const tableVisible = showContent.get(transactionsTable).display;
   return (
@@ -844,6 +866,10 @@ export function transactionsTableDiv(model: DbModelData, type: string) {
           }}
           rows={transactionsForTable(model, type)}
           columns={makeTransactionCols(model, type)}
+          deleteFunction={(name: string) => {
+            const completeName = makeCompleteName(name, type);
+            deleteTransactionFromTable(completeName);
+          }}
         />
       </div>
     </fieldset>
@@ -871,6 +897,7 @@ export function triggersTableDiv(model: DbModelData) {
       <fieldset>
         <div className="dataGridTriggers">
           <DataGrid
+            deleteFunction={deleteTriggerFromTable}
             handleGridRowsUpdated={handleTriggerGridRowsUpdated}
             rows={triggersForTable(model)}
             columns={[
@@ -929,6 +956,7 @@ export function incomesTableDiv(model: DbModelData) {
       <fieldset>
         <div className="dataGridIncomes">
           <DataGrid
+            deleteFunction={deleteIncomeFromTable}
             handleGridRowsUpdated={function() {
               return handleIncomeGridRowsUpdated(model, arguments);
             }}
@@ -1040,6 +1068,7 @@ export function expensesTableDiv(model: DbModelData) {
       <fieldset>
         <div className="dataGridExpenses">
           <DataGrid
+            deleteFunction={deleteExpenseFromTable}
             handleGridRowsUpdated={function() {
               return handleExpenseGridRowsUpdated(model, arguments);
             }}
@@ -1163,6 +1192,7 @@ export function settingsTableDiv(model: DbModelData) {
       }}
     >
       <DataGrid
+        deleteFunction={deleteSettingFromTable}
         handleGridRowsUpdated={handleSettingGridRowsUpdated}
         rows={settingsForTable(model)}
         columns={[

@@ -219,15 +219,6 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
           {/* end col */}
           <div className="col">
             <Button
-              action={this.delete}
-              type={'secondary'}
-              title={'Delete expense'}
-              id="deleteExpense"
-            />
-          </div>
-          {/* end col */}
-          <div className="col">
-            <Button
               action={this.setInputExpense}
               type={
                 this.state.inputting === inputtingExpense
