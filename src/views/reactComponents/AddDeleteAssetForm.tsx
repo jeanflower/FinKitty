@@ -189,6 +189,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
   }
 
   private ValueQuantityAndCategory(): React.ReactNode {
+    // log(`this.state.inputting = ${this.state.inputting}`);
     if (this.state.inputting === inputtingRevalue) {
       return (
         <div className="row">
@@ -200,6 +201,34 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
               value={this.state.VALUE}
               placeholder="Enter value"
               onChange={this.handleValueChange}
+            />
+          </div>
+        </div>
+      );
+    } else if (this.state.inputting === inputtingPension) {
+      return (
+        <div className="row">
+          <div className="col">
+            <Input
+              title={`${
+                this.state.inputting === inputtingPension ? 'Pension' : 'Asset'
+              } value`}
+              type="text"
+              name="assetvalue"
+              value={this.state.VALUE}
+              placeholder="Enter value"
+              onChange={this.handleValueChange}
+            />
+          </div>
+          {/* end col */}
+          <div className="col">
+            <Input
+              title="Category (optional)"
+              type="text"
+              name="assetcategory"
+              value={this.state.CATEGORY}
+              placeholder="category"
+              onChange={this.handleCategoryChange}
             />
           </div>
         </div>

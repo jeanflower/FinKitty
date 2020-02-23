@@ -492,7 +492,7 @@ DBC_TRANSFERRED_STOP
           />
           {
             <DateSelectionRow
-              introLabel="Date on which transferred pension stops"
+              introLabel="Date on which transferred pension stops (optional)"
               setDateFunction={this.setDbcTransferredStop}
               inputName="transferred stop date"
               inputValue={this.state.DBC_TRANSFERRED_STOP}
