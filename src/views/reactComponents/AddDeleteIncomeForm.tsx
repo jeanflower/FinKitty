@@ -337,20 +337,16 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
         </div>
         {/* end row */}
         <div className="row">
-          {this.state.inputting !== inputtingPension ? (
-            <div className="col">
-              <Input
-                title="Tax liability (empty or someone's name)"
-                type="text"
-                name="taxable"
-                value={this.state.LIABILITY}
-                placeholder="Enter tax liability"
-                onChange={this.handleLiabilityChange}
-              />
-            </div>
-          ) : (
-            ''
-          )}
+          <div className="col">
+            <Input
+              title="Tax liability (empty or someone's name)"
+              type="text"
+              name="taxable"
+              value={this.state.LIABILITY}
+              placeholder="Enter tax liability"
+              onChange={this.handleLiabilityChange}
+            />
+          </div>
           <div className="col">
             <Input
               title="Category (optional)"
@@ -779,69 +775,88 @@ DBC_TRANSFERRED_STOP
       // (g) submit transactions
       // (h) reset to defaults
 
-      const incomeSource = this.props.model.incomes.filter(i => {
-        return i.NAME === this.state.DBC_INCOME_SOURCE;
-      });
-      if (incomeSource.length === 0) {
-        alert(`no matched income found for ${this.state.DBC_INCOME_SOURCE}`);
-        return;
+      const parseYNDBCSS = makeBooleanFromYesNo(this.state.DBC_SS);
+      if (this.state.DBC_INCOME_SOURCE !== '') {
+        if (!parseYNDBCSS.checksOK) {
+          alert(
+            `Salary sacrifice '${this.state.DBC_SS}' should be a Y/N value`,
+          );
+          return;
+        } else {
+          // log(`parseYNDBCSS = ${showObj(parseYNDBCSS)}`);
+        }
+
+        isNotANumber = !isNumberString(this.state.DBC_CONTRIBUTION_AMOUNT);
+        if (isNotANumber) {
+          alert(
+            `Contribution amount '${this.state.DBC_CONTRIBUTION_AMOUNT}' should be a numerical value`,
+          );
+          return;
+        }
+
+        isNotANumber = !isNumberString(this.state.DBC_ACCRUAL);
+        if (isNotANumber) {
+          alert(
+            `Accrual value '${this.state.DBC_ACCRUAL}' should be a numerical value`,
+          );
+          return;
+        }
+      } else {
+        isNotANumber = !isNumberString(this.state.DBC_CONTRIBUTION_AMOUNT);
+        if (!isNotANumber) {
+          alert(
+            `Contribution amount '${this.state.DBC_CONTRIBUTION_AMOUNT}' from no income?`,
+          );
+          return;
+        }
+
+        isNotANumber = !isNumberString(this.state.DBC_ACCRUAL);
+        if (!isNotANumber) {
+          alert(`Accrual value '${this.state.DBC_ACCRUAL}' from no income?`);
+          return;
+        }
       }
-      const builtLiability1 = incomeSource[0].LIABILITY;
-      const liabilityMessage = checkIncomeLiability(builtLiability1);
+      const inputLiability = makeIncomeLiabilityFromNameAndNI(
+        this.state.LIABILITY,
+        false, // no NI payable
+      );
+      let liabilityMessage = checkIncomeLiability(inputLiability);
       if (liabilityMessage !== '') {
         alert(liabilityMessage);
         return;
       }
 
-      // check income is an income
       const sourceIncome = this.props.model.incomes.find(i => {
         return i.NAME === this.state.DBC_INCOME_SOURCE;
       });
-      if (sourceIncome === undefined) {
-        alert(
-          `Income '${this.state.DBC_INCOME_SOURCE}' should be an income name`,
-        );
+      if (sourceIncome === undefined && this.state.DBC_INCOME_SOURCE !== '') {
+        alert(`${this.state.DBC_INCOME_SOURCE} not recognised as an income`);
         return;
-      }
-
-      const parseYNDBCSS = makeBooleanFromYesNo(this.state.DBC_SS);
-      if (!parseYNDBCSS.checksOK) {
-        alert(`Salary sacrifice '${this.state.DBC_SS}' should be a Y/N value`);
-        return;
-      } else {
-        // log(`parseYNDBCSS = ${showObj(parseYNDBCSS)}`);
-      }
-
-      isNotANumber = !isNumberString(this.state.DBC_CONTRIBUTION_AMOUNT);
-      if (isNotANumber) {
-        alert(
-          `Contribution amount '${this.state.DBC_CONTRIBUTION_AMOUNT}' should be a numerical value`,
-        );
-        return;
-      }
-
-      isNotANumber = !isNumberString(this.state.DBC_ACCRUAL);
-      if (isNotANumber) {
-        alert(
-          `Accrual value '${this.state.DBC_ACCRUAL}' should be a numerical value`,
-        );
-        return;
-      }
-
-      const liabilities = sourceIncome.LIABILITY;
-      if (liabilities.length === 0) {
-        alert(`Source income '${sourceIncome.NAME}' should pay income tax`);
-        return;
-      }
-      const words = liabilities.split(separator);
-      const incomeTaxWord = words.find(w => {
-        return w.endsWith(incomeTax);
-      });
-      if (incomeTaxWord === undefined) {
-        alert(
-          `Source income '${sourceIncome.NAME}' should have an income tax liability`,
-        );
-        return;
+      } else if (sourceIncome) {
+        const liabilities = sourceIncome.LIABILITY;
+        if (liabilities.length === 0) {
+          alert(`Source income '${sourceIncome.NAME}' should pay income tax`);
+          return;
+        }
+        const words = liabilities.split(separator);
+        const incomeTaxWord = words.find(w => {
+          return w.endsWith(incomeTax);
+        });
+        if (incomeTaxWord === undefined) {
+          alert(
+            `Source income '${sourceIncome.NAME}' should have an income tax liability`,
+          );
+          return;
+        } else {
+          // insist incomeTaxWord matches inputLiability
+          if (incomeTaxWord !== inputLiability) {
+            log(`${incomeTaxWord} !== ${inputLiability}`);
+            alert(
+              `Source income '${sourceIncome.NAME}' should have income tax liability ${inputLiability}`,
+            );
+            return;
+          }
+        }
       }
       let builtLiability2: string | undefined;
       if (this.state.DBC_TRANSFER_TO !== '') {
@@ -856,7 +871,7 @@ DBC_TRANSFERRED_STOP
           this.state.DBC_TRANSFER_TO,
           false, // no NI payable
         );
-        const liabilityMessage = checkIncomeLiability(builtLiability2);
+        liabilityMessage = checkIncomeLiability(builtLiability2);
         if (liabilityMessage !== '') {
           alert(liabilityMessage);
           return;
@@ -869,7 +884,7 @@ DBC_TRANSFERRED_STOP
         NAME: newIncomeName1,
         VALUE: this.state.VALUE,
         VALUE_SET: this.state.VALUE_SET,
-        LIABILITY: builtLiability1,
+        LIABILITY: inputLiability,
         GROWTH: parsedGrowth.value,
         CPI_IMMUNE: !parseYNGrowsWithCPI.value,
         CATEGORY: this.state.CATEGORY,
@@ -911,61 +926,64 @@ DBC_TRANSFERRED_STOP
       if (pensionDbcIncome2) {
         await this.props.submitIncomeFunction(pensionDbcIncome2);
       }
-
-      const pensionDbctran1: DbTransaction = {
-        NAME: (parseYNDBCSS.value ? pensionSS : pension) + this.state.NAME,
-        FROM: this.state.DBC_INCOME_SOURCE,
-        FROM_ABSOLUTE: false,
-        FROM_VALUE: this.state.DBC_CONTRIBUTION_AMOUNT,
-        TO: '',
-        TO_ABSOLUTE: false,
-        TO_VALUE: '0.0',
-        DATE: this.state.VALUE_SET, // match the income start date
-        STOP_DATE: this.state.DBC_STOP_SOURCE, // match the income stop date
-        RECURRENCE: '',
-        CATEGORY: this.state.CATEGORY,
-        TYPE: autogen,
-      };
-      message = await this.props.checkTransactionFunction(
-        pensionDbctran1,
-        this.props.model,
-      );
-      if (message.length > 0) {
-        alert(message);
-        await this.props.deleteFunction(pensionDbcIncome1);
-        if (pensionDbcIncome2) {
-          await this.props.deleteFunction(pensionDbcIncome2);
+      let pensionDbctran1: DbTransaction | undefined;
+      let pensionDbctran2: DbTransaction | undefined;
+      if (this.state.DBC_INCOME_SOURCE !== '') {
+        pensionDbctran1 = {
+          NAME: (parseYNDBCSS.value ? pensionSS : pension) + this.state.NAME,
+          FROM: this.state.DBC_INCOME_SOURCE,
+          FROM_ABSOLUTE: false,
+          FROM_VALUE: this.state.DBC_CONTRIBUTION_AMOUNT,
+          TO: '',
+          TO_ABSOLUTE: false,
+          TO_VALUE: '0.0',
+          DATE: this.state.VALUE_SET, // match the income start date
+          STOP_DATE: this.state.DBC_STOP_SOURCE, // match the income stop date
+          RECURRENCE: '',
+          CATEGORY: this.state.CATEGORY,
+          TYPE: autogen,
+        };
+        message = await this.props.checkTransactionFunction(
+          pensionDbctran1,
+          this.props.model,
+        );
+        if (message.length > 0) {
+          alert(message);
+          await this.props.deleteFunction(pensionDbcIncome1);
+          if (pensionDbcIncome2) {
+            await this.props.deleteFunction(pensionDbcIncome2);
+          }
+          return;
         }
-        return;
-      }
-      // log(`this.state.DBC_ACCRUAL = ${this.state.DBC_ACCRUAL}`);
-      const monthlyAccrualValue = this.state.DBC_ACCRUAL;
-      // log(`monthlyAccrualValue = ${monthlyAccrualValue}`);
-      const pensionDbctran2: DbTransaction = {
-        NAME: newIncomeName1, // kicks in when we see income java
-        FROM: this.state.DBC_INCOME_SOURCE,
-        FROM_ABSOLUTE: false,
-        FROM_VALUE: monthlyAccrualValue, // percentage of income offered up to pension
-        TO: newIncomeName1,
-        TO_ABSOLUTE: false,
-        TO_VALUE: '1.0',
-        DATE: this.state.VALUE_SET, // match the income start date
-        STOP_DATE: this.state.DBC_STOP_SOURCE, // match the income stop date
-        RECURRENCE: '',
-        CATEGORY: this.state.CATEGORY,
-        TYPE: autogen,
-      };
-      message = await this.props.checkTransactionFunction(
-        pensionDbctran2,
-        this.props.model,
-      );
-      if (message.length > 0) {
-        alert(message);
-        await this.props.deleteFunction(pensionDbcIncome1);
-        if (pensionDbcIncome2) {
-          await this.props.deleteFunction(pensionDbcIncome2);
+        // log(`this.state.DBC_ACCRUAL = ${this.state.DBC_ACCRUAL}`);
+        const monthlyAccrualValue = this.state.DBC_ACCRUAL;
+        // log(`monthlyAccrualValue = ${monthlyAccrualValue}`);
+        pensionDbctran2 = {
+          NAME: newIncomeName1, // kicks in when we see income java
+          FROM: this.state.DBC_INCOME_SOURCE,
+          FROM_ABSOLUTE: false,
+          FROM_VALUE: monthlyAccrualValue, // percentage of income offered up to pension
+          TO: newIncomeName1,
+          TO_ABSOLUTE: false,
+          TO_VALUE: '1.0',
+          DATE: this.state.VALUE_SET, // match the income start date
+          STOP_DATE: this.state.DBC_STOP_SOURCE, // match the income stop date
+          RECURRENCE: '',
+          CATEGORY: this.state.CATEGORY,
+          TYPE: autogen,
+        };
+        message = await this.props.checkTransactionFunction(
+          pensionDbctran2,
+          this.props.model,
+        );
+        if (message.length > 0) {
+          alert(message);
+          await this.props.deleteFunction(pensionDbcIncome1);
+          if (pensionDbcIncome2) {
+            await this.props.deleteFunction(pensionDbcIncome2);
+          }
+          return;
         }
-        return;
       }
       let pensionDbctran3: DbTransaction | undefined;
       if (this.state.DBC_TRANSFER_TO !== '' && newIncomeName2) {
@@ -997,8 +1015,12 @@ DBC_TRANSFERRED_STOP
         }
       }
 
-      await this.props.submitTransactionFunction(pensionDbctran1);
-      await this.props.submitTransactionFunction(pensionDbctran2);
+      if (pensionDbctran1) {
+        await this.props.submitTransactionFunction(pensionDbctran1);
+      }
+      if (pensionDbctran2) {
+        await this.props.submitTransactionFunction(pensionDbctran2);
+      }
       if (pensionDbctran3) {
         await this.props.submitTransactionFunction(pensionDbctran3);
       }
