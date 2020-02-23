@@ -17,7 +17,7 @@ import { assetsOrDebtsChartDiv } from './chartPages';
 import { assetsOrDebtsTableDiv, transactionsTableDiv } from './tablePages';
 import { AddDeleteAssetForm } from './reactComponents/AddDeleteAssetForm';
 import { checkAsset, checkTransaction } from '../models/checks';
-import { liquidateAsset, revalueAsset } from '../localization/stringConstants';
+import { revalueAsset } from '../localization/stringConstants';
 
 export function assetsDiv(model: DbModelData, assetChartData: ChartData[]) {
   if (!getDisplay(assetsView)) {
@@ -54,8 +54,6 @@ export function assetsDiv(model: DbModelData, assetChartData: ChartData[]) {
       {assetsOrDebtsTableDiv(model, false)}
       <h4>Revalue assets</h4>
       {transactionsTableDiv(model, revalueAsset)}
-      <h4>Liquidate assets to keep cash afloat</h4>
-      {transactionsTableDiv(model, liquidateAsset)}
 
       <div className="addNewAsset">
         <h4> Add an asset </h4>

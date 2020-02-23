@@ -8,6 +8,7 @@ import {
   printDebug,
   showObj,
   makeValueAbsPropFromString,
+  makeBooleanFromYesNo,
 } from '../../utils';
 import Button from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
@@ -15,9 +16,10 @@ import Input from './Input';
 import {
   taxPot,
   custom,
-  /*  
   CASH_ASSET_NAME,
   liquidateAsset,
+  conditional,
+  /*
   conditional,
   payOffDebt,
   revalue,
@@ -42,6 +44,7 @@ interface EditFormState {
   DATE: string;
   STOP_DATE: string; // for regular transactions
   RECURRENCE: string;
+  LIQUIDATE_FOR_CASH: string;
 }
 interface EditProps {
   checkFunction: any;
@@ -122,6 +125,7 @@ export class AddDeleteTransactionForm extends Component<
       DATE: '',
       STOP_DATE: '',
       RECURRENCE: '',
+      LIQUIDATE_FOR_CASH: '',
     };
 
     this.state = this.defaultState;
@@ -133,6 +137,7 @@ export class AddDeleteTransactionForm extends Component<
     this.handleToValueChange = this.handleToValueChange.bind(this);
     this.handleCategoryChange = this.handleCategoryChange.bind(this);
     this.handleRecurrenceChange = this.handleRecurrenceChange.bind(this);
+    this.handleLiquidateForCashChange = this.handleLiquidateForCashChange.bind(this);
 
     this.handleDateChange = this.handleDateChange.bind(this);
     this.setDate = this.setDate.bind(this);
@@ -242,7 +247,18 @@ export class AddDeleteTransactionForm extends Component<
             />
           </div>{' '}
           {/* end col */}
-        </div>
+          <div className="col">
+            <Input
+                title="Liquidate asset to maintain cash-flow"
+                type="text"
+                name="liquidateForCash"
+                value={this.state.LIQUIDATE_FOR_CASH}
+                placeholder="Enter whether we only transact fo keep cash afloat"
+                onChange={this.handleLiquidateForCashChange}
+              />
+          </div>{' '}
+          {/* end col */}
+          </div>
         {/* end row */}
         <div className="container-fluid">
           {/* fills width */}
@@ -337,6 +353,12 @@ export class AddDeleteTransactionForm extends Component<
       RECURRENCE: value,
     });
   }
+  private handleLiquidateForCashChange(e: any){
+    const value = e.target.value;
+    this.setState({
+      LIQUIDATE_FOR_CASH: value,
+    });
+  }
   private setDate(value: string): void {
     this.setState({ DATE: value });
   }
@@ -389,10 +411,25 @@ export class AddDeleteTransactionForm extends Component<
       alert('To absolute should be T (absolute value) or F (relative value');
       return;
     }
-    const type = custom;
+    const parsedLiquidateYN = makeBooleanFromYesNo(this.state.LIQUIDATE_FOR_CASH);
+    if (!parsedLiquidateYN.checksOK) {
+      alert("Whether we're keeping cash afloat should be 'y' or 'n'");
+      return;
+    }
+    if(parsedLiquidateYN.value && this.state.TO !== CASH_ASSET_NAME){
+      alert("If we're liquidating assets to keep cash afloat, the TO asset should be CASH");
+      return;
+    }
+  
+    let type = custom;    
+    let transactionName = this.state.NAME;
+    if(parsedLiquidateYN.value){
+      type = liquidateAsset;
+      transactionName = `${conditional}${this.state.NAME}`;
+    }
 
     const transaction: DbTransaction = {
-      NAME: this.state.NAME,
+      NAME: transactionName,
       CATEGORY: this.state.CATEGORY,
       FROM: this.state.FROM,
       FROM_ABSOLUTE: makeBooleanFromString(fromAbsolute),

@@ -18,6 +18,7 @@ import {
   exampleModelName,
   custom,
   autogen,
+  liquidateAsset,
 } from './localization/stringConstants';
 import {
   ChartData,
@@ -1143,6 +1144,8 @@ export class AppContent extends Component<AppProps, AppState> {
         />
         {tableVisible ? <h4>Custom transactions</h4> : ''}
         {transactionsTableDiv(this.state.modelData, custom)}
+        <h4>Liquidate assets to keep cash afloat</h4>
+        {transactionsTableDiv(this.state.modelData, liquidateAsset)}
         {tableVisible ? <h4>Auto-generated transactions</h4> : ''}
         {transactionsTableDiv(this.state.modelData, autogen)}
         <p />
