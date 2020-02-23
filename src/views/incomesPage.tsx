@@ -55,7 +55,7 @@ export function incomesDiv(model: DbModelData, incomesChartData: ChartData[]) {
       <h4>Revalue incomes</h4>
       {transactionsTableDiv(model, revalueInc)}
       <div className="addNewIncome">
-        <h4> Add an income </h4>
+        <h4> Add an income or pension </h4>
         <AddDeleteIncomeForm
           checkIncomeFunction={checkIncome}
           checkTransactionFunction={checkTransaction}

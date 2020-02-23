@@ -460,7 +460,7 @@ DBC_TRANSFERRED_STOP
         <div className="container-fluid">
           {/* fills width */}
           <DateSelectionRow
-            introLabel="Date on which contributions end"
+            introLabel="Date on which contributions end (optional)"
             setDateFunction={this.setDbcStopSource}
             inputName="end date"
             inputValue={this.state.DBC_STOP_SOURCE}
@@ -500,7 +500,7 @@ DBC_TRANSFERRED_STOP
         </div>
         <div className="row">
           <div className="col">
-            <label>Income source</label>
+            <label>Income source (optional)</label>
             {incomeOptions(
               this.props.model,
               this.handleDbcIncomeSourceChange,
@@ -510,7 +510,7 @@ DBC_TRANSFERRED_STOP
           {/* end col */}
           <div className="col">
             <Input
-              title="Is contribution salary-sacrificed"
+              title="Is contribution salary-sacrificed (optional)"
               type="text"
               name="contributionSSIncome"
               value={this.state.DBC_SS}
@@ -524,7 +524,7 @@ DBC_TRANSFERRED_STOP
         <div className="row">
           <div className="col">
             <Input
-              title="Pension contribution amount (e.g. 0.05 for 5%)"
+              title="Pension contribution amount (e.g. 0.05 for 5%, optional)"
               type="text"
               name="contributionAmountPensionIncome"
               value={this.state.DBC_CONTRIBUTION_AMOUNT}
@@ -535,7 +535,7 @@ DBC_TRANSFERRED_STOP
           {/* end col */}
           <div className="col">
             <Input
-              title="Contribution accrual to annual benefit (e.g. 0.02 for 1/50)"
+              title="Contribution accrual to annual benefit (e.g. 0.02 for 1/50, optional)"
               type="text"
               name="incomeaccrual"
               value={this.state.DBC_ACCRUAL}
