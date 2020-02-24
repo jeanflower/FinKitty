@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  deleteExpenseFromTable,
+  deleteExpense,
   expensesChart,
   expensesTable,
   expensesView,
@@ -61,7 +61,7 @@ export function expensesDiv(
         <AddDeleteExpenseForm
           checkFunction={checkExpense}
           submitFunction={submitExpense}
-          deleteFunction={deleteExpenseFromTable}
+          deleteFunction={deleteExpense}
           submitTrigger={submitTrigger}
           model={model}
           checkTransactionFunction={checkTransaction}

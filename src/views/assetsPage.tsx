@@ -4,7 +4,7 @@ import {
   assetsChart,
   assetsTable,
   assetsView,
-  deleteAssetFromTable,
+  deleteAsset,
   getDisplay,
   showContent,
   submitAsset,
@@ -62,7 +62,7 @@ export function assetsDiv(model: DbModelData, assetChartData: ChartData[]) {
           submitAssetFunction={submitAsset}
           checkTransactionFunction={checkTransaction}
           submitTransactionFunction={submitTransaction}
-          deleteAssetFunction={deleteAssetFromTable}
+          deleteAssetFunction={deleteAsset}
           submitTrigger={submitTrigger}
           model={model}
         />

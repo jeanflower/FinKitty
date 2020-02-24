@@ -42,6 +42,7 @@ import {
   makeDateFromString,
   getStartQuantity,
 } from '../utils';
+import { getDisplayName } from '../views/tablePages';
 
 function parseRecurrenceString(recurrence: string) {
   const result = {
@@ -1539,11 +1540,7 @@ function handleCGTLiability(
 }
 
 export function makeSourceForFromChange(t: DbTransaction) {
-  let sourceDescription = t.NAME;
-  if (sourceDescription.startsWith(conditional)) {
-    sourceDescription = sourceDescription.substr(conditional.length + 1);
-  }
-  // log(`sourceDescription = ${sourceDescription}`);
+  const sourceDescription = getDisplayName(t.NAME, t.TYPE);
   return sourceDescription;
 }
 

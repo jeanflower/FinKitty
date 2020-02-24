@@ -648,7 +648,19 @@ export async function deleteItemFromModel(
     return i.NAME === name;
   });
   if (idx !== -1) {
+    const oldItem = itemList[idx];
+    // log(`before delete itemList = ${showObj(itemList)}`);
     itemList.splice(idx, 1);
+    // log(`after delete itemList = ${showObj(itemList)}`);
+
+    const checkResponse = checkData(model);
+    if (checkResponse !== '') {
+      alert(`edited  model fails checks :'${checkResponse}', reverting`);
+      itemList.splice(idx, 0, oldItem);
+      // log(`after putback itemList = ${showObj(itemList)}`);
+      return false;
+    }
+
     await getDB().saveModel(getUserID(), modelName, model);
     await refreshData();
     return true;
@@ -656,7 +668,7 @@ export async function deleteItemFromModel(
   return false;
 }
 
-export async function deleteTriggerFromTable(name: string) {
+export async function deleteTrigger(name: string) {
   return deleteItemFromModel(
     name,
     reactAppComponent.state.modelData.triggers,
@@ -665,7 +677,7 @@ export async function deleteTriggerFromTable(name: string) {
   );
 }
 
-export async function deleteAssetFromTable(name: string) {
+export async function deleteAsset(name: string) {
   return deleteItemFromModel(
     name,
     reactAppComponent.state.modelData.assets,
@@ -674,7 +686,7 @@ export async function deleteAssetFromTable(name: string) {
   );
 }
 
-export async function deleteTransactionFromTable(name: string) {
+export async function deleteTransaction(name: string) {
   return deleteItemFromModel(
     name,
     reactAppComponent.state.modelData.transactions,
@@ -683,7 +695,7 @@ export async function deleteTransactionFromTable(name: string) {
   );
 }
 
-export async function deleteExpenseFromTable(name: string) {
+export async function deleteExpense(name: string) {
   return deleteItemFromModel(
     name,
     reactAppComponent.state.modelData.expenses,
@@ -692,7 +704,7 @@ export async function deleteExpenseFromTable(name: string) {
   );
 }
 
-export async function deleteIncomeFromTable(name: string) {
+export async function deleteIncome(name: string) {
   return deleteItemFromModel(
     name,
     reactAppComponent.state.modelData.incomes,
@@ -701,7 +713,7 @@ export async function deleteIncomeFromTable(name: string) {
   );
 }
 
-export async function deleteSettingFromTable(name: string) {
+export async function deleteSetting(name: string) {
   return deleteItemFromModel(
     name,
     reactAppComponent.state.modelData.settings,
@@ -1067,7 +1079,7 @@ export class AppContent extends Component<AppProps, AppState> {
             <h4> Add setting </h4>
             <AddDeleteEntryForm
               submitFunction={submitNewSetting}
-              deleteFunction={deleteSettingFromTable}
+              deleteFunction={deleteSetting}
             />
           </div>
         </fieldset>
@@ -1103,7 +1115,7 @@ export class AppContent extends Component<AppProps, AppState> {
           <AddDeleteTriggerForm
             checkFunction={checkTrigger}
             submitFunction={submitTrigger}
-            deleteFunction={deleteTriggerFromTable}
+            deleteFunction={deleteTrigger}
             showTriggerTable={() => {
               // force show if we have exactly one trigger
               // log(`has ${this.state.modelData.triggers} triggers...`)
@@ -1154,7 +1166,7 @@ export class AppContent extends Component<AppProps, AppState> {
           <AddDeleteTransactionForm
             checkFunction={checkTransaction}
             submitFunction={submitTransaction}
-            deleteFunction={deleteTransactionFromTable}
+            deleteFunction={deleteTransaction}
             submitTrigger={submitTrigger}
             model={this.state.modelData}
           />

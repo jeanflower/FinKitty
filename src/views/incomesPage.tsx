@@ -1,7 +1,7 @@
 import React from 'react';
 import { ChartData, DbModelData } from '../types/interfaces';
 import {
-  deleteIncomeFromTable,
+  deleteIncome,
   getDisplay,
   incomesChart,
   incomesTable,
@@ -61,7 +61,7 @@ export function incomesDiv(model: DbModelData, incomesChartData: ChartData[]) {
           checkTransactionFunction={checkTransaction}
           submitIncomeFunction={submitIncome}
           submitTransactionFunction={submitTransaction}
-          deleteFunction={deleteIncomeFromTable}
+          deleteFunction={deleteIncome}
           submitTrigger={submitTrigger}
           model={model}
         />

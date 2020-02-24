@@ -59,12 +59,12 @@ import {
   transactionsTable,
   triggersTable,
   debtsTable,
-  deleteAssetFromTable,
-  deleteTransactionFromTable,
-  deleteSettingFromTable,
-  deleteIncomeFromTable,
-  deleteExpenseFromTable,
-  deleteTriggerFromTable,
+  deleteAsset,
+  deleteExpense,
+  deleteIncome,
+  deleteSetting,
+  deleteTransaction,
+  deleteTrigger,
 } from '../App';
 import {
   taxPot,
@@ -559,7 +559,7 @@ export function assetsOrDebtsTableDiv(model: DbModelData, isDebt: boolean) {
             }}
             rows={assetsOrDebtsForTable(model, isDebt)}
             columns={getCols(model, isDebt)}
-            deleteFunction={deleteAssetFromTable}
+            deleteFunction={deleteAsset}
           />
         </div>
         <p />
@@ -762,25 +762,27 @@ function makeTransactionCols(model: DbModelData, type: string) {
   return cols;
 }
 
-function getDisplayName(obj: any, type: string) {
+export function getDisplayName(obj: string, type: string) {
+  // log(`obj = ${obj}`);
+  let result: string;
   if (
-    obj.NAME.startsWith(conditional) &&
+    obj.startsWith(conditional) &&
     (type === liquidateAsset || type === payOffDebt)
   ) {
-    return obj.NAME.substring(conditional.length, obj.NAME.length);
-  }
-
-  if (
-    obj.NAME.startsWith(revalue) &&
+    result = obj.substring(conditional.length, obj.length);
+  } else if (
+    obj.startsWith(revalue) &&
     (type === revalueAsset ||
       type === revalueDebt ||
       type === revalueExp ||
       type === revalueInc)
   ) {
-    return obj.NAME.substring(revalue.length, obj.NAME.length);
+    result = obj.substring(revalue.length, obj.length);
+  } else {
+    result = obj;
   }
-
-  return obj.NAME;
+  // log(`display ${result}`);
+  return result;
 }
 
 function transactionsForTable(model: DbModelData, type: string) {
@@ -822,7 +824,7 @@ function transactionsForTable(model: DbModelData, type: string) {
         DATE: obj.DATE,
         FROM: obj.FROM,
         FROM_VALUE: fromValueEntry,
-        NAME: getDisplayName(obj, type),
+        NAME: getDisplayName(obj.NAME, type),
         TO: obj.TO,
         TO_VALUE: toValueEntry,
         STOP_DATE: obj.STOP_DATE,
@@ -868,7 +870,7 @@ export function transactionsTableDiv(model: DbModelData, type: string) {
           columns={makeTransactionCols(model, type)}
           deleteFunction={(name: string) => {
             const completeName = makeCompleteName(name, type);
-            deleteTransactionFromTable(completeName);
+            deleteTransaction(completeName);
           }}
         />
       </div>
@@ -897,7 +899,7 @@ export function triggersTableDiv(model: DbModelData) {
       <fieldset>
         <div className="dataGridTriggers">
           <DataGrid
-            deleteFunction={deleteTriggerFromTable}
+            deleteFunction={deleteTrigger}
             handleGridRowsUpdated={handleTriggerGridRowsUpdated}
             rows={triggersForTable(model)}
             columns={[
@@ -956,7 +958,7 @@ export function incomesTableDiv(model: DbModelData) {
       <fieldset>
         <div className="dataGridIncomes">
           <DataGrid
-            deleteFunction={deleteIncomeFromTable}
+            deleteFunction={deleteIncome}
             handleGridRowsUpdated={function() {
               return handleIncomeGridRowsUpdated(model, arguments);
             }}
@@ -1068,7 +1070,7 @@ export function expensesTableDiv(model: DbModelData) {
       <fieldset>
         <div className="dataGridExpenses">
           <DataGrid
-            deleteFunction={deleteExpenseFromTable}
+            deleteFunction={deleteExpense}
             handleGridRowsUpdated={function() {
               return handleExpenseGridRowsUpdated(model, arguments);
             }}
@@ -1192,7 +1194,7 @@ export function settingsTableDiv(model: DbModelData) {
       }}
     >
       <DataGrid
-        deleteFunction={deleteSettingFromTable}
+        deleteFunction={deleteSetting}
         handleGridRowsUpdated={handleSettingGridRowsUpdated}
         rows={settingsForTable(model)}
         columns={[

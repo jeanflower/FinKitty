@@ -4,7 +4,7 @@ import {
   debtsChart,
   debtsTable,
   debtsView,
-  deleteAssetFromTable,
+  deleteAsset,
   getDisplay,
   showContent,
   submitAsset,
@@ -64,7 +64,7 @@ export function debtsDiv(model: DbModelData, debtChartData: ChartData[]) {
           submitAssetFunction={submitAsset}
           checkTransactionFunction={checkTransaction}
           submitTransactionFunction={submitTransaction}
-          deleteAssetFunction={deleteAssetFromTable}
+          deleteAssetFunction={deleteAsset}
           submitTrigger={submitTrigger}
           model={model}
         />
