@@ -895,7 +895,7 @@ function handleIncome(
       } else {
         // e.g. employee chooses 5% pension contribution
         amountFrom = tFromValue * incomeValue;
-        // log(`cashToDivert = ${transaction.FROM_VALUE} * ${amountForCashIncrement}`);
+        // log(`amountFrom = ${tFromValue} * ${incomeValue}`);
       }
 
       if (!transaction.NAME.startsWith(pensionDBC)) {

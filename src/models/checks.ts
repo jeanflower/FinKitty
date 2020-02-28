@@ -365,12 +365,10 @@ function checkTransactionTo(
   const a = assetsForChecking.find(as => as.NAME === word);
   if (a !== undefined) {
     if (t.NAME.startsWith(pensionDBC)) {
-      return (
-        `Transaction ${getDisplayName(
-          t.NAME,
-          t.TYPE,
-        )} should have TO an income not an asset : ${a.NAME}`
-      );
+      return `Transaction ${getDisplayName(
+        t.NAME,
+        t.TYPE,
+      )} should have TO an income not an asset : ${a.NAME}`;
     }
     if (getTriggerDate(a.START, triggers) > getTriggerDate(t.DATE, triggers)) {
       return (
@@ -395,11 +393,10 @@ function checkTransactionTo(
     }
     if (t.NAME.startsWith(pensionDBC)) {
       if (!i.NAME.startsWith(pensionDBC)) {
-        return (
-          `Transaction ${getDisplayName(t.NAME, t.TYPE)} must have TO income ${
-            t.TO
-          } named starting ${pensionDBC}`
-        );
+        return `Transaction ${getDisplayName(
+          t.NAME,
+          t.TYPE,
+        )} must have TO income ${t.TO} named starting ${pensionDBC}`;
       }
     }
     // transacting on an income - check dates
@@ -551,6 +548,42 @@ function isAutogenType(t: DbTransaction, model: DbModelData) {
     t.RECURRENCE === ''
   ) {
     recognised = true;
+  }
+  /*
+    Transfer DBC pension
+        transfer = {
+          NAME: 'Transfer' + crystallizedPension + this.state.NAME,
+          FROM: asset3Name, // crystallized for one person
+          FROM_ABSOLUTE: false,
+          FROM_VALUE: '1.0',
+          TO: asset4Name, // crystallized for another person
+          TO_ABSOLUTE: false,
+          TO_VALUE: '1.0',
+          DATE: this.state.DCP_TRANSFER_DATE, 
+          STOP_DATE: '',
+          RECURRENCE: '',
+          CATEGORY: this.state.CATEGORY,
+          TYPE: autogen,
+        };
+  */
+  if (
+    !recognised &&
+    t.NAME.startsWith('Transfer' + crystallizedPension) &&
+    t.FROM.startsWith(crystallizedPension) &&
+    // asNumber(t.FROM_VALUE) === 1.0 &&
+    t.FROM_ABSOLUTE === false &&
+    t.TO.startsWith(crystallizedPension) &&
+    t.RECURRENCE === ''
+  ) {
+    recognised = true;
+    /*
+  } else {
+    log(`t.NAME.startsWith('Transfer'+crystallizedPension) = ${t.NAME.startsWith('transfer'+crystallizedPension)}`);
+    log(`t.FROM.startsWith(crystallizedPension) = ${t.FROM.startsWith(crystallizedPension)}`);
+    log(`t.FROM_ABSOLUTE === false = ${t.FROM_ABSOLUTE === false}`);
+    log(`t.TO.startsWith(crystallizedPension) = ${t.TO.startsWith(crystallizedPension)}`);
+    log(`t.RECURRENCE === '' = ${t.RECURRENCE === ''}`);
+*/
   }
 
   /*

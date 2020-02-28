@@ -44,6 +44,8 @@ interface EditFormState {
   DCP_INCOME_SOURCE: string;
   DCP_CONTRIBUTION_AMOUNT: string;
   DCP_EMP_CONTRIBUTION_AMOUNT: string;
+  DCP_TRANSFER_TO: string;
+  DCP_TRANSFER_DATE: string;
 }
 
 const inputtingRevalue = 'revalue';
@@ -87,6 +89,8 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
       DCP_INCOME_SOURCE: '',
       DCP_CONTRIBUTION_AMOUNT: '',
       DCP_EMP_CONTRIBUTION_AMOUNT: '',
+      DCP_TRANSFER_TO: '',
+      DCP_TRANSFER_DATE: '',
     };
 
     this.state = this.defaultState;
@@ -100,11 +104,18 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
     this.handlePurchasePriceChange = this.handlePurchasePriceChange.bind(this);
     this.handleGrowsWithCPIChange = this.handleGrowsWithCPIChange.bind(this);
     this.handleStartChange = this.handleStartChange.bind(this);
+    this.handleDcpTransferTo = this.handleDcpTransferTo.bind(this);
+    this.setDcpTransferDate = this.setDcpTransferDate.bind(this);
+    this.handleDcpTransferDateChange = this.handleDcpTransferDateChange.bind(
+      this,
+    );
+
     this.setStart = this.setStart.bind(this);
     this.inputPension = this.inputPension.bind(this);
     this.inputAsset = this.inputAsset.bind(this);
     this.inputRevalue = this.inputRevalue.bind(this);
     this.setStop = this.setStop.bind(this);
+    this.handleStopChange = this.handleStopChange.bind(this);
     this.setCrystallize = this.setCrystallize.bind(this);
     this.handleCrystallizeChange = this.handleCrystallizeChange.bind(this);
     this.handleDcpIncomeSourceChange = this.handleDcpIncomeSourceChange.bind(
@@ -339,6 +350,21 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
             submitTrigger={this.props.submitTrigger}
           />
         </div>
+        <div className="container-fluid">
+          {this.state.inputting === inputtingPension ? (
+            <DateSelectionRow
+              introLabel="On death, pension transfers to (optional)"
+              setDateFunction={this.setDcpTransferDate}
+              inputName="transferred stop date"
+              inputValue={this.state.DCP_TRANSFER_DATE}
+              onChangeHandler={this.handleDcpTransferDateChange}
+              triggers={this.props.model.triggers}
+              submitTrigger={this.props.submitTrigger}
+            />
+          ) : (
+            <div />
+          )}
+        </div>
         <div className="row">
           <div className="col">
             <Input
@@ -397,7 +423,16 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
             />
           </div>
           {/* end col */}
-          <div className="col"></div>
+          <div className="col">
+            <Input
+              title="On death, pension transfers to (optional)"
+              type="text"
+              name="transferName"
+              value={this.state.DCP_TRANSFER_TO}
+              placeholder="Enter person to transfer to"
+              onChange={this.handleDcpTransferTo}
+            />
+          </div>
           {/* end col */}
         </div>
         {/* end row */}
@@ -559,6 +594,15 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
     const value = e.target.value;
     this.setState({ DCP_EMP_CONTRIBUTION_AMOUNT: value });
   }
+  private handleDcpTransferTo(e: any) {
+    this.setState({ DCP_TRANSFER_TO: e.target.value });
+  }
+  private setDcpTransferDate(value: string): void {
+    this.setState({ DCP_TRANSFER_DATE: value });
+  }
+  private handleDcpTransferDateChange(e: any) {
+    this.setDcpTransferDate(e.target.value);
+  }
 
   private async revalue(e: any) {
     e.preventDefault();
@@ -641,6 +685,8 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
       const asset1Name = pension + this.state.NAME;
       const asset2Name = this.state.NAME + 'TaxFree';
       const asset3Name = crystallizedPension + this.state.LIABILITY;
+      const asset4Name = crystallizedPension + this.state.DCP_TRANSFER_TO;
+
       const asset1: DbAsset = {
         NAME: asset1Name,
         VALUE: this.state.VALUE,
@@ -698,6 +744,27 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
         return;
       }
 
+      const asset4: DbAsset = {
+        NAME: asset4Name,
+        VALUE: '0.0',
+        QUANTITY: '', // pensions are continuous
+        START: this.state.START,
+        GROWTH: this.state.GROWTH,
+        CPI_IMMUNE: false,
+        CAN_BE_NEGATIVE: false,
+        IS_A_DEBT: false,
+        CATEGORY: this.state.CATEGORY,
+        PURCHASE_PRICE: '0.0',
+        LIABILITY: '',
+      };
+      if (this.state.DCP_TRANSFER_TO !== '') {
+        message = this.props.checkAssetFunction(asset4, this.props.model);
+        if (message.length > 0) {
+          alert(message);
+          return;
+        }
+      }
+
       const parseYNSS = makeBooleanFromYesNo(this.state.DCP_SS);
       if (!parseYNSS.checksOK) {
         alert(`Salary sacrifice '${this.state.DCP_SS}' should be a Y/N value`);
@@ -725,6 +792,9 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
       await this.props.submitAssetFunction(asset1);
       await this.props.submitAssetFunction(asset2);
       await this.props.submitAssetFunction(asset3);
+      if (this.state.DCP_TRANSFER_TO !== '') {
+        await this.props.submitAssetFunction(asset4);
+      }
 
       const contributions: DbTransaction = {
         NAME: (parseYNSS.value ? pensionSS : pension) + this.state.NAME,
@@ -747,6 +817,10 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
       if (message.length > 0) {
         await this.props.deleteAssetFunction(asset1);
         await this.props.deleteAssetFunction(asset2);
+        await this.props.deleteAssetFunction(asset3);
+        if (this.state.DCP_TRANSFER_TO !== '') {
+          await this.props.deleteAssetFunction(asset4);
+        }
         alert(message);
         return;
       }
@@ -771,6 +845,10 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
       if (message.length > 0) {
         await this.props.deleteAssetFunction(asset1);
         await this.props.deleteAssetFunction(asset2);
+        await this.props.deleteAssetFunction(asset3);
+        if (this.state.DCP_TRANSFER_TO !== '') {
+          await this.props.deleteAssetFunction(asset4);
+        }
         alert(message);
         return;
       }
@@ -795,13 +873,49 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
       if (message.length > 0) {
         await this.props.deleteAssetFunction(asset1);
         await this.props.deleteAssetFunction(asset2);
+        await this.props.deleteAssetFunction(asset3);
+        if (this.state.DCP_TRANSFER_TO !== '') {
+          await this.props.deleteAssetFunction(asset4);
+        }
         alert(message);
         return;
+      }
+      let transfer: DbTransaction | undefined;
+      if (this.state.DCP_TRANSFER_TO !== '') {
+        transfer = {
+          NAME: 'Transfer' + crystallizedPension + this.state.NAME,
+          FROM: asset3Name,
+          FROM_ABSOLUTE: false,
+          FROM_VALUE: '1.0',
+          TO: asset4Name,
+          TO_ABSOLUTE: false,
+          TO_VALUE: '1.0',
+          DATE: this.state.DCP_TRANSFER_DATE,
+          STOP_DATE: '',
+          RECURRENCE: '',
+          CATEGORY: this.state.CATEGORY,
+          TYPE: autogen,
+        };
+        message = this.props.checkTransactionFunction(
+          transfer,
+          this.props.model,
+        );
+        if (message.length > 0) {
+          await this.props.deleteAssetFunction(asset1);
+          await this.props.deleteAssetFunction(asset2);
+          await this.props.deleteAssetFunction(asset3);
+          await this.props.deleteAssetFunction(asset4);
+          alert(message);
+          return;
+        }
       }
 
       await this.props.submitTransactionFunction(contributions);
       await this.props.submitTransactionFunction(crystallizeTaxFree);
       await this.props.submitTransactionFunction(crystallize);
+      if (transfer) {
+        await this.props.submitTransactionFunction(transfer);
+      }
 
       alert('added assets and transactions');
       // clear fields

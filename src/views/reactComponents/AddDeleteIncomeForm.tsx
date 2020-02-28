@@ -956,7 +956,8 @@ DBC_TRANSFERRED_STOP
           return;
         }
         // log(`this.state.DBC_ACCRUAL = ${this.state.DBC_ACCRUAL}`);
-        const monthlyAccrualValue = this.state.DBC_ACCRUAL;
+        const monthlyAccrualValue = `${parseFloat(this.state.DBC_ACCRUAL) /
+          12.0}`;
         // log(`monthlyAccrualValue = ${monthlyAccrualValue}`);
         pensionDbctran2 = {
           NAME: newIncomeName1, // kicks in when we see income java
