@@ -948,6 +948,7 @@ DBC_TRANSFERRED_STOP
           this.props.model,
         );
         if (message.length > 0) {
+          //log(`bad transaction1 ${showObj(pensionDbctran1)}`);
           alert(message);
           await this.props.deleteFunction(pensionDbcIncome1);
           if (pensionDbcIncome2) {
@@ -978,6 +979,7 @@ DBC_TRANSFERRED_STOP
           this.props.model,
         );
         if (message.length > 0) {
+          //log(`bad transaction2 ${showObj(pensionDbctran2)}`);
           alert(message);
           await this.props.deleteFunction(pensionDbcIncome1);
           if (pensionDbcIncome2) {
@@ -1007,6 +1009,7 @@ DBC_TRANSFERRED_STOP
           this.props.model,
         );
         if (message.length > 0) {
+          //log(`bad transaction3 ${showObj(pensionDbctran3)}`);
           alert(message);
           await this.props.deleteFunction(pensionDbcIncome1);
           if (pensionDbcIncome2) {
