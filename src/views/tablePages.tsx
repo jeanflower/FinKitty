@@ -46,12 +46,6 @@ import CashValueFormatter from './reactComponents/CashValueFormatter';
 
 import {
   assetsTable,
-  expensesTable,
-  incomesTable,
-  settingsTable,
-  showContent,
-  transactionsTable,
-  triggersTable,
   debtsTable,
   deleteAsset,
   deleteExpense,
@@ -59,15 +53,19 @@ import {
   deleteSetting,
   deleteTransaction,
   deleteTrigger,
-} from '../App';
-import { 
+  expensesTable,
+  incomesTable,
+  settingsTable,
+  showContent,
   submitAsset,
   submitExpense,
   submitIncome,
   submitTransaction,
   submitTrigger,
   submitSetting,
-} from "../App";
+  transactionsTable,
+  triggersTable,
+} from '../App';
 import {
   taxPot,
   liquidateAsset,
