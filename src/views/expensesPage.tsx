@@ -7,9 +7,9 @@ import {
   getDisplay,
   showContent,
   submitExpense,
+  submitTransaction,
   submitTrigger,
   toggleDisplay,
-  submitTransaction,
 } from '../App';
 import Button from './reactComponents/Button';
 import { expensesChartDiv } from './chartPages';
@@ -62,7 +62,7 @@ export function expensesDiv(
           checkFunction={checkExpense}
           submitFunction={submitExpense}
           deleteFunction={deleteExpense}
-          submitTrigger={submitTrigger}
+          submitTriggerFunction={submitTrigger}
           model={model}
           checkTransactionFunction={checkTransaction}
           submitTransactionFunction={submitTransaction}

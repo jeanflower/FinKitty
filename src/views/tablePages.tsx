@@ -50,12 +50,6 @@ import {
   incomesTable,
   settingsTable,
   showContent,
-  submitAsset,
-  submitExpense,
-  submitIncome,
-  submitTransaction,
-  submitTrigger,
-  submitSetting,
   transactionsTable,
   triggersTable,
   debtsTable,
@@ -66,6 +60,14 @@ import {
   deleteTransaction,
   deleteTrigger,
 } from '../App';
+import { 
+  submitAsset,
+  submitExpense,
+  submitIncome,
+  submitTransaction,
+  submitTrigger,
+  submitSetting,
+} from "../App";
 import {
   taxPot,
   liquidateAsset,
@@ -132,7 +134,7 @@ function handleExpenseGridRowsUpdated(model: DbModelData, args: any) {
     // log(`expenseForSubmission = ${showObj(expenseForSubmission)}`);
     const checks = checkExpense(expenseForSubmission, model);
     if (checks === '') {
-      submitExpense(expenseForSubmission);
+      submitExpense(expenseForSubmission, model);
     } else {
       alert(checks);
       expense[args[0].cellKey] = oldValue;
@@ -180,7 +182,7 @@ function handleIncomeGridRowsUpdated(model: DbModelData, args: any) {
     };
     const checks = checkIncome(incomeForSubmission, model);
     if (checks === '') {
-      submitIncome(incomeForSubmission);
+      submitIncome(incomeForSubmission, model);
     } else {
       alert(checks);
       income[args[0].cellKey] = oldValue;
@@ -188,33 +190,32 @@ function handleIncomeGridRowsUpdated(model: DbModelData, args: any) {
   }
 }
 
-function handleTriggerGridRowsUpdated() {
+function handleTriggerGridRowsUpdated(model: DbModelData, args: any) {
   // log('handleTriggerGridRowsUpdated', arguments);
-  const trigger = arguments[0].fromRowData;
-  if (arguments[0].cellKey === 'NAME') {
-    if (trigger.NAME !== arguments[0].updated.NAME) {
+  const trigger = args[0].fromRowData;
+  if (args[0].cellKey === 'NAME') {
+    if (trigger.NAME !== args[0].updated.NAME) {
       prohibitEditOfName();
     }
     return;
   }
-  const oldValue = trigger[arguments[0].cellKey];
-  trigger[arguments[0].cellKey] = arguments[0].updated[arguments[0].cellKey];
-  // log(`submitTrigger(trigger) has trigger = ${showObj(trigger)}`);
+  const oldValue = trigger[args[0].cellKey];
+  trigger[args[0].cellKey] = args[0].updated[args[0].cellKey];
   const forSubmit: DbTrigger = {
     NAME: trigger.NAME,
     DATE: makeDateFromString(trigger.DATE),
   };
   const checks = checkTrigger(forSubmit);
   if (checks === '') {
-    submitTrigger(forSubmit);
+    submitTrigger(forSubmit, model);
   } else {
     alert(checks);
-    trigger[arguments[0].cellKey] = oldValue;
+    trigger[args[0].cellKey] = oldValue;
   }
 }
 
 function handleAssetGridRowsUpdated(model: DbModelData, args: any) {
-  // log('handleAssetGridRowsUpdated', arguments);
+  // log('handleAssetGridRowsUpdated', args);
   const asset = args[0].fromRowData;
   if (args[0].cellKey === 'NAME') {
     if (asset.NAME !== args[0].updated.NAME) {
@@ -283,7 +284,7 @@ function handleAssetGridRowsUpdated(model: DbModelData, args: any) {
     };
     const checks = checkAsset(assetForSubmission, model);
     if (checks === '') {
-      submitAsset(assetForSubmission);
+      submitAsset(assetForSubmission, model);
     } else {
       alert(checks);
       asset[args[0].cellKey] = oldValue;
@@ -311,7 +312,7 @@ function handleTransactionGridRowsUpdated(
   type: string,
   args: any,
 ) {
-  // log('handleTransactionGridRowsUpdated', arguments);
+  // log('handleTransactionGridRowsUpdated', args);
   const gridData = args[0].fromRowData;
 
   // for debugging, it can be useful to allow editing of the name
@@ -381,31 +382,31 @@ function handleTransactionGridRowsUpdated(
     const checks = checkTransaction(transaction, model);
     if (checks === '') {
       // log(`checks OK, submitting transaction`);
-      submitTransaction(transaction);
+      submitTransaction(transaction, model);
     } else {
       alert(checks);
       gridData[args[0].cellKey] = oldValue;
     }
   }
 }
-function handleSettingGridRowsUpdated() {
-  // log('handleSettingGridRowsUpdated', arguments);
-  const x = arguments[0].fromRowData;
-  if (arguments[0].cellKey === 'NAME') {
-    if (x.NAME !== arguments[0].updated.NAME) {
+function handleSettingGridRowsUpdated(model: DbModelData, args: any) {
+  // log('handleSettingGridRowsUpdated', args);
+  const x = args[0].fromRowData;
+  if (args[0].cellKey === 'NAME') {
+    if (x.NAME !== args[0].updated.NAME) {
       prohibitEditOfName();
     }
     return;
   }
   // log('old expense '+showObj(expense));
-  x[arguments[0].cellKey] = arguments[0].updated[arguments[0].cellKey];
+  x[args[0].cellKey] = args[0].updated[args[0].cellKey];
   // log('new expense '+showObj(expense));
   const forSubmission: DbSetting = {
     NAME: x.NAME,
     VALUE: x.VALUE,
     HINT: x.HINT,
   };
-  submitSetting(forSubmission);
+  submitSetting(forSubmission, model);
 }
 
 const defaultColumn = {

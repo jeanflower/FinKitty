@@ -63,7 +63,7 @@ export function assetsDiv(model: DbModelData, assetChartData: ChartData[]) {
           checkTransactionFunction={checkTransaction}
           submitTransactionFunction={submitTransaction}
           deleteAssetFunction={deleteAsset}
-          submitTrigger={submitTrigger}
+          submitTriggerFunction={submitTrigger}
           model={model}
         />
       </div>

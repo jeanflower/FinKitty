@@ -8,7 +8,6 @@ import {
 import { useAuth0 } from './contexts/auth0-context';
 import { makeChartData } from './models/charting';
 import { checkData, checkTransaction, checkTrigger } from './models/checks';
-import { getDB } from './database/database';
 import { AddDeleteEntryForm } from './views/reactComponents/AddDeleteEntryForm';
 import { AddDeleteTransactionForm } from './views/reactComponents/AddDeleteTransactionForm';
 import { AddDeleteTriggerForm } from './views/reactComponents/AddDeleteTriggerForm';
@@ -50,6 +49,7 @@ import ReactTooltip from 'react-tooltip';
 import { debtsDiv } from './views/debtsPage';
 
 import CryptoJS from 'crypto-js';
+import { submitNewSettingLSM, submitTriggerLSM, submitTransactionLSM, submitAssetLSM, submitExpenseLSM, submitIncomeLSM, submitSettingLSM, getModelNames, loadModel, ensureModel, saveModel, deleteModel } from './database/loadSaveModel';
 
 // import './bootstrap.css'
 
@@ -293,18 +293,49 @@ function getExampleModel(modelString: string) {
   return makeModelFromJSON(modelString);
 }
 
-async function refreshData(goToDB = true) {
+export async function submitAsset(
+  assetInput: DbAsset,
+  modelData: DbModelData,
+){
+  return submitAssetLSM( assetInput, modelData, getUserID() );
+}
+export async function submitExpense(
+  expenseInput: DbExpense,
+  modelData: DbModelData,
+){
+  return submitExpenseLSM( expenseInput, modelData, getUserID() );
+}
+export async function submitIncome(
+  incomeInput: DbIncome,
+  modelData: DbModelData,
+){
+  return submitIncomeLSM( incomeInput, modelData, getUserID() );
+}
+export async function submitTransaction(
+  transactionInput: DbTransaction,
+  modelData: DbModelData,
+){
+  return submitTransactionLSM( transactionInput, modelData, getUserID() );
+}
+export async function submitTrigger(
+  triggerInput: DbTrigger,
+  modelData: DbModelData,
+){
+  return submitTriggerLSM( triggerInput, modelData, getUserID() );
+}
+export async function submitSetting(
+  settingInput: DbSetting,
+  modelData: DbModelData,
+){
+  return submitSettingLSM( settingInput, modelData, getUserID() );
+}
+
+export async function refreshData(goToDB = true) {
   // log('refreshData in AppContent - get data and redraw content');
   if (goToDB) {
     // log('refreshData do visit db');
     // go to the DB to refresh available model names
-    let modelNames: string[] = [];
-    try {
-      modelNames = await getDB().getModelNames(getUserID());
-    } catch (error) {
-      alert(`error contacting database ${error}`);
-      return;
-    }
+    let modelNames = await getModelNames(getUserID())
     // log(`got ${modelNames.length} modelNames`);
 
     let model;
@@ -321,11 +352,8 @@ async function refreshData(goToDB = true) {
         // log(`no model called ${exampleModelName}, so just choose the 1st one`);
         modelName = modelNames.sort((a, b) => lessThan(a, b))[0];
         // log(`switch to a different modelName ${modelName}`);
-        try {
-          model = await getDB().loadModel(getUserID(), modelName);
-        } catch (err) {
-          alert(`Cannot load ${modelName}; consider 'Force delete'?`);
-        }
+
+        model = await loadModel(getUserID(), modelName);
         if (model === undefined) {
           alert('problem with model data');
           return;
@@ -335,8 +363,8 @@ async function refreshData(goToDB = true) {
         // force us to have the example models
         Promise.all(
           exampleModels.map(async x => {
-            await getDB().ensureModel(getUserID(), x.name);
-            return getDB().saveModel(
+            await ensureModel(getUserID(), x.name);
+            return await saveModel(
               getUserID(),
               x.name,
               getExampleModel(x.model),
@@ -355,7 +383,7 @@ async function refreshData(goToDB = true) {
       let gotModelOK = true;
       try {
         // log(`look for ${modelName} from ${modelNames}`);
-        model = await getDB().loadModel(getUserID(), modelName);
+        model = await loadModel(getUserID(), modelName);
       } catch (err) {
         // log('no model found');
         log(`Cannot load ${modelName}. Consider 'Force delete'?`);
@@ -501,141 +529,6 @@ function checkModelData(givenModel: DbModelData) {
     alert(response);
   }
 }
-function updateItemList(itemList: DbItem[], newData: DbItem) {
-  const idx = itemList.findIndex((i: DbItem) => {
-    return i.NAME === newData.NAME;
-  });
-  if (idx !== -1) {
-    itemList.splice(idx, 1);
-  }
-  itemList.push(newData);
-}
-
-export async function submitExpense(expenseInput: DbExpense) {
-  if (printDebug()) {
-    log(`in submitExpense with input : ${showObj(expenseInput)}`);
-  }
-  updateItemList(reactAppComponent.state.modelData.expenses, expenseInput);
-  await getDB().saveModel(
-    getUserID(),
-    modelName,
-    reactAppComponent.state.modelData,
-  );
-  await refreshData();
-}
-
-export async function submitIncome(incomeInput: DbIncome) {
-  if (printDebug()) {
-    log(`in submitIncome with input : ${showObj(incomeInput)}`);
-  }
-  updateItemList(reactAppComponent.state.modelData.incomes, incomeInput);
-  await getDB().saveModel(
-    getUserID(),
-    modelName,
-    reactAppComponent.state.modelData,
-  );
-  await refreshData();
-}
-
-export async function submitTrigger(trigger: DbTrigger) {
-  if (printDebug()) {
-    log(`go to submitTriggers with input : ${showObj(trigger)}`);
-  }
-  updateItemList(reactAppComponent.state.modelData.triggers, trigger);
-  await getDB().saveModel(
-    getUserID(),
-    modelName,
-    reactAppComponent.state.modelData,
-  );
-  await refreshData();
-}
-
-export async function submitNewTrigger(name: string) {
-  submitTrigger({
-    NAME: name,
-    DATE: new Date(),
-  });
-}
-
-export async function submitAsset(assetInput: DbAsset) {
-  if (printDebug()) {
-    log(`in submitAsset with input : ${showObj(assetInput)}`);
-  }
-  updateItemList(reactAppComponent.state.modelData.assets, assetInput);
-  await getDB().saveModel(
-    getUserID(),
-    modelName,
-    reactAppComponent.state.modelData,
-  );
-  await refreshData();
-}
-
-export async function submitNewAsset(name: string) {
-  submitAsset({
-    NAME: name,
-    CATEGORY: '',
-    START: '1 January 2018',
-    VALUE: '0',
-    QUANTITY: '',
-    GROWTH: '0',
-    CPI_IMMUNE: false,
-    CAN_BE_NEGATIVE: false,
-    IS_A_DEBT: false,
-    LIABILITY: '',
-    PURCHASE_PRICE: '0',
-  });
-}
-
-export async function submitTransaction(input: DbTransaction) {
-  if (printDebug()) {
-    log(`in submitTransaction with input : ${showObj(input)}`);
-  }
-  updateItemList(reactAppComponent.state.modelData.transactions, input);
-  await getDB().saveModel(
-    getUserID(),
-    modelName,
-    reactAppComponent.state.modelData,
-  );
-  await refreshData();
-}
-
-export async function submitNewTransaction(name: string) {
-  submitTransaction({
-    NAME: name,
-    CATEGORY: '',
-    FROM: '',
-    TO: '',
-    FROM_VALUE: '0',
-    TO_VALUE: '0',
-    FROM_ABSOLUTE: true,
-    TO_ABSOLUTE: true,
-    DATE: '1 January 2018',
-    STOP_DATE: '1 January 2018',
-    RECURRENCE: '',
-    TYPE: custom,
-  });
-}
-
-export async function submitSetting(input: DbSetting) {
-  if (printDebug()) {
-    log(`in submitSetting with input : ${showObj(input)}`);
-  }
-  updateItemList(reactAppComponent.state.modelData.settings, input);
-  await getDB().saveModel(
-    getUserID(),
-    modelName,
-    reactAppComponent.state.modelData,
-  );
-  await refreshData();
-}
-
-export async function submitNewSetting(name: string) {
-  submitSetting({
-    NAME: name,
-    VALUE: '',
-    HINT: '',
-  });
-}
 
 export async function deleteItemFromModel(
   name: string,
@@ -661,7 +554,7 @@ export async function deleteItemFromModel(
       return false;
     }
 
-    await getDB().saveModel(getUserID(), modelName, model);
+    await saveModel(getUserID(), modelName, model);
     await refreshData();
     return true;
   }
@@ -725,7 +618,7 @@ export async function deleteSetting(name: string) {
 export async function updateModelName(newValue: string) {
   // log(`model name is now ${newValue}`);
   modelName = newValue;
-  await getDB().ensureModel(getUserID(), modelName);
+  await ensureModel(getUserID(), modelName);
   await refreshData();
 }
 
@@ -863,7 +756,7 @@ export class AppContent extends Component<AppProps, AppState> {
 
   private async replaceWithModel(modelName: string, newModel: DbModelData) {
     // log(`replace ${modelName} with new model data`);
-    await getDB().saveModel(getUserID(), modelName, newModel);
+    await saveModel(getUserID(), modelName, newModel);
     await refreshData();
   }
 
@@ -874,8 +767,8 @@ export class AppContent extends Component<AppProps, AppState> {
       )
     ) {
       // log(`delete model ${modelNameForDelete}`);
-      const modelNames = await getDB().getModelNames(getUserID());
-      await getDB().deleteModel(getUserID(), modelNameForDelete);
+      const modelNames = await getModelNames(getUserID());
+      await deleteModel(getUserID(), modelNameForDelete);
       const idx = modelNames.findIndex(i => {
         return i === modelNameForDelete;
       });
@@ -888,8 +781,8 @@ export class AppContent extends Component<AppProps, AppState> {
       if (modelNames.length === 0) {
         alert('no data left: recreating example model');
         modelName = exampleModelName;
-        await getDB().ensureModel(getUserID(), modelName);
-        await getDB().saveModel(
+        await ensureModel(getUserID(), modelName);
+        await saveModel(
           getUserID(),
           modelName,
           makeModelFromJSON(simpleExampleData),
@@ -1078,7 +971,7 @@ export class AppContent extends Component<AppProps, AppState> {
           <div className="addNewSetting">
             <h4> Add setting </h4>
             <AddDeleteEntryForm
-              submitFunction={submitNewSetting}
+              submitFunction={submitNewSettingLSM}
               deleteFunction={deleteSetting}
             />
           </div>
@@ -1165,9 +1058,9 @@ export class AppContent extends Component<AppProps, AppState> {
           <h4> Add a transaction </h4>
           <AddDeleteTransactionForm
             checkFunction={checkTransaction}
-            submitFunction={submitTransaction}
+            submitFunction={submitTransactionLSM}
             deleteFunction={deleteTransaction}
-            submitTrigger={submitTrigger}
+            submitTriggerFunction={submitTrigger}
             model={this.state.modelData}
           />
         </div>

@@ -50,7 +50,7 @@ interface EditProps {
   checkFunction: any;
   submitFunction: any;
   deleteFunction: any;
-  submitTrigger: any;
+  submitTriggerFunction: any;
   model: DbModelData;
 }
 function assetOptions(model: DbModelData, handleChange: any, id: string) {
@@ -179,7 +179,7 @@ export class AddDeleteTransactionForm extends Component<
             inputValue={this.state.DATE}
             onChangeHandler={this.handleDateChange}
             triggers={this.props.model.triggers}
-            submitTrigger={this.props.submitTrigger}
+            submitTriggerFunction={this.props.submitTriggerFunction}
           />
         </div>
         <div className="row">
@@ -271,7 +271,7 @@ export class AddDeleteTransactionForm extends Component<
             inputValue={this.state.STOP_DATE}
             onChangeHandler={this.handleStopDateChange}
             triggers={this.props.model.triggers}
-            submitTrigger={this.props.submitTrigger}
+            submitTriggerFunction={this.props.submitTriggerFunction}
           />
         </div>
         {/* end row */}

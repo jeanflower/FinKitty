@@ -28,7 +28,7 @@ import {
 import { DbModelData, DbSetting } from '../../types/interfaces';
 import { log, printDebug } from '../../utils';
 import webdriver from 'selenium-webdriver';
-import { getDB } from '../../database/database';
+import { ensureModel, saveModel } from '../../database/loadSaveModel';
 
 function allowExtraSleeps() {
   if (
@@ -185,8 +185,13 @@ export async function beforeAllWork(
   model: DbModelData,
 ) {
   jest.setTimeout(60000); // allow time for all these tests to run
-  await getDB().ensureModel(testUserID, testDataModelName);
-  await getDB().saveModel(testUserID, testDataModelName, model);
+  // log(`go to ensure model ${testDataModelName}`);
+
+  // log(`modelNames1 = ${await getModelNames(testUserID)}`);
+  await ensureModel(testUserID, testDataModelName);
+  // log(`modelNames2 = ${await getModelNames(testUserID)}`);
+
+  await saveModel(testUserID, testDataModelName, model);
 
   await driver.get('about:blank');
   await driver.get(serverUri);
@@ -196,6 +201,20 @@ export async function beforeAllWork(
       '--- after browser loads URI',
     );
   }
+
+  // Handle errors around SSL certificates
+  // push through "Advanced" and "Proceed"
+  let x = await driver.findElements(webdriver.By.id('details-button'));
+  if (x[0] !== undefined) {
+    // console.log('found details button!');
+    await x[0].click();
+    x = await driver.findElements(webdriver.By.id('proceed-link'));
+    if (x[0] !== undefined) {
+      // console.log('found proceed link!');
+      await x[0].click();
+    }
+  }
+
   const btnData = await driver.findElements(webdriver.By.id('buttonTestLogin'));
   if (btnData[0] !== undefined) {
     await btnData[0].click();
@@ -256,7 +275,7 @@ export async function submitModel(
   model: DbModelData,
 ) {
   // log(`submitModel data ${showObj(model)}`);
-  await getDB().saveModel(testUserID, testDataModelName, model);
+  await saveModel(testUserID, testDataModelName, model);
   await sleep(
     1000, // was dBSleep 6 Get coarse view charts 03
     'after submitting a model',

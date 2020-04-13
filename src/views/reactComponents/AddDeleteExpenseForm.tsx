@@ -37,7 +37,7 @@ interface EditProps {
   checkFunction: any;
   submitFunction: any;
   deleteFunction: any;
-  submitTrigger: any;
+  submitTriggerFunction: any;
   model: DbModelData;
   checkTransactionFunction: any;
   submitTransactionFunction: any;
@@ -162,7 +162,7 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
           inputValue={this.state.START}
           onChangeHandler={this.handleStartChange}
           triggers={this.props.model.triggers}
-          submitTrigger={this.props.submitTrigger}
+          submitTriggerFunction={this.props.submitTriggerFunction}
         />
         <DateSelectionRow
           introLabel="Date on which the expense ends"
@@ -171,7 +171,7 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
           inputValue={this.state.END}
           onChangeHandler={this.handleEndChange}
           triggers={this.props.model.triggers}
-          submitTrigger={this.props.submitTrigger}
+          submitTriggerFunction={this.props.submitTriggerFunction}
         />
       </div>
     );
@@ -268,7 +268,7 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
             inputValue={this.state.VALUE_SET}
             onChangeHandler={this.handleValueSetChange}
             triggers={this.props.model.triggers}
-            submitTrigger={this.props.submitTrigger}
+            submitTriggerFunction={this.props.submitTriggerFunction}
           />
           {this.twoExtraDates()}
         </div>

@@ -8,7 +8,7 @@ const welcomeString = 'Choose a date (optional)';
 interface TriggerOptionListProps {
   triggers: DbTrigger[];
   handleChange: (value: string) => void;
-  submitTrigger: (trigger: DbTrigger) => void;
+  submitTriggerFunction: (trigger: DbTrigger) => void;
   selectedItem: string;
 }
 
@@ -18,7 +18,7 @@ export class TriggerOptionList extends Component<TriggerOptionListProps, {}> {
     this.state = { selectedItem: '' };
   }
   private newTriggerMade(e: DbTrigger) {
-    this.props.submitTrigger(e);
+    this.props.submitTriggerFunction(e);
     this.setState({
       ...this.state,
       selectedItem: e.NAME,

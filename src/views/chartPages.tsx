@@ -64,6 +64,7 @@ function makeFiltersList(
   settingName: string,
   defaultSetting: string,
   hint: string,
+  model: DbModelData,
 ) {
   // selectedChartFocus = this.getExpenseChartFocus()
   // settingName = expenseChartFocus
@@ -98,7 +99,7 @@ function makeFiltersList(
           VALUE: category,
           HINT: hint,
         };
-        submitSetting(forSubmission);
+        submitSetting(forSubmission, model);
       }}
       title={category}
       type={category === selectedChartFocus ? 'primary' : 'secondary'}
@@ -136,7 +137,7 @@ function coarseFineList(model: DbModelData) {
           VALUE: viewType,
           HINT: viewDetailHint,
         };
-        submitSetting(forSubmission);
+        submitSetting(forSubmission, model);
       }}
       title={viewType}
       type={viewType === selectedCoarseFineView ? 'primary' : 'secondary'}
@@ -211,6 +212,7 @@ export function incomesChartDiv(
         incomeChartFocus,
         allItems,
         incomeChartFocusHint,
+        model,
       )}
       {coarseFineList(model)}
       <fieldset>
@@ -259,6 +261,7 @@ export function expensesChartDiv(
         expenseChartFocus,
         allItems,
         expenseChartFocusHint,
+        model,
       )}
       {coarseFineList(model)}
       <fieldset>
@@ -319,7 +322,7 @@ function assetsOrDebtsButtonList(model: DbModelData, isDebt: boolean) {
           VALUE: assetOrDebt,
           HINT: isDebt ? debtChartFocusHint : assetChartFocusHint,
         };
-        submitSetting(forSubmission);
+        submitSetting(forSubmission, model);
       }}
       title={assetOrDebt}
       type={assetOrDebt === selectedAssetOrDebt ? 'primary' : 'secondary'}
@@ -362,7 +365,7 @@ function assetViewTypeList(model: DbModelData) {
           VALUE: viewType,
           HINT: assetChartHint,
         };
-        submitSetting(forSubmission);
+        submitSetting(forSubmission, model);
       }}
       title={viewType}
       type={viewType === selectedAssetView ? 'primary' : 'secondary'}

@@ -11,7 +11,7 @@ interface DateSelectionProps {
   inputValue: string;
   onChangeHandler: (e: any) => void;
   triggers: DbTrigger[];
-  submitTrigger: any;
+  submitTriggerFunction: any;
 }
 export class DateSelectionRow extends Component<DateSelectionProps, {}> {
   public render() {
@@ -27,7 +27,7 @@ export class DateSelectionRow extends Component<DateSelectionProps, {}> {
         <div className="col">
           <TriggerOptionList
             triggers={this.props.triggers}
-            submitTrigger={this.props.submitTrigger}
+            submitTriggerFunction={this.props.submitTriggerFunction}
             handleChange={this.props.setDateFunction}
             selectedItem=""
           />

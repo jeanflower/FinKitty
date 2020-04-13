@@ -65,7 +65,7 @@ export function debtsDiv(model: DbModelData, debtChartData: ChartData[]) {
           checkTransactionFunction={checkTransaction}
           submitTransactionFunction={submitTransaction}
           deleteAssetFunction={deleteAsset}
-          submitTrigger={submitTrigger}
+          submitTriggerFunction={submitTrigger}
           model={model}
         />
       </div>

@@ -58,7 +58,7 @@ interface EditProps {
   deleteAssetFunction: any;
   checkTransactionFunction: any;
   submitTransactionFunction: any;
-  submitTrigger: any;
+  submitTriggerFunction: any;
   model: DbModelData;
 }
 export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
@@ -335,7 +335,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
             inputValue={this.state.DCP_STOP}
             onChangeHandler={this.handleStopChange}
             triggers={this.props.model.triggers}
-            submitTrigger={this.props.submitTrigger}
+            submitTriggerFunction={this.props.submitTriggerFunction}
           />
         </div>
         <div className="container-fluid">
@@ -347,7 +347,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
             inputValue={this.state.DCP_CRYSTALLIZE}
             onChangeHandler={this.handleCrystallizeChange}
             triggers={this.props.model.triggers}
-            submitTrigger={this.props.submitTrigger}
+            submitTriggerFunction={this.props.submitTriggerFunction}
           />
         </div>
         <div className="container-fluid">
@@ -359,7 +359,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
               inputValue={this.state.DCP_TRANSFER_DATE}
               onChangeHandler={this.handleDcpTransferDateChange}
               triggers={this.props.model.triggers}
-              submitTrigger={this.props.submitTrigger}
+              submitTriggerFunction={this.props.submitTriggerFunction}
             />
           ) : (
             <div />
@@ -515,7 +515,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
             inputValue={this.state.START}
             onChangeHandler={this.handleStartChange}
             triggers={this.props.model.triggers}
-            submitTrigger={this.props.submitTrigger}
+            submitTriggerFunction={this.props.submitTriggerFunction}
           />
         </div>
         {this.growthAndInflation()}

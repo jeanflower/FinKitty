@@ -36,7 +36,7 @@ interface EditProps {
   deleteAssetFunction: any;
   checkTransactionFunction: any;
   submitTransactionFunction: any;
-  submitTrigger: any;
+  submitTriggerFunction: any;
   model: DbModelData;
 }
 
@@ -295,7 +295,7 @@ export class AddDeleteDebtForm extends Component<EditProps, EditFormState> {
             inputValue={this.state.START}
             onChangeHandler={this.handleStartChange}
             triggers={this.props.model.triggers}
-            submitTrigger={this.props.submitTrigger}
+            submitTriggerFunction={this.props.submitTriggerFunction}
           />
         </div>
         {this.growthAndInflation()}

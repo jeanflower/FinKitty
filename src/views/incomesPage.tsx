@@ -62,7 +62,7 @@ export function incomesDiv(model: DbModelData, incomesChartData: ChartData[]) {
           submitIncomeFunction={submitIncome}
           submitTransactionFunction={submitTransaction}
           deleteFunction={deleteIncome}
-          submitTrigger={submitTrigger}
+          submitTriggerFunction={submitTrigger}
           model={model}
         />
       </div>

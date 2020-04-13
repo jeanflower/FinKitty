@@ -62,7 +62,7 @@ interface EditProps {
   submitIncomeFunction: any;
   submitTransactionFunction: any;
   deleteFunction: any;
-  submitTrigger: any;
+  submitTriggerFunction: any;
   model: DbModelData;
 }
 
@@ -290,7 +290,7 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
             inputValue={this.state.VALUE_SET}
             onChangeHandler={this.handleValueSetChange}
             triggers={this.props.model.triggers}
-            submitTrigger={this.props.submitTrigger}
+            submitTriggerFunction={this.props.submitTriggerFunction}
           />
         </div>
         {this.inputsForGeneralIncome()}
@@ -403,7 +403,7 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
             inputValue={this.state.START}
             onChangeHandler={this.handleStartChange}
             triggers={this.props.model.triggers}
-            submitTrigger={this.props.submitTrigger}
+            submitTriggerFunction={this.props.submitTriggerFunction}
           />
           <DateSelectionRow
             introLabel="Date on which the income ends"
@@ -412,7 +412,7 @@ export class AddDeleteIncomeForm extends Component<EditProps, EditFormState> {
             inputValue={this.state.END}
             onChangeHandler={this.handleEndChange}
             triggers={this.props.model.triggers}
-            submitTrigger={this.props.submitTrigger}
+            submitTriggerFunction={this.props.submitTriggerFunction}
           />
         </div>
       </div>
@@ -466,7 +466,7 @@ DBC_TRANSFERRED_STOP
             inputValue={this.state.DBC_STOP_SOURCE}
             onChangeHandler={this.handleDbcStopSourceChange}
             triggers={this.props.model.triggers}
-            submitTrigger={this.props.submitTrigger}
+            submitTriggerFunction={this.props.submitTriggerFunction}
           />
           <DateSelectionRow
             introLabel="Date on which the pension starts"
@@ -475,7 +475,7 @@ DBC_TRANSFERRED_STOP
             inputValue={this.state.DBC_START}
             onChangeHandler={this.handleDbcStartChange}
             triggers={this.props.model.triggers}
-            submitTrigger={this.props.submitTrigger}
+            submitTriggerFunction={this.props.submitTriggerFunction}
           />
           <DateSelectionRow
             introLabel="Date on which the pension ends" ///transfers"
@@ -484,7 +484,7 @@ DBC_TRANSFERRED_STOP
             inputValue={this.state.DBC_END}
             onChangeHandler={this.handleDbcEndChange}
             triggers={this.props.model.triggers}
-            submitTrigger={this.props.submitTrigger}
+            submitTriggerFunction={this.props.submitTriggerFunction}
           />
           {
             <DateSelectionRow
@@ -494,7 +494,7 @@ DBC_TRANSFERRED_STOP
               inputValue={this.state.DBC_TRANSFERRED_STOP}
               onChangeHandler={this.handleDbcTransferredStopChange}
               triggers={this.props.model.triggers}
-              submitTrigger={this.props.submitTrigger}
+              submitTriggerFunction={this.props.submitTriggerFunction}
             />
           }
         </div>

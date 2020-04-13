@@ -17,7 +17,7 @@ interface EditProps {
   model: DbModelData;
 }
 
-export function newTriggerButtonData(submitTrigger: any) {
+export function newTriggerButtonData(submitTriggerFunction: any) {
   return {
     text: 'Make new important date',
     action: async (e: any) => {
@@ -38,7 +38,7 @@ export function newTriggerButtonData(submitTrigger: any) {
         alert(`date didn't make sense`);
         return;
       }
-      await submitTrigger({
+      await submitTriggerFunction({
         NAME: nameString,
         DATE: dateTry,
       });
