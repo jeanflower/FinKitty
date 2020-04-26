@@ -40,9 +40,9 @@ describe('Chrome Interaction', () => {
   // switch these values if you want to debug
   // one of these tests and see the Chrome window
   // alive
-  const headless = true;
+  // const headless = true;
   const quitAfterAll = true;
-  // const headless = false;
+  const headless = false;
   // const quitAfterAll = false;
 
   const driver = getDriver(headless); // one driver for all
@@ -113,6 +113,7 @@ describe('Chrome Interaction', () => {
       VALUE: '1 March 2018',
       HINT: roiEndHint,
     };
+
     modelAndRoi.model = await submitSettingChange(
       driver,
       testDataModelName,

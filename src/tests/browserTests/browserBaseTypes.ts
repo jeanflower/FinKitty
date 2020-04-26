@@ -28,7 +28,8 @@ import {
 import { DbModelData, DbSetting } from '../../types/interfaces';
 import { log, printDebug } from '../../utils';
 import webdriver from 'selenium-webdriver';
-import { ensureModel, saveModel } from '../../database/loadSaveModel';
+import { ensureModel } from '../../database/loadSaveModel';
+import { replaceWithModel } from '../../App';
 
 function allowExtraSleeps() {
   if (
@@ -191,7 +192,8 @@ export async function beforeAllWork(
   await ensureModel(testUserID, testDataModelName);
   // log(`modelNames2 = ${await getModelNames(testUserID)}`);
 
-  await saveModel(testUserID, testDataModelName, model);
+  // log(`go to replace with ${showObj(model)}`);
+  await replaceWithModel(testUserID,  testDataModelName, model);
 
   await driver.get('about:blank');
   await driver.get(serverUri);
@@ -269,13 +271,13 @@ export async function refreshPage(driver: any, testDataModelName: string) {
   return sleep(calcSleep, 'after refreshing a page');
 }
 
-export async function submitModel(
+export async function submitModelInTest(
   driver: any,
   testDataModelName: string,
   model: DbModelData,
 ) {
-  // log(`submitModel data ${showObj(model)}`);
-  await saveModel(testUserID, testDataModelName, model);
+  // log(`submitModelInTest data ${showObj(model)}`);
+  await replaceWithModel(testUserID, testDataModelName, model);
   await sleep(
     1000, // was dBSleep 6 Get coarse view charts 03
     'after submitting a model',
@@ -304,7 +306,7 @@ export async function submitSettingChange(
     ...model,
     settings: newSettings,
   };
-  await submitModel(driver, testDataModelName, newModel);
+  await submitModelInTest(driver, testDataModelName, newModel);
   return newModel;
 }
 

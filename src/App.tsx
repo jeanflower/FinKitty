@@ -49,7 +49,20 @@ import ReactTooltip from 'react-tooltip';
 import { debtsDiv } from './views/debtsPage';
 
 import CryptoJS from 'crypto-js';
-import { submitNewSettingLSM, submitTriggerLSM, submitTransactionLSM, submitAssetLSM, submitExpenseLSM, submitIncomeLSM, submitSettingLSM, getModelNames, loadModel, ensureModel, saveModel, deleteModel } from './database/loadSaveModel';
+import {
+  submitNewSettingLSM,
+  submitTriggerLSM,
+  submitTransactionLSM,
+  submitAssetLSM,
+  submitExpenseLSM,
+  submitIncomeLSM,
+  submitSettingLSM,
+  getModelNames,
+  loadModel,
+  ensureModel,
+  deleteModel,
+  saveModelLSM,
+} from './database/loadSaveModel';
 
 // import './bootstrap.css'
 
@@ -297,37 +310,51 @@ export async function submitAsset(
   assetInput: DbAsset,
   modelData: DbModelData,
 ){
-  return submitAssetLSM( assetInput, modelData, getUserID() );
+  await submitAssetLSM( assetInput, modelData, getUserID() );
+  return await refreshData();
 }
 export async function submitExpense(
   expenseInput: DbExpense,
   modelData: DbModelData,
 ){
-  return submitExpenseLSM( expenseInput, modelData, getUserID() );
+  await submitExpenseLSM( expenseInput, modelData, getUserID() );
+  return await refreshData();
 }
 export async function submitIncome(
   incomeInput: DbIncome,
   modelData: DbModelData,
 ){
-  return submitIncomeLSM( incomeInput, modelData, getUserID() );
+  await submitIncomeLSM( incomeInput, modelData, getUserID() );
+  return await refreshData();
 }
 export async function submitTransaction(
   transactionInput: DbTransaction,
   modelData: DbModelData,
 ){
-  return submitTransactionLSM( transactionInput, modelData, getUserID() );
+  await submitTransactionLSM( transactionInput, modelData, getUserID() );
+  return await refreshData();
 }
 export async function submitTrigger(
   triggerInput: DbTrigger,
   modelData: DbModelData,
 ){
-  return submitTriggerLSM( triggerInput, modelData, getUserID() );
+  await submitTriggerLSM( triggerInput, modelData, getUserID() );
+  return await refreshData();
 }
 export async function submitSetting(
   settingInput: DbSetting,
   modelData: DbModelData,
 ){
-  return submitSettingLSM( settingInput, modelData, getUserID() );
+  await submitSettingLSM( settingInput, modelData, getUserID() );
+  return await refreshData();
+}
+
+export async function submitNewSetting(
+  name: string,
+  modelData: DbModelData,
+){
+  await submitNewSettingLSM(name , modelData, getUserID() );
+  return await refreshData();
 }
 
 export async function refreshData(goToDB = true) {
@@ -364,10 +391,10 @@ export async function refreshData(goToDB = true) {
         Promise.all(
           exampleModels.map(async x => {
             await ensureModel(getUserID(), x.name);
-            return await saveModel(
-              getUserID(),
+            return await saveModelLSM(
               x.name,
               getExampleModel(x.model),
+              getUserID(),
             );
           }),
         );
@@ -554,7 +581,7 @@ export async function deleteItemFromModel(
       return false;
     }
 
-    await saveModel(getUserID(), modelName, model);
+    await saveModelLSM(modelName, model, getUserID() );
     await refreshData();
     return true;
   }
@@ -619,7 +646,20 @@ export async function updateModelName(newValue: string) {
   // log(`model name is now ${newValue}`);
   modelName = newValue;
   await ensureModel(getUserID(), modelName);
-  await refreshData();
+  return await refreshData();
+}
+
+export async function replaceWithModel(
+  userName: string | undefined,
+  modelName: string, 
+  newModel: DbModelData,
+) {
+  if(userName === undefined){
+    userName =  getUserID();
+  }
+  // log(`replace ${modelName} with new model data`);
+  await saveModelLSM(modelName, newModel, userName);
+  return await refreshData();
 }
 
 interface AppState {
@@ -754,12 +794,6 @@ export class AppContent extends Component<AppProps, AppState> {
     return result;
   }
 
-  private async replaceWithModel(modelName: string, newModel: DbModelData) {
-    // log(`replace ${modelName} with new model data`);
-    await saveModel(getUserID(), modelName, newModel);
-    await refreshData();
-  }
-
   private async deleteModel(modelNameForDelete: string) {
     if (
       window.confirm(
@@ -782,10 +816,10 @@ export class AppContent extends Component<AppProps, AppState> {
         alert('no data left: recreating example model');
         modelName = exampleModelName;
         await ensureModel(getUserID(), modelName);
-        await saveModel(
-          getUserID(),
+        await saveModelLSM(
           modelName,
           makeModelFromJSON(simpleExampleData),
+          getUserID(),
         );
       } else {
         modelName = modelNames.sort()[0];
@@ -840,7 +874,7 @@ export class AppContent extends Component<AppProps, AppState> {
                 const currentData = JSON.stringify(this.state.modelData);
                 await updateModelName(userNewName.newName);
                 const newModel = makeModelFromJSON(currentData);
-                this.replaceWithModel(modelName, newModel);
+                replaceWithModel(undefined, modelName, newModel);
               }}
               title="Clone model"
               id={`btn-clone`}
@@ -892,7 +926,7 @@ export class AppContent extends Component<AppProps, AppState> {
                   return;
                 }
                 const newModel = makeModelFromJSON(input);
-                this.replaceWithModel(modelName, newModel);
+                replaceWithModel(undefined, modelName, newModel);
               }}
               title="Replace model with JSON"
               id={`btn-JSON-replace`}
@@ -971,7 +1005,7 @@ export class AppContent extends Component<AppProps, AppState> {
           <div className="addNewSetting">
             <h4> Add setting </h4>
             <AddDeleteEntryForm
-              submitFunction={submitNewSettingLSM}
+              submitFunction={submitNewSetting}
               deleteFunction={deleteSetting}
             />
           </div>
@@ -1058,7 +1092,7 @@ export class AppContent extends Component<AppProps, AppState> {
           <h4> Add a transaction </h4>
           <AddDeleteTransactionForm
             checkFunction={checkTransaction}
-            submitFunction={submitTransactionLSM}
+            submitFunction={submitTransaction}
             deleteFunction={deleteTransaction}
             submitTriggerFunction={submitTrigger}
             model={this.state.modelData}
@@ -1120,7 +1154,7 @@ export class AppContent extends Component<AppProps, AppState> {
               return;
             }
             await updateModelName(userNewName.newName);
-            this.replaceWithModel(modelName, getExampleModel(x.model));
+            replaceWithModel(undefined, modelName, getExampleModel(x.model));
           }}
           title={`Create ${x.name} example`}
           id={`btn-create-${x.name}-example`}

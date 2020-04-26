@@ -1250,6 +1250,7 @@ function revalueApplied(
   moment: Moment,
   values: Map<string, number>,
   evaluations: Evaluation[],
+  liableIncomeInTaxYear: Map<string, Map<string, number>>,
   model: DbModelData,
 ) {
   if (!t.NAME.startsWith(revalue)) {
@@ -1265,9 +1266,9 @@ function revalueApplied(
   let tToValue = parseFloat(t.TO_VALUE);
   const words = t.TO.split(separator);
   words.forEach(w => {
+    const prevValue = values.get(w);
     if (!t.TO_ABSOLUTE) {
       // this is a proportional change
-      const prevValue = values.get(w);
       if (prevValue === undefined) {
         log(
           'WARNING : proportional value supplied' +
@@ -1285,6 +1286,31 @@ function revalueApplied(
       if (q !== undefined) {
         tToValue = tToValue * q;
       }
+    }
+    // log income tax liability for assets which grow
+    const matchingAsset = model.assets.find(a => {
+      return a.NAME === w;
+    });
+    if(matchingAsset !== undefined){
+      const liabilities = matchingAsset.LIABILITY.split(separator);
+      liabilities.forEach(l => {
+        if(l.endsWith(incomeTax)){
+          if(prevValue === undefined){
+            log(`WARNING : no prev value found for revalue`);            
+          } else {
+            const gain = tToValue - prevValue;
+            if(gain > 0){
+              // log(`handle liability ${l} with gain ${gain}`);
+              handleLiability(
+                l,
+                incomeTax,
+                gain,
+                liableIncomeInTaxYear,
+              );
+            }
+          }
+        }
+      });
     }
     // log(`passing ${t.TO_VALUE} as new value of ${moment.name}`);
     // log('in revalueApplied:');
@@ -1743,7 +1769,14 @@ function processTransactionMoment(
   // Some transactions are simple Revalues.  They have no
   // FROM and a value for TO.  Code similar to application
   // of growth to assets, except we know the new value.
-  if (revalueApplied(t, moment, values, evaluations, model)) {
+  if (revalueApplied(
+    t, 
+    moment, 
+    values, 
+    evaluations, 
+    liableIncomeInTaxYear, 
+    model)
+  ) {
     return;
   }
 

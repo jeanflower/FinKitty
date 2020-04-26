@@ -1,20 +1,27 @@
 import { DbExpense, DbIncome, DbTrigger, DbAsset, DbTransaction, DbSetting, DbItem, DbModelData } from "../types/interfaces";
 
-import { printDebug, showObj } from "../utils";
+import { log, printDebug, showObj } from "../utils";
 
 import { getDB } from "./database";
 
-import { modelName, refreshData } from "../App";
+import { modelName } from "../App";
 
 import { custom } from "../localization/stringConstants";
 
+const showDBInteraction = false;
+
 export async function getModelNames(userID: string){
+  if(showDBInteraction){
+    log(`get model names for user ${userID}`)
+  }
   let modelNames: string[] = [];
   try {
     modelNames = await getDB().getModelNames(userID);
   } catch (error) {
     alert(`error contacting database ${error}`);
-    return [];
+  }
+  if(showDBInteraction){
+    log(`getModelNames returning ${modelNames}`)
   }
   return modelNames;
 }
@@ -23,11 +30,17 @@ export async function loadModel(
   userID: string,
   modelName: string,
 ){
+  if(showDBInteraction){
+    log(`load model for user ${userID}`)
+  }
   let model: DbModelData|undefined = undefined;
   try {
     model = await getDB().loadModel(userID, modelName);
   } catch (err) {
     alert(`Cannot load ${modelName}; consider 'Force delete'?`);
+  }
+  if(showDBInteraction){
+    log(`loaded model ${modelName}`)
   }
   return model;
 }
@@ -36,15 +49,29 @@ export async function ensureModel(
   userID: string,
   modelName: string,
 ){
-  return await getDB().ensureModel(userID, modelName);
+  if(showDBInteraction){
+    log(`ensure model for user ${userID}`)
+  }
+  const result = await getDB().ensureModel(userID, modelName);
+  if(showDBInteraction){
+    log(`loaded model ${modelName}`)
+  }
+  return result;
 }
 
-export async function saveModel(
-  userID: string,
+export async function saveModelLSM(
   modelName: string,
   model: DbModelData,
+  userID: string,
 ){
-  return getDB().saveModel( userID, modelName, model );
+  if(showDBInteraction){
+    log(`save model for user ${userID}`)
+  }
+  const result = getDB().saveModel( userID, modelName, model );
+  if(showDBInteraction){
+    log(`saved model ${modelName}`)
+  }
+  return result;
 }
 
 function updateItemList(
@@ -74,7 +101,9 @@ export async function submitExpenseLSM(
     modelName,
     modelData,
   );
-  await refreshData();
+  if(showDBInteraction){
+    log(`saved model ${modelName}`)
+  }
 }
 
 export async function submitIncomeLSM(
@@ -91,7 +120,6 @@ export async function submitIncomeLSM(
     modelName,
     modelData,
   );
-  await refreshData();
 }
 
 export async function submitTriggerLSM(
@@ -108,7 +136,6 @@ export async function submitTriggerLSM(
     modelName,
     modelData,
   );
-  await refreshData();
 }
 
 export async function submitNewTriggerLSM(
@@ -140,7 +167,6 @@ export async function submitAssetLSM(
     modelName,
     modelData,
   );
-  await refreshData();
 }
 
 export async function submitNewAssetLSM(
@@ -181,7 +207,6 @@ export async function submitTransactionLSM(
     modelName,
     modelData,
   );
-  await refreshData();
 }
 
 export async function submitNewTransactionLSM(
@@ -223,7 +248,6 @@ export async function submitSettingLSM(
     modelName,
     modelData,
   );
-  await refreshData();
 }
 
 export async function submitNewSettingLSM(
