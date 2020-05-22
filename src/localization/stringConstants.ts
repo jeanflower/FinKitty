@@ -85,6 +85,7 @@ export const exampleModelName = 'Simple';
 // e.g. IncomeTaxJoe or NIJane
 export const incomeTax = '(incomeTax)';
 export const nationalInsurance = '(NI)';
+export const taxableBenefit = 'TaxableBenefit';
 
 // Assets can of the form CrystallizedPension
 // and transfer to cash is liable to income tax for

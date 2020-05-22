@@ -10,7 +10,7 @@ interface DataGridProps {
   handleGridRowsUpdated: any; // TODO any
   rows: any[]; // TODO any
   columns: any[]; // TODO any
-  deleteFunction: any;
+  deleteFunction: (name: string) => Promise<boolean>;
 }
 interface DataGridState {
   rows: any[]; // TODO any

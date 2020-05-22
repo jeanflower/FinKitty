@@ -27,7 +27,7 @@ import {
 } from '../../localization/stringConstants';
 import { DbModelData, DbSetting } from '../../types/interfaces';
 import { log, printDebug } from '../../utils';
-import webdriver from 'selenium-webdriver';
+import webdriver, { ThenableWebDriver } from 'selenium-webdriver';
 import { ensureModel } from '../../database/loadSaveModel';
 import { replaceWithModel } from '../../App';
 
@@ -150,7 +150,7 @@ function sleep(ms: number, message: string) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function gotoHomePage(driver: any) {
+async function gotoHomePage(driver: ThenableWebDriver) {
   const btnHome = await driver.findElements(webdriver.By.id('btn-Home'));
   // log(`btnMms.length = ${btnMms.length}`);
   expect(btnHome.length === 1).toBe(true);
@@ -160,7 +160,10 @@ async function gotoHomePage(driver: any) {
   }
 }
 
-export async function selectModel(driver: any, testDataModelName: string) {
+export async function selectModel(
+  driver: ThenableWebDriver,
+  testDataModelName: string,
+) {
   await gotoHomePage(driver);
 
   if (allowExtraSleeps()) {
@@ -170,7 +173,14 @@ export async function selectModel(driver: any, testDataModelName: string) {
   const btnData = await driver.findElements(
     webdriver.By.id(`btn-overview-${testDataModelName}`),
   );
+
   if (btnData[0] !== undefined) {
+    const welcome = await driver.findElements(webdriver.By.id(`WelcomeHeader`));
+    await driver.executeScript(
+      'arguments[0].scrollIntoView(true);',
+      welcome[0],
+    );
+
     await btnData[0].click();
   } else {
     log(`BUG : can't see model ${testDataModelName} in model list`);
@@ -181,11 +191,11 @@ export async function selectModel(driver: any, testDataModelName: string) {
 export const testUserID = 'TestUserID';
 
 export async function beforeAllWork(
-  driver: any,
+  driver: ThenableWebDriver,
   testDataModelName: string,
   model: DbModelData,
 ) {
-  jest.setTimeout(60000); // allow time for all these tests to run
+  jest.setTimeout(1000000); // allow time for all these tests to run
   // log(`go to ensure model ${testDataModelName}`);
 
   // log(`modelNames1 = ${await getModelNames(testUserID)}`);
@@ -193,7 +203,7 @@ export async function beforeAllWork(
   // log(`modelNames2 = ${await getModelNames(testUserID)}`);
 
   // log(`go to replace with ${showObj(model)}`);
-  await replaceWithModel(testUserID,  testDataModelName, model);
+  await replaceWithModel(testUserID, testDataModelName, model);
 
   await driver.get('about:blank');
   await driver.get(serverUri);
@@ -228,7 +238,10 @@ export async function beforeAllWork(
   }
 }
 
-export async function cleanUpWork(driver: any, testDataModelName: string) {
+export async function cleanUpWork(
+  driver: ThenableWebDriver,
+  testDataModelName: string,
+) {
   await gotoHomePage(driver);
 
   return new Promise(async resolve => {
@@ -265,14 +278,17 @@ export async function cleanUpWork(driver: any, testDataModelName: string) {
 }
 
 // click something to refresh page // hack!
-export async function refreshPage(driver: any, testDataModelName: string) {
+export async function refreshPage(
+  driver: ThenableWebDriver,
+  testDataModelName: string,
+) {
   // log('in refreshPage');
   await selectModel(driver, testDataModelName);
   return sleep(calcSleep, 'after refreshing a page');
 }
 
 export async function submitModelInTest(
-  driver: any,
+  driver: ThenableWebDriver,
   testDataModelName: string,
   model: DbModelData,
 ) {
@@ -288,7 +304,7 @@ export async function submitModelInTest(
 }
 
 export async function submitSettingChange(
-  driver: any,
+  driver: ThenableWebDriver,
   testDataModelName: string,
   model: DbModelData,
   forSubmission: DbSetting,
@@ -336,7 +352,7 @@ export function writeTestCode(ary: any[]) {
   log(result);
 }
 
-export async function getChartData(driver: any, label: string) {
+export async function getChartData(driver: ThenableWebDriver, label: string) {
   // locate the asset text dump
   const divElement = await driver.findElement(webdriver.By.id(label));
   // extract the content
@@ -348,7 +364,7 @@ export async function getChartData(driver: any, label: string) {
 }
 
 async function getTypedChartData(
-  driver: any,
+  driver: ThenableWebDriver,
   headerID: string,
   switchButtonID: string,
   dataDumpName: string,
@@ -364,7 +380,7 @@ async function getTypedChartData(
   }
   return getChartData(driver, dataDumpName);
 }
-export async function getAssetChartData(driver: any) {
+export async function getAssetChartData(driver: ThenableWebDriver) {
   return getTypedChartData(
     driver,
     'AssetsHeader',
@@ -372,7 +388,7 @@ export async function getAssetChartData(driver: any) {
     'assetDataDump',
   );
 }
-export async function getExpenseChartData(driver: any) {
+export async function getExpenseChartData(driver: ThenableWebDriver) {
   return getTypedChartData(
     driver,
     'ExpensesHeader',
@@ -380,7 +396,7 @@ export async function getExpenseChartData(driver: any) {
     'expenseDataDump',
   );
 }
-export async function getIncomeChartData(driver: any) {
+export async function getIncomeChartData(driver: ThenableWebDriver) {
   return getTypedChartData(
     driver,
     'IncomesHeader',

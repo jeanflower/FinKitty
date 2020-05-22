@@ -27,7 +27,7 @@ export function assetsDiv(model: DbModelData, assetChartData: ChartData[]) {
   return (
     <div style={{ display: getDisplay(assetsView) ? 'block' : 'none' }}>
       <Button
-        action={(event: any) => {
+        action={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
           event.persist();
           toggleDisplay(assetsChart);
         }}
@@ -39,7 +39,7 @@ export function assetsDiv(model: DbModelData, assetChartData: ChartData[]) {
         id="toggleAssetsChart"
       />
       <Button
-        action={(event: any) => {
+        action={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
           event.persist();
           toggleDisplay(assetsTable);
         }}

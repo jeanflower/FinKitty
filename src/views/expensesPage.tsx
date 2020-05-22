@@ -29,7 +29,7 @@ export function expensesDiv(
   return (
     <div style={{ display: getDisplay(expensesView) ? 'block' : 'none' }}>
       <Button
-        action={(event: any) => {
+        action={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
           event.persist();
           toggleDisplay(expensesChart);
         }}
@@ -41,7 +41,7 @@ export function expensesDiv(
         id="toggle-expensesChart"
       />
       <Button
-        action={(event: any) => {
+        action={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
           event.persist();
           toggleDisplay(expensesTable);
         }}

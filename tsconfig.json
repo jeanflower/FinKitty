@@ -1,6 +1,8 @@
 {
   "include": [
-    "src"
+    "src",
+    "./types",
+    "./types/interfaces"
   ],
   "compilerOptions": {
     "target": "es5",

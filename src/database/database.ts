@@ -4,9 +4,13 @@ import { RESTDB } from './REST_db';
 export interface DbInterface {
   getModelNames(userID: string): Promise<string[]>;
   loadModel(userID: string, modelName: string): Promise<DbModelData>;
-  ensureModel(userID: string, modelName: string): any;
-  saveModel(userID: string, modelName: string, model: DbModelData): any;
-  deleteModel(userID: string, modelName: string): any;
+  ensureModel(userID: string, modelName: string): Promise<void>;
+  saveModel(
+    userID: string,
+    modelName: string,
+    model: DbModelData,
+  ): Promise<void>;
+  deleteModel(userID: string, modelName: string): Promise<void>;
 }
 
 const restdb = new RESTDB();

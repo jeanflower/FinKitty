@@ -306,63 +306,12 @@ function getExampleModel(modelString: string) {
   return makeModelFromJSON(modelString);
 }
 
-export async function submitAsset(
-  assetInput: DbAsset,
-  modelData: DbModelData,
-){
-  await submitAssetLSM( assetInput, modelData, getUserID() );
-  return await refreshData();
-}
-export async function submitExpense(
-  expenseInput: DbExpense,
-  modelData: DbModelData,
-){
-  await submitExpenseLSM( expenseInput, modelData, getUserID() );
-  return await refreshData();
-}
-export async function submitIncome(
-  incomeInput: DbIncome,
-  modelData: DbModelData,
-){
-  await submitIncomeLSM( incomeInput, modelData, getUserID() );
-  return await refreshData();
-}
-export async function submitTransaction(
-  transactionInput: DbTransaction,
-  modelData: DbModelData,
-){
-  await submitTransactionLSM( transactionInput, modelData, getUserID() );
-  return await refreshData();
-}
-export async function submitTrigger(
-  triggerInput: DbTrigger,
-  modelData: DbModelData,
-){
-  await submitTriggerLSM( triggerInput, modelData, getUserID() );
-  return await refreshData();
-}
-export async function submitSetting(
-  settingInput: DbSetting,
-  modelData: DbModelData,
-){
-  await submitSettingLSM( settingInput, modelData, getUserID() );
-  return await refreshData();
-}
-
-export async function submitNewSetting(
-  name: string,
-  modelData: DbModelData,
-){
-  await submitNewSettingLSM(name , modelData, getUserID() );
-  return await refreshData();
-}
-
 export async function refreshData(goToDB = true) {
   // log('refreshData in AppContent - get data and redraw content');
   if (goToDB) {
     // log('refreshData do visit db');
     // go to the DB to refresh available model names
-    let modelNames = await getModelNames(getUserID())
+    let modelNames = await getModelNames(getUserID());
     // log(`got ${modelNames.length} modelNames`);
 
     let model;
@@ -424,13 +373,21 @@ export async function refreshData(goToDB = true) {
 
     // log(`got ${model}`);
 
-    model.triggers.sort((a: any, b: any) => lessThan(a.NAME, b.NAME));
-    model.expenses.sort((a: any, b: any) => lessThan(a.NAME, b.NAME));
-    model.settings.sort((a: any, b: any) => lessThan(a.NAME, b.NAME));
-    model.incomes.sort((a: any, b: any) => lessThan(a.NAME, b.NAME));
-    model.transactions.sort((a: any, b: any) => lessThan(a.NAME, b.NAME));
-    model.assets.sort((a: any, b: any) => lessThan(a.NAME, b.NAME));
-    modelNames.sort((a: any, b: any) => lessThan(a, b));
+    model.triggers.sort((a: DbTrigger, b: DbTrigger) =>
+      lessThan(a.NAME, b.NAME),
+    );
+    model.expenses.sort((a: DbExpense, b: DbExpense) =>
+      lessThan(a.NAME, b.NAME),
+    );
+    model.settings.sort((a: DbSetting, b: DbSetting) =>
+      lessThan(a.NAME, b.NAME),
+    );
+    model.incomes.sort((a: DbIncome, b: DbIncome) => lessThan(a.NAME, b.NAME));
+    model.transactions.sort((a: DbTransaction, b: DbTransaction) =>
+      lessThan(a.NAME, b.NAME),
+    );
+    model.assets.sort((a: DbAsset, b: DbAsset) => lessThan(a.NAME, b.NAME));
+    modelNames.sort((a: string, b: string) => lessThan(a, b));
 
     if (
       model.assets.filter((a: any) => {
@@ -521,6 +478,51 @@ export async function refreshData(goToDB = true) {
   }
 }
 
+export async function submitAsset(assetInput: DbAsset, modelData: DbModelData) {
+  await submitAssetLSM(assetInput, modelData, getUserID());
+  return await refreshData();
+}
+export async function submitExpense(
+  expenseInput: DbExpense,
+  modelData: DbModelData,
+) {
+  await submitExpenseLSM(expenseInput, modelData, getUserID());
+  return await refreshData();
+}
+export async function submitIncome(
+  incomeInput: DbIncome,
+  modelData: DbModelData,
+) {
+  await submitIncomeLSM(incomeInput, modelData, getUserID());
+  return await refreshData();
+}
+export async function submitTransaction(
+  transactionInput: DbTransaction,
+  modelData: DbModelData,
+) {
+  await submitTransactionLSM(transactionInput, modelData, getUserID());
+  return await refreshData();
+}
+export async function submitTrigger(
+  triggerInput: DbTrigger,
+  modelData: DbModelData,
+) {
+  await submitTriggerLSM(triggerInput, modelData, getUserID());
+  return await refreshData();
+}
+export async function submitSetting(
+  settingInput: DbSetting,
+  modelData: DbModelData,
+) {
+  await submitSettingLSM(settingInput, modelData, getUserID());
+  return await refreshData();
+}
+
+export async function submitNewSetting(name: string, modelData: DbModelData) {
+  await submitNewSettingLSM(name, modelData, getUserID());
+  return await refreshData();
+}
+
 export function toggle(type: ViewType) {
   for (const k of views.keys()) {
     if (k !== type) {
@@ -548,12 +550,12 @@ export function toggleDisplay(type: ViewType) {
   refreshData(false);
 }
 
-function checkModelData(givenModel: DbModelData) {
+function checkModelData(givenModel: DbModelData): string {
   const response = checkData(givenModel);
   if (response === '') {
-    alert('model check all good');
+    return 'model check all good';
   } else {
-    alert(response);
+    return response;
   }
 }
 
@@ -562,7 +564,7 @@ export async function deleteItemFromModel(
   itemList: DbItem[],
   modelName: string,
   model: DbModelData,
-) {
+): Promise<boolean> {
   // log('delete item '+name)
   const idx = itemList.findIndex((i: DbItem) => {
     return i.NAME === name;
@@ -581,7 +583,7 @@ export async function deleteItemFromModel(
       return false;
     }
 
-    await saveModelLSM(modelName, model, getUserID() );
+    await saveModelLSM(modelName, model, getUserID());
     await refreshData();
     return true;
   }
@@ -633,7 +635,7 @@ export async function deleteIncome(name: string) {
   );
 }
 
-export async function deleteSetting(name: string) {
+export async function deleteSetting(name: string): Promise<boolean> {
   return deleteItemFromModel(
     name,
     reactAppComponent.state.modelData.settings,
@@ -651,11 +653,11 @@ export async function updateModelName(newValue: string) {
 
 export async function replaceWithModel(
   userName: string | undefined,
-  modelName: string, 
+  modelName: string,
   newModel: DbModelData,
 ) {
-  if(userName === undefined){
-    userName =  getUserID();
+  if (userName === undefined) {
+    userName = getUserID();
   }
   // log(`replace ${modelName} with new model data`);
   await saveModelLSM(modelName, newModel, userName);
@@ -670,6 +672,7 @@ interface AppState {
   debtChartData: ChartData[];
   taxChartData: ChartData[];
   modelNamesData: string[];
+  alertText: string;
 }
 interface AppProps {
   logOutAction: any; // TODO type for function
@@ -696,6 +699,7 @@ export class AppContent extends Component<AppProps, AppState> {
       debtChartData: [],
       taxChartData: [],
       modelNamesData: [],
+      alertText: '',
     };
     refreshData();
   }
@@ -741,7 +745,7 @@ export class AppContent extends Component<AppProps, AppState> {
     const buttons = modelNames.map(model => (
       <Button
         key={model}
-        action={(e: any) => {
+        action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
           e.persist();
           actionOnSelect(model);
         }}
@@ -771,10 +775,14 @@ export class AppContent extends Component<AppProps, AppState> {
       gotNameOK: false,
       newName: '',
     };
-    const promptResponse = prompt('Provide a name for your model');
+    let promptResponse = prompt('Provide a name for your model');
     if (promptResponse === null) {
       return result;
     }
+    if (promptResponse === '') {
+      promptResponse = 'myModel';
+    }
+    log(`set new model name to ${promptResponse}`);
     const regex = RegExp('[a-zA-Z0-9_\\-\\. ]+');
     const whatsLeft = promptResponse.replace(regex, '');
     // log(`whatsLeft = ${whatsLeft}`);
@@ -882,7 +890,12 @@ export class AppContent extends Component<AppProps, AppState> {
             />
             <Button
               action={async () => {
-                checkModelData(reactAppComponent.state.modelData);
+                const response = checkModelData(
+                  reactAppComponent.state.modelData,
+                );
+                reactAppComponent.setState({
+                  alertText: response,
+                });
               }}
               title="Check model"
               id={`btn-check`}
@@ -950,7 +963,10 @@ export class AppContent extends Component<AppProps, AppState> {
                     alert('could not decode this data');
                   } else {
                     const decipheredModel = makeModelFromJSON(decipherString);
-                    checkModelData(decipheredModel);
+                    const response = checkModelData(decipheredModel);
+                    reactAppComponent.setState({
+                      alertText: response,
+                    });
                   }
                 } catch (err) {
                   alert('could not decode this data');
@@ -987,7 +1003,9 @@ export class AppContent extends Component<AppProps, AppState> {
       <div style={{ display: getDisplay(settingsView) ? 'block' : 'none' }}>
         <fieldset>
           <Button
-            action={(event: any) => {
+            action={(
+              event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+            ) => {
               event.persist();
               toggleDisplay(settingsTable);
             }}
@@ -1007,6 +1025,7 @@ export class AppContent extends Component<AppProps, AppState> {
             <AddDeleteEntryForm
               submitFunction={submitNewSetting}
               deleteFunction={deleteSetting}
+              model={this.state.modelData}
             />
           </div>
         </fieldset>
@@ -1022,7 +1041,7 @@ export class AppContent extends Component<AppProps, AppState> {
     return (
       <div style={{ display: getDisplay(triggersView) ? 'block' : 'none' }}>
         <Button
-          action={(event: any) => {
+          action={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
             event.persist();
             toggleDisplay(triggersTable);
           }}
@@ -1068,7 +1087,7 @@ export class AppContent extends Component<AppProps, AppState> {
     return (
       <div style={{ display: getDisplay(transactionsView) ? 'block' : 'none' }}>
         <Button
-          action={(event: any) => {
+          action={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
             event.persist();
             toggleDisplay(transactionsTable);
           }}
@@ -1118,7 +1137,7 @@ export class AppContent extends Component<AppProps, AppState> {
 
       buttons.push(
         <Button
-          action={(event: any) => {
+          action={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
             event.persist();
             toggle(view);
           }}
@@ -1132,7 +1151,7 @@ export class AppContent extends Component<AppProps, AppState> {
     }
     buttons.push(
       <Button
-        action={(event: any) => {
+        action={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
           event.persist();
           this.props.logOutAction();
         }}
@@ -1166,7 +1185,37 @@ export class AppContent extends Component<AppProps, AppState> {
     return <div role="group">{buttons}</div>;
   }
 
-  private makeHelpText() {
+  private makeHelpText(alertText: string) {
+    if (alertText !== '') {
+      log('display alert text');
+      return (
+        <div className="container-fluid">
+          <div className="row">
+            <div className="col-">
+              <h4 className="text-warning" id="pageTitle">
+                {alertText}
+              </h4>
+            </div>
+            <div className="col-">
+              <Button
+                key={'alert'}
+                action={(
+                  e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+                ) => {
+                  log('clear alert text');
+                  e.persist();
+                  this.setState({ alertText: '' });
+                }}
+                title={'clear alert'}
+                id={`btn-clear-alert}`}
+                type={'secondary'}
+              />
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     const it = views.keys();
     let entry = it.next();
     while (!entry.done) {
@@ -1178,7 +1227,7 @@ export class AppContent extends Component<AppProps, AppState> {
           return;
         }
         return (
-          <h4 className="text-white">
+          <h4 className="text-white" id="pageTitle">
             {(entry.value !== homeView ? modelName + ': ' : '') + view.helpText}
           </h4>
         );
@@ -1191,7 +1240,7 @@ export class AppContent extends Component<AppProps, AppState> {
     return (
       <div>
         {this.viewButtonList()}
-        {this.makeHelpText()}
+        {this.makeHelpText(this.state.alertText)}
       </div>
     );
   }

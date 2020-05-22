@@ -4,6 +4,7 @@ import {
   roiEnd,
   roiStart,
   payOffDebt,
+  revalueAsset,
 } from '../../localization/stringConstants';
 import { DbModelData } from '../../types/interfaces';
 import { setSetting, makeDateFromString } from '../../utils';
@@ -92,6 +93,7 @@ export function getTestModel01() {
         IS_A_DEBT: true,
         GROWTH: '2.33', // good rate for early part of deal (excl cpi)
         CATEGORY: 'mortgage',
+        CAN_BE_NEGATIVE: true,
       },
       {
         ...simpleAsset,
@@ -119,6 +121,7 @@ export function getTestModel01() {
         TO_ABSOLUTE: true,
         TO_VALUE: '3000',
         DATE: 'January 2 2020',
+        TYPE: revalueAsset,
       },
       {
         ...simpleTransaction,

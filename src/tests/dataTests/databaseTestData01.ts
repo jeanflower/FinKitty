@@ -25,6 +25,7 @@ import {
   viewDetailHint,
   viewFrequency,
   viewFrequencyHint,
+  revalueAsset,
 } from '../../localization/stringConstants';
 import {
   DbAsset,
@@ -151,6 +152,7 @@ export const testAssets01: DbAsset[] = [
     VALUE: '-234000', // how much was borrowed
     GROWTH: '2.33', // good rate for early part of deal (excl cpi)
     CATEGORY: 'mortgage',
+    CAN_BE_NEGATIVE: true,
   },
   {
     ...simpleAsset,
@@ -178,6 +180,7 @@ export const testTransactions01: DbTransaction[] = [
     TO_ABSOLUTE: true,
     TO_VALUE: '3000',
     DATE: 'January 2 2020',
+    TYPE: revalueAsset,
   },
   {
     ...simpleTransaction,

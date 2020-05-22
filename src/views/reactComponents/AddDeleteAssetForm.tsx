@@ -1,7 +1,12 @@
 import React, { Component } from 'react';
 
 import { checkAssetLiability, isNumberString } from '../../models/checks';
-import { DbAsset, DbModelData, DbTransaction } from '../../types/interfaces';
+import {
+  DbAsset,
+  DbModelData,
+  DbTransaction,
+  DbTrigger,
+} from '../../types/interfaces';
 import {
   checkTriggerDate,
   log,
@@ -27,7 +32,7 @@ import {
 } from '../../localization/stringConstants';
 import { incomeOptions } from './AddDeleteIncomeForm';
 
-interface EditFormState {
+interface EditAssetFormState {
   NAME: string;
   VALUE: string;
   QUANTITY: string;
@@ -52,21 +57,30 @@ const inputtingRevalue = 'revalue';
 const inputtingAsset = 'asset';
 const inputtingPension = 'definedContributionsPension';
 
-interface EditProps {
-  checkAssetFunction: any;
-  submitAssetFunction: any;
-  deleteAssetFunction: any;
-  checkTransactionFunction: any;
-  submitTransactionFunction: any;
-  submitTriggerFunction: any;
+interface EditAssetProps {
+  checkAssetFunction: (a: DbAsset, model: DbModelData) => string;
+  submitAssetFunction: (arg0: DbAsset, arg1: DbModelData) => Promise<void>;
+  deleteAssetFunction: (name: string) => Promise<boolean>;
+  checkTransactionFunction: (t: DbTransaction, model: DbModelData) => string;
+  submitTransactionFunction: (
+    transactionInput: DbTransaction,
+    modelData: DbModelData,
+  ) => Promise<void>;
+  submitTriggerFunction: (
+    triggerInput: DbTrigger,
+    modelData: DbModelData,
+  ) => Promise<void>;
   model: DbModelData;
 }
-export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
-  public defaultState: EditFormState;
+export class AddDeleteAssetForm extends Component<
+  EditAssetProps,
+  EditAssetFormState
+> {
+  public defaultState: EditAssetFormState;
 
   private incomeSourceSelectID = 'fromIncomeSelectAssetForm';
 
-  public constructor(props: EditProps) {
+  public constructor(props: EditAssetProps) {
     super(props);
     if (printDebug()) {
       log(`props for AddDeleteAssetForm has
@@ -330,6 +344,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
           {/* fills width */}
           <DateSelectionRow
             introLabel={`Stop date for contributions`}
+            model={this.props.model}
             setDateFunction={this.setStop}
             inputName="stop date"
             inputValue={this.state.DCP_STOP}
@@ -342,6 +357,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
           {/* fills width */}
           <DateSelectionRow
             introLabel={`Date on which the pension crystallizes`}
+            model={this.props.model}
             setDateFunction={this.setCrystallize}
             inputName="crystallize date"
             inputValue={this.state.DCP_CRYSTALLIZE}
@@ -354,6 +370,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
           {this.state.inputting === inputtingPension ? (
             <DateSelectionRow
               introLabel="On death, pension transfers to (optional)"
+              model={this.props.model}
               setDateFunction={this.setDcpTransferDate}
               inputName="transferred stop date"
               inputValue={this.state.DCP_TRANSFER_DATE}
@@ -493,7 +510,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
                   : 'secondary'
               }
               title={'Revalue asset'}
-              id="revalueAsset"
+              id="revalueAssetInputs"
             />
           </div>
           {/* end col */}
@@ -510,6 +527,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
                 ? 'pension asset begins'
                 : 'asset starts'
             }`}
+            model={this.props.model}
             setDateFunction={this.setStart}
             inputName="start date"
             inputValue={this.state.START}
@@ -526,85 +544,87 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
     );
   }
 
-  private handleNameChange(e: any) {
+  private handleNameChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
     this.setState({ NAME: value });
   }
-  private handleGrowthChange(e: any) {
+  private handleGrowthChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
     this.setState({ GROWTH: value });
   }
-  private handleCategoryChange(e: any) {
+  private handleCategoryChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
     this.setState({ CATEGORY: value });
   }
-  private handlePurchasePriceChange(e: any) {
+  private handlePurchasePriceChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
     this.setState({ PURCHASE_PRICE: value });
   }
-  private handleLiabilityChange(e: any) {
+  private handleLiabilityChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
     this.setState({ LIABILITY: value });
   }
-  private handleValueChange(e: any) {
+  private handleValueChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
     this.setState({ VALUE: value });
   }
-  private handleQuantityChange(e: any) {
+  private handleQuantityChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
     this.setState({ QUANTITY: value });
   }
-  private handleGrowsWithCPIChange(e: any) {
+  private handleGrowsWithCPIChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
     this.setState({ GROWS_WITH_INFLATION: value });
   }
   private setStart(value: string): void {
     this.setState({ START: value });
   }
-  private handleStartChange(e: any): void {
+  private handleStartChange(e: React.ChangeEvent<HTMLInputElement>): void {
     const value = e.target.value;
     this.setStart(value);
   }
   private setStop(value: string): void {
     this.setState({ DCP_STOP: value });
   }
-  private handleStopChange(e: any): void {
+  private handleStopChange(e: React.ChangeEvent<HTMLInputElement>): void {
     const value = e.target.value;
     this.setStop(value);
   }
   private setCrystallize(value: string): void {
     this.setState({ DCP_CRYSTALLIZE: value });
   }
-  private handleCrystallizeChange(e: any): void {
+  private handleCrystallizeChange(
+    e: React.ChangeEvent<HTMLInputElement>,
+  ): void {
     const value = e.target.value;
     this.setCrystallize(value);
   }
-  private handleDcpSsChange(e: any): void {
+  private handleDcpSsChange(e: React.ChangeEvent<HTMLInputElement>): void {
     const value = e.target.value;
     this.setState({ DCP_SS: value });
   }
   private handleDcpIncomeSourceChange(value: string): void {
     this.setState({ DCP_INCOME_SOURCE: value });
   }
-  private handleDcpContAmount(e: any): void {
+  private handleDcpContAmount(e: React.ChangeEvent<HTMLInputElement>): void {
     const value = e.target.value;
     this.setState({ DCP_CONTRIBUTION_AMOUNT: value });
   }
-  private handleDcpEmpContAmount(e: any): void {
+  private handleDcpEmpContAmount(e: React.ChangeEvent<HTMLInputElement>): void {
     const value = e.target.value;
     this.setState({ DCP_EMP_CONTRIBUTION_AMOUNT: value });
   }
-  private handleDcpTransferTo(e: any) {
+  private handleDcpTransferTo(e: React.ChangeEvent<HTMLInputElement>) {
     this.setState({ DCP_TRANSFER_TO: e.target.value });
   }
   private setDcpTransferDate(value: string): void {
     this.setState({ DCP_TRANSFER_DATE: value });
   }
-  private handleDcpTransferDateChange(e: any) {
+  private handleDcpTransferDateChange(e: React.ChangeEvent<HTMLInputElement>) {
     this.setDcpTransferDate(e.target.value);
   }
 
-  private async revalue(e: any) {
+  private async revalue(e: React.ChangeEvent<HTMLInputElement>) {
     e.preventDefault();
 
     const parseVal = makeValueAbsPropFromString(this.state.VALUE);
@@ -644,7 +664,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
       CATEGORY: '',
     };
     // log(`adding transaction ${showObj(revalueExpenseTransaction)}`);
-    const message = await this.props.checkTransactionFunction(
+    const message = this.props.checkTransactionFunction(
       revalueExpenseTransaction,
       this.props.model,
     );
@@ -652,7 +672,10 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
       alert(message);
       return;
     }
-    await this.props.submitTransactionFunction(revalueExpenseTransaction);
+    await this.props.submitTransactionFunction(
+      revalueExpenseTransaction,
+      this.props.model,
+    );
 
     alert('added new data');
     // clear fields
@@ -789,11 +812,12 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
 
       const toProp = contPc === 0 ? 0.0 : (contPc + contEmpPc) / contPc;
 
-      await this.props.submitAssetFunction(asset1);
-      await this.props.submitAssetFunction(asset2);
-      await this.props.submitAssetFunction(asset3);
+      const model = this.props.model;
+      await this.props.submitAssetFunction(asset1, model);
+      await this.props.submitAssetFunction(asset2, model);
+      await this.props.submitAssetFunction(asset3, model);
       if (this.state.DCP_TRANSFER_TO !== '') {
-        await this.props.submitAssetFunction(asset4);
+        await this.props.submitAssetFunction(asset4, model);
       }
 
       const contributions: DbTransaction = {
@@ -815,11 +839,11 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
         this.props.model,
       );
       if (message.length > 0) {
-        await this.props.deleteAssetFunction(asset1);
-        await this.props.deleteAssetFunction(asset2);
-        await this.props.deleteAssetFunction(asset3);
+        await this.props.deleteAssetFunction(asset1.NAME);
+        await this.props.deleteAssetFunction(asset2.NAME);
+        await this.props.deleteAssetFunction(asset3.NAME);
         if (this.state.DCP_TRANSFER_TO !== '') {
-          await this.props.deleteAssetFunction(asset4);
+          await this.props.deleteAssetFunction(asset4.NAME);
         }
         alert(message);
         return;
@@ -843,11 +867,11 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
         this.props.model,
       );
       if (message.length > 0) {
-        await this.props.deleteAssetFunction(asset1);
-        await this.props.deleteAssetFunction(asset2);
-        await this.props.deleteAssetFunction(asset3);
+        await this.props.deleteAssetFunction(asset1.NAME);
+        await this.props.deleteAssetFunction(asset2.NAME);
+        await this.props.deleteAssetFunction(asset3.NAME);
         if (this.state.DCP_TRANSFER_TO !== '') {
-          await this.props.deleteAssetFunction(asset4);
+          await this.props.deleteAssetFunction(asset4.NAME);
         }
         alert(message);
         return;
@@ -871,11 +895,11 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
         this.props.model,
       );
       if (message.length > 0) {
-        await this.props.deleteAssetFunction(asset1);
-        await this.props.deleteAssetFunction(asset2);
-        await this.props.deleteAssetFunction(asset3);
+        await this.props.deleteAssetFunction(asset1.NAME);
+        await this.props.deleteAssetFunction(asset2.NAME);
+        await this.props.deleteAssetFunction(asset3.NAME);
         if (this.state.DCP_TRANSFER_TO !== '') {
-          await this.props.deleteAssetFunction(asset4);
+          await this.props.deleteAssetFunction(asset4.NAME);
         }
         alert(message);
         return;
@@ -901,20 +925,26 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
           this.props.model,
         );
         if (message.length > 0) {
-          await this.props.deleteAssetFunction(asset1);
-          await this.props.deleteAssetFunction(asset2);
-          await this.props.deleteAssetFunction(asset3);
-          await this.props.deleteAssetFunction(asset4);
+          await this.props.deleteAssetFunction(asset1.NAME);
+          await this.props.deleteAssetFunction(asset2.NAME);
+          await this.props.deleteAssetFunction(asset3.NAME);
+          await this.props.deleteAssetFunction(asset4.NAME);
           alert(message);
           return;
         }
       }
 
-      await this.props.submitTransactionFunction(contributions);
-      await this.props.submitTransactionFunction(crystallizeTaxFree);
-      await this.props.submitTransactionFunction(crystallize);
+      await this.props.submitTransactionFunction(
+        contributions,
+        this.props.model,
+      );
+      await this.props.submitTransactionFunction(
+        crystallizeTaxFree,
+        this.props.model,
+      );
+      await this.props.submitTransactionFunction(crystallize, this.props.model);
       if (transfer) {
-        await this.props.submitTransactionFunction(transfer);
+        await this.props.submitTransactionFunction(transfer, this.props.model);
       }
 
       alert('added assets and transactions');
@@ -982,7 +1012,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
       if (message.length > 0) {
         alert(message);
       } else {
-        await this.props.submitAssetFunction(asset);
+        await this.props.submitAssetFunction(asset, this.props.model);
         alert('added new asset');
         // clear fields
         this.setState(this.defaultState);
@@ -990,7 +1020,7 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
       }
     }
   }
-  private async delete(e: any) {
+  private async delete(e: React.ChangeEvent<HTMLInputElement>) {
     e.preventDefault();
     // log('deleting something ' + showObj(this));
     if (await this.props.deleteAssetFunction(this.state.NAME)) {
@@ -1001,21 +1031,21 @@ export class AddDeleteAssetForm extends Component<EditProps, EditFormState> {
       alert(`failed to delete ${this.state.NAME}`);
     }
   }
-  private inputPension(e: any) {
+  private inputPension(e: React.ChangeEvent<HTMLInputElement>) {
     e.preventDefault();
     this.setState({
       ...this.state,
       inputting: inputtingPension,
     });
   }
-  private inputAsset(e: any) {
+  private inputAsset(e: React.ChangeEvent<HTMLInputElement>) {
     e.preventDefault();
     this.setState({
       ...this.state,
       inputting: inputtingAsset,
     });
   }
-  private inputRevalue(e: any) {
+  private inputRevalue(e: React.ChangeEvent<HTMLInputElement>) {
     e.preventDefault();
     this.setState({
       ...this.state,

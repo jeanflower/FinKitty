@@ -1,14 +1,18 @@
 import React, { Component } from 'react';
 
-import { DbTrigger } from '../../types/interfaces';
+import { DbTrigger, DbModelData } from '../../types/interfaces';
 import { newTriggerButtonData } from './AddDeleteTriggerForm';
 
 const welcomeString = 'Choose a date (optional)';
 
 interface TriggerOptionListProps {
   triggers: DbTrigger[];
+  model: DbModelData;
   handleChange: (value: string) => void;
-  submitTriggerFunction: (trigger: DbTrigger) => void;
+  submitTriggerFunction: (
+    triggerInput: DbTrigger,
+    modelData: DbModelData,
+  ) => Promise<void>;
   selectedItem: string;
 }
 
@@ -18,7 +22,7 @@ export class TriggerOptionList extends Component<TriggerOptionListProps, {}> {
     this.state = { selectedItem: '' };
   }
   private newTriggerMade(e: DbTrigger) {
-    this.props.submitTriggerFunction(e);
+    this.props.submitTriggerFunction(e, this.props.model);
     this.setState({
       ...this.state,
       selectedItem: e.NAME,

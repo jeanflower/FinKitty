@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { DbModelData, DbTransaction } from '../../types/interfaces';
+import { DbModelData, DbTransaction, DbTrigger } from '../../types/interfaces';
 import {
   log,
   makeBooleanFromString,
@@ -30,7 +30,7 @@ import {
 */
 } from '../../localization/stringConstants';
 
-interface EditFormState {
+interface EditTransactionFormState {
   NAME: string;
   CATEGORY: string;
   FROM: string;
@@ -46,11 +46,17 @@ interface EditFormState {
   RECURRENCE: string;
   LIQUIDATE_FOR_CASH: string;
 }
-interface EditProps {
-  checkFunction: any;
-  submitFunction: any;
-  deleteFunction: any;
-  submitTriggerFunction: any;
+interface EditTransactionProps {
+  checkFunction: (transaction: DbTransaction, model: DbModelData) => string;
+  submitFunction: (
+    transaction: DbTransaction,
+    model: DbModelData,
+  ) => Promise<void>;
+  deleteFunction: (name: string) => Promise<boolean>;
+  submitTriggerFunction: (
+    triggerInput: DbTrigger,
+    modelData: DbModelData,
+  ) => Promise<void>;
   model: DbModelData;
 }
 function assetOptions(model: DbModelData, handleChange: any, id: string) {
@@ -97,15 +103,15 @@ function assetOptions(model: DbModelData, handleChange: any, id: string) {
 }
 
 export class AddDeleteTransactionForm extends Component<
-  EditProps,
-  EditFormState
+  EditTransactionProps,
+  EditTransactionFormState
 > {
-  public defaultState: EditFormState;
+  public defaultState: EditTransactionFormState;
 
   private transactionFromSelectID = 'fromAssetSelect';
   private transactionToSelectID = 'toAssetSelect';
 
-  public constructor(props: EditProps) {
+  public constructor(props: EditTransactionProps) {
     super(props);
     if (printDebug()) {
       log(`props for AddDeleteTransactionForm has
@@ -174,6 +180,7 @@ export class AddDeleteTransactionForm extends Component<
           {/* fills width */}
           <DateSelectionRow
             introLabel="Date on which the transaction occurs"
+            model={this.props.model}
             setDateFunction={this.setDate}
             inputName="date"
             inputValue={this.state.DATE}
@@ -255,7 +262,7 @@ export class AddDeleteTransactionForm extends Component<
               type="text"
               name="liquidateForCash"
               value={this.state.LIQUIDATE_FOR_CASH}
-              placeholder="Enter whether we only transact fo keep cash afloat"
+              placeholder="Enter whether we only transact to keep cash afloat"
               onChange={this.handleLiquidateForCashChange}
             />
           </div>{' '}
@@ -266,6 +273,7 @@ export class AddDeleteTransactionForm extends Component<
           {/* fills width */}
           <DateSelectionRow
             introLabel="Date on which any recurrence stops (optional)"
+            model={this.props.model}
             setDateFunction={this.setStopDate}
             inputName="stopDate"
             inputValue={this.state.STOP_DATE}
@@ -300,7 +308,7 @@ export class AddDeleteTransactionForm extends Component<
       </form>
     );
   }
-  private handleNameChange(e: any) {
+  private handleNameChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
     this.setState({
       NAME: value,
@@ -317,7 +325,7 @@ export class AddDeleteTransactionForm extends Component<
       TO: value,
     });
   }
-  private handleFromValueChange(e: any) {
+  private handleFromValueChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
     const parseResult = makeValueAbsPropFromString(value);
     this.setState({
@@ -330,7 +338,7 @@ export class AddDeleteTransactionForm extends Component<
       FROM_INPUT_VALUE: value,
     });
   }
-  private handleToValueChange(e: any) {
+  private handleToValueChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
     const parseResult = makeValueAbsPropFromString(value);
     this.setState({
@@ -343,19 +351,19 @@ export class AddDeleteTransactionForm extends Component<
       TO_INPUT_VALUE: value,
     });
   }
-  private handleCategoryChange(e: any) {
+  private handleCategoryChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
     this.setState({
       CATEGORY: value,
     });
   }
-  private handleRecurrenceChange(e: any) {
+  private handleRecurrenceChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
     this.setState({
       RECURRENCE: value,
     });
   }
-  private handleLiquidateForCashChange(e: any) {
+  private handleLiquidateForCashChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
     this.setState({
       LIQUIDATE_FOR_CASH: value,
@@ -364,14 +372,14 @@ export class AddDeleteTransactionForm extends Component<
   private setDate(value: string): void {
     this.setState({ DATE: value });
   }
-  private handleDateChange(e: any): void {
+  private handleDateChange(e: React.ChangeEvent<HTMLInputElement>): void {
     const value = e.target.value;
     this.setDate(value);
   }
   private setStopDate(value: string): void {
     this.setState({ STOP_DATE: value });
   }
-  private handleStopDateChange(e: any): void {
+  private handleStopDateChange(e: React.ChangeEvent<HTMLInputElement>): void {
     const value = e.target.value;
     this.setStopDate(value);
   }
@@ -381,7 +389,7 @@ export class AddDeleteTransactionForm extends Component<
       selector.selectedIndex = '0';
     }
   }
-  private add(e: any): void {
+  private async add(e: any): Promise<void> {
     e.preventDefault();
 
     let fromAbsolute = this.state.FROM_ABSOLUTE;
@@ -453,7 +461,7 @@ export class AddDeleteTransactionForm extends Component<
     if (message.length > 0) {
       alert(message);
     } else {
-      this.props.submitFunction(transaction);
+      await this.props.submitFunction(transaction, this.props.model);
       alert('added new transaction');
       // clear fields
       this.setState(this.defaultState);
@@ -461,7 +469,7 @@ export class AddDeleteTransactionForm extends Component<
       this.resetSelect(this.transactionToSelectID);
     }
   }
-  private async delete(e: any) {
+  private async delete(e: React.ChangeEvent<HTMLInputElement>) {
     e.preventDefault();
     // log('deleting something ' + showObj(this));
     if (await this.props.deleteFunction(this.state.NAME)) {

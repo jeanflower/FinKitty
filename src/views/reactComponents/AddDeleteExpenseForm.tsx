@@ -1,6 +1,11 @@
 import React, { Component } from 'react';
 
-import { DbExpense, DbModelData, DbTransaction } from '../../types/interfaces';
+import {
+  DbExpense,
+  DbModelData,
+  DbTransaction,
+  DbTrigger,
+} from '../../types/interfaces';
 import {
   checkTriggerDate,
   log,
@@ -17,7 +22,7 @@ import Input from './Input';
 import { isNumberString } from '../../models/checks';
 import { revalue, revalueExp } from '../../localization/stringConstants';
 
-interface EditFormState {
+interface EditExpenseFormState {
   NAME: string;
   VALUE: string;
   VALUE_SET: string;
@@ -33,19 +38,31 @@ interface EditFormState {
 const inputtingRevalue = 'revalue';
 const inputtingExpense = 'expense';
 
-interface EditProps {
-  checkFunction: any;
-  submitFunction: any;
-  deleteFunction: any;
-  submitTriggerFunction: any;
+interface EditExpenseProps {
+  checkFunction: (e: DbExpense, model: DbModelData) => string;
+  submitFunction: (
+    expenseInput: DbExpense,
+    modelData: DbModelData,
+  ) => Promise<any>;
+  deleteFunction: (name: string) => Promise<boolean>;
+  submitTriggerFunction: (
+    triggerInput: DbTrigger,
+    modelData: DbModelData,
+  ) => Promise<void>;
   model: DbModelData;
-  checkTransactionFunction: any;
-  submitTransactionFunction: any;
+  checkTransactionFunction: (t: DbTransaction, model: DbModelData) => string;
+  submitTransactionFunction: (
+    transactionInput: DbTransaction,
+    modelData: DbModelData,
+  ) => Promise<void>;
 }
-export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
-  public defaultState: EditFormState;
+export class AddDeleteExpenseForm extends Component<
+  EditExpenseProps,
+  EditExpenseFormState
+> {
+  public defaultState: EditExpenseFormState;
 
-  public constructor(props: EditProps) {
+  public constructor(props: EditExpenseProps) {
     super(props);
     if (printDebug()) {
       log(`props for AddDeleteExpenseForm has
@@ -157,6 +174,7 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
       <div>
         <DateSelectionRow
           introLabel="Date on which the expense starts"
+          model={this.props.model}
           setDateFunction={this.setStart}
           inputName="start date"
           inputValue={this.state.START}
@@ -166,6 +184,7 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
         />
         <DateSelectionRow
           introLabel="Date on which the expense ends"
+          model={this.props.model}
           setDateFunction={this.setEnd}
           inputName="end date"
           inputValue={this.state.END}
@@ -263,6 +282,7 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
           {/* fills width */}
           <DateSelectionRow
             introLabel="Date on which the expense value is set"
+            model={this.props.model}
             setDateFunction={this.setValueSet}
             inputName="expense valuation date"
             inputValue={this.state.VALUE_SET}
@@ -278,38 +298,38 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
     );
   }
 
-  private handleNameChange(e: any) {
+  private handleNameChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
     this.setState({ NAME: value });
   }
-  private handleGrowthChange(e: any) {
+  private handleGrowthChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
     this.setState({ GROWTH: value });
   }
-  private handleRecurrenceChange(e: any) {
+  private handleRecurrenceChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
     this.setState({ RECURRENCE: value });
   }
-  private handleCategoryChange(e: any) {
+  private handleCategoryChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
     this.setState({ CATEGORY: value });
   }
-  private handleGrowsWithCPIChange(e: any) {
+  private handleGrowsWithCPIChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
     this.setState({ GROWS_WITH_CPI: value });
   }
-  private handleValueChange(e: any) {
+  private handleValueChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
     this.setState({ VALUE: value });
   }
-  private setInputRevalue(e: any) {
+  private setInputRevalue(e: React.ChangeEvent<HTMLInputElement>) {
     e.preventDefault();
     this.setState({
       ...this.state,
       inputting: inputtingRevalue,
     });
   }
-  private setInputExpense(e: any) {
+  private setInputExpense(e: React.ChangeEvent<HTMLInputElement>) {
     e.preventDefault();
     this.setState({
       ...this.state,
@@ -322,25 +342,25 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
       VALUE_SET: value,
     });
   }
-  private handleValueSetChange(e: any): void {
+  private handleValueSetChange(e: React.ChangeEvent<HTMLInputElement>): void {
     const value = e.target.value;
     this.setValueSet(value);
   }
   private setStart(value: string): void {
     this.setState({ START: value });
   }
-  private handleStartChange(e: any): void {
+  private handleStartChange(e: React.ChangeEvent<HTMLInputElement>): void {
     const value = e.target.value;
     this.setStart(value);
   }
   private setEnd(value: string): void {
     this.setState({ END: value });
   }
-  private handleEndChange(e: any): void {
+  private handleEndChange(e: React.ChangeEvent<HTMLInputElement>): void {
     const value = e.target.value;
     this.setEnd(value);
   }
-  private async revalue(e: any): Promise<void> {
+  private async revalue(e: React.ChangeEvent<HTMLInputElement>): Promise<void> {
     e.preventDefault();
 
     const parseVal = makeValueAbsPropFromString(this.state.VALUE);
@@ -390,14 +410,17 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
       alert(message);
       return;
     }
-    await this.props.submitTransactionFunction(revalueExpenseTransaction);
+    await this.props.submitTransactionFunction(
+      revalueExpenseTransaction,
+      this.props.model,
+    );
 
     alert('added new data');
     // clear fields
     this.setState(this.defaultState);
     return;
   }
-  private add(e: any): void {
+  private async add(e: any): Promise<void> {
     e.preventDefault();
 
     const isNotANumber = !isNumberString(this.state.VALUE);
@@ -455,13 +478,13 @@ export class AddDeleteExpenseForm extends Component<EditProps, EditFormState> {
     if (message.length > 0) {
       alert(message);
     } else {
-      this.props.submitFunction(expense);
+      await this.props.submitFunction(expense, this.props.model);
       alert('added new expense');
       // clear fields
       this.setState(this.defaultState);
     }
   }
-  private async delete(e: any) {
+  private async delete(e: React.ChangeEvent<HTMLInputElement>) {
     e.preventDefault();
     // log('deleting something ' + showObj(this));
     if (await this.props.deleteFunction(this.state.NAME)) {

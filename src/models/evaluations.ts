@@ -800,7 +800,7 @@ function settleUpTax(
 }
 
 function handleLiability(
-  liability: any,
+  liability: string,
   type: string, // "income" or "NI"
   incomeValue: number,
   liableIncomeInTaxYear: Map<string, Map<string, number>>,
@@ -1291,22 +1291,17 @@ function revalueApplied(
     const matchingAsset = model.assets.find(a => {
       return a.NAME === w;
     });
-    if(matchingAsset !== undefined){
+    if (matchingAsset !== undefined) {
       const liabilities = matchingAsset.LIABILITY.split(separator);
       liabilities.forEach(l => {
-        if(l.endsWith(incomeTax)){
-          if(prevValue === undefined){
-            log(`WARNING : no prev value found for revalue`);            
+        if (l.endsWith(incomeTax)) {
+          if (prevValue === undefined) {
+            log(`WARNING : no prev value found for revalue`);
           } else {
             const gain = tToValue - prevValue;
-            if(gain > 0){
+            if (gain > 0) {
               // log(`handle liability ${l} with gain ${gain}`);
-              handleLiability(
-                l,
-                incomeTax,
-                gain,
-                liableIncomeInTaxYear,
-              );
+              handleLiability(l, incomeTax, gain, liableIncomeInTaxYear);
             }
           }
         }
@@ -1769,13 +1764,8 @@ function processTransactionMoment(
   // Some transactions are simple Revalues.  They have no
   // FROM and a value for TO.  Code similar to application
   // of growth to assets, except we know the new value.
-  if (revalueApplied(
-    t, 
-    moment, 
-    values, 
-    evaluations, 
-    liableIncomeInTaxYear, 
-    model)
+  if (
+    revalueApplied(t, moment, values, evaluations, liableIncomeInTaxYear, model)
   ) {
     return;
   }

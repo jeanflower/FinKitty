@@ -1038,10 +1038,10 @@ export function checkTransaction(t: DbTransaction, model: DbModelData): string {
 export function checkTrigger(t: DbTrigger): string {
   // log(`check trigger ${showObj(t)}`);
   if (t.NAME.length === 0) {
-    return 'Trigger name needs some characters';
+    return 'Date name needs some characters';
   }
   if (!checkDate(t.DATE)) {
-    return `Your important dats is not valid : ${t.DATE}`;
+    return `Your important date is not valid : ${t.DATE}`;
   }
   return '';
 }

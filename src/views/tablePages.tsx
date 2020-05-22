@@ -413,7 +413,7 @@ const defaultColumn = {
   sortable: true,
 };
 
-function getCols(model: DbModelData, isDebt: boolean) {
+function getAssetOrDebtCols(model: DbModelData, isDebt: boolean) {
   let cols: any[] = [
     {
       ...defaultColumn,
@@ -557,7 +557,7 @@ export function assetsOrDebtsTableDiv(model: DbModelData, isDebt: boolean) {
               return handleAssetGridRowsUpdated(model, arguments);
             }}
             rows={assetsOrDebtsForTable(model, isDebt)}
-            columns={getCols(model, isDebt)}
+            columns={getAssetOrDebtCols(model, isDebt)}
             deleteFunction={deleteAsset}
           />
         </div>
@@ -718,16 +718,17 @@ function makeTransactionCols(model: DbModelData, type: string) {
     type !== revalueInc &&
     type !== revalueExp &&
     type !== revalueAsset &&
-    type !== revalueDebt &&
-    type !== autogen
+    type !== revalueDebt
   ) {
-    cols = cols.concat([
-      {
-        ...defaultColumn,
-        key: 'RECURRENCE',
-        name: 'recurrence',
-      },
-    ]);
+    if (type !== autogen) {
+      cols = cols.concat([
+        {
+          ...defaultColumn,
+          key: 'RECURRENCE',
+          name: 'recurrence',
+        },
+      ]);
+    }
     if (type !== payOffDebt) {
       cols = cols.concat([
         {
@@ -869,7 +870,7 @@ export function transactionsTableDiv(model: DbModelData, type: string) {
           columns={makeTransactionCols(model, type)}
           deleteFunction={(name: string) => {
             const completeName = makeCompleteName(name, type);
-            deleteTransaction(completeName);
+            return deleteTransaction(completeName);
           }}
         />
       </div>
@@ -899,7 +900,9 @@ export function triggersTableDiv(model: DbModelData) {
         <div className="dataGridTriggers">
           <DataGrid
             deleteFunction={deleteTrigger}
-            handleGridRowsUpdated={handleTriggerGridRowsUpdated}
+            handleGridRowsUpdated={function() {
+              return handleTriggerGridRowsUpdated(model, arguments);
+            }}
             rows={triggersForTable(model)}
             columns={[
               {
@@ -1194,7 +1197,9 @@ export function settingsTableDiv(model: DbModelData) {
     >
       <DataGrid
         deleteFunction={deleteSetting}
-        handleGridRowsUpdated={handleSettingGridRowsUpdated}
+        handleGridRowsUpdated={function() {
+          return handleSettingGridRowsUpdated(model, arguments);
+        }}
         rows={settingsForTable(model)}
         columns={[
           {

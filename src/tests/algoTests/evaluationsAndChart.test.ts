@@ -55,6 +55,7 @@ import {
   revalueExp,
   revalueInc,
   revalueAsset,
+  taxableBenefit,
 } from '../../localization/stringConstants';
 import {
   ChartDataPoint,
@@ -13173,31 +13174,32 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 2, 2018 00:00:00',
     };
+    const assetName = `${taxableBenefit} medical`;
     const model: DbModelData = {
       ...emptyModel,
       transactions: [
         {
           ...simpleTransaction,
           NAME: 'Revalue of medical',
-          TO: 'medicalBenefit',
+          TO: assetName,
           TO_VALUE: '100000',
           DATE: 'March 5 2018',
           TYPE: revalueAsset,
-        },        
+        },
         {
           ...simpleTransaction,
           NAME: 'Revalue medical asset',
-          TO: 'medicalBenefit',
+          TO: assetName,
           TO_ABSOLUTE: false,
           TO_VALUE: '0',
           DATE: 'March 6 2018',
           TYPE: revalueAsset,
-        },        
+        },
       ],
       assets: [
         {
           ...simpleAsset,
-          NAME: 'medicalBenefit',
+          NAME: assetName,
           START: 'January 1 2018',
           VALUE: '0',
           GROWTH: '12',
@@ -13221,19 +13223,19 @@ describe('evaluations tests', () => {
 
     expect(evals.length).toBe(14);
     expectEvals(evals, 0, 'Cash', 'Mon Jan 01 2018', 0, -1);
-    expectEvals(evals, 1, 'medicalBenefit', 'Mon Jan 01 2018', 0, -1);
+    expectEvals(evals, 1, `${assetName}`, 'Mon Jan 01 2018', 0, -1);
     expectEvals(evals, 2, 'Cash', 'Thu Feb 01 2018', 0, -1);
-    expectEvals(evals, 3, 'medicalBenefit', 'Thu Feb 01 2018', 0, -1);
+    expectEvals(evals, 3, `${assetName}`, 'Thu Feb 01 2018', 0, -1);
     expectEvals(evals, 4, 'Cash', 'Thu Mar 01 2018', 0, -1);
-    expectEvals(evals, 5, 'medicalBenefit', 'Thu Mar 01 2018', 0, -1);
-    expectEvals(evals, 6, 'medicalBenefit', 'Mon Mar 05 2018', 100000, -1);
-    expectEvals(evals, 7, 'medicalBenefit', 'Tue Mar 06 2018', 0, -1);
+    expectEvals(evals, 5, `${assetName}`, 'Thu Mar 01 2018', 0, -1);
+    expectEvals(evals, 6, `${assetName}`, 'Mon Mar 05 2018', 100000, -1);
+    expectEvals(evals, 7, `${assetName}`, 'Tue Mar 06 2018', 0, -1);
     expectEvals(evals, 8, 'Cash', 'Sun Apr 01 2018', 0, -1);
-    expectEvals(evals, 9, 'medicalBenefit', 'Sun Apr 01 2018', 0, -1);
+    expectEvals(evals, 9, `${assetName}`, 'Sun Apr 01 2018', 0, -1);
     expectEvals(evals, 10, 'Cash', 'Thu Apr 05 2018', -27500, -1);
     expectEvals(evals, 11, 'TaxPot', 'Thu Apr 05 2018', 27500, -1);
     expectEvals(evals, 12, 'Cash', 'Tue May 01 2018', -27500, -1);
-    expectEvals(evals, 13, 'medicalBenefit', 'Tue May 01 2018', 0, -1);
+    expectEvals(evals, 13, `${assetName}`, 'Tue May 01 2018', 0, -1);
 
     const result = makeChartDataFromEvaluations(
       {
@@ -13251,20 +13253,20 @@ describe('evaluations tests', () => {
     expect(result.assetData.length).toBe(1);
     expect(result.assetData[0].item.NAME).toBe('Cash');
     {
-    const chartPts = result.assetData[0].chartDataPoints;      expect(chartPts.length).toBe(6);
-    expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0,    -1);
-    expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0,    -1);
-    expectChartData(chartPts, 2, 'Thu Feb 01 2018', 0,    -1);
-    expectChartData(chartPts, 3, 'Thu Mar 01 2018', 0,    -1);
-    expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0,    -1);
-    expectChartData(chartPts, 5, 'Tue May 01 2018', -27500,    -1);
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 0, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 0, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', -27500, -1);
     }
-    
+
     expect(result.debtData.length).toBe(0);
 
     done();
   });
-
 
   // CGT on selling some cars ???
 });

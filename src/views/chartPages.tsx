@@ -90,7 +90,7 @@ function makeFiltersList(
   const buttons = categories.map(category => (
     <Button
       key={category}
-      action={(e: any) => {
+      action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.persist();
         // when a button is clicked,
         // go to change the settings value
@@ -128,7 +128,7 @@ function coarseFineList(model: DbModelData) {
   const buttons = viewTypes.map(viewType => (
     <Button
       key={viewType}
-      action={(e: any) => {
+      action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.persist();
         // when a button is clicked,
         // go to change the settings value
@@ -313,7 +313,7 @@ function assetsOrDebtsButtonList(model: DbModelData, isDebt: boolean) {
   const buttons = assetOrDebtNames.map(assetOrDebt => (
     <Button
       key={assetOrDebt}
-      action={(e: any) => {
+      action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.persist();
         // when a button is clicked,
         // go to change the settings value
@@ -356,7 +356,7 @@ function assetViewTypeList(model: DbModelData) {
   const buttons = viewTypes.map(viewType => (
     <Button
       key={viewType}
-      action={(e: any) => {
+      action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.persist();
         // when a button is clicked,
         // go to change the settings value

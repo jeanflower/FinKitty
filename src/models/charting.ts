@@ -52,7 +52,10 @@ import {
   getTriggerDate,
 } from '../utils';
 
-function logMapOfMap(twoMap: any, display = false) {
+function logMapOfMap(
+  twoMap: Map<string, Map<string, number>>,
+  display = false,
+) {
   if (display) {
     log('twoMap:');
     for (const [key, value] of twoMap) {

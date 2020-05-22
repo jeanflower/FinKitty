@@ -27,7 +27,7 @@ export function incomesDiv(model: DbModelData, incomesChartData: ChartData[]) {
   return (
     <div style={{ display: getDisplay(incomesView) ? 'block' : 'none' }}>
       <Button
-        action={(event: any) => {
+        action={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
           event.persist();
           toggleDisplay(incomesChart);
         }}
@@ -39,7 +39,7 @@ export function incomesDiv(model: DbModelData, incomesChartData: ChartData[]) {
         id="toggle-incomesChart"
       />
       <Button
-        action={(event: any) => {
+        action={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
           event.persist();
           toggleDisplay(incomesTable);
         }}

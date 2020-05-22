@@ -5,22 +5,27 @@ import { log, printDebug, showObj, makeDateFromString } from '../../utils';
 import Button from './Button';
 import Input from './Input';
 
-interface EditFormState {
+interface EditTriggerFormState {
   NAME: string;
   DATE: string;
 }
-interface EditProps {
-  checkFunction: any;
-  submitFunction: any;
-  deleteFunction: any;
+interface EditTriggerProps {
+  checkFunction: (t: DbTrigger, modelData: DbModelData) => string;
+  submitFunction: (
+    triggerInput: DbTrigger,
+    modelData: DbModelData,
+  ) => Promise<void>;
+  deleteFunction: (settingName: string) => Promise<boolean>;
   showTriggerTable: any;
   model: DbModelData;
 }
 
-export function newTriggerButtonData(submitTriggerFunction: any) {
+export function newTriggerButtonData(
+  submitTriggerFunction: (e: DbTrigger) => void,
+) {
   return {
     text: 'Make new important date',
-    action: async (e: any) => {
+    action: async (e: React.ChangeEvent<HTMLInputElement>) => {
       // e.persist();
       e.preventDefault();
       const nameString = prompt('Name for new important date', '');
@@ -45,10 +50,13 @@ export function newTriggerButtonData(submitTriggerFunction: any) {
     },
   };
 }
-export class AddDeleteTriggerForm extends Component<EditProps, EditFormState> {
-  public defaultState: EditFormState;
+export class AddDeleteTriggerForm extends Component<
+  EditTriggerProps,
+  EditTriggerFormState
+> {
+  public defaultState: EditTriggerFormState;
 
-  public constructor(props: EditProps) {
+  public constructor(props: EditTriggerProps) {
     super(props);
     if (printDebug()) {
       log(`props for AddDeleteIncomeForm has
@@ -110,11 +118,11 @@ export class AddDeleteTriggerForm extends Component<EditProps, EditFormState> {
     );
   }
 
-  private handleName(e: any) {
+  private handleName(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
     this.setState({ NAME: value });
   }
-  private handleValueChange(e: any) {
+  private handleValueChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
     this.setState({ DATE: value });
   }
@@ -131,7 +139,7 @@ export class AddDeleteTriggerForm extends Component<EditProps, EditFormState> {
     if (message.length > 0) {
       alert(message);
     } else {
-      await this.props.submitFunction(trigger);
+      await this.props.submitFunction(trigger, this.props.model);
       // alert('added new important date');
       this.props.showTriggerTable();
       // clear fields
@@ -139,7 +147,7 @@ export class AddDeleteTriggerForm extends Component<EditProps, EditFormState> {
       alert('added important date OK');
     }
   }
-  private async delete(e: any) {
+  private async delete(e: React.ChangeEvent<HTMLInputElement>) {
     e.preventDefault();
     // log('deleting something ' + showObj(this));
     if (await this.props.deleteFunction(this.state.NAME)) {

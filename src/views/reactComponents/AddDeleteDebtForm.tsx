@@ -1,7 +1,12 @@
 import React, { Component } from 'react';
 
 import { isNumberString } from '../../models/checks';
-import { DbAsset, DbModelData, DbTransaction } from '../../types/interfaces';
+import {
+  DbAsset,
+  DbModelData,
+  DbTransaction,
+  DbTrigger,
+} from '../../types/interfaces';
 import {
   checkTriggerDate,
   log,
@@ -21,7 +26,7 @@ import {
   CASH_ASSET_NAME,
 } from '../../localization/stringConstants';
 
-interface EditFormState {
+interface EditDebtFormState {
   NAME: string;
   VALUE: string;
   START: string;
@@ -30,23 +35,32 @@ interface EditFormState {
   PAYMENT: string;
   inputting: string;
 }
-interface EditProps {
-  checkAssetFunction: any;
-  submitAssetFunction: any;
-  deleteAssetFunction: any;
-  checkTransactionFunction: any;
-  submitTransactionFunction: any;
-  submitTriggerFunction: any;
+interface EditDebtProps {
+  checkAssetFunction: (a: DbAsset, model: DbModelData) => string;
+  submitAssetFunction: (arg0: DbAsset, arg1: DbModelData) => Promise<void>;
+  deleteAssetFunction: (name: string) => Promise<boolean>;
+  checkTransactionFunction: (t: DbTransaction, model: DbModelData) => string;
+  submitTransactionFunction: (
+    transactionInput: DbTransaction,
+    modelData: DbModelData,
+  ) => Promise<void>;
+  submitTriggerFunction: (
+    triggerInput: DbTrigger,
+    modelData: DbModelData,
+  ) => Promise<void>;
   model: DbModelData;
 }
 
 const inputtingRevalue = 'revalue';
 const inputtingDebt = 'debt';
 
-export class AddDeleteDebtForm extends Component<EditProps, EditFormState> {
-  public defaultState: EditFormState;
+export class AddDeleteDebtForm extends Component<
+  EditDebtProps,
+  EditDebtFormState
+> {
+  public defaultState: EditDebtFormState;
 
-  public constructor(props: EditProps) {
+  public constructor(props: EditDebtProps) {
     super(props);
     if (printDebug()) {
       log(`props for AddDeleteDebtForm has
@@ -159,7 +173,7 @@ export class AddDeleteDebtForm extends Component<EditProps, EditFormState> {
     }
   }
 
-  private async revalue(e: any) {
+  private async revalue(e: React.ChangeEvent<HTMLInputElement>) {
     e.preventDefault();
 
     const parseVal = makeValueAbsPropFromString(`-${this.state.VALUE}`);
@@ -207,7 +221,10 @@ export class AddDeleteDebtForm extends Component<EditProps, EditFormState> {
       alert(message);
       return;
     }
-    await this.props.submitTransactionFunction(revalueTransaction);
+    await this.props.submitTransactionFunction(
+      revalueTransaction,
+      this.props.model,
+    );
 
     alert('added new data');
     // clear fields
@@ -275,7 +292,7 @@ export class AddDeleteDebtForm extends Component<EditProps, EditFormState> {
                   : 'secondary'
               }
               title={'Revalue debt'}
-              id="revalueDebt"
+              id="revalueDebtInputs"
             />
           </div>
           {/* end col */}
@@ -290,6 +307,7 @@ export class AddDeleteDebtForm extends Component<EditProps, EditFormState> {
                 ? 'revaluation occurs'
                 : 'debt starts'
             }`}
+            model={this.props.model}
             setDateFunction={this.setStart}
             inputName="start date"
             inputValue={this.state.START}
@@ -304,30 +322,30 @@ export class AddDeleteDebtForm extends Component<EditProps, EditFormState> {
     );
   }
 
-  private handleNameChange(e: any) {
+  private handleNameChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
     this.setState({ NAME: value });
   }
-  private handleGrowthChange(e: any) {
+  private handleGrowthChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
     this.setState({ GROWTH: value });
   }
-  private handlePaymentChange(e: any) {
+  private handlePaymentChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
     this.setState({ PAYMENT: value });
   }
-  private handleCategoryChange(e: any) {
+  private handleCategoryChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
     this.setState({ CATEGORY: value });
   }
-  private handleValueChange(e: any) {
+  private handleValueChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
     this.setState({ VALUE: value });
   }
   private setStart(value: string): void {
     this.setState({ START: value });
   }
-  private handleStartChange(e: any): void {
+  private handleStartChange(e: React.ChangeEvent<HTMLInputElement>): void {
     const value = e.target.value;
     this.setStart(value);
   }
@@ -379,7 +397,7 @@ export class AddDeleteDebtForm extends Component<EditProps, EditFormState> {
     if (message.length > 0) {
       alert(message);
     } else {
-      await this.props.submitAssetFunction(asset);
+      await this.props.submitAssetFunction(asset, this.props.model);
       if (this.state.PAYMENT !== '') {
         let count = 1;
         while (
@@ -405,15 +423,18 @@ export class AddDeleteDebtForm extends Component<EditProps, EditFormState> {
           TYPE: payOffDebt,
         };
         // log('adding something ' + showObj(transaction));
-        const message = this.props.checkTransactionFunction(
+        const message = await this.props.checkTransactionFunction(
           transaction,
           this.props.model,
         );
         if (message.length > 0) {
           alert(message);
-          await this.props.deleteAssetFunction(asset);
+          await this.props.deleteAssetFunction(asset.NAME);
         } else {
-          this.props.submitTransactionFunction(transaction);
+          await this.props.submitTransactionFunction(
+            transaction,
+            this.props.model,
+          );
           alert('added new debt and payment');
           // clear fields
           this.setState(this.defaultState);
@@ -426,7 +447,7 @@ export class AddDeleteDebtForm extends Component<EditProps, EditFormState> {
     }
   }
 
-  private async delete(e: any) {
+  private async delete(e: React.ChangeEvent<HTMLInputElement>) {
     e.preventDefault();
     // log('deleting something ' + showObj(this));
     if (await this.props.deleteAssetFunction(this.state.NAME)) {
@@ -437,14 +458,14 @@ export class AddDeleteDebtForm extends Component<EditProps, EditFormState> {
       alert(`failed to delete ${this.state.NAME}`);
     }
   }
-  private inputDebt(e: any) {
+  private inputDebt(e: React.ChangeEvent<HTMLInputElement>) {
     e.preventDefault();
     this.setState({
       ...this.state,
       inputting: inputtingDebt,
     });
   }
-  private inputRevalue(e: any) {
+  private inputRevalue(e: React.ChangeEvent<HTMLInputElement>) {
     e.preventDefault();
     this.setState({
       ...this.state,
