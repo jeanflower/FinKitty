@@ -26,6 +26,8 @@ import {
   assetChartFocusHint,
   viewDetail,
   viewDetailHint,
+  constType,
+  viewType,
 } from '../../localization/stringConstants';
 import {
   getModelCoarseAndFine,
@@ -33,6 +35,18 @@ import {
 } from '../algoTests/evaluationsAndChart.test';
 
 import webdriver from 'selenium-webdriver';
+import { DbSetting } from '../../types/interfaces';
+
+const simpleSetting: DbSetting = {
+  NAME: 'NoName',
+  VALUE: 'NoValue',
+  HINT: 'NoHint',
+  TYPE: constType,
+};
+const viewSetting: DbSetting = {
+  ...simpleSetting,
+  TYPE: viewType,
+};
 
 // Use sleeps to hack page-not-yet-ready issues. TODO : do better - check awaits.
 function sleep(ms: number, message: string) {
@@ -278,6 +292,7 @@ describe('Chrome Interaction simple', () => {
     expect(ary.length).toEqual(0);
 
     const forSubmission = {
+      ...viewSetting,
       NAME: roiEnd,
       VALUE: '1 March 2018',
       HINT: roiEndHint,
@@ -485,6 +500,7 @@ describe('Chrome Interaction simple', () => {
     await beforeAllWork(driver, testDataModelName, modelAndRoi.model);
 
     const forSubmission = {
+      ...viewSetting,
       NAME: viewDetail,
       VALUE: fine,
       HINT: viewDetailHint,
@@ -666,6 +682,7 @@ describe('Chrome Interaction simple', () => {
     // existing value for singleAssetName was allAssets;
     // now overwrite that for cash
     let forSubmission = {
+      ...viewSetting,
       NAME: assetChartFocus,
       VALUE: CASH_ASSET_NAME,
       HINT: assetChartFocusHint,
@@ -699,6 +716,7 @@ describe('Chrome Interaction simple', () => {
     expect(ary[0].dataPoints[3].ttip).toEqual('430.00 at Sun Jul 01 2018');
 
     forSubmission = {
+      ...viewSetting,
       NAME: assetChartView,
       VALUE: assetChartAdditions,
       HINT: assetChartFocusHint,
@@ -765,6 +783,7 @@ describe('Chrome Interaction simple', () => {
     expect(ary[2].dataPoints[3].ttip).toEqual('0.00 at Sun Jul 01 2018');
 
     forSubmission = {
+      ...viewSetting,
       NAME: assetChartView,
       VALUE: assetChartReductions,
       HINT: assetChartFocusHint,
@@ -814,6 +833,7 @@ describe('Chrome Interaction simple', () => {
     expect(ary[1].dataPoints[3].ttip).toEqual('0.00 at Sun Jul 01 2018');
 
     forSubmission = {
+      ...viewSetting,
       NAME: assetChartView,
       VALUE: assetChartDeltas,
       HINT: assetChartFocusHint,
@@ -919,6 +939,7 @@ describe('Chrome Interaction simple', () => {
     await beforeAllWork(driver, testDataModelName, modelAndRoi.model);
 
     let forSubmission = {
+      ...viewSetting,
       NAME: viewDetail,
       VALUE: fine,
       HINT: viewDetailHint,
@@ -934,6 +955,7 @@ describe('Chrome Interaction simple', () => {
       log(`model settings = ${showObj(modelAndRoi.model.settings)}`);
     }
     forSubmission = {
+      ...viewSetting,
       NAME: assetChartFocus,
       VALUE: 'Accessible',
       HINT: assetChartFocusHint,
@@ -995,6 +1017,7 @@ describe('Chrome Interaction simple', () => {
       return;
     }
     const modelAndRoi = getTestModel01();
+
     await beforeAllWork(driver, testDataModelName, modelAndRoi.model);
 
     await clickButton(driver, 'btn-Home');
@@ -1513,7 +1536,7 @@ describe('Chrome Interaction incomes', () => {
       pensionEndOrTransferDate: '2032', // transfer pension before pension begins paying out?
       message:
         'Transaction from unrecognised asset ' +
-        '(could be typo or before asset start date?) : "PensionDBCpensionName"',
+        '(could be typo or before asset start date?) : "PensionDBpensionName"',
       // TODO this message is mysterious
     });
 

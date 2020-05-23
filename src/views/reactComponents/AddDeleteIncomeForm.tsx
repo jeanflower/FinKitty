@@ -23,7 +23,7 @@ import Button from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
 import Input from './Input';
 import {
-  pensionDBC,
+  pensionDB,
   incomeTax,
   pension,
   pensionSS,
@@ -45,16 +45,16 @@ interface EditIncomeFormState {
   LIABILITY: string;
   CATEGORY: string;
   inputting: string;
-  DBC_INCOME_SOURCE: string;
-  DBC_CONTRIBUTION_AMOUNT: string;
-  DBC_ACCRUAL: string;
-  DBC_SS: string;
-  DBC_STOP_SOURCE: string;
-  DBC_START: string;
-  DBC_END: string;
-  DBC_TRANSFER_TO: string;
-  DBC_TRANSFER_PROPORTION: string;
-  DBC_TRANSFERRED_STOP: string;
+  DB_INCOME_SOURCE: string;
+  DB_CONTRIBUTION_AMOUNT: string;
+  DB_ACCRUAL: string;
+  DB_SS: string;
+  DB_STOP_SOURCE: string;
+  DB_START: string;
+  DB_END: string;
+  DB_TRANSFER_TO: string;
+  DB_TRANSFER_PROPORTION: string;
+  DB_TRANSFERRED_STOP: string;
 }
 
 const inputtingRevalue = 'revalue';
@@ -154,16 +154,16 @@ export class AddDeleteIncomeForm extends Component<
       LIABILITY: '',
       CATEGORY: '',
       inputting: inputtingIncome,
-      DBC_INCOME_SOURCE: '',
-      DBC_CONTRIBUTION_AMOUNT: '',
-      DBC_ACCRUAL: '',
-      DBC_SS: '',
-      DBC_STOP_SOURCE: '',
-      DBC_START: '',
-      DBC_END: '',
-      DBC_TRANSFER_TO: '',
-      DBC_TRANSFER_PROPORTION: '',
-      DBC_TRANSFERRED_STOP: '',
+      DB_INCOME_SOURCE: '',
+      DB_CONTRIBUTION_AMOUNT: '',
+      DB_ACCRUAL: '',
+      DB_SS: '',
+      DB_STOP_SOURCE: '',
+      DB_START: '',
+      DB_END: '',
+      DB_TRANSFER_TO: '',
+      DB_TRANSFER_PROPORTION: '',
+      DB_TRANSFERRED_STOP: '',
     };
 
     this.state = this.defaultState;
@@ -449,32 +449,32 @@ export class AddDeleteIncomeForm extends Component<
         {/*
  * name of pension
  * contribution from which income - ???
-DBC_INCOME_SOURCE
+DB_INCOME_SOURCE
  * contribution amount = £ or %
-DBC_CONTRIBUTION_AMOUNT
+DB_CONTRIBUTION_AMOUNT
  * annual accrual rate is a fraction (of annual income amount)
-DBC_ACCRUAL
+DB_ACCRUAL
  * whether it's salary sacrifice
-DBC_SS
+DB_SS
  * contribution stop date 
-DBC_STOP_SOURCE
+DB_STOP_SOURCE
  * growth rate
-DBC_GROWTH, DBC_CPI_IMMUNE
+DB_GROWTH, DB_CPI_IMMUNE
  * value - given all payments up to date value set - done
 VALUE
 handleDbcValueChange
  * date value set - expected to be "now" or start of model - done
 VALUE_SET
  * standard date of pension start  - done
-DBC_START
+DB_START
  * when to stop paying (someone dies)
-DBC_END
+DB_END
  * who to transfer to
-DBC_TRANSFER_TO
+DB_TRANSFER_TO
  - how much to transfer
-DBC_TRANSFER_PROPORTION
+DB_TRANSFER_PROPORTION
  - when to stop paying second person (someone dies)
-DBC_TRANSFERRED_STOP
+DB_TRANSFERRED_STOP
         */}
 
         <div className="container-fluid">
@@ -484,7 +484,7 @@ DBC_TRANSFERRED_STOP
             model={this.props.model}
             setDateFunction={this.setDbcStopSource}
             inputName="end date"
-            inputValue={this.state.DBC_STOP_SOURCE}
+            inputValue={this.state.DB_STOP_SOURCE}
             onChangeHandler={this.handleDbcStopSourceChange}
             triggers={this.props.model.triggers}
             submitTriggerFunction={this.props.submitTriggerFunction}
@@ -494,7 +494,7 @@ DBC_TRANSFERRED_STOP
             model={this.props.model}
             setDateFunction={this.setDbcStart}
             inputName="pension start date"
-            inputValue={this.state.DBC_START}
+            inputValue={this.state.DB_START}
             onChangeHandler={this.handleDbcStartChange}
             triggers={this.props.model.triggers}
             submitTriggerFunction={this.props.submitTriggerFunction}
@@ -504,7 +504,7 @@ DBC_TRANSFERRED_STOP
             model={this.props.model}
             setDateFunction={this.setDbcEnd}
             inputName="pension end/transfer date"
-            inputValue={this.state.DBC_END}
+            inputValue={this.state.DB_END}
             onChangeHandler={this.handleDbcEndChange}
             triggers={this.props.model.triggers}
             submitTriggerFunction={this.props.submitTriggerFunction}
@@ -515,7 +515,7 @@ DBC_TRANSFERRED_STOP
               model={this.props.model}
               setDateFunction={this.setDbcTransferredStop}
               inputName="transferred stop date"
-              inputValue={this.state.DBC_TRANSFERRED_STOP}
+              inputValue={this.state.DB_TRANSFERRED_STOP}
               onChangeHandler={this.handleDbcTransferredStopChange}
               triggers={this.props.model.triggers}
               submitTriggerFunction={this.props.submitTriggerFunction}
@@ -537,7 +537,7 @@ DBC_TRANSFERRED_STOP
               title="Is contribution salary-sacrificed (optional)"
               type="text"
               name="contributionSSIncome"
-              value={this.state.DBC_SS}
+              value={this.state.DB_SS}
               placeholder="Enter Y/N"
               onChange={this.handleDbcSsChange}
             />
@@ -551,7 +551,7 @@ DBC_TRANSFERRED_STOP
               title="Pension contribution amount (e.g. 0.05 for 5%, optional)"
               type="text"
               name="contributionAmountPensionIncome"
-              value={this.state.DBC_CONTRIBUTION_AMOUNT}
+              value={this.state.DB_CONTRIBUTION_AMOUNT}
               placeholder="Enter amount of contributions"
               onChange={this.handleDbcContAmount}
             />
@@ -562,7 +562,7 @@ DBC_TRANSFERRED_STOP
               title="Contribution accrual to annual benefit (e.g. 0.02 for 1/50, optional)"
               type="text"
               name="incomeaccrual"
-              value={this.state.DBC_ACCRUAL}
+              value={this.state.DB_ACCRUAL}
               placeholder="Enter accrual rate"
               onChange={this.handleDbcAccrualChange}
             />
@@ -577,7 +577,7 @@ DBC_TRANSFERRED_STOP
                 title="On death, pension transfers to (optional)"
                 type="text"
                 name="transferName"
-                value={this.state.DBC_TRANSFER_TO}
+                value={this.state.DB_TRANSFER_TO}
                 placeholder="Enter person to transfer to"
                 onChange={this.handleDbcTransferTo}
               />
@@ -587,7 +587,7 @@ DBC_TRANSFERRED_STOP
                 title="Proportion transferred on death (e.g. 0.5 for 50%, optional)"
                 type="text"
                 name="transferProportion"
-                value={this.state.DBC_TRANSFER_PROPORTION}
+                value={this.state.DB_TRANSFER_PROPORTION}
                 placeholder="Enter transfer proportion"
                 onChange={this.handleDbcTransferProportion}
               />
@@ -616,32 +616,32 @@ DBC_TRANSFERRED_STOP
     this.setState({ VALUE: e.target.value });
   }
   private handleDbcIncomeSourceChange(value: string) {
-    this.setState({ DBC_INCOME_SOURCE: value });
+    this.setState({ DB_INCOME_SOURCE: value });
   }
   private handleDbcSsChange(e: React.ChangeEvent<HTMLInputElement>) {
-    this.setState({ DBC_SS: e.target.value });
+    this.setState({ DB_SS: e.target.value });
   }
   private handleDbcAccrualChange(e: React.ChangeEvent<HTMLInputElement>) {
-    this.setState({ DBC_ACCRUAL: e.target.value });
+    this.setState({ DB_ACCRUAL: e.target.value });
   }
   private handleDbcTransferProportion(e: React.ChangeEvent<HTMLInputElement>) {
-    this.setState({ DBC_TRANSFER_PROPORTION: e.target.value });
+    this.setState({ DB_TRANSFER_PROPORTION: e.target.value });
   }
 
   private setDbcStopSource(value: string) {
-    this.setState({ DBC_STOP_SOURCE: value });
+    this.setState({ DB_STOP_SOURCE: value });
   }
   private handleDbcStopSourceChange(e: React.ChangeEvent<HTMLInputElement>) {
     this.setDbcStopSource(e.target.value);
   }
   private handleDbcTransferTo(e: React.ChangeEvent<HTMLInputElement>) {
-    this.setState({ DBC_TRANSFER_TO: e.target.value });
+    this.setState({ DB_TRANSFER_TO: e.target.value });
   }
   private handleDbcContAmount(e: React.ChangeEvent<HTMLInputElement>) {
-    this.setState({ DBC_CONTRIBUTION_AMOUNT: e.target.value });
+    this.setState({ DB_CONTRIBUTION_AMOUNT: e.target.value });
   }
   private setDbcTransferredStop(value: string) {
-    this.setState({ DBC_TRANSFERRED_STOP: value });
+    this.setState({ DB_TRANSFERRED_STOP: value });
   }
   private handleDbcTransferredStopChange(
     e: React.ChangeEvent<HTMLInputElement>,
@@ -650,7 +650,7 @@ DBC_TRANSFERRED_STOP
   }
 
   private setDbcEnd(value: string) {
-    this.setState({ DBC_END: value });
+    this.setState({ DB_END: value });
   }
   private handleDbcEndChange(e: React.ChangeEvent<HTMLInputElement>) {
     this.setDbcEnd(e.target.value);
@@ -664,7 +664,7 @@ DBC_TRANSFERRED_STOP
   }
 
   private setDbcStart(value: string): void {
-    this.setState({ DBC_START: value });
+    this.setState({ DB_START: value });
   }
   private handleDbcStartChange(e: React.ChangeEvent<HTMLInputElement>): void {
     const value = e.target.value;
@@ -804,44 +804,42 @@ DBC_TRANSFERRED_STOP
       // (g) submit transactions
       // (h) reset to defaults
 
-      const parseYNDBCSS = makeBooleanFromYesNo(this.state.DBC_SS);
-      if (this.state.DBC_INCOME_SOURCE !== '') {
-        if (!parseYNDBCSS.checksOK) {
-          alert(
-            `Salary sacrifice '${this.state.DBC_SS}' should be a Y/N value`,
-          );
+      const parseYNDBSS = makeBooleanFromYesNo(this.state.DB_SS);
+      if (this.state.DB_INCOME_SOURCE !== '') {
+        if (!parseYNDBSS.checksOK) {
+          alert(`Salary sacrifice '${this.state.DB_SS}' should be a Y/N value`);
           return;
         } else {
-          // log(`parseYNDBCSS = ${showObj(parseYNDBCSS)}`);
+          // log(`parseYNDBSS = ${showObj(parseYNDBSS)}`);
         }
 
-        isNotANumber = !isNumberString(this.state.DBC_CONTRIBUTION_AMOUNT);
+        isNotANumber = !isNumberString(this.state.DB_CONTRIBUTION_AMOUNT);
         if (isNotANumber) {
           alert(
-            `Contribution amount '${this.state.DBC_CONTRIBUTION_AMOUNT}' should be a numerical value`,
+            `Contribution amount '${this.state.DB_CONTRIBUTION_AMOUNT}' should be a numerical value`,
           );
           return;
         }
 
-        isNotANumber = !isNumberString(this.state.DBC_ACCRUAL);
+        isNotANumber = !isNumberString(this.state.DB_ACCRUAL);
         if (isNotANumber) {
           alert(
-            `Accrual value '${this.state.DBC_ACCRUAL}' should be a numerical value`,
+            `Accrual value '${this.state.DB_ACCRUAL}' should be a numerical value`,
           );
           return;
         }
       } else {
-        isNotANumber = !isNumberString(this.state.DBC_CONTRIBUTION_AMOUNT);
+        isNotANumber = !isNumberString(this.state.DB_CONTRIBUTION_AMOUNT);
         if (!isNotANumber) {
           alert(
-            `Contribution amount '${this.state.DBC_CONTRIBUTION_AMOUNT}' from no income?`,
+            `Contribution amount '${this.state.DB_CONTRIBUTION_AMOUNT}' from no income?`,
           );
           return;
         }
 
-        isNotANumber = !isNumberString(this.state.DBC_ACCRUAL);
+        isNotANumber = !isNumberString(this.state.DB_ACCRUAL);
         if (!isNotANumber) {
-          alert(`Accrual value '${this.state.DBC_ACCRUAL}' from no income?`);
+          alert(`Accrual value '${this.state.DB_ACCRUAL}' from no income?`);
           return;
         }
       }
@@ -856,10 +854,10 @@ DBC_TRANSFERRED_STOP
       }
 
       const sourceIncome = this.props.model.incomes.find(i => {
-        return i.NAME === this.state.DBC_INCOME_SOURCE;
+        return i.NAME === this.state.DB_INCOME_SOURCE;
       });
-      if (sourceIncome === undefined && this.state.DBC_INCOME_SOURCE !== '') {
-        alert(`${this.state.DBC_INCOME_SOURCE} not recognised as an income`);
+      if (sourceIncome === undefined && this.state.DB_INCOME_SOURCE !== '') {
+        alert(`${this.state.DB_INCOME_SOURCE} not recognised as an income`);
         return;
       } else if (sourceIncome) {
         const liabilities = sourceIncome.LIABILITY;
@@ -888,16 +886,16 @@ DBC_TRANSFERRED_STOP
         }
       }
       let builtLiability2: string | undefined;
-      if (this.state.DBC_TRANSFER_TO !== '') {
-        isNotANumber = !isNumberString(this.state.DBC_TRANSFER_PROPORTION);
+      if (this.state.DB_TRANSFER_TO !== '') {
+        isNotANumber = !isNumberString(this.state.DB_TRANSFER_PROPORTION);
         if (isNotANumber) {
           alert(
-            `Transfer proportion ${this.state.DBC_TRANSFER_PROPORTION} should be a numerical value`,
+            `Transfer proportion ${this.state.DB_TRANSFER_PROPORTION} should be a numerical value`,
           );
           return;
         }
         builtLiability2 = makeIncomeLiabilityFromNameAndNI(
-          this.state.DBC_TRANSFER_TO,
+          this.state.DB_TRANSFER_TO,
           false, // no NI payable
         );
         liabilityMessage = checkIncomeLiability(builtLiability2);
@@ -906,10 +904,10 @@ DBC_TRANSFERRED_STOP
           return;
         }
       }
-      const newIncomeName1 = pensionDBC + this.state.NAME;
+      const newIncomeName1 = pensionDB + this.state.NAME;
       const pensionDbcIncome1: DbIncome = {
-        START: this.state.DBC_START,
-        END: this.state.DBC_END,
+        START: this.state.DB_START,
+        END: this.state.DB_END,
         NAME: newIncomeName1,
         VALUE: this.state.VALUE,
         VALUE_SET: this.state.VALUE_SET,
@@ -928,11 +926,11 @@ DBC_TRANSFERRED_STOP
       }
       let pensionDbcIncome2: DbIncome | undefined;
       let newIncomeName2: string | undefined;
-      if (this.state.DBC_TRANSFER_TO !== '' && builtLiability2 !== undefined) {
+      if (this.state.DB_TRANSFER_TO !== '' && builtLiability2 !== undefined) {
         newIncomeName2 = pensionTransfer + this.state.NAME;
         pensionDbcIncome2 = {
-          START: this.state.DBC_START,
-          END: this.state.DBC_TRANSFERRED_STOP,
+          START: this.state.DB_START,
+          END: this.state.DB_TRANSFERRED_STOP,
           NAME: newIncomeName2,
           VALUE: '0.0',
           VALUE_SET: this.state.VALUE_SET,
@@ -963,17 +961,17 @@ DBC_TRANSFERRED_STOP
       }
       let pensionDbctran1: DbTransaction | undefined;
       let pensionDbctran2: DbTransaction | undefined;
-      if (this.state.DBC_INCOME_SOURCE !== '') {
+      if (this.state.DB_INCOME_SOURCE !== '') {
         pensionDbctran1 = {
-          NAME: (parseYNDBCSS.value ? pensionSS : pension) + this.state.NAME,
-          FROM: this.state.DBC_INCOME_SOURCE,
+          NAME: (parseYNDBSS.value ? pensionSS : pension) + this.state.NAME,
+          FROM: this.state.DB_INCOME_SOURCE,
           FROM_ABSOLUTE: false,
-          FROM_VALUE: this.state.DBC_CONTRIBUTION_AMOUNT,
+          FROM_VALUE: this.state.DB_CONTRIBUTION_AMOUNT,
           TO: '',
           TO_ABSOLUTE: false,
           TO_VALUE: '0.0',
           DATE: this.state.VALUE_SET, // match the income start date
-          STOP_DATE: this.state.DBC_STOP_SOURCE, // match the income stop date
+          STOP_DATE: this.state.DB_STOP_SOURCE, // match the income stop date
           RECURRENCE: '',
           CATEGORY: this.state.CATEGORY,
           TYPE: autogen,
@@ -991,20 +989,20 @@ DBC_TRANSFERRED_STOP
           }
           return;
         }
-        // log(`this.state.DBC_ACCRUAL = ${this.state.DBC_ACCRUAL}`);
-        const monthlyAccrualValue = `${parseFloat(this.state.DBC_ACCRUAL) /
+        // log(`this.state.DB_ACCRUAL = ${this.state.DB_ACCRUAL}`);
+        const monthlyAccrualValue = `${parseFloat(this.state.DB_ACCRUAL) /
           12.0}`;
         // log(`monthlyAccrualValue = ${monthlyAccrualValue}`);
         pensionDbctran2 = {
           NAME: newIncomeName1, // kicks in when we see income java
-          FROM: this.state.DBC_INCOME_SOURCE,
+          FROM: this.state.DB_INCOME_SOURCE,
           FROM_ABSOLUTE: false,
           FROM_VALUE: monthlyAccrualValue, // percentage of income offered up to pension
           TO: newIncomeName1,
           TO_ABSOLUTE: false,
           TO_VALUE: '1.0',
           DATE: this.state.VALUE_SET, // match the income start date
-          STOP_DATE: this.state.DBC_STOP_SOURCE, // match the income stop date
+          STOP_DATE: this.state.DB_STOP_SOURCE, // match the income stop date
           RECURRENCE: '',
           CATEGORY: this.state.CATEGORY,
           TYPE: autogen,
@@ -1024,7 +1022,7 @@ DBC_TRANSFERRED_STOP
         }
       }
       let pensionDbctran3: DbTransaction | undefined;
-      if (this.state.DBC_TRANSFER_TO !== '' && newIncomeName2) {
+      if (this.state.DB_TRANSFER_TO !== '' && newIncomeName2) {
         pensionDbctran3 = {
           NAME: newIncomeName2,
           FROM: newIncomeName1,
@@ -1032,9 +1030,9 @@ DBC_TRANSFERRED_STOP
           FROM_VALUE: '1.0',
           TO: newIncomeName2,
           TO_ABSOLUTE: false,
-          TO_VALUE: this.state.DBC_TRANSFER_PROPORTION,
-          DATE: this.state.DBC_END,
-          STOP_DATE: this.state.DBC_TRANSFERRED_STOP,
+          TO_VALUE: this.state.DB_TRANSFER_PROPORTION,
+          DATE: this.state.DB_END,
+          STOP_DATE: this.state.DB_TRANSFERRED_STOP,
           RECURRENCE: '',
           CATEGORY: this.state.CATEGORY,
           TYPE: autogen,

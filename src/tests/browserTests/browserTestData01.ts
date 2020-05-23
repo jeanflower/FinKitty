@@ -5,9 +5,10 @@ import {
   roiStart,
   payOffDebt,
   revalueAsset,
+  viewType,
 } from '../../localization/stringConstants';
 import { DbModelData } from '../../types/interfaces';
-import { setSetting, makeDateFromString } from '../../utils';
+import { setSetting, makeDateFromString, showObj } from '../../utils';
 import { browserTestSettings } from './browserBaseTypes';
 import {
   simpleAsset,
@@ -187,7 +188,7 @@ export function getTestModel01() {
       },
     ],
   };
-  setSetting(model.settings, roiStart, '1 Jan 2019');
-  setSetting(model.settings, roiEnd, '1 Feb 2019');
+  setSetting(model.settings, roiStart, '1 Jan 2019', viewType);
+  setSetting(model.settings, roiEnd, '1 Feb 2019', viewType);
   return { model, roi: { start: '1 Jan 2018', end: '1 Fed 2018' } };
 }

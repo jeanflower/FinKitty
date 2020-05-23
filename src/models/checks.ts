@@ -29,7 +29,7 @@ import {
   CASH_ASSET_NAME,
   conditional,
   pensionSS,
-  pensionDBC,
+  pensionDB,
   pensionTransfer,
   debtChartFocus,
   quantity,
@@ -99,7 +99,7 @@ function checkTransactionWords(
   let i = incomes.find(
     is =>
       is.NAME === word &&
-      (name.startsWith(pensionDBC) ||
+      (name.startsWith(pensionDB) ||
         name.startsWith(pensionSS) ||
         getTriggerDate(is.START, triggers) <= getTriggerDate(date, triggers)),
   );
@@ -109,7 +109,7 @@ function checkTransactionWords(
     if (
       !name.startsWith(pension) && // transfer out of income to pension
       !name.startsWith(pensionSS) && // transfer out of income for contribution
-      !name.startsWith(pensionDBC) && // transfer from income to pension benefit
+      !name.startsWith(pensionDB) && // transfer from income to pension benefit
       !name.startsWith(pensionTransfer) // transfer from one pension to another
     ) {
       log(`Transaction ${name} from income
@@ -364,7 +364,7 @@ function checkTransactionTo(
 ) {
   const a = assetsForChecking.find(as => as.NAME === word);
   if (a !== undefined) {
-    if (t.NAME.startsWith(pensionDBC)) {
+    if (t.NAME.startsWith(pensionDB)) {
       return `Transaction ${getDisplayName(
         t.NAME,
         t.TYPE,
@@ -383,24 +383,24 @@ function checkTransactionTo(
   if (i !== undefined) {
     if (
       !t.NAME.startsWith(revalue) &&
-      !t.NAME.startsWith(pensionDBC) &&
+      !t.NAME.startsWith(pensionDB) &&
       !t.NAME.startsWith(pensionTransfer)
     ) {
       return (
         `Transactions to incomes must begin '${revalue}' ` +
-        `or '${pensionDBC} or ${pensionTransfer}`
+        `or '${pensionDB} or ${pensionTransfer}`
       );
     }
-    if (t.NAME.startsWith(pensionDBC)) {
-      if (!i.NAME.startsWith(pensionDBC)) {
+    if (t.NAME.startsWith(pensionDB)) {
+      if (!i.NAME.startsWith(pensionDB)) {
         return `Transaction ${getDisplayName(
           t.NAME,
           t.TYPE,
-        )} must have TO income ${t.TO} named starting ${pensionDBC}`;
+        )} must have TO income ${t.TO} named starting ${pensionDB}`;
       }
     }
     // transacting on an income - check dates
-    if (!t.NAME.startsWith(pensionDBC)) {
+    if (!t.NAME.startsWith(pensionDB)) {
       if (
         getTriggerDate(i.START, triggers) > getTriggerDate(t.DATE, triggers)
       ) {
@@ -550,7 +550,7 @@ function isAutogenType(t: DbTransaction, model: DbModelData) {
     recognised = true;
   }
   /*
-    Transfer DBC pension
+    Transfer DB pension
         transfer = {
           NAME: 'Transfer' + crystallizedPension + this.state.NAME,
           FROM: asset3Name, // crystallized for one person
@@ -588,15 +588,15 @@ function isAutogenType(t: DbTransaction, model: DbModelData) {
 
   /*
       const pensionDbctran1: DbTransaction = {
-        NAME: (parseYNDBCSS.value ? pensionSS : pension) + this.state.NAME,
-        FROM: this.state.DBC_INCOME_SOURCE,
+        NAME: (parseYNDBSS.value ? pensionSS : pension) + this.state.NAME,
+        FROM: this.state.DB_INCOME_SOURCE,
         FROM_ABSOLUTE: false,
-        FROM_VALUE: this.state.DBC_CONTRIBUTION_AMOUNT,
+        FROM_VALUE: this.state.DB_CONTRIBUTION_AMOUNT,
         TO: '',
         TO_ABSOLUTE: false,
         TO_VALUE: '0.0',
         DATE: this.state.VALUE_SET, // match the income start date
-        STOP_DATE: this.state.DBC_STOP_SOURCE, // match the income stop date
+        STOP_DATE: this.state.DB_STOP_SOURCE, // match the income stop date
         RECURRENCE: '',
         CATEGORY: this.state.CATEGORY,
         TYPE: autogen,
@@ -627,22 +627,22 @@ function isAutogenType(t: DbTransaction, model: DbModelData) {
   }
   /*
         NAME: newIncomeName1, // kicks in when we see income java
-        FROM: this.state.DBC_INCOME_SOURCE,
+        FROM: this.state.DB_INCOME_SOURCE,
         FROM_ABSOLUTE: false,
         FROM_VALUE: monthlyAccrualValue, // percentage of income offered up to pension
         TO: newIncomeName1,
         TO_ABSOLUTE: false,
         TO_VALUE: '1.0',
         DATE: this.state.VALUE_SET, // match the income start date
-        STOP_DATE: this.state.DBC_STOP_SOURCE, // match the income stop date
+        STOP_DATE: this.state.DB_STOP_SOURCE, // match the income stop date
         RECURRENCE: '',
         CATEGORY: this.state.CATEGORY,
         TYPE: autogen,
 */
   // A defined benefits pension
-  // accrues an amount to an income pensionDBC*
+  // accrues an amount to an income pensionDB*
   if (
-    t.NAME.startsWith(pensionDBC) &&
+    t.NAME.startsWith(pensionDB) &&
     isAnIncome(t.FROM, model) &&
     t.FROM_ABSOLUTE === false &&
     t.TO_ABSOLUTE === false &&
@@ -659,9 +659,9 @@ function isAutogenType(t: DbTransaction, model: DbModelData) {
           FROM_VALUE: '1.0',
           TO: newIncomeName2,
           TO_ABSOLUTE: false,
-          TO_VALUE: this.state.DBC_TRANSFER_PROPORTION,
-          DATE: this.state.DBC_END,
-          STOP_DATE: this.state.DBC_TRANSFERRED_STOP,
+          TO_VALUE: this.state.DB_TRANSFER_PROPORTION,
+          DATE: this.state.DB_END,
+          STOP_DATE: this.state.DB_TRANSFERRED_STOP,
           RECURRENCE: '',
           CATEGORY: this.state.CATEGORY,
           TYPE: autogen,
@@ -670,7 +670,7 @@ function isAutogenType(t: DbTransaction, model: DbModelData) {
   if (
     t.NAME.startsWith(pensionTransfer) &&
     isAnIncome(t.FROM, model) &&
-    t.FROM.startsWith(pensionDBC) &&
+    t.FROM.startsWith(pensionDB) &&
     t.FROM_ABSOLUTE === false &&
     t.TO.startsWith(pensionTransfer) &&
     t.TO_ABSOLUTE === false &&
@@ -777,7 +777,7 @@ function isCustomType(t: DbTransaction) {
   if (
     !t.NAME.startsWith(conditional) &&
     !t.NAME.startsWith(crystallizedPension) &&
-    !t.NAME.startsWith(pensionDBC) &&
+    !t.NAME.startsWith(pensionDB) &&
     //!t.NAME.startsWith(pensionSS) &&
     !t.NAME.startsWith(revalue)
   ) {
@@ -899,7 +899,7 @@ export function checkTransaction(t: DbTransaction, model: DbModelData): string {
     if (
       t.NAME.startsWith(pension) ||
       t.NAME.startsWith(pensionSS) ||
-      t.NAME.startsWith(pensionDBC)
+      t.NAME.startsWith(pensionDB)
     ) {
       return (
         `Pension transaction ${getDisplayName(

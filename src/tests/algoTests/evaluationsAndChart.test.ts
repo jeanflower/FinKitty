@@ -46,7 +46,7 @@ import {
   growth,
   pension,
   pensionSS,
-  pensionDBC,
+  pensionDB,
   total,
   custom,
   liquidateAsset,
@@ -287,7 +287,7 @@ function printTestCodeForChart(result: DataForView) {
   log(toPrint);
 }
 
-const testJSONRoundTrip = true;
+const testJSONRoundTrip = false;
 
 function getTestEvaluations(model: DbModelData): Evaluation[] {
   if (!testJSONRoundTrip) {
@@ -8289,7 +8289,7 @@ describe('evaluations tests', () => {
           ...simpleIncome,
           START: 'pensionStartDraw',
           END: 'pensionStopDraw',
-          NAME: pensionDBC + 'incomeFromNorwich',
+          NAME: pensionDB + 'incomeFromNorwich',
           VALUE: '50',
           VALUE_SET: 'January 1 2018',
           LIABILITY: 'Joe' + incomeTax,
@@ -8308,11 +8308,11 @@ describe('evaluations tests', () => {
         },
         {
           ...simpleTransaction,
-          NAME: pensionDBC + 'NorwichBenefitAccrual', // kicks in when we see income java
+          NAME: pensionDB + 'NorwichBenefitAccrual', // kicks in when we see income java
           FROM: 'java', // not an asset but an income!!
           FROM_ABSOLUTE: false,
           FROM_VALUE: '' + 1.0 / 49, // percentage of income offered up to pension
-          TO: pensionDBC + 'incomeFromNorwich', // not an asset but a DBC income!!
+          TO: pensionDB + 'incomeFromNorwich', // not an asset but a DB income!!
           TO_ABSOLUTE: false,
           TO_VALUE: '1.0',
           DATE: 'javaStartTrigger', // match the income start date
@@ -8341,7 +8341,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       0,
-      'PensionDBCincomeFromNorwich',
+      'PensionDBincomeFromNorwich',
       'Sat Feb 10 2018',
       50,
       -1,
@@ -8350,7 +8350,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       2,
-      'PensionDBCincomeFromNorwich',
+      'PensionDBincomeFromNorwich',
       'Sat Mar 10 2018',
       50,
       -1,
@@ -8359,7 +8359,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       4,
-      'PensionDBCincomeFromNorwich',
+      'PensionDBincomeFromNorwich',
       'Sat Mar 10 2018',
       10050,
       -1,
@@ -8373,7 +8373,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       11,
-      'PensionDBCincomeFromNorwich',
+      'PensionDBincomeFromNorwich',
       'Tue Apr 10 2018',
       10050,
       -1,
@@ -8382,7 +8382,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       13,
-      'PensionDBCincomeFromNorwich',
+      'PensionDBincomeFromNorwich',
       'Thu May 10 2018',
       10050,
       -1,
@@ -8391,7 +8391,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       15,
-      'PensionDBCincomeFromNorwich',
+      'PensionDBincomeFromNorwich',
       'Sun Jun 10 2018',
       10050,
       -1,
@@ -8425,7 +8425,7 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 5, 'Wed Aug 01 2018', 0, -1);
     }
 
-    expect(result.incomesData[1].item.NAME).toBe('PensionDBCincomeFromNorwich');
+    expect(result.incomesData[1].item.NAME).toBe('PensionDBincomeFromNorwich');
     {
       const chartPts = result.incomesData[1].chartDataPoints;
       expect(chartPts.length).toBe(6);
@@ -8493,7 +8493,7 @@ describe('evaluations tests', () => {
           ...simpleIncome,
           START: 'pensionStartDraw',
           END: 'pensionStopDraw',
-          NAME: pensionDBC + 'incomeFromNorwich',
+          NAME: pensionDB + 'incomeFromNorwich',
           VALUE: '50',
           VALUE_SET: 'January 1 2018',
           LIABILITY: 'Joe' + incomeTax,
@@ -8513,11 +8513,11 @@ describe('evaluations tests', () => {
         },
         {
           ...simpleTransaction,
-          NAME: pensionDBC + 'NorwichBenefitAccrual', // kicks in when we see income java
+          NAME: pensionDB + 'NorwichBenefitAccrual', // kicks in when we see income java
           FROM: 'java', // not an asset but an income!!
           FROM_ABSOLUTE: false,
           FROM_VALUE: '' + 1.0 / 49, // percentage of income offered up to pension
-          TO: pensionDBC + 'incomeFromNorwich', // not an asset but a DBC income!!
+          TO: pensionDB + 'incomeFromNorwich', // not an asset but a DB income!!
           TO_ABSOLUTE: false,
           TO_VALUE: '1.0',
           DATE: 'javaStartTrigger', // match the income start date
@@ -8546,7 +8546,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       0,
-      'PensionDBCincomeFromNorwich',
+      'PensionDBincomeFromNorwich',
       'Sat Feb 10 2018',
       50,
       -1,
@@ -8555,7 +8555,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       2,
-      'PensionDBCincomeFromNorwich',
+      'PensionDBincomeFromNorwich',
       'Sat Mar 10 2018',
       50,
       -1,
@@ -8564,7 +8564,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       4,
-      'PensionDBCincomeFromNorwich',
+      'PensionDBincomeFromNorwich',
       'Sat Mar 10 2018',
       10050,
       -1,
@@ -8578,7 +8578,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       11,
-      'PensionDBCincomeFromNorwich',
+      'PensionDBincomeFromNorwich',
       'Tue Apr 10 2018',
       10050,
       -1,
@@ -8587,7 +8587,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       13,
-      'PensionDBCincomeFromNorwich',
+      'PensionDBincomeFromNorwich',
       'Thu May 10 2018',
       10050,
       -1,
@@ -8596,7 +8596,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       15,
-      'PensionDBCincomeFromNorwich',
+      'PensionDBincomeFromNorwich',
       'Sun Jun 10 2018',
       10050,
       -1,
@@ -8630,7 +8630,7 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 5, 'Wed Aug 01 2018', 0, -1);
     }
 
-    expect(result.incomesData[1].item.NAME).toBe('PensionDBCincomeFromNorwich');
+    expect(result.incomesData[1].item.NAME).toBe('PensionDBincomeFromNorwich');
     {
       const chartPts = result.incomesData[1].chartDataPoints;
       expect(chartPts.length).toBe(6);
@@ -8698,7 +8698,7 @@ describe('evaluations tests', () => {
           ...simpleIncome,
           START: 'pensionStartDraw',
           END: 'pensionStopDraw',
-          NAME: pensionDBC + 'incomeFromNorwich',
+          NAME: pensionDB + 'incomeFromNorwich',
           VALUE: '50',
           VALUE_SET: 'January 1 2018',
           LIABILITY: 'Joe' + incomeTax,
@@ -8717,11 +8717,11 @@ describe('evaluations tests', () => {
         },
         {
           ...simpleTransaction,
-          NAME: pensionDBC + 'NorwichBenefitAccrual', // kicks in when we see income java
+          NAME: pensionDB + 'NorwichBenefitAccrual', // kicks in when we see income java
           FROM: 'java', // not an asset but an income!!
           FROM_ABSOLUTE: false,
           FROM_VALUE: '' + 1.0 / 49, // percentage of income offered up to pension
-          TO: pensionDBC + 'incomeFromNorwich', // not an asset but a DBC income!!
+          TO: pensionDB + 'incomeFromNorwich', // not an asset but a DB income!!
           TO_ABSOLUTE: false,
           TO_VALUE: '1.0',
           DATE: 'javaStartTrigger', // match the income start date
@@ -8751,7 +8751,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       0,
-      'PensionDBCincomeFromNorwich',
+      'PensionDBincomeFromNorwich',
       'Sat Feb 10 2018',
       50.47,
       2,
@@ -8760,7 +8760,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       2,
-      'PensionDBCincomeFromNorwich',
+      'PensionDBincomeFromNorwich',
       'Sat Mar 10 2018',
       50.95,
       2,
@@ -8769,7 +8769,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       4,
-      'PensionDBCincomeFromNorwich',
+      'PensionDBincomeFromNorwich',
       'Sat Mar 10 2018',
       10241.63,
       2,
@@ -8783,7 +8783,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       11,
-      'PensionDBCincomeFromNorwich',
+      'PensionDBincomeFromNorwich',
       'Tue Apr 10 2018',
       10338.81,
       2,
@@ -8792,7 +8792,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       13,
-      'PensionDBCincomeFromNorwich',
+      'PensionDBincomeFromNorwich',
       'Thu May 10 2018',
       10436.91,
       2,
@@ -8801,7 +8801,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       15,
-      'PensionDBCincomeFromNorwich',
+      'PensionDBincomeFromNorwich',
       'Sun Jun 10 2018',
       10535.95,
       2,
@@ -8835,7 +8835,7 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 5, 'Wed Aug 01 2018', 0, -1);
     }
 
-    expect(result.incomesData[1].item.NAME).toBe('PensionDBCincomeFromNorwich');
+    expect(result.incomesData[1].item.NAME).toBe('PensionDBincomeFromNorwich');
     {
       const chartPts = result.incomesData[1].chartDataPoints;
       expect(chartPts.length).toBe(6);
@@ -8903,7 +8903,7 @@ describe('evaluations tests', () => {
           ...simpleIncome,
           START: 'pensionStartDraw',
           END: 'pensionStopDraw',
-          NAME: pensionDBC + 'incomeFromNorwich',
+          NAME: pensionDB + 'incomeFromNorwich',
           VALUE: '50',
           VALUE_SET: 'January 1 2018',
           LIABILITY: 'Joe' + incomeTax,
@@ -8922,11 +8922,11 @@ describe('evaluations tests', () => {
         },
         {
           ...simpleTransaction,
-          NAME: pensionDBC + 'NorwichBenefitAccrual', // kicks in when we see income java
+          NAME: pensionDB + 'NorwichBenefitAccrual', // kicks in when we see income java
           FROM: 'java', // not an asset but an income!!
           FROM_ABSOLUTE: false,
           FROM_VALUE: '' + 1.0 / 49, // percentage of income offered up to pension
-          TO: CASH_ASSET_NAME, // should fail checks - we expect a DBC income!!
+          TO: CASH_ASSET_NAME, // should fail checks - we expect a DB income!!
           TO_ABSOLUTE: false,
           TO_VALUE: '1.0',
           DATE: 'javaStartTrigger', // match the income start date
@@ -8997,7 +8997,7 @@ describe('evaluations tests', () => {
           ...simpleIncome,
           START: 'pensionStartDraw',
           END: 'pensionStopDraw',
-          NAME: pensionDBC + 'incomeFromNorwich',
+          NAME: pensionDB + 'incomeFromNorwich',
           VALUE: '50',
           VALUE_SET: 'January 1 2018',
           LIABILITY: 'Joe' + incomeTax,
@@ -9016,11 +9016,11 @@ describe('evaluations tests', () => {
         },
         {
           ...simpleTransaction,
-          NAME: pensionDBC + 'NorwichBenefitAccrual', // kicks in when we see income java
+          NAME: pensionDB + 'NorwichBenefitAccrual', // kicks in when we see income java
           FROM: 'java', // not an asset but an income!!
           FROM_ABSOLUTE: false,
           FROM_VALUE: '' + 1.0 / 49, // percentage of income offered up to pension
-          TO: 'java', // should fail checks - we expect a DBC income!!
+          TO: 'java', // should fail checks - we expect a DB income!!
           TO_ABSOLUTE: false,
           TO_VALUE: '1.0',
           DATE: 'javaStartTrigger', // match the income start date
@@ -9051,7 +9051,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('pay into defined benefits pension transaction must begin pensionDBC', done => {
+  it('pay into defined benefits pension transaction must begin pensionDB', done => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'August 2, 2018 00:00:00',
@@ -9091,7 +9091,7 @@ describe('evaluations tests', () => {
           ...simpleIncome,
           START: 'pensionStartDraw',
           END: 'pensionStopDraw',
-          NAME: pensionDBC + 'incomeFromNorwich',
+          NAME: pensionDB + 'incomeFromNorwich',
           VALUE: '50',
           VALUE_SET: 'January 1 2018',
           LIABILITY: 'Joe' + incomeTax,
@@ -9114,7 +9114,7 @@ describe('evaluations tests', () => {
           FROM: 'java', // not an asset but an income!!
           FROM_ABSOLUTE: false,
           FROM_VALUE: '' + 1.0 / 49, // percentage of income offered up to pension
-          TO: pensionDBC + 'incomeFromNorwich', // not an asset but a DBC income!!
+          TO: pensionDB + 'incomeFromNorwich', // not an asset but a DB income!!
           TO_ABSOLUTE: false,
           TO_VALUE: '1.0',
           DATE: 'javaStartTrigger', // match the income start date

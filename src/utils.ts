@@ -38,6 +38,7 @@ import {
   custom,
   constType,
   viewType,
+  pensionDB,
 } from './localization/stringConstants';
 
 import moment from 'moment';
@@ -657,7 +658,8 @@ export function setSetting(
 }
 
 function makeModelFromJSONFixDates(input: string) {
-  const result: DbModelData = JSON.parse(input);
+  const inputPensionFix = input.replace(/PensionDBC/g, pensionDB);
+  const result: DbModelData = JSON.parse(inputPensionFix);
   for (const t of result.triggers) {
     //log(`type of ${t.DATE} = ${typeof t.DATE}`);
     t.DATE = new Date(t.DATE);
@@ -673,8 +675,10 @@ function makeModelFromJSONFixDates(input: string) {
       t.TYPE = custom;
     }
   }
+  // log(`result from makeModelFromJSONFixDates = ${showObj(result)}`);
   return result;
 }
+
 const map = new Map([
   [roiEnd, viewType],
   [roiStart, viewType],
@@ -706,7 +710,7 @@ function cleanUp(modelFromJSON: any): DbModelData {
     ...modelFromJSON,
     expenses: modelFromJSON.expenses.map((e: any) => {
       if (e.RECURRENCE === undefined) {
-        log('cleaning up missing recurrence entry');
+        log(`cleaning up missing recurrence entry from ${showObj(e)}`);
         return {
           ...e,
           RECURRENCE: '1m',

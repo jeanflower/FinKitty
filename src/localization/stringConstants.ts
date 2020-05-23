@@ -105,11 +105,11 @@ export const cgt = '(CGT)';
 // (transfers here out of income reduce income tax liability),
 // or PensionSSNorwich
 // (transfers here out of income reduce income tax + NI liability),
-// or PensionDBCTeachers
+// or PensionDBTeachers
 // (amounts here take proportion of income and add to accruing benefit value)
 export const pension = 'Pension';
 export const pensionSS = 'PensionSS';
-export const pensionDBC = 'PensionDBC';
+export const pensionDB = 'PensionDB';
 export const pensionTransfer = 'PensionTransfer';
 
 // Transactions can be Conditional

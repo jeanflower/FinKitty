@@ -26,7 +26,7 @@ import {
   viewDetail,
   viewFrequency,
   growth,
-  pensionDBC,
+  pensionDB,
   debtChartFocus,
   debtChartView,
   debtChartVal,
@@ -783,7 +783,7 @@ export function makeChartDataFromEvaluations(
         // log(`skip expense or income revaluation`);
         return;
       }
-      if (evaln.name.startsWith(pensionDBC)) {
+      if (evaln.name.startsWith(pensionDB)) {
         // log(`charting value for ${evaln.name}, ${evaln.value}`);
         const matchingIncome = model.incomes.find(i => {
           return i.NAME === evaln.name;

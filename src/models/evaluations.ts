@@ -16,7 +16,7 @@ import {
   separator,
   taxPot,
   growth,
-  pensionDBC,
+  pensionDB,
   pensionTransfer,
   quantity,
 } from '../localization/stringConstants';
@@ -840,7 +840,7 @@ function handleIncome(
 
   // log(`handle income for moment ${moment.name}`);
 
-  if (moment.name.startsWith(pensionDBC)) {
+  if (moment.name.startsWith(pensionDB)) {
     // This type of income has moments which fall before the
     // income start date; allowing for other actions to
     // influence its value
@@ -898,12 +898,12 @@ function handleIncome(
         // log(`amountFrom = ${tFromValue} * ${incomeValue}`);
       }
 
-      if (!transaction.NAME.startsWith(pensionDBC)) {
+      if (!transaction.NAME.startsWith(pensionDB)) {
         // a Defined Benefits Pension
         // has two transactions
         // - one flagged as pension (or pensionSS)
         //   which will decrease cash Increment etc
-        // - another flagged as pensionDBC
+        // - another flagged as pensionDB
         // whose purpose is solely to setValue on the
         // target benefit
         amountForCashIncrement -= amountFrom;
@@ -1113,7 +1113,7 @@ function getRecurrentMoments(
     const to = roi.start;
     // log(`${x.NAME} grew between ${from} and ${to}`);
     const numMonths = diffMonths(from, to);
-    if (!x.NAME.startsWith(pensionDBC) && numMonths < 0) {
+    if (!x.NAME.startsWith(pensionDB) && numMonths < 0) {
       log(
         `BUG : income/expense start value set ${from} after ` +
           `start date ${to} ${x.NAME}`,
@@ -1171,7 +1171,7 @@ function getTransactionMoments(
     !transaction.NAME.startsWith(pensionTransfer) &&
     (transaction.NAME.startsWith(pension) ||
       transaction.NAME.startsWith(pensionSS) ||
-      transaction.NAME.startsWith(pensionDBC))
+      transaction.NAME.startsWith(pensionDB))
   ) {
     // we don't track pension actions here
     // (see pensionTransactions, reviewed during handleIncome)
@@ -1956,21 +1956,21 @@ export function getEvaluations(data: DbModelData): Evaluation[] {
     // changes is set here.
     logIncomeGrowth(income, cpiInitialVal, growths);
     const monthlyInf = getGrowth(income.NAME, growths);
-    const dbcTransaction = data.transactions.find(t => {
-      return t.NAME.startsWith(pensionDBC) && t.TO === income.NAME;
+    const dbTransaction = data.transactions.find(t => {
+      return t.NAME.startsWith(pensionDB) && t.TO === income.NAME;
     });
     const roiStartDate = getTriggerDate(income.START, data.triggers);
-    if (dbcTransaction !== undefined) {
+    if (dbTransaction !== undefined) {
       const sourceIncome = data.incomes.find(i => {
-        return dbcTransaction.FROM === i.NAME;
+        return dbTransaction.FROM === i.NAME;
       });
       if (sourceIncome === undefined) {
         log(
-          `Error: DBC transaction ${dbcTransaction.NAME} ` +
+          `Error: DB transaction ${dbTransaction.NAME} ` +
             `with no source income`,
         );
         throw new Error(
-          `Error: DBC transaction ${dbcTransaction.NAME} ` +
+          `Error: DB transaction ${dbTransaction.NAME} ` +
             `with no source income`,
         );
       }
@@ -2028,7 +2028,7 @@ export function getEvaluations(data: DbModelData): Evaluation[] {
     if (
       transaction.NAME.startsWith(pension) ||
       transaction.NAME.startsWith(pensionSS) ||
-      transaction.NAME.startsWith(pensionDBC)
+      transaction.NAME.startsWith(pensionDB)
     ) {
       pensionTransactions.push(transaction);
     }
