@@ -62,9 +62,9 @@ import {
   submitIncome,
   submitTransaction,
   submitTrigger,
-  submitSetting,
   transactionsTable,
   triggersTable,
+  editSetting,
 } from '../App';
 import {
   taxPot,
@@ -84,6 +84,9 @@ import {
   debtChartFocus,
   expenseChartFocus,
   incomeChartFocus,
+  viewType,
+  constType,
+  adjustableType,
 } from '../localization/stringConstants';
 import { log } from 'util';
 
@@ -399,12 +402,12 @@ function handleSettingGridRowsUpdated(model: DbModelData, args: any) {
   // log('old expense '+showObj(expense));
   x[args[0].cellKey] = args[0].updated[args[0].cellKey];
   // log('new expense '+showObj(expense));
-  const forSubmission: DbSetting = {
+  const forSubmission = {
     NAME: x.NAME,
     VALUE: x.VALUE,
     HINT: x.HINT,
   };
-  submitSetting(forSubmission, model);
+  editSetting(forSubmission, model);
 }
 
 const defaultColumn = {
@@ -1165,8 +1168,11 @@ const settingsToExcludeFromTableView = [
   incomeChartFocus,
 ];
 
-function settingsForTable(model: DbModelData) {
+function settingsForTable(model: DbModelData, type: string) {
   const unindexedResult = model.settings
+    .filter((obj: DbSetting) => {
+      return obj.TYPE === type;
+    })
     .filter((obj: DbSetting) => {
       return (
         settingsToExcludeFromTableView.find(s => {
@@ -1200,7 +1206,57 @@ export function settingsTableDiv(model: DbModelData) {
         handleGridRowsUpdated={function() {
           return handleSettingGridRowsUpdated(model, arguments);
         }}
-        rows={settingsForTable(model)}
+        rows={settingsForTable(model, viewType)}
+        columns={[
+          {
+            ...defaultColumn,
+            key: 'NAME',
+            name: 'name',
+            formatter: <NameFormatter value="unset" />,
+          },
+          {
+            ...defaultColumn,
+            key: 'VALUE',
+            name: 'value',
+          },
+          {
+            ...defaultColumn,
+            key: 'HINT',
+            name: 'hint',
+          },
+        ]}
+      />
+      <DataGrid
+        deleteFunction={deleteSetting}
+        handleGridRowsUpdated={function() {
+          return handleSettingGridRowsUpdated(model, arguments);
+        }}
+        rows={settingsForTable(model, constType)}
+        columns={[
+          {
+            ...defaultColumn,
+            key: 'NAME',
+            name: 'name',
+            formatter: <NameFormatter value="unset" />,
+          },
+          {
+            ...defaultColumn,
+            key: 'VALUE',
+            name: 'value',
+          },
+          {
+            ...defaultColumn,
+            key: 'HINT',
+            name: 'hint',
+          },
+        ]}
+      />
+      <DataGrid
+        deleteFunction={deleteSetting}
+        handleGridRowsUpdated={function() {
+          return handleSettingGridRowsUpdated(model, arguments);
+        }}
+        rows={settingsForTable(model, adjustableType)}
         columns={[
           {
             ...defaultColumn,

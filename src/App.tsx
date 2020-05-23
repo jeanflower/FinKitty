@@ -510,11 +510,21 @@ export async function submitTrigger(
   await submitTriggerLSM(triggerInput, modelData, getUserID());
   return await refreshData();
 }
-export async function submitSetting(
-  settingInput: DbSetting,
+
+// if HINT or TYPE are empty, leave pre-existing values
+export async function editSetting(
+  settingInput: {
+    NAME: string;
+    VALUE: string;
+  },
   modelData: DbModelData,
 ) {
-  await submitSettingLSM(settingInput, modelData, getUserID());
+  const settingWithBlanks = {
+    ...settingInput,
+    HINT: '',
+    TYPE: '',
+  };
+  await submitSettingLSM(settingWithBlanks, modelData, getUserID());
   return await refreshData();
 }
 

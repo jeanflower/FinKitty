@@ -15,7 +15,7 @@ import { getDB } from './database';
 
 import { modelName } from '../App';
 
-import { custom } from '../localization/stringConstants';
+import { custom, constType } from '../localization/stringConstants';
 
 const showDBInteraction = false;
 
@@ -215,12 +215,23 @@ export async function submitNewTransactionLSM(
 }
 
 export async function submitSettingLSM(
-  input: DbSetting,
+  input: DbSetting, // if HINT or TYPE are empty, leave pre-existing values
   modelData: DbModelData,
   userID: string,
 ) {
   if (printDebug()) {
-    log(`in submitSetting with input : ${showObj(input)}`);
+    log(`in submitSettingLSM with input : ${showObj(input)}`);
+  }
+  const idx = modelData.settings.find((i: DbItem) => {
+    return i.NAME === input.NAME;
+  });
+  if (idx !== undefined) {
+    if (input.HINT === '') {
+      input.HINT = idx.HINT;
+    }
+    if (input.TYPE === '') {
+      input.TYPE = idx.TYPE;
+    }
   }
   updateItemList(modelData.settings, input);
   await getDB().saveModel(userID, modelName, modelData);
@@ -236,6 +247,7 @@ export async function submitNewSettingLSM(
       NAME: name,
       VALUE: '',
       HINT: '',
+      TYPE: constType,
     },
     modelData,
     userID,

@@ -26,6 +26,8 @@ import {
   viewFrequency,
   viewFrequencyHint,
   revalueAsset,
+  constType,
+  viewType,
 } from '../../localization/stringConstants';
 import {
   DbAsset,
@@ -228,59 +230,79 @@ export const testTransactions01: DbTransaction[] = [
     CATEGORY: 'pay mortgage',
   },
 ];
-
+const simpleSetting: DbSetting = {
+  NAME: 'NoName',
+  VALUE: 'NoValue',
+  HINT: 'NoHint',
+  TYPE: constType,
+};
+const viewSetting: DbSetting = {
+  ...simpleSetting,
+  TYPE: viewType,
+};
 export const testSettings01: DbSetting[] = [
   {
+    ...viewSetting,
     NAME: roiStart,
     VALUE: '1 Jan 2019',
     HINT: roiStartHint,
   },
   {
+    ...viewSetting,
     NAME: roiEnd,
     VALUE: '1 Jan 2042',
     HINT: roiEndHint,
   },
   {
+    ...viewSetting,
     NAME: assetChartView,
     VALUE: assetChartDeltas, // could be 'val'
     HINT: assetChartHint,
   },
   {
+    ...viewSetting,
     NAME: viewFrequency,
     VALUE: annually, // could be 'Monthly'
     HINT: viewFrequencyHint,
   },
   {
+    ...viewSetting,
     NAME: viewDetail,
     VALUE: fine, // could be coarse
     HINT: viewDetailHint,
   },
   {
+    ...simpleSetting,
     NAME: cpi,
     VALUE: '2.5',
     HINT: cpiHint,
   },
   {
+    ...simpleSetting,
     NAME: 'stockMarketGrowth',
     VALUE: '6.236',
     HINT: 'Custom setting for stock market growth',
   },
   {
+    ...viewSetting,
     NAME: assetChartFocus,
     VALUE: CASH_ASSET_NAME,
     HINT: assetChartFocusHint,
   },
   {
+    ...viewSetting,
     NAME: expenseChartFocus,
     VALUE: allItems,
     HINT: expenseChartFocusHint,
   },
   {
+    ...viewSetting,
     NAME: incomeChartFocus,
     VALUE: allItems,
     HINT: incomeChartFocusHint,
   },
   {
+    ...viewSetting,
     NAME: birthDate,
     VALUE: '',
     HINT: birthDateHint,

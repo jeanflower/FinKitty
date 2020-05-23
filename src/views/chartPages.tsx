@@ -1,26 +1,20 @@
 import React from 'react';
-import { ChartData, DbModelData, DbSetting } from '../types/interfaces';
+import { ChartData, DbModelData } from '../types/interfaces';
 import {
   allItems,
   assetChartAdditions,
   assetChartDeltas,
   assetChartFocus,
-  assetChartFocusHint,
-  assetChartHint,
   assetChartReductions,
   assetChartVal,
   assetChartView,
   coarse,
   debtChartFocus,
-  debtChartFocusHint,
   expenseChartFocus,
-  expenseChartFocusHint,
   fine,
   incomeChartFocus,
-  incomeChartFocusHint,
   taxPot,
   viewDetail,
-  viewDetailHint,
   total,
   viewFrequency,
   annually,
@@ -34,10 +28,10 @@ import {
   expensesChart,
   getDisplay,
   incomesChart,
-  submitSetting,
   showContent,
   taxView,
   debtsChart,
+  editSetting,
 } from '../App';
 import ReactiveTextArea from './reactComponents/ReactiveTextArea';
 
@@ -63,7 +57,6 @@ function makeFiltersList(
   selectedChartFocus: string,
   settingName: string,
   defaultSetting: string,
-  hint: string,
   model: DbModelData,
 ) {
   // selectedChartFocus = this.getExpenseChartFocus()
@@ -94,12 +87,13 @@ function makeFiltersList(
         e.persist();
         // when a button is clicked,
         // go to change the settings value
-        const forSubmission: DbSetting = {
-          NAME: settingName,
-          VALUE: category,
-          HINT: hint,
-        };
-        submitSetting(forSubmission, model);
+        editSetting(
+          {
+            NAME: settingName,
+            VALUE: category,
+          },
+          model,
+        );
       }}
       title={category}
       type={category === selectedChartFocus ? 'primary' : 'secondary'}
@@ -132,12 +126,11 @@ function coarseFineList(model: DbModelData) {
         e.persist();
         // when a button is clicked,
         // go to change the settings value
-        const forSubmission: DbSetting = {
+        const forSubmission = {
           NAME: viewDetail,
           VALUE: viewType,
-          HINT: viewDetailHint,
         };
-        submitSetting(forSubmission, model);
+        editSetting(forSubmission, model);
       }}
       title={viewType}
       type={viewType === selectedCoarseFineView ? 'primary' : 'secondary'}
@@ -211,7 +204,6 @@ export function incomesChartDiv(
         getIncomeChartFocus(model),
         incomeChartFocus,
         allItems,
-        incomeChartFocusHint,
         model,
       )}
       {coarseFineList(model)}
@@ -260,7 +252,6 @@ export function expensesChartDiv(
         getExpenseChartFocus(model),
         expenseChartFocus,
         allItems,
-        expenseChartFocusHint,
         model,
       )}
       {coarseFineList(model)}
@@ -317,12 +308,11 @@ function assetsOrDebtsButtonList(model: DbModelData, isDebt: boolean) {
         e.persist();
         // when a button is clicked,
         // go to change the settings value
-        const forSubmission: DbSetting = {
+        const forSubmission = {
           NAME: isDebt ? debtChartFocus : assetChartFocus,
           VALUE: assetOrDebt,
-          HINT: isDebt ? debtChartFocusHint : assetChartFocusHint,
         };
-        submitSetting(forSubmission, model);
+        editSetting(forSubmission, model);
       }}
       title={assetOrDebt}
       type={assetOrDebt === selectedAssetOrDebt ? 'primary' : 'secondary'}
@@ -360,12 +350,11 @@ function assetViewTypeList(model: DbModelData) {
         e.persist();
         // when a button is clicked,
         // go to change the settings value
-        const forSubmission: DbSetting = {
+        const forSubmission = {
           NAME: assetChartView,
           VALUE: viewType,
-          HINT: assetChartHint,
         };
-        submitSetting(forSubmission, model);
+        editSetting(forSubmission, model);
       }}
       title={viewType}
       type={viewType === selectedAssetView ? 'primary' : 'secondary'}

@@ -36,6 +36,8 @@ import {
   debtChartHint,
   revalue,
   custom,
+  constType,
+  viewType,
 } from './localization/stringConstants';
 
 import moment from 'moment';
@@ -64,61 +66,73 @@ export const minimalModel: DbModelData = {
       NAME: cpi,
       VALUE: '2.5',
       HINT: cpiHint,
+      TYPE: constType,
     },
     {
       NAME: assetChartView,
       VALUE: assetChartVal,
       HINT: assetChartHint,
+      TYPE: viewType,
     },
     {
       NAME: debtChartView,
       VALUE: debtChartVal,
       HINT: debtChartHint,
+      TYPE: viewType,
     },
     {
       NAME: viewFrequency,
       VALUE: monthly,
       HINT: viewFrequencyHint,
+      TYPE: viewType,
     },
     {
       NAME: viewDetail,
       VALUE: fine,
       HINT: viewDetailHint,
+      TYPE: viewType,
     },
     {
       NAME: roiStart,
       VALUE: '1 Jan 2017',
       HINT: roiStartHint,
+      TYPE: viewType,
     },
     {
       NAME: roiEnd,
       VALUE: '1 Jan 2020',
       HINT: roiEndHint,
+      TYPE: viewType,
     },
     {
       NAME: assetChartFocus,
       VALUE: CASH_ASSET_NAME,
       HINT: assetChartFocusHint,
+      TYPE: viewType,
     },
     {
       NAME: debtChartFocus,
       VALUE: allItems,
       HINT: debtChartFocusHint,
+      TYPE: viewType,
     },
     {
       NAME: expenseChartFocus,
       VALUE: allItems,
       HINT: expenseChartFocusHint,
+      TYPE: viewType,
     },
     {
       NAME: incomeChartFocus,
       VALUE: allItems,
       HINT: incomeChartFocusHint,
+      TYPE: viewType,
     },
     {
       NAME: birthDate,
       VALUE: '',
       HINT: birthDateHint,
+      TYPE: viewType,
     },
   ],
   transactions: [],
@@ -619,6 +633,7 @@ export function setSetting(
   settings: DbSetting[],
   key: string,
   val: string,
+  type: string,
   hint = '',
 ) {
   const idx = settings.findIndex(x => x.NAME === key);
@@ -628,6 +643,7 @@ export function setSetting(
       NAME: key,
       VALUE: val,
       HINT: hint,
+      TYPE: type,
     });
   } else {
     // replace with a new object
@@ -635,6 +651,7 @@ export function setSetting(
       NAME: key,
       VALUE: val,
       HINT: hint,
+      TYPE: type,
     });
   }
 }
@@ -658,14 +675,38 @@ function makeModelFromJSONFixDates(input: string) {
   }
   return result;
 }
+const map = new Map([
+  [roiEnd, viewType],
+  [roiStart, viewType],
+  [birthDate, viewType],
+  [viewFrequency, viewType],
+  [monthly, viewType],
+  [viewDetail, viewType],
+  [assetChartFocus, viewType],
+  [debtChartFocus, viewType],
+  [expenseChartFocus, viewType],
+  [incomeChartFocus, viewType],
+  [assetChartView, viewType],
+  [debtChartView, viewType],
+  [cpi, constType],
+]);
+
+function getGuessSettingType(name: string) {
+  const mapResult = map.get(name);
+  if (mapResult !== undefined) {
+    return mapResult;
+  }
+  return constType;
+}
 
 // note JSON stringify and back for serialisation is OK but
 // breaks dates (and functions too but we don't have these)
 function cleanUp(modelFromJSON: any): DbModelData {
-  return {
+  const result = {
     ...modelFromJSON,
     expenses: modelFromJSON.expenses.map((e: any) => {
       if (e.RECURRENCE === undefined) {
+        log('cleaning up missing recurrence entry');
         return {
           ...e,
           RECURRENCE: '1m',
@@ -676,6 +717,7 @@ function cleanUp(modelFromJSON: any): DbModelData {
     }),
     assets: modelFromJSON.assets.map((a: any) => {
       if (a.QUANTITY === undefined) {
+        log('cleaning up missing quantity entry');
         return {
           ...a,
           QUANTITY: '',
@@ -690,19 +732,35 @@ function cleanUp(modelFromJSON: any): DbModelData {
         DATE: new Date(t['DATE']), // This is required!
       };
     }),
+    settings: modelFromJSON.settings.map((s: any) => {
+      if (s.TYPE === undefined) {
+        log('cleaning up missing setting type entry');
+        return {
+          ...s,
+          TYPE: getGuessSettingType(s.NAME),
+        };
+      } else {
+        return s;
+      }
+    }),
   };
+  // log(`cleaned up model assets ${showObj(result.assets)}`);
+  return result;
 }
 
 export function makeCleanedModelFromJSON(input: string) {
+  // log('in makeCleanedModelFromJSON');
   const model = makeModelFromJSONFixDates(input);
   return cleanUp(model);
 }
 
 export function getMinimalModelCopy(): DbModelData {
+  // log('in getMinimalModelCopy');
   return makeCleanedModelFromJSON(JSON.stringify(minimalModel));
 }
 
 export function addRequiredEntries(model: DbModelData) {
+  // log('in addRequiredEntries');
   const minimalModel = getMinimalModelCopy();
   minimalModel.settings.forEach(x => {
     if (
@@ -726,7 +784,8 @@ export function addRequiredEntries(model: DbModelData) {
   });
 }
 
-export function makeModelFromJSON(input: string) {
+export function makeModelFromJSON(input: string): DbModelData {
+  // log('in makeModelFromJSON');
   const model = makeModelFromJSONFixDates(input);
   addRequiredEntries(model);
   return cleanUp(model);

@@ -7,6 +7,7 @@ export interface DbItemCategory extends DbItem {
 export interface DbSetting extends DbItem {
   VALUE: string;
   HINT: string;
+  TYPE: string;
 }
 export interface DbTrigger extends DbItem {
   DATE: Date;

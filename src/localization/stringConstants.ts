@@ -153,3 +153,8 @@ export const liquidateAsset = 'liquidateAsset';
 //  Use cash to pay off debts
 // (Conditional cash to debt)
 export const payOffDebt = 'payOffDebt';
+
+// settings types
+export const constType = 'const';
+export const viewType = 'view';
+export const adjustableType = 'adjustable';

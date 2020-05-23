@@ -56,6 +56,8 @@ import {
   revalueInc,
   revalueAsset,
   taxableBenefit,
+  constType,
+  viewType,
 } from '../../localization/stringConstants';
 import {
   ChartDataPoint,
@@ -98,38 +100,49 @@ const simpleSetting: DbSetting = {
   NAME: 'NoName',
   VALUE: 'NoValue',
   HINT: 'NoHint',
+  TYPE: constType,
+};
+const viewSetting: DbSetting = {
+  ...simpleSetting,
+  TYPE: viewType,
 };
 const defaultSettings: DbSetting[] = [
-  { ...simpleSetting, NAME: viewFrequency, VALUE: monthly },
-  { ...simpleSetting, NAME: viewDetail, VALUE: fine },
-  { ...simpleSetting, NAME: assetChartView, VALUE: assetChartVal },
-  { ...simpleSetting, NAME: debtChartView, VALUE: debtChartVal },
+  { ...viewSetting, NAME: viewFrequency, VALUE: monthly },
+  { ...viewSetting, NAME: viewDetail, VALUE: fine },
+  { ...viewSetting, NAME: assetChartView, VALUE: assetChartVal },
+  { ...viewSetting, NAME: debtChartView, VALUE: debtChartVal },
   {
+    ...viewSetting,
     NAME: assetChartFocus,
     VALUE: allItems,
     HINT: assetChartFocusHint,
   },
   {
+    ...viewSetting,
     NAME: debtChartFocus,
     VALUE: allItems,
     HINT: debtChartFocusHint,
   },
   {
+    ...viewSetting,
     NAME: expenseChartFocus,
     VALUE: allItems,
     HINT: expenseChartFocusHint,
   },
   {
+    ...viewSetting,
     NAME: incomeChartFocus,
     VALUE: allItems,
     HINT: incomeChartFocusHint,
   },
   {
+    ...simpleSetting,
     NAME: cpi,
     VALUE: '0.0',
     HINT: cpiHint,
   },
   {
+    ...viewSetting,
     NAME: birthDate,
     VALUE: '',
     HINT: birthDateHint,
@@ -284,6 +297,11 @@ function getTestEvaluations(model: DbModelData): Evaluation[] {
   }
 }
 
+function setROI(model: DbModelData, roi: { start: string; end: string }) {
+  setSetting(model.settings, roiStart, roi.start, viewType);
+  setSetting(model.settings, roiEnd, roi.end, viewType);
+}
+
 export function getModelFutureExpense() {
   const roi = {
     start: 'Dec 1, 2016 00:00:00',
@@ -305,9 +323,7 @@ export function getModelFutureExpense() {
     ],
     settings: [...defaultSettings],
   };
-  setSetting(model.settings, roiStart, roi.start);
-  setSetting(model.settings, roiEnd, roi.end);
-
+  setROI(model, roi);
   return { roi, model };
 }
 export function getModelFutureExpense2() {
@@ -330,9 +346,7 @@ export function getModelFutureExpense2() {
     ],
     settings: [...defaultSettings],
   };
-  setSetting(model.settings, roiStart, roi.start);
-  setSetting(model.settings, roiEnd, roi.end);
-
+  setROI(model, roi);
   return { roi, model };
 }
 export function getModelCoarseAndFine() {
@@ -424,9 +438,8 @@ export function getModelCoarseAndFine() {
     ],
   };
 
-  setSetting(model.settings, roiStart, roi.start);
-  setSetting(model.settings, roiEnd, roi.end);
-  setSetting(model.settings, viewDetail, coarse);
+  setROI(model, roi);
+  setSetting(model.settings, viewDetail, coarse, viewType);
 
   return {
     model,
@@ -471,51 +484,61 @@ export function getModelCrystallizedPension() {
     ],
     settings: [
       {
+        ...viewSetting,
         NAME: assetChartFocus,
         VALUE: allItems,
         HINT: assetChartFocusHint,
       },
       {
+        ...viewSetting,
         NAME: debtChartFocus,
         VALUE: allItems,
         HINT: debtChartFocusHint,
       },
       {
+        ...viewSetting,
         NAME: roiStart,
         VALUE: roi.start,
         HINT: roiStartHint,
       },
       {
+        ...viewSetting,
         NAME: roiEnd,
         VALUE: roi.end,
         HINT: roiEndHint,
       },
       {
+        ...viewSetting,
         NAME: expenseChartFocus,
         VALUE: allItems,
         HINT: expenseChartFocusHint,
       },
       {
+        ...viewSetting,
         NAME: incomeChartFocus,
         VALUE: allItems,
         HINT: incomeChartFocusHint,
       },
       {
+        ...viewSetting,
         NAME: assetChartView,
         VALUE: assetChartVal,
         HINT: assetChartHint,
       },
       {
+        ...viewSetting,
         NAME: debtChartView,
         VALUE: debtChartVal,
         HINT: debtChartHint,
       },
       {
+        ...viewSetting,
         NAME: viewDetail,
         VALUE: fine,
         HINT: viewDetailHint,
       },
       {
+        ...simpleSetting,
         NAME: cpi,
         VALUE: '0',
         HINT: cpiHint,
@@ -553,8 +576,8 @@ export function getModelCrystallizedPension() {
       },
     ],
   };
-  setSetting(model.settings, viewFrequency, annually);
-  setSetting(model.settings, birthDate, '');
+  setSetting(model.settings, viewFrequency, annually, viewType);
+  setSetting(model.settings, birthDate, '', viewType);
   return {
     model,
     roi,
@@ -611,8 +634,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -686,8 +708,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -731,9 +752,8 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
-    setSetting(model.settings, viewFrequency, annually);
+    setROI(model, roi);
+    setSetting(model.settings, viewFrequency, annually, viewType);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -780,9 +800,8 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
-    setSetting(model.settings, viewFrequency, annually);
+    setROI(model, roi);
+    setSetting(model.settings, viewFrequency, annually, viewType);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -849,7 +868,7 @@ describe('evaluations tests', () => {
         },
       ],
     };
-    setSetting(model.settings, cpi, '12.0');
+    setSetting(model.settings, cpi, '12.0', constType);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -923,7 +942,7 @@ describe('evaluations tests', () => {
         },
       ],
     };
-    setSetting(model.settings, cpi, '12.0');
+    setSetting(model.settings, cpi, '12.0', constType);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -993,7 +1012,7 @@ describe('evaluations tests', () => {
         },
       ],
     };
-    setSetting(model.settings, cpi, '12.0');
+    setSetting(model.settings, cpi, '12.0', constType);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -1064,7 +1083,7 @@ describe('evaluations tests', () => {
         },
       ],
     };
-    setSetting(model.settings, cpi, '12.0');
+    setSetting(model.settings, cpi, '12.0', constType);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -1136,9 +1155,8 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, cpi, '5.0');
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setSetting(model.settings, cpi, '5.0', constType);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -1201,9 +1219,8 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, cpi, '5.0');
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setSetting(model.settings, cpi, '5.0', constType);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -1269,8 +1286,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -1330,8 +1346,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // printTestCodeForEvals(evals);
@@ -1391,8 +1406,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -1449,9 +1463,8 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
-    setSetting(model.settings, viewFrequency, annually);
+    setROI(model, roi);
+    setSetting(model.settings, viewFrequency, annually, viewType);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -1509,8 +1522,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // printTestCodeForEvals(evals);
@@ -1570,8 +1582,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // printTestCodeForEvals(evals);
@@ -1628,8 +1639,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // printTestCodeForEvals(evals);
@@ -1684,8 +1694,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // printTestCodeForEvals(evals);
@@ -1759,8 +1768,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // printTestCodeForEvals(evals);
@@ -1829,8 +1837,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -1887,9 +1894,8 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
-    setSetting(model.settings, cpi, '12');
+    setROI(model, roi);
+    setSetting(model.settings, cpi, '12', constType);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -1947,9 +1953,8 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
-    setSetting(model.settings, cpi, '12');
+    setROI(model, roi);
+    setSetting(model.settings, cpi, '12', constType);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -2007,9 +2012,8 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
-    setSetting(model.settings, cpi, '12');
+    setROI(model, roi);
+    setSetting(model.settings, cpi, '12', constType);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -2066,11 +2070,10 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
-    setSetting(model.settings, assetChartFocus, 'savings');
-    setSetting(model.settings, viewFrequency, annually);
-    setSetting(model.settings, assetChartView, assetChartDeltas);
+    setROI(model, roi);
+    setSetting(model.settings, assetChartFocus, 'savings', viewType);
+    setSetting(model.settings, viewFrequency, annually, viewType);
+    setSetting(model.settings, assetChartView, assetChartDeltas, viewType);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -2154,8 +2157,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // printTestCodeForEvals(evals);
@@ -2221,8 +2223,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -2296,8 +2297,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -2362,8 +2362,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -2430,8 +2429,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -2502,10 +2500,9 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
-    setSetting(model.settings, viewFrequency, monthly);
+    setSetting(model.settings, viewFrequency, monthly, viewType);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -2586,8 +2583,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -2692,8 +2688,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -2801,8 +2796,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -2891,8 +2885,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -2988,8 +2981,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -3145,8 +3137,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -3303,8 +3294,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -3460,8 +3450,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -3622,8 +3611,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -3765,8 +3753,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -3912,10 +3899,9 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
-    setSetting(model.settings, assetChartFocus, CASH_ASSET_NAME);
-    setSetting(model.settings, assetChartView, assetChartDeltas);
+    setROI(model, roi);
+    setSetting(model.settings, assetChartFocus, CASH_ASSET_NAME, viewType);
+    setSetting(model.settings, assetChartView, assetChartDeltas, viewType);
 
     const x = model.settings.find(s => {
       return s.NAME === assetChartFocus;
@@ -4132,8 +4118,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -4287,8 +4272,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -4377,8 +4361,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -4491,8 +4474,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -4609,8 +4591,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -4715,8 +4696,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -4797,8 +4777,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -4878,8 +4857,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -4961,8 +4939,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -5058,7 +5035,7 @@ describe('evaluations tests', () => {
         },
       ],
     };
-    setSetting(model.settings, cpi, `${smallCPI}`);
+    setSetting(model.settings, cpi, `${smallCPI}`, constType);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -5221,8 +5198,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -5321,8 +5297,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -5424,8 +5399,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -5524,8 +5498,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -5624,8 +5597,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -5727,8 +5699,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -5819,8 +5790,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -5900,8 +5870,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -5983,8 +5952,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -6067,8 +6035,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -6150,8 +6117,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -6286,8 +6252,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -6411,8 +6376,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -6536,8 +6500,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -6718,8 +6681,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -6851,8 +6813,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -6956,8 +6917,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -7077,8 +7037,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -7267,8 +7226,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -7459,8 +7417,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -7656,8 +7613,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -7855,8 +7811,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -8182,8 +8137,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -8376,8 +8330,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -8582,8 +8535,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -8787,9 +8739,8 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
-    setSetting(model.settings, cpi, '12.0');
+    setROI(model, roi);
+    setSetting(model.settings, cpi, '12.0', constType);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -8993,8 +8944,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     suppressLogs();
     const evals: Evaluation[] = getTestEvaluations(model);
@@ -9088,8 +9038,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     suppressLogs();
     const evals: Evaluation[] = getTestEvaluations(model);
@@ -9182,8 +9131,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     suppressLogs();
     const evals: Evaluation[] = getTestEvaluations(model);
@@ -9222,8 +9170,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -9320,8 +9267,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -9432,8 +9378,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -9645,8 +9590,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -9744,8 +9688,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
     const evals: Evaluation[] = getTestEvaluations(model);
 
     // printTestCodeForEvals(evals);
@@ -9837,8 +9780,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
     const evals: Evaluation[] = getTestEvaluations(model);
 
     // printTestCodeForEvals(evals);
@@ -9906,8 +9848,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
     const evals: Evaluation[] = getTestEvaluations(model);
 
     // printTestCodeForEvals(evals);
@@ -9982,8 +9923,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
     const evals: Evaluation[] = getTestEvaluations(model);
 
     // printTestCodeForEvals(evals);
@@ -10044,7 +9984,7 @@ describe('evaluations tests', () => {
     const model = modelAndRoi.model;
     const roi = modelAndRoi.roi;
 
-    setSetting(model.settings, viewDetail, coarse);
+    setSetting(model.settings, viewDetail, coarse, viewType);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -10181,7 +10121,7 @@ describe('evaluations tests', () => {
     const model = modelAndRoi.model;
     const roi = modelAndRoi.roi;
 
-    setSetting(model.settings, viewDetail, total);
+    setSetting(model.settings, viewDetail, total, viewType);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -10288,7 +10228,7 @@ describe('evaluations tests', () => {
     const model = modelAndRoi.model;
     const roi = modelAndRoi.roi;
 
-    setSetting(model.settings, viewDetail, fine);
+    setSetting(model.settings, viewDetail, fine, viewType);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -10455,8 +10395,8 @@ describe('evaluations tests', () => {
     const model = modelAndRoi.model;
     const roi = modelAndRoi.roi;
 
-    setSetting(model.settings, assetChartFocus, CASH_ASSET_NAME);
-    setSetting(model.settings, viewDetail, coarse);
+    setSetting(model.settings, assetChartFocus, CASH_ASSET_NAME, viewType);
+    setSetting(model.settings, viewDetail, coarse, viewType);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -10584,8 +10524,8 @@ describe('evaluations tests', () => {
     const model = modelAndRoi.model;
     const roi = modelAndRoi.roi;
 
-    setSetting(model.settings, assetChartFocus, 'Accessible');
-    setSetting(model.settings, viewDetail, coarse);
+    setSetting(model.settings, assetChartFocus, 'Accessible', viewType);
+    setSetting(model.settings, viewDetail, coarse, viewType);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -10624,8 +10564,8 @@ describe('evaluations tests', () => {
     const model = modelAndRoi.model;
     const roi = modelAndRoi.roi;
 
-    setSetting(model.settings, assetChartFocus, 'stocks');
-    setSetting(model.settings, viewDetail, coarse);
+    setSetting(model.settings, assetChartFocus, 'stocks', viewType);
+    setSetting(model.settings, viewDetail, coarse, viewType);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -10706,8 +10646,8 @@ describe('evaluations tests', () => {
     const model = modelAndRoi.model;
     const roi = modelAndRoi.roi;
 
-    setSetting(model.settings, assetChartFocus, 'savings');
-    setSetting(model.settings, viewDetail, coarse);
+    setSetting(model.settings, assetChartFocus, 'savings', viewType);
+    setSetting(model.settings, viewDetail, coarse, viewType);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -10788,8 +10728,8 @@ describe('evaluations tests', () => {
     const model = modelAndRoi.model;
     const roi = modelAndRoi.roi;
 
-    setSetting(model.settings, assetChartFocus, 'Accessible');
-    setSetting(model.settings, viewDetail, fine);
+    setSetting(model.settings, assetChartFocus, 'Accessible', viewType);
+    setSetting(model.settings, viewDetail, fine, viewType);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -10838,8 +10778,8 @@ describe('evaluations tests', () => {
     const model = modelAndRoi.model;
     const roi = modelAndRoi.roi;
 
-    setSetting(model.settings, viewDetail, coarse);
-    setSetting(model.settings, assetChartView, assetChartDeltas);
+    setSetting(model.settings, viewDetail, coarse, viewType);
+    setSetting(model.settings, assetChartView, assetChartDeltas, viewType);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -10928,8 +10868,8 @@ describe('evaluations tests', () => {
     const model = modelAndRoi.model;
     const roi = modelAndRoi.roi;
 
-    setSetting(model.settings, viewDetail, coarse);
-    setSetting(model.settings, assetChartView, assetChartReductions);
+    setSetting(model.settings, viewDetail, coarse, viewType);
+    setSetting(model.settings, assetChartView, assetChartReductions, viewType);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -10979,8 +10919,8 @@ describe('evaluations tests', () => {
     const model = modelAndRoi.model;
     const roi = modelAndRoi.roi;
 
-    setSetting(model.settings, viewDetail, coarse);
-    setSetting(model.settings, assetChartView, assetChartAdditions);
+    setSetting(model.settings, viewDetail, coarse, viewType);
+    setSetting(model.settings, assetChartView, assetChartAdditions, viewType);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -11063,8 +11003,8 @@ describe('evaluations tests', () => {
       ],
     ];
 
-    setSetting(model.settings, assetChartFocus, 'Accessible');
-    setSetting(model.settings, viewDetail, coarse);
+    setSetting(model.settings, assetChartFocus, 'Accessible', viewType);
+    setSetting(model.settings, viewDetail, coarse, viewType);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -11108,8 +11048,8 @@ describe('evaluations tests', () => {
     // test that this income doesn't appear in the assets graph!
     model.incomes[0].CATEGORY = 'Accessible';
 
-    setSetting(model.settings, assetChartFocus, 'Accessible');
-    setSetting(model.settings, viewDetail, fine);
+    setSetting(model.settings, assetChartFocus, 'Accessible', viewType);
+    setSetting(model.settings, viewDetail, fine, viewType);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -11158,8 +11098,8 @@ describe('evaluations tests', () => {
     const model = modelAndRoi.model;
     const roi = modelAndRoi.roi;
 
-    setSetting(model.settings, viewDetail, coarse);
-    setSetting(model.settings, assetChartView, assetChartAdditions);
+    setSetting(model.settings, viewDetail, coarse, viewType);
+    setSetting(model.settings, assetChartView, assetChartAdditions, viewType);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -11204,8 +11144,8 @@ describe('evaluations tests', () => {
     const model = modelAndRoi.model;
     const roi = modelAndRoi.roi;
 
-    setSetting(model.settings, viewDetail, coarse);
-    setSetting(model.settings, assetChartView, assetChartReductions);
+    setSetting(model.settings, viewDetail, coarse, viewType);
+    setSetting(model.settings, assetChartView, assetChartReductions, viewType);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -11253,8 +11193,8 @@ describe('evaluations tests', () => {
     const model = modelAndRoi.model;
     const roi = modelAndRoi.roi;
 
-    setSetting(model.settings, viewDetail, coarse);
-    setSetting(model.settings, assetChartView, assetChartDeltas);
+    setSetting(model.settings, viewDetail, coarse, viewType);
+    setSetting(model.settings, assetChartView, assetChartDeltas, viewType);
 
     const evals: Evaluation[] = getTestEvaluations(model);
     // log(`evals = ${showObj(evals)}`);
@@ -11313,7 +11253,7 @@ describe('evaluations tests', () => {
       const modelAndRoi = getModelCrystallizedPension();
       const model = modelAndRoi.model;
 
-      setSetting(model.settings, key, 'nonsense');
+      setSetting(model.settings, key, 'nonsense', viewType);
 
       suppressLogs();
       const evals: Evaluation[] = getTestEvaluations(model);
@@ -11366,7 +11306,7 @@ describe('evaluations tests', () => {
     // printTestCodeForEvals(evals);
     expect(evals.length).toBe(0);
 
-    setSetting(model.settings, 'shareGrowth', 'nonsense');
+    setSetting(model.settings, 'shareGrowth', 'nonsense', constType);
 
     suppressLogs();
     evals = getEvaluations(model);
@@ -11455,8 +11395,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -11556,8 +11495,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -11660,8 +11598,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -11754,8 +11691,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -11848,8 +11784,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -11949,8 +11884,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -12050,8 +11984,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -12152,8 +12085,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -12241,8 +12173,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     suppressLogs();
     const evals: Evaluation[] = getTestEvaluations(model);
@@ -12291,8 +12222,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -12357,8 +12287,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -12410,8 +12339,7 @@ describe('evaluations tests', () => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -12494,8 +12422,7 @@ describe('evaluations tests', () => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -12580,8 +12507,7 @@ describe('evaluations tests', () => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -12681,8 +12607,7 @@ describe('evaluations tests', () => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -12783,8 +12708,7 @@ describe('evaluations tests', () => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
@@ -12889,8 +12813,7 @@ describe('evaluations tests', () => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
@@ -12995,8 +12918,7 @@ describe('evaluations tests', () => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
@@ -13101,8 +13023,7 @@ describe('evaluations tests', () => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
@@ -13214,8 +13135,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultSettings],
     };
-    setSetting(model.settings, roiStart, roi.start);
-    setSetting(model.settings, roiEnd, roi.end);
+    setROI(model, roi);
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
