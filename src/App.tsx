@@ -595,7 +595,7 @@ export async function deleteItemFromModel(
     const checkResponse = checkData(model);
     if (checkResponse !== '') {
       const response =
-        `edited  model fails checks ` + `:${checkResponse}', reverting`;
+        `edited  model fails checks :${checkResponse}', reverting`;
       reactAppComponent.setState({
         alertText: response,
       });
@@ -743,6 +743,7 @@ export class AppContent extends Component<AppProps, AppState> {
           {this.homeDiv()}
           {overviewDiv(
             this.state.modelData,
+            showAlert,
             this.state.assetChartData,
             this.state.debtChartData,
             this.state.expensesChartData,

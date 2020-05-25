@@ -35,6 +35,7 @@ import {
 
 export function overviewDiv(
   model: DbModelData,
+  showAlert: (arg0:string)=>void,
   assetChartData: ChartData[],
   debtChartData: ChartData[],
   expensesChartData: ChartData[],
@@ -126,26 +127,26 @@ export function overviewDiv(
       &nbsp;.
       <br />
       <h2>Important dates:</h2>
-      {triggersTableDiv(model)}
+      {triggersTableDiv(model, showAlert)}
       <h2>Incomes:</h2>
-      {incomesTableDiv(model)}
+      {incomesTableDiv(model, showAlert)}
       {incomesChartDiv(model, incomesChartData)}
       <h2>Expenses:</h2>
-      {expensesTableDiv(model)}
+      {expensesTableDiv(model, showAlert)}
       {expensesChartDiv(model, expensesChartData)}
       <h2>Assets:</h2>
-      {assetsOrDebtsTableDiv(model, false)}
+      {assetsOrDebtsTableDiv(model, showAlert, false)}
       {assetsOrDebtsChartDiv(model, assetChartData, false)}
-      {transactionsTableDiv(model, liquidateAsset)}
+      {transactionsTableDiv(model, showAlert, liquidateAsset)}
       <h2>Debts:</h2>
-      {assetsOrDebtsTableDiv(model, true)}
+      {assetsOrDebtsTableDiv(model, showAlert, true)}
       {assetsOrDebtsChartDiv(model, debtChartData, true)}
-      {transactionsTableDiv(model, payOffDebt)}
+      {transactionsTableDiv(model, showAlert, payOffDebt)}
       <h2>Transactions:</h2>
-      {transactionsTableDiv(model, custom)}
-      {transactionsTableDiv(model, autogen)}
+      {transactionsTableDiv(model, showAlert, custom)}
+      {transactionsTableDiv(model, showAlert, autogen)}
       <h2>Settings:</h2>
-      {settingsTableDiv(model)}
+      {settingsTableDiv(model, showAlert)}
     </div>
   );
 }
