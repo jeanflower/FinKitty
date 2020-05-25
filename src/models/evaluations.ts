@@ -1551,16 +1551,15 @@ function calculateFromChange(
 
     if (fromHasQuantity) {
       // log(`absolute from change involving quantities`);
-      // fromChange is a number of units
+      // fromChange is a number of pounds
       // use q to determine a proportional change
       // for fromChange
-      numberUnits = fromChange;
       unitValue = preFromValue;
+      numberUnits = Math.ceil(fromChange/unitValue);
       // reset fromChange so it's a £ value
-      fromChange = numberUnits * unitValue;
       // log(`fromChange = ${fromChange}`);
       // log(`numberUnits = ${numberUnits}`);
-      // log(`unitValue = ${fromChange}`);
+      // log(`unitValue = ${unitValue}`);
     }
     if (
       t.NAME.startsWith(conditional) &&
@@ -1808,6 +1807,7 @@ function processTransactionFromTo(
   // log(`processTransactionFromTo fromWord = ${fromWord}`);
   // log(`processTransactionFromTo takes in ${showObj(t)}`);
   const preFromValue = traceEvaluation(fromWord, values, fromWord);
+  // log(`pound value of ${fromWord} is ${preFromValue}`);
   let preToValue = undefined;
   if (t.TO !== '') {
     preToValue = traceEvaluation(t.TO, values, t.TO);
