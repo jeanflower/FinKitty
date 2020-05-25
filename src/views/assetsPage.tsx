@@ -21,8 +21,7 @@ import { revalueAsset } from '../localization/stringConstants';
 import DataGrid from './reactComponents/DataGrid';
 import NameFormatter from './reactComponents/NameFormatter';
 import CashValueFormatter from './reactComponents/CashValueFormatter';
-import { log } from './../utils';
-
+// import { log } from './../utils';
 
 const defaultColumn = {
   editable: true,
@@ -71,36 +70,36 @@ export function assetsDiv(
       <h4>Revalue assets</h4>
       {transactionsTableDiv(model, showAlert, revalueAsset)}
 
-      <h4>Today's values</h4>
-        <DataGrid
-            deleteFunction={async (name)=>{return false;}}
-            handleGridRowsUpdated={function() {return false;}}
-            rows={Array.from(todaysValues.entries()).map((key, value)=>{
-              // log(`key[0] = ${key[0]}, key[1] = ${key[1]}`);
-              return {
-                'NAME': key[0],
-                'VALUE': `${key[1]}`,
-              }
-            })}
-            columns={[
-              {
-                ...defaultColumn,
-                key: 'NAME',
-                name: 'name',
-                formatter: <NameFormatter value="unset" />,
-              },
-              {
-                ...defaultColumn,
-                key: 'VALUE',
-                name: `today's value`,
-                formatter: (
-                  <CashValueFormatter
-                    value="unset"
-                  />
-                ),
-              },
-            ]}
-        />
+      <h4>Today&apos;s values</h4>
+      <DataGrid
+        deleteFunction={async function() {
+          return false;
+        }}
+        handleGridRowsUpdated={function() {
+          return false;
+        }}
+        rows={Array.from(todaysValues.entries()).map(key => {
+          // log(`key[0] = ${key[0]}, key[1] = ${key[1]}`);
+          return {
+            NAME: key[0],
+            VALUE: `${key[1]}`,
+          };
+        })}
+        columns={[
+          {
+            ...defaultColumn,
+            key: 'NAME',
+            name: 'name',
+            formatter: <NameFormatter value="unset" />,
+          },
+          {
+            ...defaultColumn,
+            key: 'VALUE',
+            name: `today's value`,
+            formatter: <CashValueFormatter value="unset" />,
+          },
+        ]}
+      />
 
       <div className="addNewAsset">
         <h4> Add an asset or pension </h4>

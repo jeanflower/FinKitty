@@ -672,9 +672,9 @@ export function makeChartDataFromEvaluations(
   roi: Interval,
   model: DbModelData,
   evaluationsAndVals: {
-    evaluations:Evaluation[],
-    todaysValues: Map<string, number>,
-  }
+    evaluations: Evaluation[];
+    todaysValues: Map<string, number>;
+  },
 ) {
   const {
     expenseFocus,

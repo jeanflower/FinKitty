@@ -2103,9 +2103,11 @@ function logPurchaseValues(
 
 // This is the key entry point for code calling from outside
 // this file.
-export function getEvaluations(data: DbModelData): { 
-  evaluations: Evaluation[],
-  todaysValues: Map<string, number>,
+export function getEvaluations(
+  data: DbModelData,
+): {
+  evaluations: Evaluation[];
+  todaysValues: Map<string, number>;
 } {
   const todaysAssetValues = new Map<string, number>();
 
@@ -2292,7 +2294,7 @@ export function getEvaluations(data: DbModelData): {
   });
 
   const today = new Date();
-  if(roiEndDate > today){
+  if (roiEndDate > today) {
     allMoments.push({
       date: today,
       name: EvaluateAllAssets,
@@ -2328,13 +2330,13 @@ export function getEvaluations(data: DbModelData): {
       throw new Error('BUG!!! array length > 0 should pop!');
     }
 
-    if(moment.name === EvaluateAllAssets){
+    if (moment.name === EvaluateAllAssets) {
       data.assets.forEach(asset => {
         let val = values.get(asset.NAME);
-        if(typeof val === "string"){
+        if (typeof val === 'string') {
           val = traceEvaluation(val, values, val);
         }
-        if(val !== undefined){
+        if (val !== undefined) {
           todaysAssetValues.set(asset.NAME, val);
           // log(`asset ${asset.NAME} has value ${val}`);
         }
@@ -2551,5 +2553,5 @@ export function getEvaluations(data: DbModelData): {
   return {
     evaluations: evaluations,
     todaysValues: todaysAssetValues,
-  }
+  };
 }

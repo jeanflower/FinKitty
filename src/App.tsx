@@ -433,13 +433,13 @@ export async function refreshData(goToDB = true) {
     }
 
     // get the data out of the object we got back
-    const { 
-      expensesData, 
-      incomesData, 
-      assetData, 
-      debtData, 
-      taxData, 
-      todaysValues 
+    const {
+      expensesData,
+      incomesData,
+      assetData,
+      debtData,
+      taxData,
+      todaysValues,
     } = result;
 
     if (printDebug()) {

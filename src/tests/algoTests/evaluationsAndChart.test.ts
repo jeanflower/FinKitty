@@ -243,15 +243,19 @@ function printTestCodeForChart(result: DataForView) {
 
 const testJSONRoundTrip = false;
 
-function getTestEvaluations(model: DbModelData): {
-  evaluations: Evaluation[],
-  todaysValues: Map<string, number>
- } {
+function getTestEvaluations(
+  model: DbModelData,
+): {
+  evaluations: Evaluation[];
+  todaysValues: Map<string, number>;
+} {
   let evalnsAndVals;
   if (!testJSONRoundTrip) {
     evalnsAndVals = getEvaluations(model);
   } else {
-    evalnsAndVals = getEvaluations(makeCleanedModelFromJSON(JSON.stringify(model)));
+    evalnsAndVals = getEvaluations(
+      makeCleanedModelFromJSON(JSON.stringify(model)),
+    );
   }
   return evalnsAndVals;
 }
@@ -615,7 +619,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      {evaluations: evals, todaysValues: new Map<string, number>()}
+      { evaluations: evals, todaysValues: new Map<string, number>() },
     );
 
     // this clumsy block is to allow printTestCodeForChart to be "used"
@@ -677,7 +681,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      {evaluations: evals, todaysValues: new Map<string, number>()},
+      { evaluations: evals, todaysValues: new Map<string, number>() },
     );
 
     // log(showObj(result));
@@ -10575,7 +10579,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, viewDetail, coarse, viewType);
 
     const evalsAndValues = getTestEvaluations(model);
-    const evals = evalsAndValues.evaluations;
+    // const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -10616,7 +10620,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, viewDetail, coarse, viewType);
 
     const evalsAndValues = getTestEvaluations(model);
-    const evals = evalsAndValues.evaluations;
+    // const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -10699,7 +10703,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, viewDetail, coarse, viewType);
 
     const evalsAndValues = getTestEvaluations(model);
-    const evals = evalsAndValues.evaluations;
+    // const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -10782,7 +10786,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, viewDetail, fine, viewType);
 
     const evalsAndValues = getTestEvaluations(model);
-    const evals = evalsAndValues.evaluations;
+    // const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -10833,7 +10837,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, assetChartView, assetChartDeltas, viewType);
 
     const evalsAndValues = getTestEvaluations(model);
-    const evals = evalsAndValues.evaluations;
+    // const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
     // don't assert evaluations - already done in another test
 
@@ -10924,7 +10928,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, assetChartView, assetChartReductions, viewType);
 
     const evalsAndValues = getTestEvaluations(model);
-    const evals = evalsAndValues.evaluations;
+    // const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
     // don't assert evaluations - already done in another test
 
@@ -10976,7 +10980,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, assetChartView, assetChartAdditions, viewType);
 
     const evalsAndValues = getTestEvaluations(model);
-    const evals = evalsAndValues.evaluations;
+    // const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
     // don't assert evaluations - already done in another test
 
@@ -11061,7 +11065,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, viewDetail, coarse, viewType);
 
     const evalsAndValues = getTestEvaluations(model);
-    const evals = evalsAndValues.evaluations;
+    // const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -11107,7 +11111,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, viewDetail, fine, viewType);
 
     const evalsAndValues = getTestEvaluations(model);
-    const evals = evalsAndValues.evaluations;
+    // const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -11158,7 +11162,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, assetChartView, assetChartAdditions, viewType);
 
     const evalsAndValues = getTestEvaluations(model);
-    const evals = evalsAndValues.evaluations;
+    // const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
     // don't assert evaluations - already done in another test
 
@@ -11205,7 +11209,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, assetChartView, assetChartReductions, viewType);
 
     const evalsAndValues = getTestEvaluations(model);
-    const evals = evalsAndValues.evaluations;
+    // const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
     // don't assert evaluations - already done in another test
 
@@ -11255,7 +11259,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, assetChartView, assetChartDeltas, viewType);
 
     const evalsAndValues = getTestEvaluations(model);
-    const evals = evalsAndValues.evaluations;
+    // const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
     // don't assert evaluations - already done in another test
 
@@ -11316,7 +11320,7 @@ describe('evaluations tests', () => {
 
       suppressLogs();
       const evalsAndValues = getTestEvaluations(model);
-    const evals = evalsAndValues.evaluations;
+      const evals = evalsAndValues.evaluations;
       unSuppressLogs();
       // log(`evals = ${showObj(evals)}`);
       // don't assert evaluations - already done in another test
@@ -11361,7 +11365,7 @@ describe('evaluations tests', () => {
     };
 
     suppressLogs();
-    let evalsAndValues = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
     let evals = evalsAndValues.evaluations;
 
     unSuppressLogs();
