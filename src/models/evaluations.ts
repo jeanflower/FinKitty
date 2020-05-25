@@ -1550,13 +1550,24 @@ function calculateFromChange(
     let unitValue = 0.0;
 
     if (fromHasQuantity) {
-      // log(`absolute from change involving quantities`);
-      // fromChange is a number of pounds
-      // use q to determine a proportional change
-      // for fromChange
-      unitValue = preFromValue;
-      numberUnits = Math.ceil(fromChange/unitValue);
-      // reset fromChange so it's a £ value
+      if(t.NAME.startsWith(conditional)){
+        // log(`absolute from change involving quantities`);
+        // fromChange is a number of pounds
+        // use q to determine a proportional change
+        // for fromChange
+        unitValue = preFromValue;
+        numberUnits = Math.ceil(fromChange/unitValue);
+        // reset fromChange so it's a £ value
+      } else {
+        // log(`absolute from change involving quantities`);
+        // fromChange is a number of units
+        // use q to determine a proportional change
+        // for fromChange
+        numberUnits = fromChange;	
+        unitValue = preFromValue;
+        // reset fromChange so it's a £ value
+        fromChange = numberUnits * unitValue;	
+      }
       // log(`fromChange = ${fromChange}`);
       // log(`numberUnits = ${numberUnits}`);
       // log(`unitValue = ${unitValue}`);

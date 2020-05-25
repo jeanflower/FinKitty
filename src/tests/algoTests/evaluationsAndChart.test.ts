@@ -12643,7 +12643,7 @@ describe('evaluations tests', () => {
           ...simpleTransaction,
           NAME: 'Conditional sell some cars',
           FROM: 'Cars',
-          FROM_VALUE: '3', // selling all if we need to
+          FROM_VALUE: '300', // cap in £
           TO: CASH_ASSET_NAME,
           TO_VALUE: '0.95', // sacrifice a fee
           TO_ABSOLUTE: false,
@@ -12748,7 +12748,7 @@ describe('evaluations tests', () => {
           ...simpleTransaction,
           NAME: 'Conditional sell some cars',
           FROM: 'Cars',
-          FROM_VALUE: '3', // selling all if we need to
+          FROM_VALUE: '300', // cap in £
           TO: CASH_ASSET_NAME,
           TO_VALUE: '0.95', // sacrifice a fee
           TO_ABSOLUTE: false,
@@ -12853,7 +12853,7 @@ describe('evaluations tests', () => {
           ...simpleTransaction,
           NAME: 'Conditional sell some cars',
           FROM: 'Cars',
-          FROM_VALUE: '3', // selling all if we need to
+          FROM_VALUE: '300', // cap in £
           TO: CASH_ASSET_NAME,
           TO_VALUE: '1.0', // no fee
           TO_ABSOLUTE: false,
@@ -12958,7 +12958,7 @@ describe('evaluations tests', () => {
           ...simpleTransaction,
           NAME: 'Conditional sell some cars',
           FROM: 'Cars',
-          FROM_VALUE: '3', // selling all if we need to
+          FROM_VALUE: '300', // cap in £
           TO: CASH_ASSET_NAME,
           TO_VALUE: '0.5', // big fee
           TO_ABSOLUTE: false,
@@ -13730,7 +13730,7 @@ describe('evaluations tests', () => {
           ...simpleTransaction,
           NAME: 'Conditional sell some cars',
           FROM: 'Cars',
-          FROM_VALUE: '3', // selling all if we need to
+          FROM_VALUE: '300', // cap in £
           TO: CASH_ASSET_NAME,
           TO_VALUE: '0.95', // sacrifice a fee
           TO_ABSOLUTE: false,
@@ -13844,7 +13844,7 @@ describe('evaluations tests', () => {
           ...simpleTransaction,
           NAME: 'Conditional sell some cars',
           FROM: 'Cars',
-          FROM_VALUE: '3', // selling all if we need to
+          FROM_VALUE: '300', // cap in £
           TO: CASH_ASSET_NAME,
           TO_VALUE: '0.95', // sacrifice a fee
           TO_ABSOLUTE: false,
@@ -13958,7 +13958,7 @@ describe('evaluations tests', () => {
           ...simpleTransaction,
           NAME: 'Conditional sell some cars',
           FROM: 'Cars',
-          FROM_VALUE: '3', // selling all if we need to
+          FROM_VALUE: '300', // cal in £
           TO: CASH_ASSET_NAME,
           TO_VALUE: '1.0', // no fee
           TO_ABSOLUTE: false,
@@ -14072,7 +14072,7 @@ describe('evaluations tests', () => {
           ...simpleTransaction,
           NAME: 'Conditional sell some cars',
           FROM: 'Cars',
-          FROM_VALUE: '3', // selling all if we need to
+          FROM_VALUE: '300', // cap in £
           TO: CASH_ASSET_NAME,
           TO_VALUE: '0.5', // big fee
           TO_ABSOLUTE: false,
