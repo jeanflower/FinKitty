@@ -1503,11 +1503,11 @@ function calculateFromChange(
       toImpact: number;
     }
   | undefined {
-  // log(`in calculateFromChange`);
+  // log(`in calculateFromChange for ${t.NAME}, ${fromWord}`);
   const tFromValue = parseFloat(t.FROM_VALUE);
   const tToValue = parseFloat(t.TO_VALUE);
 
-  const q = getQuantity(t.FROM, values, model);
+  const q = getQuantity(fromWord, values, model);
   const fromHasQuantity = q !== undefined;
 
   // The calling code will use fromChange to setValue on
@@ -1596,7 +1596,7 @@ function calculateFromChange(
         values,
         evaluations,
         moment.date,
-        quantity + t.FROM,
+        quantity + fromWord,
         q - numberUnits,
         model,
         t.FROM,
