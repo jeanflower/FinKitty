@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDataGrid from 'react-data-grid';
 import { log, printDebug, showObj } from '../../utils';
-// import { showObj } from '../AppLogic'
 /**
  * Samples:
  * https://adazzle.github.io/react-data-grid/examples.html#/all-features

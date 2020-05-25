@@ -1,7 +1,7 @@
 import React from 'react';
 import { DbTrigger } from '../../types/interfaces';
 import { makeDateTooltip, dateFormatOptions } from '../../utils';
-// import { showObj } from '../AppLogic'
+// import { showObj } from ''../../utils''
 
 interface TriggerDateFormatterProps {
   value: string;
