@@ -433,7 +433,14 @@ export async function refreshData(goToDB = true) {
     }
 
     // get the data out of the object we got back
-    const { expensesData, incomesData, assetData, debtData, taxData } = result;
+    const { 
+      expensesData, 
+      incomesData, 
+      assetData, 
+      debtData, 
+      taxData, 
+      todaysValues 
+    } = result;
 
     if (printDebug()) {
       log('in refreshData');
@@ -462,6 +469,7 @@ export async function refreshData(goToDB = true) {
           debtChartData,
           taxChartData,
           modelNamesData: modelNames,
+          todaysValues: todaysValues,
         },
         () => {
           // setState is async
@@ -692,6 +700,7 @@ interface AppState {
   debtChartData: ChartData[];
   taxChartData: ChartData[];
   modelNamesData: string[];
+  todaysValues: Map<string, number>;
   alertText: string;
 }
 interface AppProps {
@@ -719,6 +728,7 @@ export class AppContent extends Component<AppProps, AppState> {
       debtChartData: [],
       taxChartData: [],
       modelNamesData: [],
+      todaysValues: new Map<string, number>(),
       alertText: '',
     };
     refreshData();
@@ -763,6 +773,7 @@ export class AppContent extends Component<AppProps, AppState> {
             this.state.modelData,
             showAlert,
             this.state.assetChartData,
+            this.state.todaysValues,
           )}
           {debtsDiv(this.state.modelData, showAlert, this.state.debtChartData)}
           {this.transactionsDiv()}

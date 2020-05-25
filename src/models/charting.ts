@@ -671,7 +671,10 @@ function generateEvaluationDates(roi: Interval, frequency: string) {
 export function makeChartDataFromEvaluations(
   roi: Interval,
   model: DbModelData,
-  evaluations: Evaluation[],
+  evaluationsAndVals: {
+    evaluations:Evaluation[],
+    todaysValues: Map<string, number>,
+  }
 ) {
   const {
     expenseFocus,
@@ -691,7 +694,10 @@ export function makeChartDataFromEvaluations(
     assetData: [],
     debtData: [],
     taxData: [],
+    todaysValues: new Map<string, number>(),
   };
+
+  result.todaysValues = evaluationsAndVals.todaysValues;
 
   // each expense/income/asset has a name
   // remember, for each name, whether it's an expense/income/asset
@@ -752,7 +758,7 @@ export function makeChartDataFromEvaluations(
   const prevEvalAssetValue = new Map<string, number>();
   // prev is used to calc + or -
 
-  evaluations.forEach(evaln => {
+  evaluationsAndVals.evaluations.forEach(evaln => {
     const firstDateAfterEvaln = allDates.find(d => d >= evaln.date);
     if (firstDateAfterEvaln === undefined) {
       // no need to capture data from this evaluation
@@ -1163,7 +1169,8 @@ export function makeChartDataFromEvaluations(
 
 export function makeChartData(model: DbModelData): DataForView {
   // log('in makeChartData');
-  const evaluations = getEvaluations(model);
+  const evaluationsAndVals = getEvaluations(model);
+  const evaluations = evaluationsAndVals.evaluations;
   if (evaluations.length === 0) {
     // don't do more work
     // skip settings-exist checks
@@ -1174,6 +1181,7 @@ export function makeChartData(model: DbModelData): DataForView {
       assetData: [],
       debtData: [],
       taxData: [],
+      todaysValues: new Map<string, number>(),
     };
     return emptyData;
   }
@@ -1190,5 +1198,5 @@ export function makeChartData(model: DbModelData): DataForView {
   };
 
   // log(`roi is ${showObj(roi)}`);
-  return makeChartDataFromEvaluations(roi, model, evaluations);
+  return makeChartDataFromEvaluations(roi, model, evaluationsAndVals);
 }

@@ -243,12 +243,17 @@ function printTestCodeForChart(result: DataForView) {
 
 const testJSONRoundTrip = false;
 
-function getTestEvaluations(model: DbModelData): Evaluation[] {
+function getTestEvaluations(model: DbModelData): {
+  evaluations: Evaluation[],
+  todaysValues: Map<string, number>
+ } {
+  let evalnsAndVals;
   if (!testJSONRoundTrip) {
-    return getEvaluations(model);
+    evalnsAndVals = getEvaluations(model);
   } else {
-    return getEvaluations(makeCleanedModelFromJSON(JSON.stringify(model)));
+    evalnsAndVals = getEvaluations(makeCleanedModelFromJSON(JSON.stringify(model)));
   }
+  return evalnsAndVals;
 }
 
 export function getModelFutureExpense() {
@@ -539,12 +544,12 @@ describe('evaluations tests', () => {
     const model = modelAndRoi.model;
     const roi = modelAndRoi.roi;
 
-    const evals: Evaluation[] = getEvaluations(
+    const evalsAndValues = getEvaluations(
       makeCleanedModelFromJSON(JSON.stringify(model)),
     );
 
     // log(showObj(evals));
-    expect(evals.length).toBe(0);
+    expect(evalsAndValues.evaluations.length).toBe(0);
 
     const result = makeChartDataFromEvaluations(
       {
@@ -552,7 +557,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -585,7 +590,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // this clumsy block is to allow printTestCodeForEvals to be "used"
@@ -609,7 +615,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      {evaluations: evals, todaysValues: new Map<string, number>()}
     );
 
     // this clumsy block is to allow printTestCodeForChart to be "used"
@@ -659,7 +665,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     expect(evals.length).toBe(0);
     // log(showObj(evals));
@@ -670,7 +677,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      {evaluations: evals, todaysValues: new Map<string, number>()},
     );
 
     // log(showObj(result));
@@ -704,7 +711,8 @@ describe('evaluations tests', () => {
     setROI(model, roi);
     setSetting(model.settings, viewFrequency, annually, viewType);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     expect(evals.length).toBe(2);
     expectEvals(evals, 0, 'Phon', 'Mon Jan 01 2018', 12.12, 2);
@@ -718,7 +726,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -752,7 +760,8 @@ describe('evaluations tests', () => {
     setROI(model, roi);
     setSetting(model.settings, viewFrequency, annually, viewType);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     expect(evals.length).toBe(2);
     expectEvals(evals, 0, 'Phon', 'Mon Jan 01 2018', 12.12, 2);
@@ -766,7 +775,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -819,7 +828,8 @@ describe('evaluations tests', () => {
     };
     setSetting(model.settings, cpi, '12.0', constType);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -837,7 +847,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -893,7 +903,8 @@ describe('evaluations tests', () => {
     };
     setSetting(model.settings, cpi, '12.0', constType);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -907,7 +918,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -963,7 +974,8 @@ describe('evaluations tests', () => {
     };
     setSetting(model.settings, cpi, '12.0', constType);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -978,7 +990,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -1034,7 +1046,8 @@ describe('evaluations tests', () => {
     };
     setSetting(model.settings, cpi, '12.0', constType);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -1049,7 +1062,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -1107,7 +1120,8 @@ describe('evaluations tests', () => {
     setSetting(model.settings, cpi, '5.0', constType);
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -1124,7 +1138,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -1171,7 +1185,8 @@ describe('evaluations tests', () => {
     setSetting(model.settings, cpi, '5.0', constType);
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -1186,7 +1201,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -1237,7 +1252,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -1254,7 +1270,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -1297,7 +1313,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // printTestCodeForEvals(evals);
 
     expect(evals.length).toBe(3);
@@ -1313,7 +1330,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -1357,7 +1374,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -1372,7 +1390,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -1415,7 +1433,8 @@ describe('evaluations tests', () => {
     setROI(model, roi);
     setSetting(model.settings, viewFrequency, annually, viewType);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -1433,7 +1452,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -1473,7 +1492,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // printTestCodeForEvals(evals);
 
     expect(evals.length).toBe(2);
@@ -1488,7 +1508,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -1533,7 +1553,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // printTestCodeForEvals(evals);
 
     expect(evals.length).toBe(2);
@@ -1548,7 +1569,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -1590,7 +1611,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // printTestCodeForEvals(evals);
 
     expect(evals.length).toBe(2);
@@ -1603,7 +1625,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -1645,7 +1667,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // printTestCodeForEvals(evals);
 
     expect(evals.length).toBe(3);
@@ -1661,7 +1684,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -1719,7 +1742,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // printTestCodeForEvals(evals);
 
     expect(evals.length).toBe(3);
@@ -1734,7 +1758,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -1788,7 +1812,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -1805,7 +1830,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -1846,7 +1871,8 @@ describe('evaluations tests', () => {
     setROI(model, roi);
     setSetting(model.settings, cpi, '12', constType);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -1863,7 +1889,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -1905,7 +1931,8 @@ describe('evaluations tests', () => {
     setROI(model, roi);
     setSetting(model.settings, cpi, '12', constType);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -1922,7 +1949,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -1964,7 +1991,8 @@ describe('evaluations tests', () => {
     setROI(model, roi);
     setSetting(model.settings, cpi, '12', constType);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -1981,7 +2009,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -2024,7 +2052,8 @@ describe('evaluations tests', () => {
     setSetting(model.settings, viewFrequency, annually, viewType);
     setSetting(model.settings, assetChartView, assetChartDeltas, viewType);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -2051,7 +2080,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -2108,7 +2137,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // printTestCodeForEvals(evals);
 
     expect(evals.length).toBe(2);
@@ -2122,7 +2152,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -2174,7 +2204,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -2191,7 +2222,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -2248,7 +2279,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -2264,7 +2296,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -2313,7 +2345,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -2331,7 +2364,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -2380,7 +2413,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -2400,7 +2434,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -2453,7 +2487,8 @@ describe('evaluations tests', () => {
 
     setSetting(model.settings, viewFrequency, monthly, viewType);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -2472,7 +2507,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -2534,7 +2569,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -2561,7 +2597,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -2639,7 +2675,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -2673,7 +2710,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -2747,7 +2784,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -2766,7 +2804,7 @@ describe('evaluations tests', () => {
     const result = makeChartDataFromEvaluations(
       { start: makeDateFromString(roi.start), end: makeDateFromString(roi.end) },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -2836,7 +2874,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -2854,7 +2893,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -2932,7 +2971,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -2979,7 +3019,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -3088,7 +3128,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -3137,7 +3178,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -3245,7 +3286,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -3294,7 +3336,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -3401,7 +3443,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -3455,7 +3498,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart( result );
@@ -3562,7 +3605,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -3608,7 +3652,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -3704,7 +3748,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -3747,7 +3792,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -3859,7 +3904,8 @@ describe('evaluations tests', () => {
       x.VALUE = CASH_ASSET_NAME;
     }
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -3922,7 +3968,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -4069,7 +4115,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -4127,7 +4174,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     //printTestCodeForChart(result);
@@ -4223,7 +4270,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -4239,7 +4287,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -4312,7 +4360,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -4332,7 +4381,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // log(showObj(result));
@@ -4425,7 +4474,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -4447,7 +4497,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // log(showObj(result));
@@ -4542,7 +4592,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -4568,7 +4619,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // log(showObj(result));
@@ -4647,7 +4698,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -4666,7 +4718,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // log(showObj(result));
@@ -4728,7 +4780,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -4745,7 +4798,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // log(showObj(result));
@@ -4808,7 +4861,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -4827,7 +4881,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // log(showObj(result));
@@ -4890,7 +4944,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -4909,7 +4964,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // log(showObj(result));
@@ -4986,7 +5041,8 @@ describe('evaluations tests', () => {
     };
     setSetting(model.settings, cpi, `${smallCPI}`, constType);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // log(`evals = ${showObj(evals)}`);
 
@@ -5149,7 +5205,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -5170,7 +5227,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // log(showObj(result));
@@ -5248,7 +5305,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -5269,7 +5327,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // log(showObj(result));
@@ -5350,7 +5408,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -5371,7 +5430,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // log(showObj(result));
@@ -5449,7 +5508,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -5472,7 +5532,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // log(showObj(result));
@@ -5548,7 +5608,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -5569,7 +5630,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // log(showObj(result));
@@ -5650,7 +5711,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -5671,7 +5733,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // log(showObj(result));
@@ -5741,7 +5803,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -5761,7 +5824,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // log(showObj(result));
@@ -5821,7 +5884,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -5841,7 +5905,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // log(showObj(result));
@@ -5903,7 +5967,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -5923,7 +5988,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // log(showObj(result));
@@ -5986,7 +6051,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -6008,7 +6074,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // log(showObj(result));
@@ -6068,7 +6134,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -6110,7 +6177,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -6203,7 +6270,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -6229,7 +6297,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -6327,7 +6395,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -6353,7 +6422,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -6451,7 +6520,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -6534,7 +6604,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -6632,7 +6702,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -6658,7 +6729,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -6764,7 +6835,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -6791,7 +6863,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -6868,7 +6940,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -6912,7 +6985,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // log(showObj(result));
@@ -6988,7 +7061,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -7090,7 +7164,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // log(showObj(result));
@@ -7177,7 +7251,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -7279,7 +7354,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // log(showObj(result));
@@ -7368,7 +7443,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -7470,7 +7546,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // log(showObj(result));
@@ -7564,7 +7640,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -7670,7 +7747,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // log(showObj(result));
@@ -7762,7 +7839,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -7992,7 +8070,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // log(showObj(result));
@@ -8088,7 +8166,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -8150,7 +8229,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // log(showObj(result));
@@ -8281,7 +8360,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -8355,7 +8435,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -8486,7 +8566,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -8560,7 +8641,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -8691,7 +8772,8 @@ describe('evaluations tests', () => {
     setROI(model, roi);
     setSetting(model.settings, cpi, '12.0', constType);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -8765,7 +8847,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -8896,7 +8978,8 @@ describe('evaluations tests', () => {
     setROI(model, roi);
 
     suppressLogs();
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     unSuppressLogs();
     // log(`evals = ${showObj(evals)}`);
 
@@ -8990,7 +9073,8 @@ describe('evaluations tests', () => {
     setROI(model, roi);
 
     suppressLogs();
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     unSuppressLogs();
     // log(`evals = ${showObj(evals)}`);
 
@@ -9083,7 +9167,8 @@ describe('evaluations tests', () => {
     setROI(model, roi);
 
     suppressLogs();
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     unSuppressLogs();
     // log(`evals = ${showObj(evals)}`);
 
@@ -9121,7 +9206,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -9145,7 +9231,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -9218,7 +9304,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -9246,7 +9333,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -9329,7 +9416,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -9360,7 +9448,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -9445,7 +9533,8 @@ describe('evaluations tests', () => {
       ],
     };
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -9463,7 +9552,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -9541,7 +9630,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -9567,7 +9657,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -9638,7 +9728,8 @@ describe('evaluations tests', () => {
       settings: [...defaultSettings],
     };
     setROI(model, roi);
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -9667,7 +9758,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -9730,7 +9821,8 @@ describe('evaluations tests', () => {
       settings: [...defaultSettings],
     };
     setROI(model, roi);
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -9747,7 +9839,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -9798,7 +9890,8 @@ describe('evaluations tests', () => {
       settings: [...defaultSettings],
     };
     setROI(model, roi);
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -9815,7 +9908,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -9873,7 +9966,8 @@ describe('evaluations tests', () => {
       settings: [...defaultSettings],
     };
     setROI(model, roi);
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -9895,7 +9989,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -9935,7 +10029,8 @@ describe('evaluations tests', () => {
 
     setSetting(model.settings, viewDetail, coarse, viewType);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -9993,7 +10088,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // log(showObj(result));
@@ -10072,7 +10167,8 @@ describe('evaluations tests', () => {
 
     setSetting(model.settings, viewDetail, total, viewType);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -10130,7 +10226,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // log(showObj(result));
@@ -10179,7 +10275,8 @@ describe('evaluations tests', () => {
 
     setSetting(model.settings, viewDetail, fine, viewType);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -10237,7 +10334,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // log(showObj(result));
@@ -10347,7 +10444,8 @@ describe('evaluations tests', () => {
     setSetting(model.settings, assetChartFocus, CASH_ASSET_NAME, viewType);
     setSetting(model.settings, viewDetail, coarse, viewType);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     //printTestCodeForEvals(evals);
@@ -10405,7 +10503,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // log(showObj(result));
@@ -10476,7 +10574,8 @@ describe('evaluations tests', () => {
     setSetting(model.settings, assetChartFocus, 'Accessible', viewType);
     setSetting(model.settings, viewDetail, coarse, viewType);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -10487,7 +10586,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // log(showObj(result));
@@ -10516,7 +10615,8 @@ describe('evaluations tests', () => {
     setSetting(model.settings, assetChartFocus, 'stocks', viewType);
     setSetting(model.settings, viewDetail, coarse, viewType);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -10527,7 +10627,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // log(showObj(result));
@@ -10598,7 +10698,8 @@ describe('evaluations tests', () => {
     setSetting(model.settings, assetChartFocus, 'savings', viewType);
     setSetting(model.settings, viewDetail, coarse, viewType);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -10609,7 +10710,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // log(showObj(result));
@@ -10680,7 +10781,8 @@ describe('evaluations tests', () => {
     setSetting(model.settings, assetChartFocus, 'Accessible', viewType);
     setSetting(model.settings, viewDetail, fine, viewType);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -10691,7 +10793,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // log(showObj(result));
@@ -10730,7 +10832,8 @@ describe('evaluations tests', () => {
     setSetting(model.settings, viewDetail, coarse, viewType);
     setSetting(model.settings, assetChartView, assetChartDeltas, viewType);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
     // don't assert evaluations - already done in another test
 
@@ -10740,7 +10843,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -10820,7 +10923,8 @@ describe('evaluations tests', () => {
     setSetting(model.settings, viewDetail, coarse, viewType);
     setSetting(model.settings, assetChartView, assetChartReductions, viewType);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
     // don't assert evaluations - already done in another test
 
@@ -10830,7 +10934,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // log(showObj(result));
@@ -10871,7 +10975,8 @@ describe('evaluations tests', () => {
     setSetting(model.settings, viewDetail, coarse, viewType);
     setSetting(model.settings, assetChartView, assetChartAdditions, viewType);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
     // don't assert evaluations - already done in another test
 
@@ -10881,7 +10986,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // log(showObj(result));
@@ -10955,7 +11060,8 @@ describe('evaluations tests', () => {
     setSetting(model.settings, assetChartFocus, 'Accessible', viewType);
     setSetting(model.settings, viewDetail, coarse, viewType);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -10966,7 +11072,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // log(showObj(result));
@@ -11000,7 +11106,8 @@ describe('evaluations tests', () => {
     setSetting(model.settings, assetChartFocus, 'Accessible', viewType);
     setSetting(model.settings, viewDetail, fine, viewType);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
@@ -11011,7 +11118,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // log(showObj(result));
@@ -11050,7 +11157,8 @@ describe('evaluations tests', () => {
     setSetting(model.settings, viewDetail, coarse, viewType);
     setSetting(model.settings, assetChartView, assetChartAdditions, viewType);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
     // don't assert evaluations - already done in another test
 
@@ -11060,7 +11168,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -11096,7 +11204,8 @@ describe('evaluations tests', () => {
     setSetting(model.settings, viewDetail, coarse, viewType);
     setSetting(model.settings, assetChartView, assetChartReductions, viewType);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
     // don't assert evaluations - already done in another test
 
@@ -11106,7 +11215,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -11145,7 +11254,8 @@ describe('evaluations tests', () => {
     setSetting(model.settings, viewDetail, coarse, viewType);
     setSetting(model.settings, assetChartView, assetChartDeltas, viewType);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
     // don't assert evaluations - already done in another test
 
@@ -11155,7 +11265,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -11205,7 +11315,8 @@ describe('evaluations tests', () => {
       setSetting(model.settings, key, 'nonsense', viewType);
 
       suppressLogs();
-      const evals: Evaluation[] = getTestEvaluations(model);
+      const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
       unSuppressLogs();
       // log(`evals = ${showObj(evals)}`);
       // don't assert evaluations - already done in another test
@@ -11250,7 +11361,9 @@ describe('evaluations tests', () => {
     };
 
     suppressLogs();
-    let evals: Evaluation[] = getTestEvaluations(model);
+    let evalsAndValues = getTestEvaluations(model);
+    let evals = evalsAndValues.evaluations;
+
     unSuppressLogs();
     // printTestCodeForEvals(evals);
     expect(evals.length).toBe(0);
@@ -11258,7 +11371,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, 'shareGrowth', 'nonsense', constType);
 
     suppressLogs();
-    evals = getEvaluations(model);
+    evals = getEvaluations(model).evaluations;
     unSuppressLogs();
     // printTestCodeForEvals(evals);
     expect(evals.length).toBe(0);
@@ -11297,7 +11410,8 @@ describe('evaluations tests', () => {
     };
 
     suppressLogs();
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     unSuppressLogs();
     // printTestCodeForEvals(evals);
     expect(evals.length).toBe(0);
@@ -11346,7 +11460,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -11372,7 +11487,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -11446,7 +11561,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -11474,7 +11590,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -11549,7 +11665,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -11571,7 +11688,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -11642,7 +11759,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -11664,7 +11782,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -11735,7 +11853,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -11759,7 +11878,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -11835,7 +11954,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -11859,7 +11979,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -11935,7 +12055,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -11959,7 +12080,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -12036,7 +12157,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -12060,7 +12182,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -12125,7 +12247,8 @@ describe('evaluations tests', () => {
     setROI(model, roi);
 
     suppressLogs();
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
     unSuppressLogs();
 
     // printTestCodeForEvals(evals);
@@ -12173,7 +12296,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
     expect(evals.length).toBe(4);
@@ -12188,7 +12312,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     //printTestCodeForChart(result);
@@ -12238,7 +12362,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
     expect(evals.length).toBe(2);
@@ -12252,7 +12377,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     //printTestCodeForChart(result);
@@ -12290,7 +12415,8 @@ describe('evaluations tests', () => {
 
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -12313,7 +12439,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -12373,7 +12499,8 @@ describe('evaluations tests', () => {
 
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -12397,7 +12524,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -12458,7 +12585,8 @@ describe('evaluations tests', () => {
 
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -12484,7 +12612,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -12558,7 +12686,8 @@ describe('evaluations tests', () => {
 
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -12584,7 +12713,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -12663,7 +12792,8 @@ describe('evaluations tests', () => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].VALUE = '-1000'; // need to sell a lot of cars!
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -12689,7 +12819,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -12768,7 +12898,8 @@ describe('evaluations tests', () => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].VALUE = '-150'; // need to sell two cars
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -12794,7 +12925,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -12873,7 +13004,8 @@ describe('evaluations tests', () => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].VALUE = '-200'; // need to sell two cars
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -12899,7 +13031,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -12978,7 +13110,8 @@ describe('evaluations tests', () => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].VALUE = '-75'; // less than one car but two considering fees
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -13004,7 +13137,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -13086,7 +13219,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -13112,7 +13246,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -13173,7 +13307,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -13197,7 +13332,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -13265,7 +13400,8 @@ describe('evaluations tests', () => {
     };
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -13290,7 +13426,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -13349,7 +13485,8 @@ describe('evaluations tests', () => {
 
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -13373,7 +13510,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -13441,7 +13578,8 @@ describe('evaluations tests', () => {
 
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -13466,7 +13604,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -13535,7 +13673,8 @@ describe('evaluations tests', () => {
 
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -13562,7 +13701,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -13644,7 +13783,8 @@ describe('evaluations tests', () => {
 
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -13671,7 +13811,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -13758,7 +13898,8 @@ describe('evaluations tests', () => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].VALUE = '-1000'; // need to sell a lot of cars!
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -13785,7 +13926,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -13872,7 +14013,8 @@ describe('evaluations tests', () => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].VALUE = '-150'; // need to sell two cars
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -13899,7 +14041,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -13986,7 +14128,8 @@ describe('evaluations tests', () => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].VALUE = '-200'; // need to sell two cars
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -14013,7 +14156,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -14100,7 +14243,8 @@ describe('evaluations tests', () => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].VALUE = '-75'; // less than one car but two considering fees
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -14127,7 +14271,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -14167,7 +14311,8 @@ describe('evaluations tests', () => {
     const model = modelAndRoi.model;
     const roi = modelAndRoi.roi;
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -14192,7 +14337,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -14266,7 +14411,8 @@ describe('evaluations tests', () => {
 
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -14292,7 +14438,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -14367,7 +14513,8 @@ describe('evaluations tests', () => {
 
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -14395,7 +14542,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -14483,7 +14630,8 @@ describe('evaluations tests', () => {
 
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -14511,7 +14659,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -14604,7 +14752,8 @@ describe('evaluations tests', () => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].VALUE = '-1000'; // need to sell a lot of cars!
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -14632,7 +14781,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -14725,7 +14874,8 @@ describe('evaluations tests', () => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].VALUE = '-150'; // need to sell two cars
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -14753,7 +14903,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -14846,7 +14996,8 @@ describe('evaluations tests', () => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].VALUE = '-200'; // need to sell two cars
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -14874,7 +15025,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -14967,7 +15118,8 @@ describe('evaluations tests', () => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].VALUE = '-500';
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -14995,7 +15147,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -15090,7 +15242,8 @@ describe('evaluations tests', () => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].VALUE = '-75'; // less than one car but two considering fees
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -15118,7 +15271,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -15193,7 +15346,8 @@ describe('evaluations tests', () => {
 
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -15218,7 +15372,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -15281,7 +15435,8 @@ describe('evaluations tests', () => {
 
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -15306,7 +15461,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -15380,7 +15535,8 @@ describe('evaluations tests', () => {
 
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -15406,7 +15562,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -15480,7 +15636,8 @@ describe('evaluations tests', () => {
 
     setROI(model, roi);
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -15506,7 +15663,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);
@@ -15594,7 +15751,8 @@ describe('evaluations tests', () => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].VALUE = '-1000'; // need to sell a lot of cars!
 
-    const evals: Evaluation[] = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
 
@@ -15633,7 +15791,7 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      evals,
+      evalsAndValues,
     );
 
     // printTestCodeForChart(result);

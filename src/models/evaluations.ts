@@ -19,6 +19,7 @@ import {
   pensionDB,
   pensionTransfer,
   quantity,
+  EvaluateAllAssets,
 } from '../localization/stringConstants';
 import {
   DatedThing,
@@ -2102,12 +2103,19 @@ function logPurchaseValues(
 
 // This is the key entry point for code calling from outside
 // this file.
-export function getEvaluations(data: DbModelData): Evaluation[] {
+export function getEvaluations(data: DbModelData): { 
+  evaluations: Evaluation[],
+  todaysValues: Map<string, number>,
+} {
+  const todaysAssetValues = new Map<string, number>();
+
   const message = checkData(data);
   if (message.length > 0) {
     log(message);
-    const result: Evaluation[] = [];
-    return result;
+    return {
+      evaluations: [],
+      todaysValues: todaysAssetValues,
+    };
   }
   // log('in getEvaluations');
   const roiEndDate: Date = makeDateFromString(
@@ -2283,10 +2291,20 @@ export function getEvaluations(data: DbModelData): Evaluation[] {
     logPensionIncomeLiabilities(transaction, liabilitiesMap);
   });
 
+  const today = new Date();
+  if(roiEndDate > today){
+    allMoments.push({
+      date: today,
+      name: EvaluateAllAssets,
+      type: momentType.asset,
+      setValue: 0,
+      transaction: undefined,
+    });
+  }
+
   // log(`pensionTransactions = ${pensionTransactions}`);
 
   const datedMoments = allMoments.filter(moment => moment.date !== undefined);
-  const unDatedMoments = allMoments.filter(moment => moment.date === undefined);
 
   // Process the moments in date order
   sortByDate(datedMoments);
@@ -2308,6 +2326,19 @@ export function getEvaluations(data: DbModelData): Evaluation[] {
     const moment = datedMoments.pop();
     if (moment === undefined) {
       throw new Error('BUG!!! array length > 0 should pop!');
+    }
+
+    if(moment.name === EvaluateAllAssets){
+      data.assets.forEach(asset => {
+        let val = values.get(asset.NAME);
+        if(typeof val === "string"){
+          val = traceEvaluation(val, values, val);
+        }
+        if(val !== undefined){
+          todaysAssetValues.set(asset.NAME, val);
+          // log(`asset ${asset.NAME} has value ${val}`);
+        }
+      });
     }
 
     // Each moment we process is in dated order.
@@ -2511,15 +2542,14 @@ export function getEvaluations(data: DbModelData): Evaluation[] {
     }
   }
 
-  if (unDatedMoments.length > 0) {
-    log('Bug : Unhandled undated moments!');
-  }
-
   if (printDebug()) {
     evaluations.forEach(evalns => {
       log(showObj(evalns));
     });
   }
   // log(`getEvaluations returning ${evaluations.length} evaluations`);
-  return evaluations;
+  return {
+    evaluations: evaluations,
+    todaysValues: todaysAssetValues,
+  }
 }

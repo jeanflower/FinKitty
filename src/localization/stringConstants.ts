@@ -160,3 +160,5 @@ export const payOffDebt = 'payOffDebt';
 export const constType = 'const';
 export const viewType = 'view';
 export const adjustableType = 'adjustable';
+
+export const EvaluateAllAssets = 'EvaluateAllAssets';

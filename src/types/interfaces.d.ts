@@ -118,6 +118,7 @@ export interface DataForView {
   expensesData: ItemChartData[];
   incomesData: ItemChartData[];
   taxData: ItemChartData[];
+  todaysValues: Map<string, number>;
 }
 
 export interface Evaluation {
