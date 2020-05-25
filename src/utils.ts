@@ -394,9 +394,11 @@ export function makeValueAbsPropFromString(input: string) {
     } else {
       result.checksOK = false;
     }
-  } else if (numWordSplit.numberPart !== undefined 
-    && numWordSplit.wordPart!=='%'
-    && numWordSplit.wordPart!=='') {
+  } else if (
+    numWordSplit.numberPart !== undefined &&
+    numWordSplit.wordPart !== '%' &&
+    numWordSplit.wordPart !== ''
+  ) {
     result.value = input;
     result.checksOK = true;
   } else if (input[input.length - 1] === '%') {

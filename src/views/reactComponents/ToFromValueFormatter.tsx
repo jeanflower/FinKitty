@@ -12,16 +12,12 @@ class ToFromValueFormatter extends React.Component<
 > {
   public render() {
     let result: string;
-    if(isNumberString(this.props.value)){
+    if (isNumberString(this.props.value)) {
       result = makeStringFromFromToValue(this.props.value);
     } else {
       result = this.props.value;
     }
-    return (
-      <span className="float: right">
-        {result}
-      </span>
-    );
+    return <span className="float: right">{result}</span>;
   }
 }
 

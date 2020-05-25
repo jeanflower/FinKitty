@@ -35,7 +35,7 @@ import {
 
 export function overviewDiv(
   model: DbModelData,
-  showAlert: (arg0:string)=>void,
+  showAlert: (arg0: string) => void,
   assetChartData: ChartData[],
   debtChartData: ChartData[],
   expensesChartData: ChartData[],

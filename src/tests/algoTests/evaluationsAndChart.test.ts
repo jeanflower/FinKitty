@@ -14983,10 +14983,10 @@ describe('evaluations tests', () => {
     expectEvals(evals, 8, 'Cars', 'Fri Mar 02 2018', 300, -1);
     expectEvals(evals, 9, 'quantityCars', 'Sat Mar 10 2018', 1, -1);
     expectEvals(evals, 10, 'Cars', 'Sat Mar 10 2018', 100, -1);
-    expectEvals(evals, 11, 'Cash', 'Sat Mar 10 2018', -444.50, 2);
-    expectEvals(evals, 12, 'Cash', 'Sun Apr 01 2018', -444.50, 2);
+    expectEvals(evals, 11, 'Cash', 'Sat Mar 10 2018', -444.5, 2);
+    expectEvals(evals, 12, 'Cash', 'Sun Apr 01 2018', -444.5, 2);
     expectEvals(evals, 13, 'Cars', 'Mon Apr 02 2018', 100, -1);
-    expectEvals(evals, 14, 'Cash', 'Tue May 01 2018', -444.50, 2);
+    expectEvals(evals, 14, 'Cash', 'Tue May 01 2018', -444.5, 2);
     expectEvals(evals, 15, 'Cars', 'Wed May 02 2018', 100, -1);
 
     const result = makeChartDataFromEvaluations(
@@ -15005,28 +15005,28 @@ describe('evaluations tests', () => {
     expect(result.assetData.length).toBe(2);
     expect(result.assetData[0].item.NAME).toBe('Cash');
     {
-    const chartPts = result.assetData[0].chartDataPoints;
-    expect(chartPts.length).toBe(6);
-    expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0,    -1);
-    expectChartData(chartPts, 1, 'Mon Jan 01 2018', -500,    -1);
-    expectChartData(chartPts, 2, 'Thu Feb 01 2018', -500,    -1);
-    expectChartData(chartPts, 3, 'Thu Mar 01 2018', -500,    -1);
-    expectChartData(chartPts, 4, 'Sun Apr 01 2018', -444.50, 2);
-    expectChartData(chartPts, 5, 'Tue May 01 2018', -444.50, 2);
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', -500, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', -500, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', -500, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', -444.5, 2);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', -444.5, 2);
     }
-    
+
     expect(result.assetData[1].item.NAME).toBe('Cars');
     {
-    const chartPts = result.assetData[1].chartDataPoints;
-    expect(chartPts.length).toBe(6);
-    expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0,    -1);
-    expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0,    -1);
-    expectChartData(chartPts, 2, 'Thu Feb 01 2018', 300,    -1);
-    expectChartData(chartPts, 3, 'Thu Mar 01 2018', 300,    -1);
-    expectChartData(chartPts, 4, 'Sun Apr 01 2018', 100,    -1);
-    expectChartData(chartPts, 5, 'Tue May 01 2018', 100,    -1);
+      const chartPts = result.assetData[1].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 300, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 300, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 100, -1);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 100, -1);
     }
-    
+
     expect(result.debtData.length).toBe(0);
 
     done();
@@ -15643,43 +15643,43 @@ describe('evaluations tests', () => {
     expect(result.assetData.length).toBe(3);
     expect(result.assetData[0].item.NAME).toBe('Cash');
     {
-    const chartPts = result.assetData[0].chartDataPoints;
-    expect(chartPts.length).toBe(6);
-    expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0,    -1);
-    expectChartData(chartPts, 1, 'Mon Jan 01 2018', -1000,    -1);
-    expectChartData(chartPts, 2, 'Thu Feb 01 2018', -1000,    -1);
-    expectChartData(chartPts, 3, 'Thu Mar 01 2018', -1000,    -1);
-    expectChartData(chartPts, 4, 'Sun Apr 01 2018', -620,    -1);
-    expectChartData(chartPts, 5, 'Tue May 01 2018', -620,    -1);
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', -1000, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', -1000, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', -1000, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', -620, -1);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', -620, -1);
     }
-    
+
     expect(result.assetData[1].item.NAME).toBe('Fleet1');
     {
-    const chartPts = result.assetData[1].chartDataPoints;
-    expect(chartPts.length).toBe(6);
-    expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0,    -1);
-    expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0,    -1);
-    expectChartData(chartPts, 2, 'Thu Feb 01 2018', 1000,    -1);
-    expectChartData(chartPts, 3, 'Thu Mar 01 2018', 1000,    -1);
-    expectChartData(chartPts, 4, 'Sun Apr 01 2018', 800,    -1);
-    expectChartData(chartPts, 5, 'Tue May 01 2018', 800,    -1);
+      const chartPts = result.assetData[1].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 1000, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 1000, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 800, -1);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 800, -1);
     }
-    
+
     expect(result.assetData[2].item.NAME).toBe('Fleet2');
     {
-    const chartPts = result.assetData[2].chartDataPoints;
-    expect(chartPts.length).toBe(6);
-    expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0,    -1);
-    expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0,    -1);
-    expectChartData(chartPts, 2, 'Thu Feb 01 2018', 1500,    -1);
-    expectChartData(chartPts, 3, 'Thu Mar 01 2018', 1500,    -1);
-    expectChartData(chartPts, 4, 'Sun Apr 01 2018', 1300,    -1);
-    expectChartData(chartPts, 5, 'Tue May 01 2018', 1300,    -1);
+      const chartPts = result.assetData[2].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 1500, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 1500, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 1300, -1);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 1300, -1);
     }
-    
+
     expect(result.debtData.length).toBe(0);
 
     done();
-  });  
+  });
   // CGT on selling some cars ???
 });

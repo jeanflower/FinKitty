@@ -9,16 +9,12 @@ interface CashValueFormatterProps {
 class CashValueFormatter extends React.Component<CashValueFormatterProps, {}> {
   public render() {
     let result: string;
-    if(isNumberString(this.props.value)){
+    if (isNumberString(this.props.value)) {
       result = makeStringFromCashValue(this.props.value);
     } else {
       result = this.props.value;
     }
-    return (
-      <span className="float: right">
-        {result}
-      </span>
-    );
+    return <span className="float: right">{result}</span>;
   }
 }
 

@@ -594,8 +594,7 @@ export async function deleteItemFromModel(
 
     const checkResponse = checkData(model);
     if (checkResponse !== '') {
-      const response =
-        `edited  model fails checks :${checkResponse}', reverting`;
+      const response = `edited  model fails checks :${checkResponse}', reverting`;
       reactAppComponent.setState({
         alertText: response,
       });
