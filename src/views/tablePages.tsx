@@ -15,6 +15,7 @@ import {
   checkIncome,
   checkTransaction,
   checkTrigger,
+  isNumberString,
 } from '../models/checks';
 
 import DataGrid from './reactComponents/DataGrid';
@@ -266,9 +267,6 @@ function handleAssetGridRowsUpdated(
   if (!parsedGrowth.checksOK) {
     showAlert(`asset growth ${asset.GROWTH} not understood`);
     asset[args[0].cellKey] = oldValue;
-  } else if (!parsedValue.checksOK) {
-    showAlert(`asset value ${asset.VALUE} not understood`);
-    asset[args[0].cellKey] = oldValue;
   } else if (!parsedQuantity.checksOK) {
     showAlert(`quantity value ${asset.QUANTITY} not understood`);
     asset[args[0].cellKey] = oldValue;
@@ -282,10 +280,12 @@ function handleAssetGridRowsUpdated(
     showAlert(`asset value ${asset.CAN_BE_NEGATIVE} not understood`);
     asset[args[0].cellKey] = oldValue;
   } else {
-    const numValueForSubmission = parsedValue.value;
+    const valueForSubmission = parsedValue.checksOK
+      ?`${parsedValue.value}`: asset.VALUE;
+    log(`valueForSubmission = ${valueForSubmission}`);
     const assetForSubmission: DbAsset = {
       NAME: asset.NAME,
-      VALUE: `${numValueForSubmission}`,
+      VALUE: valueForSubmission,
       QUANTITY: asset.QUANTITY,
       START: asset.START,
       LIABILITY: asset.LIABILITY,
@@ -531,9 +531,14 @@ function assetsOrDebtsForTable(model: DbModelData, isDebt: boolean): any[] {
     })
     .map((obj: DbAsset) => {
       const dbStringValue = obj.VALUE;
-      let displayValue = parseFloat(dbStringValue);
-      if (isDebt) {
-        displayValue = -displayValue;
+      let displayValue: number|string;
+      if(isNumberString(dbStringValue)){
+        displayValue = parseFloat(dbStringValue);
+        if (isDebt) {
+          displayValue = -displayValue;
+        }
+      } else {
+        displayValue = obj.VALUE;
       }
       const tableValue = `${displayValue}`;
       const mapResult = {
