@@ -1008,6 +1008,7 @@ export class AddDeleteAssetForm extends Component<
         PURCHASE_PRICE: purchasePrice,
         LIABILITY: builtLiability,
       };
+      // log(`Adding asset s${showObj(asset)}`);
       const message = this.props.checkAssetFunction(asset, this.props.model);
       if (message.length > 0) {
         alert(message);

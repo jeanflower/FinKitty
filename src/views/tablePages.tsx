@@ -267,9 +267,6 @@ function handleAssetGridRowsUpdated(model: DbModelData, args: any) {
     asset[args[0].cellKey] = oldValue;
   } else {
     let numValueForSubmission = parsedValue.value;
-    if (parsedQuantity.value !== '') {
-      numValueForSubmission *= parseFloat(parsedQuantity.value);
-    }
     const assetForSubmission: DbAsset = {
       NAME: asset.NAME,
       VALUE: `${numValueForSubmission}`,
@@ -514,10 +511,6 @@ function assetsOrDebtsForTable(model: DbModelData, isDebt: boolean): any[] {
     .map((obj: DbAsset) => {
       const dbStringValue = obj.VALUE;
       let displayValue = parseFloat(dbStringValue);
-      if (obj.QUANTITY !== '') {
-        const dbQuanValue = parseFloat(obj.QUANTITY);
-        displayValue = displayValue / dbQuanValue;
-      }
       if (isDebt) {
         displayValue = -displayValue;
       }

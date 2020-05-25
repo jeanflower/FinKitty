@@ -650,6 +650,9 @@ function mapNamesToTypes(model: DbModelData) {
   model.assets.forEach(asset => {
     nameToTypeMap.set(asset.NAME, evaluationType.asset);
   });
+  model.settings.forEach(setting => {
+    nameToTypeMap.set(setting.NAME, evaluationType.setting);
+  });
   nameToTypeMap.set(taxPot, evaluationType.asset);
   return nameToTypeMap;
 }

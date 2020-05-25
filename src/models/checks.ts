@@ -43,6 +43,7 @@ import {
   revalueDebt,
   revalueInc,
   revalueExp,
+  revalueSetting,
 } from '../localization/stringConstants';
 import {
   DbAsset,
@@ -65,11 +66,12 @@ import {
   isAnIncome,
   isAnAssetOrAssets,
   isAnExpense,
+  getNumberAndWordParts,
 } from '../utils';
 import { getDisplayName } from '../views/tablePages';
 
 export function isNumberString(input: string) {
-  if (input === '') {
+  if (input === '' || input === undefined) {
     return false;
   }
   const re = new RegExp('^[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)$');
@@ -185,7 +187,13 @@ export function checkAsset(a: DbAsset, model: DbModelData): string {
   }
 
   if (!isNumberString(a.VALUE)) {
-    return `Asset value '${a.VALUE}' is not a number`;
+    const settingVal = getSettings(model.settings, a.VALUE, 'missing');
+    if (settingVal === 'missing') {
+      return `Asset value set to '${a.VALUE}'
+        but no corresponding setting found`;
+    }
+    // TODO check value of setting too - should be a number
+    // or a recursive check (see traceEvaluation)
   }
 
   if (!isNumberString(a.PURCHASE_PRICE)) {
@@ -361,6 +369,7 @@ function checkTransactionTo(
   incomes: DbIncome[],
   expenses: DbExpense[],
   triggers: DbTrigger[],
+  settings: DbSetting[],
 ) {
   const a = assetsForChecking.find(as => as.NAME === word);
   if (a !== undefined) {
@@ -427,6 +436,15 @@ function checkTransactionTo(
         `Transaction ${getDisplayName(t.NAME, t.TYPE)} dated before start ` +
         `of affected expense : ${exp.NAME}`
       );
+    }
+    return '';
+  }
+
+  const s = settings.find(s => s.NAME === word);
+  if (s !== undefined) {
+    // transacting on an setting - must be a revaluation
+    if (!t.NAME.startsWith(revalue)) {
+      return `Transactions to setting must begin '${revalue}'`;
     }
     return '';
   }
@@ -802,9 +820,12 @@ function isPayOffDebtType(t: DbTransaction, model: DbModelData) {
   return recognised;
 }
 
-export function checkTransaction(t: DbTransaction, model: DbModelData): string {
+export function checkTransaction(
+  t: DbTransaction, 
+  model: DbModelData,
+): string {
   // log(`checking transaction ${showObj(t)}`);
-  const { assets, incomes, expenses, triggers } = model;
+  const { assets, incomes, expenses, triggers, settings } = model;
   const assetsForChecking = assets.filter(a => a.NAME !== taxPot);
   if (t.NAME.length === 0) {
     return 'Transaction name needs some characters';
@@ -871,6 +892,7 @@ export function checkTransaction(t: DbTransaction, model: DbModelData): string {
           incomes,
           expenses,
           triggers,
+          settings,
         );
         if (outcome.length > 0) {
           return outcome;
@@ -884,6 +906,7 @@ export function checkTransaction(t: DbTransaction, model: DbModelData): string {
         incomes,
         expenses,
         triggers,
+        settings,
       );
       if (outcome.length > 0) {
         return outcome;
@@ -892,7 +915,14 @@ export function checkTransaction(t: DbTransaction, model: DbModelData): string {
     if (t.TO_VALUE === '') {
       return `Transaction to ${t.TO} needs a non-empty to value`;
     } else if (!isNumberString(t.TO_VALUE)) {
-      return `Transaction to value ${t.TO_VALUE} isn't a number`;
+      const parsed = getNumberAndWordParts(t.TO_VALUE);
+      if(parsed.wordPart !== undefined){
+        const settingVal = getSettings(model.settings, parsed.wordPart, "missing");
+        if(settingVal !== "missing"){
+          return '';
+        }
+      }
+      return `Transaction to value ${t.TO_VALUE} isn't a number or setting`;
     }
   }
   if (t.RECURRENCE.length > 0) {
@@ -923,7 +953,8 @@ export function checkTransaction(t: DbTransaction, model: DbModelData): string {
     t.TYPE !== revalueAsset &&
     t.TYPE !== revalueDebt &&
     t.TYPE !== revalueInc &&
-    t.TYPE !== revalueExp
+    t.TYPE !== revalueExp &&
+    t.TYPE !== revalueSetting
   ) {
     return `transaction type  ${t.TYPE} for ${getDisplayName(
       t.NAME,
@@ -1320,6 +1351,7 @@ export function checkData(model: DbModelData): string {
   }
   return '';
 }
+
 export function checkEvalnType(
   evaln: Evaluation,
   nameToTypeMap: Map<string, string>,
@@ -1347,6 +1379,6 @@ export function checkEvalnType(
       return;
     }
   } else {
-    log(`BUG!! evaluation of an unknown type: ${showObj(evaln)}`);
+    log(`BUG!!! evaluation of an unknown type: ${showObj(evaln)}`);
   }
 }

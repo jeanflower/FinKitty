@@ -1,4 +1,4 @@
-import { checkData } from './checks';
+import { checkData, isNumberString } from './checks';
 import {
   annually,
   CASH_ASSET_NAME,
@@ -41,6 +41,7 @@ import {
   showObj,
   makeDateFromString,
   getStartQuantity,
+  getNumberAndWordParts,
 } from '../utils';
 import { getDisplayName } from '../views/tablePages';
 
@@ -268,14 +269,118 @@ export const evaluationType = {
   expense: 'Expense',
   income: 'Income',
   asset: 'Asset',
+  setting: 'Setting',
 };
 
+function getNumberValue(
+  values: Map<string, number|string>,
+  key: string,
+  expectValue = true,
+): number|undefined {
+  let result = values.get(key);
+  // log(`key = '${key}' has value ${result}`);
+  if(typeof result === "string"){
+    // log(`value ${result} is a string`);
+    if(isNumberString(result)){
+      result = parseFloat(result);
+    } else {
+      const val = getNumberValue(values, result, expectValue);
+      // log(`value ${result} as a number is ${val}`);
+      result = val;
+    }
+  }
+  // log(`getNumberValue of ${key} is ${result}`);
+  if(result === undefined){
+    if(expectValue){
+      throw new Error(`fail for ${key}!`);
+      log(`getNumberValue returning undefined for ${key}; `
+        +`consider switch to traceEvaluation `
+        +`for values involving words and settings`);
+    }
+  }
+  return result;
+}
+
+function traceEvaluation(
+  value: number|string,
+  values: Map<string, number|string>,
+  source: string,
+): number|undefined {
+  //log(`in traceEvaluation, for ${source} get value of ${value}`);
+  if(typeof value !== "string"){
+    return value;
+  }
+  if(isNumberString(value)){
+    return parseFloat(value);
+  }
+  const parts = getNumberAndWordParts(value);
+  let numberPart = 1.0;
+  if(parts.numberPart != undefined){
+    numberPart = parts.numberPart;
+  }
+  let wordPart  = parts.wordPart;
+  const settingForWordPart = values.get(wordPart);
+  // log(`settingForWordPart ${wordPart} = ${settingForWordPart}`);
+  if(settingForWordPart === undefined){
+    // log(`values were ${showObj(values)}`);
+    return undefined;
+  } else if(typeof settingForWordPart === "string"){
+    const nextLevel = traceEvaluation(settingForWordPart, values, source);
+    if(nextLevel === undefined){
+      // log(`got undefined for ${settingForWordPart} - returning undefined for ${value}`);
+      return undefined;
+    } else {
+      //log(`calculate ${numberPart} * ${nextLevel} = ${numberPart * nextLevel}`)
+      return numberPart * nextLevel;
+    }
+  } else {
+    //log(`calculate ${numberPart} * ${settingForWordPart} = ${numberPart * settingForWordPart}`)
+    return numberPart * settingForWordPart;
+  }
+}
+
+function getQuantity(
+  w: string,
+  values: Map<string, number|string>,
+  model: DbModelData,
+): undefined | number {
+  if (getStartQuantity(w, model) === undefined) {
+    return undefined;
+  }
+  const result = getNumberValue(values, quantity + w);
+  // log(`current quantity for ${w} is ${result}`);
+  return result;
+}
+
+function applyQuantity(
+  value: number,
+  values: Map<string, number|string>,
+  assetName: string,
+  model: DbModelData,
+){
+  // log(`apply quantity for ${assetName}, unit val = ${value}`);
+  if(value === undefined){
+    return value;
+  }
+  const q = getQuantity(assetName, values, model);
+  if(q === undefined){
+    // log(`quantity for ${assetName} is undefined`);
+    return value;
+  }
+  //log(`quantity for ${assetName} is ${q},`
+  //  +` scale up from ${value} to ${value * q}`);
+  const result = value * q;
+  return result;
+}
+
+
 function setValue(
-  values: Map<string, number>,
+  values: Map<string, number|string>,
   evaluations: Evaluation[],
   date: Date,
   name: string,
-  newValue: number,
+  newValue: number|string,
+  model: DbModelData,
   source: string, // something that triggered the new value
 ) {
   if (printDebug()) {
@@ -296,10 +401,17 @@ function setValue(
     }
   }
   values.set(name, newValue);
+  // log(`Go to find unit val for ${name}'s, we have value = some of ${newValue}`);
+  const unitVal = traceEvaluation(newValue, values, name);
+  // log(`Unit val of ${name} is ${unitVal}`);
+  if(unitVal === undefined){
+    throw new Error(`evaluation of ${name} undefined`);
+  }
+  const totalVal = applyQuantity(unitVal, values, name, model);
   const evaln = {
     name,
     date,
-    value: newValue,
+    value: totalVal,
     source,
   };
   // log(`add evaluation for ${name} at ${date}`);
@@ -331,7 +443,7 @@ interface Moment {
   date: Date;
   name: string;
   type: string;
-  setValue: number | undefined;
+  setValue: number | string | undefined;
   transaction: DbTransaction | undefined;
 }
 
@@ -518,11 +630,12 @@ function calculateCGTPayable(gain: number, d: Date, cpiVal: number) {
 function adjustCash(
   amount: number,
   d: Date,
-  values: Map<string, number>,
+  values: Map<string, number|string>,
   evaluations: Evaluation[],
+  model: DbModelData,
   source: string, // what led to the change
 ) {
-  const cashValue = values.get(CASH_ASSET_NAME);
+  const cashValue = getNumberValue(values, CASH_ASSET_NAME, false);
   if (cashValue === undefined) {
     // log('don't adjust undefined cash asset');
     // NB some tests have an expense and watch its value
@@ -535,6 +648,7 @@ function adjustCash(
       d,
       CASH_ASSET_NAME,
       cashValue + amount,
+      model,
       source,
     );
   }
@@ -544,8 +658,9 @@ function payIncomeTax(
   startOfTaxYear: Date,
   income: number,
   cpiVal: number,
-  values: Map<string, number>,
+  values: Map<string, number|string>,
   evaluations: Evaluation[],
+  model: DbModelData,
   source: string, // e.g. IncomeTaxJoe
 ) {
   // log(`pay income tax on ${income} for date ${startOfTaxYear}`);
@@ -554,8 +669,8 @@ function payIncomeTax(
   // log(`taxDue for ${source} on ${startOfTaxYear} = ${taxDue}`);
   if (taxDue > 0) {
     // log('in payIncomeTax, adjustCash:');
-    adjustCash(-taxDue, startOfTaxYear, values, evaluations, source);
-    let taxValue = values.get(taxPot);
+    adjustCash(-taxDue, startOfTaxYear, values, evaluations, model, source);
+    let taxValue = getNumberValue(values, taxPot, false);
     if (taxValue === undefined) {
       taxValue = 0.0;
     }
@@ -566,6 +681,7 @@ function payIncomeTax(
       startOfTaxYear,
       taxPot,
       taxValue + taxDue,
+      model,
       source,
     );
   }
@@ -576,8 +692,9 @@ function payNI(
   startOfTaxYear: Date,
   income: number,
   cpiVal: number,
-  values: Map<string, number>,
+  values: Map<string, number|string>,
   evaluations: Evaluation[],
+  model: DbModelData,
   source: string, // e.g. NIJoe
 ) {
   // log(`pay NI on ${income} for date ${startOfTaxYear}`);
@@ -586,9 +703,9 @@ function payNI(
   // log(`taxDue = ${taxDue}`);
   if (NIDue > 0) {
     // log('in payNI, adjustCash:');
-    adjustCash(-NIDue, startOfTaxYear, values, evaluations, source);
+    adjustCash(-NIDue, startOfTaxYear, values, evaluations, model, source);
 
-    let taxValue = values.get(taxPot);
+    let taxValue = getNumberValue(values, taxPot, false);
     if (taxValue === undefined) {
       taxValue = 0.0;
     }
@@ -599,6 +716,7 @@ function payNI(
       startOfTaxYear,
       taxPot,
       taxValue + NIDue,
+      model,
       source,
     );
   }
@@ -609,8 +727,9 @@ function payCGT(
   startOfTaxYear: Date,
   gain: number,
   cpiVal: number,
-  values: Map<string, number>,
+  values: Map<string, number|string>,
   evaluations: Evaluation[],
+  model: DbModelData,
   source: string, // e.g. 'CGTJoe'
 ) {
   // log(`pay CGT on ${gain} for date ${startOfTaxYear}`);
@@ -620,8 +739,8 @@ function payCGT(
   // log(`taxDue = ${taxDue}`);
   if (CGTDue > 0) {
     // log('in payCGT, adjustCash:');
-    adjustCash(-CGTDue, startOfTaxYear, values, evaluations, source);
-    let taxValue = values.get(taxPot);
+    adjustCash(-CGTDue, startOfTaxYear, values, evaluations, model, source);
+    let taxValue = getNumberValue(values, taxPot, false);
     if (taxValue === undefined) {
       taxValue = 0.0;
     }
@@ -632,6 +751,7 @@ function payCGT(
       startOfTaxYear,
       taxPot,
       taxValue + CGTDue,
+      model,
       source,
     );
   }
@@ -640,10 +760,11 @@ function OptimizeIncomeTax(
   date: Date,
   cpiVal: number,
   amount: number,
-  values: Map<string, number>,
+  values: Map<string, number|string>,
   person: string,
   liableIncomeInTaxYear: Map<string, Map<string, number>>,
   evaluations: Evaluation[],
+  model: DbModelData,
 ) {
   // log(`settle up income tax for ${person} and ${amount} on ${date}`);
   const noTaxBand = updateValueForCPI(taxBandsSet, date, noTaxBandSet, cpiVal);
@@ -665,7 +786,7 @@ function OptimizeIncomeTax(
       // log(`liability = ${liability}`);
       if (liability === person) {
         let amountToTransfer = unusedAllowance;
-        const pensionVal = values.get(valueKey);
+        const pensionVal = getNumberValue(values, valueKey);
         if (pensionVal === undefined) {
           log('BUG!!! pension has no value');
           return;
@@ -680,7 +801,7 @@ function OptimizeIncomeTax(
           log('BUG!!! person has no liability');
           return;
         }
-        const cashVal = values.get(CASH_ASSET_NAME);
+        const cashVal = getNumberValue(values, CASH_ASSET_NAME);
         if (cashVal === undefined) {
           log('BUG!!! cash has no value');
         } else {
@@ -695,6 +816,7 @@ function OptimizeIncomeTax(
             date,
             CASH_ASSET_NAME,
             cashVal + amountToTransfer,
+            model,
             valueKey,
           ); // e.g. 'CrystallizedPensionNorwich'
           setValue(
@@ -703,6 +825,7 @@ function OptimizeIncomeTax(
             date,
             valueKey,
             pensionVal - amountToTransfer,
+            model,
             liability,
           ); // e.g. 'IncomeTaxJoe'
         }
@@ -717,8 +840,9 @@ function settleUpTax(
   liableIncomeInTaxYear: Map<string, Map<string, number>>,
   startYearOfTaxYear: number,
   cpiVal: number,
-  values: Map<string, number>,
+  values: Map<string, number|string>,
   evaluations: Evaluation[],
+  model: DbModelData,
 ) {
   const date = new Date(startYearOfTaxYear + 1, 3, 5);
   // before going to pay income tax,
@@ -738,6 +862,7 @@ function settleUpTax(
             person,
             liableIncomeInTaxYear,
             evaluations,
+            model,
           );
         }
       }
@@ -756,6 +881,7 @@ function settleUpTax(
           cpiVal,
           values,
           evaluations,
+          model,
           person, // e.g. IncomeTaxJoe
         );
         if (printDebug()) {
@@ -773,6 +899,7 @@ function settleUpTax(
           cpiVal,
           values,
           evaluations,
+          model,
           person,
         ); // e.g. 'NIJoe'
         if (printDebug()) {
@@ -790,6 +917,7 @@ function settleUpTax(
           cpiVal,
           values,
           evaluations,
+          model,
           person,
         ); // e.g. 'CGTJoe'
         // log('resetting liableIncomeInTaxYear');
@@ -827,7 +955,7 @@ function handleLiability(
 function handleIncome(
   incomeValue: number,
   moment: Moment,
-  values: Map<string, number>,
+  values: Map<string, number|string>,
   evaluations: Evaluation[],
   model: DbModelData,
   pensionTransactions: DbTransaction[],
@@ -921,7 +1049,7 @@ function handleIncome(
         // e.g. employer increments employee's pension contribution
         amountForPension = tToValue * amountFrom;
       }
-      let pensionValue = values.get(transaction.TO);
+      let pensionValue = getNumberValue(values, transaction.TO, false);
       if (transaction.TO === '') {
         if (printDebug()) {
           log('pension contributions going into void');
@@ -940,6 +1068,7 @@ function handleIncome(
           moment.date,
           transaction.TO,
           pensionValue,
+          model,
           transaction.NAME,
         );
       }
@@ -955,6 +1084,7 @@ function handleIncome(
       moment.date,
       values,
       evaluations,
+      model,
       sourceDescription,
     );
   }
@@ -1049,6 +1179,55 @@ function logAssetGrowth(
     : getMonthlyGrowth(growth + cpiVal);
   // log(`monthly growth is ${monthlyInf}`);
   growths.set(asset.NAME, monthlyInf);
+}
+
+function logAssetValueString(
+  asset: DbAsset,
+  values: Map<string, number|string>,
+  evaluations: Evaluation[],
+  model: DbModelData,
+){
+  if(isNumberString(asset.VALUE)){
+    return;
+  }
+  // log(`look for a value of ${asset.VALUE} in the settings`)
+  let settingVal: string|number = getSettings(
+    model.settings, 
+    asset.VALUE, 
+    "missing",
+  );
+  if(isNumberString(settingVal)){
+    // log(`found a number value for ${asset.VALUE} as ${settingVal}`)
+    settingVal = parseFloat(settingVal);
+  } else {
+    // log(`found a string value for ${asset.VALUE} as ${settingVal}`);
+    const parts = getNumberAndWordParts(settingVal);
+    let settingVal2: string|number = getSettings(
+      model.settings, 
+      parts.wordPart, 
+      "missing",
+    );
+    if(settingVal2 !== undefined){
+      setValue(
+        values,
+        evaluations,
+        getTriggerDate(asset.START, model.triggers),
+        parts.wordPart,
+        settingVal2,
+        model,
+        parts.wordPart,
+      );      
+    }
+  }
+  setValue(
+    values,
+    evaluations,
+    getTriggerDate(asset.START, model.triggers),
+    asset.VALUE,
+    settingVal,
+    model,
+    asset.VALUE,
+  );
 }
 
 function getGrowth(name: string, growths: Map<string, number>) {
@@ -1156,7 +1335,12 @@ function getAssetMonthlyMoments(
   });
   if (newMoments.length > 0) {
     newMoments[0].type = momentType.assetStart;
-    newMoments[0].setValue = parseFloat(asset.VALUE);
+    if(isNumberString(asset.VALUE)){
+      newMoments[0].setValue = parseFloat(asset.VALUE);
+    } else {
+      //log(`start of asset, storing value '${asset.VALUE}'`);
+      newMoments[0].setValue = asset.VALUE;
+    }
   }
   return newMoments;
 }
@@ -1232,23 +1416,10 @@ function assetAllowedNegative(assetName: string, asset: DbAsset) {
   );
 }
 
-function getQuantity(
-  w: string,
-  values: Map<string, number>,
-  model: DbModelData,
-) {
-  if (getStartQuantity(w, model) === undefined) {
-    return undefined;
-  }
-  const result = values.get(quantity + w);
-  // log(`current quantity for ${w} is ${result}`);
-  return result;
-}
-
 function revalueApplied(
   t: DbTransaction,
   moment: Moment,
-  values: Map<string, number>,
+  values: Map<string, number|string>,
   evaluations: Evaluation[],
   liableIncomeInTaxYear: Map<string, Map<string, number>>,
   model: DbModelData,
@@ -1263,10 +1434,10 @@ function revalueApplied(
         `for a revaluation transaction ${showObj(t)}`,
     );
   }
-  let tToValue = parseFloat(t.TO_VALUE);
+  let tToValue = traceEvaluation(t.TO_VALUE, values, t.TO_VALUE);
   const words = t.TO.split(separator);
   words.forEach(w => {
-    const prevValue = values.get(w);
+    const prevValue = traceEvaluation(w, values, w);
     if (!t.TO_ABSOLUTE) {
       // this is a proportional change
       if (prevValue === undefined) {
@@ -1277,14 +1448,6 @@ function revalueApplied(
         );
       } else {
         tToValue = prevValue * parseFloat(t.TO_VALUE);
-      }
-    } else {
-      // this is an absolute change
-      // need special handling if this applies to each
-      // unit of an asset which has a quantity
-      const q = getQuantity(w, values, model);
-      if (q !== undefined) {
-        tToValue = tToValue * q;
       }
     }
     // log income tax liability for assets which grow
@@ -1297,10 +1460,17 @@ function revalueApplied(
         if (l.endsWith(incomeTax)) {
           if (prevValue === undefined) {
             log(`WARNING : no prev value found for revalue`);
+          } else if(tToValue === undefined) {
+            log(`WARNING : tToValue undefined for revalue`);
           } else {
-            const gain = tToValue - prevValue;
+            let gain = tToValue - prevValue;
             if (gain > 0) {
               // log(`handle liability ${l} with gain ${gain}`);
+              const q = getQuantity(matchingAsset.NAME, values, model);
+              if(q!== undefined){
+                log('Untested code for income tax on quantities');
+                gain *= q;
+              }
               handleLiability(l, incomeTax, gain, liableIncomeInTaxYear);
             }
           }
@@ -1309,7 +1479,27 @@ function revalueApplied(
     }
     // log(`passing ${t.TO_VALUE} as new value of ${moment.name}`);
     // log('in revalueApplied:');
-    setValue(values, evaluations, moment.date, w, tToValue, revalue);
+    if (!t.TO_ABSOLUTE && tToValue !== undefined){
+      setValue(
+        values, 
+        evaluations, 
+        moment.date, 
+        w, 
+        tToValue,
+        model,
+        revalue,
+      );
+    } else {
+      setValue(
+        values, 
+        evaluations, 
+        moment.date, 
+        w, 
+        t.TO_VALUE,
+        model,
+        revalue,
+      );
+    }
   });
   return true;
 }
@@ -1320,14 +1510,36 @@ function calculateFromChange(
   preFromValue: number,
   fromWord: string,
   moment: Moment,
-  values: Map<string, number>,
+  values: Map<string, number|string>,
   evaluations: Evaluation[],
   model: DbModelData,
-): number | undefined {
+): {
+  fromImpact: number,
+  toImpact: number,
+ } | undefined {
+  // log(`in calculateFromChange`);
   const tFromValue = parseFloat(t.FROM_VALUE);
   const tToValue = parseFloat(t.TO_VALUE);
 
+  const q = getQuantity(t.FROM, values, model);
+  const fromHasQuantity = (q !== undefined);
+
+  // The calling code will use fromChange to setValue on
+  // the from-asset.
+  // It will use to-settings (value and absolute) to adjust 
+  // toChange to make a change to the to-asset.
+  // Mostly, the toChange and fromChange are the same in this function
+  // but if either from or to involve quantities, then
+  // we see important differences.
   let fromChange = 0;
+  // log(`fromChange = ${fromChange}`);
+
+  const matchingAsset = model.assets.find(a => {
+    return a.NAME === fromWord;
+  });
+  const assetNotAllowedNegative = matchingAsset &&
+    !assetAllowedNegative(fromWord, matchingAsset);
+
   // log(`t.FROM_VALUE = ${t.FROM_VALUE}`)
   if (t.NAME.startsWith(conditional) && preToValue === undefined) {
     log(`Bug : conditional transaction to undefined value ${showObj(t)}`);
@@ -1350,15 +1562,19 @@ function calculateFromChange(
     fromChange = tFromValue;
     let numberUnits = 0;
     let unitValue = 0.0;
-    const q = getQuantity(t.FROM, values, model);
-    if (q !== undefined) {
+    
+    if (fromHasQuantity) {
+      // log(`absolute from change involving quantities`);
       // fromChange is a number of units
       // use q to determine a proportional change
       // for fromChange
       numberUnits = fromChange;
-      unitValue = preFromValue / q;
+      unitValue = preFromValue;
       // reset fromChange so it's a £ value
       fromChange = numberUnits * unitValue;
+      // log(`fromChange = ${fromChange}`);
+      // log(`numberUnits = ${numberUnits}`);
+      // log(`unitValue = ${fromChange}`);
     }
     if (
       t.NAME.startsWith(conditional) &&
@@ -1369,17 +1585,25 @@ function calculateFromChange(
       // log(`cap conditional amount - we only need ${preToValue}`);
       fromChange = -preToValue / tToValue;
       if (q !== undefined) {
+        //log(`quantity involved in working out fromChange`);
         numberUnits = Math.ceil(fromChange / unitValue);
         fromChange = numberUnits * unitValue;
       }
     }
-    if (q !== undefined) {
+    if (fromHasQuantity && q !== undefined) {
+
+      if(q - numberUnits < 0 && assetNotAllowedNegative){
+        // log(`don't sell more units than we have`);
+        return undefined;
+      }
+      // log(`set new quantity ${q - numberUnits}`);
       setValue(
         values,
         evaluations,
         moment.date,
         quantity + t.FROM,
         q - numberUnits,
+        model,
         t.FROM,
       );
     }
@@ -1397,14 +1621,12 @@ function calculateFromChange(
       fromChange = preFromValue * tFromValue;
     }
   }
-  const matchingAsset = model.assets.find(a => {
-    return a.NAME === fromWord;
-  });
+  // log(`fromChange = ${fromChange}`);
+
   // Allow some assets to become negative but not others
   if (
-    matchingAsset &&
-    !assetAllowedNegative(fromWord, matchingAsset) &&
-    fromChange > preFromValue
+    assetNotAllowedNegative &&
+    (!fromHasQuantity && fromChange > preFromValue)
   ) {
     if (t.NAME.startsWith(conditional)) {
       // transfer as much as we have
@@ -1412,8 +1634,8 @@ function calculateFromChange(
       fromChange = preFromValue;
     } else {
       // don't transfer anything
-      // log(`don't apply transaction from ${fromWord} `
-      // +`because value ${preFromValue} < ${fromChange} `);
+      //log(`don't apply transaction from ${fromWord} `
+      //  +`because value ${preFromValue} < ${fromChange} `);
       return undefined;
     }
   }
@@ -1421,20 +1643,29 @@ function calculateFromChange(
     return i.NAME === fromWord;
   });
   if (matchingIncome && fromChange > preFromValue) {
-    log(
-      `Error: dont take more than income value ` +
-        `${preFromValue} from income ${matchingIncome.NAME}`,
-    );
+    //log(
+    //  `Error: dont take more than income value ` +
+    //    `${preFromValue} from income ${matchingIncome.NAME}`,
+    //);
     return undefined;
   }
   if (matchingAsset && fromWord !== undefined) {
     if (!assetAllowedNegative(fromWord, matchingAsset) && preFromValue <= 0) {
-      // we cannot help
+      // log(`we cannot help`);
       return undefined;
     }
   }
+
   // log(`fromChange = ${fromChange}`);
-  return fromChange;
+  let toChange = fromChange;
+  if(fromHasQuantity){
+    fromChange = 0; // don't alter the unit value
+  }
+  // log(`passing {fromImpact:${fromChange}, toImpact: ${toChange}}`);
+  return {
+    fromImpact: fromChange,
+    toImpact: toChange,
+  }
 }
 
 function calculateToChange(
@@ -1442,7 +1673,7 @@ function calculateToChange(
   preToValue: number | undefined,
   fromChange: number | undefined,
   moment: Moment,
-  values: Map<string, number>,
+  values: Map<string, number|string>,
   evaluations: Evaluation[],
   model: DbModelData,
 ) {
@@ -1461,16 +1692,15 @@ function calculateToChange(
     toChange = tToValue;
     const q = getQuantity(t.TO, values, model);
     if (q !== undefined) {
+      // log(`absolute to change involving quantities`);
       // log(`q = ${q}`);
       // expect toChange to be an integer number
       // adjust the quantity of items stored in values accordingly
       // adjust the toChange value too
       const numUnits = toChange;
       // log(`numUnits = ${numUnits}`);
-      const currentValue = values.get(t.TO);
+      const currentValue = traceEvaluation(t.TO, values, t.TO);
       if (currentValue !== undefined) {
-        const currentUnitValue = currentValue / q;
-        // log(`currentUnitValue = ${currentUnitValue}`);
         const newNumUnits = q + numUnits;
         // log(`newNumUnits = ${newNumUnits}`);
         setValue(
@@ -1479,9 +1709,10 @@ function calculateToChange(
           moment.date,
           quantity + t.TO,
           newNumUnits,
+          model,
           t.TO,
         );
-        toChange = numUnits * currentUnitValue;
+        toChange = 0.0;
         // log(`toChange = ${toChange}`);
       }
     }
@@ -1504,12 +1735,13 @@ function handleCGTLiability(
   preFromValue: number,
   fromChange: number,
   moment: Moment,
-  values: Map<string, number>,
+  values: Map<string, number|string>,
   evaluations: Evaluation[],
   liabliitiesMap: Map<string, string>,
   liableIncomeInTaxYear: Map<string, Map<string, number>>,
+  model: DbModelData,
 ) {
-  // log(`${fromWord} reducing from ${value} by ${fromChange}`);
+  // log(`${fromWord} reducing from ${preFromValue} by ${fromChange}`);
   // log(`liabilites are ${liabliitiesMap.get(fromWord}`);
   const liabilities = liabliitiesMap.get(fromWord);
   if (liabilities === undefined) {
@@ -1523,7 +1755,9 @@ function handleCGTLiability(
     return;
   }
   const proportionSale = fromChange / preFromValue;
-  const purchasePrice = values.get(`Purchase${fromWord}`);
+  // log(`proportionSale = ${proportionSale}`);
+  const purchasePrice = getNumberValue(values, `Purchase${fromWord}`);
+  // log(`purchasePrice = ${purchasePrice}`);
   if (purchasePrice !== undefined) {
     const totalGain = preFromValue - purchasePrice;
     // log(`totalGain = ${totalGain}`);
@@ -1553,6 +1787,7 @@ function handleCGTLiability(
       moment.date,
       `Purchase${fromWord}`,
       newPurchasePrice,
+      model,
       t.NAME, // TODO no test??
     );
   } else {
@@ -1577,19 +1812,23 @@ function processTransactionFromTo(
   t: DbTransaction,
   fromWord: string,
   moment: Moment,
-  values: Map<string, number>,
+  values: Map<string, number|string>,
   evaluations: Evaluation[],
   model: DbModelData,
   pensionTransactions: DbTransaction[],
   liabliitiesMap: Map<string, string>,
   liableIncomeInTaxYear: Map<string, Map<string, number>>,
 ) {
-  // log(`processTransactionFromTo takes in ${t.NAME}`);
-  const preFromValue = values.get(fromWord);
-  let preToValue = values.get(t.TO);
-
-  if (t.TO !== '' && preToValue === undefined) {
-    preToValue = 0.0;
+  // log(`processTransactionFromTo fromWord = ${fromWord}`);
+  // log(`processTransactionFromTo takes in ${showObj(t)}`);
+  const preFromValue = 
+    traceEvaluation(fromWord, values, fromWord);
+  let preToValue = undefined;
+  if(t.TO != ''){
+    preToValue = traceEvaluation(t.TO, values, t.TO);
+    if (preToValue === undefined) {
+      preToValue = 0.0;
+    }
   }
 
   // handle conditional transactions
@@ -1601,7 +1840,8 @@ function processTransactionFromTo(
   //   Payoff / repay (move money there if target < 0)
 
   let fromChange;
-  if (preFromValue !== undefined) {
+  // log(`preFromValue = ${preFromValue}`);
+  if (preFromValue !== undefined) {    
     fromChange = calculateFromChange(
       t,
       preToValue,
@@ -1614,7 +1854,7 @@ function processTransactionFromTo(
     );
     // Transaction is permitted to be blocked by the calculation
     // of fromChange - e.g. if it would require an asset to become
-    // a not-premitted value (e.g. shares become negative).
+    // a not-permitted value (e.g. shares become negative).
     if (fromChange === undefined) {
       return;
     }
@@ -1627,7 +1867,7 @@ function processTransactionFromTo(
     toChange = calculateToChange(
       t,
       preToValue,
-      fromChange,
+      fromChange?.toImpact,
       moment,
       values,
       evaluations,
@@ -1641,12 +1881,13 @@ function processTransactionFromTo(
       t,
       fromWord,
       preFromValue,
-      fromChange,
+      fromChange.fromImpact,
       moment,
       values,
       evaluations,
       liabliitiesMap,
       liableIncomeInTaxYear,
+      model,
     );
     // log(`reduce ${fromWord}'s ${preFromValue} by ${fromChange}`);
     // log(`in processTransactionFromTo, setValue of ${fromWord} to ${preFromValue - fromChange}`);
@@ -1655,7 +1896,8 @@ function processTransactionFromTo(
       evaluations,
       moment.date,
       fromWord,
-      preFromValue - fromChange,
+      preFromValue - fromChange.fromImpact,
+      model,
       makeSourceForFromChange(t),
     );
   }
@@ -1698,6 +1940,7 @@ function processTransactionFromTo(
         moment.date,
         t.TO,
         preToValue + toChange,
+        model,
         makeSourceForToChange(t, fromWord),
       );
     }
@@ -1707,8 +1950,9 @@ function processTransactionFromTo(
 function processTransactionTo(
   t: DbTransaction,
   moment: Moment,
-  values: Map<string, number>,
+  values: Map<string, number|string>,
   evaluations: Evaluation[],
+  model: DbModelData,
 ) {
   if (!t.FROM_ABSOLUTE) {
     throw new Error(
@@ -1720,10 +1964,10 @@ function processTransactionTo(
   // Determine how much to add to the To asset.
   // Set the increased value of the To asset accordingly.
   // log(`t.TO = ${t.TO}`)
-  let value = values.get(t.TO);
+  let value = getNumberValue(values, t.TO);
   // log(`before transaction, value = ${value}`)
   if (value === undefined) {
-    throw new Error(`Bug : transacting to unvalued asset ${showObj(moment)}`);
+    throw new Error(`Bug : transacting to unvalued/string-valued asset ${showObj(moment)}`);
   } else {
     let change = 0;
     // log(`t.TO_VALUE = ${t.TO_VALUE}`);
@@ -1739,13 +1983,20 @@ function processTransactionTo(
     // log(`fromChange for the "TO" part of this transaction = ${fromChange}`);
     value += change;
     // log('in processTransactionTo, setValue:');
-    setValue(values, evaluations, moment.date, t.TO, value, t.NAME);
+    setValue(
+      values, 
+      evaluations, 
+      moment.date, 
+      t.TO, 
+      value, 
+      model,
+      t.NAME);
   }
 }
 
 function processTransactionMoment(
   moment: Moment,
-  values: Map<string, number>,
+  values: Map<string, number|string>,
   evaluations: Evaluation[],
   model: DbModelData,
   pensionTransactions: DbTransaction[],
@@ -1797,7 +2048,7 @@ function processTransactionMoment(
       );
     });
   } else if (t.FROM === '' && t.TO !== '') {
-    processTransactionTo(t, moment, values, evaluations);
+    processTransactionTo(t, moment, values, evaluations, model);
   }
 }
 
@@ -1840,18 +2091,19 @@ function logAssetIncomeLiabilities(
 
 function logPurchaseValues(
   a: DbAsset,
-  values: Map<string, number>,
+  values: Map<string, number|string>,
   evaluations: Evaluation[],
-  triggers: DbTrigger[],
+  model: DbModelData,
 ) {
   if (a.LIABILITY.includes(cgt)) {
     // log('in logPurchaseValues, setValue:');
     setValue(
       values,
       evaluations,
-      getTriggerDate(a.START, triggers),
+      getTriggerDate(a.START, model.triggers),
       `Purchase${a.NAME}`,
       parseFloat(a.PURCHASE_PRICE),
+      model,
       `Purchase${a.NAME}`,
     );
   }
@@ -1894,7 +2146,7 @@ export function getEvaluations(data: DbModelData): Evaluation[] {
   const pensionTransactions: DbTransaction[] = [];
 
   // Keep track of current value of any expense, income or asset
-  const values = new Map<string, number>([]);
+  const values = new Map<string, number|string>([]);
 
   const cpiInitialVal: number = parseFloat(
     getSettings(data.settings, cpi, '0.0'),
@@ -2005,12 +2257,15 @@ export function getEvaluations(data: DbModelData): Evaluation[] {
 
   data.assets.forEach(asset => {
     logAssetGrowth(asset, cpiInitialVal, growths, data.settings);
+
+    logAssetValueString(asset, values, evaluations, data);
+
     const newMoments = getAssetMonthlyMoments(asset, data.triggers, roiEndDate);
     allMoments = allMoments.concat(newMoments);
 
     logAssetIncomeLiabilities(asset, liabilitiesMap);
 
-    logPurchaseValues(asset, values, evaluations, data.triggers);
+    logPurchaseValues(asset, values, evaluations, data);
   });
 
   data.transactions.forEach(transaction => {
@@ -2042,7 +2297,7 @@ export function getEvaluations(data: DbModelData): Evaluation[] {
   const datedMoments = allMoments.filter(moment => moment.date !== undefined);
   const unDatedMoments = allMoments.filter(moment => moment.date === undefined);
 
-  // Process the moments in dat order
+  // Process the moments in date order
   sortByDate(datedMoments);
 
   let startYearOfTaxYear;
@@ -2086,6 +2341,7 @@ export function getEvaluations(data: DbModelData): Evaluation[] {
         cpiInitialVal,
         values,
         evaluations,
+        data,
       );
       startYearOfTaxYear = momentsTaxYear;
     }
@@ -2111,6 +2367,23 @@ export function getEvaluations(data: DbModelData): Evaluation[] {
         log('BUG!!! starts of income/asset/expense should have a value!');
         break;
       }
+      // Log quanities for assets which have them; needed for setting value.
+      if (moment.type === momentType.assetStart) {
+        // log(`at start of asset ${moment.name}`);
+        const startQ = getStartQuantity(moment.name, data);
+        if (startQ !== undefined) {
+          // log(`set quantity of asset ${moment.name} = ${startQ}`);
+          setValue(
+            values,
+            evaluations,
+            moment.date,
+            quantity + moment.name, // value of what?
+            startQ,
+            data,
+            moment.name, // source
+          );
+        }
+      }      
       const startValue = moment.setValue;
       // log(`in getEvaluations starting something: ${moment.name}`);
       setValue(
@@ -2119,9 +2392,13 @@ export function getEvaluations(data: DbModelData): Evaluation[] {
         moment.date,
         moment.name,
         startValue,
+        data,
         moment.name, // e.g. Cash (it's just the starting value)
       );
       if (moment.type === momentType.incomeStart) {
+        if(typeof startValue === "string"){
+          throw new Error(`income ${moment.name} can't be a string`);
+        }
         handleIncome(
           startValue,
           moment,
@@ -2135,28 +2412,35 @@ export function getEvaluations(data: DbModelData): Evaluation[] {
         );
       } else if (moment.type === momentType.expenseStart) {
         // log('in getEvaluations, adjustCash:');
-        adjustCash(-startValue, moment.date, values, evaluations, moment.name);
-      } else if (moment.type === momentType.assetStart) {
-        // log(`at start of asset ${moment.name}`);
-        const startQ = getStartQuantity(moment.name, data);
-        if (startQ !== undefined) {
-          // log(`set quantity of asset ${moment.name} = ${startQ}`);
-          setValue(
-            values,
-            evaluations,
-            moment.date,
-            quantity + moment.name, // value of what?
-            startQ,
-            moment.name, // source
-          );
-        }
+        adjustCash(
+          -startValue, 
+          moment.date, 
+          values, 
+          evaluations, 
+          data, 
+          moment.name,
+        );
       }
     } else {
       // not a transaction
       // not at start of expense/income/asset
-      let x = values.get(moment.name);
+      let x:string|number|undefined = 
+        getNumberValue(values, moment.name, false);
       // log(`value of ${moment.name} is ${x}`);
-      if (x !== undefined) {
+      if (x === undefined){
+        x = values.get(moment.name);
+        if(x !== undefined){
+          setValue(
+            values, 
+            evaluations, 
+            moment.date, 
+            moment.name, 
+            x, 
+            data,
+            growth
+          );        
+        }
+      } else {
         const inf = getGrowth(moment.name, growths);
         if (printDebug()) {
           log(`change = x * inf = ${x * inf}`);
@@ -2168,7 +2452,14 @@ export function getEvaluations(data: DbModelData): Evaluation[] {
         // data to plot.
         // if(change!==0){ // we _do_ want to log no-change evaluations!
         // log('in getEvaluations:');
-        setValue(values, evaluations, moment.date, moment.name, x, growth);
+        setValue(
+          values, 
+          evaluations, 
+          moment.date, 
+          moment.name, 
+          x, 
+          data,
+          growth);
         // }
         if (moment.type === momentType.asset) {
           // some assets experience growth which is
@@ -2199,10 +2490,8 @@ export function getEvaluations(data: DbModelData): Evaluation[] {
           );
         } else if (moment.type === momentType.expense) {
           // log('in getEvaluations, adjustCash:');
-          adjustCash(-x, moment.date, values, evaluations, moment.name);
+          adjustCash(-x, moment.date, values, evaluations, data, moment.name);
         }
-      } else {
-        log(`Bug : Undefined value for ${showObj(moment)}!`);
       }
       if (printDebug()) {
         log(`${moment.date.toDateString()},
@@ -2222,6 +2511,7 @@ export function getEvaluations(data: DbModelData): Evaluation[] {
         cpiInitialVal,
         values,
         evaluations,
+        data,
       );
     }
   }

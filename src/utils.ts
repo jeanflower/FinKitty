@@ -187,6 +187,32 @@ export function unSuppressLogs() {
   doLog = true;
 }
 
+export function getNumberAndWordParts( 
+  input: string,
+): { numberPart: number|undefined, wordPart: string }
+{
+  // strip away any number part from the front of the
+  // string
+  const re = new RegExp('^[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)');
+  const numberParts = input.match(re);
+  // log(`number parts of ${input} are ${numberParts}`);
+
+  let numberPart = undefined;
+  let wordPart  = input;
+  if( numberParts === null || numberParts.length === 0){
+    // log(`no number part`);
+  } else {
+    numberPart = parseFloat(numberParts[0]);
+    wordPart = input.substring(numberParts[0].length);
+    // log(`numberPart = ${numberPart}, wordPart = ${wordPart}`);
+  }
+  // log(`from ${input}, numberPart = ${numberPart}, wordPart = ${wordPart}`);
+  return {
+    numberPart: numberPart,
+    wordPart: wordPart,
+  };
+}
+
 export function makeIncomeLiabilityFromNameAndNI(name: string, NI: boolean) {
   if (name === '') {
     return '';

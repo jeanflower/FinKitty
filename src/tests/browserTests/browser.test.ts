@@ -2127,6 +2127,14 @@ describe('Chrome Interaction assets', () => {
     await clearAssetFields(driver);
     await addAsset(driver, {
       ...assetInputs,
+      name: 'twoItems',
+      quantity: '2',
+      message: `added new asset`,
+    });
+
+    await clearAssetFields(driver);
+    await addAsset(driver, {
+      ...assetInputs,
       startDate: 'junk',
       message: `Start date 'junk' should be a date`,
     });
@@ -2621,7 +2629,7 @@ describe('Chrome Interaction transactions', () => {
     await addTransaction(driver, {
       ...transactionInputs,
       addition: 'junk',
-      message: `Transaction to value junk isn't a number`,
+      message: `Transaction to value junk isn't a number or setting`,
     });
 
     await clearTransactionFields(driver);

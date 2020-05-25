@@ -147,6 +147,8 @@ export const revalueExp = 'revalueExp';
 export const revalueAsset = 'revalueAsset';
 //  Revalue debts
 export const revalueDebt = 'revalueDebt';
+//  Revalue settings
+export const revalueSetting = 'revalueSetting';
 //  Liquidate assets to keep cash afloat
 // (Conditional sell to cash)
 export const liquidateAsset = 'liquidateAsset';
