@@ -8,7 +8,7 @@ import {
   viewType,
 } from '../../localization/stringConstants';
 import { DbModelData } from '../../types/interfaces';
-import { setSetting, makeDateFromString, showObj } from '../../utils';
+import { setSetting, makeDateFromString } from '../../utils';
 import { browserTestSettings } from './browserBaseTypes';
 import {
   simpleAsset,

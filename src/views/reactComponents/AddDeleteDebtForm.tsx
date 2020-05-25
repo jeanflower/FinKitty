@@ -6,6 +6,7 @@ import {
   DbModelData,
   DbTransaction,
   DbTrigger,
+  FormProps,
 } from '../../types/interfaces';
 import {
   checkTriggerDate,
@@ -35,7 +36,7 @@ interface EditDebtFormState {
   PAYMENT: string;
   inputting: string;
 }
-interface EditDebtProps {
+interface EditDebtProps extends FormProps {
   checkAssetFunction: (a: DbAsset, model: DbModelData) => string;
   submitAssetFunction: (arg0: DbAsset, arg1: DbModelData) => Promise<void>;
   deleteAssetFunction: (name: string) => Promise<boolean>;
@@ -48,7 +49,6 @@ interface EditDebtProps {
     triggerInput: DbTrigger,
     modelData: DbModelData,
   ) => Promise<void>;
-  model: DbModelData;
 }
 
 const inputtingRevalue = 'revalue';
@@ -178,8 +178,8 @@ export class AddDeleteDebtForm extends Component<
 
     const parseVal = makeValueAbsPropFromString(`-${this.state.VALUE}`);
     if (!parseVal.checksOK) {
-      alert(
-        `Income value ${this.state.VALUE} should be a numerical or % value`,
+      this.props.showAlert(
+        `Debt value ${this.state.VALUE} should be a numerical or % value`,
       );
       return;
     }
@@ -187,7 +187,7 @@ export class AddDeleteDebtForm extends Component<
     const date = checkTriggerDate(this.state.START, this.props.model.triggers);
     const isNotADate = date === undefined;
     if (isNotADate) {
-      alert(`Value set date should be a date`);
+      this.props.showAlert(`Value set date should be a date`);
       return;
     }
 
@@ -218,7 +218,7 @@ export class AddDeleteDebtForm extends Component<
       this.props.model,
     );
     if (message.length > 0) {
-      alert(message);
+      this.props.showAlert(message);
       return;
     }
     await this.props.submitTransactionFunction(
@@ -226,7 +226,7 @@ export class AddDeleteDebtForm extends Component<
       this.props.model,
     );
 
-    alert('added new data');
+    this.props.showAlert('added new data');
     // clear fields
     this.setState(this.defaultState);
     return;
@@ -308,6 +308,7 @@ export class AddDeleteDebtForm extends Component<
                 : 'debt starts'
             }`}
             model={this.props.model}
+            showAlert={this.props.showAlert}
             setDateFunction={this.setStart}
             inputName="start date"
             inputValue={this.state.START}
@@ -355,24 +356,28 @@ export class AddDeleteDebtForm extends Component<
 
     let isNotANumber = !isNumberString(this.state.VALUE);
     if (isNotANumber) {
-      alert(`Debt value ${this.state.VALUE} should be a numerical value`);
+      this.props.showAlert(
+        `Debt value ${this.state.VALUE} should be a numerical value`,
+      );
       return;
     }
     const date = checkTriggerDate(this.state.START, this.props.model.triggers);
     const isNotADate = date === undefined;
     if (isNotADate) {
-      alert(`Start date '${this.state.START}' should be a date`);
+      this.props.showAlert(`Start date '${this.state.START}' should be a date`);
       return;
     }
     isNotANumber = !isNumberString(this.state.GROWTH);
     if (isNotANumber) {
-      alert(`Growth value '${this.state.GROWTH}' should be a numerical value`);
+      this.props.showAlert(
+        `Growth value '${this.state.GROWTH}' should be a numerical value`,
+      );
       return;
     }
     if (this.state.PAYMENT !== '') {
       isNotANumber = !isNumberString(this.state.PAYMENT);
       if (isNotANumber) {
-        alert(
+        this.props.showAlert(
           `Payment value '${this.state.PAYMENT}' should be a numerical value`,
         );
         return;
@@ -395,7 +400,7 @@ export class AddDeleteDebtForm extends Component<
     };
     const message = this.props.checkAssetFunction(asset, this.props.model);
     if (message.length > 0) {
-      alert(message);
+      this.props.showAlert(message);
     } else {
       await this.props.submitAssetFunction(asset, this.props.model);
       if (this.state.PAYMENT !== '') {
@@ -428,19 +433,19 @@ export class AddDeleteDebtForm extends Component<
           this.props.model,
         );
         if (message.length > 0) {
-          alert(message);
+          this.props.showAlert(message);
           await this.props.deleteAssetFunction(asset.NAME);
         } else {
           await this.props.submitTransactionFunction(
             transaction,
             this.props.model,
           );
-          alert('added new debt and payment');
+          this.props.showAlert('added new debt and payment');
           // clear fields
           this.setState(this.defaultState);
         }
       } else {
-        alert('added new debt');
+        this.props.showAlert('added new debt');
         // clear fields
         this.setState(this.defaultState);
       }
@@ -451,11 +456,11 @@ export class AddDeleteDebtForm extends Component<
     e.preventDefault();
     // log('deleting something ' + showObj(this));
     if (await this.props.deleteAssetFunction(this.state.NAME)) {
-      alert('deleted debt');
+      this.props.showAlert('deleted debt');
       // clear fields
       this.setState(this.defaultState);
     } else {
-      alert(`failed to delete ${this.state.NAME}`);
+      this.props.showAlert(`failed to delete ${this.state.NAME}`);
     }
   }
   private inputDebt(e: React.ChangeEvent<HTMLInputElement>) {

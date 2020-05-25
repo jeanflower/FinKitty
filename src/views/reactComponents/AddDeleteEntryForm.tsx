@@ -3,15 +3,14 @@ import React, { Component } from 'react';
 import { log, printDebug, showObj } from '../../utils';
 import Button from './Button';
 import Input from './Input';
-import { DbModelData } from '../../types/interfaces';
+import { DbModelData, FormProps } from '../../types/interfaces';
 
 interface EditFormState {
   NAME: string;
 }
-interface EditProps {
+interface EditProps extends FormProps {
   submitFunction: (settingInput: string, model: DbModelData) => Promise<any>;
   deleteFunction: (settingName: string) => Promise<boolean>;
-  model: DbModelData;
 }
 export class AddDeleteEntryForm extends Component<EditProps, EditFormState> {
   public constructor(props: EditProps) {
@@ -56,19 +55,21 @@ export class AddDeleteEntryForm extends Component<EditProps, EditFormState> {
     e.preventDefault();
     // log('adding something ' + showObj(this));
     await this.props.submitFunction(this.state.NAME, this.props.model);
-    alert('added new setting');
+    this.props.showAlert(`added new setting ${this.state.NAME}`);
     // clear fields
     this.setState({ NAME: '' });
   }
   private async delete(e: React.ChangeEvent<HTMLInputElement>) {
     e.preventDefault();
     // log('deleting something ' + showObj(this));
-    if (await this.props.deleteFunction(this.state.NAME)) {
-      alert('deleted setting');
+    const response = await this.props.deleteFunction(this.state.NAME);
+    // log(`response = ${response}`); // TODO doesn't show?
+    if (response) {
+      this.props.showAlert('deleted setting');
       // clear fields
       this.setState({ NAME: '' });
     } else {
-      alert(`failed to delete ${this.state.NAME}`);
+      this.props.showAlert(`failed to delete ${this.state.NAME}`);
     }
   }
 }

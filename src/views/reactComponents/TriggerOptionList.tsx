@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
 
-import { DbTrigger, DbModelData } from '../../types/interfaces';
+import { DbTrigger, DbModelData, FormProps } from '../../types/interfaces';
 import { newTriggerButtonData } from './AddDeleteTriggerForm';
 
 const welcomeString = 'Choose a date (optional)';
 
-interface TriggerOptionListProps {
+interface TriggerOptionListProps extends FormProps {
   triggers: DbTrigger[];
-  model: DbModelData;
   handleChange: (value: string) => void;
   submitTriggerFunction: (
     triggerInput: DbTrigger,
@@ -41,7 +40,12 @@ export class TriggerOptionList extends Component<TriggerOptionListProps, {}> {
         },
       };
     });
-    optionData.push(newTriggerButtonData(this.newTriggerMade.bind(this)));
+    optionData.push(
+      newTriggerButtonData(
+        this.newTriggerMade.bind(this),
+        this.props.showAlert,
+      ),
+    );
     const options = optionData.map(bd => (
       <option
         value={bd.text}

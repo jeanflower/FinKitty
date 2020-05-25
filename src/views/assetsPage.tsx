@@ -19,7 +19,11 @@ import { AddDeleteAssetForm } from './reactComponents/AddDeleteAssetForm';
 import { checkAsset, checkTransaction } from '../models/checks';
 import { revalueAsset } from '../localization/stringConstants';
 
-export function assetsDiv(model: DbModelData, assetChartData: ChartData[]) {
+export function assetsDiv(
+  model: DbModelData,
+  showAlert: (arg0: string) => void,
+  assetChartData: ChartData[],
+) {
   if (!getDisplay(assetsView)) {
     return;
   }
@@ -51,9 +55,9 @@ export function assetsDiv(model: DbModelData, assetChartData: ChartData[]) {
         id="toggleAssetsTable"
       />
       {assetsOrDebtsChartDiv(model, assetChartData, false)}
-      {assetsOrDebtsTableDiv(model, false)}
+      {assetsOrDebtsTableDiv(model, showAlert, false)}
       <h4>Revalue assets</h4>
-      {transactionsTableDiv(model, revalueAsset)}
+      {transactionsTableDiv(model, showAlert, revalueAsset)}
 
       <div className="addNewAsset">
         <h4> Add an asset or pension </h4>
@@ -65,6 +69,7 @@ export function assetsDiv(model: DbModelData, assetChartData: ChartData[]) {
           deleteAssetFunction={deleteAsset}
           submitTriggerFunction={submitTrigger}
           model={model}
+          showAlert={showAlert}
         />
       </div>
     </div>

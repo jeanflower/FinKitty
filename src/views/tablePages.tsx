@@ -90,17 +90,21 @@ import {
 } from '../localization/stringConstants';
 import { log } from 'util';
 
-function prohibitEditOfName() {
-  alert('prohibit edit of name');
+function prohibitEditOfName(showAlert: (arg0: string) => void) {
+  showAlert('prohibit edit of name');
 }
 
-function handleExpenseGridRowsUpdated(model: DbModelData, args: any) {
+function handleExpenseGridRowsUpdated(
+  model: DbModelData,
+  showAlert: (arg0: string) => void,
+  args: any,
+) {
   // log('handleExpenseGridRowsUpdated', arguments);
   const expense = args[0].fromRowData;
   // log('old expense '+showObj(expense));
   if (args[0].cellKey === 'NAME') {
     if (expense.NAME !== args[0].updated.NAME) {
-      prohibitEditOfName();
+      prohibitEditOfName(showAlert);
     }
     return;
   }
@@ -112,13 +116,13 @@ function handleExpenseGridRowsUpdated(model: DbModelData, args: any) {
   const parsedValue = makeCashValueFromString(expense.VALUE);
   const parsedGrowth = makeGrowthFromString(expense.GROWTH, model.settings);
   if (!parsedGrowsWithCPI.checksOK) {
-    alert("Whether expense grows with CPI should be 'y' or 'n'");
+    showAlert("Whether expense grows with CPI should be 'y' or 'n'");
     expense[args[0].cellKey] = oldValue;
   } else if (!parsedValue.checksOK) {
-    alert(`Value ${expense.VALUE} can't be understood as a cash value}`);
+    showAlert(`Value ${expense.VALUE} can't be understood as a cash value}`);
     expense[args[0].cellKey] = oldValue;
   } else if (!parsedGrowth.checksOK) {
-    alert(`Value ${expense.GROWTH} can't be understood as a growth}`);
+    showAlert(`Value ${expense.GROWTH} can't be understood as a growth}`);
     expense[args[0].cellKey] = oldValue;
   } else {
     const expenseForSubmission: DbExpense = {
@@ -137,19 +141,23 @@ function handleExpenseGridRowsUpdated(model: DbModelData, args: any) {
     if (checks === '') {
       submitExpense(expenseForSubmission, model);
     } else {
-      alert(checks);
+      showAlert(checks);
       expense[args[0].cellKey] = oldValue;
     }
   }
 }
 
-function handleIncomeGridRowsUpdated(model: DbModelData, args: any) {
+function handleIncomeGridRowsUpdated(
+  model: DbModelData,
+  showAlert: (arg0: string) => void,
+  args: any,
+) {
   // log('handleIncomeGridRowsUpdated');
   const income = args[0].fromRowData;
   // log('old income '+showObj(income));
   if (args[0].cellKey === 'NAME') {
     if (income.NAME !== args[0].updated.NAME) {
-      prohibitEditOfName();
+      prohibitEditOfName(showAlert);
     }
     return;
   }
@@ -161,13 +169,13 @@ function handleIncomeGridRowsUpdated(model: DbModelData, args: any) {
   const parsedValue = makeCashValueFromString(income.VALUE);
   const parsedGrowth = makeGrowthFromString(income.GROWTH, model.settings);
   if (!parsedGrowsWithCPI.checksOK) {
-    alert("Whether income grows with CPI should be 'y' or 'n'");
+    showAlert("Whether income grows with CPI should be 'y' or 'n'");
     income[args[0].cellKey] = oldValue;
   } else if (!parsedValue.checksOK) {
-    alert(`Value ${income.VALUE} can't be understood as a cash value}`);
+    showAlert(`Value ${income.VALUE} can't be understood as a cash value}`);
     income[args[0].cellKey] = oldValue;
   } else if (!parsedGrowth.checksOK) {
-    alert(`Value ${income.GROWTH} can't be understood as a growth}`);
+    showAlert(`Value ${income.GROWTH} can't be understood as a growth}`);
     income[args[0].cellKey] = oldValue;
   } else {
     const incomeForSubmission: DbIncome = {
@@ -185,18 +193,22 @@ function handleIncomeGridRowsUpdated(model: DbModelData, args: any) {
     if (checks === '') {
       submitIncome(incomeForSubmission, model);
     } else {
-      alert(checks);
+      showAlert(checks);
       income[args[0].cellKey] = oldValue;
     }
   }
 }
 
-function handleTriggerGridRowsUpdated(model: DbModelData, args: any) {
+function handleTriggerGridRowsUpdated(
+  model: DbModelData,
+  showAlert: (arg0: string) => void,
+  args: any,
+) {
   // log('handleTriggerGridRowsUpdated', arguments);
   const trigger = args[0].fromRowData;
   if (args[0].cellKey === 'NAME') {
     if (trigger.NAME !== args[0].updated.NAME) {
-      prohibitEditOfName();
+      prohibitEditOfName(showAlert);
     }
     return;
   }
@@ -210,17 +222,21 @@ function handleTriggerGridRowsUpdated(model: DbModelData, args: any) {
   if (checks === '') {
     submitTrigger(forSubmit, model);
   } else {
-    alert(checks);
+    showAlert(checks);
     trigger[args[0].cellKey] = oldValue;
   }
 }
 
-function handleAssetGridRowsUpdated(model: DbModelData, args: any) {
+function handleAssetGridRowsUpdated(
+  model: DbModelData,
+  showAlert: (arg0: string) => void,
+  args: any,
+) {
   // log('handleAssetGridRowsUpdated', args);
   const asset = args[0].fromRowData;
   if (args[0].cellKey === 'NAME') {
     if (asset.NAME !== args[0].updated.NAME) {
-      prohibitEditOfName();
+      prohibitEditOfName(showAlert);
     }
     return;
   }
@@ -248,25 +264,25 @@ function handleAssetGridRowsUpdated(model: DbModelData, args: any) {
   }
 
   if (!parsedGrowth.checksOK) {
-    alert(`asset growth ${asset.GROWTH} not understood`);
+    showAlert(`asset growth ${asset.GROWTH} not understood`);
     asset[args[0].cellKey] = oldValue;
   } else if (!parsedValue.checksOK) {
-    alert(`asset value ${asset.VALUE} not understood`);
+    showAlert(`asset value ${asset.VALUE} not understood`);
     asset[args[0].cellKey] = oldValue;
   } else if (!parsedQuantity.checksOK) {
-    alert(`quantity value ${asset.QUANTITY} not understood`);
+    showAlert(`quantity value ${asset.QUANTITY} not understood`);
     asset[args[0].cellKey] = oldValue;
   } else if (!parsedGrowsWithCPI.checksOK) {
-    alert(`asset value ${asset.GROWS_WITH_CPI} not understood`);
+    showAlert(`asset value ${asset.GROWS_WITH_CPI} not understood`);
     asset[args[0].cellKey] = oldValue;
   } else if (!parsedIsADebt.checksOK) {
-    alert(`asset value ${asset.IS_A_DEBT} not understood`);
+    showAlert(`asset value ${asset.IS_A_DEBT} not understood`);
     asset[args[0].cellKey] = oldValue;
   } else if (!parsedCanBeNegative.checksOK) {
-    alert(`asset value ${asset.CAN_BE_NEGATIVE} not understood`);
+    showAlert(`asset value ${asset.CAN_BE_NEGATIVE} not understood`);
     asset[args[0].cellKey] = oldValue;
   } else {
-    let numValueForSubmission = parsedValue.value;
+    const numValueForSubmission = parsedValue.value;
     const assetForSubmission: DbAsset = {
       NAME: asset.NAME,
       VALUE: `${numValueForSubmission}`,
@@ -284,7 +300,7 @@ function handleAssetGridRowsUpdated(model: DbModelData, args: any) {
     if (checks === '') {
       submitAsset(assetForSubmission, model);
     } else {
-      alert(checks);
+      showAlert(checks);
       asset[args[0].cellKey] = oldValue;
     }
   }
@@ -307,6 +323,7 @@ function getDbName(name: string, type: string) {
 
 function handleTransactionGridRowsUpdated(
   model: DbModelData,
+  showAlert: (arg0: string) => void,
   type: string,
   args: any,
 ) {
@@ -316,7 +333,7 @@ function handleTransactionGridRowsUpdated(
   // for debugging, it can be useful to allow editing of the name
   if (args[0].cellKey === 'NAME') {
     if (gridData.NAME !== args[0].updated.NAME) {
-      prohibitEditOfName();
+      prohibitEditOfName(showAlert);
     }
     return;
   }
@@ -332,12 +349,12 @@ function handleTransactionGridRowsUpdated(
   const parseFrom = makeValueAbsPropFromString(gridData.FROM_VALUE);
   const parseTo = makeValueAbsPropFromString(gridData.TO_VALUE);
   if (!parseFrom.checksOK) {
-    alert(
+    showAlert(
       `From value ${gridData.FROM_VALUE} should be a number or a number with % symbol`,
     );
     gridData[args[0].cellKey] = oldValue;
   } else if (!parseTo.checksOK) {
-    alert(
+    showAlert(
       `To value ${gridData.TO_VALUE} should be a number or a number with % symbol`,
     );
     gridData[args[0].cellKey] = oldValue;
@@ -382,17 +399,21 @@ function handleTransactionGridRowsUpdated(
       // log(`checks OK, submitting transaction`);
       submitTransaction(transaction, model);
     } else {
-      alert(checks);
+      showAlert(checks);
       gridData[args[0].cellKey] = oldValue;
     }
   }
 }
-function handleSettingGridRowsUpdated(model: DbModelData, args: any) {
+function handleSettingGridRowsUpdated(
+  model: DbModelData,
+  showAlert: (arg0: string) => void,
+  args: any,
+) {
   // log('handleSettingGridRowsUpdated', args);
   const x = args[0].fromRowData;
   if (args[0].cellKey === 'NAME') {
     if (x.NAME !== args[0].updated.NAME) {
-      prohibitEditOfName();
+      prohibitEditOfName(showAlert);
     }
     return;
   }
@@ -536,7 +557,11 @@ function assetsOrDebtsForTable(model: DbModelData, isDebt: boolean): any[] {
   return addIndices(unindexedResult);
 }
 
-export function assetsOrDebtsTableDiv(model: DbModelData, isDebt: boolean) {
+export function assetsOrDebtsTableDiv(
+  model: DbModelData,
+  showAlert: (arg0: string) => void,
+  isDebt: boolean,
+) {
   const tableVisible = isDebt
     ? showContent.get(debtsTable).display
     : showContent.get(assetsTable).display;
@@ -550,7 +575,7 @@ export function assetsOrDebtsTableDiv(model: DbModelData, isDebt: boolean) {
         <div className="dataGridAssets">
           <DataGrid
             handleGridRowsUpdated={function() {
-              return handleAssetGridRowsUpdated(model, arguments);
+              return handleAssetGridRowsUpdated(model, showAlert, arguments);
             }}
             rows={assetsOrDebtsForTable(model, isDebt)}
             columns={getAssetOrDebtCols(model, isDebt)}
@@ -848,7 +873,11 @@ function makeCompleteName(name: string, type: string) {
   return name;
 }
 
-export function transactionsTableDiv(model: DbModelData, type: string) {
+export function transactionsTableDiv(
+  model: DbModelData,
+  showAlert: (arg0: string) => void,
+  type: string,
+) {
   const tableVisible = showContent.get(transactionsTable).display;
   return (
     <fieldset>
@@ -860,7 +889,12 @@ export function transactionsTableDiv(model: DbModelData, type: string) {
       >
         <DataGrid
           handleGridRowsUpdated={function() {
-            return handleTransactionGridRowsUpdated(model, type, arguments);
+            return handleTransactionGridRowsUpdated(
+              model,
+              showAlert,
+              type,
+              arguments,
+            );
           }}
           rows={transactionsForTable(model, type)}
           columns={makeTransactionCols(model, type)}
@@ -884,7 +918,10 @@ function triggersForTable(model: DbModelData) {
   return addIndices(unindexedResult);
 }
 
-export function triggersTableDiv(model: DbModelData) {
+export function triggersTableDiv(
+  model: DbModelData,
+  showAlert: (arg0: string) => void,
+) {
   const tableVisible = showContent.get(triggersTable).display;
   return (
     <div
@@ -897,7 +934,7 @@ export function triggersTableDiv(model: DbModelData) {
           <DataGrid
             deleteFunction={deleteTrigger}
             handleGridRowsUpdated={function() {
-              return handleTriggerGridRowsUpdated(model, arguments);
+              return handleTriggerGridRowsUpdated(model, showAlert, arguments);
             }}
             rows={triggersForTable(model)}
             columns={[
@@ -945,7 +982,10 @@ function incomesForTable(model: DbModelData) {
   return addIndices(unindexedResult);
 }
 
-export function incomesTableDiv(model: DbModelData) {
+export function incomesTableDiv(
+  model: DbModelData,
+  showAlert: (arg0: string) => void,
+) {
   const tableVisible = showContent.get(incomesTable).display;
   return (
     <div
@@ -958,7 +998,7 @@ export function incomesTableDiv(model: DbModelData) {
           <DataGrid
             deleteFunction={deleteIncome}
             handleGridRowsUpdated={function() {
-              return handleIncomeGridRowsUpdated(model, arguments);
+              return handleIncomeGridRowsUpdated(model, showAlert, arguments);
             }}
             rows={incomesForTable(model)}
             columns={[
@@ -1057,7 +1097,10 @@ function expensesForTable(model: DbModelData) {
   return addIndices(unindexedResult);
 }
 
-export function expensesTableDiv(model: DbModelData) {
+export function expensesTableDiv(
+  model: DbModelData,
+  showAlert: (arg0: string) => void,
+) {
   const tableVisible = showContent.get(expensesTable).display;
   return (
     <div
@@ -1070,7 +1113,7 @@ export function expensesTableDiv(model: DbModelData) {
           <DataGrid
             deleteFunction={deleteExpense}
             handleGridRowsUpdated={function() {
-              return handleExpenseGridRowsUpdated(model, arguments);
+              return handleExpenseGridRowsUpdated(model, showAlert, arguments);
             }}
             rows={expensesForTable(model)}
             columns={[
@@ -1185,7 +1228,10 @@ function settingsForTable(model: DbModelData, type: string) {
   return addIndices(unindexedResult);
 }
 
-export function settingsTableDiv(model: DbModelData) {
+export function settingsTableDiv(
+  model: DbModelData,
+  showAlert: (arg0: string) => void,
+) {
   const tableVisible = showContent.get(settingsTable).display;
   return (
     <div
@@ -1197,7 +1243,7 @@ export function settingsTableDiv(model: DbModelData) {
       <DataGrid
         deleteFunction={deleteSetting}
         handleGridRowsUpdated={function() {
-          return handleSettingGridRowsUpdated(model, arguments);
+          return handleSettingGridRowsUpdated(model, showAlert, arguments);
         }}
         rows={settingsForTable(model, viewType)}
         columns={[
@@ -1222,7 +1268,7 @@ export function settingsTableDiv(model: DbModelData) {
       <DataGrid
         deleteFunction={deleteSetting}
         handleGridRowsUpdated={function() {
-          return handleSettingGridRowsUpdated(model, arguments);
+          return handleSettingGridRowsUpdated(model, showAlert, arguments);
         }}
         rows={settingsForTable(model, constType)}
         columns={[
@@ -1247,7 +1293,7 @@ export function settingsTableDiv(model: DbModelData) {
       <DataGrid
         deleteFunction={deleteSetting}
         handleGridRowsUpdated={function() {
-          return handleSettingGridRowsUpdated(model, arguments);
+          return handleSettingGridRowsUpdated(model, showAlert, arguments);
         }}
         rows={settingsForTable(model, adjustableType)}
         columns={[

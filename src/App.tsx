@@ -306,6 +306,12 @@ function getExampleModel(modelString: string) {
   return makeModelFromJSON(modelString);
 }
 
+function showAlert(text: string) {
+  reactAppComponent.setState({
+    alertText: text,
+  });
+}
+
 export async function refreshData(goToDB = true) {
   // log('refreshData in AppContent - get data and redraw content');
   if (goToDB) {
@@ -331,7 +337,8 @@ export async function refreshData(goToDB = true) {
 
         model = await loadModel(getUserID(), modelName);
         if (model === undefined) {
-          alert('problem with model data');
+          const response = 'problem with model data';
+          showAlert(response);
           return;
         }
       } else {
@@ -587,7 +594,11 @@ export async function deleteItemFromModel(
 
     const checkResponse = checkData(model);
     if (checkResponse !== '') {
-      alert(`edited  model fails checks :'${checkResponse}', reverting`);
+      const response =
+        `edited  model fails checks ` + `:${checkResponse}', reverting`;
+      reactAppComponent.setState({
+        alertText: response,
+      });
       itemList.splice(idx, 0, oldItem);
       // log(`after putback itemList = ${showObj(itemList)}`);
       return false;
@@ -738,10 +749,22 @@ export class AppContent extends Component<AppProps, AppState> {
             this.state.incomesChartData,
           )}
           {this.settingsDiv()}
-          {incomesDiv(this.state.modelData, this.state.incomesChartData)}
-          {expensesDiv(this.state.modelData, this.state.expensesChartData)}
-          {assetsDiv(this.state.modelData, this.state.assetChartData)}
-          {debtsDiv(this.state.modelData, this.state.debtChartData)}
+          {incomesDiv(
+            this.state.modelData,
+            showAlert,
+            this.state.incomesChartData,
+          )}
+          {expensesDiv(
+            this.state.modelData,
+            showAlert,
+            this.state.expensesChartData,
+          )}
+          {assetsDiv(
+            this.state.modelData,
+            showAlert,
+            this.state.assetChartData,
+          )}
+          {debtsDiv(this.state.modelData, showAlert, this.state.debtChartData)}
           {this.transactionsDiv()}
           {taxDiv(this.state.modelData, this.state.taxChartData)}
           {this.triggersDiv()}
@@ -797,14 +820,16 @@ export class AppContent extends Component<AppProps, AppState> {
     const whatsLeft = promptResponse.replace(regex, '');
     // log(`whatsLeft = ${whatsLeft}`);
     if (whatsLeft !== '') {
-      alert(
-        'Model names can only contain a-z, A-Z, 0-9, _, - and . characters',
-      );
+      const response =
+        'Model names can only contain a-z, A-Z, 0-9, _, - and . characters';
+      reactAppComponent.setState({
+        alertText: response,
+      });
       return result;
     } else if (
       this.state.modelNamesData.find(model => model === promptResponse)
     ) {
-      alert("There's already a model with that name");
+      showAlert("There's already a model with that name");
       return result;
     }
     result.gotNameOK = true;
@@ -831,7 +856,7 @@ export class AppContent extends Component<AppProps, AppState> {
       }
       // log(`model names after delete are ${modelNames}`);
       if (modelNames.length === 0) {
-        alert('no data left: recreating example model');
+        showAlert('no data left: recreating example model');
         modelName = exampleModelName;
         await ensureModel(getUserID(), modelName);
         await saveModelLSM(
@@ -875,6 +900,20 @@ export class AppContent extends Component<AppProps, AppState> {
             <br />
             Actions:
             <br />
+            <Button
+              id="startNewModel2"
+              action={async () => {
+                const newNameFromUser = this.getNewName();
+                if (!newNameFromUser.gotNameOK) {
+                  return;
+                }
+                await updateModelName(newNameFromUser.newName);
+                // log(`created new model`);
+                // toggle(triggersView);
+              }}
+              title="Create a new model"
+              type="secondary"
+            />
             <Button
               action={async () => {
                 this.deleteModel(modelName);
@@ -925,11 +964,11 @@ export class AppContent extends Component<AppProps, AppState> {
                 const text = JSON.stringify(this.state.modelData);
                 navigator.clipboard.writeText(text).then(
                   function() {
-                    alert(`model as JSON on clipboard`);
+                    showAlert(`model as JSON on clipboard`);
                   },
                   function(err) {
                     console.error('Async: Could not copy text: ', err);
-                    alert(
+                    showAlert(
                       `sorry, something went wrong, no copy on clipboard - in console instead`,
                     );
                     log('-------- start of model --------');
@@ -970,7 +1009,7 @@ export class AppContent extends Component<AppProps, AppState> {
                   const decipherString = decipher.toString(CryptoJS.enc.Utf8);
                   log(`deciphered text ${decipherString}`);
                   if (decipherString === undefined) {
-                    alert('could not decode this data');
+                    showAlert('could not decode this data');
                   } else {
                     const decipheredModel = makeModelFromJSON(decipherString);
                     const response = checkModelData(decipheredModel);
@@ -979,7 +1018,7 @@ export class AppContent extends Component<AppProps, AppState> {
                     });
                   }
                 } catch (err) {
-                  alert('could not decode this data');
+                  showAlert('could not decode this data');
                 }
               }}
               title="Test encrypted JSON"
@@ -1028,7 +1067,7 @@ export class AppContent extends Component<AppProps, AppState> {
             key={settingsTable.lc}
             id="toggleSettingsChart"
           />
-          {settingsTableDiv(this.state.modelData)}
+          {settingsTableDiv(this.state.modelData, showAlert)}
           <p />
           <div className="addNewSetting">
             <h4> Add setting </h4>
@@ -1036,6 +1075,7 @@ export class AppContent extends Component<AppProps, AppState> {
               submitFunction={submitNewSetting}
               deleteFunction={deleteSetting}
               model={this.state.modelData}
+              showAlert={showAlert}
             />
           </div>
         </fieldset>
@@ -1064,7 +1104,7 @@ export class AppContent extends Component<AppProps, AppState> {
           key={triggersTable.lc}
           id="toggle-triggersChart"
         />
-        {triggersTableDiv(this.state.modelData)}
+        {triggersTableDiv(this.state.modelData, showAlert)}
         <p />
         <div className="addNewTrigger">
           <h4> Add an important date </h4>
@@ -1082,6 +1122,7 @@ export class AppContent extends Component<AppProps, AppState> {
               }
             }}
             model={this.state.modelData}
+            showAlert={showAlert}
           />
         </div>
       </div>
@@ -1111,11 +1152,11 @@ export class AppContent extends Component<AppProps, AppState> {
           id="toggleTransactionsChart"
         />
         {tableVisible ? <h4>Custom transactions</h4> : ''}
-        {transactionsTableDiv(this.state.modelData, custom)}
+        {transactionsTableDiv(this.state.modelData, showAlert, custom)}
         <h4>Liquidate assets to keep cash afloat</h4>
-        {transactionsTableDiv(this.state.modelData, liquidateAsset)}
+        {transactionsTableDiv(this.state.modelData, showAlert, liquidateAsset)}
         {tableVisible ? <h4>Auto-generated transactions</h4> : ''}
-        {transactionsTableDiv(this.state.modelData, autogen)}
+        {transactionsTableDiv(this.state.modelData, showAlert, autogen)}
         <p />
         <div className="addNewTransaction">
           <h4> Add a transaction </h4>
@@ -1125,6 +1166,7 @@ export class AppContent extends Component<AppProps, AppState> {
             deleteFunction={deleteTransaction}
             submitTriggerFunction={submitTrigger}
             model={this.state.modelData}
+            showAlert={showAlert}
           />
         </div>
       </div>
@@ -1217,7 +1259,7 @@ export class AppContent extends Component<AppProps, AppState> {
                   this.setState({ alertText: '' });
                 }}
                 title={'clear alert'}
-                id={`btn-clear-alert}`}
+                id={`btn-clear-alert`}
                 type={'secondary'}
               />
             </div>

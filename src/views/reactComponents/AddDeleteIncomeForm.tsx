@@ -6,6 +6,7 @@ import {
   DbModelData,
   DbTransaction,
   DbTrigger,
+  FormProps,
 } from '../../types/interfaces';
 import {
   checkTriggerDate,
@@ -61,7 +62,7 @@ const inputtingRevalue = 'revalue';
 const inputtingIncome = 'income';
 const inputtingPension = 'definedBenefitsPension';
 
-interface EditIncomeProps {
+interface EditIncomeProps extends FormProps {
   checkIncomeFunction: (i: DbIncome, model: DbModelData) => string;
   checkTransactionFunction: (t: DbTransaction, model: DbModelData) => string;
   submitIncomeFunction: (
@@ -77,7 +78,6 @@ interface EditIncomeProps {
     triggerInput: DbTrigger,
     modelData: DbModelData,
   ) => Promise<void>;
-  model: DbModelData;
 }
 
 export function incomeOptions(
@@ -303,6 +303,7 @@ export class AddDeleteIncomeForm extends Component<
                 : "Date on which the income's new value is set"
             }`}
             model={this.props.model}
+            showAlert={this.props.showAlert}
             setDateFunction={this.setValueSet}
             inputName="income valuation date"
             inputValue={this.state.VALUE_SET}
@@ -417,6 +418,7 @@ export class AddDeleteIncomeForm extends Component<
           <DateSelectionRow
             introLabel="Date on which the income starts"
             model={this.props.model}
+            showAlert={this.props.showAlert}
             setDateFunction={this.setStart}
             inputName="income start date"
             inputValue={this.state.START}
@@ -427,6 +429,7 @@ export class AddDeleteIncomeForm extends Component<
           <DateSelectionRow
             introLabel="Date on which the income ends"
             model={this.props.model}
+            showAlert={this.props.showAlert}
             setDateFunction={this.setEnd}
             inputName="income end date"
             inputValue={this.state.END}
@@ -482,6 +485,7 @@ DB_TRANSFERRED_STOP
           <DateSelectionRow
             introLabel="Date on which contributions end (optional)"
             model={this.props.model}
+            showAlert={this.props.showAlert}
             setDateFunction={this.setDbcStopSource}
             inputName="end date"
             inputValue={this.state.DB_STOP_SOURCE}
@@ -492,6 +496,7 @@ DB_TRANSFERRED_STOP
           <DateSelectionRow
             introLabel="Date on which the pension starts"
             model={this.props.model}
+            showAlert={this.props.showAlert}
             setDateFunction={this.setDbcStart}
             inputName="pension start date"
             inputValue={this.state.DB_START}
@@ -502,6 +507,7 @@ DB_TRANSFERRED_STOP
           <DateSelectionRow
             introLabel="Date on which the pension ends" ///transfers"
             model={this.props.model}
+            showAlert={this.props.showAlert}
             setDateFunction={this.setDbcEnd}
             inputName="pension end/transfer date"
             inputValue={this.state.DB_END}
@@ -513,6 +519,7 @@ DB_TRANSFERRED_STOP
             <DateSelectionRow
               introLabel="Date on which transferred pension stops (optional)"
               model={this.props.model}
+              showAlert={this.props.showAlert}
               setDateFunction={this.setDbcTransferredStop}
               inputName="transferred stop date"
               inputValue={this.state.DB_TRANSFERRED_STOP}
@@ -695,13 +702,15 @@ DB_TRANSFERRED_STOP
     e.preventDefault();
 
     if (!isAnIncome(this.state.NAME, this.props.model)) {
-      alert(`Income name ${this.state.NAME} should be an existing income`);
+      this.props.showAlert(
+        `Income name ${this.state.NAME} should be an existing income`,
+      );
       return;
     }
 
     const parseVal = makeValueAbsPropFromString(this.state.VALUE);
     if (!parseVal.checksOK) {
-      alert(
+      this.props.showAlert(
         `Income value ${this.state.VALUE} should be a numerical or % value`,
       );
       return;
@@ -712,7 +721,7 @@ DB_TRANSFERRED_STOP
     );
     const isNotADate = date === undefined;
     if (isNotADate) {
-      alert(`Value set date should be a date`);
+      this.props.showAlert(`Value set date should be a date`);
       return;
     }
     let count = 1;
@@ -741,7 +750,7 @@ DB_TRANSFERRED_STOP
       this.props.model,
     );
     if (message.length > 0) {
-      alert(message);
+      this.props.showAlert(message);
       return;
     }
     await this.props.submitTransactionFunction(
@@ -749,7 +758,7 @@ DB_TRANSFERRED_STOP
       this.props.model,
     );
 
-    alert('added new data');
+    this.props.showAlert('added new data');
     // clear fields
     this.setState(this.defaultState);
     this.resetSelect(this.incomeSourceSelectID);
@@ -760,12 +769,14 @@ DB_TRANSFERRED_STOP
     e.preventDefault();
 
     if (this.state.NAME === '') {
-      alert(`Income name should be non-empty`);
+      this.props.showAlert(`Income name should be non-empty`);
       return;
     }
     let isNotANumber = !isNumberString(this.state.VALUE);
     if (isNotANumber) {
-      alert(`Income value ${this.state.VALUE} should be a numerical value`);
+      this.props.showAlert(
+        `Income value ${this.state.VALUE} should be a numerical value`,
+      );
       return;
     }
     let date = checkTriggerDate(
@@ -774,7 +785,7 @@ DB_TRANSFERRED_STOP
     );
     let isNotADate = date === undefined;
     if (isNotADate) {
-      alert(`Value set date should be a date`);
+      this.props.showAlert(`Value set date should be a date`);
       return;
     }
     const parsedGrowth = makeGrowthFromString(
@@ -782,12 +793,14 @@ DB_TRANSFERRED_STOP
       this.props.model.settings,
     );
     if (!parsedGrowth.checksOK) {
-      alert(`Growth value '${this.state.GROWTH}' should be a numerical value`);
+      this.props.showAlert(
+        `Growth value '${this.state.GROWTH}' should be a numerical value`,
+      );
       return;
     }
     const parseYNGrowsWithCPI = makeBooleanFromYesNo(this.state.GROWS_WITH_CPI);
     if (!parseYNGrowsWithCPI.checksOK) {
-      alert(
+      this.props.showAlert(
         `Grows with inflation '${this.state.GROWS_WITH_CPI}' should be a Y/N value`,
       );
       return;
@@ -807,7 +820,9 @@ DB_TRANSFERRED_STOP
       const parseYNDBSS = makeBooleanFromYesNo(this.state.DB_SS);
       if (this.state.DB_INCOME_SOURCE !== '') {
         if (!parseYNDBSS.checksOK) {
-          alert(`Salary sacrifice '${this.state.DB_SS}' should be a Y/N value`);
+          this.props.showAlert(
+            `Salary sacrifice '${this.state.DB_SS}' should be a Y/N value`,
+          );
           return;
         } else {
           // log(`parseYNDBSS = ${showObj(parseYNDBSS)}`);
@@ -815,7 +830,7 @@ DB_TRANSFERRED_STOP
 
         isNotANumber = !isNumberString(this.state.DB_CONTRIBUTION_AMOUNT);
         if (isNotANumber) {
-          alert(
+          this.props.showAlert(
             `Contribution amount '${this.state.DB_CONTRIBUTION_AMOUNT}' should be a numerical value`,
           );
           return;
@@ -823,7 +838,7 @@ DB_TRANSFERRED_STOP
 
         isNotANumber = !isNumberString(this.state.DB_ACCRUAL);
         if (isNotANumber) {
-          alert(
+          this.props.showAlert(
             `Accrual value '${this.state.DB_ACCRUAL}' should be a numerical value`,
           );
           return;
@@ -831,7 +846,7 @@ DB_TRANSFERRED_STOP
       } else {
         isNotANumber = !isNumberString(this.state.DB_CONTRIBUTION_AMOUNT);
         if (!isNotANumber) {
-          alert(
+          this.props.showAlert(
             `Contribution amount '${this.state.DB_CONTRIBUTION_AMOUNT}' from no income?`,
           );
           return;
@@ -839,7 +854,9 @@ DB_TRANSFERRED_STOP
 
         isNotANumber = !isNumberString(this.state.DB_ACCRUAL);
         if (!isNotANumber) {
-          alert(`Accrual value '${this.state.DB_ACCRUAL}' from no income?`);
+          this.props.showAlert(
+            `Accrual value '${this.state.DB_ACCRUAL}' from no income?`,
+          );
           return;
         }
       }
@@ -849,7 +866,7 @@ DB_TRANSFERRED_STOP
       );
       let liabilityMessage = checkIncomeLiability(inputLiability);
       if (liabilityMessage !== '') {
-        alert(liabilityMessage);
+        this.props.showAlert(liabilityMessage);
         return;
       }
 
@@ -857,12 +874,16 @@ DB_TRANSFERRED_STOP
         return i.NAME === this.state.DB_INCOME_SOURCE;
       });
       if (sourceIncome === undefined && this.state.DB_INCOME_SOURCE !== '') {
-        alert(`${this.state.DB_INCOME_SOURCE} not recognised as an income`);
+        this.props.showAlert(
+          `${this.state.DB_INCOME_SOURCE} not recognised as an income`,
+        );
         return;
       } else if (sourceIncome) {
         const liabilities = sourceIncome.LIABILITY;
         if (liabilities.length === 0) {
-          alert(`Source income '${sourceIncome.NAME}' should pay income tax`);
+          this.props.showAlert(
+            `Source income '${sourceIncome.NAME}' should pay income tax`,
+          );
           return;
         }
         const words = liabilities.split(separator);
@@ -870,7 +891,7 @@ DB_TRANSFERRED_STOP
           return w.endsWith(incomeTax);
         });
         if (incomeTaxWord === undefined) {
-          alert(
+          this.props.showAlert(
             `Source income '${sourceIncome.NAME}' should have an income tax liability`,
           );
           return;
@@ -878,7 +899,7 @@ DB_TRANSFERRED_STOP
           // insist incomeTaxWord matches inputLiability
           if (incomeTaxWord !== inputLiability) {
             log(`${incomeTaxWord} !== ${inputLiability}`);
-            alert(
+            this.props.showAlert(
               `Source income '${sourceIncome.NAME}' should have income tax liability ${inputLiability}`,
             );
             return;
@@ -889,7 +910,7 @@ DB_TRANSFERRED_STOP
       if (this.state.DB_TRANSFER_TO !== '') {
         isNotANumber = !isNumberString(this.state.DB_TRANSFER_PROPORTION);
         if (isNotANumber) {
-          alert(
+          this.props.showAlert(
             `Transfer proportion ${this.state.DB_TRANSFER_PROPORTION} should be a numerical value`,
           );
           return;
@@ -900,7 +921,7 @@ DB_TRANSFERRED_STOP
         );
         liabilityMessage = checkIncomeLiability(builtLiability2);
         if (liabilityMessage !== '') {
-          alert(liabilityMessage);
+          this.props.showAlert(liabilityMessage);
           return;
         }
       }
@@ -921,7 +942,7 @@ DB_TRANSFERRED_STOP
         this.props.model,
       );
       if (message.length > 0) {
-        alert(message);
+        this.props.showAlert(message);
         return;
       }
       let pensionDbcIncome2: DbIncome | undefined;
@@ -944,7 +965,7 @@ DB_TRANSFERRED_STOP
           this.props.model,
         );
         if (message.length > 0) {
-          alert(message);
+          this.props.showAlert(message);
           return;
         }
       }
@@ -982,7 +1003,7 @@ DB_TRANSFERRED_STOP
         );
         if (message.length > 0) {
           //log(`bad transaction1 ${showObj(pensionDbctran1)}`);
-          alert(message);
+          this.props.showAlert(message);
           await this.props.deleteFunction(pensionDbcIncome1.NAME);
           if (pensionDbcIncome2) {
             await this.props.deleteFunction(pensionDbcIncome2.NAME);
@@ -1013,7 +1034,7 @@ DB_TRANSFERRED_STOP
         );
         if (message.length > 0) {
           //log(`bad transaction2 ${showObj(pensionDbctran2)}`);
-          alert(message);
+          this.props.showAlert(message);
           await this.props.deleteFunction(pensionDbcIncome1.NAME);
           if (pensionDbcIncome2) {
             await this.props.deleteFunction(pensionDbcIncome2.NAME);
@@ -1043,7 +1064,7 @@ DB_TRANSFERRED_STOP
         );
         if (message.length > 0) {
           //log(`bad transaction3 ${showObj(pensionDbctran3)}`);
-          alert(message);
+          this.props.showAlert(message);
           await this.props.deleteFunction(pensionDbcIncome1.NAME);
           if (pensionDbcIncome2) {
             await this.props.deleteFunction(pensionDbcIncome2.NAME);
@@ -1071,7 +1092,7 @@ DB_TRANSFERRED_STOP
         );
       }
 
-      alert('added new data');
+      this.props.showAlert('added new data');
       // clear fields
       this.setState(this.defaultState);
       this.resetSelect(this.incomeSourceSelectID);
@@ -1081,13 +1102,13 @@ DB_TRANSFERRED_STOP
     date = checkTriggerDate(this.state.START, this.props.model.triggers);
     isNotADate = date === undefined;
     if (isNotADate) {
-      alert(`Start date '${this.state.START}' should be a date`);
+      this.props.showAlert(`Start date '${this.state.START}' should be a date`);
       return;
     }
     date = checkTriggerDate(this.state.END, this.props.model.triggers);
     isNotADate = date === undefined;
     if (isNotADate) {
-      alert(`End date '${this.state.END}' should be a date`);
+      this.props.showAlert(`End date '${this.state.END}' should be a date`);
       return;
     }
 
@@ -1097,7 +1118,7 @@ DB_TRANSFERRED_STOP
     );
     const liabilityMessage = checkIncomeLiability(builtLiability);
     if (liabilityMessage !== '') {
-      alert(liabilityMessage);
+      this.props.showAlert(liabilityMessage);
       return;
     }
 
@@ -1118,10 +1139,10 @@ DB_TRANSFERRED_STOP
       this.props.model,
     );
     if (message.length > 0) {
-      alert(message);
+      this.props.showAlert(message);
     } else {
       await this.props.submitIncomeFunction(income, this.props.model);
-      alert('added new income');
+      this.props.showAlert(`added new income ${income.NAME}`);
       // clear fields
       this.setState(this.defaultState);
       this.resetSelect(this.incomeSourceSelectID);
@@ -1132,11 +1153,11 @@ DB_TRANSFERRED_STOP
     e.preventDefault();
     // log('deleting something ' + showObj(this));
     if (await this.props.deleteFunction(this.state.NAME)) {
-      alert('deleted income');
+      this.props.showAlert('deleted income');
       // clear fields
       this.setState(this.defaultState);
     } else {
-      alert(`failed to delete ${this.state.NAME}`);
+      this.props.showAlert(`failed to delete ${this.state.NAME}`);
     }
   }
   private setInputDBP(e: React.ChangeEvent<HTMLInputElement>) {

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { DbModelData, DbTrigger } from '../../types/interfaces';
+import { DbModelData, DbTrigger, FormProps } from '../../types/interfaces';
 import { log, printDebug, showObj, makeDateFromString } from '../../utils';
 import Button from './Button';
 import Input from './Input';
@@ -9,7 +9,7 @@ interface EditTriggerFormState {
   NAME: string;
   DATE: string;
 }
-interface EditTriggerProps {
+interface EditTriggerProps extends FormProps {
   checkFunction: (t: DbTrigger, modelData: DbModelData) => string;
   submitFunction: (
     triggerInput: DbTrigger,
@@ -17,11 +17,11 @@ interface EditTriggerProps {
   ) => Promise<void>;
   deleteFunction: (settingName: string) => Promise<boolean>;
   showTriggerTable: any;
-  model: DbModelData;
 }
 
 export function newTriggerButtonData(
   submitTriggerFunction: (e: DbTrigger) => void,
+  showAlert: (arg0: string) => void,
 ) {
   return {
     text: 'Make new important date',
@@ -30,17 +30,17 @@ export function newTriggerButtonData(
       e.preventDefault();
       const nameString = prompt('Name for new important date', '');
       if (nameString === null || nameString.length === 0) {
-        alert('names need to have some characters');
+        showAlert('names need to have some characters');
         return;
       }
       const dateString = prompt('Important date (e.g. 1 Jan 2019)', '');
       if (dateString === null || dateString.length === 0) {
-        alert(`date didn't make sense`);
+        showAlert(`date didn't make sense`);
         return;
       }
       const dateTry = makeDateFromString(dateString);
       if (!dateTry.getTime()) {
-        alert(`date didn't make sense`);
+        showAlert(`date didn't make sense`);
         return;
       }
       await submitTriggerFunction({
@@ -137,14 +137,14 @@ export class AddDeleteTriggerForm extends Component<
     };
     const message = this.props.checkFunction(trigger, this.props.model);
     if (message.length > 0) {
-      alert(message);
+      this.props.showAlert(message);
     } else {
       await this.props.submitFunction(trigger, this.props.model);
-      // alert('added new important date');
+      // this.props.showAlert('added new important date');
       this.props.showTriggerTable();
       // clear fields
       this.setState(this.defaultState);
-      alert('added important date OK');
+      this.props.showAlert('added important date OK');
     }
   }
   private async delete(e: React.ChangeEvent<HTMLInputElement>) {
@@ -152,9 +152,9 @@ export class AddDeleteTriggerForm extends Component<
     // log('deleting something ' + showObj(this));
     if (await this.props.deleteFunction(this.state.NAME)) {
       this.setState(this.defaultState);
-      alert('deleted important date');
+      this.props.showAlert('deleted important date');
     } else {
-      alert(`failed to delete ${this.state.NAME}`);
+      this.props.showAlert(`failed to delete ${this.state.NAME}`);
     }
   }
 }

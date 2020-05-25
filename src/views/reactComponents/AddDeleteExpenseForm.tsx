@@ -5,6 +5,7 @@ import {
   DbModelData,
   DbTransaction,
   DbTrigger,
+  FormProps,
 } from '../../types/interfaces';
 import {
   checkTriggerDate,
@@ -38,7 +39,7 @@ interface EditExpenseFormState {
 const inputtingRevalue = 'revalue';
 const inputtingExpense = 'expense';
 
-interface EditExpenseProps {
+interface EditExpenseProps extends FormProps {
   checkFunction: (e: DbExpense, model: DbModelData) => string;
   submitFunction: (
     expenseInput: DbExpense,
@@ -49,7 +50,6 @@ interface EditExpenseProps {
     triggerInput: DbTrigger,
     modelData: DbModelData,
   ) => Promise<void>;
-  model: DbModelData;
   checkTransactionFunction: (t: DbTransaction, model: DbModelData) => string;
   submitTransactionFunction: (
     transactionInput: DbTransaction,
@@ -175,6 +175,7 @@ export class AddDeleteExpenseForm extends Component<
         <DateSelectionRow
           introLabel="Date on which the expense starts"
           model={this.props.model}
+          showAlert={this.props.showAlert}
           setDateFunction={this.setStart}
           inputName="start date"
           inputValue={this.state.START}
@@ -185,6 +186,7 @@ export class AddDeleteExpenseForm extends Component<
         <DateSelectionRow
           introLabel="Date on which the expense ends"
           model={this.props.model}
+          showAlert={this.props.showAlert}
           setDateFunction={this.setEnd}
           inputName="end date"
           inputValue={this.state.END}
@@ -283,6 +285,7 @@ export class AddDeleteExpenseForm extends Component<
           <DateSelectionRow
             introLabel="Date on which the expense value is set"
             model={this.props.model}
+            showAlert={this.props.showAlert}
             setDateFunction={this.setValueSet}
             inputName="expense valuation date"
             inputValue={this.state.VALUE_SET}
@@ -365,8 +368,8 @@ export class AddDeleteExpenseForm extends Component<
 
     const parseVal = makeValueAbsPropFromString(this.state.VALUE);
     if (!parseVal.checksOK) {
-      alert(
-        `Income value ${this.state.VALUE} should be a numerical or % value`,
+      this.props.showAlert(
+        `Expense value ${this.state.VALUE} should be a numerical or % value`,
       );
       return;
     }
@@ -377,7 +380,7 @@ export class AddDeleteExpenseForm extends Component<
     );
     const isNotADate = date === undefined;
     if (isNotADate) {
-      alert(`Value set date should be a date`);
+      this.props.showAlert(`Value set date should be a date`);
       return;
     }
 
@@ -407,7 +410,7 @@ export class AddDeleteExpenseForm extends Component<
       this.props.model,
     );
     if (message.length > 0) {
-      alert(message);
+      this.props.showAlert(message);
       return;
     }
     await this.props.submitTransactionFunction(
@@ -415,7 +418,7 @@ export class AddDeleteExpenseForm extends Component<
       this.props.model,
     );
 
-    alert('added new data');
+    this.props.showAlert('added new data');
     // clear fields
     this.setState(this.defaultState);
     return;
@@ -425,25 +428,27 @@ export class AddDeleteExpenseForm extends Component<
 
     const isNotANumber = !isNumberString(this.state.VALUE);
     if (isNotANumber) {
-      alert(`Expense value ${this.state.VALUE} should be a numerical value`);
+      this.props.showAlert(
+        `Expense value ${this.state.VALUE} should be a numerical value`,
+      );
       return;
     }
     let date = checkTriggerDate(this.state.START, this.props.model.triggers);
     let isNotADate = date === undefined;
     if (isNotADate) {
-      alert(`Start date '${this.state.START}' should be a date`);
+      this.props.showAlert(`Start date '${this.state.START}' should be a date`);
       return;
     }
     date = checkTriggerDate(this.state.END, this.props.model.triggers);
     isNotADate = date === undefined;
     if (isNotADate) {
-      alert(`End date '${this.state.END}' should be a date`);
+      this.props.showAlert(`End date '${this.state.END}' should be a date`);
       return;
     }
     date = checkTriggerDate(this.state.VALUE_SET, this.props.model.triggers);
     isNotADate = date === undefined;
     if (isNotADate) {
-      alert(`Value set date should be a date`);
+      this.props.showAlert(`Value set date should be a date`);
       return;
     }
     const parsedGrowth = makeGrowthFromString(
@@ -451,12 +456,14 @@ export class AddDeleteExpenseForm extends Component<
       this.props.model.settings,
     );
     if (!parsedGrowth.checksOK) {
-      alert(`Growth value '${this.state.GROWTH}' should be a numerical value`);
+      this.props.showAlert(
+        `Growth value '${this.state.GROWTH}' should be a numerical value`,
+      );
       return;
     }
     const parsedYN = makeBooleanFromYesNo(this.state.GROWS_WITH_CPI);
     if (!parsedYN.checksOK) {
-      alert(
+      this.props.showAlert(
         `Grows with inflation '${this.state.GROWS_WITH_CPI}' should be a Y/N value`,
       );
       return;
@@ -476,10 +483,10 @@ export class AddDeleteExpenseForm extends Component<
     };
     const message = this.props.checkFunction(expense, this.props.model);
     if (message.length > 0) {
-      alert(message);
+      this.props.showAlert(message);
     } else {
       await this.props.submitFunction(expense, this.props.model);
-      alert('added new expense');
+      this.props.showAlert('added new expense');
       // clear fields
       this.setState(this.defaultState);
     }
@@ -488,11 +495,11 @@ export class AddDeleteExpenseForm extends Component<
     e.preventDefault();
     // log('deleting something ' + showObj(this));
     if (await this.props.deleteFunction(this.state.NAME)) {
-      alert('deleted expense');
+      this.props.showAlert('deleted expense');
       // clear fields
       this.setState(this.defaultState);
     } else {
-      alert(`failed to delete ${this.state.NAME}`);
+      this.props.showAlert(`failed to delete ${this.state.NAME}`);
     }
   }
 }

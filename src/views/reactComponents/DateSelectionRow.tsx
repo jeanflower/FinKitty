@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
-import { DbTrigger, DbModelData } from '../../types/interfaces';
+import { DbTrigger, DbModelData, FormProps } from '../../types/interfaces';
 import { TriggerOptionList } from './TriggerOptionList';
 import { makeDateTooltip } from '../../utils';
 import ReactTooltip from 'react-tooltip';
 
-interface DateSelectionProps {
+interface DateSelectionProps extends FormProps {
   introLabel: string;
-  model: DbModelData;
   setDateFunction: (value: string) => void;
   inputName: string;
   inputValue: string;
@@ -32,6 +31,7 @@ export class DateSelectionRow extends Component<DateSelectionProps, {}> {
           <TriggerOptionList
             triggers={this.props.triggers}
             model={this.props.model}
+            showAlert={this.props.showAlert}
             submitTriggerFunction={this.props.submitTriggerFunction}
             handleChange={this.props.setDateFunction}
             selectedItem=""

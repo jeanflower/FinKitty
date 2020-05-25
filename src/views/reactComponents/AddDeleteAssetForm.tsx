@@ -6,6 +6,7 @@ import {
   DbModelData,
   DbTransaction,
   DbTrigger,
+  FormProps,
 } from '../../types/interfaces';
 import {
   checkTriggerDate,
@@ -57,7 +58,7 @@ const inputtingRevalue = 'revalue';
 const inputtingAsset = 'asset';
 const inputtingPension = 'definedContributionsPension';
 
-interface EditAssetProps {
+interface EditAssetProps extends FormProps {
   checkAssetFunction: (a: DbAsset, model: DbModelData) => string;
   submitAssetFunction: (arg0: DbAsset, arg1: DbModelData) => Promise<void>;
   deleteAssetFunction: (name: string) => Promise<boolean>;
@@ -70,7 +71,6 @@ interface EditAssetProps {
     triggerInput: DbTrigger,
     modelData: DbModelData,
   ) => Promise<void>;
-  model: DbModelData;
 }
 export class AddDeleteAssetForm extends Component<
   EditAssetProps,
@@ -345,6 +345,7 @@ export class AddDeleteAssetForm extends Component<
           <DateSelectionRow
             introLabel={`Stop date for contributions`}
             model={this.props.model}
+            showAlert={this.props.showAlert}
             setDateFunction={this.setStop}
             inputName="stop date"
             inputValue={this.state.DCP_STOP}
@@ -358,6 +359,7 @@ export class AddDeleteAssetForm extends Component<
           <DateSelectionRow
             introLabel={`Date on which the pension crystallizes`}
             model={this.props.model}
+            showAlert={this.props.showAlert}
             setDateFunction={this.setCrystallize}
             inputName="crystallize date"
             inputValue={this.state.DCP_CRYSTALLIZE}
@@ -371,6 +373,7 @@ export class AddDeleteAssetForm extends Component<
             <DateSelectionRow
               introLabel="On death, pension transfers to (optional)"
               model={this.props.model}
+              showAlert={this.props.showAlert}
               setDateFunction={this.setDcpTransferDate}
               inputName="transferred stop date"
               inputValue={this.state.DCP_TRANSFER_DATE}
@@ -528,6 +531,7 @@ export class AddDeleteAssetForm extends Component<
                 : 'asset starts'
             }`}
             model={this.props.model}
+            showAlert={this.props.showAlert}
             setDateFunction={this.setStart}
             inputName="start date"
             inputValue={this.state.START}
@@ -629,7 +633,7 @@ export class AddDeleteAssetForm extends Component<
 
     const parseVal = makeValueAbsPropFromString(this.state.VALUE);
     if (!parseVal.checksOK) {
-      alert(
+      this.props.showAlert(
         `Income value ${this.state.VALUE} should be a numerical or % value`,
       );
       return;
@@ -638,7 +642,7 @@ export class AddDeleteAssetForm extends Component<
     const date = checkTriggerDate(this.state.START, this.props.model.triggers);
     const isNotADate = date === undefined;
     if (isNotADate) {
-      alert(`Value set date should be a date`);
+      this.props.showAlert(`Value set date should be a date`);
       return;
     }
 
@@ -669,7 +673,7 @@ export class AddDeleteAssetForm extends Component<
       this.props.model,
     );
     if (message.length > 0) {
-      alert(message);
+      this.props.showAlert(message);
       return;
     }
     await this.props.submitTransactionFunction(
@@ -677,7 +681,7 @@ export class AddDeleteAssetForm extends Component<
       this.props.model,
     );
 
-    alert('added new data');
+    this.props.showAlert('added new data');
     // clear fields
     this.setState(this.defaultState);
     this.resetSelect(this.incomeSourceSelectID);
@@ -689,18 +693,22 @@ export class AddDeleteAssetForm extends Component<
 
     let isNotANumber = !isNumberString(this.state.VALUE);
     if (isNotANumber) {
-      alert(`Asset value ${this.state.VALUE} should be a numerical value`);
+      this.props.showAlert(
+        `Asset value ${this.state.VALUE} should be a numerical value`,
+      );
       return;
     }
     const date = checkTriggerDate(this.state.START, this.props.model.triggers);
     const isNotADate = date === undefined;
     if (isNotADate) {
-      alert(`Start date '${this.state.START}' should be a date`);
+      this.props.showAlert(`Start date '${this.state.START}' should be a date`);
       return;
     }
     isNotANumber = !isNumberString(this.state.GROWTH);
     if (isNotANumber) {
-      alert(`Growth value '${this.state.GROWTH}' should be a numerical value`);
+      this.props.showAlert(
+        `Growth value '${this.state.GROWTH}' should be a numerical value`,
+      );
       return;
     }
 
@@ -725,7 +733,7 @@ export class AddDeleteAssetForm extends Component<
       };
       let message = this.props.checkAssetFunction(asset1, this.props.model);
       if (message.length > 0) {
-        alert(message);
+        this.props.showAlert(message);
         return;
       }
 
@@ -744,7 +752,7 @@ export class AddDeleteAssetForm extends Component<
       };
       message = this.props.checkAssetFunction(asset2, this.props.model);
       if (message.length > 0) {
-        alert(message);
+        this.props.showAlert(message);
         return;
       }
 
@@ -763,7 +771,7 @@ export class AddDeleteAssetForm extends Component<
       };
       message = this.props.checkAssetFunction(asset3, this.props.model);
       if (message.length > 0) {
-        alert(message);
+        this.props.showAlert(message);
         return;
       }
 
@@ -783,26 +791,28 @@ export class AddDeleteAssetForm extends Component<
       if (this.state.DCP_TRANSFER_TO !== '') {
         message = this.props.checkAssetFunction(asset4, this.props.model);
         if (message.length > 0) {
-          alert(message);
+          this.props.showAlert(message);
           return;
         }
       }
 
       const parseYNSS = makeBooleanFromYesNo(this.state.DCP_SS);
       if (!parseYNSS.checksOK) {
-        alert(`Salary sacrifice '${this.state.DCP_SS}' should be a Y/N value`);
+        this.props.showAlert(
+          `Salary sacrifice '${this.state.DCP_SS}' should be a Y/N value`,
+        );
         return;
       }
       let isNotANumber = !isNumberString(this.state.DCP_CONTRIBUTION_AMOUNT);
       if (isNotANumber) {
-        alert(
+        this.props.showAlert(
           `Contribution amount '${this.state.DCP_CONTRIBUTION_AMOUNT}' should be a numerical value`,
         );
         return;
       }
       isNotANumber = !isNumberString(this.state.DCP_EMP_CONTRIBUTION_AMOUNT);
       if (isNotANumber) {
-        alert(
+        this.props.showAlert(
           `Contribution amount '${this.state.DCP_EMP_CONTRIBUTION_AMOUNT}' should be a numerical value`,
         );
         return;
@@ -845,7 +855,7 @@ export class AddDeleteAssetForm extends Component<
         if (this.state.DCP_TRANSFER_TO !== '') {
           await this.props.deleteAssetFunction(asset4.NAME);
         }
-        alert(message);
+        this.props.showAlert(message);
         return;
       }
       const crystallizeTaxFree: DbTransaction = {
@@ -873,7 +883,7 @@ export class AddDeleteAssetForm extends Component<
         if (this.state.DCP_TRANSFER_TO !== '') {
           await this.props.deleteAssetFunction(asset4.NAME);
         }
-        alert(message);
+        this.props.showAlert(message);
         return;
       }
       const crystallize: DbTransaction = {
@@ -901,7 +911,7 @@ export class AddDeleteAssetForm extends Component<
         if (this.state.DCP_TRANSFER_TO !== '') {
           await this.props.deleteAssetFunction(asset4.NAME);
         }
-        alert(message);
+        this.props.showAlert(message);
         return;
       }
       let transfer: DbTransaction | undefined;
@@ -929,7 +939,7 @@ export class AddDeleteAssetForm extends Component<
           await this.props.deleteAssetFunction(asset2.NAME);
           await this.props.deleteAssetFunction(asset3.NAME);
           await this.props.deleteAssetFunction(asset4.NAME);
-          alert(message);
+          this.props.showAlert(message);
           return;
         }
       }
@@ -947,7 +957,7 @@ export class AddDeleteAssetForm extends Component<
         await this.props.submitTransactionFunction(transfer, this.props.model);
       }
 
-      alert('added assets and transactions');
+      this.props.showAlert('added assets and transactions');
       // clear fields
       this.setState(this.defaultState);
       this.resetSelect(this.incomeSourceSelectID);
@@ -955,7 +965,7 @@ export class AddDeleteAssetForm extends Component<
       let quantityScale = 1.0;
       const parsedQuantity = makeQuantityFromString(this.state.QUANTITY);
       if (!parsedQuantity.checksOK) {
-        alert(
+        this.props.showAlert(
           `Quantity '${this.state.QUANTITY}' should empty or a whole number value`,
         );
         return;
@@ -967,7 +977,9 @@ export class AddDeleteAssetForm extends Component<
       const parsedValue = makeCashValueFromString(this.state.VALUE);
       let numValueForSubmission = parsedValue.value;
       if (!parsedValue.checksOK) {
-        alert(`Value '${this.state.VALUE}' not understood as a cash value`);
+        this.props.showAlert(
+          `Value '${this.state.VALUE}' not understood as a cash value`,
+        );
         return;
       }
       numValueForSubmission *= quantityScale;
@@ -979,7 +991,7 @@ export class AddDeleteAssetForm extends Component<
       }
       const liabilityMessage = checkAssetLiability(builtLiability);
       if (liabilityMessage !== '') {
-        alert(liabilityMessage);
+        this.props.showAlert(liabilityMessage);
         return;
       }
       let purchasePrice = this.state.PURCHASE_PRICE;
@@ -988,7 +1000,7 @@ export class AddDeleteAssetForm extends Component<
       }
       const parsedYNCPI = makeBooleanFromYesNo(this.state.GROWS_WITH_INFLATION);
       if (!parsedYNCPI.checksOK) {
-        alert(
+        this.props.showAlert(
           `Grows with CPI: '${this.state.GROWS_WITH_INFLATION}' should be a Y/N value`,
         );
         return;
@@ -1011,10 +1023,10 @@ export class AddDeleteAssetForm extends Component<
       // log(`Adding asset s${showObj(asset)}`);
       const message = this.props.checkAssetFunction(asset, this.props.model);
       if (message.length > 0) {
-        alert(message);
+        this.props.showAlert(message);
       } else {
         await this.props.submitAssetFunction(asset, this.props.model);
-        alert('added new asset');
+        this.props.showAlert('added new asset');
         // clear fields
         this.setState(this.defaultState);
         this.resetSelect(this.incomeSourceSelectID);
@@ -1025,11 +1037,11 @@ export class AddDeleteAssetForm extends Component<
     e.preventDefault();
     // log('deleting something ' + showObj(this));
     if (await this.props.deleteAssetFunction(this.state.NAME)) {
-      alert('deleted asset');
+      this.props.showAlert('deleted asset');
       // clear fields
       this.setState(this.defaultState);
     } else {
-      alert(`failed to delete ${this.state.NAME}`);
+      this.props.showAlert(`failed to delete ${this.state.NAME}`);
     }
   }
   private inputPension(e: React.ChangeEvent<HTMLInputElement>) {

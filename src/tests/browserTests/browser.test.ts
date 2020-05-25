@@ -36,6 +36,7 @@ import {
 
 import webdriver from 'selenium-webdriver';
 import { DbSetting } from '../../types/interfaces';
+import { getThreeChryslerModel } from './threeChrysler';
 
 const simpleSetting: DbSetting = {
   NAME: 'NoName',
@@ -121,6 +122,13 @@ async function clearInputByName(name: string) {
 }
 */
 
+async function checkMessage(driver: ThenableWebDriver, message: string) {
+  const label = await driver.findElements(webdriver.By.id('pageTitle'));
+  expect(label.length === 1).toBe(true);
+  const labelText = await label[0].getText();
+  expect(labelText).toBe(message);
+}
+
 async function addAsset(
   driver: ThenableWebDriver,
   inputs: {
@@ -152,11 +160,7 @@ async function addAsset(
   await sleep(500, 'waiting');
   // log(`added date`);
 
-  const alert = driver.switchTo().alert();
-  const alertText = await alert.getText();
-  expect(alertText).toEqual(inputs.message);
-  // log(`alertText = ${alertText}`);
-  await alert.accept();
+  await checkMessage(driver, inputs.message);
 }
 
 const assetInputs = {
@@ -202,11 +206,7 @@ async function addIncome(
   await sleep(500, 'waiting');
   // log(`added date`);
 
-  const alert = driver.switchTo().alert();
-  const alertText = await alert.getText();
-  expect(alertText).toEqual(inputs.message);
-  // log(`alertText = ${alertText}`);
-  await alert.accept();
+  await checkMessage(driver, inputs.message);
 }
 
 const incomeInputs = {
@@ -1053,11 +1053,7 @@ describe('Chrome Interaction simple', () => {
     await sleep(500, 'waiting');
     // log(`added date`);
 
-    const alert = driver.switchTo().alert();
-    const alertText = await alert.getText();
-    expect(alertText).toEqual(message);
-    // log(`alertText = ${alertText}`);
-    await alert.accept();
+    await checkMessage(driver, message);
   }
 
   it('CISimple add dates', async done => {
@@ -1202,11 +1198,7 @@ describe('Chrome Interaction incomes', () => {
     await sleep(1000, 'waiting');
     // log(`added date`);
 
-    const alert = driver.switchTo().alert();
-    const alertText = await alert.getText();
-    expect(alertText).toEqual(inputs.message);
-    // log(`alertText = ${alertText}`);
-    await alert.accept();
+    await checkMessage(driver, inputs.message);
     return true;
   }
 
@@ -1267,11 +1259,7 @@ describe('Chrome Interaction incomes', () => {
     await sleep(500, 'waiting');
     // log(`added date`);
 
-    const alert = driver.switchTo().alert();
-    const alertText = await alert.getText();
-    expect(alertText).toEqual(inputs.message);
-    // log(`alertText = ${alertText}`);
-    await alert.accept();
+    await checkMessage(driver, inputs.message);
     return true;
   }
 
@@ -1301,7 +1289,7 @@ describe('Chrome Interaction incomes', () => {
 
     await addIncome(driver, {
       ...incomeInputs,
-      message: `added new income`,
+      message: `added new income ${incomeInputs.name}`,
     });
 
     await addIncome(driver, {
@@ -1314,7 +1302,7 @@ describe('Chrome Interaction incomes', () => {
     await addIncome(driver, {
       ...incomeInputs,
       value: '',
-      message: `Income value  should be a numerical value`,
+      message: `Income value should be a numerical value`,
     });
 
     await clearIncomeFields(driver);
@@ -1358,7 +1346,7 @@ describe('Chrome Interaction incomes', () => {
       name: 'javaJob2',
       liability: '',
       category: '',
-      message: `added new income`,
+      message: `added new income javaJob2`,
     });
 
     await addIncome(driver, {
@@ -1366,7 +1354,7 @@ describe('Chrome Interaction incomes', () => {
       name: 'javaJob3',
       liability: 'Joe',
       category: 'programming',
-      message: `added new income`,
+      message: `added new income javaJob3`,
     });
 
     await addIncome(driver, {
@@ -1426,7 +1414,7 @@ describe('Chrome Interaction incomes', () => {
 
     await addIncome(driver, {
       ...incomeInputs,
-      message: `added new income`,
+      message: `added new income ${incomeInputs.name}`,
     });
 
     await clickButton(driver, 'useDBPInputs');
@@ -1588,7 +1576,7 @@ describe('Chrome Interaction incomes', () => {
     await addDBPension(driver, {
       ...inputs,
       liability: '',
-      message: "Source income 'javaJob1' should have income tax liability ",
+      message: "Source income 'javaJob1' should have income tax liability",
     });
 
     await clearPensionFields(driver);
@@ -1615,7 +1603,7 @@ describe('Chrome Interaction incomes', () => {
 
     await addIncome(driver, {
       ...incomeInputs,
-      message: `added new income`,
+      message: `added new income ${incomeInputs.name}`,
     });
 
     await clickButton(driver, 'useRevalueInputs');
@@ -1650,7 +1638,7 @@ describe('Chrome Interaction incomes', () => {
       ...revalueInputs,
       revaluationDate: '2020',
       message:
-        'Transaction  javaJob1 2 dated before start of affected income : javaJob1',
+        'Transaction javaJob1 2 dated before start of affected income : javaJob1',
       // TODO not a helpul error message
     });
 
@@ -1701,11 +1689,7 @@ describe('Chrome Interaction expenses', () => {
     await sleep(500, 'waiting');
     // log(`added date`);
 
-    const alert = driver.switchTo().alert();
-    const alertText = await alert.getText();
-    expect(alertText).toEqual(inputs.message);
-    // log(`alertText = ${alertText}`);
-    await alert.accept();
+    await checkMessage(driver, inputs.message);
   }
 
   async function clearExpenseFields(driver: ThenableWebDriver) {
@@ -1745,11 +1729,7 @@ describe('Chrome Interaction expenses', () => {
     await sleep(500, 'waiting');
     // log(`added date`);
 
-    const alert = driver.switchTo().alert();
-    const alertText = await alert.getText();
-    expect(alertText).toEqual(inputs.message);
-    // log(`alertText = ${alertText}`);
-    await alert.accept();
+    await checkMessage(driver, inputs.message);
     return true;
   }
 
@@ -1805,7 +1785,7 @@ describe('Chrome Interaction expenses', () => {
     await addExpense(driver, {
       ...expenseInputs,
       value: '',
-      message: `Expense value  should be a numerical value`,
+      message: `Expense value should be a numerical value`,
     });
 
     await clearExpenseFields(driver);
@@ -1887,7 +1867,7 @@ describe('Chrome Interaction expenses', () => {
     await revalueExpense(driver, {
       ...revalueInputs,
       name: 'junk',
-      message: 'Transaction  junk 1 to unrecognised thing : junk',
+      message: 'Transaction junk 1 to unrecognised thing : junk',
       // TODO : not a great message
     });
 
@@ -1895,8 +1875,7 @@ describe('Chrome Interaction expenses', () => {
     await revalueExpense(driver, {
       ...revalueInputs,
       revalue: 'junk',
-      message: 'Income value junk should be a numerical or % value',
-      // TODO : not a great message
+      message: 'Expense value junk should be a numerical or % value',
     });
 
     await clearRevalueExpenseFields(driver);
@@ -1904,7 +1883,7 @@ describe('Chrome Interaction expenses', () => {
       ...revalueInputs,
       revaluationDate: '2020',
       message:
-        'Transaction  broadband 2 dated before start of affected expense : broadband',
+        'Transaction broadband 2 dated before start of affected expense : broadband',
       // TODO not a helpul error message
     });
 
@@ -1960,11 +1939,7 @@ describe('Chrome Interaction assets', () => {
     await sleep(1000, 'waiting');
     // log(`added date`);
 
-    const alert = driver.switchTo().alert();
-    const alertText = await alert.getText();
-    expect(alertText).toEqual(inputs.message);
-    // log(`alertText = ${alertText}`);
-    await alert.accept();
+    await checkMessage(driver, inputs.message);
     return true;
   }
 
@@ -2040,11 +2015,7 @@ describe('Chrome Interaction assets', () => {
     await sleep(4000, 'waiting'); // a longer sleep
     // because more to check
 
-    const alert = driver.switchTo().alert();
-    const alertText = await alert.getText();
-    expect(alertText).toEqual(inputs.message);
-    // log(`alertText = ${alertText}`);
-    await alert.accept();
+    await checkMessage(driver, inputs.message);
     return true;
   }
 
@@ -2114,7 +2085,7 @@ describe('Chrome Interaction assets', () => {
     await addAsset(driver, {
       ...assetInputs,
       value: '',
-      message: `Asset value  should be a numerical value`,
+      message: `Asset value should be a numerical value`,
     });
 
     await clearAssetFields(driver);
@@ -2157,7 +2128,7 @@ describe('Chrome Interaction assets', () => {
     await addAsset(driver, {
       ...assetInputs,
       purchasePrice: 'junk',
-      message: `Asset purchase price \'junk\'\n      is not a number`,
+      message: `Asset purchase price \'junk\' is not a number`,
     });
 
     await cleanUpWork(driver, testDataModelName);
@@ -2196,7 +2167,7 @@ describe('Chrome Interaction assets', () => {
     await revalueAsset(driver, {
       ...revalueInputs,
       name: 'junk',
-      message: 'Transaction  junk 1 to unrecognised thing : junk',
+      message: 'Transaction junk 1 to unrecognised thing : junk',
       // TODO : unhelpful error message
     });
 
@@ -2213,8 +2184,7 @@ describe('Chrome Interaction assets', () => {
     await revalueAsset(driver, {
       ...revalueInputs,
       revaluationDate: '2020',
-      message:
-        'Transaction  hifi 2 dated before start of affected asset : hifi',
+      message: 'Transaction hifi 2 dated before start of affected asset : hifi',
       // TODO not a helpul error message
     });
 
@@ -2234,7 +2204,7 @@ describe('Chrome Interaction assets', () => {
 
     await addIncome(driver, {
       ...incomeInputs,
-      message: `added new income`, //name: 'javaJob1'
+      message: `added new income ${incomeInputs.name}`, //name: 'javaJob1'
     });
 
     await clickButton(driver, 'btn-Assets');
@@ -2294,13 +2264,8 @@ describe('Chrome Interaction assets', () => {
       ...pensionInputs,
       name: 'dcp4',
       startDate: '2020',
-      message: `edited  model fails checks :'Transaction CrystallizedPension to unrecognised thing : CrystallizedPensionJoe', reverting`,
+      message: `Transaction from unrecognised asset (could be typo or before asset start date?) : \"javaJob1\"`,
     }); // TODO : confusing error message : pension can't start before income
-
-    let alert = driver.switchTo().alert();
-    await alert.accept();
-    alert = driver.switchTo().alert();
-    await alert.accept();
 
     await clearDCPension(driver);
     await addDCPension(driver, {
@@ -2315,17 +2280,8 @@ describe('Chrome Interaction assets', () => {
       ...pensionInputs,
       name: 'dcp6',
       startDate: '2036',
-      message: `edited  model fails checks :'Transaction CrystallizedPension dated before start of affected asset : CrystallizedPensionJoe', reverting`,
+      message: `Transaction from unrecognised asset (could be typo or before asset start date?) : \"Pensiondcp6\"`,
     }); // TODO : what does this error mean?  I expected "start date after end date"
-
-    alert = driver.switchTo().alert();
-    await alert.accept();
-    alert = driver.switchTo().alert();
-    await alert.accept();
-    alert = driver.switchTo().alert();
-    await alert.accept();
-    alert = driver.switchTo().alert();
-    await alert.accept();
 
     await clearDCPension(driver);
     await addDCPension(driver, {
@@ -2364,13 +2320,8 @@ describe('Chrome Interaction assets', () => {
       ...pensionInputs,
       name: 'dcp11',
       crystallizesDate: 'junk',
-      message: `edited  model fails checks :'Transaction CrystallizedPension to unrecognised thing : CrystallizedPensionJoe', reverting`,
+      message: `Transaction has bad date : \"junk\"`,
     }); // TODO : confusing error message about transactions?
-
-    alert = driver.switchTo().alert();
-    await alert.accept();
-    alert = driver.switchTo().alert();
-    await alert.accept();
 
     await clearDCPension(driver);
     await addDCPension(driver, {
@@ -2385,13 +2336,8 @@ describe('Chrome Interaction assets', () => {
       ...pensionInputs,
       name: 'dcp13',
       pensionEndOrTransferDate: 'junk',
-      message: `edited  model fails checks :'Transaction CrystallizedPension to unrecognised thing : CrystallizedPensionJoe', reverting`,
+      message: `Transaction has bad date : \"junk\"`,
     }); // TODO : confusing error message about transactions?
-
-    alert = driver.switchTo().alert();
-    await alert.accept();
-    alert = driver.switchTo().alert();
-    await alert.accept();
 
     await clearDCPension(driver);
     await addDCPension(driver, {
@@ -2505,11 +2451,7 @@ describe('Chrome Interaction transactions', () => {
     await sleep(500, 'waiting');
     // log(`added date`);
 
-    const alert = driver.switchTo().alert();
-    const alertText = await alert.getText();
-    expect(alertText).toEqual(inputs.message);
-    // log(`alertText = ${alertText}`);
-    await alert.accept();
+    await checkMessage(driver, inputs.message);
   }
 
   async function clearTransactionFields(driver: ThenableWebDriver) {
@@ -2742,11 +2684,7 @@ describe('Chrome Interaction debts', () => {
     await sleep(500, 'waiting');
     // log(`added date`);
 
-    const alert = driver.switchTo().alert();
-    const alertText = await alert.getText();
-    expect(alertText).toEqual(inputs.message);
-    // log(`alertText = ${alertText}`);
-    await alert.accept();
+    await checkMessage(driver, inputs.message);
   }
 
   async function clearDebtFields(driver: ThenableWebDriver) {
@@ -2781,11 +2719,7 @@ describe('Chrome Interaction debts', () => {
     await sleep(1000, 'waiting');
     // log(`added date`);
 
-    const alert = driver.switchTo().alert();
-    const alertText = await alert.getText();
-    expect(alertText).toEqual(inputs.message);
-    // log(`alertText = ${alertText}`);
-    await alert.accept();
+    await checkMessage(driver, inputs.message);
     return true;
   }
 
@@ -2839,7 +2773,7 @@ describe('Chrome Interaction debts', () => {
     await addDebt(driver, {
       ...debtInputs,
       value: '',
-      message: `Debt value  should be a numerical value`,
+      message: `Debt value should be a numerical value`,
     });
 
     await clearDebtFields(driver);
@@ -2867,58 +2801,43 @@ describe('Chrome Interaction debts', () => {
     done();
   });
 
-  it('CIDebts revalue debts', async done => {
+  it('alerts model check', async done => {
     if (!doActions) {
       done();
       return;
     }
-    const modelAndRoi = getTestModel02();
+    const modelAndRoi = getThreeChryslerModel();
     await beforeAllWork(driver, testDataModelName, modelAndRoi.model);
 
-    await clickButton(driver, 'btn-Debts');
+    //await clickButton(driver, 'startNewModel2');
+    //driver.switchTo().alert().sendKeys('banana');
 
-    await addDebt(driver, {
-      ...debtInputs,
-      message: `added new debt and payment`,
-    });
+    await clickButton(driver, 'btn-check');
 
-    await clickButton(driver, 'revalueDebtInputs');
+    let label = await driver.findElements(webdriver.By.id('pageTitle'));
+    expect(label.length === 1).toBe(true);
+    let labelText = await label[0].getText();
+    expect(labelText).toBe(`model check all good`);
 
-    const revalueInputs = {
-      name: 'creditCard',
-      revalue: '1700',
-      revaluationDate: '2022',
-    };
-    await revalueDebt(driver, {
-      ...revalueInputs,
-      message: 'added new data', // TODO "added revaluation of asset",
-    });
-    await clickButton(driver, 'revalueDebtInputs');
+    await clickButton(driver, 'btn-clear-alert');
 
-    await revalueDebt(driver, {
-      ...revalueInputs,
-      name: 'junk',
-      message: 'Transaction  junk 1 to unrecognised thing : junk',
-      // TODO : unhelpful error message
-    });
+    label = await driver.findElements(webdriver.By.id('pageTitle'));
+    expect(label.length === 1).toBe(true);
+    labelText = await label[0].getText();
+    expect(labelText).toBe(`Create or load a model`);
 
-    await clearRevalueDebtFields(driver);
+    // TODO edit model to make it fail check (e.g. edit value of
+    // chrysler setting)
 
-    await revalueDebt(driver, {
-      ...revalueInputs,
-      revalue: 'junk',
-      message: 'Income value junk should be a numerical or % value',
-      // TODO Income -> Asset
-    });
-
-    await clearRevalueDebtFields(driver);
-    await revalueDebt(driver, {
-      ...revalueInputs,
-      revaluationDate: '2020',
-      message:
-        'Transaction  creditCard 2 dated before start of affected asset : creditCard',
-      // TODO not a helpul error message
-    });
+    // a bit of scrolling to ensure the useDBPInputs button
+    // can be interacted with
+    const toggleChart = await driver.findElements(
+      webdriver.By.id(`WelcomeHeader`),
+    );
+    await driver.executeScript(
+      'arguments[0].scrollIntoView(true);',
+      toggleChart[0],
+    );
 
     await cleanUpWork(driver, testDataModelName);
     done();

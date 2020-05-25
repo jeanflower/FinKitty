@@ -19,7 +19,11 @@ import { checkAsset, checkTransaction } from '../models/checks';
 import { AddDeleteDebtForm } from './reactComponents/AddDeleteDebtForm';
 import { payOffDebt, revalueDebt } from '../localization/stringConstants';
 
-export function debtsDiv(model: DbModelData, debtChartData: ChartData[]) {
+export function debtsDiv(
+  model: DbModelData,
+  showAlert: (arg0: string) => void,
+  debtChartData: ChartData[],
+) {
   if (!getDisplay(debtsView)) {
     return;
   }
@@ -51,11 +55,11 @@ export function debtsDiv(model: DbModelData, debtChartData: ChartData[]) {
         id="toggleDebtsTable"
       />
       {assetsOrDebtsChartDiv(model, debtChartData, true)}
-      {assetsOrDebtsTableDiv(model, true)}
+      {assetsOrDebtsTableDiv(model, showAlert, true)}
       <h4>Revalue debts</h4>
-      {transactionsTableDiv(model, revalueDebt)}
+      {transactionsTableDiv(model, showAlert, revalueDebt)}
       <h4>Pay off debts</h4>
-      {transactionsTableDiv(model, payOffDebt)}
+      {transactionsTableDiv(model, showAlert, payOffDebt)}
 
       <div className="addNewDebt">
         <h4> Add a debt </h4>
@@ -67,6 +71,7 @@ export function debtsDiv(model: DbModelData, debtChartData: ChartData[]) {
           deleteAssetFunction={deleteAsset}
           submitTriggerFunction={submitTrigger}
           model={model}
+          showAlert={showAlert}
         />
       </div>
     </div>

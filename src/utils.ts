@@ -187,10 +187,9 @@ export function unSuppressLogs() {
   doLog = true;
 }
 
-export function getNumberAndWordParts( 
+export function getNumberAndWordParts(
   input: string,
-): { numberPart: number|undefined, wordPart: string }
-{
+): { numberPart: number | undefined; wordPart: string } {
   // strip away any number part from the front of the
   // string
   const re = new RegExp('^[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)');
@@ -198,8 +197,8 @@ export function getNumberAndWordParts(
   // log(`number parts of ${input} are ${numberParts}`);
 
   let numberPart = undefined;
-  let wordPart  = input;
-  if( numberParts === null || numberParts.length === 0){
+  let wordPart = input;
+  if (numberParts === null || numberParts.length === 0) {
     // log(`no number part`);
   } else {
     numberPart = parseFloat(numberParts[0]);

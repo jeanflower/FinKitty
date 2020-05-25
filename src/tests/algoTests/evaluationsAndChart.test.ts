@@ -15,7 +15,6 @@ import {
   assetChartVal,
   assetChartView,
   birthDate,
-  birthDateHint,
   CASH_ASSET_NAME,
   cgt,
   coarse,
@@ -64,7 +63,6 @@ import {
   ChartDataPoint,
   DataForView,
   DbModelData,
-  DbSetting,
 } from '../../types/interfaces';
 import {
   simpleAsset,
@@ -84,6 +82,13 @@ import {
   unSuppressLogs,
   // showObj,
 } from '../../utils';
+import { getThreeChryslerModel } from '../browserTests/threeChrysler';
+import {
+  setROI,
+  defaultSettings,
+  viewSetting,
+  simpleSetting,
+} from '../testUtils';
 
 /* global it */
 /* global expect */
@@ -97,58 +102,6 @@ const emptyModel: DbModelData = {
   assets: [],
   settings: [],
 };
-const simpleSetting: DbSetting = {
-  NAME: 'NoName',
-  VALUE: 'NoValue',
-  HINT: 'NoHint',
-  TYPE: constType,
-};
-const viewSetting: DbSetting = {
-  ...simpleSetting,
-  TYPE: viewType,
-};
-const defaultSettings: DbSetting[] = [
-  { ...viewSetting, NAME: viewFrequency, VALUE: monthly },
-  { ...viewSetting, NAME: viewDetail, VALUE: fine },
-  { ...viewSetting, NAME: assetChartView, VALUE: assetChartVal },
-  { ...viewSetting, NAME: debtChartView, VALUE: debtChartVal },
-  {
-    ...viewSetting,
-    NAME: assetChartFocus,
-    VALUE: allItems,
-    HINT: assetChartFocusHint,
-  },
-  {
-    ...viewSetting,
-    NAME: debtChartFocus,
-    VALUE: allItems,
-    HINT: debtChartFocusHint,
-  },
-  {
-    ...viewSetting,
-    NAME: expenseChartFocus,
-    VALUE: allItems,
-    HINT: expenseChartFocusHint,
-  },
-  {
-    ...viewSetting,
-    NAME: incomeChartFocus,
-    VALUE: allItems,
-    HINT: incomeChartFocusHint,
-  },
-  {
-    ...simpleSetting,
-    NAME: cpi,
-    VALUE: '0.0',
-    HINT: cpiHint,
-  },
-  {
-    ...viewSetting,
-    NAME: birthDate,
-    VALUE: '',
-    HINT: birthDateHint,
-  },
-];
 
 function expectEvals(
   evals: Evaluation[],
@@ -296,11 +249,6 @@ function getTestEvaluations(model: DbModelData): Evaluation[] {
   } else {
     return getEvaluations(makeCleanedModelFromJSON(JSON.stringify(model)));
   }
-}
-
-function setROI(model: DbModelData, roi: { start: string; end: string }) {
-  setSetting(model.settings, roiStart, roi.start, viewType);
-  setSetting(model.settings, roiEnd, roi.end, viewType);
 }
 
 export function getModelFutureExpense() {
@@ -13220,7 +13168,7 @@ describe('evaluations tests', () => {
           VALUE: '123',
           HINT: 'something',
           TYPE: constType, // eventually we will want to adjust...
-        }
+        },
       ],
     };
     setROI(model, roi);
@@ -13259,17 +13207,17 @@ describe('evaluations tests', () => {
     expect(result.assetData.length).toBe(1);
     expect(result.assetData[0].item.NAME).toBe('stringThings');
     {
-    const chartPts = result.assetData[0].chartDataPoints;
-    expect(chartPts.length).toBe(6);
-    expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0,    -1);
-    expectChartData(chartPts, 1, 'Mon Jan 01 2018', 1230,    -1);
-    expectChartData(chartPts, 2, 'Thu Feb 01 2018', 1230,    -1);
-    expectChartData(chartPts, 3, 'Thu Mar 01 2018', 1230,    -1);
-    expectChartData(chartPts, 4, 'Sun Apr 01 2018', 1230,    -1);
-    expectChartData(chartPts, 5, 'Tue May 01 2018', 1230,    -1);
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 1230, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 1230, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 1230, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 1230, -1);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 1230, -1);
     }
-    
-    expect(result.debtData.length).toBe(0); 
+
+    expect(result.debtData.length).toBe(0);
 
     done();
   });
@@ -13303,13 +13251,13 @@ describe('evaluations tests', () => {
         ...defaultSettings,
         {
           NAME: thingName,
-          VALUE: '10'+dollar,
+          VALUE: '10' + dollar,
           HINT: 'something',
           TYPE: constType, // eventually we will want to adjust...
         },
         {
           NAME: dollar,
-          VALUE: '0.88',  // exchange rate
+          VALUE: '0.88', // exchange rate
           HINT: 'something',
           TYPE: constType, // eventually we will want to adjust...
         },
@@ -13323,7 +13271,7 @@ describe('evaluations tests', () => {
 
     expect(evals.length).toBe(13);
     expectEvals(evals, 0, 'USD', 'Mon Jan 01 2018', 0.88, 2);
-    expectEvals(evals, 1, 'thing', 'Mon Jan 01 2018', 8.80, 2);
+    expectEvals(evals, 1, 'thing', 'Mon Jan 01 2018', 8.8, 2);
     expectEvals(evals, 2, 'Cash', 'Mon Jan 01 2018', 0, -1);
     expectEvals(evals, 3, 'quantitystringThings', 'Mon Jan 01 2018', 5, -1);
     expectEvals(evals, 4, 'stringThings', 'Mon Jan 01 2018', 44, -1);
@@ -13352,21 +13300,21 @@ describe('evaluations tests', () => {
     expect(result.assetData.length).toBe(1);
     expect(result.assetData[0].item.NAME).toBe('stringThings');
     {
-    const chartPts = result.assetData[0].chartDataPoints;
-    expect(chartPts.length).toBe(6);
-    expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0,    -1);
-    expectChartData(chartPts, 1, 'Mon Jan 01 2018', 44,    -1);
-    expectChartData(chartPts, 2, 'Thu Feb 01 2018', 44,    -1);
-    expectChartData(chartPts, 3, 'Thu Mar 01 2018', 44,    -1);
-    expectChartData(chartPts, 4, 'Sun Apr 01 2018', 44,    -1);
-    expectChartData(chartPts, 5, 'Tue May 01 2018', 44,    -1);
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 44, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 44, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 44, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 44, -1);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 44, -1);
     }
-    
+
     expect(result.debtData.length).toBe(0);
 
     done();
   });
- 
+
   it('define three mini cars', done => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
@@ -13392,7 +13340,7 @@ describe('evaluations tests', () => {
           VALUE: '100',
           HINT: '',
           TYPE: 'const',
-        }
+        },
       ],
     };
     model.assets.filter(a => {
@@ -13484,7 +13432,7 @@ describe('evaluations tests', () => {
           VALUE: '100',
           HINT: '',
           TYPE: 'const',
-        }
+        },
       ],
     };
     model.assets.filter(a => {
@@ -13578,7 +13526,7 @@ describe('evaluations tests', () => {
           VALUE: '100',
           HINT: '',
           TYPE: 'const',
-        }
+        },
       ],
     };
     model.assets.filter(a => {
@@ -13687,7 +13635,7 @@ describe('evaluations tests', () => {
           VALUE: '100',
           HINT: '',
           TYPE: 'const',
-        }
+        },
       ],
     };
     model.assets.filter(a => {
@@ -13797,7 +13745,7 @@ describe('evaluations tests', () => {
           VALUE: '100',
           HINT: '',
           TYPE: 'const',
-        }
+        },
       ],
     };
     model.assets.filter(a => {
@@ -13911,7 +13859,7 @@ describe('evaluations tests', () => {
           VALUE: '100',
           HINT: '',
           TYPE: 'const',
-        }
+        },
       ],
     };
     model.assets.filter(a => {
@@ -14025,7 +13973,7 @@ describe('evaluations tests', () => {
           VALUE: '100',
           HINT: '',
           TYPE: 'const',
-        }
+        },
       ],
     };
     model.assets.filter(a => {
@@ -14139,7 +14087,7 @@ describe('evaluations tests', () => {
           VALUE: '100',
           HINT: '',
           TYPE: 'const',
-        }
+        },
       ],
     };
     model.assets.filter(a => {
@@ -14215,44 +14163,9 @@ describe('evaluations tests', () => {
   });
 
   it('define three chrysler cars', done => {
-    const roi = {
-      start: 'Dec 1, 2017 00:00:00',
-      end: 'June 1, 2018 00:00:00',
-    };
-    const minimalModel = getMinimalModelCopy();
-    const model: DbModelData = {
-      ...minimalModel,
-      assets: [
-        ...minimalModel.assets,
-        {
-          ...simpleAsset,
-          NAME: 'Cars',
-          START: 'January 2 2018',
-          VALUE: 'chrysler',
-          QUANTITY: '3',
-        },
-      ],
-      settings: [
-        ...defaultSettings,
-        {
-          NAME: 'chrysler',
-          VALUE: '50USD',
-          HINT: '',
-          TYPE: 'const',
-        },
-        {
-          NAME: 'USD',
-          VALUE: '2',
-          HINT: '',
-          TYPE: 'const',
-        },
-      ],
-    };
-    model.assets.filter(a => {
-      return a.NAME === CASH_ASSET_NAME;
-    })[0].START = '1 Jan 2018';
-
-    setROI(model, roi);
+    const modelAndRoi = getThreeChryslerModel();
+    const model = modelAndRoi.model;
+    const roi = modelAndRoi.roi;
 
     const evals: Evaluation[] = getTestEvaluations(model);
 
@@ -15116,7 +15029,7 @@ describe('evaluations tests', () => {
 
     done();
   });
-    
+
   it('define three daimler cars', done => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
@@ -15291,7 +15204,7 @@ describe('evaluations tests', () => {
     }
 
     done();
-  });  
+  });
 
   it('revalue chrysler cars for USD change', done => {
     const roi = {
@@ -15358,7 +15271,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 6, 'Cars', 'Fri Feb 02 2018', 300, -1);
     expectEvals(evals, 7, 'Cash', 'Thu Mar 01 2018', 0, -1);
     expectEvals(evals, 8, 'Cars', 'Fri Mar 02 2018', 300, -1);
-    expectEvals(evals, 9, 'USD', 'Mon Mar 05 2018', 2.50, 2);
+    expectEvals(evals, 9, 'USD', 'Mon Mar 05 2018', 2.5, 2);
     expectEvals(evals, 10, 'Cash', 'Sun Apr 01 2018', 0, -1);
     expectEvals(evals, 11, 'Cars', 'Mon Apr 02 2018', 375, -1);
     expectEvals(evals, 12, 'Cash', 'Tue May 01 2018', 0, -1);
@@ -15491,6 +15404,6 @@ describe('evaluations tests', () => {
     }
 
     done();
-  });  
+  });
   // CGT on selling some cars ???
 });

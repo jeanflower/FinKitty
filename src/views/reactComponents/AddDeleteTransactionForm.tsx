@@ -1,6 +1,11 @@
 import React, { Component } from 'react';
 
-import { DbModelData, DbTransaction, DbTrigger } from '../../types/interfaces';
+import {
+  DbModelData,
+  DbTransaction,
+  DbTrigger,
+  FormProps,
+} from '../../types/interfaces';
 import {
   log,
   makeBooleanFromString,
@@ -46,7 +51,7 @@ interface EditTransactionFormState {
   RECURRENCE: string;
   LIQUIDATE_FOR_CASH: string;
 }
-interface EditTransactionProps {
+interface EditTransactionProps extends FormProps {
   checkFunction: (transaction: DbTransaction, model: DbModelData) => string;
   submitFunction: (
     transaction: DbTransaction,
@@ -57,7 +62,6 @@ interface EditTransactionProps {
     triggerInput: DbTrigger,
     modelData: DbModelData,
   ) => Promise<void>;
-  model: DbModelData;
 }
 function assetOptions(model: DbModelData, handleChange: any, id: string) {
   let optionData = model.assets.map(asset => {
@@ -181,6 +185,7 @@ export class AddDeleteTransactionForm extends Component<
           <DateSelectionRow
             introLabel="Date on which the transaction occurs"
             model={this.props.model}
+            showAlert={this.props.showAlert}
             setDateFunction={this.setDate}
             inputName="date"
             inputValue={this.state.DATE}
@@ -274,6 +279,7 @@ export class AddDeleteTransactionForm extends Component<
           <DateSelectionRow
             introLabel="Date on which any recurrence stops (optional)"
             model={this.props.model}
+            showAlert={this.props.showAlert}
             setDateFunction={this.setStopDate}
             inputName="stopDate"
             inputValue={this.state.STOP_DATE}
@@ -414,22 +420,28 @@ export class AddDeleteTransactionForm extends Component<
       }
     }
     if (fromAbsolute === '') {
-      alert('From absolute should be T (absolute value) or F (relative value');
+      this.props.showAlert(
+        'From absolute should be T (absolute value) or F (relative value',
+      );
       return;
     }
     if (toAbsolute === '') {
-      alert('To absolute should be T (absolute value) or F (relative value');
+      this.props.showAlert(
+        'To absolute should be T (absolute value) or F (relative value',
+      );
       return;
     }
     const parsedLiquidateYN = makeBooleanFromYesNo(
       this.state.LIQUIDATE_FOR_CASH,
     );
     if (!parsedLiquidateYN.checksOK) {
-      alert("Whether we're keeping cash afloat should be 'y' or 'n'");
+      this.props.showAlert(
+        "Whether we're keeping cash afloat should be 'y' or 'n'",
+      );
       return;
     }
     if (parsedLiquidateYN.value && this.state.TO !== CASH_ASSET_NAME) {
-      alert(
+      this.props.showAlert(
         "If we're liquidating assets to keep cash afloat, the TO asset should be CASH",
       );
       return;
@@ -459,10 +471,10 @@ export class AddDeleteTransactionForm extends Component<
     // log('adding something ' + showObj(transaction));
     const message = this.props.checkFunction(transaction, this.props.model);
     if (message.length > 0) {
-      alert(message);
+      this.props.showAlert(message);
     } else {
       await this.props.submitFunction(transaction, this.props.model);
-      alert('added new transaction');
+      this.props.showAlert('added new transaction');
       // clear fields
       this.setState(this.defaultState);
       this.resetSelect(this.transactionFromSelectID);
@@ -473,13 +485,13 @@ export class AddDeleteTransactionForm extends Component<
     e.preventDefault();
     // log('deleting something ' + showObj(this));
     if (await this.props.deleteFunction(this.state.NAME)) {
-      alert('deleted transaction');
+      this.props.showAlert('deleted transaction');
       // clear fields
       this.setState(this.defaultState);
       this.resetSelect(this.transactionFromSelectID);
       this.resetSelect(this.transactionToSelectID);
     } else {
-      alert(`failed to delete ${this.state.NAME}`);
+      this.props.showAlert(`failed to delete ${this.state.NAME}`);
     }
   }
 }

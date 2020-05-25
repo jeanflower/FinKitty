@@ -820,10 +820,7 @@ function isPayOffDebtType(t: DbTransaction, model: DbModelData) {
   return recognised;
 }
 
-export function checkTransaction(
-  t: DbTransaction, 
-  model: DbModelData,
-): string {
+export function checkTransaction(t: DbTransaction, model: DbModelData): string {
   // log(`checking transaction ${showObj(t)}`);
   const { assets, incomes, expenses, triggers, settings } = model;
   const assetsForChecking = assets.filter(a => a.NAME !== taxPot);
@@ -916,9 +913,13 @@ export function checkTransaction(
       return `Transaction to ${t.TO} needs a non-empty to value`;
     } else if (!isNumberString(t.TO_VALUE)) {
       const parsed = getNumberAndWordParts(t.TO_VALUE);
-      if(parsed.wordPart !== undefined){
-        const settingVal = getSettings(model.settings, parsed.wordPart, "missing");
-        if(settingVal !== "missing"){
+      if (parsed.wordPart !== undefined) {
+        const settingVal = getSettings(
+          model.settings,
+          parsed.wordPart,
+          'missing',
+        );
+        if (settingVal !== 'missing') {
           return '';
         }
       }

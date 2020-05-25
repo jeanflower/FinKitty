@@ -147,3 +147,8 @@ export const simpleAsset: DbAsset = {
   LIABILITY: '',
   PURCHASE_PRICE: '0',
 };
+
+export interface FormProps {
+  model: DbModelData;
+  showAlert: (string) => void;
+}

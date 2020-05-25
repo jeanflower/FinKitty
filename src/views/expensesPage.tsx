@@ -21,6 +21,7 @@ import { revalueExp } from '../localization/stringConstants';
 
 export function expensesDiv(
   model: DbModelData,
+  showAlert: (arg0: string) => void,
   expensesChartData: ChartData[],
 ) {
   if (!getDisplay(expensesView)) {
@@ -53,9 +54,9 @@ export function expensesDiv(
         id="toggle-expensesTable"
       />
       {expensesChartDiv(model, expensesChartData)}
-      {expensesTableDiv(model)}
+      {expensesTableDiv(model, showAlert)}
       <h4>Revalue expenses</h4>
-      {transactionsTableDiv(model, revalueExp)}
+      {transactionsTableDiv(model, showAlert, revalueExp)}
       <div className="addNewExpense">
         <h4> Add an expense </h4>
         <AddDeleteExpenseForm
@@ -64,6 +65,7 @@ export function expensesDiv(
           deleteFunction={deleteExpense}
           submitTriggerFunction={submitTrigger}
           model={model}
+          showAlert={showAlert}
           checkTransactionFunction={checkTransaction}
           submitTransactionFunction={submitTransaction}
         />

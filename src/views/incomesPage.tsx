@@ -19,7 +19,11 @@ import { AddDeleteIncomeForm } from './reactComponents/AddDeleteIncomeForm';
 import { checkIncome, checkTransaction } from '../models/checks';
 import { revalueInc } from '../localization/stringConstants';
 
-export function incomesDiv(model: DbModelData, incomesChartData: ChartData[]) {
+export function incomesDiv(
+  model: DbModelData,
+  showAlert: (arg0: string) => void,
+  incomesChartData: ChartData[],
+) {
   if (!getDisplay(incomesView)) {
     return;
   }
@@ -51,9 +55,9 @@ export function incomesDiv(model: DbModelData, incomesChartData: ChartData[]) {
         id="toggle-incomesTable"
       />
       {incomesChartDiv(model, incomesChartData)}
-      {incomesTableDiv(model)}
+      {incomesTableDiv(model, showAlert)}
       <h4>Revalue incomes</h4>
-      {transactionsTableDiv(model, revalueInc)}
+      {transactionsTableDiv(model, showAlert, revalueInc)}
       <div className="addNewIncome">
         <h4> Add an income or pension </h4>
         <AddDeleteIncomeForm
@@ -64,6 +68,7 @@ export function incomesDiv(model: DbModelData, incomesChartData: ChartData[]) {
           deleteFunction={deleteIncome}
           submitTriggerFunction={submitTrigger}
           model={model}
+          showAlert={showAlert}
         />
       </div>
     </div>
