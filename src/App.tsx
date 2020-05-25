@@ -1240,7 +1240,7 @@ export class AppContent extends Component<AppProps, AppState> {
 
   private makeHelpText(alertText: string) {
     if (alertText !== '') {
-      log('display alert text');
+      //log('display alert text');
       return (
         <div className="container-fluid">
           <div className="row">
