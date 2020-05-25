@@ -384,6 +384,7 @@ export function makeValueAbsPropFromString(input: string) {
     return result;
   }
   const lastPartForUnits = input.substring(input.length - 6, input.length);
+  const numWordSplit = getNumberAndWordParts(input);
   // log(`lastPartForUnits = ${lastPartForUnits}`);
   if (lastPartForUnits === ' units') {
     const numberPart = input.substring(0, input.length - 6);
@@ -393,6 +394,11 @@ export function makeValueAbsPropFromString(input: string) {
     } else {
       result.checksOK = false;
     }
+  } else if (numWordSplit.numberPart !== undefined 
+    && numWordSplit.wordPart!=='%'
+    && numWordSplit.wordPart!=='') {
+    result.value = input;
+    result.checksOK = true;
   } else if (input[input.length - 1] === '%') {
     const numberPart = input.substring(0, input.length - 1);
     const num = parseFloat(numberPart);

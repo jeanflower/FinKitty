@@ -801,7 +801,7 @@ function isCustomType(t: DbTransaction) {
   ) {
     recognised = true;
   }
-  if (!recognised && t.NAME.startsWith(revalue) && t.RECURRENCE !== '') {
+  if (!recognised && t.NAME.startsWith(revalue)) {
     recognised = true;
   }
   return recognised;
