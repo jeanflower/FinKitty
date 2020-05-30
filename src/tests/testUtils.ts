@@ -26,6 +26,8 @@ import {
   birthDate,
   birthDateHint,
   constType,
+  valueFocusDateHint,
+  valueFocusDate,
 } from '../localization/stringConstants';
 
 export function setROI(
@@ -87,5 +89,10 @@ export const defaultSettings: DbSetting[] = [
     NAME: birthDate,
     VALUE: '',
     HINT: birthDateHint,
+  },
+  {
+    ...viewSetting,
+    NAME: valueFocusDate,
+    HINT: valueFocusDateHint,
   },
 ];

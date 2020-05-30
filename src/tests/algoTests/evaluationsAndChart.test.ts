@@ -4,12 +4,10 @@
 import { makeChartDataFromEvaluations } from '../../models/charting';
 import { getEvaluations } from '../../models/evaluations';
 import {
-  allItems,
   annually,
   assetChartAdditions,
   assetChartDeltas,
   assetChartFocus,
-  assetChartFocusHint,
   assetChartHint,
   assetChartReductions,
   assetChartVal,
@@ -19,18 +17,13 @@ import {
   cgt,
   coarse,
   cpi,
-  cpiHint,
   crystallizedPension,
-  debtChartFocus,
-  debtChartFocusHint,
   debtChartHint,
   debtChartView,
   debtChartVal,
   expenseChartFocus,
-  expenseChartFocusHint,
   fine,
   incomeChartFocus,
-  incomeChartFocusHint,
   incomeTax,
   monthly,
   nationalInsurance,
@@ -40,7 +33,6 @@ import {
   roiStartHint,
   separator,
   viewDetail,
-  viewDetailHint,
   viewFrequency,
   growth,
   pension,
@@ -80,6 +72,7 @@ import {
   setSetting,
   suppressLogs,
   unSuppressLogs,
+  minimalModel,
   // showObj,
 } from '../../utils';
 import { getThreeChryslerModel } from '../browserTests/threeChrysler';
@@ -411,7 +404,7 @@ export function getModelCrystallizedPension() {
     end: '1 April 2026',
   };
   const model: DbModelData = {
-    ...emptyModel,
+    ...minimalModel,
     incomes: [],
     assets: [
       {
@@ -441,18 +434,7 @@ export function getModelCrystallizedPension() {
       },
     ],
     settings: [
-      {
-        ...viewSetting,
-        NAME: assetChartFocus,
-        VALUE: allItems,
-        HINT: assetChartFocusHint,
-      },
-      {
-        ...viewSetting,
-        NAME: debtChartFocus,
-        VALUE: allItems,
-        HINT: debtChartFocusHint,
-      },
+      ...defaultSettings,
       {
         ...viewSetting,
         NAME: roiStart,
@@ -464,42 +446,6 @@ export function getModelCrystallizedPension() {
         NAME: roiEnd,
         VALUE: roi.end,
         HINT: roiEndHint,
-      },
-      {
-        ...viewSetting,
-        NAME: expenseChartFocus,
-        VALUE: allItems,
-        HINT: expenseChartFocusHint,
-      },
-      {
-        ...viewSetting,
-        NAME: incomeChartFocus,
-        VALUE: allItems,
-        HINT: incomeChartFocusHint,
-      },
-      {
-        ...viewSetting,
-        NAME: assetChartView,
-        VALUE: assetChartVal,
-        HINT: assetChartHint,
-      },
-      {
-        ...viewSetting,
-        NAME: debtChartView,
-        VALUE: debtChartVal,
-        HINT: debtChartHint,
-      },
-      {
-        ...viewSetting,
-        NAME: viewDetail,
-        VALUE: fine,
-        HINT: viewDetailHint,
-      },
-      {
-        ...simpleSetting,
-        NAME: cpi,
-        VALUE: '0',
-        HINT: cpiHint,
       },
     ],
     expenses: [],
@@ -534,6 +480,10 @@ export function getModelCrystallizedPension() {
       },
     ],
   };
+
+  setSetting(model.settings, debtChartView, debtChartVal, debtChartHint);
+  setSetting(model.settings, assetChartView, assetChartVal, assetChartHint);
+  setSetting(model.settings, viewDetail, fine, viewType);
   setSetting(model.settings, viewFrequency, annually, viewType);
   setSetting(model.settings, birthDate, '', viewType);
   return {
