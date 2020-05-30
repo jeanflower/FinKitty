@@ -347,9 +347,11 @@ function getQuantity(
   model: DbModelData,
 ): undefined | number {
   if (getStartQuantity(w, model) === undefined) {
+    // log(`no start quantity for ${w}`);
     return undefined;
   }
-  const result = getNumberValue(values, quantity + w);
+  // log(`go to get current quantity for ${w}`);
+  const result = getNumberValue(values, quantity + w, false);
   // log(`current quantity for ${w} is ${result}`);
   return result;
 }
@@ -2335,6 +2337,10 @@ export function getEvaluations(
         let val = values.get(asset.NAME);
         if (typeof val === 'string') {
           val = traceEvaluation(val, values, val);
+        }
+        const q = getQuantity(asset.NAME, values, data);
+        if(q !== undefined && val !== undefined){
+          val *= q;
         }
         if (val !== undefined) {
           todaysAssetValues.set(asset.NAME, val);

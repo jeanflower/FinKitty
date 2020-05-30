@@ -446,7 +446,7 @@ function getAssetOrDebtCols(model: DbModelData, isDebt: boolean) {
     {
       ...defaultColumn,
       key: 'VALUE',
-      name: 'value',
+      name: 'defining value',
       formatter: <CashValueFormatter value="unset" />,
     },
   ];
@@ -1262,7 +1262,7 @@ export function settingsTableDiv(
           {
             ...defaultColumn,
             key: 'VALUE',
-            name: 'value',
+            name: 'defining value',
           },
           {
             ...defaultColumn,
@@ -1287,7 +1287,7 @@ export function settingsTableDiv(
           {
             ...defaultColumn,
             key: 'VALUE',
-            name: 'value',
+            name: 'defining value',
           },
           {
             ...defaultColumn,
@@ -1312,7 +1312,7 @@ export function settingsTableDiv(
           {
             ...defaultColumn,
             key: 'VALUE',
-            name: 'value',
+            name: 'defining value',
           },
           {
             ...defaultColumn,
