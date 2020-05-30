@@ -39,6 +39,8 @@ import {
   constType,
   viewType,
   pensionDB,
+  valueFocusDate,
+  valueFocusDateHint,
 } from './localization/stringConstants';
 
 import moment from 'moment';
@@ -135,9 +137,31 @@ export const minimalModel: DbModelData = {
       HINT: birthDateHint,
       TYPE: viewType,
     },
+    {
+      NAME: valueFocusDate,
+      VALUE: '',
+      HINT: valueFocusDateHint,
+      TYPE: viewType,
+    },
   ],
   transactions: [],
 };
+
+export function lessThan(a: string, b: string) {
+  if (a.toLowerCase() < b.toLowerCase()) {
+    return -1;
+  }
+  if (a.toLowerCase() > b.toLowerCase()) {
+    return 1;
+  }
+  if (a < b) {
+    return -1;
+  }
+  if (a > b) {
+    return 1;
+  }
+  return 0;
+}
 
 export function makeDateFromString(input: string) {
   // special-case parsing for DD/MM/YYYY
@@ -688,6 +712,16 @@ export function setSetting(
       TYPE: type,
     });
   }
+}
+
+// might be today or might be set using a setting
+export function getTodaysDate(model: DbModelData) {
+  let today = new Date();
+  const todaysDate = getSettings(model.settings, valueFocusDate, '');
+  if (todaysDate !== '') {
+    today = new Date(todaysDate);
+  }
+  return today;
 }
 
 function makeModelFromJSONFixDates(input: string) {

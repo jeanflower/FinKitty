@@ -32,7 +32,7 @@ import {
   ItemChartData,
   DbItem,
 } from './types/interfaces';
-import { log, makeModelFromJSON, printDebug, showObj } from './utils';
+import { log, makeModelFromJSON, printDebug, showObj, lessThan } from './utils';
 import { loginPage } from './views/loginPage';
 import { screenshotsDiv } from './views/screenshotsPage';
 import {
@@ -282,22 +282,6 @@ function makeJChartData(data: ItemChartData[]) {
   return chartData;
 }
 
-function lessThan(a: string, b: string) {
-  if (a.toLowerCase() < b.toLowerCase()) {
-    return -1;
-  }
-  if (a.toLowerCase() > b.toLowerCase()) {
-    return 1;
-  }
-  if (a < b) {
-    return -1;
-  }
-  if (a > b) {
-    return 1;
-  }
-  return 0;
-}
-
 function getUserID() {
   return userID;
 }
@@ -381,19 +365,19 @@ export async function refreshData(goToDB = true) {
     // log(`got ${model}`);
 
     model.triggers.sort((a: DbTrigger, b: DbTrigger) =>
-      lessThan(a.NAME, b.NAME),
+      lessThan(b.NAME, a.NAME),
     );
     model.expenses.sort((a: DbExpense, b: DbExpense) =>
-      lessThan(a.NAME, b.NAME),
+      lessThan(b.NAME, a.NAME),
     );
     model.settings.sort((a: DbSetting, b: DbSetting) =>
-      lessThan(a.NAME, b.NAME),
+      lessThan(b.NAME, a.NAME),
     );
-    model.incomes.sort((a: DbIncome, b: DbIncome) => lessThan(a.NAME, b.NAME));
+    model.incomes.sort((a: DbIncome, b: DbIncome) => lessThan(b.NAME, a.NAME));
     model.transactions.sort((a: DbTransaction, b: DbTransaction) =>
-      lessThan(a.NAME, b.NAME),
+      lessThan(b.NAME, a.NAME),
     );
-    model.assets.sort((a: DbAsset, b: DbAsset) => lessThan(a.NAME, b.NAME));
+    model.assets.sort((a: DbAsset, b: DbAsset) => lessThan(b.NAME, a.NAME));
     modelNames.sort((a: string, b: string) => lessThan(a, b));
 
     if (

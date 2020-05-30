@@ -43,6 +43,7 @@ import {
   makeDateFromString,
   getStartQuantity,
   getNumberAndWordParts,
+  getTodaysDate,
 } from '../utils';
 import { getDisplayName } from '../views/tablePages';
 
@@ -2106,14 +2107,14 @@ function logPurchaseValues(
 // This is the key entry point for code calling from outside
 // this file.
 export function getEvaluations(
-  data: DbModelData,
+  model: DbModelData,
 ): {
   evaluations: Evaluation[];
   todaysValues: Map<string, number>;
 } {
   const todaysAssetValues = new Map<string, number>();
 
-  const message = checkData(data);
+  const message = checkData(model);
   if (message.length > 0) {
     log(message);
     return {
@@ -2123,11 +2124,11 @@ export function getEvaluations(
   }
   // log('in getEvaluations');
   const roiEndDate: Date = makeDateFromString(
-    getSettings(data.settings, roiEnd, '1 Jan 1999'),
+    getSettings(model.settings, roiEnd, '1 Jan 1999'),
   );
 
   if (printDebug()) {
-    log(`data = ${showObj(data)}`);
+    log(`data = ${showObj(model)}`);
   }
 
   // Calculate a set of "moments" for each transaction/income/expense...
@@ -2152,7 +2153,7 @@ export function getEvaluations(
   const values = new Map<string, number | string>([]);
 
   const cpiInitialVal: number = parseFloat(
-    getSettings(data.settings, cpi, '0.0'),
+    getSettings(model.settings, cpi, '0.0'),
   );
   values.set(cpi, cpiInitialVal);
 
@@ -2162,20 +2163,20 @@ export function getEvaluations(
   // For each expense, work out monthly growth and
   // a set of moments starting when the expense began,
   // ending when the roi ends.
-  data.expenses.forEach(expense => {
+  model.expenses.forEach(expense => {
     // Growth is important to set the value of the
     // first expense.  Later expense values are not
     // set here, but the 'moment' at which the expense
     // changes is set here.
     logExpenseGrowth(expense, cpiInitialVal, growths);
     const monthlyInf = getGrowth(expense.NAME, growths);
-    const expenseStart = getTriggerDate(expense.START, data.triggers);
+    const expenseStart = getTriggerDate(expense.START, model.triggers);
     // log(`expense start = ${expenseStart}`);
     const newMoments = getRecurrentMoments(
       expense,
       momentType.expense,
       monthlyInf,
-      data.triggers,
+      model.triggers,
       expenseStart,
       roiEndDate,
       expense.RECURRENCE,
@@ -2204,19 +2205,19 @@ export function getEvaluations(
   // For each income, work out monthly growth and
   // a set of moments starting when the income began,
   // ending when the roi ends.
-  data.incomes.forEach(income => {
+  model.incomes.forEach(income => {
     // Growth is important to set the value of the
     // first income.  Later income values are not
     // set here, but the 'moment' at which the income
     // changes is set here.
     logIncomeGrowth(income, cpiInitialVal, growths);
     const monthlyInf = getGrowth(income.NAME, growths);
-    const dbTransaction = data.transactions.find(t => {
+    const dbTransaction = model.transactions.find(t => {
       return t.NAME.startsWith(pensionDB) && t.TO === income.NAME;
     });
-    const roiStartDate = getTriggerDate(income.START, data.triggers);
+    const roiStartDate = getTriggerDate(income.START, model.triggers);
     if (dbTransaction !== undefined) {
-      const sourceIncome = data.incomes.find(i => {
+      const sourceIncome = model.incomes.find(i => {
         return dbTransaction.FROM === i.NAME;
       });
       if (sourceIncome === undefined) {
@@ -2229,7 +2230,7 @@ export function getEvaluations(
             `with no source income`,
         );
       }
-      const startOfSource = getTriggerDate(sourceIncome.START, data.triggers);
+      const startOfSource = getTriggerDate(sourceIncome.START, model.triggers);
       let numAdjustments = 0;
       while (startOfSource <= roiStartDate) {
         roiStartDate.setMonth(roiStartDate.getMonth() - 1);
@@ -2246,7 +2247,7 @@ export function getEvaluations(
       income,
       momentType.income,
       monthlyInf,
-      data.triggers,
+      model.triggers,
       roiStartDate,
       roiEndDate,
       '1m', // all incomes are received monthly
@@ -2258,25 +2259,29 @@ export function getEvaluations(
   // log(`liabilitiesMap = ...`);
   // liabilitiesMap.forEach((value, key)=>{log(`{\`${key}\`, \`${value}\`}`)});
 
-  data.assets.forEach(asset => {
-    logAssetGrowth(asset, cpiInitialVal, growths, data.settings);
+  model.assets.forEach(asset => {
+    logAssetGrowth(asset, cpiInitialVal, growths, model.settings);
 
-    logAssetValueString(asset, values, evaluations, data);
+    logAssetValueString(asset, values, evaluations, model);
 
-    const newMoments = getAssetMonthlyMoments(asset, data.triggers, roiEndDate);
+    const newMoments = getAssetMonthlyMoments(
+      asset,
+      model.triggers,
+      roiEndDate,
+    );
     allMoments = allMoments.concat(newMoments);
 
     logAssetIncomeLiabilities(asset, liabilitiesMap);
 
-    logPurchaseValues(asset, values, evaluations, data);
+    logPurchaseValues(asset, values, evaluations, model);
   });
 
-  data.transactions.forEach(transaction => {
+  model.transactions.forEach(transaction => {
     // one-off asset-asset transactions generate a single moment
     // recurring asset-asset transactions generate a sequence of moments
     const newMoments = getTransactionMoments(
       transaction,
-      data.triggers,
+      model.triggers,
       roiEndDate,
     );
     allMoments = allMoments.concat(newMoments);
@@ -2295,7 +2300,9 @@ export function getEvaluations(
     logPensionIncomeLiabilities(transaction, liabilitiesMap);
   });
 
-  const today = new Date();
+  // might be set using a settings value
+  const today = getTodaysDate(model);
+
   if (roiEndDate > today) {
     allMoments.push({
       date: today,
@@ -2333,7 +2340,7 @@ export function getEvaluations(
     }
 
     if (moment.name === EvaluateAllAssets) {
-      data.assets.forEach(asset => {
+      model.assets.forEach(asset => {
         if (asset.NAME === taxPot) {
           return;
         }
@@ -2341,7 +2348,7 @@ export function getEvaluations(
         if (typeof val === 'string') {
           val = traceEvaluation(val, values, val);
         }
-        const q = getQuantity(asset.NAME, values, data);
+        const q = getQuantity(asset.NAME, values, model);
         if (q !== undefined && val !== undefined) {
           val *= q;
         }
@@ -2374,7 +2381,7 @@ export function getEvaluations(
         cpiInitialVal,
         values,
         evaluations,
-        data,
+        model,
       );
       startYearOfTaxYear = momentsTaxYear;
     }
@@ -2384,7 +2391,7 @@ export function getEvaluations(
         moment,
         values,
         evaluations,
-        data,
+        model,
         pensionTransactions,
         liabilitiesMap,
         liableIncomeInTaxYear,
@@ -2403,7 +2410,7 @@ export function getEvaluations(
       // Log quanities for assets which have them; needed for setting value.
       if (moment.type === momentType.assetStart) {
         // log(`at start of asset ${moment.name}`);
-        const startQ = getStartQuantity(moment.name, data);
+        const startQ = getStartQuantity(moment.name, model);
         if (startQ !== undefined) {
           // log(`set quantity of asset ${moment.name} = ${startQ}`);
           setValue(
@@ -2412,7 +2419,7 @@ export function getEvaluations(
             moment.date,
             quantity + moment.name, // value of what?
             startQ,
-            data,
+            model,
             moment.name, // source
           );
         }
@@ -2425,7 +2432,7 @@ export function getEvaluations(
         moment.date,
         moment.name,
         startValue,
-        data,
+        model,
         moment.name, // e.g. Cash (it's just the starting value)
       );
       if (moment.type === momentType.incomeStart) {
@@ -2437,7 +2444,7 @@ export function getEvaluations(
           moment,
           values,
           evaluations,
-          data,
+          model,
           pensionTransactions,
           liabilitiesMap,
           liableIncomeInTaxYear,
@@ -2450,7 +2457,7 @@ export function getEvaluations(
           moment.date,
           values,
           evaluations,
-          data,
+          model,
           moment.name,
         );
       }
@@ -2472,7 +2479,7 @@ export function getEvaluations(
             moment.date,
             moment.name,
             x,
-            data,
+            model,
             growth,
           );
         }
@@ -2494,7 +2501,7 @@ export function getEvaluations(
           moment.date,
           moment.name,
           x,
-          data,
+          model,
           growth,
         );
         // }
@@ -2507,7 +2514,7 @@ export function getEvaluations(
             moment,
             values,
             evaluations,
-            data,
+            model,
             pensionTransactions,
             liabilitiesMap,
             liableIncomeInTaxYear,
@@ -2519,7 +2526,7 @@ export function getEvaluations(
             moment,
             values,
             evaluations,
-            data,
+            model,
             pensionTransactions,
             liabilitiesMap,
             liableIncomeInTaxYear,
@@ -2527,7 +2534,7 @@ export function getEvaluations(
           );
         } else if (moment.type === momentType.expense) {
           // log('in getEvaluations, adjustCash:');
-          adjustCash(-x, moment.date, values, evaluations, data, moment.name);
+          adjustCash(-x, moment.date, values, evaluations, model, moment.name);
         }
       }
       if (printDebug()) {
@@ -2548,7 +2555,7 @@ export function getEvaluations(
         cpiInitialVal,
         values,
         evaluations,
-        data,
+        model,
       );
     }
   }

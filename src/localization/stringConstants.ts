@@ -26,6 +26,10 @@ export const roiStartHint = 'Date at the start of range to be plotted';
 // date of birth (leave DOB as '' to see dates not ages)
 export const birthDate = 'Date of birth';
 export const birthDateHint = 'Date used for representing dates as ages';
+// The asset values table defaults to Today's value but you can set an
+// alternative date here
+export const valueFocusDate = 'Asset value focus date';
+export const valueFocusDateHint = `Date to use for Asset value table (defaults to '' meaning today)`;
 // whether bars on the charts show monthly or annual values
 export const viewFrequency = 'View frequency';
 export const viewFrequencyHint = "Data plotted 'monthly' or 'annually'";
@@ -51,7 +55,6 @@ export const assetChartFocusHint =
 export const debtChartFocus = 'Focus of debts chart';
 export const debtChartFocusHint =
   "Debts chart can display a category, a single debt, or 'All'";
-
 export const expenseChartFocus = 'Focus of expenses chart';
 export const expenseChartFocusHint =
   "Expenses chart can display a category, a single expense, or 'All'";

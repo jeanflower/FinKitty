@@ -446,7 +446,7 @@ function getAssetOrDebtCols(model: DbModelData, isDebt: boolean) {
     {
       ...defaultColumn,
       key: 'VALUE',
-      name: 'defining value',
+      name: 'start value',
       formatter: <CashValueFormatter value="unset" />,
     },
   ];

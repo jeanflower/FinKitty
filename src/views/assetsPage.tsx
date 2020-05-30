@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChartData, DbModelData } from './../types/interfaces';
+import { ChartData, DbModelData, DbItem } from './../types/interfaces';
 import {
   assetsChart,
   assetsTable,
@@ -21,6 +21,7 @@ import { revalueAsset } from '../localization/stringConstants';
 import DataGrid from './reactComponents/DataGrid';
 import NameFormatter from './reactComponents/NameFormatter';
 import CashValueFormatter from './reactComponents/CashValueFormatter';
+import { getTodaysDate, lessThan } from '../utils';
 // import { log } from './../utils';
 
 const defaultColumn = {
@@ -39,6 +40,7 @@ export function assetsDiv(
     return;
   }
 
+  const today = getTodaysDate(model);
   return (
     <div style={{ display: getDisplay(assetsView) ? 'block' : 'none' }}>
       <Button
@@ -70,7 +72,7 @@ export function assetsDiv(
       <h4>Revalue assets</h4>
       {transactionsTableDiv(model, showAlert, revalueAsset)}
 
-      <h4>Today&apos;s values</h4>
+      <h4>Values at {today.toDateString()}</h4>
       <DataGrid
         deleteFunction={async function() {
           return false;
@@ -78,13 +80,15 @@ export function assetsDiv(
         handleGridRowsUpdated={function() {
           return false;
         }}
-        rows={Array.from(todaysValues.entries()).map(key => {
-          // log(`key[0] = ${key[0]}, key[1] = ${key[1]}`);
-          return {
-            NAME: key[0],
-            VALUE: `${key[1]}`,
-          };
-        })}
+        rows={Array.from(todaysValues.entries())
+          .map(key => {
+            // log(`key[0] = ${key[0]}, key[1] = ${key[1]}`);
+            return {
+              NAME: key[0],
+              VALUE: `${key[1]}`,
+            };
+          })
+          .sort((a: DbItem, b: DbItem) => lessThan(a.NAME, b.NAME))}
         columns={[
           {
             ...defaultColumn,
