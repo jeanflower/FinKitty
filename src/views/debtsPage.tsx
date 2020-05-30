@@ -55,6 +55,7 @@ export function debtsDiv(
         id="toggleDebtsTable"
       />
       {assetsOrDebtsChartDiv(model, debtChartData, true)}
+      <h4>Debt definitions</h4>
       {assetsOrDebtsTableDiv(model, showAlert, true)}
       <h4>Revalue debts</h4>
       {transactionsTableDiv(model, showAlert, revalueDebt)}

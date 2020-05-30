@@ -31,6 +31,10 @@ import {
   autogen,
   liquidateAsset,
   payOffDebt,
+  revalueInc,
+  revalueExp,
+  revalueAsset,
+  revalueDebt,
 } from '../localization/stringConstants';
 
 export function overviewDiv(
@@ -129,21 +133,37 @@ export function overviewDiv(
       <h2>Important dates:</h2>
       {triggersTableDiv(model, showAlert)}
       <h2>Incomes:</h2>
-      {incomesTableDiv(model, showAlert)}
       {incomesChartDiv(model, incomesChartData)}
+      <h4>Income definitions</h4>
+      {incomesTableDiv(model, showAlert)}
+      <h4>Income revaluations</h4>
+      {transactionsTableDiv(model, showAlert, revalueInc)}
       <h2>Expenses:</h2>
-      {expensesTableDiv(model, showAlert)}
       {expensesChartDiv(model, expensesChartData)}
+      <h4>Expense definitions</h4>
+      {expensesTableDiv(model, showAlert)}
+      <h4>Expense revaluations</h4>
+      {transactionsTableDiv(model, showAlert, revalueExp)}
       <h2>Assets:</h2>
-      {assetsOrDebtsTableDiv(model, showAlert, false)}
       {assetsOrDebtsChartDiv(model, assetChartData, false)}
+      <h4>Asset definitions</h4>
+      {assetsOrDebtsTableDiv(model, showAlert, false)}
+      <h4>Liquidate assets to keep cash afloat</h4>
       {transactionsTableDiv(model, showAlert, liquidateAsset)}
+      <h4>Revalue assets</h4>
+      {transactionsTableDiv(model, showAlert, revalueAsset)}
       <h2>Debts:</h2>
-      {assetsOrDebtsTableDiv(model, showAlert, true)}
       {assetsOrDebtsChartDiv(model, debtChartData, true)}
+      <h4>Debt definitions</h4>
+      {assetsOrDebtsTableDiv(model, showAlert, true)}
+      <h4>Revalue debts</h4>
+      {transactionsTableDiv(model, showAlert, revalueDebt)}
+      <h4>Pay off debts</h4>
       {transactionsTableDiv(model, showAlert, payOffDebt)}
       <h2>Transactions:</h2>
+      <h4>Custom transactions</h4>
       {transactionsTableDiv(model, showAlert, custom)}
+      <h4>Auto-generated transactions</h4> 
       {transactionsTableDiv(model, showAlert, autogen)}
       <h2>Settings:</h2>
       {settingsTableDiv(model, showAlert)}

@@ -55,8 +55,9 @@ export function incomesDiv(
         id="toggle-incomesTable"
       />
       {incomesChartDiv(model, incomesChartData)}
+      <h4>Income definitions</h4>
       {incomesTableDiv(model, showAlert)}
-      <h4>Revalue incomes</h4>
+      <h4>Income revaluations</h4>
       {transactionsTableDiv(model, showAlert, revalueInc)}
       <div className="addNewIncome">
         <h4> Add an income or pension </h4>

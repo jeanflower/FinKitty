@@ -17,7 +17,7 @@ import { assetsOrDebtsChartDiv } from './chartPages';
 import { assetsOrDebtsTableDiv, transactionsTableDiv } from './tablePages';
 import { AddDeleteAssetForm } from './reactComponents/AddDeleteAssetForm';
 import { checkAsset, checkTransaction } from '../models/checks';
-import { revalueAsset } from '../localization/stringConstants';
+import { revalueAsset, liquidateAsset } from '../localization/stringConstants';
 import DataGrid from './reactComponents/DataGrid';
 import NameFormatter from './reactComponents/NameFormatter';
 import CashValueFormatter from './reactComponents/CashValueFormatter';
@@ -68,7 +68,10 @@ export function assetsDiv(
         id="toggleAssetsTable"
       />
       {assetsOrDebtsChartDiv(model, assetChartData, false)}
+      <h4>Asset definitions</h4>
       {assetsOrDebtsTableDiv(model, showAlert, false)}
+      <h4>Liquidate assets to keep cash afloat</h4>
+      {transactionsTableDiv(model, showAlert, liquidateAsset)}
       <h4>Revalue assets</h4>
       {transactionsTableDiv(model, showAlert, revalueAsset)}
 

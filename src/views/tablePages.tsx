@@ -1017,13 +1017,13 @@ export function incomesTableDiv(
               {
                 ...defaultColumn,
                 key: 'VALUE',
-                name: 'start value',
+                name: 'value definition',
                 formatter: <CashValueFormatter value="unset" />,
               },
               {
                 ...defaultColumn,
                 key: 'VALUE_SET',
-                name: 'value set date',
+                name: 'definition date',
                 formatter: (
                   <TriggerDateFormatter
                     triggers={model.triggers}
@@ -1132,13 +1132,13 @@ export function expensesTableDiv(
               {
                 ...defaultColumn,
                 key: 'VALUE',
-                name: 'start value',
+                name: 'value definition',
                 formatter: <CashValueFormatter value="unset" />,
               },
               {
                 ...defaultColumn,
                 key: 'VALUE_SET',
-                name: 'value set date',
+                name: 'definition date',
                 formatter: (
                   <TriggerDateFormatter
                     triggers={model.triggers}
@@ -1246,6 +1246,7 @@ export function settingsTableDiv(
         display: tableVisible ? 'block' : 'none',
       }}
     >
+      <h4>Settings about the view of the model</h4>
       <DataGrid
         deleteFunction={deleteSetting}
         handleGridRowsUpdated={function() {
@@ -1271,6 +1272,7 @@ export function settingsTableDiv(
           },
         ]}
       />
+      <h4>Other settings affecting the model</h4>
       <DataGrid
         deleteFunction={deleteSetting}
         handleGridRowsUpdated={function() {

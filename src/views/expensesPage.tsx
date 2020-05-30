@@ -54,8 +54,9 @@ export function expensesDiv(
         id="toggle-expensesTable"
       />
       {expensesChartDiv(model, expensesChartData)}
+      <h4>Expense definitions</h4>
       {expensesTableDiv(model, showAlert)}
-      <h4>Revalue expenses</h4>
+      <h4>Expense revaluations</h4>
       {transactionsTableDiv(model, showAlert, revalueExp)}
       <div className="addNewExpense">
         <h4> Add an expense </h4>

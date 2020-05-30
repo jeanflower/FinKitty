@@ -1148,8 +1148,6 @@ export class AppContent extends Component<AppProps, AppState> {
         />
         {tableVisible ? <h4>Custom transactions</h4> : ''}
         {transactionsTableDiv(this.state.modelData, showAlert, custom)}
-        <h4>Liquidate assets to keep cash afloat</h4>
-        {transactionsTableDiv(this.state.modelData, showAlert, liquidateAsset)}
         {tableVisible ? <h4>Auto-generated transactions</h4> : ''}
         {transactionsTableDiv(this.state.modelData, showAlert, autogen)}
         <p />
