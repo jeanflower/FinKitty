@@ -2339,7 +2339,7 @@ export function getEvaluations(
           val = traceEvaluation(val, values, val);
         }
         const q = getQuantity(asset.NAME, values, data);
-        if(q !== undefined && val !== undefined){
+        if (q !== undefined && val !== undefined) {
           val *= q;
         }
         if (val !== undefined) {
