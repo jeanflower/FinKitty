@@ -2334,6 +2334,9 @@ export function getEvaluations(
 
     if (moment.name === EvaluateAllAssets) {
       data.assets.forEach(asset => {
+        if (asset.NAME === taxPot) {
+          return;
+        }
         let val = values.get(asset.NAME);
         if (typeof val === 'string') {
           val = traceEvaluation(val, values, val);
