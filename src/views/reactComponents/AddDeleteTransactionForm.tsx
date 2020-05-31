@@ -24,7 +24,6 @@ import {
   CASH_ASSET_NAME,
   liquidateAsset,
   conditional,
-  viewType,
   adjustableType,
 } from '../../localization/stringConstants';
 
