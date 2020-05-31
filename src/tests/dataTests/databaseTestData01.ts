@@ -28,6 +28,8 @@ import {
   revalueAsset,
   constType,
   viewType,
+  valueFocusDate,
+  valueFocusDateHint,
 } from '../../localization/stringConstants';
 import {
   DbAsset,
@@ -306,5 +308,11 @@ export const testSettings01: DbSetting[] = [
     NAME: birthDate,
     VALUE: '',
     HINT: birthDateHint,
+  },
+  {
+    ...viewSetting,
+    NAME: valueFocusDate,
+    VALUE: '',
+    HINT: valueFocusDateHint,
   },
 ];

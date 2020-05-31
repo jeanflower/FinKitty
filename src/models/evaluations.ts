@@ -44,6 +44,7 @@ import {
   getStartQuantity,
   getNumberAndWordParts,
   getTodaysDate,
+  removeNumberPart,
 } from '../utils';
 import { getDisplayName } from '../views/tablePages';
 
@@ -309,7 +310,7 @@ function traceEvaluation(
   values: Map<string, number | string>,
   source: string,
 ): number | undefined {
-  //log(`in traceEvaluation, for ${source} get value of ${value}`);
+  // log(`in traceEvaluation, for ${source} get value of ${value}`);
   if (typeof value !== 'string') {
     return value;
   }
@@ -387,6 +388,9 @@ function setValue(
   model: DbModelData,
   source: string, // something that triggered the new value
 ) {
+  if (name === newValue) {
+    log(`BUG??? don't expect value of ${name} = ${newValue}!`);
+  }
   if (printDebug()) {
     if (values.get(name) === undefined) {
       log(
@@ -1186,52 +1190,132 @@ function logAssetGrowth(
 }
 
 function logAssetValueString(
-  asset: DbAsset,
+  assetVal: string,
+  assetStart: string,
+  assetName: string,
   values: Map<string, number | string>,
   evaluations: Evaluation[],
   model: DbModelData,
-) {
-  if (isNumberString(asset.VALUE)) {
-    return;
-  }
-  // log(`look for a value of ${asset.VALUE} in the settings`)
-  let settingVal: string | number = getSettings(
-    model.settings,
-    asset.VALUE,
-    'missing',
-  );
-  if (isNumberString(settingVal)) {
-    // log(`found a number value for ${asset.VALUE} as ${settingVal}`)
-    settingVal = parseFloat(settingVal);
-  } else {
-    // log(`found a string value for ${asset.VALUE} as ${settingVal}`);
-    const parts = getNumberAndWordParts(settingVal);
-    const settingVal2: string | number = getSettings(
-      model.settings,
-      parts.wordPart,
-      'missing',
+  level = 1,
+): boolean {
+  const debug = false;
+  if (debug) {
+    log(
+      `level${level}: logAssetValueString processing ${assetVal} as value of ${assetName}`,
     );
-    if (settingVal2 !== undefined) {
+  }
+  if (isNumberString(assetVal)) {
+    // log(`${assetVal} is a number string`);
+    return true;
+  }
+
+  if (debug) {
+    // log(`look for a value of ${assetVal} in the settings`);
+  }
+  const settingVal: string | number = getSettings(
+    model.settings,
+    assetVal,
+    'missing',
+    false,
+  );
+  let parsedOK = false;
+  if (settingVal === 'missing') {
+    if (debug) {
+      // log(`there's no setting for ${assetVal}`);
+    }
+    const wordPart = removeNumberPart(assetVal);
+    if (wordPart !== undefined) {
+      if (debug) {
+        log(`level${level}: go do work on ${wordPart} instead`);
+      }
+      parsedOK = logAssetValueString(
+        wordPart,
+        assetStart,
+        wordPart,
+        values,
+        evaluations,
+        model,
+        level + 1,
+      );
+    } else {
+      if (debug) {
+        log(
+          `level${level}: we can't remove any number part of ${assetVal}, give up`,
+        );
+      }
+      parsedOK = false;
+    }
+  } else {
+    if (debug) {
+      log(
+        `level${level}: we found ${assetVal} as a setting with value ${settingVal}`,
+      );
+    }
+    if (isNumberString(settingVal)) {
+      if (debug) {
+        log(
+          `level${level}: go set the value of ${assetVal} as number ${parseFloat(
+            settingVal,
+          )}`,
+        );
+      }
       setValue(
         values,
         evaluations,
-        getTriggerDate(asset.START, model.triggers),
-        parts.wordPart,
-        settingVal2,
+        getTriggerDate(assetStart, model.triggers),
+        assetVal,
+        parseFloat(settingVal),
         model,
-        parts.wordPart,
+        assetName,
+      );
+      if (debug) {
+        log(`level${level}: return true`);
+      }
+      return true;
+    } else {
+      if (debug) {
+        log(
+          `level${level}: go parse the value of ${settingVal}` +
+            ` as a setting as a value definition`,
+        );
+      }
+      parsedOK = logAssetValueString(
+        settingVal,
+        assetStart,
+        assetVal,
+        values,
+        evaluations,
+        model,
+        level + 1,
       );
     }
   }
-  setValue(
-    values,
-    evaluations,
-    getTriggerDate(asset.START, model.triggers),
-    asset.VALUE,
-    settingVal,
-    model,
-    asset.VALUE,
-  );
+  if (parsedOK && level > 1) {
+    if (assetName !== assetVal) {
+      if (debug) {
+        log(`level${level}: go set the value of ${assetName} as ${assetVal}`);
+      }
+      setValue(
+        values,
+        evaluations,
+        getTriggerDate(assetStart, model.triggers),
+        assetName,
+        assetVal,
+        model,
+        assetName,
+      );
+    }
+
+    if (debug) {
+      log(`level${level}: return true`);
+    }
+    return true;
+  } else {
+    if (debug) {
+      log(`level${level}: return false`);
+    }
+    return false;
+  }
 }
 
 function getGrowth(name: string, growths: Map<string, number>) {
@@ -2262,7 +2346,14 @@ export function getEvaluations(
   model.assets.forEach(asset => {
     logAssetGrowth(asset, cpiInitialVal, growths, model.settings);
 
-    logAssetValueString(asset, values, evaluations, model);
+    logAssetValueString(
+      asset.VALUE,
+      asset.START,
+      asset.NAME,
+      values,
+      evaluations,
+      model,
+    );
 
     const newMoments = getAssetMonthlyMoments(
       asset,

@@ -2085,7 +2085,7 @@ describe('Chrome Interaction assets', () => {
     await addAsset(driver, {
       ...assetInputs,
       value: '',
-      message: `Asset value should be a numerical value`,
+      message: `Asset value should be a numerical value or built from a setting`,
     });
 
     await clearAssetFields(driver);
@@ -2114,7 +2114,7 @@ describe('Chrome Interaction assets', () => {
     await addAsset(driver, {
       ...assetInputs,
       growth: 'junk',
-      message: `Growth value 'junk' should be a numerical value`,
+      message: `Growth value 'junk' should be a numerical or setting value`,
     });
 
     await clearAssetFields(driver);
@@ -2246,7 +2246,8 @@ describe('Chrome Interaction assets', () => {
       ...pensionInputs,
       name: 'dcp2',
       value: 'junk',
-      message: 'Asset value junk should be a numerical value',
+      message:
+        'Asset value junk should be a numerical value or built from a setting',
     }); // TODO : confusing error message : it's a pension not an asset?
 
     await clearDCPension(driver);
@@ -2288,7 +2289,7 @@ describe('Chrome Interaction assets', () => {
       ...pensionInputs,
       name: 'dcp7',
       growth: 'junk',
-      message: `Growth value 'junk' should be a numerical value`,
+      message: `Growth value 'junk' should be a numerical or setting value`,
     });
 
     await clearDCPension(driver);
@@ -2809,9 +2810,48 @@ describe('Chrome Interaction debts', () => {
     const modelAndRoi = getThreeChryslerModel();
     await beforeAllWork(driver, testDataModelName, modelAndRoi.model);
 
+    await clickButton(driver, 'btn-Assets');
+
+    await addAsset(driver, {
+      ...assetInputs,
+      name: 'carTest1',
+      value: 'chrysler',
+      message: `added new asset`,
+    });
+    await addAsset(driver, {
+      ...assetInputs,
+      name: 'carTest2',
+      value: 'twoChryslers',
+      message: `added new asset`,
+    });
+    await addAsset(driver, {
+      ...assetInputs,
+      name: 'carTest3',
+      value: 'chrysler',
+      quantity: '2',
+      message: `added new asset`,
+    });
+    await addAsset(driver, {
+      ...assetInputs,
+      name: 'carTest4',
+      value: 'twoChryslers',
+      quantity: '2',
+      message: `added new asset`,
+    });
     //await clickButton(driver, 'startNewModel2');
     //driver.switchTo().alert().sendKeys('banana');
 
+    await clickButton(driver, 'btn-Home');
+
+    // a bit of scrolling to ensure the check button
+    // can be interacted with
+    let toggleChart = await driver.findElements(
+      webdriver.By.id(`WelcomeHeader`),
+    );
+    await driver.executeScript(
+      'arguments[0].scrollIntoView(true);',
+      toggleChart[0],
+    );
     await clickButton(driver, 'btn-check');
 
     let label = await driver.findElements(webdriver.By.id('pageTitle'));
@@ -2831,9 +2871,7 @@ describe('Chrome Interaction debts', () => {
 
     // a bit of scrolling to ensure the useDBPInputs button
     // can be interacted with
-    const toggleChart = await driver.findElements(
-      webdriver.By.id(`WelcomeHeader`),
-    );
+    toggleChart = await driver.findElements(webdriver.By.id(`WelcomeHeader`));
     await driver.executeScript(
       'arguments[0].scrollIntoView(true);',
       toggleChart[0],

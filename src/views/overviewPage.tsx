@@ -163,7 +163,7 @@ export function overviewDiv(
       <h2>Transactions:</h2>
       <h4>Custom transactions</h4>
       {transactionsTableDiv(model, showAlert, custom)}
-      <h4>Auto-generated transactions</h4> 
+      <h4>Auto-generated transactions</h4>
       {transactionsTableDiv(model, showAlert, autogen)}
       <h2>Settings:</h2>
       {settingsTableDiv(model, showAlert)}

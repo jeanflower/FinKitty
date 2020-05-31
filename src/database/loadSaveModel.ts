@@ -43,7 +43,7 @@ export async function loadModel(userID: string, modelName: string) {
   try {
     model = await getDB().loadModel(userID, modelName);
   } catch (err) {
-    alert(`Cannot load ${modelName}; consider 'Force delete'?`);
+    alert(`Cannot load ${modelName}`);
   }
   if (showDBInteraction) {
     log(`loaded model ${modelName}`);
@@ -53,7 +53,7 @@ export async function loadModel(userID: string, modelName: string) {
 
 export async function ensureModel(userID: string, modelName: string) {
   if (showDBInteraction) {
-    log(`ensure model for user ${userID}`);
+    log(`ensure model ${modelName} for user ${userID}`);
   }
   const result = await getDB().ensureModel(userID, modelName);
   if (showDBInteraction) {
@@ -68,7 +68,7 @@ export async function saveModelLSM(
   userID: string,
 ) {
   if (showDBInteraction) {
-    log(`save model for user ${userID}`);
+    log(`save model ${modelName} for user ${userID}`);
   }
   const result = getDB().saveModel(userID, modelName, model);
   if (showDBInteraction) {

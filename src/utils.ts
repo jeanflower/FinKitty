@@ -236,6 +236,15 @@ export function getNumberAndWordParts(
   };
 }
 
+export function removeNumberPart(input: string) {
+  const parts = getNumberAndWordParts(input);
+  if (parts.numberPart === undefined) {
+    return undefined;
+  } else {
+    return parts.wordPart;
+  }
+}
+
 export function makeIncomeLiabilityFromNameAndNI(name: string, NI: boolean) {
   if (name === '') {
     return '';
@@ -292,6 +301,12 @@ function isNumber(input: string) {
     value: 0.0,
     checksOK: true,
   };
+  const wordAndNumber = getNumberAndWordParts(input);
+  if (wordAndNumber.wordPart !== '') {
+    // log(`isNumber = false for ${input}; returning ${result}`);
+    result.checksOK = false;
+    return result;
+  }
   const num = parseFloat(input);
   if (num === undefined || Number.isNaN(num)) {
     result.checksOK = false;
@@ -409,7 +424,8 @@ export function makeValueAbsPropFromString(input: string) {
   }
   const lastPartForUnits = input.substring(input.length - 6, input.length);
   const numWordSplit = getNumberAndWordParts(input);
-  // log(`lastPartForUnits = ${lastPartForUnits}`);
+  // log(`from ${input}, lastPartForUnits = ${lastPartForUnits}`);
+  // log(`from ${input}, numWordSplit = ${showObj(numWordSplit)}`);
   if (lastPartForUnits === ' units') {
     const numberPart = input.substring(0, input.length - 6);
     const num = parseFloat(numberPart);
@@ -841,6 +857,7 @@ export function addRequiredEntries(model: DbModelData) {
     ) {
       log(`inserting missing data ${showObj(x)}`);
       model.settings.push(x);
+      // throw new Error(`inserting missing data ${showObj(x)}`);
     }
   });
   minimalModel.assets.forEach(x => {
@@ -851,6 +868,7 @@ export function addRequiredEntries(model: DbModelData) {
     ) {
       log(`inserting missing data ${showObj(x)}`);
       model.assets.push(x);
+      // throw new Error(`inserting missing data ${showObj(x)}`);
     }
   });
 }

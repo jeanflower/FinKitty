@@ -93,6 +93,7 @@ export const defaultSettings: DbSetting[] = [
   {
     ...viewSetting,
     NAME: valueFocusDate,
+    VALUE: '',
     HINT: valueFocusDateHint,
   },
 ];

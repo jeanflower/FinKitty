@@ -151,6 +151,23 @@ export function checkAssetLiability(l: string) {
   }
   return '';
 }
+
+export function isValidValue(value: string, model: DbModelData): boolean {
+  if (isNumberString(value)) {
+    return true;
+  }
+
+  const parsed = getNumberAndWordParts(value);
+  if (parsed.wordPart !== undefined) {
+    const settingVal = getSettings(model.settings, parsed.wordPart, 'missing');
+    if (settingVal !== 'missing') {
+      // log(`guess setting ${settingVal} makes sense for a value...`);
+      return true; // still a guess as we don't know...
+    }
+  }
+  return false;
+}
+
 export function checkAsset(a: DbAsset, model: DbModelData): string {
   // log(`checkAsset ${showObj(a)}`);
   if (a.NAME.length === 0) {
@@ -186,14 +203,9 @@ export function checkAsset(a: DbAsset, model: DbModelData): string {
     }
   }
 
-  if (!isNumberString(a.VALUE)) {
-    const settingVal = getSettings(model.settings, a.VALUE, 'missing');
-    if (settingVal === 'missing') {
-      return `Asset value set to '${a.VALUE}'
-        but no corresponding setting found`;
-    }
-    // TODO check value of setting too - should be a number
-    // or a recursive check (see traceEvaluation)
+  if (!isValidValue(a.VALUE, model)) {
+    return `Asset value set to '${a.VALUE}'
+      but no corresponding setting found`;
   }
 
   if (!isNumberString(a.PURCHASE_PRICE)) {
@@ -911,18 +923,7 @@ export function checkTransaction(t: DbTransaction, model: DbModelData): string {
     }
     if (t.TO_VALUE === '') {
       return `Transaction to ${t.TO} needs a non-empty to value`;
-    } else if (!isNumberString(t.TO_VALUE)) {
-      const parsed = getNumberAndWordParts(t.TO_VALUE);
-      if (parsed.wordPart !== undefined) {
-        const settingVal = getSettings(
-          model.settings,
-          parsed.wordPart,
-          'missing',
-        );
-        if (settingVal !== 'missing') {
-          return '';
-        }
-      }
+    } else if (!isValidValue(t.TO_VALUE, model)) {
       return `Transaction to value ${t.TO_VALUE} isn't a number or setting`;
     }
   }

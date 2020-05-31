@@ -17,7 +17,6 @@ import {
   exampleModelName,
   custom,
   autogen,
-  liquidateAsset,
 } from './localization/stringConstants';
 import {
   ChartData,
@@ -810,7 +809,7 @@ export class AppContent extends Component<AppProps, AppState> {
     if (promptResponse === '') {
       promptResponse = 'myModel';
     }
-    log(`set new model name to ${promptResponse}`);
+    // log(`set new model name to ${promptResponse}`);
     const regex = RegExp('[a-zA-Z0-9_\\-\\. ]+');
     const whatsLeft = promptResponse.replace(regex, '');
     // log(`whatsLeft = ${whatsLeft}`);

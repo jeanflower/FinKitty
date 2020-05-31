@@ -26,6 +26,8 @@ import {
   viewFrequencyHint,
   constType,
   viewType,
+  valueFocusDate,
+  valueFocusDateHint,
 } from '../../localization/stringConstants';
 import { DbModelData, DbSetting } from '../../types/interfaces';
 import { log, printDebug } from '../../utils';
@@ -120,6 +122,12 @@ export const browserTestSettings: DbSetting[] = [
     NAME: birthDate,
     VALUE: '',
     HINT: birthDateHint,
+  },
+  {
+    ...viewSetting,
+    NAME: valueFocusDate,
+    VALUE: '',
+    HINT: valueFocusDateHint,
   },
 ];
 

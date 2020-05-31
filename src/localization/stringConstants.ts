@@ -79,7 +79,7 @@ export const debtChartReductions = '-';
 export const debtChartDeltas = '+-';
 
 // The app ships with a sample model that covers some of the
-// types of assets, incomee, expenses and transactions.
+// types of assets, income, expenses and transactions.
 // The sample data can be loaded into a model.
 export const exampleModelName = 'Simple';
 

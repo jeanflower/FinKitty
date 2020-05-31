@@ -25,6 +25,12 @@ export function getThreeChryslerModel() {
     settings: [
       ...defaultSettings,
       {
+        NAME: 'twoChryslers',
+        VALUE: '2chrysler',
+        HINT: '',
+        TYPE: 'const',
+      },
+      {
         NAME: 'chrysler',
         VALUE: '50USD',
         HINT: '',

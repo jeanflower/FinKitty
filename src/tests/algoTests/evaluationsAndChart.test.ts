@@ -15793,5 +15793,199 @@ describe('evaluations tests', () => {
 
     done();
   });
+
+  it('define three cadillac cars', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'June 1, 2018 00:00:00',
+    };
+    const minimalModel = getMinimalModelCopy();
+    const model: DbModelData = {
+      ...minimalModel,
+      assets: [
+        ...minimalModel.assets,
+        {
+          ...simpleAsset,
+          NAME: 'Cadillac',
+          START: 'January 2 2018',
+          VALUE: '100USD',
+          QUANTITY: '3',
+        },
+      ],
+      settings: [
+        ...defaultSettings,
+        {
+          NAME: 'USD',
+          VALUE: '0.25',
+          HINT: '',
+          TYPE: 'const',
+        },
+      ],
+    };
+    model.assets.filter(a => {
+      return a.NAME === CASH_ASSET_NAME;
+    })[0].START = '1 Jan 2018';
+
+    setROI(model, roi);
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(12);
+    expectEvals(evals, 0, 'USD', 'Tue Jan 02 2018', 0.25, 2);
+    expectEvals(evals, 1, 'Cash', 'Mon Jan 01 2018', 0, -1);
+    expectEvals(evals, 2, 'quantityCadillac', 'Tue Jan 02 2018', 3, -1);
+    expectEvals(evals, 3, 'Cadillac', 'Tue Jan 02 2018', 75, -1);
+    expectEvals(evals, 4, 'Cash', 'Thu Feb 01 2018', 0, -1);
+    expectEvals(evals, 5, 'Cadillac', 'Fri Feb 02 2018', 75, -1);
+    expectEvals(evals, 6, 'Cash', 'Thu Mar 01 2018', 0, -1);
+    expectEvals(evals, 7, 'Cadillac', 'Fri Mar 02 2018', 75, -1);
+    expectEvals(evals, 8, 'Cash', 'Sun Apr 01 2018', 0, -1);
+    expectEvals(evals, 9, 'Cadillac', 'Mon Apr 02 2018', 75, -1);
+    expectEvals(evals, 10, 'Cash', 'Tue May 01 2018', 0, -1);
+    expectEvals(evals, 11, 'Cadillac', 'Wed May 02 2018', 75, -1);
+
+    const result = makeChartDataFromEvaluations(
+      {
+        start: makeDateFromString(roi.start),
+        end: makeDateFromString(roi.end),
+      },
+      model,
+      evalsAndValues,
+    );
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(1);
+    expect(result.assetData[0].item.NAME).toBe('Cadillac');
+    {
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 75, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 75, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 75, -1);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 75, -1);
+    }
+
+    expect(result.debtData.length).toBe(0);
+
+    done();
+  });
+
+  it('define two cadillac cars deeper indirection', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'June 1, 2018 00:00:00',
+    };
+    const minimalModel = getMinimalModelCopy();
+    const model: DbModelData = {
+      ...minimalModel,
+      assets: [
+        ...minimalModel.assets,
+        {
+          ...simpleAsset,
+          NAME: 'Cadillac',
+          START: 'January 2 2018',
+          VALUE: '10fourUSD',
+          QUANTITY: '2',
+        },
+      ],
+      settings: [
+        ...defaultSettings,
+        {
+          NAME: 'fourUSD',
+          VALUE: '2twoUSD',
+          HINT: '',
+          TYPE: 'const',
+        },
+        {
+          NAME: 'twoUSD',
+          VALUE: '2USD',
+          HINT: '',
+          TYPE: 'const',
+        },
+        {
+          NAME: 'USD',
+          VALUE: '0.25',
+          HINT: '',
+          TYPE: 'const',
+        },
+      ],
+      transactions: [
+        ...minimalModel.transactions,
+        {
+          ...simpleTransaction,
+          NAME: 'Revalue of USD',
+          TO: 'USD',
+          TO_VALUE: '0.5',
+          DATE: 'March 5 2018',
+          TYPE: revalueSetting,
+        },
+      ],
+    };
+    model.assets.filter(a => {
+      return a.NAME === CASH_ASSET_NAME;
+    })[0].START = '1 Jan 2018';
+
+    setROI(model, roi);
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(15);
+    expectEvals(evals, 0, 'USD', 'Tue Jan 02 2018', 0.25, 2);
+    expectEvals(evals, 1, 'twoUSD', 'Tue Jan 02 2018', 0.5, 2);
+    expectEvals(evals, 2, 'fourUSD', 'Tue Jan 02 2018', 1, -1);
+    expectEvals(evals, 3, 'Cash', 'Mon Jan 01 2018', 0, -1);
+    expectEvals(evals, 4, 'quantityCadillac', 'Tue Jan 02 2018', 2, -1);
+    expectEvals(evals, 5, 'Cadillac', 'Tue Jan 02 2018', 20, -1);
+    expectEvals(evals, 6, 'Cash', 'Thu Feb 01 2018', 0, -1);
+    expectEvals(evals, 7, 'Cadillac', 'Fri Feb 02 2018', 20, -1);
+    expectEvals(evals, 8, 'Cash', 'Thu Mar 01 2018', 0, -1);
+    expectEvals(evals, 9, 'Cadillac', 'Fri Mar 02 2018', 20, -1);
+    expectEvals(evals, 10, 'USD', 'Mon Mar 05 2018', 0.5, 2);
+    expectEvals(evals, 11, 'Cash', 'Sun Apr 01 2018', 0, -1);
+    expectEvals(evals, 12, 'Cadillac', 'Mon Apr 02 2018', 40, -1);
+    expectEvals(evals, 13, 'Cash', 'Tue May 01 2018', 0, -1);
+    expectEvals(evals, 14, 'Cadillac', 'Wed May 02 2018', 40, -1);
+
+    const result = makeChartDataFromEvaluations(
+      {
+        start: makeDateFromString(roi.start),
+        end: makeDateFromString(roi.end),
+      },
+      model,
+      evalsAndValues,
+    );
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(1);
+    expect(result.assetData[0].item.NAME).toBe('Cadillac');
+    {
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 20, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 20, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 20, -1);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 40, -1);
+    }
+
+    expect(result.debtData.length).toBe(0);
+
+    done();
+  });
   // CGT on selling some cars ???
 });

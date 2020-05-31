@@ -1,6 +1,10 @@
 import React, { Component } from 'react';
 
-import { checkAssetLiability, isNumberString } from '../../models/checks';
+import {
+  checkAssetLiability,
+  isNumberString,
+  isValidValue,
+} from '../../models/checks';
 import {
   DbAsset,
   DbModelData,
@@ -15,9 +19,9 @@ import {
   showObj,
   makeBooleanFromYesNo,
   makeQuantityFromString,
-  makeCashValueFromString,
   makeValueAbsPropFromString,
   isATransaction,
+  getSettings,
 } from '../../utils';
 import Button from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
@@ -691,10 +695,10 @@ export class AddDeleteAssetForm extends Component<
   private async add(e: any) {
     e.preventDefault();
 
-    let isNotANumber = !isNumberString(this.state.VALUE);
-    if (isNotANumber) {
+    const isValid = !isValidValue(this.state.VALUE, this.props.model);
+    if (isValid) {
       this.props.showAlert(
-        `Asset value ${this.state.VALUE} should be a numerical value`,
+        `Asset value ${this.state.VALUE} should be a numerical value or built from a setting`,
       );
       return;
     }
@@ -704,12 +708,19 @@ export class AddDeleteAssetForm extends Component<
       this.props.showAlert(`Start date '${this.state.START}' should be a date`);
       return;
     }
-    isNotANumber = !isNumberString(this.state.GROWTH);
+    const isNotANumber = !isNumberString(this.state.GROWTH);
     if (isNotANumber) {
-      this.props.showAlert(
-        `Growth value '${this.state.GROWTH}' should be a numerical value`,
+      const setting = getSettings(
+        this.props.model.settings,
+        this.state.GROWTH,
+        '',
       );
-      return;
+      if (setting === '') {
+        this.props.showAlert(
+          `Growth value '${this.state.GROWTH}' should be a numerical or setting value`,
+        );
+        return;
+      }
     }
 
     if (this.state.inputting === inputtingPension) {
@@ -962,7 +973,6 @@ export class AddDeleteAssetForm extends Component<
       this.setState(this.defaultState);
       this.resetSelect(this.incomeSourceSelectID);
     } else {
-      let quantityScale = 1.0;
       const parsedQuantity = makeQuantityFromString(this.state.QUANTITY);
       if (!parsedQuantity.checksOK) {
         this.props.showAlert(
@@ -970,19 +980,6 @@ export class AddDeleteAssetForm extends Component<
         );
         return;
       }
-      if (parsedQuantity.value !== '') {
-        quantityScale = parseFloat(parsedQuantity.value);
-      }
-
-      const parsedValue = makeCashValueFromString(this.state.VALUE);
-      let numValueForSubmission = parsedValue.value;
-      if (!parsedValue.checksOK) {
-        this.props.showAlert(
-          `Value '${this.state.VALUE}' not understood as a cash value`,
-        );
-        return;
-      }
-      numValueForSubmission *= quantityScale;
 
       const name = this.state.LIABILITY;
       let builtLiability = '';
@@ -1009,7 +1006,7 @@ export class AddDeleteAssetForm extends Component<
       // log('adding something ' + showObj(this));
       const asset: DbAsset = {
         NAME: this.state.NAME,
-        VALUE: `${numValueForSubmission}`,
+        VALUE: this.state.VALUE,
         QUANTITY: this.state.QUANTITY,
         START: this.state.START,
         GROWTH: this.state.GROWTH,

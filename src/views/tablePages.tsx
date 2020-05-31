@@ -280,10 +280,11 @@ function handleAssetGridRowsUpdated(
     showAlert(`asset value ${asset.CAN_BE_NEGATIVE} not understood`);
     asset[args[0].cellKey] = oldValue;
   } else {
+    // log(`parsedValue = ${showObj(parsedValue)}`);
     const valueForSubmission = parsedValue.checksOK
       ? `${parsedValue.value}`
       : asset.VALUE;
-    log(`valueForSubmission = ${valueForSubmission}`);
+    // log(`valueForSubmission = ${valueForSubmission}`);
     const assetForSubmission: DbAsset = {
       NAME: asset.NAME,
       VALUE: valueForSubmission,
