@@ -1060,7 +1060,8 @@ export function checkTransaction(t: DbTransaction, model: DbModelData): string {
     !t.NAME.startsWith(pensionSS) &&
     t.TYPE !== revalueAsset &&
     t.TYPE !== revalueExp &&
-    t.TYPE !== revalueInc
+    t.TYPE !== revalueInc &&
+    t.TYPE !== revalueSetting
   ) {
     log(`WARNING : not-absolute value to ${tToValue} > 1.0`);
   }

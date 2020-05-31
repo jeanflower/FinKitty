@@ -310,10 +310,18 @@ function traceEvaluation(
   values: Map<string, number | string>,
   source: string,
 ): number | undefined {
-  // log(`in traceEvaluation, for ${source} get value of ${value}`);
+  if (printDebug()) {
+    log(
+      `in traceEvaluation, for ${source} get value of ${value} ` +
+        `using ${Array.from(values.keys()).map(k => {
+          return `[${k}, ${values.get(k)}]`;
+        })}`,
+    );
+  }
   if (typeof value !== 'string') {
     return value;
   }
+  const debug = value === '10EUR';
   if (isNumberString(value)) {
     return parseFloat(value);
   }
@@ -324,17 +332,29 @@ function traceEvaluation(
   }
   const wordPart = parts.wordPart;
   const settingForWordPart = values.get(wordPart);
-  // log(`settingForWordPart ${wordPart} = ${settingForWordPart}`);
+  if (debug) {
+    log(`settingForWordPart ${wordPart} = ${settingForWordPart}`);
+  }
   if (settingForWordPart === undefined) {
-    // log(`values were ${showObj(values)}`);
+    if (debug) {
+      log(`values were ${showObj(values)}`);
+    }
     return undefined;
   } else if (typeof settingForWordPart === 'string') {
     const nextLevel = traceEvaluation(settingForWordPart, values, source);
     if (nextLevel === undefined) {
-      // log(`got undefined for ${settingForWordPart} - returning undefined for ${value}`);
+      if (debug) {
+        log(
+          `got undefined for ${settingForWordPart} - returning undefined for ${value}`,
+        );
+      }
       return undefined;
     } else {
-      //log(`calculate ${numberPart} * ${nextLevel} = ${numberPart * nextLevel}`)
+      if (debug) {
+        log(
+          `calculate ${numberPart} * ${nextLevel} = ${numberPart * nextLevel}`,
+        );
+      }
       return numberPart * nextLevel;
     }
   } else {
@@ -413,25 +433,27 @@ function setValue(
   const unitVal = traceEvaluation(newValue, values, name);
   // log(`Unit val of ${name} is ${unitVal}`);
   if (unitVal === undefined) {
-    throw new Error(`evaluation of ${name} undefined`);
-  }
-  const totalVal = applyQuantity(unitVal, values, name, model);
-  const evaln = {
-    name,
-    date,
-    value: totalVal,
-    source,
-  };
-  // log(`add evaluation for ${name} at ${date}`);
-  // log(`add evaluation ${showObj(evaln)}`);
-  evaluations.push(evaln);
-  if (printDebug()) {
-    log(`date = ${date}, name = ${name}, value = ${values.get(name)}`);
-  }
-  if (printDebug()) {
-    for (const key of values.keys()) {
-      /* eslint-disable-line no-restricted-syntax */
-      log(`values.get(${key}) = ${values.get(key)}`);
+    log(`Error: evaluation of ${newValue} for ${name} undefined`);
+    // throw new Error(`evaluation of ${newValue} for ${name} undefined`);
+  } else {
+    const totalVal = applyQuantity(unitVal, values, name, model);
+    const evaln = {
+      name,
+      date,
+      value: totalVal,
+      source,
+    };
+    // log(`add evaluation for ${name} at ${date}`);
+    // log(`add evaluation ${showObj(evaln)}`);
+    evaluations.push(evaln);
+    if (printDebug()) {
+      log(`date = ${date}, name = ${name}, value = ${values.get(name)}`);
+    }
+    if (printDebug()) {
+      for (const key of values.keys()) {
+        /* eslint-disable-line no-restricted-syntax */
+        log(`values.get(${key}) = ${values.get(key)}`);
+      }
     }
   }
 }
@@ -2389,6 +2411,33 @@ export function getEvaluations(
 
     // some transactions out of pensions are liable to incometax
     logPensionIncomeLiabilities(transaction, liabilitiesMap);
+  });
+
+  model.settings.forEach(setting => {
+    let referencingDates = model.transactions
+      .filter(t => {
+        // does the setting name appear as part of the transaction TO value?
+        if (t.TO_VALUE.includes(setting.NAME)) {
+          return true;
+        }
+        return false;
+      })
+      .map(t => t.DATE)
+      .map(ds => new Date(ds));
+
+    // log(`referencingDates for ${setting.NAME} = ${referencingDates.map(d=>d.toDateString())}`);
+    referencingDates = referencingDates.sort();
+    if (referencingDates.length > 0 && values.get(setting.NAME) === undefined) {
+      setValue(
+        values,
+        evaluations,
+        referencingDates[0], // TODO or last Date?
+        setting.NAME,
+        setting.VALUE,
+        model,
+        setting.NAME,
+      );
+    }
   });
 
   // might be set using a settings value
