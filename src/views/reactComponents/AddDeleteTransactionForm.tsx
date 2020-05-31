@@ -24,15 +24,8 @@ import {
   CASH_ASSET_NAME,
   liquidateAsset,
   conditional,
-  /*
-  conditional,
-  payOffDebt,
-  revalue,
-  revalueAsset,
-  revalueInc,
-  revalueExp,
-  revalueDebt,
-*/
+  viewType,
+  adjustableType,
 } from '../../localization/stringConstants';
 
 interface EditTransactionFormState {
@@ -64,19 +57,38 @@ interface EditTransactionProps extends FormProps {
   ) => Promise<void>;
 }
 function assetOptions(model: DbModelData, handleChange: any, id: string) {
-  let optionData = model.assets.map(asset => {
-    return {
-      text: asset.NAME,
-      action: (e: any) => {
-        // log(`detected action`);
-        // e.persist();
-        e.preventDefault();
-        handleChange(asset.NAME);
-      },
-    };
-  });
-  // remove optionData whose text is taxPot
-  optionData = optionData.filter(od => od.text !== taxPot);
+  const optionData = model.assets
+    .filter(asset => {
+      return asset.NAME !== taxPot;
+    })
+    .map(asset => {
+      return {
+        text: asset.NAME,
+        action: (e: any) => {
+          // log(`detected action`);
+          // e.persist();
+          e.preventDefault();
+          handleChange(asset.NAME);
+        },
+      };
+    })
+    .concat(
+      model.settings
+        .filter(setting => {
+          return setting.TYPE === adjustableType;
+        })
+        .map(setting => {
+          return {
+            text: setting.NAME,
+            action: (e: any) => {
+              // log(`detected action`);
+              // e.persist();
+              e.preventDefault();
+              handleChange(setting.NAME);
+            },
+          };
+        }),
+    );
   const options = optionData.map(bd => (
     <option
       value={bd.text}
@@ -100,7 +112,7 @@ function assetOptions(model: DbModelData, handleChange: any, id: string) {
         }
       }}
     >
-      <option>Choose an asset</option>
+      <option>Choose an asset/setting</option>
       {options}
     </select>
   );

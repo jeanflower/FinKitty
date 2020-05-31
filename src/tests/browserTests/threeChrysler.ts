@@ -40,7 +40,7 @@ export function getThreeChryslerModel() {
         NAME: 'USD',
         VALUE: '2',
         HINT: '',
-        TYPE: 'const',
+        TYPE: 'adjustable',
       },
     ],
   };

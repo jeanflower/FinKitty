@@ -15821,6 +15821,18 @@ describe('evaluations tests', () => {
           TYPE: 'const',
         },
       ],
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: 'Revalue of USD',
+          TO: 'USD',
+          TO_VALUE: '1.1',
+          TO_ABSOLUTE: false,
+          DATE: 'March 5 2018',
+          TYPE: revalueSetting,
+          RECURRENCE: '1m',
+        },
+      ],
     };
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
@@ -15833,7 +15845,7 @@ describe('evaluations tests', () => {
 
     // printTestCodeForEvals(evals);
 
-    expect(evals.length).toBe(12);
+    expect(evals.length).toBe(15);
     expectEvals(evals, 0, 'USD', 'Tue Jan 02 2018', 0.25, 2);
     expectEvals(evals, 1, 'Cash', 'Mon Jan 01 2018', 0, -1);
     expectEvals(evals, 2, 'quantityCadillac', 'Tue Jan 02 2018', 3, -1);
@@ -15842,10 +15854,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 5, 'Cadillac', 'Fri Feb 02 2018', 75, -1);
     expectEvals(evals, 6, 'Cash', 'Thu Mar 01 2018', 0, -1);
     expectEvals(evals, 7, 'Cadillac', 'Fri Mar 02 2018', 75, -1);
-    expectEvals(evals, 8, 'Cash', 'Sun Apr 01 2018', 0, -1);
-    expectEvals(evals, 9, 'Cadillac', 'Mon Apr 02 2018', 75, -1);
-    expectEvals(evals, 10, 'Cash', 'Tue May 01 2018', 0, -1);
-    expectEvals(evals, 11, 'Cadillac', 'Wed May 02 2018', 75, -1);
+    expectEvals(evals, 8, 'USD', 'Mon Mar 05 2018', 0.275, 2);
+    expectEvals(evals, 9, 'Cash', 'Sun Apr 01 2018', 0, -1);
+    expectEvals(evals, 10, 'Cadillac', 'Mon Apr 02 2018', 82.5, 2);
+    expectEvals(evals, 11, 'USD', 'Thu Apr 05 2018', 0.3, 2);
+    expectEvals(evals, 12, 'Cash', 'Tue May 01 2018', 0, -1);
+    expectEvals(evals, 13, 'Cadillac', 'Wed May 02 2018', 90.75, 2);
+    expectEvals(evals, 14, 'USD', 'Sat May 05 2018', 0.33, 2);
 
     const result = makeChartDataFromEvaluations(
       {
@@ -15870,7 +15885,7 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 2, 'Thu Feb 01 2018', 75, -1);
       expectChartData(chartPts, 3, 'Thu Mar 01 2018', 75, -1);
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 75, -1);
-      expectChartData(chartPts, 5, 'Tue May 01 2018', 75, -1);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 82.5, 2);
     }
 
     expect(result.debtData.length).toBe(0);

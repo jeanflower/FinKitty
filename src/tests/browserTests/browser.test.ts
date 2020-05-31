@@ -2483,6 +2483,19 @@ describe('Chrome Interaction transactions', () => {
     return;
   }
 
+  const transactionInputs = {
+    name: 'trans1',
+    startDate: '2023',
+    fromAsset: CASH_ASSET_NAME,
+    toAsset: 'hifi',
+    reduction: '100',
+    addition: '90%',
+    recurrence: '1y',
+    liquidateForCash: 'N',
+    endDate: '2027',
+    category: 'upgradeHifi',
+  };
+
   it('CITransactions add transactions', async done => {
     if (!doActions) {
       done();
@@ -2499,19 +2512,6 @@ describe('Chrome Interaction transactions', () => {
     });
 
     await clickButton(driver, 'btn-Transactions');
-
-    const transactionInputs = {
-      name: 'trans1',
-      startDate: '2023',
-      fromAsset: CASH_ASSET_NAME,
-      toAsset: 'hifi',
-      reduction: '100',
-      addition: '90%',
-      recurrence: '1y',
-      liquidateForCash: 'N',
-      endDate: '2027',
-      category: 'upgradeHifi',
-    };
 
     await addTransaction(driver, {
       ...transactionInputs,
@@ -2815,18 +2815,21 @@ describe('Chrome Interaction debts', () => {
     await addAsset(driver, {
       ...assetInputs,
       name: 'carTest1',
+      startDate: 'January 2 2018',
       value: 'chrysler',
       message: `added new asset`,
     });
     await addAsset(driver, {
       ...assetInputs,
       name: 'carTest2',
+      startDate: 'January 2 2018',
       value: 'twoChryslers',
       message: `added new asset`,
     });
     await addAsset(driver, {
       ...assetInputs,
       name: 'carTest3',
+      startDate: 'January 2 2018',
       value: 'chrysler',
       quantity: '2',
       message: `added new asset`,
@@ -2834,6 +2837,7 @@ describe('Chrome Interaction debts', () => {
     await addAsset(driver, {
       ...assetInputs,
       name: 'carTest4',
+      startDate: 'January 2 2018',
       value: 'twoChryslers',
       quantity: '2',
       message: `added new asset`,
@@ -2869,7 +2873,22 @@ describe('Chrome Interaction debts', () => {
     // TODO edit model to make it fail check (e.g. edit value of
     // chrysler setting)
 
-    // a bit of scrolling to ensure the useDBPInputs button
+    await clickButton(driver, 'btn-Transactions');
+
+    await addTransaction(driver, {
+      ...transactionInputs,
+      name: 'Revalue USD',
+      startDate: 'January 2 2018',
+      fromAsset: '',
+      toAsset: 'USD',
+      reduction: '',
+      addition: '150%',
+      recurrence: '1m',
+      category: 'currency trend',
+      message: `added new transaction`,
+    });
+
+    // a bit of scrolling to ensure the ??? button
     // can be interacted with
     toggleChart = await driver.findElements(webdriver.By.id(`WelcomeHeader`));
     await driver.executeScript(

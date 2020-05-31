@@ -526,8 +526,12 @@ export async function editSetting(
   return await refreshData();
 }
 
-export async function submitNewSetting(name: string, modelData: DbModelData) {
-  await submitNewSettingLSM(name, modelData, getUserID());
+export async function submitNewSetting(
+  name: string,
+  value: string,
+  modelData: DbModelData,
+) {
+  await submitNewSettingLSM(name, value, modelData, getUserID());
   return await refreshData();
 }
 

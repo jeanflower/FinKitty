@@ -15,7 +15,7 @@ import { getDB } from './database';
 
 import { modelName } from '../App';
 
-import { custom, constType } from '../localization/stringConstants';
+import { custom, adjustableType } from '../localization/stringConstants';
 
 const showDBInteraction = false;
 
@@ -239,15 +239,16 @@ export async function submitSettingLSM(
 
 export async function submitNewSettingLSM(
   name: string,
+  value: string,
   modelData: DbModelData,
   userID: string,
 ) {
   submitSettingLSM(
     {
       NAME: name,
-      VALUE: '',
+      VALUE: value,
       HINT: '',
-      TYPE: constType,
+      TYPE: adjustableType,
     },
     modelData,
     userID,

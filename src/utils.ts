@@ -690,6 +690,7 @@ export function getSettings(
   if (searchResult.numFound === 0) {
     if (expectValue) {
       log(`BUG!!! '${key}' value not found in settings list`);
+      // throw new Error(`BUG!!! '${key}' value not found in settings list`);
     }
     // log(`couldn't find ${key} in ${showObj(settings)}`);
     return fallbackVal;

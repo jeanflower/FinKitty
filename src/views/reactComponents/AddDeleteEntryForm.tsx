@@ -7,9 +7,14 @@ import { DbModelData, FormProps } from '../../types/interfaces';
 
 interface EditFormState {
   NAME: string;
+  VALUE: string;
 }
 interface EditProps extends FormProps {
-  submitFunction: (settingInput: string, model: DbModelData) => Promise<any>;
+  submitFunction: (
+    settingInput: string,
+    value: string,
+    model: DbModelData,
+  ) => Promise<any>;
   deleteFunction: (settingName: string) => Promise<boolean>;
 }
 export class AddDeleteEntryForm extends Component<EditProps, EditFormState> {
@@ -21,22 +26,40 @@ export class AddDeleteEntryForm extends Component<EditProps, EditFormState> {
 
     this.state = {
       NAME: '',
+      VALUE: '',
     };
 
     this.handleName = this.handleName.bind(this);
+    this.handleValue = this.handleValue.bind(this);
     this.add = this.add.bind(this);
     this.delete = this.delete.bind(this);
   }
   public render() {
     return (
       <form className="container-fluid" onSubmit={this.add}>
-        <Input
-          type={'text'}
-          name={'name'}
-          value={this.state.NAME}
-          placeholder={'Enter name'}
-          onChange={this.handleName}
-        />{' '}
+        <div className="row">
+          <div className="col">
+            <Input
+              title="Name of setting"
+              type={'text'}
+              name={'name'}
+              value={this.state.NAME}
+              placeholder={'Enter name'}
+              onChange={this.handleName}
+            />
+          </div>
+          {/* end col */}
+          <div className="col">
+            <Input
+              title="Value of setting"
+              type={'text'}
+              name={'value'}
+              value={this.state.VALUE}
+              placeholder={'Enter value'}
+              onChange={this.handleValue}
+            />
+          </div>
+        </div>
         <Button
           action={this.add}
           type={'primary'}
@@ -51,10 +74,18 @@ export class AddDeleteEntryForm extends Component<EditProps, EditFormState> {
     const value = e.target.value;
     this.setState({ NAME: value });
   }
+  private handleValue(e: React.ChangeEvent<HTMLInputElement>) {
+    const value = e.target.value;
+    this.setState({ VALUE: value });
+  }
   private async add(e: any) {
     e.preventDefault();
     // log('adding something ' + showObj(this));
-    await this.props.submitFunction(this.state.NAME, this.props.model);
+    await this.props.submitFunction(
+      this.state.NAME,
+      this.state.VALUE,
+      this.props.model,
+    );
     this.props.showAlert(`added new setting ${this.state.NAME}`);
     // clear fields
     this.setState({ NAME: '' });
