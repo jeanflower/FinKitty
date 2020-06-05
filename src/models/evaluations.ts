@@ -321,7 +321,7 @@ function traceEvaluation(
   if (typeof value !== 'string') {
     return value;
   }
-  const debug = value === '10EUR';
+  const debug = false;
   if (isNumberString(value)) {
     return parseFloat(value);
   }
@@ -412,7 +412,8 @@ function setValue(
     log(`BUG??? don't expect value of ${name} = ${newValue}!`);
   }
   if (printDebug()) {
-    if (values.get(name) === undefined) {
+    const existingValue = values.get(name);
+    if (existingValue === undefined) {
       log(
         `setting first value of ${name}, ` +
           `newValue = ${newValue} ` +
@@ -423,6 +424,7 @@ function setValue(
       log(
         `setting value of ${name}, ` +
           `newValue = ${newValue} ` +
+          `oldValue = ${existingValue} ` +
           `date = ${date.toDateString()}, ` +
           `source = ${source}`,
       );
@@ -1544,18 +1546,59 @@ function revalueApplied(
         `for a revaluation transaction ${showObj(t)}`,
     );
   }
-  let tToValue = traceEvaluation(t.TO_VALUE, values, t.TO_VALUE);
+  let tToValue: string | number | undefined = traceEvaluation(
+    t.TO_VALUE,
+    values,
+    t.TO_VALUE,
+  );
   const words = t.TO.split(separator);
   words.forEach(w => {
-    const prevValue = traceEvaluation(w, values, w);
+    const wValue = values.get(w);
+    // log(`word from ${t.TO} is ${w} has value ${wValue}`);
+    let prevValue: number | undefined = undefined;
+    let scaledNumberWordParts = false;
+    if (wValue === undefined) {
+      throw new Error(
+        `proportional change to an undefined value not implemented`,
+      );
+    } else if (typeof wValue !== 'string') {
+      // log(`${wValue} is a number`);
+      prevValue = wValue;
+    } else if (isNumberString(wValue)) {
+      // log(`${wValue} is a number-string`);
+      prevValue = parseFloat(wValue);
+    } else {
+      if (!t.TO_ABSOLUTE) {
+        // log(`${wValue} is a not-number-string`);
+        const parts = getNumberAndWordParts(wValue);
+        if (parts.numberPart !== undefined && parts.wordPart !== undefined) {
+          if (tToValue !== undefined && typeof tToValue !== 'string') {
+            const newNumberPart = parts.numberPart * tToValue;
+            tToValue = '' + newNumberPart + parts.wordPart;
+            scaledNumberWordParts = true;
+          } else {
+            throw new Error(
+              `proportional change to a not-number value ${wValue} not implemented`,
+            );
+          }
+        } else {
+          throw new Error(
+            `proportional change to a not-number value ${wValue} not implemented`,
+          );
+        }
+      }
+    }
     if (!t.TO_ABSOLUTE) {
       // this is a proportional change
+      // log(`previous value was ${prevValue}`);
       if (prevValue === undefined) {
-        log(
-          'WARNING : proportional value supplied' +
-            ' for a revaluation transaction' +
-            ` with no prev value ${showObj(t)}`,
-        );
+        if (!scaledNumberWordParts) {
+          log(
+            'WARNING : proportional value supplied' +
+              ' for a revaluation transaction' +
+              ` with no prev value ${showObj(t)}`,
+          );
+        }
       } else {
         tToValue = prevValue * parseFloat(t.TO_VALUE);
       }
@@ -1570,8 +1613,8 @@ function revalueApplied(
         if (l.endsWith(incomeTax)) {
           if (prevValue === undefined) {
             log(`WARNING : no prev value found for revalue`);
-          } else if (tToValue === undefined) {
-            log(`WARNING : tToValue undefined for revalue`);
+          } else if (tToValue === undefined || typeof tToValue === 'string') {
+            log(`WARNING : tToValue undefined/string for revalue`);
           } else {
             let gain = tToValue - prevValue;
             if (gain > 0) {
@@ -2111,7 +2154,7 @@ function processTransactionMoment(
   if (t === undefined) {
     throw Error('BUG!!! moment of type transaction should have a transaction');
   }
-  // log(`process transaction ${showObj(t)}`);
+  // log(`process transaction ${showObj(t.NAME)}`);
 
   // Some transactions are simple Revalues.  They have no
   // FROM and a value for TO.  Code similar to application
