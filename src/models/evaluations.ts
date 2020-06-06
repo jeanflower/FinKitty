@@ -1656,6 +1656,28 @@ function calculateFromChange(
       toImpact: number;
     }
   | undefined {
+  // log(`t.FROM_VALUE = ${t.FROM_VALUE}`)
+  if (t.NAME.startsWith(conditional) && preToValue === undefined) {
+    log(`Bug : conditional transaction to undefined value ${showObj(t)}`);
+    //throw new Error(
+    //  `Bug : conditional transaction to undefined value ${showObj(t)}`,
+    //);
+    return undefined;
+  }
+
+  if (
+    t.NAME.startsWith(conditional) &&
+    preToValue !== undefined &&
+    preToValue >= 0
+  ) {
+    // don't need to perform this transaction
+    // no need to 'maintain' value of to-asset
+    // as it's already >= 0
+    // log(`no need to maintain ${t.TO} from ${t.FROM} `
+    //   +`as targetValue = ${targetValue}`)
+    return undefined;
+  }
+
   // log(`in calculateFromChange for ${t.NAME}, ${fromWord}`);
   const tFromValue = parseFloat(t.FROM_VALUE);
   const tToValue = parseFloat(t.TO_VALUE);
@@ -1679,82 +1701,8 @@ function calculateFromChange(
   const assetNotAllowedNegative =
     matchingAsset && !assetAllowedNegative(fromWord, matchingAsset);
 
-  // log(`t.FROM_VALUE = ${t.FROM_VALUE}`)
-  if (t.NAME.startsWith(conditional) && preToValue === undefined) {
-    log(`Bug : conditional transaction to undefined value ${showObj(t)}`);
-    //throw new Error(
-    //  `Bug : conditional transaction to undefined value ${showObj(t)}`,
-    //);
-    return undefined;
-  } else if (
-    t.NAME.startsWith(conditional) &&
-    preToValue !== undefined &&
-    preToValue >= 0
-  ) {
-    // don't need to perform this transaction
-    // no need to 'maintain' value of to-asset
-    // as it's already >= 0
-    // log(`no need to maintain ${t.TO} from ${t.FROM} `
-    //   +`as targetValue = ${targetValue}`)
-    return undefined;
-  } else if (t.FROM_ABSOLUTE) {
+  if (t.FROM_ABSOLUTE) {
     fromChange = tFromValue;
-    let numberUnits = 0;
-    let unitValue = 0.0;
-
-    if (fromHasQuantity) {
-      if (t.NAME.startsWith(conditional)) {
-        // log(`absolute from change involving quantities`);
-        // fromChange is a number of pounds
-        // use q to determine a proportional change
-        // for fromChange
-        unitValue = preFromValue;
-        numberUnits = Math.ceil(fromChange / unitValue);
-        // reset fromChange so it's a £ value
-      } else {
-        // log(`absolute from change involving quantities`);
-        // fromChange is a number of units
-        // use q to determine a proportional change
-        // for fromChange
-        numberUnits = fromChange;
-        unitValue = preFromValue;
-        // reset fromChange so it's a £ value
-        fromChange = numberUnits * unitValue;
-      }
-      // log(`fromChange = ${fromChange}`);
-      // log(`numberUnits = ${numberUnits}`);
-      // log(`unitValue = ${unitValue}`);
-    }
-    if (
-      t.NAME.startsWith(conditional) &&
-      preToValue !== undefined &&
-      !t.TO_ABSOLUTE &&
-      preToValue > -fromChange * tToValue
-    ) {
-      // log(`cap conditional amount - we only need ${preToValue}`);
-      fromChange = -preToValue / tToValue;
-      if (q !== undefined) {
-        //log(`quantity involved in working out fromChange`);
-        numberUnits = Math.ceil(fromChange / unitValue);
-        fromChange = numberUnits * unitValue;
-      }
-    }
-    if (fromHasQuantity && q !== undefined) {
-      if (q - numberUnits < 0 && assetNotAllowedNegative) {
-        // log(`don't sell more units than we have`);
-        return undefined;
-      }
-      // log(`set new quantity ${q - numberUnits}`);
-      setValue(
-        values,
-        evaluations,
-        moment.date,
-        quantity + fromWord,
-        q - numberUnits,
-        model,
-        t.FROM,
-      );
-    }
   } else {
     // relative amounts behave differently for conditionals
     if (t.NAME.startsWith(conditional) && !t.TO_ABSOLUTE) {
@@ -1771,6 +1719,74 @@ function calculateFromChange(
   }
   // log(`fromChange = ${fromChange}`);
 
+  let numberUnits = 0;
+  let unitValue = 0.0;
+
+  // reinterpret a change as a number of units for quantised assets
+  if (fromHasQuantity) {
+    if (t.NAME.startsWith(conditional)) {
+      // log(`absolute from change involving quantities`);
+      // fromChange is a number of pounds
+      // use q to determine a proportional change
+      // for fromChange
+      unitValue = preFromValue;
+      numberUnits = Math.ceil(fromChange / unitValue);
+      // reset fromChange so it's a £ value
+    } else {
+      // log(`absolute from change involving quantities`);
+      // fromChange is a number of units
+      // use q to determine a proportional change
+      // for fromChange
+      numberUnits = fromChange;
+      unitValue = preFromValue;
+      // reset fromChange so it's a £ value
+      fromChange = numberUnits * unitValue;
+    }
+    // log(`fromChange = ${fromChange}`);
+    // log(`numberUnits = ${numberUnits}`);
+    // log(`unitValue = ${unitValue}`);
+  }
+
+  // don't transfer more than we need to for conditional
+  // transactions
+  if (
+    t.NAME.startsWith(conditional) &&
+    preToValue !== undefined &&
+    !t.TO_ABSOLUTE &&
+    preToValue > -fromChange * tToValue
+  ) {
+    // log(`cap conditional amount - we only need ${preToValue}`);
+    fromChange = -preToValue / tToValue;
+    if (fromHasQuantity) {
+      //log(`quantity involved in working out fromChange`);
+      numberUnits = Math.ceil(fromChange / unitValue);
+      fromChange = numberUnits * unitValue;
+    }
+  }
+  // apply change for quantised assets
+  if (fromHasQuantity && q !== undefined) {
+    if (q - numberUnits < 0 && assetNotAllowedNegative) {
+      if (t.NAME.startsWith(conditional) && q > 0) {
+        // transfer as much as we have
+        numberUnits = q;
+        fromChange = numberUnits * unitValue;
+      } else {
+        // log(`don't sell more units than we have`);
+        return undefined;
+      }
+    }
+    // log(`set new quantity ${q} - ${numberUnits} = ${q - numberUnits}`);
+    setValue(
+      values,
+      evaluations,
+      moment.date,
+      quantity + fromWord,
+      q - numberUnits,
+      model,
+      t.FROM,
+    );
+  }
+
   // Allow some assets to become negative but not others
   if (
     assetNotAllowedNegative &&
@@ -1779,7 +1795,7 @@ function calculateFromChange(
   ) {
     if (t.NAME.startsWith(conditional)) {
       // transfer as much as we have
-      // log(`transfer only ${value} because we don't have ${fromChange}`);
+      // log(`transfer only ${preFromValue} because we don't have ${fromChange}`);
       fromChange = preFromValue;
     } else {
       // don't transfer anything
@@ -1808,6 +1824,8 @@ function calculateFromChange(
   // log(`fromChange = ${fromChange}`);
   const toChange = fromChange;
   if (fromHasQuantity) {
+    // log(`don't alter the unit value of a quantised asset`);
+    // log(`fromChange was ${fromChange} but reset to 0`)
     fromChange = 0; // don't alter the unit value
   }
   // log(`passing {fromImpact:${fromChange}, toImpact: ${toChange}}`);
@@ -2177,6 +2195,14 @@ function processTransactionMoment(
     // we can sometimes see multiple 'FROM's
     // handle one word at a time
     const words = t.FROM.split(separator);
+    /*
+    words.forEach(fromWord => {
+      // if fromWord is a category of one or more assets
+      // then remove fromWord from the list and
+      // if the assets are not already on the list
+      // then add the asset Names.
+    });
+    */
     words.forEach(fromWord => {
       // log(`process a transaction from ${fromWord}`);
       processTransactionFromTo(

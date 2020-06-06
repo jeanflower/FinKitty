@@ -4013,6 +4013,470 @@ describe('evaluations tests', () => {
     done();
   });
 
+  it('conditional transaction from multiple sources by quantity', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'October 1, 2018 00:00:00',
+    };
+    const model: DbModelData = {
+      ...emptyModel,
+      expenses: [
+        {
+          ...simpleExpense,
+          START: 'April 3 2018',
+          END: 'August 2 2018',
+          NAME: 'Food',
+          VALUE: '10.0',
+          VALUE_SET: 'April 3 2018',
+        },
+      ],
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: 'Conditional Sell Stff if I need to',
+          FROM: 'Stf1' + separator + 'Stf2',
+          FROM_ABSOLUTE: false,
+          FROM_VALUE: '1.0',
+          TO: CASH_ASSET_NAME,
+          TO_ABSOLUTE: false,
+          TO_VALUE: '1.0',
+          DATE: 'February 2 2018',
+          RECURRENCE: '1m',
+          TYPE: liquidateAsset,
+        },
+      ],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'Stf1',
+          START: 'January 2 2018',
+          VALUE: 'pound',
+          QUANTITY: '7',
+        },
+        {
+          ...simpleAsset,
+          NAME: 'Stf2',
+          START: 'January 2 2018',
+          VALUE: 'pound',
+          QUANTITY: '100',
+        },
+        {
+          ...simpleAsset,
+          NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
+          START: 'January 2 2018',
+          VALUE: '15',
+        },
+      ],
+      settings: [
+        ...defaultSettings,
+        {
+          NAME: 'pound',
+          VALUE: '1.0',
+          HINT: 'a setting for a currency',
+          TYPE: constType,
+        },
+      ],
+    };
+    setROI(model, roi);
+    setSetting(model.settings, assetChartFocus, CASH_ASSET_NAME, viewType);
+    setSetting(model.settings, assetChartView, assetChartDeltas, viewType);
+
+    const x = model.settings.find(s => {
+      return s.NAME === assetChartFocus;
+    });
+    if (x !== undefined) {
+      x.VALUE = CASH_ASSET_NAME;
+    }
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(51);
+    expectEvals(evals, 0, 'pound', 'Tue Jan 02 2018', 1, -1);
+    expectEvals(evals, 1, 'pound', 'Tue Jan 02 2018', 1, -1); // ??
+    expectEvals(evals, 2, 'Cash', 'Tue Jan 02 2018', 15, -1);
+    expectEvals(evals, 3, 'quantityStf1', 'Tue Jan 02 2018', 7, -1);
+    expectEvals(evals, 4, 'Stf1', 'Tue Jan 02 2018', 7, -1);
+    expectEvals(evals, 5, 'quantityStf2', 'Tue Jan 02 2018', 100, -1);
+    expectEvals(evals, 6, 'Stf2', 'Tue Jan 02 2018', 100, -1);
+    expectEvals(evals, 7, 'Cash', 'Fri Feb 02 2018', 15, -1);
+    expectEvals(evals, 8, 'Stf1', 'Fri Feb 02 2018', 7, -1);
+    expectEvals(evals, 9, 'Stf2', 'Fri Feb 02 2018', 100, -1);
+    expectEvals(evals, 10, 'Cash', 'Fri Mar 02 2018', 15, -1);
+    expectEvals(evals, 11, 'Stf1', 'Fri Mar 02 2018', 7, -1);
+    expectEvals(evals, 12, 'Stf2', 'Fri Mar 02 2018', 100, -1);
+    expectEvals(evals, 13, 'Cash', 'Mon Apr 02 2018', 15, -1);
+    expectEvals(evals, 14, 'Stf1', 'Mon Apr 02 2018', 7, -1);
+    expectEvals(evals, 15, 'Stf2', 'Mon Apr 02 2018', 100, -1);
+    expectEvals(evals, 16, 'Food', 'Tue Apr 03 2018', 10, -1);
+    expectEvals(evals, 17, 'Cash', 'Tue Apr 03 2018', 5, -1);
+    expectEvals(evals, 18, 'Cash', 'Wed May 02 2018', 5, -1);
+    expectEvals(evals, 19, 'Stf1', 'Wed May 02 2018', 7, -1);
+    expectEvals(evals, 20, 'Stf2', 'Wed May 02 2018', 100, -1);
+    expectEvals(evals, 21, 'Food', 'Thu May 03 2018', 10, -1);
+    expectEvals(evals, 22, 'Cash', 'Thu May 03 2018', -5, -1);
+    // notice that cash has become negative
+    expectEvals(evals, 23, 'Cash', 'Sat Jun 02 2018', -5, -1);
+    expectEvals(evals, 24, 'Stf1', 'Sat Jun 02 2018', 7, -1);
+    expectEvals(evals, 25, 'Stf2', 'Sat Jun 02 2018', 100, -1);
+    // sell enough Stf1 to clear the cash debt
+    expectEvals(evals, 26, 'quantityStf1', 'Sat Jun 02 2018', 2, -1);
+    expectEvals(evals, 27, 'Stf1', 'Sat Jun 02 2018', 2, -1);
+    expectEvals(evals, 28, 'Cash', 'Sat Jun 02 2018', 0, -1);
+    expectEvals(evals, 29, 'Food', 'Sun Jun 03 2018', 10, -1);
+    expectEvals(evals, 30, 'Cash', 'Sun Jun 03 2018', -10, -1);
+    // notice that cash has become negative
+    expectEvals(evals, 31, 'Cash', 'Mon Jul 02 2018', -10, -1);
+    expectEvals(evals, 32, 'Stf1', 'Mon Jul 02 2018', 2, -1);
+    expectEvals(evals, 33, 'Stf2', 'Mon Jul 02 2018', 100, -1);
+    // sell all Stf1 even though it's not enough to clear the cash debt
+    expectEvals(evals, 34, 'quantityStf1', 'Mon Jul 02 2018', 0, -1);
+    expectEvals(evals, 35, 'Stf1', 'Mon Jul 02 2018', 0, -1);
+    // notice that cash is still negative
+    expectEvals(evals, 36, 'Cash', 'Mon Jul 02 2018', -8, -1);
+    // sell enough Stf2 to clear the remaining cash debt
+    expectEvals(evals, 37, 'quantityStf2', 'Mon Jul 02 2018', 92, -1);
+    expectEvals(evals, 38, 'Stf2', 'Mon Jul 02 2018', 92, -1);
+    expectEvals(evals, 39, 'Cash', 'Mon Jul 02 2018', 0, -1);
+    expectEvals(evals, 40, 'Food', 'Tue Jul 03 2018', 10, -1);
+    expectEvals(evals, 41, 'Cash', 'Tue Jul 03 2018', -10, -1);
+    // notice that cash has become negative
+    expectEvals(evals, 42, 'Cash', 'Thu Aug 02 2018', -10, -1);
+    expectEvals(evals, 43, 'Stf1', 'Thu Aug 02 2018', 0, -1);
+    expectEvals(evals, 44, 'Stf2', 'Thu Aug 02 2018', 92, -1);
+    // sell enough Stf2 to clear the cash debt
+    expectEvals(evals, 45, 'quantityStf2', 'Thu Aug 02 2018', 82, -1);
+    expectEvals(evals, 46, 'Stf2', 'Thu Aug 02 2018', 82, -1);
+    expectEvals(evals, 47, 'Cash', 'Thu Aug 02 2018', 0, -1);
+    expectEvals(evals, 48, 'Cash', 'Sun Sep 02 2018', 0, -1);
+    expectEvals(evals, 49, 'Stf1', 'Sun Sep 02 2018', 0, -1);
+    expectEvals(evals, 50, 'Stf2', 'Sun Sep 02 2018', 82, -1);
+
+    const result = makeChartDataFromEvaluations(
+      {
+        start: makeDateFromString(roi.start),
+        end: makeDateFromString(roi.end),
+      },
+      model,
+      evalsAndValues,
+    );
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(1);
+    expect(result.expensesData[0].item.NAME).toBe('Food');
+    {
+      const chartPts = result.expensesData[0].chartDataPoints;
+      expect(chartPts.length).toBe(10);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 0, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 0, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 10, -1);
+      expectChartData(chartPts, 6, 'Fri Jun 01 2018', 10, -1);
+      expectChartData(chartPts, 7, 'Sun Jul 01 2018', 10, -1);
+      expectChartData(chartPts, 8, 'Wed Aug 01 2018', 10, -1);
+      expectChartData(chartPts, 9, 'Sat Sep 01 2018', 0, -1);
+    }
+
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(4);
+
+    expect(result.assetData[0].item.NAME).toBe('Cash' + separator + 'Cash');
+    {
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(10);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 15, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 0, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 0, -1);
+      expectChartData(chartPts, 6, 'Fri Jun 01 2018', 0, -1);
+      expectChartData(chartPts, 7, 'Sun Jul 01 2018', 0, -1);
+      expectChartData(chartPts, 8, 'Wed Aug 01 2018', 0, -1);
+      expectChartData(chartPts, 9, 'Sat Sep 01 2018', 0, -1);
+    }
+
+    expect(result.assetData[1].item.NAME).toBe('Food' + separator + 'Cash');
+    {
+      const chartPts = result.assetData[1].chartDataPoints;
+      expect(chartPts.length).toBe(10);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 0, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 0, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', -10, -1);
+      expectChartData(chartPts, 6, 'Fri Jun 01 2018', -10, -1);
+      expectChartData(chartPts, 7, 'Sun Jul 01 2018', -10, -1);
+      expectChartData(chartPts, 8, 'Wed Aug 01 2018', -10, -1);
+      expectChartData(chartPts, 9, 'Sat Sep 01 2018', 0, -1);
+    }
+
+    expect(result.assetData[2].item.NAME).toBe('Stf1' + separator + 'Cash');
+    {
+      const chartPts = result.assetData[2].chartDataPoints;
+      expect(chartPts.length).toBe(10);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 0, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 0, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 0, -1);
+      expectChartData(chartPts, 6, 'Fri Jun 01 2018', 0, -1);
+      expectChartData(chartPts, 7, 'Sun Jul 01 2018', 5, -1);
+      expectChartData(chartPts, 8, 'Wed Aug 01 2018', 2, -1);
+      expectChartData(chartPts, 9, 'Sat Sep 01 2018', 0, -1);
+    }
+
+    expect(result.assetData[3].item.NAME).toBe('Stf2' + separator + 'Cash');
+    {
+      const chartPts = result.assetData[3].chartDataPoints;
+      expect(chartPts.length).toBe(10);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 0, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 0, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 0, -1);
+      expectChartData(chartPts, 6, 'Fri Jun 01 2018', 0, -1);
+      expectChartData(chartPts, 7, 'Sun Jul 01 2018', 0, -1);
+      expectChartData(chartPts, 8, 'Wed Aug 01 2018', 8, -1);
+      expectChartData(chartPts, 9, 'Sat Sep 01 2018', 10, -1);
+    }
+    done();
+  });
+
+  /*
+  it('conditional transaction from multiple sources by category', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'October 1, 2018 00:00:00',
+    };
+    const model: DbModelData = {
+      ...emptyModel,
+      expenses: [
+        {
+          ...simpleExpense,
+          START: 'April 3 2018',
+          END: 'August 2 2018',
+          NAME: 'Food',
+          VALUE: '10.0',
+          VALUE_SET: 'April 3 2018',
+        },
+      ],
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: 'Conditional Sell Stff if I need to',
+          FROM: 'things',
+          FROM_ABSOLUTE: false,
+          FROM_VALUE: '1.0',
+          TO: CASH_ASSET_NAME,
+          TO_ABSOLUTE: false,
+          TO_VALUE: '1.0',
+          DATE: 'February 2 2018',
+          RECURRENCE: '1m',
+          TYPE: liquidateAsset,
+        },
+      ],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'Stf1',
+          START: 'January 2 2018',
+          VALUE: '7',
+          CATEGORY: 'things',
+        },
+        {
+          ...simpleAsset,
+          NAME: 'Stf2',
+          START: 'January 2 2018',
+          VALUE: '100',
+          CATEGORY: 'things',
+        },
+        {
+          ...simpleAsset,
+          NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
+          START: 'January 2 2018',
+          VALUE: '15',
+        },
+      ],
+      settings: [...defaultSettings],
+    };
+    setROI(model, roi);
+    setSetting(model.settings, assetChartFocus, CASH_ASSET_NAME, viewType);
+    setSetting(model.settings, assetChartView, assetChartDeltas, viewType);
+
+    const x = model.settings.find(s => {
+      return s.NAME === assetChartFocus;
+    });
+    if (x !== undefined) {
+      x.VALUE = CASH_ASSET_NAME;
+    }
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(43);
+    expectEvals(evals, 0, 'Cash', 'Tue Jan 02 2018', 15, -1);
+    expectEvals(evals, 1, 'Stf1', 'Tue Jan 02 2018', 7, -1);
+    expectEvals(evals, 2, 'Stf2', 'Tue Jan 02 2018', 100, -1);
+    expectEvals(evals, 3, 'Cash', 'Fri Feb 02 2018', 15, -1);
+    expectEvals(evals, 4, 'Stf1', 'Fri Feb 02 2018', 7, -1);
+    expectEvals(evals, 5, 'Stf2', 'Fri Feb 02 2018', 100, -1);
+    expectEvals(evals, 6, 'Cash', 'Fri Mar 02 2018', 15, -1);
+    expectEvals(evals, 7, 'Stf1', 'Fri Mar 02 2018', 7, -1);
+    expectEvals(evals, 8, 'Stf2', 'Fri Mar 02 2018', 100, -1);
+    expectEvals(evals, 9, 'Cash', 'Mon Apr 02 2018', 15, -1);
+    expectEvals(evals, 10, 'Stf1', 'Mon Apr 02 2018', 7, -1);
+    expectEvals(evals, 11, 'Stf2', 'Mon Apr 02 2018', 100, -1);
+    expectEvals(evals, 12, 'Food', 'Tue Apr 03 2018', 10, -1);
+    expectEvals(evals, 13, 'Cash', 'Tue Apr 03 2018', 5, -1);
+    expectEvals(evals, 14, 'Cash', 'Wed May 02 2018', 5, -1);
+    expectEvals(evals, 15, 'Stf1', 'Wed May 02 2018', 7, -1);
+    expectEvals(evals, 16, 'Stf2', 'Wed May 02 2018', 100, -1);
+    expectEvals(evals, 17, 'Food', 'Thu May 03 2018', 10, -1);
+    expectEvals(evals, 18, 'Cash', 'Thu May 03 2018', -5, -1);
+    // notice that cash has become negative
+    expectEvals(evals, 19, 'Cash', 'Sat Jun 02 2018', -5, -1);
+    expectEvals(evals, 20, 'Stf1', 'Sat Jun 02 2018', 7, -1);
+    expectEvals(evals, 21, 'Stf2', 'Sat Jun 02 2018', 100, -1);
+    // sell enough Stf1 to clear the cash debt
+    expectEvals(evals, 22, 'Stf1', 'Sat Jun 02 2018', 2, -1);
+    expectEvals(evals, 23, 'Cash', 'Sat Jun 02 2018', 0, -1);
+    expectEvals(evals, 24, 'Food', 'Sun Jun 03 2018', 10, -1);
+    expectEvals(evals, 25, 'Cash', 'Sun Jun 03 2018', -10, -1);
+    // notice that cash has become negative
+    expectEvals(evals, 26, 'Cash', 'Mon Jul 02 2018', -10, -1);
+    expectEvals(evals, 27, 'Stf1', 'Mon Jul 02 2018', 2, -1);
+    // sell all Stf1 even though it's not enough to clear the cash debt
+    expectEvals(evals, 28, 'Stf2', 'Mon Jul 02 2018', 100, -1);
+    expectEvals(evals, 29, 'Stf1', 'Mon Jul 02 2018', 0, -1);
+    // notice that cash is still negative
+    expectEvals(evals, 30, 'Cash', 'Mon Jul 02 2018', -8, -1);
+    // sell enough Stf2 to clear the remaining cash debt
+    expectEvals(evals, 31, 'Stf2', 'Mon Jul 02 2018', 92, -1);
+    expectEvals(evals, 32, 'Cash', 'Mon Jul 02 2018', 0, -1);
+    expectEvals(evals, 33, 'Food', 'Tue Jul 03 2018', 10, -1);
+    expectEvals(evals, 34, 'Cash', 'Tue Jul 03 2018', -10, -1);
+    // notice that cash has become negative
+    expectEvals(evals, 35, 'Cash', 'Thu Aug 02 2018', -10, -1);
+    expectEvals(evals, 36, 'Stf1', 'Thu Aug 02 2018', 0, -1);
+    expectEvals(evals, 37, 'Stf2', 'Thu Aug 02 2018', 92, -1);
+    // sell enough Stf2 to clear the cash debt
+    expectEvals(evals, 38, 'Stf2', 'Thu Aug 02 2018', 82, -1);
+    expectEvals(evals, 39, 'Cash', 'Thu Aug 02 2018', 0, -1);
+    expectEvals(evals, 40, 'Cash', 'Sun Sep 02 2018', 0, -1);
+    expectEvals(evals, 41, 'Stf1', 'Sun Sep 02 2018', 0, -1);
+    expectEvals(evals, 42, 'Stf2', 'Sun Sep 02 2018', 82, -1);
+
+    const result = makeChartDataFromEvaluations(
+      {
+        start: makeDateFromString(roi.start),
+        end: makeDateFromString(roi.end),
+      },
+      model,
+      evalsAndValues,
+    );
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(1);
+    expect(result.expensesData[0].item.NAME).toBe('Food');
+    {
+      const chartPts = result.expensesData[0].chartDataPoints;
+      expect(chartPts.length).toBe(10);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 0, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 0, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 10, -1);
+      expectChartData(chartPts, 6, 'Fri Jun 01 2018', 10, -1);
+      expectChartData(chartPts, 7, 'Sun Jul 01 2018', 10, -1);
+      expectChartData(chartPts, 8, 'Wed Aug 01 2018', 10, -1);
+      expectChartData(chartPts, 9, 'Sat Sep 01 2018', 0, -1);
+    }
+
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(4);
+
+    expect(result.assetData[0].item.NAME).toBe('Cash' + separator + 'Cash');
+    {
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(10);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 15, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 0, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 0, -1);
+      expectChartData(chartPts, 6, 'Fri Jun 01 2018', 0, -1);
+      expectChartData(chartPts, 7, 'Sun Jul 01 2018', 0, -1);
+      expectChartData(chartPts, 8, 'Wed Aug 01 2018', 0, -1);
+      expectChartData(chartPts, 9, 'Sat Sep 01 2018', 0, -1);
+    }
+
+    expect(result.assetData[1].item.NAME).toBe('Food' + separator + 'Cash');
+    {
+      const chartPts = result.assetData[1].chartDataPoints;
+      expect(chartPts.length).toBe(10);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 0, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 0, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', -10, -1);
+      expectChartData(chartPts, 6, 'Fri Jun 01 2018', -10, -1);
+      expectChartData(chartPts, 7, 'Sun Jul 01 2018', -10, -1);
+      expectChartData(chartPts, 8, 'Wed Aug 01 2018', -10, -1);
+      expectChartData(chartPts, 9, 'Sat Sep 01 2018', 0, -1);
+    }
+
+    expect(result.assetData[2].item.NAME).toBe('Stf1' + separator + 'Cash');
+    {
+      const chartPts = result.assetData[2].chartDataPoints;
+      expect(chartPts.length).toBe(10);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 0, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 0, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 0, -1);
+      expectChartData(chartPts, 6, 'Fri Jun 01 2018', 0, -1);
+      expectChartData(chartPts, 7, 'Sun Jul 01 2018', 5, -1);
+      expectChartData(chartPts, 8, 'Wed Aug 01 2018', 2, -1);
+      expectChartData(chartPts, 9, 'Sat Sep 01 2018', 0, -1);
+    }
+
+    expect(result.assetData[3].item.NAME).toBe('Stf2' + separator + 'Cash');
+    {
+      const chartPts = result.assetData[3].chartDataPoints;
+      expect(chartPts.length).toBe(10);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 0, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 0, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 0, -1);
+      expectChartData(chartPts, 6, 'Fri Jun 01 2018', 0, -1);
+      expectChartData(chartPts, 7, 'Sun Jul 01 2018', 0, -1);
+      expectChartData(chartPts, 8, 'Wed Aug 01 2018', 8, -1);
+      expectChartData(chartPts, 9, 'Sat Sep 01 2018', 10, -1);
+    }
+    done();
+  });
+*/
+
   it('conditional transaction from multiple sources abs->prop', done => {
     const roi = {
       start: 'March 15, 2018 00:00:00',
