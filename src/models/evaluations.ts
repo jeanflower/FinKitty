@@ -2194,15 +2194,30 @@ function processTransactionMoment(
   if (t.FROM !== '') {
     // we can sometimes see multiple 'FROM's
     // handle one word at a time
-    const words = t.FROM.split(separator);
-    /*
+    let words = t.FROM.split(separator);
+
+    // replace any category as a fromWord with matching asset names
+    let wordsNew: string[] = [];
     words.forEach(fromWord => {
       // if fromWord is a category of one or more assets
       // then remove fromWord from the list and
       // if the assets are not already on the list
       // then add the asset Names.
+      const assetsWithCategory = model.assets.filter(a => {
+        return a.CATEGORY === fromWord;
+      });
+      if (assetsWithCategory.length === 0) {
+        wordsNew.push(fromWord);
+      } else {
+        wordsNew = wordsNew.concat(
+          assetsWithCategory.map(a => {
+            return a.NAME;
+          }),
+        );
+      }
     });
-    */
+    words = wordsNew;
+
     words.forEach(fromWord => {
       // log(`process a transaction from ${fromWord}`);
       processTransactionFromTo(

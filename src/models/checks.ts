@@ -89,7 +89,7 @@ function checkTransactionWords(
   // log(`date for check = ${getTriggerDate(date, triggers)}`);
   const a = assets.find(
     as =>
-      as.NAME === word &&
+      (as.NAME === word || as.CATEGORY === word) &&
       getTriggerDate(as.START, triggers) <= getTriggerDate(date, triggers),
   );
   if (a !== undefined) {

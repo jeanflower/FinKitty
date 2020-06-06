@@ -4252,7 +4252,6 @@ describe('evaluations tests', () => {
     done();
   });
 
-  /*
   it('conditional transaction from multiple sources by category', done => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
@@ -4475,7 +4474,6 @@ describe('evaluations tests', () => {
     }
     done();
   });
-*/
 
   it('conditional transaction from multiple sources abs->prop', done => {
     const roi = {
