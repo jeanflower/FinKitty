@@ -786,7 +786,6 @@ function isRevalueExpenseType(t: DbTransaction, model: DbModelData) {
   if (
     t.NAME.startsWith(revalue) &&
     isAnExpense(t.TO, model) &&
-    t.RECURRENCE === '' &&
     t.CATEGORY === ''
   ) {
     recognised = true;
@@ -1063,7 +1062,7 @@ export function checkTransaction(t: DbTransaction, model: DbModelData): string {
     t.TYPE !== revalueInc &&
     t.TYPE !== revalueSetting
   ) {
-    log(`WARNING : not-absolute value to ${tToValue} > 1.0`);
+    log(`WARNING : ${t.NAME} has not-absolute value to ${tToValue} > 1.0`);
   }
   // log(`checkTransaction is OK for ${t.NAME}`);
   return '';
