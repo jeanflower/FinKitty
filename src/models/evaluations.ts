@@ -808,7 +808,7 @@ function OptimizeIncomeTax(
   // have we got some crystallised pension we can use?
   for (const valueKey of values.keys()) {
     /* eslint-disable-line no-restricted-syntax */
-    // log(`values.get(${key}) = ${values.get(key)}`);
+    // log(`valueKey = ${valueKey}`);
     if (valueKey.startsWith(crystallizedPension)) {
       // is it for the right person?
       const liability = `${valueKey.substr(
@@ -906,7 +906,7 @@ function settleUpTax(
     if (key === incomeTax && value !== undefined) {
       for (const [person, amount] of value) {
         /* eslint-disable-line no-restricted-syntax */
-        // log(`go to pay income tax for ${person}`);
+        // log(`go to pay income tax for ${person}, amount = ${amount} for ${date}`);
         const taxPaid = payIncomeTax(
           date,
           amount,
@@ -2080,7 +2080,7 @@ function processTransactionFromTo(
     // log(`transacting ${fromChange} from ${fromWord}
     // into ${t.TO}`);
     if (fromWord.startsWith(crystallizedPension) && t.TO === CASH_ASSET_NAME) {
-      // log(`register ${toChange} pension withdrawal as liable for income tax`);
+      // log(`register ${toChange} pension withdrawal on ${moment.date}, ${moment.name} as liable for income tax`);
       handleIncome(
         toChange,
         moment,
@@ -2156,6 +2156,29 @@ function processTransactionTo(
   }
 }
 
+function replaceCategoryWithAssetNames(words: string[], model: DbModelData) {
+  let wordsNew: string[] = [];
+  words.forEach(fromWord => {
+    // if fromWord is a category of one or more assets
+    // then remove fromWord from the list and
+    // if the assets are not already on the list
+    // then add the asset Names.
+    const assetsWithCategory = model.assets.filter(a => {
+      return a.CATEGORY === fromWord;
+    });
+    if (assetsWithCategory.length === 0) {
+      wordsNew.push(fromWord);
+    } else {
+      wordsNew = wordsNew.concat(
+        assetsWithCategory.map(a => {
+          return a.NAME;
+        }),
+      );
+    }
+  });
+  return wordsNew;
+}
+
 function processTransactionMoment(
   moment: Moment,
   values: Map<string, number | string>,
@@ -2196,27 +2219,7 @@ function processTransactionMoment(
     // handle one word at a time
     let words = t.FROM.split(separator);
 
-    // replace any category as a fromWord with matching asset names
-    let wordsNew: string[] = [];
-    words.forEach(fromWord => {
-      // if fromWord is a category of one or more assets
-      // then remove fromWord from the list and
-      // if the assets are not already on the list
-      // then add the asset Names.
-      const assetsWithCategory = model.assets.filter(a => {
-        return a.CATEGORY === fromWord;
-      });
-      if (assetsWithCategory.length === 0) {
-        wordsNew.push(fromWord);
-      } else {
-        wordsNew = wordsNew.concat(
-          assetsWithCategory.map(a => {
-            return a.NAME;
-          }),
-        );
-      }
-    });
-    words = wordsNew;
+    words = replaceCategoryWithAssetNames(words, model);
 
     words.forEach(fromWord => {
       // log(`process a transaction from ${fromWord}`);
@@ -2240,10 +2243,14 @@ function processTransactionMoment(
 function logPensionIncomeLiabilities(
   t: DbTransaction,
   liabilitiesMap: Map<string, string>,
+  model: DbModelData,
 ) {
   // log(`see if ${t.NAME} needs a tax liability`);
   // e.g. CrystallizedPensionJoe
-  const words = t.FROM.split(separator);
+  let words = t.FROM.split(separator);
+
+  words = replaceCategoryWithAssetNames(words, model);
+
   words.forEach(word => {
     if (word.startsWith(crystallizedPension)) {
       const liability = `${word.substr(
@@ -2494,7 +2501,7 @@ export function getEvaluations(
     }
 
     // some transactions out of pensions are liable to incometax
-    logPensionIncomeLiabilities(transaction, liabilitiesMap);
+    logPensionIncomeLiabilities(transaction, liabilitiesMap, model);
   });
 
   model.settings.forEach(setting => {
