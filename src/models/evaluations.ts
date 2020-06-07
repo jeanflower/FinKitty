@@ -1121,15 +1121,18 @@ function handleIncome(
     );
   }
 
-  // log(`look for ${moment.name} in liabilitiesMap`);
-  const liabilityList = liabilitiesMap.get(moment.name); // e.g. "IncomeTaxJoe, NIJoe"
-  // log(`liabilityList = ${liabilityList}`);
+  // log(`look for ${moment.name+sourceDescription} in liabilitiesMap`);
+  let liabilityList = liabilitiesMap.get(moment.name+sourceDescription); // e.g. "IncomeTaxJoe, NIJoe"
+  if(liabilityList === undefined){
+    liabilityList = liabilitiesMap.get(moment.name);
+  }
+  // log(`for ${moment.name+sourceDescription}, liabilityList = ${liabilityList}`);
   if (liabilityList !== undefined) {
     const words: string[] = liabilityList.split(separator);
     words.forEach(liability => {
       // log(`liability = ${liability}`);
       if (liability.endsWith(incomeTax)) {
-        // log(`IncomeTax due on ${amountForIncomeTax} for ${showObj(moment.name)}`);
+        // log(`IncomeTax due on ${amountForIncomeTax} for ${liability}, ${moment.name+sourceDescription}`);
         handleLiability(
           liability,
           incomeTax,
@@ -2080,7 +2083,7 @@ function processTransactionFromTo(
     // log(`transacting ${fromChange} from ${fromWord}
     // into ${t.TO}`);
     if (fromWord.startsWith(crystallizedPension) && t.TO === CASH_ASSET_NAME) {
-      // log(`register ${toChange} pension withdrawal on ${moment.date}, ${moment.name} as liable for income tax`);
+      // log(`for ${fromWord}, register ${toChange} pension withdrawal on ${moment.date}, ${moment.name} as liable for income tax`);
       handleIncome(
         toChange,
         moment,
@@ -2257,8 +2260,8 @@ function logPensionIncomeLiabilities(
         crystallizedPension.length,
       )}${incomeTax}`;
       // e.g. IncomeTaxJoe
-      // log(`logging liability for crystallized pension ${liability}`);
-      liabilitiesMap.set(t.NAME, liability);
+      // log(`logging liability for ${word}, add to map: [${t.NAME+word}, ${liability}}`);
+      liabilitiesMap.set(t.NAME+word, liability);
     }
   });
 }
