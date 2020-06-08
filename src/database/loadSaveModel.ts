@@ -243,12 +243,20 @@ export async function submitNewSettingLSM(
   modelData: DbModelData,
   userID: string,
 ) {
+  let type = adjustableType;
+  const matchingSettings = modelData.settings.filter(s=>{
+    return s.NAME === name;
+  });
+  if(matchingSettings.length > 0){
+    type = matchingSettings[0].TYPE;
+  }
+
   submitSettingLSM(
     {
       NAME: name,
       VALUE: value,
       HINT: '',
-      TYPE: adjustableType,
+      TYPE: type,
     },
     modelData,
     userID,

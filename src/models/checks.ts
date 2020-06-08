@@ -491,7 +491,7 @@ function isAutogenType(t: DbTransaction, model: DbModelData) {
   // and puts it into an asset called pension*
   if (
     (t.NAME.startsWith(pension) || t.NAME.startsWith(pensionSS)) &&
-    isAnIncome(t.FROM, model) &&
+    (t.FROM === '' || isAnIncome(t.FROM, model)) &&
     t.TO_ABSOLUTE === false &&
     t.TO.startsWith(pension) &&
     t.FROM_ABSOLUTE === false &&

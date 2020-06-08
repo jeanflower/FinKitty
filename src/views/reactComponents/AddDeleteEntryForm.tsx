@@ -89,6 +89,7 @@ export class AddDeleteEntryForm extends Component<EditProps, EditFormState> {
     this.props.showAlert(`added new setting ${this.state.NAME}`);
     // clear fields
     this.setState({ NAME: '' });
+    this.setState({ VALUE: '' });
   }
   private async delete(e: React.ChangeEvent<HTMLInputElement>) {
     e.preventDefault();
