@@ -54,7 +54,7 @@ export function debtsDiv(
         key={debtsTable.lc}
         id="toggleDebtsTable"
       />
-      {assetsOrDebtsChartDiv(model, debtChartData, true)}
+      {assetsOrDebtsChartDiv(model, debtChartData, true, false)}
       <h4>Debt definitions</h4>
       {assetsOrDebtsTableDiv(model, showAlert, true)}
       <h4>Revalue debts</h4>

@@ -67,7 +67,7 @@ export function assetsDiv(
         key={assetsTable.lc}
         id="toggleAssetsTable"
       />
-      {assetsOrDebtsChartDiv(model, assetChartData, false)}
+      {assetsOrDebtsChartDiv(model, assetChartData, false, false)}
       <h4>Asset definitions</h4>
       {assetsOrDebtsTableDiv(model, showAlert, false)}
       <h4>Liquidate assets to keep cash afloat</h4>

@@ -35,7 +35,7 @@ import webdriver, { ThenableWebDriver } from 'selenium-webdriver';
 import { ensureModel } from '../../database/loadSaveModel';
 import { replaceWithModel } from '../../App';
 
-function allowExtraSleeps() {
+export function allowExtraSleeps() {
   if (
     process.env.REACT_APP_SERVER_URL_NOT_SECRET ===
     'http://localhost:3001/finkitty/'
@@ -131,7 +131,7 @@ export const browserTestSettings: DbSetting[] = [
   },
 ];
 
-const serverUri = 'https://localhost:3000/#';
+export const serverUri = 'https://localhost:3000/#';
 
 export const dBSleep = 1500; // time to round trip through DB
 export const calcSleep = 1000; // time to recalculate charts etc
@@ -211,6 +211,9 @@ export async function selectModel(
       'arguments[0].scrollIntoView(true);',
       welcome[0],
     );
+    await driver.executeScript(
+      'window.scrollBy(0, -1000)'
+    ); // Adjust scrolling with a negative value here
 
     await btnData[0].click();
   } else {

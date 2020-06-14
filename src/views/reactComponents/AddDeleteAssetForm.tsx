@@ -402,7 +402,7 @@ export class AddDeleteAssetForm extends Component<
           </div>{' '}
           {/* end col */}
           <div className="col">
-            <label>Income from which pension contributions are madee</label>
+            <label>Income from which pension contributions are made</label>
             {incomeOptions(
               this.props.model,
               this.handleDcpIncomeSourceChange,

@@ -284,21 +284,23 @@ function getAssetOrDebtChartName(model: DbModelData, debt: boolean) {
   return assetName;
 }
 
-function assetsOrDebtsButtonList(model: DbModelData, isDebt: boolean) {
+function assetsOrDebtsButtonList(model: DbModelData, isDebt: boolean, forOverview: boolean) {
   const assetsOrDebts = model.assets.filter(obj => {
     return obj.NAME !== taxPot && obj.IS_A_DEBT === isDebt;
   });
-  const assetOrDebtNames: string[] = assetsOrDebts.map(data => data.NAME);
+  let assetOrDebtNames: string[] = assetsOrDebts.map(data => data.NAME).sort();
   assetOrDebtNames.unshift(allItems);
   // log(`assetNames = ${assetNames}`);
+  const categoryNames: string[] = [];
   assetsOrDebts.forEach(data => {
     const cat = data.CATEGORY;
     if (cat !== '') {
-      if (assetOrDebtNames.indexOf(cat) < 0) {
-        assetOrDebtNames.push(cat);
+      if (categoryNames.indexOf(cat) < 0) {
+        categoryNames.push(cat);
       }
     }
   });
+  assetOrDebtNames = assetOrDebtNames.concat(categoryNames.sort());
   // log(`assetNames with categories = ${assetNames}`);
   const selectedAssetOrDebt = getAssetOrDebtChartName(model, isDebt);
   const buttons = assetOrDebtNames.map(assetOrDebt => (
@@ -316,7 +318,7 @@ function assetsOrDebtsButtonList(model: DbModelData, isDebt: boolean) {
       }}
       title={assetOrDebt}
       type={assetOrDebt === selectedAssetOrDebt ? 'primary' : 'secondary'}
-      id="chooseAssetOrDebtChartSetting"
+      id={`chooseAssetOrDebtChartSetting-${forOverview?`overview`:``}-${isDebt?`debt`:`asset`}-${assetOrDebt}`}
     />
   ));
   return <div role="group">{buttons}</div>;
@@ -368,6 +370,7 @@ export function assetsOrDebtsChartDiv(
   model: DbModelData,
   assetChartData: ChartData[],
   isDebt: boolean,
+  forOverviewPage: boolean,
 ) {
   const chartVisible = isDebt
     ? showContent.get(debtsChart).display
@@ -381,7 +384,7 @@ export function assetsOrDebtsChartDiv(
         display: chartVisible ? 'block' : 'none',
       }}
     >
-      {assetsOrDebtsButtonList(model, isDebt)}
+      {assetsOrDebtsButtonList(model, isDebt, forOverviewPage)}
       {assetViewTypeList(model)}
       {coarseFineList(model)}
       <ReactiveTextArea

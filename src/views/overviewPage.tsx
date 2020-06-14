@@ -145,7 +145,7 @@ export function overviewDiv(
       <h4>Expense revaluations</h4>
       {transactionsTableDiv(model, showAlert, revalueExp)}
       <h2>Assets:</h2>
-      {assetsOrDebtsChartDiv(model, assetChartData, false)}
+      {assetsOrDebtsChartDiv(model, assetChartData, false, true)}
       <h4>Asset definitions</h4>
       {assetsOrDebtsTableDiv(model, showAlert, false)}
       <h4>Liquidate assets to keep cash afloat</h4>
@@ -153,7 +153,7 @@ export function overviewDiv(
       <h4>Revalue assets</h4>
       {transactionsTableDiv(model, showAlert, revalueAsset)}
       <h2>Debts:</h2>
-      {assetsOrDebtsChartDiv(model, debtChartData, true)}
+      {assetsOrDebtsChartDiv(model, debtChartData, true, true)}
       <h4>Debt definitions</h4>
       {assetsOrDebtsTableDiv(model, showAlert, true)}
       <h4>Revalue debts</h4>
