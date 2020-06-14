@@ -284,7 +284,11 @@ function getAssetOrDebtChartName(model: DbModelData, debt: boolean) {
   return assetName;
 }
 
-function assetsOrDebtsButtonList(model: DbModelData, isDebt: boolean, forOverview: boolean) {
+function assetsOrDebtsButtonList(
+  model: DbModelData,
+  isDebt: boolean,
+  forOverview: boolean,
+) {
   const assetsOrDebts = model.assets.filter(obj => {
     return obj.NAME !== taxPot && obj.IS_A_DEBT === isDebt;
   });
@@ -318,7 +322,9 @@ function assetsOrDebtsButtonList(model: DbModelData, isDebt: boolean, forOvervie
       }}
       title={assetOrDebt}
       type={assetOrDebt === selectedAssetOrDebt ? 'primary' : 'secondary'}
-      id={`chooseAssetOrDebtChartSetting-${forOverview?`overview`:``}-${isDebt?`debt`:`asset`}-${assetOrDebt}`}
+      id={`chooseAssetOrDebtChartSetting-${forOverview ? `overview` : ``}-${
+        isDebt ? `debt` : `asset`
+      }-${assetOrDebt}`}
     />
   ));
   return <div role="group">{buttons}</div>;

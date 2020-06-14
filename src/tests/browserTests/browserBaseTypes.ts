@@ -211,9 +211,7 @@ export async function selectModel(
       'arguments[0].scrollIntoView(true);',
       welcome[0],
     );
-    await driver.executeScript(
-      'window.scrollBy(0, -1000)'
-    ); // Adjust scrolling with a negative value here
+    await driver.executeScript('window.scrollBy(0, -1000)'); // Adjust scrolling with a negative value here
 
     await btnData[0].click();
   } else {

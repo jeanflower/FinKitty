@@ -150,7 +150,7 @@ async function addAsset(
     purchasePrice: string;
     message: string;
   },
-  pauseBeforeClick: number = 0,
+  pauseBeforeClick = 0,
 ) {
   Promise.all([
     fillInputById(driver, 'assetname', inputs.name),
@@ -198,7 +198,7 @@ async function addIncome(
     category: string;
     message: string;
   },
-  pauseBeforeClick: number = 0,
+  pauseBeforeClick = 0,
 ) {
   Promise.all([
     fillInputById(driver, 'incomename', inputs.name),
@@ -239,7 +239,7 @@ async function addSetting(
     value: string;
     message: string;
   },
-  pauseBeforeClick: number = 0,
+  pauseBeforeClick = 0,
 ) {
   Promise.all([
     fillInputById(driver, 'name', inputs.name),
@@ -1071,7 +1071,7 @@ describe('Chrome Interaction simple', () => {
     name: string,
     date: string,
     message: string,
-    pauseBeforeClick: number = 0,
+    pauseBeforeClick = 0,
   ) {
     let input = await driver.findElements(webdriver.By.id('triggername'));
     expect(input.length === 1).toBe(true);
@@ -1182,7 +1182,7 @@ describe('Chrome Interaction incomes', () => {
       category: string;
       message: string;
     },
-    pauseBeforeClick: number = 0,
+    pauseBeforeClick = 0,
   ): Promise<boolean> {
     Promise.all([
       fillInputById(driver, 'incomename', inputs.name),
@@ -1282,7 +1282,7 @@ describe('Chrome Interaction incomes', () => {
       revaluationDate: string;
       message: string;
     },
-    pauseBeforeClick: number = 0,
+    pauseBeforeClick = 0,
   ): Promise<boolean> {
     Promise.all([
       fillInputById(driver, 'incomename', inputs.name),
@@ -1708,7 +1708,7 @@ describe('Chrome Interaction expenses', () => {
       category: string;
       message: string;
     },
-    pauseBeforeClick: number = 0,
+    pauseBeforeClick = 0,
   ) {
     Promise.all([
       fillInputById(driver, 'expensename', inputs.name),
@@ -1756,7 +1756,7 @@ describe('Chrome Interaction expenses', () => {
       revaluationDate: string;
       message: string;
     },
-    pauseBeforeClick: number = 0,
+    pauseBeforeClick = 0,
   ): Promise<boolean> {
     Promise.all([
       fillInputById(driver, 'expensename', inputs.name),
@@ -1968,7 +1968,7 @@ describe('Chrome Interaction assets', () => {
       revaluationDate: string;
       message: string;
     },
-    pauseBeforeClick: number = 0,
+    pauseBeforeClick = 0,
   ): Promise<boolean> {
     Promise.all([
       fillInputById(driver, 'assetname', inputs.name),
@@ -2019,7 +2019,7 @@ describe('Chrome Interaction assets', () => {
       transferName: string;
       message: string;
     },
-    pauseBeforeClick: number = 0,
+    pauseBeforeClick = 0,
   ): Promise<boolean> {
     Promise.all([
       fillInputById(driver, 'assetname', inputs.name),
@@ -2473,7 +2473,7 @@ describe('Chrome Interaction transactions', () => {
       category: string;
       message: string;
     },
-    pauseBeforeClick: number = 0,
+    pauseBeforeClick = 0,
   ) {
     Promise.all([
       fillInputById(driver, 'transactionname', inputs.name),
@@ -2717,7 +2717,7 @@ describe('Chrome Interaction debts', () => {
       monthlyRepayment: string;
       message: string;
     },
-    pauseBeforeClick: number = 0,
+    pauseBeforeClick = 0,
   ) {
     Promise.all([
       fillInputById(driver, 'debtname', inputs.name),
@@ -2759,7 +2759,7 @@ describe('Chrome Interaction debts', () => {
       revaluationDate: string;
       message: string;
     },
-    pauseBeforeClick: number = 0,
+    pauseBeforeClick = 0,
   ): Promise<boolean> {
     await fillInputById(driver, 'debtname', inputs.name);
     await fillInputByName(driver, 'start date', inputs.revaluationDate);
@@ -3654,17 +3654,17 @@ describe('Chrome Interaction debts', () => {
   const demo = false;
   let inbetweenSteps = 4000;
   let pauseBeforeOK = 5000;
-  
-  if(!demo){
+
+  if (!demo) {
     inbetweenSteps = 0;
     pauseBeforeOK = 0;
   }
 
-  async function pauseForDemo(givenTime : number | undefined = undefined){
-    const waitTime = givenTime? givenTime: inbetweenSteps;
+  async function pauseForDemo(givenTime: number | undefined = undefined) {
+    const waitTime = givenTime ? givenTime : inbetweenSteps;
     await sleep(waitTime, 'in-between demo steps');
   }
-  
+
   it('my first model browser test', async done => {
     if (!doActions) {
       done();
@@ -3675,7 +3675,7 @@ describe('Chrome Interaction debts', () => {
 
     jest.setTimeout(1000000); // allow time for all these tests to run
     // log(`go to ensure model ${modelName}`);
-  
+
     await ensureModel(testUserID, modelName);
     await replaceWithModel(testUserID, modelName, model);
     await driver.get('about:blank');
@@ -3687,7 +3687,7 @@ describe('Chrome Interaction debts', () => {
         '--- after browser loads URI',
       );
     }
-  
+
     // Handle errors around SSL certificates
     // push through "Advanced" and "Proceed"
     await pauseForDemo();
@@ -3702,9 +3702,11 @@ describe('Chrome Interaction debts', () => {
         await x[0].click();
       }
     }
-  
+
     await pauseForDemo();
-    const btnData = await driver.findElements(webdriver.By.id('buttonTestLogin'));
+    const btnData = await driver.findElements(
+      webdriver.By.id('buttonTestLogin'),
+    );
     if (btnData[0] !== undefined) {
       await btnData[0].click();
     }
@@ -3719,27 +3721,57 @@ describe('Chrome Interaction debts', () => {
     await clickButton(driver, 'btn-Dates');
     await pauseForDemo();
 
-    await addDate(driver, 'Jerry retires', '5/5/2030', 'added important date OK', 2000);
+    await addDate(
+      driver,
+      'Jerry retires',
+      '5/5/2030',
+      'added important date OK',
+      2000,
+    );
     await pauseForDemo();
     await clickButton(driver, 'btn-clear-alert');
     await pauseForDemo(1000);
 
-    await addDate(driver, 'Ben retires', '28/7/2032', 'added important date OK', 2000);
+    await addDate(
+      driver,
+      'Ben retires',
+      '28/7/2032',
+      'added important date OK',
+      2000,
+    );
     await pauseForDemo(1000);
     await clickButton(driver, 'btn-clear-alert');
     await pauseForDemo(1000);
 
-    await addDate(driver, 'Jerry state pension age', '5/5/2037', 'added important date OK', 2000);
+    await addDate(
+      driver,
+      'Jerry state pension age',
+      '5/5/2037',
+      'added important date OK',
+      2000,
+    );
     await pauseForDemo(1000);
     await clickButton(driver, 'btn-clear-alert');
     await pauseForDemo(1000);
 
-    await addDate(driver, 'Ben state pension age', '31/8/2040', 'added important date OK', 2000);
+    await addDate(
+      driver,
+      'Ben state pension age',
+      '31/8/2040',
+      'added important date OK',
+      2000,
+    );
     await pauseForDemo(1000);
     await clickButton(driver, 'btn-clear-alert');
     await pauseForDemo(1000);
 
-    await addDate(driver, 'Downsize house', '28/2/2047', 'added important date OK', 2000);
+    await addDate(
+      driver,
+      'Downsize house',
+      '28/2/2047',
+      'added important date OK',
+      2000,
+    );
     await pauseForDemo(1000);
     await clickButton(driver, 'btn-clear-alert');
     await pauseForDemo();
@@ -3748,18 +3780,20 @@ describe('Chrome Interaction debts', () => {
     await clickButton(driver, 'btn-Incomes');
     await pauseForDemo();
 
-    await addIncome(driver, {
-      ...incomeInputs,
-      name: 'Ben salary',
-      value: '3470',
-      valuationDate: '21/2/2020',
-      startDate: '21/2/2020',
-      endDate: 'Ben retires',
-      growth: '2',
-      growsWithInflation: 'Y',
-      liability: 'Ben',
-      category: 'Salary',
-      message: `added new income ${'Ben salary'}`,
+    await addIncome(
+      driver,
+      {
+        ...incomeInputs,
+        name: 'Ben salary',
+        value: '3470',
+        valuationDate: '21/2/2020',
+        startDate: '21/2/2020',
+        endDate: 'Ben retires',
+        growth: '2',
+        growsWithInflation: 'Y',
+        liability: 'Ben',
+        category: 'Salary',
+        message: `added new income ${'Ben salary'}`,
       },
       20000,
     );
@@ -3777,30 +3811,34 @@ describe('Chrome Interaction debts', () => {
       'arguments[0].scrollIntoView(true);',
       toggleChart[0],
     );
-    await driver.executeScript(
-      'window.scrollBy(0, -100)'
-    ); // Adjust scrolling with a negative value here
+    await driver.executeScript('window.scrollBy(0, -100)'); // Adjust scrolling with a negative value here
 
     await clickButton(driver, 'toggle-incomesChart');
     await pauseForDemo();
 
     await clickButton(driver, 'btn-Settings');
     await pauseForDemo();
-    await addSetting(driver, {
-      name: 'Beginning of view range',
-      value: '2020',
-      message: 'added new setting Beginning of view range',
-    },
-    pauseBeforeOK);
+    await addSetting(
+      driver,
+      {
+        name: 'Beginning of view range',
+        value: '2020',
+        message: 'added new setting Beginning of view range',
+      },
+      pauseBeforeOK,
+    );
     await clickButton(driver, 'btn-clear-alert');
     await pauseForDemo();
 
-    await addSetting(driver, {
-      name: 'End of view range',
-      value: '2069',
-      message: 'added new setting End of view range',
-    },
-    pauseBeforeOK);
+    await addSetting(
+      driver,
+      {
+        name: 'End of view range',
+        value: '2069',
+        message: 'added new setting End of view range',
+      },
+      pauseBeforeOK,
+    );
     await clickButton(driver, 'btn-clear-alert');
     await pauseForDemo();
 
@@ -3809,21 +3847,24 @@ describe('Chrome Interaction debts', () => {
 
     await clickButton(driver, 'btn-Settings');
     await pauseForDemo();
-    await addSetting(driver, {
-      name: 'View frequency',
-      value: 'Annually',
-      message: 'added new setting View frequency',
-    },
-    pauseBeforeOK);
+    await addSetting(
+      driver,
+      {
+        name: 'View frequency',
+        value: 'Annually',
+        message: 'added new setting View frequency',
+      },
+      pauseBeforeOK,
+    );
     await clickButton(driver, 'btn-clear-alert');
-    await pauseForDemo();    
+    await pauseForDemo();
 
     await clickButton(driver, 'btn-Incomes');
     await pauseForDemo();
-    
+
     await clickButton(driver, 'btn-Settings');
     await pauseForDemo();
-/*
+    /*
     await addSetting(driver, {
       name: 'Date of birth',
       value: '31 August 1973',
@@ -3837,27 +3878,28 @@ describe('Chrome Interaction debts', () => {
     await clickButton(driver, 'btn-Incomes');
     await pauseForDemo();
 
-    await driver.executeScript(
-      'window.scrollBy(0, -100)'
-    ); // Adjust scrolling with a negative value here
+    await driver.executeScript('window.scrollBy(0, -100)'); // Adjust scrolling with a negative value here
 
     await clickButton(driver, 'toggle-incomesChart');
     await pauseForDemo();
 
-    await addIncome(driver, {
-      ...incomeInputs,
-      name: 'Jerry salary',
-      value: '2755',
-      valuationDate: '21/2/2020',
-      startDate: '21/2/2020',
-      endDate: 'Jerry retires',
-      growth: '2',
-      growsWithInflation: 'Y',
-      liability: 'Jerry',
-      category: 'Salary',
-      message: `added new income ${'Jerry salary'}`,
-    },
-    pauseBeforeOK);
+    await addIncome(
+      driver,
+      {
+        ...incomeInputs,
+        name: 'Jerry salary',
+        value: '2755',
+        valuationDate: '21/2/2020',
+        startDate: '21/2/2020',
+        endDate: 'Jerry retires',
+        growth: '2',
+        growsWithInflation: 'Y',
+        liability: 'Jerry',
+        category: 'Salary',
+        message: `added new income ${'Jerry salary'}`,
+      },
+      pauseBeforeOK,
+    );
     await pauseForDemo();
     await clickButton(driver, 'btn-clear-alert');
     await pauseForDemo();
@@ -3870,20 +3912,16 @@ describe('Chrome Interaction debts', () => {
       'arguments[0].scrollIntoView(true);',
       toggleChart[0],
     );
-    await driver.executeScript(
-      'window.scrollBy(0, -100)'
-    ); // Adjust scrolling with a negative value here
+    await driver.executeScript('window.scrollBy(0, -100)'); // Adjust scrolling with a negative value here
 
     await clickButton(driver, 'toggle-incomesChart');
     await pauseForDemo();
 
     await clickButton(driver, 'toggle-incomesChart');
     await pauseForDemo();
-
 
     /// FAILS!!
     await clickButton(driver, 'toggle-expensesChart');
-
 
     await clickButton(driver, 'btn-Dates');
     await pauseForDemo();
@@ -3909,7 +3947,7 @@ describe('Chrome Interaction debts', () => {
       valuationDate: '21/02/2020',
       contributionsEndDate: '',
       startDate: 'Ben state pension age',
-      pensionEndOrTransferDate: 'Ben dies',//31/8/2068
+      pensionEndOrTransferDate: 'Ben dies', //31/8/2068
       transferredStopDate: '',
       incomeSource: '',
       contributionSSIncome: '',
@@ -3923,11 +3961,14 @@ describe('Chrome Interaction debts', () => {
       category: 'Pension',
     };
 
-    await addDBPension(driver, {
-      ...DBPinputs,
-      message: 'added new data', // TODO "added pension information",
-    },
-    pauseBeforeOK);
+    await addDBPension(
+      driver,
+      {
+        ...DBPinputs,
+        message: 'added new data', // TODO "added pension information",
+      },
+      pauseBeforeOK,
+    );
     await pauseForDemo();
     await clickButton(driver, 'btn-clear-alert');
     await pauseForDemo();
@@ -3942,9 +3983,7 @@ describe('Chrome Interaction debts', () => {
       'arguments[0].scrollIntoView(true);',
       toggleChart[0],
     );
-    await driver.executeScript(
-      'window.scrollBy(0, -100)'
-    ); // Adjust scrolling with a negative value here
+    await driver.executeScript('window.scrollBy(0, -100)'); // Adjust scrolling with a negative value here
 
     await clickButton(driver, 'toggle-incomesChart');
     await pauseForDemo();
@@ -3975,11 +4014,14 @@ describe('Chrome Interaction debts', () => {
       category: 'Pension',
     };
 
-    await addDBPension(driver, {
-      ...DBPinputs,
-      message: 'added new data', // TODO "added pension information",
-    },
-    pauseBeforeOK);
+    await addDBPension(
+      driver,
+      {
+        ...DBPinputs,
+        message: 'added new data', // TODO "added pension information",
+      },
+      pauseBeforeOK,
+    );
     await pauseForDemo();
     await clickButton(driver, 'btn-clear-alert');
     await pauseForDemo();
@@ -3994,9 +4036,7 @@ describe('Chrome Interaction debts', () => {
       'arguments[0].scrollIntoView(true);',
       toggleChart[0],
     );
-    await driver.executeScript(
-      'window.scrollBy(0, -100)'
-    ); // Adjust scrolling with a negative value here
+    await driver.executeScript('window.scrollBy(0, -100)'); // Adjust scrolling with a negative value here
 
     await clickButton(driver, 'toggle-incomesChart');
     await pauseForDemo();
@@ -4026,11 +4066,14 @@ describe('Chrome Interaction debts', () => {
     await clickButton(driver, 'useDBPInputs');
     await pauseForDemo();
 
-    await addDBPension(driver, {
-      ...DBPinputs,
-      message: 'added new data', // TODO "added pension information",
-    },
-    pauseBeforeOK);
+    await addDBPension(
+      driver,
+      {
+        ...DBPinputs,
+        message: 'added new data', // TODO "added pension information",
+      },
+      pauseBeforeOK,
+    );
     await pauseForDemo();
     await clickButton(driver, 'btn-clear-alert');
     await pauseForDemo();
@@ -4043,9 +4086,7 @@ describe('Chrome Interaction debts', () => {
       'arguments[0].scrollIntoView(true);',
       toggleChart[0],
     );
-    await driver.executeScript(
-      'window.scrollBy(0, -100)'
-    ); // Adjust scrolling with a negative value here
+    await driver.executeScript('window.scrollBy(0, -100)'); // Adjust scrolling with a negative value here
 
     await clickButton(driver, 'toggle-incomesChart');
     await pauseForDemo();
@@ -4067,13 +4108,16 @@ describe('Chrome Interaction debts', () => {
       recurrence: '1m',
       category: 'Basic',
     };
-    await addExpense(driver, {
-      ...expenseInputs,
-      message: `added new expense`,
-    },
-    pauseBeforeOK);
+    await addExpense(
+      driver,
+      {
+        ...expenseInputs,
+        message: `added new expense`,
+      },
+      pauseBeforeOK,
+    );
     await clickButton(driver, 'btn-clear-alert');
-    await pauseForDemo();    
+    await pauseForDemo();
     log('done Basic expenses working');
 
     toggleChart = await driver.findElements(
@@ -4083,9 +4127,7 @@ describe('Chrome Interaction debts', () => {
       'arguments[0].scrollIntoView(true);',
       toggleChart[0],
     );
-    await driver.executeScript(
-      'window.scrollBy(0, -100)'
-    ); // Adjust scrolling with a negative value here
+    await driver.executeScript('window.scrollBy(0, -100)'); // Adjust scrolling with a negative value here
 
     await clickButton(driver, 'toggle-expensesChart');
     await pauseForDemo();
@@ -4104,13 +4146,16 @@ describe('Chrome Interaction debts', () => {
       recurrence: '1m',
       category: 'Basic',
     };
-    await addExpense(driver, {
-      ...expenseInputs,
-      message: `added new expense`,
-    },
-    pauseBeforeOK);
+    await addExpense(
+      driver,
+      {
+        ...expenseInputs,
+        message: `added new expense`,
+      },
+      pauseBeforeOK,
+    );
     await clickButton(driver, 'btn-clear-alert');
-    await pauseForDemo();        
+    await pauseForDemo();
     log('done Basic expenses downsize');
 
     expenseInputs = {
@@ -4124,11 +4169,14 @@ describe('Chrome Interaction debts', () => {
       recurrence: '1m',
       category: 'Leisure',
     };
-    await addExpense(driver, {
-      ...expenseInputs,
-      message: `added new expense`,
-    },
-    pauseBeforeOK);
+    await addExpense(
+      driver,
+      {
+        ...expenseInputs,
+        message: `added new expense`,
+      },
+      pauseBeforeOK,
+    );
     await clickButton(driver, 'btn-clear-alert');
     await pauseForDemo();
     log('done Leisure expenses working');
@@ -4140,10 +4188,7 @@ describe('Chrome Interaction debts', () => {
       'arguments[0].scrollIntoView(true);',
       toggleChart[0],
     );
-    await driver.executeScript(
-      'window.scrollBy(0, -100)'
-    ); // Adjust scrolling with a negative value here
-
+    await driver.executeScript('window.scrollBy(0, -100)'); // Adjust scrolling with a negative value here
 
     await clickButton(driver, 'toggle-expensesChart');
     await pauseForDemo();
@@ -4154,7 +4199,12 @@ describe('Chrome Interaction debts', () => {
     await clickButton(driver, 'btn-Dates');
     await pauseForDemo();
 
-    await addDate(driver, 'Care costs start', '20/2/2060', 'added important date OK');
+    await addDate(
+      driver,
+      'Care costs start',
+      '20/2/2060',
+      'added important date OK',
+    );
     await pauseForDemo();
     await clickButton(driver, 'btn-clear-alert');
     await pauseForDemo();
@@ -4170,15 +4220,18 @@ describe('Chrome Interaction debts', () => {
       recurrence: '1m',
       category: 'Leisure',
     };
-    await addExpense(driver, {
-      ...expenseInputs,
-      message: `added new expense`,
-    },
-    pauseBeforeOK);
+    await addExpense(
+      driver,
+      {
+        ...expenseInputs,
+        message: `added new expense`,
+      },
+      pauseBeforeOK,
+    );
     await clickButton(driver, 'btn-clear-alert');
-    await pauseForDemo(); 
+    await pauseForDemo();
     log('done Leisure expenses retired');
-    
+
     toggleChart = await driver.findElements(
       webdriver.By.id(`toggle-expensesChart`),
     );
@@ -4186,9 +4239,7 @@ describe('Chrome Interaction debts', () => {
       'arguments[0].scrollIntoView(true);',
       toggleChart[0],
     );
-    await driver.executeScript(
-      'window.scrollBy(0, -100)'
-    ); // Adjust scrolling with a negative value here
+    await driver.executeScript('window.scrollBy(0, -100)'); // Adjust scrolling with a negative value here
 
     await clickButton(driver, 'toggle-expensesChart');
     await pauseForDemo();
@@ -4207,13 +4258,16 @@ describe('Chrome Interaction debts', () => {
       recurrence: '1m',
       category: 'Care',
     };
-    await addExpense(driver, {
-      ...expenseInputs,
-      message: `added new expense`,
-    },
-    pauseBeforeOK);
+    await addExpense(
+      driver,
+      {
+        ...expenseInputs,
+        message: `added new expense`,
+      },
+      pauseBeforeOK,
+    );
     await clickButton(driver, 'btn-clear-alert');
-    await pauseForDemo();     
+    await pauseForDemo();
     log('done Care costs');
 
     toggleChart = await driver.findElements(
@@ -4223,17 +4277,13 @@ describe('Chrome Interaction debts', () => {
       'arguments[0].scrollIntoView(true);',
       toggleChart[0],
     );
-    await driver.executeScript(
-      'window.scrollBy(0, -100)'
-    ); // Adjust scrolling with a negative value here
+    await driver.executeScript('window.scrollBy(0, -100)'); // Adjust scrolling with a negative value here
 
     await clickButton(driver, 'toggle-expensesChart');
     await pauseForDemo();
 
     await clickButton(driver, 'toggle-expensesChart');
     await pauseForDemo();
-
-
 
     toggleChart = await driver.findElements(
       webdriver.By.id(`toggle-expensesChart`),
@@ -4242,9 +4292,7 @@ describe('Chrome Interaction debts', () => {
       'arguments[0].scrollIntoView(true);',
       toggleChart[0],
     );
-    await driver.executeScript(
-      'window.scrollBy(0, -100)'
-    ); // Adjust scrolling with a negative value here
+    await driver.executeScript('window.scrollBy(0, -100)'); // Adjust scrolling with a negative value here
 
     await clickButton(driver, 'toggle-expensesChart');
     await pauseForDemo();
@@ -4263,13 +4311,16 @@ describe('Chrome Interaction debts', () => {
       recurrence: '4y',
       category: 'Major costs',
     };
-    await addExpense(driver, {
-      ...expenseInputs,
-      message: `added new expense`,
-    },
-    pauseBeforeOK);
+    await addExpense(
+      driver,
+      {
+        ...expenseInputs,
+        message: `added new expense`,
+      },
+      pauseBeforeOK,
+    );
     await clickButton(driver, 'btn-clear-alert');
-    await pauseForDemo();    
+    await pauseForDemo();
     log('done House maintenance');
 
     toggleChart = await driver.findElements(
@@ -4279,9 +4330,7 @@ describe('Chrome Interaction debts', () => {
       'arguments[0].scrollIntoView(true);',
       toggleChart[0],
     );
-    await driver.executeScript(
-      'window.scrollBy(0, -100)'
-    ); // Adjust scrolling with a negative value here
+    await driver.executeScript('window.scrollBy(0, -100)'); // Adjust scrolling with a negative value here
 
     await clickButton(driver, 'toggle-expensesChart');
     await pauseForDemo();
@@ -4300,13 +4349,16 @@ describe('Chrome Interaction debts', () => {
       recurrence: '5y',
       category: 'Major costs',
     };
-    await addExpense(driver, {
-      ...expenseInputs,
-      message: `added new expense`,
-    },
-    pauseBeforeOK);
+    await addExpense(
+      driver,
+      {
+        ...expenseInputs,
+        message: `added new expense`,
+      },
+      pauseBeforeOK,
+    );
     await clickButton(driver, 'btn-clear-alert');
-    await pauseForDemo();    
+    await pauseForDemo();
     log('done Replace car');
 
     toggleChart = await driver.findElements(
@@ -4316,9 +4368,7 @@ describe('Chrome Interaction debts', () => {
       'arguments[0].scrollIntoView(true);',
       toggleChart[0],
     );
-    await driver.executeScript(
-      'window.scrollBy(0, -100)'
-    ); // Adjust scrolling with a negative value here
+    await driver.executeScript('window.scrollBy(0, -100)'); // Adjust scrolling with a negative value here
 
     await clickButton(driver, 'toggle-expensesChart');
     await pauseForDemo();
@@ -4327,7 +4377,7 @@ describe('Chrome Interaction debts', () => {
     await pauseForDemo();
 
     await clickButton(driver, 'btn-Assets');
-    await pauseForDemo();    
+    await pauseForDemo();
 
     let assetInputs = {
       name: 'House',
@@ -4340,14 +4390,17 @@ describe('Chrome Interaction debts', () => {
       liability: '',
       purchasePrice: '',
     };
-    await addAsset(driver, {
-      ...assetInputs,
-      message: `added new asset`,
-    },
-    pauseBeforeOK);
-    await pauseForDemo();    
+    await addAsset(
+      driver,
+      {
+        ...assetInputs,
+        message: `added new asset`,
+      },
+      pauseBeforeOK,
+    );
+    await pauseForDemo();
     await clickButton(driver, 'btn-clear-alert');
-    await pauseForDemo();    
+    await pauseForDemo();
     log('done House');
 
     toggleChart = await driver.findElements(
@@ -4357,9 +4410,7 @@ describe('Chrome Interaction debts', () => {
       'arguments[0].scrollIntoView(true);',
       toggleChart[0],
     );
-    await driver.executeScript(
-      'window.scrollBy(0, -100)'
-    ); // Adjust scrolling with a negative value here
+    await driver.executeScript('window.scrollBy(0, -100)'); // Adjust scrolling with a negative value here
 
     await clickButton(driver, 'toggleAssetsChart');
     await pauseForDemo();
@@ -4381,14 +4432,17 @@ describe('Chrome Interaction debts', () => {
       liability: '',
       purchasePrice: '',
     };
-    await addAsset(driver, {
-      ...assetInputs,
-      message: `added new asset`,
-    },
-    pauseBeforeOK);
+    await addAsset(
+      driver,
+      {
+        ...assetInputs,
+        message: `added new asset`,
+      },
+      pauseBeforeOK,
+    );
     await pauseForDemo();
     await clickButton(driver, 'btn-clear-alert');
-    await pauseForDemo();    
+    await pauseForDemo();
     log('done ISA');
 
     toggleChart = await driver.findElements(
@@ -4398,9 +4452,7 @@ describe('Chrome Interaction debts', () => {
       'arguments[0].scrollIntoView(true);',
       toggleChart[0],
     );
-    await driver.executeScript(
-      'window.scrollBy(0, -100)'
-    ); // Adjust scrolling with a negative value here
+    await driver.executeScript('window.scrollBy(0, -100)'); // Adjust scrolling with a negative value here
 
     await clickButton(driver, 'toggleAssetsChart');
     await pauseForDemo();
@@ -4419,14 +4471,17 @@ describe('Chrome Interaction debts', () => {
       liability: 'Jerry',
       purchasePrice: '14000',
     };
-    await addAsset(driver, {
-      ...assetInputs,
-      message: `added new asset`,
-    },
-    pauseBeforeOK);
+    await addAsset(
+      driver,
+      {
+        ...assetInputs,
+        message: `added new asset`,
+      },
+      pauseBeforeOK,
+    );
     await pauseForDemo();
     await clickButton(driver, 'btn-clear-alert');
-    await pauseForDemo();    
+    await pauseForDemo();
     log('done Jerry stocks');
 
     toggleChart = await driver.findElements(
@@ -4436,9 +4491,7 @@ describe('Chrome Interaction debts', () => {
       'arguments[0].scrollIntoView(true);',
       toggleChart[0],
     );
-    await driver.executeScript(
-      'window.scrollBy(0, -100)'
-    ); // Adjust scrolling with a negative value here
+    await driver.executeScript('window.scrollBy(0, -100)'); // Adjust scrolling with a negative value here
 
     await clickButton(driver, 'toggleAssetsChart');
     await pauseForDemo();
@@ -4465,15 +4518,18 @@ describe('Chrome Interaction debts', () => {
     };
 
     await clickButton(driver, 'useDCPInputs');
-    await pauseForDemo();    
-    await addDCPension(driver, {
-      ...pensionInputs,
-      message: 'added assets and transactions',
-    },
-    pauseBeforeOK);    
-    await pauseForDemo();    
+    await pauseForDemo();
+    await addDCPension(
+      driver,
+      {
+        ...pensionInputs,
+        message: 'added assets and transactions',
+      },
+      pauseBeforeOK,
+    );
+    await pauseForDemo();
     await clickButton(driver, 'btn-clear-alert');
-    await pauseForDemo();    
+    await pauseForDemo();
     log('done Jerry Aegon');
 
     toggleChart = await driver.findElements(
@@ -4483,9 +4539,7 @@ describe('Chrome Interaction debts', () => {
       'arguments[0].scrollIntoView(true);',
       toggleChart[0],
     );
-    await driver.executeScript(
-      'window.scrollBy(0, -100)'
-    ); // Adjust scrolling with a negative value here
+    await driver.executeScript('window.scrollBy(0, -100)'); // Adjust scrolling with a negative value here
 
     await clickButton(driver, 'toggleAssetsChart');
     await pauseForDemo();
@@ -4512,15 +4566,18 @@ describe('Chrome Interaction debts', () => {
     };
 
     await clickButton(driver, 'useDCPInputs');
-    await pauseForDemo();    
-    await addDCPension(driver, {
-      ...pensionInputs,
-      message: 'added assets and transactions',
-    },
-    pauseBeforeOK);    
-    await pauseForDemo();    
+    await pauseForDemo();
+    await addDCPension(
+      driver,
+      {
+        ...pensionInputs,
+        message: 'added assets and transactions',
+      },
+      pauseBeforeOK,
+    );
+    await pauseForDemo();
     await clickButton(driver, 'btn-clear-alert');
-    await pauseForDemo();     
+    await pauseForDemo();
     log('done Ben Prudential');
 
     toggleChart = await driver.findElements(
@@ -4530,18 +4587,16 @@ describe('Chrome Interaction debts', () => {
       'arguments[0].scrollIntoView(true);',
       toggleChart[0],
     );
-    await driver.executeScript(
-      'window.scrollBy(0, -100)'
-    ); // Adjust scrolling with a negative value here
+    await driver.executeScript('window.scrollBy(0, -100)'); // Adjust scrolling with a negative value here
 
     await clickButton(driver, 'toggleAssetsChart');
     await pauseForDemo();
 
     await clickButton(driver, 'toggleAssetsChart');
-    await pauseForDemo();    
+    await pauseForDemo();
 
     await clickButton(driver, 'btn-Debts');
-    await pauseForDemo();     
+    await pauseForDemo();
 
     let debtInputs = {
       name: 'Mortgage',
@@ -4551,15 +4606,18 @@ describe('Chrome Interaction debts', () => {
       growth: '3.5',
       monthlyRepayment: '700',
     };
-    await addDebt(driver, {
-      ...debtInputs,
-      message: `added new debt and payment`,
-    },
-    pauseBeforeOK);
+    await addDebt(
+      driver,
+      {
+        ...debtInputs,
+        message: `added new debt and payment`,
+      },
+      pauseBeforeOK,
+    );
 
-    await pauseForDemo();    
+    await pauseForDemo();
     await clickButton(driver, 'btn-clear-alert');
-    await pauseForDemo();     
+    await pauseForDemo();
     log('done Mortgage');
 
     toggleChart = await driver.findElements(
@@ -4569,9 +4627,7 @@ describe('Chrome Interaction debts', () => {
       'arguments[0].scrollIntoView(true);',
       toggleChart[0],
     );
-    await driver.executeScript(
-      'window.scrollBy(0, -100)'
-    ); // Adjust scrolling with a negative value here
+    await driver.executeScript('window.scrollBy(0, -100)'); // Adjust scrolling with a negative value here
 
     await clickButton(driver, 'toggleDebtsChart');
     await pauseForDemo();
@@ -4587,14 +4643,17 @@ describe('Chrome Interaction debts', () => {
       growth: '2.5',
       monthlyRepayment: '250',
     };
-    await addDebt(driver, {
-      ...debtInputs,
-      message: `added new debt and payment`,
-    },
-    pauseBeforeOK);
-    await pauseForDemo();    
+    await addDebt(
+      driver,
+      {
+        ...debtInputs,
+        message: `added new debt and payment`,
+      },
+      pauseBeforeOK,
+    );
+    await pauseForDemo();
     await clickButton(driver, 'btn-clear-alert');
-    await pauseForDemo();     
+    await pauseForDemo();
     log('done Jerry loan');
 
     toggleChart = await driver.findElements(
@@ -4604,15 +4663,13 @@ describe('Chrome Interaction debts', () => {
       'arguments[0].scrollIntoView(true);',
       toggleChart[0],
     );
-    await driver.executeScript(
-      'window.scrollBy(0, -100)'
-    ); // Adjust scrolling with a negative value here
+    await driver.executeScript('window.scrollBy(0, -100)'); // Adjust scrolling with a negative value here
 
     await clickButton(driver, 'toggleDebtsChart');
     await pauseForDemo();
 
     await clickButton(driver, 'toggleDebtsChart');
-    await pauseForDemo();    
+    await pauseForDemo();
 
     debtInputs = {
       name: 'Ben loan',
@@ -4622,14 +4679,17 @@ describe('Chrome Interaction debts', () => {
       growth: '0',
       monthlyRepayment: '500',
     };
-    await addDebt(driver, {
-      ...debtInputs,
-      message: `added new debt and payment`,
-    },
-    pauseBeforeOK);
-    await pauseForDemo();    
+    await addDebt(
+      driver,
+      {
+        ...debtInputs,
+        message: `added new debt and payment`,
+      },
+      pauseBeforeOK,
+    );
+    await pauseForDemo();
     await clickButton(driver, 'btn-clear-alert');
-    await pauseForDemo();     
+    await pauseForDemo();
     log('done Ben loan');
 
     toggleChart = await driver.findElements(
@@ -4639,19 +4699,17 @@ describe('Chrome Interaction debts', () => {
       'arguments[0].scrollIntoView(true);',
       toggleChart[0],
     );
-    await driver.executeScript(
-      'window.scrollBy(0, -100)'
-    ); // Adjust scrolling with a negative value here
+    await driver.executeScript('window.scrollBy(0, -100)'); // Adjust scrolling with a negative value here
 
     await clickButton(driver, 'toggleDebtsChart');
     await pauseForDemo();
 
     await clickButton(driver, 'toggleDebtsChart');
-    await pauseForDemo();    
+    await pauseForDemo();
 
     await clickButton(driver, 'btn-Transactions');
-    await pauseForDemo();    
-    let  transactionInputs = {
+    await pauseForDemo();
+    let transactionInputs = {
       name: 'Downsize house',
       startDate: 'Downsize house',
       fromAsset: 'House',
@@ -4663,14 +4721,17 @@ describe('Chrome Interaction debts', () => {
       endDate: '',
       category: '',
     };
-    await addTransaction(driver, {
-      ...transactionInputs,
-      message: `added new transaction`,
-    },
-    pauseBeforeOK);
-    await pauseForDemo();    
+    await addTransaction(
+      driver,
+      {
+        ...transactionInputs,
+        message: `added new transaction`,
+      },
+      pauseBeforeOK,
+    );
+    await pauseForDemo();
     await clickButton(driver, 'btn-clear-alert');
-    await pauseForDemo();     
+    await pauseForDemo();
     log('done Downsize house');
 
     transactionInputs = {
@@ -4685,14 +4746,17 @@ describe('Chrome Interaction debts', () => {
       endDate: '',
       category: 'Cashflow',
     };
-    await addTransaction(driver, {
-      ...transactionInputs,
-      message: `added new transaction`,
-    },
-    pauseBeforeOK);
-    await pauseForDemo();    
+    await addTransaction(
+      driver,
+      {
+        ...transactionInputs,
+        message: `added new transaction`,
+      },
+      pauseBeforeOK,
+    );
+    await pauseForDemo();
     await clickButton(driver, 'btn-clear-alert');
-    await pauseForDemo();     
+    await pauseForDemo();
     log('done Sell ISAs for cash');
 
     transactionInputs = {
@@ -4707,11 +4771,14 @@ describe('Chrome Interaction debts', () => {
       endDate: '',
       category: 'Cashflow',
     };
-    await addTransaction(driver, {
-      ...transactionInputs,
-      message: `added new transaction`,
-    },
-    pauseBeforeOK);
+    await addTransaction(
+      driver,
+      {
+        ...transactionInputs,
+        message: `added new transaction`,
+      },
+      pauseBeforeOK,
+    );
     await pauseForDemo();
     await clickButton(driver, 'btn-clear-alert');
     await pauseForDemo();
@@ -4729,14 +4796,17 @@ describe('Chrome Interaction debts', () => {
       endDate: '',
       category: 'Cashflow',
     };
-    await addTransaction(driver, {
-      ...transactionInputs,
-      message: `added new transaction`,
-    },
-    pauseBeforeOK);
+    await addTransaction(
+      driver,
+      {
+        ...transactionInputs,
+        message: `added new transaction`,
+      },
+      pauseBeforeOK,
+    );
     await pauseForDemo();
     await clickButton(driver, 'btn-clear-alert');
-    await pauseForDemo(); 
+    await pauseForDemo();
     log('done Sell AegonTaxFree');
 
     transactionInputs = {
@@ -4751,14 +4821,17 @@ describe('Chrome Interaction debts', () => {
       endDate: '',
       category: 'Cashflow',
     };
-    await addTransaction(driver, {
-      ...transactionInputs,
-      message: `added new transaction`,
-    },
-    pauseBeforeOK);
+    await addTransaction(
+      driver,
+      {
+        ...transactionInputs,
+        message: `added new transaction`,
+      },
+      pauseBeforeOK,
+    );
     await pauseForDemo();
     await clickButton(driver, 'btn-clear-alert');
-    await pauseForDemo(); 
+    await pauseForDemo();
     log('done Sell PrudentialTaxFree');
 
     transactionInputs = {
@@ -4773,14 +4846,17 @@ describe('Chrome Interaction debts', () => {
       endDate: '',
       category: 'Cashflow',
     };
-    await addTransaction(driver, {
-      ...transactionInputs,
-      message: `added new transaction`,
-    },
-    pauseBeforeOK);
+    await addTransaction(
+      driver,
+      {
+        ...transactionInputs,
+        message: `added new transaction`,
+      },
+      pauseBeforeOK,
+    );
     await pauseForDemo();
     await clickButton(driver, 'btn-clear-alert');
-    await pauseForDemo(); 
+    await pauseForDemo();
     log('done Sell CrystallizedPensionJerry');
 
     transactionInputs = {
@@ -4795,11 +4871,14 @@ describe('Chrome Interaction debts', () => {
       endDate: '',
       category: 'Cashflow',
     };
-    await addTransaction(driver, {
-      ...transactionInputs,
-      message: `added new transaction`,
-    },
-    pauseBeforeOK);
+    await addTransaction(
+      driver,
+      {
+        ...transactionInputs,
+        message: `added new transaction`,
+      },
+      pauseBeforeOK,
+    );
     await pauseForDemo();
     await clickButton(driver, 'btn-clear-alert');
     await pauseForDemo();
@@ -4809,7 +4888,6 @@ describe('Chrome Interaction debts', () => {
 
     done();
   });
-
 
   afterAll(async () => {
     if (quitAfterAll) {

@@ -1122,8 +1122,8 @@ function handleIncome(
   }
 
   // log(`look for ${moment.name+sourceDescription} in liabilitiesMap`);
-  let liabilityList = liabilitiesMap.get(moment.name+sourceDescription); // e.g. "IncomeTaxJoe, NIJoe"
-  if(liabilityList === undefined){
+  let liabilityList = liabilitiesMap.get(moment.name + sourceDescription); // e.g. "IncomeTaxJoe, NIJoe"
+  if (liabilityList === undefined) {
     liabilityList = liabilitiesMap.get(moment.name);
   }
   // log(`for ${moment.name+sourceDescription}, liabilityList = ${liabilityList}`);
@@ -2261,7 +2261,7 @@ function logPensionIncomeLiabilities(
       )}${incomeTax}`;
       // e.g. IncomeTaxJoe
       // log(`logging liability for ${word}, add to map: [${t.NAME+word}, ${liability}}`);
-      liabilitiesMap.set(t.NAME+word, liability);
+      liabilitiesMap.set(t.NAME + word, liability);
     }
   });
 }
