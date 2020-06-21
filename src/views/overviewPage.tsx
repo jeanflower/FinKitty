@@ -168,8 +168,6 @@ export function overviewDiv(
       {transactionsTableDiv(model, showAlert, autogen)}
       <h2>Settings:</h2>
       {settingsTableDiv(model, showAlert)}
-      <h4>Revalue settings</h4>
-      {transactionsTableDiv(model, showAlert, revalueSetting)}
     </div>
   );
 }
