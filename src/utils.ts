@@ -825,6 +825,9 @@ function cleanUp(modelFromJSON: any): DbModelData {
       };
     }),
     settings: modelFromJSON.settings.map((s: any) => {
+      if (s.NAME === 'Asset value focus date'){
+        s.NAME = valueFocusDate;
+      }
       if (s.TYPE === undefined) {
         log('cleaning up missing setting type entry');
         return {
