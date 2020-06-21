@@ -88,6 +88,7 @@ import {
   viewType,
   constType,
   adjustableType,
+  revalueSetting,
 } from '../localization/stringConstants';
 import { log } from 'util';
 
@@ -430,7 +431,7 @@ function handleSettingGridRowsUpdated(
   editSetting(forSubmission, model);
 }
 
-const defaultColumn = {
+export const defaultColumn = {
   editable: true,
   resizable: true,
   sortable: true,
@@ -465,9 +466,7 @@ function getAssetOrDebtCols(model: DbModelData, isDebt: boolean) {
       ...defaultColumn,
       key: 'START',
       name: 'start',
-      formatter: (
-        <TriggerDateFormatter triggers={model.triggers} value="unset" />
-      ),
+      formatter: <TriggerDateFormatter model={model} value="unset" />,
     },
     {
       ...defaultColumn,
@@ -725,9 +724,7 @@ function makeTransactionCols(model: DbModelData, type: string) {
         ...defaultColumn,
         key: 'DATE',
         name: 'payments start date',
-        formatter: (
-          <TriggerDateFormatter triggers={model.triggers} value="unset" />
-        ),
+        formatter: <TriggerDateFormatter model={model} value="unset" />,
       },
     ]);
   } else {
@@ -736,9 +733,7 @@ function makeTransactionCols(model: DbModelData, type: string) {
         ...defaultColumn,
         key: 'DATE',
         name: 'date',
-        formatter: (
-          <TriggerDateFormatter triggers={model.triggers} value="unset" />
-        ),
+        formatter: <TriggerDateFormatter model={model} value="unset" />,
       },
     ]);
   }
@@ -763,9 +758,7 @@ function makeTransactionCols(model: DbModelData, type: string) {
           ...defaultColumn,
           key: 'STOP_DATE',
           name: 'recurrence end date',
-          formatter: (
-            <TriggerDateFormatter triggers={model.triggers} value="unset" />
-          ),
+          formatter: <TriggerDateFormatter model={model} value="unset" />,
         },
       ]);
     }
@@ -955,12 +948,7 @@ export function triggersTableDiv(
                 ...defaultColumn,
                 key: 'DATE',
                 name: 'date',
-                formatter: (
-                  <TriggerDateFormatter
-                    triggers={model.triggers}
-                    value="unset"
-                  />
-                ),
+                formatter: <TriggerDateFormatter model={model} value="unset" />,
               },
             ]}
           />
@@ -1025,34 +1013,19 @@ export function incomesTableDiv(
                 ...defaultColumn,
                 key: 'VALUE_SET',
                 name: 'definition date',
-                formatter: (
-                  <TriggerDateFormatter
-                    triggers={model.triggers}
-                    value="unset"
-                  />
-                ),
+                formatter: <TriggerDateFormatter model={model} value="unset" />,
               },
               {
                 ...defaultColumn,
                 key: 'START',
                 name: 'start',
-                formatter: (
-                  <TriggerDateFormatter
-                    triggers={model.triggers}
-                    value="unset"
-                  />
-                ),
+                formatter: <TriggerDateFormatter model={model} value="unset" />,
               },
               {
                 ...defaultColumn,
                 key: 'END',
                 name: 'end',
-                formatter: (
-                  <TriggerDateFormatter
-                    triggers={model.triggers}
-                    value="unset"
-                  />
-                ),
+                formatter: <TriggerDateFormatter model={model} value="unset" />,
               },
               {
                 ...defaultColumn,
@@ -1140,34 +1113,19 @@ export function expensesTableDiv(
                 ...defaultColumn,
                 key: 'VALUE_SET',
                 name: 'definition date',
-                formatter: (
-                  <TriggerDateFormatter
-                    triggers={model.triggers}
-                    value="unset"
-                  />
-                ),
+                formatter: <TriggerDateFormatter model={model} value="unset" />,
               },
               {
                 ...defaultColumn,
                 key: 'START',
                 name: 'start',
-                formatter: (
-                  <TriggerDateFormatter
-                    triggers={model.triggers}
-                    value="unset"
-                  />
-                ),
+                formatter: <TriggerDateFormatter model={model} value="unset" />,
               },
               {
                 ...defaultColumn,
                 key: 'END',
                 name: 'end',
-                formatter: (
-                  <TriggerDateFormatter
-                    triggers={model.triggers}
-                    value="unset"
-                  />
-                ),
+                formatter: <TriggerDateFormatter model={model} value="unset" />,
               },
               {
                 ...defaultColumn,
@@ -1324,6 +1282,8 @@ export function settingsTableDiv(
           },
         ]}
       />
+      <h4>Revalue settings</h4>
+      {transactionsTableDiv(model, showAlert, revalueSetting)}
     </div>
   );
 }

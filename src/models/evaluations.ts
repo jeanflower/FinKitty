@@ -1561,6 +1561,7 @@ function revalueApplied(
     let prevValue: number | undefined = undefined;
     let scaledNumberWordParts = false;
     if (wValue === undefined) {
+      // log(`word for ${showObj(t)} is ${w} has value ${wValue}`);
       throw new Error(
         `proportional change to an undefined value not implemented`,
       );
@@ -2310,16 +2311,28 @@ export function getEvaluations(
   model: DbModelData,
 ): {
   evaluations: Evaluation[];
-  todaysValues: Map<string, number>;
+  todaysAssetValues: Map<string, number>;
+  todaysDebtValues: Map<string, number>;
+  todaysIncomeValues: Map<string, number>;
+  todaysExpenseValues: Map<string, number>;
+  todaysSettingValues: Map<string, string>;
 } {
   const todaysAssetValues = new Map<string, number>();
+  const todaysDebtValues = new Map<string, number>();
+  const todaysIncomeValues = new Map<string, number>();
+  const todaysExpenseValues = new Map<string, number>();
+  const todaysSettingValues = new Map<string, string>();
 
   const message = checkData(model);
   if (message.length > 0) {
     log(message);
     return {
       evaluations: [],
-      todaysValues: todaysAssetValues,
+      todaysAssetValues: todaysAssetValues,
+      todaysDebtValues: todaysDebtValues,
+      todaysIncomeValues: todaysIncomeValues,
+      todaysExpenseValues: todaysExpenseValues,
+      todaysSettingValues: todaysSettingValues,
     };
   }
   // log('in getEvaluations');
@@ -2516,9 +2529,25 @@ export function getEvaluations(
         }
         return false;
       })
-      .map(t => t.DATE)
+      .map(t => {
+        // log(`date for matching transaction is ${t.DATE}`);
+        return t.DATE;
+      })
+      //.map(ds => getTriggerDate(ds, model.triggers));
       .map(ds => new Date(ds));
 
+    // log(`got referencing dates ${showObj(referencingDates)}`);
+    /*
+    referencingDates = referencingDates.concat(model.assets
+      .filter(a => {
+        if(a.GROWTH === setting.NAME){
+          return true;
+        } 
+        return false;
+      })
+      .map(a => a.START)
+      .map(ds => getTriggerDate(ds, model.triggers)));
+*/
     // log(`referencingDates for ${setting.NAME} = ${referencingDates.map(d=>d.toDateString())}`);
     referencingDates = referencingDates.sort();
     if (referencingDates.length > 0 && values.get(setting.NAME) === undefined) {
@@ -2587,8 +2616,44 @@ export function getEvaluations(
           val *= q;
         }
         if (val !== undefined) {
-          todaysAssetValues.set(asset.NAME, val);
+          if (asset.IS_A_DEBT) {
+            todaysDebtValues.set(asset.NAME, val);
+          } else {
+            todaysAssetValues.set(asset.NAME, val);
+          }
           // log(`asset ${asset.NAME} has value ${val}`);
+        } else {
+          // log(`don't report undefined today's value for ${asset.NAME}`);
+        }
+      });
+      model.incomes.forEach(i => {
+        let val = values.get(i.NAME);
+        if (typeof val === 'string') {
+          val = traceEvaluation(val, values, val);
+        }
+        if (val !== undefined) {
+          todaysIncomeValues.set(i.NAME, val);
+        } else {
+          // log(`don't report undefined today's value for ${i.NAME}`);
+        }
+      });
+      model.expenses.forEach(e => {
+        let val = values.get(e.NAME);
+        if (typeof val === 'string') {
+          val = traceEvaluation(val, values, val);
+        }
+        if (val !== undefined) {
+          todaysExpenseValues.set(e.NAME, val);
+        } else {
+          // log(`don't report undefined today's value for ${e.NAME}`);
+        }
+      });
+      model.settings.forEach(s => {
+        const val = values.get(s.NAME);
+        if (val !== undefined) {
+          todaysSettingValues.set(s.NAME, `${val}`);
+        } else {
+          // log(`don't report undefined today's value for ${s.NAME}`);
         }
       });
     }
@@ -2800,8 +2865,15 @@ export function getEvaluations(
     });
   }
   // log(`getEvaluations returning ${evaluations.length} evaluations`);
-  return {
+
+  const result = {
     evaluations: evaluations,
-    todaysValues: todaysAssetValues,
+    todaysAssetValues: todaysAssetValues,
+    todaysDebtValues: todaysDebtValues,
+    todaysIncomeValues: todaysIncomeValues,
+    todaysExpenseValues: todaysExpenseValues,
+    todaysSettingValues: todaysSettingValues,
   };
+  // log(`result.todaysDebtValues = ${result.todaysDebtValues}`);
+  return result;
 }

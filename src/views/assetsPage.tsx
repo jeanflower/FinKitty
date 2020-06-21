@@ -14,7 +14,11 @@ import {
 } from './../App';
 import Button from './reactComponents/Button';
 import { assetsOrDebtsChartDiv } from './chartPages';
-import { assetsOrDebtsTableDiv, transactionsTableDiv } from './tablePages';
+import {
+  assetsOrDebtsTableDiv,
+  transactionsTableDiv,
+  defaultColumn,
+} from './tablePages';
 import { AddDeleteAssetForm } from './reactComponents/AddDeleteAssetForm';
 import { checkAsset, checkTransaction } from '../models/checks';
 import { revalueAsset, liquidateAsset } from '../localization/stringConstants';
@@ -23,12 +27,6 @@ import NameFormatter from './reactComponents/NameFormatter';
 import CashValueFormatter from './reactComponents/CashValueFormatter';
 import { getTodaysDate, lessThan } from '../utils';
 // import { log } from './../utils';
-
-const defaultColumn = {
-  editable: true,
-  resizable: true,
-  sortable: true,
-};
 
 export function assetsDiv(
   model: DbModelData,

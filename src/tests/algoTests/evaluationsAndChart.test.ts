@@ -240,7 +240,11 @@ function getTestEvaluations(
   model: DbModelData,
 ): {
   evaluations: Evaluation[];
-  todaysValues: Map<string, number>;
+  todaysAssetValues: Map<string, number>;
+  todaysDebtValues: Map<string, number>;
+  todaysIncomeValues: Map<string, number>;
+  todaysExpenseValues: Map<string, number>;
+  todaysSettingValues: Map<string, string>;
 } {
   let evalnsAndVals;
   if (!testJSONRoundTrip) {
@@ -569,7 +573,14 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      { evaluations: evals, todaysValues: new Map<string, number>() },
+      {
+        evaluations: evals,
+        todaysAssetValues: new Map<string, number>(),
+        todaysDebtValues: new Map<string, number>(),
+        todaysIncomeValues: new Map<string, number>(),
+        todaysExpenseValues: new Map<string, number>(),
+        todaysSettingValues: new Map<string, string>(),
+      },
     );
 
     // this clumsy block is to allow printTestCodeForChart to be "used"
@@ -631,7 +642,14 @@ describe('evaluations tests', () => {
         end: makeDateFromString(roi.end),
       },
       model,
-      { evaluations: evals, todaysValues: new Map<string, number>() },
+      {
+        evaluations: evals,
+        todaysAssetValues: new Map<string, number>(),
+        todaysDebtValues: new Map<string, number>(),
+        todaysIncomeValues: new Map<string, number>(),
+        todaysExpenseValues: new Map<string, number>(),
+        todaysSettingValues: new Map<string, string>(),
+      },
     );
 
     // log(showObj(result));
@@ -16637,6 +16655,106 @@ describe('evaluations tests', () => {
     done();
   });
 
+  it('revalue chrysler cars from number to expression', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'June 1, 2018 00:00:00',
+    };
+    const minimalModel = getMinimalModelCopy();
+    const model: DbModelData = {
+      ...minimalModel,
+      triggers: [
+        {
+          NAME: 'carStartDate',
+          DATE: makeDateFromString('January 2 2018'),
+        },
+      ],
+      assets: [
+        ...minimalModel.assets,
+        {
+          ...simpleAsset,
+          NAME: 'Cars',
+          START: 'carStartDate',
+          VALUE: '100',
+          QUANTITY: '3',
+        },
+      ],
+      settings: [
+        ...defaultSettings,
+        {
+          NAME: 'USD',
+          VALUE: '2',
+          HINT: '',
+          TYPE: 'const',
+        },
+      ],
+      transactions: [
+        ...minimalModel.transactions,
+        {
+          ...simpleTransaction,
+          NAME: 'Revalue of chrysler',
+          TO: 'Cars',
+          TO_VALUE: '100USD',
+          DATE: 'March 5 2018',
+          TYPE: revalueSetting,
+        },
+      ],
+    };
+    model.assets.filter(a => {
+      return a.NAME === CASH_ASSET_NAME;
+    })[0].START = '1 Jan 2018';
+
+    setROI(model, roi);
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(13);
+    expectEvals(evals, 0, 'USD', 'Mon Mar 05 2018', 2, -1);
+    expectEvals(evals, 1, 'Cash', 'Mon Jan 01 2018', 0, -1);
+    expectEvals(evals, 2, 'quantityCars', 'Tue Jan 02 2018', 3, -1);
+    expectEvals(evals, 3, 'Cars', 'Tue Jan 02 2018', 300, -1);
+    expectEvals(evals, 4, 'Cash', 'Thu Feb 01 2018', 0, -1);
+    expectEvals(evals, 5, 'Cars', 'Fri Feb 02 2018', 300, -1);
+    expectEvals(evals, 6, 'Cash', 'Thu Mar 01 2018', 0, -1);
+    expectEvals(evals, 7, 'Cars', 'Fri Mar 02 2018', 300, -1);
+    expectEvals(evals, 8, 'Cars', 'Mon Mar 05 2018', 600, -1);
+    expectEvals(evals, 9, 'Cash', 'Sun Apr 01 2018', 0, -1);
+    expectEvals(evals, 10, 'Cars', 'Mon Apr 02 2018', 600, -1);
+    expectEvals(evals, 11, 'Cash', 'Tue May 01 2018', 0, -1);
+    expectEvals(evals, 12, 'Cars', 'Wed May 02 2018', 600, -1);
+
+    const result = makeChartDataFromEvaluations(
+      {
+        start: makeDateFromString(roi.start),
+        end: makeDateFromString(roi.end),
+      },
+      model,
+      evalsAndValues,
+    );
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(1);
+    expect(result.assetData[0].item.NAME).toBe('Cars');
+    {
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 300, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 300, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 600, -1);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 600, -1);
+    }
+
+    done();
+  });
+
   it('conditionally sell some chrysler fleets need some', done => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
@@ -17120,5 +17238,71 @@ describe('evaluations tests', () => {
 
     done();
   });
+
+  /*  
+  it('revalue a setting', done => {
+    const roi = {
+      start: '1 Jan 2019',
+      end: '1 Jan 2042',
+    };
+
+    const model = makeModelFromJSON(simpleExampleData);
+
+    model.transactions.push({
+      NAME: 'Revalue a setting',
+      FROM: '',
+      FROM_ABSOLUTE: true,
+      FROM_VALUE: '',
+      TO: 'stockMarketGrowth',
+      TO_ABSOLUTE: true,
+      TO_VALUE: '0.0',
+      DATE: '2029',
+      STOP_DATE: '',
+      RECURRENCE: '',
+      TYPE: 'custom',
+      CATEGORY: '',
+    });
+
+    setROI(model, roi);
+    setSetting(model.settings, viewFrequency, annually, viewType);
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(4607);
+
+    const result = makeChartDataFromEvaluations(
+      {
+        start: makeDateFromString(roi.start),
+        end: makeDateFromString(roi.end),
+      },
+      model,
+      evalsAndValues,
+    );
+
+    printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(1);
+    expect(result.assetData[0].item.NAME).toBe('Cadillac');
+    {
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 20, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 20, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 20, -1);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 10, -1);
+    }
+
+    expect(result.debtData.length).toBe(0);
+
+    done();
+  });
+*/
   // CGT on selling some cars ???
 });

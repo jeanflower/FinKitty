@@ -31,13 +31,21 @@ import {
   ItemChartData,
   DbItem,
 } from './types/interfaces';
-import { log, makeModelFromJSON, printDebug, showObj, lessThan } from './utils';
+import {
+  log,
+  makeModelFromJSON,
+  printDebug,
+  showObj,
+  lessThan,
+  getTodaysDate,
+} from './utils';
 import { loginPage } from './views/loginPage';
 import { screenshotsDiv } from './views/screenshotsPage';
 import {
   settingsTableDiv,
   transactionsTableDiv,
   triggersTableDiv,
+  defaultColumn,
 } from './views/tablePages';
 import { overviewDiv } from './views/overviewPage';
 import { taxDiv } from './views/chartPages';
@@ -62,6 +70,8 @@ import {
   deleteModel,
   saveModelLSM,
 } from './database/loadSaveModel';
+import DataGrid from './views/reactComponents/DataGrid';
+import NameFormatter from './views/reactComponents/NameFormatter';
 
 // import './bootstrap.css'
 
@@ -285,8 +295,8 @@ function getUserID() {
   return userID;
 }
 
-function getExampleModel(modelString: string) {
-  return makeModelFromJSON(modelString);
+function getExampleModel(modelName: string, modelString: string) {
+  return makeModelFromJSON(modelName, modelString);
 }
 
 function showAlert(text: string) {
@@ -332,7 +342,7 @@ export async function refreshData(goToDB = true) {
             await ensureModel(getUserID(), x.name);
             return await saveModelLSM(
               x.name,
-              getExampleModel(x.model),
+              getExampleModel(modelName, x.model),
               getUserID(),
             );
           }),
@@ -340,7 +350,7 @@ export async function refreshData(goToDB = true) {
         modelNames = exampleModels.map(x => {
           return x.name;
         });
-        model = getExampleModel(simpleExampleData);
+        model = getExampleModel(modelName, simpleExampleData);
         modelName = exampleModelName;
       }
     } else {
@@ -422,7 +432,11 @@ export async function refreshData(goToDB = true) {
       assetData,
       debtData,
       taxData,
-      todaysValues,
+      todaysAssetValues,
+      todaysDebtValues,
+      todaysIncomeValues,
+      todaysExpenseValues,
+      todaysSettingValues,
     } = result;
 
     if (printDebug()) {
@@ -452,7 +466,11 @@ export async function refreshData(goToDB = true) {
           debtChartData,
           taxChartData,
           modelNamesData: modelNames,
-          todaysValues: todaysValues,
+          todaysAssetValues: todaysAssetValues,
+          todaysDebtValues: todaysDebtValues,
+          todaysIncomeValues: todaysIncomeValues,
+          todaysExpenseValues: todaysExpenseValues,
+          todaysSettingValues: todaysSettingValues,
         },
         () => {
           // setState is async
@@ -687,7 +705,11 @@ interface AppState {
   debtChartData: ChartData[];
   taxChartData: ChartData[];
   modelNamesData: string[];
-  todaysValues: Map<string, number>;
+  todaysAssetValues: Map<string, number>;
+  todaysDebtValues: Map<string, number>;
+  todaysIncomeValues: Map<string, number>;
+  todaysExpenseValues: Map<string, number>;
+  todaysSettingValues: Map<string, string>;
   alertText: string;
 }
 interface AppProps {
@@ -715,7 +737,11 @@ export class AppContent extends Component<AppProps, AppState> {
       debtChartData: [],
       taxChartData: [],
       modelNamesData: [],
-      todaysValues: new Map<string, number>(),
+      todaysAssetValues: new Map<string, number>(),
+      todaysDebtValues: new Map<string, number>(),
+      todaysIncomeValues: new Map<string, number>(),
+      todaysExpenseValues: new Map<string, number>(),
+      todaysSettingValues: new Map<string, string>(),
       alertText: '',
     };
     refreshData();
@@ -745,24 +771,34 @@ export class AppContent extends Component<AppProps, AppState> {
             this.state.expensesChartData,
             this.state.incomesChartData,
           )}
-          {this.settingsDiv()}
+          {this.settingsDiv(
+            this.state.modelData,
+            this.state.todaysSettingValues,
+          )}
           {incomesDiv(
             this.state.modelData,
             showAlert,
             this.state.incomesChartData,
+            this.state.todaysIncomeValues,
           )}
           {expensesDiv(
             this.state.modelData,
             showAlert,
             this.state.expensesChartData,
+            this.state.todaysExpenseValues,
           )}
           {assetsDiv(
             this.state.modelData,
             showAlert,
             this.state.assetChartData,
-            this.state.todaysValues,
+            this.state.todaysAssetValues,
           )}
-          {debtsDiv(this.state.modelData, showAlert, this.state.debtChartData)}
+          {debtsDiv(
+            this.state.modelData,
+            showAlert,
+            this.state.debtChartData,
+            this.state.todaysDebtValues,
+          )}
           {this.transactionsDiv()}
           {taxDiv(this.state.modelData, this.state.taxChartData)}
           {this.triggersDiv()}
@@ -859,7 +895,7 @@ export class AppContent extends Component<AppProps, AppState> {
         await ensureModel(getUserID(), modelName);
         await saveModelLSM(
           modelName,
-          makeModelFromJSON(simpleExampleData),
+          makeModelFromJSON(modelName, simpleExampleData),
           getUserID(),
         );
       } else {
@@ -928,7 +964,7 @@ export class AppContent extends Component<AppProps, AppState> {
                 }
                 const currentData = JSON.stringify(this.state.modelData);
                 await updateModelName(userNewName.newName);
-                const newModel = makeModelFromJSON(currentData);
+                const newModel = makeModelFromJSON(modelName, currentData);
                 replaceWithModel(undefined, modelName, newModel);
               }}
               title="Clone model"
@@ -985,7 +1021,7 @@ export class AppContent extends Component<AppProps, AppState> {
                 if (input === null) {
                   return;
                 }
-                const newModel = makeModelFromJSON(input);
+                const newModel = makeModelFromJSON(modelName, input);
                 replaceWithModel(undefined, modelName, newModel);
               }}
               title="Replace model with JSON"
@@ -1009,7 +1045,10 @@ export class AppContent extends Component<AppProps, AppState> {
                   if (decipherString === undefined) {
                     showAlert('could not decode this data');
                   } else {
-                    const decipheredModel = makeModelFromJSON(decipherString);
+                    const decipheredModel = makeModelFromJSON(
+                      modelName,
+                      decipherString,
+                    );
                     const response = checkModelData(decipheredModel);
                     reactAppComponent.setState({
                       alertText: response,
@@ -1042,10 +1081,11 @@ export class AppContent extends Component<AppProps, AppState> {
     );
   }
 
-  private settingsDiv() {
+  private settingsDiv(model: DbModelData, todaysValues: Map<string, string>) {
     if (!getDisplay(settingsView)) {
       return;
     }
+    const today = getTodaysDate(model);
     return (
       <div style={{ display: getDisplay(settingsView) ? 'block' : 'none' }}>
         <fieldset>
@@ -1067,6 +1107,39 @@ export class AppContent extends Component<AppProps, AppState> {
           />
           {settingsTableDiv(this.state.modelData, showAlert)}
           <p />
+
+          <h4>Values at {today.toDateString()}</h4>
+          <DataGrid
+            deleteFunction={async function() {
+              return false;
+            }}
+            handleGridRowsUpdated={function() {
+              return false;
+            }}
+            rows={Array.from(todaysValues.entries())
+              .map(key => {
+                // log(`key[0] = ${key[0]}, key[1] = ${key[1]}`);
+                return {
+                  NAME: key[0],
+                  VALUE: `${key[1]}`,
+                };
+              })
+              .sort((a: DbItem, b: DbItem) => lessThan(a.NAME, b.NAME))}
+            columns={[
+              {
+                ...defaultColumn,
+                key: 'NAME',
+                name: 'name',
+                formatter: <NameFormatter value="unset" />,
+              },
+              {
+                ...defaultColumn,
+                key: 'VALUE',
+                name: `today's value`,
+              },
+            ]}
+          />
+
           <div className="addNewSetting">
             <h4> Add setting </h4>
             <AddDeleteEntryForm
@@ -1221,7 +1294,11 @@ export class AppContent extends Component<AppProps, AppState> {
               return;
             }
             await updateModelName(userNewName.newName);
-            replaceWithModel(undefined, modelName, getExampleModel(x.model));
+            replaceWithModel(
+              undefined,
+              modelName,
+              getExampleModel(modelName, x.model),
+            );
           }}
           title={`Create ${x.name} example`}
           id={`btn-create-${x.name}-example`}

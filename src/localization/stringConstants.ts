@@ -28,8 +28,8 @@ export const birthDate = 'Date of birth';
 export const birthDateHint = 'Date used for representing dates as ages';
 // The asset values table defaults to Today's value but you can set an
 // alternative date here
-export const valueFocusDate = 'Asset value focus date';
-export const valueFocusDateHint = `Date to use for Asset value table (defaults to '' meaning today)`;
+export const valueFocusDate = `Today's value focus date`;
+export const valueFocusDateHint = `Date to use for 'today's value' tables (defaults to '' meaning today)`;
 // whether bars on the charts show monthly or annual values
 export const viewFrequency = 'View frequency';
 export const viewFrequencyHint = "Data plotted 'monthly' or 'annually'";

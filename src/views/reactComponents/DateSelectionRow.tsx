@@ -16,9 +16,16 @@ interface DateSelectionProps extends FormProps {
     modelData: DbModelData,
   ) => Promise<void>;
 }
+function makeDateTooltipForRow(props: DateSelectionProps) {
+  // log(`make tooltip with ${showObj(props)}`);
+  if (props.model.settings.length === 0) {
+    return '';
+  }
+  return makeDateTooltip(props.inputValue, props.triggers);
+}
+
 export class DateSelectionRow extends Component<DateSelectionProps, {}> {
   public render() {
-    // log('rendering a DateSelectionRow');
     return (
       <div className="row">
         <div className="col p-2 mb-2 bg-secondary text-white">
@@ -53,10 +60,7 @@ export class DateSelectionRow extends Component<DateSelectionProps, {}> {
               this.props.onChangeHandler // e.g. this.handleValueSetChange
             }
             className="form-control"
-            data-tip={makeDateTooltip(
-              this.props.inputValue,
-              this.props.triggers,
-            )}
+            data-tip={makeDateTooltipForRow(this.props)}
           />
         </div>
         {/* end col */}

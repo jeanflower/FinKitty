@@ -673,7 +673,11 @@ export function makeChartDataFromEvaluations(
   model: DbModelData,
   evaluationsAndVals: {
     evaluations: Evaluation[];
-    todaysValues: Map<string, number>;
+    todaysAssetValues: Map<string, number>;
+    todaysDebtValues: Map<string, number>;
+    todaysIncomeValues: Map<string, number>;
+    todaysExpenseValues: Map<string, number>;
+    todaysSettingValues: Map<string, string>;
   },
 ) {
   const {
@@ -694,10 +698,18 @@ export function makeChartDataFromEvaluations(
     assetData: [],
     debtData: [],
     taxData: [],
-    todaysValues: new Map<string, number>(),
+    todaysAssetValues: new Map<string, number>(),
+    todaysDebtValues: new Map<string, number>(),
+    todaysIncomeValues: new Map<string, number>(),
+    todaysExpenseValues: new Map<string, number>(),
+    todaysSettingValues: new Map<string, string>(),
   };
 
-  result.todaysValues = evaluationsAndVals.todaysValues;
+  result.todaysAssetValues = evaluationsAndVals.todaysAssetValues;
+  result.todaysDebtValues = evaluationsAndVals.todaysDebtValues;
+  result.todaysIncomeValues = evaluationsAndVals.todaysIncomeValues;
+  result.todaysExpenseValues = evaluationsAndVals.todaysExpenseValues;
+  result.todaysSettingValues = evaluationsAndVals.todaysSettingValues;
 
   // each expense/income/asset has a name
   // remember, for each name, whether it's an expense/income/asset
@@ -1181,7 +1193,11 @@ export function makeChartData(model: DbModelData): DataForView {
       assetData: [],
       debtData: [],
       taxData: [],
-      todaysValues: new Map<string, number>(),
+      todaysAssetValues: new Map<string, number>(),
+      todaysDebtValues: new Map<string, number>(),
+      todaysIncomeValues: new Map<string, number>(),
+      todaysExpenseValues: new Map<string, number>(),
+      todaysSettingValues: new Map<string, string>(),
     };
     return emptyData;
   }

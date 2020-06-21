@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChartData, DbModelData } from '../types/interfaces';
+import { ChartData, DbModelData, DbItem } from '../types/interfaces';
 import {
   deleteIncome,
   getDisplay,
@@ -14,20 +14,30 @@ import {
 } from '../App';
 import Button from './reactComponents/Button';
 import { incomesChartDiv } from './chartPages';
-import { incomesTableDiv, transactionsTableDiv } from './tablePages';
+import {
+  incomesTableDiv,
+  transactionsTableDiv,
+  defaultColumn,
+} from './tablePages';
 import { AddDeleteIncomeForm } from './reactComponents/AddDeleteIncomeForm';
 import { checkIncome, checkTransaction } from '../models/checks';
 import { revalueInc } from '../localization/stringConstants';
+import DataGrid from './reactComponents/DataGrid';
+import { lessThan, getTodaysDate } from '../utils';
+import NameFormatter from './reactComponents/NameFormatter';
+import CashValueFormatter from './reactComponents/CashValueFormatter';
 
 export function incomesDiv(
   model: DbModelData,
   showAlert: (arg0: string) => void,
   incomesChartData: ChartData[],
+  todaysValues: Map<string, number>,
 ) {
   if (!getDisplay(incomesView)) {
     return;
   }
   // log('rendering an incomesDiv');
+  const today = getTodaysDate(model);
   return (
     <div style={{ display: getDisplay(incomesView) ? 'block' : 'none' }}>
       <Button
@@ -59,6 +69,40 @@ export function incomesDiv(
       {incomesTableDiv(model, showAlert)}
       <h4>Income revaluations</h4>
       {transactionsTableDiv(model, showAlert, revalueInc)}
+
+      <h4>Values at {today.toDateString()}</h4>
+      <DataGrid
+        deleteFunction={async function() {
+          return false;
+        }}
+        handleGridRowsUpdated={function() {
+          return false;
+        }}
+        rows={Array.from(todaysValues.entries())
+          .map(key => {
+            // log(`key[0] = ${key[0]}, key[1] = ${key[1]}`);
+            return {
+              NAME: key[0],
+              VALUE: `${key[1]}`,
+            };
+          })
+          .sort((a: DbItem, b: DbItem) => lessThan(a.NAME, b.NAME))}
+        columns={[
+          {
+            ...defaultColumn,
+            key: 'NAME',
+            name: 'name',
+            formatter: <NameFormatter value="unset" />,
+          },
+          {
+            ...defaultColumn,
+            key: 'VALUE',
+            name: `today's value`,
+            formatter: <CashValueFormatter value="unset" />,
+          },
+        ]}
+      />
+
       <div className="addNewIncome">
         <h4> Add an income or pension </h4>
         <AddDeleteIncomeForm

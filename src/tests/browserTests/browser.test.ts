@@ -3726,7 +3726,7 @@ describe('Chrome Interaction debts', () => {
       'Jerry retires',
       '5/5/2030',
       'added important date OK',
-      2000,
+      pauseBeforeOK,
     );
     await pauseForDemo();
     await clickButton(driver, 'btn-clear-alert');
@@ -3737,7 +3737,7 @@ describe('Chrome Interaction debts', () => {
       'Ben retires',
       '28/7/2032',
       'added important date OK',
-      2000,
+      pauseBeforeOK,
     );
     await pauseForDemo(1000);
     await clickButton(driver, 'btn-clear-alert');
@@ -3748,7 +3748,7 @@ describe('Chrome Interaction debts', () => {
       'Jerry state pension age',
       '5/5/2037',
       'added important date OK',
-      2000,
+      pauseBeforeOK,
     );
     await pauseForDemo(1000);
     await clickButton(driver, 'btn-clear-alert');
@@ -3759,7 +3759,7 @@ describe('Chrome Interaction debts', () => {
       'Ben state pension age',
       '31/8/2040',
       'added important date OK',
-      2000,
+      pauseBeforeOK,
     );
     await pauseForDemo(1000);
     await clickButton(driver, 'btn-clear-alert');
@@ -3770,7 +3770,7 @@ describe('Chrome Interaction debts', () => {
       'Downsize house',
       '28/2/2047',
       'added important date OK',
-      2000,
+      pauseBeforeOK,
     );
     await pauseForDemo(1000);
     await clickButton(driver, 'btn-clear-alert');
@@ -3795,7 +3795,7 @@ describe('Chrome Interaction debts', () => {
         category: 'Salary',
         message: `added new income ${'Ben salary'}`,
       },
-      20000,
+      pauseBeforeOK,
     );
     await pauseForDemo();
     await clickButton(driver, 'btn-clear-alert');
@@ -3878,10 +3878,14 @@ describe('Chrome Interaction debts', () => {
     await clickButton(driver, 'btn-Incomes');
     await pauseForDemo();
 
-    await driver.executeScript('window.scrollBy(0, -100)'); // Adjust scrolling with a negative value here
+    await driver.executeScript('window.scrollBy(0, -200)'); // Adjust scrolling with a negative value here
+
+    log('go to toggle incomes chart off again');
 
     await clickButton(driver, 'toggle-incomesChart');
     await pauseForDemo();
+
+    log('toggled incomes chart off again');
 
     await addIncome(
       driver,
@@ -3912,7 +3916,7 @@ describe('Chrome Interaction debts', () => {
       'arguments[0].scrollIntoView(true);',
       toggleChart[0],
     );
-    await driver.executeScript('window.scrollBy(0, -100)'); // Adjust scrolling with a negative value here
+    await driver.executeScript('window.scrollBy(0, -200)'); // Adjust scrolling with a negative value here
 
     await clickButton(driver, 'toggle-incomesChart');
     await pauseForDemo();
@@ -3920,7 +3924,7 @@ describe('Chrome Interaction debts', () => {
     await clickButton(driver, 'toggle-incomesChart');
     await pauseForDemo();
 
-    /// FAILS!!
+    await clickButton(driver, 'btn-Expenses');
     await clickButton(driver, 'toggle-expensesChart');
 
     await clickButton(driver, 'btn-Dates');

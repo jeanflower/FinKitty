@@ -599,7 +599,7 @@ function findMatchedTriggerDate(triggerName: string, triggers: DbTrigger[]) {
 
 // returns a date for a trigger or for a date string, or undefined for junk
 export function checkTriggerDate(input: string, triggers: DbTrigger[]) {
-  // log('first look for '+input+'in '+triggers.map(showObj))
+  // log('first look for '+input+'in '+showObj(triggers));
   const matched = findMatchedTriggerDate(input, triggers);
   // log('matched = '+showObj(matched));
   let result;
@@ -610,7 +610,7 @@ export function checkTriggerDate(input: string, triggers: DbTrigger[]) {
     if (dateTry.getTime()) {
       result = dateTry;
     } else {
-      // log(`BUG : unrecognised date!!! ${input}`);
+      log(`BUG : unrecognised date!!! ${input}, ${showObj(triggers.length)}`);
       result = undefined;
     }
   }
@@ -620,6 +620,7 @@ export function checkTriggerDate(input: string, triggers: DbTrigger[]) {
 
 // Suppresses any not-understood values and returns new Date()
 export function getTriggerDate(triggerName: string, triggers: DbTrigger[]) {
+  // log(`triggers length is ${triggers.length}`);
   const checkResult = checkTriggerDate(triggerName, triggers);
   if (checkResult !== undefined) {
     return checkResult;
@@ -734,6 +735,9 @@ export function setSetting(
 // might be today or might be set using a setting
 export function getTodaysDate(model: DbModelData) {
   let today = new Date();
+  if (model.settings.length === 0) {
+    return today;
+  }
   const todaysDate = getSettings(model.settings, valueFocusDate, '');
   if (todaysDate !== '') {
     today = new Date(todaysDate);
@@ -847,7 +851,7 @@ export function getMinimalModelCopy(): DbModelData {
   return makeCleanedModelFromJSON(JSON.stringify(minimalModel));
 }
 
-export function addRequiredEntries(model: DbModelData) {
+export function addRequiredEntries(modelName: string, model: DbModelData) {
   // log('in addRequiredEntries');
   const minimalModel = getMinimalModelCopy();
   minimalModel.settings.forEach(x => {
@@ -856,7 +860,7 @@ export function addRequiredEntries(model: DbModelData) {
         return existing.NAME === x.NAME;
       }).length === 0
     ) {
-      log(`inserting missing data ${showObj(x)}`);
+      log(`${modelName} needs insertion of missing data ${showObj(x)}`);
       model.settings.push(x);
       // throw new Error(`inserting missing data ${showObj(x)}`);
     }
@@ -874,10 +878,13 @@ export function addRequiredEntries(model: DbModelData) {
   });
 }
 
-export function makeModelFromJSON(input: string): DbModelData {
+export function makeModelFromJSON(
+  modelName: string,
+  input: string,
+): DbModelData {
   // log('in makeModelFromJSON');
   const model = makeModelFromJSONFixDates(input);
-  addRequiredEntries(model);
+  addRequiredEntries(modelName, model);
   return cleanUp(model);
 }
 

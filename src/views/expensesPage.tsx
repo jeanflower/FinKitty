@@ -13,20 +13,30 @@ import {
 } from '../App';
 import Button from './reactComponents/Button';
 import { expensesChartDiv } from './chartPages';
-import { expensesTableDiv, transactionsTableDiv } from './tablePages';
+import {
+  expensesTableDiv,
+  transactionsTableDiv,
+  defaultColumn,
+} from './tablePages';
 import { AddDeleteExpenseForm } from './reactComponents/AddDeleteExpenseForm';
 import { checkExpense, checkTransaction } from '../models/checks';
-import { DbModelData, ChartData } from '../types/interfaces';
+import { DbModelData, ChartData, DbItem } from '../types/interfaces';
 import { revalueExp } from '../localization/stringConstants';
+import DataGrid from './reactComponents/DataGrid';
+import { lessThan, getTodaysDate } from '../utils';
+import NameFormatter from './reactComponents/NameFormatter';
+import CashValueFormatter from './reactComponents/CashValueFormatter';
 
 export function expensesDiv(
   model: DbModelData,
   showAlert: (arg0: string) => void,
   expensesChartData: ChartData[],
+  todaysValues: Map<string, number>,
 ) {
   if (!getDisplay(expensesView)) {
     return;
   }
+  const today = getTodaysDate(model);
   return (
     <div style={{ display: getDisplay(expensesView) ? 'block' : 'none' }}>
       <Button
@@ -58,6 +68,40 @@ export function expensesDiv(
       {expensesTableDiv(model, showAlert)}
       <h4>Expense revaluations</h4>
       {transactionsTableDiv(model, showAlert, revalueExp)}
+
+      <h4>Values at {today.toDateString()}</h4>
+      <DataGrid
+        deleteFunction={async function() {
+          return false;
+        }}
+        handleGridRowsUpdated={function() {
+          return false;
+        }}
+        rows={Array.from(todaysValues.entries())
+          .map(key => {
+            // log(`key[0] = ${key[0]}, key[1] = ${key[1]}`);
+            return {
+              NAME: key[0],
+              VALUE: `${key[1]}`,
+            };
+          })
+          .sort((a: DbItem, b: DbItem) => lessThan(a.NAME, b.NAME))}
+        columns={[
+          {
+            ...defaultColumn,
+            key: 'NAME',
+            name: 'name',
+            formatter: <NameFormatter value="unset" />,
+          },
+          {
+            ...defaultColumn,
+            key: 'VALUE',
+            name: `today's value`,
+            formatter: <CashValueFormatter value="unset" />,
+          },
+        ]}
+      />
+
       <div className="addNewExpense">
         <h4> Add an expense </h4>
         <AddDeleteExpenseForm

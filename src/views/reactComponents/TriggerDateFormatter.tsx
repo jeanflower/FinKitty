@@ -1,13 +1,20 @@
 import React from 'react';
-import { DbTrigger } from '../../types/interfaces';
+import { DbModelData } from '../../types/interfaces';
 import { makeDateTooltip, dateFormatOptions } from '../../utils';
 // import { showObj } from ''../../utils''
 
 interface TriggerDateFormatterProps {
   value: string;
-  triggers: DbTrigger[];
+  model: DbModelData;
 }
 
+function makeDateTooltipLocal(props: TriggerDateFormatterProps) {
+  // log(`make tooltip with ${showObj(props)}`);
+  if (props.model.settings.length === 0) {
+    return '';
+  }
+  return makeDateTooltip(props.value, props.model.triggers);
+}
 class TriggerDateFormatter extends React.Component<
   TriggerDateFormatterProps,
   {}
@@ -19,9 +26,7 @@ class TriggerDateFormatter extends React.Component<
       tableValue = asDate.toLocaleDateString(undefined, dateFormatOptions);
     }
     return (
-      <span data-tip={makeDateTooltip(this.props.value, this.props.triggers)}>
-        {tableValue}
-      </span>
+      <span data-tip={makeDateTooltipLocal(this.props)}>{tableValue}</span>
     );
   }
 }
