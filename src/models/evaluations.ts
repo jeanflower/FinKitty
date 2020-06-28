@@ -2065,9 +2065,9 @@ function processTransactionFromTo(
     );
     // log(`reduce ${fromWord}'s ${preFromValue} by ${showObj(fromChange)}`);
     // log(`in processTransactionFromTo, setValue of ${fromWord} to ${preFromValue - fromChange.fromImpact}`);
-    let newFromValue: string|number;
+    let newFromValue: string | number;
     const oldVal = values.get(fromWord);
-    if(fromChange.fromImpact === 0 && oldVal !== undefined){
+    if (fromChange.fromImpact === 0 && oldVal !== undefined) {
       newFromValue = oldVal;
     } else {
       newFromValue = preFromValue - fromChange.fromImpact;

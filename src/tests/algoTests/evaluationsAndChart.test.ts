@@ -16404,9 +16404,9 @@ describe('evaluations tests', () => {
         },
         {
           ...simpleTransaction,
-          NAME: revalue+' chrysler',
+          NAME: revalue + ' chrysler',
           FROM: '',
-          FROM_VALUE: '', 
+          FROM_VALUE: '',
           TO: 'chrysler',
           TO_VALUE: '0.5',
           TO_ABSOLUTE: false,
