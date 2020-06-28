@@ -1554,7 +1554,8 @@ function revalueApplied(
     values,
     t.TO_VALUE,
   );
-  const words = t.TO.split(separator);
+  let words = t.TO.split(separator);
+  words = replaceCategoryWithAssetNames(words, model);
   words.forEach(w => {
     const wValue = values.get(w);
     // log(`word from ${t.TO} is ${w} has value ${wValue}`);
@@ -1982,6 +1983,7 @@ export function makeSourceForToChange(t: DbTransaction, fromWord: string) {
 function processTransactionFromTo(
   t: DbTransaction,
   fromWord: string,
+  toWord: string,
   moment: Moment,
   values: Map<string, number | string>,
   evaluations: Evaluation[],
@@ -1995,8 +1997,8 @@ function processTransactionFromTo(
   const preFromValue = traceEvaluation(fromWord, values, fromWord);
   // log(`pound value of ${fromWord} is ${preFromValue}`);
   let preToValue = undefined;
-  if (t.TO !== '') {
-    preToValue = traceEvaluation(t.TO, values, t.TO);
+  if (toWord !== '') {
+    preToValue = traceEvaluation(toWord, values, toWord);
     if (preToValue === undefined) {
       preToValue = 0.0;
     }
@@ -2082,8 +2084,8 @@ function processTransactionFromTo(
     // then we should treat this as an income
     // (it's liable to income tax)
     // log(`transacting ${fromChange} from ${fromWord}
-    // into ${t.TO}`);
-    if (fromWord.startsWith(crystallizedPension) && t.TO === CASH_ASSET_NAME) {
+    // into ${toWord}`);
+    if (fromWord.startsWith(crystallizedPension) && toWord === CASH_ASSET_NAME) {
       // log(`for ${fromWord}, register ${toChange} pension withdrawal on ${moment.date}, ${moment.name} as liable for income tax`);
       handleIncome(
         toChange,
@@ -2104,12 +2106,12 @@ function processTransactionFromTo(
         );
       }
       // log('in processTransactionFromTo, setValue:');
-      // log(`in processTransactionFromTo, setValue of ${t.TO} to ${preToValue + toChange}`);
+      // log(`in processTransactionFromTo, setValue of ${toWord} to ${preToValue + toChange}`);
       setValue(
         values,
         evaluations,
         moment.date,
-        t.TO,
+        toWord,
         preToValue + toChange,
         model,
         makeSourceForToChange(t, fromWord),
@@ -2221,23 +2223,27 @@ function processTransactionMoment(
   if (t.FROM !== '') {
     // we can sometimes see multiple 'FROM's
     // handle one word at a time
-    let words = t.FROM.split(separator);
+    let fromWords = t.FROM.split(separator);
+    fromWords = replaceCategoryWithAssetNames(fromWords, model);
+    fromWords.forEach(fromWord => {
 
-    words = replaceCategoryWithAssetNames(words, model);
-
-    words.forEach(fromWord => {
-      // log(`process a transaction from ${fromWord}`);
-      processTransactionFromTo(
-        t,
-        fromWord,
-        moment,
-        values,
-        evaluations,
-        model,
-        pensionTransactions,
-        liabliitiesMap,
-        liableIncomeInTaxYear,
-      );
+      let toWords = t.TO.split(separator);
+      toWords = replaceCategoryWithAssetNames(toWords, model);
+      toWords.forEach(toWord => {
+        // log(`process a transaction from ${fromWord}`);
+        processTransactionFromTo(
+          t,
+          fromWord,
+          toWord,
+          moment,
+          values,
+          evaluations,
+          model,
+          pensionTransactions,
+          liabliitiesMap,
+          liableIncomeInTaxYear,
+        );
+      });
     });
   } else if (t.FROM === '' && t.TO !== '') {
     processTransactionTo(t, moment, values, evaluations, model);

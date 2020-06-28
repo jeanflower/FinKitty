@@ -10991,6 +10991,101 @@ describe('evaluations tests', () => {
     done();
   });
 
+  it('should apply growth and proportional-revalue category of assets', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'May 1, 2018 00:00:00',
+    };
+    const model: DbModelData = {
+      ...emptyModel,
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'savingsA',
+          START: 'January 1 2018',
+          VALUE: '600',
+          GROWTH: '12',
+          CATEGORY: 'savings',
+        },
+        {
+          ...simpleAsset,
+          NAME: 'savingsB',
+          START: 'January 1 2018',
+          VALUE: '400',
+          GROWTH: '12',
+          CATEGORY: 'savings',
+        },
+      ],
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: 'Revalue of savings',
+          TO: 'savings',
+          TO_VALUE: '0.5', // market crash!
+          TO_ABSOLUTE: false,
+          DATE: 'March 5 2018',
+          TYPE: revalueAsset,
+        },
+      ],
+      settings: [...defaultSettings],
+    };
+    setROI(model, roi);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(10);
+    expectEvals(evals, 0, 'savingsA', 'Mon Jan 01 2018', 600, -1);
+    expectEvals(evals, 1, 'savingsB', 'Mon Jan 01 2018', 400, -1);
+    expectEvals(evals, 2, 'savingsA', 'Thu Feb 01 2018', 605.69, 2);
+    expectEvals(evals, 3, 'savingsB', 'Thu Feb 01 2018', 403.8, 2);
+    expectEvals(evals, 4, 'savingsA', 'Thu Mar 01 2018', 611.44, 2);
+    expectEvals(evals, 5, 'savingsB', 'Thu Mar 01 2018', 407.63, 2);
+    expectEvals(evals, 6, 'savingsA', 'Mon Mar 05 2018', 305.72, 2);
+    expectEvals(evals, 7, 'savingsB', 'Mon Mar 05 2018', 203.81, 2);
+    expectEvals(evals, 8, 'savingsA', 'Sun Apr 01 2018', 308.62, 2);
+    expectEvals(evals, 9, 'savingsB', 'Sun Apr 01 2018', 205.75, 2);
+
+    const result = makeChartDataFromEvaluations(
+      {
+        start: makeDateFromString(roi.start),
+        end: makeDateFromString(roi.end),
+      },
+      model,
+      evalsAndValues,
+    );
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(2);
+    expect(result.assetData[0].item.NAME).toBe('savingsA');
+    {
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(5);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 600, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 605.69, 2);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 611.44, 2);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 308.62, 2);
+    }
+
+    expect(result.assetData[1].item.NAME).toBe('savingsB');
+    {
+      const chartPts = result.assetData[1].chartDataPoints;
+      expect(chartPts.length).toBe(5);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 400, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 403.8, 2);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 407.63, 2);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 205.75, 2);
+    }
+
+    done();
+  });  
+
   it('Check coarse, categorised, chart data data', done => {
     const modelAndRoi = getModelCoarseAndFine();
     const model = modelAndRoi.model;
