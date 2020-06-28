@@ -2063,14 +2063,21 @@ function processTransactionFromTo(
       liableIncomeInTaxYear,
       model,
     );
-    // log(`reduce ${fromWord}'s ${preFromValue} by ${fromChange}`);
-    // log(`in processTransactionFromTo, setValue of ${fromWord} to ${preFromValue - fromChange}`);
+    // log(`reduce ${fromWord}'s ${preFromValue} by ${showObj(fromChange)}`);
+    // log(`in processTransactionFromTo, setValue of ${fromWord} to ${preFromValue - fromChange.fromImpact}`);
+    let newFromValue: string|number;
+    const oldVal = values.get(fromWord);
+    if(fromChange.fromImpact === 0 && oldVal !== undefined){
+      newFromValue = oldVal;
+    } else {
+      newFromValue = preFromValue - fromChange.fromImpact;
+    }
     setValue(
       values,
       evaluations,
       moment.date,
       fromWord,
-      preFromValue - fromChange.fromImpact,
+      newFromValue,
       model,
       makeSourceForFromChange(t),
     );
