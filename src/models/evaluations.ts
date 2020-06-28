@@ -2207,10 +2207,16 @@ function processTransactionMoment(
     let fromWords = t.FROM.split(separator);
     fromWords = replaceCategoryWithAssetNames(fromWords, model);
     fromWords.forEach(fromWord => {
-      let toWords = t.TO.split(separator);
-      toWords = replaceCategoryWithAssetNames(toWords, model);
+      let toWords: string[] = [];
+      if (t.TO !== '') {
+        toWords = t.TO.split(separator);
+        toWords = replaceCategoryWithAssetNames(toWords, model);
+      } else {
+        toWords.push('');
+      }
+      // log(`transaction to "${t.TO}" as list ${toWords}`);
       toWords.forEach(toWord => {
-        log(`process a transaction from word ${fromWord} to word ${toWord}`);
+        // log(`process a transaction from word ${fromWord} to word ${toWord}`);
         processTransactionFromTo(
           t,
           fromWord,
@@ -2226,7 +2232,7 @@ function processTransactionMoment(
       });
     });
   } else if (t.FROM === '' && t.TO !== '') {
-    log(`process a transaction from ${t.FROM} to ${t.TO}`);
+    // log(`process a transaction from ${t.FROM} to ${t.TO}`);
     processTransactionTo(t, moment, values, evaluations, model);
   }
 }

@@ -2254,7 +2254,7 @@ describe('evaluations tests', () => {
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
 
-    printTestCodeForEvals(evals);
+    //  printTestCodeForEvals(evals);
 
     expect(evals.length).toBe(4);
     expectEvals(evals, 0, 'MyCa', 'Mon Jan 01 2018', 500, -1);

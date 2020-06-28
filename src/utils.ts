@@ -922,18 +922,23 @@ export function isATransaction(name: string, model: DbModelData) {
   return model.transactions.filter(t => t.NAME === name).length > 0;
 }
 
-export function replaceCategoryWithAssetNames(words: string[], model: DbModelData) {
+export function replaceCategoryWithAssetNames(
+  words: string[],
+  model: DbModelData,
+) {
+  // log(`start replaceCategoryWithAssetNames with words = ${showObj(words)}`);
   let wordsNew: string[] = [];
-  words.forEach(fromWord => {
-    // if fromWord is a category of one or more assets
-    // then remove fromWord from the list and
+  words.forEach(w => {
+    // log(`look at word "${w}" - is it a category?`);
+    // if w is a category of one or more assets
+    // then remove w from the list and
     // if the assets are not already on the list
     // then add the asset Names.
     const assetsWithCategory = model.assets.filter(a => {
-      return a.CATEGORY === fromWord;
+      return a.CATEGORY === w;
     });
     if (assetsWithCategory.length === 0) {
-      wordsNew.push(fromWord);
+      wordsNew.push(w);
     } else {
       wordsNew = wordsNew.concat(
         assetsWithCategory.map(a => {
@@ -942,5 +947,6 @@ export function replaceCategoryWithAssetNames(words: string[], model: DbModelDat
       );
     }
   });
+  // log(`return from replaceCategoryWithAssetNames with wordsNew = ${showObj(wordsNew)}`);
   return wordsNew;
 }
