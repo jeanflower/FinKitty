@@ -904,7 +904,9 @@ export function isAnExpense(name: string, model: DbModelData) {
   return model.expenses.filter(a => a.NAME === name).length > 0;
 }
 function isAnAsset(name: string, model: DbModelData) {
-  return model.assets.filter(a => (a.NAME === name || a.CATEGORY ===  name)).length > 0;
+  return (
+    model.assets.filter(a => a.NAME === name || a.CATEGORY === name).length > 0
+  );
 }
 export function isAnAssetOrAssets(name: string, model: DbModelData) {
   const words = name.split(separator);

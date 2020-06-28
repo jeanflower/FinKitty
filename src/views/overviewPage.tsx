@@ -35,7 +35,6 @@ import {
   revalueExp,
   revalueAsset,
   revalueDebt,
-  revalueSetting,
 } from '../localization/stringConstants';
 
 export function overviewDiv(

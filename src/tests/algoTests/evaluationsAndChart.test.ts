@@ -11084,7 +11084,7 @@ describe('evaluations tests', () => {
     }
 
     done();
-  });  
+  });
 
   it('Check coarse, categorised, chart data data', done => {
     const modelAndRoi = getModelCoarseAndFine();

@@ -383,8 +383,9 @@ function checkTransactionTo(
   triggers: DbTrigger[],
   settings: DbSetting[],
 ) {
-  const a = assetsForChecking.find(as => 
-    (as.NAME === word || as.CATEGORY === word) );
+  const a = assetsForChecking.find(
+    as => as.NAME === word || as.CATEGORY === word,
+  );
   if (a !== undefined) {
     if (t.NAME.startsWith(pensionDB)) {
       return `Transaction ${getDisplayName(
