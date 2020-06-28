@@ -67,6 +67,7 @@ import {
   isAnAssetOrAssets,
   isAnExpense,
   getNumberAndWordParts,
+  replaceCategoryWithAssetNames,
 } from '../utils';
 import { getDisplayName } from '../views/tablePages';
 
@@ -892,7 +893,8 @@ export function checkTransaction(t: DbTransaction, model: DbModelData): string {
   }
   if (t.TO !== '') {
     if (t.NAME.startsWith(revalue)) {
-      const words = t.TO.split(separator);
+      let words = t.TO.split(separator);
+      words = replaceCategoryWithAssetNames(words, model);
       for (let idx = 0; idx < words.length; idx += 1) {
         const w = words[idx];
         const outcome = checkTransactionTo(

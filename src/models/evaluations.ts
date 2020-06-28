@@ -45,6 +45,7 @@ import {
   getNumberAndWordParts,
   getTodaysDate,
   removeNumberPart,
+  replaceCategoryWithAssetNames,
 } from '../utils';
 import { getDisplayName } from '../views/tablePages';
 
@@ -1531,29 +1532,6 @@ function assetAllowedNegative(assetName: string, asset: DbAsset) {
   );
 }
 
-function replaceCategoryWithAssetNames(words: string[], model: DbModelData) {
-  let wordsNew: string[] = [];
-  words.forEach(fromWord => {
-    // if fromWord is a category of one or more assets
-    // then remove fromWord from the list and
-    // if the assets are not already on the list
-    // then add the asset Names.
-    const assetsWithCategory = model.assets.filter(a => {
-      return a.CATEGORY === fromWord;
-    });
-    if (assetsWithCategory.length === 0) {
-      wordsNew.push(fromWord);
-    } else {
-      wordsNew = wordsNew.concat(
-        assetsWithCategory.map(a => {
-          return a.NAME;
-        }),
-      );
-    }
-  });
-  return wordsNew;
-}
-
 function revalueApplied(
   t: DbTransaction,
   moment: Moment,
@@ -2232,7 +2210,7 @@ function processTransactionMoment(
       let toWords = t.TO.split(separator);
       toWords = replaceCategoryWithAssetNames(toWords, model);
       toWords.forEach(toWord => {
-        // log(`process a transaction from ${fromWord}`);
+        log(`process a transaction from word ${fromWord} to word ${toWord}`);
         processTransactionFromTo(
           t,
           fromWord,
@@ -2248,6 +2226,7 @@ function processTransactionMoment(
       });
     });
   } else if (t.FROM === '' && t.TO !== '') {
+    log(`process a transaction from ${t.FROM} to ${t.TO}`);
     processTransactionTo(t, moment, values, evaluations, model);
   }
 }

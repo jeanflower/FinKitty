@@ -921,3 +921,26 @@ export function isAnAssetOrAssets(name: string, model: DbModelData) {
 export function isATransaction(name: string, model: DbModelData) {
   return model.transactions.filter(t => t.NAME === name).length > 0;
 }
+
+export function replaceCategoryWithAssetNames(words: string[], model: DbModelData) {
+  let wordsNew: string[] = [];
+  words.forEach(fromWord => {
+    // if fromWord is a category of one or more assets
+    // then remove fromWord from the list and
+    // if the assets are not already on the list
+    // then add the asset Names.
+    const assetsWithCategory = model.assets.filter(a => {
+      return a.CATEGORY === fromWord;
+    });
+    if (assetsWithCategory.length === 0) {
+      wordsNew.push(fromWord);
+    } else {
+      wordsNew = wordsNew.concat(
+        assetsWithCategory.map(a => {
+          return a.NAME;
+        }),
+      );
+    }
+  });
+  return wordsNew;
+}
