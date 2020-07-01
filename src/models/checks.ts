@@ -924,7 +924,9 @@ export function checkTransaction(t: DbTransaction, model: DbModelData): string {
         return outcome;
       }
     }
-    if (t.TO_VALUE === '') {
+    if (t.TYPE === revalueSetting) {
+      // log(`anything goes!`);
+    } else if (t.TO_VALUE === '') {
       return `Transaction to ${t.TO} needs a non-empty to value`;
     } else if (!isValidValue(t.TO_VALUE, model)) {
       return `Transaction to value ${t.TO_VALUE} isn't a number or setting`;

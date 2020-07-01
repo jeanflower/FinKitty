@@ -8,7 +8,6 @@ import {
 import { useAuth0 } from './contexts/auth0-context';
 import { makeChartData } from './models/charting';
 import { checkData, checkTransaction, checkTrigger } from './models/checks';
-import { AddDeleteEntryForm } from './views/reactComponents/AddDeleteEntryForm';
 import { AddDeleteTransactionForm } from './views/reactComponents/AddDeleteTransactionForm';
 import { AddDeleteTriggerForm } from './views/reactComponents/AddDeleteTriggerForm';
 import Button from './views/reactComponents/Button';
@@ -72,6 +71,7 @@ import {
 } from './database/loadSaveModel';
 import DataGrid from './views/reactComponents/DataGrid';
 import NameFormatter from './views/reactComponents/NameFormatter';
+import { AddDeleteSettingForm } from './views/reactComponents/AddDeleteSettingForm';
 
 // import './bootstrap.css'
 
@@ -545,11 +545,10 @@ export async function editSetting(
 }
 
 export async function submitNewSetting(
-  name: string,
-  value: string,
+  setting: DbSetting,
   modelData: DbModelData,
 ) {
-  await submitNewSettingLSM(name, value, modelData, getUserID());
+  await submitNewSettingLSM(setting, modelData, getUserID());
   return await refreshData();
 }
 
@@ -1142,9 +1141,11 @@ export class AppContent extends Component<AppProps, AppState> {
 
           <div className="addNewSetting">
             <h4> Add setting </h4>
-            <AddDeleteEntryForm
-              submitFunction={submitNewSetting}
-              deleteFunction={deleteSetting}
+            <AddDeleteSettingForm
+              submitSettingFunction={submitNewSetting}
+              checkTransactionFunction={checkTransaction}
+              submitTransactionFunction={submitTransaction}
+              submitTriggerFunction={submitTrigger}
               model={this.state.modelData}
               showAlert={showAlert}
             />

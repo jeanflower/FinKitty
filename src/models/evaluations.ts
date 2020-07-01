@@ -280,9 +280,12 @@ function getNumberValue(
   values: Map<string, number | string>,
   key: string,
   expectValue = true,
+  printLogs = false,
 ): number | undefined {
   let result = values.get(key);
-  // log(`key = '${key}' has value ${result}`);
+  if (printLogs) {
+    log(`seek number value for key = '${key}', values has entry ${result}`);
+  }
   if (typeof result === 'string') {
     // log(`value ${result} is a string`);
     if (isNumberString(result)) {
@@ -302,6 +305,9 @@ function getNumberValue(
           `for values involving words and settings`,
       );
     }
+  }
+  if (printLogs) {
+    log(`number value for key = '${key}' is ${result}`);
   }
   return result;
 }
@@ -408,6 +414,7 @@ function setValue(
   newValue: number | string,
   model: DbModelData,
   source: string, // something that triggered the new value
+  callerID: string,
 ) {
   if (name === newValue) {
     log(`BUG??? don't expect value of ${name} = ${newValue}!`);
@@ -419,7 +426,7 @@ function setValue(
         `setting first value of ${name}, ` +
           `newValue = ${newValue} ` +
           `date = ${date.toDateString()}, ` +
-          `source = ${source}`,
+          `source = ${source}, from  ${callerID}`,
       );
     } else {
       log(
@@ -427,7 +434,7 @@ function setValue(
           `newValue = ${newValue} ` +
           `oldValue = ${existingValue} ` +
           `date = ${date.toDateString()}, ` +
-          `source = ${source}`,
+          `source = ${source}, from  ${callerID}`,
       );
     }
   }
@@ -436,8 +443,10 @@ function setValue(
   const unitVal = traceEvaluation(newValue, values, name);
   // log(`Unit val of ${name} is ${unitVal}`);
   if (unitVal === undefined) {
-    log(`Error: evaluation of ${newValue} for ${name} undefined`);
-    // throw new Error(`evaluation of ${newValue} for ${name} undefined`);
+    // this is not necessarily an error - just means
+    // we're keeping track of something which cannot be
+    // evaluated.
+    // log(`evaluation of ${newValue} for ${name} undefined`);
   } else {
     const totalVal = applyQuantity(unitVal, values, name, model);
     const evaln = {
@@ -683,6 +692,7 @@ function adjustCash(
       cashValue + amount,
       model,
       source,
+      '1', //callerID
     );
   }
 }
@@ -716,6 +726,7 @@ function payIncomeTax(
       taxValue + taxDue,
       model,
       source,
+      '2', //callerID
     );
   }
   return taxDue; // for information only - cash already adjusted
@@ -751,6 +762,7 @@ function payNI(
       taxValue + NIDue,
       model,
       source,
+      '3', //callerID
     );
   }
   return NIDue; // just for information
@@ -786,6 +798,7 @@ function payCGT(
       taxValue + CGTDue,
       model,
       source,
+      '4', //callerID
     );
   }
 }
@@ -851,6 +864,7 @@ function OptimizeIncomeTax(
             cashVal + amountToTransfer,
             model,
             valueKey,
+            '5', //callerID
           ); // e.g. 'CrystallizedPensionNorwich'
           setValue(
             values,
@@ -860,6 +874,7 @@ function OptimizeIncomeTax(
             pensionVal - amountToTransfer,
             model,
             liability,
+            '6', //callerID
           ); // e.g. 'IncomeTaxJoe'
         }
       }
@@ -1103,6 +1118,7 @@ function handleIncome(
           pensionValue,
           model,
           transaction.NAME,
+          '7', //callerID
         );
       }
     }
@@ -1249,7 +1265,7 @@ function logAssetValueString(
   let parsedOK = false;
   if (settingVal === 'missing') {
     if (debug) {
-      // log(`there's no setting for ${assetVal}`);
+      log(`there's no setting for ${assetVal}`);
     }
     const wordPart = removeNumberPart(assetVal);
     if (wordPart !== undefined) {
@@ -1282,7 +1298,7 @@ function logAssetValueString(
     if (isNumberString(settingVal)) {
       if (debug) {
         log(
-          `level${level}: go set the value of ${assetVal} as number ${parseFloat(
+          `isNumber: level${level}: go set the value of ${assetVal} as number ${parseFloat(
             settingVal,
           )}`,
         );
@@ -1295,6 +1311,7 @@ function logAssetValueString(
         parseFloat(settingVal),
         model,
         assetName,
+        '8', //callerID
       );
       if (debug) {
         log(`level${level}: return true`);
@@ -1321,7 +1338,9 @@ function logAssetValueString(
   if (parsedOK && level > 1) {
     if (assetName !== assetVal) {
       if (debug) {
-        log(`level${level}: go set the value of ${assetName} as ${assetVal}`);
+        log(
+          `parsedOK: level${level}: go set the value of ${assetName} as ${assetVal}`,
+        );
       }
       setValue(
         values,
@@ -1331,6 +1350,7 @@ function logAssetValueString(
         assetVal,
         model,
         assetName,
+        '9', //callerID
       );
     }
 
@@ -1639,9 +1659,27 @@ function revalueApplied(
     // log(`passing ${t.TO_VALUE} as new value of ${moment.name}`);
     // log('in revalueApplied:');
     if (!t.TO_ABSOLUTE && tToValue !== undefined) {
-      setValue(values, evaluations, moment.date, w, tToValue, model, revalue);
+      setValue(
+        values,
+        evaluations,
+        moment.date,
+        w,
+        tToValue,
+        model,
+        revalue,
+        '10', //callerID
+      );
     } else {
-      setValue(values, evaluations, moment.date, w, t.TO_VALUE, model, revalue);
+      setValue(
+        values,
+        evaluations,
+        moment.date,
+        w,
+        t.TO_VALUE,
+        model,
+        revalue,
+        '11', //callerID
+      );
     }
   });
   return true;
@@ -1790,6 +1828,7 @@ function calculateFromChange(
       q - numberUnits,
       model,
       t.FROM,
+      '12', //callerID
     );
   }
 
@@ -1884,6 +1923,7 @@ function calculateToChange(
           newNumUnits,
           model,
           t.TO,
+          '13', //callerID
         );
         toChange = 0.0;
         // log(`toChange = ${toChange}`);
@@ -1962,6 +2002,7 @@ function handleCGTLiability(
       newPurchasePrice,
       model,
       t.NAME, // TODO no test??
+      '13', //callerID
     );
   } else {
     log('BUG!! - CGT liability on an asset with no record of purchase price');
@@ -2080,6 +2121,7 @@ function processTransactionFromTo(
       newFromValue,
       model,
       makeSourceForFromChange(t),
+      '14', //callerID
     );
   }
 
@@ -2126,6 +2168,7 @@ function processTransactionFromTo(
         preToValue + toChange,
         model,
         makeSourceForToChange(t, fromWord),
+        '15', //callerID
       );
     }
   }
@@ -2169,7 +2212,16 @@ function processTransactionTo(
     // log(`fromChange for the "TO" part of this transaction = ${fromChange}`);
     value += change;
     // log('in processTransactionTo, setValue:');
-    setValue(values, evaluations, moment.date, t.TO, value, model, t.NAME);
+    setValue(
+      values,
+      evaluations,
+      moment.date,
+      t.TO,
+      value,
+      model,
+      t.NAME,
+      '16', //callerID
+    );
   }
 }
 
@@ -2301,6 +2353,7 @@ function logPurchaseValues(
       parseFloat(a.PURCHASE_PRICE),
       model,
       `Purchase${a.NAME}`,
+      '17', //callerID
     );
   }
 }
@@ -2473,6 +2526,7 @@ export function getEvaluations(
   // liabilitiesMap.forEach((value, key)=>{log(`{\`${key}\`, \`${value}\`}`)});
 
   model.assets.forEach(asset => {
+    //  log(`log data for asset ${asset.NAME}`);
     logAssetGrowth(asset, cpiInitialVal, growths, model.settings);
 
     logAssetValueString(
@@ -2523,8 +2577,9 @@ export function getEvaluations(
   model.settings.forEach(setting => {
     let referencingDates = model.transactions
       .filter(t => {
+        // log(`is setting ${setting.NAME} in t.TO  = ${t.TO}?`);
         // does the setting name appear as part of the transaction TO value?
-        if (t.TO_VALUE.includes(setting.NAME)) {
+        if (t.TO_VALUE.includes(setting.NAME) || t.TO.includes(setting.NAME)) {
           return true;
         }
         return false;
@@ -2537,17 +2592,18 @@ export function getEvaluations(
       .map(ds => new Date(ds));
 
     // log(`got referencing dates ${showObj(referencingDates)}`);
-    /*
-    referencingDates = referencingDates.concat(model.assets
-      .filter(a => {
-        if(a.GROWTH === setting.NAME){
-          return true;
-        } 
-        return false;
-      })
-      .map(a => a.START)
-      .map(ds => getTriggerDate(ds, model.triggers)));
-*/
+    referencingDates = referencingDates.concat(
+      model.assets
+        .filter(a => {
+          if (a.GROWTH === setting.NAME) {
+            return true;
+          }
+          return false;
+        })
+        .map(a => a.START)
+        .map(ds => getTriggerDate(ds, model.triggers)),
+    );
+
     // log(`referencingDates for ${setting.NAME} = ${referencingDates.map(d=>d.toDateString())}`);
     referencingDates = referencingDates.sort();
     if (referencingDates.length > 0 && values.get(setting.NAME) === undefined) {
@@ -2559,6 +2615,7 @@ export function getEvaluations(
         setting.VALUE,
         model,
         setting.NAME,
+        '18', //callerID
       );
     }
   });
@@ -2720,6 +2777,7 @@ export function getEvaluations(
             startQ,
             model,
             moment.name, // source
+            '19', //callerID
           );
         }
       }
@@ -2733,6 +2791,7 @@ export function getEvaluations(
         startValue,
         model,
         moment.name, // e.g. Cash (it's just the starting value)
+        '20', //callerID
       );
       if (moment.type === momentType.incomeStart) {
         if (typeof startValue === 'string') {
@@ -2763,32 +2822,42 @@ export function getEvaluations(
     } else {
       // not a transaction
       // not at start of expense/income/asset
-      let x: string | number | undefined = getNumberValue(
+      let numberVal: string | number | undefined = getNumberValue(
         values,
         moment.name,
         false,
       );
       // log(`value of ${moment.name} is ${x}`);
-      if (x === undefined) {
-        x = values.get(moment.name);
-        if (x !== undefined) {
+      if (numberVal === undefined) {
+        const val = values.get(moment.name);
+        if (val !== undefined) {
           setValue(
             values,
             evaluations,
             moment.date,
             moment.name,
-            x,
+            val,
             model,
             growth,
+            '21', //callerID
           );
         }
       } else {
         const inf = getGrowth(moment.name, growths);
         if (printDebug()) {
-          log(`change = x * inf = ${x * inf}`);
+          log(`change = numberVal * inf = ${numberVal * inf}`);
         }
-        const change = x * inf;
-        x += change;
+        const change = numberVal * inf;
+        numberVal += change;
+
+        let val: string | number = numberVal;
+        if (change === 0) {
+          const storedVal = values.get(moment.name);
+          if (storedVal !== undefined) {
+            val = storedVal;
+          }
+        }
+
         // We _do_ want to log changes of 0
         // because this is how we generate monthly
         // data to plot.
@@ -2799,9 +2868,10 @@ export function getEvaluations(
           evaluations,
           moment.date,
           moment.name,
-          x,
+          val,
           model,
           growth,
+          '22', //callerID
         );
         // }
         if (moment.type === momentType.asset) {
@@ -2821,7 +2891,7 @@ export function getEvaluations(
           );
         } else if (moment.type === momentType.income) {
           handleIncome(
-            x,
+            numberVal,
             moment,
             values,
             evaluations,
@@ -2833,7 +2903,14 @@ export function getEvaluations(
           );
         } else if (moment.type === momentType.expense) {
           // log('in getEvaluations, adjustCash:');
-          adjustCash(-x, moment.date, values, evaluations, model, moment.name);
+          adjustCash(
+            -val,
+            moment.date,
+            values,
+            evaluations,
+            model,
+            moment.name,
+          );
         }
       }
       if (printDebug()) {

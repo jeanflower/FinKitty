@@ -350,13 +350,15 @@ function handleTransactionGridRowsUpdated(
   }
 
   const parseFrom = makeValueAbsPropFromString(gridData.FROM_VALUE);
+
+  const transactionType = gridData.TYPE;
   const parseTo = makeValueAbsPropFromString(gridData.TO_VALUE);
-  if (!parseFrom.checksOK) {
+  if (transactionType !== revalueSetting && !parseFrom.checksOK) {
     showAlert(
       `From value ${gridData.FROM_VALUE} should be a number or a number with % symbol`,
     );
     gridData[args[0].cellKey] = oldValue;
-  } else if (!parseTo.checksOK) {
+  } else if (transactionType !== revalueSetting && !parseTo.checksOK) {
     showAlert(
       `To value ${gridData.TO_VALUE} should be a number or a number with % symbol`,
     );
