@@ -729,7 +729,6 @@ function isRevalueDebtType(t: DbTransaction, model: DbModelData) {
   if (
     t.NAME.startsWith(revalue) &&
     isADebt(t.TO, model) &&
-    t.RECURRENCE === '' &&
     t.CATEGORY === ''
   ) {
     // log(`for ${t.NAME} is a revalueDebt`);
@@ -752,7 +751,6 @@ function isRevalueAssetType(t: DbTransaction, model: DbModelData) {
   if (
     t.NAME.startsWith(revalue) &&
     isAnAssetOrAssets(t.TO, model) &&
-    t.RECURRENCE === '' &&
     t.CATEGORY === ''
   ) {
     // log(`for ${t.NAME} is a revalueAsset`);
@@ -775,7 +773,6 @@ function isRevalueIncomeType(t: DbTransaction, model: DbModelData) {
   if (
     t.NAME.startsWith(revalue) &&
     isAnIncome(t.TO, model) &&
-    t.RECURRENCE === '' &&
     t.CATEGORY === ''
   ) {
     recognised = true;

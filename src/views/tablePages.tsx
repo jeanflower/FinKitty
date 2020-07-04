@@ -739,31 +739,31 @@ function makeTransactionCols(model: DbModelData, type: string) {
       },
     ]);
   }
+  if (type !== autogen) {
+    cols = cols.concat([
+      {
+        ...defaultColumn,
+        key: 'RECURRENCE',
+        name: 'recurrence',
+      },
+    ]);
+  }
+  if (type !== payOffDebt) {
+    cols = cols.concat([
+      {
+        ...defaultColumn,
+        key: 'STOP_DATE',
+        name: 'recurrence end date',
+        formatter: <TriggerDateFormatter model={model} value="unset" />,
+      },
+    ]);
+  }
   if (
     type !== revalueInc &&
     type !== revalueExp &&
     type !== revalueAsset &&
     type !== revalueDebt
   ) {
-    if (type !== autogen) {
-      cols = cols.concat([
-        {
-          ...defaultColumn,
-          key: 'RECURRENCE',
-          name: 'recurrence',
-        },
-      ]);
-    }
-    if (type !== payOffDebt) {
-      cols = cols.concat([
-        {
-          ...defaultColumn,
-          key: 'STOP_DATE',
-          name: 'recurrence end date',
-          formatter: <TriggerDateFormatter model={model} value="unset" />,
-        },
-      ]);
-    }
     cols = cols.concat([
       {
         ...defaultColumn,
