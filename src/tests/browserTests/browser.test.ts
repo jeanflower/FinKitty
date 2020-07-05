@@ -242,12 +242,12 @@ async function addSetting(
   pauseBeforeClick = 0,
 ) {
   Promise.all([
-    fillInputById(driver, 'name', inputs.name),
-    fillInputById(driver, 'value', inputs.value),
+    fillInputById(driver, 'settingname', inputs.name),
+    fillInputById(driver, 'settingvalue', inputs.value),
   ]);
 
   await sleep(pauseBeforeClick, 'in-between demo steps');
-  await clickButton(driver, 'addEntry');
+  await clickButton(driver, 'addSetting');
   await sleep(1000, 'waiting');
 
   await checkMessage(driver, inputs.message);
@@ -3366,6 +3366,8 @@ describe('Chrome Interaction debts', () => {
     expect(ary[0].dataPoints[14].y).toEqual(359.171265204426);
     expect(ary[0].dataPoints[14].ttip).toEqual('359.17 at Fri Feb 01 2019');
 
+    // log(`done first block of expectations`);
+
     await clickButton(driver, 'btn-Settings');
     await addSetting(driver, {
       name: 'EUR',
@@ -3442,6 +3444,8 @@ describe('Chrome Interaction debts', () => {
     expect(ary[0].dataPoints[14].y).toEqual(22);
     expect(ary[0].dataPoints[14].ttip).toEqual('22.00 at Fri Feb 01 2019');
 
+    // log(`done second block of expectations`);
+
     await clickButton(driver, 'btn-Transactions');
     await addTransaction(driver, {
       ...transactionInputs,
@@ -3508,6 +3512,8 @@ describe('Chrome Interaction debts', () => {
     expect(ary[0].dataPoints[14].label).toEqual('Fri Feb 01 2019');
     expect(ary[0].dataPoints[14].y).toEqual(44);
     expect(ary[0].dataPoints[14].ttip).toEqual('44.00 at Fri Feb 01 2019');
+
+    // log(`done third block of expectations`);
 
     await clickButton(driver, 'btn-Transactions');
     await addTransaction(driver, {
@@ -3577,6 +3583,8 @@ describe('Chrome Interaction debts', () => {
     expect(ary[0].dataPoints[14].label).toEqual('Fri Feb 01 2019');
     expect(ary[0].dataPoints[14].y).toEqual(92.4);
     expect(ary[0].dataPoints[14].ttip).toEqual('92.40 at Fri Feb 01 2019');
+
+    // log(`done fourth block of expectations`);
 
     await clickButton(driver, 'btn-Transactions');
     await addTransaction(driver, {
@@ -3800,7 +3808,7 @@ describe('Chrome Interaction debts', () => {
     await pauseForDemo();
     await clickButton(driver, 'btn-clear-alert');
     await pauseForDemo();
-    log('done Ben salary');
+    // log('done Ben salary');
 
     // a bit of scrolling to ensure the toggle-incomesChart button
     // can be interacted with
@@ -3878,14 +3886,14 @@ describe('Chrome Interaction debts', () => {
     await clickButton(driver, 'btn-Incomes');
     await pauseForDemo();
 
-    await driver.executeScript('window.scrollBy(0, -200)'); // Adjust scrolling with a negative value here
+    await driver.executeScript('window.scrollBy(0, -400)'); // Adjust scrolling with a negative value here
 
-    log('go to toggle incomes chart off again');
+    // log('go to toggle incomes chart off again...');
 
     await clickButton(driver, 'toggle-incomesChart');
     await pauseForDemo();
 
-    log('toggled incomes chart off again');
+    // log('toggled incomes chart off again');
 
     await addIncome(
       driver,
@@ -3907,7 +3915,7 @@ describe('Chrome Interaction debts', () => {
     await pauseForDemo();
     await clickButton(driver, 'btn-clear-alert');
     await pauseForDemo();
-    log('done Jerry salary');
+   // log('done Jerry salary');
 
     toggleChart = await driver.findElements(
       webdriver.By.id(`toggle-incomesChart`),
@@ -3976,7 +3984,7 @@ describe('Chrome Interaction debts', () => {
     await pauseForDemo();
     await clickButton(driver, 'btn-clear-alert');
     await pauseForDemo();
-    log('done Ben state pension');
+   // log('done Ben state pension');
 
     // a bit of scrolling to ensure the toggle-incomesChart button
     // can be interacted with
@@ -4029,7 +4037,7 @@ describe('Chrome Interaction debts', () => {
     await pauseForDemo();
     await clickButton(driver, 'btn-clear-alert');
     await pauseForDemo();
-    log('done Jerry state pension');
+   // log('done Jerry state pension');
 
     // a bit of scrolling to ensure the toggle-incomesChart button
     // can be interacted with
@@ -4081,7 +4089,7 @@ describe('Chrome Interaction debts', () => {
     await pauseForDemo();
     await clickButton(driver, 'btn-clear-alert');
     await pauseForDemo();
-    log('done Jerry work');
+   // log('done Jerry work');
 
     toggleChart = await driver.findElements(
       webdriver.By.id(`toggle-incomesChart`),
@@ -4122,7 +4130,7 @@ describe('Chrome Interaction debts', () => {
     );
     await clickButton(driver, 'btn-clear-alert');
     await pauseForDemo();
-    log('done Basic expenses working');
+   // log('done Basic expenses working');
 
     toggleChart = await driver.findElements(
       webdriver.By.id(`toggle-expensesChart`),
@@ -4160,7 +4168,7 @@ describe('Chrome Interaction debts', () => {
     );
     await clickButton(driver, 'btn-clear-alert');
     await pauseForDemo();
-    log('done Basic expenses downsize');
+   // log('done Basic expenses downsize');
 
     expenseInputs = {
       name: 'Leisure expenses working',
@@ -4183,7 +4191,7 @@ describe('Chrome Interaction debts', () => {
     );
     await clickButton(driver, 'btn-clear-alert');
     await pauseForDemo();
-    log('done Leisure expenses working');
+   // log('done Leisure expenses working');
 
     toggleChart = await driver.findElements(
       webdriver.By.id(`toggle-expensesChart`),
@@ -4213,6 +4221,8 @@ describe('Chrome Interaction debts', () => {
     await clickButton(driver, 'btn-clear-alert');
     await pauseForDemo();
 
+    await clickButton(driver, 'btn-Expenses');
+
     expenseInputs = {
       name: 'Leisure expenses retired',
       value: '2000',
@@ -4234,7 +4244,7 @@ describe('Chrome Interaction debts', () => {
     );
     await clickButton(driver, 'btn-clear-alert');
     await pauseForDemo();
-    log('done Leisure expenses retired');
+   // log('done Leisure expenses retired');
 
     toggleChart = await driver.findElements(
       webdriver.By.id(`toggle-expensesChart`),
@@ -4272,7 +4282,7 @@ describe('Chrome Interaction debts', () => {
     );
     await clickButton(driver, 'btn-clear-alert');
     await pauseForDemo();
-    log('done Care costs');
+   // log('done Care costs');
 
     toggleChart = await driver.findElements(
       webdriver.By.id(`toggle-expensesChart`),
@@ -4325,7 +4335,7 @@ describe('Chrome Interaction debts', () => {
     );
     await clickButton(driver, 'btn-clear-alert');
     await pauseForDemo();
-    log('done House maintenance');
+   // log('done House maintenance');
 
     toggleChart = await driver.findElements(
       webdriver.By.id(`toggle-expensesChart`),
@@ -4363,7 +4373,7 @@ describe('Chrome Interaction debts', () => {
     );
     await clickButton(driver, 'btn-clear-alert');
     await pauseForDemo();
-    log('done Replace car');
+   // log('done Replace car');
 
     toggleChart = await driver.findElements(
       webdriver.By.id(`toggle-expensesChart`),
@@ -4405,7 +4415,7 @@ describe('Chrome Interaction debts', () => {
     await pauseForDemo();
     await clickButton(driver, 'btn-clear-alert');
     await pauseForDemo();
-    log('done House');
+   // log('done House');
 
     toggleChart = await driver.findElements(
       webdriver.By.id(`toggleAssetsChart`),
@@ -4447,7 +4457,7 @@ describe('Chrome Interaction debts', () => {
     await pauseForDemo();
     await clickButton(driver, 'btn-clear-alert');
     await pauseForDemo();
-    log('done ISA');
+   // log('done ISA');
 
     toggleChart = await driver.findElements(
       webdriver.By.id(`toggleAssetsChart`),
@@ -4486,7 +4496,7 @@ describe('Chrome Interaction debts', () => {
     await pauseForDemo();
     await clickButton(driver, 'btn-clear-alert');
     await pauseForDemo();
-    log('done Jerry stocks');
+   // log('done Jerry stocks');
 
     toggleChart = await driver.findElements(
       webdriver.By.id(`toggleAssetsChart`),
@@ -4534,7 +4544,7 @@ describe('Chrome Interaction debts', () => {
     await pauseForDemo();
     await clickButton(driver, 'btn-clear-alert');
     await pauseForDemo();
-    log('done Jerry Aegon');
+   // log('done Jerry Aegon');
 
     toggleChart = await driver.findElements(
       webdriver.By.id(`toggleAssetsChart`),
@@ -4582,7 +4592,7 @@ describe('Chrome Interaction debts', () => {
     await pauseForDemo();
     await clickButton(driver, 'btn-clear-alert');
     await pauseForDemo();
-    log('done Ben Prudential');
+   // log('done Ben Prudential');
 
     toggleChart = await driver.findElements(
       webdriver.By.id(`toggleAssetsChart`),
@@ -4622,7 +4632,7 @@ describe('Chrome Interaction debts', () => {
     await pauseForDemo();
     await clickButton(driver, 'btn-clear-alert');
     await pauseForDemo();
-    log('done Mortgage');
+   // log('done Mortgage');
 
     toggleChart = await driver.findElements(
       webdriver.By.id(`toggleDebtsChart`),
@@ -4658,7 +4668,7 @@ describe('Chrome Interaction debts', () => {
     await pauseForDemo();
     await clickButton(driver, 'btn-clear-alert');
     await pauseForDemo();
-    log('done Jerry loan');
+   // log('done Jerry loan');
 
     toggleChart = await driver.findElements(
       webdriver.By.id(`toggleDebtsChart`),
@@ -4694,7 +4704,7 @@ describe('Chrome Interaction debts', () => {
     await pauseForDemo();
     await clickButton(driver, 'btn-clear-alert');
     await pauseForDemo();
-    log('done Ben loan');
+   // log('done Ben loan');
 
     toggleChart = await driver.findElements(
       webdriver.By.id(`toggleDebtsChart`),
@@ -4736,7 +4746,7 @@ describe('Chrome Interaction debts', () => {
     await pauseForDemo();
     await clickButton(driver, 'btn-clear-alert');
     await pauseForDemo();
-    log('done Downsize house');
+   // log('done Downsize house');
 
     transactionInputs = {
       name: 'Sell ISAs for cash',
@@ -4761,7 +4771,7 @@ describe('Chrome Interaction debts', () => {
     await pauseForDemo();
     await clickButton(driver, 'btn-clear-alert');
     await pauseForDemo();
-    log('done Sell ISAs for cash');
+   // log('done Sell ISAs for cash');
 
     transactionInputs = {
       name: 'Sell stocks for cash',
@@ -4786,7 +4796,7 @@ describe('Chrome Interaction debts', () => {
     await pauseForDemo();
     await clickButton(driver, 'btn-clear-alert');
     await pauseForDemo();
-    log('done Sell stocks for cash');
+   // log('done Sell stocks for cash');
 
     transactionInputs = {
       name: 'Sell AegonTaxFree',
@@ -4811,7 +4821,7 @@ describe('Chrome Interaction debts', () => {
     await pauseForDemo();
     await clickButton(driver, 'btn-clear-alert');
     await pauseForDemo();
-    log('done Sell AegonTaxFree');
+   // log('done Sell AegonTaxFree');
 
     transactionInputs = {
       name: 'Sell PrudentialTaxFree ',
@@ -4836,7 +4846,7 @@ describe('Chrome Interaction debts', () => {
     await pauseForDemo();
     await clickButton(driver, 'btn-clear-alert');
     await pauseForDemo();
-    log('done Sell PrudentialTaxFree');
+   // log('done Sell PrudentialTaxFree');
 
     transactionInputs = {
       name: 'Sell CrystallizedPensionJerry ',
@@ -4861,7 +4871,7 @@ describe('Chrome Interaction debts', () => {
     await pauseForDemo();
     await clickButton(driver, 'btn-clear-alert');
     await pauseForDemo();
-    log('done Sell CrystallizedPensionJerry');
+   // log('done Sell CrystallizedPensionJerry');
 
     transactionInputs = {
       name: 'Sell CrystallizedPensionBen ',
@@ -4886,7 +4896,7 @@ describe('Chrome Interaction debts', () => {
     await pauseForDemo();
     await clickButton(driver, 'btn-clear-alert');
     await pauseForDemo();
-    log('done Sell CrystallizedPensionBen');
+   // log('done Sell CrystallizedPensionBen');
 
     // await cleanUpWork(driver, modelName);
 

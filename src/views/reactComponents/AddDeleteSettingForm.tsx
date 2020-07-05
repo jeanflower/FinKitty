@@ -302,7 +302,7 @@ export class AddDeleteSettingForm extends Component<
 
     await this.props.submitSettingFunction(setting, this.props.model);
 
-    this.props.showAlert('added new setting');
+    this.props.showAlert(`added new setting ${this.state.NAME}`);
     // clear fields
     this.setState(this.defaultState);
   }

@@ -56,23 +56,26 @@ function makeFiltersList(
   gridData: { CATEGORY: string; NAME: string }[],
   selectedChartFocus: string,
   settingName: string,
-  defaultSetting: string,
   model: DbModelData,
 ) {
   // selectedChartFocus = this.getExpenseChartFocus()
   // settingName = expenseChartFocus
   // defaultSetting = expenseChartFocusAll
   // hint = expenseChartFocusHint
-  const categories = [defaultSetting];
+  let buttonNames = [allItems];
+  const names: string[] = [];
   gridData.forEach(e => {
-    let candidate = defaultSetting;
-    candidate = e.NAME;
-    if (categories.indexOf(candidate) < 0) {
-      categories.push(candidate);
+    let candidate = e.NAME;
+    if (names.indexOf(candidate) < 0) {
+      names.push(candidate);
     }
   });
+  names.sort();
+  buttonNames = buttonNames.concat(names);
+
+  const categories: string[] = [];
   gridData.forEach(e => {
-    let candidate = defaultSetting;
+    let candidate = allItems;
     if (e.CATEGORY !== '') {
       candidate = e.CATEGORY;
       if (categories.indexOf(candidate) < 0) {
@@ -80,9 +83,12 @@ function makeFiltersList(
       }
     }
   });
-  const buttons = categories.map(category => (
+  categories.sort();
+  buttonNames = buttonNames.concat(categories);
+
+  const buttons = buttonNames.map(buttonName => (
     <Button
-      key={category}
+      key={buttonName}
       action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.persist();
         // when a button is clicked,
@@ -90,14 +96,14 @@ function makeFiltersList(
         editSetting(
           {
             NAME: settingName,
-            VALUE: category,
+            VALUE: buttonName,
           },
           model,
         );
       }}
-      title={category}
-      type={category === selectedChartFocus ? 'primary' : 'secondary'}
-      id={`select-${category}`}
+      title={buttonName}
+      type={buttonName === selectedChartFocus ? 'primary' : 'secondary'}
+      id={`select-${buttonName}`}
     />
   ));
   return <div role="group">{buttons}</div>;
@@ -203,7 +209,6 @@ export function incomesChartDiv(
         model.incomes,
         getIncomeChartFocus(model),
         incomeChartFocus,
-        allItems,
         model,
       )}
       {coarseFineList(model)}
@@ -251,7 +256,6 @@ export function expensesChartDiv(
         model.expenses,
         getExpenseChartFocus(model),
         expenseChartFocus,
-        allItems,
         model,
       )}
       {coarseFineList(model)}
