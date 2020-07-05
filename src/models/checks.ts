@@ -726,11 +726,7 @@ function isLiquidateAssetType(t: DbTransaction) {
 function isRevalueDebtType(t: DbTransaction, model: DbModelData) {
   // log(`check transaction ${t.NAME}`);
   let recognised = false;
-  if (
-    t.NAME.startsWith(revalue) &&
-    isADebt(t.TO, model) &&
-    t.CATEGORY === ''
-  ) {
+  if (t.NAME.startsWith(revalue) && isADebt(t.TO, model) && t.CATEGORY === '') {
     // log(`for ${t.NAME} is a revalueDebt`);
     recognised = true;
     /*

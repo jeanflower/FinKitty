@@ -65,7 +65,7 @@ function makeFiltersList(
   let buttonNames = [allItems];
   const names: string[] = [];
   gridData.forEach(e => {
-    let candidate = e.NAME;
+    const candidate = e.NAME;
     if (names.indexOf(candidate) < 0) {
       names.push(candidate);
     }
