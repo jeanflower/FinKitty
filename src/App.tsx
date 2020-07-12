@@ -976,10 +976,12 @@ export class AppContent extends Component<AppProps, AppState> {
               type="secondary"
             />
             <br />
+            <br />
             Select an existing model (for further actions below):
             {this.modelListForSelect(this.state.modelNamesData)}
             <br />
             Actions:
+            <br />
             <Button
               id="startNewModel2"
               action={async () => {
@@ -1031,11 +1033,14 @@ export class AppContent extends Component<AppProps, AppState> {
               type="secondary"
             />
             <br />
+            <br />
             Create new models with example data:
             <br />
             {this.exampleButtonList()}
             <br />
+            <br />
             Dump to a text format or restore from text format:
+            <br />
             <div className="row">
               <div className="col">
                 <ReplaceWithJSONForm
