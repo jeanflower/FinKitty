@@ -32,8 +32,6 @@ import {
 import { DbModelData, DbSetting } from '../../types/interfaces';
 import { log, printDebug } from '../../utils';
 import webdriver, { ThenableWebDriver } from 'selenium-webdriver';
-import { ensureModel } from '../../database/loadSaveModel';
-import { replaceWithModel } from '../../App';
 
 export function allowExtraSleeps() {
   if (
@@ -222,20 +220,83 @@ export async function selectModel(
 
 export const testUserID = 'TestUserID';
 
+export async function clickButton(driver: ThenableWebDriver, id: string) {
+  const btn = await driver.findElements(webdriver.By.id(id));
+  // log(`found ${btn.length} elements with id=${id}`);
+  expect(btn.length === 1).toBe(true);
+  return await btn[0].click();
+}
+
+export async function fillInputById(
+  driver: ThenableWebDriver,
+  id: string,
+  content: string,
+) {
+  const input = await driver.findElements(webdriver.By.id(id));
+  // log(`found ${input.length} elements with id = ${id}`);
+  expect(input.length === 1).toBe(true);
+  const result = await input[0].sendKeys(content);
+  //log(`got ${result} from content ${content}`);
+  return result;
+}
+
+export async function fillInputByName(
+  driver: ThenableWebDriver,
+  name: string,
+  content: string,
+) {
+  const input = await driver.findElements(webdriver.By.name(name));
+  //log(`found ${input.length} elements with name = ${name}`);
+  expect(input.length === 1).toBe(true);
+
+  await driver.executeScript('arguments[0].scrollIntoView(true);', input[0]);
+  await driver.executeScript('window.scrollBy(0, -500)'); // Adjust scrolling with a negative value here
+
+  const result = await input[0].sendKeys(content);
+  // log(`got ${result} from content ${content}`);
+  return result;
+}
+
+export async function replaceWithTestModel(
+  driver: ThenableWebDriver,
+  testDataModelName: string,
+  model: DbModelData,
+) {
+  // too slow!
+  //await fillInputByName(driver, 'replaceWithJSON', `${testDataModelName}${JSON.stringify(model)}`);
+
+  const inputText = `${testDataModelName}${JSON.stringify(model).replace(
+    /'/g,
+    '',
+  )}`;
+  // log(`inputText = ${inputText}`);
+  await driver.executeScript(
+    `document.getElementById('replaceWithJSON').setAttribute('value', '${inputText}')`,
+  );
+
+  // add a character to trigger onChange
+  await fillInputByName(driver, 'replaceWithJSON', ' ');
+
+  await clickButton(driver, 'replaceModel');
+
+  const alert = driver.switchTo().alert();
+  const alertText = await alert.getText();
+  expect(alertText).toEqual(
+    `replace data in model ${testDataModelName}, you sure?`,
+  );
+  // log(`alertText = ${alertText}`);
+  await alert.accept();
+  await clickButton(driver, 'btn-clear-alert');
+}
+
 export async function beforeAllWork(
   driver: ThenableWebDriver,
   testDataModelName: string,
   model: DbModelData,
 ) {
   jest.setTimeout(1000000); // allow time for all these tests to run
-  // log(`go to ensure model ${testDataModelName}`);
 
-  // log(`modelNames1 = ${await getModelNames(testUserID)}`);
-  await ensureModel(testUserID, testDataModelName);
-  // log(`modelNames2 = ${await getModelNames(testUserID)}`);
-
-  // log(`go to replace with ${showObj(model)}`);
-  await replaceWithModel(testUserID, testDataModelName, model);
+  // log(`go to replace with ${JSON.stringify(model)}`);
 
   await driver.get('about:blank');
   await driver.get(serverUri);
@@ -258,6 +319,11 @@ export async function beforeAllWork(
       await x[0].click();
     }
   }
+
+  await clickButton(driver, 'buttonTestLogin');
+  await clickButton(driver, 'btn-Home');
+
+  await replaceWithTestModel(driver, testDataModelName, model);
 
   const btnData = await driver.findElements(webdriver.By.id('buttonTestLogin'));
   if (btnData[0] !== undefined) {
@@ -317,45 +383,6 @@ export async function refreshPage(
   // log('in refreshPage');
   await selectModel(driver, testDataModelName);
   return sleep(calcSleep, 'after refreshing a page');
-}
-
-export async function submitModelInTest(
-  driver: ThenableWebDriver,
-  testDataModelName: string,
-  model: DbModelData,
-) {
-  // log(`submitModelInTest data ${showObj(model)}`);
-  await replaceWithModel(testUserID, testDataModelName, model);
-  await sleep(
-    1000, // was dBSleep 6 Get coarse view charts 03
-    'after submitting a model',
-  ); // go to DB and back - takes longer
-  // log('go to refreshPage');
-  return refreshPage(driver, testDataModelName);
-  // log('page refreshed');
-}
-
-export async function submitSettingChange(
-  driver: ThenableWebDriver,
-  testDataModelName: string,
-  model: DbModelData,
-  forSubmission: DbSetting,
-) {
-  // log('go to submit model with new settings');
-  const newSettings: DbSetting[] = model.settings.map(s => {
-    if (s.NAME === forSubmission.NAME) {
-      return forSubmission;
-    } else {
-      return s;
-    }
-  });
-
-  const newModel = {
-    ...model,
-    settings: newSettings,
-  };
-  await submitModelInTest(driver, testDataModelName, newModel);
-  return newModel;
 }
 
 export function writeTestCode(ary: any[]) {

@@ -1,7 +1,7 @@
 import { DbModelData } from '../../types/interfaces';
 import { getMinimalModelCopy } from '../../utils';
 import { CASH_ASSET_NAME } from '../../localization/stringConstants';
-import { setROI, defaultSettings } from '../testUtils';
+import { setROI } from '../testUtils';
 import { simpleAsset } from '../../types/simple';
 
 export function getThreeChryslerModel() {
@@ -23,7 +23,7 @@ export function getThreeChryslerModel() {
       },
     ],
     settings: [
-      ...defaultSettings,
+      ...minimalModel.settings,
       {
         NAME: 'twoChryslers',
         VALUE: '2chrysler',

@@ -68,15 +68,18 @@ import {
   ensureModel,
   deleteModel,
   saveModelLSM,
+  saveModelToDBLSM,
 } from './database/loadSaveModel';
 import DataGrid from './views/reactComponents/DataGrid';
 import NameFormatter from './views/reactComponents/NameFormatter';
 import { AddDeleteSettingForm } from './views/reactComponents/AddDeleteSettingForm';
+import { ReplaceWithJSONForm } from './views/reactComponents/ReplaceWithJSONForm';
 
 // import './bootstrap.css'
 
-export let modelName: string = exampleModelName;
+let modelName: string = exampleModelName;
 let userID = '';
+let isDirty = false; // does the model need saving?
 
 function App() {
   const {
@@ -328,22 +331,23 @@ export async function refreshData(goToDB = true) {
         modelName = modelNames.sort((a, b) => lessThan(a, b))[0];
         // log(`switch to a different modelName ${modelName}`);
 
-        model = await loadModel(getUserID(), modelName);
-        if (model === undefined) {
+        const modelAndStatus = await loadModel(getUserID(), modelName);
+        if (modelAndStatus === undefined) {
           const response = 'problem with model data';
           showAlert(response);
           return;
         }
+        isDirty = modelAndStatus.status.isDirty;
+        model = modelAndStatus.model;
       } else {
         // log('recreate example models');
         // force us to have the example models
-        Promise.all(
+        await Promise.all(
           exampleModels.map(async x => {
-            await ensureModel(getUserID(), x.name);
             return await saveModelLSM(
+              getUserID(),
               x.name,
               getExampleModel(modelName, x.model),
-              getUserID(),
             );
           }),
         );
@@ -359,10 +363,14 @@ export async function refreshData(goToDB = true) {
       let gotModelOK = true;
       try {
         // log(`look for ${modelName} from ${modelNames}`);
-        model = await loadModel(getUserID(), modelName);
+        const modelAndStatus = await loadModel(getUserID(), modelName);
+        if (modelAndStatus) {
+          isDirty = modelAndStatus.status.isDirty;
+          model = modelAndStatus.model;
+        }
       } catch (err) {
         // log('no model found');
-        log(`Cannot load ${modelName}. Consider 'Force delete'?`);
+        log(`Cannot load ${modelName}, err = ${err}. Consider 'Force delete'?`);
         gotModelOK = false;
       }
       if (!gotModelOK || model === undefined) {
@@ -495,36 +503,51 @@ export async function refreshData(goToDB = true) {
 }
 
 export async function submitAsset(assetInput: DbAsset, modelData: DbModelData) {
-  await submitAssetLSM(assetInput, modelData, getUserID());
-  return await refreshData();
+  await submitAssetLSM(assetInput, modelName, modelData, getUserID());
+  return await refreshData(
+    true, // gotoDB
+  );
 }
 export async function submitExpense(
   expenseInput: DbExpense,
   modelData: DbModelData,
 ) {
-  await submitExpenseLSM(expenseInput, modelData, getUserID());
-  return await refreshData();
+  await submitExpenseLSM(expenseInput, modelName, modelData, getUserID());
+  return await refreshData(
+    true, // gotoDB
+  );
 }
 export async function submitIncome(
   incomeInput: DbIncome,
   modelData: DbModelData,
 ) {
-  await submitIncomeLSM(incomeInput, modelData, getUserID());
-  return await refreshData();
+  await submitIncomeLSM(incomeInput, modelName, modelData, getUserID());
+  return await refreshData(
+    true, // gotoDB
+  );
 }
 export async function submitTransaction(
   transactionInput: DbTransaction,
   modelData: DbModelData,
 ) {
-  await submitTransactionLSM(transactionInput, modelData, getUserID());
-  return await refreshData();
+  await submitTransactionLSM(
+    transactionInput,
+    modelName,
+    modelData,
+    getUserID(),
+  );
+  return await refreshData(
+    true, // gotoDB
+  );
 }
 export async function submitTrigger(
   triggerInput: DbTrigger,
   modelData: DbModelData,
 ) {
-  await submitTriggerLSM(triggerInput, modelData, getUserID());
-  return await refreshData();
+  await submitTriggerLSM(triggerInput, modelName, modelData, getUserID());
+  return await refreshData(
+    true, // gotoDB
+  );
 }
 
 // if HINT or TYPE are empty, leave pre-existing values
@@ -540,16 +563,20 @@ export async function editSetting(
     HINT: '',
     TYPE: '',
   };
-  await submitSettingLSM(settingWithBlanks, modelData, getUserID());
-  return await refreshData();
+  await submitSettingLSM(settingWithBlanks, modelName, modelData, getUserID());
+  return await refreshData(
+    true, // gotoDB
+  );
 }
 
 export async function submitNewSetting(
   setting: DbSetting,
   modelData: DbModelData,
 ) {
-  await submitNewSettingLSM(setting, modelData, getUserID());
-  return await refreshData();
+  await submitNewSettingLSM(setting, modelName, modelData, getUserID());
+  return await refreshData(
+    true, // gotoDB
+  );
 }
 
 export function toggle(type: ViewType) {
@@ -569,14 +596,18 @@ export function toggle(type: ViewType) {
     return false;
   }
   view.display = true;
-  refreshData(false);
+  refreshData(
+    false, // gotoDB
+  );
 }
 
 export function toggleDisplay(type: ViewType) {
   showContent.set(type, {
     display: !showContent.get(type).display,
   });
-  refreshData(false);
+  refreshData(
+    false, // gotoDB
+  );
 }
 
 function checkModelData(givenModel: DbModelData): string {
@@ -615,8 +646,10 @@ export async function deleteItemFromModel(
       return false;
     }
 
-    await saveModelLSM(modelName, model, getUserID());
-    await refreshData();
+    await saveModelLSM(getUserID(), modelName, model);
+    await refreshData(
+      true, // gotoDB
+    );
     return true;
   }
   return false;
@@ -678,22 +711,35 @@ export async function deleteSetting(name: string): Promise<boolean> {
 
 export async function updateModelName(newValue: string) {
   // log(`model name is now ${newValue}`);
-  modelName = newValue;
-  await ensureModel(getUserID(), modelName);
-  return await refreshData();
+  if (modelName === newValue) {
+    return;
+  }
+  if (!isDirty || window.confirm('Continue without save?')) {
+    modelName = newValue;
+    await ensureModel(getUserID(), modelName);
+    await refreshData(
+      true, // gotoDB
+    );
+  }
 }
 
 export async function replaceWithModel(
   userName: string | undefined,
-  modelName: string,
+  thisModelName: string,
   newModel: DbModelData,
 ) {
+  // log(`replaceWithModel...`);
   if (userName === undefined) {
     userName = getUserID();
   }
-  // log(`replace ${modelName} with new model data`);
-  await saveModelLSM(modelName, newModel, userName);
-  return await refreshData();
+  if (!isDirty || window.confirm('Continue without save?')) {
+    modelName = thisModelName;
+    // log(`save ${modelName} with new model data ${newModel}`);
+    await saveModelLSM(userName, modelName, newModel);
+    await refreshData(
+      true, // gotoDB
+    );
+  }
 }
 
 interface AppState {
@@ -743,7 +789,9 @@ export class AppContent extends Component<AppProps, AppState> {
       todaysSettingValues: new Map<string, string>(),
       alertText: '',
     };
-    refreshData();
+    refreshData(
+      true, // gotoDB
+    );
   }
   public componentDidMount() {
     toggle(homeView);
@@ -885,23 +933,24 @@ export class AppContent extends Component<AppProps, AppState> {
       if (idx !== -1) {
         modelNames.splice(idx, 1);
       } else {
-        log(`error, deleted ${modelNameForDelete} not found in ${modelNames}`);
+        log(`error, deleted ${modelNameForDelete} found in ${modelNames}`);
       }
       // log(`model names after delete are ${modelNames}`);
       if (modelNames.length === 0) {
         showAlert('no data left: recreating example model');
         modelName = exampleModelName;
-        await ensureModel(getUserID(), modelName);
         await saveModelLSM(
+          getUserID(),
           modelName,
           makeModelFromJSON(modelName, simpleExampleData),
-          getUserID(),
         );
       } else {
         modelName = modelNames.sort()[0];
         // log(`model name after delete is ${modelName}`);
       }
-      await refreshData();
+      await refreshData(
+        true, // gotoDB
+      );
     }
   }
 
@@ -927,12 +976,10 @@ export class AppContent extends Component<AppProps, AppState> {
               type="secondary"
             />
             <br />
-            <br />
             Select an existing model (for further actions below):
             {this.modelListForSelect(this.state.modelNamesData)}
             <br />
             Actions:
-            <br />
             <Button
               id="startNewModel2"
               action={async () => {
@@ -984,14 +1031,20 @@ export class AppContent extends Component<AppProps, AppState> {
               type="secondary"
             />
             <br />
-            <br />
             Create new models with example data:
             <br />
             {this.exampleButtonList()}
             <br />
-            <br />
             Dump to a text format or restore from text format:
-            <br />
+            <div className="row">
+              <div className="col">
+                <ReplaceWithJSONForm
+                  modelName={modelName}
+                  userID={userID}
+                  showAlert={showAlert}
+                />
+              </div>
+            </div>
             <Button
               action={() => {
                 const text = JSON.stringify(this.state.modelData);
@@ -1012,19 +1065,6 @@ export class AppContent extends Component<AppProps, AppState> {
               }}
               title="Copy model as JSON to clipboard"
               id={`btn-log`}
-              type="secondary"
-            />
-            <Button
-              action={() => {
-                const input = prompt('Paste in JSON here');
-                if (input === null) {
-                  return;
-                }
-                const newModel = makeModelFromJSON(modelName, input);
-                replaceWithModel(undefined, modelName, newModel);
-              }}
-              title="Replace model with JSON"
-              id={`btn-JSON-replace`}
               type="secondary"
             />
             <Button
@@ -1311,12 +1351,35 @@ export class AppContent extends Component<AppProps, AppState> {
     return <div role="group">{buttons}</div>;
   }
 
+  private makeSaveButton() {
+    // log(`isDirty = ${isDirty}`);
+    return (
+      <div className="col-">
+        <Button
+          key={'alert'}
+          action={async (
+            e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+          ) => {
+            // log('clear alert text');
+            e.persist();
+            await saveModelToDBLSM(userID, modelName, this.state.modelData);
+            refreshData();
+          }}
+          title={'save model'}
+          id={`btn-save-model`}
+          type={isDirty ? 'primary' : 'secondary'}
+        />
+      </div>
+    );
+  }
+
   private makeHelpText(alertText: string) {
     if (alertText !== '') {
       //log('display alert text');
       return (
         <div className="container-fluid">
           <div className="row">
+            {this.makeSaveButton()}
             <div className="col-">
               <h4 className="text-warning" id="pageTitle">
                 {alertText}
@@ -1328,7 +1391,7 @@ export class AppContent extends Component<AppProps, AppState> {
                 action={(
                   e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
                 ) => {
-                  log('clear alert text');
+                  // log('clear alert text');
                   e.persist();
                   this.setState({ alertText: '' });
                 }}
@@ -1353,9 +1416,17 @@ export class AppContent extends Component<AppProps, AppState> {
           return;
         }
         return (
-          <h4 className="text-white" id="pageTitle">
-            {(entry.value !== homeView ? modelName + ': ' : '') + view.helpText}
-          </h4>
+          <div className="container-fluid">
+            <div className="row">
+              {this.makeSaveButton()}
+              <div className="col-">
+                <h4 className="text-white" id="pageTitle">
+                  {(entry.value !== homeView ? modelName + ': ' : '') +
+                    view.helpText}
+                </h4>
+              </div>
+            </div>
+          </div>
         );
       }
       entry = it.next();

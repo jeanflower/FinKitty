@@ -610,7 +610,8 @@ export function checkTriggerDate(input: string, triggers: DbTrigger[]) {
     if (dateTry.getTime()) {
       result = dateTry;
     } else {
-      log(`BUG : unrecognised date!!! ${input}, ${showObj(triggers.length)}`);
+      //log(`BUG : unrecognised date!!! ${input}, `
+      // `${showObj(triggers.length)}`);
       result = undefined;
     }
   }
@@ -793,7 +794,7 @@ function getGuessSettingType(name: string) {
 
 // note JSON stringify and back for serialisation is OK but
 // breaks dates (and functions too but we don't have these)
-function cleanUp(modelFromJSON: any): DbModelData {
+function cleanUp(modelFromJSON: DbModelData): DbModelData {
   const result = {
     ...modelFromJSON,
     expenses: modelFromJSON.expenses.map((e: any) => {
@@ -860,7 +861,7 @@ export function addRequiredEntries(modelName: string, model: DbModelData) {
         return existing.NAME === x.NAME;
       }).length === 0
     ) {
-      log(`${modelName} needs insertion of missing data ${showObj(x)}`);
+      // log(`${modelName} needs insertion of missing data ${showObj(x)}`);
       model.settings.push(x);
       // throw new Error(`inserting missing data ${showObj(x)}`);
     }

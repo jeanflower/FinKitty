@@ -51,6 +51,7 @@ import {
   viewType,
   revalueSetting,
   revalue,
+  allItems,
 } from '../../localization/stringConstants';
 import {
   ChartDataPoint,
@@ -15378,6 +15379,8 @@ describe('evaluations tests', () => {
     const modelAndRoi = getThreeChryslerModel();
     const model = modelAndRoi.model;
     const roi = modelAndRoi.roi;
+
+    setSetting(model.settings, assetChartFocus, allItems, viewType);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;

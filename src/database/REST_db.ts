@@ -147,15 +147,15 @@ export class RESTDB implements DbInterface {
 
     return fetch(`${url}update`, requestOptions)
       .then(response => {
-        // console.log(`update successful`);
+        console.log(`update successful`);
         const result = response.text();
-        // console.log(`response.text() = ${result}`);
+        console.log(`response.text() = ${result}`);
         return result;
       })
       .then(result => {
-        if (printDebug()) {
-          console.log(result);
-        }
+        //if (printDebug()) {
+        console.log(result);
+        //}
       })
       .catch(error => {
         return console.log('error', error);

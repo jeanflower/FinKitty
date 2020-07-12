@@ -9,19 +9,47 @@ import {
   DbModelData,
 } from '../types/interfaces';
 
-import { log, printDebug, showObj } from '../utils';
+import { log, printDebug, showObj, minimalModel } from '../utils';
 
 import { getDB } from './database';
 
-import { modelName } from '../App';
-
 import { custom, adjustableType } from '../localization/stringConstants';
 
-const showDBInteraction = false;
+import { diffModels } from '../diffModels';
 
-export async function getModelNames(userID: string) {
+const showDBInteraction = false;
+const validateCache = false;
+
+interface ModelStatus {
+  isDirty: boolean;
+}
+
+interface CacheModel {
+  modelName: string;
+  status: ModelStatus;
+  model: DbModelData;
+}
+
+// First time user X requests anything from this cache,
+// user X will be absent and all user X models will be loaded.
+// Models will be in 'clean' status
+// After that they can become dirty through local edits
+// or become clean through save to db
+
+const localCache: Map<string, CacheModel[]> 
+  = new Map<string, CacheModel[]>();
+
+export async function getModelNames(userID: string){
+  let cachedModels = localCache.get(userID);
+  if(!cachedModels){
+    cachedModels = await fillCacheFromDB(userID);  
+  }
+  return cachedModels.map((cm)=>{ return cm.modelName; });
+}
+
+async function getModelNamesDB(userID: string) {
   if (showDBInteraction) {
-    log(`get model names for user ${userID}`);
+    log(`getDB get model names for user ${userID}`);
   }
   let modelNames: string[] = [];
   try {
@@ -35,15 +63,13 @@ export async function getModelNames(userID: string) {
   return modelNames;
 }
 
-export async function loadModel(userID: string, modelName: string) {
-  if (showDBInteraction) {
-    log(`load model for user ${userID}`);
-  }
-  let model: DbModelData | undefined = undefined;
+async function loadModelFromDB(userID: string, modelName: string):
+Promise<DbModelData | undefined> {
+  let model: DbModelData| undefined;
   try {
     model = await getDB().loadModel(userID, modelName);
   } catch (err) {
-    alert(`Cannot load ${modelName}`);
+    alert(`Cannot load ${modelName}; err = ${err}`);
   }
   if (showDBInteraction) {
     log(`loaded model ${modelName}`);
@@ -51,30 +77,153 @@ export async function loadModel(userID: string, modelName: string) {
   return model;
 }
 
+function logCache(){
+  if (showDBInteraction) {
+    log(`set up ${Array.from(localCache.keys()).map(k => {
+    const cachedModel = localCache.get(k);
+    return `[${k}, ${cachedModel?.map((cm)=>{
+      return cm.modelName+cm.status.isDirty+cm.model.assets.length;
+    })}]`})}`);
+    //return `[${k}, ${showObj(localCache.get(k))}]`})}`);
+  }
+}
+
+async function fillCacheFromDB(userID: string){
+  let cachedModels:CacheModel[] = [];
+  const modelNames = await getModelNamesDB(userID);
+  if (showDBInteraction) {
+    log(`fill cache with these models ${modelNames}`);
+  }
+  for(let idx = 0; idx < modelNames.length; idx = idx + 1){
+    const modelName = modelNames[idx]
+    const model = await loadModelFromDB(userID, modelName);
+    if(model !== undefined){
+      if (showDBInteraction) {
+        log(`got model for ${modelName}, go to add to cache`);
+      }
+      cachedModels.push({
+        modelName: modelName,
+        model: model,
+        status: {isDirty: false},
+      });
+    } else {
+      throw new Error(`model name ${modelName} from DB but no model present???`)
+    }
+  }
+  localCache.set(userID, cachedModels);
+  logCache();
+  return cachedModels;
+}
+
+export async function loadModel(userID: string, modelName: string) {
+  let model: DbModelData | undefined = undefined;
+
+  if (showDBInteraction) {
+    log(`loadModel for ${userID}, name = ${modelName}`);
+  }
+  if(localCache.get(userID) === undefined){
+    await fillCacheFromDB(userID);
+  }
+
+  if (showDBInteraction) {
+    log(`filled cache - now go use it!`);
+  }
+  let cachedModel = localCache.get(userID)?.find((cm)=>{
+    return cm.modelName === modelName;
+  });
+  if (cachedModel) {
+    if (showDBInteraction) {
+      log(`from cache load model ${modelName} for user ${userID}`);
+    }
+    if(validateCache && !cachedModel.status.isDirty){
+      const dbModel = await loadModelFromDB(userID, modelName);
+      if(dbModel === undefined){
+        throw new Error(`DBValidation error: cache has clean model 
+          but DB has no model for ${modelName}`)
+      } else {
+        const diff = diffModels(dbModel, cachedModel.model);
+        if(diff !== ''){
+          throw new Error(`DBValidation error: ${diff} for ${modelName}`)
+        }
+      }
+    }
+    return cachedModel;
+  } else {
+    if (showDBInteraction) {
+      log(`didn't find ${modelName} in cache`);
+    }
+    return undefined;
+  }
+}
+async function saveModelToCache(
+  userID: string,
+  modelName: string,
+  modelData: DbModelData,
+) {
+  let cachedModels = localCache.get(userID);
+  if(!cachedModels){
+    cachedModels = [];
+  }
+
+  const cachedModel = {
+    modelName: modelName,
+    model: modelData,
+    status: { isDirty: true },
+  }
+  const idx = cachedModels.findIndex((cm)=>{ 
+    return cm.modelName === modelName;
+  });
+  if(idx !== -1){
+    cachedModels.splice(idx, 1, cachedModel);
+  } else {
+    cachedModels.push(cachedModel);
+  }
+}
+
 export async function ensureModel(userID: string, modelName: string) {
   if (showDBInteraction) {
     log(`ensure model ${modelName} for user ${userID}`);
   }
-  const result = await getDB().ensureModel(userID, modelName);
-  if (showDBInteraction) {
-    log(`loaded model ${modelName}`);
+  let cachedModels = localCache.get(userID);
+  if(!cachedModels){
+    cachedModels = [];
   }
-  return result;
+
+  const cachedModel = cachedModels.find((cm)=>{
+    return cm.modelName === modelName;
+  });
+  if(cachedModel){
+    if (showDBInteraction) {
+      log(`nothing to do - model already exists in cache`);
+    }
+    return;
+  }
+  cachedModels.push({
+    modelName: modelName,
+    model: minimalModel,
+    status: {isDirty: true},
+  });
+  if (showDBInteraction) {
+    log(`added to cache:`);
+  }
+  logCache();
+  if (showDBInteraction) {
+    log(`ensured model ${modelName}`);
+  }
+  return;
 }
 
 export async function saveModelLSM(
+  userID: string,
   modelName: string,
   model: DbModelData,
-  userID: string,
 ) {
   if (showDBInteraction) {
     log(`save model ${modelName} for user ${userID}`);
+    // log(`save model ${showObj(model)}`);
   }
-  const result = getDB().saveModel(userID, modelName, model);
-  if (showDBInteraction) {
-    log(`saved model ${modelName}`);
-  }
-  return result;
+  saveModelToCache(userID, modelName, model);
+  return true;
 }
 
 function updateItemList(itemList: DbItem[], newData: DbItem) {
@@ -89,6 +238,7 @@ function updateItemList(itemList: DbItem[], newData: DbItem) {
 
 export async function submitExpenseLSM(
   expenseInput: DbExpense,
+  modelName: string,
   modelData: DbModelData,
   userID: string,
 ) {
@@ -96,7 +246,7 @@ export async function submitExpenseLSM(
     log(`in submitExpense with input : ${showObj(expenseInput)}`);
   }
   updateItemList(modelData.expenses, expenseInput);
-  await getDB().saveModel(userID, modelName, modelData);
+  await saveModelLSM(userID, modelName, modelData);
   if (showDBInteraction) {
     log(`saved model ${modelName}`);
   }
@@ -104,6 +254,7 @@ export async function submitExpenseLSM(
 
 export async function submitIncomeLSM(
   incomeInput: DbIncome,
+  modelName: string,
   modelData: DbModelData,
   userID: string,
 ) {
@@ -111,11 +262,12 @@ export async function submitIncomeLSM(
     log(`in submitIncome with input : ${showObj(incomeInput)}`);
   }
   updateItemList(modelData.incomes, incomeInput);
-  await getDB().saveModel(userID, modelName, modelData);
+  await saveModelLSM(userID, modelName, modelData);
 }
 
 export async function submitTriggerLSM(
   trigger: DbTrigger,
+  modelName: string,
   modelData: DbModelData,
   userID: string,
 ) {
@@ -123,11 +275,12 @@ export async function submitTriggerLSM(
     log(`go to submitTriggers with input : ${showObj(trigger)}`);
   }
   updateItemList(modelData.triggers, trigger);
-  await getDB().saveModel(userID, modelName, modelData);
+  await saveModelLSM(userID, modelName, modelData);
 }
 
 export async function submitNewTriggerLSM(
   name: string,
+  modelName: string,
   modelData: DbModelData,
   userID: string,
 ) {
@@ -136,6 +289,7 @@ export async function submitNewTriggerLSM(
       NAME: name,
       DATE: new Date(),
     },
+    modelName,
     modelData,
     userID,
   );
@@ -143,6 +297,7 @@ export async function submitNewTriggerLSM(
 
 export async function submitAssetLSM(
   assetInput: DbAsset,
+  modelName: string,
   modelData: DbModelData,
   userID: string,
 ) {
@@ -150,11 +305,12 @@ export async function submitAssetLSM(
     log(`in submitAsset with input : ${showObj(assetInput)}`);
   }
   updateItemList(modelData.assets, assetInput);
-  await getDB().saveModel(userID, modelName, modelData);
+  await saveModelLSM(userID, modelName, modelData);
 }
 
 export async function submitNewAssetLSM(
   name: string,
+  modelName: string,
   modelData: DbModelData,
   userID: string,
 ) {
@@ -172,6 +328,7 @@ export async function submitNewAssetLSM(
       LIABILITY: '',
       PURCHASE_PRICE: '0',
     },
+    modelName,
     modelData,
     userID,
   );
@@ -179,6 +336,7 @@ export async function submitNewAssetLSM(
 
 export async function submitTransactionLSM(
   input: DbTransaction,
+  modelName: string,
   modelData: DbModelData,
   userID: string,
 ) {
@@ -186,11 +344,12 @@ export async function submitTransactionLSM(
     log(`in submitTransaction with input : ${showObj(input)}`);
   }
   updateItemList(modelData.transactions, input);
-  await getDB().saveModel(userID, modelName, modelData);
+  await saveModelLSM(userID, modelName, modelData);
 }
 
 export async function submitNewTransactionLSM(
   name: string,
+  modelName: string,
   modelData: DbModelData,
   userID: string,
 ) {
@@ -209,13 +368,34 @@ export async function submitNewTransactionLSM(
       RECURRENCE: '',
       TYPE: custom,
     },
+    modelName,
     modelData,
     userID,
   );
 }
 
+export async function saveModelToDBLSM(
+  userID: string,
+  modelName: string,
+  modelData: DbModelData,
+) {
+  if (showDBInteraction) {
+    log(`getDB go to save model ${modelName}`);
+  }
+  await saveModelLSM(userID, modelName, modelData);
+  const status = 
+    localCache.get(userID)?.find((cm)=>{return cm.modelName === modelName})?.status;
+  getDB().ensureModel(userID, modelName);  
+  const result = getDB().saveModel(userID, modelName, modelData);
+  if(result && status){
+    status.isDirty = false;
+  }
+  return result;
+}
+
 export async function submitSettingLSM(
   input: DbSetting, // if HINT or TYPE are empty, leave pre-existing values
+  modelName: string,
   modelData: DbModelData,
   userID: string,
 ) {
@@ -234,11 +414,12 @@ export async function submitSettingLSM(
     }
   }
   updateItemList(modelData.settings, input);
-  await getDB().saveModel(userID, modelName, modelData);
+  await saveModelLSM(userID, modelName, modelData);
 }
 
 export async function submitNewSettingLSM(
   setting: DbSetting,
+  modelName: string,
   modelData: DbModelData,
   userID: string,
 ) {
@@ -257,11 +438,28 @@ export async function submitNewSettingLSM(
       HINT: setting.HINT,
       TYPE: type,
     },
+    modelName,
     modelData,
     userID,
   );
 }
 
 export async function deleteModel(userID: string, modelName: string) {
+  if (showDBInteraction) {
+    log(`getDB delete model ${modelName}`);
+  }
+  const cachedModels = localCache.get(userID);
+  if(cachedModels === undefined){
+    log(`unexpected empty local cache - no models for ${userID}??`);
+  } else {
+    const idx = cachedModels.findIndex((cm)=>{
+      return cm.modelName === modelName;
+    });
+    if(idx === -1){
+      log(`unexpected local cache - no model for ${userID} and ${modelName}??`);
+    } else {
+      cachedModels.splice(idx, 1);
+    }
+  }
   return await getDB().deleteModel(userID, modelName);
 }
