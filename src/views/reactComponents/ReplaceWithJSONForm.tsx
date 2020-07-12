@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 
 import { makeModelFromJSON } from '../../utils';
-import Button from './Button';
 import Input from './Input';
 import { replaceWithModel } from '../../App';
 
@@ -30,6 +29,7 @@ export class ReplaceWithJSONForm extends Component<
 
     this.replace = this.replace.bind(this);
     this.handleValueChange = this.handleValueChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
   }
 
   private handleValueChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -38,36 +38,22 @@ export class ReplaceWithJSONForm extends Component<
     this.setState({ JSON: value });
   }
 
+  private handleSubmit(e: React.ChangeEvent<HTMLInputElement>) {
+    // log(`setting new value for JSON form ${value}`);
+    this.replace(e);
+  }
+
   public render() {
     return (
       <form className="container-fluid" onSubmit={this.replace}>
-        <div className="row">
-          <div className="col">
-            <Input
-              type={'text'}
-              name={'replaceWithJSON'}
-              value={this.state.JSON}
-              placeholder={'Enter JSON data here'}
-              onChange={this.handleValueChange}
-            />
-          </div>{' '}
-          {/* end col */}
-        </div>{' '}
-        {/* end row */}
-        <div className="row">
-          <div className="col">
-            <Button
-              action={this.replace}
-              type={'secondary'}
-              title={
-                'Replace model from JSON input (over-writes any existing with the same name)'
-              }
-              id="replaceModel"
-            />
-          </div>{' '}
-          {/* end col */}
-        </div>{' '}
-        {/* end row */}
+        <Input
+          type={'text'}
+          name={'replaceWithJSON'}
+          value={this.state.JSON}
+          placeholder={'Enter JSON data here to replace model'}
+          onChange={this.handleValueChange}
+          onSubmit={this.handleSubmit}
+        />
       </form>
     );
   }
@@ -82,9 +68,11 @@ export class ReplaceWithJSONForm extends Component<
       modelName = JSON.substring(0, i);
       JSON = JSON.substring(i);
     }
-    if (window.confirm(`replace data in model ${modelName}, you sure?`)) {
+    if (
+      window.confirm(`will replace if ${modelName} already exists, you sure?`)
+    ) {
       const newModel = makeModelFromJSON(modelName, JSON);
-      replaceWithModel(this.props.userID, modelName, newModel);
+      replaceWithModel(this.props.userID, modelName, newModel, false);
       this.props.showAlert('replaced data OK');
       this.setState({ JSON: '' });
     }

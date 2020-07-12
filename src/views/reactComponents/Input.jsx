@@ -14,6 +14,7 @@ const Input = props => {
         type={props.type}
         value={props.value}
         onChange={props.onChange}
+        onSubmit={props.onSubmit}
         onBlur={props.onBlur}
         placeholder={props.placeholder}
       />

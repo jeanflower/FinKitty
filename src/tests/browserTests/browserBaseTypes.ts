@@ -31,7 +31,7 @@ import {
 } from '../../localization/stringConstants';
 import { DbModelData, DbSetting } from '../../types/interfaces';
 import { log, printDebug } from '../../utils';
-import webdriver, { ThenableWebDriver } from 'selenium-webdriver';
+import webdriver, { ThenableWebDriver, Key } from 'selenium-webdriver';
 
 export function allowExtraSleeps() {
   if (
@@ -275,16 +275,18 @@ export async function replaceWithTestModel(
   );
 
   // add a character to trigger onChange
-  await fillInputByName(driver, 'replaceWithJSON', ' ');
-
-  await clickButton(driver, 'replaceModel');
+  const input = await driver.findElements(webdriver.By.id('replaceWithJSON'));
+  expect(input.length === 1).toBe(true);
+  await input[0].sendKeys(' ');
+  await input[0].sendKeys(Key.ENTER);
 
   const alert = driver.switchTo().alert();
   const alertText = await alert.getText();
-  expect(alertText).toEqual(
-    `replace data in model ${testDataModelName}, you sure?`,
-  );
   // log(`alertText = ${alertText}`);
+  expect(alertText).toEqual(
+    `will replace if ${testDataModelName} already exists, you sure?`,
+  );
+
   await alert.accept();
   await clickButton(driver, 'btn-clear-alert');
 }

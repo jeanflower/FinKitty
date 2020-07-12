@@ -714,7 +714,10 @@ export async function updateModelName(newValue: string) {
   if (modelName === newValue) {
     return;
   }
-  if (!isDirty || window.confirm('Continue without save?')) {
+  if (
+    !isDirty ||
+    window.confirm(`Continue without saving unsaved model ${modelName}?`)
+  ) {
     modelName = newValue;
     await ensureModel(getUserID(), modelName);
     await refreshData(
@@ -727,12 +730,17 @@ export async function replaceWithModel(
   userName: string | undefined,
   thisModelName: string,
   newModel: DbModelData,
+  confirmBeforeReplace: boolean,
 ) {
   // log(`replaceWithModel...`);
   if (userName === undefined) {
     userName = getUserID();
   }
-  if (!isDirty || window.confirm('Continue without save?')) {
+  if (
+    !confirmBeforeReplace ||
+    !isDirty ||
+    window.confirm(`Continue without saving unsaved model ${modelName}?`)
+  ) {
     modelName = thisModelName;
     // log(`save ${modelName} with new model data ${newModel}`);
     await saveModelLSM(userName, modelName, newModel);
@@ -1013,7 +1021,7 @@ export class AppContent extends Component<AppProps, AppState> {
                 const currentData = JSON.stringify(this.state.modelData);
                 await updateModelName(userNewName.newName);
                 const newModel = makeModelFromJSON(modelName, currentData);
-                replaceWithModel(undefined, modelName, newModel);
+                replaceWithModel(undefined, modelName, newModel, false);
               }}
               title="Clone model"
               id={`btn-clone`}
@@ -1344,6 +1352,7 @@ export class AppContent extends Component<AppProps, AppState> {
               undefined,
               modelName,
               getExampleModel(modelName, x.model),
+              false,
             );
           }}
           title={`Create ${x.name} example`}
