@@ -1046,18 +1046,8 @@ export class AppContent extends Component<AppProps, AppState> {
             <br />
             {this.exampleButtonList()}
             <br />
-            <br />
             Dump to a text format or restore from text format:
             <br />
-            <div className="row">
-              <div className="col">
-                <ReplaceWithJSONForm
-                  modelName={modelName}
-                  userID={userID}
-                  showAlert={showAlert}
-                />
-              </div>
-            </div>
             <Button
               action={() => {
                 const text = JSON.stringify(this.state.modelData);
@@ -1125,6 +1115,12 @@ export class AppContent extends Component<AppProps, AppState> {
               title="Force delete model"
               id={`btn-JSON-encrypt-replace`}
               type="secondary"
+            />
+            <br />
+            <ReplaceWithJSONForm
+              modelName={modelName}
+              userID={userID}
+              showAlert={showAlert}
             />
           </div>
           <div className="col-md mb-4">{screenshotsDiv()}</div>
