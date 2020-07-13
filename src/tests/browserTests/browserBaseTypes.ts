@@ -368,10 +368,6 @@ export async function cleanUpWork(
     // log(`alertText = ${alertText}`);
     await alert.accept();
     // log(`accepted alert`);
-    await sleep(
-      1000, // dBSleep, e.g. 6 Get coarse view charts 03
-      'after accepting confirm dialog',
-    );
     // log(`deleted model`);
     resolve();
   });

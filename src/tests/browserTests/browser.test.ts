@@ -13,6 +13,7 @@ import {
   clickButton,
   fillInputById,
   fillInputByName,
+  serverUri,
 } from './browserBaseTypes';
 import { getTestModel01 } from './browserTestData01';
 import { getTestModel02 } from './browserTestData02';
@@ -29,6 +30,7 @@ import {
   assetChartFocus,
   viewDetail,
   allItems,
+  roiStart,
 } from '../../localization/stringConstants';
 import {
   getModelCoarseAndFine,
@@ -85,6 +87,11 @@ async function checkMessage(driver: ThenableWebDriver, message: string) {
   expect(label.length === 1).toBe(true);
   const labelText = await label[0].getText();
   expect(labelText).toBe(message);
+
+  const btn = await driver.findElements(webdriver.By.id('btn-clear-alert'));
+  if (btn.length !== 0) {
+    await btn[0].click();
+  }
 }
 
 async function addAsset(
@@ -208,7 +215,7 @@ describe('Chrome Interaction simple', () => {
   }
 
   const driver = driverSimple;
-  it('qwe Should load the home page and get title', () =>
+  it('Should load the home page and get title', () =>
     new Promise(async resolve => {
       const modelAndRoi = getTestModel01();
       await beforeAllWork(driver, testDataModelName, modelAndRoi.model);
@@ -3503,7 +3510,7 @@ describe('Chrome Interaction debts', () => {
     done();
   });
 
-  it('qwe my first model browser test', async done => {
+  it('my first model browser test', async done => {
     if (!doActions) {
       done();
       return;
@@ -3556,7 +3563,6 @@ describe('Chrome Interaction debts', () => {
       '5/5/2030',
       'added important date OK',
     );
-    await clickButton(driver, 'btn-clear-alert');
 
     await addDate(
       driver,
@@ -3564,7 +3570,6 @@ describe('Chrome Interaction debts', () => {
       '28/7/2032',
       'added important date OK',
     );
-    await clickButton(driver, 'btn-clear-alert');
 
     await addDate(
       driver,
@@ -3572,7 +3577,6 @@ describe('Chrome Interaction debts', () => {
       '5/5/2037',
       'added important date OK',
     );
-    await clickButton(driver, 'btn-clear-alert');
 
     await addDate(
       driver,
@@ -3580,7 +3584,6 @@ describe('Chrome Interaction debts', () => {
       '31/8/2040',
       'added important date OK',
     );
-    await clickButton(driver, 'btn-clear-alert');
 
     await addDate(
       driver,
@@ -3588,7 +3591,6 @@ describe('Chrome Interaction debts', () => {
       '28/2/2047',
       'added important date OK',
     );
-    await clickButton(driver, 'btn-clear-alert');
 
     // Add incomes
     await clickButton(driver, 'btn-Incomes');
@@ -3606,7 +3608,6 @@ describe('Chrome Interaction debts', () => {
       category: 'Salary',
       message: `added new income ${'Ben salary'}`,
     });
-    await clickButton(driver, 'btn-clear-alert');
     // log('done Ben salary');
 
     // a bit of scrolling to ensure the toggle-incomesChart button
@@ -3628,14 +3629,12 @@ describe('Chrome Interaction debts', () => {
       value: '2020',
       message: 'added new setting Beginning of view range',
     });
-    await clickButton(driver, 'btn-clear-alert');
 
     await addSetting(driver, {
       name: 'End of view range',
       value: '2069',
       message: 'added new setting End of view range',
     });
-    await clickButton(driver, 'btn-clear-alert');
 
     await clickButton(driver, 'btn-Incomes');
 
@@ -3645,7 +3644,6 @@ describe('Chrome Interaction debts', () => {
       value: 'Annually',
       message: 'added new setting View frequency',
     });
-    await clickButton(driver, 'btn-clear-alert');
     await clickButton(driver, 'btn-Incomes');
     await clickButton(driver, 'btn-Settings');
     /*
@@ -3655,7 +3653,6 @@ describe('Chrome Interaction debts', () => {
       message: 'added new setting Date of birth',
     },
     pauseBeforeOK);
-    await clickButton(driver, 'btn-clear-alert');
     await pauseForDemo();
 */
 
@@ -3682,7 +3679,6 @@ describe('Chrome Interaction debts', () => {
       category: 'Salary',
       message: `added new income ${'Jerry salary'}`,
     });
-    await clickButton(driver, 'btn-clear-alert');
     // log('done Jerry salary');
 
     toggleChart = await driver.findElements(
@@ -3704,10 +3700,8 @@ describe('Chrome Interaction debts', () => {
     await clickButton(driver, 'btn-Dates');
 
     await addDate(driver, 'Ben dies', '31/8/2068', 'added important date OK');
-    await clickButton(driver, 'btn-clear-alert');
 
     await addDate(driver, 'Jerry dies', '5/5/2065', 'added important date OK');
-    await clickButton(driver, 'btn-clear-alert');
 
     await clickButton(driver, 'btn-Incomes');
     await clickButton(driver, 'useDBPInputs');
@@ -3736,7 +3730,6 @@ describe('Chrome Interaction debts', () => {
       ...DBPinputs,
       message: 'added new data', // TODO "added pension information",
     });
-    await clickButton(driver, 'btn-clear-alert');
     // log('done Ben state pension');
 
     // a bit of scrolling to ensure the toggle-incomesChart button
@@ -3780,7 +3773,6 @@ describe('Chrome Interaction debts', () => {
       ...DBPinputs,
       message: 'added new data', // TODO "added pension information",
     });
-    await clickButton(driver, 'btn-clear-alert');
     // log('done Jerry state pension');
 
     // a bit of scrolling to ensure the toggle-incomesChart button
@@ -3823,7 +3815,6 @@ describe('Chrome Interaction debts', () => {
       ...DBPinputs,
       message: 'added new data', // TODO "added pension information",
     });
-    await clickButton(driver, 'btn-clear-alert');
     // log('done Jerry work');
 
     toggleChart = await driver.findElements(
@@ -3856,7 +3847,6 @@ describe('Chrome Interaction debts', () => {
       ...expenseInputs,
       message: `added new expense`,
     });
-    await clickButton(driver, 'btn-clear-alert');
     // log('done Basic expenses working');
 
     toggleChart = await driver.findElements(
@@ -3887,7 +3877,6 @@ describe('Chrome Interaction debts', () => {
       ...expenseInputs,
       message: `added new expense`,
     });
-    await clickButton(driver, 'btn-clear-alert');
     // log('done Basic expenses downsize');
 
     expenseInputs = {
@@ -3905,7 +3894,6 @@ describe('Chrome Interaction debts', () => {
       ...expenseInputs,
       message: `added new expense`,
     });
-    await clickButton(driver, 'btn-clear-alert');
     // log('done Leisure expenses working');
 
     toggleChart = await driver.findElements(
@@ -3929,7 +3917,6 @@ describe('Chrome Interaction debts', () => {
       '20/2/2060',
       'added important date OK',
     );
-    await clickButton(driver, 'btn-clear-alert');
 
     await clickButton(driver, 'btn-Expenses');
 
@@ -3948,7 +3935,6 @@ describe('Chrome Interaction debts', () => {
       ...expenseInputs,
       message: `added new expense`,
     });
-    await clickButton(driver, 'btn-clear-alert');
     // log('done Leisure expenses retired');
 
     toggleChart = await driver.findElements(
@@ -3979,7 +3965,6 @@ describe('Chrome Interaction debts', () => {
       ...expenseInputs,
       message: `added new expense`,
     });
-    await clickButton(driver, 'btn-clear-alert');
     // log('done Care costs');
 
     toggleChart = await driver.findElements(
@@ -4023,7 +4008,6 @@ describe('Chrome Interaction debts', () => {
       ...expenseInputs,
       message: `added new expense`,
     });
-    await clickButton(driver, 'btn-clear-alert');
     // log('done House maintenance');
 
     toggleChart = await driver.findElements(
@@ -4054,7 +4038,6 @@ describe('Chrome Interaction debts', () => {
       ...expenseInputs,
       message: `added new expense`,
     });
-    await clickButton(driver, 'btn-clear-alert');
     // log('done Replace car');
 
     toggleChart = await driver.findElements(
@@ -4087,7 +4070,6 @@ describe('Chrome Interaction debts', () => {
       ...assetInputs,
       message: `added new asset`,
     });
-    await clickButton(driver, 'btn-clear-alert');
     // log('done House');
 
     toggleChart = await driver.findElements(
@@ -4120,7 +4102,6 @@ describe('Chrome Interaction debts', () => {
       ...assetInputs,
       message: `added new asset`,
     });
-    await clickButton(driver, 'btn-clear-alert');
     // log('done ISA');
 
     toggleChart = await driver.findElements(
@@ -4151,7 +4132,6 @@ describe('Chrome Interaction debts', () => {
       ...assetInputs,
       message: `added new asset`,
     });
-    await clickButton(driver, 'btn-clear-alert');
     // log('done Jerry stocks');
 
     toggleChart = await driver.findElements(
@@ -4190,7 +4170,6 @@ describe('Chrome Interaction debts', () => {
       ...pensionInputs,
       message: 'added assets and transactions',
     });
-    await clickButton(driver, 'btn-clear-alert');
     // log('done Jerry Aegon');
 
     toggleChart = await driver.findElements(
@@ -4229,7 +4208,6 @@ describe('Chrome Interaction debts', () => {
       ...pensionInputs,
       message: 'added assets and transactions',
     });
-    await clickButton(driver, 'btn-clear-alert');
     // log('done Ben Prudential');
 
     toggleChart = await driver.findElements(
@@ -4260,7 +4238,6 @@ describe('Chrome Interaction debts', () => {
       message: `added new debt and payment`,
     });
 
-    await clickButton(driver, 'btn-clear-alert');
     // log('done Mortgage');
 
     toggleChart = await driver.findElements(
@@ -4288,7 +4265,6 @@ describe('Chrome Interaction debts', () => {
       ...debtInputs,
       message: `added new debt and payment`,
     });
-    await clickButton(driver, 'btn-clear-alert');
     // log('done Jerry loan');
 
     toggleChart = await driver.findElements(
@@ -4316,7 +4292,6 @@ describe('Chrome Interaction debts', () => {
       ...debtInputs,
       message: `added new debt and payment`,
     });
-    await clickButton(driver, 'btn-clear-alert');
     // log('done Ben loan');
 
     toggleChart = await driver.findElements(
@@ -4349,7 +4324,6 @@ describe('Chrome Interaction debts', () => {
       ...transactionInputs,
       message: `added new transaction`,
     });
-    await clickButton(driver, 'btn-clear-alert');
     // log('done Downsize house');
 
     transactionInputs = {
@@ -4368,7 +4342,6 @@ describe('Chrome Interaction debts', () => {
       ...transactionInputs,
       message: `added new transaction`,
     });
-    await clickButton(driver, 'btn-clear-alert');
     // log('done Sell ISAs for cash');
 
     transactionInputs = {
@@ -4387,7 +4360,6 @@ describe('Chrome Interaction debts', () => {
       ...transactionInputs,
       message: `added new transaction`,
     });
-    await clickButton(driver, 'btn-clear-alert');
     // log('done Sell stocks for cash');
 
     transactionInputs = {
@@ -4406,7 +4378,6 @@ describe('Chrome Interaction debts', () => {
       ...transactionInputs,
       message: `added new transaction`,
     });
-    await clickButton(driver, 'btn-clear-alert');
     // log('done Sell AegonTaxFree');
 
     transactionInputs = {
@@ -4425,7 +4396,6 @@ describe('Chrome Interaction debts', () => {
       ...transactionInputs,
       message: `added new transaction`,
     });
-    await clickButton(driver, 'btn-clear-alert');
     // log('done Sell PrudentialTaxFree');
 
     transactionInputs = {
@@ -4444,7 +4414,6 @@ describe('Chrome Interaction debts', () => {
       ...transactionInputs,
       message: `added new transaction`,
     });
-    await clickButton(driver, 'btn-clear-alert');
     // log('done Sell CrystallizedPensionJerry');
 
     transactionInputs = {
@@ -4463,11 +4432,512 @@ describe('Chrome Interaction debts', () => {
       ...transactionInputs,
       message: `added new transaction`,
     });
-    await clickButton(driver, 'btn-clear-alert');
     // log('done Sell CrystallizedPensionBen');
 
     // await cleanUpWork(driver, modelName);
 
+    done();
+  });
+
+  async function alertIsShowing(): Promise<boolean> {
+    try {
+      await driver.switchTo().alert();
+      return true;
+    } catch (err) {
+      // try
+      return false;
+    } // catch
+  } // isAlertPresent()
+
+  async function acceptAnyAlert(): Promise<boolean> {
+    try {
+      await driver
+        .switchTo()
+        .alert()
+        .accept();
+      return true;
+    } catch (err) {
+      // try
+      return false;
+    } // catch
+  } // isAlertPresent()
+
+  async function dismissAnyAlert(): Promise<boolean> {
+    try {
+      await driver
+        .switchTo()
+        .alert()
+        .dismiss();
+      return true;
+    } catch (err) {
+      // try
+      return false;
+    } // catch
+  } // isAlertPresent()
+
+  async function deleteIfExists(name: string) {
+    //log(`delete ${name} if it exists...`);
+    const btn = await driver.findElements(
+      webdriver.By.id(`btn-overview-${name}`),
+    );
+    if (btn.length === 1) {
+      //log(`${name} exists`);
+      await btn[0].click();
+      await acceptAnyAlert();
+      await clickButton(driver, 'btn-delete');
+      expect(
+        await driver
+          .switchTo()
+          .alert()
+          .getText(),
+      ).toBe(`delete all data in model ${name} - you sure?`);
+      await driver
+        .switchTo()
+        .alert()
+        .accept();
+    } else {
+      //log(`${name} didn't exist`);
+    }
+  }
+
+  async function testModelCreation(createButtonID: string) {
+    const ex1Name = 'ex1Name';
+    const ex2Name = 'ex2Name';
+
+    // await checkMessage(driver, `wrong`);
+
+    // clear away any old data!
+    await deleteIfExists(ex1Name);
+    await deleteIfExists(ex2Name);
+    await clickButton(driver, `btn-overview-${testDataModelName}`);
+
+    // there's no model
+    let btn = await driver.findElements(
+      webdriver.By.id(`btn-overview-${ex1Name}`),
+    );
+    // log(`found ${btn.length} elements with id=${id}`);
+    expect(btn.length === 0).toBe(true);
+
+    // can't create a model with no name
+    await clickButton(driver, createButtonID);
+    await checkMessage(driver, 'Please provide a new name for the model');
+
+    // warned if creating a model when existing model is not saved
+    // choose to not switch
+    // check the model did not get created
+    await fillInputById(driver, 'createModel', ex1Name);
+    await clickButton(driver, createButtonID);
+    // warn
+    expect(
+      await driver
+        .switchTo()
+        .alert()
+        .getText(),
+    ).toBe('Continue without saving unsaved model SeleniumTestData?');
+    await driver
+      .switchTo()
+      .alert()
+      .dismiss();
+
+    // still looking at old model
+    await clickButton(driver, 'btn-Overview');
+    await checkMessage(driver, `${testDataModelName}: Overview`);
+    await clickButton(driver, 'btn-Home');
+
+    // no button for not-saved model
+    btn = await driver.findElements(webdriver.By.id(`btn-overview-${ex1Name}`));
+    // log(`found ${btn.length} elements with id=${id}`);
+    expect(btn.length === 0).toBe(true);
+
+    // warned if creating a model when existing model is not saved
+    // choose to accept warning
+    // check the model did get created
+    await clickButton(driver, createButtonID);
+    expect(
+      await driver
+        .switchTo()
+        .alert()
+        .getText(),
+    ).toBe('Continue without saving unsaved model SeleniumTestData?');
+    await driver
+      .switchTo()
+      .alert()
+      .accept();
+    btn = await driver.findElements(webdriver.By.id(`btn-overview-${ex1Name}`));
+    // log(`found ${btn.length} elements with id=${id}`);
+    expect(btn.length === 1).toBe(true);
+    await clickButton(driver, 'btn-Overview');
+    await checkMessage(driver, `${ex1Name}: Overview`);
+    await clickButton(driver, 'btn-Home');
+
+    await fillInputById(driver, 'createModel', ex2Name);
+
+    // warned if creating a model when existing model is not saved
+    // choose to not switch
+    // check the model did not get created
+    // save, go round again
+    await clickButton(driver, createButtonID);
+    expect(
+      await driver
+        .switchTo()
+        .alert()
+        .getText(),
+    ).toBe(`Continue without saving unsaved model ${ex1Name}?`);
+    await driver
+      .switchTo()
+      .alert()
+      .dismiss();
+    await clickButton(driver, 'btn-Overview');
+    await checkMessage(driver, `${ex1Name}: Overview`);
+    await clickButton(driver, 'btn-Home');
+
+    btn = await driver.findElements(webdriver.By.id(`btn-overview-${ex2Name}`));
+    // log(`found ${btn.length} elements with id=${id}`);
+    expect(btn.length === 0).toBe(true);
+    await clickButton(driver, 'btn-Overview');
+    await checkMessage(driver, `${ex1Name}: Overview`);
+    await clickButton(driver, 'btn-Home');
+    await clickButton(driver, 'btn-save-model');
+    await clickButton(driver, createButtonID);
+    btn = await driver.findElements(webdriver.By.id(`btn-overview-${ex2Name}`));
+    // log(`found ${btn.length} elements with id=${id}`);
+    expect(btn.length === 1).toBe(true);
+    await clickButton(driver, 'btn-Overview');
+    await checkMessage(driver, `${ex2Name}: Overview`);
+    await clickButton(driver, 'btn-Home');
+
+    // try to create ex1Name but we're in ex2Name and
+    // ex2Name is not saved, ex1Name is present
+    // try to create ex1Name
+    // warn ex2 is unsaved
+    // warn ex1 exists
+    await fillInputById(driver, 'createModel', ex1Name);
+    await clickButton(driver, createButtonID);
+    expect(
+      await driver
+        .switchTo()
+        .alert()
+        .getText(),
+    ).toBe(`will replace ${ex1Name}, you sure?`);
+    await driver
+      .switchTo()
+      .alert()
+      .dismiss();
+
+    //await checkMessage(driver, 'wrong');
+
+    await clickButton(driver, createButtonID);
+    expect(
+      await driver
+        .switchTo()
+        .alert()
+        .getText(),
+    ).toBe(`will replace ${ex1Name}, you sure?`);
+    await driver
+      .switchTo()
+      .alert()
+      .accept();
+
+    expect(
+      await driver
+        .switchTo()
+        .alert()
+        .getText(),
+    ).toBe(`Continue without saving unsaved model ${ex2Name}?`);
+    await driver
+      .switchTo()
+      .alert()
+      .dismiss();
+
+    await clickButton(driver, createButtonID);
+    expect(
+      await driver
+        .switchTo()
+        .alert()
+        .getText(),
+    ).toBe(`will replace ${ex1Name}, you sure?`);
+    await driver
+      .switchTo()
+      .alert()
+      .accept();
+
+    expect(
+      await driver
+        .switchTo()
+        .alert()
+        .getText(),
+    ).toBe(`Continue without saving unsaved model ${ex2Name}?`);
+    await driver
+      .switchTo()
+      .alert()
+      .accept();
+
+    await clickButton(driver, 'btn-save-model');
+
+    // try to create ex2Name but we're in ex1Name and
+    // ex1Name is saved, ex2Name is present
+    // warn ex2 exists
+    await fillInputById(driver, 'createModel', ex2Name);
+    await clickButton(driver, createButtonID);
+    expect(
+      await driver
+        .switchTo()
+        .alert()
+        .getText(),
+    ).toBe(`will replace ${ex2Name}, you sure?`);
+    await driver
+      .switchTo()
+      .alert()
+      .dismiss();
+
+    await clickButton(driver, createButtonID);
+    expect(
+      await driver
+        .switchTo()
+        .alert()
+        .getText(),
+    ).toBe(`will replace ${ex2Name}, you sure?`);
+    await driver
+      .switchTo()
+      .alert()
+      .accept();
+
+    // try to create ex2Name but we're in ex2Name and
+    // ex2Name is not saved
+    await fillInputById(driver, 'createModel', ex2Name);
+    await clickButton(driver, createButtonID);
+    expect(
+      await driver
+        .switchTo()
+        .alert()
+        .getText(),
+    ).toBe(`will replace ${ex2Name}, you sure?`);
+    await driver
+      .switchTo()
+      .alert()
+      .dismiss();
+
+    await clickButton(driver, createButtonID);
+    expect(
+      await driver
+        .switchTo()
+        .alert()
+        .getText(),
+    ).toBe(`will replace ${ex2Name}, you sure?`);
+    await driver
+      .switchTo()
+      .alert()
+      .accept();
+
+    // clear away any data
+    await deleteIfExists(ex1Name);
+    await deleteIfExists(ex2Name);
+  }
+
+  it('create new models', async done => {
+    if (!doActions) {
+      done();
+      return;
+    }
+    const modelAndRoi = getTestModel01();
+    await beforeAllWork(driver, testDataModelName, modelAndRoi.model);
+
+    await testModelCreation('btn-createMinimalModel');
+
+    await cleanUpWork(driver, testDataModelName);
+    done();
+  });
+
+  it('create examples', async done => {
+    if (!doActions) {
+      done();
+      return;
+    }
+    const modelAndRoi = getTestModel01();
+    await beforeAllWork(driver, testDataModelName, modelAndRoi.model);
+
+    await testModelCreation('btn-create-Simple-example');
+
+    await cleanUpWork(driver, testDataModelName);
+    done();
+  });
+
+  it('create new clones', async done => {
+    if (!doActions) {
+      done();
+      return;
+    }
+    const modelAndRoi = getTestModel01();
+    await beforeAllWork(driver, testDataModelName, modelAndRoi.model);
+
+    await testModelCreation('btn-clone');
+
+    await cleanUpWork(driver, testDataModelName);
+    done();
+  });
+
+  async function expectCashValue(val: number) {
+    const ary = await getAssetChartData(driver);
+    if (val === 0) {
+      expect(ary.length).toEqual(0);
+    } else {
+      expect(ary.length).toEqual(1);
+      expect(ary[0].name).toEqual('Cash');
+      expect(ary[0].type).toEqual('stackedColumn');
+      expect(ary[0].showInLegend).toEqual(true);
+      expect(ary[0].dataPoints.length).toEqual(1);
+      expect(ary[0].dataPoints[0].label).toEqual('Sat Nov 02 2019');
+      expect(ary[0].dataPoints[0].y).toEqual(val);
+    }
+  }
+
+  async function setNarrowViewRange() {
+    await clickButton(driver, 'btn-Settings');
+    await addSetting(driver, {
+      name: roiStart,
+      value: '2 Nov 2019',
+      message: 'added new setting Beginning of view range',
+    });
+    await addSetting(driver, {
+      name: roiEnd,
+      value: '1 Dec 2019',
+      message: 'added new setting End of view range',
+    });
+  }
+  async function setCashValue(val: number) {
+    await clickButton(driver, 'btn-Assets');
+    await addAsset(driver, {
+      ...assetInputs,
+      name: 'Cash',
+      value: `${val}`,
+      startDate: '1 Jan 2019',
+      growth: '0',
+      growsWithInflation: 'n',
+      quantity: '',
+      message: `added new asset`,
+    });
+  }
+
+  async function makeNewModel(name: string) {
+    await clickButton(driver, 'btn-Home');
+    await driver.executeScript('window.scrollBy(0, -500)'); // Adjust scrolling with a negative value here
+    await fillInputById(driver, 'createModel', name);
+    await clickButton(driver, 'btn-createMinimalModel');
+    await acceptAnyAlert();
+    await setNarrowViewRange();
+  }
+
+  async function assertCurrentModel(name: string, isDirty: boolean) {
+    await clickButton(driver, 'btn-Overview');
+    await checkMessage(driver, `${name}: Overview`);
+
+    await clickButton(driver, 'btn-Home');
+    await driver.executeScript('window.scrollBy(0, -500)'); // Adjust scrolling with a negative value here
+    await clickButton(driver, `btn-overview-${testDataModelName}`);
+    if (isDirty) {
+      if (name === testDataModelName) {
+        // this check for dirty status doesn't work for
+        // the testDataModelName model
+        await checkMessage(driver, 'UNSUPPORTED TEST CODE');
+      }
+      expect(await alertIsShowing()).toBe(true);
+      await dismissAnyAlert();
+    } else {
+      await clickButton(driver, `btn-overview-${name}`);
+      await acceptAnyAlert();
+    }
+  }
+  async function switchToModel(name: string) {
+    await clickButton(driver, 'btn-Home');
+    await driver.executeScript('window.scrollBy(0, -500)'); // Adjust scrolling with a negative value here
+    await clickButton(driver, `btn-overview-${name}`);
+    await acceptAnyAlert();
+  }
+
+  async function modelExists(name: string, exists: boolean) {
+    await clickButton(driver, 'btn-Home');
+    await driver.executeScript('window.scrollBy(0, -500)'); // Adjust scrolling with a negative value here
+    const btn = await driver.findElements(
+      webdriver.By.id(`btn-overview-${name}`),
+    );
+    // log(`found ${btn.length} elements with id=${id}`);
+    if (exists) {
+      expect(btn.length === 1).toBe(true);
+    } else {
+      expect(btn.length === 0).toBe(true);
+    }
+  }
+
+  it('new, clone, save, manipulate cash value', async done => {
+    if (!doActions) {
+      done();
+      return;
+    }
+    const modelAndRoi = getTestModel01();
+    await beforeAllWork(driver, testDataModelName, modelAndRoi.model);
+
+    const ex1Name = 'ex1Name';
+    const ex2Name = 'ex2Name';
+    await deleteIfExists(ex1Name);
+    await deleteIfExists(ex2Name);
+
+    await clickButton(driver, `btn-overview-${testDataModelName}`);
+    await clickButton(driver, `btn-save-model`);
+
+    await makeNewModel(ex1Name);
+    await assertCurrentModel(ex1Name, true);
+
+    await expectCashValue(0);
+    await setCashValue(10);
+    await expectCashValue(10);
+
+    await makeNewModel(ex2Name);
+    await assertCurrentModel(ex2Name, true);
+
+    await switchToModel(ex1Name);
+    await assertCurrentModel(ex1Name, true);
+    await expectCashValue(10);
+
+    await switchToModel(ex2Name);
+    await assertCurrentModel(ex2Name, true);
+    await expectCashValue(0);
+    await setCashValue(20);
+    await expectCashValue(20);
+
+    await clickButton(driver, 'btn-save-model');
+    await assertCurrentModel(ex2Name, false);
+
+    await driver.get('about:blank');
+    await driver.get(serverUri);
+    await clickButton(driver, 'buttonTestLogin');
+
+    await modelExists(ex1Name, false);
+    await modelExists(ex2Name, true);
+
+    await switchToModel(ex2Name);
+    await expectCashValue(20);
+    await setCashValue(30);
+    await expectCashValue(30);
+
+    await driver.get('about:blank');
+    await driver.get(serverUri);
+    await clickButton(driver, 'buttonTestLogin');
+
+    await modelExists(ex1Name, false);
+    await modelExists(ex2Name, true);
+
+    await switchToModel(ex2Name);
+    await expectCashValue(20);
+
+    // explore clone, replace-with-new, ...
+
+    // await checkMessage(driver, 'wrong');
+
+    await clickButton(driver, 'btn-Home');
+    await driver.executeScript('window.scrollBy(0, -500)'); // Adjust scrolling with a negative value here
+    await deleteIfExists(ex1Name);
+    await deleteIfExists(ex2Name);
+    await cleanUpWork(driver, testDataModelName);
     done();
   });
 

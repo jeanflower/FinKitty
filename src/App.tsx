@@ -74,6 +74,7 @@ import DataGrid from './views/reactComponents/DataGrid';
 import NameFormatter from './views/reactComponents/NameFormatter';
 import { AddDeleteSettingForm } from './views/reactComponents/AddDeleteSettingForm';
 import { ReplaceWithJSONForm } from './views/reactComponents/ReplaceWithJSONForm';
+import { CreateModelForm } from './views/reactComponents/CloneModelForm';
 
 // import './bootstrap.css'
 
@@ -374,7 +375,7 @@ export async function refreshData(goToDB = true) {
         gotModelOK = false;
       }
       if (!gotModelOK || model === undefined) {
-        //log('no model found - do not try to display anything');
+        // log('no model found - do not try to display anything');
         return;
       }
     }
@@ -709,21 +710,28 @@ export async function deleteSetting(name: string): Promise<boolean> {
   );
 }
 
-export async function updateModelName(newValue: string) {
+export async function updateModelName(newValue: string): Promise<boolean> {
   // log(`model name is now ${newValue}`);
   if (modelName === newValue) {
-    return;
+    // log(`no need to update name - already working with ${newValue}`);
+    return true;
   }
-  if (
-    !isDirty ||
-    window.confirm(`Continue without saving unsaved model ${modelName}?`)
-  ) {
-    modelName = newValue;
-    await ensureModel(getUserID(), modelName);
-    await refreshData(
-      true, // gotoDB
-    );
+  const check = isDirty;
+  if (check) {
+    if (
+      !window.confirm(`Continue without saving unsaved model ${modelName}?`)
+    ) {
+      // log(`don't update name - user wants to continue with ${modelName}`);
+      return false;
+    }
   }
+  // log(`switch model name to ${newValue}`);
+  modelName = newValue;
+  await ensureModel(getUserID(), modelName);
+  await refreshData(
+    true, // gotoDB
+  );
+  return true;
 }
 
 export async function replaceWithModel(
@@ -731,23 +739,26 @@ export async function replaceWithModel(
   thisModelName: string,
   newModel: DbModelData,
   confirmBeforeReplace: boolean,
-) {
+): Promise<boolean> {
   // log(`replaceWithModel...`);
   if (userName === undefined) {
     userName = getUserID();
   }
-  if (
-    !confirmBeforeReplace ||
-    !isDirty ||
-    window.confirm(`Continue without saving unsaved model ${modelName}?`)
-  ) {
-    modelName = thisModelName;
-    // log(`save ${modelName} with new model data ${newModel}`);
-    await saveModelLSM(userName, modelName, newModel);
-    await refreshData(
-      true, // gotoDB
-    );
+  const check = confirmBeforeReplace && isDirty;
+  if (check) {
+    if (
+      !window.confirm(`Continue without saving unsaved model ${modelName}?`)
+    ) {
+      return false;
+    }
   }
+  modelName = thisModelName;
+  // log(`save ${modelName} with new model data ${newModel}`);
+  await saveModelLSM(userName, modelName, newModel);
+  await refreshData(
+    true, // gotoDB
+  );
+  return true;
 }
 
 interface AppState {
@@ -863,6 +874,9 @@ export class AppContent extends Component<AppProps, AppState> {
   }
 
   private modelList(modelNames: string[], actionOnSelect: any, idKey: string) {
+    if (modelNames.length === 0) {
+      return <div role="group">Loading...</div>;
+    }
     // log(`models = ${models}`)
     const buttons = modelNames.map(model => (
       <Button
@@ -962,6 +976,27 @@ export class AppContent extends Component<AppProps, AppState> {
     }
   }
 
+  private async cloneModel(
+    name: string,
+    fromModel: DbModelData,
+  ): Promise<boolean> {
+    // log(`going to clone a model and give it name ${name}`);
+    const currentData = JSON.stringify(fromModel);
+    const updatedOK = await updateModelName(name);
+    if (updatedOK) {
+      const newModel = makeModelFromJSON(modelName, currentData);
+      const replacedOK = await replaceWithModel(
+        undefined,
+        modelName,
+        newModel,
+        false,
+      );
+      return replacedOK;
+    } else {
+      return false; // didn't update name OK
+    }
+  }
+
   private homeDiv() {
     // log(`this.state.modelNamesData = ${this.state.modelNamesData}`);
     return (
@@ -985,46 +1020,27 @@ export class AppContent extends Component<AppProps, AppState> {
             />
             <br />
             <br />
-            Select an existing model (for further actions below):
+            Select an existing model
             {this.modelListForSelect(this.state.modelNamesData)}
             <br />
-            Actions:
-            <br />
-            <Button
-              id="startNewModel2"
-              action={async () => {
-                const newNameFromUser = this.getNewName();
-                if (!newNameFromUser.gotNameOK) {
-                  return;
-                }
-                await updateModelName(newNameFromUser.newName);
-                // log(`created new model`);
-                // toggle(triggersView);
-              }}
-              title="Create a new model"
-              type="secondary"
+            <CreateModelForm
+              userID={userID}
+              modelData={this.state.modelData}
+              showAlert={showAlert}
+              cloneModel={this.cloneModel}
+              exampleModels={exampleModels}
+              getExampleModel={getExampleModel}
+              getModelNames={getModelNames}
             />
+            <br />
+            Other actions:
+            <br />
             <Button
               action={async () => {
                 this.deleteModel(modelName);
               }}
               title="Delete model"
               id={`btn-delete`}
-              type="secondary"
-            />
-            <Button
-              action={async () => {
-                const userNewName = this.getNewName();
-                if (!userNewName.gotNameOK) {
-                  return;
-                }
-                const currentData = JSON.stringify(this.state.modelData);
-                await updateModelName(userNewName.newName);
-                const newModel = makeModelFromJSON(modelName, currentData);
-                replaceWithModel(undefined, modelName, newModel, false);
-              }}
-              title="Clone model"
-              id={`btn-clone`}
               type="secondary"
             />
             <Button
@@ -1040,14 +1056,6 @@ export class AppContent extends Component<AppProps, AppState> {
               id={`btn-check`}
               type="secondary"
             />
-            <br />
-            <br />
-            Create new models with example data:
-            <br />
-            {this.exampleButtonList()}
-            <br />
-            Dump to a text format or restore from text format:
-            <br />
             <Button
               action={() => {
                 const text = JSON.stringify(this.state.modelData);
@@ -1334,32 +1342,6 @@ export class AppContent extends Component<AppProps, AppState> {
     );
     return <div role="group">{buttons}</div>;
   }
-  private exampleButtonList() {
-    const buttons: JSX.Element[] = exampleModels.map(x => {
-      return (
-        <Button
-          action={async () => {
-            const userNewName = this.getNewName();
-            if (!userNewName.gotNameOK) {
-              return;
-            }
-            await updateModelName(userNewName.newName);
-            replaceWithModel(
-              undefined,
-              modelName,
-              getExampleModel(modelName, x.model),
-              false,
-            );
-          }}
-          title={`Create ${x.name} example`}
-          id={`btn-create-${x.name}-example`}
-          key={`btn-create-${x.name}-example`}
-          type="secondary"
-        />
-      );
-    });
-    return <div role="group">{buttons}</div>;
-  }
 
   private makeSaveButton() {
     // log(`isDirty = ${isDirty}`);
@@ -1385,7 +1367,7 @@ export class AppContent extends Component<AppProps, AppState> {
 
   private makeHelpText(alertText: string) {
     if (alertText !== '') {
-      //log('display alert text');
+      // log('display alert text');
       return (
         <div className="container-fluid">
           <div className="row">
