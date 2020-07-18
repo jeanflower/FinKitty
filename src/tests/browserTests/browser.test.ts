@@ -4860,7 +4860,7 @@ describe('Chrome Interaction debts', () => {
     const btn = await driver.findElements(
       webdriver.By.id(`btn-overview-${name}`),
     );
-    // log(`found ${btn.length} elements with id=${id}`);
+    // log(`found ${btn.length} elements with id=btn-overview-${name}`);
     if (exists) {
       expect(btn.length === 1).toBe(true);
     } else {
@@ -4929,7 +4929,32 @@ describe('Chrome Interaction debts', () => {
     await switchToModel(ex2Name);
     await expectCashValue(20);
 
-    // explore clone, replace-with-new, ...
+    await clickButton(driver, 'btn-Home');
+    await fillInputById(driver, 'createModel', ex1Name);
+    await clickButton(driver, 'btn-clone');
+
+    await modelExists(ex1Name, true);
+    await modelExists(ex2Name, true);
+
+    await switchToModel(ex1Name);
+    await expectCashValue(20);
+
+    await clickButton(driver, 'btn-Home');
+    await clickButton(driver, 'btn-delete');
+    expect(
+      await driver
+        .switchTo()
+        .alert()
+        .getText(),
+    ).toBe(`delete all data in model ${ex1Name} - you sure?`);
+    await driver.switchTo().alert().accept();
+
+    await modelExists(ex1Name, false);
+    await modelExists(ex2Name, true);
+
+    await switchToModel(ex2Name);
+
+    // explore replace-with-new, ...
 
     // await checkMessage(driver, 'wrong');
 
