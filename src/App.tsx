@@ -836,6 +836,7 @@ export class AppContent extends Component<AppProps, AppState> {
             this.state.debtChartData,
             this.state.expensesChartData,
             this.state.incomesChartData,
+            this.state.taxChartData,
           )}
           {this.settingsDiv(
             this.state.modelData,
@@ -898,6 +899,7 @@ export class AppContent extends Component<AppProps, AppState> {
       modelNames,
       async (model: string) => {
         await updateModelName(model);
+        await toggle(overview);
       },
       'overview',
     );

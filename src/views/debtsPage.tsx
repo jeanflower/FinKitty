@@ -13,7 +13,7 @@ import {
   submitTransaction,
 } from './../App';
 import Button from './reactComponents/Button';
-import { assetsOrDebtsChartDiv } from './chartPages';
+import { assetsOrDebtsChartDivWithButtons } from './chartPages';
 import {
   assetsOrDebtsTableDiv,
   transactionsTableDiv,
@@ -64,7 +64,7 @@ export function debtsDiv(
         key={debtsTable.lc}
         id="toggleDebtsTable"
       />
-      {assetsOrDebtsChartDiv(model, debtChartData, true, false)}
+      {assetsOrDebtsChartDivWithButtons(model, debtChartData, true, false)}
       <h4>Debt definitions</h4>
       {assetsOrDebtsTableDiv(model, showAlert, true)}
       <h4>Revalue debts</h4>

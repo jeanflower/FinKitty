@@ -146,7 +146,7 @@ function coarseFineList(model: DbModelData) {
   return <div role="group">{buttons}</div>;
 }
 
-function getDefaultChartSettings(model: DbModelData) {
+export function getDefaultChartSettings(model: DbModelData) {
   const showMonth =
     getSettings(
       model.settings,
@@ -190,9 +190,42 @@ function getDefaultChartSettings(model: DbModelData) {
   };
 }
 
+export function getSmallerChartSettings(model: DbModelData, title: string) {
+  return {
+    ...getDefaultChartSettings(model),
+    height: 200,
+    width: 400,
+    title: {
+      display: true,
+      text: title,
+    },
+    // see also suppressLegend()
+    legend: {
+      display: false,
+    },
+  };
+}
+
 export function incomesChartDiv(
+  incomesChartData: ChartData[],
+  chartSettings: any,
+) {
+  return (
+    <fieldset>
+      <CanvasJSChart
+        options={{
+          ...chartSettings,
+          data: incomesChartData,
+        }}
+      />
+    </fieldset>
+  );
+}
+
+export function incomesChartDivWithButtons(
   model: DbModelData,
   incomesChartData: ChartData[],
+  chartSettings: any,
 ) {
   const chartVisible = showContent.get(incomesChart).display;
   return (
@@ -212,14 +245,7 @@ export function incomesChartDiv(
         model,
       )}
       {coarseFineList(model)}
-      <fieldset>
-        <CanvasJSChart
-          options={{
-            ...getDefaultChartSettings(model),
-            data: incomesChartData,
-          }}
-        />
-      </fieldset>
+      {incomesChartDiv(incomesChartData, chartSettings)}
     </div>
   );
 }
@@ -238,6 +264,26 @@ function getExpenseChartFocus(model: DbModelData) {
 }
 
 export function expensesChartDiv(
+  expensesChartData: ChartData[],
+  chartSettings: any,
+) {
+  return (
+    <fieldset>
+      <ReactiveTextArea
+        identifier="expensesDataDump"
+        message={showObj(expensesChartData)}
+      />
+      <CanvasJSChart
+        options={{
+          ...chartSettings,
+          data: expensesChartData,
+        }}
+      />
+    </fieldset>
+  );
+}
+
+export function expensesChartDivWithButtons(
   model: DbModelData,
   expensesChartData: ChartData[],
 ) {
@@ -264,12 +310,7 @@ export function expensesChartDiv(
           identifier="expensesDataDump"
           message={showObj(expensesChartData)}
         />
-        <CanvasJSChart
-          options={{
-            ...getDefaultChartSettings(model),
-            data: expensesChartData,
-          }}
-        />
+        {expensesChartDiv(expensesChartData, getDefaultChartSettings(model))}
       </fieldset>
     </div>
   );
@@ -377,6 +418,20 @@ function assetViewTypeList(model: DbModelData) {
 }
 
 export function assetsOrDebtsChartDiv(
+  assetChartData: ChartData[],
+  chartSettings: any,
+) {
+  return (
+    <CanvasJSChart
+      options={{
+        ...chartSettings,
+        data: assetChartData,
+      }}
+    />
+  );
+}
+
+export function assetsOrDebtsChartDivWithButtons(
   model: DbModelData,
   assetChartData: ChartData[],
   isDebt: boolean,
@@ -401,10 +456,18 @@ export function assetsOrDebtsChartDiv(
         identifier="assetDataDump"
         message={showObj(assetChartData)}
       />
+      {assetsOrDebtsChartDiv(assetChartData, getDefaultChartSettings(model))}
+    </div>
+  );
+}
+
+export function taxChartDiv(taxChartData: ChartData[], settings: any) {
+  return (
+    <div>
       <CanvasJSChart
         options={{
-          ...getDefaultChartSettings(model),
-          data: assetChartData,
+          ...settings,
+          data: taxChartData,
         }}
       />
     </div>
@@ -416,16 +479,7 @@ export function taxDiv(model: DbModelData, taxChartData: ChartData[]) {
     return;
   }
 
-  return (
-    <div style={{ display: getDisplay(taxView) ? 'block' : 'none' }}>
-      <CanvasJSChart
-        options={{
-          ...getDefaultChartSettings(model),
-          data: taxChartData,
-        }}
-      />
-    </div>
-  );
+  return taxChartDiv(taxChartData, getDefaultChartSettings(model));
 }
 
 /*

@@ -13,7 +13,10 @@ import {
   toggleDisplay,
 } from '../App';
 import Button from './reactComponents/Button';
-import { incomesChartDiv } from './chartPages';
+import {
+  incomesChartDivWithButtons,
+  getDefaultChartSettings,
+} from './chartPages';
 import {
   incomesTableDiv,
   transactionsTableDiv,
@@ -64,7 +67,11 @@ export function incomesDiv(
         key={incomesTable.lc}
         id="toggle-incomesTable"
       />
-      {incomesChartDiv(model, incomesChartData)}
+      {incomesChartDivWithButtons(
+        model,
+        incomesChartData,
+        getDefaultChartSettings(model),
+      )}
       <h4>Income definitions</h4>
       {incomesTableDiv(model, showAlert)}
       <h4>Income revaluations</h4>

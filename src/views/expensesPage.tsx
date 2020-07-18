@@ -12,7 +12,7 @@ import {
   toggleDisplay,
 } from '../App';
 import Button from './reactComponents/Button';
-import { expensesChartDiv } from './chartPages';
+import { expensesChartDivWithButtons } from './chartPages';
 import {
   expensesTableDiv,
   transactionsTableDiv,
@@ -63,7 +63,7 @@ export function expensesDiv(
         key={expensesTable.lc}
         id="toggle-expensesTable"
       />
-      {expensesChartDiv(model, expensesChartData)}
+      {expensesChartDivWithButtons(model, expensesChartData)}
       <h4>Expense definitions</h4>
       {expensesTableDiv(model, showAlert)}
       <h4>Expense revaluations</h4>

@@ -224,7 +224,7 @@ export async function clickButton(driver: ThenableWebDriver, id: string) {
   const btn = await driver.findElements(webdriver.By.id(id));
   // log(`found ${btn.length} elements with id=${id}`);
   expect(btn.length === 1).toBe(true);
-  return await btn[0].click();
+  await btn[0].click();
 }
 
 export async function fillInputById(
@@ -336,6 +336,7 @@ export async function beforeAllWork(
   if (allowExtraSleeps()) {
     await sleep(calcSleep, '--- after model selected');
   }
+  await clickButton(driver, 'btn-Home');
 }
 
 export async function cleanUpWork(
@@ -350,6 +351,7 @@ export async function cleanUpWork(
     // log(`seek btn-${testDataModelName}`);
 
     await selectModel(driver, testDataModelName);
+    await clickButton(driver, 'btn-Home');
 
     const deleteModelButton = await driver.findElement(
       webdriver.By.id(`btn-delete`),
@@ -380,6 +382,7 @@ export async function refreshPage(
 ) {
   // log('in refreshPage');
   await selectModel(driver, testDataModelName);
+  await clickButton(driver, 'btn-Home');
   return sleep(calcSleep, 'after refreshing a page');
 }
 

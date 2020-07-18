@@ -4475,29 +4475,44 @@ describe('Chrome Interaction debts', () => {
     } // catch
   } // isAlertPresent()
 
-  async function deleteIfExists(name: string) {
-    //log(`delete ${name} if it exists...`);
-    const btn = await driver.findElements(
-      webdriver.By.id(`btn-overview-${name}`),
-    );
-    if (btn.length === 1) {
-      //log(`${name} exists`);
-      await btn[0].click();
-      await acceptAnyAlert();
-      await clickButton(driver, 'btn-delete');
-      expect(
-        await driver
-          .switchTo()
-          .alert()
-          .getText(),
-      ).toBe(`delete all data in model ${name} - you sure?`);
+  async function consumeAlert(message: string, accept: boolean) {
+    expect(
+      await driver
+        .switchTo()
+        .alert()
+        .getText(),
+    ).toBe(message);
+    if (accept) {
       await driver
         .switchTo()
         .alert()
         .accept();
     } else {
-      //log(`${name} didn't exist`);
+      await driver
+        .switchTo()
+        .alert()
+        .dismiss();
     }
+  }
+
+  async function deleteIfExists(name: string) {
+    await clickButton(driver, 'btn-Home');
+    // log(`delete ${name} if it exists...`);
+    const btn = await driver.findElements(
+      webdriver.By.id(`btn-overview-${name}`),
+    );
+    if (btn.length === 1) {
+      // log(`${name} exists`);
+      await btn[0].click();
+      await acceptAnyAlert();
+      await clickButton(driver, 'btn-Home');
+      // await sleep(1000, 'pause');
+      await clickButton(driver, 'btn-delete');
+      await consumeAlert(`delete all data in model ${name} - you sure?`, true);
+    } else {
+      // log(`${name} didn't exist`);
+    }
+    await clickButton(driver, 'btn-Home');
   }
 
   async function testModelCreation(createButtonID: string) {
@@ -4510,6 +4525,7 @@ describe('Chrome Interaction debts', () => {
     await deleteIfExists(ex1Name);
     await deleteIfExists(ex2Name);
     await clickButton(driver, `btn-overview-${testDataModelName}`);
+    await clickButton(driver, 'btn-Home');
 
     // there's no model
     let btn = await driver.findElements(
@@ -4527,17 +4543,10 @@ describe('Chrome Interaction debts', () => {
     // check the model did not get created
     await fillInputById(driver, 'createModel', ex1Name);
     await clickButton(driver, createButtonID);
-    // warn
-    expect(
-      await driver
-        .switchTo()
-        .alert()
-        .getText(),
-    ).toBe('Continue without saving unsaved model SeleniumTestData?');
-    await driver
-      .switchTo()
-      .alert()
-      .dismiss();
+    await consumeAlert(
+      'Continue without saving unsaved model SeleniumTestData?',
+      false,
+    );
 
     // still looking at old model
     await clickButton(driver, 'btn-Overview');
@@ -4553,16 +4562,10 @@ describe('Chrome Interaction debts', () => {
     // choose to accept warning
     // check the model did get created
     await clickButton(driver, createButtonID);
-    expect(
-      await driver
-        .switchTo()
-        .alert()
-        .getText(),
-    ).toBe('Continue without saving unsaved model SeleniumTestData?');
-    await driver
-      .switchTo()
-      .alert()
-      .accept();
+    await consumeAlert(
+      'Continue without saving unsaved model SeleniumTestData?',
+      true,
+    );
     btn = await driver.findElements(webdriver.By.id(`btn-overview-${ex1Name}`));
     // log(`found ${btn.length} elements with id=${id}`);
     expect(btn.length === 1).toBe(true);
@@ -4577,16 +4580,10 @@ describe('Chrome Interaction debts', () => {
     // check the model did not get created
     // save, go round again
     await clickButton(driver, createButtonID);
-    expect(
-      await driver
-        .switchTo()
-        .alert()
-        .getText(),
-    ).toBe(`Continue without saving unsaved model ${ex1Name}?`);
-    await driver
-      .switchTo()
-      .alert()
-      .dismiss();
+    await consumeAlert(
+      `Continue without saving unsaved model ${ex1Name}?`,
+      false,
+    );
     await clickButton(driver, 'btn-Overview');
     await checkMessage(driver, `${ex1Name}: Overview`);
     await clickButton(driver, 'btn-Home');
@@ -4613,64 +4610,23 @@ describe('Chrome Interaction debts', () => {
     // warn ex1 exists
     await fillInputById(driver, 'createModel', ex1Name);
     await clickButton(driver, createButtonID);
-    expect(
-      await driver
-        .switchTo()
-        .alert()
-        .getText(),
-    ).toBe(`will replace ${ex1Name}, you sure?`);
-    await driver
-      .switchTo()
-      .alert()
-      .dismiss();
+    await consumeAlert(`will replace ${ex1Name}, you sure?`, false);
 
     //await checkMessage(driver, 'wrong');
 
     await clickButton(driver, createButtonID);
-    expect(
-      await driver
-        .switchTo()
-        .alert()
-        .getText(),
-    ).toBe(`will replace ${ex1Name}, you sure?`);
-    await driver
-      .switchTo()
-      .alert()
-      .accept();
-
-    expect(
-      await driver
-        .switchTo()
-        .alert()
-        .getText(),
-    ).toBe(`Continue without saving unsaved model ${ex2Name}?`);
-    await driver
-      .switchTo()
-      .alert()
-      .dismiss();
+    await consumeAlert(`will replace ${ex1Name}, you sure?`, true);
+    await consumeAlert(
+      `Continue without saving unsaved model ${ex2Name}?`,
+      false,
+    );
 
     await clickButton(driver, createButtonID);
-    expect(
-      await driver
-        .switchTo()
-        .alert()
-        .getText(),
-    ).toBe(`will replace ${ex1Name}, you sure?`);
-    await driver
-      .switchTo()
-      .alert()
-      .accept();
-
-    expect(
-      await driver
-        .switchTo()
-        .alert()
-        .getText(),
-    ).toBe(`Continue without saving unsaved model ${ex2Name}?`);
-    await driver
-      .switchTo()
-      .alert()
-      .accept();
+    await consumeAlert(`will replace ${ex1Name}, you sure?`, true);
+    await consumeAlert(
+      `Continue without saving unsaved model ${ex2Name}?`,
+      true,
+    );
 
     await clickButton(driver, 'btn-save-model');
 
@@ -4679,55 +4635,19 @@ describe('Chrome Interaction debts', () => {
     // warn ex2 exists
     await fillInputById(driver, 'createModel', ex2Name);
     await clickButton(driver, createButtonID);
-    expect(
-      await driver
-        .switchTo()
-        .alert()
-        .getText(),
-    ).toBe(`will replace ${ex2Name}, you sure?`);
-    await driver
-      .switchTo()
-      .alert()
-      .dismiss();
+    await consumeAlert(`will replace ${ex2Name}, you sure?`, false);
 
     await clickButton(driver, createButtonID);
-    expect(
-      await driver
-        .switchTo()
-        .alert()
-        .getText(),
-    ).toBe(`will replace ${ex2Name}, you sure?`);
-    await driver
-      .switchTo()
-      .alert()
-      .accept();
+    await consumeAlert(`will replace ${ex2Name}, you sure?`, true);
 
     // try to create ex2Name but we're in ex2Name and
     // ex2Name is not saved
     await fillInputById(driver, 'createModel', ex2Name);
     await clickButton(driver, createButtonID);
-    expect(
-      await driver
-        .switchTo()
-        .alert()
-        .getText(),
-    ).toBe(`will replace ${ex2Name}, you sure?`);
-    await driver
-      .switchTo()
-      .alert()
-      .dismiss();
+    await consumeAlert(`will replace ${ex2Name}, you sure?`, false);
 
     await clickButton(driver, createButtonID);
-    expect(
-      await driver
-        .switchTo()
-        .alert()
-        .getText(),
-    ).toBe(`will replace ${ex2Name}, you sure?`);
-    await driver
-      .switchTo()
-      .alert()
-      .accept();
+    await consumeAlert(`will replace ${ex2Name}, you sure?`, true);
 
     // clear away any data
     await deleteIfExists(ex1Name);
@@ -4832,7 +4752,7 @@ describe('Chrome Interaction debts', () => {
     await checkMessage(driver, `${name}: Overview`);
 
     await clickButton(driver, 'btn-Home');
-    await driver.executeScript('window.scrollBy(0, -500)'); // Adjust scrolling with a negative value here
+    await driver.executeScript('window.scrollBy(0, -1000)'); // Adjust scrolling with a negative value here
     await clickButton(driver, `btn-overview-${testDataModelName}`);
     if (isDirty) {
       if (name === testDataModelName) {
@@ -4843,15 +4763,18 @@ describe('Chrome Interaction debts', () => {
       expect(await alertIsShowing()).toBe(true);
       await dismissAnyAlert();
     } else {
+      await clickButton(driver, 'btn-Home');
       await clickButton(driver, `btn-overview-${name}`);
       await acceptAnyAlert();
     }
+    await clickButton(driver, 'btn-Home');
   }
   async function switchToModel(name: string) {
     await clickButton(driver, 'btn-Home');
     await driver.executeScript('window.scrollBy(0, -500)'); // Adjust scrolling with a negative value here
     await clickButton(driver, `btn-overview-${name}`);
     await acceptAnyAlert();
+    await clickButton(driver, 'btn-Home');
   }
 
   async function modelExists(name: string, exists: boolean) {
@@ -4866,6 +4789,7 @@ describe('Chrome Interaction debts', () => {
     } else {
       expect(btn.length === 0).toBe(true);
     }
+    await clickButton(driver, 'btn-Home');
   }
 
   it('new, clone, save, manipulate cash value', async done => {
@@ -4882,6 +4806,7 @@ describe('Chrome Interaction debts', () => {
     await deleteIfExists(ex2Name);
 
     await clickButton(driver, `btn-overview-${testDataModelName}`);
+    await clickButton(driver, 'btn-Home');
     await clickButton(driver, `btn-save-model`);
 
     await makeNewModel(ex1Name);
@@ -4900,12 +4825,20 @@ describe('Chrome Interaction debts', () => {
 
     await switchToModel(ex2Name);
     await assertCurrentModel(ex2Name, true);
+
     await expectCashValue(0);
     await setCashValue(20);
     await expectCashValue(20);
 
+    await clickButton(driver, 'btn-Home');
     await clickButton(driver, 'btn-save-model');
     await assertCurrentModel(ex2Name, false);
+
+    ///////
+    // await checkMessage(driver, 'wrong');
+    //////
+
+    await clickButton(driver, 'btn-Home');
 
     await driver.get('about:blank');
     await driver.get(serverUri);
@@ -4941,13 +4874,7 @@ describe('Chrome Interaction debts', () => {
 
     await clickButton(driver, 'btn-Home');
     await clickButton(driver, 'btn-delete');
-    expect(
-      await driver
-        .switchTo()
-        .alert()
-        .getText(),
-    ).toBe(`delete all data in model ${ex1Name} - you sure?`);
-    await driver.switchTo().alert().accept();
+    await consumeAlert(`delete all data in model ${ex1Name} - you sure?`, true);
 
     await modelExists(ex1Name, false);
     await modelExists(ex2Name, true);

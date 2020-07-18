@@ -22,9 +22,15 @@ import {
   transactionsView,
 } from '../App';
 import {
-  assetsOrDebtsChartDiv,
-  expensesChartDiv,
+  assetsOrDebtsChartDivWithButtons,
+  expensesChartDivWithButtons,
   incomesChartDiv,
+  incomesChartDivWithButtons,
+  taxChartDiv,
+  getSmallerChartSettings,
+  getDefaultChartSettings,
+  expensesChartDiv,
+  assetsOrDebtsChartDiv,
 } from './chartPages';
 import {
   custom,
@@ -37,6 +43,18 @@ import {
   revalueDebt,
 } from '../localization/stringConstants';
 
+import CanvasJSReact from '../assets/js/canvasjs.react';
+const { CanvasJSChart } = CanvasJSReact;
+
+function suppressLegend(chartDataPoints: ChartData[]) {
+  return chartDataPoints.map(dp => {
+    return {
+      ...dp,
+      showInLegend: false,
+    };
+  });
+}
+
 export function overviewDiv(
   model: DbModelData,
   showAlert: (arg0: string) => void,
@@ -44,6 +62,7 @@ export function overviewDiv(
   debtChartData: ChartData[],
   expensesChartData: ChartData[],
   incomesChartData: ChartData[],
+  taxChartData: ChartData[],
 ) {
   const doDisplay = getDisplay(overview);
   return (
@@ -129,23 +148,66 @@ export function overviewDiv(
         id="switchToSettings"
       />
       &nbsp;.
+      <div className="container-fluid">
+        <div className="row">
+          <div className="col">
+            {incomesChartDiv(
+              suppressLegend(incomesChartData),
+              getSmallerChartSettings(model, 'Incomes'),
+            )}
+          </div>
+          <div className="col">
+            {expensesChartDiv(
+              suppressLegend(expensesChartData),
+              getSmallerChartSettings(model, 'Expenses'),
+            )}
+          </div>
+          <div className="col">
+            {assetsOrDebtsChartDiv(
+              suppressLegend(assetChartData),
+              getSmallerChartSettings(model, 'Assets'),
+            )}
+          </div>
+        </div>
+        <div className="row">
+          <div className="col">
+            {taxChartDiv(
+              suppressLegend(taxChartData),
+              getSmallerChartSettings(model, 'Tax'),
+            )}
+          </div>
+          <div className="col">
+            {assetsOrDebtsChartDiv(
+              suppressLegend(debtChartData),
+              getSmallerChartSettings(model, 'Debts'),
+            )}
+          </div>
+          <div className="col">
+            <CanvasJSChart options={getSmallerChartSettings(model, '')} />
+          </div>
+        </div>
+      </div>
       <br />
       <h2>Important dates:</h2>
       {triggersTableDiv(model, showAlert)}
       <h2>Incomes:</h2>
-      {incomesChartDiv(model, incomesChartData)}
+      {incomesChartDivWithButtons(
+        model,
+        incomesChartData,
+        getDefaultChartSettings(model),
+      )}
       <h4>Income definitions</h4>
       {incomesTableDiv(model, showAlert)}
       <h4>Income revaluations</h4>
       {transactionsTableDiv(model, showAlert, revalueInc)}
       <h2>Expenses:</h2>
-      {expensesChartDiv(model, expensesChartData)}
+      {expensesChartDivWithButtons(model, expensesChartData)}
       <h4>Expense definitions</h4>
       {expensesTableDiv(model, showAlert)}
       <h4>Expense revaluations</h4>
       {transactionsTableDiv(model, showAlert, revalueExp)}
       <h2>Assets:</h2>
-      {assetsOrDebtsChartDiv(model, assetChartData, false, true)}
+      {assetsOrDebtsChartDivWithButtons(model, assetChartData, false, true)}
       <h4>Asset definitions</h4>
       {assetsOrDebtsTableDiv(model, showAlert, false)}
       <h4>Liquidate assets to keep cash afloat</h4>
@@ -153,7 +215,7 @@ export function overviewDiv(
       <h4>Revalue assets</h4>
       {transactionsTableDiv(model, showAlert, revalueAsset)}
       <h2>Debts:</h2>
-      {assetsOrDebtsChartDiv(model, debtChartData, true, true)}
+      {assetsOrDebtsChartDivWithButtons(model, debtChartData, true, true)}
       <h4>Debt definitions</h4>
       {assetsOrDebtsTableDiv(model, showAlert, true)}
       <h4>Revalue debts</h4>
