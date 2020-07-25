@@ -16,6 +16,8 @@ import {
   exampleModelName,
   custom,
   autogen,
+  roiEnd,
+  roiStart,
 } from './localization/stringConstants';
 import {
   ChartData,
@@ -820,6 +822,102 @@ export class AppContent extends Component<AppProps, AppState> {
     if (printDebug()) {
       log('in render');
     }
+    /*
+    // experiments to get tables with headers that
+    // stay visible when scrolling
+
+    // put this into index.css
+      .scrollClass {
+        height:100vh;
+        overflow-y: scroll;
+      }
+      html {
+        background: #CCC;
+      }
+
+      .container {
+        width: 450px;
+        overflow: auto;
+        padding: 1em;
+        background: #000;
+        margin: auto;
+      }
+
+      .cube {
+        float: left;
+        background: #FFF;
+        text-align: center;
+        line-height: 150px;
+        width: 450px; 
+        height: 150px;
+        max-height: 150px;
+        min-height: 150px;
+      }
+
+      .cube:nth-of-type(2n) {
+        background: #DDF;
+      }
+
+    const columns = [
+      { key: "id", name: "ID", editable: true },
+      { key: "title", name: "Title", editable: true },
+      { key: "complete", name: "Complete", editable: true }
+    ];
+    
+    const rows = [
+      { id: 0, title: "Task 1", complete: 20 },
+      { id: 1, title: "Task 2", complete: 40 },
+      { id: 2, title: "Task 3", complete: 60 },
+      { id: 3, title: "Task 3", complete: 60 },
+      { id: 4, title: "Task 3", complete: 60 },
+      { id: 5, title: "Task 3", complete: 60 },
+      { id: 6, title: "Task 3", complete: 60 },
+      { id: 7, title: "Task 3", complete: 60 },
+      { id: 8, title: "Task 3", complete: 60 },
+    ];
+    return (<div className="ag-theme-alpine" style={ {height: '300px', width: '600px'} }>
+    <DataGrid
+        columns={columns}
+        rows={rows}
+        deleteFunction={async function() {
+          return false;
+        }}
+        handleGridRowsUpdated={function() {
+          return false;
+        }}>
+    </DataGrid>
+    </div>);
+    */
+
+
+    const getSettingValue = (settingName: string) => {
+      let value = '';
+      const s = this.state.modelData.settings.find((s)=>{return s.NAME === settingName;});
+      if(s !== undefined){
+        value = s.VALUE;
+      }  
+      return value;
+    }
+    const getStartDate = () => {
+      return getSettingValue(roiStart);
+    }
+    const getEndDate = () => {
+      return getSettingValue(roiEnd);
+    }
+    const updateSettingValue = (settingName: string, newDate: string) => {
+      let value = '';
+      const s = this.state.modelData.settings.find((s)=>{return s.NAME === settingName;});
+      if(s !== undefined){
+        s.VALUE = newDate;
+        submitNewSetting(s, this.state.modelData)
+      }  
+    }
+    const updateStartDate = async (newDate: string) => {
+      updateSettingValue(roiStart, newDate);
+    }
+    const updateEndDate = async (newDate: string) => {
+      updateSettingValue(roiEnd, newDate);
+    }
 
     return (
       <div>
@@ -837,6 +935,10 @@ export class AppContent extends Component<AppProps, AppState> {
             this.state.expensesChartData,
             this.state.incomesChartData,
             this.state.taxChartData,
+            getStartDate,
+            updateStartDate,
+            getEndDate,
+            updateEndDate,
           )}
           {this.settingsDiv(
             this.state.modelData,
@@ -1303,7 +1405,7 @@ export class AppContent extends Component<AppProps, AppState> {
   }
 
   private viewButtonList() {
-    const buttons: JSX.Element[] = [];
+    let buttons: JSX.Element[] = [];
     const it = views.keys();
     let entry = it.next();
     while (!entry.done) {
@@ -1330,6 +1432,7 @@ export class AppContent extends Component<AppProps, AppState> {
       );
       entry = it.next();
     }
+    buttons.push(this.makeSaveButton());
     buttons.push(
       <Button
         action={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -1342,96 +1445,82 @@ export class AppContent extends Component<AppProps, AppState> {
         id={`btn-LogOut`}
       />,
     );
-    return <div role="group">{buttons}</div>;
+    buttons = buttons.concat(this.makeHelpText(this.state.alertText));
+    return buttons;
   }
 
   private makeSaveButton() {
     // log(`isDirty = ${isDirty}`);
     return (
-      <div className="col-">
+      <Button
+        key={'alert'}
+        action={async (
+          e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+        ) => {
+          // log('clear alert text');
+          e.persist();
+          await saveModelToDBLSM(userID, modelName, this.state.modelData);
+          refreshData();
+        }}
+        title={'Save model'}
+        id={`btn-save-model`}
+        type={isDirty ? 'primary' : 'secondary'}
+      />
+    );
+  }
+
+  private makeHelpText(alertText: string):JSX.Element[] {
+    let result: JSX.Element[] = [];
+    if (alertText !== '') {
+      // log('display alert text');
+      result.push(
+        <h4 className="text-warning" id="pageTitle">
+          {alertText}
+        </h4>);
+      result.push(
         <Button
           key={'alert'}
-          action={async (
+          action={(
             e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
           ) => {
             // log('clear alert text');
             e.persist();
-            await saveModelToDBLSM(userID, modelName, this.state.modelData);
-            refreshData();
+            this.setState({ alertText: '' });
           }}
-          title={'save model'}
-          id={`btn-save-model`}
-          type={isDirty ? 'primary' : 'secondary'}
+          title={'clear alert'}
+          id={`btn-clear-alert`}
+          type={'secondary'}
         />
-      </div>
-    );
-  }
-
-  private makeHelpText(alertText: string) {
-    if (alertText !== '') {
-      // log('display alert text');
-      return (
-        <div className="container-fluid">
-          <div className="row">
-            {this.makeSaveButton()}
-            <div className="col-">
-              <h4 className="text-warning" id="pageTitle">
-                {alertText}
-              </h4>
-            </div>
-            <div className="col-">
-              <Button
-                key={'alert'}
-                action={(
-                  e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-                ) => {
-                  // log('clear alert text');
-                  e.persist();
-                  this.setState({ alertText: '' });
-                }}
-                title={'clear alert'}
-                id={`btn-clear-alert`}
-                type={'secondary'}
-              />
-            </div>
-          </div>
-        </div>
       );
-    }
-
-    const it = views.keys();
-    let entry = it.next();
-    while (!entry.done) {
-      if (getDisplay(entry.value)) {
-        // log(`views.get(entry.value) = ${showObj(views.get(entry.value))}`);
-        const view = views.get(entry.value);
-        if (view === undefined) {
-          log('Error: unrecognised view');
-          return;
+    } else {
+      const it = views.keys();
+      let entry = it.next();
+      while (!entry.done) {
+        if (getDisplay(entry.value)) {
+          // log(`views.get(entry.value) = ${showObj(views.get(entry.value))}`);
+          const view = views.get(entry.value);
+          if (view === undefined) {
+            log('Error: unrecognised view');
+          } else {
+            result.push(
+              <h4 className="text-white" id="pageTitle">
+                {(entry.value !== homeView ? modelName + ': ' : '') +
+                  view.helpText}
+              </h4>
+            );
+          }
         }
-        return (
-          <div className="container-fluid">
-            <div className="row">
-              {this.makeSaveButton()}
-              <div className="col-">
-                <h4 className="text-white" id="pageTitle">
-                  {(entry.value !== homeView ? modelName + ': ' : '') +
-                    view.helpText}
-                </h4>
-              </div>
-            </div>
-          </div>
-        );
+        entry = it.next();
       }
-      entry = it.next();
     }
+    return result;
   }
 
   private navigationDiv() {
     return (
-      <div>
+      <div role="group">
         {this.viewButtonList()}
-        {this.makeHelpText(this.state.alertText)}
+        {}
       </div>
     );
   }

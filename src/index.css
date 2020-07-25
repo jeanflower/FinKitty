@@ -11,3 +11,9 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.scrollClass {
+  height:50vh;
+  overflow-y: scroll;
+  resize: both;
+}

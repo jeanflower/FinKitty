@@ -43,8 +43,9 @@ import {
   revalueDebt,
 } from '../localization/stringConstants';
 
-import CanvasJSReact from '../assets/js/canvasjs.react';
-const { CanvasJSChart } = CanvasJSReact;
+import { AddDeleteEntryForm } from './reactComponents/AddDeleteEntryForm';
+
+import { log } from './../utils';
 
 function suppressLegend(chartDataPoints: ChartData[]) {
   return chartDataPoints.map(dp => {
@@ -63,92 +64,18 @@ export function overviewDiv(
   expensesChartData: ChartData[],
   incomesChartData: ChartData[],
   taxChartData: ChartData[],
+  getStartDate: ()=>string,
+  updateStartDate: (newDate: string)=>Promise<void>,
+  getEndDate: ()=>string,
+  updateEndDate: (newDate: string)=>Promise<void>,
 ) {
+  // log(`called overviewDiv with a model with ${model.assets.length} assets`);
   const doDisplay = getDisplay(overview);
   return (
-    <div style={{ display: doDisplay ? 'block' : 'none' }}>
-      This model has &nbsp;
-      {model.triggers.length} &nbsp;
-      <Button
-        action={() => {
-          toggle(triggersView);
-        }}
-        type="secondary"
-        title="dates"
-        id="switchToTriggers"
-      />
-      , &nbsp;
-      {model.incomes.length} &nbsp;
-      <Button
-        action={() => {
-          toggle(incomesView);
-        }}
-        type="secondary"
-        title="incomes"
-        id="switchToIncomes"
-      />
-      ,&nbsp;
-      {model.expenses.length} &nbsp;
-      <Button
-        action={() => {
-          toggle(expensesView);
-        }}
-        type="secondary"
-        title="expenses"
-        id="switchToExpenses"
-      />
-      , &nbsp;
-      {
-        model.assets.filter(a => {
-          return a.IS_A_DEBT === false;
-        }).length
-      }{' '}
-      &nbsp;
-      <Button
-        action={() => {
-          toggle(assetsView);
-        }}
-        type="secondary"
-        title="assets"
-        id="switchToAssets"
-      />
-      , &nbsp;
-      {
-        model.assets.filter(a => {
-          return a.IS_A_DEBT === true;
-        }).length
-      }{' '}
-      &nbsp;
-      <Button
-        action={() => {
-          toggle(debtsView);
-        }}
-        type="secondary"
-        title="debts"
-        id="switchToDebts"
-      />
-      , &nbsp;
-      {model.transactions.length} &nbsp;
-      <Button
-        action={() => {
-          toggle(transactionsView);
-        }}
-        type="secondary"
-        title="transactions"
-        id="switchToTransactions"
-      />
-      &nbsp; and &nbsp;
-      {model.settings.length} &nbsp;
-      <Button
-        action={() => {
-          toggle(settingsView);
-        }}
-        type="secondary"
-        title="settings"
-        id="switchToSettings"
-      />
-      &nbsp;.
-      <div className="container-fluid">
+    <div style={{ 
+      display: doDisplay ? 'block' : 'none',
+    }}>
+      <div className="scrollClass">
         <div className="row">
           <div className="col">
             {incomesChartDiv(
@@ -183,10 +110,22 @@ export function overviewDiv(
             )}
           </div>
           <div className="col">
-            <CanvasJSChart options={getSmallerChartSettings(model, '')} />
+            <AddDeleteEntryForm
+              name='view start date'
+              getValue={getStartDate}
+              submitFunction={updateStartDate}
+              showAlert={showAlert}
+            />
+            <AddDeleteEntryForm
+              name='view end date'
+              getValue={getEndDate}
+              submitFunction={updateEndDate}
+              showAlert={showAlert}
+            />
           </div>
         </div>
       </div>
+      <div className="scrollClass resizeClass">
       <br />
       <h2>Important dates:</h2>
       {triggersTableDiv(model, showAlert)}
@@ -229,6 +168,7 @@ export function overviewDiv(
       {transactionsTableDiv(model, showAlert, autogen)}
       <h2>Settings:</h2>
       {settingsTableDiv(model, showAlert)}
+      </div>
     </div>
   );
 }
