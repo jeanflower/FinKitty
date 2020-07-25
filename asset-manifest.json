@@ -1,25 +1,25 @@
 {
   "files": {
     "main.css": "/FinKitty/static/css/main.a579c9c4.chunk.css",
-    "main.js": "/FinKitty/static/js/main.1c20a8d1.chunk.js",
-    "main.js.map": "/FinKitty/static/js/main.1c20a8d1.chunk.js.map",
+    "main.js": "/FinKitty/static/js/main.f2ed5379.chunk.js",
+    "main.js.map": "/FinKitty/static/js/main.f2ed5379.chunk.js.map",
     "runtime-main.js": "/FinKitty/static/js/runtime-main.36e50247.js",
     "runtime-main.js.map": "/FinKitty/static/js/runtime-main.36e50247.js.map",
-    "static/js/2.39c1e378.chunk.js": "/FinKitty/static/js/2.39c1e378.chunk.js",
-    "static/js/2.39c1e378.chunk.js.map": "/FinKitty/static/js/2.39c1e378.chunk.js.map",
+    "static/js/2.c8d19c6c.chunk.js": "/FinKitty/static/js/2.c8d19c6c.chunk.js",
+    "static/js/2.c8d19c6c.chunk.js.map": "/FinKitty/static/js/2.c8d19c6c.chunk.js.map",
     "index.html": "/FinKitty/index.html",
-    "precache-manifest.105af4e96a6eecc84cc72546c6d656ef.js": "/FinKitty/precache-manifest.105af4e96a6eecc84cc72546c6d656ef.js",
+    "precache-manifest.15e0e2efb4c1e012ff0996270726b008.js": "/FinKitty/precache-manifest.15e0e2efb4c1e012ff0996270726b008.js",
     "service-worker.js": "/FinKitty/service-worker.js",
     "static/css/main.a579c9c4.chunk.css.map": "/FinKitty/static/css/main.a579c9c4.chunk.css.map",
-    "static/js/2.39c1e378.chunk.js.LICENSE": "/FinKitty/static/js/2.39c1e378.chunk.js.LICENSE",
+    "static/js/2.c8d19c6c.chunk.js.LICENSE": "/FinKitty/static/js/2.c8d19c6c.chunk.js.LICENSE",
     "static/media/sampleAssetGraph.png": "/FinKitty/static/media/sampleAssetGraph.405ff0cd.png",
     "static/media/sampleExpenseGraph.png": "/FinKitty/static/media/sampleExpenseGraph.5581786d.png",
     "static/media/sampleTaxGraph.png": "/FinKitty/static/media/sampleTaxGraph.c9aa7cfc.png"
   },
   "entrypoints": [
     "static/js/runtime-main.36e50247.js",
-    "static/js/2.39c1e378.chunk.js",
+    "static/js/2.c8d19c6c.chunk.js",
     "static/css/main.a579c9c4.chunk.css",
-    "static/js/main.1c20a8d1.chunk.js"
+    "static/js/main.f2ed5379.chunk.js"
   ]
 }
