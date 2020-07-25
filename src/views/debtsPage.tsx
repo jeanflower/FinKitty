@@ -24,7 +24,7 @@ import { AddDeleteDebtForm } from './reactComponents/AddDeleteDebtForm';
 import { payOffDebt, revalueDebt } from '../localization/stringConstants';
 import { getTodaysDate, lessThan } from '../utils';
 import DataGrid from './reactComponents/DataGrid';
-import NameFormatter from './reactComponents/NameFormatter';
+import SimpleFormatter from './reactComponents/NameFormatter';
 import CashValueFormatter from './reactComponents/CashValueFormatter';
 
 export function debtsDiv(
@@ -94,13 +94,15 @@ export function debtsDiv(
             ...defaultColumn,
             key: 'NAME',
             name: 'name',
-            formatter: <NameFormatter value="unset" />,
+            formatter: <SimpleFormatter name="name" value="unset" />,
           },
           {
             ...defaultColumn,
             key: 'VALUE',
             name: `today's value`,
-            formatter: <CashValueFormatter value="unset" />,
+            formatter: (
+              <CashValueFormatter name="today's value" value="unset" />
+            ),
           },
         ]}
       />

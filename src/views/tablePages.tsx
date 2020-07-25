@@ -39,7 +39,7 @@ import {
   isADebt,
 } from '../utils';
 
-import NameFormatter from './reactComponents/NameFormatter';
+import SimpleFormatter from './reactComponents/NameFormatter';
 import ToFromValueFormatter from './reactComponents/ToFromValueFormatter';
 import TriggerDateFormatter from './reactComponents/TriggerDateFormatter';
 import GrowthFormatter from './reactComponents/GrowthFormatter';
@@ -445,13 +445,13 @@ function getAssetOrDebtCols(model: DbModelData, isDebt: boolean) {
       ...defaultColumn,
       key: 'NAME',
       name: 'name',
-      formatter: <NameFormatter value="unset" />,
+      formatter: <SimpleFormatter name="name" value="unset" />,
     },
     {
       ...defaultColumn,
       key: 'VALUE',
       name: 'start value',
-      formatter: <CashValueFormatter value="unset" />,
+      formatter: <CashValueFormatter name="start value" value="unset" />,
     },
   ];
   if (!isDebt) {
@@ -460,21 +460,31 @@ function getAssetOrDebtCols(model: DbModelData, isDebt: boolean) {
         ...defaultColumn,
         key: 'QUANTITY',
         name: 'quantity',
+        formatter: <SimpleFormatter name="quantity" value="unset" />,
       },
     ]);
   }
+  const growthName = isDebt ? 'interest rate' : 'growth';
   cols = cols.concat([
     {
       ...defaultColumn,
       key: 'START',
       name: 'start',
-      formatter: <TriggerDateFormatter model={model} value="unset" />,
+      formatter: (
+        <TriggerDateFormatter name="start" model={model} value="unset" />
+      ),
     },
     {
       ...defaultColumn,
       key: 'GROWTH',
-      name: isDebt ? 'interest rate' : 'growth',
-      formatter: <GrowthFormatter settings={model.settings} value="unset" />,
+      name: growthName,
+      formatter: (
+        <GrowthFormatter
+          name={growthName}
+          settings={model.settings}
+          value="unset"
+        />
+      ),
     },
     // for debugging, we can find it useful to see this column
     /*
@@ -491,17 +501,19 @@ function getAssetOrDebtCols(model: DbModelData, isDebt: boolean) {
         ...defaultColumn,
         key: 'GROWS_WITH_CPI',
         name: 'grows with CPI',
+        formatter: <SimpleFormatter name="name" value="unset" />,
       },
       {
         ...defaultColumn,
         key: 'LIABILITY',
         name: 'tax Liability',
+        formatter: <SimpleFormatter name="tax liability" value="unset" />,
       },
       {
         ...defaultColumn,
         key: 'PURCHASE_PRICE',
         name: 'purchase price',
-        formatter: <CashValueFormatter value="unset" />,
+        formatter: <CashValueFormatter name="purchase price" value="unset" />,
       },
     ]);
   }
@@ -510,6 +522,7 @@ function getAssetOrDebtCols(model: DbModelData, isDebt: boolean) {
       ...defaultColumn,
       key: 'CATEGORY',
       name: 'category',
+      formatter: <SimpleFormatter name="category" value="unset" />,
     },
   ]);
   return cols;
@@ -602,7 +615,7 @@ function makeTransactionCols(model: DbModelData, type: string) {
       ...defaultColumn,
       key: 'NAME',
       name: 'name',
-      formatter: <NameFormatter value="unset" />,
+      formatter: <SimpleFormatter name="name" value="unset" />,
     },
   ];
   // FROM, FROM_VALUE display rules
@@ -622,7 +635,7 @@ function makeTransactionCols(model: DbModelData, type: string) {
         ...defaultColumn,
         key: 'FROM_VALUE',
         name: 'amount',
-        formatter: <ToFromValueFormatter value="unset" />,
+        formatter: <ToFromValueFormatter name="amount" value="unset" />,
       },
     ]);
   } else {
@@ -634,12 +647,13 @@ function makeTransactionCols(model: DbModelData, type: string) {
         ...defaultColumn,
         key: 'FROM',
         name: 'coming from',
+        formatter: <SimpleFormatter name="coming from" value="unset" />,
       },
       {
         ...defaultColumn,
         key: 'FROM_VALUE',
         name: 'from amount',
-        formatter: <ToFromValueFormatter value="unset" />,
+        formatter: <ToFromValueFormatter name="from amount" value="unset" />,
       },
     ]);
   }
@@ -654,12 +668,13 @@ function makeTransactionCols(model: DbModelData, type: string) {
         ...defaultColumn,
         key: 'TO',
         name: 'income',
+        formatter: <SimpleFormatter name="income" value="unset" />,
       },
       {
         ...defaultColumn,
         key: 'TO_VALUE',
         name: 'new value',
-        formatter: <ToFromValueFormatter value="unset" />,
+        formatter: <ToFromValueFormatter name="new value" value="unset" />,
       },
     ]);
   } else if (type === revalueExp) {
@@ -668,12 +683,13 @@ function makeTransactionCols(model: DbModelData, type: string) {
         ...defaultColumn,
         key: 'TO',
         name: 'expense',
+        formatter: <SimpleFormatter name="expense" value="unset" />,
       },
       {
         ...defaultColumn,
         key: 'TO_VALUE',
         name: 'new value',
-        formatter: <ToFromValueFormatter value="unset" />,
+        formatter: <ToFromValueFormatter name="new value" value="unset" />,
       },
     ]);
   } else if (type === revalueAsset) {
@@ -682,12 +698,13 @@ function makeTransactionCols(model: DbModelData, type: string) {
         ...defaultColumn,
         key: 'TO',
         name: 'asset',
+        formatter: <SimpleFormatter name="asset" value="unset" />,
       },
       {
         ...defaultColumn,
         key: 'TO_VALUE',
         name: 'new value',
-        formatter: <ToFromValueFormatter value="unset" />,
+        formatter: <ToFromValueFormatter name="new value" value="unset" />,
       },
     ]);
   } else if (type === revalueDebt) {
@@ -696,12 +713,13 @@ function makeTransactionCols(model: DbModelData, type: string) {
         ...defaultColumn,
         key: 'TO',
         name: 'debt',
+        formatter: <SimpleFormatter name="debt" value="unset" />,
       },
       {
         ...defaultColumn,
         key: 'TO_VALUE',
         name: 'new value',
-        formatter: <ToFromValueFormatter value="unset" />,
+        formatter: <ToFromValueFormatter name="new value" value="unset" />,
       },
     ]);
   } else {
@@ -711,12 +729,13 @@ function makeTransactionCols(model: DbModelData, type: string) {
         ...defaultColumn,
         key: 'TO',
         name: 'going to',
+        formatter: <SimpleFormatter name="going to" value="unset" />,
       },
       {
         ...defaultColumn,
         key: 'TO_VALUE',
         name: 'to amount',
-        formatter: <ToFromValueFormatter value="unset" />,
+        formatter: <ToFromValueFormatter name="to amount" value="unset" />,
       },
     ]);
   }
@@ -726,7 +745,13 @@ function makeTransactionCols(model: DbModelData, type: string) {
         ...defaultColumn,
         key: 'DATE',
         name: 'payments start date',
-        formatter: <TriggerDateFormatter model={model} value="unset" />,
+        formatter: (
+          <TriggerDateFormatter
+            name="payments start date"
+            model={model}
+            value="unset"
+          />
+        ),
       },
     ]);
   } else {
@@ -735,7 +760,9 @@ function makeTransactionCols(model: DbModelData, type: string) {
         ...defaultColumn,
         key: 'DATE',
         name: 'date',
-        formatter: <TriggerDateFormatter model={model} value="unset" />,
+        formatter: (
+          <TriggerDateFormatter name="date" model={model} value="unset" />
+        ),
       },
     ]);
   }
@@ -745,6 +772,7 @@ function makeTransactionCols(model: DbModelData, type: string) {
         ...defaultColumn,
         key: 'RECURRENCE',
         name: 'recurrence',
+        formatter: <SimpleFormatter name="recurrence" value="unset" />,
       },
     ]);
   }
@@ -754,7 +782,13 @@ function makeTransactionCols(model: DbModelData, type: string) {
         ...defaultColumn,
         key: 'STOP_DATE',
         name: 'recurrence end date',
-        formatter: <TriggerDateFormatter model={model} value="unset" />,
+        formatter: (
+          <TriggerDateFormatter
+            name="recurrence end date"
+            model={model}
+            value="unset"
+          />
+        ),
       },
     ]);
   }
@@ -769,6 +803,7 @@ function makeTransactionCols(model: DbModelData, type: string) {
         ...defaultColumn,
         key: 'CATEGORY',
         name: 'category',
+        formatter: <SimpleFormatter name="category" value="unset" />,
       },
     ]);
   }
@@ -944,13 +979,19 @@ export function triggersTableDiv(
                 ...defaultColumn,
                 key: 'NAME',
                 name: 'name',
-                formatter: <NameFormatter value="unset" />,
+                formatter: <SimpleFormatter name="name" value="unset" />,
               },
               {
                 ...defaultColumn,
                 key: 'DATE',
                 name: 'date',
-                formatter: <TriggerDateFormatter model={model} value="unset" />,
+                formatter: (
+                  <TriggerDateFormatter
+                    name="date"
+                    model={model}
+                    value="unset"
+                  />
+                ),
               },
             ]}
           />
@@ -1003,54 +1044,85 @@ export function incomesTableDiv(
                 ...defaultColumn,
                 key: 'NAME',
                 name: 'name',
-                formatter: <NameFormatter value="unset" />,
+                formatter: <SimpleFormatter name="name" value="unset" />,
               },
               {
                 ...defaultColumn,
                 key: 'VALUE',
                 name: 'value definition',
-                formatter: <CashValueFormatter value="unset" />,
+                formatter: (
+                  <CashValueFormatter name="value definition" value="unset" />
+                ),
               },
               {
                 ...defaultColumn,
                 key: 'VALUE_SET',
                 name: 'definition date',
-                formatter: <TriggerDateFormatter model={model} value="unset" />,
+                formatter: (
+                  <TriggerDateFormatter
+                    name="definition date"
+                    model={model}
+                    value="unset"
+                  />
+                ),
               },
               {
                 ...defaultColumn,
                 key: 'START',
                 name: 'start',
-                formatter: <TriggerDateFormatter model={model} value="unset" />,
+                formatter: (
+                  <TriggerDateFormatter
+                    name="start"
+                    model={model}
+                    value="unset"
+                  />
+                ),
               },
               {
                 ...defaultColumn,
                 key: 'END',
                 name: 'end',
-                formatter: <TriggerDateFormatter model={model} value="unset" />,
+                formatter: (
+                  <TriggerDateFormatter
+                    name="end"
+                    model={model}
+                    value="unset"
+                  />
+                ),
               },
               {
                 ...defaultColumn,
                 key: 'GROWTH',
                 name: 'annual growth',
                 formatter: (
-                  <GrowthFormatter settings={model.settings} value="unset" />
+                  <GrowthFormatter
+                    name="annual growth"
+                    settings={model.settings}
+                    value="unset"
+                  />
                 ),
               },
               {
                 ...defaultColumn,
                 key: 'GROWS_WITH_CPI',
                 name: 'grows with CPI',
+                formatter: (
+                  <SimpleFormatter name="grows with CPI" value="unset" />
+                ),
               },
               {
                 ...defaultColumn,
                 key: 'LIABILITY',
                 name: 'tax Liability',
+                formatter: (
+                  <SimpleFormatter name="tax Liability" value="unset" />
+                ),
               },
               {
                 ...defaultColumn,
                 key: 'CATEGORY',
                 name: 'category',
+                formatter: <SimpleFormatter name="category" value="unset" />,
               },
             ]}
           />
@@ -1103,54 +1175,83 @@ export function expensesTableDiv(
                 ...defaultColumn,
                 key: 'NAME',
                 name: 'name',
-                formatter: <NameFormatter value="unset" />,
+                formatter: <SimpleFormatter name="name" value="unset" />,
               },
               {
                 ...defaultColumn,
                 key: 'VALUE',
                 name: 'value definition',
-                formatter: <CashValueFormatter value="unset" />,
+                formatter: (
+                  <CashValueFormatter name="value definition" value="unset" />
+                ),
               },
               {
                 ...defaultColumn,
                 key: 'VALUE_SET',
                 name: 'definition date',
-                formatter: <TriggerDateFormatter model={model} value="unset" />,
+                formatter: (
+                  <TriggerDateFormatter
+                    name="definition date"
+                    model={model}
+                    value="unset"
+                  />
+                ),
               },
               {
                 ...defaultColumn,
                 key: 'START',
                 name: 'start',
-                formatter: <TriggerDateFormatter model={model} value="unset" />,
+                formatter: (
+                  <TriggerDateFormatter
+                    name="start"
+                    model={model}
+                    value="unset"
+                  />
+                ),
               },
               {
                 ...defaultColumn,
                 key: 'END',
                 name: 'end',
-                formatter: <TriggerDateFormatter model={model} value="unset" />,
+                formatter: (
+                  <TriggerDateFormatter
+                    name="end"
+                    model={model}
+                    value="unset"
+                  />
+                ),
               },
               {
                 ...defaultColumn,
                 key: 'GROWTH',
                 name: 'annual growth',
                 formatter: (
-                  <GrowthFormatter settings={model.settings} value="unset" />
+                  <GrowthFormatter
+                    name="annual growth"
+                    settings={model.settings}
+                    value="unset"
+                  />
                 ),
               },
               {
                 ...defaultColumn,
                 key: 'GROWS_WITH_CPI',
                 name: 'grows with CPI',
+                formatter: (
+                  <SimpleFormatter name="grows with CPI" value="unset" />
+                ),
               },
               {
                 ...defaultColumn,
                 key: 'RECURRENCE',
                 name: 'recurrence',
+                formatter: <SimpleFormatter name="recurrence" value="unset" />,
               },
               {
                 ...defaultColumn,
                 key: 'CATEGORY',
                 name: 'category',
+                formatter: <SimpleFormatter name="category" value="unset" />,
               },
             ]}
           />
@@ -1219,17 +1320,19 @@ export function settingsTableDiv(
             ...defaultColumn,
             key: 'NAME',
             name: 'name',
-            formatter: <NameFormatter value="unset" />,
+            formatter: <SimpleFormatter name="name" value="unset" />,
           },
           {
             ...defaultColumn,
             key: 'VALUE',
             name: 'defining value',
+            formatter: <SimpleFormatter name="defining value" value="unset" />,
           },
           {
             ...defaultColumn,
             key: 'HINT',
             name: 'hint',
+            formatter: <SimpleFormatter name="hint" value="unset" />,
           },
         ]}
       />
@@ -1245,17 +1348,19 @@ export function settingsTableDiv(
             ...defaultColumn,
             key: 'NAME',
             name: 'name',
-            formatter: <NameFormatter value="unset" />,
+            formatter: <SimpleFormatter name="name" value="unset" />,
           },
           {
             ...defaultColumn,
             key: 'VALUE',
             name: 'defining value',
+            formatter: <SimpleFormatter name="defining value" value="unset" />,
           },
           {
             ...defaultColumn,
             key: 'HINT',
             name: 'hint',
+            formatter: <SimpleFormatter name="hint" value="unset" />,
           },
         ]}
       />
@@ -1270,17 +1375,19 @@ export function settingsTableDiv(
             ...defaultColumn,
             key: 'NAME',
             name: 'name',
-            formatter: <NameFormatter value="unset" />,
+            formatter: <SimpleFormatter name="name" value="unset" />,
           },
           {
             ...defaultColumn,
             key: 'VALUE',
             name: 'defining value',
+            formatter: <SimpleFormatter name="defining value" value="unset" />,
           },
           {
             ...defaultColumn,
             key: 'HINT',
             name: 'hint',
+            formatter: <SimpleFormatter name="hint" value="unset" />,
           },
         ]}
       />

@@ -642,21 +642,6 @@ export function makePurchasePriceFromString(input: string) {
     return input;
   }
 }
-// returns a string for the value of a setting growth
-export function makeGrowthTooltip(input: string, settings: DbSetting[]) {
-  if (input === '') {
-    return '';
-  }
-  const value = isSetting(input, settings);
-  //log(`from ${input}, got settings value ${value}`);
-  if (value.numFound !== 1) {
-    return '';
-  }
-  if (isNumber(value.value)) {
-    return `${value.value}%`;
-  }
-  return '';
-}
 
 export const dateFormatOptions = {
   weekday: undefined,

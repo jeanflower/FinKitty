@@ -4,6 +4,7 @@ import { makeDateTooltip, dateFormatOptions } from '../../utils';
 // import { showObj } from ''../../utils''
 
 interface TriggerDateFormatterProps {
+  name: string;
   value: string;
   model: DbModelData;
 }
@@ -26,7 +27,9 @@ class TriggerDateFormatter extends React.Component<
       tableValue = asDate.toLocaleDateString(undefined, dateFormatOptions);
     }
     return (
-      <span data-tip={makeDateTooltipLocal(this.props)}>{tableValue}</span>
+      <span data-tip={`${this.props.name}:${makeDateTooltipLocal(this.props)}`}>
+        {tableValue}
+      </span>
     );
   }
 }

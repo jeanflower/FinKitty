@@ -73,7 +73,7 @@ import {
   saveModelToDBLSM,
 } from './database/loadSaveModel';
 import DataGrid from './views/reactComponents/DataGrid';
-import NameFormatter from './views/reactComponents/NameFormatter';
+import SimpleFormatter from './views/reactComponents/NameFormatter';
 import { AddDeleteSettingForm } from './views/reactComponents/AddDeleteSettingForm';
 import { ReplaceWithJSONForm } from './views/reactComponents/ReplaceWithJSONForm';
 import { CreateModelForm } from './views/reactComponents/CloneModelForm';
@@ -1226,12 +1226,15 @@ export class AppContent extends Component<AppProps, AppState> {
                 ...defaultColumn,
                 key: 'NAME',
                 name: 'name',
-                formatter: <NameFormatter value="unset" />,
+                formatter: <SimpleFormatter name="name" value="unset" />,
               },
               {
                 ...defaultColumn,
                 key: 'VALUE',
                 name: `today's value`,
+                formatter: (
+                  <SimpleFormatter name="today's value" value="unset" />
+                ),
               },
             ]}
           />
@@ -1246,6 +1249,16 @@ export class AppContent extends Component<AppProps, AppState> {
               model={this.state.modelData}
               showAlert={showAlert}
             />
+            {/*
+            // adding this wierdly makes tooltips work!
+            <AddDeleteTransactionForm
+              checkFunction={checkTransaction}
+              submitFunction={submitTransaction}
+              deleteFunction={deleteTransaction}
+              submitTriggerFunction={submitTrigger}
+              model={this.state.modelData}
+              showAlert={showAlert}
+            />*/}
           </div>
         </fieldset>
       </div>

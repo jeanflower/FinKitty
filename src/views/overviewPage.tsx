@@ -10,13 +10,9 @@ import {
 } from './tablePages';
 import { getDisplay, overview } from '../App';
 import {
-  assetsOrDebtsChartDivWithButtons,
-  expensesChartDivWithButtons,
   incomesChartDiv,
-  incomesChartDivWithButtons,
   taxChartDiv,
   getSmallerChartSettings,
-  getDefaultChartSettings,
   expensesChartDiv,
   assetsOrDebtsChartDiv,
 } from './chartPages';
@@ -117,32 +113,20 @@ export function overviewDiv(
         <br />
         <h2>Important dates:</h2>
         {triggersTableDiv(model, showAlert)}
-        <h2>Incomes:</h2>
-        {incomesChartDivWithButtons(
-          model,
-          incomesChartData,
-          getDefaultChartSettings(model),
-        )}
         <h4>Income definitions</h4>
         {incomesTableDiv(model, showAlert)}
         <h4>Income revaluations</h4>
         {transactionsTableDiv(model, showAlert, revalueInc)}
-        <h2>Expenses:</h2>
-        {expensesChartDivWithButtons(model, expensesChartData)}
         <h4>Expense definitions</h4>
         {expensesTableDiv(model, showAlert)}
         <h4>Expense revaluations</h4>
         {transactionsTableDiv(model, showAlert, revalueExp)}
-        <h2>Assets:</h2>
-        {assetsOrDebtsChartDivWithButtons(model, assetChartData, false, true)}
         <h4>Asset definitions</h4>
         {assetsOrDebtsTableDiv(model, showAlert, false)}
         <h4>Liquidate assets to keep cash afloat</h4>
         {transactionsTableDiv(model, showAlert, liquidateAsset)}
         <h4>Revalue assets</h4>
         {transactionsTableDiv(model, showAlert, revalueAsset)}
-        <h2>Debts:</h2>
-        {assetsOrDebtsChartDivWithButtons(model, debtChartData, true, true)}
         <h4>Debt definitions</h4>
         {assetsOrDebtsTableDiv(model, showAlert, true)}
         <h4>Revalue debts</h4>

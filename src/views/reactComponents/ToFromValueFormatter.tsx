@@ -4,6 +4,7 @@ import { isNumberString } from '../../models/checks';
 // import { showObj } from ''../../utils''
 
 interface ToFromValueFormatterProps {
+  name: string;
   value: string;
 }
 class ToFromValueFormatter extends React.Component<
@@ -17,7 +18,11 @@ class ToFromValueFormatter extends React.Component<
     } else {
       result = this.props.value;
     }
-    return <span className="float: right">{result}</span>;
+    return (
+      <span data-tip={`${this.props.name}:${result}`} className="float: right">
+        {result}
+      </span>
+    );
   }
 }
 

@@ -23,7 +23,7 @@ import { AddDeleteAssetForm } from './reactComponents/AddDeleteAssetForm';
 import { checkAsset, checkTransaction } from '../models/checks';
 import { revalueAsset, liquidateAsset } from '../localization/stringConstants';
 import DataGrid from './reactComponents/DataGrid';
-import NameFormatter from './reactComponents/NameFormatter';
+import SimpleFormatter from './reactComponents/NameFormatter';
 import CashValueFormatter from './reactComponents/CashValueFormatter';
 import { getTodaysDate, lessThan } from '../utils';
 // import { log } from './../utils';
@@ -95,13 +95,15 @@ export function assetsDiv(
             ...defaultColumn,
             key: 'NAME',
             name: 'name',
-            formatter: <NameFormatter value="unset" />,
+            formatter: <SimpleFormatter name="name" value="unset" />,
           },
           {
             ...defaultColumn,
             key: 'VALUE',
             name: `today's value`,
-            formatter: <CashValueFormatter value="unset" />,
+            formatter: (
+              <CashValueFormatter name="today's value" value="unset" />
+            ),
           },
         ]}
       />

@@ -4,6 +4,7 @@ import { isNumberString } from '../../models/checks';
 // import { showObj } from ''../../utils''
 
 interface CashValueFormatterProps {
+  name: string;
   value: string;
 }
 class CashValueFormatter extends React.Component<CashValueFormatterProps, {}> {
@@ -14,7 +15,11 @@ class CashValueFormatter extends React.Component<CashValueFormatterProps, {}> {
     } else {
       result = this.props.value;
     }
-    return <span className="float: right">{result}</span>;
+    return (
+      <span data-tip={`${this.props.name}:${result}`} className="float: right">
+        {result}
+      </span>
+    );
   }
 }
 

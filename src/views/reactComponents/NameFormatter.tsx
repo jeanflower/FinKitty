@@ -1,13 +1,18 @@
 import React from 'react';
 // import { showObj } from '../AppLogic'
 
-interface NameFormatterProps {
+interface SimpleFormatterProps {
+  name: string;
   value: string;
 }
-class NameFormatter extends React.Component<NameFormatterProps, {}> {
+class SimpleFormatter extends React.Component<SimpleFormatterProps, {}> {
   public render() {
-    return <span data-tip={this.props.value}>{this.props.value}</span>;
+    return (
+      <span data-tip={`${this.props.name}:${this.props.value}`}>
+        {this.props.value}
+      </span>
+    );
   }
 }
 
-export default NameFormatter;
+export default SimpleFormatter;

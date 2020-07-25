@@ -24,7 +24,7 @@ import { DbModelData, ChartData, DbItem } from '../types/interfaces';
 import { revalueExp } from '../localization/stringConstants';
 import DataGrid from './reactComponents/DataGrid';
 import { lessThan, getTodaysDate } from '../utils';
-import NameFormatter from './reactComponents/NameFormatter';
+import SimpleFormatter from './reactComponents/NameFormatter';
 import CashValueFormatter from './reactComponents/CashValueFormatter';
 
 export function expensesDiv(
@@ -91,13 +91,15 @@ export function expensesDiv(
             ...defaultColumn,
             key: 'NAME',
             name: 'name',
-            formatter: <NameFormatter value="unset" />,
+            formatter: <SimpleFormatter name="name" value="unset" />,
           },
           {
             ...defaultColumn,
             key: 'VALUE',
             name: `today's value`,
-            formatter: <CashValueFormatter value="unset" />,
+            formatter: (
+              <CashValueFormatter name="today's value" value="unset" />
+            ),
           },
         ]}
       />
