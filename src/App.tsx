@@ -825,32 +825,35 @@ export class AppContent extends Component<AppProps, AppState> {
 
     const getSettingValue = (settingName: string) => {
       let value = '';
-      const s = this.state.modelData.settings.find((s)=>{return s.NAME === settingName;});
-      if(s !== undefined){
+      const s = this.state.modelData.settings.find(s => {
+        return s.NAME === settingName;
+      });
+      if (s !== undefined) {
         value = s.VALUE;
-      }  
+      }
       return value;
-    }
+    };
     const getStartDate = () => {
       return getSettingValue(roiStart);
-    }
+    };
     const getEndDate = () => {
       return getSettingValue(roiEnd);
-    }
+    };
     const updateSettingValue = (settingName: string, newDate: string) => {
-      let value = '';
-      const s = this.state.modelData.settings.find((s)=>{return s.NAME === settingName;});
-      if(s !== undefined){
+      const s = this.state.modelData.settings.find(s => {
+        return s.NAME === settingName;
+      });
+      if (s !== undefined) {
         s.VALUE = newDate;
-        submitNewSetting(s, this.state.modelData)
-      }  
-    }
+        submitNewSetting(s, this.state.modelData);
+      }
+    };
     const updateStartDate = async (newDate: string) => {
       updateSettingValue(roiStart, newDate);
-    }
+    };
     const updateEndDate = async (newDate: string) => {
       updateSettingValue(roiEnd, newDate);
-    }
+    };
 
     return (
       <div>
@@ -1387,9 +1390,7 @@ export class AppContent extends Component<AppProps, AppState> {
     return (
       <Button
         key={'alert'}
-        action={async (
-          e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-        ) => {
+        action={async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
           // log('clear alert text');
           e.persist();
           await saveModelToDBLSM(userID, modelName, this.state.modelData);
@@ -1402,20 +1403,19 @@ export class AppContent extends Component<AppProps, AppState> {
     );
   }
 
-  private makeHelpText(alertText: string):JSX.Element[] {
-    let result: JSX.Element[] = [];
+  private makeHelpText(alertText: string): JSX.Element[] {
+    const result: JSX.Element[] = [];
     if (alertText !== '') {
       // log('display alert text');
       result.push(
         <h4 className="text-warning" id="pageTitle">
           {alertText}
-        </h4>);
+        </h4>,
+      );
       result.push(
         <Button
           key={'alert'}
-          action={(
-            e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-          ) => {
+          action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
             // log('clear alert text');
             e.persist();
             this.setState({ alertText: '' });
@@ -1423,7 +1423,7 @@ export class AppContent extends Component<AppProps, AppState> {
           title={'clear alert'}
           id={`btn-clear-alert`}
           type={'secondary'}
-        />
+        />,
       );
     } else {
       const it = views.keys();
@@ -1439,7 +1439,7 @@ export class AppContent extends Component<AppProps, AppState> {
               <h4 className="text-white" id="pageTitle">
                 {(entry.value !== homeView ? modelName + ': ' : '') +
                   view.helpText}
-              </h4>
+              </h4>,
             );
           }
         }

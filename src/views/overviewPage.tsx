@@ -1,6 +1,5 @@
 import React from 'react';
 import { DbModelData, ChartData } from '../types/interfaces';
-import Button from './reactComponents/Button';
 import {
   assetsOrDebtsTableDiv,
   expensesTableDiv,
@@ -9,18 +8,7 @@ import {
   transactionsTableDiv,
   triggersTableDiv,
 } from './tablePages';
-import {
-  assetsView,
-  debtsView,
-  expensesView,
-  getDisplay,
-  incomesView,
-  overview,
-  settingsView,
-  toggle,
-  triggersView,
-  transactionsView,
-} from '../App';
+import { getDisplay, overview } from '../App';
 import {
   assetsOrDebtsChartDivWithButtons,
   expensesChartDivWithButtons,
@@ -45,8 +33,6 @@ import {
 
 import { AddDeleteEntryForm } from './reactComponents/AddDeleteEntryForm';
 
-import { log } from './../utils';
-
 function suppressLegend(chartDataPoints: ChartData[]) {
   return chartDataPoints.map(dp => {
     return {
@@ -64,17 +50,19 @@ export function overviewDiv(
   expensesChartData: ChartData[],
   incomesChartData: ChartData[],
   taxChartData: ChartData[],
-  getStartDate: ()=>string,
-  updateStartDate: (newDate: string)=>Promise<void>,
-  getEndDate: ()=>string,
-  updateEndDate: (newDate: string)=>Promise<void>,
+  getStartDate: () => string,
+  updateStartDate: (newDate: string) => Promise<void>,
+  getEndDate: () => string,
+  updateEndDate: (newDate: string) => Promise<void>,
 ) {
   // log(`called overviewDiv with a model with ${model.assets.length} assets`);
   const doDisplay = getDisplay(overview);
   return (
-    <div style={{ 
-      display: doDisplay ? 'block' : 'none',
-    }}>
+    <div
+      style={{
+        display: doDisplay ? 'block' : 'none',
+      }}
+    >
       <div className="scrollClass">
         <div className="row">
           <div className="col">
@@ -111,13 +99,13 @@ export function overviewDiv(
           </div>
           <div className="col">
             <AddDeleteEntryForm
-              name='view start date'
+              name="view start date"
               getValue={getStartDate}
               submitFunction={updateStartDate}
               showAlert={showAlert}
             />
             <AddDeleteEntryForm
-              name='view end date'
+              name="view end date"
               getValue={getEndDate}
               submitFunction={updateEndDate}
               showAlert={showAlert}
@@ -126,48 +114,48 @@ export function overviewDiv(
         </div>
       </div>
       <div className="scrollClass resizeClass">
-      <br />
-      <h2>Important dates:</h2>
-      {triggersTableDiv(model, showAlert)}
-      <h2>Incomes:</h2>
-      {incomesChartDivWithButtons(
-        model,
-        incomesChartData,
-        getDefaultChartSettings(model),
-      )}
-      <h4>Income definitions</h4>
-      {incomesTableDiv(model, showAlert)}
-      <h4>Income revaluations</h4>
-      {transactionsTableDiv(model, showAlert, revalueInc)}
-      <h2>Expenses:</h2>
-      {expensesChartDivWithButtons(model, expensesChartData)}
-      <h4>Expense definitions</h4>
-      {expensesTableDiv(model, showAlert)}
-      <h4>Expense revaluations</h4>
-      {transactionsTableDiv(model, showAlert, revalueExp)}
-      <h2>Assets:</h2>
-      {assetsOrDebtsChartDivWithButtons(model, assetChartData, false, true)}
-      <h4>Asset definitions</h4>
-      {assetsOrDebtsTableDiv(model, showAlert, false)}
-      <h4>Liquidate assets to keep cash afloat</h4>
-      {transactionsTableDiv(model, showAlert, liquidateAsset)}
-      <h4>Revalue assets</h4>
-      {transactionsTableDiv(model, showAlert, revalueAsset)}
-      <h2>Debts:</h2>
-      {assetsOrDebtsChartDivWithButtons(model, debtChartData, true, true)}
-      <h4>Debt definitions</h4>
-      {assetsOrDebtsTableDiv(model, showAlert, true)}
-      <h4>Revalue debts</h4>
-      {transactionsTableDiv(model, showAlert, revalueDebt)}
-      <h4>Pay off debts</h4>
-      {transactionsTableDiv(model, showAlert, payOffDebt)}
-      <h2>Transactions:</h2>
-      <h4>Custom transactions</h4>
-      {transactionsTableDiv(model, showAlert, custom)}
-      <h4>Auto-generated transactions</h4>
-      {transactionsTableDiv(model, showAlert, autogen)}
-      <h2>Settings:</h2>
-      {settingsTableDiv(model, showAlert)}
+        <br />
+        <h2>Important dates:</h2>
+        {triggersTableDiv(model, showAlert)}
+        <h2>Incomes:</h2>
+        {incomesChartDivWithButtons(
+          model,
+          incomesChartData,
+          getDefaultChartSettings(model),
+        )}
+        <h4>Income definitions</h4>
+        {incomesTableDiv(model, showAlert)}
+        <h4>Income revaluations</h4>
+        {transactionsTableDiv(model, showAlert, revalueInc)}
+        <h2>Expenses:</h2>
+        {expensesChartDivWithButtons(model, expensesChartData)}
+        <h4>Expense definitions</h4>
+        {expensesTableDiv(model, showAlert)}
+        <h4>Expense revaluations</h4>
+        {transactionsTableDiv(model, showAlert, revalueExp)}
+        <h2>Assets:</h2>
+        {assetsOrDebtsChartDivWithButtons(model, assetChartData, false, true)}
+        <h4>Asset definitions</h4>
+        {assetsOrDebtsTableDiv(model, showAlert, false)}
+        <h4>Liquidate assets to keep cash afloat</h4>
+        {transactionsTableDiv(model, showAlert, liquidateAsset)}
+        <h4>Revalue assets</h4>
+        {transactionsTableDiv(model, showAlert, revalueAsset)}
+        <h2>Debts:</h2>
+        {assetsOrDebtsChartDivWithButtons(model, debtChartData, true, true)}
+        <h4>Debt definitions</h4>
+        {assetsOrDebtsTableDiv(model, showAlert, true)}
+        <h4>Revalue debts</h4>
+        {transactionsTableDiv(model, showAlert, revalueDebt)}
+        <h4>Pay off debts</h4>
+        {transactionsTableDiv(model, showAlert, payOffDebt)}
+        <h2>Transactions:</h2>
+        <h4>Custom transactions</h4>
+        {transactionsTableDiv(model, showAlert, custom)}
+        <h4>Auto-generated transactions</h4>
+        {transactionsTableDiv(model, showAlert, autogen)}
+        <h2>Settings:</h2>
+        {settingsTableDiv(model, showAlert)}
       </div>
     </div>
   );

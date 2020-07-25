@@ -246,8 +246,8 @@ describe('Chrome Interaction simple', () => {
 
       await clickButton(driver, 'btn-Incomes');
 
-      const chartID = 'canvasjs-react-chart-container-9'; // why 9? 9th chart drawn?
-      // log(`check for chart ${idToSeek}`);
+      const chartID = 'canvasjs-react-chart-container-14'; // why 14? 14th chart drawn?
+      // log(`check for chart ${chartID}`);
       const elts: WebElement[] = await driver.findElements({ id: chartID });
       expect(elts.length === 1).toBe(true);
       expect(elts[0] !== undefined).toBe(true);
@@ -3510,6 +3510,15 @@ describe('Chrome Interaction debts', () => {
     done();
   });
 
+  async function scrollToTop() {
+    await driver.executeScript('window.scrollBy(0, -1000)');
+  }
+
+  async function toggleIncomesChart() {
+    await scrollToTop();
+    await clickButton(driver, 'toggle-incomesChart');
+  }
+
   it('my first model browser test', async done => {
     if (!doActions) {
       done();
@@ -3610,18 +3619,7 @@ describe('Chrome Interaction debts', () => {
     });
     // log('done Ben salary');
 
-    // a bit of scrolling to ensure the toggle-incomesChart button
-    // can be interacted with
-    let toggleChart = await driver.findElements(
-      webdriver.By.id(`toggle-incomesChart`),
-    );
-    await driver.executeScript(
-      'arguments[0].scrollIntoView(true);',
-      toggleChart[0],
-    );
-    await driver.executeScript('window.scrollBy(0, -100)'); // Adjust scrolling with a negative value here
-
-    await clickButton(driver, 'toggle-incomesChart');
+    await toggleIncomesChart();
 
     await clickButton(driver, 'btn-Settings');
     await addSetting(driver, {
@@ -3658,11 +3656,7 @@ describe('Chrome Interaction debts', () => {
 
     await clickButton(driver, 'btn-Incomes');
 
-    await driver.executeScript('window.scrollBy(0, -400)'); // Adjust scrolling with a negative value here
-
-    // log('go to toggle incomes chart off again...');
-
-    await clickButton(driver, 'toggle-incomesChart');
+    await toggleIncomesChart();
 
     // log('toggled incomes chart off again');
 
@@ -3681,18 +3675,8 @@ describe('Chrome Interaction debts', () => {
     });
     // log('done Jerry salary');
 
-    toggleChart = await driver.findElements(
-      webdriver.By.id(`toggle-incomesChart`),
-    );
-    await driver.executeScript(
-      'arguments[0].scrollIntoView(true);',
-      toggleChart[0],
-    );
-    await driver.executeScript('window.scrollBy(0, -200)'); // Adjust scrolling with a negative value here
-
-    await clickButton(driver, 'toggle-incomesChart');
-
-    await clickButton(driver, 'toggle-incomesChart');
+    await toggleIncomesChart();
+    await toggleIncomesChart();
 
     await clickButton(driver, 'btn-Expenses');
     await clickButton(driver, 'toggle-expensesChart');
@@ -3732,20 +3716,8 @@ describe('Chrome Interaction debts', () => {
     });
     // log('done Ben state pension');
 
-    // a bit of scrolling to ensure the toggle-incomesChart button
-    // can be interacted with
-    toggleChart = await driver.findElements(
-      webdriver.By.id(`toggle-incomesChart`),
-    );
-    await driver.executeScript(
-      'arguments[0].scrollIntoView(true);',
-      toggleChart[0],
-    );
-    await driver.executeScript('window.scrollBy(0, -100)'); // Adjust scrolling with a negative value here
-
-    await clickButton(driver, 'toggle-incomesChart');
-
-    await clickButton(driver, 'toggle-incomesChart');
+    await toggleIncomesChart();
+    await toggleIncomesChart();
 
     await clickButton(driver, 'useDBPInputs');
 
@@ -3775,20 +3747,8 @@ describe('Chrome Interaction debts', () => {
     });
     // log('done Jerry state pension');
 
-    // a bit of scrolling to ensure the toggle-incomesChart button
-    // can be interacted with
-    toggleChart = await driver.findElements(
-      webdriver.By.id(`toggle-incomesChart`),
-    );
-    await driver.executeScript(
-      'arguments[0].scrollIntoView(true);',
-      toggleChart[0],
-    );
-    await driver.executeScript('window.scrollBy(0, -100)'); // Adjust scrolling with a negative value here
-
-    await clickButton(driver, 'toggle-incomesChart');
-
-    await clickButton(driver, 'toggle-incomesChart');
+    await toggleIncomesChart();
+    await toggleIncomesChart();
 
     DBPinputs = {
       name: 'Jerry work',
@@ -3817,18 +3777,8 @@ describe('Chrome Interaction debts', () => {
     });
     // log('done Jerry work');
 
-    toggleChart = await driver.findElements(
-      webdriver.By.id(`toggle-incomesChart`),
-    );
-    await driver.executeScript(
-      'arguments[0].scrollIntoView(true);',
-      toggleChart[0],
-    );
-    await driver.executeScript('window.scrollBy(0, -100)'); // Adjust scrolling with a negative value here
-
-    await clickButton(driver, 'toggle-incomesChart');
-
-    await clickButton(driver, 'toggle-incomesChart');
+    await toggleIncomesChart();
+    await toggleIncomesChart();
 
     await clickButton(driver, 'btn-Expenses');
 
@@ -3849,7 +3799,7 @@ describe('Chrome Interaction debts', () => {
     });
     // log('done Basic expenses working');
 
-    toggleChart = await driver.findElements(
+    let toggleChart = await driver.findElements(
       webdriver.By.id(`toggle-expensesChart`),
     );
     await driver.executeScript(

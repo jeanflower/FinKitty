@@ -162,7 +162,7 @@ export function getDefaultChartSettings(model: DbModelData) {
       false, // be OK if there's no matching value
     ) !== '';
   return {
-    height: 400,
+    height: 300,
     toolTip: {
       content: '{name}: {ttip}',
     },

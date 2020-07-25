@@ -32,15 +32,15 @@ export class AddDeleteEntryForm extends Component<EditProps, EditFormState> {
     //log(`rendering widget, value in component = ${this.state.VALUE}`);
     return (
       <form className="container-fluid" onSubmit={this.add}>
-      <Input
-        title={`${this.props.name}, currently ${this.props.getValue()}`}
-        type={'text'}
-        name={`EditWidget${name}`}
-        value={this.state.VALUE}
-        placeholder={'Enter new value'}
-        onChange={this.handleValue}
-        onSubmit={this.add}
-      />
+        <Input
+          title={`${this.props.name}, currently ${this.props.getValue()}`}
+          type={'text'}
+          name={`EditWidget${this.props.name}`}
+          value={this.state.VALUE}
+          placeholder={'Enter new value'}
+          onChange={this.handleValue}
+          onSubmit={this.add}
+        />
       </form>
     );
   }
@@ -51,9 +51,7 @@ export class AddDeleteEntryForm extends Component<EditProps, EditFormState> {
   private async add(e: any) {
     e.preventDefault();
     // log('adding something ' + showObj(this));
-    await this.props.submitFunction(
-      this.state.VALUE,
-    );
+    await this.props.submitFunction(this.state.VALUE);
     this.props.showAlert(`updating`);
   }
 }
