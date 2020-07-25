@@ -1,7 +1,8 @@
 import React from 'react';
 import { DbModelData } from '../../types/interfaces';
 import { makeDateTooltip, dateFormatOptions } from '../../utils';
-// import { showObj } from ''../../utils''
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Tooltip from 'react-bootstrap/Tooltip';
 
 interface TriggerDateFormatterProps {
   name: string;
@@ -27,9 +28,16 @@ class TriggerDateFormatter extends React.Component<
       tableValue = asDate.toLocaleDateString(undefined, dateFormatOptions);
     }
     return (
-      <span data-tip={`${this.props.name}:${makeDateTooltipLocal(this.props)}`}>
-        {tableValue}
-      </span>
+      <OverlayTrigger
+        placement="top"
+        overlay={(props: any) => (
+          <Tooltip {...props}>{`${this.props.name}:${makeDateTooltipLocal(
+            this.props,
+          )}`}</Tooltip>
+        )}
+      >
+        <span>{tableValue}</span>
+      </OverlayTrigger>
     );
   }
 }

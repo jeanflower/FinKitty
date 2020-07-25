@@ -1,7 +1,8 @@
 import React from 'react';
 import { makeStringFromFromToValue } from '../../utils';
 import { isNumberString } from '../../models/checks';
-// import { showObj } from ''../../utils''
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Tooltip from 'react-bootstrap/Tooltip';
 
 interface ToFromValueFormatterProps {
   name: string;
@@ -19,9 +20,14 @@ class ToFromValueFormatter extends React.Component<
       result = this.props.value;
     }
     return (
-      <span data-tip={`${this.props.name}:${result}`} className="float: right">
-        {result}
-      </span>
+      <OverlayTrigger
+        placement="top"
+        overlay={(props: any) => (
+          <Tooltip {...props}>{`${this.props.name}:${result}`}</Tooltip>
+        )}
+      >
+        <span className="float: right">{result}</span>
+      </OverlayTrigger>
     );
   }
 }

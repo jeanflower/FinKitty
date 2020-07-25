@@ -2,6 +2,8 @@ import React from 'react';
 import { makeStringFromCashValue } from '../../utils';
 import { isNumberString } from '../../models/checks';
 // import { showObj } from ''../../utils''
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Tooltip from 'react-bootstrap/Tooltip';
 
 interface CashValueFormatterProps {
   name: string;
@@ -16,9 +18,14 @@ class CashValueFormatter extends React.Component<CashValueFormatterProps, {}> {
       result = this.props.value;
     }
     return (
-      <span data-tip={`${this.props.name}:${result}`} className="float: right">
-        {result}
-      </span>
+      <OverlayTrigger
+        placement="top"
+        overlay={(props: any) => (
+          <Tooltip {...props}>{`${this.props.name}:${result}`}</Tooltip>
+        )}
+      >
+        <span className="float: right">{result}</span>
+      </OverlayTrigger>
     );
   }
 }

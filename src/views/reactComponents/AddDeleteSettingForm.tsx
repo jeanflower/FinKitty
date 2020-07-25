@@ -216,8 +216,6 @@ export class AddDeleteSettingForm extends Component<
           />
         </div>
       );
-    } else {
-      return <div className="row"></div>;
     }
   }
 

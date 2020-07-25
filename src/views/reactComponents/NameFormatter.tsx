@@ -1,5 +1,6 @@
 import React from 'react';
-// import { showObj } from '../AppLogic'
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Tooltip from 'react-bootstrap/Tooltip';
 
 interface SimpleFormatterProps {
   name: string;
@@ -8,9 +9,16 @@ interface SimpleFormatterProps {
 class SimpleFormatter extends React.Component<SimpleFormatterProps, {}> {
   public render() {
     return (
-      <span data-tip={`${this.props.name}:${this.props.value}`}>
-        {this.props.value}
-      </span>
+      <OverlayTrigger
+        placement="top"
+        overlay={(props: any) => (
+          <Tooltip
+            {...props}
+          >{`${this.props.name}:${this.props.value}`}</Tooltip>
+        )}
+      >
+        <span>{this.props.value}</span>
+      </OverlayTrigger>
     );
   }
 }

@@ -53,7 +53,6 @@ import { taxDiv } from './views/chartPages';
 import { incomesDiv } from './views/incomesPage';
 import { expensesDiv } from './views/expensesPage';
 import { assetsDiv } from './views/assetsPage';
-import ReactTooltip from 'react-tooltip';
 import { debtsDiv } from './views/debtsPage';
 
 import CryptoJS from 'crypto-js';
@@ -786,6 +785,7 @@ interface AppProps {
 export class AppContent extends Component<AppProps, AppState> {
   public constructor(props: AppProps) {
     super(props);
+    //this.handleUnload = this.handleUnload.bind(this);
 
     reactAppComponent = this;
     this.state = {
@@ -814,8 +814,26 @@ export class AppContent extends Component<AppProps, AppState> {
       true, // gotoDB
     );
   }
+
+  public componentWillUnmount() {
+    //log('in componentWillUnmount');
+    //window.removeEventListener('beforeunload', this.handleUnload);
+  }
+/*
+  public handleUnload(e: any) {
+    //log('in handleUnload');
+    if (isDirty) {
+      const message = 'o/';
+
+      (e || window.event).returnValue = message; //Gecko + IE
+      return message;
+    }
+  }
+*/
   public componentDidMount() {
+    //log('in componentDidMount');
     toggle(homeView);
+    //window.addEventListener('beforeunload', this.handleUnload);
   }
 
   public render() {
@@ -861,7 +879,6 @@ export class AppContent extends Component<AppProps, AppState> {
           <header>{this.navigationDiv()}</header>
         </nav>
         <div style={{ paddingTop: '100px' }}>
-          <ReactTooltip />
           {this.homeDiv()}
           {overviewDiv(
             this.state.modelData,
@@ -1389,7 +1406,7 @@ export class AppContent extends Component<AppProps, AppState> {
           this.props.logOutAction();
         }}
         title="Log out"
-        type="primary"
+        type="secondary"
         key="Log out"
         id={`btn-LogOut`}
       />,

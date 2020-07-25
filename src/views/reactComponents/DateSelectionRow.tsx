@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import { DbTrigger, DbModelData, FormProps } from '../../types/interfaces';
 import { TriggerOptionList } from './TriggerOptionList';
-import { makeDateTooltip } from '../../utils';
-import ReactTooltip from 'react-tooltip';
+import { log, makeDateTooltip, showObj, printDebug } from '../../utils';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Tooltip from 'react-bootstrap/Tooltip';
 
 interface DateSelectionProps extends FormProps {
   introLabel: string;
@@ -17,7 +18,9 @@ interface DateSelectionProps extends FormProps {
   ) => Promise<void>;
 }
 function makeDateTooltipForRow(props: DateSelectionProps) {
-  // log(`make tooltip with ${showObj(props)}`);
+  if (printDebug()) {
+    log(`make tooltip with ${showObj(props)}`);
+  }
   if (props.model.settings.length === 0) {
     return '';
   }
@@ -46,22 +49,29 @@ export class DateSelectionRow extends Component<DateSelectionProps, {}> {
         </div>
         {/* end col */}
         <div className="col">
-          <ReactTooltip />
-          <input
-            type={'text'}
-            name={
-              this.props.inputName // e.g. 'income valuation date'
-            }
-            value={
-              this.props.inputValue // e.g. this.state.VALUE_SET
-            }
-            placeholder={'Enter date'}
-            onChange={
-              this.props.onChangeHandler // e.g. this.handleValueSetChange
-            }
-            className="form-control"
-            data-tip={makeDateTooltipForRow(this.props)}
-          />
+          <OverlayTrigger
+            placement="top"
+            overlay={(props: any) => (
+              <Tooltip {...props}>{`${makeDateTooltipForRow(
+                this.props,
+              )}`}</Tooltip>
+            )}
+          >
+            <input
+              type={'text'}
+              name={
+                this.props.inputName // e.g. 'income valuation date'
+              }
+              value={
+                this.props.inputValue // e.g. this.state.VALUE_SET
+              }
+              placeholder={'Enter date'}
+              onChange={
+                this.props.onChangeHandler // e.g. this.handleValueSetChange
+              }
+              className="form-control"
+            />
+          </OverlayTrigger>
         </div>
         {/* end col */}
       </div>
