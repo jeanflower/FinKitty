@@ -1419,7 +1419,7 @@ export class AppContent extends Component<AppProps, AppState> {
     // log(`isDirty = ${isDirty}`);
     return (
       <Button
-        key={'alert'}
+        key={'saveButton'}
         action={async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
           // log('clear alert text');
           e.persist();
