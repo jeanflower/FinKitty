@@ -141,6 +141,10 @@ export interface DbModelData {
   settings: DbSetting[];
 }
 
+export interface DbModelDataWithVersion extends DbModelData {
+  version: number;
+}
+
 export const simpleAsset: DbAsset = {
   NAME: 'NoName',
   CATEGORY: '',

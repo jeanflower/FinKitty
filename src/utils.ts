@@ -1,4 +1,9 @@
-import { DbSetting, DbTrigger, DbModelData } from './types/interfaces';
+import {
+  DbSetting,
+  DbTrigger,
+  DbModelData,
+  DbModelDataWithVersion,
+} from './types/interfaces';
 import {
   cgt,
   incomeTax,
@@ -38,7 +43,6 @@ import {
   custom,
   constType,
   viewType,
-  pensionDB,
   valueFocusDate,
   valueFocusDateHint,
 } from './localization/stringConstants';
@@ -731,25 +735,20 @@ export function getTodaysDate(model: DbModelData) {
   return today;
 }
 
-function makeModelFromJSONFixDates(input: string) {
-  const inputPensionFix = input.replace(/PensionDBC/g, pensionDB);
-  const result: DbModelData = JSON.parse(inputPensionFix);
-  for (const t of result.triggers) {
-    //log(`type of ${t.DATE} = ${typeof t.DATE}`);
-    t.DATE = new Date(t.DATE);
-    //log(`type of ${t.DATE} = ${typeof t.DATE}`);
+function makeModelFromJSONString(input: string): DbModelDataWithVersion {
+  const matches = input.match(/PensionDBC/g);
+  if (matches !== null && matches.length > 0) {
+    log(`Old string 'PensionDBC' in loaded data!!`);
   }
-  for (const a of result.assets) {
-    if (a.IS_A_DEBT === undefined) {
-      a.IS_A_DEBT = false;
-    }
+  const result = JSON.parse(input);
+  // log(`loaded model, version =${result.version}`);
+
+  if (result.version === undefined) {
+    // log(`missing version, setting as 0`);
+    result.version = 0;
   }
-  for (const t of result.transactions) {
-    if (t.TYPE === undefined) {
-      t.TYPE = custom;
-    }
-  }
-  // log(`result from makeModelFromJSONFixDates = ${showObj(result)}`);
+
+  // log(`result from makeModelFromJSON = ${showObj(result)}`);
   return result;
 }
 
@@ -779,57 +778,21 @@ function getGuessSettingType(name: string) {
 
 // note JSON stringify and back for serialisation is OK but
 // breaks dates (and functions too but we don't have these)
-function cleanUp(modelFromJSON: DbModelData): DbModelData {
-  const result = {
-    ...modelFromJSON,
-    expenses: modelFromJSON.expenses.map((e: any) => {
-      if (e.RECURRENCE === undefined) {
-        log(`cleaning up missing recurrence entry from ${showObj(e)}`);
-        return {
-          ...e,
-          RECURRENCE: '1m',
-        };
-      } else {
-        return e;
-      }
-    }),
-    assets: modelFromJSON.assets.map((a: any) => {
-      if (a.QUANTITY === undefined) {
-        log('cleaning up missing quantity entry');
-        return {
-          ...a,
-          QUANTITY: '',
-        };
-      } else {
-        return a;
-      }
-    }),
-    triggers: modelFromJSON.triggers.map((t: any) => {
-      return {
-        ...t,
-        DATE: new Date(t['DATE']), // This is required!
-      };
-    }),
-    settings: modelFromJSON.settings.map((s: any) => {
-      if (s.TYPE === undefined) {
-        log('cleaning up missing setting type entry');
-        return {
-          ...s,
-          TYPE: getGuessSettingType(s.NAME),
-        };
-      } else {
-        return s;
-      }
-    }),
-  };
+function cleanUpDates(modelFromJSON: DbModelDataWithVersion): DbModelData {
+  const result = modelFromJSON;
+  for (const t of result.triggers) {
+    //log(`type of ${t.DATE} = ${typeof t.DATE}`);
+    t.DATE = new Date(t.DATE);
+    //log(`type of ${t.DATE} = ${typeof t.DATE}`);
+  }
   // log(`cleaned up model assets ${showObj(result.assets)}`);
   return result;
 }
 
 export function makeCleanedModelFromJSON(input: string) {
   // log('in makeCleanedModelFromJSON');
-  const model = makeModelFromJSONFixDates(input);
-  return cleanUp(model);
+  const model: DbModelDataWithVersion = makeModelFromJSONString(input);
+  return cleanUpDates(model);
 }
 
 export function getMinimalModelCopy(): DbModelData {
@@ -837,31 +800,73 @@ export function getMinimalModelCopy(): DbModelData {
   return makeCleanedModelFromJSON(JSON.stringify(minimalModel));
 }
 
-export function addRequiredEntries(modelName: string, model: DbModelData) {
+export function getCurrentVersion() {
+  // return 0; // may not include assets or settings in minimalModel
+  // return 1; // may not include expense recurrence, asset/debt,
+  //           // asset quantity, transaction and settings types
+  return 2;
+}
+
+function migrateOldVersions(modelName: string, model: DbModelDataWithVersion) {
   // log('in addRequiredEntries');
-  const minimalModel = getMinimalModelCopy();
-  minimalModel.settings.forEach(x => {
-    if (
-      model.settings.filter(existing => {
-        return existing.NAME === x.NAME;
-      }).length === 0
-    ) {
-      // log(`${modelName} needs insertion of missing data ${showObj(x)}`);
-      model.settings.push(x);
-      // throw new Error(`inserting missing data ${showObj(x)}`);
+  if (model.version === 0) {
+    // use getMinimalModelCopy and scan over all settings and assets
+    const minimalModel = getMinimalModelCopy();
+    minimalModel.settings.forEach(x => {
+      if (
+        model.settings.filter(existing => {
+          return existing.NAME === x.NAME;
+        }).length === 0
+      ) {
+        // log(`${modelName} needs insertion of missing data ${showObj(x)}`);
+        model.settings.push(x);
+        // throw new Error(`inserting missing data ${showObj(x)}`);
+      }
+    });
+    minimalModel.assets.forEach(x => {
+      if (
+        model.assets.filter(existing => {
+          return existing.NAME === x.NAME;
+        }).length === 0
+      ) {
+        //log(`inserting missing data ${showObj(x)}`);
+        model.assets.push(x);
+        // throw new Error(`inserting missing data ${showObj(x)}`);
+      }
+    });
+    model.version = 1;
+  }
+  if (model.version === 1) {
+    for (const e of model.expenses) {
+      if (e.RECURRENCE === undefined) {
+        e.RECURRENCE = '1m';
+      }
     }
-  });
-  minimalModel.assets.forEach(x => {
-    if (
-      model.assets.filter(existing => {
-        return existing.NAME === x.NAME;
-      }).length === 0
-    ) {
-      log(`inserting missing data ${showObj(x)}`);
-      model.assets.push(x);
-      // throw new Error(`inserting missing data ${showObj(x)}`);
+    for (const a of model.assets) {
+      if (a.IS_A_DEBT === undefined) {
+        a.IS_A_DEBT = false;
+      }
+      if (a.QUANTITY === undefined) {
+        a.QUANTITY = '';
+      }
     }
-  });
+    for (const t of model.transactions) {
+      if (t.TYPE === undefined) {
+        t.TYPE = custom;
+      }
+    }
+    for (const s of model.settings) {
+      if (s.TYPE === undefined) {
+        s.TYPE = getGuessSettingType(s.NAME);
+      }
+    }
+    model.version = 2;
+  }
+
+  // should throw immediately to alert of problems
+  if (model.version !== getCurrentVersion()) {
+    throw new Error('code not properly handling versions');
+  }
 }
 
 export function makeModelFromJSON(
@@ -869,9 +874,9 @@ export function makeModelFromJSON(
   input: string,
 ): DbModelData {
   // log('in makeModelFromJSON');
-  const model = makeModelFromJSONFixDates(input);
-  addRequiredEntries(modelName, model);
-  return cleanUp(model);
+  const model: DbModelDataWithVersion = makeModelFromJSONString(input);
+  migrateOldVersions(modelName, model);
+  return cleanUpDates(model);
 }
 
 export function isADebt(name: string, model: DbModelData) {

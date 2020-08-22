@@ -819,7 +819,7 @@ export class AppContent extends Component<AppProps, AppState> {
     //log('in componentWillUnmount');
     //window.removeEventListener('beforeunload', this.handleUnload);
   }
-/*
+  /*
   public handleUnload(e: any) {
     //log('in handleUnload');
     if (isDirty) {
