@@ -15,6 +15,7 @@ import {
   getSmallerChartSettings,
   expensesChartDiv,
   assetsOrDebtsChartDiv,
+  coarseFineList,
 } from './chartPages';
 import {
   custom,
@@ -106,6 +107,7 @@ export function overviewDiv(
               submitFunction={updateEndDate}
               showAlert={showAlert}
             />
+            {coarseFineList(model)}
           </div>
         </div>
       </div>

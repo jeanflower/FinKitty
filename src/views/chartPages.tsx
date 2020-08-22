@@ -122,7 +122,7 @@ function getCoarseFineView(model: DbModelData) {
   return assetName;
 }
 
-function coarseFineList(model: DbModelData) {
+export function coarseFineList(model: DbModelData) {
   const viewTypes: string[] = [total, coarse, fine];
   const selectedCoarseFineView = getCoarseFineView(model);
   const buttons = viewTypes.map(viewType => (
@@ -479,7 +479,12 @@ export function taxDiv(model: DbModelData, taxChartData: ChartData[]) {
     return;
   }
 
-  return taxChartDiv(taxChartData, getDefaultChartSettings(model));
+  return (
+    <div>
+      {coarseFineList(model)}
+      {taxChartDiv(taxChartData, getDefaultChartSettings(model))}
+    </div>
+  );
 }
 
 /*
