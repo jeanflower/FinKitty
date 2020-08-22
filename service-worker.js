@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/FinKitty/precache-manifest.15e0e2efb4c1e012ff0996270726b008.js"
+  "/FinKitty/precache-manifest.59a813dc0e1f27f81965add2c45f5c15.js"
 );
 
 self.addEventListener('message', (event) => {
