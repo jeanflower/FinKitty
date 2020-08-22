@@ -14,7 +14,6 @@ import {
   revalue,
   roiEnd,
   separator,
-  taxPot,
   growth,
   pensionDB,
   pensionTransfer,
@@ -274,6 +273,7 @@ export const evaluationType = {
   income: 'Income',
   asset: 'Asset',
   setting: 'Setting',
+  taxLiability: 'TaxLiability',
 };
 
 function getNumberValue(
@@ -713,23 +713,19 @@ function payIncomeTax(
   if (taxDue > 0) {
     // log('in payIncomeTax, adjustCash:');
     adjustCash(-taxDue, startOfTaxYear, values, evaluations, model, source);
-    let taxValue = getNumberValue(values, taxPot, false);
-    if (taxValue === undefined) {
-      taxValue = 0.0;
-    }
-    // log(`setValue on taxPot: ${taxValue + taxDue}`);
+    // log(`setValue with taxDue = ${taxDue}`);
     setValue(
       values,
       evaluations,
       startOfTaxYear,
-      taxPot,
-      taxValue + taxDue,
+      incomeTax,
+      taxDue,
       model,
-      source,
-      '2', //callerID
+      'ic' + source,
+      '23', //callerID
     );
   }
-  return taxDue; // for information only - cash already adjusted
+  return taxDue;
 }
 
 function payNI(
@@ -748,24 +744,18 @@ function payNI(
   if (NIDue > 0) {
     // log('in payNI, adjustCash:');
     adjustCash(-NIDue, startOfTaxYear, values, evaluations, model, source);
-
-    let taxValue = getNumberValue(values, taxPot, false);
-    if (taxValue === undefined) {
-      taxValue = 0.0;
-    }
-    // log(`setValue on taxPot: ${taxValue + NIDue}`);
     setValue(
       values,
       evaluations,
       startOfTaxYear,
-      taxPot,
-      taxValue + NIDue,
+      nationalInsurance,
+      NIDue,
       model,
-      source,
-      '3', //callerID
+      'ni' + source,
+      '25', //callerID
     );
   }
-  return NIDue; // just for information
+  return NIDue;
 }
 
 function payCGT(
@@ -785,22 +775,18 @@ function payCGT(
   if (CGTDue > 0) {
     // log('in payCGT, adjustCash:');
     adjustCash(-CGTDue, startOfTaxYear, values, evaluations, model, source);
-    let taxValue = getNumberValue(values, taxPot, false);
-    if (taxValue === undefined) {
-      taxValue = 0.0;
-    }
-    // log(`setValue on taxPot: ${taxValue + CGTDue}`);
     setValue(
       values,
       evaluations,
       startOfTaxYear,
-      taxPot,
-      taxValue + CGTDue,
+      cgt,
+      CGTDue,
       model,
-      source,
-      '4', //callerID
+      'cgt' + source,
+      '25', //callerID
     );
   }
+  return CGTDue;
 }
 function OptimizeIncomeTax(
   date: Date,
@@ -917,6 +903,8 @@ function settleUpTax(
     }
   }
 
+  const personNetIncome = new Map<string, number>();
+  const personNetGain = new Map<string, number>();
   for (const [key, value] of liableIncomeInTaxYear) {
     /* eslint-disable-line no-restricted-syntax */
     if (key === incomeTax && value !== undefined) {
@@ -932,6 +920,19 @@ function settleUpTax(
           model,
           person, // e.g. IncomeTaxJoe
         );
+        const personsName = person.substring(
+          0,
+          person.length - incomeTax.length,
+        );
+        // log(`paid some income tax for ${personsName}`);
+        const knownNetIncome = personNetIncome.get(personsName);
+        if (knownNetIncome === undefined) {
+          // log(`for ic, set first net income for ${personsName}`);
+          personNetIncome.set(personsName, amount - taxPaid);
+        } else {
+          // log(`for ic, reduce existing net income for ${personsName}`);
+          personNetIncome.set(personsName, knownNetIncome - taxPaid);
+        }
         if (printDebug()) {
           log(`${person} paid income tax ${taxPaid} for ${date}`);
         }
@@ -942,7 +943,7 @@ function settleUpTax(
       for (const [person, amount] of value) {
         /* eslint-disable-line no-restricted-syntax */
         const NIPaid = payNI(
-          new Date(startYearOfTaxYear + 1, 3, 5),
+          date,
           amount,
           cpiVal,
           values,
@@ -953,14 +954,27 @@ function settleUpTax(
         if (printDebug()) {
           log(`${person} paid NI ${NIPaid} for ${date}`);
         }
+        const personsName = person.substring(
+          0,
+          person.length - nationalInsurance.length,
+        );
+        // log(`paid some NI for ${personsName}`);
+        const knownNetIncome = personNetIncome.get(personsName);
+        if (knownNetIncome === undefined) {
+          // log(`for ni, set first net income for ${personsName}`);
+          personNetIncome.set(personsName, amount - NIPaid);
+        } else {
+          // log(`for ni, reduce existing net income for ${personsName}`);
+          personNetIncome.set(personsName, knownNetIncome - NIPaid);
+        }
         // log('resetting liableIncomeInTaxYear');
         value.set(person, 0);
       }
     } else if (key === 'cgt' && value !== undefined) {
       for (const [person, amount] of value) {
         /* eslint-disable-line no-restricted-syntax */
-        payCGT(
-          new Date(startYearOfTaxYear + 1, 3, 5),
+        const cgtPaid = payCGT(
+          date,
           amount,
           cpiVal,
           values,
@@ -969,7 +983,44 @@ function settleUpTax(
           person,
         ); // e.g. 'CGTJoe'
         // log('resetting liableIncomeInTaxYear');
+        const personsName = person.substring(0, person.length - cgt.length);
+        const knownNetGain = personNetGain.get(personsName);
+        if (knownNetGain === undefined) {
+          personNetGain.set(personsName, amount - cgtPaid);
+        } else {
+          personNetGain.set(personsName, knownNetGain - cgtPaid);
+        }
         value.set(person, 0);
+      }
+    }
+    for (const [person, amount] of personNetIncome) {
+      if (amount > 0) {
+        // log(`setValue ${'netinc'+person} amount ${amount}`)
+        setValue(
+          values,
+          evaluations,
+          date,
+          'netinc' + person,
+          amount,
+          model,
+          'netinc' + person,
+          '27', //callerID
+        );
+      }
+    }
+    for (const [person, amount] of personNetGain) {
+      if (amount > 0) {
+        // log(`setValue ${'netgain'+person} amount ${amount}`)
+        setValue(
+          values,
+          evaluations,
+          date,
+          'netgain' + person,
+          amount,
+          model,
+          'netgain' + person,
+          '28', //callerID
+        );
       }
     }
   }
@@ -2661,9 +2712,6 @@ export function getEvaluations(
 
     if (moment.name === EvaluateAllAssets) {
       model.assets.forEach(asset => {
-        if (asset.NAME === taxPot) {
-          return;
-        }
         let val = values.get(asset.NAME);
         if (typeof val === 'string') {
           val = traceEvaluation(val, values, val);

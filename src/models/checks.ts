@@ -1367,8 +1367,8 @@ export function checkEvalnType(
       return;
     }
     if (evalnType === undefined) {
-      log(`BUG!! evaluation of an unknown type: ${showObj(evaln)}`);
-      return;
+      throw new Error(`BUG!! evaluation of an unknown type: ${showObj(evaln)}`);
+      //return;
     }
     log(`BUG!! Purchase of non-asset? : ${showObj(evaln)}`);
   } else if (evaln.name.startsWith(quantity)) {
@@ -1380,6 +1380,7 @@ export function checkEvalnType(
       return;
     }
   } else {
-    log(`BUG!!! evaluation of an unknown type: ${showObj(evaln)}`);
+    throw new Error(`BUG!! evaluation of an unknown type: ${showObj(evaln)}`);
+    //return;
   }
 }

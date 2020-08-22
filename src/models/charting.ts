@@ -31,6 +31,10 @@ import {
   debtChartView,
   debtChartVal,
   total,
+  incomeTax,
+  nationalInsurance,
+  cgt,
+  crystallizedPension,
 } from '../localization/stringConstants';
 import {
   ChartDataPoint,
@@ -581,6 +585,7 @@ function ensureDateValueMapsExist(
 ) {
   const dateNameValueMap = typeDateNameValueMap.get(name);
   if (dateNameValueMap === undefined) {
+    // log(`add storage for ${name} to typeDateNameValueMap`)
     typeDateNameValueMap.set(
       name,
       new Map<
@@ -646,14 +651,64 @@ function mapNamesToTypes(model: DbModelData) {
   });
   model.incomes.forEach(income => {
     nameToTypeMap.set(income.NAME, evaluationType.income);
+    const liabilities = income.LIABILITY.split(separator);
+    liabilities.forEach(l => {
+      if (l.endsWith(incomeTax)) {
+        const person = l.substring(0, l.length - incomeTax.length);
+        const icTag = 'ic' + person + incomeTax;
+        const netIncomeTag = 'netinc' + person;
+        // log(`netIncomeTag = ${netIncomeTag}, icTag   = ${icTag}`);
+        nameToTypeMap.set(netIncomeTag, evaluationType.taxLiability);
+        nameToTypeMap.set(icTag, evaluationType.taxLiability);
+      } else if (l.endsWith(nationalInsurance)) {
+        const person = l.substring(0, l.length - nationalInsurance.length);
+        const niTag = 'ic' + person + nationalInsurance;
+        const netIncomeTag = 'netinc' + person;
+        // log(`netIncomeTag = ${netIncomeTag}, niTag   = ${niTag}`);
+        nameToTypeMap.set(netIncomeTag, evaluationType.taxLiability);
+        nameToTypeMap.set(niTag, evaluationType.taxLiability);
+      }
+    });
   });
   model.assets.forEach(asset => {
     nameToTypeMap.set(asset.NAME, evaluationType.asset);
+    const liabilities = asset.LIABILITY.split(separator);
+    liabilities.forEach(l => {
+      if (l.endsWith(cgt)) {
+        const person = l.substring(0, l.length - cgt.length);
+        const cgtTag = 'cgt' + person + cgt;
+        const netGainTag = 'netgain' + person;
+        // log(`netGainTag = ${netGainTag}, cgtTag   = ${cgtTag}`);
+        nameToTypeMap.set(netGainTag, evaluationType.taxLiability);
+        nameToTypeMap.set(cgtTag, evaluationType.taxLiability);
+      } else if (l.endsWith(incomeTax)) {
+        const person = l.substring(0, l.length - incomeTax.length);
+        const icTag = 'ic' + person + incomeTax;
+        const netIncomeTag = 'netinc' + person;
+        // log(`netIncomeTag = ${netIncomeTag}, icTag   = ${icTag}`);
+        nameToTypeMap.set(netIncomeTag, evaluationType.taxLiability);
+        nameToTypeMap.set(icTag, evaluationType.taxLiability);
+      }
+    });
+    if (asset.NAME.startsWith(crystallizedPension)) {
+      const person = asset.NAME.substring(
+        crystallizedPension.length,
+        asset.NAME.length,
+      );
+      const icTag = 'ic' + person + incomeTax;
+      const netIncomeTag = 'netinc' + person;
+      // log(`netIncomeTag = ${netIncomeTag}, icTag   = ${icTag}`);
+      nameToTypeMap.set(netIncomeTag, evaluationType.taxLiability);
+      nameToTypeMap.set(icTag, evaluationType.taxLiability);
+    }
   });
   model.settings.forEach(setting => {
     nameToTypeMap.set(setting.NAME, evaluationType.setting);
   });
   nameToTypeMap.set(taxPot, evaluationType.asset);
+  nameToTypeMap.set(incomeTax, evaluationType.taxLiability);
+  nameToTypeMap.set(nationalInsurance, evaluationType.taxLiability);
+  nameToTypeMap.set(cgt, evaluationType.taxLiability);
   return nameToTypeMap;
 }
 
@@ -775,6 +830,7 @@ export function makeChartDataFromEvaluations(
     if (firstDateAfterEvaln === undefined) {
       // no need to capture data from this evaluation
       // it's after all our dates for the chart
+      // log(`evaln = ${showObj(evaln)} not in date range - don't process`);
       return;
     }
     // ensure that for this evaluation, its type
@@ -786,6 +842,7 @@ export function makeChartDataFromEvaluations(
         evaln,
         nameToTypeMap,
       );
+      // log(`don't include ${evaln.name} in chart`);
       return; // don't include in chart
     }
     if (
@@ -813,7 +870,7 @@ export function makeChartDataFromEvaluations(
           throw new Error(`couldn't match income for ${evaln.name}`);
         }
         if (evaln.date < getTriggerDate(matchingIncome.START, model.triggers)) {
-          // we tracked this evaluation just to adjust accrued benfit
+          // we tracked this evaluation just to adjust accrued benefit
           // but don't actually received any of this income yet...
           // so skip for charting purposes
           return;
@@ -839,7 +896,14 @@ export function makeChartDataFromEvaluations(
         // log(`set data for ${evalnType}, ${date}, `
         //   +`${evaln.name}, ${evaln.value}, ${evaln.source}`);
         const existingValue = nameValueMap.get(evaln.name);
-        if (existingValue === undefined || evalnType === evaluationType.asset) {
+
+        if (evalnType === evaluationType.taxLiability) {
+          //  log(`set taxLiability ${showObj(evaln)}`);
+          nameValueMap.set(evaln.source, evaln.value);
+        } else if (
+          existingValue === undefined ||
+          evalnType === evaluationType.asset
+        ) {
           // don't show taxPot as an asset
           // (its in our data so we can show it in
           // "detailed" asset view)
@@ -847,20 +911,30 @@ export function makeChartDataFromEvaluations(
             // asset valuations over-write previous values
             nameValueMap.set(evaln.name, evaln.value);
           }
-        } else {
+        } else if (
+          evalnType === evaluationType.income ||
+          evalnType === evaluationType.expense ||
+          evalnType === evaluationType.expense
+        ) {
           // income or expense values accumulate over time
           // log(`accumulate chart values for ${evaln.name}`);
           const newValue = existingValue + evaln.value;
           // log(`change ${existingValue} to ${newValue}`);
           nameValueMap.set(evaln.name, newValue);
+        } else if (evalnType === evaluationType.setting) {
+          // nameValueMap.set(evaln.name, evaln.value);
+        } else {
+          throw new Error(`unhandled evaluation type ${evalnType}`);
         }
       }
     }
 
     logMapOfMapofMap(typeDateNameValueMap);
+    // log(`evaln.name = ${evaln.name}, evalnType = ${evalnType}`);
 
     // accumulate data for assets and debts (includes taxPot)
     if (
+      evalnType === evaluationType.taxLiability ||
       evaln.name === taxPot ||
       evaln.name === assetChartFocusName ||
       evaln.name === debtChartFocusName ||
@@ -873,11 +947,12 @@ export function makeChartDataFromEvaluations(
       getCategory(evaln.name, model) === assetChartFocusName ||
       getCategory(evaln.name, model) === debtChartFocusName
     ) {
-      // log(`evaln of asset ${evaln.name} for val or delta...`);
+      // log(`evaln of asset ${showObj(evaln)} for val or delta...`);
       // direct asset data to the assets part of typeDateNameValueMap
       // and the tax part to the taxPot part of typeDateNameValueMap
       let assetDateNameValueMap;
-      if (evaln.name === taxPot) {
+      if (evalnType === evaluationType.taxLiability) {
+        // log(`evaln for tax chart = ${showObj(evaln)}`);
         assetDateNameValueMap = typeDateNameValueMap.get(taxPot);
       } else {
         assetDateNameValueMap = typeDateNameValueMap.get('assetOrDebtFocus');
@@ -893,7 +968,10 @@ export function makeChartDataFromEvaluations(
           // log(`assetChartSetting = ${assetChartSetting}`);
           // Either log values or deltas; taxPot always plot deltas
           // and assets plot values or deltas according to assetChartSetting.
-          if (evaln.name !== taxPot && assetChartSetting === assetChartVal) {
+          if (
+            evalnType !== evaluationType.taxLiability &&
+            assetChartSetting === assetChartVal
+          ) {
             // Log asset values.
             // log(`add data[${evaln.name}] = ${evaln.value}`);
             if (assetOrDebtValueSources.indexOf(evaln.name) < 0) {
@@ -903,6 +981,13 @@ export function makeChartDataFromEvaluations(
             // we display the latest evaluation, even if there
             // was one already, we overwrite the value
             assetNameValueMap.set(evaln.name, evaln.value);
+          } else if (evalnType === evaluationType.taxLiability) {
+            const mapKey = evaln.source;
+            // log(`setting tax chart data ${mapKey}, ${evaln.value}`);
+            assetNameValueMap.set(mapKey, evaln.value);
+            if (assetOrDebtValueSources.indexOf(mapKey) < 0) {
+              assetOrDebtValueSources.push(mapKey);
+            }
           } else {
             // view a delta - what has been the change to the asset?
             let mapKey = '';
@@ -1136,6 +1221,7 @@ export function makeChartDataFromEvaluations(
 
   const mapForTaxChart = typeDateNameValueMap.get(taxPot);
   if (mapForTaxChart !== undefined) {
+    logMapOfMap(mapForTaxChart);
     result.taxData = makeChartDataPoints(
       mapForTaxChart,
       allDates,
