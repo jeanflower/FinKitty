@@ -1749,6 +1749,8 @@ function calculateFromChange(
   | {
       fromImpact: number;
       toImpact: number;
+      cgtPreWhole: number;
+      cgtPreChange: number;
     }
   | undefined {
   // log(`t.FROM_VALUE = ${t.FROM_VALUE}`)
@@ -1919,16 +1921,24 @@ function calculateFromChange(
 
   // log(`fromChange = ${fromChange}`);
   const toChange = fromChange;
-  if (fromHasQuantity) {
+  const cgtFromImpact = fromChange;
+  let cgtPreWhole = preFromValue;
+  if (fromHasQuantity && q !== undefined) {
     // log(`don't alter the unit value of a quantised asset`);
     // log(`fromChange was ${fromChange} but reset to 0`)
+    // log(`cgtPreWhole * q = ${cgtPreWhole} * ${q}`);
     fromChange = 0; // don't alter the unit value
+    cgtPreWhole = cgtPreWhole * q;
+    // log(`cgtPreWhole = ${cgtPreWhole}`);
   }
-  // log(`passing {fromImpact:${fromChange}, toImpact: ${toChange}}`);
-  return {
+  const result = {
     fromImpact: fromChange,
     toImpact: toChange,
+    cgtPreWhole: cgtPreWhole,
+    cgtPreChange: cgtFromImpact,
   };
+  // log(`returning data for cgt ${showObj(result)}`);
+  return result;
 }
 
 function calculateToChange(
@@ -1996,8 +2006,8 @@ function calculateToChange(
 function handleCGTLiability(
   t: DbTransaction,
   fromWord: string,
-  preFromValue: number,
-  fromChange: number,
+  preFromValue: number, // what the whole from was worth before transaction
+  fromChange: number, // the change in whole value of from during transaction
   moment: Moment,
   values: Map<string, number | string>,
   evaluations: Evaluation[],
@@ -2006,7 +2016,7 @@ function handleCGTLiability(
   model: DbModelData,
 ) {
   // log(`${fromWord} reducing from ${preFromValue} by ${fromChange}`);
-  // log(`liabilites are ${liabliitiesMap.get(fromWord}`);
+  // log(`liabilites are ${liabliitiesMap.get(fromWord)}`);
   const liabilities = liabliitiesMap.get(fromWord);
   if (liabilities === undefined) {
     return;
@@ -2019,12 +2029,12 @@ function handleCGTLiability(
     return;
   }
   const proportionSale = fromChange / preFromValue;
-  // log(`proportionSale = ${proportionSale}`);
+  // log(`proportionSale = ${fromChange} / ${preFromValue} = ${proportionSale}`);
   const purchasePrice = getNumberValue(values, `Purchase${fromWord}`);
   // log(`purchasePrice = ${purchasePrice}`);
   if (purchasePrice !== undefined) {
     const totalGain = preFromValue - purchasePrice;
-    // log(`totalGain = ${totalGain}`);
+    // log(`at ${moment.date}, totalGain = preFromValue - purchasePrice = ${preFromValue} - ${purchasePrice} = ${totalGain}`);
     const proportionGain = totalGain * proportionSale;
     // log(`proportionGain = ${proportionGain}`);
     let cgtMap = liableIncomeInTaxYear.get('cgt');
@@ -2085,6 +2095,7 @@ function processTransactionFromTo(
   liabliitiesMap: Map<string, string>,
   liableIncomeInTaxYear: Map<string, Map<string, number>>,
 ) {
+  // log(`process t = ${showObj(t)}`);
   // log(`processTransactionFromTo fromWord = ${fromWord}`);
   // log(`processTransactionFromTo takes in ${showObj(t)}`);
   const preFromValue = traceEvaluation(fromWord, values, fromWord);
@@ -2143,11 +2154,12 @@ function processTransactionFromTo(
 
   // apply fromChange
   if (fromChange !== undefined && preFromValue !== undefined) {
+    // log(`fromChange.cgtPreChange = ${fromChange.cgtPreChange}`);// fromChange = loss of value of from asset
     handleCGTLiability(
       t,
       fromWord,
-      preFromValue,
-      fromChange.fromImpact,
+      fromChange.cgtPreWhole, // preFromValue = old value of whole of from asset
+      fromChange.cgtPreChange, // fromChange = loss of value of from asset
       moment,
       values,
       evaluations,
@@ -2395,13 +2407,17 @@ function logPurchaseValues(
   model: DbModelData,
 ) {
   if (a.LIABILITY.includes(cgt)) {
+    let purchaseValue = parseFloat(a.PURCHASE_PRICE);
+    if (a.QUANTITY !== '') {
+      purchaseValue *= parseFloat(a.QUANTITY);
+    }
     // log('in logPurchaseValues, setValue:');
     setValue(
       values,
       evaluations,
       getTriggerDate(a.START, model.triggers),
       `Purchase${a.NAME}`,
-      parseFloat(a.PURCHASE_PRICE),
+      purchaseValue,
       model,
       `Purchase${a.NAME}`,
       '17', //callerID
