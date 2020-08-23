@@ -243,7 +243,7 @@ export class AddDeleteSettingForm extends Component<
                   ? 'primary'
                   : 'secondary'
               }
-              title={'Add a new setting'}
+              title={'Add new setting mode'}
               id="inputSetting"
             />
           </div>
@@ -256,7 +256,7 @@ export class AddDeleteSettingForm extends Component<
                   ? 'primary'
                   : 'secondary'
               }
-              title={'Revalue setting'}
+              title={'Revalue setting mode'}
               id="revalueSettingInputs"
             />
           </div>

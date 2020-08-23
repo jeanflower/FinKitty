@@ -236,7 +236,7 @@ export class AddDeleteIncomeForm extends Component<
                   ? 'primary'
                   : 'secondary'
               }
-              title={'Add a new income'}
+              title={'Add new income mode'}
               id="useIncomeInputs"
             />
           </div>{' '}
@@ -249,7 +249,7 @@ export class AddDeleteIncomeForm extends Component<
                   ? 'primary'
                   : 'secondary'
               }
-              title={'Add a pension'}
+              title={'Add pension mode'}
               id="useDBPInputs"
             />
           </div>{' '}
@@ -262,7 +262,7 @@ export class AddDeleteIncomeForm extends Component<
                   ? 'primary'
                   : 'secondary'
               }
-              title={'Revalue an income'}
+              title={'Revalue income mode'}
               id="useRevalueInputs"
             />
           </div>{' '}

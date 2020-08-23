@@ -278,7 +278,7 @@ export class AddDeleteDebtForm extends Component<
               type={
                 this.state.inputting === inputtingDebt ? 'primary' : 'secondary'
               }
-              title={'Add a new debt'}
+              title={'Add new debt mode'}
               id="inputDebt"
             />
           </div>
@@ -291,7 +291,7 @@ export class AddDeleteDebtForm extends Component<
                   ? 'primary'
                   : 'secondary'
               }
-              title={'Revalue debt'}
+              title={'Revalue debt mode'}
               id="revalueDebtInputs"
             />
           </div>

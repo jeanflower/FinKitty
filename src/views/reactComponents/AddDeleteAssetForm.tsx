@@ -490,7 +490,7 @@ export class AddDeleteAssetForm extends Component<
                   ? 'primary'
                   : 'secondary'
               }
-              title={'Add a new asset'}
+              title={'Add new asset mode'}
               id="inputAsset"
             />
           </div>
@@ -503,7 +503,7 @@ export class AddDeleteAssetForm extends Component<
                   ? 'primary'
                   : 'secondary'
               }
-              title={'Add a pension'}
+              title={'Add pension mode'}
               id="useDCPInputs"
             />
           </div>
@@ -516,7 +516,7 @@ export class AddDeleteAssetForm extends Component<
                   ? 'primary'
                   : 'secondary'
               }
-              title={'Revalue asset'}
+              title={'Revalue asset mode'}
               id="revalueAssetInputs"
             />
           </div>

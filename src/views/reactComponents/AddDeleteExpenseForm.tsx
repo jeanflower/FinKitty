@@ -246,7 +246,7 @@ export class AddDeleteExpenseForm extends Component<
                   ? 'primary'
                   : 'secondary'
               }
-              title={'Add a new expense'}
+              title={'Add new expense mode'}
               id="useExpenseInputs"
             />
           </div>{' '}
@@ -259,7 +259,7 @@ export class AddDeleteExpenseForm extends Component<
                   ? 'primary'
                   : 'secondary'
               }
-              title={'Revalue an expense'}
+              title={'Revalue expense mode'}
               id="useRevalueInputs"
             />
           </div>{' '}

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 
 import { DbTrigger, DbModelData, FormProps } from '../../types/interfaces';
 import { newTriggerButtonData } from './AddDeleteTriggerForm';
+import { lessThan } from '../../utils';
 
 const welcomeString = 'Choose a date (optional)';
 
@@ -29,17 +30,19 @@ export class TriggerOptionList extends Component<TriggerOptionListProps, {}> {
     this.props.handleChange(e.NAME);
   }
   public render() {
-    const optionData = this.props.triggers.map(trigger => {
-      return {
-        text: trigger.NAME,
-        action: (e: any) => {
-          // log(`detected action`);
-          // e.persist();
-          e.preventDefault();
-          this.props.handleChange(trigger.NAME);
-        },
-      };
-    });
+    const optionData = this.props.triggers
+      .sort((a, b)=>{return lessThan(a.NAME,b.NAME);})
+      .map(trigger => {
+        return {
+          text: trigger.NAME,
+          action: (e: any) => {
+            // log(`detected action`);
+            // e.persist();
+            e.preventDefault();
+            this.props.handleChange(trigger.NAME);
+          },
+        };
+      });
     optionData.push(
       newTriggerButtonData(
         this.newTriggerMade.bind(this),
