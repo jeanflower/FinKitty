@@ -9,7 +9,6 @@ import {
   DbModelData,
 } from './types/interfaces';
 import { showObj } from './utils';
-import { taxPot } from './localization/stringConstants';
 
 function diffItem(i1: DbItem, i2: DbItem): string {
   if (i1.NAME !== i2.NAME) {
@@ -254,7 +253,7 @@ function diffItems(
   const matchedNames: string[] = [];
   let result = '';
   is1.forEach(i1 => {
-    if (i1.NAME === taxPot || result.length > 0) {
+    if (result.length > 0) {
       return;
     }
     const matchedItems = is2.filter(i2 => {
@@ -280,7 +279,6 @@ function diffItems(
   // log(`matchedNames = ${showObj(matchedNames)}`);
   is2.forEach(i2 => {
     if (
-      i2.NAME === taxPot ||
       matchedNames.find(m => {
         return m === i2.NAME;
       })

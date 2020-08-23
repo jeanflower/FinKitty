@@ -97,9 +97,6 @@ export function incomeOptions(
     };
   });
 
-  // remove income with certain properties...
-  //optionData = optionData.filter(od => od.text !== taxPot);
-
   const options = optionData.map(bd => (
     <option
       value={bd.text}

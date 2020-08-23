@@ -13,7 +13,6 @@ import {
   expenseChartFocus,
   fine,
   incomeChartFocus,
-  taxPot,
   viewDetail,
   total,
   viewFrequency,
@@ -335,7 +334,7 @@ function assetsOrDebtsButtonList(
   forOverview: boolean,
 ) {
   const assetsOrDebts = model.assets.filter(obj => {
-    return obj.NAME !== taxPot && obj.IS_A_DEBT === isDebt;
+    return obj.IS_A_DEBT === isDebt;
   });
   let assetOrDebtNames: string[] = assetsOrDebts.map(data => data.NAME).sort();
   assetOrDebtNames.unshift(allItems);

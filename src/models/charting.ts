@@ -22,7 +22,6 @@ import {
   roiStart,
   separator,
   assetChartFocus,
-  taxPot,
   viewDetail,
   viewFrequency,
   growth,
@@ -322,11 +321,6 @@ function displayWordAs(
     tax: false,
   };
 
-  if (word === taxPot) {
-    // log(`display ${showObj(word)} as tax`);
-    result.tax = true;
-    return result;
-  }
   const nameMatch = model.assets.filter(a => {
     return a.NAME === word;
   });
@@ -705,7 +699,6 @@ function mapNamesToTypes(model: DbModelData) {
   model.settings.forEach(setting => {
     nameToTypeMap.set(setting.NAME, evaluationType.setting);
   });
-  nameToTypeMap.set(taxPot, evaluationType.asset);
   nameToTypeMap.set(incomeTax, evaluationType.taxLiability);
   nameToTypeMap.set(nationalInsurance, evaluationType.taxLiability);
   nameToTypeMap.set(cgt, evaluationType.taxLiability);
@@ -798,7 +791,7 @@ export function makeChartDataFromEvaluations(
     >(),
   );
   typeDateNameValueMap.set(
-    taxPot, // we will track data for this special "asset"
+    'tax', // we will track data for this special "asset"
     new Map<
       string, // date
       Map<
@@ -904,13 +897,8 @@ export function makeChartDataFromEvaluations(
           existingValue === undefined ||
           evalnType === evaluationType.asset
         ) {
-          // don't show taxPot as an asset
-          // (its in our data so we can show it in
-          // "detailed" asset view)
-          if (evaln.name !== taxPot) {
-            // asset valuations over-write previous values
-            nameValueMap.set(evaln.name, evaln.value);
-          }
+          // asset valuations over-write previous values
+          nameValueMap.set(evaln.name, evaln.value);
         } else if (
           evalnType === evaluationType.income ||
           evalnType === evaluationType.expense ||
@@ -932,28 +920,24 @@ export function makeChartDataFromEvaluations(
     logMapOfMapofMap(typeDateNameValueMap);
     // log(`evaln.name = ${evaln.name}, evalnType = ${evalnType}`);
 
-    // accumulate data for assets and debts (includes taxPot)
+    // accumulate data for assets and debts
     if (
       evalnType === evaluationType.taxLiability ||
-      evaln.name === taxPot ||
       evaln.name === assetChartFocusName ||
       evaln.name === debtChartFocusName ||
       (assetChartFocusName === allItems &&
-        assetNames.indexOf(evaln.name) >= 0 &&
-        evaln.name !== taxPot) ||
-      (debtChartFocusName === allItems &&
-        debtNames.indexOf(evaln.name) >= 0 &&
-        evaln.name !== taxPot) ||
+        assetNames.indexOf(evaln.name) >= 0) ||
+      (debtChartFocusName === allItems && debtNames.indexOf(evaln.name) >= 0) ||
       getCategory(evaln.name, model) === assetChartFocusName ||
       getCategory(evaln.name, model) === debtChartFocusName
     ) {
       // log(`evaln of asset ${showObj(evaln)} for val or delta...`);
       // direct asset data to the assets part of typeDateNameValueMap
-      // and the tax part to the taxPot part of typeDateNameValueMap
+      // and the tax part to the "tax" part of typeDateNameValueMap
       let assetDateNameValueMap;
       if (evalnType === evaluationType.taxLiability) {
         // log(`evaln for tax chart = ${showObj(evaln)}`);
-        assetDateNameValueMap = typeDateNameValueMap.get(taxPot);
+        assetDateNameValueMap = typeDateNameValueMap.get('tax');
       } else {
         assetDateNameValueMap = typeDateNameValueMap.get('assetOrDebtFocus');
       }
@@ -966,7 +950,7 @@ export function makeChartDataFromEvaluations(
         if (assetNameValueMap !== undefined) {
           // log(`${date} asset source '${evaln.source}' and value '${evaln.value}'`);
           // log(`assetChartSetting = ${assetChartSetting}`);
-          // Either log values or deltas; taxPot always plot deltas
+          // Either log values or deltas;
           // and assets plot values or deltas according to assetChartSetting.
           if (
             evalnType !== evaluationType.taxLiability &&
@@ -990,12 +974,7 @@ export function makeChartDataFromEvaluations(
             }
           } else {
             // view a delta - what has been the change to the asset?
-            let mapKey = '';
-            if (evaln.name === taxPot) {
-              mapKey = evaln.source;
-            } else {
-              mapKey = evaln.source + separator + evaln.name;
-            }
+            const mapKey = evaln.source + separator + evaln.name;
             let prevValue = 0.0;
             const mapValue = prevEvalAssetValue.get(evaln.name);
             if (mapValue !== undefined) {
@@ -1019,13 +998,11 @@ export function makeChartDataFromEvaluations(
               // log(`no pre-existing delta`);
             }
             if (
-              evaln.name !== taxPot &&
               assetChartSetting === assetChartAdditions &&
               valueForChart < 0
             ) {
               // log(`suppress -ve deltas when looking for additions`);
             } else if (
-              evaln.name !== taxPot &&
               assetChartSetting === assetChartReductions &&
               valueForChart > 0
             ) {
@@ -1219,7 +1196,7 @@ export function makeChartDataFromEvaluations(
     );
   }
 
-  const mapForTaxChart = typeDateNameValueMap.get(taxPot);
+  const mapForTaxChart = typeDateNameValueMap.get('tax');
   if (mapForTaxChart !== undefined) {
     logMapOfMap(mapForTaxChart);
     result.taxData = makeChartDataPoints(

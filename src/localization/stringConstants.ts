@@ -4,7 +4,7 @@ export const separator = '/';
 // All models have a Cash asset and this is its name
 export const CASH_ASSET_NAME = 'Cash';
 
-// All models have a taxPot which keeps a tally of payments for
+// All models used to have a taxPot which keeps a tally of payments for
 // income tax, NI, or CGT
 // useful to monitor and determine ways to
 // optimize the size or timing of payments.

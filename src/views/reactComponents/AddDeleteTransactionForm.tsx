@@ -19,7 +19,6 @@ import Button from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
 import Input from './Input';
 import {
-  taxPot,
   custom,
   CASH_ASSET_NAME,
   liquidateAsset,
@@ -57,9 +56,6 @@ interface EditTransactionProps extends FormProps {
 }
 function assetOptions(model: DbModelData, handleChange: any, id: string) {
   const optionData = model.assets
-    .filter(asset => {
-      return asset.NAME !== taxPot;
-    })
     .map(asset => {
       return {
         text: asset.NAME,

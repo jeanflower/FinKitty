@@ -45,6 +45,7 @@ import {
   viewType,
   valueFocusDate,
   valueFocusDateHint,
+  taxPot,
 } from './localization/stringConstants';
 
 import moment from 'moment';
@@ -804,7 +805,8 @@ export function getCurrentVersion() {
   // return 0; // may not include assets or settings in minimalModel
   // return 1; // may not include expense recurrence, asset/debt,
   //           // asset quantity, transaction and settings types
-  return 2;
+  // return 2; // don't use taxPot as an asset
+  return 3;
 }
 
 function migrateOldVersions(modelName: string, model: DbModelDataWithVersion) {
@@ -861,6 +863,16 @@ function migrateOldVersions(modelName: string, model: DbModelDataWithVersion) {
       }
     }
     model.version = 2;
+  }
+  if (model.version === 2) {
+    // remove any asset called taxPot
+    const index = model.assets.findIndex(a => {
+      return a.NAME === taxPot;
+    });
+    if (index >= 0) {
+      model.assets.splice(index, 1);
+    }
+    model.version = 3;
   }
 
   // should throw immediately to alert of problems

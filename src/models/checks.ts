@@ -25,7 +25,6 @@ import {
   assetChartFocus,
   viewDetail,
   viewFrequency,
-  taxPot,
   CASH_ASSET_NAME,
   conditional,
   pensionSS,
@@ -44,6 +43,7 @@ import {
   revalueInc,
   revalueExp,
   revalueSetting,
+  taxPot,
 } from '../localization/stringConstants';
 import {
   DbAsset,
@@ -300,10 +300,7 @@ export function checkIncome(i: DbIncome, model: DbModelData): string {
     return m.NAME === taxPot;
   });
   if (taxAssets.length > 0) {
-    const taxStarts = getTriggerDate(taxAssets[0].START, model.triggers);
-    if (startDate < taxStarts) {
-      return `Income start date must be after taxPot starts; ${taxAssets[0].START}`;
-    }
+    return `We don't need taxPot any more`;
   }
   const valueSetDate = checkTriggerDate(i.VALUE_SET, model.triggers);
   if (valueSetDate === undefined || !checkDate(valueSetDate)) {
@@ -830,7 +827,7 @@ function isPayOffDebtType(t: DbTransaction, model: DbModelData) {
 export function checkTransaction(t: DbTransaction, model: DbModelData): string {
   // log(`checking transaction ${showObj(t)}`);
   const { assets, incomes, expenses, triggers, settings } = model;
-  const assetsForChecking = assets.filter(a => a.NAME !== taxPot);
+  const assetsForChecking = assets;
   if (t.NAME.length === 0) {
     return 'Transaction name needs some characters';
   }

@@ -12,7 +12,6 @@ import { AddDeleteTransactionForm } from './views/reactComponents/AddDeleteTrans
 import { AddDeleteTriggerForm } from './views/reactComponents/AddDeleteTriggerForm';
 import Button from './views/reactComponents/Button';
 import {
-  taxPot,
   exampleModelName,
   custom,
   autogen,
@@ -398,26 +397,6 @@ export async function refreshData(goToDB = true) {
     );
     model.assets.sort((a: DbAsset, b: DbAsset) => lessThan(b.NAME, a.NAME));
     modelNames.sort((a: string, b: string) => lessThan(a, b));
-
-    if (
-      model.assets.filter((a: any) => {
-        return a.NAME === taxPot;
-      }).length === 0
-    ) {
-      model.assets.push({
-        NAME: taxPot,
-        START: '1 Jan 2017',
-        VALUE: '0',
-        QUANTITY: '',
-        GROWTH: '0',
-        CPI_IMMUNE: true,
-        CAN_BE_NEGATIVE: false,
-        IS_A_DEBT: false,
-        LIABILITY: '',
-        PURCHASE_PRICE: '0',
-        CATEGORY: '',
-      });
-    }
 
     const result: DataForView = makeChartData(model);
 

@@ -68,7 +68,6 @@ import {
   editSetting,
 } from '../App';
 import {
-  taxPot,
   liquidateAsset,
   conditional,
   payOffDebt,
@@ -543,7 +542,7 @@ function addIndices(unindexedResult: any[]) {
 function assetsOrDebtsForTable(model: DbModelData, isDebt: boolean): any[] {
   const unindexedResult = model.assets
     .filter((obj: DbAsset) => {
-      return obj.NAME !== taxPot && obj.IS_A_DEBT === isDebt;
+      obj.IS_A_DEBT === isDebt;
     })
     .map((obj: DbAsset) => {
       const dbStringValue = obj.VALUE;
