@@ -46,6 +46,9 @@ import {
   valueFocusDate,
   valueFocusDateHint,
   taxPot,
+  income,
+  net,
+  gain,
 } from './localization/stringConstants';
 
 import moment from 'moment';
@@ -265,6 +268,21 @@ export function makeIncomeLiabilityFromNameAndNI(name: string, NI: boolean) {
   }
 }
 
+export function makeIncomeTaxTag(person: string) {
+  return person + ' ' + income + ' ' + incomeTax;
+}
+export function makeNationalInsuranceTag(person: string) {
+  return person + ' ' + income + ' ' + nationalInsurance;
+}
+export function makeNetIncomeTag(person: string) {
+  return person + ' ' + income + ' ' + net;
+}
+export function makeCGTTag(person: string) {
+  return person + ' ' + gain + ' ' + cgt;
+}
+export function makeNetGainTag(person: string) {
+  return person + ' ' + gain + ' ' + net;
+}
 export function makeBooleanFromString(s: string) {
   const result = s === 'T' || s === 't' || s === 'True' || s === 'true';
   // log(`convert ${s} to boolean and get ${result}`);

@@ -31,7 +31,9 @@ export class TriggerOptionList extends Component<TriggerOptionListProps, {}> {
   }
   public render() {
     const optionData = this.props.triggers
-      .sort((a, b)=>{return lessThan(a.NAME,b.NAME);})
+      .sort((a, b) => {
+        return lessThan(a.NAME, b.NAME);
+      })
       .map(trigger => {
         return {
           text: trigger.NAME,

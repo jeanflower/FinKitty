@@ -45,6 +45,11 @@ import {
   getTodaysDate,
   removeNumberPart,
   replaceCategoryWithAssetNames,
+  makeNetIncomeTag,
+  makeNetGainTag,
+  makeIncomeTaxTag,
+  makeNationalInsuranceTag,
+  makeCGTTag,
 } from '../utils';
 import { getDisplayName } from '../views/tablePages';
 
@@ -714,6 +719,7 @@ function payIncomeTax(
     // log('in payIncomeTax, adjustCash:');
     adjustCash(-taxDue, startOfTaxYear, values, evaluations, model, source);
     // log(`setValue with taxDue = ${taxDue}`);
+    const person = source.substring(0, source.length - incomeTax.length);
     setValue(
       values,
       evaluations,
@@ -721,7 +727,7 @@ function payIncomeTax(
       incomeTax,
       taxDue,
       model,
-      'ic' + source,
+      makeIncomeTaxTag(person),
       '23', //callerID
     );
   }
@@ -744,6 +750,10 @@ function payNI(
   if (NIDue > 0) {
     // log('in payNI, adjustCash:');
     adjustCash(-NIDue, startOfTaxYear, values, evaluations, model, source);
+    const person = source.substring(
+      0,
+      source.length - nationalInsurance.length,
+    );
     setValue(
       values,
       evaluations,
@@ -751,7 +761,7 @@ function payNI(
       nationalInsurance,
       NIDue,
       model,
-      'ni' + source,
+      makeNationalInsuranceTag(person),
       '25', //callerID
     );
   }
@@ -775,6 +785,7 @@ function payCGT(
   if (CGTDue > 0) {
     // log('in payCGT, adjustCash:');
     adjustCash(-CGTDue, startOfTaxYear, values, evaluations, model, source);
+    const person = source.substring(0, source.length - cgt.length);
     setValue(
       values,
       evaluations,
@@ -782,7 +793,7 @@ function payCGT(
       cgt,
       CGTDue,
       model,
-      'cgt' + source,
+      makeCGTTag(person),
       '25', //callerID
     );
   }
@@ -995,15 +1006,15 @@ function settleUpTax(
     }
     for (const [person, amount] of personNetIncome) {
       if (amount > 0) {
-        // log(`setValue ${'netinc'+person} amount ${amount}`)
+        // log(`setValue ${makeNetIncomeTag(person)} amount ${amount}`)
         setValue(
           values,
           evaluations,
           date,
-          'netinc' + person,
+          makeNetIncomeTag(person),
           amount,
           model,
-          'netinc' + person,
+          makeNetIncomeTag(person),
           '27', //callerID
         );
       }
@@ -1015,10 +1026,10 @@ function settleUpTax(
           values,
           evaluations,
           date,
-          'netgain' + person,
+          makeNetGainTag(person),
           amount,
           model,
-          'netgain' + person,
+          makeNetGainTag(person),
           '28', //callerID
         );
       }

@@ -57,7 +57,9 @@ interface EditTransactionProps extends FormProps {
 }
 function assetOptions(model: DbModelData, handleChange: any, id: string) {
   const optionData = model.assets
-    .sort((a, b)=>{return lessThan(a.NAME,b.NAME);})
+    .sort((a, b) => {
+      return lessThan(a.NAME, b.NAME);
+    })
     .map(asset => {
       return {
         text: asset.NAME,
@@ -74,7 +76,9 @@ function assetOptions(model: DbModelData, handleChange: any, id: string) {
         .filter(setting => {
           return setting.TYPE === adjustableType;
         })
-        .sort((a, b)=>{return lessThan(a.NAME,b.NAME);})
+        .sort((a, b) => {
+          return lessThan(a.NAME, b.NAME);
+        })
         .map(setting => {
           return {
             text: setting.NAME,

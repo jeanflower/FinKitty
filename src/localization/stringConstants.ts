@@ -89,7 +89,9 @@ export const exampleModelName = 'Simple';
 export const incomeTax = '(incomeTax)';
 export const nationalInsurance = '(NI)';
 export const taxableBenefit = 'TaxableBenefit';
-
+export const income = 'income';
+export const gain = 'gain';
+export const net = '(net)';
 // Assets can of the form CrystallizedPension
 // and transfer to cash is liable to income tax for
 // the named owner

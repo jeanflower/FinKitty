@@ -53,6 +53,11 @@ import {
   showObj,
   makeDateFromString,
   getTriggerDate,
+  makeIncomeTaxTag,
+  makeNetIncomeTag,
+  makeNationalInsuranceTag,
+  makeCGTTag,
+  makeNetGainTag,
 } from '../utils';
 
 function logMapOfMap(
@@ -638,6 +643,7 @@ function getSettingsValues(model: DbModelData) {
     debtChartSetting,
   };
 }
+
 function mapNamesToTypes(model: DbModelData) {
   const nameToTypeMap = new Map<string, string>();
   model.expenses.forEach(expense => {
@@ -649,15 +655,15 @@ function mapNamesToTypes(model: DbModelData) {
     liabilities.forEach(l => {
       if (l.endsWith(incomeTax)) {
         const person = l.substring(0, l.length - incomeTax.length);
-        const icTag = 'ic' + person + incomeTax;
-        const netIncomeTag = 'netinc' + person;
+        const icTag = makeIncomeTaxTag(person);
+        const netIncomeTag = makeNetIncomeTag(person);
         // log(`netIncomeTag = ${netIncomeTag}, icTag   = ${icTag}`);
         nameToTypeMap.set(netIncomeTag, evaluationType.taxLiability);
         nameToTypeMap.set(icTag, evaluationType.taxLiability);
       } else if (l.endsWith(nationalInsurance)) {
         const person = l.substring(0, l.length - nationalInsurance.length);
-        const niTag = 'ic' + person + nationalInsurance;
-        const netIncomeTag = 'netinc' + person;
+        const niTag = makeNationalInsuranceTag(person);
+        const netIncomeTag = makeNetIncomeTag(person);
         // log(`netIncomeTag = ${netIncomeTag}, niTag   = ${niTag}`);
         nameToTypeMap.set(netIncomeTag, evaluationType.taxLiability);
         nameToTypeMap.set(niTag, evaluationType.taxLiability);
@@ -670,15 +676,15 @@ function mapNamesToTypes(model: DbModelData) {
     liabilities.forEach(l => {
       if (l.endsWith(cgt)) {
         const person = l.substring(0, l.length - cgt.length);
-        const cgtTag = 'cgt' + person + cgt;
-        const netGainTag = 'netgain' + person;
+        const cgtTag = makeCGTTag(person);
+        const netGainTag = makeNetGainTag(person);
         // log(`netGainTag = ${netGainTag}, cgtTag   = ${cgtTag}`);
         nameToTypeMap.set(netGainTag, evaluationType.taxLiability);
         nameToTypeMap.set(cgtTag, evaluationType.taxLiability);
       } else if (l.endsWith(incomeTax)) {
         const person = l.substring(0, l.length - incomeTax.length);
-        const icTag = 'ic' + person + incomeTax;
-        const netIncomeTag = 'netinc' + person;
+        const icTag = makeIncomeTaxTag(person);
+        const netIncomeTag = makeNetIncomeTag(person);
         // log(`netIncomeTag = ${netIncomeTag}, icTag   = ${icTag}`);
         nameToTypeMap.set(netIncomeTag, evaluationType.taxLiability);
         nameToTypeMap.set(icTag, evaluationType.taxLiability);
@@ -689,8 +695,9 @@ function mapNamesToTypes(model: DbModelData) {
         crystallizedPension.length,
         asset.NAME.length,
       );
-      const icTag = 'ic' + person + incomeTax;
-      const netIncomeTag = 'netinc' + person;
+      const icTag = makeIncomeTaxTag(person);
+      const netIncomeTag = makeNetIncomeTag(person);
+
       // log(`netIncomeTag = ${netIncomeTag}, icTag   = ${icTag}`);
       nameToTypeMap.set(netIncomeTag, evaluationType.taxLiability);
       nameToTypeMap.set(icTag, evaluationType.taxLiability);

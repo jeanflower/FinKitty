@@ -542,7 +542,7 @@ function addIndices(unindexedResult: any[]) {
 function assetsOrDebtsForTable(model: DbModelData, isDebt: boolean): any[] {
   const unindexedResult = model.assets
     .filter((obj: DbAsset) => {
-      obj.IS_A_DEBT === isDebt;
+      return obj.IS_A_DEBT === isDebt;
     })
     .map((obj: DbAsset) => {
       const dbStringValue = obj.VALUE;

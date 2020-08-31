@@ -65,18 +65,18 @@ describe('loadModelsFromJSON', () => {
   it('migratedModelfromv2', () => {
     const jsonString = v2ModelJSON;
     const model2 = makeModelFromJSON('testModel', jsonString);
-    const index = model2.assets.find((a)=>{
+    const index = model2.assets.find(a => {
       return a.NAME === taxPot;
-    })
+    });
     expect(index).toEqual(undefined);
   });
-  
+
   // current version loads
   it('migratedModelfromv3', () => {
     const jsonString = v3ModelJSON;
     makeModelFromJSON('testModel', jsonString);
   });
-  
+
   // future versions should not load
   it('migratedModelfromv4', () => {
     const jsonString = v4ModelJSON;
