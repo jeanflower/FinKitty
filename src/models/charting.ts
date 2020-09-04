@@ -34,6 +34,11 @@ import {
   nationalInsurance,
   cgt,
   crystallizedPension,
+  taxChartFocusType,
+  taxChartFocusPerson,
+  taxChartShowNet,
+  income,
+  gain,
 } from '../localization/stringConstants';
 import {
   ChartDataPoint,
@@ -58,6 +63,7 @@ import {
   makeNationalInsuranceTag,
   makeCGTTag,
   makeNetGainTag,
+  deconstructTaxTag,
 } from '../utils';
 
 function logMapOfMap(
@@ -632,6 +638,25 @@ function getSettingsValues(model: DbModelData) {
     debtChartView,
     debtChartVal,
   );
+  const taxChartType: string = getSettings(
+    model.settings,
+    taxChartFocusType,
+    allItems,
+  );
+  const taxChartPerson: string = getSettings(
+    model.settings,
+    taxChartFocusPerson,
+    allItems,
+  );
+  const taxChartNetString: string = getSettings(
+    model.settings,
+    taxChartShowNet,
+    allItems,
+  );
+  const taxChartNet =
+    taxChartNetString === 'Y' ||
+    taxChartNetString === 'y' ||
+    taxChartNetString === 'yes';
   return {
     expenseFocus,
     incomeFocus,
@@ -641,6 +666,9 @@ function getSettingsValues(model: DbModelData) {
     frequency,
     assetChartSetting,
     debtChartSetting,
+    taxChartType,
+    taxChartPerson,
+    taxChartNet,
   };
 }
 
@@ -744,6 +772,9 @@ export function makeChartDataFromEvaluations(
     frequency,
     assetChartSetting,
     debtChartSetting,
+    taxChartPerson,
+    taxChartType,
+    taxChartNet,
   } = getSettingsValues(model);
 
   // set up empty data structure for result
@@ -927,17 +958,55 @@ export function makeChartDataFromEvaluations(
     logMapOfMapofMap(typeDateNameValueMap);
     // log(`evaln.name = ${evaln.name}, evalnType = ${evalnType}`);
 
-    // accumulate data for assets and debts
-    if (
-      evalnType === evaluationType.taxLiability ||
-      evaln.name === assetChartFocusName ||
-      evaln.name === debtChartFocusName ||
-      (assetChartFocusName === allItems &&
-        assetNames.indexOf(evaln.name) >= 0) ||
-      (debtChartFocusName === allItems && debtNames.indexOf(evaln.name) >= 0) ||
-      getCategory(evaln.name, model) === assetChartFocusName ||
-      getCategory(evaln.name, model) === debtChartFocusName
-    ) {
+    // accumulate data for assets, debts, tax
+    let doIncludeEvaln = false;
+    if (evalnType === evaluationType.taxLiability) {
+      // log(`tax evaln = ${showObj(evaln)}`);
+      const tagData = deconstructTaxTag(evaln.source);
+      // log(`tag = ${showObj(tagData)}`);
+      let rightType = false;
+      let rightPerson = false;
+      if (taxChartType === allItems) {
+        rightType = true;
+      } else if (taxChartType === gain) {
+        if (tagData.isGain) {
+          rightType = true;
+        }
+      } else if (taxChartType === income) {
+        if (tagData.isIncome) {
+          rightType = true;
+        }
+      }
+      if (rightType) {
+        // log(`taxChartNet = ${taxChartNet} and tagData.isNet = ${tagData.isNet}`);
+        if (!taxChartNet && tagData.isNet) {
+          // log(`exclude ${evaln.source} from graph`);
+          rightType = false;
+        }
+      }
+      if (rightType) {
+        if (taxChartPerson === allItems) {
+          rightPerson = true;
+        } else {
+          if (tagData.person === taxChartPerson) {
+            rightPerson = true;
+          }
+        }
+      }
+      doIncludeEvaln = rightType && rightPerson;
+      // log(`include? = ${doIncludeEvaln}`);
+    } else {
+      doIncludeEvaln =
+        evaln.name === assetChartFocusName ||
+        evaln.name === debtChartFocusName ||
+        (assetChartFocusName === allItems &&
+          assetNames.indexOf(evaln.name) >= 0) ||
+        (debtChartFocusName === allItems &&
+          debtNames.indexOf(evaln.name) >= 0) ||
+        getCategory(evaln.name, model) === assetChartFocusName ||
+        getCategory(evaln.name, model) === debtChartFocusName;
+    }
+    if (doIncludeEvaln) {
       // log(`evaln of asset ${showObj(evaln)} for val or delta...`);
       // direct asset data to the assets part of typeDateNameValueMap
       // and the tax part to the "tax" part of typeDateNameValueMap

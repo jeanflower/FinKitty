@@ -88,6 +88,9 @@ import {
   constType,
   adjustableType,
   revalueSetting,
+  taxChartFocusPerson,
+  taxChartFocusType,
+  taxChartShowNet,
 } from '../localization/stringConstants';
 import { log } from 'util';
 
@@ -1269,6 +1272,9 @@ const settingsToExcludeFromTableView = [
   debtChartFocus,
   expenseChartFocus,
   incomeChartFocus,
+  taxChartFocusPerson,
+  taxChartFocusType,
+  taxChartShowNet,
 ];
 
 function settingsForTable(model: DbModelData, type: string) {

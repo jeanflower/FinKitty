@@ -112,7 +112,7 @@ export class CreateModelForm extends Component<
       this.props.showAlert('Please provide a new name for the model');
       return;
     }
-    log(`going to create an example model called ${newName}`);
+    // log(`going to create an example model called ${newName}`);
     if (
       !(await this.props.getModelNames(this.props.userID)).includes(newName) ||
       window.confirm(`will replace ${newName}, you sure?`)

@@ -61,6 +61,15 @@ export const expenseChartFocusHint =
 export const incomeChartFocus = 'Focus of incomes chart';
 export const incomeChartFocusHint =
   "Incomes chart can display a category, a single income, or 'All'";
+export const taxChartFocusPerson = 'Focus of tax chart, person';
+export const taxChartFocusPersonHint =
+  "Tax chart can show data pertinent to a named individual or 'All'";
+export const taxChartFocusType = 'Focus of tax chart, type';
+export const taxChartFocusTypeHint =
+  "Tax chart can show data for 'income', 'gain' or 'All'";
+export const taxChartShowNet = 'Tax chart, whether to include net income/gains';
+export const taxChartShowNetHint =
+  "Show net can be 'Y', 'N', 'y', 'n', 'yes', 'no'";
 export const allItems = 'All';
 // Asset chart bars represent the value of the asset
 // or the delta (additions, reductions or both)

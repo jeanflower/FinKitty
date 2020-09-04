@@ -49,6 +49,12 @@ import {
   income,
   net,
   gain,
+  taxChartFocusPerson,
+  taxChartFocusPersonHint,
+  taxChartFocusType,
+  taxChartFocusTypeHint,
+  taxChartShowNet,
+  taxChartShowNetHint,
 } from './localization/stringConstants';
 
 import moment from 'moment';
@@ -137,6 +143,25 @@ export const minimalModel: DbModelData = {
       NAME: incomeChartFocus,
       VALUE: allItems,
       HINT: incomeChartFocusHint,
+      TYPE: viewType,
+    },
+    // tax chart focus added during migration of versions
+    {
+      NAME: taxChartFocusPerson,
+      VALUE: allItems,
+      HINT: taxChartFocusPersonHint,
+      TYPE: viewType,
+    },
+    {
+      NAME: taxChartFocusType,
+      VALUE: allItems,
+      HINT: taxChartFocusTypeHint,
+      TYPE: viewType,
+    },
+    {
+      NAME: taxChartShowNet,
+      VALUE: 'Y',
+      HINT: taxChartShowNetHint,
       TYPE: viewType,
     },
     {
@@ -282,6 +307,54 @@ export function makeCGTTag(person: string) {
 }
 export function makeNetGainTag(person: string) {
   return person + ' ' + gain + ' ' + net;
+}
+export function deconstructTaxTag(
+  tag: string,
+): {
+  isIncome: boolean;
+  isGain: boolean;
+  isIncomeTax: boolean;
+  isNationalInsurance: boolean;
+  isNet: boolean;
+  isCGT: boolean;
+  person: string;
+} {
+  const result = {
+    isIncome: false,
+    isGain: false,
+    isIncomeTax: false,
+    isNationalInsurance: false,
+    isNet: false,
+    isCGT: false,
+    person: '',
+  };
+  let s = tag;
+  if (s.includes(income)) {
+    result.isIncome = true;
+    if (s.includes(incomeTax)) {
+      result.isIncomeTax = true;
+      s = s.substring(0, s.length - incomeTax.length - 1);
+    } else if (s.includes(nationalInsurance)) {
+      result.isNationalInsurance = true;
+      s = s.substring(0, s.length - nationalInsurance.length - 1);
+    } else {
+      result.isNet = true;
+      s = s.substring(0, s.length - net.length - 1);
+    }
+    s = s.substring(0, s.length - income.length - 1);
+  } else {
+    result.isGain = true;
+    if (s.includes(cgt)) {
+      result.isCGT = true;
+      s = s.substring(0, s.length - cgt.length - 1);
+    } else {
+      result.isNet = true;
+      s = s.substring(0, s.length - net.length - 1);
+    }
+    s = s.substring(0, s.length - gain.length - 1);
+  }
+  result.person = s;
+  return result;
 }
 export function makeBooleanFromString(s: string) {
   const result = s === 'T' || s === 't' || s === 'True' || s === 'true';
@@ -823,13 +896,20 @@ export function getCurrentVersion() {
   // return 0; // may not include assets or settings in minimalModel
   // return 1; // may not include expense recurrence, asset/debt,
   //           // asset quantity, transaction and settings types
-  // return 2; // don't use taxPot as an asset
-  return 3;
+  // return 2; // could use taxPot as an asset
+  // return 3; // doesn't include tax view focus settings
+  return 4;
 }
 
+const showMigrationLogs = false;
+
 function migrateOldVersions(modelName: string, model: DbModelDataWithVersion) {
-  // log('in addRequiredEntries');
+  if (showMigrationLogs) {
+    log(`in migrateOldVersions, model has ${model.settings.length} settings`);
+    // log(`in migrateOldVersions, model has ${model.settings.map(showObj)}`);
+  }
   if (model.version === 0) {
+    // log(`in migrateOldVersions at v0, model has ${model.settings.length} settings`);
     // use getMinimalModelCopy and scan over all settings and assets
     const minimalModel = getMinimalModelCopy();
     minimalModel.settings.forEach(x => {
@@ -857,6 +937,11 @@ function migrateOldVersions(modelName: string, model: DbModelDataWithVersion) {
     model.version = 1;
   }
   if (model.version === 1) {
+    if (showMigrationLogs) {
+      log(
+        `in migrateOldVersions at v1, model has ${model.settings.length} settings`,
+      );
+    }
     for (const e of model.expenses) {
       if (e.RECURRENCE === undefined) {
         e.RECURRENCE = '1m';
@@ -883,14 +968,84 @@ function migrateOldVersions(modelName: string, model: DbModelDataWithVersion) {
     model.version = 2;
   }
   if (model.version === 2) {
+    if (showMigrationLogs) {
+      log(
+        `in migrateOldVersions at v2, model has ${model.assets.length} assets`,
+      );
+      log(
+        `${model.assets.map(x => {
+          return x.NAME;
+        })}`,
+      );
+    }
     // remove any asset called taxPot
-    const index = model.assets.findIndex(a => {
+    let index = model.assets.findIndex(a => {
       return a.NAME === taxPot;
     });
     if (index >= 0) {
+      // log(`found taxPot at index = ${index}!`);
+      model.assets.splice(index, 1);
+      // log(
+      //  `${model.assets.map(x => {
+      //    return x.NAME;
+      //  })}`,
+      // );
+      // log(
+      //  `in migrateOldVersions at v2, model now has ${model.assets.length} assets`,
+      // );
+    }
+    index = model.assets.findIndex(a => {
+      return a.NAME === taxPot;
+    });
+    if (index >= 0) {
+      log(`still found taxPot!`);
       model.assets.splice(index, 1);
     }
     model.version = 3;
+  }
+  if (model.version === 3) {
+    if (showMigrationLogs) {
+      log(
+        `in migrateOldVersions at v3, model has ${model.settings.length} settings`,
+      );
+    }
+    if (
+      model.settings.findIndex(x => {
+        return x.NAME === taxChartFocusPerson;
+      }) === -1
+    ) {
+      model.settings.push({
+        NAME: taxChartFocusPerson,
+        VALUE: allItems,
+        HINT: taxChartFocusPersonHint,
+        TYPE: viewType,
+      });
+    }
+    if (
+      model.settings.findIndex(x => {
+        return x.NAME === taxChartFocusType;
+      }) === -1
+    ) {
+      model.settings.push({
+        NAME: taxChartFocusType,
+        VALUE: allItems,
+        HINT: taxChartFocusTypeHint,
+        TYPE: viewType,
+      });
+    }
+    if (
+      model.settings.findIndex(x => {
+        return x.NAME === taxChartShowNet;
+      }) === -1
+    ) {
+      model.settings.push({
+        NAME: taxChartShowNet,
+        VALUE: 'Y',
+        HINT: taxChartShowNetHint,
+        TYPE: viewType,
+      });
+    }
+    model.version = 4;
   }
 
   // should throw immediately to alert of problems
@@ -970,4 +1125,58 @@ export function replaceCategoryWithAssetNames(
   });
   // log(`return from replaceCategoryWithAssetNames with wordsNew = ${showObj(wordsNew)}`);
   return wordsNew;
+}
+
+export function getLiabilityPeople(model: DbModelData): string[] {
+  const liabilityPeople: string[] = [];
+  if (model.assets === undefined) {
+    return [];
+  }
+  // console.log(`model for tax buttons is ${showObj(model)}`);
+  model.assets.forEach(obj => {
+    const words = obj.LIABILITY.split(separator);
+    for (const word of words) {
+      // console.log(`liability word = ${word}`);
+      let person: string | undefined = undefined;
+      if (word.endsWith(cgt)) {
+        person = word.substring(0, word.length - cgt.length);
+      } else if (word.endsWith(incomeTax)) {
+        person = word.substring(0, word.length - incomeTax.length);
+      }
+      if (person !== undefined) {
+        if (
+          liabilityPeople.findIndex(name => {
+            return person === name;
+          }) === -1
+        ) {
+          // console.log(`person = ${person}`);
+          liabilityPeople.push(person);
+        }
+      }
+    }
+  });
+  model.incomes.forEach(obj => {
+    const words = obj.LIABILITY.split(separator);
+    // log(`words = ${words}`);
+    for (const word of words) {
+      // log(`liability word = ${word}`);
+      let person: string | undefined = undefined;
+      if (word.endsWith(nationalInsurance)) {
+        person = word.substring(0, word.length - nationalInsurance.length);
+      } else if (word.endsWith(incomeTax)) {
+        person = word.substring(0, word.length - incomeTax.length);
+      }
+      if (person !== undefined) {
+        if (
+          liabilityPeople.findIndex(name => {
+            return person === name;
+          }) === -1
+        ) {
+          // console.log(`person = ${person}`);
+          liabilityPeople.push(person);
+        }
+      }
+    }
+  });
+  return liabilityPeople;
 }

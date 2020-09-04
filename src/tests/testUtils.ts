@@ -28,6 +28,12 @@ import {
   constType,
   valueFocusDateHint,
   valueFocusDate,
+  taxChartFocusPerson,
+  taxChartFocusPersonHint,
+  taxChartFocusType,
+  taxChartFocusTypeHint,
+  taxChartShowNet,
+  taxChartShowNetHint,
 } from '../localization/stringConstants';
 
 export function setROI(
@@ -77,6 +83,24 @@ export const defaultSettings: DbSetting[] = [
     NAME: incomeChartFocus,
     VALUE: allItems,
     HINT: incomeChartFocusHint,
+  },
+  {
+    NAME: taxChartFocusPerson,
+    VALUE: allItems,
+    HINT: taxChartFocusPersonHint,
+    TYPE: viewType,
+  },
+  {
+    NAME: taxChartFocusType,
+    VALUE: allItems,
+    HINT: taxChartFocusTypeHint,
+    TYPE: viewType,
+  },
+  {
+    NAME: taxChartShowNet,
+    VALUE: 'Y',
+    HINT: taxChartShowNetHint,
+    TYPE: viewType,
   },
   {
     ...simpleSetting,

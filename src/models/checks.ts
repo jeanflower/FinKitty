@@ -44,6 +44,11 @@ import {
   revalueExp,
   revalueSetting,
   taxPot,
+  taxChartFocusType,
+  income,
+  gain,
+  taxChartFocusPerson,
+  taxChartShowNet,
 } from '../localization/stringConstants';
 import {
   DbAsset,
@@ -68,6 +73,7 @@ import {
   isAnExpense,
   getNumberAndWordParts,
   replaceCategoryWithAssetNames,
+  getLiabilityPeople,
 } from '../utils';
 import { getDisplayName } from '../views/tablePages';
 
@@ -1199,6 +1205,46 @@ function checkAssetChartFocus(model: DbModelData) {
     ` or one of the asset names or one of the asset categories (not ${val})`
   );
 }
+function checkTaxChartFocus(model: DbModelData) {
+  // log('checking tax chart focus');
+  const typeVal = getSettings(model.settings, taxChartFocusType, '');
+  if (typeVal !== allItems && typeVal !== income && typeVal !== gain) {
+    return (
+      `Settings for '${taxChartFocusType}' should be '${allItems}'` +
+      ` or '${income}' or '${gain}'`
+    );
+  }
+  const netVal = getSettings(model.settings, taxChartShowNet, '');
+  if (
+    netVal !== 'Y' &&
+    netVal !== 'y' &&
+    netVal !== 'yes' &&
+    netVal !== 'N' &&
+    netVal !== 'n' &&
+    netVal !== 'no'
+  ) {
+    return `Settings for '${taxChartShowNet}' should be 'Y' or 'N'`;
+  }
+  const personVal = getSettings(model.settings, taxChartFocusPerson, '');
+  if (personVal === allItems) {
+    return '';
+  }
+  // if we have a named person, it should be someone named as a liability
+  // on an income or an asset
+  const liabilityPeople = getLiabilityPeople(model);
+  if (
+    liabilityPeople.findIndex(x => {
+      return x === personVal;
+    }) === -1
+  ) {
+    return (
+      `Settings for '${taxChartFocusPerson}' should be one of` +
+      `'${liabilityPeople}' (from assets and incomes)`
+    );
+  }
+  return '';
+}
+
 function checkDebtChartFocus(model: DbModelData) {
   const val = getSettings(model.settings, debtChartFocus, '');
   if (val === allItems) {
@@ -1287,6 +1333,10 @@ export function checkData(model: DbModelData): string {
     return message;
   }
   message = checkIncomeChartFocus(model);
+  if (message.length > 0) {
+    return message;
+  }
+  message = checkTaxChartFocus(model);
   if (message.length > 0) {
     return message;
   }

@@ -19,8 +19,19 @@ import {
   annually,
   monthly,
   birthDate,
+  taxChartFocusPerson,
+  taxChartFocusType,
+  income,
+  gain,
+  taxChartShowNet,
 } from '../localization/stringConstants';
-import { getSettings, log, showObj, printDebug } from '../utils';
+import {
+  getSettings,
+  log,
+  showObj,
+  printDebug,
+  getLiabilityPeople,
+} from '../utils';
 import Button from './reactComponents/Button';
 import {
   assetsChart,
@@ -460,19 +471,175 @@ export function assetsOrDebtsChartDivWithButtons(
   );
 }
 
-export function taxChartDiv(taxChartData: ChartData[], settings: any) {
+function getTaxPerson(model: DbModelData) {
+  if (model.settings.length === 0) {
+    // data not yet loaded
+    return allItems;
+  }
+  const person = getSettings(
+    model.settings,
+    taxChartFocusPerson,
+    allItems, // default fallback
+  );
+  return person;
+}
+
+function getTaxType(model: DbModelData) {
+  if (model.settings.length === 0) {
+    // data not yet loaded
+    return allItems;
+  }
+  const type = getSettings(
+    model.settings,
+    taxChartFocusType,
+    allItems, // default fallback
+  );
+  return type;
+}
+
+function getTaxShowNet(model: DbModelData) {
+  if (model.settings.length === 0) {
+    // data not yet loaded
+    return allItems;
+  }
+  const type = getSettings(
+    model.settings,
+    taxChartShowNet,
+    'Y', // default fallback
+  );
+  return type === 'Y' || type === 'y' || type === 'yes';
+}
+
+function taxButtonList(model: DbModelData) {
+  const liabilityPeople = getLiabilityPeople(model);
+  liabilityPeople.unshift(allItems);
+
+  // console.log(`liablityPeople for tax buttons is ${showObj(liablityPeople)}`);
+  const buttons = liabilityPeople.map(person => (
+    <Button
+      key={person === allItems ? 'All people' : person}
+      action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        e.persist();
+        const forSubmission = {
+          NAME: taxChartFocusPerson,
+          VALUE: person,
+        };
+        editSetting(forSubmission, model);
+      }}
+      title={person === allItems ? 'All people' : person}
+      type={person === getTaxPerson(model) ? 'primary' : 'secondary'}
+      id={`chooseTaxSetting-${person}`}
+    />
+  ));
+  buttons.push(
+    <Button
+      key={'All types'}
+      action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        e.persist();
+        const forSubmission = {
+          NAME: taxChartFocusType,
+          VALUE: allItems,
+        };
+        editSetting(forSubmission, model);
+      }}
+      title={'All types'}
+      type={getTaxType(model) === allItems ? 'primary' : 'secondary'}
+      id={`chooseTaxType-all`}
+    />,
+  );
+  buttons.push(
+    <Button
+      key={'income'}
+      action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        e.persist();
+        const forSubmission = {
+          NAME: taxChartFocusType,
+          VALUE: income,
+        };
+        editSetting(forSubmission, model);
+      }}
+      title={'Income'}
+      type={getTaxType(model) === income ? 'primary' : 'secondary'}
+      id={`chooseTaxType-income`}
+    />,
+  );
+  buttons.push(
+    <Button
+      key={'gain'}
+      action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        e.persist();
+        const forSubmission = {
+          NAME: taxChartFocusType,
+          VALUE: gain,
+        };
+        editSetting(forSubmission, model);
+      }}
+      title={'Gain'}
+      type={getTaxType(model) === gain ? 'primary' : 'secondary'}
+      id={`chooseTaxType-income`}
+    />,
+  );
+  buttons.push(
+    <Button
+      key={'Show net'}
+      action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        e.persist();
+        const forSubmission = {
+          NAME: taxChartShowNet,
+          VALUE: 'Y',
+        };
+        editSetting(forSubmission, model);
+      }}
+      title={'Show net'}
+      type={getTaxShowNet(model) ? 'primary' : 'secondary'}
+      id={`chooseTaxType-showNet`}
+    />,
+  );
+  buttons.push(
+    <Button
+      key={'Hide net'}
+      action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        e.persist();
+        const forSubmission = {
+          NAME: taxChartShowNet,
+          VALUE: 'N',
+        };
+        editSetting(forSubmission, model);
+      }}
+      title={'Hide net'}
+      type={!getTaxShowNet(model) ? 'primary' : 'secondary'}
+      id={`chooseTaxType-hideNet`}
+    />,
+  );
+  return <div role="group">{buttons}</div>;
+}
+export function taxChartDiv(
+  model: DbModelData,
+  taxChartData: ChartData[],
+  settings: any,
+) {
   return (
-    <div>
-      <CanvasJSChart
-        options={{
-          ...settings,
-          data: taxChartData,
-        }}
-      />
-    </div>
+    <CanvasJSChart
+      options={{
+        ...settings,
+        data: taxChartData,
+      }}
+    />
   );
 }
 
+function taxChartDivWithButtons(
+  model: DbModelData,
+  taxChartData: ChartData[],
+  settings: any,
+) {
+  return (
+    <div>
+      {taxButtonList(model)}
+      {taxChartDiv(model, taxChartData, settings)}
+    </div>
+  );
+}
 export function taxDiv(model: DbModelData, taxChartData: ChartData[]) {
   if (!getDisplay(taxView)) {
     return;
@@ -481,7 +648,11 @@ export function taxDiv(model: DbModelData, taxChartData: ChartData[]) {
   return (
     <div>
       {coarseFineList(model)}
-      {taxChartDiv(taxChartData, getDefaultChartSettings(model))}
+      {taxChartDivWithButtons(
+        model,
+        taxChartData,
+        getDefaultChartSettings(model),
+      )}
     </div>
   );
 }

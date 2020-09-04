@@ -84,6 +84,7 @@ export function overviewDiv(
         <div className="row">
           <div className="col">
             {taxChartDiv(
+              model,
               suppressLegend(taxChartData),
               getSmallerChartSettings(model, 'Tax'),
             )}
