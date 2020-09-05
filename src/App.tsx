@@ -910,7 +910,7 @@ export class AppContent extends Component<AppProps, AppState> {
 
   private modelList(modelNames: string[], actionOnSelect: any, idKey: string) {
     if (modelNames.length === 0) {
-      return <div role="group">Loading...</div>;
+      return <div role="group">Loading models...</div>;
     }
     // log(`models = ${models}`)
     const buttons = modelNames.map(model => (
@@ -925,7 +925,13 @@ export class AppContent extends Component<AppProps, AppState> {
         type={idKey !== 'del' && modelName === model ? 'primary' : 'secondary'}
       />
     ));
-    return <div role="group">{buttons}</div>;
+    return (
+      <div role="group">
+        Select an existing model:
+        <br />
+        {buttons}
+      </div>
+    );
   }
 
   private modelListForSelect(modelNames: string[]) {
@@ -1056,7 +1062,6 @@ export class AppContent extends Component<AppProps, AppState> {
             />
             <br />
             <br />
-            Select an existing model
             {this.modelListForSelect(this.state.modelNamesData)}
             <br />
             <CreateModelForm
