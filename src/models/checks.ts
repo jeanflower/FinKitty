@@ -77,13 +77,28 @@ import {
 } from '../utils';
 import { getDisplayName } from '../views/tablePages';
 
+const numberStringCache = new Map<string, boolean>();
+
+// let numCachedResults = 0;
+// let numComputedResults = 0;
 export function isNumberString(input: string) {
   if (input === '' || input === undefined) {
     return false;
   }
+  const numberStringCacheResult = numberStringCache.get(input);
+  if(numberStringCacheResult !== undefined){
+    // numCachedResults = numCachedResults + 1;
+    // log(`cached = ${numCachedResults}, computed = ${numComputedResults}`);
+    return numberStringCacheResult;
+  }
+  // numComputedResults = numComputedResults + 1;
+  // log(`cached = ${numCachedResults}, computed = ${numComputedResults}`);
+
   const re = new RegExp('^[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)$');
   const result = input.replace(re, '');
-  return result === '';
+  const outcome = result === '';
+  numberStringCache.set(input, outcome);
+  return outcome;
 }
 function checkTransactionWords(
   name: string,
