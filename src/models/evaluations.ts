@@ -78,13 +78,20 @@ function parseRecurrenceString(recurrence: string) {
   return result;
 }
 
+// let numCalls = 0;
+
 export function generateSequenceOfDates(
   roi: Interval,
   frequency: string /* e.g. 1m or 1y */,
   addPreDate = false,
 ): Date[] {
+  // numCalls = numCalls + 1;
+  // log(`numCalls = ${numCalls}`);
+
   const result: Date[] = [];
   const freq = parseRecurrenceString(frequency);
+  const mFreq = freq.frequency === monthly;
+  const yFreq = freq.frequency === annually;
 
   if (addPreDate) {
     // add a pre-dates before roi
@@ -101,20 +108,26 @@ export function generateSequenceOfDates(
 
   // now add dates in roi, from start
   let numstepsAdvanced = 0;
-  let thisDate = roi.start;
+  let thisDate = new Date(roi.start);
+  let initialCount;
+  if (mFreq) {
+    initialCount = thisDate.getMonth();
+  } else {
+    initialCount = thisDate.getFullYear();
+  }
+
   while (thisDate < roi.end) {
-    const newDate: Date = new Date(thisDate);
-    result.push(newDate);
+    result.push(thisDate);
 
     // advance thisDate for the next transaction
     const nextDate = new Date(roi.start);
     numstepsAdvanced += freq.count;
-    if (freq.frequency === monthly) {
+    if (mFreq) {
       // log(`monthly dates for ${frequency}`);
-      nextDate.setMonth(nextDate.getMonth() + numstepsAdvanced);
-    } else if (freq.frequency === annually) {
+      nextDate.setMonth(initialCount + numstepsAdvanced);
+    } else if (yFreq) {
       // log(`annual dates for ${frequency}`);
-      nextDate.setFullYear(nextDate.getFullYear() + numstepsAdvanced);
+      nextDate.setFullYear(initialCount + numstepsAdvanced);
     } else {
       throw new Error(`BUG : frequency ${frequency} not understood!`);
     }
@@ -178,13 +191,17 @@ export function sortByDate(arrayOfDatedThings: DatedThing[]) {
     // look for differences between defined / undefined
     // or both defined and one before the other
     if (ad !== undefined && bd === undefined) {
+       // log(`undefined b`);
       result = -1;
     } else if (ad === undefined && bd !== undefined) {
+      // log(`undefined a`);
       result = 1;
     } else if (ad !== undefined && bd !== undefined) {
       if (ad < bd) {
+        // log(`a before b`);
         result = 1;
       } else if (ad > bd) {
+        // log(`b before a`);
         result = -1;
       }
     }
@@ -192,46 +209,58 @@ export function sortByDate(arrayOfDatedThings: DatedThing[]) {
       // dates are equal or both undefined
       // so we need some other way of distinguishing
       // special-case CASH status
-      if (b.name === CASH_ASSET_NAME && a.name !== CASH_ASSET_NAME) {
+      const aIsCash = a.name === CASH_ASSET_NAME;
+      const bIsCash = b.name === CASH_ASSET_NAME;
+      if (bIsCash && !aIsCash) {
+        // log(`b cash`);
         result = -1;
-      } else if (a.name === CASH_ASSET_NAME && b.name !== CASH_ASSET_NAME) {
+      } else if (aIsCash && !bIsCash) {
+        // log(`a cash`);
         result = 1;
       }
     }
     if (result === 0) {
       // dates equal, cash status matches
       // if an asset has started, that's a special case
+      const aIsAssetStart = a.type === momentType.assetStart;
+      const bIsAssetStart = b.type === momentType.assetStart;
       if (
-        a.type === momentType.assetStart &&
-        b.type !== momentType.assetStart
+        aIsAssetStart && !bIsAssetStart
       ) {
+        // log(`a asset start`);
         result = 1;
       } else if (
-        b.type === momentType.assetStart &&
-        a.type !== momentType.assetStart
+        bIsAssetStart &&  !aIsAssetStart
       ) {
+        // log(`b asset start`);
         result = -1;
       }
     }
     if (result === 0) {
       // dates equal, cash status equal, asset-start equal
       // pay attention to whether it's an asset
-      if (a.type === momentType.asset && b.type !== momentType.asset) {
+      const aIsAsset = a.type === momentType.asset;
+      const bIsAsset = b.type === momentType.asset;
+      if (aIsAsset && !bIsAsset) {
+        // log(`a asset`);
         result = 1;
-      } else if (b.type === momentType.asset && a.type !== momentType.asset) {
+      } else if (bIsAsset && !aIsAsset) {
+        // log(`b asset`);
         result = -1;
       }
     }
     if (result === 0) {
+      const aIsCP = a.name.startsWith(crystallizedPension);
+      const bIsCP = b.name.startsWith(crystallizedPension);
       if (
-        a.name.startsWith(crystallizedPension) &&
-        !b.name.startsWith(crystallizedPension)
+        aIsCP && !bIsCP
       ) {
+        // log(`a cpension`);
         return -1;
       } else if (
-        !a.name.startsWith(crystallizedPension) &&
-        b.name.startsWith(crystallizedPension)
+        !aIsCP && bIsCP
       ) {
+        // log(`b cpension`);
         return 1;
       }
     }
@@ -247,12 +276,16 @@ export function sortByDate(arrayOfDatedThings: DatedThing[]) {
         log(`using names to order moments ${a.name}, ${a.type} and ${b.name}`);
       }
       if (a.name < b.name) {
+        // log(`a name`);
         result = 1;
       } else if (a.name > b.name) {
+        // log(`b name`);
         result = -1;
       } else if (a.type < b.type) {
+        // log(`a type`);
         result = 1;
       } else if (a.type > b.type) {
+        // log(`b type`);
         result = -1;
       } else {
         result = 0;
@@ -1454,6 +1487,7 @@ function getRecurrentMoments(
   rOIEndDate: Date,
   recurrence: string,
 ) {
+  // log(`in getRecurrentMoments`);
   let endDate = getTriggerDate(x.END, triggers);
   if (rOIEndDate < endDate) {
     endDate = rOIEndDate;
