@@ -826,16 +826,16 @@ export function getDisplayName(obj: string, type: string) {
   // log(`obj = ${obj}`);
   let result: string;
   if (
-    obj.startsWith(conditional) &&
-    (type === liquidateAsset || type === payOffDebt)
+    (type === liquidateAsset || type === payOffDebt) &&
+    obj.startsWith(conditional)
   ) {
     result = obj.substring(conditional.length, obj.length);
   } else if (
-    obj.startsWith(revalue) &&
     (type === revalueAsset ||
       type === revalueDebt ||
       type === revalueExp ||
-      type === revalueInc)
+      type === revalueInc) &&
+    obj.startsWith(revalue)
   ) {
     result = obj.substring(revalue.length, obj.length);
   } else {
