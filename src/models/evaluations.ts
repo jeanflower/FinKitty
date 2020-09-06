@@ -191,7 +191,7 @@ export function sortByDate(arrayOfDatedThings: DatedThing[]) {
     // look for differences between defined / undefined
     // or both defined and one before the other
     if (ad !== undefined && bd === undefined) {
-       // log(`undefined b`);
+      // log(`undefined b`);
       result = -1;
     } else if (ad === undefined && bd !== undefined) {
       // log(`undefined a`);
@@ -224,14 +224,10 @@ export function sortByDate(arrayOfDatedThings: DatedThing[]) {
       // if an asset has started, that's a special case
       const aIsAssetStart = a.type === momentType.assetStart;
       const bIsAssetStart = b.type === momentType.assetStart;
-      if (
-        aIsAssetStart && !bIsAssetStart
-      ) {
+      if (aIsAssetStart && !bIsAssetStart) {
         // log(`a asset start`);
         result = 1;
-      } else if (
-        bIsAssetStart &&  !aIsAssetStart
-      ) {
+      } else if (bIsAssetStart && !aIsAssetStart) {
         // log(`b asset start`);
         result = -1;
       }
@@ -252,14 +248,10 @@ export function sortByDate(arrayOfDatedThings: DatedThing[]) {
     if (result === 0) {
       const aIsCP = a.name.startsWith(crystallizedPension);
       const bIsCP = b.name.startsWith(crystallizedPension);
-      if (
-        aIsCP && !bIsCP
-      ) {
+      if (aIsCP && !bIsCP) {
         // log(`a cpension`);
         return -1;
-      } else if (
-        !aIsCP && bIsCP
-      ) {
+      } else if (!aIsCP && bIsCP) {
         // log(`b cpension`);
         return 1;
       }

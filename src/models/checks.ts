@@ -86,7 +86,7 @@ export function isNumberString(input: string) {
     return false;
   }
   const numberStringCacheResult = numberStringCache.get(input);
-  if(numberStringCacheResult !== undefined){
+  if (numberStringCacheResult !== undefined) {
     // numCachedResults = numCachedResults + 1;
     // log(`cached = ${numCachedResults}, computed = ${numComputedResults}`);
     return numberStringCacheResult;

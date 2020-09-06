@@ -151,12 +151,12 @@ function getCategorySub(name: string, model: DbModelData) {
 //let numCacheHits = 0;
 //let numComputed = 0;
 function getCategory(
-  name: string, 
+  name: string,
   cache: Map<string, string>,
   model: DbModelData,
 ) {
   const cachedResult = cache.get(name);
-  if(cachedResult !== undefined){
+  if (cachedResult !== undefined) {
     //numCacheHits = numCacheHits + 1;
     //log(`numComputed = ${numComputed}, numCacheHits = ${numCacheHits}`);
     return cachedResult;
@@ -1160,7 +1160,7 @@ export function makeChartDataFromEvaluations(
           expenseNames,
           model,
           categoryCache,
-          );
+        );
         typeDateNameValueMap.set(evaluationType.expense, categories.map);
         expenseNames = [...categories.sources];
       }
@@ -1175,7 +1175,7 @@ export function makeChartDataFromEvaluations(
           incomeNames,
           model,
           categoryCache,
-          );
+        );
         typeDateNameValueMap.set(evaluationType.income, categories.map);
         incomeNames = [...categories.sources];
       }
