@@ -148,16 +148,32 @@ function getCategorySub(name: string, model: DbModelData) {
   return category;
 }
 
-function getCategory(name: string, model: DbModelData) {
+//let numCacheHits = 0;
+//let numComputed = 0;
+function getCategory(
+  name: string, 
+  cache: Map<string, string>,
+  model: DbModelData,
+) {
+  const cachedResult = cache.get(name);
+  if(cachedResult !== undefined){
+    //numCacheHits = numCacheHits + 1;
+    //log(`numComputed = ${numComputed}, numCacheHits = ${numCacheHits}`);
+    return cachedResult;
+  }
+  //numComputed = numComputed + 1;
+  //log(`numComputed = ${numComputed}, numCacheHits = ${numCacheHits}`);
   // log(`get category for ${name}`);
   const words = name.split(separator);
   if (words.length === 0) {
+    cache.set(name, '');
     return '';
   }
   const firstPart = words[0];
   const firstPartCat = getCategorySub(firstPart, model);
   if (words.length === 1) {
     if (firstPartCat !== firstPart) {
+      cache.set(name, firstPartCat);
       return firstPartCat;
     }
   }
@@ -166,16 +182,21 @@ function getCategory(name: string, model: DbModelData) {
     const secondPart = words[1];
     const secondPartCat = getCategorySub(secondPart, model);
     if (secondPartCat !== secondPart) {
-      return firstPart + separator + secondPartCat;
+      const cat = firstPart + separator + secondPartCat;
+      cache.set(name, cat);
+      return cat;
     }
   }
   // maybe use second part? for deltas
   if (words.length > 1) {
     const secondPart = words[1];
     const secondPartCat = getCategorySub(secondPart, model);
-    return firstPartCat + separator + secondPartCat;
+    const cat = firstPartCat + separator + secondPartCat;
+    cache.set(name, cat);
+    return cat;
   }
   // log(`no category for ${name}`);
+  cache.set(name, name);
   return name;
 }
 
@@ -472,6 +493,7 @@ function assignCategories(
   allDates: Date[],
   items: string[],
   model: DbModelData,
+  categoryCache: Map<string, string>,
 ) {
   // log(`categorise these ${items}`);
   const categoryNames = new Set<string>();
@@ -500,7 +522,7 @@ function assignCategories(
         return;
       }
 
-      const category = getCategory(item, model);
+      const category = getCategory(item, categoryCache, model);
       categoryNames.add(category);
       const existingVal = nameValueMap.get(category);
       if (existingVal === undefined) {
@@ -530,6 +552,7 @@ function filterItems(
   allDates: Date[],
   names: string[],
   model: DbModelData,
+  categoryCache: Map<string, string>,
   focus: string,
 ) {
   // log(`filter items by ${focus}`);
@@ -558,7 +581,7 @@ function filterItems(
         return;
       }
 
-      const category = getCategory(item, model);
+      const category = getCategory(item, categoryCache, model);
       // log(`item ${item} has category ${category}`);
 
       if (item === focus || category === focus) {
@@ -763,6 +786,7 @@ export function makeChartDataFromEvaluations(
     todaysSettingValues: Map<string, string>;
   },
 ) {
+  const categoryCache = new Map<string, string>();
   const {
     expenseFocus,
     incomeFocus,
@@ -1003,8 +1027,8 @@ export function makeChartDataFromEvaluations(
           assetNames.indexOf(evaln.name) >= 0) ||
         (debtChartFocusName === allItems &&
           debtNames.indexOf(evaln.name) >= 0) ||
-        getCategory(evaln.name, model) === assetChartFocusName ||
-        getCategory(evaln.name, model) === debtChartFocusName;
+        getCategory(evaln.name, categoryCache, model) === assetChartFocusName ||
+        getCategory(evaln.name, categoryCache, model) === debtChartFocusName;
     }
     if (doIncludeEvaln) {
       // log(`evaln of asset ${showObj(evaln)} for val or delta...`);
@@ -1117,6 +1141,7 @@ export function makeChartDataFromEvaluations(
         allDates,
         assetOrDebtValueSources,
         model,
+        categoryCache,
       );
       if (categories !== undefined) {
         typeDateNameValueMap.set('assetOrDebtFocus', categories.map);
@@ -1134,7 +1159,8 @@ export function makeChartDataFromEvaluations(
           allDates,
           expenseNames,
           model,
-        );
+          categoryCache,
+          );
         typeDateNameValueMap.set(evaluationType.expense, categories.map);
         expenseNames = [...categories.sources];
       }
@@ -1148,7 +1174,8 @@ export function makeChartDataFromEvaluations(
           allDates,
           incomeNames,
           model,
-        );
+          categoryCache,
+          );
         typeDateNameValueMap.set(evaluationType.income, categories.map);
         incomeNames = [...categories.sources];
       }
@@ -1166,6 +1193,7 @@ export function makeChartDataFromEvaluations(
         allDates,
         expenseNames,
         model,
+        categoryCache,
         expenseFocus,
       );
       typeDateNameValueMap.set(evaluationType.expense, focusItems.map);
@@ -1181,6 +1209,7 @@ export function makeChartDataFromEvaluations(
         allDates,
         incomeNames,
         model,
+        categoryCache,
         incomeFocus,
       );
       typeDateNameValueMap.set(evaluationType.income, focusItems.map);
