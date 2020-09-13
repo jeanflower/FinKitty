@@ -260,7 +260,7 @@ export class AddDeleteExpenseForm extends Component<
                   : 'secondary'
               }
               title={'Revalue expense mode'}
-              id="useRevalueInputs"
+              id="useRevalueInputsExpense"
             />
           </div>{' '}
           {/* end col */}

@@ -263,7 +263,7 @@ export class AddDeleteIncomeForm extends Component<
                   : 'secondary'
               }
               title={'Revalue income mode'}
-              id="useRevalueInputs"
+              id="useRevalueInputsIncome"
             />
           </div>{' '}
           {/* end col */}
@@ -580,7 +580,7 @@ DB_TRANSFERRED_STOP
               <Input
                 title="On death, pension transfers to (optional)"
                 type="text"
-                name="transferName"
+                name="transferNameIncome"
                 value={this.state.DB_TRANSFER_TO}
                 placeholder="Enter person to transfer to"
                 onChange={this.handleDbcTransferTo}

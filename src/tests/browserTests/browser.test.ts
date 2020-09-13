@@ -1116,7 +1116,7 @@ describe('Chrome Interaction incomes', () => {
         inputs.contributionAmountPensionIncome,
       ),
       fillInputById(driver, 'incomeaccrual', inputs.incomeaccrual),
-      fillInputById(driver, 'transferName', inputs.transferName),
+      fillInputById(driver, 'transferNameIncome', inputs.transferName),
       fillInputById(driver, 'transferProportion', inputs.transferProportion),
       fillInputById(driver, 'incomegrowth', inputs.incomeGrowth),
       fillInputById(driver, 'incomecpi-grows', inputs.incomecpiGrows),
@@ -1152,7 +1152,7 @@ describe('Chrome Interaction incomes', () => {
     await clearInputByName('contributionSSIncome');
     await clearInputById('contributionAmountPensionIncome');
     await clearInputById('incomeaccrual');
-    await clearInputById('transferName');
+    await clearInputById('transferNameIncome');
     await clearInputById('transferProportion');
     await clearInputById('incomegrowth');
     await clearInputById('incomecpi-grows');
@@ -1206,7 +1206,7 @@ describe('Chrome Interaction incomes', () => {
 
     await clickButton(driver, 'btn-Overview');
     await clickButton(driver, 'btn-Incomes');
-    await clickButton(driver, 'useRevalueInputs');
+    await clickButton(driver, 'useRevalueInputsIncome');
 
     return;
   }
@@ -1540,7 +1540,7 @@ describe('Chrome Interaction incomes', () => {
       message: `added new income ${incomeInputs.name}`,
     });
 
-    await clickButton(driver, 'useRevalueInputs');
+    await clickButton(driver, 'useRevalueInputsIncome');
 
     const revalueInputs = {
       name: 'javaJob1',
@@ -1552,7 +1552,7 @@ describe('Chrome Interaction incomes', () => {
       message: 'added new data', // TODO "added revaluation of income",
     });
 
-    await clickButton(driver, 'useRevalueInputs');
+    await clickButton(driver, 'useRevalueInputsIncome');
 
     await revalueIncome(driver, {
       ...revalueInputs,
@@ -1670,7 +1670,7 @@ describe('Chrome Interaction expenses', () => {
 
     await clickButton(driver, 'btn-Overview');
     await clickButton(driver, 'btn-Expenses');
-    await clickButton(driver, 'useRevalueInputs');
+    await clickButton(driver, 'useRevalueInputsExpense');
 
     return;
   }
@@ -1778,7 +1778,7 @@ describe('Chrome Interaction expenses', () => {
       message: `added new expense`,
     });
 
-    await clickButton(driver, 'useRevalueInputs');
+    await clickButton(driver, 'useRevalueInputsExpense');
 
     const revalueInputs = {
       name: 'broadband',
@@ -1790,7 +1790,7 @@ describe('Chrome Interaction expenses', () => {
       message: 'added new data', // TODO "added revaluation of expense",
     });
 
-    await clickButton(driver, 'useRevalueInputs');
+    await clickButton(driver, 'useRevalueInputsExpense');
 
     await revalueExpense(driver, {
       ...revalueInputs,
@@ -1925,7 +1925,7 @@ describe('Chrome Interaction assets', () => {
       ),
       fillInputById(driver, 'contributionAmount', inputs.employerContribution),
       fillInputById(driver, 'liabilityIC', inputs.liability),
-      fillInputById(driver, 'transferName', inputs.transferName),
+      fillInputById(driver, 'transferNameAsset', inputs.transferName),
     ]);
 
     if (inputs.incomeSource !== '') {
@@ -1960,7 +1960,7 @@ describe('Chrome Interaction assets', () => {
     await clearInputById('contributionAmountPensionAsset');
     await clearInputById('contributionAmount');
     await clearInputById('liabilityIC');
-    await clearInputById('transferName');
+    await clearInputById('transferNameAsset');
 
     await clickButton(driver, 'addPension');
     */

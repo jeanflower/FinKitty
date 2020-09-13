@@ -514,7 +514,7 @@ function taxButtonList(model: DbModelData) {
   const liabilityPeople = getLiabilityPeople(model);
   liabilityPeople.unshift(allItems);
 
-  // console.log(`liablityPeople for tax buttons is ${showObj(liablityPeople)}`);
+  // console.log(`liablityPeople for tax buttons is ${showObj(liabilityPeople)}`);
   const buttons = liabilityPeople.map(person => (
     <Button
       key={person === allItems ? 'All people' : person}

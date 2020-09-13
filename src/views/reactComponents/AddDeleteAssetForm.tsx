@@ -451,7 +451,7 @@ export class AddDeleteAssetForm extends Component<
             <Input
               title="On death, pension transfers to (optional)"
               type="text"
-              name="transferName"
+              name="transferNameAsset"
               value={this.state.DCP_TRANSFER_TO}
               placeholder="Enter person to transfer to"
               onChange={this.handleDcpTransferTo}

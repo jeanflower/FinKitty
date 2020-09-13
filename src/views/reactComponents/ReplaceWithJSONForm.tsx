@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { makeModelFromJSON } from '../../utils';
+import { log, printDebug, makeModelFromJSON } from '../../utils';
 import Input from './Input';
 import { replaceWithModel } from '../../App';
 
@@ -62,11 +62,15 @@ export class ReplaceWithJSONForm extends Component<
   private async replace(e: any) {
     e.preventDefault();
     let modelName = this.props.modelName;
+    // log(`modelName from props is ${modelName}`);
     let JSON = this.state.JSON;
     const i = this.state.JSON.indexOf(`{`);
-    // log(`index of { in ${JSON} is ${i}`);
+    if(printDebug()){
+      log(`index of { in ${JSON} is ${i}`);
+    }
     if (i !== 0) {
       modelName = JSON.substring(0, i);
+      // log(`modelName from JSON is ${modelName}`);
       JSON = JSON.substring(i);
     }
     if (
