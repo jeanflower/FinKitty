@@ -121,3 +121,12 @@ export const defaultSettings: DbSetting[] = [
     HINT: valueFocusDateHint,
   },
 ];
+
+export const emptyModel: DbModelData = {
+  triggers: [],
+  incomes: [],
+  expenses: [],
+  transactions: [],
+  assets: [],
+  settings: [],
+};

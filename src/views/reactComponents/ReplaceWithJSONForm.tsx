@@ -65,7 +65,7 @@ export class ReplaceWithJSONForm extends Component<
     // log(`modelName from props is ${modelName}`);
     let JSON = this.state.JSON;
     const i = this.state.JSON.indexOf(`{`);
-    if(printDebug()){
+    if (printDebug()) {
       log(`index of { in ${JSON} is ${i}`);
     }
     if (i !== 0) {

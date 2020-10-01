@@ -15,7 +15,11 @@ import {
   fillInputByName,
   serverUri,
 } from './browserBaseTypes';
-import { getTestModel01 } from './browserTestData01';
+import {
+  getModelCoarseAndFine,
+  getModelFutureExpense,
+  getTestModel01,
+} from './browserTestData01';
 import { getTestModel02 } from './browserTestData02';
 
 import { WebElement, ThenableWebDriver } from 'selenium-webdriver';
@@ -32,10 +36,6 @@ import {
   allItems,
   roiStart,
 } from '../../localization/stringConstants';
-import {
-  getModelCoarseAndFine,
-  getModelFutureExpense,
-} from '../algoTests/evaluationsAndChart.test';
 
 import webdriver from 'selenium-webdriver';
 import { getThreeChryslerModel } from './threeChrysler';
