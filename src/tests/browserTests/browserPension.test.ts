@@ -29,7 +29,7 @@ describe(testDataModelName, () => {
   }
   const driver = driverSimple;
 
-  it('CIIncomes DB pension inputs', async done => {
+  it('DB pension inputs', async done => {
     await beforeAllWork(
       driver,
       testDataModelName,

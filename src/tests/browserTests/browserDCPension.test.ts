@@ -28,7 +28,7 @@ describe(testDataModelName, () => {
     return;
   }
   const driver = driverSimple;
-  it('CIAssets runTest DC Pension inputs', async done => {
+  it('runTest DC Pension inputs', async done => {
     await beforeAllWork(
       driver,
       testDataModelName,

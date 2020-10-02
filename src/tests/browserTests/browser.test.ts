@@ -54,7 +54,7 @@ describe(testDataModelName, () => {
   }
   const driver = driverSimple;
 
-  it('Should load the home page and get title', () =>
+  it('load the home page and get title', () =>
     new Promise(async resolve => {
       await beforeAllWork(
         driver,
@@ -71,7 +71,7 @@ describe(testDataModelName, () => {
 
   // the page should include a chart
   // (maybe not visible, but loaded in the document)
-  it('CISimple Should show a chart', () =>
+  it('show a chart', () =>
     new Promise(async resolve => {
       await beforeAllWork(
         driver,
@@ -92,7 +92,7 @@ describe(testDataModelName, () => {
       resolve();
     }));
 
-  it('CISimple Check asset chart data extends with bigger roi', async done => {
+  it('Check asset chart data extends with bigger roi', async done => {
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -175,7 +175,7 @@ describe(testDataModelName, () => {
     done();
   });
 
-  it('CISimple Check coarse, categorised, chart data view', async done => {
+  it('Check coarse, categorised, chart data view', async done => {
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -297,7 +297,7 @@ describe(testDataModelName, () => {
     done();
   });
 
-  it('CISimple Check fine, uncategorised, chart data view', async done => {
+  it('Check fine, uncategorised, chart data view', async done => {
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -475,7 +475,7 @@ describe(testDataModelName, () => {
     done();
   });
 
-  it('CISimple Coarse asset view for cash asset, vals, +, -, +- view', async done => {
+  it('Coarse asset view for cash asset, vals, +, -, +- view', async done => {
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -717,7 +717,7 @@ describe(testDataModelName, () => {
     done();
   });
 
-  it('CISimple Fine asset view for selected category, vals', async done => {
+  it('Fine asset view for selected category, vals', async done => {
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -781,7 +781,7 @@ describe(testDataModelName, () => {
     done();
   });
 
-  it('CISimple Navigate headers', async done => {
+  it('Navigate headers', async done => {
     //log(`navigate headers test`);
     await beforeAllWork(
       driver,

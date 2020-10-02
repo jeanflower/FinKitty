@@ -8,13 +8,13 @@ import { DatedThing } from '../../types/interfaces';
 import { makeDateFromString } from '../../utils';
 
 describe('sortByDate', () => {
-  it('sort empty list', () => {
+  it('should sort empty list', () => {
     const arr: DatedThing[] = [];
     sortByDate(arr);
     expect(arr.length).toBe(0);
   });
 
-  it('sort list length 1', () => {
+  it('should sort list length 1', () => {
     const x1: DatedThing = {
       date: makeDateFromString('May 2, 2018 00:00:00'),
       name: 'A',
