@@ -1144,10 +1144,26 @@ function getTestModel01() {
   return model;
 }
 
+function getTestModel02() {
+  const model: DbModelData = {
+    expenses: [],
+    incomes: [],
+    assets: [],
+    transactions: [],
+    settings: [...browserTestSettings],
+    triggers: [],
+  };
+  setSetting(model.settings, roiStart, '1 Jan 2019', constType);
+  setSetting(model.settings, roiEnd, '1 Feb 2019', constType);
+  return model;
+}
+
 function getTestModel(input: string) {
-  // log(`getTestModel making model for ${input}`);
+  log(`getTestModel making model for ${input}`);
   if (input === 'TestModel01') {
     return getTestModel01();
+  } else if (input === 'TestModel02') {
+    return getTestModel02();
   }
 }
 

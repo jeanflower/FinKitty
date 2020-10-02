@@ -20,7 +20,6 @@ import {
   getModelCoarseAndFine,
   getModelFutureExpense,
 } from './browserTestData01';
-import { getTestModel02 } from './browserTestData02';
 
 import { WebElement, ThenableWebDriver } from 'selenium-webdriver';
 import {
@@ -1007,8 +1006,11 @@ describe('Chrome Interaction simple', () => {
       done();
       return;
     }
-    const modelAndRoi = getTestModel02();
-    await beforeAllWork(driver, testDataModelName, modelAndRoi.model);
+    await beforeAllWorkString(
+      driver,
+      testDataModelName,
+      '{"testName":"TestModel02"}',
+    );
 
     await clickButton(driver, 'btn-Overview');
 
@@ -1224,8 +1226,11 @@ describe('Chrome Interaction incomes', () => {
       done();
       return;
     }
-    const modelAndRoi = getTestModel02();
-    await beforeAllWork(driver, testDataModelName, modelAndRoi.model);
+    await beforeAllWorkString(
+      driver,
+      testDataModelName,
+      '{"testName":"TestModel02"}',
+    );
 
     await clickButton(driver, 'btn-Incomes');
 
@@ -1349,8 +1354,11 @@ describe('Chrome Interaction incomes', () => {
       done();
       return;
     }
-    const modelAndRoi = getTestModel02();
-    await beforeAllWork(driver, testDataModelName, modelAndRoi.model);
+    await beforeAllWorkString(
+      driver,
+      testDataModelName,
+      '{"testName":"TestModel02"}',
+    );
 
     await clickButton(driver, 'btn-Incomes');
 
@@ -1538,8 +1546,11 @@ describe('Chrome Interaction incomes', () => {
       done();
       return;
     }
-    const modelAndRoi = getTestModel02();
-    await beforeAllWork(driver, testDataModelName, modelAndRoi.model);
+    await beforeAllWorkString(
+      driver,
+      testDataModelName,
+      '{"testName":"TestModel02"}',
+    );
 
     await clickButton(driver, 'btn-Incomes');
 
@@ -1700,8 +1711,11 @@ describe('Chrome Interaction expenses', () => {
       done();
       return;
     }
-    const modelAndRoi = getTestModel02();
-    await beforeAllWork(driver, testDataModelName, modelAndRoi.model);
+    await beforeAllWorkString(
+      driver,
+      testDataModelName,
+      '{"testName":"TestModel02"}',
+    );
 
     await clickButton(driver, 'btn-Expenses');
 
@@ -1776,8 +1790,11 @@ describe('Chrome Interaction expenses', () => {
       done();
       return;
     }
-    const modelAndRoi = getTestModel02();
-    await beforeAllWork(driver, testDataModelName, modelAndRoi.model);
+    await beforeAllWorkString(
+      driver,
+      testDataModelName,
+      '{"testName":"TestModel02"}',
+    );
 
     await clickButton(driver, 'btn-Expenses');
 
@@ -1994,8 +2011,11 @@ describe('Chrome Interaction assets', () => {
       done();
       return;
     }
-    const modelAndRoi = getTestModel02();
-    await beforeAllWork(driver, testDataModelName, modelAndRoi.model);
+    await beforeAllWorkString(
+      driver,
+      testDataModelName,
+      '{"testName":"TestModel02"}',
+    );
 
     await clickButton(driver, 'btn-Assets');
 
@@ -2069,8 +2089,11 @@ describe('Chrome Interaction assets', () => {
       done();
       return;
     }
-    const modelAndRoi = getTestModel02();
-    await beforeAllWork(driver, testDataModelName, modelAndRoi.model);
+    await beforeAllWorkString(
+      driver,
+      testDataModelName,
+      '{"testName":"TestModel02"}',
+    );
 
     await clickButton(driver, 'btn-Assets');
 
@@ -2126,8 +2149,11 @@ describe('Chrome Interaction assets', () => {
       done();
       return;
     }
-    const modelAndRoi = getTestModel02();
-    await beforeAllWork(driver, testDataModelName, modelAndRoi.model);
+    await beforeAllWorkString(
+      driver,
+      testDataModelName,
+      '{"testName":"TestModel02"}',
+    );
 
     await clickButton(driver, 'btn-Incomes');
 
@@ -2426,8 +2452,11 @@ describe('Chrome Interaction transactions', () => {
       done();
       return;
     }
-    const modelAndRoi = getTestModel02();
-    await beforeAllWork(driver, testDataModelName, modelAndRoi.model);
+    await beforeAllWorkString(
+      driver,
+      testDataModelName,
+      '{"testName":"TestModel02"}',
+    );
 
     await clickButton(driver, 'btn-Assets');
 
@@ -2671,9 +2700,11 @@ describe('Chrome Interaction debts', () => {
       done();
       return;
     }
-    const modelAndRoi = getTestModel02();
-
-    await beforeAllWork(driver, testDataModelName, modelAndRoi.model);
+    await beforeAllWorkString(
+      driver,
+      testDataModelName,
+      '{"testName":"TestModel02"}',
+    );
 
     await clickButton(driver, 'btn-Debts');
 
