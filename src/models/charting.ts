@@ -775,7 +775,7 @@ function generateEvaluationDates(roi: Interval, frequency: string) {
 }
 
 export function makeChartDataFromEvaluations(
-  roi: Interval,
+  //roi: Interval,
   model: DbModelData,
   evaluationsAndVals: {
     evaluations: Evaluation[];
@@ -786,6 +786,17 @@ export function makeChartDataFromEvaluations(
     todaysSettingValues: Map<string, string>;
   },
 ) {
+  const roiStartDate: Date = makeDateFromString(
+    getSettings(model.settings, roiStart, 'Oct 1, 2017'),
+  );
+  const roiEndDate: Date = makeDateFromString(
+    getSettings(model.settings, roiEnd, 'Oct 1, 2022'),
+  );
+  const roi = {
+    start: roiStartDate,
+    end: roiEndDate,
+  };
+
   const categoryCache = new Map<string, string>();
   const {
     expenseFocus,
@@ -1370,17 +1381,6 @@ export function makeChartData(model: DbModelData): DataForView {
     return emptyData;
   }
 
-  const roiStartDate: Date = makeDateFromString(
-    getSettings(model.settings, roiStart, 'Oct 1, 2017'),
-  );
-  const roiEndDate: Date = makeDateFromString(
-    getSettings(model.settings, roiEnd, 'Oct 1, 2022'),
-  );
-  const roi = {
-    start: roiStartDate,
-    end: roiEndDate,
-  };
-
   // log(`roi is ${showObj(roi)}`);
-  return makeChartDataFromEvaluations(roi, model, evaluationsAndVals);
+  return makeChartDataFromEvaluations(model, evaluationsAndVals);
 }

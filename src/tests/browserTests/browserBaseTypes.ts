@@ -1,4 +1,3 @@
-import { DbModelData } from '../../types/interfaces';
 import { log, printDebug } from '../../utils';
 import webdriver, { ThenableWebDriver, Key } from 'selenium-webdriver';
 
@@ -174,7 +173,7 @@ export async function replaceWithTestModel(
   await clickButton(driver, 'btn-clear-alert');
 }
 
-export async function beforeAllWorkString(
+export async function beforeAllWork(
   driver: ThenableWebDriver,
   testDataModelName: string,
   modelString: string,
@@ -218,14 +217,6 @@ export async function beforeAllWorkString(
     await sleep(calcSleep, '--- after model selected');
   }
   await clickButton(driver, 'btn-Home');
-}
-
-export async function beforeAllWork(
-  driver: ThenableWebDriver,
-  testDataModelName: string,
-  model: DbModelData,
-) {
-  return beforeAllWorkString(driver, testDataModelName, JSON.stringify(model));
 }
 
 export async function cleanUpWork(

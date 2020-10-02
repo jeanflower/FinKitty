@@ -176,3 +176,10 @@ export const viewType = 'view';
 export const adjustableType = 'adjustable';
 
 export const EvaluateAllAssets = 'EvaluateAllAssets';
+
+export const TestModel01 = 'TestModel01';
+export const TestModel02 = 'TestModel02';
+export const CoarseAndFine = 'CoarseAndFine';
+export const FutureExpense = 'FutureExpense';
+export const ThreeChryslerModel = 'ThreeChryslerModel';
+export const MinimalModel = 'MinimalModel';

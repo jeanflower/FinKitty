@@ -1,6 +1,5 @@
-import { log, showObj, printDebug, getMinimalModelCopy } from '../../utils';
+import { log, printDebug } from '../../utils';
 import {
-  beforeAllWork,
   cleanUpWork,
   getAssetChartData,
   getDriver,
@@ -14,12 +13,8 @@ import {
   fillInputById,
   fillInputByName,
   serverUri,
-  beforeAllWorkString,
+  beforeAllWork,
 } from './browserBaseTypes';
-import {
-  getModelCoarseAndFine,
-  getModelFutureExpense,
-} from './browserTestData01';
 
 import { WebElement, ThenableWebDriver } from 'selenium-webdriver';
 import {
@@ -34,10 +29,15 @@ import {
   viewDetail,
   allItems,
   roiStart,
+  TestModel01,
+  TestModel02,
+  CoarseAndFine,
+  FutureExpense,
+  ThreeChryslerModel,
+  MinimalModel,
 } from '../../localization/stringConstants';
 
 import webdriver from 'selenium-webdriver';
-import { getThreeChryslerModel } from './threeChrysler';
 
 // Use sleeps to hack page-not-yet-ready issues. TODO : do better - check awaits.
 async function sleep(ms: number, message: string) {
@@ -216,10 +216,10 @@ describe('Chrome Interaction simple', () => {
   const driver = driverSimple;
   it('Should load the home page and get title', () =>
     new Promise(async resolve => {
-      await beforeAllWorkString(
+      await beforeAllWork(
         driver,
         testDataModelName,
-        '{"testName":"TestModel01"}',
+        `{"testName":"${TestModel01}"}`,
       );
 
       if (!doActions) {
@@ -243,10 +243,10 @@ describe('Chrome Interaction simple', () => {
         return;
       }
 
-      await beforeAllWorkString(
+      await beforeAllWork(
         driver,
         testDataModelName,
-        '{"testName":"TestModel01"}',
+        `{"testName":"${TestModel01}"}`,
       );
 
       await clickButton(driver, 'btn-Incomes');
@@ -267,9 +267,11 @@ describe('Chrome Interaction simple', () => {
       done();
       return;
     }
-    const modelAndRoi = getModelFutureExpense();
-
-    await beforeAllWork(driver, testDataModelName, modelAndRoi.model);
+    await beforeAllWork(
+      driver,
+      testDataModelName,
+      `{"testName":"${FutureExpense}"}`,
+    );
 
     let ary = await getAssetChartData(driver);
     //log(`ary = ${showObj(ary)}`);
@@ -352,9 +354,12 @@ describe('Chrome Interaction simple', () => {
       done();
       return;
     }
-    const modelAndRoi = getModelCoarseAndFine();
 
-    await beforeAllWork(driver, testDataModelName, modelAndRoi.model);
+    await beforeAllWork(
+      driver,
+      testDataModelName,
+      `{"testName":"${CoarseAndFine}"}`,
+    );
 
     let ary = await getAssetChartData(driver);
     // writeTestCode(ary);
@@ -477,8 +482,11 @@ describe('Chrome Interaction simple', () => {
       return;
     }
 
-    const modelAndRoi = getModelCoarseAndFine();
-    await beforeAllWork(driver, testDataModelName, modelAndRoi.model);
+    await beforeAllWork(
+      driver,
+      testDataModelName,
+      `{"testName":"${CoarseAndFine}"}`,
+    );
 
     await clickButton(driver, 'btn-Settings');
     await addSetting(driver, {
@@ -652,8 +660,11 @@ describe('Chrome Interaction simple', () => {
   });
 
   it('CISimple Coarse asset view for cash asset, vals, +, -, +- view', async done => {
-    const modelAndRoi = getModelCoarseAndFine();
-    await beforeAllWork(driver, testDataModelName, modelAndRoi.model);
+    await beforeAllWork(
+      driver,
+      testDataModelName,
+      `{"testName":"${CoarseAndFine}"}`,
+    );
 
     // existing value for singleAssetName was allAssets;
     // now overwrite that for cash
@@ -891,8 +902,11 @@ describe('Chrome Interaction simple', () => {
   });
 
   it('CISimple Fine asset view for selected category, vals', async done => {
-    const modelAndRoi = getModelCoarseAndFine();
-    await beforeAllWork(driver, testDataModelName, modelAndRoi.model);
+    await beforeAllWork(
+      driver,
+      testDataModelName,
+      `{"testName":"${CoarseAndFine}"}`,
+    );
 
     await clickButton(driver, 'btn-Settings');
     await addSetting(driver, {
@@ -901,12 +915,7 @@ describe('Chrome Interaction simple', () => {
       message: `added new setting ${viewDetail}`,
     });
 
-    if (printDebug()) {
-      log(`submitted model settings`);
-      log(`model settings = ${showObj(modelAndRoi.model.settings)}`);
-    }
     // log(`submitted model settings`);
-    // log(`model settings = ${showObj(modelAndRoi.model.settings)}`)
 
     await addSetting(driver, {
       name: assetChartFocus,
@@ -962,10 +971,10 @@ describe('Chrome Interaction simple', () => {
       done();
       return;
     }
-    await beforeAllWorkString(
+    await beforeAllWork(
       driver,
       testDataModelName,
-      '{"testName":"TestModel01"}',
+      `{"testName":"${TestModel01}"}`,
     );
 
     await clickButton(driver, 'btn-Home');
@@ -1006,10 +1015,10 @@ describe('Chrome Interaction simple', () => {
       done();
       return;
     }
-    await beforeAllWorkString(
+    await beforeAllWork(
       driver,
       testDataModelName,
-      '{"testName":"TestModel02"}',
+      `{"testName":"${TestModel02}"}`,
     );
 
     await clickButton(driver, 'btn-Overview');
@@ -1226,10 +1235,10 @@ describe('Chrome Interaction incomes', () => {
       done();
       return;
     }
-    await beforeAllWorkString(
+    await beforeAllWork(
       driver,
       testDataModelName,
-      '{"testName":"TestModel02"}',
+      `{"testName":"${TestModel02}"}`,
     );
 
     await clickButton(driver, 'btn-Incomes');
@@ -1354,10 +1363,10 @@ describe('Chrome Interaction incomes', () => {
       done();
       return;
     }
-    await beforeAllWorkString(
+    await beforeAllWork(
       driver,
       testDataModelName,
-      '{"testName":"TestModel02"}',
+      `{"testName":"${TestModel02}"}`,
     );
 
     await clickButton(driver, 'btn-Incomes');
@@ -1546,10 +1555,10 @@ describe('Chrome Interaction incomes', () => {
       done();
       return;
     }
-    await beforeAllWorkString(
+    await beforeAllWork(
       driver,
       testDataModelName,
-      '{"testName":"TestModel02"}',
+      `{"testName":"${TestModel02}"}`,
     );
 
     await clickButton(driver, 'btn-Incomes');
@@ -1711,10 +1720,10 @@ describe('Chrome Interaction expenses', () => {
       done();
       return;
     }
-    await beforeAllWorkString(
+    await beforeAllWork(
       driver,
       testDataModelName,
-      '{"testName":"TestModel02"}',
+      `{"testName":"${TestModel02}"}`,
     );
 
     await clickButton(driver, 'btn-Expenses');
@@ -1790,10 +1799,10 @@ describe('Chrome Interaction expenses', () => {
       done();
       return;
     }
-    await beforeAllWorkString(
+    await beforeAllWork(
       driver,
       testDataModelName,
-      '{"testName":"TestModel02"}',
+      `{"testName":"${TestModel02}"}`,
     );
 
     await clickButton(driver, 'btn-Expenses');
@@ -2011,10 +2020,10 @@ describe('Chrome Interaction assets', () => {
       done();
       return;
     }
-    await beforeAllWorkString(
+    await beforeAllWork(
       driver,
       testDataModelName,
-      '{"testName":"TestModel02"}',
+      `{"testName":"${TestModel02}"}`,
     );
 
     await clickButton(driver, 'btn-Assets');
@@ -2089,10 +2098,10 @@ describe('Chrome Interaction assets', () => {
       done();
       return;
     }
-    await beforeAllWorkString(
+    await beforeAllWork(
       driver,
       testDataModelName,
-      '{"testName":"TestModel02"}',
+      `{"testName":"${TestModel02}"}`,
     );
 
     await clickButton(driver, 'btn-Assets');
@@ -2149,10 +2158,10 @@ describe('Chrome Interaction assets', () => {
       done();
       return;
     }
-    await beforeAllWorkString(
+    await beforeAllWork(
       driver,
       testDataModelName,
-      '{"testName":"TestModel02"}',
+      `{"testName":"${TestModel02}"}`,
     );
 
     await clickButton(driver, 'btn-Incomes');
@@ -2452,10 +2461,10 @@ describe('Chrome Interaction transactions', () => {
       done();
       return;
     }
-    await beforeAllWorkString(
+    await beforeAllWork(
       driver,
       testDataModelName,
-      '{"testName":"TestModel02"}',
+      `{"testName":"${TestModel02}"}`,
     );
 
     await clickButton(driver, 'btn-Assets');
@@ -2700,10 +2709,10 @@ describe('Chrome Interaction debts', () => {
       done();
       return;
     }
-    await beforeAllWorkString(
+    await beforeAllWork(
       driver,
       testDataModelName,
-      '{"testName":"TestModel02"}',
+      `{"testName":"${TestModel02}"}`,
     );
 
     await clickButton(driver, 'btn-Debts');
@@ -2757,8 +2766,11 @@ describe('Chrome Interaction debts', () => {
       done();
       return;
     }
-    const modelAndRoi = getThreeChryslerModel();
-    await beforeAllWork(driver, testDataModelName, modelAndRoi.model);
+    await beforeAllWork(
+      driver,
+      testDataModelName,
+      `{"testName":"${ThreeChryslerModel}"}`,
+    );
 
     await clickButton(driver, 'btn-Settings');
     await addSetting(driver, {
@@ -3120,8 +3132,11 @@ describe('Chrome Interaction debts', () => {
       done();
       return;
     }
-    const modelAndRoi = getThreeChryslerModel();
-    await beforeAllWork(driver, testDataModelName, modelAndRoi.model);
+    await beforeAllWork(
+      driver,
+      testDataModelName,
+      `{"testName":"${ThreeChryslerModel}"}`,
+    );
 
     await clickButton(driver, 'btn-Settings');
     await addSetting(driver, {
@@ -3564,12 +3579,15 @@ describe('Chrome Interaction debts', () => {
       return;
     }
     const modelName = 'Ben and Jerry';
-    const model = getMinimalModelCopy();
 
     jest.setTimeout(1000000); // allow time for all these tests to run
     // log(`go to ensure model ${modelName}`);
 
-    await beforeAllWork(driver, modelName, model);
+    await beforeAllWork(
+      driver,
+      testDataModelName,
+      `{"testName":"${MinimalModel}"}`,
+    );
 
     if (allowExtraSleeps()) {
       await sleep(
@@ -4648,10 +4666,10 @@ describe('Chrome Interaction debts', () => {
       done();
       return;
     }
-    await beforeAllWorkString(
+    await beforeAllWork(
       driver,
       testDataModelName,
-      '{"testName":"TestModel01"}',
+      `{"testName":"${TestModel01}"}`,
     );
 
     await testModelCreation('btn-createMinimalModel');
@@ -4665,10 +4683,10 @@ describe('Chrome Interaction debts', () => {
       done();
       return;
     }
-    await beforeAllWorkString(
+    await beforeAllWork(
       driver,
       testDataModelName,
-      '{"testName":"TestModel01"}',
+      `{"testName":"${TestModel01}"}`,
     );
 
     await testModelCreation('btn-create-Simple-example');
@@ -4682,10 +4700,10 @@ describe('Chrome Interaction debts', () => {
       done();
       return;
     }
-    await beforeAllWorkString(
+    await beforeAllWork(
       driver,
       testDataModelName,
-      '{"testName":"TestModel01"}',
+      `{"testName":"${TestModel01}"}`,
     );
 
     await testModelCreation('btn-clone');
@@ -4795,10 +4813,10 @@ describe('Chrome Interaction debts', () => {
       done();
       return;
     }
-    await beforeAllWorkString(
+    await beforeAllWork(
       driver,
       testDataModelName,
-      '{"testName":"TestModel01"}',
+      `{"testName":"${TestModel01}"}`,
     );
 
     const ex1Name = 'ex1Name';

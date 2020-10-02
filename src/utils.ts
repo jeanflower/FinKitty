@@ -59,12 +59,11 @@ import {
   taxChartFocusTypeHint,
   taxChartShowNet,
   taxChartShowNetHint,
-  revalueAsset,
-  payOffDebt,
   annually,
 } from './localization/stringConstants';
 
 import moment from 'moment';
+import { getTestModel } from './models/exampleModels';
 
 export const minimalModel: DbModelData = {
   assets: [
@@ -833,16 +832,19 @@ export function getTodaysDate(model: DbModelData) {
   }
   return today;
 }
-const simpleSetting: DbSetting = {
+
+export const simpleSetting: DbSetting = {
   NAME: 'NoName',
   VALUE: 'NoValue',
   HINT: 'NoHint',
   TYPE: constType,
 };
-const viewSetting: DbSetting = {
+
+export const viewSetting: DbSetting = {
   ...simpleSetting,
   TYPE: viewType,
 };
+
 export const browserTestSettings: DbSetting[] = [
   {
     ...viewSetting,
@@ -968,203 +970,87 @@ export const simpleTransaction: DbTransaction = {
   TYPE: custom,
 };
 
-function getTestModel01() {
-  const model: DbModelData = {
-    expenses: [
-      {
-        ...simpleExpense,
-        NAME: 'Look after dogs',
-        VALUE: '500',
-        VALUE_SET: '1 April 2018',
-        START: '1 April 2018',
-        END: '2 February 2047',
-        GROWTH: '2',
-        CATEGORY: 'living costs',
-      },
-      {
-        ...simpleExpense,
-        NAME: 'Run car',
-        VALUE: '700',
-        VALUE_SET: '1 April 2018',
-        START: '1 April 2018',
-        END: 'GetRidOfCar',
-        GROWTH: '5',
-        CATEGORY: 'living costs',
-      },
-      {
-        ...simpleExpense,
-        NAME: 'Run house',
-        VALUE: '1300',
-        VALUE_SET: '1 April 2018',
-        START: '1 April 2018',
-        END: '2 February 2099',
-        GROWTH: '2',
-        CATEGORY: 'living costs',
-      },
-    ],
-    incomes: [
-      {
-        ...simpleIncome,
-        NAME: 'Main income',
-        VALUE: '3500',
-        VALUE_SET: '1 March 2018',
-        START: '1 March 2018',
-        END: 'StopMainWork',
-        GROWTH: '2',
-        LIABILITY: `Joe${incomeTax}`,
-      },
-    ],
-    assets: [
-      {
-        ...simpleAsset,
-        NAME: CASH_ASSET_NAME,
-        START: 'December 2017',
-        VALUE: '2000',
-      },
-      {
-        ...simpleAsset,
-        NAME: 'Stocks',
-        START: 'December 2017',
-        VALUE: '4000',
-        GROWTH: 'stockMarketGrowth',
-        CATEGORY: 'stock',
-      },
-      {
-        ...simpleAsset,
-        NAME: 'ISAs',
-        START: 'December 2019',
-        VALUE: '2000',
-        GROWTH: 'stockMarketGrowth',
-        CATEGORY: 'stock',
-      },
-      {
-        ...simpleAsset,
-        NAME: 'EarlyMortgage',
-        START: '1 January 2018',
-        VALUE: '-234000', // how much was borrowed
-        IS_A_DEBT: true,
-        GROWTH: '2.33', // good rate for early part of deal (excl cpi)
-        CATEGORY: 'mortgage',
-        CAN_BE_NEGATIVE: true,
-      },
-      {
-        ...simpleAsset,
-        NAME: 'LateMortgage',
-        START: '1 January 2018',
-        GROWTH: '4.66', // after rate goes up (excl cpi)
-        IS_A_DEBT: true,
-        CATEGORY: 'mortgage',
-      },
-    ],
-    transactions: [
-      {
-        ...simpleTransaction,
-        NAME: 'Each month buy food',
-        FROM: CASH_ASSET_NAME,
-        FROM_VALUE: '200',
-        DATE: 'January 2 2018',
-        RECURRENCE: '1m',
-        CATEGORY: 'living costs',
-      },
-      {
-        ...simpleTransaction,
-        NAME: 'Revalue stocks after loss in 2020 market crash',
-        TO: 'Stocks',
-        TO_ABSOLUTE: true,
-        TO_VALUE: '3000',
-        DATE: 'January 2 2020',
-        TYPE: revalueAsset,
-      },
-      {
-        ...simpleTransaction,
-        NAME: 'SellCar',
-        TO: CASH_ASSET_NAME,
-        TO_ABSOLUTE: true,
-        TO_VALUE: '1000',
-        DATE: 'GetRidOfCar',
-      },
-      {
-        ...simpleTransaction,
-        NAME: 'switchMortgage', // at a predetermined time, rate switched
-        FROM: 'EarlyMortgage',
-        FROM_ABSOLUTE: false,
-        FROM_VALUE: '1', // all of debt at old rate
-        TO: 'LateMortgage',
-        TO_ABSOLUTE: false,
-        TO_VALUE: '1', // becomes all of debt at new rate
-        DATE: 'TransferMortgage',
-      },
-      {
-        ...simpleTransaction,
-        NAME: 'Conditional pay early mortgage',
-        FROM: CASH_ASSET_NAME,
-        FROM_VALUE: '1500', // a regular monthly payment
-        TO: 'EarlyMortgage',
-        TO_ABSOLUTE: false,
-        TO_VALUE: '1', // all of amount paid goes to mortgage
-        DATE: '1 January 2018',
-        STOP_DATE: 'TransferMortgage',
-        RECURRENCE: '1m',
-        CATEGORY: 'pay mortgage',
-        TYPE: payOffDebt,
-      },
-      {
-        ...simpleTransaction,
-        NAME: 'Conditional pay late mortgage',
-        FROM: CASH_ASSET_NAME,
-        FROM_VALUE: '1500',
-        TO: 'LateMortgage',
-        TO_ABSOLUTE: false,
-        TO_VALUE: '1',
-        DATE: 'TransferMortgage',
-        STOP_DATE: '1 January 2040',
-        RECURRENCE: '1m',
-        CATEGORY: 'pay mortgage',
-        TYPE: payOffDebt,
-      },
-    ],
-    settings: [...browserTestSettings],
-    triggers: [
-      {
-        NAME: 'TransferMortgage',
-        DATE: makeDateFromString('Jan 01 2028'),
-      },
-      {
-        NAME: 'StopMainWork',
-        DATE: makeDateFromString('Dec 31 2050'),
-      },
-      {
-        NAME: 'GetRidOfCar',
-        DATE: makeDateFromString('Dec 31 2025'),
-      },
-    ],
-  };
-  setSetting(model.settings, roiStart, '1 Jan 2019', viewType);
-  setSetting(model.settings, roiEnd, '1 Feb 2019', viewType);
-  return model;
-}
+export const emptyModel: DbModelData = {
+  triggers: [],
+  incomes: [],
+  expenses: [],
+  transactions: [],
+  assets: [],
+  settings: [],
+};
+export const defaultSettings: DbSetting[] = [
+  { ...viewSetting, NAME: viewFrequency, VALUE: monthly },
+  { ...viewSetting, NAME: viewDetail, VALUE: fine },
+  { ...viewSetting, NAME: assetChartView, VALUE: assetChartVal },
+  { ...viewSetting, NAME: debtChartView, VALUE: debtChartVal },
+  {
+    ...viewSetting,
+    NAME: assetChartFocus,
+    VALUE: allItems,
+    HINT: assetChartFocusHint,
+  },
+  {
+    ...viewSetting,
+    NAME: debtChartFocus,
+    VALUE: allItems,
+    HINT: debtChartFocusHint,
+  },
+  {
+    ...viewSetting,
+    NAME: expenseChartFocus,
+    VALUE: allItems,
+    HINT: expenseChartFocusHint,
+  },
+  {
+    ...viewSetting,
+    NAME: incomeChartFocus,
+    VALUE: allItems,
+    HINT: incomeChartFocusHint,
+  },
+  {
+    NAME: taxChartFocusPerson,
+    VALUE: allItems,
+    HINT: taxChartFocusPersonHint,
+    TYPE: viewType,
+  },
+  {
+    NAME: taxChartFocusType,
+    VALUE: allItems,
+    HINT: taxChartFocusTypeHint,
+    TYPE: viewType,
+  },
+  {
+    NAME: taxChartShowNet,
+    VALUE: 'Y',
+    HINT: taxChartShowNetHint,
+    TYPE: viewType,
+  },
+  {
+    ...simpleSetting,
+    NAME: cpi,
+    VALUE: '0.0',
+    HINT: cpiHint,
+  },
+  {
+    ...viewSetting,
+    NAME: birthDate,
+    VALUE: '',
+    HINT: birthDateHint,
+  },
+  {
+    ...viewSetting,
+    NAME: valueFocusDate,
+    VALUE: '',
+    HINT: valueFocusDateHint,
+  },
+];
 
-function getTestModel02() {
-  const model: DbModelData = {
-    expenses: [],
-    incomes: [],
-    assets: [],
-    transactions: [],
-    settings: [...browserTestSettings],
-    triggers: [],
-  };
-  setSetting(model.settings, roiStart, '1 Jan 2019', constType);
-  setSetting(model.settings, roiEnd, '1 Feb 2019', constType);
-  return model;
-}
-
-function getTestModel(input: string) {
-  log(`getTestModel making model for ${input}`);
-  if (input === 'TestModel01') {
-    return getTestModel01();
-  } else if (input === 'TestModel02') {
-    return getTestModel02();
-  }
+export function setROI(
+  model: DbModelData,
+  roi: { start: string; end: string },
+) {
+  setSetting(model.settings, roiStart, roi.start, viewType);
+  setSetting(model.settings, roiEnd, roi.end, viewType);
 }
 
 function makeModelFromJSONString(input: string): DbModelDataWithVersion {
@@ -1178,9 +1064,6 @@ function makeModelFromJSONString(input: string): DbModelDataWithVersion {
   if (result.testName !== undefined) {
     // log("this isn't JSON but refers to test data we can look up");
     result = getTestModel(result.testName);
-  } else {
-    // log(`parse model ${input} as JSON`);
-    result;
   }
 
   // log(`loaded model, version =${result.version}`);
@@ -1192,30 +1075,6 @@ function makeModelFromJSONString(input: string): DbModelDataWithVersion {
 
   // log(`result from makeModelFromJSON = ${showObj(result)}`);
   return result;
-}
-
-const map = new Map([
-  [roiEnd, viewType],
-  [roiStart, viewType],
-  [birthDate, viewType],
-  [viewFrequency, viewType],
-  [monthly, viewType],
-  [viewDetail, viewType],
-  [assetChartFocus, viewType],
-  [debtChartFocus, viewType],
-  [expenseChartFocus, viewType],
-  [incomeChartFocus, viewType],
-  [assetChartView, viewType],
-  [debtChartView, viewType],
-  [cpi, constType],
-]);
-
-function getGuessSettingType(name: string) {
-  const mapResult = map.get(name);
-  if (mapResult !== undefined) {
-    return mapResult;
-  }
-  return constType;
 }
 
 // note JSON stringify and back for serialisation is OK but
@@ -1240,6 +1099,30 @@ export function makeCleanedModelFromJSON(input: string) {
 export function getMinimalModelCopy(): DbModelData {
   // log('in getMinimalModelCopy');
   return makeCleanedModelFromJSON(JSON.stringify(minimalModel));
+}
+
+const map = new Map([
+  [roiEnd, viewType],
+  [roiStart, viewType],
+  [birthDate, viewType],
+  [viewFrequency, viewType],
+  [monthly, viewType],
+  [viewDetail, viewType],
+  [assetChartFocus, viewType],
+  [debtChartFocus, viewType],
+  [expenseChartFocus, viewType],
+  [incomeChartFocus, viewType],
+  [assetChartView, viewType],
+  [debtChartView, viewType],
+  [cpi, constType],
+]);
+
+function getGuessSettingType(name: string) {
+  const mapResult = map.get(name);
+  if (mapResult !== undefined) {
+    return mapResult;
+  }
+  return constType;
 }
 
 export function getCurrentVersion() {
