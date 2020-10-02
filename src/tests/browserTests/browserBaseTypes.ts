@@ -146,20 +146,14 @@ export async function replaceWithTestModel(
   testDataModelName: string,
   modelString: string,
 ) {
-  // too slow!
-  //await fillInputByName(driver, 'replaceWithJSON', `${testDataModelName}${JSON.stringify(model)}`);
-
-  // log(`ready to input this modelString ${modelString}`);
-  const inputText = `${testDataModelName}${modelString.replace(/'/g, '')}`;
-  // log(`inputText = ${inputText}`);
-  await driver.executeScript(
-    `document.getElementById('replaceWithJSON').setAttribute('value', '${inputText}')`,
+  await fillInputByName(
+    driver,
+    'replaceWithJSON',
+    `${testDataModelName}${modelString}`,
   );
 
-  // add a character to trigger onChange
   const input = await driver.findElements(webdriver.By.id('replaceWithJSON'));
   expect(input.length === 1).toBe(true);
-  await input[0].sendKeys(' ');
   await input[0].sendKeys(Key.ENTER);
 
   const alert = driver.switchTo().alert();
