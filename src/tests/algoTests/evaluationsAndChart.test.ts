@@ -58,12 +58,6 @@ import {
   DataForView,
   DbModelData,
 } from '../../types/interfaces';
-import {
-  simpleAsset,
-  simpleExpense,
-  simpleIncome,
-  simpleTransaction,
-} from './../../types/simple';
 import { Evaluation } from '../../types/interfaces';
 import {
   getMinimalModelCopy,
@@ -81,6 +75,10 @@ import {
   makeCGTTag,
   makeNetIncomeTag,
   makeNetGainTag,
+  simpleAsset,
+  simpleExpense,
+  simpleIncome,
+  simpleTransaction,
   // showObj,
 } from '../../utils';
 import { getThreeChryslerModel } from '../browserTests/threeChrysler';

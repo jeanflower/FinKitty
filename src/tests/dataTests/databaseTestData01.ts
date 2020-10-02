@@ -40,12 +40,12 @@ import {
   DbTrigger,
 } from '../../types/interfaces';
 import {
+  makeDateFromString,
   simpleAsset,
   simpleExpense,
   simpleIncome,
   simpleTransaction,
-} from '../../types/simple';
-import { makeDateFromString } from '../../utils';
+} from '../../utils';
 
 export const testTriggers01: DbTrigger[] = [
   {

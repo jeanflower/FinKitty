@@ -4,8 +4,7 @@ import {
   constType,
 } from '../../localization/stringConstants';
 import { DbModelData } from '../../types/interfaces';
-import { setSetting } from '../../utils';
-import { browserTestSettings } from './browserBaseTypes';
+import { browserTestSettings, setSetting } from '../../utils';
 
 export function getTestModel02() {
   const model: DbModelData = {

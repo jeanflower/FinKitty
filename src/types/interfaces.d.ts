@@ -145,18 +145,6 @@ export interface DbModelDataWithVersion extends DbModelData {
   version: number;
 }
 
-export const simpleAsset: DbAsset = {
-  NAME: 'NoName',
-  CATEGORY: '',
-  START: '1 Jan 2017',
-  VALUE: '0',
-  GROWTH: '0',
-  CPI_IMMUNE: false,
-  CAN_BE_NEGATIVE: false,
-  LIABILITY: '',
-  PURCHASE_PRICE: '0',
-};
-
 export interface FormProps {
   model: DbModelData;
   showAlert: (string) => void;

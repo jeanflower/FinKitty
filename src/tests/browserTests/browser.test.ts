@@ -14,11 +14,11 @@ import {
   fillInputById,
   fillInputByName,
   serverUri,
+  beforeAllWorkString,
 } from './browserBaseTypes';
 import {
   getModelCoarseAndFine,
   getModelFutureExpense,
-  getTestModel01,
 } from './browserTestData01';
 import { getTestModel02 } from './browserTestData02';
 
@@ -217,8 +217,11 @@ describe('Chrome Interaction simple', () => {
   const driver = driverSimple;
   it('Should load the home page and get title', () =>
     new Promise(async resolve => {
-      const modelAndRoi = getTestModel01();
-      await beforeAllWork(driver, testDataModelName, modelAndRoi.model);
+      await beforeAllWorkString(
+        driver,
+        testDataModelName,
+        '{"testName":"TestModel01"}',
+      );
 
       if (!doActions) {
         resolve();
@@ -241,8 +244,11 @@ describe('Chrome Interaction simple', () => {
         return;
       }
 
-      const modelAndRoi = getTestModel01();
-      await beforeAllWork(driver, testDataModelName, modelAndRoi.model);
+      await beforeAllWorkString(
+        driver,
+        testDataModelName,
+        '{"testName":"TestModel01"}',
+      );
 
       await clickButton(driver, 'btn-Incomes');
 
@@ -957,9 +963,11 @@ describe('Chrome Interaction simple', () => {
       done();
       return;
     }
-    const modelAndRoi = getTestModel01();
-
-    await beforeAllWork(driver, testDataModelName, modelAndRoi.model);
+    await beforeAllWorkString(
+      driver,
+      testDataModelName,
+      '{"testName":"TestModel01"}',
+    );
 
     await clickButton(driver, 'btn-Home');
     await clickButton(driver, 'btn-Overview');
@@ -4609,8 +4617,11 @@ describe('Chrome Interaction debts', () => {
       done();
       return;
     }
-    const modelAndRoi = getTestModel01();
-    await beforeAllWork(driver, testDataModelName, modelAndRoi.model);
+    await beforeAllWorkString(
+      driver,
+      testDataModelName,
+      '{"testName":"TestModel01"}',
+    );
 
     await testModelCreation('btn-createMinimalModel');
 
@@ -4623,8 +4634,11 @@ describe('Chrome Interaction debts', () => {
       done();
       return;
     }
-    const modelAndRoi = getTestModel01();
-    await beforeAllWork(driver, testDataModelName, modelAndRoi.model);
+    await beforeAllWorkString(
+      driver,
+      testDataModelName,
+      '{"testName":"TestModel01"}',
+    );
 
     await testModelCreation('btn-create-Simple-example');
 
@@ -4637,8 +4651,11 @@ describe('Chrome Interaction debts', () => {
       done();
       return;
     }
-    const modelAndRoi = getTestModel01();
-    await beforeAllWork(driver, testDataModelName, modelAndRoi.model);
+    await beforeAllWorkString(
+      driver,
+      testDataModelName,
+      '{"testName":"TestModel01"}',
+    );
 
     await testModelCreation('btn-clone');
 
@@ -4747,8 +4764,11 @@ describe('Chrome Interaction debts', () => {
       done();
       return;
     }
-    const modelAndRoi = getTestModel01();
-    await beforeAllWork(driver, testDataModelName, modelAndRoi.model);
+    await beforeAllWorkString(
+      driver,
+      testDataModelName,
+      '{"testName":"TestModel01"}',
+    );
 
     const ex1Name = 'ex1Name';
     const ex2Name = 'ex2Name';

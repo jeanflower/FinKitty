@@ -1,35 +1,4 @@
-import {
-  allItems,
-  annually,
-  assetChartHint,
-  assetChartVal,
-  assetChartView,
-  birthDate,
-  birthDateHint,
-  CASH_ASSET_NAME,
-  cpi,
-  cpiHint,
-  expenseChartFocus,
-  expenseChartFocusHint,
-  fine,
-  incomeChartFocus,
-  incomeChartFocusHint,
-  roiEnd,
-  roiEndHint,
-  roiStart,
-  roiStartHint,
-  assetChartFocus,
-  assetChartFocusHint,
-  viewDetail,
-  viewDetailHint,
-  viewFrequency,
-  viewFrequencyHint,
-  constType,
-  viewType,
-  valueFocusDate,
-  valueFocusDateHint,
-} from '../../localization/stringConstants';
-import { DbModelData, DbSetting } from '../../types/interfaces';
+import { DbModelData } from '../../types/interfaces';
 import { log, printDebug } from '../../utils';
 import webdriver, { ThenableWebDriver, Key } from 'selenium-webdriver';
 
@@ -44,90 +13,6 @@ export function allowExtraSleeps() {
   // log(`do need extra sleeps to get data`);
   return true;
 }
-const simpleSetting: DbSetting = {
-  NAME: 'NoName',
-  VALUE: 'NoValue',
-  HINT: 'NoHint',
-  TYPE: constType,
-};
-const viewSetting: DbSetting = {
-  ...simpleSetting,
-  TYPE: viewType,
-};
-export const browserTestSettings: DbSetting[] = [
-  {
-    ...viewSetting,
-    NAME: roiStart,
-    VALUE: '1 Jan 2019',
-    HINT: roiStartHint,
-  },
-  {
-    ...viewSetting,
-    NAME: roiEnd,
-    VALUE: '1 Feb 2019',
-    HINT: roiEndHint,
-  },
-  {
-    ...viewSetting,
-    NAME: assetChartView,
-    VALUE: assetChartVal, // could be 'deltas'
-    HINT: assetChartHint,
-  },
-  {
-    ...viewSetting,
-    NAME: viewFrequency,
-    VALUE: annually, // could be 'Monthly'
-    HINT: viewFrequencyHint,
-  },
-  {
-    ...viewSetting,
-    NAME: viewDetail,
-    VALUE: fine, // could be coarse
-    HINT: viewDetailHint,
-  },
-  {
-    ...simpleSetting,
-    NAME: cpi,
-    VALUE: '2.5',
-    HINT: cpiHint,
-  },
-  {
-    ...simpleSetting,
-    NAME: 'stockMarketGrowth',
-    VALUE: '6.236',
-    HINT: 'Custom setting for stock market growth',
-  },
-  {
-    ...viewSetting,
-    NAME: assetChartFocus,
-    VALUE: CASH_ASSET_NAME,
-    HINT: assetChartFocusHint,
-  },
-  {
-    ...viewSetting,
-    NAME: expenseChartFocus,
-    VALUE: allItems,
-    HINT: expenseChartFocusHint,
-  },
-  {
-    ...viewSetting,
-    NAME: incomeChartFocus,
-    VALUE: allItems,
-    HINT: incomeChartFocusHint,
-  },
-  {
-    ...viewSetting,
-    NAME: birthDate,
-    VALUE: '',
-    HINT: birthDateHint,
-  },
-  {
-    ...viewSetting,
-    NAME: valueFocusDate,
-    VALUE: '',
-    HINT: valueFocusDateHint,
-  },
-];
 
 export const serverUri = 'https://localhost:3000/#';
 
@@ -260,15 +145,13 @@ export async function fillInputByName(
 export async function replaceWithTestModel(
   driver: ThenableWebDriver,
   testDataModelName: string,
-  model: DbModelData,
+  modelString: string,
 ) {
   // too slow!
   //await fillInputByName(driver, 'replaceWithJSON', `${testDataModelName}${JSON.stringify(model)}`);
 
-  const inputText = `${testDataModelName}${JSON.stringify(model).replace(
-    /'/g,
-    '',
-  )}`;
+  // log(`ready to input this modelString ${modelString}`);
+  const inputText = `${testDataModelName}${modelString.replace(/'/g, '')}`;
   // log(`inputText = ${inputText}`);
   await driver.executeScript(
     `document.getElementById('replaceWithJSON').setAttribute('value', '${inputText}')`,
@@ -291,14 +174,12 @@ export async function replaceWithTestModel(
   await clickButton(driver, 'btn-clear-alert');
 }
 
-export async function beforeAllWork(
+export async function beforeAllWorkString(
   driver: ThenableWebDriver,
   testDataModelName: string,
-  model: DbModelData,
+  modelString: string,
 ) {
   jest.setTimeout(1000000); // allow time for all these tests to run
-
-  // log(`go to replace with ${JSON.stringify(model)}`);
 
   await driver.get('about:blank');
   await driver.get(serverUri);
@@ -325,7 +206,7 @@ export async function beforeAllWork(
   await clickButton(driver, 'buttonTestLogin');
   await clickButton(driver, 'btn-Home');
 
-  await replaceWithTestModel(driver, testDataModelName, model);
+  await replaceWithTestModel(driver, testDataModelName, modelString);
 
   const btnData = await driver.findElements(webdriver.By.id('buttonTestLogin'));
   if (btnData[0] !== undefined) {
@@ -337,6 +218,14 @@ export async function beforeAllWork(
     await sleep(calcSleep, '--- after model selected');
   }
   await clickButton(driver, 'btn-Home');
+}
+
+export async function beforeAllWork(
+  driver: ThenableWebDriver,
+  testDataModelName: string,
+  model: DbModelData,
+) {
+  return beforeAllWorkString(driver, testDataModelName, JSON.stringify(model));
 }
 
 export async function cleanUpWork(

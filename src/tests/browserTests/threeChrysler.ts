@@ -1,8 +1,7 @@
 import { DbModelData } from '../../types/interfaces';
-import { getMinimalModelCopy } from '../../utils';
+import { getMinimalModelCopy, simpleAsset } from '../../utils';
 import { CASH_ASSET_NAME } from '../../localization/stringConstants';
 import { setROI } from '../testUtils';
-import { simpleAsset } from '../../types/simple';
 
 export function getThreeChryslerModel() {
   const roi = {
