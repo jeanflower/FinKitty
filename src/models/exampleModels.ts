@@ -212,6 +212,7 @@ function getTestModel01() {
       },
     ],
     version: 0,
+    undoModel: undefined,
   };
   setSetting(model.settings, roiStart, '1 Jan 2019', viewType);
   setSetting(model.settings, roiEnd, '1 Feb 2019', viewType);
@@ -227,6 +228,7 @@ function getTestModel02() {
     settings: [...browserTestSettings],
     triggers: [],
     version: 0,
+    undoModel: undefined,
   };
   setSetting(model.settings, roiStart, '1 Jan 2019', constType);
   setSetting(model.settings, roiEnd, '1 Feb 2019', constType);
@@ -321,6 +323,7 @@ export function getModelCoarseAndFine(): DbModelData {
       },
     ],
     version: 0,
+    undoModel: undefined,
   };
 
   setROI(model, roi);
@@ -350,6 +353,7 @@ function getModelFutureExpense() {
     ],
     settings: [...defaultSettings],
     version: 0,
+    undoModel: undefined,
   };
   setROI(model, roi);
   return model;
@@ -394,6 +398,7 @@ export function getThreeChryslerModel(): DbModelData {
       },
     ],
     version: 0,
+    undoModel: undefined,
   };
   model.assets.filter(a => {
     return a.NAME === CASH_ASSET_NAME;
@@ -403,8 +408,8 @@ export function getThreeChryslerModel(): DbModelData {
   return model;
 }
 
-export function getTestModel(input: string) {
-  log(`getTestModel making model for ${input}`);
+export function getTestModel(input: string): DbModelData {
+  // log(`getTestModel making model for ${input}`);
   if (input === TestModel01) {
     return getTestModel01();
   } else if (input === TestModel02) {
@@ -418,4 +423,5 @@ export function getTestModel(input: string) {
   } else if (input === MinimalModel) {
     return getMinimalModelCopy();
   }
+  throw new Error('test model name not recognised');
 }

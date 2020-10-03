@@ -125,7 +125,12 @@ export class RESTDB implements DbInterface {
     const urlencoded = new URLSearchParams();
     urlencoded.append('userID', userID);
     urlencoded.append('modelName', modelName);
-    urlencoded.append('model', JSON.stringify(model));
+    // before save to DB, discard undo stack
+    const modelCopy = {
+      ...model,
+    }
+    delete modelCopy.undoModel;
+    urlencoded.append('model', JSON.stringify(modelCopy));
 
     // console.log(`update DB for user ${userID}`);
     // console.log(`update DB for modelName ${modelName}`);

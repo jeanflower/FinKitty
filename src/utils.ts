@@ -252,6 +252,7 @@ export const minimalModel: DbModelData = {
   ],
   transactions: [],
   version: getCurrentVersion(),
+  undoModel: undefined,
 };
 
 export function getMinimalModelCopy(): DbModelData {
@@ -300,7 +301,7 @@ function migrateOldVersions(model: DbModelData) {
           return existing.NAME === x.NAME;
         }).length === 0
       ) {
-        // log(`${modelName} needs insertion of missing data ${showObj(x)}`);
+        // log(`model needs insertion of missing data ${showObj(x)}`);
         model.settings.push(x);
         // throw new Error(`inserting missing data ${showObj(x)}`);
       }
@@ -1212,6 +1213,7 @@ export const emptyModel: DbModelData = {
   assets: [],
   settings: [],
   version: 0,
+  undoModel: undefined,
 };
 export const defaultSettings: DbSetting[] = [
   { ...viewSetting, NAME: viewFrequency, VALUE: monthly },
@@ -1412,4 +1414,25 @@ export function getLiabilityPeople(model: DbModelData): string[] {
     }
   });
   return liabilityPeople;
+}
+
+export function markForUndo(model: DbModelData){
+  const modelClone = makeModelFromJSON(JSON.stringify(model));
+  model.undoModel = modelClone;
+}
+export function convertToUndoModel(model: DbModelData): boolean{
+  if(model.undoModel !== undefined){
+    const tmpModel = model.undoModel;
+    model.assets = [];
+    model.expenses = [];
+    model.incomes = [];
+    model.settings = [];
+    model.transactions = [];
+    model.triggers = [];
+    model.undoModel = undefined;
+    model.version = 0;
+    Object.assign(model, tmpModel);
+    return true;
+  }
+  return false;
 }
