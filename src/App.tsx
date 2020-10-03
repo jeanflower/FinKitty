@@ -485,10 +485,19 @@ export async function refreshData(goToDB = true) {
 }
 
 export async function submitAsset(assetInput: DbAsset, modelData: DbModelData) {
-  await submitAssetLSM(assetInput, modelName, modelData, getUserID());
-  return await refreshData(
-    true, // gotoDB
+  const message = await submitAssetLSM(
+    assetInput, 
+    modelName, 
+    modelData, 
+    getUserID(),
   );
+  if(message === ''){
+    return await refreshData(
+      true, // gotoDB
+    );
+  } else {
+    showAlert(message);
+  }
 }
 export async function submitExpense(
   expenseInput: DbExpense,

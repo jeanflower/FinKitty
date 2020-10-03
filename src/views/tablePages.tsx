@@ -301,13 +301,7 @@ function handleAssetGridRowsUpdated(
       PURCHASE_PRICE: parsedPurchasePrice,
       CATEGORY: asset.CATEGORY,
     };
-    const checks = checkAsset(assetForSubmission, model);
-    if (checks === '') {
-      submitAsset(assetForSubmission, model);
-    } else {
-      showAlert(checks);
-      asset[args[0].cellKey] = oldValue;
-    }
+    submitAsset(assetForSubmission, model);
   }
 }
 

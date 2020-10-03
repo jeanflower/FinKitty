@@ -9,13 +9,14 @@ import {
   DbModelData,
 } from '../types/interfaces';
 
-import { log, printDebug, showObj, minimalModel } from '../utils';
+import { log, printDebug, showObj, minimalModel, markForUndo, convertToUndoModel } from '../utils';
 
 import { getDB } from './database';
 
 import { adjustableType } from '../localization/stringConstants';
 
 import { diffModels } from '../diffModels';
+import { checkData } from '../models/checks';
 
 const showDBInteraction = false;
 const validateCache = false;
@@ -297,12 +298,21 @@ export async function submitAssetLSM(
   modelName: string,
   modelData: DbModelData,
   userID: string,
-) {
+): Promise<string> {
   if (printDebug()) {
     log(`in submitAsset with input : ${showObj(assetInput)}`);
   }
+  markForUndo(modelData);
   updateItemList(modelData.assets, assetInput);
+
+  const checkResult = checkData(modelData);
+  if(checkResult !== ''){
+    convertToUndoModel(modelData);
+    return checkResult;
+  }
+
   await saveModelLSM(userID, modelName, modelData);
+  return '';
 }
 
 export async function submitTransactionLSM(
