@@ -17,7 +17,7 @@ interface CreateModelFormProps {
     name: string;
     model: string;
   }[];
-  getExampleModel: (newName: string, JSONdata: string) => DbModelData;
+  getExampleModel: (JSONdata: string) => DbModelData;
   getModelNames: (userID: string) => Promise<string[]>;
 }
 
@@ -57,7 +57,7 @@ export class CreateModelForm extends Component<
         <Button
           action={async () => {
             return this.copyModel(
-              this.props.getExampleModel(this.state.newName, x.model),
+              this.props.getExampleModel(x.model),
             );
           }}
           title={`Create ${x.name} example`}
