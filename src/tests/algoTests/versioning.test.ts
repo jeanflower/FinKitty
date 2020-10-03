@@ -39,14 +39,14 @@ describe('loadModelsFromJSON', () => {
   });
   it('migrateModelMustHaveCash', () => {
     const jsonString = emptyModelJSON;
-    const model = makeModelFromJSON('testModel', jsonString);
+    const model = makeModelFromJSON(jsonString);
     expect(model.assets.length).toBe(1);
     expect(model.assets[0].NAME).toEqual(CASH_ASSET_NAME);
   });
   it('migrateModelfromv1', () => {
     const jsonString = v1ModelJSON;
     const plainModel = makeCleanedModelFromJSON(jsonString);
-    const model = makeModelFromJSON('testModel', jsonString);
+    const model = makeModelFromJSON(jsonString);
 
     // will include expense recurrence, asset/debt,
     // asset quantity, transaction and settings types
@@ -74,7 +74,7 @@ describe('loadModelsFromJSON', () => {
   });
   it('migrateModelfromv2', () => {
     const jsonString = v2ModelJSON;
-    const model2 = makeModelFromJSON('testModel', jsonString);
+    const model2 = makeModelFromJSON(jsonString);
     const index = model2.assets.find(a => {
       return a.NAME === taxPot;
     });
@@ -83,7 +83,7 @@ describe('loadModelsFromJSON', () => {
 
   it('migrateModelfromv3', () => {
     const jsonString = v3ModelJSON;
-    const model = makeModelFromJSON('testModel', jsonString);
+    const model = makeModelFromJSON(jsonString);
     // after loading, the taxChart settings have been added
     const taxChartType: string = getSettings(
       model.settings,
@@ -103,7 +103,7 @@ describe('loadModelsFromJSON', () => {
   // current version loads
   it('migrateModelfromv4', () => {
     const jsonString = v4ModelJSON;
-    const model = makeModelFromJSON('testModel', jsonString);
+    const model = makeModelFromJSON(jsonString);
     expect(checkData(model).length).toEqual(0);
   });
 
@@ -112,7 +112,7 @@ describe('loadModelsFromJSON', () => {
     const jsonString = v5ModelJSON;
     let foundError = '';
     try {
-      makeModelFromJSON('testModel', jsonString);
+      makeModelFromJSON(jsonString);
     } catch (e) {
       foundError = e.message;
     }

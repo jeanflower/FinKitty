@@ -285,7 +285,7 @@ function getGuessSettingType(name: string) {
 
 const showMigrationLogs = false;
 
-function migrateOldVersions(modelName: string, model: DbModelData) {
+function migrateOldVersions(model: DbModelData) {
   if (showMigrationLogs) {
     log(`in migrateOldVersions, model has ${model.settings.length} settings`);
     // log(`in migrateOldVersions, model has ${model.settings.map(showObj)}`);
@@ -1289,12 +1289,11 @@ export function setROI(
 }
 
 export function makeModelFromJSON(
-  modelName: string,
   input: string,
 ): DbModelData {
   // log('in makeModelFromJSON');
   const model: DbModelData = makeModelFromJSONString(input);
-  migrateOldVersions(modelName, model);
+  migrateOldVersions(model);
   return cleanUpDates(model);
 }
 

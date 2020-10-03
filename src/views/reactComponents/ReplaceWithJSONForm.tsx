@@ -76,7 +76,7 @@ export class ReplaceWithJSONForm extends Component<
     if (
       window.confirm(`will replace if ${modelName} already exists, you sure?`)
     ) {
-      const newModel = makeModelFromJSON(modelName, JSON);
+      const newModel = makeModelFromJSON(JSON);
       replaceWithModel(this.props.userID, modelName, newModel, false);
       this.props.showAlert('replaced data OK');
       this.setState({ JSON: '' });

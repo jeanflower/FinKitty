@@ -300,8 +300,8 @@ function getUserID() {
   return userID;
 }
 
-function getExampleModel(modelName: string, modelString: string) {
-  return makeModelFromJSON(modelName, modelString);
+function getExampleModel(modelString: string) {
+  return makeModelFromJSON(modelString);
 }
 
 function showAlert(text: string) {
@@ -349,14 +349,14 @@ export async function refreshData(goToDB = true) {
             return await saveModelLSM(
               getUserID(),
               x.name,
-              getExampleModel(modelName, x.model),
+              getExampleModel(x.model),
             );
           }),
         );
         modelNames = exampleModels.map(x => {
           return x.name;
         });
-        model = getExampleModel(modelName, simpleExampleData);
+        model = getExampleModel(simpleExampleData);
         modelName = exampleModelName;
       }
     } else {
@@ -1000,7 +1000,7 @@ export class AppContent extends Component<AppProps, AppState> {
         await saveModelLSM(
           getUserID(),
           modelName,
-          makeModelFromJSON(modelName, simpleExampleData),
+          makeModelFromJSON(simpleExampleData),
         );
       } else {
         modelName = modelNames.sort()[0];
@@ -1020,7 +1020,7 @@ export class AppContent extends Component<AppProps, AppState> {
     const currentData = JSON.stringify(fromModel);
     const updatedOK = await updateModelName(name);
     if (updatedOK) {
-      const newModel = makeModelFromJSON(modelName, currentData);
+      const newModel = makeModelFromJSON(currentData);
       const replacedOK = await replaceWithModel(
         undefined,
         modelName,
@@ -1131,7 +1131,6 @@ export class AppContent extends Component<AppProps, AppState> {
                     showAlert('could not decode this data');
                   } else {
                     const decipheredModel = makeModelFromJSON(
-                      modelName,
                       decipherString,
                     );
                     const response = checkModelData(decipheredModel);

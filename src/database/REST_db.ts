@@ -73,7 +73,7 @@ export class RESTDB implements DbInterface {
           // console.log(`result has ${JSON.parse(result).assets.length} assets`);
           try {
             //log('make model from REST data');
-            resolve(makeModelFromJSON(modelName, result));
+            resolve(makeModelFromJSON(result));
           } catch (err) {
             reject('no model found');
           }
