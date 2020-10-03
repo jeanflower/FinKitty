@@ -8,6 +8,7 @@ import {
   clickButton,
   beforeAllWork,
 } from './browserBaseTypes';
+// import { log } from './../../utils';
 
 import { WebElement } from 'selenium-webdriver';
 import {
@@ -81,11 +82,20 @@ describe(testDataModelName, () => {
 
       await clickButton(driver, 'btn-Incomes');
 
-      const chartID = 'canvasjs-react-chart-container-10'; // nth chart drawn?
-      // log(`check for chart ${chartID}`);
-      const elts: WebElement[] = await driver.findElements({ id: chartID });
-      expect(elts.length === 1).toBe(true);
-      expect(elts[0] !== undefined).toBe(true);
+      let foundChart = false;
+      const chartNumber = 0;
+      while (chartNumber < 15) {
+        const chartID = `canvasjs-react-chart-container-${chartNumber}`; // nth chart drawn?
+        // log(`check for chart ${chartID}`);
+        const elts: WebElement[] = await driver.findElements({ id: chartID });
+        if (elts.length === 1) {
+          //log(`found chart ${chartNumber}`);
+          expect(elts[0] !== undefined).toBe(true);
+          foundChart = true;
+          break;
+        }
+      }
+      expect(foundChart);
 
       await cleanUpWork(driver, testDataModelName);
 

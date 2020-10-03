@@ -2,7 +2,6 @@ import {
   DbSetting,
   DbTrigger,
   DbModelData,
-  DbModelDataWithVersion,
   DbAsset,
   DbExpense,
   DbIncome,
@@ -64,6 +63,74 @@ import {
 
 import moment from 'moment';
 import { getTestModel } from './models/exampleModels';
+
+let doLog = true;
+export function log(obj: any) {
+  if (doLog) {
+    /* eslint-disable no-console */ // all console calls routed through here
+    // tslint:disable-next-line:no-console
+    console.log(obj);
+    /* eslint-enable no-console */
+  }
+}
+export function suppressLogs() {
+  doLog = false;
+}
+export function unSuppressLogs() {
+  doLog = true;
+}
+
+export function getCurrentVersion() {
+  // return 0; // may not include assets or settings in minimalModel
+  // return 1; // may not include expense recurrence, asset/debt,
+  //           // asset quantity, transaction and settings types
+  // return 2; // could use taxPot as an asset
+  // return 3; // doesn't include tax view focus settings
+  return 4;
+}
+
+function makeModelFromJSONString(input: string): DbModelData {
+  const matches = input.match(/PensionDBC/g);
+  if (matches !== null && matches.length > 0) {
+    log(`Old string 'PensionDBC' in loaded data!!`);
+  }
+
+  let result = JSON.parse(input);
+  // log(`parsed JSON and found ${showObj(result)}`);
+  if (result.testName !== undefined) {
+    // log("this isn't JSON but refers to test data we can look up");
+    result = getTestModel(result.testName);
+  }
+
+  // log(`loaded model, version =${result.version}`);
+
+  if (result.version === undefined) {
+    // log(`missing version, setting as 0`);
+    result.version = 0;
+  }
+
+  // log(`result from makeModelFromJSON = ${showObj(result)}`);
+  return result;
+}
+
+// note JSON stringify and back for serialisation is OK but
+// breaks dates (and functions too but we don't have these)
+function cleanUpDates(modelFromJSON: DbModelData): DbModelData {
+  const result = modelFromJSON;
+  for (const t of result.triggers) {
+    //log(`type of ${t.DATE} = ${typeof t.DATE}`);
+    t.DATE = new Date(t.DATE);
+    //log(`type of ${t.DATE} = ${typeof t.DATE}`);
+  }
+  // log(`cleaned up model assets ${showObj(result.assets)}`);
+  return result;
+}
+
+export function makeCleanedModelFromJSON(input: string) {
+  // log('in makeCleanedModelFromJSON');
+  const model: DbModelData = makeModelFromJSONString(input);
+  return cleanUpDates(model);
+}
 
 export const minimalModel: DbModelData = {
   assets: [
@@ -184,7 +251,190 @@ export const minimalModel: DbModelData = {
     },
   ],
   transactions: [],
+  version: getCurrentVersion(),
 };
+
+export function getMinimalModelCopy(): DbModelData {
+  // log('in getMinimalModelCopy');
+  return makeCleanedModelFromJSON(JSON.stringify(minimalModel));
+}
+
+const map = new Map([
+  [roiEnd, viewType],
+  [roiStart, viewType],
+  [birthDate, viewType],
+  [viewFrequency, viewType],
+  [monthly, viewType],
+  [viewDetail, viewType],
+  [assetChartFocus, viewType],
+  [debtChartFocus, viewType],
+  [expenseChartFocus, viewType],
+  [incomeChartFocus, viewType],
+  [assetChartView, viewType],
+  [debtChartView, viewType],
+  [cpi, constType],
+]);
+
+function getGuessSettingType(name: string) {
+  const mapResult = map.get(name);
+  if (mapResult !== undefined) {
+    return mapResult;
+  }
+  return constType;
+}
+
+const showMigrationLogs = false;
+
+function migrateOldVersions(modelName: string, model: DbModelData) {
+  if (showMigrationLogs) {
+    log(`in migrateOldVersions, model has ${model.settings.length} settings`);
+    // log(`in migrateOldVersions, model has ${model.settings.map(showObj)}`);
+  }
+  if (model.version === 0) {
+    // log(`in migrateOldVersions at v0, model has ${model.settings.length} settings`);
+    // use getMinimalModelCopy and scan over all settings and assets
+    const minimalModel = getMinimalModelCopy();
+    minimalModel.settings.forEach(x => {
+      if (
+        model.settings.filter(existing => {
+          return existing.NAME === x.NAME;
+        }).length === 0
+      ) {
+        // log(`${modelName} needs insertion of missing data ${showObj(x)}`);
+        model.settings.push(x);
+        // throw new Error(`inserting missing data ${showObj(x)}`);
+      }
+    });
+    minimalModel.assets.forEach(x => {
+      if (
+        model.assets.filter(existing => {
+          return existing.NAME === x.NAME;
+        }).length === 0
+      ) {
+        //log(`inserting missing data ${showObj(x)}`);
+        model.assets.push(x);
+        // throw new Error(`inserting missing data ${showObj(x)}`);
+      }
+    });
+    model.version = 1;
+  }
+  if (model.version === 1) {
+    if (showMigrationLogs) {
+      log(
+        `in migrateOldVersions at v1, model has ${model.settings.length} settings`,
+      );
+    }
+    for (const e of model.expenses) {
+      if (e.RECURRENCE === undefined) {
+        e.RECURRENCE = '1m';
+      }
+    }
+    for (const a of model.assets) {
+      if (a.IS_A_DEBT === undefined) {
+        a.IS_A_DEBT = false;
+      }
+      if (a.QUANTITY === undefined) {
+        a.QUANTITY = '';
+      }
+    }
+    for (const t of model.transactions) {
+      if (t.TYPE === undefined) {
+        t.TYPE = custom;
+      }
+    }
+    for (const s of model.settings) {
+      if (s.TYPE === undefined) {
+        s.TYPE = getGuessSettingType(s.NAME);
+      }
+    }
+    model.version = 2;
+  }
+  if (model.version === 2) {
+    if (showMigrationLogs) {
+      log(
+        `in migrateOldVersions at v2, model has ${model.assets.length} assets`,
+      );
+      log(
+        `${model.assets.map(x => {
+          return x.NAME;
+        })}`,
+      );
+    }
+    // remove any asset called taxPot
+    let index = model.assets.findIndex(a => {
+      return a.NAME === taxPot;
+    });
+    if (index >= 0) {
+      // log(`found taxPot at index = ${index}!`);
+      model.assets.splice(index, 1);
+      // log(
+      //  `${model.assets.map(x => {
+      //    return x.NAME;
+      //  })}`,
+      // );
+      // log(
+      //  `in migrateOldVersions at v2, model now has ${model.assets.length} assets`,
+      // );
+    }
+    index = model.assets.findIndex(a => {
+      return a.NAME === taxPot;
+    });
+    if (index >= 0) {
+      log(`still found taxPot!`);
+      model.assets.splice(index, 1);
+    }
+    model.version = 3;
+  }
+  if (model.version === 3) {
+    if (showMigrationLogs) {
+      log(
+        `in migrateOldVersions at v3, model has ${model.settings.length} settings`,
+      );
+    }
+    if (
+      model.settings.findIndex(x => {
+        return x.NAME === taxChartFocusPerson;
+      }) === -1
+    ) {
+      model.settings.push({
+        NAME: taxChartFocusPerson,
+        VALUE: allItems,
+        HINT: taxChartFocusPersonHint,
+        TYPE: viewType,
+      });
+    }
+    if (
+      model.settings.findIndex(x => {
+        return x.NAME === taxChartFocusType;
+      }) === -1
+    ) {
+      model.settings.push({
+        NAME: taxChartFocusType,
+        VALUE: allItems,
+        HINT: taxChartFocusTypeHint,
+        TYPE: viewType,
+      });
+    }
+    if (
+      model.settings.findIndex(x => {
+        return x.NAME === taxChartShowNet;
+      }) === -1
+    ) {
+      model.settings.push({
+        NAME: taxChartShowNet,
+        VALUE: 'Y',
+        HINT: taxChartShowNetHint,
+        TYPE: viewType,
+      });
+    }
+    model.version = 4;
+  }
+
+  // should throw immediately to alert of problems
+  if (model.version !== getCurrentVersion()) {
+    throw new Error('code not properly handling versions');
+  }
+}
 
 export function lessThan(a: string, b: string) {
   if (a.toLowerCase() < b.toLowerCase()) {
@@ -232,22 +482,6 @@ export function showObj(obj: any) {
 
 export function endOfTime() {
   return makeDateFromString('2100');
-}
-
-let doLog = true;
-export function log(obj: any) {
-  if (doLog) {
-    /* eslint-disable no-console */ // all console calls routed through here
-    // tslint:disable-next-line:no-console
-    console.log(obj);
-    /* eslint-enable no-console */
-  }
-}
-export function suppressLogs() {
-  doLog = false;
-}
-export function unSuppressLogs() {
-  doLog = true;
 }
 
 export function getNumberAndWordParts(
@@ -977,6 +1211,7 @@ export const emptyModel: DbModelData = {
   transactions: [],
   assets: [],
   settings: [],
+  version: 0,
 };
 export const defaultSettings: DbSetting[] = [
   { ...viewSetting, NAME: viewFrequency, VALUE: monthly },
@@ -1053,246 +1288,12 @@ export function setROI(
   setSetting(model.settings, roiEnd, roi.end, viewType);
 }
 
-function makeModelFromJSONString(input: string): DbModelDataWithVersion {
-  const matches = input.match(/PensionDBC/g);
-  if (matches !== null && matches.length > 0) {
-    log(`Old string 'PensionDBC' in loaded data!!`);
-  }
-
-  let result = JSON.parse(input);
-  // log(`parsed JSON and found ${showObj(result)}`);
-  if (result.testName !== undefined) {
-    // log("this isn't JSON but refers to test data we can look up");
-    result = getTestModel(result.testName);
-  }
-
-  // log(`loaded model, version =${result.version}`);
-
-  if (result.version === undefined) {
-    // log(`missing version, setting as 0`);
-    result.version = 0;
-  }
-
-  // log(`result from makeModelFromJSON = ${showObj(result)}`);
-  return result;
-}
-
-// note JSON stringify and back for serialisation is OK but
-// breaks dates (and functions too but we don't have these)
-function cleanUpDates(modelFromJSON: DbModelDataWithVersion): DbModelData {
-  const result = modelFromJSON;
-  for (const t of result.triggers) {
-    //log(`type of ${t.DATE} = ${typeof t.DATE}`);
-    t.DATE = new Date(t.DATE);
-    //log(`type of ${t.DATE} = ${typeof t.DATE}`);
-  }
-  // log(`cleaned up model assets ${showObj(result.assets)}`);
-  return result;
-}
-
-export function makeCleanedModelFromJSON(input: string) {
-  // log('in makeCleanedModelFromJSON');
-  const model: DbModelDataWithVersion = makeModelFromJSONString(input);
-  return cleanUpDates(model);
-}
-
-export function getMinimalModelCopy(): DbModelData {
-  // log('in getMinimalModelCopy');
-  return makeCleanedModelFromJSON(JSON.stringify(minimalModel));
-}
-
-const map = new Map([
-  [roiEnd, viewType],
-  [roiStart, viewType],
-  [birthDate, viewType],
-  [viewFrequency, viewType],
-  [monthly, viewType],
-  [viewDetail, viewType],
-  [assetChartFocus, viewType],
-  [debtChartFocus, viewType],
-  [expenseChartFocus, viewType],
-  [incomeChartFocus, viewType],
-  [assetChartView, viewType],
-  [debtChartView, viewType],
-  [cpi, constType],
-]);
-
-function getGuessSettingType(name: string) {
-  const mapResult = map.get(name);
-  if (mapResult !== undefined) {
-    return mapResult;
-  }
-  return constType;
-}
-
-export function getCurrentVersion() {
-  // return 0; // may not include assets or settings in minimalModel
-  // return 1; // may not include expense recurrence, asset/debt,
-  //           // asset quantity, transaction and settings types
-  // return 2; // could use taxPot as an asset
-  // return 3; // doesn't include tax view focus settings
-  return 4;
-}
-
-const showMigrationLogs = false;
-
-function migrateOldVersions(modelName: string, model: DbModelDataWithVersion) {
-  if (showMigrationLogs) {
-    log(`in migrateOldVersions, model has ${model.settings.length} settings`);
-    // log(`in migrateOldVersions, model has ${model.settings.map(showObj)}`);
-  }
-  if (model.version === 0) {
-    // log(`in migrateOldVersions at v0, model has ${model.settings.length} settings`);
-    // use getMinimalModelCopy and scan over all settings and assets
-    const minimalModel = getMinimalModelCopy();
-    minimalModel.settings.forEach(x => {
-      if (
-        model.settings.filter(existing => {
-          return existing.NAME === x.NAME;
-        }).length === 0
-      ) {
-        // log(`${modelName} needs insertion of missing data ${showObj(x)}`);
-        model.settings.push(x);
-        // throw new Error(`inserting missing data ${showObj(x)}`);
-      }
-    });
-    minimalModel.assets.forEach(x => {
-      if (
-        model.assets.filter(existing => {
-          return existing.NAME === x.NAME;
-        }).length === 0
-      ) {
-        //log(`inserting missing data ${showObj(x)}`);
-        model.assets.push(x);
-        // throw new Error(`inserting missing data ${showObj(x)}`);
-      }
-    });
-    model.version = 1;
-  }
-  if (model.version === 1) {
-    if (showMigrationLogs) {
-      log(
-        `in migrateOldVersions at v1, model has ${model.settings.length} settings`,
-      );
-    }
-    for (const e of model.expenses) {
-      if (e.RECURRENCE === undefined) {
-        e.RECURRENCE = '1m';
-      }
-    }
-    for (const a of model.assets) {
-      if (a.IS_A_DEBT === undefined) {
-        a.IS_A_DEBT = false;
-      }
-      if (a.QUANTITY === undefined) {
-        a.QUANTITY = '';
-      }
-    }
-    for (const t of model.transactions) {
-      if (t.TYPE === undefined) {
-        t.TYPE = custom;
-      }
-    }
-    for (const s of model.settings) {
-      if (s.TYPE === undefined) {
-        s.TYPE = getGuessSettingType(s.NAME);
-      }
-    }
-    model.version = 2;
-  }
-  if (model.version === 2) {
-    if (showMigrationLogs) {
-      log(
-        `in migrateOldVersions at v2, model has ${model.assets.length} assets`,
-      );
-      log(
-        `${model.assets.map(x => {
-          return x.NAME;
-        })}`,
-      );
-    }
-    // remove any asset called taxPot
-    let index = model.assets.findIndex(a => {
-      return a.NAME === taxPot;
-    });
-    if (index >= 0) {
-      // log(`found taxPot at index = ${index}!`);
-      model.assets.splice(index, 1);
-      // log(
-      //  `${model.assets.map(x => {
-      //    return x.NAME;
-      //  })}`,
-      // );
-      // log(
-      //  `in migrateOldVersions at v2, model now has ${model.assets.length} assets`,
-      // );
-    }
-    index = model.assets.findIndex(a => {
-      return a.NAME === taxPot;
-    });
-    if (index >= 0) {
-      log(`still found taxPot!`);
-      model.assets.splice(index, 1);
-    }
-    model.version = 3;
-  }
-  if (model.version === 3) {
-    if (showMigrationLogs) {
-      log(
-        `in migrateOldVersions at v3, model has ${model.settings.length} settings`,
-      );
-    }
-    if (
-      model.settings.findIndex(x => {
-        return x.NAME === taxChartFocusPerson;
-      }) === -1
-    ) {
-      model.settings.push({
-        NAME: taxChartFocusPerson,
-        VALUE: allItems,
-        HINT: taxChartFocusPersonHint,
-        TYPE: viewType,
-      });
-    }
-    if (
-      model.settings.findIndex(x => {
-        return x.NAME === taxChartFocusType;
-      }) === -1
-    ) {
-      model.settings.push({
-        NAME: taxChartFocusType,
-        VALUE: allItems,
-        HINT: taxChartFocusTypeHint,
-        TYPE: viewType,
-      });
-    }
-    if (
-      model.settings.findIndex(x => {
-        return x.NAME === taxChartShowNet;
-      }) === -1
-    ) {
-      model.settings.push({
-        NAME: taxChartShowNet,
-        VALUE: 'Y',
-        HINT: taxChartShowNetHint,
-        TYPE: viewType,
-      });
-    }
-    model.version = 4;
-  }
-
-  // should throw immediately to alert of problems
-  if (model.version !== getCurrentVersion()) {
-    throw new Error('code not properly handling versions');
-  }
-}
-
 export function makeModelFromJSON(
   modelName: string,
   input: string,
 ): DbModelData {
   // log('in makeModelFromJSON');
-  const model: DbModelDataWithVersion = makeModelFromJSONString(input);
+  const model: DbModelData = makeModelFromJSONString(input);
   migrateOldVersions(modelName, model);
   return cleanUpDates(model);
 }

@@ -139,9 +139,6 @@ export interface DbModelData {
   transactions: DbTransaction[];
   assets: DbAsset[];
   settings: DbSetting[];
-}
-
-export interface DbModelDataWithVersion extends DbModelData {
   version: number;
 }
 

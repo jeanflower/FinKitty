@@ -211,6 +211,7 @@ function getTestModel01() {
         DATE: makeDateFromString('Dec 31 2025'),
       },
     ],
+    version: 0,
   };
   setSetting(model.settings, roiStart, '1 Jan 2019', viewType);
   setSetting(model.settings, roiEnd, '1 Feb 2019', viewType);
@@ -225,6 +226,7 @@ function getTestModel02() {
     transactions: [],
     settings: [...browserTestSettings],
     triggers: [],
+    version: 0,
   };
   setSetting(model.settings, roiStart, '1 Jan 2019', constType);
   setSetting(model.settings, roiEnd, '1 Feb 2019', constType);
@@ -318,6 +320,7 @@ export function getModelCoarseAndFine(): DbModelData {
         VALUE: '12.0',
       },
     ],
+    version: 0,
   };
 
   setROI(model, roi);
@@ -346,6 +349,7 @@ function getModelFutureExpense() {
       },
     ],
     settings: [...defaultSettings],
+    version: 0,
   };
   setROI(model, roi);
   return model;
@@ -389,6 +393,7 @@ export function getThreeChryslerModel(): DbModelData {
         TYPE: 'adjustable',
       },
     ],
+    version: 0,
   };
   model.assets.filter(a => {
     return a.NAME === CASH_ASSET_NAME;

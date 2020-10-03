@@ -13,7 +13,7 @@ import { log, printDebug, showObj, minimalModel } from '../utils';
 
 import { getDB } from './database';
 
-import { custom, adjustableType } from '../localization/stringConstants';
+import { adjustableType } from '../localization/stringConstants';
 
 import { diffModels } from '../diffModels';
 
@@ -292,23 +292,6 @@ export async function submitTriggerLSM(
   await saveModelLSM(userID, modelName, modelData);
 }
 
-export async function submitNewTriggerLSM(
-  name: string,
-  modelName: string,
-  modelData: DbModelData,
-  userID: string,
-) {
-  submitTriggerLSM(
-    {
-      NAME: name,
-      DATE: new Date(),
-    },
-    modelName,
-    modelData,
-    userID,
-  );
-}
-
 export async function submitAssetLSM(
   assetInput: DbAsset,
   modelName: string,
@@ -322,32 +305,6 @@ export async function submitAssetLSM(
   await saveModelLSM(userID, modelName, modelData);
 }
 
-export async function submitNewAssetLSM(
-  name: string,
-  modelName: string,
-  modelData: DbModelData,
-  userID: string,
-) {
-  submitAssetLSM(
-    {
-      NAME: name,
-      CATEGORY: '',
-      START: '1 January 2018',
-      VALUE: '0',
-      QUANTITY: '',
-      GROWTH: '0',
-      CPI_IMMUNE: false,
-      CAN_BE_NEGATIVE: false,
-      IS_A_DEBT: false,
-      LIABILITY: '',
-      PURCHASE_PRICE: '0',
-    },
-    modelName,
-    modelData,
-    userID,
-  );
-}
-
 export async function submitTransactionLSM(
   input: DbTransaction,
   modelName: string,
@@ -359,33 +316,6 @@ export async function submitTransactionLSM(
   }
   updateItemList(modelData.transactions, input);
   await saveModelLSM(userID, modelName, modelData);
-}
-
-export async function submitNewTransactionLSM(
-  name: string,
-  modelName: string,
-  modelData: DbModelData,
-  userID: string,
-) {
-  submitTransactionLSM(
-    {
-      NAME: name,
-      CATEGORY: '',
-      FROM: '',
-      TO: '',
-      FROM_VALUE: '0',
-      TO_VALUE: '0',
-      FROM_ABSOLUTE: true,
-      TO_ABSOLUTE: true,
-      DATE: '1 January 2018',
-      STOP_DATE: '1 January 2018',
-      RECURRENCE: '',
-      TYPE: custom,
-    },
-    modelName,
-    modelData,
-    userID,
-  );
 }
 
 export async function saveModelToDBLSM(

@@ -38,6 +38,7 @@ import {
   showObj,
   lessThan,
   getTodaysDate,
+  emptyModel,
 } from './utils';
 import { loginPage } from './views/loginPage';
 import { screenshotsDiv } from './views/screenshotsPage';
@@ -169,63 +170,63 @@ const views = new Map<
   [
     overview,
     {
-      display: true,
+      display: false,
       helpText: 'Overview',
     },
   ],
   [
     triggersView,
     {
-      display: true,
+      display: false,
       helpText: 'Create, view or update named dates',
     },
   ],
   [
     incomesView,
     {
-      display: true,
+      display: false,
       helpText: 'Create, view or edit incomes',
     },
   ],
   [
     expensesView,
     {
-      display: true,
+      display: false,
       helpText: 'Create, view or edit expenses',
     },
   ],
   [
     assetsView,
     {
-      display: true,
+      display: false,
       helpText: 'Create, view or edit assets',
     },
   ],
   [
     debtsView,
     {
-      display: true,
+      display: false,
       helpText: 'Create, view or edit debts',
     },
   ],
   [
     transactionsView,
     {
-      display: true,
+      display: false,
       helpText: 'Create, view or edit transactions',
     },
   ],
   [
     taxView,
     {
-      display: true,
+      display: false,
       helpText: 'Chart of tax payments',
     },
   ],
   [
     settingsView,
     {
-      display: true,
+      display: false,
       helpText: 'Settings',
     },
   ],
@@ -768,14 +769,7 @@ export class AppContent extends Component<AppProps, AppState> {
 
     reactAppComponent = this;
     this.state = {
-      modelData: {
-        assets: [],
-        expenses: [],
-        incomes: [],
-        transactions: [],
-        triggers: [],
-        settings: [],
-      },
+      modelData: emptyModel,
       expensesChartData: [],
       incomesChartData: [],
       assetChartData: [],
