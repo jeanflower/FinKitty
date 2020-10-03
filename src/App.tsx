@@ -503,42 +503,58 @@ export async function submitExpense(
   expenseInput: DbExpense,
   modelData: DbModelData,
 ) {
-  await submitExpenseLSM(expenseInput, modelName, modelData, getUserID());
-  return await refreshData(
-    true, // gotoDB
-  );
+  const message = await submitExpenseLSM(expenseInput, modelName, modelData, getUserID());
+  if(message === ''){
+    return await refreshData(
+      true, // gotoDB
+    );
+  } else {
+    showAlert(message);
+  }
 }
 export async function submitIncome(
   incomeInput: DbIncome,
   modelData: DbModelData,
 ) {
-  await submitIncomeLSM(incomeInput, modelName, modelData, getUserID());
-  return await refreshData(
-    true, // gotoDB
-  );
+  const message = await submitIncomeLSM(incomeInput, modelName, modelData, getUserID());
+  if(message === ''){
+    return await refreshData(
+      true, // gotoDB
+    );
+  } else {
+    showAlert(message);
+  }
 }
 export async function submitTransaction(
   transactionInput: DbTransaction,
   modelData: DbModelData,
 ) {
-  await submitTransactionLSM(
+  const message = await submitTransactionLSM(
     transactionInput,
     modelName,
     modelData,
     getUserID(),
   );
-  return await refreshData(
-    true, // gotoDB
-  );
+  if(message === ''){
+    return await refreshData(
+      true, // gotoDB
+    );
+  } else {
+    showAlert(message);
+  }
 }
 export async function submitTrigger(
   triggerInput: DbTrigger,
   modelData: DbModelData,
 ) {
-  await submitTriggerLSM(triggerInput, modelName, modelData, getUserID());
-  return await refreshData(
-    true, // gotoDB
-  );
+  const message = await submitTriggerLSM(triggerInput, modelName, modelData, getUserID());
+  if(message === ''){
+    return await refreshData(
+      true, // gotoDB
+    );
+  } else {
+    showAlert(message);
+  }
 }
 
 // if HINT or TYPE are empty, leave pre-existing values
@@ -554,10 +570,14 @@ export async function editSetting(
     HINT: '',
     TYPE: '',
   };
-  await submitSettingLSM(settingWithBlanks, modelName, modelData, getUserID());
-  return await refreshData(
-    true, // gotoDB
-  );
+  const message = await submitSettingLSM(settingWithBlanks, modelName, modelData, getUserID());
+  if(message === ''){
+    return await refreshData(
+      true, // gotoDB
+    );
+  } else {
+    showAlert(message);
+  }
 }
 
 export async function submitNewSetting(

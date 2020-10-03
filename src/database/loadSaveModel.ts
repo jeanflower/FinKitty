@@ -251,6 +251,27 @@ function updateItemList(itemList: DbItem[], newData: DbItem) {
   itemList.push(newData);
 }
 
+async function submitItemLSM(
+  inputItem: DbItem,
+  itemList: DbItem[],
+  modelName: string,
+  modelData: DbModelData,
+  userID: string,
+){
+  markForUndo(modelData);
+  updateItemList(itemList, inputItem);
+
+  const checkResult = checkData(modelData);
+  if(checkResult !== ''){
+    convertToUndoModel(modelData);
+    return checkResult;
+  }
+
+  await saveModelLSM(userID, modelName, modelData);
+  return '';
+
+}
+
 export async function submitExpenseLSM(
   expenseInput: DbExpense,
   modelName: string,
@@ -260,11 +281,13 @@ export async function submitExpenseLSM(
   if (printDebug()) {
     log(`in submitExpense with input : ${showObj(expenseInput)}`);
   }
-  updateItemList(modelData.expenses, expenseInput);
-  await saveModelLSM(userID, modelName, modelData);
-  if (showDBInteraction) {
-    log(`saved model ${modelName}`);
-  }
+  return submitItemLSM(
+    expenseInput,
+    modelData.expenses,
+    modelName,
+    modelData,
+    userID,
+  );
 }
 
 export async function submitIncomeLSM(
@@ -276,8 +299,13 @@ export async function submitIncomeLSM(
   if (printDebug()) {
     log(`in submitIncome with input : ${showObj(incomeInput)}`);
   }
-  updateItemList(modelData.incomes, incomeInput);
-  await saveModelLSM(userID, modelName, modelData);
+  return submitItemLSM(
+    incomeInput,
+    modelData.incomes,
+    modelName,
+    modelData,
+    userID,
+  );
 }
 
 export async function submitTriggerLSM(
@@ -289,8 +317,13 @@ export async function submitTriggerLSM(
   if (printDebug()) {
     log(`go to submitTriggers with input : ${showObj(trigger)}`);
   }
-  updateItemList(modelData.triggers, trigger);
-  await saveModelLSM(userID, modelName, modelData);
+  return submitItemLSM(
+    trigger,
+    modelData.triggers,
+    modelName,
+    modelData,
+    userID,
+  );
 }
 
 export async function submitAssetLSM(
@@ -302,17 +335,13 @@ export async function submitAssetLSM(
   if (printDebug()) {
     log(`in submitAsset with input : ${showObj(assetInput)}`);
   }
-  markForUndo(modelData);
-  updateItemList(modelData.assets, assetInput);
-
-  const checkResult = checkData(modelData);
-  if(checkResult !== ''){
-    convertToUndoModel(modelData);
-    return checkResult;
-  }
-
-  await saveModelLSM(userID, modelName, modelData);
-  return '';
+  return submitItemLSM(
+    assetInput,
+    modelData.assets,
+    modelName,
+    modelData,
+    userID,
+  );
 }
 
 export async function submitTransactionLSM(
@@ -324,8 +353,13 @@ export async function submitTransactionLSM(
   if (printDebug()) {
     log(`in submitTransaction with input : ${showObj(input)}`);
   }
-  updateItemList(modelData.transactions, input);
-  await saveModelLSM(userID, modelName, modelData);
+  return submitItemLSM(
+    input,
+    modelData.transactions,
+    modelName,
+    modelData,
+    userID,
+  );
 }
 
 export async function saveModelToDBLSM(
@@ -375,8 +409,13 @@ export async function submitSettingLSM(
       input.TYPE = idx.TYPE;
     }
   }
-  updateItemList(modelData.settings, input);
-  await saveModelLSM(userID, modelName, modelData);
+  return submitItemLSM(
+    input,
+    modelData.settings,
+    modelName,
+    modelData,
+    userID,
+  );
 }
 
 export async function submitNewSettingLSM(

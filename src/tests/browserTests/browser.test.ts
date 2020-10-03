@@ -1189,12 +1189,6 @@ describe(testDataModelName, () => {
       message: 'added new setting End of view range',
     });
 
-    await addSetting(driver, {
-      name: assetChartFocus,
-      value: 'carTest1',
-      message: 'added new setting Focus of assets chart',
-    });
-
     await clickButton(driver, 'btn-Assets');
 
     await addAsset(driver, {
@@ -1203,6 +1197,14 @@ describe(testDataModelName, () => {
       startDate: 'January 2 2018',
       value: 'chrysler',
       message: `added new asset`,
+    });
+
+    await clickButton(driver, 'btn-Settings');
+
+    await addSetting(driver, {
+      name: assetChartFocus,
+      value: 'carTest1',
+      message: 'added new setting Focus of assets chart',
     });
 
     //await clickButton(driver, 'startNewModel2');
