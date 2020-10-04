@@ -1,5 +1,5 @@
 import {
-  makeCleanedModelFromJSON,
+  makeModelFromJSONString,
   makeModelFromJSON,
   getSettings,
 } from '../../utils';
@@ -34,8 +34,8 @@ const v5ModelJSON =
 describe('loadModelsFromJSON', () => {
   it('cleanedModel', () => {
     const jsonString = emptyModelJSON;
-    const model = makeCleanedModelFromJSON(jsonString);
-    expect(model.assets.length).toBe(0);
+    const model = makeModelFromJSON(jsonString);
+    expect(model.assets.length).toBe(1);
   });
   it('migrateModelMustHaveCash', () => {
     const jsonString = emptyModelJSON;
@@ -45,7 +45,7 @@ describe('loadModelsFromJSON', () => {
   });
   it('migrateModelfromv1', () => {
     const jsonString = v1ModelJSON;
-    const plainModel = makeCleanedModelFromJSON(jsonString);
+    const plainModel = makeModelFromJSONString(jsonString);
     const model = makeModelFromJSON(jsonString);
 
     // will include expense recurrence, asset/debt,

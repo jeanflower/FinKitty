@@ -128,7 +128,7 @@ export class RESTDB implements DbInterface {
     // before save to DB, discard undo stack
     const modelCopy = {
       ...model,
-    }
+    };
     delete modelCopy.undoModel;
     urlencoded.append('model', JSON.stringify(modelCopy));
 

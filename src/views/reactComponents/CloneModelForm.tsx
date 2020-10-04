@@ -56,9 +56,7 @@ export class CreateModelForm extends Component<
       return (
         <Button
           action={async () => {
-            return this.copyModel(
-              this.props.getExampleModel(x.model),
-            );
+            return this.copyModel(this.props.getExampleModel(x.model));
           }}
           title={`Create ${x.name} example`}
           id={`btn-create-${x.name}-example`}

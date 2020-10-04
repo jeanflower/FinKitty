@@ -63,6 +63,7 @@ import {
 
 import moment from 'moment';
 import { getTestModel } from './models/exampleModels';
+import { checkData } from './models/checks';
 
 let doLog = true;
 export function log(obj: any) {
@@ -89,7 +90,7 @@ export function getCurrentVersion() {
   return 4;
 }
 
-function makeModelFromJSONString(input: string): DbModelData {
+export function makeModelFromJSONString(input: string): DbModelData {
   const matches = input.match(/PensionDBC/g);
   if (matches !== null && matches.length > 0) {
     log(`Old string 'PensionDBC' in loaded data!!`);
@@ -109,27 +110,24 @@ function makeModelFromJSONString(input: string): DbModelData {
     result.version = 0;
   }
 
+  cleanUpDates(result);
+
   // log(`result from makeModelFromJSON = ${showObj(result)}`);
   return result;
 }
 
 // note JSON stringify and back for serialisation is OK but
 // breaks dates (and functions too but we don't have these)
-function cleanUpDates(modelFromJSON: DbModelData): DbModelData {
-  const result = modelFromJSON;
-  for (const t of result.triggers) {
+function cleanUpDates(modelFromJSON: DbModelData): void {
+  for (const t of modelFromJSON.triggers) {
     //log(`type of ${t.DATE} = ${typeof t.DATE}`);
     t.DATE = new Date(t.DATE);
     //log(`type of ${t.DATE} = ${typeof t.DATE}`);
   }
+  if (modelFromJSON.undoModel) {
+    cleanUpDates(modelFromJSON.undoModel);
+  }
   // log(`cleaned up model assets ${showObj(result.assets)}`);
-  return result;
-}
-
-export function makeCleanedModelFromJSON(input: string) {
-  // log('in makeCleanedModelFromJSON');
-  const model: DbModelData = makeModelFromJSONString(input);
-  return cleanUpDates(model);
 }
 
 export const minimalModel: DbModelData = {
@@ -257,7 +255,7 @@ export const minimalModel: DbModelData = {
 
 export function getMinimalModelCopy(): DbModelData {
   // log('in getMinimalModelCopy');
-  return makeCleanedModelFromJSON(JSON.stringify(minimalModel));
+  return makeModelFromJSONString(JSON.stringify(minimalModel));
 }
 
 const map = new Map([
@@ -1290,13 +1288,11 @@ export function setROI(
   setSetting(model.settings, roiEnd, roi.end, viewType);
 }
 
-export function makeModelFromJSON(
-  input: string,
-): DbModelData {
+export function makeModelFromJSON(input: string): DbModelData {
   // log('in makeModelFromJSON');
   const model: DbModelData = makeModelFromJSONString(input);
   migrateOldVersions(model);
-  return cleanUpDates(model);
+  return model;
 }
 
 export function isADebt(name: string, model: DbModelData) {
@@ -1416,12 +1412,12 @@ export function getLiabilityPeople(model: DbModelData): string[] {
   return liabilityPeople;
 }
 
-export function markForUndo(model: DbModelData){
-  const modelClone = makeModelFromJSON(JSON.stringify(model));
+export function markForUndo(model: DbModelData) {
+  const modelClone = makeModelFromJSONString(JSON.stringify(model));
   model.undoModel = modelClone;
 }
-export function convertToUndoModel(model: DbModelData): boolean{
-  if(model.undoModel !== undefined){
+export function convertToUndoModel(model: DbModelData): boolean {
+  if (model.undoModel !== undefined) {
     const tmpModel = model.undoModel;
     model.assets = [];
     model.expenses = [];
@@ -1435,4 +1431,290 @@ export function convertToUndoModel(model: DbModelData): boolean{
     return true;
   }
   return false;
+}
+
+function usesWholeWord(existing: string, checkWord: string) {
+  if (existing === checkWord) {
+    return true;
+  }
+  return false;
+}
+function usesNumberValueWord(existing: string, checkWord: string) {
+  const parsed = getNumberAndWordParts(existing);
+  if (parsed.wordPart && parsed.wordPart === checkWord) {
+    return true;
+  }
+  return false;
+}
+function usesSeparatedString(existing: string, checkWord: string) {
+  const parts = existing.split(separator);
+  let numMatches = 0;
+  parts.forEach(obj => {
+    if (obj === checkWord) {
+      numMatches += 1;
+    }
+  });
+  return numMatches > 0;
+}
+
+function checkForWordClashInModel(
+  model: DbModelData,
+  replacement: string,
+  messageWord: string,
+): string {
+  const settingMessages = model.settings
+    .map(obj => {
+      if (usesWholeWord(obj.NAME, replacement)) {
+        return `Setting '${obj.NAME}' has name ${messageWord} called ${replacement}`;
+      }
+      if (usesNumberValueWord(obj.VALUE, replacement)) {
+        return `Setting '${obj.NAME}' has name ${messageWord} called ${replacement}`;
+      }
+      return '';
+    })
+    .filter(obj => {
+      return obj.length > 0;
+    });
+  const triggerMessages = model.triggers
+    .map(obj => {
+      if (usesWholeWord(obj.NAME, replacement)) {
+        return `Trigger '${obj.NAME}' has name ${messageWord} called ${replacement}`;
+      }
+      return '';
+    })
+    .filter(obj => {
+      return obj.length > 0;
+    });
+  const assetMessages = model.assets
+    .map(obj => {
+      if (usesWholeWord(obj.NAME, replacement)) {
+        return `Asset '${obj.NAME}' has name ${messageWord} called ${replacement}`;
+      }
+      if (usesWholeWord(obj.START, replacement)) {
+        return `Asset '${obj.NAME}' has start ${messageWord} called ${replacement}`;
+      }
+      if (usesNumberValueWord(obj.VALUE, replacement)) {
+        return `Asset '${obj.NAME}' has value ${messageWord} called ${replacement}`;
+      }
+      if (usesWholeWord(obj.QUANTITY, replacement)) {
+        return `Asset '${obj.NAME}' has quantity ${messageWord} called ${replacement}`;
+      }
+      if (usesWholeWord(obj.GROWTH, replacement)) {
+        return `Asset '${obj.NAME}' has growth ${messageWord} called ${replacement}`;
+      }
+      if (usesSeparatedString(obj.LIABILITY, replacement)) {
+        return `Asset '${obj.NAME}' has liability ${messageWord} called ${replacement}`;
+      }
+      if (usesNumberValueWord(obj.PURCHASE_PRICE, replacement)) {
+        return `Asset '${obj.NAME}' has purchase price ${messageWord} called ${replacement}`;
+      }
+      return '';
+    })
+    .filter(obj => {
+      return obj.length > 0;
+    });
+  const incomeMessages = model.incomes
+    .map(obj => {
+      if (usesWholeWord(obj.NAME, replacement)) {
+        return `Income '${obj.NAME}' has name ${messageWord} called ${replacement}`;
+      }
+      if (usesWholeWord(obj.START, replacement)) {
+        return `Income '${obj.NAME}' has start ${messageWord} called ${replacement}`;
+      }
+      if (usesWholeWord(obj.END, replacement)) {
+        return `Income '${obj.NAME}' has end ${messageWord} called ${replacement}`;
+      }
+      if (usesNumberValueWord(obj.VALUE, replacement)) {
+        return `Income '${obj.NAME}' has value ${messageWord} called ${replacement}`;
+      }
+      if (usesWholeWord(obj.VALUE_SET, replacement)) {
+        return `Income '${obj.NAME}' has value set ${messageWord} called ${replacement}`;
+      }
+      if (usesWholeWord(obj.GROWTH, replacement)) {
+        return `Income '${obj.NAME}' has growth ${messageWord} called ${replacement}`;
+      }
+      if (usesSeparatedString(obj.LIABILITY, replacement)) {
+        return `Income '${obj.NAME}' has liability ${messageWord} called ${replacement}`;
+      }
+      return '';
+    })
+    .filter(obj => {
+      return obj.length > 0;
+    });
+  const expenseMessages = model.expenses
+    .map(obj => {
+      if (usesWholeWord(obj.NAME, replacement)) {
+        return `Expense '${obj.NAME}' has name ${messageWord} called ${replacement}`;
+      }
+      if (usesWholeWord(obj.START, replacement)) {
+        return `Expense '${obj.NAME}' has start ${messageWord} called ${replacement}`;
+      }
+      if (usesWholeWord(obj.END, replacement)) {
+        return `Expense '${obj.NAME}' has end ${messageWord} called ${replacement}`;
+      }
+      if (usesNumberValueWord(obj.VALUE, replacement)) {
+        return `Expense '${obj.NAME}' has value ${messageWord} called ${replacement}`;
+      }
+      if (usesWholeWord(obj.VALUE_SET, replacement)) {
+        return `Expense '${obj.NAME}' has value set ${messageWord} called ${replacement}`;
+      }
+      if (usesWholeWord(obj.GROWTH, replacement)) {
+        return `Expense '${obj.NAME}' has growth ${messageWord} called ${replacement}`;
+      }
+      return '';
+    })
+    .filter(obj => {
+      return obj.length > 0;
+    });
+  const transactionMessages = model.transactions
+    .map(obj => {
+      if (usesWholeWord(obj.NAME, replacement)) {
+        return `Transaction '${obj.NAME}' has name ${messageWord} called ${replacement}`;
+      }
+      if (usesSeparatedString(obj.FROM, replacement)) {
+        return `Transaction '${obj.NAME}' has from ${messageWord} called ${replacement}`;
+      }
+      if (usesNumberValueWord(obj.FROM_VALUE, replacement)) {
+        return `Transaction '${obj.NAME}' has from value ${messageWord} called ${replacement}`;
+      }
+      if (usesSeparatedString(obj.TO, replacement)) {
+        return `Transaction '${obj.NAME}' has to ${messageWord} called ${replacement}`;
+      }
+      if (usesNumberValueWord(obj.TO_VALUE, replacement)) {
+        return `Transaction '${obj.NAME}' has to value set ${messageWord} called ${replacement}`;
+      }
+      if (usesWholeWord(obj.DATE, replacement)) {
+        return `Transaction '${obj.NAME}' has date ${messageWord} called ${replacement}`;
+      }
+      if (usesWholeWord(obj.STOP_DATE, replacement)) {
+        return `Transaction '${obj.NAME}' has stop date ${messageWord} called ${replacement}`;
+      }
+      return '';
+    })
+    .filter(obj => {
+      return obj.length > 0;
+    });
+  let message = `${settingMessages} ${triggerMessages} ${assetMessages} ${incomeMessages} ${expenseMessages} ${transactionMessages}`;
+  if (message.length <= 7) {
+    message = '';
+  }
+  return message;
+}
+
+function replaceNumberValueString(
+  value: string,
+  old: string,
+  replacement: string,
+) {
+  const parsed = getNumberAndWordParts(value);
+  if (parsed.wordPart === '') {
+    return value;
+  } else if (parsed.wordPart === old) {
+    return value.substring(0, value.length - old.length) + replacement;
+  } else {
+    return value;
+  }
+}
+function replaceSeparatedString(
+  value: string,
+  old: string,
+  replacement: string,
+) {
+  const parts = value.split(separator);
+  let result = '';
+  parts.forEach(obj => {
+    if (obj === old) {
+      result += replacement;
+    } else {
+      result += obj;
+    }
+    result += separator;
+  });
+  result = result.substr(0, result.length - separator.length);
+  return result;
+}
+function replaceWholeString(value: string, old: string, replacement: string) {
+  if (value !== old) {
+    return value;
+  } else {
+    return replacement;
+  }
+}
+export function attemptRenameLong(
+  model: DbModelData,
+  old: string,
+  replacement: string,
+): string {
+  // log(`attempt rename from ${old} to ${replacement}`);
+  // prevent a change which clashes with an existing word
+
+  let message = checkForWordClashInModel(model, replacement, 'already');
+  if (message.length > 0) {
+    return message;
+  }
+
+  // log(`get ready to make changes, be ready to undo...`);
+  // be ready to undo
+  markForUndo(model);
+  model.settings.forEach(obj => {
+    obj.NAME = replaceWholeString(obj.NAME, old, replacement);
+    obj.VALUE = replaceNumberValueString(obj.VALUE, old, replacement);
+  });
+  model.triggers.forEach(obj => {
+    obj.NAME = replaceWholeString(obj.NAME, old, replacement);
+  });
+  model.assets.forEach(obj => {
+    obj.NAME = replaceWholeString(obj.NAME, old, replacement);
+    obj.START = replaceWholeString(obj.START, old, replacement);
+    obj.VALUE = replaceNumberValueString(obj.VALUE, old, replacement);
+    obj.QUANTITY = replaceWholeString(obj.QUANTITY, old, replacement);
+    obj.GROWTH = replaceWholeString(obj.GROWTH, old, replacement);
+    obj.LIABILITY = replaceSeparatedString(obj.LIABILITY, old, replacement);
+    obj.PURCHASE_PRICE = replaceNumberValueString(
+      obj.PURCHASE_PRICE,
+      old,
+      replacement,
+    );
+  });
+  model.incomes.forEach(obj => {
+    obj.NAME = replaceWholeString(obj.NAME, old, replacement);
+    obj.START = replaceWholeString(obj.START, old, replacement);
+    obj.END = replaceWholeString(obj.END, old, replacement);
+    obj.VALUE = replaceNumberValueString(obj.VALUE, old, replacement);
+    obj.VALUE_SET = replaceWholeString(obj.VALUE_SET, old, replacement);
+    obj.GROWTH = replaceWholeString(obj.GROWTH, old, replacement);
+    obj.LIABILITY = replaceSeparatedString(obj.LIABILITY, old, replacement);
+  });
+  model.expenses.forEach(obj => {
+    obj.NAME = replaceWholeString(obj.NAME, old, replacement);
+    obj.START = replaceWholeString(obj.START, old, replacement);
+    obj.END = replaceWholeString(obj.END, old, replacement);
+    obj.VALUE = replaceNumberValueString(obj.VALUE, old, replacement);
+    obj.VALUE_SET = replaceWholeString(obj.VALUE_SET, old, replacement);
+    obj.GROWTH = replaceWholeString(obj.GROWTH, old, replacement);
+  });
+  model.transactions.forEach(obj => {
+    obj.NAME = replaceWholeString(obj.NAME, old, replacement);
+    obj.FROM = replaceSeparatedString(obj.FROM, old, replacement);
+    obj.FROM_VALUE = replaceNumberValueString(obj.FROM_VALUE, old, replacement);
+    obj.TO = replaceSeparatedString(obj.TO, old, replacement);
+    obj.TO_VALUE = replaceNumberValueString(obj.TO_VALUE, old, replacement);
+    obj.DATE = replaceWholeString(obj.DATE, old, replacement);
+    obj.STOP_DATE = replaceWholeString(obj.STOP_DATE, old, replacement);
+  });
+  message = checkForWordClashInModel(model, old, 'still');
+  if (message.length > 0) {
+    // log(`old word still present in adjusted model`);
+    convertToUndoModel(model);
+    return message;
+  }
+  const checkResult = checkData(model);
+  if (checkResult !== '') {
+    // log(`revert adjusted model`);
+    convertToUndoModel(model);
+    return checkResult;
+  } else {
+    // log(`save adjusted model`);
+    return '';
+  }
 }

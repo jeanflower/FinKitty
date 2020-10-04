@@ -51,7 +51,12 @@ import {
   viewType,
   revalueSetting,
   revalue,
-  allItems,
+  allItems, 
+  taxFree, 
+  conditional, 
+  moveTaxFreePart, 
+  pensionTransfer, 
+  transferCrystallizedPension,
 } from '../../localization/stringConstants';
 import {
   ChartDataPoint,
@@ -62,7 +67,6 @@ import { Evaluation } from '../../types/interfaces';
 import {
   getMinimalModelCopy,
   log,
-  makeCleanedModelFromJSON,
   makeDateFromString,
   printDebug,
   setSetting,
@@ -84,6 +88,9 @@ import {
   setROI,
   simpleSetting,
   viewSetting,
+  makeModelFromJSONString, 
+  attemptRenameLong, 
+  convertToUndoModel,
   // showObj,
 } from '../../utils';
 import {
@@ -255,10 +262,9 @@ function printTestCodeForChart(result: DataForView) {
   log(toPrint);
 }
 
-const testJSONRoundTrip = false;
-
 function getTestEvaluations(
   model: DbModelData,
+  extraChecks: boolean = true,
 ): {
   evaluations: Evaluation[];
   todaysAssetValues: Map<string, number>;
@@ -267,13 +273,138 @@ function getTestEvaluations(
   todaysExpenseValues: Map<string, number>;
   todaysSettingValues: Map<string, string>;
 } {
+
+  if(extraChecks){
+    // hijack to try some renaming
+    model.triggers.forEach((obj)=>{
+      const oldName = obj.NAME;
+      let message = attemptRenameLong(model, oldName, 'abcd');
+      if(message.length > 0){
+        throw new Error(`rename failed with message '${message}'`);
+      }
+      message = attemptRenameLong(model, 'abcd', oldName);
+      if(message.length > 0){
+        throw new Error(`rename failed with message '${message}'`);
+      }
+      convertToUndoModel(model);
+      convertToUndoModel(model);
+    });
+    model.assets.forEach((obj)=>{
+      const oldName = obj.NAME;
+      if(oldName === CASH_ASSET_NAME){ return; }
+      let newName = 'abcd';
+      if(oldName.startsWith(pensionDB)){
+        newName = pensionDB + newName;
+      } else if(oldName.startsWith(pension)){
+        newName = pension + newName;
+      } else if(oldName.endsWith(taxFree)){
+        newName = newName + taxFree;
+      } else if(oldName.startsWith(crystallizedPension)){
+        newName = crystallizedPension + newName;
+      }
+      let message = attemptRenameLong(model, oldName, newName);
+      if(message.length > 0){
+        throw new Error(`rename failed with message '${message}'`);
+      }
+      message = attemptRenameLong(model, newName, oldName);
+      if(message.length > 0){
+        throw new Error(`rename failed with message '${message}'`);
+      }
+      convertToUndoModel(model);
+      convertToUndoModel(model);
+    });
+    model.incomes.forEach((obj)=>{
+      const oldName = obj.NAME;
+      let newName = 'abcd';
+      if(oldName.startsWith(pensionDB)){
+        newName = pensionDB + newName;
+      } else if(oldName.startsWith(pensionTransfer)){
+        newName = pensionTransfer + newName;
+      }
+      let message = attemptRenameLong(model, oldName, newName);
+      if(message.length > 0){
+        throw new Error(`rename failed with message '${message}'`);
+      }
+      message = attemptRenameLong(model, newName, oldName);
+      if(message.length > 0){
+        throw new Error(`rename failed with message '${message}'`);
+      }
+      convertToUndoModel(model);
+      convertToUndoModel(model);
+    });
+    model.expenses.forEach((obj)=>{
+      const oldName = obj.NAME;
+      let message = attemptRenameLong(model, oldName, 'abcd');
+      if(message.length > 0){
+        throw new Error(`rename failed with message '${message}'`);
+      }
+      message = attemptRenameLong(model, 'abcd', oldName);
+      if(message.length > 0){
+        throw new Error(`rename failed with message '${message}'`);
+      }
+      convertToUndoModel(model);
+      convertToUndoModel(model);
+    });
+    model.transactions.forEach((obj)=>{
+      const oldName = obj.NAME;
+      let newName = 'abcd';
+      if(oldName.startsWith(revalue)){
+        newName = revalue + newName;
+      } else if(oldName.startsWith(conditional)){
+        newName = conditional + newName;
+      } else if(oldName.startsWith(pensionSS)){
+        newName = pensionSS + newName;
+      } else if(oldName.startsWith(pensionTransfer)){
+        newName = pensionTransfer + newName;
+      } else if(oldName.startsWith(pensionDB)){
+        newName = pensionDB + newName;
+      } else if(oldName.startsWith(pension)){
+        newName = pension + newName;
+      } else if(oldName.startsWith(moveTaxFreePart)){
+        newName = moveTaxFreePart + newName;
+      } else if(oldName.startsWith(crystallizedPension)){
+        newName = crystallizedPension + newName;
+      } else if(oldName.startsWith(transferCrystallizedPension)){
+        newName = transferCrystallizedPension + newName;
+      }
+      // log(`transaction oldName ${obj.NAME} -> ${newName}`);
+
+      let message = attemptRenameLong(model, oldName, newName);
+      if(message.length > 0){
+        throw new Error(`rename failed with message '${message}'`);
+      }
+      message = attemptRenameLong(model, newName, oldName);
+      if(message.length > 0){
+        throw new Error(`rename failed with message '${message}'`);
+      }
+      convertToUndoModel(model);
+      convertToUndoModel(model);
+    });  
+    model.settings.forEach((obj)=>{
+      if(obj.TYPE === viewType || obj.TYPE === constType){
+        return;
+      }
+      const oldName = obj.NAME;
+      let newName = 'abcd';
+      let message = attemptRenameLong(model, oldName, newName);
+      if(message.length > 0){
+        throw new Error(`rename failed with message '${message}'`);
+      }
+      message = attemptRenameLong(model, newName, oldName);
+      if(message.length > 0){
+        throw new Error(`rename failed with message '${message}'`);
+      }
+      convertToUndoModel(model);
+      convertToUndoModel(model);
+    });
+  }
+
   let evalnsAndVals;
-  if (!testJSONRoundTrip) {
+  if (!extraChecks) {
     evalnsAndVals = getEvaluations(model);
   } else {
-    evalnsAndVals = getEvaluations(
-      makeCleanedModelFromJSON(JSON.stringify(model)),
-    );
+    const copyModel = makeModelFromJSONString(JSON.stringify(model));
+    evalnsAndVals = getEvaluations(copyModel);
   }
   return evalnsAndVals;
 }
@@ -417,7 +548,7 @@ describe('evaluations tests', () => {
     const model = modelAndRoi.model;
 
     const evalsAndValues = getEvaluations(
-      makeCleanedModelFromJSON(JSON.stringify(model)),
+      makeModelFromJSONString(JSON.stringify(model)),
     );
 
     // log(showObj(evals));
@@ -9336,7 +9467,7 @@ describe('evaluations tests', () => {
     setROI(model, roi);
 
     suppressLogs();
-    const evalsAndValues = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model, false);
     const evals = evalsAndValues.evaluations;
     unSuppressLogs();
     // log(`evals = ${showObj(evals)}`);
@@ -9431,7 +9562,7 @@ describe('evaluations tests', () => {
     setROI(model, roi);
 
     suppressLogs();
-    const evalsAndValues = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model, false);
     const evals = evalsAndValues.evaluations;
     unSuppressLogs();
     // log(`evals = ${showObj(evals)}`);
@@ -9525,7 +9656,7 @@ describe('evaluations tests', () => {
     setROI(model, roi);
 
     suppressLogs();
-    const evalsAndValues = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model, false);
     const evals = evalsAndValues.evaluations;
     unSuppressLogs();
     // log(`evals = ${showObj(evals)}`);
@@ -11860,7 +11991,7 @@ describe('evaluations tests', () => {
       setSetting(model.settings, key, 'nonsense', viewType);
 
       suppressLogs();
-      const evalsAndValues = getTestEvaluations(model);
+      const evalsAndValues = getTestEvaluations(model, false);
       const evals = evalsAndValues.evaluations;
       unSuppressLogs();
       // log(`evals = ${showObj(evals)}`);
@@ -11906,7 +12037,7 @@ describe('evaluations tests', () => {
     };
 
     suppressLogs();
-    const evalsAndValues = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model, false);
     let evals = evalsAndValues.evaluations;
 
     unSuppressLogs();
@@ -11916,7 +12047,7 @@ describe('evaluations tests', () => {
     setSetting(model.settings, 'shareGrowth', 'nonsense', constType);
 
     suppressLogs();
-    evals = getEvaluations(model).evaluations;
+    evals = getTestEvaluations(model, false).evaluations;
     unSuppressLogs();
     // printTestCodeForEvals(evals);
     expect(evals.length).toBe(0);
@@ -11955,7 +12086,7 @@ describe('evaluations tests', () => {
     };
 
     suppressLogs();
-    const evalsAndValues = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model, false);
     const evals = evalsAndValues.evaluations;
     unSuppressLogs();
     // printTestCodeForEvals(evals);
@@ -12736,7 +12867,7 @@ describe('evaluations tests', () => {
     setROI(model, roi);
 
     suppressLogs();
-    const evalsAndValues = getTestEvaluations(model);
+    const evalsAndValues = getTestEvaluations(model, false);
     const evals = evalsAndValues.evaluations;
     unSuppressLogs();
 
@@ -14966,7 +15097,7 @@ describe('evaluations tests', () => {
           NAME: 'USD',
           VALUE: '2',
           HINT: '',
-          TYPE: 'const',
+          TYPE: 'adjustable',
         },
       ],
     };

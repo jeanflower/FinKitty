@@ -9,7 +9,14 @@ import {
   DbModelData,
 } from '../types/interfaces';
 
-import { log, printDebug, showObj, minimalModel, markForUndo, convertToUndoModel } from '../utils';
+import {
+  log,
+  printDebug,
+  showObj,
+  minimalModel,
+  markForUndo,
+  convertToUndoModel,
+} from '../utils';
 
 import { getDB } from './database';
 
@@ -233,9 +240,9 @@ export async function saveModelLSM(
   modelName: string,
   model: DbModelData,
 ) {
+  // log(`save model ${showObj(model)}`);
   if (showDBInteraction) {
     log(`save model ${modelName} for user ${userID}`);
-    // log(`save model ${showObj(model)}`);
   }
   saveModelToCache(userID, modelName, model);
   return true;
@@ -257,19 +264,18 @@ async function submitItemLSM(
   modelName: string,
   modelData: DbModelData,
   userID: string,
-){
+) {
   markForUndo(modelData);
   updateItemList(itemList, inputItem);
 
   const checkResult = checkData(modelData);
-  if(checkResult !== ''){
+  if (checkResult !== '') {
     convertToUndoModel(modelData);
     return checkResult;
   }
 
   await saveModelLSM(userID, modelName, modelData);
   return '';
-
 }
 
 export async function submitExpenseLSM(
@@ -409,13 +415,7 @@ export async function submitSettingLSM(
       input.TYPE = idx.TYPE;
     }
   }
-  return submitItemLSM(
-    input,
-    modelData.settings,
-    modelName,
-    modelData,
-    userID,
-  );
+  return submitItemLSM(input, modelData.settings, modelName, modelData, userID);
 }
 
 export async function submitNewSettingLSM(

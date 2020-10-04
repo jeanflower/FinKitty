@@ -34,6 +34,9 @@ import {
   autogen,
   revalue,
   revalueAsset,
+  moveTaxFreePart,
+  taxFree,
+  transferCrystallizedPension,
 } from '../../localization/stringConstants';
 import { incomeOptions } from './AddDeleteIncomeForm';
 
@@ -695,8 +698,13 @@ export class AddDeleteAssetForm extends Component<
   private async add(e: any) {
     e.preventDefault();
 
-    const isValid = !isValidValue(this.state.VALUE, this.props.model);
-    if (isValid) {
+    if (this.state.NAME === '') {
+      this.props.showAlert(`Name should be not empty`);
+      return;
+    }
+
+    const isNotValid = !isValidValue(this.state.VALUE, this.props.model);
+    if (isNotValid) {
       this.props.showAlert(
         `Asset value ${this.state.VALUE} should be a numerical value or built from a setting`,
       );
@@ -725,7 +733,7 @@ export class AddDeleteAssetForm extends Component<
 
     if (this.state.inputting === inputtingPension) {
       const asset1Name = pension + this.state.NAME;
-      const asset2Name = this.state.NAME + 'TaxFree';
+      const asset2Name = this.state.NAME + taxFree;
       const asset3Name = crystallizedPension + this.state.LIABILITY;
       const asset4Name = crystallizedPension + this.state.DCP_TRANSFER_TO;
 
@@ -870,7 +878,7 @@ export class AddDeleteAssetForm extends Component<
         return;
       }
       const crystallizeTaxFree: DbTransaction = {
-        NAME: 'MoveTaxFreePart' + this.state.NAME,
+        NAME: moveTaxFreePart + this.state.NAME,
         FROM: asset1Name,
         FROM_ABSOLUTE: false,
         FROM_VALUE: '0.25', // TODO move hard coded value out of UI code
@@ -928,7 +936,7 @@ export class AddDeleteAssetForm extends Component<
       let transfer: DbTransaction | undefined;
       if (this.state.DCP_TRANSFER_TO !== '') {
         transfer = {
-          NAME: 'Transfer' + crystallizedPension + this.state.NAME,
+          NAME: transferCrystallizedPension + this.state.NAME,
           FROM: asset3Name,
           FROM_ABSOLUTE: false,
           FROM_VALUE: '1.0',

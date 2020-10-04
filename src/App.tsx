@@ -39,6 +39,7 @@ import {
   lessThan,
   getTodaysDate,
   emptyModel,
+  attemptRenameLong,
 } from './utils';
 import { loginPage } from './views/loginPage';
 import { screenshotsDiv } from './views/screenshotsPage';
@@ -486,12 +487,12 @@ export async function refreshData(goToDB = true) {
 
 export async function submitAsset(assetInput: DbAsset, modelData: DbModelData) {
   const message = await submitAssetLSM(
-    assetInput, 
-    modelName, 
-    modelData, 
+    assetInput,
+    modelName,
+    modelData,
     getUserID(),
   );
-  if(message === ''){
+  if (message === '') {
     return await refreshData(
       true, // gotoDB
     );
@@ -503,8 +504,13 @@ export async function submitExpense(
   expenseInput: DbExpense,
   modelData: DbModelData,
 ) {
-  const message = await submitExpenseLSM(expenseInput, modelName, modelData, getUserID());
-  if(message === ''){
+  const message = await submitExpenseLSM(
+    expenseInput,
+    modelName,
+    modelData,
+    getUserID(),
+  );
+  if (message === '') {
     return await refreshData(
       true, // gotoDB
     );
@@ -516,8 +522,13 @@ export async function submitIncome(
   incomeInput: DbIncome,
   modelData: DbModelData,
 ) {
-  const message = await submitIncomeLSM(incomeInput, modelName, modelData, getUserID());
-  if(message === ''){
+  const message = await submitIncomeLSM(
+    incomeInput,
+    modelName,
+    modelData,
+    getUserID(),
+  );
+  if (message === '') {
     return await refreshData(
       true, // gotoDB
     );
@@ -535,7 +546,7 @@ export async function submitTransaction(
     modelData,
     getUserID(),
   );
-  if(message === ''){
+  if (message === '') {
     return await refreshData(
       true, // gotoDB
     );
@@ -547,8 +558,13 @@ export async function submitTrigger(
   triggerInput: DbTrigger,
   modelData: DbModelData,
 ) {
-  const message = await submitTriggerLSM(triggerInput, modelName, modelData, getUserID());
-  if(message === ''){
+  const message = await submitTriggerLSM(
+    triggerInput,
+    modelName,
+    modelData,
+    getUserID(),
+  );
+  if (message === '') {
     return await refreshData(
       true, // gotoDB
     );
@@ -570,8 +586,13 @@ export async function editSetting(
     HINT: '',
     TYPE: '',
   };
-  const message = await submitSettingLSM(settingWithBlanks, modelName, modelData, getUserID());
-  if(message === ''){
+  const message = await submitSettingLSM(
+    settingWithBlanks,
+    modelName,
+    modelData,
+    getUserID(),
+  );
+  if (message === '') {
     return await refreshData(
       true, // gotoDB
     );
@@ -1046,6 +1067,7 @@ export class AppContent extends Component<AppProps, AppState> {
     fromModel: DbModelData,
   ): Promise<boolean> {
     // log(`going to clone a model and give it name ${name}`);
+    // log(`stringify model for clone`);
     const currentData = JSON.stringify(fromModel);
     const updatedOK = await updateModelName(name);
     if (updatedOK) {
@@ -1159,9 +1181,7 @@ export class AppContent extends Component<AppProps, AppState> {
                   if (decipherString === undefined) {
                     showAlert('could not decode this data');
                   } else {
-                    const decipheredModel = makeModelFromJSON(
-                      decipherString,
-                    );
+                    const decipheredModel = makeModelFromJSON(decipherString);
                     const response = checkModelData(decipheredModel);
                     reactAppComponent.setState({
                       alertText: response,
@@ -1493,6 +1513,25 @@ export class AppContent extends Component<AppProps, AppState> {
       </div>
     );
   }
+}
+
+export async function attemptRename(
+  model: DbModelData,
+  old: string,
+  replacement: string,
+): Promise<string> {
+  const message = attemptRenameLong(model, old, replacement);
+  // log(`message from attemptRenameLong is ${message}`);
+  if (message === '') {
+    // log(`message is empty, go to refreshData`);
+    await saveModelLSM(getUserID(), modelName, model);
+    refreshData(
+      true, // gotoDB
+    );
+  } else {
+    alert(message);
+  }
+  return message;
 }
 
 export default App;

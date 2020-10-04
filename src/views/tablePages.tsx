@@ -66,6 +66,7 @@ import {
   transactionsTable,
   triggersTable,
   editSetting,
+  attemptRename,
 } from '../App';
 import {
   liquidateAsset,
@@ -108,7 +109,7 @@ function handleExpenseGridRowsUpdated(
   // log('old expense '+showObj(expense));
   if (args[0].cellKey === 'NAME') {
     if (expense.NAME !== args[0].updated.NAME) {
-      prohibitEditOfName(showAlert);
+      attemptRename(model, expense.NAME, args[0].updated.NAME);
     }
     return;
   }
@@ -161,7 +162,7 @@ function handleIncomeGridRowsUpdated(
   // log('old income '+showObj(income));
   if (args[0].cellKey === 'NAME') {
     if (income.NAME !== args[0].updated.NAME) {
-      prohibitEditOfName(showAlert);
+      attemptRename(model, income.NAME, args[0].updated.NAME);
     }
     return;
   }
@@ -212,7 +213,7 @@ function handleTriggerGridRowsUpdated(
   const trigger = args[0].fromRowData;
   if (args[0].cellKey === 'NAME') {
     if (trigger.NAME !== args[0].updated.NAME) {
-      prohibitEditOfName(showAlert);
+      attemptRename(model, trigger.NAME, args[0].updated.NAME);
     }
     return;
   }
@@ -240,7 +241,7 @@ function handleAssetGridRowsUpdated(
   const asset = args[0].fromRowData;
   if (args[0].cellKey === 'NAME') {
     if (asset.NAME !== args[0].updated.NAME) {
-      prohibitEditOfName(showAlert);
+      attemptRename(model, asset.NAME, args[0].updated.NAME);
     }
     return;
   }
@@ -332,7 +333,7 @@ function handleTransactionGridRowsUpdated(
   // for debugging, it can be useful to allow editing of the name
   if (args[0].cellKey === 'NAME') {
     if (gridData.NAME !== args[0].updated.NAME) {
-      prohibitEditOfName(showAlert);
+      attemptRename(model, gridData.NAME, args[0].updated.NAME);
     }
     return;
   }
@@ -414,7 +415,7 @@ function handleSettingGridRowsUpdated(
   const x = args[0].fromRowData;
   if (args[0].cellKey === 'NAME') {
     if (x.NAME !== args[0].updated.NAME) {
-      prohibitEditOfName(showAlert);
+      attemptRename(model, x.NAME, args[0].updated.NAME);
     }
     return;
   }

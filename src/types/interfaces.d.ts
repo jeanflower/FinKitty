@@ -140,7 +140,7 @@ export interface DbModelData {
   assets: DbAsset[];
   settings: DbSetting[];
   version: number;
-  undoModel: DbModelData|undefined;
+  undoModel: DbModelData | undefined;
 }
 
 export interface FormProps {

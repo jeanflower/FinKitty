@@ -49,6 +49,9 @@ import {
   gain,
   taxChartFocusPerson,
   taxChartShowNet,
+  moveTaxFreePart,
+  taxFree,
+  transferCrystallizedPension,
 } from '../localization/stringConstants';
 import {
   DbAsset,
@@ -157,7 +160,7 @@ function checkTransactionWords(
   return false;
 }
 function checkDate(d: Date) {
-  // log(`checking date ${d}`);
+  // log(`checking date ${d}, of type ${typeof d}`);
   if (
     Number.isNaN(d.getTime()) ||
     d < makeDateFromString('1 Jan 1870') ||
@@ -193,7 +196,7 @@ export function isValidValue(value: string, model: DbModelData): boolean {
 export function checkAsset(a: DbAsset, model: DbModelData): string {
   // log(`checkAsset ${showObj(a)}`);
   if (a.NAME.length === 0) {
-    return 'Asset name needs some characters';
+    return 'Name should be not empty';
   }
   if (a.NAME.split(separator).length !== 1) {
     return `Asset name '${a.NAME}' should not contain '${separator}'`;
@@ -543,7 +546,7 @@ function isAutogenType(t: DbTransaction, model: DbModelData) {
 */
   }
   /*
-      NAME: 'MoveTaxFreePart' + this.state.NAME,
+      NAME: moveTaxFreePart + this.state.NAME,
       FROM: asset1Name,
       FROM_ABSOLUTE: false,
       FROM_VALUE: '0.25', // TODO move hard coded value out of UI code
@@ -561,10 +564,10 @@ function isAutogenType(t: DbTransaction, model: DbModelData) {
   // into another asset called TaxFree*
   if (
     !recognised &&
-    t.NAME.startsWith('MoveTaxFreePart') &&
+    t.NAME.startsWith(moveTaxFreePart) &&
     t.FROM.startsWith(pension) &&
     t.FROM_ABSOLUTE === false &&
-    t.TO.endsWith('TaxFree') &&
+    t.TO.endsWith(taxFree) &&
     t.TO_ABSOLUTE === false &&
     t.RECURRENCE === ''
   ) {
@@ -599,11 +602,20 @@ function isAutogenType(t: DbTransaction, model: DbModelData) {
     t.RECURRENCE === ''
   ) {
     recognised = true;
+    /*
+  } else {
+    log(`t.NAME.startsWith(crystallizedPension) = ${t.NAME.startsWith(crystallizedPension)}`);
+    log(`t.FROM.startsWith(pension) = ${t.FROM.startsWith(pension)}`);
+    log(`t.FROM_ABSOLUTE === false = ${t.FROM_ABSOLUTE === false}`);
+    log(`t.FROM_ABSOLUTE === false = ${t.FROM_ABSOLUTE === false}`);
+    log(`t.TO.startsWith(crystallizedPension) = ${t.TO.startsWith(crystallizedPension)}`);
+    log(`t.RECURRENCE === '' = ${t.RECURRENCE === ''}`);
+*/
   }
   /*
     Transfer DB pension
         transfer = {
-          NAME: 'Transfer' + crystallizedPension + this.state.NAME,
+          NAME: transferCrystallizedPension + this.state.NAME,
           FROM: asset3Name, // crystallized for one person
           FROM_ABSOLUTE: false,
           FROM_VALUE: '1.0',
@@ -619,7 +631,7 @@ function isAutogenType(t: DbTransaction, model: DbModelData) {
   */
   if (
     !recognised &&
-    t.NAME.startsWith('Transfer' + crystallizedPension) &&
+    t.NAME.startsWith(transferCrystallizedPension) &&
     t.FROM.startsWith(crystallizedPension) &&
     // asNumber(t.FROM_VALUE) === 1.0 &&
     t.FROM_ABSOLUTE === false &&
@@ -629,7 +641,7 @@ function isAutogenType(t: DbTransaction, model: DbModelData) {
     recognised = true;
     /*
   } else {
-    log(`t.NAME.startsWith('Transfer'+crystallizedPension) = ${t.NAME.startsWith('transfer'+crystallizedPension)}`);
+    log(`t.NAME.startsWith(transferCrystallizedPension) = ${t.NAME.startsWith(transferCrystallizedPension)}`);
     log(`t.FROM.startsWith(crystallizedPension) = ${t.FROM.startsWith(crystallizedPension)}`);
     log(`t.FROM_ABSOLUTE === false = ${t.FROM_ABSOLUTE === false}`);
     log(`t.TO.startsWith(crystallizedPension) = ${t.TO.startsWith(crystallizedPension)}`);
@@ -729,6 +741,9 @@ function isAutogenType(t: DbTransaction, model: DbModelData) {
   ) {
     recognised = true;
   }
+  //if(!recognised){
+  //  log(`bad transaction ${showObj(t)}`);
+  //}
   return recognised;
 }
 

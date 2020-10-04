@@ -65,7 +65,7 @@ describe(testDataModelName, () => {
 
     await addDCPension(driver, {
       ...pensionInputs,
-      name: 'dcp1',
+      name: 'dcp01',
       message: 'added assets and transactions',
     });
 
@@ -73,13 +73,15 @@ describe(testDataModelName, () => {
     await addDCPension(driver, {
       ...pensionInputs,
       name: '',
-      message: 'added assets and transactions',
-    }); // BUG : don't allow DCP pensions with empty names
+      message: 'Name should be not empty',
+    });
+
+    await clearDCPension(driver);
 
     await clickButton(driver, 'useDCPInputs');
     await addDCPension(driver, {
       ...pensionInputs,
-      name: 'dcp2',
+      name: 'dcp02',
       value: 'junk',
       message:
         'Asset value junk should be a numerical value or built from a setting',
@@ -90,7 +92,7 @@ describe(testDataModelName, () => {
     await clickButton(driver, 'useDCPInputs');
     await addDCPension(driver, {
       ...pensionInputs,
-      name: 'dcp3',
+      name: 'dcp03',
       startDate: '',
       message: `Start date '' should be a date`,
     });
@@ -98,7 +100,7 @@ describe(testDataModelName, () => {
     await clearDCPension(driver);
     await addDCPension(driver, {
       ...pensionInputs,
-      name: 'dcp4',
+      name: 'dcp04',
       startDate: '2020',
       message: `Transaction from unrecognised asset (could be typo or before asset start date?) : \"javaJob1\"`,
     }); // TODO : confusing error message : pension can't start before income
@@ -106,7 +108,7 @@ describe(testDataModelName, () => {
     await clearDCPension(driver);
     await addDCPension(driver, {
       ...pensionInputs,
-      name: 'dcp5',
+      name: 'dcp05',
       startDate: '2026',
       message: `added assets and transactions`,
     }); // BUG : start date after contributions end date?
@@ -114,15 +116,15 @@ describe(testDataModelName, () => {
     await clickButton(driver, 'useDCPInputs');
     await addDCPension(driver, {
       ...pensionInputs,
-      name: 'dcp6',
+      name: 'dcp06',
       startDate: '2036',
-      message: `Transaction from unrecognised asset (could be typo or before asset start date?) : \"Pensiondcp6\"`,
+      message: `Transaction from unrecognised asset (could be typo or before asset start date?) : \"Pensiondcp06\"`,
     }); // TODO : what does this error mean?  I expected "start date after end date"
 
     await clearDCPension(driver);
     await addDCPension(driver, {
       ...pensionInputs,
-      name: 'dcp7',
+      name: 'dcp07',
       growth: 'junk',
       message: `Growth value 'junk' should be a numerical or setting value`,
     });
@@ -130,7 +132,7 @@ describe(testDataModelName, () => {
     await clearDCPension(driver);
     await addDCPension(driver, {
       ...pensionInputs,
-      name: 'dcp8',
+      name: 'dcp08',
       growsWithCPI: 'junk',
       message: `added assets and transactions`,
     }); // BUG : junk shouldn't be recognised as an input here
@@ -138,7 +140,7 @@ describe(testDataModelName, () => {
     await clickButton(driver, 'useDCPInputs');
     await addDCPension(driver, {
       ...pensionInputs,
-      name: 'dcp9',
+      name: 'dcp09',
       contributionsStopDate: 'junk',
       message: `added assets and transactions`,
     }); // BUG : junk shouldn't be recognised as an input here

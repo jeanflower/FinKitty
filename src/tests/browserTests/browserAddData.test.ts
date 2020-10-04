@@ -413,7 +413,7 @@ describe(testDataModelName, () => {
     await addAsset(driver, {
       ...assetInputs,
       name: '',
-      message: `Asset name needs some characters`,
+      message: `Name should be not empty`,
     });
 
     await clearAssetFields(driver);
@@ -544,7 +544,7 @@ describe(testDataModelName, () => {
     await addDebt(driver, {
       ...debtInputs,
       name: '',
-      message: `Asset name needs some characters`, // TODO Asset name?
+      message: `Name should be not empty`,
     });
 
     await clearDebtFields(driver);

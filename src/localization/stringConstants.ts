@@ -125,6 +125,9 @@ export const pension = 'Pension';
 export const pensionSS = 'PensionSS';
 export const pensionDB = 'PensionDB';
 export const pensionTransfer = 'PensionTransfer';
+export const moveTaxFreePart = 'MoveTaxFreePart';
+export const taxFree = 'TaxFree';
+export const transferCrystallizedPension = 'TransferCrystallizedPension';
 
 // Transactions can be Conditional
 // (i.e. they're named ConditionalDoSomething)
