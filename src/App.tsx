@@ -1111,7 +1111,16 @@ export class AppContent extends Component<AppProps, AppState> {
             <br />
             <CreateModelForm
               userID={userID}
+              currentModelName={modelName}
               modelData={this.state.modelData}
+              saveModel={async (
+                userID: string,
+                modelName: string,
+                modelData: DbModelData,
+              ) => {
+                await saveModelToDBLSM(userID, modelName, modelData);
+                refreshData();
+              }}
               showAlert={showAlert}
               cloneModel={this.cloneModel}
               exampleModels={exampleModels}

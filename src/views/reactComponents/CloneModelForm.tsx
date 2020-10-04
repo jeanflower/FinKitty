@@ -10,6 +10,12 @@ interface CreateModelFormState {
 }
 interface CreateModelFormProps {
   userID: string;
+  currentModelName: string;
+  saveModel: (
+    userID: string,
+    modelName: string,
+    modelData: DbModelData,
+  ) => Promise<void>;
   modelData: DbModelData;
   showAlert: (arg0: string) => void;
   cloneModel: (newName: string, oldModel: DbModelData) => Promise<boolean>;
@@ -38,6 +44,7 @@ export class CreateModelForm extends Component<
     this.clonePropsModel = this.clonePropsModel.bind(this);
     this.handleValueChange = this.handleValueChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.backupModel = this.backupModel.bind(this);
   }
 
   private handleValueChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -89,6 +96,12 @@ export class CreateModelForm extends Component<
           type="secondary"
         />
         <Button
+          action={this.backupModel}
+          title="Make backup of model"
+          id={`btn-backup`}
+          type="secondary"
+        />
+        <Button
           action={this.clonePropsModel}
           title="Clone model"
           id={`btn-clone`}
@@ -102,6 +115,24 @@ export class CreateModelForm extends Component<
   private async clonePropsModel(e: any) {
     e.preventDefault();
     this.copyModel(this.props.modelData);
+  }
+
+  private async backupModel(e: any) {
+    e.preventDefault();
+    const d = new Date();
+    await this.props.saveModel(
+      this.props.userID,
+      this.props.currentModelName +
+        'backup' +
+        (d.toDateString() +
+          ' ' +
+          d.getHours() +
+          ':' +
+          d.getMinutes() +
+          ':' +
+          d.getSeconds()),
+      this.props.modelData,
+    );
   }
 
   private async copyModel(model: DbModelData) {

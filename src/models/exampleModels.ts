@@ -18,7 +18,7 @@ import {
 } from '../localization/stringConstants';
 import { DbModelData } from '../types/interfaces';
 import {
-//  log,
+  //  log,
   simpleExpense,
   simpleIncome,
   simpleAsset,
