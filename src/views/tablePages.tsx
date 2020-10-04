@@ -10,7 +10,6 @@ import {
 } from '../types/interfaces';
 
 import {
-  checkAsset,
   checkExpense,
   checkIncome,
   checkTransaction,
@@ -37,6 +36,9 @@ import {
   isAnExpense,
   isAnAssetOrAssets,
   isADebt,
+  checkForWordClashInModel,
+  getNumberAndWordParts,
+  minimalModel,
 } from '../utils';
 
 import SimpleFormatter from './reactComponents/NameFormatter';
@@ -92,12 +94,17 @@ import {
   taxChartFocusPerson,
   taxChartFocusType,
   taxChartShowNet,
+  crystallizedPension,
+  moveTaxFreePart,
+  pension,
+  pensionDB,
+  pensionSS,
+  pensionTransfer,
+  taxFree,
+  transferCrystallizedPension,
+  CASH_ASSET_NAME,
 } from '../localization/stringConstants';
 import { log } from 'util';
-
-function prohibitEditOfName(showAlert: (arg0: string) => void) {
-  showAlert('prohibit edit of name');
-}
 
 function handleExpenseGridRowsUpdated(
   model: DbModelData,
@@ -109,6 +116,20 @@ function handleExpenseGridRowsUpdated(
   // log('old expense '+showObj(expense));
   if (args[0].cellKey === 'NAME') {
     if (expense.NAME !== args[0].updated.NAME) {
+      const parsed = getNumberAndWordParts(args[0].updated.NAME);
+      if (parsed.numberPart !== undefined) {
+        showAlert(`Don't name an expense beginning with a number`);
+        return;
+      }
+      const clashCheck = checkForWordClashInModel(
+        model,
+        args[0].updated.NAME,
+        'already',
+      );
+      if (clashCheck !== '') {
+        showAlert(clashCheck);
+        return;
+      }
       attemptRename(model, expense.NAME, args[0].updated.NAME);
     }
     return;
@@ -162,6 +183,28 @@ function handleIncomeGridRowsUpdated(
   // log('old income '+showObj(income));
   if (args[0].cellKey === 'NAME') {
     if (income.NAME !== args[0].updated.NAME) {
+      if (args[0].updated.NAME.startsWith(pensionDB)) {
+        showAlert(`Don't rename incomes beginning ${pensionDB}`);
+        return;
+      }
+      if (args[0].updated.NAME.startsWith(pensionTransfer)) {
+        showAlert(`Don't rename incomes beginning ${pensionTransfer}`);
+        return;
+      }
+      const parsed = getNumberAndWordParts(args[0].updated.NAME);
+      if (parsed.numberPart !== undefined) {
+        showAlert(`Don't name an income beginning with a number`);
+        return;
+      }
+      const clashCheck = checkForWordClashInModel(
+        model,
+        args[0].updated.NAME,
+        'already',
+      );
+      if (clashCheck !== '') {
+        showAlert(clashCheck);
+        return;
+      }
       attemptRename(model, income.NAME, args[0].updated.NAME);
     }
     return;
@@ -213,6 +256,20 @@ function handleTriggerGridRowsUpdated(
   const trigger = args[0].fromRowData;
   if (args[0].cellKey === 'NAME') {
     if (trigger.NAME !== args[0].updated.NAME) {
+      const parsed = getNumberAndWordParts(args[0].updated.NAME);
+      if (parsed.numberPart !== undefined) {
+        showAlert(`Don't name a date beginning with a number`);
+        return;
+      }
+      const clashCheck = checkForWordClashInModel(
+        model,
+        args[0].updated.NAME,
+        'already',
+      );
+      if (clashCheck !== '') {
+        showAlert(clashCheck);
+        return;
+      }
       attemptRename(model, trigger.NAME, args[0].updated.NAME);
     }
     return;
@@ -241,6 +298,40 @@ function handleAssetGridRowsUpdated(
   const asset = args[0].fromRowData;
   if (args[0].cellKey === 'NAME') {
     if (asset.NAME !== args[0].updated.NAME) {
+      if (asset.NAME === CASH_ASSET_NAME) {
+        showAlert(`Don't rename cash asset`);
+        return;
+      }
+      if (args[0].updated.NAME.startsWith(pensionDB)) {
+        showAlert(`Don't rename assets beginning ${pensionDB}`);
+        return;
+      }
+      if (args[0].updated.NAME.startsWith(pension)) {
+        showAlert(`Don't rename assets beginning ${pension}`);
+        return;
+      }
+      if (args[0].updated.NAME.endsWith(taxFree)) {
+        showAlert(`Don't rename assets ending ${taxFree}`);
+        return;
+      }
+      if (args[0].updated.NAME.startsWith(crystallizedPension)) {
+        showAlert(`Don't rename assets beginning ${crystallizedPension}`);
+        return;
+      }
+      const parsed = getNumberAndWordParts(args[0].updated.NAME);
+      if (parsed.numberPart !== undefined) {
+        showAlert(`Don't name an asset beginning with a number`);
+        return;
+      }
+      const clashCheck = checkForWordClashInModel(
+        model,
+        args[0].updated.NAME,
+        'already',
+      );
+      if (clashCheck !== '') {
+        showAlert(clashCheck);
+        return;
+      }
       attemptRename(model, asset.NAME, args[0].updated.NAME);
     }
     return;
@@ -333,6 +424,58 @@ function handleTransactionGridRowsUpdated(
   // for debugging, it can be useful to allow editing of the name
   if (args[0].cellKey === 'NAME') {
     if (gridData.NAME !== args[0].updated.NAME) {
+      if (args[0].updated.NAME.startsWith(revalue)) {
+        showAlert(`Don't rename transactions beginning ${revalue}`);
+        return;
+      }
+      if (args[0].updated.NAME.startsWith(conditional)) {
+        showAlert(`Don't rename transactions beginning ${conditional}`);
+        return;
+      }
+      if (args[0].updated.NAME.startsWith(pensionSS)) {
+        showAlert(`Don't rename transactions beginning ${pensionSS}`);
+        return;
+      }
+      if (args[0].updated.NAME.startsWith(pensionTransfer)) {
+        showAlert(`Don't rename transactions beginning ${pensionTransfer}`);
+        return;
+      }
+      if (args[0].updated.NAME.startsWith(pensionDB)) {
+        showAlert(`Don't rename transactions beginning ${pensionDB}`);
+        return;
+      }
+      if (args[0].updated.NAME.startsWith(pension)) {
+        showAlert(`Don't rename transactions beginning ${pension}`);
+        return;
+      }
+      if (args[0].updated.NAME.startsWith(moveTaxFreePart)) {
+        showAlert(`Don't rename transactions beginning ${moveTaxFreePart}`);
+        return;
+      }
+      if (args[0].updated.NAME.startsWith(crystallizedPension)) {
+        showAlert(`Don't rename transactions beginning ${crystallizedPension}`);
+        return;
+      }
+      if (args[0].updated.NAME.startsWith(transferCrystallizedPension)) {
+        showAlert(
+          `Don't rename transactions beginning ${transferCrystallizedPension}`,
+        );
+        return;
+      }
+      const parsed = getNumberAndWordParts(args[0].updated.NAME);
+      if (parsed.numberPart !== undefined) {
+        showAlert(`Don't name a transaction beginning with a number`);
+        return;
+      }
+      const clashCheck = checkForWordClashInModel(
+        model,
+        args[0].updated.NAME,
+        'already',
+      );
+      if (clashCheck !== '') {
+        showAlert(clashCheck);
+        return;
+      }
       attemptRename(model, gridData.NAME, args[0].updated.NAME);
     }
     return;
@@ -415,6 +558,28 @@ function handleSettingGridRowsUpdated(
   const x = args[0].fromRowData;
   if (args[0].cellKey === 'NAME') {
     if (x.NAME !== args[0].updated.NAME) {
+      if (
+        minimalModel.settings.filter(obj => {
+          return obj.NAME === x.NAME;
+        }).length > 0
+      ) {
+        showAlert(`Don't rename inbuilt settings`);
+        return;
+      }
+      const parsed = getNumberAndWordParts(args[0].updated.NAME);
+      if (parsed.numberPart !== undefined) {
+        showAlert(`Don't name a setting beginning with a number`);
+        return;
+      }
+      const clashCheck = checkForWordClashInModel(
+        model,
+        args[0].updated.NAME,
+        'already',
+      );
+      if (clashCheck !== '') {
+        showAlert(clashCheck);
+        return;
+      }
       attemptRename(model, x.NAME, args[0].updated.NAME);
     }
     return;

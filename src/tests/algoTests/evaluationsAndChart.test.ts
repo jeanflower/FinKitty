@@ -51,11 +51,11 @@ import {
   viewType,
   revalueSetting,
   revalue,
-  allItems, 
-  taxFree, 
-  conditional, 
-  moveTaxFreePart, 
-  pensionTransfer, 
+  allItems,
+  taxFree,
+  conditional,
+  moveTaxFreePart,
+  pensionTransfer,
   transferCrystallizedPension,
 } from '../../localization/stringConstants';
 import {
@@ -88,8 +88,8 @@ import {
   setROI,
   simpleSetting,
   viewSetting,
-  makeModelFromJSONString, 
-  attemptRenameLong, 
+  makeModelFromJSONString,
+  attemptRenameLong,
   convertToUndoModel,
   // showObj,
 } from '../../utils';
@@ -264,7 +264,7 @@ function printTestCodeForChart(result: DataForView) {
 
 function getTestEvaluations(
   model: DbModelData,
-  extraChecks: boolean = true,
+  extraChecks = true,
 ): {
   evaluations: Evaluation[];
   todaysAssetValues: Map<string, number>;
@@ -273,125 +273,126 @@ function getTestEvaluations(
   todaysExpenseValues: Map<string, number>;
   todaysSettingValues: Map<string, string>;
 } {
-
-  if(extraChecks){
+  if (extraChecks) {
     // hijack to try some renaming
-    model.triggers.forEach((obj)=>{
+    model.triggers.forEach(obj => {
       const oldName = obj.NAME;
       let message = attemptRenameLong(model, oldName, 'abcd');
-      if(message.length > 0){
+      if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
       }
       message = attemptRenameLong(model, 'abcd', oldName);
-      if(message.length > 0){
+      if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
       }
       convertToUndoModel(model);
       convertToUndoModel(model);
     });
-    model.assets.forEach((obj)=>{
+    model.assets.forEach(obj => {
       const oldName = obj.NAME;
-      if(oldName === CASH_ASSET_NAME){ return; }
+      if (oldName === CASH_ASSET_NAME) {
+        return;
+      }
       let newName = 'abcd';
-      if(oldName.startsWith(pensionDB)){
+      if (oldName.startsWith(pensionDB)) {
         newName = pensionDB + newName;
-      } else if(oldName.startsWith(pension)){
+      } else if (oldName.startsWith(pension)) {
         newName = pension + newName;
-      } else if(oldName.endsWith(taxFree)){
+      } else if (oldName.endsWith(taxFree)) {
         newName = newName + taxFree;
-      } else if(oldName.startsWith(crystallizedPension)){
+      } else if (oldName.startsWith(crystallizedPension)) {
         newName = crystallizedPension + newName;
       }
       let message = attemptRenameLong(model, oldName, newName);
-      if(message.length > 0){
+      if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
       }
       message = attemptRenameLong(model, newName, oldName);
-      if(message.length > 0){
+      if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
       }
       convertToUndoModel(model);
       convertToUndoModel(model);
     });
-    model.incomes.forEach((obj)=>{
+    model.incomes.forEach(obj => {
       const oldName = obj.NAME;
       let newName = 'abcd';
-      if(oldName.startsWith(pensionDB)){
+      if (oldName.startsWith(pensionDB)) {
         newName = pensionDB + newName;
-      } else if(oldName.startsWith(pensionTransfer)){
+      } else if (oldName.startsWith(pensionTransfer)) {
         newName = pensionTransfer + newName;
       }
       let message = attemptRenameLong(model, oldName, newName);
-      if(message.length > 0){
+      if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
       }
       message = attemptRenameLong(model, newName, oldName);
-      if(message.length > 0){
+      if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
       }
       convertToUndoModel(model);
       convertToUndoModel(model);
     });
-    model.expenses.forEach((obj)=>{
+    model.expenses.forEach(obj => {
       const oldName = obj.NAME;
       let message = attemptRenameLong(model, oldName, 'abcd');
-      if(message.length > 0){
+      if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
       }
       message = attemptRenameLong(model, 'abcd', oldName);
-      if(message.length > 0){
+      if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
       }
       convertToUndoModel(model);
       convertToUndoModel(model);
     });
-    model.transactions.forEach((obj)=>{
+    model.transactions.forEach(obj => {
       const oldName = obj.NAME;
       let newName = 'abcd';
-      if(oldName.startsWith(revalue)){
+      if (oldName.startsWith(revalue)) {
         newName = revalue + newName;
-      } else if(oldName.startsWith(conditional)){
+      } else if (oldName.startsWith(conditional)) {
         newName = conditional + newName;
-      } else if(oldName.startsWith(pensionSS)){
+      } else if (oldName.startsWith(pensionSS)) {
         newName = pensionSS + newName;
-      } else if(oldName.startsWith(pensionTransfer)){
+      } else if (oldName.startsWith(pensionTransfer)) {
         newName = pensionTransfer + newName;
-      } else if(oldName.startsWith(pensionDB)){
+      } else if (oldName.startsWith(pensionDB)) {
         newName = pensionDB + newName;
-      } else if(oldName.startsWith(pension)){
+      } else if (oldName.startsWith(pension)) {
         newName = pension + newName;
-      } else if(oldName.startsWith(moveTaxFreePart)){
+      } else if (oldName.startsWith(moveTaxFreePart)) {
         newName = moveTaxFreePart + newName;
-      } else if(oldName.startsWith(crystallizedPension)){
+      } else if (oldName.startsWith(crystallizedPension)) {
         newName = crystallizedPension + newName;
-      } else if(oldName.startsWith(transferCrystallizedPension)){
+      } else if (oldName.startsWith(transferCrystallizedPension)) {
         newName = transferCrystallizedPension + newName;
       }
       // log(`transaction oldName ${obj.NAME} -> ${newName}`);
 
       let message = attemptRenameLong(model, oldName, newName);
-      if(message.length > 0){
+      if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
       }
       message = attemptRenameLong(model, newName, oldName);
-      if(message.length > 0){
+      if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
       }
       convertToUndoModel(model);
       convertToUndoModel(model);
-    });  
-    model.settings.forEach((obj)=>{
-      if(obj.TYPE === viewType || obj.TYPE === constType){
+    });
+    model.settings.forEach(obj => {
+      if (obj.TYPE === viewType || obj.TYPE === constType) {
         return;
       }
       const oldName = obj.NAME;
-      let newName = 'abcd';
+      const newName = 'abcd';
       let message = attemptRenameLong(model, oldName, newName);
-      if(message.length > 0){
+      if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
       }
       message = attemptRenameLong(model, newName, oldName);
-      if(message.length > 0){
+      if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
       }
       convertToUndoModel(model);

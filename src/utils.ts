@@ -90,6 +90,20 @@ export function getCurrentVersion() {
   return 4;
 }
 
+// note JSON stringify and back for serialisation is OK but
+// breaks dates (and functions too but we don't have these)
+function cleanUpDates(modelFromJSON: DbModelData): void {
+  for (const t of modelFromJSON.triggers) {
+    //log(`type of ${t.DATE} = ${typeof t.DATE}`);
+    t.DATE = new Date(t.DATE);
+    //log(`type of ${t.DATE} = ${typeof t.DATE}`);
+  }
+  if (modelFromJSON.undoModel) {
+    cleanUpDates(modelFromJSON.undoModel);
+  }
+  // log(`cleaned up model assets ${showObj(result.assets)}`);
+}
+
 export function makeModelFromJSONString(input: string): DbModelData {
   const matches = input.match(/PensionDBC/g);
   if (matches !== null && matches.length > 0) {
@@ -114,20 +128,6 @@ export function makeModelFromJSONString(input: string): DbModelData {
 
   // log(`result from makeModelFromJSON = ${showObj(result)}`);
   return result;
-}
-
-// note JSON stringify and back for serialisation is OK but
-// breaks dates (and functions too but we don't have these)
-function cleanUpDates(modelFromJSON: DbModelData): void {
-  for (const t of modelFromJSON.triggers) {
-    //log(`type of ${t.DATE} = ${typeof t.DATE}`);
-    t.DATE = new Date(t.DATE);
-    //log(`type of ${t.DATE} = ${typeof t.DATE}`);
-  }
-  if (modelFromJSON.undoModel) {
-    cleanUpDates(modelFromJSON.undoModel);
-  }
-  // log(`cleaned up model assets ${showObj(result.assets)}`);
 }
 
 export const minimalModel: DbModelData = {
@@ -1457,7 +1457,7 @@ function usesSeparatedString(existing: string, checkWord: string) {
   return numMatches > 0;
 }
 
-function checkForWordClashInModel(
+export function checkForWordClashInModel(
   model: DbModelData,
   replacement: string,
   messageWord: string,
