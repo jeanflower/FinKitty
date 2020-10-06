@@ -213,6 +213,7 @@ function getTestModel01() {
     ],
     version: 0,
     undoModel: undefined,
+    redoModel: undefined,
   };
   setSetting(model.settings, roiStart, '1 Jan 2019', viewType);
   setSetting(model.settings, roiEnd, '1 Feb 2019', viewType);
@@ -229,6 +230,7 @@ function getTestModel02() {
     triggers: [],
     version: 0,
     undoModel: undefined,
+    redoModel: undefined,
   };
   setSetting(model.settings, roiStart, '1 Jan 2019', constType);
   setSetting(model.settings, roiEnd, '1 Feb 2019', constType);
@@ -324,6 +326,7 @@ export function getModelCoarseAndFine(): DbModelData {
     ],
     version: 0,
     undoModel: undefined,
+    redoModel: undefined,
   };
 
   setROI(model, roi);
@@ -354,6 +357,7 @@ function getModelFutureExpense() {
     settings: [...defaultSettings],
     version: 0,
     undoModel: undefined,
+    redoModel: undefined,
   };
   setROI(model, roi);
   return model;
@@ -399,6 +403,7 @@ export function getThreeChryslerModel(): DbModelData {
     ],
     version: 0,
     undoModel: undefined,
+    redoModel: undefined,
   };
   model.assets.filter(a => {
     return a.NAME === CASH_ASSET_NAME;

@@ -141,6 +141,7 @@ export interface DbModelData {
   settings: DbSetting[];
   version: number;
   undoModel: DbModelData | undefined;
+  redoModel: DbModelData | undefined;
 }
 
 export interface FormProps {

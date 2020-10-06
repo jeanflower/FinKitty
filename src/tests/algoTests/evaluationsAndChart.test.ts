@@ -90,7 +90,7 @@ import {
   viewSetting,
   makeModelFromJSONString,
   attemptRenameLong,
-  convertToUndoModel,
+  revertToUndoModel,
   // showObj,
 } from '../../utils';
 import {
@@ -285,8 +285,8 @@ function getTestEvaluations(
       if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
       }
-      convertToUndoModel(model);
-      convertToUndoModel(model);
+      revertToUndoModel(model);
+      revertToUndoModel(model);
     });
     model.assets.forEach(obj => {
       const oldName = obj.NAME;
@@ -311,8 +311,8 @@ function getTestEvaluations(
       if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
       }
-      convertToUndoModel(model);
-      convertToUndoModel(model);
+      revertToUndoModel(model);
+      revertToUndoModel(model);
     });
     model.incomes.forEach(obj => {
       const oldName = obj.NAME;
@@ -330,8 +330,8 @@ function getTestEvaluations(
       if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
       }
-      convertToUndoModel(model);
-      convertToUndoModel(model);
+      revertToUndoModel(model);
+      revertToUndoModel(model);
     });
     model.expenses.forEach(obj => {
       const oldName = obj.NAME;
@@ -343,8 +343,8 @@ function getTestEvaluations(
       if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
       }
-      convertToUndoModel(model);
-      convertToUndoModel(model);
+      revertToUndoModel(model);
+      revertToUndoModel(model);
     });
     model.transactions.forEach(obj => {
       const oldName = obj.NAME;
@@ -378,8 +378,8 @@ function getTestEvaluations(
       if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
       }
-      convertToUndoModel(model);
-      convertToUndoModel(model);
+      revertToUndoModel(model);
+      revertToUndoModel(model);
     });
     model.settings.forEach(obj => {
       if (obj.TYPE === viewType || obj.TYPE === constType) {
@@ -395,8 +395,8 @@ function getTestEvaluations(
       if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
       }
-      convertToUndoModel(model);
-      convertToUndoModel(model);
+      revertToUndoModel(model);
+      revertToUndoModel(model);
     });
   }
 

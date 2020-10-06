@@ -40,6 +40,8 @@ import {
   getTodaysDate,
   emptyModel,
   attemptRenameLong,
+  revertToUndoModel,
+  applyRedoToModel,
 } from './utils';
 import { loginPage } from './views/loginPage';
 import { screenshotsDiv } from './views/screenshotsPage';
@@ -1433,6 +1435,8 @@ export class AppContent extends Component<AppProps, AppState> {
       );
       entry = it.next();
     }
+    buttons.push(this.makeUndoButton());
+    buttons.push(this.makeRedoButton());
     buttons.push(this.makeSaveButton());
     buttons.push(
       <Button
@@ -1450,13 +1454,49 @@ export class AppContent extends Component<AppProps, AppState> {
     return buttons;
   }
 
+  private makeUndoButton() {
+    return (
+      <Button
+        key={'undoButton'}
+        action={async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+          e.persist();
+          await revertToUndoModel(this.state.modelData);
+          await saveModelLSM(userID, modelName, this.state.modelData);
+          refreshData();
+        }}
+        title={'Undo'}
+        id={`btn-undo-model`}
+        type={
+          this.state.modelData.undoModel !== undefined ? 'primary' : 'secondary'
+        }
+      />
+    );
+  }
+  private makeRedoButton() {
+    return (
+      <Button
+        key={'redoButton'}
+        action={async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+          e.persist();
+          await applyRedoToModel(this.state.modelData);
+          await saveModelLSM(userID, modelName, this.state.modelData);
+          refreshData();
+        }}
+        title={'Redo'}
+        id={`btn-undo-model`}
+        type={
+          this.state.modelData.redoModel !== undefined ? 'primary' : 'secondary'
+        }
+      />
+    );
+  }
+
   private makeSaveButton() {
     // log(`isDirty = ${isDirty}`);
     return (
       <Button
         key={'saveButton'}
         action={async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-          // log('clear alert text');
           e.persist();
           await saveModelToDBLSM(userID, modelName, this.state.modelData);
           refreshData();

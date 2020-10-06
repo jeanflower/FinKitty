@@ -101,6 +101,9 @@ function cleanUpDates(modelFromJSON: DbModelData): void {
   if (modelFromJSON.undoModel) {
     cleanUpDates(modelFromJSON.undoModel);
   }
+  if (modelFromJSON.redoModel) {
+    cleanUpDates(modelFromJSON.redoModel);
+  }
   // log(`cleaned up model assets ${showObj(result.assets)}`);
 }
 
@@ -251,6 +254,7 @@ export const minimalModel: DbModelData = {
   transactions: [],
   version: getCurrentVersion(),
   undoModel: undefined,
+  redoModel: undefined,
 };
 
 export function getMinimalModelCopy(): DbModelData {
@@ -1212,6 +1216,7 @@ export const emptyModel: DbModelData = {
   settings: [],
   version: 0,
   undoModel: undefined,
+  redoModel: undefined,
 };
 export const defaultSettings: DbSetting[] = [
   { ...viewSetting, NAME: viewFrequency, VALUE: monthly },
@@ -1415,19 +1420,56 @@ export function getLiabilityPeople(model: DbModelData): string[] {
 export function markForUndo(model: DbModelData) {
   const modelClone = makeModelFromJSONString(JSON.stringify(model));
   model.undoModel = modelClone;
+  model.redoModel = undefined;
 }
-export function convertToUndoModel(model: DbModelData): boolean {
+export function revertToUndoModel(model: DbModelData): boolean {
   if (model.undoModel !== undefined) {
-    const tmpModel = model.undoModel;
-    model.assets = [];
-    model.expenses = [];
-    model.incomes = [];
-    model.settings = [];
-    model.transactions = [];
-    model.triggers = [];
+    // log(`before undo, model has model.undoModel = ${model.undoModel}`);
+    // log(`before undo, model has model.redoModel = ${model.redoModel}`);
+    // log(`before undo, model has ${model.settings.length} settings`);
+    const targetModel = model.undoModel;
     model.undoModel = undefined;
-    model.version = 0;
-    Object.assign(model, tmpModel);
+    targetModel.redoModel = {
+      assets: model.assets,
+      expenses: model.expenses,
+      incomes: model.incomes,
+      settings: model.settings,
+      transactions: model.transactions,
+      triggers: model.triggers,
+      version: model.version,
+      undoModel: model.undoModel,
+      redoModel: model.redoModel,
+    };
+    Object.assign(model, targetModel);
+    // log(`after undo, model has model.undoModel = ${model.undoModel}`);
+    // log(`after undo, model has model.redoModel = ${model.redoModel}`);
+    // log(`after undo, model has ${model.settings.length} settings`);
+    return true;
+  }
+  return false;
+}
+export function applyRedoToModel(model: DbModelData): boolean {
+  if (model.redoModel !== undefined) {
+    // log(`before redo, model has model.undoModel = ${model.undoModel}`);
+    // log(`before redo, model has model.redoModel = ${model.redoModel}`);
+    // log(`before redo, model has ${model.settings.length} settings`);
+    const targetModel = model.redoModel;
+    model.redoModel = undefined;
+    targetModel.undoModel = {
+      assets: model.assets,
+      expenses: model.expenses,
+      incomes: model.incomes,
+      settings: model.settings,
+      transactions: model.transactions,
+      triggers: model.triggers,
+      version: model.version,
+      undoModel: model.undoModel,
+      redoModel: model.redoModel,
+    };
+    Object.assign(model, targetModel);
+    // log(`after redo, model has model.undoModel = ${model.undoModel}`);
+    // log(`after redo, model has model.redoModel = ${model.redoModel}`);
+    // log(`after redo, model has ${model.settings.length} settings`);
     return true;
   }
   return false;
@@ -1705,13 +1747,13 @@ export function attemptRenameLong(
   message = checkForWordClashInModel(model, old, 'still');
   if (message.length > 0) {
     // log(`old word still present in adjusted model`);
-    convertToUndoModel(model);
+    revertToUndoModel(model);
     return message;
   }
   const checkResult = checkData(model);
   if (checkResult !== '') {
     // log(`revert adjusted model`);
-    convertToUndoModel(model);
+    revertToUndoModel(model);
     return checkResult;
   } else {
     // log(`save adjusted model`);

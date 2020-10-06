@@ -130,6 +130,7 @@ export class RESTDB implements DbInterface {
       ...model,
     };
     delete modelCopy.undoModel;
+    delete modelCopy.redoModel;
     urlencoded.append('model', JSON.stringify(modelCopy));
 
     // console.log(`update DB for user ${userID}`);

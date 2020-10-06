@@ -15,7 +15,7 @@ import {
   showObj,
   minimalModel,
   markForUndo,
-  convertToUndoModel,
+  revertToUndoModel,
 } from '../utils';
 
 import { getDB } from './database';
@@ -270,7 +270,7 @@ async function submitItemLSM(
 
   const checkResult = checkData(modelData);
   if (checkResult !== '') {
-    convertToUndoModel(modelData);
+    revertToUndoModel(modelData);
     return checkResult;
   }
 
