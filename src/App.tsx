@@ -1429,7 +1429,7 @@ export class AppContent extends Component<AppProps, AppState> {
             toggle(view);
           }}
           title={view.lc}
-          type={display ? 'primary' : 'secondary'}
+          type={display ? 'secondary-on' : 'secondary'}
           key={view.lc}
           id={`btn-${view.lc}`}
         />,
