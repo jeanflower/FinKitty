@@ -1461,9 +1461,10 @@ export class AppContent extends Component<AppProps, AppState> {
         key={'undoButton'}
         action={async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
           e.persist();
-          await revertToUndoModel(this.state.modelData);
-          await saveModelLSM(userID, modelName, this.state.modelData);
-          refreshData();
+          if(await revertToUndoModel(this.state.modelData)){
+            await saveModelLSM(userID, modelName, this.state.modelData);
+            refreshData();
+          }
         }}
         title={'Undo'}
         id={`btn-undo-model`}
@@ -1479,9 +1480,10 @@ export class AppContent extends Component<AppProps, AppState> {
         key={'redoButton'}
         action={async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
           e.persist();
-          await applyRedoToModel(this.state.modelData);
-          await saveModelLSM(userID, modelName, this.state.modelData);
-          refreshData();
+          if(await applyRedoToModel(this.state.modelData)){
+            await saveModelLSM(userID, modelName, this.state.modelData);
+            refreshData();
+          }
         }}
         title={'Redo'}
         id={`btn-undo-model`}
