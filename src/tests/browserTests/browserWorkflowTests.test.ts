@@ -139,6 +139,43 @@ describe(testDataModelName, () => {
     }
   }
 
+  it('new, switch, cancel', async done => {
+    await beforeAllWork(
+      driver,
+      testDataModelName,
+      `{"testName":"${TestModel01}"}`,
+    );
+
+    const ex1Name = 'ex1Name';
+    const ex2Name = 'ex2Name';
+    await deleteIfExists(ex1Name, driver);
+    await deleteIfExists(ex2Name, driver);
+
+    await clickButton(driver, `btn-overview-${testDataModelName}`);
+    await clickButton(driver, 'btn-Home');
+    await clickButton(driver, `btn-save-model`);
+
+    await makeNewModel(ex1Name);
+    await assertCurrentModel(ex1Name, true);
+
+    await makeNewModel(ex2Name);
+    await assertCurrentModel(ex2Name, true);
+
+    await driver.executeScript('window.scrollBy(0, -500)'); // Adjust scrolling with a negative value here
+    await clickButton(driver, `btn-overview-${ex1Name}`);
+    await consumeAlert(`Continue without saving unsaved model ${ex2Name}?`, false, driver);
+
+    const label = await driver.findElements(webdriver.By.id('pageTitle'));
+    expect(label.length === 1).toBe(true);
+    const labelText = await label[0].getText();
+    expect(labelText).toBe(`Create or load a model`);
+
+    await deleteIfExists(ex1Name, driver);
+    await deleteIfExists(ex2Name, driver);
+    await cleanUpWork(driver, testDataModelName);
+    done();
+  });
+
   it('new, clone, save, manipulate cash value', async done => {
     await beforeAllWork(
       driver,

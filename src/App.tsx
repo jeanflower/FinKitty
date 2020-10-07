@@ -984,8 +984,9 @@ export class AppContent extends Component<AppProps, AppState> {
     return this.modelList(
       modelNames,
       async (model: string) => {
-        await updateModelName(model);
-        await toggle(overview);
+        if(await updateModelName(model)){
+          await toggle(overview);
+        }
       },
       'overview',
     );
