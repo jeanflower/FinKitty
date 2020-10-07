@@ -1469,7 +1469,7 @@ export class AppContent extends Component<AppProps, AppState> {
         title={'Undo'}
         id={`btn-undo-model`}
         type={
-          this.state.modelData.undoModel !== undefined ? 'primary' : 'secondary'
+          this.state.modelData.undoModel !== undefined ? 'primary' : 'primary-off'
         }
       />
     );
@@ -1488,7 +1488,7 @@ export class AppContent extends Component<AppProps, AppState> {
         title={'Redo'}
         id={`btn-undo-model`}
         type={
-          this.state.modelData.redoModel !== undefined ? 'primary' : 'secondary'
+          this.state.modelData.redoModel !== undefined ? 'primary' : 'primary-off'
         }
       />
     );
@@ -1506,7 +1506,7 @@ export class AppContent extends Component<AppProps, AppState> {
         }}
         title={'Save model'}
         id={`btn-save-model`}
-        type={isDirty ? 'primary' : 'secondary'}
+        type={isDirty ? 'primary' : 'primary-off'}
       />
     );
   }
