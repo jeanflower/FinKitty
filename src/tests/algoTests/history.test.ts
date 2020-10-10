@@ -13,8 +13,8 @@ import {
   setSetting,
   getSettings,
   applyRedoToModel,
-//  showObj,
-//  log,
+  //  showObj,
+  //  log,
 } from '../../utils';
 
 interface UndoRedoModel {

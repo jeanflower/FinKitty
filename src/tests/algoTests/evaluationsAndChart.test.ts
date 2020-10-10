@@ -16899,7 +16899,7 @@ describe('evaluations tests', () => {
       DATE: '2029',
       STOP_DATE: '',
       RECURRENCE: '',
-      TYPE: 'custom',
+      TYPE: 'revalueSetting',
       CATEGORY: '',
     });
 

@@ -936,6 +936,22 @@ export function checkTransaction(t: DbTransaction, model: DbModelData): string {
           return outcome;
         }
       }
+      /*
+      // Don't try this.
+      // Some revaluations are of type custom
+      // because we want to be able to type them in
+      // and see them appear on the Transactions page
+      // At least for now, because automated tests can't edit tables
+      // so we can't automate recurring revaluations of settings
+      // unless the action happens as a new Transaction
+      if(t.TYPE !== revalueAsset
+         && t.TYPE !== revalueDebt
+         && t.TYPE !== revalueExp
+         && t.TYPE !== revalueInc
+         && t.TYPE !== revalueSetting){
+        return `Revalue transaction has unexpected type ${t.TYPE}`;
+      }
+      */
     } else {
       const outcome = checkTransactionTo(
         t.TO,

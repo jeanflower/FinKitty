@@ -1,5 +1,5 @@
 import React from 'react';
-import { log } from './../../utils';
+// import { log } from './../../utils';
 
 interface ButtonProps {
   type: string;

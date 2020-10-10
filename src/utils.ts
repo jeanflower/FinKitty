@@ -59,6 +59,14 @@ import {
   taxChartShowNet,
   taxChartShowNetHint,
   annually,
+  conditional,
+  crystallizedPension,
+  moveTaxFreePart,
+  pension,
+  pensionDB,
+  pensionSS,
+  pensionTransfer,
+  transferCrystallizedPension,
 } from './localization/stringConstants';
 
 import moment from 'moment';
@@ -1499,6 +1507,37 @@ function usesSeparatedString(existing: string, checkWord: string) {
   return numMatches > 0;
 }
 
+export function getSpecialWord(name: string): string {
+  if (name.startsWith(revalue)) {
+    return revalue;
+  }
+  if (name.startsWith(conditional)) {
+    return conditional;
+  }
+  if (name.startsWith(pensionSS)) {
+    return pensionSS;
+  }
+  if (name.startsWith(pensionTransfer)) {
+    return pensionTransfer;
+  }
+  if (name.startsWith(pensionDB)) {
+    return pensionDB;
+  }
+  if (name.startsWith(pension)) {
+    return pension;
+  }
+  if (name.startsWith(moveTaxFreePart)) {
+    return moveTaxFreePart;
+  }
+  if (name.startsWith(crystallizedPension)) {
+    return crystallizedPension;
+  }
+  if (name.startsWith(transferCrystallizedPension)) {
+    return transferCrystallizedPension;
+  }
+  return '';
+}
+
 export function checkForWordClashInModel(
   model: DbModelData,
   replacement: string,
@@ -1688,10 +1727,21 @@ export function attemptRenameLong(
   replacement: string,
 ): string {
   // log(`attempt rename from ${old} to ${replacement}`);
-  // prevent a change which clashes with an existing word
 
+  // prevent a change which alters a special word
+  const oldSpecialWord = getSpecialWord(old);
+  const newSpecialWord = getSpecialWord(replacement);
+  if (oldSpecialWord !== newSpecialWord) {
+    if (oldSpecialWord !== '') {
+      return `Must maintain special formatting using ${oldSpecialWord}`;
+    } else {
+      return `Must not introduce special formatting using ${newSpecialWord}`;
+    }
+  }
+  // prevent a change which clashes with an existing word
   let message = checkForWordClashInModel(model, replacement, 'already');
   if (message.length > 0) {
+    // log(`found word clash ${message}`);
     return message;
   }
 

@@ -1,4 +1,5 @@
 import React from 'react';
+import Button from './reactComponents/Button';
 import { screenshotsDiv } from './screenshotsPage';
 
 export function loginPage(loginWithRedirect: any, loginForTesting: any) {
@@ -12,14 +13,20 @@ export function loginPage(loginWithRedirect: any, loginForTesting: any) {
       <div className="row">
         <div className="col-sm mb-4">
           <div className="alert alert-block">
-            <h2>Get started</h2> To begin using this app, click below
+            <h2>Get started</h2> To begin using this app, log in or use a shared playpen
             <br />
-            <button onClick={loginWithRedirect} id="buttonLogin">
-              Login or create an account
-            </button>
-            <button onClick={loginForTesting} id="buttonTestLogin">
-              Shared playpen (no login)
-            </button>
+            <Button 
+              type="secondary"
+              id="buttonLogin"
+              action={loginWithRedirect}
+              title="Login or create an account"
+            />
+            <Button 
+              type="secondary"
+              id="buttonTestLogin"
+              action={loginForTesting}
+              title="Shared playpen (no login)"
+            />
           </div>
           <div className="alert alert-block">
             <strong>How it works</strong> Build one or more models. Each tracks

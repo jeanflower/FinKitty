@@ -163,7 +163,11 @@ describe(testDataModelName, () => {
 
     await driver.executeScript('window.scrollBy(0, -500)'); // Adjust scrolling with a negative value here
     await clickButton(driver, `btn-overview-${ex1Name}`);
-    await consumeAlert(`Continue without saving unsaved model ${ex2Name}?`, false, driver);
+    await consumeAlert(
+      `Continue without saving unsaved model ${ex2Name}?`,
+      false,
+      driver,
+    );
 
     const label = await driver.findElements(webdriver.By.id('pageTitle'));
     expect(label.length === 1).toBe(true);

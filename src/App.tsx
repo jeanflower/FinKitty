@@ -984,7 +984,7 @@ export class AppContent extends Component<AppProps, AppState> {
     return this.modelList(
       modelNames,
       async (model: string) => {
-        if(await updateModelName(model)){
+        if (await updateModelName(model)) {
           await toggle(overview);
         }
       },
@@ -1446,7 +1446,7 @@ export class AppContent extends Component<AppProps, AppState> {
           this.props.logOutAction();
         }}
         title="Log out"
-        type="secondary"
+        type="primary"
         key="Log out"
         id={`btn-LogOut`}
       />,
@@ -1461,16 +1461,14 @@ export class AppContent extends Component<AppProps, AppState> {
         key={'undoButton'}
         action={async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
           e.persist();
-          if(await revertToUndoModel(this.state.modelData)){
+          if (await revertToUndoModel(this.state.modelData)) {
             await saveModelLSM(userID, modelName, this.state.modelData);
             refreshData();
           }
         }}
         title={'Undo'}
         id={`btn-undo-model`}
-        type={
-          this.state.modelData.undoModel !== undefined ? 'primary' : 'primary-off'
-        }
+        type={this.state.modelData.undoModel !== undefined ? 'primary' : 'primary-off'}
       />
     );
   }
@@ -1480,16 +1478,14 @@ export class AppContent extends Component<AppProps, AppState> {
         key={'redoButton'}
         action={async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
           e.persist();
-          if(await applyRedoToModel(this.state.modelData)){
+          if (await applyRedoToModel(this.state.modelData)) {
             await saveModelLSM(userID, modelName, this.state.modelData);
             refreshData();
           }
         }}
         title={'Redo'}
         id={`btn-undo-model`}
-        type={
-          this.state.modelData.redoModel !== undefined ? 'primary' : 'primary-off'
-        }
+        type={this.state.modelData.redoModel !== undefined ? 'primary' : 'primary-off'}
       />
     );
   }
@@ -1581,7 +1577,7 @@ export async function attemptRename(
       true, // gotoDB
     );
   } else {
-    alert(message);
+    showAlert(message);
   }
   return message;
 }

@@ -95,13 +95,10 @@ import {
   taxChartFocusType,
   taxChartShowNet,
   crystallizedPension,
-  moveTaxFreePart,
   pension,
   pensionDB,
-  pensionSS,
   pensionTransfer,
   taxFree,
-  transferCrystallizedPension,
   CASH_ASSET_NAME,
 } from '../localization/stringConstants';
 import { log } from 'util';
@@ -421,65 +418,6 @@ function handleTransactionGridRowsUpdated(
   // log('handleTransactionGridRowsUpdated', args);
   const gridData = args[0].fromRowData;
 
-  // for debugging, it can be useful to allow editing of the name
-  if (args[0].cellKey === 'NAME') {
-    if (gridData.NAME !== args[0].updated.NAME) {
-      if (args[0].updated.NAME.startsWith(revalue)) {
-        showAlert(`Don't rename transactions beginning ${revalue}`);
-        return;
-      }
-      if (args[0].updated.NAME.startsWith(conditional)) {
-        showAlert(`Don't rename transactions beginning ${conditional}`);
-        return;
-      }
-      if (args[0].updated.NAME.startsWith(pensionSS)) {
-        showAlert(`Don't rename transactions beginning ${pensionSS}`);
-        return;
-      }
-      if (args[0].updated.NAME.startsWith(pensionTransfer)) {
-        showAlert(`Don't rename transactions beginning ${pensionTransfer}`);
-        return;
-      }
-      if (args[0].updated.NAME.startsWith(pensionDB)) {
-        showAlert(`Don't rename transactions beginning ${pensionDB}`);
-        return;
-      }
-      if (args[0].updated.NAME.startsWith(pension)) {
-        showAlert(`Don't rename transactions beginning ${pension}`);
-        return;
-      }
-      if (args[0].updated.NAME.startsWith(moveTaxFreePart)) {
-        showAlert(`Don't rename transactions beginning ${moveTaxFreePart}`);
-        return;
-      }
-      if (args[0].updated.NAME.startsWith(crystallizedPension)) {
-        showAlert(`Don't rename transactions beginning ${crystallizedPension}`);
-        return;
-      }
-      if (args[0].updated.NAME.startsWith(transferCrystallizedPension)) {
-        showAlert(
-          `Don't rename transactions beginning ${transferCrystallizedPension}`,
-        );
-        return;
-      }
-      const parsed = getNumberAndWordParts(args[0].updated.NAME);
-      if (parsed.numberPart !== undefined) {
-        showAlert(`Don't name a transaction beginning with a number`);
-        return;
-      }
-      const clashCheck = checkForWordClashInModel(
-        model,
-        args[0].updated.NAME,
-        'already',
-      );
-      if (clashCheck !== '') {
-        showAlert(clashCheck);
-        return;
-      }
-      attemptRename(model, gridData.NAME, args[0].updated.NAME);
-    }
-    return;
-  }
   const oldValue = gridData[args[0].cellKey];
   gridData[args[0].cellKey] = args[0].updated[args[0].cellKey];
 
@@ -525,12 +463,35 @@ function handleTransactionGridRowsUpdated(
         type = revalueExp;
       }
     }
+    const dbName = getDbName(gridData.NAME, type);
+    const oldDbName = getDbName(oldValue, type);
+
+    if (args[0].cellKey === 'NAME') {
+      // log(`try to edit name from ${oldDbName} to ${dbName}`);
+
+      if (dbName !== oldDbName) {
+        const parsed = getNumberAndWordParts(oldDbName);
+        if (parsed.numberPart !== undefined) {
+          showAlert(`Don't name a transaction beginning with a number`);
+          return;
+        }
+        // log(`check for ${dbName} in model...`)
+        const clashCheck = checkForWordClashInModel(model, dbName, 'already');
+        if (clashCheck !== '') {
+          showAlert(clashCheck);
+          return;
+        }
+        attemptRename(model, oldDbName, dbName);
+      }
+      return;
+    }
+
     const transaction: DbTransaction = {
       DATE: gridData.DATE,
       FROM: gridData.FROM,
       FROM_VALUE: parseFrom.value,
       FROM_ABSOLUTE: parseFrom.absolute,
-      NAME: getDbName(gridData.NAME, type),
+      NAME: dbName,
       TO: gridData.TO,
       TO_ABSOLUTE: parseTo.absolute,
       TO_VALUE: parseTo.value,
