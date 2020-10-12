@@ -81,7 +81,7 @@ describe(testDataModelName, () => {
 
   async function assertCurrentModel(name: string, isDirty: boolean) {
     await clickButton(driver, 'btn-Overview');
-    await checkMessage(driver, `${name}: Overview`);
+    await checkMessage(driver, `${name}`);
 
     await clickButton(driver, 'btn-Home');
     await driver.executeScript('window.scrollBy(0, -1000)'); // Adjust scrolling with a negative value here
@@ -168,11 +168,6 @@ describe(testDataModelName, () => {
       false,
       driver,
     );
-
-    const label = await driver.findElements(webdriver.By.id('pageTitle'));
-    expect(label.length === 1).toBe(true);
-    const labelText = await label[0].getText();
-    expect(labelText).toBe(`Create or load a model`);
 
     await deleteIfExists(ex1Name, driver);
     await deleteIfExists(ex2Name, driver);
@@ -320,7 +315,7 @@ describe(testDataModelName, () => {
 
     // still looking at old model
     await clickButton(driver, 'btn-Overview');
-    await checkMessage(driver, `${testDataModelName}: Overview`);
+    await checkMessage(driver, `${testDataModelName}`);
     await clickButton(driver, 'btn-Home');
 
     // no button for not-saved model
@@ -341,7 +336,7 @@ describe(testDataModelName, () => {
     // log(`found ${btn.length} elements with id=${id}`);
     expect(btn.length === 1).toBe(true);
     await clickButton(driver, 'btn-Overview');
-    await checkMessage(driver, `${ex1Name}: Overview`);
+    await checkMessage(driver, `${ex1Name}`);
     await clickButton(driver, 'btn-Home');
 
     await fillInputById(driver, 'createModel', ex2Name);
@@ -357,14 +352,14 @@ describe(testDataModelName, () => {
       driver,
     );
     await clickButton(driver, 'btn-Overview');
-    await checkMessage(driver, `${ex1Name}: Overview`);
+    await checkMessage(driver, `${ex1Name}`);
     await clickButton(driver, 'btn-Home');
 
     btn = await driver.findElements(webdriver.By.id(`btn-overview-${ex2Name}`));
     // log(`found ${btn.length} elements with id=${id}`);
     expect(btn.length === 0).toBe(true);
     await clickButton(driver, 'btn-Overview');
-    await checkMessage(driver, `${ex1Name}: Overview`);
+    await checkMessage(driver, `${ex1Name}`);
     await clickButton(driver, 'btn-Home');
     await clickButton(driver, 'btn-save-model');
     await clickButton(driver, createButtonID);
@@ -372,7 +367,7 @@ describe(testDataModelName, () => {
     // log(`found ${btn.length} elements with id=${id}`);
     expect(btn.length === 1).toBe(true);
     await clickButton(driver, 'btn-Overview');
-    await checkMessage(driver, `${ex2Name}: Overview`);
+    await checkMessage(driver, `${ex2Name}`);
     await clickButton(driver, 'btn-Home');
 
     // try to create ex1Name but we're in ex2Name and

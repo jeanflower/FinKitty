@@ -59,7 +59,7 @@ describe(testDataModelName, () => {
     expect(label.length === 1).toBe(true);
     const labelText = await label[0].getText();
 
-    expect(labelText).toBe(`${testDataModelName}: Overview`);
+    expect(labelText).toBe(`${testDataModelName}`);
 
     await clickButton(driver, 'btn-Dates');
 

@@ -888,11 +888,6 @@ describe(testDataModelName, () => {
 
     await clickButton(driver, 'btn-clear-alert');
 
-    label = await driver.findElements(webdriver.By.id('pageTitle'));
-    expect(label.length === 1).toBe(true);
-    labelText = await label[0].getText();
-    expect(labelText).toBe(`Create or load a model`);
-
     // TODO edit model to make it fail check (e.g. edit value of
     // chrysler setting)
 
@@ -1229,11 +1224,6 @@ describe(testDataModelName, () => {
     expect(labelText).toBe(`model check all good`);
 
     await clickButton(driver, 'btn-clear-alert');
-
-    label = await driver.findElements(webdriver.By.id('pageTitle'));
-    expect(label.length === 1).toBe(true);
-    labelText = await label[0].getText();
-    expect(labelText).toBe(`Create or load a model`);
 
     // TODO edit model to make it fail check (e.g. edit value of
     // chrysler setting)

@@ -1,10 +1,5 @@
 import React, { Component } from 'react';
-import {
-  billAndBenExampleData,
-  mortgageSwitchExampleData,
-  simpleExampleData,
-  pension1ExampleData,
-} from './models/exampleModels';
+import { simpleExampleData, pension1ExampleData } from './models/exampleModels';
 import { useAuth0 } from './contexts/auth0-context';
 import { makeChartData } from './models/charting';
 import { checkData, checkTransaction, checkTrigger } from './models/checks';
@@ -160,77 +155,66 @@ const views = new Map<
   ViewType,
   {
     display: boolean;
-    helpText: string;
   }
 >([
   [
     homeView,
     {
       display: true,
-      helpText: 'Create or load a model',
     },
   ],
   [
     overview,
     {
       display: false,
-      helpText: 'Overview',
     },
   ],
   [
     triggersView,
     {
       display: false,
-      helpText: 'Create, view or update named dates',
     },
   ],
   [
     incomesView,
     {
       display: false,
-      helpText: 'Create, view or edit incomes',
     },
   ],
   [
     expensesView,
     {
       display: false,
-      helpText: 'Create, view or edit expenses',
     },
   ],
   [
     assetsView,
     {
       display: false,
-      helpText: 'Create, view or edit assets',
     },
   ],
   [
     debtsView,
     {
       display: false,
-      helpText: 'Create, view or edit debts',
     },
   ],
   [
     transactionsView,
     {
       display: false,
-      helpText: 'Create, view or edit transactions',
     },
   ],
   [
     taxView,
     {
       display: false,
-      helpText: 'Chart of tax payments',
     },
   ],
   [
     settingsView,
     {
       display: false,
-      helpText: 'Settings',
     },
   ],
 ]);
@@ -241,15 +225,7 @@ const exampleModels = [
     model: simpleExampleData,
   },
   {
-    name: 'Bill and Ben',
-    model: billAndBenExampleData,
-  },
-  {
-    name: 'Mortgage Switch',
-    model: mortgageSwitchExampleData,
-  },
-  {
-    name: 'Pension',
+    name: 'Pension example',
     model: pension1ExampleData,
   },
 ];
@@ -1194,7 +1170,7 @@ export class AppContent extends Component<AppProps, AppState> {
                 this.deleteModel(name);
               }}
               title="Force delete model"
-              id={`btn-JSON-encrypt-replace`}
+              id={`btn-force-delete`}
               type="secondary"
             />
             <br />
@@ -1412,7 +1388,7 @@ export class AppContent extends Component<AppProps, AppState> {
           }
         }}
         title={'Redo'}
-        id={`btn-undo-model`}
+        id={`btn-redo-model`}
         type={
           this.state.modelData.redoModel !== undefined
             ? 'primary'
@@ -1473,8 +1449,7 @@ export class AppContent extends Component<AppProps, AppState> {
           } else {
             result.push(
               <h4 className="text-white" id="pageTitle">
-                {(entry.value !== homeView ? modelName + ': ' : '') +
-                  view.helpText}
+                {(entry.value !== homeView ? modelName : '')}
               </h4>,
             );
           }
