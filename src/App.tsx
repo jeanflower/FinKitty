@@ -926,11 +926,16 @@ export class AppContent extends Component<AppProps, AppState> {
       />
     ));
     return (
-      <div role="group">
+      <form className="container-fluid"
+          onSubmit={(e:any)=>{
+            e.preventDefault();
+            return false;
+          }}
+      >
         Select an existing model:
         <br />
         {buttons}
-      </div>
+      </form>
     );
   }
 
@@ -1048,7 +1053,13 @@ export class AppContent extends Component<AppProps, AppState> {
         <h1 id="WelcomeHeader">Welcome</h1>
         <div className="row">
           <div className="col-sm mb-4">
-            <form className="container-fluid">
+            <form 
+              className="container-fluid"
+              onSubmit={(e:any)=>{
+                e.preventDefault();
+                return false;
+              }}
+              >
               <Button
                 id="startNewModel"
                 action={async () => {
@@ -1086,7 +1097,12 @@ export class AppContent extends Component<AppProps, AppState> {
               getModelNames={getModelNames}
             />
             <br></br>
-            <form className="container-fluid">
+            <form className="container-fluid"
+              onSubmit={(e:any)=>{
+                e.preventDefault();
+                return false;
+              }}
+            >
               Other actions:
               <br />
               <Button
