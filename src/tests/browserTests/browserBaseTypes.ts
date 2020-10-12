@@ -88,11 +88,7 @@ export async function selectModel(
   );
 
   if (btnData[0] !== undefined) {
-    const welcome = await driver.findElements(webdriver.By.id(`WelcomeHeader`));
-    await driver.executeScript(
-      'arguments[0].scrollIntoView(true);',
-      welcome[0],
-    );
+    // scrolling
     await driver.executeScript('window.scrollBy(0, -1000)'); // Adjust scrolling with a negative value here
 
     await btnData[0].click();

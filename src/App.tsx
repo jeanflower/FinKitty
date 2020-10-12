@@ -1050,7 +1050,6 @@ export class AppContent extends Component<AppProps, AppState> {
     // log(`this.state.modelNamesData = ${this.state.modelNamesData}`);
     return (
       <div style={{ display: getDisplay(homeView) ? 'block' : 'none' }}>
-        <h1 id="WelcomeHeader">Welcome</h1>
         <div className="row">
           <div className="col-sm mb-4">
             <form 

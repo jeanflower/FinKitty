@@ -870,15 +870,8 @@ describe(testDataModelName, () => {
 
     await clickButton(driver, 'btn-Home');
 
-    // a bit of scrolling to ensure the check button
-    // can be interacted with
-    let toggleChart = await driver.findElements(
-      webdriver.By.id(`WelcomeHeader`),
-    );
-    await driver.executeScript(
-      'arguments[0].scrollIntoView(true);',
-      toggleChart[0],
-    );
+    // scrolling
+    await driver.executeScript('window.scrollBy(0, -1000)'); // Adjust scrolling with a negative value here
     await clickButton(driver, 'btn-check');
 
     let label = await driver.findElements(webdriver.By.id('pageTitle'));
@@ -906,13 +899,7 @@ describe(testDataModelName, () => {
       message: `added new transaction`,
     });
 
-    // a bit of scrolling to ensure the ??? button
-    // can be interacted with
-    toggleChart = await driver.findElements(webdriver.By.id(`WelcomeHeader`));
-    await driver.executeScript(
-      'arguments[0].scrollIntoView(true);',
-      toggleChart[0],
-    );
+    // scrolling
 
     const ary = await getAssetChartData(driver);
     //log(`ary = ${showObj(ary)}`);
@@ -1207,15 +1194,7 @@ describe(testDataModelName, () => {
 
     await clickButton(driver, 'btn-Home');
 
-    // a bit of scrolling to ensure the check button
-    // can be interacted with
-    let toggleChart = await driver.findElements(
-      webdriver.By.id(`WelcomeHeader`),
-    );
-    await driver.executeScript(
-      'arguments[0].scrollIntoView(true);',
-      toggleChart[0],
-    );
+    // scrolling
     await clickButton(driver, 'btn-check');
 
     let label = await driver.findElements(webdriver.By.id('pageTitle'));
@@ -1243,13 +1222,7 @@ describe(testDataModelName, () => {
       message: `added new transaction`,
     });
 
-    // a bit of scrolling to ensure the ??? button
-    // can be interacted with
-    toggleChart = await driver.findElements(webdriver.By.id(`WelcomeHeader`));
-    await driver.executeScript(
-      'arguments[0].scrollIntoView(true);',
-      toggleChart[0],
-    );
+    // scrolling
 
     let ary = await getAssetChartData(driver);
     //log(`ary = ${showObj(ary)}`);
