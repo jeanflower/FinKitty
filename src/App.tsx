@@ -1048,21 +1048,22 @@ export class AppContent extends Component<AppProps, AppState> {
         <h1 id="WelcomeHeader">Welcome</h1>
         <div className="row">
           <div className="col-sm mb-4">
-            <Button
-              id="startNewModel"
-              action={async () => {
-                const newNameFromUser = this.getNewName();
-                if (!newNameFromUser.gotNameOK) {
-                  return;
-                }
-                await updateModelName(newNameFromUser.newName);
-                // log(`created new model`);
-                // toggle(triggersView);
-              }}
-              title="Create a new model"
-              type="secondary"
-            />
-            <br />
+            <form className="container-fluid">
+              <Button
+                id="startNewModel"
+                action={async () => {
+                  const newNameFromUser = this.getNewName();
+                  if (!newNameFromUser.gotNameOK) {
+                    return;
+                  }
+                  await updateModelName(newNameFromUser.newName);
+                  // log(`created new model`);
+                  // toggle(triggersView);
+                }}
+                title="Create a new model"
+                type="secondary"
+              />
+            </form>
             <br />
             {this.modelListForSelect(this.state.modelNamesData)}
             <br />
@@ -1084,96 +1085,98 @@ export class AppContent extends Component<AppProps, AppState> {
               getExampleModel={getExampleModel}
               getModelNames={getModelNames}
             />
-            <br />
-            Other actions:
-            <br />
-            <Button
-              action={async () => {
-                this.deleteModel(modelName);
-              }}
-              title="Delete model"
-              id={`btn-delete`}
-              type="secondary"
-            />
-            <Button
-              action={async () => {
-                const response = checkModelData(
-                  reactAppComponent.state.modelData,
-                );
-                reactAppComponent.setState({
-                  alertText: response,
-                });
-              }}
-              title="Check model"
-              id={`btn-check`}
-              type="secondary"
-            />
-            <Button
-              action={() => {
-                const text = JSON.stringify(this.state.modelData);
-                navigator.clipboard.writeText(text).then(
-                  function() {
-                    showAlert(`model as JSON on clipboard`);
-                  },
-                  function(err) {
-                    console.error('Async: Could not copy text: ', err);
-                    showAlert(
-                      `sorry, something went wrong, no copy on clipboard - in console instead`,
-                    );
-                    log('-------- start of model --------');
-                    log(text);
-                    log('-------- end of model --------');
-                  },
-                );
-              }}
-              title="Copy model as JSON to clipboard"
-              id={`btn-log`}
-              type="secondary"
-            />
-            <Button
-              action={() => {
-                const inputEnc = prompt('Enter encrypted JSON');
-                if (inputEnc === null) {
-                  return;
-                }
-                const secret = prompt('Enter secret key');
-                if (secret === null) {
-                  return;
-                }
-                try {
-                  const decipher = CryptoJS.AES.decrypt(inputEnc, secret);
-                  const decipherString = decipher.toString(CryptoJS.enc.Utf8);
-                  log(`deciphered text ${decipherString}`);
-                  if (decipherString === undefined) {
-                    showAlert('could not decode this data');
-                  } else {
-                    const decipheredModel = makeModelFromJSON(decipherString);
-                    const response = checkModelData(decipheredModel);
-                    reactAppComponent.setState({
-                      alertText: response,
-                    });
+            <br></br>
+            <form className="container-fluid">
+              Other actions:
+              <br />
+              <Button
+                action={async () => {
+                  this.deleteModel(modelName);
+                }}
+                title="Delete model"
+                id={`btn-delete`}
+                type="secondary"
+              />
+              <Button
+                action={async () => {
+                  const response = checkModelData(
+                    reactAppComponent.state.modelData,
+                  );
+                  reactAppComponent.setState({
+                    alertText: response,
+                  });
+                }}
+                title="Check model"
+                id={`btn-check`}
+                type="secondary"
+              />
+              <Button
+                action={() => {
+                  const text = JSON.stringify(this.state.modelData);
+                  navigator.clipboard.writeText(text).then(
+                    function() {
+                      showAlert(`model as JSON on clipboard`);
+                    },
+                    function(err) {
+                      console.error('Async: Could not copy text: ', err);
+                      showAlert(
+                        `sorry, something went wrong, no copy on clipboard - in console instead`,
+                      );
+                      log('-------- start of model --------');
+                      log(text);
+                      log('-------- end of model --------');
+                    },
+                  );
+                }}
+                title="Copy model as JSON to clipboard"
+                id={`btn-log`}
+                type="secondary"
+              />
+              <Button
+                action={() => {
+                  const inputEnc = prompt('Enter encrypted JSON');
+                  if (inputEnc === null) {
+                    return;
                   }
-                } catch (err) {
-                  showAlert('could not decode this data');
-                }
-              }}
-              title="Test encrypted JSON"
-              id={`btn-JSON-encrypt-replace`}
-              type="secondary"
-            />
-            <Button
-              action={() => {
-                const name = prompt('Force delete model name');
-                if (name === null) {
-                  return;
-                }
-                this.deleteModel(name);
-              }}
-              title="Force delete model"
-              id={`btn-force-delete`}
-              type="secondary"
-            />
-            <br />
+                  const secret = prompt('Enter secret key');
+                  if (secret === null) {
+                    return;
+                  }
+                  try {
+                    const decipher = CryptoJS.AES.decrypt(inputEnc, secret);
+                    const decipherString = decipher.toString(CryptoJS.enc.Utf8);
+                    log(`deciphered text ${decipherString}`);
+                    if (decipherString === undefined) {
+                      showAlert('could not decode this data');
+                    } else {
+                      const decipheredModel = makeModelFromJSON(decipherString);
+                      const response = checkModelData(decipheredModel);
+                      reactAppComponent.setState({
+                        alertText: response,
+                      });
+                    }
+                  } catch (err) {
+                    showAlert('could not decode this data');
+                  }
+                }}
+                title="Test encrypted JSON"
+                id={`btn-JSON-encrypt-replace`}
+                type="secondary"
+              />
+              <Button
+                action={() => {
+                  const name = prompt('Force delete model name');
+                  if (name === null) {
+                    return;
+                  }
+                  this.deleteModel(name);
+                }}
+                title="Force delete model"
+                id={`btn-force-delete`}
+                type="secondary"
+              />
+            </form>
+            <br></br>
             <ReplaceWithJSONForm
               modelName={modelName}
               userID={userID}
@@ -1420,7 +1423,7 @@ export class AppContent extends Component<AppProps, AppState> {
     if (alertText !== '') {
       // log('display alert text');
       result.push(
-        <h4 className="text-warning" id="pageTitle">
+        <h4 className="text-info" id="pageTitle">
           {alertText}
         </h4>,
       );
