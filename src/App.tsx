@@ -253,19 +253,6 @@ const exampleModels = [
     model: pension1ExampleData,
   },
 ];
-export const showContent = new Map<ViewType, any>([
-  [incomesChart, { display: false }],
-  [expensesChart, { display: false }],
-  [assetsChart, { display: false }],
-  [debtsChart, { display: false }],
-  [incomesTable, { display: true }],
-  [expensesTable, { display: true }],
-  [assetsTable, { display: true }],
-  [debtsTable, { display: true }],
-  [transactionsTable, { display: true }],
-  [triggersTable, { display: true }],
-  [settingsTable, { display: true }],
-]);
 
 let reactAppComponent: AppContent;
 
@@ -630,15 +617,6 @@ export function toggle(type: ViewType) {
     return false;
   }
   view.display = true;
-  refreshData(
-    false, // gotoDB
-  );
-}
-
-export function toggleDisplay(type: ViewType) {
-  showContent.set(type, {
-    display: !showContent.get(type).display,
-  });
   refreshData(
     false, // gotoDB
   );
@@ -1240,22 +1218,6 @@ export class AppContent extends Component<AppProps, AppState> {
     return (
       <div style={{ display: getDisplay(settingsView) ? 'block' : 'none' }}>
         <fieldset>
-          <Button
-            action={(
-              event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-            ) => {
-              event.persist();
-              toggleDisplay(settingsTable);
-            }}
-            title={`${
-              showContent.get(settingsTable).display ? 'Hide ' : 'Show '
-            }${settingsTable.lc}`}
-            type={
-              showContent.get(settingsTable).display ? 'primary' : 'secondary'
-            }
-            key={settingsTable.lc}
-            id="toggleSettingsChart"
-          />
           {settingsTableDiv(this.state.modelData, showAlert)}
           <p />
 
@@ -1327,20 +1289,6 @@ export class AppContent extends Component<AppProps, AppState> {
 
     return (
       <div style={{ display: getDisplay(triggersView) ? 'block' : 'none' }}>
-        <Button
-          action={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-            event.persist();
-            toggleDisplay(triggersTable);
-          }}
-          title={`${
-            showContent.get(triggersTable).display ? 'Hide ' : 'Show '
-          }${triggersTable.lc}`}
-          type={
-            showContent.get(triggersTable).display ? 'primary' : 'secondary'
-          }
-          key={triggersTable.lc}
-          id="toggle-triggersChart"
-        />
         {triggersTableDiv(this.state.modelData, showAlert)}
         <p />
         <div className="addNewTrigger">
@@ -1349,15 +1297,6 @@ export class AppContent extends Component<AppProps, AppState> {
             checkFunction={checkTrigger}
             submitFunction={submitTrigger}
             deleteFunction={deleteTrigger}
-            showTriggerTable={() => {
-              // force show if we have exactly one trigger
-              // log(`has ${this.state.modelData.triggers} triggers...`)
-              if (this.state.modelData.triggers.length === 1) {
-                showContent.set(triggersTable, {
-                  display: true,
-                });
-              }
-            }}
             model={this.state.modelData}
             showAlert={showAlert}
           />
@@ -1370,27 +1309,12 @@ export class AppContent extends Component<AppProps, AppState> {
     if (!getDisplay(transactionsView)) {
       return;
     }
-    const tableVisible = showContent.get(transactionsTable).display;
 
     return (
       <div style={{ display: getDisplay(transactionsView) ? 'block' : 'none' }}>
-        <Button
-          action={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-            event.persist();
-            toggleDisplay(transactionsTable);
-          }}
-          title={`${
-            showContent.get(transactionsTable).display ? 'Hide ' : 'Show '
-          }${transactionsTable.lc}`}
-          type={
-            showContent.get(transactionsTable).display ? 'primary' : 'secondary'
-          }
-          key={transactionsTable.lc}
-          id="toggleTransactionsChart"
-        />
-        {tableVisible ? <h4>Custom transactions</h4> : ''}
+        <h4>Custom transactions</h4>
         {transactionsTableDiv(this.state.modelData, showAlert, custom)}
-        {tableVisible ? <h4>Auto-generated transactions</h4> : ''}
+        <h4>Auto-generated transactions</h4>
         {transactionsTableDiv(this.state.modelData, showAlert, autogen)}
         <p />
         <div className="addNewTransaction">
@@ -1468,7 +1392,11 @@ export class AppContent extends Component<AppProps, AppState> {
         }}
         title={'Undo'}
         id={`btn-undo-model`}
-        type={this.state.modelData.undoModel !== undefined ? 'primary' : 'primary-off'}
+        type={
+          this.state.modelData.undoModel !== undefined
+            ? 'primary'
+            : 'primary-off'
+        }
       />
     );
   }
@@ -1485,7 +1413,11 @@ export class AppContent extends Component<AppProps, AppState> {
         }}
         title={'Redo'}
         id={`btn-undo-model`}
-        type={this.state.modelData.redoModel !== undefined ? 'primary' : 'primary-off'}
+        type={
+          this.state.modelData.redoModel !== undefined
+            ? 'primary'
+            : 'primary-off'
+        }
       />
     );
   }

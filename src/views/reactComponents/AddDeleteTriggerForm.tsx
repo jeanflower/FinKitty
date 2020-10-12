@@ -16,7 +16,6 @@ interface EditTriggerProps extends FormProps {
     modelData: DbModelData,
   ) => Promise<void>;
   deleteFunction: (settingName: string) => Promise<boolean>;
-  showTriggerTable: any;
 }
 
 export function newTriggerButtonData(
@@ -141,7 +140,6 @@ export class AddDeleteTriggerForm extends Component<
     } else {
       await this.props.submitFunction(trigger, this.props.model);
       // this.props.showAlert('added new important date');
-      this.props.showTriggerTable();
       // clear fields
       this.setState(this.defaultState);
       this.props.showAlert('added important date OK');

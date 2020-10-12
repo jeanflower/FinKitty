@@ -333,17 +333,6 @@ export async function clearPensionFields(driver: ThenableWebDriver) {
   */
   await clickButton(driver, 'btn-Overview');
   await clickButton(driver, 'btn-Incomes');
-
-  // a bit of scrolling to ensure the useDBPInputs button
-  // can be interacted with
-  const toggleChart = await driver.findElements(
-    webdriver.By.id(`toggle-incomesChart`),
-  );
-  await driver.executeScript(
-    'arguments[0].scrollIntoView(true);',
-    toggleChart[0],
-  );
-
   await clickButton(driver, 'useDBPInputs');
 
   // log(`cleared ready for next pension inputs`);
@@ -615,15 +604,7 @@ export async function clearDCPension(driver: ThenableWebDriver): Promise<void> {
 
   await clickButton(driver, 'btn-Overview');
   await clickButton(driver, 'btn-Assets');
-  // a bit of scrolling to ensure the useDBPInputs button
-  // can be interacted with
-  const toggleChart = await driver.findElements(
-    webdriver.By.id(`toggleAssetsChart`),
-  );
-  await driver.executeScript(
-    'arguments[0].scrollIntoView(true);',
-    toggleChart[0],
-  );
+  // need scroll?
   await clickButton(driver, 'useDCPInputs');
 
   return;
@@ -790,11 +771,6 @@ export const debtInputs = {
 
 export async function scrollToTop(driver: any) {
   await driver.executeScript('window.scrollBy(0, -1000)');
-}
-
-export async function toggleIncomesChart(driver: any) {
-  await scrollToTop(driver);
-  await clickButton(driver, 'toggle-incomesChart');
 }
 
 // Use sleeps to hack page-not-yet-ready issues. TODO : do better - check awaits.

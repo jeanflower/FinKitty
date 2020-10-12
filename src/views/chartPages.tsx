@@ -33,16 +33,7 @@ import {
   getLiabilityPeople,
 } from '../utils';
 import Button from './reactComponents/Button';
-import {
-  assetsChart,
-  expensesChart,
-  getDisplay,
-  incomesChart,
-  showContent,
-  taxView,
-  debtsChart,
-  editSetting,
-} from '../App';
+import { getDisplay, taxView, editSetting } from '../App';
 import ReactiveTextArea from './reactComponents/ReactiveTextArea';
 
 import CanvasJSReact from '../assets/js/canvasjs.react';
@@ -237,11 +228,10 @@ export function incomesChartDivWithButtons(
   incomesChartData: ChartData[],
   chartSettings: any,
 ) {
-  const chartVisible = showContent.get(incomesChart).display;
   return (
     <div
       style={{
-        display: chartVisible ? 'block' : 'none',
+        display: 'block',
       }}
     >
       <ReactiveTextArea
@@ -297,11 +287,10 @@ export function expensesChartDivWithButtons(
   model: DbModelData,
   expensesChartData: ChartData[],
 ) {
-  const chartVisible = showContent.get(expensesChart).display;
   return (
     <div
       style={{
-        display: chartVisible ? 'block' : 'none',
+        display: 'block',
       }}
     >
       <ReactiveTextArea
@@ -447,16 +436,12 @@ export function assetsOrDebtsChartDivWithButtons(
   isDebt: boolean,
   forOverviewPage: boolean,
 ) {
-  const chartVisible = isDebt
-    ? showContent.get(debtsChart).display
-    : showContent.get(assetsChart).display;
-
   // log(`assetChartData = ${assetChartData}`);
 
   return (
     <div
       style={{
-        display: chartVisible ? 'block' : 'none',
+        display: 'block',
       }}
     >
       {assetsOrDebtsButtonList(model, isDebt, forOverviewPage)}

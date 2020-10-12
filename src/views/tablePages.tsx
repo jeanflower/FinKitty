@@ -48,25 +48,17 @@ import GrowthFormatter from './reactComponents/GrowthFormatter';
 import CashValueFormatter from './reactComponents/CashValueFormatter';
 
 import {
-  assetsTable,
-  debtsTable,
   deleteAsset,
   deleteExpense,
   deleteIncome,
   deleteSetting,
   deleteTransaction,
   deleteTrigger,
-  expensesTable,
-  incomesTable,
-  settingsTable,
-  showContent,
   submitAsset,
   submitExpense,
   submitIncome,
   submitTransaction,
   submitTrigger,
-  transactionsTable,
-  triggersTable,
   editSetting,
   attemptRename,
 } from '../App';
@@ -706,13 +698,10 @@ export function assetsOrDebtsTableDiv(
   showAlert: (arg0: string) => void,
   isDebt: boolean,
 ) {
-  const tableVisible = isDebt
-    ? showContent.get(debtsTable).display
-    : showContent.get(assetsTable).display;
   return (
     <div
       style={{
-        display: tableVisible ? 'block' : 'none',
+        display: 'block',
       }}
     >
       <fieldset>
@@ -1038,13 +1027,12 @@ export function transactionsTableDiv(
   showAlert: (arg0: string) => void,
   type: string,
 ) {
-  const tableVisible = showContent.get(transactionsTable).display;
   return (
     <fieldset>
       <div
         className={`dataGridTransactions${type}`}
         style={{
-          display: tableVisible ? 'block' : 'none',
+          display: 'block',
         }}
       >
         <DataGrid
@@ -1082,11 +1070,10 @@ export function triggersTableDiv(
   model: DbModelData,
   showAlert: (arg0: string) => void,
 ) {
-  const tableVisible = showContent.get(triggersTable).display;
   return (
     <div
       style={{
-        display: tableVisible ? 'block' : 'none',
+        display: 'block',
       }}
     >
       <fieldset>
@@ -1147,11 +1134,10 @@ export function incomesTableDiv(
   model: DbModelData,
   showAlert: (arg0: string) => void,
 ) {
-  const tableVisible = showContent.get(incomesTable).display;
   return (
     <div
       style={{
-        display: tableVisible ? 'block' : 'none',
+        display: 'block',
       }}
     >
       <fieldset>
@@ -1278,11 +1264,10 @@ export function expensesTableDiv(
   model: DbModelData,
   showAlert: (arg0: string) => void,
 ) {
-  const tableVisible = showContent.get(expensesTable).display;
   return (
     <div
       style={{
-        display: tableVisible ? 'block' : 'none',
+        display: 'block',
       }}
     >
       <fieldset>
@@ -1426,12 +1411,11 @@ export function settingsTableDiv(
   model: DbModelData,
   showAlert: (arg0: string) => void,
 ) {
-  const tableVisible = showContent.get(settingsTable).display;
   return (
     <div
       className="dataGridSettings"
       style={{
-        display: tableVisible ? 'block' : 'none',
+        display: 'block',
       }}
     >
       <h4>Settings about the view of the model</h4>

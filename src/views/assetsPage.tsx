@@ -1,18 +1,13 @@
 import React from 'react';
 import { ChartData, DbModelData, DbItem } from './../types/interfaces';
 import {
-  assetsChart,
-  assetsTable,
   assetsView,
   deleteAsset,
   getDisplay,
-  showContent,
   submitAsset,
   submitTrigger,
-  toggleDisplay,
   submitTransaction,
 } from './../App';
-import Button from './reactComponents/Button';
 import { assetsOrDebtsChartDivWithButtons } from './chartPages';
 import {
   assetsOrDebtsTableDiv,
@@ -41,30 +36,6 @@ export function assetsDiv(
   const today = getTodaysDate(model);
   return (
     <div style={{ display: getDisplay(assetsView) ? 'block' : 'none' }}>
-      <Button
-        action={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-          event.persist();
-          toggleDisplay(assetsChart);
-        }}
-        title={`${showContent.get(assetsChart).display ? 'Hide ' : 'Show '}${
-          assetsChart.lc
-        }`}
-        type={showContent.get(assetsChart).display ? 'primary' : 'secondary'}
-        key={assetsChart.lc}
-        id="toggleAssetsChart"
-      />
-      <Button
-        action={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-          event.persist();
-          toggleDisplay(assetsTable);
-        }}
-        title={`${showContent.get(assetsTable).display ? 'Hide ' : 'Show '}${
-          assetsTable.lc
-        }`}
-        type={showContent.get(assetsTable).display ? 'primary' : 'secondary'}
-        key={assetsTable.lc}
-        id="toggleAssetsTable"
-      />
       {assetsOrDebtsChartDivWithButtons(model, assetChartData, false, false)}
       <h4>Asset definitions</h4>
       {assetsOrDebtsTableDiv(model, showAlert, false)}

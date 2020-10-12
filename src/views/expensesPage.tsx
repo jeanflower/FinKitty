@@ -1,17 +1,12 @@
 import React from 'react';
 import {
   deleteExpense,
-  expensesChart,
-  expensesTable,
   expensesView,
   getDisplay,
-  showContent,
   submitExpense,
   submitTransaction,
   submitTrigger,
-  toggleDisplay,
 } from '../App';
-import Button from './reactComponents/Button';
 import { expensesChartDivWithButtons } from './chartPages';
 import {
   expensesTableDiv,
@@ -39,30 +34,6 @@ export function expensesDiv(
   const today = getTodaysDate(model);
   return (
     <div style={{ display: getDisplay(expensesView) ? 'block' : 'none' }}>
-      <Button
-        action={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-          event.persist();
-          toggleDisplay(expensesChart);
-        }}
-        title={`${showContent.get(expensesChart).display ? 'Hide ' : 'Show '}${
-          expensesChart.lc
-        }`}
-        type={showContent.get(expensesChart).display ? 'primary' : 'secondary'}
-        key={expensesChart.lc}
-        id="toggle-expensesChart"
-      />
-      <Button
-        action={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-          event.persist();
-          toggleDisplay(expensesTable);
-        }}
-        title={`${showContent.get(expensesTable).display ? 'Hide ' : 'Show '}${
-          expensesTable.lc
-        }`}
-        type={showContent.get(expensesTable).display ? 'primary' : 'secondary'}
-        key={expensesTable.lc}
-        id="toggle-expensesTable"
-      />
       {expensesChartDivWithButtons(model, expensesChartData)}
       <h4>Expense definitions</h4>
       {expensesTableDiv(model, showAlert)}

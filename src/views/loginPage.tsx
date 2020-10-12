@@ -13,15 +13,16 @@ export function loginPage(loginWithRedirect: any, loginForTesting: any) {
       <div className="row">
         <div className="col-sm mb-4">
           <div className="alert alert-block">
-            <h2>Get started</h2> To begin using this app, log in or use a shared playpen
+            <h2>Get started</h2> To begin using this app, log in or use a shared
+            playpen
             <br />
-            <Button 
+            <Button
               type="secondary"
               id="buttonLogin"
               action={loginWithRedirect}
               title="Login or create an account"
             />
-            <Button 
+            <Button
               type="secondary"
               id="buttonTestLogin"
               action={loginForTesting}

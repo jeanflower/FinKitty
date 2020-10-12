@@ -3,16 +3,11 @@ import { ChartData, DbModelData, DbItem } from '../types/interfaces';
 import {
   deleteIncome,
   getDisplay,
-  incomesChart,
-  incomesTable,
   incomesView,
-  showContent,
   submitIncome,
   submitTransaction,
   submitTrigger,
-  toggleDisplay,
 } from '../App';
-import Button from './reactComponents/Button';
 import {
   incomesChartDivWithButtons,
   getDefaultChartSettings,
@@ -43,30 +38,6 @@ export function incomesDiv(
   const today = getTodaysDate(model);
   return (
     <div style={{ display: getDisplay(incomesView) ? 'block' : 'none' }}>
-      <Button
-        action={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-          event.persist();
-          toggleDisplay(incomesChart);
-        }}
-        title={`${showContent.get(incomesChart).display ? 'Hide ' : 'Show '}${
-          incomesChart.lc
-        }`}
-        type={showContent.get(incomesChart).display ? 'primary' : 'secondary'}
-        key={incomesChart.lc}
-        id="toggle-incomesChart"
-      />
-      <Button
-        action={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-          event.persist();
-          toggleDisplay(incomesTable);
-        }}
-        title={`${showContent.get(incomesTable).display ? 'Hide ' : 'Show '}${
-          incomesTable.lc
-        }`}
-        type={showContent.get(incomesTable).display ? 'primary' : 'secondary'}
-        key={incomesTable.lc}
-        id="toggle-incomesTable"
-      />
       {incomesChartDivWithButtons(
         model,
         incomesChartData,

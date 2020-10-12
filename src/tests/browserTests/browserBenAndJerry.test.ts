@@ -16,7 +16,6 @@ import {
   incomeInputs,
   quitAfterAll,
   sleep,
-  toggleIncomesChart,
 } from './ browsertestUtils';
 import {
   getDriver,
@@ -138,8 +137,6 @@ describe(testDataModelName, () => {
     });
     // log('done Ben salary');
 
-    await toggleIncomesChart(driver);
-
     await clickButton(driver, 'btn-Settings');
     await addSetting(driver, {
       name: 'Beginning of view range',
@@ -175,10 +172,6 @@ describe(testDataModelName, () => {
 
     await clickButton(driver, 'btn-Incomes');
 
-    await toggleIncomesChart(driver);
-
-    // log('toggled incomes chart off again');
-
     await addIncome(driver, {
       ...incomeInputs,
       name: 'Jerry salary',
@@ -194,11 +187,7 @@ describe(testDataModelName, () => {
     });
     // log('done Jerry salary');
 
-    await toggleIncomesChart(driver);
-    await toggleIncomesChart(driver);
-
     await clickButton(driver, 'btn-Expenses');
-    await clickButton(driver, 'toggle-expensesChart');
 
     await clickButton(driver, 'btn-Dates');
 
@@ -235,9 +224,6 @@ describe(testDataModelName, () => {
     });
     // log('done Ben state pension');
 
-    await toggleIncomesChart(driver);
-    await toggleIncomesChart(driver);
-
     await clickButton(driver, 'useDBPInputs');
 
     DBPinputs = {
@@ -266,9 +252,6 @@ describe(testDataModelName, () => {
     });
     // log('done Jerry state pension');
 
-    await toggleIncomesChart(driver);
-    await toggleIncomesChart(driver);
-
     DBPinputs = {
       name: 'Jerry work',
       value: '2000',
@@ -296,9 +279,6 @@ describe(testDataModelName, () => {
     });
     // log('done Jerry work');
 
-    await toggleIncomesChart(driver);
-    await toggleIncomesChart(driver);
-
     await clickButton(driver, 'btn-Expenses');
 
     let expenseInputs = {
@@ -318,18 +298,7 @@ describe(testDataModelName, () => {
     });
     // log('done Basic expenses working');
 
-    let toggleChart = await driver.findElements(
-      webdriver.By.id(`toggle-expensesChart`),
-    );
-    await driver.executeScript(
-      'arguments[0].scrollIntoView(true);',
-      toggleChart[0],
-    );
     await driver.executeScript('window.scrollBy(0, -100)'); // Adjust scrolling with a negative value here
-
-    await clickButton(driver, 'toggle-expensesChart');
-
-    await clickButton(driver, 'toggle-expensesChart');
 
     expenseInputs = {
       name: 'Basic expenses small house',
@@ -365,18 +334,8 @@ describe(testDataModelName, () => {
     });
     // log('done Leisure expenses working');
 
-    toggleChart = await driver.findElements(
-      webdriver.By.id(`toggle-expensesChart`),
-    );
-    await driver.executeScript(
-      'arguments[0].scrollIntoView(true);',
-      toggleChart[0],
-    );
+    // scrolling???
     await driver.executeScript('window.scrollBy(0, -100)'); // Adjust scrolling with a negative value here
-
-    await clickButton(driver, 'toggle-expensesChart');
-
-    await clickButton(driver, 'toggle-expensesChart');
 
     await clickButton(driver, 'btn-Dates');
 
@@ -406,18 +365,9 @@ describe(testDataModelName, () => {
     });
     // log('done Leisure expenses retired');
 
-    toggleChart = await driver.findElements(
-      webdriver.By.id(`toggle-expensesChart`),
-    );
-    await driver.executeScript(
-      'arguments[0].scrollIntoView(true);',
-      toggleChart[0],
-    );
+    // scrolling??
+
     await driver.executeScript('window.scrollBy(0, -100)'); // Adjust scrolling with a negative value here
-
-    await clickButton(driver, 'toggle-expensesChart');
-
-    await clickButton(driver, 'toggle-expensesChart');
 
     expenseInputs = {
       name: 'Care costs',
@@ -436,31 +386,11 @@ describe(testDataModelName, () => {
     });
     // log('done Care costs');
 
-    toggleChart = await driver.findElements(
-      webdriver.By.id(`toggle-expensesChart`),
-    );
-    await driver.executeScript(
-      'arguments[0].scrollIntoView(true);',
-      toggleChart[0],
-    );
     await driver.executeScript('window.scrollBy(0, -100)'); // Adjust scrolling with a negative value here
 
-    await clickButton(driver, 'toggle-expensesChart');
+    // scrolling??
 
-    await clickButton(driver, 'toggle-expensesChart');
-
-    toggleChart = await driver.findElements(
-      webdriver.By.id(`toggle-expensesChart`),
-    );
-    await driver.executeScript(
-      'arguments[0].scrollIntoView(true);',
-      toggleChart[0],
-    );
     await driver.executeScript('window.scrollBy(0, -100)'); // Adjust scrolling with a negative value here
-
-    await clickButton(driver, 'toggle-expensesChart');
-
-    await clickButton(driver, 'toggle-expensesChart');
 
     expenseInputs = {
       name: 'House maintenance',
@@ -479,18 +409,7 @@ describe(testDataModelName, () => {
     });
     // log('done House maintenance');
 
-    toggleChart = await driver.findElements(
-      webdriver.By.id(`toggle-expensesChart`),
-    );
-    await driver.executeScript(
-      'arguments[0].scrollIntoView(true);',
-      toggleChart[0],
-    );
     await driver.executeScript('window.scrollBy(0, -100)'); // Adjust scrolling with a negative value here
-
-    await clickButton(driver, 'toggle-expensesChart');
-
-    await clickButton(driver, 'toggle-expensesChart');
 
     expenseInputs = {
       name: 'Replace car',
@@ -509,18 +428,7 @@ describe(testDataModelName, () => {
     });
     // log('done Replace car');
 
-    toggleChart = await driver.findElements(
-      webdriver.By.id(`toggle-expensesChart`),
-    );
-    await driver.executeScript(
-      'arguments[0].scrollIntoView(true);',
-      toggleChart[0],
-    );
     await driver.executeScript('window.scrollBy(0, -100)'); // Adjust scrolling with a negative value here
-
-    await clickButton(driver, 'toggle-expensesChart');
-
-    await clickButton(driver, 'toggle-expensesChart');
 
     await clickButton(driver, 'btn-Assets');
 
@@ -541,20 +449,11 @@ describe(testDataModelName, () => {
     });
     // log('done House');
 
-    toggleChart = await driver.findElements(
-      webdriver.By.id(`toggleAssetsChart`),
-    );
-    await driver.executeScript(
-      'arguments[0].scrollIntoView(true);',
-      toggleChart[0],
-    );
-    await driver.executeScript('window.scrollBy(0, -100)'); // Adjust scrolling with a negative value here
+    // scrolling??
 
-    await clickButton(driver, 'toggleAssetsChart');
+    await driver.executeScript('window.scrollBy(0, -1000)'); // Adjust scrolling with a negative value here
 
     await clickButton(driver, 'chooseAssetOrDebtChartSetting--asset-All');
-
-    await clickButton(driver, 'toggleAssetsChart');
 
     assetInputs = {
       name: 'ISA',
@@ -573,18 +472,7 @@ describe(testDataModelName, () => {
     });
     // log('done ISA');
 
-    toggleChart = await driver.findElements(
-      webdriver.By.id(`toggleAssetsChart`),
-    );
-    await driver.executeScript(
-      'arguments[0].scrollIntoView(true);',
-      toggleChart[0],
-    );
     await driver.executeScript('window.scrollBy(0, -100)'); // Adjust scrolling with a negative value here
-
-    await clickButton(driver, 'toggleAssetsChart');
-
-    await clickButton(driver, 'toggleAssetsChart');
 
     assetInputs = {
       name: 'Jerry stocks',
@@ -603,18 +491,9 @@ describe(testDataModelName, () => {
     });
     // log('done Jerry stocks');
 
-    toggleChart = await driver.findElements(
-      webdriver.By.id(`toggleAssetsChart`),
-    );
-    await driver.executeScript(
-      'arguments[0].scrollIntoView(true);',
-      toggleChart[0],
-    );
+    // scrolling??
+
     await driver.executeScript('window.scrollBy(0, -100)'); // Adjust scrolling with a negative value here
-
-    await clickButton(driver, 'toggleAssetsChart');
-
-    await clickButton(driver, 'toggleAssetsChart');
 
     let pensionInputs = {
       name: 'Jerry Aegon',
@@ -640,19 +519,9 @@ describe(testDataModelName, () => {
       message: 'added assets and transactions',
     });
     // log('done Jerry Aegon');
+    // scrolling??
 
-    toggleChart = await driver.findElements(
-      webdriver.By.id(`toggleAssetsChart`),
-    );
-    await driver.executeScript(
-      'arguments[0].scrollIntoView(true);',
-      toggleChart[0],
-    );
     await driver.executeScript('window.scrollBy(0, -100)'); // Adjust scrolling with a negative value here
-
-    await clickButton(driver, 'toggleAssetsChart');
-
-    await clickButton(driver, 'toggleAssetsChart');
 
     pensionInputs = {
       name: 'Ben Prudential',
@@ -679,18 +548,7 @@ describe(testDataModelName, () => {
     });
     // log('done Ben Prudential');
 
-    toggleChart = await driver.findElements(
-      webdriver.By.id(`toggleAssetsChart`),
-    );
-    await driver.executeScript(
-      'arguments[0].scrollIntoView(true);',
-      toggleChart[0],
-    );
     await driver.executeScript('window.scrollBy(0, -100)'); // Adjust scrolling with a negative value here
-
-    await clickButton(driver, 'toggleAssetsChart');
-
-    await clickButton(driver, 'toggleAssetsChart');
 
     await clickButton(driver, 'btn-Debts');
 
@@ -709,18 +567,7 @@ describe(testDataModelName, () => {
 
     // log('done Mortgage');
 
-    toggleChart = await driver.findElements(
-      webdriver.By.id(`toggleDebtsChart`),
-    );
-    await driver.executeScript(
-      'arguments[0].scrollIntoView(true);',
-      toggleChart[0],
-    );
     await driver.executeScript('window.scrollBy(0, -100)'); // Adjust scrolling with a negative value here
-
-    await clickButton(driver, 'toggleDebtsChart');
-
-    await clickButton(driver, 'toggleDebtsChart');
 
     debtInputs = {
       name: 'Jerry loan',
@@ -735,19 +582,9 @@ describe(testDataModelName, () => {
       message: `added new debt and payment`,
     });
     // log('done Jerry loan');
+    // scrolling??
 
-    toggleChart = await driver.findElements(
-      webdriver.By.id(`toggleDebtsChart`),
-    );
-    await driver.executeScript(
-      'arguments[0].scrollIntoView(true);',
-      toggleChart[0],
-    );
     await driver.executeScript('window.scrollBy(0, -100)'); // Adjust scrolling with a negative value here
-
-    await clickButton(driver, 'toggleDebtsChart');
-
-    await clickButton(driver, 'toggleDebtsChart');
 
     debtInputs = {
       name: 'Ben loan',
@@ -763,18 +600,7 @@ describe(testDataModelName, () => {
     });
     // log('done Ben loan');
 
-    toggleChart = await driver.findElements(
-      webdriver.By.id(`toggleDebtsChart`),
-    );
-    await driver.executeScript(
-      'arguments[0].scrollIntoView(true);',
-      toggleChart[0],
-    );
     await driver.executeScript('window.scrollBy(0, -100)'); // Adjust scrolling with a negative value here
-
-    await clickButton(driver, 'toggleDebtsChart');
-
-    await clickButton(driver, 'toggleDebtsChart');
 
     await clickButton(driver, 'btn-Transactions');
     let transactionInputs = {
