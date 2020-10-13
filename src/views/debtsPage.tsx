@@ -36,12 +36,6 @@ export function debtsDiv(
   return (
     <div style={{ display: getDisplay(debtsView) ? 'block' : 'none' }}>
       {assetsOrDebtsChartDivWithButtons(model, debtChartData, true, false)}
-      <h4>Debt definitions</h4>
-      {assetsOrDebtsTableDiv(model, showAlert, true)}
-      <h4>Revalue debts</h4>
-      {transactionsTableDiv(model, showAlert, revalueDebt)}
-      <h4>Pay off debts</h4>
-      {transactionsTableDiv(model, showAlert, payOffDebt)}
 
       <h4>Values at {today.toDateString()}</h4>
       <DataGrid
@@ -77,6 +71,13 @@ export function debtsDiv(
           },
         ]}
       />
+
+      <h4>Debt definitions</h4>
+      {assetsOrDebtsTableDiv(model, showAlert, true)}
+      <h4>Revalue debts</h4>
+      {transactionsTableDiv(model, showAlert, revalueDebt)}
+      <h4>Pay off debts</h4>
+      {transactionsTableDiv(model, showAlert, payOffDebt)}
 
       <div className="addNewDebt">
         <h4> Add a debt </h4>

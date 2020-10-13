@@ -1258,9 +1258,6 @@ export class AppContent extends Component<AppProps, AppState> {
     return (
       <div style={{ display: getDisplay(settingsView) ? 'block' : 'none' }}>
         <fieldset>
-          {settingsTableDiv(this.state.modelData, showAlert)}
-          <p />
-
           <h4>Values at {today.toDateString()}</h4>
           <DataGrid
             deleteFunction={async function() {
@@ -1295,6 +1292,9 @@ export class AppContent extends Component<AppProps, AppState> {
               },
             ]}
           />
+
+          {settingsTableDiv(this.state.modelData, showAlert)}
+          <p />
 
           <div className="addNewSetting">
             <h4> Add setting </h4>

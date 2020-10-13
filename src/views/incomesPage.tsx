@@ -43,10 +43,6 @@ export function incomesDiv(
         incomesChartData,
         getDefaultChartSettings(model),
       )}
-      <h4>Income definitions</h4>
-      {incomesTableDiv(model, showAlert)}
-      <h4>Income revaluations</h4>
-      {transactionsTableDiv(model, showAlert, revalueInc)}
 
       <h4>Values at {today.toDateString()}</h4>
       <DataGrid
@@ -82,6 +78,11 @@ export function incomesDiv(
           },
         ]}
       />
+
+      <h4>Income definitions</h4>
+      {incomesTableDiv(model, showAlert)}
+      <h4>Income revaluations</h4>
+      {transactionsTableDiv(model, showAlert, revalueInc)}
 
       <div className="addNewIncome">
         <h4> Add an income or pension </h4>

@@ -37,12 +37,6 @@ export function assetsDiv(
   return (
     <div style={{ display: getDisplay(assetsView) ? 'block' : 'none' }}>
       {assetsOrDebtsChartDivWithButtons(model, assetChartData, false, false)}
-      <h4>Asset definitions</h4>
-      {assetsOrDebtsTableDiv(model, showAlert, false)}
-      <h4>Liquidate assets to keep cash afloat</h4>
-      {transactionsTableDiv(model, showAlert, liquidateAsset)}
-      <h4>Revalue assets</h4>
-      {transactionsTableDiv(model, showAlert, revalueAsset)}
 
       <h4>Values at {today.toDateString()}</h4>
       <DataGrid
@@ -78,6 +72,13 @@ export function assetsDiv(
           },
         ]}
       />
+
+      <h4>Asset definitions</h4>
+      {assetsOrDebtsTableDiv(model, showAlert, false)}
+      <h4>Liquidate assets to keep cash afloat</h4>
+      {transactionsTableDiv(model, showAlert, liquidateAsset)}
+      <h4>Revalue assets</h4>
+      {transactionsTableDiv(model, showAlert, revalueAsset)}
 
       <div className="addNewAsset">
         <h4> Add an asset or pension </h4>

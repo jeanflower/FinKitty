@@ -35,10 +35,6 @@ export function expensesDiv(
   return (
     <div style={{ display: getDisplay(expensesView) ? 'block' : 'none' }}>
       {expensesChartDivWithButtons(model, expensesChartData)}
-      <h4>Expense definitions</h4>
-      {expensesTableDiv(model, showAlert)}
-      <h4>Expense revaluations</h4>
-      {transactionsTableDiv(model, showAlert, revalueExp)}
 
       <h4>Values at {today.toDateString()}</h4>
       <DataGrid
@@ -74,6 +70,11 @@ export function expensesDiv(
           },
         ]}
       />
+
+      <h4>Expense definitions</h4>
+      {expensesTableDiv(model, showAlert)}
+      <h4>Expense revaluations</h4>
+      {transactionsTableDiv(model, showAlert, revalueExp)}
 
       <div className="addNewExpense">
         <h4> Add an expense </h4>
