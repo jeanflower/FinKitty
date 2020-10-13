@@ -74,6 +74,8 @@ import SimpleFormatter from './views/reactComponents/NameFormatter';
 import { AddDeleteSettingForm } from './views/reactComponents/AddDeleteSettingForm';
 import { ReplaceWithJSONForm } from './views/reactComponents/ReplaceWithJSONForm';
 import { CreateModelForm } from './views/reactComponents/CloneModelForm';
+import { Form, Nav, Navbar } from 'react-bootstrap';
+import FinKittyCat from './views/cat.png';
 
 // import './bootstrap.css'
 
@@ -854,10 +856,52 @@ export class AppContent extends Component<AppProps, AppState> {
 
     return (
       <div>
-        <nav className="navbar fixed-top navbar-light bg-dark">
-          <header>{this.navigationDiv()}</header>
-        </nav>
-        <div style={{ paddingTop: '100px' }}>
+        <Navbar expand="lg" bg="light" sticky="top">
+          <Navbar.Brand href="#home" id="finkitty-brand">
+            <div className="col">
+              <div className="row">
+                <h3>{`FinKitty`}</h3>
+              </div>
+              <div className="row">
+                <img src={FinKittyCat} alt="FinKitty cat" width={70}></img>
+              </div>
+            </div>
+          </Navbar.Brand>
+          <Navbar.Toggle aria-controls="basic-navbar-nav" />
+          <Navbar.Collapse id="basic-navbar-nav">
+            <Nav className="mr-auto">
+              <Form
+                inline
+                onSubmit={(e: any) => {
+                  e.preventDefault();
+                  return false;
+                }}
+              >
+                {
+                  <div className="col">
+                    <div className="row">{this.statusButtonList()}</div>
+                    <div className="row">{this.viewButtonList()}</div>
+                  </div>
+                }
+              </Form>
+            </Nav>
+            <Nav>
+              <Form
+                inline
+                onSubmit={(e: any) => {
+                  e.preventDefault();
+                  return false;
+                }}
+              >
+                <div className="col">
+                  <div className="row">{this.rhsTopButtonList()}</div>
+                  <div className="row">{this.rhsBottomButtonList()}</div>
+                </div>
+              </Form>
+            </Nav>
+          </Navbar.Collapse>
+        </Navbar>
+        <div>
           {this.homeDiv()}
           {overviewDiv(
             this.state.modelData,
@@ -926,11 +970,12 @@ export class AppContent extends Component<AppProps, AppState> {
       />
     ));
     return (
-      <form className="container-fluid"
-          onSubmit={(e:any)=>{
-            e.preventDefault();
-            return false;
-          }}
+      <form
+        className="container-fluid"
+        onSubmit={(e: any) => {
+          e.preventDefault();
+          return false;
+        }}
       >
         Select an existing model:
         <br />
@@ -1052,13 +1097,13 @@ export class AppContent extends Component<AppProps, AppState> {
       <div style={{ display: getDisplay(homeView) ? 'block' : 'none' }}>
         <div className="row">
           <div className="col-sm mb-4">
-            <form 
+            <form
               className="container-fluid"
-              onSubmit={(e:any)=>{
+              onSubmit={(e: any) => {
                 e.preventDefault();
                 return false;
               }}
-              >
+            >
               <Button
                 id="startNewModel"
                 action={async () => {
@@ -1096,8 +1141,9 @@ export class AppContent extends Component<AppProps, AppState> {
               getModelNames={getModelNames}
             />
             <br></br>
-            <form className="container-fluid"
-              onSubmit={(e:any)=>{
+            <form
+              className="container-fluid"
+              onSubmit={(e: any) => {
                 e.preventDefault();
                 return false;
               }}
@@ -1325,9 +1371,33 @@ export class AppContent extends Component<AppProps, AppState> {
       </div>
     );
   }
+  private rhsTopButtonList() {
+    const buttons: JSX.Element[] = [];
+    buttons.push(
+      <Button
+        action={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+          event.persist();
+          this.props.logOutAction();
+        }}
+        title="Log out"
+        type="primary"
+        key="Log out"
+        id={`btn-LogOut`}
+      />,
+    );
+    return buttons;
+  }
+
+  private rhsBottomButtonList() {
+    const buttons: JSX.Element[] = [];
+    buttons.push(this.makeUndoButton());
+    buttons.push(this.makeRedoButton());
+    buttons.push(this.makeSaveButton());
+    return buttons;
+  }
 
   private viewButtonList() {
-    let buttons: JSX.Element[] = [];
+    const buttons: JSX.Element[] = [];
     const it = views.keys();
     let entry = it.next();
     while (!entry.done) {
@@ -1354,21 +1424,12 @@ export class AppContent extends Component<AppProps, AppState> {
       );
       entry = it.next();
     }
-    buttons.push(this.makeUndoButton());
-    buttons.push(this.makeRedoButton());
-    buttons.push(this.makeSaveButton());
-    buttons.push(
-      <Button
-        action={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-          event.persist();
-          this.props.logOutAction();
-        }}
-        title="Log out"
-        type="primary"
-        key="Log out"
-        id={`btn-LogOut`}
-      />,
-    );
+
+    return buttons;
+  }
+
+  private statusButtonList() {
+    let buttons: JSX.Element[] = [];
     buttons = buttons.concat(this.makeHelpText(this.state.alertText));
     return buttons;
   }
@@ -1435,13 +1496,23 @@ export class AppContent extends Component<AppProps, AppState> {
 
   private makeHelpText(alertText: string): JSX.Element[] {
     const result: JSX.Element[] = [];
-    if (alertText !== '') {
-      // log('display alert text');
+    let messageText = alertText;
+    if (messageText === '') {
+      messageText = `${modelName}`;
       result.push(
-        <h4 className="text-info" id="pageTitle">
-          {alertText}
+        <h4 className="text" id="pageTitle">
+          {messageText}
         </h4>,
       );
+    } else {
+      result.push(
+        <h4 className="text-warning" id="pageTitle">
+          {messageText}
+        </h4>,
+      );
+    }
+    // log('display alert text');
+    if (alertText !== '') {
       result.push(
         <Button
           key={'alert'}
@@ -1455,36 +1526,8 @@ export class AppContent extends Component<AppProps, AppState> {
           type={'secondary'}
         />,
       );
-    } else {
-      const it = views.keys();
-      let entry = it.next();
-      while (!entry.done) {
-        if (getDisplay(entry.value)) {
-          // log(`views.get(entry.value) = ${showObj(views.get(entry.value))}`);
-          const view = views.get(entry.value);
-          if (view === undefined) {
-            log('Error: unrecognised view');
-          } else {
-            result.push(
-              <h4 className="text-white" id="pageTitle">
-                {(entry.value !== homeView ? modelName : '')}
-              </h4>,
-            );
-          }
-        }
-        entry = it.next();
-      }
     }
     return result;
-  }
-
-  private navigationDiv() {
-    return (
-      <div role="group">
-        {this.viewButtonList()}
-        {}
-      </div>
-    );
   }
 }
 

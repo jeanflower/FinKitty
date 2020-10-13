@@ -27,6 +27,7 @@ import {
   clickButton,
   cleanUpWork,
   getDriver,
+  scrollIntoViewByID,
 } from './browserBaseTypes';
 
 import webdriver from 'selenium-webdriver';
@@ -355,6 +356,7 @@ describe(testDataModelName, () => {
       message: `added new expense`,
     });
 
+    await scrollIntoViewByID(driver, 'useRevalueInputsExpense');
     await clickButton(driver, 'useRevalueInputsExpense');
 
     const revalueInputs = {

@@ -7,7 +7,7 @@ export function loginPage(loginWithRedirect: any, loginForTesting: any) {
     <>
       <div className="page-header">
         <h1>
-          Finkitty <small>an app for financial kitty forecasting</small>
+          FinKitty <small>an app for financial kitty forecasting</small>
         </h1>
       </div>
       <div className="row">

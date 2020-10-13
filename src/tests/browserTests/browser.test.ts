@@ -874,9 +874,9 @@ describe(testDataModelName, () => {
     await driver.executeScript('window.scrollBy(0, -1000)'); // Adjust scrolling with a negative value here
     await clickButton(driver, 'btn-check');
 
-    let label = await driver.findElements(webdriver.By.id('pageTitle'));
+    const label = await driver.findElements(webdriver.By.id('pageTitle'));
     expect(label.length === 1).toBe(true);
-    let labelText = await label[0].getText();
+    const labelText = await label[0].getText();
     expect(labelText).toBe(`model check all good`);
 
     await clickButton(driver, 'btn-clear-alert');
@@ -1195,11 +1195,13 @@ describe(testDataModelName, () => {
     await clickButton(driver, 'btn-Home');
 
     // scrolling
+    await driver.executeScript('window.scrollBy(0, -1000)'); // Adjust scrolling with a negative value here
+
     await clickButton(driver, 'btn-check');
 
-    let label = await driver.findElements(webdriver.By.id('pageTitle'));
+    const label = await driver.findElements(webdriver.By.id('pageTitle'));
     expect(label.length === 1).toBe(true);
-    let labelText = await label[0].getText();
+    const labelText = await label[0].getText();
     expect(labelText).toBe(`model check all good`);
 
     await clickButton(driver, 'btn-clear-alert');

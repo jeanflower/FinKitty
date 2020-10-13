@@ -120,18 +120,37 @@ export async function fillInputById(
   return result;
 }
 
-export async function fillInputByName(
+export async function scrollIntoViewByID(
+  driver: ThenableWebDriver,
+  id: string,
+) {
+  const input = await driver.findElements(webdriver.By.id(id));
+  //log(`found ${input.length} elements with id = ${id}`);
+  expect(input.length === 1).toBe(true);
+
+  await driver.executeScript('arguments[0].scrollIntoView(true);', input[0]);
+  await driver.executeScript('window.scrollBy(0, -5000)');
+}
+
+export async function scrollIntoViewByName(
   driver: ThenableWebDriver,
   name: string,
-  content: string,
 ) {
   const input = await driver.findElements(webdriver.By.name(name));
   //log(`found ${input.length} elements with name = ${name}`);
   expect(input.length === 1).toBe(true);
 
   await driver.executeScript('arguments[0].scrollIntoView(true);', input[0]);
-  await driver.executeScript('window.scrollBy(0, -500)'); // Adjust scrolling with a negative value here
+}
 
+export async function fillInputByName(
+  driver: ThenableWebDriver,
+  name: string,
+  content: string,
+) {
+  await scrollIntoViewByName(driver, name);
+
+  const input = await driver.findElements(webdriver.By.name(name));
   const result = await input[0].sendKeys(content);
   // log(`got ${result} from content ${content}`);
   return result;
