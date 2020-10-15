@@ -42,9 +42,9 @@ import { loginPage } from './views/loginPage';
 import { screenshotsDiv } from './views/screenshotsPage';
 import {
   settingsTableDiv,
-  transactionsTableDiv,
   triggersTableDiv,
   defaultColumn,
+  transactionFilteredTable,
 } from './views/tablePages';
 import { overviewDiv } from './views/overviewPage';
 import { taxDiv } from './views/chartPages';
@@ -1250,49 +1250,61 @@ export class AppContent extends Component<AppProps, AppState> {
     );
   }
 
+  private todaysSettingsTable(
+    model: DbModelData,
+    todaysValues: Map<string, string>,
+  ) {
+    if (todaysValues.size === 0) {
+      return;
+      //return 'No data to display';
+    }
+    const today = getTodaysDate(model);
+    return (
+      <div>
+        <h4>Values at {today.toDateString()}</h4>
+        <DataGrid
+          deleteFunction={async function() {
+            return false;
+          }}
+          handleGridRowsUpdated={function() {
+            return false;
+          }}
+          rows={Array.from(todaysValues.entries())
+            .map(key => {
+              // log(`key[0] = ${key[0]}, key[1] = ${key[1]}`);
+              return {
+                NAME: key[0],
+                VALUE: `${key[1]}`,
+              };
+            })
+            .sort((a: DbItem, b: DbItem) => lessThan(a.NAME, b.NAME))}
+          columns={[
+            {
+              ...defaultColumn,
+              key: 'NAME',
+              name: 'name',
+              formatter: <SimpleFormatter name="name" value="unset" />,
+            },
+            {
+              ...defaultColumn,
+              key: 'VALUE',
+              name: `today's value`,
+              formatter: <SimpleFormatter name="today's value" value="unset" />,
+            },
+          ]}
+        />
+      </div>
+    );
+  }
+
   private settingsDiv(model: DbModelData, todaysValues: Map<string, string>) {
     if (!getDisplay(settingsView)) {
       return;
     }
-    const today = getTodaysDate(model);
     return (
       <div style={{ display: getDisplay(settingsView) ? 'block' : 'none' }}>
         <fieldset>
-          <h4>Values at {today.toDateString()}</h4>
-          <DataGrid
-            deleteFunction={async function() {
-              return false;
-            }}
-            handleGridRowsUpdated={function() {
-              return false;
-            }}
-            rows={Array.from(todaysValues.entries())
-              .map(key => {
-                // log(`key[0] = ${key[0]}, key[1] = ${key[1]}`);
-                return {
-                  NAME: key[0],
-                  VALUE: `${key[1]}`,
-                };
-              })
-              .sort((a: DbItem, b: DbItem) => lessThan(a.NAME, b.NAME))}
-            columns={[
-              {
-                ...defaultColumn,
-                key: 'NAME',
-                name: 'name',
-                formatter: <SimpleFormatter name="name" value="unset" />,
-              },
-              {
-                ...defaultColumn,
-                key: 'VALUE',
-                name: `today's value`,
-                formatter: (
-                  <SimpleFormatter name="today's value" value="unset" />
-                ),
-              },
-            ]}
-          />
-
+          {this.todaysSettingsTable(model, todaysValues)}
           {settingsTableDiv(this.state.modelData, showAlert)}
           <p />
 
@@ -1352,10 +1364,18 @@ export class AppContent extends Component<AppProps, AppState> {
 
     return (
       <div style={{ display: getDisplay(transactionsView) ? 'block' : 'none' }}>
-        <h4>Custom transactions</h4>
-        {transactionsTableDiv(this.state.modelData, showAlert, custom)}
-        <h4>Auto-generated transactions</h4>
-        {transactionsTableDiv(this.state.modelData, showAlert, autogen)}
+        {transactionFilteredTable(
+          this.state.modelData,
+          showAlert,
+          custom,
+          'Custom transactions',
+        )}
+        {transactionFilteredTable(
+          this.state.modelData,
+          showAlert,
+          autogen,
+          'Auto-generated transactions',
+        )}
         <p />
         <div className="addNewTransaction">
           <h4> Add a transaction </h4>

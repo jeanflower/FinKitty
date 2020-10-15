@@ -108,7 +108,7 @@ export class AddDeleteExpenseForm extends Component<
 
   private newExpenseForm(): React.ReactNode {
     if (this.state.inputting !== inputtingExpense) {
-      return <div></div>;
+      return;
     }
     return (
       <div>
@@ -168,7 +168,7 @@ export class AddDeleteExpenseForm extends Component<
 
   private twoExtraDates(): React.ReactNode {
     if (this.state.inputting !== inputtingExpense) {
-      return <div></div>;
+      return;
     }
     return (
       <div>

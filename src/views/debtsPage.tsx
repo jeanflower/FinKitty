@@ -11,8 +11,8 @@ import {
 import { assetsOrDebtsChartDivWithButtons } from './chartPages';
 import {
   assetsOrDebtsTableDiv,
-  transactionsTableDiv,
   defaultColumn,
+  transactionFilteredTable,
 } from './tablePages';
 import { checkAsset, checkTransaction } from '../models/checks';
 import { AddDeleteDebtForm } from './reactComponents/AddDeleteDebtForm';
@@ -22,21 +22,17 @@ import DataGrid from './reactComponents/DataGrid';
 import SimpleFormatter from './reactComponents/NameFormatter';
 import CashValueFormatter from './reactComponents/CashValueFormatter';
 
-export function debtsDiv(
+function todaysDebtsTable(
   model: DbModelData,
-  showAlert: (arg0: string) => void,
-  debtChartData: ChartData[],
   todaysValues: Map<string, number>,
 ) {
-  if (!getDisplay(debtsView)) {
+  if (todaysValues.size === 0) {
     return;
+    //return 'No data to display';
   }
-
   const today = getTodaysDate(model);
   return (
-    <div style={{ display: getDisplay(debtsView) ? 'block' : 'none' }}>
-      {assetsOrDebtsChartDivWithButtons(model, debtChartData, true, false)}
-
+    <div>
       <h4>Values at {today.toDateString()}</h4>
       <DataGrid
         deleteFunction={async function() {
@@ -71,13 +67,29 @@ export function debtsDiv(
           },
         ]}
       />
+    </div>
+  );
+}
+
+export function debtsDiv(
+  model: DbModelData,
+  showAlert: (arg0: string) => void,
+  debtChartData: ChartData[],
+  todaysValues: Map<string, number>,
+) {
+  if (!getDisplay(debtsView)) {
+    return;
+  }
+
+  return (
+    <div style={{ display: getDisplay(debtsView) ? 'block' : 'none' }}>
+      {assetsOrDebtsChartDivWithButtons(model, debtChartData, true, false)}
+      {todaysDebtsTable(model, todaysValues)}
 
       <h4>Debt definitions</h4>
       {assetsOrDebtsTableDiv(model, showAlert, true)}
-      <h4>Revalue debts</h4>
-      {transactionsTableDiv(model, showAlert, revalueDebt)}
-      <h4>Pay off debts</h4>
-      {transactionsTableDiv(model, showAlert, payOffDebt)}
+      {transactionFilteredTable(model, showAlert, revalueDebt, 'Revalue debts')}
+      {transactionFilteredTable(model, showAlert, payOffDebt, 'Pay off debts')}
 
       <div className="addNewDebt">
         <h4> Add a debt </h4>

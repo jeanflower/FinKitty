@@ -5,7 +5,7 @@ import {
   expensesTableDiv,
   incomesTableDiv,
   settingsTableDiv,
-  transactionsTableDiv,
+  transactionFilteredTable,
   triggersTableDiv,
 } from './tablePages';
 import { getDisplay, overview } from '../App';
@@ -39,6 +39,83 @@ function suppressLegend(chartDataPoints: ChartData[]) {
   });
 }
 
+function chartsForOverview(
+  model: DbModelData,
+  showAlert: (arg0: string) => void,
+  assetChartData: ChartData[],
+  debtChartData: ChartData[],
+  expensesChartData: ChartData[],
+  incomesChartData: ChartData[],
+  taxChartData: ChartData[],
+  getStartDate: () => string,
+  updateStartDate: (newDate: string) => Promise<void>,
+  getEndDate: () => string,
+  updateEndDate: (newDate: string) => Promise<void>,
+) {
+  if (
+    incomesChartData.length === 0 &&
+    assetChartData.length === 0 &&
+    expensesChartData.length === 0 &&
+    taxChartData.length === 0 &&
+    debtChartData.length === 0
+  ) {
+    return;
+  }
+  return (
+    <div className="scrollClass">
+      <div className="row">
+        <div className="col">
+          {incomesChartDiv(
+            suppressLegend(incomesChartData),
+            getSmallerChartSettings(model, 'Incomes'),
+          )}
+        </div>
+        <div className="col">
+          {expensesChartDiv(
+            suppressLegend(expensesChartData),
+            getSmallerChartSettings(model, 'Expenses'),
+          )}
+        </div>
+        <div className="col">
+          {assetsOrDebtsChartDiv(
+            suppressLegend(assetChartData),
+            getSmallerChartSettings(model, 'Assets'),
+          )}
+        </div>
+      </div>
+      <div className="row">
+        <div className="col">
+          {taxChartDiv(
+            suppressLegend(taxChartData),
+            getSmallerChartSettings(model, 'Tax'),
+          )}
+        </div>
+        <div className="col">
+          {assetsOrDebtsChartDiv(
+            suppressLegend(debtChartData),
+            getSmallerChartSettings(model, 'Debts'),
+          )}
+        </div>
+        <div className="col">
+          <AddDeleteEntryForm
+            name="view start date"
+            getValue={getStartDate}
+            submitFunction={updateStartDate}
+            showAlert={showAlert}
+          />
+          <AddDeleteEntryForm
+            name="view end date"
+            getValue={getEndDate}
+            submitFunction={updateEndDate}
+            showAlert={showAlert}
+          />
+          {coarseFineList(model)}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function overviewDiv(
   model: DbModelData,
   showAlert: (arg0: string) => void,
@@ -60,87 +137,85 @@ export function overviewDiv(
         display: doDisplay ? 'block' : 'none',
       }}
     >
-      <div className="scrollClass">
-        <div className="row">
-          <div className="col">
-            {incomesChartDiv(
-              suppressLegend(incomesChartData),
-              getSmallerChartSettings(model, 'Incomes'),
-            )}
-          </div>
-          <div className="col">
-            {expensesChartDiv(
-              suppressLegend(expensesChartData),
-              getSmallerChartSettings(model, 'Expenses'),
-            )}
-          </div>
-          <div className="col">
-            {assetsOrDebtsChartDiv(
-              suppressLegend(assetChartData),
-              getSmallerChartSettings(model, 'Assets'),
-            )}
-          </div>
-        </div>
-        <div className="row">
-          <div className="col">
-            {taxChartDiv(
-              model,
-              suppressLegend(taxChartData),
-              getSmallerChartSettings(model, 'Tax'),
-            )}
-          </div>
-          <div className="col">
-            {assetsOrDebtsChartDiv(
-              suppressLegend(debtChartData),
-              getSmallerChartSettings(model, 'Debts'),
-            )}
-          </div>
-          <div className="col">
-            <AddDeleteEntryForm
-              name="view start date"
-              getValue={getStartDate}
-              submitFunction={updateStartDate}
-              showAlert={showAlert}
-            />
-            <AddDeleteEntryForm
-              name="view end date"
-              getValue={getEndDate}
-              submitFunction={updateEndDate}
-              showAlert={showAlert}
-            />
-            {coarseFineList(model)}
-          </div>
-        </div>
-      </div>
+      {chartsForOverview(
+        model,
+        showAlert,
+        assetChartData,
+        debtChartData,
+        expensesChartData,
+        incomesChartData,
+        taxChartData,
+        getStartDate,
+        updateStartDate,
+        getEndDate,
+        updateEndDate,
+      )}
       <div className="scrollClass resizeClass">
         <br />
         <h2>Important dates:</h2>
         {triggersTableDiv(model, showAlert)}
         <h4>Income definitions</h4>
         {incomesTableDiv(model, showAlert)}
-        <h4>Income revaluations</h4>
-        {transactionsTableDiv(model, showAlert, revalueInc)}
+        {transactionFilteredTable(
+          model,
+          showAlert,
+          revalueInc,
+          'Income revaluations',
+        )}
+
         <h4>Expense definitions</h4>
         {expensesTableDiv(model, showAlert)}
-        <h4>Expense revaluations</h4>
-        {transactionsTableDiv(model, showAlert, revalueExp)}
+        {transactionFilteredTable(
+          model,
+          showAlert,
+          revalueExp,
+          'Expense revaluations',
+        )}
+
         <h4>Asset definitions</h4>
         {assetsOrDebtsTableDiv(model, showAlert, false)}
-        <h4>Liquidate assets to keep cash afloat</h4>
-        {transactionsTableDiv(model, showAlert, liquidateAsset)}
-        <h4>Revalue assets</h4>
-        {transactionsTableDiv(model, showAlert, revalueAsset)}
+        {transactionFilteredTable(
+          model,
+          showAlert,
+          liquidateAsset,
+          'Liquidate assets to keep cash afloat',
+        )}
+        {transactionFilteredTable(
+          model,
+          showAlert,
+          revalueAsset,
+          'Revalue assets',
+        )}
+
         <h4>Debt definitions</h4>
         {assetsOrDebtsTableDiv(model, showAlert, true)}
-        <h4>Revalue debts</h4>
-        {transactionsTableDiv(model, showAlert, revalueDebt)}
-        <h4>Pay off debts</h4>
-        {transactionsTableDiv(model, showAlert, payOffDebt)}
+        {transactionFilteredTable(
+          model,
+          showAlert,
+          revalueDebt,
+          'Revalue debts',
+        )}
+        {transactionFilteredTable(
+          model,
+          showAlert,
+          payOffDebt,
+          'Pay off debts',
+        )}
+
         <h2>Transactions:</h2>
-        <h4>Custom transactions</h4>
-        {transactionsTableDiv(model, showAlert, custom)}
-        <h4>Auto-generated transactions</h4>
-        {transactionsTableDiv(model, showAlert, autogen)}
+        {transactionFilteredTable(
+          model,
+          showAlert,
+          custom,
+          'Custom transactions',
+        )}
+        {transactionFilteredTable(
+          model,
+          showAlert,
+          autogen,
+          'Auto-generated transactions',
+        )}
+
         <h2>Settings:</h2>
         {settingsTableDiv(model, showAlert)}
       </div>

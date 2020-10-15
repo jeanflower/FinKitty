@@ -14,8 +14,8 @@ import {
 } from './chartPages';
 import {
   incomesTableDiv,
-  transactionsTableDiv,
   defaultColumn,
+  transactionFilteredTable,
 } from './tablePages';
 import { AddDeleteIncomeForm } from './reactComponents/AddDeleteIncomeForm';
 import { checkIncome, checkTransaction } from '../models/checks';
@@ -25,25 +25,17 @@ import { lessThan, getTodaysDate } from '../utils';
 import SimpleFormatter from './reactComponents/NameFormatter';
 import CashValueFormatter from './reactComponents/CashValueFormatter';
 
-export function incomesDiv(
+function todaysIncomesTable(
   model: DbModelData,
-  showAlert: (arg0: string) => void,
-  incomesChartData: ChartData[],
   todaysValues: Map<string, number>,
 ) {
-  if (!getDisplay(incomesView)) {
+  if (todaysValues.size === 0) {
     return;
+    //return 'No data to display';
   }
-  // log('rendering an incomesDiv');
   const today = getTodaysDate(model);
   return (
-    <div style={{ display: getDisplay(incomesView) ? 'block' : 'none' }}>
-      {incomesChartDivWithButtons(
-        model,
-        incomesChartData,
-        getDefaultChartSettings(model),
-      )}
-
+    <div>
       <h4>Values at {today.toDateString()}</h4>
       <DataGrid
         deleteFunction={async function() {
@@ -78,11 +70,37 @@ export function incomesDiv(
           },
         ]}
       />
+    </div>
+  );
+}
+
+export function incomesDiv(
+  model: DbModelData,
+  showAlert: (arg0: string) => void,
+  incomesChartData: ChartData[],
+  todaysValues: Map<string, number>,
+) {
+  if (!getDisplay(incomesView)) {
+    return;
+  }
+  // log('rendering an incomesDiv');
+  return (
+    <div style={{ display: getDisplay(incomesView) ? 'block' : 'none' }}>
+      {incomesChartDivWithButtons(
+        model,
+        incomesChartData,
+        getDefaultChartSettings(model),
+      )}
+      {todaysIncomesTable(model, todaysValues)}
 
       <h4>Income definitions</h4>
       {incomesTableDiv(model, showAlert)}
-      <h4>Income revaluations</h4>
-      {transactionsTableDiv(model, showAlert, revalueInc)}
+      {transactionFilteredTable(
+        model,
+        showAlert,
+        revalueInc,
+        'Income revaluations',
+      )}
 
       <div className="addNewIncome">
         <h4> Add an income or pension </h4>

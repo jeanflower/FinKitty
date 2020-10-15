@@ -11,8 +11,8 @@ import {
 import { assetsOrDebtsChartDivWithButtons } from './chartPages';
 import {
   assetsOrDebtsTableDiv,
-  transactionsTableDiv,
   defaultColumn,
+  transactionFilteredTable,
 } from './tablePages';
 import { AddDeleteAssetForm } from './reactComponents/AddDeleteAssetForm';
 import { checkAsset, checkTransaction } from '../models/checks';
@@ -23,21 +23,17 @@ import CashValueFormatter from './reactComponents/CashValueFormatter';
 import { getTodaysDate, lessThan } from '../utils';
 // import { log } from './../utils';
 
-export function assetsDiv(
+function todaysAssetsTable(
   model: DbModelData,
-  showAlert: (arg0: string) => void,
-  assetChartData: ChartData[],
   todaysValues: Map<string, number>,
 ) {
-  if (!getDisplay(assetsView)) {
+  if (todaysValues.size === 0) {
     return;
+    //return 'No data to display';
   }
-
   const today = getTodaysDate(model);
   return (
-    <div style={{ display: getDisplay(assetsView) ? 'block' : 'none' }}>
-      {assetsOrDebtsChartDivWithButtons(model, assetChartData, false, false)}
-
+    <div>
       <h4>Values at {today.toDateString()}</h4>
       <DataGrid
         deleteFunction={async function() {
@@ -72,13 +68,39 @@ export function assetsDiv(
           },
         ]}
       />
+    </div>
+  );
+}
+
+export function assetsDiv(
+  model: DbModelData,
+  showAlert: (arg0: string) => void,
+  assetChartData: ChartData[],
+  todaysValues: Map<string, number>,
+) {
+  if (!getDisplay(assetsView)) {
+    return;
+  }
+
+  return (
+    <div style={{ display: getDisplay(assetsView) ? 'block' : 'none' }}>
+      {assetsOrDebtsChartDivWithButtons(model, assetChartData, false, false)}
+      {todaysAssetsTable(model, todaysValues)}
 
       <h4>Asset definitions</h4>
       {assetsOrDebtsTableDiv(model, showAlert, false)}
-      <h4>Liquidate assets to keep cash afloat</h4>
-      {transactionsTableDiv(model, showAlert, liquidateAsset)}
-      <h4>Revalue assets</h4>
-      {transactionsTableDiv(model, showAlert, revalueAsset)}
+      {transactionFilteredTable(
+        model,
+        showAlert,
+        liquidateAsset,
+        'Liquidate assets to keep cash afloat',
+      )}
+      {transactionFilteredTable(
+        model,
+        showAlert,
+        revalueAsset,
+        'Revalue assets',
+      )}
 
       <div className="addNewAsset">
         <h4> Add an asset or pension </h4>

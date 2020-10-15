@@ -10,8 +10,8 @@ import {
 import { expensesChartDivWithButtons } from './chartPages';
 import {
   expensesTableDiv,
-  transactionsTableDiv,
   defaultColumn,
+  transactionFilteredTable,
 } from './tablePages';
 import { AddDeleteExpenseForm } from './reactComponents/AddDeleteExpenseForm';
 import { checkExpense, checkTransaction } from '../models/checks';
@@ -22,20 +22,17 @@ import { lessThan, getTodaysDate } from '../utils';
 import SimpleFormatter from './reactComponents/NameFormatter';
 import CashValueFormatter from './reactComponents/CashValueFormatter';
 
-export function expensesDiv(
+function todaysExpensesTable(
   model: DbModelData,
-  showAlert: (arg0: string) => void,
-  expensesChartData: ChartData[],
   todaysValues: Map<string, number>,
 ) {
-  if (!getDisplay(expensesView)) {
+  if (todaysValues.size === 0) {
     return;
+    //return 'No data to display';
   }
   const today = getTodaysDate(model);
   return (
-    <div style={{ display: getDisplay(expensesView) ? 'block' : 'none' }}>
-      {expensesChartDivWithButtons(model, expensesChartData)}
-
+    <div>
       <h4>Values at {today.toDateString()}</h4>
       <DataGrid
         deleteFunction={async function() {
@@ -70,11 +67,32 @@ export function expensesDiv(
           },
         ]}
       />
+    </div>
+  );
+}
+
+export function expensesDiv(
+  model: DbModelData,
+  showAlert: (arg0: string) => void,
+  expensesChartData: ChartData[],
+  todaysValues: Map<string, number>,
+) {
+  if (!getDisplay(expensesView)) {
+    return;
+  }
+  return (
+    <div style={{ display: getDisplay(expensesView) ? 'block' : 'none' }}>
+      {expensesChartDivWithButtons(model, expensesChartData)}
+      {todaysExpensesTable(model, todaysValues)}
 
       <h4>Expense definitions</h4>
       {expensesTableDiv(model, showAlert)}
-      <h4>Expense revaluations</h4>
-      {transactionsTableDiv(model, showAlert, revalueExp)}
+      {transactionFilteredTable(
+        model,
+        showAlert,
+        revalueExp,
+        'Expense revaluations',
+      )}
 
       <div className="addNewExpense">
         <h4> Add an expense </h4>

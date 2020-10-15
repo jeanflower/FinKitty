@@ -955,7 +955,7 @@ export function getDisplayName(obj: string, type: string) {
   return result;
 }
 
-function transactionsForTable(model: DbModelData, type: string) {
+export function transactionsForTable(model: DbModelData, type: string) {
   const unindexedRows = model.transactions
     .filter(t => {
       return t.TYPE === type;
@@ -1023,6 +1023,7 @@ function makeCompleteName(name: string, type: string) {
 }
 
 export function transactionsTableDiv(
+  contents: any[],
   model: DbModelData,
   showAlert: (arg0: string) => void,
   type: string,
@@ -1044,7 +1045,7 @@ export function transactionsTableDiv(
               arguments,
             );
           }}
-          rows={transactionsForTable(model, type)}
+          rows={contents}
           columns={makeTransactionCols(model, type)}
           deleteFunction={(name: string) => {
             const completeName = makeCompleteName(name, type);
@@ -1055,6 +1056,25 @@ export function transactionsTableDiv(
     </fieldset>
   );
 }
+
+export function transactionFilteredTable(
+  model: DbModelData,
+  showAlert: (arg0: string) => void,
+  type: string,
+  headingText: string,
+) {
+  const contents = transactionsForTable(model, type);
+  if (contents.length === 0) {
+    return;
+  }
+  return (
+    <div>
+      <h4>{headingText}</h4>
+      {transactionsTableDiv(contents, model, showAlert, type)}
+    </div>
+  );
+}
+
 function triggersForTable(model: DbModelData) {
   const unindexedResult = model.triggers.map((obj: DbTrigger) => {
     const mapResult = {
@@ -1501,8 +1521,12 @@ export function settingsTableDiv(
           },
         ]}
       />
-      <h4>Revalue settings</h4>
-      {transactionsTableDiv(model, showAlert, revalueSetting)}
+      {transactionFilteredTable(
+        model,
+        showAlert,
+        revalueSetting,
+        'Revalue settings',
+      )}
     </div>
   );
 }

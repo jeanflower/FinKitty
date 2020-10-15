@@ -211,6 +211,10 @@ export function incomesChartDiv(
   incomesChartData: ChartData[],
   chartSettings: any,
 ) {
+  if (incomesChartData.length === 0) {
+    return;
+    //return 'No incomes data to display';
+  }
   return (
     <fieldset>
       <CanvasJSChart
@@ -228,6 +232,10 @@ export function incomesChartDivWithButtons(
   incomesChartData: ChartData[],
   chartSettings: any,
 ) {
+  if (incomesChartData.length === 0) {
+    return;
+    //return 'No incomes data to display';
+  }
   return (
     <div
       style={{
@@ -267,6 +275,10 @@ export function expensesChartDiv(
   expensesChartData: ChartData[],
   chartSettings: any,
 ) {
+  if (expensesChartData.length === 0) {
+    return;
+    //return 'No expenses data to display';
+  }
   return (
     <fieldset>
       <ReactiveTextArea
@@ -287,6 +299,10 @@ export function expensesChartDivWithButtons(
   model: DbModelData,
   expensesChartData: ChartData[],
 ) {
+  if (expensesChartData.length === 0) {
+    return;
+    //return 'No expenses data to display';
+  }
   return (
     <div
       style={{
@@ -420,6 +436,10 @@ export function assetsOrDebtsChartDiv(
   assetChartData: ChartData[],
   chartSettings: any,
 ) {
+  if (assetChartData.length === 0) {
+    return;
+    //return 'No data to display';
+  }
   return (
     <CanvasJSChart
       options={{
@@ -437,7 +457,15 @@ export function assetsOrDebtsChartDivWithButtons(
   forOverviewPage: boolean,
 ) {
   // log(`assetChartData = ${assetChartData}`);
-
+  if (assetChartData.length === 0) {
+    return (
+      <ReactiveTextArea
+        identifier="assetDataDump"
+        message={showObj(assetChartData)}
+      />
+    );
+    //return 'No data to display';
+  }
   return (
     <div
       style={{
@@ -598,11 +626,11 @@ function taxButtonList(model: DbModelData) {
   );
   return <div role="group">{buttons}</div>;
 }
-export function taxChartDiv(
-  model: DbModelData,
-  taxChartData: ChartData[],
-  settings: any,
-) {
+export function taxChartDiv(taxChartData: ChartData[], settings: any) {
+  if (taxChartData.length === 0) {
+    return;
+    //return 'No tax data to display';
+  }
   return (
     <CanvasJSChart
       options={{
@@ -618,15 +646,19 @@ function taxChartDivWithButtons(
   taxChartData: ChartData[],
   settings: any,
 ) {
+  if (taxChartData.length === 0) {
+    return;
+    //return 'No tax data to display';
+  }
   return (
     <div>
       {taxButtonList(model)}
-      {taxChartDiv(model, taxChartData, settings)}
+      {taxChartDiv(taxChartData, settings)}
     </div>
   );
 }
 export function taxDiv(model: DbModelData, taxChartData: ChartData[]) {
-  if (!getDisplay(taxView)) {
+  if (!getDisplay(taxView) || taxChartData.length === 0) {
     return;
   }
 
