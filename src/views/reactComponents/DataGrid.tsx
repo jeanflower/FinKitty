@@ -150,7 +150,7 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
         enableCellSelect={true}
         enableRowSelect={undefined}
         onGridSort={this.sortHandler.bind(this)}
-        getCellActions={this.getCellActions.bind(this)}
+        //getCellActions={this.getCellActions.bind(this)}
       />
     );
   }
