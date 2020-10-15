@@ -19,7 +19,7 @@ import {
 } from '../../utils';
 import Button from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
-import Input from './Input';
+import { Input } from './Input';
 import { isNumberString } from '../../models/checks';
 import { revalue, revalueExp } from '../../localization/stringConstants';
 

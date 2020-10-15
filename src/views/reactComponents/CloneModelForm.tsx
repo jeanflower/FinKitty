@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import Input from './Input';
+import { Input } from './Input';
 import { DbModelData } from '../../types/interfaces';
 import Button from './Button';
 import { log, minimalModel } from '../../utils';

@@ -22,7 +22,7 @@ import {
 } from '../../utils';
 import Button from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
-import Input from './Input';
+import { Input } from './Input';
 import {
   pensionDB,
   incomeTax,

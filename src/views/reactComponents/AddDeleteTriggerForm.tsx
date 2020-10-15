@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import { DbModelData, DbTrigger, FormProps } from '../../types/interfaces';
 import { log, printDebug, showObj, makeDateFromString } from '../../utils';
 import Button from './Button';
-import Input from './Input';
+import { Input } from './Input';
 
 interface EditTriggerFormState {
   NAME: string;

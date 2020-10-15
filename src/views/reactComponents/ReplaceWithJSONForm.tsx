@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
 import { log, printDebug, makeModelFromJSON } from '../../utils';
-import Input from './Input';
+import { Input } from './Input';
 import { replaceWithModel } from '../../App';
 
 interface ReplaceWithJSONFormState {

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
 import { log, printDebug, showObj } from '../../utils';
-import Input from './Input';
+import { InputRow } from './Input';
 
 interface EditFormState {
   VALUE: string;
@@ -32,12 +32,12 @@ export class AddDeleteEntryForm extends Component<EditProps, EditFormState> {
     //log(`rendering widget, value in component = ${this.state.VALUE}`);
     return (
       <form className="container-fluid" onSubmit={this.add}>
-        <Input
-          title={`${this.props.name}, currently ${this.props.getValue()}`}
+        <InputRow
+          title={`${this.props.name}`}
           type={'text'}
           name={`EditWidget${this.props.name}`}
           value={this.state.VALUE}
-          placeholder={'Enter new value'}
+          placeholder={this.props.getValue()}
           onChange={this.handleValue}
           onSubmit={this.add}
         />
