@@ -134,7 +134,7 @@ function handleExpenseGridRowsUpdated(
     showAlert("Whether expense grows with CPI should be 'y' or 'n'");
     expense[args[0].cellKey] = oldValue;
   } else if (!parsedValue.checksOK) {
-    showAlert(`Value ${expense.VALUE} can't be understood as a cash value}`);
+    showAlert(`Value ${expense.VALUE} can't be understood as a cash value`);
     expense[args[0].cellKey] = oldValue;
   } else if (!parsedGrowth.checksOK) {
     showAlert(`Value ${expense.GROWTH} can't be understood as a growth}`);
@@ -209,7 +209,7 @@ function handleIncomeGridRowsUpdated(
     showAlert("Whether income grows with CPI should be 'y' or 'n'");
     income[args[0].cellKey] = oldValue;
   } else if (!parsedValue.checksOK) {
-    showAlert(`Value ${income.VALUE} can't be understood as a cash value}`);
+    showAlert(`Value ${income.VALUE} can't be understood as a cash value`);
     income[args[0].cellKey] = oldValue;
   } else if (!parsedGrowth.checksOK) {
     showAlert(`Value ${income.GROWTH} can't be understood as a growth}`);
