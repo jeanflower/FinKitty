@@ -336,7 +336,7 @@ export function checkIncome(i: DbIncome, model: DbModelData): string {
   }
   if (valueSetDate > startDate) {
     return `Income value must be set on or before the start of the income.
-      Here, start is ${startDate.toDateString()} and
+      For ${i.NAME}, start is ${startDate.toDateString()} and
       value is set ${valueSetDate.toDateString()}.`;
   }
   return '';
@@ -386,7 +386,7 @@ export function checkExpense(e: DbExpense, model: DbModelData): string {
   }
   if (valueSetDate > startDate) {
     return `Expense value must be set on or before the start of the income.
-      Here, start is ${startDate.toDateString()} and
+      For ${e.NAME}, start is ${startDate.toDateString()} and
       value is set ${valueSetDate.toDateString()}.`;
   }
   const checkRec = checkRecurrence(e.RECURRENCE);
