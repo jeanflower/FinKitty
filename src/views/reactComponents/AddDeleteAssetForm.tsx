@@ -722,6 +722,7 @@ export class AddDeleteAssetForm extends Component<
         this.props.model.settings,
         this.state.GROWTH,
         '',
+        false, // allow for it not beinig there
       );
       if (setting === '') {
         this.props.showAlert(
