@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import { Input } from './Input';
 import { DbModelData } from '../../types/interfaces';
 import Button from './Button';
-import { log, minimalModel } from '../../utils';
+import { log, minimalModel, printDebug } from '../../utils';
 
 interface CreateModelFormState {
   newName: string;
@@ -43,7 +43,6 @@ export class CreateModelForm extends Component<
 
     this.clonePropsModel = this.clonePropsModel.bind(this);
     this.handleValueChange = this.handleValueChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
     this.backupModel = this.backupModel.bind(this);
   }
 
@@ -51,11 +50,6 @@ export class CreateModelForm extends Component<
     const value = e.target.value;
     // log(`setting new value for JSON form ${value}`);
     this.setState({ newName: value });
-  }
-
-  private handleSubmit(e: React.ChangeEvent<HTMLInputElement>) {
-    // log(`setting new value for JSON form ${value}`);
-    this.clonePropsModel(e);
   }
 
   private exampleButtonList() {
@@ -77,7 +71,14 @@ export class CreateModelForm extends Component<
 
   public render() {
     return (
-      <form className="container-fluid" onSubmit={this.clonePropsModel}>
+      <form
+        className="container-fluid"
+        onSubmit={async e => {
+          e.preventDefault();
+          // log(`make copy of minimal model`);
+          this.copyModel(minimalModel);
+        }}
+      >
         <Input
           type={'text'}
           title={'Create new model'}
@@ -85,10 +86,12 @@ export class CreateModelForm extends Component<
           value={this.state.newName}
           placeholder={'Enter new model name here'}
           onChange={this.handleValueChange}
-          onSubmit={this.handleSubmit}
         />
         <Button
           action={async () => {
+            if (printDebug()) {
+              log(`action on button for new model`);
+            }
             this.copyModel(minimalModel);
           }}
           title="New model"
@@ -113,6 +116,7 @@ export class CreateModelForm extends Component<
   }
 
   private async clonePropsModel(e: any) {
+    // log(`in clonePropsModel`);
     e.preventDefault();
     this.copyModel(this.props.modelData);
   }
@@ -136,6 +140,7 @@ export class CreateModelForm extends Component<
   }
 
   private async copyModel(model: DbModelData) {
+    // log(`in copyModel`);
     const newName = this.state.newName;
     if (newName.length === 0) {
       this.props.showAlert('Please provide a new name for the model');
@@ -147,10 +152,10 @@ export class CreateModelForm extends Component<
       window.confirm(`will replace ${newName}, you sure?`)
     ) {
       if (await this.props.cloneModel(newName, model)) {
-        log('cloned ok -  clear name field');
+        // log('cloned ok -  clear name field');
         this.setState({ newName: '' });
       } else {
-        log('cloned ok -  clear name field');
+        // log('failed to clone ok');
       }
     }
   }
