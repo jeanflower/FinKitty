@@ -819,137 +819,159 @@ export class AppContent extends Component<AppProps, AppState> {
     //window.addEventListener('beforeunload', this.handleUnload);
   }
 
+  private navbarDiv() {
+    return (
+      <Navbar expand="lg" bg="light" sticky="top">
+        <Navbar.Brand href="#home" id="finkitty-brand">
+          <div className="col">
+            <div className="row">
+              <h3>{`FinKitty`}</h3>
+            </div>
+            <div className="row">
+              <img src={FinKittyCat} alt="FinKitty cat" width={70}></img>
+            </div>
+          </div>
+        </Navbar.Brand>
+        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+        <Navbar.Collapse id="basic-navbar-nav">
+          <Nav className="mr-auto">
+            <Form
+              inline
+              onSubmit={(e: any) => {
+                e.preventDefault();
+                return false;
+              }}
+            >
+              {
+                <div className="col">
+                  <div className="row">{this.statusButtonList()}</div>
+                  <div className="row">{this.viewButtonList()}</div>
+                </div>
+              }
+            </Form>
+          </Nav>
+          <Nav>
+            <Form
+              inline
+              onSubmit={(e: any) => {
+                e.preventDefault();
+                return false;
+              }}
+            >
+              <div className="col">
+                <div className="row">{this.rhsTopButtonList()}</div>
+                <div className="row">{this.rhsBottomButtonList()}</div>
+              </div>
+            </Form>
+          </Nav>
+        </Navbar.Collapse>
+      </Navbar>
+    );
+  }
+
   public render() {
     if (printDebug()) {
       log('in render');
     }
+    try {
+      // throw new Error('pretend something went wrong');
 
-    const getSettingValue = (settingName: string) => {
-      let value = '';
-      const s = this.state.modelData.settings.find(s => {
-        return s.NAME === settingName;
-      });
-      if (s !== undefined) {
-        value = s.VALUE;
-      }
-      return value;
-    };
-    const getStartDate = () => {
-      return getSettingValue(roiStart);
-    };
-    const getEndDate = () => {
-      return getSettingValue(roiEnd);
-    };
-    const updateSettingValue = (settingName: string, newDate: string) => {
-      const s = this.state.modelData.settings.find(s => {
-        return s.NAME === settingName;
-      });
-      if (s !== undefined) {
-        s.VALUE = newDate;
-        submitNewSetting(s, this.state.modelData);
-      }
-    };
-    const updateStartDate = async (newDate: string) => {
-      updateSettingValue(roiStart, newDate);
-    };
-    const updateEndDate = async (newDate: string) => {
-      updateSettingValue(roiEnd, newDate);
-    };
+      const getSettingValue = (settingName: string) => {
+        let value = '';
+        const s = this.state.modelData.settings.find(s => {
+          return s.NAME === settingName;
+        });
+        if (s !== undefined) {
+          value = s.VALUE;
+        }
+        return value;
+      };
+      const getStartDate = () => {
+        return getSettingValue(roiStart);
+      };
+      const getEndDate = () => {
+        return getSettingValue(roiEnd);
+      };
+      const updateSettingValue = (settingName: string, newDate: string) => {
+        const s = this.state.modelData.settings.find(s => {
+          return s.NAME === settingName;
+        });
+        if (s !== undefined) {
+          s.VALUE = newDate;
+          submitNewSetting(s, this.state.modelData);
+        }
+      };
+      const updateStartDate = async (newDate: string) => {
+        updateSettingValue(roiStart, newDate);
+      };
+      const updateEndDate = async (newDate: string) => {
+        updateSettingValue(roiEnd, newDate);
+      };
 
+      return (
+        <div>
+          {this.navbarDiv()}
+          <div>
+            {this.homeDiv()}
+            {overviewDiv(
+              this.state.modelData,
+              showAlert,
+              this.state.assetChartData,
+              this.state.debtChartData,
+              this.state.expensesChartData,
+              this.state.incomesChartData,
+              this.state.taxChartData,
+              getStartDate,
+              updateStartDate,
+              getEndDate,
+              updateEndDate,
+            )}
+            {this.settingsDiv(
+              this.state.modelData,
+              this.state.todaysSettingValues,
+            )}
+            {incomesDiv(
+              this.state.modelData,
+              showAlert,
+              this.state.incomesChartData,
+              this.state.todaysIncomeValues,
+            )}
+            {expensesDiv(
+              this.state.modelData,
+              showAlert,
+              this.state.expensesChartData,
+              this.state.todaysExpenseValues,
+            )}
+            {assetsDiv(
+              this.state.modelData,
+              showAlert,
+              this.state.assetChartData,
+              this.state.todaysAssetValues,
+            )}
+            {debtsDiv(
+              this.state.modelData,
+              showAlert,
+              this.state.debtChartData,
+              this.state.todaysDebtValues,
+            )}
+            {this.transactionsDiv()}
+            {taxDiv(this.state.modelData, this.state.taxChartData)}
+            {this.triggersDiv()}
+          </div>
+        </div>
+      );
+    } catch (e) {
+      return this.internalErrorDiv();
+    }
+  }
+
+  private internalErrorDiv() {
     return (
       <div>
-        <Navbar expand="lg" bg="light" sticky="top">
-          <Navbar.Brand href="#home" id="finkitty-brand">
-            <div className="col">
-              <div className="row">
-                <h3>{`FinKitty`}</h3>
-              </div>
-              <div className="row">
-                <img src={FinKittyCat} alt="FinKitty cat" width={70}></img>
-              </div>
-            </div>
-          </Navbar.Brand>
-          <Navbar.Toggle aria-controls="basic-navbar-nav" />
-          <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="mr-auto">
-              <Form
-                inline
-                onSubmit={(e: any) => {
-                  e.preventDefault();
-                  return false;
-                }}
-              >
-                {
-                  <div className="col">
-                    <div className="row">{this.statusButtonList()}</div>
-                    <div className="row">{this.viewButtonList()}</div>
-                  </div>
-                }
-              </Form>
-            </Nav>
-            <Nav>
-              <Form
-                inline
-                onSubmit={(e: any) => {
-                  e.preventDefault();
-                  return false;
-                }}
-              >
-                <div className="col">
-                  <div className="row">{this.rhsTopButtonList()}</div>
-                  <div className="row">{this.rhsBottomButtonList()}</div>
-                </div>
-              </Form>
-            </Nav>
-          </Navbar.Collapse>
-        </Navbar>
-        <div>
-          {this.homeDiv()}
-          {overviewDiv(
-            this.state.modelData,
-            showAlert,
-            this.state.assetChartData,
-            this.state.debtChartData,
-            this.state.expensesChartData,
-            this.state.incomesChartData,
-            this.state.taxChartData,
-            getStartDate,
-            updateStartDate,
-            getEndDate,
-            updateEndDate,
-          )}
-          {this.settingsDiv(
-            this.state.modelData,
-            this.state.todaysSettingValues,
-          )}
-          {incomesDiv(
-            this.state.modelData,
-            showAlert,
-            this.state.incomesChartData,
-            this.state.todaysIncomeValues,
-          )}
-          {expensesDiv(
-            this.state.modelData,
-            showAlert,
-            this.state.expensesChartData,
-            this.state.todaysExpenseValues,
-          )}
-          {assetsDiv(
-            this.state.modelData,
-            showAlert,
-            this.state.assetChartData,
-            this.state.todaysAssetValues,
-          )}
-          {debtsDiv(
-            this.state.modelData,
-            showAlert,
-            this.state.debtChartData,
-            this.state.todaysDebtValues,
-          )}
-          {this.transactionsDiv()}
-          {taxDiv(this.state.modelData, this.state.taxChartData)}
-          {this.triggersDiv()}
-        </div>
+        {this.navbarDiv()}
+        <h1>
+          Oops! something has gone wrong with FinKitty. Sad Finkitty apologises.
+        </h1>
       </div>
     );
   }
