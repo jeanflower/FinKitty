@@ -1,6 +1,10 @@
 import React, { Component } from 'react';
 
-import { checkIncomeLiability, isNumberString } from '../../models/checks';
+import {
+  checkIncomeLiability,
+  isNumberString,
+  isValidValue,
+} from '../../models/checks';
 import {
   DbIncome,
   DbModelData,
@@ -68,7 +72,7 @@ interface EditIncomeProps extends FormProps {
   submitIncomeFunction: (
     incomeInput: DbIncome,
     modelData: DbModelData,
-  ) => Promise<void>;
+  ) => Promise<boolean>;
   submitTransactionFunction: (
     transactionInput: DbTransaction,
     modelData: DbModelData,
@@ -769,10 +773,10 @@ DB_TRANSFERRED_STOP
       this.props.showAlert(`Income name should be non-empty`);
       return;
     }
-    let isNotANumber = !isNumberString(this.state.VALUE);
-    if (isNotANumber) {
+    const isNotValid = !isValidValue(this.state.VALUE, this.props.model);
+    if (isNotValid) {
       this.props.showAlert(
-        `Income value ${this.state.VALUE} should be a numerical value`,
+        `Income value ${this.state.VALUE} should be numerical or built from an Asset or setting`,
       );
       return;
     }
@@ -825,7 +829,7 @@ DB_TRANSFERRED_STOP
           // log(`parseYNDBSS = ${showObj(parseYNDBSS)}`);
         }
 
-        isNotANumber = !isNumberString(this.state.DB_CONTRIBUTION_AMOUNT);
+        let isNotANumber = !isNumberString(this.state.DB_CONTRIBUTION_AMOUNT);
         if (isNotANumber) {
           this.props.showAlert(
             `Contribution amount '${this.state.DB_CONTRIBUTION_AMOUNT}' should be a numerical value`,
@@ -841,7 +845,7 @@ DB_TRANSFERRED_STOP
           return;
         }
       } else {
-        isNotANumber = !isNumberString(this.state.DB_CONTRIBUTION_AMOUNT);
+        let isNotANumber = !isNumberString(this.state.DB_CONTRIBUTION_AMOUNT);
         if (!isNotANumber) {
           this.props.showAlert(
             `Contribution amount '${this.state.DB_CONTRIBUTION_AMOUNT}' from no income?`,
@@ -905,7 +909,7 @@ DB_TRANSFERRED_STOP
       }
       let builtLiability2: string | undefined;
       if (this.state.DB_TRANSFER_TO !== '') {
-        isNotANumber = !isNumberString(this.state.DB_TRANSFER_PROPORTION);
+        const isNotANumber = !isNumberString(this.state.DB_TRANSFER_PROPORTION);
         if (isNotANumber) {
           this.props.showAlert(
             `Transfer proportion ${this.state.DB_TRANSFER_PROPORTION} should be a numerical value`,
@@ -1138,11 +1142,12 @@ DB_TRANSFERRED_STOP
     if (message.length > 0) {
       this.props.showAlert(message);
     } else {
-      await this.props.submitIncomeFunction(income, this.props.model);
-      this.props.showAlert(`added new income ${income.NAME}`);
-      // clear fields
-      this.setState(this.defaultState);
-      this.resetSelect(this.incomeSourceSelectID);
+      if (await this.props.submitIncomeFunction(income, this.props.model)) {
+        this.props.showAlert(`added new income ${income.NAME}`);
+        // clear fields
+        this.setState(this.defaultState);
+        this.resetSelect(this.incomeSourceSelectID);
+      }
     }
   }
 

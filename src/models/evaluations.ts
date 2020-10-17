@@ -355,49 +355,55 @@ function traceEvaluation(
         })}`,
     );
   }
+  let result: number | undefined = 0.0;
   if (typeof value !== 'string') {
-    return value;
-  }
-  const debug = false;
-  if (isNumberString(value)) {
-    return parseFloat(value);
-  }
-  const parts = getNumberAndWordParts(value);
-  let numberPart = 1.0;
-  if (parts.numberPart !== undefined) {
-    numberPart = parts.numberPart;
-  }
-  const wordPart = parts.wordPart;
-  const settingForWordPart = values.get(wordPart);
-  if (debug) {
-    log(`settingForWordPart ${wordPart} = ${settingForWordPart}`);
-  }
-  if (settingForWordPart === undefined) {
-    if (debug) {
-      log(`values were ${showObj(values)}`);
-    }
-    return undefined;
-  } else if (typeof settingForWordPart === 'string') {
-    const nextLevel = traceEvaluation(settingForWordPart, values, source);
-    if (nextLevel === undefined) {
-      if (debug) {
-        log(
-          `got undefined for ${settingForWordPart} - returning undefined for ${value}`,
-        );
-      }
-      return undefined;
-    } else {
-      if (debug) {
-        log(
-          `calculate ${numberPart} * ${nextLevel} = ${numberPart * nextLevel}`,
-        );
-      }
-      return numberPart * nextLevel;
-    }
+    result = value;
   } else {
-    //log(`calculate ${numberPart} * ${settingForWordPart} = ${numberPart * settingForWordPart}`)
-    return numberPart * settingForWordPart;
+    const debug = false;
+    if (isNumberString(value)) {
+      result = parseFloat(value);
+    } else {
+      const parts = getNumberAndWordParts(value);
+      let numberPart = 1.0;
+      if (parts.numberPart !== undefined) {
+        numberPart = parts.numberPart;
+      }
+      const wordPart = parts.wordPart;
+      const valueForWordPart = values.get(wordPart);
+      if (debug) {
+        log(`valueForWordPart ${wordPart} = ${valueForWordPart}`);
+      }
+      if (valueForWordPart === undefined) {
+        if (debug) {
+          log(`values were ${showObj(values)}`);
+        }
+        result = undefined;
+      } else if (typeof valueForWordPart === 'string') {
+        const nextLevel = traceEvaluation(valueForWordPart, values, source);
+        if (nextLevel === undefined) {
+          if (debug) {
+            log(
+              `got undefined for ${valueForWordPart} - returning undefined for ${value}`,
+            );
+          }
+          result = undefined;
+        } else {
+          if (debug) {
+            log(
+              `calculate ${numberPart} * ${nextLevel} = ${numberPart *
+                nextLevel}`,
+            );
+          }
+          result = numberPart * nextLevel;
+        }
+      } else {
+        //log(`calculate ${numberPart} * ${settingForWordPart} = ${numberPart * settingForWordPart}`)
+        result = numberPart * valueForWordPart;
+      }
+    }
   }
+  // log(`traceEvaluation result = ${result}`);
+  return result;
 }
 
 function getQuantity(
@@ -1510,26 +1516,45 @@ function getRecurrentMoments(
     } else if (type === momentType.income) {
       newMoments[0].type = momentType.incomeStart;
     }
-    let startVal = parseFloat(x.VALUE);
-    // take account of VALUE_SET and CPI+GROWTH
-    const from = getTriggerDate(x.VALUE_SET, triggers);
-    const to = roi.start;
-    // log(`${x.NAME} grew between ${from} and ${to}`);
-    const numMonths = diffMonths(from, to);
-    if (!x.NAME.startsWith(pensionDB) && numMonths < 0) {
-      log(
-        `BUG : income/expense start value set ${from} after ` +
-          `start date ${to} ${x.NAME}`,
-      );
+    const numAndWordVal = getNumberAndWordParts(x.VALUE);
+    if (numAndWordVal.numberPart !== undefined) {
+      let startVal = numAndWordVal.numberPart;
+      // take account of VALUE_SET and CPI+GROWTH
+      const from = getTriggerDate(x.VALUE_SET, triggers);
+      const to = roi.start;
+      // log(`${x.NAME} grew between ${from} and ${to}`);
+      const numMonths = diffMonths(from, to);
+      if (!x.NAME.startsWith(pensionDB) && numMonths < 0) {
+        log(
+          `BUG : income/expense start value set ${from} after ` +
+            `start date ${to} ${x.NAME}`,
+        );
+      }
+      //log(`numMonths = ${numMonths}`);
+      // log(`there are ${numMonths} months between `
+      //    +`${from} and ${to}`)
+      // apply monthlyInf
+      // log(`before growth on x start value : ${startVal}`);
+      startVal *= (1.0 + monthlyInf) ** numMonths;
+      // log(`applied growth to generate start value : ${startVal}`);
+      newMoments[0].setValue = `${startVal}${numAndWordVal.wordPart}`;
+    } else if (monthlyInf === 0) {
+      const startVal = x.VALUE;
+      // take account of VALUE_SET and CPI+GROWTH
+      const from = getTriggerDate(x.VALUE_SET, triggers);
+      const to = roi.start;
+      // log(`${x.NAME} grew between ${from} and ${to}`);
+      const numMonths = diffMonths(from, to);
+      if (!x.NAME.startsWith(pensionDB) && numMonths < 0) {
+        log(
+          `BUG : income/expense start value set ${from} after ` +
+            `start date ${to} ${x.NAME}`,
+        );
+      }
+      newMoments[0].setValue = startVal;
+    } else {
+      throw new Error(`shouldn't see non-number income with growth`);
     }
-    //log(`numMonths = ${numMonths}`);
-    // log(`there are ${numMonths} months between `
-    //    +`${from} and ${to}`)
-    // apply monthlyInf
-    // log(`before growth on x start value : ${startVal}`);
-    startVal *= (1.0 + monthlyInf) ** numMonths;
-    // log(`applied growth to generate start value : ${startVal}`);
-    newMoments[0].setValue = startVal;
   }
   // log(`generated ${showObj(newMoments)} for ${x.NAME}`);
   return newMoments;
@@ -1673,7 +1698,7 @@ function revalueApplied(
     if (wValue === undefined) {
       // log(`word for ${showObj(t)} is ${w} has value ${wValue}`);
       throw new Error(
-        `proportional change to an undefined value not implemented`,
+        `proportional change to an undefined value not implemented, ${t.NAME}`,
       );
     } else if (typeof wValue !== 'string') {
       // log(`${wValue} is a number`);
@@ -2895,20 +2920,22 @@ export function getEvaluations(
         '20', //callerID
       );
       if (moment.type === momentType.incomeStart) {
-        if (typeof startValue === 'string') {
-          throw new Error(`income ${moment.name} can't be a string`);
+        const numberVal = traceEvaluation(startValue, values, moment.name);
+        if (numberVal !== undefined) {
+          handleIncome(
+            numberVal,
+            moment,
+            values,
+            evaluations,
+            model,
+            pensionTransactions,
+            liabilitiesMap,
+            liableIncomeInTaxYear,
+            moment.name,
+          );
+        } else {
+          throw new Error(`can't interpret ${startValue} as a number`);
         }
-        handleIncome(
-          startValue,
-          moment,
-          values,
-          evaluations,
-          model,
-          pensionTransactions,
-          liabilitiesMap,
-          liableIncomeInTaxYear,
-          moment.name,
-        );
       } else if (moment.type === momentType.expenseStart) {
         // log('in getEvaluations, adjustCash:');
         adjustCash(
@@ -2923,12 +2950,12 @@ export function getEvaluations(
     } else {
       // not a transaction
       // not at start of expense/income/asset
-      let numberVal: string | number | undefined = getNumberValue(
+      let numberVal: string | number | undefined = traceEvaluation(
+        moment.name,
         values,
         moment.name,
-        false,
       );
-      // log(`value of ${moment.name} is ${x}`);
+      // log(`value of ${moment.name} is ${numberVal}`);
       if (numberVal === undefined) {
         const val = values.get(moment.name);
         if (val !== undefined) {

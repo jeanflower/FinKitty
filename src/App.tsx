@@ -488,7 +488,7 @@ export async function submitExpense(
 export async function submitIncome(
   incomeInput: DbIncome,
   modelData: DbModelData,
-) {
+): Promise<boolean> {
   const message = await submitIncomeLSM(
     incomeInput,
     modelName,
@@ -496,11 +496,13 @@ export async function submitIncome(
     getUserID(),
   );
   if (message === '') {
-    return await refreshData(
+    await refreshData(
       true, // gotoDB
     );
+    return true;
   } else {
     showAlert(message);
+    return false;
   }
 }
 export async function submitTransaction(

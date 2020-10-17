@@ -178,16 +178,27 @@ export function checkAssetLiability(l: string) {
 }
 
 export function isValidValue(value: string, model: DbModelData): boolean {
+  if (value.length === 0) {
+    return false;
+  }
   if (isNumberString(value)) {
     return true;
   }
 
   const parsed = getNumberAndWordParts(value);
   if (parsed.wordPart !== undefined) {
-    const settingVal = getSettings(model.settings, parsed.wordPart, 'missing');
+    const settingVal = getSettings(
+      model.settings,
+      parsed.wordPart,
+      'missing',
+      false,
+    );
     if (settingVal !== 'missing') {
       // log(`guess setting ${settingVal} makes sense for a value...`);
-      return true; // still a guess as we don't know...
+      return true; // still a guess as we don't know... TODO drill lower
+    }
+    if (isAnAssetOrAssets(parsed.wordPart, model)) {
+      return true; // could be appropriate ... TODO always workable?
     }
   }
   return false;
@@ -231,6 +242,14 @@ export function checkAsset(a: DbAsset, model: DbModelData): string {
   if (!isValidValue(a.VALUE, model)) {
     return `Asset value set to '${a.VALUE}'
       but no corresponding setting found`;
+  }
+  if (!isNumberString(a.VALUE)) {
+    if (parseFloat(a.GROWTH) !== 0.0) {
+      return `Asset value '${a.VALUE}' may not have nonzero growth`;
+    }
+    if (!a.CPI_IMMUNE) {
+      return `Asset value '${a.VALUE}' may not grow with CPI`;
+    }
   }
 
   if (!isNumberString(a.PURCHASE_PRICE)) {
@@ -301,11 +320,19 @@ export function checkIncome(i: DbIncome, model: DbModelData): string {
       );
     }
   }
-  if (!isNumberString(i.VALUE)) {
-    return `Income value '${i.VALUE}' is not a number`;
-  }
   if (!isNumberString(i.GROWTH)) {
     return `Income growth '${i.GROWTH}' is not a number`;
+  }
+  if (!isValidValue(i.VALUE, model)) {
+    return `Income value '${i.VALUE}' does not make sense`;
+  }
+  if (!isNumberString(i.VALUE)) {
+    if (parseFloat(i.GROWTH) !== 0.0) {
+      return `Income value '${i.VALUE}' may not have nonzero growth`;
+    }
+    if (!i.CPI_IMMUNE) {
+      return `Income value '${i.VALUE}' may not grow with CPI`;
+    }
   }
   const startDate = checkTriggerDate(i.START, model.triggers);
   if (startDate === undefined || !checkDate(startDate)) {
@@ -470,6 +497,12 @@ function checkTransactionTo(
     ) {
       return (
         `Transaction ${getDisplayName(t.NAME, t.TYPE)} dated before start ` +
+        `of affected expense : ${exp.NAME}`
+      );
+    }
+    if (getTriggerDate(exp.END, triggers) < getTriggerDate(t.DATE, triggers)) {
+      return (
+        `Transaction ${getDisplayName(t.NAME, t.TYPE)} dated after end ` +
         `of affected expense : ${exp.NAME}`
       );
     }
@@ -920,7 +953,9 @@ export function checkTransaction(t: DbTransaction, model: DbModelData): string {
   if (t.TO !== '') {
     if (t.NAME.startsWith(revalue)) {
       let words = t.TO.split(separator);
+      // log(`check transaction to words : ${words}`);
       words = replaceCategoryWithAssetNames(words, model);
+      // log(`transaction to words as assets : ${words}`);
       for (let idx = 0; idx < words.length; idx += 1) {
         const w = words[idx];
         const outcome = checkTransactionTo(
@@ -1339,10 +1374,66 @@ function checkIncomeChartFocus(model: DbModelData) {
   );
 }
 
+function checkNames(model: DbModelData): string {
+  let names = model.assets.map(a => {
+    return a.NAME;
+  });
+  names = names.concat(
+    model.incomes.map(a => {
+      return a.NAME;
+    }),
+  );
+  names = names.concat(
+    model.expenses.map(a => {
+      return a.NAME;
+    }),
+  );
+  names = names.concat(
+    model.transactions.map(a => {
+      return a.NAME;
+    }),
+  );
+  names = names.concat(
+    model.triggers.map(a => {
+      return a.NAME;
+    }),
+  );
+  names = names.concat(
+    model.settings.map(a => {
+      return a.NAME;
+    }),
+  );
+
+  const counts: Map<string, number> = names.reduce(
+    (acc: Map<string, number>, b: string) => {
+      const existingCount = acc.get(b);
+      if (existingCount === undefined) {
+        acc.set(b, 1);
+      } else {
+        acc.set(b, existingCount + 1);
+      }
+      return acc;
+    },
+    new Map<string, number>(),
+  );
+
+  for (const [key, value] of counts) {
+    // log(`key = ${key}, value = ${value}`);
+    if (value > 1) {
+      return `duplicate name ${key}`;
+    }
+  }
+  return '';
+}
+
 export function checkData(model: DbModelData): string {
   // log(`checking data ${showObj(model)}`);
   // log(`check settings`);
-  let message = checkViewFrequency(model.settings);
+  let message = checkNames(model);
+  if (message.length > 0) {
+    return message;
+  }
+  message = checkViewFrequency(model.settings);
   if (message.length > 0) {
     return message;
   }

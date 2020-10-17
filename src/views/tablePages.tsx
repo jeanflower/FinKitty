@@ -208,19 +208,23 @@ function handleIncomeGridRowsUpdated(
   if (!parsedGrowsWithCPI.checksOK) {
     showAlert("Whether income grows with CPI should be 'y' or 'n'");
     income[args[0].cellKey] = oldValue;
-  } else if (!parsedValue.checksOK) {
-    showAlert(`Value ${income.VALUE} can't be understood as a cash value`);
-    income[args[0].cellKey] = oldValue;
   } else if (!parsedGrowth.checksOK) {
     showAlert(`Value ${income.GROWTH} can't be understood as a growth}`);
     income[args[0].cellKey] = oldValue;
   } else {
+    let incValue = '';
+    if (parsedValue.checksOK) {
+      incValue = `${parsedValue.value}`;
+    } else {
+      incValue = income.VALUE;
+    }
+
     const incomeForSubmission: DbIncome = {
       NAME: income.NAME,
       CATEGORY: income.CATEGORY,
       START: income.START,
       END: income.END,
-      VALUE: `${parsedValue.value}`,
+      VALUE: incValue,
       VALUE_SET: income.VALUE_SET,
       GROWTH: parsedGrowth.value,
       CPI_IMMUNE: !parsedGrowsWithCPI.value,

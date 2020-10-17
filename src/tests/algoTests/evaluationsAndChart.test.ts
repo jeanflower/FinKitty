@@ -57,6 +57,7 @@ import {
   moveTaxFreePart,
   pensionTransfer,
   transferCrystallizedPension,
+  cpiHint,
 } from '../../localization/stringConstants';
 import {
   ChartDataPoint,
@@ -382,7 +383,11 @@ function getTestEvaluations(
       revertToUndoModel(model);
     });
     model.settings.forEach(obj => {
-      if (obj.TYPE === viewType || obj.TYPE === constType) {
+      if (
+        minimalModel.settings.find(s => {
+          return s.NAME === obj.NAME;
+        }) !== undefined
+      ) {
         return;
       }
       const oldName = obj.NAME;
@@ -3828,6 +3833,7 @@ describe('evaluations tests', () => {
           NAME: 'Stf1',
           START: 'January 2 2018',
           VALUE: 'pound',
+          CPI_IMMUNE: true,
           QUANTITY: '7',
         },
         {
@@ -3835,6 +3841,7 @@ describe('evaluations tests', () => {
           NAME: 'Stf2',
           START: 'January 2 2018',
           VALUE: 'pound',
+          CPI_IMMUNE: true,
           QUANTITY: '100',
         },
         {
@@ -13966,6 +13973,7 @@ describe('evaluations tests', () => {
           VALUE: thingName,
           QUANTITY: '10',
           GROWTH: '0.0',
+          CPI_IMMUNE: true,
         },
         {
           ...simpleAsset,
@@ -14046,6 +14054,7 @@ describe('evaluations tests', () => {
           VALUE: thingName,
           QUANTITY: '5',
           GROWTH: '0.0',
+          CPI_IMMUNE: true,
         },
         {
           ...simpleAsset,
@@ -14132,6 +14141,7 @@ describe('evaluations tests', () => {
           START: 'January 2 2018',
           VALUE: 'mini',
           QUANTITY: '3',
+          CPI_IMMUNE: true,
         },
       ],
       settings: [
@@ -14207,6 +14217,7 @@ describe('evaluations tests', () => {
           START: 'January 2 2018',
           VALUE: 'mini',
           QUANTITY: '3',
+          CPI_IMMUNE: true,
         },
       ],
       transactions: [
@@ -14294,6 +14305,7 @@ describe('evaluations tests', () => {
           START: 'January 2 2018',
           VALUE: 'mini',
           QUANTITY: '3',
+          CPI_IMMUNE: true,
         },
       ],
       transactions: [
@@ -14396,6 +14408,7 @@ describe('evaluations tests', () => {
           START: 'January 2 2018',
           VALUE: 'mini',
           QUANTITY: '3',
+          CPI_IMMUNE: true,
         },
       ],
       transactions: [
@@ -14499,6 +14512,7 @@ describe('evaluations tests', () => {
           START: 'January 2 2018',
           VALUE: 'mini',
           QUANTITY: '3',
+          CPI_IMMUNE: true,
         },
       ],
       transactions: [
@@ -14607,6 +14621,7 @@ describe('evaluations tests', () => {
           START: 'January 2 2018',
           VALUE: 'mini',
           QUANTITY: '3',
+          CPI_IMMUNE: true,
         },
       ],
       transactions: [
@@ -14715,6 +14730,7 @@ describe('evaluations tests', () => {
           START: 'January 2 2018',
           VALUE: 'mini',
           QUANTITY: '3',
+          CPI_IMMUNE: true,
         },
       ],
       transactions: [
@@ -14823,6 +14839,7 @@ describe('evaluations tests', () => {
           START: 'January 2 2018',
           VALUE: 'mini',
           QUANTITY: '3',
+          CPI_IMMUNE: true,
         },
       ],
       transactions: [
@@ -14978,6 +14995,7 @@ describe('evaluations tests', () => {
           START: 'January 2 2018',
           VALUE: 'chrysler',
           QUANTITY: '3',
+          CPI_IMMUNE: true,
         },
       ],
       transactions: [
@@ -15072,6 +15090,7 @@ describe('evaluations tests', () => {
           START: 'January 2 2018',
           VALUE: 'chrysler',
           QUANTITY: '3',
+          CPI_IMMUNE: true,
         },
       ],
       transactions: [
@@ -15181,6 +15200,7 @@ describe('evaluations tests', () => {
           START: 'January 2 2018',
           VALUE: 'chrysler',
           QUANTITY: '3',
+          CPI_IMMUNE: true,
         },
       ],
       transactions: [
@@ -15291,6 +15311,7 @@ describe('evaluations tests', () => {
           START: 'January 2 2018',
           VALUE: 'chrysler',
           QUANTITY: '3',
+          CPI_IMMUNE: true,
         },
       ],
       transactions: [
@@ -15406,6 +15427,7 @@ describe('evaluations tests', () => {
           START: 'January 2 2018',
           VALUE: 'chrysler',
           QUANTITY: '3',
+          CPI_IMMUNE: true,
         },
       ],
       transactions: [
@@ -15521,6 +15543,7 @@ describe('evaluations tests', () => {
           START: 'January 2 2018',
           VALUE: 'chrysler',
           QUANTITY: '3',
+          CPI_IMMUNE: true,
         },
       ],
       transactions: [
@@ -15636,6 +15659,7 @@ describe('evaluations tests', () => {
           START: 'January 2 2018',
           VALUE: 'chrysler',
           QUANTITY: '3',
+          CPI_IMMUNE: true,
         },
       ],
       transactions: [
@@ -15753,6 +15777,7 @@ describe('evaluations tests', () => {
           START: 'January 2 2018',
           VALUE: 'chrysler',
           QUANTITY: '3',
+          CPI_IMMUNE: true,
         },
       ],
       transactions: [
@@ -15868,6 +15893,7 @@ describe('evaluations tests', () => {
           START: 'January 2 2018',
           VALUE: 'chrysler',
           QUANTITY: '3',
+          CPI_IMMUNE: true,
         },
       ],
       transactions: [
@@ -15994,6 +16020,7 @@ describe('evaluations tests', () => {
           NAME: 'Cars',
           START: 'January 2 2018',
           VALUE: 'daimler',
+          CPI_IMMUNE: true,
           QUANTITY: '3',
         },
       ],
@@ -16076,6 +16103,7 @@ describe('evaluations tests', () => {
           NAME: 'Cars',
           START: 'January 2 2018',
           VALUE: 'ford',
+          CPI_IMMUNE: true,
           QUANTITY: '3',
         },
       ],
@@ -16159,6 +16187,7 @@ describe('evaluations tests', () => {
           START: 'January 2 2018',
           VALUE: 'chrysler',
           QUANTITY: '3',
+          CPI_IMMUNE: true,
         },
       ],
       settings: [
@@ -16253,6 +16282,7 @@ describe('evaluations tests', () => {
           START: 'January 2 2018',
           VALUE: 'chrysler',
           QUANTITY: '3',
+          CPI_IMMUNE: true,
         },
       ],
       settings: [
@@ -16353,6 +16383,7 @@ describe('evaluations tests', () => {
           START: 'carStartDate',
           VALUE: '100',
           QUANTITY: '3',
+          CPI_IMMUNE: true,
         },
       ],
       settings: [
@@ -16439,6 +16470,7 @@ describe('evaluations tests', () => {
           NAME: 'Fleet1',
           START: 'January 2 2018',
           VALUE: 'chrysler',
+          CPI_IMMUNE: true,
           QUANTITY: '10',
         },
         {
@@ -16446,6 +16478,7 @@ describe('evaluations tests', () => {
           NAME: 'Fleet2',
           START: 'January 2 2018',
           VALUE: 'chrysler',
+          CPI_IMMUNE: true,
           QUANTITY: '15',
         },
       ],
@@ -16586,6 +16619,7 @@ describe('evaluations tests', () => {
           NAME: 'Cadillac',
           START: 'January 2 2018',
           VALUE: '100USD',
+          CPI_IMMUNE: true,
           QUANTITY: '3',
         },
       ],
@@ -16678,6 +16712,7 @@ describe('evaluations tests', () => {
           NAME: 'Cadillac',
           START: 'January 2 2018',
           VALUE: '10fourUSD',
+          CPI_IMMUNE: true,
           QUANTITY: '2',
         },
       ],
@@ -16781,6 +16816,7 @@ describe('evaluations tests', () => {
           NAME: 'Cadillac',
           START: 'January 2 2018',
           VALUE: '10someUSD',
+          CPI_IMMUNE: true,
           QUANTITY: '2',
         },
       ],
@@ -17295,5 +17331,231 @@ describe('evaluations tests', () => {
     done();
   });
 
+  it('Generate taxable income from asset', done => {
+    const roi = {
+      start: 'Dec 1, 2017',
+      end: 'May 02 2019',
+    };
+    const minimalModel = getMinimalModelCopy();
+    const model: DbModelData = {
+      ...minimalModel,
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
+          START: 'Dec 1, 2017',
+          VALUE: '0',
+        },
+        {
+          ...simpleAsset,
+          NAME: 'NSI',
+          START: 'January 2 2018',
+          VALUE: '1000000', // enough to trigger income tax
+          GROWTH: '2',
+          CPI_IMMUNE: false,
+        },
+      ],
+      incomes: [
+        ...minimalModel.incomes,
+        {
+          ...simpleIncome,
+          NAME: 'NSIinterest',
+          START: 'January 2 2018',
+          END: 'June 1, 2021',
+          VALUE: '0.0012414NSI', // compounds to 0.015 over 12 months
+          LIABILITY: `Joe${incomeTax}`,
+          CPI_IMMUNE: true,
+        },
+      ],
+    };
+
+    setROI(model, roi);
+    setSetting(model.settings, cpi, '2.0', cpiHint);
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(70);
+    expectEvals(evals, 0, 'Cash', 'Fri Dec 01 2017', 0, -1);
+    expectEvals(evals, 1, 'Cash', 'Mon Jan 01 2018', 0, -1);
+    expectEvals(evals, 2, 'NSI', 'Tue Jan 02 2018', 1000000, -1);
+    expectEvals(evals, 3, 'NSIinterest', 'Tue Jan 02 2018', 1241.4, 2);
+    expectEvals(evals, 4, 'Cash', 'Tue Jan 02 2018', 1241.4, 2);
+    expectEvals(evals, 5, 'Cash', 'Thu Feb 01 2018', 1243.45, 2);
+    expectEvals(evals, 6, 'NSI', 'Fri Feb 02 2018', 1003273.74, 2);
+    expectEvals(evals, 7, 'NSIinterest', 'Fri Feb 02 2018', 1245.46, 2);
+    expectEvals(evals, 8, 'Cash', 'Fri Feb 02 2018', 2488.91, 2);
+    expectEvals(evals, 9, 'Cash', 'Thu Mar 01 2018', 2493.02, 2);
+    expectEvals(evals, 10, 'NSI', 'Fri Mar 02 2018', 1006558.2, 2);
+    expectEvals(evals, 11, 'NSIinterest', 'Fri Mar 02 2018', 1249.54, 2);
+    expectEvals(evals, 12, 'Cash', 'Fri Mar 02 2018', 3742.57, 2);
+    expectEvals(evals, 13, 'Cash', 'Sun Apr 01 2018', 3748.75, 2);
+    expectEvals(evals, 14, 'NSI', 'Mon Apr 02 2018', 1009853.41, 2);
+    expectEvals(evals, 15, 'NSIinterest', 'Mon Apr 02 2018', 1253.63, 2);
+    expectEvals(evals, 16, 'Cash', 'Mon Apr 02 2018', 5002.38, 2);
+    expectEvals(evals, 17, 'Joe income (net)', 'Thu Apr 05 2018', 4990.04, 2);
+    expectEvals(evals, 18, 'Cash', 'Tue May 01 2018', 5010.64, 2);
+    expectEvals(evals, 19, 'NSI', 'Wed May 02 2018', 1013159.4, 2);
+    expectEvals(evals, 20, 'NSIinterest', 'Wed May 02 2018', 1257.74, 2);
+    expectEvals(evals, 21, 'Cash', 'Wed May 02 2018', 6268.38, 2);
+    expectEvals(evals, 22, 'Cash', 'Fri Jun 01 2018', 6278.73, 2);
+    expectEvals(evals, 23, 'NSI', 'Sat Jun 02 2018', 1016476.22, 2);
+    expectEvals(evals, 24, 'NSIinterest', 'Sat Jun 02 2018', 1261.85, 2);
+    expectEvals(evals, 25, 'Cash', 'Sat Jun 02 2018', 7540.58, 2);
+    expectEvals(evals, 26, 'Cash', 'Sun Jul 01 2018', 7553.04, 2);
+    expectEvals(evals, 27, 'NSI', 'Mon Jul 02 2018', 1019803.9, 2);
+    expectEvals(evals, 28, 'NSIinterest', 'Mon Jul 02 2018', 1265.98, 2);
+    expectEvals(evals, 29, 'Cash', 'Mon Jul 02 2018', 8819.02, 2);
+    expectEvals(evals, 30, 'Cash', 'Wed Aug 01 2018', 8833.59, 2);
+    expectEvals(evals, 31, 'NSI', 'Thu Aug 02 2018', 1023142.48, 2);
+    expectEvals(evals, 32, 'NSIinterest', 'Thu Aug 02 2018', 1270.13, 2);
+    expectEvals(evals, 33, 'Cash', 'Thu Aug 02 2018', 10103.72, 2);
+    expectEvals(evals, 34, 'Cash', 'Sat Sep 01 2018', 10120.4, 2);
+    expectEvals(evals, 35, 'NSI', 'Sun Sep 02 2018', 1026491.98, 2);
+    expectEvals(evals, 36, 'NSIinterest', 'Sun Sep 02 2018', 1274.29, 2);
+    expectEvals(evals, 37, 'Cash', 'Sun Sep 02 2018', 11394.69, 2);
+    expectEvals(evals, 38, 'Cash', 'Mon Oct 01 2018', 11413.51, 2);
+    expectEvals(evals, 39, 'NSI', 'Tue Oct 02 2018', 1029852.45, 2);
+    expectEvals(evals, 40, 'NSIinterest', 'Tue Oct 02 2018', 1278.46, 2);
+    expectEvals(evals, 41, 'Cash', 'Tue Oct 02 2018', 12691.97, 2);
+    expectEvals(evals, 42, 'Cash', 'Thu Nov 01 2018', 12712.93, 2);
+    expectEvals(evals, 43, 'NSI', 'Fri Nov 02 2018', 1033223.91, 2);
+    expectEvals(evals, 44, 'NSIinterest', 'Fri Nov 02 2018', 1282.64, 2);
+    expectEvals(evals, 45, 'Cash', 'Fri Nov 02 2018', 13995.57, 2);
+    expectEvals(evals, 46, 'Cash', 'Sat Dec 01 2018', 14018.69, 2);
+    expectEvals(evals, 47, 'NSI', 'Sun Dec 02 2018', 1036606.42, 2);
+    expectEvals(evals, 48, 'NSIinterest', 'Sun Dec 02 2018', 1286.84, 2);
+    expectEvals(evals, 49, 'Cash', 'Sun Dec 02 2018', 15305.53, 2);
+    expectEvals(evals, 50, 'Cash', 'Tue Jan 01 2019', 15330.81, 2);
+    expectEvals(evals, 51, 'NSI', 'Wed Jan 02 2019', 1040000.0, 2);
+    expectEvals(evals, 52, 'NSIinterest', 'Wed Jan 02 2019', 1291.06, 2);
+    expectEvals(evals, 53, 'Cash', 'Wed Jan 02 2019', 16621.87, 2);
+    expectEvals(evals, 54, 'Cash', 'Fri Feb 01 2019', 16649.32, 2);
+    expectEvals(evals, 55, 'NSI', 'Sat Feb 02 2019', 1043404.69, 2);
+    expectEvals(evals, 56, 'NSIinterest', 'Sat Feb 02 2019', 1295.28, 2);
+    expectEvals(evals, 57, 'Cash', 'Sat Feb 02 2019', 17944.6, 2);
+    expectEvals(evals, 58, 'Cash', 'Fri Mar 01 2019', 17974.24, 2);
+    expectEvals(evals, 59, 'NSI', 'Sat Mar 02 2019', 1046820.52, 2);
+    expectEvals(evals, 60, 'NSIinterest', 'Sat Mar 02 2019', 1299.52, 2);
+    expectEvals(evals, 61, 'Cash', 'Sat Mar 02 2019', 19273.76, 2);
+    expectEvals(evals, 62, 'Cash', 'Mon Apr 01 2019', 19305.59, 2);
+    expectEvals(evals, 63, 'NSI', 'Tue Apr 02 2019', 1050247.54, 2);
+    expectEvals(evals, 64, 'NSIinterest', 'Tue Apr 02 2019', 1303.78, 2);
+    expectEvals(evals, 65, 'Cash', 'Tue Apr 02 2019', 20609.37, 2);
+    expectEvals(evals, 66, 'Cash', 'Fri Apr 05 2019', 20085.86, 2);
+    expectEvals(evals, 67, '(incomeTax)', 'Fri Apr 05 2019', 523.52, 2);
+    expectEvals(evals, 68, 'Joe income (net)', 'Fri Apr 05 2019', 14844.06, 2);
+    expectEvals(evals, 69, 'Cash', 'Wed May 01 2019', 20119.03, 2);
+
+    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(1);
+    expect(result.incomesData[0].item.NAME).toBe('NSIinterest');
+    {
+      const chartPts = result.incomesData[0].chartDataPoints;
+      expect(chartPts.length).toBe(18);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 1241.4, 2);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 1245.46, 2);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 1249.54, 2);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 1253.63, 2);
+      expectChartData(chartPts, 6, 'Fri Jun 01 2018', 1257.74, 2);
+      expectChartData(chartPts, 7, 'Sun Jul 01 2018', 1261.85, 2);
+      expectChartData(chartPts, 8, 'Wed Aug 01 2018', 1265.98, 2);
+      expectChartData(chartPts, 9, 'Sat Sep 01 2018', 1270.13, 2);
+      expectChartData(chartPts, 10, 'Mon Oct 01 2018', 1274.29, 2);
+      expectChartData(chartPts, 11, 'Thu Nov 01 2018', 1278.46, 2);
+      expectChartData(chartPts, 12, 'Sat Dec 01 2018', 1282.64, 2);
+      expectChartData(chartPts, 13, 'Tue Jan 01 2019', 1286.84, 2);
+      expectChartData(chartPts, 14, 'Fri Feb 01 2019', 1291.06, 2);
+      expectChartData(chartPts, 15, 'Fri Mar 01 2019', 1295.28, 2);
+      expectChartData(chartPts, 16, 'Mon Apr 01 2019', 1299.52, 2);
+      expectChartData(chartPts, 17, 'Wed May 01 2019', 1303.78, 2);
+    }
+
+    expect(result.assetData.length).toBe(1);
+    expect(result.assetData[0].item.NAME).toBe('Cash');
+    {
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(18);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 1243.45, 2);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 2493.02, 2);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 3748.75, 2);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 5010.64, 2);
+      expectChartData(chartPts, 6, 'Fri Jun 01 2018', 6278.73, 2);
+      expectChartData(chartPts, 7, 'Sun Jul 01 2018', 7553.04, 2);
+      expectChartData(chartPts, 8, 'Wed Aug 01 2018', 8833.59, 2);
+      expectChartData(chartPts, 9, 'Sat Sep 01 2018', 10120.4, 2);
+      expectChartData(chartPts, 10, 'Mon Oct 01 2018', 11413.51, 2);
+      expectChartData(chartPts, 11, 'Thu Nov 01 2018', 12712.93, 2);
+      expectChartData(chartPts, 12, 'Sat Dec 01 2018', 14018.69, 2);
+      expectChartData(chartPts, 13, 'Tue Jan 01 2019', 15330.81, 2);
+      expectChartData(chartPts, 14, 'Fri Feb 01 2019', 16649.32, 2);
+      expectChartData(chartPts, 15, 'Fri Mar 01 2019', 17974.24, 2);
+      expectChartData(chartPts, 16, 'Mon Apr 01 2019', 19305.59, 2);
+      expectChartData(chartPts, 17, 'Wed May 01 2019', 20119.03, 2);
+    }
+
+    expect(result.debtData.length).toBe(0);
+    expect(result.taxData.length).toBe(2);
+    expect(result.taxData[0].item.NAME).toBe('Joe income (net)');
+    {
+      const chartPts = result.taxData[0].chartDataPoints;
+      expect(chartPts.length).toBe(18);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 0, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 0, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 4990.04, 2);
+      expectChartData(chartPts, 6, 'Fri Jun 01 2018', 0, -1);
+      expectChartData(chartPts, 7, 'Sun Jul 01 2018', 0, -1);
+      expectChartData(chartPts, 8, 'Wed Aug 01 2018', 0, -1);
+      expectChartData(chartPts, 9, 'Sat Sep 01 2018', 0, -1);
+      expectChartData(chartPts, 10, 'Mon Oct 01 2018', 0, -1);
+      expectChartData(chartPts, 11, 'Thu Nov 01 2018', 0, -1);
+      expectChartData(chartPts, 12, 'Sat Dec 01 2018', 0, -1);
+      expectChartData(chartPts, 13, 'Tue Jan 01 2019', 0, -1);
+      expectChartData(chartPts, 14, 'Fri Feb 01 2019', 0, -1);
+      expectChartData(chartPts, 15, 'Fri Mar 01 2019', 0, -1);
+      expectChartData(chartPts, 16, 'Mon Apr 01 2019', 0, -1);
+      expectChartData(chartPts, 17, 'Wed May 01 2019', 14844.06, 2);
+    }
+
+    expect(result.taxData[1].item.NAME).toBe('Joe income (incomeTax)');
+    {
+      const chartPts = result.taxData[1].chartDataPoints;
+      expect(chartPts.length).toBe(18);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 0, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 0, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 0, -1);
+      expectChartData(chartPts, 6, 'Fri Jun 01 2018', 0, -1);
+      expectChartData(chartPts, 7, 'Sun Jul 01 2018', 0, -1);
+      expectChartData(chartPts, 8, 'Wed Aug 01 2018', 0, -1);
+      expectChartData(chartPts, 9, 'Sat Sep 01 2018', 0, -1);
+      expectChartData(chartPts, 10, 'Mon Oct 01 2018', 0, -1);
+      expectChartData(chartPts, 11, 'Thu Nov 01 2018', 0, -1);
+      expectChartData(chartPts, 12, 'Sat Dec 01 2018', 0, -1);
+      expectChartData(chartPts, 13, 'Tue Jan 01 2019', 0, -1);
+      expectChartData(chartPts, 14, 'Fri Feb 01 2019', 0, -1);
+      expectChartData(chartPts, 15, 'Fri Mar 01 2019', 0, -1);
+      expectChartData(chartPts, 16, 'Mon Apr 01 2019', 0, -1);
+      expectChartData(chartPts, 17, 'Wed May 01 2019', 523.52, 2);
+    }
+
+    done();
+  });
   // CGT on selling some cars ???
 });

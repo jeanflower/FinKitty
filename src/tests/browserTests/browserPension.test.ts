@@ -83,7 +83,8 @@ describe(testDataModelName, () => {
     await addDBPension(driver, {
       ...inputs,
       value: 'junkjunk',
-      message: 'Income value junkjunk should be a numerical value',
+      message:
+        'Income value junkjunk should be numerical or built from an Asset or setting',
     });
 
     await clearPensionFields(driver);

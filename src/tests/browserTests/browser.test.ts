@@ -840,6 +840,7 @@ describe(testDataModelName, () => {
       name: 'carTest1',
       startDate: 'January 2 2018',
       value: 'chrysler',
+      growth: '0.0',
       message: `added new asset`,
     });
     await addAsset(driver, {
@@ -847,6 +848,7 @@ describe(testDataModelName, () => {
       name: 'carTest2',
       startDate: 'January 2 2018',
       value: 'twoChryslers',
+      growth: '0.0',
       message: `added new asset`,
     });
     await addAsset(driver, {
@@ -854,6 +856,7 @@ describe(testDataModelName, () => {
       name: 'carTest3',
       startDate: 'January 2 2018',
       value: 'chrysler',
+      growth: '0.0',
       quantity: '2',
       message: `added new asset`,
     });
@@ -862,6 +865,7 @@ describe(testDataModelName, () => {
       name: 'carTest4',
       startDate: 'January 2 2018',
       value: 'twoChryslers',
+      growth: '0.0',
       quantity: '2',
       message: `added new asset`,
     });
@@ -1179,6 +1183,7 @@ describe(testDataModelName, () => {
       startDate: 'January 2 2018',
       value: 'chrysler',
       message: `added new asset`,
+      growth: '0.0',
     });
 
     await clickButton(driver, 'btn-Settings');

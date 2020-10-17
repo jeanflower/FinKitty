@@ -378,6 +378,7 @@ export function getThreeChryslerModel(): DbModelData {
         START: 'January 2 2018',
         VALUE: 'chrysler',
         QUANTITY: '3',
+        CPI_IMMUNE: true,
       },
     ],
     settings: [

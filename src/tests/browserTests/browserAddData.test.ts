@@ -1,4 +1,7 @@
-import { TestModel02 } from '../../localization/stringConstants';
+import {
+  CASH_ASSET_NAME,
+  TestModel02,
+} from '../../localization/stringConstants';
 import {
   addDate,
   addIncome,
@@ -113,7 +116,7 @@ describe(testDataModelName, () => {
     await addIncome(driver, {
       ...incomeInputs,
       value: '',
-      message: `Income value should be a numerical value`,
+      message: `Income value should be numerical or built from an Asset or setting`,
     });
 
     await clearIncomeFields(driver);
@@ -171,7 +174,7 @@ describe(testDataModelName, () => {
     await addIncome(driver, {
       ...incomeInputs,
       value: 'junkforvalue',
-      message: `Income value junkforvalue should be a numerical value`,
+      message: `Income value junkforvalue should be numerical or built from an Asset or setting`,
     });
 
     await clearIncomeFields(driver);
@@ -207,6 +210,35 @@ describe(testDataModelName, () => {
       ...incomeInputs,
       growsWithInflation: 'junkjunk',
       message: `Grows with inflation 'junkjunk' should be a Y/N value`,
+    });
+
+    await clearIncomeFields(driver);
+    await addIncome(driver, {
+      ...incomeInputs,
+      name: 'proportionOfAsset',
+      value: `0.5${CASH_ASSET_NAME}`,
+      growth: '0',
+      growsWithInflation: 'Y',
+      message: `Income value '0.5Cash' may not grow with CPI`,
+    });
+
+    await clearIncomeFields(driver);
+    await addIncome(driver, {
+      ...incomeInputs,
+      name: 'proportionOfAsset',
+      value: `0.5${CASH_ASSET_NAME}`,
+      growth: '2',
+      message: `Income value '0.5Cash' may not have nonzero growth`,
+    });
+
+    await clearIncomeFields(driver);
+    await addIncome(driver, {
+      ...incomeInputs,
+      name: 'proportionOfAsset',
+      value: `0.5${CASH_ASSET_NAME}`,
+      growth: '0',
+      category: '',
+      message: 'added new income proportionOfAsset',
     });
 
     await cleanUpWork(driver, testDataModelName);
