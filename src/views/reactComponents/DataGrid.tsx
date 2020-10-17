@@ -125,7 +125,7 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
       // log(`add glyph`);
       return [
         {
-          icon: "fa fa-trash",
+          icon: 'fa fa-trash',
           callback: () => {
             if (window.confirm(`delete data for ${row['NAME']} - you sure?`)) {
               this.props.deleteFunction(row['NAME']);
