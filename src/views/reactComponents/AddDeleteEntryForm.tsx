@@ -39,7 +39,6 @@ export class AddDeleteEntryForm extends Component<EditProps, EditFormState> {
           value={this.state.VALUE}
           placeholder={this.props.getValue()}
           onChange={this.handleValue}
-          onSubmit={this.add}
         />
       </form>
     );
