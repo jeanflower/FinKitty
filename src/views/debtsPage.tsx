@@ -9,14 +9,9 @@ import {
   submitTransaction,
 } from './../App';
 import { assetsOrDebtsChartDivWithButtons } from './chartPages';
-import {
-  assetsOrDebtsTableDiv,
-  defaultColumn,
-  transactionFilteredTable,
-} from './tablePages';
+import { debtsDivWithHeadings, defaultColumn } from './tablePages';
 import { checkAsset, checkTransaction } from '../models/checks';
 import { AddDeleteDebtForm } from './reactComponents/AddDeleteDebtForm';
-import { payOffDebt, revalueDebt } from '../localization/stringConstants';
 import { getTodaysDate, lessThan } from '../utils';
 import DataGrid from './reactComponents/DataGrid';
 import SimpleFormatter from './reactComponents/NameFormatter';
@@ -85,11 +80,7 @@ export function debtsDiv(
     <div style={{ display: getDisplay(debtsView) ? 'block' : 'none' }}>
       {assetsOrDebtsChartDivWithButtons(model, debtChartData, true, false)}
       {todaysDebtsTable(model, todaysValues)}
-
-      <h4>Debt definitions</h4>
-      {assetsOrDebtsTableDiv(model, showAlert, true)}
-      {transactionFilteredTable(model, showAlert, revalueDebt, 'Revalue debts')}
-      {transactionFilteredTable(model, showAlert, payOffDebt, 'Pay off debts')}
+      {debtsDivWithHeadings(model, showAlert)}
 
       <div className="addNewDebt">
         <h4> Add a debt </h4>

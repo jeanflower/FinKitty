@@ -9,14 +9,9 @@ import {
   submitTransaction,
 } from './../App';
 import { assetsOrDebtsChartDivWithButtons } from './chartPages';
-import {
-  assetsOrDebtsTableDiv,
-  defaultColumn,
-  transactionFilteredTable,
-} from './tablePages';
+import { assetsDivWithHeadings, defaultColumn } from './tablePages';
 import { AddDeleteAssetForm } from './reactComponents/AddDeleteAssetForm';
 import { checkAsset, checkTransaction } from '../models/checks';
-import { revalueAsset, liquidateAsset } from '../localization/stringConstants';
 import DataGrid from './reactComponents/DataGrid';
 import SimpleFormatter from './reactComponents/NameFormatter';
 import CashValueFormatter from './reactComponents/CashValueFormatter';
@@ -86,21 +81,7 @@ export function assetsDiv(
     <div style={{ display: getDisplay(assetsView) ? 'block' : 'none' }}>
       {assetsOrDebtsChartDivWithButtons(model, assetChartData, false, false)}
       {todaysAssetsTable(model, todaysValues)}
-
-      <h4>Asset definitions</h4>
-      {assetsOrDebtsTableDiv(model, showAlert, false)}
-      {transactionFilteredTable(
-        model,
-        showAlert,
-        liquidateAsset,
-        'Liquidate assets to keep cash afloat',
-      )}
-      {transactionFilteredTable(
-        model,
-        showAlert,
-        revalueAsset,
-        'Revalue assets',
-      )}
+      {assetsDivWithHeadings(model, showAlert)}
 
       <div className="addNewAsset">
         <h4> Add an asset or pension </h4>

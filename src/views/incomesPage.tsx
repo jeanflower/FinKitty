@@ -13,7 +13,7 @@ import {
   getDefaultChartSettings,
 } from './chartPages';
 import {
-  incomesTableDiv,
+  incomesTableDivWithHeading,
   defaultColumn,
   transactionFilteredTable,
 } from './tablePages';
@@ -92,9 +92,7 @@ export function incomesDiv(
         getDefaultChartSettings(model),
       )}
       {todaysIncomesTable(model, todaysValues)}
-
-      <h4>Income definitions</h4>
-      {incomesTableDiv(model, showAlert)}
+      {incomesTableDivWithHeading(model, showAlert)}
       {transactionFilteredTable(
         model,
         showAlert,

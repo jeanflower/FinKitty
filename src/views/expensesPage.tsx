@@ -9,7 +9,7 @@ import {
 } from '../App';
 import { expensesChartDivWithButtons } from './chartPages';
 import {
-  expensesTableDiv,
+  expensesTableDivWithHeading,
   defaultColumn,
   transactionFilteredTable,
 } from './tablePages';
@@ -84,9 +84,7 @@ export function expensesDiv(
     <div style={{ display: getDisplay(expensesView) ? 'block' : 'none' }}>
       {expensesChartDivWithButtons(model, expensesChartData)}
       {todaysExpensesTable(model, todaysValues)}
-
-      <h4>Expense definitions</h4>
-      {expensesTableDiv(model, showAlert)}
+      {expensesTableDivWithHeading(model, showAlert)}
       {transactionFilteredTable(
         model,
         showAlert,

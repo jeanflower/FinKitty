@@ -269,7 +269,7 @@ async function submitItemLSM(
   markForUndo(modelData);
   updateItemList(itemList, inputItem);
 
-  if(doCheckModelBeforeChange()){
+  if (doCheckModelBeforeChange()) {
     const checkResult = checkData(modelData);
     if (checkResult !== '') {
       revertToUndoModel(modelData);

@@ -1,12 +1,15 @@
 import React from 'react';
 import { DbModelData, ChartData } from '../types/interfaces';
 import {
-  assetsOrDebtsTableDiv,
-  expensesTableDiv,
-  incomesTableDiv,
+  assetsDivWithHeadings,
+  debtsDivWithHeadings,
+  expensesTableDivWithHeading,
+  incomesTableDivWithHeading,
   settingsTableDiv,
   transactionFilteredTable,
-  triggersTableDiv,
+  transactionsForTable,
+  transactionsTableDiv,
+  triggersTableDivWithHeading,
 } from './tablePages';
 import { getDisplay, overview } from '../App';
 import {
@@ -20,12 +23,8 @@ import {
 import {
   custom,
   autogen,
-  liquidateAsset,
-  payOffDebt,
   revalueInc,
   revalueExp,
-  revalueAsset,
-  revalueDebt,
 } from '../localization/stringConstants';
 
 import { AddDeleteEntryForm } from './reactComponents/AddDeleteEntryForm';
@@ -116,6 +115,34 @@ function chartsForOverview(
   );
 }
 
+function transactionsOverviewDiv(
+  model: DbModelData,
+  showAlert: (arg0: string) => void,
+) {
+  const customContents = transactionsForTable(model, custom);
+  const autogenContents = transactionsForTable(model, autogen);
+  if (customContents.length === 0 && autogenContents.length === 0) {
+    return;
+  }
+  return (
+    <div>
+      <h2>Transactions:</h2>
+      {transactionsTableDiv(
+        customContents,
+        model,
+        showAlert,
+        'Custom transactions',
+      )}
+      {transactionsTableDiv(
+        autogenContents,
+        model,
+        showAlert,
+        'Auto-generated transactions',
+      )}
+    </div>
+  );
+}
+
 export function overviewDiv(
   model: DbModelData,
   showAlert: (arg0: string) => void,
@@ -152,70 +179,24 @@ export function overviewDiv(
       )}
       <div className="scrollClass resizeClass">
         <br />
-        <h2>Important dates:</h2>
-        {triggersTableDiv(model, showAlert)}
-        <h4>Income definitions</h4>
-        {incomesTableDiv(model, showAlert)}
+        {triggersTableDivWithHeading(model, showAlert)}
+        {incomesTableDivWithHeading(model, showAlert)}
         {transactionFilteredTable(
           model,
           showAlert,
           revalueInc,
           'Income revaluations',
         )}
-
-        <h4>Expense definitions</h4>
-        {expensesTableDiv(model, showAlert)}
+        {expensesTableDivWithHeading(model, showAlert)}
         {transactionFilteredTable(
           model,
           showAlert,
           revalueExp,
           'Expense revaluations',
         )}
-
-        <h4>Asset definitions</h4>
-        {assetsOrDebtsTableDiv(model, showAlert, false)}
-        {transactionFilteredTable(
-          model,
-          showAlert,
-          liquidateAsset,
-          'Liquidate assets to keep cash afloat',
-        )}
-        {transactionFilteredTable(
-          model,
-          showAlert,
-          revalueAsset,
-          'Revalue assets',
-        )}
-
-        <h4>Debt definitions</h4>
-        {assetsOrDebtsTableDiv(model, showAlert, true)}
-        {transactionFilteredTable(
-          model,
-          showAlert,
-          revalueDebt,
-          'Revalue debts',
-        )}
-        {transactionFilteredTable(
-          model,
-          showAlert,
-          payOffDebt,
-          'Pay off debts',
-        )}
-
-        <h2>Transactions:</h2>
-        {transactionFilteredTable(
-          model,
-          showAlert,
-          custom,
-          'Custom transactions',
-        )}
-        {transactionFilteredTable(
-          model,
-          showAlert,
-          autogen,
-          'Auto-generated transactions',
-        )}
-
+        {assetsDivWithHeadings(model, showAlert)}
+        {debtsDivWithHeadings(model, showAlert)}
+        {transactionsOverviewDiv(model, showAlert)}
         <h2>Settings:</h2>
         {settingsTableDiv(model, showAlert)}
       </div>

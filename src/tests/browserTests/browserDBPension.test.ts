@@ -210,7 +210,6 @@ describe(testDataModelName, () => {
     done();
   });
 
-
   it('DB pension inputs happy path', async done => {
     await beforeAllWork(
       driver,

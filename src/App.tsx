@@ -1,5 +1,10 @@
 import React, { Component } from 'react';
-import { nationalSavings, simpleExampleData, definedBenefitsPension, definedContributionsPension } from './models/exampleModels';
+import {
+  nationalSavings,
+  simpleExampleData,
+  definedBenefitsPension,
+  definedContributionsPension,
+} from './models/exampleModels';
 import { useAuth0 } from './contexts/auth0-context';
 import { makeChartData } from './models/charting';
 import { checkData, checkTransaction, checkTrigger } from './models/checks';
@@ -42,9 +47,9 @@ import { loginPage } from './views/loginPage';
 import { screenshotsDiv } from './views/screenshotsPage';
 import {
   settingsTableDiv,
-  triggersTableDiv,
   defaultColumn,
   transactionFilteredTable,
+  triggersTableDivWithHeading,
 } from './views/tablePages';
 import { overviewDiv } from './views/overviewPage';
 import { taxDiv } from './views/chartPages';
@@ -238,7 +243,7 @@ const exampleModels = [
   {
     name: 'National Savings Income Bonds',
     model: nationalSavings,
-  }
+  },
 ];
 
 let reactAppComponent: AppContent;
@@ -1118,7 +1123,7 @@ export class AppContent extends Component<AppProps, AppState> {
         newModel,
         false,
       );
-      if(replacedOK){
+      if (replacedOK) {
         await toggle(overview);
         return true;
       } else {
@@ -1267,9 +1272,11 @@ export class AppContent extends Component<AppProps, AppState> {
                   checkModelBeforeChange = !checkModelBeforeChange;
                   refreshData(false);
                 }}
-                title={checkModelBeforeChange ? 
-                  "Suppress check-before-change" : 
-                  "Enable check-before-change"}
+                title={
+                  checkModelBeforeChange
+                    ? 'Suppress check-before-change'
+                    : 'Enable check-before-change'
+                }
                 id={`btn-toggle-check`}
                 type="secondary"
               />
@@ -1390,7 +1397,7 @@ export class AppContent extends Component<AppProps, AppState> {
 
     return (
       <div style={{ display: getDisplay(triggersView) ? 'block' : 'none' }}>
-        {triggersTableDiv(this.state.modelData, showAlert)}
+        {triggersTableDivWithHeading(this.state.modelData, showAlert)}
         <p />
         <div className="addNewTrigger">
           <h4> Add an important date </h4>
@@ -1619,7 +1626,7 @@ export async function attemptRename(
   return message;
 }
 
-export function doCheckModelBeforeChange(){
+export function doCheckModelBeforeChange() {
   return checkModelBeforeChange;
 }
 

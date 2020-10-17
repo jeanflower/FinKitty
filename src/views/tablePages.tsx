@@ -699,6 +699,7 @@ function assetsOrDebtsForTable(model: DbModelData, isDebt: boolean): any[] {
 
 export function assetsOrDebtsTableDiv(
   model: DbModelData,
+  rowData: any[],
   showAlert: (arg0: string) => void,
   isDebt: boolean,
 ) {
@@ -714,7 +715,7 @@ export function assetsOrDebtsTableDiv(
             handleGridRowsUpdated={function() {
               return handleAssetGridRowsUpdated(model, showAlert, arguments);
             }}
-            rows={assetsOrDebtsForTable(model, isDebt)}
+            rows={rowData}
             columns={getAssetOrDebtCols(model, isDebt)}
             deleteFunction={deleteAsset}
           />
@@ -723,6 +724,81 @@ export function assetsOrDebtsTableDiv(
       </fieldset>
     </div>
   );
+}
+
+export function getDisplayName(obj: string, type: string) {
+  // log(`obj = ${obj}`);
+  let result: string;
+  if (
+    (type === liquidateAsset || type === payOffDebt) &&
+    obj.startsWith(conditional)
+  ) {
+    result = obj.substring(conditional.length, obj.length);
+  } else if (
+    (type === revalueAsset ||
+      type === revalueDebt ||
+      type === revalueExp ||
+      type === revalueInc) &&
+    obj.startsWith(revalue)
+  ) {
+    result = obj.substring(revalue.length, obj.length);
+  } else {
+    result = obj;
+  }
+  // log(`display ${result}`);
+  return result;
+}
+
+export function transactionsForTable(model: DbModelData, type: string) {
+  const unindexedRows = model.transactions
+    .filter(t => {
+      return t.TYPE === type;
+    })
+    .map((obj: DbTransaction) => {
+      // log(`obj.FROM_ABSOLUTE = ${obj.FROM_ABSOLUTE}`)
+      let fromValueEntry = makeStringFromValueAbsProp(
+        obj.FROM_VALUE,
+        obj.FROM_ABSOLUTE,
+        obj.FROM,
+        model,
+        obj.NAME,
+      );
+      // log(`obj.FROM = ${obj.FROM}, fromValueEntry = ${fromValueEntry}`);
+      if (
+        obj.FROM === '' &&
+        (fromValueEntry === '0' || fromValueEntry === '0.0')
+      ) {
+        fromValueEntry = '';
+      }
+      let toNumber = obj.TO_VALUE;
+      if (type === revalueDebt) {
+        toNumber = `${-parseFloat(toNumber)}`;
+      }
+      let toValueEntry = makeStringFromValueAbsProp(
+        toNumber,
+        obj.TO_ABSOLUTE,
+        obj.TO,
+        model,
+        obj.NAME,
+      );
+      if (obj.TO === '' && toValueEntry === '0') {
+        toValueEntry = '';
+      }
+      const mapResult = {
+        DATE: obj.DATE,
+        FROM: obj.FROM,
+        FROM_VALUE: fromValueEntry,
+        NAME: getDisplayName(obj.NAME, type),
+        TO: obj.TO,
+        TO_VALUE: toValueEntry,
+        STOP_DATE: obj.STOP_DATE,
+        RECURRENCE: obj.RECURRENCE,
+        TYPE: obj.TYPE,
+        CATEGORY: obj.CATEGORY,
+      };
+      return mapResult;
+    });
+  return addIndices(unindexedRows);
 }
 
 function makeTransactionCols(model: DbModelData, type: string) {
@@ -936,81 +1012,6 @@ function makeTransactionCols(model: DbModelData, type: string) {
   return cols;
 }
 
-export function getDisplayName(obj: string, type: string) {
-  // log(`obj = ${obj}`);
-  let result: string;
-  if (
-    (type === liquidateAsset || type === payOffDebt) &&
-    obj.startsWith(conditional)
-  ) {
-    result = obj.substring(conditional.length, obj.length);
-  } else if (
-    (type === revalueAsset ||
-      type === revalueDebt ||
-      type === revalueExp ||
-      type === revalueInc) &&
-    obj.startsWith(revalue)
-  ) {
-    result = obj.substring(revalue.length, obj.length);
-  } else {
-    result = obj;
-  }
-  // log(`display ${result}`);
-  return result;
-}
-
-export function transactionsForTable(model: DbModelData, type: string) {
-  const unindexedRows = model.transactions
-    .filter(t => {
-      return t.TYPE === type;
-    })
-    .map((obj: DbTransaction) => {
-      // log(`obj.FROM_ABSOLUTE = ${obj.FROM_ABSOLUTE}`)
-      let fromValueEntry = makeStringFromValueAbsProp(
-        obj.FROM_VALUE,
-        obj.FROM_ABSOLUTE,
-        obj.FROM,
-        model,
-        obj.NAME,
-      );
-      // log(`obj.FROM = ${obj.FROM}, fromValueEntry = ${fromValueEntry}`);
-      if (
-        obj.FROM === '' &&
-        (fromValueEntry === '0' || fromValueEntry === '0.0')
-      ) {
-        fromValueEntry = '';
-      }
-      let toNumber = obj.TO_VALUE;
-      if (type === revalueDebt) {
-        toNumber = `${-parseFloat(toNumber)}`;
-      }
-      let toValueEntry = makeStringFromValueAbsProp(
-        toNumber,
-        obj.TO_ABSOLUTE,
-        obj.TO,
-        model,
-        obj.NAME,
-      );
-      if (obj.TO === '' && toValueEntry === '0') {
-        toValueEntry = '';
-      }
-      const mapResult = {
-        DATE: obj.DATE,
-        FROM: obj.FROM,
-        FROM_VALUE: fromValueEntry,
-        NAME: getDisplayName(obj.NAME, type),
-        TO: obj.TO,
-        TO_VALUE: toValueEntry,
-        STOP_DATE: obj.STOP_DATE,
-        RECURRENCE: obj.RECURRENCE,
-        TYPE: obj.TYPE,
-        CATEGORY: obj.CATEGORY,
-      };
-      return mapResult;
-    });
-  return addIndices(unindexedRows);
-}
-
 function makeCompleteName(name: string, type: string) {
   if (
     type === revalueInc ||
@@ -1079,6 +1080,52 @@ export function transactionFilteredTable(
   );
 }
 
+export function debtsDivWithHeadings(
+  model: DbModelData,
+  showAlert: (arg0: string) => void,
+) {
+  const debtData = assetsOrDebtsForTable(model, true);
+  if (debtData.length === 0) {
+    return;
+  }
+  return (
+    <div>
+      <h4>Debt definitions</h4>
+      {assetsOrDebtsTableDiv(model, debtData, showAlert, true)}
+      {transactionFilteredTable(model, showAlert, revalueDebt, 'Revalue debts')}
+      {transactionFilteredTable(model, showAlert, payOffDebt, 'Pay off debts')}
+    </div>
+  );
+}
+
+export function assetsDivWithHeadings(
+  model: DbModelData,
+  showAlert: (arg0: string) => void,
+) {
+  const assetData = assetsOrDebtsForTable(model, false);
+  if (assetData.length === 0) {
+    return;
+  }
+  return (
+    <div>
+      <h4>Asset definitions</h4>
+      {assetsOrDebtsTableDiv(model, assetData, showAlert, false)}
+      {transactionFilteredTable(
+        model,
+        showAlert,
+        liquidateAsset,
+        'Liquidate assets to keep cash afloat',
+      )}
+      {transactionFilteredTable(
+        model,
+        showAlert,
+        revalueAsset,
+        'Revalue assets',
+      )}
+    </div>
+  );
+}
+
 function triggersForTable(model: DbModelData) {
   const unindexedResult = model.triggers.map((obj: DbTrigger) => {
     const mapResult = {
@@ -1090,8 +1137,9 @@ function triggersForTable(model: DbModelData) {
   return addIndices(unindexedResult);
 }
 
-export function triggersTableDiv(
+function triggersTableDiv(
   model: DbModelData,
+  trigData: any[],
   showAlert: (arg0: string) => void,
 ) {
   return (
@@ -1107,7 +1155,7 @@ export function triggersTableDiv(
             handleGridRowsUpdated={function() {
               return handleTriggerGridRowsUpdated(model, showAlert, arguments);
             }}
-            rows={triggersForTable(model)}
+            rows={trigData}
             columns={[
               {
                 ...defaultColumn,
@@ -1135,6 +1183,22 @@ export function triggersTableDiv(
   );
 }
 
+export function triggersTableDivWithHeading(
+  model: DbModelData,
+  showAlert: (arg0: string) => void,
+) {
+  const trigData = triggersForTable(model);
+  if (trigData.length === 0) {
+    return;
+  }
+  return (
+    <div>
+      <h2>Important dates:</h2>
+      {triggersTableDiv(model, trigData, showAlert)}
+    </div>
+  );
+}
+
 function incomesForTable(model: DbModelData) {
   const unindexedResult = model.incomes.map((obj: DbIncome) => {
     const mapResult = {
@@ -1154,10 +1218,14 @@ function incomesForTable(model: DbModelData) {
   return addIndices(unindexedResult);
 }
 
-export function incomesTableDiv(
+function incomesTableDiv(
   model: DbModelData,
+  incData: any[],
   showAlert: (arg0: string) => void,
 ) {
+  if (incData.length === 0) {
+    return;
+  }
   return (
     <div
       style={{
@@ -1171,7 +1239,7 @@ export function incomesTableDiv(
             handleGridRowsUpdated={function() {
               return handleIncomeGridRowsUpdated(model, showAlert, arguments);
             }}
-            rows={incomesForTable(model)}
+            rows={incData}
             columns={[
               {
                 ...defaultColumn,
@@ -1266,6 +1334,22 @@ export function incomesTableDiv(
   );
 }
 
+export function incomesTableDivWithHeading(
+  model: DbModelData,
+  showAlert: (arg0: string) => void,
+) {
+  const incData: any[] = incomesForTable(model);
+  if (incData.length === 0) {
+    return;
+  }
+  return (
+    <div>
+      <h4>Income definitions</h4>
+      {incomesTableDiv(model, incData, showAlert)}
+    </div>
+  );
+}
+
 function expensesForTable(model: DbModelData) {
   const unindexedResult = model.expenses.map((obj: DbExpense) => {
     const mapResult = {
@@ -1284,8 +1368,9 @@ function expensesForTable(model: DbModelData) {
   return addIndices(unindexedResult);
 }
 
-export function expensesTableDiv(
+function expensesTableDiv(
   model: DbModelData,
+  expData: any[],
   showAlert: (arg0: string) => void,
 ) {
   return (
@@ -1301,7 +1386,7 @@ export function expensesTableDiv(
             handleGridRowsUpdated={function() {
               return handleExpenseGridRowsUpdated(model, showAlert, arguments);
             }}
-            rows={expensesForTable(model)}
+            rows={expData}
             columns={[
               {
                 ...defaultColumn,
@@ -1394,6 +1479,22 @@ export function expensesTableDiv(
   );
 }
 
+export function expensesTableDivWithHeading(
+  model: DbModelData,
+  showAlert: (arg0: string) => void,
+) {
+  const expData = expensesForTable(model);
+  if (expData.length === 0) {
+    return;
+  }
+  return (
+    <div>
+      <h4>Expense definitions</h4>
+      {expensesTableDiv(model, expData, showAlert)}
+    </div>
+  );
+}
+
 const settingsToExcludeFromTableView = [
   assetChartView,
   debtChartView,
@@ -1429,6 +1530,100 @@ function settingsForTable(model: DbModelData, type: string) {
       return mapResult;
     });
   return addIndices(unindexedResult);
+}
+
+function customSettingsTable(
+  model: DbModelData,
+  constSettings: any[],
+  showAlert: (arg0: string) => void,
+) {
+  if (constSettings.length === 0) {
+    return;
+  }
+  return (
+    <DataGrid
+      deleteFunction={deleteSetting}
+      handleGridRowsUpdated={function() {
+        return handleSettingGridRowsUpdated(model, showAlert, arguments);
+      }}
+      rows={constSettings}
+      columns={[
+        {
+          ...defaultColumn,
+          key: 'NAME',
+          name: 'name',
+          formatter: <SimpleFormatter name="name" value="unset" />,
+        },
+        {
+          ...defaultColumn,
+          key: 'VALUE',
+          name: 'defining value',
+          formatter: <SimpleFormatter name="defining value" value="unset" />,
+        },
+        {
+          ...defaultColumn,
+          key: 'HINT',
+          name: 'hint',
+          formatter: <SimpleFormatter name="hint" value="unset" />,
+        },
+      ]}
+    />
+  );
+}
+function adjustSettingsTable(
+  model: DbModelData,
+  adjustSettings: any[],
+  showAlert: (arg0: string) => void,
+) {
+  if (adjustSettings.length === 0) {
+    return;
+  }
+  return (
+    <DataGrid
+      deleteFunction={deleteSetting}
+      handleGridRowsUpdated={function() {
+        return handleSettingGridRowsUpdated(model, showAlert, arguments);
+      }}
+      rows={adjustSettings}
+      columns={[
+        {
+          ...defaultColumn,
+          key: 'NAME',
+          name: 'name',
+          formatter: <SimpleFormatter name="name" value="unset" />,
+        },
+        {
+          ...defaultColumn,
+          key: 'VALUE',
+          name: 'defining value',
+          formatter: <SimpleFormatter name="defining value" value="unset" />,
+        },
+        {
+          ...defaultColumn,
+          key: 'HINT',
+          name: 'hint',
+          formatter: <SimpleFormatter name="hint" value="unset" />,
+        },
+      ]}
+    />
+  );
+}
+
+function settingsTables(model: DbModelData, showAlert: (arg0: string) => void) {
+  const constSettings = settingsForTable(model, constType);
+  const adjustSettings = settingsForTable(model, adjustableType);
+
+  if (constSettings.length === 0 && adjustSettings.length === 0) {
+    return;
+  }
+
+  return (
+    <div>
+      <h4>Other settings affecting the model</h4>
+      {customSettingsTable(model, constSettings, showAlert)}
+      {adjustSettingsTable(model, adjustSettings, showAlert)}
+    </div>
+  );
 }
 
 export function settingsTableDiv(
@@ -1470,61 +1665,7 @@ export function settingsTableDiv(
           },
         ]}
       />
-      <h4>Other settings affecting the model</h4>
-      <DataGrid
-        deleteFunction={deleteSetting}
-        handleGridRowsUpdated={function() {
-          return handleSettingGridRowsUpdated(model, showAlert, arguments);
-        }}
-        rows={settingsForTable(model, constType)}
-        columns={[
-          {
-            ...defaultColumn,
-            key: 'NAME',
-            name: 'name',
-            formatter: <SimpleFormatter name="name" value="unset" />,
-          },
-          {
-            ...defaultColumn,
-            key: 'VALUE',
-            name: 'defining value',
-            formatter: <SimpleFormatter name="defining value" value="unset" />,
-          },
-          {
-            ...defaultColumn,
-            key: 'HINT',
-            name: 'hint',
-            formatter: <SimpleFormatter name="hint" value="unset" />,
-          },
-        ]}
-      />
-      <DataGrid
-        deleteFunction={deleteSetting}
-        handleGridRowsUpdated={function() {
-          return handleSettingGridRowsUpdated(model, showAlert, arguments);
-        }}
-        rows={settingsForTable(model, adjustableType)}
-        columns={[
-          {
-            ...defaultColumn,
-            key: 'NAME',
-            name: 'name',
-            formatter: <SimpleFormatter name="name" value="unset" />,
-          },
-          {
-            ...defaultColumn,
-            key: 'VALUE',
-            name: 'defining value',
-            formatter: <SimpleFormatter name="defining value" value="unset" />,
-          },
-          {
-            ...defaultColumn,
-            key: 'HINT',
-            name: 'hint',
-            formatter: <SimpleFormatter name="hint" value="unset" />,
-          },
-        ]}
-      />
+      {settingsTables(model, showAlert)}
       {transactionFilteredTable(
         model,
         showAlert,
