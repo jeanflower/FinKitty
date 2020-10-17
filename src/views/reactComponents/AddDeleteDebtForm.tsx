@@ -143,7 +143,7 @@ export class AddDeleteDebtForm extends Component<
   private growthAndInflation(): React.ReactNode {
     if (this.state.inputting !== inputtingRevalue) {
       return (
-        <div>
+        <>
           <div className="row">
             <div className="col">
               <Input
@@ -168,7 +168,7 @@ export class AddDeleteDebtForm extends Component<
             </div>
             {/* end col */}
           </div>
-        </div>
+        </>
       );
     }
   }

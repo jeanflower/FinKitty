@@ -5,7 +5,7 @@ import FinKittyCat from './cat.png';
 import { Navbar } from 'react-bootstrap';
 
 export function loginPage(loginWithRedirect: any, loginForTesting: any) {
-  return (<div>
+  return (<>
     <Navbar expand="lg" bg="light" sticky="top">
     <Navbar.Brand href="#home" id="finkitty-brand">
       <div className="page-header">
@@ -97,6 +97,6 @@ export function loginPage(loginWithRedirect: any, loginForTesting: any) {
         </div>
         <div className="col-md mb-4">{screenshotsDiv()}</div>
       </div>
-    </div>
+    </>
   );
 }

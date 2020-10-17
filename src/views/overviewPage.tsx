@@ -125,7 +125,7 @@ function transactionsOverviewDiv(
     return;
   }
   return (
-    <div>
+    <>
       <h2>Transactions:</h2>
       {transactionsTableDiv(
         customContents,
@@ -139,7 +139,7 @@ function transactionsOverviewDiv(
         showAlert,
         'Auto-generated transactions',
       )}
-    </div>
+    </>
   );
 }
 

@@ -63,7 +63,7 @@ export class ReactVisExample extends React.Component<ReactVisChartProps, {}> {
       );
     });
     return (
-      <div>
+      <>
         <XYPlot height={300} width={800} xType="ordinal" stackBy="y">
           <XAxis />
           <YAxis />
@@ -78,7 +78,7 @@ export class ReactVisExample extends React.Component<ReactVisChartProps, {}> {
             </Hint>
           )}
         </XYPlot>
-      </div>
+      </>
     );
   }
 }

@@ -923,9 +923,9 @@ export class AppContent extends Component<AppProps, AppState> {
       };
 
       return (
-        <div>
+        <>
           {this.navbarDiv()}
-          <div>
+          <>
             {this.homeDiv()}
             {overviewDiv(
               this.state.modelData,
@@ -971,8 +971,8 @@ export class AppContent extends Component<AppProps, AppState> {
             {this.transactionsDiv()}
             {taxDiv(this.state.modelData, this.state.taxChartData)}
             {this.triggersDiv()}
-          </div>
-        </div>
+          </>
+        </>
       );
     } catch (e) {
       return this.internalErrorDiv();
@@ -981,12 +981,12 @@ export class AppContent extends Component<AppProps, AppState> {
 
   private internalErrorDiv() {
     return (
-      <div>
+      <>
         {this.navbarDiv()}
         <h1>
           Oops! something has gone wrong with FinKitty. Sad Finkitty apologises.
         </h1>
-      </div>
+      </>
     );
   }
 
@@ -1316,7 +1316,7 @@ export class AppContent extends Component<AppProps, AppState> {
     }
     const today = getTodaysDate(model);
     return (
-      <div>
+      <>
         <h4>Values at {today.toDateString()}</h4>
         <DataGrid
           deleteFunction={async function() {
@@ -1349,7 +1349,7 @@ export class AppContent extends Component<AppProps, AppState> {
             },
           ]}
         />
-      </div>
+      </>
     );
   }
 

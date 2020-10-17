@@ -1073,10 +1073,10 @@ export function transactionFilteredTable(
     return;
   }
   return (
-    <div>
+    <>
       <h4>{headingText}</h4>
       {transactionsTableDiv(contents, model, showAlert, type)}
-    </div>
+    </>
   );
 }
 
@@ -1089,12 +1089,12 @@ export function debtsDivWithHeadings(
     return;
   }
   return (
-    <div>
+    <>
       <h4>Debt definitions</h4>
       {assetsOrDebtsTableDiv(model, debtData, showAlert, true)}
       {transactionFilteredTable(model, showAlert, revalueDebt, 'Revalue debts')}
       {transactionFilteredTable(model, showAlert, payOffDebt, 'Pay off debts')}
-    </div>
+    </>
   );
 }
 
@@ -1107,7 +1107,7 @@ export function assetsDivWithHeadings(
     return;
   }
   return (
-    <div>
+    <>
       <h4>Asset definitions</h4>
       {assetsOrDebtsTableDiv(model, assetData, showAlert, false)}
       {transactionFilteredTable(
@@ -1122,7 +1122,7 @@ export function assetsDivWithHeadings(
         revalueAsset,
         'Revalue assets',
       )}
-    </div>
+    </>
   );
 }
 
@@ -1192,10 +1192,10 @@ export function triggersTableDivWithHeading(
     return;
   }
   return (
-    <div>
+    <>
       <h2>Important dates:</h2>
       {triggersTableDiv(model, trigData, showAlert)}
-    </div>
+    </>
   );
 }
 
@@ -1343,10 +1343,10 @@ export function incomesTableDivWithHeading(
     return;
   }
   return (
-    <div>
+    <>
       <h4>Income definitions</h4>
       {incomesTableDiv(model, incData, showAlert)}
-    </div>
+    </>
   );
 }
 
@@ -1488,10 +1488,10 @@ export function expensesTableDivWithHeading(
     return;
   }
   return (
-    <div>
+    <>
       <h4>Expense definitions</h4>
       {expensesTableDiv(model, expData, showAlert)}
-    </div>
+    </>
   );
 }
 
@@ -1618,11 +1618,11 @@ function settingsTables(model: DbModelData, showAlert: (arg0: string) => void) {
   }
 
   return (
-    <div>
+    <>
       <h4>Other settings affecting the model</h4>
       {customSettingsTable(model, constSettings, showAlert)}
       {adjustSettingsTable(model, adjustSettings, showAlert)}
-    </div>
+    </>
   );
 }
 

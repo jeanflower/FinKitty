@@ -651,10 +651,10 @@ function taxChartDivWithButtons(
     //return 'No tax data to display';
   }
   return (
-    <div>
+    <>
       {taxButtonList(model)}
       {taxChartDiv(taxChartData, settings)}
-    </div>
+    </>
   );
 }
 export function taxDiv(model: DbModelData, taxChartData: ChartData[]) {
@@ -663,14 +663,14 @@ export function taxDiv(model: DbModelData, taxChartData: ChartData[]) {
   }
 
   return (
-    <div>
+    <>
       {coarseFineList(model)}
       {taxChartDivWithButtons(
         model,
         taxChartData,
         getDefaultChartSettings(model),
       )}
-    </div>
+    </>
   );
 }
 

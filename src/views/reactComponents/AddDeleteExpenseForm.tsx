@@ -111,7 +111,7 @@ export class AddDeleteExpenseForm extends Component<
       return;
     }
     return (
-      <div>
+      <>
         <div className="row">
           <div className="col">
             <Input
@@ -162,7 +162,7 @@ export class AddDeleteExpenseForm extends Component<
           {/* end col */}
         </div>
         {/* end row */}
-      </div>
+      </>
     );
   }
 
@@ -171,7 +171,7 @@ export class AddDeleteExpenseForm extends Component<
       return;
     }
     return (
-      <div>
+      <>
         <DateSelectionRow
           introLabel="Date on which the expense starts"
           model={this.props.model}
@@ -194,7 +194,7 @@ export class AddDeleteExpenseForm extends Component<
           triggers={this.props.model.triggers}
           submitTriggerFunction={this.props.submitTriggerFunction}
         />
-      </div>
+      </>
     );
   }
 

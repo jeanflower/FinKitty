@@ -35,7 +35,7 @@ function todaysIncomesTable(
   }
   const today = getTodaysDate(model);
   return (
-    <div>
+    <>
       <h4>Values at {today.toDateString()}</h4>
       <DataGrid
         deleteFunction={async function() {
@@ -70,7 +70,7 @@ function todaysIncomesTable(
           },
         ]}
       />
-    </div>
+    </>
   );
 }
 
