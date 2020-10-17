@@ -206,7 +206,7 @@ describe(testDataModelName, () => {
         "Source income 'javaJob1' should have income tax liability Susan(incomeTax)",
     });
 
-    //await cleanUpWork(driver, testDataModelName);
+    await cleanUpWork(driver, testDataModelName);
     done();
   });
 
@@ -253,7 +253,7 @@ describe(testDataModelName, () => {
       message: 'added new data', // TODO "added pension information",
     });
 
-    //await cleanUpWork(driver, testDataModelName);
+    await cleanUpWork(driver, testDataModelName);
     done();
   });
 
