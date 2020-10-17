@@ -1,15 +1,27 @@
 import React from 'react';
 import Button from './reactComponents/Button';
 import { screenshotsDiv } from './screenshotsPage';
+import FinKittyCat from './cat.png';
+import { Navbar } from 'react-bootstrap';
 
 export function loginPage(loginWithRedirect: any, loginForTesting: any) {
-  return (
-    <>
+  return (<div>
+    <Navbar expand="lg" bg="light" sticky="top">
+    <Navbar.Brand href="#home" id="finkitty-brand">
       <div className="page-header">
-        <h1>
-          FinKitty <small>an app for financial kitty forecasting</small>
-        </h1>
+        <div className="col">
+            <div className="row">
+              <h3>{`FinKitty`}</h3>
+            </div>
+            <div className="row">
+              <img src={FinKittyCat} alt="FinKitty cat" width={70}></img>
+            </div>
+          </div>
       </div>
+      </Navbar.Brand>
+      <h3>An app for financial kitty forecasting</h3>
+      </Navbar>
+
       <div className="row">
         <div className="col-sm mb-4">
           <div className="alert alert-block">
@@ -85,6 +97,6 @@ export function loginPage(loginWithRedirect: any, loginForTesting: any) {
         </div>
         <div className="col-md mb-4">{screenshotsDiv()}</div>
       </div>
-    </>
+    </div>
   );
 }
