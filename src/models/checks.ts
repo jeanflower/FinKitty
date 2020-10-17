@@ -1404,7 +1404,9 @@ function checkNames(model: DbModelData): string {
     }),
   );
 
-  const counts: Map<string, number> = names.reduce(
+  const counts: Map<string, number> = names
+  .filter((n)=>{return !n.startsWith(pension)})
+  .reduce(
     (acc: Map<string, number>, b: string) => {
       const existingCount = acc.get(b);
       if (existingCount === undefined) {

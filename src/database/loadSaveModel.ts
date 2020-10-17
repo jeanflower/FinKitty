@@ -24,6 +24,7 @@ import { adjustableType } from '../localization/stringConstants';
 
 import { diffModels } from '../diffModels';
 import { checkData } from '../models/checks';
+import { doCheckModelBeforeChange } from '../App';
 
 const showDBInteraction = false;
 const validateCache = false;
@@ -268,10 +269,12 @@ async function submitItemLSM(
   markForUndo(modelData);
   updateItemList(itemList, inputItem);
 
-  const checkResult = checkData(modelData);
-  if (checkResult !== '') {
-    revertToUndoModel(modelData);
-    return checkResult;
+  if(doCheckModelBeforeChange()){
+    const checkResult = checkData(modelData);
+    if (checkResult !== '') {
+      revertToUndoModel(modelData);
+      return checkResult;
+    }
   }
 
   await saveModelLSM(userID, modelName, modelData);

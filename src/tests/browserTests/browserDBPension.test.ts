@@ -29,7 +29,7 @@ describe(testDataModelName, () => {
   }
   const driver = driverSimple;
 
-  it('DB pension inputs', async done => {
+  it('DB pension inputs problem path', async done => {
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -42,8 +42,6 @@ describe(testDataModelName, () => {
       ...incomeInputs,
       message: `added new income ${incomeInputs.name}`,
     });
-
-    await clickButton(driver, 'useDBPInputs');
 
     const inputs = {
       name: 'pensionName',
@@ -64,12 +62,6 @@ describe(testDataModelName, () => {
       liability: 'Joe',
       category: 'pension',
     };
-
-    await addDBPension(driver, {
-      ...inputs,
-      name: 'penName',
-      message: 'added new data', // TODO "added pension information",
-    });
 
     await clickButton(driver, 'useDBPInputs');
 
@@ -158,7 +150,7 @@ describe(testDataModelName, () => {
     await clearPensionFields(driver);
     await addDBPension(driver, {
       ...inputs,
-      name: 'pension',
+      name: 'transferStopsBeforeTransfer',
       pensionEndOrTransferDate: '2037',
       transferredStopDate: '2035', // transferred pension stops before transfer occurred?
       message: 'added new data', // BUG :this probably shouldn't be allowed?
@@ -214,7 +206,54 @@ describe(testDataModelName, () => {
         "Source income 'javaJob1' should have income tax liability Susan(incomeTax)",
     });
 
-    await cleanUpWork(driver, testDataModelName);
+    //await cleanUpWork(driver, testDataModelName);
+    done();
+  });
+
+
+  it('DB pension inputs happy path', async done => {
+    await beforeAllWork(
+      driver,
+      testDataModelName,
+      `{"testName":"${TestModel02}"}`,
+    );
+
+    await clickButton(driver, 'btn-Incomes');
+
+    await addIncome(driver, {
+      ...incomeInputs,
+      message: `added new income ${incomeInputs.name}`,
+    });
+
+    await clickButton(driver, 'useDBPInputs');
+
+    const inputs = {
+      name: 'pensionName',
+      value: '2500',
+      valuationDate: '2022',
+      contributionsEndDate: '2025',
+      startDate: '2030',
+      pensionEndOrTransferDate: '2035',
+      transferredStopDate: '2040',
+      incomeSource: 'javaJob1',
+      contributionSSIncome: 'N',
+      contributionAmountPensionIncome: '0.05',
+      incomeaccrual: '0.02',
+      transferName: 'Jack',
+      transferProportion: '0.5',
+      incomeGrowth: '2.0',
+      incomecpiGrows: 'N',
+      liability: 'Joe',
+      category: 'pension',
+    };
+
+    await addDBPension(driver, {
+      ...inputs,
+      name: 'TeachersPensionScheme',
+      message: 'added new data', // TODO "added pension information",
+    });
+
+    //await cleanUpWork(driver, testDataModelName);
     done();
   });
 

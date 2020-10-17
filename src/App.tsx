@@ -73,7 +73,7 @@ import DataGrid from './views/reactComponents/DataGrid';
 import SimpleFormatter from './views/reactComponents/NameFormatter';
 import { AddDeleteSettingForm } from './views/reactComponents/AddDeleteSettingForm';
 import { ReplaceWithJSONForm } from './views/reactComponents/ReplaceWithJSONForm';
-import { CreateModelForm } from './views/reactComponents/CloneModelForm';
+import { CreateModelForm } from './views/reactComponents/NewModelForm';
 import { Form, Nav, Navbar } from 'react-bootstrap';
 import FinKittyCat from './views/cat.png';
 
@@ -82,6 +82,7 @@ import FinKittyCat from './views/cat.png';
 let modelName: string = exampleModelName;
 let userID = '';
 let isDirty = false; // does the model need saving?
+let checkModelBeforeChange = true;
 
 function App() {
   const {
@@ -227,7 +228,7 @@ const exampleModels = [
     model: simpleExampleData,
   },
   {
-    name: 'Pension example',
+    name: 'Pension',
     model: pension1ExampleData,
   },
 ];
@@ -1250,6 +1251,17 @@ export class AppContent extends Component<AppProps, AppState> {
               />
               <Button
                 action={() => {
+                  checkModelBeforeChange = !checkModelBeforeChange;
+                  refreshData(false);
+                }}
+                title={checkModelBeforeChange ? 
+                  "Suppress check-before-change" : 
+                  "Enable check-before-change"}
+                id={`btn-toggle-check`}
+                type="secondary"
+              />
+              <Button
+                action={() => {
                   const name = prompt('Force delete model name');
                   if (name === null) {
                     return;
@@ -1592,6 +1604,10 @@ export async function attemptRename(
     showAlert(message);
   }
   return message;
+}
+
+export function doCheckModelBeforeChange(){
+  return checkModelBeforeChange;
 }
 
 export default App;
