@@ -199,7 +199,7 @@ export const minimalModel: DbModelData = {
     },
     {
       NAME: roiEnd,
-      VALUE: '1 Jan 2020',
+      VALUE: '1 Jan 2023',
       HINT: roiEndHint,
       TYPE: viewType,
     },
