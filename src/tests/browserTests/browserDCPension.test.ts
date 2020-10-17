@@ -28,7 +28,8 @@ describe(testDataModelName, () => {
     return;
   }
   const driver = driverSimple;
-  it('runTest DC Pension inputs', async done => {
+
+  it('DC Pension problem inputs', async done => {
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -43,7 +44,6 @@ describe(testDataModelName, () => {
     });
 
     await clickButton(driver, 'btn-Assets');
-    await clickButton(driver, 'useDCPInputs');
 
     const pensionInputs = {
       name: 'dcpension',
@@ -62,12 +62,6 @@ describe(testDataModelName, () => {
       liability: 'Joe',
       transferName: 'Jack',
     };
-
-    await addDCPension(driver, {
-      ...pensionInputs,
-      name: 'dcp01',
-      message: 'added assets and transactions',
-    });
 
     await clickButton(driver, 'useDCPInputs');
     await addDCPension(driver, {
@@ -235,6 +229,51 @@ describe(testDataModelName, () => {
     }); // TODO : liability should match the income liability
 
     await cleanUpWork(driver, testDataModelName);
+    done();
+  });
+
+  it('DC Pension happy path', async done => {
+    await beforeAllWork(
+      driver,
+      testDataModelName,
+      `{"testName":"${TestModel02}"}`,
+    );
+
+    await clickButton(driver, 'btn-Incomes');
+
+    await addIncome(driver, {
+      ...incomeInputs,
+      message: `added new income ${incomeInputs.name}`, //name: 'javaJob1'
+    });
+
+    await clickButton(driver, 'btn-Assets');
+    await clickButton(driver, 'useDCPInputs');
+
+    const pensionInputs = {
+      name: 'dcpension',
+      value: '0',
+      category: 'pension',
+      startDate: '2021',
+      growth: '2.0',
+      growsWithCPI: 'N',
+      contributionsStopDate: '2025',
+      crystallizesDate: '2030',
+      pensionEndOrTransferDate: '2035',
+      contributionSSIncome: 'N',
+      incomeSource: 'javaJob1',
+      contributionAmountPensionIncome: '0.05',
+      employerContribution: '0.5',
+      liability: 'Joe',
+      transferName: 'Jack',
+    };
+
+    await addDCPension(driver, {
+      ...pensionInputs,
+      name: 'Aegon',
+      message: 'added assets and transactions',
+    });
+
+    //await cleanUpWork(driver, testDataModelName);
     done();
   });
 

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { simpleExampleData, pension1ExampleData } from './models/exampleModels';
+import { nationalSavings, simpleExampleData, definedBenefitsPension, definedContributionsPension } from './models/exampleModels';
 import { useAuth0 } from './contexts/auth0-context';
 import { makeChartData } from './models/charting';
 import { checkData, checkTransaction, checkTrigger } from './models/checks';
@@ -228,9 +228,17 @@ const exampleModels = [
     model: simpleExampleData,
   },
   {
-    name: 'Pension',
-    model: pension1ExampleData,
+    name: 'Defined Benefits Pension',
+    model: definedBenefitsPension,
   },
+  {
+    name: 'Defined Contributions Pension',
+    model: definedContributionsPension,
+  },
+  {
+    name: 'National Savings Income Bonds',
+    model: nationalSavings,
+  }
 ];
 
 let reactAppComponent: AppContent;
@@ -1110,7 +1118,12 @@ export class AppContent extends Component<AppProps, AppState> {
         newModel,
         false,
       );
-      return replacedOK;
+      if(replacedOK){
+        await toggle(overview);
+        return true;
+      } else {
+        return false;
+      }
     } else {
       return false; // didn't update name OK
     }

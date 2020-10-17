@@ -378,6 +378,7 @@ describe(testDataModelName, () => {
     await fillInputById(driver, 'createModel', ex1Name);
     await clickButton(driver, createButtonID);
     await consumeAlert(`will replace ${ex1Name}, you sure?`, false, driver);
+    await clickButton(driver, 'btn-Home');
 
     //await checkMessage(driver, 'wrong');
 
@@ -388,6 +389,7 @@ describe(testDataModelName, () => {
       false,
       driver,
     );
+    await clickButton(driver, 'btn-Home');
 
     await clickButton(driver, createButtonID);
     await consumeAlert(`will replace ${ex1Name}, you sure?`, true, driver);
@@ -396,6 +398,7 @@ describe(testDataModelName, () => {
       true,
       driver,
     );
+    await clickButton(driver, 'btn-Home');
 
     await clickButton(driver, 'btn-save-model');
 
@@ -405,18 +408,22 @@ describe(testDataModelName, () => {
     await fillInputById(driver, 'createModel', ex2Name);
     await clickButton(driver, createButtonID);
     await consumeAlert(`will replace ${ex2Name}, you sure?`, false, driver);
+    await clickButton(driver, 'btn-Home');
 
     await clickButton(driver, createButtonID);
     await consumeAlert(`will replace ${ex2Name}, you sure?`, true, driver);
+    await clickButton(driver, 'btn-Home');
 
     // try to create ex2Name but we're in ex2Name and
     // ex2Name is not saved
     await fillInputById(driver, 'createModel', ex2Name);
     await clickButton(driver, createButtonID);
     await consumeAlert(`will replace ${ex2Name}, you sure?`, false, driver);
+    await clickButton(driver, 'btn-Home');
 
     await clickButton(driver, createButtonID);
     await consumeAlert(`will replace ${ex2Name}, you sure?`, true, driver);
+    await clickButton(driver, 'btn-Home');
 
     // clear away any data
     await deleteIfExists(ex1Name, driver);
