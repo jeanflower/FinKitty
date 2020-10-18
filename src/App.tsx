@@ -87,7 +87,8 @@ import FinKittyCat from './views/cat.png';
 let modelName: string = exampleModelName;
 let userID = '';
 let isDirty = false; // does the model need saving?
-let checkModelBeforeChange = true;
+let checkModelBeforeChange = true; // stop people making good models bad
+let checkBeforeOverwritingExistingData = true; // stop people overwriting
 
 function App() {
   const {
@@ -1159,9 +1160,7 @@ export class AppContent extends Component<AppProps, AppState> {
               getModelNames={getModelNames}
             />
             <br></br>
-            <div className="ml-3">
-              Other actions:
-              <br />
+            <div className="btn-group ml-3" role="group">
               <Button
                 action={async () => {
                   this.deleteModel(modelName);
@@ -1170,6 +1169,12 @@ export class AppContent extends Component<AppProps, AppState> {
                 id={`btn-delete`}
                 type="secondary"
               />
+            </div>
+            <br></br>
+            <br></br>
+            <div className="ml-3">
+              Developer tools:
+              <br />
               <Button
                 action={async () => {
                   const response = checkModelData(
@@ -1246,7 +1251,20 @@ export class AppContent extends Component<AppProps, AppState> {
                     ? 'Suppress check-before-change'
                     : 'Enable check-before-change'
                 }
-                id={`btn-toggle-check`}
+                id={`btn-toggle-check-edited-model`}
+                type="secondary"
+              />
+              <Button
+                action={() => {
+                  checkBeforeOverwritingExistingData = !checkBeforeOverwritingExistingData;
+                  refreshData(false);
+                }}
+                title={
+                  checkBeforeOverwritingExistingData
+                    ? 'Suppress check-before-overwrite'
+                    : 'Enable check-before-overwrite'
+                }
+                id={`btn-toggle-check-overwrite`}
                 type="secondary"
               />
               <Button
@@ -1262,7 +1280,6 @@ export class AppContent extends Component<AppProps, AppState> {
                 type="secondary"
               />
             </div>
-            <br></br>
             <ReplaceWithJSONForm
               modelName={modelName}
               userID={userID}
@@ -1597,6 +1614,9 @@ export async function attemptRename(
 
 export function doCheckModelBeforeChange() {
   return checkModelBeforeChange;
+}
+export function doCheckBeforeOverwritingExistingData() {
+  return checkBeforeOverwritingExistingData;
 }
 
 export default App;

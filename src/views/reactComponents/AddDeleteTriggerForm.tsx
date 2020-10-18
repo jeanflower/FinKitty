@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { doCheckBeforeOverwritingExistingData } from '../../App';
 
 import { DbModelData, DbTrigger, FormProps } from '../../types/interfaces';
 import { log, printDebug, showObj, makeDateFromString } from '../../utils';
@@ -128,6 +129,23 @@ export class AddDeleteTriggerForm extends Component<
 
   private async add(e: any) {
     e.preventDefault();
+
+    if (this.state.NAME === '') {
+      this.props.showAlert(`Name should be not empty`);
+      return;
+    }
+
+    if (doCheckBeforeOverwritingExistingData()) {
+      const matchingItem = this.props.model.triggers.find(a => {
+        return a.NAME === this.state.NAME;
+      });
+      if (matchingItem !== undefined) {
+        this.props.showAlert(
+          `There's already a date called ${this.state.NAME}`,
+        );
+        return;
+      }
+    }
 
     // log('adding something ' + showObj(this));
     const trigger: DbTrigger = {

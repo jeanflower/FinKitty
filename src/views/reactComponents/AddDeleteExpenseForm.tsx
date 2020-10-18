@@ -22,6 +22,7 @@ import { DateSelectionRow } from './DateSelectionRow';
 import { Input } from './Input';
 import { isNumberString } from '../../models/checks';
 import { revalue, revalueExp } from '../../localization/stringConstants';
+import { doCheckBeforeOverwritingExistingData } from '../../App';
 
 interface EditExpenseFormState {
   NAME: string;
@@ -429,6 +430,23 @@ export class AddDeleteExpenseForm extends Component<
   }
   private async add(e: any): Promise<void> {
     e.preventDefault();
+
+    if (this.state.NAME === '') {
+      this.props.showAlert(`Name should be not empty`);
+      return;
+    }
+
+    if (doCheckBeforeOverwritingExistingData()) {
+      const matchingItem = this.props.model.expenses.find(a => {
+        return a.NAME === this.state.NAME;
+      });
+      if (matchingItem !== undefined) {
+        this.props.showAlert(
+          `There's already an expense called ${this.state.NAME}`,
+        );
+        return;
+      }
+    }
 
     const isNotANumber = !isNumberString(this.state.VALUE);
     if (isNotANumber) {

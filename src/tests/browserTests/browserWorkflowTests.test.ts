@@ -225,6 +225,7 @@ describe(testDataModelName, () => {
     await driver.get('about:blank');
     await driver.get(serverUri);
     await clickButton(driver, 'buttonTestLogin');
+    await clickButton(driver, 'btn-toggle-check-overwrite');
 
     await modelExists(ex1Name, false);
     await modelExists(ex2Name, true);
@@ -237,6 +238,7 @@ describe(testDataModelName, () => {
     await driver.get('about:blank');
     await driver.get(serverUri);
     await clickButton(driver, 'buttonTestLogin');
+    await clickButton(driver, 'btn-toggle-check-overwrite');
 
     await modelExists(ex1Name, false);
     await modelExists(ex2Name, true);

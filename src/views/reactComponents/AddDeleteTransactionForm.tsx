@@ -26,6 +26,7 @@ import {
   conditional,
   adjustableType,
 } from '../../localization/stringConstants';
+import { doCheckBeforeOverwritingExistingData } from '../../App';
 
 interface EditTransactionFormState {
   NAME: string;
@@ -411,6 +412,23 @@ export class AddDeleteTransactionForm extends Component<
   }
   private async add(e: any): Promise<void> {
     e.preventDefault();
+
+    if (this.state.NAME === '') {
+      this.props.showAlert(`Name should be not empty`);
+      return;
+    }
+
+    if (doCheckBeforeOverwritingExistingData()) {
+      const matchingItem = this.props.model.transactions.find(a => {
+        return a.NAME === this.state.NAME;
+      });
+      if (matchingItem !== undefined) {
+        this.props.showAlert(
+          `There's already a transaction called ${this.state.NAME}`,
+        );
+        return;
+      }
+    }
 
     let fromAbsolute = this.state.FROM_ABSOLUTE;
     let fromValue = this.state.FROM_VALUE;

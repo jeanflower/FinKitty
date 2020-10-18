@@ -26,6 +26,7 @@ import {
   conditional,
   CASH_ASSET_NAME,
 } from '../../localization/stringConstants';
+import { doCheckBeforeOverwritingExistingData } from '../../App';
 
 interface EditDebtFormState {
   NAME: string;
@@ -369,6 +370,24 @@ export class AddDeleteDebtForm extends Component<
     if (this.state.NAME === '') {
       this.props.showAlert(`Name should be not empty`);
       return;
+    }
+
+    if (doCheckBeforeOverwritingExistingData()) {
+      const matchingItem = this.props.model.assets.find(a => {
+        return a.NAME === this.state.NAME;
+      });
+      if (matchingItem !== undefined) {
+        if (matchingItem.IS_A_DEBT) {
+          this.props.showAlert(
+            `There's already a debt called ${this.state.NAME}`,
+          );
+        } else {
+          this.props.showAlert(
+            `There's already an asset called ${this.state.NAME}`,
+          );
+        }
+        return;
+      }
     }
 
     let isNotANumber = !isNumberString(this.state.VALUE);

@@ -54,7 +54,7 @@ describe(testDataModelName, () => {
     await addTransaction(driver, {
       ...transactionInputs,
       name: '',
-      message: `Transaction name needs some characters`,
+      message: `Name should be not empty`,
     });
 
     await clearTransactionFields(driver);

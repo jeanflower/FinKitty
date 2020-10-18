@@ -23,6 +23,7 @@ import {
   revalue,
   revalueSetting,
 } from '../../localization/stringConstants';
+import { doCheckBeforeOverwritingExistingData } from '../../App';
 
 interface EditSettingFormState {
   NAME: string;
@@ -303,6 +304,23 @@ export class AddDeleteSettingForm extends Component<
 
   private async add(e: any) {
     e.preventDefault();
+
+    if (this.state.NAME === '') {
+      this.props.showAlert(`Name should be not empty`);
+      return;
+    }
+
+    if (doCheckBeforeOverwritingExistingData()) {
+      const matchingItem = this.props.model.settings.find(a => {
+        return a.NAME === this.state.NAME;
+      });
+      if (matchingItem !== undefined) {
+        this.props.showAlert(
+          `There's already a setting called ${this.state.NAME}`,
+        );
+        return;
+      }
+    }
 
     // log('adding something ' + showObj(this));
     const setting: DbSetting = {

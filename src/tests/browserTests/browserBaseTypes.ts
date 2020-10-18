@@ -214,12 +214,11 @@ export async function beforeAllWork(
   await clickButton(driver, 'buttonTestLogin');
   await clickButton(driver, 'btn-Home');
 
-  await replaceWithTestModel(driver, testDataModelName, modelString);
+  // tests overwrite data using input forms
+  // even though we don't expect people to do this
+  await clickButton(driver, 'btn-toggle-check-overwrite');
 
-  const btnData = await driver.findElements(webdriver.By.id('buttonTestLogin'));
-  if (btnData[0] !== undefined) {
-    await btnData[0].click();
-  }
+  await replaceWithTestModel(driver, testDataModelName, modelString);
 
   await selectModel(driver, testDataModelName);
   if (allowExtraSleeps()) {

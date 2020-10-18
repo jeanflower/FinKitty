@@ -39,6 +39,7 @@ import {
   transferCrystallizedPension,
 } from '../../localization/stringConstants';
 import { incomeOptions } from './AddDeleteIncomeForm';
+import { doCheckBeforeOverwritingExistingData } from '../../App';
 
 interface EditAssetFormState {
   NAME: string;
@@ -729,6 +730,24 @@ export class AddDeleteAssetForm extends Component<
     if (this.state.NAME === '') {
       this.props.showAlert(`Name should be not empty`);
       return;
+    }
+
+    if (doCheckBeforeOverwritingExistingData()) {
+      const matchingItem = this.props.model.assets.find(a => {
+        return a.NAME === this.state.NAME;
+      });
+      if (matchingItem !== undefined) {
+        if (matchingItem.IS_A_DEBT) {
+          this.props.showAlert(
+            `There's already a debt called ${this.state.NAME}`,
+          );
+        } else {
+          this.props.showAlert(
+            `There's already an asset called ${this.state.NAME}`,
+          );
+        }
+        return;
+      }
     }
 
     const isNotValid = !isValidValue(this.state.VALUE, this.props.model);

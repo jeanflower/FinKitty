@@ -38,6 +38,7 @@ import {
   revalue,
   revalueInc,
 } from '../../localization/stringConstants';
+import { doCheckBeforeOverwritingExistingData } from '../../App';
 
 interface EditIncomeFormState {
   NAME: string;
@@ -774,6 +775,19 @@ DB_TRANSFERRED_STOP
       this.props.showAlert(`Income name should be non-empty`);
       return;
     }
+
+    if (doCheckBeforeOverwritingExistingData()) {
+      const matchingItem = this.props.model.incomes.find(a => {
+        return a.NAME === this.state.NAME;
+      });
+      if (matchingItem !== undefined) {
+        this.props.showAlert(
+          `There's already an income called ${this.state.NAME}`,
+        );
+        return;
+      }
+    }
+
     const isNotValid = !isValidValue(this.state.VALUE, this.props.model);
     if (isNotValid) {
       this.props.showAlert(

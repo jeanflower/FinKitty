@@ -15,7 +15,7 @@ import { printDebug } from '../../utils';
 // export const headless = true;
 export const quitAfterAll = true;
 export const headless = false;
-//  export const quitAfterAll = false;
+// export const quitAfterAll = false;
 
 export async function alertIsShowing(driver: any): Promise<boolean> {
   try {

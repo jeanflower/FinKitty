@@ -85,7 +85,7 @@ describe(testDataModelName, () => {
       driver,
       '', // no name
       '2021',
-      'Date name needs some characters',
+      'Name should be not empty',
     );
 
     await cleanUpWork(driver, testDataModelName);
@@ -317,7 +317,7 @@ describe(testDataModelName, () => {
     await addExpense(driver, {
       ...expenseInputs,
       name: '',
-      message: `Expense name needs some characters`,
+      message: `Name should be not empty`,
     });
 
     await clearExpenseFields(driver);
