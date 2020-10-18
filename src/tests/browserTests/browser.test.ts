@@ -38,7 +38,7 @@ import {
   quitAfterAll,
   transactionInputs,
 } from './ browsertestUtils';
-import { printDebug, log } from '../../utils';
+//import { printDebug, log } from '../../utils';
 
 const debug = false;
 const testDataModelName = 'BrowserTestSimple';
@@ -95,7 +95,7 @@ describe(testDataModelName, () => {
           foundChart = true;
           break;
         }
-        chartNumber = chartNumber + 1
+        chartNumber = chartNumber + 1;
       }
       expect(foundChart);
 
