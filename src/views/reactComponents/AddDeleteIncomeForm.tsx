@@ -215,122 +215,124 @@ export class AddDeleteIncomeForm extends Component<
   public render() {
     // log('rendering an AddDeleteIncomeForm');
     return (
-      <form className="container-fluid" onSubmit={this.add}>
-        <div className="row">
-          <div className="col">
-            <Input
-              title={
+      <>
+        <div className="btn-group ml-3" role="group">
+          <div className="row">
+            <div className="col">
+              <Button
+                action={this.setInputincome}
+                type={
+                  this.state.inputting === inputtingIncome
+                    ? 'primary'
+                    : 'secondary'
+                }
+                title={'Add new income mode'}
+                id="useIncomeInputs"
+              />
+            </div>{' '}
+            {/* end col */}
+            <div className="col">
+              <Button
+                action={this.setInputDBP}
+                type={
+                  this.state.inputting === inputtingPension
+                    ? 'primary'
+                    : 'secondary'
+                }
+                title={'Add pension mode'}
+                id="useDBPInputs"
+              />
+            </div>{' '}
+            {/* end col */}
+            <div className="col">
+              <Button
+                action={this.setInputRevalue}
+                type={
+                  this.state.inputting === inputtingRevalue
+                    ? 'primary'
+                    : 'secondary'
+                }
+                title={'Revalue income mode'}
+                id="useRevalueInputsIncome"
+              />
+            </div>{' '}
+            {/* end col */}
+          </div>
+          {/* end row */}
+        </div>
+        <form className="container-fluid" onSubmit={this.add}>
+          <div className="row">
+            <div className="col">
+              <Input
+                title={
+                  this.state.inputting === inputtingPension
+                    ? 'Pension name'
+                    : 'Income name'
+                }
+                type="text"
+                name="incomename"
+                value={this.state.NAME}
+                placeholder="Enter name"
+                onChange={this.handleNameChange}
+              />
+            </div>{' '}
+            {/* end col */}
+            <div className="col">
+              <Input
+                title={`${
+                  this.state.inputting === inputtingPension
+                    ? 'Pension'
+                    : this.state.inputting === inputtingIncome
+                    ? 'Income'
+                    : 'New income'
+                } value (amount before tax, per month)`}
+                type="text"
+                name="incomevalue"
+                value={this.state.VALUE}
+                placeholder="Enter value"
+                onChange={this.handleValueChange}
+              />
+            </div>{' '}
+            {/* end col */}
+          </div>
+          {/* end row */}
+          <div className="container-fluid">
+            {/* fills width */}
+            <DateSelectionRow
+              introLabel={`${
                 this.state.inputting === inputtingPension
-                  ? 'Pension name'
-                  : 'Income name'
-              }
-              type="text"
-              name="incomename"
-              value={this.state.NAME}
-              placeholder="Enter name"
-              onChange={this.handleNameChange}
-            />
-          </div>{' '}
-          {/* end col */}
-          <div className="col">
-            <Button
-              action={this.setInputincome}
-              type={
-                this.state.inputting === inputtingIncome
-                  ? 'primary'
-                  : 'secondary'
-              }
-              title={'Add new income mode'}
-              id="useIncomeInputs"
-            />
-          </div>{' '}
-          {/* end col */}
-          <div className="col">
-            <Button
-              action={this.setInputDBP}
-              type={
-                this.state.inputting === inputtingPension
-                  ? 'primary'
-                  : 'secondary'
-              }
-              title={'Add pension mode'}
-              id="useDBPInputs"
-            />
-          </div>{' '}
-          {/* end col */}
-          <div className="col">
-            <Button
-              action={this.setInputRevalue}
-              type={
-                this.state.inputting === inputtingRevalue
-                  ? 'primary'
-                  : 'secondary'
-              }
-              title={'Revalue income mode'}
-              id="useRevalueInputsIncome"
-            />
-          </div>{' '}
-          {/* end col */}
-        </div>{' '}
-        {/* end row */}
-        <div className="row">
-          <div className="col">
-            <Input
-              title={`${
-                this.state.inputting === inputtingPension
-                  ? 'Pension'
+                  ? "Date on which the pension's value is set"
                   : this.state.inputting === inputtingIncome
-                  ? 'Income'
-                  : 'New income'
-              } value (amount before tax, per month)`}
-              type="text"
-              name="incomevalue"
-              value={this.state.VALUE}
-              placeholder="Enter value"
-              onChange={this.handleValueChange}
+                  ? "Date on which the new income's value is set"
+                  : "Date on which the income's new value is set"
+              }`}
+              model={this.props.model}
+              showAlert={this.props.showAlert}
+              setDateFunction={this.setValueSet}
+              inputName="income valuation date"
+              inputValue={this.state.VALUE_SET}
+              onChangeHandler={this.handleValueSetChange}
+              triggers={this.props.model.triggers}
+              submitTriggerFunction={this.props.submitTriggerFunction}
             />
-          </div>{' '}
-          {/* end col */}
-        </div>
-        {/* end row */}
-        <div className="container-fluid">
-          {/* fills width */}
-          <DateSelectionRow
-            introLabel={`${
-              this.state.inputting === inputtingPension
-                ? "Date on which the pension's value is set"
-                : this.state.inputting === inputtingIncome
-                ? "Date on which the new income's value is set"
-                : "Date on which the income's new value is set"
-            }`}
-            model={this.props.model}
-            showAlert={this.props.showAlert}
-            setDateFunction={this.setValueSet}
-            inputName="income valuation date"
-            inputValue={this.state.VALUE_SET}
-            onChangeHandler={this.handleValueSetChange}
-            triggers={this.props.model.triggers}
-            submitTriggerFunction={this.props.submitTriggerFunction}
-          />
-        </div>
-        {this.inputsForGeneralIncome()}
-        {this.inputsForDefinedBenefitsPensionIncome()}
-        {this.growthsEtc()}
-        {this.revalueButton()}
-      </form>
+          </div>
+          {this.inputsForGeneralIncome()}
+          {this.inputsForDefinedBenefitsPensionIncome()}
+          {this.growthsEtc()}
+          {this.revalueButton()}
+        </form>
+      </>
     );
   }
   private growthsEtc(): React.ReactNode {
+    if (
+      this.state.inputting !== inputtingIncome &&
+      this.state.inputting !== inputtingPension
+    ) {
+      return;
+    }
     return (
-      <div
-        style={{
-          display:
-            this.state.inputting === inputtingIncome ||
-            this.state.inputting === inputtingPension
-              ? 'block'
-              : 'none',
-        }}
-      >
+      <>
         <div className="row">
           <div className="col">
             <Input
@@ -388,23 +390,20 @@ export class AddDeleteIncomeForm extends Component<
           }
           id="addIncome"
         />
-      </div>
+      </>
     );
   }
   private revalueButton(): React.ReactNode {
+    if (this.state.inputting !== inputtingRevalue) {
+      return;
+    }
     return (
-      <div
-        style={{
-          display: this.state.inputting === inputtingRevalue ? 'block' : 'none',
-        }}
-      >
-        <Button
-          action={this.revalue}
-          type={'primary'}
-          title={'Add income revaluation'}
-          id="revalueIncome"
-        />
-      </div>
+      <Button
+        action={this.revalue}
+        type={'primary'}
+        title={'Add income revaluation'}
+        id="revalueIncome"
+      />
     );
   }
   private inputsForGeneralIncome(): React.ReactNode {
@@ -768,6 +767,8 @@ DB_TRANSFERRED_STOP
 
   private async add(e: any): Promise<void> {
     e.preventDefault();
+
+    log(`in income form's add function`);
 
     if (this.state.NAME === '') {
       this.props.showAlert(`Income name should be non-empty`);

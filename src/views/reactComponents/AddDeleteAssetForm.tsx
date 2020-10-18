@@ -227,6 +227,17 @@ export class AddDeleteAssetForm extends Component<
         <div className="row">
           <div className="col">
             <Input
+              title={`${'Asset'} name`}
+              type="text"
+              name="assetname"
+              value={this.state.NAME}
+              placeholder="Enter name"
+              onChange={this.handleNameChange}
+            />
+          </div>
+          {/* end col */}
+          <div className="col">
+            <Input
               title={`Asset value`}
               type="text"
               name="assetvalue"
@@ -240,6 +251,19 @@ export class AddDeleteAssetForm extends Component<
     } else if (this.state.inputting === inputtingPension) {
       return (
         <div className="row">
+          <div className="col">
+            <Input
+              title={`${
+                this.state.inputting === inputtingPension ? 'Pension' : 'Asset'
+              } name`}
+              type="text"
+              name="assetname"
+              value={this.state.NAME}
+              placeholder="Enter name"
+              onChange={this.handleNameChange}
+            />
+          </div>
+          {/* end col */}
           <div className="col">
             <Input
               title={`${
@@ -268,6 +292,19 @@ export class AddDeleteAssetForm extends Component<
     } else {
       return (
         <div className="row">
+          <div className="col">
+            <Input
+              title={`${
+                this.state.inputting === inputtingPension ? 'Pension' : 'Asset'
+              } name`}
+              type="text"
+              name="assetname"
+              value={this.state.NAME}
+              placeholder="Enter name"
+              onChange={this.handleNameChange}
+            />
+          </div>
+          {/* end col */}
           <div className="col">
             <Input
               title={`${
@@ -470,88 +507,79 @@ export class AddDeleteAssetForm extends Component<
   public render() {
     // log('rendering an AddDeleteAssetForm');
     return (
-      <form className="container-fluid" onSubmit={this.add}>
-        <div className="row">
-          <div className="col">
-            <Input
-              title={`${
-                this.state.inputting === inputtingPension ? 'Pension' : 'Asset'
-              } name`}
-              type="text"
-              name="assetname"
-              value={this.state.NAME}
-              placeholder="Enter name"
-              onChange={this.handleNameChange}
-            />
+      <>
+        <div className="btn-group ml-3" role="group">
+          <div className="row">
+            <div className="col">
+              <Button
+                action={this.inputAsset}
+                type={
+                  this.state.inputting === inputtingAsset
+                    ? 'primary'
+                    : 'secondary'
+                }
+                title={'Add new asset mode'}
+                id="inputAsset"
+              />
+            </div>
+            {/* end col */}
+            <div className="col">
+              <Button
+                action={this.inputPension}
+                type={
+                  this.state.inputting === inputtingPension
+                    ? 'primary'
+                    : 'secondary'
+                }
+                title={'Add pension mode'}
+                id="useDCPInputs"
+              />
+            </div>
+            {/* end col */}
+            <div className="col">
+              <Button
+                action={this.inputRevalue}
+                type={
+                  this.state.inputting === inputtingRevalue
+                    ? 'primary'
+                    : 'secondary'
+                }
+                title={'Revalue asset mode'}
+                id="revalueAssetInputs"
+              />
+            </div>
+            {/* end col */}
           </div>
-          {/* end col */}
-          <div className="col">
-            <Button
-              action={this.inputAsset}
-              type={
-                this.state.inputting === inputtingAsset
-                  ? 'primary'
-                  : 'secondary'
-              }
-              title={'Add new asset mode'}
-              id="inputAsset"
-            />
-          </div>
-          {/* end col */}
-          <div className="col">
-            <Button
-              action={this.inputPension}
-              type={
-                this.state.inputting === inputtingPension
-                  ? 'primary'
-                  : 'secondary'
-              }
-              title={'Add pension mode'}
-              id="useDCPInputs"
-            />
-          </div>
-          {/* end col */}
-          <div className="col">
-            <Button
-              action={this.inputRevalue}
-              type={
+          {/* end row */}
+        </div>
+        <form className="container-fluid" onSubmit={this.add}>
+          {this.ValueQuantityAndCategory()}
+          <div className="container-fluid">
+            {/* fills width */}
+            <DateSelectionRow
+              introLabel={`Date on which the ${
                 this.state.inputting === inputtingRevalue
-                  ? 'primary'
-                  : 'secondary'
-              }
-              title={'Revalue asset mode'}
-              id="revalueAssetInputs"
+                  ? 'revaluation occurs'
+                  : this.state.inputting === inputtingPension
+                  ? 'pension asset begins'
+                  : 'asset starts'
+              }`}
+              model={this.props.model}
+              showAlert={this.props.showAlert}
+              setDateFunction={this.setStart}
+              inputName="start date"
+              inputValue={this.state.START}
+              onChangeHandler={this.handleStartChange}
+              triggers={this.props.model.triggers}
+              submitTriggerFunction={this.props.submitTriggerFunction}
             />
           </div>
-          {/* end col */}
-        </div>
-        {/* end row */}
-        {this.ValueQuantityAndCategory()}
-        <div className="container-fluid">
-          {/* fills width */}
-          <DateSelectionRow
-            introLabel={`Date on which the ${
-              this.state.inputting === inputtingRevalue
-                ? 'revaluation occurs'
-                : this.state.inputting === inputtingPension
-                ? 'pension asset begins'
-                : 'asset starts'
-            }`}
-            model={this.props.model}
-            showAlert={this.props.showAlert}
-            setDateFunction={this.setStart}
-            inputName="start date"
-            inputValue={this.state.START}
-            onChangeHandler={this.handleStartChange}
-            triggers={this.props.model.triggers}
-            submitTriggerFunction={this.props.submitTriggerFunction}
-          />
-        </div>
-        {this.growthAndInflation()}
-        {this.inputsForGeneralAsset()}
-        {this.inputsForDCP()}
-        {this.goButtons()}
-      </form>
+          {this.growthAndInflation()}
+          {this.inputsForGeneralAsset()}
+          {this.inputsForDCP()}
+          {this.goButtons()}
+        </form>
+      </>
     );
   }
 

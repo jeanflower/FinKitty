@@ -5,21 +5,22 @@ import FinKittyCat from './cat.png';
 import { Navbar } from 'react-bootstrap';
 
 export function loginPage(loginWithRedirect: any, loginForTesting: any) {
-  return (<>
-    <Navbar expand="lg" bg="light" sticky="top">
-    <Navbar.Brand href="#home" id="finkitty-brand">
-      <div className="page-header">
-        <div className="col">
-            <div className="row">
-              <h3>{`FinKitty`}</h3>
-            </div>
-            <div className="row">
-              <img src={FinKittyCat} alt="FinKitty cat" width={70}></img>
+  return (
+    <>
+      <Navbar expand="lg" bg="light" sticky="top">
+        <Navbar.Brand href="#home" id="finkitty-brand">
+          <div className="page-header">
+            <div className="col">
+              <div className="row">
+                <h3>{`FinKitty`}</h3>
+              </div>
+              <div className="row">
+                <img src={FinKittyCat} alt="FinKitty cat" width={70}></img>
+              </div>
             </div>
           </div>
-      </div>
-      </Navbar.Brand>
-      <h3>An app for financial kitty forecasting</h3>
+        </Navbar.Brand>
+        <h3>An app for financial kitty forecasting</h3>
       </Navbar>
 
       <div className="row">

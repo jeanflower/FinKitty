@@ -225,79 +225,83 @@ export class AddDeleteExpenseForm extends Component<
   public render() {
     // log('rendering an AddDeleteExpenseForm');
     return (
-      <form className="container-fluid" onSubmit={this.add}>
-        <div className="row">
-          <div className="col">
-            <Input
-              title="Expense name"
-              type="text"
-              name="expensename"
-              value={this.state.NAME}
-              placeholder="Enter name"
-              onChange={this.handleNameChange}
-            />
+      <>
+        <div className="btn-group ml-3" role="group">
+          <div className="row">
+            <div className="col">
+              <Button
+                action={this.setInputExpense}
+                type={
+                  this.state.inputting === inputtingExpense
+                    ? 'primary'
+                    : 'secondary'
+                }
+                title={'Add new expense mode'}
+                id="useExpenseInputs"
+              />
+            </div>{' '}
+            {/* end col */}
+            <div className="col">
+              <Button
+                action={this.setInputRevalue}
+                type={
+                  this.state.inputting === inputtingRevalue
+                    ? 'primary'
+                    : 'secondary'
+                }
+                title={'Revalue expense mode'}
+                id="useRevalueInputsExpense"
+              />
+            </div>{' '}
+            {/* end col */}
           </div>
-          {/* end col */}
-          <div className="col">
-            <Button
-              action={this.setInputExpense}
-              type={
-                this.state.inputting === inputtingExpense
-                  ? 'primary'
-                  : 'secondary'
-              }
-              title={'Add new expense mode'}
-              id="useExpenseInputs"
-            />
-          </div>{' '}
-          {/* end col */}
-          <div className="col">
-            <Button
-              action={this.setInputRevalue}
-              type={
-                this.state.inputting === inputtingRevalue
-                  ? 'primary'
-                  : 'secondary'
-              }
-              title={'Revalue expense mode'}
-              id="useRevalueInputsExpense"
-            />
-          </div>{' '}
-          {/* end col */}
+          {/* end row */}
         </div>
-        {/* end row */}
-        <div className="row">
-          <div className="col">
-            <Input
-              title="Expense value"
-              type="text"
-              name="expensevalue"
-              value={this.state.VALUE}
-              placeholder="Enter value"
-              onChange={this.handleValueChange}
+        <form className="container-fluid" onSubmit={this.add}>
+          <div className="row">
+            <div className="col">
+              <Input
+                title="Expense name"
+                type="text"
+                name="expensename"
+                value={this.state.NAME}
+                placeholder="Enter name"
+                onChange={this.handleNameChange}
+              />
+            </div>
+            {/* end col */}
+            <div className="col">
+              <Input
+                title="Expense value"
+                type="text"
+                name="expensevalue"
+                value={this.state.VALUE}
+                placeholder="Enter value"
+                onChange={this.handleValueChange}
+              />
+            </div>{' '}
+            {/* end col */}
+          </div>
+          {/* end row */}
+          <div className="container-fluid">
+            {/* fills width */}
+            <DateSelectionRow
+              introLabel="Date on which the expense value is set"
+              model={this.props.model}
+              showAlert={this.props.showAlert}
+              setDateFunction={this.setValueSet}
+              inputName="expense valuation date"
+              inputValue={this.state.VALUE_SET}
+              onChangeHandler={this.handleValueSetChange}
+              triggers={this.props.model.triggers}
+              submitTriggerFunction={this.props.submitTriggerFunction}
             />
-          </div>{' '}
-          {/* end col */}
-        </div>
-        {/* end row */}
-        <div className="container-fluid">
-          {/* fills width */}
-          <DateSelectionRow
-            introLabel="Date on which the expense value is set"
-            model={this.props.model}
-            showAlert={this.props.showAlert}
-            setDateFunction={this.setValueSet}
-            inputName="expense valuation date"
-            inputValue={this.state.VALUE_SET}
-            onChangeHandler={this.handleValueSetChange}
-            triggers={this.props.model.triggers}
-            submitTriggerFunction={this.props.submitTriggerFunction}
-          />
-          {this.twoExtraDates()}
-        </div>
-        {this.newExpenseForm()}
-        {this.goButton()}
-      </form>
+            {this.twoExtraDates()}
+          </div>
+          {this.newExpenseForm()}
+          {this.goButton()}
+        </form>
+      </>
     );
   }
 

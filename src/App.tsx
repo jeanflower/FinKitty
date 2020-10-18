@@ -79,7 +79,7 @@ import SimpleFormatter from './views/reactComponents/NameFormatter';
 import { AddDeleteSettingForm } from './views/reactComponents/AddDeleteSettingForm';
 import { ReplaceWithJSONForm } from './views/reactComponents/ReplaceWithJSONForm';
 import { CreateModelForm } from './views/reactComponents/NewModelForm';
-import { Form, Nav, Navbar } from 'react-bootstrap';
+import { Nav, Navbar } from 'react-bootstrap';
 import FinKittyCat from './views/cat.png';
 
 // import './bootstrap.css'
@@ -849,34 +849,20 @@ export class AppContent extends Component<AppProps, AppState> {
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="mr-auto">
-            <Form
-              inline
-              onSubmit={(e: any) => {
-                e.preventDefault();
-                return false;
-              }}
-            >
-              {
-                <div className="col">
-                  <div className="row">{this.statusButtonList()}</div>
-                  <div className="row">{this.viewButtonList()}</div>
-                </div>
-              }
-            </Form>
+            <div className="col">
+              <div className="row">{this.statusButtonList()}</div>
+              <div className="row">{this.viewButtonList()}</div>
+            </div>
           </Nav>
           <Nav>
-            <Form
-              inline
-              onSubmit={(e: any) => {
-                e.preventDefault();
-                return false;
-              }}
-            >
-              <div className="col">
-                <div className="row">{this.rhsTopButtonList()}</div>
-                <div className="row">{this.rhsBottomButtonList()}</div>
+            <div className="col">
+              <div className="d-flex flex-row-reverse">
+                {this.rhsTopButtonList()}
               </div>
-            </Form>
+              <div className="d-flex flex-row-reverse">
+                {this.rhsBottomButtonList()}
+              </div>
+            </div>
           </Nav>
         </Navbar.Collapse>
       </Navbar>
@@ -1008,17 +994,11 @@ export class AppContent extends Component<AppProps, AppState> {
       />
     ));
     return (
-      <form
-        className="container-fluid"
-        onSubmit={(e: any) => {
-          e.preventDefault();
-          return false;
-        }}
-      >
+      <div className="ml-3">
         Select an existing model:
         <br />
         {buttons}
-      </form>
+      </div>
     );
   }
 
@@ -1140,13 +1120,7 @@ export class AppContent extends Component<AppProps, AppState> {
       <div style={{ display: getDisplay(homeView) ? 'block' : 'none' }}>
         <div className="row">
           <div className="col-sm mb-4">
-            <form
-              className="container-fluid"
-              onSubmit={(e: any) => {
-                e.preventDefault();
-                return false;
-              }}
-            >
+            <div className="ml-3">
               <Button
                 id="startNewModel"
                 action={async () => {
@@ -1161,7 +1135,7 @@ export class AppContent extends Component<AppProps, AppState> {
                 title="Create a new model"
                 type="secondary"
               />
-            </form>
+            </div>
             <br />
             {this.modelListForSelect(this.state.modelNamesData)}
             <br />
@@ -1184,13 +1158,7 @@ export class AppContent extends Component<AppProps, AppState> {
               getModelNames={getModelNames}
             />
             <br></br>
-            <form
-              className="container-fluid"
-              onSubmit={(e: any) => {
-                e.preventDefault();
-                return false;
-              }}
-            >
+            <div className="ml-3">
               Other actions:
               <br />
               <Button
@@ -1292,7 +1260,7 @@ export class AppContent extends Component<AppProps, AppState> {
                 id={`btn-force-delete`}
                 type="secondary"
               />
-            </form>
+            </div>
             <br></br>
             <ReplaceWithJSONForm
               modelName={modelName}

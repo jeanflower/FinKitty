@@ -101,7 +101,10 @@ export function incomesDiv(
       )}
 
       <div className="addNewIncome">
-        <h4> Add an income or pension </h4>
+        <h4>
+          {' '}
+          Add an income, a defined-benefits pension, or revalue an income
+        </h4>
         <AddDeleteIncomeForm
           checkIncomeFunction={checkIncome}
           checkTransactionFunction={checkTransaction}

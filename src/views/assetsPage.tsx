@@ -84,7 +84,10 @@ export function assetsDiv(
       {assetsDivWithHeadings(model, showAlert)}
 
       <div className="addNewAsset">
-        <h4> Add an asset or pension </h4>
+        <h4>
+          {' '}
+          Add an asset, a defined-contributions pension, or revalue an asset{' '}
+        </h4>
         <AddDeleteAssetForm
           checkAssetFunction={checkAsset}
           submitAssetFunction={submitAsset}

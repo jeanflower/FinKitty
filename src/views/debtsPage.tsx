@@ -83,7 +83,7 @@ export function debtsDiv(
       {debtsDivWithHeadings(model, showAlert)}
 
       <div className="addNewDebt">
-        <h4> Add a debt </h4>
+        <h4>Add a debt</h4>
         <AddDeleteDebtForm
           checkAssetFunction={checkAsset}
           submitAssetFunction={submitAsset}

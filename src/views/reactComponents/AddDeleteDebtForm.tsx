@@ -101,6 +101,17 @@ export class AddDeleteDebtForm extends Component<
         <div className="row">
           <div className="col">
             <Input
+              title={'Debt name'}
+              type="text"
+              name="debtname"
+              value={this.state.NAME}
+              placeholder="Enter name"
+              onChange={this.handleNameChange}
+            />
+          </div>
+          {/* end col */}
+          <div className="col">
+            <Input
               title={`Debt value`}
               type="text"
               name="debtvalue"
@@ -114,6 +125,17 @@ export class AddDeleteDebtForm extends Component<
     } else {
       return (
         <div className="row">
+          <div className="col">
+            <Input
+              title={'Debt name'}
+              type="text"
+              name="debtname"
+              value={this.state.NAME}
+              placeholder="Enter name"
+              onChange={this.handleNameChange}
+            />
+          </div>
+          {/* end col */}
           <div className="col">
             <Input
               title={`Debt value`}
@@ -259,19 +281,8 @@ export class AddDeleteDebtForm extends Component<
   public render() {
     // log('rendering an AddDeleteDebtForm');
     return (
-      <form className="container-fluid" onSubmit={this.add}>
-        <div className="row">
-          <div className="col">
-            <Input
-              title={'Debt name'}
-              type="text"
-              name="debtname"
-              value={this.state.NAME}
-              placeholder="Enter name"
-              onChange={this.handleNameChange}
-            />
-          </div>
-          {/* end col */}
+      <>
+        <div className="btn-group" role="group">
           <div className="col">
             <Button
               action={this.inputDebt}
@@ -297,29 +308,30 @@ export class AddDeleteDebtForm extends Component<
           </div>
           {/* end col */}
         </div>
-        {/* end row */}
-        {this.ValueAndCategory()}
-        <div className="container-fluid">
-          {/* fills width */}
-          <DateSelectionRow
-            introLabel={`Date on which the ${
-              this.state.inputting === inputtingRevalue
-                ? 'revaluation occurs'
-                : 'debt starts'
-            }`}
-            model={this.props.model}
-            showAlert={this.props.showAlert}
-            setDateFunction={this.setStart}
-            inputName="start date"
-            inputValue={this.state.START}
-            onChangeHandler={this.handleStartChange}
-            triggers={this.props.model.triggers}
-            submitTriggerFunction={this.props.submitTriggerFunction}
-          />
-        </div>
-        {this.growthAndInflation()}
-        {this.goButtons()}
-      </form>
+        <form className="container-fluid" onSubmit={this.add}>
+          {this.ValueAndCategory()}
+          <div className="container-fluid">
+            {/* fills width */}
+            <DateSelectionRow
+              introLabel={`Date on which the ${
+                this.state.inputting === inputtingRevalue
+                  ? 'revaluation occurs'
+                  : 'debt starts'
+              }`}
+              model={this.props.model}
+              showAlert={this.props.showAlert}
+              setDateFunction={this.setStart}
+              inputName="start date"
+              inputValue={this.state.START}
+              onChangeHandler={this.handleStartChange}
+              triggers={this.props.model.triggers}
+              submitTriggerFunction={this.props.submitTriggerFunction}
+            />
+          </div>
+          {this.growthAndInflation()}
+          {this.goButtons()}
+        </form>
+      </>
     );
   }
 
@@ -353,6 +365,11 @@ export class AddDeleteDebtForm extends Component<
 
   private async add(e: any) {
     e.preventDefault();
+
+    if (this.state.NAME === '') {
+      this.props.showAlert(`Name should be not empty`);
+      return;
+    }
 
     let isNotANumber = !isNumberString(this.state.VALUE);
     if (isNotANumber) {
