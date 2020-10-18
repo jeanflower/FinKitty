@@ -1545,13 +1545,13 @@ export class AppContent extends Component<AppProps, AppState> {
     if (messageText === '') {
       messageText = `${modelName}`;
       result.push(
-        <h4 className="text" id="pageTitle">
+        <h4 className="text" id="pageTitle" key="pageTitle">
           {messageText}
         </h4>,
       );
     } else {
       result.push(
-        <h4 className="text-warning" id="pageTitle">
+        <h4 className="text-warning" id="pageTitle" key="pageTitle">
           {messageText}
         </h4>,
       );
