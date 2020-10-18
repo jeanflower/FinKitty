@@ -51,15 +51,6 @@ function chartsForOverview(
   getEndDate: () => string,
   updateEndDate: (newDate: string) => Promise<void>,
 ) {
-  if (
-    incomesChartData.length === 0 &&
-    assetChartData.length === 0 &&
-    expensesChartData.length === 0 &&
-    taxChartData.length === 0 &&
-    debtChartData.length === 0
-  ) {
-    return;
-  }
   return (
     <div className="scrollClass">
       <div className="row">
@@ -157,27 +148,37 @@ export function overviewDiv(
   updateEndDate: (newDate: string) => Promise<void>,
 ) {
   // log(`called overviewDiv with a model with ${model.assets.length} assets`);
+  const chartDataExists =
+    incomesChartData.length !== 0 ||
+    assetChartData.length !== 0 ||
+    expensesChartData.length !== 0 ||
+    taxChartData.length !== 0 ||
+    debtChartData.length !== 0;
+
   const doDisplay = getDisplay(overview);
+  if (!doDisplay) {
+    return;
+  }
   return (
-    <div
-      style={{
-        display: doDisplay ? 'block' : 'none',
-      }}
-    >
-      {chartsForOverview(
-        model,
-        showAlert,
-        assetChartData,
-        debtChartData,
-        expensesChartData,
-        incomesChartData,
-        taxChartData,
-        getStartDate,
-        updateStartDate,
-        getEndDate,
-        updateEndDate,
+    <>
+      {chartDataExists ? (
+        chartsForOverview(
+          model,
+          showAlert,
+          assetChartData,
+          debtChartData,
+          expensesChartData,
+          incomesChartData,
+          taxChartData,
+          getStartDate,
+          updateStartDate,
+          getEndDate,
+          updateEndDate,
+        )
+      ) : (
+        <></>
       )}
-      <div className="scrollClass resizeClass">
+      <div className={chartDataExists ? 'scrollClass resizeClass' : ''}>
         <br />
         {triggersTableDivWithHeading(model, showAlert)}
         {incomesTableDivWithHeading(model, showAlert)}
@@ -197,9 +198,8 @@ export function overviewDiv(
         {assetsDivWithHeadings(model, showAlert)}
         {debtsDivWithHeadings(model, showAlert)}
         {transactionsOverviewDiv(model, showAlert)}
-        <h2>Settings:</h2>
         {settingsTableDiv(model, showAlert)}
       </div>
-    </div>
+    </>
   );
 }

@@ -1128,9 +1128,10 @@ export class AppContent extends Component<AppProps, AppState> {
                   if (!newNameFromUser.gotNameOK) {
                     return;
                   }
-                  await updateModelName(newNameFromUser.newName);
-                  // log(`created new model`);
-                  // toggle(triggersView);
+                  if (await updateModelName(newNameFromUser.newName)) {
+                    // log(`created new model`);
+                    toggle(overview);
+                  }
                 }}
                 title="Create a new model"
                 type="secondary"

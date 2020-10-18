@@ -1193,7 +1193,7 @@ export function triggersTableDivWithHeading(
   }
   return (
     <>
-      <h2>Important dates:</h2>
+      <h4>Important dates</h4>
       {triggersTableDiv(model, trigData, showAlert)}
     </>
   );

@@ -38,6 +38,7 @@ import {
   quitAfterAll,
   transactionInputs,
 } from './ browsertestUtils';
+import { printDebug, log } from '../../utils';
 
 const debug = false;
 const testDataModelName = 'BrowserTestSimple';
@@ -83,17 +84,18 @@ describe(testDataModelName, () => {
       await clickButton(driver, 'btn-Incomes');
 
       let foundChart = false;
-      const chartNumber = 0;
+      let chartNumber = 0;
       while (chartNumber < 15) {
         const chartID = `canvasjs-react-chart-container-${chartNumber}`; // nth chart drawn?
         // log(`check for chart ${chartID}`);
         const elts: WebElement[] = await driver.findElements({ id: chartID });
         if (elts.length === 1) {
-          //log(`found chart ${chartNumber}`);
+          // log(`found chart ${chartNumber}`);
           expect(elts[0] !== undefined).toBe(true);
           foundChart = true;
           break;
         }
+        chartNumber = chartNumber + 1
       }
       expect(foundChart);
 
