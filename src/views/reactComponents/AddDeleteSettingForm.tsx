@@ -85,6 +85,17 @@ export class AddDeleteSettingForm extends Component<
         <div className="row">
           <div className="col">
             <Input
+              title={'Setting name'}
+              type="text"
+              name="settingname"
+              value={this.state.NAME}
+              placeholder="Enter name"
+              onChange={this.handleNameChange}
+            />
+          </div>
+          {/* end col */}
+          <div className="col">
+            <Input
               title={`Setting value`}
               type="text"
               name="settingvalue"
@@ -98,6 +109,17 @@ export class AddDeleteSettingForm extends Component<
     } else {
       return (
         <div className="row">
+          <div className="col">
+            <Input
+              title={'Setting name'}
+              type="text"
+              name="settingname"
+              value={this.state.NAME}
+              placeholder="Enter name"
+              onChange={this.handleNameChange}
+            />
+          </div>
+          {/* end col */}
           <div className="col">
             <Input
               title={`Setting value`}
@@ -222,52 +244,44 @@ export class AddDeleteSettingForm extends Component<
   public render() {
     // log('rendering an AddDeleteSettingForm');
     return (
-      <form className="container-fluid" onSubmit={this.add}>
-        <div className="row">
-          <div className="col">
-            <Input
-              title={'Setting name'}
-              type="text"
-              name="settingname"
-              value={this.state.NAME}
-              placeholder="Enter name"
-              onChange={this.handleNameChange}
-            />
+      <>
+        <div className="btn-group ml-3" role="group">
+          <div className="row">
+            <div className="col">
+              <Button
+                action={this.inputSetting}
+                type={
+                  this.state.inputting === inputtingSetting
+                    ? 'primary'
+                    : 'secondary'
+                }
+                title={'Add new setting mode'}
+                id="inputSetting"
+              />
+            </div>
+            {/* end col */}
+            <div className="col">
+              <Button
+                action={this.inputRevalue}
+                type={
+                  this.state.inputting === inputtingRevalue
+                    ? 'primary'
+                    : 'secondary'
+                }
+                title={'Revalue setting mode'}
+                id="revalueSettingInputs"
+              />
+            </div>
+            {/* end col */}
           </div>
-          {/* end col */}
-          <div className="col">
-            <Button
-              action={this.inputSetting}
-              type={
-                this.state.inputting === inputtingSetting
-                  ? 'primary'
-                  : 'secondary'
-              }
-              title={'Add new setting mode'}
-              id="inputSetting"
-            />
-          </div>
-          {/* end col */}
-          <div className="col">
-            <Button
-              action={this.inputRevalue}
-              type={
-                this.state.inputting === inputtingRevalue
-                  ? 'primary'
-                  : 'secondary'
-              }
-              title={'Revalue setting mode'}
-              id="revalueSettingInputs"
-            />
-          </div>
-          {/* end col */}
         </div>
-        {/* end row */}
-        {this.ValueAndCategory()}
-        {this.startDate()}
+        <form className="container-fluid" onSubmit={this.add}>
+          {this.ValueAndCategory()}
+          {this.startDate()}
 
-        {this.goButtons()}
-      </form>
+          {this.goButtons()}
+        </form>
+      </>
     );
   }
 
