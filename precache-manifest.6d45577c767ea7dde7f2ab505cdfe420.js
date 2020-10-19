@@ -1,23 +1,23 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "71f1ed6f88525af3c0f246b05a3a6c65",
+    "revision": "7a5dbaedbf4b4f99fa75011b88cefb1d",
     "url": "/FinKitty/index.html"
   },
   {
-    "revision": "621929fc2d0007fe159f",
-    "url": "/FinKitty/static/css/main.a579c9c4.chunk.css"
+    "revision": "6c1757101d7de70f2796",
+    "url": "/FinKitty/static/css/main.193e7cc0.chunk.css"
   },
   {
-    "revision": "20ad554bf09e44f873f2",
-    "url": "/FinKitty/static/js/2.3997b3df.chunk.js"
+    "revision": "a8bb9f0263f2241e9c27",
+    "url": "/FinKitty/static/js/2.8043c9cc.chunk.js"
   },
   {
     "revision": "c4a0df58dfd812011cac0d8ae315f4cf",
-    "url": "/FinKitty/static/js/2.3997b3df.chunk.js.LICENSE.txt"
+    "url": "/FinKitty/static/js/2.8043c9cc.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "621929fc2d0007fe159f",
-    "url": "/FinKitty/static/js/main.6e0b6199.chunk.js"
+    "revision": "6c1757101d7de70f2796",
+    "url": "/FinKitty/static/js/main.ef8db1a3.chunk.js"
   },
   {
     "revision": "7a204f93e420e76c2fe0",
