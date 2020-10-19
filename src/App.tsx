@@ -43,7 +43,7 @@ import {
   revertToUndoModel,
   applyRedoToModel,
 } from './utils';
-import { loginPage } from './views/loginPage';
+import { loginPage, navbarContent } from './views/loginPage';
 import { screenshotsDiv } from './views/screenshotsPage';
 import {
   settingsTableDiv,
@@ -835,19 +835,8 @@ export class AppContent extends Component<AppProps, AppState> {
   }
 
   private navbarDiv() {
-    return (
-      <Navbar expand="lg" bg="light" sticky="top">
-        <Navbar.Brand href="#home" id="finkitty-brand">
-          <div className="col">
-            <div className="row">
-              <h3>{`FinKitty`}</h3>
-            </div>
-            <div className="row">
-              <img src={FinKittyCat} alt="FinKitty cat" width={70}></img>
-            </div>
-          </div>
-        </Navbar.Brand>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+    return navbarContent(()=>{
+        return (<><Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="mr-auto">
             <div className="col">
@@ -865,9 +854,8 @@ export class AppContent extends Component<AppProps, AppState> {
               </div>
             </div>
           </Nav>
-        </Navbar.Collapse>
-      </Navbar>
-    );
+        </Navbar.Collapse></>);
+      });
   }
 
   public render() {
