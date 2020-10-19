@@ -13,7 +13,12 @@ code {
 }
 
 .scrollClass {
-  height:50vh;
+  height:auto;
   overflow-y: scroll;
   resize: both;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
 }
