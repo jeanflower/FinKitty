@@ -835,43 +835,47 @@ export class AppContent extends Component<AppProps, AppState> {
   }
 
   private navbarDiv() {
-    return navbarContent(()=>{
-        return (<><Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="mr-auto">
-            <Form
-              inline
-              onSubmit={(e: any) => {
-                e.preventDefault();
-                return false;
-              }}
-            >
-            <div className="col">
-              <div className="row">{this.statusButtonList()}</div>
-              <div className="row">{this.viewButtonList()}</div>
-            </div>
-            </Form>
-          </Nav>
-          <Nav>
-            <Form
-              inline
-              onSubmit={(e: any) => {
-                e.preventDefault();
-                return false;
-              }}
-            >
-            <div className="col">
-              <div className="d-flex flex-row-reverse">
-                {this.rhsTopButtonList()}
-              </div>
-              <div className="d-flex flex-row-reverse">
-                {this.rhsBottomButtonList()}
-              </div>
-            </div>
-            </Form>
-          </Nav>
-        </Navbar.Collapse></>);
-      });
+    return navbarContent(() => {
+      return (
+        <>
+          <Navbar.Toggle aria-controls="basic-navbar-nav" />
+          <Navbar.Collapse id="basic-navbar-nav">
+            <Nav className="mr-auto">
+              <Form
+                inline
+                onSubmit={(e: any) => {
+                  e.preventDefault();
+                  return false;
+                }}
+              >
+                <div className="col">
+                  <div className="row">{this.statusButtonList()}</div>
+                  <div className="row">{this.viewButtonList()}</div>
+                </div>
+              </Form>
+            </Nav>
+            <Nav>
+              <Form
+                inline
+                onSubmit={(e: any) => {
+                  e.preventDefault();
+                  return false;
+                }}
+              >
+                <div className="col">
+                  <div className="d-flex flex-row-reverse">
+                    {this.rhsTopButtonList()}
+                  </div>
+                  <div className="d-flex flex-row-reverse">
+                    {this.rhsBottomButtonList()}
+                  </div>
+                </div>
+              </Form>
+            </Nav>
+          </Navbar.Collapse>
+        </>
+      );
+    });
   }
 
   public render() {

@@ -4,33 +4,36 @@ import { screenshotsDiv } from './screenshotsPage';
 import FinKittyCat from './cat.png';
 import { Navbar } from 'react-bootstrap';
 
-export function navbarContent(
-  rhContent:()=>any,
-) {
+export function navbarContent(rhContent: () => any) {
   return (
-  <Navbar expand="lg" bg="light" sticky="top">
-    <Navbar.Brand href="#home" id="finkitty-brand">
-      <div className="page-header">
-        <div className="col">
-          <div className="row">
-            <h3>{`FinKitty`}</h3>
-          </div>
-          <div className="row">
-            <img src={FinKittyCat} alt="FinKitty cat" width={70} height={"auto"}></img>
+    <Navbar expand="lg" bg="light" sticky="top">
+      <Navbar.Brand href="#home" id="finkitty-brand">
+        <div className="page-header">
+          <div className="col">
+            <div className="row">
+              <h3>{`FinKitty`}</h3>
+            </div>
+            <div className="row">
+              <img
+                src={FinKittyCat}
+                alt="FinKitty cat"
+                width={70}
+                height={'auto'}
+              ></img>
+            </div>
           </div>
         </div>
-      </div>
-    </Navbar.Brand>
-    {rhContent()}
-  </Navbar>);
+      </Navbar.Brand>
+      {rhContent()}
+    </Navbar>
+  );
 }
-
 
 export function loginPage(loginWithRedirect: any, loginForTesting: any) {
   return (
-      <>
-      {navbarContent(()=>{
-        return (<h3>An app for financial kitty forecasting</h3>);
+    <>
+      {navbarContent(() => {
+        return <h3>An app for financial kitty forecasting</h3>;
       })}
       <div className="row">
         <div className="col-sm mb-4">
