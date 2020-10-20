@@ -79,7 +79,7 @@ import SimpleFormatter from './views/reactComponents/NameFormatter';
 import { AddDeleteSettingForm } from './views/reactComponents/AddDeleteSettingForm';
 import { ReplaceWithJSONForm } from './views/reactComponents/ReplaceWithJSONForm';
 import { CreateModelForm } from './views/reactComponents/NewModelForm';
-import { Nav, Navbar } from 'react-bootstrap';
+import { Form, Nav, Navbar } from 'react-bootstrap';
 import FinKittyCat from './views/cat.png';
 
 // import './bootstrap.css'
@@ -839,12 +839,27 @@ export class AppContent extends Component<AppProps, AppState> {
         return (<><Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="mr-auto">
+            <Form
+              inline
+              onSubmit={(e: any) => {
+                e.preventDefault();
+                return false;
+              }}
+            >
             <div className="col">
               <div className="row">{this.statusButtonList()}</div>
               <div className="row">{this.viewButtonList()}</div>
             </div>
+            </Form>
           </Nav>
           <Nav>
+            <Form
+              inline
+              onSubmit={(e: any) => {
+                e.preventDefault();
+                return false;
+              }}
+            >
             <div className="col">
               <div className="d-flex flex-row-reverse">
                 {this.rhsTopButtonList()}
@@ -853,6 +868,7 @@ export class AppContent extends Component<AppProps, AppState> {
                 {this.rhsBottomButtonList()}
               </div>
             </div>
+            </Form>
           </Nav>
         </Navbar.Collapse></>);
       });
