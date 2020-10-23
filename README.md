@@ -84,6 +84,9 @@ https://jeanflower.github.io/FinKitty/
 Setup was based on the guide here
 https://reactgo.com/deploy-react-app-github-pages/
 
+Or, trying Heroku from here
+https://blog.heroku.com/deploying-react-with-zero-configuration
+
 ### `npm run build`
 Builds the app for production to the `build` folder.<br>
 It correctly bundles React in production mode and optimizes the build for the best performance.
