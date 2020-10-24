@@ -252,9 +252,17 @@ export function checkAsset(a: DbAsset, model: DbModelData): string {
     }
   }
 
-  if (!isNumberString(a.PURCHASE_PRICE)) {
-    return `Asset purchase price '${a.PURCHASE_PRICE}'
-      is not a number`;
+  const isANumber = isNumberString(a.PURCHASE_PRICE);
+  if (!isANumber) {
+    const setting = getSettings(
+      model.settings,
+      a.PURCHASE_PRICE,
+      '',
+      false, // allow for it not being there
+    );
+    if (setting === '') {
+      return `Purchase price '${a.PURCHASE_PRICE}' should be a numerical or setting value`;
+    }
   }
 
   const d = checkTriggerDate(a.START, model.triggers);

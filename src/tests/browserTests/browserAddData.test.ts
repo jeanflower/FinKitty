@@ -497,7 +497,7 @@ describe(testDataModelName, () => {
     await addAsset(driver, {
       ...assetInputs,
       purchasePrice: 'junk',
-      message: `Asset purchase price \'junk\' is not a number`,
+      message: `Purchase price 'junk' should be a numerical or setting value`,
     });
 
     await cleanUpWork(driver, testDataModelName);

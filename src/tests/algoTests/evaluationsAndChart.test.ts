@@ -9923,6 +9923,135 @@ describe('evaluations tests', () => {
     done();
   });
 
+  it('use a setting to define purchase price', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'May 7, 2018 00:00:00',
+    };
+    const model: DbModelData = {
+      ...emptyModel,
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: 'sell some shares',
+          FROM: 'Shrs',
+          FROM_VALUE: '20000',
+          TO: CASH_ASSET_NAME,
+          TO_ABSOLUTE: false,
+          TO_VALUE: '1.0',
+          DATE: 'January 2 2018',
+        },
+      ],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
+          START: 'January 1 2018',
+        },
+        {
+          ...simpleAsset,
+          NAME: 'Shrs',
+          START: 'January 1 2018',
+          VALUE: '300000',
+          LIABILITY: `Joe${cgt}`,
+          PURCHASE_PRICE: 'purchasePriceSetting',
+        },
+      ],
+      settings: [...defaultSettings],
+    };
+    setROI(model, roi);
+    setSetting(model.settings, 'purchasePriceSetting', '50000', custom);
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(17);
+    expectEvals(evals, 0, 'PurchaseShrs', 'Mon Jan 01 2018', 50000, -1);
+    expectEvals(evals, 1, 'Cash', 'Mon Jan 01 2018', 0, -1);
+    expectEvals(evals, 2, 'Shrs', 'Mon Jan 01 2018', 300000, -1);
+    expectEvals(evals, 3, 'PurchaseShrs', 'Tue Jan 02 2018', 46666.67, 2);
+    expectEvals(evals, 4, 'Shrs', 'Tue Jan 02 2018', 280000, -1);
+    expectEvals(evals, 5, 'Cash', 'Tue Jan 02 2018', 20000, -1);
+    expectEvals(evals, 6, 'Cash', 'Thu Feb 01 2018', 20000, -1);
+    expectEvals(evals, 7, 'Shrs', 'Thu Feb 01 2018', 280000, -1);
+    expectEvals(evals, 8, 'Cash', 'Thu Mar 01 2018', 20000, -1);
+    expectEvals(evals, 9, 'Shrs', 'Thu Mar 01 2018', 280000, -1);
+    expectEvals(evals, 10, 'Cash', 'Sun Apr 01 2018', 20000, -1);
+    expectEvals(evals, 11, 'Shrs', 'Sun Apr 01 2018', 280000, -1);
+    expectEvals(evals, 12, 'Cash', 'Thu Apr 05 2018', 19066.67, 2);
+    expectEvals(evals, 13, '(CGT)', 'Thu Apr 05 2018', 933.33, 2);
+    expectEvals(
+      evals,
+      14,
+      getnetgainLabel('Joe'),
+      'Thu Apr 05 2018',
+      15733.33,
+      2,
+    );
+    expectEvals(evals, 15, 'Cash', 'Tue May 01 2018', 19066.67, 2);
+    expectEvals(evals, 16, 'Shrs', 'Tue May 01 2018', 280000, -1);
+
+    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(2);
+    expect(result.assetData[0].item.NAME).toBe('Cash');
+    {
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 20000, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 20000, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 20000, -1);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 19066.67, 2);
+    }
+
+    expect(result.assetData[1].item.NAME).toBe('Shrs');
+    {
+      const chartPts = result.assetData[1].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 300000, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 280000, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 280000, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 280000, -1);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 280000, -1);
+    }
+    expect(result.taxData.length).toBe(2);
+    expect(result.taxData[0].item.NAME).toBe(getCGTLabel('Joe'));
+    {
+      const chartPts = result.taxData[0].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 0, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 0, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 933.33, 2);
+    }
+
+    expect(result.taxData[1].item.NAME).toBe(getnetgainLabel('Joe'));
+    {
+      const chartPts = result.taxData[1].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 0, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 0, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 15733.33, 2);
+    }
+
+    done();
+  });
+
   it('dispose of two parts of an asset liable to CGT', done => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',

@@ -2469,7 +2469,14 @@ function logPurchaseValues(
   model: DbModelData,
 ) {
   if (a.LIABILITY.includes(cgt)) {
-    let purchaseValue = parseFloat(a.PURCHASE_PRICE);
+    let purchaseValue = 0.0;
+    if (isNumberString(a.PURCHASE_PRICE)) {
+      purchaseValue = parseFloat(a.PURCHASE_PRICE);
+    } else {
+      purchaseValue = parseFloat(
+        getSettings(model.settings, a.PURCHASE_PRICE, '0.0'),
+      );
+    }
     if (a.QUANTITY !== '') {
       purchaseValue *= parseFloat(a.QUANTITY);
     }
