@@ -1505,6 +1505,16 @@ export class AppContent extends Component<AppProps, AppState> {
   }
 
   private makeUndoButton() {
+    let numUndosAvailable = 0;
+    let undoModel = this.state.modelData.undoModel;
+    while (undoModel !== undefined && numUndosAvailable < 100) {
+      undoModel = undoModel.undoModel;
+      numUndosAvailable = numUndosAvailable + 1;
+    }
+    let buttonTitle = 'Undo';
+    if (numUndosAvailable > 0) {
+      buttonTitle = `Undo(${numUndosAvailable})`;
+    }
     return (
       <Button
         key={'undoButton'}
@@ -1515,7 +1525,7 @@ export class AppContent extends Component<AppProps, AppState> {
             refreshData();
           }
         }}
-        title={'Undo'}
+        title={buttonTitle}
         id={`btn-undo-model`}
         type={
           this.state.modelData.undoModel !== undefined
@@ -1526,6 +1536,16 @@ export class AppContent extends Component<AppProps, AppState> {
     );
   }
   private makeRedoButton() {
+    let numRedosAvailable = 0;
+    let redoModel = this.state.modelData.redoModel;
+    while (redoModel !== undefined && numRedosAvailable < 100) {
+      redoModel = redoModel.redoModel;
+      numRedosAvailable = numRedosAvailable + 1;
+    }
+    let buttonTitle = 'Redo';
+    if (numRedosAvailable > 0) {
+      buttonTitle = `Redo(${numRedosAvailable})`;
+    }
     return (
       <Button
         key={'redoButton'}
@@ -1536,7 +1556,7 @@ export class AppContent extends Component<AppProps, AppState> {
             refreshData();
           }
         }}
-        title={'Redo'}
+        title={buttonTitle}
         id={`btn-redo-model`}
         type={
           this.state.modelData.redoModel !== undefined
