@@ -19,6 +19,7 @@ import {
   pensionTransfer,
   quantity,
   EvaluateAllAssets,
+  roiStart,
 } from '../localization/stringConstants';
 import {
   DatedThing,
@@ -1783,6 +1784,7 @@ function revalueApplied(
         '10', //callerID
       );
     } else {
+      // log(`revalue ${w} to ${t.TO_VALUE}`);
       setValue(
         values,
         evaluations,
@@ -2473,14 +2475,19 @@ function logPurchaseValues(
     if (isNumberString(a.PURCHASE_PRICE)) {
       purchaseValue = parseFloat(a.PURCHASE_PRICE);
     } else {
-      purchaseValue = parseFloat(
-        getSettings(model.settings, a.PURCHASE_PRICE, '0.0'),
-      );
+      const tracedValue = traceEvaluation(a.PURCHASE_PRICE, values, a.NAME);
+      if (tracedValue === undefined) {
+        throw new Error(
+          `BUG!! in logPurchaseValues, value of ${a.PURCHASE_PRICE} can't be understood`,
+        );
+      } else {
+        purchaseValue = tracedValue;
+      }
     }
     if (a.QUANTITY !== '') {
       purchaseValue *= parseFloat(a.QUANTITY);
     }
-    // log('in logPurchaseValues, setValue:');
+    // log(`in logPurchaseValues, setValue: ${purchaseValue}`);
     setValue(
       values,
       evaluations,
@@ -2525,6 +2532,9 @@ export function getEvaluations(
     };
   }
   // log('in getEvaluations');
+  const roiStartDate: Date = makeDateFromString(
+    getSettings(model.settings, roiStart, '1 Jan 1999'),
+  );
   const roiEndDate: Date = makeDateFromString(
     getSettings(model.settings, roiEnd, '1 Jan 1999'),
   );
@@ -2617,7 +2627,7 @@ export function getEvaluations(
     const dbTransaction = model.transactions.find(t => {
       return t.NAME.startsWith(pensionDB) && t.TO === income.NAME;
     });
-    const roiStartDate = getTriggerDate(income.START, model.triggers);
+    const incomeStartDate = getTriggerDate(income.START, model.triggers);
     if (dbTransaction !== undefined) {
       const sourceIncome = model.incomes.find(i => {
         return dbTransaction.FROM === i.NAME;
@@ -2634,8 +2644,8 @@ export function getEvaluations(
       }
       const startOfSource = getTriggerDate(sourceIncome.START, model.triggers);
       let numAdjustments = 0;
-      while (startOfSource <= roiStartDate) {
-        roiStartDate.setMonth(roiStartDate.getMonth() - 1);
+      while (startOfSource <= incomeStartDate) {
+        incomeStartDate.setMonth(incomeStartDate.getMonth() - 1);
         numAdjustments += 1;
         if (numAdjustments > 1000) {
           throw new Error(
@@ -2650,7 +2660,7 @@ export function getEvaluations(
       momentType.income,
       monthlyInf,
       model.triggers,
-      roiStartDate,
+      incomeStartDate,
       roiEndDate,
       '1m', // all incomes are received monthly
     );
@@ -2682,8 +2692,6 @@ export function getEvaluations(
     allMoments = allMoments.concat(newMoments);
 
     logAssetIncomeLiabilities(asset, liabilitiesMap);
-
-    logPurchaseValues(asset, values, evaluations, model);
   });
 
   model.transactions.forEach(transaction => {
@@ -2711,6 +2719,26 @@ export function getEvaluations(
   });
 
   model.settings.forEach(setting => {
+    let referencingPrices = model.assets.filter(a => {
+      return a.PURCHASE_PRICE === setting.NAME;
+    });
+    referencingPrices = referencingPrices.sort();
+    if (
+      referencingPrices.length > 0 &&
+      values.get(setting.NAME) === undefined
+    ) {
+      setValue(
+        values,
+        evaluations,
+        roiStartDate,
+        setting.NAME,
+        setting.VALUE,
+        model,
+        setting.NAME,
+        '18', //callerID
+      );
+    }
+
     let referencingDates = model.transactions
       .filter(t => {
         // log(`is setting ${setting.NAME} in t.TO  = ${t.TO}?`);
@@ -2913,9 +2941,17 @@ export function getEvaluations(
             '19', //callerID
           );
         }
+        const matchingAsset: DbAsset[] = model.assets.filter(a => {
+          return a.NAME === moment.name;
+        });
+        if (matchingAsset.length === 1) {
+          logPurchaseValues(matchingAsset[0], values, evaluations, model);
+        } else {
+          throw new Error(`BUG!!! '${moment.name}' doesn't match one asset`);
+        }
       }
       const startValue = moment.setValue;
-      // log(`in getEvaluations starting something: ${moment.name}`);
+      // log(`in getEvaluations starting something: ${moment.name} with value ${startValue}`);
       setValue(
         values,
         evaluations,
