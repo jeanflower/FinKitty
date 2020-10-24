@@ -207,14 +207,7 @@ export function getSmallerChartSettings(model: DbModelData, title: string) {
   };
 }
 
-export function incomesChartDiv(
-  incomesChartData: ChartData[],
-  chartSettings: any,
-) {
-  if (incomesChartData.length === 0) {
-    return;
-    //return 'No incomes data to display';
-  }
+function incomesChart(incomesChartData: ChartData[], chartSettings: any) {
   return (
     <fieldset>
       <CanvasJSChart
@@ -227,15 +220,28 @@ export function incomesChartDiv(
   );
 }
 
+export function incomesChartDiv(
+  incomesChartData: ChartData[],
+  chartSettings: any,
+): any {
+  if (incomesChartData.length === 0) {
+    return (
+      <>
+        <br />
+        No incomes data to display
+        <br />
+        <br />
+      </>
+    );
+  } else {
+    return incomesChart(incomesChartData, chartSettings);
+  }
+}
 export function incomesChartDivWithButtons(
   model: DbModelData,
   incomesChartData: ChartData[],
   chartSettings: any,
 ) {
-  if (incomesChartData.length === 0) {
-    return;
-    //return 'No incomes data to display';
-  }
   return (
     <div
       style={{
@@ -271,20 +277,9 @@ function getExpenseChartFocus(model: DbModelData) {
   return categoryName;
 }
 
-export function expensesChartDiv(
-  expensesChartData: ChartData[],
-  chartSettings: any,
-) {
-  if (expensesChartData.length === 0) {
-    return;
-    //return 'No expenses data to display';
-  }
+function expensesChart(expensesChartData: ChartData[], chartSettings: any) {
   return (
     <fieldset>
-      <ReactiveTextArea
-        identifier="expensesDataDump"
-        message={showObj(expensesChartData)}
-      />
       <CanvasJSChart
         options={{
           ...chartSettings,
@@ -295,14 +290,29 @@ export function expensesChartDiv(
   );
 }
 
+export function expensesChartDiv(
+  expensesChartData: ChartData[],
+  chartSettings: any,
+) {
+  if (expensesChartData.length === 0) {
+    return (
+      <>
+        <br />
+        No expenses data to display
+        <br />
+        <br />
+      </>
+    );
+  } else {
+    return expensesChart(expensesChartData, chartSettings);
+  }
+}
+
 export function expensesChartDivWithButtons(
   model: DbModelData,
   expensesChartData: ChartData[],
+  chartSettings: any,
 ) {
-  if (expensesChartData.length === 0) {
-    return;
-    //return 'No expenses data to display';
-  }
   return (
     <div
       style={{
@@ -325,7 +335,7 @@ export function expensesChartDivWithButtons(
           identifier="expensesDataDump"
           message={showObj(expensesChartData)}
         />
-        {expensesChartDiv(expensesChartData, getDefaultChartSettings(model))}
+        {expensesChartDiv(expensesChartData, chartSettings)}
       </fieldset>
     </div>
   );
@@ -434,20 +444,28 @@ function assetViewTypeList(model: DbModelData) {
 
 export function assetsOrDebtsChartDiv(
   assetChartData: ChartData[],
+  isDebt: boolean,
   chartSettings: any,
 ) {
   if (assetChartData.length === 0) {
-    return;
-    //return 'No data to display';
+    return (
+      <>
+        <br />
+        No {isDebt ? 'debt' : 'asset'} data to display
+        <br />
+        <br />
+      </>
+    );
+  } else {
+    return (
+      <CanvasJSChart
+        options={{
+          ...chartSettings,
+          data: assetChartData,
+        }}
+      />
+    );
   }
-  return (
-    <CanvasJSChart
-      options={{
-        ...chartSettings,
-        data: assetChartData,
-      }}
-    />
-  );
 }
 
 export function assetsOrDebtsChartDivWithButtons(
@@ -457,15 +475,6 @@ export function assetsOrDebtsChartDivWithButtons(
   forOverviewPage: boolean,
 ) {
   // log(`assetChartData = ${assetChartData}`);
-  if (assetChartData.length === 0) {
-    return (
-      <ReactiveTextArea
-        identifier="assetDataDump"
-        message={showObj(assetChartData)}
-      />
-    );
-    //return 'No data to display';
-  }
   return (
     <div
       style={{
@@ -476,10 +485,14 @@ export function assetsOrDebtsChartDivWithButtons(
       {assetViewTypeList(model)}
       {coarseFineList(model)}
       <ReactiveTextArea
-        identifier="assetDataDump"
+        identifier={isDebt ? 'debtDataDump' : 'assetDataDump'}
         message={showObj(assetChartData)}
       />
-      {assetsOrDebtsChartDiv(assetChartData, getDefaultChartSettings(model))}
+      {assetsOrDebtsChartDiv(
+        assetChartData,
+        isDebt,
+        getDefaultChartSettings(model),
+      )}
     </div>
   );
 }
@@ -628,8 +641,14 @@ function taxButtonList(model: DbModelData) {
 }
 export function taxChartDiv(taxChartData: ChartData[], settings: any) {
   if (taxChartData.length === 0) {
-    return;
-    //return 'No tax data to display';
+    return (
+      <>
+        <br />
+        No tax data to display
+        <br />
+        <br />
+      </>
+    );
   }
   return (
     <CanvasJSChart
@@ -646,10 +665,6 @@ function taxChartDivWithButtons(
   taxChartData: ChartData[],
   settings: any,
 ) {
-  if (taxChartData.length === 0) {
-    return;
-    //return 'No tax data to display';
-  }
   return (
     <>
       {taxButtonList(model)}
@@ -658,7 +673,7 @@ function taxChartDivWithButtons(
   );
 }
 export function taxDiv(model: DbModelData, taxChartData: ChartData[]) {
-  if (!getDisplay(taxView) || taxChartData.length === 0) {
+  if (!getDisplay(taxView)) {
     return;
   }
 

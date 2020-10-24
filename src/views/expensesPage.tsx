@@ -7,7 +7,10 @@ import {
   submitTransaction,
   submitTrigger,
 } from '../App';
-import { expensesChartDivWithButtons } from './chartPages';
+import {
+  expensesChartDivWithButtons,
+  getDefaultChartSettings,
+} from './chartPages';
 import {
   expensesTableDivWithHeading,
   defaultColumn,
@@ -82,7 +85,11 @@ export function expensesDiv(
   }
   return (
     <div style={{ display: getDisplay(expensesView) ? 'block' : 'none' }}>
-      {expensesChartDivWithButtons(model, expensesChartData)}
+      {expensesChartDivWithButtons(
+        model,
+        expensesChartData,
+        getDefaultChartSettings(model),
+      )}
       {todaysExpensesTable(model, todaysValues)}
       {expensesTableDivWithHeading(model, showAlert)}
       {transactionFilteredTable(

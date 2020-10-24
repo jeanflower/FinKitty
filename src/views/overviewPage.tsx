@@ -69,6 +69,7 @@ function chartsForOverview(
         <div className="col">
           {assetsOrDebtsChartDiv(
             suppressLegend(assetChartData),
+            false,
             getSmallerChartSettings(model, 'Assets'),
           )}
         </div>
@@ -83,6 +84,7 @@ function chartsForOverview(
         <div className="col">
           {assetsOrDebtsChartDiv(
             suppressLegend(debtChartData),
+            true,
             getSmallerChartSettings(model, 'Debts'),
           )}
         </div>
