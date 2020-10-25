@@ -590,7 +590,12 @@ function getAssetOrDebtCols(model: DbModelData, isDebt: boolean) {
       key: 'START',
       name: 'start',
       formatter: (
-        <TriggerDateFormatter name="start" model={model} value="unset" />
+        <TriggerDateFormatter
+          name="start"
+          model={model}
+          value="unset"
+          showTime={false}
+        />
       ),
     },
     {
@@ -942,6 +947,23 @@ function makeTransactionCols(model: DbModelData, type: string) {
             name="payments start date"
             model={model}
             value="unset"
+            showTime={false}
+          />
+        ),
+      },
+    ]);
+  } else if (type === liquidateAsset) {
+    cols = cols.concat([
+      {
+        ...defaultColumn,
+        key: 'DATE',
+        name: 'date',
+        formatter: (
+          <TriggerDateFormatter
+            name="date"
+            model={model}
+            value="unset"
+            showTime={true}
           />
         ),
       },
@@ -953,7 +975,12 @@ function makeTransactionCols(model: DbModelData, type: string) {
         key: 'DATE',
         name: 'date',
         formatter: (
-          <TriggerDateFormatter name="date" model={model} value="unset" />
+          <TriggerDateFormatter
+            name="date"
+            model={model}
+            value="unset"
+            showTime={false}
+          />
         ),
       },
     ]);
@@ -979,6 +1006,7 @@ function makeTransactionCols(model: DbModelData, type: string) {
             name="recurrence end date"
             model={model}
             value="unset"
+            showTime={false}
           />
         ),
       },
@@ -1172,6 +1200,7 @@ function triggersTableDiv(
                     name="date"
                     model={model}
                     value="unset"
+                    showTime={false}
                   />
                 ),
               },
@@ -1264,6 +1293,7 @@ function incomesTableDiv(
                     name="definition date"
                     model={model}
                     value="unset"
+                    showTime={false}
                   />
                 ),
               },
@@ -1276,6 +1306,7 @@ function incomesTableDiv(
                     name="start"
                     model={model}
                     value="unset"
+                    showTime={false}
                   />
                 ),
               },
@@ -1288,6 +1319,7 @@ function incomesTableDiv(
                     name="end"
                     model={model}
                     value="unset"
+                    showTime={false}
                   />
                 ),
               },
@@ -1411,6 +1443,7 @@ function expensesTableDiv(
                     name="definition date"
                     model={model}
                     value="unset"
+                    showTime={false}
                   />
                 ),
               },
@@ -1423,6 +1456,7 @@ function expensesTableDiv(
                     name="start"
                     model={model}
                     value="unset"
+                    showTime={false}
                   />
                 ),
               },
@@ -1435,6 +1469,7 @@ function expensesTableDiv(
                     name="end"
                     model={model}
                     value="unset"
+                    showTime={false}
                   />
                 ),
               },
