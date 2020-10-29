@@ -5287,6 +5287,97 @@ describe('evaluations tests', () => {
     done();
   });
 
+  it('tax allowance reduces for high earners', done => {
+    const roi = {
+      start: 'April 1, 2018 00:00:00',
+      end: 'May 10, 2018 00:00:00',
+    };
+    const model: DbModelData = {
+      ...emptyModel,
+      incomes: [
+        {
+          ...simpleIncome,
+          START: 'April 1 2018',
+          END: 'April 2 2018',
+          NAME: 'PRnd',
+          VALUE: '100100',
+          VALUE_SET: 'January 1 2018',
+          LIABILITY: 'Joe' + incomeTax,
+        },
+      ],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
+          START: 'April 1 2018',
+          VALUE: '500',
+        },
+      ],
+      settings: [...defaultSettings],
+    };
+    setROI(model, roi);
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+    // log(`evals = ${showObj(evals)}`);
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(7);
+    expectEvals(evals, 0, 'Cash', 'Sun Apr 01 2018', 500, -1);
+    expectEvals(evals, 1, 'PRnd', 'Sun Apr 01 2018', 100100, -1);
+    expectEvals(evals, 2, 'Cash', 'Sun Apr 01 2018', 100600, -1);
+    expectEvals(evals, 3, 'Cash', 'Thu Apr 05 2018', 73050, -1);
+    expectEvals(evals, 4, '(incomeTax)', 'Thu Apr 05 2018', 27550, -1);
+    expectEvals(evals, 5, 'Joe income (net)', 'Thu Apr 05 2018', 72550, -1);
+    expectEvals(evals, 6, 'Cash', 'Tue May 01 2018', 73050, -1);
+
+    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+
+    // log(showObj(result));
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(1);
+    expect(result.incomesData[0].item.NAME).toBe('PRnd');
+    {
+    const chartPts = result.incomesData[0].chartDataPoints;
+    expect(chartPts.length).toBe(2);
+    expectChartData(chartPts, 0, 'Sun Apr 01 2018', 100100,    -1);
+    expectChartData(chartPts, 1, 'Tue May 01 2018', 0,    -1);
+    }
+    
+    expect(result.assetData.length).toBe(1);
+    expect(result.assetData[0].item.NAME).toBe('Cash');
+    {
+    const chartPts = result.assetData[0].chartDataPoints;
+    expect(chartPts.length).toBe(2);
+    expectChartData(chartPts, 0, 'Sun Apr 01 2018', 100600,    -1);
+    expectChartData(chartPts, 1, 'Tue May 01 2018', 73050,    -1);
+    }
+    
+    expect(result.debtData.length).toBe(0);
+    expect(result.taxData.length).toBe(2);
+    expect(result.taxData[0].item.NAME).toBe('Joe income (incomeTax)');
+    {
+    const chartPts = result.taxData[0].chartDataPoints;
+    expect(chartPts.length).toBe(2);
+    expectChartData(chartPts, 0, 'Sun Apr 01 2018', 0,    -1);
+    expectChartData(chartPts, 1, 'Tue May 01 2018', 27550,    -1);
+    }
+    
+    expect(result.taxData[1].item.NAME).toBe('Joe income (net)');
+    {
+    const chartPts = result.taxData[1].chartDataPoints;
+    expect(chartPts.length).toBe(2);
+    expectChartData(chartPts, 0, 'Sun Apr 01 2018', 0,    -1);
+    expectChartData(chartPts, 1, 'Tue May 01 2018', 72550,    -1);
+    }
+    done();
+  });
+
   it('payTopTax on single income payment', done => {
     const roi = {
       start: 'April 1, 2018 00:00:00',
@@ -5328,10 +5419,10 @@ describe('evaluations tests', () => {
     expectEvals(evals, 0, 'Cash', 'Sun Apr 01 2018', 500, -1);
     expectEvals(evals, 1, 'PRnd', 'Sun Apr 01 2018', 150100, -1);
     expectEvals(evals, 2, 'Cash', 'Sun Apr 01 2018', 150600, -1);
-    expectEvals(evals, 3, 'Cash', 'Thu Apr 05 2018', 103055, -1);
-    expectEvals(evals, 4, '(incomeTax)', 'Thu Apr 05 2018', 47545.0, 2);
-    expectEvals(evals, 5, getnetincLabel('Joe'), 'Thu Apr 05 2018', 102555, -1);
-    expectEvals(evals, 6, 'Cash', 'Tue May 01 2018', 103055, -1);
+    expectEvals(evals, 3, 'Cash', 'Thu Apr 05 2018', 100555, -1);
+    expectEvals(evals, 4, '(incomeTax)', 'Thu Apr 05 2018', 50045.0, 2);
+    expectEvals(evals, 5, getnetincLabel('Joe'), 'Thu Apr 05 2018', 100055, -1);
+    expectEvals(evals, 6, 'Cash', 'Tue May 01 2018', 100555, -1);
 
     const result = makeChartDataFromEvaluations(model, evalsAndValues);
 
@@ -5359,7 +5450,7 @@ describe('evaluations tests', () => {
       expect(chartPts[0].label).toBe('Sun Apr 01 2018');
       expect(chartPts[0].y).toBe(150600);
       expect(chartPts[1].label).toBe('Tue May 01 2018');
-      expect(chartPts[1].y).toBe(103055);
+      expect(chartPts[1].y).toBe(100555);
     }
     done();
   });
@@ -5795,10 +5886,10 @@ describe('evaluations tests', () => {
     expectEvals(evals, 2, 'Cash', 'Sun Apr 01 2018', 75600, -1);
     expectEvals(evals, 3, 'PRn2', 'Sun Apr 01 2018', 75000, -1);
     expectEvals(evals, 4, 'Cash', 'Sun Apr 01 2018', 150600, -1);
-    expectEvals(evals, 5, 'Cash', 'Thu Apr 05 2018', 103055, -1);
-    expectEvals(evals, 6, '(incomeTax)', 'Thu Apr 05 2018', 47545.0, 2);
-    expectEvals(evals, 7, getnetincLabel('Joe'), 'Thu Apr 05 2018', 102555, -1);
-    expectEvals(evals, 8, 'Cash', 'Tue May 01 2018', 103055, -1);
+    expectEvals(evals, 5, 'Cash', 'Thu Apr 05 2018', 100555, -1);
+    expectEvals(evals, 6, '(incomeTax)', 'Thu Apr 05 2018', 50045.0, 2);
+    expectEvals(evals, 7, getnetincLabel('Joe'), 'Thu Apr 05 2018', 100055, -1);
+    expectEvals(evals, 8, 'Cash', 'Tue May 01 2018', 100555, -1);
 
     const result = makeChartDataFromEvaluations(model, evalsAndValues);
 
@@ -5832,7 +5923,7 @@ describe('evaluations tests', () => {
       expect(chartPts[0].label).toBe('Sun Apr 01 2018');
       expect(chartPts[0].y).toBe(150600);
       expect(chartPts[1].label).toBe('Tue May 01 2018');
-      expect(chartPts[1].y).toBe(103055);
+      expect(chartPts[1].y).toBe(100555);
     }
     done();
   });
@@ -6088,10 +6179,10 @@ describe('evaluations tests', () => {
     expectEvals(evals, 2, 'Cash', 'Sun Apr 01 2018', 75600, -1);
     expectEvals(evals, 3, 'PRn2', 'Sun Apr 01 2018', 75000, -1);
     expectEvals(evals, 4, 'Cash', 'Sun Apr 01 2018', 150600, -1);
-    expectEvals(evals, 5, 'Cash', 'Thu Apr 05 2018', 103055, -1);
-    expectEvals(evals, 6, '(incomeTax)', 'Thu Apr 05 2018', 47545.0, 2);
-    expectEvals(evals, 7, getnetincLabel('Joe'), 'Thu Apr 05 2018', 102555, -1);
-    expectEvals(evals, 8, 'Cash', 'Tue May 01 2018', 103055, -1);
+    expectEvals(evals, 5, 'Cash', 'Thu Apr 05 2018', 100555, -1);
+    expectEvals(evals, 6, '(incomeTax)', 'Thu Apr 05 2018', 50045.0, 2);
+    expectEvals(evals, 7, getnetincLabel('Joe'), 'Thu Apr 05 2018', 100055, -1);
+    expectEvals(evals, 8, 'Cash', 'Tue May 01 2018', 100555, -1);
 
     const result = makeChartDataFromEvaluations(model, evalsAndValues);
 
@@ -6125,7 +6216,7 @@ describe('evaluations tests', () => {
       expect(chartPts[0].label).toBe('Sun Apr 01 2018');
       expect(chartPts[0].y).toBe(150600);
       expect(chartPts[1].label).toBe('Tue May 01 2018');
-      expect(chartPts[1].y).toBe(103055);
+      expect(chartPts[1].y).toBe(100555);
     }
     done();
   });
@@ -8821,7 +8912,7 @@ describe('evaluations tests', () => {
           NAME: pensionDB + 'NorwichBenefitAccrual', // kicks in when we see income java
           FROM: 'java', // not an asset but an income!!
           FROM_ABSOLUTE: false,
-          FROM_VALUE: '' + 1.0 / 49, // percentage of income offered up to pension
+          FROM_VALUE: '' + 1.0 / 49, // pension accrual proportion
           TO: pensionDB + 'incomeFromNorwich', // not an asset but a DB income!!
           TO_ABSOLUTE: false,
           TO_VALUE: '1.0',
@@ -8860,32 +8951,18 @@ describe('evaluations tests', () => {
     expectEvals(evals, 6, 'Cash', 'Sun Apr 01 2018', 465500, -1);
     expectEvals(evals, 7, 'Cash', 'Thu Apr 05 2018', 451734.96, 2);
     expectEvals(evals, 8, '(NI)', 'Thu Apr 05 2018', 13765.04, 2);
-    expectEvals(
-      evals,
-      9,
-      getnetincLabel('Joe'),
-      'Thu Apr 05 2018',
-      476234.96,
-      2,
-    );
-    expectEvals(evals, 10, 'Cash', 'Thu Apr 05 2018', 262259.96, 2);
-    expectEvals(evals, 11, '(incomeTax)', 'Thu Apr 05 2018', 189475, -1);
-    expectEvals(
-      evals,
-      12,
-      getnetincLabel('Joe'),
-      'Thu Apr 05 2018',
-      286759.96,
-      2,
-    );
+    expectEvals(evals, 9, getnetincLabel('Joe'), 'Thu Apr 05 2018', 476234.96, 2);
+    expectEvals(evals, 10, 'Cash', 'Thu Apr 05 2018', 259759.96, 2);
+    expectEvals(evals, 11, '(incomeTax)', 'Thu Apr 05 2018', 191975, -1);
+    expectEvals(evals, 12, getnetincLabel('Joe'), 'Thu Apr 05 2018', 284259.96, 2);
     expectEvals(evals, 13, pdbfn, 'Tue Apr 10 2018', 10050, -1);
-    expectEvals(evals, 14, 'Cash', 'Tue May 01 2018', 262259.96, 2);
+    expectEvals(evals, 14, 'Cash', 'Tue May 01 2018', 259759.96, 2);
     expectEvals(evals, 15, pdbfn, 'Thu May 10 2018', 10050, -1);
-    expectEvals(evals, 16, 'Cash', 'Fri Jun 01 2018', 262259.96, 2);
+    expectEvals(evals, 16, 'Cash', 'Fri Jun 01 2018', 259759.96, 2);
     expectEvals(evals, 17, pdbfn, 'Sun Jun 10 2018', 10050, -1);
-    expectEvals(evals, 18, 'Cash', 'Sun Jun 10 2018', 272309.96, 2);
-    expectEvals(evals, 19, 'Cash', 'Sun Jul 01 2018', 272309.96, 2);
-    expectEvals(evals, 20, 'Cash', 'Wed Aug 01 2018', 272309.96, 2);
+    expectEvals(evals, 18, 'Cash', 'Sun Jun 10 2018', 269809.96, 2);
+    expectEvals(evals, 19, 'Cash', 'Sun Jul 01 2018', 269809.96, 2);
+    expectEvals(evals, 20, 'Cash', 'Wed Aug 01 2018', 269809.96, 2);
 
     const result = makeChartDataFromEvaluations(model, evalsAndValues);
 
@@ -8924,10 +9001,10 @@ describe('evaluations tests', () => {
       expect(chartPts.length).toBe(6);
       expectChartData(chartPts, 0, 'Thu Mar 01 2018', 0, -1);
       expectChartData(chartPts, 1, 'Sun Apr 01 2018', 465500, -1);
-      expectChartData(chartPts, 2, 'Tue May 01 2018', 262259.96, 2);
-      expectChartData(chartPts, 3, 'Fri Jun 01 2018', 262259.96, 2);
-      expectChartData(chartPts, 4, 'Sun Jul 01 2018', 272309.96, 2);
-      expectChartData(chartPts, 5, 'Wed Aug 01 2018', 272309.96, 2);
+      expectChartData(chartPts, 2, 'Tue May 01 2018', 259759.96, 2);
+      expectChartData(chartPts, 3, 'Fri Jun 01 2018', 259759.96, 2);
+      expectChartData(chartPts, 4, 'Sun Jul 01 2018', 269809.96, 2);
+      expectChartData(chartPts, 5, 'Wed Aug 01 2018', 269809.96, 2);
     }
     expect(result.taxData.length).toBe(3);
     expect(result.taxData[0].item.NAME).toBe(getNILabel('Joe'));
@@ -8948,7 +9025,7 @@ describe('evaluations tests', () => {
       expect(chartPts.length).toBe(6);
       expectChartData(chartPts, 0, 'Thu Mar 01 2018', 0, -1);
       expectChartData(chartPts, 1, 'Sun Apr 01 2018', 0, -1);
-      expectChartData(chartPts, 2, 'Tue May 01 2018', 286759.96, 2);
+      expectChartData(chartPts, 2, 'Tue May 01 2018', 284259.96, 2);
       expectChartData(chartPts, 3, 'Fri Jun 01 2018', 0, -1);
       expectChartData(chartPts, 4, 'Sun Jul 01 2018', 0, -1);
       expectChartData(chartPts, 5, 'Wed Aug 01 2018', 0, -1);
@@ -8960,7 +9037,7 @@ describe('evaluations tests', () => {
       expect(chartPts.length).toBe(6);
       expectChartData(chartPts, 0, 'Thu Mar 01 2018', 0, -1);
       expectChartData(chartPts, 1, 'Sun Apr 01 2018', 0, -1);
-      expectChartData(chartPts, 2, 'Tue May 01 2018', 189475, -1);
+      expectChartData(chartPts, 2, 'Tue May 01 2018', 191975, -1);
       expectChartData(chartPts, 3, 'Fri Jun 01 2018', 0, -1);
       expectChartData(chartPts, 4, 'Sun Jul 01 2018', 0, -1);
       expectChartData(chartPts, 5, 'Wed Aug 01 2018', 0, -1);
@@ -9032,7 +9109,7 @@ describe('evaluations tests', () => {
           NAME: pensionDB + 'NorwichBenefitAccrual', // kicks in when we see income java
           FROM: 'java', // not an asset but an income!!
           FROM_ABSOLUTE: false,
-          FROM_VALUE: '' + 1.0 / 49, // percentage of income offered up to pension
+          FROM_VALUE: '' + 1.0 / 49, // pension accrual proportion
           TO: pensionDB + 'incomeFromNorwich', // not an asset but a DB income!!
           TO_ABSOLUTE: false,
           TO_VALUE: '1.0',
@@ -9079,24 +9156,24 @@ describe('evaluations tests', () => {
       452224.96,
       2,
     );
-    expectEvals(evals, 10, 'Cash', 'Thu Apr 05 2018', 262749.96, 2);
-    expectEvals(evals, 11, '(incomeTax)', 'Thu Apr 05 2018', 189475, -1);
+    expectEvals(evals, 10, 'Cash', 'Thu Apr 05 2018', 260249.96, 2);
+    expectEvals(evals, 11, '(incomeTax)', 'Thu Apr 05 2018', 191975, -1);
     expectEvals(
       evals,
       12,
       getnetincLabel('Joe'),
       'Thu Apr 05 2018',
-      262749.96,
+      260249.96,
       2,
     );
     expectEvals(evals, 13, pdbfn, 'Tue Apr 10 2018', 10050, -1);
-    expectEvals(evals, 14, 'Cash', 'Tue May 01 2018', 262749.96, 2);
+    expectEvals(evals, 14, 'Cash', 'Tue May 01 2018', 260249.96, 2);
     expectEvals(evals, 15, pdbfn, 'Thu May 10 2018', 10050, -1);
-    expectEvals(evals, 16, 'Cash', 'Fri Jun 01 2018', 262749.96, 2);
+    expectEvals(evals, 16, 'Cash', 'Fri Jun 01 2018', 260249.96, 2);
     expectEvals(evals, 17, pdbfn, 'Sun Jun 10 2018', 10050, -1);
-    expectEvals(evals, 18, 'Cash', 'Sun Jun 10 2018', 272799.96, 2);
-    expectEvals(evals, 19, 'Cash', 'Sun Jul 01 2018', 272799.96, 2);
-    expectEvals(evals, 20, 'Cash', 'Wed Aug 01 2018', 272799.96, 2);
+    expectEvals(evals, 18, 'Cash', 'Sun Jun 10 2018', 270299.96, 2);
+    expectEvals(evals, 19, 'Cash', 'Sun Jul 01 2018', 270299.96, 2);
+    expectEvals(evals, 20, 'Cash', 'Wed Aug 01 2018', 270299.96, 2);
     const result = makeChartDataFromEvaluations(model, evalsAndValues);
 
     //printTestCodeForChart(result);
@@ -9134,10 +9211,10 @@ describe('evaluations tests', () => {
       expect(chartPts.length).toBe(6);
       expectChartData(chartPts, 0, 'Thu Mar 01 2018', 0, -1);
       expectChartData(chartPts, 1, 'Sun Apr 01 2018', 465500, -1);
-      expectChartData(chartPts, 2, 'Tue May 01 2018', 262749.96, 2);
-      expectChartData(chartPts, 3, 'Fri Jun 01 2018', 262749.96, 2);
-      expectChartData(chartPts, 4, 'Sun Jul 01 2018', 272799.96, 2);
-      expectChartData(chartPts, 5, 'Wed Aug 01 2018', 272799.96, 2);
+      expectChartData(chartPts, 2, 'Tue May 01 2018', 260249.96, 2);
+      expectChartData(chartPts, 3, 'Fri Jun 01 2018', 260249.96, 2);
+      expectChartData(chartPts, 4, 'Sun Jul 01 2018', 270299.96, 2);
+      expectChartData(chartPts, 5, 'Wed Aug 01 2018', 270299.96, 2);
     }
     expect(result.taxData.length).toBe(3);
     expect(result.taxData[0].item.NAME).toBe(getNILabel('Joe'));
@@ -9158,7 +9235,7 @@ describe('evaluations tests', () => {
       expect(chartPts.length).toBe(6);
       expectChartData(chartPts, 0, 'Thu Mar 01 2018', 0, -1);
       expectChartData(chartPts, 1, 'Sun Apr 01 2018', 0, -1);
-      expectChartData(chartPts, 2, 'Tue May 01 2018', 262749.96, 2);
+      expectChartData(chartPts, 2, 'Tue May 01 2018', 260249.96, 2);
       expectChartData(chartPts, 3, 'Fri Jun 01 2018', 0, -1);
       expectChartData(chartPts, 4, 'Sun Jul 01 2018', 0, -1);
       expectChartData(chartPts, 5, 'Wed Aug 01 2018', 0, -1);
@@ -9170,7 +9247,7 @@ describe('evaluations tests', () => {
       expect(chartPts.length).toBe(6);
       expectChartData(chartPts, 0, 'Thu Mar 01 2018', 0, -1);
       expectChartData(chartPts, 1, 'Sun Apr 01 2018', 0, -1);
-      expectChartData(chartPts, 2, 'Tue May 01 2018', 189475, -1);
+      expectChartData(chartPts, 2, 'Tue May 01 2018', 191975, -1);
       expectChartData(chartPts, 3, 'Fri Jun 01 2018', 0, -1);
       expectChartData(chartPts, 4, 'Sun Jul 01 2018', 0, -1);
       expectChartData(chartPts, 5, 'Wed Aug 01 2018', 0, -1);
@@ -9240,7 +9317,7 @@ describe('evaluations tests', () => {
           NAME: pensionDB + 'NorwichBenefitAccrual', // kicks in when we see income java
           FROM: 'java', // not an asset but an income!!
           FROM_ABSOLUTE: false,
-          FROM_VALUE: '' + 1.0 / 49, // percentage of income offered up to pension
+          FROM_VALUE: '' + 1.0 / 49, // pension accrual proportion
           TO: pensionDB + 'incomeFromNorwich', // not an asset but a DB income!!
           TO_ABSOLUTE: false,
           TO_VALUE: '1.0',
@@ -9266,7 +9343,7 @@ describe('evaluations tests', () => {
     const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
-    //printTestCodeForEvals(evals);
+    // printTestCodeForEvals(evals);
 
     const pbdfn = 'PensionDBincomeFromNorwich';
 
@@ -9288,24 +9365,24 @@ describe('evaluations tests', () => {
       485391.23,
       2,
     );
-    expectEvals(evals, 10, 'Cash', 'Thu Apr 05 2018', 271456.14, 2);
-    expectEvals(evals, 11, '(incomeTax)', 'Thu Apr 05 2018', 193469.19, 2);
+    expectEvals(evals, 10, 'Cash', 'Thu Apr 05 2018', 268956.14, 2);
+    expectEvals(evals, 11, '(incomeTax)', 'Thu Apr 05 2018', 195969.19, 2);
     expectEvals(
       evals,
       12,
       getnetincLabel('Joe'),
       'Thu Apr 05 2018',
-      291922.04,
+      289422.04,
       2,
     );
     expectEvals(evals, 13, pbdfn, 'Tue Apr 10 2018', 10338.81, 2);
-    expectEvals(evals, 14, 'Cash', 'Tue May 01 2018', 274031.93, 2);
+    expectEvals(evals, 14, 'Cash', 'Tue May 01 2018', 271508.21, 2);
     expectEvals(evals, 15, pbdfn, 'Thu May 10 2018', 10436.91, 2);
-    expectEvals(evals, 16, 'Cash', 'Fri Jun 01 2018', 276632.16, 2);
+    expectEvals(evals, 16, 'Cash', 'Fri Jun 01 2018', 274084.50, 2);
     expectEvals(evals, 17, pbdfn, 'Sun Jun 10 2018', 10535.95, 2);
-    expectEvals(evals, 18, 'Cash', 'Sun Jun 10 2018', 287168.11, 2);
-    expectEvals(evals, 19, 'Cash', 'Sun Jul 01 2018', 289892.99, 2);
-    expectEvals(evals, 20, 'Cash', 'Wed Aug 01 2018', 292643.72, 2);
+    expectEvals(evals, 18, 'Cash', 'Sun Jun 10 2018', 284620.44, 2);
+    expectEvals(evals, 19, 'Cash', 'Sun Jul 01 2018', 287321.15, 2);
+    expectEvals(evals, 20, 'Cash', 'Wed Aug 01 2018', 290047.48, 2);
 
     const result = makeChartDataFromEvaluations(model, evalsAndValues);
 
@@ -9317,75 +9394,75 @@ describe('evaluations tests', () => {
     {
       const chartPts = result.incomesData[0].chartDataPoints;
       expect(chartPts.length).toBe(6);
-      expectChartData(chartPts, 0, 'Thu Mar 01 2018', 0, -1);
+      expectChartData(chartPts, 0, 'Thu Mar 01 2018', 0,    -1);
       expectChartData(chartPts, 1, 'Sun Apr 01 2018', 499343.14, 2);
-      expectChartData(chartPts, 2, 'Tue May 01 2018', 0, -1);
-      expectChartData(chartPts, 3, 'Fri Jun 01 2018', 0, -1);
-      expectChartData(chartPts, 4, 'Sun Jul 01 2018', 0, -1);
-      expectChartData(chartPts, 5, 'Wed Aug 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Tue May 01 2018', 0,    -1);
+      expectChartData(chartPts, 3, 'Fri Jun 01 2018', 0,    -1);
+      expectChartData(chartPts, 4, 'Sun Jul 01 2018', 0,    -1);
+      expectChartData(chartPts, 5, 'Wed Aug 01 2018', 0,    -1);
     }
-
+    
     expect(result.incomesData[1].item.NAME).toBe('PensionDBincomeFromNorwich');
     {
       const chartPts = result.incomesData[1].chartDataPoints;
       expect(chartPts.length).toBe(6);
-      expectChartData(chartPts, 0, 'Thu Mar 01 2018', 0, -1);
-      expectChartData(chartPts, 1, 'Sun Apr 01 2018', 0, -1);
-      expectChartData(chartPts, 2, 'Tue May 01 2018', 0, -1);
-      expectChartData(chartPts, 3, 'Fri Jun 01 2018', 0, -1);
+      expectChartData(chartPts, 0, 'Thu Mar 01 2018', 0,    -1);
+      expectChartData(chartPts, 1, 'Sun Apr 01 2018', 0,    -1);
+      expectChartData(chartPts, 2, 'Tue May 01 2018', 0,    -1);
+      expectChartData(chartPts, 3, 'Fri Jun 01 2018', 0,    -1);
       expectChartData(chartPts, 4, 'Sun Jul 01 2018', 10535.95, 2);
-      expectChartData(chartPts, 5, 'Wed Aug 01 2018', 0, -1);
+      expectChartData(chartPts, 5, 'Wed Aug 01 2018', 0,    -1);
     }
-
+    
     expect(result.assetData.length).toBe(1);
     expect(result.assetData[0].item.NAME).toBe('Cash');
     {
       const chartPts = result.assetData[0].chartDataPoints;
       expect(chartPts.length).toBe(6);
-      expectChartData(chartPts, 0, 'Thu Mar 01 2018', 0, -1);
+      expectChartData(chartPts, 0, 'Thu Mar 01 2018', 0,    -1);
       expectChartData(chartPts, 1, 'Sun Apr 01 2018', 478877.23, 2);
-      expectChartData(chartPts, 2, 'Tue May 01 2018', 274031.93, 2);
-      expectChartData(chartPts, 3, 'Fri Jun 01 2018', 276632.16, 2);
-      expectChartData(chartPts, 4, 'Sun Jul 01 2018', 289892.99, 2);
-      expectChartData(chartPts, 5, 'Wed Aug 01 2018', 292643.72, 2);
+      expectChartData(chartPts, 2, 'Tue May 01 2018', 271508.21, 2);
+      expectChartData(chartPts, 3, 'Fri Jun 01 2018', 274084.50, 2);
+      expectChartData(chartPts, 4, 'Sun Jul 01 2018', 287321.15, 2);
+      expectChartData(chartPts, 5, 'Wed Aug 01 2018', 290047.48, 2);
     }
-
+    
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(3);
-    expect(result.taxData[0].item.NAME).toBe(getNILabel('Joe'));
+    expect(result.taxData[0].item.NAME).toBe('Joe income (NI)');
     {
       const chartPts = result.taxData[0].chartDataPoints;
       expect(chartPts.length).toBe(6);
-      expectChartData(chartPts, 0, 'Thu Mar 01 2018', 0, -1);
-      expectChartData(chartPts, 1, 'Sun Apr 01 2018', 0, -1);
-      expectChartData(chartPts, 2, 'Tue May 01 2018', 13951.9, 2);
-      expectChartData(chartPts, 3, 'Fri Jun 01 2018', 0, -1);
-      expectChartData(chartPts, 4, 'Sun Jul 01 2018', 0, -1);
-      expectChartData(chartPts, 5, 'Wed Aug 01 2018', 0, -1);
+      expectChartData(chartPts, 0, 'Thu Mar 01 2018', 0,    -1);
+      expectChartData(chartPts, 1, 'Sun Apr 01 2018', 0,    -1);
+      expectChartData(chartPts, 2, 'Tue May 01 2018', 13951.90, 2);
+      expectChartData(chartPts, 3, 'Fri Jun 01 2018', 0,    -1);
+      expectChartData(chartPts, 4, 'Sun Jul 01 2018', 0,    -1);
+      expectChartData(chartPts, 5, 'Wed Aug 01 2018', 0,    -1);
     }
-
-    expect(result.taxData[1].item.NAME).toBe(getnetincLabel('Joe'));
+    
+    expect(result.taxData[1].item.NAME).toBe('Joe income (net)');
     {
       const chartPts = result.taxData[1].chartDataPoints;
       expect(chartPts.length).toBe(6);
-      expectChartData(chartPts, 0, 'Thu Mar 01 2018', 0, -1);
-      expectChartData(chartPts, 1, 'Sun Apr 01 2018', 0, -1);
-      expectChartData(chartPts, 2, 'Tue May 01 2018', 291922.04, 2);
-      expectChartData(chartPts, 3, 'Fri Jun 01 2018', 0, -1);
-      expectChartData(chartPts, 4, 'Sun Jul 01 2018', 0, -1);
-      expectChartData(chartPts, 5, 'Wed Aug 01 2018', 0, -1);
+      expectChartData(chartPts, 0, 'Thu Mar 01 2018', 0,    -1);
+      expectChartData(chartPts, 1, 'Sun Apr 01 2018', 0,    -1);
+      expectChartData(chartPts, 2, 'Tue May 01 2018', 289422.04, 2);
+      expectChartData(chartPts, 3, 'Fri Jun 01 2018', 0,    -1);
+      expectChartData(chartPts, 4, 'Sun Jul 01 2018', 0,    -1);
+      expectChartData(chartPts, 5, 'Wed Aug 01 2018', 0,    -1);
     }
-
-    expect(result.taxData[2].item.NAME).toBe(getICLabel('Joe'));
+    
+    expect(result.taxData[2].item.NAME).toBe('Joe income (incomeTax)');
     {
       const chartPts = result.taxData[2].chartDataPoints;
       expect(chartPts.length).toBe(6);
-      expectChartData(chartPts, 0, 'Thu Mar 01 2018', 0, -1);
-      expectChartData(chartPts, 1, 'Sun Apr 01 2018', 0, -1);
-      expectChartData(chartPts, 2, 'Tue May 01 2018', 193469.19, 2);
-      expectChartData(chartPts, 3, 'Fri Jun 01 2018', 0, -1);
-      expectChartData(chartPts, 4, 'Sun Jul 01 2018', 0, -1);
-      expectChartData(chartPts, 5, 'Wed Aug 01 2018', 0, -1);
+      expectChartData(chartPts, 0, 'Thu Mar 01 2018', 0,    -1);
+      expectChartData(chartPts, 1, 'Sun Apr 01 2018', 0,    -1);
+      expectChartData(chartPts, 2, 'Tue May 01 2018', 195969.19, 2);
+      expectChartData(chartPts, 3, 'Fri Jun 01 2018', 0,    -1);
+      expectChartData(chartPts, 4, 'Sun Jul 01 2018', 0,    -1);
+      expectChartData(chartPts, 5, 'Wed Aug 01 2018', 0,    -1);
     }
 
     done();
@@ -9453,7 +9530,7 @@ describe('evaluations tests', () => {
           NAME: pensionDB + 'NorwichBenefitAccrual', // kicks in when we see income java
           FROM: 'java', // not an asset but an income!!
           FROM_ABSOLUTE: false,
-          FROM_VALUE: '' + 1.0 / 49, // percentage of income offered up to pension
+          FROM_VALUE: '' + 1.0 / 49, // pension accrual proportion
           TO: CASH_ASSET_NAME, // should fail checks - we expect a DB income!!
           TO_ABSOLUTE: false,
           TO_VALUE: '1.0',
@@ -9548,7 +9625,7 @@ describe('evaluations tests', () => {
           NAME: pensionDB + 'NorwichBenefitAccrual', // kicks in when we see income java
           FROM: 'java', // not an asset but an income!!
           FROM_ABSOLUTE: false,
-          FROM_VALUE: '' + 1.0 / 49, // percentage of income offered up to pension
+          FROM_VALUE: '' + 1.0 / 49, // pension accrual proportion
           TO: 'java', // should fail checks - we expect a DB income!!
           TO_ABSOLUTE: false,
           TO_VALUE: '1.0',
@@ -9643,7 +9720,7 @@ describe('evaluations tests', () => {
           NAME: 'NorwichBenefitAccrual', // Should trigger failure
           FROM: 'java', // not an asset but an income!!
           FROM_ABSOLUTE: false,
-          FROM_VALUE: '' + 1.0 / 49, // percentage of income offered up to pension
+          FROM_VALUE: '' + 1.0 / 49, // pension accrual proportion
           TO: pensionDB + 'incomeFromNorwich', // not an asset but a DB income!!
           TO_ABSOLUTE: false,
           TO_VALUE: '1.0',

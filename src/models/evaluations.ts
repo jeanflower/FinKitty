@@ -559,24 +559,70 @@ function updateValueForCPI(
   return result;
 }
 
-const taxBandsSet = makeDateFromString('April 5 2018');
-const noTaxBandSet = 12500;
-const lowTaxBandSet = 50000;
-const highTaxBandSet = 150000;
+const taxBandsSet2018 = makeDateFromString('April 5 2018');
+const noTaxBand2018 = 12500;
+const lowTaxBand2018 = 50000;
+const adjustnoTaxBand2018 = 100000;
+const highTaxBand2018 = 150000;
+const lowTaxRate2018 = 0.2;
+const highTaxRate2018 = 0.4;
+const topTaxRate2018 = 0.45;
+
+const noNIBand2018 = 8628;
+const lowNIBand2018 = 50004;
+const lowNIRate2018 = 0.12;
+const highNIRate2018 = 0.02;
+
+function getTaxBands(income: number, d: Date, cpiVal: number) {
+  const result = {
+      noTaxBand: noTaxBand2018,
+      lowTaxBand: lowTaxBand2018,
+      lowTaxRate: lowTaxRate2018,
+      adjustnoTaxBand: adjustnoTaxBand2018,
+      highTaxBand: highTaxBand2018,
+      highTaxRate: highTaxRate2018,
+      topTaxRate: topTaxRate2018,
+
+      noNIBand: noNIBand2018,
+      lowNIBand: lowNIBand2018,
+      lowNIRate: lowNIRate2018,
+      highNIRate: highNIRate2018,
+
+      bandsSet: taxBandsSet2018,
+  }
+
+  result.noTaxBand = updateValueForCPI(result.bandsSet, d, result.noTaxBand, cpiVal);
+  result.lowTaxBand = updateValueForCPI(result.bandsSet, d, result.lowTaxBand, cpiVal);
+  result.adjustnoTaxBand = updateValueForCPI(result.bandsSet, d, result.adjustnoTaxBand, cpiVal);
+  result.highTaxBand = updateValueForCPI(result.bandsSet, d, result.highTaxBand, cpiVal);
+
+  result.noNIBand = updateValueForCPI(result.bandsSet, d, result.noNIBand, cpiVal);
+  result.lowNIBand = updateValueForCPI(result.bandsSet, d, result.lowNIBand, cpiVal);
+
+  if(income > result.adjustnoTaxBand){
+    const reducedNoTaxBand = 12500 - (income - result.adjustnoTaxBand)/2.0;
+    if(reducedNoTaxBand  > 0){
+      result.noTaxBand = reducedNoTaxBand;
+    } else {
+      result.noTaxBand = 0;
+    }
+  }
+  
+  return result;
+}
 
 function calculateTaxPayable(income: number, d: Date, cpiVal: number) {
   // log(`in calculateTaxPayable`);
   let taxPayable = 0;
 
-  const noTaxBand = updateValueForCPI(taxBandsSet, d, noTaxBandSet, cpiVal);
-  const lowTaxBand = updateValueForCPI(taxBandsSet, d, lowTaxBandSet, cpiVal);
-  const sizeOfLowTaxBand = lowTaxBand - noTaxBand;
-  const highTaxBand = updateValueForCPI(taxBandsSet, d, highTaxBandSet, cpiVal);
-  const sizeOfHighTaxBand = highTaxBand - lowTaxBand;
+  const bands = getTaxBands(income, d, cpiVal);
 
-  const lowTaxRate = 0.2;
-  const highTaxRate = 0.4;
-  const topTaxRate = 0.45;
+  const sizeOfLowTaxBand = bands.lowTaxBand - bands.noTaxBand;
+  const sizeOfHighTaxBand = bands.highTaxBand - bands.lowTaxBand;
+
+  const lowTaxRate = bands.lowTaxRate;
+  const highTaxRate = bands.highTaxRate;
+  const topTaxRate = bands.topTaxRate;
 
   // TODO
   // adjust noTaxBand for high incomes
@@ -588,12 +634,12 @@ function calculateTaxPayable(income: number, d: Date, cpiVal: number) {
 
   incomeInNoTaxBand = income;
   // test next band
-  incomeInLowTaxBand = incomeInNoTaxBand - noTaxBand;
+  incomeInLowTaxBand = incomeInNoTaxBand - bands.noTaxBand;
   // see if we have strayed into next band
   if (incomeInLowTaxBand > 0) {
     // we have some income in low tax band
     // cap income in no tax band
-    incomeInNoTaxBand = noTaxBand;
+    incomeInNoTaxBand = bands.noTaxBand;
     // test next band
     incomeInHighTaxBand = incomeInLowTaxBand - sizeOfLowTaxBand;
     // see if we have strayed into next band
@@ -619,9 +665,12 @@ function calculateTaxPayable(income: number, d: Date, cpiVal: number) {
     // income falls into no tax band
     incomeInLowTaxBand = 0;
   }
-  // log(`${income} = ${incomeInNoTaxBand} + `
-  //   + `${incomeInLowTaxBand} + ${incomeInHighTaxBand} + `
-  //   + `${incomeInTopTaxBand}`);
+  if(printDebug()){
+    log(`${taxPayable} = ${incomeInNoTaxBand} * 0 + `
+      + `${incomeInLowTaxBand} * ${lowTaxRate} + ` 
+      + `${incomeInHighTaxBand} * ${highTaxRate} + `
+      + `${incomeInTopTaxBand} * ${topTaxRate}`);
+  }
 
   taxPayable =
     lowTaxRate * incomeInLowTaxBand +
@@ -632,20 +681,19 @@ function calculateTaxPayable(income: number, d: Date, cpiVal: number) {
   return taxPayable;
 }
 
-const NIBandsSet = makeDateFromString('April 5 2018');
-const noNIBandSet = 8628;
-const lowNIBandSet = 50004;
 
 function calculateNIPayable(income: number, d: Date, cpiVal: number) {
   // log(`in calculateNIPayable`);
   let NIPayable = 0;
 
-  const noNIBand = updateValueForCPI(NIBandsSet, d, noNIBandSet, cpiVal);
-  const lowNIBand = updateValueForCPI(NIBandsSet, d, lowNIBandSet, cpiVal);
-  const sizeOfLowNIBand = lowNIBand - noNIBand;
+  const bands = getTaxBands(income, d, cpiVal);
 
-  const lowNIRate = 0.12;
-  const highNIRate = 0.02;
+  const noNIBand = bands.noNIBand;
+  const lowNIBand = bands.lowNIBand;
+  const lowNIRate = bands.lowNIRate;
+  const highNIRate = bands.highNIRate;
+
+  const sizeOfLowNIBand = lowNIBand - noNIBand;
 
   let incomeInNoNIBand = 0;
   let incomeInLowNIBand = 0;
@@ -834,7 +882,7 @@ function payCGT(
 function OptimizeIncomeTax(
   date: Date,
   cpiVal: number,
-  amount: number,
+  liableIncome: number,
   values: Map<string, number | string>,
   person: string,
   liableIncomeInTaxYear: Map<string, Map<string, number>>,
@@ -842,11 +890,11 @@ function OptimizeIncomeTax(
   model: DbModelData,
 ) {
   // log(`settle up income tax for ${person} and ${amount} on ${date}`);
-  const noTaxBand = updateValueForCPI(taxBandsSet, date, noTaxBandSet, cpiVal);
-  if (amount > noTaxBand) {
+  const bands = getTaxBands(liableIncome, date, cpiVal);
+  if (liableIncome > bands.noTaxBand) {
     return;
   }
-  const unusedAllowance = noTaxBand - amount;
+  const unusedAllowance = bands.noTaxBand - liableIncome;
   // if we have unused allowance, see
   // have we got some crystallised pension we can use?
   for (const valueKey of values.keys()) {
@@ -880,7 +928,7 @@ function OptimizeIncomeTax(
         if (cashVal === undefined) {
           log('BUG!!! cash has no value');
         } else {
-          personAmountMap.set(person, amount + amountToTransfer);
+          personAmountMap.set(person, liableIncome + amountToTransfer);
 
           // log(`valueKey = ${valueKey}`);
           // log(`liability = ${liability}`);
@@ -928,13 +976,13 @@ function settleUpTax(
   for (const [key, value] of liableIncomeInTaxYear) {
     /* eslint-disable-line no-restricted-syntax */
     if (key === incomeTax && value !== undefined) {
-      for (const [person, amount] of value) {
+      for (const [person, liableIncome] of value) {
         /* eslint-disable-line no-restricted-syntax */
         if (doOptimizeForIncomeTax) {
           OptimizeIncomeTax(
             date,
             cpiVal,
-            amount,
+            liableIncome,
             values,
             person,
             liableIncomeInTaxYear,
