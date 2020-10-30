@@ -20,6 +20,9 @@ import {
   quantity,
   EvaluateAllAssets,
   roiStart,
+  purchase,
+  vestedEval,
+  rsu,
 } from '../localization/stringConstants';
 import {
   DatedThing,
@@ -575,46 +578,74 @@ const highNIRate2018 = 0.02;
 
 function getTaxBands(income: number, d: Date, cpiVal: number) {
   const result = {
-      noTaxBand: noTaxBand2018,
-      lowTaxBand: lowTaxBand2018,
-      lowTaxRate: lowTaxRate2018,
-      adjustnoTaxBand: adjustnoTaxBand2018,
-      highTaxBand: highTaxBand2018,
-      highTaxRate: highTaxRate2018,
-      topTaxRate: topTaxRate2018,
+    noTaxBand: noTaxBand2018,
+    lowTaxBand: lowTaxBand2018,
+    lowTaxRate: lowTaxRate2018,
+    adjustnoTaxBand: adjustnoTaxBand2018,
+    highTaxBand: highTaxBand2018,
+    highTaxRate: highTaxRate2018,
+    topTaxRate: topTaxRate2018,
 
-      noNIBand: noNIBand2018,
-      lowNIBand: lowNIBand2018,
-      lowNIRate: lowNIRate2018,
-      highNIRate: highNIRate2018,
+    noNIBand: noNIBand2018,
+    lowNIBand: lowNIBand2018,
+    lowNIRate: lowNIRate2018,
+    highNIRate: highNIRate2018,
 
-      bandsSet: taxBandsSet2018,
-  }
+    bandsSet: taxBandsSet2018,
+  };
 
-  result.noTaxBand = updateValueForCPI(result.bandsSet, d, result.noTaxBand, cpiVal);
-  result.lowTaxBand = updateValueForCPI(result.bandsSet, d, result.lowTaxBand, cpiVal);
-  result.adjustnoTaxBand = updateValueForCPI(result.bandsSet, d, result.adjustnoTaxBand, cpiVal);
-  result.highTaxBand = updateValueForCPI(result.bandsSet, d, result.highTaxBand, cpiVal);
+  result.noTaxBand = updateValueForCPI(
+    result.bandsSet,
+    d,
+    result.noTaxBand,
+    cpiVal,
+  );
+  result.lowTaxBand = updateValueForCPI(
+    result.bandsSet,
+    d,
+    result.lowTaxBand,
+    cpiVal,
+  );
+  result.adjustnoTaxBand = updateValueForCPI(
+    result.bandsSet,
+    d,
+    result.adjustnoTaxBand,
+    cpiVal,
+  );
+  result.highTaxBand = updateValueForCPI(
+    result.bandsSet,
+    d,
+    result.highTaxBand,
+    cpiVal,
+  );
 
-  result.noNIBand = updateValueForCPI(result.bandsSet, d, result.noNIBand, cpiVal);
-  result.lowNIBand = updateValueForCPI(result.bandsSet, d, result.lowNIBand, cpiVal);
+  result.noNIBand = updateValueForCPI(
+    result.bandsSet,
+    d,
+    result.noNIBand,
+    cpiVal,
+  );
+  result.lowNIBand = updateValueForCPI(
+    result.bandsSet,
+    d,
+    result.lowNIBand,
+    cpiVal,
+  );
 
-  if(income > result.adjustnoTaxBand){
-    const reducedNoTaxBand = 12500 - (income - result.adjustnoTaxBand)/2.0;
-    if(reducedNoTaxBand  > 0){
+  if (income > result.adjustnoTaxBand) {
+    const reducedNoTaxBand = 12500 - (income - result.adjustnoTaxBand) / 2.0;
+    if (reducedNoTaxBand > 0) {
       result.noTaxBand = reducedNoTaxBand;
     } else {
       result.noTaxBand = 0;
     }
   }
-  
+
   return result;
 }
 
 function calculateTaxPayable(income: number, d: Date, cpiVal: number) {
   // log(`in calculateTaxPayable`);
-  let taxPayable = 0;
-
   const bands = getTaxBands(income, d, cpiVal);
 
   const sizeOfLowTaxBand = bands.lowTaxBand - bands.noTaxBand;
@@ -665,22 +696,24 @@ function calculateTaxPayable(income: number, d: Date, cpiVal: number) {
     // income falls into no tax band
     incomeInLowTaxBand = 0;
   }
-  if(printDebug()){
-    log(`${taxPayable} = ${incomeInNoTaxBand} * 0 + `
-      + `${incomeInLowTaxBand} * ${lowTaxRate} + ` 
-      + `${incomeInHighTaxBand} * ${highTaxRate} + `
-      + `${incomeInTopTaxBand} * ${topTaxRate}`);
-  }
+  const taxPayable = [
+    {
+      amountLiable: incomeInLowTaxBand,
+      rate: lowTaxRate,
+    },
+    {
+      amountLiable: incomeInHighTaxBand,
+      rate: highTaxRate,
+    },
+    {
+      amountLiable: incomeInTopTaxBand,
+      rate: topTaxRate,
+    },
+  ];
 
-  taxPayable =
-    lowTaxRate * incomeInLowTaxBand +
-    highTaxRate * incomeInHighTaxBand +
-    topTaxRate * incomeInTopTaxBand;
-
-  // log(`taxPayable from income ${income} is ${taxPayable}`);
+  // log(`taxPayable from income ${income} is ${showObj(taxPayable)}`);
   return taxPayable;
 }
-
 
 function calculateNIPayable(income: number, d: Date, cpiVal: number) {
   // log(`in calculateNIPayable`);
@@ -738,7 +771,7 @@ const CGTBandsSet = makeDateFromString('April 5 2018');
 const noCGTBandSet = 12000;
 
 function calculateCGTPayable(gain: number, d: Date, cpiVal: number) {
-  // log(`in calculateCGTPayable`);
+  // log(`in calculateCGTPayable, gain = ${gain}`);
   const noCGTBand = updateValueForCPI(CGTBandsSet, d, noCGTBandSet, cpiVal);
 
   const CGTRate = 0.2;
@@ -782,6 +815,182 @@ function adjustCash(
   }
 }
 
+function sumTaxDue(
+  taxDueList: { amountLiable: number; rate: number }[],
+): number {
+  let total = 0.0;
+  taxDueList.forEach(tx => {
+    total = total + tx.amountLiable * tx.rate;
+    // log(`total is now ${total}`);
+  });
+  return total;
+}
+
+function payTaxFromVestedRSU(
+  a: DbAsset,
+  taxDue: { amountLiable: number; rate: number }[],
+  startOfTaxYear: Date,
+  values: Map<string, number | string>,
+  evaluations: Evaluation[],
+  model: DbModelData,
+  source: string, // e.g. IncomeTaxJoe
+) {
+  const vestedEvaln = values.get(`${vestedEval}${a.NAME}`);
+  if (vestedEvaln === undefined) {
+    throw new Error('RSUs must have a defined vested evaluation');
+  }
+  if (typeof vestedEvaln === 'string') {
+    throw new Error('RSUs must have a numerical defined vested evaluation');
+  }
+  const assetQty = values.get(`${quantity}${a.NAME}`);
+  if((assetQty === undefined) || (typeof assetQty === 'string')){
+    throw new Error('RSUs need a numerical qty');
+  }
+  const numShares = traceEvaluation(assetQty, values, source);
+  if (numShares === undefined) {
+    throw new Error('RSUs must have a defined quantity');
+  } else {
+    let evalAvailable = vestedEvaln * numShares;
+    taxDue.sort((a, b) => {
+      return a.rate < b.rate ? 1 : a.rate > b.rate ? -1 : 0;
+    });
+    if (printDebug()) {
+      log(
+        `taxDue before some tax was paid from RSUs = ${showObj(
+          taxDue.map(td => {
+            return {
+              amountLiable: td.amountLiable,
+              rate: td.rate,
+              amountDue: td.amountLiable * td.rate,
+            };
+          }),
+        )}`,
+      );
+    }
+    let amountForTax = 0;
+    let amountToKeep = 0;
+    taxDue.forEach(td => {
+      const amountLiablePlusSlack = td.amountLiable + 0.0001; // slack to avoid rounding errors!
+      let addForTax = 0;
+      if (evalAvailable > amountLiablePlusSlack) {
+        // RSUs have more than we need for this td
+        // log(`RSUs available worth ${evalAvailable} > tax liability ${amountLiablePlusSlack}`);
+        addForTax =
+          Math.floor((amountLiablePlusSlack * td.rate) / vestedEvaln) *
+          vestedEvaln;
+      } else {
+        // RSUs are not enough to cover the tax due
+        // log(`RSUs available worth ${evalAvailable} <= tax liability ${amountLiablePlusSlack}`);
+        addForTax =
+          Math.floor((evalAvailable * td.rate) / vestedEvaln) * vestedEvaln;
+      }
+      amountForTax = amountForTax + addForTax;
+      const addToKeep = (addForTax / td.rate) * (1 - td.rate);
+      amountToKeep = amountToKeep + addToKeep;
+      evalAvailable = evalAvailable - (addForTax + addToKeep);
+      td.amountLiable = td.amountLiable - (addForTax + addToKeep);
+      if (printDebug()) {
+        log(
+          `for tax band rate ${td.rate} ` +
+            `pay ${addForTax} for tax bill ` +
+            `and reduce liability by ${addForTax + addToKeep}`,
+        );
+      }
+    });
+    const numSharesForTax = amountForTax / vestedEvaln;
+    if (printDebug()) {
+      log(
+        `reduce numShares from ${numShares} by ${numSharesForTax} ` +
+          `to pay ${amountForTax} to tax bill`,
+      );
+    }
+    setValue(
+      values,
+      evaluations,
+      startOfTaxYear,
+      quantity + a.NAME,
+      numShares - numSharesForTax,
+      model,
+      source,
+      '29', //callerID
+    );
+    // log(`paid ${numSharesForTax} RSUs for income tax`);
+    const currentPurchaseValue = values.get(`${purchase}${a.NAME}`);
+    if (currentPurchaseValue !== undefined){
+      if (typeof currentPurchaseValue === "string") {
+        throw new Error(`string purchase price for RSUs?`);
+      } else {
+        let purchaseValue = currentPurchaseValue;
+        if(purchaseValue !== 0.0){
+          // log(`before paying income tax, purchaseValue = ${purchaseValue}`);
+          purchaseValue = purchaseValue * (numShares - numSharesForTax)/numShares;
+          // log(`after paying income tax, purchaseValue = ${purchaseValue}`);
+          setValue(
+            values,
+            evaluations,
+            startOfTaxYear,
+            `${purchase}${a.NAME}`,
+            purchaseValue,
+            model,
+            source,
+            '31', //callerID
+          );
+        }        
+      }
+    }
+
+    if (printDebug()) {
+      log(
+        `taxDue after some tax was paid from RSUs = ${showObj(
+          taxDue.map(td => {
+            return {
+              amountLiable: td.amountLiable,
+              rate: td.rate,
+              amountDue: td.amountLiable * td.rate,
+            };
+          }),
+        )}`,
+      );
+    }
+  }
+}
+
+function payTaxFromVestedRSUs(
+  taxDue: { amountLiable: number; rate: number }[],
+  startOfTaxYear: Date,
+  values: Map<string, number | string>,
+  evaluations: Evaluation[],
+  model: DbModelData,
+  source: string, // e.g. IncomeTaxJoe
+) {
+  const RSUsForTax = model.assets
+    .filter(a => {
+      return a.CATEGORY === rsu;
+    })
+    .filter(a => {
+      const rsuVested = getTriggerDate(a.START, model.triggers);
+      if (rsuVested < startOfTaxYear) {
+        rsuVested.setFullYear(rsuVested.getFullYear() + 1);
+        if (rsuVested > startOfTaxYear) {
+          // log(`asset ${a.NAME} vested in this tax year`);
+          return true;
+        }
+      }
+      return false;
+    });
+  RSUsForTax.forEach(a => {
+    payTaxFromVestedRSU(
+      a,
+      taxDue,
+      startOfTaxYear,
+      values,
+      evaluations,
+      model,
+      source, // e.g. IncomeTaxJoe
+    );
+  });
+}
+
 function payIncomeTax(
   startOfTaxYear: Date,
   income: number,
@@ -793,11 +1002,34 @@ function payIncomeTax(
 ) {
   // log(`pay income tax on ${income} for date ${startOfTaxYear}`);
   // calculate tax liability
-  const taxDue = calculateTaxPayable(income, startOfTaxYear, cpiVal);
+  const taxDue: { amountLiable: number; rate: number }[] = calculateTaxPayable(
+    income,
+    startOfTaxYear,
+    cpiVal,
+  );
   // log(`taxDue for ${source} on ${startOfTaxYear} = ${taxDue}`);
-  if (taxDue > 0) {
-    // log('in payIncomeTax, adjustCash:');
-    adjustCash(-taxDue, startOfTaxYear, values, evaluations, model, source);
+  const totalTaxDue = sumTaxDue(taxDue);
+  if (totalTaxDue > 0) {
+    payTaxFromVestedRSUs(
+      taxDue,
+      startOfTaxYear,
+      values,
+      evaluations,
+      model,
+      source,
+    );
+    const totalTaxDueFromCash = sumTaxDue(taxDue);
+    if (totalTaxDueFromCash > 0) {
+      // log('in payIncomeTax, adjustCash:');
+      adjustCash(
+        -totalTaxDueFromCash,
+        startOfTaxYear,
+        values,
+        evaluations,
+        model,
+        source,
+      );
+    }
     // log(`setValue with taxDue = ${taxDue}`);
     const person = source.substring(0, source.length - incomeTax.length);
     setValue(
@@ -805,13 +1037,13 @@ function payIncomeTax(
       evaluations,
       startOfTaxYear,
       incomeTax,
-      taxDue,
+      totalTaxDue,
       model,
       makeIncomeTaxTag(person),
       '23', //callerID
     );
   }
-  return taxDue;
+  return totalTaxDue;
 }
 
 function payNI(
@@ -874,7 +1106,7 @@ function payCGT(
       CGTDue,
       model,
       makeCGTTag(person),
-      '25', //callerID
+      '26', //callerID
     );
   }
   return CGTDue;
@@ -1018,7 +1250,7 @@ function settleUpTax(
         // log(`paid some income tax for ${personsName}`);
         const knownNetIncome = personNetIncome.get(personsName);
         if (knownNetIncome === undefined) {
-          // log(`for ic, set first net income for ${personsName}`);
+          // log(`for ${personsName}, set first net income ${amount} - ${taxPaid}`);
           personNetIncome.set(personsName, amount - taxPaid);
         } else {
           // log(`for ic, reduce existing net income for ${personsName}`);
@@ -2142,7 +2374,7 @@ function handleCGTLiability(
   }
   const proportionSale = fromChange / preFromValue;
   // log(`proportionSale = ${fromChange} / ${preFromValue} = ${proportionSale}`);
-  const purchasePrice = getNumberValue(values, `Purchase${fromWord}`);
+  const purchasePrice = getNumberValue(values, `${purchase}${fromWord}`);
   // log(`purchasePrice = ${purchasePrice}`);
   if (purchasePrice !== undefined) {
     const totalGain = preFromValue - purchasePrice;
@@ -2160,18 +2392,19 @@ function handleCGTLiability(
         currentcgtVal = 0.0;
       }
       currentcgtVal += proportionGain;
+      // log(`setting new value for cgt ${currentcgtVal}`);
       cgtMap.set(cgtLiability, currentcgtVal);
       // log(`logged cgt for ${cgtLiability}, accumulated value ${currentcgtVal}`);
     }
     const newPurchasePrice = purchasePrice * (1 - proportionSale);
     // when selling some asset, we reduce the Purchase value
     // of what's left for CGT purposes
-    // log('in handleCGTLiability, setValue:');
+    // log(`in handleCGTLiability, set newPurchasePrice = ${newPurchasePrice}`);
     setValue(
       values,
       evaluations,
       moment.date,
-      `Purchase${fromWord}`,
+      `${purchase}${fromWord}`,
       newPurchasePrice,
       model,
       t.NAME, // TODO no test??
@@ -2540,10 +2773,10 @@ function logPurchaseValues(
       values,
       evaluations,
       getTriggerDate(a.START, model.triggers),
-      `Purchase${a.NAME}`,
+      `${purchase}${a.NAME}`,
       purchaseValue,
       model,
-      `Purchase${a.NAME}`,
+      `${purchase}${a.NAME}`,
       '17', //callerID
     );
   }
@@ -2972,7 +3205,7 @@ export function getEvaluations(
         log('BUG!!! starts of income/asset/expense should have a value!');
         break;
       }
-      // Log quanities for assets which have them; needed for setting value.
+      // Log quantities for assets which have them; needed for setting value.
       if (moment.type === momentType.assetStart) {
         // log(`at start of asset ${moment.name}`);
         const startQ = getStartQuantity(moment.name, model);
@@ -2993,7 +3226,43 @@ export function getEvaluations(
           return a.NAME === moment.name;
         });
         if (matchingAsset.length === 1) {
-          logPurchaseValues(matchingAsset[0], values, evaluations, model);
+          const a = matchingAsset[0];
+          // log(`matched asset for start`);
+          logPurchaseValues(a, values, evaluations, model);
+          if (a.CATEGORY === rsu) {
+            // log(`found vesting RSUs ${a.NAME}`);
+            const l = a.LIABILITY;
+            const liabilityWords = l.split(separator);
+            liabilityWords.forEach(lw => {
+              if (!lw.endsWith(incomeTax)) {
+                return;
+              }
+              const val = traceEvaluation(a.VALUE, values, 'source');
+              const qty = traceEvaluation(a.QUANTITY, values, 'source');
+              if (val === undefined || qty === undefined) {
+                throw new Error('!!');
+              } else {
+                const amountDueForIncomeTax = val * qty;
+                // log(`amountDueForIncomeTax = ${amountDueForIncomeTax}`)
+                handleLiability(
+                  lw,
+                  incomeTax,
+                  amountDueForIncomeTax,
+                  liableIncomeInTaxYear,
+                );
+                setValue(
+                  values,
+                  evaluations,
+                  moment.date,
+                  `${vestedEval}${a.NAME}`,
+                  val,
+                  model,
+                  `Vesting${a.NAME}`,
+                  '30', //callerID
+                );
+              }
+            });
+          }
         } else {
           throw new Error(`BUG!!! '${moment.name}' doesn't match one asset`);
         }

@@ -52,6 +52,9 @@ import {
   moveTaxFreePart,
   taxFree,
   transferCrystallizedPension,
+  vestedEval,
+  purchase,
+  rsu,
 } from '../localization/stringConstants';
 import {
   DbAsset,
@@ -218,12 +221,14 @@ export function checkAsset(a: DbAsset, model: DbModelData): string {
     return `Asset '${a.NAME}' can't be negative but has negative value '${a.VALUE}'`;
   }
   if (a.LIABILITY.length > 0) {
-    if (a.LIABILITY.includes(separator)) {
-      return `Unexpected multiple asset liabilities for ${a.LIABILITY}`;
-    }
-    const x = checkAssetLiability(a.LIABILITY);
-    if (x.length > 0) {
-      return x;
+    // log(`checking ${a.LIABILITY}`);
+    const words = a.LIABILITY.split(separator);
+    for (let idx = 0; idx < words.length; idx += 1) {
+      const word = words[idx];
+      const x = checkAssetLiability(word);
+      if (x.length > 0) {
+        return x;
+      }
     }
   }
 
@@ -269,6 +274,15 @@ export function checkAsset(a: DbAsset, model: DbModelData): string {
   if (d === undefined || !checkDate(d)) {
     return `Asset start date doesn't make sense :
       ${showObj(a.START)}`;
+  }
+
+  if(a.CATEGORY === rsu){
+    if(!isNumberString(a.QUANTITY)){
+      return `Asset ${a.NAME} needs a numerical quantity`;
+    }
+    if(!isNumberString(a.PURCHASE_PRICE)){
+      return `Asset ${a.NAME} needs a numerical purchase price`;
+    }
   }
   return '';
 }
@@ -1551,9 +1565,9 @@ export function checkEvalnType(
   nameToTypeMap: Map<string, string>,
 ) {
   // expect 'PurchaseAssetName' as valuation for cgt purposes
-  if (evaln.name.startsWith('Purchase')) {
+  if (evaln.name.startsWith(purchase)) {
     // TODO codify Purchase as a const string
-    const evalnType = nameToTypeMap.get(evaln.name.substr(8)); // TODO 8 = length purchase
+    const evalnType = nameToTypeMap.get(evaln.name.substr(purchase.length)); 
     if (evalnType === evaluationType.asset) {
       // don't process this evaluation
       // it was just logged to track CGT liability
@@ -1568,8 +1582,13 @@ export function checkEvalnType(
     // expect 'quantity' as keeping track of discrete assets
     const evalnType = nameToTypeMap.get(evaln.name.substr(quantity.length));
     if (evalnType === evaluationType.asset) {
-      // don't process this evaluation
-      // it was just logged to track CGT liability
+      return;
+    }
+  } else if (evaln.name.startsWith(vestedEval)) {
+    // expect 'VestedEval' as remembering values of RSUs
+    // to use later when payting tax
+    const evalnType = nameToTypeMap.get(evaln.name.substr(vestedEval.length));
+    if (evalnType === evaluationType.asset) {
       return;
     }
   } else {
