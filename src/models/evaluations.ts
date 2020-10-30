@@ -917,14 +917,24 @@ function payTaxFromVestedRSU(
     // log(`paid ${numSharesForTax} RSUs for income tax`);
     const currentPurchaseValue = values.get(`${purchase}${a.NAME}`);
     if (currentPurchaseValue !== undefined){
+      let numberPart = 0.0;
+      let wordPart: string|undefined = undefined;
       if (typeof currentPurchaseValue === "string") {
-        throw new Error(`string purchase price for RSUs?`);
+        const parsed = getNumberAndWordParts(currentPurchaseValue);
+        if(parsed.numberPart === undefined){
+          throw new Error(`don't understand purchase price for RSUs?`);
+        }
+        numberPart = parsed.numberPart;
+        wordPart = parsed.wordPart;
       } else {
-        let purchaseValue = currentPurchaseValue;
-        if(purchaseValue !== 0.0){
-          // log(`before paying income tax, purchaseValue = ${purchaseValue}`);
-          purchaseValue = purchaseValue * (numShares - numSharesForTax)/numShares;
-          // log(`after paying income tax, purchaseValue = ${purchaseValue}`);
+        numberPart = currentPurchaseValue;
+      }
+      let purchaseValue = numberPart;
+      if(purchaseValue !== 0.0){
+        // log(`before paying income tax, purchaseValue = ${purchaseValue}`);
+        purchaseValue = purchaseValue * (numShares - numSharesForTax)/numShares;
+        // log(`after paying income tax, purchaseValue = ${purchaseValue}`);
+        if(wordPart === undefined){
           setValue(
             values,
             evaluations,
@@ -935,7 +945,18 @@ function payTaxFromVestedRSU(
             source,
             '31', //callerID
           );
-        }        
+        } else {
+          setValue(
+            values,
+            evaluations,
+            startOfTaxYear,
+            `${purchase}${a.NAME}`,
+            `${purchaseValue}${wordPart}`,
+            model,
+            source,
+            '32', //callerID
+          );
+        }
       }
     }
 
@@ -963,9 +984,13 @@ function payTaxFromVestedRSUs(
   model: DbModelData,
   source: string, // e.g. IncomeTaxJoe
 ) {
+  const person = source.substring(0, source.length - incomeTax.length);
   const RSUsForTax = model.assets
     .filter(a => {
       return a.CATEGORY === rsu;
+    })
+    .filter(a => {
+      return a.LIABILITY.split(separator).includes(`${person}${incomeTax}`)
     })
     .filter(a => {
       const rsuVested = getTriggerDate(a.START, model.triggers);
@@ -3239,6 +3264,7 @@ export function getEvaluations(
               }
               const val = traceEvaluation(a.VALUE, values, 'source');
               const qty = traceEvaluation(a.QUANTITY, values, 'source');
+              // log(`val = ${val}, qty = ${qty}`);
               if (val === undefined || qty === undefined) {
                 throw new Error('!!');
               } else {

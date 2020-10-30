@@ -280,9 +280,6 @@ export function checkAsset(a: DbAsset, model: DbModelData): string {
     if(!isNumberString(a.QUANTITY)){
       return `Asset ${a.NAME} needs a numerical quantity`;
     }
-    if(!isNumberString(a.PURCHASE_PRICE)){
-      return `Asset ${a.NAME} needs a numerical purchase price`;
-    }
   }
   return '';
 }
@@ -1586,7 +1583,7 @@ export function checkEvalnType(
     }
   } else if (evaln.name.startsWith(vestedEval)) {
     // expect 'VestedEval' as remembering values of RSUs
-    // to use later when payting tax
+    // to use later when paying tax
     const evalnType = nameToTypeMap.get(evaln.name.substr(vestedEval.length));
     if (evalnType === evaluationType.asset) {
       return;
