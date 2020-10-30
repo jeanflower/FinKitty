@@ -80,7 +80,7 @@ import { AddDeleteSettingForm } from './views/reactComponents/AddDeleteSettingFo
 import { ReplaceWithJSONForm } from './views/reactComponents/ReplaceWithJSONForm';
 import { CreateModelForm } from './views/reactComponents/NewModelForm';
 import { Form, Nav, Navbar } from 'react-bootstrap';
-import FinKittyCat from './views/cat.png';
+// import FinKittyCat from './views/cat.png';
 
 // import './bootstrap.css'
 
