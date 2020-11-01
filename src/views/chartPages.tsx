@@ -24,6 +24,7 @@ import {
   income,
   gain,
   taxChartShowNet,
+  taxView,
 } from '../localization/stringConstants';
 import {
   getSettings,
@@ -33,7 +34,7 @@ import {
   getLiabilityPeople,
 } from '../utils';
 import Button from './reactComponents/Button';
-import { getDisplay, taxView, editSetting } from '../App';
+import { getDisplay, editSetting } from '../App';
 import ReactiveTextArea from './reactComponents/ReactiveTextArea';
 
 import CanvasJSReact from '../assets/js/canvasjs.react';

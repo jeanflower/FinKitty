@@ -3,7 +3,6 @@ import { ChartData, DbModelData, DbItem } from '../types/interfaces';
 import {
   deleteIncome,
   getDisplay,
-  incomesView,
   submitIncome,
   submitTransaction,
   submitTrigger,
@@ -19,7 +18,7 @@ import {
 } from './tablePages';
 import { AddDeleteIncomeForm } from './reactComponents/AddDeleteIncomeForm';
 import { checkIncome, checkTransaction } from '../models/checks';
-import { revalueInc } from '../localization/stringConstants';
+import { incomesView, revalueInc } from '../localization/stringConstants';
 import DataGrid from './reactComponents/DataGrid';
 import { lessThan, getTodaysDate } from '../utils';
 import SimpleFormatter from './reactComponents/NameFormatter';

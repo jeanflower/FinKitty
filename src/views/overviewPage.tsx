@@ -11,7 +11,7 @@ import {
   transactionsTableDiv,
   triggersTableDivWithHeading,
 } from './tablePages';
-import { getDisplay, overview } from '../App';
+import { getDisplay } from '../App';
 import {
   incomesChartDiv,
   taxChartDiv,
@@ -25,6 +25,7 @@ import {
   autogen,
   revalueInc,
   revalueExp,
+  overview,
 } from '../localization/stringConstants';
 
 import { AddDeleteEntryForm } from './reactComponents/AddDeleteEntryForm';

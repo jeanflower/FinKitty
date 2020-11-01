@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   deleteExpense,
-  expensesView,
   getDisplay,
   submitExpense,
   submitTransaction,
@@ -19,7 +18,7 @@ import {
 import { AddDeleteExpenseForm } from './reactComponents/AddDeleteExpenseForm';
 import { checkExpense, checkTransaction } from '../models/checks';
 import { DbModelData, ChartData, DbItem } from '../types/interfaces';
-import { revalueExp } from '../localization/stringConstants';
+import { expensesView, revalueExp } from '../localization/stringConstants';
 import DataGrid from './reactComponents/DataGrid';
 import { lessThan, getTodaysDate } from '../utils';
 import SimpleFormatter from './reactComponents/NameFormatter';

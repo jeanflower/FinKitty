@@ -196,3 +196,31 @@ export const CoarseAndFine = 'CoarseAndFine';
 export const FutureExpense = 'FutureExpense';
 export const ThreeChryslerModel = 'ThreeChryslerModel';
 export const MinimalModel = 'MinimalModel';
+
+export interface ViewType {
+  lc: string;
+}
+export const homeView: ViewType = { lc: 'Home' };
+export const expensesView: ViewType = { lc: 'Expenses' };
+export const incomesView: ViewType = { lc: 'Incomes' };
+export const transactionsView: ViewType = { lc: 'Transactions' };
+export const assetsView: ViewType = { lc: 'Assets' };
+export const debtsView: ViewType = { lc: 'Debts' };
+export const triggersView: ViewType = { lc: 'Dates' };
+export const settingsView: ViewType = { lc: 'Settings' };
+export const taxView: ViewType = { lc: 'Tax' };
+
+export const expensesChart: ViewType = { lc: 'Expenses chart' };
+export const incomesChart: ViewType = { lc: 'Incomes chart' };
+export const assetsChart: ViewType = { lc: 'Assets chart' };
+export const debtsChart: ViewType = { lc: 'Debts chart' };
+
+export const expensesTable: ViewType = { lc: 'Expenses table' };
+export const incomesTable: ViewType = { lc: 'Incomes table' };
+export const assetsTable: ViewType = { lc: 'Assets table' };
+export const debtsTable: ViewType = { lc: 'Debts table' };
+export const transactionsTable: ViewType = { lc: 'Transactions table' };
+export const triggersTable: ViewType = { lc: 'Dates table' };
+export const settingsTable: ViewType = { lc: 'Settings table' };
+
+export const overview: ViewType = { lc: 'Overview' };

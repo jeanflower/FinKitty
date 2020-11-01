@@ -1,7 +1,6 @@
 import React from 'react';
 import { ChartData, DbModelData, DbItem } from './../types/interfaces';
 import {
-  debtsView,
   deleteAsset,
   getDisplay,
   submitAsset,
@@ -16,6 +15,7 @@ import { getTodaysDate, lessThan } from '../utils';
 import DataGrid from './reactComponents/DataGrid';
 import SimpleFormatter from './reactComponents/NameFormatter';
 import CashValueFormatter from './reactComponents/CashValueFormatter';
+import { debtsView } from '../localization/stringConstants';
 
 function todaysDebtsTable(
   model: DbModelData,
