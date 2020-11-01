@@ -159,6 +159,7 @@ export const rsu = 'RSU';
 
 // Track vesting values for RSUs
 export const vestedEval = 'VestedEval';
+export const vestedNum = 'VestedNum';
 
 // Transaction types:
 //  Auto-generated (e.g. about pension)

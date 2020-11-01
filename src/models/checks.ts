@@ -55,6 +55,7 @@ import {
   vestedEval,
   purchase,
   rsu,
+  vestedNum,
 } from '../localization/stringConstants';
 import {
   DbAsset,
@@ -174,8 +175,13 @@ function checkDate(d: Date) {
   return true;
 }
 export function checkAssetLiability(l: string) {
-  if (l.length > 0 && !l.endsWith(cgt) && !l.endsWith(incomeTax)) {
-    return `Asset liability ${l} should end with ${cgt} or ${incomeTax}`;
+  if (
+    l.length > 0 &&
+    !l.endsWith(cgt) &&
+    !l.endsWith(incomeTax) &&
+    !l.endsWith(nationalInsurance)
+  ) {
+    return `Asset liability ${l} should end with ${cgt}, ${incomeTax} or ${nationalInsurance}`;
   }
   return '';
 }
@@ -276,8 +282,8 @@ export function checkAsset(a: DbAsset, model: DbModelData): string {
       ${showObj(a.START)}`;
   }
 
-  if(a.CATEGORY === rsu){
-    if(!isNumberString(a.QUANTITY)){
+  if (a.CATEGORY === rsu) {
+    if (!isNumberString(a.QUANTITY)) {
       return `Asset ${a.NAME} needs a numerical quantity`;
     }
   }
@@ -1563,15 +1569,16 @@ export function checkEvalnType(
 ) {
   // expect 'PurchaseAssetName' as valuation for cgt purposes
   if (evaln.name.startsWith(purchase)) {
-    // TODO codify Purchase as a const string
-    const evalnType = nameToTypeMap.get(evaln.name.substr(purchase.length)); 
+    const evalnType = nameToTypeMap.get(evaln.name.substr(purchase.length));
     if (evalnType === evaluationType.asset) {
       // don't process this evaluation
       // it was just logged to track CGT liability
       return;
     }
     if (evalnType === undefined) {
-      throw new Error(`BUG!! evaluation of an unknown type: ${showObj(evaln)}`);
+      throw new Error(
+        `BUG!! purchase evaluation of an unknown type: ${showObj(evaln)}`,
+      );
       //return;
     }
     log(`BUG!! Purchase of non-asset? : ${showObj(evaln)}`);
@@ -1585,6 +1592,13 @@ export function checkEvalnType(
     // expect 'VestedEval' as remembering values of RSUs
     // to use later when paying tax
     const evalnType = nameToTypeMap.get(evaln.name.substr(vestedEval.length));
+    if (evalnType === evaluationType.asset) {
+      return;
+    }
+  } else if (evaln.name.startsWith(vestedNum)) {
+    // expect 'VestedNum' as remembering quantities of RSUs
+    // to use later when paying tax
+    const evalnType = nameToTypeMap.get(evaln.name.substr(vestedNum.length));
     if (evalnType === evaluationType.asset) {
       return;
     }

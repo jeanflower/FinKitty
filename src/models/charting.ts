@@ -739,6 +739,13 @@ function mapNamesToTypes(model: DbModelData) {
         // log(`netIncomeTag = ${netIncomeTag}, icTag   = ${icTag}`);
         nameToTypeMap.set(netIncomeTag, evaluationType.taxLiability);
         nameToTypeMap.set(icTag, evaluationType.taxLiability);
+      } else if (l.endsWith(nationalInsurance)) {
+        const person = l.substring(0, l.length - nationalInsurance.length);
+        const niTag = makeNationalInsuranceTag(person);
+        const netIncomeTag = makeNetIncomeTag(person);
+        // log(`netIncomeTag = ${netIncomeTag}, niTag   = ${niTag}`);
+        nameToTypeMap.set(netIncomeTag, evaluationType.taxLiability);
+        nameToTypeMap.set(niTag, evaluationType.taxLiability);
       }
     });
     if (asset.NAME.startsWith(crystallizedPension)) {

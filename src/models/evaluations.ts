@@ -23,6 +23,7 @@ import {
   purchase,
   vestedEval,
   rsu,
+  vestedNum,
 } from '../localization/stringConstants';
 import {
   DatedThing,
@@ -644,7 +645,7 @@ function getTaxBands(income: number, d: Date, cpiVal: number) {
   return result;
 }
 
-function calculateTaxPayable(income: number, d: Date, cpiVal: number) {
+function calculateIncomeTaxPayable(income: number, d: Date, cpiVal: number) {
   // log(`in calculateTaxPayable`);
   const bands = getTaxBands(income, d, cpiVal);
 
@@ -698,16 +699,16 @@ function calculateTaxPayable(income: number, d: Date, cpiVal: number) {
   }
   const taxPayable = [
     {
-      amountLiable: incomeInLowTaxBand,
-      rate: lowTaxRate,
+      amountLiable: incomeInTopTaxBand,
+      rate: topTaxRate,
     },
     {
       amountLiable: incomeInHighTaxBand,
       rate: highTaxRate,
     },
     {
-      amountLiable: incomeInTopTaxBand,
-      rate: topTaxRate,
+      amountLiable: incomeInLowTaxBand,
+      rate: lowTaxRate,
     },
   ];
 
@@ -715,10 +716,12 @@ function calculateTaxPayable(income: number, d: Date, cpiVal: number) {
   return taxPayable;
 }
 
-function calculateNIPayable(income: number, d: Date, cpiVal: number) {
+function calculateNIPayable(
+  income: number,
+  d: Date,
+  cpiVal: number,
+): { amountLiable: number; rate: number }[] {
   // log(`in calculateNIPayable`);
-  let NIPayable = 0;
-
   const bands = getTaxBands(income, d, cpiVal);
 
   const noNIBand = bands.noNIBand;
@@ -758,13 +761,19 @@ function calculateNIPayable(income: number, d: Date, cpiVal: number) {
   // log(`${income} = ${incomeInNoNIBand} + `
   //    + `${incomeInLowNIBand} + ${incomeInHighNIBand}`);
 
-  NIPayable = lowNIRate * incomeInLowNIBand + highNIRate * incomeInHighNIBand;
+  const niPayable = [
+    {
+      amountLiable: incomeInHighNIBand,
+      rate: highNIRate,
+    },
+    {
+      amountLiable: incomeInLowNIBand,
+      rate: lowNIRate,
+    },
+  ];
 
-  // log(`NI = ${lowNIRate * incomeInLowNIBand} + `
-  //  + `${highNIRate * incomeInHighNIBand} = ${NIPayable}`);
-
-  // log(`NIPayable from income ${income} is ${NIPayable}`);
-  return NIPayable;
+  // log(`niPayable from income ${income} is ${showObj(niPayable)}`);
+  return niPayable;
 }
 
 const CGTBandsSet = makeDateFromString('April 5 2018');
@@ -839,21 +848,25 @@ function payTaxFromVestedRSU(
   if (vestedEvaln === undefined) {
     throw new Error('RSUs must have a defined vested evaluation');
   }
+  const vestedNumb = values.get(`${vestedNum}${a.NAME}`);
+  if (vestedNumb === undefined) {
+    throw new Error('RSUs must have a defined vested number');
+  }
   if (typeof vestedEvaln === 'string') {
     throw new Error('RSUs must have a numerical defined vested evaluation');
   }
+  if (typeof vestedNumb === 'string') {
+    throw new Error('RSUs must have a numerical defined vested quantity');
+  }
   const assetQty = values.get(`${quantity}${a.NAME}`);
-  if((assetQty === undefined) || (typeof assetQty === 'string')){
+  if (assetQty === undefined || typeof assetQty === 'string') {
     throw new Error('RSUs need a numerical qty');
   }
   const numShares = traceEvaluation(assetQty, values, source);
   if (numShares === undefined) {
-    throw new Error('RSUs must have a defined quantity');
+    throw new Error('RSUs must have a defined currentquantity');
   } else {
-    let evalAvailable = vestedEvaln * numShares;
-    taxDue.sort((a, b) => {
-      return a.rate < b.rate ? 1 : a.rate > b.rate ? -1 : 0;
-    });
+    let evalAvailable = vestedEvaln * vestedNumb;
     if (printDebug()) {
       log(
         `taxDue before some tax was paid from RSUs = ${showObj(
@@ -870,25 +883,30 @@ function payTaxFromVestedRSU(
     let amountForTax = 0;
     let amountToKeep = 0;
     taxDue.forEach(td => {
-      const amountLiablePlusSlack = td.amountLiable + 0.0001; // slack to avoid rounding errors!
+      const amountLiable = td.amountLiable;
       let addForTax = 0;
-      if (evalAvailable > amountLiablePlusSlack) {
+      if (evalAvailable > amountLiable) {
         // RSUs have more than we need for this td
-        // log(`RSUs available worth ${evalAvailable} > tax liability ${amountLiablePlusSlack}`);
-        addForTax =
-          Math.floor((amountLiablePlusSlack * td.rate) / vestedEvaln) *
-          vestedEvaln;
+        // log(`RSUs available worth ${evalAvailable} > tax liability ${amountLiable}`);
+        // log(`due to pay ${amountLiable * td.rate}`);
+        addForTax = amountLiable * td.rate;
       } else {
         // RSUs are not enough to cover the tax due
-        // log(`RSUs available worth ${evalAvailable} <= tax liability ${amountLiablePlusSlack}`);
-        addForTax =
-          Math.floor((evalAvailable * td.rate) / vestedEvaln) * vestedEvaln;
+        // log(`RSUs available worth ${evalAvailable} <= tax liability ${amountLiable}`);
+        // log(`due to pay ${evalAvailable * td.rate}`);
+        addForTax = evalAvailable * td.rate;
       }
-      amountForTax = amountForTax + addForTax;
+
+      const addForTaxRounded =
+        Math.floor(addForTax / vestedEvaln + 0.00001) * vestedEvaln;
+      amountForTax = amountForTax + addForTaxRounded;
       const addToKeep = (addForTax / td.rate) * (1 - td.rate);
-      amountToKeep = amountToKeep + addToKeep;
+      const addToKeepRounded =
+        Math.floor(addToKeep / vestedEvaln + 0.00001) * vestedEvaln;
+      amountToKeep = amountToKeep + addToKeepRounded;
+      // log(`reduce evalAvailable by ${addForTax} + ${addToKeep} = ${addForTax + addToKeep}`)
       evalAvailable = evalAvailable - (addForTax + addToKeep);
-      td.amountLiable = td.amountLiable - (addForTax + addToKeep);
+      td.amountLiable = td.amountLiable - addForTaxRounded / td.rate;
       if (printDebug()) {
         log(
           `for tax band rate ${td.rate} ` +
@@ -916,12 +934,12 @@ function payTaxFromVestedRSU(
     );
     // log(`paid ${numSharesForTax} RSUs for income tax`);
     const currentPurchaseValue = values.get(`${purchase}${a.NAME}`);
-    if (currentPurchaseValue !== undefined){
+    if (currentPurchaseValue !== undefined) {
       let numberPart = 0.0;
-      let wordPart: string|undefined = undefined;
-      if (typeof currentPurchaseValue === "string") {
+      let wordPart: string | undefined = undefined;
+      if (typeof currentPurchaseValue === 'string') {
         const parsed = getNumberAndWordParts(currentPurchaseValue);
-        if(parsed.numberPart === undefined){
+        if (parsed.numberPart === undefined) {
           throw new Error(`don't understand purchase price for RSUs?`);
         }
         numberPart = parsed.numberPart;
@@ -930,11 +948,12 @@ function payTaxFromVestedRSU(
         numberPart = currentPurchaseValue;
       }
       let purchaseValue = numberPart;
-      if(purchaseValue !== 0.0){
+      if (purchaseValue !== 0.0) {
         // log(`before paying income tax, purchaseValue = ${purchaseValue}`);
-        purchaseValue = purchaseValue * (numShares - numSharesForTax)/numShares;
+        purchaseValue =
+          (purchaseValue * (numShares - numSharesForTax)) / numShares;
         // log(`after paying income tax, purchaseValue = ${purchaseValue}`);
-        if(wordPart === undefined){
+        if (wordPart === undefined) {
           setValue(
             values,
             evaluations,
@@ -983,14 +1002,15 @@ function payTaxFromVestedRSUs(
   evaluations: Evaluation[],
   model: DbModelData,
   source: string, // e.g. IncomeTaxJoe
+  type: string, // either incomeTax or nationalInsurance
 ) {
-  const person = source.substring(0, source.length - incomeTax.length);
+  const person = source.substring(0, source.length - type.length);
   const RSUsForTax = model.assets
     .filter(a => {
       return a.CATEGORY === rsu;
     })
     .filter(a => {
-      return a.LIABILITY.split(separator).includes(`${person}${incomeTax}`)
+      return a.LIABILITY.split(separator).includes(`${person}${type}`);
     })
     .filter(a => {
       const rsuVested = getTriggerDate(a.START, model.triggers);
@@ -1027,11 +1047,10 @@ function payIncomeTax(
 ) {
   // log(`pay income tax on ${income} for date ${startOfTaxYear}`);
   // calculate tax liability
-  const taxDue: { amountLiable: number; rate: number }[] = calculateTaxPayable(
-    income,
-    startOfTaxYear,
-    cpiVal,
-  );
+  const taxDue: {
+    amountLiable: number;
+    rate: number;
+  }[] = calculateIncomeTaxPayable(income, startOfTaxYear, cpiVal);
   // log(`taxDue for ${source} on ${startOfTaxYear} = ${taxDue}`);
   const totalTaxDue = sumTaxDue(taxDue);
   if (totalTaxDue > 0) {
@@ -1042,6 +1061,7 @@ function payIncomeTax(
       evaluations,
       model,
       source,
+      incomeTax,
     );
     const totalTaxDueFromCash = sumTaxDue(taxDue);
     if (totalTaxDueFromCash > 0) {
@@ -1071,6 +1091,14 @@ function payIncomeTax(
   return totalTaxDue;
 }
 
+function sumNI(niDue: { amountLiable: number; rate: number }[]): number {
+  let sum = 0;
+  niDue.forEach(nd => {
+    sum = sum + nd.amountLiable * nd.rate;
+  });
+  return sum;
+}
+
 function payNI(
   startOfTaxYear: Date,
   income: number,
@@ -1083,10 +1111,28 @@ function payNI(
   // log(`pay NI on ${income} for date ${startOfTaxYear}`);
   // calculate NI liability
   const NIDue = calculateNIPayable(income, startOfTaxYear, cpiVal);
-  // log(`taxDue = ${taxDue}`);
-  if (NIDue > 0) {
+
+  const sumDue = sumNI(NIDue);
+  if (sumDue > 0) {
+    payTaxFromVestedRSUs(
+      NIDue,
+      startOfTaxYear,
+      values,
+      evaluations,
+      model,
+      source,
+      nationalInsurance,
+    );
+    const totalTaxDueFromCash = sumTaxDue(NIDue);
     // log('in payNI, adjustCash:');
-    adjustCash(-NIDue, startOfTaxYear, values, evaluations, model, source);
+    adjustCash(
+      -totalTaxDueFromCash,
+      startOfTaxYear,
+      values,
+      evaluations,
+      model,
+      source,
+    );
     const person = source.substring(
       0,
       source.length - nationalInsurance.length,
@@ -1096,13 +1142,13 @@ function payNI(
       evaluations,
       startOfTaxYear,
       nationalInsurance,
-      NIDue,
+      sumDue,
       model,
       makeNationalInsuranceTag(person),
-      '25', //callerID
+      '33', //callerID
     );
   }
-  return NIDue;
+  return sumDue;
 }
 
 function payCGT(
@@ -3259,7 +3305,7 @@ export function getEvaluations(
             const l = a.LIABILITY;
             const liabilityWords = l.split(separator);
             liabilityWords.forEach(lw => {
-              if (!lw.endsWith(incomeTax)) {
+              if (!lw.endsWith(incomeTax) && !lw.endsWith(nationalInsurance)) {
                 return;
               }
               const val = traceEvaluation(a.VALUE, values, 'source');
@@ -3270,18 +3316,38 @@ export function getEvaluations(
               } else {
                 const amountDueForIncomeTax = val * qty;
                 // log(`amountDueForIncomeTax = ${amountDueForIncomeTax}`)
-                handleLiability(
-                  lw,
-                  incomeTax,
-                  amountDueForIncomeTax,
-                  liableIncomeInTaxYear,
-                );
+                if (lw.endsWith(incomeTax)) {
+                  handleLiability(
+                    lw,
+                    incomeTax,
+                    amountDueForIncomeTax,
+                    liableIncomeInTaxYear,
+                  );
+                }
+                if (lw.endsWith(nationalInsurance)) {
+                  handleLiability(
+                    lw,
+                    nationalInsurance,
+                    amountDueForIncomeTax,
+                    liableIncomeInTaxYear,
+                  );
+                }
                 setValue(
                   values,
                   evaluations,
                   moment.date,
                   `${vestedEval}${a.NAME}`,
                   val,
+                  model,
+                  `Vesting${a.NAME}`,
+                  '30', //callerID
+                );
+                setValue(
+                  values,
+                  evaluations,
+                  moment.date,
+                  `${vestedNum}${a.NAME}`,
+                  qty,
                   model,
                   `Vesting${a.NAME}`,
                   '30', //callerID
