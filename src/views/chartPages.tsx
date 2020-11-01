@@ -93,15 +93,7 @@ function makeFiltersList(
       key={buttonName}
       action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.persist();
-        // when a button is clicked,
-        // go to change the settings value
-        editSetting(
-          {
-            NAME: settingName,
-            VALUE: buttonName,
-          },
-          model,
-        );
+        setViewSetting(model, settingName, buttonName);
       }}
       title={buttonName}
       type={buttonName === selectedChartFocus ? 'primary' : 'secondary'}
@@ -124,6 +116,20 @@ function getCoarseFineView(model: DbModelData) {
   return assetName;
 }
 
+function setViewSetting(
+  model:DbModelData,
+  settingName: string,
+  buttonName: string,
+){
+  editSetting(
+    {
+      NAME: settingName,
+      VALUE: buttonName,
+    },
+    model,
+  );
+}
+
 export function coarseFineList(model: DbModelData) {
   const viewTypes: string[] = [total, coarse, fine];
   const selectedCoarseFineView = getCoarseFineView(model);
@@ -132,13 +138,7 @@ export function coarseFineList(model: DbModelData) {
       key={viewType}
       action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.persist();
-        // when a button is clicked,
-        // go to change the settings value
-        const forSubmission = {
-          NAME: viewDetail,
-          VALUE: viewType,
-        };
-        editSetting(forSubmission, model);
+        setViewSetting( model, viewDetail, viewType );
       }}
       title={viewType}
       type={viewType === selectedCoarseFineView ? 'primary' : 'secondary'}
@@ -383,13 +383,11 @@ function assetsOrDebtsButtonList(
       key={assetOrDebt}
       action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.persist();
-        // when a button is clicked,
-        // go to change the settings value
-        const forSubmission = {
-          NAME: isDebt ? debtChartFocus : assetChartFocus,
-          VALUE: assetOrDebt,
-        };
-        editSetting(forSubmission, model);
+        if(isDebt){
+          setViewSetting( model, debtChartFocus, assetOrDebt );
+        } else {
+          setViewSetting( model, assetChartFocus, assetOrDebt );
+        }
       }}
       title={assetOrDebt}
       type={assetOrDebt === selectedAssetOrDebt ? 'primary' : 'secondary'}
@@ -427,13 +425,7 @@ function assetViewTypeList(model: DbModelData) {
       key={viewType}
       action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.persist();
-        // when a button is clicked,
-        // go to change the settings value
-        const forSubmission = {
-          NAME: assetChartView,
-          VALUE: viewType,
-        };
-        editSetting(forSubmission, model);
+        setViewSetting( model, assetChartView, viewType );
       }}
       title={viewType}
       type={viewType === selectedAssetView ? 'primary' : 'secondary'}
@@ -547,11 +539,7 @@ function taxButtonList(model: DbModelData) {
       key={person === allItems ? 'All people' : person}
       action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.persist();
-        const forSubmission = {
-          NAME: taxChartFocusPerson,
-          VALUE: person,
-        };
-        editSetting(forSubmission, model);
+        setViewSetting( model, taxChartFocusPerson, person );
       }}
       title={person === allItems ? 'All people' : person}
       type={person === getTaxPerson(model) ? 'primary' : 'secondary'}
@@ -563,11 +551,7 @@ function taxButtonList(model: DbModelData) {
       key={'All types'}
       action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.persist();
-        const forSubmission = {
-          NAME: taxChartFocusType,
-          VALUE: allItems,
-        };
-        editSetting(forSubmission, model);
+        setViewSetting( model, taxChartFocusType, allItems );
       }}
       title={'All types'}
       type={getTaxType(model) === allItems ? 'primary' : 'secondary'}
@@ -579,11 +563,7 @@ function taxButtonList(model: DbModelData) {
       key={'income'}
       action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.persist();
-        const forSubmission = {
-          NAME: taxChartFocusType,
-          VALUE: income,
-        };
-        editSetting(forSubmission, model);
+        setViewSetting( model, taxChartFocusType, income );
       }}
       title={'Income'}
       type={getTaxType(model) === income ? 'primary' : 'secondary'}
@@ -595,11 +575,7 @@ function taxButtonList(model: DbModelData) {
       key={'gain'}
       action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.persist();
-        const forSubmission = {
-          NAME: taxChartFocusType,
-          VALUE: gain,
-        };
-        editSetting(forSubmission, model);
+        setViewSetting( model, taxChartFocusType, gain );
       }}
       title={'Gain'}
       type={getTaxType(model) === gain ? 'primary' : 'secondary'}
@@ -611,11 +587,7 @@ function taxButtonList(model: DbModelData) {
       key={'Show net'}
       action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.persist();
-        const forSubmission = {
-          NAME: taxChartShowNet,
-          VALUE: 'Y',
-        };
-        editSetting(forSubmission, model);
+        setViewSetting( model, taxChartShowNet, 'Y' );
       }}
       title={'Show net'}
       type={getTaxShowNet(model) ? 'primary' : 'secondary'}
@@ -627,11 +599,7 @@ function taxButtonList(model: DbModelData) {
       key={'Hide net'}
       action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.persist();
-        const forSubmission = {
-          NAME: taxChartShowNet,
-          VALUE: 'N',
-        };
-        editSetting(forSubmission, model);
+        setViewSetting( model, taxChartShowNet, 'N' );
       }}
       title={'Hide net'}
       type={!getTaxShowNet(model) ? 'primary' : 'secondary'}
