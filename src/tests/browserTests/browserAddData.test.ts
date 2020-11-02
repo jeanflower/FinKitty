@@ -1,8 +1,9 @@
 import {
-  CASH_ASSET_NAME,
   TestModel02,
+  CASH_ASSET_NAME,
 } from '../../localization/stringConstants';
 import {
+  headless,
   addDate,
   addIncome,
   incomeInputs,
@@ -21,15 +22,14 @@ import {
   addDebt,
   debtInputs,
   clearDebtFields,
-  headless,
   quitAfterAll,
   revalueAsset,
 } from './ browsertestUtils';
 import {
+  getDriver,
   beforeAllWork,
   clickButton,
   cleanUpWork,
-  getDriver,
   scrollIntoViewByID,
 } from './browserBaseTypes';
 

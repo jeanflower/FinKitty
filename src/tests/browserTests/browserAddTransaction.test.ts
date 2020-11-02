@@ -9,10 +9,10 @@ import {
   quitAfterAll,
 } from './ browsertestUtils';
 import {
-  beforeAllWork,
-  cleanUpWork,
-  clickButton,
   getDriver,
+  beforeAllWork,
+  clickButton,
+  cleanUpWork,
 } from './browserBaseTypes';
 
 const testDataModelName = 'BrowserAddTransactionTest';

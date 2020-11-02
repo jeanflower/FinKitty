@@ -1,44 +1,41 @@
-import {
-  cleanUpWork,
-  getAssetChartData,
-  getDriver,
-  getExpenseChartData,
-  getIncomeChartData,
-  writeTestCode,
-  clickButton,
-  beforeAllWork,
-} from './browserBaseTypes';
-// import { log } from './../../utils';
-
 import { WebElement } from 'selenium-webdriver';
 import {
-  assetChartAdditions,
-  assetChartDeltas,
-  assetChartReductions,
-  assetChartView,
-  CASH_ASSET_NAME,
-  fine,
-  roiEnd,
-  assetChartFocus,
-  viewDetail,
-  allItems,
   TestModel01,
-  CoarseAndFine,
   FutureExpense,
+  roiEnd,
+  CoarseAndFine,
+  viewDetail,
+  fine,
+  assetChartFocus,
+  CASH_ASSET_NAME,
+  assetChartView,
+  assetChartAdditions,
+  assetChartReductions,
+  assetChartDeltas,
   ThreeChryslerModel,
+  allItems,
 } from '../../localization/stringConstants';
+import {
+  headless,
+  addSetting,
+  addAsset,
+  assetInputs,
+  addTransaction,
+  transactionInputs,
+  quitAfterAll,
+} from './ browsertestUtils';
+import {
+  getDriver,
+  beforeAllWork,
+  cleanUpWork,
+  clickButton,
+  getAssetChartData,
+  writeTestCode,
+  getExpenseChartData,
+  getIncomeChartData,
+} from './browserBaseTypes';
 
 import webdriver from 'selenium-webdriver';
-import {
-  addAsset,
-  addSetting,
-  addTransaction,
-  assetInputs,
-  headless,
-  quitAfterAll,
-  transactionInputs,
-} from './ browsertestUtils';
-//import { printDebug, log } from '../../utils';
 
 const debug = false;
 const testDataModelName = 'BrowserTestSimple';
@@ -183,7 +180,9 @@ describe(testDataModelName, () => {
     expect(ary[0].dataPoints[14].label).toEqual('Thu Feb 01 2018');
     expect(ary[0].dataPoints[14].y).toEqual(-198.93939050052373);
     expect(ary[0].dataPoints[14].ttip).toEqual('-198.94 at Thu Feb 01 2018');
+
     await cleanUpWork(driver, testDataModelName);
+
     done();
   });
 

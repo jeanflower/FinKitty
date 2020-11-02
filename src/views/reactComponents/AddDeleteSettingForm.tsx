@@ -1,28 +1,28 @@
-import React, { Component } from 'react';
-
 import {
   DbModelData,
+  DbSetting,
   DbTransaction,
   DbTrigger,
   FormProps,
-  DbSetting,
 } from '../../types/interfaces';
-import {
-  checkTriggerDate,
-  log,
-  printDebug,
-  showObj,
-  makeValueAbsPropFromString,
-  isATransaction,
-} from '../../utils';
-import Button from './Button';
-import { DateSelectionRow } from './DateSelectionRow';
-import { Input } from './Input';
+import React, { Component } from 'react';
 import {
   adjustableType,
   revalue,
   revalueSetting,
 } from '../../localization/stringConstants';
+import {
+  checkTriggerDate,
+  isATransaction,
+  log,
+  makeValueAbsPropFromString,
+  printDebug,
+  showObj,
+} from '../../utils';
+
+import Button from './Button';
+import { DateSelectionRow } from './DateSelectionRow';
+import { Input } from './Input';
 import { doCheckBeforeOverwritingExistingData } from '../../App';
 
 interface EditSettingFormState {
@@ -32,7 +32,12 @@ interface EditSettingFormState {
   inputting: string;
 }
 interface EditSettingProps extends FormProps {
-  submitSettingFunction: (arg0: DbSetting, arg1: DbModelData) => Promise<void>;
+  viewSettings: DbSetting[];
+  submitSettingFunction: (
+    arg0: DbSetting,
+    arg1: DbModelData,
+    arg2: DbSetting[],
+  ) => Promise<void>;
   checkTransactionFunction: (t: DbTransaction, model: DbModelData) => string;
   submitTransactionFunction: (
     transactionInput: DbTransaction,
@@ -330,7 +335,11 @@ export class AddDeleteSettingForm extends Component<
       TYPE: adjustableType,
     };
 
-    await this.props.submitSettingFunction(setting, this.props.model);
+    await this.props.submitSettingFunction(
+      setting,
+      this.props.model,
+      this.props.viewSettings,
+    );
 
     this.props.showAlert(`added new setting ${this.state.NAME}`);
     // clear fields

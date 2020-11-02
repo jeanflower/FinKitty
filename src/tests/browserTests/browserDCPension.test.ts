@@ -1,10 +1,10 @@
 import { TestModel02 } from '../../localization/stringConstants';
 import {
-  addDCPension,
-  addIncome,
-  clearDCPension,
   headless,
+  addIncome,
   incomeInputs,
+  addDCPension,
+  clearDCPension,
   quitAfterAll,
 } from './ browsertestUtils';
 import {

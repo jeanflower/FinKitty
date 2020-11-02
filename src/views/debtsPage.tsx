@@ -1,20 +1,26 @@
-import React from 'react';
-import { ChartData, DbModelData, DbItem } from './../types/interfaces';
+import {
+  ChartData,
+  DbItem,
+  DbModelData,
+  DbSetting,
+} from './../types/interfaces';
+import { checkAsset, checkTransaction } from '../models/checks';
+import { debtsDivWithHeadings, defaultColumn } from './tablePages';
 import {
   deleteAsset,
   getDisplay,
   submitAsset,
-  submitTrigger,
   submitTransaction,
+  submitTrigger,
 } from './../App';
-import { assetsOrDebtsChartDivWithButtons } from './chartPages';
-import { debtsDivWithHeadings, defaultColumn } from './tablePages';
-import { checkAsset, checkTransaction } from '../models/checks';
-import { AddDeleteDebtForm } from './reactComponents/AddDeleteDebtForm';
 import { getTodaysDate, lessThan } from '../utils';
-import DataGrid from './reactComponents/DataGrid';
-import SimpleFormatter from './reactComponents/NameFormatter';
+
+import { AddDeleteDebtForm } from './reactComponents/AddDeleteDebtForm';
 import CashValueFormatter from './reactComponents/CashValueFormatter';
+import DataGrid from './reactComponents/DataGrid';
+import React from 'react';
+import SimpleFormatter from './reactComponents/NameFormatter';
+import { assetsOrDebtsChartDivWithButtons } from './chartPages';
 import { debtsView } from '../localization/stringConstants';
 
 function todaysDebtsTable(
@@ -68,6 +74,7 @@ function todaysDebtsTable(
 
 export function debtsDiv(
   model: DbModelData,
+  viewSettings: DbSetting[],
   showAlert: (arg0: string) => void,
   debtChartData: ChartData[],
   todaysValues: Map<string, number>,
@@ -78,7 +85,13 @@ export function debtsDiv(
 
   return (
     <div style={{ display: getDisplay(debtsView) ? 'block' : 'none' }}>
-      {assetsOrDebtsChartDivWithButtons(model, debtChartData, true, false)}
+      {assetsOrDebtsChartDivWithButtons(
+        model,
+        viewSettings,
+        debtChartData,
+        true,
+        false,
+      )}
       {todaysDebtsTable(model, todaysValues)}
       {debtsDivWithHeadings(model, showAlert)}
 

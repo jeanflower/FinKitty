@@ -1,21 +1,28 @@
-import React from 'react';
-import { ChartData, DbModelData, DbItem } from './../types/interfaces';
+import {
+  ChartData,
+  DbItem,
+  DbModelData,
+  DbSetting,
+} from './../types/interfaces';
+import { assetsDivWithHeadings, defaultColumn } from './tablePages';
+import { checkAsset, checkTransaction } from '../models/checks';
 import {
   deleteAsset,
   getDisplay,
   submitAsset,
-  submitTrigger,
   submitTransaction,
+  submitTrigger,
 } from './../App';
-import { assetsOrDebtsChartDivWithButtons } from './chartPages';
-import { assetsDivWithHeadings, defaultColumn } from './tablePages';
-import { AddDeleteAssetForm } from './reactComponents/AddDeleteAssetForm';
-import { checkAsset, checkTransaction } from '../models/checks';
-import DataGrid from './reactComponents/DataGrid';
-import SimpleFormatter from './reactComponents/NameFormatter';
-import CashValueFormatter from './reactComponents/CashValueFormatter';
 import { getTodaysDate, lessThan } from '../utils';
+
+import { AddDeleteAssetForm } from './reactComponents/AddDeleteAssetForm';
+import CashValueFormatter from './reactComponents/CashValueFormatter';
+import DataGrid from './reactComponents/DataGrid';
+import React from 'react';
+import SimpleFormatter from './reactComponents/NameFormatter';
+import { assetsOrDebtsChartDivWithButtons } from './chartPages';
 import { assetsView } from '../localization/stringConstants';
+
 // import { log } from './../utils';
 
 function todaysAssetsTable(
@@ -69,6 +76,7 @@ function todaysAssetsTable(
 
 export function assetsDiv(
   model: DbModelData,
+  viewSettings: DbSetting[],
   showAlert: (arg0: string) => void,
   assetChartData: ChartData[],
   todaysValues: Map<string, number>,
@@ -79,7 +87,13 @@ export function assetsDiv(
 
   return (
     <div style={{ display: getDisplay(assetsView) ? 'block' : 'none' }}>
-      {assetsOrDebtsChartDivWithButtons(model, assetChartData, false, false)}
+      {assetsOrDebtsChartDivWithButtons(
+        model,
+        viewSettings,
+        assetChartData,
+        false,
+        false,
+      )}
       {todaysAssetsTable(model, todaysValues)}
       {assetsDivWithHeadings(model, showAlert)}
 

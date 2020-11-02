@@ -1,5 +1,10 @@
-import React from 'react';
-import { ChartData, DbModelData, DbItem } from '../types/interfaces';
+import { ChartData, DbItem, DbModelData, DbSetting } from '../types/interfaces';
+import { checkIncome, checkTransaction } from '../models/checks';
+import {
+  defaultColumn,
+  incomesTableDivWithHeading,
+  transactionFilteredTable,
+} from './tablePages';
 import {
   deleteIncome,
   getDisplay,
@@ -8,21 +13,17 @@ import {
   submitTrigger,
 } from '../App';
 import {
-  incomesChartDivWithButtons,
   getDefaultChartSettings,
+  incomesChartDivWithButtons,
 } from './chartPages';
-import {
-  incomesTableDivWithHeading,
-  defaultColumn,
-  transactionFilteredTable,
-} from './tablePages';
-import { AddDeleteIncomeForm } from './reactComponents/AddDeleteIncomeForm';
-import { checkIncome, checkTransaction } from '../models/checks';
+import { getTodaysDate, lessThan } from '../utils';
 import { incomesView, revalueInc } from '../localization/stringConstants';
-import DataGrid from './reactComponents/DataGrid';
-import { lessThan, getTodaysDate } from '../utils';
-import SimpleFormatter from './reactComponents/NameFormatter';
+
+import { AddDeleteIncomeForm } from './reactComponents/AddDeleteIncomeForm';
 import CashValueFormatter from './reactComponents/CashValueFormatter';
+import DataGrid from './reactComponents/DataGrid';
+import React from 'react';
+import SimpleFormatter from './reactComponents/NameFormatter';
 
 function todaysIncomesTable(
   model: DbModelData,
@@ -75,6 +76,7 @@ function todaysIncomesTable(
 
 export function incomesDiv(
   model: DbModelData,
+  viewSettings: DbSetting[],
   showAlert: (arg0: string) => void,
   incomesChartData: ChartData[],
   todaysValues: Map<string, number>,
@@ -87,8 +89,9 @@ export function incomesDiv(
     <div style={{ display: getDisplay(incomesView) ? 'block' : 'none' }}>
       {incomesChartDivWithButtons(
         model,
+        viewSettings,
         incomesChartData,
-        getDefaultChartSettings(model),
+        getDefaultChartSettings(viewSettings),
       )}
       {todaysIncomesTable(model, todaysValues)}
       {incomesTableDivWithHeading(model, showAlert)}

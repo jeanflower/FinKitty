@@ -1,7 +1,7 @@
 import {
-  birthDate,
-  custom,
   MinimalModel,
+  custom,
+  birthDate,
   roiStart,
   viewType,
 } from '../../localization/stringConstants';
@@ -9,12 +9,10 @@ import { getTestModel } from '../../models/exampleModels';
 import { DbModelData } from '../../types/interfaces';
 import {
   revertToUndoModel,
+  applyRedoToModel,
   markForUndo,
   setSetting,
   getSettings,
-  applyRedoToModel,
-  //  showObj,
-  //  log,
 } from '../../utils';
 
 interface UndoRedoModel {
@@ -107,7 +105,9 @@ describe('historyStack', () => {
     cannotUndo(model);
     cannotRedo(model);
 
-    expect(model.settings.length).toBe(16);
+    const numSettings = 5;
+
+    expect(model.settings.length).toBe(numSettings);
     // log(`model without undo = ${showObj(model)}`);
 
     // take a copy for undo
@@ -120,11 +120,11 @@ describe('historyStack', () => {
 
     setSetting(model.settings, 'a', 'b', custom, 'for testing');
     // log(`model with new setting = ${showObj(model)}`);
-    expect(model.settings.length).toBe(17);
+    expect(model.settings.length).toBe(numSettings + 1);
 
     // can be "undone"
     expect(revertToUndoModel(model)).toBe(true);
-    expect(model.settings.length).toBe(16);
+    expect(model.settings.length).toBe(numSettings);
     // log(`model = ${showObj(model)}`);
 
     // can't "undo" (again), can "redo" now
@@ -133,13 +133,13 @@ describe('historyStack', () => {
 
     // redo
     expect(applyRedoToModel(model)).toBe(true);
-    expect(model.settings.length).toBe(17);
+    expect(model.settings.length).toBe(numSettings + 1);
     couldUndo(model);
     cannotRedo(model);
 
     // can be "undone"
     expect(revertToUndoModel(model)).toBe(true);
-    expect(model.settings.length).toBe(16);
+    expect(model.settings.length).toBe(numSettings);
     // log(`model = ${showObj(model)}`);
 
     // can't "undo" (again), can "redo" now
@@ -154,11 +154,13 @@ describe('historyStack', () => {
     cannotRedo(model);
   });
 
-  it('should mark, edit setting and recover', () => {
+  it('should mark, edit setting and recover 01', () => {
     const model = getTestModel(MinimalModel);
 
+    const numSettings = 5;
+
     cannotUndo(model);
-    expect(model.settings.length).toBe(16);
+    expect(model.settings.length).toBe(numSettings);
     // log(`model without undo = ${showObj(model)}`);
 
     // can't be "undone"
@@ -184,10 +186,10 @@ describe('historyStack', () => {
 
     // can't "undo"
     cannotUndo(model);
-    expect(model.settings.length).toBe(16);
+    expect(model.settings.length).toBe(numSettings);
   });
 
-  it('should mark, edit setting and recover', () => {
+  it('should mark, edit setting and recover  02', () => {
     const model = getTestModel(MinimalModel);
 
     cannotUndo(model);

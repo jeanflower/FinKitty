@@ -16,32 +16,21 @@ import {
   cpi,
   cpiHint,
   assetChartView,
-  assetChartVal,
-  assetChartHint,
   viewFrequency,
   monthly,
-  viewFrequencyHint,
   viewDetail,
-  fine,
-  viewDetailHint,
   roiStart,
   roiStartHint,
   roiEnd,
   roiEndHint,
   assetChartFocus,
-  assetChartFocusHint,
   debtChartFocus,
   allItems,
-  debtChartFocusHint,
   expenseChartFocus,
-  expenseChartFocusHint,
   incomeChartFocus,
-  incomeChartFocusHint,
   birthDate,
   birthDateHint,
   debtChartView,
-  debtChartVal,
-  debtChartHint,
   revalue,
   custom,
   constType,
@@ -58,7 +47,6 @@ import {
   taxChartFocusTypeHint,
   taxChartShowNet,
   taxChartShowNetHint,
-  annually,
   conditional,
   crystallizedPension,
   moveTaxFreePart,
@@ -72,6 +60,7 @@ import {
 import moment from 'moment';
 import { getTestModel } from './models/exampleModels';
 import { checkData } from './models/checks';
+import { setViewSetting } from './App';
 
 let doLog = true;
 export function log(obj: any) {
@@ -95,7 +84,8 @@ export function getCurrentVersion() {
   //           // asset quantity, transaction and settings types
   // return 2; // could use taxPot as an asset
   // return 3; // doesn't include tax view focus settings
-  return 4;
+  // return 4; // still includes many view settings
+  return 5;
 }
 
 // note JSON stringify and back for serialisation is OK but
@@ -168,30 +158,6 @@ export const minimalModel: DbModelData = {
       TYPE: constType,
     },
     {
-      NAME: assetChartView,
-      VALUE: assetChartVal,
-      HINT: assetChartHint,
-      TYPE: viewType,
-    },
-    {
-      NAME: debtChartView,
-      VALUE: debtChartVal,
-      HINT: debtChartHint,
-      TYPE: viewType,
-    },
-    {
-      NAME: viewFrequency,
-      VALUE: monthly,
-      HINT: viewFrequencyHint,
-      TYPE: viewType,
-    },
-    {
-      NAME: viewDetail,
-      VALUE: fine,
-      HINT: viewDetailHint,
-      TYPE: viewType,
-    },
-    {
       NAME: roiStart,
       VALUE: '1 Jan 2017',
       HINT: roiStartHint,
@@ -201,49 +167,6 @@ export const minimalModel: DbModelData = {
       NAME: roiEnd,
       VALUE: '1 Jan 2023',
       HINT: roiEndHint,
-      TYPE: viewType,
-    },
-    {
-      NAME: assetChartFocus,
-      VALUE: CASH_ASSET_NAME,
-      HINT: assetChartFocusHint,
-      TYPE: viewType,
-    },
-    {
-      NAME: debtChartFocus,
-      VALUE: allItems,
-      HINT: debtChartFocusHint,
-      TYPE: viewType,
-    },
-    {
-      NAME: expenseChartFocus,
-      VALUE: allItems,
-      HINT: expenseChartFocusHint,
-      TYPE: viewType,
-    },
-    {
-      NAME: incomeChartFocus,
-      VALUE: allItems,
-      HINT: incomeChartFocusHint,
-      TYPE: viewType,
-    },
-    // tax chart focus added during migration of versions
-    {
-      NAME: taxChartFocusPerson,
-      VALUE: allItems,
-      HINT: taxChartFocusPersonHint,
-      TYPE: viewType,
-    },
-    {
-      NAME: taxChartFocusType,
-      VALUE: allItems,
-      HINT: taxChartFocusTypeHint,
-      TYPE: viewType,
-    },
-    {
-      NAME: taxChartShowNet,
-      VALUE: 'Y',
-      HINT: taxChartShowNetHint,
       TYPE: viewType,
     },
     {
@@ -270,7 +193,7 @@ export function getMinimalModelCopy(): DbModelData {
   return makeModelFromJSONString(JSON.stringify(minimalModel));
 }
 
-const map = new Map([
+const mapForGuessSettingType = new Map([
   [roiEnd, viewType],
   [roiStart, viewType],
   [birthDate, viewType],
@@ -286,8 +209,8 @@ const map = new Map([
   [cpi, constType],
 ]);
 
-function getGuessSettingType(name: string) {
-  const mapResult = map.get(name);
+function getGuessSettingTypeForv2(name: string) {
+  const mapResult = mapForGuessSettingType.get(name);
   if (mapResult !== undefined) {
     return mapResult;
   }
@@ -355,7 +278,7 @@ function migrateOldVersions(model: DbModelData) {
     }
     for (const s of model.settings) {
       if (s.TYPE === undefined) {
-        s.TYPE = getGuessSettingType(s.NAME);
+        s.TYPE = getGuessSettingTypeForv2(s.NAME);
       }
     }
     model.version = 2;
@@ -440,6 +363,40 @@ function migrateOldVersions(model: DbModelData) {
     }
     model.version = 4;
   }
+  if (model.version === 4) {
+    if (showMigrationLogs) {
+      log(
+        `in migrateOldVersions at v4, model has ${model.settings.length} settings`,
+      );
+    }
+    // strip away any settings values which are no longer
+    // stored persistently
+    const names = [
+      viewFrequency,
+      assetChartView,
+      debtChartView,
+      viewDetail,
+      assetChartFocus,
+      debtChartFocus,
+      expenseChartFocus,
+      incomeChartFocus,
+      taxChartFocusPerson,
+      taxChartFocusType,
+      taxChartShowNet,
+    ];
+    names.forEach(name => {
+      const idx = model.settings.findIndex(s => {
+        return s.NAME === name;
+      });
+      if (idx >= 0) {
+        // log(`setting setting ${name} to value ${model.settings[idx].VALUE}`);
+        setViewSetting(model.settings[idx]);
+        model.settings.splice(idx, 1);
+      }
+    });
+    model.version = 5;
+  }
+  // log(`model after migration is ${showObj(model)}`);
 
   // should throw immediately to alert of problems
   if (model.version !== getCurrentVersion()) {
@@ -465,13 +422,13 @@ export function lessThan(a: string, b: string) {
 
 export function makeDateFromString(input: string) {
   // special-case parsing for DD/MM/YYYY
-  let dateMomentObject = moment(input, 'DD/MM/YYYY'); // 1st argument - string, 2nd argument - format
+  let dateMomentObject = moment(input, 'DD/MM/YYYY');
   let dateObject = dateMomentObject.toDate(); // convert moment.js object to Date object
   if (!Number.isNaN(dateObject.getTime())) {
     // log(`converted ${input} into ${dateObject.toDateString()}`);
     return dateObject;
   }
-  dateMomentObject = moment(input, 'DD/MM/YY'); // 1st argument - string, 2nd argument - format
+  dateMomentObject = moment(input, 'DD/MM/YY');
   dateObject = dateMomentObject.toDate(); // convert moment.js object to Date object
   if (!Number.isNaN(dateObject.getTime())) {
     // log(`converted ${input} into ${dateObject.toDateString()}`);
@@ -1090,81 +1047,6 @@ export const viewSetting: DbSetting = {
   TYPE: viewType,
 };
 
-export const browserTestSettings: DbSetting[] = [
-  {
-    ...viewSetting,
-    NAME: roiStart,
-    VALUE: '1 Jan 2019',
-    HINT: roiStartHint,
-  },
-  {
-    ...viewSetting,
-    NAME: roiEnd,
-    VALUE: '1 Feb 2019',
-    HINT: roiEndHint,
-  },
-  {
-    ...viewSetting,
-    NAME: assetChartView,
-    VALUE: assetChartVal, // could be 'deltas'
-    HINT: assetChartHint,
-  },
-  {
-    ...viewSetting,
-    NAME: viewFrequency,
-    VALUE: annually, // could be 'Monthly'
-    HINT: viewFrequencyHint,
-  },
-  {
-    ...viewSetting,
-    NAME: viewDetail,
-    VALUE: fine, // could be coarse
-    HINT: viewDetailHint,
-  },
-  {
-    ...simpleSetting,
-    NAME: cpi,
-    VALUE: '2.5',
-    HINT: cpiHint,
-  },
-  {
-    ...simpleSetting,
-    NAME: 'stockMarketGrowth',
-    VALUE: '6.236',
-    HINT: 'Custom setting for stock market growth',
-  },
-  {
-    ...viewSetting,
-    NAME: assetChartFocus,
-    VALUE: CASH_ASSET_NAME,
-    HINT: assetChartFocusHint,
-  },
-  {
-    ...viewSetting,
-    NAME: expenseChartFocus,
-    VALUE: allItems,
-    HINT: expenseChartFocusHint,
-  },
-  {
-    ...viewSetting,
-    NAME: incomeChartFocus,
-    VALUE: allItems,
-    HINT: incomeChartFocusHint,
-  },
-  {
-    ...viewSetting,
-    NAME: birthDate,
-    VALUE: '',
-    HINT: birthDateHint,
-  },
-  {
-    ...viewSetting,
-    NAME: valueFocusDate,
-    VALUE: '',
-    HINT: valueFocusDateHint,
-  },
-];
-
 export const simpleAsset: DbAsset = {
   NAME: 'NoName',
   CATEGORY: '',
@@ -1226,72 +1108,41 @@ export const emptyModel: DbModelData = {
   undoModel: undefined,
   redoModel: undefined,
 };
-export const defaultSettings: DbSetting[] = [
-  { ...viewSetting, NAME: viewFrequency, VALUE: monthly },
-  { ...viewSetting, NAME: viewDetail, VALUE: fine },
-  { ...viewSetting, NAME: assetChartView, VALUE: assetChartVal },
-  { ...viewSetting, NAME: debtChartView, VALUE: debtChartVal },
-  {
-    ...viewSetting,
-    NAME: assetChartFocus,
-    VALUE: allItems,
-    HINT: assetChartFocusHint,
-  },
-  {
-    ...viewSetting,
-    NAME: debtChartFocus,
-    VALUE: allItems,
-    HINT: debtChartFocusHint,
-  },
-  {
-    ...viewSetting,
-    NAME: expenseChartFocus,
-    VALUE: allItems,
-    HINT: expenseChartFocusHint,
-  },
-  {
-    ...viewSetting,
-    NAME: incomeChartFocus,
-    VALUE: allItems,
-    HINT: incomeChartFocusHint,
-  },
-  {
-    NAME: taxChartFocusPerson,
-    VALUE: allItems,
-    HINT: taxChartFocusPersonHint,
-    TYPE: viewType,
-  },
-  {
-    NAME: taxChartFocusType,
-    VALUE: allItems,
-    HINT: taxChartFocusTypeHint,
-    TYPE: viewType,
-  },
-  {
-    NAME: taxChartShowNet,
-    VALUE: 'Y',
-    HINT: taxChartShowNetHint,
-    TYPE: viewType,
-  },
-  {
-    ...simpleSetting,
-    NAME: cpi,
-    VALUE: '0.0',
-    HINT: cpiHint,
-  },
-  {
-    ...viewSetting,
-    NAME: birthDate,
-    VALUE: '',
-    HINT: birthDateHint,
-  },
-  {
-    ...viewSetting,
-    NAME: valueFocusDate,
-    VALUE: '',
-    HINT: valueFocusDateHint,
-  },
-];
+
+export function defaultModelSettings(roi: { start: string; end: string }) {
+  return [
+    {
+      ...simpleSetting,
+      NAME: cpi,
+      VALUE: '0.0',
+      HINT: cpiHint,
+    },
+    {
+      ...viewSetting,
+      NAME: birthDate,
+      VALUE: '',
+      HINT: birthDateHint,
+    },
+    {
+      ...viewSetting,
+      NAME: valueFocusDate,
+      VALUE: '',
+      HINT: valueFocusDateHint,
+    },
+    {
+      ...viewSetting,
+      NAME: roiStart,
+      VALUE: roi.start,
+      HINT: roiStartHint,
+    },
+    {
+      ...viewSetting,
+      NAME: roiEnd,
+      VALUE: roi.end,
+      HINT: roiEndHint,
+    },
+  ];
+}
 
 export function setROI(
   model: DbModelData,

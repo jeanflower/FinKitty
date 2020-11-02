@@ -1,19 +1,17 @@
 import {
-  roiEnd,
   roiStart,
+  roiEnd,
   TestModel01,
 } from '../../localization/stringConstants';
 import {
-  beforeAllWork,
-  clickButton,
-  serverUri,
-  fillInputById,
-  cleanUpWork,
   getDriver,
+  clickButton,
+  fillInputById,
   getAssetChartData,
+  beforeAllWork,
+  cleanUpWork,
+  serverUri,
 } from './browserBaseTypes';
-
-import webdriver from 'selenium-webdriver';
 import {
   headless,
   addSetting,
@@ -27,6 +25,8 @@ import {
   consumeAlert,
   quitAfterAll,
 } from './ browsertestUtils';
+
+import webdriver from 'selenium-webdriver';
 
 const testDataModelName = 'BrowserWorkflowTest';
 

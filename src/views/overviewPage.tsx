@@ -1,5 +1,4 @@
-import React from 'react';
-import { DbModelData, ChartData } from '../types/interfaces';
+import { ChartData, DbModelData, DbSetting } from '../types/interfaces';
 import {
   assetsDivWithHeadings,
   debtsDivWithHeadings,
@@ -11,24 +10,26 @@ import {
   transactionsTableDiv,
   triggersTableDivWithHeading,
 } from './tablePages';
-import { getDisplay } from '../App';
 import {
-  incomesChartDiv,
-  taxChartDiv,
-  getSmallerChartSettings,
-  expensesChartDiv,
   assetsOrDebtsChartDiv,
   coarseFineList,
+  expensesChartDiv,
+  frequencyList,
+  getSmallerChartSettings,
+  incomesChartDiv,
+  taxChartDiv,
 } from './chartPages';
 import {
-  custom,
   autogen,
-  revalueInc,
-  revalueExp,
+  custom,
   overview,
+  revalueExp,
+  revalueInc,
 } from '../localization/stringConstants';
 
 import { AddDeleteEntryForm } from './reactComponents/AddDeleteEntryForm';
+import React from 'react';
+import { getDisplay } from '../App';
 
 function suppressLegend(chartDataPoints: ChartData[]) {
   return chartDataPoints.map(dp => {
@@ -41,6 +42,7 @@ function suppressLegend(chartDataPoints: ChartData[]) {
 
 function chartsForOverview(
   model: DbModelData,
+  viewSettings: DbSetting[],
   showAlert: (arg0: string) => void,
   assetChartData: ChartData[],
   debtChartData: ChartData[],
@@ -58,20 +60,20 @@ function chartsForOverview(
         <div className="col">
           {incomesChartDiv(
             suppressLegend(incomesChartData),
-            getSmallerChartSettings(model, 'Incomes'),
+            getSmallerChartSettings(viewSettings, 'Incomes'),
           )}
         </div>
         <div className="col">
           {expensesChartDiv(
             suppressLegend(expensesChartData),
-            getSmallerChartSettings(model, 'Expenses'),
+            getSmallerChartSettings(viewSettings, 'Expenses'),
           )}
         </div>
         <div className="col">
           {assetsOrDebtsChartDiv(
             suppressLegend(assetChartData),
             false,
-            getSmallerChartSettings(model, 'Assets'),
+            getSmallerChartSettings(viewSettings, 'Assets'),
           )}
         </div>
       </div>
@@ -79,14 +81,14 @@ function chartsForOverview(
         <div className="col">
           {taxChartDiv(
             suppressLegend(taxChartData),
-            getSmallerChartSettings(model, 'Tax'),
+            getSmallerChartSettings(viewSettings, 'Tax'),
           )}
         </div>
         <div className="col">
           {assetsOrDebtsChartDiv(
             suppressLegend(debtChartData),
             true,
-            getSmallerChartSettings(model, 'Debts'),
+            getSmallerChartSettings(viewSettings, 'Debts'),
           )}
         </div>
         <div className="col">
@@ -102,7 +104,8 @@ function chartsForOverview(
             submitFunction={updateEndDate}
             showAlert={showAlert}
           />
-          {coarseFineList(model)}
+          {coarseFineList(viewSettings)}
+          {frequencyList(viewSettings)}
         </div>
       </div>
     </div>
@@ -139,6 +142,7 @@ function transactionsOverviewDiv(
 
 export function overviewDiv(
   model: DbModelData,
+  viewSettings: DbSetting[],
   showAlert: (arg0: string) => void,
   assetChartData: ChartData[],
   debtChartData: ChartData[],
@@ -167,6 +171,7 @@ export function overviewDiv(
       {chartDataExists ? (
         chartsForOverview(
           model,
+          viewSettings,
           showAlert,
           assetChartData,
           debtChartData,
@@ -201,7 +206,7 @@ export function overviewDiv(
         {assetsDivWithHeadings(model, showAlert)}
         {debtsDivWithHeadings(model, showAlert)}
         {transactionsOverviewDiv(model, showAlert)}
-        {settingsTableDiv(model, showAlert)}
+        {settingsTableDiv(model, viewSettings, showAlert)}
       </div>
     </>
   );

@@ -1,64 +1,138 @@
-import React from 'react';
-import { ChartData, DbModelData } from '../types/interfaces';
+import { ChartData, DbItem, DbModelData, DbSetting } from '../types/interfaces';
 import {
   allItems,
+  annually,
   assetChartAdditions,
   assetChartDeltas,
   assetChartFocus,
   assetChartReductions,
   assetChartVal,
   assetChartView,
+  birthDate,
   coarse,
   debtChartFocus,
   expenseChartFocus,
   fine,
+  gain,
+  income,
   incomeChartFocus,
-  viewDetail,
-  total,
-  viewFrequency,
-  annually,
   monthly,
-  birthDate,
   taxChartFocusPerson,
   taxChartFocusType,
-  income,
-  gain,
   taxChartShowNet,
   taxView,
+  total,
+  viewDetail,
+  viewFrequency,
 } from '../localization/stringConstants';
+import { getDisplay, refreshData } from '../App';
 import {
+  getLiabilityPeople,
   getSettings,
   log,
-  showObj,
   printDebug,
-  getLiabilityPeople,
+  showObj,
 } from '../utils';
+
 import Button from './reactComponents/Button';
-import { getDisplay, editSetting } from '../App';
+import CanvasJS from '../assets/js/canvasjs.min';
+import CanvasJSReact from '../assets/js/canvasjs.react';
+import React from 'react';
 import ReactiveTextArea from './reactComponents/ReactiveTextArea';
 
-import CanvasJSReact from '../assets/js/canvasjs.react';
-import CanvasJS from '../assets/js/canvasjs.min';
 const { CanvasJSChart } = CanvasJSReact;
 
-function getIncomeChartFocus(model: DbModelData) {
-  if (model.settings.length === 0) {
+function getViewSetting(
+  settings: DbSetting[],
+  settingType: string,
+  defaultValue: string,
+) {
+  if (settings.length === 0) {
     // data not yet loaded
-    return allItems;
+    return defaultValue;
   }
-  const categoryName = getSettings(
-    model.settings,
-    incomeChartFocus,
-    allItems, // default fallback
+  const val = getSettings(
+    settings,
+    settingType,
+    defaultValue, // default fallback
   );
-  return categoryName;
+  return val;
+}
+function getIncomeChartFocus(settings: DbSetting[]) {
+  return getViewSetting(settings, incomeChartFocus, allItems);
+}
+
+function getExpenseChartFocus(settings: DbSetting[]) {
+  return getViewSetting(settings, expenseChartFocus, allItems);
+}
+
+function getCoarseFineView(settings: DbSetting[]) {
+  return getViewSetting(settings, viewDetail, fine);
+}
+
+function getAssetOrDebtChartName(settings: DbSetting[], debt: boolean) {
+  return getViewSetting(
+    settings,
+    debt ? debtChartFocus : assetChartFocus,
+    allItems,
+  );
+}
+
+function getAssetChartView(settings: DbSetting[]) {
+  return getViewSetting(settings, assetChartView, assetChartVal);
+}
+
+function getTaxPerson(settings: DbSetting[]) {
+  return getViewSetting(settings, taxChartFocusPerson, allItems);
+}
+
+function getTaxType(settings: DbSetting[]) {
+  return getViewSetting(settings, taxChartFocusType, allItems);
+}
+
+function getTaxShowNet(settings: DbSetting[]) {
+  const type = getViewSetting(settings, taxChartShowNet, allItems);
+  return type === 'Y' || type === 'y' || type === 'yes';
+}
+
+// if HINT or TYPE are empty, leave pre-existing values
+async function editViewSetting(
+  settingInput: {
+    NAME: string;
+    VALUE: string;
+  },
+  settings: DbSetting[],
+) {
+  const idx = settings.find((i: DbItem) => {
+    return i.NAME === settingInput.NAME;
+  });
+  if (idx !== undefined) {
+    idx.VALUE = settingInput.VALUE;
+  }
+  return await refreshData(
+    true, // gotoDB
+  );
+}
+
+function setViewSettingNameVal(
+  settings: DbSetting[],
+  name: string,
+  val: string,
+) {
+  editViewSetting(
+    {
+      NAME: name,
+      VALUE: val,
+    },
+    settings,
+  );
 }
 
 function makeFiltersList(
   gridData: { CATEGORY: string; NAME: string }[],
   selectedChartFocus: string,
   settingName: string,
-  model: DbModelData,
+  settings: DbSetting[],
 ) {
   // selectedChartFocus = this.getExpenseChartFocus()
   // settingName = expenseChartFocus
@@ -93,7 +167,7 @@ function makeFiltersList(
       key={buttonName}
       action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.persist();
-        setViewSetting(model, settingName, buttonName);
+        setViewSettingNameVal(settings, settingName, buttonName);
       }}
       title={buttonName}
       type={buttonName === selectedChartFocus ? 'primary' : 'secondary'}
@@ -103,42 +177,15 @@ function makeFiltersList(
   return <div role="group">{buttons}</div>;
 }
 
-function getCoarseFineView(model: DbModelData) {
-  if (model.settings.length === 0) {
-    // data not yet loaded
-    return fine;
-  }
-  const assetName = getSettings(
-    model.settings,
-    viewDetail,
-    fine, // default fallback
-  );
-  return assetName;
-}
-
-function setViewSetting(
-  model:DbModelData,
-  settingName: string,
-  buttonName: string,
-){
-  editSetting(
-    {
-      NAME: settingName,
-      VALUE: buttonName,
-    },
-    model,
-  );
-}
-
-export function coarseFineList(model: DbModelData) {
+export function coarseFineList(settings: DbSetting[]) {
   const viewTypes: string[] = [total, coarse, fine];
-  const selectedCoarseFineView = getCoarseFineView(model);
+  const selectedCoarseFineView = getCoarseFineView(settings);
   const buttons = viewTypes.map(viewType => (
     <Button
       key={viewType}
       action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.persist();
-        setViewSetting( model, viewDetail, viewType );
+        setViewSettingNameVal(settings, viewDetail, viewType);
       }}
       title={viewType}
       type={viewType === selectedCoarseFineView ? 'primary' : 'secondary'}
@@ -148,17 +195,35 @@ export function coarseFineList(model: DbModelData) {
   return <div role="group">{buttons}</div>;
 }
 
-export function getDefaultChartSettings(model: DbModelData) {
+export function frequencyList(settings: DbSetting[]) {
+  const viewTypes: string[] = [monthly, annually];
+  const selectedView = getViewSetting(settings, viewFrequency, annually);
+  const buttons = viewTypes.map(viewType => (
+    <Button
+      key={viewType}
+      action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        e.persist();
+        setViewSettingNameVal(settings, viewFrequency, viewType);
+      }}
+      title={viewType}
+      type={viewType === selectedView ? 'primary' : 'secondary'}
+      id="chooseViewFrequencyType"
+    />
+  ));
+  return <div role="group">{buttons}</div>;
+}
+
+export function getDefaultChartSettings(settings: DbSetting[]) {
   const showMonth =
     getSettings(
-      model.settings,
+      settings,
       viewFrequency,
       annually,
       false, // be OK if there's no matching value
     ) === monthly;
   const showAge =
     getSettings(
-      model.settings,
+      settings,
       birthDate,
       '',
       false, // be OK if there's no matching value
@@ -192,9 +257,9 @@ export function getDefaultChartSettings(model: DbModelData) {
   };
 }
 
-export function getSmallerChartSettings(model: DbModelData, title: string) {
+export function getSmallerChartSettings(settings: DbSetting[], title: string) {
   return {
-    ...getDefaultChartSettings(model),
+    ...getDefaultChartSettings(settings),
     height: 200,
     width: 400,
     title: {
@@ -240,6 +305,7 @@ export function incomesChartDiv(
 }
 export function incomesChartDivWithButtons(
   model: DbModelData,
+  settings: DbSetting[],
   incomesChartData: ChartData[],
   chartSettings: any,
 ) {
@@ -255,27 +321,14 @@ export function incomesChartDivWithButtons(
       />
       {makeFiltersList(
         model.incomes,
-        getIncomeChartFocus(model),
+        getIncomeChartFocus(settings),
         incomeChartFocus,
-        model,
+        settings,
       )}
-      {coarseFineList(model)}
+      {coarseFineList(settings)}
       {incomesChartDiv(incomesChartData, chartSettings)}
     </div>
   );
-}
-
-function getExpenseChartFocus(model: DbModelData) {
-  if (model.settings.length === 0) {
-    // data not yet loaded
-    return allItems;
-  }
-  const categoryName = getSettings(
-    model.settings,
-    expenseChartFocus,
-    allItems, // default fallback
-  );
-  return categoryName;
 }
 
 function expensesChart(expensesChartData: ChartData[], chartSettings: any) {
@@ -311,6 +364,7 @@ export function expensesChartDiv(
 
 export function expensesChartDivWithButtons(
   model: DbModelData,
+  settings: DbSetting[],
   expensesChartData: ChartData[],
   chartSettings: any,
 ) {
@@ -326,11 +380,11 @@ export function expensesChartDivWithButtons(
       />
       {makeFiltersList(
         model.expenses,
-        getExpenseChartFocus(model),
+        getExpenseChartFocus(settings),
         expenseChartFocus,
-        model,
+        settings,
       )}
-      {coarseFineList(model)}
+      {coarseFineList(settings)}
       <fieldset>
         <ReactiveTextArea
           identifier="expensesDataDump"
@@ -342,21 +396,9 @@ export function expensesChartDivWithButtons(
   );
 }
 
-function getAssetOrDebtChartName(model: DbModelData, debt: boolean) {
-  if (model.settings.length === 0) {
-    // data not yet loaded
-    return allItems;
-  }
-  const assetName = getSettings(
-    model.settings,
-    debt ? debtChartFocus : assetChartFocus,
-    allItems, // default fallback
-  );
-  return assetName;
-}
-
 function assetsOrDebtsButtonList(
   model: DbModelData,
+  settings: DbSetting[],
   isDebt: boolean,
   forOverview: boolean,
 ) {
@@ -377,16 +419,16 @@ function assetsOrDebtsButtonList(
   });
   assetOrDebtNames = assetOrDebtNames.concat(categoryNames.sort());
   // log(`assetNames with categories = ${assetNames}`);
-  const selectedAssetOrDebt = getAssetOrDebtChartName(model, isDebt);
+  const selectedAssetOrDebt = getAssetOrDebtChartName(settings, isDebt);
   const buttons = assetOrDebtNames.map(assetOrDebt => (
     <Button
       key={assetOrDebt}
       action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.persist();
-        if(isDebt){
-          setViewSetting( model, debtChartFocus, assetOrDebt );
+        if (isDebt) {
+          setViewSettingNameVal(settings, debtChartFocus, assetOrDebt);
         } else {
-          setViewSetting( model, assetChartFocus, assetOrDebt );
+          setViewSettingNameVal(settings, assetChartFocus, assetOrDebt);
         }
       }}
       title={assetOrDebt}
@@ -399,33 +441,20 @@ function assetsOrDebtsButtonList(
   return <div role="group">{buttons}</div>;
 }
 
-function getAssetChartView(model: DbModelData) {
-  if (model.settings.length === 0) {
-    // data not yet loaded
-    return assetChartVal;
-  }
-  const assetName = getSettings(
-    model.settings,
-    assetChartView,
-    assetChartVal, // default fallback
-  );
-  return assetName;
-}
-
-function assetViewTypeList(model: DbModelData) {
+function assetViewTypeList(settings: DbSetting[]) {
   const viewTypes: string[] = [
     assetChartVal,
     assetChartAdditions,
     assetChartReductions,
     assetChartDeltas,
   ];
-  const selectedAssetView = getAssetChartView(model);
+  const selectedAssetView = getAssetChartView(settings);
   const buttons = viewTypes.map(viewType => (
     <Button
       key={viewType}
       action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.persist();
-        setViewSetting( model, assetChartView, viewType );
+        setViewSettingNameVal(settings, assetChartView, viewType);
       }}
       title={viewType}
       type={viewType === selectedAssetView ? 'primary' : 'secondary'}
@@ -463,6 +492,7 @@ export function assetsOrDebtsChartDiv(
 
 export function assetsOrDebtsChartDivWithButtons(
   model: DbModelData,
+  viewSettings: DbSetting[],
   assetChartData: ChartData[],
   isDebt: boolean,
   forOverviewPage: boolean,
@@ -474,9 +504,9 @@ export function assetsOrDebtsChartDivWithButtons(
         display: 'block',
       }}
     >
-      {assetsOrDebtsButtonList(model, isDebt, forOverviewPage)}
-      {assetViewTypeList(model)}
-      {coarseFineList(model)}
+      {assetsOrDebtsButtonList(model, viewSettings, isDebt, forOverviewPage)}
+      {assetViewTypeList(viewSettings)}
+      {coarseFineList(viewSettings)}
       <ReactiveTextArea
         identifier={isDebt ? 'debtDataDump' : 'assetDataDump'}
         message={showObj(assetChartData)}
@@ -484,52 +514,13 @@ export function assetsOrDebtsChartDivWithButtons(
       {assetsOrDebtsChartDiv(
         assetChartData,
         isDebt,
-        getDefaultChartSettings(model),
+        getDefaultChartSettings(viewSettings),
       )}
     </div>
   );
 }
 
-function getTaxPerson(model: DbModelData) {
-  if (model.settings.length === 0) {
-    // data not yet loaded
-    return allItems;
-  }
-  const person = getSettings(
-    model.settings,
-    taxChartFocusPerson,
-    allItems, // default fallback
-  );
-  return person;
-}
-
-function getTaxType(model: DbModelData) {
-  if (model.settings.length === 0) {
-    // data not yet loaded
-    return allItems;
-  }
-  const type = getSettings(
-    model.settings,
-    taxChartFocusType,
-    allItems, // default fallback
-  );
-  return type;
-}
-
-function getTaxShowNet(model: DbModelData) {
-  if (model.settings.length === 0) {
-    // data not yet loaded
-    return allItems;
-  }
-  const type = getSettings(
-    model.settings,
-    taxChartShowNet,
-    'Y', // default fallback
-  );
-  return type === 'Y' || type === 'y' || type === 'yes';
-}
-
-function taxButtonList(model: DbModelData) {
+function taxButtonList(model: DbModelData, viewSettings: DbSetting[]) {
   const liabilityPeople = getLiabilityPeople(model);
   liabilityPeople.unshift(allItems);
 
@@ -539,10 +530,10 @@ function taxButtonList(model: DbModelData) {
       key={person === allItems ? 'All people' : person}
       action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.persist();
-        setViewSetting( model, taxChartFocusPerson, person );
+        setViewSettingNameVal(viewSettings, taxChartFocusPerson, person);
       }}
       title={person === allItems ? 'All people' : person}
-      type={person === getTaxPerson(model) ? 'primary' : 'secondary'}
+      type={person === getTaxPerson(viewSettings) ? 'primary' : 'secondary'}
       id={`chooseTaxSetting-${person}`}
     />
   ));
@@ -551,10 +542,10 @@ function taxButtonList(model: DbModelData) {
       key={'All types'}
       action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.persist();
-        setViewSetting( model, taxChartFocusType, allItems );
+        setViewSettingNameVal(viewSettings, taxChartFocusType, allItems);
       }}
       title={'All types'}
-      type={getTaxType(model) === allItems ? 'primary' : 'secondary'}
+      type={getTaxType(viewSettings) === allItems ? 'primary' : 'secondary'}
       id={`chooseTaxType-all`}
     />,
   );
@@ -563,10 +554,10 @@ function taxButtonList(model: DbModelData) {
       key={'income'}
       action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.persist();
-        setViewSetting( model, taxChartFocusType, income );
+        setViewSettingNameVal(viewSettings, taxChartFocusType, income);
       }}
       title={'Income'}
-      type={getTaxType(model) === income ? 'primary' : 'secondary'}
+      type={getTaxType(viewSettings) === income ? 'primary' : 'secondary'}
       id={`chooseTaxType-income`}
     />,
   );
@@ -575,10 +566,10 @@ function taxButtonList(model: DbModelData) {
       key={'gain'}
       action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.persist();
-        setViewSetting( model, taxChartFocusType, gain );
+        setViewSettingNameVal(viewSettings, taxChartFocusType, gain);
       }}
       title={'Gain'}
-      type={getTaxType(model) === gain ? 'primary' : 'secondary'}
+      type={getTaxType(viewSettings) === gain ? 'primary' : 'secondary'}
       id={`chooseTaxType-income`}
     />,
   );
@@ -587,10 +578,10 @@ function taxButtonList(model: DbModelData) {
       key={'Show net'}
       action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.persist();
-        setViewSetting( model, taxChartShowNet, 'Y' );
+        setViewSettingNameVal(viewSettings, taxChartShowNet, 'Y');
       }}
       title={'Show net'}
-      type={getTaxShowNet(model) ? 'primary' : 'secondary'}
+      type={getTaxShowNet(viewSettings) ? 'primary' : 'secondary'}
       id={`chooseTaxType-showNet`}
     />,
   );
@@ -599,10 +590,10 @@ function taxButtonList(model: DbModelData) {
       key={'Hide net'}
       action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.persist();
-        setViewSetting( model, taxChartShowNet, 'N' );
+        setViewSettingNameVal(viewSettings, taxChartShowNet, 'N');
       }}
       title={'Hide net'}
-      type={!getTaxShowNet(model) ? 'primary' : 'secondary'}
+      type={!getTaxShowNet(viewSettings) ? 'primary' : 'secondary'}
       id={`chooseTaxType-hideNet`}
     />,
   );
@@ -631,28 +622,34 @@ export function taxChartDiv(taxChartData: ChartData[], settings: any) {
 
 function taxChartDivWithButtons(
   model: DbModelData,
+  viewSettings: DbSetting[],
   taxChartData: ChartData[],
   settings: any,
 ) {
   return (
     <>
-      {taxButtonList(model)}
+      {taxButtonList(model, viewSettings)}
       {taxChartDiv(taxChartData, settings)}
     </>
   );
 }
-export function taxDiv(model: DbModelData, taxChartData: ChartData[]) {
+export function taxDiv(
+  model: DbModelData,
+  viewSettings: DbSetting[],
+  taxChartData: ChartData[],
+) {
   if (!getDisplay(taxView)) {
     return;
   }
 
   return (
     <>
-      {coarseFineList(model)}
+      {coarseFineList(viewSettings)}
       {taxChartDivWithButtons(
         model,
+        viewSettings,
         taxChartData,
-        getDefaultChartSettings(model),
+        getDefaultChartSettings(viewSettings),
       )}
     </>
   );

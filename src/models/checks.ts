@@ -1,61 +1,46 @@
-import { evaluationType } from './evaluations';
 import {
-  allItems,
-  annually,
-  assetChartAdditions,
-  assetChartDeltas,
-  assetChartReductions,
-  assetChartVal,
+  CASH_ASSET_NAME,
+  assetChartFocus,
   assetChartView,
+  autogen,
   birthDate,
   cgt,
-  coarse,
+  conditional,
   cpi,
+  crystallizedPension,
+  custom,
+  debtChartFocus,
   expenseChartFocus,
-  fine,
   incomeChartFocus,
   incomeTax,
-  monthly,
-  nationalInsurance,
-  pension,
-  revalue,
-  roiEnd,
-  roiStart,
-  separator,
-  assetChartFocus,
-  viewDetail,
-  viewFrequency,
-  CASH_ASSET_NAME,
-  conditional,
-  pensionSS,
-  pensionDB,
-  pensionTransfer,
-  debtChartFocus,
-  quantity,
-  total,
-  autogen,
-  custom,
   liquidateAsset,
+  moveTaxFreePart,
+  nationalInsurance,
   payOffDebt,
-  crystallizedPension,
+  pension,
+  pensionDB,
+  pensionSS,
+  pensionTransfer,
+  purchase,
+  quantity,
+  revalue,
   revalueAsset,
   revalueDebt,
-  revalueInc,
   revalueExp,
+  revalueInc,
   revalueSetting,
-  taxPot,
+  roiEnd,
+  roiStart,
+  rsu,
+  separator,
   taxChartFocusType,
-  income,
-  gain,
-  taxChartFocusPerson,
-  taxChartShowNet,
-  moveTaxFreePart,
   taxFree,
+  taxPot,
   transferCrystallizedPension,
   vestedEval,
-  purchase,
-  rsu,
   vestedNum,
+  viewDetail,
+  viewFrequency,
 } from '../localization/stringConstants';
 import {
   DbAsset,
@@ -69,19 +54,20 @@ import {
 } from '../types/interfaces';
 import {
   checkTriggerDate,
+  getNumberAndWordParts,
   getSettings,
   getTriggerDate,
-  log,
-  showObj,
-  makeDateFromString,
   isADebt,
-  isAnIncome,
   isAnAssetOrAssets,
   isAnExpense,
-  getNumberAndWordParts,
+  isAnIncome,
+  log,
+  makeDateFromString,
   replaceCategoryWithAssetNames,
-  getLiabilityPeople,
+  showObj,
 } from '../utils';
+
+import { evaluationType } from './evaluations';
 import { getDisplayName } from '../views/tablePages';
 
 const numberStringCache = new Map<string, boolean>();
@@ -1186,45 +1172,10 @@ export function checkTrigger(t: DbTrigger): string {
   }
   return '';
 }
-
-function checkViewFrequency(settings: DbSetting[]) {
-  const vf = getSettings(settings, viewFrequency, 'noneFound');
+function checkSettingAbsent(settings: DbSetting[], name: string) {
+  const vf = getSettings(settings, name, 'noneFound', false);
   if (vf !== 'noneFound') {
-    if (
-      vf.substring(0, 5).toLowerCase() !==
-        monthly.substring(0, 5).toLowerCase() &&
-      vf.substring(0, 6).toLowerCase() !==
-        annually.substring(0, 6).toLowerCase()
-    ) {
-      return (
-        `"${viewFrequency}" setting should be "${monthly}" ` +
-        `or "${annually}"`
-      );
-    }
-  } else {
-    return (
-      `"${viewFrequency}" setting should be present ` +
-      `(value "${monthly}" or "${annually})"`
-    );
-  }
-  return '';
-}
-function checkViewDetail(settings: DbSetting[]) {
-  const vf = getSettings(settings, viewDetail, 'noneFound');
-  if (vf !== 'noneFound') {
-    if (
-      vf.substring(0, 5).toLowerCase() !==
-        coarse.substring(0, 5).toLowerCase() &&
-      vf.substring(0, 4).toLowerCase() !== fine.substring(0, 4).toLowerCase() &&
-      vf.substring(0, 4).toLowerCase() !== total.substring(0, 4).toLowerCase()
-    ) {
-      return `"${viewDetail}" setting should be "${coarse}" or "${fine}"`;
-    }
-  } else {
-    return (
-      `"${viewDetail}" setting should be present, ` +
-      `(value "${coarse}" or "${fine}")`
-    );
+    return `"${name}" setting should not be present`;
   }
   return '';
 }
@@ -1252,29 +1203,6 @@ function checkViewROI(settings: DbSetting[]) {
   return '';
 }
 
-function checkViewType(settings: DbSetting[]): string {
-  const type = getSettings(settings, assetChartView, 'noneFound');
-  if (type === 'noneFound') {
-    return (
-      `"${assetChartView}" should be present in settings (value is ` +
-      `"${assetChartVal}", "${assetChartAdditions}", ` +
-      `"${assetChartReductions}" or "${assetChartDeltas}"`
-    );
-  }
-  if (
-    type !== assetChartVal &&
-    type !== assetChartAdditions &&
-    type !== assetChartReductions &&
-    type !== assetChartDeltas
-  ) {
-    return (
-      `"${assetChartView}" in settings should have value ` +
-      `"${assetChartVal}", "${assetChartAdditions}", ` +
-      `"${assetChartReductions}" or "${assetChartDeltas}"`
-    );
-  }
-  return '';
-}
 function checkDateOfBirth(settings: DbSetting[]): string {
   const dob = getSettings(settings, birthDate, '');
   if (dob === '') {
@@ -1293,110 +1221,6 @@ function checkCpi(settings: DbSetting[]): string {
     return 'Setting for CPI should be a number';
   }
   return '';
-}
-function checkAssetChartFocus(model: DbModelData) {
-  const val = getSettings(model.settings, assetChartFocus, '');
-  if (val === allItems) {
-    return '';
-  }
-  if (
-    model.assets.filter(
-      a => !a.IS_A_DEBT && (a.NAME === val || a.CATEGORY === val),
-    ).length > 0
-  ) {
-    return '';
-  }
-  return (
-    `Settings for '${assetChartFocus}' should be '${allItems}'` +
-    ` or one of the asset names or one of the asset categories (not ${val})`
-  );
-}
-function checkTaxChartFocus(model: DbModelData) {
-  // log('checking tax chart focus');
-  const typeVal = getSettings(model.settings, taxChartFocusType, '');
-  if (typeVal !== allItems && typeVal !== income && typeVal !== gain) {
-    return (
-      `Settings for '${taxChartFocusType}' should be '${allItems}'` +
-      ` or '${income}' or '${gain}'`
-    );
-  }
-  const netVal = getSettings(model.settings, taxChartShowNet, '');
-  if (
-    netVal !== 'Y' &&
-    netVal !== 'y' &&
-    netVal !== 'yes' &&
-    netVal !== 'N' &&
-    netVal !== 'n' &&
-    netVal !== 'no'
-  ) {
-    return `Settings for '${taxChartShowNet}' should be 'Y' or 'N'`;
-  }
-  const personVal = getSettings(model.settings, taxChartFocusPerson, '');
-  if (personVal === allItems) {
-    return '';
-  }
-  // if we have a named person, it should be someone named as a liability
-  // on an income or an asset
-  const liabilityPeople = getLiabilityPeople(model);
-  if (
-    liabilityPeople.findIndex(x => {
-      return x === personVal;
-    }) === -1
-  ) {
-    return (
-      `Settings for '${taxChartFocusPerson}' should be one of` +
-      `'${liabilityPeople}' (from assets and incomes)`
-    );
-  }
-  return '';
-}
-
-function checkDebtChartFocus(model: DbModelData) {
-  const val = getSettings(model.settings, debtChartFocus, '');
-  if (val === allItems) {
-    return '';
-  }
-  if (
-    model.assets.filter(
-      a => a.IS_A_DEBT && (a.NAME === val || a.CATEGORY === val),
-    ).length > 0
-  ) {
-    return '';
-  }
-  return (
-    `Settings for '${debtChartFocus}' should be '${allItems}'` +
-    ` or one of the debt names or one of the debt categories (not ${val})`
-  );
-}
-function checkExpenseChartFocus(model: DbModelData) {
-  const val = getSettings(model.settings, expenseChartFocus, '');
-  if (val === allItems) {
-    return '';
-  }
-  if (
-    model.expenses.filter(a => a.NAME === val || a.CATEGORY === val).length > 0
-  ) {
-    return '';
-  }
-  return (
-    `Settings for '${expenseChartFocus}' should be '${allItems}'` +
-    ` or one of the expense names or one of the expense categories (not ${val})`
-  );
-}
-function checkIncomeChartFocus(model: DbModelData) {
-  const val = getSettings(model.settings, incomeChartFocus, '');
-  if (val === allItems) {
-    return '';
-  }
-  if (
-    model.incomes.filter(a => a.NAME === val || a.CATEGORY === val).length > 0
-  ) {
-    return '';
-  }
-  return (
-    `Settings for '${incomeChartFocus}' should be '${allItems}'` +
-    ` or one of the income names or one of the income categories (not ${val})`
-  );
 }
 
 function checkNames(model: DbModelData): string {
@@ -1459,11 +1283,11 @@ export function checkData(model: DbModelData): string {
   if (message.length > 0) {
     return message;
   }
-  message = checkViewFrequency(model.settings);
+  message = checkSettingAbsent(model.settings, viewFrequency);
   if (message.length > 0) {
     return message;
   }
-  message = checkViewDetail(model.settings);
+  message = checkSettingAbsent(model.settings, viewDetail);
   if (message.length > 0) {
     return message;
   }
@@ -1471,7 +1295,7 @@ export function checkData(model: DbModelData): string {
   if (message.length > 0) {
     return message;
   }
-  message = checkViewType(model.settings);
+  message = checkSettingAbsent(model.settings, assetChartView);
   if (message.length > 0) {
     return message;
   }
@@ -1483,23 +1307,23 @@ export function checkData(model: DbModelData): string {
   if (message.length > 0) {
     return message;
   }
-  message = checkAssetChartFocus(model);
+  message = checkSettingAbsent(model.settings, assetChartFocus);
   if (message.length > 0) {
     return message;
   }
-  message = checkDebtChartFocus(model);
+  message = checkSettingAbsent(model.settings, debtChartFocus);
   if (message.length > 0) {
     return message;
   }
-  message = checkExpenseChartFocus(model);
+  message = checkSettingAbsent(model.settings, expenseChartFocus);
   if (message.length > 0) {
     return message;
   }
-  message = checkIncomeChartFocus(model);
+  message = checkSettingAbsent(model.settings, incomeChartFocus);
   if (message.length > 0) {
     return message;
   }
-  message = checkTaxChartFocus(model);
+  message = checkSettingAbsent(model.settings, taxChartFocusType);
   if (message.length > 0) {
     return message;
   }

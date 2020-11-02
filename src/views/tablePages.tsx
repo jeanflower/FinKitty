@@ -1,4 +1,34 @@
-import React from 'react';
+import {
+  CASH_ASSET_NAME,
+  adjustableType,
+  assetChartFocus,
+  assetChartView,
+  autogen,
+  conditional,
+  constType,
+  crystallizedPension,
+  debtChartFocus,
+  debtChartView,
+  expenseChartFocus,
+  incomeChartFocus,
+  liquidateAsset,
+  payOffDebt,
+  pension,
+  pensionDB,
+  pensionTransfer,
+  revalue,
+  revalueAsset,
+  revalueDebt,
+  revalueExp,
+  revalueInc,
+  revalueSetting,
+  taxChartFocusPerson,
+  taxChartFocusType,
+  taxChartShowNet,
+  taxFree,
+  viewDetail,
+  viewType,
+} from '../localization/stringConstants';
 import {
   DbAsset,
   DbExpense,
@@ -8,7 +38,22 @@ import {
   DbTransaction,
   DbTrigger,
 } from '../types/interfaces';
-
+import {
+  attemptRename,
+  deleteAsset,
+  deleteExpense,
+  deleteIncome,
+  deleteSetting,
+  deleteTransaction,
+  deleteTrigger,
+  editSetting,
+  getDefaultViewSettings,
+  submitAsset,
+  submitExpense,
+  submitIncome,
+  submitTransaction,
+  submitTrigger,
+} from '../App';
 import {
   checkExpense,
   checkIncome,
@@ -16,84 +61,36 @@ import {
   checkTrigger,
   isNumberString,
 } from '../models/checks';
-
-import DataGrid from './reactComponents/DataGrid';
-
 import {
+  checkForWordClashInModel,
+  getNumberAndWordParts,
+  isADebt,
+  isAnAssetOrAssets,
+  isAnExpense,
+  isAnIncome,
+  log,
   makeBooleanFromYesNo,
   makeCashValueFromString,
   makeDateFromString,
   makeGrowthFromString,
   makePurchasePriceFromString,
+  makeQuantityFromString,
   makeStringFromGrowth,
   makeStringFromPurchasePrice,
   makeStringFromValueAbsProp,
   makeValueAbsPropFromString,
   makeYesNoFromBoolean,
-  showObj,
-  makeQuantityFromString,
-  isAnIncome,
-  isAnExpense,
-  isAnAssetOrAssets,
-  isADebt,
-  checkForWordClashInModel,
-  getNumberAndWordParts,
   minimalModel,
+  showObj,
 } from '../utils';
 
+import CashValueFormatter from './reactComponents/CashValueFormatter';
+import DataGrid from './reactComponents/DataGrid';
+import GrowthFormatter from './reactComponents/GrowthFormatter';
+import React from 'react';
 import SimpleFormatter from './reactComponents/NameFormatter';
 import ToFromValueFormatter from './reactComponents/ToFromValueFormatter';
 import TriggerDateFormatter from './reactComponents/TriggerDateFormatter';
-import GrowthFormatter from './reactComponents/GrowthFormatter';
-import CashValueFormatter from './reactComponents/CashValueFormatter';
-
-import {
-  deleteAsset,
-  deleteExpense,
-  deleteIncome,
-  deleteSetting,
-  deleteTransaction,
-  deleteTrigger,
-  submitAsset,
-  submitExpense,
-  submitIncome,
-  submitTransaction,
-  submitTrigger,
-  editSetting,
-  attemptRename,
-} from '../App';
-import {
-  liquidateAsset,
-  conditional,
-  payOffDebt,
-  revalueAsset,
-  revalueExp,
-  revalueInc,
-  revalue,
-  autogen,
-  revalueDebt,
-  assetChartView,
-  debtChartView,
-  viewDetail,
-  assetChartFocus,
-  debtChartFocus,
-  expenseChartFocus,
-  incomeChartFocus,
-  viewType,
-  constType,
-  adjustableType,
-  revalueSetting,
-  taxChartFocusPerson,
-  taxChartFocusType,
-  taxChartShowNet,
-  crystallizedPension,
-  pension,
-  pensionDB,
-  pensionTransfer,
-  taxFree,
-  CASH_ASSET_NAME,
-} from '../localization/stringConstants';
-import { log } from 'util';
 
 function handleExpenseGridRowsUpdated(
   model: DbModelData,
@@ -516,7 +513,7 @@ function handleSettingGridRowsUpdated(
   if (args[0].cellKey === 'NAME') {
     if (x.NAME !== args[0].updated.NAME) {
       if (
-        minimalModel.settings.filter(obj => {
+        minimalModel.settings.concat(getDefaultViewSettings()).filter(obj => {
           return obj.NAME === x.NAME;
         }).length > 0
       ) {
@@ -541,9 +538,7 @@ function handleSettingGridRowsUpdated(
     }
     return;
   }
-  // log('old expense '+showObj(expense));
   x[args[0].cellKey] = args[0].updated[args[0].cellKey];
-  // log('new expense '+showObj(expense));
   const forSubmission = {
     NAME: x.NAME,
     VALUE: x.VALUE,
@@ -1530,7 +1525,7 @@ export function expensesTableDivWithHeading(
   );
 }
 
-const settingsToExcludeFromTableView = [
+const settingsToExcludeFromTableView: string[] = [
   assetChartView,
   debtChartView,
   viewDetail,
@@ -1543,8 +1538,13 @@ const settingsToExcludeFromTableView = [
   taxChartShowNet,
 ];
 
-function settingsForTable(model: DbModelData, type: string) {
-  const unindexedResult = model.settings
+function settingsForTable(
+  model: DbModelData,
+  viewSettings: DbSetting[],
+  type: string,
+) {
+  const data = viewSettings.concat(model.settings);
+  const unindexedResult = data
     .filter((obj: DbSetting) => {
       return obj.TYPE === type;
     })
@@ -1644,9 +1644,13 @@ function adjustSettingsTable(
   );
 }
 
-function settingsTables(model: DbModelData, showAlert: (arg0: string) => void) {
-  const constSettings = settingsForTable(model, constType);
-  const adjustSettings = settingsForTable(model, adjustableType);
+function settingsTables(
+  model: DbModelData,
+  viewSettings: DbSetting[],
+  showAlert: (arg0: string) => void,
+) {
+  const constSettings = settingsForTable(model, viewSettings, constType);
+  const adjustSettings = settingsForTable(model, viewSettings, adjustableType);
 
   if (constSettings.length === 0 && adjustSettings.length === 0) {
     return;
@@ -1663,6 +1667,7 @@ function settingsTables(model: DbModelData, showAlert: (arg0: string) => void) {
 
 export function settingsTableDiv(
   model: DbModelData,
+  viewSettings: DbSetting[],
   showAlert: (arg0: string) => void,
 ) {
   return (
@@ -1678,7 +1683,7 @@ export function settingsTableDiv(
         handleGridRowsUpdated={function() {
           return handleSettingGridRowsUpdated(model, showAlert, arguments);
         }}
-        rows={settingsForTable(model, viewType)}
+        rows={settingsForTable(model, viewSettings, viewType)}
         columns={[
           {
             ...defaultColumn,
@@ -1700,7 +1705,7 @@ export function settingsTableDiv(
           },
         ]}
       />
-      {settingsTables(model, showAlert)}
+      {settingsTables(model, viewSettings, showAlert)}
       {transactionFilteredTable(
         model,
         showAlert,

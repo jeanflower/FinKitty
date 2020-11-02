@@ -1,4 +1,10 @@
-import React from 'react';
+import { ChartData, DbItem, DbModelData, DbSetting } from '../types/interfaces';
+import { checkExpense, checkTransaction } from '../models/checks';
+import {
+  defaultColumn,
+  expensesTableDivWithHeading,
+  transactionFilteredTable,
+} from './tablePages';
 import {
   deleteExpense,
   getDisplay,
@@ -10,19 +16,14 @@ import {
   expensesChartDivWithButtons,
   getDefaultChartSettings,
 } from './chartPages';
-import {
-  expensesTableDivWithHeading,
-  defaultColumn,
-  transactionFilteredTable,
-} from './tablePages';
-import { AddDeleteExpenseForm } from './reactComponents/AddDeleteExpenseForm';
-import { checkExpense, checkTransaction } from '../models/checks';
-import { DbModelData, ChartData, DbItem } from '../types/interfaces';
 import { expensesView, revalueExp } from '../localization/stringConstants';
-import DataGrid from './reactComponents/DataGrid';
-import { lessThan, getTodaysDate } from '../utils';
-import SimpleFormatter from './reactComponents/NameFormatter';
+import { getTodaysDate, lessThan } from '../utils';
+
+import { AddDeleteExpenseForm } from './reactComponents/AddDeleteExpenseForm';
 import CashValueFormatter from './reactComponents/CashValueFormatter';
+import DataGrid from './reactComponents/DataGrid';
+import React from 'react';
+import SimpleFormatter from './reactComponents/NameFormatter';
 
 function todaysExpensesTable(
   model: DbModelData,
@@ -75,6 +76,7 @@ function todaysExpensesTable(
 
 export function expensesDiv(
   model: DbModelData,
+  viewSettings: DbSetting[],
   showAlert: (arg0: string) => void,
   expensesChartData: ChartData[],
   todaysValues: Map<string, number>,
@@ -86,8 +88,9 @@ export function expensesDiv(
     <div style={{ display: getDisplay(expensesView) ? 'block' : 'none' }}>
       {expensesChartDivWithButtons(
         model,
+        viewSettings,
         expensesChartData,
-        getDefaultChartSettings(model),
+        getDefaultChartSettings(viewSettings),
       )}
       {todaysExpensesTable(model, todaysValues)}
       {expensesTableDivWithHeading(model, showAlert)}

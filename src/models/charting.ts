@@ -1,45 +1,3 @@
-import { checkEvalnType } from './checks';
-import {
-  evaluationType,
-  generateSequenceOfDates,
-  getEvaluations,
-  makeSourceForFromChange,
-} from './evaluations';
-import {
-  allItems,
-  assetChartAdditions,
-  assetChartReductions,
-  assetChartVal,
-  assetChartView,
-  birthDate,
-  coarse,
-  expenseChartFocus,
-  fine,
-  incomeChartFocus,
-  monthly,
-  revalue,
-  roiEnd,
-  roiStart,
-  separator,
-  assetChartFocus,
-  viewDetail,
-  viewFrequency,
-  growth,
-  pensionDB,
-  debtChartFocus,
-  debtChartView,
-  debtChartVal,
-  total,
-  incomeTax,
-  nationalInsurance,
-  cgt,
-  crystallizedPension,
-  taxChartFocusType,
-  taxChartFocusPerson,
-  taxChartShowNet,
-  income,
-  gain,
-} from '../localization/stringConstants';
 import {
   ChartDataPoint,
   DataForView,
@@ -51,20 +9,63 @@ import {
   ItemChartData,
 } from '../types/interfaces';
 import {
+  allItems,
+  assetChartAdditions,
+  assetChartFocus,
+  assetChartReductions,
+  assetChartVal,
+  assetChartView,
+  birthDate,
+  cgt,
+  coarse,
+  crystallizedPension,
+  debtChartFocus,
+  debtChartVal,
+  debtChartView,
+  expenseChartFocus,
+  fine,
+  gain,
+  growth,
+  income,
+  incomeChartFocus,
+  incomeTax,
+  monthly,
+  nationalInsurance,
+  pensionDB,
+  revalue,
+  roiEnd,
+  roiStart,
+  separator,
+  taxChartFocusPerson,
+  taxChartFocusType,
+  taxChartShowNet,
+  total,
+  viewDetail,
+  viewFrequency,
+} from '../localization/stringConstants';
+import {
+  deconstructTaxTag,
   getSettings,
+  getTriggerDate,
   log,
+  makeCGTTag,
+  makeDateFromString,
+  makeIncomeTaxTag,
+  makeNationalInsuranceTag,
+  makeNetGainTag,
+  makeNetIncomeTag,
   makeTwoDP,
   printDebug,
   showObj,
-  makeDateFromString,
-  getTriggerDate,
-  makeIncomeTaxTag,
-  makeNetIncomeTag,
-  makeNationalInsuranceTag,
-  makeCGTTag,
-  makeNetGainTag,
-  deconstructTaxTag,
 } from '../utils';
+import {
+  evaluationType,
+  generateSequenceOfDates,
+  getEvaluations,
+  makeSourceForFromChange,
+} from './evaluations';
+
+import { checkEvalnType } from './checks';
 
 function logMapOfMap(
   twoMap: Map<string, Map<string, number>>,
@@ -627,52 +628,60 @@ function ensureDateValueMapsExist(
   }
 }
 
-function getSettingsValues(model: DbModelData) {
+function getSettingsValues(viewSettings: DbSetting[]) {
   // log(`entering makeChartDataFromEvaluations`);
   const expenseFocus: string = getSettings(
-    model.settings,
+    viewSettings, // choice is not persistent
     expenseChartFocus,
     allItems,
   );
   const incomeFocus: string = getSettings(
-    model.settings,
+    viewSettings, // choice is not persistent
     incomeChartFocus,
     allItems,
   );
   const assetChartFocusName = getSettings(
-    model.settings,
+    viewSettings, // choice is not persistent
     assetChartFocus,
     allItems,
   );
   const debtChartFocusName = getSettings(
-    model.settings,
+    viewSettings, // choice is not persistent
     debtChartFocus,
     allItems,
   );
-  const detail: string = getSettings(model.settings, viewDetail, fine);
-  const frequency: string = getSettings(model.settings, viewFrequency, monthly);
+  const detail: string = getSettings(
+    viewSettings, // choice is not persistent
+    viewDetail,
+    fine,
+  );
+  const frequency: string = getSettings(
+    viewSettings, // choice is not persistent
+    viewFrequency,
+    monthly,
+  );
   const assetChartSetting: string = getSettings(
-    model.settings,
+    viewSettings, // choice is not persistent
     assetChartView,
     assetChartVal,
   );
   const debtChartSetting: string = getSettings(
-    model.settings,
+    viewSettings, // choice is not persistent
     debtChartView,
     debtChartVal,
   );
   const taxChartType: string = getSettings(
-    model.settings,
+    viewSettings, // choice is not persistent
     taxChartFocusType,
     allItems,
   );
   const taxChartPerson: string = getSettings(
-    model.settings,
+    viewSettings, // choice is not persistent
     taxChartFocusPerson,
     allItems,
   );
   const taxChartNetString: string = getSettings(
-    model.settings,
+    viewSettings, // choice is not persistent
     taxChartShowNet,
     allItems,
   );
@@ -784,6 +793,7 @@ function generateEvaluationDates(roi: Interval, frequency: string) {
 export function makeChartDataFromEvaluations(
   //roi: Interval,
   model: DbModelData,
+  viewSettings: DbSetting[],
   evaluationsAndVals: {
     evaluations: Evaluation[];
     todaysAssetValues: Map<string, number>;
@@ -817,7 +827,7 @@ export function makeChartDataFromEvaluations(
     taxChartPerson,
     taxChartType,
     taxChartNet,
-  } = getSettingsValues(model);
+  } = getSettingsValues(viewSettings);
 
   // set up empty data structure for result
   const result: DataForView = {
@@ -1237,7 +1247,7 @@ export function makeChartDataFromEvaluations(
   const mapForChart = typeDateNameValueMap.get('assetOrDebtFocus');
   if (mapForChart !== undefined) {
     // log(`go to make asset points@`);
-    // log(`assets = ${showObj(assets)}`);
+    // log(`assetChartFocusName = ${assetChartFocusName}`);
 
     let assetChartNames = [];
     let debtChartNames = [];
@@ -1365,7 +1375,10 @@ export function makeChartDataFromEvaluations(
   return result;
 }
 
-export function makeChartData(model: DbModelData): DataForView {
+export function makeChartData(
+  model: DbModelData,
+  viewSettings: DbSetting[],
+): DataForView {
   // log('in makeChartData');
   const evaluationsAndVals = getEvaluations(model);
   const evaluations = evaluationsAndVals.evaluations;
@@ -1389,5 +1402,5 @@ export function makeChartData(model: DbModelData): DataForView {
   }
 
   // log(`roi is ${showObj(roi)}`);
-  return makeChartDataFromEvaluations(model, evaluationsAndVals);
+  return makeChartDataFromEvaluations(model, viewSettings, evaluationsAndVals);
 }

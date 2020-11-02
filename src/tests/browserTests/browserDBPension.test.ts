@@ -1,10 +1,10 @@
 import { TestModel02 } from '../../localization/stringConstants';
 import {
-  addDBPension,
-  addIncome,
-  clearPensionFields,
   headless,
+  addIncome,
   incomeInputs,
+  addDBPension,
+  clearPensionFields,
   quitAfterAll,
 } from './ browsertestUtils';
 import {

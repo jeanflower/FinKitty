@@ -1,104 +1,119 @@
 // to allow final-scoping blocks for auto-generated code
 /* eslint-disable no-lone-blocks */
 
-import { makeChartDataFromEvaluations } from '../../models/charting';
-import { getEvaluations } from '../../models/evaluations';
 import {
+  CASH_ASSET_NAME,
+  allItems,
   annually,
   assetChartAdditions,
   assetChartDeltas,
   assetChartFocus,
+  assetChartFocusHint,
   assetChartHint,
   assetChartReductions,
   assetChartVal,
   assetChartView,
+  autogen,
   birthDate,
-  CASH_ASSET_NAME,
+  birthDateHint,
   cgt,
   coarse,
+  conditional,
+  constType,
   cpi,
+  cpiHint,
   crystallizedPension,
-  debtChartHint,
-  debtChartView,
-  debtChartVal,
-  expenseChartFocus,
-  fine,
-  incomeChartFocus,
-  incomeTax,
-  monthly,
-  nationalInsurance,
-  roiEnd,
-  roiEndHint,
-  roiStart,
-  roiStartHint,
-  separator,
-  viewDetail,
-  viewFrequency,
-  growth,
-  pension,
-  pensionSS,
-  pensionDB,
-  total,
   custom,
+  debtChartFocus,
+  debtChartFocusHint,
+  debtChartHint,
+  debtChartVal,
+  debtChartView,
+  expenseChartFocus,
+  expenseChartFocusHint,
+  fine,
+  growth,
+  incomeChartFocus,
+  incomeChartFocusHint,
+  incomeTax,
   liquidateAsset,
+  monthly,
+  moveTaxFreePart,
+  nationalInsurance,
   payOffDebt,
-  autogen,
+  pension,
+  pensionDB,
+  pensionSS,
+  pensionTransfer,
+  revalue,
+  revalueAsset,
   revalueExp,
   revalueInc,
-  revalueAsset,
-  taxableBenefit,
-  constType,
-  viewType,
   revalueSetting,
-  revalue,
-  allItems,
+  roiEnd,
+  roiStart,
+  separator,
+  taxChartFocusPerson,
+  taxChartFocusPersonHint,
+  taxChartFocusType,
+  taxChartFocusTypeHint,
+  taxChartShowNet,
+  taxChartShowNetHint,
   taxFree,
-  conditional,
-  moveTaxFreePart,
-  pensionTransfer,
+  taxableBenefit,
+  total,
   transferCrystallizedPension,
-  cpiHint,
+  valueFocusDate,
+  valueFocusDateHint,
+  viewDetail,
+  viewDetailHint,
+  viewFrequency,
+  viewFrequencyHint,
+  viewType,
 } from '../../localization/stringConstants';
 import {
   ChartDataPoint,
   DataForView,
   DbModelData,
+  DbSetting,
 } from '../../types/interfaces';
-import { Evaluation } from '../../types/interfaces';
 import {
+  attemptRenameLong,
+  defaultModelSettings,
+  emptyModel,
   getMinimalModelCopy,
   log,
-  makeDateFromString,
-  printDebug,
-  setSetting,
-  suppressLogs,
-  unSuppressLogs,
-  minimalModel,
-  makeModelFromJSON,
-  makeIncomeTaxTag,
-  makeNationalInsuranceTag,
   makeCGTTag,
-  makeNetIncomeTag,
+  makeDateFromString,
+  makeIncomeTaxTag,
+  makeModelFromJSON,
+  makeModelFromJSONString,
+  makeNationalInsuranceTag,
   makeNetGainTag,
+  makeNetIncomeTag,
+  minimalModel,
+  printDebug,
+  revertToUndoModel,
+  setROI,
+  setSetting,
   simpleAsset,
   simpleExpense,
   simpleIncome,
-  simpleTransaction,
-  defaultSettings,
-  emptyModel,
-  setROI,
   simpleSetting,
+  simpleTransaction,
+  suppressLogs,
+  unSuppressLogs,
   viewSetting,
-  makeModelFromJSONString,
-  attemptRenameLong,
-  revertToUndoModel,
-  // showObj,
 } from '../../utils';
 import {
   getModelCoarseAndFine,
   getThreeChryslerModel,
   simpleExampleData,
 } from '../../models/exampleModels';
+
+import { Evaluation } from '../../types/interfaces';
+import { getEvaluations } from '../../models/evaluations';
+import { makeChartDataFromEvaluations } from '../../models/charting';
 
 /* global it */
 /* global expect */
@@ -448,9 +463,8 @@ function getModelFutureExpense2() {
         GROWTH: '12.0',
       },
     ],
-    settings: [...defaultSettings],
+    settings: [...defaultModelSettings(roi)],
   };
-  setROI(model, roi);
   return { roi, model };
 }
 
@@ -489,21 +503,7 @@ function getModelCrystallizedPension() {
         CATEGORY: 'B',
       },
     ],
-    settings: [
-      ...defaultSettings,
-      {
-        ...viewSetting,
-        NAME: roiStart,
-        VALUE: roi.start,
-        HINT: roiStartHint,
-      },
-      {
-        ...viewSetting,
-        NAME: roiEnd,
-        VALUE: roi.end,
-        HINT: roiEndHint,
-      },
-    ],
+    settings: [...defaultModelSettings(roi)],
     expenses: [],
     transactions: [
       {
@@ -537,15 +537,159 @@ function getModelCrystallizedPension() {
     ],
   };
 
-  setSetting(model.settings, debtChartView, debtChartVal, debtChartHint);
-  setSetting(model.settings, assetChartView, assetChartVal, assetChartHint);
-  setSetting(model.settings, viewDetail, fine, viewType);
-  setSetting(model.settings, viewFrequency, annually, viewType);
+  // log(`getModelCrystallizedPension created ${showObj(model)}`);
+
   setSetting(model.settings, birthDate, '', viewType);
   return {
     model,
     roi,
   };
+}
+
+function getMinimalModelCopySettings(): DbSetting[] {
+  return [
+    {
+      NAME: viewFrequency,
+      VALUE: monthly,
+      HINT: viewFrequencyHint,
+      TYPE: viewType,
+    },
+    {
+      NAME: assetChartView,
+      VALUE: assetChartVal,
+      HINT: assetChartHint,
+      TYPE: viewType,
+    },
+    {
+      NAME: debtChartView,
+      VALUE: debtChartVal,
+      HINT: debtChartHint,
+      TYPE: viewType,
+    },
+    {
+      NAME: viewDetail,
+      VALUE: fine,
+      HINT: viewDetailHint,
+      TYPE: viewType,
+    },
+    {
+      NAME: assetChartFocus,
+      VALUE: CASH_ASSET_NAME,
+      HINT: assetChartFocusHint,
+      TYPE: viewType,
+    },
+    {
+      NAME: debtChartFocus,
+      VALUE: allItems,
+      HINT: debtChartFocusHint,
+      TYPE: viewType,
+    },
+    {
+      NAME: expenseChartFocus,
+      VALUE: allItems,
+      HINT: expenseChartFocusHint,
+      TYPE: viewType,
+    },
+    {
+      NAME: incomeChartFocus,
+      VALUE: allItems,
+      HINT: incomeChartFocusHint,
+      TYPE: viewType,
+    },
+    {
+      NAME: taxChartFocusPerson,
+      VALUE: allItems,
+      HINT: taxChartFocusPersonHint,
+      TYPE: viewType,
+    },
+    {
+      NAME: taxChartFocusType,
+      VALUE: allItems,
+      HINT: taxChartFocusTypeHint,
+      TYPE: viewType,
+    },
+    {
+      NAME: taxChartShowNet,
+      VALUE: 'Y',
+      HINT: taxChartShowNetHint,
+      TYPE: viewType,
+    },
+    {
+      NAME: valueFocusDate,
+      VALUE: '',
+      HINT: valueFocusDateHint,
+      TYPE: viewType,
+    },
+  ];
+}
+
+function defaultTestViewSettings(): DbSetting[] {
+  return [
+    { ...viewSetting, NAME: viewFrequency, VALUE: monthly },
+    { ...viewSetting, NAME: viewDetail, VALUE: fine },
+    { ...viewSetting, NAME: assetChartView, VALUE: assetChartVal },
+    { ...viewSetting, NAME: debtChartView, VALUE: debtChartVal },
+    {
+      ...viewSetting,
+      NAME: assetChartFocus,
+      VALUE: allItems,
+      HINT: assetChartFocusHint,
+    },
+    {
+      ...viewSetting,
+      NAME: debtChartFocus,
+      VALUE: allItems,
+      HINT: debtChartFocusHint,
+    },
+    {
+      ...viewSetting,
+      NAME: expenseChartFocus,
+      VALUE: allItems,
+      HINT: expenseChartFocusHint,
+    },
+    {
+      ...viewSetting,
+      NAME: incomeChartFocus,
+      VALUE: allItems,
+      HINT: incomeChartFocusHint,
+    },
+    {
+      NAME: taxChartFocusPerson,
+      VALUE: allItems,
+      HINT: taxChartFocusPersonHint,
+      TYPE: viewType,
+    },
+    {
+      NAME: taxChartFocusType,
+      VALUE: allItems,
+      HINT: taxChartFocusTypeHint,
+      TYPE: viewType,
+    },
+    {
+      NAME: taxChartShowNet,
+      VALUE: 'Y',
+      HINT: taxChartShowNetHint,
+      TYPE: viewType,
+    },
+    {
+      ...simpleSetting,
+      NAME: cpi,
+      VALUE: '0.0',
+      HINT: cpiHint,
+    },
+    {
+      ...viewSetting,
+      NAME: birthDate,
+      VALUE: '',
+      HINT: birthDateHint,
+    },
+    {
+      ...viewSetting,
+      NAME: valueFocusDate,
+      VALUE: '',
+      HINT: valueFocusDateHint,
+    },
+  ];
 }
 
 describe('evaluations tests', () => {
@@ -560,7 +704,13 @@ describe('evaluations tests', () => {
     // log(showObj(evals));
     expect(evalsAndValues.evaluations.length).toBe(0);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -588,9 +738,8 @@ describe('evaluations tests', () => {
           GROWTH: '12.0',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -611,7 +760,9 @@ describe('evaluations tests', () => {
     // 12% in a year is _approximately_ 1% per month and this is approximately 0.12 increase.
     expectEvals(evals, 1, 'Phon', 'Thu Feb 01 2018', 12.24, 2);
 
-    const result = makeChartDataFromEvaluations(model, {
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(model, viewSettings, {
       evaluations: evals,
       todaysAssetValues: new Map<string, number>(),
       todaysDebtValues: new Map<string, number>(),
@@ -663,9 +814,8 @@ describe('evaluations tests', () => {
           GROWTH: '12.0',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -673,7 +823,9 @@ describe('evaluations tests', () => {
     expect(evals.length).toBe(0);
     // log(showObj(evals));
 
-    const result = makeChartDataFromEvaluations(model, {
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(model, viewSettings, {
       evaluations: evals,
       todaysAssetValues: new Map<string, number>(),
       todaysDebtValues: new Map<string, number>(),
@@ -708,10 +860,8 @@ describe('evaluations tests', () => {
           GROWTH: '12.0',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
-    setSetting(model.settings, viewFrequency, annually, viewType);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -722,7 +872,14 @@ describe('evaluations tests', () => {
     // 12% in a year is _approximately_ 1% per month and this is approximately 0.12 increase.
     expectEvals(evals, 1, 'Phon', 'Thu Feb 01 2018', 12.24, 2);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    setSetting(viewSettings, viewFrequency, annually, viewType);
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -750,10 +907,8 @@ describe('evaluations tests', () => {
           GROWTH: '12.0',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
-    setSetting(model.settings, viewFrequency, annually, viewType);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -764,7 +919,14 @@ describe('evaluations tests', () => {
     // 12% in a year is _approximately_ 1% per month and this is approximately 0.12 increase.
     expectEvals(evals, 1, 'Phon', 'Thu Feb 01 2018', 12.24, 2);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    setSetting(viewSettings, viewFrequency, annually, viewType);
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -800,19 +962,7 @@ describe('evaluations tests', () => {
           GROWTH: '12.0',
         },
       ],
-      settings: [
-        ...defaultSettings,
-        {
-          ...simpleSetting,
-          NAME: roiStart,
-          VALUE: roi.start,
-        },
-        {
-          ...simpleSetting,
-          NAME: roiEnd,
-          VALUE: roi.end,
-        },
-      ],
+      settings: [...defaultModelSettings(roi)],
     };
     setSetting(model.settings, cpi, '12.0', constType);
 
@@ -829,7 +979,13 @@ describe('evaluations tests', () => {
     // TODO : why is this not double the increase we saw in the growth test?
     expectEvals(evals, 1, 'Phon', 'Thu Feb 01 2018', 12.34, 2);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -868,19 +1024,7 @@ describe('evaluations tests', () => {
           RECURRENCE: '6m',
         },
       ],
-      settings: [
-        ...defaultSettings,
-        {
-          ...simpleSetting,
-          NAME: roiStart,
-          VALUE: roi.start,
-        },
-        {
-          ...simpleSetting,
-          NAME: roiEnd,
-          VALUE: roi.end,
-        },
-      ],
+      settings: [...defaultModelSettings(roi)],
     };
     setSetting(model.settings, cpi, '12.0', constType);
 
@@ -893,7 +1037,13 @@ describe('evaluations tests', () => {
     expect(evals.length).toBe(1);
     expectEvals(evals, 0, 'Phon', 'Mon Jan 01 2018', 12.12, 2);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -932,19 +1082,7 @@ describe('evaluations tests', () => {
           RECURRENCE: '2m',
         },
       ],
-      settings: [
-        ...defaultSettings,
-        {
-          ...simpleSetting,
-          NAME: roiStart,
-          VALUE: roi.start,
-        },
-        {
-          ...simpleSetting,
-          NAME: roiEnd,
-          VALUE: roi.end,
-        },
-      ],
+      settings: [...defaultModelSettings(roi)],
     };
     setSetting(model.settings, cpi, '12.0', constType);
 
@@ -958,7 +1096,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 0, 'Phon', 'Mon Jan 01 2018', 12.12, 2);
     expectEvals(evals, 1, 'Phon', 'Thu Mar 01 2018', 12.56, 2);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -997,19 +1141,7 @@ describe('evaluations tests', () => {
           RECURRENCE: '1y',
         },
       ],
-      settings: [
-        ...defaultSettings,
-        {
-          ...simpleSetting,
-          NAME: roiStart,
-          VALUE: roi.start,
-        },
-        {
-          ...simpleSetting,
-          NAME: roiEnd,
-          VALUE: roi.end,
-        },
-      ],
+      settings: [...defaultModelSettings(roi)],
     };
     setSetting(model.settings, cpi, '12.0', constType);
 
@@ -1023,7 +1155,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 0, 'Phon', 'Mon Jan 01 2018', 12.12, 2);
     expectEvals(evals, 1, 'Phon', 'Tue Jan 01 2019', 15.03, 2);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -1075,10 +1213,9 @@ describe('evaluations tests', () => {
           CPI_IMMUNE: true,
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
     setSetting(model.settings, cpi, '5.0', constType);
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -1092,7 +1229,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 0, 'Phon', 'Mon Jan 01 2018', 12.12, 2);
     expectEvals(evals, 1, 'Phon', 'Thu Feb 01 2018', 12.12, 2);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -1133,10 +1276,9 @@ describe('evaluations tests', () => {
           CPI_IMMUNE: true,
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
     setSetting(model.settings, cpi, '5.0', constType);
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -1148,7 +1290,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 0, 'Phon', 'Mon Jan 01 2018', 13.57, 2);
     expectEvals(evals, 1, 'Phon', 'Thu Feb 01 2018', 13.7, 2);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -1194,9 +1342,8 @@ describe('evaluations tests', () => {
           GROWTH: '12.0',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -1210,7 +1357,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 0, 'Phon', 'Mon Jan 01 2018', 13.57, 2);
     expectEvals(evals, 1, 'Phon', 'Thu Feb 01 2018', 13.7, 2);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -1248,9 +1401,8 @@ describe('evaluations tests', () => {
           GROWTH: '12.0',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -1263,7 +1415,13 @@ describe('evaluations tests', () => {
     // Note growth has been applied a second time.
     expectEvals(evals, 2, 'Phon', 'Thu Mar 01 2018', 12.35, 2);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -1302,9 +1460,8 @@ describe('evaluations tests', () => {
           LIABILITY: '',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -1316,7 +1473,13 @@ describe('evaluations tests', () => {
     // Note growth has been applied to show an increase in income.
     expectEvals(evals, 1, 'PRnd', 'Thu Feb 01 2018', 5.05, 2);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -1353,10 +1516,8 @@ describe('evaluations tests', () => {
           GROWTH: '12',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
-    setSetting(model.settings, viewFrequency, annually, viewType);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -1371,7 +1532,14 @@ describe('evaluations tests', () => {
     expectEvals(evals, 4, 'PRnd', 'Tue May 01 2018', 5.19, 2);
     expectEvals(evals, 5, 'PRnd', 'Fri Jun 01 2018', 5.24, 2);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    setSetting(viewSettings, viewFrequency, annually, viewType);
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -1406,9 +1574,8 @@ describe('evaluations tests', () => {
           GROWTH: '12',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -1420,7 +1587,13 @@ describe('evaluations tests', () => {
     // Note growth is applied again.
     expectEvals(evals, 1, 'PRnd', 'Fri Feb 01 2019', 5.65, 2);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -1460,9 +1633,8 @@ describe('evaluations tests', () => {
           CPI_IMMUNE: true,
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -1474,7 +1646,13 @@ describe('evaluations tests', () => {
     // as it's cpi-immune.
     expectEvals(evals, 1, 'PRnd', 'Fri Feb 01 2019', 5, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -1511,9 +1689,8 @@ describe('evaluations tests', () => {
           CPI_IMMUNE: true,
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -1523,7 +1700,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 0, 'PRnd', 'Tue Jan 01 2019', 5.6, 2);
     expectEvals(evals, 1, 'PRnd', 'Fri Feb 01 2019', 5.65, 2);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -1560,9 +1743,8 @@ describe('evaluations tests', () => {
           GROWTH: '12',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -1575,7 +1757,13 @@ describe('evaluations tests', () => {
     // Income increases again by growth.
     expectEvals(evals, 2, 'PRnd', 'Thu Mar 01 2018', 5.1, 2);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -1628,9 +1816,8 @@ describe('evaluations tests', () => {
           GROWTH: '12',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -1642,7 +1829,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 1, 'Acash', 'Mon Jan 01 2018', 500, -1);
     expectEvals(evals, 2, 'Zcash', 'Mon Jan 01 2018', 500, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -1691,9 +1884,8 @@ describe('evaluations tests', () => {
           GROWTH: '12',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -1707,7 +1899,13 @@ describe('evaluations tests', () => {
     // Goes up for growth again
     expectEvals(evals, 2, 'savings', 'Thu Mar 01 2018', 509.53, 2);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -1742,9 +1940,8 @@ describe('evaluations tests', () => {
           GROWTH: '0.0',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
     setSetting(model.settings, cpi, '12', constType);
 
     const evalsAndValues = getTestEvaluations(model);
@@ -1759,7 +1956,13 @@ describe('evaluations tests', () => {
     // Goes up for growth again
     expectEvals(evals, 2, 'savings', 'Thu Mar 01 2018', 509.53, 2);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -1795,9 +1998,8 @@ describe('evaluations tests', () => {
           CPI_IMMUNE: true,
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
     setSetting(model.settings, cpi, '12', constType);
 
     const evalsAndValues = getTestEvaluations(model);
@@ -1812,7 +2014,13 @@ describe('evaluations tests', () => {
     // Goes up for growth again
     expectEvals(evals, 2, 'savings', 'Thu Mar 01 2018', 509.53, 2);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -1848,9 +2056,8 @@ describe('evaluations tests', () => {
           CPI_IMMUNE: true,
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
     setSetting(model.settings, cpi, '12', constType);
 
     const evalsAndValues = getTestEvaluations(model);
@@ -1865,7 +2072,13 @@ describe('evaluations tests', () => {
     // Goes up for growth again
     expectEvals(evals, 2, 'savings', 'Thu Mar 01 2018', 500, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -1900,12 +2113,8 @@ describe('evaluations tests', () => {
           GROWTH: '12',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
-    setSetting(model.settings, assetChartFocus, 'savings', viewType);
-    setSetting(model.settings, viewFrequency, annually, viewType);
-    setSetting(model.settings, assetChartView, assetChartDeltas, viewType);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -1929,7 +2138,16 @@ describe('evaluations tests', () => {
     expectEvals(evals, 13, 'savings', 'Fri Feb 01 2019', 565.31, 2);
     expectEvals(evals, 14, 'savings', 'Fri Mar 01 2019', 570.68, 2);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    setSetting(viewSettings, assetChartFocus, 'savings', viewType);
+    setSetting(viewSettings, viewFrequency, annually, viewType);
+    setSetting(viewSettings, assetChartView, assetChartDeltas, viewType);
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -1981,9 +2199,8 @@ describe('evaluations tests', () => {
           GROWTH: '12',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -1994,7 +2211,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 0, 'savings', 'Mon Jan 01 2018', 500, -1);
     expectEvals(evals, 1, 'savings', 'Thu Feb 01 2018', 504.74, 2);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -2041,9 +2264,8 @@ describe('evaluations tests', () => {
           GROWTH: '12',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -2057,7 +2279,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 2, 'PRnd', 'Thu Feb 01 2018', 5.05, 2);
     expectEvals(evals, 3, 'Phon', 'Fri Feb 02 2018', 12.24, 2);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -2109,9 +2337,8 @@ describe('evaluations tests', () => {
           VALUE: '500',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -2124,7 +2351,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 2, 'MyCa', 'Thu Feb 01 2018', 400, -1);
     expectEvals(evals, 3, 'MyCa', 'Thu Mar 01 2018', 400, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -2168,9 +2401,8 @@ describe('evaluations tests', () => {
           VALUE: '500',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -2185,7 +2417,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 4, 'MyCa', 'Thu Mar 01 2018', 300, -1);
     expectEvals(evals, 5, 'MyCa', 'Fri Mar 02 2018', 200, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -2229,9 +2467,8 @@ describe('evaluations tests', () => {
           VALUE: '500',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -2248,7 +2485,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 6, 'MyCa', 'Tue May 01 2018', 300, -1);
     expectEvals(evals, 7, 'MyCa', 'Wed May 02 2018', 200, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -2294,11 +2537,8 @@ describe('evaluations tests', () => {
           VALUE: '500',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
-
-    setSetting(model.settings, viewFrequency, monthly, viewType);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -2314,7 +2554,14 @@ describe('evaluations tests', () => {
     expectEvals(evals, 51, 'MyCa', 'Sun Jan 02 2022', 200, -1);
     expectEvals(evals, 67, 'MyCa', 'Mon May 01 2023', 200, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    setSetting(viewSettings, viewFrequency, monthly, viewType);
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -2371,9 +2618,8 @@ describe('evaluations tests', () => {
           VALUE: '20',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -2397,7 +2643,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 10, 'Food', 'Sun Apr 01 2018', 180, -1);
     expectEvals(evals, 11, 'MyCa', 'Sun Apr 01 2018', 120, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -2470,9 +2722,8 @@ describe('evaluations tests', () => {
           VALUE: '20',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -2503,7 +2754,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 15, 'MyCa', 'Wed May 02 2018', 120, -1);
     expectEvals(evals, 16, 'Food', 'Wed May 02 2018', 260, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -2572,9 +2829,8 @@ describe('evaluations tests', () => {
           GROWTH: '12',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -2662,9 +2918,8 @@ describe('evaluations tests', () => {
           GROWTH: '12',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -2679,7 +2934,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 4, 'MyCa', 'Fri Feb 02 2018', 122.15, 2);
     expectEvals(evals, 5, 'Stff', 'Fri Feb 02 2018', 112.05, 2);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -2752,9 +3013,8 @@ describe('evaluations tests', () => {
           VALUE: '15',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -2798,7 +3058,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 26, 'Cash', 'Sun Sep 02 2018', 25, -1);
     expectEvals(evals, 27, 'Stff', 'Sun Sep 02 2018', 172, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -2902,9 +3168,8 @@ describe('evaluations tests', () => {
           VALUE: '15',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -2950,7 +3215,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 30, 'Cash', 'Sun Sep 02 2018', 0, -1);
     expectEvals(evals, 31, 'Stff', 'Sun Sep 02 2018', 197, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -3053,9 +3324,8 @@ describe('evaluations tests', () => {
           VALUE: '15',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -3101,7 +3371,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 30, 'Cash', 'Sun Sep 02 2018', 0, -1);
     expectEvals(evals, 31, 'Stff', 'Sun Sep 02 2018', 197, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -3203,9 +3479,8 @@ describe('evaluations tests', () => {
           VALUE: '15',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -3256,7 +3531,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 30, 'Cash', 'Sun Sep 02 2018', 45, -1);
     expectEvals(evals, 31, 'Stff', 'Sun Sep 02 2018', 72, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart( result );
 
@@ -3358,9 +3639,8 @@ describe('evaluations tests', () => {
           VALUE: '15',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -3403,7 +3683,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 24, 'Cash', 'Sun Sep 02 2018', -5, -1);
     expectEvals(evals, 25, 'Stff', 'Sun Sep 02 2018', 0, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -3494,9 +3780,8 @@ describe('evaluations tests', () => {
           VALUE: '15',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -3536,7 +3821,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 26, 'Cash', 'Sun Sep 02 2018', -33, -1);
     expectEvals(evals, 27, 'Stff', 'Sun Sep 02 2018', 0, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -3634,11 +3925,8 @@ describe('evaluations tests', () => {
           VALUE: '15',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
-    setSetting(model.settings, assetChartFocus, CASH_ASSET_NAME, viewType);
-    setSetting(model.settings, assetChartView, assetChartDeltas, viewType);
 
     const x = model.settings.find(s => {
       return s.NAME === assetChartFocus;
@@ -3705,7 +3993,15 @@ describe('evaluations tests', () => {
     expectEvals(evals, 41, 'Stf1', 'Sun Sep 02 2018', 0, -1);
     expectEvals(evals, 42, 'Stf2', 'Sun Sep 02 2018', 82, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    setSetting(viewSettings, assetChartFocus, CASH_ASSET_NAME, viewType);
+    setSetting(viewSettings, assetChartView, assetChartDeltas, viewType);
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -3853,7 +4149,7 @@ describe('evaluations tests', () => {
         },
       ],
       settings: [
-        ...defaultSettings,
+        ...defaultModelSettings(roi),
         {
           NAME: 'pound',
           VALUE: '1.0',
@@ -3862,9 +4158,6 @@ describe('evaluations tests', () => {
         },
       ],
     };
-    setROI(model, roi);
-    setSetting(model.settings, assetChartFocus, CASH_ASSET_NAME, viewType);
-    setSetting(model.settings, assetChartView, assetChartDeltas, viewType);
 
     const x = model.settings.find(s => {
       return s.NAME === assetChartFocus;
@@ -3939,7 +4232,15 @@ describe('evaluations tests', () => {
     expectEvals(evals, 49, 'Stf1', 'Sun Sep 02 2018', 0, -1);
     expectEvals(evals, 50, 'Stf2', 'Sun Sep 02 2018', 82, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    setSetting(viewSettings, assetChartFocus, CASH_ASSET_NAME, viewType);
+    setSetting(viewSettings, assetChartView, assetChartDeltas, viewType);
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -4084,11 +4385,8 @@ describe('evaluations tests', () => {
           VALUE: '15',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
-    setSetting(model.settings, assetChartFocus, CASH_ASSET_NAME, viewType);
-    setSetting(model.settings, assetChartView, assetChartDeltas, viewType);
 
     const x = model.settings.find(s => {
       return s.NAME === assetChartFocus;
@@ -4155,7 +4453,15 @@ describe('evaluations tests', () => {
     expectEvals(evals, 41, 'Stf1', 'Sun Sep 02 2018', 0, -1);
     expectEvals(evals, 42, 'Stf2', 'Sun Sep 02 2018', 82, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    setSetting(viewSettings, assetChartFocus, CASH_ASSET_NAME, viewType);
+    setSetting(viewSettings, assetChartView, assetChartDeltas, viewType);
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -4297,9 +4603,8 @@ describe('evaluations tests', () => {
           VALUE: '5',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -4354,7 +4659,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 37, 'Stf1', 'Sun Sep 02 2018', 0, -1);
     expectEvals(evals, 38, 'Stf2', 'Sun Sep 02 2018', 28, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     //printTestCodeForChart(result);
 
@@ -4445,9 +4756,13 @@ describe('evaluations tests', () => {
           GROWTH: '12',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
+    model.settings.forEach(s => {
+      if (s.NAME === assetChartFocus) {
+        s.VALUE = allItems;
+      }
+    });
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -4461,7 +4776,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 3, 'PRnd', 'Thu Feb 01 2018', 5.05, 2);
     expectEvals(evals, 4, getnetincLabel('Joe'), 'Thu Apr 05 2018', 10.05, 2);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -4530,9 +4851,8 @@ describe('evaluations tests', () => {
           VALUE: '500',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -4549,7 +4869,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 5, 'Cash', 'Thu Feb 01 2018', 390, -1);
     expectEvals(evals, 6, 'Cash', 'Thu Mar 01 2018', 390, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -4637,9 +4963,8 @@ describe('evaluations tests', () => {
           VALUE: '500',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -4659,7 +4984,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 8, 'Cash', 'Thu Mar 01 2018', 1505, -1);
     expectEvals(evals, 9, getnetincLabel('Joe'), 'Thu Apr 05 2018', 1000, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -4749,9 +5080,8 @@ describe('evaluations tests', () => {
           VALUE: '500',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -4776,7 +5106,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 13, '(incomeTax)', 'Fri Apr 05 2019', 1, -1);
     expectEvals(evals, 14, getnetincLabel('Joe'), 'Fri Apr 05 2019', 12504, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -4864,9 +5200,8 @@ describe('evaluations tests', () => {
           VALUE: '500',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -4913,7 +5248,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 35, 'Cash', 'Wed Apr 01 2020', 25508, -1);
     expectEvals(evals, 36, 'Cash', 'Fri May 01 2020', 25508, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -5086,9 +5427,8 @@ describe('evaluations tests', () => {
           VALUE: '500',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -5105,7 +5445,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 5, getnetincLabel('Joe'), 'Thu Apr 05 2018', 12504, -1);
     expectEvals(evals, 6, 'Cash', 'Tue May 01 2018', 13004, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -5162,9 +5508,8 @@ describe('evaluations tests', () => {
           VALUE: '500',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -5178,7 +5523,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 2, 'Cash', 'Sun Apr 01 2018', 13005, -1);
     expectEvals(evals, 3, 'Cash', 'Tue May 01 2018', 13005, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -5236,9 +5587,8 @@ describe('evaluations tests', () => {
           VALUE: '500',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -5255,7 +5605,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 5, getnetincLabel('Joe'), 'Thu Apr 05 2018', 42560, -1);
     expectEvals(evals, 6, 'Cash', 'Tue May 01 2018', 43060, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -5313,9 +5669,8 @@ describe('evaluations tests', () => {
           VALUE: '500',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -5332,7 +5687,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 5, 'Joe income (net)', 'Thu Apr 05 2018', 72550, -1);
     expectEvals(evals, 6, 'Cash', 'Tue May 01 2018', 73050, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -5404,9 +5765,8 @@ describe('evaluations tests', () => {
           VALUE: '500',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -5423,7 +5783,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 5, getnetincLabel('Joe'), 'Thu Apr 05 2018', 100055, -1);
     expectEvals(evals, 6, 'Cash', 'Tue May 01 2018', 100555, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -5483,19 +5849,7 @@ describe('evaluations tests', () => {
           VALUE: '500',
         },
       ],
-      settings: [
-        ...defaultSettings,
-        {
-          ...simpleSetting,
-          NAME: roiStart,
-          VALUE: roi.start,
-        },
-        {
-          ...simpleSetting,
-          NAME: roiEnd,
-          VALUE: roi.end,
-        },
-      ],
+      settings: [...defaultModelSettings(roi)],
     };
     setSetting(model.settings, cpi, `${smallCPI}`, constType);
 
@@ -5678,9 +6032,8 @@ describe('evaluations tests', () => {
           VALUE: '500',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -5699,7 +6052,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 7, getnetincLabel('Joe'), 'Thu Apr 05 2018', 12504, -1);
     expectEvals(evals, 8, 'Cash', 'Tue May 01 2018', 13004, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -5772,9 +6131,8 @@ describe('evaluations tests', () => {
           VALUE: '500',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -5793,7 +6151,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 7, getnetincLabel('Joe'), 'Thu Apr 05 2018', 42560, -1);
     expectEvals(evals, 8, 'Cash', 'Tue May 01 2018', 43060, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -5869,9 +6233,8 @@ describe('evaluations tests', () => {
           VALUE: '500',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -5890,7 +6253,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 7, getnetincLabel('Joe'), 'Thu Apr 05 2018', 100055, -1);
     expectEvals(evals, 8, 'Cash', 'Tue May 01 2018', 100555, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -5963,9 +6332,8 @@ describe('evaluations tests', () => {
           VALUE: '1000',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -5994,7 +6362,13 @@ describe('evaluations tests', () => {
     );
     expectEvals(evals, 11, 'Cash', 'Tue May 01 2018', 26008, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -6065,9 +6439,8 @@ describe('evaluations tests', () => {
           VALUE: '500',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -6086,7 +6459,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 7, getnetincLabel('Joe'), 'Thu Apr 05 2018', 42560, -1);
     expectEvals(evals, 8, 'Cash', 'Tue May 01 2018', 43060, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -6162,9 +6541,8 @@ describe('evaluations tests', () => {
           VALUE: '500',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -6183,7 +6561,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 7, getnetincLabel('Joe'), 'Thu Apr 05 2018', 100055, -1);
     expectEvals(evals, 8, 'Cash', 'Tue May 01 2018', 100555, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -6248,9 +6632,8 @@ describe('evaluations tests', () => {
           VALUE: '500',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -6269,7 +6652,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 7, 'Cash', 'Tue May 01 2018', 17756, -1);
     expectEvals(evals, 8, getnetincLabel('Joe'), 'Fri Apr 05 2019', 8628, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -6324,9 +6713,8 @@ describe('evaluations tests', () => {
           VALUE: '500',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -6344,7 +6732,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 6, getnetincLabel('Joe'), 'Thu Apr 05 2018', 8716, -1);
     expectEvals(evals, 7, 'Cash', 'Tue May 01 2018', 9216, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -6422,9 +6816,8 @@ describe('evaluations tests', () => {
           VALUE: '500',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -6449,7 +6842,13 @@ describe('evaluations tests', () => {
     );
     expectEvals(evals, 7, 'Cash', 'Tue May 01 2018', 45636.88, 2);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -6507,9 +6906,8 @@ describe('evaluations tests', () => {
           VALUE: '500',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -6544,7 +6942,13 @@ describe('evaluations tests', () => {
     );
     expectEvals(evals, 10, 'Cash', 'Tue May 01 2018', 24435.36, 2);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -6631,7 +7035,7 @@ describe('evaluations tests', () => {
         },
       ],
       settings: [
-        ...defaultSettings,
+        ...defaultModelSettings(roi),
         {
           NAME: 'MyShare',
           VALUE: '100.00',
@@ -6640,7 +7044,6 @@ describe('evaluations tests', () => {
         },
       ],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -6682,7 +7085,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 30, 'RSUasset', 'Tue May 01 2018', 12000, -1);
     expectEvals(evals, 31, 'oldRSUasset', 'Tue May 01 2018', 12000, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -6772,7 +7181,7 @@ describe('evaluations tests', () => {
         },
       ],
       settings: [
-        ...defaultSettings,
+        ...defaultModelSettings(roi),
         {
           NAME: 'MyShare',
           VALUE: '100.00',
@@ -6781,7 +7190,6 @@ describe('evaluations tests', () => {
         },
       ],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -6802,7 +7210,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 9, 'Cash', 'Tue May 01 2018', 500, -1);
     expectEvals(evals, 10, 'RSUasset', 'Tue May 01 2018', 14500, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -6876,7 +7290,7 @@ describe('evaluations tests', () => {
         },
       ],
       settings: [
-        ...defaultSettings,
+        ...defaultModelSettings(roi),
         {
           NAME: 'MyShare',
           VALUE: '100.00',
@@ -6885,7 +7299,6 @@ describe('evaluations tests', () => {
         },
       ],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -6907,7 +7320,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 10, 'Cash', 'Tue May 01 2018', 435.36, 2);
     expectEvals(evals, 11, 'RSUasset', 'Tue May 01 2018', 14300, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -6981,7 +7400,7 @@ describe('evaluations tests', () => {
         },
       ],
       settings: [
-        ...defaultSettings,
+        ...defaultModelSettings(roi),
         {
           NAME: 'MyShare',
           VALUE: '100.00',
@@ -6990,7 +7409,6 @@ describe('evaluations tests', () => {
         },
       ],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -7017,7 +7435,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 15, 'Cash', 'Tue May 01 2018', 435.36, 2);
     expectEvals(evals, 16, 'RSUasset', 'Tue May 01 2018', 13800, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -7109,7 +7533,7 @@ describe('evaluations tests', () => {
         },
       ],
       settings: [
-        ...defaultSettings,
+        ...defaultModelSettings(roi),
         {
           NAME: 'MyShare',
           VALUE: '100.00',
@@ -7118,7 +7542,6 @@ describe('evaluations tests', () => {
         },
       ],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -7146,7 +7569,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 16, 'RSUasset1', 'Tue May 01 2018', 4500, -1);
     expectEvals(evals, 17, 'RSUasset2', 'Tue May 01 2018', 10000, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -7228,7 +7657,7 @@ describe('evaluations tests', () => {
         },
       ],
       settings: [
-        ...defaultSettings,
+        ...defaultModelSettings(roi),
         {
           NAME: 'MyShare',
           VALUE: '10.00',
@@ -7250,7 +7679,6 @@ describe('evaluations tests', () => {
         },
       ],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -7273,7 +7701,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 11, 'Cash', 'Tue May 01 2018', 500, -1);
     expectEvals(evals, 12, 'RSUasset', 'Tue May 01 2018', 15000, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -7339,7 +7773,7 @@ describe('evaluations tests', () => {
         },
       ],
       settings: [
-        ...defaultSettings,
+        ...defaultModelSettings(roi),
         {
           NAME: 'MyShare',
           VALUE: '100.00',
@@ -7368,7 +7802,6 @@ describe('evaluations tests', () => {
         },
       ],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -7395,7 +7828,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 15, 'Cash', 'Fri Jun 01 2018', 500, -1);
     expectEvals(evals, 16, 'RSUasset', 'Fri Jun 01 2018', 14500, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -7486,7 +7925,7 @@ describe('evaluations tests', () => {
         },
       ],
       settings: [
-        ...defaultSettings,
+        ...defaultModelSettings(roi),
         {
           NAME: 'MyShare',
           VALUE: '100.00',
@@ -7505,7 +7944,6 @@ describe('evaluations tests', () => {
         },
       ],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -7540,7 +7978,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 23, 'RSUasset1', 'Fri Jun 01 2018', 4750, -1);
     expectEvals(evals, 24, 'RSUasset2', 'Sun Jun 03 2018', 5000, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -7642,7 +8086,7 @@ describe('evaluations tests', () => {
         },
       ],
       settings: [
-        ...defaultSettings,
+        ...defaultModelSettings(roi),
         {
           NAME: 'MyShare',
           VALUE: '100.00',
@@ -7651,7 +8095,6 @@ describe('evaluations tests', () => {
         },
       ],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -7680,7 +8123,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 11, 'Cash', 'Tue May 01 2018', 12000, -1);
     expectEvals(evals, 12, 'RSUasset', 'Tue May 01 2018', 4200, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -7782,7 +8231,7 @@ describe('evaluations tests', () => {
         },
       ],
       settings: [
-        ...defaultSettings,
+        ...defaultModelSettings(roi),
         {
           NAME: 'MyShare',
           VALUE: '100.00',
@@ -7801,7 +8250,6 @@ describe('evaluations tests', () => {
         },
       ],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -7838,7 +8286,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 25, 'RSUasset1', 'Fri Jun 01 2018', 4000, -1);
     expectEvals(evals, 26, 'RSUasset2', 'Sun Jun 03 2018', 4000, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
     // printTestCodeForChart(result);
@@ -7959,7 +8413,7 @@ describe('evaluations tests', () => {
         },
       ],
       settings: [
-        ...defaultSettings,
+        ...defaultModelSettings(roi),
         {
           NAME: 'MyShare',
           VALUE: '100.00',
@@ -7968,7 +8422,6 @@ describe('evaluations tests', () => {
         },
       ],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -7998,7 +8451,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 18, 'RSUasset1', 'Tue May 01 2018', 2000, -1);
     expectEvals(evals, 19, 'RSUasset2', 'Tue May 01 2018', 2200, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -8098,7 +8557,7 @@ describe('evaluations tests', () => {
         },
       ],
       settings: [
-        ...defaultSettings,
+        ...defaultModelSettings(roi),
         {
           NAME: 'MyShare',
           VALUE: '100.00',
@@ -8107,7 +8566,6 @@ describe('evaluations tests', () => {
         },
       ],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -8136,7 +8594,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 12, 'Cash', 'Tue May 01 2018', 13800, -1);
     expectEvals(evals, 13, 'RSUasset', 'Tue May 01 2018', 4000, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -8228,7 +8692,7 @@ describe('evaluations tests', () => {
         },
       ],
       settings: [
-        ...defaultSettings,
+        ...defaultModelSettings(roi),
         {
           NAME: 'MyShare',
           VALUE: '100.00',
@@ -8237,7 +8701,6 @@ describe('evaluations tests', () => {
         },
       ],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -8267,7 +8730,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 12, 'Cash', 'Tue May 01 2018', 42200, -1);
     expectEvals(evals, 13, 'RSUasset', 'Tue May 01 2018', 3200, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -8359,7 +8828,7 @@ describe('evaluations tests', () => {
         },
       ],
       settings: [
-        ...defaultSettings,
+        ...defaultModelSettings(roi),
         {
           NAME: 'MyShare',
           VALUE: '100.00',
@@ -8368,7 +8837,6 @@ describe('evaluations tests', () => {
         },
       ],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -8398,7 +8866,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 12, 'Cash', 'Tue May 01 2018', 43600, -1);
     expectEvals(evals, 13, 'RSUasset', 'Tue May 01 2018', 3000, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -8490,7 +8964,7 @@ describe('evaluations tests', () => {
         },
       ],
       settings: [
-        ...defaultSettings,
+        ...defaultModelSettings(roi),
         {
           NAME: 'MyShare',
           VALUE: '100.00',
@@ -8499,7 +8973,6 @@ describe('evaluations tests', () => {
         },
       ],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -8530,7 +9003,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 12, 'Cash', 'Tue May 01 2018', 99900, -1);
     expectEvals(evals, 13, 'RSUasset', 'Tue May 01 2018', 2800, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -8622,7 +9101,7 @@ describe('evaluations tests', () => {
         },
       ],
       settings: [
-        ...defaultSettings,
+        ...defaultModelSettings(roi),
         {
           NAME: 'MyShare',
           VALUE: '100.00',
@@ -8631,7 +9110,6 @@ describe('evaluations tests', () => {
         },
       ],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -8688,7 +9166,13 @@ describe('evaluations tests', () => {
     //  = 58 rsus + 165.04
     // leaving 624
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -8776,9 +9260,8 @@ describe('evaluations tests', () => {
           VALUE: '500',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -8817,7 +9300,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 28, 'Cash', 'Fri Mar 01 2019', -900, -1);
     expectEvals(evals, 29, 'Cash', 'Sat Mar 02 2019', -1000, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -8905,9 +9394,8 @@ describe('evaluations tests', () => {
           START: 'March 1 2018',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -8946,7 +9434,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 13, 'Cash', 'Tue May 01 2018', 22735.36, 2);
     expectEvals(evals, 14, 'PensionPnsh', 'Tue May 01 2018', 1500, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -9039,9 +9533,8 @@ describe('evaluations tests', () => {
           START: 'March 1 2018',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -9080,7 +9573,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 13, 'Cash', 'Tue May 01 2018', 22735.36, 2);
     expectEvals(evals, 14, 'PensionPnsh', 'Tue May 01 2018', 4500, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -9173,9 +9672,8 @@ describe('evaluations tests', () => {
           START: 'March 1 2017',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -9271,7 +9769,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 70, 'Cash', 'Tue May 01 2018', 22735.36, 2);
     expectEvals(evals, 71, 'PensionPnsh', 'Tue May 01 2018', 4500, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -9364,9 +9868,8 @@ describe('evaluations tests', () => {
           START: 'March 1 2018',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -9405,7 +9908,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 13, 'Cash', 'Tue May 01 2018', 22915.36, 2);
     expectEvals(evals, 14, 'PensionPnsh', 'Tue May 01 2018', 4500, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -9506,9 +10015,8 @@ describe('evaluations tests', () => {
           START: 'March 1 2018',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -9548,7 +10056,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 14, 'Cash', 'Tue May 01 2018', 22435.36, 2);
     expectEvals(evals, 15, 'PensionPnsh', 'Tue May 01 2018', 1500, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -9620,9 +10134,8 @@ describe('evaluations tests', () => {
           VALUE: '60000',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -9643,7 +10156,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 7, '(incomeTax)', 'Thu Apr 05 2018', 3500, -1);
     expectEvals(evals, 8, getnetincLabel('Joe'), 'Thu Apr 05 2018', 26500, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -9714,9 +10233,8 @@ describe('evaluations tests', () => {
           VALUE: '60000',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -9811,7 +10329,13 @@ describe('evaluations tests', () => {
       -1,
     );
     expectEvals(evals, 22, getnetincLabel('Joe'), 'Fri Apr 05 2019', 12500, -1);
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -9883,9 +10407,8 @@ describe('evaluations tests', () => {
           VALUE: '60000',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -9925,7 +10448,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 7, '(incomeTax)', 'Thu Apr 05 2018', 3500, -1);
     expectEvals(evals, 8, getnetincLabel('Joe'), 'Thu Apr 05 2018', 26500, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -10004,9 +10533,8 @@ describe('evaluations tests', () => {
           CATEGORY: 'TaxablePensions',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -10194,7 +10722,13 @@ describe('evaluations tests', () => {
     );
     expectEvals(evals, 37, getnetincLabel('Joe'), 'Fri Apr 05 2019', 12500, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -10292,9 +10826,8 @@ describe('evaluations tests', () => {
           VALUE: '60000',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -10390,7 +10923,13 @@ describe('evaluations tests', () => {
     );
     expectEvals(evals, 22, getnetincLabel('Joe'), 'Fri Apr 05 2019', 12500, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -10474,9 +11013,8 @@ describe('evaluations tests', () => {
           VALUE: '60000',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -10572,7 +11110,13 @@ describe('evaluations tests', () => {
     );
     expectEvals(evals, 22, getnetincLabel('Joe'), 'Fri Apr 05 2019', 12500, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -10661,9 +11205,8 @@ describe('evaluations tests', () => {
           VALUE: '60000',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -10707,7 +11250,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 30, cpj, 'Fri Apr 05 2019', 17550, -1);
     expectEvals(evals, 31, getnetincLabel('Joe'), 'Fri Apr 05 2019', 12500, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -10794,9 +11343,8 @@ describe('evaluations tests', () => {
           VALUE: '60000',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -10858,7 +11406,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 49, '(incomeTax)', 'Fri Apr 05 2019', 3500, -1);
     expectEvals(evals, 50, getnetincLabel('Joe'), 'Fri Apr 05 2019', 26500, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -10949,9 +11503,8 @@ describe('evaluations tests', () => {
           VALUE: '60000',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -10979,7 +11532,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 14, cpj, 'Fri Apr 05 2019', 45000, -1);
     expectEvals(evals, 15, getnetincLabel('Joe'), 'Fri Apr 05 2019', 12500, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -11105,9 +11664,8 @@ describe('evaluations tests', () => {
           START: 'March 1 2018',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -11154,7 +11712,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 19, 'Cash', 'Sun Jul 01 2018', 269809.96, 2);
     expectEvals(evals, 20, 'Cash', 'Wed Aug 01 2018', 269809.96, 2);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -11316,9 +11880,8 @@ describe('evaluations tests', () => {
           START: 'March 1 2018',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -11364,7 +11927,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 18, 'Cash', 'Sun Jun 10 2018', 270299.96, 2);
     expectEvals(evals, 19, 'Cash', 'Sun Jul 01 2018', 270299.96, 2);
     expectEvals(evals, 20, 'Cash', 'Wed Aug 01 2018', 270299.96, 2);
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     //printTestCodeForChart(result);
 
@@ -11524,9 +12093,8 @@ describe('evaluations tests', () => {
           START: 'March 1 2018',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
     setSetting(model.settings, cpi, '12.0', constType);
 
     const evalsAndValues = getTestEvaluations(model);
@@ -11574,7 +12142,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 19, 'Cash', 'Sun Jul 01 2018', 287321.15, 2);
     expectEvals(evals, 20, 'Cash', 'Wed Aug 01 2018', 290047.48, 2);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -11737,9 +12311,8 @@ describe('evaluations tests', () => {
           START: 'March 1 2018',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     suppressLogs();
     const evalsAndValues = getTestEvaluations(model, false);
@@ -11832,9 +12405,8 @@ describe('evaluations tests', () => {
           START: 'March 1 2018',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     suppressLogs();
     const evalsAndValues = getTestEvaluations(model, false);
@@ -11926,9 +12498,8 @@ describe('evaluations tests', () => {
           START: 'March 1 2018',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     suppressLogs();
     const evalsAndValues = getTestEvaluations(model, false);
@@ -11966,9 +12537,8 @@ describe('evaluations tests', () => {
           START: 'January 1 2018',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -12005,7 +12575,13 @@ describe('evaluations tests', () => {
       2,
     );
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -12097,9 +12673,8 @@ describe('evaluations tests', () => {
           PURCHASE_PRICE: '50000',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -12132,7 +12707,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 15, 'Cash', 'Tue May 01 2018', 19066.67, 2);
     expectEvals(evals, 16, 'Shrs', 'Tue May 01 2018', 280000, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -12226,7 +12807,7 @@ describe('evaluations tests', () => {
         },
       ],
       settings: [
-        ...defaultSettings,
+        ...defaultModelSettings(roi),
         {
           ...simpleSetting,
           NAME: 'purchasePriceSetting',
@@ -12234,7 +12815,6 @@ describe('evaluations tests', () => {
         },
       ],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -12268,7 +12848,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 16, 'Cash', 'Tue May 01 2018', 19066.67, 2);
     expectEvals(evals, 17, 'Shrs', 'Tue May 01 2018', 280000, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -12384,9 +12970,8 @@ describe('evaluations tests', () => {
           PURCHASE_PRICE: 'purchasePriceSetting',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
     setSetting(model.settings, 'purchasePriceSetting', '300000', custom);
 
     const evalsAndValues = getTestEvaluations(model);
@@ -12437,7 +13022,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 18, 'Cash', 'Tue May 01 2018', 19066.67, 2);
     expectEvals(evals, 19, 'Shrs', 'Tue May 01 2018', 280000, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -12531,9 +13122,8 @@ describe('evaluations tests', () => {
           PURCHASE_PRICE: 'purchasePriceSetting',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
     setSetting(model.settings, 'purchasePriceSetting', '50', custom);
 
     const evalsAndValues = getTestEvaluations(model);
@@ -12563,7 +13153,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 18, 'Cash', 'Tue May 01 2018', 19150, 2);
     expectEvals(evals, 19, 'Shrs', 'Tue May 01 2018', 279900, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -12669,9 +13265,8 @@ describe('evaluations tests', () => {
           CATEGORY: 'RSU',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
     setSetting(model.settings, 'MyShare', '300', custom);
 
     const evalsAndValues = getTestEvaluations(model);
@@ -12783,7 +13378,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 57, 'Cash', 'Wed May 01 2019', 38100, -1);
     expectEvals(evals, 58, 'RSUs', 'Wed May 01 2019', 142500, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -12983,9 +13584,8 @@ describe('evaluations tests', () => {
           PURCHASE_PRICE: '50000',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -13021,7 +13621,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 18, 'Cash', 'Tue May 01 2018', 35733.33, 2);
     expectEvals(evals, 19, 'Shrs', 'Tue May 01 2018', 260000, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -13125,9 +13731,8 @@ describe('evaluations tests', () => {
           CATEGORY: 'Cars',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -13179,7 +13784,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 27, 'Mini1', 'Tue May 01 2018', 0, -1);
     expectEvals(evals, 28, 'Mini2', 'Tue May 01 2018', 0, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -13307,17 +13918,7 @@ describe('evaluations tests', () => {
         },
       ],
       settings: [
-        ...defaultSettings,
-        {
-          ...simpleSetting,
-          NAME: roiStart,
-          VALUE: roi.start,
-        },
-        {
-          ...simpleSetting,
-          NAME: roiEnd,
-          VALUE: roi.end,
-        },
+        ...defaultModelSettings(roi),
         {
           ...simpleSetting,
           NAME: 'shareGrowth',
@@ -13325,6 +13926,11 @@ describe('evaluations tests', () => {
         },
       ],
     };
+    model.settings.forEach(s => {
+      if (s.NAME === assetChartFocus) {
+        s.VALUE = allItems;
+      }
+    });
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -13340,7 +13946,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 5, 'Shr2', 'Thu Feb 01 2018', 211.89, 2);
     expectEvals(evals, 6, 'Shr3', 'Thu Feb 01 2018', 200.17, 2);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -13413,9 +14025,8 @@ describe('evaluations tests', () => {
           GROWTH: '12.0',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -13438,7 +14049,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 12, 'Phon', 'Sun Apr 01 2018', 5.05, 2);
     expectEvals(evals, 13, 'Cash', 'Sun Apr 01 2018', -41.75, 2);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -13505,9 +14122,8 @@ describe('evaluations tests', () => {
           TYPE: revalueInc,
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
 
@@ -13532,7 +14148,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 15, 'PRnd', 'Tue May 01 2018', 10.19, 2);
     expectEvals(evals, 16, 'Cash', 'Tue May 01 2018', 35.43, 2);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -13591,9 +14213,8 @@ describe('evaluations tests', () => {
           TYPE: revalueAsset,
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
 
@@ -13606,7 +14227,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 3, 'savings', 'Mon Mar 05 2018', 300, -1);
     expectEvals(evals, 4, 'savings', 'Sun Apr 01 2018', 302.85, 2);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -13653,9 +14280,8 @@ describe('evaluations tests', () => {
           TYPE: revalueAsset,
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
 
@@ -13668,7 +14294,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 3, 'savings', 'Mon Mar 05 2018', 254.77, 2);
     expectEvals(evals, 4, 'savings', 'Sun Apr 01 2018', 257.18, 2);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -13722,9 +14354,8 @@ describe('evaluations tests', () => {
           TYPE: revalueAsset,
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
 
@@ -13742,7 +14373,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 8, 'savingsA', 'Sun Apr 01 2018', 308.62, 2);
     expectEvals(evals, 9, 'savingsB', 'Sun Apr 01 2018', 205.75, 2);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -13810,9 +14447,8 @@ describe('evaluations tests', () => {
           TYPE: revalueAsset,
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
 
@@ -13830,7 +14466,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 8, 'savingsA', 'Sun Apr 01 2018', 308.62, 2);
     expectEvals(evals, 9, 'savingsB', 'Sun Apr 01 2018', 205.75, 2);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -13864,9 +14506,6 @@ describe('evaluations tests', () => {
 
   it('Check coarse, categorised, chart data data', done => {
     const model = getModelCoarseAndFine();
-
-    setSetting(model.settings, viewDetail, coarse, viewType);
-
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
@@ -13920,7 +14559,14 @@ describe('evaluations tests', () => {
     expectEvals(evals, 43, 'pet food', 'Sun Jul 01 2018', 12, -1);
     expectEvals(evals, 44, 'Cash', 'Sun Jul 01 2018', 430, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    setSetting(viewSettings, viewDetail, coarse, viewType);
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -13994,8 +14640,6 @@ describe('evaluations tests', () => {
   it('Check totalled, chart data data', done => {
     const model = getModelCoarseAndFine();
 
-    setSetting(model.settings, viewDetail, total, viewType);
-
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
@@ -14049,7 +14693,14 @@ describe('evaluations tests', () => {
     expectEvals(evals, 43, 'pet food', 'Sun Jul 01 2018', 12, -1);
     expectEvals(evals, 44, 'Cash', 'Sun Jul 01 2018', 430, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    setSetting(viewSettings, viewDetail, total, viewType);
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -14093,8 +14744,6 @@ describe('evaluations tests', () => {
   it('Check fine, uncategorised, chart data data', done => {
     const model = getModelCoarseAndFine();
 
-    setSetting(model.settings, viewDetail, fine, viewType);
-
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
@@ -14148,7 +14797,14 @@ describe('evaluations tests', () => {
     expectEvals(evals, 43, 'pet food', 'Sun Jul 01 2018', 12, -1);
     expectEvals(evals, 44, 'Cash', 'Sun Jul 01 2018', 430, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    setSetting(viewSettings, viewDetail, fine, viewType);
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -14252,9 +14908,6 @@ describe('evaluations tests', () => {
   it('Coarse asset view for cash asset, vals, +, -, +- data1', done => {
     const model = getModelCoarseAndFine();
 
-    setSetting(model.settings, assetChartFocus, CASH_ASSET_NAME, viewType);
-    setSetting(model.settings, viewDetail, coarse, viewType);
-
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
@@ -14308,7 +14961,15 @@ describe('evaluations tests', () => {
     expectEvals(evals, 43, 'pet food', 'Sun Jul 01 2018', 12, -1);
     expectEvals(evals, 44, 'Cash', 'Sun Jul 01 2018', 430, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    setSetting(viewSettings, assetChartFocus, CASH_ASSET_NAME, viewType);
+    setSetting(viewSettings, viewDetail, coarse, viewType);
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -14373,16 +15034,21 @@ describe('evaluations tests', () => {
   it('filter chart data into single category, coarse', done => {
     const model = getModelCoarseAndFine();
 
-    setSetting(model.settings, assetChartFocus, 'Accessible', viewType);
-    setSetting(model.settings, viewDetail, coarse, viewType);
-
     const evalsAndValues = getTestEvaluations(model);
     // const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    setSetting(viewSettings, assetChartFocus, 'Accessible', viewType);
+    setSetting(viewSettings, viewDetail, coarse, viewType);
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -14404,9 +15070,7 @@ describe('evaluations tests', () => {
 
   it('filter chart data into single uncategorised asset, coarse', done => {
     const model = getModelCoarseAndFine();
-
-    setSetting(model.settings, assetChartFocus, 'stocks', viewType);
-    setSetting(model.settings, viewDetail, coarse, viewType);
+    // log(`model - ${showObj(model)}`);
 
     const evalsAndValues = getTestEvaluations(model);
     // const evals = evalsAndValues.evaluations;
@@ -14414,7 +15078,15 @@ describe('evaluations tests', () => {
 
     // printTestCodeForEvals(evals);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    setSetting(viewSettings, assetChartFocus, 'stocks', viewType);
+    setSetting(viewSettings, viewDetail, coarse, viewType);
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -14479,16 +15151,21 @@ describe('evaluations tests', () => {
   it('filter chart data into single categorised asset, coarse', done => {
     const model = getModelCoarseAndFine();
 
-    setSetting(model.settings, assetChartFocus, 'savings', viewType);
-    setSetting(model.settings, viewDetail, coarse, viewType);
-
     const evalsAndValues = getTestEvaluations(model);
     // const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    setSetting(viewSettings, assetChartFocus, 'savings', viewType);
+    setSetting(viewSettings, viewDetail, coarse, viewType);
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -14553,16 +15230,21 @@ describe('evaluations tests', () => {
   it('filter chart data into single category, fine', done => {
     const model = getModelCoarseAndFine();
 
-    setSetting(model.settings, assetChartFocus, 'Accessible', viewType);
-    setSetting(model.settings, viewDetail, fine, viewType);
-
     const evalsAndValues = getTestEvaluations(model);
     // const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    setSetting(viewSettings, assetChartFocus, 'Accessible', viewType);
+    setSetting(viewSettings, viewDetail, fine, viewType);
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -14595,15 +15277,20 @@ describe('evaluations tests', () => {
   it('asset view type deltas', done => {
     const model = getModelCoarseAndFine();
 
-    setSetting(model.settings, viewDetail, coarse, viewType);
-    setSetting(model.settings, assetChartView, assetChartDeltas, viewType);
-
     const evalsAndValues = getTestEvaluations(model);
     // const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
     // don't assert evaluations - already done in another test
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    setSetting(viewSettings, viewDetail, coarse, viewType);
+    setSetting(viewSettings, assetChartView, assetChartDeltas, viewType);
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -14677,15 +15364,20 @@ describe('evaluations tests', () => {
   it('asset view type reductions', done => {
     const model = getModelCoarseAndFine();
 
-    setSetting(model.settings, viewDetail, coarse, viewType);
-    setSetting(model.settings, assetChartView, assetChartReductions, viewType);
-
     const evalsAndValues = getTestEvaluations(model);
     // const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
     // don't assert evaluations - already done in another test
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    setSetting(viewSettings, viewDetail, coarse, viewType);
+    setSetting(viewSettings, assetChartView, assetChartReductions, viewType);
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -14720,15 +15412,20 @@ describe('evaluations tests', () => {
   it('asset view type additions', done => {
     const model = getModelCoarseAndFine();
 
-    setSetting(model.settings, viewDetail, coarse, viewType);
-    setSetting(model.settings, assetChartView, assetChartAdditions, viewType);
-
     const evalsAndValues = getTestEvaluations(model);
     // const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
     // don't assert evaluations - already done in another test
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    setSetting(viewSettings, viewDetail, coarse, viewType);
+    setSetting(viewSettings, assetChartView, assetChartAdditions, viewType);
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -14796,16 +15493,21 @@ describe('evaluations tests', () => {
       ],
     ];
 
-    setSetting(model.settings, assetChartFocus, 'Accessible', viewType);
-    setSetting(model.settings, viewDetail, coarse, viewType);
-
     const evalsAndValues = getTestEvaluations(model);
     // const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    setSetting(viewSettings, assetChartFocus, 'Accessible', viewType);
+    setSetting(viewSettings, viewDetail, coarse, viewType);
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -14833,16 +15535,21 @@ describe('evaluations tests', () => {
     // test that this income doesn't appear in the assets graph!
     model.incomes[0].CATEGORY = 'Accessible';
 
-    setSetting(model.settings, assetChartFocus, 'Accessible', viewType);
-    setSetting(model.settings, viewDetail, fine, viewType);
-
     const evalsAndValues = getTestEvaluations(model);
     // const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    setSetting(viewSettings, assetChartFocus, 'Accessible', viewType);
+    setSetting(viewSettings, viewDetail, fine, viewType);
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // log(showObj(result));
 
@@ -14876,15 +15583,26 @@ describe('evaluations tests', () => {
     const modelAndRoi = getModelCrystallizedPension();
     const model = modelAndRoi.model;
 
-    setSetting(model.settings, viewDetail, coarse, viewType);
-    setSetting(model.settings, assetChartView, assetChartAdditions, viewType);
+    //log(`model is  ${showObj(model)}`);
 
     const evalsAndValues = getTestEvaluations(model);
     // const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
     // don't assert evaluations - already done in another test
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    setSetting(viewSettings, debtChartView, debtChartVal, debtChartHint);
+    setSetting(viewSettings, assetChartView, assetChartVal, assetChartHint);
+    setSetting(viewSettings, viewDetail, fine, viewType);
+    setSetting(viewSettings, viewFrequency, annually, viewType);
+    setSetting(viewSettings, viewDetail, coarse, viewType);
+    setSetting(viewSettings, assetChartView, assetChartAdditions, viewType);
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -14915,15 +15633,24 @@ describe('evaluations tests', () => {
     const modelAndRoi = getModelCrystallizedPension();
     const model = modelAndRoi.model;
 
-    setSetting(model.settings, viewDetail, coarse, viewType);
-    setSetting(model.settings, assetChartView, assetChartReductions, viewType);
-
     const evalsAndValues = getTestEvaluations(model);
     // const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
     // don't assert evaluations - already done in another test
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    setSetting(viewSettings, debtChartView, debtChartVal, debtChartHint);
+    setSetting(viewSettings, assetChartView, assetChartVal, assetChartHint);
+    setSetting(viewSettings, viewDetail, fine, viewType);
+    setSetting(viewSettings, viewFrequency, annually, viewType);
+    setSetting(viewSettings, viewDetail, coarse, viewType);
+    setSetting(viewSettings, assetChartView, assetChartReductions, viewType);
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -14957,15 +15684,24 @@ describe('evaluations tests', () => {
     const modelAndRoi = getModelCrystallizedPension();
     const model = modelAndRoi.model;
 
-    setSetting(model.settings, viewDetail, coarse, viewType);
-    setSetting(model.settings, assetChartView, assetChartDeltas, viewType);
-
     const evalsAndValues = getTestEvaluations(model);
     // const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
     // don't assert evaluations - already done in another test
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    setSetting(viewSettings, debtChartView, debtChartVal, debtChartHint);
+    setSetting(viewSettings, assetChartView, assetChartVal, assetChartHint);
+    setSetting(viewSettings, viewDetail, fine, viewType);
+    setSetting(viewSettings, viewFrequency, annually, viewType);
+    setSetting(viewSettings, viewDetail, coarse, viewType);
+    setSetting(viewSettings, assetChartView, assetChartDeltas, viewType);
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -15009,6 +15745,7 @@ describe('evaluations tests', () => {
 
     for (const key of settingsKeys) {
       const modelAndRoi = getModelCrystallizedPension();
+
       const model = modelAndRoi.model;
 
       setSetting(model.settings, key, 'nonsense', viewType);
@@ -15044,19 +15781,7 @@ describe('evaluations tests', () => {
           GROWTH: 'shareGrowth',
         },
       ],
-      settings: [
-        ...defaultSettings,
-        {
-          ...simpleSetting,
-          NAME: roiStart,
-          VALUE: roi.start,
-        },
-        {
-          ...simpleSetting,
-          NAME: roiEnd,
-          VALUE: roi.end,
-        },
-      ],
+      settings: [...defaultModelSettings(roi)],
     };
 
     suppressLogs();
@@ -15093,19 +15818,7 @@ describe('evaluations tests', () => {
           VALUE: 'nonsense',
         },
       ],
-      settings: [
-        ...defaultSettings,
-        {
-          ...simpleSetting,
-          NAME: roiStart,
-          VALUE: roi.start,
-        },
-        {
-          ...simpleSetting,
-          NAME: roiEnd,
-          VALUE: roi.end,
-        },
-      ],
+      settings: [...defaultModelSettings(roi)],
     };
 
     suppressLogs();
@@ -15155,9 +15868,8 @@ describe('evaluations tests', () => {
           VALUE: '-117',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -15180,7 +15892,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 12, 'Cash', 'Wed May 02 2018', -35.5, 2);
     expectEvals(evals, 13, 'Stf', 'Wed May 02 2018', 0, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -15249,9 +15967,8 @@ describe('evaluations tests', () => {
           VALUE: '-117',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -15276,7 +15993,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 14, 'Cash', 'Wed May 02 2018', 0, -1);
     expectEvals(evals, 15, 'Stf', 'Wed May 02 2018', 29, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -15346,9 +16069,8 @@ describe('evaluations tests', () => {
           VALUE: '-117',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -15367,7 +16089,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 8, 'Stf', 'Fri Mar 02 2018', 290.31, 2);
     expectEvals(evals, 9, 'Cash', 'Fri Mar 02 2018', -29.25, 2);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -15433,9 +16161,8 @@ describe('evaluations tests', () => {
           VALUE: '-617',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -15454,7 +16181,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 8, 'Stf', 'Fri Mar 02 2018', 0, -1);
     expectEvals(evals, 9, 'Cash', 'Fri Mar 02 2018', -297, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -15520,9 +16253,8 @@ describe('evaluations tests', () => {
           VALUE: '150',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -15543,7 +16275,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 10, 'Cash', 'Mon Apr 02 2018', 50, -1);
     expectEvals(evals, 11, 'Mortgage', 'Mon Apr 02 2018', 30, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -15614,9 +16352,8 @@ describe('evaluations tests', () => {
           VALUE: '150',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -15637,7 +16374,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 10, 'Cash', 'Mon Apr 02 2018', 80, -1);
     expectEvals(evals, 11, 'Mortgage', 'Mon Apr 02 2018', 0, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -15708,9 +16451,8 @@ describe('evaluations tests', () => {
           VALUE: '150',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -15731,7 +16473,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 10, 'Cash', 'Mon Apr 02 2018', 50, -1);
     expectEvals(evals, 11, 'Loan', 'Mon Apr 02 2018', 30, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -15803,9 +16551,8 @@ describe('evaluations tests', () => {
           VALUE: '150',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -15826,7 +16573,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 10, 'Cash', 'Mon Apr 02 2018', 80, -1);
     expectEvals(evals, 11, 'Loan', 'Mon Apr 02 2018', 0, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -15885,9 +16638,8 @@ describe('evaluations tests', () => {
           VALUE: '150',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     suppressLogs();
     const evalsAndValues = getTestEvaluations(model, false);
@@ -15935,9 +16687,8 @@ describe('evaluations tests', () => {
           VALUE: '0',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -15949,7 +16700,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 2, 'aaaa', 'Tue Jan 02 2018', -50, -1);
     expectEvals(evals, 3, 'bbbb', 'Tue Jan 02 2018', 100, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     //printTestCodeForChart(result);
 
@@ -15994,9 +16751,13 @@ describe('evaluations tests', () => {
           VALUE: '0',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
+    model.settings.forEach(s => {
+      if (s.NAME === assetChartFocus) {
+        s.VALUE = allItems;
+      }
+    });
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -16007,7 +16768,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 1, 'bbbb', 'Tue Jan 02 2018', 0, -1);
     // transaction does not occur
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     //printTestCodeForChart(result);
 
@@ -16036,13 +16803,11 @@ describe('evaluations tests', () => {
           QUANTITY: '3',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
-
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -16062,7 +16827,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 9, 'Cash', 'Tue May 01 2018', 0, -1);
     expectEvals(evals, 10, 'Cars', 'Wed May 02 2018', 300, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -16113,13 +16884,11 @@ describe('evaluations tests', () => {
           TYPE: revalueAsset,
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
-
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -16140,7 +16909,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 10, 'Cash', 'Tue May 01 2018', 0, -1);
     expectEvals(evals, 11, 'Cars', 'Wed May 02 2018', 150, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -16192,13 +16967,11 @@ describe('evaluations tests', () => {
           DATE: 'Mar 10 2018',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
-
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -16221,7 +16994,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 12, 'Cash', 'Tue May 01 2018', -333, -1);
     expectEvals(evals, 13, 'Cars', 'Wed May 02 2018', 600, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -16286,13 +17065,11 @@ describe('evaluations tests', () => {
           DATE: 'Mar 10 2018',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
-
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -16315,7 +17092,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 12, 'Cash', 'Tue May 01 2018', 190, -1);
     expectEvals(evals, 13, 'Cars', 'Wed May 02 2018', 100, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -16382,13 +17165,11 @@ describe('evaluations tests', () => {
           DATE: 'Mar 10 2018',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
-
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -16423,7 +17204,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 17, 'Cash', 'Tue May 01 2018', 262400, 2);
     expectEvals(evals, 18, 'Cars', 'Wed May 02 2018', 150000, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -16515,13 +17302,11 @@ describe('evaluations tests', () => {
           TYPE: liquidateAsset,
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
-
-    setROI(model, roi);
 
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
@@ -16548,7 +17333,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 12, 'Cash', 'Tue May 01 2018', -715, -1);
     expectEvals(evals, 13, 'Cars', 'Wed May 02 2018', 0, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -16614,13 +17405,11 @@ describe('evaluations tests', () => {
           TYPE: liquidateAsset,
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
-
-    setROI(model, roi);
 
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
@@ -16647,7 +17436,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 12, 'Cash', 'Tue May 01 2018', 40, -1);
     expectEvals(evals, 13, 'Cars', 'Wed May 02 2018', 100, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -16713,13 +17508,11 @@ describe('evaluations tests', () => {
           TYPE: liquidateAsset,
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
-
-    setROI(model, roi);
 
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
@@ -16746,7 +17539,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 12, 'Cash', 'Tue May 01 2018', 0, -1);
     expectEvals(evals, 13, 'Cars', 'Wed May 02 2018', 100, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -16812,13 +17611,11 @@ describe('evaluations tests', () => {
           TYPE: liquidateAsset,
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
-
-    setROI(model, roi);
 
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
@@ -16845,7 +17642,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 12, 'Cash', 'Tue May 01 2018', 25, -1);
     expectEvals(evals, 13, 'Cars', 'Wed May 02 2018', 100, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -16922,9 +17725,8 @@ describe('evaluations tests', () => {
           START: 'January 1 2018',
         },
       ],
-      settings: [...defaultSettings],
+      settings: [...defaultModelSettings(roi)],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -16948,7 +17750,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 13, 'Cash', 'Tue May 01 2018', -27500, -1);
     expectEvals(evals, 14, `${assetName}`, 'Tue May 01 2018', 0, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -16998,7 +17806,7 @@ describe('evaluations tests', () => {
         },
       ],
       settings: [
-        ...defaultSettings,
+        ...defaultModelSettings(roi),
         {
           NAME: thingName,
           VALUE: '123',
@@ -17007,7 +17815,6 @@ describe('evaluations tests', () => {
         },
       ],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -17028,7 +17835,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 10, 'Cash', 'Tue May 01 2018', 0, -1);
     expectEvals(evals, 11, 'stringThings', 'Tue May 01 2018', 1230, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -17079,7 +17892,7 @@ describe('evaluations tests', () => {
         },
       ],
       settings: [
-        ...defaultSettings,
+        ...defaultModelSettings(roi),
         {
           NAME: thingName,
           VALUE: '10' + dollar,
@@ -17094,7 +17907,6 @@ describe('evaluations tests', () => {
         },
       ],
     };
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -17116,7 +17928,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 11, 'Cash', 'Tue May 01 2018', 0, -1);
     expectEvals(evals, 12, 'stringThings', 'Tue May 01 2018', 44, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -17160,7 +17978,7 @@ describe('evaluations tests', () => {
         },
       ],
       settings: [
-        ...defaultSettings,
+        ...defaultModelSettings(roi),
         {
           NAME: 'mini',
           VALUE: '100',
@@ -17172,8 +17990,6 @@ describe('evaluations tests', () => {
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
-
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -17194,7 +18010,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 10, 'Cash', 'Tue May 01 2018', 0, -1);
     expectEvals(evals, 11, 'Cars', 'Wed May 02 2018', 300, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -17247,7 +18069,7 @@ describe('evaluations tests', () => {
         },
       ],
       settings: [
-        ...defaultSettings,
+        ...defaultModelSettings(roi),
         {
           NAME: 'mini',
           VALUE: '100',
@@ -17259,8 +18081,6 @@ describe('evaluations tests', () => {
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
-
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -17282,7 +18102,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 11, 'Cash', 'Tue May 01 2018', 0, -1);
     expectEvals(evals, 12, 'Cars', 'Wed May 02 2018', 150, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -17336,7 +18162,7 @@ describe('evaluations tests', () => {
         },
       ],
       settings: [
-        ...defaultSettings,
+        ...defaultModelSettings(roi),
         {
           NAME: 'mini',
           VALUE: '100',
@@ -17348,8 +18174,6 @@ describe('evaluations tests', () => {
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
-
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -17373,7 +18197,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 13, 'Cash', 'Tue May 01 2018', -333, -1);
     expectEvals(evals, 14, 'Cars', 'Wed May 02 2018', 600, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -17440,7 +18270,7 @@ describe('evaluations tests', () => {
         },
       ],
       settings: [
-        ...defaultSettings,
+        ...defaultModelSettings(roi),
         {
           NAME: 'mini',
           VALUE: '100',
@@ -17452,8 +18282,6 @@ describe('evaluations tests', () => {
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
-
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -17477,7 +18305,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 13, 'Cash', 'Tue May 01 2018', 190, -1);
     expectEvals(evals, 14, 'Cars', 'Wed May 02 2018', 100, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -17545,7 +18379,7 @@ describe('evaluations tests', () => {
         },
       ],
       settings: [
-        ...defaultSettings,
+        ...defaultModelSettings(roi),
         {
           NAME: 'mini',
           VALUE: '100',
@@ -17557,8 +18391,6 @@ describe('evaluations tests', () => {
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
-
-    setROI(model, roi);
 
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
@@ -17586,7 +18418,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 13, 'Cash', 'Tue May 01 2018', -715, -1);
     expectEvals(evals, 14, 'Cars', 'Wed May 02 2018', 0, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -17654,7 +18492,7 @@ describe('evaluations tests', () => {
         },
       ],
       settings: [
-        ...defaultSettings,
+        ...defaultModelSettings(roi),
         {
           NAME: 'mini',
           VALUE: '100',
@@ -17666,8 +18504,6 @@ describe('evaluations tests', () => {
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
-
-    setROI(model, roi);
 
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
@@ -17695,7 +18531,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 13, 'Cash', 'Tue May 01 2018', 40, -1);
     expectEvals(evals, 14, 'Cars', 'Wed May 02 2018', 100, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -17763,7 +18605,7 @@ describe('evaluations tests', () => {
         },
       ],
       settings: [
-        ...defaultSettings,
+        ...defaultModelSettings(roi),
         {
           NAME: 'mini',
           VALUE: '100',
@@ -17775,8 +18617,6 @@ describe('evaluations tests', () => {
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
-
-    setROI(model, roi);
 
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
@@ -17804,7 +18644,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 13, 'Cash', 'Tue May 01 2018', 0, -1);
     expectEvals(evals, 14, 'Cars', 'Wed May 02 2018', 100, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -17872,7 +18718,7 @@ describe('evaluations tests', () => {
         },
       ],
       settings: [
-        ...defaultSettings,
+        ...defaultModelSettings(roi),
         {
           NAME: 'mini',
           VALUE: '100',
@@ -17884,8 +18730,6 @@ describe('evaluations tests', () => {
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
-
-    setROI(model, roi);
 
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
@@ -17913,7 +18757,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 13, 'Cash', 'Tue May 01 2018', 25, -1);
     expectEvals(evals, 14, 'Cars', 'Wed May 02 2018', 100, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -17950,8 +18800,6 @@ describe('evaluations tests', () => {
   it('define three chrysler cars', done => {
     const model = getThreeChryslerModel();
 
-    setSetting(model.settings, assetChartFocus, allItems, viewType);
-
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
 
@@ -17972,7 +18820,14 @@ describe('evaluations tests', () => {
     expectEvals(evals, 11, 'Cash', 'Tue May 01 2018', 0, -1);
     expectEvals(evals, 12, 'Cars', 'Wed May 02 2018', 300, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    setSetting(viewSettings, assetChartFocus, allItems, viewType);
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -18025,7 +18880,7 @@ describe('evaluations tests', () => {
         },
       ],
       settings: [
-        ...defaultSettings,
+        ...defaultModelSettings(roi),
         {
           NAME: 'chrysler',
           VALUE: '50USD',
@@ -18043,8 +18898,6 @@ describe('evaluations tests', () => {
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
-
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -18067,7 +18920,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 12, 'Cash', 'Tue May 01 2018', 0, -1);
     expectEvals(evals, 13, 'Cars', 'Wed May 02 2018', 150, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -18121,7 +18980,7 @@ describe('evaluations tests', () => {
         },
       ],
       settings: [
-        ...defaultSettings,
+        ...defaultModelSettings(roi),
         {
           NAME: 'chrysler',
           VALUE: '50USD',
@@ -18139,8 +18998,6 @@ describe('evaluations tests', () => {
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
-
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -18165,7 +19022,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 14, 'Cash', 'Tue May 01 2018', -333, -1);
     expectEvals(evals, 15, 'Cars', 'Wed May 02 2018', 600, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -18232,7 +19095,7 @@ describe('evaluations tests', () => {
         },
       ],
       settings: [
-        ...defaultSettings,
+        ...defaultModelSettings(roi),
         {
           NAME: 'chrysler',
           VALUE: '50USD',
@@ -18250,8 +19113,6 @@ describe('evaluations tests', () => {
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
-
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -18276,7 +19137,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 14, 'Cash', 'Tue May 01 2018', 190, -1);
     expectEvals(evals, 15, 'Cars', 'Wed May 02 2018', 100, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -18344,7 +19211,7 @@ describe('evaluations tests', () => {
         },
       ],
       settings: [
-        ...defaultSettings,
+        ...defaultModelSettings(roi),
         {
           NAME: 'chrysler',
           VALUE: '50USD',
@@ -18362,8 +19229,6 @@ describe('evaluations tests', () => {
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
-
-    setROI(model, roi);
 
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
@@ -18392,7 +19257,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 14, 'Cash', 'Tue May 01 2018', -715, -1);
     expectEvals(evals, 15, 'Cars', 'Wed May 02 2018', 0, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -18460,7 +19331,7 @@ describe('evaluations tests', () => {
         },
       ],
       settings: [
-        ...defaultSettings,
+        ...defaultModelSettings(roi),
         {
           NAME: 'chrysler',
           VALUE: '50USD',
@@ -18478,8 +19349,6 @@ describe('evaluations tests', () => {
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
-
-    setROI(model, roi);
 
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
@@ -18508,7 +19377,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 14, 'Cash', 'Tue May 01 2018', 40, -1);
     expectEvals(evals, 15, 'Cars', 'Wed May 02 2018', 100, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -18576,7 +19451,7 @@ describe('evaluations tests', () => {
         },
       ],
       settings: [
-        ...defaultSettings,
+        ...defaultModelSettings(roi),
         {
           NAME: 'chrysler',
           VALUE: '50USD',
@@ -18594,8 +19469,6 @@ describe('evaluations tests', () => {
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
-
-    setROI(model, roi);
 
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
@@ -18624,7 +19497,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 14, 'Cash', 'Tue May 01 2018', 0, -1);
     expectEvals(evals, 15, 'Cars', 'Wed May 02 2018', 100, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -18692,7 +19571,7 @@ describe('evaluations tests', () => {
         },
       ],
       settings: [
-        ...defaultSettings,
+        ...defaultModelSettings(roi),
         {
           NAME: 'chrysler',
           VALUE: '50USD',
@@ -18710,8 +19589,6 @@ describe('evaluations tests', () => {
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
-
-    setROI(model, roi);
 
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
@@ -18740,7 +19617,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 14, 'Cash', 'Tue May 01 2018', -444.5, 2);
     expectEvals(evals, 15, 'Cars', 'Wed May 02 2018', 100, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -18810,7 +19693,7 @@ describe('evaluations tests', () => {
         },
       ],
       settings: [
-        ...defaultSettings,
+        ...defaultModelSettings(roi),
         {
           NAME: 'chrysler',
           VALUE: '50USD',
@@ -18828,8 +19711,6 @@ describe('evaluations tests', () => {
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
-
-    setROI(model, roi);
 
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
@@ -18858,7 +19739,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 14, 'Cash', 'Tue May 01 2018', 25, -1);
     expectEvals(evals, 15, 'Cars', 'Wed May 02 2018', 100, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -18937,7 +19824,7 @@ describe('evaluations tests', () => {
         },
       ],
       settings: [
-        ...defaultSettings,
+        ...defaultModelSettings(roi),
         {
           NAME: 'chrysler',
           VALUE: '50USD',
@@ -18955,8 +19842,6 @@ describe('evaluations tests', () => {
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
-
-    setROI(model, roi);
 
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
@@ -18986,7 +19871,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 15, 'Cash', 'Tue May 01 2018', 40, -1);
     expectEvals(evals, 16, 'Cars', 'Wed May 02 2018', 50, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -19040,7 +19931,7 @@ describe('evaluations tests', () => {
         },
       ],
       settings: [
-        ...defaultSettings,
+        ...defaultModelSettings(roi),
         {
           NAME: 'daimler',
           VALUE: '0.25USD',
@@ -19058,8 +19949,6 @@ describe('evaluations tests', () => {
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
-
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -19081,7 +19970,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 11, 'Cash', 'Tue May 01 2018', 0, -1);
     expectEvals(evals, 12, 'Cars', 'Wed May 02 2018', 300, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -19123,7 +20018,7 @@ describe('evaluations tests', () => {
         },
       ],
       settings: [
-        ...defaultSettings,
+        ...defaultModelSettings(roi),
         {
           NAME: 'ford',
           VALUE: '400USD',
@@ -19141,8 +20036,6 @@ describe('evaluations tests', () => {
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
-
-    setROI(model, roi);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -19164,7 +20057,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 11, 'Cash', 'Tue May 01 2018', 0, -1);
     expectEvals(evals, 12, 'Cars', 'Wed May 02 2018', 300, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -19206,7 +20105,7 @@ describe('evaluations tests', () => {
         },
       ],
       settings: [
-        ...defaultSettings,
+        ...defaultModelSettings(roi),
         {
           NAME: 'chrysler',
           VALUE: '50USD',
@@ -19236,8 +20135,6 @@ describe('evaluations tests', () => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
-    setROI(model, roi);
-
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
 
@@ -19259,7 +20156,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 12, 'Cash', 'Tue May 01 2018', 0, -1);
     expectEvals(evals, 13, 'Cars', 'Wed May 02 2018', 375, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -19301,7 +20204,7 @@ describe('evaluations tests', () => {
         },
       ],
       settings: [
-        ...defaultSettings,
+        ...defaultModelSettings(roi),
         {
           NAME: 'chrysler',
           VALUE: '50USD',
@@ -19331,8 +20234,6 @@ describe('evaluations tests', () => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
-    setROI(model, roi);
-
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
 
@@ -19354,7 +20255,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 12, 'Cash', 'Tue May 01 2018', 0, -1);
     expectEvals(evals, 13, 'Cars', 'Wed May 02 2018', 375, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -19402,7 +20309,7 @@ describe('evaluations tests', () => {
         },
       ],
       settings: [
-        ...defaultSettings,
+        ...defaultModelSettings(roi),
         {
           NAME: 'USD',
           VALUE: '2',
@@ -19426,8 +20333,6 @@ describe('evaluations tests', () => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
-    setROI(model, roi);
-
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
 
@@ -19448,7 +20353,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 11, 'Cash', 'Tue May 01 2018', 0, -1);
     expectEvals(evals, 12, 'Cars', 'Wed May 02 2018', 600, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -19512,7 +20423,7 @@ describe('evaluations tests', () => {
         },
       ],
       settings: [
-        ...defaultSettings,
+        ...defaultModelSettings(roi),
         {
           NAME: 'chrysler',
           VALUE: '50USD',
@@ -19530,8 +20441,6 @@ describe('evaluations tests', () => {
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
-
-    setROI(model, roi);
 
     model.assets.filter(a => {
       return a.NAME === CASH_ASSET_NAME;
@@ -19571,7 +20480,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 25, 'Fleet1', 'Wed May 02 2018', 800, -1);
     expectEvals(evals, 26, 'Fleet2', 'Wed May 02 2018', 1300, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -19639,7 +20554,7 @@ describe('evaluations tests', () => {
         },
       ],
       settings: [
-        ...defaultSettings,
+        ...defaultModelSettings(roi),
         {
           NAME: 'USD',
           VALUE: '0.25',
@@ -19664,8 +20579,6 @@ describe('evaluations tests', () => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
-    setROI(model, roi);
-
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
 
@@ -19688,7 +20601,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 13, 'Cadillac', 'Wed May 02 2018', 90.75, 2);
     expectEvals(evals, 14, 'USD', 'Sat May 05 2018', 0.33, 2);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -19732,7 +20651,7 @@ describe('evaluations tests', () => {
         },
       ],
       settings: [
-        ...defaultSettings,
+        ...defaultModelSettings(roi),
         {
           NAME: 'fourUSD',
           VALUE: '2twoUSD',
@@ -19768,8 +20687,6 @@ describe('evaluations tests', () => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
-    setROI(model, roi);
-
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
 
@@ -19792,7 +20709,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 13, 'Cash', 'Tue May 01 2018', 0, -1);
     expectEvals(evals, 14, 'Cadillac', 'Wed May 02 2018', 40, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -19822,6 +20745,7 @@ describe('evaluations tests', () => {
       end: 'June 1, 2018 00:00:00',
     };
     const minimalModel = getMinimalModelCopy();
+
     const model: DbModelData = {
       ...minimalModel,
       assets: [
@@ -19836,7 +20760,7 @@ describe('evaluations tests', () => {
         },
       ],
       settings: [
-        ...defaultSettings,
+        ...defaultModelSettings(roi),
         {
           NAME: 'someUSD',
           VALUE: '2twoUSD',
@@ -19882,8 +20806,6 @@ describe('evaluations tests', () => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
-    setROI(model, roi);
-
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
 
@@ -19907,7 +20829,13 @@ describe('evaluations tests', () => {
     expectEvals(evals, 14, 'Cash', 'Tue May 01 2018', 0, -1);
     expectEvals(evals, 15, 'Cadillac', 'Wed May 02 2018', 9, -1);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -19955,8 +20883,6 @@ describe('evaluations tests', () => {
     });
 
     setROI(model, roi);
-    setSetting(model.settings, viewFrequency, annually, viewType);
-
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
 
@@ -19964,7 +20890,14 @@ describe('evaluations tests', () => {
 
     expect(evals.length).toBe(4332);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = defaultTestViewSettings();
+
+    setSetting(viewSettings, viewFrequency, annually, viewType);
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // apprintTestCodeForChart(result);
 
@@ -20295,8 +21228,115 @@ describe('evaluations tests', () => {
   });
 
   it('revalue a setting 02', done => {
-    const revalueData =
-      '{"triggers":[{"NAME":"TransferMortgage","DATE":"2028-01-01T00:00:00.000Z"},{"NAME":"StopMainWork","DATE":"2050-12-31T00:00:00.000Z"},{"NAME":"GetRidOfCar","DATE":"2025-12-31T00:00:00.000Z"}],"expenses":[],"incomes":[],"assets":[{"NAME":"thing","VALUE":"stockvalue","QUANTITY":"100","START":"2019","LIABILITY":"","GROWTH":"0","CPI_IMMUNE":true,"CAN_BE_NEGATIVE":false,"IS_A_DEBT":false,"PURCHASE_PRICE":"0","CATEGORY":""},{"NAME":"Cash","CATEGORY":"","START":"December 2017","VALUE":"2000","GROWTH":"0","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":true,"LIABILITY":"","PURCHASE_PRICE":"0","IS_A_DEBT":false,"QUANTITY":""}],"transactions":[{"DATE":"2026","FROM":"","FROM_VALUE":"0","FROM_ABSOLUTE":false,"NAME":"Revalue stockvalue 3","TO":"stockvalue","TO_ABSOLUTE":true,"TO_VALUE":"2026EUR","STOP_DATE":"","RECURRENCE":"","TYPE":"revalueSetting","CATEGORY":""},{"NAME":"Revalue stockvalue 2","FROM":"","FROM_ABSOLUTE":false,"FROM_VALUE":"0.0","TO":"stockvalue","TO_ABSOLUTE":false,"TO_VALUE":"0.5","DATE":"2024","TYPE":"revalueSetting","RECURRENCE":"","STOP_DATE":"","CATEGORY":""},{"DATE":"2030","FROM":"","FROM_VALUE":"0","FROM_ABSOLUTE":false,"NAME":"Revalue stockvalue 1","TO":"stockvalue","TO_ABSOLUTE":false,"TO_VALUE":"0.9","STOP_DATE":"","RECURRENCE":"1y","TYPE":"revalueSetting","CATEGORY":""},{"NAME":"Revalue EUR 1","FROM":"","FROM_ABSOLUTE":false,"FROM_VALUE":"0.0","TO":"EUR","TO_ABSOLUTE":true,"TO_VALUE":"1.6","DATE":"2028","TYPE":"revalueSetting","RECURRENCE":"","STOP_DATE":"","CATEGORY":""}],"settings":[{"NAME":"View frequency","VALUE":"Annually","HINT":"Data plotted `monthly` or `annually`","TYPE":"view"},{"NAME":"View detail","VALUE":"Detailed view","HINT":"View detail (`Categorised view` or `Detailed view`)","TYPE":"view"},{"NAME":"Type of view for debt chart","VALUE":"val","HINT":"Debt chart uses setting `+`, `-`, `+-` or `val`","TYPE":"view"},{"NAME":"Type of view for asset chart","VALUE":"val","HINT":"Asset chart uses setting `+`, `-`, `+-` or `val`","TYPE":"view"},{"NAME":"Today\'s value focus date","VALUE":"","HINT":"Date to use for \'today\'s value\' tables (defaults to \'\' meaning today)","TYPE":"view"},{"NAME":"stockvalue","VALUE":"1000EUR","HINT":"","TYPE":"adjustable"},{"NAME":"Focus of incomes chart","VALUE":"All","HINT":"Incomes chart can display a category, a single income, or `All`","TYPE":"view"},{"NAME":"Focus of expenses chart","VALUE":"All","HINT":"Expenses chart can display a category, a single expense, or `All`","TYPE":"view"},{"NAME":"Focus of debts chart","VALUE":"All","HINT":"Debts chart can display a category, a single debt, or `All`","TYPE":"view"},{"NAME":"Focus of assets chart","VALUE":"thing","HINT":"Assets chart can display a category, a single asset, or `All`","TYPE":"view"},{"NAME":"EUR","VALUE":"0.95","HINT":"","TYPE":"adjustable"},{"NAME":"End of view range","VALUE":"1 Jan 2042","HINT":"Date at the end of range to be plotted","TYPE":"view"},{"NAME":"Date of birth","VALUE":"","HINT":"Date used for representing dates as ages","TYPE":"view"},{"NAME":"cpi","VALUE":"0","HINT":"Annual rate of inflation","TYPE":"const"},{"NAME":"Beginning of view range","VALUE":"1 Jan 2019","HINT":"Date at the start of range to be plotted","TYPE":"view"}]}';
+    const revalueData = `
+    {
+    "triggers":[
+    {"NAME":"TransferMortgage","DATE":"2028-01-01T00:00:00.000Z"},
+    {"NAME":"StopMainWork","DATE":"2050-12-31T00:00:00.000Z"},
+    {"NAME":"GetRidOfCar","DATE":"2025-12-31T00:00:00.000Z"}
+    ],
+    "expenses":[
+    ],
+    "incomes":[
+    ],
+    "assets":[
+    {"NAME":"thing","VALUE":"stockvalue","QUANTITY":"100","START":"2019","LIABILITY":"","GROWTH":"0","CPI_IMMUNE":true,"CAN_BE_NEGATIVE":false,"IS_A_DEBT":false,"PURCHASE_PRICE":"0","CATEGORY":""},
+    {"NAME":"Cash","CATEGORY":"","START":"December 2017","VALUE":"2000","GROWTH":"0","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":true,"LIABILITY":"","PURCHASE_PRICE":"0","IS_A_DEBT":false,"QUANTITY":""}
+    ],
+    "transactions":[
+    {"DATE":"2026","FROM":"","FROM_VALUE":"0","FROM_ABSOLUTE":false,"NAME":"Revalue stockvalue 3","TO":"stockvalue","TO_ABSOLUTE":true,"TO_VALUE":"2026EUR","STOP_DATE":"","RECURRENCE":"","TYPE":"revalueSetting","CATEGORY":""},
+    {"NAME":"Revalue stockvalue 2","FROM":"","FROM_ABSOLUTE":false,"FROM_VALUE":"0.0","TO":"stockvalue","TO_ABSOLUTE":false,"TO_VALUE":"0.5","DATE":"2024","TYPE":"revalueSetting","RECURRENCE":"","STOP_DATE":"","CATEGORY":""},
+    {"DATE":"2030","FROM":"","FROM_VALUE":"0","FROM_ABSOLUTE":false,"NAME":"Revalue stockvalue 1","TO":"stockvalue","TO_ABSOLUTE":false,"TO_VALUE":"0.9","STOP_DATE":"","RECURRENCE":"1y","TYPE":"revalueSetting","CATEGORY":""},
+    {"NAME":"Revalue EUR 1","FROM":"","FROM_ABSOLUTE":false,"FROM_VALUE":"0.0","TO":"EUR","TO_ABSOLUTE":true,"TO_VALUE":"1.6","DATE":"2028","TYPE":"revalueSetting","RECURRENCE":"","STOP_DATE":"","CATEGORY":""}],
+    "settings":
+    [
+    {"NAME":"View frequency","VALUE":"Annually","HINT":"Data plotted 'monthly' or 'annually'","TYPE":"view"},
+    {"NAME":"View detail","VALUE":"Detailed view","HINT":"View detail ('Categorised view' or 'Detailed view')","TYPE":"view"},
+    {"NAME":"Type of view for debt chart","VALUE":"val","HINT":"Debt chart uses setting '+', '-', '+-' or 'val'","TYPE":"view"},
+    {"NAME":"Type of view for asset chart","VALUE":"val","HINT":"Asset chart uses setting '+', '-', '+-' or 'val'","TYPE":"view"},
+    {"NAME":"Today\'s value focus date","VALUE":"","HINT":"Date to use for \'today\'s value\' tables (defaults to \'\' meaning today)","TYPE":"view"},
+    {"NAME":"stockvalue","VALUE":"1000EUR","HINT":"","TYPE":"adjustable"},
+    {"NAME":"Focus of incomes chart","VALUE":"All","HINT":"Incomes chart can display a category, a single income, or 'All'","TYPE":"view"},
+    {"NAME":"Focus of expenses chart","VALUE":"All","HINT":"Expenses chart can display a category, a single expense, or 'All'","TYPE":"view"},
+    {"NAME":"Focus of debts chart","VALUE":"All","HINT":"Debts chart can display a category, a single debt, or 'All'","TYPE":"view"},
+    {"NAME":"Focus of assets chart","VALUE":"thing","HINT":"Assets chart can display a category, a single asset, or 'All'","TYPE":"view"},
+    {"NAME":"EUR","VALUE":"0.95","HINT":"","TYPE":"adjustable"},
+    {"NAME":"End of view range","VALUE":"1 Jan 2042","HINT":"Date at the end of range to be plotted","TYPE":"view"},
+    {"NAME":"Date of birth","VALUE":"","HINT":"Date used for representing dates as ages","TYPE":"view"},
+    {"NAME":"cpi","VALUE":"0","HINT":"Annual rate of inflation","TYPE":"const"},
+    {"NAME":"Beginning of view range","VALUE":"1 Jan 2019","HINT":"Date at the start of range to be plotted","TYPE":"view"}
+    ]
+    }`;
+    const viewSettings: DbSetting[] = [
+      {
+        NAME: 'View frequency',
+        VALUE: 'Annually',
+        HINT: "Data plotted 'monthly' or 'annually'",
+        TYPE: 'view',
+      },
+      {
+        NAME: 'View detail',
+        VALUE: 'Detailed view',
+        HINT: "View detail ('Categorised view' or 'Detailed view')",
+        TYPE: 'view',
+      },
+      {
+        NAME: 'Type of view for debt chart',
+        VALUE: 'val',
+        HINT: "Debt chart uses setting '+', '-', '+-' or 'val'",
+        TYPE: 'view',
+      },
+      {
+        NAME: 'Type of view for asset chart',
+        VALUE: 'val',
+        HINT: "Asset chart uses setting '+', '-', '+-' or 'val'",
+        TYPE: 'view',
+      },
+      {
+        NAME: 'Focus of incomes chart',
+        VALUE: 'All',
+        HINT: "Incomes chart can display a category, a single income, or 'All'",
+        TYPE: 'view',
+      },
+      {
+        NAME: 'Focus of expenses chart',
+        VALUE: 'All',
+        HINT:
+          "Expenses chart can display a category, a single expense, or 'All'",
+        TYPE: 'view',
+      },
+      {
+        NAME: 'Focus of debts chart',
+        VALUE: 'All',
+        HINT: "Debts chart can display a category, a single debt, or 'All'",
+        TYPE: 'view',
+      },
+      {
+        NAME: 'Focus of assets chart',
+        VALUE: 'thing',
+        HINT: "Assets chart can display a category, a single asset, or 'All'",
+        TYPE: 'view',
+      },
+      {
+        NAME: taxChartFocusPerson,
+        VALUE: allItems,
+        HINT: taxChartFocusPersonHint,
+        TYPE: viewType,
+      },
+      {
+        NAME: taxChartFocusType,
+        VALUE: allItems,
+        HINT: taxChartFocusTypeHint,
+        TYPE: viewType,
+      },
+      {
+        NAME: taxChartShowNet,
+        VALUE: 'Y',
+        HINT: taxChartShowNetHint,
+        TYPE: viewType,
+      },
+    ];
+
     const model = makeModelFromJSON(revalueData);
 
     const evalsAndValues = getTestEvaluations(model);
@@ -20306,7 +21346,11 @@ describe('evaluations tests', () => {
 
     expect(evals.length).toBe(583);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
@@ -20465,7 +21509,12 @@ describe('evaluations tests', () => {
     expectEvals(evals, 68, 'Joe income (net)', 'Fri Apr 05 2019', 14844.06, 2);
     expectEvals(evals, 69, 'Cash', 'Wed May 01 2019', 20119.03, 2);
 
-    const result = makeChartDataFromEvaluations(model, evalsAndValues);
+    const viewSettings = getMinimalModelCopySettings();
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
 
     // printTestCodeForChart(result);
 
