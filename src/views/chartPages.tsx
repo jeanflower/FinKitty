@@ -128,6 +128,26 @@ function setViewSettingNameVal(
   );
 }
 
+function makeFilterButton(
+  buttonName: string,
+  settings: DbSetting[],
+  settingName: string,
+  selectedChartFocus: string,
+) {
+  return (
+    <Button
+      key={buttonName}
+      action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        e.persist();
+        setViewSettingNameVal(settings, settingName, buttonName);
+      }}
+      title={buttonName}
+      type={buttonName === selectedChartFocus ? 'primary' : 'secondary'}
+      id={`select-${buttonName}`}
+    />
+  );
+}
+
 function makeFiltersList(
   gridData: { CATEGORY: string; NAME: string }[],
   selectedChartFocus: string,
@@ -138,7 +158,7 @@ function makeFiltersList(
   // settingName = expenseChartFocus
   // defaultSetting = expenseChartFocusAll
   // hint = expenseChartFocusHint
-  let buttonNames = [allItems];
+  let buttonNames: string[] = [];
   const names: string[] = [];
   gridData.forEach(e => {
     const candidate = e.NAME;
@@ -149,6 +169,14 @@ function makeFiltersList(
   names.sort();
   buttonNames = buttonNames.concat(names);
 
+  const buttons1 = buttonNames.map(buttonName => {
+    return makeFilterButton(
+      buttonName,
+      settings,
+      settingName,
+      selectedChartFocus,
+    );
+  });
   const categories: string[] = [];
   gridData.forEach(e => {
     let candidate = allItems;
@@ -160,21 +188,24 @@ function makeFiltersList(
     }
   });
   categories.sort();
-  buttonNames = buttonNames.concat(categories);
+  categories.unshift(allItems);
+  const buttons2 = categories.map(buttonName => {
+    return makeFilterButton(
+      buttonName,
+      settings,
+      settingName,
+      selectedChartFocus,
+    );
+  });
 
-  const buttons = buttonNames.map(buttonName => (
-    <Button
-      key={buttonName}
-      action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-        e.persist();
-        setViewSettingNameVal(settings, settingName, buttonName);
-      }}
-      title={buttonName}
-      type={buttonName === selectedChartFocus ? 'primary' : 'secondary'}
-      id={`select-${buttonName}`}
-    />
-  ));
-  return <div role="group">{buttons}</div>;
+  return (
+    <>
+      <div role="group">{buttons2}</div>
+      <br></br>
+      <div role="group">{buttons1}</div>
+      <br></br>
+    </>
+  );
 }
 
 export function coarseFineList(settings: DbSetting[]) {
@@ -396,31 +427,14 @@ export function expensesChartDivWithButtons(
   );
 }
 
-function assetsOrDebtsButtonList(
-  model: DbModelData,
-  settings: DbSetting[],
+function makeButton(
+  assetOrDebt: string,
   isDebt: boolean,
+  settings: DbSetting[],
+  selectedAssetOrDebt: string,
   forOverview: boolean,
 ) {
-  const assetsOrDebts = model.assets.filter(obj => {
-    return obj.IS_A_DEBT === isDebt;
-  });
-  let assetOrDebtNames: string[] = assetsOrDebts.map(data => data.NAME).sort();
-  assetOrDebtNames.unshift(allItems);
-  // log(`assetNames = ${assetNames}`);
-  const categoryNames: string[] = [];
-  assetsOrDebts.forEach(data => {
-    const cat = data.CATEGORY;
-    if (cat !== '') {
-      if (categoryNames.indexOf(cat) < 0) {
-        categoryNames.push(cat);
-      }
-    }
-  });
-  assetOrDebtNames = assetOrDebtNames.concat(categoryNames.sort());
-  // log(`assetNames with categories = ${assetNames}`);
-  const selectedAssetOrDebt = getAssetOrDebtChartName(settings, isDebt);
-  const buttons = assetOrDebtNames.map(assetOrDebt => (
+  return (
     <Button
       key={assetOrDebt}
       action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -437,8 +451,61 @@ function assetsOrDebtsButtonList(
         isDebt ? `debt` : `asset`
       }-${assetOrDebt}`}
     />
-  ));
-  return <div role="group">{buttons}</div>;
+  );
+}
+
+function assetsOrDebtsButtonList(
+  model: DbModelData,
+  settings: DbSetting[],
+  isDebt: boolean,
+  forOverview: boolean,
+) {
+  const assetsOrDebts = model.assets.filter(obj => {
+    return obj.IS_A_DEBT === isDebt;
+  });
+  const assetOrDebtNames: string[] = assetsOrDebts
+    .map(data => data.NAME)
+    .sort();
+  // log(`assetNames = ${assetNames}`);
+  // log(`assetNames with categories = ${assetNames}`);
+  const selectedAssetOrDebt = getAssetOrDebtChartName(settings, isDebt);
+  const assetOrDebtButtons = assetOrDebtNames.map(assetOrDebt => {
+    return makeButton(
+      assetOrDebt,
+      isDebt,
+      settings,
+      selectedAssetOrDebt,
+      forOverview,
+    );
+  });
+  let categoryNames: string[] = [];
+  assetsOrDebts.forEach(data => {
+    const cat = data.CATEGORY;
+    if (cat !== '') {
+      if (categoryNames.indexOf(cat) < 0) {
+        categoryNames.push(cat);
+      }
+    }
+  });
+  categoryNames = categoryNames.sort();
+  categoryNames.unshift(allItems);
+  const categoryButtons = categoryNames.map(category => {
+    return makeButton(
+      category,
+      isDebt,
+      settings,
+      selectedAssetOrDebt,
+      forOverview,
+    );
+  });
+  return (
+    <>
+      <div role="group">{categoryButtons}</div>
+      <br></br>
+      <div role="group">{assetOrDebtButtons}</div>
+      <br></br>
+    </>
+  );
 }
 
 function assetViewTypeList(settings: DbSetting[]) {
