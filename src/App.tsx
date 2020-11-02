@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import {
-  nationalSavings,
-  simpleExampleData,
   definedBenefitsPension,
   definedContributionsPension,
+  nationalSavings,
+  simpleExampleData,
 } from './models/exampleModels';
 import { useAuth0 } from './contexts/auth0-context';
 import { makeChartData } from './models/charting';
@@ -12,22 +12,6 @@ import { AddDeleteTransactionForm } from './views/reactComponents/AddDeleteTrans
 import { AddDeleteTriggerForm } from './views/reactComponents/AddDeleteTriggerForm';
 import Button from './views/reactComponents/Button';
 import {
-  exampleModelName,
-  custom,
-  autogen,
-  roiEnd,
-  roiStart,
-  assetsView,
-  debtsView,
-  expensesView,
-  homeView,
-  incomesView,
-  overview,
-  settingsView,
-  taxView,
-  transactionsView,
-  triggersView,
-  ViewType,
   allItems,
   annually,
   assetChartFocus,
@@ -35,22 +19,38 @@ import {
   assetChartHint,
   assetChartVal,
   assetChartView,
+  assetsView,
+  autogen,
+  custom,
   debtChartFocus,
   debtChartFocusHint,
   debtChartHint,
   debtChartVal,
   debtChartView,
+  debtsView,
+  exampleModelName,
   expenseChartFocus,
   expenseChartFocusHint,
+  expensesView,
   fine,
+  homeView,
   incomeChartFocus,
   incomeChartFocusHint,
+  incomesView,
+  overview,
+  roiEnd,
+  roiStart,
+  settingsView,
   taxChartFocusPerson,
   taxChartFocusPersonHint,
   taxChartFocusType,
   taxChartFocusTypeHint,
   taxChartShowNet,
   taxChartShowNetHint,
+  taxView,
+  transactionsView,
+  triggersView,
+  ViewType,
   viewDetail,
   viewDetailHint,
   viewFrequency,
@@ -63,30 +63,30 @@ import {
   DbAsset,
   DbExpense,
   DbIncome,
+  DbItem,
   DbModelData,
   DbSetting,
   DbTransaction,
   DbTrigger,
   ItemChartData,
-  DbItem,
 } from './types/interfaces';
 import {
+  applyRedoToModel,
+  attemptRenameLong,
+  emptyModel,
+  getTodaysDate,
+  lessThan,
   log,
   makeModelFromJSON,
   printDebug,
-  showObj,
-  lessThan,
-  getTodaysDate,
-  emptyModel,
-  attemptRenameLong,
   revertToUndoModel,
-  applyRedoToModel,
+  showObj,
 } from './utils';
 import { loginPage, navbarContent } from './views/loginPage';
 import { screenshotsDiv } from './views/screenshotsPage';
 import {
-  settingsTableDiv,
   defaultColumn,
+  settingsTableDiv,
   transactionFilteredTable,
   triggersTableDivWithHeading,
 } from './views/tablePages';
@@ -99,6 +99,12 @@ import { debtsDiv } from './views/debtsPage';
 
 import CryptoJS from 'crypto-js';
 import {
+  deleteModel,
+  ensureModel,
+  getModelNames,
+  loadModel,
+  saveModelLSM,
+  saveModelToDBLSM,
   submitNewSettingLSM,
   submitTriggerLSM,
   submitTransactionLSM,
@@ -106,12 +112,6 @@ import {
   submitExpenseLSM,
   submitIncomeLSM,
   submitSettingLSM,
-  getModelNames,
-  loadModel,
-  ensureModel,
-  deleteModel,
-  saveModelLSM,
-  saveModelToDBLSM,
 } from './database/loadSaveModel';
 import DataGrid from './views/reactComponents/DataGrid';
 import SimpleFormatter from './views/reactComponents/NameFormatter';
