@@ -91,7 +91,7 @@ export function expensesDiv(
         model,
         viewSettings,
         expensesChartData,
-        getDefaultChartSettings(viewSettings),
+        getDefaultChartSettings(viewSettings, model.settings),
       )}
       {todaysExpensesTable(model, todaysValues)}
       {expensesTableDivWithHeading(model, showAlert)}

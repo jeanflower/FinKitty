@@ -1,4 +1,4 @@
-import { ChartData, DbModelData } from '../types/interfaces';
+import { ChartData, DbModelData, DbSetting } from '../types/interfaces';
 import {
   allItems,
   annually,
@@ -28,6 +28,7 @@ import {
 import { getDisplay, refreshData } from '../App';
 import {
   getLiabilityPeople,
+  getSettings,
   log,
   printDebug,
   showObj,
@@ -226,14 +227,18 @@ export function frequencyList(settings: ViewSettings) {
   return <div role="group">{buttons}</div>;
 }
 
-export function getDefaultChartSettings(settings: ViewSettings) {
+export function getDefaultChartSettings(
+  settings: ViewSettings,
+  modelSettings: DbSetting[],
+) {
   const showMonth =
     settings.getViewSetting(
       viewFrequency,
       annually,
     ) === monthly;
   const showAge =
-    settings.getViewSetting(
+    getSettings(
+      modelSettings,
       birthDate,
       '',
     ) !== '';
@@ -266,9 +271,13 @@ export function getDefaultChartSettings(settings: ViewSettings) {
   };
 }
 
-export function getSmallerChartSettings(settings: ViewSettings, title: string) {
+export function getSmallerChartSettings(
+  settings: ViewSettings, 
+  modelSettings: DbSetting[],
+  title: string,
+) {
   return {
-    ...getDefaultChartSettings(settings),
+    ...getDefaultChartSettings(settings, modelSettings),
     height: 200,
     width: 400,
     title: {
@@ -559,7 +568,7 @@ export function assetsOrDebtsChartDivWithButtons(
       {assetsOrDebtsChartDiv(
         assetChartData,
         isDebt,
-        getDefaultChartSettings(viewSettings),
+        getDefaultChartSettings(viewSettings, model.settings),
       )}
     </div>
   );
@@ -694,7 +703,7 @@ export function taxDiv(
         model,
         viewSettings,
         taxChartData,
-        getDefaultChartSettings(viewSettings),
+        getDefaultChartSettings(viewSettings, model.settings),
       )}
     </>
   );

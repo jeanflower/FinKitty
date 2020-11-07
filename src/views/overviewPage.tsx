@@ -61,20 +61,20 @@ function chartsForOverview(
         <div className="col">
           {incomesChartDiv(
             suppressLegend(incomesChartData),
-            getSmallerChartSettings(viewSettings, 'Incomes'),
+            getSmallerChartSettings(viewSettings, model.settings, 'Incomes'),
           )}
         </div>
         <div className="col">
           {expensesChartDiv(
             suppressLegend(expensesChartData),
-            getSmallerChartSettings(viewSettings, 'Expenses'),
+            getSmallerChartSettings(viewSettings, model.settings, 'Expenses'),
           )}
         </div>
         <div className="col">
           {assetsOrDebtsChartDiv(
             suppressLegend(assetChartData),
             false,
-            getSmallerChartSettings(viewSettings, 'Assets'),
+            getSmallerChartSettings(viewSettings, model.settings, 'Assets'),
           )}
         </div>
       </div>
@@ -82,14 +82,14 @@ function chartsForOverview(
         <div className="col">
           {taxChartDiv(
             suppressLegend(taxChartData),
-            getSmallerChartSettings(viewSettings, 'Tax'),
+            getSmallerChartSettings(viewSettings, model.settings, 'Tax'),
           )}
         </div>
         <div className="col">
           {assetsOrDebtsChartDiv(
             suppressLegend(debtChartData),
             true,
-            getSmallerChartSettings(viewSettings, 'Debts'),
+            getSmallerChartSettings(viewSettings, model.settings, 'Debts'),
           )}
         </div>
         <div className="col">

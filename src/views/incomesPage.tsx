@@ -92,7 +92,7 @@ export function incomesDiv(
         model,
         viewSettings,
         incomesChartData,
-        getDefaultChartSettings(viewSettings),
+        getDefaultChartSettings(viewSettings, model.settings),
       )}
       {todaysIncomesTable(model, todaysValues)}
       {incomesTableDivWithHeading(model, showAlert)}
