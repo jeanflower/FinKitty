@@ -1,4 +1,4 @@
-import { ChartData, DbItem, DbModelData, DbSetting } from '../types/interfaces';
+import { ChartData, DbItem, DbModelData } from '../types/interfaces';
 import { checkExpense, checkTransaction } from '../models/checks';
 import {
   defaultColumn,
@@ -24,6 +24,7 @@ import CashValueFormatter from './reactComponents/CashValueFormatter';
 import DataGrid from './reactComponents/DataGrid';
 import React from 'react';
 import SimpleFormatter from './reactComponents/NameFormatter';
+import { ViewSettings } from '../models/charting';
 
 function todaysExpensesTable(
   model: DbModelData,
@@ -76,7 +77,7 @@ function todaysExpensesTable(
 
 export function expensesDiv(
   model: DbModelData,
-  viewSettings: DbSetting[],
+  viewSettings: ViewSettings,
   showAlert: (arg0: string) => void,
   expensesChartData: ChartData[],
   todaysValues: Map<string, number>,

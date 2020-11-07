@@ -2,7 +2,6 @@ import {
   ChartData,
   DbItem,
   DbModelData,
-  DbSetting,
 } from './../types/interfaces';
 import { checkAsset, checkTransaction } from '../models/checks';
 import { debtsDivWithHeadings, defaultColumn } from './tablePages';
@@ -22,6 +21,7 @@ import React from 'react';
 import SimpleFormatter from './reactComponents/NameFormatter';
 import { assetsOrDebtsChartDivWithButtons } from './chartPages';
 import { debtsView } from '../localization/stringConstants';
+import { ViewSettings } from '../models/charting';
 
 function todaysDebtsTable(
   model: DbModelData,
@@ -74,7 +74,7 @@ function todaysDebtsTable(
 
 export function debtsDiv(
   model: DbModelData,
-  viewSettings: DbSetting[],
+  viewSettings: ViewSettings,
   showAlert: (arg0: string) => void,
   debtChartData: ChartData[],
   todaysValues: Map<string, number>,

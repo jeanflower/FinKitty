@@ -6,7 +6,7 @@ import {
   simpleExampleData,
 } from './models/exampleModels';
 import { useAuth0 } from './contexts/auth0-context';
-import { makeChartData } from './models/charting';
+import { makeChartData, ViewSettings } from './models/charting';
 import { checkData, checkTransaction, checkTrigger } from './models/checks';
 import { AddDeleteTransactionForm } from './views/reactComponents/AddDeleteTransactionForm';
 import { AddDeleteTriggerForm } from './views/reactComponents/AddDeleteTriggerForm';
@@ -130,8 +130,8 @@ let isDirty = false; // does the model need saving?
 let checkModelBeforeChange = true; // stop people making good models bad
 let checkBeforeOverwritingExistingData = true; // stop people overwriting
 
-export function getDefaultViewSettings() {
-  return [
+export function getDefaultViewSettings(): ViewSettings {
+  const result = new ViewSettings([
     {
       NAME: viewFrequency,
       VALUE: annually,
@@ -198,7 +198,8 @@ export function getDefaultViewSettings() {
       HINT: taxChartShowNetHint,
       TYPE: viewType,
     },
-  ];
+  ]);
+  return result;
 }
 
 function App() {
@@ -335,17 +336,11 @@ let reactAppComponent: AppContent;
 export function setViewSetting(input: DbSetting) {
   // log(`setview setting being processed`);
   if (reactAppComponent) {
-    const obj = reactAppComponent.state.viewSettings.find(s => {
-      return s.NAME === input.NAME;
-    });
-    if (obj !== undefined) {
-      // log(`setview setting ${input.NAME} to ${input.VALUE}`);
-      obj.VALUE = input.VALUE;
-      obj.TYPE = input.TYPE;
-      obj.HINT = input.HINT;
-    }
+    reactAppComponent.state.viewState.setViewSetting(
+      input.NAME,
+      input.VALUE);
   }
-  // log(`after setViewSetting, reactAppComponent.state.viewSettings = ${reactAppComponent.state.viewSettings}`);
+  // log(`after setViewSetting, reactAppComponent.state.viewState = ${reactAppComponent.state.viewState}`);
 }
 
 export function getDisplay(type: ViewType) {
@@ -393,7 +388,7 @@ function showAlert(text: string) {
 }
 
 export async function refreshData(goToDB = true) {
-  const viewSettings = reactAppComponent.state.viewSettings;
+  const viewSettings = reactAppComponent.state.viewState;
 
   // log('refreshData in AppContent - get data and redraw content');
   if (goToDB) {
@@ -666,11 +661,7 @@ export async function editSetting(
   },
   modelData: DbModelData,
 ) {
-  if (
-    getDefaultViewSettings().find(s => {
-      return s.NAME === settingInput.NAME;
-    }) !== undefined
-  ) {
+  if ( getDefaultViewSettings().hasSetting(settingInput.NAME) ) {
     setViewSetting({
       NAME: settingInput.NAME,
       VALUE: settingInput.VALUE,
@@ -704,13 +695,13 @@ export async function editSetting(
 export async function submitNewSetting(
   setting: DbSetting,
   modelData: DbModelData,
-  viewSettings: DbSetting[],
+  viewSettings: ViewSettings,
 ) {
-  const viewSetting = viewSettings.find(s => {
-    return s.NAME === setting.NAME;
-  });
-  if (viewSetting !== undefined) {
-    viewSetting.VALUE = setting.VALUE;
+  if(viewSettings.hasSetting(setting.NAME)){
+    viewSettings.setViewSetting(
+      setting.NAME,
+      setting.VALUE,
+    );
     return await refreshData(
       true, // gotoDB
     );
@@ -896,7 +887,7 @@ export async function replaceWithModel(
 
 interface AppState {
   modelData: DbModelData;
-  viewSettings: DbSetting[];
+  viewState: ViewSettings;
   expensesChartData: ChartData[];
   incomesChartData: ChartData[];
   assetChartData: ChartData[];
@@ -925,7 +916,7 @@ export class AppContent extends Component<AppProps, AppState> {
     reactAppComponent = this;
     this.state = {
       modelData: emptyModel,
-      viewSettings: viewSettings,
+      viewState: viewSettings,
       expensesChartData: [],
       incomesChartData: [],
       assetChartData: [],
@@ -1038,7 +1029,7 @@ export class AppContent extends Component<AppProps, AppState> {
         });
         if (s !== undefined) {
           s.VALUE = newDate;
-          submitNewSetting(s, this.state.modelData, this.state.viewSettings);
+          submitNewSetting(s, this.state.modelData, this.state.viewState);
         }
       };
       const updateStartDate = async (newDate: string) => {
@@ -1055,7 +1046,7 @@ export class AppContent extends Component<AppProps, AppState> {
             {this.homeDiv()}
             {overviewDiv(
               this.state.modelData,
-              this.state.viewSettings,
+              this.state.viewState,
               showAlert,
               this.state.assetChartData,
               this.state.debtChartData,
@@ -1073,28 +1064,28 @@ export class AppContent extends Component<AppProps, AppState> {
             )}
             {incomesDiv(
               this.state.modelData,
-              this.state.viewSettings,
+              this.state.viewState,
               showAlert,
               this.state.incomesChartData,
               this.state.todaysIncomeValues,
             )}
             {expensesDiv(
               this.state.modelData,
-              this.state.viewSettings,
+              this.state.viewState,
               showAlert,
               this.state.expensesChartData,
               this.state.todaysExpenseValues,
             )}
             {assetsDiv(
               this.state.modelData,
-              this.state.viewSettings,
+              this.state.viewState,
               showAlert,
               this.state.assetChartData,
               this.state.todaysAssetValues,
             )}
             {debtsDiv(
               this.state.modelData,
-              this.state.viewSettings,
+              this.state.viewState,
               showAlert,
               this.state.debtChartData,
               this.state.todaysDebtValues,
@@ -1102,7 +1093,7 @@ export class AppContent extends Component<AppProps, AppState> {
             {this.transactionsDiv()}
             {taxDiv(
               this.state.modelData,
-              this.state.viewSettings,
+              this.state.viewState,
               this.state.taxChartData,
             )}
             {this.triggersDiv()}
@@ -1404,6 +1395,7 @@ export class AppContent extends Component<AppProps, AppState> {
               />
               <Button
                 action={() => {
+                  log(`toggle checkBeforeOverwritingExistingData`);
                   checkBeforeOverwritingExistingData = !checkBeforeOverwritingExistingData;
                   refreshData(false);
                 }}
@@ -1497,7 +1489,7 @@ export class AppContent extends Component<AppProps, AppState> {
           {this.todaysSettingsTable(model, todaysValues)}
           {settingsTableDiv(
             this.state.modelData,
-            this.state.viewSettings,
+            this.state.viewState,
             showAlert,
           )}
           <p />
@@ -1510,7 +1502,7 @@ export class AppContent extends Component<AppProps, AppState> {
               submitTransactionFunction={submitTransaction}
               submitTriggerFunction={submitTrigger}
               model={this.state.modelData}
-              viewSettings={this.state.viewSettings}
+              viewSettings={this.state.viewState}
               showAlert={showAlert}
             />
             {/*

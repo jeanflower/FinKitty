@@ -42,6 +42,7 @@ import {
   total,
   viewDetail,
   viewFrequency,
+  viewType,
 } from '../localization/stringConstants';
 import {
   deconstructTaxTag,
@@ -66,6 +67,61 @@ import {
 } from './evaluations';
 
 import { checkEvalnType } from './checks';
+
+export class ViewSettings {
+  private kvPairs: Map<string, string> = new Map<string, string>();
+
+  constructor(pairs: DbSetting[] = []){
+    pairs.forEach((p)=>{
+      this.kvPairs.set(p.NAME, p.VALUE);
+    });
+  }
+  hasSetting(name: string){
+    return this.kvPairs.get(name) !== undefined;
+  }
+  setViewSetting(key: string, value: string){
+    this.kvPairs.set(key, value);
+  }
+  showItem(item: string): boolean {
+    return this.kvPairs.get(expenseChartFocus) === item ||
+      this.kvPairs.get(incomeChartFocus) === item ||
+      this.kvPairs.get(assetChartFocus) === item ||
+      this.kvPairs.get(debtChartFocus) === item;
+  }
+  showCategory(category: string): boolean {
+    return this.showItem(category);
+  }
+  showAllExpenses(): boolean {
+    return this.kvPairs.get(expenseChartFocus) === allItems;
+  }
+  getViewSetting(
+    settingType: string,
+    defaultValue: string,
+    ){
+    const result = this.kvPairs.get(settingType);
+    if(result !== undefined){
+      return result;
+    } else {
+      return defaultValue;
+    }
+  }
+  getSettingsForTable(): DbSetting[]{
+    const result: DbSetting[] = [];
+    for (const k of this.kvPairs.keys()) {
+      const v = this.kvPairs.get(k);
+      if(v !== undefined){
+        result.push({
+          NAME: k,
+          VALUE: v,
+          TYPE: viewType,
+          HINT: '',
+        });
+      }
+    }
+    return result;
+  }
+}
+
 
 function logMapOfMap(
   twoMap: Map<string, Map<string, number>>,
@@ -554,7 +610,7 @@ function filterItems(
   names: string[],
   model: DbModelData,
   categoryCache: Map<string, string>,
-  focus: string,
+  viewSettings: ViewSettings,
 ) {
   // log(`filter items by ${focus}`);
   const categoryNames = new Set<string>();
@@ -585,7 +641,7 @@ function filterItems(
       const category = getCategory(item, categoryCache, model);
       // log(`item ${item} has category ${category}`);
 
-      if (item === focus || category === focus) {
+      if (viewSettings.showItem(item) || viewSettings.showCategory(category)) {
         // log(`include this item for ${focus}`);
         nameValueMap.set(item, val);
       } else {
@@ -628,60 +684,45 @@ function ensureDateValueMapsExist(
   }
 }
 
-function getSettingsValues(viewSettings: DbSetting[]) {
+function getSettingsValues(viewSettings: ViewSettings) {
   // log(`entering makeChartDataFromEvaluations`);
-  const expenseFocus: string = getSettings(
-    viewSettings, // choice is not persistent
-    expenseChartFocus,
-    allItems,
-  );
-  const incomeFocus: string = getSettings(
-    viewSettings, // choice is not persistent
+  const incomeFocus: string = viewSettings.getViewSetting(
     incomeChartFocus,
     allItems,
   );
-  const assetChartFocusName = getSettings(
-    viewSettings, // choice is not persistent
+  const assetChartFocusName = viewSettings.getViewSetting(
     assetChartFocus,
     allItems,
   );
-  const debtChartFocusName = getSettings(
-    viewSettings, // choice is not persistent
+  const debtChartFocusName = viewSettings.getViewSetting(
     debtChartFocus,
     allItems,
   );
-  const detail: string = getSettings(
-    viewSettings, // choice is not persistent
+  const detail: string = viewSettings.getViewSetting(
     viewDetail,
     fine,
   );
-  const frequency: string = getSettings(
-    viewSettings, // choice is not persistent
+  const frequency: string = viewSettings.getViewSetting(
     viewFrequency,
     monthly,
   );
-  const assetChartSetting: string = getSettings(
-    viewSettings, // choice is not persistent
+  const assetChartSetting: string = viewSettings.getViewSetting(
     assetChartView,
     assetChartVal,
   );
-  const debtChartSetting: string = getSettings(
-    viewSettings, // choice is not persistent
+  const debtChartSetting: string = viewSettings.getViewSetting(
     debtChartView,
     debtChartVal,
   );
-  const taxChartType: string = getSettings(
-    viewSettings, // choice is not persistent
+  const taxChartType: string = viewSettings.getViewSetting(
     taxChartFocusType,
     allItems,
   );
-  const taxChartPerson: string = getSettings(
-    viewSettings, // choice is not persistent
+  const taxChartPerson: string = viewSettings.getViewSetting(
     taxChartFocusPerson,
     allItems,
   );
-  const taxChartNetString: string = getSettings(
-    viewSettings, // choice is not persistent
+  const taxChartNetString: string = viewSettings.getViewSetting(
     taxChartShowNet,
     allItems,
   );
@@ -690,7 +731,6 @@ function getSettingsValues(viewSettings: DbSetting[]) {
     taxChartNetString === 'y' ||
     taxChartNetString === 'yes';
   return {
-    expenseFocus,
     incomeFocus,
     assetChartFocusName,
     debtChartFocusName,
@@ -793,7 +833,7 @@ function generateEvaluationDates(roi: Interval, frequency: string) {
 export function makeChartDataFromEvaluations(
   //roi: Interval,
   model: DbModelData,
-  viewSettings: DbSetting[],
+  viewSettings: ViewSettings,
   evaluationsAndVals: {
     evaluations: Evaluation[];
     todaysAssetValues: Map<string, number>;
@@ -816,7 +856,6 @@ export function makeChartDataFromEvaluations(
 
   const categoryCache = new Map<string, string>();
   const {
-    expenseFocus,
     incomeFocus,
     assetChartFocusName,
     debtChartFocusName,
@@ -1178,7 +1217,7 @@ export function makeChartDataFromEvaluations(
       assetNames = [...categories.sources]; // NQR
       debtNames = [...categories.sources]; // NQR
     }
-    if (expenseFocus === allItems) {
+    if (viewSettings.showAllExpenses()) {
       // unfocussed expense views can have coarse views
       dateNameValueMap = typeDateNameValueMap.get(evaluationType.expense);
       if (dateNameValueMap !== undefined) {
@@ -1211,7 +1250,7 @@ export function makeChartDataFromEvaluations(
   }
 
   // log(`compare ${expenseChartFocus} against ${expenseChartFocusAll}`);
-  if (expenseFocus !== allItems) {
+  if (!viewSettings.showAllExpenses()) {
     // apply a filter to expense data
     // focussed expense views have fewer items displayed
     const dateNameValueMap = typeDateNameValueMap.get(evaluationType.expense);
@@ -1222,7 +1261,7 @@ export function makeChartDataFromEvaluations(
         expenseNames,
         model,
         categoryCache,
-        expenseFocus,
+        viewSettings,
       );
       typeDateNameValueMap.set(evaluationType.expense, focusItems.map);
     }
@@ -1238,7 +1277,7 @@ export function makeChartDataFromEvaluations(
         incomeNames,
         model,
         categoryCache,
-        incomeFocus,
+        viewSettings,
       );
       typeDateNameValueMap.set(evaluationType.income, focusItems.map);
     }
@@ -1377,7 +1416,7 @@ export function makeChartDataFromEvaluations(
 
 export function makeChartData(
   model: DbModelData,
-  viewSettings: DbSetting[],
+  viewSettings: ViewSettings,
 ): DataForView {
   // log('in makeChartData');
   const evaluationsAndVals = getEvaluations(model);

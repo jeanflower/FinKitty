@@ -1,4 +1,4 @@
-import { ChartData, DbModelData, DbSetting } from '../types/interfaces';
+import { ChartData, DbModelData } from '../types/interfaces';
 import {
   assetsDivWithHeadings,
   debtsDivWithHeadings,
@@ -30,6 +30,7 @@ import {
 import { AddDeleteEntryForm } from './reactComponents/AddDeleteEntryForm';
 import React from 'react';
 import { getDisplay } from '../App';
+import { ViewSettings } from '../models/charting';
 
 function suppressLegend(chartDataPoints: ChartData[]) {
   return chartDataPoints.map(dp => {
@@ -42,7 +43,7 @@ function suppressLegend(chartDataPoints: ChartData[]) {
 
 function chartsForOverview(
   model: DbModelData,
-  viewSettings: DbSetting[],
+  viewSettings: ViewSettings,
   showAlert: (arg0: string) => void,
   assetChartData: ChartData[],
   debtChartData: ChartData[],
@@ -142,7 +143,7 @@ function transactionsOverviewDiv(
 
 export function overviewDiv(
   model: DbModelData,
-  viewSettings: DbSetting[],
+  viewSettings: ViewSettings,
   showAlert: (arg0: string) => void,
   assetChartData: ChartData[],
   debtChartData: ChartData[],

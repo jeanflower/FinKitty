@@ -24,6 +24,7 @@ import Button from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
 import { Input } from './Input';
 import { doCheckBeforeOverwritingExistingData } from '../../App';
+import { ViewSettings } from '../../models/charting';
 
 interface EditSettingFormState {
   NAME: string;
@@ -32,11 +33,11 @@ interface EditSettingFormState {
   inputting: string;
 }
 interface EditSettingProps extends FormProps {
-  viewSettings: DbSetting[];
+  viewSettings: ViewSettings;
   submitSettingFunction: (
     arg0: DbSetting,
     arg1: DbModelData,
-    arg2: DbSetting[],
+    arg2: ViewSettings,
   ) => Promise<void>;
   checkTransactionFunction: (t: DbTransaction, model: DbModelData) => string;
   submitTransactionFunction: (
@@ -320,6 +321,7 @@ export class AddDeleteSettingForm extends Component<
         return a.NAME === this.state.NAME;
       });
       if (matchingItem !== undefined) {
+        log(`this.props.model.settings = ${showObj(this.props.model.settings)}`);
         this.props.showAlert(
           `There's already a setting called ${this.state.NAME}`,
         );

@@ -1,4 +1,4 @@
-import { ChartData, DbItem, DbModelData, DbSetting } from '../types/interfaces';
+import { ChartData, DbModelData } from '../types/interfaces';
 import {
   allItems,
   annually,
@@ -28,7 +28,6 @@ import {
 import { getDisplay, refreshData } from '../App';
 import {
   getLiabilityPeople,
-  getSettings,
   log,
   printDebug,
   showObj,
@@ -39,59 +38,44 @@ import CanvasJS from '../assets/js/canvasjs.min';
 import CanvasJSReact from '../assets/js/canvasjs.react';
 import React from 'react';
 import ReactiveTextArea from './reactComponents/ReactiveTextArea';
+import { ViewSettings } from '../models/charting';
 
 const { CanvasJSChart } = CanvasJSReact;
 
-function getViewSetting(
-  settings: DbSetting[],
-  settingType: string,
-  defaultValue: string,
-) {
-  if (settings.length === 0) {
-    // data not yet loaded
-    return defaultValue;
-  }
-  const val = getSettings(
-    settings,
-    settingType,
-    defaultValue, // default fallback
-  );
-  return val;
-}
-function getIncomeChartFocus(settings: DbSetting[]) {
-  return getViewSetting(settings, incomeChartFocus, allItems);
+
+function getIncomeChartFocus(settings: ViewSettings) {
+  return settings.getViewSetting(incomeChartFocus, allItems);
 }
 
-function getExpenseChartFocus(settings: DbSetting[]) {
-  return getViewSetting(settings, expenseChartFocus, allItems);
+function getExpenseChartFocus(settings: ViewSettings) {
+  return settings.getViewSetting(expenseChartFocus, allItems);
 }
 
-function getCoarseFineView(settings: DbSetting[]) {
-  return getViewSetting(settings, viewDetail, fine);
+function getCoarseFineView(settings: ViewSettings) {
+  return settings.getViewSetting(viewDetail, fine);
 }
 
-function getAssetOrDebtChartName(settings: DbSetting[], debt: boolean) {
-  return getViewSetting(
-    settings,
+function getAssetOrDebtChartName(settings: ViewSettings, debt: boolean) {
+  return settings.getViewSetting(
     debt ? debtChartFocus : assetChartFocus,
     allItems,
   );
 }
 
-function getAssetChartView(settings: DbSetting[]) {
-  return getViewSetting(settings, assetChartView, assetChartVal);
+function getAssetChartView(settings: ViewSettings) {
+  return settings.getViewSetting(assetChartView, assetChartVal);
 }
 
-function getTaxPerson(settings: DbSetting[]) {
-  return getViewSetting(settings, taxChartFocusPerson, allItems);
+function getTaxPerson(settings: ViewSettings) {
+  return settings.getViewSetting(taxChartFocusPerson, allItems);
 }
 
-function getTaxType(settings: DbSetting[]) {
-  return getViewSetting(settings, taxChartFocusType, allItems);
+function getTaxType(settings: ViewSettings) {
+  return settings.getViewSetting(taxChartFocusType, allItems);
 }
 
-function getTaxShowNet(settings: DbSetting[]) {
-  const type = getViewSetting(settings, taxChartShowNet, allItems);
+function getTaxShowNet(settings: ViewSettings) {
+  const type = settings.getViewSetting(taxChartShowNet, allItems);
   return type === 'Y' || type === 'y' || type === 'yes';
 }
 
@@ -101,21 +85,19 @@ async function editViewSetting(
     NAME: string;
     VALUE: string;
   },
-  settings: DbSetting[],
+  settings: ViewSettings,
 ) {
-  const idx = settings.find((i: DbItem) => {
-    return i.NAME === settingInput.NAME;
-  });
-  if (idx !== undefined) {
-    idx.VALUE = settingInput.VALUE;
-  }
+  settings.setViewSetting(
+    settingInput.NAME,
+    settingInput.VALUE,
+  );
   return await refreshData(
     true, // gotoDB
   );
 }
 
 function setViewSettingNameVal(
-  settings: DbSetting[],
+  settings: ViewSettings,
   name: string,
   val: string,
 ) {
@@ -130,7 +112,7 @@ function setViewSettingNameVal(
 
 function makeFilterButton(
   buttonName: string,
-  settings: DbSetting[],
+  settings: ViewSettings,
   settingName: string,
   selectedChartFocus: string,
 ) {
@@ -152,7 +134,7 @@ function makeFiltersList(
   gridData: { CATEGORY: string; NAME: string }[],
   selectedChartFocus: string,
   settingName: string,
-  settings: DbSetting[],
+  settings: ViewSettings,
 ) {
   // selectedChartFocus = this.getExpenseChartFocus()
   // settingName = expenseChartFocus
@@ -208,7 +190,7 @@ function makeFiltersList(
   );
 }
 
-export function coarseFineList(settings: DbSetting[]) {
+export function coarseFineList(settings: ViewSettings) {
   const viewTypes: string[] = [total, coarse, fine];
   const selectedCoarseFineView = getCoarseFineView(settings);
   const buttons = viewTypes.map(viewType => (
@@ -226,9 +208,9 @@ export function coarseFineList(settings: DbSetting[]) {
   return <div role="group">{buttons}</div>;
 }
 
-export function frequencyList(settings: DbSetting[]) {
+export function frequencyList(settings: ViewSettings) {
   const viewTypes: string[] = [monthly, annually];
-  const selectedView = getViewSetting(settings, viewFrequency, annually);
+  const selectedView = settings.getViewSetting(viewFrequency, annually);
   const buttons = viewTypes.map(viewType => (
     <Button
       key={viewType}
@@ -244,20 +226,16 @@ export function frequencyList(settings: DbSetting[]) {
   return <div role="group">{buttons}</div>;
 }
 
-export function getDefaultChartSettings(settings: DbSetting[]) {
+export function getDefaultChartSettings(settings: ViewSettings) {
   const showMonth =
-    getSettings(
-      settings,
+    settings.getViewSetting(
       viewFrequency,
       annually,
-      false, // be OK if there's no matching value
     ) === monthly;
   const showAge =
-    getSettings(
-      settings,
+    settings.getViewSetting(
       birthDate,
       '',
-      false, // be OK if there's no matching value
     ) !== '';
   return {
     height: 300,
@@ -288,7 +266,7 @@ export function getDefaultChartSettings(settings: DbSetting[]) {
   };
 }
 
-export function getSmallerChartSettings(settings: DbSetting[], title: string) {
+export function getSmallerChartSettings(settings: ViewSettings, title: string) {
   return {
     ...getDefaultChartSettings(settings),
     height: 200,
@@ -336,7 +314,7 @@ export function incomesChartDiv(
 }
 export function incomesChartDivWithButtons(
   model: DbModelData,
-  settings: DbSetting[],
+  settings: ViewSettings,
   incomesChartData: ChartData[],
   chartSettings: any,
 ) {
@@ -395,7 +373,7 @@ export function expensesChartDiv(
 
 export function expensesChartDivWithButtons(
   model: DbModelData,
-  settings: DbSetting[],
+  settings: ViewSettings,
   expensesChartData: ChartData[],
   chartSettings: any,
 ) {
@@ -430,7 +408,7 @@ export function expensesChartDivWithButtons(
 function makeButton(
   assetOrDebt: string,
   isDebt: boolean,
-  settings: DbSetting[],
+  settings: ViewSettings,
   selectedAssetOrDebt: string,
   forOverview: boolean,
 ) {
@@ -456,7 +434,7 @@ function makeButton(
 
 function assetsOrDebtsButtonList(
   model: DbModelData,
-  settings: DbSetting[],
+  settings: ViewSettings,
   isDebt: boolean,
   forOverview: boolean,
 ) {
@@ -508,7 +486,7 @@ function assetsOrDebtsButtonList(
   );
 }
 
-function assetViewTypeList(settings: DbSetting[]) {
+function assetViewTypeList(settings: ViewSettings) {
   const viewTypes: string[] = [
     assetChartVal,
     assetChartAdditions,
@@ -559,7 +537,7 @@ export function assetsOrDebtsChartDiv(
 
 export function assetsOrDebtsChartDivWithButtons(
   model: DbModelData,
-  viewSettings: DbSetting[],
+  viewSettings: ViewSettings,
   assetChartData: ChartData[],
   isDebt: boolean,
   forOverviewPage: boolean,
@@ -587,7 +565,7 @@ export function assetsOrDebtsChartDivWithButtons(
   );
 }
 
-function taxButtonList(model: DbModelData, viewSettings: DbSetting[]) {
+function taxButtonList(model: DbModelData, viewSettings: ViewSettings) {
   const liabilityPeople = getLiabilityPeople(model);
   liabilityPeople.unshift(allItems);
 
@@ -689,7 +667,7 @@ export function taxChartDiv(taxChartData: ChartData[], settings: any) {
 
 function taxChartDivWithButtons(
   model: DbModelData,
-  viewSettings: DbSetting[],
+  viewSettings: ViewSettings,
   taxChartData: ChartData[],
   settings: any,
 ) {
@@ -702,7 +680,7 @@ function taxChartDivWithButtons(
 }
 export function taxDiv(
   model: DbModelData,
-  viewSettings: DbSetting[],
+  viewSettings: ViewSettings,
   taxChartData: ChartData[],
 ) {
   if (!getDisplay(taxView)) {

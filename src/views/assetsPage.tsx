@@ -2,7 +2,6 @@ import {
   ChartData,
   DbItem,
   DbModelData,
-  DbSetting,
 } from './../types/interfaces';
 import { assetsDivWithHeadings, defaultColumn } from './tablePages';
 import { checkAsset, checkTransaction } from '../models/checks';
@@ -22,6 +21,7 @@ import React from 'react';
 import SimpleFormatter from './reactComponents/NameFormatter';
 import { assetsOrDebtsChartDivWithButtons } from './chartPages';
 import { assetsView } from '../localization/stringConstants';
+import { ViewSettings } from '../models/charting';
 
 // import { log } from './../utils';
 
@@ -76,7 +76,7 @@ function todaysAssetsTable(
 
 export function assetsDiv(
   model: DbModelData,
-  viewSettings: DbSetting[],
+  viewSettings: ViewSettings,
   showAlert: (arg0: string) => void,
   assetChartData: ChartData[],
   todaysValues: Map<string, number>,

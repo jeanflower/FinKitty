@@ -91,6 +91,7 @@ import React from 'react';
 import SimpleFormatter from './reactComponents/NameFormatter';
 import ToFromValueFormatter from './reactComponents/ToFromValueFormatter';
 import TriggerDateFormatter from './reactComponents/TriggerDateFormatter';
+import { ViewSettings } from '../models/charting';
 
 function handleExpenseGridRowsUpdated(
   model: DbModelData,
@@ -512,8 +513,8 @@ function handleSettingGridRowsUpdated(
   const x = args[0].fromRowData;
   if (args[0].cellKey === 'NAME') {
     if (x.NAME !== args[0].updated.NAME) {
-      if (
-        minimalModel.settings.concat(getDefaultViewSettings()).filter(obj => {
+      if(getDefaultViewSettings().hasSetting(x.NAME) ||
+        minimalModel.settings.filter(obj => {
           return obj.NAME === x.NAME;
         }).length > 0
       ) {
@@ -1540,10 +1541,10 @@ const settingsToExcludeFromTableView: string[] = [
 
 function settingsForTable(
   model: DbModelData,
-  viewSettings: DbSetting[],
+  viewSettings: ViewSettings,
   type: string,
 ) {
-  const data = viewSettings.concat(model.settings);
+  const data = viewSettings.getSettingsForTable().concat(model.settings);
   const unindexedResult = data
     .filter((obj: DbSetting) => {
       return obj.TYPE === type;
@@ -1646,7 +1647,7 @@ function adjustSettingsTable(
 
 function settingsTables(
   model: DbModelData,
-  viewSettings: DbSetting[],
+  viewSettings: ViewSettings,
   showAlert: (arg0: string) => void,
 ) {
   const constSettings = settingsForTable(model, viewSettings, constType);
@@ -1667,7 +1668,7 @@ function settingsTables(
 
 export function settingsTableDiv(
   model: DbModelData,
-  viewSettings: DbSetting[],
+  viewSettings: ViewSettings,
   showAlert: (arg0: string) => void,
 ) {
   return (
