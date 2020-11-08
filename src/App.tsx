@@ -6,7 +6,7 @@ import {
   simpleExampleData,
 } from './models/exampleModels';
 import { useAuth0 } from './contexts/auth0-context';
-import { makeChartData, ViewSettings } from './models/charting';
+import { makeChartDataFromEvaluations, ViewSettings } from './models/charting';
 import { checkData, checkTransaction, checkTrigger } from './models/checks';
 import { AddDeleteTransactionForm } from './views/reactComponents/AddDeleteTransactionForm';
 import { AddDeleteTriggerForm } from './views/reactComponents/AddDeleteTriggerForm';
@@ -68,6 +68,7 @@ import {
   DbSetting,
   DbTransaction,
   DbTrigger,
+  Evaluation,
   ItemChartData,
 } from './types/interfaces';
 import {
@@ -119,6 +120,7 @@ import { AddDeleteSettingForm } from './views/reactComponents/AddDeleteSettingFo
 import { ReplaceWithJSONForm } from './views/reactComponents/ReplaceWithJSONForm';
 import { CreateModelForm } from './views/reactComponents/NewModelForm';
 import { Form, Nav, Navbar } from 'react-bootstrap';
+import { getEvaluations } from './models/evaluations';
 
 // import FinKittyCat from './views/cat.png';
 
@@ -387,17 +389,38 @@ function showAlert(text: string) {
   });
 }
 
-export async function refreshData(goToDB = true) {
+export async function refreshData(
+  refreshModel: boolean,
+  refreshChart: boolean,
+) {
   const viewSettings = reactAppComponent.state.viewState;
 
+  let modelNames = reactAppComponent.state.modelNamesData;
+  let model = reactAppComponent.state.modelData;
+  let evaluationsAndVals:{
+    evaluations: Evaluation[],
+    todaysAssetValues: Map<string, number>,
+    todaysDebtValues: Map<string, number>,
+    todaysIncomeValues: Map<string, number>,
+    todaysExpenseValues: Map<string, number>,
+    todaysSettingValues: Map<string, string>,
+
+  } = {
+    evaluations:reactAppComponent.state.evaluations,
+    todaysAssetValues: reactAppComponent.state.todaysAssetValues,
+    todaysDebtValues: reactAppComponent.state.todaysDebtValues,
+    todaysIncomeValues: reactAppComponent.state.todaysIncomeValues,
+    todaysExpenseValues: reactAppComponent.state.todaysExpenseValues,
+    todaysSettingValues: reactAppComponent.state.todaysSettingValues,
+  };
+
   // log('refreshData in AppContent - get data and redraw content');
-  if (goToDB) {
-    // log('refreshData do visit db');
-    // go to the DB to refresh available model names
-    let modelNames = await getModelNames(getUserID());
+  if (refreshModel) {
+    log(`refresh model evaluation data`);
+
+    modelNames = await getModelNames(getUserID());
     // log(`got ${modelNames.length} modelNames`);
 
-    let model;
     if (
       modelNames.length === 0 ||
       (modelName === exampleModelName &&
@@ -478,7 +501,15 @@ export async function refreshData(goToDB = true) {
     model.assets.sort((a: DbAsset, b: DbAsset) => lessThan(b.NAME, a.NAME));
     modelNames.sort((a: string, b: string) => lessThan(a, b));
 
-    const result: DataForView = makeChartData(model, viewSettings);
+    evaluationsAndVals = getEvaluations(model);
+  }
+  if (refreshModel || refreshChart) {
+    log(`refresh chart data`);
+    const result: DataForView = makeChartDataFromEvaluations(
+      model, 
+      viewSettings, 
+      evaluationsAndVals,
+    );
 
     result.expensesData.sort((a, b) => (a.item.NAME < b.item.NAME ? 1 : -1));
     result.incomesData.sort((a, b) => (a.item.NAME < b.item.NAME ? 1 : -1));
@@ -529,6 +560,7 @@ export async function refreshData(goToDB = true) {
       reactAppComponent.setState(
         {
           modelData: model,
+          evaluations: evaluationsAndVals.evaluations,
           expensesChartData,
           incomesChartData,
           assetChartData,
@@ -572,7 +604,8 @@ export async function submitAsset(assetInput: DbAsset, modelData: DbModelData) {
   );
   if (message === '') {
     return await refreshData(
-      true, // gotoDB
+      true, // refreshModel = true,
+      true, // refreshChart = true,
     );
   } else {
     showAlert(message);
@@ -590,7 +623,8 @@ export async function submitExpense(
   );
   if (message === '') {
     return await refreshData(
-      true, // gotoDB
+      true, // refreshModel = true,
+      true, // refreshChart = true,
     );
   } else {
     showAlert(message);
@@ -608,7 +642,8 @@ export async function submitIncome(
   );
   if (message === '') {
     await refreshData(
-      true, // gotoDB
+      true, // refreshModel = true,
+      true, // refreshChart = true,
     );
     return true;
   } else {
@@ -628,7 +663,8 @@ export async function submitTransaction(
   );
   if (message === '') {
     return await refreshData(
-      true, // gotoDB
+      true, // refreshModel = true,
+      true, // refreshChart = true,
     );
   } else {
     showAlert(message);
@@ -646,7 +682,8 @@ export async function submitTrigger(
   );
   if (message === '') {
     return await refreshData(
-      true, // gotoDB
+      true, // refreshModel = true,
+      true, // refreshChart = true,
     );
   } else {
     showAlert(message);
@@ -669,7 +706,8 @@ export async function editSetting(
       HINT: '',
     });
     return await refreshData(
-      true, // gotoDB
+      true, // or false refreshModel = true,
+      true, // refreshChart = true,
     );
   }
   const settingWithBlanks = {
@@ -685,7 +723,8 @@ export async function editSetting(
   );
   if (message === '') {
     return await refreshData(
-      true, // gotoDB
+      true, // refreshModel = true,
+      true, // refreshChart = true,
     );
   } else {
     showAlert(message);
@@ -703,12 +742,14 @@ export async function submitNewSetting(
       setting.VALUE,
     );
     return await refreshData(
-      true, // gotoDB
+      true, // or false refreshModel = true,
+      true, // refreshChart = true,
     );
   } else {
     await submitNewSettingLSM(setting, modelName, modelData, getUserID());
     return await refreshData(
-      true, // gotoDB
+      true, // refreshModel = true,
+      true, // refreshChart = true,
     );
   }
 }
@@ -731,7 +772,8 @@ export function toggle(type: ViewType) {
   }
   view.display = true;
   refreshData(
-    false, // gotoDB
+    false, // refreshModel = true,
+    false, // refreshChart = true,
   );
 }
 
@@ -773,7 +815,8 @@ export async function deleteItemFromModel(
 
     await saveModelLSM(getUserID(), modelName, model);
     await refreshData(
-      true, // gotoDB
+      true, // refreshModel = true,
+      true, // refreshChart = true,
     );
     return true;
   }
@@ -853,7 +896,8 @@ export async function updateModelName(newValue: string): Promise<boolean> {
   modelName = newValue;
   await ensureModel(getUserID(), modelName);
   await refreshData(
-    true, // gotoDB
+    true, // refreshModel = true,
+    true, // refreshChart = true,
   );
   return true;
 }
@@ -880,20 +924,22 @@ export async function replaceWithModel(
   // log(`save ${modelName} with new model data ${newModel}`);
   await saveModelLSM(userName, modelName, newModel);
   await refreshData(
-    true, // gotoDB
+    true, // refreshModel = true,
+    true, // refreshChart = true,
   );
   return true;
 }
 
 interface AppState {
+  modelNamesData: string[];
   modelData: DbModelData;
+  evaluations: Evaluation[];
   viewState: ViewSettings;
   expensesChartData: ChartData[];
   incomesChartData: ChartData[];
   assetChartData: ChartData[];
   debtChartData: ChartData[];
   taxChartData: ChartData[];
-  modelNamesData: string[];
   todaysAssetValues: Map<string, number>;
   todaysDebtValues: Map<string, number>;
   todaysIncomeValues: Map<string, number>;
@@ -916,6 +962,7 @@ export class AppContent extends Component<AppProps, AppState> {
     reactAppComponent = this;
     this.state = {
       modelData: emptyModel,
+      evaluations: [],
       viewState: viewSettings,
       expensesChartData: [],
       incomesChartData: [],
@@ -931,7 +978,8 @@ export class AppContent extends Component<AppProps, AppState> {
       alertText: '',
     };
     refreshData(
-      true, // gotoDB
+      true, // refreshModel = true,
+      true, // refreshChart = true,
     );
   }
 
@@ -1222,7 +1270,8 @@ export class AppContent extends Component<AppProps, AppState> {
         // log(`model name after delete is ${modelName}`);
       }
       await refreshData(
-        true, // gotoDB
+        true, // refreshModel = true,
+        true, // refreshChart = true,
       );
     }
   }
@@ -1290,7 +1339,10 @@ export class AppContent extends Component<AppProps, AppState> {
                 modelData: DbModelData,
               ) => {
                 await saveModelToDBLSM(userID, modelName, modelData);
-                refreshData();
+                refreshData(
+                  true, // refreshModel = true,
+                  true, // refreshChart = true,                  
+                );
               }}
               showAlert={showAlert}
               cloneModel={this.cloneModel}
@@ -1383,7 +1435,10 @@ export class AppContent extends Component<AppProps, AppState> {
               <Button
                 action={() => {
                   checkModelBeforeChange = !checkModelBeforeChange;
-                  refreshData(false);
+                  refreshData(
+                    false, // refreshModel = true,
+                    false, // refreshChart = true,                    
+                  );
                 }}
                 title={
                   checkModelBeforeChange
@@ -1397,7 +1452,10 @@ export class AppContent extends Component<AppProps, AppState> {
                 action={() => {
                   log(`toggle checkBeforeOverwritingExistingData`);
                   checkBeforeOverwritingExistingData = !checkBeforeOverwritingExistingData;
-                  refreshData(false);
+                  refreshData(
+                    false, // refreshModel = true,
+                    false, // refreshChart = true,                    
+                  );
                 }}
                 title={
                   checkBeforeOverwritingExistingData
@@ -1659,7 +1717,10 @@ export class AppContent extends Component<AppProps, AppState> {
           e.persist();
           if (await revertToUndoModel(this.state.modelData)) {
             await saveModelLSM(userID, modelName, this.state.modelData);
-            refreshData();
+            refreshData(
+              true, // refreshModel = true,
+              true, // refreshChart = true,              
+            );
           }
         }}
         title={buttonTitle}
@@ -1690,7 +1751,10 @@ export class AppContent extends Component<AppProps, AppState> {
           e.persist();
           if (await applyRedoToModel(this.state.modelData)) {
             await saveModelLSM(userID, modelName, this.state.modelData);
-            refreshData();
+            refreshData(
+              true, // refreshModel = true,
+              true, // refreshChart = true,              
+            );
           }
         }}
         title={buttonTitle}
@@ -1712,7 +1776,10 @@ export class AppContent extends Component<AppProps, AppState> {
         action={async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
           e.persist();
           await saveModelToDBLSM(userID, modelName, this.state.modelData);
-          refreshData();
+          refreshData(
+            true, // refreshModel = true,
+            true, // refreshChart = true,            
+          );
         }}
         title={'Save model'}
         id={`btn-save-model`}
@@ -1769,7 +1836,8 @@ export async function attemptRename(
     // log(`message is empty, go to refreshData`);
     await saveModelLSM(getUserID(), modelName, model);
     refreshData(
-      true, // gotoDB
+      true, // refreshModel = true,
+      true, // refreshChart = true,
     );
   } else {
     showAlert(message);

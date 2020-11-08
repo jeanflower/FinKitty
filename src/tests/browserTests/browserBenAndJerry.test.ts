@@ -1,6 +1,7 @@
 import {
   MinimalModel,
   CASH_ASSET_NAME,
+  BenAndJerryModel,
 } from '../../localization/stringConstants';
 import {
   addAsset,
@@ -729,8 +730,38 @@ describe(testDataModelName, () => {
     });
     // log('done Sell CrystallizedPensionBen');
 
-    // await cleanUpWork(driver, modelName);
+    done();
+  });
 
+  it('should browse Ben and Jerry model', async done => {
+    const modelName = 'Ben and Jerry';
+
+    await beforeAllWork(driver, modelName, `{"testName":"${BenAndJerryModel}"}`);
+
+    await clickButton(driver, 'btn-Settings');
+    await addSetting(driver, {
+      name: 'View frequency',
+      value: 'Monthly',
+      message: 'added new setting View frequency',
+    });
+    await driver.executeScript('window.scrollBy(0, -500)'); // Adjust scrolling with a negative value here
+
+    for( let i =  0; i< 2; i = i + 1){
+      await clickButton(driver, 'btn-Expenses');
+      await clickButton(driver, 'btn-Incomes');
+      await clickButton(driver, 'chooseViewDetailTypeTotalled view');
+      await clickButton(driver, 'select-Pension');
+      await clickButton(driver, 'select-Salary');
+      await clickButton(driver, 'select-All');
+      await clickButton(driver, 'select-Ben salary');
+      await clickButton(driver, 'select-Jerry salary');
+      await clickButton(driver, 'chooseViewDetailTypeDetailed view');
+      await clickButton(driver, 'select-Pension');
+      await clickButton(driver, 'select-Salary');
+      await clickButton(driver, 'select-All');
+      await clickButton(driver, 'select-Ben salary');
+      await clickButton(driver, 'select-Jerry salary');
+    }
     done();
   });
 

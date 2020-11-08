@@ -196,6 +196,7 @@ export const CoarseAndFine = 'CoarseAndFine';
 export const FutureExpense = 'FutureExpense';
 export const ThreeChryslerModel = 'ThreeChryslerModel';
 export const MinimalModel = 'MinimalModel';
+export const BenAndJerryModel = 'BenAndJerryModel';
 
 export interface ViewType {
   lc: string;

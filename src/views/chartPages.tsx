@@ -93,7 +93,8 @@ async function editViewSetting(
     settingInput.VALUE,
   );
   return await refreshData(
-    true, // gotoDB
+    false, // refreshModel = true,
+    true, // refreshChart = true,
   );
 }
 
@@ -203,7 +204,7 @@ export function coarseFineList(settings: ViewSettings) {
       }}
       title={viewType}
       type={viewType === selectedCoarseFineView ? 'primary' : 'secondary'}
-      id="chooseViewDetailType"
+      id={`chooseViewDetailType${viewType}`}
     />
   ));
   return <div role="group">{buttons}</div>;

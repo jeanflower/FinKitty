@@ -62,7 +62,6 @@ import {
 import {
   evaluationType,
   generateSequenceOfDates,
-  getEvaluations,
   makeSourceForFromChange,
 } from './evaluations';
 
@@ -685,7 +684,6 @@ function ensureDateValueMapsExist(
 }
 
 function getSettingsValues(viewSettings: ViewSettings) {
-  // log(`entering makeChartDataFromEvaluations`);
   const incomeFocus: string = viewSettings.getViewSetting(
     incomeChartFocus,
     allItems,
@@ -843,6 +841,22 @@ export function makeChartDataFromEvaluations(
     todaysSettingValues: Map<string, string>;
   },
 ) {
+  if(evaluationsAndVals.evaluations.length ===  0){
+    const emptyData: DataForView = {
+      expensesData: [],
+      incomesData: [],
+      assetData: [],
+      debtData: [],
+      taxData: [],
+      todaysAssetValues: new Map<string, number>(),
+      todaysDebtValues: new Map<string, number>(),
+      todaysIncomeValues: new Map<string, number>(),
+      todaysExpenseValues: new Map<string, number>(),
+      todaysSettingValues: new Map<string, string>(),
+    };
+    return emptyData;
+  }
+
   const roiStartDate: Date = makeDateFromString(
     getSettings(model.settings, roiStart, 'Oct 1, 2017'),
   );
@@ -1412,34 +1426,4 @@ export function makeChartDataFromEvaluations(
 
   // log(`chart data produced: ${showObj(result)}`);
   return result;
-}
-
-export function makeChartData(
-  model: DbModelData,
-  viewSettings: ViewSettings,
-): DataForView {
-  // log('in makeChartData');
-  const evaluationsAndVals = getEvaluations(model);
-  const evaluations = evaluationsAndVals.evaluations;
-  if (evaluations.length === 0) {
-    // don't do more work
-    // skip settings-exist checks
-    // stop unnecessary error reports
-    const emptyData: DataForView = {
-      expensesData: [],
-      incomesData: [],
-      assetData: [],
-      debtData: [],
-      taxData: [],
-      todaysAssetValues: new Map<string, number>(),
-      todaysDebtValues: new Map<string, number>(),
-      todaysIncomeValues: new Map<string, number>(),
-      todaysExpenseValues: new Map<string, number>(),
-      todaysSettingValues: new Map<string, string>(),
-    };
-    return emptyData;
-  }
-
-  // log(`roi is ${showObj(roi)}`);
-  return makeChartDataFromEvaluations(model, viewSettings, evaluationsAndVals);
 }
