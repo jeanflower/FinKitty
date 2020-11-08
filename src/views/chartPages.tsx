@@ -43,7 +43,6 @@ import { ViewSettings } from '../models/charting';
 
 const { CanvasJSChart } = CanvasJSReact;
 
-
 function getIncomeChartFocus(settings: ViewSettings) {
   return settings.getViewSetting(incomeChartFocus, allItems);
 }
@@ -88,10 +87,7 @@ async function editViewSetting(
   },
   settings: ViewSettings,
 ) {
-  settings.setViewSetting(
-    settingInput.NAME,
-    settingInput.VALUE,
-  );
+  settings.setViewSetting(settingInput.NAME, settingInput.VALUE);
   return await refreshData(
     false, // refreshModel = true,
     true, // refreshChart = true,
@@ -233,16 +229,8 @@ export function getDefaultChartSettings(
   modelSettings: DbSetting[],
 ) {
   const showMonth =
-    settings.getViewSetting(
-      viewFrequency,
-      annually,
-    ) === monthly;
-  const showAge =
-    getSettings(
-      modelSettings,
-      birthDate,
-      '',
-    ) !== '';
+    settings.getViewSetting(viewFrequency, annually) === monthly;
+  const showAge = getSettings(modelSettings, birthDate, '') !== '';
   return {
     height: 300,
     toolTip: {
@@ -273,7 +261,7 @@ export function getDefaultChartSettings(
 }
 
 export function getSmallerChartSettings(
-  settings: ViewSettings, 
+  settings: ViewSettings,
   modelSettings: DbSetting[],
   title: string,
 ) {

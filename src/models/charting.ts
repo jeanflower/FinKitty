@@ -70,22 +70,24 @@ import { checkEvalnType } from './checks';
 export class ViewSettings {
   private kvPairs: Map<string, string> = new Map<string, string>();
 
-  constructor(pairs: DbSetting[] = []){
-    pairs.forEach((p)=>{
+  constructor(pairs: DbSetting[] = []) {
+    pairs.forEach(p => {
       this.kvPairs.set(p.NAME, p.VALUE);
     });
   }
-  hasSetting(name: string){
+  hasSetting(name: string) {
     return this.kvPairs.get(name) !== undefined;
   }
-  setViewSetting(key: string, value: string){
+  setViewSetting(key: string, value: string) {
     this.kvPairs.set(key, value);
   }
   showItem(item: string): boolean {
-    return this.kvPairs.get(expenseChartFocus) === item ||
+    return (
+      this.kvPairs.get(expenseChartFocus) === item ||
       this.kvPairs.get(incomeChartFocus) === item ||
       this.kvPairs.get(assetChartFocus) === item ||
-      this.kvPairs.get(debtChartFocus) === item;
+      this.kvPairs.get(debtChartFocus) === item
+    );
   }
   showCategory(category: string): boolean {
     return this.showItem(category);
@@ -93,22 +95,19 @@ export class ViewSettings {
   showAllExpenses(): boolean {
     return this.kvPairs.get(expenseChartFocus) === allItems;
   }
-  getViewSetting(
-    settingType: string,
-    defaultValue: string,
-    ){
+  getViewSetting(settingType: string, defaultValue: string) {
     const result = this.kvPairs.get(settingType);
-    if(result !== undefined){
+    if (result !== undefined) {
       return result;
     } else {
       return defaultValue;
     }
   }
-  getSettingsForTable(): DbSetting[]{
+  getSettingsForTable(): DbSetting[] {
     const result: DbSetting[] = [];
     for (const k of this.kvPairs.keys()) {
       const v = this.kvPairs.get(k);
-      if(v !== undefined){
+      if (v !== undefined) {
         result.push({
           NAME: k,
           VALUE: v,
@@ -120,7 +119,6 @@ export class ViewSettings {
     return result;
   }
 }
-
 
 function logMapOfMap(
   twoMap: Map<string, Map<string, number>>,
@@ -696,14 +694,8 @@ function getSettingsValues(viewSettings: ViewSettings) {
     debtChartFocus,
     allItems,
   );
-  const detail: string = viewSettings.getViewSetting(
-    viewDetail,
-    fine,
-  );
-  const frequency: string = viewSettings.getViewSetting(
-    viewFrequency,
-    monthly,
-  );
+  const detail: string = viewSettings.getViewSetting(viewDetail, fine);
+  const frequency: string = viewSettings.getViewSetting(viewFrequency, monthly);
   const assetChartSetting: string = viewSettings.getViewSetting(
     assetChartView,
     assetChartVal,
@@ -841,7 +833,7 @@ export function makeChartDataFromEvaluations(
     todaysSettingValues: Map<string, string>;
   },
 ) {
-  if(evaluationsAndVals.evaluations.length ===  0){
+  if (evaluationsAndVals.evaluations.length === 0) {
     const emptyData: DataForView = {
       expensesData: [],
       incomesData: [],

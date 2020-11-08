@@ -1,8 +1,4 @@
-import {
-  ChartData,
-  DbItem,
-  DbModelData,
-} from './../types/interfaces';
+import { ChartData, DbItem, DbModelData } from './../types/interfaces';
 import { checkAsset, checkTransaction } from '../models/checks';
 import { debtsDivWithHeadings, defaultColumn } from './tablePages';
 import {

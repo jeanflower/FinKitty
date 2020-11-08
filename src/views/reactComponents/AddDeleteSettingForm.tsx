@@ -321,7 +321,9 @@ export class AddDeleteSettingForm extends Component<
         return a.NAME === this.state.NAME;
       });
       if (matchingItem !== undefined) {
-        log(`this.props.model.settings = ${showObj(this.props.model.settings)}`);
+        log(
+          `this.props.model.settings = ${showObj(this.props.model.settings)}`,
+        );
         this.props.showAlert(
           `There's already a setting called ${this.state.NAME}`,
         );

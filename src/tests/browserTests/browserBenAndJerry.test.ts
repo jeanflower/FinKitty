@@ -736,7 +736,11 @@ describe(testDataModelName, () => {
   it('should browse Ben and Jerry model', async done => {
     const modelName = 'Ben and Jerry';
 
-    await beforeAllWork(driver, modelName, `{"testName":"${BenAndJerryModel}"}`);
+    await beforeAllWork(
+      driver,
+      modelName,
+      `{"testName":"${BenAndJerryModel}"}`,
+    );
 
     await clickButton(driver, 'btn-Settings');
     await addSetting(driver, {
@@ -746,7 +750,7 @@ describe(testDataModelName, () => {
     });
     await driver.executeScript('window.scrollBy(0, -500)'); // Adjust scrolling with a negative value here
 
-    for( let i =  0; i< 2; i = i + 1){
+    for (let i = 0; i < 2; i = i + 1) {
       await clickButton(driver, 'btn-Expenses');
       await clickButton(driver, 'btn-Incomes');
       await clickButton(driver, 'chooseViewDetailTypeTotalled view');

@@ -338,9 +338,7 @@ let reactAppComponent: AppContent;
 export function setViewSetting(input: DbSetting) {
   // log(`setview setting being processed`);
   if (reactAppComponent) {
-    reactAppComponent.state.viewState.setViewSetting(
-      input.NAME,
-      input.VALUE);
+    reactAppComponent.state.viewState.setViewSetting(input.NAME, input.VALUE);
   }
   // log(`after setViewSetting, reactAppComponent.state.viewState = ${reactAppComponent.state.viewState}`);
 }
@@ -397,16 +395,15 @@ export async function refreshData(
 
   let modelNames = reactAppComponent.state.modelNamesData;
   let model = reactAppComponent.state.modelData;
-  let evaluationsAndVals:{
-    evaluations: Evaluation[],
-    todaysAssetValues: Map<string, number>,
-    todaysDebtValues: Map<string, number>,
-    todaysIncomeValues: Map<string, number>,
-    todaysExpenseValues: Map<string, number>,
-    todaysSettingValues: Map<string, string>,
-
+  let evaluationsAndVals: {
+    evaluations: Evaluation[];
+    todaysAssetValues: Map<string, number>;
+    todaysDebtValues: Map<string, number>;
+    todaysIncomeValues: Map<string, number>;
+    todaysExpenseValues: Map<string, number>;
+    todaysSettingValues: Map<string, string>;
   } = {
-    evaluations:reactAppComponent.state.evaluations,
+    evaluations: reactAppComponent.state.evaluations,
     todaysAssetValues: reactAppComponent.state.todaysAssetValues,
     todaysDebtValues: reactAppComponent.state.todaysDebtValues,
     todaysIncomeValues: reactAppComponent.state.todaysIncomeValues,
@@ -416,7 +413,7 @@ export async function refreshData(
 
   // log('refreshData in AppContent - get data and redraw content');
   if (refreshModel) {
-    log(`refresh model evaluation data`);
+    // log(`refresh model evaluation data`);
 
     modelNames = await getModelNames(getUserID());
     // log(`got ${modelNames.length} modelNames`);
@@ -504,10 +501,10 @@ export async function refreshData(
     evaluationsAndVals = getEvaluations(model);
   }
   if (refreshModel || refreshChart) {
-    log(`refresh chart data`);
+    // log(`refresh chart data`);
     const result: DataForView = makeChartDataFromEvaluations(
-      model, 
-      viewSettings, 
+      model,
+      viewSettings,
       evaluationsAndVals,
     );
 
@@ -698,7 +695,7 @@ export async function editSetting(
   },
   modelData: DbModelData,
 ) {
-  if ( getDefaultViewSettings().hasSetting(settingInput.NAME) ) {
+  if (getDefaultViewSettings().hasSetting(settingInput.NAME)) {
     setViewSetting({
       NAME: settingInput.NAME,
       VALUE: settingInput.VALUE,
@@ -736,11 +733,8 @@ export async function submitNewSetting(
   modelData: DbModelData,
   viewSettings: ViewSettings,
 ) {
-  if(viewSettings.hasSetting(setting.NAME)){
-    viewSettings.setViewSetting(
-      setting.NAME,
-      setting.VALUE,
-    );
+  if (viewSettings.hasSetting(setting.NAME)) {
+    viewSettings.setViewSetting(setting.NAME, setting.VALUE);
     return await refreshData(
       true, // or false refreshModel = true,
       true, // refreshChart = true,
@@ -1341,7 +1335,7 @@ export class AppContent extends Component<AppProps, AppState> {
                 await saveModelToDBLSM(userID, modelName, modelData);
                 refreshData(
                   true, // refreshModel = true,
-                  true, // refreshChart = true,                  
+                  true, // refreshChart = true,
                 );
               }}
               showAlert={showAlert}
@@ -1437,7 +1431,7 @@ export class AppContent extends Component<AppProps, AppState> {
                   checkModelBeforeChange = !checkModelBeforeChange;
                   refreshData(
                     false, // refreshModel = true,
-                    false, // refreshChart = true,                    
+                    false, // refreshChart = true,
                   );
                 }}
                 title={
@@ -1454,7 +1448,7 @@ export class AppContent extends Component<AppProps, AppState> {
                   checkBeforeOverwritingExistingData = !checkBeforeOverwritingExistingData;
                   refreshData(
                     false, // refreshModel = true,
-                    false, // refreshChart = true,                    
+                    false, // refreshChart = true,
                   );
                 }}
                 title={
@@ -1719,7 +1713,7 @@ export class AppContent extends Component<AppProps, AppState> {
             await saveModelLSM(userID, modelName, this.state.modelData);
             refreshData(
               true, // refreshModel = true,
-              true, // refreshChart = true,              
+              true, // refreshChart = true,
             );
           }
         }}
@@ -1753,7 +1747,7 @@ export class AppContent extends Component<AppProps, AppState> {
             await saveModelLSM(userID, modelName, this.state.modelData);
             refreshData(
               true, // refreshModel = true,
-              true, // refreshChart = true,              
+              true, // refreshChart = true,
             );
           }
         }}
@@ -1778,7 +1772,7 @@ export class AppContent extends Component<AppProps, AppState> {
           await saveModelToDBLSM(userID, modelName, this.state.modelData);
           refreshData(
             true, // refreshModel = true,
-            true, // refreshChart = true,            
+            true, // refreshChart = true,
           );
         }}
         title={'Save model'}

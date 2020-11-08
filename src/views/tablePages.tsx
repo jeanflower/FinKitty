@@ -513,7 +513,8 @@ function handleSettingGridRowsUpdated(
   const x = args[0].fromRowData;
   if (args[0].cellKey === 'NAME') {
     if (x.NAME !== args[0].updated.NAME) {
-      if(getDefaultViewSettings().hasSetting(x.NAME) ||
+      if (
+        getDefaultViewSettings().hasSetting(x.NAME) ||
         minimalModel.settings.filter(obj => {
           return obj.NAME === x.NAME;
         }).length > 0

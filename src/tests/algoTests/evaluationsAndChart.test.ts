@@ -75,7 +75,6 @@ import {
   ChartDataPoint,
   DataForView,
   DbModelData,
-  DbSetting,
 } from '../../types/interfaces';
 import {
   attemptRenameLong,
@@ -113,8 +112,10 @@ import {
 
 import { Evaluation } from '../../types/interfaces';
 import { getEvaluations } from '../../models/evaluations';
-import { makeChartDataFromEvaluations, ViewSettings } from '../../models/charting';
-import { setViewSetting } from '../../App';
+import {
+  makeChartDataFromEvaluations,
+  ViewSettings,
+} from '../../models/charting';
 
 /* global it */
 /* global expect */
