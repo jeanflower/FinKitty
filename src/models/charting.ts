@@ -15,6 +15,7 @@ import {
   assetChartReductions,
   assetChartVal,
   assetChartView,
+  assetsView,
   birthDate,
   cgt,
   coarse,
@@ -22,15 +23,19 @@ import {
   debtChartFocus,
   debtChartVal,
   debtChartView,
+  debtsView,
   expenseChartFocus,
+  expensesView,
   fine,
   gain,
   growth,
   income,
   incomeChartFocus,
+  incomesView,
   incomeTax,
   monthly,
   nationalInsurance,
+  overview,
   pensionDB,
   revalue,
   roiEnd,
@@ -39,9 +44,11 @@ import {
   taxChartFocusPerson,
   taxChartFocusType,
   taxChartShowNet,
+  taxView,
   total,
   viewDetail,
   viewFrequency,
+  ViewType,
   viewType,
 } from '../localization/stringConstants';
 import {
@@ -70,7 +77,7 @@ import { checkEvalnType } from './checks';
 export class ViewSettings {
   private kvPairs: Map<string, string> = new Map<string, string>();
 
-  constructor(pairs: DbSetting[] = []) {
+  constructor(pairs: {NAME: string, VALUE: string}[] = []) {
     pairs.forEach(p => {
       this.kvPairs.set(p.NAME, p.VALUE);
     });
@@ -78,8 +85,13 @@ export class ViewSettings {
   hasSetting(name: string) {
     return this.kvPairs.get(name) !== undefined;
   }
-  setViewSetting(key: string, value: string) {
-    this.kvPairs.set(key, value);
+  setViewSetting(key: string, value: string):boolean {
+    if(this.kvPairs.get(key)){
+      this.kvPairs.set(key, value);
+      return true;
+    } else {
+      return false;
+    }
   }
   showItem(item: string): boolean {
     return (
@@ -820,8 +832,51 @@ function generateEvaluationDates(roi: Interval, frequency: string) {
   return generateSequenceOfDates(roi, freqString, addPreDate);
 }
 
+function getDisplayType(
+  evaln: Evaluation,
+  nameToTypeMap: Map<string, string>,
+  getDisplay: (type: ViewType) => boolean,
+) {
+  // ensure that for this evaluation, its type
+  // is present in the typeDateNameValueMap
+  const evalnType = nameToTypeMap.get(evaln.name);
+  if (evalnType === undefined) {
+    checkEvalnType(
+      // could print 'BUG'
+      evaln,
+      nameToTypeMap,
+    );
+    // log(`don't include ${evaln.name} in chart`);
+    return undefined; // don't include in chart
+  }
+  if (
+    evalnType === evaluationType.income &&
+    !(getDisplay(incomesView) || getDisplay(overview))
+  ) {
+    return undefined;
+  }
+  if (
+    evalnType === evaluationType.expense &&
+    !(getDisplay(expensesView) || getDisplay(overview))
+  ) {
+    return undefined;
+  }
+  if (
+    evalnType === evaluationType.asset &&
+    !(getDisplay(assetsView) || getDisplay(debtsView) || getDisplay(overview))
+  ) {
+    return undefined;
+  }
+  if (
+    evalnType === evaluationType.taxLiability &&
+    !(getDisplay(taxView) || getDisplay(overview))
+  ) {
+    return undefined;
+  }
+  return evalnType;
+}
+
 export function makeChartDataFromEvaluations(
-  //roi: Interval,
   model: DbModelData,
   viewSettings: ViewSettings,
   evaluationsAndVals: {
@@ -831,6 +886,9 @@ export function makeChartDataFromEvaluations(
     todaysIncomeValues: Map<string, number>;
     todaysExpenseValues: Map<string, number>;
     todaysSettingValues: Map<string, string>;
+  },
+  getDisplay: (type: ViewType) => boolean = () => {
+    return true;
   },
 ) {
   if (evaluationsAndVals.evaluations.length === 0) {
@@ -961,17 +1019,9 @@ export function makeChartDataFromEvaluations(
       // log(`evaln = ${showObj(evaln)} not in date range - don't process`);
       return;
     }
-    // ensure that for this evaluation, its type
-    // is present in the typeDateNameValueMap
-    const evalnType = nameToTypeMap.get(evaln.name);
-    if (evalnType === undefined) {
-      checkEvalnType(
-        // could print 'BUG'
-        evaln,
-        nameToTypeMap,
-      );
-      // log(`don't include ${evaln.name} in chart`);
-      return; // don't include in chart
+    const evalnType = getDisplayType(evaln, nameToTypeMap, getDisplay);
+    if (!evalnType) {
+      return;
     }
     if (
       evalnType === evaluationType.income ||

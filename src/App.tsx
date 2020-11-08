@@ -15,46 +15,35 @@ import {
   allItems,
   annually,
   assetChartFocus,
-  assetChartFocusHint,
-  assetChartHint,
   assetChartVal,
   assetChartView,
   assetsView,
   autogen,
   custom,
   debtChartFocus,
-  debtChartFocusHint,
-  debtChartHint,
   debtChartVal,
   debtChartView,
   debtsView,
   exampleModelName,
   expenseChartFocus,
-  expenseChartFocusHint,
   expensesView,
   fine,
   homeView,
   incomeChartFocus,
-  incomeChartFocusHint,
   incomesView,
   overview,
   roiEnd,
   roiStart,
   settingsView,
   taxChartFocusPerson,
-  taxChartFocusPersonHint,
   taxChartFocusType,
-  taxChartFocusTypeHint,
   taxChartShowNet,
-  taxChartShowNetHint,
   taxView,
   transactionsView,
   triggersView,
   ViewType,
   viewDetail,
-  viewDetailHint,
   viewFrequency,
-  viewFrequencyHint,
   viewType,
 } from './localization/stringConstants';
 import {
@@ -137,68 +126,46 @@ export function getDefaultViewSettings(): ViewSettings {
     {
       NAME: viewFrequency,
       VALUE: annually,
-      HINT: viewFrequencyHint,
-      TYPE: viewType,
     },
     {
       NAME: assetChartView,
       VALUE: assetChartVal,
-      HINT: assetChartHint,
-      TYPE: viewType,
     },
     {
       NAME: debtChartView,
       VALUE: debtChartVal,
-      HINT: debtChartHint,
-      TYPE: viewType,
     },
     {
       NAME: viewDetail,
       VALUE: fine,
-      HINT: viewDetailHint,
-      TYPE: viewType,
     },
     {
       NAME: assetChartFocus,
       VALUE: allItems,
-      HINT: assetChartFocusHint,
-      TYPE: viewType,
     },
     {
       NAME: debtChartFocus,
       VALUE: allItems,
-      HINT: debtChartFocusHint,
-      TYPE: viewType,
     },
     {
       NAME: expenseChartFocus,
       VALUE: allItems,
-      HINT: expenseChartFocusHint,
-      TYPE: viewType,
     },
     {
       NAME: incomeChartFocus,
       VALUE: allItems,
-      HINT: incomeChartFocusHint,
-      TYPE: viewType,
     },
     {
       NAME: taxChartFocusPerson,
       VALUE: allItems,
-      HINT: taxChartFocusPersonHint,
-      TYPE: viewType,
     },
     {
       NAME: taxChartFocusType,
       VALUE: allItems,
-      HINT: taxChartFocusTypeHint,
-      TYPE: viewType,
     },
     {
       NAME: taxChartShowNet,
       VALUE: 'Y',
-      HINT: taxChartShowNetHint,
-      TYPE: viewType,
     },
   ]);
   return result;
@@ -335,15 +302,16 @@ const exampleModels = [
 
 let reactAppComponent: AppContent;
 
-export function setViewSetting(input: DbSetting) {
+export function setViewSetting(input: DbSetting): boolean {
   // log(`setview setting being processed`);
   if (reactAppComponent) {
-    reactAppComponent.state.viewState.setViewSetting(input.NAME, input.VALUE);
+    return reactAppComponent.state.viewState.setViewSetting(input.NAME, input.VALUE);
+  } else {
+    return false;
   }
-  // log(`after setViewSetting, reactAppComponent.state.viewState = ${reactAppComponent.state.viewState}`);
 }
 
-export function getDisplay(type: ViewType) {
+export function getDisplay(type: ViewType): boolean {
   const view = views.get(type);
   if (view === undefined) {
     log(`Error : unrecognised view ${type}`);
@@ -506,6 +474,7 @@ export async function refreshData(
       model,
       viewSettings,
       evaluationsAndVals,
+      getDisplay,
     );
 
     result.expensesData.sort((a, b) => (a.item.NAME < b.item.NAME ? 1 : -1));
@@ -695,13 +664,12 @@ export async function editSetting(
   },
   modelData: DbModelData,
 ) {
-  if (getDefaultViewSettings().hasSetting(settingInput.NAME)) {
-    setViewSetting({
+  if (setViewSetting({
       NAME: settingInput.NAME,
       VALUE: settingInput.VALUE,
       TYPE: viewType,
       HINT: '',
-    });
+    })){
     return await refreshData(
       true, // or false refreshModel = true,
       true, // refreshChart = true,
@@ -767,7 +735,7 @@ export function toggle(type: ViewType) {
   view.display = true;
   refreshData(
     false, // refreshModel = true,
-    false, // refreshChart = true,
+    true, // refreshChart = true,
   );
 }
 

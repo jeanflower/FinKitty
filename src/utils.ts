@@ -44,11 +44,8 @@ import {
   separator,
   taxPot,
   taxChartFocusPerson,
-  taxChartFocusPersonHint,
   taxChartFocusType,
-  taxChartFocusTypeHint,
   taxChartShowNet,
-  taxChartShowNetHint,
   transferCrystallizedPension,
   valueFocusDate,
   valueFocusDateHint,
@@ -331,10 +328,9 @@ function migrateOldVersions(model: DbModelData) {
       }) === -1
     ) {
       model.settings.push({
+        ...viewSetting,
         NAME: taxChartFocusPerson,
         VALUE: allItems,
-        HINT: taxChartFocusPersonHint,
-        TYPE: viewType,
       });
     }
     if (
@@ -343,10 +339,9 @@ function migrateOldVersions(model: DbModelData) {
       }) === -1
     ) {
       model.settings.push({
+        ...viewSetting,
         NAME: taxChartFocusType,
         VALUE: allItems,
-        HINT: taxChartFocusTypeHint,
-        TYPE: viewType,
       });
     }
     if (
@@ -355,10 +350,9 @@ function migrateOldVersions(model: DbModelData) {
       }) === -1
     ) {
       model.settings.push({
+        ...viewSetting,
         NAME: taxChartShowNet,
         VALUE: 'Y',
-        HINT: taxChartShowNetHint,
-        TYPE: viewType,
       });
     }
     model.version = 4;
@@ -1044,6 +1038,7 @@ export const simpleSetting: DbSetting = {
 
 export const viewSetting: DbSetting = {
   ...simpleSetting,
+  HINT: '',
   TYPE: viewType,
 };
 

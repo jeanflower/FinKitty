@@ -9,8 +9,6 @@ import {
   allItems,
   annually,
   assetChartFocus,
-  assetChartFocusHint,
-  assetChartHint,
   assetChartVal,
   assetChartView,
   birthDate,
@@ -20,14 +18,11 @@ import {
   cpi,
   cpiHint,
   debtChartFocus,
-  debtChartFocusHint,
   debtChartVal,
   debtChartView,
   expenseChartFocus,
-  expenseChartFocusHint,
   fine,
   incomeChartFocus,
-  incomeChartFocusHint,
   incomeTax,
   monthly,
   payOffDebt,
@@ -37,17 +32,12 @@ import {
   roiStart,
   roiStartHint,
   taxChartFocusPerson,
-  taxChartFocusPersonHint,
   taxChartFocusType,
-  taxChartFocusTypeHint,
   taxChartShowNet,
-  taxChartShowNetHint,
   valueFocusDate,
   valueFocusDateHint,
   viewDetail,
-  viewDetailHint,
   viewFrequency,
-  viewFrequencyHint,
   viewType,
   BenAndJerryModel,
 } from '../localization/stringConstants';
@@ -349,19 +339,16 @@ const browserTestSettingsForMigration: DbSetting[] = [
     ...viewSetting,
     NAME: assetChartView,
     VALUE: assetChartVal, // could be 'deltas'
-    HINT: assetChartHint,
   },
   {
     ...viewSetting,
     NAME: viewFrequency,
     VALUE: annually, // could be 'Monthly'
-    HINT: viewFrequencyHint,
   },
   {
     ...viewSetting,
     NAME: viewDetail,
     VALUE: fine, // could be coarse
-    HINT: viewDetailHint,
   },
   {
     ...simpleSetting,
@@ -379,19 +366,16 @@ const browserTestSettingsForMigration: DbSetting[] = [
     ...viewSetting,
     NAME: assetChartFocus,
     VALUE: CASH_ASSET_NAME,
-    HINT: assetChartFocusHint,
   },
   {
     ...viewSetting,
     NAME: expenseChartFocus,
     VALUE: allItems,
-    HINT: expenseChartFocusHint,
   },
   {
     ...viewSetting,
     NAME: incomeChartFocus,
     VALUE: allItems,
-    HINT: incomeChartFocusHint,
   },
   {
     ...viewSetting,
@@ -707,43 +691,36 @@ const defaultModelSettingsForMigration: DbSetting[] = [
     ...viewSetting,
     NAME: assetChartFocus,
     VALUE: allItems,
-    HINT: assetChartFocusHint,
   },
   {
     ...viewSetting,
     NAME: debtChartFocus,
     VALUE: allItems,
-    HINT: debtChartFocusHint,
   },
   {
     ...viewSetting,
     NAME: expenseChartFocus,
     VALUE: allItems,
-    HINT: expenseChartFocusHint,
   },
   {
     ...viewSetting,
     NAME: incomeChartFocus,
     VALUE: allItems,
-    HINT: incomeChartFocusHint,
   },
   {
+    ...viewSetting,
     NAME: taxChartFocusPerson,
     VALUE: allItems,
-    HINT: taxChartFocusPersonHint,
-    TYPE: viewType,
   },
   {
+    ...viewSetting,
     NAME: taxChartFocusType,
     VALUE: allItems,
-    HINT: taxChartFocusTypeHint,
-    TYPE: viewType,
   },
   {
+    ...viewSetting,
     NAME: taxChartShowNet,
     VALUE: 'Y',
-    HINT: taxChartShowNetHint,
-    TYPE: viewType,
   },
   {
     ...simpleSetting,
@@ -892,10 +869,9 @@ function getModelFutureExpenseForMigration() {
     redoModel: undefined,
   };
   model.settings.push({
+    ...viewSetting,
     NAME: viewFrequency,
     VALUE: monthly,
-    TYPE: viewType,
-    HINT: '',
   });
 
   //log(`future expense settings ${model.settings.map(showObj)}`);
@@ -993,10 +969,9 @@ export function getThreeChryslerModelForMigration(): DbModelData {
         TYPE: 'adjustable',
       },
       {
+        ...viewSetting,
         NAME: viewFrequency,
         VALUE: monthly,
-        HINT: '',
-        TYPE: viewType,
       },
     ],
     version: 0,

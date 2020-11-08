@@ -47,7 +47,6 @@ import {
   deleteTransaction,
   deleteTrigger,
   editSetting,
-  getDefaultViewSettings,
   submitAsset,
   submitExpense,
   submitIncome,
@@ -514,7 +513,6 @@ function handleSettingGridRowsUpdated(
   if (args[0].cellKey === 'NAME') {
     if (x.NAME !== args[0].updated.NAME) {
       if (
-        getDefaultViewSettings().hasSetting(x.NAME) ||
         minimalModel.settings.filter(obj => {
           return obj.NAME === x.NAME;
         }).length > 0
