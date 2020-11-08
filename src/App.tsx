@@ -15,14 +15,12 @@ import {
   allItems,
   annually,
   assetChartFocus,
-  assetChartVal,
-  assetChartView,
+  chartVals,
+  chartViewType,
   assetsView,
   autogen,
   custom,
   debtChartFocus,
-  debtChartVal,
-  debtChartView,
   debtsView,
   exampleModelName,
   expenseChartFocus,
@@ -128,12 +126,8 @@ export function getDefaultViewSettings(): ViewSettings {
       VALUE: annually,
     },
     {
-      NAME: assetChartView,
-      VALUE: assetChartVal,
-    },
-    {
-      NAME: debtChartView,
-      VALUE: debtChartVal,
+      NAME: chartViewType,
+      VALUE: chartVals,
     },
     {
       NAME: viewDetail,
@@ -305,7 +299,10 @@ let reactAppComponent: AppContent;
 export function setViewSetting(input: DbSetting): boolean {
   // log(`setview setting being processed`);
   if (reactAppComponent) {
-    return reactAppComponent.state.viewState.setViewSetting(input.NAME, input.VALUE);
+    return reactAppComponent.state.viewState.setViewSetting(
+      input.NAME,
+      input.VALUE,
+    );
   } else {
     return false;
   }
@@ -664,14 +661,16 @@ export async function editSetting(
   },
   modelData: DbModelData,
 ) {
-  if (setViewSetting({
+  if (
+    setViewSetting({
       NAME: settingInput.NAME,
       VALUE: settingInput.VALUE,
       TYPE: viewType,
       HINT: '',
-    })){
+    })
+  ) {
     return await refreshData(
-      true, // or false refreshModel = true,
+      false, // or false refreshModel = true,
       true, // refreshChart = true,
     );
   }
@@ -701,9 +700,9 @@ export async function submitNewSetting(
   modelData: DbModelData,
   viewSettings: ViewSettings,
 ) {
-  if (viewSettings.setViewSetting(setting.NAME, setting.VALUE)){
+  if (viewSettings.setViewSetting(setting.NAME, setting.VALUE)) {
     return await refreshData(
-      true, // or false refreshModel = true,
+      false, // or false refreshModel = true,
       true, // refreshChart = true,
     );
   } else {

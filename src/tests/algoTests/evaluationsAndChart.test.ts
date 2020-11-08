@@ -5,12 +5,12 @@ import {
   CASH_ASSET_NAME,
   allItems,
   annually,
-  assetChartAdditions,
-  assetChartDeltas,
+  chartAdditions,
+  chartDeltas,
   assetChartFocus,
-  assetChartReductions,
-  assetChartVal,
-  assetChartView,
+  chartReductions,
+  chartVals,
+  chartViewType,
   autogen,
   birthDate,
   birthDateHint,
@@ -23,8 +23,6 @@ import {
   crystallizedPension,
   custom,
   debtChartFocus,
-  debtChartVal,
-  debtChartView,
   expenseChartFocus,
   fine,
   growth,
@@ -544,12 +542,8 @@ function getMinimalModelCopySettings(): ViewSettings {
       VALUE: monthly,
     },
     {
-      NAME: assetChartView,
-      VALUE: assetChartVal,
-    },
-    {
-      NAME: debtChartView,
-      VALUE: debtChartVal,
+      NAME: chartViewType,
+      VALUE: chartVals,
     },
     {
       NAME: viewDetail,
@@ -595,8 +589,7 @@ function defaultTestViewSettings(): ViewSettings {
   const result = new ViewSettings([
     { ...viewSetting, NAME: viewFrequency, VALUE: monthly },
     { ...viewSetting, NAME: viewDetail, VALUE: fine },
-    { ...viewSetting, NAME: assetChartView, VALUE: assetChartVal },
-    { ...viewSetting, NAME: debtChartView, VALUE: debtChartVal },
+    { ...viewSetting, NAME: chartViewType, VALUE: chartVals },
     {
       ...viewSetting,
       NAME: assetChartFocus,
@@ -2104,7 +2097,7 @@ describe('evaluations tests', () => {
 
     viewSettings.setViewSetting(assetChartFocus, 'savings');
     viewSettings.setViewSetting(viewFrequency, annually);
-    viewSettings.setViewSetting(assetChartView, assetChartDeltas);
+    viewSettings.setViewSetting(chartViewType, chartDeltas);
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -3958,7 +3951,7 @@ describe('evaluations tests', () => {
     const viewSettings = defaultTestViewSettings();
 
     viewSettings.setViewSetting(assetChartFocus, CASH_ASSET_NAME);
-    viewSettings.setViewSetting(assetChartView, assetChartDeltas);
+    viewSettings.setViewSetting(chartViewType, chartDeltas);
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -4197,7 +4190,7 @@ describe('evaluations tests', () => {
     const viewSettings = defaultTestViewSettings();
 
     viewSettings.setViewSetting(assetChartFocus, CASH_ASSET_NAME);
-    viewSettings.setViewSetting(assetChartView, assetChartDeltas);
+    viewSettings.setViewSetting(chartViewType, chartDeltas);
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -4418,7 +4411,7 @@ describe('evaluations tests', () => {
     const viewSettings = defaultTestViewSettings();
 
     viewSettings.setViewSetting(assetChartFocus, CASH_ASSET_NAME);
-    viewSettings.setViewSetting(assetChartView, assetChartDeltas);
+    viewSettings.setViewSetting(chartViewType, chartDeltas);
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -15247,7 +15240,7 @@ describe('evaluations tests', () => {
     const viewSettings = defaultTestViewSettings();
 
     viewSettings.setViewSetting(viewDetail, coarse);
-    viewSettings.setViewSetting(assetChartView, assetChartDeltas);
+    viewSettings.setViewSetting(chartViewType, chartDeltas);
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -15334,7 +15327,7 @@ describe('evaluations tests', () => {
     const viewSettings = defaultTestViewSettings();
 
     viewSettings.setViewSetting(viewDetail, coarse);
-    viewSettings.setViewSetting(assetChartView, assetChartReductions);
+    viewSettings.setViewSetting(chartViewType, chartReductions);
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -15382,7 +15375,7 @@ describe('evaluations tests', () => {
     const viewSettings = defaultTestViewSettings();
 
     viewSettings.setViewSetting(viewDetail, coarse);
-    viewSettings.setViewSetting(assetChartView, assetChartAdditions);
+    viewSettings.setViewSetting(chartViewType, chartAdditions);
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -15554,12 +15547,11 @@ describe('evaluations tests', () => {
 
     const viewSettings = defaultTestViewSettings();
 
-    viewSettings.setViewSetting(debtChartView, debtChartVal);
-    viewSettings.setViewSetting(assetChartView, assetChartVal);
+    viewSettings.setViewSetting(chartViewType, chartVals);
     viewSettings.setViewSetting(viewDetail, fine);
     viewSettings.setViewSetting(viewFrequency, annually);
     viewSettings.setViewSetting(viewDetail, coarse);
-    viewSettings.setViewSetting(assetChartView, assetChartAdditions);
+    viewSettings.setViewSetting(chartViewType, chartAdditions);
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -15602,12 +15594,11 @@ describe('evaluations tests', () => {
 
     const viewSettings = defaultTestViewSettings();
 
-    viewSettings.setViewSetting(debtChartView, debtChartVal);
-    viewSettings.setViewSetting(assetChartView, assetChartVal);
+    viewSettings.setViewSetting(chartViewType, chartVals);
     viewSettings.setViewSetting(viewDetail, fine);
     viewSettings.setViewSetting(viewFrequency, annually);
     viewSettings.setViewSetting(viewDetail, coarse);
-    viewSettings.setViewSetting(assetChartView, assetChartReductions);
+    viewSettings.setViewSetting(chartViewType, chartReductions);
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -15653,12 +15644,11 @@ describe('evaluations tests', () => {
 
     const viewSettings = defaultTestViewSettings();
 
-    viewSettings.setViewSetting(debtChartView, debtChartVal);
-    viewSettings.setViewSetting(assetChartView, assetChartVal);
+    viewSettings.setViewSetting(chartViewType, chartVals);
     viewSettings.setViewSetting(viewDetail, fine);
     viewSettings.setViewSetting(viewFrequency, annually);
     viewSettings.setViewSetting(viewDetail, coarse);
-    viewSettings.setViewSetting(assetChartView, assetChartDeltas);
+    viewSettings.setViewSetting(chartViewType, chartDeltas);
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -15698,7 +15688,7 @@ describe('evaluations tests', () => {
       viewDetail, // coarse or fine
       roiStart,
       roiEnd,
-      assetChartView,
+      chartViewType,
       cpi,
       assetChartFocus,
       expenseChartFocus,
@@ -21215,7 +21205,7 @@ describe('evaluations tests', () => {
     {"NAME":"View frequency","VALUE":"Annually","HINT":"Data plotted 'monthly' or 'annually'","TYPE":"view"},
     {"NAME":"View detail","VALUE":"Detailed view","HINT":"View detail ('Categorised view' or 'Detailed view')","TYPE":"view"},
     {"NAME":"Type of view for debt chart","VALUE":"val","HINT":"Debt chart uses setting '+', '-', '+-' or 'val'","TYPE":"view"},
-    {"NAME":"Type of view for asset chart","VALUE":"val","HINT":"Asset chart uses setting '+', '-', '+-' or 'val'","TYPE":"view"},
+    {"NAME":"Type of view for chart","VALUE":"val","HINT":"Asset chart uses setting '+', '-', '+-' or 'val'","TYPE":"view"},
     {"NAME":"Today\'s value focus date","VALUE":"","HINT":"Date to use for \'today\'s value\' tables (defaults to \'\' meaning today)","TYPE":"view"},
     {"NAME":"stockvalue","VALUE":"1000EUR","HINT":"","TYPE":"adjustable"},
     {"NAME":"Focus of incomes chart","VALUE":"All","HINT":"Incomes chart can display a category, a single income, or 'All'","TYPE":"view"},
@@ -21243,7 +21233,7 @@ describe('evaluations tests', () => {
         VALUE: 'val',
       },
       {
-        NAME: 'Type of view for asset chart',
+        NAME: 'Type of view for chart',
         VALUE: 'val',
       },
       {

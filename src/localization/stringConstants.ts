@@ -32,7 +32,7 @@ export const valueFocusDate = `Today's value focus date`;
 export const valueFocusDateHint = `Date to use for 'today's value' tables (defaults to '' meaning today)`;
 // whether bars on the charts show monthly or annual values
 export const viewFrequency = 'View frequency';
-//export const viewFrequencyHint = "Data plotted 'monthly' or 'annually'";
+// "Data plotted 'monthly' or 'annually'";
 export const annually = 'Annually';
 export const monthly = 'Monthly';
 // whether charts bundle items into categories
@@ -40,7 +40,6 @@ export const monthly = 'Monthly';
 // a detailed view ignores categories and represents everything
 // separately
 export const viewDetail = 'View detail';
-//export const viewDetailHint =
 //  "View detail ('Categorised view' or 'Detailed view')";
 export const total = 'Totalled view';
 export const coarse = 'Categorised view';
@@ -50,42 +49,28 @@ export const fine = 'Detailed view';
 // or all things in a given category
 // or an individual named thing
 export const assetChartFocus = 'Focus of assets chart';
-//export const assetChartFocusHint =
 //  "Assets chart can display a category, a single asset, or 'All'";
 export const debtChartFocus = 'Focus of debts chart';
-//export const debtChartFocusHint =
 //  "Debts chart can display a category, a single debt, or 'All'";
 export const expenseChartFocus = 'Focus of expenses chart';
-//export const expenseChartFocusHint =
 //  "Expenses chart can display a category, a single expense, or 'All'";
 export const incomeChartFocus = 'Focus of incomes chart';
-//export const incomeChartFocusHint =
 //  "Incomes chart can display a category, a single income, or 'All'";
 export const taxChartFocusPerson = 'Focus of tax chart, person';
-//export const taxChartFocusPersonHint =
 //  "Tax chart can show data pertinent to a named individual or 'All'";
 export const taxChartFocusType = 'Focus of tax chart, type';
-//export const taxChartFocusTypeHint =
 //  "Tax chart can show data for 'income', 'gain' or 'All'";
 export const taxChartShowNet = 'Tax chart, whether to include net income/gains';
-//export const taxChartShowNetHint =
 //  "Show net can be 'Y', 'N', 'y', 'n', 'yes', 'no'";
 export const allItems = 'All';
-// Asset chart bars represent the value of the asset
+// Asset chart bars represent the value of the asset/debt
 // or the delta (additions, reductions or both)
-export const assetChartView = 'Type of view for asset chart';
-//export const assetChartHint =
-//  "Asset chart uses setting '+', '-', '+-' or 'val'";
-export const assetChartVal = 'val';
-export const assetChartAdditions = '+';
-export const assetChartReductions = '-';
-export const assetChartDeltas = '+-';
-export const debtChartView = 'Type of view for debt chart';
-//export const debtChartHint = "Debt chart uses setting '+', '-', '+-' or 'val'";
-export const debtChartVal = 'val';
-export const debtChartAdditions = '+';
-export const debtChartReductions = '-';
-export const debtChartDeltas = '+-';
+export const chartViewType = 'Type of view for chart';
+//  "Chart uses setting '+', '-', '+-' or 'val'";
+export const chartVals = 'val';
+export const chartAdditions = '+';
+export const chartReductions = '-';
+export const chartDeltas = '+-';
 
 // The app ships with a sample model that covers some of the
 // types of assets, income, expenses and transactions.

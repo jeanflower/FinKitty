@@ -1,7 +1,7 @@
 import {
   CASH_ASSET_NAME,
   assetChartFocus,
-  assetChartView,
+  chartViewType,
   autogen,
   birthDate,
   cgt,
@@ -1295,7 +1295,7 @@ export function checkData(model: DbModelData): string {
   if (message.length > 0) {
     return message;
   }
-  message = checkSettingAbsent(model.settings, assetChartView);
+  message = checkSettingAbsent(model.settings, chartViewType);
   if (message.length > 0) {
     return message;
   }

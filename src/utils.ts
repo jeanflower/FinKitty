@@ -8,7 +8,7 @@ import {
   DbTransaction,
 } from './types/interfaces';
 import {
-  assetChartView,
+  chartViewType,
   assetChartFocus,
   allItems,
   birthDate,
@@ -22,7 +22,6 @@ import {
   custom,
   constType,
   debtChartFocus,
-  debtChartView,
   expenseChartFocus,
   gain,
   income,
@@ -201,8 +200,7 @@ const mapForGuessSettingTypeForv2 = new Map([
   [debtChartFocus, viewType],
   [expenseChartFocus, viewType],
   [incomeChartFocus, viewType],
-  [assetChartView, viewType],
-  [debtChartView, viewType],
+  [chartViewType, viewType],
   [cpi, constType],
 ]);
 
@@ -213,6 +211,19 @@ function getGuessSettingTypeForv2(name: string) {
   }
   return constType;
 }
+
+export const simpleSetting: DbSetting = {
+  NAME: 'NoName',
+  VALUE: 'NoValue',
+  HINT: 'NoHint',
+  TYPE: constType,
+};
+
+export const viewSetting: DbSetting = {
+  ...simpleSetting,
+  HINT: '',
+  TYPE: viewType,
+};
 
 const showMigrationLogs = false;
 
@@ -365,9 +376,10 @@ function migrateOldVersions(model: DbModelData) {
     }
     // strip away any settings values which are no longer
     // stored persistently
+    const debtChartView = 'Type of view for debt chart';
     const namesForRemoval = [
       viewFrequency,
-      assetChartView,
+      chartViewType,
       debtChartView,
       viewDetail,
       assetChartFocus,
@@ -1028,19 +1040,6 @@ export function getTodaysDate(model: DbModelData) {
   }
   return today;
 }
-
-export const simpleSetting: DbSetting = {
-  NAME: 'NoName',
-  VALUE: 'NoValue',
-  HINT: 'NoHint',
-  TYPE: constType,
-};
-
-export const viewSetting: DbSetting = {
-  ...simpleSetting,
-  HINT: '',
-  TYPE: viewType,
-};
 
 export const simpleAsset: DbAsset = {
   NAME: 'NoName',

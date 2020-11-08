@@ -2,12 +2,12 @@ import { ChartData, DbModelData, DbSetting } from '../types/interfaces';
 import {
   allItems,
   annually,
-  assetChartAdditions,
-  assetChartDeltas,
+  chartAdditions,
+  chartDeltas,
   assetChartFocus,
-  assetChartReductions,
-  assetChartVal,
-  assetChartView,
+  chartReductions,
+  chartVals,
+  chartViewType,
   birthDate,
   coarse,
   debtChartFocus,
@@ -63,7 +63,7 @@ function getAssetOrDebtChartName(settings: ViewSettings, debt: boolean) {
 }
 
 function getAssetChartView(settings: ViewSettings) {
-  return settings.getViewSetting(assetChartView, assetChartVal);
+  return settings.getViewSetting(chartViewType, chartVals);
 }
 
 function getTaxPerson(settings: ViewSettings) {
@@ -486,10 +486,10 @@ function assetsOrDebtsButtonList(
 
 function assetViewTypeList(settings: ViewSettings) {
   const viewTypes: string[] = [
-    assetChartVal,
-    assetChartAdditions,
-    assetChartReductions,
-    assetChartDeltas,
+    chartVals,
+    chartAdditions,
+    chartReductions,
+    chartDeltas,
   ];
   const selectedAssetView = getAssetChartView(settings);
   const buttons = viewTypes.map(viewType => (
@@ -497,7 +497,7 @@ function assetViewTypeList(settings: ViewSettings) {
       key={viewType}
       action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.persist();
-        setViewSettingNameVal(settings, assetChartView, viewType);
+        setViewSettingNameVal(settings, chartViewType, viewType);
       }}
       title={viewType}
       type={viewType === selectedAssetView ? 'primary' : 'secondary'}

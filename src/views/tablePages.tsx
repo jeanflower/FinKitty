@@ -2,13 +2,12 @@ import {
   CASH_ASSET_NAME,
   adjustableType,
   assetChartFocus,
-  assetChartView,
+  chartViewType,
   autogen,
   conditional,
   constType,
   crystallizedPension,
   debtChartFocus,
-  debtChartView,
   expenseChartFocus,
   incomeChartFocus,
   liquidateAsset,
@@ -1526,8 +1525,7 @@ export function expensesTableDivWithHeading(
 }
 
 const settingsToExcludeFromTableView: string[] = [
-  assetChartView,
-  debtChartView,
+  chartViewType,
   viewDetail,
   assetChartFocus,
   debtChartFocus,

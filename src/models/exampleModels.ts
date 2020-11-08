@@ -9,8 +9,8 @@ import {
   allItems,
   annually,
   assetChartFocus,
-  assetChartVal,
-  assetChartView,
+  chartVals,
+  chartViewType,
   birthDate,
   birthDateHint,
   coarse,
@@ -18,8 +18,6 @@ import {
   cpi,
   cpiHint,
   debtChartFocus,
-  debtChartVal,
-  debtChartView,
   expenseChartFocus,
   fine,
   incomeChartFocus,
@@ -92,7 +90,7 @@ export const simpleExampleData = `{"triggers":[
 
 {"NAME":"View detail","VALUE":"Detailed view","HINT":"View detail ('Categorised view' or 'Detailed view')","TYPE":"view"},
 {"NAME":"Type of view for debt chart","VALUE":"val","HINT":"Debt chart uses setting '+', '-', '+-' or 'val'","TYPE":"view"},
-{"NAME":"Type of view for asset chart","VALUE":"val","HINT":"Asset chart uses setting '+', '-', '+-' or 'val'","TYPE":"view"},
+{"NAME":"Type of view for chart","VALUE":"val","HINT":"Asset chart uses setting '+', '-', '+-' or 'val'","TYPE":"view"},
 {"NAME":"Tax chart, whether to include net income/gains","VALUE":"Y","HINT":"Show net can be 'Y', 'N', 'y', 'n', 'yes', 'no'","TYPE":"view"},
 {"NAME":"Focus of tax chart, type","VALUE":"All","HINT":"Tax chart can show data for 'income', 'gain' or 'All'","TYPE":"view"},
 {"NAME":"Focus of tax chart, person","VALUE":"All","HINT":"Tax chart can show data pertinent to a named individual or 'All'","TYPE":"view"},
@@ -337,8 +335,8 @@ const browserTestSettingsForMigration: DbSetting[] = [
   },
   {
     ...viewSetting,
-    NAME: assetChartView,
-    VALUE: assetChartVal, // could be 'deltas'
+    NAME: chartViewType,
+    VALUE: chartVals, // could be 'deltas'
   },
   {
     ...viewSetting,
@@ -685,8 +683,7 @@ export function getModelCoarseAndFine(): DbModelData {
 
 const defaultModelSettingsForMigration: DbSetting[] = [
   { ...viewSetting, NAME: viewDetail, VALUE: fine },
-  { ...viewSetting, NAME: assetChartView, VALUE: assetChartVal },
-  { ...viewSetting, NAME: debtChartView, VALUE: debtChartVal },
+  { ...viewSetting, NAME: chartViewType, VALUE: chartVals },
   {
     ...viewSetting,
     NAME: assetChartFocus,

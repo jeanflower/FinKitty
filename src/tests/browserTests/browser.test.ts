@@ -8,10 +8,10 @@ import {
   fine,
   assetChartFocus,
   CASH_ASSET_NAME,
-  assetChartView,
-  assetChartAdditions,
-  assetChartReductions,
-  assetChartDeltas,
+  chartViewType,
+  chartAdditions,
+  chartReductions,
+  chartDeltas,
   ThreeChryslerModel,
   allItems,
 } from '../../localization/stringConstants';
@@ -526,9 +526,9 @@ describe(testDataModelName, () => {
 
     await clickButton(driver, 'btn-Settings');
     await addSetting(driver, {
-      name: assetChartView,
-      value: assetChartAdditions,
-      message: `added new setting ${assetChartView}`,
+      name: chartViewType,
+      value: chartAdditions,
+      message: `added new setting ${chartViewType}`,
     });
     await clickButton(driver, 'btn-Assets');
 
@@ -588,9 +588,9 @@ describe(testDataModelName, () => {
 
     await clickButton(driver, 'btn-Settings');
     await addSetting(driver, {
-      name: assetChartView,
-      value: assetChartReductions,
-      message: `added new setting ${assetChartView}`,
+      name: chartViewType,
+      value: chartReductions,
+      message: `added new setting ${chartViewType}`,
     });
     await clickButton(driver, 'btn-Assets');
 
@@ -633,9 +633,9 @@ describe(testDataModelName, () => {
 
     await clickButton(driver, 'btn-Settings');
     await addSetting(driver, {
-      name: assetChartView,
-      value: assetChartDeltas,
-      message: `added new setting ${assetChartView}`,
+      name: chartViewType,
+      value: chartDeltas,
+      message: `added new setting ${chartViewType}`,
     });
     await clickButton(driver, 'btn-Assets');
 

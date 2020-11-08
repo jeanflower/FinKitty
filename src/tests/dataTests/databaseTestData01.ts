@@ -1,8 +1,8 @@
 import {
   allItems,
   annually,
-  assetChartDeltas,
-  assetChartView,
+  chartDeltas,
+  chartViewType,
   birthDate,
   birthDateHint,
   CASH_ASSET_NAME,
@@ -251,8 +251,8 @@ export const testSettings01: DbSetting[] = [
   },
   {
     ...viewSetting,
-    NAME: assetChartView,
-    VALUE: assetChartDeltas, // could be 'val'
+    NAME: chartViewType,
+    VALUE: chartDeltas, // could be 'val'
   },
   {
     ...viewSetting,
