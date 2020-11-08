@@ -190,7 +190,7 @@ export function getMinimalModelCopy(): DbModelData {
   return makeModelFromJSONString(JSON.stringify(minimalModel));
 }
 
-const mapForGuessSettingType = new Map([
+const mapForGuessSettingTypeForv2 = new Map([
   [roiEnd, viewType],
   [roiStart, viewType],
   [birthDate, viewType],
@@ -207,7 +207,7 @@ const mapForGuessSettingType = new Map([
 ]);
 
 function getGuessSettingTypeForv2(name: string) {
-  const mapResult = mapForGuessSettingType.get(name);
+  const mapResult = mapForGuessSettingTypeForv2.get(name);
   if (mapResult !== undefined) {
     return mapResult;
   }
@@ -365,7 +365,7 @@ function migrateOldVersions(model: DbModelData) {
     }
     // strip away any settings values which are no longer
     // stored persistently
-    const names = [
+    const namesForRemoval = [
       viewFrequency,
       assetChartView,
       debtChartView,
@@ -378,7 +378,7 @@ function migrateOldVersions(model: DbModelData) {
       taxChartFocusType,
       taxChartShowNet,
     ];
-    names.forEach(name => {
+    namesForRemoval.forEach(name => {
       const idx = model.settings.findIndex(s => {
         return s.NAME === name;
       });

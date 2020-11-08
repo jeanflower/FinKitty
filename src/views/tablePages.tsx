@@ -1543,7 +1543,7 @@ function settingsForTable(
   viewSettings: ViewSettings,
   type: string,
 ) {
-  const data = viewSettings.getSettingsForTable().concat(model.settings);
+  const data = model.settings;
   const unindexedResult = data
     .filter((obj: DbSetting) => {
       return obj.TYPE === type;

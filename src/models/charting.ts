@@ -76,14 +76,61 @@ import { checkEvalnType } from './checks';
 
 export class ViewSettings {
   private kvPairs: Map<string, string> = new Map<string, string>();
-
-  constructor(pairs: {NAME: string, VALUE: string}[] = []) {
+/*
+e.g.
+    {
+      NAME: viewFrequency,
+      VALUE: monthly,
+    },
+    {
+      NAME: assetChartView,
+      VALUE: assetChartVal,
+    },
+    {
+      NAME: debtChartView,
+      VALUE: debtChartVal,
+    },
+    {
+      NAME: viewDetail,
+      VALUE: fine,
+    },
+    {
+      NAME: assetChartFocus,
+      VALUE: CASH_ASSET_NAME,
+    },
+    {
+      NAME: debtChartFocus,
+      VALUE: allItems,
+    },
+    {
+      NAME: expenseChartFocus,
+      VALUE: allItems,
+    },
+    {
+      NAME: incomeChartFocus,
+      VALUE: allItems,
+    },
+    {
+      NAME: taxChartFocusPerson,
+      VALUE: allItems,
+    },
+    {
+      NAME: taxChartFocusType,
+      VALUE: allItems,
+    },
+    {
+      NAME: taxChartShowNet,
+      VALUE: 'Y',
+    },
+    {
+      NAME: valueFocusDate,
+      VALUE: '',
+    },
+*/
+  constructor(pairs: {NAME: string, VALUE: string}[]) {
     pairs.forEach(p => {
       this.kvPairs.set(p.NAME, p.VALUE);
     });
-  }
-  hasSetting(name: string) {
-    return this.kvPairs.get(name) !== undefined;
   }
   setViewSetting(key: string, value: string):boolean {
     if(this.kvPairs.get(key)){
@@ -93,19 +140,23 @@ export class ViewSettings {
       return false;
     }
   }
-  showItem(item: string): boolean {
-    return (
-      this.kvPairs.get(expenseChartFocus) === item ||
-      this.kvPairs.get(incomeChartFocus) === item ||
-      this.kvPairs.get(assetChartFocus) === item ||
-      this.kvPairs.get(debtChartFocus) === item
-    );
+  getShowItem(item: string, context: string): boolean {
+    return this.kvPairs.get(context) === item;
   }
-  showCategory(category: string): boolean {
-    return this.showItem(category);
+  getShowSingleItem(assetNames: string[], assetChartFocus: string) {
+    const focus = this.kvPairs.get(assetChartFocus);
+    return assetNames.find((n)=>{
+      return n === focus;
+    }) !== undefined;
   }
-  showAllExpenses(): boolean {
-    return this.kvPairs.get(expenseChartFocus) === allItems;
+  getShowCategory(category: string, context: string): boolean {
+    return this.getShowItem(category, context);
+  }
+  getShowAllIncomes(): boolean {
+    return this.kvPairs.get(incomeChartFocus) === allItems;
+  }
+  getShowAll(context: string): boolean {
+    return this.kvPairs.get(context) === allItems;
   }
   getViewSetting(settingType: string, defaultValue: string) {
     const result = this.kvPairs.get(settingType);
@@ -409,8 +460,7 @@ function makeChartDataPoints(
 function displayWordAs(
   word: string,
   model: DbModelData,
-  assetChartFocusName: string,
-  debtChartFocusName: string,
+  viewSettings: ViewSettings,
 ) {
   //log(`determine where/how to display ${showObj(word)} in a chart`);
   const result = {
@@ -424,13 +474,13 @@ function displayWordAs(
   });
   if (nameMatch.length !== 0) {
     // log(`matched name ${word}`);
-    if (!nameMatch[0].IS_A_DEBT) {
+    if (!nameMatch[0].IS_A_DEBT) {      
       // have a matching asset
       // Include if focus is allItems or this asset name
       if (
-        assetChartFocusName === allItems ||
-        assetChartFocusName === nameMatch[0].CATEGORY ||
-        assetChartFocusName === word
+        viewSettings.getShowAll(assetChartFocus) ||
+        viewSettings.getShowCategory(nameMatch[0].CATEGORY, assetChartFocus) ||
+        viewSettings.getShowItem(word, assetChartFocus)
       ) {
         result.asset = true;
       }
@@ -438,9 +488,9 @@ function displayWordAs(
       // have a matching debt
       // Include if focus is allItems or this debt name
       if (
-        debtChartFocusName === allItems ||
-        debtChartFocusName === nameMatch[0].CATEGORY ||
-        debtChartFocusName === word
+        viewSettings.getShowAll(debtChartFocus) ||
+        viewSettings.getShowCategory(nameMatch[0].CATEGORY, debtChartFocus) ||
+        viewSettings.getShowItem(word, debtChartFocus)
       ) {
         result.debt = true;
       }
@@ -457,9 +507,9 @@ function displayWordAs(
         // Have a debt with a matching category
         // Include if focus is allItems or this category name
         if (
-          debtChartFocusName === allItems ||
-          debtChartFocusName === word ||
-          debtChartFocusName === a.NAME
+          viewSettings.getShowAll(debtChartFocus) ||
+          viewSettings.getShowItem(word, debtChartFocus) ||
+          viewSettings.getShowItem(a.NAME, debtChartFocus)
         ) {
           result.debt = true;
         }
@@ -467,9 +517,9 @@ function displayWordAs(
         // Have an asset with a matching category
         // Include if focus is allItems or this category name
         if (
-          assetChartFocusName === allItems ||
-          assetChartFocusName === word ||
-          assetChartFocusName === a.NAME
+          viewSettings.getShowAll(assetChartFocus) ||
+          viewSettings.getShowItem(word, assetChartFocus) ||
+          viewSettings.getShowItem(a.NAME, assetChartFocus)
         ) {
           result.asset = true;
         }
@@ -485,8 +535,7 @@ function displayWordAs(
 function displayAs(
   name: string,
   model: DbModelData,
-  assetChartFocusName: string,
-  debtChartFocusName: string,
+  viewSettings: ViewSettings,
 ) {
   const words = name.split(separator);
   const result = {
@@ -500,7 +549,7 @@ function displayAs(
     // where to display
   }
   words.forEach(w => {
-    const x = displayWordAs(w, model, assetChartFocusName, debtChartFocusName);
+    const x = displayWordAs(w, model, viewSettings);
     if (x.asset) {
       result.asset = true;
     }
@@ -527,14 +576,13 @@ function displayAs(
 function makeADTChartNames(
   allNames: string[],
   model: DbModelData,
-  assetChartFocusName: string,
-  debtChartFocusName: string,
+  viewSettings: ViewSettings,
 ) {
   // log(`allNames = ${showObj(allNames)}`)
   const assetChartNames: string[] = [];
   const debtChartNames: string[] = [];
   allNames.forEach(n => {
-    const x = displayAs(n, model, assetChartFocusName, debtChartFocusName);
+    const x = displayAs(n, model, viewSettings);
     if (x.asset) {
       assetChartNames.push(n);
     } else if (x.debt) {
@@ -620,6 +668,7 @@ function filterItems(
   model: DbModelData,
   categoryCache: Map<string, string>,
   viewSettings: ViewSettings,
+  context: string,
 ) {
   // log(`filter items by ${focus}`);
   const categoryNames = new Set<string>();
@@ -650,7 +699,8 @@ function filterItems(
       const category = getCategory(item, categoryCache, model);
       // log(`item ${item} has category ${category}`);
 
-      if (viewSettings.showItem(item) || viewSettings.showCategory(category)) {
+      if (viewSettings.getShowItem(item, context) 
+        || viewSettings.getShowCategory(category, context)) {
         // log(`include this item for ${focus}`);
         nameValueMap.set(item, val);
       } else {
@@ -920,9 +970,6 @@ export function makeChartDataFromEvaluations(
 
   const categoryCache = new Map<string, string>();
   const {
-    incomeFocus,
-    assetChartFocusName,
-    debtChartFocusName,
     detail,
     frequency,
     assetChartSetting,
@@ -1143,15 +1190,16 @@ export function makeChartDataFromEvaluations(
       doIncludeEvaln = rightType && rightPerson;
       // log(`include? = ${doIncludeEvaln}`);
     } else {
+      const category = getCategory(evaln.name, categoryCache, model);
       doIncludeEvaln =
-        evaln.name === assetChartFocusName ||
-        evaln.name === debtChartFocusName ||
-        (assetChartFocusName === allItems &&
+        viewSettings.getShowItem(evaln.name, assetChartFocus) ||
+        viewSettings.getShowItem(evaln.name, debtChartFocus) ||
+        (viewSettings.getShowAll(assetChartFocus) &&
           assetNames.indexOf(evaln.name) >= 0) ||
-        (debtChartFocusName === allItems &&
+        (viewSettings.getShowAll(debtChartFocus) &&
           debtNames.indexOf(evaln.name) >= 0) ||
-        getCategory(evaln.name, categoryCache, model) === assetChartFocusName ||
-        getCategory(evaln.name, categoryCache, model) === debtChartFocusName;
+        viewSettings.getShowItem(category, assetChartFocus) ||
+        viewSettings.getShowItem(category, debtChartFocus);
     }
     if (doIncludeEvaln) {
       // log(`evaln of asset ${showObj(evaln)} for val or delta...`);
@@ -1273,7 +1321,7 @@ export function makeChartDataFromEvaluations(
       assetNames = [...categories.sources]; // NQR
       debtNames = [...categories.sources]; // NQR
     }
-    if (viewSettings.showAllExpenses()) {
+    if (viewSettings.getShowAll(expenseChartFocus)) {
       // unfocussed expense views can have coarse views
       dateNameValueMap = typeDateNameValueMap.get(evaluationType.expense);
       if (dateNameValueMap !== undefined) {
@@ -1288,7 +1336,7 @@ export function makeChartDataFromEvaluations(
         expenseNames = [...categories.sources];
       }
     }
-    if (incomeFocus === allItems) {
+    if (viewSettings.getShowAllIncomes()) {
       // unfocussed income views can have coarse views
       dateNameValueMap = typeDateNameValueMap.get(evaluationType.income);
       if (dateNameValueMap !== undefined) {
@@ -1306,7 +1354,7 @@ export function makeChartDataFromEvaluations(
   }
 
   // log(`compare ${expenseChartFocus} against ${expenseChartFocusAll}`);
-  if (!viewSettings.showAllExpenses()) {
+  if (!viewSettings.getShowAll(expenseChartFocus)) {
     // apply a filter to expense data
     // focussed expense views have fewer items displayed
     const dateNameValueMap = typeDateNameValueMap.get(evaluationType.expense);
@@ -1318,11 +1366,12 @@ export function makeChartDataFromEvaluations(
         model,
         categoryCache,
         viewSettings,
+        expenseChartFocus,
       );
       typeDateNameValueMap.set(evaluationType.expense, focusItems.map);
     }
   }
-  if (incomeFocus !== allItems) {
+  if (!viewSettings.getShowAllIncomes()) {
     // apply a filter to income data
     // focussed income views have fewer items displayed
     const dateNameValueMap = typeDateNameValueMap.get(evaluationType.income);
@@ -1334,6 +1383,7 @@ export function makeChartDataFromEvaluations(
         model,
         categoryCache,
         viewSettings,
+        incomeChartFocus,
       );
       typeDateNameValueMap.set(evaluationType.income, focusItems.map);
     }
@@ -1352,11 +1402,11 @@ export function makeChartDataFromEvaluations(
     // when we plot deltas, additions or reductions,
     // use the source as the item
     if (
-      assetNames.includes(assetChartFocusName) ||
+      viewSettings.getShowSingleItem(assetNames, assetChartFocus) ||
       assetChartSetting !== assetChartVal
     ) {
       assetChartNames = assetOrDebtValueSources;
-    } else if (assetChartFocusName === allItems) {
+    } else if (viewSettings.getShowAll(assetChartFocus)) {
       // when showing all assets and values,
       // use assetNames (not sources)
       assetChartNames = assetNames;
@@ -1364,8 +1414,8 @@ export function makeChartDataFromEvaluations(
       assetChartNames = assetOrDebtValueSources;
     }
     if (
-      assetChartFocusName !== allItems &&
-      !assetNames.includes(assetChartFocusName) &&
+      !viewSettings.getShowAll(assetChartFocus) &&
+      !viewSettings.getShowSingleItem(assetNames, assetChartFocus) &&
       assetChartSetting === assetChartVal
     ) {
       assetChartNames = assetChartNames.filter(i => assetNames.includes(i));
@@ -1373,11 +1423,11 @@ export function makeChartDataFromEvaluations(
     // log(`assetChartNames = ${showObj(assetChartNames)}`);
 
     if (
-      debtNames.includes(debtChartFocusName) ||
-      assetChartSetting !== debtChartVal
+      viewSettings.getShowSingleItem(assetNames, debtChartFocus) ||
+      debtChartSetting !== debtChartVal
     ) {
       debtChartNames = assetOrDebtValueSources;
-    } else if (debtChartFocusName === allItems) {
+    } else if (viewSettings.getShowAll(debtChartFocus)) {
       // when showing all debt and values,
       // use debtNames (not sources)
       debtChartNames = debtNames;
@@ -1385,8 +1435,8 @@ export function makeChartDataFromEvaluations(
       debtChartNames = assetOrDebtValueSources;
     }
     if (
-      debtChartFocusName !== allItems &&
-      !debtNames.includes(debtChartFocusName) &&
+      !viewSettings.getShowAll(debtChartFocus) &&
+      !viewSettings.getShowSingleItem(assetNames, debtChartFocus) &&
       debtChartSetting === debtChartVal
     ) {
       debtChartNames = debtChartNames.filter(i => debtNames.includes(i));
@@ -1395,14 +1445,12 @@ export function makeChartDataFromEvaluations(
     const aDTAssetChartNames = makeADTChartNames(
       assetChartNames,
       model,
-      assetChartFocusName,
-      debtChartFocusName,
+      viewSettings,
     );
     const aDTDebtChartNames = makeADTChartNames(
       debtChartNames,
       model,
-      assetChartFocusName,
-      debtChartFocusName,
+      viewSettings,
     );
 
     result.assetData = makeChartDataPoints(

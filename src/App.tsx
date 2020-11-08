@@ -701,8 +701,7 @@ export async function submitNewSetting(
   modelData: DbModelData,
   viewSettings: ViewSettings,
 ) {
-  if (viewSettings.hasSetting(setting.NAME)) {
-    viewSettings.setViewSetting(setting.NAME, setting.VALUE);
+  if (viewSettings.setViewSetting(setting.NAME, setting.VALUE)){
     return await refreshData(
       true, // or false refreshModel = true,
       true, // refreshChart = true,
