@@ -56,7 +56,7 @@ import {
 import moment from 'moment';
 import { getTestModel } from './models/exampleModels';
 import { checkData } from './models/checks';
-import { setViewSetting } from './App';
+import { migrateViewSetting } from './App';
 
 let doLog = true;
 export function log(obj: any) {
@@ -396,7 +396,7 @@ function migrateOldVersions(model: DbModelData) {
       });
       if (idx >= 0) {
         // log(`setting setting ${name} to value ${model.settings[idx].VALUE}`);
-        setViewSetting(model.settings[idx]);
+        migrateViewSetting(model.settings[idx]);
         model.settings.splice(idx, 1);
       }
     });
@@ -1654,4 +1654,10 @@ export function attemptRenameLong(
     // log(`save adjusted model`);
     return '';
   }
+}
+export enum Context {
+  Asset,
+  Debt,
+  Income,
+  Expense,
 }

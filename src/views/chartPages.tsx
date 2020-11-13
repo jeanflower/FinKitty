@@ -27,6 +27,7 @@ import {
 } from '../localization/stringConstants';
 import { getDisplay, refreshData } from '../App';
 import {
+  Context,
   getLiabilityPeople,
   getSettings,
   log,
@@ -43,23 +44,8 @@ import { ViewSettings } from '../models/charting';
 
 const { CanvasJSChart } = CanvasJSReact;
 
-function getIncomeChartFocus(settings: ViewSettings) {
-  return settings.getViewSetting(incomeChartFocus, allItems);
-}
-
-function getExpenseChartFocus(settings: ViewSettings) {
-  return settings.getViewSetting(expenseChartFocus, allItems);
-}
-
 function getCoarseFineView(settings: ViewSettings) {
   return settings.getViewSetting(viewDetail, fine);
-}
-
-function getAssetOrDebtChartName(settings: ViewSettings, debt: boolean) {
-  return settings.getViewSetting(
-    debt ? debtChartFocus : assetChartFocus,
-    allItems,
-  );
 }
 
 function getAssetChartView(settings: ViewSettings) {
@@ -87,7 +73,7 @@ async function editViewSetting(
   },
   settings: ViewSettings,
 ) {
-  settings.setViewSetting(settingInput.NAME, settingInput.VALUE);
+  settings.setViewSettingString(settingInput.NAME, settingInput.VALUE);
   return await refreshData(
     false, // refreshModel = true,
     true, // refreshChart = true,
@@ -112,7 +98,7 @@ function makeFilterButton(
   buttonName: string,
   settings: ViewSettings,
   settingName: string,
-  selectedChartFocus: string,
+  context: Context,
 ) {
   return (
     <Button
@@ -122,7 +108,9 @@ function makeFilterButton(
         setViewSettingNameVal(settings, settingName, buttonName);
       }}
       title={buttonName}
-      type={buttonName === selectedChartFocus ? 'primary' : 'secondary'}
+      type={
+        settings.highlightButton(context, buttonName) ? 'primary' : 'secondary'
+      }
       id={`select-${buttonName}`}
     />
   );
@@ -130,9 +118,9 @@ function makeFilterButton(
 
 function makeFiltersList(
   gridData: { CATEGORY: string; NAME: string }[],
-  selectedChartFocus: string,
   settingName: string,
   settings: ViewSettings,
+  context: Context,
 ) {
   // selectedChartFocus = this.getExpenseChartFocus()
   // settingName = expenseChartFocus
@@ -150,12 +138,7 @@ function makeFiltersList(
   buttonNames = buttonNames.concat(names);
 
   const buttons1 = buttonNames.map(buttonName => {
-    return makeFilterButton(
-      buttonName,
-      settings,
-      settingName,
-      selectedChartFocus,
-    );
+    return makeFilterButton(buttonName, settings, settingName, context);
   });
   const categories: string[] = [];
   gridData.forEach(e => {
@@ -170,12 +153,7 @@ function makeFiltersList(
   categories.sort();
   categories.unshift(allItems);
   const buttons2 = categories.map(buttonName => {
-    return makeFilterButton(
-      buttonName,
-      settings,
-      settingName,
-      selectedChartFocus,
-    );
+    return makeFilterButton(buttonName, settings, settingName, context);
   });
 
   return (
@@ -328,9 +306,9 @@ export function incomesChartDivWithButtons(
       />
       {makeFiltersList(
         model.incomes,
-        getIncomeChartFocus(settings),
         incomeChartFocus,
         settings,
+        Context.Income,
       )}
       {coarseFineList(settings)}
       {incomesChartDiv(incomesChartData, chartSettings)}
@@ -387,9 +365,9 @@ export function expensesChartDivWithButtons(
       />
       {makeFiltersList(
         model.expenses,
-        getExpenseChartFocus(settings),
         expenseChartFocus,
         settings,
+        Context.Expense,
       )}
       {coarseFineList(settings)}
       <fieldset>
@@ -407,7 +385,6 @@ function makeButton(
   assetOrDebt: string,
   isDebt: boolean,
   settings: ViewSettings,
-  selectedAssetOrDebt: string,
   forOverview: boolean,
 ) {
   return (
@@ -422,7 +399,14 @@ function makeButton(
         }
       }}
       title={assetOrDebt}
-      type={assetOrDebt === selectedAssetOrDebt ? 'primary' : 'secondary'}
+      type={
+        settings.highlightButton(
+          isDebt ? Context.Debt : Context.Asset,
+          assetOrDebt,
+        )
+          ? 'primary'
+          : 'secondary'
+      }
       id={`chooseAssetOrDebtChartSetting-${forOverview ? `overview` : ``}-${
         isDebt ? `debt` : `asset`
       }-${assetOrDebt}`}
@@ -444,15 +428,8 @@ function assetsOrDebtsButtonList(
     .sort();
   // log(`assetNames = ${assetNames}`);
   // log(`assetNames with categories = ${assetNames}`);
-  const selectedAssetOrDebt = getAssetOrDebtChartName(settings, isDebt);
   const assetOrDebtButtons = assetOrDebtNames.map(assetOrDebt => {
-    return makeButton(
-      assetOrDebt,
-      isDebt,
-      settings,
-      selectedAssetOrDebt,
-      forOverview,
-    );
+    return makeButton(assetOrDebt, isDebt, settings, forOverview);
   });
   let categoryNames: string[] = [];
   assetsOrDebts.forEach(data => {
@@ -466,13 +443,7 @@ function assetsOrDebtsButtonList(
   categoryNames = categoryNames.sort();
   categoryNames.unshift(allItems);
   const categoryButtons = categoryNames.map(category => {
-    return makeButton(
-      category,
-      isDebt,
-      settings,
-      selectedAssetOrDebt,
-      forOverview,
-    );
+    return makeButton(category, isDebt, settings, forOverview);
   });
   return (
     <>

@@ -299,7 +299,18 @@ let reactAppComponent: AppContent;
 export function setViewSetting(input: DbSetting): boolean {
   // log(`setview setting being processed`);
   if (reactAppComponent) {
-    return reactAppComponent.state.viewState.setViewSetting(
+    return reactAppComponent.state.viewState.setViewSettingString(
+      input.NAME,
+      input.VALUE,
+    );
+  } else {
+    return false;
+  }
+}
+export function migrateViewSetting(input: DbSetting): boolean {
+  // log(`setview setting being processed`);
+  if (reactAppComponent) {
+    return reactAppComponent.state.viewState.migrateViewSettingString(
       input.NAME,
       input.VALUE,
     );
@@ -700,7 +711,7 @@ export async function submitNewSetting(
   modelData: DbModelData,
   viewSettings: ViewSettings,
 ) {
-  if (viewSettings.setViewSetting(setting.NAME, setting.VALUE)) {
+  if (viewSettings.migrateViewSettingString(setting.NAME, setting.VALUE)) {
     return await refreshData(
       false, // or false refreshModel = true,
       true, // refreshChart = true,
