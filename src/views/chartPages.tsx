@@ -78,15 +78,18 @@ async function setViewSettingNameVal(
 function makeIncomeExpenseFilterButton(
   buttonName: string,
   settings: ViewSettings,
-  settingName: string,
   context: Context,
 ) {
   return (
     <Button
       key={buttonName}
-      action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+      action={async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.persist();
         settings.toggleViewFilter(context, buttonName);
+        return await refreshData(
+          false, // refreshModel = true,
+          true, // refreshChart = true,
+        );
       }}
       title={buttonName}
       type={
@@ -99,7 +102,6 @@ function makeIncomeExpenseFilterButton(
 
 function makeIncomeExpenseFiltersList(
   gridData: { CATEGORY: string; NAME: string }[],
-  settingName: string,
   settings: ViewSettings,
   context: Context,
 ) {
@@ -119,7 +121,7 @@ function makeIncomeExpenseFiltersList(
   buttonNames = buttonNames.concat(names);
 
   const buttons1 = buttonNames.map(buttonName => {
-    return makeIncomeExpenseFilterButton(buttonName, settings, settingName, context);
+    return makeIncomeExpenseFilterButton(buttonName, settings, context);
   });
   const categories: string[] = [];
   gridData.forEach(e => {
@@ -134,7 +136,7 @@ function makeIncomeExpenseFiltersList(
   categories.sort();
   categories.unshift(allItems);
   const buttons2 = categories.map(buttonName => {
-    return makeIncomeExpenseFilterButton(buttonName, settings, settingName, context);
+    return makeIncomeExpenseFilterButton(buttonName, settings, context);
   });
 
   return (
@@ -287,7 +289,6 @@ export function incomesChartDivWithButtons(
       />
       {makeIncomeExpenseFiltersList(
         model.incomes,
-        incomeChartFocus,
         settings,
         Context.Income,
       )}
@@ -346,7 +347,6 @@ export function expensesChartDivWithButtons(
       />
       {makeIncomeExpenseFiltersList(
         model.expenses,
-        expenseChartFocus,
         settings,
         Context.Expense,
       )}
@@ -371,13 +371,17 @@ function makeButton(
   return (
     <Button
       key={assetOrDebt}
-      action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+      action={async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.persist();
         if (isDebt) {
           settings.toggleViewFilter(Context.Debt, assetOrDebt);
         } else {
           settings.toggleViewFilter(Context.Asset, assetOrDebt);
         }
+        return await refreshData(
+          false, // refreshModel = true,
+          true, // refreshChart = true,
+        );
       }}
       title={assetOrDebt}
       type={

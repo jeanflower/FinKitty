@@ -74,12 +74,24 @@ import { checkEvalnType } from './checks';
 
 export class ViewSettings {
   private kvPairs: Map<string, string> = new Map<string, string>();
-  private showBool = {
+  private show = {
     [Context.Asset]: new Map<string, boolean>(),
     [Context.Debt]: new Map<string, boolean>(),
     [Context.Income]: new Map<string, boolean>(),
     [Context.Expense]: new Map<string, boolean>(),
   };
+  private dependents = {
+    [Context.Asset]: new Map<string, string[]>(),
+    [Context.Debt]: new Map<string, string[]>(),
+    [Context.Income]: new Map<string, string[]>(),
+    [Context.Expense]: new Map<string, string[]>(),
+  }
+  private supercategories = {
+    [Context.Asset]: new Map<string, string[]>(),
+    [Context.Debt]: new Map<string, string[]>(),
+    [Context.Income]: new Map<string, string[]>(),
+    [Context.Expense]: new Map<string, string[]>(),
+  }  
   /*
 e.g.
     {
@@ -130,57 +142,115 @@ e.g.
 
   public constructor(pairs: { NAME: string; VALUE: string }[]) {
     // log(`build new ViewSettings object`);
-    this.showBool[Context.Asset].set(allItems, false);
-    this.showBool[Context.Debt].set(allItems, false);
-    this.showBool[Context.Income].set(allItems, false);
-    this.showBool[Context.Expense].set(allItems, false);
     pairs.forEach(p => {
       // log(`input pair ${p.NAME}, ${p.VALUE}`);
       this.kvPairs.set(p.NAME, p.VALUE);
       const ctxt = this.makeContextFromString(p.NAME);
       if(ctxt !== undefined){
-        this.showBool[ctxt].set(p.VALUE, true);
+        this.show[ctxt].set(p.VALUE, true);
       }
     });
+    this.dependents = this.makeEmptyDependents();
+    this.supercategories = this.makeEmptySuperCategories();
   }
-  private setInMapIfAbsent(map: Map<string, boolean>, key: string, value: boolean) {
+  private makeEmptyDependents(){
+    const result: any = {
+      [Context.Asset]: new Map<string, string[]>(),
+      [Context.Debt]: new Map<string, string[]>(), 
+      [Context.Income]: new Map<string, string[]>(), 
+      [Context.Expense]: new Map<string, string[]>(), 
+    };
+    result[Context.Asset].set(allItems, []);
+    result[Context.Debt].set(allItems, []);
+    result[Context.Income].set(allItems, []);
+    result[Context.Expense].set(allItems, []);
+    return result;
+  }
+  private makeEmptySuperCategories(){
+    const result: any = {
+      [Context.Asset]: new Map<string, string[]>(),
+      [Context.Debt]: new Map<string, string[]>(), 
+      [Context.Income]: new Map<string, string[]>(), 
+      [Context.Expense]: new Map<string, string[]>(), 
+    };
+    return result;
+  }
+  private setInMapIfAbsent(
+    context: Context,
+    key: string, 
+    ascendent: string,
+  ) {
+    const map = this.show[context];
     if (map.get(key) !== undefined) {
       return;
     }
-    // log(`setup showBool(${key}) = ${value}`);
+    const value = 
+      this.highlightButton(context, ascendent) ||
+      this.highlightButton(context, allItems);
     map.set(key, value);
   }
+
+  private addToDependents(context: Context, key:string, value:string){
+    const map = this.dependents[context];
+    let arr: string[]| undefined = map.get(key);
+    if(arr === undefined){
+      arr = [];
+      map.set(key, arr);
+    }
+    if(arr.find((v)=>{return v === value}) === undefined){
+      arr.push(value);
+    }
+    this.addToSuperCategories(context, value, key)
+  }
+  private addToSuperCategories(context: Context, key:string, value:string){
+    const map = this.supercategories[context];
+    let arr: string[]| undefined = map.get(key);
+    if(arr === undefined){
+      arr = [];
+      map.set(key, arr);
+    }
+    if(arr.find((v)=>{return v === value}) === undefined){
+      arr.push(value);
+    }
+  }
+
+  private setItemFromModel(context: Context, a: DbItemCategory){
+    this.addToDependents(context, allItems, a.NAME);
+    this.addToDependents(context, allItems, a.CATEGORY);
+    this.addToDependents(context, a.CATEGORY, a.NAME);
+    this.setInMapIfAbsent(context, a.CATEGORY, a.CATEGORY);
+    this.setInMapIfAbsent(context, a.NAME, a.CATEGORY);
+  }
+
   public setModel(model: DbModelData) {
+    // log(`in setModel`);
+    // log(`model assets ${model.assets.map((a)=>{return a.NAME})}`);
     // for incomes and expenses the filters list is
     // allIncomes, all expenses
     // all income names and categories
     // all expense names and categories
     // allAssets,
     // all asset names and categories
-    // log(`in setModel,insert any new showBool data`);
-    // this.showBool = new Map<string,boolean>();
-    this.setInMapIfAbsent(this.showBool[Context.Asset], allItems, true);
-    this.setInMapIfAbsent(this.showBool[Context.Debt], allItems, true);
-    this.setInMapIfAbsent(this.showBool[Context.Income], allItems, true);
-    this.setInMapIfAbsent(this.showBool[Context.Expense], allItems, true);
+
+    this.dependents = this.makeEmptyDependents();
+    this.supercategories = this.makeEmptySuperCategories();
+
     model.assets.forEach(a => {
       if (a.IS_A_DEBT) {
-        this.setInMapIfAbsent(this.showBool[Context.Debt], a.NAME, false);
-        this.setInMapIfAbsent(this.showBool[Context.Debt], a.CATEGORY, false);
+        this.setItemFromModel(Context.Debt, a);
       } else {
-        this.setInMapIfAbsent(this.showBool[Context.Asset], a.NAME, false);
-        this.setInMapIfAbsent(this.showBool[Context.Asset], a.CATEGORY, false);
+        this.setItemFromModel(Context.Asset, a);
       }
     });
     model.expenses.forEach(a => {
-      this.setInMapIfAbsent(this.showBool[Context.Expense], a.NAME, false);
-      this.setInMapIfAbsent(this.showBool[Context.Expense], a.CATEGORY, false);
+      this.setItemFromModel(Context.Expense, a);
     });
     model.incomes.forEach(a => {
-      this.setInMapIfAbsent(this.showBool[Context.Income], a.NAME, false);
-      this.setInMapIfAbsent(this.showBool[Context.Income], a.CATEGORY, false);
+      this.setItemFromModel(Context.Income, a);
     });
+
   }
+
   private makeContextFromString(context: string) {
     if (context === assetChartFocus) {
       return Context.Asset;
@@ -204,22 +274,41 @@ e.g.
       return false;
     }
   }
+  private setViewFilter(context: Context, settingType: string, value: boolean){
+    // log(`switch show(${settingType}) to ${value}`);
+    this.show[context].set(settingType, value);
+    const deps = this.dependents[context].get(settingType);
+    if(deps !== undefined){
+      deps.forEach((dep) => {
+        // log(`switch dependent show(${dep}) to ${value}`);
+        this.show[context].set(dep, value);
+      });
+    }
+    if(value === false){
+      const sups = this.supercategories[context].get(settingType);
+      if(sups !== undefined){
+        sups.forEach((sup) => {
+          // log(`switch superCategory show(${dep}) to ${false}`);
+          this.show[context].set(sup, false);
+        });
+      }  
+    }
+  }
 
-  public toggleViewFilter(context: Context, settingType: string) {
-    // log(`setViewSetting with context = ${context}, value = ${value}`);
-    if (this.getShowItem(context, settingType)) {
-      // log(`switch showBool(${value}) from true to false`);
-      this.showBool[context].set(settingType, false);
+  public toggleViewFilter(context: Context, filterName: string) {
+    // log(`toggleViewFilter with context = ${context}, filterName = ${filterName}`);
+    if (this.highlightButton(context, filterName)) {
+      this.setViewFilter(context, filterName, false);
     } else {
-      // log(`switch showBool(${value}) from false to true`);
-      this.showBool[context].set(settingType, true);
+      // log(`switch show(${value}) from false to true`);
+      this.setViewFilter(context, filterName, true);
     }
   }
 
   public migrateViewSettingString(context: string, value: string) {
     const ctxt = this.makeContextFromString(context);
     if (ctxt !== undefined) {
-      if (this.showBool[ctxt].get(value) === undefined) {
+      if (this.show[ctxt].get(value) === undefined) {
         return false;
       }
       this.migrateViewSetting(ctxt, value);
@@ -235,16 +324,17 @@ e.g.
 
   private migrateViewSetting(context: Context, value: string) {
     //clear pre-existing settings
-    for (const [key] of this.showBool[context]) {
+    for (const [key] of this.show[context]) {
       // clear value
-      // log(`set showBool(${key})  = true`);
-      this.showBool[context].set(key, false);
+      // log(`clear values: set show(${key})  = false`);
+      this.show[context].set(key, false);
     }
-    this.showBool[context].set(value, true);
+    // log(`set show(${value})  = true`);
+    this.setViewFilter(context, value, true);
   }
 
   public getShowItem(context: Context, item: string): boolean {
-    const result: boolean | undefined = this.showBool[context].get(item);
+    const result: boolean | undefined = this.show[context].get(item);
     if (result === undefined) {
       return false;
     } else {
@@ -254,7 +344,7 @@ e.g.
 
   //no need to optimise this
   public getShowAll(context: Context): boolean {
-    const result = this.showBool[context].get(allItems);
+    const result = this.show[context].get(allItems);
     if (result === undefined) {
       return false;
     } else {
@@ -277,7 +367,8 @@ e.g.
   }
 
   public highlightButton(context: Context, value: string) {
-    const mapVal = this.showBool[context].get(value);
+    const mapVal = this.show[context].get(value);
+    // log(`highlightButton ${value}? ${mapVal}`)
     return mapVal !== undefined && mapVal;
   }
 }
@@ -579,8 +670,6 @@ function displayWordAs(
       // have a matching asset
       // Include if focus is allItems or this asset name
       const setAsset =
-        showAllAssets ||
-        viewSettings.getShowItem(Context.Asset, assetMatch[0].CATEGORY) ||
         viewSettings.getShowItem(Context.Asset, assetMatch[0].NAME);
       if (setAsset) {
         result.asset = true;
@@ -589,8 +678,6 @@ function displayWordAs(
       // have a matching debt
       // Include if focus is allItems or this debt name
       const setDebt =
-        showAllDebts ||
-        viewSettings.getShowItem(Context.Debt, assetMatch[0].CATEGORY) ||
         viewSettings.getShowItem(Context.Debt, assetMatch[0].NAME);
       if (setDebt) {
         result.debt = true;
@@ -608,8 +695,6 @@ function displayWordAs(
         // Have a debt with a matching category
         // Include if focus is allItems or this category name
         const setDebt =
-          showAllDebts ||
-          viewSettings.getShowItem(Context.Debt, a.CATEGORY) ||
           viewSettings.getShowItem(Context.Debt, a.NAME);
         if (setDebt) {
           result.debt = true;
@@ -618,8 +703,6 @@ function displayWordAs(
         // Have an asset with a matching category
         // Include if focus is allItems or this category name
         const setAsset =
-          showAllDebts ||
-          viewSettings.getShowItem(Context.Asset, a.CATEGORY) ||
           viewSettings.getShowItem(Context.Asset, a.NAME);
         if (setAsset) {
           result.asset = true;
@@ -807,10 +890,7 @@ function filterIncomeOrExpenseItems(
       const category = getCategory(item, categoryCache, model);
       // log(`item ${item} has category ${category}`);
 
-      if (
-        viewSettings.getShowItem(context, item) ||
-        viewSettings.getShowItem(context, category)
-      ) {
+      if(viewSettings.getShowItem(context, item)) {
         // log(`include this item for ${focus}`);
         nameValueMap.set(item, val);
       } else {
@@ -1011,7 +1091,7 @@ function getDisplayType(
   return evalnType;
 }
 
-export function makeChartDataFromEvaluations(
+export function makeChartData(
   model: DbModelData,
   viewSettings: ViewSettings,
   evaluationsAndVals: {
@@ -1026,7 +1106,6 @@ export function makeChartDataFromEvaluations(
     return true;
   },
 ) {
-  viewSettings.setModel(model);
   if (evaluationsAndVals.evaluations.length === 0) {
     const emptyData: DataForView = {
       expensesData: [],
@@ -1284,12 +1363,8 @@ export function makeChartDataFromEvaluations(
     } else {
       const category = getCategory(evaln.name, categoryCache, model);
       doIncludeEvaln =
-        (showAllAssets && assetNames.indexOf(evaln.name) >= 0) ||
         viewSettings.getShowItem(Context.Asset, evaln.name) ||
-        viewSettings.getShowItem(Context.Asset, category) ||
-        (showAllDebts && debtNames.indexOf(evaln.name) >= 0) ||
-        viewSettings.getShowItem(Context.Debt, evaln.name) ||
-        viewSettings.getShowItem(Context.Debt, category);
+        viewSettings.getShowItem(Context.Debt, evaln.name);
     }
     if (doIncludeEvaln) {
       // log(`evaln of asset ${showObj(evaln)} for val or delta...`);
@@ -1588,4 +1663,28 @@ export function makeChartDataFromEvaluations(
 
   // log(`chart data produced: ${showObj(result)}`);
   return result;
+}
+
+export function makeChartDataFromEvaluations(
+  model: DbModelData,
+  viewSettings: ViewSettings,
+  evaluationsAndVals: {
+    evaluations: Evaluation[];
+    todaysAssetValues: Map<string, number>;
+    todaysDebtValues: Map<string, number>;
+    todaysIncomeValues: Map<string, number>;
+    todaysExpenseValues: Map<string, number>;
+    todaysSettingValues: Map<string, string>;
+  },
+  getDisplay: (type: ViewType) => boolean = () => {
+    return true;
+  },
+) {
+  viewSettings.setModel(model);
+  return makeChartData(
+    model,
+    viewSettings,
+    evaluationsAndVals,
+    getDisplay,
+  );
 }

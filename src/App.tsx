@@ -6,7 +6,7 @@ import {
   simpleExampleData,
 } from './models/exampleModels';
 import { useAuth0 } from './contexts/auth0-context';
-import { makeChartDataFromEvaluations, ViewSettings } from './models/charting';
+import { makeChartData, ViewSettings } from './models/charting';
 import { checkData, checkTransaction, checkTrigger } from './models/checks';
 import { AddDeleteTransactionForm } from './views/reactComponents/AddDeleteTransactionForm';
 import { AddDeleteTriggerForm } from './views/reactComponents/AddDeleteTriggerForm';
@@ -371,6 +371,8 @@ export async function refreshData(
   refreshModel: boolean,
   refreshChart: boolean,
 ) {
+  //log(`refreshData with refreshModel = `
+  //  +`${refreshModel}, refreshChart = ${refreshChart}`);
   const viewSettings = reactAppComponent.state.viewState;
 
   let modelNames = reactAppComponent.state.modelNamesData;
@@ -480,9 +482,12 @@ export async function refreshData(
 
     evaluationsAndVals = getEvaluations(model);
   }
+  if (refreshModel){
+    viewSettings.setModel(model);
+  }
   if (refreshModel || refreshChart) {
     // log(`refresh chart data`);
-    const result: DataForView = makeChartDataFromEvaluations(
+    const result: DataForView = makeChartData(
       model,
       viewSettings,
       evaluationsAndVals,
@@ -571,6 +576,7 @@ export async function refreshData(
     // log('refreshData in no need to visit db');
     reactAppComponent.setState({ ...reactAppComponent.state });
   }
+  // log(`finished refreshData`);
 }
 
 export async function submitAsset(assetInput: DbAsset, modelData: DbModelData) {
