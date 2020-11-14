@@ -299,7 +299,7 @@ let reactAppComponent: AppContent;
 export function setViewSetting(input: DbSetting): boolean {
   // log(`setview setting being processed`);
   if (reactAppComponent) {
-    return reactAppComponent.state.viewState.setViewSettingString(
+    return reactAppComponent.state.viewState.setViewSetting(
       input.NAME,
       input.VALUE,
     );
@@ -307,6 +307,10 @@ export function setViewSetting(input: DbSetting): boolean {
     return false;
   }
 }
+
+// When loading in an old model, set the view from the 
+// old-style settings data
+// This only matters for keeping tests passing.
 export function migrateViewSetting(input: DbSetting): boolean {
   // log(`setview setting being processed`);
   if (reactAppComponent) {

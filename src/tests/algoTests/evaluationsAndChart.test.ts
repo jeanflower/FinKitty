@@ -65,6 +65,7 @@ import {
 } from '../../types/interfaces';
 import {
   attemptRenameLong,
+  Context,
   defaultModelSettings,
   emptyModel,
   getMinimalModelCopy,
@@ -829,7 +830,7 @@ describe('evaluations tests', () => {
 
     const viewSettings = defaultTestViewSettings();
 
-    viewSettings.setViewSettingString(viewFrequency, annually);
+    viewSettings.setViewSetting(viewFrequency, annually);
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -876,7 +877,7 @@ describe('evaluations tests', () => {
 
     const viewSettings = defaultTestViewSettings();
 
-    viewSettings.setViewSettingString(viewFrequency, annually);
+    viewSettings.setViewSetting(viewFrequency, annually);
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -1489,7 +1490,7 @@ describe('evaluations tests', () => {
 
     const viewSettings = defaultTestViewSettings();
 
-    viewSettings.setViewSettingString(viewFrequency, annually);
+    viewSettings.setViewSetting(viewFrequency, annually);
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -2095,10 +2096,10 @@ describe('evaluations tests', () => {
 
     const viewSettings = defaultTestViewSettings();
 
-    viewSettings.setViewSettingString(assetChartFocus, allItems);
-    viewSettings.setViewSettingString(assetChartFocus, 'savings');
-    viewSettings.setViewSettingString(viewFrequency, annually);
-    viewSettings.setViewSettingString(chartViewType, chartDeltas);
+    viewSettings.toggleViewFilter(Context.Asset, allItems);
+    viewSettings.toggleViewFilter(Context.Asset, 'savings');
+    viewSettings.setViewSetting(viewFrequency, annually);
+    viewSettings.setViewSetting(chartViewType, chartDeltas);
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -2512,7 +2513,7 @@ describe('evaluations tests', () => {
 
     const viewSettings = defaultTestViewSettings();
 
-    viewSettings.setViewSettingString(viewFrequency, monthly);
+    viewSettings.setViewSetting(viewFrequency, monthly);
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -3951,9 +3952,9 @@ describe('evaluations tests', () => {
 
     const viewSettings = defaultTestViewSettings();
 
-    viewSettings.setViewSettingString(assetChartFocus, allItems);
-    viewSettings.setViewSettingString(assetChartFocus, CASH_ASSET_NAME);
-    viewSettings.setViewSettingString(chartViewType, chartDeltas);
+    viewSettings.toggleViewFilter(Context.Asset, allItems);
+    viewSettings.toggleViewFilter(Context.Asset, CASH_ASSET_NAME);
+    viewSettings.setViewSetting(chartViewType, chartDeltas);
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -4191,9 +4192,9 @@ describe('evaluations tests', () => {
 
     const viewSettings = defaultTestViewSettings();
 
-    viewSettings.setViewSettingString(assetChartFocus, allItems);
-    viewSettings.setViewSettingString(assetChartFocus, CASH_ASSET_NAME);
-    viewSettings.setViewSettingString(chartViewType, chartDeltas);
+    viewSettings.toggleViewFilter(Context.Asset, allItems);
+    viewSettings.toggleViewFilter(Context.Asset, CASH_ASSET_NAME);
+    viewSettings.setViewSetting(chartViewType, chartDeltas);
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -4413,9 +4414,9 @@ describe('evaluations tests', () => {
 
     const viewSettings = defaultTestViewSettings();
 
-    viewSettings.setViewSettingString(assetChartFocus, allItems);
-    viewSettings.setViewSettingString(assetChartFocus, CASH_ASSET_NAME);
-    viewSettings.setViewSettingString(chartViewType, chartDeltas);
+    viewSettings.toggleViewFilter(Context.Asset, allItems);
+    viewSettings.toggleViewFilter(Context.Asset, CASH_ASSET_NAME);
+    viewSettings.setViewSetting(chartViewType, chartDeltas);
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -14520,7 +14521,7 @@ describe('evaluations tests', () => {
 
     const viewSettings = defaultTestViewSettings();
 
-    viewSettings.setViewSettingString(viewDetail, coarse);
+    viewSettings.setViewSetting(viewDetail, coarse);
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -14654,7 +14655,7 @@ describe('evaluations tests', () => {
 
     const viewSettings = defaultTestViewSettings();
 
-    viewSettings.setViewSettingString(viewDetail, total);
+    viewSettings.setViewSetting(viewDetail, total);
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -14758,7 +14759,7 @@ describe('evaluations tests', () => {
 
     const viewSettings = defaultTestViewSettings();
 
-    viewSettings.setViewSettingString(viewDetail, fine);
+    viewSettings.setViewSetting(viewDetail, fine);
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -14922,9 +14923,9 @@ describe('evaluations tests', () => {
 
     const viewSettings = defaultTestViewSettings();
 
-    viewSettings.setViewSettingString(assetChartFocus, allItems);
-    viewSettings.setViewSettingString(assetChartFocus, CASH_ASSET_NAME);
-    viewSettings.setViewSettingString(viewDetail, coarse);
+    viewSettings.toggleViewFilter(Context.Asset, allItems);
+    viewSettings.toggleViewFilter(Context.Asset, CASH_ASSET_NAME);
+    viewSettings.setViewSetting(viewDetail, coarse);
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -15002,9 +15003,9 @@ describe('evaluations tests', () => {
 
     const viewSettings = defaultTestViewSettings();
 
-    viewSettings.setViewSettingString(assetChartFocus, allItems);
-    viewSettings.setViewSettingString(assetChartFocus, 'Accessible');
-    viewSettings.setViewSettingString(viewDetail, coarse);
+    viewSettings.toggleViewFilter(Context.Asset, allItems);
+    viewSettings.toggleViewFilter(Context.Asset, 'Accessible');
+    viewSettings.setViewSetting(viewDetail, coarse);
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -15041,9 +15042,9 @@ describe('evaluations tests', () => {
 
     const viewSettings = defaultTestViewSettings();
 
-    viewSettings.setViewSettingString(assetChartFocus, allItems);
-    viewSettings.setViewSettingString(assetChartFocus, 'stocks');
-    viewSettings.setViewSettingString(viewDetail, coarse);
+    viewSettings.toggleViewFilter(Context.Asset, allItems);
+    viewSettings.toggleViewFilter(Context.Asset, 'stocks');
+    viewSettings.setViewSetting(viewDetail, coarse);
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -15121,9 +15122,9 @@ describe('evaluations tests', () => {
 
     const viewSettings = defaultTestViewSettings();
 
-    viewSettings.setViewSettingString(assetChartFocus, allItems);
-    viewSettings.setViewSettingString(assetChartFocus, 'savings');
-    viewSettings.setViewSettingString(viewDetail, coarse);
+    viewSettings.toggleViewFilter(Context.Asset, allItems);
+    viewSettings.toggleViewFilter(Context.Asset, 'savings');
+    viewSettings.setViewSetting(viewDetail, coarse);
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -15201,9 +15202,9 @@ describe('evaluations tests', () => {
 
     const viewSettings = defaultTestViewSettings();
 
-    viewSettings.setViewSettingString(assetChartFocus, allItems);
-    viewSettings.setViewSettingString(assetChartFocus, 'Accessible');
-    viewSettings.setViewSettingString(viewDetail, fine);
+    viewSettings.toggleViewFilter(Context.Asset, allItems);
+    viewSettings.toggleViewFilter(Context.Asset, 'Accessible');
+    viewSettings.setViewSetting(viewDetail, fine);
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -15248,8 +15249,8 @@ describe('evaluations tests', () => {
 
     const viewSettings = defaultTestViewSettings();
 
-    viewSettings.setViewSettingString(viewDetail, coarse);
-    viewSettings.setViewSettingString(chartViewType, chartDeltas);
+    viewSettings.setViewSetting(viewDetail, coarse);
+    viewSettings.setViewSetting(chartViewType, chartDeltas);
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -15335,8 +15336,8 @@ describe('evaluations tests', () => {
 
     const viewSettings = defaultTestViewSettings();
 
-    viewSettings.setViewSettingString(viewDetail, coarse);
-    viewSettings.setViewSettingString(chartViewType, chartReductions);
+    viewSettings.setViewSetting(viewDetail, coarse);
+    viewSettings.setViewSetting(chartViewType, chartReductions);
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -15383,8 +15384,8 @@ describe('evaluations tests', () => {
 
     const viewSettings = defaultTestViewSettings();
 
-    viewSettings.setViewSettingString(viewDetail, coarse);
-    viewSettings.setViewSettingString(chartViewType, chartAdditions);
+    viewSettings.setViewSetting(viewDetail, coarse);
+    viewSettings.setViewSetting(chartViewType, chartAdditions);
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -15465,9 +15466,9 @@ describe('evaluations tests', () => {
 
     const viewSettings = defaultTestViewSettings();
 
-    viewSettings.setViewSettingString(assetChartFocus, allItems);
-    viewSettings.setViewSettingString(assetChartFocus, 'Accessible');
-    viewSettings.setViewSettingString(viewDetail, coarse);
+    viewSettings.toggleViewFilter(Context.Asset, allItems);
+    viewSettings.toggleViewFilter(Context.Asset, 'Accessible');
+    viewSettings.setViewSetting(viewDetail, coarse);
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -15508,9 +15509,9 @@ describe('evaluations tests', () => {
 
     const viewSettings = defaultTestViewSettings();
 
-    viewSettings.setViewSettingString(assetChartFocus, allItems);
-    viewSettings.setViewSettingString(assetChartFocus, 'Accessible');
-    viewSettings.setViewSettingString(viewDetail, fine);
+    viewSettings.toggleViewFilter(Context.Asset, allItems);
+    viewSettings.toggleViewFilter(Context.Asset, 'Accessible');
+    viewSettings.setViewSetting(viewDetail, fine);
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -15558,11 +15559,11 @@ describe('evaluations tests', () => {
 
     const viewSettings = defaultTestViewSettings();
 
-    viewSettings.setViewSettingString(chartViewType, chartVals);
-    viewSettings.setViewSettingString(viewDetail, fine);
-    viewSettings.setViewSettingString(viewFrequency, annually);
-    viewSettings.setViewSettingString(viewDetail, coarse);
-    viewSettings.setViewSettingString(chartViewType, chartAdditions);
+    viewSettings.setViewSetting(chartViewType, chartVals);
+    viewSettings.setViewSetting(viewDetail, fine);
+    viewSettings.setViewSetting(viewFrequency, annually);
+    viewSettings.setViewSetting(viewDetail, coarse);
+    viewSettings.setViewSetting(chartViewType, chartAdditions);
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -15605,11 +15606,11 @@ describe('evaluations tests', () => {
 
     const viewSettings = defaultTestViewSettings();
 
-    viewSettings.setViewSettingString(chartViewType, chartVals);
-    viewSettings.setViewSettingString(viewDetail, fine);
-    viewSettings.setViewSettingString(viewFrequency, annually);
-    viewSettings.setViewSettingString(viewDetail, coarse);
-    viewSettings.setViewSettingString(chartViewType, chartReductions);
+    viewSettings.setViewSetting(chartViewType, chartVals);
+    viewSettings.setViewSetting(viewDetail, fine);
+    viewSettings.setViewSetting(viewFrequency, annually);
+    viewSettings.setViewSetting(viewDetail, coarse);
+    viewSettings.setViewSetting(chartViewType, chartReductions);
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -15655,11 +15656,11 @@ describe('evaluations tests', () => {
 
     const viewSettings = defaultTestViewSettings();
 
-    viewSettings.setViewSettingString(chartViewType, chartVals);
-    viewSettings.setViewSettingString(viewDetail, fine);
-    viewSettings.setViewSettingString(viewFrequency, annually);
-    viewSettings.setViewSettingString(viewDetail, coarse);
-    viewSettings.setViewSettingString(chartViewType, chartDeltas);
+    viewSettings.setViewSetting(chartViewType, chartVals);
+    viewSettings.setViewSetting(viewDetail, fine);
+    viewSettings.setViewSetting(viewFrequency, annually);
+    viewSettings.setViewSetting(viewDetail, coarse);
+    viewSettings.setViewSetting(chartViewType, chartDeltas);
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -18785,7 +18786,6 @@ describe('evaluations tests', () => {
 
     const viewSettings = defaultTestViewSettings();
 
-    viewSettings.migrateViewSettingString(assetChartFocus, allItems);
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -20855,7 +20855,7 @@ describe('evaluations tests', () => {
 
     const viewSettings = defaultTestViewSettings();
 
-    viewSettings.setViewSettingString(viewFrequency, annually);
+    viewSettings.setViewSetting(viewFrequency, annually);
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,

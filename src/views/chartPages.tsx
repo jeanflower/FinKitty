@@ -68,7 +68,7 @@ async function setViewSettingNameVal(
   name: string,
   val: string,
 ) {
-  settings.setViewSettingString(name, val);
+  settings.setViewSetting(name, val);
   return await refreshData(
     false, // refreshModel = true,
     true, // refreshChart = true,
@@ -86,7 +86,7 @@ function makeIncomeExpenseFilterButton(
       key={buttonName}
       action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.persist();
-        settings.setViewSetting(context, buttonName);
+        settings.toggleViewFilter(context, buttonName);
       }}
       title={buttonName}
       type={
@@ -374,9 +374,9 @@ function makeButton(
       action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.persist();
         if (isDebt) {
-          settings.setViewSetting(Context.Debt, assetOrDebt);
+          settings.toggleViewFilter(Context.Debt, assetOrDebt);
         } else {
-          settings.setViewSetting(Context.Asset, assetOrDebt);
+          settings.toggleViewFilter(Context.Asset, assetOrDebt);
         }
       }}
       title={assetOrDebt}
