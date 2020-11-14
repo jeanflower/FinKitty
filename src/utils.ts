@@ -396,7 +396,7 @@ function migrateOldVersions(model: DbModelData) {
       });
       if (idx >= 0) {
         // log(`setting setting ${name} to value ${model.settings[idx].VALUE}`);
-        // When loading in an old model, set the view from the 
+        // When loading in an old model, set the view from the
         // old-style settings data.
         // This only matters for keeping tests passing.
         migrateViewSetting(model.settings[idx]);

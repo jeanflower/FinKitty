@@ -85,13 +85,13 @@ export class ViewSettings {
     [Context.Debt]: new Map<string, string[]>(),
     [Context.Income]: new Map<string, string[]>(),
     [Context.Expense]: new Map<string, string[]>(),
-  }
+  };
   private supercategories = {
     [Context.Asset]: new Map<string, string[]>(),
     [Context.Debt]: new Map<string, string[]>(),
     [Context.Income]: new Map<string, string[]>(),
     [Context.Expense]: new Map<string, string[]>(),
-  }  
+  };
   /*
 e.g.
     {
@@ -146,19 +146,19 @@ e.g.
       // log(`input pair ${p.NAME}, ${p.VALUE}`);
       this.kvPairs.set(p.NAME, p.VALUE);
       const ctxt = this.makeContextFromString(p.NAME);
-      if(ctxt !== undefined){
+      if (ctxt !== undefined) {
         this.show[ctxt].set(p.VALUE, true);
       }
     });
     this.dependents = this.makeEmptyDependents();
     this.supercategories = this.makeEmptySuperCategories();
   }
-  private makeEmptyDependents(){
+  private makeEmptyDependents() {
     const result: any = {
       [Context.Asset]: new Map<string, string[]>(),
-      [Context.Debt]: new Map<string, string[]>(), 
-      [Context.Income]: new Map<string, string[]>(), 
-      [Context.Expense]: new Map<string, string[]>(), 
+      [Context.Debt]: new Map<string, string[]>(),
+      [Context.Income]: new Map<string, string[]>(),
+      [Context.Expense]: new Map<string, string[]>(),
     };
     result[Context.Asset].set(allItems, []);
     result[Context.Debt].set(allItems, []);
@@ -166,55 +166,59 @@ e.g.
     result[Context.Expense].set(allItems, []);
     return result;
   }
-  private makeEmptySuperCategories(){
+  private makeEmptySuperCategories() {
     const result: any = {
       [Context.Asset]: new Map<string, string[]>(),
-      [Context.Debt]: new Map<string, string[]>(), 
-      [Context.Income]: new Map<string, string[]>(), 
-      [Context.Expense]: new Map<string, string[]>(), 
+      [Context.Debt]: new Map<string, string[]>(),
+      [Context.Income]: new Map<string, string[]>(),
+      [Context.Expense]: new Map<string, string[]>(),
     };
     return result;
   }
-  private setInMapIfAbsent(
-    context: Context,
-    key: string, 
-    ascendent: string,
-  ) {
+  private setInMapIfAbsent(context: Context, key: string, ascendent: string) {
     const map = this.show[context];
     if (map.get(key) !== undefined) {
       return;
     }
-    const value = 
+    const value =
       this.highlightButton(context, ascendent) ||
       this.highlightButton(context, allItems);
     map.set(key, value);
   }
 
-  private addToDependents(context: Context, key:string, value:string){
+  private addToDependents(context: Context, key: string, value: string) {
     const map = this.dependents[context];
-    let arr: string[]| undefined = map.get(key);
-    if(arr === undefined){
+    let arr: string[] | undefined = map.get(key);
+    if (arr === undefined) {
       arr = [];
       map.set(key, arr);
     }
-    if(arr.find((v)=>{return v === value}) === undefined){
+    if (
+      arr.find(v => {
+        return v === value;
+      }) === undefined
+    ) {
       arr.push(value);
     }
-    this.addToSuperCategories(context, value, key)
+    this.addToSuperCategories(context, value, key);
   }
-  private addToSuperCategories(context: Context, key:string, value:string){
+  private addToSuperCategories(context: Context, key: string, value: string) {
     const map = this.supercategories[context];
-    let arr: string[]| undefined = map.get(key);
-    if(arr === undefined){
+    let arr: string[] | undefined = map.get(key);
+    if (arr === undefined) {
       arr = [];
       map.set(key, arr);
     }
-    if(arr.find((v)=>{return v === value}) === undefined){
+    if (
+      arr.find(v => {
+        return v === value;
+      }) === undefined
+    ) {
       arr.push(value);
     }
   }
 
-  private setItemFromModel(context: Context, a: DbItemCategory){
+  private setItemFromModel(context: Context, a: DbItemCategory) {
     this.addToDependents(context, allItems, a.NAME);
     this.addToDependents(context, allItems, a.CATEGORY);
     this.addToDependents(context, a.CATEGORY, a.NAME);
@@ -248,7 +252,6 @@ e.g.
     model.incomes.forEach(a => {
       this.setItemFromModel(Context.Income, a);
     });
-
   }
 
   private makeContextFromString(context: string) {
@@ -265,7 +268,7 @@ e.g.
     }
   }
 
-  // call from e.g. people adding a new Setting in a UI 
+  // call from e.g. people adding a new Setting in a UI
   public setViewSetting(settingName: string, settingValue: string): boolean {
     if (this.kvPairs.get(settingName)) {
       this.kvPairs.set(settingName, settingValue);
@@ -274,24 +277,24 @@ e.g.
       return false;
     }
   }
-  private setViewFilter(context: Context, settingType: string, value: boolean){
+  private setViewFilter(context: Context, settingType: string, value: boolean) {
     // log(`switch show(${settingType}) to ${value}`);
     this.show[context].set(settingType, value);
     const deps = this.dependents[context].get(settingType);
-    if(deps !== undefined){
-      deps.forEach((dep) => {
+    if (deps !== undefined) {
+      deps.forEach(dep => {
         // log(`switch dependent show(${dep}) to ${value}`);
         this.show[context].set(dep, value);
       });
     }
-    if(value === false){
+    if (value === false) {
       const sups = this.supercategories[context].get(settingType);
-      if(sups !== undefined){
-        sups.forEach((sup) => {
+      if (sups !== undefined) {
+        sups.forEach(sup => {
           // log(`switch superCategory show(${dep}) to ${false}`);
           this.show[context].set(sup, false);
         });
-      }  
+      }
     }
   }
 
@@ -651,8 +654,6 @@ function displayWordAs(
   word: string,
   model: DbModelData,
   viewSettings: ViewSettings,
-  showAllAssets: boolean,
-  showAllDebts: boolean,
 ) {
   // log(`determine where/how to display ${showObj(word)} in a chart`);
   const result = {
@@ -669,16 +670,20 @@ function displayWordAs(
     if (!assetMatch[0].IS_A_DEBT) {
       // have a matching asset
       // Include if focus is allItems or this asset name
-      const setAsset =
-        viewSettings.getShowItem(Context.Asset, assetMatch[0].NAME);
+      const setAsset = viewSettings.getShowItem(
+        Context.Asset,
+        assetMatch[0].NAME,
+      );
       if (setAsset) {
         result.asset = true;
       }
     } else {
       // have a matching debt
       // Include if focus is allItems or this debt name
-      const setDebt =
-        viewSettings.getShowItem(Context.Debt, assetMatch[0].NAME);
+      const setDebt = viewSettings.getShowItem(
+        Context.Debt,
+        assetMatch[0].NAME,
+      );
       if (setDebt) {
         result.debt = true;
       }
@@ -694,16 +699,14 @@ function displayWordAs(
       if (a.IS_A_DEBT) {
         // Have a debt with a matching category
         // Include if focus is allItems or this category name
-        const setDebt =
-          viewSettings.getShowItem(Context.Debt, a.NAME);
+        const setDebt = viewSettings.getShowItem(Context.Debt, a.NAME);
         if (setDebt) {
           result.debt = true;
         }
       } else {
         // Have an asset with a matching category
         // Include if focus is allItems or this category name
-        const setAsset =
-          viewSettings.getShowItem(Context.Asset, a.NAME);
+        const setAsset = viewSettings.getShowItem(Context.Asset, a.NAME);
         if (setAsset) {
           result.asset = true;
         }
@@ -717,8 +720,6 @@ function displayAs(
   name: string,
   model: DbModelData,
   viewSettings: ViewSettings,
-  showAllAssets: boolean,
-  showAllDebts: boolean,
 ) {
   const words = name.split(separator);
   const result = {
@@ -732,13 +733,7 @@ function displayAs(
     // where to display
   }
   words.forEach(w => {
-    const x = displayWordAs(
-      w,
-      model,
-      viewSettings,
-      showAllAssets,
-      showAllDebts,
-    );
+    const x = displayWordAs(w, model, viewSettings);
     if (x.asset) {
       result.asset = true;
     }
@@ -766,14 +761,12 @@ function makeADTChartNames(
   allNames: string[],
   model: DbModelData,
   viewSettings: ViewSettings,
-  showAllAssets: boolean,
-  showAllDebts: boolean,
 ) {
   // log(`allNames = ${showObj(allNames)}`)
   const assetChartNames: string[] = [];
   const debtChartNames: string[] = [];
   allNames.forEach(n => {
-    const x = displayAs(n, model, viewSettings, showAllAssets, showAllDebts);
+    const x = displayAs(n, model, viewSettings);
     if (x.asset) {
       assetChartNames.push(n);
     } else if (x.debt) {
@@ -888,7 +881,7 @@ function filterIncomeOrExpenseItems(
       }
       // log(`item ${item} has category ${category}`);
 
-      if(viewSettings.getShowItem(context, item)) {
+      if (viewSettings.getShowItem(context, item)) {
         // log(`include this item for ${focus}`);
         nameValueMap.set(item, val);
       } else {
@@ -1586,15 +1579,11 @@ export function makeChartData(
       assetChartNames,
       model,
       viewSettings,
-      showAllAssets,
-      showAllDebts,
     );
     const aDTDebtChartNames = makeADTChartNames(
       debtChartNames,
       model,
       viewSettings,
-      showAllAssets,
-      showAllDebts,
     );
 
     result.assetData = makeChartDataPoints(
@@ -1678,10 +1667,5 @@ export function makeChartDataFromEvaluations(
   },
 ) {
   viewSettings.setModel(model);
-  return makeChartData(
-    model,
-    viewSettings,
-    evaluationsAndVals,
-    getDisplay,
-  );
+  return makeChartData(model, viewSettings, evaluationsAndVals, getDisplay);
 }

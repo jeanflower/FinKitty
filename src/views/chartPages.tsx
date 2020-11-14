@@ -285,11 +285,7 @@ export function incomesChartDivWithButtons(
         identifier="incomeDataDump"
         message={showObj(incomesChartData)}
       />
-      {makeIncomeExpenseFiltersList(
-        model.incomes,
-        settings,
-        Context.Income,
-      )}
+      {makeIncomeExpenseFiltersList(model.incomes, settings, Context.Income)}
       {coarseFineList(settings)}
       {incomesChartDiv(incomesChartData, chartSettings)}
     </div>
@@ -343,11 +339,7 @@ export function expensesChartDivWithButtons(
         identifier="expenseDataDump"
         message={showObj(expensesChartData)}
       />
-      {makeIncomeExpenseFiltersList(
-        model.expenses,
-        settings,
-        Context.Expense,
-      )}
+      {makeIncomeExpenseFiltersList(model.expenses, settings, Context.Expense)}
       {coarseFineList(settings)}
       <fieldset>
         <ReactiveTextArea

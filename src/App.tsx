@@ -308,7 +308,7 @@ export function setViewSetting(input: DbSetting): boolean {
   }
 }
 
-// When loading in an old model, set the view from the 
+// When loading in an old model, set the view from the
 // old-style settings data
 // This only matters for keeping tests passing.
 export function migrateViewSetting(input: DbSetting): boolean {
@@ -482,7 +482,7 @@ export async function refreshData(
 
     evaluationsAndVals = getEvaluations(model);
   }
-  if (refreshModel){
+  if (refreshModel) {
     viewSettings.setModel(model);
   }
   if (refreshModel || refreshChart) {
