@@ -4,13 +4,11 @@ import {
   annually,
   chartAdditions,
   chartDeltas,
-  assetChartFocus,
   chartReductions,
   chartVals,
   chartViewType,
   birthDate,
   coarse,
-  debtChartFocus,
   expenseChartFocus,
   fine,
   gain,
@@ -65,36 +63,19 @@ function getTaxShowNet(settings: ViewSettings) {
   return type === 'Y' || type === 'y' || type === 'yes';
 }
 
-// if HINT or TYPE are empty, leave pre-existing values
-async function editViewSetting(
-  settingInput: {
-    NAME: string;
-    VALUE: string;
-  },
+async function setViewSettingNameVal(
   settings: ViewSettings,
+  name: string,
+  val: string,
 ) {
-  settings.setViewSettingString(settingInput.NAME, settingInput.VALUE);
+  settings.setViewSettingString(name, val);
   return await refreshData(
     false, // refreshModel = true,
     true, // refreshChart = true,
   );
 }
 
-function setViewSettingNameVal(
-  settings: ViewSettings,
-  name: string,
-  val: string,
-) {
-  editViewSetting(
-    {
-      NAME: name,
-      VALUE: val,
-    },
-    settings,
-  );
-}
-
-function makeFilterButton(
+function makeIncomeExpenseFilterButton(
   buttonName: string,
   settings: ViewSettings,
   settingName: string,
@@ -105,7 +86,7 @@ function makeFilterButton(
       key={buttonName}
       action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.persist();
-        setViewSettingNameVal(settings, settingName, buttonName);
+        settings.setViewSetting(context, buttonName);
       }}
       title={buttonName}
       type={
@@ -116,7 +97,7 @@ function makeFilterButton(
   );
 }
 
-function makeFiltersList(
+function makeIncomeExpenseFiltersList(
   gridData: { CATEGORY: string; NAME: string }[],
   settingName: string,
   settings: ViewSettings,
@@ -138,7 +119,7 @@ function makeFiltersList(
   buttonNames = buttonNames.concat(names);
 
   const buttons1 = buttonNames.map(buttonName => {
-    return makeFilterButton(buttonName, settings, settingName, context);
+    return makeIncomeExpenseFilterButton(buttonName, settings, settingName, context);
   });
   const categories: string[] = [];
   gridData.forEach(e => {
@@ -153,7 +134,7 @@ function makeFiltersList(
   categories.sort();
   categories.unshift(allItems);
   const buttons2 = categories.map(buttonName => {
-    return makeFilterButton(buttonName, settings, settingName, context);
+    return makeIncomeExpenseFilterButton(buttonName, settings, settingName, context);
   });
 
   return (
@@ -304,7 +285,7 @@ export function incomesChartDivWithButtons(
         identifier="incomeDataDump"
         message={showObj(incomesChartData)}
       />
-      {makeFiltersList(
+      {makeIncomeExpenseFiltersList(
         model.incomes,
         incomeChartFocus,
         settings,
@@ -363,7 +344,7 @@ export function expensesChartDivWithButtons(
         identifier="expenseDataDump"
         message={showObj(expensesChartData)}
       />
-      {makeFiltersList(
+      {makeIncomeExpenseFiltersList(
         model.expenses,
         expenseChartFocus,
         settings,
@@ -393,9 +374,9 @@ function makeButton(
       action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.persist();
         if (isDebt) {
-          setViewSettingNameVal(settings, debtChartFocus, assetOrDebt);
+          settings.setViewSetting(Context.Debt, assetOrDebt);
         } else {
-          setViewSettingNameVal(settings, assetChartFocus, assetOrDebt);
+          settings.setViewSetting(Context.Asset, assetOrDebt);
         }
       }}
       title={assetOrDebt}
