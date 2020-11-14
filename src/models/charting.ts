@@ -886,8 +886,6 @@ function filterIncomeOrExpenseItems(
         log('BUG - map should exist');
         return;
       }
-
-      const category = getCategory(item, categoryCache, model);
       // log(`item ${item} has category ${category}`);
 
       if(viewSettings.getShowItem(context, item)) {
@@ -1361,7 +1359,6 @@ export function makeChartData(
       doIncludeEvaln = rightType && rightPerson;
       // log(`include? = ${doIncludeEvaln}`);
     } else {
-      const category = getCategory(evaln.name, categoryCache, model);
       doIncludeEvaln =
         viewSettings.getShowItem(Context.Asset, evaln.name) ||
         viewSettings.getShowItem(Context.Debt, evaln.name);
