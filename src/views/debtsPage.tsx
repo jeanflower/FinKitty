@@ -25,7 +25,6 @@ function todaysDebtsTable(
 ) {
   if (todaysValues.size === 0) {
     return;
-    //return 'No data to display';
   }
   const today = getTodaysDate(model);
   return (
@@ -74,19 +73,31 @@ export function debtsDiv(
   showAlert: (arg0: string) => void,
   debtChartData: ChartData[],
   todaysValues: Map<string, number>,
+  getStartDate: (() => string) | undefined = undefined,
+  updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
+  getEndDate: (() => string) | undefined = undefined,
+  updateEndDate: ((newDate: string) => Promise<void>) | undefined = undefined,
 ) {
   if (!getDisplay(debtsView)) {
     return;
   }
 
   return (
-    <div style={{ display: getDisplay(debtsView) ? 'block' : 'none' }}>
+    <div
+      className="ml-3"
+      style={{ display: getDisplay(debtsView) ? 'block' : 'none' }}
+    >
       {assetsOrDebtsChartDivWithButtons(
         model,
         viewSettings,
         debtChartData,
         true,
         false,
+        showAlert,
+        getStartDate,
+        updateStartDate,
+        getEndDate,
+        updateEndDate,
       )}
       {todaysDebtsTable(model, todaysValues)}
       {debtsDivWithHeadings(model, showAlert)}

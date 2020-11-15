@@ -27,7 +27,6 @@ function todaysAssetsTable(
 ) {
   if (todaysValues.size === 0) {
     return;
-    //return 'No data to display';
   }
   const today = getTodaysDate(model);
   return (
@@ -76,19 +75,31 @@ export function assetsDiv(
   showAlert: (arg0: string) => void,
   assetChartData: ChartData[],
   todaysValues: Map<string, number>,
+  getStartDate: (() => string) | undefined = undefined,
+  updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
+  getEndDate: (() => string) | undefined = undefined,
+  updateEndDate: ((newDate: string) => Promise<void>) | undefined = undefined,
 ) {
   if (!getDisplay(assetsView)) {
     return;
   }
 
   return (
-    <div style={{ display: getDisplay(assetsView) ? 'block' : 'none' }}>
+    <div
+      className="ml-3"
+      style={{ display: getDisplay(assetsView) ? 'block' : 'none' }}
+    >
       {assetsOrDebtsChartDivWithButtons(
         model,
         viewSettings,
         assetChartData,
         false,
         false,
+        showAlert,
+        getStartDate,
+        updateStartDate,
+        getEndDate,
+        updateEndDate,
       )}
       {todaysAssetsTable(model, todaysValues)}
       {assetsDivWithHeadings(model, showAlert)}

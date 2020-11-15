@@ -32,7 +32,6 @@ function todaysExpensesTable(
 ) {
   if (todaysValues.size === 0) {
     return;
-    //return 'No data to display';
   }
   const today = getTodaysDate(model);
   return (
@@ -81,17 +80,29 @@ export function expensesDiv(
   showAlert: (arg0: string) => void,
   expensesChartData: ChartData[],
   todaysValues: Map<string, number>,
+  getStartDate: (() => string) | undefined = undefined,
+  updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
+  getEndDate: (() => string) | undefined = undefined,
+  updateEndDate: ((newDate: string) => Promise<void>) | undefined = undefined,
 ) {
   if (!getDisplay(expensesView)) {
     return;
   }
   return (
-    <div style={{ display: getDisplay(expensesView) ? 'block' : 'none' }}>
+    <div
+      className="ml-3"
+      style={{ display: getDisplay(expensesView) ? 'block' : 'none' }}
+    >
       {expensesChartDivWithButtons(
         model,
         viewSettings,
         expensesChartData,
         getDefaultChartSettings(viewSettings, model.settings),
+        showAlert,
+        getStartDate,
+        updateStartDate,
+        getEndDate,
+        updateEndDate,
       )}
       {todaysExpensesTable(model, todaysValues)}
       {expensesTableDivWithHeading(model, showAlert)}

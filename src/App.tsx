@@ -1097,6 +1097,10 @@ export class AppContent extends Component<AppProps, AppState> {
               showAlert,
               this.state.incomesChartData,
               this.state.todaysIncomeValues,
+              getStartDate,
+              updateStartDate,
+              getEndDate,
+              updateEndDate,
             )}
             {expensesDiv(
               this.state.modelData,
@@ -1104,6 +1108,10 @@ export class AppContent extends Component<AppProps, AppState> {
               showAlert,
               this.state.expensesChartData,
               this.state.todaysExpenseValues,
+              getStartDate,
+              updateStartDate,
+              getEndDate,
+              updateEndDate,
             )}
             {assetsDiv(
               this.state.modelData,
@@ -1111,6 +1119,10 @@ export class AppContent extends Component<AppProps, AppState> {
               showAlert,
               this.state.assetChartData,
               this.state.todaysAssetValues,
+              getStartDate,
+              updateStartDate,
+              getEndDate,
+              updateEndDate,
             )}
             {debtsDiv(
               this.state.modelData,
@@ -1118,6 +1130,10 @@ export class AppContent extends Component<AppProps, AppState> {
               showAlert,
               this.state.debtChartData,
               this.state.todaysDebtValues,
+              getStartDate,
+              updateStartDate,
+              getEndDate,
+              updateEndDate,
             )}
             {this.transactionsDiv()}
             {taxDiv(
@@ -1287,7 +1303,10 @@ export class AppContent extends Component<AppProps, AppState> {
   private homeDiv() {
     // log(`this.state.modelNamesData = ${this.state.modelNamesData}`);
     return (
-      <div style={{ display: getDisplay(homeView) ? 'block' : 'none' }}>
+      <div
+        className="ml-3"
+        style={{ display: getDisplay(homeView) ? 'block' : 'none' }}
+      >
         <div className="row">
           <div className="col-sm mb-4">
             <div className="ml-3">
@@ -1477,7 +1496,6 @@ export class AppContent extends Component<AppProps, AppState> {
   ) {
     if (todaysValues.size === 0) {
       return;
-      //return 'No data to display';
     }
     const today = getTodaysDate(model);
     return (
@@ -1523,7 +1541,10 @@ export class AppContent extends Component<AppProps, AppState> {
       return;
     }
     return (
-      <div style={{ display: getDisplay(settingsView) ? 'block' : 'none' }}>
+      <div
+        className="ml-3"
+        style={{ display: getDisplay(settingsView) ? 'block' : 'none' }}
+      >
         <fieldset>
           {this.todaysSettingsTable(model, todaysValues)}
           {settingsTableDiv(
@@ -1566,7 +1587,10 @@ export class AppContent extends Component<AppProps, AppState> {
     }
 
     return (
-      <div style={{ display: getDisplay(triggersView) ? 'block' : 'none' }}>
+      <div
+        className="ml-3"
+        style={{ display: getDisplay(triggersView) ? 'block' : 'none' }}
+      >
         {triggersTableDivWithHeading(this.state.modelData, showAlert)}
         <p />
         <div className="addNewTrigger">
@@ -1589,7 +1613,10 @@ export class AppContent extends Component<AppProps, AppState> {
     }
 
     return (
-      <div style={{ display: getDisplay(transactionsView) ? 'block' : 'none' }}>
+      <div
+        className="ml-3"
+        style={{ display: getDisplay(transactionsView) ? 'block' : 'none' }}
+      >
         {transactionFilteredTable(
           this.state.modelData,
           showAlert,

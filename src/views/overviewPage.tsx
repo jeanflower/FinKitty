@@ -168,7 +168,7 @@ export function overviewDiv(
     return;
   }
   return (
-    <>
+    <div className="ml-3">
       {chartDataExists ? (
         chartsForOverview(
           model,
@@ -209,6 +209,6 @@ export function overviewDiv(
         {transactionsOverviewDiv(model, showAlert)}
         {settingsTableDiv(model, viewSettings, showAlert)}
       </div>
-    </>
+    </div>
   );
 }

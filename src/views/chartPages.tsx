@@ -37,6 +37,7 @@ import CanvasJSReact from '../assets/js/canvasjs.react';
 import React from 'react';
 import ReactiveTextArea from './reactComponents/ReactiveTextArea';
 import { ViewSettings } from '../models/charting';
+import { AddDeleteEntryForm } from './reactComponents/AddDeleteEntryForm';
 
 const { CanvasJSChart } = CanvasJSReact;
 
@@ -252,18 +253,100 @@ function incomesChart(incomesChartData: ChartData[], chartSettings: any) {
   );
 }
 
-export function incomesChartDiv(
-  incomesChartData: ChartData[],
-  chartSettings: any,
-): any {
-  if (incomesChartData.length === 0) {
+function noDataToDisplayFragment(
+  word: string,
+  model: DbModelData | undefined = undefined,
+  showAlert: ((arg0: string) => void) | undefined = undefined,
+  getStartDate: (() => string) | undefined = undefined,
+  updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
+  getEndDate: (() => string) | undefined = undefined,
+  updateEndDate: ((newDate: string) => Promise<void>) | undefined = undefined,
+) {
+  // log(`in noDataToDisplayFragment`);
+  if (
+    model === undefined ||
+    showAlert === undefined ||
+    getStartDate === undefined ||
+    updateStartDate === undefined ||
+    getEndDate === undefined ||
+    updateEndDate === undefined
+  ) {
     return (
       <>
         <br />
-        No incomes data to display
+        No {word} data in range
         <br />
         <br />
       </>
+    );
+  } else {
+    let hasData = false;
+    if (word === 'income') {
+      hasData = model.incomes.length > 0;
+    } else if (word === 'expense') {
+      hasData = model.expenses.length > 0;
+    } else if (word === 'asset') {
+      hasData =
+        model.assets.filter(a => {
+          return a.IS_A_DEBT === false;
+        }).length > 0;
+    } else if (word === 'debt') {
+      hasData =
+        model.assets.filter(a => {
+          return a.IS_A_DEBT === true;
+        }).length > 0;
+    }
+    // log(`hasData = ${hasData}`);
+    if (!hasData) {
+      return;
+    } else {
+      return (
+        <>
+          No {word}s data - add {word}, change view filters, or adjust display
+          range
+          <br />
+          <div className="d-inline-flex p-2">
+            <AddDeleteEntryForm
+              name="view start date"
+              getValue={getStartDate}
+              submitFunction={updateStartDate}
+              showAlert={showAlert}
+            />
+            <AddDeleteEntryForm
+              name="view end date"
+              getValue={getEndDate}
+              submitFunction={updateEndDate}
+              showAlert={showAlert}
+            />
+          </div>
+          <br />
+          <br />
+        </>
+      );
+    }
+  }
+}
+
+export function incomesChartDiv(
+  incomesChartData: ChartData[],
+  chartSettings: any,
+  model: DbModelData | undefined = undefined,
+  showAlert: ((arg0: string) => void) | undefined = undefined,
+  getStartDate: (() => string) | undefined = undefined,
+  updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
+  getEndDate: (() => string) | undefined = undefined,
+  updateEndDate: ((newDate: string) => Promise<void>) | undefined = undefined,
+): any {
+  if (incomesChartData.length === 0) {
+    log(`incomesChartData.length === 0, no data`);
+    return noDataToDisplayFragment(
+      'income',
+      model,
+      showAlert,
+      getStartDate,
+      updateStartDate,
+      getEndDate,
+      updateEndDate,
     );
   } else {
     return incomesChart(incomesChartData, chartSettings);
@@ -274,22 +357,56 @@ export function incomesChartDivWithButtons(
   settings: ViewSettings,
   incomesChartData: ChartData[],
   chartSettings: any,
+  showAlert: ((arg0: string) => void) | undefined = undefined,
+  getStartDate: (() => string) | undefined = undefined,
+  updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
+  getEndDate: (() => string) | undefined = undefined,
+  updateEndDate: ((newDate: string) => Promise<void>) | undefined = undefined,
 ) {
-  return (
-    <div
-      style={{
-        display: 'block',
-      }}
-    >
-      <ReactiveTextArea
-        identifier="incomeDataDump"
-        message={showObj(incomesChartData)}
-      />
-      {makeIncomeExpenseFiltersList(model.incomes, settings, Context.Income)}
-      {coarseFineList(settings)}
-      {incomesChartDiv(incomesChartData, chartSettings)}
-    </div>
-  );
+  if (model.incomes.length === 0) {
+    return (
+      <>
+        <ReactiveTextArea
+          identifier="incomeDataDump"
+          message={showObj(incomesChartData)}
+        />
+        {noDataToDisplayFragment(
+          'income',
+          model,
+          showAlert,
+          getStartDate,
+          updateStartDate,
+          getEndDate,
+          updateEndDate,
+        )}
+      </>
+    );
+  } else {
+    return (
+      <div
+        style={{
+          display: 'block',
+        }}
+      >
+        <ReactiveTextArea
+          identifier="incomeDataDump"
+          message={showObj(incomesChartData)}
+        />
+        {makeIncomeExpenseFiltersList(model.incomes, settings, Context.Income)}
+        {coarseFineList(settings)}
+        {incomesChartDiv(
+          incomesChartData,
+          chartSettings,
+          model,
+          showAlert,
+          getStartDate,
+          updateStartDate,
+          getEndDate,
+          updateEndDate,
+        )}
+      </div>
+    );
+  }
 }
 
 function expensesChart(expensesChartData: ChartData[], chartSettings: any) {
@@ -308,15 +425,22 @@ function expensesChart(expensesChartData: ChartData[], chartSettings: any) {
 export function expensesChartDiv(
   expensesChartData: ChartData[],
   chartSettings: any,
+  model: DbModelData | undefined = undefined,
+  showAlert: ((arg0: string) => void) | undefined = undefined,
+  getStartDate: (() => string) | undefined = undefined,
+  updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
+  getEndDate: (() => string) | undefined = undefined,
+  updateEndDate: ((newDate: string) => Promise<void>) | undefined = undefined,
 ) {
   if (expensesChartData.length === 0) {
-    return (
-      <>
-        <br />
-        No expenses data to display
-        <br />
-        <br />
-      </>
+    return noDataToDisplayFragment(
+      'expense',
+      model,
+      showAlert,
+      getStartDate,
+      updateStartDate,
+      getEndDate,
+      updateEndDate,
     );
   } else {
     return expensesChart(expensesChartData, chartSettings);
@@ -328,28 +452,66 @@ export function expensesChartDivWithButtons(
   settings: ViewSettings,
   expensesChartData: ChartData[],
   chartSettings: any,
+  showAlert: ((arg0: string) => void) | undefined = undefined,
+  getStartDate: (() => string) | undefined = undefined,
+  updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
+  getEndDate: (() => string) | undefined = undefined,
+  updateEndDate: ((newDate: string) => Promise<void>) | undefined = undefined,
 ) {
-  return (
-    <div
-      style={{
-        display: 'block',
-      }}
-    >
-      <ReactiveTextArea
-        identifier="expenseDataDump"
-        message={showObj(expensesChartData)}
-      />
-      {makeIncomeExpenseFiltersList(model.expenses, settings, Context.Expense)}
-      {coarseFineList(settings)}
-      <fieldset>
+  if (model.expenses.length === 0) {
+    return (
+      <>
         <ReactiveTextArea
-          identifier="expensesDataDump"
+          identifier="expenseDataDump"
           message={showObj(expensesChartData)}
         />
-        {expensesChartDiv(expensesChartData, chartSettings)}
-      </fieldset>
-    </div>
-  );
+        {noDataToDisplayFragment(
+          'expense',
+          model,
+          showAlert,
+          getStartDate,
+          updateStartDate,
+          getEndDate,
+          updateEndDate,
+        )}
+      </>
+    );
+  } else {
+    return (
+      <div
+        style={{
+          display: 'block',
+        }}
+      >
+        <ReactiveTextArea
+          identifier="expenseDataDump"
+          message={showObj(expensesChartData)}
+        />
+        {makeIncomeExpenseFiltersList(
+          model.expenses,
+          settings,
+          Context.Expense,
+        )}
+        {coarseFineList(settings)}
+        <fieldset>
+          <ReactiveTextArea
+            identifier="expensesDataDump"
+            message={showObj(expensesChartData)}
+          />
+          {expensesChartDiv(
+            expensesChartData,
+            chartSettings,
+            model,
+            showAlert,
+            getStartDate,
+            updateStartDate,
+            getEndDate,
+            updateEndDate,
+          )}
+        </fieldset>
+      </div>
+    );
+  }
 }
 
 function makeButton(
@@ -457,15 +619,22 @@ export function assetsOrDebtsChartDiv(
   assetChartData: ChartData[],
   isDebt: boolean,
   chartSettings: any,
+  model: DbModelData | undefined = undefined,
+  showAlert: ((arg0: string) => void) | undefined = undefined,
+  getStartDate: (() => string) | undefined = undefined,
+  updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
+  getEndDate: (() => string) | undefined = undefined,
+  updateEndDate: ((newDate: string) => Promise<void>) | undefined = undefined,
 ) {
   if (assetChartData.length === 0) {
-    return (
-      <>
-        <br />
-        No {isDebt ? 'debt' : 'asset'} data to display
-        <br />
-        <br />
-      </>
+    return noDataToDisplayFragment(
+      isDebt ? 'debt' : 'asset',
+      model,
+      showAlert,
+      getStartDate,
+      updateStartDate,
+      getEndDate,
+      updateEndDate,
     );
   } else {
     return (
@@ -485,28 +654,65 @@ export function assetsOrDebtsChartDivWithButtons(
   assetChartData: ChartData[],
   isDebt: boolean,
   forOverviewPage: boolean,
+  showAlert: ((arg0: string) => void) | undefined = undefined,
+  getStartDate: (() => string) | undefined = undefined,
+  updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
+  getEndDate: (() => string) | undefined = undefined,
+  updateEndDate: ((newDate: string) => Promise<void>) | undefined = undefined,
 ) {
-  // log(`assetChartData = ${assetChartData}`);
-  return (
-    <div
-      style={{
-        display: 'block',
-      }}
-    >
-      {assetsOrDebtsButtonList(model, viewSettings, isDebt, forOverviewPage)}
-      {assetViewTypeList(viewSettings)}
-      {coarseFineList(viewSettings)}
-      <ReactiveTextArea
-        identifier={isDebt ? 'debtDataDump' : 'assetDataDump'}
-        message={showObj(assetChartData)}
-      />
-      {assetsOrDebtsChartDiv(
-        assetChartData,
-        isDebt,
-        getDefaultChartSettings(viewSettings, model.settings),
-      )}
-    </div>
-  );
+  if (
+    model.assets.filter(a => {
+      return a.IS_A_DEBT === isDebt;
+    }).length === 0
+  ) {
+    const word = isDebt ? 'debt' : 'asset';
+    const dataDumpName = `${word}DataDump`;
+    return (
+      <>
+        <ReactiveTextArea
+          identifier={dataDumpName}
+          message={showObj(assetChartData)}
+        />
+        {noDataToDisplayFragment(
+          word,
+          model,
+          showAlert,
+          getStartDate,
+          updateStartDate,
+          getEndDate,
+          updateEndDate,
+        )}
+      </>
+    );
+  } else {
+    // log(`assetChartData = ${assetChartData}`);
+    return (
+      <div
+        style={{
+          display: 'block',
+        }}
+      >
+        {assetsOrDebtsButtonList(model, viewSettings, isDebt, forOverviewPage)}
+        {assetViewTypeList(viewSettings)}
+        {coarseFineList(viewSettings)}
+        <ReactiveTextArea
+          identifier={isDebt ? 'debtDataDump' : 'assetDataDump'}
+          message={showObj(assetChartData)}
+        />
+        {assetsOrDebtsChartDiv(
+          assetChartData,
+          isDebt,
+          getDefaultChartSettings(viewSettings, model.settings),
+          model,
+          showAlert,
+          getStartDate,
+          updateStartDate,
+          getEndDate,
+          updateEndDate,
+        )}
+      </div>
+    );
+  }
 }
 
 function taxButtonList(model: DbModelData, viewSettings: ViewSettings) {
@@ -588,16 +794,52 @@ function taxButtonList(model: DbModelData, viewSettings: ViewSettings) {
   );
   return <div role="group">{buttons}</div>;
 }
-export function taxChartDiv(taxChartData: ChartData[], settings: any) {
+export function taxChartDiv(
+  taxChartData: ChartData[],
+  settings: any,
+  showAlert: ((arg0: string) => void) | undefined = undefined,
+  getStartDate: (() => string) | undefined = undefined,
+  updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
+  getEndDate: (() => string) | undefined = undefined,
+  updateEndDate: ((newDate: string) => Promise<void>) | undefined = undefined,
+) {
   if (taxChartData.length === 0) {
-    return (
-      <>
-        <br />
-        No tax data to display
-        <br />
-        <br />
-      </>
-    );
+    if (
+      showAlert === undefined ||
+      getStartDate === undefined ||
+      updateStartDate === undefined ||
+      getEndDate === undefined ||
+      updateEndDate === undefined
+    ) {
+      return (
+        <>
+          <br />
+          No tax data to display
+          <br />
+          <br />
+        </>
+      );
+    } else {
+      return (
+        <>
+          No tax data - none payable or adjust display range
+          <div className="col">
+            <AddDeleteEntryForm
+              name="view start date"
+              getValue={getStartDate}
+              submitFunction={updateStartDate}
+              showAlert={showAlert}
+            />
+            <AddDeleteEntryForm
+              name="view end date"
+              getValue={getEndDate}
+              submitFunction={updateEndDate}
+              showAlert={showAlert}
+            />
+          </div>
+        </>
+      );
+    }
   }
   return (
     <CanvasJSChart
@@ -614,11 +856,24 @@ function taxChartDivWithButtons(
   viewSettings: ViewSettings,
   taxChartData: ChartData[],
   settings: any,
+  showAlert: ((arg0: string) => void) | undefined = undefined,
+  getStartDate: (() => string) | undefined = undefined,
+  updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
+  getEndDate: (() => string) | undefined = undefined,
+  updateEndDate: ((newDate: string) => Promise<void>) | undefined = undefined,
 ) {
   return (
     <>
       {taxButtonList(model, viewSettings)}
-      {taxChartDiv(taxChartData, settings)}
+      {taxChartDiv(
+        taxChartData,
+        settings,
+        showAlert,
+        getStartDate,
+        updateStartDate,
+        getEndDate,
+        updateEndDate,
+      )}
     </>
   );
 }
@@ -632,7 +887,7 @@ export function taxDiv(
   }
 
   return (
-    <>
+    <div className="ml-3">
       {coarseFineList(viewSettings)}
       {taxChartDivWithButtons(
         model,
@@ -640,7 +895,7 @@ export function taxDiv(
         taxChartData,
         getDefaultChartSettings(viewSettings, model.settings),
       )}
-    </>
+    </div>
   );
 }
 

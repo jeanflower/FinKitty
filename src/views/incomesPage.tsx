@@ -32,7 +32,6 @@ function todaysIncomesTable(
 ) {
   if (todaysValues.size === 0) {
     return;
-    //return 'No data to display';
   }
   const today = getTodaysDate(model);
   return (
@@ -81,18 +80,30 @@ export function incomesDiv(
   showAlert: (arg0: string) => void,
   incomesChartData: ChartData[],
   todaysValues: Map<string, number>,
+  getStartDate: (() => string) | undefined = undefined,
+  updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
+  getEndDate: (() => string) | undefined = undefined,
+  updateEndDate: ((newDate: string) => Promise<void>) | undefined = undefined,
 ) {
   if (!getDisplay(incomesView)) {
     return;
   }
   // log('rendering an incomesDiv');
   return (
-    <div style={{ display: getDisplay(incomesView) ? 'block' : 'none' }}>
+    <div
+      className="ml-3"
+      style={{ display: getDisplay(incomesView) ? 'block' : 'none' }}
+    >
       {incomesChartDivWithButtons(
         model,
         viewSettings,
         incomesChartData,
         getDefaultChartSettings(viewSettings, model.settings),
+        showAlert,
+        getStartDate,
+        updateStartDate,
+        getEndDate,
+        updateEndDate,
       )}
       {todaysIncomesTable(model, todaysValues)}
       {incomesTableDivWithHeading(model, showAlert)}
