@@ -10,16 +10,17 @@ interface ButtonProps {
 
 const Button = (props: ButtonProps) => {
   let className = '';
+  const spacer = ' mr-1 mb-1';
   if (props.type === 'primary') {
-    className = 'btn btn-primary';
+    className = `btn btn-primary${spacer}`;
   } else if (props.type === 'primary-off') {
-    className = 'btn btn-outline-primary';
+    className = `btn btn-outline-primary${spacer}`;
   } else if (props.type === 'secondary-on') {
-    className = 'btn btn-secondary';
+    className = `btn btn-secondary${spacer}`;
   } else if (props.type === 'secondary') {
-    className = 'btn btn-outline-secondary';
+    className = `btn btn-outline-secondary${spacer}`;
   } else {
-    className = 'btn btn-error';
+    className = `btn btn-error${spacer}`;
   }
   return (
     <button

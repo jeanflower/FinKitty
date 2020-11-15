@@ -253,39 +253,30 @@ export class AddDeleteSettingForm extends Component<
     return (
       <>
         <div className="btn-group ml-3" role="group">
-          <div className="row">
-            <div className="col">
-              <Button
-                action={this.inputSetting}
-                type={
-                  this.state.inputting === inputtingSetting
-                    ? 'primary'
-                    : 'secondary'
-                }
-                title={'Add new setting mode'}
-                id="inputSetting"
-              />
-            </div>
-            {/* end col */}
-            <div className="col">
-              <Button
-                action={this.inputRevalue}
-                type={
-                  this.state.inputting === inputtingRevalue
-                    ? 'primary'
-                    : 'secondary'
-                }
-                title={'Revalue setting mode'}
-                id="revalueSettingInputs"
-              />
-            </div>
-            {/* end col */}
-          </div>
+          <Button
+            action={this.inputSetting}
+            type={
+              this.state.inputting === inputtingSetting
+                ? 'primary'
+                : 'secondary'
+            }
+            title={'Add new setting mode'}
+            id="inputSetting"
+          />
+          <Button
+            action={this.inputRevalue}
+            type={
+              this.state.inputting === inputtingRevalue
+                ? 'primary'
+                : 'secondary'
+            }
+            title={'Revalue setting mode'}
+            id="revalueSettingInputs"
+          />
         </div>
         <form className="container-fluid" onSubmit={this.add}>
           {this.ValueAndCategory()}
           {this.startDate()}
-
           {this.goButtons()}
         </form>
       </>

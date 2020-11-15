@@ -3,6 +3,8 @@ import Button from './reactComponents/Button';
 import { screenshotsDiv } from './screenshotsPage';
 import FinKittyCat from './cat.png';
 import { Navbar } from 'react-bootstrap';
+import { toggle } from '../App';
+import { homeView } from '../localization/stringConstants';
 
 export function navbarContent(rhContent: () => any) {
   return (
@@ -19,6 +21,10 @@ export function navbarContent(rhContent: () => any) {
                 alt="FinKitty cat"
                 width={70}
                 height={'auto'}
+                onClick={() => {
+                  toggle(homeView);
+                }}
+                id="btn-Home"
               ></img>
             </div>
           </div>

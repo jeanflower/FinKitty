@@ -510,48 +510,34 @@ export class AddDeleteAssetForm extends Component<
     return (
       <>
         <div className="btn-group ml-3" role="group">
-          <div className="row">
-            <div className="col">
-              <Button
-                action={this.inputAsset}
-                type={
-                  this.state.inputting === inputtingAsset
-                    ? 'primary'
-                    : 'secondary'
-                }
-                title={'Add new asset mode'}
-                id="inputAsset"
-              />
-            </div>
-            {/* end col */}
-            <div className="col">
-              <Button
-                action={this.inputPension}
-                type={
-                  this.state.inputting === inputtingPension
-                    ? 'primary'
-                    : 'secondary'
-                }
-                title={'Add pension mode'}
-                id="useDCPInputs"
-              />
-            </div>
-            {/* end col */}
-            <div className="col">
-              <Button
-                action={this.inputRevalue}
-                type={
-                  this.state.inputting === inputtingRevalue
-                    ? 'primary'
-                    : 'secondary'
-                }
-                title={'Revalue asset mode'}
-                id="revalueAssetInputs"
-              />
-            </div>
-            {/* end col */}
-          </div>
-          {/* end row */}
+          <Button
+            action={this.inputAsset}
+            type={
+              this.state.inputting === inputtingAsset ? 'primary' : 'secondary'
+            }
+            title={'Add new asset mode'}
+            id="inputAsset"
+          />
+          <Button
+            action={this.inputPension}
+            type={
+              this.state.inputting === inputtingPension
+                ? 'primary'
+                : 'secondary'
+            }
+            title={'Add pension mode'}
+            id="useDCPInputs"
+          />
+          <Button
+            action={this.inputRevalue}
+            type={
+              this.state.inputting === inputtingRevalue
+                ? 'primary'
+                : 'secondary'
+            }
+            title={'Revalue asset mode'}
+            id="revalueAssetInputs"
+          />
         </div>
         <form className="container-fluid" onSubmit={this.add}>
           {this.ValueQuantityAndCategory()}

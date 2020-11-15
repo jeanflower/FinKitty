@@ -102,7 +102,9 @@ export const testUserID = 'TestUserID';
 
 export async function clickButton(driver: ThenableWebDriver, id: string) {
   const btn = await driver.findElements(webdriver.By.id(id));
-  // log(`found ${btn.length} elements with id=${id}`);
+  if(btn.length !== 1){
+    log(`found ${btn.length} elements with id=${id}`);
+  }
   expect(btn.length === 1).toBe(true);
   await btn[0].click();
 }

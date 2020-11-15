@@ -283,31 +283,25 @@ export class AddDeleteDebtForm extends Component<
     // log('rendering an AddDeleteDebtForm');
     return (
       <>
-        <div className="btn-group" role="group">
-          <div className="col">
-            <Button
-              action={this.inputDebt}
-              type={
-                this.state.inputting === inputtingDebt ? 'primary' : 'secondary'
-              }
-              title={'Add new debt mode'}
-              id="inputDebt"
-            />
-          </div>
-          {/* end col */}
-          <div className="col">
-            <Button
-              action={this.inputRevalue}
-              type={
-                this.state.inputting === inputtingRevalue
-                  ? 'primary'
-                  : 'secondary'
-              }
-              title={'Revalue debt mode'}
-              id="revalueDebtInputs"
-            />
-          </div>
-          {/* end col */}
+        <div className="btn-group ml-3" role="group">
+          <Button
+            action={this.inputDebt}
+            type={
+              this.state.inputting === inputtingDebt ? 'primary' : 'secondary'
+            }
+            title={'Add new debt mode'}
+            id="inputDebt"
+          />
+          <Button
+            action={this.inputRevalue}
+            type={
+              this.state.inputting === inputtingRevalue
+                ? 'primary'
+                : 'secondary'
+            }
+            title={'Revalue debt mode'}
+            id="revalueDebtInputs"
+          />
         </div>
         <form className="container-fluid" onSubmit={this.add}>
           {this.ValueAndCategory()}

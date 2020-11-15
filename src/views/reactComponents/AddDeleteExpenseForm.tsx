@@ -228,35 +228,26 @@ export class AddDeleteExpenseForm extends Component<
     return (
       <>
         <div className="btn-group ml-3" role="group">
-          <div className="row">
-            <div className="col">
-              <Button
-                action={this.setInputExpense}
-                type={
-                  this.state.inputting === inputtingExpense
-                    ? 'primary'
-                    : 'secondary'
-                }
-                title={'Add new expense mode'}
-                id="useExpenseInputs"
-              />
-            </div>{' '}
-            {/* end col */}
-            <div className="col">
-              <Button
-                action={this.setInputRevalue}
-                type={
-                  this.state.inputting === inputtingRevalue
-                    ? 'primary'
-                    : 'secondary'
-                }
-                title={'Revalue expense mode'}
-                id="useRevalueInputsExpense"
-              />
-            </div>{' '}
-            {/* end col */}
-          </div>
-          {/* end row */}
+          <Button
+            action={this.setInputExpense}
+            type={
+              this.state.inputting === inputtingExpense
+                ? 'primary'
+                : 'secondary'
+            }
+            title={'Add new expense mode'}
+            id="useExpenseInputs"
+          />
+          <Button
+            action={this.setInputRevalue}
+            type={
+              this.state.inputting === inputtingRevalue
+                ? 'primary'
+                : 'secondary'
+            }
+            title={'Revalue expense mode'}
+            id="useRevalueInputsExpense"
+          />
         </div>
         <form className="container-fluid" onSubmit={this.add}>
           <div className="row">

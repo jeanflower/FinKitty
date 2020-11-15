@@ -736,6 +736,9 @@ export async function submitNewSetting(
 }
 
 export function toggle(type: ViewType) {
+  if (reactAppComponent === undefined) {
+    return;
+  }
   for (const k of views.keys()) {
     if (k !== type) {
       const view = views.get(k);
@@ -1672,13 +1675,19 @@ export class AppContent extends Component<AppProps, AppState> {
   private viewButtonList() {
     const buttons: JSX.Element[] = [];
     const it = views.keys();
-    let entry = it.next();
-    while (!entry.done) {
-      const view = entry.value;
+    let viewIterator = it.next();
+    while (!viewIterator.done) {
+      const view = viewIterator.value;
+      if (view === homeView) {
+        // We use the image for Home
+        // don't need a button
+        viewIterator = it.next();
+        continue;
+      }
       const viewValue = views.get(view);
       if (viewValue === undefined) {
         log(`Error : unrecognised view ${view}`);
-        entry = it.next();
+        viewIterator = it.next();
         continue;
       }
       const display = viewValue.display;
@@ -1695,7 +1704,7 @@ export class AppContent extends Component<AppProps, AppState> {
           id={`btn-${view.lc}`}
         />,
       );
-      entry = it.next();
+      viewIterator = it.next();
     }
 
     return buttons;

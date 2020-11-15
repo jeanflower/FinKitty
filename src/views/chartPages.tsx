@@ -99,7 +99,7 @@ function makeIncomeExpenseFilterButton(
   );
 }
 
-function makeIncomeExpenseFiltersList(
+function incomeExpenseFiltersList(
   gridData: { CATEGORY: string; NAME: string }[],
   settings: ViewSettings,
   context: Context,
@@ -141,9 +141,7 @@ function makeIncomeExpenseFiltersList(
   return (
     <>
       <div role="group">{buttons2}</div>
-      <br></br>
       <div role="group">{buttons1}</div>
-      <br></br>
     </>
   );
 }
@@ -392,7 +390,7 @@ export function incomesChartDivWithButtons(
           identifier="incomeDataDump"
           message={showObj(incomesChartData)}
         />
-        {makeIncomeExpenseFiltersList(model.incomes, settings, Context.Income)}
+        {incomeExpenseFiltersList(model.incomes, settings, Context.Income)}
         {coarseFineList(settings)}
         {incomesChartDiv(
           incomesChartData,
@@ -487,11 +485,7 @@ export function expensesChartDivWithButtons(
           identifier="expenseDataDump"
           message={showObj(expensesChartData)}
         />
-        {makeIncomeExpenseFiltersList(
-          model.expenses,
-          settings,
-          Context.Expense,
-        )}
+        {incomeExpenseFiltersList(model.expenses, settings, Context.Expense)}
         {coarseFineList(settings)}
         <fieldset>
           <ReactiveTextArea
@@ -514,7 +508,7 @@ export function expensesChartDivWithButtons(
   }
 }
 
-function makeButton(
+function makeAssetDebtFilterButton(
   assetOrDebt: string,
   isDebt: boolean,
   settings: ViewSettings,
@@ -551,7 +545,7 @@ function makeButton(
   );
 }
 
-function assetsOrDebtsButtonList(
+function assetsDebtsFilterList(
   model: DbModelData,
   settings: ViewSettings,
   isDebt: boolean,
@@ -566,7 +560,12 @@ function assetsOrDebtsButtonList(
   // log(`assetNames = ${assetNames}`);
   // log(`assetNames with categories = ${assetNames}`);
   const assetOrDebtButtons = assetOrDebtNames.map(assetOrDebt => {
-    return makeButton(assetOrDebt, isDebt, settings, forOverview);
+    return makeAssetDebtFilterButton(
+      assetOrDebt,
+      isDebt,
+      settings,
+      forOverview,
+    );
   });
   let categoryNames: string[] = [];
   assetsOrDebts.forEach(data => {
@@ -580,14 +579,12 @@ function assetsOrDebtsButtonList(
   categoryNames = categoryNames.sort();
   categoryNames.unshift(allItems);
   const categoryButtons = categoryNames.map(category => {
-    return makeButton(category, isDebt, settings, forOverview);
+    return makeAssetDebtFilterButton(category, isDebt, settings, forOverview);
   });
   return (
     <>
       <div role="group">{categoryButtons}</div>
-      <br></br>
       <div role="group">{assetOrDebtButtons}</div>
-      <br></br>
     </>
   );
 }
@@ -692,7 +689,7 @@ export function assetsOrDebtsChartDivWithButtons(
           display: 'block',
         }}
       >
-        {assetsOrDebtsButtonList(model, viewSettings, isDebt, forOverviewPage)}
+        {assetsDebtsFilterList(model, viewSettings, isDebt, forOverviewPage)}
         {assetViewTypeList(viewSettings)}
         {coarseFineList(viewSettings)}
         <ReactiveTextArea

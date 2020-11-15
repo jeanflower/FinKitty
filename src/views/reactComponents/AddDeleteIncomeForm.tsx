@@ -218,48 +218,34 @@ export class AddDeleteIncomeForm extends Component<
     return (
       <>
         <div className="btn-group ml-3" role="group">
-          <div className="row">
-            <div className="col">
-              <Button
-                action={this.setInputincome}
-                type={
-                  this.state.inputting === inputtingIncome
-                    ? 'primary'
-                    : 'secondary'
-                }
-                title={'Add new income mode'}
-                id="useIncomeInputs"
-              />
-            </div>{' '}
-            {/* end col */}
-            <div className="col">
-              <Button
-                action={this.setInputDBP}
-                type={
-                  this.state.inputting === inputtingPension
-                    ? 'primary'
-                    : 'secondary'
-                }
-                title={'Add pension mode'}
-                id="useDBPInputs"
-              />
-            </div>{' '}
-            {/* end col */}
-            <div className="col">
-              <Button
-                action={this.setInputRevalue}
-                type={
-                  this.state.inputting === inputtingRevalue
-                    ? 'primary'
-                    : 'secondary'
-                }
-                title={'Revalue income mode'}
-                id="useRevalueInputsIncome"
-              />
-            </div>{' '}
-            {/* end col */}
-          </div>
-          {/* end row */}
+          <Button
+            action={this.setInputincome}
+            type={
+              this.state.inputting === inputtingIncome ? 'primary' : 'secondary'
+            }
+            title={'Add new income mode'}
+            id="useIncomeInputs"
+          />
+          <Button
+            action={this.setInputDBP}
+            type={
+              this.state.inputting === inputtingPension
+                ? 'primary'
+                : 'secondary'
+            }
+            title={'Add pension mode'}
+            id="useDBPInputs"
+          />
+          <Button
+            action={this.setInputRevalue}
+            type={
+              this.state.inputting === inputtingRevalue
+                ? 'primary'
+                : 'secondary'
+            }
+            title={'Revalue income mode'}
+            id="useRevalueInputsIncome"
+          />
         </div>
         <form className="container-fluid" onSubmit={this.add}>
           <div className="row">
@@ -276,7 +262,7 @@ export class AddDeleteIncomeForm extends Component<
                 placeholder="Enter name"
                 onChange={this.handleNameChange}
               />
-            </div>{' '}
+            </div>
             {/* end col */}
             <div className="col">
               <Input
@@ -293,7 +279,7 @@ export class AddDeleteIncomeForm extends Component<
                 placeholder="Enter value"
                 onChange={this.handleValueChange}
               />
-            </div>{' '}
+            </div>
             {/* end col */}
           </div>
           {/* end row */}
