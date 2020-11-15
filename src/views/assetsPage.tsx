@@ -94,7 +94,6 @@ export function assetsDiv(
         viewSettings,
         assetChartData,
         false,
-        false,
         showAlert,
         getStartDate,
         updateStartDate,

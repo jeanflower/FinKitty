@@ -92,7 +92,6 @@ export function debtsDiv(
         viewSettings,
         debtChartData,
         true,
-        false,
         showAlert,
         getStartDate,
         updateStartDate,

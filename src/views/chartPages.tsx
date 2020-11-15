@@ -1,4 +1,10 @@
-import { ChartData, DbModelData, DbSetting } from '../types/interfaces';
+import {
+  ChartData,
+  DbItem,
+  DbItemCategory,
+  DbModelData,
+  DbSetting,
+} from '../types/interfaces';
 import {
   allItems,
   annually,
@@ -74,11 +80,22 @@ async function setViewSettingNameVal(
   );
 }
 
-function makeIncomeExpenseFilterButton(
+function makeFilterButton(
   buttonName: string,
   settings: ViewSettings,
   context: Context,
 ) {
+  let id = '';
+  if (context === Context.Income) {
+    id = `select-${buttonName}`;
+  } else if (context === Context.Expense) {
+    id = `select-${buttonName}`;
+  } else if (context === Context.Asset) {
+    id = `chooseAssetOrDebtChartSetting--asset-${buttonName}`;
+  } else if (context === Context.Debt) {
+    id = `chooseAssetOrDebtChartSetting--debt-${buttonName}`;
+  }
+
   return (
     <Button
       key={buttonName}
@@ -94,54 +111,40 @@ function makeIncomeExpenseFilterButton(
       type={
         settings.highlightButton(context, buttonName) ? 'primary' : 'secondary'
       }
-      id={`select-${buttonName}`}
+      id={id}
     />
   );
 }
 
-function incomeExpenseFiltersList(
-  gridData: { CATEGORY: string; NAME: string }[],
+function filtersList(
+  items: DbItemCategory[],
   settings: ViewSettings,
   context: Context,
 ) {
-  // selectedChartFocus = this.getExpenseChartFocus()
-  // settingName = expenseChartFocus
-  // defaultSetting = expenseChartFocusAll
-  // hint = expenseChartFocusHint
-  let buttonNames: string[] = [];
-  const names: string[] = [];
-  gridData.forEach(e => {
-    const candidate = e.NAME;
-    if (names.indexOf(candidate) < 0) {
-      names.push(candidate);
-    }
-  });
-  names.sort();
-  buttonNames = buttonNames.concat(names);
+  const incomeOrExpenseNames: string[] = items.map(data => data.NAME).sort();
 
-  const buttons1 = buttonNames.map(buttonName => {
-    return makeIncomeExpenseFilterButton(buttonName, settings, context);
+  const buttons = incomeOrExpenseNames.map(buttonName => {
+    return makeFilterButton(buttonName, settings, context);
   });
   const categories: string[] = [];
-  gridData.forEach(e => {
-    let candidate = allItems;
-    if (e.CATEGORY !== '') {
-      candidate = e.CATEGORY;
-      if (categories.indexOf(candidate) < 0) {
-        categories.push(candidate);
+  items.forEach(data => {
+    const cat = data.CATEGORY;
+    if (cat !== '') {
+      if (categories.indexOf(cat) < 0) {
+        categories.push(cat);
       }
     }
   });
   categories.sort();
   categories.unshift(allItems);
-  const buttons2 = categories.map(buttonName => {
-    return makeIncomeExpenseFilterButton(buttonName, settings, context);
+  const categoryButtons = categories.map(buttonName => {
+    return makeFilterButton(buttonName, settings, context);
   });
 
   return (
     <>
-      <div role="group">{buttons2}</div>
-      <div role="group">{buttons1}</div>
+      <div role="group">{categoryButtons}</div>
+      <div role="group">{buttons}</div>
     </>
   );
 }
@@ -390,7 +393,7 @@ export function incomesChartDivWithButtons(
           identifier="incomeDataDump"
           message={showObj(incomesChartData)}
         />
-        {incomeExpenseFiltersList(model.incomes, settings, Context.Income)}
+        {filtersList(model.incomes, settings, Context.Income)}
         {coarseFineList(settings)}
         {incomesChartDiv(
           incomesChartData,
@@ -485,7 +488,7 @@ export function expensesChartDivWithButtons(
           identifier="expenseDataDump"
           message={showObj(expensesChartData)}
         />
-        {incomeExpenseFiltersList(model.expenses, settings, Context.Expense)}
+        {filtersList(model.expenses, settings, Context.Expense)}
         {coarseFineList(settings)}
         <fieldset>
           <ReactiveTextArea
@@ -506,87 +509,6 @@ export function expensesChartDivWithButtons(
       </div>
     );
   }
-}
-
-function makeAssetDebtFilterButton(
-  assetOrDebt: string,
-  isDebt: boolean,
-  settings: ViewSettings,
-  forOverview: boolean,
-) {
-  return (
-    <Button
-      key={assetOrDebt}
-      action={async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-        e.persist();
-        if (isDebt) {
-          settings.toggleViewFilter(Context.Debt, assetOrDebt);
-        } else {
-          settings.toggleViewFilter(Context.Asset, assetOrDebt);
-        }
-        return await refreshData(
-          false, // refreshModel = true,
-          true, // refreshChart = true,
-        );
-      }}
-      title={assetOrDebt}
-      type={
-        settings.highlightButton(
-          isDebt ? Context.Debt : Context.Asset,
-          assetOrDebt,
-        )
-          ? 'primary'
-          : 'secondary'
-      }
-      id={`chooseAssetOrDebtChartSetting-${forOverview ? `overview` : ``}-${
-        isDebt ? `debt` : `asset`
-      }-${assetOrDebt}`}
-    />
-  );
-}
-
-function assetsDebtsFilterList(
-  model: DbModelData,
-  settings: ViewSettings,
-  isDebt: boolean,
-  forOverview: boolean,
-) {
-  const assetsOrDebts = model.assets.filter(obj => {
-    return obj.IS_A_DEBT === isDebt;
-  });
-  const assetOrDebtNames: string[] = assetsOrDebts
-    .map(data => data.NAME)
-    .sort();
-  // log(`assetNames = ${assetNames}`);
-  // log(`assetNames with categories = ${assetNames}`);
-  const assetOrDebtButtons = assetOrDebtNames.map(assetOrDebt => {
-    return makeAssetDebtFilterButton(
-      assetOrDebt,
-      isDebt,
-      settings,
-      forOverview,
-    );
-  });
-  let categoryNames: string[] = [];
-  assetsOrDebts.forEach(data => {
-    const cat = data.CATEGORY;
-    if (cat !== '') {
-      if (categoryNames.indexOf(cat) < 0) {
-        categoryNames.push(cat);
-      }
-    }
-  });
-  categoryNames = categoryNames.sort();
-  categoryNames.unshift(allItems);
-  const categoryButtons = categoryNames.map(category => {
-    return makeAssetDebtFilterButton(category, isDebt, settings, forOverview);
-  });
-  return (
-    <>
-      <div role="group">{categoryButtons}</div>
-      <div role="group">{assetOrDebtButtons}</div>
-    </>
-  );
 }
 
 function assetViewTypeList(settings: ViewSettings) {
@@ -650,7 +572,6 @@ export function assetsOrDebtsChartDivWithButtons(
   viewSettings: ViewSettings,
   assetChartData: ChartData[],
   isDebt: boolean,
-  forOverviewPage: boolean,
   showAlert: ((arg0: string) => void) | undefined = undefined,
   getStartDate: (() => string) | undefined = undefined,
   updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
@@ -683,13 +604,18 @@ export function assetsOrDebtsChartDivWithButtons(
     );
   } else {
     // log(`assetChartData = ${assetChartData}`);
+    const context = isDebt ? Context.Debt : Context.Asset;
+    const items = model.assets.filter(obj => {
+      return obj.IS_A_DEBT === (context === Context.Debt);
+    });
+
     return (
       <div
         style={{
           display: 'block',
         }}
       >
-        {assetsDebtsFilterList(model, viewSettings, isDebt, forOverviewPage)}
+        {filtersList(items, viewSettings, context)}
         {assetViewTypeList(viewSettings)}
         {coarseFineList(viewSettings)}
         <ReactiveTextArea

@@ -226,12 +226,6 @@ const views = new Map<
     },
   ],
   [
-    triggersView,
-    {
-      display: false,
-    },
-  ],
-  [
     incomesView,
     {
       display: false,
@@ -256,13 +250,19 @@ const views = new Map<
     },
   ],
   [
-    transactionsView,
+    taxView,
     {
       display: false,
     },
   ],
   [
-    taxView,
+    triggersView,
+    {
+      display: false,
+    },
+  ],
+  [
+    transactionsView,
     {
       display: false,
     },
