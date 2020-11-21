@@ -1,6 +1,5 @@
 import {
   ChartData,
-  DbItem,
   DbItemCategory,
   DbModelData,
   DbSetting,

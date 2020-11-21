@@ -1,12 +1,17 @@
 import {
+  AssetVal,
   ChartDataPoint,
   DataForView,
   DbItemCategory,
   DbModelData,
   DbSetting,
+  DebtVal,
   Evaluation,
+  ExpenseVal,
+  IncomeVal,
   Interval,
   ItemChartData,
+  SettingVal,
 } from '../types/interfaces';
 import {
   allItems,
@@ -1087,11 +1092,11 @@ export function makeChartData(
   viewSettings: ViewSettings,
   evaluationsAndVals: {
     evaluations: Evaluation[];
-    todaysAssetValues: Map<string, number>;
-    todaysDebtValues: Map<string, number>;
-    todaysIncomeValues: Map<string, number>;
-    todaysExpenseValues: Map<string, number>;
-    todaysSettingValues: Map<string, string>;
+    todaysAssetValues: Map<string, AssetVal>;
+    todaysDebtValues: Map<string, DebtVal>;
+    todaysIncomeValues: Map<string, IncomeVal>;
+    todaysExpenseValues: Map<string, ExpenseVal>;
+    todaysSettingValues: Map<string, SettingVal>;
   },
   getDisplay: (type: ViewType) => boolean = () => {
     return true;
@@ -1104,11 +1109,11 @@ export function makeChartData(
       assetData: [],
       debtData: [],
       taxData: [],
-      todaysAssetValues: new Map<string, number>(),
-      todaysDebtValues: new Map<string, number>(),
-      todaysIncomeValues: new Map<string, number>(),
-      todaysExpenseValues: new Map<string, number>(),
-      todaysSettingValues: new Map<string, string>(),
+      todaysAssetValues: new Map<string, AssetVal>(),
+      todaysDebtValues: new Map<string, DebtVal>(),
+      todaysIncomeValues: new Map<string, IncomeVal>(),
+      todaysExpenseValues: new Map<string, ExpenseVal>(),
+      todaysSettingValues: new Map<string, SettingVal>(),
     };
     return emptyData;
   }
@@ -1161,11 +1166,11 @@ export function makeChartData(
     assetData: [],
     debtData: [],
     taxData: [],
-    todaysAssetValues: new Map<string, number>(),
-    todaysDebtValues: new Map<string, number>(),
-    todaysIncomeValues: new Map<string, number>(),
-    todaysExpenseValues: new Map<string, number>(),
-    todaysSettingValues: new Map<string, string>(),
+    todaysAssetValues: new Map<string, AssetVal>(),
+    todaysDebtValues: new Map<string, DebtVal>(),
+    todaysIncomeValues: new Map<string, IncomeVal>(),
+    todaysExpenseValues: new Map<string, ExpenseVal>(),
+    todaysSettingValues: new Map<string, SettingVal>(),
   };
 
   result.todaysAssetValues = evaluationsAndVals.todaysAssetValues;
@@ -1656,11 +1661,11 @@ export function makeChartDataFromEvaluations(
   viewSettings: ViewSettings,
   evaluationsAndVals: {
     evaluations: Evaluation[];
-    todaysAssetValues: Map<string, number>;
-    todaysDebtValues: Map<string, number>;
-    todaysIncomeValues: Map<string, number>;
-    todaysExpenseValues: Map<string, number>;
-    todaysSettingValues: Map<string, string>;
+    todaysAssetValues: Map<string, AssetVal>;
+    todaysDebtValues: Map<string, DebtVal>;
+    todaysIncomeValues: Map<string, IncomeVal>;
+    todaysExpenseValues: Map<string, ExpenseVal>;
+    todaysSettingValues: Map<string, SettingVal>;
   },
   getDisplay: (type: ViewType) => boolean = () => {
     return true;

@@ -59,9 +59,14 @@ import {
   viewType,
 } from '../../localization/stringConstants';
 import {
+  AssetVal,
   ChartDataPoint,
   DataForView,
   DbModelData,
+  DebtVal,
+  ExpenseVal,
+  IncomeVal,
+  SettingVal,
 } from '../../types/interfaces';
 import {
   attemptRenameLong,
@@ -273,11 +278,11 @@ function getTestEvaluations(
   extraChecks = true,
 ): {
   evaluations: Evaluation[];
-  todaysAssetValues: Map<string, number>;
-  todaysDebtValues: Map<string, number>;
-  todaysIncomeValues: Map<string, number>;
-  todaysExpenseValues: Map<string, number>;
-  todaysSettingValues: Map<string, string>;
+  todaysAssetValues: Map<string, AssetVal>;
+  todaysDebtValues: Map<string, DebtVal>;
+  todaysIncomeValues: Map<string, IncomeVal>;
+  todaysExpenseValues: Map<string, ExpenseVal>;
+  todaysSettingValues: Map<string, SettingVal>;
 } {
   if (extraChecks) {
     // hijack to try some renaming
@@ -720,11 +725,11 @@ describe('evaluations tests', () => {
 
     const result = makeChartDataFromEvaluations(model, viewSettings, {
       evaluations: evals,
-      todaysAssetValues: new Map<string, number>(),
-      todaysDebtValues: new Map<string, number>(),
-      todaysIncomeValues: new Map<string, number>(),
-      todaysExpenseValues: new Map<string, number>(),
-      todaysSettingValues: new Map<string, string>(),
+      todaysAssetValues: new Map<string, AssetVal>(),
+      todaysDebtValues: new Map<string, DebtVal>(),
+      todaysIncomeValues: new Map<string, IncomeVal>(),
+      todaysExpenseValues: new Map<string, ExpenseVal>(),
+      todaysSettingValues: new Map<string, SettingVal>(),
     });
 
     // this clumsy block is to allow printTestCodeForChart to be "used"
@@ -783,11 +788,11 @@ describe('evaluations tests', () => {
 
     const result = makeChartDataFromEvaluations(model, viewSettings, {
       evaluations: evals,
-      todaysAssetValues: new Map<string, number>(),
-      todaysDebtValues: new Map<string, number>(),
-      todaysIncomeValues: new Map<string, number>(),
-      todaysExpenseValues: new Map<string, number>(),
-      todaysSettingValues: new Map<string, string>(),
+      todaysAssetValues: new Map<string, AssetVal>(),
+      todaysDebtValues: new Map<string, DebtVal>(),
+      todaysIncomeValues: new Map<string, IncomeVal>(),
+      todaysExpenseValues: new Map<string, ExpenseVal>(),
+      todaysSettingValues: new Map<string, SettingVal>(),
     });
 
     // log(showObj(result));

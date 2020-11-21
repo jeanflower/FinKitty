@@ -1,4 +1,4 @@
-import { ChartData, DbItem, DbModelData } from './../types/interfaces';
+import { ChartData, DbItem, DbModelData, DebtVal } from './../types/interfaces';
 import { checkAsset, checkTransaction } from '../models/checks';
 import { debtsDivWithHeadings, defaultColumn } from './tablePages';
 import {
@@ -21,7 +21,7 @@ import { ViewSettings } from '../models/charting';
 
 function todaysDebtsTable(
   model: DbModelData,
-  todaysValues: Map<string, number>,
+  todaysValues: Map<string, DebtVal>,
 ) {
   if (todaysValues.size === 0) {
     return;
@@ -42,7 +42,7 @@ function todaysDebtsTable(
             // log(`key[0] = ${key[0]}, key[1] = ${key[1]}`);
             return {
               NAME: key[0],
-              VALUE: `${key[1]}`,
+              VALUE: `${key[1].debtVal}`,
             };
           })
           .sort((a: DbItem, b: DbItem) => lessThan(a.NAME, b.NAME))}
@@ -52,14 +52,14 @@ function todaysDebtsTable(
             key: 'NAME',
             name: 'name',
             formatter: <SimpleFormatter name="name" value="unset" />,
+            editable: false,
           },
           {
             ...defaultColumn,
             key: 'VALUE',
-            name: `today's value`,
-            formatter: (
-              <CashValueFormatter name="today's value" value="unset" />
-            ),
+            name: `value`,
+            formatter: <CashValueFormatter name="value" value="unset" />,
+            editable: false,
           },
         ]}
       />
@@ -72,7 +72,7 @@ export function debtsDiv(
   viewSettings: ViewSettings,
   showAlert: (arg0: string) => void,
   debtChartData: ChartData[],
-  todaysValues: Map<string, number>,
+  todaysValues: Map<string, DebtVal>,
   getStartDate: (() => string) | undefined = undefined,
   updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
   getEndDate: (() => string) | undefined = undefined,

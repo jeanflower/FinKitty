@@ -1,4 +1,9 @@
-import { ChartData, DbItem, DbModelData } from '../types/interfaces';
+import {
+  ChartData,
+  DbItem,
+  DbModelData,
+  ExpenseVal,
+} from '../types/interfaces';
 import { checkExpense, checkTransaction } from '../models/checks';
 import {
   defaultColumn,
@@ -28,7 +33,7 @@ import { ViewSettings } from '../models/charting';
 
 function todaysExpensesTable(
   model: DbModelData,
-  todaysValues: Map<string, number>,
+  todaysValues: Map<string, ExpenseVal>,
 ) {
   if (todaysValues.size === 0) {
     return;
@@ -49,7 +54,8 @@ function todaysExpensesTable(
             // log(`key[0] = ${key[0]}, key[1] = ${key[1]}`);
             return {
               NAME: key[0],
-              VALUE: `${key[1]}`,
+              VALUE: `${key[1].expenseVal}`,
+              FREQ: `${key[1].expenseFreq}`,
             };
           })
           .sort((a: DbItem, b: DbItem) => lessThan(a.NAME, b.NAME))}
@@ -59,14 +65,21 @@ function todaysExpensesTable(
             key: 'NAME',
             name: 'name',
             formatter: <SimpleFormatter name="name" value="unset" />,
+            editable: false,
           },
           {
             ...defaultColumn,
             key: 'VALUE',
-            name: `today's value`,
-            formatter: (
-              <CashValueFormatter name="today's value" value="unset" />
-            ),
+            name: `value`,
+            formatter: <CashValueFormatter name="value" value="unset" />,
+            editable: false,
+          },
+          {
+            ...defaultColumn,
+            key: 'FREQ',
+            name: `frequency`,
+            formatter: <SimpleFormatter name="frequency" value="unset" />,
+            editable: false,
           },
         ]}
       />
@@ -79,7 +92,7 @@ export function expensesDiv(
   viewSettings: ViewSettings,
   showAlert: (arg0: string) => void,
   expensesChartData: ChartData[],
-  todaysValues: Map<string, number>,
+  todaysValues: Map<string, ExpenseVal>,
   getStartDate: (() => string) | undefined = undefined,
   updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
   getEndDate: (() => string) | undefined = undefined,

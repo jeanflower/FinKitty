@@ -36,6 +36,11 @@ import {
   DbTrigger,
   Evaluation,
   Interval,
+  SettingVal,
+  AssetVal,
+  DebtVal,
+  IncomeVal,
+  ExpenseVal,
 } from '../types/interfaces';
 import {
   getMonthlyGrowth,
@@ -2859,17 +2864,17 @@ export function getEvaluations(
   model: DbModelData,
 ): {
   evaluations: Evaluation[];
-  todaysAssetValues: Map<string, number>;
-  todaysDebtValues: Map<string, number>;
-  todaysIncomeValues: Map<string, number>;
-  todaysExpenseValues: Map<string, number>;
-  todaysSettingValues: Map<string, string>;
+  todaysAssetValues: Map<string, AssetVal>;
+  todaysDebtValues: Map<string, DebtVal>;
+  todaysIncomeValues: Map<string, IncomeVal>;
+  todaysExpenseValues: Map<string, ExpenseVal>;
+  todaysSettingValues: Map<string, SettingVal>;
 } {
-  const todaysAssetValues = new Map<string, number>();
-  const todaysDebtValues = new Map<string, number>();
-  const todaysIncomeValues = new Map<string, number>();
-  const todaysExpenseValues = new Map<string, number>();
-  const todaysSettingValues = new Map<string, string>();
+  const todaysAssetValues = new Map<string, AssetVal>();
+  const todaysDebtValues = new Map<string, DebtVal>();
+  const todaysIncomeValues = new Map<string, IncomeVal>();
+  const todaysExpenseValues = new Map<string, ExpenseVal>();
+  const todaysSettingValues = new Map<string, SettingVal>();
 
   const message = checkData(model);
   if (message.length > 0) {
@@ -3187,9 +3192,9 @@ export function getEvaluations(
         }
         if (val !== undefined) {
           if (asset.IS_A_DEBT) {
-            todaysDebtValues.set(asset.NAME, val);
+            todaysDebtValues.set(asset.NAME, { debtVal: val });
           } else {
-            todaysAssetValues.set(asset.NAME, val);
+            todaysAssetValues.set(asset.NAME, { assetVal: val });
           }
           // log(`asset ${asset.NAME} has value ${val}`);
         } else {
@@ -3202,7 +3207,7 @@ export function getEvaluations(
           val = traceEvaluation(val, values, val);
         }
         if (val !== undefined) {
-          todaysIncomeValues.set(i.NAME, val);
+          todaysIncomeValues.set(i.NAME, { incomeVal: val });
         } else {
           // log(`don't report undefined today's value for ${i.NAME}`);
         }
@@ -3213,7 +3218,11 @@ export function getEvaluations(
           val = traceEvaluation(val, values, val);
         }
         if (val !== undefined) {
-          todaysExpenseValues.set(e.NAME, val);
+          // log(`expense for todays value ${showObj(e)}`);
+          todaysExpenseValues.set(e.NAME, {
+            expenseVal: val,
+            expenseFreq: e.RECURRENCE,
+          });
         } else {
           // log(`don't report undefined today's value for ${e.NAME}`);
         }
@@ -3221,7 +3230,7 @@ export function getEvaluations(
       model.settings.forEach(s => {
         const val = values.get(s.NAME);
         if (val !== undefined) {
-          todaysSettingValues.set(s.NAME, `${val}`);
+          todaysSettingValues.set(s.NAME, { settingVal: `${val}` });
         } else {
           // log(`don't report undefined today's value for ${s.NAME}`);
         }

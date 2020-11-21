@@ -118,11 +118,11 @@ export interface DataForView {
   expensesData: ItemChartData[];
   incomesData: ItemChartData[];
   taxData: ItemChartData[];
-  todaysAssetValues: Map<string, number>;
-  todaysDebtValues: Map<string, number>;
-  todaysIncomeValues: Map<string, number>;
-  todaysExpenseValues: Map<string, number>;
-  todaysSettingValues: Map<string, string>;
+  todaysAssetValues: Map<string, AssetVal>;
+  todaysDebtValues: Map<string, DebtVal>;
+  todaysIncomeValues: Map<string, IncomeVal>;
+  todaysExpenseValues: Map<string, ExpenseVal>;
+  todaysSettingValues: Map<string, SettingVal>;
 }
 
 export interface Evaluation {
@@ -147,4 +147,21 @@ export interface DbModelData {
 export interface FormProps {
   model: DbModelData;
   showAlert: (string) => void;
+}
+
+export interface SettingVal {
+  settingVal: string;
+}
+export interface AssetVal {
+  assetVal: number;
+}
+export interface DebtVal {
+  debtVal: number;
+}
+export interface IncomeVal {
+  incomeVal: number;
+}
+export interface ExpenseVal {
+  expenseVal: number;
+  expenseFreq: string;
 }

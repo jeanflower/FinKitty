@@ -45,6 +45,7 @@ import {
   viewType,
 } from './localization/stringConstants';
 import {
+  AssetVal,
   ChartData,
   DataForView,
   DbAsset,
@@ -55,8 +56,12 @@ import {
   DbSetting,
   DbTransaction,
   DbTrigger,
+  DebtVal,
   Evaluation,
+  ExpenseVal,
+  IncomeVal,
   ItemChartData,
+  SettingVal,
 } from './types/interfaces';
 import {
   applyRedoToModel,
@@ -379,11 +384,11 @@ export async function refreshData(
   let model = reactAppComponent.state.modelData;
   let evaluationsAndVals: {
     evaluations: Evaluation[];
-    todaysAssetValues: Map<string, number>;
-    todaysDebtValues: Map<string, number>;
-    todaysIncomeValues: Map<string, number>;
-    todaysExpenseValues: Map<string, number>;
-    todaysSettingValues: Map<string, string>;
+    todaysAssetValues: Map<string, AssetVal>;
+    todaysDebtValues: Map<string, DebtVal>;
+    todaysIncomeValues: Map<string, IncomeVal>;
+    todaysExpenseValues: Map<string, ExpenseVal>;
+    todaysSettingValues: Map<string, SettingVal>;
   } = {
     evaluations: reactAppComponent.state.evaluations,
     todaysAssetValues: reactAppComponent.state.todaysAssetValues,
@@ -924,11 +929,11 @@ interface AppState {
   assetChartData: ChartData[];
   debtChartData: ChartData[];
   taxChartData: ChartData[];
-  todaysAssetValues: Map<string, number>;
-  todaysDebtValues: Map<string, number>;
-  todaysIncomeValues: Map<string, number>;
-  todaysExpenseValues: Map<string, number>;
-  todaysSettingValues: Map<string, string>;
+  todaysAssetValues: Map<string, AssetVal>;
+  todaysDebtValues: Map<string, DebtVal>;
+  todaysIncomeValues: Map<string, IncomeVal>;
+  todaysExpenseValues: Map<string, ExpenseVal>;
+  todaysSettingValues: Map<string, SettingVal>;
   alertText: string;
 }
 interface AppProps {
@@ -954,11 +959,11 @@ export class AppContent extends Component<AppProps, AppState> {
       debtChartData: [],
       taxChartData: [],
       modelNamesData: [],
-      todaysAssetValues: new Map<string, number>(),
-      todaysDebtValues: new Map<string, number>(),
-      todaysIncomeValues: new Map<string, number>(),
-      todaysExpenseValues: new Map<string, number>(),
-      todaysSettingValues: new Map<string, string>(),
+      todaysAssetValues: new Map<string, AssetVal>(),
+      todaysDebtValues: new Map<string, DebtVal>(),
+      todaysIncomeValues: new Map<string, IncomeVal>(),
+      todaysExpenseValues: new Map<string, ExpenseVal>(),
+      todaysSettingValues: new Map<string, SettingVal>(),
       alertText: '',
     };
     refreshData(
@@ -1495,7 +1500,7 @@ export class AppContent extends Component<AppProps, AppState> {
 
   private todaysSettingsTable(
     model: DbModelData,
-    todaysValues: Map<string, string>,
+    todaysValues: Map<string, SettingVal>,
   ) {
     if (todaysValues.size === 0) {
       return;
@@ -1516,7 +1521,7 @@ export class AppContent extends Component<AppProps, AppState> {
               // log(`key[0] = ${key[0]}, key[1] = ${key[1]}`);
               return {
                 NAME: key[0],
-                VALUE: `${key[1]}`,
+                VALUE: `${key[1].settingVal}`,
               };
             })
             .sort((a: DbItem, b: DbItem) => lessThan(a.NAME, b.NAME))}
@@ -1526,12 +1531,14 @@ export class AppContent extends Component<AppProps, AppState> {
               key: 'NAME',
               name: 'name',
               formatter: <SimpleFormatter name="name" value="unset" />,
+              editable: false,
             },
             {
               ...defaultColumn,
               key: 'VALUE',
-              name: `today's value`,
-              formatter: <SimpleFormatter name="today's value" value="unset" />,
+              name: `value`,
+              formatter: <SimpleFormatter name="value" value="unset" />,
+              editable: false,
             },
           ]}
         />
@@ -1539,7 +1546,10 @@ export class AppContent extends Component<AppProps, AppState> {
     );
   }
 
-  private settingsDiv(model: DbModelData, todaysValues: Map<string, string>) {
+  private settingsDiv(
+    model: DbModelData,
+    todaysValues: Map<string, SettingVal>,
+  ) {
     if (!getDisplay(settingsView)) {
       return;
     }

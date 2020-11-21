@@ -1,4 +1,9 @@
-import { ChartData, DbItem, DbModelData } from './../types/interfaces';
+import {
+  AssetVal,
+  ChartData,
+  DbItem,
+  DbModelData,
+} from './../types/interfaces';
 import { assetsDivWithHeadings, defaultColumn } from './tablePages';
 import { checkAsset, checkTransaction } from '../models/checks';
 import {
@@ -23,7 +28,7 @@ import { ViewSettings } from '../models/charting';
 
 function todaysAssetsTable(
   model: DbModelData,
-  todaysValues: Map<string, number>,
+  todaysValues: Map<string, AssetVal>,
 ) {
   if (todaysValues.size === 0) {
     return;
@@ -44,7 +49,7 @@ function todaysAssetsTable(
             // log(`key[0] = ${key[0]}, key[1] = ${key[1]}`);
             return {
               NAME: key[0],
-              VALUE: `${key[1]}`,
+              VALUE: `${key[1].assetVal}`,
             };
           })
           .sort((a: DbItem, b: DbItem) => lessThan(a.NAME, b.NAME))}
@@ -54,14 +59,14 @@ function todaysAssetsTable(
             key: 'NAME',
             name: 'name',
             formatter: <SimpleFormatter name="name" value="unset" />,
+            editable: false,
           },
           {
             ...defaultColumn,
             key: 'VALUE',
-            name: `today's value`,
-            formatter: (
-              <CashValueFormatter name="today's value" value="unset" />
-            ),
+            name: `value`,
+            formatter: <CashValueFormatter name="value" value="unset" />,
+            editable: false,
           },
         ]}
       />
@@ -74,7 +79,7 @@ export function assetsDiv(
   viewSettings: ViewSettings,
   showAlert: (arg0: string) => void,
   assetChartData: ChartData[],
-  todaysValues: Map<string, number>,
+  todaysValues: Map<string, AssetVal>,
   getStartDate: (() => string) | undefined = undefined,
   updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
   getEndDate: (() => string) | undefined = undefined,
