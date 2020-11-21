@@ -14,7 +14,7 @@
     "babel-loader": "^8.1.0",
     "bootstrap": "^4.5.3",
     "chrome-headless": "^0.1.5",
-    "chromedriver": "^85.0.1",
+    "chromedriver": "^87.0.0",
     "crypto-js": "^3.3.0",
     "gh-pages": "^2.2.0",
     "jquery": "^3.5.1",
