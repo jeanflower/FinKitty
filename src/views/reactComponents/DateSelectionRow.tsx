@@ -26,8 +26,19 @@ function makeDateTooltipForRow(props: DateSelectionProps) {
   }
   return makeDateTooltip(props.inputValue, props.triggers);
 }
-
 export class DateSelectionRow extends Component<DateSelectionProps, {}> {
+  constructor(props: DateSelectionProps) {
+    super(props);
+    this.handleChange = this.handleChange.bind(this);
+  }
+
+  handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    if (e.target.value === 'today') {
+      e.target.value = new Date().toDateString();
+    }
+    this.props.onChangeHandler(e);
+  }
+
   public render() {
     return (
       <div className="row">
@@ -67,7 +78,8 @@ export class DateSelectionRow extends Component<DateSelectionProps, {}> {
               }
               placeholder={'Enter date'}
               onChange={
-                this.props.onChangeHandler // e.g. this.handleValueSetChange
+                this.handleChange
+                // e.g. this.handleValueSetChange
               }
               className="form-control"
             />

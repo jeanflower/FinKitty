@@ -1167,6 +1167,9 @@ export function checkTrigger(t: DbTrigger): string {
   if (t.NAME.length === 0) {
     return 'Date name needs some characters';
   }
+  if (t.NAME === 'today') {
+    return `Date name can't be 'today'`;
+  }
   if (!checkDate(t.DATE)) {
     return `Your important date is not valid : ${t.DATE}`;
   }
