@@ -4,7 +4,7 @@ import React from 'react';
 interface ButtonProps {
   type: string;
   id: string;
-  action: any;
+  action: (e: any) => void;  // TODO any : MouseEvent?
   title: string;
 }
 

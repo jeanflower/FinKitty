@@ -148,6 +148,8 @@ export class AddDeleteAssetForm extends Component<
     this.handleDcpSsChange = this.handleDcpSsChange.bind(this);
 
     this.add = this.add.bind(this);
+    this.addFromButton = this.addFromButton.bind(this);
+    this.addFromForm = this.addFromForm.bind(this);
     this.delete = this.delete.bind(this);
     this.goButtons = this.goButtons.bind(this);
     this.revalue = this.revalue.bind(this);
@@ -349,7 +351,7 @@ export class AddDeleteAssetForm extends Component<
     if (this.state.inputting === inputtingAsset) {
       return (
         <Button
-          action={this.add}
+          action={this.addFromButton}
           type={'primary'}
           title={
             'Create new asset (over-writes any existing with the same name)'
@@ -369,7 +371,7 @@ export class AddDeleteAssetForm extends Component<
     } else if (this.state.inputting === inputtingPension) {
       return (
         <Button
-          action={this.add}
+          action={this.addFromButton}
           type={'primary'}
           title={'Create new pension'}
           id="addPension"
@@ -539,7 +541,7 @@ export class AddDeleteAssetForm extends Component<
             id="revalueAssetInputs"
           />
         </div>
-        <form className="container-fluid" onSubmit={this.add}>
+        <form className="container-fluid" onSubmit={this.addFromForm}>
           {this.ValueQuantityAndCategory()}
           <div className="container-fluid">
             {/* fills width */}
@@ -650,7 +652,7 @@ export class AddDeleteAssetForm extends Component<
     this.setDcpTransferDate(e.target.value);
   }
 
-  private async revalue(e: React.ChangeEvent<HTMLInputElement>) {
+  private async revalue(e: MouseEvent) {
     e.preventDefault();
 
     const parseVal = makeValueAbsPropFromString(this.state.VALUE);
@@ -710,9 +712,16 @@ export class AddDeleteAssetForm extends Component<
     return;
   }
 
-  private async add(e: FormEvent<Element>) {
+  private async addFromForm(e: FormEvent<Element>) {
     e.preventDefault();
+    this.add();
+  }
+  private async addFromButton(e: MouseEvent) {
+    e.preventDefault();
+    this.add();
+  }
 
+  private async add() {
     if (this.state.NAME === '') {
       this.props.showAlert(`Name should be not empty`);
       return;
@@ -1083,21 +1092,21 @@ export class AddDeleteAssetForm extends Component<
       this.props.showAlert(`failed to delete ${this.state.NAME}`);
     }
   }
-  private inputPension(e: React.ChangeEvent<HTMLInputElement>) {
+  private inputPension(e: MouseEvent) {
     e.preventDefault();
     this.setState({
       ...this.state,
       inputting: inputtingPension,
     });
   }
-  private inputAsset(e: React.ChangeEvent<HTMLInputElement>) {
+  private inputAsset(e: MouseEvent) {
     e.preventDefault();
     this.setState({
       ...this.state,
       inputting: inputtingAsset,
     });
   }
-  private inputRevalue(e: React.ChangeEvent<HTMLInputElement>) {
+  private inputRevalue(e: MouseEvent) {
     e.preventDefault();
     this.setState({
       ...this.state,

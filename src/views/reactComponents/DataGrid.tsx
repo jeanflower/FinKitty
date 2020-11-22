@@ -119,7 +119,10 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
     });
   }
 
-  private getCellActions(column: any, row: any) {
+  private getCellActions(
+    column: ReactDataGrid.Column<any>, 
+    row: any,
+  ){
     // log(`get cell actions?`);
     if (column.key === 'NAME') {
       // log(`add glyph`);
