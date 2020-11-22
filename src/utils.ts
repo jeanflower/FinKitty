@@ -59,7 +59,7 @@ import { checkData } from './models/checks';
 import { migrateViewSetting } from './App';
 
 let doLog = true;
-export function log(obj: any) {
+export function log(obj: string) {
   if (doLog) {
     /* eslint-disable no-console */ // all console calls routed through here
     // tslint:disable-next-line:no-console
@@ -453,7 +453,7 @@ export function printDebug(): boolean {
   return false;
 }
 
-export function showObj(obj: any) {
+export function showObj(obj: number | string | Record<string, any>) {
   return JSON.stringify(obj, null, 4);
 }
 

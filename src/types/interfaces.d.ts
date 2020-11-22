@@ -165,3 +165,27 @@ export interface ExpenseVal {
   expenseVal: number;
   expenseFreq: string;
 }
+
+export interface ChartSettings {
+  height: number;
+  width?: number|string;
+  toolTip: {
+    content: string;
+  };
+  title?: {
+    display: boolean;
+    text: string;
+  };
+  legend: {
+    // fontSize: 30,
+    fontFamily: string;
+    fontWeight: string;
+    horizontalAlign: string; // left, center ,right
+    verticalAlign: string; // top, center, bottom
+    display?: boolean;
+  };
+
+  axisX: {
+    labelFormatter: ({ label: string }) => string;
+  };
+}

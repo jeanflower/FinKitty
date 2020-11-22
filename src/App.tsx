@@ -937,8 +937,8 @@ interface AppState {
   alertText: string;
 }
 interface AppProps {
-  logOutAction: any; // TODO type for function
-  user: any; // TODO
+  logOutAction: () => {};
+  user: string;
 }
 
 export class AppContent extends Component<AppProps, AppState> {
@@ -977,7 +977,7 @@ export class AppContent extends Component<AppProps, AppState> {
     //window.removeEventListener('beforeunload', this.handleUnload);
   }
   /*
-  public handleUnload(e: any) {
+  public handleUnload(e) {
     //log('in handleUnload');
     if (isDirty) {
       const message = 'o/';
@@ -1002,7 +1002,7 @@ export class AppContent extends Component<AppProps, AppState> {
             <Nav className="mr-auto">
               <Form
                 inline
-                onSubmit={(e: any) => {
+                onSubmit={(e: React.FormEvent<Element>) => {
                   e.preventDefault();
                   return false;
                 }}
@@ -1016,7 +1016,7 @@ export class AppContent extends Component<AppProps, AppState> {
             <Nav>
               <Form
                 inline
-                onSubmit={(e: any) => {
+                onSubmit={(e: React.FormEvent<Element>) => {
                   e.preventDefault();
                   return false;
                 }}
@@ -1169,7 +1169,11 @@ export class AppContent extends Component<AppProps, AppState> {
     );
   }
 
-  private modelList(modelNames: string[], actionOnSelect: any, idKey: string) {
+  private modelList(
+    modelNames: string[],
+    actionOnSelect: (arg0: string) => {},
+    idKey: string,
+  ) {
     if (modelNames.length === 0) {
       return <div role="group">Loading models...</div>;
     }

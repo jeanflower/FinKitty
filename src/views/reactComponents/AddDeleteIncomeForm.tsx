@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, FormEvent } from 'react';
 
 import {
   checkIncomeLiability,
@@ -93,7 +93,7 @@ export function incomeOptions(
   const optionData = model.incomes.map(income => {
     return {
       text: income.NAME,
-      action: (e: any) => {
+      action: (e: FormEvent<Element>) => {
         // log(`detected action`);
         // e.persist();
         e.preventDefault();
@@ -752,7 +752,7 @@ DB_TRANSFERRED_STOP
     return;
   }
 
-  private async add(e: any): Promise<void> {
+  private async add(e: FormEvent<Element>): Promise<void> {
     e.preventDefault();
 
     log(`in income form's add function`);

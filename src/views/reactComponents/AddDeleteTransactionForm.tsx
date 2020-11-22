@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, FormEvent } from 'react';
 
 import {
   DbModelData,
@@ -64,7 +64,7 @@ function assetOptions(model: DbModelData, handleChange: any, id: string) {
     .map(asset => {
       return {
         text: asset.NAME,
-        action: (e: any) => {
+        action: (e: FormEvent<Element>) => {
           // log(`detected action`);
           // e.persist();
           e.preventDefault();
@@ -83,7 +83,7 @@ function assetOptions(model: DbModelData, handleChange: any, id: string) {
         .map(setting => {
           return {
             text: setting.NAME,
-            action: (e: any) => {
+            action: (e: FormEvent<Element>) => {
               // log(`detected action`);
               // e.persist();
               e.preventDefault();
@@ -410,7 +410,7 @@ export class AddDeleteTransactionForm extends Component<
       selector.selectedIndex = '0';
     }
   }
-  private async add(e: any): Promise<void> {
+  private async add(e: FormEvent<Element>): Promise<void> {
     e.preventDefault();
 
     if (this.state.NAME === '') {

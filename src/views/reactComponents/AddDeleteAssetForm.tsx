@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, FormEvent } from 'react';
 
 import {
   checkAssetLiability,
@@ -710,7 +710,7 @@ export class AddDeleteAssetForm extends Component<
     return;
   }
 
-  private async add(e: any) {
+  private async add(e: FormEvent<Element>) {
     e.preventDefault();
 
     if (this.state.NAME === '') {

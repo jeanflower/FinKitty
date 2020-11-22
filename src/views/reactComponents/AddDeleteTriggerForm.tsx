@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, FormEvent } from 'react';
 import { doCheckBeforeOverwritingExistingData } from '../../App';
 
 import { DbModelData, DbTrigger, FormProps } from '../../types/interfaces';
@@ -25,7 +25,7 @@ export function newTriggerButtonData(
 ) {
   return {
     text: 'Make new important date',
-    action: async (e: React.ChangeEvent<HTMLInputElement>) => {
+    action: async (e: FormEvent<Element>) => {
       // e.persist();
       e.preventDefault();
       const nameString = prompt('Name for new important date', '');
@@ -127,7 +127,7 @@ export class AddDeleteTriggerForm extends Component<
     this.setState({ DATE: value });
   }
 
-  private async add(e: any) {
+  private async add(e: FormEvent<Element>) {
     e.preventDefault();
 
     if (this.state.NAME === '') {

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, FormEvent } from 'react';
 
 import { Input } from './Input';
 import { DbModelData } from '../../types/interfaces';
@@ -115,13 +115,13 @@ export class CreateModelForm extends Component<
     );
   }
 
-  private async clonePropsModel(e: any) {
+  private async clonePropsModel(e: FormEvent<Element>) {
     // log(`in clonePropsModel`);
     e.preventDefault();
     this.copyModel(this.props.modelData);
   }
 
-  private async backupModel(e: any) {
+  private async backupModel(e: FormEvent<Element>) {
     e.preventDefault();
     const d = new Date();
     await this.props.saveModel(

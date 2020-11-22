@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, FormEvent } from 'react';
 
 import {
   DbExpense,
@@ -419,7 +419,7 @@ export class AddDeleteExpenseForm extends Component<
     this.setState(this.defaultState);
     return;
   }
-  private async add(e: any): Promise<void> {
+  private async add(e: FormEvent<Element>): Promise<void> {
     e.preventDefault();
 
     if (this.state.NAME === '') {

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, FormEvent } from 'react';
 
 import { DbTrigger, DbModelData, FormProps } from '../../types/interfaces';
 import { newTriggerButtonData } from './AddDeleteTriggerForm';
@@ -37,7 +37,7 @@ export class TriggerOptionList extends Component<TriggerOptionListProps, {}> {
       .map(trigger => {
         return {
           text: trigger.NAME,
-          action: (e: any) => {
+          action: (e: FormEvent<Element>) => {
             // log(`detected action`);
             // e.persist();
             e.preventDefault();

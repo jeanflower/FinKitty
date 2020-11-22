@@ -17,7 +17,9 @@ export const quitAfterAll = true;
 export const headless = false;
 // export const quitAfterAll = false;
 
-export async function alertIsShowing(driver: any): Promise<boolean> {
+export async function alertIsShowing(
+  driver: webdriver.ThenableWebDriver,
+): Promise<boolean> {
   try {
     await driver.switchTo().alert();
     return true;
@@ -27,7 +29,9 @@ export async function alertIsShowing(driver: any): Promise<boolean> {
   } // catch
 } // isAlertPresent()
 
-export async function acceptAnyAlert(driver: any): Promise<boolean> {
+export async function acceptAnyAlert(
+  driver: webdriver.ThenableWebDriver,
+): Promise<boolean> {
   try {
     await driver
       .switchTo()
@@ -40,7 +44,9 @@ export async function acceptAnyAlert(driver: any): Promise<boolean> {
   } // catch
 } // isAlertPresent()
 
-export async function dismissAnyAlert(driver: any): Promise<boolean> {
+export async function dismissAnyAlert(
+  driver: webdriver.ThenableWebDriver,
+): Promise<boolean> {
   try {
     await driver
       .switchTo()
@@ -56,7 +62,7 @@ export async function dismissAnyAlert(driver: any): Promise<boolean> {
 export async function consumeAlert(
   message: string,
   accept: boolean,
-  driver: any,
+  driver: webdriver.ThenableWebDriver,
 ) {
   expect(
     await driver
@@ -77,7 +83,10 @@ export async function consumeAlert(
   }
 }
 
-export async function deleteIfExists(name: string, driver: any) {
+export async function deleteIfExists(
+  name: string,
+  driver: webdriver.ThenableWebDriver,
+) {
   await clickButton(driver, 'btn-Home');
   // log(`delete ${name} if it exists...`);
   const btn = await driver.findElements(
@@ -769,7 +778,7 @@ export const debtInputs = {
   monthlyRepayment: '10',
 };
 
-export async function scrollToTop(driver: any) {
+export async function scrollToTop(driver: webdriver.ThenableWebDriver) {
   await driver.executeScript('window.scrollBy(0, -1000)');
 }
 

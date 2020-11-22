@@ -1,5 +1,6 @@
 import {
   ChartData,
+  ChartSettings,
   DbItemCategory,
   DbModelData,
   DbSetting,
@@ -187,7 +188,7 @@ export function frequencyList(settings: ViewSettings) {
 export function getDefaultChartSettings(
   settings: ViewSettings,
   modelSettings: DbSetting[],
-) {
+): ChartSettings {
   const showMonth =
     settings.getViewSetting(viewFrequency, annually) === monthly;
   const showAge = getSettings(modelSettings, birthDate, '') !== '';
@@ -204,10 +205,11 @@ export function getDefaultChartSettings(
       fontWeight: 'normal',
       horizontalAlign: 'right', // left, center ,right
       verticalAlign: 'center', // top, center, bottom
+      display: true,
     },
 
     axisX: {
-      labelFormatter: function(e: any) {
+      labelFormatter: function(e: { label: string }) {
         if (printDebug()) {
           log(`e.value = ${e.label}`);
           log(`showAge = ${showAge}`);
@@ -224,7 +226,7 @@ export function getSmallerChartSettings(
   settings: ViewSettings,
   modelSettings: DbSetting[],
   title: string,
-) {
+): ChartSettings {
   return {
     ...getDefaultChartSettings(settings, modelSettings),
     height: 200,
@@ -235,12 +237,19 @@ export function getSmallerChartSettings(
     },
     // see also suppressLegend()
     legend: {
+      fontFamily: 'Helvetica',
+      fontWeight: 'normal',
+      horizontalAlign: 'right', // left, center ,right
+      verticalAlign: 'center', // top, center, bottom
       display: false,
     },
   };
 }
 
-function incomesChart(incomesChartData: ChartData[], chartSettings: any) {
+function incomesChart(
+  incomesChartData: ChartData[],
+  chartSettings: ChartSettings,
+) {
   return (
     <fieldset>
       <CanvasJSChart
@@ -298,7 +307,7 @@ function noDataToDisplayFragment(
     }
     // log(`hasData = ${hasData}`);
     if (!hasData) {
-      return;
+      return <></>;
     } else {
       return (
         <>
@@ -329,14 +338,14 @@ function noDataToDisplayFragment(
 
 export function incomesChartDiv(
   incomesChartData: ChartData[],
-  chartSettings: any,
+  chartSettings: ChartSettings,
   model: DbModelData | undefined = undefined,
   showAlert: ((arg0: string) => void) | undefined = undefined,
   getStartDate: (() => string) | undefined = undefined,
   updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
   getEndDate: (() => string) | undefined = undefined,
   updateEndDate: ((newDate: string) => Promise<void>) | undefined = undefined,
-): any {
+): JSX.Element {
   if (incomesChartData.length === 0) {
     log(`incomesChartData.length === 0, no data`);
     return noDataToDisplayFragment(
@@ -356,7 +365,7 @@ export function incomesChartDivWithButtons(
   model: DbModelData,
   settings: ViewSettings,
   incomesChartData: ChartData[],
-  chartSettings: any,
+  chartSettings: ChartSettings,
   showAlert: ((arg0: string) => void) | undefined = undefined,
   getStartDate: (() => string) | undefined = undefined,
   updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
@@ -409,7 +418,10 @@ export function incomesChartDivWithButtons(
   }
 }
 
-function expensesChart(expensesChartData: ChartData[], chartSettings: any) {
+function expensesChart(
+  expensesChartData: ChartData[],
+  chartSettings: ChartSettings,
+) {
   return (
     <fieldset>
       <CanvasJSChart
@@ -424,7 +436,7 @@ function expensesChart(expensesChartData: ChartData[], chartSettings: any) {
 
 export function expensesChartDiv(
   expensesChartData: ChartData[],
-  chartSettings: any,
+  chartSettings: ChartSettings,
   model: DbModelData | undefined = undefined,
   showAlert: ((arg0: string) => void) | undefined = undefined,
   getStartDate: (() => string) | undefined = undefined,
@@ -451,7 +463,7 @@ export function expensesChartDivWithButtons(
   model: DbModelData,
   settings: ViewSettings,
   expensesChartData: ChartData[],
-  chartSettings: any,
+  chartSettings: ChartSettings,
   showAlert: ((arg0: string) => void) | undefined = undefined,
   getStartDate: (() => string) | undefined = undefined,
   updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
@@ -536,7 +548,7 @@ function assetViewTypeList(settings: ViewSettings) {
 export function assetsOrDebtsChartDiv(
   assetChartData: ChartData[],
   isDebt: boolean,
-  chartSettings: any,
+  chartSettings: ChartSettings,
   model: DbModelData | undefined = undefined,
   showAlert: ((arg0: string) => void) | undefined = undefined,
   getStartDate: (() => string) | undefined = undefined,
@@ -718,7 +730,7 @@ function taxButtonList(model: DbModelData, viewSettings: ViewSettings) {
 }
 export function taxChartDiv(
   taxChartData: ChartData[],
-  settings: any,
+  settings: ChartSettings,
   showAlert: ((arg0: string) => void) | undefined = undefined,
   getStartDate: (() => string) | undefined = undefined,
   updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
@@ -777,7 +789,7 @@ function taxChartDivWithButtons(
   model: DbModelData,
   viewSettings: ViewSettings,
   taxChartData: ChartData[],
-  settings: any,
+  settings: ChartSettings,
   showAlert: ((arg0: string) => void) | undefined = undefined,
   getStartDate: (() => string) | undefined = undefined,
   updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,

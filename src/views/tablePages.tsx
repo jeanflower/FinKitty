@@ -1034,21 +1034,6 @@ function makeTransactionCols(model: DbModelData, type: string) {
   return cols;
 }
 
-function makeCompleteName(name: string, type: string) {
-  if (
-    type === revalueInc ||
-    type === revalueExp ||
-    type === revalueAsset ||
-    type === revalueDebt
-  ) {
-    return `${revalue}${name}`;
-  }
-  if (type === liquidateAsset || type === payOffDebt) {
-    return `${conditional}${name}`;
-  }
-  return name;
-}
-
 export function transactionsTableDiv(
   contents: any[],
   model: DbModelData,
@@ -1075,7 +1060,7 @@ export function transactionsTableDiv(
           rows={contents}
           columns={makeTransactionCols(model, type)}
           deleteFunction={(name: string) => {
-            const completeName = makeCompleteName(name, type);
+            const completeName = getDbName(name, type);
             return deleteTransaction(completeName);
           }}
         />

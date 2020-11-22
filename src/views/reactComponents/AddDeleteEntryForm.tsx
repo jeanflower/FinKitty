@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, FormEvent } from 'react';
 
 import { log, printDebug, showObj } from '../../utils';
 import { InputRow } from './Input';
@@ -47,7 +47,7 @@ export class AddDeleteEntryForm extends Component<EditProps, EditFormState> {
     const value = e.target.value;
     this.setState({ VALUE: value });
   }
-  private async add(e: any) {
+  private async add(e: FormEvent<Element>) {
     e.preventDefault();
     // log('adding something ' + showObj(this));
     await this.props.submitFunction(this.state.VALUE);

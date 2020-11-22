@@ -159,7 +159,12 @@ e.g.
     this.supercategories = this.makeEmptySuperCategories();
   }
   private makeEmptyDependents() {
-    const result: any = {
+    const result: {
+      [Context.Asset]: Map<string, string[]>;
+      [Context.Debt]: Map<string, string[]>;
+      [Context.Income]: Map<string, string[]>;
+      [Context.Expense]: Map<string, string[]>;
+    } = {
       [Context.Asset]: new Map<string, string[]>(),
       [Context.Debt]: new Map<string, string[]>(),
       [Context.Income]: new Map<string, string[]>(),
@@ -172,7 +177,12 @@ e.g.
     return result;
   }
   private makeEmptySuperCategories() {
-    const result: any = {
+    const result: {
+      [Context.Asset]: Map<string, string[]>;
+      [Context.Debt]: Map<string, string[]>;
+      [Context.Income]: Map<string, string[]>;
+      [Context.Expense]: Map<string, string[]>;
+    } = {
       [Context.Asset]: new Map<string, string[]>(),
       [Context.Debt]: new Map<string, string[]>(),
       [Context.Income]: new Map<string, string[]>(),
@@ -398,7 +408,10 @@ function logMapOfMap(
   }
 }
 
-function logMapOfMapofMap(threeMap: any, display = false) {
+function logMapOfMapofMap(
+  threeMap: Map<any, Map<any, Map<any, any>>>,
+  display = false,
+) {
   if (display) {
     log('threeMap:');
     for (const [key, value] of threeMap) {
@@ -624,19 +637,25 @@ function makeChartDataPoints(
       }
     });
   });
-  const allChartDataPoints = [];
+  const allChartDataPoints: {
+    name: string;
+    chartDataPoints: ChartDataPoint[];
+  }[] = [];
   for (const [item, array] of chartDataPointMap) {
     /* eslint-disable-line no-restricted-syntax */
     allChartDataPoints.push({ name: item, chartDataPoints: array });
   }
 
   if (printDebug()) {
-    allChartDataPoints.forEach(entry => {
-      log(
-        `item ${showObj(entry.name)} has chart points ` +
-          `${showObj(entry.chartDataPoints)}`,
-      );
-    });
+    allChartDataPoints.forEach(
+      (entry: { name: string; chartDataPoints: ChartDataPoint[] }) => {
+        const name = entry.name;
+        const message =
+          `item ${name} has chart points ` +
+          `${showObj(entry.chartDataPoints)}`;
+        log(message);
+      },
+    );
   }
   const result: ItemChartData[] = [];
   // log(`done making asset points@`);

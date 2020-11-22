@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, FormEvent } from 'react';
 
 import { log, printDebug, makeModelFromJSON } from '../../utils';
 import { Input } from './Input';
@@ -59,7 +59,7 @@ export class ReplaceWithJSONForm extends Component<
     );
   }
 
-  private async replace(e: any) {
+  private async replace(e: FormEvent<Element>) {
     e.preventDefault();
     let modelName = this.props.modelName;
     // log(`modelName from props is ${modelName}`);

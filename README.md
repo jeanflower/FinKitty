@@ -13,6 +13,15 @@ on localhost
 (e.g. run https://github.com/jeanflower/FinServer 
 locally and make it use a local mongo database).
 
+## Authentication
+Is handled by Auth0, code in 
+/src/contexts/auth0-context.js
+Logo handling was understood by reading
+https://community.auth0.com/t/company-logo-upload-not-url/38910/8
+and then adding link to (raw)
+https://github.com/jeanflower/FinKitty/raw/master/src/views/cat.png 
+in Auth0 Tenant Settings page.
+
 ## Getting started for developers
 
 ### One-off setup steps
