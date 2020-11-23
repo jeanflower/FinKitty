@@ -6,7 +6,7 @@ import {
   addDBPension,
   clearPensionFields,
   quitAfterAll,
-} from './ browsertestUtils';
+} from './browserTestUtils';
 import {
   getDriver,
   beforeAllWork,

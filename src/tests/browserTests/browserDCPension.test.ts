@@ -6,7 +6,7 @@ import {
   addDCPension,
   clearDCPension,
   quitAfterAll,
-} from './ browsertestUtils';
+} from './browserTestUtils';
 import {
   getDriver,
   beforeAllWork,

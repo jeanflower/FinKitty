@@ -24,7 +24,7 @@ import {
   clearDebtFields,
   quitAfterAll,
   revalueAsset,
-} from './ browsertestUtils';
+} from './browserTestUtils';
 import {
   getDriver,
   beforeAllWork,

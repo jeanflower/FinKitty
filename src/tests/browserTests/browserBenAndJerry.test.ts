@@ -17,7 +17,7 @@ import {
   incomeInputs,
   quitAfterAll,
   sleep,
-} from './ browsertestUtils';
+} from './browserTestUtils';
 import {
   getDriver,
   beforeAllWork,

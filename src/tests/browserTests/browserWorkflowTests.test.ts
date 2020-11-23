@@ -24,7 +24,7 @@ import {
   deleteIfExists,
   consumeAlert,
   quitAfterAll,
-} from './ browsertestUtils';
+} from './browserTestUtils';
 
 import webdriver from 'selenium-webdriver';
 

@@ -23,7 +23,7 @@ import {
   addTransaction,
   transactionInputs,
   quitAfterAll,
-} from './ browsertestUtils';
+} from './browserTestUtils';
 import {
   getDriver,
   beforeAllWork,

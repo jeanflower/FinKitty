@@ -7,7 +7,7 @@ import {
   transactionInputs,
   clearTransactionFields,
   quitAfterAll,
-} from './ browsertestUtils';
+} from './browserTestUtils';
 import {
   getDriver,
   beforeAllWork,
