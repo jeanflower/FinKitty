@@ -115,7 +115,9 @@ export async function fillInputById(
   content: string,
 ) {
   const input = await driver.findElements(webdriver.By.id(id));
-  // log(`found ${input.length} elements with id = ${id}`);
+  if (input.length !== 1) {
+    log(`found ${input.length} elements with id=${id}`);
+  }
   expect(input.length === 1).toBe(true);
   const result = await input[0].sendKeys(content);
   //log(`got ${result} from content ${content}`);
@@ -127,7 +129,9 @@ export async function scrollIntoViewByID(
   id: string,
 ) {
   const input = await driver.findElements(webdriver.By.id(id));
-  //log(`found ${input.length} elements with id = ${id}`);
+  if (input.length !== 1) {
+    log(`found ${input.length} elements with id=${id}`);
+  }
   expect(input.length === 1).toBe(true);
 
   await driver.executeScript('arguments[0].scrollIntoView(true);', input[0]);
@@ -220,13 +224,15 @@ export async function beforeAllWork(
   // even though we don't expect people to do this
   await clickButton(driver, 'btn-toggle-check-overwrite');
 
-  await replaceWithTestModel(driver, testDataModelName, modelString);
+  if(testDataModelName !== '' && modelString !== ''){
+    await replaceWithTestModel(driver, testDataModelName, modelString);
 
-  await selectModel(driver, testDataModelName);
-  if (allowExtraSleeps()) {
-    await sleep(calcSleep, '--- after model selected');
+    await selectModel(driver, testDataModelName);
+    if (allowExtraSleeps()) {
+      await sleep(calcSleep, '--- after model selected');
+    }
+    await clickButton(driver, 'btn-Home');
   }
-  await clickButton(driver, 'btn-Home');
 }
 
 export async function cleanUpWork(

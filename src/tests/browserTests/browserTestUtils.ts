@@ -3,6 +3,7 @@ import {
   clickButton,
   fillInputById,
   fillInputByName,
+  scrollIntoViewByID,
 } from './browserBaseTypes';
 
 import webdriver from 'selenium-webdriver';
@@ -93,6 +94,7 @@ export async function deleteIfExists(
     webdriver.By.id(`btn-overview-${name}`),
   );
   if (btn.length === 1) {
+    await scrollIntoViewByID(driver, `btn-overview-${name}`);
     // log(`${name} exists`);
     await btn[0].click();
     await acceptAnyAlert(driver);

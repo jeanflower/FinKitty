@@ -86,19 +86,7 @@ export const simpleExampleData = `{"triggers":[
 {"NAME":"Date of birth","VALUE":"","HINT":"Date used for representing dates as ages","TYPE":"view"},
 {"NAME":"End of view range","VALUE":"1 Jan 2042","HINT":"Date at the end of range to be plotted","TYPE":"view"},
 {"NAME":"stockMarketGrowth","VALUE":"6.236","HINT":"Custom setting for stock market growth","TYPE":"adjustable"},
-{"NAME": "Today's value focus date","VALUE": "","HINT": "Date to use for 'today's value' tables (defaults to '' meaning today)","TYPE": "view"},
-
-{"NAME":"View detail","VALUE":"Detailed view","HINT":"View detail ('Categorised view' or 'Detailed view')","TYPE":"view"},
-{"NAME":"Type of view for debt chart","VALUE":"val","HINT":"Debt chart uses setting '+', '-', '+-' or 'val'","TYPE":"view"},
-{"NAME":"Type of view for chart","VALUE":"val","HINT":"Asset chart uses setting '+', '-', '+-' or 'val'","TYPE":"view"},
-{"NAME":"Tax chart, whether to include net income/gains","VALUE":"Y","HINT":"Show net can be 'Y', 'N', 'y', 'n', 'yes', 'no'","TYPE":"view"},
-{"NAME":"Focus of tax chart, type","VALUE":"All","HINT":"Tax chart can show data for 'income', 'gain' or 'All'","TYPE":"view"},
-{"NAME":"Focus of tax chart, person","VALUE":"All","HINT":"Tax chart can show data pertinent to a named individual or 'All'","TYPE":"view"},
-{"NAME":"Focus of incomes chart","VALUE":"All","HINT":"Incomes chart can display a category, a single income, or 'All'","TYPE":"view"},
-{"NAME":"Focus of expenses chart","VALUE":"All","HINT":"Expenses chart can display a category, a single expense, or 'All'","TYPE":"view"},
-{"NAME":"Focus of debts chart","VALUE":"All","HINT":"Debts chart can display a category, a single debt, or 'All'","TYPE":"view"},
-{"NAME":"Focus of assets chart","VALUE":"All","HINT":"Assets chart can display a category, a single asset, or 'All'","TYPE":"view"}
-
+{"NAME": "Today's value focus date","VALUE": "","HINT": "Date to use for 'today's value' tables (defaults to '' meaning today)","TYPE": "view"}
 ]}`;
 
 export const billAndBenExampleData = `{"triggers":[
