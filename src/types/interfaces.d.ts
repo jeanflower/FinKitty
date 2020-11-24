@@ -168,7 +168,7 @@ export interface ExpenseVal {
 
 export interface ChartSettings {
   height: number;
-  width?: number|string;
+  width?: number | string;
   toolTip: {
     content: string;
   };
