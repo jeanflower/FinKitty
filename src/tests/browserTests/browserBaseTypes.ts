@@ -224,7 +224,7 @@ export async function beforeAllWork(
   // even though we don't expect people to do this
   await clickButton(driver, 'btn-toggle-check-overwrite');
 
-  if(testDataModelName !== '' && modelString !== ''){
+  if (testDataModelName !== '' && modelString !== '') {
     await replaceWithTestModel(driver, testDataModelName, modelString);
 
     await selectModel(driver, testDataModelName);
@@ -321,42 +321,26 @@ export async function getChartData(driver: ThenableWebDriver, label: string) {
 
 async function getTypedChartData(
   driver: ThenableWebDriver,
-  headerID: string,
   switchButtonID: string,
   dataDumpName: string,
 ) {
-  const header = await driver.findElements(webdriver.By.id(headerID));
-  if (header.length === 0) {
-    const btn = await driver.findElements(webdriver.By.id(switchButtonID));
-    expect(btn.length === 1).toBe(true);
-    await btn[0].click();
-    if (allowExtraSleeps()) {
-      await sleep(shortSleep, '--- after switching to correct context');
-    }
+  const btn = await driver.findElements(webdriver.By.id(switchButtonID));
+  expect(btn.length === 1).toBe(true);
+  await btn[0].click();
+  if (allowExtraSleeps()) {
+    await sleep(shortSleep, '--- after switching to correct context');
   }
   return getChartData(driver, dataDumpName);
 }
 export async function getAssetChartData(driver: ThenableWebDriver) {
-  return getTypedChartData(
-    driver,
-    'AssetsHeader',
-    'btn-Assets',
-    'assetDataDump',
-  );
+  return getTypedChartData(driver, 'btn-Assets', 'assetDataDump');
+}
+export async function getDebtChartData(driver: ThenableWebDriver) {
+  return getTypedChartData(driver, 'btn-Debts', 'debtDataDump');
 }
 export async function getExpenseChartData(driver: ThenableWebDriver) {
-  return getTypedChartData(
-    driver,
-    'ExpensesHeader',
-    'btn-Expenses',
-    'expenseDataDump',
-  );
+  return getTypedChartData(driver, 'btn-Expenses', 'expenseDataDump');
 }
 export async function getIncomeChartData(driver: ThenableWebDriver) {
-  return getTypedChartData(
-    driver,
-    'IncomesHeader',
-    'btn-Incomes',
-    'incomeDataDump',
-  );
+  return getTypedChartData(driver, 'btn-Incomes', 'incomeDataDump');
 }
