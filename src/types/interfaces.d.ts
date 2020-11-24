@@ -1,18 +1,18 @@
-export interface DbItem {
+export interface Item {
   NAME: string;
 }
-export interface DbItemCategory extends DbItem {
+export interface ItemCategory extends Item {
   CATEGORY: string;
 }
-export interface DbSetting extends DbItem {
+export interface Setting extends Item {
   VALUE: string;
   HINT: string;
   TYPE: string;
 }
-export interface DbTrigger extends DbItem {
+export interface Trigger extends Item {
   DATE: Date;
 }
-export interface DbAsset extends DbItemCategory {
+export interface Asset extends ItemCategory {
   START: string;
   VALUE: string;
   QUANTITY: string; // Quantised assets have unit prices on-screen for table value
@@ -24,7 +24,7 @@ export interface DbAsset extends DbItemCategory {
   LIABILITY: string; // e.g. IncomeTaxJoe if growth accumulates as income tax liability
   PURCHASE_PRICE: string;
 }
-export interface DbExpense extends DbItemCategory {
+export interface Expense extends ItemCategory {
   START: string;
   END: string;
   VALUE: string;
@@ -33,7 +33,7 @@ export interface DbExpense extends DbItemCategory {
   CPI_IMMUNE: boolean;
   RECURRENCE: string;
 }
-export interface DbIncome extends DbItemCategory {
+export interface Income extends ItemCategory {
   START: string;
   END: string;
   VALUE: string;
@@ -72,7 +72,7 @@ export interface DbIncome extends DbItemCategory {
 // If there's also a fixed value charge for SellHouse, we could
 // log a separate transaction.
 //
-export interface DbTransaction extends DbItemCategory {
+export interface Transaction extends ItemCategory {
   // NAME:
   // special starting words : Conditional, Pension, PensionSS
   // see tests for examples
@@ -108,7 +108,7 @@ export interface ChartData {
   dataPoints: ChartDataPoint[];
 }
 export interface ItemChartData {
-  item: DbItem;
+  item: Item;
   chartDataPoints: ChartDataPoint[];
 }
 
@@ -132,20 +132,20 @@ export interface Evaluation {
   source: string; // the source of the change for this evaluation
 }
 
-export interface DbModelData {
-  triggers: DbTrigger[];
-  expenses: DbExpense[];
-  incomes: DbIncome[];
-  transactions: DbTransaction[];
-  assets: DbAsset[];
-  settings: DbSetting[];
+export interface ModelData {
+  triggers: Trigger[];
+  expenses: Expense[];
+  incomes: Income[];
+  transactions: Transaction[];
+  assets: Asset[];
+  settings: Setting[];
   version: number;
-  undoModel: DbModelData | undefined;
-  redoModel: DbModelData | undefined;
+  undoModel: ModelData | undefined;
+  redoModel: ModelData | undefined;
 }
 
 export interface FormProps {
-  model: DbModelData;
+  model: ModelData;
   showAlert: (string) => void;
 }
 

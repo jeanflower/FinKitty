@@ -1,15 +1,11 @@
-import { DbModelData } from './../types/interfaces';
+import { ModelData } from './../types/interfaces';
 import { RESTDB } from './REST_db';
 
 export interface DbInterface {
   getModelNames(userID: string): Promise<string[]>;
-  loadModel(userID: string, modelName: string): Promise<DbModelData>;
+  loadModel(userID: string, modelName: string): Promise<ModelData>;
   ensureModel(userID: string, modelName: string): Promise<void>;
-  saveModel(
-    userID: string,
-    modelName: string,
-    model: DbModelData,
-  ): Promise<void>;
+  saveModel(userID: string, modelName: string, model: ModelData): Promise<void>;
   deleteModel(userID: string, modelName: string): Promise<void>;
 }
 

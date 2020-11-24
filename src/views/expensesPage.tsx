@@ -1,9 +1,4 @@
-import {
-  ChartData,
-  DbItem,
-  DbModelData,
-  ExpenseVal,
-} from '../types/interfaces';
+import { ChartData, Item, ModelData, ExpenseVal } from '../types/interfaces';
 import { checkExpense, checkTransaction } from '../models/checks';
 import {
   defaultColumn,
@@ -32,7 +27,7 @@ import SimpleFormatter from './reactComponents/NameFormatter';
 import { ViewSettings } from '../models/charting';
 
 function todaysExpensesTable(
-  model: DbModelData,
+  model: ModelData,
   todaysValues: Map<string, ExpenseVal>,
 ) {
   if (todaysValues.size === 0) {
@@ -58,7 +53,7 @@ function todaysExpensesTable(
               FREQ: `${key[1].expenseFreq}`,
             };
           })
-          .sort((a: DbItem, b: DbItem) => lessThan(a.NAME, b.NAME))}
+          .sort((a: Item, b: Item) => lessThan(a.NAME, b.NAME))}
         columns={[
           {
             ...defaultColumn,
@@ -88,7 +83,7 @@ function todaysExpensesTable(
 }
 
 export function expensesDiv(
-  model: DbModelData,
+  model: ModelData,
   viewSettings: ViewSettings,
   showAlert: (arg0: string) => void,
   expensesChartData: ChartData[],

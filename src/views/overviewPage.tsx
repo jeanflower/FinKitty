@@ -1,4 +1,4 @@
-import { ChartData, DbModelData } from '../types/interfaces';
+import { ChartData, ModelData } from '../types/interfaces';
 import {
   assetsDivWithHeadings,
   debtsDivWithHeadings,
@@ -42,7 +42,7 @@ function suppressLegend(chartDataPoints: ChartData[]) {
 }
 
 function chartsForOverview(
-  model: DbModelData,
+  model: ModelData,
   viewSettings: ViewSettings,
   showAlert: (arg0: string) => void,
   assetChartData: ChartData[],
@@ -114,7 +114,7 @@ function chartsForOverview(
 }
 
 function transactionsOverviewDiv(
-  model: DbModelData,
+  model: ModelData,
   showAlert: (arg0: string) => void,
 ) {
   const customContents = transactionsForTable(model, custom);
@@ -142,7 +142,7 @@ function transactionsOverviewDiv(
 }
 
 export function overviewDiv(
-  model: DbModelData,
+  model: ModelData,
   viewSettings: ViewSettings,
   showAlert: (arg0: string) => void,
   assetChartData: ChartData[],

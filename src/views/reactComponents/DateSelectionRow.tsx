@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { DbTrigger, DbModelData, FormProps } from '../../types/interfaces';
+import { Trigger, ModelData, FormProps } from '../../types/interfaces';
 import { TriggerOptionList } from './TriggerOptionList';
 import { log, makeDateTooltip, showObj, printDebug } from '../../utils';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
@@ -11,10 +11,10 @@ interface DateSelectionProps extends FormProps {
   inputName: string;
   inputValue: string;
   onChangeHandler: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  triggers: DbTrigger[];
+  triggers: Trigger[];
   submitTriggerFunction: (
-    triggerInput: DbTrigger,
-    modelData: DbModelData,
+    triggerInput: Trigger,
+    modelData: ModelData,
   ) => Promise<void>;
 }
 function makeDateTooltipForRow(props: DateSelectionProps) {

@@ -1,8 +1,8 @@
 import { generateSequenceOfDates } from '../../models/evaluations';
-import { DbAsset } from '../../types/interfaces';
+import { Asset } from '../../types/interfaces';
 import { makeDateFromString } from '../../utils';
 
-export const testAsset: DbAsset = {
+export const testAsset: Asset = {
   NAME: 'test_asset',
   CATEGORY: '',
   START: 'Jan 2017',

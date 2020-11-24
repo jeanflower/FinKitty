@@ -1,7 +1,7 @@
 import React, { Component, FormEvent } from 'react';
 
 import { Input } from './Input';
-import { DbModelData } from '../../types/interfaces';
+import { ModelData } from '../../types/interfaces';
 import Button from './Button';
 import { log, minimalModel, printDebug } from '../../utils';
 
@@ -14,16 +14,16 @@ interface CreateModelFormProps {
   saveModel: (
     userID: string,
     modelName: string,
-    modelData: DbModelData,
+    modelData: ModelData,
   ) => Promise<void>;
-  modelData: DbModelData;
+  modelData: ModelData;
   showAlert: (arg0: string) => void;
-  cloneModel: (newName: string, oldModel: DbModelData) => Promise<boolean>;
+  cloneModel: (newName: string, oldModel: ModelData) => Promise<boolean>;
   exampleModels: {
     name: string;
     model: string;
   }[];
-  getExampleModel: (JSONdata: string) => DbModelData;
+  getExampleModel: (JSONdata: string) => ModelData;
   getModelNames: (userID: string) => Promise<string[]>;
 }
 
@@ -139,7 +139,7 @@ export class CreateModelForm extends Component<
     );
   }
 
-  private async copyModel(model: DbModelData) {
+  private async copyModel(model: ModelData) {
     // log(`in copyModel`);
     const newName = this.state.newName;
     if (newName.length === 0) {

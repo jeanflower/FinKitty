@@ -27,13 +27,13 @@ import {
 } from '../localization/stringConstants';
 import {
   DatedThing,
-  DbAsset,
-  DbExpense,
-  DbIncome,
-  DbModelData,
-  DbSetting,
-  DbTransaction,
-  DbTrigger,
+  Asset,
+  Expense,
+  Income,
+  ModelData,
+  Setting,
+  Transaction,
+  Trigger,
   Evaluation,
   Interval,
   SettingVal,
@@ -419,7 +419,7 @@ function traceEvaluation(
 function getQuantity(
   w: string,
   values: Map<string, number | string>,
-  model: DbModelData,
+  model: ModelData,
 ): undefined | number {
   if (getStartQuantity(w, model) === undefined) {
     // log(`no start quantity for ${w}`);
@@ -435,7 +435,7 @@ function applyQuantity(
   value: number,
   values: Map<string, number | string>,
   assetName: string,
-  model: DbModelData,
+  model: ModelData,
 ) {
   // log(`apply quantity for ${assetName}, unit val = ${value}`);
   if (value === undefined) {
@@ -458,7 +458,7 @@ function setValue(
   date: Date,
   name: string,
   newValue: number | string,
-  model: DbModelData,
+  model: ModelData,
   source: string, // something that triggered the new value
   callerID: string,
 ) {
@@ -532,7 +532,7 @@ interface Moment {
   name: string;
   type: string;
   setValue: number | string | undefined;
-  transaction: DbTransaction | undefined;
+  transaction: Transaction | undefined;
 }
 
 export function getYearOfTaxYear(d: Date) {
@@ -806,7 +806,7 @@ function adjustCash(
   d: Date,
   values: Map<string, number | string>,
   evaluations: Evaluation[],
-  model: DbModelData,
+  model: ModelData,
   source: string, // what led to the change
 ) {
   const cashValue = getNumberValue(values, CASH_ASSET_NAME, false);
@@ -841,12 +841,12 @@ function sumTaxDue(
 }
 
 function payTaxFromVestedRSU(
-  a: DbAsset,
+  a: Asset,
   taxDue: { amountLiable: number; rate: number }[],
   startOfTaxYear: Date,
   values: Map<string, number | string>,
   evaluations: Evaluation[],
-  model: DbModelData,
+  model: ModelData,
   source: string, // e.g. IncomeTaxJoe
 ) {
   const vestedEvaln = values.get(`${vestedEval}${a.NAME}`);
@@ -1005,7 +1005,7 @@ function payTaxFromVestedRSUs(
   startOfTaxYear: Date,
   values: Map<string, number | string>,
   evaluations: Evaluation[],
-  model: DbModelData,
+  model: ModelData,
   source: string, // e.g. IncomeTaxJoe
   type: string, // either incomeTax or nationalInsurance
 ) {
@@ -1047,7 +1047,7 @@ function payIncomeTax(
   cpiVal: number,
   values: Map<string, number | string>,
   evaluations: Evaluation[],
-  model: DbModelData,
+  model: ModelData,
   source: string, // e.g. IncomeTaxJoe
 ) {
   // log(`pay income tax on ${income} for date ${startOfTaxYear}`);
@@ -1110,7 +1110,7 @@ function payNI(
   cpiVal: number,
   values: Map<string, number | string>,
   evaluations: Evaluation[],
-  model: DbModelData,
+  model: ModelData,
   source: string, // e.g. NIJoe
 ) {
   // log(`pay NI on ${income} for date ${startOfTaxYear}`);
@@ -1162,7 +1162,7 @@ function payCGT(
   cpiVal: number,
   values: Map<string, number | string>,
   evaluations: Evaluation[],
-  model: DbModelData,
+  model: ModelData,
   source: string, // e.g. 'CGTJoe'
 ) {
   // log(`pay CGT on ${gain} for date ${startOfTaxYear}`);
@@ -1195,7 +1195,7 @@ function OptimizeIncomeTax(
   person: string,
   liableIncomeInTaxYear: Map<string, Map<string, number>>,
   evaluations: Evaluation[],
-  model: DbModelData,
+  model: ModelData,
 ) {
   // log(`settle up income tax for ${person} and ${amount} on ${date}`);
   const bands = getTaxBands(liableIncome, date, cpiVal);
@@ -1275,7 +1275,7 @@ function settleUpTax(
   cpiVal: number,
   values: Map<string, number | string>,
   evaluations: Evaluation[],
-  model: DbModelData,
+  model: ModelData,
 ) {
   const date = new Date(startYearOfTaxYear + 1, 3, 5);
   // before going to pay income tax,
@@ -1455,8 +1455,8 @@ function handleIncome(
   moment: Moment,
   values: Map<string, number | string>,
   evaluations: Evaluation[],
-  model: DbModelData,
-  pensionTransactions: DbTransaction[],
+  model: ModelData,
+  pensionTransactions: Transaction[],
   liabilitiesMap: Map<string, string>,
   liableIncomeInTaxYear: Map<string, Map<string, number>>,
   sourceDescription: string,
@@ -1621,7 +1621,7 @@ function handleIncome(
 }
 
 function logExpenseGrowth(
-  expense: DbExpense,
+  expense: Expense,
   cpiVal: number,
   growths: Map<string, number>,
 ) {
@@ -1633,7 +1633,7 @@ function logExpenseGrowth(
 }
 
 function logIncomeGrowth(
-  income: DbIncome,
+  income: Income,
   cpiVal: number,
   growths: Map<string, number>,
 ) {
@@ -1646,10 +1646,10 @@ function logIncomeGrowth(
 }
 
 function logAssetGrowth(
-  asset: DbAsset,
+  asset: Asset,
   cpiVal: number,
   growths: Map<string, number>,
-  settings: DbSetting[],
+  settings: Setting[],
 ) {
   // log(`stored growth is ${asset.GROWTH}`);
   let growth: number = parseFloat(asset.GROWTH);
@@ -1689,7 +1689,7 @@ function logAssetValueString(
   assetName: string,
   values: Map<string, number | string>,
   evaluations: Evaluation[],
-  model: DbModelData,
+  model: ModelData,
   level = 1,
 ): boolean {
   const debug = false;
@@ -1837,7 +1837,7 @@ function getRecurrentMoments(
   },
   type: string,
   monthlyInf: number,
-  triggers: DbTrigger[],
+  triggers: Trigger[],
   rOIStartDate: Date,
   rOIEndDate: Date,
   recurrence: string,
@@ -1918,8 +1918,8 @@ function getRecurrentMoments(
 }
 
 function getAssetMonthlyMoments(
-  asset: DbAsset,
-  triggers: DbTrigger[],
+  asset: Asset,
+  triggers: Trigger[],
   rOIEndDate: Date,
 ) {
   const roi = {
@@ -1952,8 +1952,8 @@ function getAssetMonthlyMoments(
 }
 
 function getTransactionMoments(
-  transaction: DbTransaction,
-  triggers: DbTrigger[],
+  transaction: Transaction,
+  triggers: Trigger[],
   rOIEndDate: Date,
 ) {
   const newMoments: Moment[] = [];
@@ -2010,7 +2010,7 @@ function getTransactionMoments(
   return newMoments;
 }
 
-function assetAllowedNegative(assetName: string, asset: DbAsset) {
+function assetAllowedNegative(assetName: string, asset: Asset) {
   if (asset) {
     return asset.CAN_BE_NEGATIVE;
   }
@@ -2023,12 +2023,12 @@ function assetAllowedNegative(assetName: string, asset: DbAsset) {
 }
 
 function revalueApplied(
-  t: DbTransaction,
+  t: Transaction,
   moment: Moment,
   values: Map<string, number | string>,
   evaluations: Evaluation[],
   liableIncomeInTaxYear: Map<string, Map<string, number>>,
-  model: DbModelData,
+  model: ModelData,
 ) {
   if (!t.NAME.startsWith(revalue)) {
     return false;
@@ -2157,14 +2157,14 @@ function revalueApplied(
 }
 
 function calculateFromChange(
-  t: DbTransaction,
+  t: Transaction,
   preToValue: number | undefined,
   preFromValue: number,
   fromWord: string,
   moment: Moment,
   values: Map<string, number | string>,
   evaluations: Evaluation[],
-  model: DbModelData,
+  model: ModelData,
 ):
   | {
       fromImpact: number;
@@ -2362,13 +2362,13 @@ function calculateFromChange(
 }
 
 function calculateToChange(
-  t: DbTransaction,
+  t: Transaction,
   preToValue: number | undefined,
   fromChange: number | undefined,
   moment: Moment,
   values: Map<string, number | string>,
   evaluations: Evaluation[],
-  model: DbModelData,
+  model: ModelData,
 ) {
   let toChange = 0;
   if (t.TO === '') {
@@ -2424,7 +2424,7 @@ function calculateToChange(
 }
 
 function handleCGTLiability(
-  t: DbTransaction,
+  t: Transaction,
   fromWord: string,
   preFromValue: number, // what the whole from was worth before transaction
   fromChange: number, // the change in whole value of from during transaction
@@ -2433,7 +2433,7 @@ function handleCGTLiability(
   evaluations: Evaluation[],
   liabliitiesMap: Map<string, string>,
   liableIncomeInTaxYear: Map<string, Map<string, number>>,
-  model: DbModelData,
+  model: ModelData,
 ) {
   // log(`${fromWord} reducing from ${preFromValue} by ${fromChange}`);
   // log(`liabilites are ${liabliitiesMap.get(fromWord)}`);
@@ -2491,12 +2491,12 @@ function handleCGTLiability(
   }
 }
 
-export function makeSourceForFromChange(t: DbTransaction) {
+export function makeSourceForFromChange(t: Transaction) {
   const sourceDescription = getDisplayName(t.NAME, t.TYPE);
   return sourceDescription;
 }
 
-export function makeSourceForToChange(t: DbTransaction, fromWord: string) {
+export function makeSourceForToChange(t: Transaction, fromWord: string) {
   let source = t.NAME;
   if (source.startsWith(conditional)) {
     source = fromWord;
@@ -2505,14 +2505,14 @@ export function makeSourceForToChange(t: DbTransaction, fromWord: string) {
 }
 
 function processTransactionFromTo(
-  t: DbTransaction,
+  t: Transaction,
   fromWord: string,
   toWord: string,
   moment: Moment,
   values: Map<string, number | string>,
   evaluations: Evaluation[],
-  model: DbModelData,
-  pensionTransactions: DbTransaction[],
+  model: ModelData,
+  pensionTransactions: Transaction[],
   liabliitiesMap: Map<string, string>,
   liableIncomeInTaxYear: Map<string, Map<string, number>>,
 ) {
@@ -2659,11 +2659,11 @@ function processTransactionFromTo(
 }
 
 function processTransactionTo(
-  t: DbTransaction,
+  t: Transaction,
   moment: Moment,
   values: Map<string, number | string>,
   evaluations: Evaluation[],
-  model: DbModelData,
+  model: ModelData,
 ) {
   if (!t.FROM_ABSOLUTE) {
     throw new Error(
@@ -2713,8 +2713,8 @@ function processTransactionMoment(
   moment: Moment,
   values: Map<string, number | string>,
   evaluations: Evaluation[],
-  model: DbModelData,
-  pensionTransactions: DbTransaction[],
+  model: ModelData,
+  pensionTransactions: Transaction[],
   liabliitiesMap: Map<string, string>,
   liableIncomeInTaxYear: Map<string, Map<string, number>>,
 ) {
@@ -2781,9 +2781,9 @@ function processTransactionMoment(
 }
 
 function logPensionIncomeLiabilities(
-  t: DbTransaction,
+  t: Transaction,
   liabilitiesMap: Map<string, string>,
-  model: DbModelData,
+  model: ModelData,
 ) {
   // log(`see if ${t.NAME} needs a tax liability`);
   // e.g. CrystallizedPensionJoe
@@ -2804,7 +2804,7 @@ function logPensionIncomeLiabilities(
 }
 
 function logAssetIncomeLiabilities(
-  a: DbAsset,
+  a: Asset,
   liabilitiesMap: Map<string, string>,
 ) {
   // log(`see if ${t.NAME} needs a tax liability`);
@@ -2822,10 +2822,10 @@ function logAssetIncomeLiabilities(
 }
 
 function logPurchaseValues(
-  a: DbAsset,
+  a: Asset,
   values: Map<string, number | string>,
   evaluations: Evaluation[],
-  model: DbModelData,
+  model: ModelData,
 ) {
   if (a.LIABILITY.includes(cgt)) {
     let purchaseValue = 0.0;
@@ -2861,7 +2861,7 @@ function logPurchaseValues(
 // This is the key entry point for code calling from outside
 // this file.
 export function getEvaluations(
-  model: DbModelData,
+  model: ModelData,
 ): {
   evaluations: Evaluation[];
   todaysAssetValues: Map<string, AssetVal>;
@@ -2916,7 +2916,7 @@ export function getEvaluations(
   const liabilitiesMap = new Map<string, string>([]);
 
   // Some transactions affect income processing.
-  const pensionTransactions: DbTransaction[] = [];
+  const pensionTransactions: Transaction[] = [];
 
   // Keep track of current value of any expense, income or asset
   const values = new Map<string, number | string>([]);
@@ -3302,7 +3302,7 @@ export function getEvaluations(
             '19', //callerID
           );
         }
-        const matchingAsset: DbAsset[] = model.assets.filter(a => {
+        const matchingAsset: Asset[] = model.assets.filter(a => {
           return a.NAME === moment.name;
         });
         if (matchingAsset.length === 1) {

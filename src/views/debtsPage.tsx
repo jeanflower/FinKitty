@@ -1,4 +1,4 @@
-import { ChartData, DbItem, DbModelData, DebtVal } from './../types/interfaces';
+import { ChartData, Item, ModelData, DebtVal } from './../types/interfaces';
 import { checkAsset, checkTransaction } from '../models/checks';
 import { debtsDivWithHeadings, defaultColumn } from './tablePages';
 import {
@@ -20,7 +20,7 @@ import { debtsView } from '../localization/stringConstants';
 import { ViewSettings } from '../models/charting';
 
 function todaysDebtsTable(
-  model: DbModelData,
+  model: ModelData,
   todaysValues: Map<string, DebtVal>,
 ) {
   if (todaysValues.size === 0) {
@@ -45,7 +45,7 @@ function todaysDebtsTable(
               VALUE: `${key[1].debtVal}`,
             };
           })
-          .sort((a: DbItem, b: DbItem) => lessThan(a.NAME, b.NAME))}
+          .sort((a: Item, b: Item) => lessThan(a.NAME, b.NAME))}
         columns={[
           {
             ...defaultColumn,
@@ -68,7 +68,7 @@ function todaysDebtsTable(
 }
 
 export function debtsDiv(
-  model: DbModelData,
+  model: ModelData,
   viewSettings: ViewSettings,
   showAlert: (arg0: string) => void,
   debtChartData: ChartData[],

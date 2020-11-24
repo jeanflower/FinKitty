@@ -6,10 +6,10 @@ import {
   isValidValue,
 } from '../../models/checks';
 import {
-  DbAsset,
-  DbModelData,
-  DbTransaction,
-  DbTrigger,
+  Asset,
+  ModelData,
+  Transaction,
+  Trigger,
   FormProps,
 } from '../../types/interfaces';
 import {
@@ -67,17 +67,17 @@ const inputtingAsset = 'asset';
 const inputtingPension = 'definedContributionsPension';
 
 interface EditAssetProps extends FormProps {
-  checkAssetFunction: (a: DbAsset, model: DbModelData) => string;
-  submitAssetFunction: (arg0: DbAsset, arg1: DbModelData) => Promise<void>;
+  checkAssetFunction: (a: Asset, model: ModelData) => string;
+  submitAssetFunction: (arg0: Asset, arg1: ModelData) => Promise<void>;
   deleteAssetFunction: (name: string) => Promise<boolean>;
-  checkTransactionFunction: (t: DbTransaction, model: DbModelData) => string;
+  checkTransactionFunction: (t: Transaction, model: ModelData) => string;
   submitTransactionFunction: (
-    transactionInput: DbTransaction,
-    modelData: DbModelData,
+    transactionInput: Transaction,
+    modelData: ModelData,
   ) => Promise<void>;
   submitTriggerFunction: (
-    triggerInput: DbTrigger,
-    modelData: DbModelData,
+    triggerInput: Trigger,
+    modelData: ModelData,
   ) => Promise<void>;
 }
 export class AddDeleteAssetForm extends Component<
@@ -677,7 +677,7 @@ export class AddDeleteAssetForm extends Component<
       count += 1;
     }
 
-    const revalueExpenseTransaction: DbTransaction = {
+    const revalueExpenseTransaction: Transaction = {
       NAME: `${revalue} ${this.state.NAME} ${count}`,
       FROM: '',
       FROM_ABSOLUTE: false,
@@ -780,7 +780,7 @@ export class AddDeleteAssetForm extends Component<
       const asset3Name = crystallizedPension + this.state.LIABILITY;
       const asset4Name = crystallizedPension + this.state.DCP_TRANSFER_TO;
 
-      const asset1: DbAsset = {
+      const asset1: Asset = {
         NAME: asset1Name,
         VALUE: this.state.VALUE,
         QUANTITY: '', // pensions are continuous
@@ -799,7 +799,7 @@ export class AddDeleteAssetForm extends Component<
         return;
       }
 
-      const asset2: DbAsset = {
+      const asset2: Asset = {
         NAME: asset2Name,
         VALUE: '0.0',
         QUANTITY: '', // pensions are continuous
@@ -818,7 +818,7 @@ export class AddDeleteAssetForm extends Component<
         return;
       }
 
-      const asset3: DbAsset = {
+      const asset3: Asset = {
         NAME: asset3Name,
         VALUE: '0.0',
         QUANTITY: '', // pensions are continuous
@@ -837,7 +837,7 @@ export class AddDeleteAssetForm extends Component<
         return;
       }
 
-      const asset4: DbAsset = {
+      const asset4: Asset = {
         NAME: asset4Name,
         VALUE: '0.0',
         QUANTITY: '', // pensions are continuous
@@ -892,7 +892,7 @@ export class AddDeleteAssetForm extends Component<
         await this.props.submitAssetFunction(asset4, model);
       }
 
-      const contributions: DbTransaction = {
+      const contributions: Transaction = {
         NAME: (parseYNSS.value ? pensionSS : pension) + this.state.NAME,
         FROM: this.state.DCP_INCOME_SOURCE,
         FROM_ABSOLUTE: false,
@@ -920,7 +920,7 @@ export class AddDeleteAssetForm extends Component<
         this.props.showAlert(message);
         return;
       }
-      const crystallizeTaxFree: DbTransaction = {
+      const crystallizeTaxFree: Transaction = {
         NAME: moveTaxFreePart + this.state.NAME,
         FROM: asset1Name,
         FROM_ABSOLUTE: false,
@@ -948,7 +948,7 @@ export class AddDeleteAssetForm extends Component<
         this.props.showAlert(message);
         return;
       }
-      const crystallize: DbTransaction = {
+      const crystallize: Transaction = {
         NAME: crystallizedPension + this.state.NAME,
         FROM: asset1Name,
         FROM_ABSOLUTE: false,
@@ -976,7 +976,7 @@ export class AddDeleteAssetForm extends Component<
         this.props.showAlert(message);
         return;
       }
-      let transfer: DbTransaction | undefined;
+      let transfer: Transaction | undefined;
       if (this.state.DCP_TRANSFER_TO !== '') {
         transfer = {
           NAME: transferCrystallizedPension + this.state.NAME,
@@ -1055,7 +1055,7 @@ export class AddDeleteAssetForm extends Component<
       }
 
       // log('adding something ' + showObj(this));
-      const asset: DbAsset = {
+      const asset: Asset = {
         NAME: this.state.NAME,
         VALUE: this.state.VALUE,
         QUANTITY: this.state.QUANTITY,

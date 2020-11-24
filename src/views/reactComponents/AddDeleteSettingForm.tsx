@@ -1,8 +1,8 @@
 import {
-  DbModelData,
-  DbSetting,
-  DbTransaction,
-  DbTrigger,
+  ModelData,
+  Setting,
+  Transaction,
+  Trigger,
   FormProps,
 } from '../../types/interfaces';
 import React, { Component, FormEvent } from 'react';
@@ -35,18 +35,18 @@ interface EditSettingFormState {
 interface EditSettingProps extends FormProps {
   viewSettings: ViewSettings;
   submitSettingFunction: (
-    arg0: DbSetting,
-    arg1: DbModelData,
+    arg0: Setting,
+    arg1: ModelData,
     arg2: ViewSettings,
   ) => Promise<void>;
-  checkTransactionFunction: (t: DbTransaction, model: DbModelData) => string;
+  checkTransactionFunction: (t: Transaction, model: ModelData) => string;
   submitTransactionFunction: (
-    transactionInput: DbTransaction,
-    modelData: DbModelData,
+    transactionInput: Transaction,
+    modelData: ModelData,
   ) => Promise<void>;
   submitTriggerFunction: (
-    triggerInput: DbTrigger,
-    modelData: DbModelData,
+    triggerInput: Trigger,
+    modelData: ModelData,
   ) => Promise<void>;
 }
 
@@ -169,7 +169,7 @@ export class AddDeleteSettingForm extends Component<
       toValue = parsed.value;
     }
 
-    const revalueTransaction: DbTransaction = {
+    const revalueTransaction: Transaction = {
       NAME: `${revalue} ${this.state.NAME} ${count}`,
       FROM: '',
       FROM_ABSOLUTE: false,
@@ -323,7 +323,7 @@ export class AddDeleteSettingForm extends Component<
     }
 
     // log('adding something ' + showObj(this));
-    const setting: DbSetting = {
+    const setting: Setting = {
       NAME: this.state.NAME,
       VALUE: this.state.VALUE,
       HINT: '',

@@ -1,5 +1,5 @@
 import { DbInterface } from './database';
-import { DbModelData } from '../types/interfaces';
+import { ModelData } from '../types/interfaces';
 import { log, makeModelFromJSON, minimalModel, printDebug } from '../utils';
 
 const url = process.env.REACT_APP_SERVER_URL_NOT_SECRET;
@@ -43,7 +43,7 @@ export class RESTDB implements DbInterface {
     });
   }
 
-  loadModel(userID: string, modelName: string): Promise<DbModelData> {
+  loadModel(userID: string, modelName: string): Promise<ModelData> {
     const myHeaders = new Headers();
     myHeaders.append('Content-Type', 'application/x-www-form-urlencoded');
 
@@ -118,7 +118,7 @@ export class RESTDB implements DbInterface {
     //throw new Error("Method not implemented.");
   }
 
-  saveModel(userID: string, modelName: string, model: DbModelData) {
+  saveModel(userID: string, modelName: string, model: ModelData) {
     const myHeaders = new Headers();
     myHeaders.append('Content-Type', 'application/x-www-form-urlencoded');
 

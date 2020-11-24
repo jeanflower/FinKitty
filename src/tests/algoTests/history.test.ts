@@ -6,7 +6,7 @@ import {
   viewType,
 } from '../../localization/stringConstants';
 import { getTestModel } from '../../models/exampleModels';
-import { DbModelData } from '../../types/interfaces';
+import { ModelData } from '../../types/interfaces';
 import {
   revertToUndoModel,
   applyRedoToModel,
@@ -52,18 +52,18 @@ export function applyRedoModel2(model: UndoRedoModel | undefined): void {
   }
 }
 
-function couldUndo(model: DbModelData) {
+function couldUndo(model: ModelData) {
   expect(model.undoModel === undefined).toBe(false);
 }
-function cannotUndo(model: DbModelData) {
+function cannotUndo(model: ModelData) {
   expect(model.undoModel === undefined).toBe(true);
   expect(revertToUndoModel(model)).toBe(false);
 }
 
-function couldRedo(model: DbModelData) {
+function couldRedo(model: ModelData) {
   expect(model.redoModel === undefined).toBe(false);
 }
-function cannotRedo(model: DbModelData) {
+function cannotRedo(model: ModelData) {
   expect(model.redoModel === undefined).toBe(true);
   expect(applyRedoToModel(model)).toBe(false);
 }

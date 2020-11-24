@@ -1,4 +1,4 @@
-import { ChartData, DbItem, DbModelData, IncomeVal } from '../types/interfaces';
+import { ChartData, Item, ModelData, IncomeVal } from '../types/interfaces';
 import { checkIncome, checkTransaction } from '../models/checks';
 import {
   defaultColumn,
@@ -27,7 +27,7 @@ import SimpleFormatter from './reactComponents/NameFormatter';
 import { ViewSettings } from '../models/charting';
 
 function todaysIncomesTable(
-  model: DbModelData,
+  model: ModelData,
   todaysValues: Map<string, IncomeVal>,
 ) {
   if (todaysValues.size === 0) {
@@ -52,7 +52,7 @@ function todaysIncomesTable(
               VALUE: `${key[1].incomeVal}`,
             };
           })
-          .sort((a: DbItem, b: DbItem) => lessThan(a.NAME, b.NAME))}
+          .sort((a: Item, b: Item) => lessThan(a.NAME, b.NAME))}
         columns={[
           {
             ...defaultColumn,
@@ -75,7 +75,7 @@ function todaysIncomesTable(
 }
 
 export function incomesDiv(
-  model: DbModelData,
+  model: ModelData,
   viewSettings: ViewSettings,
   showAlert: (arg0: string) => void,
   incomesChartData: ChartData[],

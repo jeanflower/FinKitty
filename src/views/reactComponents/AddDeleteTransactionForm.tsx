@@ -1,9 +1,9 @@
 import React, { Component, FormEvent } from 'react';
 
 import {
-  DbModelData,
-  DbTransaction,
-  DbTrigger,
+  ModelData,
+  Transaction,
+  Trigger,
   FormProps,
 } from '../../types/interfaces';
 import {
@@ -45,18 +45,15 @@ interface EditTransactionFormState {
   LIQUIDATE_FOR_CASH: string;
 }
 interface EditTransactionProps extends FormProps {
-  checkFunction: (transaction: DbTransaction, model: DbModelData) => string;
-  submitFunction: (
-    transaction: DbTransaction,
-    model: DbModelData,
-  ) => Promise<void>;
+  checkFunction: (transaction: Transaction, model: ModelData) => string;
+  submitFunction: (transaction: Transaction, model: ModelData) => Promise<void>;
   deleteFunction: (name: string) => Promise<boolean>;
   submitTriggerFunction: (
-    triggerInput: DbTrigger,
-    modelData: DbModelData,
+    triggerInput: Trigger,
+    modelData: ModelData,
   ) => Promise<void>;
 }
-function assetOptions(model: DbModelData, handleChange: any, id: string) {
+function assetOptions(model: ModelData, handleChange: any, id: string) {
   const optionData = model.assets
     .sort((a, b) => {
       return lessThan(a.NAME, b.NAME);
@@ -486,7 +483,7 @@ export class AddDeleteTransactionForm extends Component<
       transactionName = `${conditional}${this.state.NAME}`;
     }
 
-    const transaction: DbTransaction = {
+    const transaction: Transaction = {
       NAME: transactionName,
       CATEGORY: this.state.CATEGORY,
       FROM: this.state.FROM,

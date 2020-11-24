@@ -29,13 +29,13 @@ import {
   viewType,
 } from '../localization/stringConstants';
 import {
-  DbAsset,
-  DbExpense,
-  DbIncome,
-  DbModelData,
-  DbSetting,
-  DbTransaction,
-  DbTrigger,
+  Asset,
+  Expense,
+  Income,
+  ModelData,
+  Setting,
+  Transaction,
+  Trigger,
 } from '../types/interfaces';
 import {
   attemptRename,
@@ -92,7 +92,7 @@ import TriggerDateFormatter from './reactComponents/TriggerDateFormatter';
 import { ViewSettings } from '../models/charting';
 
 function handleExpenseGridRowsUpdated(
-  model: DbModelData,
+  model: ModelData,
   showAlert: (arg0: string) => void,
   args: any,
 ) {
@@ -136,7 +136,7 @@ function handleExpenseGridRowsUpdated(
     showAlert(`Value ${expense.GROWTH} can't be understood as a growth}`);
     expense[args[0].cellKey] = oldValue;
   } else {
-    const expenseForSubmission: DbExpense = {
+    const expenseForSubmission: Expense = {
       NAME: expense.NAME,
       CATEGORY: expense.CATEGORY,
       START: expense.START,
@@ -159,7 +159,7 @@ function handleExpenseGridRowsUpdated(
 }
 
 function handleIncomeGridRowsUpdated(
-  model: DbModelData,
+  model: ModelData,
   showAlert: (arg0: string) => void,
   args: any,
 ) {
@@ -215,7 +215,7 @@ function handleIncomeGridRowsUpdated(
       incValue = income.VALUE;
     }
 
-    const incomeForSubmission: DbIncome = {
+    const incomeForSubmission: Income = {
       NAME: income.NAME,
       CATEGORY: income.CATEGORY,
       START: income.START,
@@ -237,7 +237,7 @@ function handleIncomeGridRowsUpdated(
 }
 
 function handleTriggerGridRowsUpdated(
-  model: DbModelData,
+  model: ModelData,
   showAlert: (arg0: string) => void,
   args: any,
 ) {
@@ -265,7 +265,7 @@ function handleTriggerGridRowsUpdated(
   }
   const oldValue = trigger[args[0].cellKey];
   trigger[args[0].cellKey] = args[0].updated[args[0].cellKey];
-  const forSubmit: DbTrigger = {
+  const forSubmit: Trigger = {
     NAME: trigger.NAME,
     DATE: makeDateFromString(trigger.DATE),
   };
@@ -279,7 +279,7 @@ function handleTriggerGridRowsUpdated(
 }
 
 function handleAssetGridRowsUpdated(
-  model: DbModelData,
+  model: ModelData,
   showAlert: (arg0: string) => void,
   args: any,
 ) {
@@ -369,7 +369,7 @@ function handleAssetGridRowsUpdated(
       ? `${parsedValue.value}`
       : asset.VALUE;
     // log(`valueForSubmission = ${valueForSubmission}`);
-    const assetForSubmission: DbAsset = {
+    const assetForSubmission: Asset = {
       NAME: asset.NAME,
       VALUE: valueForSubmission,
       QUANTITY: asset.QUANTITY,
@@ -386,7 +386,7 @@ function handleAssetGridRowsUpdated(
   }
 }
 
-function getDbName(name: string, type: string) {
+function getTransactionName(name: string, type: string) {
   let prefix = '';
   if (type === liquidateAsset || type === payOffDebt) {
     prefix = conditional;
@@ -402,7 +402,7 @@ function getDbName(name: string, type: string) {
 }
 
 function handleTransactionGridRowsUpdated(
-  model: DbModelData,
+  model: ModelData,
   showAlert: (arg0: string) => void,
   type: string,
   args: any,
@@ -455,35 +455,35 @@ function handleTransactionGridRowsUpdated(
         type = revalueExp;
       }
     }
-    const dbName = getDbName(gridData.NAME, type);
-    const oldDbName = getDbName(oldValue, type);
+    const tName = getTransactionName(gridData.NAME, type);
+    const oldtName = getTransactionName(oldValue, type);
 
     if (args[0].cellKey === 'NAME') {
-      // log(`try to edit name from ${oldDbName} to ${dbName}`);
+      // log(`try to edit name from ${oldtName} to ${tName}`);
 
-      if (dbName !== oldDbName) {
-        const parsed = getNumberAndWordParts(oldDbName);
+      if (tName !== oldtName) {
+        const parsed = getNumberAndWordParts(oldtName);
         if (parsed.numberPart !== undefined) {
           showAlert(`Don't name a transaction beginning with a number`);
           return;
         }
         // log(`check for ${dbName} in model...`)
-        const clashCheck = checkForWordClashInModel(model, dbName, 'already');
+        const clashCheck = checkForWordClashInModel(model, tName, 'already');
         if (clashCheck !== '') {
           showAlert(clashCheck);
           return;
         }
-        attemptRename(model, oldDbName, dbName);
+        attemptRename(model, oldtName, tName);
       }
       return;
     }
 
-    const transaction: DbTransaction = {
+    const transaction: Transaction = {
       DATE: gridData.DATE,
       FROM: gridData.FROM,
       FROM_VALUE: parseFrom.value,
       FROM_ABSOLUTE: parseFrom.absolute,
-      NAME: dbName,
+      NAME: tName,
       TO: gridData.TO,
       TO_ABSOLUTE: parseTo.absolute,
       TO_VALUE: parseTo.value,
@@ -503,7 +503,7 @@ function handleTransactionGridRowsUpdated(
   }
 }
 function handleSettingGridRowsUpdated(
-  model: DbModelData,
+  model: ModelData,
   showAlert: (arg0: string) => void,
   args: any,
 ) {
@@ -552,7 +552,7 @@ export const defaultColumn = {
   sortable: true,
 };
 
-function getAssetOrDebtCols(model: DbModelData, isDebt: boolean) {
+function getAssetOrDebtCols(model: ModelData, isDebt: boolean) {
   let cols: any[] = [
     {
       ...defaultColumn,
@@ -658,12 +658,12 @@ function addIndices(unindexedResult: any[]) {
   return result;
 }
 
-function assetsOrDebtsForTable(model: DbModelData, isDebt: boolean): any[] {
+function assetsOrDebtsForTable(model: ModelData, isDebt: boolean): any[] {
   const unindexedResult = model.assets
-    .filter((obj: DbAsset) => {
+    .filter((obj: Asset) => {
       return obj.IS_A_DEBT === isDebt;
     })
-    .map((obj: DbAsset) => {
+    .map((obj: Asset) => {
       const dbStringValue = obj.VALUE;
       let displayValue: number | string;
       if (isNumberString(dbStringValue)) {
@@ -697,7 +697,7 @@ function assetsOrDebtsForTable(model: DbModelData, isDebt: boolean): any[] {
 }
 
 export function assetsOrDebtsTableDiv(
-  model: DbModelData,
+  model: ModelData,
   rowData: any[],
   showAlert: (arg0: string) => void,
   isDebt: boolean,
@@ -748,12 +748,12 @@ export function getDisplayName(obj: string, type: string) {
   return result;
 }
 
-export function transactionsForTable(model: DbModelData, type: string) {
+export function transactionsForTable(model: ModelData, type: string) {
   const unindexedRows = model.transactions
     .filter(t => {
       return t.TYPE === type;
     })
-    .map((obj: DbTransaction) => {
+    .map((obj: Transaction) => {
       // log(`obj.FROM_ABSOLUTE = ${obj.FROM_ABSOLUTE}`)
       let fromValueEntry = makeStringFromValueAbsProp(
         obj.FROM_VALUE,
@@ -800,7 +800,7 @@ export function transactionsForTable(model: DbModelData, type: string) {
   return addIndices(unindexedRows);
 }
 
-function makeTransactionCols(model: DbModelData, type: string) {
+function makeTransactionCols(model: ModelData, type: string) {
   let cols: any[] = [
     {
       ...defaultColumn,
@@ -1036,7 +1036,7 @@ function makeTransactionCols(model: DbModelData, type: string) {
 
 export function transactionsTableDiv(
   contents: any[],
-  model: DbModelData,
+  model: ModelData,
   showAlert: (arg0: string) => void,
   type: string,
 ) {
@@ -1060,7 +1060,7 @@ export function transactionsTableDiv(
           rows={contents}
           columns={makeTransactionCols(model, type)}
           deleteFunction={(name: string) => {
-            const completeName = getDbName(name, type);
+            const completeName = getTransactionName(name, type);
             return deleteTransaction(completeName);
           }}
         />
@@ -1070,7 +1070,7 @@ export function transactionsTableDiv(
 }
 
 export function transactionFilteredTable(
-  model: DbModelData,
+  model: ModelData,
   showAlert: (arg0: string) => void,
   type: string,
   headingText: string,
@@ -1088,7 +1088,7 @@ export function transactionFilteredTable(
 }
 
 export function debtsDivWithHeadings(
-  model: DbModelData,
+  model: ModelData,
   showAlert: (arg0: string) => void,
 ) {
   const debtData = assetsOrDebtsForTable(model, true);
@@ -1106,7 +1106,7 @@ export function debtsDivWithHeadings(
 }
 
 export function assetsDivWithHeadings(
-  model: DbModelData,
+  model: ModelData,
   showAlert: (arg0: string) => void,
 ) {
   const assetData = assetsOrDebtsForTable(model, false);
@@ -1133,8 +1133,8 @@ export function assetsDivWithHeadings(
   );
 }
 
-function triggersForTable(model: DbModelData) {
-  const unindexedResult = model.triggers.map((obj: DbTrigger) => {
+function triggersForTable(model: ModelData) {
+  const unindexedResult = model.triggers.map((obj: Trigger) => {
     const mapResult = {
       DATE: obj.DATE.toDateString(),
       NAME: obj.NAME,
@@ -1145,7 +1145,7 @@ function triggersForTable(model: DbModelData) {
 }
 
 function triggersTableDiv(
-  model: DbModelData,
+  model: ModelData,
   trigData: any[],
   showAlert: (arg0: string) => void,
 ) {
@@ -1192,7 +1192,7 @@ function triggersTableDiv(
 }
 
 export function triggersTableDivWithHeading(
-  model: DbModelData,
+  model: ModelData,
   showAlert: (arg0: string) => void,
 ) {
   const trigData = triggersForTable(model);
@@ -1207,8 +1207,8 @@ export function triggersTableDivWithHeading(
   );
 }
 
-function incomesForTable(model: DbModelData) {
-  const unindexedResult = model.incomes.map((obj: DbIncome) => {
+function incomesForTable(model: ModelData) {
+  const unindexedResult = model.incomes.map((obj: Income) => {
     const mapResult = {
       END: obj.END,
       GROWS_WITH_CPI: makeYesNoFromBoolean(!obj.CPI_IMMUNE),
@@ -1227,7 +1227,7 @@ function incomesForTable(model: DbModelData) {
 }
 
 function incomesTableDiv(
-  model: DbModelData,
+  model: ModelData,
   incData: any[],
   showAlert: (arg0: string) => void,
 ) {
@@ -1346,7 +1346,7 @@ function incomesTableDiv(
 }
 
 export function incomesTableDivWithHeading(
-  model: DbModelData,
+  model: ModelData,
   showAlert: (arg0: string) => void,
 ) {
   const incData: any[] = incomesForTable(model);
@@ -1361,8 +1361,8 @@ export function incomesTableDivWithHeading(
   );
 }
 
-function expensesForTable(model: DbModelData) {
-  const unindexedResult = model.expenses.map((obj: DbExpense) => {
+function expensesForTable(model: ModelData) {
+  const unindexedResult = model.expenses.map((obj: Expense) => {
     const mapResult = {
       END: obj.END,
       GROWS_WITH_CPI: makeYesNoFromBoolean(!obj.CPI_IMMUNE),
@@ -1380,7 +1380,7 @@ function expensesForTable(model: DbModelData) {
 }
 
 function expensesTableDiv(
-  model: DbModelData,
+  model: ModelData,
   expData: any[],
   showAlert: (arg0: string) => void,
 ) {
@@ -1494,7 +1494,7 @@ function expensesTableDiv(
 }
 
 export function expensesTableDivWithHeading(
-  model: DbModelData,
+  model: ModelData,
   showAlert: (arg0: string) => void,
 ) {
   const expData = expensesForTable(model);
@@ -1522,23 +1522,23 @@ const settingsToExcludeFromTableView: string[] = [
 ];
 
 function settingsForTable(
-  model: DbModelData,
+  model: ModelData,
   viewSettings: ViewSettings,
   type: string,
 ) {
   const data = model.settings;
   const unindexedResult = data
-    .filter((obj: DbSetting) => {
+    .filter((obj: Setting) => {
       return obj.TYPE === type;
     })
-    .filter((obj: DbSetting) => {
+    .filter((obj: Setting) => {
       return (
         settingsToExcludeFromTableView.find(s => {
           return obj.NAME === s;
         }) === undefined
       );
     })
-    .map((obj: DbSetting) => {
+    .map((obj: Setting) => {
       showObj(`obj = ${obj}`);
       const mapResult = {
         NAME: obj.NAME,
@@ -1551,7 +1551,7 @@ function settingsForTable(
 }
 
 function customSettingsTable(
-  model: DbModelData,
+  model: ModelData,
   constSettings: any[],
   showAlert: (arg0: string) => void,
 ) {
@@ -1589,7 +1589,7 @@ function customSettingsTable(
   );
 }
 function adjustSettingsTable(
-  model: DbModelData,
+  model: ModelData,
   adjustSettings: any[],
   showAlert: (arg0: string) => void,
 ) {
@@ -1628,7 +1628,7 @@ function adjustSettingsTable(
 }
 
 function settingsTables(
-  model: DbModelData,
+  model: ModelData,
   viewSettings: ViewSettings,
   showAlert: (arg0: string) => void,
 ) {
@@ -1649,7 +1649,7 @@ function settingsTables(
 }
 
 export function settingsTableDiv(
-  model: DbModelData,
+  model: ModelData,
   viewSettings: ViewSettings,
   showAlert: (arg0: string) => void,
 ) {

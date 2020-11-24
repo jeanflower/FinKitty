@@ -1,12 +1,12 @@
 import {
-  DbExpense,
-  DbIncome,
-  DbTrigger,
-  DbAsset,
-  DbTransaction,
-  DbSetting,
-  DbItem,
-  DbModelData,
+  Expense,
+  Income,
+  Trigger,
+  Asset,
+  Transaction,
+  Setting,
+  Item,
+  ModelData,
 } from '../types/interfaces';
 
 import {
@@ -36,7 +36,7 @@ interface ModelStatus {
 interface CacheModel {
   modelName: string;
   status: ModelStatus;
-  model: DbModelData;
+  model: ModelData;
 }
 
 // First time user X requests anything from this cache,
@@ -66,8 +66,8 @@ async function getModelNamesDB(userID: string) {
 async function loadModelFromDB(
   userID: string,
   modelName: string,
-): Promise<DbModelData | undefined> {
-  let model: DbModelData | undefined;
+): Promise<ModelData | undefined> {
+  let model: ModelData | undefined;
   try {
     model = await getDB().loadModel(userID, modelName);
   } catch (err) {
@@ -181,7 +181,7 @@ export async function loadModel(userID: string, modelName: string) {
 async function saveModelToCache(
   userID: string,
   modelName: string,
-  modelData: DbModelData,
+  modelData: ModelData,
 ) {
   let cachedModels = localCache.get(userID);
   if (!cachedModels) {
@@ -239,7 +239,7 @@ export async function ensureModel(userID: string, modelName: string) {
 export async function saveModelLSM(
   userID: string,
   modelName: string,
-  model: DbModelData,
+  model: ModelData,
 ) {
   // log(`save model ${showObj(model)}`);
   if (showDBInteraction) {
@@ -249,8 +249,8 @@ export async function saveModelLSM(
   return true;
 }
 
-function updateItemList(itemList: DbItem[], newData: DbItem) {
-  const idx = itemList.findIndex((i: DbItem) => {
+function updateItemList(itemList: Item[], newData: Item) {
+  const idx = itemList.findIndex((i: Item) => {
     return i.NAME === newData.NAME;
   });
   if (idx !== -1) {
@@ -260,10 +260,10 @@ function updateItemList(itemList: DbItem[], newData: DbItem) {
 }
 
 async function submitItemLSM(
-  inputItem: DbItem,
-  itemList: DbItem[],
+  inputItem: Item,
+  itemList: Item[],
   modelName: string,
-  modelData: DbModelData,
+  modelData: ModelData,
   userID: string,
 ) {
   markForUndo(modelData);
@@ -282,9 +282,9 @@ async function submitItemLSM(
 }
 
 export async function submitExpenseLSM(
-  expenseInput: DbExpense,
+  expenseInput: Expense,
   modelName: string,
-  modelData: DbModelData,
+  modelData: ModelData,
   userID: string,
 ) {
   if (printDebug()) {
@@ -300,9 +300,9 @@ export async function submitExpenseLSM(
 }
 
 export async function submitIncomeLSM(
-  incomeInput: DbIncome,
+  incomeInput: Income,
   modelName: string,
-  modelData: DbModelData,
+  modelData: ModelData,
   userID: string,
 ) {
   if (printDebug()) {
@@ -318,9 +318,9 @@ export async function submitIncomeLSM(
 }
 
 export async function submitTriggerLSM(
-  trigger: DbTrigger,
+  trigger: Trigger,
   modelName: string,
-  modelData: DbModelData,
+  modelData: ModelData,
   userID: string,
 ) {
   if (printDebug()) {
@@ -336,9 +336,9 @@ export async function submitTriggerLSM(
 }
 
 export async function submitAssetLSM(
-  assetInput: DbAsset,
+  assetInput: Asset,
   modelName: string,
-  modelData: DbModelData,
+  modelData: ModelData,
   userID: string,
 ): Promise<string> {
   if (printDebug()) {
@@ -354,9 +354,9 @@ export async function submitAssetLSM(
 }
 
 export async function submitTransactionLSM(
-  input: DbTransaction,
+  input: Transaction,
   modelName: string,
-  modelData: DbModelData,
+  modelData: ModelData,
   userID: string,
 ) {
   if (printDebug()) {
@@ -374,7 +374,7 @@ export async function submitTransactionLSM(
 export async function saveModelToDBLSM(
   userID: string,
   modelName: string,
-  modelData: DbModelData,
+  modelData: ModelData,
 ) {
   if (showDBInteraction) {
     log(`getDB go to save model ${modelName}`);
@@ -399,15 +399,15 @@ export async function saveModelToDBLSM(
 }
 
 export async function submitSettingLSM(
-  input: DbSetting, // if HINT or TYPE are empty, leave pre-existing values
+  input: Setting, // if HINT or TYPE are empty, leave pre-existing values
   modelName: string,
-  modelData: DbModelData,
+  modelData: ModelData,
   userID: string,
 ) {
   if (printDebug()) {
     log(`in submitSettingLSM with input : ${showObj(input)}`);
   }
-  const idx = modelData.settings.find((i: DbItem) => {
+  const idx = modelData.settings.find((i: Item) => {
     return i.NAME === input.NAME;
   });
   if (idx !== undefined) {
@@ -422,9 +422,9 @@ export async function submitSettingLSM(
 }
 
 export async function submitNewSettingLSM(
-  setting: DbSetting,
+  setting: Setting,
   modelName: string,
-  modelData: DbModelData,
+  modelData: ModelData,
   userID: string,
 ) {
   let type = adjustableType;

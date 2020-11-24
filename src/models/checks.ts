@@ -43,13 +43,13 @@ import {
   viewFrequency,
 } from '../localization/stringConstants';
 import {
-  DbAsset,
-  DbExpense,
-  DbIncome,
-  DbModelData,
-  DbSetting,
-  DbTransaction,
-  DbTrigger,
+  Asset,
+  Expense,
+  Income,
+  ModelData,
+  Setting,
+  Transaction,
+  Trigger,
   Evaluation,
 } from '../types/interfaces';
 import {
@@ -97,9 +97,9 @@ function checkTransactionWords(
   name: string,
   word: string,
   date: string,
-  triggers: DbTrigger[],
-  assets: DbAsset[],
-  incomes: DbIncome[],
+  triggers: Trigger[],
+  assets: Asset[],
+  incomes: Income[],
 ) {
   // log(`date for check = ${getTriggerDate(date, triggers)}`);
   const a = assets.find(
@@ -172,7 +172,7 @@ export function checkAssetLiability(l: string) {
   return '';
 }
 
-export function isValidValue(value: string, model: DbModelData): boolean {
+export function isValidValue(value: string, model: ModelData): boolean {
   if (value.length === 0) {
     return false;
   }
@@ -199,7 +199,7 @@ export function isValidValue(value: string, model: DbModelData): boolean {
   return false;
 }
 
-export function checkAsset(a: DbAsset, model: DbModelData): string {
+export function checkAsset(a: Asset, model: ModelData): string {
   // log(`checkAsset ${showObj(a)}`);
   if (a.NAME.length === 0) {
     return 'Name should be not empty';
@@ -289,7 +289,7 @@ export function checkIncomeLiability(l: string) {
   }
   return '';
 }
-export function checkIncome(i: DbIncome, model: DbModelData): string {
+export function checkIncome(i: Income, model: ModelData): string {
   if (i.NAME.length === 0) {
     return 'Income name needs some characters';
   }
@@ -397,7 +397,7 @@ function checkRecurrence(rec: string) {
   return '';
 }
 
-export function checkExpense(e: DbExpense, model: DbModelData): string {
+export function checkExpense(e: Expense, model: ModelData): string {
   if (e.NAME.length === 0) {
     return 'Expense name needs some characters';
   }
@@ -436,12 +436,12 @@ export function checkExpense(e: DbExpense, model: DbModelData): string {
 
 function checkTransactionTo(
   word: string,
-  t: DbTransaction,
-  assetsForChecking: DbAsset[],
-  incomes: DbIncome[],
-  expenses: DbExpense[],
-  triggers: DbTrigger[],
-  settings: DbSetting[],
+  t: Transaction,
+  assetsForChecking: Asset[],
+  incomes: Income[],
+  expenses: Expense[],
+  triggers: Trigger[],
+  settings: Setting[],
 ) {
   const a = assetsForChecking.find(
     as => as.NAME === word || as.CATEGORY === word,
@@ -534,11 +534,11 @@ function checkTransactionTo(
   )} to unrecognised thing : ${word}`;
 }
 
-function isAutogenType(t: DbTransaction, model: DbModelData) {
+function isAutogenType(t: Transaction, model: ModelData) {
   // log(`check transaction ${getDisplayName(t.NAME, t.TYPE)}`);
   let recognised = false;
   /*
-    const contributions: DbTransaction = {
+    const contributions: Transaction = {
       NAME: (parseYNSS.value ? pensionSS : pension) + this.state.NAME,
       FROM: this.state.DCP_INCOME_SOURCE,
       FROM_ABSOLUTE: false,
@@ -694,7 +694,7 @@ function isAutogenType(t: DbTransaction, model: DbModelData) {
   }
 
   /*
-      const pensionDbctran1: DbTransaction = {
+      const pensionDbptran1: Transaction = {
         NAME: (parseYNDBSS.value ? pensionSS : pension) + this.state.NAME,
         FROM: this.state.DB_INCOME_SOURCE,
         FROM_ABSOLUTE: false,
@@ -791,7 +791,7 @@ function isAutogenType(t: DbTransaction, model: DbModelData) {
   return recognised;
 }
 
-function isLiquidateAssetType(t: DbTransaction) {
+function isLiquidateAssetType(t: Transaction) {
   // log(`check transaction ${t.NAME}`);
   let recognised = false;
   if (t.NAME.startsWith(conditional) && t.TO === CASH_ASSET_NAME) {
@@ -800,7 +800,7 @@ function isLiquidateAssetType(t: DbTransaction) {
   return recognised;
 }
 
-function isRevalueDebtType(t: DbTransaction, model: DbModelData) {
+function isRevalueDebtType(t: Transaction, model: ModelData) {
   // log(`check transaction ${t.NAME}`);
   let recognised = false;
   if (t.NAME.startsWith(revalue) && isADebt(t.TO, model) && t.CATEGORY === '') {
@@ -818,7 +818,7 @@ function isRevalueDebtType(t: DbTransaction, model: DbModelData) {
   return recognised;
 }
 
-function isRevalueAssetType(t: DbTransaction, model: DbModelData) {
+function isRevalueAssetType(t: Transaction, model: ModelData) {
   // log(`check transaction ${t.NAME}`);
   let recognised = false;
   if (
@@ -840,7 +840,7 @@ function isRevalueAssetType(t: DbTransaction, model: DbModelData) {
   return recognised;
 }
 
-function isRevalueIncomeType(t: DbTransaction, model: DbModelData) {
+function isRevalueIncomeType(t: Transaction, model: ModelData) {
   // log(`check transaction ${getDisplayName(t.NAME, t.TYPE)}`);
   let recognised = false;
   if (
@@ -853,7 +853,7 @@ function isRevalueIncomeType(t: DbTransaction, model: DbModelData) {
   return recognised;
 }
 
-function isRevalueExpenseType(t: DbTransaction, model: DbModelData) {
+function isRevalueExpenseType(t: Transaction, model: ModelData) {
   // log(`check transaction ${t.NAME}`);
   let recognised = false;
   if (
@@ -873,7 +873,7 @@ function isRevalueExpenseType(t: DbTransaction, model: DbModelData) {
   return recognised;
 }
 
-function isCustomType(t: DbTransaction) {
+function isCustomType(t: Transaction) {
   // log(`check transaction ${t.NAME}`);
   let recognised = false;
   if (
@@ -891,7 +891,7 @@ function isCustomType(t: DbTransaction) {
   return recognised;
 }
 
-function isPayOffDebtType(t: DbTransaction, model: DbModelData) {
+function isPayOffDebtType(t: Transaction, model: ModelData) {
   // log(`check transaction ${t.NAME}`);
   let recognised = false;
   if (
@@ -904,7 +904,7 @@ function isPayOffDebtType(t: DbTransaction, model: DbModelData) {
   return recognised;
 }
 
-export function checkTransaction(t: DbTransaction, model: DbModelData): string {
+export function checkTransaction(t: Transaction, model: ModelData): string {
   // log(`checking transaction ${showObj(t)}`);
   const { assets, incomes, expenses, triggers, settings } = model;
   const assetsForChecking = assets;
@@ -1162,7 +1162,7 @@ export function checkTransaction(t: DbTransaction, model: DbModelData): string {
   return '';
 }
 
-export function checkTrigger(t: DbTrigger): string {
+export function checkTrigger(t: Trigger): string {
   // log(`check trigger ${showObj(t)}`);
   if (t.NAME.length === 0) {
     return 'Date name needs some characters';
@@ -1175,14 +1175,14 @@ export function checkTrigger(t: DbTrigger): string {
   }
   return '';
 }
-function checkSettingAbsent(settings: DbSetting[], name: string) {
+function checkSettingAbsent(settings: Setting[], name: string) {
   const vf = getSettings(settings, name, 'noneFound', false);
   if (vf !== 'noneFound') {
     return `"${name}" setting should not be present`;
   }
   return '';
 }
-function checkViewROI(settings: DbSetting[]) {
+function checkViewROI(settings: Setting[]) {
   // log(`check settings ${showObj(settings)}`);
   const start = getSettings(settings, roiStart, 'noneFound');
   if (start === 'noneFound') {
@@ -1206,7 +1206,7 @@ function checkViewROI(settings: DbSetting[]) {
   return '';
 }
 
-function checkDateOfBirth(settings: DbSetting[]): string {
+function checkDateOfBirth(settings: Setting[]): string {
   const dob = getSettings(settings, birthDate, '');
   if (dob === '') {
     return '';
@@ -1217,7 +1217,7 @@ function checkDateOfBirth(settings: DbSetting[]): string {
   }
   return '';
 }
-function checkCpi(settings: DbSetting[]): string {
+function checkCpi(settings: Setting[]): string {
   const stringVal = getSettings(settings, cpi, '');
   const val = parseFloat(stringVal);
   if (Number.isNaN(val)) {
@@ -1226,7 +1226,7 @@ function checkCpi(settings: DbSetting[]): string {
   return '';
 }
 
-function checkNames(model: DbModelData): string {
+function checkNames(model: ModelData): string {
   let names = model.assets.map(a => {
     return a.NAME;
   });
@@ -1279,7 +1279,7 @@ function checkNames(model: DbModelData): string {
   return '';
 }
 
-export function checkData(model: DbModelData): string {
+export function checkData(model: ModelData): string {
   // log(`checking data ${showObj(model)}`);
   // log(`check settings`);
   let message = checkNames(model);

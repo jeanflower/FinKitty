@@ -62,7 +62,7 @@ import {
   AssetVal,
   ChartDataPoint,
   DataForView,
-  DbModelData,
+  ModelData,
   DebtVal,
   ExpenseVal,
   IncomeVal,
@@ -274,7 +274,7 @@ function printTestCodeForChart(result: DataForView) {
 }
 
 function getTestEvaluations(
-  model: DbModelData,
+  model: ModelData,
   extraChecks = true,
 ): {
   evaluations: Evaluation[];
@@ -445,7 +445,7 @@ function getModelFutureExpense2() {
     start: 'Dec 1, 2016 00:00:00',
     end: 'March 1, 2017 00:00:00',
   };
-  const model: DbModelData = {
+  const model: ModelData = {
     ...emptyModel,
     expenses: [
       {
@@ -468,7 +468,7 @@ function getModelCrystallizedPension() {
     start: '1 April 2023',
     end: '1 April 2026',
   };
-  const model: DbModelData = {
+  const model: ModelData = {
     ...minimalModel,
     incomes: [],
     assets: [
@@ -686,7 +686,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 2, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       expenses: [
         {
@@ -762,7 +762,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2016 00:00:00',
       end: 'March 1, 2017 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       expenses: [
         {
@@ -808,7 +808,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 2, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       expenses: [
         {
@@ -855,7 +855,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 2, 2019 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       expenses: [
         {
@@ -910,7 +910,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 2, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       expenses: [
         {
@@ -971,7 +971,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 2, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       expenses: [
         {
@@ -1029,7 +1029,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 2, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       expenses: [
         {
@@ -1088,7 +1088,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 2, 2019 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       expenses: [
         {
@@ -1160,7 +1160,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 2, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       expenses: [
         {
@@ -1223,7 +1223,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 2, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       expenses: [
         {
@@ -1284,7 +1284,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 2, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       triggers: [
         {
@@ -1349,7 +1349,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 1, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       expenses: [
         {
@@ -1407,7 +1407,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 1, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       incomes: [
         {
@@ -1464,7 +1464,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 1, 2019 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       incomes: [
         {
@@ -1522,7 +1522,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2018 00:00:00',
       end: 'March 1, 2019 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       incomes: [
         {
@@ -1580,7 +1580,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2018 00:00:00',
       end: 'March 1, 2019 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       incomes: [
         {
@@ -1636,7 +1636,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2018 00:00:00',
       end: 'March 1, 2019 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       incomes: [
         {
@@ -1691,7 +1691,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 1, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       incomes: [
         {
@@ -1751,7 +1751,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'February 1, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       assets: [
         {
@@ -1834,7 +1834,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 1, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       assets: [
         {
@@ -1890,7 +1890,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 1, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       assets: [
         {
@@ -1947,7 +1947,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 1, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       assets: [
         {
@@ -2005,7 +2005,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 1, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       assets: [
         {
@@ -2063,7 +2063,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 1, 2019 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       assets: [
         {
@@ -2144,7 +2144,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 1, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       triggers: [
         {
@@ -2202,7 +2202,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 1, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       expenses: [
         {
@@ -2280,7 +2280,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 1, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       transactions: [
         {
@@ -2343,7 +2343,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 1, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       transactions: [
         {
@@ -2409,7 +2409,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       transactions: [
         {
@@ -2479,7 +2479,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2023 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       transactions: [
         {
@@ -2551,7 +2551,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 1, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       transactions: [
         {
@@ -2647,7 +2647,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       transactions: [
         {
@@ -2760,7 +2760,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 1, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       transactions: [
         {
@@ -2849,7 +2849,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 1, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       transactions: [
         {
@@ -2934,7 +2934,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'October 1, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       expenses: [
         {
@@ -3088,7 +3088,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'October 1, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       expenses: [
         {
@@ -3245,7 +3245,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'October 1, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       expenses: [
         {
@@ -3401,7 +3401,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'October 1, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       expenses: [
         {
@@ -3561,7 +3561,7 @@ describe('evaluations tests', () => {
       start: 'April 1, 2018 00:00:00',
       end: 'October 1, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       expenses: [
         {
@@ -3701,7 +3701,7 @@ describe('evaluations tests', () => {
       start: 'April 1, 2018 00:00:00',
       end: 'October 1, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       expenses: [
         {
@@ -3839,7 +3839,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'October 1, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       expenses: [
         {
@@ -4059,7 +4059,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'October 1, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       expenses: [
         {
@@ -4299,7 +4299,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'October 1, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       expenses: [
         {
@@ -4521,7 +4521,7 @@ describe('evaluations tests', () => {
       start: 'March 15, 2018 00:00:00',
       end: 'October 1, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       expenses: [
         {
@@ -4698,7 +4698,7 @@ describe('evaluations tests', () => {
       end: 'March 1, 2018 00:00:00',
     };
     const assetName = 'sthg';
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       incomes: [
         {
@@ -4786,7 +4786,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 2, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       expenses: [
         {
@@ -4898,7 +4898,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 2, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       incomes: [
         {
@@ -5015,7 +5015,7 @@ describe('evaluations tests', () => {
       start: 'March 1, 2018 00:00:00',
       end: 'May 2, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       incomes: [
         {
@@ -5143,7 +5143,7 @@ describe('evaluations tests', () => {
       start: 'March 1, 2018 00:00:00',
       end: 'May 2, 2020 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       incomes: [
         {
@@ -5370,7 +5370,7 @@ describe('evaluations tests', () => {
       start: 'April 1, 2018 00:00:00',
       end: 'May 10, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       incomes: [
         {
@@ -5452,7 +5452,7 @@ describe('evaluations tests', () => {
       start: 'April 1, 2018 00:00:00',
       end: 'May 10, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       incomes: [
         {
@@ -5530,7 +5530,7 @@ describe('evaluations tests', () => {
       start: 'April 1, 2018 00:00:00',
       end: 'May 10, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       incomes: [
         {
@@ -5612,7 +5612,7 @@ describe('evaluations tests', () => {
       start: 'April 1, 2018 00:00:00',
       end: 'May 10, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       incomes: [
         {
@@ -5708,7 +5708,7 @@ describe('evaluations tests', () => {
       start: 'April 1, 2018 00:00:00',
       end: 'May 10, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       incomes: [
         {
@@ -5791,7 +5791,7 @@ describe('evaluations tests', () => {
       end: 'April 10, 2021 00:00:00',
     };
     const smallCPI = 0.05; // non zero cpi ensures tax bands grow over time
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       incomes: [
         {
@@ -5966,7 +5966,7 @@ describe('evaluations tests', () => {
       start: 'April 1, 2018 00:00:00',
       end: 'May 10, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       incomes: [
         {
@@ -6065,7 +6065,7 @@ describe('evaluations tests', () => {
       start: 'April 1, 2018 00:00:00',
       end: 'May 10, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       incomes: [
         {
@@ -6167,7 +6167,7 @@ describe('evaluations tests', () => {
       start: 'April 1, 2018 00:00:00',
       end: 'May 10, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       incomes: [
         {
@@ -6266,7 +6266,7 @@ describe('evaluations tests', () => {
       start: 'April 1, 2018 00:00:00',
       end: 'May 10, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       incomes: [
         {
@@ -6373,7 +6373,7 @@ describe('evaluations tests', () => {
       start: 'April 1, 2018 00:00:00',
       end: 'May 10, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       incomes: [
         {
@@ -6475,7 +6475,7 @@ describe('evaluations tests', () => {
       start: 'April 1, 2018 00:00:00',
       end: 'May 10, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       incomes: [
         {
@@ -6575,7 +6575,7 @@ describe('evaluations tests', () => {
       start: 'March 1, 2018 00:00:00',
       end: 'May 2, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       incomes: [
         {
@@ -6656,7 +6656,7 @@ describe('evaluations tests', () => {
       start: 'March 1, 2018 00:00:00',
       end: 'May 2, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       incomes: [
         {
@@ -6759,7 +6759,7 @@ describe('evaluations tests', () => {
       start: 'March 1, 2018 00:00:00',
       end: 'May 2, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       incomes: [
         {
@@ -6848,7 +6848,7 @@ describe('evaluations tests', () => {
       start: 'March 1, 2018 00:00:00',
       end: 'May 2, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       incomes: [
         {
@@ -6947,7 +6947,7 @@ describe('evaluations tests', () => {
       start: 'April 1, 2018 00:00:00',
       end: 'May 10, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       incomes: [
         {
@@ -7123,7 +7123,7 @@ describe('evaluations tests', () => {
       start: 'April 1, 2018 00:00:00',
       end: 'May 10, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       incomes: [],
       assets: [
@@ -7232,7 +7232,7 @@ describe('evaluations tests', () => {
       start: 'April 1, 2018 00:00:00',
       end: 'May 10, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       incomes: [],
       assets: [
@@ -7342,7 +7342,7 @@ describe('evaluations tests', () => {
       start: 'April 1, 2018 00:00:00',
       end: 'May 10, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       incomes: [],
       assets: [
@@ -7465,7 +7465,7 @@ describe('evaluations tests', () => {
       start: 'April 1, 2018 00:00:00',
       end: 'May 10, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       incomes: [],
       assets: [
@@ -7599,7 +7599,7 @@ describe('evaluations tests', () => {
       start: 'April 1, 2018 00:00:00',
       end: 'May 10, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       incomes: [],
       assets: [
@@ -7715,7 +7715,7 @@ describe('evaluations tests', () => {
       start: 'March 1, 2018 00:00:00',
       end: 'June 10, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       incomes: [],
       assets: [
@@ -7857,7 +7857,7 @@ describe('evaluations tests', () => {
       start: 'March 1, 2018 00:00:00',
       end: 'June 10, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       incomes: [],
       assets: [
@@ -8018,7 +8018,7 @@ describe('evaluations tests', () => {
       start: 'April 1, 2018 00:00:00',
       end: 'May 10, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       incomes: [
         {
@@ -8153,7 +8153,7 @@ describe('evaluations tests', () => {
       start: 'March 1, 2018 00:00:00',
       end: 'June 10, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       incomes: [
         {
@@ -8335,7 +8335,7 @@ describe('evaluations tests', () => {
       start: 'April 1, 2018 00:00:00',
       end: 'May 10, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       incomes: [
         {
@@ -8489,7 +8489,7 @@ describe('evaluations tests', () => {
       start: 'April 1, 2018 00:00:00',
       end: 'May 10, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       incomes: [
         {
@@ -8624,7 +8624,7 @@ describe('evaluations tests', () => {
       start: 'April 1, 2018 00:00:00',
       end: 'May 10, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       incomes: [
         {
@@ -8760,7 +8760,7 @@ describe('evaluations tests', () => {
       start: 'April 1, 2018 00:00:00',
       end: 'May 10, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       incomes: [
         {
@@ -8896,7 +8896,7 @@ describe('evaluations tests', () => {
       start: 'April 1, 2018 00:00:00',
       end: 'May 10, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       incomes: [
         {
@@ -9033,7 +9033,7 @@ describe('evaluations tests', () => {
       start: 'April 1, 2018 00:00:00',
       end: 'May 10, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       incomes: [
         {
@@ -9204,7 +9204,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 1, 2019 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       transactions: [
         {
@@ -9307,7 +9307,7 @@ describe('evaluations tests', () => {
       start: 'March 1, 2018 00:00:00',
       end: 'May 2, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       triggers: [
         {
@@ -9446,7 +9446,7 @@ describe('evaluations tests', () => {
       start: 'March 1, 2018 00:00:00',
       end: 'May 2, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       triggers: [
         {
@@ -9585,7 +9585,7 @@ describe('evaluations tests', () => {
       start: 'March 1, 2018 00:00:00',
       end: 'May 2, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       triggers: [
         {
@@ -9781,7 +9781,7 @@ describe('evaluations tests', () => {
       start: 'March 1, 2018 00:00:00',
       end: 'May 2, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       triggers: [
         {
@@ -9923,7 +9923,7 @@ describe('evaluations tests', () => {
       start: 'March 1, 2018 00:00:00',
       end: 'May 2, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       triggers: [
         {
@@ -10070,7 +10070,7 @@ describe('evaluations tests', () => {
       start: 'March 1, 2018 00:00:00',
       end: 'April 2, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       transactions: [
         {
@@ -10159,7 +10159,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 2, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       transactions: [
         {
@@ -10343,7 +10343,7 @@ describe('evaluations tests', () => {
       start: 'March 1, 2018 00:00:00',
       end: 'April 2, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       transactions: [
         {
@@ -10451,7 +10451,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 2, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       transactions: [
         {
@@ -10751,7 +10751,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 2, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       transactions: [
         {
@@ -10936,7 +10936,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 2, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       transactions: [
         {
@@ -11123,7 +11123,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 2, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       transactions: [
         {
@@ -11277,7 +11277,7 @@ describe('evaluations tests', () => {
       start: 'April 6, 2018 00:00:00',
       end: 'April 2, 2019 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       transactions: [
         {
@@ -11429,7 +11429,7 @@ describe('evaluations tests', () => {
       start: 'March 1, 2018 00:00:00',
       end: 'May 2, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       incomes: [
         {
@@ -11555,7 +11555,7 @@ describe('evaluations tests', () => {
       start: 'March 1, 2018 00:00:00',
       end: 'August 2, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       triggers: [
         {
@@ -11770,7 +11770,7 @@ describe('evaluations tests', () => {
       start: 'March 1, 2018 00:00:00',
       end: 'August 2, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       triggers: [
         {
@@ -11984,7 +11984,7 @@ describe('evaluations tests', () => {
       start: 'March 1, 2018 00:00:00',
       end: 'August 2, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       triggers: [
         {
@@ -12202,7 +12202,7 @@ describe('evaluations tests', () => {
       start: 'March 1, 2018 00:00:00',
       end: 'August 2, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       triggers: [
         {
@@ -12296,7 +12296,7 @@ describe('evaluations tests', () => {
       start: 'March 1, 2018 00:00:00',
       end: 'August 2, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       triggers: [
         {
@@ -12390,7 +12390,7 @@ describe('evaluations tests', () => {
       start: 'March 1, 2018 00:00:00',
       end: 'August 2, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       triggers: [
         {
@@ -12483,7 +12483,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 2, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       transactions: [],
       assets: [
@@ -12608,7 +12608,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 7, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       transactions: [
         {
@@ -12741,7 +12741,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 7, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       transactions: [
         {
@@ -12882,7 +12882,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 7, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       transactions: [
         // at start of model, purchasePriceSetting
@@ -13056,7 +13056,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 7, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       transactions: [
         {
@@ -13187,7 +13187,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 7, 2019 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       transactions: [
         {
@@ -13509,7 +13509,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 7, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       transactions: [
         {
@@ -13655,7 +13655,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 7, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       transactions: [
         {
@@ -13856,7 +13856,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'Feb 7, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       transactions: [],
       assets: [
@@ -13959,7 +13959,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 2, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       assets: [
         {
@@ -14056,7 +14056,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       assets: [
         {
@@ -14157,7 +14157,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 1, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       assets: [
         {
@@ -14223,7 +14223,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 1, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       assets: [
         {
@@ -14290,7 +14290,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 1, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       assets: [
         {
@@ -14381,7 +14381,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 1, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       assets: [
         {
@@ -15738,7 +15738,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'Feb 7, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       transactions: [],
       assets: [
@@ -15776,7 +15776,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'Feb 7, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       transactions: [],
       assets: [
@@ -15805,7 +15805,7 @@ describe('evaluations tests', () => {
       start: 'January 15, 2018 00:00:00',
       end: 'June 1, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       expenses: [],
       transactions: [
@@ -15904,7 +15904,7 @@ describe('evaluations tests', () => {
       start: 'January 15, 2018 00:00:00',
       end: 'June 1, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       expenses: [],
       transactions: [
@@ -16005,7 +16005,7 @@ describe('evaluations tests', () => {
       start: 'January 15, 2018 00:00:00',
       end: 'April 1, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       expenses: [],
       transactions: [
@@ -16097,7 +16097,7 @@ describe('evaluations tests', () => {
       start: 'January 15, 2018 00:00:00',
       end: 'April 1, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       expenses: [],
       transactions: [
@@ -16188,7 +16188,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 1, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       expenses: [],
       transactions: [
@@ -16286,7 +16286,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 1, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       expenses: [],
       transactions: [
@@ -16386,7 +16386,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 1, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       expenses: [],
       transactions: [
@@ -16485,7 +16485,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 1, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       expenses: [],
       transactions: [
@@ -16587,7 +16587,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'February 1, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       expenses: [],
       transactions: [],
@@ -16626,7 +16626,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'February 1, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       expenses: [],
       transactions: [
@@ -16691,7 +16691,7 @@ describe('evaluations tests', () => {
       start: 'Dec 1, 2017 00:00:00',
       end: 'February 1, 2018 00:00:00',
     };
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       expenses: [],
       transactions: [
@@ -16760,7 +16760,7 @@ describe('evaluations tests', () => {
       end: 'June 1, 2018 00:00:00',
     };
     const minimalModel = getMinimalModelCopy();
-    const model: DbModelData = {
+    const model: ModelData = {
       ...minimalModel,
       assets: [
         ...minimalModel.assets,
@@ -16830,7 +16830,7 @@ describe('evaluations tests', () => {
       end: 'June 1, 2018 00:00:00',
     };
     const minimalModel = getMinimalModelCopy();
-    const model: DbModelData = {
+    const model: ModelData = {
       ...minimalModel,
       assets: [
         ...minimalModel.assets,
@@ -16912,7 +16912,7 @@ describe('evaluations tests', () => {
       end: 'June 1, 2018 00:00:00',
     };
     const minimalModel = getMinimalModelCopy();
-    const model: DbModelData = {
+    const model: ModelData = {
       ...minimalModel,
       assets: [
         ...minimalModel.assets,
@@ -17009,7 +17009,7 @@ describe('evaluations tests', () => {
       end: 'June 1, 2018 00:00:00',
     };
     const minimalModel = getMinimalModelCopy();
-    const model: DbModelData = {
+    const model: ModelData = {
       ...minimalModel,
       assets: [
         ...minimalModel.assets,
@@ -17107,7 +17107,7 @@ describe('evaluations tests', () => {
       end: 'June 1, 2018 00:00:00',
     };
     const minimalModel = getMinimalModelCopy();
-    const model: DbModelData = {
+    const model: ModelData = {
       ...minimalModel,
       assets: [
         ...minimalModel.assets,
@@ -17245,7 +17245,7 @@ describe('evaluations tests', () => {
       end: 'June 1, 2018 00:00:00',
     };
     const minimalModel = getMinimalModelCopy();
-    const model: DbModelData = {
+    const model: ModelData = {
       ...minimalModel,
       assets: [
         ...minimalModel.assets,
@@ -17348,7 +17348,7 @@ describe('evaluations tests', () => {
       end: 'June 1, 2018 00:00:00',
     };
     const minimalModel = getMinimalModelCopy();
-    const model: DbModelData = {
+    const model: ModelData = {
       ...minimalModel,
       assets: [
         ...minimalModel.assets,
@@ -17451,7 +17451,7 @@ describe('evaluations tests', () => {
       end: 'June 1, 2018 00:00:00',
     };
     const minimalModel = getMinimalModelCopy();
-    const model: DbModelData = {
+    const model: ModelData = {
       ...minimalModel,
       assets: [
         ...minimalModel.assets,
@@ -17554,7 +17554,7 @@ describe('evaluations tests', () => {
       end: 'June 1, 2018 00:00:00',
     };
     const minimalModel = getMinimalModelCopy();
-    const model: DbModelData = {
+    const model: ModelData = {
       ...minimalModel,
       assets: [
         ...minimalModel.assets,
@@ -17657,7 +17657,7 @@ describe('evaluations tests', () => {
       end: 'May 2, 2018 00:00:00',
     };
     const assetName = `${taxableBenefit} medical`;
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       transactions: [
         {
@@ -17755,7 +17755,7 @@ describe('evaluations tests', () => {
       end: 'May 2, 2018 00:00:00',
     };
     const thingName = `thing`;
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       assets: [
         {
@@ -17841,7 +17841,7 @@ describe('evaluations tests', () => {
     };
     const thingName = `thing`;
     const dollar = `USD`;
-    const model: DbModelData = {
+    const model: ModelData = {
       ...emptyModel,
       assets: [
         {
@@ -17933,7 +17933,7 @@ describe('evaluations tests', () => {
       end: 'June 1, 2018 00:00:00',
     };
     const minimalModel = getMinimalModelCopy();
-    const model: DbModelData = {
+    const model: ModelData = {
       ...minimalModel,
       assets: [
         ...minimalModel.assets,
@@ -18013,7 +18013,7 @@ describe('evaluations tests', () => {
       end: 'June 1, 2018 00:00:00',
     };
     const minimalModel = getMinimalModelCopy();
-    const model: DbModelData = {
+    const model: ModelData = {
       ...minimalModel,
       assets: [
         ...minimalModel.assets,
@@ -18105,7 +18105,7 @@ describe('evaluations tests', () => {
       end: 'June 1, 2018 00:00:00',
     };
     const minimalModel = getMinimalModelCopy();
-    const model: DbModelData = {
+    const model: ModelData = {
       ...minimalModel,
       assets: [
         ...minimalModel.assets,
@@ -18212,7 +18212,7 @@ describe('evaluations tests', () => {
       end: 'June 1, 2018 00:00:00',
     };
     const minimalModel = getMinimalModelCopy();
-    const model: DbModelData = {
+    const model: ModelData = {
       ...minimalModel,
       assets: [
         ...minimalModel.assets,
@@ -18320,7 +18320,7 @@ describe('evaluations tests', () => {
       end: 'June 1, 2018 00:00:00',
     };
     const minimalModel = getMinimalModelCopy();
-    const model: DbModelData = {
+    const model: ModelData = {
       ...minimalModel,
       assets: [
         ...minimalModel.assets,
@@ -18433,7 +18433,7 @@ describe('evaluations tests', () => {
       end: 'June 1, 2018 00:00:00',
     };
     const minimalModel = getMinimalModelCopy();
-    const model: DbModelData = {
+    const model: ModelData = {
       ...minimalModel,
       assets: [
         ...minimalModel.assets,
@@ -18546,7 +18546,7 @@ describe('evaluations tests', () => {
       end: 'June 1, 2018 00:00:00',
     };
     const minimalModel = getMinimalModelCopy();
-    const model: DbModelData = {
+    const model: ModelData = {
       ...minimalModel,
       assets: [
         ...minimalModel.assets,
@@ -18659,7 +18659,7 @@ describe('evaluations tests', () => {
       end: 'June 1, 2018 00:00:00',
     };
     const minimalModel = getMinimalModelCopy();
-    const model: DbModelData = {
+    const model: ModelData = {
       ...minimalModel,
       assets: [
         ...minimalModel.assets,
@@ -18823,7 +18823,7 @@ describe('evaluations tests', () => {
       end: 'June 1, 2018 00:00:00',
     };
     const minimalModel = getMinimalModelCopy();
-    const model: DbModelData = {
+    const model: ModelData = {
       ...minimalModel,
       assets: [
         ...minimalModel.assets,
@@ -18922,7 +18922,7 @@ describe('evaluations tests', () => {
       end: 'June 1, 2018 00:00:00',
     };
     const minimalModel = getMinimalModelCopy();
-    const model: DbModelData = {
+    const model: ModelData = {
       ...minimalModel,
       assets: [
         ...minimalModel.assets,
@@ -19036,7 +19036,7 @@ describe('evaluations tests', () => {
       end: 'June 1, 2018 00:00:00',
     };
     const minimalModel = getMinimalModelCopy();
-    const model: DbModelData = {
+    const model: ModelData = {
       ...minimalModel,
       assets: [
         ...minimalModel.assets,
@@ -19151,7 +19151,7 @@ describe('evaluations tests', () => {
       end: 'June 1, 2018 00:00:00',
     };
     const minimalModel = getMinimalModelCopy();
-    const model: DbModelData = {
+    const model: ModelData = {
       ...minimalModel,
       assets: [
         ...minimalModel.assets,
@@ -19271,7 +19271,7 @@ describe('evaluations tests', () => {
       end: 'June 1, 2018 00:00:00',
     };
     const minimalModel = getMinimalModelCopy();
-    const model: DbModelData = {
+    const model: ModelData = {
       ...minimalModel,
       assets: [
         ...minimalModel.assets,
@@ -19391,7 +19391,7 @@ describe('evaluations tests', () => {
       end: 'June 1, 2018 00:00:00',
     };
     const minimalModel = getMinimalModelCopy();
-    const model: DbModelData = {
+    const model: ModelData = {
       ...minimalModel,
       assets: [
         ...minimalModel.assets,
@@ -19511,7 +19511,7 @@ describe('evaluations tests', () => {
       end: 'June 1, 2018 00:00:00',
     };
     const minimalModel = getMinimalModelCopy();
-    const model: DbModelData = {
+    const model: ModelData = {
       ...minimalModel,
       assets: [
         ...minimalModel.assets,
@@ -19633,7 +19633,7 @@ describe('evaluations tests', () => {
       end: 'June 1, 2018 00:00:00',
     };
     const minimalModel = getMinimalModelCopy();
-    const model: DbModelData = {
+    const model: ModelData = {
       ...minimalModel,
       assets: [
         ...minimalModel.assets,
@@ -19753,7 +19753,7 @@ describe('evaluations tests', () => {
       end: 'June 1, 2018 00:00:00',
     };
     const minimalModel = getMinimalModelCopy();
-    const model: DbModelData = {
+    const model: ModelData = {
       ...minimalModel,
       assets: [
         ...minimalModel.assets,
@@ -19885,7 +19885,7 @@ describe('evaluations tests', () => {
       end: 'June 1, 2018 00:00:00',
     };
     const minimalModel = getMinimalModelCopy();
-    const model: DbModelData = {
+    const model: ModelData = {
       ...minimalModel,
       assets: [
         ...minimalModel.assets,
@@ -19972,7 +19972,7 @@ describe('evaluations tests', () => {
       end: 'June 1, 2018 00:00:00',
     };
     const minimalModel = getMinimalModelCopy();
-    const model: DbModelData = {
+    const model: ModelData = {
       ...minimalModel,
       assets: [
         ...minimalModel.assets,
@@ -20059,7 +20059,7 @@ describe('evaluations tests', () => {
       end: 'June 1, 2018 00:00:00',
     };
     const minimalModel = getMinimalModelCopy();
-    const model: DbModelData = {
+    const model: ModelData = {
       ...minimalModel,
       assets: [
         ...minimalModel.assets,
@@ -20158,7 +20158,7 @@ describe('evaluations tests', () => {
       end: 'June 1, 2018 00:00:00',
     };
     const minimalModel = getMinimalModelCopy();
-    const model: DbModelData = {
+    const model: ModelData = {
       ...minimalModel,
       assets: [
         ...minimalModel.assets,
@@ -20257,7 +20257,7 @@ describe('evaluations tests', () => {
       end: 'June 1, 2018 00:00:00',
     };
     const minimalModel = getMinimalModelCopy();
-    const model: DbModelData = {
+    const model: ModelData = {
       ...minimalModel,
       triggers: [
         {
@@ -20355,7 +20355,7 @@ describe('evaluations tests', () => {
       end: 'June 1, 2018 00:00:00',
     };
     const minimalModel = getMinimalModelCopy();
-    const model: DbModelData = {
+    const model: ModelData = {
       ...minimalModel,
       assets: [
         ...minimalModel.assets,
@@ -20508,7 +20508,7 @@ describe('evaluations tests', () => {
       end: 'June 1, 2018 00:00:00',
     };
     const minimalModel = getMinimalModelCopy();
-    const model: DbModelData = {
+    const model: ModelData = {
       ...minimalModel,
       assets: [
         ...minimalModel.assets,
@@ -20605,7 +20605,7 @@ describe('evaluations tests', () => {
       end: 'June 1, 2018 00:00:00',
     };
     const minimalModel = getMinimalModelCopy();
-    const model: DbModelData = {
+    const model: ModelData = {
       ...minimalModel,
       assets: [
         ...minimalModel.assets,
@@ -20714,7 +20714,7 @@ describe('evaluations tests', () => {
     };
     const minimalModel = getMinimalModelCopy();
 
-    const model: DbModelData = {
+    const model: ModelData = {
       ...minimalModel,
       assets: [
         ...minimalModel.assets,
@@ -21341,7 +21341,7 @@ describe('evaluations tests', () => {
       end: 'May 02 2019',
     };
     const minimalModel = getMinimalModelCopy();
-    const model: DbModelData = {
+    const model: ModelData = {
       ...minimalModel,
       assets: [
         {

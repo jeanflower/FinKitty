@@ -6,10 +6,10 @@ import {
   isValidValue,
 } from '../../models/checks';
 import {
-  DbIncome,
-  DbModelData,
-  DbTransaction,
-  DbTrigger,
+  Income,
+  ModelData,
+  Transaction,
+  Trigger,
   FormProps,
 } from '../../types/interfaces';
 import {
@@ -68,28 +68,24 @@ const inputtingIncome = 'income';
 const inputtingPension = 'definedBenefitsPension';
 
 interface EditIncomeProps extends FormProps {
-  checkIncomeFunction: (i: DbIncome, model: DbModelData) => string;
-  checkTransactionFunction: (t: DbTransaction, model: DbModelData) => string;
+  checkIncomeFunction: (i: Income, model: ModelData) => string;
+  checkTransactionFunction: (t: Transaction, model: ModelData) => string;
   submitIncomeFunction: (
-    incomeInput: DbIncome,
-    modelData: DbModelData,
+    incomeInput: Income,
+    modelData: ModelData,
   ) => Promise<boolean>;
   submitTransactionFunction: (
-    transactionInput: DbTransaction,
-    modelData: DbModelData,
+    transactionInput: Transaction,
+    modelData: ModelData,
   ) => Promise<void>;
   deleteFunction: (name: string) => Promise<boolean>;
   submitTriggerFunction: (
-    triggerInput: DbTrigger,
-    modelData: DbModelData,
+    triggerInput: Trigger,
+    modelData: ModelData,
   ) => Promise<void>;
 }
 
-export function incomeOptions(
-  model: DbModelData,
-  handleChange: any,
-  id: string,
-) {
+export function incomeOptions(model: ModelData, handleChange: any, id: string) {
   const optionData = model.incomes.map(income => {
     return {
       text: income.NAME,
@@ -178,14 +174,14 @@ export class AddDeleteIncomeForm extends Component<
     this.handleCategoryChange = this.handleCategoryChange.bind(this);
     this.revalue = this.revalue.bind(this);
 
-    this.handleDbcIncomeSourceChange = this.handleDbcIncomeSourceChange.bind(
+    this.handleDbpIncomeSourceChange = this.handleDbpIncomeSourceChange.bind(
       this,
     );
-    this.handleDbcSsChange = this.handleDbcSsChange.bind(this);
-    this.handleDbcAccrualChange = this.handleDbcAccrualChange.bind(this);
-    this.handleDbcTransferTo = this.handleDbcTransferTo.bind(this);
-    this.handleDbcContAmount = this.handleDbcContAmount.bind(this);
-    this.handleDbcTransferProportion = this.handleDbcTransferProportion.bind(
+    this.handleDbpSsChange = this.handleDbpSsChange.bind(this);
+    this.handleDbpAccrualChange = this.handleDbpAccrualChange.bind(this);
+    this.handleDbpTransferTo = this.handleDbpTransferTo.bind(this);
+    this.handleDbpContAmount = this.handleDbpContAmount.bind(this);
+    this.handleDbpTransferProportion = this.handleDbpTransferProportion.bind(
       this,
     );
 
@@ -195,16 +191,16 @@ export class AddDeleteIncomeForm extends Component<
     this.setStart = this.setStart.bind(this);
     this.handleEndChange = this.handleEndChange.bind(this);
     this.setEnd = this.setEnd.bind(this);
-    this.handleDbcStartChange = this.handleDbcStartChange.bind(this);
-    this.setDbcStart = this.setDbcStart.bind(this);
-    this.handleDbcEndChange = this.handleDbcEndChange.bind(this);
-    this.setDbcEnd = this.setDbcEnd.bind(this);
-    this.handleDbcStopSourceChange = this.handleDbcStopSourceChange.bind(this);
-    this.setDbcStopSource = this.setDbcStopSource.bind(this);
-    this.handleDbcTransferredStopChange = this.handleDbcTransferredStopChange.bind(
+    this.handleDbpStartChange = this.handleDbpStartChange.bind(this);
+    this.setDbpStart = this.setDbpStart.bind(this);
+    this.handleDbpEndChange = this.handleDbpEndChange.bind(this);
+    this.setDbpEnd = this.setDbpEnd.bind(this);
+    this.handleDbpStopSourceChange = this.handleDbpStopSourceChange.bind(this);
+    this.setDbpStopSource = this.setDbpStopSource.bind(this);
+    this.handleDbpTransferredStopChange = this.handleDbpTransferredStopChange.bind(
       this,
     );
-    this.setDbcTransferredStop = this.setDbcTransferredStop.bind(this);
+    this.setDbpTransferredStop = this.setDbpTransferredStop.bind(this);
 
     this.add = this.add.bind(this);
     this.delete = this.delete.bind(this);
@@ -452,7 +448,7 @@ DB_STOP_SOURCE
 DB_GROWTH, DB_CPI_IMMUNE
  * value - given all payments up to date value set - done
 VALUE
-handleDbcValueChange
+handleDbpValueChange
  * date value set - expected to be "now" or start of model - done
 VALUE_SET
  * standard date of pension start  - done
@@ -473,10 +469,10 @@ DB_TRANSFERRED_STOP
             introLabel="Date on which contributions end (optional)"
             model={this.props.model}
             showAlert={this.props.showAlert}
-            setDateFunction={this.setDbcStopSource}
+            setDateFunction={this.setDbpStopSource}
             inputName="end date"
             inputValue={this.state.DB_STOP_SOURCE}
-            onChangeHandler={this.handleDbcStopSourceChange}
+            onChangeHandler={this.handleDbpStopSourceChange}
             triggers={this.props.model.triggers}
             submitTriggerFunction={this.props.submitTriggerFunction}
           />
@@ -484,10 +480,10 @@ DB_TRANSFERRED_STOP
             introLabel="Date on which the pension starts"
             model={this.props.model}
             showAlert={this.props.showAlert}
-            setDateFunction={this.setDbcStart}
+            setDateFunction={this.setDbpStart}
             inputName="pension start date"
             inputValue={this.state.DB_START}
-            onChangeHandler={this.handleDbcStartChange}
+            onChangeHandler={this.handleDbpStartChange}
             triggers={this.props.model.triggers}
             submitTriggerFunction={this.props.submitTriggerFunction}
           />
@@ -495,10 +491,10 @@ DB_TRANSFERRED_STOP
             introLabel="Date on which the pension ends" ///transfers"
             model={this.props.model}
             showAlert={this.props.showAlert}
-            setDateFunction={this.setDbcEnd}
+            setDateFunction={this.setDbpEnd}
             inputName="pension end/transfer date"
             inputValue={this.state.DB_END}
-            onChangeHandler={this.handleDbcEndChange}
+            onChangeHandler={this.handleDbpEndChange}
             triggers={this.props.model.triggers}
             submitTriggerFunction={this.props.submitTriggerFunction}
           />
@@ -507,10 +503,10 @@ DB_TRANSFERRED_STOP
               introLabel="Date on which transferred pension stops (optional)"
               model={this.props.model}
               showAlert={this.props.showAlert}
-              setDateFunction={this.setDbcTransferredStop}
+              setDateFunction={this.setDbpTransferredStop}
               inputName="transferred stop date"
               inputValue={this.state.DB_TRANSFERRED_STOP}
-              onChangeHandler={this.handleDbcTransferredStopChange}
+              onChangeHandler={this.handleDbpTransferredStopChange}
               triggers={this.props.model.triggers}
               submitTriggerFunction={this.props.submitTriggerFunction}
             />
@@ -521,7 +517,7 @@ DB_TRANSFERRED_STOP
             <label>Income source (optional)</label>
             {incomeOptions(
               this.props.model,
-              this.handleDbcIncomeSourceChange,
+              this.handleDbpIncomeSourceChange,
               this.incomeSourceSelectID,
             )}
           </div>{' '}
@@ -533,7 +529,7 @@ DB_TRANSFERRED_STOP
               name="contributionSSIncome"
               value={this.state.DB_SS}
               placeholder="Enter Y/N"
-              onChange={this.handleDbcSsChange}
+              onChange={this.handleDbpSsChange}
             />
           </div>{' '}
           {/* end col */}
@@ -547,7 +543,7 @@ DB_TRANSFERRED_STOP
               name="contributionAmountPensionIncome"
               value={this.state.DB_CONTRIBUTION_AMOUNT}
               placeholder="Enter amount of contributions"
-              onChange={this.handleDbcContAmount}
+              onChange={this.handleDbpContAmount}
             />
           </div>{' '}
           {/* end col */}
@@ -558,7 +554,7 @@ DB_TRANSFERRED_STOP
               name="incomeaccrual"
               value={this.state.DB_ACCRUAL}
               placeholder="Enter accrual rate"
-              onChange={this.handleDbcAccrualChange}
+              onChange={this.handleDbpAccrualChange}
             />
           </div>{' '}
           {/* end col */} {/* end col */}
@@ -573,7 +569,7 @@ DB_TRANSFERRED_STOP
                 name="transferNameIncome"
                 value={this.state.DB_TRANSFER_TO}
                 placeholder="Enter person to transfer to"
-                onChange={this.handleDbcTransferTo}
+                onChange={this.handleDbpTransferTo}
               />
             </div>
             <div className="col">
@@ -583,7 +579,7 @@ DB_TRANSFERRED_STOP
                 name="transferProportion"
                 value={this.state.DB_TRANSFER_PROPORTION}
                 placeholder="Enter transfer proportion"
-                onChange={this.handleDbcTransferProportion}
+                onChange={this.handleDbpTransferProportion}
               />
             </div>{' '}
           </div>
@@ -609,45 +605,45 @@ DB_TRANSFERRED_STOP
   private handleValueChange(e: React.ChangeEvent<HTMLInputElement>) {
     this.setState({ VALUE: e.target.value });
   }
-  private handleDbcIncomeSourceChange(value: string) {
+  private handleDbpIncomeSourceChange(value: string) {
     this.setState({ DB_INCOME_SOURCE: value });
   }
-  private handleDbcSsChange(e: React.ChangeEvent<HTMLInputElement>) {
+  private handleDbpSsChange(e: React.ChangeEvent<HTMLInputElement>) {
     this.setState({ DB_SS: e.target.value });
   }
-  private handleDbcAccrualChange(e: React.ChangeEvent<HTMLInputElement>) {
+  private handleDbpAccrualChange(e: React.ChangeEvent<HTMLInputElement>) {
     this.setState({ DB_ACCRUAL: e.target.value });
   }
-  private handleDbcTransferProportion(e: React.ChangeEvent<HTMLInputElement>) {
+  private handleDbpTransferProportion(e: React.ChangeEvent<HTMLInputElement>) {
     this.setState({ DB_TRANSFER_PROPORTION: e.target.value });
   }
 
-  private setDbcStopSource(value: string) {
+  private setDbpStopSource(value: string) {
     this.setState({ DB_STOP_SOURCE: value });
   }
-  private handleDbcStopSourceChange(e: React.ChangeEvent<HTMLInputElement>) {
-    this.setDbcStopSource(e.target.value);
+  private handleDbpStopSourceChange(e: React.ChangeEvent<HTMLInputElement>) {
+    this.setDbpStopSource(e.target.value);
   }
-  private handleDbcTransferTo(e: React.ChangeEvent<HTMLInputElement>) {
+  private handleDbpTransferTo(e: React.ChangeEvent<HTMLInputElement>) {
     this.setState({ DB_TRANSFER_TO: e.target.value });
   }
-  private handleDbcContAmount(e: React.ChangeEvent<HTMLInputElement>) {
+  private handleDbpContAmount(e: React.ChangeEvent<HTMLInputElement>) {
     this.setState({ DB_CONTRIBUTION_AMOUNT: e.target.value });
   }
-  private setDbcTransferredStop(value: string) {
+  private setDbpTransferredStop(value: string) {
     this.setState({ DB_TRANSFERRED_STOP: value });
   }
-  private handleDbcTransferredStopChange(
+  private handleDbpTransferredStopChange(
     e: React.ChangeEvent<HTMLInputElement>,
   ) {
-    this.setDbcTransferredStop(e.target.value);
+    this.setDbpTransferredStop(e.target.value);
   }
 
-  private setDbcEnd(value: string) {
+  private setDbpEnd(value: string) {
     this.setState({ DB_END: value });
   }
-  private handleDbcEndChange(e: React.ChangeEvent<HTMLInputElement>) {
-    this.setDbcEnd(e.target.value);
+  private handleDbpEndChange(e: React.ChangeEvent<HTMLInputElement>) {
+    this.setDbpEnd(e.target.value);
   }
 
   private setValueSet(value: string): void {
@@ -657,12 +653,12 @@ DB_TRANSFERRED_STOP
     this.setValueSet(e.target.value);
   }
 
-  private setDbcStart(value: string): void {
+  private setDbpStart(value: string): void {
     this.setState({ DB_START: value });
   }
-  private handleDbcStartChange(e: React.ChangeEvent<HTMLInputElement>): void {
+  private handleDbpStartChange(e: React.ChangeEvent<HTMLInputElement>): void {
     const value = e.target.value;
-    this.setDbcStart(value);
+    this.setDbpStart(value);
   }
 
   private setStart(value: string): void {
@@ -718,7 +714,7 @@ DB_TRANSFERRED_STOP
       count += 1;
     }
 
-    const revalueIncomeTransaction: DbTransaction = {
+    const revalueIncomeTransaction: Transaction = {
       NAME: `${revalue} ${this.state.NAME} ${count}`,
       FROM: '',
       FROM_ABSOLUTE: false,
@@ -928,7 +924,7 @@ DB_TRANSFERRED_STOP
         }
       }
       const newIncomeName1 = pensionDB + this.state.NAME;
-      const pensionDbcIncome1: DbIncome = {
+      const pensionDbpIncome1: Income = {
         START: this.state.DB_START,
         END: this.state.DB_END,
         NAME: newIncomeName1,
@@ -940,18 +936,18 @@ DB_TRANSFERRED_STOP
         CATEGORY: this.state.CATEGORY,
       };
       let message = await this.props.checkIncomeFunction(
-        pensionDbcIncome1,
+        pensionDbpIncome1,
         this.props.model,
       );
       if (message.length > 0) {
         this.props.showAlert(message);
         return;
       }
-      let pensionDbcIncome2: DbIncome | undefined;
+      let pensionDbpIncome2: Income | undefined;
       let newIncomeName2: string | undefined;
       if (this.state.DB_TRANSFER_TO !== '' && builtLiability2 !== undefined) {
         newIncomeName2 = pensionTransfer + this.state.NAME;
-        pensionDbcIncome2 = {
+        pensionDbpIncome2 = {
           START: this.state.DB_START,
           END: this.state.DB_TRANSFERRED_STOP,
           NAME: newIncomeName2,
@@ -963,7 +959,7 @@ DB_TRANSFERRED_STOP
           CATEGORY: this.state.CATEGORY,
         };
         const message = await this.props.checkIncomeFunction(
-          pensionDbcIncome2,
+          pensionDbpIncome2,
           this.props.model,
         );
         if (message.length > 0) {
@@ -973,19 +969,19 @@ DB_TRANSFERRED_STOP
       }
 
       await this.props.submitIncomeFunction(
-        pensionDbcIncome1,
+        pensionDbpIncome1,
         this.props.model,
       );
-      if (pensionDbcIncome2) {
+      if (pensionDbpIncome2) {
         await this.props.submitIncomeFunction(
-          pensionDbcIncome2,
+          pensionDbpIncome2,
           this.props.model,
         );
       }
-      let pensionDbctran1: DbTransaction | undefined;
-      let pensionDbctran2: DbTransaction | undefined;
+      let pensionDbptran1: Transaction | undefined;
+      let pensionDbptran2: Transaction | undefined;
       if (this.state.DB_INCOME_SOURCE !== '') {
-        pensionDbctran1 = {
+        pensionDbptran1 = {
           NAME: (parseYNDBSS.value ? pensionSS : pension) + this.state.NAME,
           FROM: this.state.DB_INCOME_SOURCE,
           FROM_ABSOLUTE: false,
@@ -1000,15 +996,15 @@ DB_TRANSFERRED_STOP
           TYPE: autogen,
         };
         message = await this.props.checkTransactionFunction(
-          pensionDbctran1,
+          pensionDbptran1,
           this.props.model,
         );
         if (message.length > 0) {
-          //log(`bad transaction1 ${showObj(pensionDbctran1)}`);
+          //log(`bad transaction1 ${showObj(pensionDbptran1)}`);
           this.props.showAlert(message);
-          await this.props.deleteFunction(pensionDbcIncome1.NAME);
-          if (pensionDbcIncome2) {
-            await this.props.deleteFunction(pensionDbcIncome2.NAME);
+          await this.props.deleteFunction(pensionDbpIncome1.NAME);
+          if (pensionDbpIncome2) {
+            await this.props.deleteFunction(pensionDbpIncome2.NAME);
           }
           return;
         }
@@ -1016,7 +1012,7 @@ DB_TRANSFERRED_STOP
         const monthlyAccrualValue = `${parseFloat(this.state.DB_ACCRUAL) /
           12.0}`;
         // log(`monthlyAccrualValue = ${monthlyAccrualValue}`);
-        pensionDbctran2 = {
+        pensionDbptran2 = {
           NAME: newIncomeName1, // kicks in when we see income java
           FROM: this.state.DB_INCOME_SOURCE,
           FROM_ABSOLUTE: false,
@@ -1031,22 +1027,22 @@ DB_TRANSFERRED_STOP
           TYPE: autogen,
         };
         message = await this.props.checkTransactionFunction(
-          pensionDbctran2,
+          pensionDbptran2,
           this.props.model,
         );
         if (message.length > 0) {
-          //log(`bad transaction2 ${showObj(pensionDbctran2)}`);
+          //log(`bad transaction2 ${showObj(pensionDbptran2)}`);
           this.props.showAlert(message);
-          await this.props.deleteFunction(pensionDbcIncome1.NAME);
-          if (pensionDbcIncome2) {
-            await this.props.deleteFunction(pensionDbcIncome2.NAME);
+          await this.props.deleteFunction(pensionDbpIncome1.NAME);
+          if (pensionDbpIncome2) {
+            await this.props.deleteFunction(pensionDbpIncome2.NAME);
           }
           return;
         }
       }
-      let pensionDbctran3: DbTransaction | undefined;
+      let pensionDbptran3: Transaction | undefined;
       if (this.state.DB_TRANSFER_TO !== '' && newIncomeName2) {
-        pensionDbctran3 = {
+        pensionDbptran3 = {
           NAME: newIncomeName2,
           FROM: newIncomeName1,
           FROM_ABSOLUTE: false,
@@ -1061,35 +1057,35 @@ DB_TRANSFERRED_STOP
           TYPE: autogen,
         };
         message = await this.props.checkTransactionFunction(
-          pensionDbctran3,
+          pensionDbptran3,
           this.props.model,
         );
         if (message.length > 0) {
-          //log(`bad transaction3 ${showObj(pensionDbctran3)}`);
+          //log(`bad transaction3 ${showObj(pensionDbptran3)}`);
           this.props.showAlert(message);
-          await this.props.deleteFunction(pensionDbcIncome1.NAME);
-          if (pensionDbcIncome2) {
-            await this.props.deleteFunction(pensionDbcIncome2.NAME);
+          await this.props.deleteFunction(pensionDbpIncome1.NAME);
+          if (pensionDbpIncome2) {
+            await this.props.deleteFunction(pensionDbpIncome2.NAME);
           }
           return;
         }
       }
 
-      if (pensionDbctran1) {
+      if (pensionDbptran1) {
         await this.props.submitTransactionFunction(
-          pensionDbctran1,
+          pensionDbptran1,
           this.props.model,
         );
       }
-      if (pensionDbctran2) {
+      if (pensionDbptran2) {
         await this.props.submitTransactionFunction(
-          pensionDbctran2,
+          pensionDbptran2,
           this.props.model,
         );
       }
-      if (pensionDbctran3) {
+      if (pensionDbptran3) {
         await this.props.submitTransactionFunction(
-          pensionDbctran3,
+          pensionDbptran3,
           this.props.model,
         );
       }
@@ -1125,7 +1121,7 @@ DB_TRANSFERRED_STOP
     }
 
     // log('adding something ' + showObj(this));
-    const income: DbIncome = {
+    const income: Income = {
       NAME: this.state.NAME,
       VALUE: this.state.VALUE,
       VALUE_SET: this.state.VALUE_SET,

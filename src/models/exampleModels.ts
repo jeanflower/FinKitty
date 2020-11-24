@@ -39,7 +39,7 @@ import {
   viewType,
   BenAndJerryModel,
 } from '../localization/stringConstants';
-import { DbModelData, DbSetting } from '../types/interfaces';
+import { ModelData, Setting } from '../types/interfaces';
 import {
   defaultModelSettings,
   emptyModel,
@@ -308,7 +308,7 @@ export const benAndJerryExampleData = `
 "version":5,
 }`;
 
-const browserTestSettingsForMigration: DbSetting[] = [
+const browserTestSettingsForMigration: Setting[] = [
   {
     ...viewSetting,
     NAME: roiStart,
@@ -378,7 +378,7 @@ const browserTestSettingsForMigration: DbSetting[] = [
 ];
 
 function getTestModel01ForMigration() {
-  const model: DbModelData = {
+  const model: ModelData = {
     expenses: [
       {
         ...simpleExpense,
@@ -557,7 +557,7 @@ function getTestModel01ForMigration() {
 }
 
 function getTestModel02ForMigration() {
-  const model: DbModelData = {
+  const model: ModelData = {
     expenses: [],
     incomes: [],
     assets: [],
@@ -573,13 +573,13 @@ function getTestModel02ForMigration() {
   return model;
 }
 
-export function getModelCoarseAndFine(): DbModelData {
+export function getModelCoarseAndFine(): ModelData {
   const roi = {
     start: 'April 1, 2018',
     end: 'July 10, 2018',
   };
 
-  const model: DbModelData = {
+  const model: ModelData = {
     ...emptyModel,
     incomes: [
       {
@@ -669,7 +669,7 @@ export function getModelCoarseAndFine(): DbModelData {
   return model;
 }
 
-const defaultModelSettingsForMigration: DbSetting[] = [
+const defaultModelSettingsForMigration: Setting[] = [
   { ...viewSetting, NAME: viewDetail, VALUE: fine },
   { ...viewSetting, NAME: chartViewType, VALUE: chartVals },
   {
@@ -727,7 +727,7 @@ const defaultModelSettingsForMigration: DbSetting[] = [
   },
 ];
 
-export function getModelCoarseAndFineForMigration(): DbModelData {
+export function getModelCoarseAndFineForMigration(): ModelData {
   const roi = {
     start: 'April 1, 2018',
     end: 'July 10, 2018',
@@ -737,7 +737,7 @@ export function getModelCoarseAndFineForMigration(): DbModelData {
   setSetting(settings, viewDetail, coarse, viewType);
   setSetting(settings, viewFrequency, monthly, viewType);
 
-  const model: DbModelData = {
+  const model: ModelData = {
     ...emptyModel,
     incomes: [
       {
@@ -835,7 +835,7 @@ function getModelFutureExpenseForMigration() {
     end: 'March 1, 2017 00:00:00',
   };
   const minimalModel = getMinimalModelCopy();
-  const model: DbModelData = {
+  const model: ModelData = {
     ...minimalModel,
     expenses: [
       {
@@ -862,13 +862,13 @@ function getModelFutureExpenseForMigration() {
   //log(`future expense settings ${model.settings.map(showObj)}`);
   return model;
 }
-export function getThreeChryslerModel(): DbModelData {
+export function getThreeChryslerModel(): ModelData {
   const roi = {
     start: 'Dec 1, 2017 00:00:00',
     end: 'June 1, 2018 00:00:00',
   };
   const minimalModel = getMinimalModelCopy();
-  const model: DbModelData = {
+  const model: ModelData = {
     ...minimalModel,
     assets: [
       ...minimalModel.assets,
@@ -914,13 +914,13 @@ export function getThreeChryslerModel(): DbModelData {
   return model;
 }
 
-export function getThreeChryslerModelForMigration(): DbModelData {
+export function getThreeChryslerModelForMigration(): ModelData {
   const roi = {
     start: 'Dec 1, 2017 00:00:00',
     end: 'June 1, 2018 00:00:00',
   };
   const minimalModel = getMinimalModelCopy();
-  const model: DbModelData = {
+  const model: ModelData = {
     ...minimalModel,
     assets: [
       ...minimalModel.assets,
@@ -971,8 +971,8 @@ export function getThreeChryslerModelForMigration(): DbModelData {
   return model;
 }
 
-export function getBenAndJerryModel(): DbModelData {
-  const model: DbModelData = {
+export function getBenAndJerryModel(): ModelData {
+  const model: ModelData = {
     assets: [
       {
         NAME: 'PensionJerry Aegon',
@@ -1629,7 +1629,7 @@ export function getBenAndJerryModel(): DbModelData {
   return model;
 }
 
-export function getTestModel(input: string): DbModelData {
+export function getTestModel(input: string): ModelData {
   // log(`getTestModel making model for ${input}`);
   if (input === TestModel01) {
     return getTestModel01ForMigration();

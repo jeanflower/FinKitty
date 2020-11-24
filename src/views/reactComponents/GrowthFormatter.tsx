@@ -1,5 +1,5 @@
 import React from 'react';
-import { DbSetting } from '../../types/interfaces';
+import { Setting } from '../../types/interfaces';
 import { makeStringFromGrowth } from '../../utils';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
@@ -7,7 +7,7 @@ import Tooltip from 'react-bootstrap/Tooltip';
 interface GrowthFormatterProps {
   name: string;
   value: string;
-  settings: DbSetting[];
+  settings: Setting[];
 }
 class GrowthFormatter extends React.Component<GrowthFormatterProps, {}> {
   public render() {

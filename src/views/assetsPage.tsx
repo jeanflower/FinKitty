@@ -1,9 +1,4 @@
-import {
-  AssetVal,
-  ChartData,
-  DbItem,
-  DbModelData,
-} from './../types/interfaces';
+import { AssetVal, ChartData, Item, ModelData } from './../types/interfaces';
 import { assetsDivWithHeadings, defaultColumn } from './tablePages';
 import { checkAsset, checkTransaction } from '../models/checks';
 import {
@@ -27,7 +22,7 @@ import { ViewSettings } from '../models/charting';
 // import { log } from './../utils';
 
 function todaysAssetsTable(
-  model: DbModelData,
+  model: ModelData,
   todaysValues: Map<string, AssetVal>,
 ) {
   if (todaysValues.size === 0) {
@@ -52,7 +47,7 @@ function todaysAssetsTable(
               VALUE: `${key[1].assetVal}`,
             };
           })
-          .sort((a: DbItem, b: DbItem) => lessThan(a.NAME, b.NAME))}
+          .sort((a: Item, b: Item) => lessThan(a.NAME, b.NAME))}
         columns={[
           {
             ...defaultColumn,
@@ -75,7 +70,7 @@ function todaysAssetsTable(
 }
 
 export function assetsDiv(
-  model: DbModelData,
+  model: ModelData,
   viewSettings: ViewSettings,
   showAlert: (arg0: string) => void,
   assetChartData: ChartData[],

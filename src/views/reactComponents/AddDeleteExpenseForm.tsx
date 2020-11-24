@@ -1,10 +1,10 @@
 import React, { Component, FormEvent } from 'react';
 
 import {
-  DbExpense,
-  DbModelData,
-  DbTransaction,
-  DbTrigger,
+  Expense,
+  ModelData,
+  Transaction,
+  Trigger,
   FormProps,
 } from '../../types/interfaces';
 import {
@@ -41,20 +41,17 @@ const inputtingRevalue = 'revalue';
 const inputtingExpense = 'expense';
 
 interface EditExpenseProps extends FormProps {
-  checkFunction: (e: DbExpense, model: DbModelData) => string;
-  submitFunction: (
-    expenseInput: DbExpense,
-    modelData: DbModelData,
-  ) => Promise<any>;
+  checkFunction: (e: Expense, model: ModelData) => string;
+  submitFunction: (expenseInput: Expense, modelData: ModelData) => Promise<any>;
   deleteFunction: (name: string) => Promise<boolean>;
   submitTriggerFunction: (
-    triggerInput: DbTrigger,
-    modelData: DbModelData,
+    triggerInput: Trigger,
+    modelData: ModelData,
   ) => Promise<void>;
-  checkTransactionFunction: (t: DbTransaction, model: DbModelData) => string;
+  checkTransactionFunction: (t: Transaction, model: ModelData) => string;
   submitTransactionFunction: (
-    transactionInput: DbTransaction,
-    modelData: DbModelData,
+    transactionInput: Transaction,
+    modelData: ModelData,
   ) => Promise<void>;
 }
 export class AddDeleteExpenseForm extends Component<
@@ -387,7 +384,7 @@ export class AddDeleteExpenseForm extends Component<
       count += 1;
     }
 
-    const revalueExpenseTransaction: DbTransaction = {
+    const revalueExpenseTransaction: Transaction = {
       NAME: `${revalue} ${this.state.NAME} ${count}`,
       FROM: '',
       FROM_ABSOLUTE: false,
@@ -483,7 +480,7 @@ export class AddDeleteExpenseForm extends Component<
     }
 
     // log('adding something ' + showObj(this));
-    const expense: DbExpense = {
+    const expense: Expense = {
       NAME: this.state.NAME,
       VALUE: this.state.VALUE,
       VALUE_SET: this.state.VALUE_SET,

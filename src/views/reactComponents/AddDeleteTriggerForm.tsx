@@ -1,7 +1,7 @@
 import React, { Component, FormEvent } from 'react';
 import { doCheckBeforeOverwritingExistingData } from '../../App';
 
-import { DbModelData, DbTrigger, FormProps } from '../../types/interfaces';
+import { ModelData, Trigger, FormProps } from '../../types/interfaces';
 import { log, printDebug, showObj, makeDateFromString } from '../../utils';
 import Button from './Button';
 import { Input } from './Input';
@@ -11,16 +11,16 @@ interface EditTriggerFormState {
   DATE: string;
 }
 interface EditTriggerProps extends FormProps {
-  checkFunction: (t: DbTrigger, modelData: DbModelData) => string;
+  checkFunction: (t: Trigger, modelData: ModelData) => string;
   submitFunction: (
-    triggerInput: DbTrigger,
-    modelData: DbModelData,
+    triggerInput: Trigger,
+    modelData: ModelData,
   ) => Promise<void>;
   deleteFunction: (settingName: string) => Promise<boolean>;
 }
 
 export function newTriggerButtonData(
-  submitTriggerFunction: (e: DbTrigger) => void,
+  submitTriggerFunction: (e: Trigger) => void,
   showAlert: (arg0: string) => void,
 ) {
   return {
@@ -148,7 +148,7 @@ export class AddDeleteTriggerForm extends Component<
     }
 
     // log('adding something ' + showObj(this));
-    const trigger: DbTrigger = {
+    const trigger: Trigger = {
       NAME: this.state.NAME,
       DATE: makeDateFromString(this.state.DATE),
     };

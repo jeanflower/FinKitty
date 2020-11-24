@@ -2,9 +2,9 @@ import {
   AssetVal,
   ChartDataPoint,
   DataForView,
-  DbItemCategory,
-  DbModelData,
-  DbSetting,
+  ItemCategory,
+  ModelData,
+  Setting,
   DebtVal,
   Evaluation,
   ExpenseVal,
@@ -233,7 +233,7 @@ e.g.
     }
   }
 
-  private setItemFromModel(context: Context, a: DbItemCategory) {
+  private setItemFromModel(context: Context, a: ItemCategory) {
     this.addToDependents(context, allItems, a.NAME);
     this.addToDependents(context, allItems, a.CATEGORY);
     this.addToDependents(context, a.CATEGORY, a.NAME);
@@ -241,7 +241,7 @@ e.g.
     this.setInMapIfAbsent(context, a.NAME, a.CATEGORY);
   }
 
-  public setModel(model: DbModelData) {
+  public setModel(model: ModelData) {
     // log(`in setModel`);
     // log(`model assets ${model.assets.map((a)=>{return a.NAME})}`);
     // for incomes and expenses the filters list is
@@ -429,7 +429,7 @@ function logMapOfMapofMap(
   }
 }
 
-function getCategoryFromItems(name: string, items: DbItemCategory[]) {
+function getCategoryFromItems(name: string, items: ItemCategory[]) {
   const found = items.find(i => i.NAME === name);
   if (found !== undefined) {
     if (found.CATEGORY.length > 0) {
@@ -441,7 +441,7 @@ function getCategoryFromItems(name: string, items: DbItemCategory[]) {
   return undefined;
 }
 
-function getCategorySub(name: string, model: DbModelData) {
+function getCategorySub(name: string, model: ModelData) {
   // log(`look for category for ${name}`);
   let category: string | undefined = getCategoryFromItems(name, model.incomes);
   if (category === undefined) {
@@ -481,7 +481,7 @@ function getCategorySub(name: string, model: DbModelData) {
 function getCategory(
   name: string,
   cache: Map<string, string>,
-  model: DbModelData,
+  model: ModelData,
 ) {
   const cachedResult = cache.get(name);
   if (cachedResult !== undefined) {
@@ -564,7 +564,7 @@ function makeChartDataPoints(
   dateNameValueMapIncoming: Map<string, Map<string, number>>,
   dates: Date[],
   itemsIncoming: string[],
-  settings: DbSetting[],
+  settings: Setting[],
   negateValues = false,
   totalValues = false,
 ): ItemChartData[] {
@@ -676,7 +676,7 @@ function makeChartDataPoints(
 
 function displayWordAs(
   word: string,
-  model: DbModelData,
+  model: ModelData,
   viewSettings: ViewSettings,
 ) {
   // log(`determine where/how to display ${showObj(word)} in a chart`);
@@ -740,11 +740,7 @@ function displayWordAs(
   return result;
 }
 
-function displayAs(
-  name: string,
-  model: DbModelData,
-  viewSettings: ViewSettings,
-) {
+function displayAs(name: string, model: ModelData, viewSettings: ViewSettings) {
   const words = name.split(separator);
   const result = {
     asset: false,
@@ -783,7 +779,7 @@ function displayAs(
 }
 function makeADTChartNames(
   allNames: string[],
-  model: DbModelData,
+  model: ModelData,
   viewSettings: ViewSettings,
 ) {
   // log(`allNames = ${showObj(allNames)}`)
@@ -814,7 +810,7 @@ function assignCategories(
   >,
   allDates: Date[],
   items: string[],
-  model: DbModelData,
+  model: ModelData,
   categoryCache: Map<string, string>,
 ) {
   // log(`categorise these ${items}`);
@@ -873,7 +869,7 @@ function filterIncomeOrExpenseItems(
   >,
   allDates: Date[],
   names: string[],
-  model: DbModelData,
+  model: ModelData,
   categoryCache: Map<string, string>,
   viewSettings: ViewSettings,
   context: Context,
@@ -976,7 +972,7 @@ function getSettingsValues(viewSettings: ViewSettings) {
   };
 }
 
-function mapNamesToTypes(model: DbModelData) {
+function mapNamesToTypes(model: ModelData) {
   const nameToTypeMap = new Map<string, string>();
   model.expenses.forEach(expense => {
     nameToTypeMap.set(expense.NAME, evaluationType.expense);
@@ -1107,7 +1103,7 @@ function getDisplayType(
 }
 
 export function makeChartData(
-  model: DbModelData,
+  model: ModelData,
   viewSettings: ViewSettings,
   evaluationsAndVals: {
     evaluations: Evaluation[];
@@ -1676,7 +1672,7 @@ export function makeChartData(
 }
 
 export function makeChartDataFromEvaluations(
-  model: DbModelData,
+  model: ModelData,
   viewSettings: ViewSettings,
   evaluationsAndVals: {
     evaluations: Evaluation[];

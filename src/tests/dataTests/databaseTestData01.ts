@@ -26,12 +26,12 @@ import {
   valueFocusDateHint,
 } from '../../localization/stringConstants';
 import {
-  DbAsset,
-  DbExpense,
-  DbIncome,
-  DbSetting,
-  DbTransaction,
-  DbTrigger,
+  Asset,
+  Expense,
+  Income,
+  Setting,
+  Transaction,
+  Trigger,
 } from '../../types/interfaces';
 import {
   makeDateFromString,
@@ -41,7 +41,7 @@ import {
   simpleTransaction,
 } from '../../utils';
 
-export const testTriggers01: DbTrigger[] = [
+export const testTriggers01: Trigger[] = [
   {
     NAME: 'TransferMortgage',
     DATE: makeDateFromString('Jan 01 2028'),
@@ -56,7 +56,7 @@ export const testTriggers01: DbTrigger[] = [
   },
 ];
 
-export const testExpenses01: DbExpense[] = [
+export const testExpenses01: Expense[] = [
   {
     ...simpleExpense,
     NAME: 'Look after dogs',
@@ -89,7 +89,7 @@ export const testExpenses01: DbExpense[] = [
   },
 ];
 
-export const testIncomes01: DbIncome[] = [
+export const testIncomes01: Income[] = [
   {
     ...simpleIncome,
     NAME: 'Main income',
@@ -120,7 +120,7 @@ export const testIncomes01: DbIncome[] = [
   },
 ];
 
-export const testAssets01: DbAsset[] = [
+export const testAssets01: Asset[] = [
   {
     ...simpleAsset,
     NAME: CASH_ASSET_NAME,
@@ -161,7 +161,7 @@ export const testAssets01: DbAsset[] = [
   },
 ];
 
-export const testTransactions01: DbTransaction[] = [
+export const testTransactions01: Transaction[] = [
   {
     ...simpleTransaction,
     NAME: 'Each month buy food',
@@ -226,17 +226,17 @@ export const testTransactions01: DbTransaction[] = [
     CATEGORY: 'pay mortgage',
   },
 ];
-const simpleSetting: DbSetting = {
+const simpleSetting: Setting = {
   NAME: 'NoName',
   VALUE: 'NoValue',
   HINT: 'NoHint',
   TYPE: constType,
 };
-const viewSetting: DbSetting = {
+const viewSetting: Setting = {
   ...simpleSetting,
   TYPE: viewType,
 };
-export const testSettings01: DbSetting[] = [
+export const testSettings01: Setting[] = [
   {
     ...viewSetting,
     NAME: roiStart,

@@ -2,10 +2,10 @@ import React, { Component, FormEvent } from 'react';
 
 import { isNumberString } from '../../models/checks';
 import {
-  DbAsset,
-  DbModelData,
-  DbTransaction,
-  DbTrigger,
+  Asset,
+  ModelData,
+  Transaction,
+  Trigger,
   FormProps,
 } from '../../types/interfaces';
 import {
@@ -38,17 +38,17 @@ interface EditDebtFormState {
   inputting: string;
 }
 interface EditDebtProps extends FormProps {
-  checkAssetFunction: (a: DbAsset, model: DbModelData) => string;
-  submitAssetFunction: (arg0: DbAsset, arg1: DbModelData) => Promise<void>;
+  checkAssetFunction: (a: Asset, model: ModelData) => string;
+  submitAssetFunction: (arg0: Asset, arg1: ModelData) => Promise<void>;
   deleteAssetFunction: (name: string) => Promise<boolean>;
-  checkTransactionFunction: (t: DbTransaction, model: DbModelData) => string;
+  checkTransactionFunction: (t: Transaction, model: ModelData) => string;
   submitTransactionFunction: (
-    transactionInput: DbTransaction,
-    modelData: DbModelData,
+    transactionInput: Transaction,
+    modelData: ModelData,
   ) => Promise<void>;
   submitTriggerFunction: (
-    triggerInput: DbTrigger,
-    modelData: DbModelData,
+    triggerInput: Trigger,
+    modelData: ModelData,
   ) => Promise<void>;
 }
 
@@ -221,7 +221,7 @@ export class AddDeleteDebtForm extends Component<
       count += 1;
     }
 
-    const revalueTransaction: DbTransaction = {
+    const revalueTransaction: Transaction = {
       NAME: `${revalue} ${this.state.NAME} ${count}`,
       FROM: '',
       FROM_ABSOLUTE: false,
@@ -415,7 +415,7 @@ export class AddDeleteDebtForm extends Component<
     }
 
     // log('adding something ' + showObj(this));
-    const asset: DbAsset = {
+    const asset: Asset = {
       NAME: this.state.NAME,
       VALUE: `-${parseFloat(this.state.VALUE)}`,
       QUANTITY: '', // debts are continuous
@@ -443,7 +443,7 @@ export class AddDeleteDebtForm extends Component<
         ) {
           count += 1;
         }
-        const transaction: DbTransaction = {
+        const transaction: Transaction = {
           NAME: `${conditional}Payment to ${this.state.NAME} ${count}`,
           CATEGORY: this.state.CATEGORY,
           FROM: CASH_ASSET_NAME,

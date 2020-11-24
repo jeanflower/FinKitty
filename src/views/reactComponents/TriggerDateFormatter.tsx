@@ -1,5 +1,5 @@
 import React from 'react';
-import { DbModelData } from '../../types/interfaces';
+import { ModelData } from '../../types/interfaces';
 import {
   makeDateTooltip,
   log,
@@ -12,7 +12,7 @@ import Tooltip from 'react-bootstrap/Tooltip';
 interface TriggerDateFormatterProps {
   name: string;
   value: string;
-  model: DbModelData;
+  model: ModelData;
   showTime: boolean;
 }
 

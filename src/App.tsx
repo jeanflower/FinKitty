@@ -48,14 +48,14 @@ import {
   AssetVal,
   ChartData,
   DataForView,
-  DbAsset,
-  DbExpense,
-  DbIncome,
-  DbItem,
-  DbModelData,
-  DbSetting,
-  DbTransaction,
-  DbTrigger,
+  Asset,
+  Expense,
+  Income,
+  Item,
+  ModelData,
+  Setting,
+  Transaction,
+  Trigger,
   DebtVal,
   Evaluation,
   ExpenseVal,
@@ -301,7 +301,7 @@ const exampleModels = [
 
 let reactAppComponent: AppContent;
 
-export function setViewSetting(input: DbSetting): boolean {
+export function setViewSetting(input: Setting): boolean {
   // log(`setview setting being processed`);
   if (reactAppComponent) {
     return reactAppComponent.state.viewState.setViewSetting(
@@ -316,7 +316,7 @@ export function setViewSetting(input: DbSetting): boolean {
 // When loading in an old model, set the view from the
 // old-style settings data
 // This only matters for keeping tests passing.
-export function migrateViewSetting(input: DbSetting): boolean {
+export function migrateViewSetting(input: Setting): boolean {
   // log(`setview setting being processed`);
   if (reactAppComponent) {
     return reactAppComponent.state.viewState.migrateViewSettingString(
@@ -469,20 +469,14 @@ export async function refreshData(
 
     // log(`got ${model}`);
 
-    model.triggers.sort((a: DbTrigger, b: DbTrigger) =>
+    model.triggers.sort((a: Trigger, b: Trigger) => lessThan(b.NAME, a.NAME));
+    model.expenses.sort((a: Expense, b: Expense) => lessThan(b.NAME, a.NAME));
+    model.settings.sort((a: Setting, b: Setting) => lessThan(b.NAME, a.NAME));
+    model.incomes.sort((a: Income, b: Income) => lessThan(b.NAME, a.NAME));
+    model.transactions.sort((a: Transaction, b: Transaction) =>
       lessThan(b.NAME, a.NAME),
     );
-    model.expenses.sort((a: DbExpense, b: DbExpense) =>
-      lessThan(b.NAME, a.NAME),
-    );
-    model.settings.sort((a: DbSetting, b: DbSetting) =>
-      lessThan(b.NAME, a.NAME),
-    );
-    model.incomes.sort((a: DbIncome, b: DbIncome) => lessThan(b.NAME, a.NAME));
-    model.transactions.sort((a: DbTransaction, b: DbTransaction) =>
-      lessThan(b.NAME, a.NAME),
-    );
-    model.assets.sort((a: DbAsset, b: DbAsset) => lessThan(b.NAME, a.NAME));
+    model.assets.sort((a: Asset, b: Asset) => lessThan(b.NAME, a.NAME));
     modelNames.sort((a: string, b: string) => lessThan(a, b));
 
     evaluationsAndVals = getEvaluations(model);
@@ -584,7 +578,7 @@ export async function refreshData(
   // log(`finished refreshData`);
 }
 
-export async function submitAsset(assetInput: DbAsset, modelData: DbModelData) {
+export async function submitAsset(assetInput: Asset, modelData: ModelData) {
   const message = await submitAssetLSM(
     assetInput,
     modelName,
@@ -601,8 +595,8 @@ export async function submitAsset(assetInput: DbAsset, modelData: DbModelData) {
   }
 }
 export async function submitExpense(
-  expenseInput: DbExpense,
-  modelData: DbModelData,
+  expenseInput: Expense,
+  modelData: ModelData,
 ) {
   const message = await submitExpenseLSM(
     expenseInput,
@@ -620,8 +614,8 @@ export async function submitExpense(
   }
 }
 export async function submitIncome(
-  incomeInput: DbIncome,
-  modelData: DbModelData,
+  incomeInput: Income,
+  modelData: ModelData,
 ): Promise<boolean> {
   const message = await submitIncomeLSM(
     incomeInput,
@@ -641,8 +635,8 @@ export async function submitIncome(
   }
 }
 export async function submitTransaction(
-  transactionInput: DbTransaction,
-  modelData: DbModelData,
+  transactionInput: Transaction,
+  modelData: ModelData,
 ) {
   const message = await submitTransactionLSM(
     transactionInput,
@@ -660,8 +654,8 @@ export async function submitTransaction(
   }
 }
 export async function submitTrigger(
-  triggerInput: DbTrigger,
-  modelData: DbModelData,
+  triggerInput: Trigger,
+  modelData: ModelData,
 ) {
   const message = await submitTriggerLSM(
     triggerInput,
@@ -685,7 +679,7 @@ export async function editSetting(
     NAME: string;
     VALUE: string;
   },
-  modelData: DbModelData,
+  modelData: ModelData,
 ) {
   if (
     setViewSetting({
@@ -722,8 +716,8 @@ export async function editSetting(
 }
 
 export async function submitNewSetting(
-  setting: DbSetting,
-  modelData: DbModelData,
+  setting: Setting,
+  modelData: ModelData,
   viewSettings: ViewSettings,
 ) {
   if (viewSettings.migrateViewSettingString(setting.NAME, setting.VALUE)) {
@@ -766,7 +760,7 @@ export function toggle(type: ViewType) {
   );
 }
 
-function checkModelData(givenModel: DbModelData): string {
+function checkModelData(givenModel: ModelData): string {
   const response = checkData(givenModel);
   if (response === '') {
     return 'model check all good';
@@ -777,12 +771,12 @@ function checkModelData(givenModel: DbModelData): string {
 
 export async function deleteItemFromModel(
   name: string,
-  itemList: DbItem[],
+  itemList: Item[],
   modelName: string,
-  model: DbModelData,
+  model: ModelData,
 ): Promise<boolean> {
   // log('delete item '+name)
-  const idx = itemList.findIndex((i: DbItem) => {
+  const idx = itemList.findIndex((i: Item) => {
     return i.NAME === name;
   });
   if (idx !== -1) {
@@ -894,7 +888,7 @@ export async function updateModelName(newValue: string): Promise<boolean> {
 export async function replaceWithModel(
   userName: string | undefined,
   thisModelName: string,
-  newModel: DbModelData,
+  newModel: ModelData,
   confirmBeforeReplace: boolean,
 ): Promise<boolean> {
   // log(`replaceWithModel...`);
@@ -921,7 +915,7 @@ export async function replaceWithModel(
 
 interface AppState {
   modelNamesData: string[];
-  modelData: DbModelData;
+  modelData: ModelData;
   evaluations: Evaluation[];
   viewState: ViewSettings;
   expensesChartData: ChartData[];
@@ -1287,7 +1281,7 @@ export class AppContent extends Component<AppProps, AppState> {
 
   private async cloneModel(
     name: string,
-    fromModel: DbModelData,
+    fromModel: ModelData,
   ): Promise<boolean> {
     // log(`going to clone a model and give it name ${name}`);
     // log(`stringify model for clone`);
@@ -1348,7 +1342,7 @@ export class AppContent extends Component<AppProps, AppState> {
               saveModel={async (
                 userID: string,
                 modelName: string,
-                modelData: DbModelData,
+                modelData: ModelData,
               ) => {
                 await saveModelToDBLSM(userID, modelName, modelData);
                 refreshData(
@@ -1503,7 +1497,7 @@ export class AppContent extends Component<AppProps, AppState> {
   }
 
   private todaysSettingsTable(
-    model: DbModelData,
+    model: ModelData,
     todaysValues: Map<string, SettingVal>,
   ) {
     if (todaysValues.size === 0) {
@@ -1528,7 +1522,7 @@ export class AppContent extends Component<AppProps, AppState> {
                 VALUE: `${key[1].settingVal}`,
               };
             })
-            .sort((a: DbItem, b: DbItem) => lessThan(a.NAME, b.NAME))}
+            .sort((a: Item, b: Item) => lessThan(a.NAME, b.NAME))}
           columns={[
             {
               ...defaultColumn,
@@ -1550,10 +1544,7 @@ export class AppContent extends Component<AppProps, AppState> {
     );
   }
 
-  private settingsDiv(
-    model: DbModelData,
-    todaysValues: Map<string, SettingVal>,
-  ) {
+  private settingsDiv(model: ModelData, todaysValues: Map<string, SettingVal>) {
     if (!getDisplay(settingsView)) {
       return;
     }
@@ -1857,7 +1848,7 @@ export class AppContent extends Component<AppProps, AppState> {
 }
 
 export async function attemptRename(
-  model: DbModelData,
+  model: ModelData,
   old: string,
   replacement: string,
 ): Promise<string> {

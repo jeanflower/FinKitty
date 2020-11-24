@@ -1,11 +1,11 @@
 import {
-  DbSetting,
-  DbTrigger,
-  DbModelData,
-  DbAsset,
-  DbExpense,
-  DbIncome,
-  DbTransaction,
+  Setting,
+  Trigger,
+  ModelData,
+  Asset,
+  Expense,
+  Income,
+  Transaction,
 } from './types/interfaces';
 import {
   chartViewType,
@@ -86,7 +86,7 @@ export function getCurrentVersion() {
 
 // note JSON stringify and back for serialisation is OK but
 // breaks dates (and functions too but we don't have these)
-function cleanUpDates(modelFromJSON: DbModelData): void {
+function cleanUpDates(modelFromJSON: ModelData): void {
   for (const t of modelFromJSON.triggers) {
     //log(`type of ${t.DATE} = ${typeof t.DATE}`);
     t.DATE = new Date(t.DATE);
@@ -101,7 +101,7 @@ function cleanUpDates(modelFromJSON: DbModelData): void {
   // log(`cleaned up model assets ${showObj(result.assets)}`);
 }
 
-export function makeModelFromJSONString(input: string): DbModelData {
+export function makeModelFromJSONString(input: string): ModelData {
   const matches = input.match(/PensionDBC/g);
   if (matches !== null && matches.length > 0) {
     log(`Old string 'PensionDBC' in loaded data!!`);
@@ -127,7 +127,7 @@ export function makeModelFromJSONString(input: string): DbModelData {
   return result;
 }
 
-export const minimalModel: DbModelData = {
+export const minimalModel: ModelData = {
   assets: [
     {
       NAME: CASH_ASSET_NAME,
@@ -184,7 +184,7 @@ export const minimalModel: DbModelData = {
   redoModel: undefined,
 };
 
-export function getMinimalModelCopy(): DbModelData {
+export function getMinimalModelCopy(): ModelData {
   // log('in getMinimalModelCopy');
   return makeModelFromJSONString(JSON.stringify(minimalModel));
 }
@@ -212,14 +212,14 @@ function getGuessSettingTypeForv2(name: string) {
   return constType;
 }
 
-export const simpleSetting: DbSetting = {
+export const simpleSetting: Setting = {
   NAME: 'NoName',
   VALUE: 'NoValue',
   HINT: 'NoHint',
   TYPE: constType,
 };
 
-export const viewSetting: DbSetting = {
+export const viewSetting: Setting = {
   ...simpleSetting,
   HINT: '',
   TYPE: viewType,
@@ -227,7 +227,7 @@ export const viewSetting: DbSetting = {
 
 const showMigrationLogs = false;
 
-function migrateOldVersions(model: DbModelData) {
+function migrateOldVersions(model: ModelData) {
   if (showMigrationLogs) {
     log(`in migrateOldVersions, model has ${model.settings.length} settings`);
     // log(`in migrateOldVersions, model has ${model.settings.map(showObj)}`);
@@ -630,7 +630,7 @@ function isNumber(input: string) {
   return result;
 }
 
-function isSetting(input: string, settings: DbSetting[]) {
+function isSetting(input: string, settings: Setting[]) {
   const result = {
     value: '',
     numFound: 1,
@@ -648,7 +648,7 @@ function isSetting(input: string, settings: DbSetting[]) {
   return result;
 }
 
-export function makeGrowthFromString(input: string, settings: DbSetting[]) {
+export function makeGrowthFromString(input: string, settings: Setting[]) {
   // log(`make growth value from string ${input}`);
   const result = {
     value: '',
@@ -673,7 +673,7 @@ export function makeGrowthFromString(input: string, settings: DbSetting[]) {
   return result;
 }
 
-export function makeStringFromGrowth(input: string, settings: DbSetting[]) {
+export function makeStringFromGrowth(input: string, settings: Setting[]) {
   // log(`format growth as string; input is ${input}`);
   const parseGrowth = isSetting(input, settings);
   if (parseGrowth.numFound === 1) {
@@ -782,7 +782,7 @@ export function makeValueAbsPropFromString(input: string) {
   return result;
 }
 
-export function getStartQuantity(w: string, model: DbModelData) {
+export function getStartQuantity(w: string, model: ModelData) {
   // log(`try to get a quantity for ${w}`);
   const a = model.assets.filter(a => {
     return a.NAME === w;
@@ -809,7 +809,7 @@ export function makeStringFromValueAbsProp(
   value: string,
   absolute: boolean,
   assetName: string,
-  model: DbModelData,
+  model: ModelData,
   tname: string,
 ) {
   let result = '';
@@ -899,7 +899,7 @@ export function getMonthlyGrowth(annualPercentage: number) {
 }
 
 // returns a date for a trigger, or undefined
-function findMatchedTriggerDate(triggerName: string, triggers: DbTrigger[]) {
+function findMatchedTriggerDate(triggerName: string, triggers: Trigger[]) {
   // log('look for '+triggerName+'in '+triggers.map(showObj))
   const matched = triggers.filter(trigger => trigger.NAME === triggerName);
   // log('matched = '+showObj(matched));
@@ -911,7 +911,7 @@ function findMatchedTriggerDate(triggerName: string, triggers: DbTrigger[]) {
 }
 
 // returns a date for a trigger or for a date string, or undefined for junk
-export function checkTriggerDate(input: string, triggers: DbTrigger[]) {
+export function checkTriggerDate(input: string, triggers: Trigger[]) {
   // log('first look for '+input+'in '+showObj(triggers));
   const matched = findMatchedTriggerDate(input, triggers);
   // log('matched = '+showObj(matched));
@@ -933,7 +933,7 @@ export function checkTriggerDate(input: string, triggers: DbTrigger[]) {
 }
 
 // Suppresses any not-understood values and returns new Date()
-export function getTriggerDate(triggerName: string, triggers: DbTrigger[]) {
+export function getTriggerDate(triggerName: string, triggers: Trigger[]) {
   // log(`triggers length is ${triggers.length}`);
   const checkResult = checkTriggerDate(triggerName, triggers);
   if (checkResult !== undefined) {
@@ -964,7 +964,7 @@ export const dateFormatOptions = {
 };
 
 // returns a date string for a trigger, or '' for date or junk
-export function makeDateTooltip(input: string, triggers: DbTrigger[]) {
+export function makeDateTooltip(input: string, triggers: Trigger[]) {
   // log(`triggers.length = ${triggers.length}`);
   let result = '';
   if (input !== '') {
@@ -978,7 +978,7 @@ export function makeDateTooltip(input: string, triggers: DbTrigger[]) {
 }
 
 export function getSettings(
-  settings: DbSetting[],
+  settings: Setting[],
   key: string,
   fallbackVal: string,
   expectValue = true,
@@ -1005,7 +1005,7 @@ export function getSettings(
 }
 
 export function setSetting(
-  settings: DbSetting[],
+  settings: Setting[],
   key: string,
   val: string,
   type: string,
@@ -1032,7 +1032,7 @@ export function setSetting(
 }
 
 // might be today or might be set using a setting
-export function getTodaysDate(model: DbModelData) {
+export function getTodaysDate(model: ModelData) {
   let today = new Date();
   if (model.settings.length === 0) {
     return today;
@@ -1044,7 +1044,7 @@ export function getTodaysDate(model: DbModelData) {
   return today;
 }
 
-export const simpleAsset: DbAsset = {
+export const simpleAsset: Asset = {
   NAME: 'NoName',
   CATEGORY: '',
   START: '1 Jan 2017',
@@ -1057,7 +1057,7 @@ export const simpleAsset: DbAsset = {
   LIABILITY: '',
   PURCHASE_PRICE: '0',
 };
-export const simpleExpense: DbExpense = {
+export const simpleExpense: Expense = {
   NAME: 'NoName',
   CATEGORY: '',
   START: '1 Jan 2017',
@@ -1068,7 +1068,7 @@ export const simpleExpense: DbExpense = {
   GROWTH: '0.0',
   RECURRENCE: '1m',
 };
-export const simpleIncome: DbIncome = {
+export const simpleIncome: Income = {
   NAME: 'NoName',
   CATEGORY: '',
   START: '1 Jan 2017',
@@ -1079,7 +1079,7 @@ export const simpleIncome: DbIncome = {
   GROWTH: '0',
   LIABILITY: '',
 };
-export const simpleTransaction: DbTransaction = {
+export const simpleTransaction: Transaction = {
   NAME: 'NoName',
   FROM: '',
   FROM_ABSOLUTE: true,
@@ -1094,7 +1094,7 @@ export const simpleTransaction: DbTransaction = {
   TYPE: custom,
 };
 
-export const emptyModel: DbModelData = {
+export const emptyModel: ModelData = {
   triggers: [],
   incomes: [],
   expenses: [],
@@ -1141,22 +1141,19 @@ export function defaultModelSettings(roi: { start: string; end: string }) {
   ];
 }
 
-export function setROI(
-  model: DbModelData,
-  roi: { start: string; end: string },
-) {
+export function setROI(model: ModelData, roi: { start: string; end: string }) {
   setSetting(model.settings, roiStart, roi.start, viewType);
   setSetting(model.settings, roiEnd, roi.end, viewType);
 }
 
-export function makeModelFromJSON(input: string): DbModelData {
+export function makeModelFromJSON(input: string): ModelData {
   // log('in makeModelFromJSON');
-  const model: DbModelData = makeModelFromJSONString(input);
+  const model: ModelData = makeModelFromJSONString(input);
   migrateOldVersions(model);
   return model;
 }
 
-export function isADebt(name: string, model: DbModelData) {
+export function isADebt(name: string, model: ModelData) {
   const matchingAsset = model.assets.find(a => {
     return a.NAME === name;
   });
@@ -1165,18 +1162,18 @@ export function isADebt(name: string, model: DbModelData) {
   }
   return matchingAsset.IS_A_DEBT;
 }
-export function isAnIncome(name: string, model: DbModelData) {
+export function isAnIncome(name: string, model: ModelData) {
   return model.incomes.filter(a => a.NAME === name).length > 0;
 }
-export function isAnExpense(name: string, model: DbModelData) {
+export function isAnExpense(name: string, model: ModelData) {
   return model.expenses.filter(a => a.NAME === name).length > 0;
 }
-function isAnAsset(name: string, model: DbModelData) {
+function isAnAsset(name: string, model: ModelData) {
   return (
     model.assets.filter(a => a.NAME === name || a.CATEGORY === name).length > 0
   );
 }
-export function isAnAssetOrAssets(name: string, model: DbModelData) {
+export function isAnAssetOrAssets(name: string, model: ModelData) {
   const words = name.split(separator);
   let ok = true;
   words.forEach(word => {
@@ -1186,13 +1183,13 @@ export function isAnAssetOrAssets(name: string, model: DbModelData) {
   });
   return ok;
 }
-export function isATransaction(name: string, model: DbModelData) {
+export function isATransaction(name: string, model: ModelData) {
   return model.transactions.filter(t => t.NAME === name).length > 0;
 }
 
 export function replaceCategoryWithAssetNames(
   words: string[],
-  model: DbModelData,
+  model: ModelData,
 ) {
   // log(`start replaceCategoryWithAssetNames with words = ${showObj(words)}`);
   let wordsNew: string[] = [];
@@ -1219,7 +1216,7 @@ export function replaceCategoryWithAssetNames(
   return wordsNew;
 }
 
-export function getLiabilityPeople(model: DbModelData): string[] {
+export function getLiabilityPeople(model: ModelData): string[] {
   const liabilityPeople: string[] = [];
   if (model.assets === undefined) {
     return [];
@@ -1273,12 +1270,12 @@ export function getLiabilityPeople(model: DbModelData): string[] {
   return liabilityPeople;
 }
 
-export function markForUndo(model: DbModelData) {
+export function markForUndo(model: ModelData) {
   const modelClone = makeModelFromJSONString(JSON.stringify(model));
   model.undoModel = modelClone;
   model.redoModel = undefined;
 }
-export function revertToUndoModel(model: DbModelData): boolean {
+export function revertToUndoModel(model: ModelData): boolean {
   if (model.undoModel !== undefined) {
     // log(`before undo, model has model.undoModel = ${model.undoModel}`);
     // log(`before undo, model has model.redoModel = ${model.redoModel}`);
@@ -1304,7 +1301,7 @@ export function revertToUndoModel(model: DbModelData): boolean {
   }
   return false;
 }
-export function applyRedoToModel(model: DbModelData): boolean {
+export function applyRedoToModel(model: ModelData): boolean {
   if (model.redoModel !== undefined) {
     // log(`before redo, model has model.undoModel = ${model.undoModel}`);
     // log(`before redo, model has model.redoModel = ${model.redoModel}`);
@@ -1387,7 +1384,7 @@ export function getSpecialWord(name: string): string {
 }
 
 export function checkForWordClashInModel(
-  model: DbModelData,
+  model: ModelData,
   replacement: string,
   messageWord: string,
 ): string {
@@ -1570,7 +1567,7 @@ function replaceWholeString(value: string, old: string, replacement: string) {
   }
 }
 export function attemptRenameLong(
-  model: DbModelData,
+  model: ModelData,
   old: string,
   replacement: string,
 ): string {

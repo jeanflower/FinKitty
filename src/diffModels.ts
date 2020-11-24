@@ -1,252 +1,252 @@
 import {
-  DbItem,
-  DbTrigger,
-  DbIncome,
-  DbExpense,
-  DbAsset,
-  DbTransaction,
-  DbSetting,
-  DbModelData,
+  Item,
+  Trigger,
+  Income,
+  Expense,
+  Asset,
+  Transaction,
+  Setting,
+  ModelData,
 } from './types/interfaces';
 import { showObj } from './utils';
 
-function diffItem(i1: DbItem, i2: DbItem): string {
+function diffItem(i1: Item, i2: Item): string {
   if (i1.NAME !== i2.NAME) {
     return `different names ${i1.NAME} !== ${i2.NAME}`;
   }
   return '';
 }
-function diffTriggers(i1: DbItem, i2: DbItem): string {
+function diffTriggers(i1: Item, i2: Item): string {
   const s = diffItem(i1, i2);
   if (s.length > 0) {
     return s;
   }
-  const d1 = (i1 as DbTrigger).DATE;
-  const d2 = (i2 as DbTrigger).DATE;
+  const d1 = (i1 as Trigger).DATE;
+  const d2 = (i2 as Trigger).DATE;
   if (d1.toDateString() !== d2.toDateString()) {
     return `different dates ${d1} !== ${d2}`;
   }
   return '';
 }
-function diffIncomes(i1: DbItem, i2: DbItem): string {
+function diffIncomes(i1: Item, i2: Item): string {
   const s = diffItem(i1, i2);
   if (s.length > 0) {
     return s;
   }
-  let x1: string | boolean = (i1 as DbIncome).START;
-  let x2: string | boolean = (i2 as DbIncome).START;
+  let x1: string | boolean = (i1 as Income).START;
+  let x2: string | boolean = (i2 as Income).START;
   if (x1 !== x2) {
     return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
   }
-  x1 = (i1 as DbIncome).END;
-  x2 = (i2 as DbIncome).END;
+  x1 = (i1 as Income).END;
+  x2 = (i2 as Income).END;
   if (x1 !== x2) {
     return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
   }
-  x1 = (i1 as DbIncome).VALUE;
-  x2 = (i2 as DbIncome).VALUE;
+  x1 = (i1 as Income).VALUE;
+  x2 = (i2 as Income).VALUE;
   if (x1 !== x2) {
     return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
   }
-  x1 = (i1 as DbIncome).VALUE_SET;
-  x2 = (i2 as DbIncome).VALUE_SET;
+  x1 = (i1 as Income).VALUE_SET;
+  x2 = (i2 as Income).VALUE_SET;
   if (x1 !== x2) {
     return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
   }
-  x1 = (i1 as DbIncome).GROWTH;
-  x2 = (i2 as DbIncome).GROWTH;
+  x1 = (i1 as Income).GROWTH;
+  x2 = (i2 as Income).GROWTH;
   if (x1 !== x2) {
     return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
   }
-  x1 = (i1 as DbIncome).CPI_IMMUNE;
-  x2 = (i2 as DbIncome).CPI_IMMUNE;
+  x1 = (i1 as Income).CPI_IMMUNE;
+  x2 = (i2 as Income).CPI_IMMUNE;
   if (x1 !== x2) {
     return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
   }
-  x1 = (i1 as DbIncome).LIABILITY;
-  x2 = (i2 as DbIncome).LIABILITY;
+  x1 = (i1 as Income).LIABILITY;
+  x2 = (i2 as Income).LIABILITY;
   if (x1 !== x2) {
     return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
   }
   return '';
 }
-function diffExpenses(i1: DbItem, i2: DbItem): string {
+function diffExpenses(i1: Item, i2: Item): string {
   const s = diffItem(i1, i2);
   if (s.length > 0) {
     return s;
   }
-  let x1: string | boolean = (i1 as DbExpense).START;
-  let x2: string | boolean = (i2 as DbExpense).START;
+  let x1: string | boolean = (i1 as Expense).START;
+  let x2: string | boolean = (i2 as Expense).START;
   if (x1 !== x2) {
     return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
   }
-  x1 = (i1 as DbExpense).END;
-  x2 = (i2 as DbExpense).END;
+  x1 = (i1 as Expense).END;
+  x2 = (i2 as Expense).END;
   if (x1 !== x2) {
     return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
   }
-  x1 = (i1 as DbExpense).VALUE;
-  x2 = (i2 as DbExpense).VALUE;
+  x1 = (i1 as Expense).VALUE;
+  x2 = (i2 as Expense).VALUE;
   if (x1 !== x2) {
     return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
   }
-  x1 = (i1 as DbExpense).VALUE_SET;
-  x2 = (i2 as DbExpense).VALUE_SET;
+  x1 = (i1 as Expense).VALUE_SET;
+  x2 = (i2 as Expense).VALUE_SET;
   if (x1 !== x2) {
     return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
   }
-  x1 = (i1 as DbExpense).GROWTH;
-  x2 = (i2 as DbExpense).GROWTH;
+  x1 = (i1 as Expense).GROWTH;
+  x2 = (i2 as Expense).GROWTH;
   if (x1 !== x2) {
     return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
   }
-  x1 = (i1 as DbExpense).CPI_IMMUNE;
-  x2 = (i2 as DbExpense).CPI_IMMUNE;
+  x1 = (i1 as Expense).CPI_IMMUNE;
+  x2 = (i2 as Expense).CPI_IMMUNE;
   if (x1 !== x2) {
     return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
   }
-  x1 = (i1 as DbExpense).RECURRENCE;
-  x2 = (i2 as DbExpense).RECURRENCE;
+  x1 = (i1 as Expense).RECURRENCE;
+  x2 = (i2 as Expense).RECURRENCE;
   if (x1 !== x2) {
     return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
   }
   return '';
 }
-function diffAssets(i1: DbItem, i2: DbItem): string {
+function diffAssets(i1: Item, i2: Item): string {
   const s = diffItem(i1, i2);
   if (s.length > 0) {
     return s;
   }
-  let x1: string | boolean = (i1 as DbAsset).START;
-  let x2: string | boolean = (i2 as DbAsset).START;
+  let x1: string | boolean = (i1 as Asset).START;
+  let x2: string | boolean = (i2 as Asset).START;
   if (x1 !== x2) {
     return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
   }
-  x1 = (i1 as DbAsset).VALUE;
-  x2 = (i2 as DbAsset).VALUE;
+  x1 = (i1 as Asset).VALUE;
+  x2 = (i2 as Asset).VALUE;
   if (x1 !== x2) {
     return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
   }
-  x1 = (i1 as DbAsset).QUANTITY;
-  x2 = (i2 as DbAsset).QUANTITY;
+  x1 = (i1 as Asset).QUANTITY;
+  x2 = (i2 as Asset).QUANTITY;
   if (x1 !== x2) {
     return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
   }
-  x1 = (i1 as DbAsset).GROWTH;
-  x2 = (i2 as DbAsset).GROWTH;
+  x1 = (i1 as Asset).GROWTH;
+  x2 = (i2 as Asset).GROWTH;
   if (x1 !== x2) {
     return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
   }
-  x1 = (i1 as DbAsset).CPI_IMMUNE;
-  x2 = (i2 as DbAsset).CPI_IMMUNE;
+  x1 = (i1 as Asset).CPI_IMMUNE;
+  x2 = (i2 as Asset).CPI_IMMUNE;
   if (x1 !== x2) {
     return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
   }
-  x1 = (i1 as DbAsset).CAN_BE_NEGATIVE;
-  x2 = (i2 as DbAsset).CAN_BE_NEGATIVE;
+  x1 = (i1 as Asset).CAN_BE_NEGATIVE;
+  x2 = (i2 as Asset).CAN_BE_NEGATIVE;
   if (x1 !== x2) {
     return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
   }
-  x1 = (i1 as DbAsset).IS_A_DEBT;
-  x2 = (i2 as DbAsset).IS_A_DEBT;
+  x1 = (i1 as Asset).IS_A_DEBT;
+  x2 = (i2 as Asset).IS_A_DEBT;
   if (x1 !== x2) {
     return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
   }
-  x1 = (i1 as DbAsset).LIABILITY;
-  x2 = (i2 as DbAsset).LIABILITY;
+  x1 = (i1 as Asset).LIABILITY;
+  x2 = (i2 as Asset).LIABILITY;
   if (x1 !== x2) {
     return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
   }
-  x1 = (i1 as DbAsset).PURCHASE_PRICE;
-  x2 = (i2 as DbAsset).PURCHASE_PRICE;
+  x1 = (i1 as Asset).PURCHASE_PRICE;
+  x2 = (i2 as Asset).PURCHASE_PRICE;
   if (x1 !== x2) {
     return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
   }
   return '';
 }
-function diffTransactions(i1: DbItem, i2: DbItem): string {
+function diffTransactions(i1: Item, i2: Item): string {
   const s = diffItem(i1, i2);
   if (s.length > 0) {
     return s;
   }
-  let x1: string | boolean = (i1 as DbTransaction).FROM;
-  let x2: string | boolean = (i2 as DbTransaction).FROM;
+  let x1: string | boolean = (i1 as Transaction).FROM;
+  let x2: string | boolean = (i2 as Transaction).FROM;
   if (x1 !== x2) {
     return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
   }
-  x1 = (i1 as DbTransaction).FROM_ABSOLUTE;
-  x2 = (i2 as DbTransaction).FROM_ABSOLUTE;
+  x1 = (i1 as Transaction).FROM_ABSOLUTE;
+  x2 = (i2 as Transaction).FROM_ABSOLUTE;
   if (x1 !== x2) {
     return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
   }
-  x1 = (i1 as DbTransaction).FROM_VALUE;
-  x2 = (i2 as DbTransaction).FROM_VALUE;
+  x1 = (i1 as Transaction).FROM_VALUE;
+  x2 = (i2 as Transaction).FROM_VALUE;
   if (x1 !== x2) {
     return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
   }
-  x1 = (i1 as DbTransaction).TO;
-  x2 = (i2 as DbTransaction).TO;
+  x1 = (i1 as Transaction).TO;
+  x2 = (i2 as Transaction).TO;
   if (x1 !== x2) {
     return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
   }
-  x1 = (i1 as DbTransaction).TO_ABSOLUTE;
-  x2 = (i2 as DbTransaction).TO_ABSOLUTE;
+  x1 = (i1 as Transaction).TO_ABSOLUTE;
+  x2 = (i2 as Transaction).TO_ABSOLUTE;
   if (x1 !== x2) {
     return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
   }
-  x1 = (i1 as DbTransaction).TO_VALUE;
-  x2 = (i2 as DbTransaction).TO_VALUE;
+  x1 = (i1 as Transaction).TO_VALUE;
+  x2 = (i2 as Transaction).TO_VALUE;
   if (x1 !== x2) {
     return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
   }
-  x1 = (i1 as DbTransaction).DATE;
-  x2 = (i2 as DbTransaction).DATE;
+  x1 = (i1 as Transaction).DATE;
+  x2 = (i2 as Transaction).DATE;
   if (x1 !== x2) {
     return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
   }
-  x1 = (i1 as DbTransaction).STOP_DATE;
-  x2 = (i2 as DbTransaction).STOP_DATE;
+  x1 = (i1 as Transaction).STOP_DATE;
+  x2 = (i2 as Transaction).STOP_DATE;
   if (x1 !== x2) {
     return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
   }
-  x1 = (i1 as DbTransaction).RECURRENCE;
-  x2 = (i2 as DbTransaction).RECURRENCE;
+  x1 = (i1 as Transaction).RECURRENCE;
+  x2 = (i2 as Transaction).RECURRENCE;
   if (x1 !== x2) {
     return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
   }
-  x1 = (i1 as DbTransaction).TYPE;
-  x2 = (i2 as DbTransaction).TYPE;
+  x1 = (i1 as Transaction).TYPE;
+  x2 = (i2 as Transaction).TYPE;
   if (x1 !== x2) {
     return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
   }
   return '';
 }
-function diffSettings(i1: DbItem, i2: DbItem): string {
+function diffSettings(i1: Item, i2: Item): string {
   const s = diffItem(i1, i2);
   if (s.length > 0) {
     return s;
   }
-  let x1: string | boolean = (i1 as DbSetting).VALUE;
-  let x2: string | boolean = (i2 as DbSetting).VALUE;
+  let x1: string | boolean = (i1 as Setting).VALUE;
+  let x2: string | boolean = (i2 as Setting).VALUE;
   if (x1 !== x2) {
     return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
   }
-  x1 = (i1 as DbSetting).HINT;
-  x2 = (i2 as DbSetting).HINT;
+  x1 = (i1 as Setting).HINT;
+  x2 = (i2 as Setting).HINT;
   if (x1 !== x2) {
     return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
   }
-  x1 = (i1 as DbSetting).TYPE;
-  x2 = (i2 as DbSetting).TYPE;
+  x1 = (i1 as Setting).TYPE;
+  x2 = (i2 as Setting).TYPE;
   if (x1 !== x2) {
     return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
   }
   return '';
 }
 function diffItems(
-  is1: DbItem[],
-  is2: DbItem[],
-  diffFn: (i1: DbItem, i2: DbItem) => string,
+  is1: Item[],
+  is2: Item[],
+  diffFn: (i1: Item, i2: Item) => string,
 ): string {
   // log(`diffItems between ${showObj(is1)} and ${showObj(is2)}`);
 
@@ -291,8 +291,8 @@ function diffItems(
 }
 
 export function diffModels(
-  m1: DbModelData | undefined,
-  m2: DbModelData | undefined,
+  m1: ModelData | undefined,
+  m2: ModelData | undefined,
 ): string {
   // log(`diff models ${m1} and ${m2}`);
   if (m1 === undefined) {

@@ -1,9 +1,9 @@
 import {
   ChartData,
   ChartSettings,
-  DbItemCategory,
-  DbModelData,
-  DbSetting,
+  ItemCategory,
+  ModelData,
+  Setting,
 } from '../types/interfaces';
 import {
   allItems,
@@ -117,7 +117,7 @@ function makeFilterButton(
 }
 
 function filtersList(
-  items: DbItemCategory[],
+  items: ItemCategory[],
   settings: ViewSettings,
   context: Context,
 ) {
@@ -187,7 +187,7 @@ export function frequencyList(settings: ViewSettings) {
 
 export function getDefaultChartSettings(
   settings: ViewSettings,
-  modelSettings: DbSetting[],
+  modelSettings: Setting[],
 ): ChartSettings {
   const showMonth =
     settings.getViewSetting(viewFrequency, annually) === monthly;
@@ -224,7 +224,7 @@ export function getDefaultChartSettings(
 
 export function getSmallerChartSettings(
   settings: ViewSettings,
-  modelSettings: DbSetting[],
+  modelSettings: Setting[],
   title: string,
 ): ChartSettings {
   return {
@@ -264,7 +264,7 @@ function incomesChart(
 
 function noDataToDisplayFragment(
   word: string,
-  model: DbModelData | undefined = undefined,
+  model: ModelData | undefined = undefined,
   showAlert: ((arg0: string) => void) | undefined = undefined,
   getStartDate: (() => string) | undefined = undefined,
   updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
@@ -339,7 +339,7 @@ function noDataToDisplayFragment(
 export function incomesChartDiv(
   incomesChartData: ChartData[],
   chartSettings: ChartSettings,
-  model: DbModelData | undefined = undefined,
+  model: ModelData | undefined = undefined,
   showAlert: ((arg0: string) => void) | undefined = undefined,
   getStartDate: (() => string) | undefined = undefined,
   updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
@@ -362,7 +362,7 @@ export function incomesChartDiv(
   }
 }
 export function incomesChartDivWithButtons(
-  model: DbModelData,
+  model: ModelData,
   settings: ViewSettings,
   incomesChartData: ChartData[],
   chartSettings: ChartSettings,
@@ -437,7 +437,7 @@ function expensesChart(
 export function expensesChartDiv(
   expensesChartData: ChartData[],
   chartSettings: ChartSettings,
-  model: DbModelData | undefined = undefined,
+  model: ModelData | undefined = undefined,
   showAlert: ((arg0: string) => void) | undefined = undefined,
   getStartDate: (() => string) | undefined = undefined,
   updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
@@ -460,7 +460,7 @@ export function expensesChartDiv(
 }
 
 export function expensesChartDivWithButtons(
-  model: DbModelData,
+  model: ModelData,
   settings: ViewSettings,
   expensesChartData: ChartData[],
   chartSettings: ChartSettings,
@@ -549,7 +549,7 @@ export function assetsOrDebtsChartDiv(
   assetChartData: ChartData[],
   isDebt: boolean,
   chartSettings: ChartSettings,
-  model: DbModelData | undefined = undefined,
+  model: ModelData | undefined = undefined,
   showAlert: ((arg0: string) => void) | undefined = undefined,
   getStartDate: (() => string) | undefined = undefined,
   updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
@@ -579,7 +579,7 @@ export function assetsOrDebtsChartDiv(
 }
 
 export function assetsOrDebtsChartDivWithButtons(
-  model: DbModelData,
+  model: ModelData,
   viewSettings: ViewSettings,
   assetChartData: ChartData[],
   isDebt: boolean,
@@ -649,7 +649,7 @@ export function assetsOrDebtsChartDivWithButtons(
   }
 }
 
-function taxButtonList(model: DbModelData, viewSettings: ViewSettings) {
+function taxButtonList(model: ModelData, viewSettings: ViewSettings) {
   const liabilityPeople = getLiabilityPeople(model);
   liabilityPeople.unshift(allItems);
 
@@ -786,7 +786,7 @@ export function taxChartDiv(
 }
 
 function taxChartDivWithButtons(
-  model: DbModelData,
+  model: ModelData,
   viewSettings: ViewSettings,
   taxChartData: ChartData[],
   settings: ChartSettings,
@@ -812,7 +812,7 @@ function taxChartDivWithButtons(
   );
 }
 export function taxDiv(
-  model: DbModelData,
+  model: ModelData,
   viewSettings: ViewSettings,
   taxChartData: ChartData[],
 ) {
