@@ -6,14 +6,14 @@ import {
   viewType,
 } from '../../localization/stringConstants';
 import { getTestModel } from '../../models/exampleModels';
-import { ModelData } from '../../types/interfaces';
 import {
   revertToUndoModel,
   applyRedoToModel,
   markForUndo,
   setSetting,
   getSettings,
-} from '../../utils';
+} from '../../models/modelUtils';
+import { ModelData } from '../../types/interfaces';
 
 interface UndoRedoModel {
   name: string;

@@ -12,17 +12,7 @@ import {
   Trigger,
   FormProps,
 } from '../../types/interfaces';
-import {
-  checkTriggerDate,
-  log,
-  printDebug,
-  showObj,
-  makeBooleanFromYesNo,
-  makeQuantityFromString,
-  makeValueAbsPropFromString,
-  isATransaction,
-  getSettings,
-} from '../../utils';
+import { log, printDebug, showObj } from '../../utils';
 import Button from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
 import { Input } from './Input';
@@ -40,6 +30,13 @@ import {
 } from '../../localization/stringConstants';
 import { incomeOptions } from './AddDeleteIncomeForm';
 import { doCheckBeforeOverwritingExistingData } from '../../App';
+import { isATransaction, getSettings } from '../../models/modelUtils';
+import {
+  makeValueAbsPropFromString,
+  checkTriggerDate,
+  makeBooleanFromYesNo,
+  makeQuantityFromString,
+} from '../../stringUtils';
 
 interface EditAssetFormState {
   NAME: string;

@@ -10,7 +10,7 @@ import {
   makeModelFromJSON,
   makeModelFromJSONString,
   getSettings,
-} from '../../utils';
+} from '../../models/modelUtils';
 
 const emptyModelJSON = `{
     "triggers":[],

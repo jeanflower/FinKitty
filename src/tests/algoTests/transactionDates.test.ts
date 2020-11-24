@@ -1,6 +1,6 @@
 import { generateSequenceOfDates } from '../../models/evaluations';
 import { Asset } from '../../types/interfaces';
-import { makeDateFromString } from '../../utils';
+import { makeDateFromString } from '../../stringUtils';
 
 export const testAsset: Asset = {
   NAME: 'test_asset',

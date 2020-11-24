@@ -69,38 +69,42 @@ import {
   SettingVal,
 } from '../../types/interfaces';
 import {
-  attemptRenameLong,
   Context,
-  defaultModelSettings,
-  emptyModel,
-  getMinimalModelCopy,
   log,
-  makeCGTTag,
-  makeDateFromString,
-  makeIncomeTaxTag,
+  printDebug,
+  suppressLogs,
+  unSuppressLogs,
+} from '../../utils';
+import {
+  attemptRenameLong,
   makeModelFromJSON,
   makeModelFromJSONString,
-  makeNationalInsuranceTag,
-  makeNetGainTag,
-  makeNetIncomeTag,
-  minimalModel,
-  printDebug,
   revertToUndoModel,
   setROI,
   setSetting,
+} from '../../models/modelUtils';
+import {
+  makeCGTTag,
+  makeDateFromString,
+  makeIncomeTaxTag,
+  makeNationalInsuranceTag,
+  makeNetGainTag,
+  makeNetIncomeTag,
+} from '../../stringUtils';
+import {
+  defaultModelSettings,
+  emptyModel,
+  getMinimalModelCopy,
+  getModelCoarseAndFine,
+  getThreeChryslerModel,
+  minimalModel,
   simpleAsset,
+  simpleExampleData,
   simpleExpense,
   simpleIncome,
   simpleSetting,
   simpleTransaction,
-  suppressLogs,
-  unSuppressLogs,
   viewSetting,
-} from '../../utils';
-import {
-  getModelCoarseAndFine,
-  getThreeChryslerModel,
-  simpleExampleData,
 } from '../../models/exampleModels';
 
 import { Evaluation } from '../../types/interfaces';

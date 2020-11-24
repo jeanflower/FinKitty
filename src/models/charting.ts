@@ -53,22 +53,7 @@ import {
   viewFrequency,
   ViewType,
 } from '../localization/stringConstants';
-import {
-  Context,
-  deconstructTaxTag,
-  getSettings,
-  getTriggerDate,
-  log,
-  makeCGTTag,
-  makeDateFromString,
-  makeIncomeTaxTag,
-  makeNationalInsuranceTag,
-  makeNetGainTag,
-  makeNetIncomeTag,
-  makeTwoDP,
-  printDebug,
-  showObj,
-} from '../utils';
+import { Context, log, printDebug, showObj } from '../utils';
 import {
   evaluationType,
   generateSequenceOfDates,
@@ -76,6 +61,18 @@ import {
 } from './evaluations';
 
 import { checkEvalnType } from './checks';
+import {
+  makeTwoDP,
+  makeDateFromString,
+  makeIncomeTaxTag,
+  makeNetIncomeTag,
+  makeNationalInsuranceTag,
+  makeCGTTag,
+  makeNetGainTag,
+  getTriggerDate,
+  deconstructTaxTag,
+} from '../stringUtils';
+import { getSettings } from './modelUtils';
 
 export class ViewSettings {
   private kvPairs: Map<string, string> = new Map<string, string>();

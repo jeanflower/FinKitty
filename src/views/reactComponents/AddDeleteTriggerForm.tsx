@@ -2,7 +2,8 @@ import React, { Component, FormEvent } from 'react';
 import { doCheckBeforeOverwritingExistingData } from '../../App';
 
 import { ModelData, Trigger, FormProps } from '../../types/interfaces';
-import { log, printDebug, showObj, makeDateFromString } from '../../utils';
+import { log, printDebug, showObj } from '../../utils';
+import { makeDateFromString } from '../../stringUtils';
 import Button from './Button';
 import { Input } from './Input';
 

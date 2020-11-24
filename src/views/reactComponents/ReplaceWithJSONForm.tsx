@@ -1,8 +1,9 @@
 import React, { Component, FormEvent } from 'react';
 
-import { log, printDebug, makeModelFromJSON } from '../../utils';
+import { log, printDebug } from '../../utils';
 import { Input } from './Input';
 import { replaceWithModel } from '../../App';
+import { makeModelFromJSON } from '../../models/modelUtils';
 
 interface ReplaceWithJSONFormState {
   JSON: string;

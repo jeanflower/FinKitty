@@ -8,7 +8,6 @@ import {
   submitTransaction,
   submitTrigger,
 } from './../App';
-import { getTodaysDate, lessThan } from '../utils';
 
 import { AddDeleteDebtForm } from './reactComponents/AddDeleteDebtForm';
 import CashValueFormatter from './reactComponents/CashValueFormatter';
@@ -18,6 +17,8 @@ import SimpleFormatter from './reactComponents/NameFormatter';
 import { assetsOrDebtsChartDivWithButtons } from './chartPages';
 import { debtsView } from '../localization/stringConstants';
 import { ViewSettings } from '../models/charting';
+import { getTodaysDate } from '../models/modelUtils';
+import { lessThan } from '../stringUtils';
 
 function todaysDebtsTable(
   model: ModelData,

@@ -42,26 +42,25 @@ import {
   IncomeVal,
   ExpenseVal,
 } from '../types/interfaces';
+import { getMonthlyGrowth, log, printDebug, showObj } from '../utils';
+import { getDisplayName } from '../views/tablePages';
 import {
-  getMonthlyGrowth,
-  getSettings,
-  getTriggerDate,
-  log,
-  printDebug,
-  showObj,
-  makeDateFromString,
-  getStartQuantity,
   getNumberAndWordParts,
-  getTodaysDate,
-  removeNumberPart,
-  replaceCategoryWithAssetNames,
-  makeNetIncomeTag,
-  makeNetGainTag,
+  getStartQuantity,
+  makeDateFromString,
+  getTriggerDate,
   makeIncomeTaxTag,
   makeNationalInsuranceTag,
   makeCGTTag,
-} from '../utils';
-import { getDisplayName } from '../views/tablePages';
+  makeNetIncomeTag,
+  makeNetGainTag,
+  removeNumberPart,
+} from '../stringUtils';
+import {
+  getSettings,
+  replaceCategoryWithAssetNames,
+  getTodaysDate,
+} from './modelUtils';
 
 function parseRecurrenceString(recurrence: string) {
   const result = {

@@ -7,22 +7,20 @@ import {
   Trigger,
   FormProps,
 } from '../../types/interfaces';
-import {
-  checkTriggerDate,
-  log,
-  printDebug,
-  showObj,
-  makeBooleanFromYesNo,
-  makeGrowthFromString,
-  isATransaction,
-  makeValueAbsPropFromString,
-} from '../../utils';
+import { log, printDebug, showObj } from '../../utils';
 import Button from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
 import { Input } from './Input';
 import { isNumberString } from '../../models/checks';
 import { revalue, revalueExp } from '../../localization/stringConstants';
 import { doCheckBeforeOverwritingExistingData } from '../../App';
+import { isATransaction } from '../../models/modelUtils';
+import {
+  makeValueAbsPropFromString,
+  checkTriggerDate,
+  makeGrowthFromString,
+  makeBooleanFromYesNo,
+} from '../../stringUtils';
 
 interface EditExpenseFormState {
   NAME: string;

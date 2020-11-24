@@ -8,14 +8,7 @@ import {
   Trigger,
   FormProps,
 } from '../../types/interfaces';
-import {
-  checkTriggerDate,
-  log,
-  printDebug,
-  showObj,
-  makeValueAbsPropFromString,
-  isATransaction,
-} from '../../utils';
+import { log, printDebug, showObj } from '../../utils';
 import Button from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
 import { Input } from './Input';
@@ -27,6 +20,11 @@ import {
   CASH_ASSET_NAME,
 } from '../../localization/stringConstants';
 import { doCheckBeforeOverwritingExistingData } from '../../App';
+import { isATransaction } from '../../models/modelUtils';
+import {
+  makeValueAbsPropFromString,
+  checkTriggerDate,
+} from '../../stringUtils';
 
 interface EditDebtFormState {
   NAME: string;

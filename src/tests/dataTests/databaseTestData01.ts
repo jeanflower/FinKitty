@@ -34,12 +34,12 @@ import {
   Trigger,
 } from '../../types/interfaces';
 import {
-  makeDateFromString,
   simpleAsset,
   simpleExpense,
   simpleIncome,
   simpleTransaction,
-} from '../../utils';
+} from '../../models/exampleModels';
+import { makeDateFromString } from '../../stringUtils';
 
 export const testTriggers01: Trigger[] = [
   {

@@ -28,14 +28,7 @@ import {
   viewFrequency,
 } from '../localization/stringConstants';
 import { getDisplay, refreshData } from '../App';
-import {
-  Context,
-  getLiabilityPeople,
-  getSettings,
-  log,
-  printDebug,
-  showObj,
-} from '../utils';
+import { Context, log, printDebug, showObj } from '../utils';
 
 import Button from './reactComponents/Button';
 import CanvasJS from '../assets/js/canvasjs.min';
@@ -44,6 +37,7 @@ import React from 'react';
 import ReactiveTextArea from './reactComponents/ReactiveTextArea';
 import { ViewSettings } from '../models/charting';
 import { AddDeleteEntryForm } from './reactComponents/AddDeleteEntryForm';
+import { getSettings, getLiabilityPeople } from '../models/modelUtils';
 
 const { CanvasJSChart } = CanvasJSReact;
 

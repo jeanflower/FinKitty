@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import {
   definedBenefitsPension,
   definedContributionsPension,
+  emptyModel,
   nationalSavings,
   simpleExampleData,
 } from './models/exampleModels';
@@ -63,18 +64,7 @@ import {
   ItemChartData,
   SettingVal,
 } from './types/interfaces';
-import {
-  applyRedoToModel,
-  attemptRenameLong,
-  emptyModel,
-  getTodaysDate,
-  lessThan,
-  log,
-  makeModelFromJSON,
-  printDebug,
-  revertToUndoModel,
-  showObj,
-} from './utils';
+import { log, printDebug, showObj } from './utils';
 import { loginPage, navbarContent } from './views/loginPage';
 import { screenshotsDiv } from './views/screenshotsPage';
 import {
@@ -113,6 +103,14 @@ import { ReplaceWithJSONForm } from './views/reactComponents/ReplaceWithJSONForm
 import { CreateModelForm } from './views/reactComponents/NewModelForm';
 import { Form, Nav, Navbar } from 'react-bootstrap';
 import { getEvaluations } from './models/evaluations';
+import {
+  applyRedoToModel,
+  attemptRenameLong,
+  getTodaysDate,
+  makeModelFromJSON,
+  revertToUndoModel,
+} from './models/modelUtils';
+import { lessThan } from './stringUtils';
 
 // import FinKittyCat from './views/cat.png';
 

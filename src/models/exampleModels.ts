@@ -38,22 +38,19 @@ import {
   viewFrequency,
   viewType,
   BenAndJerryModel,
+  custom,
 } from '../localization/stringConstants';
-import { ModelData, Setting } from '../types/interfaces';
+import { makeDateFromString } from '../stringUtils';
 import {
-  defaultModelSettings,
-  emptyModel,
-  getMinimalModelCopy,
-  makeDateFromString,
-  setROI,
-  setSetting,
-  simpleAsset,
-  simpleExpense,
-  simpleIncome,
-  simpleSetting,
-  simpleTransaction,
-  viewSetting,
-} from '../utils';
+  Asset,
+  Expense,
+  Income,
+  ModelData,
+  Setting,
+  Transaction,
+} from '../types/interfaces';
+import { setSetting, setROI, makeModelFromJSONString } from './modelUtils';
+import { getCurrentVersion } from './versioningUtils';
 
 export const simpleExampleData = `{"triggers":[
 {"NAME":"GetRidOfCar","DATE":"2025-12-31T00:00:00.000Z"},
@@ -308,6 +305,66 @@ export const benAndJerryExampleData = `
 "version":5,
 }`;
 
+export const simpleExpense: Expense = {
+  NAME: 'NoName',
+  CATEGORY: '',
+  START: '1 Jan 2017',
+  END: '1 Jan 2017',
+  VALUE: '0.0',
+  VALUE_SET: '1 Jan 2017',
+  CPI_IMMUNE: false,
+  GROWTH: '0.0',
+  RECURRENCE: '1m',
+};
+export const simpleIncome: Income = {
+  NAME: 'NoName',
+  CATEGORY: '',
+  START: '1 Jan 2017',
+  END: '1 Jan 2017',
+  VALUE: '0',
+  VALUE_SET: '1 Jan 2017',
+  CPI_IMMUNE: false,
+  GROWTH: '0',
+  LIABILITY: '',
+};
+export const simpleTransaction: Transaction = {
+  NAME: 'NoName',
+  FROM: '',
+  FROM_ABSOLUTE: true,
+  FROM_VALUE: '0.0',
+  TO: '',
+  TO_ABSOLUTE: true,
+  TO_VALUE: '0.0',
+  DATE: '1 Jan 2017',
+  STOP_DATE: '', // for regular transactions
+  RECURRENCE: '',
+  CATEGORY: '',
+  TYPE: custom,
+};
+
+export const emptyModel: ModelData = {
+  triggers: [],
+  incomes: [],
+  expenses: [],
+  transactions: [],
+  assets: [],
+  settings: [],
+  version: 0,
+  undoModel: undefined,
+  redoModel: undefined,
+};
+export const simpleSetting: Setting = {
+  NAME: 'NoName',
+  VALUE: 'NoValue',
+  HINT: 'NoHint',
+  TYPE: constType,
+};
+export const viewSetting: Setting = {
+  ...simpleSetting,
+  HINT: '',
+  TYPE: viewType,
+};
+
 const browserTestSettingsForMigration: Setting[] = [
   {
     ...viewSetting,
@@ -376,6 +433,78 @@ const browserTestSettingsForMigration: Setting[] = [
     HINT: valueFocusDateHint,
   },
 ];
+
+const defaultModelSettingsForMigration: Setting[] = [
+  { ...viewSetting, NAME: viewDetail, VALUE: fine },
+  { ...viewSetting, NAME: chartViewType, VALUE: chartVals },
+  {
+    ...viewSetting,
+    NAME: assetChartFocus,
+    VALUE: allItems,
+  },
+  {
+    ...viewSetting,
+    NAME: debtChartFocus,
+    VALUE: allItems,
+  },
+  {
+    ...viewSetting,
+    NAME: expenseChartFocus,
+    VALUE: allItems,
+  },
+  {
+    ...viewSetting,
+    NAME: incomeChartFocus,
+    VALUE: allItems,
+  },
+  {
+    ...viewSetting,
+    NAME: taxChartFocusPerson,
+    VALUE: allItems,
+  },
+  {
+    ...viewSetting,
+    NAME: taxChartFocusType,
+    VALUE: allItems,
+  },
+  {
+    ...viewSetting,
+    NAME: taxChartShowNet,
+    VALUE: 'Y',
+  },
+  {
+    ...simpleSetting,
+    NAME: cpi,
+    VALUE: '0.0',
+    HINT: cpiHint,
+  },
+  {
+    ...viewSetting,
+    NAME: birthDate,
+    VALUE: '',
+    HINT: birthDateHint,
+  },
+  {
+    ...viewSetting,
+    NAME: valueFocusDate,
+    VALUE: '',
+    HINT: valueFocusDateHint,
+  },
+];
+
+export const simpleAsset: Asset = {
+  NAME: 'NoName',
+  CATEGORY: '',
+  START: '1 Jan 2017',
+  VALUE: '0',
+  QUANTITY: '',
+  GROWTH: '0',
+  CPI_IMMUNE: false,
+  CAN_BE_NEGATIVE: false,
+  IS_A_DEBT: false,
+  LIABILITY: '',
+  PURCHASE_PRICE: '0',
+};
 
 function getTestModel01ForMigration() {
   const model: ModelData = {
@@ -572,6 +701,40 @@ function getTestModel02ForMigration() {
   setSetting(model.settings, roiEnd, '1 Feb 2019', constType);
   return model;
 }
+export function defaultModelSettings(roi: { start: string; end: string }) {
+  return [
+    {
+      ...simpleSetting,
+      NAME: cpi,
+      VALUE: '0.0',
+      HINT: cpiHint,
+    },
+    {
+      ...viewSetting,
+      NAME: birthDate,
+      VALUE: '',
+      HINT: birthDateHint,
+    },
+    {
+      ...viewSetting,
+      NAME: valueFocusDate,
+      VALUE: '',
+      HINT: valueFocusDateHint,
+    },
+    {
+      ...viewSetting,
+      NAME: roiStart,
+      VALUE: roi.start,
+      HINT: roiStartHint,
+    },
+    {
+      ...viewSetting,
+      NAME: roiEnd,
+      VALUE: roi.end,
+      HINT: roiEndHint,
+    },
+  ];
+}
 
 export function getModelCoarseAndFine(): ModelData {
   const roi = {
@@ -668,64 +831,6 @@ export function getModelCoarseAndFine(): ModelData {
 
   return model;
 }
-
-const defaultModelSettingsForMigration: Setting[] = [
-  { ...viewSetting, NAME: viewDetail, VALUE: fine },
-  { ...viewSetting, NAME: chartViewType, VALUE: chartVals },
-  {
-    ...viewSetting,
-    NAME: assetChartFocus,
-    VALUE: allItems,
-  },
-  {
-    ...viewSetting,
-    NAME: debtChartFocus,
-    VALUE: allItems,
-  },
-  {
-    ...viewSetting,
-    NAME: expenseChartFocus,
-    VALUE: allItems,
-  },
-  {
-    ...viewSetting,
-    NAME: incomeChartFocus,
-    VALUE: allItems,
-  },
-  {
-    ...viewSetting,
-    NAME: taxChartFocusPerson,
-    VALUE: allItems,
-  },
-  {
-    ...viewSetting,
-    NAME: taxChartFocusType,
-    VALUE: allItems,
-  },
-  {
-    ...viewSetting,
-    NAME: taxChartShowNet,
-    VALUE: 'Y',
-  },
-  {
-    ...simpleSetting,
-    NAME: cpi,
-    VALUE: '0.0',
-    HINT: cpiHint,
-  },
-  {
-    ...viewSetting,
-    NAME: birthDate,
-    VALUE: '',
-    HINT: birthDateHint,
-  },
-  {
-    ...viewSetting,
-    NAME: valueFocusDate,
-    VALUE: '',
-    HINT: valueFocusDateHint,
-  },
-];
 
 export function getModelCoarseAndFineForMigration(): ModelData {
   const roi = {
@@ -827,6 +932,68 @@ export function getModelCoarseAndFineForMigration(): ModelData {
   setROI(model, roi);
 
   return model;
+}
+
+export const minimalModel: ModelData = {
+  assets: [
+    {
+      NAME: CASH_ASSET_NAME,
+      CATEGORY: '',
+      START: '1 Jan 1990',
+      VALUE: '0.0',
+      QUANTITY: '',
+      GROWTH: '0.0',
+      CPI_IMMUNE: true,
+      CAN_BE_NEGATIVE: true,
+      IS_A_DEBT: false,
+      LIABILITY: '',
+      PURCHASE_PRICE: '0.0',
+    },
+  ],
+  incomes: [],
+  expenses: [],
+  triggers: [],
+  settings: [
+    {
+      NAME: cpi,
+      VALUE: '2.5',
+      HINT: cpiHint,
+      TYPE: constType,
+    },
+    {
+      NAME: roiStart,
+      VALUE: '1 Jan 2017',
+      HINT: roiStartHint,
+      TYPE: viewType,
+    },
+    {
+      NAME: roiEnd,
+      VALUE: '1 Jan 2023',
+      HINT: roiEndHint,
+      TYPE: viewType,
+    },
+    {
+      NAME: birthDate,
+      VALUE: '',
+      HINT: birthDateHint,
+      TYPE: viewType,
+    },
+    {
+      NAME: valueFocusDate,
+      VALUE: '',
+      HINT: valueFocusDateHint,
+      TYPE: viewType,
+    },
+  ],
+  transactions: [],
+  version: getCurrentVersion(),
+  undoModel: undefined,
+  redoModel: undefined,
+};
+
+export function getMinimalModelCopy(): ModelData {
+  // log('in getMinimalModelCopy');
+  return makeModelFromJSONString(JSON.stringify(minimalModel));
 }
 
 function getModelFutureExpenseForMigration() {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { makeStringFromCashValue } from '../../utils';
+import { makeStringFromCashValue } from '../../stringUtils';
 import { isNumberString } from '../../models/checks';
 // import { showObj } from ''../../utils''
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';

@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { Trigger, ModelData, FormProps } from '../../types/interfaces';
 import { TriggerOptionList } from './TriggerOptionList';
-import { log, makeDateTooltip, showObj, printDebug } from '../../utils';
+import { log, showObj, printDebug } from '../../utils';
+import { makeDateTooltip } from '../../stringUtils';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
 

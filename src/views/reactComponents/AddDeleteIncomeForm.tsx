@@ -12,18 +12,7 @@ import {
   Trigger,
   FormProps,
 } from '../../types/interfaces';
-import {
-  checkTriggerDate,
-  log,
-  printDebug,
-  showObj,
-  makeBooleanFromYesNo,
-  makeGrowthFromString,
-  makeIncomeLiabilityFromNameAndNI,
-  isAnIncome,
-  isATransaction,
-  makeValueAbsPropFromString,
-} from '../../utils';
+import { log, printDebug, showObj } from '../../utils';
 import Button from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
 import { Input } from './Input';
@@ -39,6 +28,14 @@ import {
   revalueInc,
 } from '../../localization/stringConstants';
 import { doCheckBeforeOverwritingExistingData } from '../../App';
+import { isAnIncome, isATransaction } from '../../models/modelUtils';
+import {
+  makeValueAbsPropFromString,
+  checkTriggerDate,
+  makeGrowthFromString,
+  makeBooleanFromYesNo,
+  makeIncomeLiabilityFromNameAndNI,
+} from '../../stringUtils';
 
 interface EditIncomeFormState {
   NAME: string;

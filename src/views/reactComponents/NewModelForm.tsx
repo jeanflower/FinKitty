@@ -3,7 +3,8 @@ import React, { Component, FormEvent } from 'react';
 import { Input } from './Input';
 import { ModelData } from '../../types/interfaces';
 import Button from './Button';
-import { log, minimalModel, printDebug } from '../../utils';
+import { log, printDebug } from '../../utils';
+import { minimalModel } from '../../models/exampleModels';
 
 interface CreateModelFormState {
   newName: string;

@@ -11,20 +11,18 @@ import {
   revalue,
   revalueSetting,
 } from '../../localization/stringConstants';
-import {
-  checkTriggerDate,
-  isATransaction,
-  log,
-  makeValueAbsPropFromString,
-  printDebug,
-  showObj,
-} from '../../utils';
+import { log, printDebug, showObj } from '../../utils';
 
 import Button from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
 import { Input } from './Input';
 import { doCheckBeforeOverwritingExistingData } from '../../App';
 import { ViewSettings } from '../../models/charting';
+import { isATransaction } from '../../models/modelUtils';
+import {
+  checkTriggerDate,
+  makeValueAbsPropFromString,
+} from '../../stringUtils';
 
 interface EditSettingFormState {
   NAME: string;

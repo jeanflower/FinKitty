@@ -59,28 +59,7 @@ import {
   checkTrigger,
   isNumberString,
 } from '../models/checks';
-import {
-  checkForWordClashInModel,
-  getNumberAndWordParts,
-  isADebt,
-  isAnAssetOrAssets,
-  isAnExpense,
-  isAnIncome,
-  log,
-  makeBooleanFromYesNo,
-  makeCashValueFromString,
-  makeDateFromString,
-  makeGrowthFromString,
-  makePurchasePriceFromString,
-  makeQuantityFromString,
-  makeStringFromGrowth,
-  makeStringFromPurchasePrice,
-  makeStringFromValueAbsProp,
-  makeValueAbsPropFromString,
-  makeYesNoFromBoolean,
-  minimalModel,
-  showObj,
-} from '../utils';
+import { log, showObj } from '../utils';
 
 import CashValueFormatter from './reactComponents/CashValueFormatter';
 import DataGrid from './reactComponents/DataGrid';
@@ -90,6 +69,28 @@ import SimpleFormatter from './reactComponents/NameFormatter';
 import ToFromValueFormatter from './reactComponents/ToFromValueFormatter';
 import TriggerDateFormatter from './reactComponents/TriggerDateFormatter';
 import { ViewSettings } from '../models/charting';
+import { minimalModel } from '../models/exampleModels';
+import {
+  isADebt,
+  isAnAssetOrAssets,
+  isAnIncome,
+  isAnExpense,
+} from '../models/modelUtils';
+import {
+  getNumberAndWordParts,
+  checkForWordClashInModel,
+  makeBooleanFromYesNo,
+  makeCashValueFromString,
+  makeGrowthFromString,
+  makeDateFromString,
+  makeQuantityFromString,
+  makePurchasePriceFromString,
+  makeValueAbsPropFromString,
+  makeStringFromPurchasePrice,
+  makeYesNoFromBoolean,
+  makeStringFromValueAbsProp,
+  makeStringFromGrowth,
+} from '../stringUtils';
 
 function handleExpenseGridRowsUpdated(
   model: ModelData,

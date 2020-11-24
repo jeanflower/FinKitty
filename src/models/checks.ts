@@ -52,23 +52,24 @@ import {
   Trigger,
   Evaluation,
 } from '../types/interfaces';
-import {
-  checkTriggerDate,
-  getNumberAndWordParts,
-  getSettings,
-  getTriggerDate,
-  isADebt,
-  isAnAssetOrAssets,
-  isAnExpense,
-  isAnIncome,
-  log,
-  makeDateFromString,
-  replaceCategoryWithAssetNames,
-  showObj,
-} from '../utils';
+import { log, showObj } from '../utils';
 
 import { evaluationType } from './evaluations';
 import { getDisplayName } from '../views/tablePages';
+import {
+  getTriggerDate,
+  makeDateFromString,
+  getNumberAndWordParts,
+  checkTriggerDate,
+} from '../stringUtils';
+import {
+  getSettings,
+  isAnAssetOrAssets,
+  isAnIncome,
+  isADebt,
+  isAnExpense,
+  replaceCategoryWithAssetNames,
+} from './modelUtils';
 
 const numberStringCache = new Map<string, boolean>();
 

@@ -16,7 +16,6 @@ import {
   getDefaultChartSettings,
   incomesChartDivWithButtons,
 } from './chartPages';
-import { getTodaysDate, lessThan } from '../utils';
 import { incomesView, revalueInc } from '../localization/stringConstants';
 
 import { AddDeleteIncomeForm } from './reactComponents/AddDeleteIncomeForm';
@@ -25,6 +24,8 @@ import DataGrid from './reactComponents/DataGrid';
 import React from 'react';
 import SimpleFormatter from './reactComponents/NameFormatter';
 import { ViewSettings } from '../models/charting';
+import { getTodaysDate } from '../models/modelUtils';
+import { lessThan } from '../stringUtils';
 
 function todaysIncomesTable(
   model: ModelData,

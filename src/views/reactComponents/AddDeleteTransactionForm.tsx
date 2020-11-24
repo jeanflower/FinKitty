@@ -6,16 +6,7 @@ import {
   Trigger,
   FormProps,
 } from '../../types/interfaces';
-import {
-  log,
-  makeBooleanFromString,
-  makeStringFromBoolean,
-  printDebug,
-  showObj,
-  makeValueAbsPropFromString,
-  makeBooleanFromYesNo,
-  lessThan,
-} from '../../utils';
+import { log, printDebug, showObj } from '../../utils';
 import Button from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
 import { Input } from './Input';
@@ -27,6 +18,13 @@ import {
   adjustableType,
 } from '../../localization/stringConstants';
 import { doCheckBeforeOverwritingExistingData } from '../../App';
+import {
+  lessThan,
+  makeValueAbsPropFromString,
+  makeStringFromBoolean,
+  makeBooleanFromYesNo,
+  makeBooleanFromString,
+} from '../../stringUtils';
 
 interface EditTransactionFormState {
   NAME: string;
