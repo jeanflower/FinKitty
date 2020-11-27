@@ -1,7 +1,7 @@
 /* eslint-disable */
 var React = require('react');
-var CanvasJS = require('./canvasjs.min').default;
-//var CanvasJS = require('./canvasjs.min');
+//var CanvasJS = require('./canvasjs.min').default;
+var CanvasJS = require('./canvasjs.min');
 
 class CanvasJSChart extends React.Component {
 	static _cjsContainerId = 0
