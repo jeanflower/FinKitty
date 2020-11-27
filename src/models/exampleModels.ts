@@ -49,7 +49,12 @@ import {
   Setting,
   Transaction,
 } from '../types/interfaces';
-import { setSetting, setROI, makeModelFromJSONString } from './modelUtils';
+import {
+  setSetting,
+  setROI,
+  makeModelFromJSONString,
+  makeModelFromJSON,
+} from './modelUtils';
 import { getCurrentVersion } from './versioningUtils';
 
 export const simpleExampleData = `{"triggers":[
@@ -123,7 +128,7 @@ export const billAndBenExampleData = `{"triggers":[
 {"NAME":"BenLoan","VALUE":"-5000","QUANTITY":"","START":"start","LIABILITY":"","GROWTH":"0","CPI_IMMUNE":true,"CAN_BE_NEGATIVE":true,"IS_A_DEBT":true,"PURCHASE_PRICE":"0","CATEGORY":"Debt"},
 {"NAME":"BillLoan","VALUE":"-5000","QUANTITY":"","START":"start","LIABILITY":"","GROWTH":"2.5","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":true,"IS_A_DEBT":true,"PURCHASE_PRICE":"0","CATEGORY":"Debt"},
 {"NAME":"BillStocks","VALUE":"25000","START":"start","LIABILITY":"Bill(CGT)","GROWTH":"4","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":false,"PURCHASE_PRICE":"14000","CATEGORY":"Investment","IS_A_DEBT":false,"QUANTITY":""},
-{"NAME":"Cash","START":"1 Jan 1990","VALUE":"0","GROWTH":"0.0","CPI_IMMUNE":false,"LIABILITY":"","PURCHASE_PRICE":"0","CATEGORY":"","IS_A_DEBT":false,"QUANTITY":""},
+{"NAME":"Cash","START":"1 Jan 2017","VALUE":"0","GROWTH":"0.0","CPI_IMMUNE":false,"LIABILITY":"","PURCHASE_PRICE":"0","CATEGORY":"","IS_A_DEBT":false,"QUANTITY":""},
 {"NAME":"CrystallizedPensionBen","VALUE":"0","START":"start","GROWTH":"2","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":false,"CATEGORY":"Pension","PURCHASE_PRICE":"0","LIABILITY":"","IS_A_DEBT":false,"QUANTITY":""},
 {"NAME":"CrystallizedPensionBill","VALUE":"0","START":"start","GROWTH":"2","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":false,"CATEGORY":"Pension","PURCHASE_PRICE":"0","LIABILITY":"","IS_A_DEBT":false,"QUANTITY":""},
 {"NAME":"House","VALUE":"275000","START":"start","LIABILITY":"","GROWTH":"0","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":false,"PURCHASE_PRICE":"0","CATEGORY":"Property","IS_A_DEBT":false,"QUANTITY":""},
@@ -172,7 +177,7 @@ export const mortgageSwitchExampleData = `{"triggers":[
  {"NAME": "Today's value focus date","VALUE": "","HINT": "Date to use for 'today's value' tables (defaults to '' meaning today)","TYPE": "view"}]}`;
 
 export const definedBenefitsPension = `{"assets":[
-{"NAME":"Cash","CATEGORY":"","START":"1 Jan 1990","VALUE":"0.0","QUANTITY":"","GROWTH":"0.0","CPI_IMMUNE":true,"CAN_BE_NEGATIVE":true,"IS_A_DEBT":false,"LIABILITY":"","PURCHASE_PRICE":"0.0"}],
+{"NAME":"Cash","CATEGORY":"","START":"1 Jan 2019","VALUE":"0.0","QUANTITY":"","GROWTH":"0.0","CPI_IMMUNE":true,"CAN_BE_NEGATIVE":true,"IS_A_DEBT":false,"LIABILITY":"","PURCHASE_PRICE":"0.0"}],
 "incomes":[
 {"NAME":"TeachingJob","VALUE":"2500","VALUE_SET":"JobStart","START":"JobStart","END":"JobStop","GROWTH":"2","CPI_IMMUNE":true,"LIABILITY":"Joe(incomeTax)/Joe(NI)","CATEGORY":""},
 {"START":"PensionBegins","END":"PensionStops","NAME":"PensionTransferTeachersPensionScheme","VALUE":"0.0","VALUE_SET":"PensionExists","LIABILITY":"Jack(incomeTax)","GROWTH":"2","CPI_IMMUNE":true,"CATEGORY":""},
@@ -204,7 +209,7 @@ export const definedContributionsPension = `{"expenses":[
 {"NAME":"PensionAegon","VALUE":"0","QUANTITY":"","START":"2021","GROWTH":"2.0","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":false,"IS_A_DEBT":false,"CATEGORY":"pension","PURCHASE_PRICE":"0.0","LIABILITY":""},
 {"NAME":"CrystallizedPensionJoe","VALUE":"0.0","QUANTITY":"","START":"2021","GROWTH":"2.0","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":false,"IS_A_DEBT":false,"CATEGORY":"pension","PURCHASE_PRICE":"0.0","LIABILITY":""},
 {"NAME":"CrystallizedPensionJack","VALUE":"0.0","QUANTITY":"","START":"2021","GROWTH":"2.0","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":false,"IS_A_DEBT":false,"CATEGORY":"pension","PURCHASE_PRICE":"0.0","LIABILITY":""},
-{"NAME":"Cash","CATEGORY":"","START":"1 Jan 1990","VALUE":"0.0","QUANTITY":"","GROWTH":"0.0","CPI_IMMUNE":true,"CAN_BE_NEGATIVE":true,"IS_A_DEBT":false,"LIABILITY":"","PURCHASE_PRICE":"0.0"},
+{"NAME":"Cash","CATEGORY":"","START":"1 Jan 2017","VALUE":"0.0","QUANTITY":"","GROWTH":"0.0","CPI_IMMUNE":true,"CAN_BE_NEGATIVE":true,"IS_A_DEBT":false,"LIABILITY":"","PURCHASE_PRICE":"0.0"},
 {"NAME":"AegonTaxFree","VALUE":"0.0","QUANTITY":"","START":"2021","GROWTH":"2.0","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":false,"IS_A_DEBT":false,"CATEGORY":"pension","PURCHASE_PRICE":"0.0","LIABILITY":""}],
 "transactions":[
 {"NAME":"TransferCrystallizedPensionAegon","FROM":"CrystallizedPensionJoe","FROM_ABSOLUTE":false,"FROM_VALUE":"1.0","TO":"CrystallizedPensionJack","TO_ABSOLUTE":false,"TO_VALUE":"1.0","DATE":"2035","STOP_DATE":"","RECURRENCE":"","CATEGORY":"pension","TYPE":"auto"},
@@ -252,7 +257,7 @@ export const benAndJerryExampleData = `
 {"NAME":"House","VALUE":"255000","QUANTITY":"","START":"21/02/2020","GROWTH":"2","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":false,"IS_A_DEBT":false,"CATEGORY":"Property","PURCHASE_PRICE":"0","LIABILITY":""},
 {"NAME":"CrystallizedPensionJerry","VALUE":"0.0","QUANTITY":"","START":"21/02/2020","GROWTH":"4","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":false,"IS_A_DEBT":false,"CATEGORY":"Pension","PURCHASE_PRICE":"0.0","LIABILITY":""},
 {"NAME":"CrystallizedPensionBen","VALUE":"0.0","QUANTITY":"","START":"21/02/2020","GROWTH":"4","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":false,"IS_A_DEBT":false,"CATEGORY":"Pension","PURCHASE_PRICE":"0.0","LIABILITY":""},
-{"NAME":"Cash","CATEGORY":"","START":"1 Jan 1990","VALUE":"0.0","QUANTITY":"","GROWTH":"0.0","CPI_IMMUNE":true,"CAN_BE_NEGATIVE":true,"IS_A_DEBT":false,"LIABILITY":"","PURCHASE_PRICE":"0.0"},
+{"NAME":"Cash","CATEGORY":"","START":"1 Jan 2017","VALUE":"0.0","QUANTITY":"","GROWTH":"0.0","CPI_IMMUNE":true,"CAN_BE_NEGATIVE":true,"IS_A_DEBT":false,"LIABILITY":"","PURCHASE_PRICE":"0.0"},
 {"NAME":"Ben PrudentialTaxFree","VALUE":"0.0","QUANTITY":"","START":"21/02/2020","GROWTH":"4","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":false,"IS_A_DEBT":false,"CATEGORY":"Pension","PURCHASE_PRICE":"0.0","LIABILITY":""},
 {"NAME":"Ben loan","VALUE":"-5000","QUANTITY":"","START":"21/02/2020","GROWTH":"0","CPI_IMMUNE":true,"CAN_BE_NEGATIVE":true,"IS_A_DEBT":true,"CATEGORY":"","PURCHASE_PRICE":"0.0","LIABILITY":""}],"incomes":[
 {"START":"Jerry state pension age","END":"Ben dies","NAME":"PensionTransferJerry work","VALUE":"0.0","VALUE_SET":"21/02/2020","LIABILITY":"Ben(incomeTax)","GROWTH":"0","CPI_IMMUNE":false,"CATEGORY":"Pension"},
@@ -939,7 +944,7 @@ export const minimalModel: ModelData = {
     {
       NAME: CASH_ASSET_NAME,
       CATEGORY: '',
-      START: '1 Jan 1990',
+      START: '1 Jan 2017',
       VALUE: '0.0',
       QUANTITY: '',
       GROWTH: '0.0',
@@ -1138,7 +1143,7 @@ export function getThreeChryslerModelForMigration(): ModelData {
   return model;
 }
 
-export function getBenAndJerryModel(): ModelData {
+function getBenAndJerryModel(): ModelData {
   const model: ModelData = {
     assets: [
       {
@@ -1274,7 +1279,7 @@ export function getBenAndJerryModel(): ModelData {
       {
         NAME: 'Cash',
         CATEGORY: '',
-        START: '1 Jan 1990',
+        START: '1 Jan 2017',
         VALUE: '0.0',
         QUANTITY: '',
         GROWTH: '0.0',
@@ -1796,6 +1801,10 @@ export function getBenAndJerryModel(): ModelData {
   return model;
 }
 
+export function getDefinedBenefitsPension(): ModelData {
+  return makeModelFromJSON(definedBenefitsPension);
+}
+
 export function getTestModel(input: string): ModelData {
   // log(`getTestModel making model for ${input}`);
   if (input === TestModel01) {
@@ -1812,6 +1821,8 @@ export function getTestModel(input: string): ModelData {
     return getMinimalModelCopy();
   } else if (input === BenAndJerryModel) {
     return getBenAndJerryModel();
+  } else if (input === definedBenefitsPension) {
+    return getDefinedBenefitsPension();
   }
   throw new Error('test model name not recognised');
 }
