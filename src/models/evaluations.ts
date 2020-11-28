@@ -642,11 +642,26 @@ const TAX_MAP: TaxBandsMap = {
     lowNIRate: 0.12,
     highNIRate: 0.02,
   },
+  2020: {
+    taxBandsSet: makeDateFromString('April 5 2020'),
+    noTaxBand: 12500,
+    lowTaxBand: 50000,
+    adjustnoTaxBand: 100000,
+    highTaxBand: 150000,
+    lowTaxRate: 0.2,
+    highTaxRate: 0.4,
+    topTaxRate: 0.45,
+    noNIBand: 8628,
+    lowNIBand: 50004,
+    lowNIRate: 0.12,
+    highNIRate: 0.02,
+  },
 };
 
 function getTaxBands(income: number, d: Date, cpiVal: number) {
   const yearToPay = d.getFullYear();
   for (let yr = yearToPay; yr > 2016; yr = yr - 1) {
+    // TODO drop yr to 2021 for performance
     const bands: any | undefined = TAX_MAP[`${yr}`];
     if (bands !== undefined) {
       const result = {

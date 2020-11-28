@@ -1805,6 +1805,10 @@ export function getDefinedBenefitsPension(): ModelData {
   return makeModelFromJSON(definedBenefitsPension);
 }
 
+export function getDefinedContributionsPension(): ModelData {
+  return makeModelFromJSON(definedContributionsPension);
+}
+
 export function getTestModel(input: string): ModelData {
   // log(`getTestModel making model for ${input}`);
   if (input === TestModel01) {
@@ -1823,6 +1827,8 @@ export function getTestModel(input: string): ModelData {
     return getBenAndJerryModel();
   } else if (input === definedBenefitsPension) {
     return getDefinedBenefitsPension();
+  } else if (input === definedContributionsPension) {
+    return getDefinedContributionsPension();
   }
   throw new Error('test model name not recognised');
 }
