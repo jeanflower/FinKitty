@@ -567,86 +567,156 @@ function updateValueForCPI(
   return result;
 }
 
-const taxBandsSet2018 = makeDateFromString('April 5 2018');
-const noTaxBand2018 = 12500;
-const lowTaxBand2018 = 50000;
-const adjustnoTaxBand2018 = 100000;
-const highTaxBand2018 = 150000;
-const lowTaxRate2018 = 0.2;
-const highTaxRate2018 = 0.4;
-const topTaxRate2018 = 0.45;
+interface TaxBands {
+  taxBandsSet: Date;
+  noTaxBand: number;
+  lowTaxBand: number;
+  adjustnoTaxBand: number;
+  highTaxBand: number;
+  lowTaxRate: number;
+  highTaxRate: number;
+  topTaxRate: number;
+  noNIBand: number;
+  lowNIBand: number;
+  lowNIRate: number;
+  highNIRate: number;
+}
+interface TaxBandsMap {
+  [key: string]: TaxBands | undefined;
+}
 
-const noNIBand2018 = 8628;
-const lowNIBand2018 = 50004;
-const lowNIRate2018 = 0.12;
-const highNIRate2018 = 0.02;
+const TAX_MAP: TaxBandsMap = {
+  2016: {
+    taxBandsSet: makeDateFromString('April 5 2016'),
+    noTaxBand: 12500,
+    lowTaxBand: 50000,
+    adjustnoTaxBand: 100000,
+    highTaxBand: 150000,
+    lowTaxRate: 0.2,
+    highTaxRate: 0.4,
+    topTaxRate: 0.45,
+    noNIBand: 8628,
+    lowNIBand: 50004,
+    lowNIRate: 0.12,
+    highNIRate: 0.02,
+  },
+  2017: {
+    taxBandsSet: makeDateFromString('April 5 2017'),
+    noTaxBand: 12500,
+    lowTaxBand: 50000,
+    adjustnoTaxBand: 100000,
+    highTaxBand: 150000,
+    lowTaxRate: 0.2,
+    highTaxRate: 0.4,
+    topTaxRate: 0.45,
+    noNIBand: 8628,
+    lowNIBand: 50004,
+    lowNIRate: 0.12,
+    highNIRate: 0.02,
+  },
+  2018: {
+    taxBandsSet: makeDateFromString('April 5 2018'),
+    noTaxBand: 12500,
+    lowTaxBand: 50000,
+    adjustnoTaxBand: 100000,
+    highTaxBand: 150000,
+    lowTaxRate: 0.2,
+    highTaxRate: 0.4,
+    topTaxRate: 0.45,
+    noNIBand: 8628,
+    lowNIBand: 50004,
+    lowNIRate: 0.12,
+    highNIRate: 0.02,
+  },
+  2019: {
+    taxBandsSet: makeDateFromString('April 5 2019'),
+    noTaxBand: 12500,
+    lowTaxBand: 50000,
+    adjustnoTaxBand: 100000,
+    highTaxBand: 150000,
+    lowTaxRate: 0.2,
+    highTaxRate: 0.4,
+    topTaxRate: 0.45,
+    noNIBand: 8628,
+    lowNIBand: 50004,
+    lowNIRate: 0.12,
+    highNIRate: 0.02,
+  },
+};
 
 function getTaxBands(income: number, d: Date, cpiVal: number) {
-  const result = {
-    noTaxBand: noTaxBand2018,
-    lowTaxBand: lowTaxBand2018,
-    lowTaxRate: lowTaxRate2018,
-    adjustnoTaxBand: adjustnoTaxBand2018,
-    highTaxBand: highTaxBand2018,
-    highTaxRate: highTaxRate2018,
-    topTaxRate: topTaxRate2018,
+  const yearToPay = d.getFullYear();
+  for (let yr = yearToPay; yr > 2016; yr = yr - 1) {
+    const bands: any | undefined = TAX_MAP[`${yr}`];
+    if (bands !== undefined) {
+      const result = {
+        noTaxBand: bands.noTaxBand,
+        lowTaxBand: bands.lowTaxBand,
+        lowTaxRate: bands.lowTaxRate,
+        adjustnoTaxBand: bands.adjustnoTaxBand,
+        highTaxBand: bands.highTaxBand,
+        highTaxRate: bands.highTaxRate,
+        topTaxRate: bands.topTaxRate,
 
-    noNIBand: noNIBand2018,
-    lowNIBand: lowNIBand2018,
-    lowNIRate: lowNIRate2018,
-    highNIRate: highNIRate2018,
+        noNIBand: bands.noNIBand,
+        lowNIBand: bands.lowNIBand,
+        lowNIRate: bands.lowNIRate,
+        highNIRate: bands.highNIRate,
 
-    bandsSet: taxBandsSet2018,
-  };
+        bandsSet: bands.taxBandsSet,
+      };
+      result.noTaxBand = updateValueForCPI(
+        result.bandsSet,
+        d,
+        result.noTaxBand,
+        cpiVal,
+      );
+      result.lowTaxBand = updateValueForCPI(
+        result.bandsSet,
+        d,
+        result.lowTaxBand,
+        cpiVal,
+      );
+      result.adjustnoTaxBand = updateValueForCPI(
+        result.bandsSet,
+        d,
+        result.adjustnoTaxBand,
+        cpiVal,
+      );
+      result.highTaxBand = updateValueForCPI(
+        result.bandsSet,
+        d,
+        result.highTaxBand,
+        cpiVal,
+      );
 
-  result.noTaxBand = updateValueForCPI(
-    result.bandsSet,
-    d,
-    result.noTaxBand,
-    cpiVal,
-  );
-  result.lowTaxBand = updateValueForCPI(
-    result.bandsSet,
-    d,
-    result.lowTaxBand,
-    cpiVal,
-  );
-  result.adjustnoTaxBand = updateValueForCPI(
-    result.bandsSet,
-    d,
-    result.adjustnoTaxBand,
-    cpiVal,
-  );
-  result.highTaxBand = updateValueForCPI(
-    result.bandsSet,
-    d,
-    result.highTaxBand,
-    cpiVal,
-  );
+      result.noNIBand = updateValueForCPI(
+        result.bandsSet,
+        d,
+        result.noNIBand,
+        cpiVal,
+      );
+      result.lowNIBand = updateValueForCPI(
+        result.bandsSet,
+        d,
+        result.lowNIBand,
+        cpiVal,
+      );
 
-  result.noNIBand = updateValueForCPI(
-    result.bandsSet,
-    d,
-    result.noNIBand,
-    cpiVal,
-  );
-  result.lowNIBand = updateValueForCPI(
-    result.bandsSet,
-    d,
-    result.lowNIBand,
-    cpiVal,
-  );
-
-  if (income > result.adjustnoTaxBand) {
-    const reducedNoTaxBand = 12500 - (income - result.adjustnoTaxBand) / 2.0;
-    if (reducedNoTaxBand > 0) {
-      result.noTaxBand = reducedNoTaxBand;
-    } else {
-      result.noTaxBand = 0;
+      if (income > result.adjustnoTaxBand) {
+        const reducedNoTaxBand =
+          12500 - (income - result.adjustnoTaxBand) / 2.0;
+        if (reducedNoTaxBand > 0) {
+          result.noTaxBand = reducedNoTaxBand;
+        } else {
+          result.noTaxBand = 0;
+        }
+      }
+      // log(`bands for ${d.toDateString()} are ${showObj(result)}`);
+      return result;
     }
   }
-
-  return result;
+  throw new Error(`no Tax Bands defined!`);
 }
 
 function calculateIncomeTaxPayable(income: number, d: Date, cpiVal: number) {
@@ -659,9 +729,6 @@ function calculateIncomeTaxPayable(income: number, d: Date, cpiVal: number) {
   const lowTaxRate = bands.lowTaxRate;
   const highTaxRate = bands.highTaxRate;
   const topTaxRate = bands.topTaxRate;
-
-  // TODO
-  // adjust noTaxBand for high incomes
 
   let incomeInNoTaxBand = 0;
   let incomeInLowTaxBand = 0;
