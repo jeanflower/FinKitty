@@ -91,7 +91,7 @@ export const net = '(net)';
 // the named owner
 // (i.e. named CrystallizedPensionJack)
 // generates income tax liability for Jack
-export const crystallizedPension = 'CrystallizedPension';
+export const crystallizedPension = '-CPTaxable ';
 // Assets can be liable to CGT
 // CGT calculations depend upon a PurchasePrice having been set
 // for the asset. Then, upon sale, a gain can be calculated
@@ -106,13 +106,14 @@ export const cgt = '(CGT)';
 // (transfers here out of income reduce income tax + NI liability),
 // or PensionDBTeachers
 // (amounts here take proportion of income and add to accruing benefit value)
-export const pension = 'Pension';
-export const pensionSS = 'PensionSS';
-export const pensionDB = 'PensionDB';
-export const pensionTransfer = 'PensionTransfer';
-export const moveTaxFreePart = 'MoveTaxFreePart';
-export const taxFree = 'TaxFree';
-export const transferCrystallizedPension = 'TransferCrystallizedPension';
+
+export const pension = '-DC ';
+export const pensionSS = '-PSS ';
+export const pensionDB = '-DB ';
+export const pensionTransfer = '-DBT ';
+export const moveTaxFreePart = '-CPTaxFree ';
+export const taxFree = '-CPTaxFree';
+export const transferCrystallizedPension = '-CPT ';
 
 // Transactions can be Conditional
 // (i.e. they're named ConditionalDoSomething)

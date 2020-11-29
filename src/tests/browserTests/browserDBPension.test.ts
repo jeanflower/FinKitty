@@ -1,4 +1,4 @@
-import { TestModel02 } from '../../localization/stringConstants';
+import { pensionDB, TestModel02 } from '../../localization/stringConstants';
 import {
   headless,
   addIncome,
@@ -143,7 +143,7 @@ describe(testDataModelName, () => {
       pensionEndOrTransferDate: '2032', // transfer pension before pension begins paying out?
       message:
         'Transaction from unrecognised asset ' +
-        '(could be typo or before asset start date?) : "PensionDBpensionName"',
+        `(could be typo or before asset start date?) : "${pensionDB}pensionName"`,
       // TODO this message is mysterious
     });
 

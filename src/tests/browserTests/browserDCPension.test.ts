@@ -1,4 +1,4 @@
-import { TestModel02 } from '../../localization/stringConstants';
+import { pension, TestModel02 } from '../../localization/stringConstants';
 import {
   headless,
   addIncome,
@@ -112,7 +112,7 @@ describe(testDataModelName, () => {
       ...pensionInputs,
       name: 'dcp06',
       startDate: '2036',
-      message: `Transaction from unrecognised asset (could be typo or before asset start date?) : \"Pensiondcp06\"`,
+      message: `Transaction from unrecognised asset (could be typo or before asset start date?) : \"${pension}dcp06\"`,
     }); // TODO : what does this error mean?  I expected "start date after end date"
 
     await clearDCPension(driver);

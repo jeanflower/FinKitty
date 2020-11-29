@@ -9368,12 +9368,12 @@ describe('evaluations tests', () => {
 
     expect(evals.length).toBe(15);
     expectEvals(evals, 0, 'Cash', 'Thu Mar 01 2018', 0, -1);
-    expectEvals(evals, 1, 'PensionPnsh', 'Thu Mar 01 2018', 0, -1);
+    expectEvals(evals, 1, `${pension}Pnsh`, 'Thu Mar 01 2018', 0, -1);
     expectEvals(evals, 2, 'java', 'Sat Mar 10 2018', 30000, -1);
-    expectEvals(evals, 3, 'PensionPnsh', 'Sat Mar 10 2018', 1500, -1);
+    expectEvals(evals, 3, `${pension}Pnsh`, 'Sat Mar 10 2018', 1500, -1);
     expectEvals(evals, 4, 'Cash', 'Sat Mar 10 2018', 28500, -1);
     expectEvals(evals, 5, 'Cash', 'Sun Apr 01 2018', 28500, -1);
-    expectEvals(evals, 6, 'PensionPnsh', 'Sun Apr 01 2018', 1500, -1);
+    expectEvals(evals, 6, `${pension}Pnsh`, 'Sun Apr 01 2018', 1500, -1);
     expectEvals(evals, 7, 'Cash', 'Thu Apr 05 2018', 25935.36, 2);
     expectEvals(evals, 8, '(NI)', 'Thu Apr 05 2018', 2564.64, 2);
     expectEvals(
@@ -9395,7 +9395,7 @@ describe('evaluations tests', () => {
       2,
     );
     expectEvals(evals, 13, 'Cash', 'Tue May 01 2018', 22735.36, 2);
-    expectEvals(evals, 14, 'PensionPnsh', 'Tue May 01 2018', 1500, -1);
+    expectEvals(evals, 14, `${pension}Pnsh`, 'Tue May 01 2018', 1500, -1);
 
     const viewSettings = defaultTestViewSettings();
 
@@ -9507,12 +9507,12 @@ describe('evaluations tests', () => {
 
     expect(evals.length).toBe(15);
     expectEvals(evals, 0, 'Cash', 'Thu Mar 01 2018', 0, -1);
-    expectEvals(evals, 1, 'PensionPnsh', 'Thu Mar 01 2018', 0, -1);
+    expectEvals(evals, 1, `${pension}Pnsh`, 'Thu Mar 01 2018', 0, -1);
     expectEvals(evals, 2, 'java', 'Sat Mar 10 2018', 30000, -1);
-    expectEvals(evals, 3, 'PensionPnsh', 'Sat Mar 10 2018', 4500, -1);
+    expectEvals(evals, 3, `${pension}Pnsh`, 'Sat Mar 10 2018', 4500, -1);
     expectEvals(evals, 4, 'Cash', 'Sat Mar 10 2018', 28500, -1);
     expectEvals(evals, 5, 'Cash', 'Sun Apr 01 2018', 28500, -1);
-    expectEvals(evals, 6, 'PensionPnsh', 'Sun Apr 01 2018', 4500, -1);
+    expectEvals(evals, 6, `${pension}Pnsh`, 'Sun Apr 01 2018', 4500, -1);
     expectEvals(evals, 7, 'Cash', 'Thu Apr 05 2018', 25935.36, 2);
     expectEvals(evals, 8, '(NI)', 'Thu Apr 05 2018', 2564.64, 2);
     expectEvals(
@@ -9534,7 +9534,7 @@ describe('evaluations tests', () => {
       2,
     );
     expectEvals(evals, 13, 'Cash', 'Tue May 01 2018', 22735.36, 2);
-    expectEvals(evals, 14, 'PensionPnsh', 'Tue May 01 2018', 4500, -1);
+    expectEvals(evals, 14, `${pension}Pnsh`, 'Tue May 01 2018', 4500, -1);
 
     const viewSettings = defaultTestViewSettings();
 
@@ -9646,69 +9646,69 @@ describe('evaluations tests', () => {
 
     expect(evals.length).toBe(72);
     expectEvals(evals, 0, 'Cash', 'Wed Mar 01 2017', 0, -1);
-    expectEvals(evals, 1, 'PensionPnsh', 'Wed Mar 01 2017', 0, -1);
+    expectEvals(evals, 1, `${pension}Pnsh`, 'Wed Mar 01 2017', 0, -1);
     expectEvals(evals, 2, 'Cash', 'Sat Apr 01 2017', 0, -1);
-    expectEvals(evals, 3, 'PensionPnsh', 'Sat Apr 01 2017', 0, -1);
+    expectEvals(evals, 3, `${pension}Pnsh`, 'Sat Apr 01 2017', 0, -1);
     expectEvals(evals, 4, 'java', 'Fri Apr 07 2017', 2500, -1);
-    expectEvals(evals, 5, 'PensionPnsh', 'Fri Apr 07 2017', 375, -1);
+    expectEvals(evals, 5, `${pension}Pnsh`, 'Fri Apr 07 2017', 375, -1);
     expectEvals(evals, 6, 'Cash', 'Fri Apr 07 2017', 2375, -1);
     expectEvals(evals, 7, 'Cash', 'Mon May 01 2017', 2375, -1);
-    expectEvals(evals, 8, 'PensionPnsh', 'Mon May 01 2017', 375, -1);
+    expectEvals(evals, 8, `${pension}Pnsh`, 'Mon May 01 2017', 375, -1);
     expectEvals(evals, 9, 'java', 'Sun May 07 2017', 2500, -1);
-    expectEvals(evals, 10, 'PensionPnsh', 'Sun May 07 2017', 750, -1);
+    expectEvals(evals, 10, `${pension}Pnsh`, 'Sun May 07 2017', 750, -1);
     expectEvals(evals, 11, 'Cash', 'Sun May 07 2017', 4750, -1);
     expectEvals(evals, 12, 'Cash', 'Thu Jun 01 2017', 4750, -1);
-    expectEvals(evals, 13, 'PensionPnsh', 'Thu Jun 01 2017', 750, -1);
+    expectEvals(evals, 13, `${pension}Pnsh`, 'Thu Jun 01 2017', 750, -1);
     expectEvals(evals, 14, 'java', 'Wed Jun 07 2017', 2500, -1);
-    expectEvals(evals, 15, 'PensionPnsh', 'Wed Jun 07 2017', 1125, -1);
+    expectEvals(evals, 15, `${pension}Pnsh`, 'Wed Jun 07 2017', 1125, -1);
     expectEvals(evals, 16, 'Cash', 'Wed Jun 07 2017', 7125, -1);
     expectEvals(evals, 17, 'Cash', 'Sat Jul 01 2017', 7125, -1);
-    expectEvals(evals, 18, 'PensionPnsh', 'Sat Jul 01 2017', 1125, -1);
+    expectEvals(evals, 18, `${pension}Pnsh`, 'Sat Jul 01 2017', 1125, -1);
     expectEvals(evals, 19, 'java', 'Fri Jul 07 2017', 2500, -1);
-    expectEvals(evals, 20, 'PensionPnsh', 'Fri Jul 07 2017', 1500, -1);
+    expectEvals(evals, 20, `${pension}Pnsh`, 'Fri Jul 07 2017', 1500, -1);
     expectEvals(evals, 21, 'Cash', 'Fri Jul 07 2017', 9500, -1);
     expectEvals(evals, 22, 'Cash', 'Tue Aug 01 2017', 9500, -1);
-    expectEvals(evals, 23, 'PensionPnsh', 'Tue Aug 01 2017', 1500, -1);
+    expectEvals(evals, 23, `${pension}Pnsh`, 'Tue Aug 01 2017', 1500, -1);
     expectEvals(evals, 24, 'java', 'Mon Aug 07 2017', 2500, -1);
-    expectEvals(evals, 25, 'PensionPnsh', 'Mon Aug 07 2017', 1875, -1);
+    expectEvals(evals, 25, `${pension}Pnsh`, 'Mon Aug 07 2017', 1875, -1);
     expectEvals(evals, 26, 'Cash', 'Mon Aug 07 2017', 11875, -1);
     expectEvals(evals, 27, 'Cash', 'Fri Sep 01 2017', 11875, -1);
-    expectEvals(evals, 28, 'PensionPnsh', 'Fri Sep 01 2017', 1875, -1);
+    expectEvals(evals, 28, `${pension}Pnsh`, 'Fri Sep 01 2017', 1875, -1);
     expectEvals(evals, 29, 'java', 'Thu Sep 07 2017', 2500, -1);
-    expectEvals(evals, 30, 'PensionPnsh', 'Thu Sep 07 2017', 2250, -1);
+    expectEvals(evals, 30, `${pension}Pnsh`, 'Thu Sep 07 2017', 2250, -1);
     expectEvals(evals, 31, 'Cash', 'Thu Sep 07 2017', 14250, -1);
     expectEvals(evals, 32, 'Cash', 'Sun Oct 01 2017', 14250, -1);
-    expectEvals(evals, 33, 'PensionPnsh', 'Sun Oct 01 2017', 2250, -1);
+    expectEvals(evals, 33, `${pension}Pnsh`, 'Sun Oct 01 2017', 2250, -1);
     expectEvals(evals, 34, 'java', 'Sat Oct 07 2017', 2500, -1);
-    expectEvals(evals, 35, 'PensionPnsh', 'Sat Oct 07 2017', 2625, -1);
+    expectEvals(evals, 35, `${pension}Pnsh`, 'Sat Oct 07 2017', 2625, -1);
     expectEvals(evals, 36, 'Cash', 'Sat Oct 07 2017', 16625, -1);
     expectEvals(evals, 37, 'Cash', 'Wed Nov 01 2017', 16625, -1);
-    expectEvals(evals, 38, 'PensionPnsh', 'Wed Nov 01 2017', 2625, -1);
+    expectEvals(evals, 38, `${pension}Pnsh`, 'Wed Nov 01 2017', 2625, -1);
     expectEvals(evals, 39, 'java', 'Tue Nov 07 2017', 2500, -1);
-    expectEvals(evals, 40, 'PensionPnsh', 'Tue Nov 07 2017', 3000, -1);
+    expectEvals(evals, 40, `${pension}Pnsh`, 'Tue Nov 07 2017', 3000, -1);
     expectEvals(evals, 41, 'Cash', 'Tue Nov 07 2017', 19000, -1);
     expectEvals(evals, 42, 'Cash', 'Fri Dec 01 2017', 19000, -1);
-    expectEvals(evals, 43, 'PensionPnsh', 'Fri Dec 01 2017', 3000, -1);
+    expectEvals(evals, 43, `${pension}Pnsh`, 'Fri Dec 01 2017', 3000, -1);
     expectEvals(evals, 44, 'java', 'Thu Dec 07 2017', 2500, -1);
-    expectEvals(evals, 45, 'PensionPnsh', 'Thu Dec 07 2017', 3375, -1);
+    expectEvals(evals, 45, `${pension}Pnsh`, 'Thu Dec 07 2017', 3375, -1);
     expectEvals(evals, 46, 'Cash', 'Thu Dec 07 2017', 21375, -1);
     expectEvals(evals, 47, 'Cash', 'Mon Jan 01 2018', 21375, -1);
-    expectEvals(evals, 48, 'PensionPnsh', 'Mon Jan 01 2018', 3375, -1);
+    expectEvals(evals, 48, `${pension}Pnsh`, 'Mon Jan 01 2018', 3375, -1);
     expectEvals(evals, 49, 'java', 'Sun Jan 07 2018', 2500, -1);
-    expectEvals(evals, 50, 'PensionPnsh', 'Sun Jan 07 2018', 3750, -1);
+    expectEvals(evals, 50, `${pension}Pnsh`, 'Sun Jan 07 2018', 3750, -1);
     expectEvals(evals, 51, 'Cash', 'Sun Jan 07 2018', 23750, -1);
     expectEvals(evals, 52, 'Cash', 'Thu Feb 01 2018', 23750, -1);
-    expectEvals(evals, 53, 'PensionPnsh', 'Thu Feb 01 2018', 3750, -1);
+    expectEvals(evals, 53, `${pension}Pnsh`, 'Thu Feb 01 2018', 3750, -1);
     expectEvals(evals, 54, 'java', 'Wed Feb 07 2018', 2500, -1);
-    expectEvals(evals, 55, 'PensionPnsh', 'Wed Feb 07 2018', 4125, -1);
+    expectEvals(evals, 55, `${pension}Pnsh`, 'Wed Feb 07 2018', 4125, -1);
     expectEvals(evals, 56, 'Cash', 'Wed Feb 07 2018', 26125, -1);
     expectEvals(evals, 57, 'Cash', 'Thu Mar 01 2018', 26125, -1);
-    expectEvals(evals, 58, 'PensionPnsh', 'Thu Mar 01 2018', 4125, -1);
+    expectEvals(evals, 58, `${pension}Pnsh`, 'Thu Mar 01 2018', 4125, -1);
     expectEvals(evals, 59, 'java', 'Wed Mar 07 2018', 2500, -1);
-    expectEvals(evals, 60, 'PensionPnsh', 'Wed Mar 07 2018', 4500, -1);
+    expectEvals(evals, 60, `${pension}Pnsh`, 'Wed Mar 07 2018', 4500, -1);
     expectEvals(evals, 61, 'Cash', 'Wed Mar 07 2018', 28500, -1);
     expectEvals(evals, 62, 'Cash', 'Sun Apr 01 2018', 28500, -1);
-    expectEvals(evals, 63, 'PensionPnsh', 'Sun Apr 01 2018', 4500, -1);
+    expectEvals(evals, 63, `${pension}Pnsh`, 'Sun Apr 01 2018', 4500, -1);
     expectEvals(evals, 64, 'Cash', 'Thu Apr 05 2018', 25935.36, 2);
     expectEvals(evals, 65, '(NI)', 'Thu Apr 05 2018', 2564.64, 2);
     expectEvals(
@@ -9730,7 +9730,7 @@ describe('evaluations tests', () => {
       2,
     );
     expectEvals(evals, 70, 'Cash', 'Tue May 01 2018', 22735.36, 2);
-    expectEvals(evals, 71, 'PensionPnsh', 'Tue May 01 2018', 4500, -1);
+    expectEvals(evals, 71, `${pension}Pnsh`, 'Tue May 01 2018', 4500, -1);
 
     const viewSettings = defaultTestViewSettings();
 
@@ -9842,12 +9842,12 @@ describe('evaluations tests', () => {
 
     expect(evals.length).toBe(15);
     expectEvals(evals, 0, 'Cash', 'Thu Mar 01 2018', 0, -1);
-    expectEvals(evals, 1, 'PensionPnsh', 'Thu Mar 01 2018', 0, -1);
+    expectEvals(evals, 1, `${pension}Pnsh`, 'Thu Mar 01 2018', 0, -1);
     expectEvals(evals, 2, 'java', 'Sat Mar 10 2018', 30000, -1);
-    expectEvals(evals, 3, 'PensionPnsh', 'Sat Mar 10 2018', 4500, -1);
+    expectEvals(evals, 3, `${pension}Pnsh`, 'Sat Mar 10 2018', 4500, -1);
     expectEvals(evals, 4, 'Cash', 'Sat Mar 10 2018', 28500, -1);
     expectEvals(evals, 5, 'Cash', 'Sun Apr 01 2018', 28500, -1);
-    expectEvals(evals, 6, 'PensionPnsh', 'Sun Apr 01 2018', 4500, -1);
+    expectEvals(evals, 6, `${pension}Pnsh`, 'Sun Apr 01 2018', 4500, -1);
     expectEvals(evals, 7, 'Cash', 'Thu Apr 05 2018', 26115.36, 2);
     expectEvals(evals, 8, '(NI)', 'Thu Apr 05 2018', 2384.64, 2);
     expectEvals(
@@ -9869,7 +9869,7 @@ describe('evaluations tests', () => {
       2,
     );
     expectEvals(evals, 13, 'Cash', 'Tue May 01 2018', 22915.36, 2);
-    expectEvals(evals, 14, 'PensionPnsh', 'Tue May 01 2018', 4500, -1);
+    expectEvals(evals, 14, `${pension}Pnsh`, 'Tue May 01 2018', 4500, -1);
 
     const viewSettings = defaultTestViewSettings();
 
@@ -9989,13 +9989,13 @@ describe('evaluations tests', () => {
 
     expect(evals.length).toBe(16);
     expectEvals(evals, 0, 'Cash', 'Thu Mar 01 2018', 0, -1);
-    expectEvals(evals, 1, 'PensionPnsh', 'Thu Mar 01 2018', 0, -1);
+    expectEvals(evals, 1, `${pension}Pnsh`, 'Thu Mar 01 2018', 0, -1);
     expectEvals(evals, 2, 'java', 'Sat Mar 10 2018', 30000, -1);
     expectEvals(evals, 3, 'Cash', 'Sat Mar 10 2018', 30000, -1);
     expectEvals(evals, 4, 'Cash', 'Tue Mar 20 2018', 28500, -1);
-    expectEvals(evals, 5, 'PensionPnsh', 'Tue Mar 20 2018', 1500, -1);
+    expectEvals(evals, 5, `${pension}Pnsh`, 'Tue Mar 20 2018', 1500, -1);
     expectEvals(evals, 6, 'Cash', 'Sun Apr 01 2018', 28500, -1);
-    expectEvals(evals, 7, 'PensionPnsh', 'Sun Apr 01 2018', 1500, -1);
+    expectEvals(evals, 7, `${pension}Pnsh`, 'Sun Apr 01 2018', 1500, -1);
     expectEvals(evals, 8, 'Cash', 'Thu Apr 05 2018', 25935.36, 2);
     expectEvals(evals, 9, '(NI)', 'Thu Apr 05 2018', 2564.64, 2);
     expectEvals(
@@ -10017,7 +10017,7 @@ describe('evaluations tests', () => {
       2,
     );
     expectEvals(evals, 14, 'Cash', 'Tue May 01 2018', 22435.36, 2);
-    expectEvals(evals, 15, 'PensionPnsh', 'Tue May 01 2018', 1500, -1);
+    expectEvals(evals, 15, `${pension}Pnsh`, 'Tue May 01 2018', 1500, -1);
 
     const viewSettings = defaultTestViewSettings();
 
@@ -10106,7 +10106,7 @@ describe('evaluations tests', () => {
 
     // printTestCodeForEvals(evals);
 
-    const cpj = 'CrystallizedPensionJoe';
+    const cpj = `${crystallizedPension}Joe`;
 
     expect(evals.length).toBe(9);
     expectEvals(evals, 0, 'Cash', 'Thu Mar 01 2018', 0, -1);
@@ -10210,7 +10210,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       1,
-      'CrystallizedPensionJoe',
+      `${crystallizedPension}Joe`,
       'Fri Dec 01 2017',
       60000,
       -1,
@@ -10219,7 +10219,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       3,
-      'CrystallizedPensionJoe',
+      `${crystallizedPension}Joe`,
       'Mon Jan 01 2018',
       60000,
       -1,
@@ -10229,7 +10229,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       6,
-      'CrystallizedPensionJoe',
+      `${crystallizedPension}Joe`,
       'Thu Feb 01 2018',
       60000,
       -1,
@@ -10237,7 +10237,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       7,
-      'CrystallizedPensionJoe',
+      `${crystallizedPension}Joe`,
       'Sat Feb 03 2018',
       30000,
       -1,
@@ -10247,7 +10247,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       10,
-      'CrystallizedPensionJoe',
+      `${crystallizedPension}Joe`,
       'Thu Mar 01 2018',
       30000,
       -1,
@@ -10256,7 +10256,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       12,
-      'CrystallizedPensionJoe',
+      `${crystallizedPension}Joe`,
       'Sun Apr 01 2018',
       30000,
       -1,
@@ -10268,7 +10268,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       17,
-      'CrystallizedPensionJoe',
+      `${crystallizedPension}Joe`,
       'Tue May 01 2018',
       30000,
       -1,
@@ -10277,7 +10277,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       19,
-      'CrystallizedPensionJoe',
+      `${crystallizedPension}Joe`,
       'Fri Jun 01 2018',
       30000,
       -1,
@@ -10286,7 +10286,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       21,
-      'CrystallizedPensionJoe',
+      `${crystallizedPension}Joe`,
       'Fri Apr 05 2019',
       17500,
       -1,
@@ -10384,7 +10384,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       1,
-      'CrystallizedPensionJoe',
+      `${crystallizedPension}Joe`,
       'Thu Mar 01 2018',
       60000,
       -1,
@@ -10392,7 +10392,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       2,
-      'CrystallizedPensionJoe',
+      `${crystallizedPension}Joe`,
       'Tue Mar 20 2018',
       30000,
       -1,
@@ -10402,7 +10402,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       5,
-      'CrystallizedPensionJoe',
+      `${crystallizedPension}Joe`,
       'Sun Apr 01 2018',
       30000,
       -1,
@@ -10510,7 +10510,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       1,
-      'CrystallizedPensionJake',
+      `${crystallizedPension}Jake`,
       'Fri Dec 01 2017',
       50000,
       -1,
@@ -10518,7 +10518,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       2,
-      'CrystallizedPensionJoe',
+      `${crystallizedPension}Joe`,
       'Fri Dec 01 2017',
       60000,
       -1,
@@ -10527,7 +10527,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       4,
-      'CrystallizedPensionJake',
+      `${crystallizedPension}Jake`,
       'Mon Jan 01 2018',
       50000,
       -1,
@@ -10535,7 +10535,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       5,
-      'CrystallizedPensionJoe',
+      `${crystallizedPension}Joe`,
       'Mon Jan 01 2018',
       60000,
       -1,
@@ -10545,7 +10545,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       8,
-      'CrystallizedPensionJake',
+      `${crystallizedPension}Jake`,
       'Thu Feb 01 2018',
       50000,
       -1,
@@ -10553,7 +10553,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       9,
-      'CrystallizedPensionJoe',
+      `${crystallizedPension}Joe`,
       'Thu Feb 01 2018',
       60000,
       -1,
@@ -10561,7 +10561,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       10,
-      'CrystallizedPensionJoe',
+      `${crystallizedPension}Joe`,
       'Sat Feb 03 2018',
       45000,
       -1,
@@ -10570,7 +10570,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       12,
-      'CrystallizedPensionJake',
+      `${crystallizedPension}Jake`,
       'Sat Feb 03 2018',
       35000,
       -1,
@@ -10580,7 +10580,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       15,
-      'CrystallizedPensionJake',
+      `${crystallizedPension}Jake`,
       'Thu Mar 01 2018',
       35000,
       -1,
@@ -10588,7 +10588,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       16,
-      'CrystallizedPensionJoe',
+      `${crystallizedPension}Joe`,
       'Thu Mar 01 2018',
       45000,
       -1,
@@ -10597,7 +10597,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       18,
-      'CrystallizedPensionJake',
+      `${crystallizedPension}Jake`,
       'Sun Apr 01 2018',
       35000,
       -1,
@@ -10605,7 +10605,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       19,
-      'CrystallizedPensionJoe',
+      `${crystallizedPension}Joe`,
       'Sun Apr 01 2018',
       45000,
       -1,
@@ -10627,7 +10627,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       27,
-      'CrystallizedPensionJake',
+      `${crystallizedPension}Jake`,
       'Tue May 01 2018',
       35000,
       -1,
@@ -10635,7 +10635,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       28,
-      'CrystallizedPensionJoe',
+      `${crystallizedPension}Joe`,
       'Tue May 01 2018',
       45000,
       -1,
@@ -10644,7 +10644,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       30,
-      'CrystallizedPensionJake',
+      `${crystallizedPension}Jake`,
       'Fri Jun 01 2018',
       35000,
       -1,
@@ -10652,7 +10652,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       31,
-      'CrystallizedPensionJoe',
+      `${crystallizedPension}Joe`,
       'Fri Jun 01 2018',
       45000,
       -1,
@@ -10661,7 +10661,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       33,
-      'CrystallizedPensionJake',
+      `${crystallizedPension}Jake`,
       'Fri Apr 05 2019',
       22500,
       -1,
@@ -10670,7 +10670,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       35,
-      'CrystallizedPensionJoe',
+      `${crystallizedPension}Joe`,
       'Fri Apr 05 2019',
       32500,
       -1,
@@ -10713,7 +10713,7 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 6, 'Fri Jun 01 2018', -1000, -1);
     }
 
-    expect(result.assetData[1].item.NAME).toBe('CrystallizedPensionJoe');
+    expect(result.assetData[1].item.NAME).toBe(`${crystallizedPension}Joe`);
     {
       const chartPts = result.assetData[1].chartDataPoints;
       expect(chartPts.length).toBe(7);
@@ -10726,7 +10726,7 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 6, 'Fri Jun 01 2018', 45000, -1);
     }
 
-    expect(result.assetData[2].item.NAME).toBe('CrystallizedPensionJake');
+    expect(result.assetData[2].item.NAME).toBe(`${crystallizedPension}Jake`);
     {
       const chartPts = result.assetData[2].chartDataPoints;
       expect(chartPts.length).toBe(7);
@@ -10803,7 +10803,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       1,
-      'CrystallizedPensionJoe',
+      `${crystallizedPension}Joe`,
       'Fri Dec 01 2017',
       60000,
       -1,
@@ -10812,7 +10812,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       3,
-      'CrystallizedPensionJoe',
+      `${crystallizedPension}Joe`,
       'Mon Jan 01 2018',
       60000,
       -1,
@@ -10822,7 +10822,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       6,
-      'CrystallizedPensionJoe',
+      `${crystallizedPension}Joe`,
       'Thu Feb 01 2018',
       60000,
       -1,
@@ -10830,7 +10830,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       7,
-      'CrystallizedPensionJoe',
+      `${crystallizedPension}Joe`,
       'Sat Feb 03 2018',
       30000,
       -1,
@@ -10840,7 +10840,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       10,
-      'CrystallizedPensionJoe',
+      `${crystallizedPension}Joe`,
       'Thu Mar 01 2018',
       30000,
       -1,
@@ -10849,7 +10849,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       12,
-      'CrystallizedPensionJoe',
+      `${crystallizedPension}Joe`,
       'Sun Apr 01 2018',
       30000,
       -1,
@@ -10861,7 +10861,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       17,
-      'CrystallizedPensionJoe',
+      `${crystallizedPension}Joe`,
       'Tue May 01 2018',
       30000,
       -1,
@@ -10870,7 +10870,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       19,
-      'CrystallizedPensionJoe',
+      `${crystallizedPension}Joe`,
       'Fri Jun 01 2018',
       30000,
       -1,
@@ -10879,7 +10879,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       21,
-      'CrystallizedPensionJoe',
+      `${crystallizedPension}Joe`,
       'Fri Apr 05 2019',
       17500,
       -1,
@@ -10990,7 +10990,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       1,
-      'CrystallizedPensionJoe',
+      `${crystallizedPension}Joe`,
       'Fri Dec 01 2017',
       60000,
       -1,
@@ -10999,7 +10999,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       3,
-      'CrystallizedPensionJoe',
+      `${crystallizedPension}Joe`,
       'Mon Jan 01 2018',
       60000,
       -1,
@@ -11009,7 +11009,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       6,
-      'CrystallizedPensionJoe',
+      `${crystallizedPension}Joe`,
       'Thu Feb 01 2018',
       60000,
       -1,
@@ -11017,7 +11017,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       7,
-      'CrystallizedPensionJoe',
+      `${crystallizedPension}Joe`,
       'Sat Feb 03 2018',
       30000,
       -1,
@@ -11027,7 +11027,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       10,
-      'CrystallizedPensionJoe',
+      `${crystallizedPension}Joe`,
       'Thu Mar 01 2018',
       30000,
       -1,
@@ -11036,7 +11036,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       12,
-      'CrystallizedPensionJoe',
+      `${crystallizedPension}Joe`,
       'Sun Apr 01 2018',
       30000,
       -1,
@@ -11048,7 +11048,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       17,
-      'CrystallizedPensionJoe',
+      `${crystallizedPension}Joe`,
       'Tue May 01 2018',
       30000,
       -1,
@@ -11057,7 +11057,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       19,
-      'CrystallizedPensionJoe',
+      `${crystallizedPension}Joe`,
       'Fri Jun 01 2018',
       30000,
       -1,
@@ -11066,7 +11066,7 @@ describe('evaluations tests', () => {
     expectEvals(
       evals,
       21,
-      'CrystallizedPensionJoe',
+      `${crystallizedPension}Joe`,
       'Fri Apr 05 2019',
       17500,
       -1,
@@ -11177,7 +11177,7 @@ describe('evaluations tests', () => {
 
     //printTestCodeForEvals(evals);
 
-    const cpj = 'CrystallizedPensionJoe';
+    const cpj = `${crystallizedPension}Joe`;
 
     expect(evals.length).toBe(32);
     expectEvals(evals, 0, 'Cash', 'Fri Dec 01 2017', 10, -1);
@@ -11314,7 +11314,7 @@ describe('evaluations tests', () => {
 
     //  printTestCodeForEvals(evals);
 
-    const cpj = 'CrystallizedPensionJoe';
+    const cpj = `${crystallizedPension}Joe`;
 
     expect(evals.length).toBe(51);
     expectEvals(evals, 0, 'Cash', 'Fri Apr 06 2018', 0, -1);
@@ -11475,7 +11475,7 @@ describe('evaluations tests', () => {
 
     // printTestCodeForEvals(evals);
 
-    const cpj = 'CrystallizedPensionJoe';
+    const cpj = `${crystallizedPension}Joe`;
 
     expect(evals.length).toBe(16);
     expectEvals(evals, 0, 'Cash', 'Thu Mar 01 2018', 0, -1);
@@ -11636,7 +11636,7 @@ describe('evaluations tests', () => {
 
     //printTestCodeForEvals(evals);
 
-    const pdbfn = 'PensionDBincomeFromNorwich';
+    const pdbfn = `${pensionDB}incomeFromNorwich`;
 
     expect(evals.length).toBe(21);
     expectEvals(evals, 0, pdbfn, 'Sat Feb 10 2018', 50, -1);
@@ -11699,7 +11699,7 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 5, 'Wed Aug 01 2018', 0, -1);
     }
 
-    expect(result.incomesData[1].item.NAME).toBe('PensionDBincomeFromNorwich');
+    expect(result.incomesData[1].item.NAME).toBe(`${pensionDB}incomeFromNorwich`);
     {
       const chartPts = result.incomesData[1].chartDataPoints;
       expect(chartPts.length).toBe(6);
@@ -11852,7 +11852,7 @@ describe('evaluations tests', () => {
 
     // printTestCodeForEvals(evals);
 
-    const pdbfn = 'PensionDBincomeFromNorwich';
+    const pdbfn = `${pensionDB}incomeFromNorwich`;
 
     expect(evals.length).toBe(21);
     expectEvals(evals, 0, pdbfn, 'Sat Feb 10 2018', 50, -1);
@@ -12066,7 +12066,7 @@ describe('evaluations tests', () => {
 
     // printTestCodeForEvals(evals);
 
-    const pbdfn = 'PensionDBincomeFromNorwich';
+    const pbdfn = `${pensionDB}incomeFromNorwich`;
 
     expect(evals.length).toBe(21);
     expectEvals(evals, 0, pbdfn, 'Sat Feb 10 2018', 50.47, 2);
@@ -12129,7 +12129,7 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 5, 'Wed Aug 01 2018', 0, -1);
     }
 
-    expect(result.incomesData[1].item.NAME).toBe('PensionDBincomeFromNorwich');
+    expect(result.incomesData[1].item.NAME).toBe(`${pensionDB}incomeFromNorwich`);
     {
       const chartPts = result.incomesData[1].chartDataPoints;
       expect(chartPts.length).toBe(6);
@@ -21651,21 +21651,21 @@ describe('evaluations tests', () => {
     expectEvals(evals, 9, 'Cash', 'Tue Oct 01 2019', 0, -1);
     expectEvals(evals, 10, 'Cash', 'Fri Nov 01 2019', 0, -1);
     expectEvals(evals, 11, 'Cash', 'Sun Dec 01 2019', 0, -1);
-    expectEvals(evals, 12, 'PensionDBTeachersPensionScheme', 'Sun Dec 01 2019', 0, -1);
+    expectEvals(evals, 12, `${pensionDB}TeachersPensionScheme`, 'Sun Dec 01 2019', 0, -1);
     expectEvals(evals, 13, 'Cash', 'Wed Jan 01 2020', 0, -1);
-    expectEvals(evals, 14, 'PensionDBTeachersPensionScheme', 'Wed Jan 01 2020', 0, -1);
+    expectEvals(evals, 14, `${pensionDB}TeachersPensionScheme`, 'Wed Jan 01 2020', 0, -1);
     expectEvals(evals, 15, 'TeachingJob', 'Wed Jan 01 2020', 2500, -1);
     expectEvals(evals, 16, 'Cash', 'Wed Jan 01 2020', 2500, -1);
     expectEvals(evals, 17, 'Cash', 'Sat Feb 01 2020', 2500, -1);
-    expectEvals(evals, 18, 'PensionDBTeachersPensionScheme', 'Sat Feb 01 2020', 0, -1);
+    expectEvals(evals, 18, `${pensionDB}TeachersPensionScheme`, 'Sat Feb 01 2020', 0, -1);
     expectEvals(evals, 19, 'TeachingJob', 'Sat Feb 01 2020', 2504.13, 2);
     expectEvals(evals, 20, 'Cash', 'Sat Feb 01 2020', 5004.13, 2);
     expectEvals(evals, 21, 'Cash', 'Sun Mar 01 2020', 5004.13, 2);
-    expectEvals(evals, 22, 'PensionDBTeachersPensionScheme', 'Sun Mar 01 2020', 0, -1);
+    expectEvals(evals, 22, `${pensionDB}TeachersPensionScheme`, 'Sun Mar 01 2020', 0, -1);
     expectEvals(evals, 23, 'TeachingJob', 'Sun Mar 01 2020', 2508.26, 2);
     expectEvals(evals, 24, 'Cash', 'Sun Mar 01 2020', 7512.39, 2);
     expectEvals(evals, 25, 'Cash', 'Wed Apr 01 2020', 7512.39, 2);
-    expectEvals(evals, 26, 'PensionDBTeachersPensionScheme', 'Wed Apr 01 2020', 0, -1);
+    expectEvals(evals, 26, `${pensionDB}TeachersPensionScheme`, 'Wed Apr 01 2020', 0, -1);
     expectEvals(evals, 27, 'TeachingJob', 'Wed Apr 01 2020', 2512.41, 2);
     expectEvals(evals, 28, 'Cash', 'Wed Apr 01 2020', 10024.80, 2);
     expectEvals(evals, 29, 'Joe income (net)', 'Sun Apr 05 2020', 10024.80, 2);
@@ -21673,51 +21673,51 @@ describe('evaluations tests', () => {
     expectEvals(evals, 31, '(NI)', 'Sun Apr 05 2020', 167.62, 2);
     expectEvals(evals, 32, 'Joe income (net)', 'Sun Apr 05 2020', 9857.18, 2);
     expectEvals(evals, 33, 'Cash', 'Fri May 01 2020', 9857.18, 2);
-    expectEvals(evals, 34, 'PensionDBTeachersPensionScheme', 'Fri May 01 2020', 0, -1);
+    expectEvals(evals, 34, `${pensionDB}TeachersPensionScheme`, 'Fri May 01 2020', 0, -1);
     expectEvals(evals, 35, 'TeachingJob', 'Fri May 01 2020', 2516.56, 2);
     expectEvals(evals, 36, 'Cash', 'Fri May 01 2020', 12373.74, 2);
     expectEvals(evals, 37, 'Cash', 'Mon Jun 01 2020', 12373.74, 2);
-    expectEvals(evals, 38, 'PensionDBTeachersPensionScheme', 'Mon Jun 01 2020', 0, -1);
+    expectEvals(evals, 38, `${pensionDB}TeachersPensionScheme`, 'Mon Jun 01 2020', 0, -1);
     expectEvals(evals, 39, 'TeachingJob', 'Mon Jun 01 2020', 2520.71, 2);
     expectEvals(evals, 40, 'Cash', 'Mon Jun 01 2020', 14894.45, 2);
     expectEvals(evals, 41, 'Cash', 'Wed Jul 01 2020', 14894.45, 2);
-    expectEvals(evals, 42, 'PensionDBTeachersPensionScheme', 'Wed Jul 01 2020', 0, -1);
+    expectEvals(evals, 42, `${pensionDB}TeachersPensionScheme`, 'Wed Jul 01 2020', 0, -1);
     expectEvals(evals, 43, 'TeachingJob', 'Wed Jul 01 2020', 2524.88, 2);
     expectEvals(evals, 44, 'Cash', 'Wed Jul 01 2020', 17419.33, 2);
     expectEvals(evals, 45, 'Cash', 'Sat Aug 01 2020', 17419.33, 2);
-    expectEvals(evals, 46, 'PensionDBTeachersPensionScheme', 'Sat Aug 01 2020', 0, -1);
+    expectEvals(evals, 46, `${pensionDB}TeachersPensionScheme`, 'Sat Aug 01 2020', 0, -1);
     expectEvals(evals, 47, 'TeachingJob', 'Sat Aug 01 2020', 2529.05, 2);
     expectEvals(evals, 48, 'Cash', 'Sat Aug 01 2020', 19948.38, 2);
     expectEvals(evals, 49, 'Cash', 'Tue Sep 01 2020', 19948.38, 2);
-    expectEvals(evals, 50, 'PensionDBTeachersPensionScheme', 'Tue Sep 01 2020', 0, -1);
+    expectEvals(evals, 50, `${pensionDB}TeachersPensionScheme`, 'Tue Sep 01 2020', 0, -1);
     expectEvals(evals, 51, 'TeachingJob', 'Tue Sep 01 2020', 2533.22, 2);
     expectEvals(evals, 52, 'Cash', 'Tue Sep 01 2020', 22481.60, 2);
     expectEvals(evals, 53, 'Cash', 'Thu Oct 01 2020', 22481.60, 2);
-    expectEvals(evals, 54, 'PensionDBTeachersPensionScheme', 'Thu Oct 01 2020', 0, -1);
+    expectEvals(evals, 54, `${pensionDB}TeachersPensionScheme`, 'Thu Oct 01 2020', 0, -1);
     expectEvals(evals, 55, 'TeachingJob', 'Thu Oct 01 2020', 2537.41, 2);
     expectEvals(evals, 56, 'Cash', 'Thu Oct 01 2020', 25019.01, 2);
     expectEvals(evals, 57, 'Cash', 'Sun Nov 01 2020', 25019.01, 2);
-    expectEvals(evals, 58, 'PensionDBTeachersPensionScheme', 'Sun Nov 01 2020', 0, -1);
+    expectEvals(evals, 58, `${pensionDB}TeachersPensionScheme`, 'Sun Nov 01 2020', 0, -1);
     expectEvals(evals, 59, 'TeachingJob', 'Sun Nov 01 2020', 2541.60, 2);
     expectEvals(evals, 60, 'Cash', 'Sun Nov 01 2020', 27560.61, 2);
     expectEvals(evals, 61, 'Cash', 'Tue Dec 01 2020', 27560.61, 2);
-    expectEvals(evals, 62, 'PensionDBTeachersPensionScheme', 'Tue Dec 01 2020', 0, -1);
+    expectEvals(evals, 62, `${pensionDB}TeachersPensionScheme`, 'Tue Dec 01 2020', 0, -1);
     expectEvals(evals, 63, 'TeachingJob', 'Tue Dec 01 2020', 2545.80, 2);
     expectEvals(evals, 64, 'Cash', 'Tue Dec 01 2020', 30106.40, 2);
     expectEvals(evals, 65, 'Cash', 'Fri Jan 01 2021', 30106.40, 2);
-    expectEvals(evals, 66, 'PensionDBTeachersPensionScheme', 'Fri Jan 01 2021', 0, -1);
+    expectEvals(evals, 66, `${pensionDB}TeachersPensionScheme`, 'Fri Jan 01 2021', 0, -1);
     expectEvals(evals, 67, 'TeachingJob', 'Fri Jan 01 2021', 2550.00, 2);
     expectEvals(evals, 68, 'Cash', 'Fri Jan 01 2021', 32656.40, 2);
     expectEvals(evals, 69, 'Cash', 'Mon Feb 01 2021', 32656.40, 2);
-    expectEvals(evals, 70, 'PensionDBTeachersPensionScheme', 'Mon Feb 01 2021', 0, -1);
+    expectEvals(evals, 70, `${pensionDB}TeachersPensionScheme`, 'Mon Feb 01 2021', 0, -1);
     expectEvals(evals, 71, 'TeachingJob', 'Mon Feb 01 2021', 2554.21, 2);
     expectEvals(evals, 72, 'Cash', 'Mon Feb 01 2021', 35210.61, 2);
     expectEvals(evals, 73, 'Cash', 'Mon Mar 01 2021', 35210.61, 2);
-    expectEvals(evals, 74, 'PensionDBTeachersPensionScheme', 'Mon Mar 01 2021', 0, -1);
+    expectEvals(evals, 74, `${pensionDB}TeachersPensionScheme`, 'Mon Mar 01 2021', 0, -1);
     expectEvals(evals, 75, 'TeachingJob', 'Mon Mar 01 2021', 2558.43, 2);
     expectEvals(evals, 76, 'Cash', 'Mon Mar 01 2021', 37769.04, 2);
     expectEvals(evals, 77, 'Cash', 'Thu Apr 01 2021', 37769.04, 2);
-    expectEvals(evals, 78, 'PensionDBTeachersPensionScheme', 'Thu Apr 01 2021', 0, -1);
+    expectEvals(evals, 78, `${pensionDB}TeachersPensionScheme`, 'Thu Apr 01 2021', 0, -1);
     expectEvals(evals, 79, 'TeachingJob', 'Thu Apr 01 2021', 2562.66, 2);
     expectEvals(evals, 80, 'Cash', 'Thu Apr 01 2021', 40331.70, 2);
     expectEvals(evals, 81, 'Cash', 'Mon Apr 05 2021', 36799.30, 2);
@@ -21727,7 +21727,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 85, '(NI)', 'Mon Apr 05 2021', 2595.70, 2);
     expectEvals(evals, 86, 'Joe income (net)', 'Mon Apr 05 2021', 24346.41, 2);
     expectEvals(evals, 87, 'Cash', 'Sat May 01 2021', 34203.60, 2);
-    expectEvals(evals, 88, 'PensionDBTeachersPensionScheme', 'Sat May 01 2021', 0, -1);
+    expectEvals(evals, 88, `${pensionDB}TeachersPensionScheme`, 'Sat May 01 2021', 0, -1);
     expectEvals(evals, 89, 'TeachingJob', 'Sat May 01 2021', 2566.89, 2);
     expectEvals(evals, 90, 'Cash', 'Sat May 01 2021', 36770.49, 2);
     expectEvals(evals, 91, 'Joe income (net)', 'Tue Apr 05 2022', 2566.89, 2);
@@ -21934,57 +21934,57 @@ describe('evaluations tests', () => {
     expectEvals(evals, 46, 'Cash', 'Sun Nov 01 2020', 0, -1);
     expectEvals(evals, 47, 'Cash', 'Tue Dec 01 2020', 0, -1);
     expectEvals(evals, 48, 'Cash', 'Fri Jan 01 2021', 0, -1);
-    expectEvals(evals, 49, 'AegonTaxFree', 'Fri Jan 01 2021', 0, -1);
-    expectEvals(evals, 50, 'PensionAegon', 'Fri Jan 01 2021', 0, -1);
-    expectEvals(evals, 51, 'CrystallizedPensionJack', 'Fri Jan 01 2021', 0, -1);
-    expectEvals(evals, 52, 'CrystallizedPensionJoe', 'Fri Jan 01 2021', 0, -1);
+    expectEvals(evals, 50, `Aegon${taxFree}`, 'Fri Jan 01 2021', 0, -1);
+    expectEvals(evals, 49, `${pension}Aegon`, 'Fri Jan 01 2021', 0, -1);
+    expectEvals(evals, 51, `${crystallizedPension}Jack`, 'Fri Jan 01 2021', 0, -1);
+    expectEvals(evals, 52, `${crystallizedPension}Joe`, 'Fri Jan 01 2021', 0, -1);
     expectEvals(evals, 53, 'javaJob1', 'Fri Jan 01 2021', 2550.00, 2);
-    expectEvals(evals, 54, 'PensionAegon', 'Fri Jan 01 2021', 1402.50, 2);
+    expectEvals(evals, 54, `${pension}Aegon`, 'Fri Jan 01 2021', 1402.50, 2);
     expectEvals(evals, 55, 'Cash', 'Fri Jan 01 2021', 2422.50, 2);
     expectEvals(evals, 56, 'Cash', 'Mon Feb 01 2021', 2422.50, 2);
-    expectEvals(evals, 57, 'AegonTaxFree', 'Mon Feb 01 2021', 0, -1);
-    expectEvals(evals, 58, 'PensionAegon', 'Mon Feb 01 2021', 1407.65, 2);
-    expectEvals(evals, 59, 'CrystallizedPensionJack', 'Mon Feb 01 2021', 0, -1);
-    expectEvals(evals, 60, 'CrystallizedPensionJoe', 'Mon Feb 01 2021', 0, -1);
+    expectEvals(evals, 58, `Aegon${taxFree}`, 'Mon Feb 01 2021', 0, -1);
+    expectEvals(evals, 57, `${pension}Aegon`, 'Mon Feb 01 2021', 1407.65, 2);
+    expectEvals(evals, 59, `${crystallizedPension}Jack`, 'Mon Feb 01 2021', 0, -1);
+    expectEvals(evals, 60, `${crystallizedPension}Joe`, 'Mon Feb 01 2021', 0, -1);
     expectEvals(evals, 61, 'javaJob1', 'Mon Feb 01 2021', 2554.21, 2);
-    expectEvals(evals, 62, 'PensionAegon', 'Mon Feb 01 2021', 2812.47, 2);
+    expectEvals(evals, 62, `${pension}Aegon`, 'Mon Feb 01 2021', 2812.47, 2);
     expectEvals(evals, 63, 'Cash', 'Mon Feb 01 2021', 4849.00, 2);
     expectEvals(evals, 64, 'Cash', 'Mon Mar 01 2021', 4849.00, 2);
-    expectEvals(evals, 65, 'AegonTaxFree', 'Mon Mar 01 2021', 0, -1);
-    expectEvals(evals, 66, 'PensionAegon', 'Mon Mar 01 2021', 2822.81, 2);
-    expectEvals(evals, 67, 'CrystallizedPensionJack', 'Mon Mar 01 2021', 0, -1);
-    expectEvals(evals, 68, 'CrystallizedPensionJoe', 'Mon Mar 01 2021', 0, -1);
+    expectEvals(evals, 66, `Aegon${taxFree}`, 'Mon Mar 01 2021', 0, -1);
+    expectEvals(evals, 65, `${pension}Aegon`, 'Mon Mar 01 2021', 2822.81, 2);
+    expectEvals(evals, 67, `${crystallizedPension}Jack`, 'Mon Mar 01 2021', 0, -1);
+    expectEvals(evals, 68, `${crystallizedPension}Joe`, 'Mon Mar 01 2021', 0, -1);
     expectEvals(evals, 69, 'javaJob1', 'Mon Mar 01 2021', 2558.43, 2);
-    expectEvals(evals, 70, 'PensionAegon', 'Mon Mar 01 2021', 4229.94, 2);
+    expectEvals(evals, 70, `${pension}Aegon`, 'Mon Mar 01 2021', 4229.94, 2);
     expectEvals(evals, 71, 'Cash', 'Mon Mar 01 2021', 7279.51, 2);
     expectEvals(evals, 72, 'Cash', 'Thu Apr 01 2021', 7279.51, 2);
-    expectEvals(evals, 73, 'AegonTaxFree', 'Thu Apr 01 2021', 0, -1);
-    expectEvals(evals, 74, 'PensionAegon', 'Thu Apr 01 2021', 4245.49, 2);
-    expectEvals(evals, 75, 'CrystallizedPensionJack', 'Thu Apr 01 2021', 0, -1);
-    expectEvals(evals, 76, 'CrystallizedPensionJoe', 'Thu Apr 01 2021', 0, -1);
+    expectEvals(evals, 74, `Aegon${taxFree}`, 'Thu Apr 01 2021', 0, -1);
+    expectEvals(evals, 73, `${pension}Aegon`, 'Thu Apr 01 2021', 4245.49, 2);
+    expectEvals(evals, 75, `${crystallizedPension}Jack`, 'Thu Apr 01 2021', 0, -1);
+    expectEvals(evals, 76, `${crystallizedPension}Joe`, 'Thu Apr 01 2021', 0, -1);
     expectEvals(evals, 77, 'javaJob1', 'Thu Apr 01 2021', 2562.66, 2);
-    expectEvals(evals, 78, 'PensionAegon', 'Thu Apr 01 2021', 5654.95, 2);
+    expectEvals(evals, 78, `${pension}Aegon`, 'Thu Apr 01 2021', 5654.95, 2);
     expectEvals(evals, 79, 'Cash', 'Thu Apr 01 2021', 9714.03, 2);
     expectEvals(evals, 80, 'Cash', 'Mon Apr 05 2021', 9714.03, 2);
-    expectEvals(evals, 81, 'CrystallizedPensionJoe', 'Mon Apr 05 2021', 0, -1);
+    expectEvals(evals, 81, `${crystallizedPension}Joe`, 'Mon Apr 05 2021', 0, -1);
     expectEvals(evals, 82, 'Cash', 'Mon Apr 05 2021', 9714.03, 2);
-    expectEvals(evals, 83, 'CrystallizedPensionJack', 'Mon Apr 05 2021', 0, -1);
+    expectEvals(evals, 83, `${crystallizedPension}Jack`, 'Mon Apr 05 2021', 0, -1);
     expectEvals(evals, 84, 'Joe income (net)', 'Mon Apr 05 2021', 9714.03, 2);
     expectEvals(evals, 85, 'Cash', 'Mon Apr 05 2021', 9548.24, 2);
     expectEvals(evals, 86, '(NI)', 'Mon Apr 05 2021', 165.79, 2);
     expectEvals(evals, 87, 'Joe income (net)', 'Mon Apr 05 2021', 9548.24, 2);
     expectEvals(evals, 88, 'Cash', 'Sat May 01 2021', 9548.24, 2);
-    expectEvals(evals, 89, 'AegonTaxFree', 'Sat May 01 2021', 0, -1);
-    expectEvals(evals, 90, 'PensionAegon', 'Sat May 01 2021', 5675.73, 2);
-    expectEvals(evals, 91, 'CrystallizedPensionJack', 'Sat May 01 2021', 0, -1);
-    expectEvals(evals, 92, 'CrystallizedPensionJoe', 'Sat May 01 2021', 0, -1);
+    expectEvals(evals, 90, `Aegon${taxFree}`, 'Sat May 01 2021', 0, -1);
+    expectEvals(evals, 89, `${pension}Aegon`, 'Sat May 01 2021', 5675.73, 2);
+    expectEvals(evals, 91, `${crystallizedPension}Jack`, 'Sat May 01 2021', 0, -1);
+    expectEvals(evals, 92, `${crystallizedPension}Joe`, 'Sat May 01 2021', 0, -1);
     expectEvals(evals, 93, 'javaJob1', 'Sat May 01 2021', 2566.89, 2);
-    expectEvals(evals, 94, 'PensionAegon', 'Sat May 01 2021', 7087.52, 2);
+    expectEvals(evals, 94, `${pension}Aegon`, 'Sat May 01 2021', 7087.52, 2);
     expectEvals(evals, 95, 'Cash', 'Sat May 01 2021', 11986.78, 2);
     expectEvals(evals, 96, 'Cash', 'Tue Apr 05 2022', 11986.78, 2);
-    expectEvals(evals, 97, 'CrystallizedPensionJoe', 'Tue Apr 05 2022', 0, -1);
+    expectEvals(evals, 97, `${crystallizedPension}Joe`, 'Tue Apr 05 2022', 0, -1);
     expectEvals(evals, 98, 'Cash', 'Tue Apr 05 2022', 11986.78, 2);
-    expectEvals(evals, 99, 'CrystallizedPensionJack', 'Tue Apr 05 2022', 0, -1);
+    expectEvals(evals, 99, `${crystallizedPension}Jack`, 'Tue Apr 05 2022', 0, -1);
     expectEvals(evals, 100, 'Joe income (net)', 'Tue Apr 05 2022', 2438.54, 2);
     expectEvals(evals, 101, 'Joe income (net)', 'Tue Apr 05 2022', 2438.54, 2);
 
