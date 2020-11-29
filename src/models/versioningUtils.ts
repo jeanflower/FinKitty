@@ -32,7 +32,7 @@ import {
 } from '../localization/stringConstants';
 import { ModelData } from '../types/interfaces';
 import { getMinimalModelCopy, viewSetting } from './exampleModels';
-import { log, showObj } from '../utils';
+import { log } from '../utils';
 
 export function getCurrentVersion() {
   // return 0; // may not include assets or settings in minimalModel
