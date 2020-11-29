@@ -299,11 +299,13 @@ function migrateFromV5(model: ModelData) {
           hasChanged = true;
           // log(`new t.FROM w = ${w}`);
         }
-        if (w.endsWith(ch.oldPart)) {
-          // log(`old w = ${w`);
-          w = `${w.substring(0, w.length - ch.oldPart.length)}${ch.newPart}`;
-          hasChanged = true;
-          // log(`new w = ${w}`);
+        if (ch.oldPart === 'TaxFree') {
+          if (w.endsWith(ch.oldPart)) {
+            // log(`old w = ${w`);
+            w = `${ch.newPart}${w.substring(0, w.length - ch.oldPart.length)}`;
+            hasChanged = true;
+            // log(`new w = ${w}`);
+          }
         }
         newWords.push(w);
       });
@@ -325,11 +327,13 @@ function migrateFromV5(model: ModelData) {
           hasChanged = true;
           // log(`new t.TO w = ${w}`);
         }
-        if (w.endsWith(ch.oldPart)) {
-          // log(`old w = ${w`);
-          w = `${w.substring(0, w.length - ch.oldPart.length)}${ch.newPart}`;
-          hasChanged = true;
-          // log(`new w = ${w}`);
+        if (ch.oldPart === 'TaxFree') {
+          if (w.endsWith(ch.oldPart)) {
+            // log(`old w = ${w`);
+            w = `${ch.newPart}${w.substring(0, w.length - ch.oldPart.length)}`;
+            hasChanged = true;
+            // log(`new w = ${w}`);
+          }
         }
         newWords.push(w);
       });
@@ -390,12 +394,15 @@ function migrateFromV5(model: ModelData) {
         )}`;
         // log(`new a.NAME=${a.NAME}`);
       }
-      if (a.NAME.endsWith(ch.oldPart)) {
-        // log(`old t.TO=${t.TO}`);
-        a.NAME = `${a.NAME.substring(0, a.NAME.length - ch.oldPart.length)}${
-          ch.newPart
-        }`;
-        // log(`new t.TO=${t.TO}`);
+      if (ch.oldPart === 'TaxFree') {
+        if (a.NAME.endsWith(ch.oldPart)) {
+          // log(`old a.NAME=${a.NAME}`);
+          a.NAME = `${ch.newPart}${a.NAME.substring(
+            0,
+            a.NAME.length - ch.oldPart.length,
+          )}`;
+          // log(`new a.NAME=${a.NAME}`);
+        }
       }
     });
   });

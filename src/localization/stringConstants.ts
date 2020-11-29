@@ -111,8 +111,8 @@ export const pension = '-DC ';
 export const pensionSS = '-PSS ';
 export const pensionDB = '-DB ';
 export const pensionTransfer = '-DBT ';
-export const moveTaxFreePart = '-CPTaxFree ';
-export const taxFree = '-CPTaxFree';
+export const moveTaxFreePart = '-CPTaxFreeM ';
+export const taxFree = '-CPTaxFree ';
 export const transferCrystallizedPension = '-CPT ';
 
 // Transactions can be Conditional

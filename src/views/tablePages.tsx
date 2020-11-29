@@ -300,8 +300,8 @@ function handleAssetGridRowsUpdated(
         showAlert(`Don't rename assets beginning ${pension}`);
         return;
       }
-      if (args[0].updated.NAME.endsWith(taxFree)) {
-        showAlert(`Don't rename assets ending ${taxFree}`);
+      if (args[0].updated.NAME.startsWith(taxFree)) {
+        showAlert(`Don't rename assets beginning ${taxFree}`);
         return;
       }
       if (args[0].updated.NAME.startsWith(crystallizedPension)) {

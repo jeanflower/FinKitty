@@ -612,7 +612,7 @@ function isAutogenType(t: Transaction, model: ModelData) {
     t.NAME.startsWith(moveTaxFreePart) &&
     t.FROM.startsWith(pension) &&
     t.FROM_ABSOLUTE === false &&
-    t.TO.endsWith(taxFree) &&
+    t.TO.startsWith(taxFree) &&
     t.TO_ABSOLUTE === false &&
     t.RECURRENCE === ''
   ) {
