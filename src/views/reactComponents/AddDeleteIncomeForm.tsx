@@ -1008,6 +1008,15 @@ DB_TRANSFERRED_STOP
         // log(`this.state.DB_ACCRUAL = ${this.state.DB_ACCRUAL}`);
         const monthlyAccrualValue = `${parseFloat(this.state.DB_ACCRUAL) /
           12.0}`;
+        // Why divide by 12 here?
+        // the accrual rate adds, say, 1/49th of an income to the
+        // annual pension benefit.
+        // If w3e earn money each month, or each week, it's still 1/49th
+        // of that income.
+        // But if we are tracking a future _monthly_ pension benefit,
+        // we should only add 1/49th /12 otherwise our pension will be
+        // very large from not many contributions!
+
         // log(`monthlyAccrualValue = ${monthlyAccrualValue}`);
         pensionDbptran2 = {
           NAME: newIncomeName1, // kicks in when we see income java

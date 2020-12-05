@@ -85,6 +85,7 @@ export const nationalInsurance = '(NI)';
 export const taxableBenefit = 'TaxableBenefit';
 export const income = 'income';
 export const gain = 'gain';
+export const pensionAllowance = 'PensionAllowance';
 export const net = '(net)';
 // Assets can of the form CrystallizedPension
 // and transfer to cash is liable to income tax for
@@ -107,6 +108,15 @@ export const cgt = '(CGT)';
 // or PensionDBTeachers
 // (amounts here take proportion of income and add to accruing benefit value)
 
+/*
+export const pension = '-PEN ';
+export const pensionSS = '-PSS ';
+export const pensionDB = '-PDB ';
+export const pensionTransfer = '-PT ';
+export const moveTaxFreePart = '-CPTaxFreeM ';
+export const taxFree = '-CPTaxFree ';
+export const transferCrystallizedPension = '-CPT ';
+*/
 export const pension = '-DC ';
 export const pensionSS = '-PSS ';
 export const pensionDB = '-DB ';

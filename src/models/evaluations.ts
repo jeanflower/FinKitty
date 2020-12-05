@@ -24,6 +24,7 @@ import {
   vestedEval,
   rsu,
   vestedNum,
+  pensionAllowance,
 } from '../localization/stringConstants';
 import {
   DatedThing,
@@ -55,6 +56,7 @@ import {
   makeNetIncomeTag,
   makeNetGainTag,
   removeNumberPart,
+  makePensionAllowanceTag,
 } from '../stringUtils';
 import {
   getSettings,
@@ -1385,7 +1387,11 @@ function settleUpTax(
 
   const personNetIncome = new Map<string, number>();
   const personNetGain = new Map<string, number>();
+  const personPensionAllowanceUsed = new Map<string, number>();
   for (const [key, value] of liableIncomeInTaxYear) {
+    let recalculatedNetIncome = false;
+    let recalculatedNetGain = false;
+    let recalculatedPensionAllowance = false;
     /* eslint-disable-line no-restricted-syntax */
     if (key === incomeTax && value !== undefined) {
       for (const [person, amount] of value) {
@@ -1418,6 +1424,7 @@ function settleUpTax(
         }
         // log('resetting liableIncomeInTaxYear');
         value.set(person, 0);
+        recalculatedNetIncome = true;
       }
     } else if (key === nationalInsurance && value !== undefined) {
       for (const [person, amount] of value) {
@@ -1450,6 +1457,7 @@ function settleUpTax(
         // log('resetting liableIncomeInTaxYear');
         value.set(person, 0);
       }
+      recalculatedNetIncome = true;
     } else if (key === 'cgt' && value !== undefined) {
       for (const [person, amount] of value) {
         /* eslint-disable-line no-restricted-syntax */
@@ -1471,47 +1479,101 @@ function settleUpTax(
           personNetGain.set(personsName, knownNetGain - cgtPaid);
         }
         value.set(person, 0);
+        recalculatedNetGain = true;
+      }
+    } else if (key === pensionAllowance && value !== undefined) {
+      for (const [person, amount] of value) {
+        // log(`for PensionAllowance, [person, amount] = [${person},${amount}] `);
+        const personsName = person.substring(
+          0,
+          person.length - pensionAllowance.length,
+        );
+        const knownPensionAllowanceUsage = personPensionAllowanceUsed.get(
+          personsName,
+        );
+        if (knownPensionAllowanceUsage === undefined) {
+          personPensionAllowanceUsed.set(personsName, amount);
+        } else {
+          personPensionAllowanceUsed.set(
+            personsName,
+            knownPensionAllowanceUsage + amount,
+          );
+        }
+        recalculatedPensionAllowance = true;
+        value.set(person, 0);
+      }
+    } else {
+      log(`unhandled key from liableIncomeInTaxYear = ${key} `);
+    }
+    if (recalculatedNetIncome) {
+      for (const [person, amount] of personNetIncome) {
+        if (amount > 0) {
+          // log(`setValue ${makeNetIncomeTag(person)} amount ${amount}`)
+          setValue(
+            values,
+            evaluations,
+            date,
+            makeNetIncomeTag(person),
+            amount,
+            model,
+            makeNetIncomeTag(person),
+            '27', //callerID
+          );
+        }
       }
     }
-    for (const [person, amount] of personNetIncome) {
-      if (amount > 0) {
-        // log(`setValue ${makeNetIncomeTag(person)} amount ${amount}`)
-        setValue(
-          values,
-          evaluations,
-          date,
-          makeNetIncomeTag(person),
-          amount,
-          model,
-          makeNetIncomeTag(person),
-          '27', //callerID
-        );
+    if (recalculatedNetGain) {
+      for (const [person, amount] of personNetGain) {
+        if (amount > 0) {
+          // log(`setValue ${'netgain'+person} amount ${amount}`)
+          setValue(
+            values,
+            evaluations,
+            date,
+            makeNetGainTag(person),
+            amount,
+            model,
+            makeNetGainTag(person),
+            '28', //callerID
+          );
+        }
       }
     }
-    for (const [person, amount] of personNetGain) {
-      if (amount > 0) {
-        // log(`setValue ${'netgain'+person} amount ${amount}`)
-        setValue(
-          values,
-          evaluations,
-          date,
-          makeNetGainTag(person),
-          amount,
-          model,
-          makeNetGainTag(person),
-          '28', //callerID
-        );
+    if (recalculatedPensionAllowance) {
+      for (const [person, amount] of personPensionAllowanceUsed) {
+        if (amount > 0) {
+          // log(`setValue ${'netgain'+person} amount ${amount}`)
+          setValue(
+            values,
+            evaluations,
+            date,
+            makePensionAllowanceTag(person),
+            amount,
+            model,
+            makePensionAllowanceTag(person),
+            '34', //callerID
+          );
+        }
       }
     }
   }
 }
 
-function handleLiability(
+function accumulateLiability(
   liability: string,
   type: string, // "income" or "NI"
   incomeValue: number,
   liableIncomeInTaxYear: Map<string, Map<string, number>>,
 ) {
+  // log(`accumulateLiability,
+  //   liability = ${liability}, type = ${type}, incomeValue = ${incomeValue}`);
+  /* 
+  // This change breaks
+  // 'pay income tax on conditional categorized crystallized pension'
+  if(incomeValue === 0){
+    return;
+  }
+  */
   let map = liableIncomeInTaxYear.get(type);
   if (map === undefined) {
     // set up a map to collect accumulations for type
@@ -1570,6 +1632,7 @@ function handleIncome(
   let amountForCashIncrement = incomeValue;
   let amountForIncomeTax = incomeValue;
   let amountForNI = incomeValue;
+  let amountForPensionAllowance = 0.0;
   // some types of pension scheme reduce NI liability
 
   if (moment.type === momentType.asset) {
@@ -1582,22 +1645,20 @@ function handleIncome(
   // reduced to account for pension contributions
   // and it sometimes adjusts defined contributions pension asset
   // and it sometimes adjusts defined benefits pension benefit
-  pensionTransactions.forEach(transaction => {
-    const tFromValue = parseFloat(transaction.FROM_VALUE);
-    const tToValue = parseFloat(transaction.TO_VALUE);
-
-    // log(`pension transaction ${transaction.NAME}`)
-
-    if (getTriggerDate(transaction.DATE, triggers) > moment.date) {
+  pensionTransactions.forEach(pt => {
+    if (getTriggerDate(pt.DATE, triggers) > moment.date) {
       return;
     }
-    // log(`see if ${showObj(transaction)} should affect `
+    const tFromValue = parseFloat(pt.FROM_VALUE);
+    const tToValue = parseFloat(pt.TO_VALUE);
+    // log(`pension transaction ${pt.NAME}`)
+    // log(`see if ${showObj(pt)} should affect `
     //  +`this handleIncome moment ${showObj(moment)}`);
-    if (moment.name === transaction.FROM) {
-      // log(`matched transaction ${showObj(transaction)}`);
+    if (moment.name === pt.FROM) {
+      // log(`matched transaction ${showObj(pt)}`);
 
       let amountFrom = 0.0;
-      if (transaction.FROM_ABSOLUTE) {
+      if (pt.FROM_ABSOLUTE) {
         amountFrom = tFromValue;
       } else {
         // e.g. employee chooses 5% pension contribution
@@ -1605,31 +1666,35 @@ function handleIncome(
         // log(`amountFrom = ${tFromValue} * ${incomeValue}`);
       }
 
-      if (!transaction.NAME.startsWith(pensionDB)) {
-        // a Defined Benefits Pension
+      if (!pt.NAME.startsWith(pensionDB)) {
+        // A Defined Contributions pension
+        // has a name beginnning pensionDC
+        //
+        // A Defined Benefits Pension
         // has two transactions
         // - one flagged as pension (or pensionSS)
         //   which will decrease cash Increment etc
         // - another flagged as pensionDB
         // whose purpose is solely to setValue on the
         // target benefit
+        // log(`pay into pension : ${pt.NAME}`);
         amountForCashIncrement -= amountFrom;
         amountForIncomeTax -= amountFrom;
 
-        if (transaction.NAME.startsWith(pensionSS)) {
+        if (pt.NAME.startsWith(pensionSS)) {
           amountForNI -= amountFrom;
         }
       }
 
       let amountForPension = 0;
-      if (transaction.TO_ABSOLUTE) {
+      if (pt.TO_ABSOLUTE) {
         amountForPension = tToValue;
       } else {
         // e.g. employer increments employee's pension contribution
         amountForPension = tToValue * amountFrom;
       }
-      let pensionValue = getNumberValue(values, transaction.TO, false);
-      if (transaction.TO === '') {
+      let pensionValue = getNumberValue(values, pt.TO, false);
+      if (pt.TO === '') {
         if (printDebug()) {
           log('pension contributions going into void');
         }
@@ -1638,6 +1703,21 @@ function handleIncome(
       } else {
         // log(`old pensionValue is ${pensionValue}`);
         pensionValue += amountForPension;
+
+        // log(`pt.NAME = ${pt.NAME}`);
+        if (pt.NAME.startsWith(pensionDB)) {
+          // defined benefits pensions
+          // take the amount of change to the annual pension value
+          // (not the monthly pension value)
+          // and scale it by an
+          // arbitrary 19* (matches teacher's pension scheme rule)
+          // log(`add ${amountForPension}*12*19 to amountForPensionAllowance for ${pt.NAME}`);
+          amountForPensionAllowance += amountForPension * 19 * 12;
+        } else {
+          // defined contributions pensions
+          // log(`add ${amountForPension} to amountForPensionAllowance for ${pt.NAME}`);
+          amountForPensionAllowance += amountForPension;
+        }
         // log(`new pensionValue is ${pensionValue}`);
         // log(`income source = ${transaction.NAME}`);
         // log('in handleIncome:');
@@ -1645,10 +1725,10 @@ function handleIncome(
           values,
           evaluations,
           moment.date,
-          transaction.TO,
+          pt.TO,
           pensionValue,
           model,
-          transaction.NAME,
+          pt.NAME,
           '7', //callerID
         );
       }
@@ -1670,35 +1750,69 @@ function handleIncome(
   }
 
   // log(`look for ${moment.name+sourceDescription} in liabilitiesMap`);
-  let liabilityList = liabilitiesMap.get(moment.name + sourceDescription); // e.g. "IncomeTaxJoe, NIJoe"
+  let person = '';
+  let liabilitiesMapKey = moment.name + sourceDescription;
+  let liabilityList = liabilitiesMap.get(liabilitiesMapKey); // e.g. "IncomeTaxJoe, NIJoe"
   if (liabilityList === undefined) {
-    liabilityList = liabilitiesMap.get(moment.name);
+    liabilitiesMapKey = moment.name;
+    liabilityList = liabilitiesMap.get(liabilitiesMapKey);
   }
-  // log(`for ${moment.name+sourceDescription}, liabilityList = ${liabilityList}`);
+  // log(`for ${liabilitiesMapKey}, liabilityList = ${liabilityList}`);
   if (liabilityList !== undefined) {
     const words: string[] = liabilityList.split(separator);
     words.forEach(liability => {
       // log(`liability = ${liability}`);
       if (liability.endsWith(incomeTax)) {
-        // log(`IncomeTax due on ${amountForIncomeTax} for ${liability}, ${moment.name+sourceDescription}`);
-        handleLiability(
+        // log(`IncomeTax due on ${amountForIncomeTax} for ${liability}, ${liabilitiesMapKey}`);
+        accumulateLiability(
           liability,
           incomeTax,
           amountForIncomeTax,
           liableIncomeInTaxYear,
         );
+        const thisPerson = liability.substring(
+          0,
+          liability.length - incomeTax.length,
+        );
+        if (person === '') {
+          person = thisPerson;
+        } else if (person !== thisPerson) {
+          throw new Error(
+            `can't handle multiple people liable from one income`,
+          );
+        }
       }
       if (liability.endsWith(nationalInsurance)) {
         // log(`NI moment is ${showObj(moment.name)} amount ${amountForNI}`);
-        handleLiability(
+        accumulateLiability(
           liability,
           nationalInsurance,
           amountForNI,
           liableIncomeInTaxYear,
         );
+        const thisPerson = liability.substring(
+          0,
+          liability.length - nationalInsurance.length,
+        );
+        if (person === '') {
+          person = thisPerson;
+        } else if (person !== thisPerson) {
+          throw new Error(
+            `can't handle multiple people liable from one income`,
+          );
+        }
       }
     });
   }
+
+  accumulateLiability(
+    `${person}${pensionAllowance}`,
+    pensionAllowance,
+    amountForPensionAllowance,
+    liableIncomeInTaxYear,
+  );
+
+  // log(`finished handleIncome`);
 }
 
 function logExpenseGrowth(
@@ -2201,7 +2315,7 @@ function revalueApplied(
                 log('Untested code for income tax on quantities');
                 gain *= q;
               }
-              handleLiability(l, incomeTax, gain, liableIncomeInTaxYear);
+              accumulateLiability(l, incomeTax, gain, liableIncomeInTaxYear);
             }
           }
         }
@@ -2653,6 +2767,7 @@ function processTransactionFromTo(
       model,
     );
   }
+  // log(`for ${t.NAME}, toChange = ${toChange}`);
 
   // apply fromChange
   if (fromChange !== undefined && preFromValue !== undefined) {
@@ -2735,6 +2850,21 @@ function processTransactionFromTo(
         makeSourceForToChange(t, fromWord),
         '15', //callerID
       );
+    }
+  } else {
+    // special case - if we're reducing an income tax liability
+    // because we paid money into a pension
+    ///////////////...
+    if (t.FROM.endsWith(incomeTax) && t.TO === '') {
+      // We're reducing our income tax liability
+      // because of a pension scheme contribution.
+      // Make a matching addition to our pensionAllowance
+      // total too.
+      // log(`use up ${fromChange} of ${pensionAllowance} for ${t.FROM}`);
+      log(
+        `ERROR : one-off income tax adjustment might affect pensionAllowance...no code for this`,
+      );
+      // throw new Error('unhandled pensionAllowance change');
     }
   }
 }
@@ -3320,7 +3450,7 @@ export function getEvaluations(
 
     // Each moment we process is in dated order.
     // log(`popped moment is ${showObj(moment)}, `+
-    //  `${datedMoments.length} moments left`);
+    //   `${datedMoments.length} moments left`);
 
     // Detect if this date has brought us into a new tax year.
     // At a change of tax year, log last year's accrual
@@ -3407,7 +3537,7 @@ export function getEvaluations(
                 const amountDueForIncomeTax = val * qty;
                 // log(`amountDueForIncomeTax = ${amountDueForIncomeTax}`)
                 if (lw.endsWith(incomeTax)) {
-                  handleLiability(
+                  accumulateLiability(
                     lw,
                     incomeTax,
                     amountDueForIncomeTax,
@@ -3415,7 +3545,7 @@ export function getEvaluations(
                   );
                 }
                 if (lw.endsWith(nationalInsurance)) {
-                  handleLiability(
+                  accumulateLiability(
                     lw,
                     nationalInsurance,
                     amountDueForIncomeTax,

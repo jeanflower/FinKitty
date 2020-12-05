@@ -52,6 +52,7 @@ import {
   viewDetail,
   viewFrequency,
   ViewType,
+  pensionAllowance,
 } from '../localization/stringConstants';
 import { Context, log, printDebug, showObj } from '../utils';
 import {
@@ -71,6 +72,7 @@ import {
   makeNetGainTag,
   getTriggerDate,
   deconstructTaxTag,
+  makePensionAllowanceTag,
 } from '../stringUtils';
 import { getSettings } from './modelUtils';
 
@@ -982,9 +984,12 @@ function mapNamesToTypes(model: ModelData) {
         const person = l.substring(0, l.length - incomeTax.length);
         const icTag = makeIncomeTaxTag(person);
         const netIncomeTag = makeNetIncomeTag(person);
+        const pensionAllowanceTag = makePensionAllowanceTag(person);
+
         // log(`netIncomeTag = ${netIncomeTag}, icTag   = ${icTag}`);
         nameToTypeMap.set(netIncomeTag, evaluationType.taxLiability);
         nameToTypeMap.set(icTag, evaluationType.taxLiability);
+        nameToTypeMap.set(pensionAllowanceTag, evaluationType.taxLiability);
       } else if (l.endsWith(nationalInsurance)) {
         const person = l.substring(0, l.length - nationalInsurance.length);
         const niTag = makeNationalInsuranceTag(person);
@@ -997,6 +1002,12 @@ function mapNamesToTypes(model: ModelData) {
   });
   model.assets.forEach(asset => {
     nameToTypeMap.set(asset.NAME, evaluationType.asset);
+    if (asset.NAME.startsWith(pensionDB)) {
+      nameToTypeMap.set(
+        `${asset.NAME}Contribution`,
+        evaluationType.taxLiability,
+      );
+    }
     const liabilities = asset.LIABILITY.split(separator);
     liabilities.forEach(l => {
       if (l.endsWith(cgt)) {
@@ -1343,6 +1354,10 @@ export function makeChartData(
         rightType = true;
       } else if (taxChartType === gain) {
         if (tagData.isGain) {
+          rightType = true;
+        }
+      } else if (taxChartType === pensionAllowance) {
+        if (tagData.isPensionAllowance) {
           rightType = true;
         }
       } else if (taxChartType === income) {

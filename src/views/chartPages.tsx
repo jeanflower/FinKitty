@@ -26,6 +26,7 @@ import {
   total,
   viewDetail,
   viewFrequency,
+  pensionAllowance,
 } from '../localization/stringConstants';
 import { getDisplay, refreshData } from '../App';
 import { Context, log, printDebug, showObj } from '../utils';
@@ -693,7 +694,25 @@ function taxButtonList(model: ModelData, viewSettings: ViewSettings) {
       }}
       title={'Gain'}
       type={getTaxType(viewSettings) === gain ? 'primary' : 'secondary'}
-      id={`chooseTaxType-income`}
+      id={`chooseTaxType-gain`}
+    />,
+  );
+  buttons.push(
+    <Button
+      key={'pensionAllowance'}
+      action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        e.persist();
+        setViewSettingNameVal(
+          viewSettings,
+          taxChartFocusType,
+          pensionAllowance,
+        );
+      }}
+      title={'Pension allowance'}
+      type={
+        getTaxType(viewSettings) === pensionAllowance ? 'primary' : 'secondary'
+      }
+      id={`chooseTaxType-pension`}
     />,
   );
   buttons.push(
