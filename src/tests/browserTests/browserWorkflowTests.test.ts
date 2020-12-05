@@ -6,6 +6,7 @@ import {
   pension,
   crystallizedPension,
   taxFree,
+  pensionTransfer,
 } from '../../localization/stringConstants';
 import {
   getDriver,
@@ -1983,7 +1984,7 @@ describe(testDataModelName, () => {
       expect(ary[2].dataPoints[27].label).toEqual('Fri Jan 01 2044');
       expect(ary[2].dataPoints[27].y).toEqual(0);
       expect(ary[2].dataPoints[27].ttip).toEqual('0.00 at Fri Jan 01 2044');
-      expect(ary[1].name).toEqual('-DBT TeachersPensionScheme');
+      expect(ary[1].name).toEqual(`${pensionTransfer}TeachersPensionScheme`);
       expect(ary[1].type).toEqual('stackedColumn');
       expect(ary[1].showInLegend).toEqual(true);
       expect(ary[1].dataPoints.length).toEqual(28);

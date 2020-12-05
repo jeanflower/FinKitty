@@ -42,7 +42,8 @@ export function getCurrentVersion() {
   // return 3; // doesn't include tax view focus settings
   // return 4; // still includes many view settings
   // return 5; // still includes English-language special words
-  return 6;
+  // return 6; // uses -DC for pensions, even if they're DB pensions
+  return 7;
 }
 
 const mapForGuessSettingTypeForv2 = new Map([
@@ -428,9 +429,43 @@ function migrateFromV5(model: ModelData) {
   model.version = 6;
   // log(`model is ${showObj(model)}`);
 }
-/*
-function migrateFromV6(model: ModelData){
+function migrateFromV6(model: ModelData) {
+  const transactionChanges = [
+    {
+      oldPart: '-DBT ',
+      newPart: pensionTransfer,
+    },
+    {
+      oldPart: '-DB ',
+      newPart: pensionDB,
+    },
+    {
+      oldPart: '-DC ',
+      newPart: pension,
+    },
+  ];
+  const incomeChanges = [
+    {
+      oldPart: '-DB ',
+      newPart: pensionDB,
+    },
+    {
+      oldPart: '-DBT ',
+      newPart: pensionTransfer,
+    },
+  ];
+  const assetChanges = [
+    {
+      oldPart: '-DC ',
+      newPart: pension,
+    },
+  ];
+  changeSpecialWords(model, transactionChanges, incomeChanges, assetChanges);
   model.version = 7;
+}
+/*
+function migrateFromV7(model: ModelData){
+  model.version = 8;
 }
 */
 export function migrateOldVersions(model: ModelData) {
@@ -456,15 +491,20 @@ export function migrateOldVersions(model: ModelData) {
   if (model.version === 5) {
     migrateFromV5(model);
   }
-  /*
   if (model.version === 6) {
     migrateFromV6(model);
   }
-*/
+  /*
+  if (model.version === 7) {
+    migrateFromV7(model);
+  }
+  */
   // log(`model after migration is ${showObj(model)}`);
 
   // should throw immediately to alert of problems
   if (model.version !== getCurrentVersion()) {
+    // log(`model.version = ${model.version}
+    //   but current version is ${getCurrentVersion()}`);
     throw new Error('code not properly handling versions');
   }
 }

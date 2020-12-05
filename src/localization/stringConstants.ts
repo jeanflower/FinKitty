@@ -108,15 +108,10 @@ export const cgt = '(CGT)';
 // or PensionDBTeachers
 // (amounts here take proportion of income and add to accruing benefit value)
 
-/*
 export const pension = '-PEN ';
+export const pensionSS = '-PSS ';
 export const pensionDB = '-PDB ';
 export const pensionTransfer = '-PT ';
-*/
-export const pension = '-DC ';
-export const pensionSS = '-PSS ';
-export const pensionDB = '-DB ';
-export const pensionTransfer = '-DBT ';
 export const moveTaxFreePart = '-CPTaxFreeM ';
 export const taxFree = '-CPTaxFree ';
 export const transferCrystallizedPension = '-CPT ';
