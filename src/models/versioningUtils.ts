@@ -243,42 +243,22 @@ function migrateFromV4(model: ModelData) {
   });
   model.version = 5;
 }
-function migrateFromV5(model: ModelData) {
-  // log(`migrate from V5`);
-  const transactionChanges = [
-    {
-      oldPart: 'PensionSS',
-      newPart: pensionSS,
-    },
-    {
-      oldPart: 'PensionTransfer',
-      newPart: pensionTransfer,
-    },
-    {
-      oldPart: 'PensionDB',
-      newPart: pensionDB,
-    },
-    {
-      oldPart: 'Pension',
-      newPart: pension,
-    },
-    {
-      oldPart: 'TransferCrystallizedPension',
-      newPart: transferCrystallizedPension,
-    },
-    {
-      oldPart: 'CrystallizedPension',
-      newPart: crystallizedPension,
-    },
-    {
-      oldPart: 'TaxFree',
-      newPart: taxFree,
-    },
-    {
-      oldPart: 'MoveTaxFreePart',
-      newPart: moveTaxFreePart,
-    },
-  ];
+
+function changeSpecialWords(
+  model: ModelData,
+  transactionChanges: {
+    oldPart: string;
+    newPart: string;
+  }[],
+  incomeChanges: {
+    oldPart: string;
+    newPart: string;
+  }[],
+  assetChanges: {
+    oldPart: string;
+    newPart: string;
+  }[],
+) {
   model.transactions.forEach(t => {
     transactionChanges.forEach(ch => {
       if (t.NAME.startsWith(ch.oldPart)) {
@@ -347,16 +327,6 @@ function migrateFromV5(model: ModelData) {
       }
     });
   });
-  const incomeChanges = [
-    {
-      oldPart: 'PensionDB',
-      newPart: pensionDB,
-    },
-    {
-      oldPart: 'PensionTransfer',
-      newPart: pensionTransfer,
-    },
-  ];
   model.incomes.forEach(i => {
     incomeChanges.forEach(ch => {
       if (i.NAME.startsWith(ch.oldPart)) {
@@ -369,20 +339,6 @@ function migrateFromV5(model: ModelData) {
       }
     });
   });
-  const assetChanges = [
-    {
-      oldPart: 'CrystallizedPension',
-      newPart: crystallizedPension,
-    },
-    {
-      oldPart: 'Pension',
-      newPart: pension,
-    },
-    {
-      oldPart: 'TaxFree',
-      newPart: taxFree,
-    },
-  ];
   model.assets.forEach(a => {
     assetChanges.forEach(ch => {
       // log(`check for name change ${a.NAME}`);
@@ -406,6 +362,69 @@ function migrateFromV5(model: ModelData) {
       }
     });
   });
+}
+
+function migrateFromV5(model: ModelData) {
+  // log(`migrate from V5`);
+  const transactionChanges = [
+    {
+      oldPart: 'PensionSS',
+      newPart: pensionSS,
+    },
+    {
+      oldPart: 'PensionTransfer',
+      newPart: pensionTransfer,
+    },
+    {
+      oldPart: 'PensionDB',
+      newPart: pensionDB,
+    },
+    {
+      oldPart: 'Pension',
+      newPart: pension,
+    },
+    {
+      oldPart: 'TransferCrystallizedPension',
+      newPart: transferCrystallizedPension,
+    },
+    {
+      oldPart: 'CrystallizedPension',
+      newPart: crystallizedPension,
+    },
+    {
+      oldPart: 'TaxFree',
+      newPart: taxFree,
+    },
+    {
+      oldPart: 'MoveTaxFreePart',
+      newPart: moveTaxFreePart,
+    },
+  ];
+  const incomeChanges = [
+    {
+      oldPart: 'PensionDB',
+      newPart: pensionDB,
+    },
+    {
+      oldPart: 'PensionTransfer',
+      newPart: pensionTransfer,
+    },
+  ];
+  const assetChanges = [
+    {
+      oldPart: 'CrystallizedPension',
+      newPart: crystallizedPension,
+    },
+    {
+      oldPart: 'Pension',
+      newPart: pension,
+    },
+    {
+      oldPart: 'TaxFree',
+      newPart: taxFree,
+    },
+  ];
+  changeSpecialWords(model, transactionChanges, incomeChanges, assetChanges);
   model.version = 6;
   // log(`model is ${showObj(model)}`);
 }

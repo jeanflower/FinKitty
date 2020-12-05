@@ -100,7 +100,7 @@ export const crystallizedPension = '-CPTaxable ';
 export const cgt = '(CGT)';
 
 // Some transactions behave in special ways regarding income tax
-// name then
+// name them
 // PensionNorwich
 // (transfers here out of income reduce income tax liability),
 // or PensionSSNorwich
@@ -110,12 +110,8 @@ export const cgt = '(CGT)';
 
 /*
 export const pension = '-PEN ';
-export const pensionSS = '-PSS ';
 export const pensionDB = '-PDB ';
 export const pensionTransfer = '-PT ';
-export const moveTaxFreePart = '-CPTaxFreeM ';
-export const taxFree = '-CPTaxFree ';
-export const transferCrystallizedPension = '-CPT ';
 */
 export const pension = '-DC ';
 export const pensionSS = '-PSS ';
