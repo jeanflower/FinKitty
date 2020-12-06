@@ -29,6 +29,7 @@ import {
   transferCrystallizedPension,
   crystallizedPension,
   separator,
+  dot,
 } from '../localization/stringConstants';
 import { ModelData } from '../types/interfaces';
 import { getMinimalModelCopy, viewSetting } from './exampleModels';
@@ -43,7 +44,8 @@ export function getCurrentVersion() {
   // return 4; // still includes many view settings
   // return 5; // still includes English-language special words
   // return 6; // uses -DC for pensions, even if they're DB pensions
-  return 7;
+  // return 7; // uses one cyrstallizedPension pot per person
+  return 8;
 }
 
 const mapForGuessSettingTypeForv2 = new Map([
@@ -463,9 +465,114 @@ function migrateFromV6(model: ModelData) {
   changeSpecialWords(model, transactionChanges, incomeChanges, assetChanges);
   model.version = 7;
 }
-/*
-function migrateFromV7(model: ModelData){
+function migrateFromV7(model: ModelData) {
+  // assets were called
+  // crystallizedPension + name
+  // should now be called
+  // crystallizedPension + name + dot + pensionName
+
+  // Each cpAsset has a transaction which pays into it
+  // where the transactionName also begins crystallizedPension
+  const nameToPension = new Map<string, string>();
+  model.transactions.forEach(t => {
+    if (t.NAME.startsWith(crystallizedPension)) {
+      const name = t.TO.substring(crystallizedPension.length);
+      const pensionName = t.NAME.substring(crystallizedPension.length);
+      // log(`nameToPension gets [${name}, ${pensionName}]`);
+      nameToPension.set(name, pensionName);
+    }
+  });
+  model.transactions.forEach(t => {
+    // log(`check for name change ${a.NAME}`);
+    if (
+      t.FROM.startsWith(crystallizedPension) &&
+      t.TO.startsWith(crystallizedPension) &&
+      nameToPension.get(t.TO.substring(crystallizedPension.length)) ===
+        undefined
+    ) {
+      const fromName = nameToPension.get(
+        t.FROM.substring(crystallizedPension.length),
+      );
+      if (fromName !== undefined) {
+        nameToPension.set(t.TO.substring(crystallizedPension.length), fromName);
+      }
+    }
+  });
+
+  model.assets.forEach(a => {
+    // log(`check for name change ${a.NAME}`);
+    if (a.NAME.startsWith(crystallizedPension)) {
+      const person = a.NAME.substring(crystallizedPension.length);
+      let pensionName = 'pensionName';
+      const mapEntry = nameToPension.get(person);
+      // log(`nameToPension has [${person}, ${mapEntry}]`);
+      if (mapEntry !== undefined) {
+        pensionName = mapEntry;
+      }
+      a.NAME = `${crystallizedPension}${person}${dot}${pensionName}`;
+    }
+  });
+  model.transactions.forEach(t => {
+    let words = t.FROM.split(separator);
+    let newWords: string[] = [];
+    let hasChanged = false;
+    words.forEach(w => {
+      if (w.startsWith(crystallizedPension)) {
+        // log(`old t.FROM w = ${w}`);
+        const person = w.substring(crystallizedPension.length);
+        let pensionName = 'pensionName';
+        const mapEntry = nameToPension.get(person);
+        // log(`nameToPension has [${person}, ${mapEntry}]`);
+        if (mapEntry !== undefined) {
+          pensionName = mapEntry;
+        }
+        w = `${crystallizedPension}${person}${dot}${pensionName}`;
+        hasChanged = true;
+        // log(`new t.FROM w = ${w}`);
+      }
+      newWords.push(w);
+    });
+    if (hasChanged) {
+      t.FROM = '';
+      newWords.forEach(w => {
+        t.FROM = `${t.FROM}${w}${separator}`;
+      });
+      t.FROM = t.FROM.substring(0, t.FROM.length - 1);
+      // log(`new t.FROM = ${t.FROM}`);
+    }
+    words = t.TO.split(separator);
+    newWords = [];
+    hasChanged = false;
+    words.forEach(w => {
+      if (w.startsWith(crystallizedPension)) {
+        // log(`old t.FROM w = ${w}`);
+        const person = w.substring(crystallizedPension.length);
+        let pensionName = 'pensionName';
+        const mapEntry = nameToPension.get(person);
+        // log(`nameToPension has [${person}, ${mapEntry}]`);
+        if (mapEntry !== undefined) {
+          pensionName = mapEntry;
+        }
+        w = `${crystallizedPension}${person}${dot}${pensionName}`;
+        hasChanged = true;
+        // log(`new t.FROM w = ${w}`);
+      }
+      newWords.push(w);
+    });
+    if (hasChanged) {
+      t.TO = '';
+      newWords.forEach(w => {
+        t.TO = `${t.TO}${w}${separator}`;
+      });
+      t.TO = t.TO.substring(0, t.TO.length - 1);
+      // log(`new t.TO = ${t.TO}`);
+    }
+  });
   model.version = 8;
+}
+/*
+function migrateFromV8(model: ModelData){
+  model.version = 9;
 }
 */
 export function migrateOldVersions(model: ModelData) {
@@ -494,9 +601,12 @@ export function migrateOldVersions(model: ModelData) {
   if (model.version === 6) {
     migrateFromV6(model);
   }
-  /*
   if (model.version === 7) {
     migrateFromV7(model);
+  }
+  /*
+  if (model.version === 8) {
+    migrateFromV8(model);
   }
   */
   // log(`model after migration is ${showObj(model)}`);

@@ -1,6 +1,6 @@
 export const NO_ASSET_NAME = '';
 export const separator = '/';
-
+export const dot = '.';
 // All models have a Cash asset and this is its name
 export const CASH_ASSET_NAME = 'Cash';
 

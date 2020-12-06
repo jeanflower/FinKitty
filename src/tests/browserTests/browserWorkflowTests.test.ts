@@ -859,7 +859,7 @@ describe(testDataModelName, () => {
       expect(ary[1].dataPoints[26].label).toEqual('Sun Jan 01 2045');
       expect(ary[1].dataPoints[26].y).toEqual(0);
       expect(ary[1].dataPoints[26].ttip).toEqual('0.00 at Sun Jan 01 2045');
-      expect(ary[2].name).toEqual(`${crystallizedPension}Joe`);
+      expect(ary[2].name).toEqual(`${crystallizedPension}Joe.Aegon`);
       expect(ary[2].type).toEqual('stackedColumn');
       expect(ary[2].showInLegend).toEqual(true);
       expect(ary[2].dataPoints.length).toEqual(27);
@@ -944,7 +944,7 @@ describe(testDataModelName, () => {
       expect(ary[2].dataPoints[26].label).toEqual('Sun Jan 01 2045');
       expect(ary[2].dataPoints[26].y).toEqual(0);
       expect(ary[2].dataPoints[26].ttip).toEqual('0.00 at Sun Jan 01 2045');
-      expect(ary[3].name).toEqual(`${crystallizedPension}Jack`);
+      expect(ary[3].name).toEqual(`${crystallizedPension}Jack.Aegon`);
       expect(ary[3].type).toEqual('stackedColumn');
       expect(ary[3].showInLegend).toEqual(true);
       expect(ary[3].dataPoints.length).toEqual(27);

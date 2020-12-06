@@ -25,6 +25,7 @@ import {
   rsu,
   vestedNum,
   pensionAllowance,
+  dot,
 } from '../localization/stringConstants';
 import {
   DatedThing,
@@ -1293,9 +1294,13 @@ function OptimizeIncomeTax(
     // log(`valueKey = ${valueKey}`);
     if (valueKey.startsWith(crystallizedPension)) {
       // is it for the right person?
-      const liability = `${valueKey.substr(
-        crystallizedPension.length,
-      )}${incomeTax}`;
+      const removedCP = `${valueKey.substr(crystallizedPension.length)}`;
+      const wds = removedCP.split(dot);
+      if (wds.length !== 2) {
+        log(`unexpected formatting of ${valueKey}`);
+        throw new Error('unexpected formatting of cp name');
+      }
+      const liability = `${wds[0]}${incomeTax}`;
       // e.g. IncomeTaxJoe
       // log(`liability = ${liability}`);
       if (liability === person) {
@@ -3004,9 +3009,9 @@ function logPensionIncomeLiabilities(
 
   words.forEach(word => {
     if (word.startsWith(crystallizedPension)) {
-      const liability = `${word.substr(
-        crystallizedPension.length,
-      )}${incomeTax}`;
+      const removedCP = `${word.substr(crystallizedPension.length)}`;
+      const wds = removedCP.split(dot);
+      const liability = `${wds[0]}${incomeTax}`;
       // e.g. IncomeTaxJoe
       // log(`logging liability for ${word}, add to map: [${t.NAME+word}, ${liability}}`);
       liabilitiesMap.set(t.NAME + word, liability);
@@ -3024,9 +3029,9 @@ function logAssetIncomeLiabilities(
     // log(`logging liability ${showObj(a)}`);
     liabilitiesMap.set(a.NAME, a.LIABILITY);
   } else if (a.NAME.startsWith(crystallizedPension)) {
-    const liability = `${a.NAME.substr(
-      crystallizedPension.length,
-    )}${incomeTax}`;
+    const removedCP = `${a.NAME.substr(crystallizedPension.length)}`;
+    const wds = removedCP.split(dot);
+    const liability = `${wds[0]}${incomeTax}`;
     // e.g. IncomeTaxJoe
     liabilitiesMap.set(a.NAME, liability);
   }

@@ -316,6 +316,54 @@ export const benAndJerryExampleData = `
 {"NAME":"ConditionalPayment to Ben loan 1","CATEGORY":"","FROM":"Cash","FROM_ABSOLUTE":true,"FROM_VALUE":"500","TO":"Ben loan","TO_ABSOLUTE":false,"TO_VALUE":"1.0","DATE":"21/02/2020","STOP_DATE":"","RECURRENCE":"1m","TYPE":"payOffDebt"}],
 "version":4,
 }`;
+export const pensionExampleData = `
+{"assets":[
+  {"NAME":"Cash","CATEGORY":"","START":"1 Jan 2017","VALUE":"0.0","QUANTITY":"","GROWTH":"0.0","CPI_IMMUNE":true,"CAN_BE_NEGATIVE":true,"IS_A_DEBT":false,"LIABILITY":"","PURCHASE_PRICE":"0.0"},
+  {"NAME":"-PEN javaDCP","VALUE":"0","QUANTITY":"","START":"2021","GROWTH":"0","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":false,"IS_A_DEBT":false,"CATEGORY":"","PURCHASE_PRICE":"0.0","LIABILITY":""},
+  {"NAME":"-PEN cppDCP","VALUE":"0","QUANTITY":"","START":"2022","GROWTH":"0","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":false,"IS_A_DEBT":false,"CATEGORY":"","PURCHASE_PRICE":"0.0","LIABILITY":""},
+  {"NAME":"-CPTaxFree javaDCP","VALUE":"0.0","QUANTITY":"","START":"2021","GROWTH":"0","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":false,"IS_A_DEBT":false,"CATEGORY":"","PURCHASE_PRICE":"0.0","LIABILITY":""},
+  {"NAME":"-CPTaxFree cppDCP","VALUE":"0.0","QUANTITY":"","START":"2022","GROWTH":"0","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":false,"IS_A_DEBT":false,"CATEGORY":"","PURCHASE_PRICE":"0.0","LIABILITY":""},
+  {"NAME":"-CPTaxable Joe.javaDCP","VALUE":"0.0","QUANTITY":"","START":"2021","GROWTH":"0","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":false,"IS_A_DEBT":false,"CATEGORY":"","PURCHASE_PRICE":"0.0","LIABILITY":""},
+  {"NAME":"-CPTaxable Joe.cppDCP","VALUE":"0.0","QUANTITY":"","START":"2022","GROWTH":"0","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":false,"IS_A_DEBT":false,"CATEGORY":"","PURCHASE_PRICE":"0.0","LIABILITY":""},
+  {"NAME":"-CPTaxable Jen.cppDCP","VALUE":"0.0","QUANTITY":"","START":"2022","GROWTH":"0","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":false,"IS_A_DEBT":false,"CATEGORY":"","PURCHASE_PRICE":"0.0","LIABILITY":""},
+  {"NAME":"-CPTaxable Jane.javaDCP","VALUE":"0.0","QUANTITY":"","START":"2021","GROWTH":"0","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":false,"IS_A_DEBT":false,"CATEGORY":"","PURCHASE_PRICE":"0.0","LIABILITY":""}],
+  "incomes":[
+  {"NAME":"JoeBasic","VALUE":"1050","VALUE_SET":"2020","START":"2020","END":"2030","GROWTH":"0","CPI_IMMUNE":true,"LIABILITY":"Joe(incomeTax)/Joe(NI)","CATEGORY":""},
+  {"NAME":"JenBasic","VALUE":"1050","VALUE_SET":"2020","START":"2020","END":"2030","GROWTH":"0","CPI_IMMUNE":true,"LIABILITY":"Jen(incomeTax)/Jen(NI)","CATEGORY":""},
+  {"NAME":"JeffBasic","VALUE":"1050","VALUE_SET":"2020","START":"2020","END":"2030","GROWTH":"0","CPI_IMMUNE":true,"LIABILITY":"Jeff(incomeTax)/Jeff(NI)","CATEGORY":""},
+  {"NAME":"java","VALUE":"3000","VALUE_SET":"2020","START":"2021","END":"2022","GROWTH":"0","CPI_IMMUNE":true,"LIABILITY":"Joe(incomeTax)/Joe(NI)","CATEGORY":""},
+  {"NAME":"JaneBasic","VALUE":"1050","VALUE_SET":"2020","START":"2020","END":"2030","GROWTH":"0","CPI_IMMUNE":true,"LIABILITY":"Jane(incomeTax)/Jane(NI)","CATEGORY":""},
+  {"NAME":"JakeBasic","VALUE":"1050","VALUE_SET":"2020","START":"2020","END":"2030","GROWTH":"0","CPI_IMMUNE":true,"LIABILITY":"Jake(incomeTax)/Jake(NI)","CATEGORY":""},
+  {"NAME":"cpp","VALUE":"4000","VALUE_SET":"2020","START":"2022","END":"2023","GROWTH":"0","CPI_IMMUNE":true,"LIABILITY":"Joe(incomeTax)/Joe(NI)","CATEGORY":""},
+  {"START":"2026","END":"2028","NAME":"-PT javaPensh","VALUE":"0.0","VALUE_SET":"2021","LIABILITY":"Jeff(incomeTax)","GROWTH":"0","CPI_IMMUNE":true,"CATEGORY":""},
+  {"START":"2026","END":"2028","NAME":"-PT cppPensh","VALUE":"0.0","VALUE_SET":"2022","LIABILITY":"Jake(incomeTax)","GROWTH":"0","CPI_IMMUNE":true,"CATEGORY":""},
+  {"START":"2026","END":"2027","NAME":"-PDB javaPensh","VALUE":"0","VALUE_SET":"2021","LIABILITY":"Joe(incomeTax)","GROWTH":"0","CPI_IMMUNE":true,"CATEGORY":""},
+  {"START":"2026","END":"2027","NAME":"-PDB cppPensh","VALUE":"0","VALUE_SET":"2022","LIABILITY":"Joe(incomeTax)","GROWTH":"0","CPI_IMMUNE":true,"CATEGORY":""}],
+  "expenses":[],
+  "triggers":[],
+  "settings":[
+  {"NAME":"Today's value focus date","VALUE":"","HINT":"Date to use for 'today's value' tables (defaults to '' meaning today)","TYPE":"view"},
+  {"NAME":"End of view range","VALUE":"1 Jan 2030","HINT":"Date at the end of range to be plotted","TYPE":"view"},
+  {"NAME":"Date of birth","VALUE":"","HINT":"Date used for representing dates as ages","TYPE":"view"},
+  {"NAME":"cpi","VALUE":"0","HINT":"Annual rate of inflation","TYPE":"const"},
+  {"NAME":"Beginning of view range","VALUE":"30 Dec 2019","HINT":"Date at the start of range to be plotted","TYPE":"view"}],
+  "transactions":[
+  {"NAME":"-PT javaPensh","FROM":"-PDB javaPensh","FROM_ABSOLUTE":false,"FROM_VALUE":"1.0","TO":"-PT javaPensh","TO_ABSOLUTE":false,"TO_VALUE":"0.5","DATE":"2027","STOP_DATE":"2028","RECURRENCE":"","CATEGORY":"","TYPE":"auto"},
+  {"NAME":"-PT cppPensh","FROM":"-PDB cppPensh","FROM_ABSOLUTE":false,"FROM_VALUE":"1.0","TO":"-PT cppPensh","TO_ABSOLUTE":false,"TO_VALUE":"0.5","DATE":"2027","STOP_DATE":"2028","RECURRENCE":"","CATEGORY":"","TYPE":"auto"},
+  {"NAME":"-PEN javaPensh","FROM":"java","FROM_ABSOLUTE":false,"FROM_VALUE":"0.05","TO":"","TO_ABSOLUTE":false,"TO_VALUE":"0.0","DATE":"2021","STOP_DATE":"2022","RECURRENCE":"","CATEGORY":"","TYPE":"auto"},
+  {"NAME":"-PEN javaDCP","FROM":"java","FROM_ABSOLUTE":false,"FROM_VALUE":"0.05","TO":"-PEN javaDCP","TO_ABSOLUTE":false,"TO_VALUE":"2","DATE":"2021","STOP_DATE":"2022","RECURRENCE":"","CATEGORY":"","TYPE":"auto"},
+  {"NAME":"-PEN cppPensh","FROM":"cpp","FROM_ABSOLUTE":false,"FROM_VALUE":"0.05","TO":"","TO_ABSOLUTE":false,"TO_VALUE":"0.0","DATE":"2022","STOP_DATE":"2023","RECURRENCE":"","CATEGORY":"","TYPE":"auto"},
+  {"NAME":"-PEN cppDCP","FROM":"cpp","FROM_ABSOLUTE":false,"FROM_VALUE":"0.05","TO":"-PEN cppDCP","TO_ABSOLUTE":false,"TO_VALUE":"2","DATE":"2022","STOP_DATE":"2025","RECURRENCE":"","CATEGORY":"","TYPE":"auto"},
+  {"NAME":"-PDB javaPensh","FROM":"java","FROM_ABSOLUTE":false,"FROM_VALUE":"0.0016666666666666668","TO":"-PDB javaPensh","TO_ABSOLUTE":false,"TO_VALUE":"1.0","DATE":"2021","STOP_DATE":"2022","RECURRENCE":"","CATEGORY":"","TYPE":"auto"},
+  {"NAME":"-PDB cppPensh","FROM":"cpp","FROM_ABSOLUTE":false,"FROM_VALUE":"0.0016666666666666668","TO":"-PDB cppPensh","TO_ABSOLUTE":false,"TO_VALUE":"1.0","DATE":"2022","STOP_DATE":"2023","RECURRENCE":"","CATEGORY":"","TYPE":"auto"},
+  {"NAME":"-CPTaxFreeM javaDCP","FROM":"-PEN javaDCP","FROM_ABSOLUTE":false,"FROM_VALUE":"0.25","TO":"-CPTaxFree javaDCP","TO_ABSOLUTE":false,"TO_VALUE":"1.0","DATE":"2023","STOP_DATE":"","RECURRENCE":"","CATEGORY":"","TYPE":"auto"},
+  {"NAME":"-CPTaxFreeM cppDCP","FROM":"-PEN cppDCP","FROM_ABSOLUTE":false,"FROM_VALUE":"0.25","TO":"-CPTaxFree cppDCP","TO_ABSOLUTE":false,"TO_VALUE":"1.0","DATE":"2024","STOP_DATE":"","RECURRENCE":"","CATEGORY":"","TYPE":"auto"},
+  {"NAME":"-CPTaxable javaDCP","FROM":"-PEN javaDCP","FROM_ABSOLUTE":false,"FROM_VALUE":"1.0","TO":"-CPTaxable Joe.javaDCP","TO_ABSOLUTE":false,"TO_VALUE":"1.0","DATE":"2023","STOP_DATE":"","RECURRENCE":"","CATEGORY":"","TYPE":"auto"},
+  {"NAME":"-CPTaxable cppDCP","FROM":"-PEN cppDCP","FROM_ABSOLUTE":false,"FROM_VALUE":"1.0","TO":"-CPTaxable Joe.cppDCP","TO_ABSOLUTE":false,"TO_VALUE":"1.0","DATE":"2024","STOP_DATE":"","RECURRENCE":"","CATEGORY":"","TYPE":"auto"},
+  {"NAME":"-CPT javaDCP","FROM":"-CPTaxable Joe.javaDCP","FROM_ABSOLUTE":false,"FROM_VALUE":"1.0","TO":"-CPTaxable Jane.javaDCP","TO_ABSOLUTE":false,"TO_VALUE":"1.0","DATE":"2024","STOP_DATE":"","RECURRENCE":"","CATEGORY":"","TYPE":"auto"},
+  {"NAME":"-CPT cppDCP","FROM":"-CPTaxable Joe.cppDCP","FROM_ABSOLUTE":false,"FROM_VALUE":"1.0","TO":"-CPTaxable Jen.cppDCP","TO_ABSOLUTE":false,"TO_VALUE":"1.0","DATE":"2025","STOP_DATE":"","RECURRENCE":"","CATEGORY":"","TYPE":"auto"}],
+  "version":8}
+`;
 
 export const simpleExpense: Expense = {
   NAME: 'NoName',
@@ -1816,6 +1864,10 @@ export function getDefinedContributionsPension(): ModelData {
   return makeModelFromJSON(definedContributionsPension);
 }
 
+export function getPensionExampleData(): ModelData {
+  return makeModelFromJSON(pensionExampleData);
+}
+
 export function getTestModel(input: string): ModelData {
   // log(`getTestModel making model for ${input}`);
   if (input === TestModel01) {
@@ -1836,6 +1888,8 @@ export function getTestModel(input: string): ModelData {
     return getDefinedBenefitsPension();
   } else if (input === definedContributionsPension) {
     return getDefinedContributionsPension();
+  } else if (input === pensionExampleData) {
+    return getPensionExampleData();
   }
   throw new Error('test model name not recognised');
 }

@@ -53,6 +53,7 @@ import {
   viewFrequency,
   ViewType,
   pensionAllowance,
+  dot,
 } from '../localization/stringConstants';
 import { Context, log, printDebug, showObj } from '../utils';
 import {
@@ -266,6 +267,15 @@ e.g.
     model.incomes.forEach(a => {
       this.setItemFromModel(Context.Income, a);
     });
+
+    //for (const [key, value] of this.kvPairs) {
+    /* eslint-disable-line no-restricted-syntax */
+    //log(`after setModel, this.kvPairs[${key}]=${value}`);
+    //}
+    //for (const [key, value] of this.show[Context.Asset]) {
+    /* eslint-disable-line no-restricted-syntax */
+    //log(`after setModel, this.show[Context.Asset][${key}]=${value}`);
+    //}
   }
 
   private makeContextFromString(context: string) {
@@ -1034,10 +1044,9 @@ function mapNamesToTypes(model: ModelData) {
       }
     });
     if (asset.NAME.startsWith(crystallizedPension)) {
-      const person = asset.NAME.substring(
-        crystallizedPension.length,
-        asset.NAME.length,
-      );
+      const person = asset.NAME.substring(crystallizedPension.length).split(
+        dot,
+      )[0];
       const icTag = makeIncomeTaxTag(person);
       const netIncomeTag = makeNetIncomeTag(person);
 
@@ -1052,6 +1061,12 @@ function mapNamesToTypes(model: ModelData) {
   nameToTypeMap.set(incomeTax, evaluationType.taxLiability);
   nameToTypeMap.set(nationalInsurance, evaluationType.taxLiability);
   nameToTypeMap.set(cgt, evaluationType.taxLiability);
+
+  //for (const [key, value] of nameToTypeMap) {
+  /* eslint-disable-line no-restricted-syntax */
+  //log(`nameToTypeMap[${key}]=${value}`);
+  //}
+
   return nameToTypeMap;
 }
 
@@ -1260,6 +1275,10 @@ export function makeChartData(
     if (!evalnType) {
       return;
     }
+    // log(`processing ${showObj(evaln)}`);
+    // log(`evalnType = ${evalnType}`);
+    //
+    // revalues or pensionDB incomes and expenses
     if (
       evalnType === evaluationType.income ||
       evalnType === evaluationType.expense
@@ -1293,7 +1312,6 @@ export function makeChartData(
       }
     }
     // log(`generate chart data for dates ${showObj(dates)}`);
-    // log(`processing ${showObj(evaln)}`);
 
     // Get a map ready to hold date->Map(name->value)
     ensureDateValueMapsExist(typeDateNameValueMap, evalnType);
@@ -1382,12 +1400,14 @@ export function makeChartData(
         }
       }
       doIncludeEvaln = rightType && rightPerson;
-      // log(`include? = ${doIncludeEvaln}`);
+      // log(`include taxLiability? = ${doIncludeEvaln}`);
     } else {
       doIncludeEvaln =
         viewSettings.getShowItem(Context.Asset, evaln.name) ||
         viewSettings.getShowItem(Context.Debt, evaln.name);
+      // log(`include ${evaln.name}? = ${doIncludeEvaln}`);
     }
+    // log(`doIncludeEvaln = ${doIncludeEvaln}`);
     if (doIncludeEvaln) {
       // log(`evaln of asset ${showObj(evaln)} for val or delta...`);
       // direct asset data to the assets part of typeDateNameValueMap

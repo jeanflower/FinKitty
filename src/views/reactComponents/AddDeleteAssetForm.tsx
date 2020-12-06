@@ -27,6 +27,7 @@ import {
   moveTaxFreePart,
   taxFree,
   transferCrystallizedPension,
+  dot,
 } from '../../localization/stringConstants';
 import { incomeOptions } from './AddDeleteIncomeForm';
 import { doCheckBeforeOverwritingExistingData } from '../../App';
@@ -774,8 +775,13 @@ export class AddDeleteAssetForm extends Component<
     if (this.state.inputting === inputtingPension) {
       const asset1Name = pension + this.state.NAME;
       const asset2Name = taxFree + this.state.NAME;
-      const asset3Name = crystallizedPension + this.state.LIABILITY;
-      const asset4Name = crystallizedPension + this.state.DCP_TRANSFER_TO;
+      const asset3Name =
+        crystallizedPension + this.state.LIABILITY + dot + this.state.NAME;
+      const asset4Name =
+        crystallizedPension +
+        this.state.DCP_TRANSFER_TO +
+        dot +
+        this.state.NAME;
 
       const asset1: Asset = {
         NAME: asset1Name,
