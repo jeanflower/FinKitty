@@ -241,7 +241,7 @@ export async function cleanUpWork(
 ) {
   await gotoHomePage(driver);
 
-  return new Promise(async resolve => {
+  return new Promise<void>(async resolve => {
     // log(`in clean up model`);
     // log(`go seek model_input name`);
     // log(`seek btn-${testDataModelName}`);
