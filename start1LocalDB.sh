@@ -1,2 +1,2 @@
 #!/bin/bash
-mongod --dbpath ./../mongo/ &
+mongod --dbpath ./../../mongo/ &
