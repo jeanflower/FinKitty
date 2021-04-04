@@ -1,4 +1,5 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+The deployed page for FinKitty is here
+https://jeanflower.github.io/FinKitty/
 
 ## Storing the data
 ### Cloud data
@@ -76,6 +77,11 @@ See the section about [running tests](https://facebook.github.io/create-react-ap
 The browser tests (automated with selenium) will fail unless the web server is running (do 'npm start' before 'npm test').
 
 The selenium tests fire up and drive Chrome processes.  If the tests properly complete, the Chrome process for the tests should close down properly.  But the chromedriver process does not get cleaned up.  If the tests are interrupted (e.g. restart partway through) then the cleanup does not occur.  After a lengthy testing session, you may prefer to clean up manually; open Activity Monitor, search by the text "chrome", and in a terminal window, `killall chromedriver` and `killall "Google Chrome"`.
+
+Updating the Chrome browser on the test achine can leave Chrome and the chromdriver out of sync.  To recover, use
+```
+npm install chromedriver --detect_chromedriver_version
+```
 
 See coverage by typing `npm test -- --coverage`.
 (this seems to be dependent on changed files, not all tests)
