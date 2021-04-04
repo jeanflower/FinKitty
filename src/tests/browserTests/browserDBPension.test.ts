@@ -12,6 +12,7 @@ import {
   beforeAllWork,
   clickButton,
   cleanUpWork,
+  scrollIntoViewByID,
 } from './browserBaseTypes';
 
 const testDataModelName = 'BrowserDBPensionTest';
@@ -63,7 +64,11 @@ describe(testDataModelName, () => {
       category: 'pension',
     };
 
+    await scrollIntoViewByID(driver, `useDBPInputs`);
+
+    // console.log(`clicking...`);
     await clickButton(driver, 'useDBPInputs');
+    // console.log(`clicked...`);
 
     await addDBPension(driver, {
       ...inputs,
@@ -224,7 +229,11 @@ describe(testDataModelName, () => {
       message: `added new income ${incomeInputs.name}`,
     });
 
+    await scrollIntoViewByID(driver, `useDBPInputs`);
+
+    // console.log(`clicking...`);
     await clickButton(driver, 'useDBPInputs');
+    // console.log(`clicked...`);
 
     const inputs = {
       name: 'pensionName',

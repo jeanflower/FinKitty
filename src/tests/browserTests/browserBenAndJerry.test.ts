@@ -25,6 +25,7 @@ import {
   selectModel,
   calcSleep,
   clickButton,
+  scrollIntoViewByID,
 } from './browserBaseTypes';
 import webdriver from 'selenium-webdriver';
 
@@ -197,7 +198,12 @@ describe(testDataModelName, () => {
     await addDate(driver, 'Jerry dies', '5/5/2065', 'added important date OK');
 
     await clickButton(driver, 'btn-Incomes');
+
+    await scrollIntoViewByID(driver, 'useDBPInputs');
+
+    // console.log('go to click...');
     await clickButton(driver, 'useDBPInputs');
+    // console.log('clicked...');
 
     let DBPinputs = {
       name: 'Ben state pension',
@@ -225,7 +231,11 @@ describe(testDataModelName, () => {
     });
     // log('done Ben state pension');
 
+    await scrollIntoViewByID(driver, 'useDBPInputs');
+
+    // console.log('go to click...');
     await clickButton(driver, 'useDBPInputs');
+    // console.log('clicked...');
 
     DBPinputs = {
       name: 'Jerry state pension',
@@ -272,7 +282,11 @@ describe(testDataModelName, () => {
       liability: 'Jerry',
       category: 'Pension',
     };
+    await scrollIntoViewByID(driver, 'useDBPInputs');
+
+    // console.log('go to click...');
     await clickButton(driver, 'useDBPInputs');
+    // console.log('clicked...');
 
     await addDBPension(driver, {
       ...DBPinputs,

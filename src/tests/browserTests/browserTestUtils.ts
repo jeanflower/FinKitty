@@ -344,7 +344,11 @@ export async function clearPensionFields(driver: ThenableWebDriver) {
   */
   await clickButton(driver, 'btn-Overview');
   await clickButton(driver, 'btn-Incomes');
+  await scrollIntoViewByID(driver, `useDBPInputs`);
+
+  // console.log(`clicking...`);
   await clickButton(driver, 'useDBPInputs');
+  // console.log(`clicked...`);
 
   // log(`cleared ready for next pension inputs`);
   return;

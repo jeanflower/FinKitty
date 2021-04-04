@@ -259,6 +259,7 @@ describe(testDataModelName, () => {
       message: `added new income ${incomeInputs.name}`,
     });
 
+    await scrollIntoViewByID(driver, `useRevalueInputsIncome`);
     await clickButton(driver, 'useRevalueInputsIncome');
 
     const revalueInputs = {
