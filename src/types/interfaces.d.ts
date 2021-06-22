@@ -154,16 +154,20 @@ export interface SettingVal {
 }
 export interface AssetVal {
   assetVal: number;
+  category: string;
 }
 export interface DebtVal {
   debtVal: number;
+  category: string;
 }
 export interface IncomeVal {
   incomeVal: number;
+  category: string;
 }
 export interface ExpenseVal {
   expenseVal: number;
   expenseFreq: string;
+  category: string;
 }
 
 export interface ChartSettings {

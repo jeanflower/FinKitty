@@ -54,6 +54,7 @@ import {
   ViewType,
   pensionAllowance,
   dot,
+  snapshot,
 } from '../localization/stringConstants';
 import { Context, log, printDebug, showObj } from '../utils';
 import {
@@ -955,7 +956,7 @@ function ensureDateValueMapsExist(
 
 function getSettingsValues(viewSettings: ViewSettings) {
   const detail: string = viewSettings.getViewSetting(viewDetail, fine);
-  const frequency: string = viewSettings.getViewSetting(viewFrequency, monthly);
+  const frequency: string = viewSettings.getViewSetting(viewFrequency, monthly); //annually);
   const taxChartType: string = viewSettings.getViewSetting(
     taxChartFocusType,
     allItems,
@@ -1100,25 +1101,30 @@ function getDisplayType(
   }
   if (
     evalnType === evaluationType.income &&
-    !(getDisplay(incomesView) || getDisplay(overview))
+    !(getDisplay(incomesView) || getDisplay(overview) || getDisplay(snapshot))
   ) {
     return undefined;
   }
   if (
     evalnType === evaluationType.expense &&
-    !(getDisplay(expensesView) || getDisplay(overview))
+    !(getDisplay(expensesView) || getDisplay(overview) || getDisplay(snapshot))
   ) {
     return undefined;
   }
   if (
     evalnType === evaluationType.asset &&
-    !(getDisplay(assetsView) || getDisplay(debtsView) || getDisplay(overview))
+    !(
+      getDisplay(assetsView) ||
+      getDisplay(debtsView) ||
+      getDisplay(overview) ||
+      getDisplay(snapshot)
+    )
   ) {
     return undefined;
   }
   if (
     evalnType === evaluationType.taxLiability &&
-    !(getDisplay(taxView) || getDisplay(overview))
+    !(getDisplay(taxView) || getDisplay(overview) || getDisplay(snapshot))
   ) {
     return undefined;
   }

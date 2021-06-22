@@ -212,3 +212,4 @@ export const triggersTable: ViewType = { lc: 'Dates table' };
 export const settingsTable: ViewType = { lc: 'Settings table' };
 
 export const overview: ViewType = { lc: 'Overview' };
+export const snapshot: ViewType = { lc: 'Snapshot' };

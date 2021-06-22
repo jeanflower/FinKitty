@@ -44,6 +44,7 @@ import {
   viewDetail,
   viewFrequency,
   viewType,
+  snapshot,
 } from './localization/stringConstants';
 import {
   AssetVal,
@@ -74,6 +75,7 @@ import {
   triggersTableDivWithHeading,
 } from './views/tablePages';
 import { overviewDiv } from './views/overviewPage';
+import { snapshotDiv } from './views/snapshotPage';
 import { taxDiv } from './views/chartPages';
 import { incomesDiv } from './views/incomesPage';
 import { expensesDiv } from './views/expensesPage';
@@ -224,6 +226,12 @@ const views = new Map<
   ],
   [
     overview,
+    {
+      display: false,
+    },
+  ],
+  [
+    snapshot,
     {
       display: false,
     },
@@ -491,7 +499,7 @@ export async function refreshData(
       getDisplay,
     );
 
-    result.expensesData.sort((a, b) => (a.item.NAME < b.item.NAME ? 1 : -1));
+    result.expensesData.sort((a, b) => (a.item.NAME < b.item.NAME ? 1 : -1)); // TODO rerevse values
     result.incomesData.sort((a, b) => (a.item.NAME < b.item.NAME ? 1 : -1));
     result.assetData.sort((a, b) => (a.item.NAME < b.item.NAME ? 1 : -1));
     result.taxData.sort((a, b) => (a.item.NAME < b.item.NAME ? 1 : -1));
@@ -1087,6 +1095,24 @@ export class AppContent extends Component<AppProps, AppState> {
               getEndDate,
               updateEndDate,
             )}
+            {snapshotDiv(
+              this.state.modelData,
+              this.state.viewState,
+              showAlert,
+              this.state.assetChartData,
+              this.state.todaysAssetValues,
+              this.state.debtChartData,
+              this.state.todaysDebtValues,
+              this.state.expensesChartData,
+              this.state.todaysExpenseValues,
+              this.state.incomesChartData,
+              this.state.todaysIncomeValues,
+              this.state.taxChartData,
+              getStartDate,
+              updateStartDate,
+              getEndDate,
+              updateEndDate,
+            )}
             {this.settingsDiv(
               this.state.modelData,
               this.state.todaysSettingValues,
@@ -1146,17 +1172,18 @@ export class AppContent extends Component<AppProps, AppState> {
         </>
       );
     } catch (e) {
-      return this.internalErrorDiv();
+      return this.internalErrorDiv(e);
     }
   }
 
-  private internalErrorDiv() {
+  private internalErrorDiv(e: Error) {
     return (
       <>
         {this.navbarDiv()}
         <h1>
-          Oops! something has gone wrong with FinKitty. Sad Finkitty apologises.
+          Oops! something has gone wrong with FinKitty. Sad FinKitty apologises.
         </h1>
+        {e.message}
       </>
     );
   }
@@ -1504,7 +1531,7 @@ export class AppContent extends Component<AppProps, AppState> {
     const today = getTodaysDate(model);
     return (
       <>
-        <h4>Values at {today.toDateString()}</h4>
+        <h4>Settings values at {today.toDateString()}</h4>
         <DataGrid
           deleteFunction={async function() {
             return false;

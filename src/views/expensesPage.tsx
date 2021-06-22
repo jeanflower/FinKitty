@@ -26,59 +26,106 @@ import SimpleFormatter from './reactComponents/NameFormatter';
 import { ViewSettings } from '../models/charting';
 import { getTodaysDate } from '../models/modelUtils';
 import { lessThan } from '../stringUtils';
+import { collapsibleFragment } from './incomesPage';
 
-function todaysExpensesTable(
+function addToMap(
+  name: string,
+  val: ExpenseVal,
+  myMap: Map<string, ExpenseVal>,
+) {
+  const existingEntry = myMap.get(name);
+  if (existingEntry === undefined) {
+    myMap.set(name, { ...val });
+  } else {
+    existingEntry.expenseVal += val.expenseVal;
+  }
+}
+
+function makeDataGrid(myMap: Map<string, ExpenseVal>) {
+  return (
+    <DataGrid
+      deleteFunction={async function() {
+        return false;
+      }}
+      handleGridRowsUpdated={function() {
+        return false;
+      }}
+      rows={Array.from(myMap.entries())
+        .filter(key => {
+          return key[1].expenseVal !== 0.0;
+        })
+        .map(key => {
+          // log(`key[0] = ${key[0]}, key[1] = ${key[1]}`);
+          return {
+            NAME: key[0],
+            VALUE: `${key[1].expenseVal}`,
+            FREQ: `${key[1].expenseFreq}`,
+            CATEGORY: `${key[1].category}`,
+          };
+        })
+        .sort((a: Item, b: Item) => lessThan(a.NAME, b.NAME))}
+      columns={[
+        {
+          ...defaultColumn,
+          key: 'NAME',
+          name: 'name',
+          formatter: <SimpleFormatter name="name" value="unset" />,
+          editable: false,
+        },
+        {
+          ...defaultColumn,
+          key: 'VALUE',
+          name: `value`,
+          formatter: <CashValueFormatter name="value" value="unset" />,
+          editable: false,
+        },
+        {
+          ...defaultColumn,
+          key: 'FREQ',
+          name: `frequency`,
+          formatter: <SimpleFormatter name="frequency" value="unset" />,
+          editable: false,
+        },
+        {
+          ...defaultColumn,
+          key: 'CATEGORY',
+          name: `category`,
+          formatter: <SimpleFormatter name="name" value="unset" />,
+          editable: false,
+        },
+      ]}
+    />
+  );
+}
+
+export function todaysExpensesTable(
   model: ModelData,
   todaysValues: Map<string, ExpenseVal>,
 ) {
   if (todaysValues.size === 0) {
     return;
   }
+
+  const categorisedValues = new Map<string, ExpenseVal>();
+
+  const entries = Array.from(todaysValues.entries());
+  for (const key of entries) {
+    const cat = key[1].category;
+    if (cat === '') {
+      addToMap(key[0], key[1], categorisedValues);
+    } else {
+      const catName: string = key[1].category;
+      addToMap(`${catName}${key[1].expenseFreq}`, key[1], categorisedValues);
+    }
+  }
+
   const today = getTodaysDate(model);
   return (
     <>
-      <h4>Values at {today.toDateString()}</h4>
-      <DataGrid
-        deleteFunction={async function() {
-          return false;
-        }}
-        handleGridRowsUpdated={function() {
-          return false;
-        }}
-        rows={Array.from(todaysValues.entries())
-          .map(key => {
-            // log(`key[0] = ${key[0]}, key[1] = ${key[1]}`);
-            return {
-              NAME: key[0],
-              VALUE: `${key[1].expenseVal}`,
-              FREQ: `${key[1].expenseFreq}`,
-            };
-          })
-          .sort((a: Item, b: Item) => lessThan(a.NAME, b.NAME))}
-        columns={[
-          {
-            ...defaultColumn,
-            key: 'NAME',
-            name: 'name',
-            formatter: <SimpleFormatter name="name" value="unset" />,
-            editable: false,
-          },
-          {
-            ...defaultColumn,
-            key: 'VALUE',
-            name: `value`,
-            formatter: <CashValueFormatter name="value" value="unset" />,
-            editable: false,
-          },
-          {
-            ...defaultColumn,
-            key: 'FREQ',
-            name: `frequency`,
-            formatter: <SimpleFormatter name="frequency" value="unset" />,
-            editable: false,
-          },
-        ]}
-      />
+      <h4>Expense values at {today.toDateString()}</h4>
+      {makeDataGrid(todaysValues)}
+      <h4>Expense values (categorised) at {today.toDateString()}</h4>
+      {makeDataGrid(categorisedValues)}
     </>
   );
 }
@@ -102,39 +149,49 @@ export function expensesDiv(
       className="ml-3"
       style={{ display: getDisplay(expensesView) ? 'block' : 'none' }}
     >
-      {expensesChartDivWithButtons(
-        model,
-        viewSettings,
-        expensesChartData,
-        getDefaultChartSettings(viewSettings, model.settings),
-        showAlert,
-        getStartDate,
-        updateStartDate,
-        getEndDate,
-        updateEndDate,
+      {collapsibleFragment(
+        expensesChartDivWithButtons(
+          model,
+          viewSettings,
+          expensesChartData,
+          getDefaultChartSettings(viewSettings, model.settings),
+          showAlert,
+          getStartDate,
+          updateStartDate,
+          getEndDate,
+          updateEndDate,
+        ),
+        'Data chart',
       )}
-      {todaysExpensesTable(model, todaysValues)}
-      {expensesTableDivWithHeading(model, showAlert)}
-      {transactionFilteredTable(
-        model,
-        showAlert,
-        revalueExp,
-        'Expense revaluations',
+      {collapsibleFragment(
+        <>
+          {todaysExpensesTable(model, todaysValues)}
+          {expensesTableDivWithHeading(model, showAlert)}
+          {transactionFilteredTable(
+            model,
+            showAlert,
+            revalueExp,
+            'Expense revaluations',
+          )}
+        </>,
+        'Data tables',
       )}
-
-      <div className="addNewExpense">
-        <h4> Add an expense </h4>
-        <AddDeleteExpenseForm
-          checkFunction={checkExpense}
-          submitFunction={submitExpense}
-          deleteFunction={deleteExpense}
-          submitTriggerFunction={submitTrigger}
-          model={model}
-          showAlert={showAlert}
-          checkTransactionFunction={checkTransaction}
-          submitTransactionFunction={submitTransaction}
-        />
-      </div>
+      {collapsibleFragment(
+        <div className="addNewExpense">
+          <h4> Add an expense </h4>
+          <AddDeleteExpenseForm
+            checkFunction={checkExpense}
+            submitFunction={submitExpense}
+            deleteFunction={deleteExpense}
+            submitTriggerFunction={submitTrigger}
+            model={model}
+            showAlert={showAlert}
+            checkTransactionFunction={checkTransaction}
+            submitTransactionFunction={submitTransaction}
+          />
+        </div>,
+        'Add or revalue an expense',
+      )}
     </div>
   );
 }

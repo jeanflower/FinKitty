@@ -19,51 +19,93 @@ import { debtsView } from '../localization/stringConstants';
 import { ViewSettings } from '../models/charting';
 import { getTodaysDate } from '../models/modelUtils';
 import { lessThan } from '../stringUtils';
+import { collapsibleFragment } from './incomesPage';
 
-function todaysDebtsTable(
+function addToMap(name: string, val: DebtVal, myMap: Map<string, DebtVal>) {
+  const existingEntry = myMap.get(name);
+  if (existingEntry === undefined) {
+    myMap.set(name, { ...val });
+  } else {
+    existingEntry.debtVal += val.debtVal;
+  }
+}
+
+function makeDataGrid(myMap: Map<string, DebtVal>) {
+  return (
+    <DataGrid
+      deleteFunction={async function() {
+        return false;
+      }}
+      handleGridRowsUpdated={function() {
+        return false;
+      }}
+      rows={Array.from(myMap.entries())
+        .filter(key => {
+          return key[1].debtVal !== 0.0;
+        })
+        .map(key => {
+          // log(`key[0] = ${key[0]}, key[1] = ${key[1]}`);
+          return {
+            NAME: key[0],
+            VALUE: `${key[1].debtVal}`,
+            CATEGORY: `${key[1].category}`,
+          };
+        })
+        .sort((a: Item, b: Item) => lessThan(a.NAME, b.NAME))}
+      columns={[
+        {
+          ...defaultColumn,
+          key: 'NAME',
+          name: 'name',
+          formatter: <SimpleFormatter name="name" value="unset" />,
+          editable: false,
+        },
+        {
+          ...defaultColumn,
+          key: 'VALUE',
+          name: `value`,
+          formatter: <CashValueFormatter name="value" value="unset" />,
+          editable: false,
+        },
+        {
+          ...defaultColumn,
+          key: 'CATEGORY',
+          name: `category`,
+          formatter: <SimpleFormatter name="name" value="unset" />,
+          editable: false,
+        },
+      ]}
+    />
+  );
+}
+
+export function todaysDebtsTable(
   model: ModelData,
   todaysValues: Map<string, DebtVal>,
 ) {
   if (todaysValues.size === 0) {
     return;
   }
+  const categorisedValues = new Map<string, DebtVal>();
+
+  const entries = Array.from(todaysValues.entries());
+  for (const key of entries) {
+    const cat = key[1].category;
+    if (cat === '') {
+      addToMap(key[0], key[1], categorisedValues);
+    } else {
+      const catName: string = key[1].category;
+      addToMap(catName, key[1], categorisedValues);
+    }
+  }
+
   const today = getTodaysDate(model);
   return (
     <>
-      <h4>Values at {today.toDateString()}</h4>
-      <DataGrid
-        deleteFunction={async function() {
-          return false;
-        }}
-        handleGridRowsUpdated={function() {
-          return false;
-        }}
-        rows={Array.from(todaysValues.entries())
-          .map(key => {
-            // log(`key[0] = ${key[0]}, key[1] = ${key[1]}`);
-            return {
-              NAME: key[0],
-              VALUE: `${key[1].debtVal}`,
-            };
-          })
-          .sort((a: Item, b: Item) => lessThan(a.NAME, b.NAME))}
-        columns={[
-          {
-            ...defaultColumn,
-            key: 'NAME',
-            name: 'name',
-            formatter: <SimpleFormatter name="name" value="unset" />,
-            editable: false,
-          },
-          {
-            ...defaultColumn,
-            key: 'VALUE',
-            name: `value`,
-            formatter: <CashValueFormatter name="value" value="unset" />,
-            editable: false,
-          },
-        ]}
-      />
+      <h4>Debt values at {today.toDateString()}</h4>
+      {makeDataGrid(todaysValues)}
+      <h4>Debt values (categorised) at {today.toDateString()}</h4>
+      {makeDataGrid(categorisedValues)}
     </>
   );
 }
@@ -88,33 +130,44 @@ export function debtsDiv(
       className="ml-3"
       style={{ display: getDisplay(debtsView) ? 'block' : 'none' }}
     >
-      {assetsOrDebtsChartDivWithButtons(
-        model,
-        viewSettings,
-        debtChartData,
-        true,
-        showAlert,
-        getStartDate,
-        updateStartDate,
-        getEndDate,
-        updateEndDate,
+      {collapsibleFragment(
+        assetsOrDebtsChartDivWithButtons(
+          model,
+          viewSettings,
+          debtChartData,
+          true,
+          showAlert,
+          getStartDate,
+          updateStartDate,
+          getEndDate,
+          updateEndDate,
+        ),
+        'Data chart',
       )}
-      {todaysDebtsTable(model, todaysValues)}
-      {debtsDivWithHeadings(model, showAlert)}
+      {collapsibleFragment(
+        <>
+          {todaysDebtsTable(model, todaysValues)}
+          {debtsDivWithHeadings(model, showAlert)}
+        </>,
+        'Data tables',
+      )}
 
-      <div className="addNewDebt">
-        <h4>Add a debt</h4>
-        <AddDeleteDebtForm
-          checkAssetFunction={checkAsset}
-          submitAssetFunction={submitAsset}
-          checkTransactionFunction={checkTransaction}
-          submitTransactionFunction={submitTransaction}
-          deleteAssetFunction={deleteAsset}
-          submitTriggerFunction={submitTrigger}
-          model={model}
-          showAlert={showAlert}
-        />
-      </div>
+      {collapsibleFragment(
+        <div className="addNewDebt">
+          <h4>Add a debt</h4>
+          <AddDeleteDebtForm
+            checkAssetFunction={checkAsset}
+            submitAssetFunction={submitAsset}
+            checkTransactionFunction={checkTransaction}
+            submitTransactionFunction={submitTransaction}
+            deleteAssetFunction={deleteAsset}
+            submitTriggerFunction={submitTrigger}
+            model={model}
+            showAlert={showAlert}
+          />
+        </div>,
+        'Add or revalue a debt',
+      )}
     </div>
   );
 }

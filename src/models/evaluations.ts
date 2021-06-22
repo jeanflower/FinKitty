@@ -3408,9 +3408,15 @@ export function getEvaluations(
         }
         if (val !== undefined) {
           if (asset.IS_A_DEBT) {
-            todaysDebtValues.set(asset.NAME, { debtVal: val });
+            todaysDebtValues.set(asset.NAME, {
+              debtVal: val,
+              category: asset.CATEGORY,
+            });
           } else {
-            todaysAssetValues.set(asset.NAME, { assetVal: val });
+            todaysAssetValues.set(asset.NAME, {
+              assetVal: val,
+              category: asset.CATEGORY,
+            });
           }
           // log(`asset ${asset.NAME} has value ${val}`);
         } else {
@@ -3423,7 +3429,10 @@ export function getEvaluations(
           val = traceEvaluation(val, values, val);
         }
         if (val !== undefined) {
-          todaysIncomeValues.set(i.NAME, { incomeVal: val });
+          todaysIncomeValues.set(i.NAME, {
+            incomeVal: val,
+            category: i.CATEGORY,
+          });
         } else {
           // log(`don't report undefined today's value for ${i.NAME}`);
         }
@@ -3438,6 +3447,7 @@ export function getEvaluations(
           todaysExpenseValues.set(e.NAME, {
             expenseVal: val,
             expenseFreq: e.RECURRENCE,
+            category: e.CATEGORY,
           });
         } else {
           // log(`don't report undefined today's value for ${e.NAME}`);
