@@ -1141,6 +1141,8 @@ function triggersForTable(model: ModelData) {
       NAME: obj.NAME,
     };
     return mapResult;
+  }).sort((a, b)=>{
+    return a.NAME < b.NAME ? 1 : -1;
   });
   return addIndices(unindexedResult);
 }
