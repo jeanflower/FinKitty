@@ -3433,7 +3433,7 @@ export function getEvaluations(
           });
           return;
         }
-        log(`income ${i.NAME} ends at ${i.END} not yet ended at ${today}`);
+        // log(`income ${i.NAME} ends at ${i.END} not yet ended at ${today}`);
         let val = values.get(i.NAME);
         if (typeof val === 'string') {
           val = traceEvaluation(val, values, val);
