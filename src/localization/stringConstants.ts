@@ -203,13 +203,5 @@ export const incomesChart: ViewType = { lc: 'Incomes chart' };
 export const assetsChart: ViewType = { lc: 'Assets chart' };
 export const debtsChart: ViewType = { lc: 'Debts chart' };
 
-export const expensesTable: ViewType = { lc: 'Expenses table' };
-export const incomesTable: ViewType = { lc: 'Incomes table' };
-export const assetsTable: ViewType = { lc: 'Assets table' };
-export const debtsTable: ViewType = { lc: 'Debts table' };
-export const transactionsTable: ViewType = { lc: 'Transactions table' };
-export const triggersTable: ViewType = { lc: 'Dates table' };
-export const settingsTable: ViewType = { lc: 'Settings table' };
-
 export const overview: ViewType = { lc: 'Overview' };
 export const snapshot: ViewType = { lc: 'Snapshot' };
