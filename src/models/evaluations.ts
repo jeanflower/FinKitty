@@ -3425,6 +3425,14 @@ export function getEvaluations(
         }
       });
       model.incomes.forEach(i => {
+        const startDate = checkTriggerDate(i.START, model.triggers);
+        if(startDate !== undefined && startDate > today){
+          todaysIncomeValues.set(i.NAME, {
+            incomeVal: 0,
+            category: i.CATEGORY,
+          });
+          return;
+        }
         const endDate = checkTriggerDate(i.END, model.triggers);
         if(endDate !== undefined && endDate < today){
           todaysIncomeValues.set(i.NAME, {
@@ -3433,7 +3441,7 @@ export function getEvaluations(
           });
           return;
         }
-        // log(`income ${i.NAME} ends at ${i.END} not yet ended at ${today}`);
+          // log(`income ${i.NAME} ends at ${i.END} not yet ended at ${today}`);
         let val = values.get(i.NAME);
         if (typeof val === 'string') {
           val = traceEvaluation(val, values, val);
@@ -3448,6 +3456,15 @@ export function getEvaluations(
         }
       });
       model.expenses.forEach(e => {
+        const startDate = checkTriggerDate(e.START, model.triggers);
+        if(startDate !== undefined && startDate > today){
+          todaysExpenseValues.set(e.NAME, {
+            expenseVal: 0,
+            category: e.CATEGORY,
+            expenseFreq: e.RECURRENCE,
+          });
+          return;
+        }
         const endDate = checkTriggerDate(e.END, model.triggers);
         if(endDate !== undefined && endDate < today){
           todaysExpenseValues.set(e.NAME, {
