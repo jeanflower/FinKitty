@@ -2241,11 +2241,14 @@ function revalueApplied(
         `for a revaluation transaction ${showObj(t)}`,
     );
   }
+  // log(`t.TO_VALUE = ${t.TO_VALUE}`);
   let tToValue: string | number | undefined = traceEvaluation(
     t.TO_VALUE,
     values,
     t.TO_VALUE,
   );
+  const toVal = tToValue;
+  // log(`t.TO = ${t.TO}, tToValue = ${tToValue}`);
   let words = t.TO.split(separator);
   words = replaceCategoryWithAssetNames(words, model);
   words.forEach(w => {
@@ -2271,6 +2274,7 @@ function revalueApplied(
         if (parts.numberPart !== undefined && parts.wordPart !== undefined) {
           if (tToValue !== undefined && typeof tToValue !== 'string') {
             const newNumberPart = parts.numberPart * tToValue;
+            // log(`tToValue = '' + ${newNumberPart} + ${parts.wordPart};`);
             tToValue = '' + newNumberPart + parts.wordPart;
             scaledNumberWordParts = true;
           } else {
@@ -2297,7 +2301,12 @@ function revalueApplied(
           );
         }
       } else {
-        tToValue = prevValue * parseFloat(t.TO_VALUE);
+        if(toVal === undefined){
+          throw new Error(`can't interpret scale value ${t.TO_VALUE}`);
+        } else {
+          // log(`tToValue = '' + ${prevValue} + ${toVal};`);
+          tToValue = prevValue * toVal;
+        }
       }
     }
     // log income tax liability for assets which grow
