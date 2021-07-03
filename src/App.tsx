@@ -947,7 +947,7 @@ export class AppContent extends Component<AppProps, AppState> {
     //this.handleUnload = this.handleUnload.bind(this);
 
     const viewSettings = getDefaultViewSettings();
-    log(`frequency is ${viewSettings.getViewSetting(viewFrequency, 'none')}`);
+    // log(`frequency is ${viewSettings.getViewSetting(viewFrequency, 'none')}`);
 
     reactAppComponent = this;
     this.state = {

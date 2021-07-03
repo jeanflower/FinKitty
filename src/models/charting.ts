@@ -296,9 +296,9 @@ e.g.
 
   // call from e.g. people adding a new Setting in a UI
   public setViewSetting(settingName: string, settingValue: string): boolean {
-    if(settingName === viewFrequency &&  settingValue !== annually){
-      log(`setViewSetting seting non-annual frequency`);
-    }
+    //if(settingName === viewFrequency &&  settingValue !== annually){
+    //  log(`setViewSetting seting non-annual frequency`);
+    //}
     if (this.kvPairs.get(settingName)) {
       this.kvPairs.set(settingName, settingValue);
       return true;
@@ -964,9 +964,9 @@ function ensureDateValueMapsExist(
 function getSettingsValues(viewSettings: ViewSettings) {
   const detail: string = viewSettings.getViewSetting(viewDetail, fine);
   const frequency: string = viewSettings.getViewSetting(viewFrequency, annually);
-  if(frequency !== annually){
-    log(`viewSettings gave monthly viewSetting`);
-  }
+  //if(frequency !== annually){
+  //  log(`viewSettings gave monthly viewSetting`);
+  //}
   const taxChartType: string = viewSettings.getViewSetting(
     taxChartFocusType,
     allItems,
