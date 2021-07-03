@@ -20,7 +20,7 @@ export function printDebug(): boolean {
   return false;
 }
 
-export function showObj(obj: number | string | Record<string, any>) {
+export function showObj(obj: any) {
   return JSON.stringify(obj, null, 4);
 }
 

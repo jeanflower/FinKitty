@@ -1282,17 +1282,17 @@ function OptimizeIncomeTax(
   evaluations: Evaluation[],
   model: ModelData,
 ) {
-  // log(`settle up income tax for ${person} and ${amount} on ${date}`);
+  // log(`OptimizeIncomeTax income tax for ${person} and ${liableIncome} on ${date.toDateString()}`);
   const bands = getTaxBands(liableIncome, date, cpiVal);
   if (liableIncome > bands.noTaxBand) {
     return;
   }
-  const unusedAllowance = bands.noTaxBand - liableIncome;
+  let unusedAllowance = bands.noTaxBand - liableIncome;
+  // log(`unusedAllowance = ${unusedAllowance}`);
   // if we have unused allowance, see
   // have we got some crystallised pension we can use?
   for (const valueKey of values.keys()) {
     /* eslint-disable-line no-restricted-syntax */
-    // log(`valueKey = ${valueKey}`);
     if (valueKey.startsWith(crystallizedPension)) {
       // is it for the right person?
       const removedCP = `${valueKey.substr(crystallizedPension.length)}`;
@@ -1305,6 +1305,8 @@ function OptimizeIncomeTax(
       // e.g. IncomeTaxJoe
       // log(`liability = ${liability}`);
       if (liability === person) {
+        // log(`valueKey = ${valueKey}`);
+
         let amountToTransfer = unusedAllowance;
         const pensionVal = getNumberValue(values, valueKey);
         if (pensionVal === undefined) {
@@ -1327,9 +1329,8 @@ function OptimizeIncomeTax(
         } else {
           personAmountMap.set(person, liableIncome + amountToTransfer);
 
-          // log(`valueKey = ${valueKey}`);
-          // log(`liability = ${liability}`);
-          // log('in settleIncomeTax, setValue:');
+          liableIncome = liableIncome + amountToTransfer;
+          unusedAllowance = unusedAllowance - amountToTransfer;
           setValue(
             values,
             evaluations,
@@ -1514,15 +1515,15 @@ function settleUpTax(
     if (recalculatedNetIncome) {
       for (const [person, amount] of personNetIncome) {
         if (amount > 0) {
-          // log(`setValue ${makeNetIncomeTag(person)} amount ${amount}`)
+          const netIncTag = makeNetIncomeTag(person);          
           setValue(
             values,
             evaluations,
             date,
-            makeNetIncomeTag(person),
+            netIncTag,
             amount,
             model,
-            makeNetIncomeTag(person),
+            netIncTag,
             '27', //callerID
           );
         }
