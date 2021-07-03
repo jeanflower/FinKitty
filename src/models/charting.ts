@@ -55,6 +55,7 @@ import {
   pensionAllowance,
   dot,
   snapshot,
+  annually,
 } from '../localization/stringConstants';
 import { Context, log, printDebug, showObj } from '../utils';
 import {
@@ -956,7 +957,7 @@ function ensureDateValueMapsExist(
 
 function getSettingsValues(viewSettings: ViewSettings) {
   const detail: string = viewSettings.getViewSetting(viewDetail, fine);
-  const frequency: string = viewSettings.getViewSetting(viewFrequency, monthly); //annually);
+  const frequency: string = viewSettings.getViewSetting(viewFrequency, annually);
   const taxChartType: string = viewSettings.getViewSetting(
     taxChartFocusType,
     allItems,
