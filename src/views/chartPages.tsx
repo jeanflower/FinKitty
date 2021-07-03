@@ -812,6 +812,7 @@ function taxChartDivWithButtons(
   return (
     <>
       {taxButtonList(model, viewSettings)}
+      {coarseFineList(viewSettings)}
       {taxChartDiv(
         taxChartData,
         settings,
@@ -835,7 +836,7 @@ export function taxDiv(
 
   return (
     <div className="ml-3">
-      {coarseFineList(viewSettings)}
+
       {taxChartDivWithButtons(
         model,
         viewSettings,
