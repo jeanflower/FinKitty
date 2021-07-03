@@ -958,6 +958,9 @@ function ensureDateValueMapsExist(
 function getSettingsValues(viewSettings: ViewSettings) {
   const detail: string = viewSettings.getViewSetting(viewDetail, fine);
   const frequency: string = viewSettings.getViewSetting(viewFrequency, annually);
+  if(frequency !== annually){
+    log(`viewSettings gave monthly viewSetting`);
+  }
   const taxChartType: string = viewSettings.getViewSetting(
     taxChartFocusType,
     allItems,
@@ -1191,8 +1194,8 @@ export function makeChartData(
   const {
     detail,
     frequency,
-    taxChartPerson,
     taxChartType,
+    taxChartPerson,
     taxChartNet,
   } = getSettingsValues(viewSettings);
 
