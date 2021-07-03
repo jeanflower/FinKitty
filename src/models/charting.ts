@@ -296,6 +296,9 @@ e.g.
 
   // call from e.g. people adding a new Setting in a UI
   public setViewSetting(settingName: string, settingValue: string): boolean {
+    if(settingName === viewFrequency &&  settingValue !== annually){
+      log(`setViewSetting seting non-annual frequency`);
+    }
     if (this.kvPairs.get(settingName)) {
       this.kvPairs.set(settingName, settingValue);
       return true;
@@ -345,6 +348,9 @@ e.g.
     }
     if (this.kvPairs.get(context)) {
       this.kvPairs.set(context, value);
+      if(context === viewFrequency &&  value !== annually){
+        log(`migrateViewSettingString seting non-annual frequency`);
+      }
       return true;
     } else {
       return false;
