@@ -54,7 +54,7 @@ describe(testDataModelName, () => {
   const driver = driverSimple;
 
   it('should load the home page and get title', () =>
-    new Promise(async resolve => {
+    new Promise<void>(async resolve => {
       await beforeAllWork(
         driver,
         testDataModelName,
@@ -71,7 +71,7 @@ describe(testDataModelName, () => {
   // the page should include a chart
   // (maybe not visible, but loaded in the document)
   it('should show a chart', () =>
-    new Promise(async resolve => {
+    new Promise<void>(async resolve => {
       await beforeAllWork(
         driver,
         testDataModelName,

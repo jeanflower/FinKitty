@@ -538,7 +538,7 @@ export const dateFormatOptions = {
   year: 'numeric',
   month: 'long',
   day: 'numeric',
-};
+} as const;
 
 // returns a date string for a trigger, or '' for date or junk
 export function makeDateTooltip(input: string, triggers: Trigger[]) {
