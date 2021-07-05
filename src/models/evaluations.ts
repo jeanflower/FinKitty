@@ -1770,7 +1770,6 @@ function handleIncome(
     words.forEach(liability => {
       // log(`liability = ${liability}`);
       if (liability.endsWith(incomeTax)) {
-        // log(`IncomeTax due on ${amountForIncomeTax} for ${liability}, ${liabilitiesMapKey}`);
         accumulateLiability(
           liability,
           incomeTax,
@@ -3739,17 +3738,21 @@ export function getEvaluations(
           // some assets experience growth which is
           // liable for tax
           // log(`asset moment for growth : ${moment.date}, ${moment.name}`);
-          handleIncome(
-            change,
-            moment,
-            values,
-            evaluations,
-            model,
-            pensionTransactions,
-            liabilitiesMap,
-            liableIncomeInTaxYear,
-            moment.name,
-          );
+          if(moment.name.startsWith(crystallizedPension) && change > 0){
+            // log(`skip asset moment for growth : ${moment.date}, ${moment.name}, ${change}`);
+          } else {
+            handleIncome(
+              change,
+              moment,
+              values,
+              evaluations,
+              model,
+              pensionTransactions,
+              liabilitiesMap,
+              liableIncomeInTaxYear,
+              moment.name,
+            );
+          }
         } else if (moment.type === momentType.income) {
           handleIncome(
             numberVal,
