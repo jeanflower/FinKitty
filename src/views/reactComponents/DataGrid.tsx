@@ -9,7 +9,7 @@ interface DataGridProps {
   handleGridRowsUpdated: any; // TODO any
   rows: any[]; // TODO any
   columns: any[]; // TODO any
-  deleteFunction: (name: string) => Promise<boolean>;
+  deleteFunction: ((name: string) => Promise<boolean>) | undefined;
 }
 interface DataGridState {
   rows: any[]; // TODO any
@@ -121,13 +121,13 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
 
   private getCellActions(column: ReactDataGrid.Column<any>, row: any) {
     // log(`get cell actions?`);
-    if (column.key === 'NAME') {
-      // log(`add glyph`);
+    if (column.key === 'NAME' && this.props.deleteFunction !== undefined) {
+      // log(`add glyph`);      
       return [
         {
           icon: 'fa fa-trash',
           callback: () => {
-            if (window.confirm(`delete data for ${row['NAME']} - you sure?`)) {
+            if (this.props.deleteFunction !== undefined && window.confirm(`delete data for ${row['NAME']} - you sure?`)) {
               this.props.deleteFunction(row['NAME']);
             }
           },

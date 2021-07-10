@@ -114,6 +114,7 @@ import {
   revertToUndoModel,
 } from './models/modelUtils';
 import { lessThan } from './stringUtils';
+import { diffModels } from './diffModels';
 
 // import FinKittyCat from './views/cat.png';
 
@@ -787,7 +788,6 @@ export async function deleteItemFromModel(
     return i.NAME === name;
   });
   if (idx !== -1) {
-    markForUndo(model);
     const oldItem = itemList[idx];
     // log(`before delete itemList = ${showObj(itemList)}`);
     itemList.splice(idx, 1);
@@ -804,6 +804,7 @@ export async function deleteItemFromModel(
       return false;
     }
 
+    markForUndo(model);
     await saveModelLSM(getUserID(), modelName, model);
     await refreshData(
       true, // refreshModel = true,
@@ -1536,9 +1537,7 @@ export class AppContent extends Component<AppProps, AppState> {
       <>
         <h4>Settings values at {today.toDateString()}</h4>
         <DataGrid
-          deleteFunction={async function() {
-            return false;
-          }}
+          deleteFunction={undefined}
           handleGridRowsUpdated={function() {
             return false;
           }}
@@ -1760,6 +1759,12 @@ export class AppContent extends Component<AppProps, AppState> {
     if (numUndosAvailable > 0) {
       buttonTitle = `Undo(${numUndosAvailable})`;
     }
+    if(this.state.modelData.undoModel !== undefined){
+      const undoTooltip = diffModels(this.state.modelData, this.state.modelData.undoModel);
+      buttonTitle += ' ';
+      buttonTitle += undoTooltip;
+    }
+
     return (
       <Button
         key={'undoButton'}
@@ -1794,6 +1799,12 @@ export class AppContent extends Component<AppProps, AppState> {
     if (numRedosAvailable > 0) {
       buttonTitle = `Redo(${numRedosAvailable})`;
     }
+    if(this.state.modelData.redoModel !== undefined){
+      const redoTooltip = diffModels(this.state.modelData.redoModel, this.state.modelData);
+      buttonTitle += ' ';
+      buttonTitle += redoTooltip;
+    }
+
     return (
       <Button
         key={'redoButton'}

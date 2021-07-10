@@ -12,234 +12,176 @@ import { showObj } from './utils';
 
 function diffItem(i1: Item, i2: Item): string {
   if (i1.NAME !== i2.NAME) {
-    return `different names ${i1.NAME} !== ${i2.NAME}`;
+    return `different name ${i1.NAME}`;
   }
   return '';
 }
-function diffTriggers(i1: Item, i2: Item): string {
-  const s = diffItem(i1, i2);
+function diffTriggers(it1: Item, it2: Item): string {
+  const s = diffItem(it1, it2);
   if (s.length > 0) {
     return s;
   }
-  const d1 = (i1 as Trigger).DATE;
-  const d2 = (i2 as Trigger).DATE;
-  if (d1.toDateString() !== d2.toDateString()) {
-    return `different dates ${d1} !== ${d2}`;
+  const t1 = it1 as Trigger;
+  const t2 = it2 as Trigger;
+  if (t1.DATE.toDateString() !== t2.DATE.toDateString()) {
+    return `${it1.NAME}: different date ${new Date(t1.DATE).toDateString()}`;
   }
   return '';
 }
-function diffIncomes(i1: Item, i2: Item): string {
-  const s = diffItem(i1, i2);
+function diffIncomes(it1: Item, it2: Item): string {
+  const s = diffItem(it1, it2);
   if (s.length > 0) {
     return s;
   }
-  let x1: string | boolean = (i1 as Income).START;
-  let x2: string | boolean = (i2 as Income).START;
-  if (x1 !== x2) {
-    return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
+  const i1 = it1 as Income;
+  const i2 = it2 as Income;
+  if (i1.START !== i2.START) {
+    return `${it1.NAME}: different start date ${new Date(i1.START).toDateString()}`;
   }
-  x1 = (i1 as Income).END;
-  x2 = (i2 as Income).END;
-  if (x1 !== x2) {
-    return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
+  if (i1.END !== i2.END) {
+    return `${it1.NAME}: different end date ${new Date(i1.END).toDateString()}`;
   }
-  x1 = (i1 as Income).VALUE;
-  x2 = (i2 as Income).VALUE;
-  if (x1 !== x2) {
-    return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
+  if (i1.VALUE !== i2.VALUE) {
+    return `${it1.NAME}: different value ${i1.VALUE}`;
   }
-  x1 = (i1 as Income).VALUE_SET;
-  x2 = (i2 as Income).VALUE_SET;
-  if (x1 !== x2) {
-    return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
+  if (i1.VALUE_SET !== i2.VALUE_SET) {
+    return `${it1.NAME}: different value set date ${new Date(i1.VALUE_SET).toDateString()}`;
   }
-  x1 = (i1 as Income).GROWTH;
-  x2 = (i2 as Income).GROWTH;
-  if (x1 !== x2) {
-    return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
+  if (i1.END !== i2.END) {
+    return `${it1.NAME}: different end date ${new Date(i1.END).toDateString()}`;
   }
-  x1 = (i1 as Income).CPI_IMMUNE;
-  x2 = (i2 as Income).CPI_IMMUNE;
-  if (x1 !== x2) {
-    return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
+  if (i1.GROWTH !== i2.GROWTH) {
+    return `${it1.NAME}: different growth ${i1.GROWTH}`;
   }
-  x1 = (i1 as Income).LIABILITY;
-  x2 = (i2 as Income).LIABILITY;
-  if (x1 !== x2) {
-    return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
+  if (i1.CPI_IMMUNE !== i2.CPI_IMMUNE) {
+    return `${it1.NAME}: different cpi-immunity ${i1.CPI_IMMUNE}`;
+  }
+  if (i1.LIABILITY !== i2.LIABILITY) {
+    return `${it1.NAME}: different liability ${i1.LIABILITY}`;
   }
   return '';
 }
-function diffExpenses(i1: Item, i2: Item): string {
-  const s = diffItem(i1, i2);
+function diffExpenses(it1: Item, it2: Item): string {
+  const s = diffItem(it1, it2);
   if (s.length > 0) {
     return s;
   }
-  let x1: string | boolean = (i1 as Expense).START;
-  let x2: string | boolean = (i2 as Expense).START;
-  if (x1 !== x2) {
-    return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
+  const e1 = it1 as Expense;
+  const e2 = it2 as Expense;
+  if (e1.START !== e2.START) {
+    return `${it1.NAME}: different start date ${new Date(e1.START).toDateString()}`;
   }
-  x1 = (i1 as Expense).END;
-  x2 = (i2 as Expense).END;
-  if (x1 !== x2) {
-    return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
+  if (e1.END !== e2.END) {
+    return `${it1.NAME}: different end date ${new Date(e1.END).toDateString()}`;
   }
-  x1 = (i1 as Expense).VALUE;
-  x2 = (i2 as Expense).VALUE;
-  if (x1 !== x2) {
-    return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
+  if (e1.VALUE !== e2.VALUE) {
+    return `${it1.NAME}: different value ${e1.VALUE}`;
   }
-  x1 = (i1 as Expense).VALUE_SET;
-  x2 = (i2 as Expense).VALUE_SET;
-  if (x1 !== x2) {
-    return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
+  if (e1.VALUE_SET !== e2.VALUE_SET) {
+    return `${it1.NAME}: different value set date ${new Date(e1.VALUE_SET).toDateString()}`;
   }
-  x1 = (i1 as Expense).GROWTH;
-  x2 = (i2 as Expense).GROWTH;
-  if (x1 !== x2) {
-    return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
+  if (e1.END !== e2.END) {
+    return `${it1.NAME}: different end date ${new Date(e1.END).toDateString()}`;
   }
-  x1 = (i1 as Expense).CPI_IMMUNE;
-  x2 = (i2 as Expense).CPI_IMMUNE;
-  if (x1 !== x2) {
-    return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
+  if (e1.GROWTH !== e2.GROWTH) {
+    return `${it1.NAME}: different growth ${e1.GROWTH}`;
   }
-  x1 = (i1 as Expense).RECURRENCE;
-  x2 = (i2 as Expense).RECURRENCE;
-  if (x1 !== x2) {
-    return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
+  if (e1.CPI_IMMUNE !== e2.CPI_IMMUNE) {
+    return `${it1.NAME}: different cpi-immunity ${e1.CPI_IMMUNE}`;
+  }
+  if (e1.RECURRENCE !== e2.RECURRENCE) {
+    return `${it1.NAME}: different recurrence ${e1.RECURRENCE}`;
   }
   return '';
 }
-function diffAssets(i1: Item, i2: Item): string {
-  const s = diffItem(i1, i2);
+function diffAssets(it1: Item, it2: Item): string {
+  const s = diffItem(it1, it2);
   if (s.length > 0) {
     return s;
   }
-  let x1: string | boolean = (i1 as Asset).START;
-  let x2: string | boolean = (i2 as Asset).START;
-  if (x1 !== x2) {
-    return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
+  const a1 = it1 as Asset;
+  const a2 = it2 as Asset;
+  if (a1.START !== a2.START) {
+    return `${it1.NAME}: different start date ${new Date(a1.START).toDateString()}`;
   }
-  x1 = (i1 as Asset).VALUE;
-  x2 = (i2 as Asset).VALUE;
-  if (x1 !== x2) {
-    return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
+  if (a1.VALUE !== a2.VALUE) {
+    return `${it1.NAME}: different value ${a1.VALUE}`;
   }
-  x1 = (i1 as Asset).QUANTITY;
-  x2 = (i2 as Asset).QUANTITY;
-  if (x1 !== x2) {
-    return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
+  if (a1.QUANTITY !== a2.QUANTITY) {
+    return `${it1.NAME}: different quantity ${a1.QUANTITY}`;
   }
-  x1 = (i1 as Asset).GROWTH;
-  x2 = (i2 as Asset).GROWTH;
-  if (x1 !== x2) {
-    return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
+  if (a1.CAN_BE_NEGATIVE !== a2.CAN_BE_NEGATIVE) {
+    return `${it1.NAME}: different negativity ${a1.CAN_BE_NEGATIVE}`;
   }
-  x1 = (i1 as Asset).CPI_IMMUNE;
-  x2 = (i2 as Asset).CPI_IMMUNE;
-  if (x1 !== x2) {
-    return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
+  if (a1.IS_A_DEBT !== a2.IS_A_DEBT) {
+    return `${it1.NAME}: different is-debt ${a1.IS_A_DEBT}`;
   }
-  x1 = (i1 as Asset).CAN_BE_NEGATIVE;
-  x2 = (i2 as Asset).CAN_BE_NEGATIVE;
-  if (x1 !== x2) {
-    return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
+  if (a1.GROWTH !== a2.GROWTH) {
+    return `${it1.NAME}: different growth ${a1.GROWTH}`;
   }
-  x1 = (i1 as Asset).IS_A_DEBT;
-  x2 = (i2 as Asset).IS_A_DEBT;
-  if (x1 !== x2) {
-    return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
+  if (a1.CPI_IMMUNE !== a2.CPI_IMMUNE) {
+    return `${it1.NAME}: different cpi-immunity ${a1.CPI_IMMUNE}`;
   }
-  x1 = (i1 as Asset).LIABILITY;
-  x2 = (i2 as Asset).LIABILITY;
-  if (x1 !== x2) {
-    return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
-  }
-  x1 = (i1 as Asset).PURCHASE_PRICE;
-  x2 = (i2 as Asset).PURCHASE_PRICE;
-  if (x1 !== x2) {
-    return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
+  if (a1.PURCHASE_PRICE !== a2.PURCHASE_PRICE) {
+    return `${it1.NAME}: different purchase price ${a1.PURCHASE_PRICE}`;
   }
   return '';
 }
-function diffTransactions(i1: Item, i2: Item): string {
-  const s = diffItem(i1, i2);
+
+function diffTransactions(it1: Item, it2: Item): string {
+  const s = diffItem(it1, it2);
   if (s.length > 0) {
     return s;
   }
-  let x1: string | boolean = (i1 as Transaction).FROM;
-  let x2: string | boolean = (i2 as Transaction).FROM;
-  if (x1 !== x2) {
-    return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
+  const t1 = it1 as Transaction;
+  const t2 = it2 as Transaction;
+  if (t1.DATE !== t2.DATE) {
+    return `${it1.NAME}: different date ${new Date(t1.DATE).toDateString()}`;
   }
-  x1 = (i1 as Transaction).FROM_ABSOLUTE;
-  x2 = (i2 as Transaction).FROM_ABSOLUTE;
-  if (x1 !== x2) {
-    return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
+  if (t1.STOP_DATE !== t2.STOP_DATE) {
+    return `${it1.NAME}: different end date ${new Date(t1.STOP_DATE).toDateString()}`;
   }
-  x1 = (i1 as Transaction).FROM_VALUE;
-  x2 = (i2 as Transaction).FROM_VALUE;
-  if (x1 !== x2) {
-    return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
+  if (t1.FROM !== t2.FROM) {
+    return `${it1.NAME}: different from ${t1.FROM}`;
   }
-  x1 = (i1 as Transaction).TO;
-  x2 = (i2 as Transaction).TO;
-  if (x1 !== x2) {
-    return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
+  if (t1.FROM_ABSOLUTE !== t2.FROM_ABSOLUTE) {
+    return `${it1.NAME}: different from absolute date ${t1.FROM_ABSOLUTE}`;
   }
-  x1 = (i1 as Transaction).TO_ABSOLUTE;
-  x2 = (i2 as Transaction).TO_ABSOLUTE;
-  if (x1 !== x2) {
-    return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
+  if (t1.FROM_VALUE !== t2.FROM_VALUE) {
+    return `${it1.NAME}: different from value ${t1.FROM_VALUE}`;
   }
-  x1 = (i1 as Transaction).TO_VALUE;
-  x2 = (i2 as Transaction).TO_VALUE;
-  if (x1 !== x2) {
-    return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
+  if (t1.TO !== t2.TO) {
+    return `${it1.NAME}: different to ${t1.TO}`;
   }
-  x1 = (i1 as Transaction).DATE;
-  x2 = (i2 as Transaction).DATE;
-  if (x1 !== x2) {
-    return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
+  if (t1.TO_ABSOLUTE !== t2.TO_ABSOLUTE) {
+    return `${it1.NAME}: different to absolute ${t1.TO_ABSOLUTE}`;
   }
-  x1 = (i1 as Transaction).STOP_DATE;
-  x2 = (i2 as Transaction).STOP_DATE;
-  if (x1 !== x2) {
-    return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
+  if (t1.TO_VALUE !== t2.TO_VALUE) {
+    return `${it1.NAME}: different to value ${t1.TO_VALUE}`;
   }
-  x1 = (i1 as Transaction).RECURRENCE;
-  x2 = (i2 as Transaction).RECURRENCE;
-  if (x1 !== x2) {
-    return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
+  if (t1.TYPE !== t2.TYPE) {
+    return `${it1.NAME}: different type ${t1.TYPE}`;
   }
-  x1 = (i1 as Transaction).TYPE;
-  x2 = (i2 as Transaction).TYPE;
-  if (x1 !== x2) {
-    return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
+  if (t1.RECURRENCE !== t2.RECURRENCE) {
+    return `${it1.NAME}: different recurrence ${t1.RECURRENCE}`;
   }
   return '';
 }
-function diffSettings(i1: Item, i2: Item): string {
-  const s = diffItem(i1, i2);
+function diffSettings(it1: Item, it2: Item): string {
+  const s = diffItem(it1, it2);
   if (s.length > 0) {
     return s;
   }
-  let x1: string | boolean = (i1 as Setting).VALUE;
-  let x2: string | boolean = (i2 as Setting).VALUE;
-  if (x1 !== x2) {
-    return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
+  const s1 = it1 as Setting;
+  const s2 = it2 as Setting;
+  if (s1.VALUE !== s2.VALUE) {
+    return `${it1.NAME}: different value ${s1.VALUE}`;
   }
-  x1 = (i1 as Setting).HINT;
-  x2 = (i2 as Setting).HINT;
-  if (x1 !== x2) {
-    return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
+  if (s1.HINT !== s2.HINT) {
+    return `${it1.NAME}: different hint ${s1.HINT}`;
   }
-  x1 = (i1 as Setting).TYPE;
-  x2 = (i2 as Setting).TYPE;
-  if (x1 !== x2) {
-    return `different dates ${showObj(i1)} !== ${showObj(i2)}`;
+  if (s1.TYPE !== s2.TYPE) {
+    return `${it1.NAME}: different type ${s1.TYPE}`;
   }
   return '';
 }
@@ -247,11 +189,11 @@ function diffItems(
   is1: Item[],
   is2: Item[],
   diffFn: (i1: Item, i2: Item) => string,
-): string {
+): string[] {
   // log(`diffItems between ${showObj(is1)} and ${showObj(is2)}`);
 
   const matchedNames: string[] = [];
-  let result = '';
+  let result: string[] = [];
   is1.forEach(i1 => {
     if (result.length > 0) {
       return;
@@ -261,13 +203,13 @@ function diffItems(
       return i1.NAME === i2.NAME;
     });
     if (matchedItems.length === 0) {
-      result = `unmatched name ${i1.NAME}`;
+      result.push(`${i1.NAME}`);
     } else if (matchedItems.length > 1) {
-      result = `duplicated name ${i1.NAME}`;
+      result.push(`duplicated name ${i1.NAME}`);
     } else {
       const s = diffFn(i1, matchedItems[0]);
       if (s.length > 0) {
-        result = s;
+        result.push(s);
       } else {
         matchedNames.push(i1.NAME);
       }
@@ -285,7 +227,7 @@ function diffItems(
     ) {
       return;
     }
-    result = `unmatched name ${i2.NAME} in ${showObj(is1)} and ${showObj(is2)}`;
+    result.push(`${i2.NAME}`);
   });
   return result;
 }
@@ -293,40 +235,40 @@ function diffItems(
 export function diffModels(
   m1: ModelData | undefined,
   m2: ModelData | undefined,
-): string {
+): string[] {
   // log(`diff models ${m1} and ${m2}`);
   if (m1 === undefined) {
     if (m2 === undefined) {
-      return '';
+      return [];
     } else {
-      return `one model undefined, other defined`;
+      return [`one model undefined, other defined`];
     }
   } else if (m2 === undefined) {
-    return `one model defined, other undefined`;
+    return [`one model defined, other undefined`];
   }
   let s = diffItems(m1.triggers, m2.triggers, diffTriggers);
   if (s.length > 0) {
     return s;
   }
-  s = diffItems(m1.incomes, m2.incomes, diffIncomes);
+  s = s.concat(diffItems(m1.incomes, m2.incomes, diffIncomes));
   if (s.length > 0) {
     return s;
   }
-  s = diffItems(m1.expenses, m2.expenses, diffExpenses);
+  s = s.concat(diffItems(m1.expenses, m2.expenses, diffExpenses));
   if (s.length > 0) {
     return s;
   }
-  s = diffItems(m1.assets, m2.assets, diffAssets);
+  s = s.concat(diffItems(m1.assets, m2.assets, diffAssets));
   if (s.length > 0) {
     return s;
   }
-  s = diffItems(m1.transactions, m2.transactions, diffTransactions);
+  s = s.concat(diffItems(m1.transactions, m2.transactions, diffTransactions));
   if (s.length > 0) {
     return s;
   }
-  s = diffItems(m1.settings, m2.settings, diffSettings);
+  s = s.concat(diffItems(m1.settings, m2.settings, diffSettings));
   if (s.length > 0) {
     return s;
   }
-  return '';
+  return s;
 }

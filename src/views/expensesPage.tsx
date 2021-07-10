@@ -44,9 +44,7 @@ function addToMap(
 function makeDataGrid(myMap: Map<string, ExpenseVal>) {
   return (
     <DataGrid
-      deleteFunction={async function() {
-        return false;
-      }}
+      deleteFunction={undefined}
       handleGridRowsUpdated={function() {
         return false;
       }}

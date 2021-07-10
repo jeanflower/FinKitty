@@ -160,7 +160,7 @@ export async function loadModel(userID: string, modelName: string) {
           but DB has no model for ${modelName}`);
       } else {
         const diff = diffModels(dbModel, cachedModel.model);
-        if (diff !== '') {
+        if (diff !== []) {
           throw new Error(`DBValidation error: ${diff} for ${modelName}`);
         }
       }
@@ -237,9 +237,10 @@ export async function saveModelLSM(
   model: ModelData,
 ) {
   // log(`save model ${showObj(model)}`);
-  if (showDBInteraction) {
+  //if (showDBInteraction) {
     log(`save model ${modelName} for user ${userID}`);
-  }
+    log(`saving : diff to undo is ${diffModels(model, model.undoModel)}`);
+  //}
   saveModelToCache(userID, modelName, model);
   return true;
 }
@@ -386,11 +387,11 @@ export async function saveModelToDBLSM(
     }
   }
   getDB().ensureModel(userID, modelName);
-  const result = getDB().saveModel(userID, modelName, modelData);
-  if (result && status) {
+  await getDB().saveModel(userID, modelName, modelData);
+  if(status) {
     status.isDirty = false;
   }
-  return result;
+  return true; // TODO there's no accounting for failure here
 }
 
 export async function submitSettingLSM(
