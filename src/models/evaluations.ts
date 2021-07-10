@@ -2962,12 +2962,6 @@ function processTransactionMoment(
     return;
   }
 
-  // todo for a conditional transactions from a list
-  // of sources, use something like this
-  // https://codeburst.io/javascript-async-await-with-foreach-b6ba62bbf404
-  // and remember a cumulative amount that's been transferred
-  // so we stop at the absolute total for the list
-
   // Determine how much to take off the From asset(s).
   // Set the reduced value of the From asset accordingly.
   if (t.FROM !== '') {
@@ -2975,7 +2969,7 @@ function processTransactionMoment(
     // handle one word at a time
     let fromWords = t.FROM.split(separator);
     fromWords = replaceCategoryWithAssetNames(fromWords, model);
-    fromWords.forEach(fromWord => {
+    for(const fromWord of fromWords){
       let toWords: string[] = [];
       if (t.TO !== '') {
         toWords = t.TO.split(separator);
@@ -2984,7 +2978,7 @@ function processTransactionMoment(
         toWords.push('');
       }
       // log(`transaction to "${t.TO}" as list ${toWords}`);
-      toWords.forEach(toWord => {
+      for(const toWord of toWords){
         // log(`process a transaction from word ${fromWord} to word ${toWord}`);
         processTransactionFromTo(
           t,
@@ -2998,8 +2992,8 @@ function processTransactionMoment(
           liabliitiesMap,
           liableIncomeInTaxYear,
         );
-      });
-    });
+      }
+    }
   } else if (t.FROM === '' && t.TO !== '') {
     // log(`process a transaction from ${t.FROM} to ${t.TO}`);
     processTransactionTo(t, moment, values, evaluations, model);
