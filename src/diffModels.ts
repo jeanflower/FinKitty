@@ -149,6 +149,12 @@ function diffTransactions(it1: Item, it2: Item): string {
   if (t1.STOP_DATE !== t2.STOP_DATE) {
     return `${it1.NAME}: end date ${new Date(t1.STOP_DATE).toDateString()}`;
   }
+  if (t1.TO !== t2.TO) {
+    return `${it1.NAME}: to ${t1.TO}`;
+  }
+  if (t1.TO_VALUE !== t2.TO_VALUE) {
+    return `${it1.NAME}: to value ${t1.TO_VALUE}`;
+  }  
   if (t1.FROM !== t2.FROM) {
     return `${it1.NAME}: from ${t1.FROM}`;
   }
@@ -156,16 +162,11 @@ function diffTransactions(it1: Item, it2: Item): string {
     return `${it1.NAME}: from absolute date ${t1.FROM_ABSOLUTE}`;
   }
   if (t1.FROM_VALUE !== t2.FROM_VALUE) {
+    //log(`${showObj(t1)}, \n${showObj(t2)}`); // Sometimes 0 and 0.0...
     return `${it1.NAME}: from value ${t1.FROM_VALUE}`;
-  }
-  if (t1.TO !== t2.TO) {
-    return `${it1.NAME}: to ${t1.TO}`;
   }
   if (t1.TO_ABSOLUTE !== t2.TO_ABSOLUTE) {
     return `${it1.NAME}: to absolute ${t1.TO_ABSOLUTE}`;
-  }
-  if (t1.TO_VALUE !== t2.TO_VALUE) {
-    return `${it1.NAME}: to value ${t1.TO_VALUE}`;
   }
   if (t1.TYPE !== t2.TYPE) {
     return `${it1.NAME}: type ${t1.TYPE}`;
