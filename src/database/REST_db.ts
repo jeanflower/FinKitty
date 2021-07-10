@@ -77,7 +77,7 @@ export class RESTDB implements DbInterface {
             //log('make model from REST data');
             resolve(makeModelFromJSON(result));
           } catch (err) {
-            reject('no model found');
+            reject(`no model found err = ${err}`);
           }
         })
         .catch(error => {
