@@ -237,10 +237,10 @@ export async function saveModelLSM(
   model: ModelData,
 ) {
   // log(`save model ${showObj(model)}`);
-  //if (showDBInteraction) {
+  if (showDBInteraction) {
     log(`save model ${modelName} for user ${userID}`);
     log(`saving : diff to undo is ${diffModels(model, model.undoModel)}`);
-  //}
+  }
   saveModelToCache(userID, modelName, model);
   return true;
 }
