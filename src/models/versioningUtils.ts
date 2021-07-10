@@ -210,7 +210,7 @@ function migrateFromV3(model: ModelData) {
   model.version = 4;
 }
 function migrateFromV4(model: ModelData) {
-  log(`in migrateFromV4`);
+  // log(`in migrateFromV4`);
   if (showMigrationLogs) {
     log(
       `in migrateOldVersions at v4, model has ${model.settings.length} settings`,
