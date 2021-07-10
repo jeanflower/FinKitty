@@ -783,7 +783,11 @@ export async function deleteItemFromModel(
   modelName: string,
   model: ModelData,
 ): Promise<boolean> {
-  // log('delete item '+name)
+  //log(`delete item ${name}`);
+  //log(`before itemList ${itemList.map((i)=>{return i.NAME})}`);
+
+  markForUndo(model);
+
   const idx = itemList.findIndex((i: Item) => {
     return i.NAME === name;
   });
@@ -801,10 +805,12 @@ export async function deleteItemFromModel(
       });
       itemList.splice(idx, 0, oldItem);
       // log(`after putback itemList = ${showObj(itemList)}`);
+      revertToUndoModel(model);
       return false;
     }
 
-    markForUndo(model);
+    //log(`after itemList  ${itemList.map((i)=>{return i.NAME})}`);
+
     await saveModelLSM(getUserID(), modelName, model);
     await refreshData(
       true, // refreshModel = true,
