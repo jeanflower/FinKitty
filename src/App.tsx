@@ -110,6 +110,7 @@ import {
   attemptRenameLong,
   getTodaysDate,
   makeModelFromJSON,
+  markForUndo,
   revertToUndoModel,
 } from './models/modelUtils';
 import { lessThan } from './stringUtils';
@@ -786,6 +787,7 @@ export async function deleteItemFromModel(
     return i.NAME === name;
   });
   if (idx !== -1) {
+    markForUndo(model);
     const oldItem = itemList[idx];
     // log(`before delete itemList = ${showObj(itemList)}`);
     itemList.splice(idx, 1);
