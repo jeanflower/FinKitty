@@ -12,7 +12,7 @@ import { showObj } from './utils';
 
 function diffItem(i1: Item, i2: Item): string {
   if (i1.NAME !== i2.NAME) {
-    return `different name ${i1.NAME}`;
+    return `name ${i1.NAME}`;
   }
   return '';
 }
@@ -24,7 +24,7 @@ function diffTriggers(it1: Item, it2: Item): string {
   const t1 = it1 as Trigger;
   const t2 = it2 as Trigger;
   if (t1.DATE.toDateString() !== t2.DATE.toDateString()) {
-    return `${it1.NAME}: different date ${new Date(t1.DATE).toDateString()}`;
+    return `${it1.NAME}: date ${new Date(t1.DATE).toDateString()}`;
   }
   return '';
 }
@@ -36,28 +36,28 @@ function diffIncomes(it1: Item, it2: Item): string {
   const i1 = it1 as Income;
   const i2 = it2 as Income;
   if (i1.START !== i2.START) {
-    return `${it1.NAME}: different start date ${new Date(i1.START).toDateString()}`;
+    return `${it1.NAME}: start date ${new Date(i1.START).toDateString()}`;
   }
   if (i1.END !== i2.END) {
-    return `${it1.NAME}: different end date ${new Date(i1.END).toDateString()}`;
+    return `${it1.NAME}: end date ${new Date(i1.END).toDateString()}`;
   }
   if (i1.VALUE !== i2.VALUE) {
-    return `${it1.NAME}: different value ${i1.VALUE}`;
+    return `${it1.NAME}: value ${i1.VALUE}`;
   }
   if (i1.VALUE_SET !== i2.VALUE_SET) {
-    return `${it1.NAME}: different value set date ${new Date(i1.VALUE_SET).toDateString()}`;
+    return `${it1.NAME}: value set date ${new Date(i1.VALUE_SET).toDateString()}`;
   }
   if (i1.END !== i2.END) {
-    return `${it1.NAME}: different end date ${new Date(i1.END).toDateString()}`;
+    return `${it1.NAME}: end date ${new Date(i1.END).toDateString()}`;
   }
   if (i1.GROWTH !== i2.GROWTH) {
-    return `${it1.NAME}: different growth ${i1.GROWTH}`;
+    return `${it1.NAME}: growth ${i1.GROWTH}`;
   }
   if (i1.CPI_IMMUNE !== i2.CPI_IMMUNE) {
-    return `${it1.NAME}: different cpi-immunity ${i1.CPI_IMMUNE}`;
+    return `${it1.NAME}: cpi-immunity ${i1.CPI_IMMUNE}`;
   }
   if (i1.LIABILITY !== i2.LIABILITY) {
-    return `${it1.NAME}: different liability ${i1.LIABILITY}`;
+    return `${it1.NAME}: liability ${i1.LIABILITY}`;
   }
   return '';
 }
@@ -69,28 +69,28 @@ function diffExpenses(it1: Item, it2: Item): string {
   const e1 = it1 as Expense;
   const e2 = it2 as Expense;
   if (e1.START !== e2.START) {
-    return `${it1.NAME}: different start date ${new Date(e1.START).toDateString()}`;
+    return `${it1.NAME}: start date ${new Date(e1.START).toDateString()}`;
   }
   if (e1.END !== e2.END) {
-    return `${it1.NAME}: different end date ${new Date(e1.END).toDateString()}`;
+    return `${it1.NAME}: end date ${new Date(e1.END).toDateString()}`;
   }
   if (e1.VALUE !== e2.VALUE) {
-    return `${it1.NAME}: different value ${e1.VALUE}`;
+    return `${it1.NAME}: value ${e1.VALUE}`;
   }
   if (e1.VALUE_SET !== e2.VALUE_SET) {
-    return `${it1.NAME}: different value set date ${new Date(e1.VALUE_SET).toDateString()}`;
+    return `${it1.NAME}: value set date ${new Date(e1.VALUE_SET).toDateString()}`;
   }
   if (e1.END !== e2.END) {
-    return `${it1.NAME}: different end date ${new Date(e1.END).toDateString()}`;
+    return `${it1.NAME}: end date ${new Date(e1.END).toDateString()}`;
   }
   if (e1.GROWTH !== e2.GROWTH) {
-    return `${it1.NAME}: different growth ${e1.GROWTH}`;
+    return `${it1.NAME}: growth ${e1.GROWTH}`;
   }
   if (e1.CPI_IMMUNE !== e2.CPI_IMMUNE) {
-    return `${it1.NAME}: different cpi-immunity ${e1.CPI_IMMUNE}`;
+    return `${it1.NAME}: cpi-immunity ${e1.CPI_IMMUNE}`;
   }
   if (e1.RECURRENCE !== e2.RECURRENCE) {
-    return `${it1.NAME}: different recurrence ${e1.RECURRENCE}`;
+    return `${it1.NAME}: recurrence ${e1.RECURRENCE}`;
   }
   return '';
 }
@@ -102,28 +102,28 @@ function diffAssets(it1: Item, it2: Item): string {
   const a1 = it1 as Asset;
   const a2 = it2 as Asset;
   if (a1.START !== a2.START) {
-    return `${it1.NAME}: different start date ${new Date(a1.START).toDateString()}`;
+    return `${it1.NAME}: start date ${new Date(a1.START).toDateString()}`;
   }
   if (a1.VALUE !== a2.VALUE) {
-    return `${it1.NAME}: different value ${a1.VALUE}`;
+    return `${it1.NAME}: value ${a1.VALUE}`;
   }
   if (a1.QUANTITY !== a2.QUANTITY) {
-    return `${it1.NAME}: different quantity ${a1.QUANTITY}`;
+    return `${it1.NAME}: quantity ${a1.QUANTITY}`;
   }
   if (a1.CAN_BE_NEGATIVE !== a2.CAN_BE_NEGATIVE) {
-    return `${it1.NAME}: different negativity ${a1.CAN_BE_NEGATIVE}`;
+    return `${it1.NAME}: negativity ${a1.CAN_BE_NEGATIVE}`;
   }
   if (a1.IS_A_DEBT !== a2.IS_A_DEBT) {
-    return `${it1.NAME}: different is-debt ${a1.IS_A_DEBT}`;
+    return `${it1.NAME}: is-debt ${a1.IS_A_DEBT}`;
   }
   if (a1.GROWTH !== a2.GROWTH) {
-    return `${it1.NAME}: different growth ${a1.GROWTH}`;
+    return `${it1.NAME}: growth ${a1.GROWTH}`;
   }
   if (a1.CPI_IMMUNE !== a2.CPI_IMMUNE) {
-    return `${it1.NAME}: different cpi-immunity ${a1.CPI_IMMUNE}`;
+    return `${it1.NAME}: cpi-immunity ${a1.CPI_IMMUNE}`;
   }
   if (a1.PURCHASE_PRICE !== a2.PURCHASE_PRICE) {
-    return `${it1.NAME}: different purchase price ${a1.PURCHASE_PRICE}`;
+    return `${it1.NAME}: purchase price ${a1.PURCHASE_PRICE}`;
   }
   return '';
 }
@@ -136,34 +136,34 @@ function diffTransactions(it1: Item, it2: Item): string {
   const t1 = it1 as Transaction;
   const t2 = it2 as Transaction;
   if (t1.DATE !== t2.DATE) {
-    return `${it1.NAME}: different date ${new Date(t1.DATE).toDateString()}`;
+    return `${it1.NAME}: date ${new Date(t1.DATE).toDateString()}`;
   }
   if (t1.STOP_DATE !== t2.STOP_DATE) {
-    return `${it1.NAME}: different end date ${new Date(t1.STOP_DATE).toDateString()}`;
+    return `${it1.NAME}: end date ${new Date(t1.STOP_DATE).toDateString()}`;
   }
   if (t1.FROM !== t2.FROM) {
-    return `${it1.NAME}: different from ${t1.FROM}`;
+    return `${it1.NAME}: from ${t1.FROM}`;
   }
   if (t1.FROM_ABSOLUTE !== t2.FROM_ABSOLUTE) {
-    return `${it1.NAME}: different from absolute date ${t1.FROM_ABSOLUTE}`;
+    return `${it1.NAME}: from absolute date ${t1.FROM_ABSOLUTE}`;
   }
   if (t1.FROM_VALUE !== t2.FROM_VALUE) {
-    return `${it1.NAME}: different from value ${t1.FROM_VALUE}`;
+    return `${it1.NAME}: from value ${t1.FROM_VALUE}`;
   }
   if (t1.TO !== t2.TO) {
-    return `${it1.NAME}: different to ${t1.TO}`;
+    return `${it1.NAME}: to ${t1.TO}`;
   }
   if (t1.TO_ABSOLUTE !== t2.TO_ABSOLUTE) {
-    return `${it1.NAME}: different to absolute ${t1.TO_ABSOLUTE}`;
+    return `${it1.NAME}: to absolute ${t1.TO_ABSOLUTE}`;
   }
   if (t1.TO_VALUE !== t2.TO_VALUE) {
-    return `${it1.NAME}: different to value ${t1.TO_VALUE}`;
+    return `${it1.NAME}: to value ${t1.TO_VALUE}`;
   }
   if (t1.TYPE !== t2.TYPE) {
-    return `${it1.NAME}: different type ${t1.TYPE}`;
+    return `${it1.NAME}: type ${t1.TYPE}`;
   }
   if (t1.RECURRENCE !== t2.RECURRENCE) {
-    return `${it1.NAME}: different recurrence ${t1.RECURRENCE}`;
+    return `${it1.NAME}: recurrence ${t1.RECURRENCE}`;
   }
   return '';
 }
@@ -175,13 +175,13 @@ function diffSettings(it1: Item, it2: Item): string {
   const s1 = it1 as Setting;
   const s2 = it2 as Setting;
   if (s1.VALUE !== s2.VALUE) {
-    return `${it1.NAME}: different value ${s1.VALUE}`;
+    return `${it1.NAME}: value ${s1.VALUE}`;
   }
   if (s1.HINT !== s2.HINT) {
-    return `${it1.NAME}: different hint ${s1.HINT}`;
+    return `${it1.NAME}: hint ${s1.HINT}`;
   }
   if (s1.TYPE !== s2.TYPE) {
-    return `${it1.NAME}: different type ${s1.TYPE}`;
+    return `${it1.NAME}: type ${s1.TYPE}`;
   }
   return '';
 }
