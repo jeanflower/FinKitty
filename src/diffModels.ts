@@ -58,6 +58,9 @@ function diffIncomes(it1: Item, it2: Item): string {
   if (i1.LIABILITY !== i2.LIABILITY) {
     return `${it1.NAME}: liability ${i1.LIABILITY}`;
   }
+  if (i1.CATEGORY !== i2.CATEGORY) {
+    return `${it1.NAME}: category ${i1.CATEGORY}`;
+  }
   return '';
 }
 function diffExpenses(it1: Item, it2: Item): string {
@@ -91,6 +94,9 @@ function diffExpenses(it1: Item, it2: Item): string {
   if (e1.RECURRENCE !== e2.RECURRENCE) {
     return `${it1.NAME}: recurrence ${e1.RECURRENCE}`;
   }
+  if (e1.CATEGORY !== e2.CATEGORY) {
+    return `${it1.NAME}: category ${e1.CATEGORY}`;
+  }
   return '';
 }
 function diffAssets(it1: Item, it2: Item): string {
@@ -123,6 +129,9 @@ function diffAssets(it1: Item, it2: Item): string {
   }
   if (a1.PURCHASE_PRICE !== a2.PURCHASE_PRICE) {
     return `${it1.NAME}: purchase price ${a1.PURCHASE_PRICE}`;
+  }
+  if (a1.CATEGORY !== a2.CATEGORY) {
+    return `${it1.NAME}: category ${a1.CATEGORY}`;
   }
   return '';
 }
@@ -163,6 +172,9 @@ function diffTransactions(it1: Item, it2: Item): string {
   }
   if (t1.RECURRENCE !== t2.RECURRENCE) {
     return `${it1.NAME}: recurrence ${t1.RECURRENCE}`;
+  }
+  if (t1.CATEGORY !== t2.CATEGORY) {
+    return `${it1.NAME}: category ${t1.CATEGORY}`;
   }
   return '';
 }
