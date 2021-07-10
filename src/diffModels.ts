@@ -8,7 +8,6 @@ import {
   Setting,
   ModelData,
 } from './types/interfaces';
-import { showObj } from './utils';
 
 function diffItem(i1: Item, i2: Item): string {
   if (i1.NAME !== i2.NAME) {
