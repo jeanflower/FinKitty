@@ -103,7 +103,7 @@ import SimpleFormatter from './views/reactComponents/NameFormatter';
 import { AddDeleteSettingForm } from './views/reactComponents/AddDeleteSettingForm';
 import { ReplaceWithJSONForm } from './views/reactComponents/ReplaceWithJSONForm';
 import { CreateModelForm } from './views/reactComponents/NewModelForm';
-import { Form, Nav, Navbar } from 'react-bootstrap';
+import { Form, Nav, Navbar, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { getEvaluations } from './models/evaluations';
 import {
   applyRedoToModel,
@@ -1765,34 +1765,54 @@ export class AppContent extends Component<AppProps, AppState> {
     if (numUndosAvailable > 0) {
       buttonTitle = `Undo(${numUndosAvailable})`;
     }
+    let undoTooltip = '';
     if(this.state.modelData.undoModel !== undefined){
-      const undoTooltip = diffModels(this.state.modelData, this.state.modelData.undoModel);
-      buttonTitle += ' ';
-      buttonTitle += undoTooltip;
+      const diffs = diffModels(this.state.modelData, this.state.modelData.undoModel);
+      if(diffs.length > 0){
+        undoTooltip = diffs[0];
+      }
     }
 
-    return (
-      <Button
-        key={'undoButton'}
-        action={async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-          e.persist();
-          if (await revertToUndoModel(this.state.modelData)) {
-            await saveModelLSM(userID, modelName, this.state.modelData);
-            refreshData(
-              true, // refreshModel = true,
-              true, // refreshChart = true,
-            );
-          }
-        }}
-        title={buttonTitle}
-        id={`btn-undo-model`}
-        type={
-          this.state.modelData.undoModel !== undefined
-            ? 'primary'
-            : 'primary-off'
+    const b = (<Button
+      key={'undoButton'}
+      action={async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        e.persist();
+        if (await revertToUndoModel(this.state.modelData)) {
+          await saveModelLSM(userID, modelName, this.state.modelData);
+          refreshData(
+            true, // refreshModel = true,
+            true, // refreshChart = true,
+          );
         }
-      />
-    );
+      }}
+      title={buttonTitle}
+      id={`btn-undo-model`}
+      type={
+        this.state.modelData.undoModel !== undefined
+          ? 'primary'
+          : 'primary-off'
+      }
+    />)
+
+    if(undoTooltip === ''){
+      return b;
+    } else {
+      return (
+        <OverlayTrigger
+          key='undoOverlay'
+          overlay={(props) => (
+            <Tooltip {...props} id='undoTooltip'>
+              {undoTooltip}
+            </Tooltip>
+          )}
+          placement="bottom"
+        >
+        <div>
+        {b}
+        </div>
+        </OverlayTrigger>
+      );
+          }
   }
   private makeRedoButton() {
     let numRedosAvailable = 0;
@@ -1805,34 +1825,54 @@ export class AppContent extends Component<AppProps, AppState> {
     if (numRedosAvailable > 0) {
       buttonTitle = `Redo(${numRedosAvailable})`;
     }
+    let redoTooltip = '';
     if(this.state.modelData.redoModel !== undefined){
-      const redoTooltip = diffModels(this.state.modelData.redoModel, this.state.modelData);
-      buttonTitle += ' ';
-      buttonTitle += redoTooltip;
+      const diffs = diffModels(this.state.modelData.redoModel, this.state.modelData);
+      if(diffs.length > 0){
+        redoTooltip = diffs[0];
+      }
     }
 
-    return (
-      <Button
-        key={'redoButton'}
-        action={async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-          e.persist();
-          if (await applyRedoToModel(this.state.modelData)) {
-            await saveModelLSM(userID, modelName, this.state.modelData);
-            refreshData(
-              true, // refreshModel = true,
-              true, // refreshChart = true,
-            );
-          }
-        }}
-        title={buttonTitle}
-        id={`btn-redo-model`}
-        type={
-          this.state.modelData.redoModel !== undefined
-            ? 'primary'
-            : 'primary-off'
+    const b = (<Button
+      key={'redoButton'}
+      action={async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        e.persist();
+        if (await applyRedoToModel(this.state.modelData)) {
+          await saveModelLSM(userID, modelName, this.state.modelData);
+          refreshData(
+            true, // refreshModel = true,
+            true, // refreshChart = true,
+          );
         }
-      />
-    );
+      }}
+      title={buttonTitle}
+      id={`btn-redo-model`}
+      type={
+        this.state.modelData.redoModel !== undefined
+          ? 'primary'
+          : 'primary-off'
+      }
+    />);
+
+    if(redoTooltip === ''){
+      return b;
+    } else {
+      return (
+        <OverlayTrigger
+          key='redoOverlay'
+          overlay={(props) => (
+            <Tooltip {...props} id='redoTooltip'>
+              {redoTooltip}
+            </Tooltip>
+          )}
+          placement="bottom"
+        >
+        <div>
+        {b}
+        </div>
+        </OverlayTrigger>
+      );
+    }
   }
 
   private makeSaveButton() {
