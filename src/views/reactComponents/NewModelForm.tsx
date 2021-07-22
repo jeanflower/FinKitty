@@ -2,7 +2,7 @@ import React, { Component, FormEvent } from 'react';
 
 import { Input } from './Input';
 import { ModelData } from '../../types/interfaces';
-import Button from './Button';
+import { makeButton } from './Button';
 import { log, printDebug } from '../../utils';
 import { minimalModel } from '../../models/exampleModels';
 
@@ -55,16 +55,14 @@ export class CreateModelForm extends Component<
 
   private exampleButtonList() {
     const buttons: JSX.Element[] = this.props.exampleModels.map(x => {
-      return (
-        <Button
-          action={async () => {
-            return this.copyModel(this.props.getExampleModel(x.model));
-          }}
-          title={`Create ${x.name} example`}
-          id={`btn-create-${x.name}-example`}
-          key={`btn-create-${x.name}-example`}
-          type="secondary"
-        />
+      return makeButton(
+        `Create ${x.name} example`,
+        async () => {
+          return this.copyModel(this.props.getExampleModel(x.model));
+        },
+        `btn-create-${x.name}-example`,
+        `btn-create-${x.name}-example`,
+        "secondary",
       );
     });
     return <div role="group">{buttons}</div>;
@@ -88,29 +86,32 @@ export class CreateModelForm extends Component<
           placeholder={'Enter new model name here'}
           onChange={this.handleValueChange}
         />
-        <Button
-          action={async () => {
+        {makeButton(
+          "New model",
+          async () => {
             if (printDebug()) {
               log(`action on button for new model`);
             }
             this.copyModel(minimalModel);
-          }}
-          title="New model"
-          id={`btn-createMinimalModel`}
-          type="secondary"
-        />
-        <Button
-          action={this.backupModel}
-          title="Make backup of model"
-          id={`btn-backup`}
-          type="secondary"
-        />
-        <Button
-          action={this.clonePropsModel}
-          title="Clone model"
-          id={`btn-clone`}
-          type="secondary"
-        />
+          },
+          `btn-createMinimalModel`,
+          `btn-createMinimalModel`,
+          "secondary",
+        )}
+        {makeButton(
+          "Make backup of model",
+          this.backupModel,
+          `btn-backup`,
+          `btn-backup`,
+          "secondary",
+        )}
+        {makeButton(
+          "Clone model",
+          this.clonePropsModel,
+          `btn-clone`,
+          `btn-clone`,
+          "secondary",
+        )}
         {this.exampleButtonList()}
       </form>
     );
@@ -125,17 +126,12 @@ export class CreateModelForm extends Component<
   private async backupModel(e: FormEvent<Element>) {
     e.preventDefault();
     const d = new Date();
+    var dateFormat = require("dateformat");
     await this.props.saveModel(
       this.props.userID,
       this.props.currentModelName +
-        'backup' +
-        (d.toDateString() +
-          ' ' +
-          d.getHours() +
-          ':' +
-          d.getMinutes() +
-          ':' +
-          d.getSeconds()),
+        'backup ' +
+        dateFormat(d, 'yyyy-mm-dd HH:MM:ss'),
       this.props.modelData,
     );
   }

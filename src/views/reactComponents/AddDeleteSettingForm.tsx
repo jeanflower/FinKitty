@@ -13,7 +13,7 @@ import {
 } from '../../localization/stringConstants';
 import { log, printDebug, showObj } from '../../utils';
 
-import Button from './Button';
+import { makeButton } from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
 import { Input } from './Input';
 import { doCheckBeforeOverwritingExistingData } from '../../App';
@@ -141,7 +141,7 @@ export class AddDeleteSettingForm extends Component<
     }
   }
 
-  private async revalue(e: React.ChangeEvent<HTMLInputElement>) {
+  private async revalue(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
 
     const date = checkTriggerDate(this.state.START, this.props.model.triggers);
@@ -203,24 +203,20 @@ export class AddDeleteSettingForm extends Component<
 
   private goButtons(): React.ReactNode {
     if (this.state.inputting === inputtingSetting) {
-      return (
-        <Button
-          action={this.add}
-          type={'primary'}
-          title={
-            'Create new setting (over-writes any existing with the same name)'
-          }
-          id="addSetting"
-        />
+      return makeButton(
+        'Create new setting (over-writes any existing with the same name)',
+        this.add,
+        "addSetting",
+        "addSetting",
+        'primary',
       );
     } else if (this.state.inputting === inputtingRevalue) {
-      return (
-        <Button
-          action={this.revalue}
-          type={'primary'}
-          title={'Revalue this setting'}
-          id="revalueSetting"
-        />
+      return makeButton(
+        'Revalue this setting',
+        this.revalue,
+        "revalueSetting",
+        "revalueSetting",
+        'primary',
       );
     }
   }
@@ -251,26 +247,24 @@ export class AddDeleteSettingForm extends Component<
     return (
       <>
         <div className="btn-group ml-3" role="group">
-          <Button
-            action={this.inputSetting}
-            type={
-              this.state.inputting === inputtingSetting
-                ? 'primary'
-                : 'secondary'
-            }
-            title={'Add new setting mode'}
-            id="inputSetting"
-          />
-          <Button
-            action={this.inputRevalue}
-            type={
-              this.state.inputting === inputtingRevalue
-                ? 'primary'
-                : 'secondary'
-            }
-            title={'Revalue setting mode'}
-            id="revalueSettingInputs"
-          />
+          {makeButton(
+            'Add new setting mode',
+            this.inputSetting,
+            "inputSetting",
+            "inputSetting",
+            this.state.inputting === inputtingSetting
+              ? 'primary'
+              : 'secondary',
+          )}
+          {makeButton(
+            'Revalue setting mode',
+            this.inputRevalue,
+            "revalueSettingInputs",
+            "revalueSettingInputs",
+            this.state.inputting === inputtingRevalue
+              ? 'primary'
+              : 'secondary',
+          )}
         </div>
         <form className="container-fluid" onSubmit={this.add}>
           {this.ValueAndCategory()}
@@ -339,14 +333,14 @@ export class AddDeleteSettingForm extends Component<
     this.setState(this.defaultState);
   }
 
-  private inputSetting(e: React.ChangeEvent<HTMLInputElement>) {
+  private inputSetting(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
     this.setState({
       ...this.state,
       inputting: inputtingSetting,
     });
   }
-  private inputRevalue(e: React.ChangeEvent<HTMLInputElement>) {
+  private inputRevalue(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
     this.setState({
       ...this.state,

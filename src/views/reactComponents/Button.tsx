@@ -34,4 +34,19 @@ const Button = (props: ButtonProps) => {
   );
 };
 
-export default Button;
+export function makeButton(
+  title: string,
+  action: React.MouseEventHandler<HTMLButtonElement>,
+  key: string,
+  id: string,
+  type: 'primary'|'secondary'|'primary-on'|'secondary-on'|'primary-off'|'secondary-off',
+){
+  return (<Button  
+    key={key}
+    action={action}
+    title={title}
+    id={id}
+    type={type}
+    />
+  )
+}

@@ -8,7 +8,7 @@ import {
   FormProps,
 } from '../../types/interfaces';
 import { log, printDebug, showObj } from '../../utils';
-import Button from './Button';
+import { makeButton } from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
 import { Input } from './Input';
 import { isNumberString } from '../../models/checks';
@@ -196,24 +196,20 @@ export class AddDeleteExpenseForm extends Component<
 
   private goButton(): React.ReactNode {
     if (this.state.inputting === inputtingExpense) {
-      return (
-        <Button
-          action={this.add}
-          type={'primary'}
-          title={
-            'Create new expense (over-writes any existing with the same name)'
-          }
-          id="addExpense"
-        />
+      return makeButton(
+        'Create new expense (over-writes any existing with the same name)',
+        this.add,
+        "addExpense",
+        "addExpense",
+        'primary',
       );
     } else {
-      return (
-        <Button
-          action={this.revalue}
-          type={'primary'}
-          title={'Revalue an expense'}
-          id="revalueExpense"
-        />
+      return makeButton(
+        'Revalue an expense',
+        this.revalue,
+        "revalueExpense",
+        "revalueExpense",
+        'primary',
       );
     }
   }
@@ -223,26 +219,24 @@ export class AddDeleteExpenseForm extends Component<
     return (
       <>
         <div className="btn-group ml-3" role="group">
-          <Button
-            action={this.setInputExpense}
-            type={
-              this.state.inputting === inputtingExpense
-                ? 'primary'
-                : 'secondary'
-            }
-            title={'Add new expense mode'}
-            id="useExpenseInputs"
-          />
-          <Button
-            action={this.setInputRevalue}
-            type={
-              this.state.inputting === inputtingRevalue
-                ? 'primary'
-                : 'secondary'
-            }
-            title={'Revalue expense mode'}
-            id="useRevalueInputsExpense"
-          />
+          {makeButton(
+            'Add new expense mode',
+            this.setInputExpense,
+            "useExpenseInputs",
+            "useExpenseInputs",
+            this.state.inputting === inputtingExpense
+              ? 'primary'
+              : 'secondary',
+          )}
+          {makeButton(
+            'Revalue expense mode',
+            this.setInputRevalue,
+            "useRevalueInputsExpense",
+            "useRevalueInputsExpense",
+            this.state.inputting === inputtingRevalue
+              ? 'primary'
+              : 'secondary',
+          )}
         </div>
         <form className="container-fluid" onSubmit={this.add}>
           <div className="row">
@@ -316,14 +310,14 @@ export class AddDeleteExpenseForm extends Component<
     const value = e.target.value;
     this.setState({ VALUE: value });
   }
-  private setInputRevalue(e: React.ChangeEvent<HTMLInputElement>) {
+  private setInputRevalue(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
     this.setState({
       ...this.state,
       inputting: inputtingRevalue,
     });
   }
-  private setInputExpense(e: React.ChangeEvent<HTMLInputElement>) {
+  private setInputExpense(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
     this.setState({
       ...this.state,
@@ -354,7 +348,7 @@ export class AddDeleteExpenseForm extends Component<
     const value = e.target.value;
     this.setEnd(value);
   }
-  private async revalue(e: React.ChangeEvent<HTMLInputElement>): Promise<void> {
+  private async revalue(e: React.MouseEvent<HTMLButtonElement>): Promise<void> {
     e.preventDefault();
 
     const parseVal = makeValueAbsPropFromString(this.state.VALUE);

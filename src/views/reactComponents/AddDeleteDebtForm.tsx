@@ -9,7 +9,7 @@ import {
   FormProps,
 } from '../../types/interfaces';
 import { log, printDebug, showObj } from '../../utils';
-import Button from './Button';
+import { makeButton } from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
 import { Input } from './Input';
 import {
@@ -194,7 +194,7 @@ export class AddDeleteDebtForm extends Component<
     }
   }
 
-  private async revalue(e: React.ChangeEvent<HTMLInputElement>) {
+  private async revalue(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
 
     const parseVal = makeValueAbsPropFromString(`-${this.state.VALUE}`);
@@ -256,23 +256,23 @@ export class AddDeleteDebtForm extends Component<
   private goButtons(): React.ReactNode {
     if (this.state.inputting === inputtingDebt) {
       return (
-        <Button
-          action={this.add}
-          type={'primary'}
-          title={
-            'Create new debt (over-writes any existing with the same name)'
-          }
-          id="addDebt"
-        />
+        makeButton(
+          'Create new debt (over-writes any existing with the same name)',
+          this.add,
+          "addDebt",
+          "addDebt",
+          'primary',
+        )
       );
     } else if (this.state.inputting === inputtingRevalue) {
       return (
-        <Button
-          action={this.revalue}
-          type={'primary'}
-          title={'Revalue this debt'}
-          id="revalueDebt"
-        />
+        makeButton(
+          'Revalue this debt',
+          this.revalue,
+          "revalueDebt",
+          "revalueDebt",
+          'primary',          
+        )
       );
     }
   }
@@ -282,24 +282,22 @@ export class AddDeleteDebtForm extends Component<
     return (
       <>
         <div className="btn-group ml-3" role="group">
-          <Button
-            action={this.inputDebt}
-            type={
-              this.state.inputting === inputtingDebt ? 'primary' : 'secondary'
-            }
-            title={'Add new debt mode'}
-            id="inputDebt"
-          />
-          <Button
-            action={this.inputRevalue}
-            type={
-              this.state.inputting === inputtingRevalue
-                ? 'primary'
-                : 'secondary'
-            }
-            title={'Revalue debt mode'}
-            id="revalueDebtInputs"
-          />
+          {makeButton(
+            'Add new debt mode',
+            this.inputDebt,
+            "inputDebt",
+            "inputDebt",
+            this.state.inputting === inputtingDebt ? 'primary' : 'secondary'
+          )}
+          {makeButton(
+            'Revalue debt mode',
+            this.inputRevalue,
+            "revalueDebtInputs",
+            "revalueDebtInputs",
+            this.state.inputting === inputtingRevalue
+              ? 'primary'
+              : 'secondary',
+          )}
         </div>
         <form className="container-fluid" onSubmit={this.add}>
           {this.ValueAndCategory()}
@@ -491,14 +489,14 @@ export class AddDeleteDebtForm extends Component<
       this.props.showAlert(`failed to delete ${this.state.NAME}`);
     }
   }
-  private inputDebt(e: React.ChangeEvent<HTMLInputElement>) {
+  private inputDebt(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
     this.setState({
       ...this.state,
       inputting: inputtingDebt,
     });
   }
-  private inputRevalue(e: React.ChangeEvent<HTMLInputElement>) {
+  private inputRevalue(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
     this.setState({
       ...this.state,

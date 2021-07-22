@@ -13,7 +13,7 @@ import {
   FormProps,
 } from '../../types/interfaces';
 import { log, printDebug, showObj } from '../../utils';
-import Button from './Button';
+import { makeButton } from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
 import { Input } from './Input';
 import {
@@ -211,34 +211,31 @@ export class AddDeleteIncomeForm extends Component<
     return (
       <>
         <div className="btn-group ml-3" role="group">
-          <Button
-            action={this.setInputincome}
-            type={
-              this.state.inputting === inputtingIncome ? 'primary' : 'secondary'
-            }
-            title={'Add new income mode'}
-            id="useIncomeInputs"
-          />
-          <Button
-            action={this.setInputDBP}
-            type={
-              this.state.inputting === inputtingPension
-                ? 'primary'
-                : 'secondary'
-            }
-            title={'Add pension mode'}
-            id="useDBPInputs"
-          />
-          <Button
-            action={this.setInputRevalue}
-            type={
-              this.state.inputting === inputtingRevalue
-                ? 'primary'
-                : 'secondary'
-            }
-            title={'Revalue income mode'}
-            id="useRevalueInputsIncome"
-          />
+          {makeButton(
+            'Add new income mode',
+            this.setInputincome,
+            "useIncomeInputs",
+            "useIncomeInputs",
+            this.state.inputting === inputtingIncome ? 'primary' : 'secondary',
+          )}
+          {makeButton(
+            'Add pension mode',
+            this.setInputDBP,
+            "useDBPInputs",
+            "useDBPInputs",
+            this.state.inputting === inputtingPension
+              ? 'primary'
+              : 'secondary',
+          )}
+          {makeButton(
+            'Revalue income mode',
+            this.setInputRevalue,
+            "useRevalueInputsIncome",
+            "useRevalueInputsIncome",
+            this.state.inputting === inputtingRevalue
+              ? 'primary'
+              : 'secondary',
+          )}
         </div>
         <form className="container-fluid" onSubmit={this.add}>
           <div className="row">
@@ -362,14 +359,13 @@ export class AddDeleteIncomeForm extends Component<
           {/* end col */}
         </div>
         {/* end row */}
-        <Button
-          action={this.add}
-          type={'primary'}
-          title={
-            'Create new income (over-writes any existing with the same name)'
-          }
-          id="addIncome"
-        />
+        {makeButton(
+          'Create new income (over-writes any existing with the same name)',
+          this.add,
+          "addIncome",
+          "addIncome",
+          'primary',
+        )}
       </>
     );
   }
@@ -377,13 +373,12 @@ export class AddDeleteIncomeForm extends Component<
     if (this.state.inputting !== inputtingRevalue) {
       return;
     }
-    return (
-      <Button
-        action={this.revalue}
-        type={'primary'}
-        title={'Add income revaluation'}
-        id="revalueIncome"
-      />
+    return makeButton(
+      'Add income revaluation',
+      this.revalue,
+      "revalueIncome",
+      "revalueIncome",
+      'primary',
     );
   }
   private inputsForGeneralIncome(): React.ReactNode {
@@ -678,7 +673,7 @@ DB_TRANSFERRED_STOP
       selector.selectedIndex = '0';
     }
   }
-  private async revalue(e: React.ChangeEvent<HTMLInputElement>): Promise<void> {
+  private async revalue(e: React.MouseEvent<HTMLButtonElement>): Promise<void> {
     e.preventDefault();
 
     if (!isAnIncome(this.state.NAME, this.props.model)) {
@@ -1165,21 +1160,21 @@ DB_TRANSFERRED_STOP
       this.props.showAlert(`failed to delete ${this.state.NAME}`);
     }
   }
-  private setInputDBP(e: React.ChangeEvent<HTMLInputElement>) {
+  private setInputDBP(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
     this.setState({
       ...this.state,
       inputting: inputtingPension,
     });
   }
-  private setInputincome(e: React.ChangeEvent<HTMLInputElement>) {
+  private setInputincome(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
     this.setState({
       ...this.state,
       inputting: inputtingIncome,
     });
   }
-  private setInputRevalue(e: React.ChangeEvent<HTMLInputElement>) {
+  private setInputRevalue(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
     this.setState({
       ...this.state,

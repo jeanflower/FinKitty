@@ -1,5 +1,5 @@
 import React from 'react';
-import Button from './reactComponents/Button';
+import { makeButton } from './reactComponents/Button';
 import { screenshotsDiv } from './screenshotsPage';
 import FinKittyCat from './cat.png';
 import { Navbar } from 'react-bootstrap';
@@ -47,18 +47,20 @@ export function loginPage(loginWithRedirect: any, loginForTesting: any) {
             <h2>Get started</h2> To begin using this app, log in or use a shared
             playpen
             <br />
-            <Button
-              type="secondary"
-              id="buttonLogin"
-              action={loginWithRedirect}
-              title="Login or create an account"
-            />
-            <Button
-              type="secondary"
-              id="buttonTestLogin"
-              action={loginForTesting}
-              title="Shared playpen (no login)"
-            />
+            {makeButton(
+              "Login or create an account",
+              loginWithRedirect,
+              "buttonLogin",
+              "buttonLogin",
+              "secondary",
+            )}
+            {makeButton(
+              "Shared playpen (no login)",
+              loginForTesting,
+              "buttonTestLogin",
+              "buttonTestLogin",
+              "secondary",
+            )}
           </div>
           <div className="alert alert-block">
             <strong>How it works</strong> Build one or more models. Each tracks

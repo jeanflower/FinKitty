@@ -11,7 +11,7 @@ import { makeChartData, ViewSettings } from './models/charting';
 import { checkData, checkTransaction, checkTrigger } from './models/checks';
 import { AddDeleteTransactionForm } from './views/reactComponents/AddDeleteTransactionForm';
 import { AddDeleteTriggerForm } from './views/reactComponents/AddDeleteTriggerForm';
-import Button from './views/reactComponents/Button';
+import { makeButton } from './views/reactComponents/Button';
 import {
   allItems,
   annually,
@@ -1207,18 +1207,19 @@ export class AppContent extends Component<AppProps, AppState> {
       return <div role="group">Loading models...</div>;
     }
     // log(`models = ${models}`)
-    const buttons = modelNames.map(model => (
-      <Button
-        key={model}
-        action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-          e.persist();
-          actionOnSelect(model);
-        }}
-        title={model}
-        id={`btn-${idKey}-${model}`}
-        type={idKey !== 'del' && modelName === model ? 'primary' : 'secondary'}
-      />
-    ));
+    const buttons = modelNames.map(model =>
+      { return makeButton(
+          model,
+          (e: React.MouseEvent<HTMLButtonElement>) => {
+            e.persist();
+            actionOnSelect(model);
+          },
+          model,
+          `btn-${idKey}-${model}`,
+          idKey !== 'del' && modelName === model ? 'primary' : 'secondary'
+        );
+      }
+    );
     return (
       <div className="ml-3">
         Select an existing model:
@@ -1351,9 +1352,9 @@ export class AppContent extends Component<AppProps, AppState> {
         <div className="row">
           <div className="col-sm mb-4">
             <div className="ml-3">
-              <Button
-                id="startNewModel"
-                action={async () => {
+              {makeButton(
+                "Create a new model",
+                async () => {
                   const newNameFromUser = this.getNewName();
                   if (!newNameFromUser.gotNameOK) {
                     return;
@@ -1362,10 +1363,11 @@ export class AppContent extends Component<AppProps, AppState> {
                     // log(`created new model`);
                     toggle(overview);
                   }
-                }}
-                title="Create a new model"
-                type="secondary"
-              />
+                },
+                "startNewModel",
+                "startNewModel",
+                "secondary",
+              )}
             </div>
             <br />
             {this.modelListForSelect(this.state.modelNamesData)}
@@ -1393,35 +1395,38 @@ export class AppContent extends Component<AppProps, AppState> {
             />
             <br></br>
             <div className="btn-group ml-3" role="group">
-              <Button
-                action={async () => {
+              {makeButton(
+                "Delete model",
+                async () => {
                   this.deleteModel(modelName);
-                }}
-                title="Delete model"
-                id={`btn-delete`}
-                type="secondary"
-              />
+                },
+                `btn-delete`,
+                `btn-delete`,
+                "secondary",
+              )}
             </div>
             <br></br>
             <br></br>
             <div className="ml-3">
               Developer tools:
               <br />
-              <Button
-                action={async () => {
+              {makeButton(
+                "Check model",
+                async () => {
                   const response = checkModelData(
                     reactAppComponent.state.modelData,
                   );
                   reactAppComponent.setState({
                     alertText: response,
                   });
-                }}
-                title="Check model"
-                id={`btn-check`}
-                type="secondary"
-              />
-              <Button
-                action={() => {
+                },
+                `btn-check`,
+                `btn-check`,
+                "secondary",
+              )}
+              {makeButton(
+                "Copy model as JSON to clipboard",
+                () => {
                   const text = JSON.stringify(this.state.modelData);
                   navigator.clipboard.writeText(text).then(
                     function() {
@@ -1437,13 +1442,14 @@ export class AppContent extends Component<AppProps, AppState> {
                       log('-------- end of model --------');
                     },
                   );
-                }}
-                title="Copy model as JSON to clipboard"
-                id={`btn-log`}
-                type="secondary"
-              />
-              <Button
-                action={() => {
+                },
+                `btn-log`,
+                `btn-log`,
+                "secondary",
+              )}
+              {makeButton(
+                "Test encrypted JSON",
+                () => {
                   const inputEnc = prompt('Enter encrypted JSON');
                   if (inputEnc === null) {
                     return;
@@ -1468,56 +1474,55 @@ export class AppContent extends Component<AppProps, AppState> {
                   } catch (err) {
                     showAlert('could not decode this data');
                   }
-                }}
-                title="Test encrypted JSON"
-                id={`btn-JSON-encrypt-replace`}
-                type="secondary"
-              />
-              <Button
-                action={() => {
+                },
+                `btn-JSON-encrypt-replace`,
+                `btn-JSON-encrypt-replace`,
+                "secondary",
+              )}
+              {makeButton(
+                checkModelBeforeChange
+                ? 'Suppress check-before-change'
+                : 'Enable check-before-change',
+                () => {
                   checkModelBeforeChange = !checkModelBeforeChange;
                   refreshData(
                     false, // refreshModel = true,
                     false, // refreshChart = true,
                   );
-                }}
-                title={
-                  checkModelBeforeChange
-                    ? 'Suppress check-before-change'
-                    : 'Enable check-before-change'
-                }
-                id={`btn-toggle-check-edited-model`}
-                type="secondary"
-              />
-              <Button
-                action={() => {
-                  log(`toggle checkBeforeOverwritingExistingData`);
-                  checkBeforeOverwritingExistingData = !checkBeforeOverwritingExistingData;
-                  refreshData(
-                    false, // refreshModel = true,
-                    false, // refreshChart = true,
-                  );
-                }}
-                title={
+                },
+                `btn-toggle-check-edited-model`,
+                `btn-toggle-check-edited-model`,
+                "secondary",
+              )}
+              {makeButton(
                   checkBeforeOverwritingExistingData
-                    ? 'Suppress check-before-overwrite'
-                    : 'Enable check-before-overwrite'
-                }
-                id={`btn-toggle-check-overwrite`}
-                type="secondary"
-              />
-              <Button
-                action={() => {
+                  ? 'Suppress check-before-overwrite'
+                  : 'Enable check-before-overwrite',
+                  () => {
+                    log(`toggle checkBeforeOverwritingExistingData`);
+                    checkBeforeOverwritingExistingData = !checkBeforeOverwritingExistingData;
+                    refreshData(
+                      false, // refreshModel = true,
+                      false, // refreshChart = true,
+                    );
+                  },
+                  `btn-toggle-check-overwrite`,
+                  `btn-toggle-check-overwrite`,
+                  "secondary",
+              )}
+              {makeButton(
+                "Force delete model",
+                () => {
                   const name = prompt('Force delete model name');
                   if (name === null) {
                     return;
                   }
                   this.deleteModel(name);
-                }}
-                title="Force delete model"
-                id={`btn-force-delete`}
-                type="secondary"
-              />
+                },
+                `btn-force-delete`,
+                `btn-force-delete`,
+                "secondary",
+              )}
             </div>
             <ReplaceWithJSONForm
               modelName={modelName}
@@ -1688,16 +1693,16 @@ export class AppContent extends Component<AppProps, AppState> {
   private rhsTopButtonList() {
     const buttons: JSX.Element[] = [];
     buttons.push(
-      <Button
-        action={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+      (makeButton(
+        "Log out",
+        (event: React.MouseEvent<HTMLButtonElement>) => {
           event.persist();
           this.props.logOutAction();
-        }}
-        title="Log out"
-        type="primary"
-        key="Log out"
-        id={`btn-LogOut`}
-      />,
+        },
+        "Log out",
+        `btn-LogOut`,
+        "primary",
+      ))
     );
     return buttons;
   }
@@ -1731,16 +1736,16 @@ export class AppContent extends Component<AppProps, AppState> {
       const display = viewValue.display;
 
       buttons.push(
-        <Button
-          action={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        (makeButton(
+          view.lc,
+          (event: React.MouseEvent<HTMLButtonElement>) => {
             event.persist();
             toggle(view);
-          }}
-          title={view.lc}
-          type={display ? 'secondary-on' : 'secondary'}
-          key={view.lc}
-          id={`btn-${view.lc}`}
-        />,
+          },
+          view.lc,
+          `btn-${view.lc}`,
+          display ? 'secondary-on' : 'secondary',
+        ))
       );
       viewIterator = it.next();
     }
@@ -1773,26 +1778,25 @@ export class AppContent extends Component<AppProps, AppState> {
       }
     }
 
-    const b = (<Button
-      key={'undoButton'}
-      action={async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-        e.persist();
-        if (await revertToUndoModel(this.state.modelData)) {
-          await saveModelLSM(userID, modelName, this.state.modelData);
-          refreshData(
-            true, // refreshModel = true,
-            true, // refreshChart = true,
-          );
-        }
-      }}
-      title={buttonTitle}
-      id={`btn-undo-model`}
-      type={
+    const b = (
+      makeButton(
+        buttonTitle,
+        async (e: React.MouseEvent<HTMLButtonElement>) => {
+          e.persist();
+          if (await revertToUndoModel(this.state.modelData)) {
+            await saveModelLSM(userID, modelName, this.state.modelData);
+            refreshData(
+              true, // refreshModel = true,
+              true, // refreshChart = true,
+            );
+          }
+        },
+        `btn-undo-model`,
+        `btn-undo-model`,
         this.state.modelData.undoModel !== undefined
           ? 'primary'
-          : 'primary-off'
-      }
-    />)
+          : 'primary-off',
+      ))
 
     if(undoTooltip === ''){
       return b;
@@ -1833,26 +1837,26 @@ export class AppContent extends Component<AppProps, AppState> {
       }
     }
 
-    const b = (<Button
-      key={'redoButton'}
-      action={async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-        e.persist();
-        if (await applyRedoToModel(this.state.modelData)) {
-          await saveModelLSM(userID, modelName, this.state.modelData);
-          refreshData(
-            true, // refreshModel = true,
-            true, // refreshChart = true,
-          );
-        }
-      }}
-      title={buttonTitle}
-      id={`btn-redo-model`}
-      type={
+    const b = (
+      makeButton(
+        buttonTitle,
+        async (e: React.MouseEvent<HTMLButtonElement>) => {
+          e.persist();
+          if (await applyRedoToModel(this.state.modelData)) {
+            await saveModelLSM(userID, modelName, this.state.modelData);
+            refreshData(
+              true, // refreshModel = true,
+              true, // refreshChart = true,
+            );
+          }
+        },
+        `btn-redo-model`,
+        `btn-redo-model`,
         this.state.modelData.redoModel !== undefined
           ? 'primary'
           : 'primary-off'
-      }
-    />);
+      ) 
+    );
 
     if(redoTooltip === ''){
       return b;
@@ -1878,20 +1882,20 @@ export class AppContent extends Component<AppProps, AppState> {
   private makeSaveButton() {
     // log(`isDirty = ${isDirty}`);
     return (
-      <Button
-        key={'saveButton'}
-        action={async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+      makeButton(
+        'Save model',
+        async (e: React.MouseEvent<HTMLButtonElement>) => {
           e.persist();
           await saveModelToDBLSM(userID, modelName, this.state.modelData);
           refreshData(
             true, // refreshModel = true,
             true, // refreshChart = true,
           );
-        }}
-        title={'Save model'}
-        id={`btn-save-model`}
-        type={isDirty ? 'primary' : 'primary-off'}
-      />
+        },
+        `btn-save-model`,
+        `btn-save-model`,
+        isDirty ? 'primary' : 'primary-off',
+      )
     );
   }
 
@@ -1915,17 +1919,17 @@ export class AppContent extends Component<AppProps, AppState> {
     // log('display alert text');
     if (alertText !== '') {
       result.push(
-        <Button
-          key={'alert'}
-          action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        makeButton(
+          'clear alert',
+          (e: React.MouseEvent<HTMLButtonElement>) => {
             // log('clear alert text');
             e.persist();
             this.setState({ alertText: '' });
-          }}
-          title={'clear alert'}
-          id={`btn-clear-alert`}
-          type={'secondary'}
-        />,
+          },
+          `btn-clear-alert`,
+          `btn-clear-alert`,
+          'secondary',
+        )
       );
     }
     return result;

@@ -13,7 +13,7 @@ import {
   FormProps,
 } from '../../types/interfaces';
 import { log, printDebug, showObj } from '../../utils';
-import Button from './Button';
+import { makeButton } from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
 import { Input } from './Input';
 import {
@@ -348,32 +348,33 @@ export class AddDeleteAssetForm extends Component<
   private goButtons(): React.ReactNode {
     if (this.state.inputting === inputtingAsset) {
       return (
-        <Button
-          action={this.addFromButton}
-          type={'primary'}
-          title={
-            'Create new asset (over-writes any existing with the same name)'
-          }
-          id="addAsset"
-        />
+        makeButton(
+          'Create new asset (over-writes any existing with the same name)',
+          this.addFromButton,
+          "addAsset",
+          "addAsset",
+          'primary',
+        )
       );
     } else if (this.state.inputting === inputtingRevalue) {
       return (
-        <Button
-          action={this.revalue}
-          type={'primary'}
-          title={'Revalue this asset'}
-          id="revalueAsset"
-        />
+        makeButton(
+          'Revalue this asset',
+          this.revalue,
+          "revalueAsset",
+          "revalueAsset",
+          'primary',
+        )
       );
     } else if (this.state.inputting === inputtingPension) {
       return (
-        <Button
-          action={this.addFromButton}
-          type={'primary'}
-          title={'Create new pension'}
-          id="addPension"
-        />
+        makeButton(
+          'Create new pension',
+          this.addFromButton,
+          "addPension",
+          "addPension",
+          'primary',
+        )
       );
     }
   }
@@ -510,34 +511,31 @@ export class AddDeleteAssetForm extends Component<
     return (
       <>
         <div className="btn-group ml-3" role="group">
-          <Button
-            action={this.inputAsset}
-            type={
-              this.state.inputting === inputtingAsset ? 'primary' : 'secondary'
-            }
-            title={'Add new asset mode'}
-            id="inputAsset"
-          />
-          <Button
-            action={this.inputPension}
-            type={
-              this.state.inputting === inputtingPension
-                ? 'primary'
-                : 'secondary'
-            }
-            title={'Add pension mode'}
-            id="useDCPInputs"
-          />
-          <Button
-            action={this.inputRevalue}
-            type={
-              this.state.inputting === inputtingRevalue
-                ? 'primary'
-                : 'secondary'
-            }
-            title={'Revalue asset mode'}
-            id="revalueAssetInputs"
-          />
+          {makeButton(
+            'Add new asset mode',
+            this.inputAsset,
+            "inputAsset",
+            "inputAsset",
+            this.state.inputting === inputtingAsset ? 'primary' : 'secondary',
+          )}
+          {makeButton(
+            'Add pension mode',
+            this.inputPension,
+            "useDCPInputs",
+            "useDCPInputs",
+            this.state.inputting === inputtingPension
+              ? 'primary'
+              : 'secondary',
+          )}
+          {makeButton(
+            'Revalue asset mode',
+            this.inputRevalue,
+            "revalueAssetInputs",
+            "revalueAssetInputs",
+            this.state.inputting === inputtingRevalue
+              ? 'primary'
+              : 'secondary',
+          )}
         </div>
         <form className="container-fluid" onSubmit={this.addFromForm}>
           {this.ValueQuantityAndCategory()}
@@ -650,7 +648,7 @@ export class AddDeleteAssetForm extends Component<
     this.setDcpTransferDate(e.target.value);
   }
 
-  private async revalue(e: MouseEvent) {
+  private async revalue(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
 
     const parseVal = makeValueAbsPropFromString(this.state.VALUE);
@@ -714,7 +712,7 @@ export class AddDeleteAssetForm extends Component<
     e.preventDefault();
     this.add();
   }
-  private async addFromButton(e: MouseEvent) {
+  private async addFromButton(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
     this.add();
   }
@@ -1095,21 +1093,21 @@ export class AddDeleteAssetForm extends Component<
       this.props.showAlert(`failed to delete ${this.state.NAME}`);
     }
   }
-  private inputPension(e: MouseEvent) {
+  private inputPension(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
     this.setState({
       ...this.state,
       inputting: inputtingPension,
     });
   }
-  private inputAsset(e: MouseEvent) {
+  private inputAsset(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
     this.setState({
       ...this.state,
       inputting: inputtingAsset,
     });
   }
-  private inputRevalue(e: MouseEvent) {
+  private inputRevalue(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
     this.setState({
       ...this.state,

@@ -4,7 +4,7 @@ import { doCheckBeforeOverwritingExistingData } from '../../App';
 import { ModelData, Trigger, FormProps } from '../../types/interfaces';
 import { log, printDebug, showObj } from '../../utils';
 import { makeDateFromString } from '../../stringUtils';
-import Button from './Button';
+import { makeButton } from './Button';
 import { Input } from './Input';
 
 interface EditTriggerFormState {
@@ -103,14 +103,13 @@ export class AddDeleteTriggerForm extends Component<
               placeholder={'Enter date'}
               onChange={this.handleValueChange}
             />
-            <Button
-              action={this.add}
-              type={'primary'}
-              title={
-                'Create new important date (over-writes any existing with the same name)'
-              }
-              id="addTrigger"
-            />
+            {makeButton(
+              'Create new important date (over-writes any existing with the same name)',
+              this.add,
+              "addTrigger",
+              "addTrigger",
+              'primary',
+            )}
           </div>{' '}
           {/* end col */}
         </div>{' '}

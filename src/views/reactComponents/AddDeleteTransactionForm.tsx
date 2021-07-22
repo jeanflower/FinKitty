@@ -7,7 +7,7 @@ import {
   FormProps,
 } from '../../types/interfaces';
 import { log, printDebug, showObj } from '../../utils';
-import Button from './Button';
+import { makeButton } from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
 import { Input } from './Input';
 import {
@@ -313,14 +313,13 @@ export class AddDeleteTransactionForm extends Component<
           {/* end col */}
         </div>
         {/* end row */}
-        <Button
-          action={this.add}
-          type={'primary'}
-          title={
-            'Create new transaction (over-writes any existing with the same name)'
-          }
-          id="addTransaction"
-        />
+        {makeButton(
+          'Create new transaction (over-writes any existing with the same name)',
+          this.add,
+          "addTransaction",
+          "addTransaction",
+          'primary',
+        )}
       </form>
     );
   }

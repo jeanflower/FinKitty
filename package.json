@@ -16,6 +16,7 @@
     "chrome-headless": "^0.1.5",
     "chromedriver": "^87.0.7",
     "crypto-js": "^3.3.0",
+    "dateformat": "^4.5.1",
     "gh-pages": "^2.2.0",
     "jquery": "^3.5.1",
     "moment": "^2.29.1",
