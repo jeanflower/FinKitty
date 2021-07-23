@@ -31,7 +31,7 @@ import {
 import { getDisplay, refreshData } from '../App';
 import { Context, log, printDebug, showObj } from '../utils';
 
-import Button from './reactComponents/Button';
+import { makeButton } from './reactComponents/Button';
 import CanvasJS from '../assets/js/canvasjs.min';
 import CanvasJSReact from '../assets/js/canvasjs.react';
 import React from 'react';
@@ -92,22 +92,20 @@ function makeFilterButton(
   }
 
   return (
-    <Button
-      key={buttonName}
-      action={async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    makeButton(
+      buttonName,
+      async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.persist();
         settings.toggleViewFilter(context, buttonName);
         return await refreshData(
           false, // refreshModel = true,
           true, // refreshChart = true,
         );
-      }}
-      title={buttonName}
-      type={
-        settings.highlightButton(context, buttonName) ? 'primary' : 'secondary'
-      }
-      id={id}
-    />
+      },
+      buttonName,
+      id, 
+      settings.highlightButton(context, buttonName) ? 'primary' : 'secondary',
+    )
   );
 }
 
@@ -148,16 +146,16 @@ export function coarseFineList(settings: ViewSettings) {
   const viewTypes: string[] = [total, coarse, fine];
   const selectedCoarseFineView = getCoarseFineView(settings);
   const buttons = viewTypes.map(viewType => (
-    <Button
-      key={viewType}
-      action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    makeButton(
+      viewType,
+      (e: React.MouseEvent<HTMLButtonElement>) => {
         e.persist();
         setViewSettingNameVal(settings, viewDetail, viewType);
-      }}
-      title={viewType}
-      type={viewType === selectedCoarseFineView ? 'primary' : 'secondary'}
-      id={`chooseViewDetailType${viewType}`}
-    />
+      },
+      viewType,
+      `chooseViewDetailType${viewType}`,
+      viewType === selectedCoarseFineView ? 'primary' : 'secondary',
+    )
   ));
   return <div role="group">{buttons}</div>;
 }
@@ -166,16 +164,16 @@ export function frequencyList(settings: ViewSettings) {
   const viewTypes: string[] = [monthly, annually];
   const selectedView = settings.getViewSetting(viewFrequency, annually);
   const buttons = viewTypes.map(viewType => (
-    <Button
-      key={viewType}
-      action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    makeButton(
+      viewType,
+      (e: React.MouseEvent<HTMLButtonElement>) => {
         e.persist();
         setViewSettingNameVal(settings, viewFrequency, viewType);
-      }}
-      title={viewType}
-      type={viewType === selectedView ? 'primary' : 'secondary'}
-      id="chooseViewFrequencyType"
-    />
+      },
+      viewType,
+      "chooseViewFrequencyType",
+      viewType === selectedView ? 'primary' : 'secondary',
+    )
   ));
   return <div role="group">{buttons}</div>;
 }
@@ -526,16 +524,16 @@ function assetViewTypeList(settings: ViewSettings) {
   ];
   const selectedAssetView = getAssetChartView(settings);
   const buttons = viewTypes.map(viewType => (
-    <Button
-      key={viewType}
-      action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    makeButton(
+      viewType,
+      (e: React.MouseEvent<HTMLButtonElement>) => {
         e.persist();
         setViewSettingNameVal(settings, chartViewType, viewType);
-      }}
-      title={viewType}
-      type={viewType === selectedAssetView ? 'primary' : 'secondary'}
-      id="chooseAssetChartType"
-    />
+      },
+      viewType,
+      "chooseAssetChartType",
+      viewType === selectedAssetView ? 'primary' : 'secondary',
+    )
   ));
   return <div role="group">{buttons}</div>;
 }
@@ -650,94 +648,92 @@ function taxButtonList(model: ModelData, viewSettings: ViewSettings) {
 
   // console.log(`liablityPeople for tax buttons is ${showObj(liabilityPeople)}`);
   const buttons = liabilityPeople.map(person => (
-    <Button
-      key={person === allItems ? 'All people' : person}
-      action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    makeButton(
+      person === allItems ? 'All people' : person,
+      (e: React.MouseEvent<HTMLButtonElement>) => {
         e.persist();
         setViewSettingNameVal(viewSettings, taxChartFocusPerson, person);
-      }}
-      title={person === allItems ? 'All people' : person}
-      type={person === getTaxPerson(viewSettings) ? 'primary' : 'secondary'}
-      id={`chooseTaxSetting-${person}`}
-    />
+      },
+      person === allItems ? 'All people' : person,
+      `chooseTaxSetting-${person}`,
+      person === getTaxPerson(viewSettings) ? 'primary' : 'secondary',
+    )
   ));
   buttons.push(
-    <Button
-      key={'All types'}
-      action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    makeButton(
+      'All types',
+      (e: React.MouseEvent<HTMLButtonElement>) => {
         e.persist();
         setViewSettingNameVal(viewSettings, taxChartFocusType, allItems);
-      }}
-      title={'All types'}
-      type={getTaxType(viewSettings) === allItems ? 'primary' : 'secondary'}
-      id={`chooseTaxType-all`}
-    />,
+      },
+      'All types',
+      `chooseTaxType-all`,
+      getTaxType(viewSettings) === allItems ? 'primary' : 'secondary',
+    )
   );
   buttons.push(
-    <Button
-      key={'income'}
-      action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    makeButton(
+      'Income',
+      (e: React.MouseEvent<HTMLButtonElement>) => {
         e.persist();
         setViewSettingNameVal(viewSettings, taxChartFocusType, income);
-      }}
-      title={'Income'}
-      type={getTaxType(viewSettings) === income ? 'primary' : 'secondary'}
-      id={`chooseTaxType-income`}
-    />,
+      },
+      'income',
+      `chooseTaxType-income`,
+      getTaxType(viewSettings) === income ? 'primary' : 'secondary',
+    )
   );
   buttons.push(
-    <Button
-      key={'gain'}
-      action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    makeButton(
+      'Gain',
+      (e: React.MouseEvent<HTMLButtonElement>) => {
         e.persist();
         setViewSettingNameVal(viewSettings, taxChartFocusType, gain);
-      }}
-      title={'Gain'}
-      type={getTaxType(viewSettings) === gain ? 'primary' : 'secondary'}
-      id={`chooseTaxType-gain`}
-    />,
+      },
+      'gain',
+      `chooseTaxType-gain`,
+      getTaxType(viewSettings) === gain ? 'primary' : 'secondary',
+    )
   );
   buttons.push(
-    <Button
-      key={'pensionAllowance'}
-      action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    makeButton(
+      'Pension allowance',
+      (e: React.MouseEvent<HTMLButtonElement>) => {
         e.persist();
         setViewSettingNameVal(
           viewSettings,
           taxChartFocusType,
           pensionAllowance,
         );
-      }}
-      title={'Pension allowance'}
-      type={
-        getTaxType(viewSettings) === pensionAllowance ? 'primary' : 'secondary'
-      }
-      id={`chooseTaxType-pension`}
-    />,
+      },
+      'pensionAllowance',
+      `chooseTaxType-pension`,
+      getTaxType(viewSettings) === pensionAllowance ? 'primary' : 'secondary',
+    )
   );
   buttons.push(
-    <Button
-      key={'Show net'}
-      action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    makeButton(
+      'Show net',
+      (e: React.MouseEvent<HTMLButtonElement>) => {
         e.persist();
         setViewSettingNameVal(viewSettings, taxChartShowNet, 'Y');
-      }}
-      title={'Show net'}
-      type={getTaxShowNet(viewSettings) ? 'primary' : 'secondary'}
-      id={`chooseTaxType-showNet`}
-    />,
+      },
+      'Show net',
+      `chooseTaxType-showNet`,
+      getTaxShowNet(viewSettings) ? 'primary' : 'secondary',
+    )
   );
   buttons.push(
-    <Button
-      key={'Hide net'}
-      action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    makeButton(
+      'Hide net',
+      (e: React.MouseEvent<HTMLButtonElement>) => {
         e.persist();
         setViewSettingNameVal(viewSettings, taxChartShowNet, 'N');
-      }}
-      title={'Hide net'}
-      type={!getTaxShowNet(viewSettings) ? 'primary' : 'secondary'}
-      id={`chooseTaxType-hideNet`}
-    />,
+      },
+      'Hide net',
+      `chooseTaxType-hideNet`,
+      !getTaxShowNet(viewSettings) ? 'primary' : 'secondary',
+    )
   );
   return <div role="group">{buttons}</div>;
 }
