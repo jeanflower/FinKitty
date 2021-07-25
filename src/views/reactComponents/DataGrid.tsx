@@ -12,15 +12,16 @@ interface DataGridProps {
   deleteFunction: ((name: string) => Promise<boolean>) | undefined;
 }
 interface DataGridState {
-  rows: any[]; // TODO any
   colSortIndex: string;
   sortDirection: 'ASC' | 'DESC' | 'NONE';
 }
 class DataGrid extends React.Component<DataGridProps, DataGridState> {
+  sortedRows: any[]; // TODO any
+
   public constructor(props: DataGridProps) {
     super(props);
+    this.sortedRows = props.rows;
     this.state = {
-      rows: props.rows,
       colSortIndex: '',
       sortDirection: 'NONE',
     };
@@ -29,23 +30,36 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
     if (printDebug()) {
       log('in rowgetter, this.props.rows = ' + this.props.rows);
     }
-    let colSortIndex = this.state.colSortIndex;
-    if (this.state.sortDirection === 'NONE') {
-      if (
-        this.props.rows.length === 0 ||
-        this.props.rows[0].index === undefined
-      ) {
-        return this.props.rows[i];
-      } else {
-        colSortIndex = 'index'; // TODO
-      }
+    return this.sortedRows[i];
+  }
+  public getSize() {
+    return this.props.rows.length;
+  }
+
+  private sortHandler(
+    sortColumn: string,
+    sortDirection: 'ASC' | 'DESC' | 'NONE',
+  ) {
+    log(`sortColumn = ${sortColumn}`);
+    log(`sortDirection = ${sortDirection}`);
+    this.setState({
+      colSortIndex: sortColumn,
+      sortDirection: sortDirection,
+    });
+
+    if (sortDirection === 'NONE') {
+      this.sortedRows = this.props.rows.sort((a, b) => {
+        const ai = a['index'];
+        const bi = b['index'];
+        return (ai < bi) ? -1 : ((ai > bi) ? +1 : 0);
+      });
+      return;
     }
 
-    //return this.props.rows.sort()[i];
-    return this.props.rows.sort((a, b) => {
-      // log(`colSortIndex = ${colSortIndex}`);
-      let aVal = a[colSortIndex];
-      let bVal = b[colSortIndex];
+    this.sortedRows = this.props.rows.sort((a, b) => {
+      // log(`sortColumn = ${sortColumn}`);
+      let aVal = a[sortColumn];
+      let bVal = b[sortColumn];
       if (printDebug()) {
         log(`aVal = ${showObj(aVal)}, bVal = ${showObj(bVal)}`);
       }
@@ -54,10 +68,11 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
         bVal = b[this.props.columns[0]];
       }
       if (
-        colSortIndex === 'DATE' ||
-        colSortIndex === 'START' ||
-        colSortIndex === 'END'
+        sortColumn === 'DATE' ||
+        sortColumn === 'START' ||
+        sortColumn === 'END'
       ) {
+        // log(`sortColumn is time-based`);
         const aTimeVal = new Date(aVal).getTime();
         const bTimeVal = new Date(bVal).getTime();
         // log(`aTimeVal = ${aTimeVal}, bTimeVal = ${bTimeVal}`);
@@ -75,7 +90,19 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
           bVal = bTimeVal;
         }
         //log(`aVal = ${showObj(aVal)}, bVal = ${showObj(bVal)}`);
-      } else if (colSortIndex === 'index') {
+      } else if (sortColumn === 'VALUE') {
+        const paVal = parseFloat(aVal);
+        const pbVal = parseFloat(bVal);
+        if(Number.isNaN(paVal) && !Number.isNaN(pbVal)){
+          return (this.state.sortDirection === 'ASC') ? 1 : -1;
+        } if(!Number.isNaN(paVal) && Number.isNaN(pbVal)){
+          return (this.state.sortDirection === 'ASC') ? -1 : +1;
+        } else if(!Number.isNaN(paVal) && !Number.isNaN(pbVal)){
+          return (paVal < pbVal) ? (
+            (this.state.sortDirection === 'ASC') ? +1 : -1) : ((paVal > pbVal) ? (
+            (this.state.sortDirection === 'ASC') ? -1 : +1) : 0);
+        } 
+      } else if (sortColumn === 'index') {
       } else if (aVal !== undefined && bVal !== undefined) {
         aVal = aVal.toUpperCase();
         bVal = bVal.toUpperCase();
@@ -101,21 +128,6 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
         // log('return 0');
         return 0;
       }
-    })[i];
-  }
-  public getSize() {
-    return this.props.rows.length;
-  }
-
-  private sortHandler(
-    sortColumn: string,
-    sortDirection: 'ASC' | 'DESC' | 'NONE',
-  ) {
-    // log(`sortColumn = ${sortColumn}`);
-    // log(`sortDirection = ${sortDirection}`);
-    this.setState({
-      colSortIndex: sortColumn,
-      sortDirection: sortDirection,
     });
   }
 
