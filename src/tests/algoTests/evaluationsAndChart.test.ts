@@ -16839,6 +16839,24 @@ describe('evaluations tests', () => {
     done();
   });
 
+  function checkSettingValue(key: string, value: string){
+    const modelAndRoi = getModelCrystallizedPension();
+
+    const model = modelAndRoi.model;
+
+    setSetting(model.settings, key, value, viewType);
+
+    suppressLogs();
+    const evalsAndValues = getTestEvaluations(model, false);
+    const evals = evalsAndValues.evaluations;
+    unSuppressLogs();
+    // log(`evals = ${showObj(evals)}`);
+    // don't assert evaluations - already done in another test
+
+    // printTestCodeForEvals(evals);
+    expect(evals.length).toBe(0);  
+  }
+
   it('check nonsense settings', done => {
     const settingsKeys = [
       birthDate, // '' or a string date
@@ -16854,21 +16872,7 @@ describe('evaluations tests', () => {
     ];
 
     for (const key of settingsKeys) {
-      const modelAndRoi = getModelCrystallizedPension();
-
-      const model = modelAndRoi.model;
-
-      setSetting(model.settings, key, 'nonsense', viewType);
-
-      suppressLogs();
-      const evalsAndValues = getTestEvaluations(model, false);
-      const evals = evalsAndValues.evaluations;
-      unSuppressLogs();
-      // log(`evals = ${showObj(evals)}`);
-      // don't assert evaluations - already done in another test
-
-      // printTestCodeForEvals(evals);
-      expect(evals.length).toBe(0);
+      checkSettingValue( key, 'nonsense');
     }
 
     done();
@@ -17199,6 +17203,286 @@ describe('evaluations tests', () => {
     unSuppressLogs();
     // printTestCodeForEvals(evals);
     expect(evals.length).toBe(0);
+
+    done();
+  });
+
+  it('trigger name cant have +', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'Feb 7, 2018 00:00:00',
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      transactions: [],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'Shr1',
+          START: 'January 1 2018',
+          VALUE: '1.0',
+        },          
+      ],
+      settings: [...defaultModelSettings(roi)],
+      triggers: [
+        {
+          NAME: 'a+',
+          DATE: new Date('1 Jan 2018'),
+        },
+      ],
+    };
+
+    suppressLogs();
+    const evalsAndValues = getTestEvaluations(model, false);
+    const evals = evalsAndValues.evaluations;
+    unSuppressLogs();
+    // printTestCodeForEvals(evals);
+    expect(evals.length).toBe(0);
+
+    done();
+  });
+
+  it('trigger name cant have -', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'Feb 7, 2018 00:00:00',
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      transactions: [],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'Shr1',
+          START: 'January 1 2018',
+          VALUE: '1.0',
+        },          
+      ],
+      settings: [...defaultModelSettings(roi)],
+      triggers: [
+        {
+          NAME: 'a-',
+          DATE: new Date('1 Jan 2018'),
+        },
+      ],
+    };
+
+    suppressLogs();
+    const evalsAndValues = getTestEvaluations(model, false);
+    const evals = evalsAndValues.evaluations;
+    unSuppressLogs();
+    // printTestCodeForEvals(evals);
+    expect(evals.length).toBe(0);
+
+    done();
+  });
+
+  it('trigger name 1 day before', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'Feb 7, 2018 00:00:00',
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      transactions: [],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'Shr1',
+          START: 'a-1d',
+          VALUE: '1.0',
+        },          
+      ],
+      settings: [...defaultModelSettings(roi)],
+      triggers: [
+        {
+          NAME: 'a',
+          DATE: new Date('2 Jan 2018'),
+        },
+      ],
+    };
+
+    const evalsAndValues = getTestEvaluations(model, false);
+    const evals = evalsAndValues.evaluations;
+    // printTestCodeForEvals(evals);
+    expect(evals.length).toBe(2);
+    expectEvals(evals, 0, 'Shr1', 'Mon Jan 01 2018', 1, -1);
+    expectEvals(evals, 1, 'Shr1', 'Thu Feb 01 2018', 1, -1);
+
+    done();
+  });
+
+  it('trigger name 1 day after', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'Feb 7, 2018 00:00:00',
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      transactions: [],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'Shr1',
+          START: 'a+1d',
+          VALUE: '1.0',
+        },          
+      ],
+      settings: [...defaultModelSettings(roi)],
+      triggers: [
+        {
+          NAME: 'a',
+          DATE: new Date('31 Dec 2017'),
+        },
+      ],
+    };
+
+    const evalsAndValues = getTestEvaluations(model, false);
+    const evals = evalsAndValues.evaluations;
+    // printTestCodeForEvals(evals);
+    expect(evals.length).toBe(2);
+    expectEvals(evals, 0, 'Shr1', 'Mon Jan 01 2018', 1, -1);
+    expectEvals(evals, 1, 'Shr1', 'Thu Feb 01 2018', 1, -1);
+
+    done();
+  });
+
+  it('trigger name 1 month before', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'Feb 7, 2018 00:00:00',
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      transactions: [],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'Shr1',
+          START: 'a-1m',
+          VALUE: '1.0',
+        },          
+      ],
+      settings: [...defaultModelSettings(roi)],
+      triggers: [
+        {
+          NAME: 'a',
+          DATE: new Date('1 Feb 2018'),
+        },
+      ],
+    };
+
+    const evalsAndValues = getTestEvaluations(model, false);
+    const evals = evalsAndValues.evaluations;
+    // printTestCodeForEvals(evals);
+    expect(evals.length).toBe(2);
+    expectEvals(evals, 0, 'Shr1', 'Mon Jan 01 2018', 1, -1);
+    expectEvals(evals, 1, 'Shr1', 'Thu Feb 01 2018', 1, -1);
+
+    done();
+  });
+
+  it('trigger name 1 month after', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'Feb 7, 2018 00:00:00',
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      transactions: [],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'Shr1',
+          START: 'a+1m',
+          VALUE: '1.0',
+        },          
+      ],
+      settings: [...defaultModelSettings(roi)],
+      triggers: [
+        {
+          NAME: 'a',
+          DATE: new Date('1 Dec 2017'),
+        },
+      ],
+    };
+
+    const evalsAndValues = getTestEvaluations(model, false);
+    const evals = evalsAndValues.evaluations;
+    // printTestCodeForEvals(evals);
+    expect(evals.length).toBe(2);
+    expectEvals(evals, 0, 'Shr1', 'Mon Jan 01 2018', 1, -1);
+    expectEvals(evals, 1, 'Shr1', 'Thu Feb 01 2018', 1, -1);
+
+    done();
+  });
+
+  it('trigger name 1 year before', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'Feb 7, 2018 00:00:00',
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      transactions: [],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'Shr1',
+          START: 'a-1y',
+          VALUE: '1.0',
+        },          
+      ],
+      settings: [...defaultModelSettings(roi)],
+      triggers: [
+        {
+          NAME: 'a',
+          DATE: new Date('1 Jan 2019'),
+        },
+      ],
+    };
+
+    const evalsAndValues = getTestEvaluations(model, false);
+    const evals = evalsAndValues.evaluations;
+    // printTestCodeForEvals(evals);
+    expect(evals.length).toBe(2);
+    expectEvals(evals, 0, 'Shr1', 'Mon Jan 01 2018', 1, -1);
+    expectEvals(evals, 1, 'Shr1', 'Thu Feb 01 2018', 1, -1);
+
+    done();
+  });
+
+  it('trigger name 1 year after', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'Feb 7, 2018 00:00:00',
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      transactions: [],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'Shr1',
+          START: 'a+1y',
+          VALUE: '1.0',
+        },          
+      ],
+      settings: [...defaultModelSettings(roi)],
+      triggers: [
+        {
+          NAME: 'a',
+          DATE: new Date('1 Jan 2017'),
+        },
+      ],
+    };
+
+    const evalsAndValues = getTestEvaluations(model, false);
+    const evals = evalsAndValues.evaluations;
+    // printTestCodeForEvals(evals);
+    expect(evals.length).toBe(2);
+    expectEvals(evals, 0, 'Shr1', 'Mon Jan 01 2018', 1, -1);
+    expectEvals(evals, 1, 'Shr1', 'Thu Feb 01 2018', 1, -1);
 
     done();
   });

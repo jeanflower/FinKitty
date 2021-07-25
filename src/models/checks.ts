@@ -1164,13 +1164,27 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
   return '';
 }
 
-export function checkTrigger(t: Trigger): string {
-  // log(`check trigger ${showObj(t)}`);
-  if (t.NAME.length === 0) {
+function checkTriggerName(tName: string): string {
+  if (tName.length === 0) {
     return 'Date name needs some characters';
   }
-  if (t.NAME === 'today') {
+  if (tName === 'today') {
     return `Date name can't be 'today'`;
+  }
+  if(tName.includes('+')){
+    return `Date names cannot contain a '+' character`;
+  }
+  if(tName.includes('-')){
+    return `Date names cannot contain a '-' character`;
+  }
+  return ''
+}
+
+export function checkTrigger(t: Trigger): string {
+  // log(`check trigger ${showObj(t)}`);
+  const nameCheck = checkTriggerName(t.NAME);
+  if (nameCheck.length > 0 ){
+    return nameCheck;
   }
   if (!checkDate(t.DATE)) {
     return `Your important date is not valid : ${t.DATE}`;

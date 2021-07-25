@@ -20,6 +20,7 @@ import {
 } from './localization/stringConstants';
 import { isSetting } from './models/modelUtils';
 import { Setting, ModelData, Trigger } from './types/interfaces';
+import { log, showObj } from './utils';
 
 export function lessThan(a: string, b: string) {
   if (a.toLowerCase() < b.toLowerCase()) {
@@ -53,7 +54,6 @@ export function makeDateFromString(input: string) {
   }
 
   const result = new Date(input);
-  // log(`converted ${input} into ${result.toDateString()}`);
   return result;
 }
 
@@ -96,7 +96,7 @@ export function makeIncomeLiabilityFromNameAndNI(name: string, NI: boolean) {
     return '';
   }
   if (name.includes(separator)) {
-    console.log(`Error: name ${name} can't contain ${separator}`);
+    log(`Error: name ${name} can't contain ${separator}`);
     return '';
   }
   if (NI) {
@@ -475,14 +475,62 @@ export function makeStringFromFromToValue(input: string) {
   }
 }
 
+function parseTriggerForOperator(
+  triggerName: string, 
+  opSymbol: string, 
+  triggers: Trigger[],
+){
+  let numChange = 0;
+  if(opSymbol === '-'){
+    numChange = -1;
+  } else if(opSymbol === '+'){
+    numChange = 1;
+  } else {
+    return undefined;
+  }
+
+  const parts = triggerName.split(opSymbol);
+  if(parts.length === 2){
+    const secondPartNW = getNumberAndWordParts(parts[1]);
+    if(secondPartNW.numberPart !== undefined &&
+      (secondPartNW.wordPart === 'd' ||
+      secondPartNW.wordPart === 'm' ||
+      secondPartNW.wordPart === 'y')) {
+
+      const firstPartDate: Date | undefined = findMatchedTriggerDate(parts[0], triggers);
+      if(firstPartDate !== undefined){
+        if(secondPartNW.wordPart === 'd'){
+          firstPartDate.setDate(firstPartDate.getDate() + numChange * secondPartNW.numberPart);
+        } else if(secondPartNW.wordPart === 'm'){
+          firstPartDate.setMonth(firstPartDate.getMonth() + numChange *  secondPartNW.numberPart);
+        } else if(secondPartNW.wordPart === 'y'){
+          firstPartDate.setFullYear(firstPartDate.getFullYear() + numChange *  secondPartNW.numberPart);
+        }
+        // log(`converted ${triggerName} into ${firstPartDate.toDateString()}`);
+        return firstPartDate;
+      }
+    }
+  }
+}
+
 // returns a date for a trigger, or undefined
-function findMatchedTriggerDate(triggerName: string, triggers: Trigger[]) {
+function findMatchedTriggerDate(triggerName: string, triggers: Trigger[])
+  : Date | undefined {
+  const minusOp = parseTriggerForOperator(triggerName, '-', triggers);
+  if(minusOp !== undefined){
+    return minusOp;
+  }
+  const plusOp = parseTriggerForOperator(triggerName, '+', triggers);
+  if(plusOp !== undefined){
+    return plusOp;
+  }
   // log('look for '+triggerName+'in '+triggers.map(showObj))
   const matched = triggers.filter(trigger => trigger.NAME === triggerName);
   // log('matched = '+showObj(matched));
   let result = undefined;
   if (matched.length !== 0) {
     result = new Date(matched[0].DATE); // copy
+    // log(`converted ${triggerName} into ${result.toDateString()}`);
   }
   return result;
 }
