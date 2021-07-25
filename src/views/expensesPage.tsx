@@ -26,7 +26,7 @@ import SimpleFormatter from './reactComponents/NameFormatter';
 import { ViewSettings } from '../models/charting';
 import { getTodaysDate } from '../models/modelUtils';
 import { lessThan } from '../stringUtils';
-import { collapsibleFragment } from './incomesPage';
+import { collapsibleFragment } from './tablePages';
 
 function addToMap(
   name: string,
@@ -120,10 +120,14 @@ export function todaysExpensesTable(
   const today = getTodaysDate(model);
   return (
     <>
-      <h4>Expense values at {today.toDateString()}</h4>
-      {makeDataGrid(todaysValues)}
-      <h4>Expense values (categorised) at {today.toDateString()}</h4>
-      {makeDataGrid(categorisedValues)}
+      {collapsibleFragment(
+        makeDataGrid(todaysValues),
+        `Expense values at ${today.toDateString()}`,
+      )}
+      {collapsibleFragment(
+        makeDataGrid(categorisedValues),
+        `Expense values (categorised) at ${today.toDateString()}`,
+      )}
     </>
   );
 }
@@ -159,24 +163,18 @@ export function expensesDiv(
           getEndDate,
           updateEndDate,
         ),
-        'Data chart',
+        'Expenses data chart',
       )}
-      {collapsibleFragment(
-        <>
-          {todaysExpensesTable(model, todaysValues)}
-          {expensesTableDivWithHeading(model, showAlert)}
-          {transactionFilteredTable(
-            model,
-            showAlert,
-            revalueExp,
-            'Expense revaluations',
-          )}
-        </>,
-        'Data tables',
+      {todaysExpensesTable(model, todaysValues)}
+      {expensesTableDivWithHeading(model, showAlert)}
+      {transactionFilteredTable(
+        model,
+        showAlert,
+        revalueExp,
+        'Expense revaluations',
       )}
       {collapsibleFragment(
         <div className="addNewExpense">
-          <h4> Add an expense </h4>
           <AddDeleteExpenseForm
             checkFunction={checkExpense}
             submitFunction={submitExpense}

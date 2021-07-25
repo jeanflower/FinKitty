@@ -466,7 +466,7 @@ describe(testDataModelName, () => {
 
     // scrolling??
 
-    await driver.executeScript('window.scrollBy(0, -1000)'); // Adjust scrolling with a negative value here
+    await driver.executeScript('window.scrollBy(0, -1500)'); // Adjust scrolling with a negative value here
 
     await clickButton(driver, 'chooseAssetOrDebtChartSetting--asset-All');
 

@@ -19,7 +19,7 @@ import { assetsView } from '../localization/stringConstants';
 import { ViewSettings } from '../models/charting';
 import { getTodaysDate } from '../models/modelUtils';
 import { lessThan } from '../stringUtils';
-import { collapsibleFragment } from './incomesPage';
+import { collapsibleFragment } from './tablePages';
 
 // import { log } from './../utils';
 
@@ -101,10 +101,14 @@ export function todaysAssetsTable(
   const today = getTodaysDate(model);
   return (
     <>
-      <h4>Asset values at {today.toDateString()}</h4>
-      {makeDataGrid(todaysValues)}
-      <h4>Asset values (categorised) at {today.toDateString()}</h4>
-      {makeDataGrid(categorisedValues)}
+    {collapsibleFragment(
+      makeDataGrid(todaysValues),
+      `Asset values at ${today.toDateString()}`
+    )}
+    {collapsibleFragment(
+      makeDataGrid(categorisedValues),
+      `Asset values (categorised) at ${today.toDateString()}`
+    )}
     </>
   );
 }
@@ -141,22 +145,13 @@ export function assetsDiv(
           getEndDate,
           updateEndDate,
         ),
-        'Data chart',
+        'Asset data chart',
       )}
-      {collapsibleFragment(
-        <>
-          {todaysAssetsTable(model, todaysValues)}
-          {assetsDivWithHeadings(model, showAlert)}
-        </>,
-        'Data tables',
-      )}
+      {todaysAssetsTable(model, todaysValues)}          
+      {assetsDivWithHeadings(model, showAlert)}
 
       {collapsibleFragment(
         <div className="addNewAsset">
-          <h4>
-            {' '}
-            Add an asset, a defined-contributions pension, or revalue an asset{' '}
-          </h4>
           <AddDeleteAssetForm
             checkAssetFunction={checkAsset}
             submitAssetFunction={submitAsset}
@@ -168,7 +163,7 @@ export function assetsDiv(
             showAlert={showAlert}
           />
         </div>,
-        'Add or revalue an asset',
+        `Add an asset, a defined-contributions pension, or revalue an asset`,
       )}
     </div>
   );

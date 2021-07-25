@@ -124,17 +124,18 @@ function transactionsOverviewDiv(
   }
   return (
     <>
-      <h2>Transactions:</h2>
       {transactionsTableDiv(
         customContents,
         model,
         showAlert,
+        'Custom transactions',
         'Custom transactions',
       )}
       {transactionsTableDiv(
         autogenContents,
         model,
         showAlert,
+        'Auto-generated transactions',
         'Auto-generated transactions',
       )}
     </>

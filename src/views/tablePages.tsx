@@ -91,6 +91,32 @@ import {
   makeStringFromValueAbsProp,
   makeStringFromGrowth,
 } from '../stringUtils';
+import { ReactFragment } from 'react';
+import { Accordion, Button, Card } from 'react-bootstrap';
+
+
+export function collapsibleFragment(
+  fragment: ReactFragment | undefined,
+  title: string,
+) {
+  if (fragment === undefined) {
+    return;
+  }
+  return (
+    <Accordion defaultActiveKey="0">
+      <Card>
+        <Card.Header>
+          <Accordion.Toggle as={Button} variant="link" eventKey="0">
+            <h4>{title}</h4>
+          </Accordion.Toggle>
+        </Card.Header>
+        <Accordion.Collapse eventKey="0">
+          <Card.Body>{fragment}</Card.Body>
+        </Accordion.Collapse>
+      </Card>
+    </Accordion>
+  );
+}
 
 function handleExpenseGridRowsUpdated(
   model: ModelData,
@@ -1040,9 +1066,10 @@ export function transactionsTableDiv(
   model: ModelData,
   showAlert: (arg0: string) => void,
   type: string,
+  headingText: string,
 ) {
   return (
-    <fieldset>
+    collapsibleFragment(
       <div
         className={`dataGridTransactions${type}`}
         style={{
@@ -1065,8 +1092,9 @@ export function transactionsTableDiv(
             return deleteTransaction(completeName);
           }}
         />
-      </div>
-    </fieldset>
+      </div>,
+    headingText,
+    )
   );
 }
 
@@ -1080,12 +1108,7 @@ export function transactionFilteredTable(
   if (contents.length === 0) {
     return;
   }
-  return (
-    <>
-      <h4>{headingText}</h4>
-      {transactionsTableDiv(contents, model, showAlert, type)}
-    </>
-  );
+  return transactionsTableDiv(contents, model, showAlert, type, headingText);
 }
 
 export function debtsDivWithHeadings(
@@ -1098,8 +1121,10 @@ export function debtsDivWithHeadings(
   }
   return (
     <>
-      <h4>Debt definitions</h4>
-      {assetsOrDebtsTableDiv(model, debtData, showAlert, true)}
+      {collapsibleFragment(
+        assetsOrDebtsTableDiv(model, debtData, showAlert, true),
+        'Debt definitions',
+      )}
       {transactionFilteredTable(model, showAlert, revalueDebt, 'Revalue debts')}
       {transactionFilteredTable(model, showAlert, payOffDebt, 'Pay off debts')}
     </>
@@ -1116,8 +1141,10 @@ export function assetsDivWithHeadings(
   }
   return (
     <>
-      <h4>Asset definitions</h4>
-      {assetsOrDebtsTableDiv(model, assetData, showAlert, false)}
+      {collapsibleFragment(
+        assetsOrDebtsTableDiv(model, assetData, showAlert, false),
+        `Asset definition table`,
+      )}
       {transactionFilteredTable(
         model,
         showAlert,
@@ -1203,10 +1230,10 @@ export function triggersTableDivWithHeading(
     return;
   }
   return (
-    <>
-      <h4>Important dates</h4>
-      {triggersTableDiv(model, trigData, showAlert)}
-    </>
+    collapsibleFragment(
+      triggersTableDiv(model, trigData, showAlert),
+      `Important dates`,
+    )
   );
 }
 
@@ -1356,12 +1383,10 @@ export function incomesTableDivWithHeading(
   if (incData.length === 0) {
     return;
   }
-  return (
-    <>
-      <h4>Income definitions</h4>
-      {incomesTableDiv(model, incData, showAlert)}
-    </>
-  );
+  return collapsibleFragment(
+      incomesTableDiv(model, incData, showAlert),
+      `Income definitions`,
+    );
 }
 
 function expensesForTable(model: ModelData) {
@@ -1504,11 +1529,9 @@ export function expensesTableDivWithHeading(
   if (expData.length === 0) {
     return;
   }
-  return (
-    <>
-      <h4>Expense definitions</h4>
-      {expensesTableDiv(model, expData, showAlert)}
-    </>
+  return collapsibleFragment(
+    expensesTableDiv(model, expData, showAlert),
+    `Expense definitions`,
   );
 }
 
@@ -1643,11 +1666,13 @@ function settingsTables(
   }
 
   return (
-    <>
-      <h4>Other settings affecting the model</h4>
+    collapsibleFragment(
+      <>
       {customSettingsTable(model, constSettings, showAlert)}
       {adjustSettingsTable(model, adjustSettings, showAlert)}
-    </>
+      </>,
+      `Other settings affecting the model`,
+    )
   );
 }
 
@@ -1663,7 +1688,7 @@ export function settingsTableDiv(
         display: 'block',
       }}
     >
-      <h4>Settings about the view of the model</h4>
+    {collapsibleFragment(
       <DataGrid
         deleteFunction={deleteSetting}
         handleGridRowsUpdated={function() {
@@ -1690,14 +1715,16 @@ export function settingsTableDiv(
             formatter: <SimpleFormatter name="hint" value="unset" />,
           },
         ]}
-      />
-      {settingsTables(model, viewSettings, showAlert)}
-      {transactionFilteredTable(
-        model,
-        showAlert,
-        revalueSetting,
-        'Revalue settings',
-      )}
-    </div>
-  );
+      />,
+      `Settings about the view of the model`,
+    )}
+    {settingsTables(model, viewSettings, showAlert)}
+    {transactionFilteredTable(
+      model,
+      showAlert,
+      revalueSetting,
+      'Revalue settings',
+    )}
+  </div>
+);
 }

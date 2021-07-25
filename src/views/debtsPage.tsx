@@ -19,7 +19,7 @@ import { debtsView } from '../localization/stringConstants';
 import { ViewSettings } from '../models/charting';
 import { getTodaysDate } from '../models/modelUtils';
 import { lessThan } from '../stringUtils';
-import { collapsibleFragment } from './incomesPage';
+import { collapsibleFragment } from './tablePages';
 
 function addToMap(name: string, val: DebtVal, myMap: Map<string, DebtVal>) {
   const existingEntry = myMap.get(name);
@@ -100,10 +100,14 @@ export function todaysDebtsTable(
   const today = getTodaysDate(model);
   return (
     <>
-      <h4>Debt values at {today.toDateString()}</h4>
-      {makeDataGrid(todaysValues)}
-      <h4>Debt values (categorised) at {today.toDateString()}</h4>
-      {makeDataGrid(categorisedValues)}
+      {collapsibleFragment(
+        makeDataGrid(todaysValues),
+        `Debt values at ${today.toDateString()}`,
+      )}
+      {collapsibleFragment(
+        makeDataGrid(categorisedValues),
+        `Debt values (categorised) at ${today.toDateString()}`,
+      )}
     </>
   );
 }
@@ -140,19 +144,12 @@ export function debtsDiv(
           getEndDate,
           updateEndDate,
         ),
-        'Data chart',
+        'Debts data chart',
       )}
-      {collapsibleFragment(
-        <>
-          {todaysDebtsTable(model, todaysValues)}
-          {debtsDivWithHeadings(model, showAlert)}
-        </>,
-        'Data tables',
-      )}
-
+      {todaysDebtsTable(model, todaysValues)}
+      {debtsDivWithHeadings(model, showAlert)}
       {collapsibleFragment(
         <div className="addNewDebt">
-          <h4>Add a debt</h4>
           <AddDeleteDebtForm
             checkAssetFunction={checkAsset}
             submitAssetFunction={submitAsset}

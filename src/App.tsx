@@ -115,6 +115,7 @@ import {
 } from './models/modelUtils';
 import { lessThan } from './stringUtils';
 import { diffModels } from './diffModels';
+import { collapsibleFragment } from './views/tablePages';
 
 // import FinKittyCat from './views/cat.png';
 
@@ -1544,41 +1545,39 @@ export class AppContent extends Component<AppProps, AppState> {
       return;
     }
     const today = getTodaysDate(model);
-    return (
-      <>
-        <h4>Settings values at {today.toDateString()}</h4>
-        <DataGrid
-          deleteFunction={undefined}
-          handleGridRowsUpdated={function() {
-            return false;
-          }}
-          rows={Array.from(todaysValues.entries())
-            .map(key => {
-              // log(`key[0] = ${key[0]}, key[1] = ${key[1]}`);
-              return {
-                NAME: key[0],
-                VALUE: `${key[1].settingVal}`,
-              };
-            })
-            .sort((a: Item, b: Item) => lessThan(a.NAME, b.NAME))}
-          columns={[
-            {
-              ...defaultColumn,
-              key: 'NAME',
-              name: 'name',
-              formatter: <SimpleFormatter name="name" value="unset" />,
-              editable: false,
-            },
-            {
-              ...defaultColumn,
-              key: 'VALUE',
-              name: `value`,
-              formatter: <SimpleFormatter name="value" value="unset" />,
-              editable: false,
-            },
-          ]}
-        />
-      </>
+    return collapsibleFragment(
+      <DataGrid
+        deleteFunction={undefined}
+        handleGridRowsUpdated={function() {
+          return false;
+        }}
+        rows={Array.from(todaysValues.entries())
+          .map(key => {
+            // log(`key[0] = ${key[0]}, key[1] = ${key[1]}`);
+            return {
+              NAME: key[0],
+              VALUE: `${key[1].settingVal}`,
+            };
+          })
+          .sort((a: Item, b: Item) => lessThan(a.NAME, b.NAME))}
+        columns={[
+          {
+            ...defaultColumn,
+            key: 'NAME',
+            name: 'name',
+            formatter: <SimpleFormatter name="name" value="unset" />,
+            editable: false,
+          },
+          {
+            ...defaultColumn,
+            key: 'VALUE',
+            name: `value`,
+            formatter: <SimpleFormatter name="value" value="unset" />,
+            editable: false,
+          },
+        ]}
+      />,
+      `Settings values at ${today.toDateString()}`,
     );
   }
 
@@ -1600,8 +1599,8 @@ export class AppContent extends Component<AppProps, AppState> {
           )}
           <p />
 
+          {collapsibleFragment(
           <div className="addNewSetting">
-            <h4> Add setting </h4>
             <AddDeleteSettingForm
               submitSettingFunction={submitNewSetting}
               checkTransactionFunction={checkTransaction}
@@ -1621,7 +1620,9 @@ export class AppContent extends Component<AppProps, AppState> {
               model={this.state.modelData}
               showAlert={showAlert}
             />*/}
-          </div>
+          </div>,
+          `Add setting`,
+          )}
         </fieldset>
       </div>
     );
@@ -1639,8 +1640,8 @@ export class AppContent extends Component<AppProps, AppState> {
       >
         {triggersTableDivWithHeading(this.state.modelData, showAlert)}
         <p />
+        {collapsibleFragment(
         <div className="addNewTrigger">
-          <h4> Add an important date </h4>
           <AddDeleteTriggerForm
             checkFunction={checkTrigger}
             submitFunction={submitTrigger}
@@ -1648,7 +1649,9 @@ export class AppContent extends Component<AppProps, AppState> {
             model={this.state.modelData}
             showAlert={showAlert}
           />
-        </div>
+        </div>,
+        `Add an important date`,
+        )}
       </div>
     );
   }

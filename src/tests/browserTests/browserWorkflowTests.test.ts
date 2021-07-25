@@ -34,6 +34,7 @@ import {
   consumeAlert,
   quitAfterAll,
 } from './browserTestUtils';
+import { log } from './../../utils'
 
 import webdriver from 'selenium-webdriver';
 
@@ -126,8 +127,14 @@ describe(testDataModelName, () => {
     );
     // log(`found ${btn.length} elements with id=btn-overview-${name}`);
     if (exists) {
+      if(btn.length !== 1){
+        log(`mulitple buttons for ${name}`)
+      }
       expect(btn.length === 1).toBe(true);
     } else {
+      if(btn.length !== 0){
+        log(`found buttons for ${name}`)
+      }
       expect(btn.length === 0).toBe(true);
     }
     await clickButton(driver, 'btn-Home');
@@ -235,6 +242,10 @@ describe(testDataModelName, () => {
     await driver.get(serverUri);
     await clickButton(driver, 'buttonTestLogin');
     await clickButton(driver, 'btn-toggle-check-overwrite');
+
+    ///////
+    // await checkMessage(driver, 'wrong');
+    //////
 
     await modelExists(ex1Name, false);
     await modelExists(ex2Name, true);

@@ -1,6 +1,7 @@
 import { ChartData, Item, ModelData, IncomeVal } from '../types/interfaces';
 import { checkIncome, checkTransaction } from '../models/checks';
 import {
+  collapsibleFragment,
   defaultColumn,
   incomesTableDivWithHeading,
   transactionFilteredTable,
@@ -21,12 +22,11 @@ import { incomesView, revalueInc } from '../localization/stringConstants';
 import { AddDeleteIncomeForm } from './reactComponents/AddDeleteIncomeForm';
 import CashValueFormatter from './reactComponents/CashValueFormatter';
 import DataGrid from './reactComponents/DataGrid';
-import React, { ReactFragment } from 'react';
+import React from 'react';
 import SimpleFormatter from './reactComponents/NameFormatter';
 import { ViewSettings } from '../models/charting';
 import { getTodaysDate } from '../models/modelUtils';
 import { lessThan } from '../stringUtils';
-import { Accordion, Button, Card } from 'react-bootstrap';
 
 function addToMap(name: string, val: IncomeVal, myMap: Map<string, IncomeVal>) {
   const existingEntry = myMap.get(name);
@@ -108,33 +108,15 @@ export function todaysIncomesTable(
   const today = getTodaysDate(model);
   return (
     <>
-      <h4>Income values at {today.toDateString()}</h4>
-      {makeDataGrid(todaysValues)}
-      <h4>Income values (categorised) at {today.toDateString()}</h4>
-      {makeDataGrid(categorisedValues)}
+    {collapsibleFragment(
+      makeDataGrid(todaysValues),
+      `Income values at ${today.toDateString()}`,
+    )}
+    {collapsibleFragment(
+      makeDataGrid(categorisedValues),
+      `Income values (categorised) at ${today.toDateString()}`,
+    )}
     </>
-  );
-}
-export function collapsibleFragment(
-  fragment: ReactFragment | undefined,
-  title: string,
-) {
-  if (fragment === undefined) {
-    return;
-  }
-  return (
-    <Accordion defaultActiveKey="0">
-      <Card>
-        <Card.Header>
-          <Accordion.Toggle as={Button} variant="link" eventKey="0">
-            {title}
-          </Accordion.Toggle>
-        </Card.Header>
-        <Accordion.Collapse eventKey="0">
-          <Card.Body>{fragment}</Card.Body>
-        </Accordion.Collapse>
-      </Card>
-    </Accordion>
   );
 }
 
@@ -170,28 +152,19 @@ export function incomesDiv(
           getEndDate,
           updateEndDate,
         ),
-        'Data chart',
+        'Incomes data chart',
       )}
-      {collapsibleFragment(
-        <>
-          {todaysIncomesTable(model, todaysValues)}
-          {incomesTableDivWithHeading(model, showAlert)}
-          {transactionFilteredTable(
-            model,
-            showAlert,
-            revalueInc,
-            'Income revaluations',
-          )}
-        </>,
-        'Data tables',
+      {todaysIncomesTable(model, todaysValues)}
+      {incomesTableDivWithHeading(model, showAlert)}
+      {transactionFilteredTable(
+        model,
+        showAlert,
+        revalueInc,
+        'Income revaluations',
       )}
 
       {collapsibleFragment(
         <div className="addNewIncome">
-          <h4>
-            {' '}
-            Add an income, a defined-benefits pension, or revalue an income
-          </h4>
           <AddDeleteIncomeForm
             checkIncomeFunction={checkIncome}
             checkTransactionFunction={checkTransaction}
@@ -203,7 +176,7 @@ export function incomesDiv(
             showAlert={showAlert}
           />
         </div>,
-        'Add or revalue an income',
+        'Add an income, a defined-benefits pension, or revalue an income',
       )}
     </div>
   );
