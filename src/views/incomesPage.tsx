@@ -37,7 +37,10 @@ function addToMap(name: string, val: IncomeVal, myMap: Map<string, IncomeVal>) {
   }
 }
 
-function makeDataGrid(myMap: Map<string, IncomeVal>) {
+function makeDataGrid(
+  myMap: Map<string, IncomeVal>,
+  model: ModelData,
+) {
   return (
     <DataGrid
       deleteFunction={undefined}
@@ -80,7 +83,8 @@ function makeDataGrid(myMap: Map<string, IncomeVal>) {
           editable: false,
         },
       ]}
-    />
+      triggers={model.triggers}
+      />
   );
 }
 
@@ -109,11 +113,11 @@ export function todaysIncomesTable(
   return (
     <>
     {collapsibleFragment(
-      makeDataGrid(todaysValues),
+      makeDataGrid(todaysValues, model),
       `Income values at ${today.toDateString()}`,
     )}
     {collapsibleFragment(
-      makeDataGrid(categorisedValues),
+      makeDataGrid(categorisedValues, model),
       `Income values (categorised) at ${today.toDateString()}`,
     )}
     </>

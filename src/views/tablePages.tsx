@@ -744,6 +744,7 @@ export function assetsOrDebtsTableDiv(
             rows={rowData}
             columns={getAssetOrDebtCols(model, isDebt)}
             deleteFunction={deleteAsset}
+            triggers={model.triggers}
           />
         </div>
         <p />
@@ -1091,6 +1092,7 @@ export function transactionsTableDiv(
             const completeName = getTransactionName(name, type);
             return deleteTransaction(completeName);
           }}
+          triggers={model.triggers}
         />
       </div>,
     headingText,
@@ -1214,6 +1216,7 @@ function triggersTableDiv(
                 ),
               },
             ]}
+            triggers={model.triggers}
           />
         </div>
       </fieldset>
@@ -1367,6 +1370,7 @@ function incomesTableDiv(
                 formatter: <SimpleFormatter name="category" value="unset" />,
               },
             ]}
+            triggers={model.triggers}
           />
         </div>
         <p />
@@ -1513,6 +1517,7 @@ function expensesTableDiv(
                 formatter: <SimpleFormatter name="category" value="unset" />,
               },
             ]}
+            triggers={model.triggers}
           />
         </div>
         <p />
@@ -1611,7 +1616,8 @@ function customSettingsTable(
           formatter: <SimpleFormatter name="hint" value="unset" />,
         },
       ]}
-    />
+      triggers={model.triggers}
+      />
   );
 }
 function adjustSettingsTable(
@@ -1649,7 +1655,8 @@ function adjustSettingsTable(
           formatter: <SimpleFormatter name="hint" value="unset" />,
         },
       ]}
-    />
+      triggers={model.triggers}
+      />
   );
 }
 
@@ -1715,7 +1722,8 @@ export function settingsTableDiv(
             formatter: <SimpleFormatter name="hint" value="unset" />,
           },
         ]}
-      />,
+        triggers={model.triggers}
+        />,
       `Settings about the view of the model`,
     )}
     {settingsTables(model, viewSettings, showAlert)}

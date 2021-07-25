@@ -1576,7 +1576,8 @@ export class AppContent extends Component<AppProps, AppState> {
             editable: false,
           },
         ]}
-      />,
+        triggers={model.triggers}
+        />,
       `Settings values at ${today.toDateString()}`,
     );
   }

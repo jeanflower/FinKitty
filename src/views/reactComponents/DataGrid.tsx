@@ -1,6 +1,8 @@
 import React from 'react';
 import ReactDataGrid from 'react-data-grid';
 import { log, printDebug, showObj } from '../../utils';
+import { getTriggerDate } from '../../stringUtils';
+import { Trigger } from '../../types/interfaces';
 /**
  * Samples:
  * https://adazzle.github.io/react-data-grid/examples.html#/all-features
@@ -10,6 +12,7 @@ interface DataGridProps {
   rows: any[]; // TODO any
   columns: any[]; // TODO any
   deleteFunction: ((name: string) => Promise<boolean>) | undefined;
+  triggers: Trigger[];
 }
 interface DataGridState {
   colSortIndex: string;
@@ -73,8 +76,8 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
         sortColumn === 'END'
       ) {
         // log(`sortColumn is time-based`);
-        const aTimeVal = new Date(aVal).getTime();
-        const bTimeVal = new Date(bVal).getTime();
+        const aTimeVal = getTriggerDate(aVal, this.props.triggers).getTime();
+        const bTimeVal = getTriggerDate(bVal, this.props.triggers).getTime();
         // log(`aTimeVal = ${aTimeVal}, bTimeVal = ${bTimeVal}`);
         const aIsDate = !Number.isNaN(aTimeVal);
         const bIsDate = !Number.isNaN(bTimeVal);

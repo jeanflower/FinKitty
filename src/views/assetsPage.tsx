@@ -32,7 +32,10 @@ function addToMap(name: string, val: AssetVal, myMap: Map<string, AssetVal>) {
   }
 }
 
-function makeDataGrid(myMap: Map<string, AssetVal>) {
+function makeDataGrid(
+  myMap: Map<string, AssetVal>,
+  model: ModelData,
+) {
   return (
     <DataGrid
       deleteFunction={undefined}
@@ -75,7 +78,8 @@ function makeDataGrid(myMap: Map<string, AssetVal>) {
           editable: false,
         },
       ]}
-    />
+      triggers={model.triggers}
+      />
   );
 }
 
@@ -102,11 +106,11 @@ export function todaysAssetsTable(
   return (
     <>
     {collapsibleFragment(
-      makeDataGrid(todaysValues),
+      makeDataGrid(todaysValues, model),
       `Asset values at ${today.toDateString()}`
     )}
     {collapsibleFragment(
-      makeDataGrid(categorisedValues),
+      makeDataGrid(categorisedValues, model),
       `Asset values (categorised) at ${today.toDateString()}`
     )}
     </>
