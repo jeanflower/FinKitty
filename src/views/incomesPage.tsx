@@ -5,6 +5,7 @@ import {
   defaultColumn,
   incomesTableDivWithHeading,
   transactionFilteredTable,
+  addIndices,
 } from './tablePages';
 import {
   deleteIncome,
@@ -47,7 +48,7 @@ function makeDataGrid(
       handleGridRowsUpdated={function() {
         return false;
       }}
-      rows={Array.from(myMap.entries())
+      rows={addIndices(Array.from(myMap.entries())
         .filter(key => {
           return key[1].incomeVal !== 0.0;
         })
@@ -58,9 +59,18 @@ function makeDataGrid(
             VALUE: `${key[1].incomeVal}`,
             CATEGORY: `${key[1].category}`,
           };
-        })
+        }))
         .sort((a: Item, b: Item) => lessThan(a.NAME, b.NAME))}
       columns={[
+        /*
+        {
+          ...defaultColumn,
+          key: 'index',
+          name: 'index',
+          formatter: <SimpleFormatter name="name" value="unset" />,
+          editable: false,
+        },
+        */
         {
           ...defaultColumn,
           key: 'NAME',

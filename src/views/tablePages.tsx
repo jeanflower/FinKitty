@@ -581,6 +581,15 @@ export const defaultColumn = {
 
 function getAssetOrDebtCols(model: ModelData, isDebt: boolean) {
   let cols: any[] = [
+    /*
+    {
+      ...defaultColumn,
+      key: 'index',
+      name: 'index',
+      formatter: <SimpleFormatter name="name" value="unset" />,
+      editable: false,
+    },
+    */
     {
       ...defaultColumn,
       key: 'NAME',
@@ -673,7 +682,7 @@ function getAssetOrDebtCols(model: ModelData, isDebt: boolean) {
   return cols;
 }
 
-function addIndices(unindexedResult: any[]) {
+export function addIndices(unindexedResult: any[]) {
   const result = [];
   for (let index = 0; index < unindexedResult.length; index++) {
     const elt = {
@@ -830,6 +839,15 @@ export function transactionsForTable(model: ModelData, type: string) {
 
 function makeTransactionCols(model: ModelData, type: string) {
   let cols: any[] = [
+    /*
+    {
+      ...defaultColumn,
+      key: 'index',
+      name: 'index',
+      formatter: <SimpleFormatter name="name" value="unset" />,
+      editable: false,
+    },
+    */
     {
       ...defaultColumn,
       key: 'NAME',
@@ -1196,6 +1214,14 @@ function triggersTableDiv(
             }}
             rows={trigData}
             columns={[
+              /*
+              {
+                ...defaultColumn,
+                key: 'index',
+                name: 'index',
+                formatter: <SimpleFormatter name="name" value="unset" />,
+              },
+              */
               {
                 ...defaultColumn,
                 key: 'NAME',
@@ -1282,6 +1308,14 @@ function incomesTableDiv(
             }}
             rows={incData}
             columns={[
+              /*
+              {
+                ...defaultColumn,
+                key: 'index',
+                name: 'index',
+                formatter: <SimpleFormatter name="name" value="unset" />,
+              },
+              */
               {
                 ...defaultColumn,
                 key: 'NAME',
@@ -1431,6 +1465,14 @@ function expensesTableDiv(
             }}
             rows={expData}
             columns={[
+              /*
+              {
+                ...defaultColumn,
+                key: 'index',
+                name: 'index',
+                formatter: <SimpleFormatter name="name" value="unset" />,
+              },
+              */
               {
                 ...defaultColumn,
                 key: 'NAME',
@@ -1597,6 +1639,14 @@ function customSettingsTable(
       }}
       rows={constSettings}
       columns={[
+        /*
+        {
+          ...defaultColumn,
+          key: 'index',
+          name: 'index',
+          formatter: <SimpleFormatter name="name" value="unset" />,
+        },
+        */
         {
           ...defaultColumn,
           key: 'NAME',
@@ -1636,6 +1686,14 @@ function adjustSettingsTable(
       }}
       rows={adjustSettings}
       columns={[
+        /*
+        {
+          ...defaultColumn,
+          key: 'index',
+          name: 'index',
+          formatter: <SimpleFormatter name="name" value="unset" />,
+        },
+        */
         {
           ...defaultColumn,
           key: 'NAME',
@@ -1703,6 +1761,14 @@ export function settingsTableDiv(
         }}
         rows={settingsForTable(model, viewSettings, viewType)}
         columns={[
+          /*
+          {
+            ...defaultColumn,
+            key: 'index',
+            name: 'index',
+            formatter: <SimpleFormatter name="name" value="unset" />,
+          },
+          */
           {
             ...defaultColumn,
             key: 'NAME',

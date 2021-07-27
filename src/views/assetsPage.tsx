@@ -1,5 +1,5 @@
 import { AssetVal, ChartData, Item, ModelData } from './../types/interfaces';
-import { assetsDivWithHeadings, defaultColumn } from './tablePages';
+import { assetsDivWithHeadings, defaultColumn, addIndices } from './tablePages';
 import { checkAsset, checkTransaction } from '../models/checks';
 import {
   deleteAsset,
@@ -42,7 +42,7 @@ function makeDataGrid(
       handleGridRowsUpdated={function() {
         return false;
       }}
-      rows={Array.from(myMap.entries())
+      rows={addIndices(Array.from(myMap.entries())
         .filter(key => {
           return key[1].assetVal !== 0.0;
         })
@@ -53,9 +53,18 @@ function makeDataGrid(
             VALUE: `${key[1].assetVal}`,
             CATEGORY: `${key[1].category}`,
           };
-        })
+        }))
         .sort((a: Item, b: Item) => lessThan(a.NAME, b.NAME))}
       columns={[
+        /*
+        {
+          ...defaultColumn,
+          key: 'index',
+          name: 'index',
+          formatter: <SimpleFormatter name="name" value="unset" />,
+          editable: false,
+        },
+        */
         {
           ...defaultColumn,
           key: 'NAME',

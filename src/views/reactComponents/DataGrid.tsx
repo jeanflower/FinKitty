@@ -19,21 +19,116 @@ interface DataGridState {
   sortDirection: 'ASC' | 'DESC' | 'NONE';
 }
 class DataGrid extends React.Component<DataGridProps, DataGridState> {
-  sortedRows: any[]; // TODO any
+  sortedIndices: number[];
 
   public constructor(props: DataGridProps) {
     super(props);
-    this.sortedRows = props.rows;
+    this.sortedIndices = props.rows.map((row)=>{
+      return row['index'];
+    });
     this.state = {
-      colSortIndex: '',
+      colSortIndex: 'index',
       sortDirection: 'NONE',
     };
+    this.sortHandler(this.state.colSortIndex, 'NONE');
   }
+/*
+  public rowGetterOld(i: number) {
+    if (printDebug()) {
+      log('in rowgetter, this.props.rows = ' + this.props.rows);
+    }
+    let colSortIndex = this.state.colSortIndex;
+    if (this.state.sortDirection === 'NONE') {
+      if (
+        this.props.rows.length === 0 ||
+        this.props.rows[0].index === undefined
+      ) {
+        return this.props.rows[i];
+      } else {
+        colSortIndex = 'index'; // TODO
+      }
+    }
+
+    //return this.props.rows.sort()[i];
+    return this.props.rows.sort((a, b) => {
+      // log(`colSortIndex = ${colSortIndex}`);
+      let aVal = a[colSortIndex];
+      let bVal = b[colSortIndex];
+      if (printDebug()) {
+        log(`aVal = ${showObj(aVal)}, bVal = ${showObj(bVal)}`);
+      }
+      if (aVal === undefined || bVal === undefined) {
+        aVal = a[this.props.columns[0]];
+        bVal = b[this.props.columns[0]];
+      }
+      if (
+        colSortIndex === 'DATE' ||
+        colSortIndex === 'START' ||
+        colSortIndex === 'END'
+      ) {
+        const aTimeVal = new Date(aVal).getTime();
+        const bTimeVal = new Date(bVal).getTime();
+        // log(`aTimeVal = ${aTimeVal}, bTimeVal = ${bTimeVal}`);
+        const aIsDate = !Number.isNaN(aTimeVal);
+        const bIsDate = !Number.isNaN(bTimeVal);
+        // log(`aIsDate = ${aIsDate}, bIsDate = ${bIsDate}`);
+        if (aIsDate && !bIsDate) {
+          // log('return 1');
+          return 1;
+        } else if (!aIsDate && bIsDate) {
+          // log('return -1');
+          return -1;
+        } else if (aIsDate && bIsDate) {
+          aVal = aTimeVal;
+          bVal = bTimeVal;
+        }
+        //log(`aVal = ${showObj(aVal)}, bVal = ${showObj(bVal)}`);
+      } else if (colSortIndex === 'index') {
+      } else if (aVal !== undefined && bVal !== undefined) {
+        aVal = aVal.toUpperCase();
+        bVal = bVal.toUpperCase();
+      }
+      // log(`aVal = ${aVal}, bVal = ${bVal}`);
+      if (aVal < bVal) {
+        if (this.state.sortDirection === 'ASC') {
+          // log('return -1');
+          return -1;
+        } else {
+          // log('return 1');
+          return 1;
+        }
+      } else if (aVal > bVal) {
+        if (this.state.sortDirection === 'ASC') {
+          // log('return 1');
+          return 1;
+        } else {
+          // log('return -1');
+          return -1;
+        }
+      } else {
+        // log('return 0');
+        return 0;
+      }
+    })[i];
+  }
+*/
   public rowGetter(i: number) {
     if (printDebug()) {
       log('in rowgetter, this.props.rows = ' + this.props.rows);
     }
-    return this.sortedRows[i];
+    /*
+    const oldRow = this.rowGetterOld(i);
+    if(oldRow !== undefined
+    && oldRow['index'] !== undefined 
+    && oldRow['index'] !== this.sortedIndices[i]){
+      log(`for ${i}th row, oldRow index was ${oldRow['index']} but sorted index is ${this.sortedIndices[i]}`);
+    }
+    // return oldRow;
+    */
+
+    return this.props.rows.filter((row)=>{
+      return row['index'] === this.sortedIndices[i];
+    })[0];
   }
   public getSize() {
     return this.props.rows.length;
@@ -43,23 +138,30 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
     sortColumn: string,
     sortDirection: 'ASC' | 'DESC' | 'NONE',
   ) {
-    log(`sortColumn = ${sortColumn}`);
-    log(`sortDirection = ${sortDirection}`);
+    // log(`sortColumn = ${sortColumn}`);
+    // log(`sortDirection = ${sortDirection}`);
     this.setState({
       colSortIndex: sortColumn,
       sortDirection: sortDirection,
     });
 
+    //log(`this.props.rows.slice() indices = ${showObj(this.props.rows.slice().map((row)=>{
+    //  return row['index'];
+    //}))}`);
+
     if (sortDirection === 'NONE') {
-      this.sortedRows = this.props.rows.sort((a, b) => {
+      this.sortedIndices = this.props.rows.slice().sort((a, b) => {
         const ai = a['index'];
         const bi = b['index'];
-        return (ai < bi) ? -1 : ((ai > bi) ? +1 : 0);
+        return (ai < bi) ? 1 : ((ai > bi) ? -1 : 0);
+      }).map((row)=>{
+        return row['index'];
       });
+      // log(`unsortedIndices = ${showObj(this.sortedIndices)}`);
       return;
     }
 
-    this.sortedRows = this.props.rows.sort((a, b) => {
+    this.sortedIndices = this.props.rows.slice().sort((a, b) => {
       // log(`sortColumn = ${sortColumn}`);
       let aVal = a[sortColumn];
       let bVal = b[sortColumn];
@@ -78,6 +180,9 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
         // log(`sortColumn is time-based`);
         const aTimeVal = getTriggerDate(aVal, this.props.triggers).getTime();
         const bTimeVal = getTriggerDate(bVal, this.props.triggers).getTime();
+        // this puts trigers seperate from dates
+        // const aTimeVal = new Date(aVal).getTime();
+        // const bTimeVal = new Date(bVal).getTime();
         // log(`aTimeVal = ${aTimeVal}, bTimeVal = ${bTimeVal}`);
         const aIsDate = !Number.isNaN(aTimeVal);
         const bIsDate = !Number.isNaN(bTimeVal);
@@ -113,25 +218,23 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
       // log(`aVal = ${aVal}, bVal = ${bVal}`);
       if (aVal < bVal) {
         if (this.state.sortDirection === 'ASC') {
-          // log('return -1');
-          return -1;
+          return +1;
         } else {
-          // log('return 1');
-          return 1;
+          return -1;
         }
       } else if (aVal > bVal) {
         if (this.state.sortDirection === 'ASC') {
-          // log('return 1');
-          return 1;
-        } else {
-          // log('return -1');
           return -1;
+        } else {
+          return +1;
         }
       } else {
-        // log('return 0');
         return 0;
       }
+    }).map((row)=>{
+      return row['index'];
     });
+    // log(`sortedIndices = ${showObj(this.sortedIndices)}`);
   }
 
   private getCellActions(column: ReactDataGrid.Column<any>, row: any) {

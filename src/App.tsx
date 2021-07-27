@@ -1561,6 +1561,15 @@ export class AppContent extends Component<AppProps, AppState> {
           })
           .sort((a: Item, b: Item) => lessThan(a.NAME, b.NAME))}
         columns={[
+          /*
+          {
+            ...defaultColumn,
+            key: 'index',
+            name: 'index',
+            formatter: <SimpleFormatter name="name" value="unset" />,
+            editable: false,
+          },
+          */
           {
             ...defaultColumn,
             key: 'NAME',
