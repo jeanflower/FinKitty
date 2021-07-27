@@ -20,7 +20,7 @@ import {
 } from './localization/stringConstants';
 import { isSetting } from './models/modelUtils';
 import { Setting, ModelData, Trigger } from './types/interfaces';
-import { log, showObj } from './utils';
+import { log } from './utils';
 
 export function lessThan(a: string, b: string) {
   if (a.toLowerCase() < b.toLowerCase()) {
