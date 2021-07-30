@@ -36,6 +36,7 @@ import {
   Setting,
   Transaction,
   Trigger,
+  Item,
 } from '../types/interfaces';
 import {
   attemptRename,
@@ -90,6 +91,7 @@ import {
   makeYesNoFromBoolean,
   makeStringFromValueAbsProp,
   makeStringFromGrowth,
+  lessThan,
 } from '../stringUtils';
 import { ReactFragment } from 'react';
 import { Accordion, Button, Card } from 'react-bootstrap';
@@ -728,7 +730,7 @@ function assetsOrDebtsForTable(model: ModelData, isDebt: boolean): any[] {
         CAN_BE_NEGATIVE: makeYesNoFromBoolean(obj.CAN_BE_NEGATIVE),
       };
       return mapResult;
-    });
+    }).sort((a: Item, b: Item) => lessThan(b.NAME, a.NAME));
   return addIndices(unindexedResult);
 }
 
@@ -834,6 +836,7 @@ export function transactionsForTable(model: ModelData, type: string) {
       };
       return mapResult;
     });
+  unindexedRows.sort((a:Item, b:Item) => lessThan(b.NAME, a.NAME));
   return addIndices(unindexedRows);
 }
 
@@ -1188,9 +1191,7 @@ function triggersForTable(model: ModelData) {
       NAME: obj.NAME,
     };
     return mapResult;
-  }).sort((a, b)=>{
-    return a.NAME < b.NAME ? 1 : -1;
-  });
+  }).sort((a: Item, b: Item) => lessThan(a.NAME, b.NAME));
   return addIndices(unindexedResult);
 }
 

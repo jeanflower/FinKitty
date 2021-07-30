@@ -30,7 +30,7 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
       colSortIndex: 'index',
       sortDirection: 'NONE',
     };
-    this.sortHandler(this.state.colSortIndex, 'NONE');
+    this.handleSort(this.state.colSortIndex, 'NONE');
   }
 /*
   public rowGetterOld(i: number) {
@@ -134,17 +134,10 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
     return this.props.rows.length;
   }
 
-  private sortHandler(
+  private handleSort(
     sortColumn: string,
     sortDirection: 'ASC' | 'DESC' | 'NONE',
-  ) {
-    // log(`sortColumn = ${sortColumn}`);
-    // log(`sortDirection = ${sortDirection}`);
-    this.setState({
-      colSortIndex: sortColumn,
-      sortDirection: sortDirection,
-    });
-
+  ){
     //log(`this.props.rows.slice() indices = ${showObj(this.props.rows.slice().map((row)=>{
     //  return row['index'];
     //}))}`);
@@ -175,7 +168,8 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
       if (
         sortColumn === 'DATE' ||
         sortColumn === 'START' ||
-        sortColumn === 'END'
+        sortColumn === 'END' ||
+        sortColumn === 'VALUE_SET' 
       ) {
         // log(`sortColumn is time-based`);
         const aTimeVal = getTriggerDate(aVal, this.props.triggers).getTime();
@@ -198,7 +192,16 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
           bVal = bTimeVal;
         }
         //log(`aVal = ${showObj(aVal)}, bVal = ${showObj(bVal)}`);
-      } else if (sortColumn === 'VALUE') {
+      } else if (
+        sortColumn === 'VALUE' ||
+        sortColumn === 'FROM_VALUE' ||
+        sortColumn === 'TO_VALUE'
+      ) {
+        if(aVal.endsWith('%') && !bVal.endsWith('%')){
+          return (this.state.sortDirection === 'ASC') ? +1 : -1;
+        } else if(!aVal.endsWith('%') && bVal.endsWith('%')){
+          return (this.state.sortDirection === 'ASC') ? -1 : +1;
+        }
         const paVal = parseFloat(aVal);
         const pbVal = parseFloat(bVal);
         if(Number.isNaN(paVal) && !Number.isNaN(pbVal)){
@@ -234,6 +237,20 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
     }).map((row)=>{
       return row['index'];
     });
+  }
+
+  private sortHandler(
+    sortColumn: string,
+    sortDirection: 'ASC' | 'DESC' | 'NONE',
+  ) {
+    // log(`sortColumn = ${sortColumn}`);
+    // log(`sortDirection = ${sortDirection}`);
+    this.setState({
+      colSortIndex: sortColumn,
+      sortDirection: sortDirection,
+    });
+
+    this.handleSort(sortColumn, sortDirection);
     // log(`sortedIndices = ${showObj(this.sortedIndices)}`);
   }
 

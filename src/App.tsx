@@ -73,6 +73,7 @@ import {
   settingsTableDiv,
   transactionFilteredTable,
   triggersTableDivWithHeading,
+  addIndices,
 } from './views/tablePages';
 import { overviewDiv } from './views/overviewPage';
 import { snapshotDiv } from './views/snapshotPage';
@@ -1545,21 +1546,23 @@ export class AppContent extends Component<AppProps, AppState> {
       return;
     }
     const today = getTodaysDate(model);
+    const rows = addIndices(Array.from(todaysValues)
+    .map(([key, value]) => {
+      // log(`key[0] = ${key[0]}, key[1] = ${key[1]}`);
+      return {
+        NAME: key,
+        VALUE: `${value.settingVal}`,
+      };
+    })
+    .sort((a: Item, b: Item) => lessThan(b.NAME, a.NAME)));
+    // log(`display ${showObj(rows)}`);
     return collapsibleFragment(
       <DataGrid
         deleteFunction={undefined}
         handleGridRowsUpdated={function() {
           return false;
         }}
-        rows={Array.from(todaysValues.entries())
-          .map(key => {
-            // log(`key[0] = ${key[0]}, key[1] = ${key[1]}`);
-            return {
-              NAME: key[0],
-              VALUE: `${key[1].settingVal}`,
-            };
-          })
-          .sort((a: Item, b: Item) => lessThan(a.NAME, b.NAME))}
+        rows={rows}
         columns={[
           /*
           {

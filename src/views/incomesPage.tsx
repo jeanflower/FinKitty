@@ -59,8 +59,8 @@ function makeDataGrid(
             VALUE: `${key[1].incomeVal}`,
             CATEGORY: `${key[1].category}`,
           };
-        }))
-        .sort((a: Item, b: Item) => lessThan(a.NAME, b.NAME))}
+        })
+        .sort((a: Item, b: Item) => lessThan(b.NAME, a.NAME)))}
       columns={[
         /*
         {
