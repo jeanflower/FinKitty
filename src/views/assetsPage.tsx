@@ -13,7 +13,7 @@ import { AddDeleteAssetForm } from './reactComponents/AddDeleteAssetForm';
 import CashValueFormatter from './reactComponents/CashValueFormatter';
 import DataGrid from './reactComponents/DataGrid';
 import React from 'react';
-import SimpleFormatter from './reactComponents/NameFormatter';
+import { SimpleFormatter } from './reactComponents/NameFormatter';
 import { assetsOrDebtsChartDivWithButtons } from './chartPages';
 import { assetsView } from '../localization/stringConstants';
 import { ViewSettings } from '../models/charting';

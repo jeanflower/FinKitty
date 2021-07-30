@@ -100,7 +100,7 @@ import {
   submitSettingLSM,
 } from './database/loadSaveModel';
 import DataGrid from './views/reactComponents/DataGrid';
-import SimpleFormatter from './views/reactComponents/NameFormatter';
+import { SimpleFormatter, SettingFormatter } from './views/reactComponents/NameFormatter';
 import { AddDeleteSettingForm } from './views/reactComponents/AddDeleteSettingForm';
 import { ReplaceWithJSONForm } from './views/reactComponents/ReplaceWithJSONForm';
 import { CreateModelForm } from './views/reactComponents/NewModelForm';
@@ -1584,7 +1584,7 @@ export class AppContent extends Component<AppProps, AppState> {
             ...defaultColumn,
             key: 'VALUE',
             name: `value`,
-            formatter: <SimpleFormatter name="value" value="unset" />,
+            formatter: <SettingFormatter name="value" value="unset" />,
             editable: false,
           },
         ]}

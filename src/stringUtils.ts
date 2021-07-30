@@ -433,7 +433,10 @@ export function makeStringFromValueAbsProp(
   // log(`string for ${value} is ${result}`);
   return result;
 }
-export function makeStringFromCashValue(input: string) {
+export function makeStringFromCashValue(
+  input: string,
+  currency: string,
+) {
   // formatting from 34567.23 as £34,567.23
   // log(`formatting ${input} as a cash value`);
   if (input === '') {
@@ -456,12 +459,14 @@ export function makeStringFromCashValue(input: string) {
       s.substring(s.length - 10, s.length);
   }
   if (negative) {
-    return `-£${s}`;
+    return `-${currency}${s}`;
   } else {
-    return `£${s}`;
+    return `${currency}${s}`;
   }
 }
-export function makeStringFromFromToValue(input: string) {
+export function makeStringFromFromToValue(
+  input: string,
+) {
   if (input === '') {
     return '';
   }
@@ -471,7 +476,7 @@ export function makeStringFromFromToValue(input: string) {
   } else if (input[input.length - 1] === '%') {
     return input;
   } else {
-    return makeStringFromCashValue(input);
+    return makeStringFromCashValue('£', input);
   }
 }
 

@@ -66,7 +66,7 @@ import CashValueFormatter from './reactComponents/CashValueFormatter';
 import DataGrid from './reactComponents/DataGrid';
 import GrowthFormatter from './reactComponents/GrowthFormatter';
 import React from 'react';
-import SimpleFormatter from './reactComponents/NameFormatter';
+import { SimpleFormatter } from './reactComponents/NameFormatter';
 import ToFromValueFormatter from './reactComponents/ToFromValueFormatter';
 import TriggerDateFormatter from './reactComponents/TriggerDateFormatter';
 import { ViewSettings } from '../models/charting';

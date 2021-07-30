@@ -17277,7 +17277,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('trigger name 1 day before', done => {
+  it('trigger 1 day before', done => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'Feb 7, 2018 00:00:00',
@@ -17312,7 +17312,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('trigger name 1 day after', done => {
+  it('trigger 1 day after', done => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'Feb 7, 2018 00:00:00',
@@ -17347,7 +17347,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('trigger name 1 month before', done => {
+  it('trigger 1 month before', done => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'Feb 7, 2018 00:00:00',
@@ -17382,7 +17382,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('trigger name 1 month after', done => {
+  it('trigger 1 month after', done => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'Feb 7, 2018 00:00:00',
@@ -17417,7 +17417,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('trigger name 1 year before', done => {
+  it('trigger 1 year before', done => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'Feb 7, 2018 00:00:00',
@@ -17452,7 +17452,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('trigger name 1 year after', done => {
+  it('trigger 1 year after', done => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'Feb 7, 2018 00:00:00',
@@ -17486,6 +17486,50 @@ describe('evaluations tests', () => {
 
     done();
   });
+/*
+  it('trigger defined 1 day before', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'Feb 7, 2018 00:00:00',
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      transactions: [],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'Shr1',
+          START: 'b',
+          VALUE: '1.0',
+        },          
+      ],
+      settings: [
+        ...defaultModelSettings(roi),
+        {
+          NAME: 'b',
+          VALUE: 'a+1d',
+          HINT: 'one day later',
+          TYPE: adjustableType,
+        }
+      ],
+      triggers: [
+        {
+          NAME: 'a',
+          DATE: new Date('2 Jan 2018'),
+        },
+      ],
+    };
+
+    const evalsAndValues = getTestEvaluations(model, false);
+    const evals = evalsAndValues.evaluations;
+    // printTestCodeForEvals(evals);
+    expect(evals.length).toBe(2);
+    expectEvals(evals, 0, 'Shr1', 'Mon Jan 01 2018', 1, -1);
+    expectEvals(evals, 1, 'Shr1', 'Thu Feb 01 2018', 1, -1);
+
+    done();
+  });
+*/
 
   it('conditional transaction from abs to half, asset runs out', done => {
     const roi = {
