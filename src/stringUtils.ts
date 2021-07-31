@@ -476,7 +476,7 @@ export function makeStringFromFromToValue(
   } else if (input[input.length - 1] === '%') {
     return input;
   } else {
-    return makeStringFromCashValue('£', input);
+    return makeStringFromCashValue(input, '£');
   }
 }
 
