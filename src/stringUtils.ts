@@ -20,7 +20,7 @@ import {
 } from './localization/stringConstants';
 import { isSetting } from './models/modelUtils';
 import { Setting, ModelData, Trigger } from './types/interfaces';
-import { log } from './utils';
+import { log, showObj } from './utils';
 
 export function lessThan(a: string, b: string) {
   if (a.toLowerCase() < b.toLowerCase()) {
@@ -484,6 +484,7 @@ function parseTriggerForOperator(
   triggerName: string, 
   opSymbol: string, 
   triggers: Trigger[],
+  recursionLevel: number,
 ){
   let numChange = 0;
   if(opSymbol === '-'){
@@ -502,7 +503,11 @@ function parseTriggerForOperator(
       secondPartNW.wordPart === 'm' ||
       secondPartNW.wordPart === 'y')) {
 
-      const firstPartDate: Date | undefined = findMatchedTriggerDate(parts[0], triggers);
+      const firstPartDate: Date | undefined = findMatchedTriggerDate(
+        parts[0], 
+        triggers,
+        recursionLevel + 1,
+      );
       if(firstPartDate !== undefined){
         if(secondPartNW.wordPart === 'd'){
           firstPartDate.setDate(firstPartDate.getDate() + numChange * secondPartNW.numberPart);
@@ -519,13 +524,20 @@ function parseTriggerForOperator(
 }
 
 // returns a date for a trigger, or undefined
-function findMatchedTriggerDate(triggerName: string, triggers: Trigger[])
-  : Date | undefined {
-  const minusOp = parseTriggerForOperator(triggerName, '-', triggers);
+function findMatchedTriggerDate(
+  triggerName: string, 
+  triggers: Trigger[],
+  recursionLevel: number,
+) : Date | undefined {
+  if(recursionLevel > 100){
+    //log(`infinite or too-complex recursion for dates - emergency stop`);
+    return undefined;
+  }
+  const minusOp = parseTriggerForOperator(triggerName, '-', triggers, recursionLevel);
   if(minusOp !== undefined){
     return minusOp;
   }
-  const plusOp = parseTriggerForOperator(triggerName, '+', triggers);
+  const plusOp = parseTriggerForOperator(triggerName, '+', triggers, recursionLevel);
   if(plusOp !== undefined){
     return plusOp;
   }
@@ -534,16 +546,34 @@ function findMatchedTriggerDate(triggerName: string, triggers: Trigger[])
   // log('matched = '+showObj(matched));
   let result = undefined;
   if (matched.length !== 0) {
-    result = new Date(matched[0].DATE); // copy
+    result = checkTriggerDateRecursive(
+      matched[0].DATE, 
+      triggers,
+      recursionLevel + 1,
+    );
     // log(`converted ${triggerName} into ${result.toDateString()}`);
   }
   return result;
 }
 
 // returns a date for a trigger or for a date string, or undefined for junk
-export function checkTriggerDate(input: string, triggers: Trigger[]) {
+export function checkTriggerDate(
+  input: string, triggers: Trigger[]
+) {
+  return checkTriggerDateRecursive(input, triggers, 0);
+}
+
+function checkTriggerDateRecursive(
+  input: string, 
+  triggers: Trigger[],
+  recursionLevel: number,
+) {
   // log('first look for '+input+'in '+showObj(triggers));
-  const matched = findMatchedTriggerDate(input, triggers);
+  const matched = findMatchedTriggerDate(
+    input, 
+    triggers,
+    recursionLevel,
+  );
   // log('matched = '+showObj(matched));
   let result;
   if (matched !== undefined) {

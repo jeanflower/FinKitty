@@ -27,7 +27,7 @@ import { migrateOldVersions } from './versioningUtils';
 function cleanUpDates(modelFromJSON: ModelData): void {
   for (const t of modelFromJSON.triggers) {
     //log(`type of ${t.DATE} = ${typeof t.DATE}`);
-    t.DATE = new Date(t.DATE);
+    t.DATE = new Date(t.DATE).toDateString();
     //log(`type of ${t.DATE} = ${typeof t.DATE}`);
   }
   if (modelFromJSON.undoModel) {

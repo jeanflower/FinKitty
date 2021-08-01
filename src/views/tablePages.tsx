@@ -83,7 +83,6 @@ import {
   makeBooleanFromYesNo,
   makeCashValueFromString,
   makeGrowthFromString,
-  makeDateFromString,
   makeQuantityFromString,
   makePurchasePriceFromString,
   makeValueAbsPropFromString,
@@ -296,9 +295,9 @@ function handleTriggerGridRowsUpdated(
   trigger[args[0].cellKey] = args[0].updated[args[0].cellKey];
   const forSubmit: Trigger = {
     NAME: trigger.NAME,
-    DATE: makeDateFromString(trigger.DATE),
+    DATE: trigger.DATE,
   };
-  const checks = checkTrigger(forSubmit);
+  const checks = checkTrigger(forSubmit, model);
   if (checks === '') {
     submitTrigger(forSubmit, model);
   } else {
@@ -1187,7 +1186,7 @@ export function assetsDivWithHeadings(
 function triggersForTable(model: ModelData) {
   const unindexedResult = model.triggers.map((obj: Trigger) => {
     const mapResult = {
-      DATE: obj.DATE.toDateString(),
+      DATE: obj.DATE,
       NAME: obj.NAME,
     };
     return mapResult;

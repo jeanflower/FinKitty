@@ -22,7 +22,7 @@ function diffTriggers(it1: Item, it2: Item): string {
   }
   const t1 = it1 as Trigger;
   const t2 = it2 as Trigger;
-  if (t1.DATE.toDateString() !== t2.DATE.toDateString()) {
+  if (t1.DATE !== t2.DATE) {
     return `${it1.NAME}: date ${new Date(t1.DATE).toDateString()}`;
   }
   return '';

@@ -72,7 +72,7 @@ describe(testDataModelName, () => {
       driver,
       'testDate2',
       'junk',
-      'Your important date is not valid : Invalid Date',
+      'Your important date is not valid : junk',
     );
     await addDate(
       driver,
