@@ -1,27 +1,27 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "12fd573a3b54aaccc688f3e172eebb82",
+    "revision": "8ee039a6d0a88359422f1d5221ee39bd",
     "url": "/FinKitty/index.html"
   },
   {
-    "revision": "9edf580429aecd129b24",
+    "revision": "c1f11c1391b278aef899",
     "url": "/FinKitty/static/css/main.193e7cc0.chunk.css"
   },
   {
-    "revision": "901c4218860d40e849ce",
-    "url": "/FinKitty/static/js/2.beea07f6.chunk.js"
+    "revision": "cdf71b6db9795293c578",
+    "url": "/FinKitty/static/js/2.47843f49.chunk.js"
   },
   {
     "revision": "cccb1fbf54d5b649329e30888ccdc60f",
-    "url": "/FinKitty/static/js/2.beea07f6.chunk.js.LICENSE.txt"
+    "url": "/FinKitty/static/js/2.47843f49.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "9edf580429aecd129b24",
-    "url": "/FinKitty/static/js/main.0fc9f487.chunk.js"
+    "revision": "c1f11c1391b278aef899",
+    "url": "/FinKitty/static/js/main.a7d4985a.chunk.js"
   },
   {
     "revision": "52bac9f0dd228a133e36f5276c05e981",
-    "url": "/FinKitty/static/js/main.0fc9f487.chunk.js.LICENSE.txt"
+    "url": "/FinKitty/static/js/main.a7d4985a.chunk.js.LICENSE.txt"
   },
   {
     "revision": "7a204f93e420e76c2fe0",
