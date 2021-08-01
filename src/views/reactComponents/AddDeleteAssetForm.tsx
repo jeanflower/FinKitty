@@ -347,34 +347,28 @@ export class AddDeleteAssetForm extends Component<
 
   private goButtons(): React.ReactNode {
     if (this.state.inputting === inputtingAsset) {
-      return (
-        makeButton(
-          'Create new asset (over-writes any existing with the same name)',
-          this.addFromButton,
-          "addAsset",
-          "addAsset",
-          'primary',
-        )
+      return makeButton(
+        'Create new asset (over-writes any existing with the same name)',
+        this.addFromButton,
+        'addAsset',
+        'addAsset',
+        'primary',
       );
     } else if (this.state.inputting === inputtingRevalue) {
-      return (
-        makeButton(
-          'Revalue this asset',
-          this.revalue,
-          "revalueAsset",
-          "revalueAsset",
-          'primary',
-        )
+      return makeButton(
+        'Revalue this asset',
+        this.revalue,
+        'revalueAsset',
+        'revalueAsset',
+        'primary',
       );
     } else if (this.state.inputting === inputtingPension) {
-      return (
-        makeButton(
-          'Create new pension',
-          this.addFromButton,
-          "addPension",
-          "addPension",
-          'primary',
-        )
+      return makeButton(
+        'Create new pension',
+        this.addFromButton,
+        'addPension',
+        'addPension',
+        'primary',
       );
     }
   }
@@ -514,27 +508,23 @@ export class AddDeleteAssetForm extends Component<
           {makeButton(
             'Add new asset mode',
             this.inputAsset,
-            "inputAsset",
-            "inputAsset",
+            'inputAsset',
+            'inputAsset',
             this.state.inputting === inputtingAsset ? 'primary' : 'secondary',
           )}
           {makeButton(
             'Add pension mode',
             this.inputPension,
-            "useDCPInputs",
-            "useDCPInputs",
-            this.state.inputting === inputtingPension
-              ? 'primary'
-              : 'secondary',
+            'useDCPInputs',
+            'useDCPInputs',
+            this.state.inputting === inputtingPension ? 'primary' : 'secondary',
           )}
           {makeButton(
             'Revalue asset mode',
             this.inputRevalue,
-            "revalueAssetInputs",
-            "revalueAssetInputs",
-            this.state.inputting === inputtingRevalue
-              ? 'primary'
-              : 'secondary',
+            'revalueAssetInputs',
+            'revalueAssetInputs',
+            this.state.inputting === inputtingRevalue ? 'primary' : 'secondary',
           )}
         </div>
         <form className="container-fluid" onSubmit={this.addFromForm}>

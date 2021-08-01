@@ -44,7 +44,9 @@ function diffIncomes(it1: Item, it2: Item): string {
     return `${it1.NAME}: value ${i1.VALUE}`;
   }
   if (i1.VALUE_SET !== i2.VALUE_SET) {
-    return `${it1.NAME}: value set date ${new Date(i1.VALUE_SET).toDateString()}`;
+    return `${it1.NAME}: value set date ${new Date(
+      i1.VALUE_SET,
+    ).toDateString()}`;
   }
   if (i1.END !== i2.END) {
     return `${it1.NAME}: end date ${new Date(i1.END).toDateString()}`;
@@ -80,7 +82,9 @@ function diffExpenses(it1: Item, it2: Item): string {
     return `${it1.NAME}: value ${e1.VALUE}`;
   }
   if (e1.VALUE_SET !== e2.VALUE_SET) {
-    return `${it1.NAME}: value set date ${new Date(e1.VALUE_SET).toDateString()}`;
+    return `${it1.NAME}: value set date ${new Date(
+      e1.VALUE_SET,
+    ).toDateString()}`;
   }
   if (e1.END !== e2.END) {
     return `${it1.NAME}: end date ${new Date(e1.END).toDateString()}`;
@@ -154,7 +158,7 @@ function diffTransactions(it1: Item, it2: Item): string {
   }
   if (t1.TO_VALUE !== t2.TO_VALUE) {
     return `${it1.NAME}: to value ${t1.TO_VALUE}`;
-  }  
+  }
   if (t1.FROM !== t2.FROM) {
     return `${it1.NAME}: from ${t1.FROM}`;
   }
@@ -205,7 +209,7 @@ function diffItems(
   // log(`diffItems between ${showObj(is1)} and ${showObj(is2)}`);
 
   const matchedNames: string[] = [];
-  let result: string[] = [];
+  const result: string[] = [];
   is1.forEach(i1 => {
     if (result.length > 0) {
       return;

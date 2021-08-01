@@ -255,24 +255,20 @@ export class AddDeleteDebtForm extends Component<
 
   private goButtons(): React.ReactNode {
     if (this.state.inputting === inputtingDebt) {
-      return (
-        makeButton(
-          'Create new debt (over-writes any existing with the same name)',
-          this.add,
-          "addDebt",
-          "addDebt",
-          'primary',
-        )
+      return makeButton(
+        'Create new debt (over-writes any existing with the same name)',
+        this.add,
+        'addDebt',
+        'addDebt',
+        'primary',
       );
     } else if (this.state.inputting === inputtingRevalue) {
-      return (
-        makeButton(
-          'Revalue this debt',
-          this.revalue,
-          "revalueDebt",
-          "revalueDebt",
-          'primary',          
-        )
+      return makeButton(
+        'Revalue this debt',
+        this.revalue,
+        'revalueDebt',
+        'revalueDebt',
+        'primary',
       );
     }
   }
@@ -285,18 +281,16 @@ export class AddDeleteDebtForm extends Component<
           {makeButton(
             'Add new debt mode',
             this.inputDebt,
-            "inputDebt",
-            "inputDebt",
-            this.state.inputting === inputtingDebt ? 'primary' : 'secondary'
+            'inputDebt',
+            'inputDebt',
+            this.state.inputting === inputtingDebt ? 'primary' : 'secondary',
           )}
           {makeButton(
             'Revalue debt mode',
             this.inputRevalue,
-            "revalueDebtInputs",
-            "revalueDebtInputs",
-            this.state.inputting === inputtingRevalue
-              ? 'primary'
-              : 'secondary',
+            'revalueDebtInputs',
+            'revalueDebtInputs',
+            this.state.inputting === inputtingRevalue ? 'primary' : 'secondary',
           )}
         </div>
         <form className="container-fluid" onSubmit={this.add}>

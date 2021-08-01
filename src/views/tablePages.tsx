@@ -95,7 +95,6 @@ import {
 import { ReactFragment } from 'react';
 import { Accordion, Button, Card } from 'react-bootstrap';
 
-
 export function collapsibleFragment(
   fragment: ReactFragment | undefined,
   title: string,
@@ -729,7 +728,8 @@ function assetsOrDebtsForTable(model: ModelData, isDebt: boolean): any[] {
         CAN_BE_NEGATIVE: makeYesNoFromBoolean(obj.CAN_BE_NEGATIVE),
       };
       return mapResult;
-    }).sort((a: Item, b: Item) => lessThan(b.NAME, a.NAME));
+    })
+    .sort((a: Item, b: Item) => lessThan(b.NAME, a.NAME));
   return addIndices(unindexedResult);
 }
 
@@ -835,7 +835,7 @@ export function transactionsForTable(model: ModelData, type: string) {
       };
       return mapResult;
     });
-  unindexedRows.sort((a:Item, b:Item) => lessThan(b.NAME, a.NAME));
+  unindexedRows.sort((a: Item, b: Item) => lessThan(b.NAME, a.NAME));
   return addIndices(unindexedRows);
 }
 
@@ -1089,34 +1089,32 @@ export function transactionsTableDiv(
   type: string,
   headingText: string,
 ) {
-  return (
-    collapsibleFragment(
-      <div
-        className={`dataGridTransactions${type}`}
-        style={{
-          display: 'block',
+  return collapsibleFragment(
+    <div
+      className={`dataGridTransactions${type}`}
+      style={{
+        display: 'block',
+      }}
+    >
+      <DataGrid
+        handleGridRowsUpdated={function() {
+          return handleTransactionGridRowsUpdated(
+            model,
+            showAlert,
+            type,
+            arguments,
+          );
         }}
-      >
-        <DataGrid
-          handleGridRowsUpdated={function() {
-            return handleTransactionGridRowsUpdated(
-              model,
-              showAlert,
-              type,
-              arguments,
-            );
-          }}
-          rows={contents}
-          columns={makeTransactionCols(model, type)}
-          deleteFunction={(name: string) => {
-            const completeName = getTransactionName(name, type);
-            return deleteTransaction(completeName);
-          }}
-          triggers={model.triggers}
-        />
-      </div>,
+        rows={contents}
+        columns={makeTransactionCols(model, type)}
+        deleteFunction={(name: string) => {
+          const completeName = getTransactionName(name, type);
+          return deleteTransaction(completeName);
+        }}
+        triggers={model.triggers}
+      />
+    </div>,
     headingText,
-    )
   );
 }
 
@@ -1184,13 +1182,15 @@ export function assetsDivWithHeadings(
 }
 
 function triggersForTable(model: ModelData) {
-  const unindexedResult = model.triggers.map((obj: Trigger) => {
-    const mapResult = {
-      DATE: obj.DATE,
-      NAME: obj.NAME,
-    };
-    return mapResult;
-  }).sort((a: Item, b: Item) => lessThan(a.NAME, b.NAME));
+  const unindexedResult = model.triggers
+    .map((obj: Trigger) => {
+      const mapResult = {
+        DATE: obj.DATE,
+        NAME: obj.NAME,
+      };
+      return mapResult;
+    })
+    .sort((a: Item, b: Item) => lessThan(a.NAME, b.NAME));
   return addIndices(unindexedResult);
 }
 
@@ -1258,11 +1258,9 @@ export function triggersTableDivWithHeading(
   if (trigData.length === 0) {
     return;
   }
-  return (
-    collapsibleFragment(
-      triggersTableDiv(model, trigData, showAlert),
-      `Important dates`,
-    )
+  return collapsibleFragment(
+    triggersTableDiv(model, trigData, showAlert),
+    `Important dates`,
   );
 }
 
@@ -1422,9 +1420,9 @@ export function incomesTableDivWithHeading(
     return;
   }
   return collapsibleFragment(
-      incomesTableDiv(model, incData, showAlert),
-      `Income definitions`,
-    );
+    incomesTableDiv(model, incData, showAlert),
+    `Income definitions`,
+  );
 }
 
 function expensesForTable(model: ModelData) {
@@ -1667,7 +1665,7 @@ function customSettingsTable(
         },
       ]}
       triggers={model.triggers}
-      />
+    />
   );
 }
 function adjustSettingsTable(
@@ -1714,7 +1712,7 @@ function adjustSettingsTable(
         },
       ]}
       triggers={model.triggers}
-      />
+    />
   );
 }
 
@@ -1730,14 +1728,12 @@ function settingsTables(
     return;
   }
 
-  return (
-    collapsibleFragment(
-      <>
+  return collapsibleFragment(
+    <>
       {customSettingsTable(model, constSettings, showAlert)}
       {adjustSettingsTable(model, adjustSettings, showAlert)}
-      </>,
-      `Other settings affecting the model`,
-    )
+    </>,
+    `Other settings affecting the model`,
   );
 }
 
@@ -1753,15 +1749,15 @@ export function settingsTableDiv(
         display: 'block',
       }}
     >
-    {collapsibleFragment(
-      <DataGrid
-        deleteFunction={deleteSetting}
-        handleGridRowsUpdated={function() {
-          return handleSettingGridRowsUpdated(model, showAlert, arguments);
-        }}
-        rows={settingsForTable(model, viewSettings, viewType)}
-        columns={[
-          /*
+      {collapsibleFragment(
+        <DataGrid
+          deleteFunction={deleteSetting}
+          handleGridRowsUpdated={function() {
+            return handleSettingGridRowsUpdated(model, showAlert, arguments);
+          }}
+          rows={settingsForTable(model, viewSettings, viewType)}
+          columns={[
+            /*
           {
             ...defaultColumn,
             key: 'index',
@@ -1769,36 +1765,38 @@ export function settingsTableDiv(
             formatter: <SimpleFormatter name="name" value="unset" />,
           },
           */
-          {
-            ...defaultColumn,
-            key: 'NAME',
-            name: 'name',
-            formatter: <SimpleFormatter name="name" value="unset" />,
-          },
-          {
-            ...defaultColumn,
-            key: 'VALUE',
-            name: 'defining value',
-            formatter: <SimpleFormatter name="defining value" value="unset" />,
-          },
-          {
-            ...defaultColumn,
-            key: 'HINT',
-            name: 'hint',
-            formatter: <SimpleFormatter name="hint" value="unset" />,
-          },
-        ]}
-        triggers={model.triggers}
+            {
+              ...defaultColumn,
+              key: 'NAME',
+              name: 'name',
+              formatter: <SimpleFormatter name="name" value="unset" />,
+            },
+            {
+              ...defaultColumn,
+              key: 'VALUE',
+              name: 'defining value',
+              formatter: (
+                <SimpleFormatter name="defining value" value="unset" />
+              ),
+            },
+            {
+              ...defaultColumn,
+              key: 'HINT',
+              name: 'hint',
+              formatter: <SimpleFormatter name="hint" value="unset" />,
+            },
+          ]}
+          triggers={model.triggers}
         />,
-      `Settings about the view of the model`,
-    )}
-    {settingsTables(model, viewSettings, showAlert)}
-    {transactionFilteredTable(
-      model,
-      showAlert,
-      revalueSetting,
-      'Revalue settings',
-    )}
-  </div>
-);
+        `Settings about the view of the model`,
+      )}
+      {settingsTables(model, viewSettings, showAlert)}
+      {transactionFilteredTable(
+        model,
+        showAlert,
+        revalueSetting,
+        'Revalue settings',
+      )}
+    </div>
+  );
 }

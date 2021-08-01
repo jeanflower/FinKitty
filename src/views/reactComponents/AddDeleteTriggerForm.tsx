@@ -106,8 +106,8 @@ export class AddDeleteTriggerForm extends Component<
             {makeButton(
               'Create new important date (over-writes any existing with the same name)',
               this.add,
-              "addTrigger",
-              "addTrigger",
+              'addTrigger',
+              'addTrigger',
               'primary',
             )}
           </div>{' '}

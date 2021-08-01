@@ -48,18 +48,18 @@ export function loginPage(loginWithRedirect: any, loginForTesting: any) {
             playpen
             <br />
             {makeButton(
-              "Login or create an account",
+              'Login or create an account',
               loginWithRedirect,
-              "buttonLogin",
-              "buttonLogin",
-              "secondary",
+              'buttonLogin',
+              'buttonLogin',
+              'secondary',
             )}
             {makeButton(
-              "Shared playpen (no login)",
+              'Shared playpen (no login)',
               loginForTesting,
-              "buttonTestLogin",
-              "buttonTestLogin",
-              "secondary",
+              'buttonTestLogin',
+              'buttonTestLogin',
+              'secondary',
             )}
           </div>
           <div className="alert alert-block">

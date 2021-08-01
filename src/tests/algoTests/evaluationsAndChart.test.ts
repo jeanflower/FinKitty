@@ -87,7 +87,6 @@ import {
 } from '../../models/modelUtils';
 import {
   makeCGTTag,
-  makeDateFromString,
   makeIncomeTaxTag,
   makeNationalInsuranceTag,
   makeNetGainTag,

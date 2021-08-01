@@ -100,7 +100,10 @@ import {
   submitSettingLSM,
 } from './database/loadSaveModel';
 import DataGrid from './views/reactComponents/DataGrid';
-import { SimpleFormatter, SettingFormatter } from './views/reactComponents/NameFormatter';
+import {
+  SimpleFormatter,
+  SettingFormatter,
+} from './views/reactComponents/NameFormatter';
 import { AddDeleteSettingForm } from './views/reactComponents/AddDeleteSettingForm';
 import { ReplaceWithJSONForm } from './views/reactComponents/ReplaceWithJSONForm';
 import { CreateModelForm } from './views/reactComponents/NewModelForm';
@@ -1209,19 +1212,18 @@ export class AppContent extends Component<AppProps, AppState> {
       return <div role="group">Loading models...</div>;
     }
     // log(`models = ${models}`)
-    const buttons = modelNames.map(model =>
-      { return makeButton(
-          model,
-          (e: React.MouseEvent<HTMLButtonElement>) => {
-            e.persist();
-            actionOnSelect(model);
-          },
-          model,
-          `btn-${idKey}-${model}`,
-          idKey !== 'del' && modelName === model ? 'primary' : 'secondary'
-        );
-      }
-    );
+    const buttons = modelNames.map(model => {
+      return makeButton(
+        model,
+        (e: React.MouseEvent<HTMLButtonElement>) => {
+          e.persist();
+          actionOnSelect(model);
+        },
+        model,
+        `btn-${idKey}-${model}`,
+        idKey !== 'del' && modelName === model ? 'primary' : 'secondary',
+      );
+    });
     return (
       <div className="ml-3">
         Select an existing model:
@@ -1355,7 +1357,7 @@ export class AppContent extends Component<AppProps, AppState> {
           <div className="col-sm mb-4">
             <div className="ml-3">
               {makeButton(
-                "Create a new model",
+                'Create a new model',
                 async () => {
                   const newNameFromUser = this.getNewName();
                   if (!newNameFromUser.gotNameOK) {
@@ -1366,9 +1368,9 @@ export class AppContent extends Component<AppProps, AppState> {
                     toggle(overview);
                   }
                 },
-                "startNewModel",
-                "startNewModel",
-                "secondary",
+                'startNewModel',
+                'startNewModel',
+                'secondary',
               )}
             </div>
             <br />
@@ -1398,13 +1400,13 @@ export class AppContent extends Component<AppProps, AppState> {
             <br></br>
             <div className="btn-group ml-3" role="group">
               {makeButton(
-                "Delete model",
+                'Delete model',
                 async () => {
                   this.deleteModel(modelName);
                 },
                 `btn-delete`,
                 `btn-delete`,
-                "secondary",
+                'secondary',
               )}
             </div>
             <br></br>
@@ -1413,7 +1415,7 @@ export class AppContent extends Component<AppProps, AppState> {
               Developer tools:
               <br />
               {makeButton(
-                "Check model",
+                'Check model',
                 async () => {
                   const response = checkModelData(
                     reactAppComponent.state.modelData,
@@ -1424,10 +1426,10 @@ export class AppContent extends Component<AppProps, AppState> {
                 },
                 `btn-check`,
                 `btn-check`,
-                "secondary",
+                'secondary',
               )}
               {makeButton(
-                "Copy model as JSON to clipboard",
+                'Copy model as JSON to clipboard',
                 () => {
                   const text = JSON.stringify(this.state.modelData);
                   navigator.clipboard.writeText(text).then(
@@ -1447,10 +1449,10 @@ export class AppContent extends Component<AppProps, AppState> {
                 },
                 `btn-log`,
                 `btn-log`,
-                "secondary",
+                'secondary',
               )}
               {makeButton(
-                "Test encrypted JSON",
+                'Test encrypted JSON',
                 () => {
                   const inputEnc = prompt('Enter encrypted JSON');
                   if (inputEnc === null) {
@@ -1479,12 +1481,12 @@ export class AppContent extends Component<AppProps, AppState> {
                 },
                 `btn-JSON-encrypt-replace`,
                 `btn-JSON-encrypt-replace`,
-                "secondary",
+                'secondary',
               )}
               {makeButton(
                 checkModelBeforeChange
-                ? 'Suppress check-before-change'
-                : 'Enable check-before-change',
+                  ? 'Suppress check-before-change'
+                  : 'Enable check-before-change',
                 () => {
                   checkModelBeforeChange = !checkModelBeforeChange;
                   refreshData(
@@ -1494,26 +1496,26 @@ export class AppContent extends Component<AppProps, AppState> {
                 },
                 `btn-toggle-check-edited-model`,
                 `btn-toggle-check-edited-model`,
-                "secondary",
+                'secondary',
               )}
               {makeButton(
-                  checkBeforeOverwritingExistingData
+                checkBeforeOverwritingExistingData
                   ? 'Suppress check-before-overwrite'
                   : 'Enable check-before-overwrite',
-                  () => {
-                    log(`toggle checkBeforeOverwritingExistingData`);
-                    checkBeforeOverwritingExistingData = !checkBeforeOverwritingExistingData;
-                    refreshData(
-                      false, // refreshModel = true,
-                      false, // refreshChart = true,
-                    );
-                  },
-                  `btn-toggle-check-overwrite`,
-                  `btn-toggle-check-overwrite`,
-                  "secondary",
+                () => {
+                  log(`toggle checkBeforeOverwritingExistingData`);
+                  checkBeforeOverwritingExistingData = !checkBeforeOverwritingExistingData;
+                  refreshData(
+                    false, // refreshModel = true,
+                    false, // refreshChart = true,
+                  );
+                },
+                `btn-toggle-check-overwrite`,
+                `btn-toggle-check-overwrite`,
+                'secondary',
               )}
               {makeButton(
-                "Force delete model",
+                'Force delete model',
                 () => {
                   const name = prompt('Force delete model name');
                   if (name === null) {
@@ -1523,7 +1525,7 @@ export class AppContent extends Component<AppProps, AppState> {
                 },
                 `btn-force-delete`,
                 `btn-force-delete`,
-                "secondary",
+                'secondary',
               )}
             </div>
             <ReplaceWithJSONForm
@@ -1546,15 +1548,17 @@ export class AppContent extends Component<AppProps, AppState> {
       return;
     }
     const today = getTodaysDate(model);
-    const rows = addIndices(Array.from(todaysValues)
-    .map(([key, value]) => {
-      // log(`key[0] = ${key[0]}, key[1] = ${key[1]}`);
-      return {
-        NAME: key,
-        VALUE: `${value.settingVal}`,
-      };
-    })
-    .sort((a: Item, b: Item) => lessThan(b.NAME, a.NAME)));
+    const rows = addIndices(
+      Array.from(todaysValues)
+        .map(([key, value]) => {
+          // log(`key[0] = ${key[0]}, key[1] = ${key[1]}`);
+          return {
+            NAME: key,
+            VALUE: `${value.settingVal}`,
+          };
+        })
+        .sort((a: Item, b: Item) => lessThan(b.NAME, a.NAME)),
+    );
     // log(`display ${showObj(rows)}`);
     return collapsibleFragment(
       <DataGrid
@@ -1589,7 +1593,7 @@ export class AppContent extends Component<AppProps, AppState> {
           },
         ]}
         triggers={model.triggers}
-        />,
+      />,
       `Settings values at ${today.toDateString()}`,
     );
   }
@@ -1613,17 +1617,17 @@ export class AppContent extends Component<AppProps, AppState> {
           <p />
 
           {collapsibleFragment(
-          <div className="addNewSetting">
-            <AddDeleteSettingForm
-              submitSettingFunction={submitNewSetting}
-              checkTransactionFunction={checkTransaction}
-              submitTransactionFunction={submitTransaction}
-              submitTriggerFunction={submitTrigger}
-              model={this.state.modelData}
-              viewSettings={this.state.viewState}
-              showAlert={showAlert}
-            />
-            {/*
+            <div className="addNewSetting">
+              <AddDeleteSettingForm
+                submitSettingFunction={submitNewSetting}
+                checkTransactionFunction={checkTransaction}
+                submitTransactionFunction={submitTransaction}
+                submitTriggerFunction={submitTrigger}
+                model={this.state.modelData}
+                viewSettings={this.state.viewState}
+                showAlert={showAlert}
+              />
+              {/*
             // adding this wierdly makes tooltips work!
             <AddDeleteTransactionForm
               checkFunction={checkTransaction}
@@ -1633,8 +1637,8 @@ export class AppContent extends Component<AppProps, AppState> {
               model={this.state.modelData}
               showAlert={showAlert}
             />*/}
-          </div>,
-          `Add setting`,
+            </div>,
+            `Add setting`,
           )}
         </fieldset>
       </div>
@@ -1654,16 +1658,16 @@ export class AppContent extends Component<AppProps, AppState> {
         {triggersTableDivWithHeading(this.state.modelData, showAlert)}
         <p />
         {collapsibleFragment(
-        <div className="addNewTrigger">
-          <AddDeleteTriggerForm
-            checkFunction={checkTrigger}
-            submitFunction={submitTrigger}
-            deleteFunction={deleteTrigger}
-            model={this.state.modelData}
-            showAlert={showAlert}
-          />
-        </div>,
-        `Add an important date`,
+          <div className="addNewTrigger">
+            <AddDeleteTriggerForm
+              checkFunction={checkTrigger}
+              submitFunction={submitTrigger}
+              deleteFunction={deleteTrigger}
+              model={this.state.modelData}
+              showAlert={showAlert}
+            />
+          </div>,
+          `Add an important date`,
         )}
       </div>
     );
@@ -1709,16 +1713,16 @@ export class AppContent extends Component<AppProps, AppState> {
   private rhsTopButtonList() {
     const buttons: JSX.Element[] = [];
     buttons.push(
-      (makeButton(
-        "Log out",
+      makeButton(
+        'Log out',
         (event: React.MouseEvent<HTMLButtonElement>) => {
           event.persist();
           this.props.logOutAction();
         },
-        "Log out",
+        'Log out',
         `btn-LogOut`,
-        "primary",
-      ))
+        'primary',
+      ),
     );
     return buttons;
   }
@@ -1752,7 +1756,7 @@ export class AppContent extends Component<AppProps, AppState> {
       const display = viewValue.display;
 
       buttons.push(
-        (makeButton(
+        makeButton(
           view.lc,
           (event: React.MouseEvent<HTMLButtonElement>) => {
             event.persist();
@@ -1761,7 +1765,7 @@ export class AppContent extends Component<AppProps, AppState> {
           view.lc,
           `btn-${view.lc}`,
           display ? 'secondary-on' : 'secondary',
-        ))
+        ),
       );
       viewIterator = it.next();
     }
@@ -1787,52 +1791,50 @@ export class AppContent extends Component<AppProps, AppState> {
       buttonTitle = `Undo(${numUndosAvailable})`;
     }
     let undoTooltip = '';
-    if(this.state.modelData.undoModel !== undefined){
-      const diffs = diffModels(this.state.modelData, this.state.modelData.undoModel);
-      if(diffs.length > 0){
+    if (this.state.modelData.undoModel !== undefined) {
+      const diffs = diffModels(
+        this.state.modelData,
+        this.state.modelData.undoModel,
+      );
+      if (diffs.length > 0) {
         undoTooltip = diffs[0];
       }
     }
 
-    const b = (
-      makeButton(
-        buttonTitle,
-        async (e: React.MouseEvent<HTMLButtonElement>) => {
-          e.persist();
-          if (await revertToUndoModel(this.state.modelData)) {
-            await saveModelLSM(userID, modelName, this.state.modelData);
-            refreshData(
-              true, // refreshModel = true,
-              true, // refreshChart = true,
-            );
-          }
-        },
-        `btn-undo-model`,
-        `btn-undo-model`,
-        this.state.modelData.undoModel !== undefined
-          ? 'primary'
-          : 'primary-off',
-      ))
+    const b = makeButton(
+      buttonTitle,
+      async (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.persist();
+        if (await revertToUndoModel(this.state.modelData)) {
+          await saveModelLSM(userID, modelName, this.state.modelData);
+          refreshData(
+            true, // refreshModel = true,
+            true, // refreshChart = true,
+          );
+        }
+      },
+      `btn-undo-model`,
+      `btn-undo-model`,
+      this.state.modelData.undoModel !== undefined ? 'primary' : 'primary-off',
+    );
 
-    if(undoTooltip === ''){
+    if (undoTooltip === '') {
       return b;
     } else {
       return (
         <OverlayTrigger
-          key='undoOverlay'
-          overlay={(props) => (
-            <Tooltip {...props} id='undoTooltip'>
+          key="undoOverlay"
+          overlay={props => (
+            <Tooltip {...props} id="undoTooltip">
               {undoTooltip}
             </Tooltip>
           )}
           placement="bottom"
         >
-        <div>
-        {b}
-        </div>
+          <div>{b}</div>
         </OverlayTrigger>
       );
-          }
+    }
   }
   private makeRedoButton() {
     let numRedosAvailable = 0;
@@ -1846,50 +1848,47 @@ export class AppContent extends Component<AppProps, AppState> {
       buttonTitle = `Redo(${numRedosAvailable})`;
     }
     let redoTooltip = '';
-    if(this.state.modelData.redoModel !== undefined){
-      const diffs = diffModels(this.state.modelData.redoModel, this.state.modelData);
-      if(diffs.length > 0){
+    if (this.state.modelData.redoModel !== undefined) {
+      const diffs = diffModels(
+        this.state.modelData.redoModel,
+        this.state.modelData,
+      );
+      if (diffs.length > 0) {
         redoTooltip = diffs[0];
       }
     }
 
-    const b = (
-      makeButton(
-        buttonTitle,
-        async (e: React.MouseEvent<HTMLButtonElement>) => {
-          e.persist();
-          if (await applyRedoToModel(this.state.modelData)) {
-            await saveModelLSM(userID, modelName, this.state.modelData);
-            refreshData(
-              true, // refreshModel = true,
-              true, // refreshChart = true,
-            );
-          }
-        },
-        `btn-redo-model`,
-        `btn-redo-model`,
-        this.state.modelData.redoModel !== undefined
-          ? 'primary'
-          : 'primary-off'
-      ) 
+    const b = makeButton(
+      buttonTitle,
+      async (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.persist();
+        if (await applyRedoToModel(this.state.modelData)) {
+          await saveModelLSM(userID, modelName, this.state.modelData);
+          refreshData(
+            true, // refreshModel = true,
+            true, // refreshChart = true,
+          );
+        }
+      },
+      `btn-redo-model`,
+      `btn-redo-model`,
+      this.state.modelData.redoModel !== undefined ? 'primary' : 'primary-off',
     );
 
-    if(redoTooltip === ''){
+    if (redoTooltip === '') {
       return b;
     } else {
       return (
         <OverlayTrigger
-          key='redoOverlay'
-          overlay={(props) => (
-            <Tooltip {...props} id='redoTooltip'>
+          key="redoOverlay"
+          overlay={props => (
+            <Tooltip {...props} id="redoTooltip">
               {redoTooltip}
             </Tooltip>
           )}
           placement="bottom"
         >
-        <div>
-        {b}
-        </div>
+          <div>{b}</div>
         </OverlayTrigger>
       );
     }
@@ -1897,21 +1896,19 @@ export class AppContent extends Component<AppProps, AppState> {
 
   private makeSaveButton() {
     // log(`isDirty = ${isDirty}`);
-    return (
-      makeButton(
-        'Save model',
-        async (e: React.MouseEvent<HTMLButtonElement>) => {
-          e.persist();
-          await saveModelToDBLSM(userID, modelName, this.state.modelData);
-          refreshData(
-            true, // refreshModel = true,
-            true, // refreshChart = true,
-          );
-        },
-        `btn-save-model`,
-        `btn-save-model`,
-        isDirty ? 'primary' : 'primary-off',
-      )
+    return makeButton(
+      'Save model',
+      async (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.persist();
+        await saveModelToDBLSM(userID, modelName, this.state.modelData);
+        refreshData(
+          true, // refreshModel = true,
+          true, // refreshChart = true,
+        );
+      },
+      `btn-save-model`,
+      `btn-save-model`,
+      isDirty ? 'primary' : 'primary-off',
     );
   }
 
@@ -1945,7 +1942,7 @@ export class AppContent extends Component<AppProps, AppState> {
           `btn-clear-alert`,
           `btn-clear-alert`,
           'secondary',
-        )
+        ),
       );
     }
     return result;

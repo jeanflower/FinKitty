@@ -23,7 +23,7 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
 
   public constructor(props: DataGridProps) {
     super(props);
-    this.sortedIndices = props.rows.map((row)=>{
+    this.sortedIndices = props.rows.map(row => {
       return row['index'];
     });
     this.state = {
@@ -32,7 +32,7 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
     };
     this.handleSort(this.state.colSortIndex, 'NONE');
   }
-/*
+  /*
   public rowGetterOld(i: number) {
     if (printDebug()) {
       log('in rowgetter, this.props.rows = ' + this.props.rows);
@@ -126,7 +126,7 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
     // return oldRow;
     */
 
-    return this.props.rows.filter((row)=>{
+    return this.props.rows.filter(row => {
       return row['index'] === this.sortedIndices[i];
     })[0];
   }
@@ -137,106 +137,119 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
   private handleSort(
     sortColumn: string,
     sortDirection: 'ASC' | 'DESC' | 'NONE',
-  ){
+  ) {
     //log(`this.props.rows.slice() indices = ${showObj(this.props.rows.slice().map((row)=>{
     //  return row['index'];
     //}))}`);
 
     if (sortDirection === 'NONE') {
-      this.sortedIndices = this.props.rows.slice().sort((a, b) => {
-        const ai = a['index'];
-        const bi = b['index'];
-        return (ai < bi) ? 1 : ((ai > bi) ? -1 : 0);
-      }).map((row)=>{
-        return row['index'];
-      });
+      this.sortedIndices = this.props.rows
+        .slice()
+        .sort((a, b) => {
+          const ai = a['index'];
+          const bi = b['index'];
+          return ai < bi ? 1 : ai > bi ? -1 : 0;
+        })
+        .map(row => {
+          return row['index'];
+        });
       // log(`unsortedIndices = ${showObj(this.sortedIndices)}`);
       return;
     }
 
-    this.sortedIndices = this.props.rows.slice().sort((a, b) => {
-      // log(`sortColumn = ${sortColumn}`);
-      let aVal = a[sortColumn];
-      let bVal = b[sortColumn];
-      if (printDebug()) {
-        log(`aVal = ${showObj(aVal)}, bVal = ${showObj(bVal)}`);
-      }
-      if (aVal === undefined || bVal === undefined) {
-        aVal = a[this.props.columns[0]];
-        bVal = b[this.props.columns[0]];
-      }
-      if (
-        sortColumn === 'DATE' ||
-        sortColumn === 'START' ||
-        sortColumn === 'END' ||
-        sortColumn === 'VALUE_SET' 
-      ) {
-        // log(`sortColumn is time-based`);
-        const aTimeVal = getTriggerDate(aVal, this.props.triggers).getTime();
-        const bTimeVal = getTriggerDate(bVal, this.props.triggers).getTime();
-        // this puts trigers seperate from dates
-        // const aTimeVal = new Date(aVal).getTime();
-        // const bTimeVal = new Date(bVal).getTime();
-        // log(`aTimeVal = ${aTimeVal}, bTimeVal = ${bTimeVal}`);
-        const aIsDate = !Number.isNaN(aTimeVal);
-        const bIsDate = !Number.isNaN(bTimeVal);
-        // log(`aIsDate = ${aIsDate}, bIsDate = ${bIsDate}`);
-        if (aIsDate && !bIsDate) {
-          // log('return 1');
-          return 1;
-        } else if (!aIsDate && bIsDate) {
-          // log('return -1');
-          return -1;
-        } else if (aIsDate && bIsDate) {
-          aVal = aTimeVal;
-          bVal = bTimeVal;
+    this.sortedIndices = this.props.rows
+      .slice()
+      .sort((a, b) => {
+        // log(`sortColumn = ${sortColumn}`);
+        let aVal = a[sortColumn];
+        let bVal = b[sortColumn];
+        if (printDebug()) {
+          log(`aVal = ${showObj(aVal)}, bVal = ${showObj(bVal)}`);
         }
-        //log(`aVal = ${showObj(aVal)}, bVal = ${showObj(bVal)}`);
-      } else if (
-        sortColumn === 'VALUE' ||
-        sortColumn === 'FROM_VALUE' ||
-        sortColumn === 'TO_VALUE'
-      ) {
-        if(aVal.endsWith('%') && !bVal.endsWith('%')){
-          return (this.state.sortDirection === 'ASC') ? +1 : -1;
-        } else if(!aVal.endsWith('%') && bVal.endsWith('%')){
-          return (this.state.sortDirection === 'ASC') ? -1 : +1;
+        if (aVal === undefined || bVal === undefined) {
+          aVal = a[this.props.columns[0]];
+          bVal = b[this.props.columns[0]];
         }
-        const paVal = parseFloat(aVal);
-        const pbVal = parseFloat(bVal);
-        if(Number.isNaN(paVal) && !Number.isNaN(pbVal)){
-          return (this.state.sortDirection === 'ASC') ? 1 : -1;
-        } if(!Number.isNaN(paVal) && Number.isNaN(pbVal)){
-          return (this.state.sortDirection === 'ASC') ? -1 : +1;
-        } else if(!Number.isNaN(paVal) && !Number.isNaN(pbVal)){
-          return (paVal < pbVal) ? (
-            (this.state.sortDirection === 'ASC') ? +1 : -1) : ((paVal > pbVal) ? (
-            (this.state.sortDirection === 'ASC') ? -1 : +1) : 0);
-        } 
-      } else if (sortColumn === 'index') {
-      } else if (aVal !== undefined && bVal !== undefined) {
-        aVal = aVal.toUpperCase();
-        bVal = bVal.toUpperCase();
-      }
-      // log(`aVal = ${aVal}, bVal = ${bVal}`);
-      if (aVal < bVal) {
-        if (this.state.sortDirection === 'ASC') {
-          return +1;
+        if (
+          sortColumn === 'DATE' ||
+          sortColumn === 'START' ||
+          sortColumn === 'END' ||
+          sortColumn === 'VALUE_SET'
+        ) {
+          // log(`sortColumn is time-based`);
+          const aTimeVal = getTriggerDate(aVal, this.props.triggers).getTime();
+          const bTimeVal = getTriggerDate(bVal, this.props.triggers).getTime();
+          // this puts trigers seperate from dates
+          // const aTimeVal = new Date(aVal).getTime();
+          // const bTimeVal = new Date(bVal).getTime();
+          // log(`aTimeVal = ${aTimeVal}, bTimeVal = ${bTimeVal}`);
+          const aIsDate = !Number.isNaN(aTimeVal);
+          const bIsDate = !Number.isNaN(bTimeVal);
+          // log(`aIsDate = ${aIsDate}, bIsDate = ${bIsDate}`);
+          if (aIsDate && !bIsDate) {
+            // log('return 1');
+            return 1;
+          } else if (!aIsDate && bIsDate) {
+            // log('return -1');
+            return -1;
+          } else if (aIsDate && bIsDate) {
+            aVal = aTimeVal;
+            bVal = bTimeVal;
+          }
+          //log(`aVal = ${showObj(aVal)}, bVal = ${showObj(bVal)}`);
+        } else if (
+          sortColumn === 'VALUE' ||
+          sortColumn === 'FROM_VALUE' ||
+          sortColumn === 'TO_VALUE'
+        ) {
+          if (aVal.endsWith('%') && !bVal.endsWith('%')) {
+            return this.state.sortDirection === 'ASC' ? +1 : -1;
+          } else if (!aVal.endsWith('%') && bVal.endsWith('%')) {
+            return this.state.sortDirection === 'ASC' ? -1 : +1;
+          }
+          const paVal = parseFloat(aVal);
+          const pbVal = parseFloat(bVal);
+          if (Number.isNaN(paVal) && !Number.isNaN(pbVal)) {
+            return this.state.sortDirection === 'ASC' ? 1 : -1;
+          }
+          if (!Number.isNaN(paVal) && Number.isNaN(pbVal)) {
+            return this.state.sortDirection === 'ASC' ? -1 : +1;
+          } else if (!Number.isNaN(paVal) && !Number.isNaN(pbVal)) {
+            return paVal < pbVal
+              ? this.state.sortDirection === 'ASC'
+                ? +1
+                : -1
+              : paVal > pbVal
+              ? this.state.sortDirection === 'ASC'
+                ? -1
+                : +1
+              : 0;
+          }
+        } else if (sortColumn === 'index') {
+        } else if (aVal !== undefined && bVal !== undefined) {
+          aVal = aVal.toUpperCase();
+          bVal = bVal.toUpperCase();
+        }
+        // log(`aVal = ${aVal}, bVal = ${bVal}`);
+        if (aVal < bVal) {
+          if (this.state.sortDirection === 'ASC') {
+            return +1;
+          } else {
+            return -1;
+          }
+        } else if (aVal > bVal) {
+          if (this.state.sortDirection === 'ASC') {
+            return -1;
+          } else {
+            return +1;
+          }
         } else {
-          return -1;
+          return 0;
         }
-      } else if (aVal > bVal) {
-        if (this.state.sortDirection === 'ASC') {
-          return -1;
-        } else {
-          return +1;
-        }
-      } else {
-        return 0;
-      }
-    }).map((row)=>{
-      return row['index'];
-    });
+      })
+      .map(row => {
+        return row['index'];
+      });
   }
 
   private sortHandler(
@@ -257,12 +270,15 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
   private getCellActions(column: ReactDataGrid.Column<any>, row: any) {
     // log(`get cell actions?`);
     if (column.key === 'NAME' && this.props.deleteFunction !== undefined) {
-      // log(`add glyph`);      
+      // log(`add glyph`);
       return [
         {
           icon: 'fa fa-trash',
           callback: () => {
-            if (this.props.deleteFunction !== undefined && window.confirm(`delete data for ${row['NAME']} - you sure?`)) {
+            if (
+              this.props.deleteFunction !== undefined &&
+              window.confirm(`delete data for ${row['NAME']} - you sure?`)
+            ) {
               this.props.deleteFunction(row['NAME']);
             }
           },

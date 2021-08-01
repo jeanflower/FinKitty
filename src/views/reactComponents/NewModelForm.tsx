@@ -1,10 +1,12 @@
-import React, { Component, FormEvent } from 'react';
+import React from 'react';
+import { Component, FormEvent } from 'react';
 
 import { Input } from './Input';
 import { ModelData } from '../../types/interfaces';
 import { makeButton } from './Button';
 import { log, printDebug } from '../../utils';
 import { minimalModel } from '../../models/exampleModels';
+import dateFormat from 'dateformat';
 
 interface CreateModelFormState {
   newName: string;
@@ -62,7 +64,7 @@ export class CreateModelForm extends Component<
         },
         `btn-create-${x.name}-example`,
         `btn-create-${x.name}-example`,
-        "secondary",
+        'secondary',
       );
     });
     return <div role="group">{buttons}</div>;
@@ -87,7 +89,7 @@ export class CreateModelForm extends Component<
           onChange={this.handleValueChange}
         />
         {makeButton(
-          "New model",
+          'New model',
           async () => {
             if (printDebug()) {
               log(`action on button for new model`);
@@ -96,21 +98,21 @@ export class CreateModelForm extends Component<
           },
           `btn-createMinimalModel`,
           `btn-createMinimalModel`,
-          "secondary",
+          'secondary',
         )}
         {makeButton(
-          "Make backup of model",
+          'Make backup of model',
           this.backupModel,
           `btn-backup`,
           `btn-backup`,
-          "secondary",
+          'secondary',
         )}
         {makeButton(
-          "Clone model",
+          'Clone model',
           this.clonePropsModel,
           `btn-clone`,
           `btn-clone`,
-          "secondary",
+          'secondary',
         )}
         {this.exampleButtonList()}
       </form>
@@ -126,7 +128,6 @@ export class CreateModelForm extends Component<
   private async backupModel(e: FormEvent<Element>) {
     e.preventDefault();
     const d = new Date();
-    var dateFormat = require("dateformat");
     await this.props.saveModel(
       this.props.userID,
       this.props.currentModelName +

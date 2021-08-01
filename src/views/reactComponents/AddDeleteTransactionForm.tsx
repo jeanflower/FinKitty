@@ -316,8 +316,8 @@ export class AddDeleteTransactionForm extends Component<
         {makeButton(
           'Create new transaction (over-writes any existing with the same name)',
           this.add,
-          "addTransaction",
-          "addTransaction",
+          'addTransaction',
+          'addTransaction',
           'primary',
         )}
       </form>

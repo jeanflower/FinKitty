@@ -348,7 +348,7 @@ e.g.
     }
     if (this.kvPairs.get(context)) {
       this.kvPairs.set(context, value);
-      if(context === viewFrequency &&  value !== annually){
+      if (context === viewFrequency && value !== annually) {
         log(`migrateViewSettingString seting non-annual frequency`);
       }
       return true;
@@ -963,7 +963,10 @@ function ensureDateValueMapsExist(
 
 function getSettingsValues(viewSettings: ViewSettings) {
   const detail: string = viewSettings.getViewSetting(viewDetail, fine);
-  const frequency: string = viewSettings.getViewSetting(viewFrequency, annually);
+  const frequency: string = viewSettings.getViewSetting(
+    viewFrequency,
+    annually,
+  );
   //if(frequency !== annually){
   //  log(`viewSettings gave monthly viewSetting`);
   //}

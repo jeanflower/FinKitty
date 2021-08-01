@@ -32,29 +32,28 @@ function addToMap(name: string, val: AssetVal, myMap: Map<string, AssetVal>) {
   }
 }
 
-function makeDataGrid(
-  myMap: Map<string, AssetVal>,
-  model: ModelData,
-) {
+function makeDataGrid(myMap: Map<string, AssetVal>, model: ModelData) {
   return (
     <DataGrid
       deleteFunction={undefined}
       handleGridRowsUpdated={function() {
         return false;
       }}
-      rows={addIndices(Array.from(myMap.entries())
-        .filter(key => {
-          return key[1].assetVal !== 0.0;
-        })
-        .map(key => {
-          // log(`key[0] = ${key[0]}, key[1] = ${key[1]}`);
-          return {
-            NAME: key[0],
-            VALUE: `${key[1].assetVal}`,
-            CATEGORY: `${key[1].category}`,
-          };
-        })
-        .sort((a: Item, b: Item) => lessThan(b.NAME, a.NAME)))}
+      rows={addIndices(
+        Array.from(myMap.entries())
+          .filter(key => {
+            return key[1].assetVal !== 0.0;
+          })
+          .map(key => {
+            // log(`key[0] = ${key[0]}, key[1] = ${key[1]}`);
+            return {
+              NAME: key[0],
+              VALUE: `${key[1].assetVal}`,
+              CATEGORY: `${key[1].category}`,
+            };
+          })
+          .sort((a: Item, b: Item) => lessThan(b.NAME, a.NAME)),
+      )}
       columns={[
         /*
         {
@@ -88,7 +87,7 @@ function makeDataGrid(
         },
       ]}
       triggers={model.triggers}
-      />
+    />
   );
 }
 
@@ -114,14 +113,14 @@ export function todaysAssetsTable(
   const today = getTodaysDate(model);
   return (
     <>
-    {collapsibleFragment(
-      makeDataGrid(todaysValues, model),
-      `Asset values at ${today.toDateString()}`
-    )}
-    {collapsibleFragment(
-      makeDataGrid(categorisedValues, model),
-      `Asset values (categorised) at ${today.toDateString()}`
-    )}
+      {collapsibleFragment(
+        makeDataGrid(todaysValues, model),
+        `Asset values at ${today.toDateString()}`,
+      )}
+      {collapsibleFragment(
+        makeDataGrid(categorisedValues, model),
+        `Asset values (categorised) at ${today.toDateString()}`,
+      )}
     </>
   );
 }
@@ -160,7 +159,7 @@ export function assetsDiv(
         ),
         'Asset data chart',
       )}
-      {todaysAssetsTable(model, todaysValues)}          
+      {todaysAssetsTable(model, todaysValues)}
       {assetsDivWithHeadings(model, showAlert)}
 
       {collapsibleFragment(
