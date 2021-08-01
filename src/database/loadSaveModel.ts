@@ -62,6 +62,9 @@ async function loadModelFromDB(
   userID: string,
   modelName: string,
 ): Promise<ModelData | undefined> {
+  if (showDBInteraction) {
+    log(`loadModelFromDB for ${userID}, name = ${modelName}`);
+  }
   let model: ModelData | undefined;
   try {
     model = await getDB().loadModel(userID, modelName);
@@ -98,30 +101,41 @@ async function fillCacheFromDB(userID: string) {
   if (showDBInteraction) {
     log(`fill cache with these models ${modelNames}`);
   }
-  for (let idx = 0; idx < modelNames.length; idx = idx + 1) {
-    const modelName = modelNames[idx];
-    const model = await loadModelFromDB(userID, modelName);
-    if (model !== undefined) {
+  async function getModel(modelName: string){
       if (showDBInteraction) {
-        log(`got model for ${modelName}, go to add to cache`);
+        log(`get this model ${modelName}`);
       }
-      cachedModels.push({
-        modelName: modelName,
-        model: model,
-        status: { isDirty: false },
-      });
-    } else {
-      throw new Error(
-        `model name ${modelName} from DB but no model present???`,
-      );
-    }
+      const model = await loadModelFromDB(userID, modelName);
+      if (model !== undefined) {
+        if (showDBInteraction) {
+          log(`got model for ${modelName}, go to add to cache`);
+        }
+        cachedModels.push({
+          modelName: modelName,
+          model: model,
+          status: { isDirty: false },
+        });
+        if (showDBInteraction) {
+          log(`got this model ${modelName}`);
+        }
+      } else {
+        throw new Error(
+          `model name ${modelName} from DB but no model present???`,
+        );
+      }
+      return;
   }
+  // log('go to Promise.all(...)');
+  const result = await Promise.all( modelNames.map((modelName)=>{
+    return getModel(modelName);
+  } ));
+  // log(`result from Promise.all(...) is ${result}`);
   localCache.set(userID, cachedModels);
   logCache();
   return cachedModels;
 }
 
-export async function getModelNames(userID: string) {
+export async function getModelNames(userID: string) {  
   let cachedModels = localCache.get(userID);
   if (!cachedModels) {
     cachedModels = await fillCacheFromDB(userID);
