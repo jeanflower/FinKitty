@@ -2406,7 +2406,11 @@ function calculateFromChange(
   }
 
   // log(`in calculateFromChange for ${t.NAME}, ${fromWord}`);
-  const tFromValue = parseFloat(t.FROM_VALUE);
+  const tFromValue = traceEvaluation(t.FROM_VALUE, values, t.FROM);
+  if(tFromValue === undefined){
+    log(`ERROR : can't interpret ${t.FROM_VALUE}`);
+    return undefined;
+  }
   const tToValue = parseFloat(t.TO_VALUE);
 
   const q = getQuantity(fromWord, values, model);
@@ -3295,6 +3299,11 @@ export function getEvaluations(
     logPensionIncomeLiabilities(transaction, liabilitiesMap, model);
   });
 
+  const setSettingsData:{
+    settingName: string;
+    settingVal: string;
+    setDate: Date;
+  }[] = [];
   model.settings.forEach(setting => {
     let referencingPrices = model.assets.filter(a => {
       return a.PURCHASE_PRICE === setting.NAME;
@@ -3320,7 +3329,8 @@ export function getEvaluations(
       .filter(t => {
         // log(`is setting ${setting.NAME} in t.TO  = ${t.TO}?`);
         // does the setting name appear as part of the transaction TO value?
-        if (t.TO_VALUE.includes(setting.NAME) || t.TO.includes(setting.NAME)) {
+        if (t.TO_VALUE.includes(setting.NAME) || t.TO.includes(setting.NAME) ||
+          t.FROM_VALUE.includes(setting.NAME) || t.FROM.includes(setting.NAME)) {
           return true;
         }
         return false;
@@ -3348,17 +3358,51 @@ export function getEvaluations(
     // log(`referencingDates for ${setting.NAME} = ${referencingDates.map(d=>d.toDateString())}`);
     referencingDates = referencingDates.sort();
     if (referencingDates.length > 0 && values.get(setting.NAME) === undefined) {
-      setValue(
-        values,
-        evaluations,
-        referencingDates[0], // TODO or last Date?
-        setting.NAME,
-        setting.VALUE,
-        model,
-        setting.NAME,
-        '18', //callerID
-      );
+      // log(`setValue ${setting.NAME} = ${setting.VALUE}`);
+      setSettingsData.push({
+        settingName: setting.NAME,
+        settingVal: setting.VALUE,
+        setDate: referencingDates[0],
+      })
     }
+  });
+  model.settings.forEach((s)=>{
+    if(!setSettingsData.find((sd)=>{
+      return sd.settingName === s.NAME;
+    })){
+      // log(`should we add setValue ${s.NAME} = ${s.VALUE}?`);
+      // s isn't being set in setSettingsData
+      // should we include it?
+      // We need it if something in setSettingsData
+      // builds on it      
+      const match = setSettingsData.find((ss)=>{
+        const nameIncluded = ss.settingVal.includes(s.NAME);
+        // log(`${ss.settingVal} ? includes ${s.NAME} = ${nameIncluded}`);
+        return nameIncluded;
+      });
+      if(match){
+        // ok, add this too
+        // log(`add dependent setValue ${s.NAME} = ${s.VALUE}`);
+        setSettingsData.push({
+          settingName: s.NAME,
+          settingVal: s.VALUE,
+          setDate: match.setDate,
+        });
+      }
+    }
+  });
+
+  setSettingsData.forEach((d)=>{
+    setValue(
+      values,
+      evaluations,
+      d.setDate,
+      d.settingName,
+      d.settingVal,
+      model,
+      d.settingName,
+      '18', //callerID
+    );
   });
 
   // might be set using a settings value
