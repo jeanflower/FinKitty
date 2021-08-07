@@ -34,7 +34,7 @@ import {
   consumeAlert,
   quitAfterAll,
 } from './browserTestUtils';
-import { log } from './../../utils'
+import { log } from './../../utils';
 
 import webdriver from 'selenium-webdriver';
 
@@ -127,13 +127,13 @@ describe(testDataModelName, () => {
     );
     // log(`found ${btn.length} elements with id=btn-overview-${name}`);
     if (exists) {
-      if(btn.length !== 1){
-        log(`mulitple buttons for ${name}`)
+      if (btn.length !== 1) {
+        log(`mulitple buttons for ${name}`);
       }
       expect(btn.length === 1).toBe(true);
     } else {
-      if(btn.length !== 0){
-        log(`found buttons for ${name}`)
+      if (btn.length !== 0) {
+        log(`found buttons for ${name}`);
       }
       expect(btn.length === 0).toBe(true);
     }

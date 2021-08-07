@@ -1515,7 +1515,7 @@ function settleUpTax(
     if (recalculatedNetIncome) {
       for (const [person, amount] of personNetIncome) {
         if (amount > 0) {
-          const netIncTag = makeNetIncomeTag(person);          
+          const netIncTag = makeNetIncomeTag(person);
           setValue(
             values,
             evaluations,
@@ -2301,7 +2301,7 @@ function revalueApplied(
           );
         }
       } else {
-        if(toVal === undefined){
+        if (toVal === undefined) {
           throw new Error(`can't interpret scale value ${t.TO_VALUE}`);
         } else {
           // log(`tToValue = '' + ${prevValue} + ${toVal};`);
@@ -2969,7 +2969,7 @@ function processTransactionMoment(
     // handle one word at a time
     let fromWords = t.FROM.split(separator);
     fromWords = replaceCategoryWithAssetNames(fromWords, model);
-    for(const fromWord of fromWords){
+    for (const fromWord of fromWords) {
       let toWords: string[] = [];
       if (t.TO !== '') {
         toWords = t.TO.split(separator);
@@ -2978,7 +2978,7 @@ function processTransactionMoment(
         toWords.push('');
       }
       // log(`transaction to "${t.TO}" as list ${toWords}`);
-      for(const toWord of toWords){
+      for (const toWord of toWords) {
         // log(`process a transaction from word ${fromWord} to word ${toWord}`);
         processTransactionFromTo(
           t,
@@ -3429,7 +3429,7 @@ export function getEvaluations(
       });
       model.incomes.forEach(i => {
         const startDate = checkTriggerDate(i.START, model.triggers);
-        if(startDate !== undefined && startDate > today){
+        if (startDate !== undefined && startDate > today) {
           todaysIncomeValues.set(i.NAME, {
             incomeVal: 0,
             category: i.CATEGORY,
@@ -3437,14 +3437,14 @@ export function getEvaluations(
           return;
         }
         const endDate = checkTriggerDate(i.END, model.triggers);
-        if(endDate !== undefined && endDate < today){
+        if (endDate !== undefined && endDate < today) {
           todaysIncomeValues.set(i.NAME, {
             incomeVal: 0,
             category: i.CATEGORY,
           });
           return;
         }
-          // log(`income ${i.NAME} ends at ${i.END} not yet ended at ${today}`);
+        // log(`income ${i.NAME} ends at ${i.END} not yet ended at ${today}`);
         let val = values.get(i.NAME);
         if (typeof val === 'string') {
           val = traceEvaluation(val, values, val);
@@ -3460,7 +3460,7 @@ export function getEvaluations(
       });
       model.expenses.forEach(e => {
         const startDate = checkTriggerDate(e.START, model.triggers);
-        if(startDate !== undefined && startDate > today){
+        if (startDate !== undefined && startDate > today) {
           todaysExpenseValues.set(e.NAME, {
             expenseVal: 0,
             category: e.CATEGORY,
@@ -3469,7 +3469,7 @@ export function getEvaluations(
           return;
         }
         const endDate = checkTriggerDate(e.END, model.triggers);
-        if(endDate !== undefined && endDate < today){
+        if (endDate !== undefined && endDate < today) {
           todaysExpenseValues.set(e.NAME, {
             expenseVal: 0,
             category: e.CATEGORY,
@@ -3732,7 +3732,7 @@ export function getEvaluations(
           // some assets experience growth which is
           // liable for tax
           // log(`asset moment for growth : ${moment.date}, ${moment.name}`);
-          if(moment.name.startsWith(crystallizedPension) && change > 0){
+          if (moment.name.startsWith(crystallizedPension) && change > 0) {
             // log(`skip asset moment for growth : ${moment.date}, ${moment.name}, ${change}`);
           } else {
             handleIncome(

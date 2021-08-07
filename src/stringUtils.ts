@@ -433,10 +433,7 @@ export function makeStringFromValueAbsProp(
   // log(`string for ${value} is ${result}`);
   return result;
 }
-export function makeStringFromCashValue(
-  input: string,
-  currency: string,
-) {
+export function makeStringFromCashValue(input: string, currency: string) {
   // formatting from 34567.23 as £34,567.23
   // log(`formatting ${input} as a cash value`);
   if (input === '') {
@@ -464,9 +461,7 @@ export function makeStringFromCashValue(
     return `${currency}${s}`;
   }
 }
-export function makeStringFromFromToValue(
-  input: string,
-) {
+export function makeStringFromFromToValue(input: string) {
   if (input === '') {
     return '';
   }
@@ -481,35 +476,50 @@ export function makeStringFromFromToValue(
 }
 
 function parseTriggerForOperator(
-  triggerName: string, 
-  opSymbol: string, 
+  triggerName: string,
+  opSymbol: string,
   triggers: Trigger[],
-){
+  recursionLevel: number,
+) {
   let numChange = 0;
-  if(opSymbol === '-'){
+  if (opSymbol === '-') {
     numChange = -1;
-  } else if(opSymbol === '+'){
+  } else if (opSymbol === '+') {
     numChange = 1;
   } else {
     return undefined;
   }
 
   const parts = triggerName.split(opSymbol);
-  if(parts.length === 2){
+  if (parts.length === 2) {
     const secondPartNW = getNumberAndWordParts(parts[1]);
-    if(secondPartNW.numberPart !== undefined &&
+    if (
+      secondPartNW.numberPart !== undefined &&
       (secondPartNW.wordPart === 'd' ||
-      secondPartNW.wordPart === 'm' ||
-      secondPartNW.wordPart === 'y')) {
-
-      const firstPartDate: Date | undefined = findMatchedTriggerDate(parts[0], triggers);
-      if(firstPartDate !== undefined){
-        if(secondPartNW.wordPart === 'd'){
-          firstPartDate.setDate(firstPartDate.getDate() + numChange * secondPartNW.numberPart);
-        } else if(secondPartNW.wordPart === 'm'){
-          firstPartDate.setMonth(firstPartDate.getMonth() + numChange *  secondPartNW.numberPart);
-        } else if(secondPartNW.wordPart === 'y'){
-          firstPartDate.setFullYear(firstPartDate.getFullYear() + numChange *  secondPartNW.numberPart);
+        secondPartNW.wordPart === 'm' ||
+        secondPartNW.wordPart === 'y')
+    ) {
+      //no-use-before-define
+      /* eslint-disable */
+      const firstPartDate: Date | undefined = findMatchedTriggerDate(
+        parts[0],
+        triggers,
+        recursionLevel + 1,
+      );
+      /* eslint-enable */
+      if (firstPartDate !== undefined) {
+        if (secondPartNW.wordPart === 'd') {
+          firstPartDate.setDate(
+            firstPartDate.getDate() + numChange * secondPartNW.numberPart,
+          );
+        } else if (secondPartNW.wordPart === 'm') {
+          firstPartDate.setMonth(
+            firstPartDate.getMonth() + numChange * secondPartNW.numberPart,
+          );
+        } else if (secondPartNW.wordPart === 'y') {
+          firstPartDate.setFullYear(
+            firstPartDate.getFullYear() + numChange * secondPartNW.numberPart,
+          );
         }
         // log(`converted ${triggerName} into ${firstPartDate.toDateString()}`);
         return firstPartDate;
@@ -519,14 +529,31 @@ function parseTriggerForOperator(
 }
 
 // returns a date for a trigger, or undefined
-function findMatchedTriggerDate(triggerName: string, triggers: Trigger[])
-  : Date | undefined {
-  const minusOp = parseTriggerForOperator(triggerName, '-', triggers);
-  if(minusOp !== undefined){
+function findMatchedTriggerDate(
+  triggerName: string,
+  triggers: Trigger[],
+  recursionLevel: number,
+): Date | undefined {
+  if (recursionLevel > 100) {
+    //log(`infinite or too-complex recursion for dates - emergency stop`);
+    return undefined;
+  }
+  const minusOp = parseTriggerForOperator(
+    triggerName,
+    '-',
+    triggers,
+    recursionLevel,
+  );
+  if (minusOp !== undefined) {
     return minusOp;
   }
-  const plusOp = parseTriggerForOperator(triggerName, '+', triggers);
-  if(plusOp !== undefined){
+  const plusOp = parseTriggerForOperator(
+    triggerName,
+    '+',
+    triggers,
+    recursionLevel,
+  );
+  if (plusOp !== undefined) {
     return plusOp;
   }
   // log('look for '+triggerName+'in '+triggers.map(showObj))
@@ -534,16 +561,30 @@ function findMatchedTriggerDate(triggerName: string, triggers: Trigger[])
   // log('matched = '+showObj(matched));
   let result = undefined;
   if (matched.length !== 0) {
-    result = new Date(matched[0].DATE); // copy
+    // no-use-before-define
+    /* eslint-disable */
+    result = checkTriggerDateRecursive(
+      matched[0].DATE,
+      triggers,
+      recursionLevel + 1,
+    );
+    /* eslint-enable */
+
     // log(`converted ${triggerName} into ${result.toDateString()}`);
   }
   return result;
 }
 
-// returns a date for a trigger or for a date string, or undefined for junk
-export function checkTriggerDate(input: string, triggers: Trigger[]) {
+function checkTriggerDateRecursive(
+  input: string,
+  triggers: Trigger[],
+  recursionLevel: number,
+) {
   // log('first look for '+input+'in '+showObj(triggers));
-  const matched = findMatchedTriggerDate(input, triggers);
+  /* eslint-disable no-use-before-define*/ // recursion
+  const matched = findMatchedTriggerDate(input, triggers, recursionLevel);
+  /* eslint-enable no-use-before-define*/
+
   // log('matched = '+showObj(matched));
   let result;
   if (matched !== undefined) {
@@ -562,6 +603,11 @@ export function checkTriggerDate(input: string, triggers: Trigger[]) {
   return result;
 }
 
+// returns a date for a trigger or for a date string, or undefined for junk
+export function checkTriggerDate(input: string, triggers: Trigger[]) {
+  return checkTriggerDateRecursive(input, triggers, 0);
+}
+
 // Suppresses any not-understood values and returns new Date()
 export function getTriggerDate(triggerName: string, triggers: Trigger[]) {
   // log(`triggers length is ${triggers.length}`);
@@ -570,20 +616,6 @@ export function getTriggerDate(triggerName: string, triggers: Trigger[]) {
     return checkResult;
   }
   return new Date();
-}
-export function makeStringFromPurchasePrice(input: string, liability: string) {
-  if (!liability.includes(cgt)) {
-    return ''; // don't display irrelevant purchae price
-  } else {
-    return input;
-  }
-}
-export function makePurchasePriceFromString(input: string) {
-  if (input === '') {
-    return '0';
-  } else {
-    return input;
-  }
 }
 
 export const dateFormatOptions = {
@@ -605,6 +637,21 @@ export function makeDateTooltip(input: string, triggers: Trigger[]) {
   }
   // log(`make date tooltip for ${input}: ${result}`);
   return result;
+}
+
+export function makeStringFromPurchasePrice(input: string, liability: string) {
+  if (!liability.includes(cgt)) {
+    return ''; // don't display irrelevant purchae price
+  } else {
+    return input;
+  }
+}
+export function makePurchasePriceFromString(input: string) {
+  if (input === '') {
+    return '0';
+  } else {
+    return input;
+  }
 }
 
 function usesWholeWord(existing: string, checkWord: string) {

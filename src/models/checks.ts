@@ -1171,22 +1171,22 @@ function checkTriggerName(tName: string): string {
   if (tName === 'today') {
     return `Date name can't be 'today'`;
   }
-  if(tName.includes('+')){
+  if (tName.includes('+')) {
     return `Date names cannot contain a '+' character`;
   }
-  if(tName.includes('-')){
+  if (tName.includes('-')) {
     return `Date names cannot contain a '-' character`;
   }
-  return ''
+  return '';
 }
 
-export function checkTrigger(t: Trigger): string {
+export function checkTrigger(t: Trigger, model: ModelData): string {
   // log(`check trigger ${showObj(t)}`);
   const nameCheck = checkTriggerName(t.NAME);
-  if (nameCheck.length > 0 ){
+  if (nameCheck.length > 0) {
     return nameCheck;
   }
-  if (!checkDate(t.DATE)) {
+  if (!checkTriggerDate(t.DATE, model.triggers)) {
     return `Your important date is not valid : ${t.DATE}`;
   }
   return '';
@@ -1404,7 +1404,7 @@ export function checkData(model: ModelData): string {
   // log(`check triggers`);
   for (const t of model.triggers) {
     /* eslint-disable-line no-restricted-syntax */
-    message = checkTrigger(t);
+    message = checkTrigger(t, model);
     if (message.length > 0) {
       return message;
     }

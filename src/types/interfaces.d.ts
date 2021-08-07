@@ -10,7 +10,7 @@ export interface Setting extends Item {
   TYPE: string;
 }
 export interface Trigger extends Item {
-  DATE: Date;
+  DATE: string;
 }
 export interface Asset extends ItemCategory {
   START: string;

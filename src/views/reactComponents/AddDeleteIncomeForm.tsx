@@ -214,27 +214,23 @@ export class AddDeleteIncomeForm extends Component<
           {makeButton(
             'Add new income mode',
             this.setInputincome,
-            "useIncomeInputs",
-            "useIncomeInputs",
+            'useIncomeInputs',
+            'useIncomeInputs',
             this.state.inputting === inputtingIncome ? 'primary' : 'secondary',
           )}
           {makeButton(
             'Add pension mode',
             this.setInputDBP,
-            "useDBPInputs",
-            "useDBPInputs",
-            this.state.inputting === inputtingPension
-              ? 'primary'
-              : 'secondary',
+            'useDBPInputs',
+            'useDBPInputs',
+            this.state.inputting === inputtingPension ? 'primary' : 'secondary',
           )}
           {makeButton(
             'Revalue income mode',
             this.setInputRevalue,
-            "useRevalueInputsIncome",
-            "useRevalueInputsIncome",
-            this.state.inputting === inputtingRevalue
-              ? 'primary'
-              : 'secondary',
+            'useRevalueInputsIncome',
+            'useRevalueInputsIncome',
+            this.state.inputting === inputtingRevalue ? 'primary' : 'secondary',
           )}
         </div>
         <form className="container-fluid" onSubmit={this.add}>
@@ -362,8 +358,8 @@ export class AddDeleteIncomeForm extends Component<
         {makeButton(
           'Create new income (over-writes any existing with the same name)',
           this.add,
-          "addIncome",
-          "addIncome",
+          'addIncome',
+          'addIncome',
           'primary',
         )}
       </>
@@ -376,8 +372,8 @@ export class AddDeleteIncomeForm extends Component<
     return makeButton(
       'Add income revaluation',
       this.revalue,
-      "revalueIncome",
-      "revalueIncome",
+      'revalueIncome',
+      'revalueIncome',
       'primary',
     );
   }

@@ -87,7 +87,6 @@ import {
 } from '../../models/modelUtils';
 import {
   makeCGTTag,
-  makeDateFromString,
   makeIncomeTaxTag,
   makeNationalInsuranceTag,
   makeNetGainTag,
@@ -1406,7 +1405,7 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'valueSetTrigger',
-          DATE: makeDateFromString('January 1 2017'),
+          DATE: 'January 1 2017',
         },
       ],
       expenses: [
@@ -2327,7 +2326,7 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'then',
-          DATE: makeDateFromString('January 1 2018'),
+          DATE: 'January 1 2018',
         },
       ],
       assets: [
@@ -9480,11 +9479,11 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'javaStartTrigger',
-          DATE: makeDateFromString('March 10 2018'),
+          DATE: 'March 10 2018',
         },
         {
           NAME: 'javaStopTrigger',
-          DATE: makeDateFromString('April 9 2018'),
+          DATE: 'April 9 2018',
         },
       ],
       incomes: [
@@ -9642,11 +9641,11 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'javaStartTrigger',
-          DATE: makeDateFromString('March 10 2018'),
+          DATE: 'March 10 2018',
         },
         {
           NAME: 'javaStopTrigger',
-          DATE: makeDateFromString('April 9 2018'),
+          DATE: 'April 9 2018',
         },
       ],
       incomes: [
@@ -9845,19 +9844,19 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'javaStartTrigger',
-          DATE: makeDateFromString('Jan 10 2018'),
+          DATE: 'Jan 10 2018',
         },
         {
           NAME: 'javaStopTrigger',
-          DATE: makeDateFromString('Feb 9 2018'),
+          DATE: 'Feb 9 2018',
         },
         {
           NAME: 'cppStartTrigger',
-          DATE: makeDateFromString('March 10 2018'),
+          DATE: 'March 10 2018',
         },
         {
           NAME: 'cppStopTrigger',
-          DATE: makeDateFromString('April 9 2018'),
+          DATE: 'April 9 2018',
         },
       ],
       incomes: [
@@ -10067,11 +10066,11 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'javaStartTrigger',
-          DATE: makeDateFromString('March 10 2018'),
+          DATE: 'March 10 2018',
         },
         {
           NAME: 'javaStopTrigger',
-          DATE: makeDateFromString('April 9 2018'),
+          DATE: 'April 9 2018',
         },
       ],
       incomes: [
@@ -10193,11 +10192,11 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'javaStartTrigger',
-          DATE: makeDateFromString('April 7 2017'),
+          DATE: 'April 7 2017',
         },
         {
           NAME: 'javaStopTrigger',
-          DATE: makeDateFromString('April 4 2018'),
+          DATE: 'April 4 2018',
         },
       ],
       incomes: [
@@ -10376,11 +10375,11 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'javaStartTrigger',
-          DATE: makeDateFromString('March 10 2018'),
+          DATE: 'March 10 2018',
         },
         {
           NAME: 'javaStopTrigger',
-          DATE: makeDateFromString('April 9 2018'),
+          DATE: 'April 9 2018',
         },
       ],
       incomes: [
@@ -10543,11 +10542,11 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'javaStartTrigger',
-          DATE: makeDateFromString('March 10 2018'),
+          DATE: 'March 10 2018',
         },
         {
           NAME: 'javaStopTrigger',
-          DATE: makeDateFromString('April 9 2018'),
+          DATE: 'April 9 2018',
         },
       ],
       incomes: [
@@ -12184,19 +12183,19 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'javaStartTrigger',
-          DATE: makeDateFromString('March 10 2018'),
+          DATE: 'March 10 2018',
         },
         {
           NAME: 'javaStopTrigger',
-          DATE: makeDateFromString('April 9 2018'),
+          DATE: 'April 9 2018',
         },
         {
           NAME: 'pensionStartDraw',
-          DATE: makeDateFromString('June 10 2018'),
+          DATE: 'June 10 2018',
         },
         {
           NAME: 'pensionStopDraw',
-          DATE: makeDateFromString('July 9 2018'),
+          DATE: 'July 9 2018',
         },
       ],
       incomes: [
@@ -12398,19 +12397,19 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'javaStartTrigger',
-          DATE: makeDateFromString('March 10 2018'),
+          DATE: 'March 10 2018',
         },
         {
           NAME: 'javaStopTrigger',
-          DATE: makeDateFromString('April 9 2018'),
+          DATE: 'April 9 2018',
         },
         {
           NAME: 'pensionStartDraw',
-          DATE: makeDateFromString('June 10 2018'),
+          DATE: 'June 10 2018',
         },
         {
           NAME: 'pensionStopDraw',
-          DATE: makeDateFromString('July 9 2018'),
+          DATE: 'July 9 2018',
         },
       ],
       incomes: [
@@ -12614,19 +12613,19 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'javaStartTrigger',
-          DATE: makeDateFromString('March 10 2018'),
+          DATE: 'March 10 2018',
         },
         {
           NAME: 'javaStopTrigger',
-          DATE: makeDateFromString('April 9 2018'),
+          DATE: 'April 9 2018',
         },
         {
           NAME: 'pensionStartDraw',
-          DATE: makeDateFromString('June 10 2018'),
+          DATE: 'June 10 2018',
         },
         {
           NAME: 'pensionStopDraw',
-          DATE: makeDateFromString('July 9 2018'),
+          DATE: 'July 9 2018',
         },
       ],
       incomes: [
@@ -12831,19 +12830,19 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'javaStartTrigger',
-          DATE: makeDateFromString('March 10 2018'),
+          DATE: 'March 10 2018',
         },
         {
           NAME: 'javaStopTrigger',
-          DATE: makeDateFromString('April 9 2018'),
+          DATE: 'April 9 2018',
         },
         {
           NAME: 'pensionStartDraw',
-          DATE: makeDateFromString('June 10 2018'),
+          DATE: 'June 10 2018',
         },
         {
           NAME: 'pensionStopDraw',
-          DATE: makeDateFromString('July 9 2018'),
+          DATE: 'July 9 2018',
         },
       ],
       incomes: [
@@ -12925,19 +12924,19 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'javaStartTrigger',
-          DATE: makeDateFromString('March 10 2018'),
+          DATE: 'March 10 2018',
         },
         {
           NAME: 'javaStopTrigger',
-          DATE: makeDateFromString('April 9 2018'),
+          DATE: 'April 9 2018',
         },
         {
           NAME: 'pensionStartDraw',
-          DATE: makeDateFromString('June 10 2018'),
+          DATE: 'June 10 2018',
         },
         {
           NAME: 'pensionStopDraw',
-          DATE: makeDateFromString('July 9 2018'),
+          DATE: 'July 9 2018',
         },
       ],
       incomes: [
@@ -13019,19 +13018,19 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'javaStartTrigger',
-          DATE: makeDateFromString('March 10 2018'),
+          DATE: 'March 10 2018',
         },
         {
           NAME: 'javaStopTrigger',
-          DATE: makeDateFromString('April 9 2018'),
+          DATE: 'April 9 2018',
         },
         {
           NAME: 'pensionStartDraw',
-          DATE: makeDateFromString('June 10 2018'),
+          DATE: 'June 10 2018',
         },
         {
           NAME: 'pensionStopDraw',
-          DATE: makeDateFromString('July 9 2018'),
+          DATE: 'July 9 2018',
         },
       ],
       incomes: [
@@ -17227,7 +17226,7 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'a+',
-          DATE: new Date('1 Jan 2018'),
+          DATE: '1 Jan 2018',
         },
       ],
     };
@@ -17262,7 +17261,7 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'a-',
-          DATE: new Date('1 Jan 2018'),
+          DATE: '1 Jan 2018',
         },
       ],
     };
@@ -17297,7 +17296,7 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'a',
-          DATE: new Date('2 Jan 2018'),
+          DATE: '2 Jan 2018',
         },
       ],
     };
@@ -17332,7 +17331,7 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'a',
-          DATE: new Date('31 Dec 2017'),
+          DATE: '31 Dec 2017',
         },
       ],
     };
@@ -17367,7 +17366,7 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'a',
-          DATE: new Date('1 Feb 2018'),
+          DATE: '1 Feb 2018',
         },
       ],
     };
@@ -17402,7 +17401,7 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'a',
-          DATE: new Date('1 Dec 2017'),
+          DATE: '1 Dec 2017',
         },
       ],
     };
@@ -17437,7 +17436,7 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'a',
-          DATE: new Date('1 Jan 2019'),
+          DATE: '1 Jan 2019',
         },
       ],
     };
@@ -17472,7 +17471,7 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'a',
-          DATE: new Date('1 Jan 2017'),
+          DATE: '1 Jan 2017',
         },
       ],
     };
@@ -17486,7 +17485,7 @@ describe('evaluations tests', () => {
 
     done();
   });
-/*
+
   it('trigger defined 1 day before', done => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
@@ -17505,17 +17504,15 @@ describe('evaluations tests', () => {
       ],
       settings: [
         ...defaultModelSettings(roi),
-        {
-          NAME: 'b',
-          VALUE: 'a+1d',
-          HINT: 'one day later',
-          TYPE: adjustableType,
-        }
       ],
       triggers: [
         {
           NAME: 'a',
-          DATE: new Date('2 Jan 2018'),
+          DATE: '3 Jan 2018',
+        },
+        {
+          NAME: 'b',
+          DATE: 'a-2d',
         },
       ],
     };
@@ -17529,7 +17526,45 @@ describe('evaluations tests', () => {
 
     done();
   });
-*/
+
+  it('trigger defined infinite recursion', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'Feb 7, 2018 00:00:00',
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      transactions: [],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'Shr1',
+          START: 'b',
+          VALUE: '1.0',
+        },          
+      ],
+      settings: [
+        ...defaultModelSettings(roi),
+      ],
+      triggers: [
+        {
+          NAME: 'a',
+          DATE: 'b-1d',
+        },
+        {
+          NAME: 'b',
+          DATE: 'a-2d',
+        },
+      ],
+    };
+
+    const evalsAndValues = getTestEvaluations(model, false);
+    const evals = evalsAndValues.evaluations;
+    // printTestCodeForEvals(evals);
+    expect(evals.length).toBe(0);
+
+    done();
+  });  
 
   it('conditional transaction from abs to half, asset runs out', done => {
     const roi = {
@@ -21993,7 +22028,7 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'carStartDate',
-          DATE: makeDateFromString('January 2 2018'),
+          DATE: 'January 2 2018',
         },
       ],
       assets: [
@@ -22989,9 +23024,9 @@ describe('evaluations tests', () => {
     const revalueData = `
     {
     "triggers":[
-    {"NAME":"TransferMortgage","DATE":"2028-01-01T00:00:00.000Z"},
-    {"NAME":"StopMainWork","DATE":"2050-12-31T00:00:00.000Z"},
-    {"NAME":"GetRidOfCar","DATE":"2025-12-31T00:00:00.000Z"}
+    {"NAME":"TransferMortgage","DATE":"2028-01-01"},
+    {"NAME":"StopMainWork","DATE":"2050-12-31"},
+    {"NAME":"GetRidOfCar","DATE":"2025-12-31"}
     ],
     "expenses":[
     ],

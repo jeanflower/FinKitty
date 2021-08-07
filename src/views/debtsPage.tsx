@@ -30,29 +30,27 @@ function addToMap(name: string, val: DebtVal, myMap: Map<string, DebtVal>) {
   }
 }
 
-function makeDataGrid(
-  myMap: Map<string, DebtVal>,
-  model: ModelData,
-) {
+function makeDataGrid(myMap: Map<string, DebtVal>, model: ModelData) {
   return (
     <DataGrid
       deleteFunction={undefined}
       handleGridRowsUpdated={function() {
         return false;
       }}
-      rows={addIndices(Array.from(myMap.entries())
-        .filter(key => {
-          return key[1].debtVal !== 0.0;
-        })
-        .map(key => {
-          // log(`key[0] = ${key[0]}, key[1] = ${key[1]}`);
-          return {
-            NAME: key[0],
-            VALUE: `${key[1].debtVal}`,
-            CATEGORY: `${key[1].category}`,
-          };
-        }))
-        .sort((a: Item, b: Item) => lessThan(a.NAME, b.NAME))}
+      rows={addIndices(
+        Array.from(myMap.entries())
+          .filter(key => {
+            return key[1].debtVal !== 0.0;
+          })
+          .map(key => {
+            // log(`key[0] = ${key[0]}, key[1] = ${key[1]}`);
+            return {
+              NAME: key[0],
+              VALUE: `${key[1].debtVal}`,
+              CATEGORY: `${key[1].category}`,
+            };
+          }),
+      ).sort((a: Item, b: Item) => lessThan(a.NAME, b.NAME))}
       columns={[
         /*
         {
@@ -86,7 +84,7 @@ function makeDataGrid(
         },
       ]}
       triggers={model.triggers}
-      />
+    />
   );
 }
 

@@ -91,21 +91,19 @@ function makeFilterButton(
     id = `chooseAssetOrDebtChartSetting--debt-${buttonName}`;
   }
 
-  return (
-    makeButton(
-      buttonName,
-      async (e: React.MouseEvent<HTMLButtonElement>) => {
-        e.persist();
-        settings.toggleViewFilter(context, buttonName);
-        return await refreshData(
-          false, // refreshModel = true,
-          true, // refreshChart = true,
-        );
-      },
-      buttonName,
-      id, 
-      settings.highlightButton(context, buttonName) ? 'primary' : 'secondary',
-    )
+  return makeButton(
+    buttonName,
+    async (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.persist();
+      settings.toggleViewFilter(context, buttonName);
+      return await refreshData(
+        false, // refreshModel = true,
+        true, // refreshChart = true,
+      );
+    },
+    buttonName,
+    id,
+    settings.highlightButton(context, buttonName) ? 'primary' : 'secondary',
   );
 }
 
@@ -145,7 +143,7 @@ function filtersList(
 export function coarseFineList(settings: ViewSettings) {
   const viewTypes: string[] = [total, coarse, fine];
   const selectedCoarseFineView = getCoarseFineView(settings);
-  const buttons = viewTypes.map(viewType => (
+  const buttons = viewTypes.map(viewType =>
     makeButton(
       viewType,
       (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -155,15 +153,15 @@ export function coarseFineList(settings: ViewSettings) {
       viewType,
       `chooseViewDetailType${viewType}`,
       viewType === selectedCoarseFineView ? 'primary' : 'secondary',
-    )
-  ));
+    ),
+  );
   return <div role="group">{buttons}</div>;
 }
 
 export function frequencyList(settings: ViewSettings) {
   const viewTypes: string[] = [monthly, annually];
   const selectedView = settings.getViewSetting(viewFrequency, annually);
-  const buttons = viewTypes.map(viewType => (
+  const buttons = viewTypes.map(viewType =>
     makeButton(
       viewType,
       (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -171,10 +169,10 @@ export function frequencyList(settings: ViewSettings) {
         setViewSettingNameVal(settings, viewFrequency, viewType);
       },
       viewType,
-      "chooseViewFrequencyType",
+      'chooseViewFrequencyType',
       viewType === selectedView ? 'primary' : 'secondary',
-    )
-  ));
+    ),
+  );
   return <div role="group">{buttons}</div>;
 }
 
@@ -523,7 +521,7 @@ function assetViewTypeList(settings: ViewSettings) {
     chartDeltas,
   ];
   const selectedAssetView = getAssetChartView(settings);
-  const buttons = viewTypes.map(viewType => (
+  const buttons = viewTypes.map(viewType =>
     makeButton(
       viewType,
       (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -531,10 +529,10 @@ function assetViewTypeList(settings: ViewSettings) {
         setViewSettingNameVal(settings, chartViewType, viewType);
       },
       viewType,
-      "chooseAssetChartType",
+      'chooseAssetChartType',
       viewType === selectedAssetView ? 'primary' : 'secondary',
-    )
-  ));
+    ),
+  );
   return <div role="group">{buttons}</div>;
 }
 
@@ -647,7 +645,7 @@ function taxButtonList(model: ModelData, viewSettings: ViewSettings) {
   liabilityPeople.unshift(allItems);
 
   // console.log(`liablityPeople for tax buttons is ${showObj(liabilityPeople)}`);
-  const buttons = liabilityPeople.map(person => (
+  const buttons = liabilityPeople.map(person =>
     makeButton(
       person === allItems ? 'All people' : person,
       (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -657,8 +655,8 @@ function taxButtonList(model: ModelData, viewSettings: ViewSettings) {
       person === allItems ? 'All people' : person,
       `chooseTaxSetting-${person}`,
       person === getTaxPerson(viewSettings) ? 'primary' : 'secondary',
-    )
-  ));
+    ),
+  );
   buttons.push(
     makeButton(
       'All types',
@@ -669,7 +667,7 @@ function taxButtonList(model: ModelData, viewSettings: ViewSettings) {
       'All types',
       `chooseTaxType-all`,
       getTaxType(viewSettings) === allItems ? 'primary' : 'secondary',
-    )
+    ),
   );
   buttons.push(
     makeButton(
@@ -681,7 +679,7 @@ function taxButtonList(model: ModelData, viewSettings: ViewSettings) {
       'income',
       `chooseTaxType-income`,
       getTaxType(viewSettings) === income ? 'primary' : 'secondary',
-    )
+    ),
   );
   buttons.push(
     makeButton(
@@ -693,7 +691,7 @@ function taxButtonList(model: ModelData, viewSettings: ViewSettings) {
       'gain',
       `chooseTaxType-gain`,
       getTaxType(viewSettings) === gain ? 'primary' : 'secondary',
-    )
+    ),
   );
   buttons.push(
     makeButton(
@@ -709,7 +707,7 @@ function taxButtonList(model: ModelData, viewSettings: ViewSettings) {
       'pensionAllowance',
       `chooseTaxType-pension`,
       getTaxType(viewSettings) === pensionAllowance ? 'primary' : 'secondary',
-    )
+    ),
   );
   buttons.push(
     makeButton(
@@ -721,7 +719,7 @@ function taxButtonList(model: ModelData, viewSettings: ViewSettings) {
       'Show net',
       `chooseTaxType-showNet`,
       getTaxShowNet(viewSettings) ? 'primary' : 'secondary',
-    )
+    ),
   );
   buttons.push(
     makeButton(
@@ -733,7 +731,7 @@ function taxButtonList(model: ModelData, viewSettings: ViewSettings) {
       'Hide net',
       `chooseTaxType-hideNet`,
       !getTaxShowNet(viewSettings) ? 'primary' : 'secondary',
-    )
+    ),
   );
   return <div role="group">{buttons}</div>;
 }
@@ -832,7 +830,6 @@ export function taxDiv(
 
   return (
     <div className="ml-3">
-
       {taxChartDivWithButtons(
         model,
         viewSettings,

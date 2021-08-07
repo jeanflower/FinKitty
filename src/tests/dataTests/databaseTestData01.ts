@@ -39,20 +39,19 @@ import {
   simpleIncome,
   simpleTransaction,
 } from '../../models/exampleModels';
-import { makeDateFromString } from '../../stringUtils';
 
 export const testTriggers01: Trigger[] = [
   {
     NAME: 'TransferMortgage',
-    DATE: makeDateFromString('Jan 01 2028'),
+    DATE: 'Jan 01 2028',
   },
   {
     NAME: 'StopMainWork',
-    DATE: makeDateFromString('Dec 31 2050'),
+    DATE: 'Dec 31 2050',
   },
   {
     NAME: 'GetRidOfCar',
-    DATE: makeDateFromString('Dec 31 2025'),
+    DATE: 'Dec 31 2025',
   },
 ];
 

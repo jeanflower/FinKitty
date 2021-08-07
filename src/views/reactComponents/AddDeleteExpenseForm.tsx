@@ -199,16 +199,16 @@ export class AddDeleteExpenseForm extends Component<
       return makeButton(
         'Create new expense (over-writes any existing with the same name)',
         this.add,
-        "addExpense",
-        "addExpense",
+        'addExpense',
+        'addExpense',
         'primary',
       );
     } else {
       return makeButton(
         'Revalue an expense',
         this.revalue,
-        "revalueExpense",
-        "revalueExpense",
+        'revalueExpense',
+        'revalueExpense',
         'primary',
       );
     }
@@ -222,20 +222,16 @@ export class AddDeleteExpenseForm extends Component<
           {makeButton(
             'Add new expense mode',
             this.setInputExpense,
-            "useExpenseInputs",
-            "useExpenseInputs",
-            this.state.inputting === inputtingExpense
-              ? 'primary'
-              : 'secondary',
+            'useExpenseInputs',
+            'useExpenseInputs',
+            this.state.inputting === inputtingExpense ? 'primary' : 'secondary',
           )}
           {makeButton(
             'Revalue expense mode',
             this.setInputRevalue,
-            "useRevalueInputsExpense",
-            "useRevalueInputsExpense",
-            this.state.inputting === inputtingRevalue
-              ? 'primary'
-              : 'secondary',
+            'useRevalueInputsExpense',
+            'useRevalueInputsExpense',
+            this.state.inputting === inputtingRevalue ? 'primary' : 'secondary',
           )}
         </div>
         <form className="container-fluid" onSubmit={this.add}>
