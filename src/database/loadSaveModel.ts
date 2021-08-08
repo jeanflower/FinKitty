@@ -159,7 +159,7 @@ export async function loadModel(userID: string, modelName: string) {
         throw new Error(`DBValidation error: cache has clean model 
           but DB has no model for ${modelName}`);
       } else {
-        const diff = diffModels(dbModel, cachedModel.model);
+        const diff = diffModels(dbModel, cachedModel.model, true, 'this model', 'cached model');
         if (diff !== []) {
           throw new Error(`DBValidation error: ${diff} for ${modelName}`);
         }
@@ -239,7 +239,7 @@ export async function saveModelLSM(
   // log(`save model ${showObj(model)}`);
   if (showDBInteraction) {
     log(`save model ${modelName} for user ${userID}`);
-    log(`saving : diff to undo is ${diffModels(model, model.undoModel)}`);
+    log(`saving : diff to undo is ${diffModels(model, model.undoModel, true, 'this model', 'undo model')}`);
   }
   saveModelToCache(userID, modelName, model);
   return true;

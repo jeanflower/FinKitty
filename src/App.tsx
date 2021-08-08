@@ -1319,6 +1319,35 @@ export class AppContent extends Component<AppProps, AppState> {
     }
   }
 
+  private async diffModel(modelNameForDiff: string) {
+    const otherModelName: string|null = window.prompt(`diff ${modelNameForDiff} against which model?`, '');
+    if(otherModelName === null){
+      return;
+    }
+    const otherModelAndStatus = await loadModel(getUserID(), otherModelName);
+    if (otherModelAndStatus === undefined) {
+      const response = `Can't load a model named ${otherModelName}`;
+      showAlert(response);
+      return;
+    }
+    const otherModel = otherModelAndStatus.model;
+    // log(`otherModel = ${showObj(otherModel)}`);
+    if(!otherModel){
+      window.alert(`Can't load a model named ${otherModelName}`);
+      return;
+    }
+    const diffResult = diffModels(this.state.modelData, otherModel, false, modelNameForDiff, otherModelName);
+    if(diffResult.length === 0){
+      window.alert('models are the same');
+    } else {
+      let s = '';
+      for(const diff of diffResult){
+        s += diff + `\n`;
+      }
+      window.alert(s);
+    }
+  }
+
   private async cloneModel(
     name: string,
     fromModel: ModelData,
@@ -1406,6 +1435,15 @@ export class AppContent extends Component<AppProps, AppState> {
                 },
                 `btn-delete`,
                 `btn-delete`,
+                'secondary',
+              )}
+              {makeButton(
+                'Diff model',
+                async () => {
+                  this.diffModel(modelName);
+                },
+                `btn-diff`,
+                `btn-diff`,
                 'secondary',
               )}
             </div>
@@ -1795,6 +1833,9 @@ export class AppContent extends Component<AppProps, AppState> {
       const diffs = diffModels(
         this.state.modelData,
         this.state.modelData.undoModel,
+        true,
+        'current model',
+        'previous model',
       );
       if (diffs.length > 0) {
         undoTooltip = diffs[0];
@@ -1852,6 +1893,9 @@ export class AppContent extends Component<AppProps, AppState> {
       const diffs = diffModels(
         this.state.modelData.redoModel,
         this.state.modelData,
+        true,
+        'redo model',
+        'current model',
       );
       if (diffs.length > 0) {
         redoTooltip = diffs[0];
