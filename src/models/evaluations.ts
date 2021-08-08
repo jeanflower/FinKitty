@@ -2383,6 +2383,7 @@ function calculateFromChange(
       cgtPreChange: number;
     }
   | undefined {
+  // log(`t = ${showObj(t)}`)
   // log(`t.FROM_VALUE = ${t.FROM_VALUE}`)
   if (t.NAME.startsWith(conditional) && preToValue === undefined) {
     log(`Bug : conditional transaction to undefined value ${showObj(t)}`);
@@ -2416,6 +2417,8 @@ function calculateFromChange(
   const q = getQuantity(fromWord, values, model);
   const fromHasQuantity = q !== undefined;
 
+  // log(`fromHasQuantity = ${fromHasQuantity}, q = ${q}`);
+
   // The calling code will use fromChange to setValue on
   // the from-asset.
   // It will use to-settings (value and absolute) to adjust
@@ -2444,8 +2447,12 @@ function calculateFromChange(
       }
     } else {
       // proportion of source
-      // log(`use proportion of source amount; proportion of ${preFromValue}`);
-      fromChange = preFromValue * tFromValue;
+      if(fromHasQuantity && q){
+        fromChange = Math.floor(q * tFromValue);
+      } else {
+        // log(`use proportion of source amount; proportion of ${preFromValue}`);
+        fromChange = preFromValue * tFromValue;
+      }
     }
   }
   // log(`fromChange = ${fromChange}`);
@@ -2503,6 +2510,7 @@ function calculateFromChange(
         fromChange = numberUnits * unitValue;
       } else {
         // log(`don't sell more units than we have`);
+        // log(`q = ${q}, numberUnits = ${numberUnits}`);
         return undefined;
       }
     }
