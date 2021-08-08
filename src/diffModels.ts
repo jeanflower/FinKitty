@@ -248,7 +248,7 @@ function diffItems(
       ) {
         return;
       }
-      result.push(`${i2.NAME} is unmatched`);
+      result.push(`${i2.NAME} is in ${model2Name} but not in ${model1Name}`);
     });
   }
   return result;
