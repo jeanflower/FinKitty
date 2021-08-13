@@ -274,12 +274,14 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
       return [
         {
           icon: 'fa fa-trash',
-          callback: () => {
+          callback: async () => {
             if (
-              this.props.deleteFunction !== undefined &&
-              window.confirm(`delete data for ${row['NAME']} - you sure?`)
+              this.props.deleteFunction !== undefined
             ) {
-              this.props.deleteFunction(row['NAME']);
+              await this.props.deleteFunction(row['NAME']);
+              this.sortHandler(this.state.colSortIndex, this.state.sortDirection);
+              //log(`this.props.rows.length = ${this.props.rows.length}`);
+              //log(`this.sortedIndices = ${this.sortedIndices}`);
             }
           },
         },
