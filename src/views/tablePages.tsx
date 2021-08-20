@@ -450,7 +450,8 @@ function handleTransactionGridRowsUpdated(
 
   const transactionType = gridData.TYPE;
   const parseTo = makeValueAbsPropFromString(gridData.TO_VALUE);
-  if (transactionType !== revalueSetting && !parseFrom.checksOK) {
+  if (transactionType !== revalueSetting && !parseFrom.checksOK
+    && !model.settings.find((s)=>{return s.NAME === gridData.FROM_VALUE})){
     showAlert(
       `From value ${gridData.FROM_VALUE} should be a number or a number with % symbol`,
     );

@@ -2522,6 +2522,156 @@ describe('evaluations tests', () => {
     done();
   });
 
+  it('has transaction setting as from_value', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'April 1, 2018 00:00:00',
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: 'buy food',
+          FROM: 'MyCa',
+          FROM_VALUE: 'amountFrom',
+          DATE: 'January 2 2018',
+        },
+      ],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'MyCa',
+          START: 'January 1 2018',
+          VALUE: '500',
+        },
+      ],
+      settings: [
+        ...defaultModelSettings(roi),
+        {
+          NAME: 'amountFrom',
+          VALUE: '100',
+          HINT: '',
+          TYPE: custom,
+        },
+      ],
+    };
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(5);
+    expectEvals(evals, 0, 'amountFrom', 'Tue Jan 02 2018', 100, -1);
+    expectEvals(evals, 1, 'MyCa', 'Mon Jan 01 2018', 500, -1);
+    expectEvals(evals, 2, 'MyCa', 'Tue Jan 02 2018', 400, -1);
+    expectEvals(evals, 3, 'MyCa', 'Thu Feb 01 2018', 400, -1);
+    expectEvals(evals, 4, 'MyCa', 'Thu Mar 01 2018', 400, -1);
+
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(1);
+    expect(result.assetData[0].item.NAME).toBe('MyCa');
+    {
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(4);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 500, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 400, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 400, -1);
+    }
+    done();
+  });
+
+  it('has transaction derived setting as from_value', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'April 1, 2018 00:00:00',
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: 'buy food',
+          FROM: 'MyCa',
+          FROM_VALUE: 'amountFrom',
+          DATE: 'January 2 2018',
+        },
+      ],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'MyCa',
+          START: 'January 1 2018',
+          VALUE: '500',
+        },
+      ],
+      settings: [
+        ...defaultModelSettings(roi),
+        {
+          NAME: 'amountFrom',
+          VALUE: '10x',
+          HINT: '',
+          TYPE: custom,
+        },
+        {
+          NAME: 'x',
+          VALUE: '10',
+          HINT: '',
+          TYPE: custom,
+        },
+      ],
+    };
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(5);
+    expectEvals(evals, 0, 'x', 'Tue Jan 02 2018', 10, -1);
+    expectEvals(evals, 1, 'MyCa', 'Mon Jan 01 2018', 500, -1);
+    expectEvals(evals, 2, 'MyCa', 'Tue Jan 02 2018', 400, -1);
+    expectEvals(evals, 3, 'MyCa', 'Thu Feb 01 2018', 400, -1);
+    expectEvals(evals, 4, 'MyCa', 'Thu Mar 01 2018', 400, -1);
+    
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(1);
+    expect(result.assetData[0].item.NAME).toBe('MyCa');
+    {
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(4);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 500, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 400, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 400, -1);
+    }
+    done();
+  });
+
   it('has regular transaction impacting asset value', done => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
@@ -17571,7 +17721,7 @@ describe('evaluations tests', () => {
     expect(evals.length).toBe(0);
 
     done();
-  });  
+  });
 
   it('conditional transaction from abs to half, asset runs out', done => {
     const roi = {
@@ -19696,6 +19846,236 @@ describe('evaluations tests', () => {
     }
 
     expect(result.debtData.length).toBe(0);
+
+    done();
+  });
+
+  it('sell 100% of a quantity of things', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'May 2, 2018 00:00:00',
+    };
+    const thingName = `thing`;
+    const model: ModelData = {
+      ...emptyModel,
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'things',
+          START: 'January 1 2018',
+          VALUE: thingName,
+          QUANTITY: '10',
+          GROWTH: '0.0',
+          CPI_IMMUNE: true,
+        },
+        {
+          ...simpleAsset,
+          NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
+          START: 'January 1 2018',
+        },
+      ],
+      transactions: [
+        ...minimalModel.transactions,
+        {
+          ...simpleTransaction,
+          NAME: 'Sell all things',
+          FROM: 'things',
+          FROM_VALUE: '1.0',
+          FROM_ABSOLUTE: false,
+          TO: CASH_ASSET_NAME,
+          TO_VALUE: '1.0',
+          TO_ABSOLUTE: false,
+          DATE: 'Mar 10 2018',
+        },
+      ],
+      settings: [
+        ...defaultModelSettings(roi),
+        {
+          NAME: thingName,
+          VALUE: '123',
+          HINT: 'something',
+          TYPE: constType, // eventually we will want to adjust...
+        },
+      ],
+    };
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(15);
+    expectEvals(evals, 0, 'thing', 'Mon Jan 01 2018', 123, -1);
+    expectEvals(evals, 1, 'Cash', 'Mon Jan 01 2018', 0, -1);
+    expectEvals(evals, 2, 'quantitythings', 'Mon Jan 01 2018', 10, -1);
+    expectEvals(evals, 3, 'things', 'Mon Jan 01 2018', 1230, -1);
+    expectEvals(evals, 4, 'Cash', 'Thu Feb 01 2018', 0, -1);
+    expectEvals(evals, 5, 'things', 'Thu Feb 01 2018', 1230, -1);
+    expectEvals(evals, 6, 'Cash', 'Thu Mar 01 2018', 0, -1);
+    expectEvals(evals, 7, 'things', 'Thu Mar 01 2018', 1230, -1);
+    expectEvals(evals, 8, 'quantitythings', 'Sat Mar 10 2018', 0, -1);
+    expectEvals(evals, 9, 'things', 'Sat Mar 10 2018', 0, -1);
+    expectEvals(evals, 10, 'Cash', 'Sat Mar 10 2018', 1230, -1);
+    expectEvals(evals, 11, 'Cash', 'Sun Apr 01 2018', 1230, -1);
+    expectEvals(evals, 12, 'things', 'Sun Apr 01 2018', 0, -1);
+    expectEvals(evals, 13, 'Cash', 'Tue May 01 2018', 1230, -1);
+    expectEvals(evals, 14, 'things', 'Tue May 01 2018', 0, -1);
+
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(2);
+    expect(result.assetData[0].item.NAME).toBe('things');
+    {
+    const chartPts = result.assetData[0].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0,    -1);
+    expectChartData(chartPts, 1, 'Mon Jan 01 2018', 1230,    -1);
+    expectChartData(chartPts, 2, 'Thu Feb 01 2018', 1230,    -1);
+    expectChartData(chartPts, 3, 'Thu Mar 01 2018', 1230,    -1);
+    expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0,    -1);
+    expectChartData(chartPts, 5, 'Tue May 01 2018', 0,    -1);
+    }
+
+    expect(result.assetData[1].item.NAME).toBe('Cash');
+    {
+    const chartPts = result.assetData[1].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0,    -1);
+    expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0,    -1);
+    expectChartData(chartPts, 2, 'Thu Feb 01 2018', 0,    -1);
+    expectChartData(chartPts, 3, 'Thu Mar 01 2018', 0,    -1);
+    expectChartData(chartPts, 4, 'Sun Apr 01 2018', 1230,    -1);
+    expectChartData(chartPts, 5, 'Tue May 01 2018', 1230,    -1);
+    }
+
+    expect(result.debtData.length).toBe(0);
+    expect(result.taxData.length).toBe(0);
+
+    done();
+  });
+
+  it('sell 99% of a quantity of things', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'May 2, 2018 00:00:00',
+    };
+    const thingName = `thing`;
+    const model: ModelData = {
+      ...emptyModel,
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'things',
+          START: 'January 1 2018',
+          VALUE: thingName,
+          QUANTITY: '10',
+          GROWTH: '0.0',
+          CPI_IMMUNE: true,
+        },
+        {
+          ...simpleAsset,
+          NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
+          START: 'January 1 2018',
+        },
+      ],
+      transactions: [
+        ...minimalModel.transactions,
+        {
+          ...simpleTransaction,
+          NAME: 'Sell all things',
+          FROM: 'things',
+          FROM_VALUE: '0.99',
+          FROM_ABSOLUTE: false,
+          TO: CASH_ASSET_NAME,
+          TO_VALUE: '1.0',
+          TO_ABSOLUTE: false,
+          DATE: 'Mar 10 2018',
+        },
+      ],
+      settings: [
+        ...defaultModelSettings(roi),
+        {
+          NAME: thingName,
+          VALUE: '123',
+          HINT: 'something',
+          TYPE: constType, // eventually we will want to adjust...
+        },
+      ],
+    };
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+ 
+    expect(evals.length).toBe(15);
+    expectEvals(evals, 0, 'thing', 'Mon Jan 01 2018', 123, -1);
+    expectEvals(evals, 1, 'Cash', 'Mon Jan 01 2018', 0, -1);
+    expectEvals(evals, 2, 'quantitythings', 'Mon Jan 01 2018', 10, -1);
+    expectEvals(evals, 3, 'things', 'Mon Jan 01 2018', 1230, -1);
+    expectEvals(evals, 4, 'Cash', 'Thu Feb 01 2018', 0, -1);
+    expectEvals(evals, 5, 'things', 'Thu Feb 01 2018', 1230, -1);
+    expectEvals(evals, 6, 'Cash', 'Thu Mar 01 2018', 0, -1);
+    expectEvals(evals, 7, 'things', 'Thu Mar 01 2018', 1230, -1);
+    expectEvals(evals, 8, 'quantitythings', 'Sat Mar 10 2018', 1, -1);
+    expectEvals(evals, 9, 'things', 'Sat Mar 10 2018', 123, -1);
+    expectEvals(evals, 10, 'Cash', 'Sat Mar 10 2018', 1107, -1);
+    expectEvals(evals, 11, 'Cash', 'Sun Apr 01 2018', 1107, -1);
+    expectEvals(evals, 12, 'things', 'Sun Apr 01 2018', 123, -1);
+    expectEvals(evals, 13, 'Cash', 'Tue May 01 2018', 1107, -1);
+    expectEvals(evals, 14, 'things', 'Tue May 01 2018', 123, -1);
+
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(2);
+    expect(result.assetData[0].item.NAME).toBe('things');
+    {
+    const chartPts = result.assetData[0].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0,    -1);
+    expectChartData(chartPts, 1, 'Mon Jan 01 2018', 1230,    -1);
+    expectChartData(chartPts, 2, 'Thu Feb 01 2018', 1230,    -1);
+    expectChartData(chartPts, 3, 'Thu Mar 01 2018', 1230,    -1);
+    expectChartData(chartPts, 4, 'Sun Apr 01 2018', 123,    -1);
+    expectChartData(chartPts, 5, 'Tue May 01 2018', 123,    -1);
+    }
+
+    expect(result.assetData[1].item.NAME).toBe('Cash');
+    {
+    const chartPts = result.assetData[1].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0,    -1);
+    expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0,    -1);
+    expectChartData(chartPts, 2, 'Thu Feb 01 2018', 0,    -1);
+    expectChartData(chartPts, 3, 'Thu Mar 01 2018', 0,    -1);
+    expectChartData(chartPts, 4, 'Sun Apr 01 2018', 1107,    -1);
+    expectChartData(chartPts, 5, 'Tue May 01 2018', 1107,    -1);
+    }
+
+    expect(result.debtData.length).toBe(0);
+    expect(result.taxData.length).toBe(0);
 
     done();
   });
