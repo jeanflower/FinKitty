@@ -12,6 +12,7 @@ interface ReplaceWithJSONFormProps {
   modelName: string;
   userID: string;
   showAlert: (arg0: string) => void;
+  debug: (args0: string) => void;
 }
 
 export class ReplaceWithJSONForm extends Component<
@@ -63,8 +64,15 @@ export class ReplaceWithJSONForm extends Component<
   private async replace(e: FormEvent<Element>) {
     e.preventDefault();
     let modelName = this.props.modelName;
+
     // log(`modelName from props is ${modelName}`);
     let JSON = this.state.JSON;
+    const debugStarter = 'debug:';
+    if(JSON.startsWith(debugStarter)){
+      this.props.debug(JSON.substring(debugStarter.length))
+      return;
+    }
+
     const i = this.state.JSON.indexOf(`{`);
     if (printDebug()) {
       log(`index of { in ${JSON} is ${i}`);

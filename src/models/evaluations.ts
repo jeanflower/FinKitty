@@ -65,6 +65,7 @@ import {
   replaceCategoryWithAssetNames,
   getTodaysDate,
 } from './modelUtils';
+import { report } from 'process';
 
 function parseRecurrenceString(recurrence: string) {
   const result = {
@@ -487,7 +488,7 @@ function setValue(
       );
     }
   }
-  values.set(name, newValue);
+  values.set(name, newValue, date);
   // log(`Go to find unit val for ${name}'s, we have value = some of ${newValue}`);
   const unitVal = traceEvaluation(newValue, values, name);
   // log(`Unit val of ${name} is ${unitVal}`);
@@ -3077,16 +3078,39 @@ function logPurchaseValues(
     );
   }
 }
-
 class ValuesContainer {
-  private values = new Map<string, number | string>([]);
 
-  public set(key: string, val: number|string){
+  private values = new Map<string, number | string>([]);
+  private keyOfInterest: string | undefined = undefined;
+  private report: {
+    newVal: number|undefined;
+    date:string;
+  }[] = [];
+
+  public setKeyOfInterest(key: string){
+    this.keyOfInterest = key;
+    this.report = [];
+  }
+
+  public set(key: string, val: number|string, date:Date){
     this.values.set(key, val);
+    if(key === this.keyOfInterest){
+      this.report.push({
+        newVal: traceEvaluation(key, this, 'debugReport'),
+        date: date.toString(),   
+      });
+    }
   }
 
   public get(key: string): number | string | undefined{
     return this.values.get(key);
+  }
+
+  public getReport():{
+      newVal: number|undefined;
+      date:string;
+  }[]{
+    return this.report;
   }
 
   public keys(){
@@ -3098,6 +3122,7 @@ class ValuesContainer {
 // this file.
 export function getEvaluations(
   model: ModelData,
+  keyOfInterest: string|undefined,
 ): {
   evaluations: Evaluation[];
   todaysAssetValues: Map<string, AssetVal>;
@@ -3156,11 +3181,14 @@ export function getEvaluations(
 
   // Keep track of current value of any expense, income or asset
   const values = new ValuesContainer();
+  if(keyOfInterest){
+    values.setKeyOfInterest(keyOfInterest);
+  }
 
   const cpiInitialVal: number = parseFloat(
     getSettings(model.settings, cpi, '0.0'),
   );
-  values.set(cpi, cpiInitialVal);
+  values.set(cpi, cpiInitialVal, roiStartDate);
 
   // A historical record of evaluations (useful for creating trends or charts)
   const evaluations: Evaluation[] = [];
@@ -3816,6 +3844,11 @@ export function getEvaluations(
     });
   }
   // log(`getEvaluations returning ${evaluations.length} evaluations`);
+
+  const report = values.getReport();
+  if(report.length > 0){
+    log(`report ${showObj(report)}`);
+  }
 
   const result = {
     evaluations: evaluations,

@@ -129,7 +129,9 @@ async function fillCacheFromDB(userID: string) {
   const result = await Promise.all( modelNames.map((modelName)=>{
     return getModel(modelName);
   } ));
-  // log(`result from Promise.all(...) is ${result}`);
+  if(printDebug()){
+    log(`result from Promise.all(...) is ${result}`);
+  }
   localCache.set(userID, cachedModels);
   logCache();
   return cachedModels;

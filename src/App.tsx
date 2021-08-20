@@ -384,6 +384,16 @@ function showAlert(text: string) {
     alertText: text,
   });
 }
+function setKeyForReport(text: string) {
+  reactAppComponent.setState({
+    keyForReport: text,
+  });
+  // log('setting key for report : go refresh data');
+  refreshData(
+    true, // refreshModel = true,
+    true, // refreshChart = true,
+  );
+}
 
 export async function refreshData(
   refreshModel: boolean,
@@ -492,7 +502,7 @@ export async function refreshData(
     model.assets.sort((a: Asset, b: Asset) => lessThan(b.NAME, a.NAME));
     modelNames.sort((a: string, b: string) => lessThan(a, b));
 
-    evaluationsAndVals = getEvaluations(model);
+    evaluationsAndVals = getEvaluations(model, reactAppComponent.state.keyForReport);
   }
   if (refreshModel) {
     viewSettings.setModel(model);
@@ -949,6 +959,7 @@ interface AppState {
   todaysExpenseValues: Map<string, ExpenseVal>;
   todaysSettingValues: Map<string, SettingVal>;
   alertText: string;
+  keyForReport: string|undefined,
 }
 interface AppProps {
   logOutAction: () => {};
@@ -980,6 +991,7 @@ export class AppContent extends Component<AppProps, AppState> {
       todaysExpenseValues: new Map<string, ExpenseVal>(),
       todaysSettingValues: new Map<string, SettingVal>(),
       alertText: '',
+      keyForReport: undefined,
     };
     refreshData(
       true, // refreshModel = true,
@@ -1532,6 +1544,7 @@ export class AppContent extends Component<AppProps, AppState> {
               modelName={modelName}
               userID={userID}
               showAlert={showAlert}
+              debug={setKeyForReport}
             />
           </div>
           <div className="col-md mb-4">{screenshotsDiv()}</div>

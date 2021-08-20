@@ -426,10 +426,16 @@ function getTestEvaluations(
 
   let evalnsAndVals;
   if (!extraChecks) {
-    evalnsAndVals = getEvaluations(model);
+    evalnsAndVals = getEvaluations(
+      model, 
+      undefined, // no key for a values report
+    );
   } else {
     const copyModel = makeModelFromJSONString(JSON.stringify(model));
-    evalnsAndVals = getEvaluations(copyModel);
+    evalnsAndVals = getEvaluations(
+      copyModel, 
+      undefined, // no key for a values report
+    );
   }
   return evalnsAndVals;
 }
@@ -711,6 +717,7 @@ describe('evaluations tests', () => {
 
     const evalsAndValues = getEvaluations(
       makeModelFromJSONString(JSON.stringify(model)),
+      undefined, // no key for a values report
     );
 
     // log(showObj(evals));
