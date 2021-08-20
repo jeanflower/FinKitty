@@ -320,7 +320,7 @@ export const evaluationType = {
 };
 
 function getNumberValue(
-  values: Map<string, number | string>,
+  values: ValuesContainer,
   key: string,
   expectValue = true,
   printLogs = false,
@@ -357,7 +357,7 @@ function getNumberValue(
 
 function traceEvaluation(
   value: number | string,
-  values: Map<string, number | string>,
+  values: ValuesContainer,
   source: string,
 ): number | undefined {
   if (printDebug()) {
@@ -421,7 +421,7 @@ function traceEvaluation(
 
 function getQuantity(
   w: string,
-  values: Map<string, number | string>,
+  values: ValuesContainer,
   model: ModelData,
 ): undefined | number {
   if (getStartQuantity(w, model) === undefined) {
@@ -436,7 +436,7 @@ function getQuantity(
 
 function applyQuantity(
   value: number,
-  values: Map<string, number | string>,
+  values: ValuesContainer,
   assetName: string,
   model: ModelData,
 ) {
@@ -456,7 +456,7 @@ function applyQuantity(
 }
 
 function setValue(
-  values: Map<string, number | string>,
+  values: ValuesContainer,
   evaluations: Evaluation[],
   date: Date,
   name: string,
@@ -889,7 +889,7 @@ function calculateCGTPayable(gain: number, d: Date, cpiVal: number) {
 function adjustCash(
   amount: number,
   d: Date,
-  values: Map<string, number | string>,
+  values: ValuesContainer,
   evaluations: Evaluation[],
   model: ModelData,
   source: string, // what led to the change
@@ -929,7 +929,7 @@ function payTaxFromVestedRSU(
   a: Asset,
   taxDue: { amountLiable: number; rate: number }[],
   startOfTaxYear: Date,
-  values: Map<string, number | string>,
+  values: ValuesContainer,
   evaluations: Evaluation[],
   model: ModelData,
   source: string, // e.g. IncomeTaxJoe
@@ -1088,7 +1088,7 @@ function payTaxFromVestedRSU(
 function payTaxFromVestedRSUs(
   taxDue: { amountLiable: number; rate: number }[],
   startOfTaxYear: Date,
-  values: Map<string, number | string>,
+  values: ValuesContainer,
   evaluations: Evaluation[],
   model: ModelData,
   source: string, // e.g. IncomeTaxJoe
@@ -1130,7 +1130,7 @@ function payIncomeTax(
   startOfTaxYear: Date,
   income: number,
   cpiVal: number,
-  values: Map<string, number | string>,
+  values: ValuesContainer,
   evaluations: Evaluation[],
   model: ModelData,
   source: string, // e.g. IncomeTaxJoe
@@ -1193,7 +1193,7 @@ function payNI(
   startOfTaxYear: Date,
   income: number,
   cpiVal: number,
-  values: Map<string, number | string>,
+  values: ValuesContainer,
   evaluations: Evaluation[],
   model: ModelData,
   source: string, // e.g. NIJoe
@@ -1245,7 +1245,7 @@ function payCGT(
   startOfTaxYear: Date,
   gain: number,
   cpiVal: number,
-  values: Map<string, number | string>,
+  values: ValuesContainer,
   evaluations: Evaluation[],
   model: ModelData,
   source: string, // e.g. 'CGTJoe'
@@ -1276,7 +1276,7 @@ function OptimizeIncomeTax(
   date: Date,
   cpiVal: number,
   liableIncome: number,
-  values: Map<string, number | string>,
+  values: ValuesContainer,
   person: string,
   liableIncomeInTaxYear: Map<string, Map<string, number>>,
   evaluations: Evaluation[],
@@ -1363,7 +1363,7 @@ function settleUpTax(
   liableIncomeInTaxYear: Map<string, Map<string, number>>,
   startYearOfTaxYear: number,
   cpiVal: number,
-  values: Map<string, number | string>,
+  values: ValuesContainer,
   evaluations: Evaluation[],
   model: ModelData,
 ) {
@@ -1603,7 +1603,7 @@ function accumulateLiability(
 function handleIncome(
   incomeValue: number,
   moment: Moment,
-  values: Map<string, number | string>,
+  values: ValuesContainer,
   evaluations: Evaluation[],
   model: ModelData,
   pensionTransactions: Transaction[],
@@ -1888,7 +1888,7 @@ function logAssetValueString(
   assetVal: string,
   assetStart: string,
   assetName: string,
-  values: Map<string, number | string>,
+  values: ValuesContainer,
   evaluations: Evaluation[],
   model: ModelData,
   level = 1,
@@ -2226,7 +2226,7 @@ function assetAllowedNegative(assetName: string, asset: Asset) {
 function revalueApplied(
   t: Transaction,
   moment: Moment,
-  values: Map<string, number | string>,
+  values: ValuesContainer,
   evaluations: Evaluation[],
   liableIncomeInTaxYear: Map<string, Map<string, number>>,
   model: ModelData,
@@ -2372,7 +2372,7 @@ function calculateFromChange(
   preFromValue: number,
   fromWord: string,
   moment: Moment,
-  values: Map<string, number | string>,
+  values: ValuesContainer,
   evaluations: Evaluation[],
   model: ModelData,
 ):
@@ -2576,7 +2576,7 @@ function calculateToChange(
   preToValue: number | undefined,
   fromChange: number | undefined,
   moment: Moment,
-  values: Map<string, number | string>,
+  values: ValuesContainer,
   evaluations: Evaluation[],
   model: ModelData,
 ) {
@@ -2639,7 +2639,7 @@ function handleCGTLiability(
   preFromValue: number, // what the whole from was worth before transaction
   fromChange: number, // the change in whole value of from during transaction
   moment: Moment,
-  values: Map<string, number | string>,
+  values: ValuesContainer,
   evaluations: Evaluation[],
   liabliitiesMap: Map<string, string>,
   liableIncomeInTaxYear: Map<string, Map<string, number>>,
@@ -2719,7 +2719,7 @@ function processTransactionFromTo(
   fromWord: string,
   toWord: string,
   moment: Moment,
-  values: Map<string, number | string>,
+  values: ValuesContainer,
   evaluations: Evaluation[],
   model: ModelData,
   pensionTransactions: Transaction[],
@@ -2887,7 +2887,7 @@ function processTransactionFromTo(
 function processTransactionTo(
   t: Transaction,
   moment: Moment,
-  values: Map<string, number | string>,
+  values: ValuesContainer,
   evaluations: Evaluation[],
   model: ModelData,
 ) {
@@ -2937,7 +2937,7 @@ function processTransactionTo(
 
 function processTransactionMoment(
   moment: Moment,
-  values: Map<string, number | string>,
+  values: ValuesContainer,
   evaluations: Evaluation[],
   model: ModelData,
   pensionTransactions: Transaction[],
@@ -3043,7 +3043,7 @@ function logAssetIncomeLiabilities(
 
 function logPurchaseValues(
   a: Asset,
-  values: Map<string, number | string>,
+  values: ValuesContainer,
   evaluations: Evaluation[],
   model: ModelData,
 ) {
@@ -3075,6 +3075,22 @@ function logPurchaseValues(
       `${purchase}${a.NAME}`,
       '17', //callerID
     );
+  }
+}
+
+class ValuesContainer {
+  private values = new Map<string, number | string>([]);
+
+  public set(key: string, val: number|string){
+    this.values.set(key, val);
+  }
+
+  public get(key: string): number | string | undefined{
+    return this.values.get(key);
+  }
+
+  public keys(){
+    return this.values.keys();
   }
 }
 
@@ -3139,7 +3155,7 @@ export function getEvaluations(
   const pensionTransactions: Transaction[] = [];
 
   // Keep track of current value of any expense, income or asset
-  const values = new Map<string, number | string>([]);
+  const values = new ValuesContainer();
 
   const cpiInitialVal: number = parseFloat(
     getSettings(model.settings, cpi, '0.0'),
