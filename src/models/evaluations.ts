@@ -488,7 +488,7 @@ function setValue(
       );
     }
   }
-  values.set(name, newValue, date);
+  values.set(name, newValue, date, source);
   // log(`Go to find unit val for ${name}'s, we have value = some of ${newValue}`);
   const unitVal = traceEvaluation(newValue, values, name);
   // log(`Unit val of ${name} is ${unitVal}`);
@@ -3096,7 +3096,8 @@ class ValuesContainer {
   private keyOfInterest: string | undefined = undefined;
   private report: {
     newVal: number|undefined;
-    date:string;
+    date: string;
+    description: string;
   }[] = [];
 
   public setKeyOfInterest(key: string){
@@ -3104,12 +3105,18 @@ class ValuesContainer {
     this.report = [];
   }
 
-  public set(key: string, val: number|string, date:Date){
+  public set(
+    key: string, 
+    val: number|string, 
+    date:Date, 
+    description: string,
+  ){
     this.values.set(key, val);
     if(key === this.keyOfInterest){
       this.report.push({
         newVal: traceEvaluation(key, this, 'debugReport'),
-        date: date.toString(),   
+        date: date.toString(),
+        description: description,
       });
     }
   }
@@ -3200,7 +3207,7 @@ export function getEvaluations(
   const cpiInitialVal: number = parseFloat(
     getSettings(model.settings, cpi, '0.0'),
   );
-  values.set(cpi, cpiInitialVal, roiStartDate);
+  values.set(cpi, cpiInitialVal, roiStartDate, 'start value');
 
   // A historical record of evaluations (useful for creating trends or charts)
   const evaluations: Evaluation[] = [];
