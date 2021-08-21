@@ -469,6 +469,7 @@ describe(testDataModelName, () => {
 
   function assertAssetData(ary: any, createButtonID: string) {
     if (createButtonID === 'btn-create-Simple-example') {
+      ary.reverse();
       expect(ary.length).toEqual(3);
       expect(ary[0].name).toEqual('Stocks');
       expect(ary[0].type).toEqual('stackedColumn');
@@ -785,7 +786,25 @@ describe(testDataModelName, () => {
       createButtonID === 'btn-create-Defined Contributions Pension-example'
     ) {
       expect(ary.length).toEqual(5);
+      // fix the ordering
+      expect(ary[0].name).toEqual('Cash');
+      expect(ary[1].name).toEqual(`${crystallizedPension}Jack.Aegon`);
+      expect(ary[2].name).toEqual(`${crystallizedPension}Joe.Aegon`);
+      expect(ary[3].name).toEqual(`${taxFree}Aegon`);      
+      expect(ary[4].name).toEqual(`${pension}Aegon`);
+      const ary2 = [
+        ary[0],
+        ary[4],
+        ary[2],
+        ary[1],
+        ary[3],
+      ];
+      ary = ary2;
+      expect(ary[0].name).toEqual('Cash');
       expect(ary[1].name).toEqual(`${pension}Aegon`);
+      expect(ary[2].name).toEqual(`${crystallizedPension}Joe.Aegon`);
+      expect(ary[3].name).toEqual(`${crystallizedPension}Jack.Aegon`);
+      expect(ary[4].name).toEqual(`${taxFree}Aegon`);
       expect(ary[1].type).toEqual('stackedColumn');
       expect(ary[1].showInLegend).toEqual(true);
       expect(ary[1].dataPoints.length).toEqual(27);
@@ -870,7 +889,6 @@ describe(testDataModelName, () => {
       expect(ary[1].dataPoints[26].label).toEqual('Sun Jan 01 2045');
       expect(ary[1].dataPoints[26].y).toEqual(0);
       expect(ary[1].dataPoints[26].ttip).toEqual('0.00 at Sun Jan 01 2045');
-      expect(ary[2].name).toEqual(`${crystallizedPension}Joe.Aegon`);
       expect(ary[2].type).toEqual('stackedColumn');
       expect(ary[2].showInLegend).toEqual(true);
       expect(ary[2].dataPoints.length).toEqual(27);
@@ -955,7 +973,6 @@ describe(testDataModelName, () => {
       expect(ary[2].dataPoints[26].label).toEqual('Sun Jan 01 2045');
       expect(ary[2].dataPoints[26].y).toEqual(0);
       expect(ary[2].dataPoints[26].ttip).toEqual('0.00 at Sun Jan 01 2045');
-      expect(ary[3].name).toEqual(`${crystallizedPension}Jack.Aegon`);
       expect(ary[3].type).toEqual('stackedColumn');
       expect(ary[3].showInLegend).toEqual(true);
       expect(ary[3].dataPoints.length).toEqual(27);
@@ -1040,7 +1057,6 @@ describe(testDataModelName, () => {
       expect(ary[3].dataPoints[26].label).toEqual('Sun Jan 01 2045');
       expect(ary[3].dataPoints[26].y).toEqual(0);
       expect(ary[3].dataPoints[26].ttip).toEqual('0.00 at Sun Jan 01 2045');
-      expect(ary[0].name).toEqual('Cash');
       expect(ary[0].type).toEqual('stackedColumn');
       expect(ary[0].showInLegend).toEqual(true);
       expect(ary[0].dataPoints.length).toEqual(27);
@@ -1125,7 +1141,6 @@ describe(testDataModelName, () => {
       expect(ary[0].dataPoints[26].label).toEqual('Sun Jan 01 2045');
       expect(ary[0].dataPoints[26].y).toEqual(321285.60559640895);
       expect(ary[0].dataPoints[26].ttip).toEqual('321285.61 at Sun Jan 01 2045');
-      expect(ary[4].name).toEqual(`${taxFree}Aegon`);
       expect(ary[4].type).toEqual('stackedColumn');
       expect(ary[4].showInLegend).toEqual(true);
       expect(ary[4].dataPoints.length).toEqual(27);
@@ -1214,6 +1229,7 @@ describe(testDataModelName, () => {
       createButtonID === 'btn-create-National Savings Income Bonds-example'
     ) {
       expect(ary.length).toEqual(2);
+      ary.reverse();
       expect(ary[0].name).toEqual('NI');
       expect(ary[0].type).toEqual('stackedColumn');
       expect(ary[0].showInLegend).toEqual(true);
@@ -1307,6 +1323,7 @@ describe(testDataModelName, () => {
 
   function assertExpenseData(ary: any, createButtonID: string) {
     if (createButtonID === 'btn-create-Simple-example') {
+      ary.reverse();
       expect(ary.length).toEqual(3);
       expect(ary[0].name).toEqual('Run house');
       expect(ary[0].type).toEqual('stackedColumn');
@@ -1589,6 +1606,7 @@ describe(testDataModelName, () => {
 
   function assertIncomeData(ary: any, createButtonID: string) {
     if (createButtonID === 'btn-create-Simple-example') {
+      ary.reverse();
       expect(ary.length).toEqual(3);
       expect(ary[0].name).toEqual('Side hustle income later');
       expect(ary[0].type).toEqual('stackedColumn');
@@ -1907,95 +1925,7 @@ describe(testDataModelName, () => {
       expect(ary[0].dataPoints[27].label).toEqual('Fri Jan 01 2044');
       expect(ary[0].dataPoints[27].y).toEqual(0);
       expect(ary[0].dataPoints[27].ttip).toEqual('0.00 at Fri Jan 01 2044');
-      expect(ary[2].name).toEqual(`${pensionDB}TeachersPensionScheme`);
-      expect(ary[2].type).toEqual('stackedColumn');
-      expect(ary[2].showInLegend).toEqual(true);
-      expect(ary[2].dataPoints.length).toEqual(28);
-      expect(ary[2].dataPoints[0].label).toEqual('Sun Jan 01 2017');
-      expect(ary[2].dataPoints[0].y).toEqual(0);
-      expect(ary[2].dataPoints[0].ttip).toEqual('0.00 at Sun Jan 01 2017');
-      expect(ary[2].dataPoints[1].label).toEqual('Mon Jan 01 2018');
-      expect(ary[2].dataPoints[1].y).toEqual(0);
-      expect(ary[2].dataPoints[1].ttip).toEqual('0.00 at Mon Jan 01 2018');
-      expect(ary[2].dataPoints[2].label).toEqual('Tue Jan 01 2019');
-      expect(ary[2].dataPoints[2].y).toEqual(0);
-      expect(ary[2].dataPoints[2].ttip).toEqual('0.00 at Tue Jan 01 2019');
-      expect(ary[2].dataPoints[3].label).toEqual('Wed Jan 01 2020');
-      expect(ary[2].dataPoints[3].y).toEqual(0);
-      expect(ary[2].dataPoints[3].ttip).toEqual('0.00 at Wed Jan 01 2020');
-      expect(ary[2].dataPoints[4].label).toEqual('Fri Jan 01 2021');
-      expect(ary[2].dataPoints[4].y).toEqual(0);
-      expect(ary[2].dataPoints[4].ttip).toEqual('0.00 at Fri Jan 01 2021');
-      expect(ary[2].dataPoints[5].label).toEqual('Sat Jan 01 2022');
-      expect(ary[2].dataPoints[5].y).toEqual(0);
-      expect(ary[2].dataPoints[5].ttip).toEqual('0.00 at Sat Jan 01 2022');
-      expect(ary[2].dataPoints[6].label).toEqual('Sun Jan 01 2023');
-      expect(ary[2].dataPoints[6].y).toEqual(0);
-      expect(ary[2].dataPoints[6].ttip).toEqual('0.00 at Sun Jan 01 2023');
-      expect(ary[2].dataPoints[7].label).toEqual('Mon Jan 01 2024');
-      expect(ary[2].dataPoints[7].y).toEqual(0);
-      expect(ary[2].dataPoints[7].ttip).toEqual('0.00 at Mon Jan 01 2024');
-      expect(ary[2].dataPoints[8].label).toEqual('Wed Jan 01 2025');
-      expect(ary[2].dataPoints[8].y).toEqual(0);
-      expect(ary[2].dataPoints[8].ttip).toEqual('0.00 at Wed Jan 01 2025');
-      expect(ary[2].dataPoints[9].label).toEqual('Thu Jan 01 2026');
-      expect(ary[2].dataPoints[9].y).toEqual(0);
-      expect(ary[2].dataPoints[9].ttip).toEqual('0.00 at Thu Jan 01 2026');
-      expect(ary[2].dataPoints[10].label).toEqual('Fri Jan 01 2027');
-      expect(ary[2].dataPoints[10].y).toEqual(0);
-      expect(ary[2].dataPoints[10].ttip).toEqual('0.00 at Fri Jan 01 2027');
-      expect(ary[2].dataPoints[11].label).toEqual('Sat Jan 01 2028');
-      expect(ary[2].dataPoints[11].y).toEqual(0);
-      expect(ary[2].dataPoints[11].ttip).toEqual('0.00 at Sat Jan 01 2028');
-      expect(ary[2].dataPoints[12].label).toEqual('Mon Jan 01 2029');
-      expect(ary[2].dataPoints[12].y).toEqual(0);
-      expect(ary[2].dataPoints[12].ttip).toEqual('0.00 at Mon Jan 01 2029');
-      expect(ary[2].dataPoints[13].label).toEqual('Tue Jan 01 2030');
-      expect(ary[2].dataPoints[13].y).toEqual(365.6983259984293);
-      expect(ary[2].dataPoints[13].ttip).toEqual('365.70 at Tue Jan 01 2030');
-      expect(ary[2].dataPoints[14].label).toEqual('Wed Jan 01 2031');
-      expect(ary[2].dataPoints[14].y).toEqual(4435.776865358291);
-      expect(ary[2].dataPoints[14].ttip).toEqual('4435.78 at Wed Jan 01 2031');
-      expect(ary[2].dataPoints[15].label).toEqual('Thu Jan 01 2032');
-      expect(ary[2].dataPoints[15].y).toEqual(4524.49240266546);
-      expect(ary[2].dataPoints[15].ttip).toEqual('4524.49 at Thu Jan 01 2032');
-      expect(ary[2].dataPoints[16].label).toEqual('Sat Jan 01 2033');
-      expect(ary[2].dataPoints[16].y).toEqual(4614.98225071877);
-      expect(ary[2].dataPoints[16].ttip).toEqual('4614.98 at Sat Jan 01 2033');
-      expect(ary[2].dataPoints[17].label).toEqual('Sun Jan 01 2034');
-      expect(ary[2].dataPoints[17].y).toEqual(4707.281895733147);
-      expect(ary[2].dataPoints[17].ttip).toEqual('4707.28 at Sun Jan 01 2034');
-      expect(ary[2].dataPoints[18].label).toEqual('Mon Jan 01 2035');
-      expect(ary[2].dataPoints[18].y).toEqual(4397.66703215057);
-      expect(ary[2].dataPoints[18].ttip).toEqual('4397.67 at Mon Jan 01 2035');
-      expect(ary[2].dataPoints[19].label).toEqual('Tue Jan 01 2036');
-      expect(ary[2].dataPoints[19].y).toEqual(0);
-      expect(ary[2].dataPoints[19].ttip).toEqual('0.00 at Tue Jan 01 2036');
-      expect(ary[2].dataPoints[20].label).toEqual('Thu Jan 01 2037');
-      expect(ary[2].dataPoints[20].y).toEqual(0);
-      expect(ary[2].dataPoints[20].ttip).toEqual('0.00 at Thu Jan 01 2037');
-      expect(ary[2].dataPoints[21].label).toEqual('Fri Jan 01 2038');
-      expect(ary[2].dataPoints[21].y).toEqual(0);
-      expect(ary[2].dataPoints[21].ttip).toEqual('0.00 at Fri Jan 01 2038');
-      expect(ary[2].dataPoints[22].label).toEqual('Sat Jan 01 2039');
-      expect(ary[2].dataPoints[22].y).toEqual(0);
-      expect(ary[2].dataPoints[22].ttip).toEqual('0.00 at Sat Jan 01 2039');
-      expect(ary[2].dataPoints[23].label).toEqual('Sun Jan 01 2040');
-      expect(ary[2].dataPoints[23].y).toEqual(0);
-      expect(ary[2].dataPoints[23].ttip).toEqual('0.00 at Sun Jan 01 2040');
-      expect(ary[2].dataPoints[24].label).toEqual('Tue Jan 01 2041');
-      expect(ary[2].dataPoints[24].y).toEqual(0);
-      expect(ary[2].dataPoints[24].ttip).toEqual('0.00 at Tue Jan 01 2041');
-      expect(ary[2].dataPoints[25].label).toEqual('Wed Jan 01 2042');
-      expect(ary[2].dataPoints[25].y).toEqual(0);
-      expect(ary[2].dataPoints[25].ttip).toEqual('0.00 at Wed Jan 01 2042');
-      expect(ary[2].dataPoints[26].label).toEqual('Thu Jan 01 2043');
-      expect(ary[2].dataPoints[26].y).toEqual(0);
-      expect(ary[2].dataPoints[26].ttip).toEqual('0.00 at Thu Jan 01 2043');
-      expect(ary[2].dataPoints[27].label).toEqual('Fri Jan 01 2044');
-      expect(ary[2].dataPoints[27].y).toEqual(0);
-      expect(ary[2].dataPoints[27].ttip).toEqual('0.00 at Fri Jan 01 2044');
-      expect(ary[1].name).toEqual(`${pensionTransfer}TeachersPensionScheme`);
+      expect(ary[1].name).toEqual(`${pensionDB}TeachersPensionScheme`);
       expect(ary[1].type).toEqual('stackedColumn');
       expect(ary[1].showInLegend).toEqual(true);
       expect(ary[1].dataPoints.length).toEqual(28);
@@ -2039,38 +1969,38 @@ describe(testDataModelName, () => {
       expect(ary[1].dataPoints[12].y).toEqual(0);
       expect(ary[1].dataPoints[12].ttip).toEqual('0.00 at Mon Jan 01 2029');
       expect(ary[1].dataPoints[13].label).toEqual('Tue Jan 01 2030');
-      expect(ary[1].dataPoints[13].y).toEqual(0);
-      expect(ary[1].dataPoints[13].ttip).toEqual('0.00 at Tue Jan 01 2030');
+      expect(ary[1].dataPoints[13].y).toEqual(365.6983259984293);
+      expect(ary[1].dataPoints[13].ttip).toEqual('365.70 at Tue Jan 01 2030');
       expect(ary[1].dataPoints[14].label).toEqual('Wed Jan 01 2031');
-      expect(ary[1].dataPoints[14].y).toEqual(0);
-      expect(ary[1].dataPoints[14].ttip).toEqual('0.00 at Wed Jan 01 2031');
+      expect(ary[1].dataPoints[14].y).toEqual(4435.776865358291);
+      expect(ary[1].dataPoints[14].ttip).toEqual('4435.78 at Wed Jan 01 2031');
       expect(ary[1].dataPoints[15].label).toEqual('Thu Jan 01 2032');
-      expect(ary[1].dataPoints[15].y).toEqual(0);
-      expect(ary[1].dataPoints[15].ttip).toEqual('0.00 at Thu Jan 01 2032');
+      expect(ary[1].dataPoints[15].y).toEqual(4524.49240266546);
+      expect(ary[1].dataPoints[15].ttip).toEqual('4524.49 at Thu Jan 01 2032');
       expect(ary[1].dataPoints[16].label).toEqual('Sat Jan 01 2033');
-      expect(ary[1].dataPoints[16].y).toEqual(0);
-      expect(ary[1].dataPoints[16].ttip).toEqual('0.00 at Sat Jan 01 2033');
+      expect(ary[1].dataPoints[16].y).toEqual(4614.98225071877);
+      expect(ary[1].dataPoints[16].ttip).toEqual('4614.98 at Sat Jan 01 2033');
       expect(ary[1].dataPoints[17].label).toEqual('Sun Jan 01 2034');
-      expect(ary[1].dataPoints[17].y).toEqual(0);
-      expect(ary[1].dataPoints[17].ttip).toEqual('0.00 at Sun Jan 01 2034');
+      expect(ary[1].dataPoints[17].y).toEqual(4707.281895733147);
+      expect(ary[1].dataPoints[17].ttip).toEqual('4707.28 at Sun Jan 01 2034');
       expect(ary[1].dataPoints[18].label).toEqual('Mon Jan 01 2035');
-      expect(ary[1].dataPoints[18].y).toEqual(201.54737886623457);
-      expect(ary[1].dataPoints[18].ttip).toEqual('201.55 at Mon Jan 01 2035');
+      expect(ary[1].dataPoints[18].y).toEqual(4397.66703215057);
+      expect(ary[1].dataPoints[18].ttip).toEqual('4397.67 at Mon Jan 01 2035');
       expect(ary[1].dataPoints[19].label).toEqual('Tue Jan 01 2036');
-      expect(ary[1].dataPoints[19].y).toEqual(2444.6904371454134);
-      expect(ary[1].dataPoints[19].ttip).toEqual('2444.69 at Tue Jan 01 2036');
+      expect(ary[1].dataPoints[19].y).toEqual(0);
+      expect(ary[1].dataPoints[19].ttip).toEqual('0.00 at Tue Jan 01 2036');
       expect(ary[1].dataPoints[20].label).toEqual('Thu Jan 01 2037');
-      expect(ary[1].dataPoints[20].y).toEqual(2493.584245888323);
-      expect(ary[1].dataPoints[20].ttip).toEqual('2493.58 at Thu Jan 01 2037');
+      expect(ary[1].dataPoints[20].y).toEqual(0);
+      expect(ary[1].dataPoints[20].ttip).toEqual('0.00 at Thu Jan 01 2037');
       expect(ary[1].dataPoints[21].label).toEqual('Fri Jan 01 2038');
-      expect(ary[1].dataPoints[21].y).toEqual(2543.4559308060902);
-      expect(ary[1].dataPoints[21].ttip).toEqual('2543.46 at Fri Jan 01 2038');
+      expect(ary[1].dataPoints[21].y).toEqual(0);
+      expect(ary[1].dataPoints[21].ttip).toEqual('0.00 at Fri Jan 01 2038');
       expect(ary[1].dataPoints[22].label).toEqual('Sat Jan 01 2039');
-      expect(ary[1].dataPoints[22].y).toEqual(2594.325049422213);
-      expect(ary[1].dataPoints[22].ttip).toEqual('2594.33 at Sat Jan 01 2039');
+      expect(ary[1].dataPoints[22].y).toEqual(0);
+      expect(ary[1].dataPoints[22].ttip).toEqual('0.00 at Sat Jan 01 2039');
       expect(ary[1].dataPoints[23].label).toEqual('Sun Jan 01 2040');
-      expect(ary[1].dataPoints[23].y).toEqual(2423.6869584691717);
-      expect(ary[1].dataPoints[23].ttip).toEqual('2423.69 at Sun Jan 01 2040');
+      expect(ary[1].dataPoints[23].y).toEqual(0);
+      expect(ary[1].dataPoints[23].ttip).toEqual('0.00 at Sun Jan 01 2040');
       expect(ary[1].dataPoints[24].label).toEqual('Tue Jan 01 2041');
       expect(ary[1].dataPoints[24].y).toEqual(0);
       expect(ary[1].dataPoints[24].ttip).toEqual('0.00 at Tue Jan 01 2041');
@@ -2083,6 +2013,94 @@ describe(testDataModelName, () => {
       expect(ary[1].dataPoints[27].label).toEqual('Fri Jan 01 2044');
       expect(ary[1].dataPoints[27].y).toEqual(0);
       expect(ary[1].dataPoints[27].ttip).toEqual('0.00 at Fri Jan 01 2044');
+      expect(ary[2].name).toEqual(`${pensionTransfer}TeachersPensionScheme`);
+      expect(ary[2].type).toEqual('stackedColumn');
+      expect(ary[2].showInLegend).toEqual(true);
+      expect(ary[2].dataPoints.length).toEqual(28);
+      expect(ary[2].dataPoints[0].label).toEqual('Sun Jan 01 2017');
+      expect(ary[2].dataPoints[0].y).toEqual(0);
+      expect(ary[2].dataPoints[0].ttip).toEqual('0.00 at Sun Jan 01 2017');
+      expect(ary[2].dataPoints[1].label).toEqual('Mon Jan 01 2018');
+      expect(ary[2].dataPoints[1].y).toEqual(0);
+      expect(ary[2].dataPoints[1].ttip).toEqual('0.00 at Mon Jan 01 2018');
+      expect(ary[2].dataPoints[2].label).toEqual('Tue Jan 01 2019');
+      expect(ary[2].dataPoints[2].y).toEqual(0);
+      expect(ary[2].dataPoints[2].ttip).toEqual('0.00 at Tue Jan 01 2019');
+      expect(ary[2].dataPoints[3].label).toEqual('Wed Jan 01 2020');
+      expect(ary[2].dataPoints[3].y).toEqual(0);
+      expect(ary[2].dataPoints[3].ttip).toEqual('0.00 at Wed Jan 01 2020');
+      expect(ary[2].dataPoints[4].label).toEqual('Fri Jan 01 2021');
+      expect(ary[2].dataPoints[4].y).toEqual(0);
+      expect(ary[2].dataPoints[4].ttip).toEqual('0.00 at Fri Jan 01 2021');
+      expect(ary[2].dataPoints[5].label).toEqual('Sat Jan 01 2022');
+      expect(ary[2].dataPoints[5].y).toEqual(0);
+      expect(ary[2].dataPoints[5].ttip).toEqual('0.00 at Sat Jan 01 2022');
+      expect(ary[2].dataPoints[6].label).toEqual('Sun Jan 01 2023');
+      expect(ary[2].dataPoints[6].y).toEqual(0);
+      expect(ary[2].dataPoints[6].ttip).toEqual('0.00 at Sun Jan 01 2023');
+      expect(ary[2].dataPoints[7].label).toEqual('Mon Jan 01 2024');
+      expect(ary[2].dataPoints[7].y).toEqual(0);
+      expect(ary[2].dataPoints[7].ttip).toEqual('0.00 at Mon Jan 01 2024');
+      expect(ary[2].dataPoints[8].label).toEqual('Wed Jan 01 2025');
+      expect(ary[2].dataPoints[8].y).toEqual(0);
+      expect(ary[2].dataPoints[8].ttip).toEqual('0.00 at Wed Jan 01 2025');
+      expect(ary[2].dataPoints[9].label).toEqual('Thu Jan 01 2026');
+      expect(ary[2].dataPoints[9].y).toEqual(0);
+      expect(ary[2].dataPoints[9].ttip).toEqual('0.00 at Thu Jan 01 2026');
+      expect(ary[2].dataPoints[10].label).toEqual('Fri Jan 01 2027');
+      expect(ary[2].dataPoints[10].y).toEqual(0);
+      expect(ary[2].dataPoints[10].ttip).toEqual('0.00 at Fri Jan 01 2027');
+      expect(ary[2].dataPoints[11].label).toEqual('Sat Jan 01 2028');
+      expect(ary[2].dataPoints[11].y).toEqual(0);
+      expect(ary[2].dataPoints[11].ttip).toEqual('0.00 at Sat Jan 01 2028');
+      expect(ary[2].dataPoints[12].label).toEqual('Mon Jan 01 2029');
+      expect(ary[2].dataPoints[12].y).toEqual(0);
+      expect(ary[2].dataPoints[12].ttip).toEqual('0.00 at Mon Jan 01 2029');
+      expect(ary[2].dataPoints[13].label).toEqual('Tue Jan 01 2030');
+      expect(ary[2].dataPoints[13].y).toEqual(0);
+      expect(ary[2].dataPoints[13].ttip).toEqual('0.00 at Tue Jan 01 2030');
+      expect(ary[2].dataPoints[14].label).toEqual('Wed Jan 01 2031');
+      expect(ary[2].dataPoints[14].y).toEqual(0);
+      expect(ary[2].dataPoints[14].ttip).toEqual('0.00 at Wed Jan 01 2031');
+      expect(ary[2].dataPoints[15].label).toEqual('Thu Jan 01 2032');
+      expect(ary[2].dataPoints[15].y).toEqual(0);
+      expect(ary[2].dataPoints[15].ttip).toEqual('0.00 at Thu Jan 01 2032');
+      expect(ary[2].dataPoints[16].label).toEqual('Sat Jan 01 2033');
+      expect(ary[2].dataPoints[16].y).toEqual(0);
+      expect(ary[2].dataPoints[16].ttip).toEqual('0.00 at Sat Jan 01 2033');
+      expect(ary[2].dataPoints[17].label).toEqual('Sun Jan 01 2034');
+      expect(ary[2].dataPoints[17].y).toEqual(0);
+      expect(ary[2].dataPoints[17].ttip).toEqual('0.00 at Sun Jan 01 2034');
+      expect(ary[2].dataPoints[18].label).toEqual('Mon Jan 01 2035');
+      expect(ary[2].dataPoints[18].y).toEqual(201.54737886623457);
+      expect(ary[2].dataPoints[18].ttip).toEqual('201.55 at Mon Jan 01 2035');
+      expect(ary[2].dataPoints[19].label).toEqual('Tue Jan 01 2036');
+      expect(ary[2].dataPoints[19].y).toEqual(2444.6904371454134);
+      expect(ary[2].dataPoints[19].ttip).toEqual('2444.69 at Tue Jan 01 2036');
+      expect(ary[2].dataPoints[20].label).toEqual('Thu Jan 01 2037');
+      expect(ary[2].dataPoints[20].y).toEqual(2493.584245888323);
+      expect(ary[2].dataPoints[20].ttip).toEqual('2493.58 at Thu Jan 01 2037');
+      expect(ary[2].dataPoints[21].label).toEqual('Fri Jan 01 2038');
+      expect(ary[2].dataPoints[21].y).toEqual(2543.4559308060902);
+      expect(ary[2].dataPoints[21].ttip).toEqual('2543.46 at Fri Jan 01 2038');
+      expect(ary[2].dataPoints[22].label).toEqual('Sat Jan 01 2039');
+      expect(ary[2].dataPoints[22].y).toEqual(2594.325049422213);
+      expect(ary[2].dataPoints[22].ttip).toEqual('2594.33 at Sat Jan 01 2039');
+      expect(ary[2].dataPoints[23].label).toEqual('Sun Jan 01 2040');
+      expect(ary[2].dataPoints[23].y).toEqual(2423.6869584691717);
+      expect(ary[2].dataPoints[23].ttip).toEqual('2423.69 at Sun Jan 01 2040');
+      expect(ary[2].dataPoints[24].label).toEqual('Tue Jan 01 2041');
+      expect(ary[2].dataPoints[24].y).toEqual(0);
+      expect(ary[2].dataPoints[24].ttip).toEqual('0.00 at Tue Jan 01 2041');
+      expect(ary[2].dataPoints[25].label).toEqual('Wed Jan 01 2042');
+      expect(ary[2].dataPoints[25].y).toEqual(0);
+      expect(ary[2].dataPoints[25].ttip).toEqual('0.00 at Wed Jan 01 2042');
+      expect(ary[2].dataPoints[26].label).toEqual('Thu Jan 01 2043');
+      expect(ary[2].dataPoints[26].y).toEqual(0);
+      expect(ary[2].dataPoints[26].ttip).toEqual('0.00 at Thu Jan 01 2043');
+      expect(ary[2].dataPoints[27].label).toEqual('Fri Jan 01 2044');
+      expect(ary[2].dataPoints[27].y).toEqual(0);
+      expect(ary[2].dataPoints[27].ttip).toEqual('0.00 at Fri Jan 01 2044');
     } else if (
       createButtonID === 'btn-create-Defined Contributions Pension-example'
     ) {

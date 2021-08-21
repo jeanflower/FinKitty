@@ -196,6 +196,7 @@ describe(testDataModelName, () => {
     let ary = await getAssetChartData(driver);
     // writeTestCode(ary);
 
+    ary.reverse();
     expect(ary.length).toEqual(2);
     expect(ary[0].name).toEqual('stocks');
     expect(ary[0].type).toEqual('stackedColumn');
@@ -234,6 +235,7 @@ describe(testDataModelName, () => {
     // writeTestCode(ary);
 
     expect(ary.length).toEqual(2);
+    ary.reverse();
     expect(ary[0].name).toEqual('pet food');
     expect(ary[0].type).toEqual('stackedColumn');
     expect(ary[0].showInLegend).toEqual(true);
@@ -326,6 +328,7 @@ describe(testDataModelName, () => {
     let ary = await getAssetChartData(driver);
     // writeTestCode(ary);
 
+    ary.reverse();
     expect(ary.length).toEqual(3);
     expect(ary[0].name).toEqual('stocks');
     expect(ary[0].type).toEqual('stackedColumn');
@@ -380,6 +383,13 @@ describe(testDataModelName, () => {
     // writeTestCode(ary);
 
     expect(ary.length).toEqual(3);
+    const ary2 = [
+      ary[1], 
+      ary[0],
+      ary[2],
+    ];
+    ary = ary2;
+
     expect(ary[0].name).toEqual('pet food');
     expect(ary[0].type).toEqual('stackedColumn');
     expect(ary[0].showInLegend).toEqual(true);
@@ -433,6 +443,7 @@ describe(testDataModelName, () => {
     // writeTestCode(ary);
 
     expect(ary.length).toEqual(3);
+    ary.reverse();
     expect(ary[0].name).toEqual('PRn3');
     expect(ary[0].type).toEqual('stackedColumn');
     expect(ary[0].showInLegend).toEqual(true);
@@ -535,9 +546,18 @@ describe(testDataModelName, () => {
     ary = await getAssetChartData(driver);
 
     // writeTestCode(ary);
+    let ary2 = [
+      ary[1],
+      ary[2],
+      ary[0],
+    ];
+    ary = ary2;
 
     expect(ary.length).toEqual(3);
     expect(ary[0].name).toEqual('PaperRound/Accessible');
+    expect(ary[1].name).toEqual('PRn3/Accessible');
+    expect(ary[2].name).toEqual('Accessible/Accessible');
+
     expect(ary[0].type).toEqual('stackedColumn');
     expect(ary[0].showInLegend).toEqual(true);
     expect(ary[0].dataPoints.length).toEqual(4);
@@ -553,7 +573,7 @@ describe(testDataModelName, () => {
     expect(ary[0].dataPoints[3].label).toEqual('Sun Jul 01 2018');
     expect(ary[0].dataPoints[3].y).toEqual(0);
     expect(ary[0].dataPoints[3].ttip).toEqual('0.00 at Sun Jul 01 2018');
-    expect(ary[1].name).toEqual('PRn3/Accessible');
+
     expect(ary[1].type).toEqual('stackedColumn');
     expect(ary[1].showInLegend).toEqual(true);
     expect(ary[1].dataPoints.length).toEqual(4);
@@ -569,7 +589,7 @@ describe(testDataModelName, () => {
     expect(ary[1].dataPoints[3].label).toEqual('Sun Jul 01 2018');
     expect(ary[1].dataPoints[3].y).toEqual(0);
     expect(ary[1].dataPoints[3].ttip).toEqual('0.00 at Sun Jul 01 2018');
-    expect(ary[2].name).toEqual('Accessible/Accessible');
+
     expect(ary[2].type).toEqual('stackedColumn');
     expect(ary[2].showInLegend).toEqual(true);
     expect(ary[2].dataPoints.length).toEqual(4);
@@ -597,6 +617,7 @@ describe(testDataModelName, () => {
     ary = await getAssetChartData(driver);
     // writeTestCode(ary);
 
+    ary.reverse();
     expect(ary.length).toEqual(2);
     expect(ary[0].name).toEqual('pet food/Accessible');
     expect(ary[0].type).toEqual('stackedColumn');
@@ -643,7 +664,28 @@ describe(testDataModelName, () => {
     // writeTestCode(ary);
 
     expect(ary.length).toEqual(5);
+    expect(ary[0].name).toEqual('Accessible/Accessible');
+    expect(ary[1].name).toEqual('comms/Accessible');
+    expect(ary[2].name).toEqual('PaperRound/Accessible');
+    expect(ary[3].name).toEqual('pet food/Accessible');
+    expect(ary[4].name).toEqual('PRn3/Accessible');
+
+    ary2 = [
+      ary[3],
+      ary[1],
+      ary[2],
+      ary[4],
+      ary[0],
+    ];
+    ary = ary2;
+
+    expect(ary.length).toEqual(5);
     expect(ary[0].name).toEqual('pet food/Accessible');
+    expect(ary[1].name).toEqual('comms/Accessible');
+    expect(ary[2].name).toEqual('PaperRound/Accessible');
+    expect(ary[3].name).toEqual('PRn3/Accessible');
+    expect(ary[4].name).toEqual('Accessible/Accessible');
+
     expect(ary[0].type).toEqual('stackedColumn');
     expect(ary[0].showInLegend).toEqual(true);
     expect(ary[0].dataPoints.length).toEqual(4);
@@ -659,7 +701,7 @@ describe(testDataModelName, () => {
     expect(ary[0].dataPoints[3].label).toEqual('Sun Jul 01 2018');
     expect(ary[0].dataPoints[3].y).toEqual(-12);
     expect(ary[0].dataPoints[3].ttip).toEqual('-12.00 at Sun Jul 01 2018');
-    expect(ary[1].name).toEqual('comms/Accessible');
+
     expect(ary[1].type).toEqual('stackedColumn');
     expect(ary[1].showInLegend).toEqual(true);
     expect(ary[1].dataPoints.length).toEqual(4);
@@ -675,7 +717,7 @@ describe(testDataModelName, () => {
     expect(ary[1].dataPoints[3].label).toEqual('Sun Jul 01 2018');
     expect(ary[1].dataPoints[3].y).toEqual(0);
     expect(ary[1].dataPoints[3].ttip).toEqual('0.00 at Sun Jul 01 2018');
-    expect(ary[2].name).toEqual('PaperRound/Accessible');
+
     expect(ary[2].type).toEqual('stackedColumn');
     expect(ary[2].showInLegend).toEqual(true);
     expect(ary[2].dataPoints.length).toEqual(4);
@@ -691,7 +733,7 @@ describe(testDataModelName, () => {
     expect(ary[2].dataPoints[3].label).toEqual('Sun Jul 01 2018');
     expect(ary[2].dataPoints[3].y).toEqual(0);
     expect(ary[2].dataPoints[3].ttip).toEqual('0.00 at Sun Jul 01 2018');
-    expect(ary[3].name).toEqual('PRn3/Accessible');
+
     expect(ary[3].type).toEqual('stackedColumn');
     expect(ary[3].showInLegend).toEqual(true);
     expect(ary[3].dataPoints.length).toEqual(4);
@@ -707,7 +749,7 @@ describe(testDataModelName, () => {
     expect(ary[3].dataPoints[3].label).toEqual('Sun Jul 01 2018');
     expect(ary[3].dataPoints[3].y).toEqual(0);
     expect(ary[3].dataPoints[3].ttip).toEqual('0.00 at Sun Jul 01 2018');
-    expect(ary[4].name).toEqual('Accessible/Accessible');
+
     expect(ary[4].type).toEqual('stackedColumn');
     expect(ary[4].showInLegend).toEqual(true);
     expect(ary[4].dataPoints.length).toEqual(4);
@@ -754,6 +796,7 @@ describe(testDataModelName, () => {
     const ary = await getAssetChartData(driver);
     // writeTestCode(ary);
 
+    ary.reverse();
     expect(ary.length).toEqual(2);
     expect(ary[0].name).toEqual('savings');
     expect(ary[0].type).toEqual('stackedColumn');
@@ -912,6 +955,7 @@ describe(testDataModelName, () => {
     // writeTestCode(ary);
 
     expect(ary.length).toEqual(5);
+    ary.reverse();
     expect(ary[0].name).toEqual('carTest4');
     expect(ary[0].type).toEqual('stackedColumn');
     expect(ary[0].showInLegend).toEqual(true);
