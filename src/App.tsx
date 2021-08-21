@@ -516,10 +516,10 @@ export async function refreshData(
       getDisplay,
     );
 
-    result.expensesData.sort((a, b) => (a.item.NAME < b.item.NAME ? 1 : -1)); // TODO rerevse values
-    result.incomesData.sort((a, b) => (a.item.NAME < b.item.NAME ? 1 : -1));
-    result.assetData.sort((a, b) => (a.item.NAME < b.item.NAME ? 1 : -1));
-    result.taxData.sort((a, b) => (a.item.NAME < b.item.NAME ? 1 : -1));
+    result.expensesData.sort((a, b) => lessThan(a.item.NAME, b.item.NAME));
+    result.incomesData.sort((a, b) => lessThan(a.item.NAME, b.item.NAME));
+    result.assetData.sort((a, b) => lessThan(a.item.NAME, b.item.NAME));
+    result.taxData.sort((a, b) => lessThan(a.item.NAME, b.item.NAME));
 
     if (printDebug()) {
       result.assetData.forEach(entry => {
