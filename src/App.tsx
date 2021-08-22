@@ -1223,7 +1223,7 @@ export class AppContent extends Component<AppProps, AppState> {
     if (modelNames.length === 0) {
       return <div role="group">Loading models...</div>;
     }
-    // log(`models = ${models}`)
+    // log(`modelNames = ${modelNames}`);
     const buttons = modelNames.map(model => {
       return makeButton(
         model,
@@ -1301,7 +1301,7 @@ export class AppContent extends Component<AppProps, AppState> {
       )
     ) {
       // log(`delete model ${modelNameForDelete}`);
-      const modelNames = await getModelNames(getUserID());
+      const modelNames = this.state.modelNamesData;
       await deleteModel(getUserID(), modelNameForDelete);
       const idx = modelNames.findIndex(i => {
         return i === modelNameForDelete;
@@ -1321,7 +1321,7 @@ export class AppContent extends Component<AppProps, AppState> {
           makeModelFromJSON(simpleExampleData),
         );
       } else {
-        modelName = modelNames.sort()[0];
+        modelName = modelNames[0];
         // log(`model name after delete is ${modelName}`);
       }
       await refreshData(
