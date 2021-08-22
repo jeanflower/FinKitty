@@ -65,7 +65,6 @@ import {
   replaceCategoryWithAssetNames,
   getTodaysDate,
 } from './modelUtils';
-import { report } from 'process';
 
 function parseRecurrenceString(recurrence: string) {
   const result = {
