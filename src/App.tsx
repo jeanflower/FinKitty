@@ -394,6 +394,18 @@ function setKeyForReport(text: string) {
     true, // refreshChart = true,
   );
 }
+function toggleAdminMode(){
+  if(reactAppComponent){
+    reactAppComponent.setState({
+      adminMode: !reactAppComponent.state.adminMode,
+    },
+    ()=>{
+      log(`state has adminMode is ${reactAppComponent.state.adminMode}`)
+    });
+  } else {
+    alert("error: data not ready to set admin mode");
+  }
+}
 
 export async function refreshData(
   refreshModel: boolean,
@@ -915,6 +927,14 @@ export async function updateModelName(newValue: string): Promise<boolean> {
   return true;
 }
 
+function adminMode(): boolean {
+  if(reactAppComponent){
+    return reactAppComponent.state.adminMode;
+  } else {
+    return false;
+  }
+}
+
 export async function replaceWithModel(
   userName: string | undefined,
   thisModelName: string,
@@ -960,6 +980,7 @@ interface AppState {
   todaysSettingValues: Map<string, SettingVal>;
   alertText: string;
   keyForReport: string|undefined,
+  adminMode: boolean,
 }
 interface AppProps {
   logOutAction: () => {};
@@ -992,6 +1013,7 @@ export class AppContent extends Component<AppProps, AppState> {
       todaysSettingValues: new Map<string, SettingVal>(),
       alertText: '',
       keyForReport: undefined,
+      adminMode: false,
     };
     refreshData(
       true, // refreshModel = true,
@@ -1250,7 +1272,9 @@ export class AppContent extends Component<AppProps, AppState> {
       modelNames,
       async (model: string) => {
         if (await updateModelName(model)) {
-          await toggle(overview);
+          if(!adminMode()){
+            await toggle(overview);
+          }
         }
       },
       'overview',
@@ -1377,7 +1401,9 @@ export class AppContent extends Component<AppProps, AppState> {
         false,
       );
       if (replacedOK) {
-        await toggle(overview);
+        if(!adminMode()){
+          await toggle(overview);
+        }
         return true;
       } else {
         return false;
@@ -1406,7 +1432,9 @@ export class AppContent extends Component<AppProps, AppState> {
                   }
                   if (await updateModelName(newNameFromUser.newName)) {
                     // log(`created new model`);
-                    toggle(overview);
+                    if(!adminMode()){
+                      await toggle(overview);
+                    }
                   }
                 },
                 'startNewModel',
@@ -1584,6 +1612,7 @@ export class AppContent extends Component<AppProps, AppState> {
               userID={userID}
               showAlert={showAlert}
               debug={setKeyForReport}
+              admin={toggleAdminMode}
             />
           </div>
           <div className="col-md mb-4">{screenshotsDiv()}</div>
