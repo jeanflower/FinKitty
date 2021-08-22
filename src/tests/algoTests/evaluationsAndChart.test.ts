@@ -427,13 +427,13 @@ function getTestEvaluations(
   let evalnsAndVals;
   if (!extraChecks) {
     evalnsAndVals = getEvaluations(
-      model, 
+      model,
       undefined, // no key for a values report
     );
   } else {
     const copyModel = makeModelFromJSONString(JSON.stringify(model));
     evalnsAndVals = getEvaluations(
-      copyModel, 
+      copyModel,
       undefined, // no key for a values report
     );
   }

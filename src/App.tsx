@@ -384,26 +384,18 @@ function showAlert(text: string) {
     alertText: text,
   });
 }
-function setKeyForReport(text: string) {
-  reactAppComponent.setState({
-    keyForReport: text,
-  });
-  // log('setting key for report : go refresh data');
-  refreshData(
-    true, // refreshModel = true,
-    true, // refreshChart = true,
-  );
-}
-function toggleAdminMode(){
-  if(reactAppComponent){
-    reactAppComponent.setState({
-      adminMode: !reactAppComponent.state.adminMode,
-    },
-    ()=>{
-      log(`state has adminMode is ${reactAppComponent.state.adminMode}`)
-    });
+function toggleAdminMode() {
+  if (reactAppComponent) {
+    reactAppComponent.setState(
+      {
+        adminMode: !reactAppComponent.state.adminMode,
+      },
+      () => {
+        log(`state has adminMode is ${reactAppComponent.state.adminMode}`);
+      },
+    );
   } else {
-    alert("error: data not ready to set admin mode");
+    alert('error: data not ready to set admin mode');
   }
 }
 
@@ -514,7 +506,10 @@ export async function refreshData(
     model.assets.sort((a: Asset, b: Asset) => lessThan(b.NAME, a.NAME));
     modelNames.sort((a: string, b: string) => lessThan(a, b));
 
-    evaluationsAndVals = getEvaluations(model, reactAppComponent.state.keyForReport);
+    evaluationsAndVals = getEvaluations(
+      model,
+      reactAppComponent.state.keyForReport,
+    );
   }
   if (refreshModel) {
     viewSettings.setModel(model);
@@ -611,6 +606,17 @@ export async function refreshData(
     reactAppComponent.setState({ ...reactAppComponent.state });
   }
   // log(`finished refreshData`);
+}
+
+function setKeyForReport(text: string) {
+  reactAppComponent.setState({
+    keyForReport: text,
+  });
+  // log('setting key for report : go refresh data');
+  refreshData(
+    true, // refreshModel = true,
+    true, // refreshChart = true,
+  );
 }
 
 export async function submitAsset(assetInput: Asset, modelData: ModelData) {
@@ -928,7 +934,7 @@ export async function updateModelName(newValue: string): Promise<boolean> {
 }
 
 function adminMode(): boolean {
-  if(reactAppComponent){
+  if (reactAppComponent) {
     return reactAppComponent.state.adminMode;
   } else {
     return false;
@@ -979,8 +985,8 @@ interface AppState {
   todaysExpenseValues: Map<string, ExpenseVal>;
   todaysSettingValues: Map<string, SettingVal>;
   alertText: string;
-  keyForReport: string|undefined,
-  adminMode: boolean,
+  keyForReport: string | undefined;
+  adminMode: boolean;
 }
 interface AppProps {
   logOutAction: () => {};
@@ -1272,7 +1278,7 @@ export class AppContent extends Component<AppProps, AppState> {
       modelNames,
       async (model: string) => {
         if (await updateModelName(model)) {
-          if(!adminMode()){
+          if (!adminMode()) {
             await toggle(overview);
           }
         }
@@ -1356,8 +1362,11 @@ export class AppContent extends Component<AppProps, AppState> {
   }
 
   private async diffModel(modelNameForDiff: string) {
-    const otherModelName: string|null = window.prompt(`diff ${modelNameForDiff} against which model?`, '');
-    if(otherModelName === null){
+    const otherModelName: string | null = window.prompt(
+      `diff ${modelNameForDiff} against which model?`,
+      '',
+    );
+    if (otherModelName === null) {
       return;
     }
     const otherModelAndStatus = await loadModel(getUserID(), otherModelName);
@@ -1368,16 +1377,22 @@ export class AppContent extends Component<AppProps, AppState> {
     }
     const otherModel = otherModelAndStatus.model;
     // log(`otherModel = ${showObj(otherModel)}`);
-    if(!otherModel){
+    if (!otherModel) {
       window.alert(`Can't load a model named ${otherModelName}`);
       return;
     }
-    const diffResult = diffModels(this.state.modelData, otherModel, false, modelNameForDiff, otherModelName);
-    if(diffResult.length === 0){
+    const diffResult = diffModels(
+      this.state.modelData,
+      otherModel,
+      false,
+      modelNameForDiff,
+      otherModelName,
+    );
+    if (diffResult.length === 0) {
       window.alert('models are the same');
     } else {
       let s = '';
-      for(const diff of diffResult){
+      for (const diff of diffResult) {
         s += diff + `\n`;
       }
       window.alert(s);
@@ -1401,7 +1416,7 @@ export class AppContent extends Component<AppProps, AppState> {
         false,
       );
       if (replacedOK) {
-        if(!adminMode()){
+        if (!adminMode()) {
           await toggle(overview);
         }
         return true;
@@ -1432,7 +1447,7 @@ export class AppContent extends Component<AppProps, AppState> {
                   }
                   if (await updateModelName(newNameFromUser.newName)) {
                     // log(`created new model`);
-                    if(!adminMode()){
+                    if (!adminMode()) {
                       await toggle(overview);
                     }
                   }

@@ -435,19 +435,14 @@ export function checkExpense(e: Expense, model: ModelData): string {
   }
   return '';
 }
-function checkTransactionFrom(
-  word: string,
-  settings: Setting[],
-){
+function checkTransactionFrom(word: string, settings: Setting[]) {
   const matched = settings.find(s => s.NAME === word);
   if (matched !== undefined) {
     // the FROM value is a setting - assume that it
     // will evaluate to a numebr without further checks
     return '';
   }
-  return (
-    `Transactions 'from' values must be numbers or a setting`
-  );
+  return `Transactions 'from' values must be numbers or a setting`;
 }
 
 function checkTransactionTo(
@@ -973,10 +968,7 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
     if (t.FROM_VALUE === '') {
       return `Transaction from ${t.FROM} needs a non-empty from value`;
     } else if (!isNumberString(t.FROM_VALUE)) {
-      const outcome = checkTransactionFrom(
-        t.FROM_VALUE,
-        settings,
-      );
+      const outcome = checkTransactionFrom(t.FROM_VALUE, settings);
       return outcome;
     }
   }

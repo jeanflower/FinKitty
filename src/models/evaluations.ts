@@ -2408,7 +2408,7 @@ function calculateFromChange(
 
   // log(`in calculateFromChange for ${t.NAME}, ${fromWord}`);
   const tFromValue = traceEvaluation(t.FROM_VALUE, values, t.FROM);
-  if(tFromValue === undefined){
+  if (tFromValue === undefined) {
     log(`ERROR : can't interpret ${t.FROM_VALUE}`);
     return undefined;
   }
@@ -2447,7 +2447,7 @@ function calculateFromChange(
       }
     } else {
       // proportion of source
-      if(fromHasQuantity && q){
+      if (fromHasQuantity && q) {
         fromChange = Math.floor(q * tFromValue);
       } else {
         // log(`use proportion of source amount; proportion of ${preFromValue}`);
@@ -3090,28 +3090,27 @@ function logPurchaseValues(
   }
 }
 class ValuesContainer {
-
   private values = new Map<string, number | string>([]);
   private keyOfInterest: string | undefined = undefined;
   private report: {
-    newVal: number|undefined;
+    newVal: number | undefined;
     date: string;
     description: string;
   }[] = [];
 
-  public setKeyOfInterest(key: string){
+  public setKeyOfInterest(key: string) {
     this.keyOfInterest = key;
     this.report = [];
   }
 
   public set(
-    key: string, 
-    val: number|string, 
-    date:Date, 
+    key: string,
+    val: number | string,
+    date: Date,
     description: string,
-  ){
+  ) {
     this.values.set(key, val);
-    if(key === this.keyOfInterest){
+    if (key === this.keyOfInterest) {
       this.report.push({
         newVal: traceEvaluation(key, this, 'debugReport'),
         date: date.toString(),
@@ -3120,18 +3119,18 @@ class ValuesContainer {
     }
   }
 
-  public get(key: string): number | string | undefined{
+  public get(key: string): number | string | undefined {
     return this.values.get(key);
   }
 
-  public getReport():{
-      newVal: number|undefined;
-      date:string;
-  }[]{
+  public getReport(): {
+    newVal: number | undefined;
+    date: string;
+  }[] {
     return this.report;
   }
 
-  public keys(){
+  public keys() {
     return this.values.keys();
   }
 }
@@ -3140,7 +3139,7 @@ class ValuesContainer {
 // this file.
 export function getEvaluations(
   model: ModelData,
-  keyOfInterest: string|undefined,
+  keyOfInterest: string | undefined,
 ): {
   evaluations: Evaluation[];
   todaysAssetValues: Map<string, AssetVal>;
@@ -3199,7 +3198,7 @@ export function getEvaluations(
 
   // Keep track of current value of any expense, income or asset
   const values = new ValuesContainer();
-  if(keyOfInterest){
+  if (keyOfInterest) {
     values.setKeyOfInterest(keyOfInterest);
   }
 
@@ -3357,7 +3356,7 @@ export function getEvaluations(
     logPensionIncomeLiabilities(transaction, liabilitiesMap, model);
   });
 
-  const setSettingsData:{
+  const setSettingsData: {
     settingName: string;
     settingVal: string;
     setDate: Date;
@@ -3387,8 +3386,12 @@ export function getEvaluations(
       .filter(t => {
         // log(`is setting ${setting.NAME} in t.TO  = ${t.TO}?`);
         // does the setting name appear as part of the transaction TO value?
-        if (t.TO_VALUE.includes(setting.NAME) || t.TO.includes(setting.NAME) ||
-          t.FROM_VALUE.includes(setting.NAME) || t.FROM.includes(setting.NAME)) {
+        if (
+          t.TO_VALUE.includes(setting.NAME) ||
+          t.TO.includes(setting.NAME) ||
+          t.FROM_VALUE.includes(setting.NAME) ||
+          t.FROM.includes(setting.NAME)
+        ) {
           return true;
         }
         return false;
@@ -3421,24 +3424,26 @@ export function getEvaluations(
         settingName: setting.NAME,
         settingVal: setting.VALUE,
         setDate: referencingDates[0],
-      })
+      });
     }
   });
-  model.settings.forEach((s)=>{
-    if(!setSettingsData.find((sd)=>{
-      return sd.settingName === s.NAME;
-    })){
+  model.settings.forEach(s => {
+    if (
+      !setSettingsData.find(sd => {
+        return sd.settingName === s.NAME;
+      })
+    ) {
       // log(`should we add setValue ${s.NAME} = ${s.VALUE}?`);
       // s isn't being set in setSettingsData
       // should we include it?
       // We need it if something in setSettingsData
-      // builds on it      
-      const match = setSettingsData.find((ss)=>{
+      // builds on it
+      const match = setSettingsData.find(ss => {
         const nameIncluded = ss.settingVal.includes(s.NAME);
         // log(`${ss.settingVal} ? includes ${s.NAME} = ${nameIncluded}`);
         return nameIncluded;
       });
-      if(match){
+      if (match) {
         // ok, add this too
         // log(`add dependent setValue ${s.NAME} = ${s.VALUE}`);
         setSettingsData.push({
@@ -3450,7 +3455,7 @@ export function getEvaluations(
     }
   });
 
-  setSettingsData.forEach((d)=>{
+  setSettingsData.forEach(d => {
     setValue(
       values,
       evaluations,
@@ -3904,7 +3909,7 @@ export function getEvaluations(
   // log(`getEvaluations returning ${evaluations.length} evaluations`);
 
   const report = values.getReport();
-  if(report.length > 0){
+  if (report.length > 0) {
     log(`report ${showObj(report)}`);
   }
 

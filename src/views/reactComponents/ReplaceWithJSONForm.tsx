@@ -70,13 +70,13 @@ export class ReplaceWithJSONForm extends Component<
     // log(`modelName from props is ${modelName}`);
     let JSON = this.state.JSON;
     const debugStarter = 'debug:';
-    if(JSON.startsWith(debugStarter)){
-      this.props.debug(JSON.substring(debugStarter.length))
+    if (JSON.startsWith(debugStarter)) {
+      this.props.debug(JSON.substring(debugStarter.length));
       return;
     }
 
     const adminWord = 'admin';
-    if(JSON === adminWord){
+    if (JSON === adminWord) {
       this.props.admin();
       return;
     }
@@ -90,10 +90,14 @@ export class ReplaceWithJSONForm extends Component<
       // log(`modelName from JSON is ${modelName}`);
       JSON = JSON.substring(i);
     }
-    const alreadyExists = this.props.modelNames.find((existing)=>{return existing === modelName;});
+    const alreadyExists = this.props.modelNames.find(existing => {
+      return existing === modelName;
+    });
     if (
       !alreadyExists ||
-      window.confirm(`will replace ${modelName} which already exists, you sure?`)
+      window.confirm(
+        `will replace ${modelName} which already exists, you sure?`,
+      )
     ) {
       const newModel = makeModelFromJSON(JSON);
       replaceWithModel(this.props.userID, modelName, newModel, false);

@@ -23,10 +23,10 @@ import { Setting, ModelData, Trigger } from './types/interfaces';
 import { log } from './utils';
 
 export function lessThan(a: string, b: string) {
-  if (a.startsWith('-') && !b.startsWith('-')){
+  if (a.startsWith('-') && !b.startsWith('-')) {
     return 1;
   }
-  if (!a.startsWith('-') && b.startsWith('-')){
+  if (!a.startsWith('-') && b.startsWith('-')) {
     return -1;
   }
   if (a.toLowerCase() < b.toLowerCase()) {

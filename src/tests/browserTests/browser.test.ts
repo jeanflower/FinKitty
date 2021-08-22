@@ -383,11 +383,7 @@ describe(testDataModelName, () => {
     // writeTestCode(ary);
 
     expect(ary.length).toEqual(3);
-    const ary2 = [
-      ary[1], 
-      ary[0],
-      ary[2],
-    ];
+    const ary2 = [ary[1], ary[0], ary[2]];
     ary = ary2;
 
     expect(ary[0].name).toEqual('pet food');
@@ -546,11 +542,7 @@ describe(testDataModelName, () => {
     ary = await getAssetChartData(driver);
 
     // writeTestCode(ary);
-    let ary2 = [
-      ary[1],
-      ary[2],
-      ary[0],
-    ];
+    let ary2 = [ary[1], ary[2], ary[0]];
     ary = ary2;
 
     expect(ary.length).toEqual(3);
@@ -670,13 +662,7 @@ describe(testDataModelName, () => {
     expect(ary[3].name).toEqual('pet food/Accessible');
     expect(ary[4].name).toEqual('PRn3/Accessible');
 
-    ary2 = [
-      ary[3],
-      ary[1],
-      ary[2],
-      ary[4],
-      ary[0],
-    ];
+    ary2 = [ary[3], ary[1], ary[2], ary[4], ary[0]];
     ary = ary2;
 
     expect(ary.length).toEqual(5);

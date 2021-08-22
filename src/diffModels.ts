@@ -8,11 +8,7 @@ import {
   Setting,
   ModelData,
 } from './types/interfaces';
-import {
-  log,
-  printDebug, 
-  showObj
-} from './utils'
+import { log, printDebug, showObj } from './utils';
 
 function diffItem(i1: Item, i2: Item): string {
   if (i1.NAME !== i2.NAME) {
@@ -208,7 +204,7 @@ function diffItems(
 
   const matchedNames: string[] = [];
   const result: string[] = [];
-  for( const i1 of is1 ){
+  for (const i1 of is1) {
     if (result.length > 0 && quickExit) {
       break;
     }
@@ -225,7 +221,7 @@ function diffItems(
       // log(`comparison of ${i1.NAME} found diff ${s}`);
       if (s.length > 0) {
         result.push(s);
-        if(quickExit){
+        if (quickExit) {
           break;
         }
       } else {
@@ -236,10 +232,10 @@ function diffItems(
   if (result.length > 0 && quickExit) {
     return result;
   }
-  if(printDebug()){
+  if (printDebug()) {
     log(`matchedNames = ${showObj(matchedNames)}`);
   }
-  if(!quickExit || result.length === 0){
+  if (!quickExit || result.length === 0) {
     is2.forEach(i2 => {
       if (
         matchedNames.find(m => {
@@ -271,27 +267,79 @@ export function diffModels(
   } else if (m2 === undefined) {
     return [`one model defined, other undefined`];
   }
-  let s = diffItems(m1.triggers, m2.triggers, diffTriggers, quickExit, model1Name, model2Name);
+  let s = diffItems(
+    m1.triggers,
+    m2.triggers,
+    diffTriggers,
+    quickExit,
+    model1Name,
+    model2Name,
+  );
   if (s.length > 0 && quickExit) {
     return s;
   }
-  s = s.concat(diffItems(m1.incomes, m2.incomes, diffIncomes, quickExit, model1Name, model2Name));
+  s = s.concat(
+    diffItems(
+      m1.incomes,
+      m2.incomes,
+      diffIncomes,
+      quickExit,
+      model1Name,
+      model2Name,
+    ),
+  );
   if (s.length > 0 && quickExit) {
     return s;
   }
-  s = s.concat(diffItems(m1.expenses, m2.expenses, diffExpenses, quickExit, model1Name, model2Name));
+  s = s.concat(
+    diffItems(
+      m1.expenses,
+      m2.expenses,
+      diffExpenses,
+      quickExit,
+      model1Name,
+      model2Name,
+    ),
+  );
   if (s.length > 0 && quickExit) {
     return s;
   }
-  s = s.concat(diffItems(m1.assets, m2.assets, diffAssets, quickExit, model1Name, model2Name));
+  s = s.concat(
+    diffItems(
+      m1.assets,
+      m2.assets,
+      diffAssets,
+      quickExit,
+      model1Name,
+      model2Name,
+    ),
+  );
   if (s.length > 0 && quickExit) {
     return s;
   }
-  s = s.concat(diffItems(m1.transactions, m2.transactions, diffTransactions, quickExit, model1Name, model2Name));
+  s = s.concat(
+    diffItems(
+      m1.transactions,
+      m2.transactions,
+      diffTransactions,
+      quickExit,
+      model1Name,
+      model2Name,
+    ),
+  );
   if (s.length > 0 && quickExit) {
     return s;
   }
-  s = s.concat(diffItems(m1.settings, m2.settings, diffSettings, quickExit, model1Name, model2Name));
+  s = s.concat(
+    diffItems(
+      m1.settings,
+      m2.settings,
+      diffSettings,
+      quickExit,
+      model1Name,
+      model2Name,
+    ),
+  );
   if (s.length > 0 && quickExit) {
     return s;
   }

@@ -101,35 +101,37 @@ async function fillCacheFromDB(userID: string) {
   if (showDBInteraction) {
     log(`fill cache with these models ${modelNames}`);
   }
-  async function getModel(modelName: string){
+  async function getModel(modelName: string) {
+    if (showDBInteraction) {
+      log(`get this model ${modelName}`);
+    }
+    const model = await loadModelFromDB(userID, modelName);
+    if (model !== undefined) {
       if (showDBInteraction) {
-        log(`get this model ${modelName}`);
+        log(`got model for ${modelName}, go to add to cache`);
       }
-      const model = await loadModelFromDB(userID, modelName);
-      if (model !== undefined) {
-        if (showDBInteraction) {
-          log(`got model for ${modelName}, go to add to cache`);
-        }
-        cachedModels.push({
-          modelName: modelName,
-          model: model,
-          status: { isDirty: false },
-        });
-        if (showDBInteraction) {
-          log(`got this model ${modelName}`);
-        }
-      } else {
-        throw new Error(
-          `model name ${modelName} from DB but no model present???`,
-        );
+      cachedModels.push({
+        modelName: modelName,
+        model: model,
+        status: { isDirty: false },
+      });
+      if (showDBInteraction) {
+        log(`got this model ${modelName}`);
       }
-      return;
+    } else {
+      throw new Error(
+        `model name ${modelName} from DB but no model present???`,
+      );
+    }
+    return;
   }
   // log('go to Promise.all(...)');
-  const result = await Promise.all( modelNames.map((modelName)=>{
-    return getModel(modelName);
-  } ));
-  if(printDebug()){
+  const result = await Promise.all(
+    modelNames.map(modelName => {
+      return getModel(modelName);
+    }),
+  );
+  if (printDebug()) {
     log(`result from Promise.all(...) is ${result}`);
   }
   localCache.set(userID, cachedModels);
@@ -137,7 +139,7 @@ async function fillCacheFromDB(userID: string) {
   return cachedModels;
 }
 
-export async function getModelNames(userID: string) {  
+export async function getModelNames(userID: string) {
   let cachedModels = localCache.get(userID);
   if (!cachedModels) {
     cachedModels = await fillCacheFromDB(userID);
@@ -175,7 +177,13 @@ export async function loadModel(userID: string, modelName: string) {
         throw new Error(`DBValidation error: cache has clean model 
           but DB has no model for ${modelName}`);
       } else {
-        const diff = diffModels(dbModel, cachedModel.model, true, 'this model', 'cached model');
+        const diff = diffModels(
+          dbModel,
+          cachedModel.model,
+          true,
+          'this model',
+          'cached model',
+        );
         if (diff !== []) {
           throw new Error(`DBValidation error: ${diff} for ${modelName}`);
         }
@@ -255,7 +263,15 @@ export async function saveModelLSM(
   // log(`save model ${showObj(model)}`);
   if (showDBInteraction) {
     log(`save model ${modelName} for user ${userID}`);
-    log(`saving : diff to undo is ${diffModels(model, model.undoModel, true, 'this model', 'undo model')}`);
+    log(
+      `saving : diff to undo is ${diffModels(
+        model,
+        model.undoModel,
+        true,
+        'this model',
+        'undo model',
+      )}`,
+    );
   }
   saveModelToCache(userID, modelName, model);
   return true;
