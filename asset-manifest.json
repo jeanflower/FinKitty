@@ -1,27 +1,28 @@
 {
   "files": {
     "main.css": "/FinKitty/static/css/main.193e7cc0.chunk.css",
-    "main.js": "/FinKitty/static/js/main.3408208e.chunk.js",
-    "main.js.map": "/FinKitty/static/js/main.3408208e.chunk.js.map",
+    "main.js": "/FinKitty/static/js/main.e07caa37.chunk.js",
+    "main.js.map": "/FinKitty/static/js/main.e07caa37.chunk.js.map",
     "runtime-main.js": "/FinKitty/static/js/runtime-main.43fb0b37.js",
     "runtime-main.js.map": "/FinKitty/static/js/runtime-main.43fb0b37.js.map",
-    "static/js/2.47843f49.chunk.js": "/FinKitty/static/js/2.47843f49.chunk.js",
-    "static/js/2.47843f49.chunk.js.map": "/FinKitty/static/js/2.47843f49.chunk.js.map",
+    "static/js/2.af02f500.chunk.js": "/FinKitty/static/js/2.af02f500.chunk.js",
+    "static/js/2.af02f500.chunk.js.map": "/FinKitty/static/js/2.af02f500.chunk.js.map",
     "index.html": "/FinKitty/index.html",
-    "precache-manifest.60fe8976c2c870e8f91e62c4959fe43f.js": "/FinKitty/precache-manifest.60fe8976c2c870e8f91e62c4959fe43f.js",
+    "precache-manifest.4e445313065ad44449923cd010089cac.js": "/FinKitty/precache-manifest.4e445313065ad44449923cd010089cac.js",
     "service-worker.js": "/FinKitty/service-worker.js",
     "static/css/main.193e7cc0.chunk.css.map": "/FinKitty/static/css/main.193e7cc0.chunk.css.map",
-    "static/js/2.47843f49.chunk.js.LICENSE.txt": "/FinKitty/static/js/2.47843f49.chunk.js.LICENSE.txt",
-    "static/js/main.3408208e.chunk.js.LICENSE.txt": "/FinKitty/static/js/main.3408208e.chunk.js.LICENSE.txt",
+    "static/js/2.af02f500.chunk.js.LICENSE.txt": "/FinKitty/static/js/2.af02f500.chunk.js.LICENSE.txt",
+    "static/js/main.e07caa37.chunk.js.LICENSE.txt": "/FinKitty/static/js/main.e07caa37.chunk.js.LICENSE.txt",
     "static/media/cat.png": "/FinKitty/static/media/cat.50c12de4.png",
     "static/media/sampleAssetGraph.png": "/FinKitty/static/media/sampleAssetGraph.405ff0cd.png",
     "static/media/sampleExpenseGraph.png": "/FinKitty/static/media/sampleExpenseGraph.5581786d.png",
-    "static/media/sampleTaxGraph.png": "/FinKitty/static/media/sampleTaxGraph.c9aa7cfc.png"
+    "static/media/sampleTaxGraph.png": "/FinKitty/static/media/sampleTaxGraph.c9aa7cfc.png",
+    "static/media/wait.gif": "/FinKitty/static/media/wait.3f259006.gif"
   },
   "entrypoints": [
     "static/js/runtime-main.43fb0b37.js",
-    "static/js/2.47843f49.chunk.js",
+    "static/js/2.af02f500.chunk.js",
     "static/css/main.193e7cc0.chunk.css",
-    "static/js/main.3408208e.chunk.js"
+    "static/js/main.e07caa37.chunk.js"
   ]
 }
