@@ -120,7 +120,7 @@ import {
 import { lessThan } from './stringUtils';
 import { diffModels } from './diffModels';
 import { collapsibleFragment } from './views/tablePages';
-import WaitGif from './views/wait.gif';
+import WaitGif from './views/catWait.gif';
 
 // import './bootstrap.css'
 
