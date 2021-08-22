@@ -101,12 +101,18 @@ export async function selectModel(
 export const testUserID = 'TestUserID';
 
 export async function clickButton(driver: ThenableWebDriver, id: string) {
-  const btn = await driver.findElements(webdriver.By.id(id));
-  if (btn.length !== 1) {
-    log(`found ${btn.length} elements with id=${id}`);
+  let btn = [];
+  for(let i = 0; i < 10; i = i + 1){
+    btn = await driver.findElements(webdriver.By.id(id));
+    if (btn.length !== 1) {
+      log(`found ${btn.length} elements with id=${id}`);
+      sleep(100, 'button not present yet');
+      continue; // try again
+    }
+    await btn[0].click();
+    return;
   }
   expect(btn.length === 1).toBe(true);
-  await btn[0].click();
 }
 
 export async function fillInputById(
