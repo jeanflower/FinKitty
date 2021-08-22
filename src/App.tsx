@@ -1580,6 +1580,7 @@ export class AppContent extends Component<AppProps, AppState> {
             </div>
             <ReplaceWithJSONForm
               modelName={modelName}
+              modelNames={this.state.modelNamesData}
               userID={userID}
               showAlert={showAlert}
               debug={setKeyForReport}

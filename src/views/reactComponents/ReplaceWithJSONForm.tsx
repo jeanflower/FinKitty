@@ -10,6 +10,7 @@ interface ReplaceWithJSONFormState {
 }
 interface ReplaceWithJSONFormProps {
   modelName: string;
+  modelNames: string[];
   userID: string;
   showAlert: (arg0: string) => void;
   debug: (args0: string) => void;
@@ -82,8 +83,10 @@ export class ReplaceWithJSONForm extends Component<
       // log(`modelName from JSON is ${modelName}`);
       JSON = JSON.substring(i);
     }
+    const alreadyExists = this.props.modelNames.find((existing)=>{return existing === modelName;});
     if (
-      window.confirm(`will replace if ${modelName} already exists, you sure?`)
+      !alreadyExists ||
+      window.confirm(`will replace ${modelName} which already exists, you sure?`)
     ) {
       const newModel = makeModelFromJSON(JSON);
       replaceWithModel(this.props.userID, modelName, newModel, false);

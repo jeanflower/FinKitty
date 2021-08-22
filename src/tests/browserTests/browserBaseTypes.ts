@@ -177,14 +177,6 @@ export async function replaceWithTestModel(
   expect(input.length === 1).toBe(true);
   await input[0].sendKeys(Key.ENTER);
 
-  const alert = driver.switchTo().alert();
-  const alertText = await alert.getText();
-  // log(`alertText = ${alertText}`);
-  expect(alertText).toEqual(
-    `will replace if ${testDataModelName} already exists, you sure?`,
-  );
-
-  await alert.accept();
   await clickButton(driver, 'btn-clear-alert');
 }
 
