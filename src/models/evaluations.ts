@@ -3148,6 +3148,7 @@ export function getEvaluations(
   todaysExpenseValues: Map<string, ExpenseVal>;
   todaysSettingValues: Map<string, SettingVal>;
 } {
+  //log('get evaluations');
   const todaysAssetValues = new Map<string, AssetVal>();
   const todaysDebtValues = new Map<string, DebtVal>();
   const todaysIncomeValues = new Map<string, IncomeVal>();

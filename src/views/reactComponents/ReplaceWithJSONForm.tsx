@@ -15,6 +15,7 @@ interface ReplaceWithJSONFormProps {
   showAlert: (arg0: string) => void;
   debug: (args0: string) => void;
   admin: () => void;
+  eval: () => void;
 }
 
 export class ReplaceWithJSONForm extends Component<
@@ -67,17 +68,24 @@ export class ReplaceWithJSONForm extends Component<
     e.preventDefault();
     let modelName = this.props.modelName;
 
+    // special words
+    const debugStarter = 'debug:';
+    const adminWord = 'admin';
+    const evalWord = 'eval';
+
+
     // log(`modelName from props is ${modelName}`);
     let JSON = this.state.JSON;
-    const debugStarter = 'debug:';
     if (JSON.startsWith(debugStarter)) {
       this.props.debug(JSON.substring(debugStarter.length));
       return;
     }
-
-    const adminWord = 'admin';
     if (JSON === adminWord) {
       this.props.admin();
+      return;
+    }
+    if (JSON === evalWord) {
+      this.props.eval();
       return;
     }
 

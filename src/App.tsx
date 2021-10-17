@@ -397,7 +397,26 @@ function toggleAdminMode() {
     alert('error: data not ready to set admin mode');
   }
 }
-
+function toggleEvalMode() {
+  if (reactAppComponent) {
+    reactAppComponent.setState(
+      {
+        evalMode: !reactAppComponent.state.evalMode,
+      },
+      () => {
+        log(`state has evalMode is ${reactAppComponent.state.evalMode}`);
+        if(reactAppComponent.state.evalMode){
+          refreshData(
+            true, // refreshModel = true,
+            true, // refreshChart = true,
+          );
+        }
+      },
+    );
+  } else {
+    alert('error: data not ready to set eval mode');
+  }
+}
 export async function refreshData(
   refreshModel: boolean,
   refreshChart: boolean,
@@ -505,10 +524,12 @@ export async function refreshData(
     model.assets.sort((a: Asset, b: Asset) => lessThan(b.NAME, a.NAME));
     modelNames.sort((a: string, b: string) => lessThan(a, b));
 
-    evaluationsAndVals = getEvaluations(
-      model,
-      reactAppComponent.state.keyForReport,
-    );
+    if(evalMode()){
+      evaluationsAndVals = getEvaluations(
+        model,
+        reactAppComponent.state.keyForReport,
+      );
+    }
   }
   if (refreshModel) {
     viewSettings.setModel(model);
@@ -939,7 +960,13 @@ function adminMode(): boolean {
     return false;
   }
 }
-
+function evalMode(): boolean {
+  if (reactAppComponent) {
+    return reactAppComponent.state.evalMode;
+  } else {
+    return false;
+  }
+}
 export async function replaceWithModel(
   userName: string | undefined,
   thisModelName: string,
@@ -985,7 +1012,8 @@ interface AppState {
   todaysSettingValues: Map<string, SettingVal>;
   alertText: string;
   keyForReport: string | undefined;
-  adminMode: boolean;
+  adminMode: boolean; // admins don't go to overview page when selecting a model
+  evalMode: boolean; // evalMode = false (non default) skips chart evaluatsion
 }
 interface AppProps {
   logOutAction: () => {};
@@ -1018,7 +1046,8 @@ export class AppContent extends Component<AppProps, AppState> {
       todaysSettingValues: new Map<string, SettingVal>(),
       alertText: '',
       keyForReport: undefined,
-      adminMode: false,
+      adminMode: false, // in adminMode, we don't switch to overview page
+      evalMode: true, // if evalModel is off we leave charts and eval tables stale
     };
     refreshData(
       true, // refreshModel = true,
@@ -1595,6 +1624,7 @@ export class AppContent extends Component<AppProps, AppState> {
       showAlert={showAlert}
       debug={setKeyForReport}
       admin={toggleAdminMode}
+      eval={toggleEvalMode}
     /></>);
   }
 
