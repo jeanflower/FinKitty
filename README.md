@@ -78,7 +78,7 @@ The browser tests (automated with selenium) will fail unless the web server is r
 
 The selenium tests fire up and drive Chrome processes.  If the tests properly complete, the Chrome process for the tests should close down properly.  But the chromedriver process does not get cleaned up.  If the tests are interrupted (e.g. restart partway through) then the cleanup does not occur.  After a lengthy testing session, you may prefer to clean up manually; open Activity Monitor, search by the text "chrome", and in a terminal window, `killall chromedriver` and `killall "Google Chrome"`.
 
-Updating the Chrome browser on the test achine can leave Chrome and the chromdriver out of sync.  To recover, use
+Updating the Chrome browser on the test machine can leave Chrome and the chromdriver out of sync.  To recover, use
 ```
 npm install chromedriver --detect_chromedriver_version
 ```
