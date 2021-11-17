@@ -105,7 +105,7 @@ export async function clickButton(driver: ThenableWebDriver, id: string) {
   for(let i = 0; i < 10; i = i + 1){
     btn = await driver.findElements(webdriver.By.id(id));
     if (btn.length !== 1) {
-      log(`found ${btn.length} elements with id=${id}`);
+      // log(`found ${btn.length} elements with id=${id}`);
       sleep(100, 'button not present yet');
       continue; // try again
     }

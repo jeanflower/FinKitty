@@ -127,8 +127,6 @@ import WaitGif from './views/catWait.gif';
 let modelName: string = exampleModelName;
 let userID = '';
 let isDirty = false; // does the model need saving?
-let checkModelBeforeChange = true; // stop people making good models bad
-let checkBeforeOverwritingExistingData = true; // stop people overwriting
 
 export function getDefaultViewSettings(): ViewSettings {
   const result = new ViewSettings([
@@ -385,12 +383,13 @@ function showAlert(text: string) {
 }
 function toggleAdminMode() {
   if (reactAppComponent) {
+    log(`before toggle reactAppComponent.state.adminMode = ${reactAppComponent.state.adminMode}`);
     reactAppComponent.setState(
       {
         adminMode: !reactAppComponent.state.adminMode,
       },
       () => {
-        log(`state has adminMode is ${reactAppComponent.state.adminMode}`);
+        log(`after toggle state has adminMode is ${reactAppComponent.state.adminMode}`);
       },
     );
   } else {
@@ -1226,7 +1225,8 @@ export class AppContent extends Component<AppProps, AppState> {
         </>
       );
     } catch (e) {
-      return this.internalErrorDiv(e);
+      const err: Error = e as Error;
+      return this.internalErrorDiv(err);
     }
   }
 
@@ -1248,7 +1248,7 @@ export class AppContent extends Component<AppProps, AppState> {
     idKey: string,
   ) {
     if (modelNames.length === 0) {
-      return <div role="group"><img src={WaitGif}/>Loading models...</div>;
+      return <div role="group"><img src={WaitGif} alt='FinKitty wait symbol'/>Loading models...</div>;
     }
     // log(`modelNames = ${modelNames}`);
     const buttons = modelNames.map(model => {
@@ -1277,7 +1277,7 @@ export class AppContent extends Component<AppProps, AppState> {
       modelNames,
       async (model: string) => {
         if (await updateModelName(model)) {
-          if (!adminMode()) {
+          if (switchToOverviewAfterSelectModel()) {
             await toggle(overview);
           }
         }
@@ -1415,7 +1415,7 @@ export class AppContent extends Component<AppProps, AppState> {
         false,
       );
       if (replacedOK) {
-        if (!adminMode()) {
+        if (switchToOverviewAfterSelectModel()) {
           await toggle(overview);
         }
         return true;
@@ -1544,37 +1544,23 @@ export class AppContent extends Component<AppProps, AppState> {
         'secondary',
       )}
       {makeButton(
-        checkModelBeforeChange
-          ? 'Suppress check-before-change'
-          : 'Enable check-before-change',
-        () => {
-          checkModelBeforeChange = !checkModelBeforeChange;
-          refreshData(
-            false, // refreshModel = true,
-            false, // refreshChart = true,
-          );
-        },
-        `btn-toggle-check-edited-model`,
-        `btn-toggle-check-edited-model`,
-        'secondary',
-      )}
-      {makeButton(
-        checkBeforeOverwritingExistingData
-          ? 'Suppress check-before-overwrite'
-          : 'Enable check-before-overwrite',
-        () => {
-          log(`toggle checkBeforeOverwritingExistingData`);
-          checkBeforeOverwritingExistingData = !checkBeforeOverwritingExistingData;
-          refreshData(
-            false, // refreshModel = true,
-            false, // refreshChart = true,
-          );
-        },
-        `btn-toggle-check-overwrite`,
-        `btn-toggle-check-overwrite`,
-        'secondary',
-      )}
-      {makeButton(
+        reactAppComponent.state.adminMode
+        ? 'Suppress admin mode'
+        : 'Enable admin mode',
+      () => {
+        log(`toggle admin mode`);
+        toggleAdminMode();
+        log(`reactAppComponent.state.adminMode = ${reactAppComponent.state.adminMode}`);
+        refreshData(
+          false, // refreshModel = true,
+          false, // refreshChart = true,
+        );
+      },
+      `btn-toggle-check-overwrite`,
+      `btn-toggle-check-overwrite`,
+      'secondary',
+    )}
+    {makeButton(
         'Force delete model',
         () => {
           const name = prompt('Force delete model name');
@@ -2074,10 +2060,13 @@ export async function attemptRename(
 }
 
 export function doCheckModelBeforeChange() {
-  return checkModelBeforeChange;
+  return adminMode();
 }
 export function doCheckBeforeOverwritingExistingData() {
-  return checkBeforeOverwritingExistingData;
+  return adminMode();
+}
+function switchToOverviewAfterSelectModel() {
+  return adminMode();  
 }
 
 export default App;
