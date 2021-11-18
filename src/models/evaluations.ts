@@ -3091,15 +3091,25 @@ function logPurchaseValues(
 }
 class ValuesContainer {
   private values = new Map<string, number | string>([]);
-  private keyOfInterest: string | undefined = undefined;
+  private includeInReport: 
+    (key: string, val: number| string, date: Date, description: string) => boolean = 
+    (key: string, val: number| string, date: Date, description: string) => { 
+    if(printDebug()){
+      log(`report for key = ${key}`);
+      log(`report for val = ${val}`);
+      log(`report for date = ${date}`);
+      log(`report for description = ${description}`);
+    }
+    return false; 
+  }
   private report: {
     newVal: number | undefined;
     date: string;
     description: string;
   }[] = [];
 
-  public setKeyOfInterest(key: string) {
-    this.keyOfInterest = key;
+  public setIncludeInReport(fn: (key: string, val: number| string, date: Date, description: string) => boolean){
+    this.includeInReport = fn;
     this.report = [];
   }
 
@@ -3110,7 +3120,7 @@ class ValuesContainer {
     description: string,
   ) {
     this.values.set(key, val);
-    if (key === this.keyOfInterest) {
+    if (this.includeInReport(key, val, date, description)) {
       this.report.push({
         newVal: traceEvaluation(key, this, 'debugReport'),
         date: date.toString(),
@@ -3139,7 +3149,7 @@ class ValuesContainer {
 // this file.
 export function getEvaluations(
   model: ModelData,
-  keyOfInterest: string | undefined,
+  reporter: ((key: string, val: number| string, date: Date, description: string) => boolean) | undefined,
 ): {
   evaluations: Evaluation[];
   todaysAssetValues: Map<string, AssetVal>;
@@ -3199,8 +3209,8 @@ export function getEvaluations(
 
   // Keep track of current value of any expense, income or asset
   const values = new ValuesContainer();
-  if (keyOfInterest) {
-    values.setKeyOfInterest(keyOfInterest);
+  if (reporter){
+    values.setIncludeInReport(reporter);
   }
 
   const cpiInitialVal: number = parseFloat(

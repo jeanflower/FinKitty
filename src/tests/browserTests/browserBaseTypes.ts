@@ -148,10 +148,18 @@ export async function scrollIntoViewByName(
   driver: ThenableWebDriver,
   name: string,
 ) {
-  const input = await driver.findElements(webdriver.By.name(name));
-  //log(`found ${input.length} elements with name = ${name}`);
+  let input: any[] = [];
+  for(let i = 0; i < 10; i = i + 1){
+    input = await driver.findElements(webdriver.By.name(name));
+    if (input.length !== 1) {
+      // log(`attempt ${i}; found ${input.length} elements with name=${name}`);
+      sleep(100, 'button not present yet');
+      continue; // try again
+    }
+    break;
+  }
   expect(input.length === 1).toBe(true);
-
+  
   await driver.executeScript('arguments[0].scrollIntoView(true);', input[0]);
 }
 
@@ -173,17 +181,22 @@ export async function replaceWithTestModel(
   testDataModelName: string,
   modelString: string,
 ) {
+  await enterTextControl(driver, `${testDataModelName}${modelString}`);
+  await clickButton(driver, 'btn-clear-alert');
+}
+
+export async function enterTextControl(
+  driver: ThenableWebDriver,
+  inputString: string,
+){
   await fillInputByName(
     driver,
     'replaceWithJSON',
-    `${testDataModelName}${modelString}`,
+    inputString,
   );
-
   const input = await driver.findElements(webdriver.By.id('replaceWithJSON'));
   expect(input.length === 1).toBe(true);
   await input[0].sendKeys(Key.ENTER);
-
-  await clickButton(driver, 'btn-clear-alert');
 }
 
 export async function beforeAllWork(
@@ -220,7 +233,8 @@ export async function beforeAllWork(
 
   // tests overwrite data using input forms
   // even though we don't expect people to do this
-  await clickButton(driver, 'btn-toggle-check-overwrite');
+  await enterTextControl(driver, 'overwrite');
+  await enterTextControl(driver, 'overview');
 
   if (testDataModelName !== '' && modelString !== '') {
     await replaceWithTestModel(driver, testDataModelName, modelString);

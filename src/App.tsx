@@ -381,39 +381,14 @@ function showAlert(text: string) {
     alertText: text,
   });
 }
-function toggleAdminMode() {
+
+function toggleOption(type: string){
   if (reactAppComponent) {
-    log(`before toggle reactAppComponent.state.adminMode = ${reactAppComponent.state.adminMode}`);
-    reactAppComponent.setState(
-      {
-        adminMode: !reactAppComponent.state.adminMode,
-      },
-      () => {
-        log(`after toggle state has adminMode is ${reactAppComponent.state.adminMode}`);
-      },
-    );
+    log(`before toggle reactAppComponent.state.${type} = ${reactAppComponent.options[type]}`);
+    reactAppComponent.options[type] = !reactAppComponent.options[type];
+    log(`after toggle state has ${type} is ${reactAppComponent.options[type]}`);
   } else {
-    alert('error: data not ready to set admin mode');
-  }
-}
-function toggleEvalMode() {
-  if (reactAppComponent) {
-    reactAppComponent.setState(
-      {
-        evalMode: !reactAppComponent.state.evalMode,
-      },
-      () => {
-        log(`state has evalMode is ${reactAppComponent.state.evalMode}`);
-        if(reactAppComponent.state.evalMode){
-          refreshData(
-            true, // refreshModel = true,
-            true, // refreshChart = true,
-          );
-        }
-      },
-    );
-  } else {
-    alert('error: data not ready to set eval mode');
+    alert(`error: data not ready to set ${type} mode`);
   }
 }
 export async function refreshData(
@@ -524,9 +499,19 @@ export async function refreshData(
     modelNames.sort((a: string, b: string) => lessThan(a, b));
 
     if(evalMode()){
+      const reporter = (key: string, val: number | string, date: Date, description: string)=>{
+        if(printDebug()){
+          log(`report for key = ${key}`);
+          log(`report for val = ${val}`);
+          log(`report for date = ${date}`);
+          log(`report for description = ${description}`);
+        }
+        return key === reactAppComponent.keyForReport;
+      };
+
       evaluationsAndVals = getEvaluations(
         model,
-        reactAppComponent.state.keyForReport,
+        reporter,
       );
     }
   }
@@ -627,10 +612,8 @@ export async function refreshData(
   // log(`finished refreshData`);
 }
 
-function setKeyForReport(text: string) {
-  reactAppComponent.setState({
-    keyForReport: text,
-  });
+function setReportKey(text: string) {
+  reactAppComponent.keyForReport = text;
   // log('setting key for report : go refresh data');
   refreshData(
     true, // refreshModel = true,
@@ -952,16 +935,25 @@ export async function updateModelName(newValue: string): Promise<boolean> {
   return true;
 }
 
-function adminMode(): boolean {
+function goToOverviewPage(): boolean {
   if (reactAppComponent) {
-    return reactAppComponent.state.adminMode;
+    return reactAppComponent.options.goToOverviewPage;
+  } else {
+    return false;
+  }
+}
+function checkOverwrite(): boolean {
+  if (reactAppComponent) {
+    const result = reactAppComponent.options.checkOverwrite;
+    // log(`should we check before overwrite? ${result}`);
+    return result;
   } else {
     return false;
   }
 }
 function evalMode(): boolean {
   if (reactAppComponent) {
-    return reactAppComponent.state.evalMode;
+    return reactAppComponent.options.evalMode;
   } else {
     return false;
   }
@@ -1010,9 +1002,6 @@ interface AppState {
   todaysExpenseValues: Map<string, ExpenseVal>;
   todaysSettingValues: Map<string, SettingVal>;
   alertText: string;
-  keyForReport: string | undefined;
-  adminMode: boolean; // admins don't go to overview page when selecting a model
-  evalMode: boolean; // evalMode = false (non default) skips chart evaluatsion
 }
 interface AppProps {
   logOutAction: () => {};
@@ -1020,6 +1009,16 @@ interface AppProps {
 }
 
 export class AppContent extends Component<AppProps, AppState> {
+  keyForReport: string | undefined;  
+  options: any;
+  /*
+  {
+    goToOverviewPage: boolean; // whether to auto- go to overview page when selecting a model
+    checkOverwrite: boolean; // whether to alert-check with user before overwriting data
+    evalMode: boolean; // evalMode = false (non default) skips chart evaluation
+  };
+  */
+
   public constructor(props: AppProps) {
     super(props);
     //this.handleUnload = this.handleUnload.bind(this);
@@ -1044,10 +1043,15 @@ export class AppContent extends Component<AppProps, AppState> {
       todaysExpenseValues: new Map<string, ExpenseVal>(),
       todaysSettingValues: new Map<string, SettingVal>(),
       alertText: '',
-      keyForReport: undefined,
-      adminMode: false, // in adminMode, we don't switch to overview page
-      evalMode: true, // if evalModel is off we leave charts and eval tables stale
     };
+
+    this.keyForReport = undefined;
+    this.options = {
+      goToOverviewPage: true,
+      checkOverwrite: true,
+      evalMode: true,
+    }
+
     refreshData(
       true, // refreshModel = true,
       true, // refreshChart = true,
@@ -1306,7 +1310,7 @@ export class AppContent extends Component<AppProps, AppState> {
       modelNames,
       async (model: string) => {
         if (await updateModelName(model)) {
-          if (switchToOverviewAfterSelectModel()) {
+          if (goToOverviewPage()) {
             await toggle(overview);
           }
         }
@@ -1444,7 +1448,7 @@ export class AppContent extends Component<AppProps, AppState> {
         false,
       );
       if (replacedOK) {
-        if (switchToOverviewAfterSelectModel()) {
+        if (goToOverviewPage()) {
           await toggle(overview);
         }
         return true;
@@ -1572,23 +1576,6 @@ export class AppContent extends Component<AppProps, AppState> {
         `btn-JSON-encrypt-replace`,
         'secondary',
       )}
-      {makeButton(
-        reactAppComponent.state.adminMode
-        ? 'Suppress admin mode'
-        : 'Enable admin mode',
-      () => {
-        log(`toggle admin mode`);
-        toggleAdminMode();
-        log(`reactAppComponent.state.adminMode = ${reactAppComponent.state.adminMode}`);
-        refreshData(
-          false, // refreshModel = true,
-          false, // refreshChart = true,
-        );
-      },
-      `btn-toggle-check-overwrite`,
-      `btn-toggle-check-overwrite`,
-      'secondary',
-    )}
     {makeButton(
         'Force delete model',
         () => {
@@ -1608,9 +1595,11 @@ export class AppContent extends Component<AppProps, AppState> {
       modelNames={this.state.modelNamesData}
       userID={userID}
       showAlert={showAlert}
-      debug={setKeyForReport}
-      admin={toggleAdminMode}
-      eval={toggleEvalMode}
+      setReportKey={setReportKey}
+      toggleCheckOverwrite={()=>{return toggleOption('checkOverwrite')}}
+      toggleOverview={()=>{return toggleOption('goToOverviewPage')}}
+      doCheckOverwrite={checkOverwrite}
+      eval={()=>{return toggleOption('evalMode')}}
     /></>);
   }
 
@@ -1633,7 +1622,7 @@ export class AppContent extends Component<AppProps, AppState> {
                   }
                   if (await updateModelName(newNameFromUser.newName)) {
                     // log(`created new model`);
-                    if (!adminMode()) {
+                    if (goToOverviewPage()) {
                       await toggle(overview);
                     }
                   }
@@ -2090,13 +2079,12 @@ export async function attemptRename(
 }
 
 export function doCheckModelBeforeChange() {
-  return adminMode();
+  return checkOverwrite();
 }
 export function doCheckBeforeOverwritingExistingData() {
-  return adminMode();
-}
-function switchToOverviewAfterSelectModel() {
-  return adminMode();  
+  const result = checkOverwrite();
+  log(`check overwrite = ${result}`);
+  return result;
 }
 
 export default App;

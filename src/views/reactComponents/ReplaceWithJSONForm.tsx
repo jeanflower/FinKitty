@@ -13,8 +13,10 @@ interface ReplaceWithJSONFormProps {
   modelNames: string[];
   userID: string;
   showAlert: (arg0: string) => void;
-  debug: (args0: string) => void;
-  admin: () => void;
+  setReportKey: (args0: string) => void;
+  toggleCheckOverwrite: () => void;
+  toggleOverview: () => void;
+  doCheckOverwrite: () => boolean;
   eval: () => void;
 }
 
@@ -53,10 +55,10 @@ export class ReplaceWithJSONForm extends Component<
       <form className="container-fluid" onSubmit={this.replace}>
         <Input
           type={'text'}
-          title={'Replace model with JSON data:'}
+          title={'input report:txt|overwrite|overview|eval|txt:{jsonData}'}
           name={'replaceWithJSON'}
           value={this.state.JSON}
-          placeholder={'Enter JSON data here to replace model'}
+          placeholder={'Enter text input here'}
           onChange={this.handleValueChange}
           onSubmit={this.handleSubmit}
         />
@@ -69,23 +71,32 @@ export class ReplaceWithJSONForm extends Component<
     let modelName = this.props.modelName;
 
     // special words
-    const debugStarter = 'debug:';
-    const adminWord = 'admin';
+    const reportStarter = 'report:';
+    const overwriteWord = 'overwrite';
+    const gotoOverview = 'overview';
     const evalWord = 'eval';
 
 
     // log(`modelName from props is ${modelName}`);
     let JSON = this.state.JSON;
-    if (JSON.startsWith(debugStarter)) {
-      this.props.debug(JSON.substring(debugStarter.length));
+    if (JSON.startsWith(reportStarter)) {
+      this.props.setReportKey(JSON.substring(reportStarter.length));
+      this.setState({ JSON: '' });
       return;
     }
-    if (JSON === adminWord) {
-      this.props.admin();
+    if (JSON === overwriteWord) {
+      this.props.toggleCheckOverwrite();
+      this.setState({ JSON: '' });
       return;
     }
     if (JSON === evalWord) {
       this.props.eval();
+      this.setState({ JSON: '' });
+      return;
+    }
+    if (JSON === gotoOverview){
+      this.props.toggleOverview();
+      this.setState({ JSON: '' });
       return;
     }
 
@@ -102,7 +113,7 @@ export class ReplaceWithJSONForm extends Component<
       return existing === modelName;
     });
     if (
-      !alreadyExists ||
+      !alreadyExists || !this.props.doCheckOverwrite() ||
       window.confirm(
         `will replace ${modelName} which already exists, you sure?`,
       )

@@ -20,6 +20,7 @@ import {
   getExpenseChartData,
   getIncomeChartData,
   getDebtChartData,
+  enterTextControl,
 } from './browserBaseTypes';
 import {
   headless,
@@ -38,11 +39,9 @@ import { log } from './../../utils';
 
 import webdriver from 'selenium-webdriver';
 
-const testDataModelName = 'BrowserWorkflowTest';
-
 let alreadyRunning = false;
 
-describe(testDataModelName, () => {
+describe('BrowserWorkflowTests', () => {
   let driverSimple = undefined;
   if (!alreadyRunning) {
     alreadyRunning = true;
@@ -89,7 +88,11 @@ describe(testDataModelName, () => {
     await setNarrowViewRange();
   }
 
-  async function assertCurrentModel(name: string, isDirty: boolean) {
+  async function assertCurrentModel(
+    name: string, 
+    isDirty: boolean,
+    testDataModelName: string, 
+  ) {
     await clickButton(driver, 'btn-Overview');
     await checkMessage(driver, `${name}`);
 
@@ -156,6 +159,7 @@ describe(testDataModelName, () => {
   }
 
   it('new, switch, cancel', async done => {
+    const testDataModelName = 'testName1';
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -172,10 +176,10 @@ describe(testDataModelName, () => {
     await clickButton(driver, `btn-save-model`);
 
     await makeNewModel(ex1Name);
-    await assertCurrentModel(ex1Name, true);
+    await assertCurrentModel(ex1Name, true, testDataModelName);
 
     await makeNewModel(ex2Name);
-    await assertCurrentModel(ex2Name, true);
+    await assertCurrentModel(ex2Name, true, testDataModelName);
 
     await driver.executeScript('window.scrollBy(0, -500)'); // Adjust scrolling with a negative value here
     await clickButton(driver, `btn-overview-${ex1Name}`);
@@ -192,6 +196,7 @@ describe(testDataModelName, () => {
   });
 
   it('new, clone, save, manipulate cash value', async done => {
+    const testDataModelName = 'testName2';
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -208,21 +213,21 @@ describe(testDataModelName, () => {
     await clickButton(driver, `btn-save-model`);
 
     await makeNewModel(ex1Name);
-    await assertCurrentModel(ex1Name, true);
+    await assertCurrentModel(ex1Name, true, testDataModelName);
 
     await expectCashValue(0);
     await setCashValue(10);
     await expectCashValue(10);
 
     await makeNewModel(ex2Name);
-    await assertCurrentModel(ex2Name, true);
+    await assertCurrentModel(ex2Name, true, testDataModelName);
 
     await switchToModel(ex1Name);
-    await assertCurrentModel(ex1Name, true);
+    await assertCurrentModel(ex1Name, true, testDataModelName);
     await expectCashValue(10);
 
     await switchToModel(ex2Name);
-    await assertCurrentModel(ex2Name, true);
+    await assertCurrentModel(ex2Name, true, testDataModelName);
 
     await expectCashValue(0);
     await setCashValue(20);
@@ -230,10 +235,10 @@ describe(testDataModelName, () => {
 
     await clickButton(driver, 'btn-Home');
     await clickButton(driver, 'btn-save-model');
-    await assertCurrentModel(ex2Name, false);
+    await assertCurrentModel(ex2Name, false, testDataModelName);
 
     ///////
-    // await checkMessage(driver, 'wrong');
+    // await checkMessage(driver, 'got this far');
     //////
 
     await clickButton(driver, 'btn-Home');
@@ -241,10 +246,11 @@ describe(testDataModelName, () => {
     await driver.get('about:blank');
     await driver.get(serverUri);
     await clickButton(driver, 'buttonTestLogin');
-    await clickButton(driver, 'btn-toggle-check-overwrite');
-
+    await enterTextControl(driver, 'overwrite');
+    await enterTextControl(driver, 'overview');
+  
     ///////
-    // await checkMessage(driver, 'wrong');
+    // await checkMessage(driver, 'got this far');
     //////
 
     await modelExists(ex1Name, false);
@@ -258,8 +264,9 @@ describe(testDataModelName, () => {
     await driver.get('about:blank');
     await driver.get(serverUri);
     await clickButton(driver, 'buttonTestLogin');
-    await clickButton(driver, 'btn-toggle-check-overwrite');
-
+    await enterTextControl(driver, 'overwrite');
+    await enterTextControl(driver, 'overview');
+  
     await modelExists(ex1Name, false);
     await modelExists(ex2Name, true);
 
@@ -291,7 +298,7 @@ describe(testDataModelName, () => {
 
     // explore replace-with-new, ...
 
-    // await checkMessage(driver, 'wrong');
+    // await checkMessage(driver, 'got this far');
 
     await clickButton(driver, 'btn-Home');
     await driver.executeScript('window.scrollBy(0, -500)'); // Adjust scrolling with a negative value here
@@ -301,7 +308,10 @@ describe(testDataModelName, () => {
     done();
   });
 
-  async function testModelCreation(createButtonID: string) {
+  async function testModelCreation(
+    createButtonID: string,
+    testDataModelName: string,
+  ) {
     const ex1Name = 'ex1Name';
     const ex2Name = 'ex2Name';
 
@@ -453,13 +463,14 @@ describe(testDataModelName, () => {
   }
 
   it('should create examples', async done => {
+    const testDataModelName = 'testName3';
     await beforeAllWork(
       driver,
       testDataModelName,
       `{"testName":"${TestModel01}"}`,
     );
 
-    await testModelCreation('btn-create-Simple-example');
+    await testModelCreation('btn-create-Simple-example', testDataModelName);
 
     await cleanUpWork(driver, testDataModelName);
     done();
@@ -2475,26 +2486,28 @@ describe(testDataModelName, () => {
   });
 
   it('should create new clones', async done => {
+    const testDataModelName = 'testName4';
     await beforeAllWork(
       driver,
       testDataModelName,
       `{"testName":"${TestModel01}"}`,
     );
 
-    await testModelCreation('btn-clone');
+    await testModelCreation('btn-clone', testDataModelName);
 
     await cleanUpWork(driver, testDataModelName);
     done();
   });
 
   it('should create new models', async done => {
+    const testDataModelName = 'testName5';
     await beforeAllWork(
       driver,
       testDataModelName,
       `{"testName":"${TestModel01}"}`,
     );
 
-    await testModelCreation('btn-createMinimalModel');
+    await testModelCreation('btn-createMinimalModel', testDataModelName);
 
     await cleanUpWork(driver, testDataModelName);
     done();
