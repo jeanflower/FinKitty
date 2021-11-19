@@ -521,21 +521,21 @@ export async function refreshData(
 
     if (evalMode()) {
       const reporter: ReportValueChecker = (
-        key: string,
+        name: string,
         val: number | string,
         date: Date,
-        description: string,
+        source: string,
       ) => {
         if (!reactAppComponent.reportDefiner) {
           return false;
         }
         if (printDebug()) {
-          log(`report for key = ${key}`);
+          log(`report for name = ${name}`);
           log(`report for val = ${val}`);
           log(`report for date = ${date}`);
-          log(`report for description = ${description}`);
+          log(`report for source = ${source}`);
         }
-        return key === reactAppComponent.reportDefiner.key;
+        return name === reactAppComponent.reportDefiner.name;
       };
 
       evaluationsAndVals = getEvaluations(model, reporter);
@@ -640,7 +640,7 @@ export async function refreshData(
 }
 
 function setReportKey(text: string) {
-  reactAppComponent.reportDefiner = { key: text };
+  reactAppComponent.reportDefiner = { name: text };
   // log('setting key for report : go refresh data');
   refreshData(
     true, // refreshModel = true,

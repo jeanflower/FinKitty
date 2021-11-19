@@ -323,13 +323,13 @@ export const evaluationType = {
 
 function getNumberValue(
   values: ValuesContainer,
-  key: string,
+  name: string,
   expectValue = true,
   printLogs = false,
 ): number | undefined {
-  let result = values.get(key);
+  let result = values.get(name);
   if (printLogs) {
-    log(`seek number value for key = '${key}', values has entry ${result}`);
+    log(`seek number value for key = '${name}', values has entry ${result}`);
   }
   if (typeof result === 'string') {
     // log(`value ${result} is a string`);
@@ -345,14 +345,14 @@ function getNumberValue(
   if (result === undefined) {
     if (expectValue) {
       log(
-        `getNumberValue returning undefined for ${key}; ` +
+        `getNumberValue returning undefined for ${name}; ` +
           `consider switch to traceEvaluation ` +
           `for values involving words and settings`,
       );
     }
   }
   if (printLogs) {
-    log(`number value for key = '${key}' is ${result}`);
+    log(`number value for key = '${name}' is ${result}`);
   }
   return result;
 }
@@ -3094,16 +3094,16 @@ function logPurchaseValues(
 class ValuesContainer {
   private values = new Map<string, number | string>([]);
   private includeInReport: ReportValueChecker = (
-    key: string,
+    name: string, // name of something which has a value
     val: number | string,
     date: Date,
-    description: string,
+    source: string,
   ) => {
     if (printDebug()) {
-      log(`report for key = ${key}`);
+      log(`report for name = ${name}`);
       log(`report for val = ${val}`);
       log(`report for date = ${date}`);
-      log(`report for description = ${description}`);
+      log(`report for source = ${source}`);
     }
     return false;
   };
@@ -3115,17 +3115,17 @@ class ValuesContainer {
   }
 
   public set(
-    key: string,
-    val: number | string,
+    name: string, // thing which has this value
+    val: number | string, // the value of the thing
     date: Date,
-    description: string,
+    source: string,
   ) {
-    this.values.set(key, val);
-    if (this.includeInReport(key, val, date, description)) {
+    this.values.set(name, val);
+    if (this.includeInReport(name, val, date, source)) {
       this.report.push({
-        newVal: traceEvaluation(key, this, 'debugReport'),
+        newVal: traceEvaluation(name, this, 'debugReport'),
         date: date.toString(),
-        description: description,
+        source: source,
       });
     }
   }

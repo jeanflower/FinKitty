@@ -113,18 +113,18 @@ export interface ItemChartData {
 }
 
 export interface ReportDefiner {
-  key: string;
+  name: string; // name of a thing I am interested in
 }
 export type ReportValueChecker = (
-  key: string,
-  val: number | string,
+  name: string, // name of thing which has a value
+  val: number | string, // value of the thing
   date: Date,
-  description: string,
+  source: string,
 ) => boolean;
 export interface ReportDatum {
   newVal: number | undefined;
   date: string;
-  description: string;
+  source: string;
 }
 
 export interface DataForView {
