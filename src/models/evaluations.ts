@@ -3121,19 +3121,22 @@ class ValuesContainer {
     source: string,
   ) {
     const reportChange = this.includeInReport(name, val, date, source);
-    let oldValue: number | undefined = 0.0;
+    let oldVal: number | undefined = 0.0;
     if (reportChange) {
-      oldValue = traceEvaluation(name, this, 'debugReportOld');
+      oldVal = traceEvaluation(name, this, 'debugReportOld');
     }
     this.values.set(name, val);
     if (reportChange) {
-      this.report.push({
-        name: name,
-        oldVal: oldValue,
-        newVal: traceEvaluation(name, this, 'debugReportNew'),
-        date: date.toString(),
-        source: source,
-      });
+      const newVal = traceEvaluation(name, this, 'debugReportNew');
+      if (oldVal !== newVal) {
+        this.report.push({
+          name: name,
+          oldVal: oldVal,
+          newVal: traceEvaluation(name, this, 'debugReportNew'),
+          date: date.toString(),
+          source: source,
+        });
+      }
     }
   }
 
@@ -3925,11 +3928,6 @@ export function getEvaluations(
     });
   }
   // log(`getEvaluations returning ${evaluations.length} evaluations`);
-
-  const report = values.getReport();
-  if (report.length > 0) {
-    log(`report ${showObj(report).substring(0, 200)}`);
-  }
 
   const result = {
     evaluations: evaluations,

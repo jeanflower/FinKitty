@@ -112,9 +112,7 @@ export interface ItemChartData {
   chartDataPoints: ChartDataPoint[];
 }
 export interface ReportMatcher {
-  nameMatcher: string;
   sourceMatcher: string;
-  nameExcluder: string;
   sourceExcluder: string;
 }
 export type ReportValueChecker = (

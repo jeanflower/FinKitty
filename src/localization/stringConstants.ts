@@ -197,7 +197,7 @@ export const debtsView: ViewType = { lc: 'Debts' };
 export const triggersView: ViewType = { lc: 'Dates' };
 export const settingsView: ViewType = { lc: 'Settings' };
 export const taxView: ViewType = { lc: 'Tax' };
-export const reportView: ViewType = { lc: 'Report' };
+export const reportView: ViewType = { lc: 'Asset actions' };
 
 export const expensesChart: ViewType = { lc: 'Expenses chart' };
 export const incomesChart: ViewType = { lc: 'Incomes chart' };

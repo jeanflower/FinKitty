@@ -69,7 +69,7 @@ import {
   ReportMatcher,
   ReportValueChecker,
 } from './types/interfaces';
-import { log, printDebug, showObj } from './utils';
+import { Context, log, printDebug, showObj } from './utils';
 import { loginPage, navbarContent } from './views/loginPage';
 import { screenshotsDiv } from './views/screenshotsPage';
 import {
@@ -519,69 +519,94 @@ export async function refreshData(
     model.assets.sort((a: Asset, b: Asset) => lessThan(b.NAME, a.NAME));
     modelNames.sort((a: string, b: string) => lessThan(a, b));
 
+    if (refreshModel) {
+      viewSettings.setModel(model);
+    }
     if (evalMode()) {
-      const reporter: ReportValueChecker = (
+      let reporter: ReportValueChecker = (
         name: string,
         val: number | string,
         date: Date,
         source: string,
       ) => {
-        if (!reactAppComponent.reportDefiner) {
-          return false;
-        }
-        if (
-          !reactAppComponent.reportDefiner.nameMatcher &&
-          !reactAppComponent.reportDefiner.sourceMatcher &&
-          !reactAppComponent.reportDefiner.nameExcluder &&
-          !reactAppComponent.reportDefiner.sourceExcluder
-        ) {
-          return false;
-        }
         if (printDebug()) {
           log(`report for name = ${name}`);
           log(`report for val = ${val}`);
           log(`report for date = ${date}`);
           log(`report for source = ${source}`);
         }
-        if (reactAppComponent.reportDefiner.nameMatcher) {
-          const nameRegex = RegExp(reactAppComponent.reportDefiner.nameMatcher);
-          if (name.match(nameRegex) === null) {
-            return false;
-          }
-        }
-        if (reactAppComponent.reportDefiner.sourceMatcher) {
-          const sourceRegex = RegExp(
-            reactAppComponent.reportDefiner.sourceMatcher,
-          );
-          if (source.match(sourceRegex) === null) {
-            return false;
-          }
-        }
-        if (reactAppComponent.reportDefiner.nameExcluder) {
-          const nameRegex = RegExp(
-            reactAppComponent.reportDefiner.nameExcluder,
-          );
-          if (name.match(nameRegex) !== null) {
-            return false;
-          }
-        }
-        if (reactAppComponent.reportDefiner.sourceExcluder) {
-          const sourceRegex = RegExp(
-            reactAppComponent.reportDefiner.sourceExcluder,
-          );
-          if (source.match(sourceRegex) !== null) {
-            return false;
-          }
-        }
-        return true;
+        return false;
       };
-
+      if (getDisplay(reportView)) {
+        // log(`create the report data`);
+        reporter = (
+          name: string,
+          val: number | string,
+          date: Date,
+          source: string,
+        ) => {
+          if (!reactAppComponent.reportDefiner) {
+            return false;
+          }
+          let nameMatcher = '';
+          model.assets.forEach(a => {
+            if (viewSettings.getShowItem(Context.Asset, a.NAME)) {
+              // log(`show ${a.NAME}`);
+              if (nameMatcher === '') {
+                nameMatcher = a.NAME;
+              } else {
+                nameMatcher = nameMatcher + '|' + a.NAME;
+              }
+            } else {
+              // log(`do not show ${a.NAME}`);
+            }
+          });
+          // log(`nameMatcher = ${nameMatcher}`);
+          // log(`sourceMatcher = ${reactAppComponent.reportDefiner.sourceMatcher}`)
+          // log(`sourceExcluder = ${reactAppComponent.reportDefiner.sourceExcluder}`)
+          if (
+            nameMatcher === '' &&
+            !reactAppComponent.reportDefiner.sourceMatcher &&
+            !reactAppComponent.reportDefiner.sourceExcluder
+          ) {
+            return false;
+          }
+          if (printDebug()) {
+            log(`report for name = ${name}`);
+            log(`report for val = ${val}`);
+            log(`report for date = ${date}`);
+            log(`report for source = ${source}`);
+          }
+          if (nameMatcher) {
+            const nameRegex = RegExp(nameMatcher);
+            if (name.match(nameRegex) === null) {
+              return false;
+            }
+          }
+          if (reactAppComponent.reportDefiner.sourceMatcher) {
+            const sourceRegex = RegExp(
+              reactAppComponent.reportDefiner.sourceMatcher,
+            );
+            if (source.match(sourceRegex) === null) {
+              // log(`do not show source ${source} bcs it doesn't match`);
+              return false;
+            }
+          }
+          if (reactAppComponent.reportDefiner.sourceExcluder) {
+            const sourceRegex = RegExp(
+              reactAppComponent.reportDefiner.sourceExcluder,
+            );
+            if (source.match(sourceRegex) !== null) {
+              // log(`do not show source ${source} bcs it matches exclusion`);
+              return false;
+            }
+          }
+          return true;
+        };
+      }
       evaluationsAndVals = getEvaluations(model, reporter);
       // log(`evaluationsAndVals.reportData.length = ${evaluationsAndVals.reportData.length}`);
     }
-  }
-  if (refreshModel) {
-    viewSettings.setModel(model);
   }
   if (refreshModel || refreshChart) {
     // log(`refresh chart data`);
@@ -677,62 +702,14 @@ export async function refreshData(
   // log(`finished refreshData`);
 }
 
-function setReportKey(textInput: string, model: ModelData) {
+function setReportKey(textInput: string) {
   /*
-  report:{"nameMatcher":"Cash"}
-  report:{"nameMatcher":"Cash","sourceExcluder":"growth"}
-  report:{"nameMatcher":"Cash|ISAs"}
-  report:{"nameMatcher":"ISAs","sourceExcluder":"growth"}
-  report:{"catMatcher":"ISA"}
-  report:{"catMatcher":"ISA","sourceExcluder":"growth|Revalue"}
+  report:{"sourceExcluder":"growth"}
   */
   const inputObj = JSON.parse(textInput);
 
-  let nameMatcher = inputObj.nameMatcher;
-  if (inputObj.catMatcher !== undefined) {
-    const matcher = RegExp(inputObj.catMatcher);
-    const names = model.assets
-      .filter(a => {
-        return a.CATEGORY.match(matcher) !== null;
-      })
-      .map(a => {
-        return a.NAME;
-      })
-      .concat(
-        model.incomes
-          .filter(a => {
-            return a.CATEGORY.match(matcher) !== null;
-          })
-          .map(a => {
-            return a.NAME;
-          }),
-      )
-      .concat(
-        model.expenses
-          .filter(a => {
-            return a.CATEGORY.match(matcher) !== null;
-          })
-          .map(a => {
-            return a.NAME;
-          }),
-      );
-    if (nameMatcher === undefined) {
-      nameMatcher = '';
-    }
-    names.forEach(n => {
-      if (nameMatcher === '') {
-        nameMatcher = n;
-      } else {
-        nameMatcher = nameMatcher + '|' + n;
-      }
-    });
-  }
-  log(`nameMatcher = ${nameMatcher}`);
-
   reactAppComponent.reportDefiner = {
-    nameMatcher: nameMatcher,
     sourceMatcher: inputObj.sourceMatcher,
-    nameExcluder: inputObj.nameExcluder,
     sourceExcluder: inputObj.sourceExcluder,
   };
 
@@ -919,10 +896,17 @@ export function toggle(type: ViewType) {
     return false;
   }
   view.display = true;
-  refreshData(
-    false, // refreshModel = true,
-    true, // refreshChart = true,
-  );
+  if (type === reportView) {
+    refreshData(
+      true, // refreshModel = true,
+      true, // refreshChart = true,
+    );
+  } else {
+    refreshData(
+      false, // refreshModel = true,
+      true, // refreshChart = true,
+    );
+  }
 }
 
 function checkModelData(givenModel: ModelData): string {
@@ -1163,10 +1147,8 @@ export class AppContent extends Component<AppProps, AppState> {
     };
 
     this.reportDefiner = {
-      nameMatcher: 'noMatchString',
-      sourceMatcher: 'noMatchString',
-      nameExcluder: 'noMatchString',
-      sourceExcluder: 'noMatchString',
+      sourceMatcher: '.*',
+      sourceExcluder: 'growth',
     };
     this.options = {
       goToOverviewPage: true,
@@ -1728,7 +1710,6 @@ export class AppContent extends Component<AppProps, AppState> {
           modelName={modelName}
           modelNames={this.state.modelNamesData}
           userID={userID}
-          model={this.state.modelData}
           showAlert={showAlert}
           setReportKey={setReportKey}
           toggleCheckOverwrite={() => {

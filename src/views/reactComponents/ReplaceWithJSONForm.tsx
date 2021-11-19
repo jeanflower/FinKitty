@@ -4,7 +4,6 @@ import { log, printDebug } from '../../utils';
 import { Input } from './Input';
 import { replaceWithModel } from '../../App';
 import { makeModelFromJSON } from '../../models/modelUtils';
-import { ModelData } from '../../types/interfaces';
 
 interface ReplaceWithJSONFormState {
   JSON: string;
@@ -13,9 +12,8 @@ interface ReplaceWithJSONFormProps {
   modelName: string;
   modelNames: string[];
   userID: string;
-  model: ModelData;
   showAlert: (arg0: string) => void;
-  setReportKey: (args0: string, model: ModelData) => void;
+  setReportKey: (args0: string) => void;
   toggleCheckOverwrite: () => void;
   toggleOverview: () => void;
   doCheckOverwrite: () => boolean;
@@ -81,10 +79,7 @@ export class ReplaceWithJSONForm extends Component<
     // log(`modelName from props is ${modelName}`);
     let JSON = this.state.JSON.trim();
     if (JSON.startsWith(reportStarter)) {
-      this.props.setReportKey(
-        JSON.substring(reportStarter.length),
-        this.props.model,
-      );
+      this.props.setReportKey(JSON.substring(reportStarter.length));
       this.setState({ JSON: '' });
       return;
     }
