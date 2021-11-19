@@ -102,7 +102,7 @@ export const testUserID = 'TestUserID';
 
 export async function clickButton(driver: ThenableWebDriver, id: string) {
   let btn = [];
-  for(let i = 0; i < 10; i = i + 1){
+  for (let i = 0; i < 10; i = i + 1) {
     btn = await driver.findElements(webdriver.By.id(id));
     if (btn.length !== 1) {
       // log(`found ${btn.length} elements with id=${id}`);
@@ -149,7 +149,7 @@ export async function scrollIntoViewByName(
   name: string,
 ) {
   let input: any[] = [];
-  for(let i = 0; i < 10; i = i + 1){
+  for (let i = 0; i < 10; i = i + 1) {
     input = await driver.findElements(webdriver.By.name(name));
     if (input.length !== 1) {
       // log(`attempt ${i}; found ${input.length} elements with name=${name}`);
@@ -159,7 +159,7 @@ export async function scrollIntoViewByName(
     break;
   }
   expect(input.length === 1).toBe(true);
-  
+
   await driver.executeScript('arguments[0].scrollIntoView(true);', input[0]);
 }
 
@@ -176,6 +176,16 @@ export async function fillInputByName(
   return result;
 }
 
+export async function enterTextControl(
+  driver: ThenableWebDriver,
+  inputString: string,
+) {
+  await fillInputByName(driver, 'replaceWithJSON', inputString);
+  const input = await driver.findElements(webdriver.By.id('replaceWithJSON'));
+  expect(input.length === 1).toBe(true);
+  await input[0].sendKeys(Key.ENTER);
+}
+
 export async function replaceWithTestModel(
   driver: ThenableWebDriver,
   testDataModelName: string,
@@ -183,20 +193,6 @@ export async function replaceWithTestModel(
 ) {
   await enterTextControl(driver, `${testDataModelName}${modelString}`);
   await clickButton(driver, 'btn-clear-alert');
-}
-
-export async function enterTextControl(
-  driver: ThenableWebDriver,
-  inputString: string,
-){
-  await fillInputByName(
-    driver,
-    'replaceWithJSON',
-    inputString,
-  );
-  const input = await driver.findElements(webdriver.By.id('replaceWithJSON'));
-  expect(input.length === 1).toBe(true);
-  await input[0].sendKeys(Key.ENTER);
 }
 
 export async function beforeAllWork(

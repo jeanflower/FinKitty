@@ -89,9 +89,9 @@ describe('BrowserWorkflowTests', () => {
   }
 
   async function assertCurrentModel(
-    name: string, 
+    name: string,
     isDirty: boolean,
-    testDataModelName: string, 
+    testDataModelName: string,
   ) {
     await clickButton(driver, 'btn-Overview');
     await checkMessage(driver, `${name}`);
@@ -248,7 +248,7 @@ describe('BrowserWorkflowTests', () => {
     await clickButton(driver, 'buttonTestLogin');
     await enterTextControl(driver, 'overwrite');
     await enterTextControl(driver, 'overview');
-  
+
     ///////
     // await checkMessage(driver, 'got this far');
     //////
@@ -266,7 +266,7 @@ describe('BrowserWorkflowTests', () => {
     await clickButton(driver, 'buttonTestLogin');
     await enterTextControl(driver, 'overwrite');
     await enterTextControl(driver, 'overview');
-  
+
     await modelExists(ex1Name, false);
     await modelExists(ex2Name, true);
 

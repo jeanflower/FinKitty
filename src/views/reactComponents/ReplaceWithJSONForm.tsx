@@ -76,7 +76,6 @@ export class ReplaceWithJSONForm extends Component<
     const gotoOverview = 'overview';
     const evalWord = 'eval';
 
-
     // log(`modelName from props is ${modelName}`);
     let JSON = this.state.JSON;
     if (JSON.startsWith(reportStarter)) {
@@ -94,7 +93,7 @@ export class ReplaceWithJSONForm extends Component<
       this.setState({ JSON: '' });
       return;
     }
-    if (JSON === gotoOverview){
+    if (JSON === gotoOverview) {
       this.props.toggleOverview();
       this.setState({ JSON: '' });
       return;
@@ -113,7 +112,8 @@ export class ReplaceWithJSONForm extends Component<
       return existing === modelName;
     });
     if (
-      !alreadyExists || !this.props.doCheckOverwrite() ||
+      !alreadyExists ||
+      !this.props.doCheckOverwrite() ||
       window.confirm(
         `will replace ${modelName} which already exists, you sure?`,
       )

@@ -3091,24 +3091,39 @@ function logPurchaseValues(
 }
 class ValuesContainer {
   private values = new Map<string, number | string>([]);
-  private includeInReport: 
-    (key: string, val: number| string, date: Date, description: string) => boolean = 
-    (key: string, val: number| string, date: Date, description: string) => { 
-    if(printDebug()){
+  private includeInReport: (
+    key: string,
+    val: number | string,
+    date: Date,
+    description: string,
+  ) => boolean = (
+    key: string,
+    val: number | string,
+    date: Date,
+    description: string,
+  ) => {
+    if (printDebug()) {
       log(`report for key = ${key}`);
       log(`report for val = ${val}`);
       log(`report for date = ${date}`);
       log(`report for description = ${description}`);
     }
-    return false; 
-  }
+    return false;
+  };
   private report: {
     newVal: number | undefined;
     date: string;
     description: string;
   }[] = [];
 
-  public setIncludeInReport(fn: (key: string, val: number| string, date: Date, description: string) => boolean){
+  public setIncludeInReport(
+    fn: (
+      key: string,
+      val: number | string,
+      date: Date,
+      description: string,
+    ) => boolean,
+  ) {
     this.includeInReport = fn;
     this.report = [];
   }
@@ -3149,7 +3164,14 @@ class ValuesContainer {
 // this file.
 export function getEvaluations(
   model: ModelData,
-  reporter: ((key: string, val: number| string, date: Date, description: string) => boolean) | undefined,
+  reporter:
+    | ((
+        key: string,
+        val: number | string,
+        date: Date,
+        description: string,
+      ) => boolean)
+    | undefined,
 ): {
   evaluations: Evaluation[];
   todaysAssetValues: Map<string, AssetVal>;
@@ -3209,7 +3231,7 @@ export function getEvaluations(
 
   // Keep track of current value of any expense, income or asset
   const values = new ValuesContainer();
-  if (reporter){
+  if (reporter) {
     values.setIncludeInReport(reporter);
   }
 

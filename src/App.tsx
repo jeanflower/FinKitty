@@ -382,13 +382,22 @@ function showAlert(text: string) {
   });
 }
 
-function toggleOption(type: string){
+function toggleOption(type: string) {
   if (reactAppComponent) {
-    log(`before toggle reactAppComponent.state.${type} = ${reactAppComponent.options[type]}`);
+    log(
+      `before toggle reactAppComponent.state.${type} = ${reactAppComponent.options[type]}`,
+    );
     reactAppComponent.options[type] = !reactAppComponent.options[type];
     log(`after toggle state has ${type} is ${reactAppComponent.options[type]}`);
   } else {
     alert(`error: data not ready to set ${type} mode`);
+  }
+}
+function evalMode(): boolean {
+  if (reactAppComponent) {
+    return reactAppComponent.options.evalMode;
+  } else {
+    return false;
   }
 }
 export async function refreshData(
@@ -498,9 +507,14 @@ export async function refreshData(
     model.assets.sort((a: Asset, b: Asset) => lessThan(b.NAME, a.NAME));
     modelNames.sort((a: string, b: string) => lessThan(a, b));
 
-    if(evalMode()){
-      const reporter = (key: string, val: number | string, date: Date, description: string)=>{
-        if(printDebug()){
+    if (evalMode()) {
+      const reporter = (
+        key: string,
+        val: number | string,
+        date: Date,
+        description: string,
+      ) => {
+        if (printDebug()) {
           log(`report for key = ${key}`);
           log(`report for val = ${val}`);
           log(`report for date = ${date}`);
@@ -509,10 +523,7 @@ export async function refreshData(
         return key === reactAppComponent.keyForReport;
       };
 
-      evaluationsAndVals = getEvaluations(
-        model,
-        reporter,
-      );
+      evaluationsAndVals = getEvaluations(model, reporter);
     }
   }
   if (refreshModel) {
@@ -951,13 +962,6 @@ function checkOverwrite(): boolean {
     return false;
   }
 }
-function evalMode(): boolean {
-  if (reactAppComponent) {
-    return reactAppComponent.options.evalMode;
-  } else {
-    return false;
-  }
-}
 export async function replaceWithModel(
   userName: string | undefined,
   thisModelName: string,
@@ -1009,7 +1013,7 @@ interface AppProps {
 }
 
 export class AppContent extends Component<AppProps, AppState> {
-  keyForReport: string | undefined;  
+  keyForReport: string | undefined;
   options: any;
   /*
   {
@@ -1050,7 +1054,7 @@ export class AppContent extends Component<AppProps, AppState> {
       goToOverviewPage: true,
       checkOverwrite: true,
       evalMode: true,
-    }
+    };
 
     refreshData(
       true, // refreshModel = true,
@@ -1281,7 +1285,12 @@ export class AppContent extends Component<AppProps, AppState> {
     idKey: string,
   ) {
     if (modelNames.length === 0) {
-      return <div role="group"><img src={WaitGif} alt='FinKitty wait symbol'/>Loading models...</div>;
+      return (
+        <div role="group">
+          <img src={WaitGif} alt="FinKitty wait symbol" />
+          Loading models...
+        </div>
+      );
     }
     // log(`modelNames = ${modelNames}`);
     const buttons = modelNames.map(model => {
@@ -1459,148 +1468,158 @@ export class AppContent extends Component<AppProps, AppState> {
       return false; // didn't update name OK
     }
   }
-  private homeScreenButtons(){
-    return (<><CreateModelForm
-      userID={userID}
-      currentModelName={modelName}
-      modelData={this.state.modelData}
-      saveModel={async (
-        userID: string,
-        modelName: string,
-        modelData: ModelData,
-      ) => {
-        await saveModelToDBLSM(userID, modelName, modelData);
-        refreshData(
-          true, // refreshModel = true,
-          true, // refreshChart = true,
-        );
-      }}
-      showAlert={showAlert}
-      cloneModel={this.cloneModel}
-      exampleModels={exampleModels}
-      getExampleModel={getExampleModel}
-      getModelNames={getModelNames}
-    />
-    <br></br>
-    <div className="btn-group ml-3" role="group">
-      {makeButton(
-        'Delete model',
-        async () => {
-          this.deleteModel(modelName);
-        },
-        `btn-delete`,
-        `btn-delete`,
-        'secondary',
-      )}
-      {makeButton(
-        'Diff model',
-        async () => {
-          this.diffModel(modelName);
-        },
-        `btn-diff`,
-        `btn-diff`,
-        'secondary',
-      )}
-    </div>
-    <br></br>
-    <br></br>
-    <div className="ml-3">
-      Developer tools:
-      <br />
-      {makeButton(
-        'Check model',
-        async () => {
-          const response = checkModelData(
-            reactAppComponent.state.modelData,
-          );
-          reactAppComponent.setState({
-            alertText: response,
-          });
-        },
-        `btn-check`,
-        `btn-check`,
-        'secondary',
-      )}
-      {makeButton(
-        'Copy model as JSON to clipboard',
-        () => {
-          const text = JSON.stringify(this.state.modelData);
-          navigator.clipboard.writeText(text).then(
-            function() {
-              showAlert(`model as JSON on clipboard`);
+  private homeScreenButtons() {
+    return (
+      <>
+        <CreateModelForm
+          userID={userID}
+          currentModelName={modelName}
+          modelData={this.state.modelData}
+          saveModel={async (
+            userID: string,
+            modelName: string,
+            modelData: ModelData,
+          ) => {
+            await saveModelToDBLSM(userID, modelName, modelData);
+            refreshData(
+              true, // refreshModel = true,
+              true, // refreshChart = true,
+            );
+          }}
+          showAlert={showAlert}
+          cloneModel={this.cloneModel}
+          exampleModels={exampleModels}
+          getExampleModel={getExampleModel}
+          getModelNames={getModelNames}
+        />
+        <br></br>
+        <div className="btn-group ml-3" role="group">
+          {makeButton(
+            'Delete model',
+            async () => {
+              this.deleteModel(modelName);
             },
-            function(err) {
-              console.error('Async: Could not copy text: ', err);
-              showAlert(
-                `sorry, something went wrong, no copy on clipboard - in console instead`,
+            `btn-delete`,
+            `btn-delete`,
+            'secondary',
+          )}
+          {makeButton(
+            'Diff model',
+            async () => {
+              this.diffModel(modelName);
+            },
+            `btn-diff`,
+            `btn-diff`,
+            'secondary',
+          )}
+        </div>
+        <br></br>
+        <br></br>
+        <div className="ml-3">
+          Developer tools:
+          <br />
+          {makeButton(
+            'Check model',
+            async () => {
+              const response = checkModelData(
+                reactAppComponent.state.modelData,
               );
-              log('-------- start of model --------');
-              log(text);
-              log('-------- end of model --------');
-            },
-          );
-        },
-        `btn-log`,
-        `btn-log`,
-        'secondary',
-      )}
-      {makeButton(
-        'Test encrypted JSON',
-        () => {
-          const inputEnc = prompt('Enter encrypted JSON');
-          if (inputEnc === null) {
-            return;
-          }
-          const secret = prompt('Enter secret key');
-          if (secret === null) {
-            return;
-          }
-          try {
-            const decipher = CryptoJS.AES.decrypt(inputEnc, secret);
-            const decipherString = decipher.toString(CryptoJS.enc.Utf8);
-            log(`deciphered text ${decipherString}`);
-            if (decipherString === undefined) {
-              showAlert('could not decode this data');
-            } else {
-              const decipheredModel = makeModelFromJSON(decipherString);
-              const response = checkModelData(decipheredModel);
               reactAppComponent.setState({
                 alertText: response,
               });
-            }
-          } catch (err) {
-            showAlert('could not decode this data');
-          }
-        },
-        `btn-JSON-encrypt-replace`,
-        `btn-JSON-encrypt-replace`,
-        'secondary',
-      )}
-    {makeButton(
-        'Force delete model',
-        () => {
-          const name = prompt('Force delete model name');
-          if (name === null) {
-            return;
-          }
-          this.deleteModel(name);
-        },
-        `btn-force-delete`,
-        `btn-force-delete`,
-        'secondary',
-      )}
-    </div>
-    <ReplaceWithJSONForm
-      modelName={modelName}
-      modelNames={this.state.modelNamesData}
-      userID={userID}
-      showAlert={showAlert}
-      setReportKey={setReportKey}
-      toggleCheckOverwrite={()=>{return toggleOption('checkOverwrite')}}
-      toggleOverview={()=>{return toggleOption('goToOverviewPage')}}
-      doCheckOverwrite={checkOverwrite}
-      eval={()=>{return toggleOption('evalMode')}}
-    /></>);
+            },
+            `btn-check`,
+            `btn-check`,
+            'secondary',
+          )}
+          {makeButton(
+            'Copy model as JSON to clipboard',
+            () => {
+              const text = JSON.stringify(this.state.modelData);
+              navigator.clipboard.writeText(text).then(
+                function() {
+                  showAlert(`model as JSON on clipboard`);
+                },
+                function(err) {
+                  console.error('Async: Could not copy text: ', err);
+                  showAlert(
+                    `sorry, something went wrong, no copy on clipboard - in console instead`,
+                  );
+                  log('-------- start of model --------');
+                  log(text);
+                  log('-------- end of model --------');
+                },
+              );
+            },
+            `btn-log`,
+            `btn-log`,
+            'secondary',
+          )}
+          {makeButton(
+            'Test encrypted JSON',
+            () => {
+              const inputEnc = prompt('Enter encrypted JSON');
+              if (inputEnc === null) {
+                return;
+              }
+              const secret = prompt('Enter secret key');
+              if (secret === null) {
+                return;
+              }
+              try {
+                const decipher = CryptoJS.AES.decrypt(inputEnc, secret);
+                const decipherString = decipher.toString(CryptoJS.enc.Utf8);
+                log(`deciphered text ${decipherString}`);
+                if (decipherString === undefined) {
+                  showAlert('could not decode this data');
+                } else {
+                  const decipheredModel = makeModelFromJSON(decipherString);
+                  const response = checkModelData(decipheredModel);
+                  reactAppComponent.setState({
+                    alertText: response,
+                  });
+                }
+              } catch (err) {
+                showAlert('could not decode this data');
+              }
+            },
+            `btn-JSON-encrypt-replace`,
+            `btn-JSON-encrypt-replace`,
+            'secondary',
+          )}
+          {makeButton(
+            'Force delete model',
+            () => {
+              const name = prompt('Force delete model name');
+              if (name === null) {
+                return;
+              }
+              this.deleteModel(name);
+            },
+            `btn-force-delete`,
+            `btn-force-delete`,
+            'secondary',
+          )}
+        </div>
+        <ReplaceWithJSONForm
+          modelName={modelName}
+          modelNames={this.state.modelNamesData}
+          userID={userID}
+          showAlert={showAlert}
+          setReportKey={setReportKey}
+          toggleCheckOverwrite={() => {
+            return toggleOption('checkOverwrite');
+          }}
+          toggleOverview={() => {
+            return toggleOption('goToOverviewPage');
+          }}
+          doCheckOverwrite={checkOverwrite}
+          eval={() => {
+            return toggleOption('evalMode');
+          }}
+        />
+      </>
+    );
   }
 
   private homeDiv() {
@@ -1635,7 +1654,9 @@ export class AppContent extends Component<AppProps, AppState> {
             <br />
             {this.modelListForSelect(this.state.modelNamesData)}
             <br />
-            {this.state.modelNamesData.length > 0 ? this.homeScreenButtons():''}
+            {this.state.modelNamesData.length > 0
+              ? this.homeScreenButtons()
+              : ''}
           </div>
           <div className="col-md mb-4">{screenshotsDiv()}</div>
         </div>
