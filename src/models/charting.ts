@@ -45,7 +45,6 @@ import {
   total,
   viewDetail,
   viewFrequency,
-  ViewType,
   pensionAllowance,
   dot,
   annually,

@@ -112,6 +112,15 @@ export interface ItemChartData {
   chartDataPoints: ChartDataPoint[];
 }
 
+export interface ReportDefiner {
+  key: string;
+}
+export type ReportValueChecker = (
+  key: string,
+  val: number | string,
+  date: Date,
+  description: string,
+) => boolean;
 export interface ReportDatum {
   newVal: number | undefined;
   date: string;

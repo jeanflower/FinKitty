@@ -44,6 +44,7 @@ import {
   IncomeVal,
   ExpenseVal,
   ReportDatum,
+  ReportValueChecker,
 } from '../types/interfaces';
 import { getMonthlyGrowth, log, printDebug, showObj } from '../utils';
 import { getDisplayName } from '../views/tablePages';
@@ -3092,12 +3093,7 @@ function logPurchaseValues(
 }
 class ValuesContainer {
   private values = new Map<string, number | string>([]);
-  private includeInReport: (
-    key: string,
-    val: number | string,
-    date: Date,
-    description: string,
-  ) => boolean = (
+  private includeInReport: ReportValueChecker = (
     key: string,
     val: number | string,
     date: Date,
@@ -3113,14 +3109,7 @@ class ValuesContainer {
   };
   private report: ReportDatum[] = [];
 
-  public setIncludeInReport(
-    fn: (
-      key: string,
-      val: number | string,
-      date: Date,
-      description: string,
-    ) => boolean,
-  ) {
+  public setIncludeInReport(fn: ReportValueChecker) {
     this.includeInReport = fn;
     this.report = [];
   }
@@ -3158,14 +3147,7 @@ class ValuesContainer {
 // this file.
 export function getEvaluations(
   model: ModelData,
-  reporter:
-    | ((
-        key: string,
-        val: number | string,
-        date: Date,
-        description: string,
-      ) => boolean)
-    | undefined,
+  reporter: ReportValueChecker | undefined,
 ): {
   evaluations: Evaluation[];
   todaysAssetValues: Map<string, AssetVal>;

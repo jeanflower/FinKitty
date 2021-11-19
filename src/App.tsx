@@ -66,6 +66,8 @@ import {
   ItemChartData,
   SettingVal,
   ReportDatum,
+  ReportDefiner,
+  ReportValueChecker,
 } from './types/interfaces';
 import { log, printDebug, showObj } from './utils';
 import { loginPage, navbarContent } from './views/loginPage';
@@ -518,19 +520,22 @@ export async function refreshData(
     modelNames.sort((a: string, b: string) => lessThan(a, b));
 
     if (evalMode()) {
-      const reporter = (
+      const reporter: ReportValueChecker = (
         key: string,
         val: number | string,
         date: Date,
         description: string,
       ) => {
+        if (!reactAppComponent.reportDefiner) {
+          return false;
+        }
         if (printDebug()) {
           log(`report for key = ${key}`);
           log(`report for val = ${val}`);
           log(`report for date = ${date}`);
           log(`report for description = ${description}`);
         }
-        return key === reactAppComponent.keyForReport;
+        return key === reactAppComponent.reportDefiner.key;
       };
 
       evaluationsAndVals = getEvaluations(model, reporter);
@@ -635,7 +640,7 @@ export async function refreshData(
 }
 
 function setReportKey(text: string) {
-  reactAppComponent.keyForReport = text;
+  reactAppComponent.reportDefiner = { key: text };
   // log('setting key for report : go refresh data');
   refreshData(
     true, // refreshModel = true,
@@ -1025,7 +1030,7 @@ interface AppProps {
 }
 
 export class AppContent extends Component<AppProps, AppState> {
-  keyForReport: string | undefined;
+  reportDefiner: ReportDefiner | undefined;
   options: any;
   /*
   {
@@ -1062,7 +1067,7 @@ export class AppContent extends Component<AppProps, AppState> {
       alertText: '',
     };
 
-    this.keyForReport = undefined;
+    this.reportDefiner = undefined;
     this.options = {
       goToOverviewPage: true,
       checkOverwrite: true,
