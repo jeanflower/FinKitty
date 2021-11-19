@@ -66,7 +66,7 @@ import {
   ItemChartData,
   SettingVal,
   ReportDatum,
-  ReportDefiner,
+  ReportMatcher,
   ReportValueChecker,
 } from './types/interfaces';
 import { log, printDebug, showObj } from './utils';
@@ -529,13 +529,51 @@ export async function refreshData(
         if (!reactAppComponent.reportDefiner) {
           return false;
         }
+        if (
+          !reactAppComponent.reportDefiner.nameMatcher &&
+          !reactAppComponent.reportDefiner.sourceMatcher &&
+          !reactAppComponent.reportDefiner.nameExcluder &&
+          !reactAppComponent.reportDefiner.sourceExcluder
+        ) {
+          return false;
+        }
         if (printDebug()) {
           log(`report for name = ${name}`);
           log(`report for val = ${val}`);
           log(`report for date = ${date}`);
           log(`report for source = ${source}`);
         }
-        return name === reactAppComponent.reportDefiner.name;
+        if (reactAppComponent.reportDefiner.nameMatcher) {
+          const nameRegex = RegExp(reactAppComponent.reportDefiner.nameMatcher);
+          if (name.match(nameRegex) === null) {
+            return false;
+          }
+        }
+        if (reactAppComponent.reportDefiner.sourceMatcher) {
+          const sourceRegex = RegExp(
+            reactAppComponent.reportDefiner.sourceMatcher,
+          );
+          if (source.match(sourceRegex) === null) {
+            return false;
+          }
+        }
+        if (reactAppComponent.reportDefiner.nameExcluder) {
+          const nameRegex = RegExp(
+            reactAppComponent.reportDefiner.nameExcluder,
+          );
+          if (name.match(nameRegex) !== null) {
+            return false;
+          }
+        }
+        if (reactAppComponent.reportDefiner.sourceExcluder) {
+          const sourceRegex = RegExp(
+            reactAppComponent.reportDefiner.sourceExcluder,
+          );
+          if (source.match(sourceRegex) !== null) {
+            return false;
+          }
+        }
+        return true;
       };
 
       evaluationsAndVals = getEvaluations(model, reporter);
@@ -639,8 +677,65 @@ export async function refreshData(
   // log(`finished refreshData`);
 }
 
-function setReportKey(text: string) {
-  reactAppComponent.reportDefiner = { name: text };
+function setReportKey(textInput: string, model: ModelData) {
+  /*
+  report:{"nameMatcher":"Cash"}
+  report:{"nameMatcher":"Cash","sourceExcluder":"growth"}
+  report:{"nameMatcher":"Cash|ISAs"}
+  report:{"nameMatcher":"ISAs","sourceExcluder":"growth"}
+  report:{"catMatcher":"ISA"}
+  report:{"catMatcher":"ISA","sourceExcluder":"growth|Revalue"}
+  */
+  const inputObj = JSON.parse(textInput);
+
+  let nameMatcher = inputObj.nameMatcher;
+  if (inputObj.catMatcher !== undefined) {
+    const matcher = RegExp(inputObj.catMatcher);
+    const names = model.assets
+      .filter(a => {
+        return a.CATEGORY.match(matcher) !== null;
+      })
+      .map(a => {
+        return a.NAME;
+      })
+      .concat(
+        model.incomes
+          .filter(a => {
+            return a.CATEGORY.match(matcher) !== null;
+          })
+          .map(a => {
+            return a.NAME;
+          }),
+      )
+      .concat(
+        model.expenses
+          .filter(a => {
+            return a.CATEGORY.match(matcher) !== null;
+          })
+          .map(a => {
+            return a.NAME;
+          }),
+      );
+    if (nameMatcher === undefined) {
+      nameMatcher = '';
+    }
+    names.forEach(n => {
+      if (nameMatcher === '') {
+        nameMatcher = n;
+      } else {
+        nameMatcher = nameMatcher + '|' + n;
+      }
+    });
+  }
+  log(`nameMatcher = ${nameMatcher}`);
+
+  reactAppComponent.reportDefiner = {
+    nameMatcher: nameMatcher,
+    sourceMatcher: inputObj.sourceMatcher,
+    nameExcluder: inputObj.nameExcluder,
+    sourceExcluder: inputObj.sourceExcluder,
+  };
+
   // log('setting key for report : go refresh data');
   refreshData(
     true, // refreshModel = true,
@@ -1030,7 +1125,7 @@ interface AppProps {
 }
 
 export class AppContent extends Component<AppProps, AppState> {
-  reportDefiner: ReportDefiner | undefined;
+  reportDefiner: ReportMatcher;
   options: any;
   /*
   {
@@ -1067,7 +1162,12 @@ export class AppContent extends Component<AppProps, AppState> {
       alertText: '',
     };
 
-    this.reportDefiner = undefined;
+    this.reportDefiner = {
+      nameMatcher: 'noMatchString',
+      sourceMatcher: 'noMatchString',
+      nameExcluder: 'noMatchString',
+      sourceExcluder: 'noMatchString',
+    };
     this.options = {
       goToOverviewPage: true,
       checkOverwrite: true,
@@ -1628,6 +1728,7 @@ export class AppContent extends Component<AppProps, AppState> {
           modelName={modelName}
           modelNames={this.state.modelNamesData}
           userID={userID}
+          model={this.state.modelData}
           showAlert={showAlert}
           setReportKey={setReportKey}
           toggleCheckOverwrite={() => {

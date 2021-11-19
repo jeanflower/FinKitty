@@ -111,9 +111,11 @@ export interface ItemChartData {
   item: Item;
   chartDataPoints: ChartDataPoint[];
 }
-
-export interface ReportDefiner {
-  name: string; // name of a thing I am interested in
+export interface ReportMatcher {
+  nameMatcher: string;
+  sourceMatcher: string;
+  nameExcluder: string;
+  sourceExcluder: string;
 }
 export type ReportValueChecker = (
   name: string, // name of thing which has a value
@@ -122,6 +124,8 @@ export type ReportValueChecker = (
   source: string,
 ) => boolean;
 export interface ReportDatum {
+  name: string;
+  oldVal: number | undefined;
   newVal: number | undefined;
   date: string;
   source: string;

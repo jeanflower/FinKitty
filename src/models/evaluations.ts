@@ -3120,10 +3120,17 @@ class ValuesContainer {
     date: Date,
     source: string,
   ) {
+    const reportChange = this.includeInReport(name, val, date, source);
+    let oldValue: number | undefined = 0.0;
+    if (reportChange) {
+      oldValue = traceEvaluation(name, this, 'debugReportOld');
+    }
     this.values.set(name, val);
-    if (this.includeInReport(name, val, date, source)) {
+    if (reportChange) {
       this.report.push({
-        newVal: traceEvaluation(name, this, 'debugReport'),
+        name: name,
+        oldVal: oldValue,
+        newVal: traceEvaluation(name, this, 'debugReportNew'),
         date: date.toString(),
         source: source,
       });
