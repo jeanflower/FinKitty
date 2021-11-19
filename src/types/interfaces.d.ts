@@ -112,6 +112,12 @@ export interface ItemChartData {
   chartDataPoints: ChartDataPoint[];
 }
 
+export interface ReportDatum {
+  newVal: number | undefined;
+  date: string;
+  description: string;
+}
+
 export interface DataForView {
   assetData: ItemChartData[];
   debtData: ItemChartData[];
@@ -123,6 +129,7 @@ export interface DataForView {
   todaysIncomeValues: Map<string, IncomeVal>;
   todaysExpenseValues: Map<string, ExpenseVal>;
   todaysSettingValues: Map<string, SettingVal>;
+  reportData: reportDataType;
 }
 
 export interface Evaluation {

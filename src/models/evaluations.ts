@@ -43,6 +43,7 @@ import {
   DebtVal,
   IncomeVal,
   ExpenseVal,
+  ReportDatum,
 } from '../types/interfaces';
 import { getMonthlyGrowth, log, printDebug, showObj } from '../utils';
 import { getDisplayName } from '../views/tablePages';
@@ -3110,11 +3111,7 @@ class ValuesContainer {
     }
     return false;
   };
-  private report: {
-    newVal: number | undefined;
-    date: string;
-    description: string;
-  }[] = [];
+  private report: ReportDatum[] = [];
 
   public setIncludeInReport(
     fn: (
@@ -3148,10 +3145,7 @@ class ValuesContainer {
     return this.values.get(key);
   }
 
-  public getReport(): {
-    newVal: number | undefined;
-    date: string;
-  }[] {
+  public getReport(): ReportDatum[] {
     return this.report;
   }
 
@@ -3179,6 +3173,7 @@ export function getEvaluations(
   todaysIncomeValues: Map<string, IncomeVal>;
   todaysExpenseValues: Map<string, ExpenseVal>;
   todaysSettingValues: Map<string, SettingVal>;
+  reportData: ReportDatum[];
 } {
   //log('get evaluations');
   const todaysAssetValues = new Map<string, AssetVal>();
@@ -3197,6 +3192,7 @@ export function getEvaluations(
       todaysIncomeValues: todaysIncomeValues,
       todaysExpenseValues: todaysExpenseValues,
       todaysSettingValues: todaysSettingValues,
+      reportData: [],
     };
   }
   // log('in getEvaluations');
@@ -3943,7 +3939,7 @@ export function getEvaluations(
 
   const report = values.getReport();
   if (report.length > 0) {
-    log(`report ${showObj(report)}`);
+    log(`report ${showObj(report).substring(0, 200)}`);
   }
 
   const result = {
@@ -3953,7 +3949,8 @@ export function getEvaluations(
     todaysIncomeValues: todaysIncomeValues,
     todaysExpenseValues: todaysExpenseValues,
     todaysSettingValues: todaysSettingValues,
+    reportData: values.getReport(),
   };
-  // log(`result.todaysDebtValues = ${result.todaysDebtValues}`);
+  // log(`result.reportData.length = ${result.reportData.length}`);
   return result;
 }

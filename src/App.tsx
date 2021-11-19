@@ -31,6 +31,7 @@ import {
   incomeChartFocus,
   incomesView,
   overview,
+  reportView,
   roiEnd,
   roiStart,
   settingsView,
@@ -64,6 +65,7 @@ import {
   IncomeVal,
   ItemChartData,
   SettingVal,
+  ReportDatum,
 } from './types/interfaces';
 import { log, printDebug, showObj } from './utils';
 import { loginPage, navbarContent } from './views/loginPage';
@@ -77,7 +79,7 @@ import {
 } from './views/tablePages';
 import { overviewDiv } from './views/overviewPage';
 import { snapshotDiv } from './views/snapshotPage';
-import { taxDiv } from './views/chartPages';
+import { reportDiv, taxDiv } from './views/chartPages';
 import { incomesDiv } from './views/incomesPage';
 import { expensesDiv } from './views/expensesPage';
 import { assetsDiv } from './views/assetsPage';
@@ -283,6 +285,12 @@ const views = new Map<
     },
   ],
   [
+    reportView,
+    {
+      display: false,
+    },
+  ],
+  [
     settingsView,
     {
       display: false,
@@ -417,6 +425,7 @@ export async function refreshData(
     todaysIncomeValues: Map<string, IncomeVal>;
     todaysExpenseValues: Map<string, ExpenseVal>;
     todaysSettingValues: Map<string, SettingVal>;
+    reportData: ReportDatum[];
   } = {
     evaluations: reactAppComponent.state.evaluations,
     todaysAssetValues: reactAppComponent.state.todaysAssetValues,
@@ -424,6 +433,7 @@ export async function refreshData(
     todaysIncomeValues: reactAppComponent.state.todaysIncomeValues,
     todaysExpenseValues: reactAppComponent.state.todaysExpenseValues,
     todaysSettingValues: reactAppComponent.state.todaysSettingValues,
+    reportData: reactAppComponent.state.reportData,
   };
 
   // log('refreshData in AppContent - get data and redraw content');
@@ -524,6 +534,7 @@ export async function refreshData(
       };
 
       evaluationsAndVals = getEvaluations(model, reporter);
+      // log(`evaluationsAndVals.reportData.length = ${evaluationsAndVals.reportData.length}`);
     }
   }
   if (refreshModel) {
@@ -535,7 +546,6 @@ export async function refreshData(
       model,
       viewSettings,
       evaluationsAndVals,
-      getDisplay,
     );
 
     result.expensesData.sort((a, b) => lessThan(a.item.NAME, b.item.NAME));
@@ -599,6 +609,7 @@ export async function refreshData(
           todaysIncomeValues: todaysIncomeValues,
           todaysExpenseValues: todaysExpenseValues,
           todaysSettingValues: todaysSettingValues,
+          reportData: evaluationsAndVals.reportData,
         },
         () => {
           // setState is async
@@ -606,12 +617,12 @@ export async function refreshData(
           // https://www.freecodecamp.org/news/get-pro-with-react-setstate-in-10-minutes-d38251d1c781/
           if (printDebug()) {
             log(
-              'reactAppComponent.state.expensesChartDataValue = ' +
-                `${reactAppComponent.state.expensesChartData}`,
+              'reactAppComponent.state.reportData.length = ' +
+                `${reactAppComponent.state.reportData.length}`,
             );
-            reactAppComponent.state.expensesChartData.map((obj: ChartData) =>
-              log(`obj is ${showObj(obj)}`),
-            );
+            //reactAppComponent.state.expensesChartData.map((obj: ChartData) =>
+            //  log(`obj is ${showObj(obj)}`),
+            //);
           }
         },
       );
@@ -1005,6 +1016,7 @@ interface AppState {
   todaysIncomeValues: Map<string, IncomeVal>;
   todaysExpenseValues: Map<string, ExpenseVal>;
   todaysSettingValues: Map<string, SettingVal>;
+  reportData: ReportDatum[];
   alertText: string;
 }
 interface AppProps {
@@ -1046,6 +1058,7 @@ export class AppContent extends Component<AppProps, AppState> {
       todaysIncomeValues: new Map<string, IncomeVal>(),
       todaysExpenseValues: new Map<string, ExpenseVal>(),
       todaysSettingValues: new Map<string, SettingVal>(),
+      reportData: [],
       alertText: '',
     };
 
@@ -1258,6 +1271,11 @@ export class AppContent extends Component<AppProps, AppState> {
               this.state.taxChartData,
             )}
             {this.triggersDiv()}
+            {reportDiv(
+              this.state.modelData,
+              this.state.viewState,
+              this.state.reportData,
+            )}
           </>
         </>
       );

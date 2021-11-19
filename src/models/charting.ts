@@ -20,25 +20,20 @@ import {
   chartReductions,
   chartVals,
   chartViewType,
-  assetsView,
   birthDate,
   cgt,
   coarse,
   crystallizedPension,
   debtChartFocus,
-  debtsView,
   expenseChartFocus,
-  expensesView,
   fine,
   gain,
   growth,
   income,
   incomeChartFocus,
-  incomesView,
   incomeTax,
   monthly,
   nationalInsurance,
-  overview,
   pensionDB,
   revalue,
   roiEnd,
@@ -47,14 +42,12 @@ import {
   taxChartFocusPerson,
   taxChartFocusType,
   taxChartShowNet,
-  taxView,
   total,
   viewDetail,
   viewFrequency,
   ViewType,
   pensionAllowance,
   dot,
-  snapshot,
   annually,
 } from '../localization/stringConstants';
 import { Context, log, printDebug, showObj } from '../utils';
@@ -1095,11 +1088,7 @@ function generateEvaluationDates(roi: Interval, frequency: string) {
   return generateSequenceOfDates(roi, freqString, addPreDate);
 }
 
-function getDisplayType(
-  evaln: Evaluation,
-  nameToTypeMap: Map<string, string>,
-  getDisplay: (type: ViewType) => boolean,
-) {
+function getDisplayType(evaln: Evaluation, nameToTypeMap: Map<string, string>) {
   // ensure that for this evaluation, its type
   // is present in the typeDateNameValueMap
   const evalnType = nameToTypeMap.get(evaln.name);
@@ -1109,37 +1098,7 @@ function getDisplayType(
       evaln,
       nameToTypeMap,
     );
-    // log(`don't include ${evaln.name} in chart`);
     return undefined; // don't include in chart
-  }
-  if (
-    evalnType === evaluationType.income &&
-    !(getDisplay(incomesView) || getDisplay(overview) || getDisplay(snapshot))
-  ) {
-    return undefined;
-  }
-  if (
-    evalnType === evaluationType.expense &&
-    !(getDisplay(expensesView) || getDisplay(overview) || getDisplay(snapshot))
-  ) {
-    return undefined;
-  }
-  if (
-    evalnType === evaluationType.asset &&
-    !(
-      getDisplay(assetsView) ||
-      getDisplay(debtsView) ||
-      getDisplay(overview) ||
-      getDisplay(snapshot)
-    )
-  ) {
-    return undefined;
-  }
-  if (
-    evalnType === evaluationType.taxLiability &&
-    !(getDisplay(taxView) || getDisplay(overview) || getDisplay(snapshot))
-  ) {
-    return undefined;
   }
   return evalnType;
 }
@@ -1155,9 +1114,6 @@ export function makeChartData(
     todaysExpenseValues: Map<string, ExpenseVal>;
     todaysSettingValues: Map<string, SettingVal>;
   },
-  getDisplay: (type: ViewType) => boolean = () => {
-    return true;
-  },
 ) {
   if (evaluationsAndVals.evaluations.length === 0) {
     const emptyData: DataForView = {
@@ -1171,6 +1127,7 @@ export function makeChartData(
       todaysIncomeValues: new Map<string, IncomeVal>(),
       todaysExpenseValues: new Map<string, ExpenseVal>(),
       todaysSettingValues: new Map<string, SettingVal>(),
+      reportData: [],
     };
     return emptyData;
   }
@@ -1228,6 +1185,7 @@ export function makeChartData(
     todaysIncomeValues: new Map<string, IncomeVal>(),
     todaysExpenseValues: new Map<string, ExpenseVal>(),
     todaysSettingValues: new Map<string, SettingVal>(),
+    reportData: [],
   };
 
   result.todaysAssetValues = evaluationsAndVals.todaysAssetValues;
@@ -1290,7 +1248,7 @@ export function makeChartData(
       // log(`evaln = ${showObj(evaln)} not in date range - don't process`);
       return;
     }
-    const evalnType = getDisplayType(evaln, nameToTypeMap, getDisplay);
+    const evalnType = getDisplayType(evaln, nameToTypeMap);
     if (!evalnType) {
       return;
     }
@@ -1733,10 +1691,7 @@ export function makeChartDataFromEvaluations(
     todaysExpenseValues: Map<string, ExpenseVal>;
     todaysSettingValues: Map<string, SettingVal>;
   },
-  getDisplay: (type: ViewType) => boolean = () => {
-    return true;
-  },
 ) {
   viewSettings.setModel(model);
-  return makeChartData(model, viewSettings, evaluationsAndVals, getDisplay);
+  return makeChartData(model, viewSettings, evaluationsAndVals);
 }
