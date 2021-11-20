@@ -2612,6 +2612,7 @@ function calculateToChange(
   evaluations: Evaluation[],
   model: ModelData,
 ) {
+  // log(`t = ${showObj(t)}`);
   let toChange = 0;
   if (t.TO === '') {
     return toChange;
@@ -2923,6 +2924,7 @@ function processTransactionTo(
   evaluations: Evaluation[],
   model: ModelData,
 ) {
+  // log(`in processTransactionTo`);
   if (!t.FROM_ABSOLUTE) {
     throw new Error(
       `BUG : transacting from a proportional amount of undefined ${showObj(t)}`,
@@ -2934,7 +2936,9 @@ function processTransactionTo(
   // Set the increased value of the To asset accordingly.
   // log(`t.TO = ${t.TO}`)
   let value = getNumberValue(values, t.TO);
-  // log(`before transaction, value = ${value}`)
+  let q = getQuantity(t.TO, values, model);
+  // log(`before transaction, value = ${value}, quantity = ${quantity}`);
+  // log(`t = ${showObj(t)}`);
   if (value === undefined) {
     throw new Error(
       `Bug : transacting to unvalued/string-valued asset ${showObj(moment)}`,
@@ -2951,19 +2955,35 @@ function processTransactionTo(
       // proportion of the amount taken from from_asset
       change = tToValue * fromChange;
     }
-    // log(`fromChange for the "TO" part of this transaction = ${fromChange}`);
-    value += change;
-    // log('in processTransactionTo, setValue:');
-    setValue(
-      values,
-      evaluations,
-      moment.date,
-      t.TO,
-      value,
-      model,
-      t.NAME,
-      '16', //callerID
-    );
+    if (q) {
+      // log(`quantity = ${q} will increase by change = ${change}`);
+      q += change;
+      // log('in processTransactionTo, setValue:');
+      setValue(
+        values,
+        evaluations,
+        moment.date,
+        quantity + t.TO,
+        q,
+        model,
+        t.NAME,
+        '37', //callerID
+      );
+    } else {
+      // log(`value = ${value} will increase by change = ${change}`);
+      value += change;
+      // log('in processTransactionTo, setValue:');
+      setValue(
+        values,
+        evaluations,
+        moment.date,
+        t.TO,
+        value,
+        model,
+        t.NAME,
+        '16', //callerID
+      );
+    }
   }
 }
 
@@ -2976,6 +2996,7 @@ function processTransactionMoment(
   liabliitiesMap: Map<string, string>,
   liableIncomeInTaxYear: Map<string, Map<string, number>>,
 ) {
+  // log(`in processTransactionMoment`);
   // transactions have a direct effect on their
   // "from" and "to" assets.  Apply the transaction
   // and set new asset values.
@@ -3693,6 +3714,7 @@ export function getEvaluations(
     }
 
     if (moment.type === momentType.transaction) {
+      // log(`this is a transaction`);
       processTransactionMoment(
         moment,
         values,
