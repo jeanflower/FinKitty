@@ -80,6 +80,9 @@ export function isNumberString(input: string) {
   if (input === '' || input === undefined) {
     return false;
   }
+  if (typeof input === 'number') {
+    return input;
+  }
   const numberStringCacheResult = numberStringCache.get(input);
   if (numberStringCacheResult !== undefined) {
     // numCachedResults = numCachedResults + 1;
@@ -89,6 +92,10 @@ export function isNumberString(input: string) {
   // numComputedResults = numComputedResults + 1;
   // log(`cached = ${numCachedResults}, computed = ${numComputedResults}`);
 
+  if (!input.replace) {
+    log(`input has no replace; ${input}`);
+    return '';
+  }
   const re = new RegExp('^[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)$');
   const result = input.replace(re, '');
   const outcome = result === '';

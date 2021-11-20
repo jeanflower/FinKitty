@@ -27,6 +27,7 @@ import {
   taxFree,
   viewDetail,
   viewType,
+  reportView,
 } from '../localization/stringConstants';
 import {
   Asset,
@@ -37,6 +38,7 @@ import {
   Transaction,
   Trigger,
   Item,
+  ReportDatum,
 } from '../types/interfaces';
 import {
   attemptRename,
@@ -47,6 +49,7 @@ import {
   deleteTransaction,
   deleteTrigger,
   editSetting,
+  getDisplay,
   submitAsset,
   submitExpense,
   submitIncome,
@@ -1803,6 +1806,93 @@ export function settingsTableDiv(
         revalueSetting,
         'Revalue settings',
       )}
+    </div>
+  );
+}
+
+export function reportDiv(
+  model: ModelData,
+  viewSettings: ViewSettings,
+  reportData: ReportDatum[],
+) {
+  if (!getDisplay(reportView)) {
+    return;
+  }
+  const unindexedResult = reportData.map(x => {
+    return {
+      DATE: x.date,
+      NAME: x.name,
+      CHANGE: x.change,
+      OLD_VALUE: x.oldVal,
+      NEW_VALUE: x.newVal,
+      SOURCE: x.source,
+    };
+  });
+  const reportDataTable = addIndices(unindexedResult);
+
+  return (
+    <div className="ml-3">
+      <DataGrid
+        deleteFunction={undefined}
+        handleGridRowsUpdated={function() {
+          return false;
+        }}
+        rows={reportDataTable}
+        columns={[
+          /*
+          {
+            ...defaultColumn,
+            key: 'index',
+            name: 'index',
+            formatter: <SimpleFormatter name="name" value="unset" />,
+          },
+          */
+          {
+            ...defaultColumn,
+            key: 'DATE',
+            name: 'date',
+            formatter: (
+              <TriggerDateFormatter
+                name="date"
+                model={model}
+                value="unset"
+                showTime={false}
+              />
+            ),
+          },
+          {
+            ...defaultColumn,
+            key: 'NAME',
+            name: 'name',
+            formatter: <SimpleFormatter name="name" value="unset" />,
+          },
+          {
+            ...defaultColumn,
+            key: 'CHANGE',
+            name: 'change',
+            formatter: <CashValueFormatter name="change" value="unset" />,
+          },
+          {
+            ...defaultColumn,
+            key: 'OLD_VALUE',
+            name: 'old value',
+            formatter: <CashValueFormatter name="old value" value="unset" />,
+          },
+          {
+            ...defaultColumn,
+            key: 'NEW_VALUE',
+            name: 'new value',
+            formatter: <CashValueFormatter name="new value" value="unset" />,
+          },
+          {
+            ...defaultColumn,
+            key: 'SOURCE',
+            name: 'source',
+            formatter: <SimpleFormatter name="source" value="unset" />,
+          },
+        ]}
+        triggers={model.triggers}
+      />
     </div>
   );
 }

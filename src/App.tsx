@@ -78,10 +78,11 @@ import {
   transactionFilteredTable,
   triggersTableDivWithHeading,
   addIndices,
+  reportDiv,
 } from './views/tablePages';
 import { overviewDiv } from './views/overviewPage';
 import { snapshotDiv } from './views/snapshotPage';
-import { reportDiv, taxDiv } from './views/chartPages';
+import { taxDiv } from './views/chartPages';
 import { incomesDiv } from './views/incomesPage';
 import { expensesDiv } from './views/expensesPage';
 import { assetsDiv } from './views/assetsPage';

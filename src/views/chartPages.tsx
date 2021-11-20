@@ -3,7 +3,6 @@ import {
   ChartSettings,
   ItemCategory,
   ModelData,
-  ReportDatum,
   Setting,
 } from '../types/interfaces';
 import {
@@ -28,7 +27,6 @@ import {
   viewDetail,
   viewFrequency,
   pensionAllowance,
-  reportView,
 } from '../localization/stringConstants';
 import { getDisplay, refreshData } from '../App';
 import { Context, log, printDebug, showObj } from '../utils';
@@ -838,23 +836,6 @@ export function taxDiv(
         taxChartData,
         getDefaultChartSettings(viewSettings, model.settings),
       )}
-    </div>
-  );
-}
-export function reportDiv(
-  model: ModelData,
-  viewSettings: ViewSettings,
-  reportData: ReportDatum[],
-) {
-  if (!getDisplay(reportView)) {
-    return;
-  }
-
-  return (
-    <div className="ml-3">
-      {reportData.map(x => {
-        return <p>{JSON.stringify(x)}</p>;
-      })}
     </div>
   );
 }
