@@ -928,6 +928,62 @@ function sumTaxDue(
   return total;
 }
 
+function updatePurchaseValue(
+  a: Asset,
+  values: ValuesContainer,
+  newOverOldRatio: number,
+  evaluations: Evaluation[],
+  startOfTaxYear: Date,
+  model: ModelData,
+  source: string, // e.g. IncomeTaxJoe
+) {
+  // log(`paid ${numSharesForTax} RSUs for income tax`);
+  const currentPurchaseValue = values.get(`${purchase}${a.NAME}`);
+  if (currentPurchaseValue !== undefined) {
+    let numberPart = 0.0;
+    let wordPart: string | undefined = undefined;
+    if (typeof currentPurchaseValue === 'string') {
+      const parsed = getNumberAndWordParts(currentPurchaseValue);
+      if (parsed.numberPart === undefined) {
+        throw new Error(`don't understand purchase price for RSUs?`);
+      }
+      numberPart = parsed.numberPart;
+      wordPart = parsed.wordPart;
+    } else {
+      numberPart = currentPurchaseValue;
+    }
+    let purchaseValue = numberPart;
+    if (purchaseValue !== 0.0) {
+      // log(`before paying income tax, purchaseValue = ${purchaseValue}`);
+      purchaseValue = purchaseValue * newOverOldRatio;
+      // log(`after paying income tax, purchaseValue = ${purchaseValue}`);
+      if (wordPart === undefined) {
+        setValue(
+          values,
+          evaluations,
+          startOfTaxYear,
+          `${purchase}${a.NAME}`,
+          purchaseValue,
+          model,
+          source,
+          '31', //callerID
+        );
+      } else {
+        setValue(
+          values,
+          evaluations,
+          startOfTaxYear,
+          `${purchase}${a.NAME}`,
+          `${purchaseValue}${wordPart}`,
+          model,
+          source,
+          '32', //callerID
+        );
+      }
+    }
+  }
+}
+
 function payTaxFromVestedRSU(
   a: Asset,
   taxDue: { amountLiable: number; rate: number }[],
@@ -1025,53 +1081,16 @@ function payTaxFromVestedRSU(
       source,
       '29', //callerID
     );
-    // log(`paid ${numSharesForTax} RSUs for income tax`);
-    const currentPurchaseValue = values.get(`${purchase}${a.NAME}`);
-    if (currentPurchaseValue !== undefined) {
-      let numberPart = 0.0;
-      let wordPart: string | undefined = undefined;
-      if (typeof currentPurchaseValue === 'string') {
-        const parsed = getNumberAndWordParts(currentPurchaseValue);
-        if (parsed.numberPart === undefined) {
-          throw new Error(`don't understand purchase price for RSUs?`);
-        }
-        numberPart = parsed.numberPart;
-        wordPart = parsed.wordPart;
-      } else {
-        numberPart = currentPurchaseValue;
-      }
-      let purchaseValue = numberPart;
-      if (purchaseValue !== 0.0) {
-        // log(`before paying income tax, purchaseValue = ${purchaseValue}`);
-        purchaseValue =
-          (purchaseValue * (numShares - numSharesForTax)) / numShares;
-        // log(`after paying income tax, purchaseValue = ${purchaseValue}`);
-        if (wordPart === undefined) {
-          setValue(
-            values,
-            evaluations,
-            startOfTaxYear,
-            `${purchase}${a.NAME}`,
-            purchaseValue,
-            model,
-            source,
-            '31', //callerID
-          );
-        } else {
-          setValue(
-            values,
-            evaluations,
-            startOfTaxYear,
-            `${purchase}${a.NAME}`,
-            `${purchaseValue}${wordPart}`,
-            model,
-            source,
-            '32', //callerID
-          );
-        }
-      }
-    }
 
+    updatePurchaseValue(
+      a,
+      values,
+      (numShares - numSharesForTax) / numShares,
+      evaluations,
+      startOfTaxYear,
+      model,
+      source,
+    );
     if (printDebug()) {
       log(
         `taxDue after some tax was paid from RSUs = ${showObj(
@@ -2970,6 +2989,20 @@ function processTransactionTo(
         t.NAME,
         '37', //callerID
       );
+      const matchedAsset = model.assets.find(a => {
+        return a.NAME === t.TO;
+      });
+      if (matchedAsset) {
+        updatePurchaseValue(
+          matchedAsset,
+          values,
+          q / (q - change),
+          evaluations,
+          moment.date,
+          model,
+          t.NAME,
+        );
+      }
     } else {
       // log(`value = ${value} will increase by change = ${change}`);
       value += change;
