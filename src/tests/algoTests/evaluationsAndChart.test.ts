@@ -4168,6 +4168,149 @@ describe('evaluations tests', () => {
     done();
   });
 
+  it('conditional transaction granular transfers stop when funds run out prop to', done => {
+    const roi = {
+      start: 'April 1, 2018 00:00:00',
+      end: 'October 1, 2018 00:00:00',
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      expenses: [
+        {
+          ...simpleExpense,
+          START: 'April 3 2018',
+          END: 'August 2 2018',
+          NAME: 'Food',
+          VALUE: '30.0',
+          VALUE_SET: 'April 3 2018',
+        },
+      ],
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: 'Conditional Sell Stff more than once if I need to',
+          FROM: 'Stff',
+          FROM_VALUE: '50',
+          TO: CASH_ASSET_NAME,
+          TO_ABSOLUTE: false,
+          TO_VALUE: '1.0',
+          DATE: 'March 2 2018',
+          RECURRENCE: '1m',
+          TYPE: liquidateAsset,
+        },
+      ],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'Stff',
+          START: 'March 2 2018',
+          VALUE: '72',
+        },
+        {
+          ...simpleAsset,
+          NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
+          START: 'March 2 2018',
+          VALUE: '15',
+        },
+      ],
+      settings: [...defaultModelSettings(roi),
+        {
+          ...simpleSetting,
+          NAME: 'Grain',
+          VALUE: '10',
+        }
+      ],
+    };
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(29);
+    expectEvals(evals, 0, 'Grain', 'Sun Apr 01 2018', 10, -1);
+    expectEvals(evals, 1, 'Cash', 'Fri Mar 02 2018', 15, -1);
+    expectEvals(evals, 2, 'Stff', 'Fri Mar 02 2018', 72, -1);
+    expectEvals(evals, 3, 'Cash', 'Mon Apr 02 2018', 15, -1);
+    expectEvals(evals, 4, 'Stff', 'Mon Apr 02 2018', 72, -1);
+    expectEvals(evals, 5, 'Food', 'Tue Apr 03 2018', 30, -1);
+    expectEvals(evals, 6, 'Cash', 'Tue Apr 03 2018', -15, -1);
+    expectEvals(evals, 7, 'Cash', 'Wed May 02 2018', -15, -1);
+    expectEvals(evals, 8, 'Stff', 'Wed May 02 2018', 72, -1);
+    // sell 20 - we need at least 15
+    expectEvals(evals, 9, 'Stff', 'Wed May 02 2018', 52, -1);
+    expectEvals(evals, 10, 'Cash', 'Wed May 02 2018', 5, -1);
+    expectEvals(evals, 11, 'Food', 'Thu May 03 2018', 30, -1);
+    expectEvals(evals, 12, 'Cash', 'Thu May 03 2018', -25, -1);
+    expectEvals(evals, 13, 'Cash', 'Sat Jun 02 2018', -25, -1);
+    expectEvals(evals, 14, 'Stff', 'Sat Jun 02 2018', 52, -1);
+    expectEvals(evals, 15, 'Stff', 'Sat Jun 02 2018', 22, -1);
+    expectEvals(evals, 16, 'Cash', 'Sat Jun 02 2018', 5, -1);
+    expectEvals(evals, 17, 'Food', 'Sun Jun 03 2018', 30, -1);
+    expectEvals(evals, 18, 'Cash', 'Sun Jun 03 2018', -25, -1);
+    expectEvals(evals, 19, 'Cash', 'Mon Jul 02 2018', -25, -1);
+    expectEvals(evals, 20, 'Stff', 'Mon Jul 02 2018', 22, -1);
+    expectEvals(evals, 21, 'Stff', 'Mon Jul 02 2018', 0, -1);
+    expectEvals(evals, 22, 'Cash', 'Mon Jul 02 2018', -3, -1);
+    expectEvals(evals, 23, 'Food', 'Tue Jul 03 2018', 30, -1);
+    expectEvals(evals, 24, 'Cash', 'Tue Jul 03 2018', -33, -1);
+    expectEvals(evals, 25, 'Cash', 'Thu Aug 02 2018', -33, -1);
+    expectEvals(evals, 26, 'Stff', 'Thu Aug 02 2018', 0, -1);
+    expectEvals(evals, 27, 'Cash', 'Sun Sep 02 2018', -33, -1);
+    expectEvals(evals, 28, 'Stff', 'Sun Sep 02 2018', 0, -1);
+
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(1);
+    expect(result.expensesData[0].item.NAME).toBe('Food');
+    {
+      const chartPts = result.expensesData[0].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Sun Apr 01 2018', 0, -1);
+      expectChartData(chartPts, 1, 'Tue May 01 2018', 30, -1);
+      expectChartData(chartPts, 2, 'Fri Jun 01 2018', 30, -1);
+      expectChartData(chartPts, 3, 'Sun Jul 01 2018', 30, -1);
+      expectChartData(chartPts, 4, 'Wed Aug 01 2018', 30, -1);
+      expectChartData(chartPts, 5, 'Sat Sep 01 2018', 0, -1);
+    }
+
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(2);
+    expect(result.assetData[0].item.NAME).toBe('Stff');
+    {
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Sun Apr 01 2018', 72, -1);
+      expectChartData(chartPts, 1, 'Tue May 01 2018', 72, -1);
+      expectChartData(chartPts, 2, 'Fri Jun 01 2018', 52, -1);
+      expectChartData(chartPts, 3, 'Sun Jul 01 2018', 22, -1);
+      expectChartData(chartPts, 4, 'Wed Aug 01 2018', 0, -1);
+      expectChartData(chartPts, 5, 'Sat Sep 01 2018', 0, -1);
+    }
+
+    expect(result.assetData[1].item.NAME).toBe('Cash');
+    {
+      const chartPts = result.assetData[1].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Sun Apr 01 2018', 15, -1);
+      expectChartData(chartPts, 1, 'Tue May 01 2018', -15, -1);
+      expectChartData(chartPts, 2, 'Fri Jun 01 2018', -25, -1);
+      expectChartData(chartPts, 3, 'Sun Jul 01 2018', -25, -1);
+      expectChartData(chartPts, 4, 'Wed Aug 01 2018', -33, -1);
+      expectChartData(chartPts, 5, 'Sat Sep 01 2018', -33, -1);
+    }
+    done();
+  });  
+
   it('conditional transaction from multiple sources simple', done => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',

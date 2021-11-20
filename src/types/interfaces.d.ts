@@ -123,6 +123,7 @@ export type ReportValueChecker = (
 ) => boolean;
 export interface ReportDatum {
   name: string;
+  change: number | undefined;
   oldVal: number | undefined;
   newVal: number | undefined;
   date: string;

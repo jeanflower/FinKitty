@@ -2385,8 +2385,8 @@ function calculateFromChange(
       cgtPreChange: number;
     }
   | undefined {
-  // log(`t = ${showObj(t)}`)
-  // log(`t.FROM_VALUE = ${t.FROM_VALUE}`)
+  // log(`t = ${showObj(t)}`);
+  // log(`t.FROM_VALUE = ${t.FROM_VALUE}`);
   if (t.NAME.startsWith(conditional) && preToValue === undefined) {
     log(`Bug : conditional transaction to undefined value ${showObj(t)}`);
     //throw new Error(
@@ -2438,6 +2438,7 @@ function calculateFromChange(
     matchingAsset && !assetAllowedNegative(fromWord, matchingAsset);
 
   if (t.FROM_ABSOLUTE) {
+    // log(`use all of fromValue = ${tFromValue}`);
     fromChange = tFromValue;
   } else {
     // relative amounts behave differently for conditionals
@@ -2493,14 +2494,30 @@ function calculateFromChange(
     t.NAME.startsWith(conditional) &&
     preToValue !== undefined &&
     !t.TO_ABSOLUTE &&
-    preToValue > -fromChange * tToValue
+    fromChange >= -preToValue / tToValue
   ) {
+    // log(`before considering granular changes, fromChange = ${fromChange}`);
     // log(`cap conditional amount - we only need ${preToValue}`);
-    fromChange = -preToValue / tToValue;
+    const lowestFromChange = -preToValue / tToValue;
+    const grain = getNumberValue(values, 'Grain', false);
+    // log(`Grain's value is ${grain}`);
+    if (grain !== undefined && t.TO === CASH_ASSET_NAME && !fromHasQuantity) {
+      const granularChange = Math.ceil(lowestFromChange / grain) * grain;
+      // log(`lowestChange : ${lowestFromChange}, granularChange : ${granularChange}`);
+      // log(`preFromValue : ${preFromValue}`);
+      if (granularChange < preFromValue) {
+        fromChange = granularChange;
+      } else {
+        fromChange = lowestFromChange;
+      }
+    } else {
+      fromChange = lowestFromChange;
+    }
     if (fromHasQuantity) {
       //log(`quantity involved in working out fromChange`);
       numberUnits = Math.ceil(fromChange / unitValue);
       fromChange = numberUnits * unitValue;
+    } else {
     }
   }
   // apply change for quantised assets
@@ -2535,6 +2552,7 @@ function calculateFromChange(
     !fromHasQuantity &&
     fromChange > preFromValue
   ) {
+    // log(`fromChange = ${fromChange} > preFromValue ${preFromValue}`);
     if (t.NAME.startsWith(conditional)) {
       // transfer as much as we have
       // log(`transfer only ${preFromValue} because we don't have ${fromChange}`);
@@ -2581,7 +2599,7 @@ function calculateFromChange(
     cgtPreWhole: cgtPreWhole,
     cgtPreChange: cgtFromImpact,
   };
-  // log(`returning data for cgt ${showObj(result)}`);
+  // log(`returning data ${showObj(result)}`);
   return result;
 }
 
@@ -3129,10 +3147,15 @@ class ValuesContainer {
     if (reportChange) {
       const newVal = traceEvaluation(name, this, 'debugReportNew');
       if (oldVal !== newVal) {
+        let change = undefined;
+        if (newVal !== undefined && oldVal !== undefined) {
+          change = newVal - oldVal;
+        }
         this.report.push({
           name: name,
+          change: change,
           oldVal: oldVal,
-          newVal: traceEvaluation(name, this, 'debugReportNew'),
+          newVal: newVal,
           date: date.toString(),
           source: source,
         });
@@ -3383,6 +3406,18 @@ export function getEvaluations(
     setDate: Date;
   }[] = [];
   model.settings.forEach(setting => {
+    if (setting.NAME === 'Grain') {
+      setValue(
+        values,
+        evaluations,
+        roiStartDate,
+        setting.NAME,
+        setting.VALUE,
+        model,
+        setting.NAME,
+        '35', //callerID
+      );
+    }
     let referencingPrices = model.assets.filter(a => {
       return a.PURCHASE_PRICE === setting.NAME;
     });
@@ -3399,7 +3434,7 @@ export function getEvaluations(
         setting.VALUE,
         model,
         setting.NAME,
-        '18', //callerID
+        '36', //callerID
       );
     }
 
