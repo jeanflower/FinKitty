@@ -349,6 +349,7 @@ function getNumberValue(
           `consider switch to traceEvaluation ` +
           `for values involving words and settings`,
       );
+      throw new Error();
     }
   }
   if (printLogs) {
@@ -2935,7 +2936,7 @@ function processTransactionTo(
   // Determine how much to add to the To asset.
   // Set the increased value of the To asset accordingly.
   // log(`t.TO = ${t.TO}`)
-  let value = getNumberValue(values, t.TO);
+  let value = traceEvaluation(t.TO, values, t.TO);
   let q = getQuantity(t.TO, values, model);
   // log(`before transaction, value = ${value}, quantity = ${quantity}`);
   // log(`t = ${showObj(t)}`);
