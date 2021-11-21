@@ -490,7 +490,7 @@ function setValue(
       );
     }
   }
-  values.set(name, newValue, date, source);
+  values.set(name, newValue, date, source, callerID);
   // log(`Go to find unit val for ${name}'s, we have value = some of ${newValue}`);
   const unitVal = traceEvaluation(newValue, values, name);
   // log(`Unit val of ${name} is ${unitVal}`);
@@ -2554,6 +2554,10 @@ function calculateFromChange(
       }
     }
     // log(`set new quantity ${q} - ${numberUnits} = ${q - numberUnits}`);
+    let source = t.NAME;
+    if(source.startsWith(conditional)){
+      source = source.substring(conditional.length, source.length);
+    }
     setValue(
       values,
       evaluations,
@@ -2561,7 +2565,7 @@ function calculateFromChange(
       quantity + fromWord,
       q - numberUnits,
       model,
-      t.FROM,
+      source,
       '12', //callerID
     );
   }
@@ -3192,6 +3196,7 @@ class ValuesContainer {
     val: number | string, // the value of the thing
     date: Date,
     source: string,
+    callerID: string,
   ) {
     const reportChange =
       this.report.length < 200 && this.includeInReport(name, val, date, source);
@@ -3228,7 +3233,7 @@ class ValuesContainer {
           qoldVal: qoldVal,
           qnewVal: qnewVal,
           date: date.toString(),
-          source: source,
+          source: printDebug() ? source + callerID : source,
         });
       }
     }
@@ -3320,7 +3325,7 @@ export function getEvaluations(
   const cpiInitialVal: number = parseFloat(
     getSettings(model.settings, cpi, '0.0'),
   );
-  values.set(cpi, cpiInitialVal, roiStartDate, 'start value');
+  values.set(cpi, cpiInitialVal, roiStartDate, 'start value', '0');
 
   // A historical record of evaluations (useful for creating trends or charts)
   const evaluations: Evaluation[] = [];
