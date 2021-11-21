@@ -126,6 +126,9 @@ export interface ReportDatum {
   change: number | undefined;
   oldVal: number | undefined;
   newVal: number | undefined;
+  qchange: number | undefined;
+  qoldVal: number | undefined;
+  qnewVal: number | undefined;
   date: string;
   source: string;
 }

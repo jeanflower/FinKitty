@@ -3201,17 +3201,32 @@ class ValuesContainer {
     }
     this.values.set(name, val);
     if (reportChange) {
-      const newVal = traceEvaluation(name, this, 'debugReportNew');
+      let newVal = traceEvaluation(name, this, 'debugReportNew');
       if (oldVal !== newVal) {
         let change = undefined;
         if (newVal !== undefined && oldVal !== undefined) {
           change = newVal - oldVal;
+        }
+        let qchange: number | undefined = undefined;
+        let qoldVal: number | undefined = undefined;
+        let qnewVal: number | undefined = undefined;
+        if (name.startsWith(quantity)) {
+          name = name.substring(quantity.length, name.length);
+          qchange = change;
+          qoldVal = oldVal;
+          qnewVal = newVal;
+          change = undefined;
+          oldVal = undefined;
+          newVal = undefined;
         }
         this.report.push({
           name: name,
           change: change,
           oldVal: oldVal,
           newVal: newVal,
+          qchange: qchange,
+          qoldVal: qoldVal,
+          qnewVal: qnewVal,
           date: date.toString(),
           source: source,
         });

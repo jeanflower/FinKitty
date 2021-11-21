@@ -1810,11 +1810,7 @@ export function settingsTableDiv(
   );
 }
 
-export function reportDiv(
-  model: ModelData,
-  viewSettings: ViewSettings,
-  reportData: ReportDatum[],
-) {
+export function reportDiv(model: ModelData, reportData: ReportDatum[]) {
   if (!getDisplay(reportView)) {
     return;
   }
@@ -1825,6 +1821,9 @@ export function reportDiv(
       CHANGE: x.change,
       OLD_VALUE: x.oldVal,
       NEW_VALUE: x.newVal,
+      QCHANGE: x.qchange,
+      QOLD_VALUE: x.qoldVal,
+      QNEW_VALUE: x.qnewVal,
       SOURCE: x.source,
     };
   });
@@ -1883,6 +1882,24 @@ export function reportDiv(
             key: 'NEW_VALUE',
             name: 'new value',
             formatter: <CashValueFormatter name="new value" value="unset" />,
+          },
+          {
+            ...defaultColumn,
+            key: 'QCHANGE',
+            name: 'quantity change',
+            formatter: <SimpleFormatter name="quantity change" value="unset" />,
+          },
+          {
+            ...defaultColumn,
+            key: 'QOLD_VALUE',
+            name: 'old quantity',
+            formatter: <SimpleFormatter name="old quantity" value="unset" />,
+          },
+          {
+            ...defaultColumn,
+            key: 'QNEW_VALUE',
+            name: 'new quantity',
+            formatter: <SimpleFormatter name="new quantity" value="unset" />,
           },
           {
             ...defaultColumn,

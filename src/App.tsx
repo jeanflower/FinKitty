@@ -1366,11 +1366,7 @@ export class AppContent extends Component<AppProps, AppState> {
               this.state.taxChartData,
             )}
             {this.triggersDiv()}
-            {reportDiv(
-              this.state.modelData,
-              this.state.viewState,
-              this.state.reportData,
-            )}
+            {reportDiv(this.state.modelData, this.state.reportData)}
           </>
         </>
       );
