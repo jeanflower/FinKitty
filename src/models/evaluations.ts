@@ -3193,7 +3193,8 @@ class ValuesContainer {
     date: Date,
     source: string,
   ) {
-    const reportChange = this.includeInReport(name, val, date, source);
+    const reportChange =
+      this.report.length < 200 && this.includeInReport(name, val, date, source);
     let oldVal: number | undefined = 0.0;
     if (reportChange) {
       oldVal = traceEvaluation(name, this, 'debugReportOld');

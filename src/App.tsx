@@ -46,6 +46,7 @@ import {
   viewFrequency,
   viewType,
   snapshot,
+  purchase,
 } from './localization/stringConstants';
 import {
   AssetVal,
@@ -577,6 +578,12 @@ export async function refreshData(
             log(`report for val = ${val}`);
             log(`report for date = ${date}`);
             log(`report for source = ${source}`);
+          }
+          if (date < getTodaysDate(model)) {
+            return false;
+          }
+          if (name.startsWith(purchase)) {
+            return false;
           }
           if (nameMatcher) {
             const nameRegex = RegExp(nameMatcher);
