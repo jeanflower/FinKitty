@@ -1,7 +1,6 @@
-import { separator, growth, revalue } from "../localization/stringConstants";
-import { ItemCategory, ModelData } from "../types/interfaces";
-import { makeSourceForFromChange } from "./evaluations";
-
+import { separator, growth, revalue } from '../localization/stringConstants';
+import { ItemCategory, ModelData } from '../types/interfaces';
+import { makeSourceForFromChange } from './evaluations';
 
 function getCategoryFromItems(name: string, items: ItemCategory[]) {
   const found = items.find(i => i.NAME === name);

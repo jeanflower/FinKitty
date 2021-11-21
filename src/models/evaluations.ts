@@ -2499,6 +2499,9 @@ function calculateFromChange(
       // use q to determine a proportional change
       // for fromChange
       numberUnits = fromChange;
+      if (q && q < numberUnits) {
+        numberUnits = q;
+      }
       unitValue = preFromValue;
       // reset fromChange so it's a £ value
       fromChange = numberUnits * unitValue;
@@ -2555,7 +2558,7 @@ function calculateFromChange(
     }
     // log(`set new quantity ${q} - ${numberUnits} = ${q - numberUnits}`);
     let source = t.NAME;
-    if(source.startsWith(conditional)){
+    if (source.startsWith(conditional)) {
       source = source.substring(conditional.length, source.length);
     }
     setValue(

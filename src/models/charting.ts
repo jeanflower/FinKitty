@@ -49,10 +49,7 @@ import {
   annually,
 } from '../localization/stringConstants';
 import { Context, log, printDebug, showObj } from '../utils';
-import {
-  evaluationType,
-  generateSequenceOfDates,
-} from './evaluations';
+import { evaluationType, generateSequenceOfDates } from './evaluations';
 
 import { checkEvalnType } from './checks';
 import {
