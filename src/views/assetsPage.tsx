@@ -29,6 +29,11 @@ function addToMap(name: string, val: AssetVal, myMap: Map<string, AssetVal>) {
     myMap.set(name, { ...val });
   } else {
     existingEntry.assetVal += val.assetVal;
+    if (existingEntry.assetQ && val.assetQ) {
+      existingEntry.assetQ += val.assetQ;
+    } else if (val.assetQ) {
+      existingEntry.assetQ = val.assetQ;
+    }
   }
 }
 
@@ -46,10 +51,11 @@ function makeDataGrid(myMap: Map<string, AssetVal>, model: ModelData) {
           })
           .map(key => {
             // log(`key[0] = ${key[0]}, key[1] = ${key[1]}`);
+            const quantityText = key[1].assetQ ? `${key[1].assetQ}` : '';
             return {
               NAME: key[0],
               VALUE: `${key[1].assetVal}`,
-              QUANTITY: `${key[1].assetQ}`,
+              QUANTITY: quantityText,
               CATEGORY: `${key[1].category}`,
             };
           })
