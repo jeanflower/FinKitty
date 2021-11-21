@@ -176,6 +176,7 @@ export interface SettingVal {
 }
 export interface AssetVal {
   assetVal: number;
+  assetQ: number | undefined;
   category: string;
 }
 export interface DebtVal {

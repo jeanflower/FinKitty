@@ -49,6 +49,7 @@ function makeDataGrid(myMap: Map<string, AssetVal>, model: ModelData) {
             return {
               NAME: key[0],
               VALUE: `${key[1].assetVal}`,
+              QUANTITY: `${key[1].assetQ}`,
               CATEGORY: `${key[1].category}`,
             };
           })
@@ -76,6 +77,13 @@ function makeDataGrid(myMap: Map<string, AssetVal>, model: ModelData) {
           key: 'VALUE',
           name: `value`,
           formatter: <CashValueFormatter name="value" value="unset" />,
+          editable: false,
+        },
+        {
+          ...defaultColumn,
+          key: 'QUANTITY',
+          name: `quantity`,
+          formatter: <SimpleFormatter name="quantity" value="unset" />,
           editable: false,
         },
         {

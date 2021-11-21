@@ -3653,6 +3653,7 @@ export function getEvaluations(
           } else {
             todaysAssetValues.set(asset.NAME, {
               assetVal: val,
+              assetQ: q,
               category: asset.CATEGORY,
             });
           }
