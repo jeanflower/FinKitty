@@ -878,8 +878,6 @@ function filterIncomeOrExpenseItems(
   >,
   allDates: Date[],
   names: string[],
-  model: ModelData,
-  categoryCache: Map<string, string>,
   viewSettings: ViewSettings,
   context: Context,
 ) {
@@ -1539,8 +1537,6 @@ export function makeChartData(
         dateNameValueMap,
         allDates,
         expenseNames,
-        model,
-        categoryCache,
         viewSettings,
         Context.Expense,
       );
@@ -1556,8 +1552,6 @@ export function makeChartData(
         dateNameValueMap,
         allDates,
         incomeNames,
-        model,
-        categoryCache,
         viewSettings,
         Context.Income,
       );
