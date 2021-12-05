@@ -3247,6 +3247,7 @@ class ValuesContainer {
   }
 
   public getReport(): ReportDatum[] {
+    this.report.reverse();
     return this.report;
   }
 
