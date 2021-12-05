@@ -94,6 +94,7 @@ import {
   makeStringFromValueAbsProp,
   makeStringFromGrowth,
   lessThan,
+  makeTwoDP,
 } from '../stringUtils';
 import { ReactFragment } from 'react';
 import { Accordion, Button, Card } from 'react-bootstrap';
@@ -1815,15 +1816,23 @@ export function reportDiv(model: ModelData, reportData: ReportDatum[]) {
     return;
   }
   const unindexedResult = reportData.map(x => {
+    const make2dpCanBeUndefined : (input: number | undefined)=>string = 
+    (input) => {
+      return input ? makeTwoDP(input) : '';
+    }
+    const makeQCanBeUndefined : (input: number | undefined)=>string = 
+    (input) => {
+      return input ? `${input}` : '';
+    }
     return {
       DATE: x.date,
       NAME: x.name,
-      CHANGE: x.change,
-      OLD_VALUE: x.oldVal,
-      NEW_VALUE: x.newVal,
-      QCHANGE: x.qchange,
-      QOLD_VALUE: x.qoldVal,
-      QNEW_VALUE: x.qnewVal,
+      CHANGE: make2dpCanBeUndefined(x.change),
+      OLD_VALUE: make2dpCanBeUndefined(x.oldVal),
+      NEW_VALUE: make2dpCanBeUndefined(x.newVal),
+      QCHANGE: makeQCanBeUndefined(x.qchange),
+      QOLD_VALUE: makeQCanBeUndefined(x.qoldVal),
+      QNEW_VALUE: makeQCanBeUndefined(x.qnewVal),
       SOURCE: x.source,
     };
   });
