@@ -550,6 +550,12 @@ export async function refreshData(
           if (!reactAppComponent.reportDefiner) {
             return false;
           }
+          if(model.expenses.find(e => {
+            return e.NAME === source;            
+          })){
+            // expenses just happen - do not include them in 'actions'
+            return false;
+          }
           let nameMatcher = '';
           model.assets.forEach(a => {
             if (viewSettings.getShowItem(Context.Asset, a.NAME)) {
