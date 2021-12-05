@@ -35,17 +35,19 @@ import { ModelData } from '../types/interfaces';
 import { getMinimalModelCopy, viewSetting } from './exampleModels';
 import { log } from '../utils';
 
+// 0; // may not include assets or settings in minimalModel
+// 1; // may not include expense recurrence, asset/debt,
+//           // asset quantity, transaction and settings types
+// 2; // could use taxPot as an asset
+// 3; // doesn't include tax view focus settings
+// 4; // still includes many view settings
+// 5; // still includes English-language special words
+// 6; // uses -DC for pensions, even if they're DB pensions
+// 7; // uses one cyrstallizedPension pot per person
+const currentVersion = 8;
+
 export function getCurrentVersion() {
-  // return 0; // may not include assets or settings in minimalModel
-  // return 1; // may not include expense recurrence, asset/debt,
-  //           // asset quantity, transaction and settings types
-  // return 2; // could use taxPot as an asset
-  // return 3; // doesn't include tax view focus settings
-  // return 4; // still includes many view settings
-  // return 5; // still includes English-language special words
-  // return 6; // uses -DC for pensions, even if they're DB pensions
-  // return 7; // uses one cyrstallizedPension pot per person
-  return 8;
+  return currentVersion;
 }
 
 const mapForGuessSettingTypeForv2 = new Map([
