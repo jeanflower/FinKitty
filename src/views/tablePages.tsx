@@ -1870,6 +1870,7 @@ export function reportDiv(
             name: 'index',
             formatter: <SimpleFormatter name="name" value="unset" />,
           },
+          */
           {
             ...defaultColumn,
             key: 'DATE',
@@ -1883,14 +1884,12 @@ export function reportDiv(
               />
             ),
           },
-          */
           {
             ...defaultColumn,
             key: 'NAME',
             name: 'name',
             formatter: <SimpleFormatter name="name" value="unset" />,
           },
-          /*
           {
             ...defaultColumn,
             key: 'CHANGE',
@@ -1933,11 +1932,14 @@ export function reportDiv(
             name: 'source',
             formatter: <SimpleFormatter name="source" value="unset" />,
           },
-          */
         ]}
         triggers={model.triggers}
       />
-      {util.inspect(reportDataTable)}
+      {
+      /*
+      util.inspect(reportDataTable)
+      */
+      }
     </div>
   );
 }
