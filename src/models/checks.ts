@@ -31,14 +31,11 @@ import {
   revalueSetting,
   roiEnd,
   roiStart,
-  rsu,
   separator,
   taxChartFocusType,
   taxFree,
   taxPot,
   transferCrystallizedPension,
-  vestedEval,
-  vestedNum,
   viewDetail,
   viewFrequency,
   pensionAllowance,
@@ -275,12 +272,6 @@ export function checkAsset(a: Asset, model: ModelData): string {
   if (d === undefined || !checkDate(d)) {
     return `Asset start date doesn't make sense :
       ${showObj(a.START)}`;
-  }
-
-  if (a.CATEGORY === rsu) {
-    if (!isNumberString(a.QUANTITY)) {
-      return `Asset ${a.NAME} needs a numerical quantity`;
-    }
   }
   return '';
 }
@@ -1451,20 +1442,6 @@ export function checkEvalnType(
   } else if (evaln.name.startsWith(quantity)) {
     // expect 'quantity' as keeping track of discrete assets
     const evalnType = nameToTypeMap.get(evaln.name.substr(quantity.length));
-    if (evalnType === evaluationType.asset) {
-      return;
-    }
-  } else if (evaln.name.startsWith(vestedEval)) {
-    // expect 'VestedEval' as remembering values of RSUs
-    // to use later when paying tax
-    const evalnType = nameToTypeMap.get(evaln.name.substr(vestedEval.length));
-    if (evalnType === evaluationType.asset) {
-      return;
-    }
-  } else if (evaln.name.startsWith(vestedNum)) {
-    // expect 'VestedNum' as remembering quantities of RSUs
-    // to use later when paying tax
-    const evalnType = nameToTypeMap.get(evaln.name.substr(vestedNum.length));
     if (evalnType === evaluationType.asset) {
       return;
     }

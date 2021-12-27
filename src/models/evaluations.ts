@@ -21,9 +21,6 @@ import {
   EvaluateAllAssets,
   roiStart,
   purchase,
-  vestedEval,
-  rsu,
-  vestedNum,
   pensionAllowance,
   dot,
 } from '../localization/stringConstants';
@@ -984,169 +981,6 @@ function updatePurchaseValue(
   }
 }
 
-function payTaxFromVestedRSU(
-  a: Asset,
-  taxDue: { amountLiable: number; rate: number }[],
-  startOfTaxYear: Date,
-  values: ValuesContainer,
-  evaluations: Evaluation[],
-  model: ModelData,
-  source: string, // e.g. IncomeTaxJoe
-) {
-  const vestedEvaln = values.get(`${vestedEval}${a.NAME}`);
-  if (vestedEvaln === undefined) {
-    throw new Error('RSUs must have a defined vested evaluation');
-  }
-  const vestedNumb = values.get(`${vestedNum}${a.NAME}`);
-  if (vestedNumb === undefined) {
-    throw new Error('RSUs must have a defined vested number');
-  }
-  if (typeof vestedEvaln === 'string') {
-    throw new Error('RSUs must have a numerical defined vested evaluation');
-  }
-  if (typeof vestedNumb === 'string') {
-    throw new Error('RSUs must have a numerical defined vested quantity');
-  }
-  const assetQty = values.get(`${quantity}${a.NAME}`);
-  if (assetQty === undefined || typeof assetQty === 'string') {
-    throw new Error('RSUs need a numerical qty');
-  }
-  const numShares = traceEvaluation(assetQty, values, source);
-  if (numShares === undefined) {
-    throw new Error('RSUs must have a defined currentquantity');
-  } else {
-    let evalAvailable = vestedEvaln * vestedNumb;
-    if (printDebug()) {
-      log(
-        `taxDue before some tax was paid from RSUs = ${showObj(
-          taxDue.map(td => {
-            return {
-              amountLiable: td.amountLiable,
-              rate: td.rate,
-              amountDue: td.amountLiable * td.rate,
-            };
-          }),
-        )}`,
-      );
-    }
-    let amountForTax = 0;
-    let amountToKeep = 0;
-    taxDue.forEach(td => {
-      const amountLiable = td.amountLiable;
-      let addForTax = 0;
-      if (evalAvailable > amountLiable) {
-        // RSUs have more than we need for this td
-        // log(`RSUs available worth ${evalAvailable} > tax liability ${amountLiable}`);
-        // log(`due to pay ${amountLiable * td.rate}`);
-        addForTax = amountLiable * td.rate;
-      } else {
-        // RSUs are not enough to cover the tax due
-        // log(`RSUs available worth ${evalAvailable} <= tax liability ${amountLiable}`);
-        // log(`due to pay ${evalAvailable * td.rate}`);
-        addForTax = evalAvailable * td.rate;
-      }
-
-      const addForTaxRounded =
-        Math.floor(addForTax / vestedEvaln + 0.00001) * vestedEvaln;
-      amountForTax = amountForTax + addForTaxRounded;
-      const addToKeep = (addForTax / td.rate) * (1 - td.rate);
-      const addToKeepRounded =
-        Math.floor(addToKeep / vestedEvaln + 0.00001) * vestedEvaln;
-      amountToKeep = amountToKeep + addToKeepRounded;
-      // log(`reduce evalAvailable by ${addForTax} + ${addToKeep} = ${addForTax + addToKeep}`)
-      evalAvailable = evalAvailable - (addForTax + addToKeep);
-      td.amountLiable = td.amountLiable - addForTaxRounded / td.rate;
-      if (printDebug()) {
-        log(
-          `for tax band rate ${td.rate} ` +
-            `pay ${addForTax} for tax bill ` +
-            `and reduce liability by ${addForTax + addToKeep}`,
-        );
-      }
-    });
-    const numSharesForTax = amountForTax / vestedEvaln;
-    if (printDebug()) {
-      log(
-        `reduce numShares from ${numShares} by ${numSharesForTax} ` +
-          `to pay ${amountForTax} to tax bill`,
-      );
-    }
-    setValue(
-      values,
-      evaluations,
-      startOfTaxYear,
-      quantity + a.NAME,
-      numShares - numSharesForTax,
-      model,
-      source,
-      '29', //callerID
-    );
-
-    updatePurchaseValue(
-      a,
-      values,
-      (numShares - numSharesForTax) / numShares,
-      evaluations,
-      startOfTaxYear,
-      model,
-      source,
-    );
-    if (printDebug()) {
-      log(
-        `taxDue after some tax was paid from RSUs = ${showObj(
-          taxDue.map(td => {
-            return {
-              amountLiable: td.amountLiable,
-              rate: td.rate,
-              amountDue: td.amountLiable * td.rate,
-            };
-          }),
-        )}`,
-      );
-    }
-  }
-}
-
-function payTaxFromVestedRSUs(
-  taxDue: { amountLiable: number; rate: number }[],
-  startOfTaxYear: Date,
-  values: ValuesContainer,
-  evaluations: Evaluation[],
-  model: ModelData,
-  source: string, // e.g. IncomeTaxJoe
-  type: string, // either incomeTax or nationalInsurance
-) {
-  const person = source.substring(0, source.length - type.length);
-  const RSUsForTax = model.assets
-    .filter(a => {
-      return a.CATEGORY === rsu;
-    })
-    .filter(a => {
-      return a.LIABILITY.split(separator).includes(`${person}${type}`);
-    })
-    .filter(a => {
-      const rsuVested = getTriggerDate(a.START, model.triggers);
-      if (rsuVested < startOfTaxYear) {
-        rsuVested.setFullYear(rsuVested.getFullYear() + 1);
-        if (rsuVested > startOfTaxYear) {
-          // log(`asset ${a.NAME} vested in this tax year`);
-          return true;
-        }
-      }
-      return false;
-    });
-  RSUsForTax.forEach(a => {
-    payTaxFromVestedRSU(
-      a,
-      taxDue,
-      startOfTaxYear,
-      values,
-      evaluations,
-      model,
-      source, // e.g. IncomeTaxJoe
-    );
-  });
-}
 
 function payIncomeTax(
   startOfTaxYear: Date,
@@ -1166,15 +1000,6 @@ function payIncomeTax(
   // log(`taxDue for ${source} on ${startOfTaxYear} = ${taxDue}`);
   const totalTaxDue = sumTaxDue(taxDue);
   if (totalTaxDue > 0) {
-    payTaxFromVestedRSUs(
-      taxDue,
-      startOfTaxYear,
-      values,
-      evaluations,
-      model,
-      source,
-      incomeTax,
-    );
     const totalTaxDueFromCash = sumTaxDue(taxDue);
     if (totalTaxDueFromCash > 0) {
       // log('in payIncomeTax, adjustCash:');
@@ -1226,15 +1051,6 @@ function payNI(
 
   const sumDue = sumNI(NIDue);
   if (sumDue > 0) {
-    payTaxFromVestedRSUs(
-      NIDue,
-      startOfTaxYear,
-      values,
-      evaluations,
-      model,
-      source,
-      nationalInsurance,
-    );
     const totalTaxDueFromCash = sumTaxDue(NIDue);
     // log('in payNI, adjustCash:');
     adjustCash(
@@ -3821,61 +3637,6 @@ export function getEvaluations(
           const a = matchingAsset[0];
           // log(`matched asset for start`);
           logPurchaseValues(a, values, evaluations, model);
-          if (a.CATEGORY === rsu) {
-            // log(`found vesting RSUs ${a.NAME}`);
-            const l = a.LIABILITY;
-            const liabilityWords = l.split(separator);
-            liabilityWords.forEach(lw => {
-              if (!lw.endsWith(incomeTax) && !lw.endsWith(nationalInsurance)) {
-                return;
-              }
-              const val = traceEvaluation(a.VALUE, values, 'source');
-              const qty = traceEvaluation(a.QUANTITY, values, 'source');
-              // log(`val = ${val}, qty = ${qty}`);
-              if (val === undefined || qty === undefined) {
-                throw new Error('!!');
-              } else {
-                const amountDueForIncomeTax = val * qty;
-                // log(`amountDueForIncomeTax = ${amountDueForIncomeTax}`)
-                if (lw.endsWith(incomeTax)) {
-                  accumulateLiability(
-                    lw,
-                    incomeTax,
-                    amountDueForIncomeTax,
-                    liableIncomeInTaxYear,
-                  );
-                }
-                if (lw.endsWith(nationalInsurance)) {
-                  accumulateLiability(
-                    lw,
-                    nationalInsurance,
-                    amountDueForIncomeTax,
-                    liableIncomeInTaxYear,
-                  );
-                }
-                setValue(
-                  values,
-                  evaluations,
-                  moment.date,
-                  `${vestedEval}${a.NAME}`,
-                  val,
-                  model,
-                  `Vesting${a.NAME}`,
-                  '30', //callerID
-                );
-                setValue(
-                  values,
-                  evaluations,
-                  moment.date,
-                  `${vestedNum}${a.NAME}`,
-                  qty,
-                  model,
-                  `Vesting${a.NAME}`,
-                  '30', //callerID
-                );
-              }
-            });
-          }
         } else {
           throw new Error(`BUG!!! '${moment.name}' doesn't match one asset`);
         }

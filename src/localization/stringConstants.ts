@@ -141,13 +141,6 @@ export const quantity = 'quantity';
 // Track purchase price of aasets liable to capital gains
 export const purchase = 'Purchase';
 
-// Flag certain assets as RSUs
-export const rsu = 'RSU';
-
-// Track vesting values for RSUs
-export const vestedEval = 'VestedEval';
-export const vestedNum = 'VestedNum';
-
 // Transaction types:
 //  Auto-generated (e.g. about pension)
 export const autogen = 'auto';
