@@ -63,7 +63,7 @@ import {
   checkTrigger,
   isNumberString,
 } from '../models/checks';
-import { log, showObj } from '../utils';
+import { Context, log, showObj } from '../utils';
 
 import CashValueFormatter from './reactComponents/CashValueFormatter';
 import DataGrid from './reactComponents/DataGrid';
@@ -98,6 +98,7 @@ import {
 } from '../stringUtils';
 import { ReactFragment } from 'react';
 import { Accordion, Button, Card } from 'react-bootstrap';
+import { filtersList } from './chartPages';
 
 export function collapsibleFragment(
   fragment: ReactFragment | undefined,
@@ -1811,10 +1812,15 @@ export function settingsTableDiv(
   );
 }
 
-export function reportDiv(model: ModelData, reportData: ReportDatum[]) {
+export function reportDiv(
+  model: ModelData, 
+  viewSettings: ViewSettings,
+  reportData: ReportDatum[],
+) {
   if (!getDisplay(reportView)) {
     return;
   }
+  log(`display report of length ${reportData.length}`);
   const unindexedResult = reportData.map(x => {
     const make2dpCanBeUndefined : (input: number | undefined)=>string = 
     (input) => {
@@ -1838,8 +1844,18 @@ export function reportDiv(model: ModelData, reportData: ReportDatum[]) {
   });
   const reportDataTable = addIndices(unindexedResult);
 
+  log(`display reportDataTable of length ${reportDataTable.length}`);
+  var util = require('util');
+  log(`display reportDataTable ${util.inspect(reportDataTable)}`);
+
+  const context = Context.Asset;
+  const items = model.assets.filter(obj => {
+    return obj.IS_A_DEBT === false;
+  });
+
   return (
     <div className="ml-3">
+      {filtersList(items, viewSettings, context, true)}
       <DataGrid
         deleteFunction={undefined}
         handleGridRowsUpdated={function() {
@@ -1854,7 +1870,6 @@ export function reportDiv(model: ModelData, reportData: ReportDatum[]) {
             name: 'index',
             formatter: <SimpleFormatter name="name" value="unset" />,
           },
-          */
           {
             ...defaultColumn,
             key: 'DATE',
@@ -1868,12 +1883,14 @@ export function reportDiv(model: ModelData, reportData: ReportDatum[]) {
               />
             ),
           },
+          */
           {
             ...defaultColumn,
             key: 'NAME',
             name: 'name',
             formatter: <SimpleFormatter name="name" value="unset" />,
           },
+          /*
           {
             ...defaultColumn,
             key: 'CHANGE',
@@ -1916,9 +1933,13 @@ export function reportDiv(model: ModelData, reportData: ReportDatum[]) {
             name: 'source',
             formatter: <SimpleFormatter name="source" value="unset" />,
           },
+          */
         ]}
         triggers={model.triggers}
       />
+      {util.inspect(reportDataTable)}
     </div>
   );
 }
+
+

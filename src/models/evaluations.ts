@@ -3171,6 +3171,8 @@ function logPurchaseValues(
     );
   }
 }
+const maxReportSize = 400;
+
 class ValuesContainer {
   private values = new Map<string, number | string>([]);
   private includeInReport: ReportValueChecker = (
@@ -3202,7 +3204,7 @@ class ValuesContainer {
     callerID: string,
   ) {
     const reportChange =
-      this.report.length < 200 && this.includeInReport(name, val, date, source);
+      this.report.length < maxReportSize && this.includeInReport(name, val, date, source);
     let oldVal: number | undefined = 0.0;
     if (reportChange) {
       oldVal = traceEvaluation(name, this, 'debugReportOld');

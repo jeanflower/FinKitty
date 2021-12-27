@@ -47,6 +47,8 @@ import {
   viewType,
   snapshot,
   purchase,
+//  pension,
+//  crystallizedPension,
 } from './localization/stringConstants';
 import {
   AssetVal,
@@ -540,6 +542,46 @@ export async function refreshData(
         return false;
       };
       if (getDisplay(reportView)) {
+        // define a 'reporter' function which will be
+        // passed into the evaluation code to capture
+        // data as we proceed with calculations
+        let nameMatcher = '';
+        model.assets.forEach(a => {
+          if (viewSettings.getShowItem(Context.Asset, a.NAME)) {
+            // log(`show ${a.NAME}`);
+            let name = a.NAME;
+            //if(name.startsWith(pension)){
+            //  name = name.substring(pension.length, name.length);
+            //}
+            //if(name.startsWith(crystallizedPension)){
+            //  name = name.substring(crystallizedPension.length, name.length);
+            //}
+            if (nameMatcher === '') {
+              nameMatcher = name;
+            } else {
+              nameMatcher = nameMatcher + '|' + name;
+            }
+          } else {
+            // log(`do not show ${a.NAME}`);
+          }
+        });
+        //log(`nameMatcher for reporter = ${nameMatcher}`);
+
+        const getSettingValue = (settingName: string) => {
+          let value = '';
+          const s = model.settings.find(s => {
+            return s.NAME === settingName;
+          });
+          if (s !== undefined) {
+            value = s.VALUE;
+          }
+          return value;
+        };
+        const startDate = new Date(getSettingValue(roiStart));
+        const endDate = new Date(getSettingValue(roiEnd));
+        //log(`startDate for reporter = ${startDate}`);
+        //log(`endDate for reporter = ${endDate}`);
+
         // log(`create the report data`);
         reporter = (
           name: string,
@@ -556,25 +598,13 @@ export async function refreshData(
             // expenses just happen - do not include them in 'actions'
             return false;
           }
-          let nameMatcher = '';
-          model.assets.forEach(a => {
-            if (viewSettings.getShowItem(Context.Asset, a.NAME)) {
-              // log(`show ${a.NAME}`);
-              if (nameMatcher === '') {
-                nameMatcher = a.NAME;
-              } else {
-                nameMatcher = nameMatcher + '|' + a.NAME;
-              }
-            } else {
-              // log(`do not show ${a.NAME}`);
-            }
-          });
-          // log(`nameMatcher = ${nameMatcher}`);
+
           // log(`sourceMatcher = ${reactAppComponent.reportDefiner.sourceMatcher}`)
           // log(`sourceExcluder = ${reactAppComponent.reportDefiner.sourceExcluder}`)
-          if (
-            nameMatcher === '' &&
-            !reactAppComponent.reportDefiner.sourceMatcher &&
+          if (nameMatcher === ''){
+            return false;
+          } 
+          if (!reactAppComponent.reportDefiner.sourceMatcher &&
             !reactAppComponent.reportDefiner.sourceExcluder
           ) {
             return false;
@@ -588,12 +618,19 @@ export async function refreshData(
           if (date < getTodaysDate(model)) {
             return false;
           }
+          if (date < startDate) {
+            return false;
+          }
+          if (date > endDate) {
+            return false;
+          }
           if (name.startsWith(purchase)) {
             return false;
           }
           if (nameMatcher) {
             const nameRegex = RegExp(nameMatcher);
             if (name.match(nameRegex) === null) {
+              // log(`do not display non-matching name ${name}`);
               return false;
             }
           }
@@ -618,7 +655,10 @@ export async function refreshData(
           return true;
         };
       }
+
+      // go and do the actual modeling, the calculations
       evaluationsAndVals = getEvaluations(model, reporter);
+
       // log(`evaluationsAndVals.reportData.length = ${evaluationsAndVals.reportData.length}`);
     }
   }
@@ -1280,6 +1320,8 @@ export class AppContent extends Component<AppProps, AppState> {
         updateSettingValue(roiEnd, newDate);
       };
 
+      log(`report is length ${this.state.reportData.length}`);
+
       return (
         <>
           {this.navbarDiv()}
@@ -1372,7 +1414,11 @@ export class AppContent extends Component<AppProps, AppState> {
               this.state.taxChartData,
             )}
             {this.triggersDiv()}
-            {reportDiv(this.state.modelData, this.state.reportData)}
+            {reportDiv(
+              this.state.modelData, 
+              this.state.viewState,
+              this.state.reportData,
+            )}
           </>
         </>
       );

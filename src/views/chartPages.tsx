@@ -79,6 +79,7 @@ function makeFilterButton(
   buttonName: string,
   settings: ViewSettings,
   context: Context,
+  refreshModel: boolean,
 ) {
   let id = '';
   if (context === Context.Income) {
@@ -97,7 +98,7 @@ function makeFilterButton(
       e.persist();
       settings.toggleViewFilter(context, buttonName);
       return await refreshData(
-        false, // refreshModel = true,
+        refreshModel, // refreshModel = true,
         true, // refreshChart = true,
       );
     },
@@ -107,15 +108,16 @@ function makeFilterButton(
   );
 }
 
-function filtersList(
+export function filtersList(
   items: ItemCategory[],
   settings: ViewSettings,
   context: Context,
+  refreshModel: boolean,
 ) {
   const incomeOrExpenseNames: string[] = items.map(data => data.NAME).sort();
 
   const buttons = incomeOrExpenseNames.map(buttonName => {
-    return makeFilterButton(buttonName, settings, context);
+    return makeFilterButton(buttonName, settings, context, refreshModel);
   });
   const categories: string[] = [];
   items.forEach(data => {
@@ -129,7 +131,7 @@ function filtersList(
   categories.sort();
   categories.unshift(allItems);
   const categoryButtons = categories.map(buttonName => {
-    return makeFilterButton(buttonName, settings, context);
+    return makeFilterButton(buttonName, settings, context, refreshModel);
   });
 
   return (
@@ -392,7 +394,7 @@ export function incomesChartDivWithButtons(
           identifier="incomeDataDump"
           message={showObj(incomesChartData)}
         />
-        {filtersList(model.incomes, settings, Context.Income)}
+        {filtersList(model.incomes, settings, Context.Income, false)}
         {coarseFineList(settings)}
         {incomesChartDiv(
           incomesChartData,
@@ -490,7 +492,7 @@ export function expensesChartDivWithButtons(
           identifier="expenseDataDump"
           message={showObj(expensesChartData)}
         />
-        {filtersList(model.expenses, settings, Context.Expense)}
+        {filtersList(model.expenses, settings, Context.Expense, false)}
         {coarseFineList(settings)}
         <fieldset>
           <ReactiveTextArea
@@ -617,7 +619,7 @@ export function assetsOrDebtsChartDivWithButtons(
           display: 'block',
         }}
       >
-        {filtersList(items, viewSettings, context)}
+        {filtersList(items, viewSettings, context, false)}
         {assetViewTypeList(viewSettings)}
         {coarseFineList(viewSettings)}
         <ReactiveTextArea
