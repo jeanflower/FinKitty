@@ -3271,6 +3271,23 @@ class ValuesContainer {
   }
 
   public getReport(): ReportDatum[] {
+    //log(`this.values() = ${this.values()}`);
+    const estateVal = this.get('Estate');
+    if(estateVal !== undefined && typeof estateVal === 'number'){
+      // log(`estateVal = ${estateVal}`);
+      this.report.push({
+          name: 'Estate final value', 
+          change: 0, 
+          oldVal: 0, 
+          newVal: estateVal,
+          qchange: 0, 
+          qoldVal: 0, 
+          qnewVal: 0, 
+          date: '2999', 
+          source: 'estate',
+        }
+      );
+    }
     this.report.reverse();
     return this.report;
   }
@@ -4077,6 +4094,7 @@ export function getEvaluations(
   }
   // log(`getEvaluations returning ${evaluations.length} evaluations`);
 
+  const report = values.getReport();
   const result = {
     evaluations: evaluations,
     todaysAssetValues: todaysAssetValues,
@@ -4084,7 +4102,7 @@ export function getEvaluations(
     todaysIncomeValues: todaysIncomeValues,
     todaysExpenseValues: todaysExpenseValues,
     todaysSettingValues: todaysSettingValues,
-    reportData: values.getReport(),
+    reportData: report,
   };
   // log(`result.reportData.length = ${result.reportData.length}`);
   return result;

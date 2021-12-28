@@ -1820,8 +1820,10 @@ export function reportDiv(
   if (!getDisplay(reportView)) {
     return;
   }
-  log(`display report of length ${reportData.length}`);
-  const unindexedResult = reportData.map(x => {
+  // log(`display report of length ${reportData.length}`);
+  const unindexedResult = reportData.filter((d)=>{
+      return d.name !== 'Estate final value';
+    }).map(x => {
     const make2dpCanBeUndefined : (input: number | undefined)=>string = 
     (input) => {
       return input ? makeTwoDP(input) : '';

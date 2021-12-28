@@ -125,7 +125,7 @@ import {
   markForUndo,
   revertToUndoModel,
 } from './models/modelUtils';
-import { lessThan } from './stringUtils';
+import { lessThan, makeTwoDP } from './stringUtils';
 import { diffModels } from './diffModels';
 import { collapsibleFragment } from './views/tablePages';
 import WaitGif from './views/catWait.gif';
@@ -1239,6 +1239,13 @@ export class AppContent extends Component<AppProps, AppState> {
 
   private navbarDiv() {
     return navbarContent(() => {
+      const estateVal = this.state.reportData.find((d)=>{return d.name === 'Estate final value'});
+      let textToDisplay = '';
+      if(estateVal !== undefined){
+        if(estateVal.newVal !== undefined){
+          textToDisplay = `Estate: ${makeTwoDP(estateVal.newVal)}`;
+        }
+      }
       return (
         <>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
@@ -1265,6 +1272,7 @@ export class AppContent extends Component<AppProps, AppState> {
                   return false;
                 }}
               >
+                <h4 className="text" id="estate" key="estate">{textToDisplay}</h4>
                 <div className="col">
                   <div className="d-flex flex-row-reverse">
                     {this.rhsTopButtonList()}
