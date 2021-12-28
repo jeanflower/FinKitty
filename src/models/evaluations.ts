@@ -1516,7 +1516,7 @@ function accumulateLiability(
     map.set(liability, newLiability);
     // log(`${type} accumulated ${liability} liability = ${newLiability}`);
   }
-  if(type == incomeTax){
+  if(type === incomeTax){
     let taxLiability = liableIncomeInTaxMonth.get(liability);
     if (taxLiability === undefined) {
       taxLiability = 0;
@@ -3704,9 +3704,9 @@ export function getEvaluations(
     }
     const momentsTaxMonth = getMonthOfTaxYear(moment.date);
     if (
-      startYearOfTaxYear != undefined &&
+      startYearOfTaxYear !== undefined &&
       monthOfTaxYear !== undefined &&
-      momentsTaxMonth != monthOfTaxYear
+      momentsTaxMonth !== monthOfTaxYear
     ) {
       // console.log(`${momentsTaxMonth} is beyond ${monthOfTaxYear} for ${moment.date.toDateString()}`);
       payTaxEstimate(
