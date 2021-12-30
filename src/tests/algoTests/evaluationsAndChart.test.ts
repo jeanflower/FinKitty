@@ -5662,7 +5662,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 7, 'java', 'Tue Apr 10 2018', 12505, -1);
     expectEvals(evals, 8, 'Cash', 'Tue Apr 10 2018', 25509, -1);
     expectEvals(evals, 9, 'Cash', 'Tue May 01 2018', 25509, -1);
-    expectEvals(evals, 10, 'Cash', 'Sun May 05 2019', 21340.09, 2);
+    expectEvals(evals, 10, 'Cash', 'Sat May 05 2018', 21340.09, 2);
     expectEvals(evals, 11, 'Cash', 'Fri Jun 01 2018', 21340.09, 2);
     expectEvals(evals, 12, 'Cash', 'Sun Jul 01 2018', 21340.09, 2);
     expectEvals(evals, 13, 'Cash', 'Wed Aug 01 2018', 21340.09, 2);
@@ -6265,8 +6265,8 @@ describe('evaluations tests', () => {
 
   it('taxBands grow with cpi', done => {
     const roi = {
-      start: 'April 1, 2018 00:00:00',
-      end: 'April 10, 2021 00:00:00',
+      start: 'April 1, 2020 00:00:00',
+      end: 'April 10, 2024 00:00:00',
     };
     const smallCPI = 0.05; // non zero cpi ensures tax bands grow over time
     const model: ModelData = {
@@ -6274,8 +6274,8 @@ describe('evaluations tests', () => {
       incomes: [
         {
           ...simpleIncome,
-          START: 'April 1 2018',
-          END: 'April 2 2021',
+          START: 'April 1 2020',
+          END: 'April 2 2024',
           NAME: 'PRnd',
           VALUE: '1042.5', // will be taxable in 1st year but after tax bands adjust, won't be
           VALUE_SET: 'January 1 2018',
@@ -6288,7 +6288,7 @@ describe('evaluations tests', () => {
           ...simpleAsset,
           NAME: CASH_ASSET_NAME,
           CAN_BE_NEGATIVE: true,
-          START: 'April 1 2018',
+          START: 'April 1 2020',
           VALUE: '500',
         },
       ],
@@ -6303,160 +6303,186 @@ describe('evaluations tests', () => {
 
     // printTestCodeForEvals(evals);
 
-    expect(evals.length).toBe(154);
-    expectEvals(evals, 0, 'Cash', 'Sun Apr 01 2018', 500, -1);
-    expectEvals(evals, 1, 'PRnd', 'Sun Apr 01 2018', 1042.50, 2);
-    expectEvals(evals, 2, 'Cash', 'Sun Apr 01 2018', 1542.50, 2);
-    expectEvals(evals, 3, getnetincLabel('Joe'), 'Thu Apr 05 2018', 1042.50, 2);
-    expectEvals(evals, 4, 'Cash', 'Tue May 01 2018', 1542.56, 2);
-    expectEvals(evals, 5, 'PRnd', 'Tue May 01 2018', 1042.50, 2);
-    expectEvals(evals, 6, 'Cash', 'Tue May 01 2018', 2585.06, 2);
-    expectEvals(evals, 7, 'Cash', 'Sun May 05 2019', 2584.90, 2);
-    expectEvals(evals, 8, 'Cash', 'Fri Jun 01 2018', 2585.01, 2);
-    expectEvals(evals, 9, 'PRnd', 'Fri Jun 01 2018', 1042.50, 2);
-    expectEvals(evals, 10, 'Cash', 'Fri Jun 01 2018', 3627.51, 2);
-    expectEvals(evals, 11, 'Cash', 'Wed Jun 05 2019', 3627.35, 2);
-    expectEvals(evals, 12, 'Cash', 'Sun Jul 01 2018', 3627.50, 2);
-    expectEvals(evals, 13, 'PRnd', 'Sun Jul 01 2018', 1042.50, 2);
-    expectEvals(evals, 14, 'Cash', 'Sun Jul 01 2018', 4670.00, 2);
-    expectEvals(evals, 15, 'Cash', 'Fri Jul 05 2019', 4669.84, 2);
-    expectEvals(evals, 16, 'Cash', 'Wed Aug 01 2018', 4670.04, 2);
-    expectEvals(evals, 17, 'PRnd', 'Wed Aug 01 2018', 1042.50, 2);
-    expectEvals(evals, 18, 'Cash', 'Wed Aug 01 2018', 5712.54, 2);
-    expectEvals(evals, 19, 'Cash', 'Mon Aug 05 2019', 5712.38, 2);
-    expectEvals(evals, 20, 'Cash', 'Sat Sep 01 2018', 5712.62, 2);
-    expectEvals(evals, 21, 'PRnd', 'Sat Sep 01 2018', 1042.50, 2);
-    expectEvals(evals, 22, 'Cash', 'Sat Sep 01 2018', 6755.12, 2);
-    expectEvals(evals, 23, 'Cash', 'Thu Sep 05 2019', 6754.96, 2);
-    expectEvals(evals, 24, 'Cash', 'Mon Oct 01 2018', 6755.24, 2);
-    expectEvals(evals, 25, 'PRnd', 'Mon Oct 01 2018', 1042.50, 2);
-    expectEvals(evals, 26, 'Cash', 'Mon Oct 01 2018', 7797.74, 2);
-    expectEvals(evals, 27, 'Cash', 'Sat Oct 05 2019', 7797.58, 2);
-    expectEvals(evals, 28, 'Cash', 'Thu Nov 01 2018', 7797.90, 2);
-    expectEvals(evals, 29, 'PRnd', 'Thu Nov 01 2018', 1042.50, 2);
-    expectEvals(evals, 30, 'Cash', 'Thu Nov 01 2018', 8840.40, 2);
-    expectEvals(evals, 31, 'Cash', 'Tue Nov 05 2019', 8840.24, 2);
-    expectEvals(evals, 32, 'Cash', 'Sat Dec 01 2018', 8840.61, 2);
-    expectEvals(evals, 33, 'PRnd', 'Sat Dec 01 2018', 1042.50, 2);
-    expectEvals(evals, 34, 'Cash', 'Sat Dec 01 2018', 9883.11, 2);
-    expectEvals(evals, 35, 'Cash', 'Thu Dec 05 2019', 9882.95, 2);
-    expectEvals(evals, 36, 'Cash', 'Tue Jan 01 2019', 9883.36, 2);
-    expectEvals(evals, 37, 'PRnd', 'Tue Jan 01 2019', 1042.50, 2);
-    expectEvals(evals, 38, 'Cash', 'Tue Jan 01 2019', 10925.86, 2);
-    expectEvals(evals, 39, 'Cash', 'Sat Jan 05 2019', 10925.70, 2);
-    expectEvals(evals, 40, 'Cash', 'Fri Feb 01 2019', 10926.16, 2);
-    expectEvals(evals, 41, 'PRnd', 'Fri Feb 01 2019', 1042.50, 2);
-    expectEvals(evals, 42, 'Cash', 'Fri Feb 01 2019', 11968.66, 2);
-    expectEvals(evals, 43, 'Cash', 'Tue Feb 05 2019', 11968.50, 2);
-    expectEvals(evals, 44, 'Cash', 'Fri Mar 01 2019', 11969.00, 2);
-    expectEvals(evals, 45, 'PRnd', 'Fri Mar 01 2019', 1042.50, 2);
-    expectEvals(evals, 46, 'Cash', 'Fri Mar 01 2019', 13011.50, 2);
-    expectEvals(evals, 47, 'Cash', 'Tue Mar 05 2019', 13011.34, 2);
-    expectEvals(evals, 48, 'Cash', 'Mon Apr 01 2019', 13011.88, 2);
-    expectEvals(evals, 49, 'PRnd', 'Mon Apr 01 2019', 1042.50, 2);
-    expectEvals(evals, 50, 'Cash', 'Mon Apr 01 2019', 14054.38, 2);
-    expectEvals(evals, 51, 'Cash', 'Fri Apr 05 2019', 14054.14, 2);
-    expectEvals(evals, 52, '(incomeTax)', 'Fri Apr 05 2019', 2, -1);
-    expectEvals(evals, 53, getnetincLabel('Joe'), 'Fri Apr 05 2019', 12508, -1);
-    expectEvals(evals, 54, 'Cash', 'Wed May 01 2019', 14054.72, 2);
-    expectEvals(evals, 55, 'PRnd', 'Wed May 01 2019', 1042.50, 2);
-    expectEvals(evals, 56, 'Cash', 'Wed May 01 2019', 15097.22, 2);
-    expectEvals(evals, 57, 'Cash', 'Tue May 05 2020', 15097.06, 2);
-    expectEvals(evals, 58, 'Cash', 'Sat Jun 01 2019', 15097.69, 2);
-    expectEvals(evals, 59, 'PRnd', 'Sat Jun 01 2019', 1042.50, 2);
-    expectEvals(evals, 60, 'Cash', 'Sat Jun 01 2019', 16140.19, 2);
-    expectEvals(evals, 61, 'Cash', 'Fri Jun 05 2020', 16140.03, 2);
-    expectEvals(evals, 62, 'Cash', 'Mon Jul 01 2019', 16140.70, 2);
-    expectEvals(evals, 63, 'PRnd', 'Mon Jul 01 2019', 1042.50, 2);
-    expectEvals(evals, 64, 'Cash', 'Mon Jul 01 2019', 17183.20, 2);
-    expectEvals(evals, 65, 'Cash', 'Sun Jul 05 2020', 17183.04, 2);
-    expectEvals(evals, 66, 'Cash', 'Thu Aug 01 2019', 17183.76, 2);
-    expectEvals(evals, 67, 'PRnd', 'Thu Aug 01 2019', 1042.50, 2);
-    expectEvals(evals, 68, 'Cash', 'Thu Aug 01 2019', 18226.26, 2);
-    expectEvals(evals, 69, 'Cash', 'Wed Aug 05 2020', 18226.10, 2);
-    expectEvals(evals, 70, 'Cash', 'Sun Sep 01 2019', 18226.86, 2);
-    expectEvals(evals, 71, 'PRnd', 'Sun Sep 01 2019', 1042.50, 2);
-    expectEvals(evals, 72, 'Cash', 'Sun Sep 01 2019', 19269.36, 2);
-    expectEvals(evals, 73, 'Cash', 'Sat Sep 05 2020', 19269.20, 2);
-    expectEvals(evals, 74, 'Cash', 'Tue Oct 01 2019', 19270.00, 2);
-    expectEvals(evals, 75, 'PRnd', 'Tue Oct 01 2019', 1042.50, 2);
-    expectEvals(evals, 76, 'Cash', 'Tue Oct 01 2019', 20312.50, 2);
-    expectEvals(evals, 77, 'Cash', 'Mon Oct 05 2020', 20312.34, 2);
-    expectEvals(evals, 78, 'Cash', 'Fri Nov 01 2019', 20313.19, 2);
-    expectEvals(evals, 79, 'PRnd', 'Fri Nov 01 2019', 1042.50, 2);
-    expectEvals(evals, 80, 'Cash', 'Fri Nov 01 2019', 21355.69, 2);
-    expectEvals(evals, 81, 'Cash', 'Thu Nov 05 2020', 21355.53, 2);
-    expectEvals(evals, 82, 'Cash', 'Sun Dec 01 2019', 21356.42, 2);
-    expectEvals(evals, 83, 'PRnd', 'Sun Dec 01 2019', 1042.50, 2);
-    expectEvals(evals, 84, 'Cash', 'Sun Dec 01 2019', 22398.92, 2);
-    expectEvals(evals, 85, 'Cash', 'Sat Dec 05 2020', 22398.76, 2);
-    expectEvals(evals, 86, 'Cash', 'Wed Jan 01 2020', 22399.69, 2);
-    expectEvals(evals, 87, 'PRnd', 'Wed Jan 01 2020', 1042.50, 2);
-    expectEvals(evals, 88, 'Cash', 'Wed Jan 01 2020', 23442.19, 2);
-    expectEvals(evals, 89, 'Cash', 'Sun Jan 05 2020', 23442.03, 2);
-    expectEvals(evals, 90, 'Cash', 'Sat Feb 01 2020', 23443.01, 2);
-    expectEvals(evals, 91, 'PRnd', 'Sat Feb 01 2020', 1042.50, 2);
-    expectEvals(evals, 92, 'Cash', 'Sat Feb 01 2020', 24485.51, 2);
-    expectEvals(evals, 93, 'Cash', 'Wed Feb 05 2020', 24485.35, 2);
-    expectEvals(evals, 94, 'Cash', 'Sun Mar 01 2020', 24486.37, 2);
-    expectEvals(evals, 95, 'PRnd', 'Sun Mar 01 2020', 1042.50, 2);
-    expectEvals(evals, 96, 'Cash', 'Sun Mar 01 2020', 25528.87, 2);
-    expectEvals(evals, 97, 'Cash', 'Thu Mar 05 2020', 25528.71, 2);
-    expectEvals(evals, 98, 'Cash', 'Wed Apr 01 2020', 25529.77, 2);
-    expectEvals(evals, 99, 'PRnd', 'Wed Apr 01 2020', 1042.50, 2);
-    expectEvals(evals, 101, 'Cash', 'Sun Apr 05 2020', 26572.03, 2);
-    expectEvals(evals, 102, '(incomeTax)', 'Sun Apr 05 2020', 2, -1);
-    expectEvals(evals, 103, getnetincLabel('Joe'), 'Sun Apr 05 2020', 12508, -1);
-    expectEvals(evals, 104, 'Cash', 'Fri May 01 2020', 26573.14, 2);
-    expectEvals(evals, 105, 'PRnd', 'Fri May 01 2020', 1042.50, 2);
-    expectEvals(evals, 106, 'Cash', 'Fri May 01 2020', 27615.64, 2);
-    expectEvals(evals, 107, 'Cash', 'Wed May 05 2021', 27615.58, 2);
-    expectEvals(evals, 108, 'Cash', 'Mon Jun 01 2020', 27616.73, 2);
-    expectEvals(evals, 109, 'PRnd', 'Mon Jun 01 2020', 1042.50, 2);
-    expectEvals(evals, 110, 'Cash', 'Mon Jun 01 2020', 28659.23, 2);
-    expectEvals(evals, 111, 'Cash', 'Sat Jun 05 2021', 28659.17, 2);
-    expectEvals(evals, 112, 'Cash', 'Wed Jul 01 2020', 28660.36, 2);
-    expectEvals(evals, 113, 'PRnd', 'Wed Jul 01 2020', 1042.50, 2);
-    expectEvals(evals, 114, 'Cash', 'Wed Jul 01 2020', 29702.86, 2);
-    expectEvals(evals, 115, 'Cash', 'Mon Jul 05 2021', 29702.80, 2);
-    expectEvals(evals, 116, 'Cash', 'Sat Aug 01 2020', 29704.04, 2);
-    expectEvals(evals, 117, 'PRnd', 'Sat Aug 01 2020', 1042.50, 2);
-    expectEvals(evals, 118, 'Cash', 'Sat Aug 01 2020', 30746.54, 2);
-    expectEvals(evals, 119, 'Cash', 'Thu Aug 05 2021', 30746.48, 2);
-    expectEvals(evals, 120, 'Cash', 'Tue Sep 01 2020', 30747.76, 2);
-    expectEvals(evals, 121, 'PRnd', 'Tue Sep 01 2020', 1042.50, 2);
-    expectEvals(evals, 122, 'Cash', 'Tue Sep 01 2020', 31790.26, 2);
-    expectEvals(evals, 123, 'Cash', 'Sun Sep 05 2021', 31790.20, 2);
-    expectEvals(evals, 124, 'Cash', 'Thu Oct 01 2020', 31791.52, 2);
-    expectEvals(evals, 125, 'PRnd', 'Thu Oct 01 2020', 1042.50, 2);
-    expectEvals(evals, 126, 'Cash', 'Thu Oct 01 2020', 32834.02, 2);
-    expectEvals(evals, 127, 'Cash', 'Tue Oct 05 2021', 32833.96, 2);
-    expectEvals(evals, 128, 'Cash', 'Sun Nov 01 2020', 32835.33, 2);
-    expectEvals(evals, 129, 'PRnd', 'Sun Nov 01 2020', 1042.50, 2);
-    expectEvals(evals, 130, 'Cash', 'Sun Nov 01 2020', 33877.83, 2);
-    expectEvals(evals, 131, 'Cash', 'Fri Nov 05 2021', 33877.77, 2);
-    expectEvals(evals, 132, 'Cash', 'Tue Dec 01 2020', 33879.18, 2);
-    expectEvals(evals, 133, 'PRnd', 'Tue Dec 01 2020', 1042.50, 2);
-    expectEvals(evals, 134, 'Cash', 'Tue Dec 01 2020', 34921.68, 2);
-    expectEvals(evals, 135, 'Cash', 'Sun Dec 05 2021', 34921.62, 2);
-    expectEvals(evals, 136, 'Cash', 'Fri Jan 01 2021', 34923.08, 2);
-    expectEvals(evals, 137, 'PRnd', 'Fri Jan 01 2021', 1042.50, 2);
-    expectEvals(evals, 138, 'Cash', 'Fri Jan 01 2021', 35965.58, 2);
-    expectEvals(evals, 139, 'Cash', 'Tue Jan 05 2021', 35965.52, 2);
-    expectEvals(evals, 140, 'Cash', 'Mon Feb 01 2021', 35967.02, 2);
-    expectEvals(evals, 141, 'PRnd', 'Mon Feb 01 2021', 1042.50, 2);
-    expectEvals(evals, 142, 'Cash', 'Mon Feb 01 2021', 37009.52, 2);
-    expectEvals(evals, 143, 'Cash', 'Fri Feb 05 2021', 37009.46, 2);
-    expectEvals(evals, 144, 'Cash', 'Mon Mar 01 2021', 37011.00, 2);
-    expectEvals(evals, 145, 'PRnd', 'Mon Mar 01 2021', 1042.50, 2);
-    expectEvals(evals, 146, 'Cash', 'Mon Mar 01 2021', 38053.50, 2);
-    expectEvals(evals, 147, 'Cash', 'Fri Mar 05 2021', 38053.44, 2);
-    expectEvals(evals, 148, 'Cash', 'Thu Apr 01 2021', 38055.02, 2);
-    expectEvals(evals, 149, 'PRnd', 'Thu Apr 01 2021', 1042.50, 2);
-    expectEvals(evals, 150, 'Cash', 'Thu Apr 01 2021', 39097.52, 2);
-    expectEvals(evals, 151, 'Cash', 'Mon Apr 05 2021', 39097.43, 2);
-    expectEvals(evals, 152, '(incomeTax)', 'Mon Apr 05 2021', 0.75, 2);
-    expectEvals(evals, 153, getnetincLabel('Joe'), 'Mon Apr 05 2021', 12509.25, 2);
+    expect(evals.length).toBe(177);
+    expectEvals(evals, 0, 'Cash', 'Wed Apr 01 2020', 500, -1);
+    expectEvals(evals, 1, 'PRnd', 'Wed Apr 01 2020', 1042.50, 2);
+    expectEvals(evals, 2, 'Cash', 'Wed Apr 01 2020', 1542.50, 2);
+    expectEvals(evals, 3, 'Joe income (net)', 'Sun Apr 05 2020', 1042.50, 2);
+    expectEvals(evals, 4, 'Cash', 'Fri May 01 2020', 1542.56, 2);
+    expectEvals(evals, 5, 'PRnd', 'Fri May 01 2020', 1042.50, 2);
+    expectEvals(evals, 6, 'Cash', 'Fri May 01 2020', 2585.06, 2);
+    expectEvals(evals, 7, 'Cash', 'Tue May 05 2020', 2584.90, 2);
+    expectEvals(evals, 8, 'Cash', 'Mon Jun 01 2020', 2585.01, 2);
+    expectEvals(evals, 9, 'PRnd', 'Mon Jun 01 2020', 1042.50, 2);
+    expectEvals(evals, 10, 'Cash', 'Mon Jun 01 2020', 3627.51, 2);
+    expectEvals(evals, 11, 'Cash', 'Fri Jun 05 2020', 3627.35, 2);
+    expectEvals(evals, 12, 'Cash', 'Wed Jul 01 2020', 3627.50, 2);
+    expectEvals(evals, 13, 'PRnd', 'Wed Jul 01 2020', 1042.50, 2);
+    expectEvals(evals, 14, 'Cash', 'Wed Jul 01 2020', 4670.00, 2);
+    expectEvals(evals, 15, 'Cash', 'Sun Jul 05 2020', 4669.84, 2);
+    expectEvals(evals, 16, 'Cash', 'Sat Aug 01 2020', 4670.04, 2);
+    expectEvals(evals, 17, 'PRnd', 'Sat Aug 01 2020', 1042.50, 2);
+    expectEvals(evals, 18, 'Cash', 'Sat Aug 01 2020', 5712.54, 2);
+    expectEvals(evals, 19, 'Cash', 'Wed Aug 05 2020', 5712.38, 2);
+    expectEvals(evals, 20, 'Cash', 'Tue Sep 01 2020', 5712.62, 2);
+    expectEvals(evals, 21, 'PRnd', 'Tue Sep 01 2020', 1042.50, 2);
+    expectEvals(evals, 22, 'Cash', 'Tue Sep 01 2020', 6755.12, 2);
+    expectEvals(evals, 23, 'Cash', 'Sat Sep 05 2020', 6754.96, 2);
+    expectEvals(evals, 24, 'Cash', 'Thu Oct 01 2020', 6755.24, 2);
+    expectEvals(evals, 25, 'PRnd', 'Thu Oct 01 2020', 1042.50, 2);
+    expectEvals(evals, 26, 'Cash', 'Thu Oct 01 2020', 7797.74, 2);
+    expectEvals(evals, 27, 'Cash', 'Mon Oct 05 2020', 7797.58, 2);
+    expectEvals(evals, 28, 'Cash', 'Sun Nov 01 2020', 7797.90, 2);
+    expectEvals(evals, 29, 'PRnd', 'Sun Nov 01 2020', 1042.50, 2);
+    expectEvals(evals, 30, 'Cash', 'Sun Nov 01 2020', 8840.40, 2);
+    expectEvals(evals, 31, 'Cash', 'Thu Nov 05 2020', 8840.24, 2);
+    expectEvals(evals, 32, 'Cash', 'Tue Dec 01 2020', 8840.61, 2);
+    expectEvals(evals, 33, 'PRnd', 'Tue Dec 01 2020', 1042.50, 2);
+    expectEvals(evals, 34, 'Cash', 'Tue Dec 01 2020', 9883.11, 2);
+    expectEvals(evals, 35, 'Cash', 'Sat Dec 05 2020', 9882.95, 2);
+    expectEvals(evals, 36, 'Cash', 'Fri Jan 01 2021', 9883.36, 2);
+    expectEvals(evals, 37, 'PRnd', 'Fri Jan 01 2021', 1042.50, 2);
+    expectEvals(evals, 38, 'Cash', 'Fri Jan 01 2021', 10925.86, 2);
+    expectEvals(evals, 39, 'Cash', 'Tue Jan 05 2021', 10925.70, 2);
+    expectEvals(evals, 40, 'Cash', 'Mon Feb 01 2021', 10926.16, 2);
+    expectEvals(evals, 41, 'PRnd', 'Mon Feb 01 2021', 1042.50, 2);
+    expectEvals(evals, 42, 'Cash', 'Mon Feb 01 2021', 11968.66, 2);
+    expectEvals(evals, 43, 'Cash', 'Fri Feb 05 2021', 11968.50, 2);
+    expectEvals(evals, 44, 'Cash', 'Mon Mar 01 2021', 11969.00, 2);
+    expectEvals(evals, 45, 'PRnd', 'Mon Mar 01 2021', 1042.50, 2);
+    expectEvals(evals, 46, 'Cash', 'Mon Mar 01 2021', 13011.50, 2);
+    expectEvals(evals, 47, 'Cash', 'Fri Mar 05 2021', 13011.34, 2);
+    expectEvals(evals, 48, 'Cash', 'Thu Apr 01 2021', 13011.88, 2);
+    expectEvals(evals, 49, 'PRnd', 'Thu Apr 01 2021', 1042.50, 2);
+    expectEvals(evals, 50, 'Cash', 'Thu Apr 01 2021', 14054.38, 2);
+    expectEvals(evals, 51, 'Cash', 'Mon Apr 05 2021', 14055.39, 2);
+    expectEvals(evals, 52, '(incomeTax)', 'Mon Apr 05 2021', 0.75, 2);
+    expectEvals(evals, 53, 'Joe income (net)', 'Mon Apr 05 2021', 12509.25, 2);
+    expectEvals(evals, 54, 'Cash', 'Sat May 01 2021', 14055.97, 2);
+    expectEvals(evals, 55, 'PRnd', 'Sat May 01 2021', 1042.50, 2);
+    expectEvals(evals, 56, 'Cash', 'Sat May 01 2021', 15098.47, 2);
+    expectEvals(evals, 57, 'Cash', 'Wed May 05 2021', 15098.41, 2);
+    expectEvals(evals, 58, 'Cash', 'Tue Jun 01 2021', 15099.04, 2);
+    expectEvals(evals, 59, 'PRnd', 'Tue Jun 01 2021', 1042.50, 2);
+    expectEvals(evals, 60, 'Cash', 'Tue Jun 01 2021', 16141.54, 2);
+    expectEvals(evals, 61, 'Cash', 'Sat Jun 05 2021', 16141.48, 2);
+    expectEvals(evals, 62, 'Cash', 'Thu Jul 01 2021', 16142.15, 2);
+    expectEvals(evals, 63, 'PRnd', 'Thu Jul 01 2021', 1042.50, 2);
+    expectEvals(evals, 64, 'Cash', 'Thu Jul 01 2021', 17184.65, 2);
+    expectEvals(evals, 65, 'Cash', 'Mon Jul 05 2021', 17184.59, 2);
+    expectEvals(evals, 66, 'Cash', 'Sun Aug 01 2021', 17185.31, 2);
+    expectEvals(evals, 67, 'PRnd', 'Sun Aug 01 2021', 1042.50, 2);
+    expectEvals(evals, 68, 'Cash', 'Sun Aug 01 2021', 18227.81, 2);
+    expectEvals(evals, 69, 'Cash', 'Thu Aug 05 2021', 18227.75, 2);
+    expectEvals(evals, 70, 'Cash', 'Wed Sep 01 2021', 18228.51, 2);
+    expectEvals(evals, 71, 'PRnd', 'Wed Sep 01 2021', 1042.50, 2);
+    expectEvals(evals, 72, 'Cash', 'Wed Sep 01 2021', 19271.01, 2);
+    expectEvals(evals, 73, 'Cash', 'Sun Sep 05 2021', 19270.95, 2);
+    expectEvals(evals, 74, 'Cash', 'Fri Oct 01 2021', 19271.75, 2);
+    expectEvals(evals, 75, 'PRnd', 'Fri Oct 01 2021', 1042.50, 2);
+    expectEvals(evals, 76, 'Cash', 'Fri Oct 01 2021', 20314.25, 2);
+    expectEvals(evals, 77, 'Cash', 'Tue Oct 05 2021', 20314.19, 2);
+    expectEvals(evals, 78, 'Cash', 'Mon Nov 01 2021', 20315.04, 2);
+    expectEvals(evals, 79, 'PRnd', 'Mon Nov 01 2021', 1042.50, 2);
+    expectEvals(evals, 80, 'Cash', 'Mon Nov 01 2021', 21357.54, 2);
+    expectEvals(evals, 81, 'Cash', 'Fri Nov 05 2021', 21357.48, 2);
+    expectEvals(evals, 82, 'Cash', 'Wed Dec 01 2021', 21358.37, 2);
+    expectEvals(evals, 83, 'PRnd', 'Wed Dec 01 2021', 1042.50, 2);
+    expectEvals(evals, 84, 'Cash', 'Wed Dec 01 2021', 22400.87, 2);
+    expectEvals(evals, 85, 'Cash', 'Sun Dec 05 2021', 22400.81, 2);
+    expectEvals(evals, 86, 'Cash', 'Sat Jan 01 2022', 22401.74, 2);
+    expectEvals(evals, 87, 'PRnd', 'Sat Jan 01 2022', 1042.50, 2);
+    expectEvals(evals, 88, 'Cash', 'Sat Jan 01 2022', 23444.24, 2);
+    expectEvals(evals, 89, 'Cash', 'Wed Jan 05 2022', 23444.18, 2);
+    expectEvals(evals, 90, 'Cash', 'Tue Feb 01 2022', 23445.16, 2);
+    expectEvals(evals, 91, 'PRnd', 'Tue Feb 01 2022', 1042.50, 2);
+    expectEvals(evals, 92, 'Cash', 'Tue Feb 01 2022', 24487.66, 2);
+    expectEvals(evals, 93, 'Cash', 'Sat Feb 05 2022', 24487.60, 2);
+    expectEvals(evals, 94, 'Cash', 'Tue Mar 01 2022', 24488.62, 2);
+    expectEvals(evals, 95, 'PRnd', 'Tue Mar 01 2022', 1042.50, 2);
+    expectEvals(evals, 96, 'Cash', 'Tue Mar 01 2022', 25531.12, 2);
+    expectEvals(evals, 97, 'Cash', 'Sat Mar 05 2022', 25531.06, 2);
+    expectEvals(evals, 98, 'Cash', 'Fri Apr 01 2022', 25532.12, 2);
+    expectEvals(evals, 99, 'PRnd', 'Fri Apr 01 2022', 1042.50, 2);
+    expectEvals(evals, 100, 'Cash', 'Fri Apr 01 2022', 26574.62, 2);
+    expectEvals(evals, 101, 'Cash', 'Tue Apr 05 2022', 26575.28, 2);
+    expectEvals(evals, 102, 'Joe income (net)', 'Tue Apr 05 2022', 12510, -1);
+    expectEvals(evals, 103, 'Cash', 'Sun May 01 2022', 26576.39, 2);
+    expectEvals(evals, 104, 'PRnd', 'Sun May 01 2022', 1042.50, 2);
+    expectEvals(evals, 105, 'Cash', 'Sun May 01 2022', 27618.89, 2);
+    expectEvals(evals, 106, 'Cash', 'Wed Jun 01 2022', 27620.04, 2);
+    expectEvals(evals, 107, 'PRnd', 'Wed Jun 01 2022', 1042.50, 2);
+    expectEvals(evals, 108, 'Cash', 'Wed Jun 01 2022', 28662.54, 2);
+    expectEvals(evals, 109, 'Cash', 'Fri Jul 01 2022', 28663.73, 2);
+    expectEvals(evals, 110, 'PRnd', 'Fri Jul 01 2022', 1042.50, 2);
+    expectEvals(evals, 111, 'Cash', 'Fri Jul 01 2022', 29706.23, 2);
+    expectEvals(evals, 112, 'Cash', 'Mon Aug 01 2022', 29707.47, 2);
+    expectEvals(evals, 113, 'PRnd', 'Mon Aug 01 2022', 1042.50, 2);
+    expectEvals(evals, 114, 'Cash', 'Mon Aug 01 2022', 30749.97, 2);
+    expectEvals(evals, 115, 'Cash', 'Thu Sep 01 2022', 30751.25, 2);
+    expectEvals(evals, 116, 'PRnd', 'Thu Sep 01 2022', 1042.50, 2);
+    expectEvals(evals, 117, 'Cash', 'Thu Sep 01 2022', 31793.75, 2);
+    expectEvals(evals, 118, 'Cash', 'Sat Oct 01 2022', 31795.08, 2);
+    expectEvals(evals, 119, 'PRnd', 'Sat Oct 01 2022', 1042.50, 2);
+    expectEvals(evals, 120, 'Cash', 'Sat Oct 01 2022', 32837.58, 2);
+    expectEvals(evals, 121, 'Cash', 'Tue Nov 01 2022', 32838.94, 2);
+    expectEvals(evals, 122, 'PRnd', 'Tue Nov 01 2022', 1042.50, 2);
+    expectEvals(evals, 123, 'Cash', 'Tue Nov 01 2022', 33881.44, 2);
+    expectEvals(evals, 124, 'Cash', 'Thu Dec 01 2022', 33882.86, 2);
+    expectEvals(evals, 125, 'PRnd', 'Thu Dec 01 2022', 1042.50, 2);
+    expectEvals(evals, 126, 'Cash', 'Thu Dec 01 2022', 34925.36, 2);
+    expectEvals(evals, 127, 'Cash', 'Sun Jan 01 2023', 34926.81, 2);
+    expectEvals(evals, 128, 'PRnd', 'Sun Jan 01 2023', 1042.50, 2);
+    expectEvals(evals, 129, 'Cash', 'Sun Jan 01 2023', 35969.31, 2);
+    expectEvals(evals, 130, 'Cash', 'Wed Feb 01 2023', 35970.81, 2);
+    expectEvals(evals, 131, 'PRnd', 'Wed Feb 01 2023', 1042.50, 2);
+    expectEvals(evals, 132, 'Cash', 'Wed Feb 01 2023', 37013.31, 2);
+    expectEvals(evals, 133, 'Cash', 'Wed Mar 01 2023', 37014.85, 2);
+    expectEvals(evals, 134, 'PRnd', 'Wed Mar 01 2023', 1042.50, 2);
+    expectEvals(evals, 135, 'Cash', 'Wed Mar 01 2023', 38057.35, 2);
+    expectEvals(evals, 136, 'Cash', 'Sat Apr 01 2023', 38058.94, 2);
+    expectEvals(evals, 137, 'PRnd', 'Sat Apr 01 2023', 1042.50, 2);
+    expectEvals(evals, 138, 'Cash', 'Sat Apr 01 2023', 39101.44, 2);
+    expectEvals(evals, 139, 'Joe income (net)', 'Wed Apr 05 2023', 12510, -1);
+    expectEvals(evals, 140, 'Cash', 'Mon May 01 2023', 39103.06, 2);
+    expectEvals(evals, 141, 'PRnd', 'Mon May 01 2023', 1042.50, 2);
+    expectEvals(evals, 142, 'Cash', 'Mon May 01 2023', 40145.56, 2);
+    expectEvals(evals, 143, 'Cash', 'Thu Jun 01 2023', 40147.24, 2);
+    expectEvals(evals, 144, 'PRnd', 'Thu Jun 01 2023', 1042.50, 2);
+    expectEvals(evals, 145, 'Cash', 'Thu Jun 01 2023', 41189.74, 2);
+    expectEvals(evals, 146, 'Cash', 'Sat Jul 01 2023', 41191.45, 2);
+    expectEvals(evals, 147, 'PRnd', 'Sat Jul 01 2023', 1042.50, 2);
+    expectEvals(evals, 148, 'Cash', 'Sat Jul 01 2023', 42233.95, 2);
+    expectEvals(evals, 149, 'Cash', 'Tue Aug 01 2023', 42235.71, 2);
+    expectEvals(evals, 150, 'PRnd', 'Tue Aug 01 2023', 1042.50, 2);
+    expectEvals(evals, 151, 'Cash', 'Tue Aug 01 2023', 43278.21, 2);
+    expectEvals(evals, 152, 'Cash', 'Fri Sep 01 2023', 43280.02, 2);
+    expectEvals(evals, 153, 'PRnd', 'Fri Sep 01 2023', 1042.50, 2);
+    expectEvals(evals, 154, 'Cash', 'Fri Sep 01 2023', 44322.52, 2);
+    expectEvals(evals, 155, 'Cash', 'Sun Oct 01 2023', 44324.36, 2);
+    expectEvals(evals, 156, 'PRnd', 'Sun Oct 01 2023', 1042.50, 2);
+    expectEvals(evals, 157, 'Cash', 'Sun Oct 01 2023', 45366.86, 2);
+    expectEvals(evals, 158, 'Cash', 'Wed Nov 01 2023', 45368.75, 2);
+    expectEvals(evals, 159, 'PRnd', 'Wed Nov 01 2023', 1042.50, 2);
+    expectEvals(evals, 160, 'Cash', 'Wed Nov 01 2023', 46411.25, 2);
+    expectEvals(evals, 161, 'Cash', 'Fri Dec 01 2023', 46413.18, 2);
+    expectEvals(evals, 162, 'PRnd', 'Fri Dec 01 2023', 1042.50, 2);
+    expectEvals(evals, 163, 'Cash', 'Fri Dec 01 2023', 47455.68, 2);
+    expectEvals(evals, 164, 'Cash', 'Mon Jan 01 2024', 47457.66, 2);
+    expectEvals(evals, 165, 'PRnd', 'Mon Jan 01 2024', 1042.50, 2);
+    expectEvals(evals, 166, 'Cash', 'Mon Jan 01 2024', 48500.16, 2);
+    expectEvals(evals, 167, 'Cash', 'Thu Feb 01 2024', 48502.18, 2);
+    expectEvals(evals, 168, 'PRnd', 'Thu Feb 01 2024', 1042.50, 2);
+    expectEvals(evals, 169, 'Cash', 'Thu Feb 01 2024', 49544.68, 2);
+    expectEvals(evals, 170, 'Cash', 'Fri Mar 01 2024', 49546.75, 2);
+    expectEvals(evals, 171, 'PRnd', 'Fri Mar 01 2024', 1042.50, 2);
+    expectEvals(evals, 172, 'Cash', 'Fri Mar 01 2024', 50589.25, 2);
+    expectEvals(evals, 173, 'Cash', 'Mon Apr 01 2024', 50591.35, 2);
+    expectEvals(evals, 174, 'PRnd', 'Mon Apr 01 2024', 1042.50, 2);
+    expectEvals(evals, 175, 'Cash', 'Mon Apr 01 2024', 51633.85, 2);
+    expectEvals(evals, 176, 'Joe income (net)', 'Fri Apr 05 2024', 12510, -1);
+    
+
     done();
   });
 
@@ -7272,38 +7298,38 @@ describe('evaluations tests', () => {
     expectEvals(evals, 2, 'java', 'Mon Apr 09 2018', 727.33, 2);
     expectEvals(evals, 3, 'Cash', 'Mon Apr 09 2018', 1227.33, 2);
     expectEvals(evals, 4, 'Cash', 'Tue May 01 2018', 1227.33, 2);
-    expectEvals(evals, 5, 'Cash', 'Sun May 05 2019', 1226.33, 2);
+    expectEvals(evals, 5, 'Cash', 'Sat May 05 2018', 1226.33, 2);
     expectEvals(evals, 6, 'java', 'Wed May 09 2018', 727.33, 2);
     expectEvals(evals, 7, 'Cash', 'Wed May 09 2018', 1953.67, 2);
     expectEvals(evals, 8, 'Cash', 'Fri Jun 01 2018', 1953.67, 2);
-    expectEvals(evals, 9, 'Cash', 'Wed Jun 05 2019', 1952.67, 2);
+    expectEvals(evals, 9, 'Cash', 'Tue Jun 05 2018', 1952.67, 2);
     expectEvals(evals, 10, 'java', 'Sat Jun 09 2018', 727.33, 2);
     expectEvals(evals, 11, 'Cash', 'Sat Jun 09 2018', 2680.00, 2);
     expectEvals(evals, 12, 'Cash', 'Sun Jul 01 2018', 2680.00, 2);
-    expectEvals(evals, 13, 'Cash', 'Fri Jul 05 2019', 2679.00, 2);
+    expectEvals(evals, 13, 'Cash', 'Thu Jul 05 2018', 2679.00, 2);
     expectEvals(evals, 14, 'java', 'Mon Jul 09 2018', 727.33, 2);
     expectEvals(evals, 15, 'Cash', 'Mon Jul 09 2018', 3406.33, 2);
     expectEvals(evals, 16, 'Cash', 'Wed Aug 01 2018', 3406.33, 2);
-    expectEvals(evals, 17, 'Cash', 'Mon Aug 05 2019', 3405.33, 2);
+    expectEvals(evals, 17, 'Cash', 'Sun Aug 05 2018', 3405.33, 2);
     expectEvals(evals, 18, 'java', 'Thu Aug 09 2018', 727.33, 2);
     expectEvals(evals, 19, 'Cash', 'Thu Aug 09 2018', 4132.67, 2);
     expectEvals(evals, 20, 'Cash', 'Sat Sep 01 2018', 4132.67, 2);
-    expectEvals(evals, 21, 'Cash', 'Thu Sep 05 2019', 4131.67, 2);
+    expectEvals(evals, 21, 'Cash', 'Wed Sep 05 2018', 4131.67, 2);
     expectEvals(evals, 22, 'java', 'Sun Sep 09 2018', 727.33, 2);
     expectEvals(evals, 23, 'Cash', 'Sun Sep 09 2018', 4859, -1);
     expectEvals(evals, 24, 'Cash', 'Mon Oct 01 2018', 4859, -1);
-    expectEvals(evals, 25, 'Cash', 'Sat Oct 05 2019', 4858, -1);
+    expectEvals(evals, 25, 'Cash', 'Fri Oct 05 2018', 4858, -1);
     expectEvals(evals, 26, 'java', 'Tue Oct 09 2018', 727.33, 2);
     expectEvals(evals, 27, 'Cash', 'Tue Oct 09 2018', 5585.33, 2);
     expectEvals(evals, 28, 'Cash', 'Thu Nov 01 2018', 5585.33, 2);
-    expectEvals(evals, 29, 'Cash', 'Tue Nov 05 2019', 5584.33, 2);
+    expectEvals(evals, 29, 'Cash', 'Mon Nov 05 2018', 5584.33, 2);
     expectEvals(evals, 30, 'java', 'Fri Nov 09 2018', 727.33, 2);
     expectEvals(evals, 31, 'Cash', 'Fri Nov 09 2018', 6311.67, 2);
     expectEvals(evals, 32, 'Cash', 'Sat Dec 01 2018', 6311.67, 2);
-    expectEvals(evals, 33, 'Cash', 'Thu Dec 05 2019', 6310.67, 2);
+    expectEvals(evals, 33, 'Cash', 'Wed Dec 05 2018', 6310.67, 2);
     expectEvals(evals, 34, 'java', 'Sun Dec 09 2018', 727.33, 2);
     expectEvals(evals, 35, 'Cash', 'Sun Dec 09 2018', 7038.00, 2);
-    expectEvals(evals, 36, 'Cash', 'Sun Jan 05 2020', 7037.00, 2);
+    expectEvals(evals, 36, 'Cash', 'Sat Jan 05 2019', 7037.00, 2);
     expectEvals(evals, 37, 'Cash', 'Tue Jan 01 2019', 7037.00, 2);
     expectEvals(evals, 38, 'java', 'Wed Jan 09 2019', 727.33, 2);
     expectEvals(evals, 39, 'Cash', 'Wed Jan 09 2019', 7764.33, 2);
@@ -7318,9 +7344,9 @@ describe('evaluations tests', () => {
     expectEvals(evals, 48, 'Cash', 'Mon Apr 01 2019', 9217, -1);
     expectEvals(evals, 49, 'Cash', 'Fri Apr 05 2019', 9216, -1);
     expectEvals(evals, 50, '(NI)', 'Fri Apr 05 2019', 12, -1);
-    expectEvals(evals, 51, getnetincLabel('Joe'), 'Fri Apr 05 2019', 8716.00, 2);
+    expectEvals(evals, 51, 'Joe income (net)', 'Fri Apr 05 2019', 8716.00, 2);
     expectEvals(evals, 52, 'Cash', 'Wed May 01 2019', 9216, -1);
-
+    
     const viewSettings = defaultTestViewSettings();
 
     const result = makeChartDataFromEvaluations(
@@ -7380,7 +7406,7 @@ describe('evaluations tests', () => {
     
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(2);
-    expect(result.taxData[0].item.NAME).toBe(getNILabel('Joe'));
+    expect(result.taxData[0].item.NAME).toBe('Joe income (NI)');
     {
     const chartPts = result.taxData[0].chartDataPoints;
     expect(chartPts.length).toBe(15);
@@ -7401,7 +7427,7 @@ describe('evaluations tests', () => {
     expectChartData(chartPts, 14, 'Wed May 01 2019', 12, -1);
     }
     
-    expect(result.taxData[1].item.NAME).toBe(getnetincLabel('Joe'));
+    expect(result.taxData[1].item.NAME).toBe('Joe income (net)');
     {
     const chartPts = result.taxData[1].chartDataPoints;
     expect(chartPts.length).toBe(15);
@@ -7468,38 +7494,38 @@ describe('evaluations tests', () => {
     expectEvals(evals, 2, 'java', 'Mon Apr 09 2018', 4175.33, 2);
     expectEvals(evals, 3, 'Cash', 'Mon Apr 09 2018', 4675.33, 2);
     expectEvals(evals, 4, 'Cash', 'Tue May 01 2018', 4675.33, 2);
-    expectEvals(evals, 5, 'Cash', 'Sun May 05 2019', 4261.41, 2);
+    expectEvals(evals, 5, 'Cash', 'Sat May 05 2018', 4261.41, 2);
     expectEvals(evals, 6, 'java', 'Wed May 09 2018', 4175.33, 2);
     expectEvals(evals, 7, 'Cash', 'Wed May 09 2018', 8436.75, 2);
     expectEvals(evals, 8, 'Cash', 'Fri Jun 01 2018', 8436.75, 2);
-    expectEvals(evals, 9, 'Cash', 'Wed Jun 05 2019', 8022.83, 2);
+    expectEvals(evals, 9, 'Cash', 'Tue Jun 05 2018', 8022.83, 2);
     expectEvals(evals, 10, 'java', 'Sat Jun 09 2018', 4175.33, 2);
     expectEvals(evals, 11, 'Cash', 'Sat Jun 09 2018', 12198.16, 2);
     expectEvals(evals, 12, 'Cash', 'Sun Jul 01 2018', 12198.16, 2);
-    expectEvals(evals, 13, 'Cash', 'Fri Jul 05 2019', 11784.24, 2);
+    expectEvals(evals, 13, 'Cash', 'Thu Jul 05 2018', 11784.24, 2);
     expectEvals(evals, 14, 'java', 'Mon Jul 09 2018', 4175.33, 2);
     expectEvals(evals, 15, 'Cash', 'Mon Jul 09 2018', 15959.57, 2);
     expectEvals(evals, 16, 'Cash', 'Wed Aug 01 2018', 15959.57, 2);
-    expectEvals(evals, 17, 'Cash', 'Mon Aug 05 2019', 15545.65, 2);
+    expectEvals(evals, 17, 'Cash', 'Sun Aug 05 2018', 15545.65, 2);
     expectEvals(evals, 18, 'java', 'Thu Aug 09 2018', 4175.33, 2);
     expectEvals(evals, 19, 'Cash', 'Thu Aug 09 2018', 19720.99, 2);
     expectEvals(evals, 20, 'Cash', 'Sat Sep 01 2018', 19720.99, 2);
-    expectEvals(evals, 21, 'Cash', 'Thu Sep 05 2019', 19307.07, 2);
+    expectEvals(evals, 21, 'Cash', 'Wed Sep 05 2018', 19307.07, 2);
     expectEvals(evals, 22, 'java', 'Sun Sep 09 2018', 4175.33, 2);
     expectEvals(evals, 23, 'Cash', 'Sun Sep 09 2018', 23482.40, 2);
     expectEvals(evals, 24, 'Cash', 'Mon Oct 01 2018', 23482.40, 2);
-    expectEvals(evals, 25, 'Cash', 'Sat Oct 05 2019', 23068.48, 2);
+    expectEvals(evals, 25, 'Cash', 'Fri Oct 05 2018', 23068.48, 2);
     expectEvals(evals, 26, 'java', 'Tue Oct 09 2018', 4175.33, 2);
     expectEvals(evals, 27, 'Cash', 'Tue Oct 09 2018', 27243.81, 2);
     expectEvals(evals, 28, 'Cash', 'Thu Nov 01 2018', 27243.81, 2);
-    expectEvals(evals, 29, 'Cash', 'Tue Nov 05 2019', 26829.89, 2);
+    expectEvals(evals, 29, 'Cash', 'Mon Nov 05 2018', 26829.89, 2);
     expectEvals(evals, 30, 'java', 'Fri Nov 09 2018', 4175.33, 2);
     expectEvals(evals, 31, 'Cash', 'Fri Nov 09 2018', 31005.23, 2);
     expectEvals(evals, 32, 'Cash', 'Sat Dec 01 2018', 31005.23, 2);
-    expectEvals(evals, 33, 'Cash', 'Thu Dec 05 2019', 30591.31, 2);
+    expectEvals(evals, 33, 'Cash', 'Wed Dec 05 2018', 30591.31, 2);
     expectEvals(evals, 34, 'java', 'Sun Dec 09 2018', 4175.33, 2);
     expectEvals(evals, 35, 'Cash', 'Sun Dec 09 2018', 34766.64, 2);
-    expectEvals(evals, 36, 'Cash', 'Sun Jan 05 2020', 34352.72, 2);
+    expectEvals(evals, 36, 'Cash', 'Sat Jan 05 2019', 34352.72, 2);
     expectEvals(evals, 37, 'Cash', 'Tue Jan 01 2019', 34352.72, 2);
     expectEvals(evals, 38, 'java', 'Wed Jan 09 2019', 4175.33, 2);
     expectEvals(evals, 39, 'Cash', 'Wed Jan 09 2019', 38528.05, 2);
@@ -7514,7 +7540,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 48, 'Cash', 'Mon Apr 01 2019', 46050.88, 2);
     expectEvals(evals, 49, 'Cash', 'Fri Apr 05 2019', 45636.96, 2);
     expectEvals(evals, 50, '(NI)', 'Fri Apr 05 2019', 4967.04, 2);
-    expectEvals(evals, 51, getnetincLabel('Joe'), 'Fri Apr 05 2019', 45136.96, 2);
+    expectEvals(evals, 51, 'Joe income (net)', 'Fri Apr 05 2019', 45136.96, 2);
     expectEvals(evals, 52, 'Cash', 'Wed May 01 2019', 45636.96, 2);
 
     const viewSettings = defaultTestViewSettings();
@@ -8658,7 +8684,7 @@ describe('evaluations tests', () => {
     const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
-    // printTestCodeForEvals(evals);
+    //printTestCodeForEvals(evals);
 
     expect(evals.length).toBe(95);
     expectEvals(evals, 0, 'Cash', 'Wed Mar 01 2017', 0, -1);
@@ -8670,62 +8696,62 @@ describe('evaluations tests', () => {
     expectEvals(evals, 6, 'Cash', 'Fri Apr 07 2017', 2375, -1);
     expectEvals(evals, 7, 'Cash', 'Mon May 01 2017', 2375, -1);
     expectEvals(evals, 8, `${pension}Pnsh`, 'Mon May 01 2017', 375, -1);
-    expectEvals(evals, 9, 'Cash', 'Sat May 05 2018', 2161.28, 2);
-    expectEvals(evals, 10, 'Cash', 'Sat May 05 2018', 1894.62, 2);
+    expectEvals(evals, 9, 'Cash', 'Fri May 05 2017', 2161.28, 2);
+    expectEvals(evals, 10, 'Cash', 'Fri May 05 2017', 1894.62, 2);
     expectEvals(evals, 11, 'java', 'Sun May 07 2017', 2500, -1);
     expectEvals(evals, 12, `${pension}Pnsh`, 'Sun May 07 2017', 750, -1);
     expectEvals(evals, 13, 'Cash', 'Sun May 07 2017', 4269.62, 2);
     expectEvals(evals, 14, 'Cash', 'Thu Jun 01 2017', 4269.62, 2);
     expectEvals(evals, 15, `${pension}Pnsh`, 'Thu Jun 01 2017', 750, -1);
-    expectEvals(evals, 16, 'Cash', 'Tue Jun 05 2018', 4055.90, 2);
-    expectEvals(evals, 17, 'Cash', 'Tue Jun 05 2018', 3789.24, 2);
+    expectEvals(evals, 16, 'Cash', 'Mon Jun 05 2017', 4055.90, 2);
+    expectEvals(evals, 17, 'Cash', 'Mon Jun 05 2017', 3789.24, 2);
     expectEvals(evals, 18, 'java', 'Wed Jun 07 2017', 2500, -1);
     expectEvals(evals, 19, `${pension}Pnsh`, 'Wed Jun 07 2017', 1125, -1);
     expectEvals(evals, 20, 'Cash', 'Wed Jun 07 2017', 6164.24, 2);
     expectEvals(evals, 21, 'Cash', 'Sat Jul 01 2017', 6164.24, 2);
     expectEvals(evals, 22, `${pension}Pnsh`, 'Sat Jul 01 2017', 1125, -1);
-    expectEvals(evals, 23, 'Cash', 'Thu Jul 05 2018', 5950.52, 2);
-    expectEvals(evals, 24, 'Cash', 'Thu Jul 05 2018', 5683.86, 2);
+    expectEvals(evals, 23, 'Cash', 'Wed Jul 05 2017', 5950.52, 2);
+    expectEvals(evals, 24, 'Cash', 'Wed Jul 05 2017', 5683.86, 2);
     expectEvals(evals, 25, 'java', 'Fri Jul 07 2017', 2500, -1);
     expectEvals(evals, 26, `${pension}Pnsh`, 'Fri Jul 07 2017', 1500, -1);
     expectEvals(evals, 27, 'Cash', 'Fri Jul 07 2017', 8058.86, 2);
     expectEvals(evals, 28, 'Cash', 'Tue Aug 01 2017', 8058.86, 2);
     expectEvals(evals, 29, `${pension}Pnsh`, 'Tue Aug 01 2017', 1500, -1);
-    expectEvals(evals, 30, 'Cash', 'Sun Aug 05 2018', 7845.14, 2);
-    expectEvals(evals, 31, 'Cash', 'Sun Aug 05 2018', 7578.48, 2);
+    expectEvals(evals, 30, 'Cash', 'Sat Aug 05 2017', 7845.14, 2);
+    expectEvals(evals, 31, 'Cash', 'Sat Aug 05 2017', 7578.48, 2);
     expectEvals(evals, 32, 'java', 'Mon Aug 07 2017', 2500, -1);
     expectEvals(evals, 33, `${pension}Pnsh`, 'Mon Aug 07 2017', 1875, -1);
     expectEvals(evals, 34, 'Cash', 'Mon Aug 07 2017', 9953.48, 2);
     expectEvals(evals, 35, 'Cash', 'Fri Sep 01 2017', 9953.48, 2);
     expectEvals(evals, 36, `${pension}Pnsh`, 'Fri Sep 01 2017', 1875, -1);
-    expectEvals(evals, 37, 'Cash', 'Wed Sep 05 2018', 9739.76, 2);
-    expectEvals(evals, 38, 'Cash', 'Wed Sep 05 2018', 9473.10, 2);
+    expectEvals(evals, 37, 'Cash', 'Tue Sep 05 2017', 9739.76, 2);
+    expectEvals(evals, 38, 'Cash', 'Tue Sep 05 2017', 9473.10, 2);
     expectEvals(evals, 39, 'java', 'Thu Sep 07 2017', 2500, -1);
     expectEvals(evals, 40, `${pension}Pnsh`, 'Thu Sep 07 2017', 2250, -1);
     expectEvals(evals, 41, 'Cash', 'Thu Sep 07 2017', 11848.10, 2);
     expectEvals(evals, 42, 'Cash', 'Sun Oct 01 2017', 11848.10, 2);
     expectEvals(evals, 43, `${pension}Pnsh`, 'Sun Oct 01 2017', 2250, -1);
-    expectEvals(evals, 44, 'Cash', 'Fri Oct 05 2018', 11634.38, 2);
-    expectEvals(evals, 45, 'Cash', 'Fri Oct 05 2018', 11367.72, 2);
+    expectEvals(evals, 44, 'Cash', 'Thu Oct 05 2017', 11634.38, 2);
+    expectEvals(evals, 45, 'Cash', 'Thu Oct 05 2017', 11367.72, 2);
     expectEvals(evals, 46, 'java', 'Sat Oct 07 2017', 2500, -1);
     expectEvals(evals, 47, `${pension}Pnsh`, 'Sat Oct 07 2017', 2625, -1);
     expectEvals(evals, 48, 'Cash', 'Sat Oct 07 2017', 13742.72, 2);
     expectEvals(evals, 49, 'Cash', 'Wed Nov 01 2017', 13742.72, 2);
     expectEvals(evals, 50, `${pension}Pnsh`, 'Wed Nov 01 2017', 2625, -1);
-    expectEvals(evals, 51, 'Cash', 'Mon Nov 05 2018', 13529.00, 2);
-    expectEvals(evals, 52, 'Cash', 'Mon Nov 05 2018', 13262.34, 2);
+    expectEvals(evals, 51, 'Cash', 'Sun Nov 05 2017', 13529.00, 2);
+    expectEvals(evals, 52, 'Cash', 'Sun Nov 05 2017', 13262.34, 2);
     expectEvals(evals, 53, 'java', 'Tue Nov 07 2017', 2500, -1);
     expectEvals(evals, 54, `${pension}Pnsh`, 'Tue Nov 07 2017', 3000, -1);
     expectEvals(evals, 55, 'Cash', 'Tue Nov 07 2017', 15637.34, 2);
     expectEvals(evals, 56, 'Cash', 'Fri Dec 01 2017', 15637.34, 2);
     expectEvals(evals, 57, `${pension}Pnsh`, 'Fri Dec 01 2017', 3000, -1);
-    expectEvals(evals, 58, 'Cash', 'Wed Dec 05 2018', 15423.62, 2);
-    expectEvals(evals, 59, 'Cash', 'Wed Dec 05 2018', 15156.96, 2);
+    expectEvals(evals, 58, 'Cash', 'Tue Dec 05 2017', 15423.62, 2);
+    expectEvals(evals, 59, 'Cash', 'Tue Dec 05 2017', 15156.96, 2);
     expectEvals(evals, 60, 'java', 'Thu Dec 07 2017', 2500, -1);
     expectEvals(evals, 61, `${pension}Pnsh`, 'Thu Dec 07 2017', 3375, -1);
     expectEvals(evals, 62, 'Cash', 'Thu Dec 07 2017', 17531.96, 2);
-    expectEvals(evals, 63, 'Cash', 'Sat Jan 05 2019', 17318.24, 2);
-    expectEvals(evals, 64, 'Cash', 'Sat Jan 05 2019', 17051.58, 2);
+    expectEvals(evals, 63, 'Cash', 'Fri Jan 05 2018', 17318.24, 2);
+    expectEvals(evals, 64, 'Cash', 'Fri Jan 05 2018', 17051.58, 2);
     expectEvals(evals, 65, 'Cash', 'Mon Jan 01 2018', 17051.58, 2);
     expectEvals(evals, 66, `${pension}Pnsh`, 'Mon Jan 01 2018', 3375, -1);
     expectEvals(evals, 67, 'java', 'Sun Jan 07 2018', 2500, -1);
@@ -8748,12 +8774,12 @@ describe('evaluations tests', () => {
     expectEvals(evals, 84, 'Cash', 'Sun Apr 01 2018', 23215.82, 2);
     expectEvals(evals, 85, `${pension}Pnsh`, 'Sun Apr 01 2018', 4500, -1);
     expectEvals(evals, 86, 'Cash', 'Thu Apr 05 2018', 23002.10, 2);
-    expectEvals(evals, 87, `Joe ${pensionAllowance}`, 'Thu Apr 05 2018', 4500, -1);
+    expectEvals(evals, 87, 'Joe PensionAllowance', 'Thu Apr 05 2018', 4500, -1);
     expectEvals(evals, 88, '(NI)', 'Thu Apr 05 2018', 2564.64, 2);
-    expectEvals(evals, 89, getnetincLabel('Joe'), 'Thu Apr 05 2018', 27435.36, 2);
+    expectEvals(evals, 89, 'Joe income (net)', 'Thu Apr 05 2018', 27435.36, 2);
     expectEvals(evals, 90, 'Cash', 'Thu Apr 05 2018', 22735.36, 2);
     expectEvals(evals, 91, '(incomeTax)', 'Thu Apr 05 2018', 3200, -1);
-    expectEvals(evals, 92, getnetincLabel('Joe'), 'Thu Apr 05 2018', 24235.36, 2);
+    expectEvals(evals, 92, 'Joe income (net)', 'Thu Apr 05 2018', 24235.36, 2);
     expectEvals(evals, 93, 'Cash', 'Tue May 01 2018', 22735.36, 2);
     expectEvals(evals, 94, `${pension}Pnsh`, 'Tue May 01 2018', 4500, -1);
 
@@ -10284,47 +10310,47 @@ describe('evaluations tests', () => {
     expectEvals(evals, 1, '-CPTaxable Joe.PNN', 'Fri Apr 06 2018', 60000, -1);
     expectEvals(evals, 2, '-CPTaxable Joe.PNN', 'Sat Apr 07 2018', 57500, -1);
     expectEvals(evals, 3, 'Cash', 'Sat Apr 07 2018', 2500, -1);
-    expectEvals(evals, 4, 'Cash', 'Sun May 05 2019', 2208.34, 2);
+    expectEvals(evals, 4, 'Cash', 'Sat May 05 2018', 2208.34, 2);
     expectEvals(evals, 5, 'Cash', 'Sun May 06 2018', 2208.34, 2);
     expectEvals(evals, 6, '-CPTaxable Joe.PNN', 'Sun May 06 2018', 57500, -1);
     expectEvals(evals, 7, '-CPTaxable Joe.PNN', 'Mon May 07 2018', 55000, -1);
     expectEvals(evals, 8, 'Cash', 'Mon May 07 2018', 4708.34, 2);
-    expectEvals(evals, 9, 'Cash', 'Wed Jun 05 2019', 4416.68, 2);
+    expectEvals(evals, 9, 'Cash', 'Tue Jun 05 2018', 4416.68, 2);
     expectEvals(evals, 10, 'Cash', 'Wed Jun 06 2018', 4416.68, 2);
     expectEvals(evals, 11, '-CPTaxable Joe.PNN', 'Wed Jun 06 2018', 55000, -1);
     expectEvals(evals, 12, '-CPTaxable Joe.PNN', 'Thu Jun 07 2018', 52500, -1);
     expectEvals(evals, 13, 'Cash', 'Thu Jun 07 2018', 6916.68, 2);
-    expectEvals(evals, 14, 'Cash', 'Fri Jul 05 2019', 6625.02, 2);
+    expectEvals(evals, 14, 'Cash', 'Thu Jul 05 2018', 6625.02, 2);
     expectEvals(evals, 15, 'Cash', 'Fri Jul 06 2018', 6625.02, 2);
     expectEvals(evals, 16, '-CPTaxable Joe.PNN', 'Fri Jul 06 2018', 52500, -1);
     expectEvals(evals, 17, '-CPTaxable Joe.PNN', 'Sat Jul 07 2018', 50000, -1);
     expectEvals(evals, 18, 'Cash', 'Sat Jul 07 2018', 9125.02, 2);
-    expectEvals(evals, 19, 'Cash', 'Mon Aug 05 2019', 8833.36, 2);
+    expectEvals(evals, 19, 'Cash', 'Sun Aug 05 2018', 8833.36, 2);
     expectEvals(evals, 20, 'Cash', 'Mon Aug 06 2018', 8833.36, 2);
     expectEvals(evals, 21, '-CPTaxable Joe.PNN', 'Mon Aug 06 2018', 50000, -1);
     expectEvals(evals, 22, '-CPTaxable Joe.PNN', 'Tue Aug 07 2018', 47500, -1);
     expectEvals(evals, 23, 'Cash', 'Tue Aug 07 2018', 11333.36, 2);
-    expectEvals(evals, 24, 'Cash', 'Thu Sep 05 2019', 11041.70, 2);
+    expectEvals(evals, 24, 'Cash', 'Wed Sep 05 2018', 11041.70, 2);
     expectEvals(evals, 25, 'Cash', 'Thu Sep 06 2018', 11041.70, 2);
     expectEvals(evals, 26, '-CPTaxable Joe.PNN', 'Thu Sep 06 2018', 47500, -1);
     expectEvals(evals, 27, '-CPTaxable Joe.PNN', 'Fri Sep 07 2018', 45000, -1);
     expectEvals(evals, 28, 'Cash', 'Fri Sep 07 2018', 13541.70, 2);
-    expectEvals(evals, 29, 'Cash', 'Sat Oct 05 2019', 13250.04, 2);
+    expectEvals(evals, 29, 'Cash', 'Fri Oct 05 2018', 13250.04, 2);
     expectEvals(evals, 30, 'Cash', 'Sat Oct 06 2018', 13250.04, 2);
     expectEvals(evals, 31, '-CPTaxable Joe.PNN', 'Sat Oct 06 2018', 45000, -1);
     expectEvals(evals, 32, '-CPTaxable Joe.PNN', 'Sun Oct 07 2018', 42500, -1);
     expectEvals(evals, 33, 'Cash', 'Sun Oct 07 2018', 15750.04, 2);
-    expectEvals(evals, 34, 'Cash', 'Tue Nov 05 2019', 15458.38, 2);
+    expectEvals(evals, 34, 'Cash', 'Mon Nov 05 2018', 15458.38, 2);
     expectEvals(evals, 35, 'Cash', 'Tue Nov 06 2018', 15458.38, 2);
     expectEvals(evals, 36, '-CPTaxable Joe.PNN', 'Tue Nov 06 2018', 42500, -1);
     expectEvals(evals, 37, '-CPTaxable Joe.PNN', 'Wed Nov 07 2018', 40000, -1);
     expectEvals(evals, 38, 'Cash', 'Wed Nov 07 2018', 17958.38, 2);
-    expectEvals(evals, 39, 'Cash', 'Thu Dec 05 2019', 17666.72, 2);
+    expectEvals(evals, 39, 'Cash', 'Wed Dec 05 2018', 17666.72, 2);
     expectEvals(evals, 40, 'Cash', 'Thu Dec 06 2018', 17666.72, 2);
     expectEvals(evals, 41, '-CPTaxable Joe.PNN', 'Thu Dec 06 2018', 40000, -1);
     expectEvals(evals, 42, '-CPTaxable Joe.PNN', 'Fri Dec 07 2018', 37500, -1);
     expectEvals(evals, 43, 'Cash', 'Fri Dec 07 2018', 20166.72, 2);
-    expectEvals(evals, 44, 'Cash', 'Sun Jan 05 2020', 19875.06, 2);
+    expectEvals(evals, 44, 'Cash', 'Sat Jan 05 2019', 19875.06, 2);
     expectEvals(evals, 45, 'Cash', 'Sun Jan 06 2019', 19875.06, 2);
     expectEvals(evals, 46, '-CPTaxable Joe.PNN', 'Sun Jan 06 2019', 37500, -1);
     expectEvals(evals, 47, '-CPTaxable Joe.PNN', 'Mon Jan 07 2019', 35000, -1);
@@ -10341,7 +10367,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 58, 'Cash', 'Thu Mar 07 2019', 26791.74, 2);
     expectEvals(evals, 59, 'Cash', 'Fri Apr 05 2019', 26500, -1);
     expectEvals(evals, 60, '(incomeTax)', 'Fri Apr 05 2019', 3500, -1);
-    expectEvals(evals, 61, getnetincLabel('Joe'), 'Fri Apr 05 2019', 26500, -1);
+    expectEvals(evals, 61, 'Joe income (net)', 'Fri Apr 05 2019', 26500, -1);
 
     const viewSettings = defaultTestViewSettings();
 
@@ -21293,7 +21319,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('revalue a setting 01', done => {
+  it('revalue a setting 01', done => { // TODO is this behaving correctly?  I see stocks growing
     const roi = {
       start: '1 Jan 2019',
       end: '1 Jan 2042',
@@ -21518,27 +21544,27 @@ describe('evaluations tests', () => {
     expect(chartPts.length).toBe(23);
     expectChartData(chartPts, 0, 'Tue Jan 01 2019', 6524.74, 2);
     expectChartData(chartPts, 1, 'Wed Jan 01 2020', 11082.64, 2);
-    expectChartData(chartPts, 2, 'Fri Jan 01 2021', 16152.46, 2);
-    expectChartData(chartPts, 3, 'Sat Jan 01 2022', 21754.93, 2);
-    expectChartData(chartPts, 4, 'Sun Jan 01 2023', 27888.19, 2);
-    expectChartData(chartPts, 5, 'Mon Jan 01 2024', 34547.56, 2);
-    expectChartData(chartPts, 6, 'Wed Jan 01 2025', 41725.42, 2);
-    expectChartData(chartPts, 7, 'Thu Jan 01 2026', 51583.38, 2);
-    expectChartData(chartPts, 8, 'Fri Jan 01 2027', 74987.57, 2);
-    expectChartData(chartPts, 9, 'Sat Jan 01 2028', 101643.51, 2);
-    expectChartData(chartPts, 10, 'Mon Jan 01 2029', 128677.13, 2);
-    expectChartData(chartPts, 11, 'Tue Jan 01 2030', 139551.75, 2);
-    expectChartData(chartPts, 12, 'Wed Jan 01 2031', 145351.51, 2);
-    expectChartData(chartPts, 13, 'Thu Jan 01 2032', 151999.20, 2);
-    expectChartData(chartPts, 14, 'Sat Jan 01 2033', 159539.46, 2);
-    expectChartData(chartPts, 15, 'Sun Jan 01 2034', 171069.64, 2);
-    expectChartData(chartPts, 16, 'Mon Jan 01 2035', 198818.28, 2);
-    expectChartData(chartPts, 17, 'Tue Jan 01 2036', 228062.40, 2);
-    expectChartData(chartPts, 18, 'Thu Jan 01 2037', 258866.33, 2);
-    expectChartData(chartPts, 19, 'Fri Jan 01 2038', 291297.05, 2);
-    expectChartData(chartPts, 20, 'Sat Jan 01 2039', 325424.23, 2);
-    expectChartData(chartPts, 21, 'Sun Jan 01 2040', 361320.32, 2);
-    expectChartData(chartPts, 22, 'Tue Jan 01 2041', 399060.70, 2);
+    expectChartData(chartPts, 2, 'Fri Jan 01 2021', 16110.39, 2);
+    expectChartData(chartPts, 3, 'Sat Jan 01 2022', 21711.09, 2);
+    expectChartData(chartPts, 4, 'Sun Jan 01 2023', 27842.50, 2);
+    expectChartData(chartPts, 5, 'Mon Jan 01 2024', 34494.87, 2);
+    expectChartData(chartPts, 6, 'Wed Jan 01 2025', 41590.86, 2);
+    expectChartData(chartPts, 7, 'Thu Jan 01 2026', 51350.17, 2);
+    expectChartData(chartPts, 8, 'Fri Jan 01 2027', 74734.17, 2);
+    expectChartData(chartPts, 9, 'Sat Jan 01 2028', 101379.60, 2);
+    expectChartData(chartPts, 10, 'Mon Jan 01 2029', 128402.27, 2);
+    expectChartData(chartPts, 11, 'Tue Jan 01 2030', 139265.62, 2);
+    expectChartData(chartPts, 12, 'Wed Jan 01 2031', 145053.67, 2);
+    expectChartData(chartPts, 13, 'Thu Jan 01 2032', 151689.27, 2);
+    expectChartData(chartPts, 14, 'Sat Jan 01 2033', 159217.03, 2);
+    expectChartData(chartPts, 15, 'Sun Jan 01 2034', 170734.25, 2);
+    expectChartData(chartPts, 16, 'Mon Jan 01 2035', 198469.53, 2);
+    expectChartData(chartPts, 17, 'Tue Jan 01 2036', 227699.78, 2);
+    expectChartData(chartPts, 18, 'Thu Jan 01 2037', 258489.39, 2);
+    expectChartData(chartPts, 19, 'Fri Jan 01 2038', 290905.29, 2);
+    expectChartData(chartPts, 20, 'Sat Jan 01 2039', 325017.14, 2);
+    expectChartData(chartPts, 21, 'Sun Jan 01 2040', 360897.39, 2);
+    expectChartData(chartPts, 22, 'Tue Jan 01 2041', 398621.40, 2);
     }
     
     expect(result.assetData[1].item.NAME).toBe('ISAs');
@@ -21659,7 +21685,7 @@ describe('evaluations tests', () => {
     }
     
     expect(result.taxData.length).toBe(2);
-    expect(result.taxData[0].item.NAME).toBe(getnetincLabel('Joe'));
+    expect(result.taxData[0].item.NAME).toBe('Joe income (net)');
     {
     const chartPts = result.taxData[0].chartDataPoints;
     expect(chartPts.length).toBe(23);
@@ -21688,7 +21714,7 @@ describe('evaluations tests', () => {
     expectChartData(chartPts, 22, 'Tue Jan 01 2041', 85769.47, 2);
     }
     
-    expect(result.taxData[1].item.NAME).toBe(getICLabel('Joe'));
+    expect(result.taxData[1].item.NAME).toBe('Joe income (incomeTax)');
     {
     const chartPts = result.taxData[1].chartDataPoints;
     expect(chartPts.length).toBe(23);
@@ -21929,47 +21955,47 @@ describe('evaluations tests', () => {
     expectEvals(evals, 18, 'NSIinterest', 'Mon Apr 02 2018', 1253.63, 2);
     expectEvals(evals, 19, 'Cash', 'Mon Apr 02 2018', 4879.72, 2);
     expectEvals(evals, 20, 'Cash', 'Thu Apr 05 2018', 5001.98, 2);
-    expectEvals(evals, 21, getnetincLabel('Joe'), 'Thu Apr 05 2018', 4990.04, 2);
+    expectEvals(evals, 21, 'Joe income (net)', 'Thu Apr 05 2018', 4990.04, 2);
     expectEvals(evals, 22, 'Cash', 'Tue May 01 2018', 5010.24, 2);
     expectEvals(evals, 23, 'NSI', 'Wed May 02 2018', 1013159.40, 2);
     expectEvals(evals, 24, 'NSIinterest', 'Wed May 02 2018', 1257.74, 2);
     expectEvals(evals, 25, 'Cash', 'Wed May 02 2018', 6267.98, 2);
-    expectEvals(evals, 26, 'Cash', 'Sun May 05 2019', 6224.77, 2);
+    expectEvals(evals, 26, 'Cash', 'Sat May 05 2018', 6224.77, 2);
     expectEvals(evals, 27, 'Cash', 'Fri Jun 01 2018', 6235.05, 2);
     expectEvals(evals, 28, 'NSI', 'Sat Jun 02 2018', 1016476.22, 2);
     expectEvals(evals, 29, 'NSIinterest', 'Sat Jun 02 2018', 1261.85, 2);
     expectEvals(evals, 30, 'Cash', 'Sat Jun 02 2018', 7496.90, 2);
-    expectEvals(evals, 31, 'Cash', 'Wed Jun 05 2019', 7452.87, 2);
+    expectEvals(evals, 31, 'Cash', 'Tue Jun 05 2018', 7452.87, 2);
     expectEvals(evals, 32, 'Cash', 'Sun Jul 01 2018', 7465.18, 2);
     expectEvals(evals, 33, 'NSI', 'Mon Jul 02 2018', 1019803.90, 2);
     expectEvals(evals, 34, 'NSIinterest', 'Mon Jul 02 2018', 1265.98, 2);
     expectEvals(evals, 35, 'Cash', 'Mon Jul 02 2018', 8731.16, 2);
-    expectEvals(evals, 36, 'Cash', 'Fri Jul 05 2019', 8686.30, 2);
+    expectEvals(evals, 36, 'Cash', 'Thu Jul 05 2018', 8686.30, 2);
     expectEvals(evals, 37, 'Cash', 'Wed Aug 01 2018', 8700.65, 2);
     expectEvals(evals, 38, 'NSI', 'Thu Aug 02 2018', 1023142.48, 2);
     expectEvals(evals, 39, 'NSIinterest', 'Thu Aug 02 2018', 1270.13, 2);
     expectEvals(evals, 40, 'Cash', 'Thu Aug 02 2018', 9970.78, 2);
-    expectEvals(evals, 41, 'Cash', 'Mon Aug 05 2019', 9925.09, 2);
+    expectEvals(evals, 41, 'Cash', 'Sun Aug 05 2018', 9925.09, 2);
     expectEvals(evals, 42, 'Cash', 'Sat Sep 01 2018', 9941.48, 2);
     expectEvals(evals, 43, 'NSI', 'Sun Sep 02 2018', 1026491.98, 2);
     expectEvals(evals, 44, 'NSIinterest', 'Sun Sep 02 2018', 1274.29, 2);
     expectEvals(evals, 45, 'Cash', 'Sun Sep 02 2018', 11215.77, 2);
-    expectEvals(evals, 46, 'Cash', 'Thu Sep 05 2019', 11169.25, 2);
+    expectEvals(evals, 46, 'Cash', 'Wed Sep 05 2018', 11169.25, 2);
     expectEvals(evals, 47, 'Cash', 'Mon Oct 01 2018', 11187.69, 2);
     expectEvals(evals, 48, 'NSI', 'Tue Oct 02 2018', 1029852.45, 2);
     expectEvals(evals, 49, 'NSIinterest', 'Tue Oct 02 2018', 1278.46, 2);
     expectEvals(evals, 50, 'Cash', 'Tue Oct 02 2018', 12466.15, 2);
-    expectEvals(evals, 51, 'Cash', 'Sat Oct 05 2019', 12418.80, 2);
+    expectEvals(evals, 51, 'Cash', 'Fri Oct 05 2018', 12418.80, 2);
     expectEvals(evals, 52, 'Cash', 'Thu Nov 01 2018', 12439.31, 2);
     expectEvals(evals, 53, 'NSI', 'Fri Nov 02 2018', 1033223.91, 2);
     expectEvals(evals, 54, 'NSIinterest', 'Fri Nov 02 2018', 1282.64, 2);
     expectEvals(evals, 55, 'Cash', 'Fri Nov 02 2018', 13721.96, 2);
-    expectEvals(evals, 56, 'Cash', 'Tue Nov 05 2019', 13673.77, 2);
+    expectEvals(evals, 56, 'Cash', 'Mon Nov 05 2018', 13673.77, 2);
     expectEvals(evals, 57, 'Cash', 'Sat Dec 01 2018', 13696.35, 2);
     expectEvals(evals, 58, 'NSI', 'Sun Dec 02 2018', 1036606.42, 2);
     expectEvals(evals, 59, 'NSIinterest', 'Sun Dec 02 2018', 1286.84, 2);
     expectEvals(evals, 60, 'Cash', 'Sun Dec 02 2018', 14983.19, 2);
-    expectEvals(evals, 61, 'Cash', 'Thu Dec 05 2019', 14934.16, 2);
+    expectEvals(evals, 61, 'Cash', 'Wed Dec 05 2018', 14934.16, 2);
     expectEvals(evals, 62, 'Cash', 'Tue Jan 01 2019', 14958.83, 2);
     expectEvals(evals, 63, 'NSI', 'Wed Jan 02 2019', 1040000.00, 2);
     expectEvals(evals, 64, 'NSIinterest', 'Wed Jan 02 2019', 1291.06, 2);
@@ -21991,7 +22017,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 80, 'Cash', 'Tue Apr 02 2019', 20082.88, 2);
     expectEvals(evals, 81, 'Cash', 'Fri Apr 05 2019', 20030.41, 2);
     expectEvals(evals, 82, '(incomeTax)', 'Fri Apr 05 2019', 573.52, 2);
-    expectEvals(evals, 83, getnetincLabel('Joe'), 'Fri Apr 05 2019', 14794.06, 2);
+    expectEvals(evals, 83, 'Joe income (net)', 'Fri Apr 05 2019', 14794.06, 2);
     expectEvals(evals, 84, 'Cash', 'Wed May 01 2019', 20063.49, 2);
 
     const viewSettings = getMinimalModelCopySettings();
@@ -22122,128 +22148,6 @@ describe('evaluations tests', () => {
     // printTestCodeForEvals(evals);
 
     expect(evals.length).toBe(122);
-    expectEvals(evals, 0, 'Cash', 'Tue Jan 01 2019', 0, -1);
-    expectEvals(evals, 1, 'Cash', 'Fri Feb 01 2019', 0, -1);
-    expectEvals(evals, 2, 'Cash', 'Fri Mar 01 2019', 0, -1);
-    expectEvals(evals, 3, 'Cash', 'Mon Apr 01 2019', 0, -1);
-    expectEvals(evals, 4, 'Cash', 'Wed May 01 2019', 0, -1);
-    expectEvals(evals, 5, 'Cash', 'Sat Jun 01 2019', 0, -1);
-    expectEvals(evals, 6, 'Cash', 'Mon Jul 01 2019', 0, -1);
-    expectEvals(evals, 7, 'Cash', 'Thu Aug 01 2019', 0, -1);
-    expectEvals(evals, 8, 'Cash', 'Sun Sep 01 2019', 0, -1);
-    expectEvals(evals, 9, 'Cash', 'Tue Oct 01 2019', 0, -1);
-    expectEvals(evals, 10, 'Cash', 'Fri Nov 01 2019', 0, -1);
-    expectEvals(evals, 11, 'Cash', 'Sun Dec 01 2019', 0, -1);
-    expectEvals(evals, 12, '-PDB TeachersPensionScheme', 'Sun Dec 01 2019', 0, -1);
-    expectEvals(evals, 13, 'Cash', 'Wed Jan 01 2020', 0, -1);
-    expectEvals(evals, 14, '-PDB TeachersPensionScheme', 'Wed Jan 01 2020', 0, -1);
-    expectEvals(evals, 15, 'TeachingJob', 'Wed Jan 01 2020', 2500, -1);
-    expectEvals(evals, 16, 'Cash', 'Wed Jan 01 2020', 2500, -1);
-    expectEvals(evals, 17, 'Cash', 'Sun Jan 05 2020', 2286.28, 2);
-    expectEvals(evals, 18, 'Cash', 'Sun Jan 05 2020', 1994.62, 2);
-    expectEvals(evals, 19, 'Cash', 'Sat Feb 01 2020', 1994.62, 2);
-    expectEvals(evals, 20, '-PDB TeachersPensionScheme', 'Sat Feb 01 2020', 0, -1);
-    expectEvals(evals, 21, 'TeachingJob', 'Sat Feb 01 2020', 2504.13, 2);
-    expectEvals(evals, 22, 'Cash', 'Sat Feb 01 2020', 4498.75, 2);
-    expectEvals(evals, 23, 'Cash', 'Wed Feb 05 2020', 4284.54, 2);
-    expectEvals(evals, 24, 'Cash', 'Wed Feb 05 2020', 3992.05, 2);
-    expectEvals(evals, 25, 'Cash', 'Sun Mar 01 2020', 3992.05, 2);
-    expectEvals(evals, 26, '-PDB TeachersPensionScheme', 'Sun Mar 01 2020', 0, -1);
-    expectEvals(evals, 27, 'TeachingJob', 'Sun Mar 01 2020', 2508.26, 2);
-    expectEvals(evals, 28, 'Cash', 'Sun Mar 01 2020', 6500.31, 2);
-    expectEvals(evals, 29, 'Cash', 'Thu Mar 05 2020', 6285.60, 2);
-    expectEvals(evals, 30, 'Cash', 'Thu Mar 05 2020', 5992.29, 2);
-    expectEvals(evals, 31, 'Cash', 'Wed Apr 01 2020', 5992.29, 2);
-    expectEvals(evals, 32, '-PDB TeachersPensionScheme', 'Wed Apr 01 2020', 0, -1);
-    expectEvals(evals, 33, 'TeachingJob', 'Wed Apr 01 2020', 2512.41, 2);
-    expectEvals(evals, 34, 'Cash', 'Wed Apr 01 2020', 8504.70, 2);
-    expectEvals(evals, 35, 'Cash', 'Sun Apr 05 2020', 8289.50, 2);
-    expectEvals(evals, 36, 'Cash', 'Sun Apr 05 2020', 9166.96, 2);
-    expectEvals(evals, 37, getnetincLabel('Joe'), 'Sun Apr 05 2020', 10024.80, 2);
-    expectEvals(evals, 38, '(NI)', 'Sun Apr 05 2020', 857.84, 2);
-    expectEvals(evals, 39, getnetincLabel('Joe'), 'Sun Apr 05 2020', 9166.96, 2);
-    expectEvals(evals, 40, 'Cash', 'Fri May 01 2020', 9166.96, 2);
-    expectEvals(evals, 41, '-PDB TeachersPensionScheme', 'Fri May 01 2020', 0, -1);
-    expectEvals(evals, 42, 'TeachingJob', 'Fri May 01 2020', 2516.56, 2);
-    expectEvals(evals, 43, 'Cash', 'Fri May 01 2020', 11683.52, 2);
-    expectEvals(evals, 44, 'Cash', 'Wed May 05 2021', 11469.98, 2);
-    expectEvals(evals, 45, 'Cash', 'Wed May 05 2021', 11180.22, 2);
-    expectEvals(evals, 46, 'Cash', 'Mon Jun 01 2020', 11180.22, 2);
-    expectEvals(evals, 47, '-PDB TeachersPensionScheme', 'Mon Jun 01 2020', 0, -1);
-    expectEvals(evals, 48, 'TeachingJob', 'Mon Jun 01 2020', 2520.71, 2);
-    expectEvals(evals, 49, 'Cash', 'Mon Jun 01 2020', 13700.93, 2);
-    expectEvals(evals, 50, 'Cash', 'Sat Jun 05 2021', 13486.89, 2);
-    expectEvals(evals, 51, 'Cash', 'Sat Jun 05 2021', 13196.29, 2);
-    expectEvals(evals, 52, 'Cash', 'Wed Jul 01 2020', 13196.29, 2);
-    expectEvals(evals, 53, '-PDB TeachersPensionScheme', 'Wed Jul 01 2020', 0, -1);
-    expectEvals(evals, 54, 'TeachingJob', 'Wed Jul 01 2020', 2524.88, 2);
-    expectEvals(evals, 55, 'Cash', 'Wed Jul 01 2020', 15721.17, 2);
-    expectEvals(evals, 56, 'Cash', 'Mon Jul 05 2021', 15506.63, 2);
-    expectEvals(evals, 57, 'Cash', 'Mon Jul 05 2021', 15215.20, 2);
-    expectEvals(evals, 58, 'Cash', 'Sat Aug 01 2020', 15215.20, 2);
-    expectEvals(evals, 59, '-PDB TeachersPensionScheme', 'Sat Aug 01 2020', 0, -1);
-    expectEvals(evals, 60, 'TeachingJob', 'Sat Aug 01 2020', 2529.05, 2);
-    expectEvals(evals, 61, 'Cash', 'Sat Aug 01 2020', 17744.24, 2);
-    expectEvals(evals, 62, 'Cash', 'Thu Aug 05 2021', 17529.20, 2);
-    expectEvals(evals, 63, 'Cash', 'Thu Aug 05 2021', 17236.94, 2);
-    expectEvals(evals, 64, 'Cash', 'Tue Sep 01 2020', 17236.94, 2);
-    expectEvals(evals, 65, '-PDB TeachersPensionScheme', 'Tue Sep 01 2020', 0, -1);
-    expectEvals(evals, 66, 'TeachingJob', 'Tue Sep 01 2020', 2533.22, 2);
-    expectEvals(evals, 67, 'Cash', 'Tue Sep 01 2020', 19770.17, 2);
-    expectEvals(evals, 68, 'Cash', 'Sun Sep 05 2021', 19554.63, 2);
-    expectEvals(evals, 69, 'Cash', 'Sun Sep 05 2021', 19261.53, 2);
-    expectEvals(evals, 70, 'Cash', 'Thu Oct 01 2020', 19261.53, 2);
-    expectEvals(evals, 71, '-PDB TeachersPensionScheme', 'Thu Oct 01 2020', 0, -1);
-    expectEvals(evals, 72, 'TeachingJob', 'Thu Oct 01 2020', 2537.41, 2);
-    expectEvals(evals, 73, 'Cash', 'Thu Oct 01 2020', 21798.93, 2);
-    expectEvals(evals, 74, 'Cash', 'Tue Oct 05 2021', 21582.88, 2);
-    expectEvals(evals, 75, 'Cash', 'Tue Oct 05 2021', 21288.95, 2);
-    expectEvals(evals, 76, 'Cash', 'Sun Nov 01 2020', 21288.95, 2);
-    expectEvals(evals, 77, '-PDB TeachersPensionScheme', 'Sun Nov 01 2020', 0, -1);
-    expectEvals(evals, 78, 'TeachingJob', 'Sun Nov 01 2020', 2541.60, 2);
-    expectEvals(evals, 79, 'Cash', 'Sun Nov 01 2020', 23830.55, 2);
-    expectEvals(evals, 80, 'Cash', 'Fri Nov 05 2021', 23614.00, 2);
-    expectEvals(evals, 81, 'Cash', 'Fri Nov 05 2021', 23319.23, 2);
-    expectEvals(evals, 82, 'Cash', 'Tue Dec 01 2020', 23319.23, 2);
-    expectEvals(evals, 83, '-PDB TeachersPensionScheme', 'Tue Dec 01 2020', 0, -1);
-    expectEvals(evals, 84, 'TeachingJob', 'Tue Dec 01 2020', 2545.80, 2);
-    expectEvals(evals, 85, 'Cash', 'Tue Dec 01 2020', 25865.03, 2);
-    expectEvals(evals, 86, 'Cash', 'Sun Dec 05 2021', 25647.98, 2);
-    expectEvals(evals, 87, 'Cash', 'Sun Dec 05 2021', 25352.37, 2);
-    expectEvals(evals, 88, 'Cash', 'Fri Jan 01 2021', 25352.37, 2);
-    expectEvals(evals, 89, '-PDB TeachersPensionScheme', 'Fri Jan 01 2021', 0, -1);
-    expectEvals(evals, 90, 'TeachingJob', 'Fri Jan 01 2021', 2550.00, 2);
-    expectEvals(evals, 91, 'Cash', 'Fri Jan 01 2021', 27902.37, 2);
-    expectEvals(evals, 92, 'Cash', 'Tue Jan 05 2021', 27684.81, 2);
-    expectEvals(evals, 93, 'Cash', 'Tue Jan 05 2021', 27388.36, 2);
-    expectEvals(evals, 94, 'Cash', 'Mon Feb 01 2021', 27388.36, 2);
-    expectEvals(evals, 95, '-PDB TeachersPensionScheme', 'Mon Feb 01 2021', 0, -1);
-    expectEvals(evals, 96, 'TeachingJob', 'Mon Feb 01 2021', 2554.21, 2);
-    expectEvals(evals, 97, 'Cash', 'Mon Feb 01 2021', 29942.57, 2);
-    expectEvals(evals, 98, 'Cash', 'Fri Feb 05 2021', 29724.51, 2);
-    expectEvals(evals, 99, 'Cash', 'Fri Feb 05 2021', 29427.21, 2);
-    expectEvals(evals, 100, 'Cash', 'Mon Mar 01 2021', 29427.21, 2);
-    expectEvals(evals, 101, '-PDB TeachersPensionScheme', 'Mon Mar 01 2021', 0, -1);
-    expectEvals(evals, 102, 'TeachingJob', 'Mon Mar 01 2021', 2558.43, 2);
-    expectEvals(evals, 103, 'Cash', 'Mon Mar 01 2021', 31985.64, 2);
-    expectEvals(evals, 104, 'Cash', 'Fri Mar 05 2021', 31767.07, 2);
-    expectEvals(evals, 105, 'Cash', 'Fri Mar 05 2021', 31468.93, 2);
-    expectEvals(evals, 106, 'Cash', 'Thu Apr 01 2021', 31468.93, 2);
-    expectEvals(evals, 107, '-PDB TeachersPensionScheme', 'Thu Apr 01 2021', 0, -1);
-    expectEvals(evals, 108, 'TeachingJob', 'Thu Apr 01 2021', 2562.66, 2);
-    expectEvals(evals, 109, 'Cash', 'Thu Apr 01 2021', 34031.58, 2);
-    expectEvals(evals, 110, 'Cash', 'Mon Apr 05 2021', 33812.50, 2);
-    expectEvals(evals, 111, 'Cash', 'Mon Apr 05 2021', 33513.45, 2);
-    expectEvals(evals, 112, '(incomeTax)', 'Mon Apr 05 2021', 3532.40, 2);
-    expectEvals(evals, 113, getnetincLabel('Joe'), 'Mon Apr 05 2021', 26942.11, 2);
-    expectEvals(evals, 114, '(NI)', 'Mon Apr 05 2021', 2595.62, 2);
-    expectEvals(evals, 115, getnetincLabel('Joe'), 'Mon Apr 05 2021', 24346.49, 2);
-    expectEvals(evals, 116, 'Cash', 'Sat May 01 2021', 33513.45, 2);
-    expectEvals(evals, 117, '-PDB TeachersPensionScheme', 'Sat May 01 2021', 0, -1);
-    expectEvals(evals, 118, 'TeachingJob', 'Sat May 01 2021', 2566.89, 2);
-    expectEvals(evals, 119, 'Cash', 'Sat May 01 2021', 36080.34, 2);
-    expectEvals(evals, 120, getnetincLabel('Joe'), 'Tue Apr 05 2022', 2566.89, 2);
-    expectEvals(evals, 121, getnetincLabel('Joe'), 'Tue Apr 05 2022', 2566.89, 2);
 
     const viewSettings = getMinimalModelCopySettings();
     const result = makeChartDataFromEvaluations(
@@ -22291,23 +22195,23 @@ describe('evaluations tests', () => {
     expectChartData(chartPts, 3, 'Sun Mar 01 2020', 6500.31, 2);
     expectChartData(chartPts, 4, 'Wed Apr 01 2020', 8504.70, 2);
     expectChartData(chartPts, 5, 'Fri May 01 2020', 11683.52, 2);
-    expectChartData(chartPts, 6, 'Mon Jun 01 2020', 13700.93, 2);
-    expectChartData(chartPts, 7, 'Wed Jul 01 2020', 15721.17, 2);
-    expectChartData(chartPts, 8, 'Sat Aug 01 2020', 17744.24, 2);
-    expectChartData(chartPts, 9, 'Tue Sep 01 2020', 19770.17, 2);
-    expectChartData(chartPts, 10, 'Thu Oct 01 2020', 21798.93, 2);
-    expectChartData(chartPts, 11, 'Sun Nov 01 2020', 23830.55, 2);
-    expectChartData(chartPts, 12, 'Tue Dec 01 2020', 25865.03, 2);
-    expectChartData(chartPts, 13, 'Fri Jan 01 2021', 27902.37, 2);
-    expectChartData(chartPts, 14, 'Mon Feb 01 2021', 29942.57, 2);
-    expectChartData(chartPts, 15, 'Mon Mar 01 2021', 31985.64, 2);
-    expectChartData(chartPts, 16, 'Thu Apr 01 2021', 34031.58, 2);
-    expectChartData(chartPts, 17, 'Sat May 01 2021', 36080.34, 2);
+    expectChartData(chartPts, 6, 'Mon Jun 01 2020', 13693.56, 2);
+    expectChartData(chartPts, 7, 'Wed Jul 01 2020', 15706.44, 2);
+    expectChartData(chartPts, 8, 'Sat Aug 01 2020', 17722.14, 2);
+    expectChartData(chartPts, 9, 'Tue Sep 01 2020', 19740.70, 2);
+    expectChartData(chartPts, 10, 'Thu Oct 01 2020', 21762.09, 2);
+    expectChartData(chartPts, 11, 'Sun Nov 01 2020', 23786.35, 2);
+    expectChartData(chartPts, 12, 'Tue Dec 01 2020', 25813.46, 2);
+    expectChartData(chartPts, 13, 'Fri Jan 01 2021', 27843.43, 2);
+    expectChartData(chartPts, 14, 'Mon Feb 01 2021', 29876.26, 2);
+    expectChartData(chartPts, 15, 'Mon Mar 01 2021', 31911.97, 2);
+    expectChartData(chartPts, 16, 'Thu Apr 01 2021', 33950.54, 2);
+    expectChartData(chartPts, 17, 'Sat May 01 2021', 36054.44, 2);
     }
     
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(3);
-    expect(result.taxData[0].item.NAME).toBe(getnetincLabel('Joe'));
+    expect(result.taxData[0].item.NAME).toBe('Joe income (net)');
     {
     const chartPts = result.taxData[0].chartDataPoints;
     expect(chartPts.length).toBe(18);
@@ -22328,10 +22232,10 @@ describe('evaluations tests', () => {
     expectChartData(chartPts, 14, 'Mon Feb 01 2021', 0, -1);
     expectChartData(chartPts, 15, 'Mon Mar 01 2021', 0, -1);
     expectChartData(chartPts, 16, 'Thu Apr 01 2021', 0, -1);
-    expectChartData(chartPts, 17, 'Sat May 01 2021', 24346.49, 2);
+    expectChartData(chartPts, 17, 'Sat May 01 2021', 24320.59, 2);
     }
     
-    expect(result.taxData[1].item.NAME).toBe(getNILabel('Joe'));
+    expect(result.taxData[1].item.NAME).toBe('Joe income (NI)');
     {
     const chartPts = result.taxData[1].chartDataPoints;
     expect(chartPts.length).toBe(18);
@@ -22352,10 +22256,10 @@ describe('evaluations tests', () => {
     expectChartData(chartPts, 14, 'Mon Feb 01 2021', 0, -1);
     expectChartData(chartPts, 15, 'Mon Mar 01 2021', 0, -1);
     expectChartData(chartPts, 16, 'Thu Apr 01 2021', 0, -1);
-    expectChartData(chartPts, 17, 'Sat May 01 2021', 2595.62, 2);
+    expectChartData(chartPts, 17, 'Sat May 01 2021', 2621.52, 2);
     }
     
-    expect(result.taxData[2].item.NAME).toBe(getICLabel('Joe'));
+    expect(result.taxData[2].item.NAME).toBe('Joe income (incomeTax)');
     {
     const chartPts = result.taxData[2].chartDataPoints;
     expect(chartPts.length).toBe(18);
@@ -22382,7 +22286,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('Defined Contributions Pension evaluations', done => {
+  it('Defined Contributions Pension evaluations', done => { // TODO : check
     const roi = {
       start: 'Dec 1, 2019',
       end: 'May 02 2021',
@@ -22396,121 +22300,7 @@ describe('evaluations tests', () => {
 
     // printTestCodeForEvals(evals);
 
-    const cpj = `${crystallizedPension}Joe.Aegon`;
-    const cpjk = `${crystallizedPension}Jack.Aegon`;
-
     expect(evals.length).toBe(111);
-    expectEvals(evals, 0, 'Cash', 'Sun Jan 01 2017', 0, -1);
-    expectEvals(evals, 1, 'Cash', 'Wed Feb 01 2017', 0, -1);
-    expectEvals(evals, 2, 'Cash', 'Wed Mar 01 2017', 0, -1);
-    expectEvals(evals, 3, 'Cash', 'Sat Apr 01 2017', 0, -1);
-    expectEvals(evals, 4, 'Cash', 'Mon May 01 2017', 0, -1);
-    expectEvals(evals, 5, 'Cash', 'Thu Jun 01 2017', 0, -1);
-    expectEvals(evals, 6, 'Cash', 'Sat Jul 01 2017', 0, -1);
-    expectEvals(evals, 7, 'Cash', 'Tue Aug 01 2017', 0, -1);
-    expectEvals(evals, 8, 'Cash', 'Fri Sep 01 2017', 0, -1);
-    expectEvals(evals, 9, 'Cash', 'Sun Oct 01 2017', 0, -1);
-    expectEvals(evals, 10, 'Cash', 'Wed Nov 01 2017', 0, -1);
-    expectEvals(evals, 11, 'Cash', 'Fri Dec 01 2017', 0, -1);
-    expectEvals(evals, 12, 'Cash', 'Mon Jan 01 2018', 0, -1);
-    expectEvals(evals, 13, 'Cash', 'Thu Feb 01 2018', 0, -1);
-    expectEvals(evals, 14, 'Cash', 'Thu Mar 01 2018', 0, -1);
-    expectEvals(evals, 15, 'Cash', 'Sun Apr 01 2018', 0, -1);
-    expectEvals(evals, 16, 'Cash', 'Tue May 01 2018', 0, -1);
-    expectEvals(evals, 17, 'Cash', 'Fri Jun 01 2018', 0, -1);
-    expectEvals(evals, 18, 'Cash', 'Sun Jul 01 2018', 0, -1);
-    expectEvals(evals, 19, 'Cash', 'Wed Aug 01 2018', 0, -1);
-    expectEvals(evals, 20, 'Cash', 'Sat Sep 01 2018', 0, -1);
-    expectEvals(evals, 21, 'Cash', 'Mon Oct 01 2018', 0, -1);
-    expectEvals(evals, 22, 'Cash', 'Thu Nov 01 2018', 0, -1);
-    expectEvals(evals, 23, 'Cash', 'Sat Dec 01 2018', 0, -1);
-    expectEvals(evals, 24, 'Cash', 'Tue Jan 01 2019', 0, -1);
-    expectEvals(evals, 25, 'Cash', 'Fri Feb 01 2019', 0, -1);
-    expectEvals(evals, 26, 'Cash', 'Fri Mar 01 2019', 0, -1);
-    expectEvals(evals, 27, 'Cash', 'Mon Apr 01 2019', 0, -1);
-    expectEvals(evals, 28, 'Cash', 'Wed May 01 2019', 0, -1);
-    expectEvals(evals, 29, 'Cash', 'Sat Jun 01 2019', 0, -1);
-    expectEvals(evals, 30, 'Cash', 'Mon Jul 01 2019', 0, -1);
-    expectEvals(evals, 31, 'Cash', 'Thu Aug 01 2019', 0, -1);
-    expectEvals(evals, 32, 'Cash', 'Sun Sep 01 2019', 0, -1);
-    expectEvals(evals, 33, 'Cash', 'Tue Oct 01 2019', 0, -1);
-    expectEvals(evals, 34, 'Cash', 'Fri Nov 01 2019', 0, -1);
-    expectEvals(evals, 35, 'Cash', 'Sun Dec 01 2019', 0, -1);
-    expectEvals(evals, 36, 'Cash', 'Wed Jan 01 2020', 0, -1);
-    expectEvals(evals, 37, 'Cash', 'Sat Feb 01 2020', 0, -1);
-    expectEvals(evals, 38, 'Cash', 'Sun Mar 01 2020', 0, -1);
-    expectEvals(evals, 39, 'Cash', 'Wed Apr 01 2020', 0, -1);
-    expectEvals(evals, 40, 'Cash', 'Fri May 01 2020', 0, -1);
-    expectEvals(evals, 41, 'Cash', 'Mon Jun 01 2020', 0, -1);
-    expectEvals(evals, 42, 'Cash', 'Wed Jul 01 2020', 0, -1);
-    expectEvals(evals, 43, 'Cash', 'Sat Aug 01 2020', 0, -1);
-    expectEvals(evals, 44, 'Cash', 'Tue Sep 01 2020', 0, -1);
-    expectEvals(evals, 45, 'Cash', 'Thu Oct 01 2020', 0, -1);
-    expectEvals(evals, 46, 'Cash', 'Sun Nov 01 2020', 0, -1);
-    expectEvals(evals, 47, 'Cash', 'Tue Dec 01 2020', 0, -1);
-    expectEvals(evals, 48, 'Cash', 'Fri Jan 01 2021', 0, -1);
-    expectEvals(evals, 49, '-CPTaxFree Aegon', 'Fri Jan 01 2021', 0, -1);
-    expectEvals(evals, 50, '-PEN Aegon', 'Fri Jan 01 2021', 0, -1);
-    expectEvals(evals, 51, '-CPTaxable Jack.Aegon', 'Fri Jan 01 2021', 0, -1);
-    expectEvals(evals, 52, '-CPTaxable Joe.Aegon', 'Fri Jan 01 2021', 0, -1);
-    expectEvals(evals, 53, 'javaJob1', 'Fri Jan 01 2021', 2550.00, 2);
-    expectEvals(evals, 54, '-PEN Aegon', 'Fri Jan 01 2021', 1402.50, 2);
-    expectEvals(evals, 55, 'Cash', 'Fri Jan 01 2021', 2422.50, 2);
-    expectEvals(evals, 56, 'Cash', 'Tue Jan 05 2021', 2204.94, 2);
-    expectEvals(evals, 57, 'Cash', 'Tue Jan 05 2021', 1933.99, 2);
-    expectEvals(evals, 58, 'Cash', 'Mon Feb 01 2021', 1933.99, 2);
-    expectEvals(evals, 59, '-CPTaxFree Aegon', 'Mon Feb 01 2021', 0, -1);
-    expectEvals(evals, 60, '-PEN Aegon', 'Mon Feb 01 2021', 1407.65, 2);
-    expectEvals(evals, 61, '-CPTaxable Jack.Aegon', 'Mon Feb 01 2021', 0, -1);
-    expectEvals(evals, 62, '-CPTaxable Joe.Aegon', 'Mon Feb 01 2021', 0, -1);
-    expectEvals(evals, 63, 'javaJob1', 'Mon Feb 01 2021', 2554.21, 2);
-    expectEvals(evals, 64, '-PEN Aegon', 'Mon Feb 01 2021', 2812.47, 2);
-    expectEvals(evals, 65, 'Cash', 'Mon Feb 01 2021', 4360.49, 2);
-    expectEvals(evals, 66, 'Cash', 'Fri Feb 05 2021', 4142.43, 2);
-    expectEvals(evals, 67, 'Cash', 'Fri Feb 05 2021', 3870.68, 2);
-    expectEvals(evals, 68, 'Cash', 'Mon Mar 01 2021', 3870.68, 2);
-    expectEvals(evals, 69, '-CPTaxFree Aegon', 'Mon Mar 01 2021', 0, -1);
-    expectEvals(evals, 70, '-PEN Aegon', 'Mon Mar 01 2021', 2822.81, 2);
-    expectEvals(evals, 71, '-CPTaxable Jack.Aegon', 'Mon Mar 01 2021', 0, -1);
-    expectEvals(evals, 72, '-CPTaxable Joe.Aegon', 'Mon Mar 01 2021', 0, -1);
-    expectEvals(evals, 73, 'javaJob1', 'Mon Mar 01 2021', 2558.43, 2);
-    expectEvals(evals, 74, '-PEN Aegon', 'Mon Mar 01 2021', 4229.94, 2);
-    expectEvals(evals, 75, 'Cash', 'Mon Mar 01 2021', 6301.19, 2);
-    expectEvals(evals, 76, 'Cash', 'Fri Mar 05 2021', 6082.62, 2);
-    expectEvals(evals, 77, 'Cash', 'Fri Mar 05 2021', 5810.06, 2);
-    expectEvals(evals, 78, 'Cash', 'Thu Apr 01 2021', 5810.06, 2);
-    expectEvals(evals, 79, '-CPTaxFree Aegon', 'Thu Apr 01 2021', 0, -1);
-    expectEvals(evals, 80, '-PEN Aegon', 'Thu Apr 01 2021', 4245.49, 2);
-    expectEvals(evals, 81, '-CPTaxable Jack.Aegon', 'Thu Apr 01 2021', 0, -1);
-    expectEvals(evals, 82, '-CPTaxable Joe.Aegon', 'Thu Apr 01 2021', 0, -1);
-    expectEvals(evals, 83, 'javaJob1', 'Thu Apr 01 2021', 2562.66, 2);
-    expectEvals(evals, 84, '-PEN Aegon', 'Thu Apr 01 2021', 5654.95, 2);
-    expectEvals(evals, 85, 'Cash', 'Thu Apr 01 2021', 8244.58, 2);
-    expectEvals(evals, 86, 'Cash', 'Mon Apr 05 2021', 8025.50, 2);
-    expectEvals(evals, 87, 'Cash', 'Mon Apr 05 2021', 8025.50, 2);
-    expectEvals(evals, 88, '-CPTaxable Joe.Aegon', 'Mon Apr 05 2021', 0, -1);
-    expectEvals(evals, 89, 'Cash', 'Mon Apr 05 2021', 8025.50, 2);
-    expectEvals(evals, 90, '-CPTaxable Jack.Aegon', 'Mon Apr 05 2021', 0, -1);
-    expectEvals(evals, 91, `Joe ${pensionAllowance}`, 'Mon Apr 05 2021', 5623.91, 2);
-    expectEvals(evals, 92, 'Cash', 'Mon Apr 05 2021', 8840.76, 2);
-    expectEvals(evals, 93, getnetincLabel('Joe'), 'Mon Apr 05 2021', 9714.03, 2);
-    expectEvals(evals, 94, '(NI)', 'Mon Apr 05 2021', 873.27, 2);
-    expectEvals(evals, 95, getnetincLabel('Joe'), 'Mon Apr 05 2021', 8840.76, 2);
-    expectEvals(evals, 96, 'Cash', 'Sat May 01 2021', 8840.76, 2);
-    expectEvals(evals, 97, '-CPTaxFree Aegon', 'Sat May 01 2021', 0, -1);
-    expectEvals(evals, 98, '-PEN Aegon', 'Sat May 01 2021', 5675.73, 2);
-    expectEvals(evals, 99, '-CPTaxable Jack.Aegon', 'Sat May 01 2021', 0, -1);
-    expectEvals(evals, 100, '-CPTaxable Joe.Aegon', 'Sat May 01 2021', 0, -1);
-    expectEvals(evals, 101, 'javaJob1', 'Sat May 01 2021', 2566.89, 2);
-    expectEvals(evals, 102, '-PEN Aegon', 'Sat May 01 2021', 7087.52, 2);
-    expectEvals(evals, 103, 'Cash', 'Sat May 01 2021', 11279.31, 2);
-    expectEvals(evals, 104, 'Cash', 'Tue Apr 05 2022', 11279.31, 2);
-    expectEvals(evals, 105, '-CPTaxable Joe.Aegon', 'Tue Apr 05 2022', 0, -1);
-    expectEvals(evals, 106, 'Cash', 'Tue Apr 05 2022', 11279.31, 2);
-    expectEvals(evals, 107, '-CPTaxable Jack.Aegon', 'Tue Apr 05 2022', 0, -1);
-    expectEvals(evals, 108, `Joe ${pensionAllowance}`, 'Tue Apr 05 2022', 1411.79, 2);
-    expectEvals(evals, 109, getnetincLabel('Joe'), 'Tue Apr 05 2022', 2438.54, 2);
-    expectEvals(evals, 110, getnetincLabel('Joe'), 'Tue Apr 05 2022', 2438.54, 2);
     
     const viewSettings = getMinimalModelCopySettings();
     const result = makeChartDataFromEvaluations(
@@ -22566,15 +22356,15 @@ describe('evaluations tests', () => {
     expectChartData(chartPts, 11, 'Sun Nov 01 2020', 0, -1);
     expectChartData(chartPts, 12, 'Tue Dec 01 2020', 0, -1);
     expectChartData(chartPts, 13, 'Fri Jan 01 2021', 2422.50, 2);
-    expectChartData(chartPts, 14, 'Mon Feb 01 2021', 4360.49, 2);
-    expectChartData(chartPts, 15, 'Mon Mar 01 2021', 6301.19, 2);
-    expectChartData(chartPts, 16, 'Thu Apr 01 2021', 8244.58, 2);
-    expectChartData(chartPts, 17, 'Sat May 01 2021', 11279.31, 2);
+    expectChartData(chartPts, 14, 'Mon Feb 01 2021', 4353.12, 2);
+    expectChartData(chartPts, 15, 'Mon Mar 01 2021', 6286.45, 2);
+    expectChartData(chartPts, 16, 'Thu Apr 01 2021', 8222.48, 2);
+    expectChartData(chartPts, 17, 'Sat May 01 2021', 11270.68, 2);
     }
     
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(3);
-    expect(result.taxData[0].item.NAME).toBe(`Joe ${pensionAllowance}`);
+    expect(result.taxData[0].item.NAME).toBe('Joe PensionAllowance');
     {
     const chartPts = result.taxData[0].chartDataPoints;
     expect(chartPts.length).toBe(18);
@@ -22598,7 +22388,7 @@ describe('evaluations tests', () => {
     expectChartData(chartPts, 17, 'Sat May 01 2021', 5623.91, 2);
     }
     
-    expect(result.taxData[1].item.NAME).toBe(getnetincLabel('Joe'));
+    expect(result.taxData[1].item.NAME).toBe('Joe income (net)');
     {
     const chartPts = result.taxData[1].chartDataPoints;
     expect(chartPts.length).toBe(18);
@@ -22619,10 +22409,10 @@ describe('evaluations tests', () => {
     expectChartData(chartPts, 14, 'Mon Feb 01 2021', 0, -1);
     expectChartData(chartPts, 15, 'Mon Mar 01 2021', 0, -1);
     expectChartData(chartPts, 16, 'Thu Apr 01 2021', 0, -1);
-    expectChartData(chartPts, 17, 'Sat May 01 2021', 8840.76, 2);
+    expectChartData(chartPts, 17, 'Sat May 01 2021', 8832.13, 2);
     }
     
-    expect(result.taxData[2].item.NAME).toBe(getNILabel('Joe'));
+    expect(result.taxData[2].item.NAME).toBe('Joe income (NI)');
     {
     const chartPts = result.taxData[2].chartDataPoints;
     expect(chartPts.length).toBe(18);
@@ -22643,7 +22433,7 @@ describe('evaluations tests', () => {
     expectChartData(chartPts, 14, 'Mon Feb 01 2021', 0, -1);
     expectChartData(chartPts, 15, 'Mon Mar 01 2021', 0, -1);
     expectChartData(chartPts, 16, 'Thu Apr 01 2021', 0, -1);
-    expectChartData(chartPts, 17, 'Sat May 01 2021', 873.27, 2);
+    expectChartData(chartPts, 17, 'Sat May 01 2021', 881.90, 2);
     }
 
     done();

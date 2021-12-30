@@ -549,7 +549,7 @@ export function getYearOfTaxYear(d: Date) {
   } else {
     startYearOfTaxYear = d.getFullYear() - 1;
   }
-  // log(`tax year of ${d} = ${startYearOfTaxYear}`);
+  // log(`tax year of ${d.toDateString()} = ${startYearOfTaxYear}`);
   // log(`details: d.getDate() = ${d.getDate()}, `+
   //  `d.getMonth() = ${d.getMonth()}, `+
   //  `d.getFullYear() = ${d.getFullYear()}, `);
@@ -570,12 +570,13 @@ export function getMonthOfTaxYear(d: Date) {
 }
 
 function updateValueForCPI(
-  dateSet: Date,
-  dateNow: Date,
+  startYearOfTaxYearSet: number,
+  startYearOfTaxYearNow: number,
   origValue: number,
   cpiVal: number,
 ) {
-  const numYears = dateNow.getFullYear() - dateSet.getFullYear();
+  // log(`startYearOfTaxYearNow = ${startYearOfTaxYearNow} startYearOfTaxYearSet = ${startYearOfTaxYearSet}`)
+  const numYears = startYearOfTaxYearNow - startYearOfTaxYearSet;
   // log(`update tax bands after ${numYears} have passed at ${cpiVal} rate`)
   const result = Math.exp(
     Math.log(origValue) + numYears * Math.log(1.0 + cpiVal / 100.0),
@@ -585,7 +586,7 @@ function updateValueForCPI(
 }
 
 interface TaxBands {
-  taxBandsSet: Date;
+  startYearOfTaxYearTaxBandsSet: number;
   noTaxBand: number;
   lowTaxBand: number;
   adjustnoTaxBand: number;
@@ -604,7 +605,7 @@ interface TaxBandsMap {
 
 const TAX_MAP: TaxBandsMap = {
   2016: {
-    taxBandsSet: makeDateFromString('April 5 2016'),
+    startYearOfTaxYearTaxBandsSet: 2016,
     noTaxBand: 12500,
     lowTaxBand: 50000,
     adjustnoTaxBand: 100000,
@@ -618,7 +619,7 @@ const TAX_MAP: TaxBandsMap = {
     highNIRate: 0.02,
   },
   2017: {
-    taxBandsSet: makeDateFromString('April 5 2017'),
+    startYearOfTaxYearTaxBandsSet: 2017,
     noTaxBand: 12500,
     lowTaxBand: 50000,
     adjustnoTaxBand: 100000,
@@ -632,7 +633,7 @@ const TAX_MAP: TaxBandsMap = {
     highNIRate: 0.02,
   },
   2018: {
-    taxBandsSet: makeDateFromString('April 5 2018'),
+    startYearOfTaxYearTaxBandsSet: 2018,
     noTaxBand: 12500,
     lowTaxBand: 50000,
     adjustnoTaxBand: 100000,
@@ -646,7 +647,7 @@ const TAX_MAP: TaxBandsMap = {
     highNIRate: 0.02,
   },
   2019: {
-    taxBandsSet: makeDateFromString('April 5 2019'),
+    startYearOfTaxYearTaxBandsSet: 2019,
     noTaxBand: 12500,
     lowTaxBand: 50000,
     adjustnoTaxBand: 100000,
@@ -660,7 +661,7 @@ const TAX_MAP: TaxBandsMap = {
     highNIRate: 0.02,
   },
   2020: {
-    taxBandsSet: makeDateFromString('April 5 2020'),
+    startYearOfTaxYearTaxBandsSet: 2020,
     noTaxBand: 12500,
     lowTaxBand: 50000,
     adjustnoTaxBand: 100000,
@@ -675,9 +676,9 @@ const TAX_MAP: TaxBandsMap = {
   },
 };
 
-function getTaxBands(income: number, d: Date, cpiVal: number) {
-  const yearToPay = d.getFullYear();
-  for (let yr = yearToPay; yr > 2016; yr = yr - 1) {
+function getTaxBands(income: number, startYearOfTaxYear: number, cpiVal: number) {
+  // log(`in getTaxBands, startYearOfTaxYear = ${startYearOfTaxYear}`);
+  for (let yr = startYearOfTaxYear; yr > 2016; yr = yr - 1) {
     // TODO drop yr to 2021 for performance
     const bands: any | undefined = TAX_MAP[`${yr}`];
     if (bands !== undefined) {
@@ -695,42 +696,43 @@ function getTaxBands(income: number, d: Date, cpiVal: number) {
         lowNIRate: bands.lowNIRate,
         highNIRate: bands.highNIRate,
 
-        bandsSet: bands.taxBandsSet,
+        bandsSet: bands.startYearOfTaxYearTaxBandsSet,
       };
+      // log(`bands before CPI adjustment: ${showObj(bands)}`);
       result.noTaxBand = updateValueForCPI(
         result.bandsSet,
-        d,
+        startYearOfTaxYear,
         result.noTaxBand,
         cpiVal,
       );
       result.lowTaxBand = updateValueForCPI(
         result.bandsSet,
-        d,
+        startYearOfTaxYear,
         result.lowTaxBand,
         cpiVal,
       );
       result.adjustnoTaxBand = updateValueForCPI(
         result.bandsSet,
-        d,
+        startYearOfTaxYear,
         result.adjustnoTaxBand,
         cpiVal,
       );
       result.highTaxBand = updateValueForCPI(
         result.bandsSet,
-        d,
+        startYearOfTaxYear,
         result.highTaxBand,
         cpiVal,
       );
 
       result.noNIBand = updateValueForCPI(
         result.bandsSet,
-        d,
+        startYearOfTaxYear,
         result.noNIBand,
         cpiVal,
       );
       result.lowNIBand = updateValueForCPI(
         result.bandsSet,
-        d,
+        startYearOfTaxYear,
         result.lowNIBand,
         cpiVal,
       );
@@ -751,9 +753,10 @@ function getTaxBands(income: number, d: Date, cpiVal: number) {
   throw new Error(`no Tax Bands defined!`);
 }
 
-function calculateIncomeTaxPayable(income: number, d: Date, cpiVal: number) {
+function calculateIncomeTaxPayable(income: number, startYearOfTaxYear: number, cpiVal: number) {
   // log(`in calculateTaxPayable`);
-  const bands = getTaxBands(income, d, cpiVal);
+  const bands = getTaxBands(income, startYearOfTaxYear, cpiVal);
+  // log(`tax bands are ${showObj(bands)}`);
 
   const sizeOfLowTaxBand = bands.lowTaxBand - bands.noTaxBand;
   const sizeOfHighTaxBand = bands.highTaxBand - bands.lowTaxBand;
@@ -821,11 +824,11 @@ function calculateIncomeTaxPayable(income: number, d: Date, cpiVal: number) {
 
 function calculateNIPayable(
   income: number,
-  d: Date,
+  startYearOfTaxYear: number,
   cpiVal: number,
 ): { amountLiable: number; rate: number }[] {
   // log(`in calculateNIPayable`);
-  const bands = getTaxBands(income, d, cpiVal);
+  const bands = getTaxBands(income, startYearOfTaxYear, cpiVal);
 
   const noNIBand = bands.noNIBand;
   const lowNIBand = bands.lowNIBand;
@@ -879,12 +882,21 @@ function calculateNIPayable(
   return niPayable;
 }
 
-const CGTBandsSet = makeDateFromString('April 5 2018');
+const startYearOfTaxYearCGTBandsSet = 2018;
 const noCGTBandSet = 12000;
 
-function calculateCGTPayable(gain: number, d: Date, cpiVal: number) {
+function calculateCGTPayable(
+  gain: number, 
+  startYearOfTaxYear: number, 
+  cpiVal: number,
+  ) {
   // log(`in calculateCGTPayable, gain = ${gain}`);
-  const noCGTBand = updateValueForCPI(CGTBandsSet, d, noCGTBandSet, cpiVal);
+  const noCGTBand = updateValueForCPI(
+    startYearOfTaxYearCGTBandsSet, 
+    startYearOfTaxYear, 
+    noCGTBandSet, 
+    cpiVal,
+  );
 
   const CGTRate = 0.2;
   // TODO - this should depend on whether payer is high income tax payer
@@ -913,13 +925,14 @@ function adjustCash(
     // NB some tests have an expense and watch its value
     // without having a cash asset to decrement
   } else {
-    // log('in adjustCash, setValue:');
+    const newValue = cashValue + amount;
+    // log(`in adjustCash, setValue to ${newValue}`);
     setValue(
       values,
       evaluations,
       d,
       CASH_ASSET_NAME,
-      cashValue + amount,
+      newValue,
       model,
       source,
       '1', //callerID
@@ -996,7 +1009,7 @@ function updatePurchaseValue(
 
 
 function payIncomeTax(
-  startOfTaxYear: Date,
+  startOfTaxYear: Date, // should be April 5th of some year
   income: number,
   alreadyPaid: number,
   cpiVal: number,
@@ -1010,7 +1023,7 @@ function payIncomeTax(
   const taxDue: {
     amountLiable: number;
     rate: number;
-  }[] = calculateIncomeTaxPayable(income, startOfTaxYear, cpiVal);
+  }[] = calculateIncomeTaxPayable(income, startOfTaxYear.getFullYear(), cpiVal);
   // log(`taxDue for ${source} on ${startOfTaxYear} = ${taxDue}`);
   let totalTaxDue = sumTaxDue(taxDue);
 
@@ -1081,7 +1094,7 @@ function logAnnualNIPayments(
 }
 
 function payCGT(
-  startOfTaxYear: Date,
+  startOfTaxYear: Date,// should be April 5th of some year
   gain: number,
   cpiVal: number,
   values: ValuesContainer,
@@ -1092,7 +1105,7 @@ function payCGT(
   // log(`pay CGT on ${gain} for date ${startOfTaxYear}`);
   // calculate CGT liability
   // TODO should pass in whether high rate income tax next
-  const CGTDue = calculateCGTPayable(gain, startOfTaxYear, cpiVal);
+  const CGTDue = calculateCGTPayable(gain, startOfTaxYear.getFullYear(), cpiVal);
   // log(`taxDue = ${taxDue}`);
   if (CGTDue > 0) {
     // log('in payCGT, adjustCash:');
@@ -1122,7 +1135,8 @@ function OptimizeIncomeTax(
   model: ModelData,
 ) {
   // log(`OptimizeIncomeTax income tax for ${person} and ${liableIncome} on ${date.toDateString()}`);
-  const bands = getTaxBands(liableIncome, date, cpiVal);
+  const startYearOfTaxYear = date.getFullYear();
+  const bands = getTaxBands(liableIncome, startYearOfTaxYear, cpiVal);
   if (liableIncome > bands.noTaxBand) {
     return;
   }
@@ -1442,6 +1456,24 @@ function settleUpTax(
   }
 }
 
+function getTaxMonthDate(
+  startYearOfTaxYear: number,
+  monthOfTaxYear: number,
+){
+  let result: Date;
+  if(monthOfTaxYear <= 3){
+    // start of tax year = 2020, month = January
+    // gives January 2021
+    result = new Date(startYearOfTaxYear + 1, monthOfTaxYear, 5);
+  } else {
+    // start of tax year = 2020, month = May
+    // gives May 2020
+    result = new Date(startYearOfTaxYear, monthOfTaxYear, 5);
+  }
+  // log(`month ${monthOfTaxYear} and year ${startYearOfTaxYear} make date ${result.toDateString()}`);
+  return result;
+}
+
 function payTaxEstimate(
   liableIncomeInTaxMonth: Map<string, Map<string, number>>,
   taxMonthlyPaymentsPaid: Map<string, Map<string, number>>,
@@ -1452,9 +1484,6 @@ function payTaxEstimate(
   evaluations: Evaluation[],
   model: ModelData,
 ) {
-  const date = new Date(startYearOfTaxYear + 1, monthOfTaxYear, 5);
-  // log(`payTaxEstimate for month ${monthOfTaxYear} and year ${startYearOfTaxYear}`);
-  
   // income tax
   let liableIncomeTaxInTaxMonth = liableIncomeInTaxMonth.get(incomeTax);
   if(liableIncomeTaxInTaxMonth === undefined){
@@ -1477,7 +1506,7 @@ function payTaxEstimate(
         rate: number;
       }[] = calculateIncomeTaxPayable(
         annualIncomeEstimate,
-        date,
+        startYearOfTaxYear,
         cpiVal,
       );
       const estimateMonthTaxDue = 
@@ -1487,7 +1516,7 @@ function payTaxEstimate(
         // log(`adjust cash for tax estimate ${estimateMonthTaxDue}`);
         adjustCash(
           -estimateMonthTaxDue,
-          date,
+          getTaxMonthDate(startYearOfTaxYear, monthOfTaxYear),
           values,
           evaluations,
           model,
@@ -1514,8 +1543,6 @@ function payNIEstimate(
   evaluations: Evaluation[],
   model: ModelData,
 ) {
-  const date = new Date(startYearOfTaxYear + 1, monthOfTaxYear, 5);
-
   // NI
   let liableNIInTaxMonth = liableIncomeInTaxMonth.get(nationalInsurance);
   if(liableNIInTaxMonth === undefined){
@@ -1537,7 +1564,7 @@ function payNIEstimate(
         rate: number;
       }[] = calculateNIPayable(
         annualIncomeEstimate,
-        date,
+        startYearOfTaxYear,
         cpiVal,
       );
       const niDueForYear = sumNI(estimateAnnualTaxDue);
@@ -1550,7 +1577,7 @@ function payNIEstimate(
         // log(`adjust cash for NI payment ${nIMonthTaxDue}`);
         adjustCash(
           -nIMonthTaxDue,
-          date,
+          getTaxMonthDate(startYearOfTaxYear, monthOfTaxYear),
           values,
           evaluations,
           model,
