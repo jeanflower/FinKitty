@@ -674,6 +674,20 @@ const TAX_MAP: TaxBandsMap = {
     lowNIRate: 0.12,
     highNIRate: 0.02,
   },
+  2022: {
+    startYearOfTaxYearTaxBandsSet: 2022,
+    noTaxBand: 12500,
+    lowTaxBand: 50000,
+    adjustnoTaxBand: 100000,
+    highTaxBand: 150000,
+    lowTaxRate: 0.2,
+    highTaxRate: 0.4,
+    topTaxRate: 0.45,
+    noNIBand: 8628,
+    lowNIBand: 50004,
+    lowNIRate: 0.1325,
+    highNIRate: 0.0325,
+  },
 };
 
 function getTaxBands(income: number, startYearOfTaxYear: number, cpiVal: number) {
