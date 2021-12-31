@@ -45,7 +45,6 @@ import {
   viewDetail,
   viewFrequency,
   viewType,
-  snapshot,
   purchase,
 //  pension,
 //  crystallizedPension,
@@ -84,7 +83,6 @@ import {
   reportDiv,
 } from './views/tablePages';
 import { overviewDiv } from './views/overviewPage';
-import { snapshotDiv } from './views/snapshotPage';
 import { taxDiv } from './views/chartPages';
 import { incomesDiv } from './views/incomesPage';
 import { expensesDiv } from './views/expensesPage';
@@ -238,12 +236,6 @@ const views = new Map<
   ],
   [
     overview,
-    {
-      display: false,
-    },
-  ],
-  [
-    snapshot,
     {
       display: false,
     },
@@ -1343,24 +1335,6 @@ export class AppContent extends Component<AppProps, AppState> {
               this.state.debtChartData,
               this.state.expensesChartData,
               this.state.incomesChartData,
-              this.state.taxChartData,
-              getStartDate,
-              updateStartDate,
-              getEndDate,
-              updateEndDate,
-            )}
-            {snapshotDiv(
-              this.state.modelData,
-              this.state.viewState,
-              showAlert,
-              this.state.assetChartData,
-              this.state.todaysAssetValues,
-              this.state.debtChartData,
-              this.state.todaysDebtValues,
-              this.state.expensesChartData,
-              this.state.todaysExpenseValues,
-              this.state.incomesChartData,
-              this.state.todaysIncomeValues,
               this.state.taxChartData,
               getStartDate,
               updateStartDate,
