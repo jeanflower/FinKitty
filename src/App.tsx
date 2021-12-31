@@ -1874,12 +1874,12 @@ export class AppContent extends Component<AppProps, AppState> {
         style={{ display: getDisplay(settingsView) ? 'block' : 'none' }}
       >
         <fieldset>
-          {this.todaysSettingsTable(model, todaysValues)}
           {settingsTableDiv(
             this.state.modelData,
             this.state.viewState,
             showAlert,
           )}
+          {this.todaysSettingsTable(model, todaysValues)}
           <p />
 
           {collapsibleFragment(
