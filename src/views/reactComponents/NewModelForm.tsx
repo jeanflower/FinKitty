@@ -7,6 +7,7 @@ import { makeButton } from './Button';
 import { log, printDebug } from '../../utils';
 import { minimalModel } from '../../models/exampleModels';
 import dateFormat from 'dateformat';
+import FileSaver from 'file-saver';
 
 interface CreateModelFormState {
   newName: string;
@@ -128,6 +129,18 @@ export class CreateModelForm extends Component<
   private async backupModel(e: FormEvent<Element>) {
     e.preventDefault();
     const d = new Date();
+
+    const backupName = this.props.currentModelName 
+      + 'backup ' 
+      + dateFormat(d, 'yyyy-mm-dd HH:MM:ss');
+
+    if ( window.confirm(`Save a local text file for this model?`) ) {
+      const backupText = JSON.stringify(this.props.modelData);
+
+      var blob = new Blob([backupText], {type: "text/plain;charset=utf-8"});
+      FileSaver.saveAs(blob, `${backupName}.txt`);
+    }
+
     await this.props.saveModel(
       this.props.userID,
       this.props.currentModelName +
