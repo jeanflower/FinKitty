@@ -39,6 +39,7 @@ import {
   Trigger,
   Item,
   ReportDatum,
+  ReportMatcher,
 } from '../types/interfaces';
 import {
   attemptRename,
@@ -50,6 +51,7 @@ import {
   deleteTrigger,
   editSetting,
   getDisplay,
+  setReportKey,
   submitAsset,
   submitExpense,
   submitIncome,
@@ -99,6 +101,9 @@ import {
 import { ReactFragment } from 'react';
 import { Accordion, Button, Card } from 'react-bootstrap';
 import { filtersList } from './chartPages';
+import { makeButton } from './reactComponents/Button';
+import { Input } from './reactComponents/Input';
+import { ReportMatcherForm } from './reactComponents/ReportMatcherForm';
 
 export function collapsibleFragment(
   fragment: ReactFragment | undefined,
@@ -1815,6 +1820,7 @@ export function settingsTableDiv(
 export function reportDiv(
   model: ModelData, 
   viewSettings: ViewSettings,
+  reportMatcher: ReportMatcher,
   reportData: ReportDatum[],
 ) {
   if (!getDisplay(reportView)) {
@@ -1846,9 +1852,9 @@ export function reportDiv(
   });
   const reportDataTable = addIndices(unindexedResult);
 
-  log(`display reportDataTable of length ${reportDataTable.length}`);
+  // log(`display reportDataTable of length ${reportDataTable.length}`);
   var util = require('util');
-  log(`display reportDataTable ${util.inspect(reportDataTable)}`);
+  // log(`display reportDataTable ${util.inspect(reportDataTable)}`);
 
   const context = Context.Asset;
   const items = model.assets.filter(obj => {
@@ -1858,6 +1864,27 @@ export function reportDiv(
   return (
     <div className="ml-3">
       {filtersList(items, viewSettings, context, true)}
+      <br></br>
+      Match sources to <b>{reportMatcher.sourceMatcher}</b>
+      <br></br>
+      Exclude sources with <b>{reportMatcher.sourceExcluder}</b>
+      <br></br>
+      <ReportMatcherForm
+        reportMatcher={reportMatcher}
+        setReportKey={setReportKey}
+      />
+
+      {makeButton(
+        'reset to default',
+        ()=>{
+          const setResult = setReportKey(
+            `{"sourceMatcher":".*","sourceExcluder":"growth"}`
+          );
+        },
+        'test',
+        'test',
+        'primary',
+      )}
       <DataGrid
         deleteFunction={undefined}
         handleGridRowsUpdated={function() {

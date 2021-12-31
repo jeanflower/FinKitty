@@ -581,7 +581,7 @@ export async function refreshData(
           date: Date,
           source: string,
         ) => {
-          if (!reactAppComponent.reportDefiner) {
+          if (!reactAppComponent.state.reportDefiner) {
             return false;
           }
           if(model.expenses.find(e => {
@@ -596,8 +596,8 @@ export async function refreshData(
           if (nameMatcher === ''){
             return false;
           } 
-          if (!reactAppComponent.reportDefiner.sourceMatcher &&
-            !reactAppComponent.reportDefiner.sourceExcluder
+          if (!reactAppComponent.state.reportDefiner.sourceMatcher &&
+            !reactAppComponent.state.reportDefiner.sourceExcluder
           ) {
             return false;
           }
@@ -626,21 +626,31 @@ export async function refreshData(
               return false;
             }
           }
-          if (reactAppComponent.reportDefiner.sourceMatcher) {
-            const sourceRegex = RegExp(
-              reactAppComponent.reportDefiner.sourceMatcher,
-            );
-            if (source.match(sourceRegex) === null) {
-              // log(`do not show source ${source} bcs it doesn't match`);
+          if (reactAppComponent.state.reportDefiner.sourceMatcher) {
+            try{
+              const sourceRegex = RegExp(
+                reactAppComponent.state.reportDefiner.sourceMatcher,
+              );
+              if (source.match(sourceRegex) === null) {
+                // log(`do not show source ${source} bcs it doesn't match`);
+                return false;
+              }
+            } catch (e){
+              alert('error processing regexp');
               return false;
             }
           }
-          if (reactAppComponent.reportDefiner.sourceExcluder) {
-            const sourceRegex = RegExp(
-              reactAppComponent.reportDefiner.sourceExcluder,
-            );
-            if (source.match(sourceRegex) !== null) {
-              // log(`do not show source ${source} bcs it matches exclusion`);
+          if (reactAppComponent.state.reportDefiner.sourceExcluder) {
+            try{
+              const sourceRegex = RegExp(
+                reactAppComponent.state.reportDefiner.sourceExcluder,
+              );
+              if (source.match(sourceRegex) !== null) {
+                // log(`do not show source ${source} bcs it matches exclusion`);
+                return false;
+              }
+            } catch (e){
+              alert('error processing regexp');
               return false;
             }
           }
@@ -748,22 +758,33 @@ export async function refreshData(
   // log(`finished refreshData`);
 }
 
-function setReportKey(textInput: string) {
+export function setReportKey(textInput: string): boolean {
   /*
   report:{"sourceExcluder":"growth"}
   */
-  const inputObj = JSON.parse(textInput);
+  try{
+    const inputObj = JSON.parse(textInput);
 
-  reactAppComponent.reportDefiner = {
-    sourceMatcher: inputObj.sourceMatcher,
-    sourceExcluder: inputObj.sourceExcluder,
-  };
+    reactAppComponent.setState({
+      reportDefiner: {
+        sourceMatcher: inputObj.sourceMatcher,
+        sourceExcluder: inputObj.sourceExcluder,
+      },
+    });
 
-  // log('setting key for report : go refresh data');
-  refreshData(
-    true, // refreshModel = true,
-    true, // refreshChart = true,
-  );
+    // log('setting key for report : go refresh data');
+    refreshData(
+      true, // refreshModel = true,
+      true, // refreshChart = true,
+    );
+    return true;
+  } catch(e){
+    alert('error processing JSON format');
+    return false;
+  }
+}
+export function getReportKey() {
+  return reactAppComponent.state.reportDefiner;
 }
 
 export async function submitAsset(assetInput: Asset, modelData: ModelData) {
@@ -1146,6 +1167,7 @@ interface AppState {
   todaysIncomeValues: Map<string, IncomeVal>;
   todaysExpenseValues: Map<string, ExpenseVal>;
   todaysSettingValues: Map<string, SettingVal>;
+  reportDefiner: ReportMatcher;
   reportData: ReportDatum[];
   alertText: string;
 }
@@ -1155,7 +1177,6 @@ interface AppProps {
 }
 
 export class AppContent extends Component<AppProps, AppState> {
-  reportDefiner: ReportMatcher;
   options: any;
   /*
   {
@@ -1188,14 +1209,14 @@ export class AppContent extends Component<AppProps, AppState> {
       todaysIncomeValues: new Map<string, IncomeVal>(),
       todaysExpenseValues: new Map<string, ExpenseVal>(),
       todaysSettingValues: new Map<string, SettingVal>(),
+      reportDefiner: {
+        sourceMatcher: '.*',
+        sourceExcluder: 'growth',
+      },
       reportData: [],
       alertText: '',
     };
 
-    this.reportDefiner = {
-      sourceMatcher: '.*',
-      sourceExcluder: 'growth',
-    };
     this.options = {
       goToOverviewPage: true,
       checkOverwrite: true,
@@ -1398,6 +1419,7 @@ export class AppContent extends Component<AppProps, AppState> {
             {reportDiv(
               this.state.modelData, 
               this.state.viewState,
+              this.state.reportDefiner,
               this.state.reportData,
             )}
           </>
