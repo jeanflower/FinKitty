@@ -1,6 +1,7 @@
 import {
   ChartData,
   ChartSettings,
+  finkittyButtonType,
   ItemCategory,
   ModelData,
   Setting,
@@ -80,6 +81,7 @@ function makeFilterButton(
   settings: ViewSettings,
   context: Context,
   refreshModel: boolean,
+  isCategory: boolean,
 ) {
   let id = '';
   if (context === Context.Income) {
@@ -90,6 +92,14 @@ function makeFilterButton(
     id = `chooseAssetOrDebtChartSetting--asset-${buttonName}`;
   } else if (context === Context.Debt) {
     id = `chooseAssetOrDebtChartSetting--debt-${buttonName}`;
+  }
+
+
+  let type: finkittyButtonType = 'primary';
+  if(isCategory){
+    type = settings.highlightButton(context, buttonName) ? 'success' : 'outline-success';
+  } else {
+    type = settings.highlightButton(context, buttonName) ? 'primary' : 'outline-primary';
   }
 
   return makeButton(
@@ -104,7 +114,7 @@ function makeFilterButton(
     },
     buttonName,
     id,
-    settings.highlightButton(context, buttonName) ? 'primary' : 'secondary',
+    type,
   );
 }
 
@@ -117,7 +127,7 @@ export function filtersList(
   const incomeOrExpenseNames: string[] = items.map(data => data.NAME).sort();
 
   const buttons = incomeOrExpenseNames.map(buttonName => {
-    return makeFilterButton(buttonName, settings, context, refreshModel);
+    return makeFilterButton(buttonName, settings, context, refreshModel, false);
   });
   const categories: string[] = [];
   items.forEach(data => {
@@ -131,7 +141,7 @@ export function filtersList(
   categories.sort();
   categories.unshift(allItems);
   const categoryButtons = categories.map(buttonName => {
-    return makeFilterButton(buttonName, settings, context, refreshModel);
+    return makeFilterButton(buttonName, settings, context, refreshModel, true);
   });
 
   return (
@@ -154,7 +164,7 @@ export function coarseFineList(settings: ViewSettings) {
       },
       viewType,
       `chooseViewDetailType${viewType}`,
-      viewType === selectedCoarseFineView ? 'primary' : 'secondary',
+      viewType === selectedCoarseFineView ? 'primary' : 'outline-primary',
     ),
   );
   return <div role="group">{buttons}</div>;
@@ -172,7 +182,7 @@ export function frequencyList(settings: ViewSettings) {
       },
       viewType,
       'chooseViewFrequencyType',
-      viewType === selectedView ? 'primary' : 'secondary',
+      viewType === selectedView ? 'primary' : 'outline-primary',
     ),
   );
   return <div role="group">{buttons}</div>;
@@ -532,7 +542,7 @@ function assetViewTypeList(settings: ViewSettings) {
       },
       viewType,
       'chooseAssetChartType',
-      viewType === selectedAssetView ? 'primary' : 'secondary',
+      viewType === selectedAssetView ? 'primary' : 'outline-primary',
     ),
   );
   return <div role="group">{buttons}</div>;
@@ -656,7 +666,7 @@ function taxButtonList(model: ModelData, viewSettings: ViewSettings) {
       },
       person === allItems ? 'All people' : person,
       `chooseTaxSetting-${person}`,
-      person === getTaxPerson(viewSettings) ? 'primary' : 'secondary',
+      person === getTaxPerson(viewSettings) ? 'primary' : 'outline-primary',
     ),
   );
   buttons.push(
@@ -668,7 +678,7 @@ function taxButtonList(model: ModelData, viewSettings: ViewSettings) {
       },
       'All types',
       `chooseTaxType-all`,
-      getTaxType(viewSettings) === allItems ? 'primary' : 'secondary',
+      getTaxType(viewSettings) === allItems ? 'secondary' : 'outline-secondary',
     ),
   );
   buttons.push(
@@ -680,7 +690,7 @@ function taxButtonList(model: ModelData, viewSettings: ViewSettings) {
       },
       'income',
       `chooseTaxType-income`,
-      getTaxType(viewSettings) === income ? 'primary' : 'secondary',
+      getTaxType(viewSettings) === income ? 'secondary' : 'outline-secondary',
     ),
   );
   buttons.push(
@@ -692,7 +702,7 @@ function taxButtonList(model: ModelData, viewSettings: ViewSettings) {
       },
       'gain',
       `chooseTaxType-gain`,
-      getTaxType(viewSettings) === gain ? 'primary' : 'secondary',
+      getTaxType(viewSettings) === gain ? 'secondary' : 'outline-secondary',
     ),
   );
   buttons.push(
@@ -708,7 +718,7 @@ function taxButtonList(model: ModelData, viewSettings: ViewSettings) {
       },
       'pensionAllowance',
       `chooseTaxType-pension`,
-      getTaxType(viewSettings) === pensionAllowance ? 'primary' : 'secondary',
+      getTaxType(viewSettings) === pensionAllowance ? 'secondary' : 'outline-secondary',
     ),
   );
   buttons.push(
@@ -720,7 +730,7 @@ function taxButtonList(model: ModelData, viewSettings: ViewSettings) {
       },
       'Show net',
       `chooseTaxType-showNet`,
-      getTaxShowNet(viewSettings) ? 'primary' : 'secondary',
+      getTaxShowNet(viewSettings) ? 'success' : 'outline-success',
     ),
   );
   buttons.push(
@@ -732,7 +742,7 @@ function taxButtonList(model: ModelData, viewSettings: ViewSettings) {
       },
       'Hide net',
       `chooseTaxType-hideNet`,
-      !getTaxShowNet(viewSettings) ? 'primary' : 'secondary',
+      !getTaxShowNet(viewSettings) ? 'success' : 'outline-success',
     ),
   );
   return <div role="group">{buttons}</div>;

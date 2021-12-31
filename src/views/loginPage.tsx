@@ -52,14 +52,14 @@ export function loginPage(loginWithRedirect: any, loginForTesting: any) {
               loginWithRedirect,
               'buttonLogin',
               'buttonLogin',
-              'secondary',
+              'outline-secondary',
             )}
             {makeButton(
               'Shared playpen (no login)',
               loginForTesting,
               'buttonTestLogin',
               'buttonTestLogin',
-              'secondary',
+              'outline-secondary',
             )}
           </div>
           <div className="alert alert-block">

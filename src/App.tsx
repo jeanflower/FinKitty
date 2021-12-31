@@ -1264,10 +1264,9 @@ export class AppContent extends Component<AppProps, AppState> {
                   return false;
                 }}
               >
-                <h4 className="text" id="estate" key="estate">{textToDisplay}</h4>
                 <div className="col">
                   <div className="d-flex flex-row-reverse">
-                    {this.rhsTopButtonList()}
+                    {this.rhsTopButtonList(textToDisplay)}
                   </div>
                   <div className="d-flex flex-row-reverse">
                     {this.rhsBottomButtonList()}
@@ -1445,7 +1444,7 @@ export class AppContent extends Component<AppProps, AppState> {
         },
         model,
         `btn-${idKey}-${model}`,
-        idKey !== 'del' && modelName === model ? 'primary' : 'secondary',
+        idKey !== 'del' && modelName === model ? 'primary' : 'outline-primary',
       );
     });
     return (
@@ -1644,7 +1643,7 @@ export class AppContent extends Component<AppProps, AppState> {
             },
             `btn-delete`,
             `btn-delete`,
-            'secondary',
+            'outline-secondary',
           )}
           {makeButton(
             'Diff model',
@@ -1653,7 +1652,7 @@ export class AppContent extends Component<AppProps, AppState> {
             },
             `btn-diff`,
             `btn-diff`,
-            'secondary',
+            'outline-secondary',
           )}
         </div>
         <br></br>
@@ -1673,7 +1672,7 @@ export class AppContent extends Component<AppProps, AppState> {
             },
             `btn-check`,
             `btn-check`,
-            'secondary',
+            'outline-secondary',
           )}
           {makeButton(
             'Copy model as JSON to clipboard',
@@ -1696,7 +1695,7 @@ export class AppContent extends Component<AppProps, AppState> {
             },
             `btn-log`,
             `btn-log`,
-            'secondary',
+            'outline-secondary',
           )}
           {makeButton(
             'Test encrypted JSON',
@@ -1728,7 +1727,7 @@ export class AppContent extends Component<AppProps, AppState> {
             },
             `btn-JSON-encrypt-replace`,
             `btn-JSON-encrypt-replace`,
-            'secondary',
+            'outline-secondary',
           )}
           {makeButton(
             'Force delete model',
@@ -1741,7 +1740,7 @@ export class AppContent extends Component<AppProps, AppState> {
             },
             `btn-force-delete`,
             `btn-force-delete`,
-            'secondary',
+            'outline-secondary',
           )}
         </div>
         <ReplaceWithJSONForm
@@ -1791,7 +1790,7 @@ export class AppContent extends Component<AppProps, AppState> {
                 },
                 'startNewModel',
                 'startNewModel',
-                'secondary',
+                'outline-secondary',
               )}
             </div>
             <br />
@@ -1977,7 +1976,7 @@ export class AppContent extends Component<AppProps, AppState> {
       </div>
     );
   }
-  private rhsTopButtonList() {
+  private rhsTopButtonList(estateText: string) {
     const buttons: JSX.Element[] = [];
     buttons.push(
       makeButton(
@@ -1988,9 +1987,21 @@ export class AppContent extends Component<AppProps, AppState> {
         },
         'Log out',
         `btn-LogOut`,
-        'primary',
+        'outline-secondary',
       ),
     );
+    if(estateText !== ''){
+      buttons.push(
+        makeButton(
+          estateText,
+          (event: React.MouseEvent<HTMLButtonElement>) => {
+          },
+          'estateText',
+          `btn-estateText`,
+          'outline-secondary',
+        ),
+      );
+    }
     return buttons;
   }
 
@@ -2031,7 +2042,7 @@ export class AppContent extends Component<AppProps, AppState> {
           },
           view.lc,
           `btn-${view.lc}`,
-          display ? 'secondary-on' : 'secondary',
+          display ? 'secondary' : 'outline-secondary',
         ),
       );
       viewIterator = it.next();
@@ -2085,7 +2096,7 @@ export class AppContent extends Component<AppProps, AppState> {
       },
       `btn-undo-model`,
       `btn-undo-model`,
-      this.state.modelData.undoModel !== undefined ? 'primary' : 'primary-off',
+      this.state.modelData.undoModel !== undefined ? 'primary' : 'outline-primary',
     );
 
     if (undoTooltip === '') {
@@ -2145,7 +2156,7 @@ export class AppContent extends Component<AppProps, AppState> {
       },
       `btn-redo-model`,
       `btn-redo-model`,
-      this.state.modelData.redoModel !== undefined ? 'primary' : 'primary-off',
+      this.state.modelData.redoModel !== undefined ? 'primary' : 'outline-primary',
     );
 
     if (redoTooltip === '') {
@@ -2181,7 +2192,7 @@ export class AppContent extends Component<AppProps, AppState> {
       },
       `btn-save-model`,
       `btn-save-model`,
-      isDirty ? 'primary' : 'primary-off',
+      isDirty ? 'primary' : 'outline-primary',
     );
   }
 
@@ -2214,7 +2225,7 @@ export class AppContent extends Component<AppProps, AppState> {
           },
           `btn-clear-alert`,
           `btn-clear-alert`,
-          'secondary',
+          'outline-secondary',
         ),
       );
     }

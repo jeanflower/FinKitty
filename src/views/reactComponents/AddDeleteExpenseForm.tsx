@@ -224,14 +224,14 @@ export class AddDeleteExpenseForm extends Component<
             this.setInputExpense,
             'useExpenseInputs',
             'useExpenseInputs',
-            this.state.inputting === inputtingExpense ? 'primary' : 'secondary',
+            this.state.inputting === inputtingExpense ? 'primary' : 'outline-secondary',
           )}
           {makeButton(
             'Revalue expense mode',
             this.setInputRevalue,
             'useRevalueInputsExpense',
             'useRevalueInputsExpense',
-            this.state.inputting === inputtingRevalue ? 'primary' : 'secondary',
+            this.state.inputting === inputtingRevalue ? 'primary' : 'outline-secondary',
           )}
         </div>
         <form className="container-fluid" onSubmit={this.add}>

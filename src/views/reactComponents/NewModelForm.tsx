@@ -64,7 +64,7 @@ export class CreateModelForm extends Component<
         },
         `btn-create-${x.name}-example`,
         `btn-create-${x.name}-example`,
-        'secondary',
+        'outline-primary',
       );
     });
     return <div role="group">{buttons}</div>;
@@ -98,21 +98,21 @@ export class CreateModelForm extends Component<
           },
           `btn-createMinimalModel`,
           `btn-createMinimalModel`,
-          'secondary',
+          'outline-success',
         )}
         {makeButton(
           'Make backup of model',
           this.backupModel,
           `btn-backup`,
           `btn-backup`,
-          'secondary',
+          'outline-success',
         )}
         {makeButton(
           'Clone model',
           this.clonePropsModel,
           `btn-clone`,
           `btn-clone`,
-          'secondary',
+          'outline-success',
         )}
         {this.exampleButtonList()}
       </form>

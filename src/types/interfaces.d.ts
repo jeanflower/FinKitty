@@ -216,3 +216,12 @@ export interface ChartSettings {
     labelFormatter: ({ label: string }) => string;
   };
 }
+
+export type finkittyButtonType =
+  'primary'|
+  'secondary'|
+  'success'|
+  'outline-primary'|
+  'outline-secondary'|
+  'outline-success';
+ 
