@@ -87,12 +87,15 @@ export const income = 'income';
 export const gain = 'gain';
 export const pensionAllowance = 'PensionAllowance';
 export const net = '(net)';
+
+export const cpPrefix = '-CP';
+export const penPrefix = '-P';
 // Assets can of the form CrystallizedPension
 // and transfer to cash is liable to income tax for
 // the named owner
 // (i.e. named CrystallizedPensionJack)
 // generates income tax liability for Jack
-export const crystallizedPension = '-CPTaxable ';
+export const crystallizedPension = `${cpPrefix}Taxable `;
 // Assets can be liable to CGT
 // CGT calculations depend upon a PurchasePrice having been set
 // for the asset. Then, upon sale, a gain can be calculated
@@ -108,13 +111,13 @@ export const cgt = '(CGT)';
 // or PensionDBTeachers
 // (amounts here take proportion of income and add to accruing benefit value)
 
-export const pension = '-PEN ';
-export const pensionSS = '-PSS ';
-export const pensionDB = '-PDB ';
-export const pensionTransfer = '-PT ';
-export const moveTaxFreePart = '-CPTaxFreeM ';
-export const taxFree = '-CPTaxFree ';
-export const transferCrystallizedPension = '-CPT ';
+export const pension = `${penPrefix}EN `;
+export const pensionSS = `${penPrefix}SS `;
+export const pensionDB = `${penPrefix}DB `;
+export const pensionTransfer = `${penPrefix}T `;
+export const moveTaxFreePart = `${cpPrefix}TaxFreeM `;
+export const taxFree = `${cpPrefix}TaxFree `;
+export const transferCrystallizedPension = `${cpPrefix}T `;
 
 // Transactions can be Conditional
 // (i.e. they're named ConditionalDoSomething)

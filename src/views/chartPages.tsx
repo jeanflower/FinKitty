@@ -28,6 +28,8 @@ import {
   viewDetail,
   viewFrequency,
   pensionAllowance,
+  cpPrefix,
+  penPrefix,
 } from '../localization/stringConstants';
 import { getDisplay, refreshData } from '../App';
 import { Context, log, printDebug, showObj } from '../utils';
@@ -124,7 +126,32 @@ export function filtersList(
   context: Context,
   refreshModel: boolean,
 ) {
-  const incomeOrExpenseNames: string[] = items.map(data => data.NAME).sort();
+  const incomeOrExpenseNames: string[] = items.map(data => data.NAME).sort(
+    (a: string,b: string)=>{
+      const aCP = a.startsWith(cpPrefix);
+      const bCP = b.startsWith(cpPrefix);
+      if( aCP && !bCP ){
+        return 1;
+      } else if( !aCP && bCP ){
+        return -1;
+      } else {
+        const aP = a.startsWith(penPrefix);
+        const bP = b.startsWith(penPrefix);
+        if( aP && !bP ){
+          return 1;
+        } else if( !aP && bP ){
+          return -1;
+        } else {
+          if (a === b) {
+            return 0;
+          } else {
+            const aLTb = a < b;
+            return aLTb ? -1 : 1;
+          }
+        }
+      }
+    }
+  );
 
   const buttons = incomeOrExpenseNames.map(buttonName => {
     return makeFilterButton(buttonName, settings, context, refreshModel, false);
