@@ -4,6 +4,7 @@ import { log, printDebug } from '../../utils';
 import { Input } from './Input';
 import { replaceWithModel } from '../../App';
 import { makeModelFromJSON } from '../../models/modelUtils';
+import { makeButton } from './Button';
 
 interface ReplaceWithJSONFormState {
   JSON: string;
@@ -62,6 +63,44 @@ export class ReplaceWithJSONForm extends Component<
           onChange={this.handleValueChange}
           onSubmit={this.handleSubmit}
         />
+        {makeButton(
+          'toggle evaluate on definition change',
+          async (e: FormEvent<Element>)=>{
+            await this.setState({
+              JSON: 'eval',
+            });
+            this.replace(e);
+          },
+          'toggleEDC',
+          'toggleEDC',
+          'outline-secondary'
+        )}
+        <br></br>
+        {makeButton(
+          'toggle jump to overview',
+          async (e: FormEvent<Element>)=>{
+            await this.setState({
+              JSON: 'overview',
+            });
+            this.replace(e);
+          },
+          'toggleJTO',
+          'toggleJTO',
+          'outline-secondary'
+        )}
+        <br></br>
+        {makeButton(
+          'toggle check before overwrite',
+          async (e: FormEvent<Element>)=>{
+            await this.setState({
+              JSON: 'overwrite',
+            });
+            this.replace(e);
+          },
+          'toggleCBO',
+          'toggleCBO',
+          'outline-secondary'
+        )} 
       </form>
     );
   }

@@ -1449,7 +1449,7 @@ export class AppContent extends Component<AppProps, AppState> {
     });
     return (
       <div className="ml-3">
-        Select an existing model:
+        Select an existing model
         <br />
         {buttons}
       </div>
@@ -1674,6 +1674,7 @@ export class AppContent extends Component<AppProps, AppState> {
             `btn-check`,
             'outline-secondary',
           )}
+          <br></br>
           {makeButton(
             'Copy model as JSON to clipboard',
             () => {
@@ -1729,19 +1730,7 @@ export class AppContent extends Component<AppProps, AppState> {
             `btn-JSON-encrypt-replace`,
             'outline-secondary',
           )}
-          {makeButton(
-            'Force delete model',
-            () => {
-              const name = prompt('Force delete model name');
-              if (name === null) {
-                return;
-              }
-              this.deleteModel(name);
-            },
-            `btn-force-delete`,
-            `btn-force-delete`,
-            'outline-secondary',
-          )}
+
         </div>
         <ReplaceWithJSONForm
           modelName={modelName}

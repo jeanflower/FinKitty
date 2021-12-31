@@ -99,21 +99,21 @@ export class CreateModelForm extends Component<
           },
           `btn-createMinimalModel`,
           `btn-createMinimalModel`,
-          'outline-success',
+            'outline-primary',
         )}
         {makeButton(
           'Make backup of model',
           this.backupModel,
           `btn-backup`,
           `btn-backup`,
-          'outline-success',
+            'outline-primary',
         )}
         {makeButton(
           'Clone model',
           this.clonePropsModel,
           `btn-clone`,
           `btn-clone`,
-          'outline-success',
+            'outline-primary',
         )}
         {this.exampleButtonList()}
       </form>
