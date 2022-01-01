@@ -191,7 +191,7 @@ export function coarseFineList(settings: ViewSettings) {
       },
       viewType,
       `chooseViewDetailType${viewType}`,
-      viewType === selectedCoarseFineView ? 'primary' : 'outline-primary',
+      viewType === selectedCoarseFineView ? 'secondary' : 'outline-secondary',
     ),
   );
   return <div role="group">{buttons}</div>;
@@ -209,7 +209,7 @@ export function frequencyList(settings: ViewSettings) {
       },
       viewType,
       'chooseViewFrequencyType',
-      viewType === selectedView ? 'primary' : 'outline-primary',
+      viewType === selectedView ? 'secondary' : 'outline-secondary',
     ),
   );
   return <div role="group">{buttons}</div>;

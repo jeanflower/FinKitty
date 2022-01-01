@@ -1865,27 +1865,10 @@ export function reportDiv(
   return (
     <div className="ml-3">
       {filtersList(items, viewSettings, context, true)}
-      <br></br>
-      Match sources to <b>{reportMatcher.sourceMatcher}</b>
-      <br></br>
-      Exclude sources with <b>{reportMatcher.sourceExcluder}</b>
-      <br></br>
       <ReportMatcherForm
         reportMatcher={reportMatcher}
         setReportKey={setReportKey}
       />
-
-      {makeButton(
-        'reset to default',
-        ()=>{
-          setReportKey(
-            `{"sourceMatcher":"${defaultSourceMatcher}","sourceExcluder":"${defaultSourceExcluder}"}`
-          );
-        },
-        'test',
-        'test',
-        'primary',
-      )}
       <DataGrid
         deleteFunction={undefined}
         handleGridRowsUpdated={function() {

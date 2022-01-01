@@ -145,7 +145,7 @@ export class AddDeleteTransactionForm extends Component<
       DATE: '',
       STOP_DATE: '',
       RECURRENCE: '',
-      LIQUIDATE_FOR_CASH: '',
+      LIQUIDATE_FOR_CASH: 'No',
     };
 
     this.state = this.defaultState;

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, useState } from 'react';
 import {
   definedBenefitsPension,
   definedContributionsPension,
@@ -115,7 +115,7 @@ import {
 import { AddDeleteSettingForm } from './views/reactComponents/AddDeleteSettingForm';
 import { ReplaceWithJSONForm } from './views/reactComponents/ReplaceWithJSONForm';
 import { CreateModelForm } from './views/reactComponents/NewModelForm';
-import { Form, Nav, Navbar, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Alert, Button, Form, Nav, Navbar, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { getEvaluations } from './models/evaluations';
 import {
   applyRedoToModel,
@@ -1176,6 +1176,38 @@ interface AppProps {
   user: string;
 }
 
+function AlertDismissibleExample(
+  props: { 
+    message: string,
+    dismissAction: ()=>void,
+  }) {
+    const [show, setShow] = useState(true);
+    let variant='success';
+    if(!props.message.startsWith('added new')){
+      variant='warning';
+    }
+  
+    return (
+      <>
+        <Alert show={show} variant={variant}>
+          <div id="pageTitle" key="pageTitle">{props.message}</div>
+          <Button 
+            onClick={() => {
+              setShow(false);
+              props.dismissAction();
+            }} 
+            variant={`outline-${variant}`}
+            id='btn-clear-alert'
+          >
+            OK
+          </Button>
+        </Alert>
+  
+        {!show && <Button onClick={() => setShow(true)}>Show Alert</Button>}
+      </>
+    );
+  }
+
 export class AppContent extends Component<AppProps, AppState> {
   options: any;
   /*
@@ -2108,7 +2140,7 @@ export class AppContent extends Component<AppProps, AppState> {
       },
       `btn-undo-model`,
       `btn-undo-model`,
-      this.state.modelData.undoModel !== undefined ? 'primary' : 'outline-primary',
+      this.state.modelData.undoModel !== undefined ? 'secondary' : 'outline-secondary',
     );
 
     if (undoTooltip === '') {
@@ -2168,7 +2200,7 @@ export class AppContent extends Component<AppProps, AppState> {
       },
       `btn-redo-model`,
       `btn-redo-model`,
-      this.state.modelData.redoModel !== undefined ? 'primary' : 'outline-primary',
+      this.state.modelData.redoModel !== undefined ? 'secondary' : 'outline-secondary',
     );
 
     if (redoTooltip === '') {
@@ -2204,7 +2236,7 @@ export class AppContent extends Component<AppProps, AppState> {
       },
       `btn-save-model`,
       `btn-save-model`,
-      isDirty ? 'primary' : 'outline-primary',
+      isDirty ? 'secondary' : 'outline-secondary',
     );
   }
 
@@ -2220,25 +2252,12 @@ export class AppContent extends Component<AppProps, AppState> {
       );
     } else {
       result.push(
-        <h4 className="text-warning" id="pageTitle" key="pageTitle">
-          {messageText}
-        </h4>,
-      );
-    }
-    // log('display alert text');
-    if (alertText !== '') {
-      result.push(
-        makeButton(
-          'clear alert',
-          (e: React.MouseEvent<HTMLButtonElement>) => {
-            // log('clear alert text');
-            e.persist();
+        <AlertDismissibleExample 
+          message={alertText}
+          dismissAction={()=>{
             this.setState({ alertText: '' });
-          },
-          `btn-clear-alert`,
-          `btn-clear-alert`,
-          'outline-secondary',
-        ),
+          }}
+        />
       );
     }
     return result;

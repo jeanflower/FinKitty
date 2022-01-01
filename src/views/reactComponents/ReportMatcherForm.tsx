@@ -2,9 +2,13 @@ import React, { Component, FormEvent } from 'react';
 
 import { Input } from './Input';
 import { ReportMatcher } from '../../types/interfaces';
+import { log } from '../../utils';
+import { makeButton } from './Button';
+import { defaultSourceExcluder, defaultSourceMatcher } from '../../localization/stringConstants';
 
 interface ReportMatcherFormState {
-  JSON: string;
+  sourceMatcher: string;
+  sourceExcluder: string;
 }
 interface ReportMatcherFormProps {
   reportMatcher: ReportMatcher;
@@ -20,39 +24,70 @@ export class ReportMatcherForm extends Component<
   public constructor(props: ReportMatcherFormProps) {
     super(props);
     this.defaultState = {
-      JSON: JSON.stringify(this.props.reportMatcher),
+      sourceMatcher: this.props.reportMatcher.sourceMatcher,
+      sourceExcluder: this.props.reportMatcher.sourceExcluder,
     };
 
     this.state = this.defaultState;
 
     this.submit = this.submit.bind(this);
-    this.handleValueChange = this.handleValueChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleMatcherChange = this.handleMatcherChange.bind(this);
+    this.handleExcluderChange = this.handleExcluderChange.bind(this);
   }
 
-  private handleValueChange(e: React.ChangeEvent<HTMLInputElement>) {
+  private handleMatcherChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
-    // log(`setting new value for JSON form ${value}`);
-    this.setState({ JSON: value });
+    // log(`setting new value for sourceMatcher form ${value}`);
+    this.setState({ sourceMatcher: value });
   }
-
-  private handleSubmit(e: React.ChangeEvent<HTMLInputElement>) {
-    // log(`setting new value for JSON form ${value}`);
-    this.submit(e);
+  private handleExcluderChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const value = e.target.value;
+    // log(`setting new value for sourceExcluder form ${value}`);
+    this.setState({ sourceExcluder: value });
   }
 
   public render() {
     return (
       <form className="container-fluid" onSubmit={this.submit}>
+        <div style={{ display: 'none' }}>
+        {makeButton(
+          'Filter table',
+          this.submit,
+          'MatchFilterer',
+          'MatchFilterer',
+          'primary',
+        )}
+        </div>
         <Input
           type={'text'}
-          title={'matcher'}
-          name={'replaceWithJSON'}
-          value={this.state.JSON}
-          placeholder={'Enter text input here'}
-          onChange={this.handleValueChange}
-          onSubmit={this.handleSubmit}
+          title={'Match sources'}
+          name={'reportSourceMatcher'}
+          value={this.state.sourceMatcher}
+          placeholder={'Enter matcher here'}
+          onChange={this.handleMatcherChange}
         />
+        <Input
+          type={'text'}
+          title={'Exclude sources'}
+          name={'reportSourceExcluder'}
+          value={this.state.sourceExcluder}
+          placeholder={'Enter excluder here'}
+          onChange={this.handleExcluderChange}
+        />
+        {makeButton(
+          'reset to default',
+          (e)=>{
+            e.persist();
+            this.setState({ 
+              sourceMatcher: defaultSourceMatcher,
+              sourceExcluder: defaultSourceExcluder,
+             }, ()=>{this.submit(e);});
+          },
+          'test',
+          'test',
+          'primary',
+        )}
+
       </form>
     );
   }
@@ -60,7 +95,10 @@ export class ReportMatcherForm extends Component<
   private async submit(e: FormEvent<Element>) {
     e.preventDefault();
 
-    this.props.setReportKey(this.state.JSON);
+    this.props.setReportKey(JSON.stringify({
+      sourceMatcher: this.state.sourceMatcher,
+      sourceExcluder: this.state.sourceExcluder,
+    }));
     return;
   }
 }

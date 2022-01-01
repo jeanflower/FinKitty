@@ -112,6 +112,9 @@ export async function clickButton(driver: ThenableWebDriver, id: string) {
     await btn[0].click();
     return;
   }
+  if(btn.length !== 1){
+    log(`there is not one button with id = ${id} - test will fail`);
+  }
   expect(btn.length === 1).toBe(true);
 }
 
@@ -125,6 +128,11 @@ export async function fillInputById(
     log(`found ${input.length} elements with id=${id}`);
   }
   expect(input.length === 1).toBe(true);
+  if(id === 'liquidateForCash'){
+    // clear away a default 'No' before adding new text
+    await input[0].sendKeys(Key.BACK_SPACE); //N
+    await input[0].sendKeys(Key.BACK_SPACE); //o
+  }
   const result = await input[0].sendKeys(content);
   //log(`got ${result} from content ${content}`);
   return result;
