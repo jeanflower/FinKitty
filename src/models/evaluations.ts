@@ -2828,7 +2828,7 @@ export function makeSourceForFromChange(t: Transaction) {
 export function makeSourceForToChange(t: Transaction, fromWord: string) {
   let source = t.NAME;
   if (source.startsWith(conditional)) {
-    source = fromWord;
+    source = source.substring(conditional.length, source.length);
   }
   return source;
 }

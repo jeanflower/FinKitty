@@ -46,6 +46,8 @@ import {
   viewFrequency,
   viewType,
   purchase,
+  defaultSourceMatcher,
+  defaultSourceExcluder,
 //  pension,
 //  crystallizedPension,
 } from './localization/stringConstants';
@@ -1208,8 +1210,8 @@ export class AppContent extends Component<AppProps, AppState> {
       todaysExpenseValues: new Map<string, ExpenseVal>(),
       todaysSettingValues: new Map<string, SettingVal>(),
       reportDefiner: {
-        sourceMatcher: '.*',
-        sourceExcluder: 'growth',
+        sourceMatcher: defaultSourceMatcher,
+        sourceExcluder: defaultSourceExcluder,
       },
       reportData: [],
       alertText: '',

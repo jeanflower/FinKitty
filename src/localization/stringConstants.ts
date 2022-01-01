@@ -201,3 +201,6 @@ export const assetsChart: ViewType = { lc: 'Assets chart' };
 export const debtsChart: ViewType = { lc: 'Debts chart' };
 
 export const overview: ViewType = { lc: 'Overview' };
+
+export const defaultSourceMatcher = 'Buy|Sell';
+export const defaultSourceExcluder = '';

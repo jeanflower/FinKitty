@@ -28,6 +28,8 @@ import {
   viewDetail,
   viewType,
   reportView,
+  defaultSourceMatcher,
+  defaultSourceExcluder,
 } from '../localization/stringConstants';
 import {
   Asset,
@@ -1877,7 +1879,7 @@ export function reportDiv(
         'reset to default',
         ()=>{
           setReportKey(
-            `{"sourceMatcher":".*","sourceExcluder":"growth"}`
+            `{"sourceMatcher":"${defaultSourceMatcher}","sourceExcluder":"${defaultSourceExcluder}"}`
           );
         },
         'test',
