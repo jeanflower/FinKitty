@@ -102,7 +102,6 @@ import { ReactFragment } from 'react';
 import { Accordion, Button, Card } from 'react-bootstrap';
 import { filtersList } from './chartPages';
 import { makeButton } from './reactComponents/Button';
-import { Input } from './reactComponents/Input';
 import { ReportMatcherForm } from './reactComponents/ReportMatcherForm';
 
 export function collapsibleFragment(
@@ -1877,7 +1876,7 @@ export function reportDiv(
       {makeButton(
         'reset to default',
         ()=>{
-          const setResult = setReportKey(
+          setReportKey(
             `{"sourceMatcher":".*","sourceExcluder":"growth"}`
           );
         },
@@ -1965,9 +1964,9 @@ export function reportDiv(
         triggers={model.triggers}
       />
       {
-      /*
-      util.inspect(reportDataTable)
-      */
+      //`Table data in text form : 
+      //${util.inspect(reportDataTable)}`
+      //}
       }
     </div>
   );

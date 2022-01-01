@@ -596,9 +596,9 @@ export async function refreshData(
           if (nameMatcher === ''){
             return false;
           } 
-          if (!reactAppComponent.state.reportDefiner.sourceMatcher &&
-            !reactAppComponent.state.reportDefiner.sourceExcluder
-          ) {
+          const matcher = reactAppComponent.state.reportDefiner.sourceMatcher;
+          const excluder = reactAppComponent.state.reportDefiner.sourceExcluder;
+          if (!matcher && !excluder) {
             return false;
           }
           if (printDebug()) {
@@ -622,17 +622,16 @@ export async function refreshData(
           if (nameMatcher) {
             const nameRegex = RegExp(nameMatcher);
             if (name.match(nameRegex) === null) {
-              // log(`do not display non-matching name ${name}`);
+              // log(`do not display ${name} bcs it doesn't match ${nameMatcher}`);
               return false;
             }
           }
-          if (reactAppComponent.state.reportDefiner.sourceMatcher) {
+
+          if (matcher) {
             try{
-              const sourceRegex = RegExp(
-                reactAppComponent.state.reportDefiner.sourceMatcher,
-              );
+              const sourceRegex = RegExp( matcher );
               if (source.match(sourceRegex) === null) {
-                // log(`do not show source ${source} bcs it doesn't match`);
+                // log(`do not show source ${source} bcs it doesn't match ${matcher}`);
                 return false;
               }
             } catch (e){
@@ -640,13 +639,12 @@ export async function refreshData(
               return false;
             }
           }
-          if (reactAppComponent.state.reportDefiner.sourceExcluder) {
+
+          if (excluder) {
             try{
-              const sourceRegex = RegExp(
-                reactAppComponent.state.reportDefiner.sourceExcluder,
-              );
+              const sourceRegex = RegExp(excluder);
               if (source.match(sourceRegex) !== null) {
-                // log(`do not show source ${source} bcs it matches exclusion`);
+                // log(`do not show source ${source} bcs it does match ${excluder}`);
                 return false;
               }
             } catch (e){
@@ -665,20 +663,20 @@ export async function refreshData(
     }
   }
   if (refreshModel || refreshChart) {
-    // log(`refresh chart data`);
-    const result: DataForView = makeChartData(
+    // log(`refresh model or chart data`);
+    const chartData: DataForView = makeChartData(
       model,
       viewSettings,
       evaluationsAndVals,
     );
 
-    result.expensesData.sort((a, b) => lessThan(a.item.NAME, b.item.NAME));
-    result.incomesData.sort((a, b) => lessThan(a.item.NAME, b.item.NAME));
-    result.assetData.sort((a, b) => lessThan(a.item.NAME, b.item.NAME));
-    result.taxData.sort((a, b) => lessThan(a.item.NAME, b.item.NAME));
+    chartData.expensesData.sort((a, b) => lessThan(a.item.NAME, b.item.NAME));
+    chartData.incomesData.sort((a, b) => lessThan(a.item.NAME, b.item.NAME));
+    chartData.assetData.sort((a, b) => lessThan(a.item.NAME, b.item.NAME));
+    chartData.taxData.sort((a, b) => lessThan(a.item.NAME, b.item.NAME));
 
     if (printDebug()) {
-      result.assetData.forEach(entry => {
+      chartData.assetData.forEach(entry => {
         log(
           `asset item ${showObj(entry.item)} has chart points ` +
             `${showObj(entry.chartDataPoints)}`,
@@ -698,7 +696,7 @@ export async function refreshData(
       todaysIncomeValues,
       todaysExpenseValues,
       todaysSettingValues,
-    } = result;
+    } = chartData;
 
     if (printDebug()) {
       log('in refreshData');
@@ -743,7 +741,7 @@ export async function refreshData(
             log(
               'reactAppComponent.state.reportData.length = ' +
                 `${reactAppComponent.state.reportData.length}`,
-            );
+            );            
             //reactAppComponent.state.expensesChartData.map((obj: ChartData) =>
             //  log(`obj is ${showObj(obj)}`),
             //);
@@ -1305,6 +1303,7 @@ export class AppContent extends Component<AppProps, AppState> {
     if (printDebug()) {
       log('in render');
     }
+    // log(`this.state.reportData.length = ${this.state.reportData.length}`);
     try {
       // throw new Error('pretend something went wrong');
 

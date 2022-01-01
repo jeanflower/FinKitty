@@ -26,109 +26,29 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
     this.sortedIndices = props.rows.map(row => {
       return row['index'];
     });
+    // log(`row indices are ${props.rows.map((r)=>{return r['index'];})}`);
+    // log(`sortedIndices are ${this.sortedIndices}`);
     this.state = {
       colSortIndex: 'index',
       sortDirection: 'NONE',
     };
     this.handleSort(this.state.colSortIndex, 'NONE');
   }
-  /*
-  public rowGetterOld(i: number) {
-    if (printDebug()) {
-      log('in rowgetter, this.props.rows = ' + this.props.rows);
-    }
-    let colSortIndex = this.state.colSortIndex;
-    if (this.state.sortDirection === 'NONE') {
-      if (
-        this.props.rows.length === 0 ||
-        this.props.rows[0].index === undefined
-      ) {
-        return this.props.rows[i];
-      } else {
-        colSortIndex = 'index'; // TODO
-      }
-    }
 
-    //return this.props.rows.sort()[i];
-    return this.props.rows.sort((a, b) => {
-      // log(`colSortIndex = ${colSortIndex}`);
-      let aVal = a[colSortIndex];
-      let bVal = b[colSortIndex];
-      if (printDebug()) {
-        log(`aVal = ${showObj(aVal)}, bVal = ${showObj(bVal)}`);
-      }
-      if (aVal === undefined || bVal === undefined) {
-        aVal = a[this.props.columns[0]];
-        bVal = b[this.props.columns[0]];
-      }
-      if (
-        colSortIndex === 'DATE' ||
-        colSortIndex === 'START' ||
-        colSortIndex === 'END'
-      ) {
-        const aTimeVal = new Date(aVal).getTime();
-        const bTimeVal = new Date(bVal).getTime();
-        // log(`aTimeVal = ${aTimeVal}, bTimeVal = ${bTimeVal}`);
-        const aIsDate = !Number.isNaN(aTimeVal);
-        const bIsDate = !Number.isNaN(bTimeVal);
-        // log(`aIsDate = ${aIsDate}, bIsDate = ${bIsDate}`);
-        if (aIsDate && !bIsDate) {
-          // log('return 1');
-          return 1;
-        } else if (!aIsDate && bIsDate) {
-          // log('return -1');
-          return -1;
-        } else if (aIsDate && bIsDate) {
-          aVal = aTimeVal;
-          bVal = bTimeVal;
-        }
-        //log(`aVal = ${showObj(aVal)}, bVal = ${showObj(bVal)}`);
-      } else if (colSortIndex === 'index') {
-      } else if (aVal !== undefined && bVal !== undefined) {
-        aVal = aVal.toUpperCase();
-        bVal = bVal.toUpperCase();
-      }
-      // log(`aVal = ${aVal}, bVal = ${bVal}`);
-      if (aVal < bVal) {
-        if (this.state.sortDirection === 'ASC') {
-          // log('return -1');
-          return -1;
-        } else {
-          // log('return 1');
-          return 1;
-        }
-      } else if (aVal > bVal) {
-        if (this.state.sortDirection === 'ASC') {
-          // log('return 1');
-          return 1;
-        } else {
-          // log('return -1');
-          return -1;
-        }
-      } else {
-        // log('return 0');
-        return 0;
-      }
-    })[i];
-  }
-*/
   public rowGetter(i: number) {
     if (printDebug()) {
-      log('in rowgetter, this.props.rows = ' + this.props.rows);
+      log(`in rowgetter, this.props.rows indices = ${this.props.rows.map(r=>{return r['index']})}`);
+      log(`look for row i = ${i}`);
+      log(`this.sortedIndices = ${this.sortedIndices}`);
     }
-    /*
-    const oldRow = this.rowGetterOld(i);
-    if(oldRow !== undefined
-    && oldRow['index'] !== undefined 
-    && oldRow['index'] !== this.sortedIndices[i]){
-      log(`for ${i}th row, oldRow index was ${oldRow['index']} but sorted index is ${this.sortedIndices[i]}`);
-    }
-    // return oldRow;
-    */
 
-    return this.props.rows.filter(row => {
+    const result = this.props.rows.filter(row => {
       return row['index'] === this.sortedIndices[i];
     })[0];
+    //if(result == undefined){
+    //  log(`in rowgetter, result row ${i} has sorted index ${this.sortedIndices[i]} and row = undefined`);
+    //}
+    return result;
   }
   public getSize() {
     return this.props.rows.length;
@@ -263,7 +183,9 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
       sortDirection: sortDirection,
     });
 
-    this.handleSort(sortColumn, sortDirection);
+    // run the sort in the render function instead 
+    // to ensure sortedIndices gets updated when needed
+    // this.handleSort(sortColumn, sortDirection);
     // log(`sortedIndices = ${showObj(this.sortedIndices)}`);
   }
 
@@ -293,6 +215,7 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
   }
 
   public render() {
+    this.handleSort(this.state.colSortIndex, this.state.sortDirection);
     return (
       <ReactDataGrid
         columns={this.props.columns}
