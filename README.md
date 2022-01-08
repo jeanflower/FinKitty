@@ -1,6 +1,6 @@
 The deployed page for FinKitty is here
 https://jeanflower.github.io/FinKitty/
-
+ 
 ## Storing the data
 ### Cloud data
 The default database is accessed through the REST calls made in REST_db.ts.
