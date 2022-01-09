@@ -22139,6 +22139,361 @@ describe('evaluations tests', () => {
     expect(result.debtData.length).toBe(0);
     done();
   });
+  it('revalue a setting cpi for asset growth', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'March 2, 2021 00:00:00',
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'savings',
+          START: 'January 1 2018',
+          VALUE: '1.0',
+          GROWTH: '1.0',
+        },
+      ],
+      transactions: [
+        {
+          NAME: 'Revalue grow cpi',
+          FROM: '',
+          FROM_ABSOLUTE: true,
+          FROM_VALUE: '',
+          TO: 'cpi',
+          TO_ABSOLUTE: true,
+          TO_VALUE: '100.0',
+          DATE: '2019',
+          STOP_DATE: '',
+          RECURRENCE: '',
+          TYPE: 'revalueSetting',
+          CATEGORY: '',
+        },
+        {
+          NAME: 'Revalue drop cpi',
+          FROM: '',
+          FROM_ABSOLUTE: true,
+          FROM_VALUE: '',
+          TO: 'cpi',
+          TO_ABSOLUTE: true,
+          TO_VALUE: '0.0',
+          DATE: '2020',
+          STOP_DATE: '',
+          RECURRENCE: '',
+          TYPE: 'revalueSetting',
+          CATEGORY: '',
+        }
+      ],
+      settings: [...defaultModelSettings(roi)],
+    };
+    setSetting(model.settings, cpi, '0', constType);
+
+    setROI(model, roi);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(42);
+    expectEvals(evals, 0, 'cpi', 'Tue Jan 01 2019', 0, -1);
+    expectEvals(evals, 1, 'savings', 'Mon Jan 01 2018', 1, -1);
+    expectEvals(evals, 2, 'savings', 'Thu Feb 01 2018', 1.00, 2);
+    expectEvals(evals, 3, 'savings', 'Thu Mar 01 2018', 1.00, 2);
+    expectEvals(evals, 4, 'savings', 'Sun Apr 01 2018', 1.00, 2);
+    expectEvals(evals, 5, 'savings', 'Tue May 01 2018', 1.00, 2);
+    expectEvals(evals, 6, 'savings', 'Fri Jun 01 2018', 1.00, 2);
+    expectEvals(evals, 7, 'savings', 'Sun Jul 01 2018', 1.00, 2);
+    expectEvals(evals, 8, 'savings', 'Wed Aug 01 2018', 1.01, 2);
+    expectEvals(evals, 9, 'savings', 'Sat Sep 01 2018', 1.01, 2);
+    expectEvals(evals, 10, 'savings', 'Mon Oct 01 2018', 1.01, 2);
+    expectEvals(evals, 11, 'savings', 'Thu Nov 01 2018', 1.01, 2);
+    expectEvals(evals, 12, 'savings', 'Sat Dec 01 2018', 1.01, 2);
+    expectEvals(evals, 13, 'savings', 'Tue Jan 01 2019', 1.01, 2);
+    expectEvals(evals, 14, 'cpi', 'Tue Jan 01 2019', 100, -1);
+    expectEvals(evals, 15, 'savings', 'Fri Feb 01 2019', 1.07, 2);
+    expectEvals(evals, 16, 'savings', 'Fri Mar 01 2019', 1.14, 2);
+    expectEvals(evals, 17, 'savings', 'Mon Apr 01 2019', 1.20, 2);
+    expectEvals(evals, 18, 'savings', 'Wed May 01 2019', 1.28, 2);
+    expectEvals(evals, 19, 'savings', 'Sat Jun 01 2019', 1.35, 2);
+    expectEvals(evals, 20, 'savings', 'Mon Jul 01 2019', 1.44, 2);
+    expectEvals(evals, 21, 'savings', 'Thu Aug 01 2019', 1.52, 2);
+    expectEvals(evals, 22, 'savings', 'Sun Sep 01 2019', 1.61, 2);
+    expectEvals(evals, 23, 'savings', 'Tue Oct 01 2019', 1.71, 2);
+    expectEvals(evals, 24, 'savings', 'Fri Nov 01 2019', 1.81, 2);
+    expectEvals(evals, 25, 'savings', 'Sun Dec 01 2019', 1.92, 2);
+    expectEvals(evals, 26, 'savings', 'Wed Jan 01 2020', 2.04, 2);
+    expectEvals(evals, 27, 'cpi', 'Wed Jan 01 2020', 0, -1);
+    expectEvals(evals, 28, 'savings', 'Sat Feb 01 2020', 2.04, 2);
+    expectEvals(evals, 29, 'savings', 'Sun Mar 01 2020', 2.04, 2);
+    expectEvals(evals, 30, 'savings', 'Wed Apr 01 2020', 2.05, 2);
+    expectEvals(evals, 31, 'savings', 'Fri May 01 2020', 2.05, 2);
+    expectEvals(evals, 32, 'savings', 'Mon Jun 01 2020', 2.05, 2);
+    expectEvals(evals, 33, 'savings', 'Wed Jul 01 2020', 2.05, 2);
+    expectEvals(evals, 34, 'savings', 'Sat Aug 01 2020', 2.05, 2);
+    expectEvals(evals, 35, 'savings', 'Tue Sep 01 2020', 2.05, 2);
+    expectEvals(evals, 36, 'savings', 'Thu Oct 01 2020', 2.06, 2);
+    expectEvals(evals, 37, 'savings', 'Sun Nov 01 2020', 2.06, 2);
+    expectEvals(evals, 38, 'savings', 'Tue Dec 01 2020', 2.06, 2);
+    expectEvals(evals, 39, 'savings', 'Fri Jan 01 2021', 2.06, 2);
+    expectEvals(evals, 40, 'savings', 'Mon Feb 01 2021', 2.06, 2);
+    expectEvals(evals, 41, 'savings', 'Mon Mar 01 2021', 2.06, 2);
+
+    const viewSettings = defaultTestViewSettings();
+
+    viewSettings.setViewSetting(viewFrequency, annually);
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
+    
+    done();
+  });
+
+  it('revalue a setting cpi for income growth', done => { // TODO is this behaving correctly?  I see stocks growing
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'March 2, 2021 00:00:00',
+    };
+    const model: ModelData = {
+      ...emptyModel,
+
+      incomes: [
+        {
+          ...simpleIncome,
+          START: 'January 1 2018',
+          END: 'July 1 2025',
+          NAME: 'PRnd',
+          VALUE: '1.0',
+          VALUE_SET: 'January 1 2018',
+          GROWTH: '1.0',
+        },
+        {
+          ...simpleIncome,
+          START: 'January 1 2021',
+          END: 'July 1 2025',
+          NAME: 'PRnd2',
+          VALUE: '1.0',
+          VALUE_SET: 'January 1 2018',
+          GROWTH: '1.0',
+        },
+      ],
+      transactions: [
+        {
+          NAME: 'Revalue grow cpi',
+          FROM: '',
+          FROM_ABSOLUTE: true,
+          FROM_VALUE: '',
+          TO: 'cpi',
+          TO_ABSOLUTE: true,
+          TO_VALUE: '100.0',
+          DATE: '2019',
+          STOP_DATE: '',
+          RECURRENCE: '',
+          TYPE: 'revalueSetting',
+          CATEGORY: '',
+        },
+        {
+          NAME: 'Revalue drop cpi',
+          FROM: '',
+          FROM_ABSOLUTE: true,
+          FROM_VALUE: '',
+          TO: 'cpi',
+          TO_ABSOLUTE: true,
+          TO_VALUE: '0.0',
+          DATE: '2020',
+          STOP_DATE: '',
+          RECURRENCE: '',
+          TYPE: 'revalueSetting',
+          CATEGORY: '',
+        }
+      ],
+      settings: [...defaultModelSettings(roi)],
+    };
+    setSetting(model.settings, cpi, '0', constType);
+
+    setROI(model, roi);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(45);
+    expectEvals(evals, 0, 'cpi', 'Tue Jan 01 2019', 0, -1);
+    expectEvals(evals, 1, 'PRnd', 'Mon Jan 01 2018', 1, -1);
+    expectEvals(evals, 2, 'PRnd', 'Thu Feb 01 2018', 1.00, 2);
+    expectEvals(evals, 3, 'PRnd', 'Thu Mar 01 2018', 1.00, 2);
+    expectEvals(evals, 4, 'PRnd', 'Sun Apr 01 2018', 1.00, 2);
+    expectEvals(evals, 5, 'PRnd', 'Tue May 01 2018', 1.00, 2);
+    expectEvals(evals, 6, 'PRnd', 'Fri Jun 01 2018', 1.00, 2);
+    expectEvals(evals, 7, 'PRnd', 'Sun Jul 01 2018', 1.00, 2);
+    expectEvals(evals, 8, 'PRnd', 'Wed Aug 01 2018', 1.01, 2);
+    expectEvals(evals, 9, 'PRnd', 'Sat Sep 01 2018', 1.01, 2);
+    expectEvals(evals, 10, 'PRnd', 'Mon Oct 01 2018', 1.01, 2);
+    expectEvals(evals, 11, 'PRnd', 'Thu Nov 01 2018', 1.01, 2);
+    expectEvals(evals, 12, 'PRnd', 'Sat Dec 01 2018', 1.01, 2);
+    expectEvals(evals, 13, 'PRnd', 'Tue Jan 01 2019', 1.01, 2);
+    expectEvals(evals, 14, 'cpi', 'Tue Jan 01 2019', 100, -1);
+    expectEvals(evals, 15, 'PRnd', 'Fri Feb 01 2019', 1.07, 2);
+    expectEvals(evals, 16, 'PRnd', 'Fri Mar 01 2019', 1.14, 2);
+    expectEvals(evals, 17, 'PRnd', 'Mon Apr 01 2019', 1.20, 2);
+    expectEvals(evals, 18, 'PRnd', 'Wed May 01 2019', 1.28, 2);
+    expectEvals(evals, 19, 'PRnd', 'Sat Jun 01 2019', 1.35, 2);
+    expectEvals(evals, 20, 'PRnd', 'Mon Jul 01 2019', 1.44, 2);
+    expectEvals(evals, 21, 'PRnd', 'Thu Aug 01 2019', 1.52, 2);
+    expectEvals(evals, 22, 'PRnd', 'Sun Sep 01 2019', 1.61, 2);
+    expectEvals(evals, 23, 'PRnd', 'Tue Oct 01 2019', 1.71, 2);
+    expectEvals(evals, 24, 'PRnd', 'Fri Nov 01 2019', 1.81, 2);
+    expectEvals(evals, 25, 'PRnd', 'Sun Dec 01 2019', 1.92, 2);
+    expectEvals(evals, 26, 'PRnd', 'Wed Jan 01 2020', 2.04, 2);
+    expectEvals(evals, 27, 'cpi', 'Wed Jan 01 2020', 0, -1);
+    expectEvals(evals, 28, 'PRnd', 'Sat Feb 01 2020', 2.04, 2);
+    expectEvals(evals, 29, 'PRnd', 'Sun Mar 01 2020', 2.04, 2);
+    expectEvals(evals, 30, 'PRnd', 'Wed Apr 01 2020', 2.05, 2);
+    expectEvals(evals, 31, 'PRnd', 'Fri May 01 2020', 2.05, 2);
+    expectEvals(evals, 32, 'PRnd', 'Mon Jun 01 2020', 2.05, 2);
+    expectEvals(evals, 33, 'PRnd', 'Wed Jul 01 2020', 2.05, 2);
+    expectEvals(evals, 34, 'PRnd', 'Sat Aug 01 2020', 2.05, 2);
+    expectEvals(evals, 35, 'PRnd', 'Tue Sep 01 2020', 2.05, 2);
+    expectEvals(evals, 36, 'PRnd', 'Thu Oct 01 2020', 2.06, 2);
+    expectEvals(evals, 37, 'PRnd', 'Sun Nov 01 2020', 2.06, 2);
+    expectEvals(evals, 38, 'PRnd', 'Tue Dec 01 2020', 2.06, 2);
+    expectEvals(evals, 39, 'PRnd', 'Fri Jan 01 2021', 2.06, 2);
+    expectEvals(evals, 40, 'PRnd2', 'Fri Jan 01 2021', 2.06, 2);
+    expectEvals(evals, 41, 'PRnd', 'Mon Feb 01 2021', 2.06, 2);
+    expectEvals(evals, 42, 'PRnd2', 'Mon Feb 01 2021', 2.06, 2);
+    expectEvals(evals, 43, 'PRnd', 'Mon Mar 01 2021', 2.06, 2);
+    expectEvals(evals, 44, 'PRnd2', 'Mon Mar 01 2021', 2.06, 2);
+
+    const viewSettings = defaultTestViewSettings();
+
+    viewSettings.setViewSetting(viewFrequency, annually);
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
+
+    done();
+  });
+
+  it('revalue a setting cpi for expense growth', done => { // TODO is this behaving correctly?  I see stocks growing
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'March 2, 2021 00:00:00',
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      expenses: [
+        {
+          ...simpleExpense,
+          START: 'January 1 2018',
+          END: 'July 1 2025',
+          NAME: 'Phon',
+          VALUE: '1.0',
+          VALUE_SET: 'January 1 2018',
+          GROWTH: '1.0',
+        },
+        {
+          ...simpleExpense,
+          START: 'January 1 2021',
+          END: 'July 1 2025',
+          NAME: 'Phon2',
+          VALUE: '1.0',
+          VALUE_SET: 'January 1 2018',
+          GROWTH: '1.0',
+        },
+      ],
+      transactions: [
+        {
+          NAME: 'Revalue grow cpi',
+          FROM: '',
+          FROM_ABSOLUTE: true,
+          FROM_VALUE: '',
+          TO: 'cpi',
+          TO_ABSOLUTE: true,
+          TO_VALUE: '100.0',
+          DATE: '2019',
+          STOP_DATE: '',
+          RECURRENCE: '',
+          TYPE: 'revalueSetting',
+          CATEGORY: '',
+        },
+        {
+          NAME: 'Revalue drop cpi',
+          FROM: '',
+          FROM_ABSOLUTE: true,
+          FROM_VALUE: '',
+          TO: 'cpi',
+          TO_ABSOLUTE: true,
+          TO_VALUE: '0.0',
+          DATE: '2020',
+          STOP_DATE: '',
+          RECURRENCE: '',
+          TYPE: 'revalueSetting',
+          CATEGORY: '',
+        }
+      ],
+      settings: [...defaultModelSettings(roi)],
+    };
+    setSetting(model.settings, cpi, '0', constType);
+
+    setROI(model, roi);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(45);
+    expectEvals(evals, 0, 'cpi', 'Tue Jan 01 2019', 0, -1);
+    expectEvals(evals, 1, 'Phon', 'Mon Jan 01 2018', 1, -1);
+    expectEvals(evals, 2, 'Phon', 'Thu Feb 01 2018', 1.00, 2);
+    expectEvals(evals, 3, 'Phon', 'Thu Mar 01 2018', 1.00, 2);
+    expectEvals(evals, 4, 'Phon', 'Sun Apr 01 2018', 1.00, 2);
+    expectEvals(evals, 5, 'Phon', 'Tue May 01 2018', 1.00, 2);
+    expectEvals(evals, 6, 'Phon', 'Fri Jun 01 2018', 1.00, 2);
+    expectEvals(evals, 7, 'Phon', 'Sun Jul 01 2018', 1.00, 2);
+    expectEvals(evals, 8, 'Phon', 'Wed Aug 01 2018', 1.01, 2);
+    expectEvals(evals, 9, 'Phon', 'Sat Sep 01 2018', 1.01, 2);
+    expectEvals(evals, 10, 'Phon', 'Mon Oct 01 2018', 1.01, 2);
+    expectEvals(evals, 11, 'Phon', 'Thu Nov 01 2018', 1.01, 2);
+    expectEvals(evals, 12, 'Phon', 'Sat Dec 01 2018', 1.01, 2);
+    expectEvals(evals, 13, 'Phon', 'Tue Jan 01 2019', 1.01, 2);
+    expectEvals(evals, 14, 'cpi', 'Tue Jan 01 2019', 100, -1);
+    expectEvals(evals, 15, 'Phon', 'Fri Feb 01 2019', 1.07, 2);
+    expectEvals(evals, 16, 'Phon', 'Fri Mar 01 2019', 1.14, 2);
+    expectEvals(evals, 17, 'Phon', 'Mon Apr 01 2019', 1.20, 2);
+    expectEvals(evals, 18, 'Phon', 'Wed May 01 2019', 1.28, 2);
+    expectEvals(evals, 19, 'Phon', 'Sat Jun 01 2019', 1.35, 2);
+    expectEvals(evals, 20, 'Phon', 'Mon Jul 01 2019', 1.44, 2);
+    expectEvals(evals, 21, 'Phon', 'Thu Aug 01 2019', 1.52, 2);
+    expectEvals(evals, 22, 'Phon', 'Sun Sep 01 2019', 1.61, 2);
+    expectEvals(evals, 23, 'Phon', 'Tue Oct 01 2019', 1.71, 2);
+    expectEvals(evals, 24, 'Phon', 'Fri Nov 01 2019', 1.81, 2);
+    expectEvals(evals, 25, 'Phon', 'Sun Dec 01 2019', 1.92, 2);
+    expectEvals(evals, 26, 'Phon', 'Wed Jan 01 2020', 2.04, 2);
+    expectEvals(evals, 27, 'cpi', 'Wed Jan 01 2020', 0, -1);
+    expectEvals(evals, 28, 'Phon', 'Sat Feb 01 2020', 2.04, 2);
+    expectEvals(evals, 29, 'Phon', 'Sun Mar 01 2020', 2.04, 2);
+    expectEvals(evals, 30, 'Phon', 'Wed Apr 01 2020', 2.05, 2);
+    expectEvals(evals, 31, 'Phon', 'Fri May 01 2020', 2.05, 2);
+    expectEvals(evals, 32, 'Phon', 'Mon Jun 01 2020', 2.05, 2);
+    expectEvals(evals, 33, 'Phon', 'Wed Jul 01 2020', 2.05, 2);
+    expectEvals(evals, 34, 'Phon', 'Sat Aug 01 2020', 2.05, 2);
+    expectEvals(evals, 35, 'Phon', 'Tue Sep 01 2020', 2.05, 2);
+    expectEvals(evals, 36, 'Phon', 'Thu Oct 01 2020', 2.06, 2);
+    expectEvals(evals, 37, 'Phon', 'Sun Nov 01 2020', 2.06, 2);
+    expectEvals(evals, 38, 'Phon', 'Tue Dec 01 2020', 2.06, 2);
+    expectEvals(evals, 39, 'Phon', 'Fri Jan 01 2021', 2.06, 2);
+    expectEvals(evals, 40, 'Phon2', 'Fri Jan 01 2021', 2.06, 2);
+    expectEvals(evals, 41, 'Phon', 'Mon Feb 01 2021', 2.06, 2);
+    expectEvals(evals, 42, 'Phon2', 'Mon Feb 01 2021', 2.06, 2);
+    expectEvals(evals, 43, 'Phon', 'Mon Mar 01 2021', 2.06, 2);
+    expectEvals(evals, 44, 'Phon2', 'Mon Mar 01 2021', 2.06, 2);
+
+    done();
+  });
 
   it('Generate taxable income from asset', done => {
     const roi = {
