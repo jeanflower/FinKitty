@@ -37,7 +37,11 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
 
   public rowGetter(i: number) {
     if (printDebug()) {
-      log(`in rowgetter, this.props.rows indices = ${this.props.rows.map(r=>{return r['index']})}`);
+      log(
+        `in rowgetter, this.props.rows indices = ${this.props.rows.map(r => {
+          return r['index'];
+        })}`,
+      );
       log(`look for row i = ${i}`);
       log(`this.sortedIndices = ${this.sortedIndices}`);
     }
@@ -183,7 +187,7 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
       sortDirection: sortDirection,
     });
 
-    // run the sort in the render function instead 
+    // run the sort in the render function instead
     // to ensure sortedIndices gets updated when needed
     // this.handleSort(sortColumn, sortDirection);
     // log(`sortedIndices = ${showObj(this.sortedIndices)}`);

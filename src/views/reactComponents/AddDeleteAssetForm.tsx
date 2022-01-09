@@ -510,21 +510,27 @@ export class AddDeleteAssetForm extends Component<
             this.inputAsset,
             'inputAsset',
             'inputAsset',
-            this.state.inputting === inputtingAsset ? 'primary' : 'outline-secondary',
+            this.state.inputting === inputtingAsset
+              ? 'primary'
+              : 'outline-secondary',
           )}
           {makeButton(
             'Add pension mode',
             this.inputPension,
             'useDCPInputs',
             'useDCPInputs',
-            this.state.inputting === inputtingPension ? 'primary' : 'outline-secondary',
+            this.state.inputting === inputtingPension
+              ? 'primary'
+              : 'outline-secondary',
           )}
           {makeButton(
             'Revalue asset mode',
             this.inputRevalue,
             'revalueAssetInputs',
             'revalueAssetInputs',
-            this.state.inputting === inputtingRevalue ? 'primary' : 'outline-secondary',
+            this.state.inputting === inputtingRevalue
+              ? 'primary'
+              : 'outline-secondary',
           )}
         </div>
         <form className="container-fluid" onSubmit={this.addFromForm}>

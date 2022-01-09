@@ -24,22 +24,18 @@ export interface Asset extends ItemCategory {
   LIABILITY: string; // e.g. IncomeTaxJoe if growth accumulates as income tax liability
   PURCHASE_PRICE: string;
 }
-export interface Expense extends ItemCategory {
+export interface IncomeOrExpense extends ItemCategory {
   START: string;
   END: string;
   VALUE: string;
   VALUE_SET: string;
   GROWTH: string;
   CPI_IMMUNE: boolean;
+}
+export interface Expense extends IncomeOrExpense {
   RECURRENCE: string;
 }
-export interface Income extends ItemCategory {
-  START: string;
-  END: string;
-  VALUE: string;
-  VALUE_SET: string;
-  GROWTH: string;
-  CPI_IMMUNE: boolean;
+export interface Income extends IncomeOrExpense {
   LIABILITY: string; // e.g. "IncomeTaxJoe NIJoe"
 }
 // A transaction is an instant movement of value from
@@ -193,6 +189,12 @@ export interface ExpenseVal {
   category: string;
 }
 
+export interface GrowthData {
+  monthScale: number;
+  //annualScale: number,
+  applyCPI: boolean;
+}
+
 export interface ChartSettings {
   height: number;
   width?: number | string;
@@ -218,10 +220,9 @@ export interface ChartSettings {
 }
 
 export type finkittyButtonType =
-  'primary'|
-  'secondary'|
-  'success'|
-  'outline-primary'|
-  'outline-secondary'|
-  'outline-success';
- 
+  | 'primary'
+  | 'secondary'
+  | 'success'
+  | 'outline-primary'
+  | 'outline-secondary'
+  | 'outline-success';

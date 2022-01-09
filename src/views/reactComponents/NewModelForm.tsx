@@ -99,21 +99,21 @@ export class CreateModelForm extends Component<
           },
           `btn-createMinimalModel`,
           `btn-createMinimalModel`,
-            'outline-primary',
+          'outline-primary',
         )}
         {makeButton(
           'Make backup of model',
           this.backupModel,
           `btn-backup`,
           `btn-backup`,
-            'outline-primary',
+          'outline-primary',
         )}
         {makeButton(
           'Clone model',
           this.clonePropsModel,
           `btn-clone`,
           `btn-clone`,
-            'outline-primary',
+          'outline-primary',
         )}
         {this.exampleButtonList()}
       </form>
@@ -130,14 +130,15 @@ export class CreateModelForm extends Component<
     e.preventDefault();
     const d = new Date();
 
-    const backupName = this.props.currentModelName 
-      + 'backup ' 
-      + dateFormat(d, 'yyyy-mm-dd HH:MM:ss');
+    const backupName =
+      this.props.currentModelName +
+      'backup ' +
+      dateFormat(d, 'yyyy-mm-dd HH:MM:ss');
 
-    if ( window.confirm(`Save a local text file for this model?`) ) {
+    if (window.confirm(`Save a local text file for this model?`)) {
       const backupText = JSON.stringify(this.props.modelData);
 
-      var blob = new Blob([backupText], {type: "text/plain;charset=utf-8"});
+      const blob = new Blob([backupText], { type: 'text/plain;charset=utf-8' });
       FileSaver.saveAs(blob, `${backupName}.txt`);
     }
 

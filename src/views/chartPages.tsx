@@ -96,12 +96,15 @@ function makeFilterButton(
     id = `chooseAssetOrDebtChartSetting--debt-${buttonName}`;
   }
 
-
   let type: finkittyButtonType = 'primary';
-  if(isCategory){
-    type = settings.highlightButton(context, buttonName) ? 'success' : 'outline-success';
+  if (isCategory) {
+    type = settings.highlightButton(context, buttonName)
+      ? 'success'
+      : 'outline-success';
   } else {
-    type = settings.highlightButton(context, buttonName) ? 'primary' : 'outline-primary';
+    type = settings.highlightButton(context, buttonName)
+      ? 'primary'
+      : 'outline-primary';
   }
 
   return makeButton(
@@ -126,20 +129,21 @@ export function filtersList(
   context: Context,
   refreshModel: boolean,
 ) {
-  const incomeOrExpenseNames: string[] = items.map(data => data.NAME).sort(
-    (a: string,b: string)=>{
+  const incomeOrExpenseNames: string[] = items
+    .map(data => data.NAME)
+    .sort((a: string, b: string) => {
       const aCP = a.startsWith(cpPrefix);
       const bCP = b.startsWith(cpPrefix);
-      if( aCP && !bCP ){
+      if (aCP && !bCP) {
         return 1;
-      } else if( !aCP && bCP ){
+      } else if (!aCP && bCP) {
         return -1;
       } else {
         const aP = a.startsWith(penPrefix);
         const bP = b.startsWith(penPrefix);
-        if( aP && !bP ){
+        if (aP && !bP) {
           return 1;
-        } else if( !aP && bP ){
+        } else if (!aP && bP) {
           return -1;
         } else {
           if (a === b) {
@@ -150,8 +154,7 @@ export function filtersList(
           }
         }
       }
-    }
-  );
+    });
 
   const buttons = incomeOrExpenseNames.map(buttonName => {
     return makeFilterButton(buttonName, settings, context, refreshModel, false);
@@ -745,7 +748,9 @@ function taxButtonList(model: ModelData, viewSettings: ViewSettings) {
       },
       'pensionAllowance',
       `chooseTaxType-pension`,
-      getTaxType(viewSettings) === pensionAllowance ? 'secondary' : 'outline-secondary',
+      getTaxType(viewSettings) === pensionAllowance
+        ? 'secondary'
+        : 'outline-secondary',
     ),
   );
   buttons.push(

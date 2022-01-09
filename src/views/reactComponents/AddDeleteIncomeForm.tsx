@@ -216,21 +216,27 @@ export class AddDeleteIncomeForm extends Component<
             this.setInputincome,
             'useIncomeInputs',
             'useIncomeInputs',
-            this.state.inputting === inputtingIncome ? 'primary' : 'outline-secondary',
+            this.state.inputting === inputtingIncome
+              ? 'primary'
+              : 'outline-secondary',
           )}
           {makeButton(
             'Add pension mode',
             this.setInputDBP,
             'useDBPInputs',
             'useDBPInputs',
-            this.state.inputting === inputtingPension ? 'primary' : 'outline-secondary',
+            this.state.inputting === inputtingPension
+              ? 'primary'
+              : 'outline-secondary',
           )}
           {makeButton(
             'Revalue income mode',
             this.setInputRevalue,
             'useRevalueInputsIncome',
             'useRevalueInputsIncome',
-            this.state.inputting === inputtingRevalue ? 'primary' : 'outline-secondary',
+            this.state.inputting === inputtingRevalue
+              ? 'primary'
+              : 'outline-secondary',
           )}
         </div>
         <form className="container-fluid" onSubmit={this.add}>

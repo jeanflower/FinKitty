@@ -48,8 +48,8 @@ import {
   purchase,
   defaultSourceMatcher,
   defaultSourceExcluder,
-//  pension,
-//  crystallizedPension,
+  //  pension,
+  //  crystallizedPension,
 } from './localization/stringConstants';
 import {
   AssetVal,
@@ -115,7 +115,15 @@ import {
 import { AddDeleteSettingForm } from './views/reactComponents/AddDeleteSettingForm';
 import { ReplaceWithJSONForm } from './views/reactComponents/ReplaceWithJSONForm';
 import { CreateModelForm } from './views/reactComponents/NewModelForm';
-import { Alert, Button, Form, Nav, Navbar, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import {
+  Alert,
+  Button,
+  Form,
+  Nav,
+  Navbar,
+  OverlayTrigger,
+  Tooltip,
+} from 'react-bootstrap';
 import { getEvaluations } from './models/evaluations';
 import {
   applyRedoToModel,
@@ -543,7 +551,7 @@ export async function refreshData(
         model.assets.forEach(a => {
           if (viewSettings.getShowItem(Context.Asset, a.NAME)) {
             // log(`show ${a.NAME}`);
-            let name = a.NAME;
+            const name = a.NAME;
             //if(name.startsWith(pension)){
             //  name = name.substring(pension.length, name.length);
             //}
@@ -586,18 +594,20 @@ export async function refreshData(
           if (!reactAppComponent.state.reportDefiner) {
             return false;
           }
-          if(model.expenses.find(e => {
-            return e.NAME === source;            
-          })){
+          if (
+            model.expenses.find(e => {
+              return e.NAME === source;
+            })
+          ) {
             // expenses just happen - do not include them in 'actions'
             return false;
           }
 
           // log(`sourceMatcher = ${reactAppComponent.reportDefiner.sourceMatcher}`)
           // log(`sourceExcluder = ${reactAppComponent.reportDefiner.sourceExcluder}`)
-          if (nameMatcher === ''){
+          if (nameMatcher === '') {
             return false;
-          } 
+          }
           const matcher = reactAppComponent.state.reportDefiner.sourceMatcher;
           const excluder = reactAppComponent.state.reportDefiner.sourceExcluder;
           if (!matcher && !excluder) {
@@ -630,26 +640,26 @@ export async function refreshData(
           }
 
           if (matcher) {
-            try{
-              const sourceRegex = RegExp( matcher );
+            try {
+              const sourceRegex = RegExp(matcher);
               if (source.match(sourceRegex) === null) {
                 // log(`do not show source ${source} bcs it doesn't match ${matcher}`);
                 return false;
               }
-            } catch (e){
+            } catch (e) {
               alert('error processing regexp');
               return false;
             }
           }
 
           if (excluder) {
-            try{
+            try {
               const sourceRegex = RegExp(excluder);
               if (source.match(sourceRegex) !== null) {
                 // log(`do not show source ${source} bcs it does match ${excluder}`);
                 return false;
               }
-            } catch (e){
+            } catch (e) {
               alert('error processing regexp');
               return false;
             }
@@ -743,7 +753,7 @@ export async function refreshData(
             log(
               'reactAppComponent.state.reportData.length = ' +
                 `${reactAppComponent.state.reportData.length}`,
-            );            
+            );
             //reactAppComponent.state.expensesChartData.map((obj: ChartData) =>
             //  log(`obj is ${showObj(obj)}`),
             //);
@@ -762,7 +772,7 @@ export function setReportKey(textInput: string): boolean {
   /*
   report:{"sourceExcluder":"growth"}
   */
-  try{
+  try {
     const inputObj = JSON.parse(textInput);
 
     reactAppComponent.setState({
@@ -778,7 +788,7 @@ export function setReportKey(textInput: string): boolean {
       true, // refreshChart = true,
     );
     return true;
-  } catch(e){
+  } catch (e) {
     alert('error processing JSON format');
     return false;
   }
@@ -1176,37 +1186,38 @@ interface AppProps {
   user: string;
 }
 
-function AlertDismissibleExample(
-  props: { 
-    message: string,
-    dismissAction: ()=>void,
-  }) {
-    const [show, setShow] = useState(true);
-    let variant='success';
-    if(!props.message.startsWith('added new')){
-      variant='warning';
-    }
-  
-    return (
-      <>
-        <Alert show={show} variant={variant}>
-          <div id="pageTitle" key="pageTitle">{props.message}</div>
-          <Button 
-            onClick={() => {
-              setShow(false);
-              props.dismissAction();
-            }} 
-            variant={`outline-${variant}`}
-            id='btn-clear-alert'
-          >
-            OK
-          </Button>
-        </Alert>
-  
-        {!show && <Button onClick={() => setShow(true)}>Show Alert</Button>}
-      </>
-    );
+function AlertDismissibleExample(props: {
+  message: string;
+  dismissAction: () => void;
+}) {
+  const [show, setShow] = useState(true);
+  let variant = 'success';
+  if (!props.message.startsWith('added new')) {
+    variant = 'warning';
   }
+
+  return (
+    <>
+      <Alert show={show} variant={variant}>
+        <div id="pageTitle" key="pageTitle">
+          {props.message}
+        </div>
+        <Button
+          onClick={() => {
+            setShow(false);
+            props.dismissAction();
+          }}
+          variant={`outline-${variant}`}
+          id="btn-clear-alert"
+        >
+          OK
+        </Button>
+      </Alert>
+
+      {!show && <Button onClick={() => setShow(true)}>Show Alert</Button>}
+    </>
+  );
+}
 
 export class AppContent extends Component<AppProps, AppState> {
   options: any;
@@ -1284,10 +1295,12 @@ export class AppContent extends Component<AppProps, AppState> {
 
   private navbarDiv() {
     return navbarContent(() => {
-      const estateVal = this.state.reportData.find((d)=>{return d.name === 'Estate final value'});
+      const estateVal = this.state.reportData.find(d => {
+        return d.name === 'Estate final value';
+      });
       let textToDisplay = '';
-      if(estateVal !== undefined){
-        if(estateVal.newVal !== undefined){
+      if (estateVal !== undefined) {
+        if (estateVal.newVal !== undefined) {
           textToDisplay = `Estate: ${makeTwoDP(estateVal.newVal)}`;
         }
       }
@@ -1450,7 +1463,7 @@ export class AppContent extends Component<AppProps, AppState> {
             )}
             {this.triggersDiv()}
             {reportDiv(
-              this.state.modelData, 
+              this.state.modelData,
               this.state.viewState,
               this.state.reportDefiner,
               this.state.reportData,
@@ -1785,7 +1798,6 @@ export class AppContent extends Component<AppProps, AppState> {
             `btn-JSON-encrypt-replace`,
             'outline-secondary',
           )}
-
         </div>
         <ReplaceWithJSONForm
           modelName={modelName}
@@ -2034,11 +2046,12 @@ export class AppContent extends Component<AppProps, AppState> {
         'outline-secondary',
       ),
     );
-    if(estateText !== ''){
+    if (estateText !== '') {
       buttons.push(
         makeButton(
           estateText,
-          (event: React.MouseEvent<HTMLButtonElement>) => {
+          () => {
+            // do nothing
           },
           'estateText',
           `btn-estateText`,
@@ -2140,7 +2153,9 @@ export class AppContent extends Component<AppProps, AppState> {
       },
       `btn-undo-model`,
       `btn-undo-model`,
-      this.state.modelData.undoModel !== undefined ? 'secondary' : 'outline-secondary',
+      this.state.modelData.undoModel !== undefined
+        ? 'secondary'
+        : 'outline-secondary',
     );
 
     if (undoTooltip === '') {
@@ -2200,7 +2215,9 @@ export class AppContent extends Component<AppProps, AppState> {
       },
       `btn-redo-model`,
       `btn-redo-model`,
-      this.state.modelData.redoModel !== undefined ? 'secondary' : 'outline-secondary',
+      this.state.modelData.redoModel !== undefined
+        ? 'secondary'
+        : 'outline-secondary',
     );
 
     if (redoTooltip === '') {
@@ -2252,12 +2269,12 @@ export class AppContent extends Component<AppProps, AppState> {
       );
     } else {
       result.push(
-        <AlertDismissibleExample 
+        <AlertDismissibleExample
           message={alertText}
-          dismissAction={()=>{
+          dismissAction={() => {
             this.setState({ alertText: '' });
           }}
-        />
+        />,
       );
     }
     return result;

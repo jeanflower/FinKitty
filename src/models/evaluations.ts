@@ -23,12 +23,11 @@ import {
   purchase,
   pensionAllowance,
   dot,
+  baseForCPI,
 } from '../localization/stringConstants';
 import {
   DatedThing,
   Asset,
-  Expense,
-  Income,
   ModelData,
   Setting,
   Transaction,
@@ -42,6 +41,8 @@ import {
   ExpenseVal,
   ReportDatum,
   ReportValueChecker,
+  IncomeOrExpense,
+  GrowthData,
 } from '../types/interfaces';
 import { getMonthlyGrowth, log, printDebug, showObj } from '../utils';
 import { getDisplayName } from '../views/tablePages';
@@ -179,12 +180,17 @@ export function generateTaxYearSequenceDates(roi: Interval): Date[] {
 
 export const momentType = {
   expense: 'Expense',
-  expenseStart: 'expenseStart',
+  expensePrep: 'ExpensePrep',
+  expenseStart: 'ExpenseStart',
+  expenseStartPrep: 'ExpenseStartPrep',
   income: 'Income',
+  incomePrep: 'IncomePrep',
   incomeStart: 'IncomeStart',
+  incomeStartPrep: 'IncomeStartPrep',
   asset: 'Asset',
   assetStart: 'AssetStart',
   transaction: 'Transaction',
+  inflation: 'Inflation',
 };
 
 export function sortByDate(arrayOfDatedThings: DatedThing[]) {
@@ -342,11 +348,15 @@ function getNumberValue(
   if (result === undefined) {
     if (expectValue) {
       log(
+        `seeking number value for key = '${name}', values has entry ${result}`,
+      );
+      log(
         `getNumberValue returning undefined for ${name}; ` +
+          `values has entry ${result} ` +
           `consider switch to traceEvaluation ` +
           `for values involving words and settings`,
       );
-      throw new Error();
+      return result;
     }
   }
   if (printLogs) {
@@ -358,6 +368,7 @@ function getNumberValue(
 function traceEvaluation(
   value: number | string,
   values: ValuesContainer,
+  growths: Map<string, GrowthData>,
   source: string,
 ): number | undefined {
   if (printDebug()) {
@@ -382,7 +393,7 @@ function traceEvaluation(
         numberPart = parts.numberPart;
       }
       const wordPart = parts.wordPart;
-      const valueForWordPart = values.get(wordPart);
+      let valueForWordPart = values.get(wordPart);
       if (debug) {
         log(`valueForWordPart ${wordPart} = ${valueForWordPart}`);
       }
@@ -392,7 +403,12 @@ function traceEvaluation(
         }
         result = undefined;
       } else if (typeof valueForWordPart === 'string') {
-        const nextLevel = traceEvaluation(valueForWordPart, values, source);
+        const nextLevel = traceEvaluation(
+          valueForWordPart,
+          values,
+          growths,
+          source,
+        );
         if (nextLevel === undefined) {
           if (debug) {
             log(
@@ -410,7 +426,14 @@ function traceEvaluation(
           result = numberPart * nextLevel;
         }
       } else {
-        //log(`calculate ${numberPart} * ${settingForWordPart} = ${numberPart * settingForWordPart}`)
+        //log(`calculate ${numberPart} * ${settingForWordPart} = ${numberPart * settingForWordPart}`);
+        const g = growths.get(wordPart);
+        if (g && g.applyCPI) {
+          const b = values.get(baseForCPI);
+          if (b && typeof b === 'number') {
+            valueForWordPart *= b;
+          }
+        }
         result = numberPart * valueForWordPart;
       }
     }
@@ -457,6 +480,7 @@ function applyQuantity(
 
 function setValue(
   values: ValuesContainer,
+  growths: Map<string, GrowthData>,
   evaluations: Evaluation[],
   date: Date,
   name: string,
@@ -487,17 +511,29 @@ function setValue(
       );
     }
   }
-  values.set(name, newValue, date, source, callerID);
+  values.set(name, newValue, growths, date, source, callerID);
   // log(`Go to find unit val for ${name}'s, we have value = some of ${newValue}`);
-  const unitVal = traceEvaluation(newValue, values, name);
+  const numberVal = traceEvaluation(newValue, values, growths, name);
   // log(`Unit val of ${name} is ${unitVal}`);
-  if (unitVal === undefined) {
+  if (numberVal === undefined) {
     // this is not necessarily an error - just means
     // we're keeping track of something which cannot be
     // evaluated.
     // log(`evaluation of ${newValue} for ${name} undefined`);
   } else {
-    const totalVal = applyQuantity(unitVal, values, name, model);
+    let valForEvaluations = numberVal;
+    let baseVal: number | undefined;
+    const g = growths.get(name);
+    if (g && g.applyCPI) {
+      baseVal = getNumberValue(values, baseForCPI);
+      if (baseVal) {
+        valForEvaluations *= baseVal;
+        // log(`scale by baseVal = ${baseVal} to give valForEvaluations = ${valForEvaluations}`);
+      } else {
+        log(`BUG : missing or zero base value!`);
+      }
+    }
+    const totalVal = applyQuantity(valForEvaluations, values, name, model);
     const evaln = {
       name,
       date,
@@ -505,7 +541,12 @@ function setValue(
       source,
     };
     // log(`add evaluation for ${name} at ${date}`);
-    // log(`add evaluation ${showObj(evaln)}`);
+    //    log(`add evaluation ${showObj({
+    //      name: evaln.name,
+    //      date: evaln.date.toDateString(),
+    //      value: evaln.value,
+    //      source: evaln.source,
+    //    })}`);
     evaluations.push(evaln);
     if (printDebug()) {
       log(`date = ${date}, name = ${name}, value = ${values.get(name)}`);
@@ -569,27 +610,10 @@ export function getMonthOfTaxYear(d: Date) {
   return monthOfTaxYear;
 }
 
-function updateValueForCPI(
-  startYearOfTaxYearSet: number,
-  startYearOfTaxYearNow: number,
-  origValue: number,
-  cpiVal: number,
-) {
-  // log(`startYearOfTaxYearNow = ${startYearOfTaxYearNow} startYearOfTaxYearSet = ${startYearOfTaxYearSet}`)
-  const numYears = startYearOfTaxYearNow - startYearOfTaxYearSet;
-  // log(`update tax bands after ${numYears} have passed at ${cpiVal} rate`)
-  const result = Math.exp(
-    Math.log(origValue) + numYears * Math.log(1.0 + cpiVal / 100.0),
-  );
-  // log(`update tax band from ${origValue} to ${result}`);
-  return result;
-}
-
 interface TaxBands {
-  startYearOfTaxYearTaxBandsSet: number;
   noTaxBand: number;
   lowTaxBand: number;
-  adjustnoTaxBand: number;
+  adjustNoTaxBand: number;
   highTaxBand: number;
   lowTaxRate: number;
   highTaxRate: number;
@@ -604,11 +628,10 @@ interface TaxBandsMap {
 }
 
 const TAX_MAP: TaxBandsMap = {
-  2016: {
-    startYearOfTaxYearTaxBandsSet: 2016,
+  '2016': {
     noTaxBand: 12500,
     lowTaxBand: 50000,
-    adjustnoTaxBand: 100000,
+    adjustNoTaxBand: 100000,
     highTaxBand: 150000,
     lowTaxRate: 0.2,
     highTaxRate: 0.4,
@@ -618,11 +641,10 @@ const TAX_MAP: TaxBandsMap = {
     lowNIRate: 0.12,
     highNIRate: 0.02,
   },
-  2017: {
-    startYearOfTaxYearTaxBandsSet: 2017,
+  '2017': {
     noTaxBand: 12500,
     lowTaxBand: 50000,
-    adjustnoTaxBand: 100000,
+    adjustNoTaxBand: 100000,
     highTaxBand: 150000,
     lowTaxRate: 0.2,
     highTaxRate: 0.4,
@@ -632,11 +654,10 @@ const TAX_MAP: TaxBandsMap = {
     lowNIRate: 0.12,
     highNIRate: 0.02,
   },
-  2018: {
-    startYearOfTaxYearTaxBandsSet: 2018,
+  '2018': {
     noTaxBand: 12500,
     lowTaxBand: 50000,
-    adjustnoTaxBand: 100000,
+    adjustNoTaxBand: 100000,
     highTaxBand: 150000,
     lowTaxRate: 0.2,
     highTaxRate: 0.4,
@@ -646,11 +667,10 @@ const TAX_MAP: TaxBandsMap = {
     lowNIRate: 0.12,
     highNIRate: 0.02,
   },
-  2019: {
-    startYearOfTaxYearTaxBandsSet: 2019,
+  '2019': {
     noTaxBand: 12500,
     lowTaxBand: 50000,
-    adjustnoTaxBand: 100000,
+    adjustNoTaxBand: 100000,
     highTaxBand: 150000,
     lowTaxRate: 0.2,
     highTaxRate: 0.4,
@@ -660,11 +680,10 @@ const TAX_MAP: TaxBandsMap = {
     lowNIRate: 0.12,
     highNIRate: 0.02,
   },
-  2020: {
-    startYearOfTaxYearTaxBandsSet: 2020,
+  '2020': {
     noTaxBand: 12500,
     lowTaxBand: 50000,
-    adjustnoTaxBand: 100000,
+    adjustNoTaxBand: 100000,
     highTaxBand: 150000,
     lowTaxRate: 0.2,
     highTaxRate: 0.4,
@@ -674,11 +693,24 @@ const TAX_MAP: TaxBandsMap = {
     lowNIRate: 0.12,
     highNIRate: 0.02,
   },
-  2022: {
-    startYearOfTaxYearTaxBandsSet: 2022,
+  '2021': {
     noTaxBand: 12500,
     lowTaxBand: 50000,
-    adjustnoTaxBand: 100000,
+    adjustNoTaxBand: 100000,
+    highTaxBand: 150000,
+    lowTaxRate: 0.2,
+    highTaxRate: 0.4,
+    topTaxRate: 0.45,
+    noNIBand: 8628,
+    lowNIBand: 50004,
+    lowNIRate: 0.12,
+    highNIRate: 0.02,
+  },
+  '2022': {
+    // TODO get this derived from highestTaxYearInMap - they should be bound to be the same
+    noTaxBand: 12500,
+    lowTaxBand: 50000,
+    adjustNoTaxBand: 100000,
     highTaxBand: 150000,
     lowTaxRate: 0.2,
     highTaxRate: 0.4,
@@ -689,87 +721,106 @@ const TAX_MAP: TaxBandsMap = {
     highNIRate: 0.0325,
   },
 };
+const highestTaxYearInMap = 2022;
 
-function getTaxBands(income: number, startYearOfTaxYear: number, cpiVal: number) {
-  // log(`in getTaxBands, startYearOfTaxYear = ${startYearOfTaxYear}`);
-  for (let yr = startYearOfTaxYear; yr > 2016; yr = yr - 1) {
-    // TODO drop yr to 2021 for performance
-    const bands: any | undefined = TAX_MAP[`${yr}`];
-    if (bands !== undefined) {
-      const result = {
-        noTaxBand: bands.noTaxBand,
-        lowTaxBand: bands.lowTaxBand,
-        lowTaxRate: bands.lowTaxRate,
-        adjustnoTaxBand: bands.adjustnoTaxBand,
-        highTaxBand: bands.highTaxBand,
-        highTaxRate: bands.highTaxRate,
-        topTaxRate: bands.topTaxRate,
-
-        noNIBand: bands.noNIBand,
-        lowNIBand: bands.lowNIBand,
-        lowNIRate: bands.lowNIRate,
-        highNIRate: bands.highNIRate,
-
-        bandsSet: bands.startYearOfTaxYearTaxBandsSet,
-      };
-      // log(`bands before CPI adjustment: ${showObj(bands)}`);
-      result.noTaxBand = updateValueForCPI(
-        result.bandsSet,
-        startYearOfTaxYear,
-        result.noTaxBand,
-        cpiVal,
-      );
-      result.lowTaxBand = updateValueForCPI(
-        result.bandsSet,
-        startYearOfTaxYear,
-        result.lowTaxBand,
-        cpiVal,
-      );
-      result.adjustnoTaxBand = updateValueForCPI(
-        result.bandsSet,
-        startYearOfTaxYear,
-        result.adjustnoTaxBand,
-        cpiVal,
-      );
-      result.highTaxBand = updateValueForCPI(
-        result.bandsSet,
-        startYearOfTaxYear,
-        result.highTaxBand,
-        cpiVal,
-      );
-
-      result.noNIBand = updateValueForCPI(
-        result.bandsSet,
-        startYearOfTaxYear,
-        result.noNIBand,
-        cpiVal,
-      );
-      result.lowNIBand = updateValueForCPI(
-        result.bandsSet,
-        startYearOfTaxYear,
-        result.lowNIBand,
-        cpiVal,
-      );
-
-      if (income > result.adjustnoTaxBand) {
-        const reducedNoTaxBand =
-          12500 - (income - result.adjustnoTaxBand) / 2.0;
-        if (reducedNoTaxBand > 0) {
-          result.noTaxBand = reducedNoTaxBand;
-        } else {
-          result.noTaxBand = 0;
-        }
-      }
-      // log(`bands for ${d.toDateString()} are ${showObj(result)}`);
-      return result;
+function getTaxBands(
+  income: number,
+  startYearOfTaxYear: number,
+  values: ValuesContainer,
+): TaxBands {
+  let result: TaxBands;
+  if (startYearOfTaxYear > highestTaxYearInMap) {
+    const resultFromMap = TAX_MAP[`${highestTaxYearInMap}`];
+    if (!resultFromMap) {
+      throw new Error(`tax bands not defined for ${highestTaxYearInMap}!`);
     }
+    result = resultFromMap;
+
+    const baseVal = getNumberValue(values, baseForCPI);
+    if (baseVal) {
+      // log(`scale by baseVal = ${baseVal}`);
+      const noTaxBand = getNumberValue(values, 'noTaxBand');
+      const lowTaxBand = getNumberValue(values, 'lowTaxBand');
+      const highTaxBand = getNumberValue(values, 'highTaxBand');
+      const adjustNoTaxBand = getNumberValue(values, 'adjustNoTaxBand');
+      const noNIBand = getNumberValue(values, 'noNIBand');
+      const lowNIBand = getNumberValue(values, 'lowNIBand');
+
+      if (
+        noTaxBand &&
+        lowTaxBand &&
+        highTaxBand &&
+        adjustNoTaxBand &&
+        noNIBand &&
+        lowNIBand
+      ) {
+        // log(`noTaxBand * baseVal at ${startYearOfTaxYear} = ${noTaxBand * baseVal}`);
+        // log(`from map at ${startYearOfTaxYear}, ${makeTwoDP(noTaxBand)}, ${makeTwoDP(lowTaxBand)}, ${makeTwoDP(highTaxBand)}, ${makeTwoDP(adjustNoTaxBand)}`);
+        // log(`scale last tax bands by * baseVal = ${baseVal}`);
+        result = {
+          noTaxBand: noTaxBand * baseVal,
+          lowTaxBand: lowTaxBand * baseVal,
+          highTaxBand: highTaxBand * baseVal,
+          adjustNoTaxBand: adjustNoTaxBand * baseVal,
+          lowTaxRate: result.lowTaxRate,
+          highTaxRate: result.highTaxRate,
+          topTaxRate: result.topTaxRate,
+          noNIBand: noNIBand * baseVal,
+          lowNIRate: result.lowNIRate,
+          lowNIBand: lowNIBand * baseVal,
+          highNIRate: result.highNIRate,
+        };
+        // log(`now vals at ${startYearOfTaxYear}, ${makeTwoDP(result.noTaxBand)}, ${makeTwoDP(result.lowTaxBand)}, ${makeTwoDP(result.highTaxBand)}, ${makeTwoDP(result.adjustNoTaxBand)}`);
+      } else {
+        log('BUG : missing tax bands in values');
+        throw new Error();
+      }
+    } else {
+      log('BUG : missing baseVal');
+      const resultFromMap = TAX_MAP[`${highestTaxYearInMap}`];
+      if (!resultFromMap) {
+        throw new Error(`tax bands not defined for ${highestTaxYearInMap}!`);
+      }
+      result = resultFromMap;
+    }
+  } else {
+    const resultFromMap = TAX_MAP[`${startYearOfTaxYear}`];
+    if (!resultFromMap) {
+      throw new Error(`tax bands not defined for ${startYearOfTaxYear}!`);
+    }
+    result = resultFromMap;
   }
-  throw new Error(`no Tax Bands defined!`);
+  // log(`chk vals at ${startYearOfTaxYear}, ${makeTwoDP(result.noTaxBand)}, ${makeTwoDP(result.lowTaxBand)}, ${makeTwoDP(result.highTaxBand)}, ${makeTwoDP(result.adjustNoTaxBand)}`);
+  result = {
+    noTaxBand: result.noTaxBand,
+    lowTaxBand: result.lowTaxBand,
+    lowTaxRate: result.lowTaxRate,
+    adjustNoTaxBand: result.adjustNoTaxBand,
+    highTaxBand: result.highTaxBand,
+    highTaxRate: result.highTaxRate,
+    topTaxRate: result.topTaxRate,
+
+    noNIBand: result.noNIBand,
+    lowNIBand: result.lowNIBand,
+    lowNIRate: result.lowNIRate,
+    highNIRate: result.highNIRate,
+  };
+  const topEndIncome = income - result.adjustNoTaxBand;
+  if (topEndIncome > 0) {
+    result.noTaxBand = Math.max(0.0, result.noTaxBand - topEndIncome / 2.0);
+    // log(`for startYearOfTaxYear = ${startYearOfTaxYear}, income high so no-tax band is ${result.noTaxBand}!`);
+  }
+  // log(`bands at ${startYearOfTaxYear}, ${makeTwoDP(result.noTaxBand)}, ${makeTwoDP(result.lowTaxBand)}, ${makeTwoDP(result.highTaxBand)}, ${makeTwoDP(result.adjustNoTaxBand)}`);
+  return result;
 }
 
-function calculateIncomeTaxPayable(income: number, startYearOfTaxYear: number, cpiVal: number) {
+function calculateIncomeTaxPayable(
+  income: number,
+  startYearOfTaxYear: number,
+  values: ValuesContainer,
+) {
   // log(`in calculateTaxPayable`);
-  const bands = getTaxBands(income, startYearOfTaxYear, cpiVal);
+  const bands = getTaxBands(income, startYearOfTaxYear, values);
   // log(`tax bands are ${showObj(bands)}`);
 
   const sizeOfLowTaxBand = bands.lowTaxBand - bands.noTaxBand;
@@ -839,10 +890,10 @@ function calculateIncomeTaxPayable(income: number, startYearOfTaxYear: number, c
 function calculateNIPayable(
   income: number,
   startYearOfTaxYear: number,
-  cpiVal: number,
+  values: ValuesContainer,
 ): { amountLiable: number; rate: number }[] {
   // log(`in calculateNIPayable`);
-  const bands = getTaxBands(income, startYearOfTaxYear, cpiVal);
+  const bands = getTaxBands(income, startYearOfTaxYear, values);
 
   const noNIBand = bands.noNIBand;
   const lowNIBand = bands.lowNIBand;
@@ -878,8 +929,9 @@ function calculateNIPayable(
     // income falls into no tax band
     incomeInLowNIBand = 0;
   }
-  // log(`${income} = ${incomeInNoNIBand} + `
-  //    + `${incomeInLowNIBand} + ${incomeInHighNIBand}`);
+  // log(`${income} = ${incomeInNoNIBand} @ 0% + `
+  //    + `${incomeInLowNIBand} @ ${lowNIRate} + ${incomeInHighNIBand} @ ${highNIRate} `
+  //    + `= ${incomeInLowNIBand * lowNIRate + incomeInHighNIBand * highNIRate}`);
 
   const niPayable = [
     {
@@ -896,21 +948,24 @@ function calculateNIPayable(
   return niPayable;
 }
 
-const startYearOfTaxYearCGTBandsSet = 2018;
+//const startYearOfTaxYearCGTBandsSet = 2018;
 const noCGTBandSet = 12000;
 
 function calculateCGTPayable(
-  gain: number, 
-  startYearOfTaxYear: number, 
-  cpiVal: number,
-  ) {
-  // log(`in calculateCGTPayable, gain = ${gain}`);
-  const noCGTBand = updateValueForCPI(
+  gain: number,
+  startYearOfTaxYear: number,
+  values: ValuesContainer,
+) {
+  // log(`in calculateCGTPayable, gain = ${gain}`);//////////////////////// TODO
+  /*
+  const noCGTBand = updateTaxBandValueForCPI(
     startYearOfTaxYearCGTBandsSet, 
     startYearOfTaxYear, 
     noCGTBandSet, 
     cpiVal,
   );
+  */
+  const noCGTBand = noCGTBandSet;
 
   const CGTRate = 0.2;
   // TODO - this should depend on whether payer is high income tax payer
@@ -929,20 +984,39 @@ function adjustCash(
   amount: number,
   d: Date,
   values: ValuesContainer,
+  growths: Map<string, GrowthData>,
   evaluations: Evaluation[],
   model: ModelData,
   source: string, // what led to the change
 ) {
-  const cashValue = getNumberValue(values, CASH_ASSET_NAME, false);
+  // log(`adjustCash by amount = ${amount} at ${d.toDateString()}`);
+  let cashValue = getNumberValue(values, CASH_ASSET_NAME, false);
+  // log(`current stored value = ${cashValue}`);
   if (cashValue === undefined) {
     // log('don't adjust undefined cash asset');
     // NB some tests have an expense and watch its value
     // without having a cash asset to decrement
   } else {
-    const newValue = cashValue + amount;
+    let scaleBy: number | undefined;
+    const g = growths.get(CASH_ASSET_NAME);
+    // log(`growth for cash is ${showObj(g)}`);
+    if (cashValue !== undefined && g && g.applyCPI) {
+      const b = values.get(baseForCPI);
+      // log(`base for CPI is ${b}`);
+      if (b && typeof b === 'number') {
+        scaleBy = b;
+        // log(`for CPI, scaleBy = ${scaleBy}`);
+        cashValue = cashValue * scaleBy;
+      }
+    }
+    let newValue = cashValue + amount;
     // log(`in adjustCash, setValue to ${newValue}`);
+    if (scaleBy) {
+      newValue /= scaleBy;
+    }
     setValue(
       values,
+      growths,
       evaluations,
       d,
       CASH_ASSET_NAME,
@@ -962,12 +1036,14 @@ function sumTaxDue(
     total = total + tx.amountLiable * tx.rate;
     // log(`total is now ${total}`);
   });
+  // log(`total tax due is ${total}`);
   return total;
 }
 
 function updatePurchaseValue(
   a: Asset,
   values: ValuesContainer,
+  growths: Map<string, GrowthData>,
   newOverOldRatio: number,
   evaluations: Evaluation[],
   startOfTaxYear: Date,
@@ -997,6 +1073,7 @@ function updatePurchaseValue(
       if (wordPart === undefined) {
         setValue(
           values,
+          growths,
           evaluations,
           startOfTaxYear,
           `${purchase}${a.NAME}`,
@@ -1008,6 +1085,7 @@ function updatePurchaseValue(
       } else {
         setValue(
           values,
+          growths,
           evaluations,
           startOfTaxYear,
           `${purchase}${a.NAME}`,
@@ -1021,13 +1099,12 @@ function updatePurchaseValue(
   }
 }
 
-
 function payIncomeTax(
   startOfTaxYear: Date, // should be April 5th of some year
   income: number,
   alreadyPaid: number,
-  cpiVal: number,
   values: ValuesContainer,
+  growths: Map<string, GrowthData>,
   evaluations: Evaluation[],
   model: ModelData,
   source: string, // e.g. IncomeTaxJoe
@@ -1037,19 +1114,19 @@ function payIncomeTax(
   const taxDue: {
     amountLiable: number;
     rate: number;
-  }[] = calculateIncomeTaxPayable(income, startOfTaxYear.getFullYear(), cpiVal);
+  }[] = calculateIncomeTaxPayable(income, startOfTaxYear.getFullYear(), values);
   // log(`taxDue for ${source} on ${startOfTaxYear} = ${taxDue}`);
-  let totalTaxDue = sumTaxDue(taxDue);
+  const totalTaxDue = sumTaxDue(taxDue);
 
-  let totalTaxDueFromCash = sumTaxDue(taxDue);
-  // log(`totalTaxDueFromCash for ${source} on ${startOfTaxYear} = ${totalTaxDueFromCash} but we have already paid ${alreadyPaid}`);
-  totalTaxDueFromCash -= alreadyPaid;
-  if (totalTaxDueFromCash !== 0) {
-    // log('in payIncomeTax, adjustCash:');
+  const totalTaxDueFromCash = totalTaxDue - alreadyPaid;
+  // log(`totalTaxDueFromCash for ${makeTwoDP(income)} on ${startOfTaxYear.getFullYear()} is ${makeTwoDP(totalTaxDueFromCash)}, already paid ${makeTwoDP(alreadyPaid)}`);
+  if (totalTaxDue !== 0) {
+    // log(`in payIncomeTax for ${startOfTaxYear.toDateString()}, adjustCash by ${totalTaxDueFromCash}`);
     adjustCash(
       -totalTaxDueFromCash,
       startOfTaxYear,
       values,
+      growths,
       evaluations,
       model,
       source,
@@ -1057,10 +1134,11 @@ function payIncomeTax(
   }
 
   if (totalTaxDue > 0) {
-    // log(`setValue with taxDue = ${taxDue}`);
+    // log(`setValue with totalTaxDue = ${totalTaxDue}`);
     const person = source.substring(0, source.length - incomeTax.length);
     setValue(
       values,
+      growths,
       evaluations,
       startOfTaxYear,
       incomeTax,
@@ -1085,17 +1163,19 @@ function logAnnualNIPayments(
   startOfTaxYear: Date,
   nIMonthlyPaymentsPaid: number,
   values: ValuesContainer,
+  growths: Map<string, GrowthData>,
   evaluations: Evaluation[],
   model: ModelData,
   source: string, // e.g. NIJoe
 ) {
-  if(nIMonthlyPaymentsPaid > 0){
+  if (nIMonthlyPaymentsPaid > 0) {
     const person = source.substring(
       0,
       source.length - nationalInsurance.length,
     );
     setValue(
       values,
+      growths,
       evaluations,
       startOfTaxYear,
       nationalInsurance,
@@ -1108,10 +1188,10 @@ function logAnnualNIPayments(
 }
 
 function payCGT(
-  startOfTaxYear: Date,// should be April 5th of some year
+  startOfTaxYear: Date, // should be April 5th of some year
   gain: number,
-  cpiVal: number,
   values: ValuesContainer,
+  growths: Map<string, GrowthData>,
   evaluations: Evaluation[],
   model: ModelData,
   source: string, // e.g. 'CGTJoe'
@@ -1119,14 +1199,27 @@ function payCGT(
   // log(`pay CGT on ${gain} for date ${startOfTaxYear}`);
   // calculate CGT liability
   // TODO should pass in whether high rate income tax next
-  const CGTDue = calculateCGTPayable(gain, startOfTaxYear.getFullYear(), cpiVal);
+  const CGTDue = calculateCGTPayable(
+    gain,
+    startOfTaxYear.getFullYear(),
+    values,
+  );
   // log(`taxDue = ${taxDue}`);
   if (CGTDue > 0) {
     // log('in payCGT, adjustCash:');
-    adjustCash(-CGTDue, startOfTaxYear, values, evaluations, model, source);
+    adjustCash(
+      -CGTDue,
+      startOfTaxYear,
+      values,
+      growths,
+      evaluations,
+      model,
+      source,
+    );
     const person = source.substring(0, source.length - cgt.length);
     setValue(
       values,
+      growths,
       evaluations,
       startOfTaxYear,
       cgt,
@@ -1140,9 +1233,9 @@ function payCGT(
 }
 function OptimizeIncomeTax(
   date: Date,
-  cpiVal: number,
   liableIncome: number,
   values: ValuesContainer,
+  growths: Map<string, GrowthData>,
   person: string,
   liableIncomeInTaxYear: Map<string, Map<string, number>>,
   evaluations: Evaluation[],
@@ -1150,7 +1243,7 @@ function OptimizeIncomeTax(
 ) {
   // log(`OptimizeIncomeTax income tax for ${person} and ${liableIncome} on ${date.toDateString()}`);
   const startYearOfTaxYear = date.getFullYear();
-  const bands = getTaxBands(liableIncome, startYearOfTaxYear, cpiVal);
+  const bands = getTaxBands(liableIncome, startYearOfTaxYear, values);
   if (liableIncome > bands.noTaxBand) {
     return;
   }
@@ -1200,6 +1293,7 @@ function OptimizeIncomeTax(
           unusedAllowance = unusedAllowance - amountToTransfer;
           setValue(
             values,
+            growths,
             evaluations,
             date,
             CASH_ASSET_NAME,
@@ -1210,6 +1304,7 @@ function OptimizeIncomeTax(
           ); // e.g. 'CrystallizedPensionNorwich'
           setValue(
             values,
+            growths,
             evaluations,
             date,
             valueKey,
@@ -1231,11 +1326,12 @@ function settleUpTax(
   liableIncomeInTaxMonth: Map<string, Map<string, number>>,
   taxMonthlyPaymentsPaid: Map<string, Map<string, number>>,
   startYearOfTaxYear: number,
-  cpiVal: number,
   values: ValuesContainer,
+  growths: Map<string, GrowthData>,
   evaluations: Evaluation[],
   model: ModelData,
 ) {
+  // log('in settleUpTax');
   const date = new Date(startYearOfTaxYear + 1, 3, 5);
   // before going to pay income tax,
   // see if there's a wise move to use up unused income tax allowance
@@ -1248,9 +1344,9 @@ function settleUpTax(
         if (doOptimizeForIncomeTax) {
           OptimizeIncomeTax(
             date,
-            cpiVal,
             liableIncome,
             values,
+            growths,
             person,
             liableIncomeInTaxYear,
             evaluations,
@@ -1264,25 +1360,27 @@ function settleUpTax(
   const personNetIncome = new Map<string, number>();
   const personNetGain = new Map<string, number>();
   const personPensionAllowanceUsed = new Map<string, number>();
+  // log(`iterate over liable income key, value`);
   for (const [key, value] of liableIncomeInTaxYear) {
+    // log(`liable income key = ${key}, value = ${value}`);
     let recalculatedNetIncome = false;
     let recalculatedNetGain = false;
     let recalculatedPensionAllowance = false;
     /* eslint-disable-line no-restricted-syntax */
     if (key === incomeTax && value !== undefined) {
       let liableIncomeTaxInTaxMonth = liableIncomeInTaxMonth.get(incomeTax);
-      if(liableIncomeTaxInTaxMonth === undefined){
+      if (liableIncomeTaxInTaxMonth === undefined) {
         liableIncomeTaxInTaxMonth = new Map<string, number>();
         liableIncomeInTaxMonth.set(incomeTax, liableIncomeTaxInTaxMonth);
       }
       let incomeTaxMonthlyPaymentsPaid = taxMonthlyPaymentsPaid.get(incomeTax);
-      if(incomeTaxMonthlyPaymentsPaid === undefined){
+      if (incomeTaxMonthlyPaymentsPaid === undefined) {
         incomeTaxMonthlyPaymentsPaid = new Map<string, number>();
         taxMonthlyPaymentsPaid.set(incomeTax, incomeTaxMonthlyPaymentsPaid);
-      }      
+      }
       for (const [person, amount] of value) {
         let alreadyPaid = incomeTaxMonthlyPaymentsPaid.get(person);
-        if(alreadyPaid === undefined){
+        if (alreadyPaid === undefined) {
           alreadyPaid = 0;
         }
         /* eslint-disable-line no-restricted-syntax */
@@ -1291,8 +1389,8 @@ function settleUpTax(
           date,
           amount,
           alreadyPaid,
-          cpiVal,
           values,
+          growths,
           evaluations,
           model,
           person, // e.g. IncomeTaxJoe
@@ -1307,36 +1405,38 @@ function settleUpTax(
           // log(`for ${personsName}, set first net income ${amount} - ${taxPaid}`);
           personNetIncome.set(personsName, amount - taxPaid);
         } else {
-          // log(`for ic, reduce existing net income for ${personsName}`);
+          // log(`for ${personsName}, reduce existing net income for ${personsName}`);
           personNetIncome.set(personsName, knownNetIncome - taxPaid);
         }
         if (printDebug()) {
           log(`${person} paid income tax ${taxPaid} for ${date}`);
         }
         // log('resetting liableIncomeInTaxYear');
-        value.set(person, 0); 
+        value.set(person, 0);
         liableIncomeTaxInTaxMonth.set(person, 0);
         incomeTaxMonthlyPaymentsPaid.set(person, 0);
         recalculatedNetIncome = true;
       }
     } else if (key === nationalInsurance && value !== undefined) {
-      let liableIncomeNIInTaxMonth = liableIncomeInTaxMonth.get(nationalInsurance);
-      if(liableIncomeNIInTaxMonth === undefined){
+      let liableIncomeNIInTaxMonth = liableIncomeInTaxMonth.get(
+        nationalInsurance,
+      );
+      if (liableIncomeNIInTaxMonth === undefined) {
         liableIncomeNIInTaxMonth = new Map<string, number>();
         liableIncomeInTaxMonth.set(nationalInsurance, liableIncomeNIInTaxMonth);
       }
       let nIMonthlyPaymentsPaid = taxMonthlyPaymentsPaid.get(nationalInsurance);
-      if(nIMonthlyPaymentsPaid === undefined){
+      if (nIMonthlyPaymentsPaid === undefined) {
         nIMonthlyPaymentsPaid = new Map<string, number>();
         taxMonthlyPaymentsPaid.set(nationalInsurance, nIMonthlyPaymentsPaid);
       }
       for (const [person, amount] of value) {
         let liableInTaxMonth = liableIncomeNIInTaxMonth.get(person);
-        if(liableInTaxMonth === undefined){
+        if (liableInTaxMonth === undefined) {
           liableInTaxMonth = 0;
         }
         let alreadyPaid = nIMonthlyPaymentsPaid.get(person);
-        if(alreadyPaid === undefined){
+        if (alreadyPaid === undefined) {
           alreadyPaid = 0;
         }
         /* eslint-disable-line no-restricted-syntax */
@@ -1344,6 +1444,7 @@ function settleUpTax(
           date,
           alreadyPaid,
           values,
+          growths,
           evaluations,
           model,
           person,
@@ -1375,8 +1476,8 @@ function settleUpTax(
         const cgtPaid = payCGT(
           date,
           amount,
-          cpiVal,
           values,
+          growths,
           evaluations,
           model,
           person,
@@ -1422,6 +1523,7 @@ function settleUpTax(
           const netIncTag = makeNetIncomeTag(person);
           setValue(
             values,
+            growths,
             evaluations,
             date,
             netIncTag,
@@ -1439,6 +1541,7 @@ function settleUpTax(
           // log(`setValue ${'netgain'+person} amount ${amount}`)
           setValue(
             values,
+            growths,
             evaluations,
             date,
             makeNetGainTag(person),
@@ -1456,6 +1559,7 @@ function settleUpTax(
           // log(`setValue ${'netgain'+person} amount ${amount}`)
           setValue(
             values,
+            growths,
             evaluations,
             date,
             makePensionAllowanceTag(person),
@@ -1470,12 +1574,9 @@ function settleUpTax(
   }
 }
 
-function getTaxMonthDate(
-  startYearOfTaxYear: number,
-  monthOfTaxYear: number,
-){
+function getTaxMonthDate(startYearOfTaxYear: number, monthOfTaxYear: number) {
   let result: Date;
-  if(monthOfTaxYear <= 3){
+  if (monthOfTaxYear <= 3) {
     // start of tax year = 2020, month = January
     // gives January 2021
     result = new Date(startYearOfTaxYear + 1, monthOfTaxYear, 5);
@@ -1493,27 +1594,28 @@ function payTaxEstimate(
   taxMonthlyPaymentsPaid: Map<string, Map<string, number>>,
   startYearOfTaxYear: number,
   monthOfTaxYear: number,
-  cpiVal: number,
   values: ValuesContainer,
+  growths: Map<string, GrowthData>,
   evaluations: Evaluation[],
   model: ModelData,
 ) {
   // income tax
+  // log(`payTaxEstimate for month ${monthOfTaxYear} and startYearOfTaxYear ${startYearOfTaxYear}`);
   let liableIncomeTaxInTaxMonth = liableIncomeInTaxMonth.get(incomeTax);
-  if(liableIncomeTaxInTaxMonth === undefined){
+  if (liableIncomeTaxInTaxMonth === undefined) {
     liableIncomeTaxInTaxMonth = new Map<string, number>();
     liableIncomeInTaxMonth.set(incomeTax, liableIncomeTaxInTaxMonth);
   }
   let incomeTaxMonthlyPaymentsPaid = taxMonthlyPaymentsPaid.get(incomeTax);
-  if(incomeTaxMonthlyPaymentsPaid === undefined){
+  if (incomeTaxMonthlyPaymentsPaid === undefined) {
     incomeTaxMonthlyPaymentsPaid = new Map<string, number>();
     taxMonthlyPaymentsPaid.set(incomeTax, incomeTaxMonthlyPaymentsPaid);
   }
-  // log(`payTaxEstimate for month ${monthOfTaxYear} and year ${startYearOfTaxYear}`);
 
   for (const [person, liableIncome] of liableIncomeTaxInTaxMonth) {
-    // log(`pay income tax estimate for ${person} for ${liableIncome} for ${date.toDateString()}`);
-    if(monthOfTaxYear !== 3 && liableIncome > 0){ // don't make monthly estimate in April
+    // log(`pay income tax estimate for ${person} for ${liableIncome} for month ${monthOfTaxYear}, year ${startYearOfTaxYear}`);
+    if (monthOfTaxYear !== 3 && liableIncome > 0) {
+      // don't make monthly estimate in April
       const annualIncomeEstimate = liableIncome * 12;
       const estimateAnnualTaxDue: {
         amountLiable: number;
@@ -1521,23 +1623,27 @@ function payTaxEstimate(
       }[] = calculateIncomeTaxPayable(
         annualIncomeEstimate,
         startYearOfTaxYear,
-        cpiVal,
+        values,
       );
-      const estimateMonthTaxDue = 
-        Math.floor(sumTaxDue(estimateAnnualTaxDue) / 12 * 100 + 0.00001)/100;
+      const annualEstimate = sumTaxDue(estimateAnnualTaxDue);
+      // log(`es payIncomeTax for ${startYearOfTaxYear}, annual estimate is ${annualEstimate}`);
+      const estimateMonthTaxDue =
+        Math.floor((annualEstimate / 12) * 100 + 0.00001) / 100;
 
-      if(estimateMonthTaxDue > 0){
+      // log(`es payIncomeTax for ${startYearOfTaxYear}, monthly estimate is ${estimateMonthTaxDue}`);
+      if (estimateMonthTaxDue > 0) {
         // log(`adjust cash for tax estimate ${estimateMonthTaxDue}`);
         adjustCash(
           -estimateMonthTaxDue,
           getTaxMonthDate(startYearOfTaxYear, monthOfTaxYear),
           values,
+          growths,
           evaluations,
           model,
           person,
         );
         let estimatesPaid = incomeTaxMonthlyPaymentsPaid.get(person);
-        if(estimatesPaid === undefined){
+        if (estimatesPaid === undefined) {
           estimatesPaid = 0;
         }
         estimatesPaid += estimateMonthTaxDue;
@@ -1552,26 +1658,27 @@ function payNIEstimate(
   taxMonthlyPaymentsPaid: Map<string, Map<string, number>>,
   startYearOfTaxYear: number,
   monthOfTaxYear: number,
-  cpiVal: number,
   values: ValuesContainer,
+  growths: Map<string, GrowthData>,
   evaluations: Evaluation[],
   model: ModelData,
 ) {
+  // log(`pay NI estimate for month ${monthOfTaxYear} and startYearOfTaxYear ${startYearOfTaxYear} `)
   // NI
   let liableNIInTaxMonth = liableIncomeInTaxMonth.get(nationalInsurance);
-  if(liableNIInTaxMonth === undefined){
+  if (liableNIInTaxMonth === undefined) {
     liableNIInTaxMonth = new Map<string, number>();
     liableIncomeInTaxMonth.set(nationalInsurance, liableNIInTaxMonth);
   }
   let nIMonthlyPaymentsPaid = taxMonthlyPaymentsPaid.get(nationalInsurance);
-  if(nIMonthlyPaymentsPaid === undefined){
+  if (nIMonthlyPaymentsPaid === undefined) {
     nIMonthlyPaymentsPaid = new Map<string, number>();
     taxMonthlyPaymentsPaid.set(nationalInsurance, nIMonthlyPaymentsPaid);
   }
 
   for (const [person, liableIncome] of liableNIInTaxMonth) {
-    // log(`pay NI for ${person} for ${liableIncome} for ${date.toDateString()}`);
-    if(liableIncome > 0){
+    // log(`pay NI for ${person} for ${liableIncome} for month ${monthOfTaxYear} and year ${startYearOfTaxYear}`);
+    if (liableIncome > 0) {
       const annualIncomeEstimate = liableIncome * 12;
       const estimateAnnualTaxDue: {
         amountLiable: number;
@@ -1579,26 +1686,27 @@ function payNIEstimate(
       }[] = calculateNIPayable(
         annualIncomeEstimate,
         startYearOfTaxYear,
-        cpiVal,
+        values,
       );
       const niDueForYear = sumNI(estimateAnnualTaxDue);
       // log(`niDueForYear = ${niDueForYear}`);
-      const nIMonthTaxDue = 
-        Math.floor(niDueForYear / 12 * 100 + 0.00001)/100;
+      const nIMonthTaxDue =
+        Math.floor((niDueForYear / 12) * 100 + 0.00001) / 100;
       // log(`nIMonthTaxDue = ${nIMonthTaxDue}`);
 
-      if(nIMonthTaxDue > 0){
+      if (nIMonthTaxDue > 0) {
         // log(`adjust cash for NI payment ${nIMonthTaxDue}`);
         adjustCash(
           -nIMonthTaxDue,
           getTaxMonthDate(startYearOfTaxYear, monthOfTaxYear),
           values,
+          growths,
           evaluations,
           model,
           person,
         );
         let niPaid = nIMonthlyPaymentsPaid.get(person);
-        if(niPaid === undefined){
+        if (niPaid === undefined) {
           niPaid = 0;
         }
         niPaid += nIMonthTaxDue;
@@ -1606,6 +1714,7 @@ function payNIEstimate(
         nIMonthlyPaymentsPaid.set(person, niPaid);
       }
     }
+    // log(`reset liableNIInTaxMonth to zero`);
     liableNIInTaxMonth.set(person, 0);
   }
 }
@@ -1618,7 +1727,7 @@ function accumulateLiability(
   liableIncomeInTaxMonth: Map<string, Map<string, number>>,
 ) {
   // log(`accumulateLiability,
-  //   liability = ${liability}, type = ${type}, incomeValue = ${incomeValue}`);
+  //    liability = ${liability}, type = ${type}, incomeValue = ${incomeValue}`);
   /*
   // This change breaks
   // 'pay income tax on conditional categorized crystallized pension'
@@ -1646,32 +1755,33 @@ function accumulateLiability(
     map.set(liability, newLiability);
     // log(`${type} accumulated ${liability} liability = ${newLiability}`);
   }
-  if(type === incomeTax){
+  if (type === incomeTax) {
+    /////////// TODO duplication of code
     let liableIncomeTaxInTaxMonth = liableIncomeInTaxMonth.get(incomeTax);
-    if(liableIncomeTaxInTaxMonth === undefined){
+    if (liableIncomeTaxInTaxMonth === undefined) {
       liableIncomeTaxInTaxMonth = new Map<string, number>();
       liableIncomeInTaxMonth.set(incomeTax, liableIncomeTaxInTaxMonth);
-    }     
+    }
     let taxLiability = liableIncomeTaxInTaxMonth.get(liability);
     if (taxLiability === undefined) {
       taxLiability = 0;
     }
     const newLiability = taxLiability + incomeValue;
-    // log(`${liability} accumulate ${incomeValue} for the month: ${newLiability}`);
+    // log(`${liability} accumulate income tax liability ${incomeValue} for the month: ${newLiability}`);
     liableIncomeTaxInTaxMonth.set(liability, newLiability);
   }
-  if(type === nationalInsurance){
+  if (type === nationalInsurance) {
     let liableNIInTaxMonth = liableIncomeInTaxMonth.get(nationalInsurance);
-    if(liableNIInTaxMonth === undefined){
+    if (liableNIInTaxMonth === undefined) {
       liableNIInTaxMonth = new Map<string, number>();
       liableIncomeInTaxMonth.set(nationalInsurance, liableNIInTaxMonth);
-    }     
+    }
     let taxLiability = liableNIInTaxMonth.get(liability);
     if (taxLiability === undefined) {
       taxLiability = 0;
     }
     const newLiability = taxLiability + incomeValue;
-    // log(`${liability} accumulate ${incomeValue} for the month: ${newLiability}`);
+    // log(`${liability} accumulate NI liability ${incomeValue} for the month: ${newLiability}`);
     liableNIInTaxMonth.set(liability, newLiability);
   }
 }
@@ -1680,6 +1790,7 @@ function handleIncome(
   incomeValue: number,
   moment: Moment,
   values: ValuesContainer,
+  growths: Map<string, GrowthData>,
   evaluations: Evaluation[],
   model: ModelData,
   pensionTransactions: Transaction[],
@@ -1737,9 +1848,9 @@ function handleIncome(
     const tToValue = parseFloat(pt.TO_VALUE);
     // log(`pension transaction ${pt.NAME}`)
     // log(`see if ${showObj(pt)} should affect `
-    //  +`this handleIncome moment ${showObj(moment)}`);
+    //   +`this handleIncome moment ${showObj(moment)}`);
     if (moment.name === pt.FROM) {
-      // log(`matched transaction ${showObj(pt)}`);
+      // log(`matched transaction ${showObj(pt)} to ${showObj(moment)}`);
 
       let amountFrom = 0.0;
       if (pt.FROM_ABSOLUTE) {
@@ -1747,7 +1858,7 @@ function handleIncome(
       } else {
         // e.g. employee chooses 5% pension contribution
         amountFrom = tFromValue * incomeValue;
-        // log(`amountFrom = ${tFromValue} * ${incomeValue}`);
+        // log(`amountFrom = ${tFromValue} * ${incomeValue} = ${amountFrom}`);
       }
 
       if (!pt.NAME.startsWith(pensionDB)) {
@@ -1776,8 +1887,17 @@ function handleIncome(
       } else {
         // e.g. employer increments employee's pension contribution
         amountForPension = tToValue * amountFrom;
+        // log(`amountForPension = ${tToValue} * ${amountFrom} = ${amountForPension}`);
       }
       let pensionValue = getNumberValue(values, pt.TO, false);
+
+      const scaleBy = getNumberValue(values, baseForCPI);
+      if (scaleBy !== undefined && pensionValue !== undefined) {
+        pensionValue = pensionValue * scaleBy;
+      } else if (scaleBy === undefined) {
+        log(`BUG : undefined scaleBy ${scaleBy}`);
+      }
+
       if (pt.TO === '') {
         if (printDebug()) {
           log('pension contributions going into void');
@@ -1785,7 +1905,7 @@ function handleIncome(
       } else if (pensionValue === undefined) {
         log('BUG : contributing to undefined pension scheme');
       } else {
-        // log(`old pensionValue is ${pensionValue}`);
+        // log(`old pensionValue is ${pensionValue} becomes ${pensionValue + amountForPension}`);
         pensionValue += amountForPension;
 
         // log(`pt.NAME = ${pt.NAME}`);
@@ -1805,8 +1925,12 @@ function handleIncome(
         // log(`new pensionValue is ${pensionValue}`);
         // log(`income source = ${transaction.NAME}`);
         // log('in handleIncome:');
+        if (scaleBy && pensionValue) {
+          pensionValue = pensionValue / scaleBy;
+        }
         setValue(
           values,
+          growths,
           evaluations,
           moment.date,
           pt.TO,
@@ -1827,6 +1951,7 @@ function handleIncome(
       amountForCashIncrement,
       moment.date,
       values,
+      growths,
       evaluations,
       model,
       sourceDescription,
@@ -1901,35 +2026,28 @@ function handleIncome(
   // log(`finished handleIncome`);
 }
 
-function logExpenseGrowth(
-  expense: Expense,
+function logIncomeOrExpenseGrowth(
+  x: IncomeOrExpense,
   cpiVal: number,
-  growths: Map<string, number>,
+  growths: Map<string, GrowthData>,
 ) {
-  const expenseGrowth = parseFloat(expense.GROWTH);
-  const monthlyInf = expense.CPI_IMMUNE
-    ? getMonthlyGrowth(expenseGrowth)
-    : getMonthlyGrowth(expenseGrowth + cpiVal);
-  growths.set(expense.NAME, monthlyInf);
-}
-
-function logIncomeGrowth(
-  income: Income,
-  cpiVal: number,
-  growths: Map<string, number>,
-) {
-  const incomeGrowth = parseFloat(income.GROWTH);
-  const monthlyInf = income.CPI_IMMUNE
-    ? getMonthlyGrowth(incomeGrowth)
-    : getMonthlyGrowth(incomeGrowth + cpiVal);
-  // log(`for ${income.NAME}, monthly infl is ${monthlyInf}`);
-  growths.set(income.NAME, monthlyInf);
+  const expenseGrowth = parseFloat(x.GROWTH);
+  const adaptedExpenseGrowth =
+    cpiVal !== 0
+      ? ((1.0 + (expenseGrowth + cpiVal) / 100) / (1.0 + cpiVal / 100) - 1.0) *
+        100
+      : expenseGrowth;
+  // log(`from ${expenseGrowth}, use cpi ${cpiVal} to create adaptedExpenseGrowth = ${adaptedExpenseGrowth}`);
+  growths.set(x.NAME, {
+    monthScale: getMonthlyGrowth(adaptedExpenseGrowth),
+    applyCPI: !x.CPI_IMMUNE,
+  });
 }
 
 function logAssetGrowth(
   asset: Asset,
   cpiVal: number,
-  growths: Map<string, number>,
+  growths: Map<string, GrowthData>,
   settings: Setting[],
 ) {
   // log(`stored growth is ${asset.GROWTH}`);
@@ -1957,11 +2075,15 @@ function logAssetGrowth(
     // log(`growth is not recognised as a NaN - assume parseFloat gave something useful`);
   }
   // log(`annual growth before cpi adjustment is ${growth}`);
-  const monthlyInf = asset.CPI_IMMUNE
-    ? getMonthlyGrowth(growth)
-    : getMonthlyGrowth(growth + cpiVal);
-  // log(`monthly growth is ${monthlyInf}`);
-  growths.set(asset.NAME, monthlyInf);
+  const adaptedAssetGrowth =
+    cpiVal !== 0
+      ? ((1.0 + (growth + cpiVal) / 100) / (1.0 + cpiVal / 100) - 1.0) * 100
+      : growth;
+  // log(`annual growth after cpi adjustment is ${adaptedAssetGrowth}`);
+  growths.set(asset.NAME, {
+    monthScale: getMonthlyGrowth(adaptedAssetGrowth),
+    applyCPI: !asset.CPI_IMMUNE,
+  });
 }
 
 function logAssetValueString(
@@ -1969,6 +2091,7 @@ function logAssetValueString(
   assetStart: string,
   assetName: string,
   values: ValuesContainer,
+  growths: Map<string, GrowthData>,
   evaluations: Evaluation[],
   model: ModelData,
   level = 1,
@@ -2008,6 +2131,7 @@ function logAssetValueString(
         assetStart,
         wordPart,
         values,
+        growths,
         evaluations,
         model,
         level + 1,
@@ -2036,6 +2160,7 @@ function logAssetValueString(
       }
       setValue(
         values,
+        growths,
         evaluations,
         getTriggerDate(assetStart, model.triggers),
         assetVal,
@@ -2060,6 +2185,7 @@ function logAssetValueString(
         assetStart,
         assetVal,
         values,
+        growths,
         evaluations,
         model,
         level + 1,
@@ -2075,6 +2201,7 @@ function logAssetValueString(
       }
       setValue(
         values,
+        growths,
         evaluations,
         getTriggerDate(assetStart, model.triggers),
         assetName,
@@ -2097,14 +2224,28 @@ function logAssetValueString(
   }
 }
 
-function getGrowth(name: string, growths: Map<string, number>) {
-  let result = growths.get(name);
-  if (result === undefined) {
-    log(`Bug : Undefined growth value for ${name}!`);
-    result = 0.0;
+function getGrowth(name: string, growths: Map<string, GrowthData>): GrowthData {
+  ///////// why not call growths.get?
+  // log(`in getGrowth for ${name}`);
+  const foundObj = growths.get(name);
+  let numberResult = 0;
+  let cpiResult = false;
+
+  if (foundObj === undefined) {
+    // log(`Bug : Undefined growth value for ${name}!`);
+  } else {
+    // log(`combine monthScale and base monthScale`);
+    numberResult = foundObj.monthScale;
+    cpiResult = foundObj.applyCPI;
   }
-  // log(`growth for ${name} is ${result}`);
-  return result;
+
+  // log(`growth for ${name} is ${numberResult}`);
+  const resultObj = {
+    monthScale: numberResult,
+    applyCPI: cpiResult,
+  };
+  // log(`resultObj = ${showObj(resultObj)}`);
+  return resultObj;
 }
 
 function getRecurrentMoments(
@@ -2116,10 +2257,11 @@ function getRecurrentMoments(
     VALUE: string;
     VALUE_SET: string; // trigger string
   },
+  prepType: string,
   type: string,
-  monthlyInf: number,
   triggers: Trigger[],
-  rOIStartDate: Date,
+  startSequenceFrom: Date,
+  startExpenseOrIncomeDate: Date,
   rOIEndDate: Date,
   recurrence: string,
 ) {
@@ -2129,15 +2271,16 @@ function getRecurrentMoments(
     endDate = rOIEndDate;
   }
   const roi = {
-    start: rOIStartDate,
+    start: startSequenceFrom,
     end: endDate,
   };
   const dates = generateSequenceOfDates(roi, recurrence);
   const newMoments: Moment[] = dates.map(date => {
+    const typeForMoment = date < startExpenseOrIncomeDate ? prepType : type;
     const result: Moment = {
       date,
       name: x.NAME,
-      type,
+      type: typeForMoment,
       setValue: 0,
       transaction: undefined,
     };
@@ -2145,54 +2288,32 @@ function getRecurrentMoments(
   });
 
   // Set up special values in the first value.
-  // This will be the first instance, the value may need advancing
-  // by monthlyInf from date at which the value was set
-  // (can be before the expense ever kicks in).
   if (newMoments.length > 0) {
     if (type === momentType.expense) {
-      newMoments[0].type = momentType.expenseStart;
+      if (newMoments[0].type === momentType.expensePrep) {
+        newMoments[0].type = momentType.expenseStartPrep;
+      } else {
+        newMoments[0].type = momentType.expenseStart;
+      }
     } else if (type === momentType.income) {
-      newMoments[0].type = momentType.incomeStart;
-    }
-    const numAndWordVal = getNumberAndWordParts(x.VALUE);
-    if (numAndWordVal.numberPart !== undefined) {
-      let startVal = numAndWordVal.numberPart;
-      // take account of VALUE_SET and CPI+GROWTH
-      const from = getTriggerDate(x.VALUE_SET, triggers);
-      const to = roi.start;
-      // log(`${x.NAME} grew between ${from} and ${to}`);
-      const numMonths = diffMonths(from, to);
-      if (!x.NAME.startsWith(pensionDB) && numMonths < 0) {
-        log(
-          `BUG : income/expense start value set ${from} after ` +
-            `start date ${to} ${x.NAME}`,
-        );
+      if (newMoments[0].type === momentType.incomePrep) {
+        newMoments[0].type = momentType.incomeStartPrep;
+      } else {
+        newMoments[0].type = momentType.incomeStart;
       }
-      //log(`numMonths = ${numMonths}`);
-      // log(`there are ${numMonths} months between `
-      //    +`${from} and ${to}`)
-      // apply monthlyInf
-      // log(`before growth on x start value : ${startVal}`);
-      startVal *= (1.0 + monthlyInf) ** numMonths;
-      // log(`applied growth to generate start value : ${startVal}`);
-      newMoments[0].setValue = `${startVal}${numAndWordVal.wordPart}`;
-    } else if (monthlyInf === 0) {
-      const startVal = x.VALUE;
-      // take account of VALUE_SET and CPI+GROWTH
-      const from = getTriggerDate(x.VALUE_SET, triggers);
-      const to = roi.start;
-      // log(`${x.NAME} grew between ${from} and ${to}`);
-      const numMonths = diffMonths(from, to);
-      if (!x.NAME.startsWith(pensionDB) && numMonths < 0) {
-        log(
-          `BUG : income/expense start value set ${from} after ` +
-            `start date ${to} ${x.NAME}`,
-        );
-      }
-      newMoments[0].setValue = startVal;
-    } else {
-      throw new Error(`shouldn't see non-number income with growth`);
     }
+    const startVal = x.VALUE;
+    const from = getTriggerDate(x.VALUE_SET, triggers);
+    const to = roi.start;
+    // log(`${x.NAME} grew between ${from} and ${to}`);
+    const numMonths = diffMonths(from, to);
+    if (!x.NAME.startsWith(pensionDB) && numMonths < 0) {
+      log(
+        `BUG : income/expense start value set ${from} after ` +
+          `start date ${to} ${x.NAME}`,
+      );
+    }
+    newMoments[0].setValue = startVal;
   }
   // log(`generated ${showObj(newMoments)} for ${x.NAME}`);
   return newMoments;
@@ -2307,6 +2428,7 @@ function revalueApplied(
   t: Transaction,
   moment: Moment,
   values: ValuesContainer,
+  growths: Map<string, GrowthData>,
   evaluations: Evaluation[],
   liableIncomeInTaxYear: Map<string, Map<string, number>>,
   liableIncomeInTaxMonth: Map<string, Map<string, number>>,
@@ -2326,6 +2448,7 @@ function revalueApplied(
   let tToValue: string | number | undefined = traceEvaluation(
     t.TO_VALUE,
     values,
+    growths,
     t.TO_VALUE,
   );
   const toVal = tToValue;
@@ -2411,7 +2534,13 @@ function revalueApplied(
                 log('Untested code for income tax on quantities');
                 gain *= q;
               }
-              accumulateLiability(l, incomeTax, gain, liableIncomeInTaxYear, liableIncomeInTaxMonth);
+              accumulateLiability(
+                l,
+                incomeTax,
+                gain,
+                liableIncomeInTaxYear,
+                liableIncomeInTaxMonth,
+              );
             }
           }
         }
@@ -2422,6 +2551,7 @@ function revalueApplied(
     if (!t.TO_ABSOLUTE && tToValue !== undefined) {
       setValue(
         values,
+        growths,
         evaluations,
         moment.date,
         w,
@@ -2434,6 +2564,7 @@ function revalueApplied(
       // log(`revalue ${w} to ${t.TO_VALUE}`);
       setValue(
         values,
+        growths,
         evaluations,
         moment.date,
         w,
@@ -2454,6 +2585,7 @@ function calculateFromChange(
   fromWord: string,
   moment: Moment,
   values: ValuesContainer,
+  growths: Map<string, GrowthData>,
   evaluations: Evaluation[],
   model: ModelData,
 ):
@@ -2488,7 +2620,7 @@ function calculateFromChange(
   }
 
   // log(`in calculateFromChange for ${t.NAME}, ${fromWord}`);
-  const tFromValue = traceEvaluation(t.FROM_VALUE, values, t.FROM);
+  const tFromValue = traceEvaluation(t.FROM_VALUE, values, growths, t.FROM);
   if (tFromValue === undefined) {
     log(`ERROR : can't interpret ${t.FROM_VALUE}`);
     return undefined;
@@ -2622,6 +2754,7 @@ function calculateFromChange(
     }
     setValue(
       values,
+      growths,
       evaluations,
       moment.date,
       quantity + fromWord,
@@ -2695,6 +2828,7 @@ function calculateToChange(
   fromChange: number | undefined,
   moment: Moment,
   values: ValuesContainer,
+  growths: Map<string, GrowthData>,
   evaluations: Evaluation[],
   model: ModelData,
 ) {
@@ -2721,12 +2855,13 @@ function calculateToChange(
       // adjust the toChange value too
       const numUnits = toChange;
       // log(`numUnits = ${numUnits}`);
-      const currentValue = traceEvaluation(t.TO, values, t.TO);
+      const currentValue = traceEvaluation(t.TO, values, growths, t.TO);
       if (currentValue !== undefined) {
         const newNumUnits = q + numUnits;
         // log(`newNumUnits = ${newNumUnits}`);
         setValue(
           values,
+          growths,
           evaluations,
           moment.date,
           quantity + t.TO,
@@ -2759,6 +2894,7 @@ function handleCGTLiability(
   fromChange: number, // the change in whole value of from during transaction
   moment: Moment,
   values: ValuesContainer,
+  growths: Map<string, GrowthData>,
   evaluations: Evaluation[],
   liabliitiesMap: Map<string, string>,
   liableIncomeInTaxYear: Map<string, Map<string, number>>,
@@ -2807,6 +2943,7 @@ function handleCGTLiability(
     // log(`in handleCGTLiability, set newPurchasePrice = ${newPurchasePrice}`);
     setValue(
       values,
+      growths,
       evaluations,
       moment.date,
       `${purchase}${fromWord}`,
@@ -2825,7 +2962,7 @@ export function makeSourceForFromChange(t: Transaction) {
   return sourceDescription;
 }
 
-export function makeSourceForToChange(t: Transaction, fromWord: string) {
+export function makeSourceForToChange(t: Transaction) {
   let source = t.NAME;
   if (source.startsWith(conditional)) {
     source = source.substring(conditional.length, source.length);
@@ -2839,6 +2976,7 @@ function processTransactionFromTo(
   toWord: string,
   moment: Moment,
   values: ValuesContainer,
+  growths: Map<string, GrowthData>,
   evaluations: Evaluation[],
   model: ModelData,
   pensionTransactions: Transaction[],
@@ -2847,13 +2985,13 @@ function processTransactionFromTo(
   liableIncomeInTaxMonth: Map<string, Map<string, number>>,
 ) {
   // log(`process t = ${showObj(t)}`);
-  // log(`processTransactionFromTo fromWord = ${fromWord}`);
+  // log(`processTransactionFromTo fromWord = ${fromWord} toWord = ${toWord}, date = ${moment.date.toDateString()}`);
   // log(`processTransactionFromTo takes in ${showObj(t)}`);
-  const preFromValue = traceEvaluation(fromWord, values, fromWord);
+  const preFromValue = traceEvaluation(fromWord, values, growths, fromWord);
   // log(`pound value of ${fromWord} is ${preFromValue}`);
   let preToValue = undefined;
   if (toWord !== '') {
-    preToValue = traceEvaluation(toWord, values, toWord);
+    preToValue = traceEvaluation(toWord, values, growths, toWord);
     if (preToValue === undefined) {
       preToValue = 0.0;
     }
@@ -2877,6 +3015,7 @@ function processTransactionFromTo(
       fromWord,
       moment,
       values,
+      growths,
       evaluations,
       model,
     );
@@ -2884,10 +3023,11 @@ function processTransactionFromTo(
     // of fromChange - e.g. if it would require an asset to become
     // a not-permitted value (e.g. shares become negative).
     if (fromChange === undefined) {
+      // log(`transaction blocked - can't take ${t.FROM_VALUE} from ${fromWord}, had value ${preFromValue}`)
       return;
     }
   }
-  // log(`for ${t.NAME}, fromChange = ${fromChange}`);
+  // log(`for ${t.NAME}, fromChange = ${fromChange?.fromImpact}`);
 
   // Determine how to change the To asset.
   let toChange;
@@ -2898,6 +3038,7 @@ function processTransactionFromTo(
       fromChange.toImpact,
       moment,
       values,
+      growths,
       evaluations,
       model,
     );
@@ -2914,6 +3055,7 @@ function processTransactionFromTo(
       fromChange.cgtPreChange, // fromChange = loss of value of from asset
       moment,
       values,
+      growths,
       evaluations,
       liabliitiesMap,
       liableIncomeInTaxYear,
@@ -2928,8 +3070,20 @@ function processTransactionFromTo(
     } else {
       newFromValue = preFromValue - fromChange.fromImpact;
     }
+    // log(`newFromValue = ${newFromValue}`);
+    const g = growths.get(fromWord);
+    if (g && g.applyCPI) {
+      const b = values.get(baseForCPI);
+      if (b && typeof b === 'number') {
+        if (typeof newFromValue === 'number') {
+          newFromValue = newFromValue / b;
+        }
+      }
+    }
+    // log(`newFromValue to store = ${newFromValue}`);
     setValue(
       values,
+      growths,
       evaluations,
       moment.date,
       fromWord,
@@ -2959,6 +3113,7 @@ function processTransactionFromTo(
         toChange,
         moment,
         values,
+        growths,
         evaluations,
         model,
         pensionTransactions,
@@ -2976,14 +3131,24 @@ function processTransactionFromTo(
       }
       // log('in processTransactionFromTo, setValue:');
       // log(`in processTransactionFromTo, setValue of ${toWord} to ${preToValue + toChange}`);
+      let newToValue = preToValue + toChange;
+      const g = growths.get(toWord);
+      if (g && g.applyCPI) {
+        const b = values.get(baseForCPI);
+        if (b && typeof b === 'number') {
+          newToValue = newToValue / b;
+          // log(`scaled newToValue = ${newToValue}`);
+        }
+      }
       setValue(
         values,
+        growths,
         evaluations,
         moment.date,
         toWord,
-        preToValue + toChange,
+        newToValue,
         model,
-        makeSourceForToChange(t, fromWord),
+        makeSourceForToChange(t),
         '15', //callerID
       );
     }
@@ -3009,6 +3174,7 @@ function processTransactionTo(
   t: Transaction,
   moment: Moment,
   values: ValuesContainer,
+  growths: Map<string, GrowthData>,
   evaluations: Evaluation[],
   model: ModelData,
 ) {
@@ -3023,7 +3189,7 @@ function processTransactionTo(
   // Determine how much to add to the To asset.
   // Set the increased value of the To asset accordingly.
   // log(`t.TO = ${t.TO}`)
-  let value = traceEvaluation(t.TO, values, t.TO);
+  let value = traceEvaluation(t.TO, values, growths, t.TO);
   let q = getQuantity(t.TO, values, model);
   // log(`before transaction, value = ${value}, quantity = ${quantity}`);
   // log(`t = ${showObj(t)}`);
@@ -3049,6 +3215,7 @@ function processTransactionTo(
       // log('in processTransactionTo, setValue:');
       setValue(
         values,
+        growths,
         evaluations,
         moment.date,
         quantity + t.TO,
@@ -3064,6 +3231,7 @@ function processTransactionTo(
         updatePurchaseValue(
           matchedAsset,
           values,
+          growths,
           q / (q - change),
           evaluations,
           moment.date,
@@ -3074,9 +3242,18 @@ function processTransactionTo(
     } else {
       // log(`value = ${value} will increase by change = ${change}`);
       value += change;
+      const g = growths.get(t.TO);
+      if (g && g.applyCPI) {
+        const b = values.get(baseForCPI);
+        if (b && typeof b === 'number') {
+          value = value / b;
+          // log(`scaled value = ${value}`);
+        }
+      }
       // log('in processTransactionTo, setValue:');
       setValue(
         values,
+        growths,
         evaluations,
         moment.date,
         t.TO,
@@ -3092,6 +3269,7 @@ function processTransactionTo(
 function processTransactionMoment(
   moment: Moment,
   values: ValuesContainer,
+  growths: Map<string, GrowthData>,
   evaluations: Evaluation[],
   model: ModelData,
   pensionTransactions: Transaction[],
@@ -3113,7 +3291,16 @@ function processTransactionMoment(
   // FROM and a value for TO.  Code similar to application
   // of growth to assets, except we know the new value.
   if (
-    revalueApplied(t, moment, values, evaluations, liableIncomeInTaxYear, liableIncomeInTaxMonth, model)
+    revalueApplied(
+      t,
+      moment,
+      values,
+      growths,
+      evaluations,
+      liableIncomeInTaxYear,
+      liableIncomeInTaxMonth,
+      model,
+    )
   ) {
     return;
   }
@@ -3142,6 +3329,7 @@ function processTransactionMoment(
           toWord,
           moment,
           values,
+          growths,
           evaluations,
           model,
           pensionTransactions,
@@ -3153,7 +3341,7 @@ function processTransactionMoment(
     }
   } else if (t.FROM === '' && t.TO !== '') {
     // log(`process a transaction from ${t.FROM} to ${t.TO}`);
-    processTransactionTo(t, moment, values, evaluations, model);
+    processTransactionTo(t, moment, values, growths, evaluations, model);
   }
 }
 
@@ -3201,6 +3389,7 @@ function logAssetIncomeLiabilities(
 function logPurchaseValues(
   a: Asset,
   values: ValuesContainer,
+  growths: Map<string, GrowthData>,
   evaluations: Evaluation[],
   model: ModelData,
 ) {
@@ -3209,7 +3398,12 @@ function logPurchaseValues(
     if (isNumberString(a.PURCHASE_PRICE)) {
       purchaseValue = parseFloat(a.PURCHASE_PRICE);
     } else {
-      const tracedValue = traceEvaluation(a.PURCHASE_PRICE, values, a.NAME);
+      const tracedValue = traceEvaluation(
+        a.PURCHASE_PRICE,
+        values,
+        growths,
+        a.NAME,
+      );
       if (tracedValue === undefined) {
         throw new Error(
           `BUG!! in logPurchaseValues, value of ${a.PURCHASE_PRICE} can't be understood`,
@@ -3224,6 +3418,7 @@ function logPurchaseValues(
     // log(`in logPurchaseValues, setValue: ${purchaseValue}`);
     setValue(
       values,
+      growths,
       evaluations,
       getTriggerDate(a.START, model.triggers),
       `${purchase}${a.NAME}`,
@@ -3237,7 +3432,7 @@ function logPurchaseValues(
 const maxReportSize = 400;
 
 class ValuesContainer {
-  private values = new Map<string, number | string>([]);
+  private reportValues = new Map<string, number | string>([]);
   private includeInReport: ReportValueChecker = (
     name: string, // name of something which has a value
     val: number | string,
@@ -3262,19 +3457,21 @@ class ValuesContainer {
   public set(
     name: string, // thing which has this value
     val: number | string, // the value of the thing
+    growths: Map<string, GrowthData>,
     date: Date,
     source: string,
     callerID: string,
   ) {
     const reportChange =
-      this.report.length < maxReportSize && this.includeInReport(name, val, date, source);
+      this.report.length < maxReportSize &&
+      this.includeInReport(name, val, date, source);
     let oldVal: number | undefined = 0.0;
     if (reportChange) {
-      oldVal = traceEvaluation(name, this, 'debugReportOld');
+      oldVal = traceEvaluation(name, this, growths, 'debugReportOld');
     }
-    this.values.set(name, val);
+    this.reportValues.set(name, val);
     if (reportChange) {
-      let newVal = traceEvaluation(name, this, 'debugReportNew');
+      let newVal = traceEvaluation(name, this, growths, 'debugReportNew');
       if (oldVal !== newVal) {
         let change = undefined;
         if (newVal !== undefined && oldVal !== undefined) {
@@ -3308,33 +3505,32 @@ class ValuesContainer {
   }
 
   public get(key: string): number | string | undefined {
-    return this.values.get(key);
+    return this.reportValues.get(key);
   }
 
   public getReport(): ReportDatum[] {
     //log(`this.values() = ${this.values()}`);
     const estateVal = this.get('Estate');
-    if(estateVal !== undefined && typeof estateVal === 'number'){
+    if (estateVal !== undefined && typeof estateVal === 'number') {
       // log(`estateVal = ${estateVal}`);
       this.report.push({
-          name: 'Estate final value', 
-          change: 0, 
-          oldVal: 0, 
-          newVal: estateVal,
-          qchange: 0, 
-          qoldVal: 0, 
-          qnewVal: 0, 
-          date: '2999', 
-          source: 'estate',
-        }
-      );
+        name: 'Estate final value',
+        change: 0,
+        oldVal: 0,
+        newVal: estateVal,
+        qchange: 0,
+        qoldVal: 0,
+        qnewVal: 0,
+        date: '2999',
+        source: 'estate',
+      });
     }
     this.report.reverse();
     return this.report;
   }
 
   public keys() {
-    return this.values.keys();
+    return this.reportValues.keys();
   }
 }
 
@@ -3390,7 +3586,7 @@ export function getEvaluations(
 
   // Calculate a monthly growth once per item,
   // refer to this map for each indiviual moment.
-  const growths = new Map<string, number>([]);
+  const growths = new Map<string, GrowthData>();
 
   // Record which items are liable for income tax.
   // Map from income name to a person identifier.
@@ -3411,7 +3607,6 @@ export function getEvaluations(
   const cpiInitialVal: number = parseFloat(
     getSettings(model.settings, cpi, '0.0'),
   );
-  values.set(cpi, cpiInitialVal, roiStartDate, 'start value', '0');
 
   // A historical record of evaluations (useful for creating trends or charts)
   const evaluations: Evaluation[] = [];
@@ -3424,15 +3619,44 @@ export function getEvaluations(
     // first expense.  Later expense values are not
     // set here, but the 'moment' at which the expense
     // changes is set here.
-    logExpenseGrowth(expense, cpiInitialVal, growths);
-    const monthlyInf = getGrowth(expense.NAME, growths);
+    let cpiVal = cpiInitialVal;
+    if (expense.CPI_IMMUNE) {
+      cpiVal = 0.0;
+    }
+    logIncomeOrExpenseGrowth(expense, cpiVal, growths);
     const expenseStart = getTriggerDate(expense.START, model.triggers);
+    let shiftStartBackTo = new Date(expenseStart);
+
+    const expenseSetDate = getTriggerDate(expense.VALUE_SET, model.triggers);
+    // log(`income start is ${incomeStartDate.toDateString()}`);
+    // log(`value set is ${incomeSetDate.toDateString()}`);
+    // log(`shiftStartBackTo = ${shiftStartBackTo.toDateString()}`);
+    if (expenseSetDate < expenseStart && expenseSetDate < shiftStartBackTo) {
+      shiftStartBackTo = expenseSetDate;
+    }
+
+    shiftStartBackTo.setMonth(shiftStartBackTo.getMonth() + 1);
+    const startSequenceFrom = new Date(expenseStart);
+    let numAdjustments = 0;
+    while (shiftStartBackTo <= startSequenceFrom) {
+      // log(`shift ${incomeStartDate} back towards ${shiftStartBackTo}`);
+      startSequenceFrom.setMonth(startSequenceFrom.getMonth() - 1);
+      numAdjustments += 1;
+      if (numAdjustments > 1000) {
+        throw new Error(
+          `${expense.NAME} start ${expense.START} too far ` +
+            `from ${shiftStartBackTo}`,
+        );
+      }
+    }
+
     // log(`expense start = ${expenseStart}`);
     const newMoments = getRecurrentMoments(
       expense,
+      momentType.expensePrep,
       momentType.expense,
-      monthlyInf,
       model.triggers,
+      startSequenceFrom,
       expenseStart,
       roiEndDate,
       expense.RECURRENCE,
@@ -3442,17 +3666,21 @@ export function getEvaluations(
     const freq = parseRecurrenceString(expense.RECURRENCE);
     if (freq.frequency !== monthly || freq.count !== 1) {
       // scale up the stored growths value
-      const monthlyGrowth = growths.get(expense.NAME);
-      if (monthlyGrowth === undefined) {
+      const monthlyGrowthObj = growths.get(expense.NAME);
+      if (monthlyGrowthObj === undefined) {
         log(`Error: didn't find growth of ${expense.NAME}`);
       } else {
+        const monthlyGrowth = monthlyGrowthObj.monthScale;
         let power = freq.count;
         if (freq.frequency === annually) {
           power *= 12;
         }
         // log(`growth power up by ${power}`);
         const growth = (1 + monthlyGrowth) ** power - 1;
-        growths.set(expense.NAME, growth);
+        growths.set(expense.NAME, {
+          monthScale: growth,
+          applyCPI: !expense.CPI_IMMUNE,
+        });
         // log(`growth changed from ${monthlyGrowth} to ${growth}`);
       }
     }
@@ -3462,16 +3690,22 @@ export function getEvaluations(
   // a set of moments starting when the income began,
   // ending when the roi ends.
   model.incomes.forEach(income => {
+    // log(`generate moments for income ${income.NAME}`);
     // Growth is important to set the value of the
     // first income.  Later income values are not
     // set here, but the 'moment' at which the income
     // changes is set here.
-    logIncomeGrowth(income, cpiInitialVal, growths);
-    const monthlyInf = getGrowth(income.NAME, growths);
+    let cpiVal = cpiInitialVal;
+    if (income.CPI_IMMUNE) {
+      cpiVal = 0.0;
+    }
+    logIncomeOrExpenseGrowth(income, cpiVal, growths);
+    const incomeStart = getTriggerDate(income.START, model.triggers);
+    let shiftStartBackTo = new Date(incomeStart);
+
     const dbTransaction = model.transactions.find(t => {
       return t.NAME.startsWith(pensionDB) && t.TO === income.NAME;
     });
-    const incomeStartDate = getTriggerDate(income.START, model.triggers);
     if (dbTransaction !== undefined) {
       const sourceIncome = model.incomes.find(i => {
         return dbTransaction.FROM === i.NAME;
@@ -3486,25 +3720,41 @@ export function getEvaluations(
             `with no source income`,
         );
       }
-      const startOfSource = getTriggerDate(sourceIncome.START, model.triggers);
-      let numAdjustments = 0;
-      while (startOfSource <= incomeStartDate) {
-        incomeStartDate.setMonth(incomeStartDate.getMonth() - 1);
-        numAdjustments += 1;
-        if (numAdjustments > 1000) {
-          throw new Error(
-            `${sourceIncome.NAME} start ${sourceIncome.START} too far ` +
-              `from ${income.NAME}'s start ${income.START}`,
-          );
-        }
+      shiftStartBackTo = getTriggerDate(sourceIncome.START, model.triggers);
+    }
+
+    const incomeSetDate = getTriggerDate(income.VALUE_SET, model.triggers);
+    // log(`income start is ${incomeStartDate.toDateString()}`);
+    // log(`value set is ${incomeSetDate.toDateString()}`);
+    // log(`shiftStartBackTo = ${shiftStartBackTo.toDateString()}`);
+    if (incomeSetDate < incomeStart && incomeSetDate < shiftStartBackTo) {
+      shiftStartBackTo = incomeSetDate;
+    }
+
+    // log(`income start is ${incomeStartDate.toDateString()}
+    //  but shift back to ${shiftStartBackTo}`);
+
+    shiftStartBackTo.setMonth(shiftStartBackTo.getMonth() + 1);
+    const startSequenceFrom = new Date(incomeStart);
+    let numAdjustments = 0;
+    while (shiftStartBackTo <= startSequenceFrom) {
+      // log(`shift ${startSequenceFrom} back towards ${shiftStartBackTo}`);
+      startSequenceFrom.setMonth(startSequenceFrom.getMonth() - 1);
+      numAdjustments += 1;
+      if (numAdjustments > 1000) {
+        throw new Error(
+          `${income.NAME} start ${income.START} too far ` +
+            `from ${shiftStartBackTo}`,
+        );
       }
     }
     const newMoments = getRecurrentMoments(
       income,
+      momentType.incomePrep,
       momentType.income,
-      monthlyInf,
       model.triggers,
-      incomeStartDate,
+      startSequenceFrom,
+      incomeStart,
       roiEndDate,
       '1m', // all incomes are received monthly
     );
@@ -3517,13 +3767,19 @@ export function getEvaluations(
 
   model.assets.forEach(asset => {
     //  log(`log data for asset ${asset.NAME}`);
-    logAssetGrowth(asset, cpiInitialVal, growths, model.settings);
+    logAssetGrowth(
+      asset,
+      asset.CPI_IMMUNE ? 0 : cpiInitialVal,
+      growths,
+      model.settings,
+    );
 
     logAssetValueString(
       asset.VALUE,
       asset.START,
       asset.NAME,
       values,
+      growths,
       evaluations,
       model,
     );
@@ -3571,6 +3827,7 @@ export function getEvaluations(
     if (setting.NAME === 'Grain') {
       setValue(
         values,
+        growths,
         evaluations,
         roiStartDate,
         setting.NAME,
@@ -3590,6 +3847,7 @@ export function getEvaluations(
     ) {
       setValue(
         values,
+        growths,
         evaluations,
         roiStartDate,
         setting.NAME,
@@ -3676,6 +3934,7 @@ export function getEvaluations(
   setSettingsData.forEach(d => {
     setValue(
       values,
+      growths,
       evaluations,
       d.setDate,
       d.settingName,
@@ -3699,12 +3958,73 @@ export function getEvaluations(
     });
   }
 
-  // log(`pensionTransactions = ${pensionTransactions}`);
+  // log(`pensionTransactions = ${showObj(pensionTransactions)}`);
 
-  const datedMoments = allMoments.filter(moment => moment.date !== undefined);
+  let datedMoments = allMoments.filter(moment => moment.date !== undefined);
 
   // Process the moments in date order
   sortByDate(datedMoments);
+
+  if (datedMoments.length > 0) {
+    // log(`add moments for updating base values, cpiInitialVal = ${cpiInitialVal}`);
+
+    values.set(
+      cpi,
+      cpiInitialVal,
+      growths,
+      datedMoments[0].date,
+      'start value',
+      '0',
+    );
+    values.set(
+      baseForCPI,
+      1.0,
+      growths,
+      datedMoments[0].date,
+      'start value',
+      '0',
+    );
+
+    const first = datedMoments[0].date;
+    const last = datedMoments[datedMoments.length - 1].date;
+    // log(`base will get updated from ${last} to ${first}`);
+    const infUpdateDates = generateSequenceOfDates(
+      {
+        start: last,
+        end: first,
+      },
+      '1m',
+    );
+    const infMoments: Moment[] = infUpdateDates.map(date => {
+      const typeForMoment = momentType.inflation;
+      const result: Moment = {
+        date,
+        name: cpi,
+        type: typeForMoment,
+        setValue: NaN,
+        transaction: undefined,
+      };
+      return result;
+    });
+    datedMoments = datedMoments.concat(infMoments);
+    // log(`with moments for updating base values, have ${datedMoments.length}`);
+
+    const needPredictedTaxBands = new Date(highestTaxYearInMap, 3, 5);
+    if (needPredictedTaxBands < roiEndDate) {
+      const d = new Date(highestTaxYearInMap, 3, 4);
+      // log(`prepare to log tax band values at ${d.toDateString()}`);
+      datedMoments.push({
+        date: d,
+        name: 'captureLastTaxBands',
+        type: momentType.inflation,
+        setValue: NaN,
+        transaction: undefined,
+      });
+    } else {
+      // log(`roiEndDate = ${roiEndDate.toDateString()} won't need predicted tax bands`);
+    }
+    sortByDate(datedMoments);
+  }
 
   let startYearOfTaxYear;
   let monthOfTaxYear;
@@ -3735,11 +4055,24 @@ export function getEvaluations(
       throw new Error('BUG!!! array length > 0 should pop!');
     }
 
+    // Each moment we process is in dated order.
+    if (printDebug()) {
+      log(
+        `popped moment is ${showObj({
+          date: moment.date.toDateString(),
+          name: moment.name,
+          type: moment.type,
+          setValue: moment.setValue,
+        })}`,
+      );
+    }
+    // log(`${datedMoments.length} moments left`);
+    // log(`moment.date is ${moment.date.toDateString()}`);
     if (moment.name === EvaluateAllAssets) {
       model.assets.forEach(asset => {
         let val = values.get(asset.NAME);
         if (typeof val === 'string') {
-          val = traceEvaluation(val, values, val);
+          val = traceEvaluation(val, values, growths, val);
         }
         const q = getQuantity(asset.NAME, values, model);
         if (q !== undefined && val !== undefined) {
@@ -3783,7 +4116,7 @@ export function getEvaluations(
         // log(`income ${i.NAME} ends at ${i.END} not yet ended at ${today}`);
         let val = values.get(i.NAME);
         if (typeof val === 'string') {
-          val = traceEvaluation(val, values, val);
+          val = traceEvaluation(val, values, growths, val);
         }
         if (val !== undefined) {
           todaysIncomeValues.set(i.NAME, {
@@ -3815,7 +4148,7 @@ export function getEvaluations(
         }
         let val = values.get(e.NAME);
         if (typeof val === 'string') {
-          val = traceEvaluation(val, values, val);
+          val = traceEvaluation(val, values, growths, val);
         }
         if (val !== undefined) {
           // log(`expense for todays value ${showObj(e)}`);
@@ -3838,25 +4171,22 @@ export function getEvaluations(
       });
     }
 
-    // Each moment we process is in dated order.
-    // log(`popped moment is ${showObj(moment)}, `+
-    //   `${datedMoments.length} moments left`);
-    // log(`moment.date is ${moment.date.toDateString()}`);
-
     // Detect if this date has brought us into a new tax year.
     // At a change of tax year, log last year's accrual
     // and start a fresh accrual for the next year.
     const momentsTaxYear = getYearOfTaxYear(moment.date);
-    // log(`momentsTaxYear = ${momentsTaxYear}`);
-    // log(`startYearOfTaxYear = ${startYearOfTaxYear}`);
     const momentsTaxMonth = getMonthOfTaxYear(moment.date);
-    const enteringNewTaxYear = startYearOfTaxYear !== undefined &&
-      momentsTaxYear > startYearOfTaxYear;
-    const enteringNewTaxMonth = startYearOfTaxYear !== undefined &&
+    // log(`momentsTaxMonth = ${momentsTaxMonth}, momentsTaxYear = ${momentsTaxYear}`);
+    const enteringNewTaxYear =
+      startYearOfTaxYear !== undefined && momentsTaxYear > startYearOfTaxYear;
+    const enteringNewTaxMonth =
+      startYearOfTaxYear !== undefined &&
       monthOfTaxYear !== undefined &&
       momentsTaxMonth !== monthOfTaxYear;
 
-    if ( startYearOfTaxYear !== undefined && monthOfTaxYear !== undefined &&
+    if (
+      startYearOfTaxYear !== undefined &&
+      monthOfTaxYear !== undefined &&
       enteringNewTaxMonth
     ) {
       // log(`${momentsTaxMonth} is beyond ${monthOfTaxYear} for ${moment.date.toDateString()}`);
@@ -3865,8 +4195,8 @@ export function getEvaluations(
         taxMonthlyPaymentsPaid,
         startYearOfTaxYear,
         monthOfTaxYear,
-        cpiInitialVal,
         values,
+        growths,
         evaluations,
         model,
       );
@@ -3882,15 +4212,17 @@ export function getEvaluations(
         liableIncomeInTaxMonth,
         taxMonthlyPaymentsPaid,
         startYearOfTaxYear,
-        cpiInitialVal,
         values,
+        growths,
         evaluations,
         model,
       );
       startYearOfTaxYear = momentsTaxYear;
       monthOfTaxYear = 3; // new tax year
     }
-    if ( startYearOfTaxYear !== undefined && monthOfTaxYear !== undefined &&
+    if (
+      startYearOfTaxYear !== undefined &&
+      monthOfTaxYear !== undefined &&
       enteringNewTaxMonth
     ) {
       // log(`${momentsTaxMonth} is beyond ${monthOfTaxYear} for ${moment.date.toDateString()}`);
@@ -3899,23 +4231,113 @@ export function getEvaluations(
         taxMonthlyPaymentsPaid,
         startYearOfTaxYear,
         monthOfTaxYear,
-        cpiInitialVal,
         values,
+        growths,
         evaluations,
         model,
       );
     } else {
       // log(`waiting for ${momentsTaxMonth} to get beyond ${monthOfTaxYear} for ${moment.date.toDateString()}`);
     }
-    if(enteringNewTaxYear || enteringNewTaxMonth){
+    if (enteringNewTaxYear || enteringNewTaxMonth) {
       monthOfTaxYear = momentsTaxMonth;
     }
 
-    if (moment.type === momentType.transaction) {
+    if (moment.name === cpi) {
+      // increment base (which started as 1.0) according to inflation value
+      // at this moment in time
+
+      const baseObj = getNumberValue(values, baseForCPI);
+      const infObj = getNumberValue(values, cpi);
+
+      if (baseObj !== undefined && infObj !== undefined) {
+        const newValue = baseObj * (1.0 + getMonthlyGrowth(infObj));
+        // log(`time to update base using ${infObj} from ${baseObj} to ${newValue}`);
+        // log(`newValue = ${newValue}`);
+        values.set(
+          baseForCPI,
+          newValue,
+          growths,
+          moment.date,
+          'baseChange',
+          '38', //callerID
+        );
+      } else {
+        log(
+          `BUG: missing baseObj or infObj for CPI handling; ${baseObj}, ${infObj}`,
+        );
+      }
+    } else if (moment.name === 'captureLastTaxBands') {
+      // log(`at ${moment.date.toDateString()}, go log tax band values to get inflated values later`);
+      const resultFromMap = TAX_MAP[`${highestTaxYearInMap}`];
+      const baseVal = getNumberValue(values, baseForCPI);
+      if (resultFromMap !== undefined && baseVal !== undefined) {
+        // log(`map vals at ${startYearOfTaxYear}, ${makeTwoDP(resultFromMap.noTaxBand)}, ${makeTwoDP(resultFromMap.lowTaxBand)}, ${makeTwoDP(resultFromMap.highTaxBand)}, ${makeTwoDP(resultFromMap.adjustNoTaxBand)}`);
+        // log(`scale last tax bands by / baseVal = ${baseVal}`);
+        const noTaxBand = resultFromMap.noTaxBand / baseVal;
+        const lowTaxBand = resultFromMap.lowTaxBand / baseVal;
+        const highTaxBand = resultFromMap.highTaxBand / baseVal;
+        const adjustNoTaxBand = resultFromMap.adjustNoTaxBand / baseVal;
+        const noNIBand = resultFromMap.noNIBand / baseVal;
+        const lowNIBand = resultFromMap.lowNIBand / baseVal;
+        values.set(
+          'noTaxBand',
+          noTaxBand,
+          growths,
+          moment.date,
+          moment.name,
+          '39', //callerID
+        );
+        values.set(
+          'lowTaxBand',
+          lowTaxBand,
+          growths,
+          moment.date,
+          moment.name,
+          '39', //callerID
+        );
+        values.set(
+          'highTaxBand',
+          highTaxBand,
+          growths,
+          moment.date,
+          moment.name,
+          '39', //callerID
+        );
+        values.set(
+          'adjustNoTaxBand',
+          adjustNoTaxBand,
+          growths,
+          moment.date,
+          moment.name,
+          '39', //callerID
+        );
+        values.set(
+          'noNIBand',
+          noNIBand,
+          growths,
+          moment.date,
+          moment.name,
+          '39', //callerID
+        );
+        values.set(
+          'lowNIBand',
+          lowNIBand,
+          growths,
+          moment.date,
+          moment.name,
+          '39', //callerID
+        );
+        // log(`in vals at ${startYearOfTaxYear}, ${makeTwoDP(noTaxBand)}, ${makeTwoDP(lowTaxBand)}, ${makeTwoDP(highTaxBand)}, ${makeTwoDP(adjustNoTaxBand)}`);
+      } else {
+        log('BUG : undefined resultFromMap or baseVal');
+      }
+    } else if (moment.type === momentType.transaction) {
       // log(`this is a transaction`);
       processTransactionMoment(
         moment,
         values,
+        growths,
         evaluations,
         model,
         pensionTransactions,
@@ -3925,11 +4347,13 @@ export function getEvaluations(
       );
     } else if (
       moment.type === momentType.expenseStart ||
+      moment.type === momentType.expenseStartPrep ||
       moment.type === momentType.incomeStart ||
+      moment.type === momentType.incomeStartPrep ||
       moment.type === momentType.assetStart
     ) {
       // Starts are well defined
-      // log(`start moment ${moment.name}, ${moment.type}`)
+      // log(`start moment ${moment.name}, ${moment.type}, ${moment.date}`)
       if (moment.setValue === undefined) {
         log('BUG!!! starts of income/asset/expense should have a value!');
         break;
@@ -3942,6 +4366,7 @@ export function getEvaluations(
           // log(`set quantity of asset ${moment.name} = ${startQ}`);
           setValue(
             values,
+            growths,
             evaluations,
             moment.date,
             quantity + moment.name, // value of what?
@@ -3957,30 +4382,76 @@ export function getEvaluations(
         if (matchingAsset.length === 1) {
           const a = matchingAsset[0];
           // log(`matched asset for start`);
-          logPurchaseValues(a, values, evaluations, model);
+          logPurchaseValues(a, values, growths, evaluations, model);
         } else {
           throw new Error(`BUG!!! '${moment.name}' doesn't match one asset`);
         }
       }
       const startValue = moment.setValue;
+      let valueToStore = startValue;
+      const growthObj = getGrowth(moment.name, growths);
+      // log(`growthObj for ${moment.name} = ${showObj(growthObj)}`);
+      if (!growthObj) {
+        log(`BUG : missing growth for ${moment.name}`);
+      } else if (growthObj.applyCPI) {
+        // log(`start value for ${valueToStore} needs adjusting for CPI`);
+        let valueToScale: number | undefined;
+        if (typeof valueToStore === 'number') {
+          valueToScale = valueToStore;
+        } else if (isNumberString(valueToStore)) {
+          valueToScale = parseFloat(valueToStore);
+        }
+        if (valueToScale !== undefined) {
+          const scaleBy = getNumberValue(values, baseForCPI);
+          if (scaleBy) {
+            // log(`divide ${valueToStore} by base value ${scaleBy} to store ${valueToScale / scaleBy}`);
+            valueToStore = valueToScale / scaleBy;
+            // log(`divided result is ${valueToStore}`);
+          }
+        } else {
+          log(`don't scale something that's not a number`);
+        }
+      }
       // log(`in getEvaluations starting something: ${moment.name} with value ${startValue}`);
-      setValue(
-        values,
-        evaluations,
-        moment.date,
-        moment.name,
-        startValue,
-        model,
-        moment.name, // e.g. Cash (it's just the starting value)
-        '20', //callerID
-      );
+      if (
+        moment.type === momentType.incomeStartPrep ||
+        moment.type === momentType.expenseStartPrep
+      ) {
+        values.set(
+          moment.name,
+          valueToStore,
+          growths,
+          moment.date,
+          moment.name, // e.g. Cash (it's just the starting value)
+          '20', //callerID
+        );
+      } else {
+        setValue(
+          values,
+          growths,
+          evaluations,
+          moment.date,
+          moment.name,
+          valueToStore,
+          model,
+          moment.name, // e.g. Cash (it's just the starting value)
+          '20', //callerID
+        );
+      }
       if (moment.type === momentType.incomeStart) {
-        const numberVal = traceEvaluation(startValue, values, moment.name);
+        const numberVal = traceEvaluation(
+          startValue,
+          values,
+          growths,
+          moment.name,
+        );
         if (numberVal !== undefined) {
+          // log(`income numberVal = ${numberVal}`);
           handleIncome(
             numberVal,
             moment,
             values,
+            growths,
             evaluations,
             model,
             pensionTransactions,
@@ -3993,30 +4464,34 @@ export function getEvaluations(
           throw new Error(`can't interpret ${startValue} as a number`);
         }
       } else if (moment.type === momentType.expenseStart) {
+        ////////////////// ???? startPrep or not ????
         // log('in getEvaluations, adjustCash:');
         adjustCash(
           -startValue,
           moment.date,
           values,
+          growths,
           evaluations,
           model,
           moment.name,
         );
       }
-    } else {
+    } else if (moment.type !== momentType.inflation) {
       // not a transaction
       // not at start of expense/income/asset
-      let numberVal: string | number | undefined = traceEvaluation(
+      const visiblePoundValue: string | number | undefined = traceEvaluation(
         moment.name,
         values,
+        growths,
         moment.name,
       );
-      // log(`value of ${moment.name} is ${numberVal}`);
-      if (numberVal === undefined) {
+      // log(`oldStoredNumberVal of ${moment.name} is ${oldStoredNumberVal}`);
+      if (visiblePoundValue === undefined) {
         const val = values.get(moment.name);
         if (val !== undefined) {
           setValue(
             values,
+            growths,
             evaluations,
             moment.date,
             moment.name,
@@ -4027,48 +4502,134 @@ export function getEvaluations(
           );
         }
       } else {
-        const inf = getGrowth(moment.name, growths);
-        if (printDebug()) {
-          log(`change = numberVal * inf = ${numberVal * inf}`);
+        const growthObj = getGrowth(moment.name, growths);
+        const baseVal = getNumberValue(values, baseForCPI);
+        // log(`baseVal = ${baseVal}`);
+        let oldStoredNumberVal = visiblePoundValue;
+        if (visiblePoundValue && growthObj && growthObj.applyCPI && baseVal) {
+          oldStoredNumberVal /= baseVal;
         }
-        const change = numberVal * inf;
-        numberVal += change;
+        // log(`growthObj for ${moment.name} = ${showObj(growthObj)}`);
+        if (!growthObj) {
+          log(`BUG : missing growth for ${moment.name}`);
+        } else {
+          // We _do_ want to log changes of 0
+          // because this is how we generate monthly
+          // data to plot.  Set these here and call setValues later,
+          // even if these haven't changed.
+          let changedToStoredValue = 0.0;
+          let changeToVisibleCash = 0.0;
 
-        let val: string | number = numberVal;
-        if (change === 0) {
-          const storedVal = values.get(moment.name);
-          if (storedVal !== undefined) {
-            val = storedVal;
+          const growthChangeScale = growthObj.monthScale;
+
+          //if(growthObj.applyCPI && baseVal !== 1.0 && growthChangeScale !== 0 && moment.type !== momentType.expense){
+          //  throw new Error(`cpi computation for ${moment.type} has baseVal = ${baseVal}, growthChangeScale = ${growthChangeScale}`);
+          //}
+          if (printDebug()) {
+            log(`growthChangeScale = ${growthChangeScale}`);
           }
-        }
+          if (growthChangeScale !== 0) {
+            changedToStoredValue = oldStoredNumberVal * growthChangeScale;
+            changeToVisibleCash = changedToStoredValue;
+            // log(`for ${growthChangeScale}, changedToStoredValue is ${changedToStoredValue}`);
+          }
 
-        // We _do_ want to log changes of 0
-        // because this is how we generate monthly
-        // data to plot.
-        // if(change!==0){ // we _do_ want to log no-change evaluations!
-        // log('in getEvaluations:');
-        setValue(
-          values,
-          evaluations,
-          moment.date,
-          moment.name,
-          val,
-          model,
-          growth,
-          '22', //callerID
-        );
-        // }
-        if (moment.type === momentType.asset) {
-          // some assets experience growth which is
-          // liable for tax
-          // log(`asset moment for growth : ${moment.date}, ${moment.name}`);
-          if (moment.name.startsWith(crystallizedPension) && change > 0) {
-            // log(`skip asset moment for growth : ${moment.date}, ${moment.name}, ${change}`);
+          let cPIChange = 0.0;
+          // log(`moment.type = ${moment.type}`);
+          if (growthObj.applyCPI) {
+            // log(`do work on a CPI change for ${moment.name}`);
+            if (!baseVal) {
+              log(`Bug - missing or zero baseVal`);
+            } else if (baseVal !== 1.0) {
+              cPIChange = oldStoredNumberVal * (baseVal - 1.0);
+              changeToVisibleCash = changedToStoredValue;
+              // log(`from baseVal ${baseVal}, real value adds ${cPIChange} to stored ${oldStoredNumberVal} to give ${cPIChange + oldStoredNumberVal}` );
+              // log(`from baseVal ${baseVal}, real growth value is ${growthChangeAsIncome} to give ${cPIChange + oldStoredNumberVal + growthChangeAsIncome}` );
+            }
+          }
+
+          // When we store back the value, don't apply CPI change, use growthChangeToStore.
+          // When we use the value to affect cash, do apply the CPI change, use cPIChange and growthChangeAsIncome.
+
+          let valToStore: string | number = oldStoredNumberVal;
+          if (changedToStoredValue === 0.0) {
+            // recover pre-existing value (don't save back as number value)
+            const storedVal = values.get(moment.name);
+            if (storedVal !== undefined) {
+              valToStore = storedVal;
+            }
           } else {
+            valToStore += changedToStoredValue;
+            // log(`val to store at ${moment.date} = ${valToStore}`);
+          }
+
+          // We _do_ want to log changes of 0
+          // because this is how we generate monthly
+          // data to plot.
+          // if(change!==0){ // we _do_ want to log no-change evaluations!
+          // log(`in getEvaluations: log changes for moment.type = ${moment.type}`);
+          if (
+            moment.type === momentType.expensePrep ||
+            (moment.type === momentType.incomePrep &&
+              !moment.name.startsWith(pensionDB))
+          ) {
+            // log(`quietly set the value of ${moment.name} as ${valToStore}`);
+            values.set(
+              moment.name,
+              valToStore,
+              growths,
+              moment.date,
+              growth,
+              '22', //callerID
+            );
+          } else {
+            // log(`set the value of ${moment.name} as ${valToStore}`);
+            setValue(
+              values,
+              growths,
+              evaluations,
+              moment.date,
+              moment.name,
+              valToStore,
+              model,
+              growth,
+              '22', //callerID
+            );
+          }
+          // }
+          if (moment.type === momentType.asset) {
+            // some assets experience growth which is
+            // liable for tax
+            // log(`asset moment for growth : ${moment.date}, ${moment.name}`);
+            const changeToCash = cPIChange + changeToVisibleCash;
+            if (
+              moment.name.startsWith(crystallizedPension) &&
+              changeToCash > 0
+            ) {
+              // log(`skip asset moment for growth : ${moment.date}, ${moment.name}, ${change}`);
+            } else {
+              handleIncome(
+                changeToCash,
+                moment,
+                values,
+                growths,
+                evaluations,
+                model,
+                pensionTransactions,
+                liabilitiesMap,
+                liableIncomeInTaxYear,
+                liableIncomeInTaxMonth,
+                moment.name,
+              );
+            }
+          } else if (moment.type === momentType.income) {
+            const changeToCash =
+              oldStoredNumberVal + cPIChange + changeToVisibleCash;
             handleIncome(
-              change,
+              changeToCash,
               moment,
               values,
+              growths,
               evaluations,
               model,
               pensionTransactions,
@@ -4077,36 +4638,26 @@ export function getEvaluations(
               liableIncomeInTaxMonth,
               moment.name,
             );
+          } else if (moment.type === momentType.expense) {
+            // log('in getEvaluations, adjustCash:');
+            const changeToCash =
+              oldStoredNumberVal + cPIChange + changeToVisibleCash;
+            adjustCash(
+              -changeToCash,
+              moment.date,
+              values,
+              growths,
+              evaluations,
+              model,
+              moment.name,
+            );
           }
-        } else if (moment.type === momentType.income) {
-          handleIncome(
-            numberVal,
-            moment,
-            values,
-            evaluations,
-            model,
-            pensionTransactions,
-            liabilitiesMap,
-            liableIncomeInTaxYear,
-            liableIncomeInTaxMonth,
-            moment.name,
-          );
-        } else if (moment.type === momentType.expense) {
-          // log('in getEvaluations, adjustCash:');
-          adjustCash(
-            -val,
-            moment.date,
-            values,
-            evaluations,
-            model,
-            moment.name,
-          );
         }
-      }
-      if (printDebug()) {
-        log(`${moment.date.toDateString()},
-                  ${moment.name},
-                  value = ${values.get(moment.name)}`);
+        if (printDebug()) {
+          log(`${moment.date.toDateString()},
+                    ${moment.name},
+                    value = ${values.get(moment.name)}`);
+        }
       }
     }
 
@@ -4120,11 +4671,13 @@ export function getEvaluations(
         liableIncomeInTaxMonth,
         taxMonthlyPaymentsPaid,
         startYearOfTaxYear,
-        cpiInitialVal,
         values,
+        growths,
         evaluations,
         model,
       );
+    } else if (datedMoments.length === 0) {
+      // log('last item mo tax info...');
     }
   }
 

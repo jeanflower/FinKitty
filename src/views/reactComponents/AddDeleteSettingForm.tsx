@@ -252,14 +252,18 @@ export class AddDeleteSettingForm extends Component<
             this.inputSetting,
             'inputSetting',
             'inputSetting',
-            this.state.inputting === inputtingSetting ? 'primary' : 'outline-secondary',
+            this.state.inputting === inputtingSetting
+              ? 'primary'
+              : 'outline-secondary',
           )}
           {makeButton(
             'Revalue setting mode',
             this.inputRevalue,
             'revalueSettingInputs',
             'revalueSettingInputs',
-            this.state.inputting === inputtingRevalue ? 'primary' : 'outline-secondary',
+            this.state.inputting === inputtingRevalue
+              ? 'primary'
+              : 'outline-secondary',
           )}
         </div>
         <form className="container-fluid" onSubmit={this.add}>

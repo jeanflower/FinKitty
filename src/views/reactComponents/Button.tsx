@@ -9,18 +9,13 @@ interface ButtonProps {
   title: string;
   disabled: boolean;
 }
-interface ButtonState {
-}
 
-class Button extends Component<
-  ButtonProps,
-  ButtonState
-> {
+class Button extends Component<ButtonProps, {}> {
   public constructor(props: ButtonProps) {
     super(props);
   }
 
-  render(){
+  render() {
     const spacer = ' mr-1 mb-1';
     const className = `btn btn-${this.props.type}${spacer}`;
     return (
@@ -45,12 +40,14 @@ export function makeButton(
   type: finkittyButtonType,
   disabled?: boolean,
 ) {
-  return <Button 
-    key={key} 
-    action={action} 
-    title={title} 
-    id={id} 
-    type={type} 
-    disabled={(disabled === undefined)?false:disabled} 
-  />;
+  return (
+    <Button
+      key={key}
+      action={action}
+      title={title}
+      id={id}
+      type={type}
+      disabled={disabled === undefined ? false : disabled}
+    />
+  );
 }

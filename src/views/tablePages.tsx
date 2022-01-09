@@ -28,8 +28,6 @@ import {
   viewDetail,
   viewType,
   reportView,
-  defaultSourceMatcher,
-  defaultSourceExcluder,
 } from '../localization/stringConstants';
 import {
   Asset,
@@ -103,7 +101,6 @@ import {
 import { ReactFragment } from 'react';
 import { Accordion, Button, Card } from 'react-bootstrap';
 import { filtersList } from './chartPages';
-import { makeButton } from './reactComponents/Button';
 import { ReportMatcherForm } from './reactComponents/ReportMatcherForm';
 
 export function collapsibleFragment(
@@ -1819,7 +1816,7 @@ export function settingsTableDiv(
 }
 
 export function reportDiv(
-  model: ModelData, 
+  model: ModelData,
   viewSettings: ViewSettings,
   reportMatcher: ReportMatcher,
   reportData: ReportDatum[],
@@ -1828,33 +1825,37 @@ export function reportDiv(
     return;
   }
   // log(`display report of length ${reportData.length}`);
-  const unindexedResult = reportData.filter((d)=>{
+  const unindexedResult = reportData
+    .filter(d => {
       return d.name !== 'Estate final value';
-    }).map(x => {
-    const make2dpCanBeUndefined : (input: number | undefined)=>string = 
-    (input) => {
-      return input ? makeTwoDP(input) : '';
-    }
-    const makeQCanBeUndefined : (input: number | undefined)=>string = 
-    (input) => {
-      return input ? `${input}` : '';
-    }
-    return {
-      DATE: x.date,
-      NAME: x.name,
-      CHANGE: make2dpCanBeUndefined(x.change),
-      OLD_VALUE: make2dpCanBeUndefined(x.oldVal),
-      NEW_VALUE: make2dpCanBeUndefined(x.newVal),
-      QCHANGE: makeQCanBeUndefined(x.qchange),
-      QOLD_VALUE: makeQCanBeUndefined(x.qoldVal),
-      QNEW_VALUE: makeQCanBeUndefined(x.qnewVal),
-      SOURCE: x.source,
-    };
-  });
+    })
+    .map(x => {
+      const make2dpCanBeUndefined: (
+        input: number | undefined,
+      ) => string = input => {
+        return input ? makeTwoDP(input) : '';
+      };
+      const makeQCanBeUndefined: (
+        input: number | undefined,
+      ) => string = input => {
+        return input ? `${input}` : '';
+      };
+      return {
+        DATE: x.date,
+        NAME: x.name,
+        CHANGE: make2dpCanBeUndefined(x.change),
+        OLD_VALUE: make2dpCanBeUndefined(x.oldVal),
+        NEW_VALUE: make2dpCanBeUndefined(x.newVal),
+        QCHANGE: makeQCanBeUndefined(x.qchange),
+        QOLD_VALUE: makeQCanBeUndefined(x.qoldVal),
+        QNEW_VALUE: makeQCanBeUndefined(x.qnewVal),
+        SOURCE: x.source,
+      };
+    });
   const reportDataTable = addIndices(unindexedResult);
 
   // log(`display reportDataTable of length ${reportDataTable.length}`);
-  var util = require('util');
+  // var util = require('util');
   // log(`display reportDataTable ${util.inspect(reportDataTable)}`);
 
   const context = Context.Asset;
@@ -1949,12 +1950,10 @@ export function reportDiv(
         triggers={model.triggers}
       />
       {
-      //`Table data in text form : 
-      //${util.inspect(reportDataTable)}`
-      //}
+        //`Table data in text form :
+        //${util.inspect(reportDataTable)}`
+        //}
       }
     </div>
   );
 }
-
-

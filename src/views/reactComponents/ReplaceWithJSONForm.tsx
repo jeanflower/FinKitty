@@ -56,7 +56,9 @@ export class ReplaceWithJSONForm extends Component<
       <form className="container-fluid" onSubmit={this.replace}>
         <Input
           type={'text'}
-          title={'input report:{sourceMatcher:regexp,sourceExcluder:regexp}|newModelName:{jsonModelData}'}
+          title={
+            'input report:{sourceMatcher:regexp,sourceExcluder:regexp}|newModelName:{jsonModelData}'
+          }
           name={'replaceWithJSON'}
           value={this.state.JSON}
           placeholder={'Enter text input here'}
@@ -65,7 +67,7 @@ export class ReplaceWithJSONForm extends Component<
         />
         {makeButton(
           'toggle evaluate on definition change',
-          async (e: FormEvent<Element>)=>{
+          async (e: FormEvent<Element>) => {
             await this.setState({
               JSON: 'eval',
             });
@@ -73,12 +75,12 @@ export class ReplaceWithJSONForm extends Component<
           },
           'toggleEDC',
           'toggleEDC',
-          'outline-secondary'
+          'outline-secondary',
         )}
         <br></br>
         {makeButton(
           'toggle jump to overview',
-          async (e: FormEvent<Element>)=>{
+          async (e: FormEvent<Element>) => {
             await this.setState({
               JSON: 'overview',
             });
@@ -86,12 +88,12 @@ export class ReplaceWithJSONForm extends Component<
           },
           'toggleJTO',
           'toggleJTO',
-          'outline-secondary'
+          'outline-secondary',
         )}
         <br></br>
         {makeButton(
           'toggle check before overwrite',
-          async (e: FormEvent<Element>)=>{
+          async (e: FormEvent<Element>) => {
             await this.setState({
               JSON: 'overwrite',
             });
@@ -99,8 +101,8 @@ export class ReplaceWithJSONForm extends Component<
           },
           'toggleCBO',
           'toggleCBO',
-          'outline-secondary'
-        )} 
+          'outline-secondary',
+        )}
       </form>
     );
   }

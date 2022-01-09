@@ -283,14 +283,18 @@ export class AddDeleteDebtForm extends Component<
             this.inputDebt,
             'inputDebt',
             'inputDebt',
-            this.state.inputting === inputtingDebt ? 'primary' : 'outline-secondary',
+            this.state.inputting === inputtingDebt
+              ? 'primary'
+              : 'outline-secondary',
           )}
           {makeButton(
             'Revalue debt mode',
             this.inputRevalue,
             'revalueDebtInputs',
             'revalueDebtInputs',
-            this.state.inputting === inputtingRevalue ? 'primary' : 'outline-secondary',
+            this.state.inputting === inputtingRevalue
+              ? 'primary'
+              : 'outline-secondary',
           )}
         </div>
         <form className="container-fluid" onSubmit={this.add}>

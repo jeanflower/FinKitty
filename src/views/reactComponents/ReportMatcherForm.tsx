@@ -2,9 +2,11 @@ import React, { Component, FormEvent } from 'react';
 
 import { Input } from './Input';
 import { ReportMatcher } from '../../types/interfaces';
-import { log } from '../../utils';
 import { makeButton } from './Button';
-import { defaultSourceExcluder, defaultSourceMatcher } from '../../localization/stringConstants';
+import {
+  defaultSourceExcluder,
+  defaultSourceMatcher,
+} from '../../localization/stringConstants';
 
 interface ReportMatcherFormState {
   sourceMatcher: string;
@@ -50,13 +52,13 @@ export class ReportMatcherForm extends Component<
     return (
       <form className="container-fluid" onSubmit={this.submit}>
         <div style={{ display: 'none' }}>
-        {makeButton(
-          'Filter table',
-          this.submit,
-          'MatchFilterer',
-          'MatchFilterer',
-          'primary',
-        )}
+          {makeButton(
+            'Filter table',
+            this.submit,
+            'MatchFilterer',
+            'MatchFilterer',
+            'primary',
+          )}
         </div>
         <Input
           type={'text'}
@@ -76,18 +78,22 @@ export class ReportMatcherForm extends Component<
         />
         {makeButton(
           'reset to default',
-          (e)=>{
+          e => {
             e.persist();
-            this.setState({ 
-              sourceMatcher: defaultSourceMatcher,
-              sourceExcluder: defaultSourceExcluder,
-             }, ()=>{this.submit(e);});
+            this.setState(
+              {
+                sourceMatcher: defaultSourceMatcher,
+                sourceExcluder: defaultSourceExcluder,
+              },
+              () => {
+                this.submit(e);
+              },
+            );
           },
           'test',
           'test',
           'primary',
         )}
-
       </form>
     );
   }
@@ -95,10 +101,12 @@ export class ReportMatcherForm extends Component<
   private async submit(e: FormEvent<Element>) {
     e.preventDefault();
 
-    this.props.setReportKey(JSON.stringify({
-      sourceMatcher: this.state.sourceMatcher,
-      sourceExcluder: this.state.sourceExcluder,
-    }));
+    this.props.setReportKey(
+      JSON.stringify({
+        sourceMatcher: this.state.sourceMatcher,
+        sourceExcluder: this.state.sourceExcluder,
+      }),
+    );
     return;
   }
 }

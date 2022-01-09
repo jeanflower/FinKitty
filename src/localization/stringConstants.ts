@@ -15,6 +15,7 @@ export const taxPot = 'TaxPot';
 // naturally grow over time
 export const cpi = 'cpi';
 export const cpiHint = 'Annual rate of inflation';
+export const baseForCPI = 'base';
 
 // All models include these settings which control the view:
 // date range for charts
