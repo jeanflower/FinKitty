@@ -44,7 +44,6 @@ import {
   total,
   viewDetail,
   viewFrequency,
-  pensionAllowance,
   dot,
   annually,
 } from '../localization/stringConstants';
@@ -62,7 +61,6 @@ import {
   makeNetGainTag,
   getTriggerDate,
   deconstructTaxTag,
-  makePensionAllowanceTag,
 } from '../stringUtils';
 import { getSettings } from './modelUtils';
 import { getCategory } from './category';
@@ -895,12 +893,10 @@ function mapNamesToTypes(model: ModelData) {
         const person = l.substring(0, l.length - incomeTax.length);
         const icTag = makeIncomeTaxTag(person);
         const netIncomeTag = makeNetIncomeTag(person);
-        const pensionAllowanceTag = makePensionAllowanceTag(person);
 
         // log(`netIncomeTag = ${netIncomeTag}, icTag   = ${icTag}`);
         nameToTypeMap.set(netIncomeTag, evaluationType.taxLiability);
         nameToTypeMap.set(icTag, evaluationType.taxLiability);
-        nameToTypeMap.set(pensionAllowanceTag, evaluationType.taxLiability);
       } else if (l.endsWith(nationalInsurance)) {
         const person = l.substring(0, l.length - nationalInsurance.length);
         const niTag = makeNationalInsuranceTag(person);
@@ -1243,10 +1239,6 @@ export function makeChartData(
         rightType = true;
       } else if (taxChartType === gain) {
         if (tagData.isGain) {
-          rightType = true;
-        }
-      } else if (taxChartType === pensionAllowance) {
-        if (tagData.isPensionAllowance) {
           rightType = true;
         }
       } else if (taxChartType === income) {

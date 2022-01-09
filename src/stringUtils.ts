@@ -16,7 +16,6 @@ import {
   moveTaxFreePart,
   crystallizedPension,
   transferCrystallizedPension,
-  pensionAllowance,
 } from './localization/stringConstants';
 import { isSetting } from './models/modelUtils';
 import { Setting, ModelData, Trigger } from './types/interfaces';
@@ -121,9 +120,6 @@ export function makeNationalInsuranceTag(person: string) {
 export function makeNetIncomeTag(person: string) {
   return person + ' ' + income + ' ' + net;
 }
-export function makePensionAllowanceTag(person: string) {
-  return person + ' ' + pensionAllowance;
-}
 export function makeCGTTag(person: string) {
   return person + ' ' + gain + ' ' + cgt;
 }
@@ -136,7 +132,6 @@ export function deconstructTaxTag(
   isIncome: boolean;
   isGain: boolean;
   isIncomeTax: boolean;
-  isPensionAllowance: boolean;
   isNationalInsurance: boolean;
   isNet: boolean;
   isCGT: boolean;
@@ -146,7 +141,6 @@ export function deconstructTaxTag(
     isIncome: false,
     isGain: false,
     isIncomeTax: false,
-    isPensionAllowance: false,
     isNationalInsurance: false,
     isNet: false,
     isCGT: false,
@@ -166,9 +160,6 @@ export function deconstructTaxTag(
       s = s.substring(0, s.length - net.length - 1);
     }
     s = s.substring(0, s.length - income.length - 1);
-  } else if (s.includes(pensionAllowance)) {
-    result.isPensionAllowance = true;
-    s = s.substring(0, s.length - pensionAllowance.length - 1);
   } else {
     result.isGain = true;
     if (s.includes(cgt)) {

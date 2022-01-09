@@ -86,7 +86,6 @@ export const nationalInsurance = '(NI)';
 export const taxableBenefit = 'TaxableBenefit';
 export const income = 'income';
 export const gain = 'gain';
-export const pensionAllowance = 'PensionAllowance';
 export const net = '(net)';
 
 export const cpPrefix = '-CP';

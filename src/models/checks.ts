@@ -38,7 +38,6 @@ import {
   transferCrystallizedPension,
   viewDetail,
   viewFrequency,
-  pensionAllowance,
 } from '../localization/stringConstants';
 import {
   Asset,
@@ -1443,11 +1442,6 @@ export function checkEvalnType(
     // expect 'quantity' as keeping track of discrete assets
     const evalnType = nameToTypeMap.get(evaln.name.substr(quantity.length));
     if (evalnType === evaluationType.asset) {
-      return;
-    }
-  } else if (evaln.name.endsWith(pensionAllowance)) {
-    const evalnType = nameToTypeMap.get(evaln.name);
-    if (evalnType === evaluationType.taxLiability) {
       return;
     }
   } else {

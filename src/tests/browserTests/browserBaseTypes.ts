@@ -23,12 +23,6 @@ export function getDriver(headless: boolean) {
   // from
   // https://jakebinstein.com/blog/how-to-set-browser-capabilities-in-webdriverjs-example-headless-mode/
 
-  // User-set variables
-  const browserName = 'chrome'; // Switch to 'firefox' if desired
-  const capabilityName = 'goog:chromeOptions'; // Switch to 'moz:firefoxOptions' if desired
-
-  // Set up the commandline options for launching the driver.
-  // In this example, I'm using various headless options.
   const browserOptions = {
     args: ['--disable-gpu', '--no-sandbox'],
   };
@@ -37,12 +31,9 @@ export function getDriver(headless: boolean) {
   }
   // Set up the browser capabilities.
   // Some lines could be condensed into one-liners if that's your preferred style.
-  let browserCapabilities =
-    browserName === 'chrome'
-      ? webdriver.Capabilities.chrome()
-      : webdriver.Capabilities.firefox();
-  browserCapabilities = browserCapabilities.set(capabilityName, browserOptions);
-  const builder = new webdriver.Builder().forBrowser(browserName);
+  let browserCapabilities = webdriver.Capabilities.chrome();
+  browserCapabilities = browserCapabilities.set('goog:chromeOptions', browserOptions);
+  const builder = new webdriver.Builder().forBrowser('chrome');
   const driver = builder.withCapabilities(browserCapabilities).build();
 
   return driver;

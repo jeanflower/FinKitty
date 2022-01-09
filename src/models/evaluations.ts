@@ -21,7 +21,6 @@ import {
   EvaluateAllAssets,
   roiStart,
   purchase,
-  pensionAllowance,
   dot,
   baseForCPI,
 } from '../localization/stringConstants';
@@ -57,7 +56,6 @@ import {
   makeNetIncomeTag,
   makeNetGainTag,
   removeNumberPart,
-  makePensionAllowanceTag,
   checkTriggerDate,
 } from '../stringUtils';
 import {
@@ -1359,13 +1357,11 @@ function settleUpTax(
 
   const personNetIncome = new Map<string, number>();
   const personNetGain = new Map<string, number>();
-  const personPensionAllowanceUsed = new Map<string, number>();
   // log(`iterate over liable income key, value`);
   for (const [key, value] of liableIncomeInTaxYear) {
     // log(`liable income key = ${key}, value = ${value}`);
     let recalculatedNetIncome = false;
     let recalculatedNetGain = false;
-    let recalculatedPensionAllowance = false;
     /* eslint-disable-line no-restricted-syntax */
     if (key === incomeTax && value !== undefined) {
       let liableIncomeTaxInTaxMonth = liableIncomeInTaxMonth.get(incomeTax);
@@ -1493,27 +1489,6 @@ function settleUpTax(
         value.set(person, 0);
         recalculatedNetGain = true;
       }
-    } else if (key === pensionAllowance && value !== undefined) {
-      for (const [person, amount] of value) {
-        // log(`for PensionAllowance, [person, amount] = [${person},${amount}] `);
-        const personsName = person.substring(
-          0,
-          person.length - pensionAllowance.length,
-        );
-        const knownPensionAllowanceUsage = personPensionAllowanceUsed.get(
-          personsName,
-        );
-        if (knownPensionAllowanceUsage === undefined) {
-          personPensionAllowanceUsed.set(personsName, amount);
-        } else {
-          personPensionAllowanceUsed.set(
-            personsName,
-            knownPensionAllowanceUsage + amount,
-          );
-        }
-        recalculatedPensionAllowance = true;
-        value.set(person, 0);
-      }
     } else {
       log(`unhandled key from liableIncomeInTaxYear = ${key} `);
     }
@@ -1549,24 +1524,6 @@ function settleUpTax(
             model,
             makeNetGainTag(person),
             '28', //callerID
-          );
-        }
-      }
-    }
-    if (recalculatedPensionAllowance) {
-      for (const [person, amount] of personPensionAllowanceUsed) {
-        if (amount > 0) {
-          // log(`setValue ${'netgain'+person} amount ${amount}`)
-          setValue(
-            values,
-            growths,
-            evaluations,
-            date,
-            makePensionAllowanceTag(person),
-            amount,
-            model,
-            makePensionAllowanceTag(person),
-            '34', //callerID
           );
         }
       }
@@ -1827,7 +1784,6 @@ function handleIncome(
   let amountForCashIncrement = incomeValue;
   let amountForIncomeTax = incomeValue;
   let amountForNI = incomeValue;
-  let amountForPensionAllowance = 0.0;
   // some types of pension scheme reduce NI liability
 
   if (moment.type === momentType.asset) {
@@ -1909,19 +1865,6 @@ function handleIncome(
         pensionValue += amountForPension;
 
         // log(`pt.NAME = ${pt.NAME}`);
-        if (pt.NAME.startsWith(pensionDB)) {
-          // defined benefits pensions
-          // take the amount of change to the annual pension value
-          // (not the monthly pension value)
-          // and scale it by an
-          // arbitrary 19* (matches teacher's pension scheme rule)
-          // log(`add ${amountForPension}*12*19 to amountForPensionAllowance for ${pt.NAME}`);
-          amountForPensionAllowance += amountForPension * 19 * 12;
-        } else {
-          // defined contributions pensions
-          // log(`add ${amountForPension} to amountForPensionAllowance for ${pt.NAME}`);
-          amountForPensionAllowance += amountForPension;
-        }
         // log(`new pensionValue is ${pensionValue}`);
         // log(`income source = ${transaction.NAME}`);
         // log('in handleIncome:');
@@ -2014,15 +1957,6 @@ function handleIncome(
       }
     });
   }
-
-  accumulateLiability(
-    `${person}${pensionAllowance}`,
-    pensionAllowance,
-    amountForPensionAllowance,
-    liableIncomeInTaxYear,
-    liableIncomeInTaxMonth,
-  );
-
   // log(`finished handleIncome`);
 }
 
