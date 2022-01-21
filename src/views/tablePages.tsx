@@ -115,7 +115,7 @@ export function collapsibleFragment(
       <Card>
         <Card.Header>
           <Accordion.Toggle as={Button} variant="link" eventKey="0">
-            <h4>{title}</h4>
+            {title}
           </Accordion.Toggle>
         </Card.Header>
         <Accordion.Collapse eventKey="0">
@@ -1822,8 +1822,10 @@ export function reportDiv(
   reportData: ReportDatum[],
 ) {
   if (!getDisplay(reportView)) {
+    // log(`don't populate reportView`);
     return;
   }
+  // log(`do populate reportView`);
   // log(`display report of length ${reportData.length}`);
   const unindexedResult = reportData
     .filter(d => {

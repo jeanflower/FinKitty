@@ -28,6 +28,7 @@ import { ViewSettings } from '../models/charting';
 import { getTodaysDate } from '../models/modelUtils';
 import { lessThan } from '../stringUtils';
 import { collapsibleFragment } from './tablePages';
+import { log, printDebug } from '../utils';
 
 function addToMap(
   name: string,
@@ -55,7 +56,9 @@ function makeDataGrid(myMap: Map<string, ExpenseVal>, model: ModelData) {
             return key[1].expenseVal !== 0.0;
           })
           .map(key => {
-            // log(`key[0] = ${key[0]}, key[1] = ${key[1]}`);
+            if (printDebug()) {
+              log(`key[0] = ${key[0]}, key[1] = ${key[1]}`);
+            }
             return {
               NAME: key[0],
               VALUE: `${key[1].expenseVal}`,
@@ -148,7 +151,7 @@ export function expensesDiv(
   model: ModelData,
   viewSettings: ViewSettings,
   showAlert: (arg0: string) => void,
-  expensesChartData: ChartData[],
+  expensesChartData: ChartData,
   todaysValues: Map<string, ExpenseVal>,
   getStartDate: (() => string) | undefined = undefined,
   updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
@@ -156,13 +159,12 @@ export function expensesDiv(
   updateEndDate: ((newDate: string) => Promise<void>) | undefined = undefined,
 ) {
   if (!getDisplay(expensesView)) {
+    // log(`don't populate expensesView`);
     return;
   }
+  // log(`do populate expensesView`);
   return (
-    <div
-      className="ml-3"
-      style={{ display: getDisplay(expensesView) ? 'block' : 'none' }}
-    >
+    <div className="ml-3">
       {collapsibleFragment(
         expensesChartDivWithButtons(
           model,

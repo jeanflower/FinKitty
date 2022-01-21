@@ -4,16 +4,14 @@ import {
   addAsset,
   assetInputs,
   addTransaction,
+  gotoTabPage,
   transactionInputs,
   clearTransactionFields,
   quitAfterAll,
+  assetsTag,
+  transactionsTag,
 } from './browserTestUtils';
-import {
-  getDriver,
-  beforeAllWork,
-  clickButton,
-  cleanUpWork,
-} from './browserBaseTypes';
+import { getDriver, beforeAllWork, cleanUpWork } from './browserBaseTypes';
 
 const testDataModelName = 'BrowserAddTransactionTest';
 
@@ -37,14 +35,14 @@ describe(testDataModelName, () => {
       `{"testName":"${TestModel02}"}`,
     );
 
-    await clickButton(driver, 'btn-Assets');
+    await gotoTabPage(driver, assetsTag);
 
     await addAsset(driver, {
       ...assetInputs,
       message: `added new asset`,
     });
 
-    await clickButton(driver, 'btn-Transactions');
+    await gotoTabPage(driver, transactionsTag);
 
     await addTransaction(driver, {
       ...transactionInputs,

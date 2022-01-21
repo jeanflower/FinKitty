@@ -1,4 +1,5 @@
 import React, { Component, useState } from 'react';
+import { Col, Row } from 'react-bootstrap';
 import {
   definedBenefitsPension,
   definedContributionsPension,
@@ -233,77 +234,77 @@ function App() {
 }
 
 const views = new Map<
-  ViewType,
-  {
-    display: boolean;
-  }
+ ViewType,
+ {
+   display: boolean;
+ }
 >([
-  [
-    homeView,
-    {
-      display: true,
-    },
-  ],
-  [
-    overview,
-    {
-      display: false,
-    },
-  ],
-  [
-    incomesView,
-    {
-      display: false,
-    },
-  ],
-  [
-    expensesView,
-    {
-      display: false,
-    },
-  ],
-  [
-    assetsView,
-    {
-      display: false,
-    },
-  ],
-  [
-    debtsView,
-    {
-      display: false,
-    },
-  ],
-  [
-    taxView,
-    {
-      display: false,
-    },
-  ],
-  [
-    triggersView,
-    {
-      display: false,
-    },
-  ],
-  [
-    transactionsView,
-    {
-      display: false,
-    },
-  ],
-  [
-    reportView,
-    {
-      display: false,
-    },
-  ],
-  [
-    settingsView,
-    {
-      display: false,
-    },
-  ],
+[
+  homeView,
+  {
+    display: true,
+  },
+],
+[
+  overview,
+  {
+    display: false,
+  },
+],
+[
+  incomesView,
+  {
+    display: false,
+  },
+],
+[
+  expensesView,
+  {
+    display: false,
+  },
+],
+[
+  assetsView,
+  {
+    display: false,
+  },
+],
+[
+  debtsView,
+  {
+    display: false,
+  },
+],
+[
+  taxView,
+  {
+    display: false,
+  },
+],
+[
+  triggersView,
+  {
+    display: false,
+  },
+],
+[
+  transactionsView,
+  {
+    display: false,
+  },
+],
+[
+  reportView,
+  {
+    display: false,
+  },
+],
+[
+  settingsView,
+  {
+    display: false,
+  },
+],
 ]);
 
 const exampleModels = [
@@ -363,25 +364,55 @@ export function getDisplay(type: ViewType): boolean {
   const result = view.display;
   return result;
 }
-function makeJChartData(data: ItemChartData[]) {
-  let chartData;
-  if (data.length > 1) {
-    chartData = data.map((x: ItemChartData) => ({
-      dataPoints: x.chartDataPoints,
-      name: x.item.NAME,
-      type: 'stackedColumn',
-      showInLegend: true,
-    }));
-  } else {
-    chartData = data.map((x: ItemChartData) => ({
-      dataPoints: x.chartDataPoints,
-      name: x.item.NAME,
-      type: 'stackedColumn',
-      showInLegend: true,
-      color: '#ff9933',
-    }));
-  }
-  return chartData;
+
+// from https://coolors.co
+const colors = [
+  '4E81BC',
+  'C0504E',
+  '9CBB58',
+  '23BFAA',
+  '8064A1',
+  '4BACC5',
+  'F79647',
+  '7F6084',
+  '77A032',
+  '33558B',
+];
+
+function hexToRgb(hex: string) {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result
+    ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16),
+      }
+    : {
+        r: 30,
+        g: 30,
+        b: 100,
+      };
+}
+
+function getColor(index: number) {
+  return hexToRgb(colors[index % colors.length]);
+}
+function makeBarData(labels: string[], chartData: ItemChartData[]): ChartData {
+  return {
+    labels: labels,
+    datasets: chartData.map((cd, index) => {
+      const c = getColor(index);
+      return {
+        label: cd.item.NAME,
+        data: cd.chartDataPoints.map(c => {
+          return (Math.round(c.y * 100.0))/100.0;
+        }),
+        backgroundColor: `rgb(${c.r},${c.g},${c.b})`,
+        barPercentage: 1.0,
+      };
+    }),
+    displayLegend: true,
+  };
 }
 
 function getUserID() {
@@ -393,6 +424,7 @@ function getExampleModel(modelString: string) {
 }
 
 function showAlert(text: string) {
+  // log(`setState for alert update`);
   reactAppComponent.setState({
     alertText: text,
   });
@@ -409,6 +441,78 @@ function toggleOption(type: string) {
     alert(`error: data not ready to set ${type} mode`);
   }
 }
+
+async function getModel(): Promise<{
+  model: ModelData | undefined;
+  modelNames: string[];
+}> {
+  let modelNames = await getModelNames(getUserID());
+  let model: ModelData | undefined = undefined;
+  // log(`got ${modelNames.length} modelNames`);
+
+  if (
+    modelNames.length === 0 ||
+    (modelName === exampleModelName &&
+      modelNames.find(x => {
+        return x === exampleModelName;
+      }) === undefined)
+  ) {
+    // log(`modelNames are ${modelNames}`);
+    // log(`does not include ${exampleModelName}, so`);
+    if (modelNames.length > 0) {
+      // log(`no model called ${exampleModelName}, so just choose the 1st one`);
+      modelName = modelNames.sort((a, b) => lessThan(a, b))[0];
+      // log(`switch to a different modelName ${modelName}`);
+
+      const modelAndStatus = await loadModel(getUserID(), modelName);
+      if (modelAndStatus === undefined) {
+        const response = 'problem with model data';
+        showAlert(response);
+        return { model, modelNames };
+      }
+      isDirty = modelAndStatus.status.isDirty;
+      model = modelAndStatus.model;
+    } else {
+      // log('recreate example models');
+      // force us to have the example models
+      await Promise.all(
+        exampleModels.map(async x => {
+          return await saveModelLSM(
+            getUserID(),
+            x.name,
+            getExampleModel(x.model),
+          );
+        }),
+      );
+      modelNames = exampleModels.map(x => {
+        return x.name;
+      });
+      model = getExampleModel(simpleExampleData);
+      modelName = exampleModelName;
+    }
+  } else {
+    // log(`modelNames are ${modelNames}`);
+    // log(`go load ${modelName}`);
+    let gotModelOK = true;
+    try {
+      // log(`look for ${modelName} from ${modelNames}`);
+      const modelAndStatus = await loadModel(getUserID(), modelName);
+      if (modelAndStatus) {
+        isDirty = modelAndStatus.status.isDirty;
+        model = modelAndStatus.model;
+      }
+    } catch (err) {
+      // log('no model found');
+      log(`Cannot load ${modelName}, err = ${err}. Consider 'Force delete'?`);
+      gotModelOK = false;
+    }
+    if (!gotModelOK || model === undefined) {
+      // log('no model found - do not try to display anything');
+      return { model, modelNames };
+    }
+  }
+  return { model, modelNames };
+}
 function evalMode(): boolean {
   if (reactAppComponent) {
     return reactAppComponent.options.evalMode;
@@ -416,16 +520,132 @@ function evalMode(): boolean {
     return false;
   }
 }
-export async function refreshData(
+function getReporter(model: ModelData, viewSettings: ViewSettings) {
+  // define a 'reporter' function which will be
+  // passed into the evaluation code to capture
+  // data as we proceed with calculations
+  let nameMatcher = '';
+  model.assets.forEach(a => {
+    if (viewSettings.getShowItem(Context.Asset, a.NAME)) {
+      // log(`show ${a.NAME}`);
+      const name = a.NAME;
+      if (nameMatcher === '') {
+        nameMatcher = name;
+      } else {
+        nameMatcher = nameMatcher + '|' + name;
+      }
+    } else {
+      // log(`do not show ${a.NAME}`);
+    }
+  });
+  //log(`nameMatcher for reporter = ${nameMatcher}`);
+
+  const getSettingValue = (settingName: string) => {
+    let value = '';
+    const s = model.settings.find(s => {
+      return s.NAME === settingName;
+    });
+    if (s !== undefined) {
+      value = s.VALUE;
+    }
+    return value;
+  };
+  const startDate = new Date(getSettingValue(roiStart));
+  const endDate = new Date(getSettingValue(roiEnd));
+  //log(`startDate for reporter = ${startDate}`);
+  //log(`endDate for reporter = ${endDate}`);
+  return (name: string, val: number | string, date: Date, source: string) => {
+    if (!reactAppComponent.state.reportDefiner) {
+      return false;
+    }
+    if (
+      model.expenses.find(e => {
+        return e.NAME === source;
+      })
+    ) {
+      // expenses just happen - do not include them in 'actions'
+      return false;
+    }
+
+    // log(`sourceMatcher = ${reactAppComponent.reportDefiner.sourceMatcher}`)
+    // log(`sourceExcluder = ${reactAppComponent.reportDefiner.sourceExcluder}`)
+    if (nameMatcher === '') {
+      return false;
+    }
+    const matcher = reactAppComponent.state.reportDefiner.sourceMatcher;
+    const excluder = reactAppComponent.state.reportDefiner.sourceExcluder;
+    if (!matcher && !excluder) {
+      return false;
+    }
+    if (printDebug()) {
+      log(`report for name = ${name}`);
+      log(`report for val = ${val}`);
+      log(`report for date = ${date}`);
+      log(`report for source = ${source}`);
+    }
+    if (date < getTodaysDate(model)) {
+      return false;
+    }
+    if (date < startDate) {
+      return false;
+    }
+    if (date > endDate) {
+      return false;
+    }
+    if (name.startsWith(purchase)) {
+      return false;
+    }
+    if (nameMatcher) {
+      const nameRegex = RegExp(nameMatcher);
+      if (name.match(nameRegex) === null) {
+        // log(`do not display ${name} bcs it doesn't match ${nameMatcher}`);
+        return false;
+      }
+    }
+
+    if (matcher) {
+      try {
+        const sourceRegex = RegExp(matcher);
+        if (source.match(sourceRegex) === null) {
+          // log(`do not show source ${source} bcs it doesn't match ${matcher}`);
+          return false;
+        }
+      } catch (e) {
+        alert('error processing regexp');
+        return false;
+      }
+    }
+
+    if (excluder) {
+      try {
+        const sourceRegex = RegExp(excluder);
+        if (source.match(sourceRegex) !== null) {
+          // log(`do not show source ${source} bcs it does match ${excluder}`);
+          return false;
+        }
+      } catch (e) {
+        alert('error processing regexp');
+        return false;
+      }
+    }
+    return true;
+  };
+}
+
+export async function refreshDataInternal(
   refreshModel: boolean,
   refreshChart: boolean,
+  sourceID: number,
 ) {
-  //log(`refreshData with refreshModel = `
-  //  +`${refreshModel}, refreshChart = ${refreshChart}`);
+  if (printDebug()) {
+    log(`entering refreshDataInternal from sourceID ${sourceID}`);
+  }
+  // log(`refreshData with refreshModel = `
+  //   +`${refreshModel}, refreshChart = ${refreshChart}`);
   const viewSettings = reactAppComponent.state.viewState;
 
-  let modelNames = reactAppComponent.state.modelNamesData;
-  let model = reactAppComponent.state.modelData;
+  let modelNames: string[];
+  let model: ModelData;
   let evaluationsAndVals: {
     evaluations: Evaluation[];
     todaysAssetValues: Map<string, AssetVal>;
@@ -445,75 +665,18 @@ export async function refreshData(
   };
 
   // log('refreshData in AppContent - get data and redraw content');
-  if (refreshModel) {
-    // log(`refresh model evaluation data`);
-
-    modelNames = await getModelNames(getUserID());
-    // log(`got ${modelNames.length} modelNames`);
-
-    if (
-      modelNames.length === 0 ||
-      (modelName === exampleModelName &&
-        modelNames.find(x => {
-          return x === exampleModelName;
-        }) === undefined)
-    ) {
-      // log(`modelNames are ${modelNames}`);
-      // log(`does not include ${exampleModelName}, so`);
-      if (modelNames.length > 0) {
-        // log(`no model called ${exampleModelName}, so just choose the 1st one`);
-        modelName = modelNames.sort((a, b) => lessThan(a, b))[0];
-        // log(`switch to a different modelName ${modelName}`);
-
-        const modelAndStatus = await loadModel(getUserID(), modelName);
-        if (modelAndStatus === undefined) {
-          const response = 'problem with model data';
-          showAlert(response);
-          return;
-        }
-        isDirty = modelAndStatus.status.isDirty;
-        model = modelAndStatus.model;
-      } else {
-        // log('recreate example models');
-        // force us to have the example models
-        await Promise.all(
-          exampleModels.map(async x => {
-            return await saveModelLSM(
-              getUserID(),
-              x.name,
-              getExampleModel(x.model),
-            );
-          }),
-        );
-        modelNames = exampleModels.map(x => {
-          return x.name;
-        });
-        model = getExampleModel(simpleExampleData);
-        modelName = exampleModelName;
-      }
-    } else {
-      // log(`modelNames are ${modelNames}`);
-      // log(`go load ${modelName}`);
-      let gotModelOK = true;
-      try {
-        // log(`look for ${modelName} from ${modelNames}`);
-        const modelAndStatus = await loadModel(getUserID(), modelName);
-        if (modelAndStatus) {
-          isDirty = modelAndStatus.status.isDirty;
-          model = modelAndStatus.model;
-        }
-      } catch (err) {
-        // log('no model found');
-        log(`Cannot load ${modelName}, err = ${err}. Consider 'Force delete'?`);
-        gotModelOK = false;
-      }
-      if (!gotModelOK || model === undefined) {
-        // log('no model found - do not try to display anything');
-        return;
-      }
+  if (!refreshModel) {
+    // use existing data
+    modelNames = reactAppComponent.state.modelNamesData;
+    model = reactAppComponent.state.modelData;
+  } else {
+    log(`refresh the model - get the model and recalculate values`);
+    const x = await getModel();
+    if (x.model === undefined) {
+      return;
     }
-
-    // log(`got ${model}`);
+    model = x.model;
+    modelNames = x.modelNames;
 
     model.triggers.sort((a: Trigger, b: Trigger) => lessThan(b.NAME, a.NAME));
     model.expenses.sort((a: Expense, b: Expense) => lessThan(b.NAME, a.NAME));
@@ -529,145 +692,20 @@ export async function refreshData(
       viewSettings.setModel(model);
     }
     if (evalMode()) {
-      let reporter: ReportValueChecker = (
-        name: string,
-        val: number | string,
-        date: Date,
-        source: string,
-      ) => {
-        if (printDebug()) {
-          log(`report for name = ${name}`);
-          log(`report for val = ${val}`);
-          log(`report for date = ${date}`);
-          log(`report for source = ${source}`);
-        }
-        return false;
-      };
-      if (getDisplay(reportView)) {
-        // define a 'reporter' function which will be
-        // passed into the evaluation code to capture
-        // data as we proceed with calculations
-        let nameMatcher = '';
-        model.assets.forEach(a => {
-          if (viewSettings.getShowItem(Context.Asset, a.NAME)) {
-            // log(`show ${a.NAME}`);
-            const name = a.NAME;
-            //if(name.startsWith(pension)){
-            //  name = name.substring(pension.length, name.length);
-            //}
-            //if(name.startsWith(crystallizedPension)){
-            //  name = name.substring(crystallizedPension.length, name.length);
-            //}
-            if (nameMatcher === '') {
-              nameMatcher = name;
-            } else {
-              nameMatcher = nameMatcher + '|' + name;
-            }
-          } else {
-            // log(`do not show ${a.NAME}`);
-          }
-        });
-        //log(`nameMatcher for reporter = ${nameMatcher}`);
-
-        const getSettingValue = (settingName: string) => {
-          let value = '';
-          const s = model.settings.find(s => {
-            return s.NAME === settingName;
-          });
-          if (s !== undefined) {
-            value = s.VALUE;
-          }
-          return value;
+      let reporter: ReportValueChecker = () =>
+        //name: string,
+        //val: number | string,
+        //date: Date,
+        //source: string,
+        {
+          return false;
         };
-        const startDate = new Date(getSettingValue(roiStart));
-        const endDate = new Date(getSettingValue(roiEnd));
-        //log(`startDate for reporter = ${startDate}`);
-        //log(`endDate for reporter = ${endDate}`);
-
+      if (!getDisplay(reportView)) {
+        // log(`don't compute report`);
+      } else {
         // log(`create the report data`);
-        reporter = (
-          name: string,
-          val: number | string,
-          date: Date,
-          source: string,
-        ) => {
-          if (!reactAppComponent.state.reportDefiner) {
-            return false;
-          }
-          if (
-            model.expenses.find(e => {
-              return e.NAME === source;
-            })
-          ) {
-            // expenses just happen - do not include them in 'actions'
-            return false;
-          }
-
-          // log(`sourceMatcher = ${reactAppComponent.reportDefiner.sourceMatcher}`)
-          // log(`sourceExcluder = ${reactAppComponent.reportDefiner.sourceExcluder}`)
-          if (nameMatcher === '') {
-            return false;
-          }
-          const matcher = reactAppComponent.state.reportDefiner.sourceMatcher;
-          const excluder = reactAppComponent.state.reportDefiner.sourceExcluder;
-          if (!matcher && !excluder) {
-            return false;
-          }
-          if (printDebug()) {
-            log(`report for name = ${name}`);
-            log(`report for val = ${val}`);
-            log(`report for date = ${date}`);
-            log(`report for source = ${source}`);
-          }
-          if (date < getTodaysDate(model)) {
-            return false;
-          }
-          if (date < startDate) {
-            return false;
-          }
-          if (date > endDate) {
-            return false;
-          }
-          if (name.startsWith(purchase)) {
-            return false;
-          }
-          if (nameMatcher) {
-            const nameRegex = RegExp(nameMatcher);
-            if (name.match(nameRegex) === null) {
-              // log(`do not display ${name} bcs it doesn't match ${nameMatcher}`);
-              return false;
-            }
-          }
-
-          if (matcher) {
-            try {
-              const sourceRegex = RegExp(matcher);
-              if (source.match(sourceRegex) === null) {
-                // log(`do not show source ${source} bcs it doesn't match ${matcher}`);
-                return false;
-              }
-            } catch (e) {
-              alert('error processing regexp');
-              return false;
-            }
-          }
-
-          if (excluder) {
-            try {
-              const sourceRegex = RegExp(excluder);
-              if (source.match(sourceRegex) !== null) {
-                // log(`do not show source ${source} bcs it does match ${excluder}`);
-                return false;
-              }
-            } catch (e) {
-              alert('error processing regexp');
-              return false;
-            }
-          }
-          return true;
-        };
+        reporter = getReporter(model, viewSettings);
       }
-
       // go and do the actual modeling, the calculations
       evaluationsAndVals = getEvaluations(model, reporter);
 
@@ -718,16 +756,17 @@ export async function refreshData(
       log(` taxData = ${taxData}`);
     }
 
-    const expensesChartData = makeJChartData(expensesData);
-    const incomesChartData = makeJChartData(incomesData);
-    const assetChartData = makeJChartData(assetData);
-    const debtChartData = makeJChartData(debtData);
-    const taxChartData = makeJChartData(taxData);
+    const expensesChartData = makeBarData(chartData.labels, expensesData);
+    const incomesChartData = makeBarData(chartData.labels, incomesData);
+    const assetChartData = makeBarData(chartData.labels, assetData);
+    const debtChartData = makeBarData(chartData.labels, debtData);
+    const taxChartData = makeBarData(chartData.labels, taxData);
 
     if (reactAppComponent !== undefined) {
       // log(`go setState with modelNames = ${modelNames}`);
 
       // setState on a reactComponent triggers update of view
+      // log(`setState for new data`);
       reactAppComponent.setState(
         {
           modelData: model,
@@ -746,6 +785,7 @@ export async function refreshData(
           reportData: evaluationsAndVals.reportData,
         },
         () => {
+          //alert('done!');
           // setState is async
           // do logging after setState using the 2nd argument
           // https://www.freecodecamp.org/news/get-pro-with-react-setstate-in-10-minutes-d38251d1c781/
@@ -754,18 +794,49 @@ export async function refreshData(
               'reactAppComponent.state.reportData.length = ' +
                 `${reactAppComponent.state.reportData.length}`,
             );
-            //reactAppComponent.state.expensesChartData.map((obj: ChartData) =>
-            //  log(`obj is ${showObj(obj)}`),
-            //);
           }
         },
       );
     }
   } else {
     // log('refreshData in no need to visit db');
+    // log(`setState without new visit to db`);
     reactAppComponent.setState({ ...reactAppComponent.state });
   }
   // log(`finished refreshData`);
+}
+
+export async function refreshData(
+  refreshModel: boolean,
+  refreshChart: boolean,
+  sourceID: number,
+) {
+  if (refreshModel) {
+    log(
+      `go to refresh data - set as waiting...${new Date().toLocaleTimeString()}`,
+    );
+    return await reactAppComponent.setState(
+      {
+        isWaiting: true,
+      },
+      async () => {
+        const result = await refreshDataInternal(
+          refreshModel,
+          refreshChart,
+          sourceID,
+        );
+        log(
+          `finished refresh data - set as not waiting...${new Date().toLocaleTimeString()}`,
+        );
+        reactAppComponent.setState({
+          isWaiting: false,
+        });
+        return result;
+      },
+    );
+  } else {
+    return await refreshDataInternal(refreshModel, refreshChart, sourceID);
+  }
 }
 
 export function setReportKey(textInput: string): boolean {
@@ -775,6 +846,7 @@ export function setReportKey(textInput: string): boolean {
   try {
     const inputObj = JSON.parse(textInput);
 
+    // log(`setState for report writing`);
     reactAppComponent.setState({
       reportDefiner: {
         sourceMatcher: inputObj.sourceMatcher,
@@ -786,6 +858,7 @@ export function setReportKey(textInput: string): boolean {
     refreshData(
       true, // refreshModel = true,
       true, // refreshChart = true,
+      1, //sourceID
     );
     return true;
   } catch (e) {
@@ -808,6 +881,7 @@ export async function submitAsset(assetInput: Asset, modelData: ModelData) {
     return await refreshData(
       true, // refreshModel = true,
       true, // refreshChart = true,
+      2, //sourceID
     );
   } else {
     showAlert(message);
@@ -827,6 +901,7 @@ export async function submitExpense(
     return await refreshData(
       true, // refreshModel = true,
       true, // refreshChart = true,
+      3, //sourceID
     );
   } else {
     showAlert(message);
@@ -846,6 +921,7 @@ export async function submitIncome(
     await refreshData(
       true, // refreshModel = true,
       true, // refreshChart = true,
+      4, //sourceID
     );
     return true;
   } else {
@@ -867,6 +943,7 @@ export async function submitTransaction(
     return await refreshData(
       true, // refreshModel = true,
       true, // refreshChart = true,
+      5, //sourceID
     );
   } else {
     showAlert(message);
@@ -886,6 +963,7 @@ export async function submitTrigger(
     return await refreshData(
       true, // refreshModel = true,
       true, // refreshChart = true,
+      6, //sourceID
     );
   } else {
     showAlert(message);
@@ -911,6 +989,7 @@ export async function editSetting(
     return await refreshData(
       false, // or false refreshModel = true,
       true, // refreshChart = true,
+      7, //sourceID
     );
   }
   const settingWithBlanks = {
@@ -928,6 +1007,7 @@ export async function editSetting(
     return await refreshData(
       true, // refreshModel = true,
       true, // refreshChart = true,
+      8, //sourceID
     );
   } else {
     showAlert(message);
@@ -943,17 +1023,23 @@ export async function submitNewSetting(
     return await refreshData(
       false, // or false refreshModel = true,
       true, // refreshChart = true,
+      9, //sourceID
     );
   } else {
     await submitNewSettingLSM(setting, modelName, modelData, getUserID());
     return await refreshData(
       true, // refreshModel = true,
       true, // refreshChart = true,
+      10, //sourceID
     );
   }
 }
 
-export function toggle(type: ViewType) {
+export function toggle(
+  type: ViewType,
+  sourceID: number,
+) {
+  log(`toggle called from ${sourceID}`);
   if (reactAppComponent === undefined) {
     return;
   }
@@ -977,11 +1063,13 @@ export function toggle(type: ViewType) {
     refreshData(
       true, // refreshModel = true,
       true, // refreshChart = true,
+      11, //sourceID
     );
   } else {
     refreshData(
       false, // refreshModel = true,
       true, // refreshChart = true,
+      12, //sourceID
     );
   }
 }
@@ -1018,6 +1106,7 @@ export async function deleteItemFromModel(
     const checkResponse = checkData(model);
     if (checkResponse !== '') {
       const response = `edited  model fails checks :${checkResponse}', reverting`;
+      // log(`setState for delete item alert`);
       reactAppComponent.setState({
         alertText: response,
       });
@@ -1033,6 +1122,7 @@ export async function deleteItemFromModel(
     await refreshData(
       true, // refreshModel = true,
       true, // refreshChart = true,
+      13, //sourceID
     );
     return true;
   }
@@ -1114,6 +1204,7 @@ export async function updateModelName(newValue: string): Promise<boolean> {
   await refreshData(
     true, // refreshModel = true,
     true, // refreshChart = true,
+    14, //sourceID
   );
   return true;
 }
@@ -1158,6 +1249,7 @@ export async function replaceWithModel(
   await refreshData(
     true, // refreshModel = true,
     true, // refreshChart = true,
+    15, //sourceID
   );
   return true;
 }
@@ -1167,11 +1259,11 @@ interface AppState {
   modelData: ModelData;
   evaluations: Evaluation[];
   viewState: ViewSettings;
-  expensesChartData: ChartData[];
-  incomesChartData: ChartData[];
-  assetChartData: ChartData[];
-  debtChartData: ChartData[];
-  taxChartData: ChartData[];
+  expensesChartData: ChartData;
+  incomesChartData: ChartData;
+  assetChartData: ChartData;
+  debtChartData: ChartData;
+  taxChartData: ChartData;
   todaysAssetValues: Map<string, AssetVal>;
   todaysDebtValues: Map<string, DebtVal>;
   todaysIncomeValues: Map<string, IncomeVal>;
@@ -1180,6 +1272,7 @@ interface AppState {
   reportDefiner: ReportMatcher;
   reportData: ReportDatum[];
   alertText: string;
+  isWaiting: boolean;
 }
 interface AppProps {
   logOutAction: () => {};
@@ -1221,13 +1314,6 @@ function AlertDismissibleExample(props: {
 
 export class AppContent extends Component<AppProps, AppState> {
   options: any;
-  /*
-  {
-    goToOverviewPage: boolean; // whether to auto- go to overview page when selecting a model
-    checkOverwrite: boolean; // whether to alert-check with user before overwriting data
-    evalMode: boolean; // evalMode = false (non default) skips chart evaluation
-  };
-  */
 
   public constructor(props: AppProps) {
     super(props);
@@ -1241,11 +1327,31 @@ export class AppContent extends Component<AppProps, AppState> {
       modelData: emptyModel,
       evaluations: [],
       viewState: viewSettings,
-      expensesChartData: [],
-      incomesChartData: [],
-      assetChartData: [],
-      debtChartData: [],
-      taxChartData: [],
+      expensesChartData: {
+        labels: [],
+        datasets: [],
+        displayLegend: true,
+      },
+      incomesChartData: {
+        labels: [],
+        datasets: [],
+        displayLegend: true,
+      },
+      assetChartData: {
+        labels: [],
+        datasets: [],
+        displayLegend: true,
+      },
+      debtChartData: {
+        labels: [],
+        datasets: [],
+        displayLegend: true,
+      },
+      taxChartData: {
+        labels: [],
+        datasets: [],
+        displayLegend: true,
+      },
       modelNamesData: [],
       todaysAssetValues: new Map<string, AssetVal>(),
       todaysDebtValues: new Map<string, DebtVal>(),
@@ -1258,6 +1364,7 @@ export class AppContent extends Component<AppProps, AppState> {
       },
       reportData: [],
       alertText: '',
+      isWaiting: false,
     };
 
     this.options = {
@@ -1269,6 +1376,7 @@ export class AppContent extends Component<AppProps, AppState> {
     refreshData(
       true, // refreshModel = true,
       true, // refreshChart = true,
+      16, //sourceID
     );
   }
 
@@ -1289,12 +1397,22 @@ export class AppContent extends Component<AppProps, AppState> {
 */
   public componentDidMount() {
     //log('in componentDidMount');
-    toggle(homeView);
+    toggle(
+      homeView,
+      27, //sourceID
+    );
+    refreshData(
+      true, // refreshModel = true,
+      true, // refreshChart = true,
+      25, //sourceID
+    );
     //window.addEventListener('beforeunload', this.handleUnload);
   }
 
-  private navbarDiv() {
-    return navbarContent(() => {
+  private navbarDiv(isWaiting: boolean) {
+    return navbarContent(
+      isWaiting, 
+      () => {
       const estateVal = this.state.reportData.find(d => {
         return d.name === 'Estate final value';
       });
@@ -1316,10 +1434,10 @@ export class AppContent extends Component<AppProps, AppState> {
                   return false;
                 }}
               >
-                <div className="col">
-                  <div className="row">{this.statusButtonList()}</div>
-                  <div className="row">{this.viewButtonList()}</div>
-                </div>
+                <Col>
+                  <Row>{this.statusButtonList()}</Row>
+                  <Row>{this.viewButtonList()}</Row>
+                </Col>
               </Form>
             </Nav>
             <Nav>
@@ -1330,14 +1448,14 @@ export class AppContent extends Component<AppProps, AppState> {
                   return false;
                 }}
               >
-                <div className="col">
+                <Col>
                   <div className="d-flex flex-row-reverse">
                     {this.rhsTopButtonList(textToDisplay)}
                   </div>
                   <div className="d-flex flex-row-reverse">
                     {this.rhsBottomButtonList()}
                   </div>
-                </div>
+                </Col>
               </Form>
             </Nav>
           </Navbar.Collapse>
@@ -1390,7 +1508,7 @@ export class AppContent extends Component<AppProps, AppState> {
 
       return (
         <>
-          {this.navbarDiv()}
+          {this.navbarDiv(this.state.isWaiting)}
           <>
             {this.homeDiv()}
             {overviewDiv(
@@ -1480,7 +1598,9 @@ export class AppContent extends Component<AppProps, AppState> {
   private internalErrorDiv(e: Error) {
     return (
       <>
-        {this.navbarDiv()}
+        {this.navbarDiv(
+          false, // is not waiting
+        )}
         <h1>
           Oops! something has gone wrong with FinKitty. Sad FinKitty apologises.
         </h1>
@@ -1530,7 +1650,10 @@ export class AppContent extends Component<AppProps, AppState> {
       async (model: string) => {
         if (await updateModelName(model)) {
           if (goToOverviewPage()) {
-            await toggle(overview);
+            await toggle(
+              overview,
+              999, //sourceID
+            );
           }
         }
       },
@@ -1560,6 +1683,7 @@ export class AppContent extends Component<AppProps, AppState> {
     if (whatsLeft !== '') {
       const response =
         'Model names can only contain a-z, A-Z, 0-9, _, - and . characters';
+      // log(`setState for regex item alert`);
       reactAppComponent.setState({
         alertText: response,
       });
@@ -1608,6 +1732,7 @@ export class AppContent extends Component<AppProps, AppState> {
       await refreshData(
         true, // refreshModel = true,
         true, // refreshChart = true,
+        17, //sourceID
       );
     }
   }
@@ -1668,7 +1793,10 @@ export class AppContent extends Component<AppProps, AppState> {
       );
       if (replacedOK) {
         if (goToOverviewPage()) {
-          await toggle(overview);
+          await toggle(
+            overview,
+            999, //sourceID
+          );
         }
         return true;
       } else {
@@ -1694,6 +1822,7 @@ export class AppContent extends Component<AppProps, AppState> {
             refreshData(
               true, // refreshModel = true,
               true, // refreshChart = true,
+              18, //sourceID
             );
           }}
           showAlert={showAlert}
@@ -1734,6 +1863,7 @@ export class AppContent extends Component<AppProps, AppState> {
               const response = checkModelData(
                 reactAppComponent.state.modelData,
               );
+              // log(`setState for check result alert`);
               reactAppComponent.setState({
                 alertText: response,
               });
@@ -1786,6 +1916,7 @@ export class AppContent extends Component<AppProps, AppState> {
                 } else {
                   const decipheredModel = makeModelFromJSON(decipherString);
                   const response = checkModelData(decipheredModel);
+                  // log(`setState for loaded model alert`);
                   reactAppComponent.setState({
                     alertText: response,
                   });
@@ -1822,11 +1953,14 @@ export class AppContent extends Component<AppProps, AppState> {
 
   private homeDiv() {
     // log(`this.state.modelNamesData = ${this.state.modelNamesData}`);
+    if (!getDisplay(homeView)) {
+      // log(`don't populate homeView`);
+      return;
+    }
+    // log(`do populate homeView`);
+
     return (
-      <div
-        className="ml-3"
-        style={{ display: getDisplay(homeView) ? 'block' : 'none' }}
-      >
+      <div className="ml-3">
         <div className="row">
           <div className="col-sm mb-4">
             <div className="ml-3">
@@ -1840,7 +1974,10 @@ export class AppContent extends Component<AppProps, AppState> {
                   if (await updateModelName(newNameFromUser.newName)) {
                     // log(`created new model`);
                     if (goToOverviewPage()) {
-                      await toggle(overview);
+                      await toggle(
+                        overview,
+                        999, //sourceID
+                      );
                     }
                   }
                 },
@@ -1922,13 +2059,12 @@ export class AppContent extends Component<AppProps, AppState> {
 
   private settingsDiv(model: ModelData, todaysValues: Map<string, SettingVal>) {
     if (!getDisplay(settingsView)) {
+      // log(`don't populate settingsView`);
       return;
     }
+    // log(`do populate settingsView`);
     return (
-      <div
-        className="ml-3"
-        style={{ display: getDisplay(settingsView) ? 'block' : 'none' }}
-      >
+      <div className="ml-3">
         <fieldset>
           {settingsTableDiv(
             this.state.modelData,
@@ -1969,14 +2105,13 @@ export class AppContent extends Component<AppProps, AppState> {
 
   private triggersDiv() {
     if (!getDisplay(triggersView)) {
+      // log(`don't populate triggersView`);
       return;
     }
+    // log(`do populate triggersView`);
 
     return (
-      <div
-        className="ml-3"
-        style={{ display: getDisplay(triggersView) ? 'block' : 'none' }}
-      >
+      <div className="ml-3">
         {triggersTableDivWithHeading(this.state.modelData, showAlert)}
         <p />
         {collapsibleFragment(
@@ -1997,14 +2132,13 @@ export class AppContent extends Component<AppProps, AppState> {
 
   private transactionsDiv() {
     if (!getDisplay(transactionsView)) {
+      // log(`don't populate transactionsView`);
       return;
     }
+    // log(`do populate transactionsView`);
 
     return (
-      <div
-        className="ml-3"
-        style={{ display: getDisplay(transactionsView) ? 'block' : 'none' }}
-      >
+      <div className="ml-3">
         {transactionFilteredTable(
           this.state.modelData,
           showAlert,
@@ -2095,7 +2229,10 @@ export class AppContent extends Component<AppProps, AppState> {
           view.lc,
           (event: React.MouseEvent<HTMLButtonElement>) => {
             event.persist();
-            toggle(view);
+            toggle(
+              view,
+              26, //sourceID
+            );
           },
           view.lc,
           `btn-${view.lc}`,
@@ -2148,6 +2285,7 @@ export class AppContent extends Component<AppProps, AppState> {
           refreshData(
             true, // refreshModel = true,
             true, // refreshChart = true,
+            19, //sourceID
           );
         }
       },
@@ -2210,6 +2348,7 @@ export class AppContent extends Component<AppProps, AppState> {
           refreshData(
             true, // refreshModel = true,
             true, // refreshChart = true,
+            20, //sourceID
           );
         }
       },
@@ -2249,6 +2388,7 @@ export class AppContent extends Component<AppProps, AppState> {
         refreshData(
           true, // refreshModel = true,
           true, // refreshChart = true,
+          21, //sourceID
         );
       },
       `btn-save-model`,
@@ -2272,6 +2412,7 @@ export class AppContent extends Component<AppProps, AppState> {
         <AlertDismissibleExample
           message={alertText}
           dismissAction={() => {
+            // log(`setState for clear alert`);
             this.setState({ alertText: '' });
           }}
         />,
@@ -2294,6 +2435,7 @@ export async function attemptRename(
     refreshData(
       true, // refreshModel = true,
       true, // refreshChart = true,
+      22, //sourceID
     );
   } else {
     showAlert(message);

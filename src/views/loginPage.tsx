@@ -1,34 +1,37 @@
 import React from 'react';
 import { makeButton } from './reactComponents/Button';
 import { screenshotsDiv } from './screenshotsPage';
-import FinKittyCat from './cat.png';
 import { Navbar } from 'react-bootstrap';
 import { toggle } from '../App';
 import { homeView } from '../localization/stringConstants';
 
-export function navbarContent(rhContent: () => any) {
+import FinKittyCat from './cat.png';
+import WaitGif from './catWait.gif';
+import { log, printDebug } from '../utils';
+
+export function navbarContent(
+  isWaiting: boolean, 
+  rhContent: () => any) {
+  if (printDebug()) {
+    log(`drawing navbar content`);
+  }
+  log(`drawing navbar content; isWaiting = ${isWaiting}`);
   return (
     <Navbar expand="lg" bg="light" sticky="top">
       <Navbar.Brand href="#home" id="finkitty-brand">
-        <div className="page-header">
-          <div className="col">
-            <div className="row">
-              <h3>{`FinKitty`}</h3>
-            </div>
-            <div className="row">
-              <img
-                src={FinKittyCat}
-                alt="FinKitty cat"
-                width={70}
-                height={'auto'}
-                onClick={() => {
-                  toggle(homeView);
-                }}
-                id="btn-Home"
-              ></img>
-            </div>
-          </div>
-        </div>
+          <img
+          src={isWaiting ? WaitGif : FinKittyCat}
+          alt="FinKitty cat"
+          width={70}
+          height={'auto'}
+          onClick={() => {
+            toggle(
+              homeView,
+              6, //call
+            );
+          }}
+          id="btn-Home"
+        ></img>
       </Navbar.Brand>
       {rhContent()}
     </Navbar>
@@ -38,9 +41,12 @@ export function navbarContent(rhContent: () => any) {
 export function loginPage(loginWithRedirect: any, loginForTesting: any) {
   return (
     <>
-      {navbarContent(() => {
-        return <h3>An app for financial kitty forecasting</h3>;
-      })}
+      {navbarContent(
+        false, // is not waiting
+        () => {
+          return <h3>An app for financial kitty forecasting</h3>;
+        },
+      )}
       <div className="row">
         <div className="col-sm mb-4">
           <div className="alert alert-block">

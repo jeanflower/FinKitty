@@ -1,4 +1,5 @@
 import React, { Component, FormEvent } from 'react';
+import { Col, Row } from 'react-bootstrap';
 
 import {
   checkAssetLiability,
@@ -162,8 +163,8 @@ export class AddDeleteAssetForm extends Component<
           display: this.state.inputting === inputtingAsset ? 'block' : 'none',
         }}
       >
-        <div className="row">
-          <div className="col">
+        <Row>
+          <Col>
             <Input
               title="Capital Gains Tax Liability (empty or someone's name)"
               type="text"
@@ -172,9 +173,8 @@ export class AddDeleteAssetForm extends Component<
               placeholder="Enter liability"
               onChange={this.handleLiabilityChange}
             />
-          </div>
-          {/* end col */}
-          <div className="col">
+          </Col>
+          <Col>
             <Input
               title="Original purchase price (optional, needed for CGT purposes)"
               type="text"
@@ -183,10 +183,8 @@ export class AddDeleteAssetForm extends Component<
               placeholder="purchase"
               onChange={this.handlePurchasePriceChange}
             />
-          </div>
-          {/* end col */}
-        </div>
-        {/* end row */}
+          </Col>
+        </Row>
       </div>
     );
   }
@@ -194,8 +192,8 @@ export class AddDeleteAssetForm extends Component<
   private growthAndInflation(): React.ReactNode {
     if (this.state.inputting !== inputtingRevalue) {
       return (
-        <div className="row">
-          <div className="col">
+        <Row>
+          <Col>
             <Input
               title="Annual growth percentage (excluding inflation, e.g. 2 for 2% p.a.)"
               type="text"
@@ -204,9 +202,8 @@ export class AddDeleteAssetForm extends Component<
               placeholder="Enter growth"
               onChange={this.handleGrowthChange}
             />
-          </div>
-          {/* end col */}
-          <div className="col">
+          </Col>
+          <Col>
             <Input
               title="Does value grow with inflation?"
               type="text"
@@ -215,8 +212,8 @@ export class AddDeleteAssetForm extends Component<
               placeholder="Enter Y/N"
               onChange={this.handleGrowsWithCPIChange}
             />
-          </div>
-        </div>
+          </Col>
+        </Row>
       );
     }
   }
@@ -225,8 +222,8 @@ export class AddDeleteAssetForm extends Component<
     // log(`this.state.inputting = ${this.state.inputting}`);
     if (this.state.inputting === inputtingRevalue) {
       return (
-        <div className="row">
-          <div className="col">
+        <Row>
+          <Col>
             <Input
               title={`${'Asset'} name`}
               type="text"
@@ -235,9 +232,8 @@ export class AddDeleteAssetForm extends Component<
               placeholder="Enter name"
               onChange={this.handleNameChange}
             />
-          </div>
-          {/* end col */}
-          <div className="col">
+          </Col>
+          <Col>
             <Input
               title={`Asset value`}
               type="text"
@@ -246,13 +242,13 @@ export class AddDeleteAssetForm extends Component<
               placeholder="Enter value"
               onChange={this.handleValueChange}
             />
-          </div>
-        </div>
+          </Col>
+        </Row>
       );
     } else if (this.state.inputting === inputtingPension) {
       return (
-        <div className="row">
-          <div className="col">
+        <Row>
+          <Col>
             <Input
               title={`${
                 this.state.inputting === inputtingPension ? 'Pension' : 'Asset'
@@ -263,9 +259,8 @@ export class AddDeleteAssetForm extends Component<
               placeholder="Enter name"
               onChange={this.handleNameChange}
             />
-          </div>
-          {/* end col */}
-          <div className="col">
+          </Col>
+          <Col>
             <Input
               title={`${
                 this.state.inputting === inputtingPension ? 'Pension' : 'Asset'
@@ -276,9 +271,8 @@ export class AddDeleteAssetForm extends Component<
               placeholder="Enter value"
               onChange={this.handleValueChange}
             />
-          </div>
-          {/* end col */}
-          <div className="col">
+          </Col>
+          <Col>
             <Input
               title="Category (optional)"
               type="text"
@@ -287,13 +281,13 @@ export class AddDeleteAssetForm extends Component<
               placeholder="category"
               onChange={this.handleCategoryChange}
             />
-          </div>
-        </div>
+          </Col>
+        </Row>
       );
     } else {
       return (
-        <div className="row">
-          <div className="col">
+        <Row>
+          <Col>
             <Input
               title={`${
                 this.state.inputting === inputtingPension ? 'Pension' : 'Asset'
@@ -304,9 +298,8 @@ export class AddDeleteAssetForm extends Component<
               placeholder="Enter name"
               onChange={this.handleNameChange}
             />
-          </div>
-          {/* end col */}
-          <div className="col">
+          </Col>
+          <Col>
             <Input
               title={`${
                 this.state.inputting === inputtingPension ? 'Pension' : 'Asset'
@@ -317,9 +310,8 @@ export class AddDeleteAssetForm extends Component<
               placeholder="Enter value"
               onChange={this.handleValueChange}
             />
-          </div>
-          {/* end col */}
-          <div className="col">
+          </Col>
+          <Col>
             <Input
               title={'Quantity (optional)'}
               type="text"
@@ -328,9 +320,8 @@ export class AddDeleteAssetForm extends Component<
               placeholder="Enter quantity"
               onChange={this.handleQuantityChange}
             />
-          </div>
-          {/* end col */}
-          <div className="col">
+          </Col>
+          <Col>
             <Input
               title="Category (optional)"
               type="text"
@@ -339,8 +330,8 @@ export class AddDeleteAssetForm extends Component<
               placeholder="category"
               onChange={this.handleCategoryChange}
             />
-          </div>
-        </div>
+          </Col>
+        </Row>
       );
     }
   }
@@ -425,8 +416,8 @@ export class AddDeleteAssetForm extends Component<
             <div />
           )}
         </div>
-        <div className="row">
-          <div className="col">
+        <Row>
+          <Col>
             <Input
               title="Is contribution salary-sacrificed"
               type="text"
@@ -435,20 +426,18 @@ export class AddDeleteAssetForm extends Component<
               placeholder="Enter Y/N"
               onChange={this.handleDcpSsChange}
             />
-          </div>{' '}
-          {/* end col */}
-          <div className="col">
+          </Col>{' '}
+          <Col>
             <label>Income from which pension contributions are made</label>
             {incomeOptions(
               this.props.model,
               this.handleDcpIncomeSourceChange,
               this.incomeSourceSelectID,
             )}
-          </div>{' '}
-          {/* end col */}
-        </div>{' '}
-        <div className="row">
-          <div className="col">
+          </Col>{' '}
+        </Row>{' '}
+        <Row>
+          <Col>
             <Input
               title="Pension contribution amount (>0, e.g. 0.05 for 5%)"
               type="text"
@@ -457,9 +446,8 @@ export class AddDeleteAssetForm extends Component<
               placeholder="Enter amount of contributions"
               onChange={this.handleDcpContAmount}
             />
-          </div>{' '}
-          {/* end col */}
-          <div className="col">
+          </Col>{' '}
+          <Col>
             <Input
               title="Employer contribution amount (e.g. 0.05 for 5%)"
               type="text"
@@ -468,11 +456,10 @@ export class AddDeleteAssetForm extends Component<
               placeholder="Employer contributions"
               onChange={this.handleDcpEmpContAmount}
             />
-          </div>{' '}
-          {/* end col */}
-        </div>{' '}
-        <div className="row">
-          <div className="col">
+          </Col>{' '}
+        </Row>{' '}
+        <Row>
+          <Col>
             <Input
               title="Income Tax Liability (someone's name)"
               type="text"
@@ -481,9 +468,8 @@ export class AddDeleteAssetForm extends Component<
               placeholder="Enter liability"
               onChange={this.handleLiabilityChange}
             />
-          </div>
-          {/* end col */}
-          <div className="col">
+          </Col>
+          <Col>
             <Input
               title="On death, pension transfers to (optional)"
               type="text"
@@ -492,10 +478,8 @@ export class AddDeleteAssetForm extends Component<
               placeholder="Enter person to transfer to"
               onChange={this.handleDcpTransferTo}
             />
-          </div>
-          {/* end col */}
-        </div>
-        {/* end row */}
+          </Col>
+        </Row>
       </div>
     );
   }

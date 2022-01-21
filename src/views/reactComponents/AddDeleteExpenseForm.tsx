@@ -1,4 +1,5 @@
 import React, { Component, FormEvent } from 'react';
+import { Col, Row } from 'react-bootstrap';
 
 import {
   Expense,
@@ -108,8 +109,8 @@ export class AddDeleteExpenseForm extends Component<
     }
     return (
       <>
-        <div className="row">
-          <div className="col">
+        <Row>
+          <Col>
             <Input
               title="Annual growth percentage (excluding inflation, e.g. 2 for 2% p.a.)"
               type="text"
@@ -118,9 +119,8 @@ export class AddDeleteExpenseForm extends Component<
               placeholder="Enter growth"
               onChange={this.handleGrowthChange}
             />
-          </div>{' '}
-          {/* end col */}
-          <div className="col">
+          </Col>{' '}
+          <Col>
             <Input
               title="Does value grow with inflation?"
               type="text"
@@ -129,12 +129,10 @@ export class AddDeleteExpenseForm extends Component<
               placeholder="Enter Y/N"
               onChange={this.handleGrowsWithCPIChange}
             />
-          </div>{' '}
-          {/* end col */}
-        </div>
-        {/* end row */}
-        <div className="row">
-          <div className="col">
+          </Col>{' '}
+        </Row>
+        <Row>
+          <Col>
             <Input
               title="Recurrence"
               type="text"
@@ -143,9 +141,8 @@ export class AddDeleteExpenseForm extends Component<
               placeholder="recurrence"
               onChange={this.handleRecurrenceChange}
             />
-          </div>{' '}
-          {/* end col */}
-          <div className="col">
+          </Col>{' '}
+          <Col>
             <Input
               title="Category (optional)"
               type="text"
@@ -154,10 +151,8 @@ export class AddDeleteExpenseForm extends Component<
               placeholder="category"
               onChange={this.handleCategoryChange}
             />
-          </div>{' '}
-          {/* end col */}
-        </div>
-        {/* end row */}
+          </Col>{' '}
+        </Row>
       </>
     );
   }
@@ -239,8 +234,8 @@ export class AddDeleteExpenseForm extends Component<
           )}
         </div>
         <form className="container-fluid" onSubmit={this.add}>
-          <div className="row">
-            <div className="col">
+          <Row>
+            <Col>
               <Input
                 title="Expense name"
                 type="text"
@@ -249,9 +244,8 @@ export class AddDeleteExpenseForm extends Component<
                 placeholder="Enter name"
                 onChange={this.handleNameChange}
               />
-            </div>
-            {/* end col */}
-            <div className="col">
+            </Col>
+            <Col>
               <Input
                 title="Expense value"
                 type="text"
@@ -260,10 +254,8 @@ export class AddDeleteExpenseForm extends Component<
                 placeholder="Enter value"
                 onChange={this.handleValueChange}
               />
-            </div>{' '}
-            {/* end col */}
-          </div>
-          {/* end row */}
+            </Col>{' '}
+          </Row>
           <div className="container-fluid">
             {/* fills width */}
             <DateSelectionRow

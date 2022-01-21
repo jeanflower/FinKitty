@@ -954,6 +954,10 @@ function calculateCGTPayable(
   startYearOfTaxYear: number,
   values: ValuesContainer,
 ) {
+  if (printDebug()) {
+    log(`startYearOfTaxYear = ${startYearOfTaxYear}`);
+    log(`values = ${values}`);
+  }
   // log(`in calculateCGTPayable, gain = ${gain}`);//////////////////////// TODO
   /*
   const noCGTBand = updateTaxBandValueForCPI(

@@ -1007,6 +1007,7 @@ export function makeChartData(
 ) {
   if (evaluationsAndVals.evaluations.length === 0) {
     const emptyData: DataForView = {
+      labels: [],
       expensesData: [],
       incomesData: [],
       assetData: [],
@@ -1065,6 +1066,7 @@ export function makeChartData(
 
   // set up empty data structure for result
   const result: DataForView = {
+    labels: [],
     expensesData: [],
     incomesData: [],
     assetData: [],
@@ -1559,6 +1561,11 @@ export function makeChartData(
   }
 
   // log(`chart data produced: ${showObj(result)}`);
+  result.labels = allDates.map(d => {
+    return d.toDateString()
+  });
+
+  // log(`labels = ${result.labels}`);
   return result;
 }
 

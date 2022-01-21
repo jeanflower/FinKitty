@@ -20,6 +20,7 @@ import { ViewSettings } from '../models/charting';
 import { getTodaysDate } from '../models/modelUtils';
 import { lessThan } from '../stringUtils';
 import { collapsibleFragment } from './tablePages';
+import { log, printDebug } from '../utils';
 
 function addToMap(name: string, val: DebtVal, myMap: Map<string, DebtVal>) {
   const existingEntry = myMap.get(name);
@@ -43,7 +44,9 @@ function makeDataGrid(myMap: Map<string, DebtVal>, model: ModelData) {
             return key[1].debtVal !== 0.0;
           })
           .map(key => {
-            // log(`key[0] = ${key[0]}, key[1] = ${key[1]}`);
+            if (printDebug()) {
+              log(`key[0] = ${key[0]}, key[1] = ${key[1]}`);
+            }
             return {
               NAME: key[0],
               VALUE: `${key[1].debtVal}`,
@@ -127,7 +130,7 @@ export function debtsDiv(
   model: ModelData,
   viewSettings: ViewSettings,
   showAlert: (arg0: string) => void,
-  debtChartData: ChartData[],
+  debtChartData: ChartData,
   todaysValues: Map<string, DebtVal>,
   getStartDate: (() => string) | undefined = undefined,
   updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
@@ -135,14 +138,13 @@ export function debtsDiv(
   updateEndDate: ((newDate: string) => Promise<void>) | undefined = undefined,
 ) {
   if (!getDisplay(debtsView)) {
+    // log(`don't populate debtsView`);
     return;
   }
+  // log(`do populate debtsView`);
 
   return (
-    <div
-      className="ml-3"
-      style={{ display: getDisplay(debtsView) ? 'block' : 'none' }}
-    >
+    <div className="ml-3">
       {collapsibleFragment(
         assetsOrDebtsChartDivWithButtons(
           model,

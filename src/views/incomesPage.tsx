@@ -28,6 +28,7 @@ import { SimpleFormatter } from './reactComponents/NameFormatter';
 import { ViewSettings } from '../models/charting';
 import { getTodaysDate } from '../models/modelUtils';
 import { lessThan } from '../stringUtils';
+import { log, printDebug } from '../utils';
 
 function addToMap(name: string, val: IncomeVal, myMap: Map<string, IncomeVal>) {
   const existingEntry = myMap.get(name);
@@ -51,7 +52,9 @@ function makeDataGrid(myMap: Map<string, IncomeVal>, model: ModelData) {
             return key[1].incomeVal !== 0.0;
           })
           .map(key => {
-            // log(`key[0] = ${key[0]}, key[1] = ${key[1]}`);
+            if (printDebug()) {
+              log(`key[0] = ${key[0]}, key[1] = ${key[1]}`);
+            }
             return {
               NAME: key[0],
               VALUE: `${key[1].incomeVal}`,
@@ -137,7 +140,7 @@ export function incomesDiv(
   model: ModelData,
   viewSettings: ViewSettings,
   showAlert: (arg0: string) => void,
-  incomesChartData: ChartData[],
+  incomesChartData: ChartData,
   todaysValues: Map<string, IncomeVal>,
   getStartDate: (() => string) | undefined = undefined,
   updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
@@ -145,14 +148,12 @@ export function incomesDiv(
   updateEndDate: ((newDate: string) => Promise<void>) | undefined = undefined,
 ) {
   if (!getDisplay(incomesView)) {
+    // log(`don't populate incomesView`);
     return;
   }
-  // log('rendering an incomesDiv');
+  // log(`do populate incomesView`);
   return (
-    <div
-      className="ml-3"
-      style={{ display: getDisplay(incomesView) ? 'block' : 'none' }}
-    >
+    <div className="ml-3">
       {collapsibleFragment(
         incomesChartDivWithButtons(
           model,

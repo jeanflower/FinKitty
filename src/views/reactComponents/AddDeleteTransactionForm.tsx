@@ -1,4 +1,5 @@
 import React, { Component, FormEvent } from 'react';
+import { Col, Row } from 'react-bootstrap';
 
 import {
   ModelData,
@@ -175,8 +176,8 @@ export class AddDeleteTransactionForm extends Component<
     // log('rendering an AddDeleteTransactionForm');
     return (
       <form className="container-fluid" onSubmit={this.add}>
-        <div className="row">
-          <div className="col">
+        <Row>
+          <Col>
             <Input
               title="Transaction name"
               type="text"
@@ -185,10 +186,8 @@ export class AddDeleteTransactionForm extends Component<
               placeholder="Enter name"
               onChange={this.handleNameChange}
             />
-          </div>{' '}
-          {/* end col */}
-        </div>
-        {/* end row */}
+          </Col>{' '}
+        </Row>
 
         <div className="container-fluid">
           {/* fills width */}
@@ -204,38 +203,34 @@ export class AddDeleteTransactionForm extends Component<
             submitTriggerFunction={this.props.submitTriggerFunction}
           />
         </div>
-        <div className="row">
-          <div className="col">
+        <Row>
+          <Col>
             <label>Transact from asset (optional):</label>
-          </div>{' '}
-          {/* end col */}
-          <div className="col">
+          </Col>{' '}
+          <Col>
             <label>Transact to asset (optional):</label>
-          </div>{' '}
+          </Col>{' '}
           {/* end col */}
-        </div>
+        </Row>
         {/* end row */}
-        <div className="row">
-          <div className="col">
+        <Row>
+          <Col>
             {assetOptions(
               this.props.model,
               this.handleFromChange,
               this.transactionFromSelectID,
             )}
-          </div>{' '}
-          {/* end col */}
-          <div className="col">
+          </Col>{' '}
+          <Col>
             {assetOptions(
               this.props.model,
               this.handleToChange,
               this.transactionToSelectID,
             )}
-          </div>{' '}
-          {/* end col */}
-        </div>
-        {/* end row */}
-        <div className="row">
-          <div className="col">
+          </Col>{' '}
+        </Row>
+        <Row>
+          <Col>
             <Input
               title="How much to reduce the value of the asset being sold (can be % of asset value)"
               type="text"
@@ -244,9 +239,8 @@ export class AddDeleteTransactionForm extends Component<
               placeholder="Enter value"
               onChange={this.handleFromValueChange}
             />
-          </div>{' '}
-          {/* end col */}
-          <div className="col">
+          </Col>{' '}
+          <Col>
             <Input
               title="How much to add to the value of the asset being purchased (can be % of transaction amount)"
               type="text"
@@ -255,12 +249,10 @@ export class AddDeleteTransactionForm extends Component<
               placeholder="Enter value"
               onChange={this.handleToValueChange}
             />
-          </div>{' '}
-          {/* end col */}
-        </div>
-        {/* end row */}
-        <div className="row">
-          <div className="col">
+          </Col>{' '}
+        </Row>
+        <Row>
+          <Col>
             <Input
               title="Transaction recurrence, e.g. 6m, 2y (optional)"
               type="text"
@@ -269,9 +261,8 @@ export class AddDeleteTransactionForm extends Component<
               placeholder="Enter recurrence"
               onChange={this.handleRecurrenceChange}
             />
-          </div>{' '}
-          {/* end col */}
-          <div className="col">
+          </Col>{' '}
+          <Col>
             <Input
               title="Liquidate asset to maintain cash-flow"
               type="text"
@@ -280,9 +271,8 @@ export class AddDeleteTransactionForm extends Component<
               placeholder="Enter whether we only transact to keep cash afloat"
               onChange={this.handleLiquidateForCashChange}
             />
-          </div>{' '}
-          {/* end col */}
-        </div>
+          </Col>{' '}
+        </Row>
         {/* end row */}
         <div className="container-fluid">
           {/* fills width */}
@@ -298,9 +288,8 @@ export class AddDeleteTransactionForm extends Component<
             submitTriggerFunction={this.props.submitTriggerFunction}
           />
         </div>
-        {/* end row */}
-        <div className="row">
-          <div className="col">
+        <Row>
+          <Col>
             <Input
               title="Category (optional)"
               type="text"
@@ -309,10 +298,8 @@ export class AddDeleteTransactionForm extends Component<
               placeholder="category"
               onChange={this.handleCategoryChange}
             />
-          </div>{' '}
-          {/* end col */}
-        </div>
-        {/* end row */}
+          </Col>{' '}
+        </Row>
         {makeButton(
           'Create new transaction (over-writes any existing with the same name)',
           this.add,

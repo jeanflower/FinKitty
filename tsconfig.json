@@ -10,6 +10,7 @@
     "lib": [
       "dom",
       "dom.iterable",
+      "es2015",
       "esnext"
     ],
     "allowJs": true,

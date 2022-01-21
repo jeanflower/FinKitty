@@ -1,4 +1,6 @@
 import React, { Component, FormEvent } from 'react';
+import { Col, Row } from 'react-bootstrap';
+
 import { doCheckBeforeOverwritingExistingData } from '../../App';
 
 import { ModelData, Trigger, FormProps } from '../../types/interfaces';
@@ -79,8 +81,8 @@ export class AddDeleteTriggerForm extends Component<
   public render() {
     return (
       <form className="container-fluid" onSubmit={this.add}>
-        <div className="row">
-          <div className="col">
+        <Row>
+          <Col>
             Name:
             <Input
               type={'text'}
@@ -89,12 +91,10 @@ export class AddDeleteTriggerForm extends Component<
               placeholder={'Enter name'}
               onChange={this.handleName}
             />
-          </div>{' '}
-          {/* end col */}
-        </div>{' '}
-        {/* end row */}
-        <div className="row">
-          <div className="col">
+          </Col>{' '}
+        </Row>{' '}
+        <Row>
+          <Col>
             Date:
             <Input
               type={'text'}
@@ -110,10 +110,8 @@ export class AddDeleteTriggerForm extends Component<
               'addTrigger',
               'primary',
             )}
-          </div>{' '}
-          {/* end col */}
-        </div>{' '}
-        {/* end row */}
+          </Col>{' '}
+        </Row>{' '}
       </form>
     );
   }
