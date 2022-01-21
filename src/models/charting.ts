@@ -1562,7 +1562,7 @@ export function makeChartData(
 
   // log(`chart data produced: ${showObj(result)}`);
   result.labels = allDates.map(d => {
-    return d.toDateString()
+    return d.toDateString();
   });
 
   // log(`labels = ${result.labels}`);

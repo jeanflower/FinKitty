@@ -302,7 +302,7 @@ export function getSmallerChartSettings(
 }
 
 function makeBarChart(
-  data: ChartData, 
+  data: ChartData,
   chartSettings: ChartSettings,
   viewSettings: ViewSettings,
 ) {
@@ -339,14 +339,15 @@ function makeBarChart(
                   );
                 }
                 const l = data.labels[index];
-                const d = new Date(l)
+                const d = new Date(l);
                 const showMonth =
-                  viewSettings.getViewSetting(viewFrequency, annually) === monthly;
-                if(showMonth){
+                  viewSettings.getViewSetting(viewFrequency, annually) ===
+                  monthly;
+                if (showMonth) {
                   return dateFormat(d, 'mmmm yyyy');
                 } else {
                   return dateFormat(d, 'yyyy');
-                }            
+                }
               },
             },
           },
@@ -361,7 +362,7 @@ function makeBarChart(
 }
 
 function makeContainedBarChart(
-  data: ChartData, 
+  data: ChartData,
   chartSettings: ChartSettings,
   viewSettings: ViewSettings,
 ) {

@@ -9,9 +9,7 @@ import FinKittyCat from './cat.png';
 import WaitGif from './catWait.gif';
 import { log, printDebug } from '../utils';
 
-export function navbarContent(
-  isWaiting: boolean, 
-  rhContent: () => any) {
+export function navbarContent(isWaiting: boolean, rhContent: () => any) {
   if (printDebug()) {
     log(`drawing navbar content`);
   }
@@ -19,7 +17,7 @@ export function navbarContent(
   return (
     <Navbar expand="lg" bg="light" sticky="top">
       <Navbar.Brand href="#home" id="finkitty-brand">
-          <img
+        <img
           src={isWaiting ? WaitGif : FinKittyCat}
           alt="FinKitty cat"
           width={70}

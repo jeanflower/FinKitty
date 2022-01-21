@@ -234,77 +234,77 @@ function App() {
 }
 
 const views = new Map<
- ViewType,
- {
-   display: boolean;
- }
+  ViewType,
+  {
+    display: boolean;
+  }
 >([
-[
-  homeView,
-  {
-    display: true,
-  },
-],
-[
-  overview,
-  {
-    display: false,
-  },
-],
-[
-  incomesView,
-  {
-    display: false,
-  },
-],
-[
-  expensesView,
-  {
-    display: false,
-  },
-],
-[
-  assetsView,
-  {
-    display: false,
-  },
-],
-[
-  debtsView,
-  {
-    display: false,
-  },
-],
-[
-  taxView,
-  {
-    display: false,
-  },
-],
-[
-  triggersView,
-  {
-    display: false,
-  },
-],
-[
-  transactionsView,
-  {
-    display: false,
-  },
-],
-[
-  reportView,
-  {
-    display: false,
-  },
-],
-[
-  settingsView,
-  {
-    display: false,
-  },
-],
+  [
+    homeView,
+    {
+      display: true,
+    },
+  ],
+  [
+    overview,
+    {
+      display: false,
+    },
+  ],
+  [
+    incomesView,
+    {
+      display: false,
+    },
+  ],
+  [
+    expensesView,
+    {
+      display: false,
+    },
+  ],
+  [
+    assetsView,
+    {
+      display: false,
+    },
+  ],
+  [
+    debtsView,
+    {
+      display: false,
+    },
+  ],
+  [
+    taxView,
+    {
+      display: false,
+    },
+  ],
+  [
+    triggersView,
+    {
+      display: false,
+    },
+  ],
+  [
+    transactionsView,
+    {
+      display: false,
+    },
+  ],
+  [
+    reportView,
+    {
+      display: false,
+    },
+  ],
+  [
+    settingsView,
+    {
+      display: false,
+    },
+  ],
 ]);
 
 const exampleModels = [
@@ -405,7 +405,7 @@ function makeBarData(labels: string[], chartData: ItemChartData[]): ChartData {
       return {
         label: cd.item.NAME,
         data: cd.chartDataPoints.map(c => {
-          return (Math.round(c.y * 100.0))/100.0;
+          return Math.round(c.y * 100.0) / 100.0;
         }),
         backgroundColor: `rgb(${c.r},${c.g},${c.b})`,
         barPercentage: 1.0,
@@ -1035,10 +1035,7 @@ export async function submitNewSetting(
   }
 }
 
-export function toggle(
-  type: ViewType,
-  sourceID: number,
-) {
+export function toggle(type: ViewType, sourceID: number) {
   log(`toggle called from ${sourceID}`);
   if (reactAppComponent === undefined) {
     return;
@@ -1410,9 +1407,7 @@ export class AppContent extends Component<AppProps, AppState> {
   }
 
   private navbarDiv(isWaiting: boolean) {
-    return navbarContent(
-      isWaiting, 
-      () => {
+    return navbarContent(isWaiting, () => {
       const estateVal = this.state.reportData.find(d => {
         return d.name === 'Estate final value';
       });
