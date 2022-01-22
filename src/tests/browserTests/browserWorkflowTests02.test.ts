@@ -17,6 +17,7 @@ describe('BrowserWorkflowTests 02', () => {
       driver,
       'btn-create-Simple-example',
       testDataModelName,
+      'should create examples',
     );
 
     await cleanUpWork(driver, testDataModelName);

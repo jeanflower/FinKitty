@@ -12,7 +12,12 @@ describe('BrowserWorkflowTests new models', () => {
       `{"testName":"${TestModel01}"}`,
     );
 
-    await testModelCreation(driver, 'btn-clone', testDataModelName);
+    await testModelCreation(
+      driver,
+      'btn-clone',
+      testDataModelName,
+      'should create new clones',
+    );
 
     await cleanUpWork(driver, testDataModelName);
     done();
@@ -30,6 +35,7 @@ describe('BrowserWorkflowTests new models', () => {
       driver,
       'btn-createMinimalModel',
       testDataModelName,
+      'should create new models',
     );
 
     await cleanUpWork(driver, testDataModelName);

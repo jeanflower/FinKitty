@@ -863,9 +863,10 @@ export async function testModelCreation(
   driver: any,
   createButtonID: string,
   testDataModelName: string,
+  testID: string,
 ) {
-  const ex1Name = 'ex1Name';
-  const ex2Name = 'ex2Name';
+  const ex1Name = `${testID}ex1`;
+  const ex2Name = `${testID}ex2`;
 
   // await checkMessage(driver, `wrong`);
 
