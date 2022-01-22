@@ -1,3 +1,5 @@
+import React, { Component, FormEvent } from 'react';
+import { Col, Row } from 'react-bootstrap';
 import {
   ModelData,
   Setting,
@@ -5,7 +7,6 @@ import {
   Trigger,
   FormProps,
 } from '../../types/interfaces';
-import React, { Component, FormEvent } from 'react';
 import {
   adjustableType,
   revalue,
@@ -87,8 +88,8 @@ export class AddDeleteSettingForm extends Component<
   private ValueAndCategory(): React.ReactNode {
     if (this.state.inputting === inputtingRevalue) {
       return (
-        <div className="row">
-          <div className="col">
+        <Row>
+          <Col>
             <Input
               title={'Setting name'}
               type="text"
@@ -97,9 +98,8 @@ export class AddDeleteSettingForm extends Component<
               placeholder="Enter name"
               onChange={this.handleNameChange}
             />
-          </div>
-          {/* end col */}
-          <div className="col">
+          </Col>
+          <Col>
             <Input
               title={`Setting value`}
               type="text"
@@ -108,13 +108,13 @@ export class AddDeleteSettingForm extends Component<
               placeholder="Enter value"
               onChange={this.handleValueChange}
             />
-          </div>
-        </div>
+          </Col>
+        </Row>
       );
     } else {
       return (
-        <div className="row">
-          <div className="col">
+        <Row>
+          <Col>
             <Input
               title={'Setting name'}
               type="text"
@@ -123,9 +123,8 @@ export class AddDeleteSettingForm extends Component<
               placeholder="Enter name"
               onChange={this.handleNameChange}
             />
-          </div>
-          {/* end col */}
-          <div className="col">
+          </Col>
+          <Col>
             <Input
               title={`Setting value`}
               type="text"
@@ -134,9 +133,8 @@ export class AddDeleteSettingForm extends Component<
               placeholder="Enter value"
               onChange={this.handleValueChange}
             />
-          </div>
-          {/* end col */}
-        </div>
+          </Col>
+        </Row>
       );
     }
   }

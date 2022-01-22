@@ -22,8 +22,15 @@ import {
   addDebt,
   debtInputs,
   clearDebtFields,
+  gotoTabPage,
   quitAfterAll,
   revalueAsset,
+  overviewTag,
+  datesTag,
+  incomesTag,
+  assetsTag,
+  expensesTag,
+  debtsTag,
 } from './browserTestUtils';
 import {
   getDriver,
@@ -57,7 +64,7 @@ describe(testDataModelName, () => {
       `{"testName":"${TestModel02}"}`,
     );
 
-    await clickButton(driver, 'btn-Overview');
+    await gotoTabPage(driver, overviewTag);
 
     const label = await driver.findElements(webdriver.By.id('pageTitle'));
     expect(label.length === 1).toBe(true);
@@ -65,7 +72,7 @@ describe(testDataModelName, () => {
 
     expect(labelText).toBe(`${testDataModelName}`);
 
-    await clickButton(driver, 'btn-Dates');
+    await gotoTabPage(driver, datesTag);
 
     await addDate(driver, 'testDate', '2020', 'added important date OK');
     await addDate(
@@ -99,7 +106,7 @@ describe(testDataModelName, () => {
       `{"testName":"${TestModel02}"}`,
     );
 
-    await clickButton(driver, 'btn-Incomes');
+    await gotoTabPage(driver, incomesTag);
 
     await addIncome(driver, {
       ...incomeInputs,
@@ -252,7 +259,7 @@ describe(testDataModelName, () => {
       `{"testName":"${TestModel02}"}`,
     );
 
-    await clickButton(driver, 'btn-Incomes');
+    await gotoTabPage(driver, incomesTag);
 
     await addIncome(driver, {
       ...incomeInputs,
@@ -307,7 +314,7 @@ describe(testDataModelName, () => {
       `{"testName":"${TestModel02}"}`,
     );
 
-    await clickButton(driver, 'btn-Expenses');
+    await gotoTabPage(driver, expensesTag);
 
     await addExpense(driver, {
       ...expenseInputs,
@@ -382,7 +389,7 @@ describe(testDataModelName, () => {
       `{"testName":"${TestModel02}"}`,
     );
 
-    await clickButton(driver, 'btn-Expenses');
+    await gotoTabPage(driver, expensesTag);
 
     await addExpense(driver, {
       ...expenseInputs,
@@ -438,7 +445,7 @@ describe(testDataModelName, () => {
       `{"testName":"${TestModel02}"}`,
     );
 
-    await clickButton(driver, 'btn-Assets');
+    await gotoTabPage(driver, assetsTag);
 
     await addAsset(driver, {
       ...assetInputs,
@@ -512,7 +519,7 @@ describe(testDataModelName, () => {
       `{"testName":"${TestModel02}"}`,
     );
 
-    await clickButton(driver, 'btn-Assets');
+    await gotoTabPage(driver, assetsTag);
 
     await addAsset(driver, {
       ...assetInputs,
@@ -568,7 +575,7 @@ describe(testDataModelName, () => {
       `{"testName":"${TestModel02}"}`,
     );
 
-    await clickButton(driver, 'btn-Debts');
+    await gotoTabPage(driver, debtsTag);
 
     await addDebt(driver, {
       ...debtInputs,

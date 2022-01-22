@@ -1,4 +1,5 @@
 import React, { Component, FormEvent } from 'react';
+import { Col, Row } from 'react-bootstrap';
 
 import { isNumberString } from '../../models/checks';
 import {
@@ -97,8 +98,8 @@ export class AddDeleteDebtForm extends Component<
   private ValueAndCategory(): React.ReactNode {
     if (this.state.inputting === inputtingRevalue) {
       return (
-        <div className="row">
-          <div className="col">
+        <Row>
+          <Col>
             <Input
               title={'Debt name'}
               type="text"
@@ -107,9 +108,8 @@ export class AddDeleteDebtForm extends Component<
               placeholder="Enter name"
               onChange={this.handleNameChange}
             />
-          </div>
-          {/* end col */}
-          <div className="col">
+          </Col>
+          <Col>
             <Input
               title={`Debt value`}
               type="text"
@@ -118,13 +118,13 @@ export class AddDeleteDebtForm extends Component<
               placeholder="Enter value"
               onChange={this.handleValueChange}
             />
-          </div>
-        </div>
+          </Col>
+        </Row>
       );
     } else {
       return (
-        <div className="row">
-          <div className="col">
+        <Row>
+          <Col>
             <Input
               title={'Debt name'}
               type="text"
@@ -133,9 +133,8 @@ export class AddDeleteDebtForm extends Component<
               placeholder="Enter name"
               onChange={this.handleNameChange}
             />
-          </div>
-          {/* end col */}
-          <div className="col">
+          </Col>
+          <Col>
             <Input
               title={`Debt value`}
               type="text"
@@ -144,9 +143,8 @@ export class AddDeleteDebtForm extends Component<
               placeholder="Enter value"
               onChange={this.handleValueChange}
             />
-          </div>
-          {/* end col */}
-          <div className="col">
+          </Col>
+          <Col>
             <Input
               title="Category (optional)"
               type="text"
@@ -155,8 +153,8 @@ export class AddDeleteDebtForm extends Component<
               placeholder="category"
               onChange={this.handleCategoryChange}
             />
-          </div>
-        </div>
+          </Col>
+        </Row>
       );
     }
   }
@@ -164,32 +162,28 @@ export class AddDeleteDebtForm extends Component<
   private growthAndInflation(): React.ReactNode {
     if (this.state.inputting !== inputtingRevalue) {
       return (
-        <>
-          <div className="row">
-            <div className="col">
-              <Input
-                title="Annual interest rate (excluding inflation, e.g. 2 for 2% p.a.)"
-                type="text"
-                name="debtgrowth"
-                value={this.state.GROWTH}
-                placeholder="Enter growth"
-                onChange={this.handleGrowthChange}
-              />
-            </div>
-            {/* end col */}
-            <div className="col">
-              <Input
-                title="Monthly repayment (optional)"
-                type="text"
-                name="debtpayoff"
-                value={this.state.PAYMENT}
-                placeholder="Enter payment"
-                onChange={this.handlePaymentChange}
-              />
-            </div>
-            {/* end col */}
-          </div>
-        </>
+        <Row>
+          <Col>
+            <Input
+              title="Annual interest rate (excluding inflation, e.g. 2 for 2% p.a.)"
+              type="text"
+              name="debtgrowth"
+              value={this.state.GROWTH}
+              placeholder="Enter growth"
+              onChange={this.handleGrowthChange}
+            />
+          </Col>
+          <Col>
+            <Input
+              title="Monthly repayment (optional)"
+              type="text"
+              name="debtpayoff"
+              value={this.state.PAYMENT}
+              placeholder="Enter payment"
+              onChange={this.handlePaymentChange}
+            />
+          </Col>
+        </Row>
       );
     }
   }

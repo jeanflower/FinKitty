@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { finkittyButtonType } from '../../types/interfaces';
-// import { log } from './../../utils';
+import { log, printDebug } from './../../utils';
 
 interface ButtonProps {
   type: finkittyButtonType;
@@ -40,6 +40,9 @@ export function makeButton(
   type: finkittyButtonType,
   disabled?: boolean,
 ) {
+  if (printDebug()) {
+    log(`making a Button for ${title}`);
+  }
   return (
     <Button
       key={key}

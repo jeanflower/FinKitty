@@ -5,6 +5,8 @@ import {
   incomeInputs,
   addDBPension,
   clearPensionFields,
+  gotoTabPage,
+  incomesTag,
   quitAfterAll,
 } from './browserTestUtils';
 import {
@@ -37,7 +39,7 @@ describe(testDataModelName, () => {
       `{"testName":"${TestModel02}"}`,
     );
 
-    await clickButton(driver, 'btn-Incomes');
+    await gotoTabPage(driver, incomesTag);
 
     await addIncome(driver, {
       ...incomeInputs,
@@ -222,7 +224,7 @@ describe(testDataModelName, () => {
       `{"testName":"${TestModel02}"}`,
     );
 
-    await clickButton(driver, 'btn-Incomes');
+    await gotoTabPage(driver, incomesTag);
 
     await addIncome(driver, {
       ...incomeInputs,

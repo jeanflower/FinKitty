@@ -1,4 +1,5 @@
 import React, { Component, FormEvent } from 'react';
+import { Col, Row } from 'react-bootstrap';
 
 import {
   checkIncomeLiability,
@@ -240,8 +241,8 @@ export class AddDeleteIncomeForm extends Component<
           )}
         </div>
         <form className="container-fluid" onSubmit={this.add}>
-          <div className="row">
-            <div className="col">
+          <Row>
+            <Col>
               <Input
                 title={
                   this.state.inputting === inputtingPension
@@ -254,9 +255,8 @@ export class AddDeleteIncomeForm extends Component<
                 placeholder="Enter name"
                 onChange={this.handleNameChange}
               />
-            </div>
-            {/* end col */}
-            <div className="col">
+            </Col>
+            <Col>
               <Input
                 title={`${
                   this.state.inputting === inputtingPension
@@ -271,10 +271,8 @@ export class AddDeleteIncomeForm extends Component<
                 placeholder="Enter value"
                 onChange={this.handleValueChange}
               />
-            </div>
-            {/* end col */}
-          </div>
-          {/* end row */}
+            </Col>
+          </Row>
           <div className="container-fluid">
             {/* fills width */}
             <DateSelectionRow
@@ -312,8 +310,8 @@ export class AddDeleteIncomeForm extends Component<
     }
     return (
       <>
-        <div className="row">
-          <div className="col">
+        <Row>
+          <Col>
             <Input
               title="Annual growth percentage (excluding inflation, e.g. 2 for 2% p.a.)"
               type="text"
@@ -322,9 +320,8 @@ export class AddDeleteIncomeForm extends Component<
               placeholder="Enter growth"
               onChange={this.handleGrowthChange}
             />
-          </div>{' '}
-          {/* end col */}
-          <div className="col">
+          </Col>{' '}
+          <Col>
             <Input
               title="Does value grow with inflation?"
               type="text"
@@ -333,12 +330,10 @@ export class AddDeleteIncomeForm extends Component<
               placeholder="Enter Y/N"
               onChange={this.handleGrowsWithCPIChange}
             />
-          </div>{' '}
-          {/* end col */}
-        </div>
-        {/* end row */}
-        <div className="row">
-          <div className="col">
+          </Col>{' '}
+        </Row>
+        <Row>
+          <Col>
             <Input
               title="Tax liability (empty or someone's name)"
               type="text"
@@ -347,8 +342,8 @@ export class AddDeleteIncomeForm extends Component<
               placeholder="Enter tax liability"
               onChange={this.handleLiabilityChange}
             />
-          </div>
-          <div className="col">
+          </Col>
+          <Col>
             <Input
               title="Category (optional)"
               type="text"
@@ -357,10 +352,8 @@ export class AddDeleteIncomeForm extends Component<
               placeholder="category"
               onChange={this.handleCategoryChange}
             />
-          </div>{' '}
-          {/* end col */}
-        </div>
-        {/* end row */}
+          </Col>{' '}
+        </Row>
         {makeButton(
           'Create new income (over-writes any existing with the same name)',
           this.add,
@@ -506,17 +499,16 @@ DB_TRANSFERRED_STOP
             />
           }
         </div>
-        <div className="row">
-          <div className="col">
+        <Row>
+          <Col>
             <label>Income source (optional)</label>
             {incomeOptions(
               this.props.model,
               this.handleDbpIncomeSourceChange,
               this.incomeSourceSelectID,
             )}
-          </div>{' '}
-          {/* end col */}
-          <div className="col">
+          </Col>{' '}
+          <Col>
             <Input
               title="Is contribution salary-sacrificed (optional)"
               type="text"
@@ -525,12 +517,10 @@ DB_TRANSFERRED_STOP
               placeholder="Enter Y/N"
               onChange={this.handleDbpSsChange}
             />
-          </div>{' '}
-          {/* end col */}
-        </div>
-        {/* end row */}
-        <div className="row">
-          <div className="col">
+          </Col>{' '}
+        </Row>
+        <Row>
+          <Col>
             <Input
               title="Pension contribution amount (e.g. 0.05 for 5%, optional)"
               type="text"
@@ -539,9 +529,8 @@ DB_TRANSFERRED_STOP
               placeholder="Enter amount of contributions"
               onChange={this.handleDbpContAmount}
             />
-          </div>{' '}
-          {/* end col */}
-          <div className="col">
+          </Col>{' '}
+          <Col>
             <Input
               title="Contribution accrual to annual benefit (e.g. 0.02 for 1/50, optional)"
               type="text"
@@ -550,34 +539,30 @@ DB_TRANSFERRED_STOP
               placeholder="Enter accrual rate"
               onChange={this.handleDbpAccrualChange}
             />
-          </div>{' '}
-          {/* end col */} {/* end col */}
-        </div>
-        {/* end row */}
-        {
-          <div className="row">
-            <div className="col">
-              <Input
-                title="On death, pension transfers to (optional)"
-                type="text"
-                name="transferNameIncome"
-                value={this.state.DB_TRANSFER_TO}
-                placeholder="Enter person to transfer to"
-                onChange={this.handleDbpTransferTo}
-              />
-            </div>
-            <div className="col">
-              <Input
-                title="Proportion transferred on death (e.g. 0.5 for 50%, optional)"
-                type="text"
-                name="transferProportion"
-                value={this.state.DB_TRANSFER_PROPORTION}
-                placeholder="Enter transfer proportion"
-                onChange={this.handleDbpTransferProportion}
-              />
-            </div>{' '}
-          </div>
-        }
+          </Col>{' '}
+        </Row>
+        <Row>
+          <Col>
+            <Input
+              title="On death, pension transfers to (optional)"
+              type="text"
+              name="transferNameIncome"
+              value={this.state.DB_TRANSFER_TO}
+              placeholder="Enter person to transfer to"
+              onChange={this.handleDbpTransferTo}
+            />
+          </Col>
+          <Col>
+            <Input
+              title="Proportion transferred on death (e.g. 0.5 for 50%, optional)"
+              type="text"
+              name="transferProportion"
+              value={this.state.DB_TRANSFER_PROPORTION}
+              placeholder="Enter transfer proportion"
+              onChange={this.handleDbpTransferProportion}
+            />
+          </Col>{' '}
+        </Row>
       </div>
     );
   }

@@ -163,11 +163,12 @@ export class CreateModelForm extends Component<
       !(await this.props.getModelNames(this.props.userID)).includes(newName) ||
       window.confirm(`will replace ${newName}, you sure?`)
     ) {
+      log(`go to clone model`);
       if (await this.props.cloneModel(newName, model)) {
         // log('cloned ok -  clear name field');
         this.setState({ newName: '' });
       } else {
-        // log('failed to clone ok');
+        log('failed to clone ok');
       }
     }
   }

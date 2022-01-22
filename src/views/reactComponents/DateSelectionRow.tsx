@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import { Col, Row } from 'react-bootstrap';
+
 import { Trigger, ModelData, FormProps } from '../../types/interfaces';
 import { TriggerOptionList } from './TriggerOptionList';
 import { log, showObj, printDebug } from '../../utils';
@@ -42,14 +44,14 @@ export class DateSelectionRow extends Component<DateSelectionProps, {}> {
 
   public render() {
     return (
-      <div className="row">
+      <Row>
         <div className="col p-2 mb-2 bg-secondary text-white">
           {
             this.props.introLabel // e.g. Date on which the income value is set:
           }
         </div>{' '}
         {/* end col */}
-        <div className="col">
+        <Col>
           <TriggerOptionList
             triggers={this.props.triggers}
             model={this.props.model}
@@ -58,9 +60,8 @@ export class DateSelectionRow extends Component<DateSelectionProps, {}> {
             handleChange={this.props.setDateFunction}
             selectedItem=""
           />
-        </div>
-        {/* end col */}
-        <div className="col">
+        </Col>
+        <Col>
           <OverlayTrigger
             placement="top"
             overlay={(props: any) => (
@@ -85,9 +86,8 @@ export class DateSelectionRow extends Component<DateSelectionProps, {}> {
               className="form-control"
             />
           </OverlayTrigger>
-        </div>
-        {/* end col */}
-      </div>
+        </Col>
+      </Row>
     );
   }
 }

@@ -20,8 +20,7 @@ import { ViewSettings } from '../models/charting';
 import { getTodaysDate } from '../models/modelUtils';
 import { lessThan } from '../stringUtils';
 import { collapsibleFragment } from './tablePages';
-
-// import { log } from './../utils';
+import { log, printDebug } from '../utils';
 
 function addToMap(name: string, val: AssetVal, myMap: Map<string, AssetVal>) {
   const existingEntry = myMap.get(name);
@@ -50,7 +49,9 @@ function makeDataGrid(myMap: Map<string, AssetVal>, model: ModelData) {
             return key[1].assetVal !== 0.0;
           })
           .map(key => {
-            // log(`key[0] = ${key[0]}, key[1] = ${key[1]}`);
+            if (printDebug()) {
+              log(`key[0] = ${key[0]}, key[1] = ${key[1]}`);
+            }
             const quantityText = key[1].assetQ ? `${key[1].assetQ}` : '';
             return {
               NAME: key[0],
@@ -143,7 +144,7 @@ export function assetsDiv(
   model: ModelData,
   viewSettings: ViewSettings,
   showAlert: (arg0: string) => void,
-  assetChartData: ChartData[],
+  assetChartData: ChartData,
   todaysValues: Map<string, AssetVal>,
   getStartDate: (() => string) | undefined = undefined,
   updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
@@ -151,14 +152,13 @@ export function assetsDiv(
   updateEndDate: ((newDate: string) => Promise<void>) | undefined = undefined,
 ) {
   if (!getDisplay(assetsView)) {
+    // log(`don't populate assetsView`);
     return;
   }
+  // log(`do populate assetsView`);
 
   return (
-    <div
-      className="ml-3"
-      style={{ display: getDisplay(assetsView) ? 'block' : 'none' }}
-    >
+    <div className="ml-3">
       {collapsibleFragment(
         assetsOrDebtsChartDivWithButtons(
           model,

@@ -98,10 +98,17 @@ export interface ChartDataPoint {
   y: number;
   ttip: string;
 }
+export interface ChartDataSet {
+  label: string;
+  data: number[]; // corresponds to ChartData.labels
+  backgroundColor: string;
+  //barThickness: number,
+  barPercentage: number;
+}
 export interface ChartData {
-  type: string;
-  name: string;
-  dataPoints: ChartDataPoint[];
+  labels: string[];
+  datasets: ChartDataSet[];
+  displayLegend: boolean;
 }
 export interface ItemChartData {
   item: Item;
@@ -130,6 +137,7 @@ export interface ReportDatum {
 }
 
 export interface DataForView {
+  labels: string[];
   assetData: ItemChartData[];
   debtData: ItemChartData[];
   expensesData: ItemChartData[];
@@ -196,6 +204,7 @@ export interface GrowthData {
 }
 
 export interface ChartSettings {
+  isSmall: boolean;
   height: number;
   width?: number | string;
   toolTip: {

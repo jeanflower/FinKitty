@@ -13,10 +13,18 @@ import {
   addIncome,
   addSetting,
   addTransaction,
+  gotoTabPage,
   headless,
   incomeInputs,
   quitAfterAll,
   sleep,
+  datesTag,
+  incomesTag,
+  settingsTag,
+  expensesTag,
+  assetsTag,
+  debtsTag,
+  transactionsTag,
 } from './browserTestUtils';
 import {
   getDriver,
@@ -84,7 +92,7 @@ describe(testDataModelName, () => {
       await sleep(calcSleep, '--- after model selected');
     }
 
-    await clickButton(driver, 'btn-Dates');
+    await gotoTabPage(driver, datesTag);
 
     await addDate(
       driver,
@@ -122,7 +130,7 @@ describe(testDataModelName, () => {
     );
 
     // Add incomes
-    await clickButton(driver, 'btn-Incomes');
+    await gotoTabPage(driver, incomesTag);
 
     await addIncome(driver, {
       ...incomeInputs,
@@ -139,7 +147,7 @@ describe(testDataModelName, () => {
     });
     // log('done Ben salary');
 
-    await clickButton(driver, 'btn-Settings');
+    await gotoTabPage(driver, settingsTag);
     await addSetting(driver, {
       name: 'Beginning of view range',
       value: '2020',
@@ -152,16 +160,16 @@ describe(testDataModelName, () => {
       message: 'added new setting End of view range',
     });
 
-    await clickButton(driver, 'btn-Incomes');
+    await gotoTabPage(driver, incomesTag);
 
-    await clickButton(driver, 'btn-Settings');
+    await gotoTabPage(driver, settingsTag);
     await addSetting(driver, {
       name: 'View frequency',
       value: 'Annually',
       message: 'added new setting View frequency',
     });
-    await clickButton(driver, 'btn-Incomes');
-    await clickButton(driver, 'btn-Settings');
+    await gotoTabPage(driver, incomesTag);
+    await gotoTabPage(driver, settingsTag);
     /*
     await addSetting(driver, {
       name: 'Date of birth',
@@ -172,7 +180,7 @@ describe(testDataModelName, () => {
     await pauseForDemo();
 */
 
-    await clickButton(driver, 'btn-Incomes');
+    await gotoTabPage(driver, incomesTag);
 
     await addIncome(driver, {
       ...incomeInputs,
@@ -189,15 +197,15 @@ describe(testDataModelName, () => {
     });
     // log('done Jerry salary');
 
-    await clickButton(driver, 'btn-Expenses');
+    await gotoTabPage(driver, expensesTag);
 
-    await clickButton(driver, 'btn-Dates');
+    await gotoTabPage(driver, datesTag);
 
     await addDate(driver, 'Ben dies', '31/8/2068', 'added important date OK');
 
     await addDate(driver, 'Jerry dies', '5/5/2065', 'added important date OK');
 
-    await clickButton(driver, 'btn-Incomes');
+    await gotoTabPage(driver, incomesTag);
 
     await scrollIntoViewByID(driver, 'useDBPInputs');
 
@@ -294,7 +302,7 @@ describe(testDataModelName, () => {
     });
     // log('done Jerry work');
 
-    await clickButton(driver, 'btn-Expenses');
+    await gotoTabPage(driver, expensesTag);
 
     let expenseInputs = {
       name: 'Basic expenses current house',
@@ -352,7 +360,7 @@ describe(testDataModelName, () => {
     // scrolling???
     await driver.executeScript('window.scrollBy(0, -100)'); // Adjust scrolling with a negative value here
 
-    await clickButton(driver, 'btn-Dates');
+    await gotoTabPage(driver, datesTag);
 
     await addDate(
       driver,
@@ -361,7 +369,7 @@ describe(testDataModelName, () => {
       'added important date OK',
     );
 
-    await clickButton(driver, 'btn-Expenses');
+    await gotoTabPage(driver, expensesTag);
 
     expenseInputs = {
       name: 'Leisure expenses retired',
@@ -445,7 +453,7 @@ describe(testDataModelName, () => {
 
     await driver.executeScript('window.scrollBy(0, -100)'); // Adjust scrolling with a negative value here
 
-    await clickButton(driver, 'btn-Assets');
+    await gotoTabPage(driver, assetsTag);
 
     let assetInputs = {
       name: 'House',
@@ -565,7 +573,7 @@ describe(testDataModelName, () => {
 
     await driver.executeScript('window.scrollBy(0, -100)'); // Adjust scrolling with a negative value here
 
-    await clickButton(driver, 'btn-Debts');
+    await gotoTabPage(driver, debtsTag);
 
     let debtInputs = {
       name: 'Mortgage',
@@ -617,7 +625,7 @@ describe(testDataModelName, () => {
 
     await driver.executeScript('window.scrollBy(0, -100)'); // Adjust scrolling with a negative value here
 
-    await clickButton(driver, 'btn-Transactions');
+    await gotoTabPage(driver, transactionsTag);
     let transactionInputs = {
       name: 'Downsize house',
       startDate: 'Downsize house',
@@ -756,7 +764,7 @@ describe(testDataModelName, () => {
       `{"testName":"${BenAndJerryModel}"}`,
     );
 
-    await clickButton(driver, 'btn-Settings');
+    await gotoTabPage(driver, settingsTag);
     await addSetting(driver, {
       name: 'View frequency',
       value: 'Monthly',
@@ -765,8 +773,8 @@ describe(testDataModelName, () => {
     await driver.executeScript('window.scrollBy(0, -500)'); // Adjust scrolling with a negative value here
 
     for (let i = 0; i < 2; i = i + 1) {
-      await clickButton(driver, 'btn-Expenses');
-      await clickButton(driver, 'btn-Incomes');
+      await gotoTabPage(driver, expensesTag);
+      await gotoTabPage(driver, incomesTag);
       await clickButton(driver, 'chooseViewDetailTypeTotalled view');
       await clickButton(driver, 'select-Pension');
       await clickButton(driver, 'select-Salary');

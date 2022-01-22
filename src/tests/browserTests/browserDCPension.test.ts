@@ -1,17 +1,20 @@
 import { pension, TestModel02 } from '../../localization/stringConstants';
 import {
-  headless,
-  addIncome,
-  incomeInputs,
   addDCPension,
+  addIncome,
+  assetsTag,
   clearDCPension,
+  gotoTabPage,
+  headless,
+  incomeInputs,
+  incomesTag,
   quitAfterAll,
 } from './browserTestUtils';
 import {
-  getDriver,
   beforeAllWork,
-  clickButton,
   cleanUpWork,
+  clickButton,
+  getDriver,
 } from './browserBaseTypes';
 
 const testDataModelName = 'BrowserDCPensionTest';
@@ -36,14 +39,14 @@ describe(testDataModelName, () => {
       `{"testName":"${TestModel02}"}`,
     );
 
-    await clickButton(driver, 'btn-Incomes');
+    await gotoTabPage(driver, incomesTag);
 
     await addIncome(driver, {
       ...incomeInputs,
       message: `added new income ${incomeInputs.name}`, //name: 'javaJob1'
     });
 
-    await clickButton(driver, 'btn-Assets');
+    await gotoTabPage(driver, assetsTag);
 
     const pensionInputs = {
       name: 'dcpension',
@@ -239,14 +242,14 @@ describe(testDataModelName, () => {
       `{"testName":"${TestModel02}"}`,
     );
 
-    await clickButton(driver, 'btn-Incomes');
+    await gotoTabPage(driver, incomesTag);
 
     await addIncome(driver, {
       ...incomeInputs,
       message: `added new income ${incomeInputs.name}`, //name: 'javaJob1'
     });
 
-    await clickButton(driver, 'btn-Assets');
+    await gotoTabPage(driver, assetsTag);
     await clickButton(driver, 'useDCPInputs');
 
     const pensionInputs = {

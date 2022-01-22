@@ -29,70 +29,74 @@ import {
 
 import { AddDeleteEntryForm } from './reactComponents/AddDeleteEntryForm';
 import React from 'react';
-import { getDisplay } from '../App';
 import { ViewSettings } from '../models/charting';
+import { Col, Container, Row } from 'react-bootstrap';
+import { log, printDebug } from '../utils';
+import { getDisplay } from '../App';
 
-function suppressLegend(chartDataPoints: ChartData[]) {
-  return chartDataPoints.map(dp => {
-    return {
-      ...dp,
-      showInLegend: false,
-    };
-  });
+function suppressLegend(barData: ChartData) {
+  return {
+    ...barData,
+    displayLegend: false,
+  };
 }
-
 function chartsForOverview(
   model: ModelData,
   viewSettings: ViewSettings,
   showAlert: (arg0: string) => void,
-  assetChartData: ChartData[],
-  debtChartData: ChartData[],
-  expensesChartData: ChartData[],
-  incomesChartData: ChartData[],
-  taxChartData: ChartData[],
+  assetChartData: ChartData,
+  debtChartData: ChartData,
+  expensesChartData: ChartData,
+  incomesChartData: ChartData,
+  taxChartData: ChartData,
   getStartDate: () => string,
   updateStartDate: (newDate: string) => Promise<void>,
   getEndDate: () => string,
   updateEndDate: (newDate: string) => Promise<void>,
 ) {
   return (
-    <div className="scrollClass">
-      <div className="row">
-        <div className="col">
+    <Container>
+      <Row>
+        <Col>
           {incomesChartDiv(
             suppressLegend(incomesChartData),
             getSmallerChartSettings(viewSettings, model.settings, 'Incomes'),
+            viewSettings,
           )}
-        </div>
-        <div className="col">
+        </Col>
+        <Col>
           {expensesChartDiv(
             suppressLegend(expensesChartData),
             getSmallerChartSettings(viewSettings, model.settings, 'Expenses'),
+            viewSettings,
           )}
-        </div>
-        <div className="col">
+        </Col>
+        <Col>
           {assetsOrDebtsChartDiv(
             suppressLegend(assetChartData),
             false,
             getSmallerChartSettings(viewSettings, model.settings, 'Assets'),
+            viewSettings,
           )}
-        </div>
-      </div>
-      <div className="row">
-        <div className="col">
+        </Col>
+      </Row>
+      <Row>
+        <Col>
           {taxChartDiv(
             suppressLegend(taxChartData),
             getSmallerChartSettings(viewSettings, model.settings, 'Tax'),
+            viewSettings,
           )}
-        </div>
-        <div className="col">
+        </Col>
+        <Col>
           {assetsOrDebtsChartDiv(
             suppressLegend(debtChartData),
             true,
             getSmallerChartSettings(viewSettings, model.settings, 'Debts'),
+            viewSettings,
           )}
-        </div>
-        <div className="col">
+        </Col>
+        <Col>
           <AddDeleteEntryForm
             name="view start date"
             getValue={getStartDate}
@@ -107,9 +111,9 @@ function chartsForOverview(
           />
           {coarseFineList(viewSettings)}
           {frequencyList(viewSettings)}
-        </div>
-      </div>
-    </div>
+        </Col>
+      </Row>
+    </Container>
   );
 }
 
@@ -146,28 +150,32 @@ export function overviewDiv(
   model: ModelData,
   viewSettings: ViewSettings,
   showAlert: (arg0: string) => void,
-  assetChartData: ChartData[],
-  debtChartData: ChartData[],
-  expensesChartData: ChartData[],
-  incomesChartData: ChartData[],
-  taxChartData: ChartData[],
+  assetChartData: ChartData,
+  debtChartData: ChartData,
+  expensesChartData: ChartData,
+  incomesChartData: ChartData,
+  taxChartData: ChartData,
   getStartDate: () => string,
   updateStartDate: (newDate: string) => Promise<void>,
   getEndDate: () => string,
   updateEndDate: (newDate: string) => Promise<void>,
 ) {
-  // log(`called overviewDiv with a model with ${model.assets.length} assets`);
-  const chartDataExists =
-    incomesChartData.length !== 0 ||
-    assetChartData.length !== 0 ||
-    expensesChartData.length !== 0 ||
-    taxChartData.length !== 0 ||
-    debtChartData.length !== 0;
-
-  const doDisplay = getDisplay(overview);
-  if (!doDisplay) {
+  if (printDebug()) {
+    log(`called overviewDiv with a model with ${model.assets.length} assets`);
+  }
+  if (!getDisplay(overview)) {
+    // log(`don't populate overview`);
     return;
   }
+  // log(`do populate overview`);
+
+  const chartDataExists =
+    incomesChartData.labels.length !== 0 ||
+    assetChartData.labels.length !== 0 ||
+    expensesChartData.labels.length !== 0 ||
+    taxChartData.labels.length !== 0 ||
+    debtChartData.labels.length !== 0;
+
   return (
     <div className="ml-3">
       {chartDataExists ? (

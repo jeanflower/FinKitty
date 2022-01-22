@@ -1,3 +1,4 @@
+import { Col } from 'react-bootstrap';
 import {
   ChartData,
   ChartSettings,
@@ -34,15 +35,35 @@ import { getDisplay, refreshData } from '../App';
 import { Context, log, printDebug, showObj } from '../utils';
 
 import { makeButton } from './reactComponents/Button';
-import CanvasJS from '../assets/js/canvasjs.min';
-import CanvasJSReact from '../assets/js/canvasjs.react';
 import React from 'react';
 import ReactiveTextArea from './reactComponents/ReactiveTextArea';
 import { ViewSettings } from '../models/charting';
 import { AddDeleteEntryForm } from './reactComponents/AddDeleteEntryForm';
 import { getSettings, getLiabilityPeople } from '../models/modelUtils';
 
-const { CanvasJSChart } = CanvasJSReact;
+import { Bar } from 'react-chartjs-2';
+
+import { Container } from 'react-bootstrap';
+import dateFormat from 'dateformat';
+
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip as ChartTooltip,
+  Legend,
+} from 'chart.js';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  ChartTooltip,
+  Legend,
+);
 
 function getCoarseFineView(settings: ViewSettings) {
   return settings.getViewSetting(viewDetail, fine);
@@ -74,6 +95,7 @@ async function setViewSettingNameVal(
   return await refreshData(
     false, // refreshModel = true,
     true, // refreshChart = true,
+    23, //sourceID
   );
 }
 
@@ -114,6 +136,7 @@ function makeFilterButton(
       return await refreshData(
         refreshModel, // refreshModel = true,
         true, // refreshChart = true,
+        24, //sourceID
       );
     },
     buttonName,
@@ -221,10 +244,11 @@ export function getDefaultChartSettings(
   settings: ViewSettings,
   modelSettings: Setting[],
 ): ChartSettings {
-  const showMonth =
-    settings.getViewSetting(viewFrequency, annually) === monthly;
+  //const showMonth =
+  //  settings.getViewSetting(viewFrequency, annually) === monthly;
   const showAge = getSettings(modelSettings, birthDate, '') !== '';
   return {
+    isSmall: false,
     height: 300,
     toolTip: {
       content: '{name}: {ttip}',
@@ -246,9 +270,7 @@ export function getDefaultChartSettings(
           log(`e.value = ${e.label}`);
           log(`showAge = ${showAge}`);
         }
-        return showAge
-          ? e.label
-          : CanvasJS.formatDate(e.label, showMonth ? 'MMM YYYY' : 'YYYY');
+        return e.label;
       },
     },
   };
@@ -261,6 +283,7 @@ export function getSmallerChartSettings(
 ): ChartSettings {
   return {
     ...getDefaultChartSettings(settings, modelSettings),
+    isSmall: true,
     height: 200,
     width: 400,
     title: {
@@ -278,20 +301,89 @@ export function getSmallerChartSettings(
   };
 }
 
-function incomesChart(
-  incomesChartData: ChartData[],
+function makeBarChart(
+  data: ChartData,
   chartSettings: ChartSettings,
+  viewSettings: ViewSettings,
 ) {
   return (
-    <fieldset>
-      <CanvasJSChart
-        options={{
-          ...chartSettings,
-          data: incomesChartData,
-        }}
-      />
-    </fieldset>
+    <Bar
+      options={{
+        plugins: {
+          title: {
+            display:
+              chartSettings.title !== undefined && chartSettings.title.display,
+            text:
+              chartSettings.title !== undefined ? chartSettings.title.text : '',
+          },
+          legend: {
+            display: data.displayLegend,
+            position: 'right',
+          },
+        },
+        animation: {
+          duration: 0,
+        },
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            stacked: true,
+            ticks: {
+              callback: function(value, index, values) {
+                if (printDebug()) {
+                  log(
+                    `convert value ${value}, ${showObj(
+                      values[index],
+                    )} to make tick text`,
+                  );
+                }
+                const l = data.labels[index];
+                const d = new Date(l);
+                const showMonth =
+                  viewSettings.getViewSetting(viewFrequency, annually) ===
+                  monthly;
+                if (showMonth) {
+                  return dateFormat(d, 'mmmm yyyy');
+                } else {
+                  return dateFormat(d, 'yyyy');
+                }
+              },
+            },
+          },
+          y: {
+            stacked: true,
+          },
+        },
+      }}
+      data={data}
+    />
   );
+}
+
+function makeContainedBarChart(
+  data: ChartData,
+  chartSettings: ChartSettings,
+  viewSettings: ViewSettings,
+) {
+  //  return (<Container>
+  return (
+    <Container style={{ height: `${chartSettings.height}px` }}>
+      {makeBarChart(data, chartSettings, viewSettings)}
+    </Container>
+  );
+}
+
+function incomesChart(
+  incomesChartData: ChartData,
+  chartSettings: ChartSettings,
+  viewSettings: ViewSettings,
+) {
+  if (chartSettings.isSmall) {
+    return makeBarChart(incomesChartData, chartSettings, viewSettings);
+  } else {
+    return makeContainedBarChart(incomesChartData, chartSettings, viewSettings);
+  }
 }
 
 function noDataToDisplayFragment(
@@ -369,8 +461,9 @@ function noDataToDisplayFragment(
 }
 
 export function incomesChartDiv(
-  incomesChartData: ChartData[],
+  incomesChartData: ChartData,
   chartSettings: ChartSettings,
+  viewSettings: ViewSettings,
   model: ModelData | undefined = undefined,
   showAlert: ((arg0: string) => void) | undefined = undefined,
   getStartDate: (() => string) | undefined = undefined,
@@ -378,7 +471,7 @@ export function incomesChartDiv(
   getEndDate: (() => string) | undefined = undefined,
   updateEndDate: ((newDate: string) => Promise<void>) | undefined = undefined,
 ): JSX.Element {
-  if (incomesChartData.length === 0) {
+  if (incomesChartData.labels.length === 0) {
     log(`incomesChartData.length === 0, no data`);
     return noDataToDisplayFragment(
       'income',
@@ -390,13 +483,13 @@ export function incomesChartDiv(
       updateEndDate,
     );
   } else {
-    return incomesChart(incomesChartData, chartSettings);
+    return incomesChart(incomesChartData, chartSettings, viewSettings);
   }
 }
 export function incomesChartDivWithButtons(
   model: ModelData,
   settings: ViewSettings,
-  incomesChartData: ChartData[],
+  incomesChartData: ChartData,
   chartSettings: ChartSettings,
   showAlert: ((arg0: string) => void) | undefined = undefined,
   getStartDate: (() => string) | undefined = undefined,
@@ -438,6 +531,7 @@ export function incomesChartDivWithButtons(
         {incomesChartDiv(
           incomesChartData,
           chartSettings,
+          settings,
           model,
           showAlert,
           getStartDate,
@@ -451,24 +545,17 @@ export function incomesChartDivWithButtons(
 }
 
 function expensesChart(
-  expensesChartData: ChartData[],
+  expensesChartData: ChartData,
   chartSettings: ChartSettings,
+  viewSettings: ViewSettings,
 ) {
-  return (
-    <fieldset>
-      <CanvasJSChart
-        options={{
-          ...chartSettings,
-          data: expensesChartData,
-        }}
-      />
-    </fieldset>
-  );
+  return makeContainedBarChart(expensesChartData, chartSettings, viewSettings);
 }
 
 export function expensesChartDiv(
-  expensesChartData: ChartData[],
+  expensesChartData: ChartData,
   chartSettings: ChartSettings,
+  viewSettings: ViewSettings,
   model: ModelData | undefined = undefined,
   showAlert: ((arg0: string) => void) | undefined = undefined,
   getStartDate: (() => string) | undefined = undefined,
@@ -476,7 +563,7 @@ export function expensesChartDiv(
   getEndDate: (() => string) | undefined = undefined,
   updateEndDate: ((newDate: string) => Promise<void>) | undefined = undefined,
 ) {
-  if (expensesChartData.length === 0) {
+  if (expensesChartData.labels.length === 0) {
     return noDataToDisplayFragment(
       'expense',
       model,
@@ -487,14 +574,14 @@ export function expensesChartDiv(
       updateEndDate,
     );
   } else {
-    return expensesChart(expensesChartData, chartSettings);
+    return expensesChart(expensesChartData, chartSettings, viewSettings);
   }
 }
 
 export function expensesChartDivWithButtons(
   model: ModelData,
   settings: ViewSettings,
-  expensesChartData: ChartData[],
+  expensesChartData: ChartData,
   chartSettings: ChartSettings,
   showAlert: ((arg0: string) => void) | undefined = undefined,
   getStartDate: (() => string) | undefined = undefined,
@@ -534,13 +621,10 @@ export function expensesChartDivWithButtons(
         {filtersList(model.expenses, settings, Context.Expense, false)}
         {coarseFineList(settings)}
         <fieldset>
-          <ReactiveTextArea
-            identifier="expensesDataDump"
-            message={showObj(expensesChartData)}
-          />
           {expensesChartDiv(
             expensesChartData,
             chartSettings,
+            settings,
             model,
             showAlert,
             getStartDate,
@@ -578,9 +662,10 @@ function assetViewTypeList(settings: ViewSettings) {
 }
 
 export function assetsOrDebtsChartDiv(
-  assetChartData: ChartData[],
+  assetChartData: ChartData,
   isDebt: boolean,
   chartSettings: ChartSettings,
+  viewSettings: ViewSettings,
   model: ModelData | undefined = undefined,
   showAlert: ((arg0: string) => void) | undefined = undefined,
   getStartDate: (() => string) | undefined = undefined,
@@ -588,7 +673,7 @@ export function assetsOrDebtsChartDiv(
   getEndDate: (() => string) | undefined = undefined,
   updateEndDate: ((newDate: string) => Promise<void>) | undefined = undefined,
 ) {
-  if (assetChartData.length === 0) {
+  if (assetChartData.labels.length === 0) {
     return noDataToDisplayFragment(
       isDebt ? 'debt' : 'asset',
       model,
@@ -599,21 +684,14 @@ export function assetsOrDebtsChartDiv(
       updateEndDate,
     );
   } else {
-    return (
-      <CanvasJSChart
-        options={{
-          ...chartSettings,
-          data: assetChartData,
-        }}
-      />
-    );
+    return makeContainedBarChart(assetChartData, chartSettings, viewSettings);
   }
 }
 
 export function assetsOrDebtsChartDivWithButtons(
   model: ModelData,
   viewSettings: ViewSettings,
-  assetChartData: ChartData[],
+  assetChartData: ChartData,
   isDebt: boolean,
   showAlert: ((arg0: string) => void) | undefined = undefined,
   getStartDate: (() => string) | undefined = undefined,
@@ -669,6 +747,7 @@ export function assetsOrDebtsChartDivWithButtons(
           assetChartData,
           isDebt,
           getDefaultChartSettings(viewSettings, model.settings),
+          viewSettings,
           model,
           showAlert,
           getStartDate,
@@ -761,15 +840,16 @@ function taxButtonList(model: ModelData, viewSettings: ViewSettings) {
   return <div role="group">{buttons}</div>;
 }
 export function taxChartDiv(
-  taxChartData: ChartData[],
-  settings: ChartSettings,
+  taxChartData: ChartData,
+  chartSettings: ChartSettings,
+  viewSettings: ViewSettings,
   showAlert: ((arg0: string) => void) | undefined = undefined,
   getStartDate: (() => string) | undefined = undefined,
   updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
   getEndDate: (() => string) | undefined = undefined,
   updateEndDate: ((newDate: string) => Promise<void>) | undefined = undefined,
 ) {
-  if (taxChartData.length === 0) {
+  if (taxChartData.labels.length === 0) {
     if (
       showAlert === undefined ||
       getStartDate === undefined ||
@@ -789,7 +869,7 @@ export function taxChartDiv(
       return (
         <>
           No tax data - none payable or adjust display range
-          <div className="col">
+          <Col>
             <AddDeleteEntryForm
               name="view start date"
               getValue={getStartDate}
@@ -802,25 +882,18 @@ export function taxChartDiv(
               submitFunction={updateEndDate}
               showAlert={showAlert}
             />
-          </div>
+          </Col>
         </>
       );
     }
   }
-  return (
-    <CanvasJSChart
-      options={{
-        ...settings,
-        data: taxChartData,
-      }}
-    />
-  );
+  return makeContainedBarChart(taxChartData, chartSettings, viewSettings);
 }
 
 function taxChartDivWithButtons(
   model: ModelData,
   viewSettings: ViewSettings,
-  taxChartData: ChartData[],
+  taxChartData: ChartData,
   settings: ChartSettings,
   showAlert: ((arg0: string) => void) | undefined = undefined,
   getStartDate: (() => string) | undefined = undefined,
@@ -835,6 +908,7 @@ function taxChartDivWithButtons(
       {taxChartDiv(
         taxChartData,
         settings,
+        viewSettings,
         showAlert,
         getStartDate,
         updateStartDate,
@@ -847,11 +921,13 @@ function taxChartDivWithButtons(
 export function taxDiv(
   model: ModelData,
   viewSettings: ViewSettings,
-  taxChartData: ChartData[],
+  taxChartData: ChartData,
 ) {
   if (!getDisplay(taxView)) {
+    // log(`don't populate taxView`);
     return;
   }
+  // log(`do populate taxView`);
 
   return (
     <div className="ml-3">

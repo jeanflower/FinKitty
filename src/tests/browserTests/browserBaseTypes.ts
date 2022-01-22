@@ -1,5 +1,13 @@
 import { log, printDebug } from '../../utils';
 import webdriver, { ThenableWebDriver, Key } from 'selenium-webdriver';
+import {
+  homeTag,
+  assetsTag,
+  debtsTag,
+  expensesTag,
+  gotoTabPage,
+  incomesTag,
+} from './browserTestUtils';
 
 export function allowExtraSleeps() {
   if (
@@ -32,7 +40,10 @@ export function getDriver(headless: boolean) {
   // Set up the browser capabilities.
   // Some lines could be condensed into one-liners if that's your preferred style.
   let browserCapabilities = webdriver.Capabilities.chrome();
-  browserCapabilities = browserCapabilities.set('goog:chromeOptions', browserOptions);
+  browserCapabilities = browserCapabilities.set(
+    'goog:chromeOptions',
+    browserOptions,
+  );
   const builder = new webdriver.Builder().forBrowser('chrome');
   const driver = builder.withCapabilities(browserCapabilities).build();
 
@@ -54,21 +65,11 @@ function sleep(ms: number, message: string) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function gotoHomePage(driver: ThenableWebDriver) {
-  const btnHome = await driver.findElements(webdriver.By.id('btn-Home'));
-  // log(`btnMms.length = ${btnMms.length}`);
-  expect(btnHome.length === 1).toBe(true);
-  await btnHome[0].click();
-  if (allowExtraSleeps()) {
-    await sleep(shortSleep, '--- on home page');
-  }
-}
-
 export async function selectModel(
   driver: ThenableWebDriver,
   testDataModelName: string,
 ) {
-  await gotoHomePage(driver);
+  await gotoTabPage(driver, homeTag);
 
   if (allowExtraSleeps()) {
     await sleep(1000, 'time for buttons to appear');
@@ -224,12 +225,11 @@ export async function beforeAllWork(
   }
 
   await clickButton(driver, 'buttonTestLogin');
-  await clickButton(driver, 'btn-Home');
+  await gotoTabPage(driver, homeTag);
 
   // tests overwrite data using input forms
   // even though we don't expect people to do this
   await enterTextControl(driver, 'overwrite');
-  await enterTextControl(driver, 'overview');
 
   if (testDataModelName !== '' && modelString !== '') {
     await replaceWithTestModel(driver, testDataModelName, modelString);
@@ -238,7 +238,7 @@ export async function beforeAllWork(
     if (allowExtraSleeps()) {
       await sleep(calcSleep, '--- after model selected');
     }
-    await clickButton(driver, 'btn-Home');
+    await gotoTabPage(driver, homeTag);
   }
 }
 
@@ -246,7 +246,7 @@ export async function cleanUpWork(
   driver: ThenableWebDriver,
   testDataModelName: string,
 ) {
-  await gotoHomePage(driver);
+  await gotoTabPage(driver, homeTag);
 
   return new Promise<void>(async resolve => {
     // log(`in clean up model`);
@@ -254,7 +254,7 @@ export async function cleanUpWork(
     // log(`seek btn-${testDataModelName}`);
 
     await selectModel(driver, testDataModelName);
-    await clickButton(driver, 'btn-Home');
+    await gotoTabPage(driver, homeTag);
 
     const deleteModelButton = await driver.findElement(
       webdriver.By.id(`btn-delete`),
@@ -285,42 +285,34 @@ export async function refreshPage(
 ) {
   // log('in refreshPage');
   await selectModel(driver, testDataModelName);
-  await clickButton(driver, 'btn-Home');
+  await gotoTabPage(driver, homeTag);
   return sleep(calcSleep, 'after refreshing a page');
 }
 
-export function writeTestCode(ary: any[]) {
-  let result = 'AUTO_GENERATED_TEST_CODE:\n';
-  result += `expect(ary.length).toEqual(${ary.length});\n`;
-  for (let i = 0; i < ary.length; i += 1) {
-    result += `expect(ary[${i}].name).toEqual('${ary[i].name}');\n`;
-    result += `expect(ary[${i}].type).toEqual('${ary[i].type}');\n`;
-    result += `expect(ary[${i}].showInLegend).toEqual(${ary[i].showInLegend});\n`;
+export function makeTestCode(ary: any) {
+  let result = '';
+  result += `expect(ary.labels.length).toEqual(${ary.labels.length});\n`;
+  for (let i = 0; i < ary.labels.length; i += 1) {
+    result += `expect(ary.labels[${i}]).toEqual('${ary.labels[i]}');\n`;
+  }
+  result += `expect(ary.datasets.length).toEqual(${ary.datasets.length});\n`;
+  for (let i = 0; i < ary.datasets.length; i += 1) {
+    result += `expect(ary.datasets[${i}].label).toEqual('${ary.datasets[i].label}');\n`;
     result +=
-      `expect(ary[${i}].dataPoints.length).toEqual(` +
-      `${ary[i].dataPoints.length});\n`;
-    for (let j = 0; j < ary[i].dataPoints.length; j += 1) {
+      `expect(ary.datasets[${i}].data.length).toEqual(` +
+      `${ary.datasets[i].data.length});\n`;
+    for (let j = 0; j < ary.datasets[i].data.length; j += 1) {
       result +=
-        `expect(ary[${i}].dataPoints[${j}].label).toEqual('` +
-        `${ary[i].dataPoints[j].label}');\n`;
-      const yVal = ary[i].dataPoints[j].y;
-      if (yVal === 0) {
-        result +=
-          `expect(ary[${i}].dataPoints[${j}].y).toEqual(` + `${yVal});\n`;
-      } else {
-        result +=
-          `expect(ary[${i}].dataPoints[${j}].y).toBeCloseTo(` +
-          `${yVal}, 6);\n`;
-      }
-      result +=
-        `expect(ary[${i}].dataPoints[${j}].ttip).toEqual('` +
-        `${ary[i].dataPoints[j].ttip}');\n`;
+        `expect(ary.datasets[${i}].data[${j}]).toBeCloseTo(` +
+        `${ary.datasets[i].data[j]}, 6);\n`;
     }
   }
 
-  log(result);
+  return result;
 }
-
+export function writeTestCode(ary: any) {
+  log(makeTestCode(ary));
+}
 export async function getChartData(driver: ThenableWebDriver, label: string) {
   // locate the asset text dump
   const divElement = await driver.findElement(webdriver.By.id(label));
@@ -337,6 +329,7 @@ async function getTypedChartData(
   switchButtonID: string,
   dataDumpName: string,
 ) {
+  await driver.executeScript('window.scrollBy(0, -4000)');
   const btn = await driver.findElements(webdriver.By.id(switchButtonID));
   expect(btn.length === 1).toBe(true);
   await btn[0].click();
@@ -346,14 +339,14 @@ async function getTypedChartData(
   return getChartData(driver, dataDumpName);
 }
 export async function getAssetChartData(driver: ThenableWebDriver) {
-  return getTypedChartData(driver, 'btn-Assets', 'assetDataDump');
+  return getTypedChartData(driver, assetsTag, 'assetDataDump');
 }
 export async function getDebtChartData(driver: ThenableWebDriver) {
-  return getTypedChartData(driver, 'btn-Debts', 'debtDataDump');
+  return getTypedChartData(driver, debtsTag, 'debtDataDump');
 }
 export async function getExpenseChartData(driver: ThenableWebDriver) {
-  return getTypedChartData(driver, 'btn-Expenses', 'expenseDataDump');
+  return getTypedChartData(driver, expensesTag, 'expenseDataDump');
 }
 export async function getIncomeChartData(driver: ThenableWebDriver) {
-  return getTypedChartData(driver, 'btn-Incomes', 'incomeDataDump');
+  return getTypedChartData(driver, incomesTag, 'incomeDataDump');
 }
