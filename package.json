@@ -14,7 +14,6 @@
     "@types/selenium-webdriver": "^4.0.16",
     "bootstrap": "^4.6.1",
     "chart.js": "^3.7.0",
-    "chrome-headless": "^0.1.5",
     "chromedriver": "^87.0.7",
     "crypto-js": "^3.3.0",
     "dateformat": "^4.6.3",
@@ -30,7 +29,8 @@
     "react-dom": "^16.14.0",
     "react-scripts": "^3.4.4",
     "selenium-webdriver": "^4.1.1",
-    "typescript": "^3.9.10"
+    "typescript": "^3.9.10",
+    "ws": "^8.4.2"
   },
   "scripts": {
     "postinstall": "react-scripts build",
@@ -90,7 +90,7 @@
     "eslint-config-airbnb": "^18.2.1",
     "eslint-config-prettier": "^6.15.0",
     "eslint-config-react": "^1.1.7",
-    "eslint-plugin-prettier": "^3.4.1",
-    "prettier": "^1.19.1"
+    "eslint-plugin-prettier": "^4.0.0",
+    "prettier": "^2.5.1"
   }
 }
