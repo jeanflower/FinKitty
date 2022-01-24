@@ -198,8 +198,9 @@ export interface ExpenseVal {
 }
 
 export interface GrowthData {
-  monthScale: number;
-  //annualScale: number,
+  itemGrowth: string;
+  powerByNumMonths: number;
+  scale: number;
   applyCPI: boolean;
 }
 

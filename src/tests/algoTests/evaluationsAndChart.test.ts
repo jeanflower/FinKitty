@@ -2718,7 +2718,7 @@ describe('evaluations tests', () => {
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
 
-    //  printTestCodeForEvals(evals);
+    // printTestCodeForEvals(evals);
 
     expect(evals.length).toBe(4);
     expectEvals(evals, 0, 'MyCa', 'Mon Jan 01 2018', 500, -1);
@@ -21573,13 +21573,31 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('revalue a setting 01', done => { // TODO is this behaving correctly?  I see stocks growing
+  it('revalue a setting 01', done => { 
     const roi = {
       start: '1 Jan 2019',
-      end: '1 Jan 2042',
+      end: '1 May 2019',
     };
 
-    const model = makeModelFromJSON(simpleExampleData);
+    const model = makeModelFromJSON(`{
+      "triggers":[],
+      "expenses":[],
+      "incomes":[],
+      "assets":[
+        {"NAME":"Cash","CATEGORY":"","START":"28 December 2018","VALUE":"100","GROWTH":"0","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":true,"LIABILITY":"","PURCHASE_PRICE":"0","IS_A_DEBT":false,"QUANTITY":""},
+        {"NAME":"ISAs","CATEGORY":"stock","START":"28 December 2018","VALUE":"100","GROWTH":"stockMarketGrowth","CPI_IMMUNE":true,"CAN_BE_NEGATIVE":false,"LIABILITY":"","PURCHASE_PRICE":"0","IS_A_DEBT":false,"QUANTITY":""},
+        {"NAME":"Stks","CATEGORY":"stock","START":"28 December 2018","VALUE":"100","GROWTH":"stockMarketGrowth","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":false,"LIABILITY":"","PURCHASE_PRICE":"0","IS_A_DEBT":false,"QUANTITY":""}
+      ],
+      "transactions":[],
+      "settings":[
+        {"NAME":"Beginning of view range","VALUE":"1 Jan 2019","HINT":"Date at the start of range to be plotted","TYPE":"view"},
+        {"NAME":"cpi","VALUE":"12.0","HINT":"Annual rate of inflation","TYPE":"const"},
+        {"NAME":"Date of birth","VALUE":"","HINT":"Date used for representing dates as ages","TYPE":"view"},
+        {"NAME":"End of view range","VALUE":"1 Jan 2021","HINT":"Date at the end of range to be plotted","TYPE":"view"},
+        {"NAME":"stockMarketGrowth","VALUE":"12.0","HINT":"Custom setting for stock market growth","TYPE":"adjustable"},
+        {"NAME": "Today's value focus date","VALUE": "","HINT": "Date to use for 'today's value' tables (defaults to '' meaning today)","TYPE": "view"}
+      ]
+    }`);
 
     model.transactions.push({
       NAME: 'Revalue a setting',
@@ -21589,7 +21607,7 @@ describe('evaluations tests', () => {
       TO: 'stockMarketGrowth',
       TO_ABSOLUTE: true,
       TO_VALUE: '0.0',
-      DATE: '2029',
+      DATE: 'March 2019',
       STOP_DATE: '',
       RECURRENCE: '',
       TYPE: 'revalueSetting',
@@ -21602,11 +21620,28 @@ describe('evaluations tests', () => {
 
     // printTestCodeForEvals(evals);
 
-    // expect(evals.length).toBe(4594);
+    expect(evals.length).toBe(17);
+    expectEvals(evals, 0, 'stockMarketGrowth', 'Fri Dec 28 2018', 12, -1);
+    expectEvals(evals, 1, 'Cash', 'Fri Dec 28 2018', 100, -1);
+    expectEvals(evals, 2, 'ISAs', 'Fri Dec 28 2018', 100, -1);
+    expectEvals(evals, 3, 'Stks', 'Fri Dec 28 2018', 100, -1);
+    expectEvals(evals, 4, 'Cash', 'Mon Jan 28 2019', 100.95, 2); // go up by CPI
+    expectEvals(evals, 5, 'ISAs', 'Mon Jan 28 2019', 100.95, 2); // go up by growth
+    expectEvals(evals, 6, 'Stks', 'Mon Jan 28 2019', 101.81, 2); // go up by both
+    expectEvals(evals, 7, 'Cash', 'Thu Feb 28 2019', 101.91, 2);
+    expectEvals(evals, 8, 'ISAs', 'Thu Feb 28 2019', 101.91, 2);
+    expectEvals(evals, 9, 'Stks', 'Thu Feb 28 2019', 103.65, 2);
+    expectEvals(evals, 10, 'stockMarketGrowth', 'Fri Mar 01 2019', 0, -1);
+    expectEvals(evals, 11, 'Cash', 'Thu Mar 28 2019', 102.87, 2);
+    expectEvals(evals, 12, 'ISAs', 'Thu Mar 28 2019', 101.91, 2); // don't go up noe
+    expectEvals(evals, 13, 'Stks', 'Thu Mar 28 2019', 104.63, 2);
+    expectEvals(evals, 14, 'Cash', 'Sun Apr 28 2019', 103.85, 2); // by CPI
+    expectEvals(evals, 15, 'ISAs', 'Sun Apr 28 2019', 101.91, 2); // don't go up noe
+    expectEvals(evals, 16, 'Stks', 'Sun Apr 28 2019', 105.63, 2); // only CPI
 
     const viewSettings = defaultTestViewSettings();
 
-    viewSettings.setViewSetting(viewFrequency, annually);
+    // viewSettings.setViewSetting(viewFrequency, annually);
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -21615,387 +21650,41 @@ describe('evaluations tests', () => {
 
     // printTestCodeForChart(result);
 
-    expect(result.expensesData.length).toBe(3);
-    expect(result.expensesData[0].item.NAME).toBe('Look after dogs');
-    {
-    const chartPts = result.expensesData[0].chartDataPoints;
-    expect(chartPts.length).toBe(23);
-    expectChartData(chartPts, 0, 'Tue Jan 01 2019', 5083.50, 2);
-    expectChartData(chartPts, 1, 'Wed Jan 01 2020', 6351.52, 2);
-    expectChartData(chartPts, 2, 'Fri Jan 01 2021', 6637.34, 2);
-    expectChartData(chartPts, 3, 'Sat Jan 01 2022', 6936.02, 2);
-    expectChartData(chartPts, 4, 'Sun Jan 01 2023', 7248.14, 2);
-    expectChartData(chartPts, 5, 'Mon Jan 01 2024', 7574.31, 2);
-    expectChartData(chartPts, 6, 'Wed Jan 01 2025', 7915.15, 2);
-    expectChartData(chartPts, 7, 'Thu Jan 01 2026', 8271.34, 2);
-    expectChartData(chartPts, 8, 'Fri Jan 01 2027', 8643.55, 2);
-    expectChartData(chartPts, 9, 'Sat Jan 01 2028', 9032.51, 2);
-    expectChartData(chartPts, 10, 'Mon Jan 01 2029', 9438.97, 2);
-    expectChartData(chartPts, 11, 'Tue Jan 01 2030', 9863.72, 2);
-    expectChartData(chartPts, 12, 'Wed Jan 01 2031', 10307.59, 2);
-    expectChartData(chartPts, 13, 'Thu Jan 01 2032', 10771.43, 2);
-    expectChartData(chartPts, 14, 'Sat Jan 01 2033', 11256.15, 2);
-    expectChartData(chartPts, 15, 'Sun Jan 01 2034', 11762.67, 2);
-    expectChartData(chartPts, 16, 'Mon Jan 01 2035', 12291.99, 2);
-    expectChartData(chartPts, 17, 'Tue Jan 01 2036', 12845.13, 2);
-    expectChartData(chartPts, 18, 'Thu Jan 01 2037', 13423.16, 2);
-    expectChartData(chartPts, 19, 'Fri Jan 01 2038', 14027.21, 2);
-    expectChartData(chartPts, 20, 'Sat Jan 01 2039', 14658.43, 2);
-    expectChartData(chartPts, 21, 'Sun Jan 01 2040', 15318.06, 2);
-    expectChartData(chartPts, 22, 'Tue Jan 01 2041', 16007.37, 2);
-    }
-    
-    expect(result.expensesData[1].item.NAME).toBe('Run car');
-    {
-    const chartPts = result.expensesData[1].chartDataPoints;
-    expect(chartPts.length).toBe(23);
-    expectChartData(chartPts, 0, 'Tue Jan 01 2019', 7193.52, 2);
-    expectChartData(chartPts, 1, 'Wed Jan 01 2020', 9224.49, 2);
-    expectChartData(chartPts, 2, 'Fri Jan 01 2021', 9916.33, 2);
-    expectChartData(chartPts, 3, 'Sat Jan 01 2022', 10660.06, 2);
-    expectChartData(chartPts, 4, 'Sun Jan 01 2023', 11459.56, 2);
-    expectChartData(chartPts, 5, 'Mon Jan 01 2024', 12319.03, 2);
-    expectChartData(chartPts, 6, 'Wed Jan 01 2025', 13242.95, 2);
-    expectChartData(chartPts, 7, 'Thu Jan 01 2026', 13010.11, 2);
-    expectChartData(chartPts, 8, 'Fri Jan 01 2027', 0, -1);
-    expectChartData(chartPts, 9, 'Sat Jan 01 2028', 0, -1);
-    expectChartData(chartPts, 10, 'Mon Jan 01 2029', 0, -1);
-    expectChartData(chartPts, 11, 'Tue Jan 01 2030', 0, -1);
-    expectChartData(chartPts, 12, 'Wed Jan 01 2031', 0, -1);
-    expectChartData(chartPts, 13, 'Thu Jan 01 2032', 0, -1);
-    expectChartData(chartPts, 14, 'Sat Jan 01 2033', 0, -1);
-    expectChartData(chartPts, 15, 'Sun Jan 01 2034', 0, -1);
-    expectChartData(chartPts, 16, 'Mon Jan 01 2035', 0, -1);
-    expectChartData(chartPts, 17, 'Tue Jan 01 2036', 0, -1);
-    expectChartData(chartPts, 18, 'Thu Jan 01 2037', 0, -1);
-    expectChartData(chartPts, 19, 'Fri Jan 01 2038', 0, -1);
-    expectChartData(chartPts, 20, 'Sat Jan 01 2039', 0, -1);
-    expectChartData(chartPts, 21, 'Sun Jan 01 2040', 0, -1);
-    expectChartData(chartPts, 22, 'Tue Jan 01 2041', 0, -1);
-    }
-    
-    expect(result.expensesData[2].item.NAME).toBe('Run house');
-    {
-    const chartPts = result.expensesData[2].chartDataPoints;
-    expect(chartPts.length).toBe(23);
-    expectChartData(chartPts, 0, 'Tue Jan 01 2019', 13217.10, 2);
-    expectChartData(chartPts, 1, 'Wed Jan 01 2020', 16513.96, 2);
-    expectChartData(chartPts, 2, 'Fri Jan 01 2021', 17257.09, 2);
-    expectChartData(chartPts, 3, 'Sat Jan 01 2022', 18033.66, 2);
-    expectChartData(chartPts, 4, 'Sun Jan 01 2023', 18845.17, 2);
-    expectChartData(chartPts, 5, 'Mon Jan 01 2024', 19693.21, 2);
-    expectChartData(chartPts, 6, 'Wed Jan 01 2025', 20579.40, 2);
-    expectChartData(chartPts, 7, 'Thu Jan 01 2026', 21505.47, 2);
-    expectChartData(chartPts, 8, 'Fri Jan 01 2027', 22473.22, 2);
-    expectChartData(chartPts, 9, 'Sat Jan 01 2028', 23484.52, 2);
-    expectChartData(chartPts, 10, 'Mon Jan 01 2029', 24541.32, 2);
-    expectChartData(chartPts, 11, 'Tue Jan 01 2030', 25645.68, 2);
-    expectChartData(chartPts, 12, 'Wed Jan 01 2031', 26799.73, 2);
-    expectChartData(chartPts, 13, 'Thu Jan 01 2032', 28005.72, 2);
-    expectChartData(chartPts, 14, 'Sat Jan 01 2033', 29265.98, 2);
-    expectChartData(chartPts, 15, 'Sun Jan 01 2034', 30582.95, 2);
-    expectChartData(chartPts, 16, 'Mon Jan 01 2035', 31959.18, 2);
-    expectChartData(chartPts, 17, 'Tue Jan 01 2036', 33397.34, 2);
-    expectChartData(chartPts, 18, 'Thu Jan 01 2037', 34900.23, 2);
-    expectChartData(chartPts, 19, 'Fri Jan 01 2038', 36470.74, 2);
-    expectChartData(chartPts, 20, 'Sat Jan 01 2039', 38111.92, 2);
-    expectChartData(chartPts, 21, 'Sun Jan 01 2040', 39826.95, 2);
-    expectChartData(chartPts, 22, 'Tue Jan 01 2041', 41619.17, 2);
-    }
-    
-    expect(result.incomesData.length).toBe(3);
-    expect(result.incomesData[0].item.NAME).toBe('Main income');
-    {
-    const chartPts = result.incomesData[0].chartDataPoints;
-    expect(chartPts.length).toBe(23);
-    expectChartData(chartPts, 0, 'Tue Jan 01 2019', 39215.26, 2);
-    expectChartData(chartPts, 1, 'Wed Jan 01 2020', 44624.05, 2);
-    expectChartData(chartPts, 2, 'Fri Jan 01 2021', 46632.13, 2);
-    expectChartData(chartPts, 3, 'Sat Jan 01 2022', 48730.58, 2);
-    expectChartData(chartPts, 4, 'Sun Jan 01 2023', 50923.46, 2);
-    expectChartData(chartPts, 5, 'Mon Jan 01 2024', 53215.01, 2);
-    expectChartData(chartPts, 6, 'Wed Jan 01 2025', 55609.69, 2);
-    expectChartData(chartPts, 7, 'Thu Jan 01 2026', 58112.12, 2);
-    expectChartData(chartPts, 8, 'Fri Jan 01 2027', 60727.17, 2);
-    expectChartData(chartPts, 9, 'Sat Jan 01 2028', 63459.89, 2);
-    expectChartData(chartPts, 10, 'Mon Jan 01 2029', 66315.59, 2);
-    expectChartData(chartPts, 11, 'Tue Jan 01 2030', 69299.79, 2);
-    expectChartData(chartPts, 12, 'Wed Jan 01 2031', 72418.28, 2);
-    expectChartData(chartPts, 13, 'Thu Jan 01 2032', 75677.10, 2);
-    expectChartData(chartPts, 14, 'Sat Jan 01 2033', 79082.57, 2);
-    expectChartData(chartPts, 15, 'Sun Jan 01 2034', 82641.29, 2);
-    expectChartData(chartPts, 16, 'Mon Jan 01 2035', 86360.14, 2);
-    expectChartData(chartPts, 17, 'Tue Jan 01 2036', 90246.35, 2);
-    expectChartData(chartPts, 18, 'Thu Jan 01 2037', 94307.44, 2);
-    expectChartData(chartPts, 19, 'Fri Jan 01 2038', 98551.27, 2);
-    expectChartData(chartPts, 20, 'Sat Jan 01 2039', 102986.08, 2);
-    expectChartData(chartPts, 21, 'Sun Jan 01 2040', 107620.45, 2);
-    expectChartData(chartPts, 22, 'Tue Jan 01 2041', 112463.37, 2);
-    }
-    
-    expect(result.incomesData[1].item.NAME).toBe('Side hustle income');
-    {
-    const chartPts = result.incomesData[1].chartDataPoints;
-    expect(chartPts.length).toBe(23);
-    expectChartData(chartPts, 0, 'Tue Jan 01 2019', 16670.99, 2);
-    expectChartData(chartPts, 1, 'Wed Jan 01 2020', 18622.11, 2);
-    expectChartData(chartPts, 2, 'Fri Jan 01 2021', 19087.66, 2);
-    expectChartData(chartPts, 3, 'Sat Jan 01 2022', 19564.85, 2);
-    expectChartData(chartPts, 4, 'Sun Jan 01 2023', 20053.97, 2);
-    expectChartData(chartPts, 5, 'Mon Jan 01 2024', 20555.32, 2);
-    expectChartData(chartPts, 6, 'Wed Jan 01 2025', 21069.20, 2);
-    expectChartData(chartPts, 7, 'Thu Jan 01 2026', 5349.09, 2);
-    expectChartData(chartPts, 8, 'Fri Jan 01 2027', 0, -1);
-    expectChartData(chartPts, 9, 'Sat Jan 01 2028', 0, -1);
-    expectChartData(chartPts, 10, 'Mon Jan 01 2029', 0, -1);
-    expectChartData(chartPts, 11, 'Tue Jan 01 2030', 0, -1);
-    expectChartData(chartPts, 12, 'Wed Jan 01 2031', 0, -1);
-    expectChartData(chartPts, 13, 'Thu Jan 01 2032', 0, -1);
-    expectChartData(chartPts, 14, 'Sat Jan 01 2033', 0, -1);
-    expectChartData(chartPts, 15, 'Sun Jan 01 2034', 0, -1);
-    expectChartData(chartPts, 16, 'Mon Jan 01 2035', 0, -1);
-    expectChartData(chartPts, 17, 'Tue Jan 01 2036', 0, -1);
-    expectChartData(chartPts, 18, 'Thu Jan 01 2037', 0, -1);
-    expectChartData(chartPts, 19, 'Fri Jan 01 2038', 0, -1);
-    expectChartData(chartPts, 20, 'Sat Jan 01 2039', 0, -1);
-    expectChartData(chartPts, 21, 'Sun Jan 01 2040', 0, -1);
-    expectChartData(chartPts, 22, 'Tue Jan 01 2041', 0, -1);
-    }
-    
-    expect(result.incomesData[2].item.NAME).toBe('Side hustle income later');
-    {
-    const chartPts = result.incomesData[2].chartDataPoints;
-    expect(chartPts.length).toBe(23);
-    expectChartData(chartPts, 0, 'Tue Jan 01 2019', 0, -1);
-    expectChartData(chartPts, 1, 'Wed Jan 01 2020', 0, -1);
-    expectChartData(chartPts, 2, 'Fri Jan 01 2021', 0, -1);
-    expectChartData(chartPts, 3, 'Sat Jan 01 2022', 0, -1);
-    expectChartData(chartPts, 4, 'Sun Jan 01 2023', 0, -1);
-    expectChartData(chartPts, 5, 'Mon Jan 01 2024', 0, -1);
-    expectChartData(chartPts, 6, 'Wed Jan 01 2025', 0, -1);
-    expectChartData(chartPts, 7, 'Thu Jan 01 2026', 16213.44, 2);
-    expectChartData(chartPts, 8, 'Fri Jan 01 2027', 22090.33, 2);
-    expectChartData(chartPts, 9, 'Sat Jan 01 2028', 22642.59, 2);
-    expectChartData(chartPts, 10, 'Mon Jan 01 2029', 23208.65, 2);
-    expectChartData(chartPts, 11, 'Tue Jan 01 2030', 5892.26, 2);
-    expectChartData(chartPts, 12, 'Wed Jan 01 2031', 0, -1);
-    expectChartData(chartPts, 13, 'Thu Jan 01 2032', 0, -1);
-    expectChartData(chartPts, 14, 'Sat Jan 01 2033', 0, -1);
-    expectChartData(chartPts, 15, 'Sun Jan 01 2034', 0, -1);
-    expectChartData(chartPts, 16, 'Mon Jan 01 2035', 0, -1);
-    expectChartData(chartPts, 17, 'Tue Jan 01 2036', 0, -1);
-    expectChartData(chartPts, 18, 'Thu Jan 01 2037', 0, -1);
-    expectChartData(chartPts, 19, 'Fri Jan 01 2038', 0, -1);
-    expectChartData(chartPts, 20, 'Sat Jan 01 2039', 0, -1);
-    expectChartData(chartPts, 21, 'Sun Jan 01 2040', 0, -1);
-    expectChartData(chartPts, 22, 'Tue Jan 01 2041', 0, -1);
-    }
-    
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(0);
     expect(result.assetData.length).toBe(3);
     expect(result.assetData[0].item.NAME).toBe('Cash');
     {
     const chartPts = result.assetData[0].chartDataPoints;
-    expect(chartPts.length).toBe(23);
-    expectChartData(chartPts, 0, 'Tue Jan 01 2019', 6038.47, 2);
-    expectChartData(chartPts, 1, 'Wed Jan 01 2020', 10603.11, 2);
-    expectChartData(chartPts, 2, 'Fri Jan 01 2021', 15639.10, 2);
-    expectChartData(chartPts, 3, 'Sat Jan 01 2022', 21144.02, 2);
-    expectChartData(chartPts, 4, 'Sun Jan 01 2023', 26965.42, 2);
-    expectChartData(chartPts, 5, 'Mon Jan 01 2024', 33386.36, 2);
-    expectChartData(chartPts, 6, 'Wed Jan 01 2025', 40020.91, 2);
-    expectChartData(chartPts, 7, 'Thu Jan 01 2026', 49105.63, 2);
-    expectChartData(chartPts, 8, 'Fri Jan 01 2027', 71693.82, 2);
-    expectChartData(chartPts, 9, 'Sat Jan 01 2028', 97505.78, 2);
-    expectChartData(chartPts, 10, 'Mon Jan 01 2029', 123655.90, 2);
-    expectChartData(chartPts, 11, 'Tue Jan 01 2030', 133643.40, 2);
-    expectChartData(chartPts, 12, 'Wed Jan 01 2031', 138528.26, 2);
-    expectChartData(chartPts, 13, 'Thu Jan 01 2032', 144219.86, 2);
-    expectChartData(chartPts, 14, 'Sat Jan 01 2033', 150761.33, 2);
-    expectChartData(chartPts, 15, 'Sun Jan 01 2034', 161248.58, 2);
-    expectChartData(chartPts, 16, 'Mon Jan 01 2035', 187908.58, 2);
-    expectChartData(chartPts, 17, 'Tue Jan 01 2036', 216016.78, 2);
-    expectChartData(chartPts, 18, 'Thu Jan 01 2037', 245635.89, 2);
-    expectChartData(chartPts, 19, 'Fri Jan 01 2038', 276831.18, 2);
-    expectChartData(chartPts, 20, 'Sat Jan 01 2039', 309670.60, 2);
-    expectChartData(chartPts, 21, 'Sun Jan 01 2040', 344224.84, 2);
-    expectChartData(chartPts, 22, 'Tue Jan 01 2041', 380567.44, 2);
+    expect(chartPts.length).toBe(4);
+    expectChartData(chartPts, 0, 'Tue Jan 01 2019', 100, -1);
+    expectChartData(chartPts, 1, 'Fri Feb 01 2019', 100.95, 2);
+    expectChartData(chartPts, 2, 'Fri Mar 01 2019', 101.91, 2);
+    expectChartData(chartPts, 3, 'Mon Apr 01 2019', 102.87, 2);
     }
     
     expect(result.assetData[1].item.NAME).toBe('ISAs');
     {
     const chartPts = result.assetData[1].chartDataPoints;
-    expect(chartPts.length).toBe(23);
-    expectChartData(chartPts, 0, 'Tue Jan 01 2019', 0, -1);
-    expectChartData(chartPts, 1, 'Wed Jan 01 2020', 2014.01, 2);
-    expectChartData(chartPts, 2, 'Fri Jan 01 2021', 2189.95, 2);
-    expectChartData(chartPts, 3, 'Sat Jan 01 2022', 2381.27, 2);
-    expectChartData(chartPts, 4, 'Sun Jan 01 2023', 2589.29, 2);
-    expectChartData(chartPts, 5, 'Mon Jan 01 2024', 2815.49, 2);
-    expectChartData(chartPts, 6, 'Wed Jan 01 2025', 3061.45, 2);
-    expectChartData(chartPts, 7, 'Thu Jan 01 2026', 3328.90, 2);
-    expectChartData(chartPts, 8, 'Fri Jan 01 2027', 3619.72, 2);
-    expectChartData(chartPts, 9, 'Sat Jan 01 2028', 3935.94, 2);
-    expectChartData(chartPts, 10, 'Mon Jan 01 2029', 4279.78, 2);
-    expectChartData(chartPts, 11, 'Tue Jan 01 2030', 4653.66, 2);
-    expectChartData(chartPts, 12, 'Wed Jan 01 2031', 5060.20, 2);
-    expectChartData(chartPts, 13, 'Thu Jan 01 2032', 5502.26, 2);
-    expectChartData(chartPts, 14, 'Sat Jan 01 2033', 5982.94, 2);
-    expectChartData(chartPts, 15, 'Sun Jan 01 2034', 6505.61, 2);
-    expectChartData(chartPts, 16, 'Mon Jan 01 2035', 7073.94, 2);
-    expectChartData(chartPts, 17, 'Tue Jan 01 2036', 7691.92, 2);
-    expectChartData(chartPts, 18, 'Thu Jan 01 2037', 8363.89, 2);
-    expectChartData(chartPts, 19, 'Fri Jan 01 2038', 9094.56, 2);
-    expectChartData(chartPts, 20, 'Sat Jan 01 2039', 9889.06, 2);
-    expectChartData(chartPts, 21, 'Sun Jan 01 2040', 10752.96, 2);
-    expectChartData(chartPts, 22, 'Tue Jan 01 2041', 11692.34, 2);
+    expect(chartPts.length).toBe(4);
+    expectChartData(chartPts, 0, 'Tue Jan 01 2019', 100, -1);
+    expectChartData(chartPts, 1, 'Fri Feb 01 2019', 100.95, 2);
+    expectChartData(chartPts, 2, 'Fri Mar 01 2019', 101.91, 2);
+    expectChartData(chartPts, 3, 'Mon Apr 01 2019', 101.91, 2);
     }
     
-    expect(result.assetData[2].item.NAME).toBe('Stocks');
+    expect(result.assetData[2].item.NAME).toBe('Stks');
     {
     const chartPts = result.assetData[2].chartDataPoints;
-    expect(chartPts.length).toBe(23);
-    expectChartData(chartPts, 0, 'Tue Jan 01 2019', 4379.90, 2);
-    expectChartData(chartPts, 1, 'Wed Jan 01 2020', 4762.53, 2);
-    expectChartData(chartPts, 2, 'Fri Jan 01 2021', 3255.37, 2);
-    expectChartData(chartPts, 3, 'Sat Jan 01 2022', 3539.76, 2);
-    expectChartData(chartPts, 4, 'Sun Jan 01 2023', 3849.00, 2);
-    expectChartData(chartPts, 5, 'Mon Jan 01 2024', 4185.25, 2);
-    expectChartData(chartPts, 6, 'Wed Jan 01 2025', 4550.87, 2);
-    expectChartData(chartPts, 7, 'Thu Jan 01 2026', 4948.43, 2);
-    expectChartData(chartPts, 8, 'Fri Jan 01 2027', 5380.73, 2);
-    expectChartData(chartPts, 9, 'Sat Jan 01 2028', 5850.79, 2);
-    expectChartData(chartPts, 10, 'Mon Jan 01 2029', 6361.91, 2);
-    expectChartData(chartPts, 11, 'Tue Jan 01 2030', 6917.69, 2);
-    expectChartData(chartPts, 12, 'Wed Jan 01 2031', 7522.02, 2);
-    expectChartData(chartPts, 13, 'Thu Jan 01 2032', 8179.14, 2);
-    expectChartData(chartPts, 14, 'Sat Jan 01 2033', 8893.67, 2);
-    expectChartData(chartPts, 15, 'Sun Jan 01 2034', 9670.62, 2);
-    expectChartData(chartPts, 16, 'Mon Jan 01 2035', 10515.45, 2);
-    expectChartData(chartPts, 17, 'Tue Jan 01 2036', 11434.08, 2);
-    expectChartData(chartPts, 18, 'Thu Jan 01 2037', 12432.96, 2);
-    expectChartData(chartPts, 19, 'Fri Jan 01 2038', 13519.11, 2);
-    expectChartData(chartPts, 20, 'Sat Jan 01 2039', 14700.13, 2);
-    expectChartData(chartPts, 21, 'Sun Jan 01 2040', 15984.34, 2);
-    expectChartData(chartPts, 22, 'Tue Jan 01 2041', 17380.73, 2);
+    expect(chartPts.length).toBe(4);
+    expectChartData(chartPts, 0, 'Tue Jan 01 2019', 100, -1);
+    expectChartData(chartPts, 1, 'Fri Feb 01 2019', 101.81, 2);
+    expectChartData(chartPts, 2, 'Fri Mar 01 2019', 103.65, 2);
+    expectChartData(chartPts, 3, 'Mon Apr 01 2019', 104.63, 2);
     }
     
-    expect(result.debtData.length).toBe(2);
-    expect(result.debtData[0].item.NAME).toBe('EarlyMortgage');
-    {
-    const chartPts = result.debtData[0].chartDataPoints;
-    expect(chartPts.length).toBe(23);
-    expectChartData(chartPts, 0, 'Tue Jan 01 2019', 219725.82, 2);
-    expectChartData(chartPts, 1, 'Wed Jan 01 2020', 206654.01, 2);
-    expectChartData(chartPts, 2, 'Fri Jan 01 2021', 193277.62, 2);
-    expectChartData(chartPts, 3, 'Sat Jan 01 2022', 179589.57, 2);
-    expectChartData(chartPts, 4, 'Sun Jan 01 2023', 165582.58, 2);
-    expectChartData(chartPts, 5, 'Mon Jan 01 2024', 151249.23, 2);
-    expectChartData(chartPts, 6, 'Wed Jan 01 2025', 136581.91, 2);
-    expectChartData(chartPts, 7, 'Thu Jan 01 2026', 121572.84, 2);
-    expectChartData(chartPts, 8, 'Fri Jan 01 2027', 106214.06, 2);
-    expectChartData(chartPts, 9, 'Sat Jan 01 2028', 0, -1);
-    expectChartData(chartPts, 10, 'Mon Jan 01 2029', 0, -1);
-    expectChartData(chartPts, 11, 'Tue Jan 01 2030', 0, -1);
-    expectChartData(chartPts, 12, 'Wed Jan 01 2031', 0, -1);
-    expectChartData(chartPts, 13, 'Thu Jan 01 2032', 0, -1);
-    expectChartData(chartPts, 14, 'Sat Jan 01 2033', 0, -1);
-    expectChartData(chartPts, 15, 'Sun Jan 01 2034', 0, -1);
-    expectChartData(chartPts, 16, 'Mon Jan 01 2035', 0, -1);
-    expectChartData(chartPts, 17, 'Tue Jan 01 2036', 0, -1);
-    expectChartData(chartPts, 18, 'Thu Jan 01 2037', 0, -1);
-    expectChartData(chartPts, 19, 'Fri Jan 01 2038', 0, -1);
-    expectChartData(chartPts, 20, 'Sat Jan 01 2039', 0, -1);
-    expectChartData(chartPts, 21, 'Sun Jan 01 2040', 0, -1);
-    expectChartData(chartPts, 22, 'Tue Jan 01 2041', 0, -1);
-    }
-    
-    expect(result.debtData[1].item.NAME).toBe('LateMortgage');
-    {
-    const chartPts = result.debtData[1].chartDataPoints;
-    expect(chartPts.length).toBe(23);
-    expectChartData(chartPts, 0, 'Tue Jan 01 2019', 0, -1);
-    expectChartData(chartPts, 1, 'Wed Jan 01 2020', 0, -1);
-    expectChartData(chartPts, 2, 'Fri Jan 01 2021', 0, -1);
-    expectChartData(chartPts, 3, 'Sat Jan 01 2022', 0, -1);
-    expectChartData(chartPts, 4, 'Sun Jan 01 2023', 0, -1);
-    expectChartData(chartPts, 5, 'Mon Jan 01 2024', 0, -1);
-    expectChartData(chartPts, 6, 'Wed Jan 01 2025', 0, -1);
-    expectChartData(chartPts, 7, 'Thu Jan 01 2026', 0, -1);
-    expectChartData(chartPts, 8, 'Fri Jan 01 2027', 0, -1);
-    expectChartData(chartPts, 9, 'Sat Jan 01 2028', 91997.42, 2);
-    expectChartData(chartPts, 10, 'Mon Jan 01 2029', 77903.22, 2);
-    expectChartData(chartPts, 11, 'Tue Jan 01 2030', 63152.22, 2);
-    expectChartData(chartPts, 12, 'Wed Jan 01 2031', 47713.82, 2);
-    expectChartData(chartPts, 13, 'Thu Jan 01 2032', 31556.00, 2);
-    expectChartData(chartPts, 14, 'Sat Jan 01 2033', 14645.22, 2);
-    expectChartData(chartPts, 15, 'Sun Jan 01 2034', 0, -1);
-    expectChartData(chartPts, 16, 'Mon Jan 01 2035', 0, -1);
-    expectChartData(chartPts, 17, 'Tue Jan 01 2036', 0, -1);
-    expectChartData(chartPts, 18, 'Thu Jan 01 2037', 0, -1);
-    expectChartData(chartPts, 19, 'Fri Jan 01 2038', 0, -1);
-    expectChartData(chartPts, 20, 'Sat Jan 01 2039', 0, -1);
-    expectChartData(chartPts, 21, 'Sun Jan 01 2040', 0, -1);
-    expectChartData(chartPts, 22, 'Tue Jan 01 2041', 0, -1);
-    }
-    
-    expect(result.taxData.length).toBe(2);
-    expect(result.taxData[0].item.NAME).toBe('Joe income (net)');
-    {
-    const chartPts = result.taxData[0].chartDataPoints;
-    expect(chartPts.length).toBe(23);
-    expectChartData(chartPts, 0, 'Tue Jan 01 2019', 7012.82, 2);
-    expectChartData(chartPts, 1, 'Wed Jan 01 2020', 37038.76, 2);
-    expectChartData(chartPts, 2, 'Fri Jan 01 2021', 38591.62, 2);
-    expectChartData(chartPts, 3, 'Sat Jan 01 2022', 40214.33, 2);
-    expectChartData(chartPts, 4, 'Sun Jan 01 2023', 41910.04, 2);
-    expectChartData(chartPts, 5, 'Mon Jan 01 2024', 43699.01, 2);
-    expectChartData(chartPts, 6, 'Wed Jan 01 2025', 45408.10, 2);
-    expectChartData(chartPts, 7, 'Thu Jan 01 2026', 47187.66, 2);
-    expectChartData(chartPts, 8, 'Fri Jan 01 2027', 49040.71, 2);
-    expectChartData(chartPts, 9, 'Sat Jan 01 2028', 50970.40, 2);
-    expectChartData(chartPts, 10, 'Mon Jan 01 2029', 52980.01, 2);
-    expectChartData(chartPts, 11, 'Tue Jan 01 2030', 55072.95, 2);
-    expectChartData(chartPts, 12, 'Wed Jan 01 2031', 57252.80, 2);
-    expectChartData(chartPts, 13, 'Thu Jan 01 2032', 59523.28, 2);
-    expectChartData(chartPts, 14, 'Sat Jan 01 2033', 61888.31, 2);
-    expectChartData(chartPts, 15, 'Sun Jan 01 2034', 64351.92, 2);
-    expectChartData(chartPts, 16, 'Mon Jan 01 2035', 66918.37, 2);
-    expectChartData(chartPts, 17, 'Tue Jan 01 2036', 69592.09, 2);
-    expectChartData(chartPts, 18, 'Thu Jan 01 2037', 72377.69, 2);
-    expectChartData(chartPts, 19, 'Fri Jan 01 2038', 75280.00, 2);
-    expectChartData(chartPts, 20, 'Sat Jan 01 2039', 78304.05, 2);
-    expectChartData(chartPts, 21, 'Sun Jan 01 2040', 81455.11, 2);
-    expectChartData(chartPts, 22, 'Tue Jan 01 2041', 84738.65, 2);
-    }
-    
-    expect(result.taxData[1].item.NAME).toBe('Joe income (incomeTax)');
-    {
-    const chartPts = result.taxData[1].chartDataPoints;
-    expect(chartPts.length).toBe(23);
-    expectChartData(chartPts, 0, 'Tue Jan 01 2019', 0, -1);
-    expectChartData(chartPts, 1, 'Wed Jan 01 2020', 6134.69, 2);
-    expectChartData(chartPts, 2, 'Fri Jan 01 2021', 6522.91, 2);
-    expectChartData(chartPts, 3, 'Sat Jan 01 2022', 6928.58, 2);
-    expectChartData(chartPts, 4, 'Sun Jan 01 2023', 7352.51, 2);
-    expectChartData(chartPts, 5, 'Mon Jan 01 2024', 7778.51, 2);
-    expectChartData(chartPts, 6, 'Wed Jan 01 2025', 8384.04, 2);
-    expectChartData(chartPts, 7, 'Thu Jan 01 2026', 9023.22, 2);
-    expectChartData(chartPts, 8, 'Fri Jan 01 2027', 9697.71, 2);
-    expectChartData(chartPts, 9, 'Sat Jan 01 2028', 10409.26, 2);
-    expectChartData(chartPts, 10, 'Mon Jan 01 2029', 11159.72, 2);
-    expectChartData(chartPts, 11, 'Tue Jan 01 2030', 11951.01, 2);
-    expectChartData(chartPts, 12, 'Wed Jan 01 2031', 12785.14, 2);
-    expectChartData(chartPts, 13, 'Thu Jan 01 2032', 13664.21, 2);
-    expectChartData(chartPts, 14, 'Sat Jan 01 2033', 14590.44, 2);
-    expectChartData(chartPts, 15, 'Sun Jan 01 2034', 15566.14, 2);
-    expectChartData(chartPts, 16, 'Mon Jan 01 2035', 16593.73, 2);
-    expectChartData(chartPts, 17, 'Tue Jan 01 2036', 17675.75, 2);
-    expectChartData(chartPts, 18, 'Thu Jan 01 2037', 18814.84, 2);
-    expectChartData(chartPts, 19, 'Fri Jan 01 2038', 20013.79, 2);
-    expectChartData(chartPts, 20, 'Sat Jan 01 2039', 21275.50, 2);
-    expectChartData(chartPts, 21, 'Sun Jan 01 2040', 22603.02, 2);
-    expectChartData(chartPts, 22, 'Tue Jan 01 2041', 23999.54, 2);
-    }
+    expect(result.debtData.length).toBe(0);
+    expect(result.taxData.length).toBe(0);
 
     done();
   });
@@ -22142,7 +21831,7 @@ describe('evaluations tests', () => {
   it('revalue a setting cpi for asset growth', done => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
-      end: 'March 2, 2021 00:00:00',
+      end: 'July 2, 2019 00:00:00',
     };
     const model: ModelData = {
       ...emptyModel,
@@ -22151,8 +21840,33 @@ describe('evaluations tests', () => {
           ...simpleAsset,
           NAME: 'savings',
           START: 'January 1 2018',
-          VALUE: '1.0',
-          GROWTH: '1.0',
+          VALUE: '100.0',
+          GROWTH: '0.0',
+          CPI_IMMUNE: false,
+        },
+        {
+          ...simpleAsset,
+          NAME: 'saaaaaa',
+          START: 'January 1 2018',
+          VALUE: '100.0',
+          GROWTH: 'rises',
+          CPI_IMMUNE: true,
+        },
+        {
+          ...simpleAsset,
+          NAME: 'sbbbbbb',
+          START: 'January 1 2018',
+          VALUE: '100.0',
+          GROWTH: 'x',
+          CPI_IMMUNE: false,
+        },
+        {
+          ...simpleAsset,
+          NAME: 'scccccc',
+          START: 'January 1 2018',
+          VALUE: '100.0',
+          GROWTH: 'rises',
+          CPI_IMMUNE: false,
         },
       ],
       transactions: [
@@ -22164,7 +21878,7 @@ describe('evaluations tests', () => {
           TO: 'cpi',
           TO_ABSOLUTE: true,
           TO_VALUE: '100.0',
-          DATE: '2019',
+          DATE: 'May 2018',
           STOP_DATE: '',
           RECURRENCE: '',
           TYPE: 'revalueSetting',
@@ -22178,7 +21892,63 @@ describe('evaluations tests', () => {
           TO: 'cpi',
           TO_ABSOLUTE: true,
           TO_VALUE: '0.0',
-          DATE: '2020',
+          DATE: 'May 2019',
+          STOP_DATE: '',
+          RECURRENCE: '',
+          TYPE: 'revalueSetting',
+          CATEGORY: '',
+        },
+        {
+          NAME: 'Revalue grow x',
+          FROM: '',
+          FROM_ABSOLUTE: true,
+          FROM_VALUE: '',
+          TO: 'x',
+          TO_ABSOLUTE: true,
+          TO_VALUE: '100.0',
+          DATE: 'May 2018',
+          STOP_DATE: '',
+          RECURRENCE: '',
+          TYPE: 'revalueSetting',
+          CATEGORY: '',
+        },
+        {
+          NAME: 'Revalue drop x',
+          FROM: '',
+          FROM_ABSOLUTE: true,
+          FROM_VALUE: '',
+          TO: 'x',
+          TO_ABSOLUTE: true,
+          TO_VALUE: '0.0',
+          DATE: 'May 2019',
+          STOP_DATE: '',
+          RECURRENCE: '',
+          TYPE: 'revalueSetting',
+          CATEGORY: '',
+        },
+        {
+          NAME: 'Revalue grow rises',
+          FROM: '',
+          FROM_ABSOLUTE: true,
+          FROM_VALUE: '',
+          TO: 'rises',
+          TO_ABSOLUTE: true,
+          TO_VALUE: '100.0',
+          DATE: 'March 2018',
+          STOP_DATE: '',
+          RECURRENCE: '',
+          TYPE: 'revalueSetting',
+          CATEGORY: '',
+        },
+        {
+          NAME: 'Revalue drop rises',
+          FROM: '',
+          FROM_ABSOLUTE: true,
+          FROM_VALUE: '',
+          TO: 'rises',
+          TO_ABSOLUTE: true,
+          TO_VALUE: '0.0',
+          DATE: 'March 2019',
           STOP_DATE: '',
           RECURRENCE: '',
           TYPE: 'revalueSetting',
@@ -22188,6 +21958,8 @@ describe('evaluations tests', () => {
       settings: [...defaultModelSettings(roi)],
     };
     setSetting(model.settings, cpi, '0', constType);
+    setSetting(model.settings, 'x', '0', constType);
+    setSetting(model.settings, 'rises', '0', constType);
 
     setROI(model, roi);
     const evalsAndValues = getTestEvaluations(model);
@@ -22195,66 +21967,107 @@ describe('evaluations tests', () => {
 
     // printTestCodeForEvals(evals);
 
-    expect(evals.length).toBe(42);
-    expectEvals(evals, 0, 'cpi', 'Tue Jan 01 2019', 0, -1);
-    expectEvals(evals, 1, 'savings', 'Mon Jan 01 2018', 1, -1);
-    expectEvals(evals, 2, 'savings', 'Thu Feb 01 2018', 1.00, 2);
-    expectEvals(evals, 3, 'savings', 'Thu Mar 01 2018', 1.00, 2);
-    expectEvals(evals, 4, 'savings', 'Sun Apr 01 2018', 1.00, 2);
-    expectEvals(evals, 5, 'savings', 'Tue May 01 2018', 1.00, 2);
-    expectEvals(evals, 6, 'savings', 'Fri Jun 01 2018', 1.00, 2);
-    expectEvals(evals, 7, 'savings', 'Sun Jul 01 2018', 1.00, 2);
-    expectEvals(evals, 8, 'savings', 'Wed Aug 01 2018', 1.01, 2);
-    expectEvals(evals, 9, 'savings', 'Sat Sep 01 2018', 1.01, 2);
-    expectEvals(evals, 10, 'savings', 'Mon Oct 01 2018', 1.01, 2);
-    expectEvals(evals, 11, 'savings', 'Thu Nov 01 2018', 1.01, 2);
-    expectEvals(evals, 12, 'savings', 'Sat Dec 01 2018', 1.01, 2);
-    expectEvals(evals, 13, 'savings', 'Tue Jan 01 2019', 1.01, 2);
-    expectEvals(evals, 14, 'cpi', 'Tue Jan 01 2019', 100, -1);
-    expectEvals(evals, 15, 'savings', 'Fri Feb 01 2019', 1.07, 2);
-    expectEvals(evals, 16, 'savings', 'Fri Mar 01 2019', 1.14, 2);
-    expectEvals(evals, 17, 'savings', 'Mon Apr 01 2019', 1.20, 2);
-    expectEvals(evals, 18, 'savings', 'Wed May 01 2019', 1.28, 2);
-    expectEvals(evals, 19, 'savings', 'Sat Jun 01 2019', 1.35, 2);
-    expectEvals(evals, 20, 'savings', 'Mon Jul 01 2019', 1.44, 2);
-    expectEvals(evals, 21, 'savings', 'Thu Aug 01 2019', 1.52, 2);
-    expectEvals(evals, 22, 'savings', 'Sun Sep 01 2019', 1.61, 2);
-    expectEvals(evals, 23, 'savings', 'Tue Oct 01 2019', 1.71, 2);
-    expectEvals(evals, 24, 'savings', 'Fri Nov 01 2019', 1.81, 2);
-    expectEvals(evals, 25, 'savings', 'Sun Dec 01 2019', 1.92, 2);
-    expectEvals(evals, 26, 'savings', 'Wed Jan 01 2020', 2.04, 2);
-    expectEvals(evals, 27, 'cpi', 'Wed Jan 01 2020', 0, -1);
-    expectEvals(evals, 28, 'savings', 'Sat Feb 01 2020', 2.04, 2);
-    expectEvals(evals, 29, 'savings', 'Sun Mar 01 2020', 2.04, 2);
-    expectEvals(evals, 30, 'savings', 'Wed Apr 01 2020', 2.05, 2);
-    expectEvals(evals, 31, 'savings', 'Fri May 01 2020', 2.05, 2);
-    expectEvals(evals, 32, 'savings', 'Mon Jun 01 2020', 2.05, 2);
-    expectEvals(evals, 33, 'savings', 'Wed Jul 01 2020', 2.05, 2);
-    expectEvals(evals, 34, 'savings', 'Sat Aug 01 2020', 2.05, 2);
-    expectEvals(evals, 35, 'savings', 'Tue Sep 01 2020', 2.05, 2);
-    expectEvals(evals, 36, 'savings', 'Thu Oct 01 2020', 2.06, 2);
-    expectEvals(evals, 37, 'savings', 'Sun Nov 01 2020', 2.06, 2);
-    expectEvals(evals, 38, 'savings', 'Tue Dec 01 2020', 2.06, 2);
-    expectEvals(evals, 39, 'savings', 'Fri Jan 01 2021', 2.06, 2);
-    expectEvals(evals, 40, 'savings', 'Mon Feb 01 2021', 2.06, 2);
-    expectEvals(evals, 41, 'savings', 'Mon Mar 01 2021', 2.06, 2);
-
-    const viewSettings = defaultTestViewSettings();
-
-    viewSettings.setViewSetting(viewFrequency, annually);
-    const result = makeChartDataFromEvaluations(
-      model,
-      viewSettings,
-      evalsAndValues,
-    );
+    expect(evals.length).toBe(85);
+    expectEvals(evals, 0, 'cpi', 'Tue May 01 2018', 0, -1);
+    expectEvals(evals, 1, 'x', 'Mon Jan 01 2018', 0, -1);
+    expectEvals(evals, 2, 'rises', 'Fri Mar 01 2019', 0, -1);
+    expectEvals(evals, 3, 'saaaaaa', 'Mon Jan 01 2018', 100, -1);
+    expectEvals(evals, 4, 'savings', 'Mon Jan 01 2018', 100, -1);
+    expectEvals(evals, 5, 'sbbbbbb', 'Mon Jan 01 2018', 100, -1);
+    expectEvals(evals, 6, 'scccccc', 'Mon Jan 01 2018', 100, -1);
+    expectEvals(evals, 7, 'saaaaaa', 'Thu Feb 01 2018', 100, -1);
+    expectEvals(evals, 8, 'savings', 'Thu Feb 01 2018', 100, -1);
+    expectEvals(evals, 9, 'sbbbbbb', 'Thu Feb 01 2018', 100, -1);
+    expectEvals(evals, 10, 'scccccc', 'Thu Feb 01 2018', 100, -1);
+    expectEvals(evals, 11, 'saaaaaa', 'Thu Mar 01 2018', 100, -1);
+    expectEvals(evals, 12, 'savings', 'Thu Mar 01 2018', 100, -1);
+    expectEvals(evals, 13, 'sbbbbbb', 'Thu Mar 01 2018', 100, -1);
+    expectEvals(evals, 14, 'scccccc', 'Thu Mar 01 2018', 100, -1);
+    expectEvals(evals, 15, 'rises', 'Thu Mar 01 2018', 100, -1);
+    expectEvals(evals, 16, 'saaaaaa', 'Sun Apr 01 2018', 105.95, 2);
+    expectEvals(evals, 17, 'savings', 'Sun Apr 01 2018', 100, -1);
+    expectEvals(evals, 18, 'sbbbbbb', 'Sun Apr 01 2018', 100, -1);
+    expectEvals(evals, 19, 'scccccc', 'Sun Apr 01 2018', 105.95, 2);
+    expectEvals(evals, 20, 'saaaaaa', 'Tue May 01 2018', 112.25, 2);
+    expectEvals(evals, 21, 'savings', 'Tue May 01 2018', 100, -1);
+    expectEvals(evals, 22, 'sbbbbbb', 'Tue May 01 2018', 100, -1);
+    expectEvals(evals, 23, 'scccccc', 'Tue May 01 2018', 112.25, 2);
+    expectEvals(evals, 24, 'cpi', 'Tue May 01 2018', 100, -1);
+    expectEvals(evals, 25, 'x', 'Tue May 01 2018', 100, -1);
+    expectEvals(evals, 26, 'saaaaaa', 'Fri Jun 01 2018', 118.92, 2);
+    expectEvals(evals, 27, 'savings', 'Fri Jun 01 2018', 105.95, 2);
+    expectEvals(evals, 28, 'sbbbbbb', 'Fri Jun 01 2018', 109.59, 2);
+    expectEvals(evals, 29, 'scccccc', 'Fri Jun 01 2018', 123.01, 2);
+    expectEvals(evals, 30, 'saaaaaa', 'Sun Jul 01 2018', 125.99, 2);
+    expectEvals(evals, 31, 'savings', 'Sun Jul 01 2018', 112.25, 2);
+    expectEvals(evals, 32, 'sbbbbbb', 'Sun Jul 01 2018', 120.09, 2);
+    expectEvals(evals, 33, 'scccccc', 'Sun Jul 01 2018', 134.80, 2);
+    expectEvals(evals, 34, 'saaaaaa', 'Wed Aug 01 2018', 133.48, 2);
+    expectEvals(evals, 35, 'savings', 'Wed Aug 01 2018', 118.92, 2);
+    expectEvals(evals, 36, 'sbbbbbb', 'Wed Aug 01 2018', 131.61, 2);
+    expectEvals(evals, 37, 'scccccc', 'Wed Aug 01 2018', 147.72, 2);
+    expectEvals(evals, 38, 'saaaaaa', 'Sat Sep 01 2018', 141.42, 2);
+    expectEvals(evals, 39, 'savings', 'Sat Sep 01 2018', 125.99, 2);
+    expectEvals(evals, 40, 'sbbbbbb', 'Sat Sep 01 2018', 144.22, 2);
+    expectEvals(evals, 41, 'scccccc', 'Sat Sep 01 2018', 161.89, 2);
+    expectEvals(evals, 42, 'saaaaaa', 'Mon Oct 01 2018', 149.83, 2);
+    expectEvals(evals, 43, 'savings', 'Mon Oct 01 2018', 133.48, 2);
+    expectEvals(evals, 44, 'sbbbbbb', 'Mon Oct 01 2018', 158.05, 2);
+    expectEvals(evals, 45, 'scccccc', 'Mon Oct 01 2018', 177.41, 2);
+    expectEvals(evals, 46, 'saaaaaa', 'Thu Nov 01 2018', 158.74, 2);
+    expectEvals(evals, 47, 'savings', 'Thu Nov 01 2018', 141.42, 2);
+    expectEvals(evals, 48, 'sbbbbbb', 'Thu Nov 01 2018', 173.21, 2);
+    expectEvals(evals, 49, 'scccccc', 'Thu Nov 01 2018', 194.42, 2);
+    expectEvals(evals, 50, 'saaaaaa', 'Sat Dec 01 2018', 168.18, 2);
+    expectEvals(evals, 51, 'savings', 'Sat Dec 01 2018', 149.83, 2);
+    expectEvals(evals, 52, 'sbbbbbb', 'Sat Dec 01 2018', 189.81, 2);
+    expectEvals(evals, 53, 'scccccc', 'Sat Dec 01 2018', 213.06, 2);
+    expectEvals(evals, 54, 'saaaaaa', 'Tue Jan 01 2019', 178.18, 2);
+    expectEvals(evals, 55, 'savings', 'Tue Jan 01 2019', 158.74, 2);
+    expectEvals(evals, 56, 'sbbbbbb', 'Tue Jan 01 2019', 208.01, 2);
+    expectEvals(evals, 57, 'scccccc', 'Tue Jan 01 2019', 233.48, 2);
+    expectEvals(evals, 58, 'saaaaaa', 'Fri Feb 01 2019', 188.77, 2);
+    expectEvals(evals, 59, 'savings', 'Fri Feb 01 2019', 168.18, 2);
+    expectEvals(evals, 60, 'sbbbbbb', 'Fri Feb 01 2019', 227.95, 2);
+    expectEvals(evals, 61, 'scccccc', 'Fri Feb 01 2019', 255.87, 2);
+    expectEvals(evals, 62, 'saaaaaa', 'Fri Mar 01 2019', 200.00, 2);
+    expectEvals(evals, 63, 'savings', 'Fri Mar 01 2019', 178.18, 2);
+    expectEvals(evals, 64, 'sbbbbbb', 'Fri Mar 01 2019', 249.80, 2);
+    expectEvals(evals, 65, 'scccccc', 'Fri Mar 01 2019', 280.40, 2);
+    expectEvals(evals, 66, 'rises', 'Fri Mar 01 2019', 0, -1);
+    expectEvals(evals, 67, 'saaaaaa', 'Mon Apr 01 2019', 200.00, 2);
+    expectEvals(evals, 68, 'savings', 'Mon Apr 01 2019', 188.77, 2);
+    expectEvals(evals, 69, 'sbbbbbb', 'Mon Apr 01 2019', 273.75, 2);
+    expectEvals(evals, 70, 'scccccc', 'Mon Apr 01 2019', 297.07, 2);
+    expectEvals(evals, 71, 'saaaaaa', 'Wed May 01 2019', 200.00, 2);
+    expectEvals(evals, 72, 'savings', 'Wed May 01 2019', 200.00, 2);
+    expectEvals(evals, 73, 'sbbbbbb', 'Wed May 01 2019', 300.00, 2);
+    expectEvals(evals, 74, 'scccccc', 'Wed May 01 2019', 314.73, 2);
+    expectEvals(evals, 75, 'cpi', 'Wed May 01 2019', 0, -1);
+    expectEvals(evals, 76, 'x', 'Wed May 01 2019', 0, -1);
+    expectEvals(evals, 77, 'saaaaaa', 'Sat Jun 01 2019', 200.00, 2);
+    expectEvals(evals, 78, 'savings', 'Sat Jun 01 2019', 200.00, 2);
+    expectEvals(evals, 79, 'sbbbbbb', 'Sat Jun 01 2019', 300.00, 2);
+    expectEvals(evals, 80, 'scccccc', 'Sat Jun 01 2019', 314.73, 2);
+    expectEvals(evals, 81, 'saaaaaa', 'Mon Jul 01 2019', 200.00, 2);
+    expectEvals(evals, 82, 'savings', 'Mon Jul 01 2019', 200.00, 2);
+    expectEvals(evals, 83, 'sbbbbbb', 'Mon Jul 01 2019', 300.00, 2);
+    expectEvals(evals, 84, 'scccccc', 'Mon Jul 01 2019', 314.73, 2);
+    // this value 314.73 is right;
+    // if 1yr of cpi and rises are coincident then the asset triples
+    // if 1yr of cpi and rises are separated then the asset quadruples
+    // if 1yr of cpi and rises partially overlap then the asset increases
+    // by some value between 3 and 4.
+    // 10 months of overlap and 2 * 2 months of non-overlap makes for
+    // 3^(10/12)*2^(2*2/12) = 3.1473...
     
     done();
   });
 
-  it('revalue a setting cpi for income growth', done => { // TODO is this behaving correctly?  I see stocks growing
+  it('revalue a setting cpi for income growth', done => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
-      end: 'March 2, 2021 00:00:00',
+      end: 'August 2, 2019 00:00:00',
     };
     const model: ModelData = {
       ...emptyModel,
@@ -22265,18 +22078,30 @@ describe('evaluations tests', () => {
           START: 'January 1 2018',
           END: 'July 1 2025',
           NAME: 'PRnd',
-          VALUE: '1.0',
+          VALUE: '100.0',
           VALUE_SET: 'January 1 2018',
-          GROWTH: '1.0',
+          GROWTH: '0.0',
+          CPI_IMMUNE: false,
         },
         {
           ...simpleIncome,
-          START: 'January 1 2021',
+          START: 'January 1 2018',
           END: 'July 1 2025',
-          NAME: 'PRnd2',
-          VALUE: '1.0',
+          NAME: 'Paaa',
+          VALUE: '100.0',
           VALUE_SET: 'January 1 2018',
-          GROWTH: '1.0',
+          GROWTH: '100.0',
+          CPI_IMMUNE: true,
+        },
+        {
+          ...simpleIncome,
+          START: 'January 1 2018',
+          END: 'July 1 2025',
+          NAME: 'Pccc',
+          VALUE: '100.0',
+          VALUE_SET: 'January 1 2018',
+          GROWTH: '100.0',
+          CPI_IMMUNE: false,
         },
       ],
       transactions: [
@@ -22288,7 +22113,7 @@ describe('evaluations tests', () => {
           TO: 'cpi',
           TO_ABSOLUTE: true,
           TO_VALUE: '100.0',
-          DATE: '2019',
+          DATE: 'May 2018',
           STOP_DATE: '',
           RECURRENCE: '',
           TYPE: 'revalueSetting',
@@ -22302,12 +22127,12 @@ describe('evaluations tests', () => {
           TO: 'cpi',
           TO_ABSOLUTE: true,
           TO_VALUE: '0.0',
-          DATE: '2020',
+          DATE: 'May 2019',
           STOP_DATE: '',
           RECURRENCE: '',
           TYPE: 'revalueSetting',
           CATEGORY: '',
-        }
+        },
       ],
       settings: [...defaultModelSettings(roi)],
     };
@@ -22319,52 +22144,73 @@ describe('evaluations tests', () => {
 
     // printTestCodeForEvals(evals);
 
-    expect(evals.length).toBe(45);
-    expectEvals(evals, 0, 'cpi', 'Tue Jan 01 2019', 0, -1);
-    expectEvals(evals, 1, 'PRnd', 'Mon Jan 01 2018', 1, -1);
-    expectEvals(evals, 2, 'PRnd', 'Thu Feb 01 2018', 1.00, 2);
-    expectEvals(evals, 3, 'PRnd', 'Thu Mar 01 2018', 1.00, 2);
-    expectEvals(evals, 4, 'PRnd', 'Sun Apr 01 2018', 1.00, 2);
-    expectEvals(evals, 5, 'PRnd', 'Tue May 01 2018', 1.00, 2);
-    expectEvals(evals, 6, 'PRnd', 'Fri Jun 01 2018', 1.00, 2);
-    expectEvals(evals, 7, 'PRnd', 'Sun Jul 01 2018', 1.00, 2);
-    expectEvals(evals, 8, 'PRnd', 'Wed Aug 01 2018', 1.01, 2);
-    expectEvals(evals, 9, 'PRnd', 'Sat Sep 01 2018', 1.01, 2);
-    expectEvals(evals, 10, 'PRnd', 'Mon Oct 01 2018', 1.01, 2);
-    expectEvals(evals, 11, 'PRnd', 'Thu Nov 01 2018', 1.01, 2);
-    expectEvals(evals, 12, 'PRnd', 'Sat Dec 01 2018', 1.01, 2);
-    expectEvals(evals, 13, 'PRnd', 'Tue Jan 01 2019', 1.01, 2);
-    expectEvals(evals, 14, 'cpi', 'Tue Jan 01 2019', 100, -1);
-    expectEvals(evals, 15, 'PRnd', 'Fri Feb 01 2019', 1.07, 2);
-    expectEvals(evals, 16, 'PRnd', 'Fri Mar 01 2019', 1.14, 2);
-    expectEvals(evals, 17, 'PRnd', 'Mon Apr 01 2019', 1.20, 2);
-    expectEvals(evals, 18, 'PRnd', 'Wed May 01 2019', 1.28, 2);
-    expectEvals(evals, 19, 'PRnd', 'Sat Jun 01 2019', 1.35, 2);
-    expectEvals(evals, 20, 'PRnd', 'Mon Jul 01 2019', 1.44, 2);
-    expectEvals(evals, 21, 'PRnd', 'Thu Aug 01 2019', 1.52, 2);
-    expectEvals(evals, 22, 'PRnd', 'Sun Sep 01 2019', 1.61, 2);
-    expectEvals(evals, 23, 'PRnd', 'Tue Oct 01 2019', 1.71, 2);
-    expectEvals(evals, 24, 'PRnd', 'Fri Nov 01 2019', 1.81, 2);
-    expectEvals(evals, 25, 'PRnd', 'Sun Dec 01 2019', 1.92, 2);
-    expectEvals(evals, 26, 'PRnd', 'Wed Jan 01 2020', 2.04, 2);
-    expectEvals(evals, 27, 'cpi', 'Wed Jan 01 2020', 0, -1);
-    expectEvals(evals, 28, 'PRnd', 'Sat Feb 01 2020', 2.04, 2);
-    expectEvals(evals, 29, 'PRnd', 'Sun Mar 01 2020', 2.04, 2);
-    expectEvals(evals, 30, 'PRnd', 'Wed Apr 01 2020', 2.05, 2);
-    expectEvals(evals, 31, 'PRnd', 'Fri May 01 2020', 2.05, 2);
-    expectEvals(evals, 32, 'PRnd', 'Mon Jun 01 2020', 2.05, 2);
-    expectEvals(evals, 33, 'PRnd', 'Wed Jul 01 2020', 2.05, 2);
-    expectEvals(evals, 34, 'PRnd', 'Sat Aug 01 2020', 2.05, 2);
-    expectEvals(evals, 35, 'PRnd', 'Tue Sep 01 2020', 2.05, 2);
-    expectEvals(evals, 36, 'PRnd', 'Thu Oct 01 2020', 2.06, 2);
-    expectEvals(evals, 37, 'PRnd', 'Sun Nov 01 2020', 2.06, 2);
-    expectEvals(evals, 38, 'PRnd', 'Tue Dec 01 2020', 2.06, 2);
-    expectEvals(evals, 39, 'PRnd', 'Fri Jan 01 2021', 2.06, 2);
-    expectEvals(evals, 40, 'PRnd2', 'Fri Jan 01 2021', 2.06, 2);
-    expectEvals(evals, 41, 'PRnd', 'Mon Feb 01 2021', 2.06, 2);
-    expectEvals(evals, 42, 'PRnd2', 'Mon Feb 01 2021', 2.06, 2);
-    expectEvals(evals, 43, 'PRnd', 'Mon Mar 01 2021', 2.06, 2);
-    expectEvals(evals, 44, 'PRnd2', 'Mon Mar 01 2021', 2.06, 2);
+    expect(evals.length).toBe(63);
+    expectEvals(evals, 0, 'cpi', 'Tue May 01 2018', 0, -1);
+    expectEvals(evals, 1, 'PRnd', 'Mon Jan 01 2018', 100, -1);
+    expectEvals(evals, 2, 'Paaa', 'Mon Jan 01 2018', 100, -1);
+    expectEvals(evals, 3, 'Pccc', 'Mon Jan 01 2018', 100, -1);
+    expectEvals(evals, 4, 'PRnd', 'Thu Feb 01 2018', 100, -1);
+    expectEvals(evals, 5, 'Paaa', 'Thu Feb 01 2018', 105.95, 2);
+    expectEvals(evals, 6, 'Pccc', 'Thu Feb 01 2018', 105.95, 2);
+    expectEvals(evals, 7, 'PRnd', 'Thu Mar 01 2018', 100, -1);
+    expectEvals(evals, 8, 'Paaa', 'Thu Mar 01 2018', 112.25, 2);
+    expectEvals(evals, 9, 'Pccc', 'Thu Mar 01 2018', 112.25, 2);
+    expectEvals(evals, 10, 'PRnd', 'Sun Apr 01 2018', 100, -1);
+    expectEvals(evals, 11, 'Paaa', 'Sun Apr 01 2018', 118.92, 2);
+    expectEvals(evals, 12, 'Pccc', 'Sun Apr 01 2018', 118.92, 2);
+    expectEvals(evals, 13, 'PRnd', 'Tue May 01 2018', 100, -1);
+    expectEvals(evals, 14, 'Paaa', 'Tue May 01 2018', 125.99, 2);
+    expectEvals(evals, 15, 'Pccc', 'Tue May 01 2018', 125.99, 2);
+    expectEvals(evals, 16, 'cpi', 'Tue May 01 2018', 100, -1);
+    expectEvals(evals, 17, 'PRnd', 'Fri Jun 01 2018', 105.95, 2);
+    expectEvals(evals, 18, 'Paaa', 'Fri Jun 01 2018', 133.48, 2);
+    expectEvals(evals, 19, 'Pccc', 'Fri Jun 01 2018', 138.07, 2);
+    expectEvals(evals, 20, 'PRnd', 'Sun Jul 01 2018', 112.25, 2);
+    expectEvals(evals, 21, 'Paaa', 'Sun Jul 01 2018', 141.42, 2);
+    expectEvals(evals, 22, 'Pccc', 'Sun Jul 01 2018', 151.31, 2);
+    expectEvals(evals, 23, 'PRnd', 'Wed Aug 01 2018', 118.92, 2);
+    expectEvals(evals, 24, 'Paaa', 'Wed Aug 01 2018', 149.83, 2);
+    expectEvals(evals, 25, 'Pccc', 'Wed Aug 01 2018', 165.81, 2);
+    expectEvals(evals, 26, 'PRnd', 'Sat Sep 01 2018', 125.99, 2);
+    expectEvals(evals, 27, 'Paaa', 'Sat Sep 01 2018', 158.74, 2);
+    expectEvals(evals, 28, 'Pccc', 'Sat Sep 01 2018', 181.71, 2);
+    expectEvals(evals, 29, 'PRnd', 'Mon Oct 01 2018', 133.48, 2);
+    expectEvals(evals, 30, 'Paaa', 'Mon Oct 01 2018', 168.18, 2);
+    expectEvals(evals, 31, 'Pccc', 'Mon Oct 01 2018', 199.13, 2);
+    expectEvals(evals, 32, 'PRnd', 'Thu Nov 01 2018', 141.42, 2);
+    expectEvals(evals, 33, 'Paaa', 'Thu Nov 01 2018', 178.18, 2);
+    expectEvals(evals, 34, 'Pccc', 'Thu Nov 01 2018', 218.22, 2);
+    expectEvals(evals, 35, 'PRnd', 'Sat Dec 01 2018', 149.83, 2);
+    expectEvals(evals, 36, 'Paaa', 'Sat Dec 01 2018', 188.77, 2);
+    expectEvals(evals, 37, 'Pccc', 'Sat Dec 01 2018', 239.15, 2);
+    expectEvals(evals, 38, 'PRnd', 'Tue Jan 01 2019', 158.74, 2);
+    expectEvals(evals, 39, 'Paaa', 'Tue Jan 01 2019', 200.00, 2);
+    expectEvals(evals, 40, 'Pccc', 'Tue Jan 01 2019', 262.07, 2);
+    expectEvals(evals, 41, 'PRnd', 'Fri Feb 01 2019', 168.18, 2);
+    expectEvals(evals, 42, 'Paaa', 'Fri Feb 01 2019', 211.89, 2);
+    expectEvals(evals, 43, 'Pccc', 'Fri Feb 01 2019', 287.20, 2);
+    expectEvals(evals, 44, 'PRnd', 'Fri Mar 01 2019', 178.18, 2);
+    expectEvals(evals, 45, 'Paaa', 'Fri Mar 01 2019', 224.49, 2);
+    expectEvals(evals, 46, 'Pccc', 'Fri Mar 01 2019', 314.73, 2);
+    expectEvals(evals, 47, 'PRnd', 'Mon Apr 01 2019', 188.77, 2);
+    expectEvals(evals, 48, 'Paaa', 'Mon Apr 01 2019', 237.84, 2);
+    expectEvals(evals, 49, 'Pccc', 'Mon Apr 01 2019', 344.91, 2);
+    expectEvals(evals, 50, 'PRnd', 'Wed May 01 2019', 200.00, 2);
+    expectEvals(evals, 51, 'Paaa', 'Wed May 01 2019', 251.98, 2);
+    expectEvals(evals, 52, 'Pccc', 'Wed May 01 2019', 377.98, 2);
+    expectEvals(evals, 53, 'cpi', 'Wed May 01 2019', 0, -1);
+    expectEvals(evals, 54, 'PRnd', 'Sat Jun 01 2019', 200.00, 2);
+    expectEvals(evals, 55, 'Paaa', 'Sat Jun 01 2019', 266.97, 2);
+    expectEvals(evals, 56, 'Pccc', 'Sat Jun 01 2019', 400.45, 2);
+    expectEvals(evals, 57, 'PRnd', 'Mon Jul 01 2019', 200.00, 2);
+    expectEvals(evals, 58, 'Paaa', 'Mon Jul 01 2019', 282.84, 2);
+    expectEvals(evals, 59, 'Pccc', 'Mon Jul 01 2019', 424.26, 2);
+    expectEvals(evals, 60, 'PRnd', 'Thu Aug 01 2019', 200.00, 2);
+    expectEvals(evals, 61, 'Paaa', 'Thu Aug 01 2019', 299.66, 2);
+    expectEvals(evals, 62, 'Pccc', 'Thu Aug 01 2019', 449.49, 2);
+    // this is right;
+    // 2^(19/12) = 2.9966...
+    // 2^(7/12)*3 = 4.494...
 
     const viewSettings = defaultTestViewSettings();
 
@@ -22378,10 +22224,10 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('revalue a setting cpi for expense growth', done => { // TODO is this behaving correctly?  I see stocks growing
+  it('revalue a setting cpi for expense growth', done => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
-      end: 'March 2, 2021 00:00:00',
+      end: 'August 2, 2019 00:00:00',
     };
     const model: ModelData = {
       ...emptyModel,
@@ -22390,19 +22236,31 @@ describe('evaluations tests', () => {
           ...simpleExpense,
           START: 'January 1 2018',
           END: 'July 1 2025',
-          NAME: 'Phon',
-          VALUE: '1.0',
+          NAME: 'PHon',
+          VALUE: '100.0',
           VALUE_SET: 'January 1 2018',
-          GROWTH: '1.0',
+          GROWTH: '0.0',
+          CPI_IMMUNE: false,
         },
         {
           ...simpleExpense,
-          START: 'January 1 2021',
+          START: 'January 1 2018',
           END: 'July 1 2025',
-          NAME: 'Phon2',
-          VALUE: '1.0',
+          NAME: 'Paaa',
+          VALUE: '100.0',
           VALUE_SET: 'January 1 2018',
-          GROWTH: '1.0',
+          GROWTH: '100.0',
+          CPI_IMMUNE: true,
+        },
+        {
+          ...simpleExpense,
+          START: 'January 1 2018',
+          END: 'July 1 2025',
+          NAME: 'Pccc',
+          VALUE: '100.0',
+          VALUE_SET: 'January 1 2018',
+          GROWTH: '100.0',
+          CPI_IMMUNE: false,
         },
       ],
       transactions: [
@@ -22414,7 +22272,7 @@ describe('evaluations tests', () => {
           TO: 'cpi',
           TO_ABSOLUTE: true,
           TO_VALUE: '100.0',
-          DATE: '2019',
+          DATE: 'May 2018',
           STOP_DATE: '',
           RECURRENCE: '',
           TYPE: 'revalueSetting',
@@ -22428,7 +22286,7 @@ describe('evaluations tests', () => {
           TO: 'cpi',
           TO_ABSOLUTE: true,
           TO_VALUE: '0.0',
-          DATE: '2020',
+          DATE: 'May 2019',
           STOP_DATE: '',
           RECURRENCE: '',
           TYPE: 'revalueSetting',
@@ -22445,52 +22303,73 @@ describe('evaluations tests', () => {
 
     // printTestCodeForEvals(evals);
 
-    expect(evals.length).toBe(45);
-    expectEvals(evals, 0, 'cpi', 'Tue Jan 01 2019', 0, -1);
-    expectEvals(evals, 1, 'Phon', 'Mon Jan 01 2018', 1, -1);
-    expectEvals(evals, 2, 'Phon', 'Thu Feb 01 2018', 1.00, 2);
-    expectEvals(evals, 3, 'Phon', 'Thu Mar 01 2018', 1.00, 2);
-    expectEvals(evals, 4, 'Phon', 'Sun Apr 01 2018', 1.00, 2);
-    expectEvals(evals, 5, 'Phon', 'Tue May 01 2018', 1.00, 2);
-    expectEvals(evals, 6, 'Phon', 'Fri Jun 01 2018', 1.00, 2);
-    expectEvals(evals, 7, 'Phon', 'Sun Jul 01 2018', 1.00, 2);
-    expectEvals(evals, 8, 'Phon', 'Wed Aug 01 2018', 1.01, 2);
-    expectEvals(evals, 9, 'Phon', 'Sat Sep 01 2018', 1.01, 2);
-    expectEvals(evals, 10, 'Phon', 'Mon Oct 01 2018', 1.01, 2);
-    expectEvals(evals, 11, 'Phon', 'Thu Nov 01 2018', 1.01, 2);
-    expectEvals(evals, 12, 'Phon', 'Sat Dec 01 2018', 1.01, 2);
-    expectEvals(evals, 13, 'Phon', 'Tue Jan 01 2019', 1.01, 2);
-    expectEvals(evals, 14, 'cpi', 'Tue Jan 01 2019', 100, -1);
-    expectEvals(evals, 15, 'Phon', 'Fri Feb 01 2019', 1.07, 2);
-    expectEvals(evals, 16, 'Phon', 'Fri Mar 01 2019', 1.14, 2);
-    expectEvals(evals, 17, 'Phon', 'Mon Apr 01 2019', 1.20, 2);
-    expectEvals(evals, 18, 'Phon', 'Wed May 01 2019', 1.28, 2);
-    expectEvals(evals, 19, 'Phon', 'Sat Jun 01 2019', 1.35, 2);
-    expectEvals(evals, 20, 'Phon', 'Mon Jul 01 2019', 1.44, 2);
-    expectEvals(evals, 21, 'Phon', 'Thu Aug 01 2019', 1.52, 2);
-    expectEvals(evals, 22, 'Phon', 'Sun Sep 01 2019', 1.61, 2);
-    expectEvals(evals, 23, 'Phon', 'Tue Oct 01 2019', 1.71, 2);
-    expectEvals(evals, 24, 'Phon', 'Fri Nov 01 2019', 1.81, 2);
-    expectEvals(evals, 25, 'Phon', 'Sun Dec 01 2019', 1.92, 2);
-    expectEvals(evals, 26, 'Phon', 'Wed Jan 01 2020', 2.04, 2);
-    expectEvals(evals, 27, 'cpi', 'Wed Jan 01 2020', 0, -1);
-    expectEvals(evals, 28, 'Phon', 'Sat Feb 01 2020', 2.04, 2);
-    expectEvals(evals, 29, 'Phon', 'Sun Mar 01 2020', 2.04, 2);
-    expectEvals(evals, 30, 'Phon', 'Wed Apr 01 2020', 2.05, 2);
-    expectEvals(evals, 31, 'Phon', 'Fri May 01 2020', 2.05, 2);
-    expectEvals(evals, 32, 'Phon', 'Mon Jun 01 2020', 2.05, 2);
-    expectEvals(evals, 33, 'Phon', 'Wed Jul 01 2020', 2.05, 2);
-    expectEvals(evals, 34, 'Phon', 'Sat Aug 01 2020', 2.05, 2);
-    expectEvals(evals, 35, 'Phon', 'Tue Sep 01 2020', 2.05, 2);
-    expectEvals(evals, 36, 'Phon', 'Thu Oct 01 2020', 2.06, 2);
-    expectEvals(evals, 37, 'Phon', 'Sun Nov 01 2020', 2.06, 2);
-    expectEvals(evals, 38, 'Phon', 'Tue Dec 01 2020', 2.06, 2);
-    expectEvals(evals, 39, 'Phon', 'Fri Jan 01 2021', 2.06, 2);
-    expectEvals(evals, 40, 'Phon2', 'Fri Jan 01 2021', 2.06, 2);
-    expectEvals(evals, 41, 'Phon', 'Mon Feb 01 2021', 2.06, 2);
-    expectEvals(evals, 42, 'Phon2', 'Mon Feb 01 2021', 2.06, 2);
-    expectEvals(evals, 43, 'Phon', 'Mon Mar 01 2021', 2.06, 2);
-    expectEvals(evals, 44, 'Phon2', 'Mon Mar 01 2021', 2.06, 2);
+    expect(evals.length).toBe(63);
+    expectEvals(evals, 0, 'cpi', 'Tue May 01 2018', 0, -1);
+    expectEvals(evals, 1, 'PHon', 'Mon Jan 01 2018', 100, -1);
+    expectEvals(evals, 2, 'Paaa', 'Mon Jan 01 2018', 100, -1);
+    expectEvals(evals, 3, 'Pccc', 'Mon Jan 01 2018', 100, -1);
+    expectEvals(evals, 4, 'PHon', 'Thu Feb 01 2018', 100, -1);
+    expectEvals(evals, 5, 'Paaa', 'Thu Feb 01 2018', 105.95, 2);
+    expectEvals(evals, 6, 'Pccc', 'Thu Feb 01 2018', 105.95, 2);
+    expectEvals(evals, 7, 'PHon', 'Thu Mar 01 2018', 100, -1);
+    expectEvals(evals, 8, 'Paaa', 'Thu Mar 01 2018', 112.25, 2);
+    expectEvals(evals, 9, 'Pccc', 'Thu Mar 01 2018', 112.25, 2);
+    expectEvals(evals, 10, 'PHon', 'Sun Apr 01 2018', 100, -1);
+    expectEvals(evals, 11, 'Paaa', 'Sun Apr 01 2018', 118.92, 2);
+    expectEvals(evals, 12, 'Pccc', 'Sun Apr 01 2018', 118.92, 2);
+    expectEvals(evals, 13, 'PHon', 'Tue May 01 2018', 100, -1);
+    expectEvals(evals, 14, 'Paaa', 'Tue May 01 2018', 125.99, 2);
+    expectEvals(evals, 15, 'Pccc', 'Tue May 01 2018', 125.99, 2);
+    expectEvals(evals, 16, 'cpi', 'Tue May 01 2018', 100, -1);
+    expectEvals(evals, 17, 'PHon', 'Fri Jun 01 2018', 105.95, 2);
+    expectEvals(evals, 18, 'Paaa', 'Fri Jun 01 2018', 133.48, 2);
+    expectEvals(evals, 19, 'Pccc', 'Fri Jun 01 2018', 138.07, 2);
+    expectEvals(evals, 20, 'PHon', 'Sun Jul 01 2018', 112.25, 2);
+    expectEvals(evals, 21, 'Paaa', 'Sun Jul 01 2018', 141.42, 2);
+    expectEvals(evals, 22, 'Pccc', 'Sun Jul 01 2018', 151.31, 2);
+    expectEvals(evals, 23, 'PHon', 'Wed Aug 01 2018', 118.92, 2);
+    expectEvals(evals, 24, 'Paaa', 'Wed Aug 01 2018', 149.83, 2);
+    expectEvals(evals, 25, 'Pccc', 'Wed Aug 01 2018', 165.81, 2);
+    expectEvals(evals, 26, 'PHon', 'Sat Sep 01 2018', 125.99, 2);
+    expectEvals(evals, 27, 'Paaa', 'Sat Sep 01 2018', 158.74, 2);
+    expectEvals(evals, 28, 'Pccc', 'Sat Sep 01 2018', 181.71, 2);
+    expectEvals(evals, 29, 'PHon', 'Mon Oct 01 2018', 133.48, 2);
+    expectEvals(evals, 30, 'Paaa', 'Mon Oct 01 2018', 168.18, 2);
+    expectEvals(evals, 31, 'Pccc', 'Mon Oct 01 2018', 199.13, 2);
+    expectEvals(evals, 32, 'PHon', 'Thu Nov 01 2018', 141.42, 2);
+    expectEvals(evals, 33, 'Paaa', 'Thu Nov 01 2018', 178.18, 2);
+    expectEvals(evals, 34, 'Pccc', 'Thu Nov 01 2018', 218.22, 2);
+    expectEvals(evals, 35, 'PHon', 'Sat Dec 01 2018', 149.83, 2);
+    expectEvals(evals, 36, 'Paaa', 'Sat Dec 01 2018', 188.77, 2);
+    expectEvals(evals, 37, 'Pccc', 'Sat Dec 01 2018', 239.15, 2);
+    expectEvals(evals, 38, 'PHon', 'Tue Jan 01 2019', 158.74, 2);
+    expectEvals(evals, 39, 'Paaa', 'Tue Jan 01 2019', 200.00, 2);
+    expectEvals(evals, 40, 'Pccc', 'Tue Jan 01 2019', 262.07, 2);
+    expectEvals(evals, 41, 'PHon', 'Fri Feb 01 2019', 168.18, 2);
+    expectEvals(evals, 42, 'Paaa', 'Fri Feb 01 2019', 211.89, 2);
+    expectEvals(evals, 43, 'Pccc', 'Fri Feb 01 2019', 287.20, 2);
+    expectEvals(evals, 44, 'PHon', 'Fri Mar 01 2019', 178.18, 2);
+    expectEvals(evals, 45, 'Paaa', 'Fri Mar 01 2019', 224.49, 2);
+    expectEvals(evals, 46, 'Pccc', 'Fri Mar 01 2019', 314.73, 2);
+    expectEvals(evals, 47, 'PHon', 'Mon Apr 01 2019', 188.77, 2);
+    expectEvals(evals, 48, 'Paaa', 'Mon Apr 01 2019', 237.84, 2);
+    expectEvals(evals, 49, 'Pccc', 'Mon Apr 01 2019', 344.91, 2);
+    expectEvals(evals, 50, 'PHon', 'Wed May 01 2019', 200.00, 2);
+    expectEvals(evals, 51, 'Paaa', 'Wed May 01 2019', 251.98, 2);
+    expectEvals(evals, 52, 'Pccc', 'Wed May 01 2019', 377.98, 2);
+    expectEvals(evals, 53, 'cpi', 'Wed May 01 2019', 0, -1);
+    expectEvals(evals, 54, 'PHon', 'Sat Jun 01 2019', 200.00, 2);
+    expectEvals(evals, 55, 'Paaa', 'Sat Jun 01 2019', 266.97, 2);
+    expectEvals(evals, 56, 'Pccc', 'Sat Jun 01 2019', 400.45, 2);
+    expectEvals(evals, 57, 'PHon', 'Mon Jul 01 2019', 200.00, 2);
+    expectEvals(evals, 58, 'Paaa', 'Mon Jul 01 2019', 282.84, 2);
+    expectEvals(evals, 59, 'Pccc', 'Mon Jul 01 2019', 424.26, 2);
+    expectEvals(evals, 60, 'PHon', 'Thu Aug 01 2019', 200.00, 2);
+    expectEvals(evals, 61, 'Paaa', 'Thu Aug 01 2019', 299.66, 2);
+    expectEvals(evals, 62, 'Pccc', 'Thu Aug 01 2019', 449.49, 2);
+    // this is right;
+    // 2^(19/12) = 2.9966...
+    // 2^(7/12)*3 = 4.494...
 
     done();
   });
