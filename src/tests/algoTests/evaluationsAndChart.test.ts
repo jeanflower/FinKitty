@@ -2126,6 +2126,358 @@ describe('evaluations tests', () => {
     done();
   });
 
+  it('transact from cash into cpi-affected asset', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'April 1, 2018 00:00:00',
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'Cash',
+          START: 'January 1 2018',
+          VALUE: '100',
+          GROWTH: '0.0',
+          CPI_IMMUNE: true,
+        },        
+        {
+          ...simpleAsset,
+          NAME: 'Svgs',
+          START: 'January 1 2018',
+          VALUE: '100',
+          GROWTH: '0.0',
+          CPI_IMMUNE: false,
+        },
+        {
+          ...simpleAsset,
+          NAME: 'Saaa',
+          START: 'January 1 2018',
+          VALUE: '100',
+          GROWTH: '0.0',
+          CPI_IMMUNE: false,
+        },
+      ],
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: 'invest',
+          FROM: 'Cash',
+          FROM_VALUE: '1',
+          TO: 'Svgs',
+          TO_VALUE: '1',
+          DATE: 'January 10 2018',
+          RECURRENCE: '1m',
+        },
+      ],
+      settings: [...defaultModelSettings(roi)],
+    };
+    setSetting(model.settings, cpi, '12', constType);
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(15);
+    expectEvals(evals, 0, 'Cash', 'Mon Jan 01 2018', 100, -1);
+    expectEvals(evals, 1, 'Saaa', 'Mon Jan 01 2018', 100, -1);
+    expectEvals(evals, 2, 'Svgs', 'Mon Jan 01 2018', 100, -1);
+    expectEvals(evals, 3, 'Cash', 'Wed Jan 10 2018', 99, -1);
+    expectEvals(evals, 4, 'Svgs', 'Wed Jan 10 2018', 101.95, 2); // includes a CPI jump and a £1 investment
+    expectEvals(evals, 5, 'Cash', 'Thu Feb 01 2018', 99, -1);
+    expectEvals(evals, 6, 'Saaa', 'Thu Feb 01 2018', 100.95, 2); // includes a CPI jump
+    expectEvals(evals, 7, 'Svgs', 'Thu Feb 01 2018', 101.95, 2); // includes a CPI jump and a £1 investment
+    expectEvals(evals, 8, 'Cash', 'Sat Feb 10 2018', 98, -1);
+    expectEvals(evals, 9, 'Svgs', 'Sat Feb 10 2018', 103.92, 2);
+    expectEvals(evals, 10, 'Cash', 'Thu Mar 01 2018', 98, -1);
+    expectEvals(evals, 11, 'Saaa', 'Thu Mar 01 2018', 101.91, 2); // includes 2 CPI jumps
+    expectEvals(evals, 12, 'Svgs', 'Thu Mar 01 2018', 103.92, 2);  // includes 2 CPI jumps and 2 £1 investments
+    expectEvals(evals, 13, 'Cash', 'Sat Mar 10 2018', 97, -1);
+    expectEvals(evals, 14, 'Svgs', 'Sat Mar 10 2018', 105.90, 2); // includes 3 CPI jumps and 3 £1 investments
+
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(3);
+    expect(result.assetData[0].item.NAME).toBe('Cash');
+    {
+    const chartPts = result.assetData[0].chartDataPoints;
+    expect(chartPts.length).toBe(4);
+    expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+    expectChartData(chartPts, 1, 'Mon Jan 01 2018', 100, -1);
+    expectChartData(chartPts, 2, 'Thu Feb 01 2018', 99, -1);
+    expectChartData(chartPts, 3, 'Thu Mar 01 2018', 98, -1);
+    }
+    
+    expect(result.assetData[1].item.NAME).toBe('Svgs');
+    {
+    const chartPts = result.assetData[1].chartDataPoints;
+    expect(chartPts.length).toBe(4);
+    expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+    expectChartData(chartPts, 1, 'Mon Jan 01 2018', 100, -1);
+    expectChartData(chartPts, 2, 'Thu Feb 01 2018', 101.95, 2);
+    expectChartData(chartPts, 3, 'Thu Mar 01 2018', 103.92, 2);
+    }
+    
+    expect(result.assetData[2].item.NAME).toBe('Saaa');
+    {
+    const chartPts = result.assetData[2].chartDataPoints;
+    expect(chartPts.length).toBe(4);
+    expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+    expectChartData(chartPts, 1, 'Mon Jan 01 2018', 100, -1);
+    expectChartData(chartPts, 2, 'Thu Feb 01 2018', 100.95, 2);
+    expectChartData(chartPts, 3, 'Thu Mar 01 2018', 101.91, 2);
+    }
+    
+    expect(result.debtData.length).toBe(0);
+    expect(result.taxData.length).toBe(0);
+    done();
+  });
+
+  it('transact from cpi-affected cash into cpi-affected asset', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'April 1, 2018 00:00:00',
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'Cash',
+          START: 'January 1 2018',
+          VALUE: '100',
+          GROWTH: '0.0',
+          CPI_IMMUNE: false,
+        },        
+        {
+          ...simpleAsset,
+          NAME: 'Svgs',
+          START: 'January 1 2018',
+          VALUE: '100',
+          GROWTH: '0.0',
+          CPI_IMMUNE: false,
+        },
+        {
+          ...simpleAsset,
+          NAME: 'Saaa',
+          START: 'January 1 2018',
+          VALUE: '100',
+          GROWTH: '0.0',
+          CPI_IMMUNE: false,
+        },
+      ],
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: 'invest',
+          FROM: 'Cash',
+          FROM_VALUE: '1',
+          TO: 'Svgs',
+          TO_VALUE: '1',
+          DATE: 'January 10 2018',
+          RECURRENCE: '1m',
+        },
+      ],
+      settings: [...defaultModelSettings(roi)],
+    };
+    setSetting(model.settings, cpi, '12', constType);
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(15);
+    expectEvals(evals, 0, 'Cash', 'Mon Jan 01 2018', 100, -1);
+    expectEvals(evals, 1, 'Saaa', 'Mon Jan 01 2018', 100, -1);
+    expectEvals(evals, 2, 'Svgs', 'Mon Jan 01 2018', 100, -1);
+    expectEvals(evals, 3, 'Cash', 'Wed Jan 10 2018', 99.95, 2); // includes a CPI jump and a £1 drop
+    expectEvals(evals, 4, 'Svgs', 'Wed Jan 10 2018', 101.95, 2); // includes a CPI jump and a £1 investment
+    expectEvals(evals, 5, 'Cash', 'Thu Feb 01 2018', 99.95, 2);
+    expectEvals(evals, 6, 'Saaa', 'Thu Feb 01 2018', 100.95, 2); // includes a CPI jump
+    expectEvals(evals, 7, 'Svgs', 'Thu Feb 01 2018', 101.95, 2); // includes a CPI jump and a £1 investment
+    expectEvals(evals, 8, 'Cash', 'Sat Feb 10 2018', 99.90, 2);  // includes 2 CPI jumps and 2 £1 drops
+    expectEvals(evals, 9, 'Svgs', 'Sat Feb 10 2018', 103.92, 2);
+    expectEvals(evals, 10, 'Cash', 'Thu Mar 01 2018', 99.90, 2);
+    expectEvals(evals, 11, 'Saaa', 'Thu Mar 01 2018', 101.91, 2); // includes 2 CPI jumps
+    expectEvals(evals, 12, 'Svgs', 'Thu Mar 01 2018', 103.92, 2);  // includes 2 CPI jumps and 2 £1 investments
+    expectEvals(evals, 13, 'Cash', 'Sat Mar 10 2018', 99.85, 2);
+    expectEvals(evals, 14, 'Svgs', 'Sat Mar 10 2018', 105.90, 2); // includes 3 CPI jumps and 3 £1 investments
+
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(3);
+    expect(result.assetData[0].item.NAME).toBe('Cash');
+    {
+    const chartPts = result.assetData[0].chartDataPoints;
+    expect(chartPts.length).toBe(4);
+    expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+    expectChartData(chartPts, 1, 'Mon Jan 01 2018', 100, -1);
+    expectChartData(chartPts, 2, 'Thu Feb 01 2018', 99.95, 2);
+    expectChartData(chartPts, 3, 'Thu Mar 01 2018', 99.90, 2);
+    }
+    
+    expect(result.assetData[1].item.NAME).toBe('Svgs');
+    {
+    const chartPts = result.assetData[1].chartDataPoints;
+    expect(chartPts.length).toBe(4);
+    expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+    expectChartData(chartPts, 1, 'Mon Jan 01 2018', 100, -1);
+    expectChartData(chartPts, 2, 'Thu Feb 01 2018', 101.95, 2);
+    expectChartData(chartPts, 3, 'Thu Mar 01 2018', 103.92, 2);
+    }
+    
+    expect(result.assetData[2].item.NAME).toBe('Saaa');
+    {
+    const chartPts = result.assetData[2].chartDataPoints;
+    expect(chartPts.length).toBe(4);
+    expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+    expectChartData(chartPts, 1, 'Mon Jan 01 2018', 100, -1);
+    expectChartData(chartPts, 2, 'Thu Feb 01 2018', 100.95, 2);
+    expectChartData(chartPts, 3, 'Thu Mar 01 2018', 101.91, 2);
+    }
+    
+    expect(result.debtData.length).toBe(0);
+    expect(result.taxData.length).toBe(0);
+    done();
+  });
+
+  it('transact from nowhere into cpi-affected asset', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'April 1, 2018 00:00:00',
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'Cash',
+          START: 'January 1 2018',
+          VALUE: '100',
+          GROWTH: '0.0',
+          CPI_IMMUNE: true,
+        },        
+        {
+          ...simpleAsset,
+          NAME: 'Svgs',
+          START: 'January 1 2018',
+          VALUE: '100',
+          GROWTH: '0.0',
+          CPI_IMMUNE: false,
+        },
+        {
+          ...simpleAsset,
+          NAME: 'Saaa',
+          START: 'January 1 2018',
+          VALUE: '100',
+          GROWTH: '0.0',
+          CPI_IMMUNE: false,
+        },
+      ],
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: 'invest',
+          TO: 'Svgs',
+          TO_VALUE: '1',
+          DATE: 'January 10 2018',
+          RECURRENCE: '1m',
+        },
+      ],
+      settings: [...defaultModelSettings(roi)],
+    };
+    setSetting(model.settings, cpi, '12', constType);
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(12);
+    expectEvals(evals, 0, 'Cash', 'Mon Jan 01 2018', 100, -1);
+    expectEvals(evals, 1, 'Saaa', 'Mon Jan 01 2018', 100, -1);
+    expectEvals(evals, 2, 'Svgs', 'Mon Jan 01 2018', 100, -1);
+    expectEvals(evals, 3, 'Svgs', 'Wed Jan 10 2018', 101.95, 2); // includes a CPI jump and a £1 investment
+    expectEvals(evals, 4, 'Cash', 'Thu Feb 01 2018', 100, -1);
+    expectEvals(evals, 5, 'Saaa', 'Thu Feb 01 2018', 100.95, 2); // includes a CPI jump
+    expectEvals(evals, 6, 'Svgs', 'Thu Feb 01 2018', 101.95, 2); // includes a CPI jump and a £1 investment
+    expectEvals(evals, 7, 'Svgs', 'Sat Feb 10 2018', 103.92, 2);
+    expectEvals(evals, 8, 'Cash', 'Thu Mar 01 2018', 100, -1);
+    expectEvals(evals, 9, 'Saaa', 'Thu Mar 01 2018', 101.91, 2); // includes 2 CPI jumps
+    expectEvals(evals, 10, 'Svgs', 'Thu Mar 01 2018', 103.92, 2);  // includes 2 CPI jumps and 2 £1 investments
+    expectEvals(evals, 11, 'Svgs', 'Sat Mar 10 2018', 105.90, 2); // includes 3 CPI jumps and 3 £1 investments
+
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(3);
+    expect(result.assetData[0].item.NAME).toBe('Cash');
+    {
+    const chartPts = result.assetData[0].chartDataPoints;
+    expect(chartPts.length).toBe(4);
+    expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+    expectChartData(chartPts, 1, 'Mon Jan 01 2018', 100, -1);
+    expectChartData(chartPts, 2, 'Thu Feb 01 2018', 100, -1);
+    expectChartData(chartPts, 3, 'Thu Mar 01 2018', 100, -1);
+    }
+    
+    expect(result.assetData[1].item.NAME).toBe('Svgs');
+    {
+    const chartPts = result.assetData[1].chartDataPoints;
+    expect(chartPts.length).toBe(4);
+    expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+    expectChartData(chartPts, 1, 'Mon Jan 01 2018', 100, -1);
+    expectChartData(chartPts, 2, 'Thu Feb 01 2018', 101.95, 2);
+    expectChartData(chartPts, 3, 'Thu Mar 01 2018', 103.92, 2);
+    }
+    
+    expect(result.assetData[2].item.NAME).toBe('Saaa');
+    {
+    const chartPts = result.assetData[2].chartDataPoints;
+    expect(chartPts.length).toBe(4);
+    expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+    expectChartData(chartPts, 1, 'Mon Jan 01 2018', 100, -1);
+    expectChartData(chartPts, 2, 'Thu Feb 01 2018', 100.95, 2);
+    expectChartData(chartPts, 3, 'Thu Mar 01 2018', 101.91, 2);
+    }
+    
+    expect(result.debtData.length).toBe(0);
+    expect(result.taxData.length).toBe(0);
+    done();
+  });  
+
   it('should understand CPI_IMMUNE for growing assets', done => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',

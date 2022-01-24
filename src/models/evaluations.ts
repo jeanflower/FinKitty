@@ -3010,6 +3010,7 @@ function processTransactionFromTo(
     if (preToValue === undefined) {
       preToValue = 0.0;
     }
+    // log(`pound value of ${toWord} is ${preToValue}`);
   }
 
   // handle conditional transactions
@@ -3146,7 +3147,7 @@ function processTransactionFromTo(
       // log('in processTransactionFromTo, setValue:');
       // log(`in processTransactionFromTo, setValue of ${toWord} to ${preToValue + toChange}`);
       let newToValue = preToValue + toChange;
-      if(growthData(fromWord, growths, values).adjustForCPI){
+      if(growthData(toWord, growths, values).adjustForCPI){
         const b = values.get(baseForCPI);
         if (b && typeof b === 'number') {
           newToValue = newToValue / b;
