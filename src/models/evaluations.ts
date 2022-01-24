@@ -40,8 +40,9 @@ import {
   ExpenseVal,
   ReportDatum,
   ReportValueChecker,
-  IncomeOrExpense,
   GrowthData,
+  Expense,
+  Income,
 } from '../types/interfaces';
 import { getMonthlyGrowth, log, printDebug, showObj } from '../utils';
 import { getDisplayName } from '../views/tablePages';
@@ -362,6 +363,69 @@ function getNumberValue(
   }
   return result;
 }
+function growthData(
+  name: string,
+  growths: Map<string, GrowthData>,
+  values: ValuesContainer,
+  checkAssertion: boolean = true,
+):{
+  adjustForCPI: boolean;
+  scale: number;
+}{
+  const g = growths.get(name);
+
+  if(!g){
+    return {
+      adjustForCPI: false,
+      scale: 0.0,
+    }    
+  }
+  let scale = 0.0;
+  const growth = traceEvaluation(
+    g.itemGrowth, 
+    values, 
+    growths, 
+    '999', // source
+  );
+  if(!growth){
+
+  } else {
+    const cpiVal = traceEvaluation(
+      cpi, 
+      values, 
+      growths, 
+      '999'
+    );
+    let adaptedGrowth = growth;
+    if(g.applyCPI && cpiVal !== undefined){
+      adaptedGrowth = cpiVal !== 0
+          ? ((1.0 + (growth + cpiVal) / 100) / (1.0 + cpiVal / 100) - 1.0) * 100
+          : growth;
+      // log(`from ${growth}, use cpi ${cpiVal} to create adaptedGrowth = ${getMonthlyGrowth(adaptedGrowth)}`);
+    }
+    const monthlyGrowth = getMonthlyGrowth(adaptedGrowth);
+    let periodicGrowth = monthlyGrowth;
+    if(g.powerByNumMonths !== 1){
+      periodicGrowth = (1 + monthlyGrowth) ** g.powerByNumMonths - 1;
+    }
+    // log(`growth power up by ${g.powerByNumMonths} from ${monthlyGrowth} to ${periodicGrowth}`);
+    scale = periodicGrowth;
+    if(g.powerByNumMonths === 1 && checkAssertion && g.scale !== periodicGrowth){
+      //log(`mismatched growths, ${periodicGrowth} not in ${showObj(g)}`);
+      //throw new Error();
+    }
+  }
+
+  if(g.powerByNumMonths === 1 && checkAssertion && g.scale !== scale){
+    //log(`mismatched growths, g.scale = ${g.scale} and scale = ${scale}`);
+    //throw new Error();
+  }
+
+  return {
+    adjustForCPI: g.applyCPI,
+    scale: scale,
+  };
+}
 
 function traceEvaluation(
   value: number | string,
@@ -425,8 +489,7 @@ function traceEvaluation(
         }
       } else {
         //log(`calculate ${numberPart} * ${settingForWordPart} = ${numberPart * settingForWordPart}`);
-        const g = growths.get(wordPart);
-        if (g && g.applyCPI) {
+        if (growthData(wordPart, growths, values).adjustForCPI) {
           const b = values.get(baseForCPI);
           if (b && typeof b === 'number') {
             valueForWordPart *= b;
@@ -521,8 +584,7 @@ function setValue(
   } else {
     let valForEvaluations = numberVal;
     let baseVal: number | undefined;
-    const g = growths.get(name);
-    if (g && g.applyCPI) {
+    if(growthData(name, growths, values).adjustForCPI){
       baseVal = getNumberValue(values, baseForCPI);
       if (baseVal) {
         valForEvaluations *= baseVal;
@@ -1000,9 +1062,7 @@ function adjustCash(
     // without having a cash asset to decrement
   } else {
     let scaleBy: number | undefined;
-    const g = growths.get(CASH_ASSET_NAME);
-    // log(`growth for cash is ${showObj(g)}`);
-    if (cashValue !== undefined && g && g.applyCPI) {
+    if (cashValue !== undefined && growthData(CASH_ASSET_NAME, growths, values).adjustForCPI) {
       const b = values.get(baseForCPI);
       // log(`base for CPI is ${b}`);
       if (b && typeof b === 'number') {
@@ -1964,8 +2024,8 @@ function handleIncome(
   // log(`finished handleIncome`);
 }
 
-function logIncomeOrExpenseGrowth(
-  x: IncomeOrExpense,
+function logExpenseGrowth(
+  x: Expense,
   cpiVal: number,
   growths: Map<string, GrowthData>,
 ) {
@@ -1975,9 +2035,45 @@ function logIncomeOrExpenseGrowth(
       ? ((1.0 + (expenseGrowth + cpiVal) / 100) / (1.0 + cpiVal / 100) - 1.0) *
         100
       : expenseGrowth;
-  // log(`from ${expenseGrowth}, use cpi ${cpiVal} to create adaptedExpenseGrowth = ${adaptedExpenseGrowth}`);
+  // if(cpiVal > 0 && (expenseGrowth > 0 || adaptedExpenseGrowth > 0)){
+  //   log(`from ${expenseGrowth}, use cpi ${cpiVal} to create adaptedExpenseGrowth = ${getMonthlyGrowth(adaptedExpenseGrowth)}`);
+  // }
+  let power = 1;
+  const freq = parseRecurrenceString(x.RECURRENCE);
+  if (freq.frequency !== monthly || freq.count !== 1) {
+    // scale up the stored growths value
+    power = freq.count;
+    if (freq.frequency === annually) {
+      power *= 12;
+    }
+  }
   growths.set(x.NAME, {
-    monthScale: getMonthlyGrowth(adaptedExpenseGrowth),
+    itemGrowth: x.GROWTH,
+    powerByNumMonths: power,
+    scale: getMonthlyGrowth(adaptedExpenseGrowth),
+    applyCPI: !x.CPI_IMMUNE,
+  });
+}
+
+function logIncomeGrowth(
+  x: Income,
+  cpiVal: number,
+  growths: Map<string, GrowthData>,
+) {
+  const growth = parseFloat(x.GROWTH);
+  const adaptedGrowth =
+    cpiVal !== 0
+      ? ((1.0 + (growth + cpiVal) / 100) / (1.0 + cpiVal / 100) - 1.0) *
+        100
+      : growth;
+  // if(cpiVal > 0 && (growth > 0 || adaptedGrowth > 0)){
+  //   log(`from ${growth}, use cpi ${cpiVal} to create adaptedExpenseGrowth = ${getMonthlyGrowth(adaptedGrowth)}`);
+  // }
+
+  growths.set(x.NAME, {
+    itemGrowth: x.GROWTH,
+    powerByNumMonths: 1,
+    scale: getMonthlyGrowth(adaptedGrowth),
     applyCPI: !x.CPI_IMMUNE,
   });
 }
@@ -2018,8 +2114,13 @@ function logAssetGrowth(
       ? ((1.0 + (growth + cpiVal) / 100) / (1.0 + cpiVal / 100) - 1.0) * 100
       : growth;
   // log(`annual growth after cpi adjustment is ${adaptedAssetGrowth}`);
+  // if(cpiVal > 0 && (growth > 0 || adaptedAssetGrowth > 0)){
+  //   log(`from ${asset.GROWTH}, use cpi ${cpiVal} to create adaptedExpenseGrowth = ${getMonthlyGrowth(adaptedAssetGrowth)}`);
+  // }
   growths.set(asset.NAME, {
-    monthScale: getMonthlyGrowth(adaptedAssetGrowth),
+    itemGrowth: asset.GROWTH,
+    powerByNumMonths: 1,
+    scale: getMonthlyGrowth(adaptedAssetGrowth),
     applyCPI: !asset.CPI_IMMUNE,
   });
 }
@@ -2160,30 +2261,6 @@ function logAssetValueString(
     }
     return false;
   }
-}
-
-function getGrowth(name: string, growths: Map<string, GrowthData>): GrowthData {
-  ///////// why not call growths.get?
-  // log(`in getGrowth for ${name}`);
-  const foundObj = growths.get(name);
-  let numberResult = 0;
-  let cpiResult = false;
-
-  if (foundObj === undefined) {
-    // log(`Bug : Undefined growth value for ${name}!`);
-  } else {
-    // log(`combine monthScale and base monthScale`);
-    numberResult = foundObj.monthScale;
-    cpiResult = foundObj.applyCPI;
-  }
-
-  // log(`growth for ${name} is ${numberResult}`);
-  const resultObj = {
-    monthScale: numberResult,
-    applyCPI: cpiResult,
-  };
-  // log(`resultObj = ${showObj(resultObj)}`);
-  return resultObj;
 }
 
 function getRecurrentMoments(
@@ -3009,8 +3086,7 @@ function processTransactionFromTo(
       newFromValue = preFromValue - fromChange.fromImpact;
     }
     // log(`newFromValue = ${newFromValue}`);
-    const g = growths.get(fromWord);
-    if (g && g.applyCPI) {
+    if(growthData(fromWord, growths, values).adjustForCPI){
       const b = values.get(baseForCPI);
       if (b && typeof b === 'number') {
         if (typeof newFromValue === 'number') {
@@ -3070,8 +3146,7 @@ function processTransactionFromTo(
       // log('in processTransactionFromTo, setValue:');
       // log(`in processTransactionFromTo, setValue of ${toWord} to ${preToValue + toChange}`);
       let newToValue = preToValue + toChange;
-      const g = growths.get(toWord);
-      if (g && g.applyCPI) {
+      if(growthData(fromWord, growths, values).adjustForCPI){
         const b = values.get(baseForCPI);
         if (b && typeof b === 'number') {
           newToValue = newToValue / b;
@@ -3180,8 +3255,7 @@ function processTransactionTo(
     } else {
       // log(`value = ${value} will increase by change = ${change}`);
       value += change;
-      const g = growths.get(t.TO);
-      if (g && g.applyCPI) {
+      if(growthData(t.TO, growths, values).adjustForCPI){
         const b = values.get(baseForCPI);
         if (b && typeof b === 'number') {
           value = value / b;
@@ -3561,7 +3635,7 @@ export function getEvaluations(
     if (expense.CPI_IMMUNE) {
       cpiVal = 0.0;
     }
-    logIncomeOrExpenseGrowth(expense, cpiVal, growths);
+    logExpenseGrowth(expense, cpiVal, growths);
     const expenseStart = getTriggerDate(expense.START, model.triggers);
     let shiftStartBackTo = new Date(expenseStart);
 
@@ -3600,28 +3674,6 @@ export function getEvaluations(
       expense.RECURRENCE,
     );
     allMoments = allMoments.concat(newMoments);
-
-    const freq = parseRecurrenceString(expense.RECURRENCE);
-    if (freq.frequency !== monthly || freq.count !== 1) {
-      // scale up the stored growths value
-      const monthlyGrowthObj = growths.get(expense.NAME);
-      if (monthlyGrowthObj === undefined) {
-        log(`Error: didn't find growth of ${expense.NAME}`);
-      } else {
-        const monthlyGrowth = monthlyGrowthObj.monthScale;
-        let power = freq.count;
-        if (freq.frequency === annually) {
-          power *= 12;
-        }
-        // log(`growth power up by ${power}`);
-        const growth = (1 + monthlyGrowth) ** power - 1;
-        growths.set(expense.NAME, {
-          monthScale: growth,
-          applyCPI: !expense.CPI_IMMUNE,
-        });
-        // log(`growth changed from ${monthlyGrowth} to ${growth}`);
-      }
-    }
   });
 
   // For each income, work out monthly growth and
@@ -3637,7 +3689,7 @@ export function getEvaluations(
     if (income.CPI_IMMUNE) {
       cpiVal = 0.0;
     }
-    logIncomeOrExpenseGrowth(income, cpiVal, growths);
+    logIncomeGrowth(income, cpiVal, growths);
     const incomeStart = getTriggerDate(income.START, model.triggers);
     let shiftStartBackTo = new Date(incomeStart);
 
@@ -4327,11 +4379,7 @@ export function getEvaluations(
       }
       const startValue = moment.setValue;
       let valueToStore = startValue;
-      const growthObj = getGrowth(moment.name, growths);
-      // log(`growthObj for ${moment.name} = ${showObj(growthObj)}`);
-      if (!growthObj) {
-        log(`BUG : missing growth for ${moment.name}`);
-      } else if (growthObj.applyCPI) {
+      if (growthData(moment.name, growths, values).adjustForCPI) {
         // log(`start value for ${valueToStore} needs adjusting for CPI`);
         let valueToScale: number | undefined;
         if (typeof valueToStore === 'number') {
@@ -4440,11 +4488,11 @@ export function getEvaluations(
           );
         }
       } else {
-        const growthObj = getGrowth(moment.name, growths);
+        const growthObj = growthData(moment.name, growths, values);
         const baseVal = getNumberValue(values, baseForCPI);
         // log(`baseVal = ${baseVal}`);
         let oldStoredNumberVal = visiblePoundValue;
-        if (visiblePoundValue && growthObj && growthObj.applyCPI && baseVal) {
+        if (visiblePoundValue && growthObj && growthObj.adjustForCPI && baseVal) {
           oldStoredNumberVal /= baseVal;
         }
         // log(`growthObj for ${moment.name} = ${showObj(growthObj)}`);
@@ -4458,7 +4506,7 @@ export function getEvaluations(
           let changedToStoredValue = 0.0;
           let changeToVisibleCash = 0.0;
 
-          const growthChangeScale = growthObj.monthScale;
+          const growthChangeScale = growthObj.scale;
 
           //if(growthObj.applyCPI && baseVal !== 1.0 && growthChangeScale !== 0 && moment.type !== momentType.expense){
           //  throw new Error(`cpi computation for ${moment.type} has baseVal = ${baseVal}, growthChangeScale = ${growthChangeScale}`);
@@ -4474,7 +4522,7 @@ export function getEvaluations(
 
           let cPIChange = 0.0;
           // log(`moment.type = ${moment.type}`);
-          if (growthObj.applyCPI) {
+          if (growthObj.adjustForCPI) {
             // log(`do work on a CPI change for ${moment.name}`);
             if (!baseVal) {
               log(`Bug - missing or zero baseVal`);
