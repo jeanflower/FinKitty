@@ -2245,6 +2245,70 @@ describe('evaluations tests', () => {
     done();
   });
 
+
+  it('transact zero from cash into cpi-affected asset', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'April 1, 2018 00:00:00',
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'Svgs',
+          START: 'January 1 2018',
+          VALUE: '100',
+          GROWTH: '0.0',
+          CPI_IMMUNE: false,
+        },
+        {
+          ...simpleAsset,
+          NAME: 'Saaa',
+          START: 'January 1 2018',
+          VALUE: '100',
+          GROWTH: '0.0',
+          CPI_IMMUNE: false,
+        },
+      ],
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: 'invest',
+          FROM: 'Saaa',
+          FROM_VALUE: '0',
+          TO: 'Svgs',
+          TO_VALUE: '0',
+          DATE: 'January 10 2018',
+          RECURRENCE: '1m',
+        },
+      ],
+      settings: [...defaultModelSettings(roi)],
+    };
+    setSetting(model.settings, cpi, '12', constType);
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(12);
+    expectEvals(evals, 0, 'Saaa', 'Mon Jan 01 2018', 100, -1);
+    expectEvals(evals, 1, 'Svgs', 'Mon Jan 01 2018', 100, -1);
+    expectEvals(evals, 2, 'Saaa', 'Wed Jan 10 2018', 100.95, 2);
+    expectEvals(evals, 3, 'Svgs', 'Wed Jan 10 2018', 100.95, 2);
+    expectEvals(evals, 4, 'Saaa', 'Thu Feb 01 2018', 100.95, 2);
+    expectEvals(evals, 5, 'Svgs', 'Thu Feb 01 2018', 100.95, 2);
+    expectEvals(evals, 6, 'Saaa', 'Sat Feb 10 2018', 101.91, 2);
+    expectEvals(evals, 7, 'Svgs', 'Sat Feb 10 2018', 101.91, 2);
+    expectEvals(evals, 8, 'Saaa', 'Thu Mar 01 2018', 101.91, 2);
+    expectEvals(evals, 9, 'Svgs', 'Thu Mar 01 2018', 101.91, 2);
+    expectEvals(evals, 10, 'Saaa', 'Sat Mar 10 2018', 102.87, 2);
+    expectEvals(evals, 11, 'Svgs', 'Sat Mar 10 2018', 102.87, 2);
+
+    done();
+  });  
+
   it('transact from cpi-affected cash into cpi-affected asset', done => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
@@ -2363,6 +2427,61 @@ describe('evaluations tests', () => {
     expect(result.taxData.length).toBe(0);
     done();
   });
+
+  it('transact zero into cpi-affected asset', done => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'July 1, 2018 00:00:00',
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'Cash',
+          START: 'January 1 2018',
+          VALUE: '100',
+          GROWTH: '0.0',
+          CPI_IMMUNE: false,
+        },        
+        {
+          ...simpleAsset,
+          NAME: `${crystallizedPension} Svgs`,
+          START: 'January 1 2018',
+          VALUE: '100',
+          GROWTH: '0.0',
+          CPI_IMMUNE: false,
+        },
+      ],
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: 'Conditional moveZero',
+          FROM: `${crystallizedPension} Svgs`,
+          FROM_VALUE: '0.0',
+          TO: CASH_ASSET_NAME,
+          TO_VALUE: '0.98',
+          TO_ABSOLUTE: false,          
+          DATE: 'January 10 2018',
+          RECURRENCE: '1m',
+          TYPE: liquidateAsset,
+        },
+      ],
+      settings: [...defaultModelSettings(roi)],
+    };
+    setSetting(model.settings, cpi, '12', constType);
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    printTestCodeForEvals(evals);
+
+
+
+
+    done();
+  });
+
 
   it('transact from nowhere into cpi-affected asset', done => {
     const roi = {

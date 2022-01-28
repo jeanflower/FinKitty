@@ -3081,16 +3081,15 @@ function processTransactionFromTo(
     // log(`in processTransactionFromTo, setValue of ${fromWord} to ${preFromValue - fromChange.fromImpact}`);
     let newFromValue: string | number;
     const oldVal = values.get(fromWord);
+
     if (fromChange.fromImpact === 0 && oldVal !== undefined) {
       newFromValue = oldVal;
     } else {
       newFromValue = preFromValue - fromChange.fromImpact;
-    }
-    // log(`newFromValue = ${newFromValue}`);
-    if(growthData(fromWord, growths, values).adjustForCPI){
-      const b = values.get(baseForCPI);
-      if (b && typeof b === 'number') {
-        if (typeof newFromValue === 'number') {
+      // log(`newFromValue = ${newFromValue}`);
+      if(growthData(fromWord, growths, values).adjustForCPI){
+        const b = values.get(baseForCPI);
+        if (b && typeof b === 'number') {
           newFromValue = newFromValue / b;
         }
       }
