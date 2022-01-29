@@ -86,7 +86,7 @@ describe(testDataModelName, () => {
     await addTransaction(driver, {
       ...transactionInputs,
       reduction: 'junk',
-      message: `Transactions 'from' values must be numbers or a setting`,
+      message: `Transaction 'from' value must be numbers or a setting, not junk`,
     });
 
     await clearTransactionFields(driver);

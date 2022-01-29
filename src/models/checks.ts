@@ -439,7 +439,7 @@ function checkTransactionFrom(word: string, settings: Setting[]) {
     // will evaluate to a numebr without further checks
     return '';
   }
-  return `Transactions 'from' values must be numbers or a setting`;
+  return `Transaction 'from' value must be numbers or a setting, not ${word}`;
 }
 
 function checkTransactionTo(
