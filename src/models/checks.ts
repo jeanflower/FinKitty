@@ -440,7 +440,7 @@ function checkTransactionFrom(word: string, settings: Setting[]) {
     // will evaluate to a number without further checks
     return '';
   }
-  if(word.startsWith(bondMaturity)){
+  if (word.startsWith(bondMaturity)) {
     const trimmedWord = word.substring(bondMaturity.length, word.length);
     matched = settings.find(s => {
       const result = s.NAME === trimmedWord;
@@ -449,7 +449,7 @@ function checkTransactionFrom(word: string, settings: Setting[]) {
     });
     if (matched !== undefined) {
       // the FROM value is `${bondMaturity}${setting}` - assume that the setting
-      // part will evaluate to a bond target value number without 
+      // part will evaluate to a bond target value number without
       // further checks
       // log(`checks OK`);
       return '';
@@ -1295,7 +1295,7 @@ function checkNames(model: ModelData): string {
     }),
   );
 
-  if(names.find(n=> n === 'base')){
+  if (names.find(n => n === 'base')) {
     return `'base' as name is reserved`;
   }
 

@@ -370,56 +370,60 @@ function growthData(
   name: string,
   growths: Map<string, GrowthData>,
   values: ValuesContainer,
-  checkAssertion: boolean = true,
-):{
+  checkAssertion = true,
+): {
   adjustForCPI: boolean;
   scale: number;
-}{
+} {
   const g = growths.get(name);
 
-  if(!g){
+  if (!g) {
     return {
       adjustForCPI: false,
       scale: 0.0,
-    }    
+    };
   }
   let scale = 0.0;
   const growth = traceEvaluation(
-    g.itemGrowth, 
-    values, 
-    growths, 
+    g.itemGrowth,
+    values,
+    growths,
     '40', //callerID
   );
-  if(!growth){
-
+  if (!growth) {
   } else {
     const cpiVal = traceEvaluation(
-      cpi, 
-      values, 
-      growths, 
+      cpi,
+      values,
+      growths,
       '41', //callerID
     );
     let adaptedGrowth = growth;
-    if(g.applyCPI && cpiVal !== undefined){
-      adaptedGrowth = cpiVal !== 0
+    if (g.applyCPI && cpiVal !== undefined) {
+      adaptedGrowth =
+        cpiVal !== 0
           ? ((1.0 + (growth + cpiVal) / 100) / (1.0 + cpiVal / 100) - 1.0) * 100
           : growth;
       // log(`from ${growth}, use cpi ${cpiVal} to create adaptedGrowth = ${getMonthlyGrowth(adaptedGrowth)}`);
     }
     const monthlyGrowth = getMonthlyGrowth(adaptedGrowth);
     let periodicGrowth = monthlyGrowth;
-    if(g.powerByNumMonths !== 1){
+    if (g.powerByNumMonths !== 1) {
       periodicGrowth = (1 + monthlyGrowth) ** g.powerByNumMonths - 1;
     }
     // log(`growth power up by ${g.powerByNumMonths} from ${monthlyGrowth} to ${periodicGrowth}`);
     scale = periodicGrowth;
-    if(g.powerByNumMonths === 1 && checkAssertion && g.scale !== periodicGrowth){
+    if (
+      g.powerByNumMonths === 1 &&
+      checkAssertion &&
+      g.scale !== periodicGrowth
+    ) {
       //log(`mismatched growths, ${periodicGrowth} not in ${showObj(g)}`);
       //throw new Error();
     }
   }
 
-  if(g.powerByNumMonths === 1 && checkAssertion && g.scale !== scale){
+  if (g.powerByNumMonths === 1 && checkAssertion && g.scale !== scale) {
     //log(`mismatched growths, g.scale = ${g.scale} and scale = ${scale}`);
     //throw new Error();
   }
@@ -463,8 +467,11 @@ function traceEvaluation(
         log(`valueForWordPart ${wordPart} = ${valueForWordPart}`);
       }
       if (valueForWordPart === undefined) {
-        if (wordPart.startsWith(bondMaturity)){
-          const trimmedWordPart = wordPart.substring(bondMaturity.length, wordPart.length);
+        if (wordPart.startsWith(bondMaturity)) {
+          const trimmedWordPart = wordPart.substring(
+            bondMaturity.length,
+            wordPart.length,
+          );
           // log(`trimming ${wordPart} to ${trimmedWordPart}`);
           const nextLevel = traceEvaluation(
             trimmedWordPart,
@@ -472,17 +479,17 @@ function traceEvaluation(
             growths,
             source,
           );
-          if(nextLevel === undefined) {
+          if (nextLevel === undefined) {
             if (debug) {
               log(
                 `got undefined for ${trimmedWordPart} - returning undefined for ${value}`,
               );
             }
-            result = undefined;  
+            result = undefined;
           } else {
             // e.g nextLevel = 60,000
             // but that gets scaled to account for CPI
-            
+
             result = numberPart * nextLevel;
           }
         } else {
@@ -611,7 +618,7 @@ function setValue(
   } else {
     let valForEvaluations = numberVal;
     let baseVal: number | undefined;
-    if(growthData(name, growths, values).adjustForCPI){
+    if (growthData(name, growths, values).adjustForCPI) {
       baseVal = getNumberValue(values, baseForCPI);
       if (baseVal) {
         const newValForEvaluations = valForEvaluations * baseVal;
@@ -1090,7 +1097,10 @@ function adjustCash(
     // without having a cash asset to decrement
   } else {
     let scaleBy: number | undefined;
-    if (cashValue !== undefined && growthData(CASH_ASSET_NAME, growths, values).adjustForCPI) {
+    if (
+      cashValue !== undefined &&
+      growthData(CASH_ASSET_NAME, growths, values).adjustForCPI
+    ) {
       const b = values.get(baseForCPI);
       // log(`base for CPI is ${b}`);
       if (b && typeof b === 'number') {
@@ -2091,8 +2101,7 @@ function logIncomeGrowth(
   const growth = parseFloat(x.GROWTH);
   const adaptedGrowth =
     cpiVal !== 0
-      ? ((1.0 + (growth + cpiVal) / 100) / (1.0 + cpiVal / 100) - 1.0) *
-        100
+      ? ((1.0 + (growth + cpiVal) / 100) / (1.0 + cpiVal / 100) - 1.0) * 100
       : growth;
   // if(cpiVal > 0 && (growth > 0 || adaptedGrowth > 0)){
   //   log(`from ${growth}, use cpi ${cpiVal} to create adaptedExpenseGrowth = ${getMonthlyGrowth(adaptedGrowth)}`);
@@ -2693,48 +2702,50 @@ function calculateFromChange(
 
   if (t.FROM_ABSOLUTE) {
     // log(`use all of fromValue = ${tFromValue}`);
-    if(t.FROM_VALUE.startsWith(bondMaturity)){
+    if (t.FROM_VALUE.startsWith(bondMaturity)) {
       // log(`transaction ${showObj(t)} begins with ${bondMaturity}`);
 
       // Either we're investing in a bond or a bond is maturing
-      if(t.FROM === CASH_ASSET_NAME){
+      if (t.FROM === CASH_ASSET_NAME) {
         // log('investing');
         // log(`setting name = ${s.NAME}`);
         const d = new Date(moment.date);
         // log(`t.NAME = ${t.NAME} seeks a matching setting...`);
-        
+
         // log(`before date shift, d = ${d.toDateString()}`);
-        if(t.NAME.endsWith('5y')){
+        if (t.NAME.endsWith('5y')) {
           d.setFullYear(d.getFullYear() + 5);
-        } else if(t.NAME.endsWith('4y')){
+        } else if (t.NAME.endsWith('4y')) {
           d.setFullYear(d.getFullYear() + 4);
-        } else if(t.NAME.endsWith('3y')){
+        } else if (t.NAME.endsWith('3y')) {
           d.setFullYear(d.getFullYear() + 3);
-        } else if(t.NAME.endsWith('2y')){
+        } else if (t.NAME.endsWith('2y')) {
           d.setFullYear(d.getFullYear() + 2);
-        } else if(t.NAME.endsWith('1y')){
+        } else if (t.NAME.endsWith('1y')) {
           d.setFullYear(d.getFullYear() + 1);
-        } else if(t.NAME.endsWith('1m')){
+        } else if (t.NAME.endsWith('1m')) {
           d.setMonth(d.getMonth() + 1);
         } else {
-          log('BUG - could not infer duration of bond from bond name (does not end 1y etc)');
+          log(
+            'BUG - could not infer duration of bond from bond name (does not end 1y etc)',
+          );
         }
         // log(`after date shift, d = ${d.toDateString()}`);
 
-        // log(`for ${t.NAME}, look for a setting like 
+        // log(`for ${t.NAME}, look for a setting like
         //   ${t.FROM_VALUE}${separator}${t.DATE}${separator}${cpi}`);
-        const matchedSetting = model.settings.filter((s)=>{
+        const matchedSetting = model.settings.filter(s => {
           const sparts = s.NAME.split(separator);
-          if(sparts.length !== 3){
+          if (sparts.length !== 3) {
             return false;
           }
-          if(sparts[0] !== t.FROM_VALUE){
+          if (sparts[0] !== t.FROM_VALUE) {
             return false;
           }
-          if(sparts[2] !== cpi){
+          if (sparts[2] !== cpi) {
             return false;
-          }          
-          if(d.getTime() !== new Date(sparts[1]).getTime()){
+          }
+          if (d.getTime() !== new Date(sparts[1]).getTime()) {
             // log(`different dates ${d.toDateString()} !== ${new Date(sparts[1]).toDateString()}`);
             return false;
           }
@@ -2743,25 +2754,29 @@ function calculateFromChange(
           // log(`same dates ${new Date(moment.date).toDateString()} === ${sparts[1]}`);
           return true;
         });
-        if(matchedSetting.length === 1){
+        if (matchedSetting.length === 1) {
           const cpiScaling = getNumberValue(values, matchedSetting[0].NAME);
           // log(`Bond cpiScaling from ${matchedSetting[0].NAME} = ${cpiScaling}`);
-          if(cpiScaling !== undefined && cpiScaling !== undefined){
+          if (cpiScaling !== undefined && cpiScaling !== undefined) {
             tFromValue *= cpiScaling;
             // log(`scale by CPI effect ${cpiScaling}, tFromValue = ${tFromValue}`);
           }
         } else {
-          if(!model.settings.find((s) => s.NAME === `${bondMaturity}Prerun`)){
-            log(`BUG : expected to find a setting ${t.FROM_VALUE}${separator}${d}${separator}${cpi}`);
+          if (!model.settings.find(s => s.NAME === `${bondMaturity}Prerun`)) {
+            log(
+              `BUG : expected to find a setting ${t.FROM_VALUE}${separator}${d}${separator}${cpi}`,
+            );
           }
         }
       } else {
         // log('maturing');
-        const valueKey = `${t.FROM_VALUE}${separator}${new Date(moment.date).toDateString()}${separator}${cpi}invested`;
+        const valueKey = `${t.FROM_VALUE}${separator}${new Date(
+          moment.date,
+        ).toDateString()}${separator}${cpi}invested`;
         // log(`for maturing bond, look for ${valueKey}`);
         const val = getNumberValue(values, valueKey, false);
         // log(`for maturing bond, found val = ${val}`);
-        if(val !== undefined){
+        if (val !== undefined) {
           tFromValue = val;
         } else {
           tFromValue = 0.0; // nothing was registered as invested
@@ -3190,7 +3205,7 @@ function processTransactionFromTo(
     } else {
       newFromValue = preFromValue - fromChange.fromImpact;
       // log(`newFromValue = ${newFromValue}`);
-      if(growthData(fromWord, growths, values).adjustForCPI){
+      if (growthData(fromWord, growths, values).adjustForCPI) {
         const b = values.get(baseForCPI);
         if (b && typeof b === 'number') {
           newFromValue = newFromValue / b;
@@ -3247,35 +3262,39 @@ function processTransactionFromTo(
         );
       }
 
-      if(t.FROM_VALUE.startsWith(bondMaturity) && t.FROM === CASH_ASSET_NAME){
+      if (t.FROM_VALUE.startsWith(bondMaturity) && t.FROM === CASH_ASSET_NAME) {
         // we're about to invest into a bond
         // log(`invested ${toChange} into a bond for ${showObj(t)}`);
         const d = new Date(moment.date);
-        if(t.NAME.endsWith('5y')){
+        if (t.NAME.endsWith('5y')) {
           d.setFullYear(d.getFullYear() + 5);
-        } else if(t.NAME.endsWith('4y')){
+        } else if (t.NAME.endsWith('4y')) {
           d.setFullYear(d.getFullYear() + 4);
-        } else if(t.NAME.endsWith('3y')){
+        } else if (t.NAME.endsWith('3y')) {
           d.setFullYear(d.getFullYear() + 3);
-        } else if(t.NAME.endsWith('2y')){
+        } else if (t.NAME.endsWith('2y')) {
           d.setFullYear(d.getFullYear() + 2);
-        } else if(t.NAME.endsWith('1y')){
+        } else if (t.NAME.endsWith('1y')) {
           d.setFullYear(d.getFullYear() + 1);
-        } else if(t.NAME.endsWith('1m')){
+        } else if (t.NAME.endsWith('1m')) {
           d.setMonth(d.getMonth() + 1);
         } else {
-          log('BUG - could not infer duration of bond from bond name (does not end 1y etc)');
+          log(
+            'BUG - could not infer duration of bond from bond name (does not end 1y etc)',
+          );
         }
-        let investedValue = toChange;
+        const investedValue = toChange;
 
-        const nameForMaturity = `${t.FROM_VALUE}${separator}${d.toDateString()}${separator}${cpi}invested`;
+        const nameForMaturity = `${
+          t.FROM_VALUE
+        }${separator}${d.toDateString()}${separator}${cpi}invested`;
         // log(`create a stored value for maturity ${nameForMaturity}`);
         values.set(
-          nameForMaturity, 
-          investedValue, 
-          growths, 
-          moment.date, 
-          'bondInvestment', 
+          nameForMaturity,
+          investedValue,
+          growths,
+          moment.date,
+          'bondInvestment',
           '42', //callerID
         );
         // log(`recorded investedValue = ${investedValue} with name ${nameForMaturity}`);
@@ -3283,7 +3302,7 @@ function processTransactionFromTo(
       // log('in processTransactionFromTo, setValue:');
       // log(`in processTransactionFromTo, setValue of ${toWord} to ${preToValue + toChange}`);
       let newToValue = preToValue + toChange;
-      if(growthData(toWord, growths, values).adjustForCPI){
+      if (growthData(toWord, growths, values).adjustForCPI) {
         const b = values.get(baseForCPI);
         if (b && typeof b === 'number') {
           // log(`scale newToValue = ${newToValue} by b = ${b}`);
@@ -3393,7 +3412,7 @@ function processTransactionTo(
     } else {
       // log(`value = ${value} will increase by change = ${change}`);
       value += change;
-      if(growthData(t.TO, growths, values).adjustForCPI){
+      if (growthData(t.TO, growths, values).adjustForCPI) {
         const b = values.get(baseForCPI);
         if (b && typeof b === 'number') {
           value = value / b;
@@ -3695,7 +3714,7 @@ function generateMoments(
   evaluations: Evaluation[],
   liabilitiesMap: Map<string, string>,
   pensionTransactions: Transaction[],
-){
+) {
   let allMoments: Moment[] = [];
 
   // For each expense, work out monthly growth and
@@ -4032,7 +4051,7 @@ function evaluateAllAssets(
   todaysIncomeValues: Map<string, IncomeVal>,
   todaysExpenseValues: Map<string, ExpenseVal>,
   todaysSettingValues: Map<string, SettingVal>,
-){
+) {
   model.assets.forEach(asset => {
     let val = values.get(asset.NAME);
     if (typeof val === 'string') {
@@ -4141,14 +4160,14 @@ function handleTaxObligations(
   growths: Map<string, GrowthData>,
   moment: Moment,
   timeInTaxCycle: {
-    startYearOfTaxYear: number|undefined,
-    monthOfTaxYear: number|undefined,
+    startYearOfTaxYear: number | undefined;
+    monthOfTaxYear: number | undefined;
   },
   liableIncomeInTaxYear: Map<string, Map<string, number>>,
   liableIncomeInTaxMonth: Map<string, Map<string, number>>,
   taxMonthlyPaymentsPaid: Map<string, Map<string, number>>,
   evaluations: Evaluation[],
-){
+) {
   // Detect if this date has brought us into a new tax year.
   // At a change of tax year, log last year's accrual
   // and start a fresh accrual for the next year.
@@ -4156,7 +4175,7 @@ function handleTaxObligations(
   const momentsTaxMonth = getMonthOfTaxYear(moment.date);
   // log(`momentsTaxMonth = ${momentsTaxMonth}, momentsTaxYear = ${momentsTaxYear}`);
   const enteringNewTaxYear =
-    timeInTaxCycle.startYearOfTaxYear !== undefined && 
+    timeInTaxCycle.startYearOfTaxYear !== undefined &&
     momentsTaxYear > timeInTaxCycle.startYearOfTaxYear;
   const enteringNewTaxMonth =
     timeInTaxCycle.startYearOfTaxYear !== undefined &&
@@ -4227,101 +4246,101 @@ function handleInflationStep(
   values: ValuesContainer,
   growths: Map<string, GrowthData>,
   date: Date,
-){
-    // increment base (which started as 1.0) according to inflation value
-    // at this moment in time
+) {
+  // increment base (which started as 1.0) according to inflation value
+  // at this moment in time
 
-    const baseObj = getNumberValue(values, baseForCPI);
-    const infObj = getNumberValue(values, cpi);
+  const baseObj = getNumberValue(values, baseForCPI);
+  const infObj = getNumberValue(values, cpi);
 
-    if (baseObj !== undefined && infObj !== undefined) {
-      const newValue = baseObj * (1.0 + getMonthlyGrowth(infObj));
-      // log(`time to update base using ${infObj} from ${baseObj} to ${newValue}`);
-      // log(`newValue = ${newValue}`);
-      values.set(
-        baseForCPI,
-        newValue,
-        growths,
-        date,
-        'baseChange',
-        '38', //callerID
-      );
-    } else {
-      log(
-        `BUG: missing baseObj or infObj for CPI handling; ${baseObj}, ${infObj}`,
-      );
-    }
+  if (baseObj !== undefined && infObj !== undefined) {
+    const newValue = baseObj * (1.0 + getMonthlyGrowth(infObj));
+    // log(`time to update base using ${infObj} from ${baseObj} to ${newValue}`);
+    // log(`newValue = ${newValue}`);
+    values.set(
+      baseForCPI,
+      newValue,
+      growths,
+      date,
+      'baseChange',
+      '38', //callerID
+    );
+  } else {
+    log(
+      `BUG: missing baseObj or infObj for CPI handling; ${baseObj}, ${infObj}`,
+    );
+  }
 }
 
 function captureLastTaxBands(
   values: ValuesContainer,
   growths: Map<string, GrowthData>,
   moment: Moment,
-){
-      // log(`at ${moment.date.toDateString()}, go log tax band values to get inflated values later`);
-      const resultFromMap = TAX_MAP[`${highestTaxYearInMap}`];
-      const baseVal = getNumberValue(values, baseForCPI);
-      if (resultFromMap !== undefined && baseVal !== undefined) {
-        // log(`map vals at ${startYearOfTaxYear}, ${makeTwoDP(resultFromMap.noTaxBand)}, ${makeTwoDP(resultFromMap.lowTaxBand)}, ${makeTwoDP(resultFromMap.highTaxBand)}, ${makeTwoDP(resultFromMap.adjustNoTaxBand)}`);
-        // log(`scale last tax bands by / baseVal = ${baseVal}`);
-        const noTaxBand = resultFromMap.noTaxBand / baseVal;
-        const lowTaxBand = resultFromMap.lowTaxBand / baseVal;
-        const highTaxBand = resultFromMap.highTaxBand / baseVal;
-        const adjustNoTaxBand = resultFromMap.adjustNoTaxBand / baseVal;
-        const noNIBand = resultFromMap.noNIBand / baseVal;
-        const lowNIBand = resultFromMap.lowNIBand / baseVal;
-        values.set(
-          'noTaxBand',
-          noTaxBand,
-          growths,
-          moment.date,
-          moment.name,
-          '39', //callerID
-        );
-        values.set(
-          'lowTaxBand',
-          lowTaxBand,
-          growths,
-          moment.date,
-          moment.name,
-          '39', //callerID
-        );
-        values.set(
-          'highTaxBand',
-          highTaxBand,
-          growths,
-          moment.date,
-          moment.name,
-          '39', //callerID
-        );
-        values.set(
-          'adjustNoTaxBand',
-          adjustNoTaxBand,
-          growths,
-          moment.date,
-          moment.name,
-          '39', //callerID
-        );
-        values.set(
-          'noNIBand',
-          noNIBand,
-          growths,
-          moment.date,
-          moment.name,
-          '39', //callerID
-        );
-        values.set(
-          'lowNIBand',
-          lowNIBand,
-          growths,
-          moment.date,
-          moment.name,
-          '39', //callerID
-        );
-        // log(`in vals at ${startYearOfTaxYear}, ${makeTwoDP(noTaxBand)}, ${makeTwoDP(lowTaxBand)}, ${makeTwoDP(highTaxBand)}, ${makeTwoDP(adjustNoTaxBand)}`);
-      } else {
-        log('BUG : undefined resultFromMap or baseVal');
-      }
+) {
+  // log(`at ${moment.date.toDateString()}, go log tax band values to get inflated values later`);
+  const resultFromMap = TAX_MAP[`${highestTaxYearInMap}`];
+  const baseVal = getNumberValue(values, baseForCPI);
+  if (resultFromMap !== undefined && baseVal !== undefined) {
+    // log(`map vals at ${startYearOfTaxYear}, ${makeTwoDP(resultFromMap.noTaxBand)}, ${makeTwoDP(resultFromMap.lowTaxBand)}, ${makeTwoDP(resultFromMap.highTaxBand)}, ${makeTwoDP(resultFromMap.adjustNoTaxBand)}`);
+    // log(`scale last tax bands by / baseVal = ${baseVal}`);
+    const noTaxBand = resultFromMap.noTaxBand / baseVal;
+    const lowTaxBand = resultFromMap.lowTaxBand / baseVal;
+    const highTaxBand = resultFromMap.highTaxBand / baseVal;
+    const adjustNoTaxBand = resultFromMap.adjustNoTaxBand / baseVal;
+    const noNIBand = resultFromMap.noNIBand / baseVal;
+    const lowNIBand = resultFromMap.lowNIBand / baseVal;
+    values.set(
+      'noTaxBand',
+      noTaxBand,
+      growths,
+      moment.date,
+      moment.name,
+      '39', //callerID
+    );
+    values.set(
+      'lowTaxBand',
+      lowTaxBand,
+      growths,
+      moment.date,
+      moment.name,
+      '39', //callerID
+    );
+    values.set(
+      'highTaxBand',
+      highTaxBand,
+      growths,
+      moment.date,
+      moment.name,
+      '39', //callerID
+    );
+    values.set(
+      'adjustNoTaxBand',
+      adjustNoTaxBand,
+      growths,
+      moment.date,
+      moment.name,
+      '39', //callerID
+    );
+    values.set(
+      'noNIBand',
+      noNIBand,
+      growths,
+      moment.date,
+      moment.name,
+      '39', //callerID
+    );
+    values.set(
+      'lowNIBand',
+      lowNIBand,
+      growths,
+      moment.date,
+      moment.name,
+      '39', //callerID
+    );
+    // log(`in vals at ${startYearOfTaxYear}, ${makeTwoDP(noTaxBand)}, ${makeTwoDP(lowTaxBand)}, ${makeTwoDP(highTaxBand)}, ${makeTwoDP(adjustNoTaxBand)}`);
+  } else {
+    log('BUG : undefined resultFromMap or baseVal');
+  }
 }
 
 function handleStartMoment(
@@ -4334,7 +4353,7 @@ function handleStartMoment(
   liableIncomeInTaxYear: Map<string, Map<string, number>>,
   liableIncomeInTaxMonth: Map<string, Map<string, number>>,
   evaluations: Evaluation[],
-){
+) {
   // Starts are well defined
   // log(`start moment ${moment.name}, ${moment.type}, ${moment.date}`)
   if (moment.setValue === undefined) {
@@ -4418,12 +4437,7 @@ function handleStartMoment(
     );
   }
   if (moment.type === momentType.incomeStart) {
-    const numberVal = traceEvaluation(
-      startValue,
-      values,
-      growths,
-      moment.name,
-    );
+    const numberVal = traceEvaluation(startValue, values, growths, moment.name);
     if (numberVal !== undefined) {
       // log(`income numberVal = ${numberVal}`);
       handleIncome(
@@ -4467,7 +4481,7 @@ function growAndEffectMoment(
   liableIncomeInTaxYear: Map<string, Map<string, number>>,
   liableIncomeInTaxMonth: Map<string, Map<string, number>>,
   evaluations: Evaluation[],
-){
+) {
   const visiblePoundValue: string | number | undefined = traceEvaluation(
     moment.name,
     values,
@@ -4590,10 +4604,7 @@ function growAndEffectMoment(
         // liable for tax
         // log(`asset moment for growth : ${moment.date}, ${moment.name}`);
         const changeToCash = cPIChange + changeToVisibleCash;
-        if (
-          moment.name.startsWith(crystallizedPension) &&
-          changeToCash > 0
-        ) {
+        if (moment.name.startsWith(crystallizedPension) && changeToCash > 0) {
           // log(`skip asset moment for growth : ${moment.date}, ${moment.name}, ${change}`);
         } else {
           handleIncome(
@@ -4695,7 +4706,7 @@ function getEvaluationsInternal(
 
   // Calculate a monthly growth once per item,
   // refer to this map for each individual moment.
-  const growths = new Map<string, GrowthData>();  
+  const growths = new Map<string, GrowthData>();
 
   const cpiInitialVal: number = parseFloat(
     getSettings(model.settings, cpi, '0.0'),
@@ -4719,7 +4730,7 @@ function getEvaluationsInternal(
   // A historical record of evaluations (useful for creating trends or charts)
   const evaluations: Evaluation[] = [];
 
-    // Record which items are liable for income tax.
+  // Record which items are liable for income tax.
   // Map from income name to a person identifier.
   // (e.g. "PaperRound", "IncomeTaxJane").
   // (e.g. "PaperRound", "NIJane").
@@ -4731,10 +4742,10 @@ function getEvaluationsInternal(
 
   // Calculate a set of "moments" for each transaction/income/expense...
   // each has a date - we'll process these in date order.
-  let allMoments: Moment[] = generateMoments(
-    model, 
-    values, 
-    growths, 
+  const allMoments: Moment[] = generateMoments(
+    model,
+    values,
+    growths,
     cpiInitialVal,
     roiStartDate,
     roiEndDate,
@@ -4812,9 +4823,9 @@ function getEvaluationsInternal(
     sortByDate(datedMoments);
   }
 
-  let timeInTaxCycle: {
-    startYearOfTaxYear: number|undefined,
-    monthOfTaxYear: number|undefined,
+  const timeInTaxCycle: {
+    startYearOfTaxYear: number | undefined;
+    monthOfTaxYear: number | undefined;
   } = {
     startYearOfTaxYear: undefined,
     monthOfTaxYear: undefined,
@@ -4862,8 +4873,8 @@ function getEvaluationsInternal(
 
     if (moment.name === EvaluateAllAssets) {
       evaluateAllAssets(
-        model, 
-        values, 
+        model,
+        values,
         growths,
         today,
         todaysAssetValues,
@@ -4888,17 +4899,9 @@ function getEvaluationsInternal(
 
     if (moment.name === EvaluateAllAssets) {
     } else if (moment.name === cpi) {
-      handleInflationStep(
-        values,
-        growths,
-        moment.date
-      );
+      handleInflationStep(values, growths, moment.date);
     } else if (moment.name === 'captureLastTaxBands') {
-      captureLastTaxBands(
-        values,
-        growths,
-        moment,
-      );
+      captureLastTaxBands(values, growths, moment);
     } else if (moment.type === momentType.transaction) {
       // log(`this is a transaction`);
       processTransactionMoment(
@@ -4922,7 +4925,7 @@ function getEvaluationsInternal(
       handleStartMoment(
         model,
         values,
-        growths, 
+        growths,
         moment,
         pensionTransactions,
         liabilitiesMap,
@@ -4946,7 +4949,10 @@ function getEvaluationsInternal(
 
     // Catch any tax information if we've just processed the last
     // of the moments.
-    if (timeInTaxCycle.startYearOfTaxYear !== undefined && datedMoments.length === 0) {
+    if (
+      timeInTaxCycle.startYearOfTaxYear !== undefined &&
+      datedMoments.length === 0
+    ) {
       // change of tax year - report count of moments
       // log('last item in tax year...');
       settleUpTax(
@@ -4998,22 +5004,21 @@ export function getEvaluations(
   todaysExpenseValues: Map<string, ExpenseVal>;
   todaysSettingValues: Map<string, SettingVal>;
   reportData: ReportDatum[];
-}{
+} {
   const roiStartDate: Date = makeDateFromString(
     getSettings(model.settings, roiStart, '1 Jan 1999'),
   );
   let roiEndDate: Date = makeDateFromString(
     getSettings(model.settings, roiEnd, '1 Jan 1999'),
   );
-  const maturityTransactions = model.transactions.filter(t=>{
+  const maturityTransactions = model.transactions.filter(t => {
     return t.FROM_VALUE.startsWith(bondMaturity) && t.TO === CASH_ASSET_NAME;
   });
   // log(`maturityTransactions = ${showObj(maturityTransactions)}`);
 
-
-  maturityTransactions.forEach((mt)=>{
+  maturityTransactions.forEach(mt => {
     const d = new Date(mt.DATE);
-    if(d > roiEndDate){
+    if (d > roiEndDate) {
       roiEndDate = d;
     }
   });
@@ -5022,30 +5027,34 @@ export function getEvaluations(
     triggers: model.triggers,
     expenses: [],
     incomes: [],
-    transactions: model.transactions.filter(t=>{
-      return t.TYPE === revalueSetting || t.FROM_VALUE.startsWith(bondMaturity)
+    transactions: model.transactions.filter(t => {
+      return t.TYPE === revalueSetting || t.FROM_VALUE.startsWith(bondMaturity);
     }),
-    assets: model.assets.filter(a=>{
-      return a.NAME === CASH_ASSET_NAME ||
-        model.transactions.find(t=>{
-          return t.FROM_VALUE.startsWith(bondMaturity) && t.FROM === a.NAME
-        }) !== undefined;
-    }).concat([
-      {
-        NAME: `${bondMaturity}base`,
-        CATEGORY: '',
-        START: roiStartDate.toDateString(),
-        VALUE: '1.0',
-        QUANTITY: '', // Quantised assets have unit prices on-screen for table value
-        // Quantised assets can only be transacted in unit integer quantities
-        GROWTH: '0.0',
-        CPI_IMMUNE: false,
-        CAN_BE_NEGATIVE: true,
-        IS_A_DEBT: false,
-        LIABILITY: '',
-        PURCHASE_PRICE: '0.0',
-      }
-    ]),
+    assets: model.assets
+      .filter(a => {
+        return (
+          a.NAME === CASH_ASSET_NAME ||
+          model.transactions.find(t => {
+            return t.FROM_VALUE.startsWith(bondMaturity) && t.FROM === a.NAME;
+          }) !== undefined
+        );
+      })
+      .concat([
+        {
+          NAME: `${bondMaturity}base`,
+          CATEGORY: '',
+          START: roiStartDate.toDateString(),
+          VALUE: '1.0',
+          QUANTITY: '', // Quantised assets have unit prices on-screen for table value
+          // Quantised assets can only be transacted in unit integer quantities
+          GROWTH: '0.0',
+          CPI_IMMUNE: false,
+          CAN_BE_NEGATIVE: true,
+          IS_A_DEBT: false,
+          LIABILITY: '',
+          PURCHASE_PRICE: '0.0',
+        },
+      ]),
     settings: model.settings.concat([
       {
         NAME: `${bondMaturity}Prerun`,
@@ -5058,68 +5067,72 @@ export function getEvaluations(
     undoModel: undefined,
     redoModel: undefined,
   };
-  const roiEndSetting = model.settings.find((s)=>{ return s.NAME === roiEnd; });
+  const roiEndSetting = model.settings.find(s => {
+    return s.NAME === roiEnd;
+  });
   let oldRoiEnd = '';
-  if(roiEndSetting){
+  if (roiEndSetting) {
     oldRoiEnd = roiEndSetting.VALUE;
     roiEndSetting.VALUE = roiEndDate.toDateString();
   }
 
   // log(`START FIRST EVALUATIONS LOOP`);
-  const adjustedEvals = getEvaluationsInternal(
-    adjustedModel,
-    undefined,
-  );
+  const adjustedEvals = getEvaluationsInternal(adjustedModel, undefined);
   // log(`adjustedEvals = ${showObj(adjustedEvals)}`);
 
-  if(roiEndSetting){
+  if (roiEndSetting) {
     roiEndSetting.VALUE = oldRoiEnd;
   }
 
-  const generatedSettings:Setting[] = [];
+  const generatedSettings: Setting[] = [];
 
-  for(let i = 0; i < adjustedEvals.evaluations.length; i = i + 1){
+  for (let i = 0; i < adjustedEvals.evaluations.length; i = i + 1) {
     const evaln = adjustedEvals.evaluations[i];
-    if(evaln.name === CASH_ASSET_NAME){
+    if (evaln.name === CASH_ASSET_NAME) {
       continue;
     }
     const t = maturityTransactions.find(t => t.NAME === evaln.source);
-    if( t !== undefined ){
+    if (t !== undefined) {
       const settingName = `${t.FROM_VALUE}${separator}${evaln.date}${separator}${cpi}`;
       // log(`for t.NAME = ${t.NAME}`);
       // ${bondMaturity}BondTargetValue${separator}${transactionDateString}${separator}${cpi}
       // look forward through our evals looking for a base value when this
       // BondTargetValue was revalued
       let baseStart = 1.0;
-      for(let j = 0; j < adjustedEvals.evaluations.length; j = j + 1){
+      for (let j = 0; j < adjustedEvals.evaluations.length; j = j + 1) {
         const startEvaln = adjustedEvals.evaluations[j];
-        if(startEvaln.name === `${bondMaturity}base`){
+        if (startEvaln.name === `${bondMaturity}base`) {
           // log(`base val before revalue is ${startEvaln.value}`);
           baseStart = startEvaln.value;
           continue;
         }
-        if(startEvaln.name === t.FROM_VALUE.substring(bondMaturity.length, t.FROM_VALUE.length)
-          && startEvaln.source === revalue){
+        if (
+          startEvaln.name ===
+            t.FROM_VALUE.substring(bondMaturity.length, t.FROM_VALUE.length) &&
+          startEvaln.source === revalue
+        ) {
           break;
         }
       }
 
       // look back through our evals looking for a base value just before this maturity
-      for(let j = i; j > 0; j = j - 1){
+      for (let j = i; j > 0; j = j - 1) {
         const earlierEvaln = adjustedEvals.evaluations[j];
-        if(earlierEvaln.name.startsWith(`${bondMaturity}base`)){
+        if (earlierEvaln.name.startsWith(`${bondMaturity}base`)) {
           // log(`going back in time, ${showObj(earlierEvaln)}`);
           const settingValue = earlierEvaln.value;
           // log(`generate setting ${settingName}, value ${settingValue}/${baseStart} = ${settingValue/baseStart} `);
-          if(generatedSettings.find((s)=>{
-            return s.NAME === settingName;
-          }) === undefined){
+          if (
+            generatedSettings.find(s => {
+              return s.NAME === settingName;
+            }) === undefined
+          ) {
             generatedSettings.push({
               NAME: settingName,
-              VALUE: `${settingValue/baseStart}`,
+              VALUE: `${settingValue / baseStart}`,
               HINT: 'autogenerated setting for Bond maturity values',
               TYPE: constType,
-            })
+            });
           }
           break;
         }
@@ -5129,7 +5142,7 @@ export function getEvaluations(
 
   // log(`START SECOND EVALUATIONS LOOP`);
   const result = getEvaluationsInternal(
-    { 
+    {
       ...model,
       settings: model.settings.concat(generatedSettings),
     },

@@ -707,11 +707,13 @@ export function getSpecialWord(name: string, model: ModelData): string {
   if (name.startsWith(bondMaturity)) {
     return bondMaturity;
   }
-  if(model.transactions.find((t)=>{
-    const result = t.FROM_VALUE === bondMaturity+name;
-    // log(`does t TO ${t.FROM_VALUE} block change of name from ${name}? ${result}`);
-    return result;
-  }) !== undefined){
+  if (
+    model.transactions.find(t => {
+      const result = t.FROM_VALUE === bondMaturity + name;
+      // log(`does t TO ${t.FROM_VALUE} block change of name from ${name}? ${result}`);
+      return result;
+    }) !== undefined
+  ) {
     return bondMaturity;
   }
   return '';

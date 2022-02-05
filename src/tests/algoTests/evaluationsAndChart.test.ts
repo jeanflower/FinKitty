@@ -413,13 +413,13 @@ function getTestEvaluations(
       let message = attemptRenameLong(model, oldName, newName);
       let renamedToNew = true;
       if (message.length > 0) {
-        if(message === 'Must maintain special formatting using BMV'){
+        if (message === 'Must maintain special formatting using BMV') {
           renamedToNew = false;
         } else {
           throw new Error(`rename failed with message '${message}'`);
         }
       }
-      if(renamedToNew){
+      if (renamedToNew) {
         message = attemptRenameLong(model, newName, oldName);
         if (message.length > 0) {
           throw new Error(`rename failed with message '${message}'`);
