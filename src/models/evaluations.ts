@@ -23,6 +23,9 @@ import {
   purchase,
   dot,
   baseForCPI,
+  revalueSetting,
+  constType,
+  bondMaturity,
 } from '../localization/stringConstants';
 import {
   DatedThing,
@@ -385,7 +388,7 @@ function growthData(
     g.itemGrowth, 
     values, 
     growths, 
-    '999', // source
+    '40', //callerID
   );
   if(!growth){
 
@@ -394,7 +397,7 @@ function growthData(
       cpi, 
       values, 
       growths, 
-      '999'
+      '41', //callerID
     );
     let adaptedGrowth = growth;
     if(g.applyCPI && cpiVal !== undefined){
@@ -460,10 +463,34 @@ function traceEvaluation(
         log(`valueForWordPart ${wordPart} = ${valueForWordPart}`);
       }
       if (valueForWordPart === undefined) {
-        if (debug) {
-          log(`values were ${showObj(values)}`);
+        if (wordPart.startsWith(bondMaturity)){
+          const trimmedWordPart = wordPart.substring(bondMaturity.length, wordPart.length);
+          // log(`trimming ${wordPart} to ${trimmedWordPart}`);
+          const nextLevel = traceEvaluation(
+            trimmedWordPart,
+            values,
+            growths,
+            source,
+          );
+          if(nextLevel === undefined) {
+            if (debug) {
+              log(
+                `got undefined for ${trimmedWordPart} - returning undefined for ${value}`,
+              );
+            }
+            result = undefined;  
+          } else {
+            // e.g nextLevel = 60,000
+            // but that gets scaled to account for CPI
+            
+            result = numberPart * nextLevel;
+          }
+        } else {
+          if (debug) {
+            log(`values were ${showObj(values)}`);
+          }
+          result = undefined;
         }
-        result = undefined;
       } else if (typeof valueForWordPart === 'string') {
         const nextLevel = traceEvaluation(
           valueForWordPart,
@@ -587,8 +614,9 @@ function setValue(
     if(growthData(name, growths, values).adjustForCPI){
       baseVal = getNumberValue(values, baseForCPI);
       if (baseVal) {
-        valForEvaluations *= baseVal;
-        // log(`scale by baseVal = ${baseVal} to give valForEvaluations = ${valForEvaluations}`);
+        const newValForEvaluations = valForEvaluations * baseVal;
+        // log(`scale ${valForEvaluations} by baseVal = ${baseVal} to give ${newValForEvaluations}`);
+        valForEvaluations = newValForEvaluations;
       } else {
         log(`BUG : missing or zero base value!`);
       }
@@ -2635,9 +2663,9 @@ function calculateFromChange(
   }
 
   // log(`in calculateFromChange for ${t.NAME}, ${fromWord}`);
-  const tFromValue = traceEvaluation(t.FROM_VALUE, values, growths, t.FROM);
+  let tFromValue = traceEvaluation(t.FROM_VALUE, values, growths, t.FROM);
   if (tFromValue === undefined) {
-    log(`ERROR : can't interpret ${t.FROM_VALUE}`);
+    log(`ERROR : can't interpret from value ${t.FROM_VALUE}`);
     return undefined;
   }
   const tToValue = parseFloat(t.TO_VALUE);
@@ -2665,6 +2693,81 @@ function calculateFromChange(
 
   if (t.FROM_ABSOLUTE) {
     // log(`use all of fromValue = ${tFromValue}`);
+    if(t.FROM_VALUE.startsWith(bondMaturity)){
+      // log(`transaction ${showObj(t)} begins with ${bondMaturity}`);
+
+      // Either we're investing in a bond or a bond is maturing
+      if(t.FROM === CASH_ASSET_NAME){
+        // log('investing');
+        // log(`setting name = ${s.NAME}`);
+        const d = new Date(moment.date);
+        // log(`t.NAME = ${t.NAME} seeks a matching setting...`);
+        
+        // log(`before date shift, d = ${d.toDateString()}`);
+        if(t.NAME.endsWith('5y')){
+          d.setFullYear(d.getFullYear() + 5);
+        } else if(t.NAME.endsWith('4y')){
+          d.setFullYear(d.getFullYear() + 4);
+        } else if(t.NAME.endsWith('3y')){
+          d.setFullYear(d.getFullYear() + 3);
+        } else if(t.NAME.endsWith('2y')){
+          d.setFullYear(d.getFullYear() + 2);
+        } else if(t.NAME.endsWith('1y')){
+          d.setFullYear(d.getFullYear() + 1);
+        } else if(t.NAME.endsWith('1m')){
+          d.setMonth(d.getMonth() + 1);
+        } else {
+          log('BUG - could not infer duration of bond from bond name (does not end 1y etc)');
+        }
+        // log(`after date shift, d = ${d.toDateString()}`);
+
+        // log(`for ${t.NAME}, look for a setting like 
+        //   ${t.FROM_VALUE}${separator}${t.DATE}${separator}${cpi}`);
+        const matchedSetting = model.settings.filter((s)=>{
+          const sparts = s.NAME.split(separator);
+          if(sparts.length !== 3){
+            return false;
+          }
+          if(sparts[0] !== t.FROM_VALUE){
+            return false;
+          }
+          if(sparts[2] !== cpi){
+            return false;
+          }          
+          if(d.getTime() !== new Date(sparts[1]).getTime()){
+            // log(`different dates ${d.toDateString()} !== ${new Date(sparts[1]).toDateString()}`);
+            return false;
+          }
+
+          // log(`matched to ${s.NAME}`);
+          // log(`same dates ${new Date(moment.date).toDateString()} === ${sparts[1]}`);
+          return true;
+        });
+        if(matchedSetting.length === 1){
+          const cpiScaling = getNumberValue(values, matchedSetting[0].NAME);
+          // log(`Bond cpiScaling from ${matchedSetting[0].NAME} = ${cpiScaling}`);
+          if(cpiScaling !== undefined && cpiScaling !== undefined){
+            tFromValue *= cpiScaling;
+            // log(`scale by CPI effect ${cpiScaling}, tFromValue = ${tFromValue}`);
+          }
+        } else {
+          if(!model.settings.find((s) => s.NAME === `${bondMaturity}Prerun`)){
+            log(`BUG : expected to find a setting ${t.FROM_VALUE}${separator}${d}${separator}${cpi}`);
+          }
+        }
+      } else {
+        // log('maturing');
+        const valueKey = `${t.FROM_VALUE}${separator}${new Date(moment.date).toDateString()}${separator}${cpi}invested`;
+        // log(`for maturing bond, look for ${valueKey}`);
+        const val = getNumberValue(values, valueKey, false);
+        // log(`for maturing bond, found val = ${val}`);
+        if(val !== undefined){
+          tFromValue = val;
+        } else {
+          tFromValue = 0.0; // nothing was registered as invested
+        }
+      }
+    }
     fromChange = tFromValue;
   } else {
     // relative amounts behave differently for conditionals
@@ -2793,7 +2896,7 @@ function calculateFromChange(
       fromChange = preFromValue;
     } else {
       // don't transfer anything
-      //log(`don't apply transaction from ${fromWord} `
+      // log(`don't apply transaction from ${fromWord} `
       //  +`because value ${preFromValue} < ${fromChange} `);
       return undefined;
     }
@@ -3003,14 +3106,14 @@ function processTransactionFromTo(
   // log(`processTransactionFromTo fromWord = ${fromWord} toWord = ${toWord}, date = ${moment.date.toDateString()}`);
   // log(`processTransactionFromTo takes in ${showObj(t)}`);
   const preFromValue = traceEvaluation(fromWord, values, growths, fromWord);
-  // log(`pound value of ${fromWord} is ${preFromValue}`);
+  // log(`pound value of ${fromWord} before transaction is ${preFromValue}`);
   let preToValue = undefined;
   if (toWord !== '') {
     preToValue = traceEvaluation(toWord, values, growths, toWord);
     if (preToValue === undefined) {
       preToValue = 0.0;
     }
-    // log(`pound value of ${toWord} is ${preToValue}`);
+    // log(`pound value of ${toWord} before transaction is ${preToValue}`);
   }
 
   // handle conditional transactions
@@ -3143,12 +3246,47 @@ function processTransactionFromTo(
             `${showObj(moment)}`,
         );
       }
+
+      if(t.FROM_VALUE.startsWith(bondMaturity) && t.FROM === CASH_ASSET_NAME){
+        // we're about to invest into a bond
+        // log(`invested ${toChange} into a bond for ${showObj(t)}`);
+        const d = new Date(moment.date);
+        if(t.NAME.endsWith('5y')){
+          d.setFullYear(d.getFullYear() + 5);
+        } else if(t.NAME.endsWith('4y')){
+          d.setFullYear(d.getFullYear() + 4);
+        } else if(t.NAME.endsWith('3y')){
+          d.setFullYear(d.getFullYear() + 3);
+        } else if(t.NAME.endsWith('2y')){
+          d.setFullYear(d.getFullYear() + 2);
+        } else if(t.NAME.endsWith('1y')){
+          d.setFullYear(d.getFullYear() + 1);
+        } else if(t.NAME.endsWith('1m')){
+          d.setMonth(d.getMonth() + 1);
+        } else {
+          log('BUG - could not infer duration of bond from bond name (does not end 1y etc)');
+        }
+        let investedValue = toChange;
+
+        const nameForMaturity = `${t.FROM_VALUE}${separator}${d.toDateString()}${separator}${cpi}invested`;
+        // log(`create a stored value for maturity ${nameForMaturity}`);
+        values.set(
+          nameForMaturity, 
+          investedValue, 
+          growths, 
+          moment.date, 
+          'bondInvestment', 
+          '42', //callerID
+        );
+        // log(`recorded investedValue = ${investedValue} with name ${nameForMaturity}`);
+      }
       // log('in processTransactionFromTo, setValue:');
       // log(`in processTransactionFromTo, setValue of ${toWord} to ${preToValue + toChange}`);
       let newToValue = preToValue + toChange;
       if(growthData(toWord, growths, values).adjustForCPI){
         const b = values.get(baseForCPI);
         if (b && typeof b === 'number') {
+          // log(`scale newToValue = ${newToValue} by b = ${b}`);
           newToValue = newToValue / b;
           // log(`scaled newToValue = ${newToValue}`);
         }
@@ -3546,82 +3684,19 @@ class ValuesContainer {
   }
 }
 
-// This is the key entry point for code calling from outside
-// this file.
-export function getEvaluations(
+function generateMoments(
   model: ModelData,
-  reporter: ReportValueChecker | undefined,
-): {
-  evaluations: Evaluation[];
-  todaysAssetValues: Map<string, AssetVal>;
-  todaysDebtValues: Map<string, DebtVal>;
-  todaysIncomeValues: Map<string, IncomeVal>;
-  todaysExpenseValues: Map<string, ExpenseVal>;
-  todaysSettingValues: Map<string, SettingVal>;
-  reportData: ReportDatum[];
-} {
-  //log('get evaluations');
-  const todaysAssetValues = new Map<string, AssetVal>();
-  const todaysDebtValues = new Map<string, DebtVal>();
-  const todaysIncomeValues = new Map<string, IncomeVal>();
-  const todaysExpenseValues = new Map<string, ExpenseVal>();
-  const todaysSettingValues = new Map<string, SettingVal>();
-
-  const message = checkData(model);
-  if (message.length > 0) {
-    log(message);
-    return {
-      evaluations: [],
-      todaysAssetValues: todaysAssetValues,
-      todaysDebtValues: todaysDebtValues,
-      todaysIncomeValues: todaysIncomeValues,
-      todaysExpenseValues: todaysExpenseValues,
-      todaysSettingValues: todaysSettingValues,
-      reportData: [],
-    };
-  }
-  // log('in getEvaluations');
-  const roiStartDate: Date = makeDateFromString(
-    getSettings(model.settings, roiStart, '1 Jan 1999'),
-  );
-  const roiEndDate: Date = makeDateFromString(
-    getSettings(model.settings, roiEnd, '1 Jan 1999'),
-  );
-
-  if (printDebug()) {
-    log(`data = ${showObj(model)}`);
-  }
-
-  // Calculate a set of "moments" for each transaction/income/expense...
-  // each has a date - we'll process these in date order.
+  values: ValuesContainer,
+  growths: Map<string, GrowthData>,
+  cpiInitialVal: number,
+  roiStartDate: Date,
+  roiEndDate: Date,
+  today: Date,
+  evaluations: Evaluation[],
+  liabilitiesMap: Map<string, string>,
+  pensionTransactions: Transaction[],
+){
   let allMoments: Moment[] = [];
-
-  // Calculate a monthly growth once per item,
-  // refer to this map for each indiviual moment.
-  const growths = new Map<string, GrowthData>();
-
-  // Record which items are liable for income tax.
-  // Map from income name to a person identifier.
-  // (e.g. "PaperRound", "IncomeTaxJane").
-  // (e.g. "PaperRound", "NIJane").
-  // (e.g. "get some pension", "IncomeTaxJoe" )
-  const liabilitiesMap = new Map<string, string>([]);
-
-  // Some transactions affect income processing.
-  const pensionTransactions: Transaction[] = [];
-
-  // Keep track of current value of any expense, income or asset
-  const values = new ValuesContainer();
-  if (reporter) {
-    values.setIncludeInReport(reporter);
-  }
-
-  const cpiInitialVal: number = parseFloat(
-    getSettings(model.settings, cpi, '0.0'),
-  );
-
-  // A historical record of evaluations (useful for creating trends or charts)
-  const evaluations: Evaluation[] = [];
 
   // For each expense, work out monthly growth and
   // a set of moments starting when the expense began,
@@ -3814,7 +3889,7 @@ export function getEvaluations(
     setDate: Date;
   }[] = [];
   model.settings.forEach(setting => {
-    if (setting.NAME === 'Grain') {
+    if (setting.NAME === 'Grain' || setting.NAME.startsWith(bondMaturity)) {
       setValue(
         values,
         growths,
@@ -3935,9 +4010,6 @@ export function getEvaluations(
     );
   });
 
-  // might be set using a settings value
-  const today = getTodaysDate(model);
-
   if (roiEndDate > today) {
     allMoments.push({
       date: today,
@@ -3947,6 +4019,730 @@ export function getEvaluations(
       transaction: undefined,
     });
   }
+  return allMoments;
+}
+
+function evaluateAllAssets(
+  model: ModelData,
+  values: ValuesContainer,
+  growths: Map<string, GrowthData>,
+  today: Date,
+  todaysAssetValues: Map<string, AssetVal>,
+  todaysDebtValues: Map<string, DebtVal>,
+  todaysIncomeValues: Map<string, IncomeVal>,
+  todaysExpenseValues: Map<string, ExpenseVal>,
+  todaysSettingValues: Map<string, SettingVal>,
+){
+  model.assets.forEach(asset => {
+    let val = values.get(asset.NAME);
+    if (typeof val === 'string') {
+      val = traceEvaluation(val, values, growths, val);
+    }
+    const q = getQuantity(asset.NAME, values, model);
+    if (q !== undefined && val !== undefined) {
+      val *= q;
+    }
+    if (val !== undefined) {
+      if (asset.IS_A_DEBT) {
+        todaysDebtValues.set(asset.NAME, {
+          debtVal: val,
+          category: asset.CATEGORY,
+        });
+      } else {
+        todaysAssetValues.set(asset.NAME, {
+          assetVal: val,
+          assetQ: q,
+          category: asset.CATEGORY,
+        });
+      }
+      // log(`asset ${asset.NAME} has value ${val}`);
+    } else {
+      // log(`don't report undefined today's value for ${asset.NAME}`);
+    }
+  });
+  model.incomes.forEach(i => {
+    const startDate = checkTriggerDate(i.START, model.triggers);
+    if (startDate !== undefined && startDate > today) {
+      todaysIncomeValues.set(i.NAME, {
+        incomeVal: 0,
+        category: i.CATEGORY,
+      });
+      return;
+    }
+    const endDate = checkTriggerDate(i.END, model.triggers);
+    if (endDate !== undefined && endDate < today) {
+      todaysIncomeValues.set(i.NAME, {
+        incomeVal: 0,
+        category: i.CATEGORY,
+      });
+      return;
+    }
+    // log(`income ${i.NAME} ends at ${i.END} not yet ended at ${today}`);
+    let val = values.get(i.NAME);
+    if (typeof val === 'string') {
+      val = traceEvaluation(val, values, growths, val);
+    }
+    if (val !== undefined) {
+      todaysIncomeValues.set(i.NAME, {
+        incomeVal: val,
+        category: i.CATEGORY,
+      });
+    } else {
+      // log(`don't report undefined today's value for ${i.NAME}`);
+    }
+  });
+  model.expenses.forEach(e => {
+    const startDate = checkTriggerDate(e.START, model.triggers);
+    if (startDate !== undefined && startDate > today) {
+      todaysExpenseValues.set(e.NAME, {
+        expenseVal: 0,
+        category: e.CATEGORY,
+        expenseFreq: e.RECURRENCE,
+      });
+      return;
+    }
+    const endDate = checkTriggerDate(e.END, model.triggers);
+    if (endDate !== undefined && endDate < today) {
+      todaysExpenseValues.set(e.NAME, {
+        expenseVal: 0,
+        category: e.CATEGORY,
+        expenseFreq: e.RECURRENCE,
+      });
+      return;
+    }
+    let val = values.get(e.NAME);
+    if (typeof val === 'string') {
+      val = traceEvaluation(val, values, growths, val);
+    }
+    if (val !== undefined) {
+      // log(`expense for todays value ${showObj(e)}`);
+      todaysExpenseValues.set(e.NAME, {
+        expenseVal: val,
+        expenseFreq: e.RECURRENCE,
+        category: e.CATEGORY,
+      });
+    } else {
+      // log(`don't report undefined today's value for ${e.NAME}`);
+    }
+  });
+  model.settings.forEach(s => {
+    const val = values.get(s.NAME);
+    if (val !== undefined) {
+      todaysSettingValues.set(s.NAME, { settingVal: `${val}` });
+    } else {
+      // log(`don't report undefined today's value for ${s.NAME}`);
+    }
+  });
+}
+
+function handleTaxObligations(
+  model: ModelData,
+  values: ValuesContainer,
+  growths: Map<string, GrowthData>,
+  moment: Moment,
+  timeInTaxCycle: {
+    startYearOfTaxYear: number|undefined,
+    monthOfTaxYear: number|undefined,
+  },
+  liableIncomeInTaxYear: Map<string, Map<string, number>>,
+  liableIncomeInTaxMonth: Map<string, Map<string, number>>,
+  taxMonthlyPaymentsPaid: Map<string, Map<string, number>>,
+  evaluations: Evaluation[],
+){
+  // Detect if this date has brought us into a new tax year.
+  // At a change of tax year, log last year's accrual
+  // and start a fresh accrual for the next year.
+  const momentsTaxYear = getYearOfTaxYear(moment.date);
+  const momentsTaxMonth = getMonthOfTaxYear(moment.date);
+  // log(`momentsTaxMonth = ${momentsTaxMonth}, momentsTaxYear = ${momentsTaxYear}`);
+  const enteringNewTaxYear =
+    timeInTaxCycle.startYearOfTaxYear !== undefined && 
+    momentsTaxYear > timeInTaxCycle.startYearOfTaxYear;
+  const enteringNewTaxMonth =
+    timeInTaxCycle.startYearOfTaxYear !== undefined &&
+    timeInTaxCycle.monthOfTaxYear !== undefined &&
+    momentsTaxMonth !== timeInTaxCycle.monthOfTaxYear;
+
+  if (
+    timeInTaxCycle.startYearOfTaxYear !== undefined &&
+    timeInTaxCycle.monthOfTaxYear !== undefined &&
+    enteringNewTaxMonth
+  ) {
+    // log(`${momentsTaxMonth} is beyond ${monthOfTaxYear} for ${moment.date.toDateString()}`);
+    payNIEstimate(
+      liableIncomeInTaxMonth,
+      taxMonthlyPaymentsPaid,
+      timeInTaxCycle.startYearOfTaxYear,
+      timeInTaxCycle.monthOfTaxYear,
+      values,
+      growths,
+      evaluations,
+      model,
+    );
+  } else {
+    // log(`waiting for ${momentsTaxMonth} to get beyond ${monthOfTaxYear} for ${moment.date.toDateString()}`);
+  }
+
+  if (timeInTaxCycle.startYearOfTaxYear !== undefined && enteringNewTaxYear) {
+    // change of tax year - report count of moments
+    // log('change of tax year...');
+    settleUpTax(
+      liableIncomeInTaxYear,
+      liableIncomeInTaxMonth,
+      taxMonthlyPaymentsPaid,
+      timeInTaxCycle.startYearOfTaxYear,
+      values,
+      growths,
+      evaluations,
+      model,
+    );
+    timeInTaxCycle.startYearOfTaxYear = momentsTaxYear;
+    timeInTaxCycle.monthOfTaxYear = 3; // new tax year
+  }
+  if (
+    timeInTaxCycle.startYearOfTaxYear !== undefined &&
+    timeInTaxCycle.monthOfTaxYear !== undefined &&
+    enteringNewTaxMonth
+  ) {
+    // log(`${momentsTaxMonth} is beyond ${monthOfTaxYear} for ${moment.date.toDateString()}`);
+    payTaxEstimate(
+      liableIncomeInTaxMonth,
+      taxMonthlyPaymentsPaid,
+      timeInTaxCycle.startYearOfTaxYear,
+      timeInTaxCycle.monthOfTaxYear,
+      values,
+      growths,
+      evaluations,
+      model,
+    );
+  } else {
+    // log(`waiting for ${momentsTaxMonth} to get beyond ${monthOfTaxYear} for ${moment.date.toDateString()}`);
+  }
+  if (enteringNewTaxYear || enteringNewTaxMonth) {
+    timeInTaxCycle.monthOfTaxYear = momentsTaxMonth;
+  }
+}
+
+function handleInflationStep(
+  values: ValuesContainer,
+  growths: Map<string, GrowthData>,
+  date: Date,
+){
+    // increment base (which started as 1.0) according to inflation value
+    // at this moment in time
+
+    const baseObj = getNumberValue(values, baseForCPI);
+    const infObj = getNumberValue(values, cpi);
+
+    if (baseObj !== undefined && infObj !== undefined) {
+      const newValue = baseObj * (1.0 + getMonthlyGrowth(infObj));
+      // log(`time to update base using ${infObj} from ${baseObj} to ${newValue}`);
+      // log(`newValue = ${newValue}`);
+      values.set(
+        baseForCPI,
+        newValue,
+        growths,
+        date,
+        'baseChange',
+        '38', //callerID
+      );
+    } else {
+      log(
+        `BUG: missing baseObj or infObj for CPI handling; ${baseObj}, ${infObj}`,
+      );
+    }
+}
+
+function captureLastTaxBands(
+  values: ValuesContainer,
+  growths: Map<string, GrowthData>,
+  moment: Moment,
+){
+      // log(`at ${moment.date.toDateString()}, go log tax band values to get inflated values later`);
+      const resultFromMap = TAX_MAP[`${highestTaxYearInMap}`];
+      const baseVal = getNumberValue(values, baseForCPI);
+      if (resultFromMap !== undefined && baseVal !== undefined) {
+        // log(`map vals at ${startYearOfTaxYear}, ${makeTwoDP(resultFromMap.noTaxBand)}, ${makeTwoDP(resultFromMap.lowTaxBand)}, ${makeTwoDP(resultFromMap.highTaxBand)}, ${makeTwoDP(resultFromMap.adjustNoTaxBand)}`);
+        // log(`scale last tax bands by / baseVal = ${baseVal}`);
+        const noTaxBand = resultFromMap.noTaxBand / baseVal;
+        const lowTaxBand = resultFromMap.lowTaxBand / baseVal;
+        const highTaxBand = resultFromMap.highTaxBand / baseVal;
+        const adjustNoTaxBand = resultFromMap.adjustNoTaxBand / baseVal;
+        const noNIBand = resultFromMap.noNIBand / baseVal;
+        const lowNIBand = resultFromMap.lowNIBand / baseVal;
+        values.set(
+          'noTaxBand',
+          noTaxBand,
+          growths,
+          moment.date,
+          moment.name,
+          '39', //callerID
+        );
+        values.set(
+          'lowTaxBand',
+          lowTaxBand,
+          growths,
+          moment.date,
+          moment.name,
+          '39', //callerID
+        );
+        values.set(
+          'highTaxBand',
+          highTaxBand,
+          growths,
+          moment.date,
+          moment.name,
+          '39', //callerID
+        );
+        values.set(
+          'adjustNoTaxBand',
+          adjustNoTaxBand,
+          growths,
+          moment.date,
+          moment.name,
+          '39', //callerID
+        );
+        values.set(
+          'noNIBand',
+          noNIBand,
+          growths,
+          moment.date,
+          moment.name,
+          '39', //callerID
+        );
+        values.set(
+          'lowNIBand',
+          lowNIBand,
+          growths,
+          moment.date,
+          moment.name,
+          '39', //callerID
+        );
+        // log(`in vals at ${startYearOfTaxYear}, ${makeTwoDP(noTaxBand)}, ${makeTwoDP(lowTaxBand)}, ${makeTwoDP(highTaxBand)}, ${makeTwoDP(adjustNoTaxBand)}`);
+      } else {
+        log('BUG : undefined resultFromMap or baseVal');
+      }
+}
+
+function handleStartMoment(
+  model: ModelData,
+  values: ValuesContainer,
+  growths: Map<string, GrowthData>,
+  moment: Moment,
+  pensionTransactions: Transaction[],
+  liabilitiesMap: Map<string, string>,
+  liableIncomeInTaxYear: Map<string, Map<string, number>>,
+  liableIncomeInTaxMonth: Map<string, Map<string, number>>,
+  evaluations: Evaluation[],
+){
+  // Starts are well defined
+  // log(`start moment ${moment.name}, ${moment.type}, ${moment.date}`)
+  if (moment.setValue === undefined) {
+    log('BUG!!! starts of income/asset/expense should have a value!');
+    throw new Error('BUG starts of income/asset/expense should have a value!');
+  }
+  // Log quantities for assets which have them; needed for setting value.
+  if (moment.type === momentType.assetStart) {
+    // log(`at start of asset ${moment.name}`);
+    const startQ = getStartQuantity(moment.name, model);
+    if (startQ !== undefined) {
+      // log(`set quantity of asset ${moment.name} = ${startQ}`);
+      setValue(
+        values,
+        growths,
+        evaluations,
+        moment.date,
+        quantity + moment.name, // value of what?
+        startQ,
+        model,
+        moment.name, // source
+        '19', //callerID
+      );
+    }
+    const matchingAsset: Asset[] = model.assets.filter(a => {
+      return a.NAME === moment.name;
+    });
+    if (matchingAsset.length === 1) {
+      const a = matchingAsset[0];
+      // log(`matched asset for start`);
+      logPurchaseValues(a, values, growths, evaluations, model);
+    } else {
+      throw new Error(`BUG!!! '${moment.name}' doesn't match one asset`);
+    }
+  }
+  const startValue = moment.setValue;
+  let valueToStore = startValue;
+  if (growthData(moment.name, growths, values).adjustForCPI) {
+    // log(`start value for ${valueToStore} needs adjusting for CPI`);
+    let valueToScale: number | undefined;
+    if (typeof valueToStore === 'number') {
+      valueToScale = valueToStore;
+    } else if (isNumberString(valueToStore)) {
+      valueToScale = parseFloat(valueToStore);
+    }
+    if (valueToScale !== undefined) {
+      const scaleBy = getNumberValue(values, baseForCPI);
+      if (scaleBy) {
+        // log(`divide ${valueToStore} by base value ${scaleBy} to store ${valueToScale / scaleBy}`);
+        valueToStore = valueToScale / scaleBy;
+        // log(`divided result is ${valueToStore}`);
+      }
+    } else {
+      log(`don't scale something that's not a number`);
+    }
+  }
+  // log(`in getEvaluations starting something: ${moment.name} with value ${startValue}`);
+  if (
+    moment.type === momentType.incomeStartPrep ||
+    moment.type === momentType.expenseStartPrep
+  ) {
+    values.set(
+      moment.name,
+      valueToStore,
+      growths,
+      moment.date,
+      moment.name, // e.g. Cash (it's just the starting value)
+      '20', //callerID
+    );
+  } else {
+    setValue(
+      values,
+      growths,
+      evaluations,
+      moment.date,
+      moment.name,
+      valueToStore,
+      model,
+      moment.name, // e.g. Cash (it's just the starting value)
+      '20', //callerID
+    );
+  }
+  if (moment.type === momentType.incomeStart) {
+    const numberVal = traceEvaluation(
+      startValue,
+      values,
+      growths,
+      moment.name,
+    );
+    if (numberVal !== undefined) {
+      // log(`income numberVal = ${numberVal}`);
+      handleIncome(
+        numberVal,
+        moment,
+        values,
+        growths,
+        evaluations,
+        model,
+        pensionTransactions,
+        liabilitiesMap,
+        liableIncomeInTaxYear,
+        liableIncomeInTaxMonth,
+        moment.name,
+      );
+    } else {
+      throw new Error(`can't interpret ${startValue} as a number`);
+    }
+  } else if (moment.type === momentType.expenseStart) {
+    ////////////////// ???? startPrep or not ????
+    // log('in getEvaluations, adjustCash:');
+    adjustCash(
+      -startValue,
+      moment.date,
+      values,
+      growths,
+      evaluations,
+      model,
+      moment.name,
+    );
+  }
+}
+
+function growAndEffectMoment(
+  model: ModelData,
+  values: ValuesContainer,
+  growths: Map<string, GrowthData>,
+  moment: Moment,
+  pensionTransactions: Transaction[],
+  liabilitiesMap: Map<string, string>,
+  liableIncomeInTaxYear: Map<string, Map<string, number>>,
+  liableIncomeInTaxMonth: Map<string, Map<string, number>>,
+  evaluations: Evaluation[],
+){
+  const visiblePoundValue: string | number | undefined = traceEvaluation(
+    moment.name,
+    values,
+    growths,
+    moment.name,
+  );
+  // log(`oldStoredNumberVal of ${moment.name} is ${oldStoredNumberVal}`);
+  if (visiblePoundValue === undefined) {
+    const val = values.get(moment.name);
+    if (val !== undefined) {
+      setValue(
+        values,
+        growths,
+        evaluations,
+        moment.date,
+        moment.name,
+        val,
+        model,
+        growth,
+        '21', //callerID
+      );
+    }
+  } else {
+    const growthObj = growthData(moment.name, growths, values);
+    const baseVal = getNumberValue(values, baseForCPI);
+    // log(`baseVal = ${baseVal}`);
+    let oldStoredNumberVal = visiblePoundValue;
+    if (visiblePoundValue && growthObj && growthObj.adjustForCPI && baseVal) {
+      oldStoredNumberVal /= baseVal;
+    }
+    // log(`growthObj for ${moment.name} = ${showObj(growthObj)}`);
+    if (!growthObj) {
+      log(`BUG : missing growth for ${moment.name}`);
+    } else {
+      // We _do_ want to log changes of 0
+      // because this is how we generate monthly
+      // data to plot.  Set these here and call setValues later,
+      // even if these haven't changed.
+      let changedToStoredValue = 0.0;
+      let changeToVisibleCash = 0.0;
+
+      const growthChangeScale = growthObj.scale;
+
+      //if(growthObj.applyCPI && baseVal !== 1.0 && growthChangeScale !== 0 && moment.type !== momentType.expense){
+      //  throw new Error(`cpi computation for ${moment.type} has baseVal = ${baseVal}, growthChangeScale = ${growthChangeScale}`);
+      //}
+      if (printDebug()) {
+        log(`growthChangeScale = ${growthChangeScale}`);
+      }
+      if (growthChangeScale !== 0) {
+        changedToStoredValue = oldStoredNumberVal * growthChangeScale;
+        changeToVisibleCash = changedToStoredValue;
+        // log(`for ${growthChangeScale}, changedToStoredValue is ${changedToStoredValue}`);
+      }
+
+      let cPIChange = 0.0;
+      // log(`moment.type = ${moment.type}`);
+      if (growthObj.adjustForCPI) {
+        // log(`do work on a CPI change for ${moment.name}`);
+        if (!baseVal) {
+          log(`Bug - missing or zero baseVal`);
+        } else if (baseVal !== 1.0) {
+          cPIChange = oldStoredNumberVal * (baseVal - 1.0);
+          changeToVisibleCash = changedToStoredValue;
+          // log(`from baseVal ${baseVal}, real value adds ${cPIChange} to stored ${oldStoredNumberVal} to give ${cPIChange + oldStoredNumberVal}` );
+        }
+      }
+
+      // When we store back the value, don't apply CPI change, use growthChangeToStore.
+      // When we use the value to affect cash, do apply the CPI change, use cPIChange and growthChangeAsIncome.
+
+      let valToStore: string | number = oldStoredNumberVal;
+      if (changedToStoredValue === 0.0) {
+        // recover pre-existing value (don't save back as number value)
+        const storedVal = values.get(moment.name);
+        if (storedVal !== undefined) {
+          valToStore = storedVal;
+        }
+      } else {
+        valToStore += changedToStoredValue;
+        // log(`val to store at ${moment.date} = ${valToStore}`);
+      }
+
+      // We _do_ want to log changes of 0
+      // because this is how we generate monthly
+      // data to plot.
+      // if(change!==0){ // we _do_ want to log no-change evaluations!
+      // log(`in getEvaluations: log changes for moment.type = ${moment.type}`);
+      if (
+        moment.type === momentType.expensePrep ||
+        (moment.type === momentType.incomePrep &&
+          !moment.name.startsWith(pensionDB))
+      ) {
+        // log(`quietly set the value of ${moment.name} as ${valToStore}`);
+        values.set(
+          moment.name,
+          valToStore,
+          growths,
+          moment.date,
+          growth,
+          '22', //callerID
+        );
+      } else {
+        // log(`set the value of ${moment.name} as ${valToStore}`);
+        setValue(
+          values,
+          growths,
+          evaluations,
+          moment.date,
+          moment.name,
+          valToStore,
+          model,
+          growth,
+          '22', //callerID
+        );
+      }
+      // }
+      if (moment.type === momentType.asset) {
+        // some assets experience growth which is
+        // liable for tax
+        // log(`asset moment for growth : ${moment.date}, ${moment.name}`);
+        const changeToCash = cPIChange + changeToVisibleCash;
+        if (
+          moment.name.startsWith(crystallizedPension) &&
+          changeToCash > 0
+        ) {
+          // log(`skip asset moment for growth : ${moment.date}, ${moment.name}, ${change}`);
+        } else {
+          handleIncome(
+            changeToCash,
+            moment,
+            values,
+            growths,
+            evaluations,
+            model,
+            pensionTransactions,
+            liabilitiesMap,
+            liableIncomeInTaxYear,
+            liableIncomeInTaxMonth,
+            moment.name,
+          );
+        }
+      } else if (moment.type === momentType.income) {
+        const changeToCash =
+          oldStoredNumberVal + cPIChange + changeToVisibleCash;
+        handleIncome(
+          changeToCash,
+          moment,
+          values,
+          growths,
+          evaluations,
+          model,
+          pensionTransactions,
+          liabilitiesMap,
+          liableIncomeInTaxYear,
+          liableIncomeInTaxMonth,
+          moment.name,
+        );
+      } else if (moment.type === momentType.expense) {
+        // log('in getEvaluations, adjustCash:');
+        const changeToCash =
+          oldStoredNumberVal + cPIChange + changeToVisibleCash;
+        adjustCash(
+          -changeToCash,
+          moment.date,
+          values,
+          growths,
+          evaluations,
+          model,
+          moment.name,
+        );
+      }
+    }
+    if (printDebug()) {
+      log(`${moment.date.toDateString()},
+                ${moment.name},
+                value = ${values.get(moment.name)}`);
+    }
+  }
+}
+
+function getEvaluationsInternal(
+  model: ModelData,
+  reporter: ReportValueChecker | undefined,
+): {
+  evaluations: Evaluation[];
+  todaysAssetValues: Map<string, AssetVal>;
+  todaysDebtValues: Map<string, DebtVal>;
+  todaysIncomeValues: Map<string, IncomeVal>;
+  todaysExpenseValues: Map<string, ExpenseVal>;
+  todaysSettingValues: Map<string, SettingVal>;
+  reportData: ReportDatum[];
+} {
+  //log('get evaluations');
+  const todaysAssetValues = new Map<string, AssetVal>();
+  const todaysDebtValues = new Map<string, DebtVal>();
+  const todaysIncomeValues = new Map<string, IncomeVal>();
+  const todaysExpenseValues = new Map<string, ExpenseVal>();
+  const todaysSettingValues = new Map<string, SettingVal>();
+
+  const message = checkData(model);
+  if (message.length > 0) {
+    log(message);
+    return {
+      evaluations: [],
+      todaysAssetValues: todaysAssetValues,
+      todaysDebtValues: todaysDebtValues,
+      todaysIncomeValues: todaysIncomeValues,
+      todaysExpenseValues: todaysExpenseValues,
+      todaysSettingValues: todaysSettingValues,
+      reportData: [],
+    };
+  }
+
+  // log('in getEvaluations');
+  if (printDebug()) {
+    log(`data = ${showObj(model)}`);
+  }
+
+  // Keep track of current value of any expense, income or asset
+  const values = new ValuesContainer();
+  if (reporter) {
+    values.setIncludeInReport(reporter);
+  }
+
+  // Calculate a monthly growth once per item,
+  // refer to this map for each individual moment.
+  const growths = new Map<string, GrowthData>();  
+
+  const cpiInitialVal: number = parseFloat(
+    getSettings(model.settings, cpi, '0.0'),
+  );
+
+  // We set a start date to set, for example, our CPI base value to 1.0.
+  const roiStartDate: Date = makeDateFromString(
+    getSettings(model.settings, roiStart, '1 Jan 1999'),
+  );
+  // log(`roiStartDate = ${roiStartDate}`);
+
+  // We set an end date to act as a stop for recurrent events.
+  const roiEndDate: Date = makeDateFromString(
+    getSettings(model.settings, roiEnd, '1 Jan 1999'),
+  );
+  // log(`roiEndDate = ${roiEndDate}`);
+
+  // might be set using a settings value
+  const today = getTodaysDate(model);
+
+  // A historical record of evaluations (useful for creating trends or charts)
+  const evaluations: Evaluation[] = [];
+
+    // Record which items are liable for income tax.
+  // Map from income name to a person identifier.
+  // (e.g. "PaperRound", "IncomeTaxJane").
+  // (e.g. "PaperRound", "NIJane").
+  // (e.g. "get some pension", "IncomeTaxJoe" )
+  const liabilitiesMap = new Map<string, string>([]);
+
+  // Some transactions affect income processing.
+  const pensionTransactions: Transaction[] = [];
+
+  // Calculate a set of "moments" for each transaction/income/expense...
+  // each has a date - we'll process these in date order.
+  let allMoments: Moment[] = generateMoments(
+    model, 
+    values, 
+    growths, 
+    cpiInitialVal,
+    roiStartDate,
+    roiEndDate,
+    today,
+    evaluations,
+    liabilitiesMap,
+    pensionTransactions,
+  );
 
   // log(`pensionTransactions = ${showObj(pensionTransactions)}`);
 
@@ -4016,13 +4812,18 @@ export function getEvaluations(
     sortByDate(datedMoments);
   }
 
-  let startYearOfTaxYear;
-  let monthOfTaxYear;
+  let timeInTaxCycle: {
+    startYearOfTaxYear: number|undefined,
+    monthOfTaxYear: number|undefined,
+  } = {
+    startYearOfTaxYear: undefined,
+    monthOfTaxYear: undefined,
+  };
   if (datedMoments.length > 0) {
-    startYearOfTaxYear = getYearOfTaxYear(
+    timeInTaxCycle.startYearOfTaxYear = getYearOfTaxYear(
       datedMoments[datedMoments.length - 1].date,
     );
-    monthOfTaxYear = getMonthOfTaxYear(
+    timeInTaxCycle.monthOfTaxYear = getMonthOfTaxYear(
       datedMoments[datedMoments.length - 1].date,
     );
   }
@@ -4058,270 +4859,46 @@ export function getEvaluations(
     }
     // log(`${datedMoments.length} moments left`);
     // log(`moment.date is ${moment.date.toDateString()}`);
+
     if (moment.name === EvaluateAllAssets) {
-      model.assets.forEach(asset => {
-        let val = values.get(asset.NAME);
-        if (typeof val === 'string') {
-          val = traceEvaluation(val, values, growths, val);
-        }
-        const q = getQuantity(asset.NAME, values, model);
-        if (q !== undefined && val !== undefined) {
-          val *= q;
-        }
-        if (val !== undefined) {
-          if (asset.IS_A_DEBT) {
-            todaysDebtValues.set(asset.NAME, {
-              debtVal: val,
-              category: asset.CATEGORY,
-            });
-          } else {
-            todaysAssetValues.set(asset.NAME, {
-              assetVal: val,
-              assetQ: q,
-              category: asset.CATEGORY,
-            });
-          }
-          // log(`asset ${asset.NAME} has value ${val}`);
-        } else {
-          // log(`don't report undefined today's value for ${asset.NAME}`);
-        }
-      });
-      model.incomes.forEach(i => {
-        const startDate = checkTriggerDate(i.START, model.triggers);
-        if (startDate !== undefined && startDate > today) {
-          todaysIncomeValues.set(i.NAME, {
-            incomeVal: 0,
-            category: i.CATEGORY,
-          });
-          return;
-        }
-        const endDate = checkTriggerDate(i.END, model.triggers);
-        if (endDate !== undefined && endDate < today) {
-          todaysIncomeValues.set(i.NAME, {
-            incomeVal: 0,
-            category: i.CATEGORY,
-          });
-          return;
-        }
-        // log(`income ${i.NAME} ends at ${i.END} not yet ended at ${today}`);
-        let val = values.get(i.NAME);
-        if (typeof val === 'string') {
-          val = traceEvaluation(val, values, growths, val);
-        }
-        if (val !== undefined) {
-          todaysIncomeValues.set(i.NAME, {
-            incomeVal: val,
-            category: i.CATEGORY,
-          });
-        } else {
-          // log(`don't report undefined today's value for ${i.NAME}`);
-        }
-      });
-      model.expenses.forEach(e => {
-        const startDate = checkTriggerDate(e.START, model.triggers);
-        if (startDate !== undefined && startDate > today) {
-          todaysExpenseValues.set(e.NAME, {
-            expenseVal: 0,
-            category: e.CATEGORY,
-            expenseFreq: e.RECURRENCE,
-          });
-          return;
-        }
-        const endDate = checkTriggerDate(e.END, model.triggers);
-        if (endDate !== undefined && endDate < today) {
-          todaysExpenseValues.set(e.NAME, {
-            expenseVal: 0,
-            category: e.CATEGORY,
-            expenseFreq: e.RECURRENCE,
-          });
-          return;
-        }
-        let val = values.get(e.NAME);
-        if (typeof val === 'string') {
-          val = traceEvaluation(val, values, growths, val);
-        }
-        if (val !== undefined) {
-          // log(`expense for todays value ${showObj(e)}`);
-          todaysExpenseValues.set(e.NAME, {
-            expenseVal: val,
-            expenseFreq: e.RECURRENCE,
-            category: e.CATEGORY,
-          });
-        } else {
-          // log(`don't report undefined today's value for ${e.NAME}`);
-        }
-      });
-      model.settings.forEach(s => {
-        const val = values.get(s.NAME);
-        if (val !== undefined) {
-          todaysSettingValues.set(s.NAME, { settingVal: `${val}` });
-        } else {
-          // log(`don't report undefined today's value for ${s.NAME}`);
-        }
-      });
+      evaluateAllAssets(
+        model, 
+        values, 
+        growths,
+        today,
+        todaysAssetValues,
+        todaysDebtValues,
+        todaysIncomeValues,
+        todaysExpenseValues,
+        todaysSettingValues,
+      );
     }
 
-    // Detect if this date has brought us into a new tax year.
-    // At a change of tax year, log last year's accrual
-    // and start a fresh accrual for the next year.
-    const momentsTaxYear = getYearOfTaxYear(moment.date);
-    const momentsTaxMonth = getMonthOfTaxYear(moment.date);
-    // log(`momentsTaxMonth = ${momentsTaxMonth}, momentsTaxYear = ${momentsTaxYear}`);
-    const enteringNewTaxYear =
-      startYearOfTaxYear !== undefined && momentsTaxYear > startYearOfTaxYear;
-    const enteringNewTaxMonth =
-      startYearOfTaxYear !== undefined &&
-      monthOfTaxYear !== undefined &&
-      momentsTaxMonth !== monthOfTaxYear;
+    handleTaxObligations(
+      model,
+      values,
+      growths,
+      moment,
+      timeInTaxCycle,
+      liableIncomeInTaxYear,
+      liableIncomeInTaxMonth,
+      taxMonthlyPaymentsPaid,
+      evaluations,
+    );
 
-    if (
-      startYearOfTaxYear !== undefined &&
-      monthOfTaxYear !== undefined &&
-      enteringNewTaxMonth
-    ) {
-      // log(`${momentsTaxMonth} is beyond ${monthOfTaxYear} for ${moment.date.toDateString()}`);
-      payNIEstimate(
-        liableIncomeInTaxMonth,
-        taxMonthlyPaymentsPaid,
-        startYearOfTaxYear,
-        monthOfTaxYear,
+    if (moment.name === EvaluateAllAssets) {
+    } else if (moment.name === cpi) {
+      handleInflationStep(
         values,
         growths,
-        evaluations,
-        model,
+        moment.date
       );
-    } else {
-      // log(`waiting for ${momentsTaxMonth} to get beyond ${monthOfTaxYear} for ${moment.date.toDateString()}`);
-    }
-
-    if (startYearOfTaxYear !== undefined && enteringNewTaxYear) {
-      // change of tax year - report count of moments
-      // log('change of tax year...');
-      settleUpTax(
-        liableIncomeInTaxYear,
-        liableIncomeInTaxMonth,
-        taxMonthlyPaymentsPaid,
-        startYearOfTaxYear,
-        values,
-        growths,
-        evaluations,
-        model,
-      );
-      startYearOfTaxYear = momentsTaxYear;
-      monthOfTaxYear = 3; // new tax year
-    }
-    if (
-      startYearOfTaxYear !== undefined &&
-      monthOfTaxYear !== undefined &&
-      enteringNewTaxMonth
-    ) {
-      // log(`${momentsTaxMonth} is beyond ${monthOfTaxYear} for ${moment.date.toDateString()}`);
-      payTaxEstimate(
-        liableIncomeInTaxMonth,
-        taxMonthlyPaymentsPaid,
-        startYearOfTaxYear,
-        monthOfTaxYear,
-        values,
-        growths,
-        evaluations,
-        model,
-      );
-    } else {
-      // log(`waiting for ${momentsTaxMonth} to get beyond ${monthOfTaxYear} for ${moment.date.toDateString()}`);
-    }
-    if (enteringNewTaxYear || enteringNewTaxMonth) {
-      monthOfTaxYear = momentsTaxMonth;
-    }
-
-    if (moment.name === cpi) {
-      // increment base (which started as 1.0) according to inflation value
-      // at this moment in time
-
-      const baseObj = getNumberValue(values, baseForCPI);
-      const infObj = getNumberValue(values, cpi);
-
-      if (baseObj !== undefined && infObj !== undefined) {
-        const newValue = baseObj * (1.0 + getMonthlyGrowth(infObj));
-        // log(`time to update base using ${infObj} from ${baseObj} to ${newValue}`);
-        // log(`newValue = ${newValue}`);
-        values.set(
-          baseForCPI,
-          newValue,
-          growths,
-          moment.date,
-          'baseChange',
-          '38', //callerID
-        );
-      } else {
-        log(
-          `BUG: missing baseObj or infObj for CPI handling; ${baseObj}, ${infObj}`,
-        );
-      }
     } else if (moment.name === 'captureLastTaxBands') {
-      // log(`at ${moment.date.toDateString()}, go log tax band values to get inflated values later`);
-      const resultFromMap = TAX_MAP[`${highestTaxYearInMap}`];
-      const baseVal = getNumberValue(values, baseForCPI);
-      if (resultFromMap !== undefined && baseVal !== undefined) {
-        // log(`map vals at ${startYearOfTaxYear}, ${makeTwoDP(resultFromMap.noTaxBand)}, ${makeTwoDP(resultFromMap.lowTaxBand)}, ${makeTwoDP(resultFromMap.highTaxBand)}, ${makeTwoDP(resultFromMap.adjustNoTaxBand)}`);
-        // log(`scale last tax bands by / baseVal = ${baseVal}`);
-        const noTaxBand = resultFromMap.noTaxBand / baseVal;
-        const lowTaxBand = resultFromMap.lowTaxBand / baseVal;
-        const highTaxBand = resultFromMap.highTaxBand / baseVal;
-        const adjustNoTaxBand = resultFromMap.adjustNoTaxBand / baseVal;
-        const noNIBand = resultFromMap.noNIBand / baseVal;
-        const lowNIBand = resultFromMap.lowNIBand / baseVal;
-        values.set(
-          'noTaxBand',
-          noTaxBand,
-          growths,
-          moment.date,
-          moment.name,
-          '39', //callerID
-        );
-        values.set(
-          'lowTaxBand',
-          lowTaxBand,
-          growths,
-          moment.date,
-          moment.name,
-          '39', //callerID
-        );
-        values.set(
-          'highTaxBand',
-          highTaxBand,
-          growths,
-          moment.date,
-          moment.name,
-          '39', //callerID
-        );
-        values.set(
-          'adjustNoTaxBand',
-          adjustNoTaxBand,
-          growths,
-          moment.date,
-          moment.name,
-          '39', //callerID
-        );
-        values.set(
-          'noNIBand',
-          noNIBand,
-          growths,
-          moment.date,
-          moment.name,
-          '39', //callerID
-        );
-        values.set(
-          'lowNIBand',
-          lowNIBand,
-          growths,
-          moment.date,
-          moment.name,
-          '39', //callerID
-        );
-        // log(`in vals at ${startYearOfTaxYear}, ${makeTwoDP(noTaxBand)}, ${makeTwoDP(lowTaxBand)}, ${makeTwoDP(highTaxBand)}, ${makeTwoDP(adjustNoTaxBand)}`);
-      } else {
-        log('BUG : undefined resultFromMap or baseVal');
-      }
+      captureLastTaxBands(
+        values,
+        growths,
+        moment,
+      );
     } else if (moment.type === momentType.transaction) {
       // log(`this is a transaction`);
       processTransactionMoment(
@@ -4342,321 +4919,41 @@ export function getEvaluations(
       moment.type === momentType.incomeStartPrep ||
       moment.type === momentType.assetStart
     ) {
-      // Starts are well defined
-      // log(`start moment ${moment.name}, ${moment.type}, ${moment.date}`)
-      if (moment.setValue === undefined) {
-        log('BUG!!! starts of income/asset/expense should have a value!');
-        break;
-      }
-      // Log quantities for assets which have them; needed for setting value.
-      if (moment.type === momentType.assetStart) {
-        // log(`at start of asset ${moment.name}`);
-        const startQ = getStartQuantity(moment.name, model);
-        if (startQ !== undefined) {
-          // log(`set quantity of asset ${moment.name} = ${startQ}`);
-          setValue(
-            values,
-            growths,
-            evaluations,
-            moment.date,
-            quantity + moment.name, // value of what?
-            startQ,
-            model,
-            moment.name, // source
-            '19', //callerID
-          );
-        }
-        const matchingAsset: Asset[] = model.assets.filter(a => {
-          return a.NAME === moment.name;
-        });
-        if (matchingAsset.length === 1) {
-          const a = matchingAsset[0];
-          // log(`matched asset for start`);
-          logPurchaseValues(a, values, growths, evaluations, model);
-        } else {
-          throw new Error(`BUG!!! '${moment.name}' doesn't match one asset`);
-        }
-      }
-      const startValue = moment.setValue;
-      let valueToStore = startValue;
-      if (growthData(moment.name, growths, values).adjustForCPI) {
-        // log(`start value for ${valueToStore} needs adjusting for CPI`);
-        let valueToScale: number | undefined;
-        if (typeof valueToStore === 'number') {
-          valueToScale = valueToStore;
-        } else if (isNumberString(valueToStore)) {
-          valueToScale = parseFloat(valueToStore);
-        }
-        if (valueToScale !== undefined) {
-          const scaleBy = getNumberValue(values, baseForCPI);
-          if (scaleBy) {
-            // log(`divide ${valueToStore} by base value ${scaleBy} to store ${valueToScale / scaleBy}`);
-            valueToStore = valueToScale / scaleBy;
-            // log(`divided result is ${valueToStore}`);
-          }
-        } else {
-          log(`don't scale something that's not a number`);
-        }
-      }
-      // log(`in getEvaluations starting something: ${moment.name} with value ${startValue}`);
-      if (
-        moment.type === momentType.incomeStartPrep ||
-        moment.type === momentType.expenseStartPrep
-      ) {
-        values.set(
-          moment.name,
-          valueToStore,
-          growths,
-          moment.date,
-          moment.name, // e.g. Cash (it's just the starting value)
-          '20', //callerID
-        );
-      } else {
-        setValue(
-          values,
-          growths,
-          evaluations,
-          moment.date,
-          moment.name,
-          valueToStore,
-          model,
-          moment.name, // e.g. Cash (it's just the starting value)
-          '20', //callerID
-        );
-      }
-      if (moment.type === momentType.incomeStart) {
-        const numberVal = traceEvaluation(
-          startValue,
-          values,
-          growths,
-          moment.name,
-        );
-        if (numberVal !== undefined) {
-          // log(`income numberVal = ${numberVal}`);
-          handleIncome(
-            numberVal,
-            moment,
-            values,
-            growths,
-            evaluations,
-            model,
-            pensionTransactions,
-            liabilitiesMap,
-            liableIncomeInTaxYear,
-            liableIncomeInTaxMonth,
-            moment.name,
-          );
-        } else {
-          throw new Error(`can't interpret ${startValue} as a number`);
-        }
-      } else if (moment.type === momentType.expenseStart) {
-        ////////////////// ???? startPrep or not ????
-        // log('in getEvaluations, adjustCash:');
-        adjustCash(
-          -startValue,
-          moment.date,
-          values,
-          growths,
-          evaluations,
-          model,
-          moment.name,
-        );
-      }
-    } else if (moment.type !== momentType.inflation) {
-      // not a transaction
-      // not at start of expense/income/asset
-      const visiblePoundValue: string | number | undefined = traceEvaluation(
-        moment.name,
+      handleStartMoment(
+        model,
+        values,
+        growths, 
+        moment,
+        pensionTransactions,
+        liabilitiesMap,
+        liableIncomeInTaxYear,
+        liableIncomeInTaxMonth,
+        evaluations,
+      );
+    } else {
+      growAndEffectMoment(
+        model,
         values,
         growths,
-        moment.name,
+        moment,
+        pensionTransactions,
+        liabilitiesMap,
+        liableIncomeInTaxYear,
+        liableIncomeInTaxMonth,
+        evaluations,
       );
-      // log(`oldStoredNumberVal of ${moment.name} is ${oldStoredNumberVal}`);
-      if (visiblePoundValue === undefined) {
-        const val = values.get(moment.name);
-        if (val !== undefined) {
-          setValue(
-            values,
-            growths,
-            evaluations,
-            moment.date,
-            moment.name,
-            val,
-            model,
-            growth,
-            '21', //callerID
-          );
-        }
-      } else {
-        const growthObj = growthData(moment.name, growths, values);
-        const baseVal = getNumberValue(values, baseForCPI);
-        // log(`baseVal = ${baseVal}`);
-        let oldStoredNumberVal = visiblePoundValue;
-        if (visiblePoundValue && growthObj && growthObj.adjustForCPI && baseVal) {
-          oldStoredNumberVal /= baseVal;
-        }
-        // log(`growthObj for ${moment.name} = ${showObj(growthObj)}`);
-        if (!growthObj) {
-          log(`BUG : missing growth for ${moment.name}`);
-        } else {
-          // We _do_ want to log changes of 0
-          // because this is how we generate monthly
-          // data to plot.  Set these here and call setValues later,
-          // even if these haven't changed.
-          let changedToStoredValue = 0.0;
-          let changeToVisibleCash = 0.0;
-
-          const growthChangeScale = growthObj.scale;
-
-          //if(growthObj.applyCPI && baseVal !== 1.0 && growthChangeScale !== 0 && moment.type !== momentType.expense){
-          //  throw new Error(`cpi computation for ${moment.type} has baseVal = ${baseVal}, growthChangeScale = ${growthChangeScale}`);
-          //}
-          if (printDebug()) {
-            log(`growthChangeScale = ${growthChangeScale}`);
-          }
-          if (growthChangeScale !== 0) {
-            changedToStoredValue = oldStoredNumberVal * growthChangeScale;
-            changeToVisibleCash = changedToStoredValue;
-            // log(`for ${growthChangeScale}, changedToStoredValue is ${changedToStoredValue}`);
-          }
-
-          let cPIChange = 0.0;
-          // log(`moment.type = ${moment.type}`);
-          if (growthObj.adjustForCPI) {
-            // log(`do work on a CPI change for ${moment.name}`);
-            if (!baseVal) {
-              log(`Bug - missing or zero baseVal`);
-            } else if (baseVal !== 1.0) {
-              cPIChange = oldStoredNumberVal * (baseVal - 1.0);
-              changeToVisibleCash = changedToStoredValue;
-              // log(`from baseVal ${baseVal}, real value adds ${cPIChange} to stored ${oldStoredNumberVal} to give ${cPIChange + oldStoredNumberVal}` );
-              // log(`from baseVal ${baseVal}, real growth value is ${growthChangeAsIncome} to give ${cPIChange + oldStoredNumberVal + growthChangeAsIncome}` );
-            }
-          }
-
-          // When we store back the value, don't apply CPI change, use growthChangeToStore.
-          // When we use the value to affect cash, do apply the CPI change, use cPIChange and growthChangeAsIncome.
-
-          let valToStore: string | number = oldStoredNumberVal;
-          if (changedToStoredValue === 0.0) {
-            // recover pre-existing value (don't save back as number value)
-            const storedVal = values.get(moment.name);
-            if (storedVal !== undefined) {
-              valToStore = storedVal;
-            }
-          } else {
-            valToStore += changedToStoredValue;
-            // log(`val to store at ${moment.date} = ${valToStore}`);
-          }
-
-          // We _do_ want to log changes of 0
-          // because this is how we generate monthly
-          // data to plot.
-          // if(change!==0){ // we _do_ want to log no-change evaluations!
-          // log(`in getEvaluations: log changes for moment.type = ${moment.type}`);
-          if (
-            moment.type === momentType.expensePrep ||
-            (moment.type === momentType.incomePrep &&
-              !moment.name.startsWith(pensionDB))
-          ) {
-            // log(`quietly set the value of ${moment.name} as ${valToStore}`);
-            values.set(
-              moment.name,
-              valToStore,
-              growths,
-              moment.date,
-              growth,
-              '22', //callerID
-            );
-          } else {
-            // log(`set the value of ${moment.name} as ${valToStore}`);
-            setValue(
-              values,
-              growths,
-              evaluations,
-              moment.date,
-              moment.name,
-              valToStore,
-              model,
-              growth,
-              '22', //callerID
-            );
-          }
-          // }
-          if (moment.type === momentType.asset) {
-            // some assets experience growth which is
-            // liable for tax
-            // log(`asset moment for growth : ${moment.date}, ${moment.name}`);
-            const changeToCash = cPIChange + changeToVisibleCash;
-            if (
-              moment.name.startsWith(crystallizedPension) &&
-              changeToCash > 0
-            ) {
-              // log(`skip asset moment for growth : ${moment.date}, ${moment.name}, ${change}`);
-            } else {
-              handleIncome(
-                changeToCash,
-                moment,
-                values,
-                growths,
-                evaluations,
-                model,
-                pensionTransactions,
-                liabilitiesMap,
-                liableIncomeInTaxYear,
-                liableIncomeInTaxMonth,
-                moment.name,
-              );
-            }
-          } else if (moment.type === momentType.income) {
-            const changeToCash =
-              oldStoredNumberVal + cPIChange + changeToVisibleCash;
-            handleIncome(
-              changeToCash,
-              moment,
-              values,
-              growths,
-              evaluations,
-              model,
-              pensionTransactions,
-              liabilitiesMap,
-              liableIncomeInTaxYear,
-              liableIncomeInTaxMonth,
-              moment.name,
-            );
-          } else if (moment.type === momentType.expense) {
-            // log('in getEvaluations, adjustCash:');
-            const changeToCash =
-              oldStoredNumberVal + cPIChange + changeToVisibleCash;
-            adjustCash(
-              -changeToCash,
-              moment.date,
-              values,
-              growths,
-              evaluations,
-              model,
-              moment.name,
-            );
-          }
-        }
-        if (printDebug()) {
-          log(`${moment.date.toDateString()},
-                    ${moment.name},
-                    value = ${values.get(moment.name)}`);
-        }
-      }
     }
 
     // Catch any tax information if we've just processed the last
     // of the moments.
-    if (startYearOfTaxYear !== undefined && datedMoments.length === 0) {
+    if (timeInTaxCycle.startYearOfTaxYear !== undefined && datedMoments.length === 0) {
       // change of tax year - report count of moments
       // log('last item in tax year...');
       settleUpTax(
         liableIncomeInTaxYear,
         liableIncomeInTaxMonth,
         taxMonthlyPaymentsPaid,
-        startYearOfTaxYear,
+        timeInTaxCycle.startYearOfTaxYear,
         values,
         growths,
         evaluations,
@@ -4685,5 +4982,159 @@ export function getEvaluations(
     reportData: report,
   };
   // log(`result.reportData.length = ${result.reportData.length}`);
+  return result;
+}
+
+// This is the key entry point for code calling from outside
+// this file.
+export function getEvaluations(
+  model: ModelData,
+  reporter: ReportValueChecker | undefined,
+): {
+  evaluations: Evaluation[];
+  todaysAssetValues: Map<string, AssetVal>;
+  todaysDebtValues: Map<string, DebtVal>;
+  todaysIncomeValues: Map<string, IncomeVal>;
+  todaysExpenseValues: Map<string, ExpenseVal>;
+  todaysSettingValues: Map<string, SettingVal>;
+  reportData: ReportDatum[];
+}{
+  const roiStartDate: Date = makeDateFromString(
+    getSettings(model.settings, roiStart, '1 Jan 1999'),
+  );
+  let roiEndDate: Date = makeDateFromString(
+    getSettings(model.settings, roiEnd, '1 Jan 1999'),
+  );
+  const maturityTransactions = model.transactions.filter(t=>{
+    return t.FROM_VALUE.startsWith(bondMaturity) && t.TO === CASH_ASSET_NAME;
+  });
+  // log(`maturityTransactions = ${showObj(maturityTransactions)}`);
+
+
+  maturityTransactions.forEach((mt)=>{
+    const d = new Date(mt.DATE);
+    if(d > roiEndDate){
+      roiEndDate = d;
+    }
+  });
+  roiEndDate.setMonth(roiEndDate.getMonth() + 1);
+  const adjustedModel: ModelData = {
+    triggers: model.triggers,
+    expenses: [],
+    incomes: [],
+    transactions: model.transactions.filter(t=>{
+      return t.TYPE === revalueSetting || t.FROM_VALUE.startsWith(bondMaturity)
+    }),
+    assets: model.assets.filter(a=>{
+      return a.NAME === CASH_ASSET_NAME ||
+        model.transactions.find(t=>{
+          return t.FROM_VALUE.startsWith(bondMaturity) && t.FROM === a.NAME
+        }) !== undefined;
+    }).concat([
+      {
+        NAME: `${bondMaturity}base`,
+        CATEGORY: '',
+        START: roiStartDate.toDateString(),
+        VALUE: '1.0',
+        QUANTITY: '', // Quantised assets have unit prices on-screen for table value
+        // Quantised assets can only be transacted in unit integer quantities
+        GROWTH: '0.0',
+        CPI_IMMUNE: false,
+        CAN_BE_NEGATIVE: true,
+        IS_A_DEBT: false,
+        LIABILITY: '',
+        PURCHASE_PRICE: '0.0',
+      }
+    ]),
+    settings: model.settings.concat([
+      {
+        NAME: `${bondMaturity}Prerun`,
+        VALUE: '0.0',
+        HINT: 'suppress warnings on prerun',
+        TYPE: constType,
+      },
+    ]),
+    version: model.version,
+    undoModel: undefined,
+    redoModel: undefined,
+  };
+  const roiEndSetting = model.settings.find((s)=>{ return s.NAME === roiEnd; });
+  let oldRoiEnd = '';
+  if(roiEndSetting){
+    oldRoiEnd = roiEndSetting.VALUE;
+    roiEndSetting.VALUE = roiEndDate.toDateString();
+  }
+
+  // log(`START FIRST EVALUATIONS LOOP`);
+  const adjustedEvals = getEvaluationsInternal(
+    adjustedModel,
+    undefined,
+  );
+  // log(`adjustedEvals = ${showObj(adjustedEvals)}`);
+
+  if(roiEndSetting){
+    roiEndSetting.VALUE = oldRoiEnd;
+  }
+
+  const generatedSettings:Setting[] = [];
+
+  for(let i = 0; i < adjustedEvals.evaluations.length; i = i + 1){
+    const evaln = adjustedEvals.evaluations[i];
+    if(evaln.name === CASH_ASSET_NAME){
+      continue;
+    }
+    const t = maturityTransactions.find(t => t.NAME === evaln.source);
+    if( t !== undefined ){
+      const settingName = `${t.FROM_VALUE}${separator}${evaln.date}${separator}${cpi}`;
+      // log(`for t.NAME = ${t.NAME}`);
+      // ${bondMaturity}BondTargetValue${separator}${transactionDateString}${separator}${cpi}
+      // look forward through our evals looking for a base value when this
+      // BondTargetValue was revalued
+      let baseStart = 1.0;
+      for(let j = 0; j < adjustedEvals.evaluations.length; j = j + 1){
+        const startEvaln = adjustedEvals.evaluations[j];
+        if(startEvaln.name === `${bondMaturity}base`){
+          // log(`base val before revalue is ${startEvaln.value}`);
+          baseStart = startEvaln.value;
+          continue;
+        }
+        if(startEvaln.name === t.FROM_VALUE.substring(bondMaturity.length, t.FROM_VALUE.length)
+          && startEvaln.source === revalue){
+          break;
+        }
+      }
+
+      // look back through our evals looking for a base value just before this maturity
+      for(let j = i; j > 0; j = j - 1){
+        const earlierEvaln = adjustedEvals.evaluations[j];
+        if(earlierEvaln.name.startsWith(`${bondMaturity}base`)){
+          // log(`going back in time, ${showObj(earlierEvaln)}`);
+          const settingValue = earlierEvaln.value;
+          // log(`generate setting ${settingName}, value ${settingValue}/${baseStart} = ${settingValue/baseStart} `);
+          if(generatedSettings.find((s)=>{
+            return s.NAME === settingName;
+          }) === undefined){
+            generatedSettings.push({
+              NAME: settingName,
+              VALUE: `${settingValue/baseStart}`,
+              HINT: 'autogenerated setting for Bond maturity values',
+              TYPE: constType,
+            })
+          }
+          break;
+        }
+      }
+    }
+  }
+
+  // log(`START SECOND EVALUATIONS LOOP`);
+  const result = getEvaluationsInternal(
+    { 
+      ...model,
+      settings: model.settings.concat(generatedSettings),
+    },
+    reporter,
+  );
+  // log(`evals = ${showObj(result.evaluations)}`);
   return result;
 }

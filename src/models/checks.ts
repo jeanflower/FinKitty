@@ -38,6 +38,7 @@ import {
   transferCrystallizedPension,
   viewDetail,
   viewFrequency,
+  bondMaturity,
 } from '../localization/stringConstants';
 import {
   Asset,
@@ -433,11 +434,26 @@ export function checkExpense(e: Expense, model: ModelData): string {
   return '';
 }
 function checkTransactionFrom(word: string, settings: Setting[]) {
-  const matched = settings.find(s => s.NAME === word);
+  let matched = settings.find(s => s.NAME === word);
   if (matched !== undefined) {
     // the FROM value is a setting - assume that it
-    // will evaluate to a numebr without further checks
+    // will evaluate to a number without further checks
     return '';
+  }
+  if(word.startsWith(bondMaturity)){
+    const trimmedWord = word.substring(bondMaturity.length, word.length);
+    matched = settings.find(s => {
+      const result = s.NAME === trimmedWord;
+      // log(`compare ${trimmedWord} against setting ${s.NAME}; match ${result}`);
+      return result;
+    });
+    if (matched !== undefined) {
+      // the FROM value is `${bondMaturity}${setting}` - assume that the setting
+      // part will evaluate to a bond target value number without 
+      // further checks
+      // log(`checks OK`);
+      return '';
+    }
   }
   return `Transaction 'from' value must be numbers or a setting, not ${word}`;
 }
@@ -1278,6 +1294,10 @@ function checkNames(model: ModelData): string {
       return a.NAME;
     }),
   );
+
+  if(names.find(n=> n === 'base')){
+    return `'base' as name is reserved`;
+  }
 
   const counts: Map<string, number> = names
     .filter(n => {

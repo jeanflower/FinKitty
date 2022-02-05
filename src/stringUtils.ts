@@ -16,6 +16,7 @@ import {
   moveTaxFreePart,
   crystallizedPension,
   transferCrystallizedPension,
+  bondMaturity,
 } from './localization/stringConstants';
 import { isSetting } from './models/modelUtils';
 import { Setting, ModelData, Trigger } from './types/interfaces';
@@ -675,7 +676,7 @@ function usesSeparatedString(existing: string, checkWord: string) {
   return numMatches > 0;
 }
 
-export function getSpecialWord(name: string): string {
+export function getSpecialWord(name: string, model: ModelData): string {
   if (name.startsWith(revalue)) {
     return revalue;
   }
@@ -702,6 +703,16 @@ export function getSpecialWord(name: string): string {
   }
   if (name.startsWith(transferCrystallizedPension)) {
     return transferCrystallizedPension;
+  }
+  if (name.startsWith(bondMaturity)) {
+    return bondMaturity;
+  }
+  if(model.transactions.find((t)=>{
+    const result = t.FROM_VALUE === bondMaturity+name;
+    // log(`does t TO ${t.FROM_VALUE} block change of name from ${name}? ${result}`);
+    return result;
+  }) !== undefined){
+    return bondMaturity;
   }
   return '';
 }
