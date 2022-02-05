@@ -171,14 +171,17 @@ export function isADebt(name: string, model: ModelData) {
   return matchingAsset.IS_A_DEBT;
 }
 export function isAnIncome(name: string, model: ModelData) {
-  return model.incomes.filter(a => a.NAME === name).length > 0;
+  return model.incomes.find(a => a.NAME === name) !== undefined;
 }
 export function isAnExpense(name: string, model: ModelData) {
-  return model.expenses.filter(a => a.NAME === name).length > 0;
+  return model.expenses.find(a => a.NAME === name) !== undefined;
+}
+export function isASetting(name: string, model: ModelData) {
+  return model.settings.find(s => s.NAME === name) !== undefined;
 }
 function isAnAsset(name: string, model: ModelData) {
   return (
-    model.assets.filter(a => a.NAME === name || a.CATEGORY === name).length > 0
+    model.assets.find(a => a.NAME === name || a.CATEGORY === name) !== undefined
   );
 }
 export function isAnAssetOrAssets(name: string, model: ModelData) {

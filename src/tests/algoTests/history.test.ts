@@ -68,7 +68,7 @@ function cannotRedo(model: ModelData) {
   expect(applyRedoToModel(model)).toBe(false);
 }
 
-describe('historyStack', () => {
+describe('history tests', () => {
   it('should undo, redo fake data', () => {
     const model: UndoRedoModel | undefined = {
       name: 'b',
