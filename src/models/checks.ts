@@ -39,6 +39,8 @@ import {
   viewDetail,
   viewFrequency,
   bondMaturity,
+  bondInvest,
+  bondMature,
 } from '../localization/stringConstants';
 import {
   Asset,
@@ -52,7 +54,7 @@ import {
 } from '../types/interfaces';
 import { log, showObj } from '../utils';
 
-import { evaluationType } from './evaluations';
+import { evaluationType, getMaturityDate } from './evaluations';
 import { getDisplayName } from '../views/tablePages';
 import {
   getTriggerDate,
@@ -993,7 +995,9 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
       return `Transaction from ${t.FROM} needs a non-empty from value`;
     } else if (!isNumberString(t.FROM_VALUE)) {
       const outcome = checkTransactionFrom(t.FROM_VALUE, settings);
-      return outcome;
+      if(outcome !== ''){
+        return outcome;
+      }
     }
   }
   if (t.TO !== '') {
@@ -1079,7 +1083,9 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
     t.TYPE !== autogen &&
     t.TYPE !== custom &&
     t.TYPE !== liquidateAsset &&
-    t.TYPE !== payOffDebt &&
+    t.TYPE !== payOffDebt&&
+    t.TYPE !== bondInvest &&
+    t.TYPE !== bondMature &&
     t.TYPE !== revalueAsset &&
     t.TYPE !== revalueDebt &&
     t.TYPE !== revalueInc &&
@@ -1121,6 +1127,58 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
       )} not a recognised format`;
     }
   }
+  if( t.TYPE === bondInvest ){
+    if( t.FROM !== CASH_ASSET_NAME ){
+      return `May only invest in Bond from ${CASH_ASSET_NAME} : malformed transaction ${t.NAME}`;
+    }
+    if( !t.FROM_VALUE.startsWith(bondMaturity)){
+      return `Investment in Bond needs ${bondMaturity} as start of from value : malformed transaction ${t.NAME}`;
+    }    
+  } else if (t.TYPE === bondMature ){
+    if( t.TO !== CASH_ASSET_NAME ){
+      return `May only mature from Bond to ${CASH_ASSET_NAME} : malformed transaction ${t.NAME}`;
+    }
+    if( !t.FROM_VALUE.startsWith(bondMaturity)){
+      return `Maturing Bond needs ${bondMaturity} as start of from value : malformed transaction ${t.NAME}`;
+    }
+    // every bondMature transaction needs a partner bondInvest transaction.
+    const invests = model.transactions.filter((tInvest) => {
+      if(tInvest.TYPE !== bondInvest){
+        return false;
+      }
+      if(tInvest.FROM_VALUE !== t.FROM_VALUE){
+        return false;
+      }
+      if(tInvest.RECURRENCE !== t.RECURRENCE){
+        return false;
+      }
+      // log(`considering ${tInvest.NAME} as investment transaction...`);
+      const md = getMaturityDate(new Date(tInvest.DATE), tInvest.NAME);
+      if(md.toDateString() !== new Date(t.DATE).toDateString()){
+        //log(`maturity date = ${md.toDateString()} !== ${new Date(t.DATE).toDateString()}`);
+        return false;
+      }
+      const sd = getMaturityDate(new Date(tInvest.STOP_DATE), tInvest.NAME);
+      if(sd.toDateString() !== new Date(t.STOP_DATE).toDateString()){
+        //log(`stop date = ${sd.toDateString()} !== ${new Date(t.STOP_DATE).toDateString()}`);
+        return false;
+      }
+      return true;
+    });
+    if(invests.length !== 1){
+      if(invests.length === 0){
+        return `Malformed model : bond maturation ${t.NAME} requires an investment`;
+      } else {
+        return `Malformed model : bond maturation ${t.NAME} requires only one investment`;
+      }
+    }
+  } else {
+    // log(`checking for use of ${bondMaturity} out of context in ${t.FROM_VALUE}`);
+    if(t.FROM_VALUE.startsWith(bondMaturity)){
+      // log(`from value begins ${bondMaturity}!`);
+      return `Malformed transaction : only ${bondInvest} and ${bondMature} types use ${bondMaturity}`;
+    }
+  } 
   if (t.TYPE === revalueAsset) {
     const recognised = isRevalueAssetType(t, model);
     if (!recognised) {

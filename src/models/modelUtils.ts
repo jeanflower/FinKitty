@@ -349,7 +349,9 @@ export function attemptRenameLong(
   const oldSpecialWord = getSpecialWord(old, model);
   const newSpecialWord = getSpecialWord(replacement, model);
   if (oldSpecialWord !== newSpecialWord) {
-    if (oldSpecialWord !== '') {
+    // log(`old = ${old}, replacement = ${replacement}`);
+    // log(`oldSpecialWord = ${oldSpecialWord}, newSpecialWord = ${newSpecialWord}`);
+  if (oldSpecialWord !== '') {
       return `Must maintain special formatting using ${oldSpecialWord}`;
     } else {
       return `Must not introduce special formatting using ${newSpecialWord}`;

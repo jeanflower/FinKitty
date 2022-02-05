@@ -3102,7 +3102,32 @@ export function makeSourceForToChange(t: Transaction) {
   }
   return source;
 }
-
+// shift forward d according to the end of name
+// e.g. if it ends '2y'
+export function getMaturityDate(
+  dInput: Date,
+  n: string,
+){
+  const d = new Date(dInput);
+  if (n.endsWith('5y')) {
+    d.setFullYear(d.getFullYear() + 5);
+  } else if (n.endsWith('4y')) {
+    d.setFullYear(d.getFullYear() + 4);
+  } else if (n.endsWith('3y')) {
+    d.setFullYear(d.getFullYear() + 3);
+  } else if (n.endsWith('2y')) {
+    d.setFullYear(d.getFullYear() + 2);
+  } else if (n.endsWith('1y')) {
+    d.setFullYear(d.getFullYear() + 1);
+  } else if (n.endsWith('1m')) {
+    d.setMonth(d.getMonth() + 1);
+  } else {
+    log(
+      `BUG - could not infer duration of bond from ${n} (does not end 1y etc)`,
+    );
+  }
+  return d;
+}
 function processTransactionFromTo(
   t: Transaction,
   fromWord: string,
@@ -3265,24 +3290,7 @@ function processTransactionFromTo(
       if (t.FROM_VALUE.startsWith(bondMaturity) && t.FROM === CASH_ASSET_NAME) {
         // we're about to invest into a bond
         // log(`invested ${toChange} into a bond for ${showObj(t)}`);
-        const d = new Date(moment.date);
-        if (t.NAME.endsWith('5y')) {
-          d.setFullYear(d.getFullYear() + 5);
-        } else if (t.NAME.endsWith('4y')) {
-          d.setFullYear(d.getFullYear() + 4);
-        } else if (t.NAME.endsWith('3y')) {
-          d.setFullYear(d.getFullYear() + 3);
-        } else if (t.NAME.endsWith('2y')) {
-          d.setFullYear(d.getFullYear() + 2);
-        } else if (t.NAME.endsWith('1y')) {
-          d.setFullYear(d.getFullYear() + 1);
-        } else if (t.NAME.endsWith('1m')) {
-          d.setMonth(d.getMonth() + 1);
-        } else {
-          log(
-            'BUG - could not infer duration of bond from bond name (does not end 1y etc)',
-          );
-        }
+        const d = getMaturityDate(moment.date, t.NAME);
         const investedValue = toChange;
 
         const nameForMaturity = `${
@@ -5093,7 +5101,9 @@ export function getEvaluations(
     }
     const t = maturityTransactions.find(t => t.NAME === evaln.source);
     if (t !== undefined) {
-      const settingName = `${t.FROM_VALUE}${separator}${evaln.date}${separator}${cpi}`;
+      const settingName = `${
+        t.FROM_VALUE
+      }${separator}${evaln.date.toDateString()}${separator}${cpi}`;
       // log(`for t.NAME = ${t.NAME}`);
       // ${bondMaturity}BondTargetValue${separator}${transactionDateString}${separator}${cpi}
       // look forward through our evals looking for a base value when this

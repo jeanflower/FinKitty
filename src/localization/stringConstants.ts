@@ -167,6 +167,10 @@ export const liquidateAsset = 'liquidateAsset';
 //  Use cash to pay off debts
 // (Conditional cash to debt)
 export const payOffDebt = 'payOffDebt';
+// Bond investment
+export const bondInvest = 'bondInvest';
+// Bond maturity
+export const bondMature = 'bondMature';
 
 // settings types
 export const constType = 'const';

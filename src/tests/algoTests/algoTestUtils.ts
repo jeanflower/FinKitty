@@ -334,6 +334,18 @@ export function getTestEvaluations(
         newName = crystallizedPension + newName;
       } else if (oldName.startsWith(transferCrystallizedPension)) {
         newName = transferCrystallizedPension + newName;
+      } else if (oldName.endsWith('5y')) {
+        newName = newName + '5y';
+      } else if (oldName.endsWith('4y')) {
+        newName = newName + '4y';
+      } else if (oldName.endsWith('3y')) {
+        newName = newName + '3y';
+      } else if (oldName.endsWith('2y')) {
+        newName = newName + '2y';
+      } else if (oldName.endsWith('1y')) {
+        newName = newName + '1y';
+      } else if (oldName.endsWith('1m')) {
+        newName = newName + '1m';
       }
       // log(`transaction oldName ${obj.NAME} -> ${newName}`);
 
