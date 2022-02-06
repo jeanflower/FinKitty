@@ -68,8 +68,8 @@ import {
   isAnIncome,
   isADebt,
   isAnExpense,
-  replaceCategoryWithAssetNames,
   isASetting,
+  replaceCategoryWithAssetNames,
 } from './modelUtils';
 
 const numberStringCache = new Map<string, boolean>();
@@ -1133,7 +1133,40 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
     }
     if( !t.FROM_VALUE.startsWith(bondMaturity)){
       return `Investment in Bond needs ${bondMaturity} as start of from value : malformed transaction ${t.NAME}`;
-    }    
+    }
+    // The bondInvest value should be BMV + a setting which is revalued at least once
+    // and all revalues finish before the date of the investment
+    const trimmedFromValue = t.FROM_VALUE.substring(bondMaturity.length, t.FROM_VALUE.length);
+    // this should be the name of a setting
+    const matchedSettings = model.settings.filter((s)=>{
+      return s.NAME === trimmedFromValue;
+    });
+    if(matchedSettings.length === 0){
+      return `May only invest into Bond if there's a setting ${trimmedFromValue} : malformed transaction ${t.NAME}`;
+    } else if(matchedSettings.length > 1){
+      return `May only invest into Bond if there's a unique setting ${trimmedFromValue} : malformed transaction ${t.NAME}`;
+    }
+    // This setting should be revalued and only revalued before the investment
+    const matchedRevalues = model.transactions.filter((rev)=>{
+      if(rev.TYPE !== revalueSetting){
+        return false;
+      }
+      if(rev.TO !== trimmedFromValue){
+        return false;
+      }
+      return true;
+    });
+    if(matchedRevalues.length === 0){
+      return `May only invest into Bond if the setting ${trimmedFromValue} is revalued `
+        + `(so we capture the revalue date) : malformed transaction ${t.NAME}`;
+    }
+    const tooLateRevalues = matchedRevalues.filter((late)=>{
+      return new Date(late.DATE) > new Date(t.DATE);
+    })
+    if(tooLateRevalues.length > 0){
+      return `May only invest into Bond if the setting ${trimmedFromValue} is not revalued `
+        + `after investment date : malformed transaction ${t.NAME}`;
+    }
   } else if (t.TYPE === bondMature ){
     if( t.TO !== CASH_ASSET_NAME ){
       return `May only mature from Bond to ${CASH_ASSET_NAME} : malformed transaction ${t.NAME}`;
