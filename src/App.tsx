@@ -49,6 +49,8 @@ import {
   purchase,
   defaultSourceMatcher,
   defaultSourceExcluder,
+  bondInvest,
+  bondMature,
   //  pension,
   //  crystallizedPension,
 } from './localization/stringConstants';
@@ -2145,6 +2147,18 @@ export class AppContent extends Component<AppProps, AppState> {
           showAlert,
           autogen,
           'Auto-generated transactions',
+        )}
+        {transactionFilteredTable(
+          this.state.modelData,
+          showAlert,
+          bondInvest,
+          'Investments into bonds',
+        )}
+        {transactionFilteredTable(
+          this.state.modelData,
+          showAlert,
+          bondMature,
+          'Maturities of bonds',
         )}
         <p />
         <div className="addNewTransaction">

@@ -2775,10 +2775,11 @@ function calculateFromChange(
         ).toDateString()}${separator}${cpi}invested`;
         // log(`for maturing bond, look for ${valueKey}`);
         const val = getNumberValue(values, valueKey, false);
-        // log(`for maturing bond, found val = ${val}`);
         if (val !== undefined) {
+          // log(`for maturing bond, found val = ${val}`);
           tFromValue = val;
         } else {
+          // log(`for maturing bond, no investment found`);
           tFromValue = 0.0; // nothing was registered as invested
         }
       }
@@ -2883,7 +2884,7 @@ function calculateFromChange(
     // log(`set new quantity ${q} - ${numberUnits} = ${q - numberUnits}`);
     let source = t.NAME;
     if (source.startsWith(conditional)) {
-      source = source.substring(conditional.length, source.length);
+      source = source.substring(conditional.length);
     }
     setValue(
       values,
@@ -2910,10 +2911,15 @@ function calculateFromChange(
       // log(`transfer only ${preFromValue} because we don't have ${fromChange}`);
       fromChange = preFromValue;
     } else {
-      // don't transfer anything
-      // log(`don't apply transaction from ${fromWord} `
-      //  +`because value ${preFromValue} < ${fromChange} `);
-      return undefined;
+      // don't transfer anything - we haven't enough
+      if(fromChange - preFromValue < 0.00001){ // TODO TOLERANCE!!!!
+        // clean up a difference which looks like noise
+        fromChange = preFromValue;
+      } else {
+        // log(`don't apply transaction from ${fromWord} `
+        //  +`because value ${preFromValue} < ${fromChange} `);
+        return undefined;
+      }
     }
   }
   const matchingIncome = model.incomes.find(i => {
@@ -3098,7 +3104,7 @@ export function makeSourceForFromChange(t: Transaction) {
 export function makeSourceForToChange(t: Transaction) {
   let source = t.NAME;
   if (source.startsWith(conditional)) {
-    source = source.substring(conditional.length, source.length);
+    source = source.substring(conditional.length);
   }
   return source;
 }
@@ -3658,7 +3664,7 @@ class ValuesContainer {
         let qoldVal: number | undefined = undefined;
         let qnewVal: number | undefined = undefined;
         if (name.startsWith(quantity)) {
-          name = name.substring(quantity.length, name.length);
+          name = name.substring(quantity.length);
           qchange = change;
           qoldVal = oldVal;
           qnewVal = newVal;
@@ -5117,8 +5123,7 @@ export function getEvaluations(
           continue;
         }
         if (
-          startEvaln.name ===
-            t.FROM_VALUE.substring(bondMaturity.length, t.FROM_VALUE.length) &&
+          startEvaln.name === t.FROM_VALUE.substring(bondMaturity.length) &&
           startEvaln.source === revalue
         ) {
           break;

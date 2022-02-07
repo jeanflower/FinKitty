@@ -13,7 +13,7 @@ import {
 } from '../../models/exampleModels';
 import { setSetting } from '../../models/modelUtils';
 import { ModelData } from '../../types/interfaces';
-import { printDebug } from '../../utils';
+import { log, printDebug } from '../../utils';
 import {
   printTestCodeForEvals,
   getTestEvaluations,
@@ -22,6 +22,7 @@ import {
 
 describe('bonds tests', () => {
   if (printDebug()) {
+    log;
     printTestCodeForEvals;
   }
 
@@ -1575,7 +1576,7 @@ describe('bonds tests', () => {
     expectEvals(evals, 447, 'Bond', 'Mon Jan 01 2029', 1034.79, 2);
     expectEvals(evals, 448, 'CPI.', 'Mon Jan 01 2029', 3.48, 2); // matches the setting value
     expectEvals(evals, 449, 'Bond', 'Mon Jan 01 2029', 1000, -1);
-    expectEvals(evals, 450, 'Cash', 'Mon Jan 01 2029', 1000, -1);
+    expectEvals(evals, 450, 'Cash', 'Mon Jan 01 2029', 1000, -1); // Cash does not grow, Bond does not grow, total effect = 0
 
     done();
   });  
@@ -1742,6 +1743,8 @@ describe('bonds tests', () => {
     };
     setSetting(model.settings, cpi, '12', constType);
     setSetting(model.settings, 'BondTargetValue', '1', constType);
+
+    // log(`model JSON ${JSON.stringify(model)}`);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
