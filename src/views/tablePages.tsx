@@ -784,7 +784,7 @@ export function getDisplayName(obj: string, type: string) {
     (type === liquidateAsset || type === payOffDebt) &&
     obj.startsWith(conditional)
   ) {
-    result = obj.substring(conditional.length, obj.length);
+    result = obj.substring(conditional.length);
   } else if (
     (type === revalueAsset ||
       type === revalueDebt ||
@@ -792,7 +792,7 @@ export function getDisplayName(obj: string, type: string) {
       type === revalueInc) &&
     obj.startsWith(revalue)
   ) {
-    result = obj.substring(revalue.length, obj.length);
+    result = obj.substring(revalue.length);
   } else {
     result = obj;
   }
