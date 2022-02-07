@@ -1571,15 +1571,12 @@ export function checkEvalnType(
     if (evalnType === evaluationType.asset) {
       return;
     }
-  /*
-  // at one point I seemed to need this code but now the tests pass without it
   } else if (evaln.name.startsWith(bondMaturity)) {
     // expect 'BMV' as keeping track of amounts for bonds maturing
     const evalnType = nameToTypeMap.get(evaln.name.substring(bondMaturity.length));
     if (evalnType === evaluationType.setting) {
       return;
     }
-  */
   } else {
     throw new Error(`BUG!! evaluation of an unknown type: ${showObj(evaln)}`);
   }
