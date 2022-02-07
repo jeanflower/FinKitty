@@ -269,10 +269,7 @@ function changeSpecialWords(
     transactionChanges.forEach(ch => {
       if (t.NAME.startsWith(ch.oldPart)) {
         // log(`old t.NAME=${t.NAME}`);
-        t.NAME = `${ch.newPart}${t.NAME.substring(
-          ch.oldPart.length,
-          t.NAME.length,
-        )}`;
+        t.NAME = `${ch.newPart}${t.NAME.substring(ch.oldPart.length)}`;
         // log(`new t.NAME=${t.NAME}`);
       }
       let words = t.FROM.split(separator);
@@ -281,7 +278,7 @@ function changeSpecialWords(
       words.forEach(w => {
         if (w.startsWith(ch.oldPart)) {
           // log(`old t.FROM w = ${w}`);
-          w = `${ch.newPart}${w.substring(ch.oldPart.length, w.length)}`;
+          w = `${ch.newPart}${w.substring(ch.oldPart.length)}`;
           hasChanged = true;
           // log(`new t.FROM w = ${w}`);
         }
