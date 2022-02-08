@@ -677,10 +677,7 @@ function usesSeparatedString(existing: string, checkWord: string) {
   return numMatches > 0;
 }
 
-export function getSpecialWord(
-  name: string, 
-  model: ModelData,
-): string {
+export function getSpecialWord(name: string, model: ModelData): string {
   if (name.startsWith(revalue)) {
     return revalue;
   }
@@ -721,34 +718,34 @@ export function getSpecialWord(
     return bondMaturity;
   }
   let durationEnding = '';
-  if(name.endsWith('5y')){
+  if (name.endsWith('5y')) {
     durationEnding = '5y';
-  } else if(name.endsWith('4y')){
+  } else if (name.endsWith('4y')) {
     durationEnding = '4y';
-  } else if(name.endsWith('3y')){
+  } else if (name.endsWith('3y')) {
     durationEnding = '3y';
-  } else if(name.endsWith('2y')){
+  } else if (name.endsWith('2y')) {
     durationEnding = '2y';
-  } else if(name.endsWith('1y')){
+  } else if (name.endsWith('1y')) {
     durationEnding = '1y';
-  } else if(name.endsWith('1m')){
+  } else if (name.endsWith('1m')) {
     durationEnding = '1m';
-  } 
-  
-  if(durationEnding !== ''){
+  }
+
+  if (durationEnding !== '') {
     // this might be a bond investment - take care!
     const sourceTransaction = model.transactions.find(t => {
-      if( t.TYPE !== bondInvest ){
+      if (t.TYPE !== bondInvest) {
         return false;
       }
-      if(!t.NAME.endsWith(durationEnding)){
+      if (!t.NAME.endsWith(durationEnding)) {
         return false;
       }
       // there is an investment with this duration
       return true;
     });
-    if(sourceTransaction === undefined){
-      return '';      
+    if (sourceTransaction === undefined) {
+      return '';
     }
     // I can rename this but I msut ensure same duration
     return durationEnding;

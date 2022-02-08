@@ -177,6 +177,9 @@ export const constType = 'const';
 export const viewType = 'view';
 export const adjustableType = 'adjustable';
 
+// Bond interest rate setting name
+export const bondInterest = 'bondInterest';
+
 export const EvaluateAllAssets = 'EvaluateAllAssets';
 
 export const TestModel01 = 'TestModel01';

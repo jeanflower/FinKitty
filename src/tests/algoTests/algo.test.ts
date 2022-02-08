@@ -77,7 +77,7 @@ import {
   getICLabel,
   getModelCrystallizedPension,
   getMinimalModelCopySettings,
-} from './algotestUtils';
+} from './algoTestUtils';
 
 /* global it */
 /* global expect */
@@ -1103,7 +1103,7 @@ describe('evaluations tests', () => {
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
 
-    //printTestCodeForEvals(evals);
+    // printTestCodeForEvals(evals);
 
     expect(evals.length).toBe(3);
     expectEvals(evals, 0, 'PRnd', 'Tue Jan 01 2019', 5.6, 2);

@@ -26,6 +26,7 @@ import {
   revalueSetting,
   constType,
   bondMaturity,
+  bondInterest,
 } from '../localization/stringConstants';
 import {
   DatedThing,
@@ -2712,18 +2713,29 @@ function calculateFromChange(
         const d = new Date(moment.date);
         // log(`t.NAME = ${t.NAME} seeks a matching setting...`);
 
+        const bondInterestRate = getNumberValue(values, bondInterest, false);
+        let bondScale = 1.0;
+        if (bondInterestRate !== undefined) {
+          bondScale = 1.0 + bondInterestRate / 100.0;
+        }
+
         // log(`before date shift, d = ${d.toDateString()}`);
         if (t.NAME.endsWith('5y')) {
           d.setFullYear(d.getFullYear() + 5);
+          bondScale = bondScale ** 5;
         } else if (t.NAME.endsWith('4y')) {
           d.setFullYear(d.getFullYear() + 4);
+          bondScale = bondScale ** 4;
         } else if (t.NAME.endsWith('3y')) {
           d.setFullYear(d.getFullYear() + 3);
+          bondScale = bondScale ** 3;
         } else if (t.NAME.endsWith('2y')) {
           d.setFullYear(d.getFullYear() + 2);
+          bondScale = bondScale ** 2;
         } else if (t.NAME.endsWith('1y')) {
           d.setFullYear(d.getFullYear() + 1);
         } else if (t.NAME.endsWith('1m')) {
+          bondScale = bondScale ** (1 / 12);
           d.setMonth(d.getMonth() + 1);
         } else {
           log(
@@ -2731,6 +2743,11 @@ function calculateFromChange(
           );
         }
         // log(`after date shift, d = ${d.toDateString()}`);
+
+        // the bond will grow by bondScale, so to reach a target value of
+        // tFromValue, we actually invest tFromValue / bondScale
+        // log(`divide ${tFromValue} value by ${bondScale} to get ${tFromValue / bondScale}`);
+        tFromValue /= bondScale;
 
         // log(`for ${t.NAME}, look for a setting like
         //   ${t.FROM_VALUE}${separator}${t.DATE}${separator}${cpi}`);
@@ -2757,9 +2774,11 @@ function calculateFromChange(
         if (matchedSetting.length === 1) {
           const cpiScaling = getNumberValue(values, matchedSetting[0].NAME);
           // log(`Bond cpiScaling from ${matchedSetting[0].NAME} = ${cpiScaling}`);
-          if (cpiScaling !== undefined && cpiScaling !== undefined) {
+          if (cpiScaling !== undefined) {
             tFromValue *= cpiScaling;
             // log(`scale by CPI effect ${cpiScaling}, tFromValue = ${tFromValue}`);
+          } else {
+            log(`BUG : np cpiScaling value found for bond investment`);
           }
         } else {
           if (!model.settings.find(s => s.NAME === `${bondMaturity}Prerun`)) {
@@ -2912,7 +2931,8 @@ function calculateFromChange(
       fromChange = preFromValue;
     } else {
       // don't transfer anything - we haven't enough
-      if(fromChange - preFromValue < 0.00001){ // TODO TOLERANCE!!!!
+      if (fromChange - preFromValue < 0.00001) {
+        // TODO TOLERANCE!!!!
         // clean up a difference which looks like noise
         fromChange = preFromValue;
       } else {
@@ -3023,6 +3043,16 @@ function calculateToChange(
     // proportion of the amount taken from from_asset
     toChange = tToValue * fromChange;
   }
+
+  if (t.FROM_VALUE.startsWith(bondMaturity) && t.FROM === CASH_ASSET_NAME) {
+    const bondInterestRate = getNumberValue(values, bondInterest, false);
+    let bondScale = 1.0;
+    if (bondInterestRate !== undefined) {
+      bondScale = 1.0 + bondInterestRate / 100.0;
+    }
+    toChange *= bondScale;
+  }
+
   return toChange;
 }
 
@@ -3110,10 +3140,7 @@ export function makeSourceForToChange(t: Transaction) {
 }
 // shift forward d according to the end of name
 // e.g. if it ends '2y'
-export function getMaturityDate(
-  dInput: Date,
-  n: string,
-){
+export function getMaturityDate(dInput: Date, n: string) {
   const d = new Date(dInput);
   if (n.endsWith('5y')) {
     d.setFullYear(d.getFullYear() + 5);
@@ -3303,6 +3330,7 @@ function processTransactionFromTo(
           t.FROM_VALUE
         }${separator}${d.toDateString()}${separator}${cpi}invested`;
         // log(`create a stored value for maturity ${nameForMaturity}`);
+
         values.set(
           nameForMaturity,
           investedValue,
@@ -3922,7 +3950,11 @@ function generateMoments(
     setDate: Date;
   }[] = [];
   model.settings.forEach(setting => {
-    if (setting.NAME === 'Grain' || setting.NAME.startsWith(bondMaturity)) {
+    if (
+      setting.NAME === 'Grain' ||
+      setting.NAME.startsWith(bondMaturity) ||
+      setting.NAME === bondInterest
+    ) {
       setValue(
         values,
         growths,

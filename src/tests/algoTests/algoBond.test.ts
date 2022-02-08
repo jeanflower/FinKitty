@@ -4,6 +4,7 @@ import {
   constType,
   bondMature,
   bondInvest,
+  bondInterest,
 } from '../../localization/stringConstants';
 import {
   emptyModel,
@@ -18,7 +19,7 @@ import {
   printTestCodeForEvals,
   getTestEvaluations,
   expectEvals,
-} from './algotestUtils';
+} from './algoTestUtils';
 
 describe('bonds tests', () => {
   if (printDebug()) {
@@ -149,6 +150,261 @@ describe('bonds tests', () => {
     expectEvals(evals, 41, 'Cash', 'Sat Jun 01 2019', 1160.33, 2); //109.91*(1.12^(5/12)) + (1000-109.91)*(1.12^(17/12))
     expectEvals(evals, 42, 'Bond', 'Sat Jun 01 2019', 1000, -1);
 
+    done();
+  });
+
+  it('bond invest has 0% bond interest', done => {
+    const roi = {
+      start: 'Dec 1, 2017',
+      end: 'July 1, 2019',
+    };
+    const settingRevalueDate = 'February 10 2018';
+    const matureDateString = 'April 12 2019';
+    const investDateString = 'April 12 2018';
+
+    const model: ModelData = {
+      ...emptyModel,
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'Cash',
+          START: 'January 1 2018',
+          VALUE: '1000',
+          GROWTH: '0.0',
+          CPI_IMMUNE: false,
+        },
+        {
+          ...simpleAsset,
+          NAME: 'Bond',
+          START: 'January 1 2018',
+          VALUE: '1000',
+          GROWTH: '0.0',
+          CPI_IMMUNE: true,
+        },
+      ],
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: 'Revalue of BondTargetValue 1',
+          TO: 'BondTargetValue',
+          TO_VALUE: '100',
+          DATE: settingRevalueDate,
+          TYPE: revalueSetting,
+        },
+        {
+          ...simpleTransaction,
+          NAME: 'BondInvest1y',
+          FROM: 'Cash',
+          FROM_VALUE: 'BMVBondTargetValue',
+          TO: 'Bond',
+          TO_VALUE: '1.0',
+          TO_ABSOLUTE: false,
+          DATE: investDateString,
+          TYPE: bondInvest,
+        },
+        {
+          ...simpleTransaction,
+          NAME: 'BondMature',
+          FROM: 'Bond',
+          FROM_VALUE: 'BMVBondTargetValue',
+          TO: 'Cash',
+          TO_VALUE: '1.0',
+          TO_ABSOLUTE: false,
+          DATE: matureDateString,
+          TYPE: bondMature,
+        },
+      ],
+      settings: [...defaultModelSettings(roi)],
+    };
+    setSetting(model.settings, cpi, '12', constType);
+    setSetting(model.settings, 'BondTargetValue', '1', constType);
+    setSetting(model.settings, `${bondInterest}`, '0', constType);
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(44);
+    expectEvals(evals, 0, 'bondInterest', 'Fri Dec 01 2017', 0, -1);
+    expectEvals(
+      evals,
+      1,
+      'BMVBondTargetValue/Fri Apr 12 2019/cpi',
+      'Fri Dec 01 2017',
+      1.14,
+      2,
+    );
+    expectEvals(evals, 2, 'BondTargetValue', 'Fri Apr 12 2019', 1, -1);
+    expectEvals(evals, 3, 'Cash', 'Mon Jan 01 2018', 1000, -1);
+    expectEvals(evals, 4, 'Bond', 'Mon Jan 01 2018', 1000, -1);
+    expectEvals(evals, 5, 'Cash', 'Thu Feb 01 2018', 1009.49, 2);
+    expectEvals(evals, 6, 'Bond', 'Thu Feb 01 2018', 1000, -1);
+    expectEvals(evals, 7, 'BondTargetValue', 'Sat Feb 10 2018', 100, -1);
+    expectEvals(evals, 8, 'Cash', 'Thu Mar 01 2018', 1019.07, 2);
+    expectEvals(evals, 9, 'Bond', 'Thu Mar 01 2018', 1000, -1);
+    expectEvals(evals, 10, 'Cash', 'Sun Apr 01 2018', 1028.74, 2);
+    expectEvals(evals, 11, 'Bond', 'Sun Apr 01 2018', 1000, -1);
+    expectEvals(evals, 12, 'Cash', 'Thu Apr 12 2018', 924.36, 2);
+    expectEvals(evals, 13, 'Bond', 'Thu Apr 12 2018', 1114.14, 2);
+    expectEvals(evals, 14, 'Cash', 'Tue May 01 2018', 924.36, 2);
+    expectEvals(evals, 15, 'Bond', 'Tue May 01 2018', 1114.14, 2);
+    expectEvals(evals, 16, 'Cash', 'Fri Jun 01 2018', 933.13, 2);
+    expectEvals(evals, 17, 'Bond', 'Fri Jun 01 2018', 1114.14, 2);
+    expectEvals(evals, 18, 'Cash', 'Sun Jul 01 2018', 941.99, 2);
+    expectEvals(evals, 19, 'Bond', 'Sun Jul 01 2018', 1114.14, 2);
+    expectEvals(evals, 20, 'Cash', 'Wed Aug 01 2018', 950.93, 2);
+    expectEvals(evals, 21, 'Bond', 'Wed Aug 01 2018', 1114.14, 2);
+    expectEvals(evals, 22, 'Cash', 'Sat Sep 01 2018', 959.95, 2);
+    expectEvals(evals, 23, 'Bond', 'Sat Sep 01 2018', 1114.14, 2);
+    expectEvals(evals, 24, 'Cash', 'Mon Oct 01 2018', 969.06, 2);
+    expectEvals(evals, 25, 'Bond', 'Mon Oct 01 2018', 1114.14, 2);
+    expectEvals(evals, 26, 'Cash', 'Thu Nov 01 2018', 978.25, 2);
+    expectEvals(evals, 27, 'Bond', 'Thu Nov 01 2018', 1114.14, 2);
+    expectEvals(evals, 28, 'Cash', 'Sat Dec 01 2018', 987.54, 2);
+    expectEvals(evals, 29, 'Bond', 'Sat Dec 01 2018', 1114.14, 2);
+    expectEvals(evals, 30, 'Cash', 'Tue Jan 01 2019', 996.91, 2);
+    expectEvals(evals, 31, 'Bond', 'Tue Jan 01 2019', 1114.14, 2);
+    expectEvals(evals, 32, 'Cash', 'Fri Feb 01 2019', 1006.37, 2);
+    expectEvals(evals, 33, 'Bond', 'Fri Feb 01 2019', 1114.14, 2);
+    expectEvals(evals, 34, 'Cash', 'Fri Mar 01 2019', 1015.92, 2);
+    expectEvals(evals, 35, 'Bond', 'Fri Mar 01 2019', 1114.14, 2);
+    expectEvals(evals, 36, 'Cash', 'Mon Apr 01 2019', 1025.56, 2);
+    expectEvals(evals, 37, 'Bond', 'Mon Apr 01 2019', 1114.14, 2); // 114.14 = 100.00*(1.12^(14/12))
+    expectEvals(evals, 38, 'Bond', 'Fri Apr 12 2019', 1000, -1);
+    expectEvals(evals, 39, 'Cash', 'Fri Apr 12 2019', 1149.42, 2);
+    expectEvals(evals, 41, 'Cash', 'Wed May 01 2019', 1149.42, 2);
+    expectEvals(evals, 42, 'Bond', 'Wed May 01 2019', 1000, -1);
+    expectEvals(evals, 43, 'Cash', 'Sat Jun 01 2019', 1160.33, 2); //109.91*(1.12^(5/12)) + (1000-109.91)*(1.12^(17/12))
+    expectEvals(evals, 44, 'Bond', 'Sat Jun 01 2019', 1000, -1);
+
+    done();
+  });
+
+  it('bond invest has 100% bond interest', done => {
+    const roi = {
+      start: 'Dec 1, 2017',
+      end: 'July 1, 2019',
+    };
+    const settingRevalueDate = 'February 10 2018';
+    const matureDateString = 'April 12 2019';
+    const investDateString = 'April 12 2018';
+
+    const model: ModelData = {
+      ...emptyModel,
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'Cash',
+          START: 'January 1 2018',
+          VALUE: '945.05',
+          GROWTH: '0.0',
+          CPI_IMMUNE: false,
+        },
+        {
+          ...simpleAsset,
+          NAME: 'Bond',
+          START: 'January 1 2018',
+          VALUE: '1000',
+          GROWTH: '0.0',
+          CPI_IMMUNE: true,
+        },
+      ],
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: 'Revalue of BondTargetValue 1',
+          TO: 'BondTargetValue',
+          TO_VALUE: '100',
+          DATE: settingRevalueDate,
+          TYPE: revalueSetting,
+        },
+        {
+          ...simpleTransaction,
+          NAME: 'BondInvest1y',
+          FROM: 'Cash',
+          FROM_VALUE: 'BMVBondTargetValue',
+          TO: 'Bond',
+          TO_VALUE: '1.0',
+          TO_ABSOLUTE: false,
+          DATE: investDateString,
+          TYPE: bondInvest,
+        },
+        {
+          ...simpleTransaction,
+          NAME: 'BondMature',
+          FROM: 'Bond',
+          FROM_VALUE: 'BMVBondTargetValue',
+          TO: 'Cash',
+          TO_VALUE: '1.0',
+          TO_ABSOLUTE: false,
+          DATE: matureDateString,
+          TYPE: bondMature,
+        },
+      ],
+      settings: [...defaultModelSettings(roi)],
+    };
+    setSetting(model.settings, cpi, '12', constType);
+    setSetting(model.settings, 'BondTargetValue', '1', constType);
+    setSetting(model.settings, `${bondInterest}`, '100', constType);
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(44);
+    expectEvals(evals, 0, 'bondInterest', 'Fri Dec 01 2017', 100, -1);
+    expectEvals(
+      evals,
+      1,
+      'BMVBondTargetValue/Fri Apr 12 2019/cpi',
+      'Fri Dec 01 2017',
+      1.14,
+      2,
+    );
+    expectEvals(evals, 2, 'BondTargetValue', 'Fri Apr 12 2019', 1, -1);
+    expectEvals(evals, 3, 'Cash', 'Mon Jan 01 2018', 945.05, 2); // start with inflated 100 / 2 less than 1000
+    expectEvals(evals, 4, 'Bond', 'Mon Jan 01 2018', 1000, -1);
+    expectEvals(evals, 5, 'Cash', 'Thu Feb 01 2018', 954.02, 2);
+    expectEvals(evals, 6, 'Bond', 'Thu Feb 01 2018', 1000, -1);
+    expectEvals(evals, 7, 'BondTargetValue', 'Sat Feb 10 2018', 100, -1);
+    expectEvals(evals, 8, 'Cash', 'Thu Mar 01 2018', 963.07, 2);
+    expectEvals(evals, 9, 'Bond', 'Thu Mar 01 2018', 1000, -1);
+    expectEvals(evals, 10, 'Cash', 'Sun Apr 01 2018', 972.21, 2);
+    expectEvals(evals, 11, 'Bond', 'Sun Apr 01 2018', 1000, -1);
+    expectEvals(evals, 12, 'Cash', 'Thu Apr 12 2018', 924.37, 2); // invest about 50
+    expectEvals(evals, 13, 'Bond', 'Thu Apr 12 2018', 1114.14, 2); // will relase about 100 upon maturity
+    expectEvals(evals, 14, 'Cash', 'Tue May 01 2018', 924.37, 2);
+    expectEvals(evals, 15, 'Bond', 'Tue May 01 2018', 1114.14, 2);
+    expectEvals(evals, 16, 'Cash', 'Fri Jun 01 2018', 933.14, 2);
+    expectEvals(evals, 17, 'Bond', 'Fri Jun 01 2018', 1114.14, 2);
+    expectEvals(evals, 18, 'Cash', 'Sun Jul 01 2018', 941.99, 2);
+    expectEvals(evals, 19, 'Bond', 'Sun Jul 01 2018', 1114.14, 2);
+    expectEvals(evals, 20, 'Cash', 'Wed Aug 01 2018', 950.93, 2);
+    expectEvals(evals, 21, 'Bond', 'Wed Aug 01 2018', 1114.14, 2);
+    expectEvals(evals, 22, 'Cash', 'Sat Sep 01 2018', 959.95, 2);
+    expectEvals(evals, 23, 'Bond', 'Sat Sep 01 2018', 1114.14, 2);
+    expectEvals(evals, 24, 'Cash', 'Mon Oct 01 2018', 969.06, 2);
+    expectEvals(evals, 25, 'Bond', 'Mon Oct 01 2018', 1114.14, 2);
+    expectEvals(evals, 26, 'Cash', 'Thu Nov 01 2018', 978.26, 2);
+    expectEvals(evals, 27, 'Bond', 'Thu Nov 01 2018', 1114.14, 2);
+    expectEvals(evals, 28, 'Cash', 'Sat Dec 01 2018', 987.54, 2);
+    expectEvals(evals, 29, 'Bond', 'Sat Dec 01 2018', 1114.14, 2);
+    expectEvals(evals, 30, 'Cash', 'Tue Jan 01 2019', 996.91, 2);
+    expectEvals(evals, 31, 'Bond', 'Tue Jan 01 2019', 1114.14, 2);
+    expectEvals(evals, 32, 'Cash', 'Fri Feb 01 2019', 1006.37, 2);
+    expectEvals(evals, 33, 'Bond', 'Fri Feb 01 2019', 1114.14, 2);
+    expectEvals(evals, 34, 'Cash', 'Fri Mar 01 2019', 1015.92, 2);
+    expectEvals(evals, 35, 'Bond', 'Fri Mar 01 2019', 1114.14, 2);
+    expectEvals(evals, 36, 'Cash', 'Mon Apr 01 2019', 1025.56, 2);
+    expectEvals(evals, 37, 'Bond', 'Mon Apr 01 2019', 1114.14, 2); // 114.14 = 100.00*(1.12^(14/12))
+    expectEvals(evals, 38, 'Bond', 'Fri Apr 12 2019', 1000, -1);
+    expectEvals(evals, 39, 'Cash', 'Fri Apr 12 2019', 1149.42, 2); // will relase about 100 upon maturity
+    expectEvals(evals, 40, 'Cash', 'Wed May 01 2019', 1149.42, 2);
+    expectEvals(evals, 41, 'Bond', 'Wed May 01 2019', 1000, -1);
+    expectEvals(evals, 42, 'Cash', 'Sat Jun 01 2019', 1160.33, 2); //109.91*(1.12^(5/12)) + (1000-109.91)*(1.12^(17/12))
+    expectEvals(evals, 43, 'Bond', 'Sat Jun 01 2019', 1000, -1);
     done();
   });
 
@@ -398,6 +654,134 @@ describe('bonds tests', () => {
     expectEvals(evals, 40, 'Bond', 'Wed May 01 2019', 1000, -1);
     expectEvals(evals, 41, 'Cash', 'Sat Jun 01 2019', 1000, -1);
     expectEvals(evals, 42, 'Bond', 'Sat Jun 01 2019', 1000, -1);
+
+    done();
+  });
+
+  it('bond zero cpi with interest', done => {
+    const roi = {
+      start: 'Dec 1, 2017',
+      end: 'July 1, 2019',
+    };
+    const settingRevalueDate = 'February 10 2018';
+    const matureDateString = 'April 12 2019';
+    const investDateString = 'April 12 2018';
+
+    const model: ModelData = {
+      ...emptyModel,
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'Cash',
+          START: 'January 1 2018',
+          VALUE: '1000',
+          GROWTH: '0.0',
+          CPI_IMMUNE: false,
+        },
+        {
+          ...simpleAsset,
+          NAME: 'Bond',
+          START: 'January 1 2018',
+          VALUE: '1000',
+          GROWTH: '0.0',
+          CPI_IMMUNE: true,
+        },
+      ],
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: 'Revalue of BondTargetValue 1',
+          TO: 'BondTargetValue',
+          TO_VALUE: '100',
+          DATE: settingRevalueDate,
+          TYPE: revalueSetting,
+        },
+        {
+          ...simpleTransaction,
+          NAME: 'BondInvest1y',
+          FROM: 'Cash',
+          FROM_VALUE: 'BMVBondTargetValue',
+          TO: 'Bond',
+          TO_VALUE: '1.0',
+          TO_ABSOLUTE: false,
+          DATE: investDateString,
+          TYPE: bondInvest,
+        },
+        {
+          ...simpleTransaction,
+          NAME: 'BondMature',
+          FROM: 'Bond',
+          FROM_VALUE: 'BMVBondTargetValue',
+          TO: 'Cash',
+          TO_VALUE: '1.0',
+          TO_ABSOLUTE: false,
+          DATE: matureDateString,
+          TYPE: bondMature,
+        },
+      ],
+      settings: [...defaultModelSettings(roi)],
+    };
+    setSetting(model.settings, cpi, '0', constType);
+    setSetting(model.settings, 'BondTargetValue', '1', constType);
+    setSetting(model.settings, `${bondInterest}`, '100', constType);
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(44);
+    expectEvals(evals, 0, 'bondInterest', 'Fri Dec 01 2017', 100, -1);
+    expectEvals(
+      evals,
+      1,
+      'BMVBondTargetValue/Fri Apr 12 2019/cpi',
+      'Fri Dec 01 2017',
+      1,
+      -1,
+    );
+    expectEvals(evals, 2, 'BondTargetValue', 'Fri Apr 12 2019', 1, -1);
+    expectEvals(evals, 3, 'Cash', 'Mon Jan 01 2018', 1000, -1);
+    expectEvals(evals, 4, 'Bond', 'Mon Jan 01 2018', 1000, -1);
+    expectEvals(evals, 5, 'Cash', 'Thu Feb 01 2018', 1000, -1);
+    expectEvals(evals, 6, 'Bond', 'Thu Feb 01 2018', 1000, -1);
+    expectEvals(evals, 7, 'BondTargetValue', 'Sat Feb 10 2018', 100, -1);
+    expectEvals(evals, 8, 'Cash', 'Thu Mar 01 2018', 1000, -1);
+    expectEvals(evals, 9, 'Bond', 'Thu Mar 01 2018', 1000, -1);
+    expectEvals(evals, 10, 'Cash', 'Sun Apr 01 2018', 1000, -1);
+    expectEvals(evals, 11, 'Bond', 'Sun Apr 01 2018', 1000, -1);
+    expectEvals(evals, 12, 'Cash', 'Thu Apr 12 2018', 950, -1);
+    expectEvals(evals, 13, 'Bond', 'Thu Apr 12 2018', 1100, -1);
+    expectEvals(evals, 14, 'Cash', 'Tue May 01 2018', 950, -1);
+    expectEvals(evals, 15, 'Bond', 'Tue May 01 2018', 1100, -1);
+    expectEvals(evals, 16, 'Cash', 'Fri Jun 01 2018', 950, -1);
+    expectEvals(evals, 17, 'Bond', 'Fri Jun 01 2018', 1100, -1);
+    expectEvals(evals, 18, 'Cash', 'Sun Jul 01 2018', 950, -1);
+    expectEvals(evals, 19, 'Bond', 'Sun Jul 01 2018', 1100, -1);
+    expectEvals(evals, 20, 'Cash', 'Wed Aug 01 2018', 950, -1);
+    expectEvals(evals, 21, 'Bond', 'Wed Aug 01 2018', 1100, -1);
+    expectEvals(evals, 22, 'Cash', 'Sat Sep 01 2018', 950, -1);
+    expectEvals(evals, 23, 'Bond', 'Sat Sep 01 2018', 1100, -1);
+    expectEvals(evals, 24, 'Cash', 'Mon Oct 01 2018', 950, -1);
+    expectEvals(evals, 25, 'Bond', 'Mon Oct 01 2018', 1100, -1);
+    expectEvals(evals, 26, 'Cash', 'Thu Nov 01 2018', 950, -1);
+    expectEvals(evals, 27, 'Bond', 'Thu Nov 01 2018', 1100, -1);
+    expectEvals(evals, 28, 'Cash', 'Sat Dec 01 2018', 950, -1);
+    expectEvals(evals, 29, 'Bond', 'Sat Dec 01 2018', 1100, -1);
+    expectEvals(evals, 30, 'Cash', 'Tue Jan 01 2019', 950, -1);
+    expectEvals(evals, 31, 'Bond', 'Tue Jan 01 2019', 1100, -1);
+    expectEvals(evals, 32, 'Cash', 'Fri Feb 01 2019', 950, -1);
+    expectEvals(evals, 33, 'Bond', 'Fri Feb 01 2019', 1100, -1);
+    expectEvals(evals, 34, 'Cash', 'Fri Mar 01 2019', 950, -1);
+    expectEvals(evals, 35, 'Bond', 'Fri Mar 01 2019', 1100, -1);
+    expectEvals(evals, 36, 'Cash', 'Mon Apr 01 2019', 950, -1);
+    expectEvals(evals, 37, 'Bond', 'Mon Apr 01 2019', 1100, -1);
+    expectEvals(evals, 38, 'Bond', 'Fri Apr 12 2019', 1000, -1);
+    expectEvals(evals, 39, 'Cash', 'Fri Apr 12 2019', 1050, -1);
+    expectEvals(evals, 40, 'Cash', 'Wed May 01 2019', 1050, -1);
+    expectEvals(evals, 41, 'Bond', 'Wed May 01 2019', 1000, -1);
+    expectEvals(evals, 42, 'Cash', 'Sat Jun 01 2019', 1050, -1);
+    expectEvals(evals, 43, 'Bond', 'Sat Jun 01 2019', 1000, -1);
 
     done();
   });
@@ -1100,7 +1484,7 @@ describe('bonds tests', () => {
           TO_ABSOLUTE: false,
           DATE: '2023',
           TYPE: bondMature,
-        },      
+        },
         {
           ...simpleTransaction,
           NAME: 'BondMature3y',
@@ -1111,7 +1495,7 @@ describe('bonds tests', () => {
           TO_ABSOLUTE: false,
           DATE: '2022',
           TYPE: bondMature,
-        },        
+        },
         {
           ...simpleTransaction,
           NAME: 'BondMature2y',
@@ -1122,7 +1506,7 @@ describe('bonds tests', () => {
           TO_ABSOLUTE: false,
           DATE: '2021',
           TYPE: bondMature,
-        },        
+        },
         {
           ...simpleTransaction,
           NAME: 'BondMature1y',
@@ -1146,16 +1530,86 @@ describe('bonds tests', () => {
     // printTestCodeForEvals(evals);
 
     expect(evals.length).toBe(374);
-    expectEvals(evals, 0, 'BMVBondTargetValue/Wed Jan 01 2020/cpi', 'Fri Dec 01 2017', 1, -1);
-    expectEvals(evals, 1, 'BMVBondTargetValue/Fri Jan 01 2021/cpi', 'Fri Dec 01 2017', 1, -1);
-    expectEvals(evals, 2, 'BMVBondTargetValue/Sat Jan 01 2022/cpi', 'Fri Dec 01 2017', 1, -1);
-    expectEvals(evals, 3, 'BMVBondTargetValue/Sun Jan 01 2023/cpi', 'Fri Dec 01 2017', 1, -1);
-    expectEvals(evals, 4, 'BMVBondTargetValue/Mon Jan 01 2024/cpi', 'Fri Dec 01 2017', 1, -1);
-    expectEvals(evals, 5, 'BMVBondTargetValue/Wed Jan 01 2025/cpi', 'Fri Dec 01 2017', 1, -1);
-    expectEvals(evals, 6, 'BMVBondTargetValue/Thu Jan 01 2026/cpi', 'Fri Dec 01 2017', 1, -1);
-    expectEvals(evals, 7, 'BMVBondTargetValue/Fri Jan 01 2027/cpi', 'Fri Dec 01 2017', 1, -1);
-    expectEvals(evals, 8, 'BMVBondTargetValue/Sat Jan 01 2028/cpi', 'Fri Dec 01 2017', 1, -1);
-    expectEvals(evals, 9, 'BMVBondTargetValue/Mon Jan 01 2029/cpi', 'Fri Dec 01 2017', 1, -1);
+    expectEvals(
+      evals,
+      0,
+      'BMVBondTargetValue/Wed Jan 01 2020/cpi',
+      'Fri Dec 01 2017',
+      1,
+      -1,
+    );
+    expectEvals(
+      evals,
+      1,
+      'BMVBondTargetValue/Fri Jan 01 2021/cpi',
+      'Fri Dec 01 2017',
+      1,
+      -1,
+    );
+    expectEvals(
+      evals,
+      2,
+      'BMVBondTargetValue/Sat Jan 01 2022/cpi',
+      'Fri Dec 01 2017',
+      1,
+      -1,
+    );
+    expectEvals(
+      evals,
+      3,
+      'BMVBondTargetValue/Sun Jan 01 2023/cpi',
+      'Fri Dec 01 2017',
+      1,
+      -1,
+    );
+    expectEvals(
+      evals,
+      4,
+      'BMVBondTargetValue/Mon Jan 01 2024/cpi',
+      'Fri Dec 01 2017',
+      1,
+      -1,
+    );
+    expectEvals(
+      evals,
+      5,
+      'BMVBondTargetValue/Wed Jan 01 2025/cpi',
+      'Fri Dec 01 2017',
+      1,
+      -1,
+    );
+    expectEvals(
+      evals,
+      6,
+      'BMVBondTargetValue/Thu Jan 01 2026/cpi',
+      'Fri Dec 01 2017',
+      1,
+      -1,
+    );
+    expectEvals(
+      evals,
+      7,
+      'BMVBondTargetValue/Fri Jan 01 2027/cpi',
+      'Fri Dec 01 2017',
+      1,
+      -1,
+    );
+    expectEvals(
+      evals,
+      8,
+      'BMVBondTargetValue/Sat Jan 01 2028/cpi',
+      'Fri Dec 01 2017',
+      1,
+      -1,
+    );
+    expectEvals(
+      evals,
+      9,
+      'BMVBondTargetValue/Mon Jan 01 2029/cpi',
+      'Fri Dec 01 2017',
+      1,
+      -1,
+    );
     expectEvals(evals, 10, 'BondTargetValue', 'Fri Jan 01 2021', 1, -1);
     expectEvals(evals, 11, 'Cash', 'Mon Jan 01 2018', 1000, -1);
     expectEvals(evals, 12, 'Bond', 'Mon Jan 01 2018', 1000, -1);
@@ -1163,7 +1617,6 @@ describe('bonds tests', () => {
     expectEvals(evals, 14, 'Cash', 'Thu Feb 01 2018', 1000, -1);
     expectEvals(evals, 15, 'Bond', 'Thu Feb 01 2018', 1000, -1);
 
-    
     expectEvals(evals, 36, 'Cash', 'Tue Jan 01 2019', 1000, -1);
     expectEvals(evals, 37, 'Bond', 'Tue Jan 01 2019', 1000, -1);
     expectEvals(evals, 38, 'Cash', 'Tue Jan 01 2019', 990, -1);
@@ -1410,7 +1863,7 @@ describe('bonds tests', () => {
           TO_ABSOLUTE: false,
           DATE: '2023',
           TYPE: bondMature,
-        },      
+        },
         {
           ...simpleTransaction,
           NAME: 'BondMature3y',
@@ -1421,7 +1874,7 @@ describe('bonds tests', () => {
           TO_ABSOLUTE: false,
           DATE: '2022',
           TYPE: bondMature,
-        },        
+        },
         {
           ...simpleTransaction,
           NAME: 'BondMature2y',
@@ -1432,7 +1885,7 @@ describe('bonds tests', () => {
           TO_ABSOLUTE: false,
           DATE: '2021',
           TYPE: bondMature,
-        },        
+        },
         {
           ...simpleTransaction,
           NAME: 'BondMature1y',
@@ -1456,16 +1909,86 @@ describe('bonds tests', () => {
     // printTestCodeForEvals(evals);
 
     expect(evals.length).toBe(535);
-    expectEvals(evals, 0, 'BMVBondTargetValue/Wed Jan 01 2020/cpi', 'Fri Dec 01 2017', 1.25, 2);
-    expectEvals(evals, 1, 'BMVBondTargetValue/Fri Jan 01 2021/cpi', 'Fri Dec 01 2017', 1.40, 2);
-    expectEvals(evals, 2, 'BMVBondTargetValue/Sat Jan 01 2022/cpi', 'Fri Dec 01 2017', 1.57, 2);
-    expectEvals(evals, 3, 'BMVBondTargetValue/Sun Jan 01 2023/cpi', 'Fri Dec 01 2017', 1.76, 2);
-    expectEvals(evals, 4, 'BMVBondTargetValue/Mon Jan 01 2024/cpi', 'Fri Dec 01 2017', 1.97, 2);
-    expectEvals(evals, 5, 'BMVBondTargetValue/Wed Jan 01 2025/cpi', 'Fri Dec 01 2017', 2.21, 2);
-    expectEvals(evals, 6, 'BMVBondTargetValue/Thu Jan 01 2026/cpi', 'Fri Dec 01 2017', 2.48, 2);
-    expectEvals(evals, 7, 'BMVBondTargetValue/Fri Jan 01 2027/cpi', 'Fri Dec 01 2017', 2.77, 2);
-    expectEvals(evals, 8, 'BMVBondTargetValue/Sat Jan 01 2028/cpi', 'Fri Dec 01 2017', 3.11, 2);
-    expectEvals(evals, 9, 'BMVBondTargetValue/Mon Jan 01 2029/cpi', 'Fri Dec 01 2017', 3.48, 2);
+    expectEvals(
+      evals,
+      0,
+      'BMVBondTargetValue/Wed Jan 01 2020/cpi',
+      'Fri Dec 01 2017',
+      1.25,
+      2,
+    );
+    expectEvals(
+      evals,
+      1,
+      'BMVBondTargetValue/Fri Jan 01 2021/cpi',
+      'Fri Dec 01 2017',
+      1.4,
+      2,
+    );
+    expectEvals(
+      evals,
+      2,
+      'BMVBondTargetValue/Sat Jan 01 2022/cpi',
+      'Fri Dec 01 2017',
+      1.57,
+      2,
+    );
+    expectEvals(
+      evals,
+      3,
+      'BMVBondTargetValue/Sun Jan 01 2023/cpi',
+      'Fri Dec 01 2017',
+      1.76,
+      2,
+    );
+    expectEvals(
+      evals,
+      4,
+      'BMVBondTargetValue/Mon Jan 01 2024/cpi',
+      'Fri Dec 01 2017',
+      1.97,
+      2,
+    );
+    expectEvals(
+      evals,
+      5,
+      'BMVBondTargetValue/Wed Jan 01 2025/cpi',
+      'Fri Dec 01 2017',
+      2.21,
+      2,
+    );
+    expectEvals(
+      evals,
+      6,
+      'BMVBondTargetValue/Thu Jan 01 2026/cpi',
+      'Fri Dec 01 2017',
+      2.48,
+      2,
+    );
+    expectEvals(
+      evals,
+      7,
+      'BMVBondTargetValue/Fri Jan 01 2027/cpi',
+      'Fri Dec 01 2017',
+      2.77,
+      2,
+    );
+    expectEvals(
+      evals,
+      8,
+      'BMVBondTargetValue/Sat Jan 01 2028/cpi',
+      'Fri Dec 01 2017',
+      3.11,
+      2,
+    );
+    expectEvals(
+      evals,
+      9,
+      'BMVBondTargetValue/Mon Jan 01 2029/cpi',
+      'Fri Dec 01 2017',
+      3.48,
+      2,
+    );
     expectEvals(evals, 10, 'BondTargetValue', 'Fri Jan 01 2021', 1, -1);
     expectEvals(evals, 11, 'Cash', 'Mon Jan 01 2018', 1000, -1);
     expectEvals(evals, 12, 'Bond', 'Mon Jan 01 2018', 1000, -1);
@@ -1477,15 +2000,15 @@ describe('bonds tests', () => {
     expectEvals(evals, 48, 'Cash', 'Tue Jan 01 2019', 1000, -1);
     expectEvals(evals, 49, 'Bond', 'Tue Jan 01 2019', 1000, -1);
     expectEvals(evals, 50, 'CPI.', 'Tue Jan 01 2019', 1.12, 2);
-    expectEvals(evals, 51, 'Cash', 'Tue Jan 01 2019', 987.46, 2);  // take out 12.54 ~ 10 * 1.25  for 2020
+    expectEvals(evals, 51, 'Cash', 'Tue Jan 01 2019', 987.46, 2); // take out 12.54 ~ 10 * 1.25  for 2020
     expectEvals(evals, 52, 'Bond', 'Tue Jan 01 2019', 1012.54, 2); // invest   12.54
-    expectEvals(evals, 53, 'Cash', 'Tue Jan 01 2019', 973.41, 2);  // take out 14.05 ~ 10 * 1.40  for 2021
+    expectEvals(evals, 53, 'Cash', 'Tue Jan 01 2019', 973.41, 2); // take out 14.05 ~ 10 * 1.40  for 2021
     expectEvals(evals, 54, 'Bond', 'Tue Jan 01 2019', 1026.59, 2); // invest   14.05
-    expectEvals(evals, 55, 'Cash', 'Tue Jan 01 2019', 957.67, 2);  // take out 15.74 ~ 10 * 1.57  for 2022
+    expectEvals(evals, 55, 'Cash', 'Tue Jan 01 2019', 957.67, 2); // take out 15.74 ~ 10 * 1.57  for 2022
     expectEvals(evals, 56, 'Bond', 'Tue Jan 01 2019', 1042.33, 2); // invest   15.74
-    expectEvals(evals, 57, 'Cash', 'Tue Jan 01 2019', 940.05, 2);  // take out 17.62 ~ 10 * 1.76  for 2023
+    expectEvals(evals, 57, 'Cash', 'Tue Jan 01 2019', 940.05, 2); // take out 17.62 ~ 10 * 1.76  for 2023
     expectEvals(evals, 58, 'Bond', 'Tue Jan 01 2019', 1059.95, 2); // invest   17.62
-    expectEvals(evals, 59, 'Cash', 'Tue Jan 01 2019', 920.31, 2);  // take out 19.74 ~ 10 * 1.97  for 2024
+    expectEvals(evals, 59, 'Cash', 'Tue Jan 01 2019', 920.31, 2); // take out 19.74 ~ 10 * 1.97  for 2024
     expectEvals(evals, 60, 'Bond', 'Tue Jan 01 2019', 1079.69, 2); // invest   19.74
     expectEvals(evals, 61, 'Cash', 'Fri Feb 01 2019', 920.31, 2);
     expectEvals(evals, 62, 'Bond', 'Fri Feb 01 2019', 1079.69, 2);
@@ -1493,8 +2016,8 @@ describe('bonds tests', () => {
     expectEvals(evals, 94, 'Cash', 'Wed Jan 01 2020', 920.31, 2);
     expectEvals(evals, 95, 'Bond', 'Wed Jan 01 2020', 1079.69, 2);
     expectEvals(evals, 96, 'CPI.', 'Wed Jan 01 2020', 1.25, 2); // matches the setting value
-    expectEvals(evals, 97, 'Cash', 'Wed Jan 01 2020', 898.20, 2); // take out 22.11 ~ 10 * 2.21  for 2025
-    expectEvals(evals, 98, 'Bond', 'Wed Jan 01 2020', 1101.80, 2);// invest   22.11
+    expectEvals(evals, 97, 'Cash', 'Wed Jan 01 2020', 898.2, 2); // take out 22.11 ~ 10 * 2.21  for 2025
+    expectEvals(evals, 98, 'Bond', 'Wed Jan 01 2020', 1101.8, 2); // invest   22.11
     expectEvals(evals, 99, 'Bond', 'Wed Jan 01 2020', 1089.25, 2); // release 12.55 ~ 10 * 1.25  for 2020
     expectEvals(evals, 100, 'Cash', 'Wed Jan 01 2020', 910.75, 2); // gain    12.55
     expectEvals(evals, 101, 'Cash', 'Sat Feb 01 2020', 910.75, 2);
@@ -1502,11 +2025,11 @@ describe('bonds tests', () => {
 
     expectEvals(evals, 134, 'Cash', 'Fri Jan 01 2021', 910.75, 2);
     expectEvals(evals, 135, 'Bond', 'Fri Jan 01 2021', 1089.25, 2);
-    expectEvals(evals, 136, 'CPI.', 'Fri Jan 01 2021', 1.40, 2); // matches the setting value
+    expectEvals(evals, 136, 'CPI.', 'Fri Jan 01 2021', 1.4, 2); // matches the setting value
     expectEvals(evals, 137, 'Cash', 'Fri Jan 01 2021', 885.99, 2); // take out 24.76 ~ 10 * 2.48 for 2026
-    expectEvals(evals, 138, 'Bond', 'Fri Jan 01 2021', 1114.01, 2);// invest   24.76
+    expectEvals(evals, 138, 'Bond', 'Fri Jan 01 2021', 1114.01, 2); // invest   24.76
     expectEvals(evals, 139, 'Bond', 'Fri Jan 01 2021', 1099.96, 2); // release 14.05 ~ 10 * 1.40  for 2021
-    expectEvals(evals, 140, 'Cash', 'Fri Jan 01 2021', 900.04, 2);  // gain    14.05
+    expectEvals(evals, 140, 'Cash', 'Fri Jan 01 2021', 900.04, 2); // gain    14.05
     expectEvals(evals, 141, 'Cash', 'Mon Feb 01 2021', 900.04, 2);
     expectEvals(evals, 142, 'Bond', 'Mon Feb 01 2021', 1099.96, 2);
 
@@ -1579,7 +2102,7 @@ describe('bonds tests', () => {
     expectEvals(evals, 450, 'Cash', 'Mon Jan 01 2029', 1000, -1); // Cash does not grow, Bond does not grow, total effect = 0
 
     done();
-  });  
+  });
 
   it('bond 5yr rolling plan with cpi', done => {
     const roi = {
@@ -1704,7 +2227,7 @@ describe('bonds tests', () => {
           TO_ABSOLUTE: false,
           DATE: '2023',
           TYPE: bondMature,
-        },      
+        },
         {
           ...simpleTransaction,
           NAME: 'BondMature3y',
@@ -1715,7 +2238,7 @@ describe('bonds tests', () => {
           TO_ABSOLUTE: false,
           DATE: '2022',
           TYPE: bondMature,
-        },        
+        },
         {
           ...simpleTransaction,
           NAME: 'BondMature2y',
@@ -1726,7 +2249,7 @@ describe('bonds tests', () => {
           TO_ABSOLUTE: false,
           DATE: '2021',
           TYPE: bondMature,
-        },        
+        },
         {
           ...simpleTransaction,
           NAME: 'BondMature1y',
@@ -1752,16 +2275,86 @@ describe('bonds tests', () => {
     // printTestCodeForEvals(evals);
 
     expect(evals.length).toBe(535);
-    expectEvals(evals, 0, 'BMVBondTargetValue/Wed Jan 01 2020/cpi', 'Fri Dec 01 2017', 1.25, 2);
-    expectEvals(evals, 1, 'BMVBondTargetValue/Fri Jan 01 2021/cpi', 'Fri Dec 01 2017', 1.40, 2);
-    expectEvals(evals, 2, 'BMVBondTargetValue/Sat Jan 01 2022/cpi', 'Fri Dec 01 2017', 1.57, 2);
-    expectEvals(evals, 3, 'BMVBondTargetValue/Sun Jan 01 2023/cpi', 'Fri Dec 01 2017', 1.76, 2);
-    expectEvals(evals, 4, 'BMVBondTargetValue/Mon Jan 01 2024/cpi', 'Fri Dec 01 2017', 1.97, 2);
-    expectEvals(evals, 5, 'BMVBondTargetValue/Wed Jan 01 2025/cpi', 'Fri Dec 01 2017', 2.21, 2);
-    expectEvals(evals, 6, 'BMVBondTargetValue/Thu Jan 01 2026/cpi', 'Fri Dec 01 2017', 2.48, 2);
-    expectEvals(evals, 7, 'BMVBondTargetValue/Fri Jan 01 2027/cpi', 'Fri Dec 01 2017', 2.77, 2);
-    expectEvals(evals, 8, 'BMVBondTargetValue/Sat Jan 01 2028/cpi', 'Fri Dec 01 2017', 3.11, 2);
-    expectEvals(evals, 9, 'BMVBondTargetValue/Mon Jan 01 2029/cpi', 'Fri Dec 01 2017', 3.48, 2);
+    expectEvals(
+      evals,
+      0,
+      'BMVBondTargetValue/Wed Jan 01 2020/cpi',
+      'Fri Dec 01 2017',
+      1.25,
+      2,
+    );
+    expectEvals(
+      evals,
+      1,
+      'BMVBondTargetValue/Fri Jan 01 2021/cpi',
+      'Fri Dec 01 2017',
+      1.4,
+      2,
+    );
+    expectEvals(
+      evals,
+      2,
+      'BMVBondTargetValue/Sat Jan 01 2022/cpi',
+      'Fri Dec 01 2017',
+      1.57,
+      2,
+    );
+    expectEvals(
+      evals,
+      3,
+      'BMVBondTargetValue/Sun Jan 01 2023/cpi',
+      'Fri Dec 01 2017',
+      1.76,
+      2,
+    );
+    expectEvals(
+      evals,
+      4,
+      'BMVBondTargetValue/Mon Jan 01 2024/cpi',
+      'Fri Dec 01 2017',
+      1.97,
+      2,
+    );
+    expectEvals(
+      evals,
+      5,
+      'BMVBondTargetValue/Wed Jan 01 2025/cpi',
+      'Fri Dec 01 2017',
+      2.21,
+      2,
+    );
+    expectEvals(
+      evals,
+      6,
+      'BMVBondTargetValue/Thu Jan 01 2026/cpi',
+      'Fri Dec 01 2017',
+      2.48,
+      2,
+    );
+    expectEvals(
+      evals,
+      7,
+      'BMVBondTargetValue/Fri Jan 01 2027/cpi',
+      'Fri Dec 01 2017',
+      2.77,
+      2,
+    );
+    expectEvals(
+      evals,
+      8,
+      'BMVBondTargetValue/Sat Jan 01 2028/cpi',
+      'Fri Dec 01 2017',
+      3.11,
+      2,
+    );
+    expectEvals(
+      evals,
+      9,
+      'BMVBondTargetValue/Mon Jan 01 2029/cpi',
+      'Fri Dec 01 2017',
+      3.48,
+      2,
+    );
     expectEvals(evals, 10, 'BondTargetValue', 'Fri Jan 01 2021', 1, -1);
     expectEvals(evals, 11, 'Cash', 'Mon Jan 01 2018', 1000, -1);
     expectEvals(evals, 12, 'Bond', 'Mon Jan 01 2018', 1000, -1);
@@ -1798,6 +2391,5 @@ describe('bonds tests', () => {
     */
 
     done();
-  });  
-
+  });
 });

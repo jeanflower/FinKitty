@@ -351,7 +351,7 @@ export function attemptRenameLong(
   if (oldSpecialWord !== newSpecialWord) {
     // log(`old = ${old}, replacement = ${replacement}`);
     // log(`oldSpecialWord = ${oldSpecialWord}, newSpecialWord = ${newSpecialWord}`);
-  if (oldSpecialWord !== '') {
+    if (oldSpecialWord !== '') {
       return `Must maintain special formatting using ${oldSpecialWord}`;
     } else {
       return `Must not introduce special formatting using ${newSpecialWord}`;
