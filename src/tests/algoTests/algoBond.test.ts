@@ -223,7 +223,7 @@ describe('bonds tests', () => {
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
 
-    // printTestCodeForEvals(evals);
+    printTestCodeForEvals(evals);
 
     expect(evals.length).toBe(44);
     expectEvals(evals, 0, 'bondInterest', 'Fri Dec 01 2017', 0, -1);
@@ -273,10 +273,10 @@ describe('bonds tests', () => {
     expectEvals(evals, 37, 'Bond', 'Mon Apr 01 2019', 1114.14, 2); // 114.14 = 100.00*(1.12^(14/12))
     expectEvals(evals, 38, 'Bond', 'Fri Apr 12 2019', 1000, -1);
     expectEvals(evals, 39, 'Cash', 'Fri Apr 12 2019', 1149.42, 2);
-    expectEvals(evals, 41, 'Cash', 'Wed May 01 2019', 1149.42, 2);
-    expectEvals(evals, 42, 'Bond', 'Wed May 01 2019', 1000, -1);
-    expectEvals(evals, 43, 'Cash', 'Sat Jun 01 2019', 1160.33, 2); //109.91*(1.12^(5/12)) + (1000-109.91)*(1.12^(17/12))
-    expectEvals(evals, 44, 'Bond', 'Sat Jun 01 2019', 1000, -1);
+    expectEvals(evals, 40, 'Cash', 'Wed May 01 2019', 1149.42, 2);
+    expectEvals(evals, 41, 'Bond', 'Wed May 01 2019', 1000, -1);
+    expectEvals(evals, 42, 'Cash', 'Sat Jun 01 2019', 1160.33, 2); //109.91*(1.12^(5/12)) + (1000-109.91)*(1.12^(17/12))
+    expectEvals(evals, 43, 'Bond', 'Sat Jun 01 2019', 1000, -1);
 
     done();
   });
@@ -1523,6 +1523,8 @@ describe('bonds tests', () => {
     };
     setSetting(model.settings, cpi, '0', constType);
     setSetting(model.settings, 'BondTargetValue', '1', constType);
+
+    log(`model ${JSON.stringify(model)}`);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
