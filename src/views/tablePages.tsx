@@ -28,6 +28,7 @@ import {
   viewDetail,
   viewType,
   reportView,
+  bondMaturity,
 } from '../localization/stringConstants';
 import {
   Asset,
@@ -463,7 +464,12 @@ function handleTransactionGridRowsUpdated(
     !parseFrom.checksOK &&
     !model.settings.find(s => {
       return s.NAME === gridData.FROM_VALUE;
-    })
+    }) &&
+     !(
+      gridData.FROM_VALUE.startsWith(bondMaturity) && 
+      model.settings.find(s => {
+        return s.NAME === gridData.FROM_VALUE.substring(bondMaturity.length);
+      }) !== undefined)
   ) {
     showAlert(
       `From value ${gridData.FROM_VALUE} should be a number or a number with % symbol`,
