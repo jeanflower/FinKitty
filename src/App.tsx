@@ -2219,7 +2219,10 @@ export class AppContent extends Component<AppProps, AppState> {
         <div className="addNewTransaction">
           <h4> Add a transaction </h4>
           <AddDeleteTransactionForm
-            checkFunction={checkTransaction}
+            checkFunction={reactAppComponent.options.checkModelOnEdit ? 
+              checkTransaction : 
+              () => { return ''; }
+            }
             submitFunction={submitTransaction}
             deleteFunction={deleteTransaction}
             submitTriggerFunction={submitTrigger}
@@ -2508,9 +2511,6 @@ export async function attemptRename(
   return message;
 }
 
-export function doCheckModelBeforeChange() {
-  return checkOverwrite();
-}
 export function doCheckBeforeOverwritingExistingData() {
   const result = checkOverwrite();
   log(`check overwrite = ${result}`);

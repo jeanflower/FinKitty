@@ -17,7 +17,6 @@ import { adjustableType } from '../localization/stringConstants';
 
 import { diffModels } from '../diffModels';
 import { checkData } from '../models/checks';
-import { doCheckModelBeforeChange } from '../App';
 import { minimalModel } from '../models/exampleModels';
 import { markForUndo, revertToUndoModel } from '../models/modelUtils';
 
