@@ -677,6 +677,66 @@ function usesSeparatedString(existing: string, checkWord: string) {
   return numMatches > 0;
 }
 
+function isDependentDate(dateName: string, dependent: string): boolean {
+  if (!dateName.startsWith(dependent)) {
+    // log(`${dateName} does not begin ${dependent}`);
+    return false;
+  }
+  const endDateName = dateName.substring(dependent.length);
+  if (!(endDateName.startsWith('+') || endDateName.startsWith('-'))) {
+    // log(`${dateName} does not have + or - after ${dependent}`);
+    return false;
+  }
+  const tailDateName = endDateName.substring(1);
+  const breakDown = getNumberAndWordParts(tailDateName);
+  if (breakDown.numberPart === undefined) {
+    // log(`${dateName} does not have number part after ${dependent}`);
+    return false;
+  }
+  const hasLetter =
+    breakDown.wordPart === 'm' ||
+    breakDown.wordPart === 'd' ||
+    breakDown.wordPart === 'y';
+  if (hasLetter) {
+    // log(`${dateName} is dependent upon ${dependent}`);
+  } else {
+    // log(`${dateName} does not have d/m/y after ${dependent}`);
+  }
+  return hasLetter;
+}
+
+export function hasDependentDate(t: Trigger, model: ModelData): boolean {
+  const name = t.NAME;
+  // log(`trigger name is ${name}`);
+  // is there a transaction date which begins with name
+  // and appends some date algebra
+  const dependentTrigger = model.triggers.find(t => {
+    return isDependentDate(t.DATE, name);
+  });
+  if (dependentTrigger !== undefined) {
+    return true;
+  }
+  const dependentTransaction = model.transactions.find(t => {
+    return isDependentDate(t.DATE, name);
+  });
+  if (dependentTransaction !== undefined) {
+    return true;
+  }
+  const dependentIncome = model.incomes.find(t => {
+    return isDependentDate(t.START, name);
+  });
+  if (dependentIncome !== undefined) {
+    return true;
+  }
+  const dependentExpense = model.expenses.find(t => {
+    return isDependentDate(t.START, name);
+  });
+  if (dependentExpense !== undefined) {
+    return true;
+  }
+  return false;
+}
+
 export function getSpecialWord(name: string, model: ModelData): string {
   if (name.startsWith(revalue)) {
     return revalue;
@@ -749,6 +809,16 @@ export function getSpecialWord(name: string, model: ModelData): string {
     }
     // I can rename this but I msut ensure same duration
     return durationEnding;
+  }
+  // account for date algebra with settings
+  const matchingTrigger = model.triggers.find(t => {
+    return t.NAME === name;
+  });
+  // log(`check for trigger with name ${name}`);
+  if (matchingTrigger !== undefined) {
+    if (hasDependentDate(matchingTrigger, model)) {
+      return 'dateAlgebra';
+    }
   }
   return '';
 }

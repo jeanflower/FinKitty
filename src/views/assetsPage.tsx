@@ -144,6 +144,7 @@ export function assetsDiv(
   model: ModelData,
   viewSettings: ViewSettings,
   showAlert: (arg0: string) => void,
+  doChecks: boolean,
   assetChartData: ChartData,
   todaysValues: Map<string, AssetVal>,
   getStartDate: (() => string) | undefined = undefined,
@@ -174,8 +175,7 @@ export function assetsDiv(
         'Asset data chart',
       )}
       {todaysAssetsTable(model, todaysValues)}
-      {assetsDivWithHeadings(model, showAlert)}
-
+      {assetsDivWithHeadings(model, showAlert, doChecks)}
       {collapsibleFragment(
         <div className="addNewAsset">
           <AddDeleteAssetForm

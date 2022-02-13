@@ -213,3 +213,8 @@ export const overview: ViewType = { lc: 'Overview' };
 
 export const defaultSourceMatcher = 'Buy|Sell';
 export const defaultSourceExcluder = '';
+
+export const evalModeOption = 'evalMode';
+export const checkModelOnEditOption = 'checkModelOnEdit';
+export const goToOverviewPageOption = 'goToOverviewPage';
+export const checkOverwriteOption = 'checkOverwrite';

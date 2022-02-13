@@ -56,6 +56,7 @@ import {
   makeCGTTag,
   makeNetIncomeTag,
   makeNetGainTag,
+  hasDependentDate,
 } from '../../stringUtils';
 import {
   Evaluation,
@@ -241,14 +242,25 @@ export function getTestEvaluations(
   todaysSettingValues: Map<string, SettingVal>;
 } {
   if (extraChecks) {
+    // only rename if new model makes sense
+    const doChecks = true;
+
     // hijack to try some renaming
     model.triggers.forEach(obj => {
+      // dont rename a trigger if there's a dependence
+      if (hasDependentDate(obj, model)) {
+        // dont attempt rename of a trigger if there's
+        // dependent date
+        // e.g. "start+1y"
+        // log(`don't rename trigger ${obj.NAME}`);
+        return;
+      }
       const oldName = obj.NAME;
-      let message = attemptRenameLong(model, oldName, 'abcd');
+      let message = attemptRenameLong(model, doChecks, oldName, 'abcd');
       if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
       }
-      message = attemptRenameLong(model, 'abcd', oldName);
+      message = attemptRenameLong(model, doChecks, 'abcd', oldName);
       if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
       }
@@ -270,11 +282,12 @@ export function getTestEvaluations(
       } else if (oldName.startsWith(crystallizedPension)) {
         newName = crystallizedPension + newName;
       }
-      let message = attemptRenameLong(model, oldName, newName);
+
+      let message = attemptRenameLong(model, doChecks, oldName, newName);
       if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
       }
-      message = attemptRenameLong(model, newName, oldName);
+      message = attemptRenameLong(model, doChecks, newName, oldName);
       if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
       }
@@ -289,11 +302,11 @@ export function getTestEvaluations(
       } else if (oldName.startsWith(pensionTransfer)) {
         newName = pensionTransfer + newName;
       }
-      let message = attemptRenameLong(model, oldName, newName);
+      let message = attemptRenameLong(model, doChecks, oldName, newName);
       if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
       }
-      message = attemptRenameLong(model, newName, oldName);
+      message = attemptRenameLong(model, doChecks, newName, oldName);
       if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
       }
@@ -302,11 +315,11 @@ export function getTestEvaluations(
     });
     model.expenses.forEach(obj => {
       const oldName = obj.NAME;
-      let message = attemptRenameLong(model, oldName, 'abcd');
+      let message = attemptRenameLong(model, doChecks, oldName, 'abcd');
       if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
       }
-      message = attemptRenameLong(model, 'abcd', oldName);
+      message = attemptRenameLong(model, doChecks, 'abcd', oldName);
       if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
       }
@@ -349,11 +362,11 @@ export function getTestEvaluations(
       }
       // log(`transaction oldName ${obj.NAME} -> ${newName}`);
 
-      let message = attemptRenameLong(model, oldName, newName);
+      let message = attemptRenameLong(model, doChecks, oldName, newName);
       if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
       }
-      message = attemptRenameLong(model, newName, oldName);
+      message = attemptRenameLong(model, doChecks, newName, oldName);
       if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
       }
@@ -370,7 +383,7 @@ export function getTestEvaluations(
       }
       const oldName = obj.NAME;
       const newName = 'abcd';
-      let message = attemptRenameLong(model, oldName, newName);
+      let message = attemptRenameLong(model, doChecks, oldName, newName);
       let renamedToNew = true;
       if (message.length > 0) {
         if (message === 'Must maintain special formatting using BMV') {
@@ -380,7 +393,7 @@ export function getTestEvaluations(
         }
       }
       if (renamedToNew) {
-        message = attemptRenameLong(model, newName, oldName);
+        message = attemptRenameLong(model, doChecks, newName, oldName);
         if (message.length > 0) {
           throw new Error(`rename failed with message '${message}'`);
         }

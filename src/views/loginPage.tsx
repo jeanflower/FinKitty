@@ -13,7 +13,7 @@ export function navbarContent(isWaiting: boolean, rhContent: () => any) {
   if (printDebug()) {
     log(`drawing navbar content`);
   }
-  log(`drawing navbar content; isWaiting = ${isWaiting}`);
+  // log(`drawing navbar content; isWaiting = ${isWaiting}`);
   return (
     <Navbar expand="lg" bg="light" sticky="top">
       <Navbar.Brand href="#home" id="finkitty-brand">

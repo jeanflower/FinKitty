@@ -5,6 +5,12 @@ import { Input } from './Input';
 import { replaceWithModel } from '../../App';
 import { makeModelFromJSON } from '../../models/modelUtils';
 import { makeButton } from './Button';
+import {
+  checkModelOnEditOption,
+  checkOverwriteOption,
+  evalModeOption,
+  goToOverviewPageOption,
+} from '../../localization/stringConstants';
 
 interface ReplaceWithJSONFormState {
   JSON: string;
@@ -15,10 +21,8 @@ interface ReplaceWithJSONFormProps {
   userID: string;
   showAlert: (arg0: string) => void;
   setReportKey: (args0: string) => void;
-  toggleCheckOverwrite: () => void;
-  toggleOverview: () => void;
-  doCheckOverwrite: () => boolean;
-  eval: () => void;
+  toggleOption: (type: string) => void;
+  getOption: (type: string) => boolean;
 }
 
 export class ReplaceWithJSONForm extends Component<
@@ -51,6 +55,14 @@ export class ReplaceWithJSONForm extends Component<
     this.replace(e);
   }
 
+  /*
+Options to toggle are
+  checkOverwriteOption
+  goToOverviewPageOption
+  checkModelOnEditOption
+  evalModeOption
+*/
+
   public render() {
     return (
       <form className="container-fluid" onSubmit={this.replace}>
@@ -66,7 +78,9 @@ export class ReplaceWithJSONForm extends Component<
           onSubmit={this.handleSubmit}
         />
         {makeButton(
-          'toggle evaluate on definition change',
+          this.props.getOption(evalModeOption)
+            ? `don't refresh charts on model edit`
+            : 'do refresh charts on model edit',
           async (e: FormEvent<Element>) => {
             await this.setState({
               JSON: 'eval',
@@ -79,20 +93,24 @@ export class ReplaceWithJSONForm extends Component<
         )}
         <br></br>
         {makeButton(
-          'toggle jump to overview',
+          this.props.getOption(checkModelOnEditOption)
+            ? `don't check model on edit`
+            : 'do check model on edit',
           async (e: FormEvent<Element>) => {
             await this.setState({
-              JSON: 'overview',
+              JSON: checkModelOnEditOption,
             });
             this.replace(e);
           },
-          'toggleJTO',
-          'toggleJTO',
+          'toggleCMOE',
+          'toggleCMOE',
           'outline-secondary',
         )}
         <br></br>
         {makeButton(
-          'toggle check before overwrite',
+          this.props.getOption(checkOverwriteOption)
+            ? `don't check before overwrite`
+            : 'do check before overwrite',
           async (e: FormEvent<Element>) => {
             await this.setState({
               JSON: 'overwrite',
@@ -101,6 +119,21 @@ export class ReplaceWithJSONForm extends Component<
           },
           'toggleCBO',
           'toggleCBO',
+          'outline-secondary',
+        )}
+        <br></br>
+        {makeButton(
+          this.props.getOption(goToOverviewPageOption)
+            ? `don't jump to overview page when selecting a model`
+            : `do jump to overview page when selecting a model`,
+          async (e: FormEvent<Element>) => {
+            await this.setState({
+              JSON: 'overview',
+            });
+            this.replace(e);
+          },
+          'toggleJTO',
+          'toggleJTO',
           'outline-secondary',
         )}
       </form>
@@ -115,6 +148,7 @@ export class ReplaceWithJSONForm extends Component<
     const reportStarter = 'report:';
     const overwriteWord = 'overwrite';
     const gotoOverview = 'overview';
+    const checkModelOnEdit = checkModelOnEditOption;
     const evalWord = 'eval';
 
     // log(`modelName from props is ${modelName}`);
@@ -124,18 +158,32 @@ export class ReplaceWithJSONForm extends Component<
       this.setState({ JSON: '' });
       return;
     }
+
+    /*
+Options to toggle are
+ checkOverwriteOption
+  goToOverviewPageOption
+  checkModelOnEditOption
+  'evalMode'
+*/
+
     if (JSON === overwriteWord) {
-      this.props.toggleCheckOverwrite();
+      this.props.toggleOption(checkOverwriteOption);
       this.setState({ JSON: '' });
       return;
     }
     if (JSON === evalWord) {
-      this.props.eval();
+      this.props.toggleOption(evalModeOption);
       this.setState({ JSON: '' });
       return;
     }
     if (JSON === gotoOverview) {
-      this.props.toggleOverview();
+      this.props.toggleOption(goToOverviewPageOption);
+      this.setState({ JSON: '' });
+      return;
+    }
+    if (JSON === checkModelOnEdit) {
+      this.props.toggleOption(checkModelOnEditOption);
       this.setState({ JSON: '' });
       return;
     }
@@ -154,7 +202,7 @@ export class ReplaceWithJSONForm extends Component<
     });
     if (
       !alreadyExists ||
-      !this.props.doCheckOverwrite() ||
+      !this.props.getOption('checkOverwrite') ||
       window.confirm(
         `will replace ${modelName} which already exists, you sure?`,
       )

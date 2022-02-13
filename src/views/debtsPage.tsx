@@ -130,6 +130,7 @@ export function debtsDiv(
   model: ModelData,
   viewSettings: ViewSettings,
   showAlert: (arg0: string) => void,
+  doChecks: boolean,
   debtChartData: ChartData,
   todaysValues: Map<string, DebtVal>,
   getStartDate: (() => string) | undefined = undefined,
@@ -160,7 +161,7 @@ export function debtsDiv(
         'Debts data chart',
       )}
       {todaysDebtsTable(model, todaysValues)}
-      {debtsDivWithHeadings(model, showAlert)}
+      {debtsDivWithHeadings(model, showAlert, doChecks)}
       {collapsibleFragment(
         <div className="addNewDebt">
           <AddDeleteDebtForm

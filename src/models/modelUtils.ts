@@ -340,33 +340,37 @@ export function applyRedoToModel(model: ModelData): boolean {
 }
 export function attemptRenameLong(
   model: ModelData,
+  doChecks: boolean,
   old: string,
   replacement: string,
 ): string {
   // log(`attempt rename from ${old} to ${replacement}`);
 
-  // prevent a change which alters a special word
-  const oldSpecialWord = getSpecialWord(old, model);
-  const newSpecialWord = getSpecialWord(replacement, model);
-  if (oldSpecialWord !== newSpecialWord) {
-    // log(`old = ${old}, replacement = ${replacement}`);
-    // log(`oldSpecialWord = ${oldSpecialWord}, newSpecialWord = ${newSpecialWord}`);
-    if (oldSpecialWord !== '') {
-      return `Must maintain special formatting using ${oldSpecialWord}`;
-    } else {
-      return `Must not introduce special formatting using ${newSpecialWord}`;
+  if (doChecks) {
+    // prevent a change which alters a special word
+    const oldSpecialWord = getSpecialWord(old, model);
+    const newSpecialWord = getSpecialWord(replacement, model);
+    if (oldSpecialWord !== newSpecialWord) {
+      // log(`old = ${old}, replacement = ${replacement}`);
+      // log(`oldSpecialWord = ${oldSpecialWord}, newSpecialWord = ${newSpecialWord}`);
+      if (oldSpecialWord !== '') {
+        return `Must maintain special formatting using ${oldSpecialWord}`;
+      } else {
+        return `Must not introduce special formatting using ${newSpecialWord}`;
+      }
     }
-  }
-  // prevent a change which clashes with an existing word
-  let message = checkForWordClashInModel(model, replacement, 'already');
-  if (message.length > 0) {
-    // log(`found word clash ${message}`);
-    return message;
+    // prevent a change which clashes with an existing word
+    const message = checkForWordClashInModel(model, replacement, 'already');
+    if (message.length > 0) {
+      // log(`found word clash ${message}`);
+      return message;
+    }
   }
 
   // log(`get ready to make changes, be ready to undo...`);
   // be ready to undo
   markForUndo(model);
+  log(`making changes to nodel... `);
   model.settings.forEach(obj => {
     obj.NAME = replaceWholeString(obj.NAME, old, replacement);
     obj.VALUE = replaceNumberValueString(obj.VALUE, old, replacement);
@@ -413,19 +417,23 @@ export function attemptRenameLong(
     obj.DATE = replaceWholeString(obj.DATE, old, replacement);
     obj.STOP_DATE = replaceWholeString(obj.STOP_DATE, old, replacement);
   });
-  message = checkForWordClashInModel(model, old, 'still');
+  const message = checkForWordClashInModel(model, old, 'still');
   if (message.length > 0) {
     // log(`old word still present in adjusted model`);
     revertToUndoModel(model);
     return message;
   }
-  const checkResult = checkData(model);
-  if (checkResult !== '') {
-    // log(`revert adjusted model`);
-    revertToUndoModel(model);
-    return checkResult;
+  if (doChecks) {
+    const checkResult = checkData(model);
+    if (checkResult !== '') {
+      // log(`revert adjusted model`);
+      revertToUndoModel(model);
+      return checkResult;
+    } else {
+      // log(`save adjusted model`);
+      return '';
+    }
   } else {
-    // log(`save adjusted model`);
     return '';
   }
 }

@@ -140,6 +140,7 @@ export function incomesDiv(
   model: ModelData,
   viewSettings: ViewSettings,
   showAlert: (arg0: string) => void,
+  doChecks: boolean,
   incomesChartData: ChartData,
   todaysValues: Map<string, IncomeVal>,
   getStartDate: (() => string) | undefined = undefined,
@@ -169,10 +170,11 @@ export function incomesDiv(
         'Incomes data chart',
       )}
       {todaysIncomesTable(model, todaysValues)}
-      {incomesTableDivWithHeading(model, showAlert)}
+      {incomesTableDivWithHeading(model, showAlert, doChecks)}
       {transactionFilteredTable(
         model,
         showAlert,
+        doChecks,
         revalueInc,
         'Income revaluations',
       )}

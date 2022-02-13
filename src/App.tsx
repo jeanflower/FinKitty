@@ -51,6 +51,8 @@ import {
   defaultSourceExcluder,
   bondInvest,
   bondMature,
+  evalModeOption,
+  checkModelOnEditOption,
   //  pension,
   //  crystallizedPension,
 } from './localization/stringConstants';
@@ -426,22 +428,10 @@ function getExampleModel(modelString: string) {
 }
 
 function showAlert(text: string) {
-  // log(`setState for alert update`);
+  // log(`setState for alert update : ${text}`);
   reactAppComponent.setState({
     alertText: text,
   });
-}
-
-function toggleOption(type: string) {
-  if (reactAppComponent) {
-    log(
-      `before toggle reactAppComponent.state.${type} = ${reactAppComponent.options[type]}`,
-    );
-    reactAppComponent.options[type] = !reactAppComponent.options[type];
-    log(`after toggle state has ${type} is ${reactAppComponent.options[type]}`);
-  } else {
-    alert(`error: data not ready to set ${type} mode`);
-  }
 }
 
 async function getModel(): Promise<{
@@ -639,6 +629,11 @@ export async function refreshDataInternal(
   refreshChart: boolean,
   sourceID: number,
 ) {
+  if (!evalMode()) {
+    log('skip evaluations and chart refresh - evalMode = false');
+    reactAppComponent.setState({ ...reactAppComponent.state });
+    return;
+  }
   if (printDebug()) {
     log(`entering refreshDataInternal from sourceID ${sourceID}`);
   }
@@ -672,7 +667,7 @@ export async function refreshDataInternal(
     modelNames = reactAppComponent.state.modelNamesData;
     model = reactAppComponent.state.modelData;
   } else {
-    log(`refresh the model - get the model and recalculate values`);
+    // log(`refresh the model - get the model and recalculate values`);
     const x = await getModel();
     if (x.model === undefined) {
       return;
@@ -693,26 +688,25 @@ export async function refreshDataInternal(
     if (refreshModel) {
       viewSettings.setModel(model);
     }
-    if (evalMode()) {
-      let reporter: ReportValueChecker = () =>
-        //name: string,
-        //val: number | string,
-        //date: Date,
-        //source: string,
-        {
-          return false;
-        };
-      if (!getDisplay(reportView)) {
-        // log(`don't compute report`);
-      } else {
-        // log(`create the report data`);
-        reporter = getReporter(model, viewSettings);
-      }
-      // go and do the actual modeling, the calculations
-      evaluationsAndVals = getEvaluations(model, reporter);
-
-      // log(`evaluationsAndVals.reportData.length = ${evaluationsAndVals.reportData.length}`);
+    // log(`go to make evaluations...`);
+    let reporter: ReportValueChecker = () =>
+      //name: string,
+      //val: number | string,
+      //date: Date,
+      //source: string,
+      {
+        return false;
+      };
+    if (!getDisplay(reportView)) {
+      // log(`don't compute report`);
+    } else {
+      // log(`create the report data`);
+      reporter = getReporter(model, viewSettings);
     }
+    // go and do the actual modeling, the calculations
+    evaluationsAndVals = getEvaluations(model, reporter);
+
+    // log(`evaluationsAndVals.reportData.length = ${evaluationsAndVals.reportData.length}`);
   }
   if (refreshModel || refreshChart) {
     // log(`refresh model or chart data`);
@@ -1038,7 +1032,9 @@ export async function submitNewSetting(
 }
 
 export function toggle(type: ViewType, sourceID: number) {
-  log(`toggle called from ${sourceID}`);
+  if (printDebug()) {
+    log(`toggle called from ${sourceID}`);
+  }
   if (reactAppComponent === undefined) {
     return;
   }
@@ -1082,11 +1078,54 @@ function checkModelData(givenModel: ModelData): string {
   }
 }
 
+/*
+Options to toggle are
+  checkOverwriteOption
+  goToOverviewPageOption
+  checkModelOnEditOption
+  evalModeOption
+*/
+
+function toggleOption(type: string) {
+  if (reactAppComponent) {
+    // log(
+    //   `before toggle reactAppComponent.state.${type} = `
+    //   +`${reactAppComponent.options[type]}`,
+    // );
+    reactAppComponent.options[type] = !reactAppComponent.options[type];
+    // log(`after toggle state has ${type} is ${reactAppComponent.options[type]}`);
+
+    // when we turn checks back on, check the model
+    if (type === checkModelOnEditOption && reactAppComponent.options[type]) {
+      const response = checkModelData(reactAppComponent.state.modelData);
+      // log(`setState for check result alert`);
+      reactAppComponent.setState({
+        alertText: response,
+      });
+    }
+
+    // when we turn chart refresh back on, refresh the charts
+    if (type === evalModeOption && reactAppComponent.options[type]) {
+      refreshData(
+        true, // refreshModel
+        true, // refreshChart
+        999, //sourceID
+      );
+    }
+  } else {
+    alert(`error: data not ready to set ${type} mode`);
+  }
+}
+function getOption(type: string): boolean {
+  return reactAppComponent.options[type];
+}
+
 export async function deleteItemFromModel(
   name: string,
   itemList: Item[],
   modelName: string,
   model: ModelData,
+  doChecks: boolean,
 ): Promise<boolean> {
   //log(`delete item ${name}`);
   //log(`before itemList ${itemList.map((i)=>{return i.NAME})}`);
@@ -1102,17 +1141,19 @@ export async function deleteItemFromModel(
     itemList.splice(idx, 1);
     // log(`after delete itemList = ${showObj(itemList)}`);
 
-    const checkResponse = checkData(model);
-    if (checkResponse !== '') {
-      const response = `edited  model fails checks :${checkResponse}', reverting`;
-      // log(`setState for delete item alert`);
-      reactAppComponent.setState({
-        alertText: response,
-      });
-      itemList.splice(idx, 0, oldItem);
-      // log(`after putback itemList = ${showObj(itemList)}`);
-      revertToUndoModel(model);
-      return false;
+    if (doChecks) {
+      const checkResponse = checkData(model);
+      if (checkResponse !== '') {
+        const response = `edited  model fails checks :${checkResponse}', reverting`;
+        // log(`setState for delete item alert`);
+        reactAppComponent.setState({
+          alertText: response,
+        });
+        itemList.splice(idx, 0, oldItem);
+        // log(`after putback itemList = ${showObj(itemList)}`);
+        revertToUndoModel(model);
+        return false;
+      }
     }
 
     //log(`after itemList  ${itemList.map((i)=>{return i.NAME})}`);
@@ -1134,6 +1175,7 @@ export async function deleteTrigger(name: string) {
     reactAppComponent.state.modelData.triggers,
     modelName,
     reactAppComponent.state.modelData,
+    reactAppComponent.options.checkModelOnEdit,
   );
 }
 
@@ -1143,6 +1185,7 @@ export async function deleteAsset(name: string) {
     reactAppComponent.state.modelData.assets,
     modelName,
     reactAppComponent.state.modelData,
+    reactAppComponent.options.checkModelOnEdit,
   );
 }
 
@@ -1152,6 +1195,7 @@ export async function deleteTransaction(name: string) {
     reactAppComponent.state.modelData.transactions,
     modelName,
     reactAppComponent.state.modelData,
+    reactAppComponent.options.checkModelOnEdit,
   );
 }
 
@@ -1161,6 +1205,7 @@ export async function deleteExpense(name: string) {
     reactAppComponent.state.modelData.expenses,
     modelName,
     reactAppComponent.state.modelData,
+    reactAppComponent.options.checkModelOnEdit,
   );
 }
 
@@ -1170,6 +1215,7 @@ export async function deleteIncome(name: string) {
     reactAppComponent.state.modelData.incomes,
     modelName,
     reactAppComponent.state.modelData,
+    reactAppComponent.options.checkModelOnEdit,
   );
 }
 
@@ -1179,6 +1225,7 @@ export async function deleteSetting(name: string): Promise<boolean> {
     reactAppComponent.state.modelData.settings,
     modelName,
     reactAppComponent.state.modelData,
+    reactAppComponent.options.checkModelOnEdit,
   );
 }
 
@@ -1370,6 +1417,7 @@ export class AppContent extends Component<AppProps, AppState> {
       goToOverviewPage: true,
       checkOverwrite: true,
       evalMode: true,
+      checkModelOnEdit: true,
     };
 
     refreshData(
@@ -1383,27 +1431,16 @@ export class AppContent extends Component<AppProps, AppState> {
     //log('in componentWillUnmount');
     //window.removeEventListener('beforeunload', this.handleUnload);
   }
-  /*
-  public handleUnload(e) {
-    //log('in handleUnload');
-    if (isDirty) {
-      const message = 'o/';
-
-      (e || window.event).returnValue = message; //Gecko + IE
-      return message;
-    }
-  }
-*/
   public componentDidMount() {
     //log('in componentDidMount');
     toggle(
       homeView,
-      27, //sourceID
+      17, //sourceID
     );
     refreshData(
       true, // refreshModel = true,
       true, // refreshChart = true,
-      25, //sourceID
+      18, //sourceID
     );
     //window.addEventListener('beforeunload', this.handleUnload);
   }
@@ -1501,7 +1538,7 @@ export class AppContent extends Component<AppProps, AppState> {
         updateSettingValue(roiEnd, newDate);
       };
 
-      log(`report is length ${this.state.reportData.length}`);
+      // log(`report is length ${this.state.reportData.length}`);
 
       return (
         <>
@@ -1512,6 +1549,7 @@ export class AppContent extends Component<AppProps, AppState> {
               this.state.modelData,
               this.state.viewState,
               showAlert,
+              this.options.checkModelOnEdit,
               this.state.assetChartData,
               this.state.debtChartData,
               this.state.expensesChartData,
@@ -1530,6 +1568,7 @@ export class AppContent extends Component<AppProps, AppState> {
               this.state.modelData,
               this.state.viewState,
               showAlert,
+              this.options.checkModelOnEdit,
               this.state.incomesChartData,
               this.state.todaysIncomeValues,
               getStartDate,
@@ -1541,6 +1580,7 @@ export class AppContent extends Component<AppProps, AppState> {
               this.state.modelData,
               this.state.viewState,
               showAlert,
+              this.options.checkModelOnEdit,
               this.state.expensesChartData,
               this.state.todaysExpenseValues,
               getStartDate,
@@ -1552,6 +1592,7 @@ export class AppContent extends Component<AppProps, AppState> {
               this.state.modelData,
               this.state.viewState,
               showAlert,
+              this.options.checkModelOnEdit,
               this.state.assetChartData,
               this.state.todaysAssetValues,
               getStartDate,
@@ -1563,6 +1604,7 @@ export class AppContent extends Component<AppProps, AppState> {
               this.state.modelData,
               this.state.viewState,
               showAlert,
+              this.options.checkModelOnEdit,
               this.state.debtChartData,
               this.state.todaysDebtValues,
               getStartDate,
@@ -1649,7 +1691,7 @@ export class AppContent extends Component<AppProps, AppState> {
           if (goToOverviewPage()) {
             await toggle(
               overview,
-              999, //sourceID
+              19, //sourceID
             );
           }
         }
@@ -1729,7 +1771,7 @@ export class AppContent extends Component<AppProps, AppState> {
       await refreshData(
         true, // refreshModel = true,
         true, // refreshChart = true,
-        17, //sourceID
+        20, //sourceID
       );
     }
   }
@@ -1792,7 +1834,7 @@ export class AppContent extends Component<AppProps, AppState> {
         if (goToOverviewPage()) {
           await toggle(
             overview,
-            999, //sourceID
+            21, //sourceID
           );
         }
         return true;
@@ -1819,7 +1861,7 @@ export class AppContent extends Component<AppProps, AppState> {
             refreshData(
               true, // refreshModel = true,
               true, // refreshChart = true,
-              18, //sourceID
+              22, //sourceID
             );
           }}
           showAlert={showAlert}
@@ -1933,16 +1975,8 @@ export class AppContent extends Component<AppProps, AppState> {
           userID={userID}
           showAlert={showAlert}
           setReportKey={setReportKey}
-          toggleCheckOverwrite={() => {
-            return toggleOption('checkOverwrite');
-          }}
-          toggleOverview={() => {
-            return toggleOption('goToOverviewPage');
-          }}
-          doCheckOverwrite={checkOverwrite}
-          eval={() => {
-            return toggleOption('evalMode');
-          }}
+          toggleOption={toggleOption}
+          getOption={getOption}
         />
       </>
     );
@@ -1973,7 +2007,7 @@ export class AppContent extends Component<AppProps, AppState> {
                     if (goToOverviewPage()) {
                       await toggle(
                         overview,
-                        999, //sourceID
+                        23, //sourceID
                       );
                     }
                   }
@@ -2067,6 +2101,7 @@ export class AppContent extends Component<AppProps, AppState> {
             this.state.modelData,
             this.state.viewState,
             showAlert,
+            this.options.checkModelOnEdit,
           )}
           {this.todaysSettingsTable(model, todaysValues)}
           <p />
@@ -2109,7 +2144,11 @@ export class AppContent extends Component<AppProps, AppState> {
 
     return (
       <div className="ml-3">
-        {triggersTableDivWithHeading(this.state.modelData, showAlert)}
+        {triggersTableDivWithHeading(
+          this.state.modelData,
+          showAlert,
+          this.options.checkModelOnEdit,
+        )}
         <p />
         {collapsibleFragment(
           <div className="addNewTrigger">
@@ -2139,24 +2178,28 @@ export class AppContent extends Component<AppProps, AppState> {
         {transactionFilteredTable(
           this.state.modelData,
           showAlert,
+          this.options.checkModelOnEdit,
           custom,
           'Custom transactions',
         )}
         {transactionFilteredTable(
           this.state.modelData,
           showAlert,
+          this.options.checkModelOnEdit,
           autogen,
           'Auto-generated transactions',
         )}
         {transactionFilteredTable(
           this.state.modelData,
           showAlert,
+          this.options.checkModelOnEdit,
           bondInvest,
           'Investments into bonds',
         )}
         {transactionFilteredTable(
           this.state.modelData,
           showAlert,
+          this.options.checkModelOnEdit,
           bondMature,
           'Maturities of bonds',
         )}
@@ -2240,7 +2283,7 @@ export class AppContent extends Component<AppProps, AppState> {
             event.persist();
             toggle(
               view,
-              26, //sourceID
+              24, //sourceID
             );
           },
           view.lc,
@@ -2294,7 +2337,7 @@ export class AppContent extends Component<AppProps, AppState> {
           refreshData(
             true, // refreshModel = true,
             true, // refreshChart = true,
-            19, //sourceID
+            25, //sourceID
           );
         }
       },
@@ -2357,7 +2400,7 @@ export class AppContent extends Component<AppProps, AppState> {
           refreshData(
             true, // refreshModel = true,
             true, // refreshChart = true,
-            20, //sourceID
+            26, //sourceID
           );
         }
       },
@@ -2397,7 +2440,7 @@ export class AppContent extends Component<AppProps, AppState> {
         refreshData(
           true, // refreshModel = true,
           true, // refreshChart = true,
-          21, //sourceID
+          27, //sourceID
         );
       },
       `btn-save-model`,
@@ -2433,10 +2476,11 @@ export class AppContent extends Component<AppProps, AppState> {
 
 export async function attemptRename(
   model: ModelData,
+  doChecks: boolean,
   old: string,
   replacement: string,
 ): Promise<string> {
-  const message = attemptRenameLong(model, old, replacement);
+  const message = attemptRenameLong(model, doChecks, old, replacement);
   // log(`message from attemptRenameLong is ${message}`);
   if (message === '') {
     // log(`message is empty, go to refreshData`);
@@ -2444,7 +2488,7 @@ export async function attemptRename(
     refreshData(
       true, // refreshModel = true,
       true, // refreshChart = true,
-      22, //sourceID
+      28, //sourceID
     );
   } else {
     showAlert(message);

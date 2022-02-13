@@ -130,6 +130,7 @@ export function collapsibleFragment(
 function handleExpenseGridRowsUpdated(
   model: ModelData,
   showAlert: (arg0: string) => void,
+  doChecks: boolean,
   args: any,
 ) {
   // log('handleExpenseGridRowsUpdated', arguments);
@@ -137,21 +138,23 @@ function handleExpenseGridRowsUpdated(
   // log('old expense '+showObj(expense));
   if (args[0].cellKey === 'NAME') {
     if (expense.NAME !== args[0].updated.NAME) {
-      const parsed = getNumberAndWordParts(args[0].updated.NAME);
-      if (parsed.numberPart !== undefined) {
-        showAlert(`Don't name an expense beginning with a number`);
-        return;
+      if (doChecks) {
+        const parsed = getNumberAndWordParts(args[0].updated.NAME);
+        if (parsed.numberPart !== undefined) {
+          showAlert(`Don't name an expense beginning with a number`);
+          return;
+        }
+        const clashCheck = checkForWordClashInModel(
+          model,
+          args[0].updated.NAME,
+          'already',
+        );
+        if (clashCheck !== '') {
+          showAlert(clashCheck);
+          return;
+        }
       }
-      const clashCheck = checkForWordClashInModel(
-        model,
-        args[0].updated.NAME,
-        'already',
-      );
-      if (clashCheck !== '') {
-        showAlert(clashCheck);
-        return;
-      }
-      attemptRename(model, expense.NAME, args[0].updated.NAME);
+      attemptRename(model, doChecks, expense.NAME, args[0].updated.NAME);
     }
     return;
   }
@@ -162,15 +165,37 @@ function handleExpenseGridRowsUpdated(
   const parsedGrowsWithCPI = makeBooleanFromYesNo(expense.GROWS_WITH_CPI);
   const parsedValue = makeCashValueFromString(expense.VALUE);
   const parsedGrowth = makeGrowthFromString(expense.GROWTH, model.settings);
-  if (!parsedGrowsWithCPI.checksOK) {
-    showAlert("Whether expense grows with CPI should be 'y' or 'n'");
-    expense[args[0].cellKey] = oldValue;
-  } else if (!parsedValue.checksOK) {
-    showAlert(`Value ${expense.VALUE} can't be understood as a cash value`);
-    expense[args[0].cellKey] = oldValue;
-  } else if (!parsedGrowth.checksOK) {
-    showAlert(`Value ${expense.GROWTH} can't be understood as a growth}`);
-    expense[args[0].cellKey] = oldValue;
+  if (doChecks) {
+    if (!parsedGrowsWithCPI.checksOK) {
+      showAlert("Whether expense grows with CPI should be 'y' or 'n'");
+      expense[args[0].cellKey] = oldValue;
+    } else if (!parsedValue.checksOK) {
+      showAlert(`Value ${expense.VALUE} can't be understood as a cash value`);
+      expense[args[0].cellKey] = oldValue;
+    } else if (!parsedGrowth.checksOK) {
+      showAlert(`Value ${expense.GROWTH} can't be understood as a growth}`);
+      expense[args[0].cellKey] = oldValue;
+    } else {
+      const expenseForSubmission: Expense = {
+        NAME: expense.NAME,
+        CATEGORY: expense.CATEGORY,
+        START: expense.START,
+        END: expense.END,
+        VALUE: `${parsedValue.value}`,
+        VALUE_SET: expense.VALUE_SET,
+        GROWTH: parsedGrowth.value,
+        CPI_IMMUNE: !parsedGrowsWithCPI.value,
+        RECURRENCE: expense.RECURRENCE,
+      };
+      // log(`expenseForSubmission = ${showObj(expenseForSubmission)}`);
+      const checks = checkExpense(expenseForSubmission, model);
+      if (checks === '') {
+        submitExpense(expenseForSubmission, model);
+      } else {
+        showAlert(checks);
+        expense[args[0].cellKey] = oldValue;
+      }
+    }
   } else {
     const expenseForSubmission: Expense = {
       NAME: expense.NAME,
@@ -184,49 +209,46 @@ function handleExpenseGridRowsUpdated(
       RECURRENCE: expense.RECURRENCE,
     };
     // log(`expenseForSubmission = ${showObj(expenseForSubmission)}`);
-    const checks = checkExpense(expenseForSubmission, model);
-    if (checks === '') {
-      submitExpense(expenseForSubmission, model);
-    } else {
-      showAlert(checks);
-      expense[args[0].cellKey] = oldValue;
-    }
+    submitExpense(expenseForSubmission, model);
   }
 }
 
 function handleIncomeGridRowsUpdated(
   model: ModelData,
   showAlert: (arg0: string) => void,
+  doChecks: boolean,
   args: any,
 ) {
   // log('handleIncomeGridRowsUpdated');
   const income = args[0].fromRowData;
   // log('old income '+showObj(income));
   if (args[0].cellKey === 'NAME') {
-    if (income.NAME !== args[0].updated.NAME) {
-      if (args[0].updated.NAME.startsWith(pensionDB)) {
-        showAlert(`Don't rename incomes beginning ${pensionDB}`);
-        return;
+    if (doChecks) {
+      if (income.NAME !== args[0].updated.NAME) {
+        if (args[0].updated.NAME.startsWith(pensionDB)) {
+          showAlert(`Don't rename incomes beginning ${pensionDB}`);
+          return;
+        }
+        if (args[0].updated.NAME.startsWith(pensionTransfer)) {
+          showAlert(`Don't rename incomes beginning ${pensionTransfer}`);
+          return;
+        }
+        const parsed = getNumberAndWordParts(args[0].updated.NAME);
+        if (parsed.numberPart !== undefined) {
+          showAlert(`Don't name an income beginning with a number`);
+          return;
+        }
+        const clashCheck = checkForWordClashInModel(
+          model,
+          args[0].updated.NAME,
+          'already',
+        );
+        if (clashCheck !== '') {
+          showAlert(clashCheck);
+          return;
+        }
       }
-      if (args[0].updated.NAME.startsWith(pensionTransfer)) {
-        showAlert(`Don't rename incomes beginning ${pensionTransfer}`);
-        return;
-      }
-      const parsed = getNumberAndWordParts(args[0].updated.NAME);
-      if (parsed.numberPart !== undefined) {
-        showAlert(`Don't name an income beginning with a number`);
-        return;
-      }
-      const clashCheck = checkForWordClashInModel(
-        model,
-        args[0].updated.NAME,
-        'already',
-      );
-      if (clashCheck !== '') {
-        showAlert(clashCheck);
-        return;
-      }
-      attemptRename(model, income.NAME, args[0].updated.NAME);
+      attemptRename(model, doChecks, income.NAME, args[0].updated.NAME);
     }
     return;
   }
@@ -237,12 +259,40 @@ function handleIncomeGridRowsUpdated(
   const parsedGrowsWithCPI = makeBooleanFromYesNo(income.GROWS_WITH_CPI);
   const parsedValue = makeCashValueFromString(income.VALUE);
   const parsedGrowth = makeGrowthFromString(income.GROWTH, model.settings);
-  if (!parsedGrowsWithCPI.checksOK) {
-    showAlert("Whether income grows with CPI should be 'y' or 'n'");
-    income[args[0].cellKey] = oldValue;
-  } else if (!parsedGrowth.checksOK) {
-    showAlert(`Value ${income.GROWTH} can't be understood as a growth}`);
-    income[args[0].cellKey] = oldValue;
+  if (doChecks) {
+    if (!parsedGrowsWithCPI.checksOK) {
+      showAlert("Whether income grows with CPI should be 'y' or 'n'");
+      income[args[0].cellKey] = oldValue;
+    } else if (!parsedGrowth.checksOK) {
+      showAlert(`Value ${income.GROWTH} can't be understood as a growth}`);
+      income[args[0].cellKey] = oldValue;
+    } else {
+      let incValue = '';
+      if (parsedValue.checksOK) {
+        incValue = `${parsedValue.value}`;
+      } else {
+        incValue = income.VALUE;
+      }
+
+      const incomeForSubmission: Income = {
+        NAME: income.NAME,
+        CATEGORY: income.CATEGORY,
+        START: income.START,
+        END: income.END,
+        VALUE: incValue,
+        VALUE_SET: income.VALUE_SET,
+        GROWTH: parsedGrowth.value,
+        CPI_IMMUNE: !parsedGrowsWithCPI.value,
+        LIABILITY: income.LIABILITY,
+      };
+      const checks = checkIncome(incomeForSubmission, model);
+      if (checks === '') {
+        submitIncome(incomeForSubmission, model);
+      } else {
+        showAlert(checks);
+        income[args[0].cellKey] = oldValue;
+      }
+    }
   } else {
     let incValue = '';
     if (parsedValue.checksOK) {
@@ -262,40 +312,37 @@ function handleIncomeGridRowsUpdated(
       CPI_IMMUNE: !parsedGrowsWithCPI.value,
       LIABILITY: income.LIABILITY,
     };
-    const checks = checkIncome(incomeForSubmission, model);
-    if (checks === '') {
-      submitIncome(incomeForSubmission, model);
-    } else {
-      showAlert(checks);
-      income[args[0].cellKey] = oldValue;
-    }
+    submitIncome(incomeForSubmission, model);
   }
 }
 
 function handleTriggerGridRowsUpdated(
   model: ModelData,
   showAlert: (arg0: string) => void,
+  doChecks: boolean,
   args: any,
 ) {
   // log('handleTriggerGridRowsUpdated', arguments);
   const trigger = args[0].fromRowData;
   if (args[0].cellKey === 'NAME') {
     if (trigger.NAME !== args[0].updated.NAME) {
-      const parsed = getNumberAndWordParts(args[0].updated.NAME);
-      if (parsed.numberPart !== undefined) {
-        showAlert(`Don't name a date beginning with a number`);
-        return;
+      if (doChecks) {
+        const parsed = getNumberAndWordParts(args[0].updated.NAME);
+        if (parsed.numberPart !== undefined) {
+          showAlert(`Don't name a date beginning with a number`);
+          return;
+        }
+        const clashCheck = checkForWordClashInModel(
+          model,
+          args[0].updated.NAME,
+          'already',
+        );
+        if (clashCheck !== '') {
+          showAlert(clashCheck);
+          return;
+        }
       }
-      const clashCheck = checkForWordClashInModel(
-        model,
-        args[0].updated.NAME,
-        'already',
-      );
-      if (clashCheck !== '') {
-        showAlert(clashCheck);
-        return;
-      }
-      attemptRename(model, trigger.NAME, args[0].updated.NAME);
+      attemptRename(model, doChecks, trigger.NAME, args[0].updated.NAME);
     }
     return;
   }
@@ -305,60 +352,67 @@ function handleTriggerGridRowsUpdated(
     NAME: trigger.NAME,
     DATE: trigger.DATE,
   };
-  const checks = checkTrigger(forSubmit, model);
-  if (checks === '') {
-    submitTrigger(forSubmit, model);
+  if (doChecks) {
+    const checks = checkTrigger(forSubmit, model);
+    if (checks === '') {
+      submitTrigger(forSubmit, model);
+    } else {
+      showAlert(checks);
+      trigger[args[0].cellKey] = oldValue;
+    }
   } else {
-    showAlert(checks);
-    trigger[args[0].cellKey] = oldValue;
+    submitTrigger(forSubmit, model);
   }
 }
 
 function handleAssetGridRowsUpdated(
   model: ModelData,
   showAlert: (arg0: string) => void,
+  doChecks: boolean,
   args: any,
 ) {
   // log('handleAssetGridRowsUpdated', args);
   const asset = args[0].fromRowData;
   if (args[0].cellKey === 'NAME') {
-    if (asset.NAME !== args[0].updated.NAME) {
-      if (asset.NAME === CASH_ASSET_NAME) {
-        showAlert(`Don't rename cash asset`);
-        return;
+    if (doChecks) {
+      if (asset.NAME !== args[0].updated.NAME) {
+        if (asset.NAME === CASH_ASSET_NAME) {
+          showAlert(`Don't rename cash asset`);
+          return;
+        }
+        if (args[0].updated.NAME.startsWith(pensionDB)) {
+          showAlert(`Don't rename assets beginning ${pensionDB}`);
+          return;
+        }
+        if (args[0].updated.NAME.startsWith(pension)) {
+          showAlert(`Don't rename assets beginning ${pension}`);
+          return;
+        }
+        if (args[0].updated.NAME.startsWith(taxFree)) {
+          showAlert(`Don't rename assets beginning ${taxFree}`);
+          return;
+        }
+        if (args[0].updated.NAME.startsWith(crystallizedPension)) {
+          showAlert(`Don't rename assets beginning ${crystallizedPension}`);
+          return;
+        }
+        const parsed = getNumberAndWordParts(args[0].updated.NAME);
+        if (parsed.numberPart !== undefined) {
+          showAlert(`Don't name an asset beginning with a number`);
+          return;
+        }
+        const clashCheck = checkForWordClashInModel(
+          model,
+          args[0].updated.NAME,
+          'already',
+        );
+        if (clashCheck !== '') {
+          showAlert(clashCheck);
+          return;
+        }
       }
-      if (args[0].updated.NAME.startsWith(pensionDB)) {
-        showAlert(`Don't rename assets beginning ${pensionDB}`);
-        return;
-      }
-      if (args[0].updated.NAME.startsWith(pension)) {
-        showAlert(`Don't rename assets beginning ${pension}`);
-        return;
-      }
-      if (args[0].updated.NAME.startsWith(taxFree)) {
-        showAlert(`Don't rename assets beginning ${taxFree}`);
-        return;
-      }
-      if (args[0].updated.NAME.startsWith(crystallizedPension)) {
-        showAlert(`Don't rename assets beginning ${crystallizedPension}`);
-        return;
-      }
-      const parsed = getNumberAndWordParts(args[0].updated.NAME);
-      if (parsed.numberPart !== undefined) {
-        showAlert(`Don't name an asset beginning with a number`);
-        return;
-      }
-      const clashCheck = checkForWordClashInModel(
-        model,
-        args[0].updated.NAME,
-        'already',
-      );
-      if (clashCheck !== '') {
-        showAlert(clashCheck);
-        return;
-      }
-      attemptRename(model, asset.NAME, args[0].updated.NAME);
     }
+    attemptRename(model, doChecks, asset.NAME, args[0].updated.NAME);
     return;
   }
   const matchedAsset = model.assets.filter(a => {
@@ -384,21 +438,43 @@ function handleAssetGridRowsUpdated(
     parsedValue.value = -parsedValue.value;
   }
 
-  if (!parsedGrowth.checksOK) {
-    showAlert(`asset growth ${asset.GROWTH} not understood`);
-    asset[args[0].cellKey] = oldValue;
-  } else if (!parsedQuantity.checksOK) {
-    showAlert(`quantity value ${asset.QUANTITY} not understood`);
-    asset[args[0].cellKey] = oldValue;
-  } else if (!parsedGrowsWithCPI.checksOK) {
-    showAlert(`asset value ${asset.GROWS_WITH_CPI} not understood`);
-    asset[args[0].cellKey] = oldValue;
-  } else if (!parsedIsADebt.checksOK) {
-    showAlert(`asset value ${asset.IS_A_DEBT} not understood`);
-    asset[args[0].cellKey] = oldValue;
-  } else if (!parsedCanBeNegative.checksOK) {
-    showAlert(`asset value ${asset.CAN_BE_NEGATIVE} not understood`);
-    asset[args[0].cellKey] = oldValue;
+  if (doChecks) {
+    if (!parsedGrowth.checksOK) {
+      showAlert(`asset growth ${asset.GROWTH} not understood`);
+      asset[args[0].cellKey] = oldValue;
+    } else if (!parsedQuantity.checksOK) {
+      showAlert(`quantity value ${asset.QUANTITY} not understood`);
+      asset[args[0].cellKey] = oldValue;
+    } else if (!parsedGrowsWithCPI.checksOK) {
+      showAlert(`asset value ${asset.GROWS_WITH_CPI} not understood`);
+      asset[args[0].cellKey] = oldValue;
+    } else if (!parsedIsADebt.checksOK) {
+      showAlert(`asset value ${asset.IS_A_DEBT} not understood`);
+      asset[args[0].cellKey] = oldValue;
+    } else if (!parsedCanBeNegative.checksOK) {
+      showAlert(`asset value ${asset.CAN_BE_NEGATIVE} not understood`);
+      asset[args[0].cellKey] = oldValue;
+    } else {
+      // log(`parsedValue = ${showObj(parsedValue)}`);
+      const valueForSubmission = parsedValue.checksOK
+        ? `${parsedValue.value}`
+        : asset.VALUE;
+      // log(`valueForSubmission = ${valueForSubmission}`);
+      const assetForSubmission: Asset = {
+        NAME: asset.NAME,
+        VALUE: valueForSubmission,
+        QUANTITY: asset.QUANTITY,
+        START: asset.START,
+        LIABILITY: asset.LIABILITY,
+        GROWTH: parsedGrowth.value,
+        CPI_IMMUNE: !parsedGrowsWithCPI.value,
+        CAN_BE_NEGATIVE: parsedCanBeNegative.value,
+        IS_A_DEBT: parsedIsADebt.value,
+        PURCHASE_PRICE: parsedPurchasePrice,
+        CATEGORY: asset.CATEGORY,
+      };
+      submitAsset(assetForSubmission, model);
+    }
   } else {
     // log(`parsedValue = ${showObj(parsedValue)}`);
     const valueForSubmission = parsedValue.checksOK
@@ -440,6 +516,7 @@ function getTransactionName(name: string, type: string) {
 function handleTransactionGridRowsUpdated(
   model: ModelData,
   showAlert: (arg0: string) => void,
+  doChecks: boolean,
   type: string,
   args: any,
 ) {
@@ -460,22 +537,28 @@ function handleTransactionGridRowsUpdated(
   const transactionType = gridData.TYPE;
   const parseTo = makeValueAbsPropFromString(gridData.TO_VALUE);
   if (
+    doChecks &&
     transactionType !== revalueSetting &&
     !parseFrom.checksOK &&
     !model.settings.find(s => {
       return s.NAME === gridData.FROM_VALUE;
     }) &&
-     !(
-      gridData.FROM_VALUE.startsWith(bondMaturity) && 
+    !(
+      gridData.FROM_VALUE.startsWith(bondMaturity) &&
       model.settings.find(s => {
         return s.NAME === gridData.FROM_VALUE.substring(bondMaturity.length);
-      }) !== undefined)
+      }) !== undefined
+    )
   ) {
     showAlert(
       `From value ${gridData.FROM_VALUE} should be a number or a number with % symbol`,
     );
     gridData[args[0].cellKey] = oldValue;
-  } else if (transactionType !== revalueSetting && !parseTo.checksOK) {
+  } else if (
+    doChecks &&
+    transactionType !== revalueSetting &&
+    !parseTo.checksOK
+  ) {
     showAlert(
       `To value ${gridData.TO_VALUE} should be a number or a number with % symbol`,
     );
@@ -507,20 +590,21 @@ function handleTransactionGridRowsUpdated(
 
     if (args[0].cellKey === 'NAME') {
       // log(`try to edit name from ${oldtName} to ${tName}`);
-
-      if (tName !== oldtName) {
-        const parsed = getNumberAndWordParts(oldtName);
-        if (parsed.numberPart !== undefined) {
-          showAlert(`Don't name a transaction beginning with a number`);
-          return;
+      if (doChecks) {
+        if (tName !== oldtName) {
+          const parsed = getNumberAndWordParts(oldtName);
+          if (parsed.numberPart !== undefined) {
+            showAlert(`Don't name a transaction beginning with a number`);
+            return;
+          }
+          // log(`check for ${dbName} in model...`)
+          const clashCheck = checkForWordClashInModel(model, tName, 'already');
+          if (clashCheck !== '') {
+            showAlert(clashCheck);
+            return;
+          }
         }
-        // log(`check for ${dbName} in model...`)
-        const clashCheck = checkForWordClashInModel(model, tName, 'already');
-        if (clashCheck !== '') {
-          showAlert(clashCheck);
-          return;
-        }
-        attemptRename(model, oldtName, tName);
+        attemptRename(model, doChecks, oldtName, tName);
       }
       return;
     }
@@ -539,48 +623,56 @@ function handleTransactionGridRowsUpdated(
       TYPE: type,
       CATEGORY: gridData.CATEGORY,
     };
-    const checks = checkTransaction(transaction, model);
-    if (checks === '') {
-      // log(`checks OK, submitting transaction`);
-      submitTransaction(transaction, model);
+    if (doChecks) {
+      const checks = checkTransaction(transaction, model);
+      if (checks === '') {
+        // log(`checks OK, submitting transaction`);
+        submitTransaction(transaction, model);
+      } else {
+        showAlert(checks);
+        gridData[args[0].cellKey] = oldValue;
+      }
     } else {
-      showAlert(checks);
-      gridData[args[0].cellKey] = oldValue;
+      submitTransaction(transaction, model);
     }
   }
 }
 function handleSettingGridRowsUpdated(
   model: ModelData,
   showAlert: (arg0: string) => void,
+  doChecks: boolean,
   args: any,
 ) {
   // log('handleSettingGridRowsUpdated', args);
   const x = args[0].fromRowData;
   if (args[0].cellKey === 'NAME') {
     if (x.NAME !== args[0].updated.NAME) {
-      if (
-        minimalModel.settings.filter(obj => {
-          return obj.NAME === x.NAME;
-        }).length > 0
-      ) {
-        showAlert(`Don't rename inbuilt settings`);
-        return;
+      if (doChecks) {
+        if (
+          minimalModel.settings.filter(obj => {
+            return obj.NAME === x.NAME;
+          }).length > 0
+        ) {
+          showAlert(`Don't rename inbuilt settings`);
+          return;
+        }
+        const parsed = getNumberAndWordParts(args[0].updated.NAME);
+        if (parsed.numberPart !== undefined) {
+          showAlert(`Don't name a setting beginning with a number`);
+          return;
+        }
+        const clashCheck = checkForWordClashInModel(
+          model,
+          args[0].updated.NAME,
+          'already',
+        );
+        if (clashCheck !== '') {
+          showAlert(clashCheck);
+          return;
+        }
       }
-      const parsed = getNumberAndWordParts(args[0].updated.NAME);
-      if (parsed.numberPart !== undefined) {
-        showAlert(`Don't name a setting beginning with a number`);
-        return;
-      }
-      const clashCheck = checkForWordClashInModel(
-        model,
-        args[0].updated.NAME,
-        'already',
-      );
-      if (clashCheck !== '') {
-        showAlert(clashCheck);
-        return;
-      }
-      attemptRename(model, x.NAME, args[0].updated.NAME);
+
+      attemptRename(model, doChecks, x.NAME, args[0].updated.NAME);
     }
     return;
   }
@@ -757,6 +849,7 @@ export function assetsOrDebtsTableDiv(
   model: ModelData,
   rowData: any[],
   showAlert: (arg0: string) => void,
+  doChecks: boolean,
   isDebt: boolean,
 ) {
   return (
@@ -769,7 +862,12 @@ export function assetsOrDebtsTableDiv(
         <div className="dataGridAssets">
           <DataGrid
             handleGridRowsUpdated={function() {
-              return handleAssetGridRowsUpdated(model, showAlert, arguments);
+              return handleAssetGridRowsUpdated(
+                model,
+                showAlert,
+                doChecks,
+                arguments,
+              );
             }}
             rows={rowData}
             columns={getAssetOrDebtCols(model, isDebt)}
@@ -1106,6 +1204,7 @@ export function transactionsTableDiv(
   contents: any[],
   model: ModelData,
   showAlert: (arg0: string) => void,
+  doChecks: boolean,
   type: string,
   headingText: string,
 ) {
@@ -1121,6 +1220,7 @@ export function transactionsTableDiv(
           return handleTransactionGridRowsUpdated(
             model,
             showAlert,
+            doChecks,
             type,
             arguments,
           );
@@ -1141,6 +1241,7 @@ export function transactionsTableDiv(
 export function transactionFilteredTable(
   model: ModelData,
   showAlert: (arg0: string) => void,
+  doChecks: boolean,
   type: string,
   headingText: string,
 ) {
@@ -1148,12 +1249,20 @@ export function transactionFilteredTable(
   if (contents.length === 0) {
     return;
   }
-  return transactionsTableDiv(contents, model, showAlert, type, headingText);
+  return transactionsTableDiv(
+    contents,
+    model,
+    showAlert,
+    doChecks,
+    type,
+    headingText,
+  );
 }
 
 export function debtsDivWithHeadings(
   model: ModelData,
   showAlert: (arg0: string) => void,
+  doChecks: boolean,
 ) {
   const debtData = assetsOrDebtsForTable(model, true);
   if (debtData.length === 0) {
@@ -1162,11 +1271,23 @@ export function debtsDivWithHeadings(
   return (
     <>
       {collapsibleFragment(
-        assetsOrDebtsTableDiv(model, debtData, showAlert, true),
+        assetsOrDebtsTableDiv(model, debtData, showAlert, doChecks, true),
         'Debt definitions',
       )}
-      {transactionFilteredTable(model, showAlert, revalueDebt, 'Revalue debts')}
-      {transactionFilteredTable(model, showAlert, payOffDebt, 'Pay off debts')}
+      {transactionFilteredTable(
+        model,
+        showAlert,
+        doChecks,
+        revalueDebt,
+        'Revalue debts',
+      )}
+      {transactionFilteredTable(
+        model,
+        showAlert,
+        doChecks,
+        payOffDebt,
+        'Pay off debts',
+      )}
     </>
   );
 }
@@ -1174,6 +1295,7 @@ export function debtsDivWithHeadings(
 export function assetsDivWithHeadings(
   model: ModelData,
   showAlert: (arg0: string) => void,
+  doChecks: boolean,
 ) {
   const assetData = assetsOrDebtsForTable(model, false);
   if (assetData.length === 0) {
@@ -1182,18 +1304,20 @@ export function assetsDivWithHeadings(
   return (
     <>
       {collapsibleFragment(
-        assetsOrDebtsTableDiv(model, assetData, showAlert, false),
+        assetsOrDebtsTableDiv(model, assetData, showAlert, doChecks, false),
         `Asset definition table`,
       )}
       {transactionFilteredTable(
         model,
         showAlert,
+        doChecks,
         liquidateAsset,
         'Liquidate assets to keep cash afloat',
       )}
       {transactionFilteredTable(
         model,
         showAlert,
+        doChecks,
         revalueAsset,
         'Revalue assets',
       )}
@@ -1218,6 +1342,7 @@ function triggersTableDiv(
   model: ModelData,
   trigData: any[],
   showAlert: (arg0: string) => void,
+  doChecks: boolean,
 ) {
   return (
     <div
@@ -1230,7 +1355,12 @@ function triggersTableDiv(
           <DataGrid
             deleteFunction={deleteTrigger}
             handleGridRowsUpdated={function() {
-              return handleTriggerGridRowsUpdated(model, showAlert, arguments);
+              return handleTriggerGridRowsUpdated(
+                model,
+                showAlert,
+                doChecks,
+                arguments,
+              );
             }}
             rows={trigData}
             columns={[
@@ -1273,13 +1403,14 @@ function triggersTableDiv(
 export function triggersTableDivWithHeading(
   model: ModelData,
   showAlert: (arg0: string) => void,
+  doChecks: boolean,
 ) {
   const trigData = triggersForTable(model);
   if (trigData.length === 0) {
     return;
   }
   return collapsibleFragment(
-    triggersTableDiv(model, trigData, showAlert),
+    triggersTableDiv(model, trigData, showAlert, doChecks),
     `Important dates`,
   );
 }
@@ -1307,6 +1438,7 @@ function incomesTableDiv(
   model: ModelData,
   incData: any[],
   showAlert: (arg0: string) => void,
+  doChecks: boolean,
 ) {
   if (incData.length === 0) {
     return;
@@ -1322,7 +1454,12 @@ function incomesTableDiv(
           <DataGrid
             deleteFunction={deleteIncome}
             handleGridRowsUpdated={function() {
-              return handleIncomeGridRowsUpdated(model, showAlert, arguments);
+              return handleIncomeGridRowsUpdated(
+                model,
+                showAlert,
+                doChecks,
+                arguments,
+              );
             }}
             rows={incData}
             columns={[
@@ -1434,13 +1571,14 @@ function incomesTableDiv(
 export function incomesTableDivWithHeading(
   model: ModelData,
   showAlert: (arg0: string) => void,
+  doChecks: boolean,
 ) {
   const incData: any[] = incomesForTable(model);
   if (incData.length === 0) {
     return;
   }
   return collapsibleFragment(
-    incomesTableDiv(model, incData, showAlert),
+    incomesTableDiv(model, incData, showAlert, doChecks),
     `Income definitions`,
   );
 }
@@ -1467,6 +1605,7 @@ function expensesTableDiv(
   model: ModelData,
   expData: any[],
   showAlert: (arg0: string) => void,
+  doChecks: boolean,
 ) {
   return (
     <div
@@ -1479,7 +1618,12 @@ function expensesTableDiv(
           <DataGrid
             deleteFunction={deleteExpense}
             handleGridRowsUpdated={function() {
-              return handleExpenseGridRowsUpdated(model, showAlert, arguments);
+              return handleExpenseGridRowsUpdated(
+                model,
+                showAlert,
+                doChecks,
+                arguments,
+              );
             }}
             rows={expData}
             columns={[
@@ -1589,13 +1733,14 @@ function expensesTableDiv(
 export function expensesTableDivWithHeading(
   model: ModelData,
   showAlert: (arg0: string) => void,
+  doChecks: boolean,
 ) {
   const expData = expensesForTable(model);
   if (expData.length === 0) {
     return;
   }
   return collapsibleFragment(
-    expensesTableDiv(model, expData, showAlert),
+    expensesTableDiv(model, expData, showAlert, doChecks),
     `Expense definitions`,
   );
 }
@@ -1645,6 +1790,7 @@ function customSettingsTable(
   model: ModelData,
   constSettings: any[],
   showAlert: (arg0: string) => void,
+  doChecks: boolean,
 ) {
   if (constSettings.length === 0) {
     return;
@@ -1653,7 +1799,12 @@ function customSettingsTable(
     <DataGrid
       deleteFunction={deleteSetting}
       handleGridRowsUpdated={function() {
-        return handleSettingGridRowsUpdated(model, showAlert, arguments);
+        return handleSettingGridRowsUpdated(
+          model,
+          showAlert,
+          doChecks,
+          arguments,
+        );
       }}
       rows={constSettings}
       columns={[
@@ -1692,6 +1843,7 @@ function adjustSettingsTable(
   model: ModelData,
   adjustSettings: any[],
   showAlert: (arg0: string) => void,
+  doChecks: boolean,
 ) {
   if (adjustSettings.length === 0) {
     return;
@@ -1700,7 +1852,12 @@ function adjustSettingsTable(
     <DataGrid
       deleteFunction={deleteSetting}
       handleGridRowsUpdated={function() {
-        return handleSettingGridRowsUpdated(model, showAlert, arguments);
+        return handleSettingGridRowsUpdated(
+          model,
+          showAlert,
+          doChecks,
+          arguments,
+        );
       }}
       rows={adjustSettings}
       columns={[
@@ -1740,6 +1897,7 @@ function settingsTables(
   model: ModelData,
   viewSettings: ViewSettings,
   showAlert: (arg0: string) => void,
+  doChecks: boolean,
 ) {
   const constSettings = settingsForTable(model, viewSettings, constType);
   const adjustSettings = settingsForTable(model, viewSettings, adjustableType);
@@ -1750,8 +1908,8 @@ function settingsTables(
 
   return collapsibleFragment(
     <>
-      {customSettingsTable(model, constSettings, showAlert)}
-      {adjustSettingsTable(model, adjustSettings, showAlert)}
+      {customSettingsTable(model, constSettings, showAlert, doChecks)}
+      {adjustSettingsTable(model, adjustSettings, showAlert, doChecks)}
     </>,
     `Other settings affecting the model`,
   );
@@ -1761,6 +1919,7 @@ export function settingsTableDiv(
   model: ModelData,
   viewSettings: ViewSettings,
   showAlert: (arg0: string) => void,
+  doChecks: boolean,
 ) {
   return (
     <div
@@ -1773,7 +1932,12 @@ export function settingsTableDiv(
         <DataGrid
           deleteFunction={deleteSetting}
           handleGridRowsUpdated={function() {
-            return handleSettingGridRowsUpdated(model, showAlert, arguments);
+            return handleSettingGridRowsUpdated(
+              model,
+              showAlert,
+              doChecks,
+              arguments,
+            );
           }}
           rows={settingsForTable(model, viewSettings, viewType)}
           columns={[
@@ -1810,10 +1974,11 @@ export function settingsTableDiv(
         />,
         `Settings about the view of the model`,
       )}
-      {settingsTables(model, viewSettings, showAlert)}
+      {settingsTables(model, viewSettings, showAlert, doChecks)}
       {transactionFilteredTable(
         model,
         showAlert,
+        doChecks,
         revalueSetting,
         'Revalue settings',
       )}
