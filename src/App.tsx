@@ -871,6 +871,7 @@ export async function submitAsset(assetInput: Asset, modelData: ModelData) {
     assetInput,
     modelName,
     modelData,
+    reactAppComponent.options.checkModelOnEdit,
     getUserID(),
   );
   if (message === '') {
@@ -891,6 +892,7 @@ export async function submitExpense(
     expenseInput,
     modelName,
     modelData,
+    reactAppComponent.options.checkModelOnEdit,
     getUserID(),
   );
   if (message === '') {
@@ -911,6 +913,7 @@ export async function submitIncome(
     incomeInput,
     modelName,
     modelData,
+    reactAppComponent.options.checkModelOnEdit,
     getUserID(),
   );
   if (message === '') {
@@ -933,6 +936,7 @@ export async function submitTransaction(
     transactionInput,
     modelName,
     modelData,
+    reactAppComponent.options.checkModelOnEdit,
     getUserID(),
   );
   if (message === '') {
@@ -953,6 +957,7 @@ export async function submitTrigger(
     triggerInput,
     modelName,
     modelData,
+    reactAppComponent.options.checkModelOnEdit,
     getUserID(),
   );
   if (message === '') {
@@ -997,6 +1002,7 @@ export async function editSetting(
     settingWithBlanks,
     modelName,
     modelData,
+    reactAppComponent.options.checkModelOnEdit,
     getUserID(),
   );
   if (message === '') {
@@ -1022,7 +1028,13 @@ export async function submitNewSetting(
       9, //sourceID
     );
   } else {
-    await submitNewSettingLSM(setting, modelName, modelData, getUserID());
+    await submitNewSettingLSM(
+      setting, 
+      modelName, 
+      modelData, 
+      reactAppComponent.options.checkModelOnEdit,
+      getUserID(),
+    );
     return await refreshData(
       true, // refreshModel = true,
       true, // refreshChart = true,

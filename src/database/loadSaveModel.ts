@@ -292,12 +292,13 @@ async function submitItemLSM(
   itemList: Item[],
   modelName: string,
   modelData: ModelData,
+  doChecks: boolean,
   userID: string,
 ) {
   markForUndo(modelData);
   updateItemList(itemList, inputItem);
 
-  if (doCheckModelBeforeChange()) {
+  if (doChecks) {
     const checkResult = checkData(modelData);
     if (checkResult !== '') {
       revertToUndoModel(modelData);
@@ -313,6 +314,7 @@ export async function submitExpenseLSM(
   expenseInput: Expense,
   modelName: string,
   modelData: ModelData,
+  doChecks: boolean,
   userID: string,
 ) {
   if (printDebug()) {
@@ -323,6 +325,7 @@ export async function submitExpenseLSM(
     modelData.expenses,
     modelName,
     modelData,
+    doChecks,
     userID,
   );
 }
@@ -331,6 +334,7 @@ export async function submitIncomeLSM(
   incomeInput: Income,
   modelName: string,
   modelData: ModelData,
+  doChecks: boolean,
   userID: string,
 ) {
   if (printDebug()) {
@@ -341,6 +345,7 @@ export async function submitIncomeLSM(
     modelData.incomes,
     modelName,
     modelData,
+    doChecks,
     userID,
   );
 }
@@ -349,6 +354,7 @@ export async function submitTriggerLSM(
   trigger: Trigger,
   modelName: string,
   modelData: ModelData,
+  doChecks: boolean,
   userID: string,
 ) {
   if (printDebug()) {
@@ -359,6 +365,7 @@ export async function submitTriggerLSM(
     modelData.triggers,
     modelName,
     modelData,
+    doChecks,
     userID,
   );
 }
@@ -367,6 +374,7 @@ export async function submitAssetLSM(
   assetInput: Asset,
   modelName: string,
   modelData: ModelData,
+  doChecks: boolean,
   userID: string,
 ): Promise<string> {
   if (printDebug()) {
@@ -377,6 +385,7 @@ export async function submitAssetLSM(
     modelData.assets,
     modelName,
     modelData,
+    doChecks,
     userID,
   );
 }
@@ -385,6 +394,7 @@ export async function submitTransactionLSM(
   input: Transaction,
   modelName: string,
   modelData: ModelData,
+  doChecks: boolean,
   userID: string,
 ) {
   if (printDebug()) {
@@ -395,6 +405,7 @@ export async function submitTransactionLSM(
     modelData.transactions,
     modelName,
     modelData,
+    doChecks,
     userID,
   );
 }
@@ -430,6 +441,7 @@ export async function submitSettingLSM(
   input: Setting, // if HINT or TYPE are empty, leave pre-existing values
   modelName: string,
   modelData: ModelData,
+  doChecks: boolean,
   userID: string,
 ) {
   if (printDebug()) {
@@ -446,13 +458,21 @@ export async function submitSettingLSM(
       input.TYPE = idx.TYPE;
     }
   }
-  return submitItemLSM(input, modelData.settings, modelName, modelData, userID);
+  return submitItemLSM(
+    input, 
+    modelData.settings, 
+    modelName, 
+    modelData, 
+    doChecks,
+    userID,
+  );
 }
 
 export async function submitNewSettingLSM(
   setting: Setting,
   modelName: string,
   modelData: ModelData,
+  doChecks: boolean,
   userID: string,
 ) {
   let type = adjustableType;
@@ -472,6 +492,7 @@ export async function submitNewSettingLSM(
     },
     modelName,
     modelData,
+    doChecks,
     userID,
   );
 }
