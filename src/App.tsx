@@ -1029,9 +1029,9 @@ export async function submitNewSetting(
     );
   } else {
     await submitNewSettingLSM(
-      setting, 
-      modelName, 
-      modelData, 
+      setting,
+      modelName,
+      modelData,
       reactAppComponent.options.checkModelOnEdit,
       getUserID(),
     );
@@ -2219,9 +2219,12 @@ export class AppContent extends Component<AppProps, AppState> {
         <div className="addNewTransaction">
           <h4> Add a transaction </h4>
           <AddDeleteTransactionForm
-            checkFunction={reactAppComponent.options.checkModelOnEdit ? 
-              checkTransaction : 
-              () => { return ''; }
+            checkFunction={
+              reactAppComponent.options.checkModelOnEdit
+                ? checkTransaction
+                : () => {
+                    return '';
+                  }
             }
             submitFunction={submitTransaction}
             deleteFunction={deleteTransaction}

@@ -469,11 +469,13 @@ export class AddDeleteTransactionForm extends Component<
       type = liquidateAsset;
       transactionName = `${conditional}${this.state.NAME}`;
     } else if (
-      fromValue.startsWith(bondMaturity) && this.state.FROM === CASH_ASSET_NAME
+      fromValue.startsWith(bondMaturity) &&
+      this.state.FROM === CASH_ASSET_NAME
     ) {
       type = bondInvest;
     } else if (
-      fromValue.startsWith(bondMaturity) && this.state.TO === CASH_ASSET_NAME
+      fromValue.startsWith(bondMaturity) &&
+      this.state.TO === CASH_ASSET_NAME
     ) {
       type = bondMature;
     }

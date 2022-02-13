@@ -458,10 +458,10 @@ export async function submitSettingLSM(
     }
   }
   return submitItemLSM(
-    input, 
-    modelData.settings, 
-    modelName, 
-    modelData, 
+    input,
+    modelData.settings,
+    modelName,
+    modelData,
     doChecks,
     userID,
   );
