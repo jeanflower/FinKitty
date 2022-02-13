@@ -2,7 +2,7 @@ import React from 'react';
 import { makeButton } from './reactComponents/Button';
 import { screenshotsDiv } from './screenshotsPage';
 import { Navbar } from 'react-bootstrap';
-import { toggle } from '../App';
+import { getAppVersion, toggle } from '../App';
 import { homeView } from '../localization/stringConstants';
 
 import FinKittyCat from './cat.png';
@@ -14,8 +14,14 @@ export function navbarContent(isWaiting: boolean, rhContent: () => any) {
     log(`drawing navbar content`);
   }
   // log(`drawing navbar content; isWaiting = ${isWaiting}`);
+  const variantString = "light";
+
+// Toggle this if you need a visual indicator of change
+  const bgString = "light";
+//  const bgString = "primary";
+
   return (
-    <Navbar expand="lg" bg="light" sticky="top">
+    <Navbar expand="lg" bg={bgString} variant={variantString} sticky="top">
       <Navbar.Brand href="#home" id="finkitty-brand">
         <img
           src={isWaiting ? WaitGif : FinKittyCat}
@@ -42,7 +48,7 @@ export function loginPage(loginWithRedirect: any, loginForTesting: any) {
       {navbarContent(
         false, // is not waiting
         () => {
-          return <h3>An app for financial kitty forecasting</h3>;
+          return <h3>An app for financial kitty forecasting v{getAppVersion()}</h3>;
         },
       )}
       <div className="row">
