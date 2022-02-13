@@ -370,7 +370,7 @@ export function attemptRenameLong(
   // log(`get ready to make changes, be ready to undo...`);
   // be ready to undo
   markForUndo(model);
-  log(`making changes to nodel... `);
+  // log(`making changes to nodel... `);
   model.settings.forEach(obj => {
     obj.NAME = replaceWholeString(obj.NAME, old, replacement);
     obj.VALUE = replaceNumberValueString(obj.VALUE, old, replacement);
