@@ -3050,6 +3050,19 @@ function calculateToChange(
     if (bondInterestRate !== undefined) {
       bondScale = 1.0 + bondInterestRate / 100.0;
     }
+    // duration of the bond powers up the scaling here
+    if (t.NAME.endsWith('5y')) {
+      bondScale = bondScale ** 5;
+    } else if (t.NAME.endsWith('4y')) {
+      bondScale = bondScale ** 4;
+    } else if (t.NAME.endsWith('3y')) {
+      bondScale = bondScale ** 3;
+    } else if (t.NAME.endsWith('2y')) {
+      bondScale = bondScale ** 2;
+    } else if (t.NAME.endsWith('1y')) {
+    } else if (t.NAME.endsWith('1m')) {
+      bondScale = bondScale ** (1 / 12);
+    }
     toChange *= bondScale;
   }
 
