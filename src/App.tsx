@@ -151,7 +151,7 @@ let isDirty = false; // does the model need saving?
 
 const majorVersion = 1;
 const minorVersion = 0;
-const patchVersion = 0;
+const patchVersion = 1;
 
 export function getAppVersion(){
   return `${majorVersion}.${minorVersion}.${patchVersion}`;

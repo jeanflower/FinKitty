@@ -1190,15 +1190,21 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
         return false;
       }
       // log(`considering ${tInvest.NAME} as investment transaction...`);
-      const md = getMaturityDate(new Date(tInvest.DATE), tInvest.NAME);
-      if (md.toDateString() !== new Date(t.DATE).toDateString()) {
-        //log(`maturity date = ${md.toDateString()} !== ${new Date(t.DATE).toDateString()}`);
+      const md = getMaturityDate(new Date(getTriggerDate(tInvest.DATE, model.triggers)), tInvest.NAME);
+      const mdDS = md.toDateString();
+      const tDS = new Date(getTriggerDate(t.DATE, model.triggers)).toDateString();
+      if (mdDS !== tDS) {
+        // log(`maturity date = ${mdDS} !== ${tDS}`);
         return false;
       }
-      const sd = getMaturityDate(new Date(tInvest.STOP_DATE), tInvest.NAME);
-      if (sd.toDateString() !== new Date(t.STOP_DATE).toDateString()) {
-        //log(`stop date = ${sd.toDateString()} !== ${new Date(t.STOP_DATE).toDateString()}`);
-        return false;
+      if(tInvest.STOP_DATE !== '' || t.STOP_DATE !== ''){
+        const sd = getMaturityDate(new Date(getTriggerDate(tInvest.STOP_DATE, model.triggers)), tInvest.NAME);
+        const sdDS = sd.toDateString();
+        const tsDS = new Date(getTriggerDate(t.STOP_DATE, model.triggers)).toDateString();
+        if (sdDS !== tsDS) {
+          // log(`stop date = ${sdDS} !== ${tsDS}`);
+          return false;
+        }
       }
       return true;
     });
