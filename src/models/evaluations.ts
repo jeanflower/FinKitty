@@ -4100,6 +4100,37 @@ function generateMoments(
   return allMoments;
 }
 
+function traceEvaluationForToday(
+  name: string,
+  values: ValuesContainer,
+  growths: Map<string, GrowthData>,
+){
+  const numberVal = traceEvaluation(name, values, growths, name);
+  // log(`Unit val of ${name} is ${unitVal}`);
+  if (numberVal === undefined) {
+    // this is not necessarily an error - just means
+    // we're keeping track of something which cannot be
+    // evaluated.
+    log(`evaluation of ${name} undefined`);
+    return 0.0;
+  } else {
+    let valForEvaluations = numberVal;
+    let baseVal: number | undefined;
+    if (growthData(name, growths, values).adjustForCPI) {
+      baseVal = getNumberValue(values, baseForCPI);
+      if (baseVal) {
+        const newValForEvaluations = valForEvaluations * baseVal;
+        // log(`scale ${valForEvaluations} by baseVal = ${baseVal} to give ${newValForEvaluations}`);
+        valForEvaluations = newValForEvaluations;
+      } else {
+        log(`BUG : missing or zero base value!`);
+      }
+    }
+    log(`evaluation of ${name} today is ${valForEvaluations}`);
+    return valForEvaluations;
+  }
+}
+
 function evaluateAllAssets(
   model: ModelData,
   values: ValuesContainer,
@@ -4112,10 +4143,8 @@ function evaluateAllAssets(
   todaysSettingValues: Map<string, SettingVal>,
 ) {
   model.assets.forEach(asset => {
-    let val = values.get(asset.NAME);
-    if (typeof val === 'string') {
-      val = traceEvaluation(val, values, growths, val);
-    }
+    let val = traceEvaluationForToday(asset.NAME, values, growths)
+
     const q = getQuantity(asset.NAME, values, model);
     if (q !== undefined && val !== undefined) {
       val *= q;
@@ -4156,10 +4185,7 @@ function evaluateAllAssets(
       return;
     }
     // log(`income ${i.NAME} ends at ${i.END} not yet ended at ${today}`);
-    let val = values.get(i.NAME);
-    if (typeof val === 'string') {
-      val = traceEvaluation(val, values, growths, val);
-    }
+    let val = traceEvaluationForToday(i.NAME, values, growths)
     if (val !== undefined) {
       todaysIncomeValues.set(i.NAME, {
         incomeVal: val,
@@ -4188,10 +4214,7 @@ function evaluateAllAssets(
       });
       return;
     }
-    let val = values.get(e.NAME);
-    if (typeof val === 'string') {
-      val = traceEvaluation(val, values, growths, val);
-    }
+    let val = traceEvaluationForToday(e.NAME, values, growths)
     if (val !== undefined) {
       // log(`expense for todays value ${showObj(e)}`);
       todaysExpenseValues.set(e.NAME, {
