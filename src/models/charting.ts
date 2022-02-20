@@ -135,7 +135,7 @@ e.g.
 
   public constructor(pairs: { NAME: string; VALUE: string }[]) {
     // log(`build new ViewSettings object`);
-    pairs.forEach(p => {
+    pairs.forEach((p) => {
       // log(`input pair ${p.NAME}, ${p.VALUE}`);
       this.kvPairs.set(p.NAME, p.VALUE);
       const ctxt = this.makeContextFromString(p.NAME);
@@ -197,7 +197,7 @@ e.g.
       map.set(key, arr);
     }
     if (
-      arr.find(v => {
+      arr.find((v) => {
         return v === value;
       }) === undefined
     ) {
@@ -213,7 +213,7 @@ e.g.
       map.set(key, arr);
     }
     if (
-      arr.find(v => {
+      arr.find((v) => {
         return v === value;
       }) === undefined
     ) {
@@ -242,17 +242,17 @@ e.g.
     this.dependents = this.makeEmptyDependents();
     this.supercategories = this.makeEmptySuperCategories();
 
-    model.assets.forEach(a => {
+    model.assets.forEach((a) => {
       if (a.IS_A_DEBT) {
         this.setItemFromModel(Context.Debt, a);
       } else {
         this.setItemFromModel(Context.Asset, a);
       }
     });
-    model.expenses.forEach(a => {
+    model.expenses.forEach((a) => {
       this.setItemFromModel(Context.Expense, a);
     });
-    model.incomes.forEach(a => {
+    model.incomes.forEach((a) => {
       this.setItemFromModel(Context.Income, a);
     });
 
@@ -297,7 +297,7 @@ e.g.
     this.show[context].set(settingType, value);
     const deps = this.dependents[context].get(settingType);
     if (deps !== undefined) {
-      deps.forEach(dep => {
+      deps.forEach((dep) => {
         // log(`switch dependent show(${dep}) to ${value}`);
         this.show[context].set(dep, value);
       });
@@ -305,7 +305,7 @@ e.g.
     if (value === false) {
       const sups = this.supercategories[context].get(settingType);
       if (sups !== undefined) {
-        sups.forEach(sup => {
+        sups.forEach((sup) => {
           // log(`switch superCategory show(${dep}) to ${false}`);
           this.show[context].set(sup, false);
         });
@@ -438,10 +438,10 @@ function totalChartDataPoints(
   items: string[],
 ) {
   const result = new Map<string, Map<string, number>>();
-  dates.forEach(date => {
+  dates.forEach((date) => {
     let totalValue = 0.0;
     const dateString = date.toDateString();
-    items.forEach(item => {
+    items.forEach((item) => {
       // log(`get data from map for date ${dateString}`);
       const nameValueMap = dateNameValueMap.get(dateString);
       if (nameValueMap !== undefined) {
@@ -487,9 +487,9 @@ function makeChartDataPoints(
     ChartDataPoint[]
   >();
 
-  dates.forEach(date => {
+  dates.forEach((date) => {
     const dateString = date.toDateString();
-    items.forEach(item => {
+    items.forEach((item) => {
       let value = 0.0;
       // log(`get data from map for date ${dateString}`);
       const nameValueMap = dateNameValueMap.get(dateString);
@@ -563,8 +563,8 @@ function makeChartDataPoints(
   }
   const result: ItemChartData[] = [];
   // log(`done making asset points@`);
-  allChartDataPoints.forEach(pr => {
-    const nonZeroInstance = pr.chartDataPoints.findIndex(cdp => {
+  allChartDataPoints.forEach((pr) => {
+    const nonZeroInstance = pr.chartDataPoints.findIndex((cdp) => {
       return cdp.y !== 0;
     });
     if (nonZeroInstance >= 0) {
@@ -590,7 +590,7 @@ function displayWordAs(
     tax: false,
   };
 
-  const assetMatch = model.assets.filter(a => {
+  const assetMatch = model.assets.filter((a) => {
     return a.NAME === word;
   });
   if (assetMatch.length !== 0) {
@@ -618,11 +618,11 @@ function displayWordAs(
     }
   }
 
-  const catMatch = model.assets.filter(a => {
+  const catMatch = model.assets.filter((a) => {
     return a.CATEGORY === word;
   });
   if (catMatch.length !== 0) {
-    catMatch.forEach(a => {
+    catMatch.forEach((a) => {
       // log(`matched category ${word}`);
       if (a.IS_A_DEBT) {
         // Have a debt with a matching category
@@ -656,7 +656,7 @@ function displayAs(name: string, model: ModelData, viewSettings: ViewSettings) {
     // the second item is the thing that's affected and determine
     // where to display
   }
-  words.forEach(w => {
+  words.forEach((w) => {
     const x = displayWordAs(w, model, viewSettings);
     if (x.asset) {
       result.asset = true;
@@ -689,7 +689,7 @@ function makeADTChartNames(
   // log(`allNames = ${showObj(allNames)}`)
   const assetChartNames: string[] = [];
   const debtChartNames: string[] = [];
-  allNames.forEach(n => {
+  allNames.forEach((n) => {
     const x = displayAs(n, model, viewSettings);
     if (x.asset) {
       assetChartNames.push(n);
@@ -720,8 +720,8 @@ function assignCategories(
   // log(`categorise these ${items}`);
   const categoryNames = new Set<string>();
   const mapForChart = new Map<string, Map<string, number>>();
-  allDates.forEach(date => {
-    items.forEach(item => {
+  allDates.forEach((date) => {
+    items.forEach((item) => {
       // log(`item = ${showObj(item)}`);
       const d = date.toDateString();
 
@@ -779,8 +779,8 @@ function filterIncomeOrExpenseItems(
   // log(`filter items by ${focus}`);
   const categoryNames = new Set<string>();
   const mapForChart = new Map<string, Map<string, number>>();
-  allDates.forEach(date => {
-    names.forEach(item => {
+  allDates.forEach((date) => {
+    names.forEach((item) => {
       const d = date.toDateString();
 
       const NVM = dateNameValueMap.get(d);
@@ -882,13 +882,13 @@ function getSettingsValues(viewSettings: ViewSettings) {
 
 function mapNamesToTypes(model: ModelData) {
   const nameToTypeMap = new Map<string, string>();
-  model.expenses.forEach(expense => {
+  model.expenses.forEach((expense) => {
     nameToTypeMap.set(expense.NAME, evaluationType.expense);
   });
-  model.incomes.forEach(income => {
+  model.incomes.forEach((income) => {
     nameToTypeMap.set(income.NAME, evaluationType.income);
     const liabilities = income.LIABILITY.split(separator);
-    liabilities.forEach(l => {
+    liabilities.forEach((l) => {
       if (l.endsWith(incomeTax)) {
         const person = l.substring(0, l.length - incomeTax.length);
         const icTag = makeIncomeTaxTag(person);
@@ -907,7 +907,7 @@ function mapNamesToTypes(model: ModelData) {
       }
     });
   });
-  model.assets.forEach(asset => {
+  model.assets.forEach((asset) => {
     nameToTypeMap.set(asset.NAME, evaluationType.asset);
     if (asset.NAME.startsWith(pensionDB)) {
       nameToTypeMap.set(
@@ -916,7 +916,7 @@ function mapNamesToTypes(model: ModelData) {
       );
     }
     const liabilities = asset.LIABILITY.split(separator);
-    liabilities.forEach(l => {
+    liabilities.forEach((l) => {
       if (l.endsWith(cgt)) {
         const person = l.substring(0, l.length - cgt.length);
         const cgtTag = makeCGTTag(person);
@@ -952,7 +952,7 @@ function mapNamesToTypes(model: ModelData) {
       nameToTypeMap.set(icTag, evaluationType.taxLiability);
     }
   });
-  model.settings.forEach(setting => {
+  model.settings.forEach((setting) => {
     nameToTypeMap.set(setting.NAME, evaluationType.setting);
   });
   nameToTypeMap.set(incomeTax, evaluationType.taxLiability);
@@ -1034,27 +1034,22 @@ export function makeChartData(
     end: roiEndDate,
   };
 
-  let incomeNames: string[] = model.incomes.map(i => i.NAME);
-  let expenseNames: string[] = model.expenses.map(e => e.NAME);
+  let incomeNames: string[] = model.incomes.map((i) => i.NAME);
+  let expenseNames: string[] = model.expenses.map((e) => e.NAME);
   let assetNames: string[] = model.assets
-    .filter(a => {
+    .filter((a) => {
       return a.IS_A_DEBT === false;
     })
-    .map(a => a.NAME);
+    .map((a) => a.NAME);
   let debtNames: string[] = model.assets
-    .filter(a => {
+    .filter((a) => {
       return a.IS_A_DEBT === true;
     })
-    .map(a => a.NAME);
+    .map((a) => a.NAME);
 
   const categoryCache = new Map<string, string>();
-  const {
-    detail,
-    frequency,
-    taxChartType,
-    taxChartPerson,
-    taxChartNet,
-  } = getSettingsValues(viewSettings);
+  const { detail, frequency, taxChartType, taxChartPerson, taxChartNet } =
+    getSettingsValues(viewSettings);
 
   const showAllAssets = viewSettings.getShowAll(Context.Asset);
   const showAllDebts = viewSettings.getShowAll(Context.Debt);
@@ -1132,8 +1127,8 @@ export function makeChartData(
   const prevEvalAssetValue = new Map<string, number>();
   // prev is used to calc + or -
 
-  evaluationsAndVals.evaluations.forEach(evaln => {
-    const firstDateAfterEvaln = allDates.find(d => d >= evaln.date);
+  evaluationsAndVals.evaluations.forEach((evaln) => {
+    const firstDateAfterEvaln = allDates.find((d) => d >= evaln.date);
     if (firstDateAfterEvaln === undefined) {
       // no need to capture data from this evaluation
       // it's after all our dates for the chart
@@ -1166,7 +1161,7 @@ export function makeChartData(
       }
       if (evaln.name.startsWith(pensionDB)) {
         // log(`charting value for ${evaln.name}, ${evaln.value}`);
-        const matchingIncome = model.incomes.find(i => {
+        const matchingIncome = model.incomes.find((i) => {
           return i.NAME === evaln.name;
         });
         if (matchingIncome === undefined) {
@@ -1282,9 +1277,8 @@ export function makeChartData(
         // log(`evaln for tax chart = ${showObj(evaln)}`);
         assetOrDebtDateNameValueMap = typeDateNameValueMap.get('tax');
       } else {
-        assetOrDebtDateNameValueMap = typeDateNameValueMap.get(
-          'assetOrDebtFocus',
-        );
+        assetOrDebtDateNameValueMap =
+          typeDateNameValueMap.get('assetOrDebtFocus');
       }
       if (assetOrDebtDateNameValueMap !== undefined) {
         const date = firstDateAfterEvaln.toDateString();
@@ -1471,7 +1465,7 @@ export function makeChartData(
       assetChartNames = assetOrDebtValueSources;
     }
     if (!showAllAssets && /*!showSingleAsset && */ showAssetValues) {
-      assetChartNames = assetChartNames.filter(i => assetNames.includes(i));
+      assetChartNames = assetChartNames.filter((i) => assetNames.includes(i));
     }
     // log(`assetChartNames = ${showObj(assetChartNames)}`);
 
@@ -1485,7 +1479,7 @@ export function makeChartData(
       debtChartNames = assetOrDebtValueSources;
     }
     if (!showAllDebts && /*!showSingleDebt && */ showAssetValues) {
-      debtChartNames = debtChartNames.filter(i => debtNames.includes(i));
+      debtChartNames = debtChartNames.filter((i) => debtNames.includes(i));
     }
 
     const aDTAssetChartNames = makeADTChartNames(
@@ -1561,7 +1555,7 @@ export function makeChartData(
   }
 
   // log(`chart data produced: ${showObj(result)}`);
-  result.labels = allDates.map(d => {
+  result.labels = allDates.map((d) => {
     return d.toDateString();
   });
 

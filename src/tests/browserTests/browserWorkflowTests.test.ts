@@ -153,8 +153,9 @@ describe('BrowserWorkflowTests 01', () => {
     return;
   }
   const driver = driverSimple;
+  jest.setTimeout(1000000); // allow time for all these tests to run
 
-  it('new, switch, cancel', async done => {
+  it('new, switch, cancel', async () => {
     const testDataModelName = 'testName1';
     await beforeAllWork(
       driver,
@@ -188,10 +189,9 @@ describe('BrowserWorkflowTests 01', () => {
     await deleteIfExists(ex1Name, driver);
     await deleteIfExists(ex2Name, driver);
     await cleanUpWork(driver, testDataModelName);
-    done();
   });
 
-  it('new, clone, save, manipulate cash value', async done => {
+  it('new, clone, save, manipulate cash value', async () => {
     const testDataModelName = 'testName2';
     await beforeAllWork(
       driver,
@@ -299,7 +299,6 @@ describe('BrowserWorkflowTests 01', () => {
     await deleteIfExists(ex1Name, driver);
     await deleteIfExists(ex2Name, driver);
     await cleanUpWork(driver, testDataModelName);
-    done();
   });
 
   afterAll(async () => {

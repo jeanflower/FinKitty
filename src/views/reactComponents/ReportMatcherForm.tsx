@@ -78,7 +78,7 @@ export class ReportMatcherForm extends Component<
         />
         {makeButton(
           'reset to default',
-          e => {
+          (e) => {
             e.persist();
             this.setState(
               {

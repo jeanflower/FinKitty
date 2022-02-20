@@ -29,14 +29,14 @@ import {
   expectEvals,
   defaultTestViewSettings,
   expectChartData,
-} from './algotestUtils';
+} from './algoTestUtils';
 
 describe('conditional tests', () => {
   if (printDebug()) {
     printTestCodeForEvals;
   }
 
-  it('conditional transaction stops negative cash absolute', done => {
+  it('conditional transaction stops negative cash absolute', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'October 1, 2018 00:00:00',
@@ -190,7 +190,7 @@ describe('conditional tests', () => {
     done();
   });
 
-  it('conditional transaction stops negative cash proportional', done => {
+  it('conditional transaction stops negative cash proportional', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'October 1, 2018 00:00:00',
@@ -347,7 +347,7 @@ describe('conditional tests', () => {
     done();
   });
 
-  it('conditional transaction stops negative cash abs->proportional', done => {
+  it('conditional transaction stops negative cash abs->proportional', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'October 1, 2018 00:00:00',
@@ -503,7 +503,7 @@ describe('conditional tests', () => {
     done();
   });
 
-  it('conditional transaction transfers more than once', done => {
+  it('conditional transaction transfers more than once', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'October 1, 2018 00:00:00',
@@ -663,7 +663,7 @@ describe('conditional tests', () => {
     done();
   });
 
-  it('conditional transaction transfers stop when funds run out abs to', done => {
+  it('conditional transaction transfers stop when funds run out abs to', (done) => {
     const roi = {
       start: 'April 1, 2018 00:00:00',
       end: 'October 1, 2018 00:00:00',
@@ -803,7 +803,7 @@ describe('conditional tests', () => {
     done();
   });
 
-  it('conditional transaction transfers stop when funds run out prop to', done => {
+  it('conditional transaction transfers stop when funds run out prop to', (done) => {
     const roi = {
       start: 'April 1, 2018 00:00:00',
       end: 'October 1, 2018 00:00:00',
@@ -941,7 +941,7 @@ describe('conditional tests', () => {
     done();
   });
 
-  it('conditional transaction granular transfers stop when funds run out prop to', done => {
+  it('conditional transaction granular transfers stop when funds run out prop to', (done) => {
     const roi = {
       start: 'April 1, 2018 00:00:00',
       end: 'October 1, 2018 00:00:00',
@@ -1085,7 +1085,7 @@ describe('conditional tests', () => {
     done();
   });
 
-  it('conditional transaction from multiple sources simple', done => {
+  it('conditional transaction from multiple sources simple', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'October 1, 2018 00:00:00',
@@ -1141,7 +1141,7 @@ describe('conditional tests', () => {
       settings: [...defaultModelSettings(roi)],
     };
 
-    const x = model.settings.find(s => {
+    const x = model.settings.find((s) => {
       return s.NAME === assetChartFocus;
     });
     if (x !== undefined) {
@@ -1291,7 +1291,7 @@ describe('conditional tests', () => {
     done();
   });
 
-  it('conditional transaction from multiple sources by quantity', done => {
+  it('conditional transaction from multiple sources by quantity', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'October 1, 2018 00:00:00',
@@ -1359,7 +1359,7 @@ describe('conditional tests', () => {
       ],
     };
 
-    const x = model.settings.find(s => {
+    const x = model.settings.find((s) => {
       return s.NAME === assetChartFocus;
     });
     if (x !== undefined) {
@@ -1517,7 +1517,7 @@ describe('conditional tests', () => {
     done();
   });
 
-  it('conditional transaction from multiple sources by category', done => {
+  it('conditional transaction from multiple sources by category', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'October 1, 2018 00:00:00',
@@ -1575,7 +1575,7 @@ describe('conditional tests', () => {
       settings: [...defaultModelSettings(roi)],
     };
 
-    const x = model.settings.find(s => {
+    const x = model.settings.find((s) => {
       return s.NAME === assetChartFocus;
     });
     if (x !== undefined) {
@@ -1725,7 +1725,7 @@ describe('conditional tests', () => {
     done();
   });
 
-  it('conditional transaction from multiple sources abs->prop', done => {
+  it('conditional transaction from multiple sources abs->prop', (done) => {
     const roi = {
       start: 'March 15, 2018 00:00:00',
       end: 'October 1, 2018 00:00:00',
@@ -1901,7 +1901,7 @@ describe('conditional tests', () => {
     done();
   });
 
-  it('conditional transaction from abs to half, asset runs out', done => {
+  it('conditional transaction from abs to half, asset runs out', (done) => {
     const roi = {
       start: 'January 15, 2018 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -2000,7 +2000,7 @@ describe('conditional tests', () => {
     done();
   });
 
-  it('conditional transaction from abs to half, cash is zerod', done => {
+  it('conditional transaction from abs to half, cash is zerod', (done) => {
     const roi = {
       start: 'January 15, 2018 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -2101,7 +2101,7 @@ describe('conditional tests', () => {
     done();
   });
 
-  it('conditional transaction from prop to half, cash reduces', done => {
+  it('conditional transaction from prop to half, cash reduces', (done) => {
     const roi = {
       start: 'January 15, 2018 00:00:00',
       end: 'April 1, 2018 00:00:00',
@@ -2193,7 +2193,7 @@ describe('conditional tests', () => {
     done();
   });
 
-  it('conditional transaction from prop to half, asset runs out', done => {
+  it('conditional transaction from prop to half, asset runs out', (done) => {
     const roi = {
       start: 'January 15, 2018 00:00:00',
       end: 'April 1, 2018 00:00:00',
@@ -2284,7 +2284,7 @@ describe('conditional tests', () => {
 
     done();
   });
-  it('pay off mortgage, conditional, to absolute', done => {
+  it('pay off mortgage, conditional, to absolute', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 1, 2018 00:00:00',
@@ -2382,7 +2382,7 @@ describe('conditional tests', () => {
     }
     done();
   });
-  it('pay off mortgage, conditional, to not absolute', done => {
+  it('pay off mortgage, conditional, to not absolute', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 1, 2018 00:00:00',
@@ -2482,7 +2482,7 @@ describe('conditional tests', () => {
     done();
   });
 
-  it('pay off loan, conditional, to absolute', done => {
+  it('pay off loan, conditional, to absolute', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 1, 2018 00:00:00',
@@ -2581,7 +2581,7 @@ describe('conditional tests', () => {
     done();
   });
 
-  it('pay off loan, conditional, to not absolute', done => {
+  it('pay off loan, conditional, to not absolute', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 1, 2018 00:00:00',
@@ -2683,7 +2683,7 @@ describe('conditional tests', () => {
     done();
   });
 
-  it('conditionally sell some cars need all', done => {
+  it('conditionally sell some cars need all', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -2717,11 +2717,11 @@ describe('conditional tests', () => {
       ],
       settings: [...defaultModelSettings(roi)],
     };
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].VALUE = '-1000'; // need to sell a lot of cars!
 
@@ -2786,7 +2786,7 @@ describe('conditional tests', () => {
     done();
   });
 
-  it('conditionally sell some cars need two', done => {
+  it('conditionally sell some cars need two', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -2820,11 +2820,11 @@ describe('conditional tests', () => {
       ],
       settings: [...defaultModelSettings(roi)],
     };
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].VALUE = '-150'; // need to sell two cars
 
@@ -2889,7 +2889,7 @@ describe('conditional tests', () => {
     done();
   });
 
-  it('conditionally sell some cars need exactly two', done => {
+  it('conditionally sell some cars need exactly two', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -2923,11 +2923,11 @@ describe('conditional tests', () => {
       ],
       settings: [...defaultModelSettings(roi)],
     };
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].VALUE = '-200'; // need to sell two cars
 
@@ -2992,7 +2992,7 @@ describe('conditional tests', () => {
     done();
   });
 
-  it('conditionally sell some cars fees matter', done => {
+  it('conditionally sell some cars fees matter', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -3026,11 +3026,11 @@ describe('conditional tests', () => {
       ],
       settings: [...defaultModelSettings(roi)],
     };
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].VALUE = '-75'; // less than one car but two considering fees
 
@@ -3095,7 +3095,7 @@ describe('conditional tests', () => {
     done();
   });
 
-  it('conditionally sell some mini cars need all', done => {
+  it('conditionally sell some mini cars need all', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -3138,11 +3138,11 @@ describe('conditional tests', () => {
         },
       ],
     };
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].VALUE = '-1000'; // need to sell a lot of cars!
 
@@ -3208,7 +3208,7 @@ describe('conditional tests', () => {
     done();
   });
 
-  it('conditionally sell some mini cars need two', done => {
+  it('conditionally sell some mini cars need two', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -3251,11 +3251,11 @@ describe('conditional tests', () => {
         },
       ],
     };
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].VALUE = '-150'; // need to sell two cars
 
@@ -3321,7 +3321,7 @@ describe('conditional tests', () => {
     done();
   });
 
-  it('conditionally sell some mini cars need exactly two', done => {
+  it('conditionally sell some mini cars need exactly two', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -3364,11 +3364,11 @@ describe('conditional tests', () => {
         },
       ],
     };
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].VALUE = '-200'; // need to sell two cars
 
@@ -3434,7 +3434,7 @@ describe('conditional tests', () => {
     done();
   });
 
-  it('conditionally sell some mini cars fees matter', done => {
+  it('conditionally sell some mini cars fees matter', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -3477,11 +3477,11 @@ describe('conditional tests', () => {
         },
       ],
     };
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].VALUE = '-75'; // less than one car but two considering fees
 
@@ -3547,7 +3547,7 @@ describe('conditional tests', () => {
     done();
   });
 
-  it('conditionally sell some chrysler cars need all', done => {
+  it('conditionally sell some chrysler cars need all', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -3596,11 +3596,11 @@ describe('conditional tests', () => {
         },
       ],
     };
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].VALUE = '-1000'; // need to sell a lot of cars!
 
@@ -3667,7 +3667,7 @@ describe('conditional tests', () => {
     done();
   });
 
-  it('conditionally sell some chrysler cars need two', done => {
+  it('conditionally sell some chrysler cars need two', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -3716,11 +3716,11 @@ describe('conditional tests', () => {
         },
       ],
     };
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].VALUE = '-150'; // need to sell two cars
 
@@ -3787,7 +3787,7 @@ describe('conditional tests', () => {
     done();
   });
 
-  it('conditionally sell some chrysler cars need exactly two', done => {
+  it('conditionally sell some chrysler cars need exactly two', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -3836,11 +3836,11 @@ describe('conditional tests', () => {
         },
       ],
     };
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].VALUE = '-200'; // need to sell two cars
 
@@ -3907,7 +3907,7 @@ describe('conditional tests', () => {
     done();
   });
 
-  it('conditionally sell some chrysler cars capped', done => {
+  it('conditionally sell some chrysler cars capped', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -3956,11 +3956,11 @@ describe('conditional tests', () => {
         },
       ],
     };
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].VALUE = '-500';
 
@@ -4029,7 +4029,7 @@ describe('conditional tests', () => {
     done();
   });
 
-  it('conditionally sell some chrysler cars fees matter', done => {
+  it('conditionally sell some chrysler cars fees matter', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -4078,11 +4078,11 @@ describe('conditional tests', () => {
         },
       ],
     };
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].VALUE = '-75'; // less than one car but two considering fees
 
@@ -4149,7 +4149,7 @@ describe('conditional tests', () => {
     done();
   });
 
-  it('conditionally sell some chrysler cars then revalue chrysler', done => {
+  it('conditionally sell some chrysler cars then revalue chrysler', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -4209,11 +4209,11 @@ describe('conditional tests', () => {
         },
       ],
     };
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].VALUE = '-150'; // need to sell two cars
 
@@ -4281,7 +4281,7 @@ describe('conditional tests', () => {
     done();
   });
 
-  it('conditionally sell some chrysler fleets need some', done => {
+  it('conditionally sell some chrysler fleets need some', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -4338,11 +4338,11 @@ describe('conditional tests', () => {
         },
       ],
     };
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].VALUE = '-1000'; // need to sell a lot of cars!
 

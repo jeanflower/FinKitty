@@ -60,7 +60,7 @@ function assetOptions(model: ModelData, handleChange: any, id: string) {
     .sort((a, b) => {
       return lessThan(a.NAME, b.NAME);
     })
-    .map(asset => {
+    .map((asset) => {
       return {
         text: asset.NAME,
         action: (e: FormEvent<Element>) => {
@@ -73,13 +73,13 @@ function assetOptions(model: ModelData, handleChange: any, id: string) {
     })
     .concat(
       model.settings
-        .filter(setting => {
+        .filter((setting) => {
           return setting.TYPE === adjustableType;
         })
         .sort((a, b) => {
           return lessThan(a.NAME, b.NAME);
         })
-        .map(setting => {
+        .map((setting) => {
           return {
             text: setting.NAME,
             action: (e: FormEvent<Element>) => {
@@ -91,7 +91,7 @@ function assetOptions(model: ModelData, handleChange: any, id: string) {
           };
         }),
     );
-  const options = optionData.map(bd => (
+  const options = optionData.map((bd) => (
     <option
       value={bd.text}
       id={`option-asset-${bd.text}`}
@@ -105,8 +105,8 @@ function assetOptions(model: ModelData, handleChange: any, id: string) {
     <select
       className="custom-select"
       id={id}
-      onChange={e => {
-        const found = optionData.find(od => {
+      onChange={(e) => {
+        const found = optionData.find((od) => {
           return od.text === e.target.value;
         });
         if (found !== undefined) {
@@ -161,9 +161,8 @@ export class AddDeleteTransactionForm extends Component<
     this.handleToValueChange = this.handleToValueChange.bind(this);
     this.handleCategoryChange = this.handleCategoryChange.bind(this);
     this.handleRecurrenceChange = this.handleRecurrenceChange.bind(this);
-    this.handleLiquidateForCashChange = this.handleLiquidateForCashChange.bind(
-      this,
-    );
+    this.handleLiquidateForCashChange =
+      this.handleLiquidateForCashChange.bind(this);
 
     this.handleDateChange = this.handleDateChange.bind(this);
     this.setDate = this.setDate.bind(this);
@@ -403,7 +402,7 @@ export class AddDeleteTransactionForm extends Component<
     }
 
     if (doCheckBeforeOverwritingExistingData()) {
-      const matchingItem = this.props.model.transactions.find(a => {
+      const matchingItem = this.props.model.transactions.find((a) => {
         return a.NAME === this.state.NAME;
       });
       if (matchingItem !== undefined) {

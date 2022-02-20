@@ -7,7 +7,7 @@ const Auth0Context = createContext();
 export const useAuth0 = () => {
   // log(`in useAuth0`);
   return useContext(Auth0Context);
-}
+};
 
 // create a provider
 export class Auth0Provider extends Component {
@@ -15,7 +15,7 @@ export class Auth0Provider extends Component {
     auth0Client: null,
     isLoading: true,
     isAuthenticated: false,
-    user: null
+    user: null,
   };
   config = {
     domain: process.env.REACT_APP_AUTH0_DOMAIN_NOT_SECRET,
@@ -30,7 +30,7 @@ export class Auth0Provider extends Component {
 
   // initialize the auth0 library
   initializeAuth0 = async () => {
-    if(printDebug()){
+    if (printDebug()) {
       log(`auth config is ${showObj(this.config)}`);
     }
     const auth0Client = await createAuth0Client(this.config);
@@ -77,7 +77,7 @@ export class Auth0Provider extends Component {
       },
       getTokenSilently: (...p) => auth0Client.getTokenSilently(...p),
       getIdTokenClaims: (...p) => auth0Client.getIdTokenClaims(...p),
-      logout: (...p) => auth0Client.logout(...p)
+      logout: (...p) => auth0Client.logout(...p),
     };
 
     return (

@@ -31,14 +31,14 @@ import {
   expectEvals,
   defaultTestViewSettings,
   expectChartData,
-} from './algotestUtils';
+} from './algoTestUtils';
 
 describe(' chart data tests', () => {
   if (printDebug()) {
     printTestCodeForEvals;
   }
 
-  it('annual accumulation for chart less than one year', done => {
+  it('annual accumulation for chart less than one year', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 2, 2018 00:00:00',
@@ -85,7 +85,7 @@ describe(' chart data tests', () => {
     done();
   });
 
-  it('annual accumulation for chart more than one year', done => {
+  it('annual accumulation for chart more than one year', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 2, 2019 00:00:00',
@@ -140,7 +140,7 @@ describe(' chart data tests', () => {
     done();
   });
 
-  it('annual chart data for assets', done => {
+  it('annual chart data for assets', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 1, 2019 00:00:00',
@@ -221,7 +221,7 @@ describe(' chart data tests', () => {
     done();
   });
 
-  it('Check coarse, categorised, chart data data', done => {
+  it('Check coarse, categorised, chart data data', (done) => {
     const model = getModelCoarseAndFine();
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -354,7 +354,7 @@ describe(' chart data tests', () => {
     done();
   });
 
-  it('Check totalled, chart data data', done => {
+  it('Check totalled, chart data data', (done) => {
     const model = getModelCoarseAndFine();
 
     const evalsAndValues = getTestEvaluations(model);
@@ -458,7 +458,7 @@ describe(' chart data tests', () => {
     done();
   });
 
-  it('Check fine, uncategorised, chart data data', done => {
+  it('Check fine, uncategorised, chart data data', (done) => {
     const model = getModelCoarseAndFine();
 
     const evalsAndValues = getTestEvaluations(model);
@@ -622,7 +622,7 @@ describe(' chart data tests', () => {
     done();
   });
 
-  it('Coarse asset view for cash asset, vals, +, -, +- data1', done => {
+  it('Coarse asset view for cash asset, vals, +, -, +- data1', (done) => {
     const model = getModelCoarseAndFine();
 
     const evalsAndValues = getTestEvaluations(model);
@@ -749,7 +749,7 @@ describe(' chart data tests', () => {
     done();
   });
 
-  it('filter chart data into single category, coarse', done => {
+  it('filter chart data into single category, coarse', (done) => {
     const model = getModelCoarseAndFine();
 
     const evalsAndValues = getTestEvaluations(model);
@@ -787,7 +787,7 @@ describe(' chart data tests', () => {
     done();
   });
 
-  it('filter chart data into single uncategorised asset, coarse', done => {
+  it('filter chart data into single uncategorised asset, coarse', (done) => {
     const model = getModelCoarseAndFine();
     // log(`model - ${showObj(model)}`);
 
@@ -868,7 +868,7 @@ describe(' chart data tests', () => {
     done();
   });
 
-  it('filter chart data into single categorised asset, coarse', done => {
+  it('filter chart data into single categorised asset, coarse', (done) => {
     const model = getModelCoarseAndFine();
 
     const evalsAndValues = getTestEvaluations(model);
@@ -948,7 +948,7 @@ describe(' chart data tests', () => {
     done();
   });
 
-  it('filter chart data into single category, fine', done => {
+  it('filter chart data into single category, fine', (done) => {
     const model = getModelCoarseAndFine();
 
     const evalsAndValues = getTestEvaluations(model);
@@ -996,7 +996,7 @@ describe(' chart data tests', () => {
     done();
   });
 
-  it('asset view type deltas', done => {
+  it('asset view type deltas', (done) => {
     const model = getModelCoarseAndFine();
 
     const evalsAndValues = getTestEvaluations(model);
@@ -1083,7 +1083,7 @@ describe(' chart data tests', () => {
     done();
   });
 
-  it('asset view type reductions', done => {
+  it('asset view type reductions', (done) => {
     const model = getModelCoarseAndFine();
 
     const evalsAndValues = getTestEvaluations(model);
@@ -1131,7 +1131,7 @@ describe(' chart data tests', () => {
     done();
   });
 
-  it('asset view type additions', done => {
+  it('asset view type additions', (done) => {
     const model = getModelCoarseAndFine();
 
     const evalsAndValues = getTestEvaluations(model);
@@ -1198,7 +1198,7 @@ describe(' chart data tests', () => {
     done();
   });
 
-  it('filter chart data into single category with transfer, coarse', done => {
+  it('filter chart data into single category with transfer, coarse', (done) => {
     const model = getModelCoarseAndFine();
 
     model.transactions = [
@@ -1250,7 +1250,7 @@ describe(' chart data tests', () => {
     done();
   });
 
-  it('filter chart data into single category with income, fine', done => {
+  it('filter chart data into single category with income, fine', (done) => {
     const model = getModelCoarseAndFine();
 
     // set the category of an income to match

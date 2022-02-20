@@ -84,7 +84,7 @@ interface EditIncomeProps extends FormProps {
 }
 
 export function incomeOptions(model: ModelData, handleChange: any, id: string) {
-  const optionData = model.incomes.map(income => {
+  const optionData = model.incomes.map((income) => {
     return {
       text: income.NAME,
       action: (e: FormEvent<Element>) => {
@@ -96,7 +96,7 @@ export function incomeOptions(model: ModelData, handleChange: any, id: string) {
     };
   });
 
-  const options = optionData.map(bd => (
+  const options = optionData.map((bd) => (
     <option
       value={bd.text}
       id={`option-income-${bd.text}`}
@@ -110,8 +110,8 @@ export function incomeOptions(model: ModelData, handleChange: any, id: string) {
     <select
       className="custom-select"
       id={id}
-      onChange={e => {
-        const found = optionData.find(od => {
+      onChange={(e) => {
+        const found = optionData.find((od) => {
           return od.text === e.target.value;
         });
         if (found !== undefined) {
@@ -172,16 +172,14 @@ export class AddDeleteIncomeForm extends Component<
     this.handleCategoryChange = this.handleCategoryChange.bind(this);
     this.revalue = this.revalue.bind(this);
 
-    this.handleDbpIncomeSourceChange = this.handleDbpIncomeSourceChange.bind(
-      this,
-    );
+    this.handleDbpIncomeSourceChange =
+      this.handleDbpIncomeSourceChange.bind(this);
     this.handleDbpSsChange = this.handleDbpSsChange.bind(this);
     this.handleDbpAccrualChange = this.handleDbpAccrualChange.bind(this);
     this.handleDbpTransferTo = this.handleDbpTransferTo.bind(this);
     this.handleDbpContAmount = this.handleDbpContAmount.bind(this);
-    this.handleDbpTransferProportion = this.handleDbpTransferProportion.bind(
-      this,
-    );
+    this.handleDbpTransferProportion =
+      this.handleDbpTransferProportion.bind(this);
 
     this.handleValueSetChange = this.handleValueSetChange.bind(this);
     this.setValueSet = this.setValueSet.bind(this);
@@ -195,9 +193,8 @@ export class AddDeleteIncomeForm extends Component<
     this.setDbpEnd = this.setDbpEnd.bind(this);
     this.handleDbpStopSourceChange = this.handleDbpStopSourceChange.bind(this);
     this.setDbpStopSource = this.setDbpStopSource.bind(this);
-    this.handleDbpTransferredStopChange = this.handleDbpTransferredStopChange.bind(
-      this,
-    );
+    this.handleDbpTransferredStopChange =
+      this.handleDbpTransferredStopChange.bind(this);
     this.setDbpTransferredStop = this.setDbpTransferredStop.bind(this);
 
     this.add = this.add.bind(this);
@@ -738,7 +735,7 @@ DB_TRANSFERRED_STOP
     }
 
     if (doCheckBeforeOverwritingExistingData()) {
-      const matchingItem = this.props.model.incomes.find(a => {
+      const matchingItem = this.props.model.incomes.find((a) => {
         return a.NAME === this.state.NAME;
       });
       if (matchingItem !== undefined) {
@@ -847,7 +844,7 @@ DB_TRANSFERRED_STOP
         return;
       }
 
-      const sourceIncome = this.props.model.incomes.find(i => {
+      const sourceIncome = this.props.model.incomes.find((i) => {
         return i.NAME === this.state.DB_INCOME_SOURCE;
       });
       if (sourceIncome === undefined && this.state.DB_INCOME_SOURCE !== '') {
@@ -864,7 +861,7 @@ DB_TRANSFERRED_STOP
           return;
         }
         const words = liabilities.split(separator);
-        const incomeTaxWord = words.find(w => {
+        const incomeTaxWord = words.find((w) => {
           return w.endsWith(incomeTax);
         });
         if (incomeTaxWord === undefined) {
@@ -988,8 +985,9 @@ DB_TRANSFERRED_STOP
           return;
         }
         // log(`this.state.DB_ACCRUAL = ${this.state.DB_ACCRUAL}`);
-        const monthlyAccrualValue = `${parseFloat(this.state.DB_ACCRUAL) /
-          12.0}`;
+        const monthlyAccrualValue = `${
+          parseFloat(this.state.DB_ACCRUAL) / 12.0
+        }`;
         // Why divide by 12 here?
         // the accrual rate adds, say, 1/49th of an income to the
         // annual pension benefit.

@@ -22,7 +22,7 @@ import {
   expectEvals,
   defaultTestViewSettings,
   expectChartData,
-} from './algotestUtils';
+} from './algoTestUtils';
 
 describe('quantity tests', () => {
   if (printDebug()) {
@@ -30,7 +30,7 @@ describe('quantity tests', () => {
     log;
   }
 
-  it('an asset can be a quantity of things', done => {
+  it('an asset can be a quantity of things', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 2, 2018 00:00:00',
@@ -115,7 +115,7 @@ describe('quantity tests', () => {
     done();
   });
 
-  it('an asset can be a quantity of dollar-priced things', done => {
+  it('an asset can be a quantity of dollar-priced things', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 2, 2018 00:00:00',
@@ -208,7 +208,7 @@ describe('quantity tests', () => {
     done();
   });
 
-  it('sell 100% of a quantity of things', done => {
+  it('sell 100% of a quantity of things', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 2, 2018 00:00:00',
@@ -323,7 +323,7 @@ describe('quantity tests', () => {
     done();
   });
 
-  it('sell 99% of a quantity of things', done => {
+  it('sell 99% of a quantity of things', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 2, 2018 00:00:00',
@@ -438,7 +438,7 @@ describe('quantity tests', () => {
     done();
   });
 
-  it('define three mini cars', done => {
+  it('define three mini cars', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -467,7 +467,7 @@ describe('quantity tests', () => {
         },
       ],
     };
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
@@ -518,7 +518,7 @@ describe('quantity tests', () => {
     done();
   });
 
-  it('revalue three mini cars', done => {
+  it('revalue three mini cars', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -558,7 +558,7 @@ describe('quantity tests', () => {
         },
       ],
     };
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
@@ -610,7 +610,7 @@ describe('quantity tests', () => {
     done();
   });
 
-  it('simple buy some mini cars', done => {
+  it('simple buy some mini cars', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -651,7 +651,7 @@ describe('quantity tests', () => {
         },
       ],
     };
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
@@ -717,7 +717,7 @@ describe('quantity tests', () => {
     done();
   });
 
-  it('simple sell some mini cars', done => {
+  it('simple sell some mini cars', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -759,7 +759,7 @@ describe('quantity tests', () => {
         },
       ],
     };
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
@@ -825,7 +825,7 @@ describe('quantity tests', () => {
     done();
   });
 
-  it('define three chrysler cars', done => {
+  it('define three chrysler cars', (done) => {
     const model = getThreeChryslerModel();
 
     const evalsAndValues = getTestEvaluations(model);
@@ -876,7 +876,7 @@ describe('quantity tests', () => {
     done();
   });
 
-  it('revalue three chrysler cars', done => {
+  it('revalue three chrysler cars', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -922,7 +922,7 @@ describe('quantity tests', () => {
         },
       ],
     };
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
@@ -975,7 +975,7 @@ describe('quantity tests', () => {
     done();
   });
 
-  it('simple buy some chrysler cars', done => {
+  it('simple buy some chrysler cars', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -1022,7 +1022,7 @@ describe('quantity tests', () => {
         },
       ],
     };
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
@@ -1089,7 +1089,7 @@ describe('quantity tests', () => {
     done();
   });
 
-  it('simple sell some chrysler cars', done => {
+  it('simple sell some chrysler cars', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -1137,7 +1137,7 @@ describe('quantity tests', () => {
         },
       ],
     };
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
@@ -1204,7 +1204,7 @@ describe('quantity tests', () => {
     done();
   });
 
-  it('define three daimler cars', done => {
+  it('define three daimler cars', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -1239,7 +1239,7 @@ describe('quantity tests', () => {
         },
       ],
     };
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
@@ -1291,7 +1291,7 @@ describe('quantity tests', () => {
     done();
   });
 
-  it('define three ford cars', done => {
+  it('define three ford cars', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -1326,7 +1326,7 @@ describe('quantity tests', () => {
         },
       ],
     };
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
@@ -1378,7 +1378,7 @@ describe('quantity tests', () => {
     done();
   });
 
-  it('revalue chrysler cars for USD change', done => {
+  it('revalue chrysler cars for USD change', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -1424,7 +1424,7 @@ describe('quantity tests', () => {
         },
       ],
     };
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
@@ -1477,7 +1477,7 @@ describe('quantity tests', () => {
     done();
   });
 
-  it('revalue chrysler cars for crysler val change', done => {
+  it('revalue chrysler cars for crysler val change', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -1523,7 +1523,7 @@ describe('quantity tests', () => {
         },
       ],
     };
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
@@ -1576,7 +1576,7 @@ describe('quantity tests', () => {
     done();
   });
 
-  it('revalue chrysler cars from number to expression', done => {
+  it('revalue chrysler cars from number to expression', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -1622,7 +1622,7 @@ describe('quantity tests', () => {
         },
       ],
     };
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
@@ -1674,7 +1674,7 @@ describe('quantity tests', () => {
     done();
   });
 
-  it('define three cadillac cars', done => {
+  it('define three cadillac cars', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -1715,7 +1715,7 @@ describe('quantity tests', () => {
         },
       ],
     };
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
@@ -1771,7 +1771,7 @@ describe('quantity tests', () => {
     done();
   });
 
-  it('define two cadillac cars deeper indirection', done => {
+  it('define two cadillac cars deeper indirection', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -1823,7 +1823,7 @@ describe('quantity tests', () => {
         },
       ],
     };
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
@@ -1879,7 +1879,7 @@ describe('quantity tests', () => {
     done();
   });
 
-  it('define two cadillac cars double formula', done => {
+  it('define two cadillac cars double formula', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -1942,7 +1942,7 @@ describe('quantity tests', () => {
         },
       ],
     };
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
@@ -1999,7 +1999,7 @@ describe('quantity tests', () => {
     done();
   });
 
-  it('define three cars', done => {
+  it('define three cars', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -2019,7 +2019,7 @@ describe('quantity tests', () => {
       ],
       settings: [...defaultModelSettings(roi)],
     };
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
@@ -2069,7 +2069,7 @@ describe('quantity tests', () => {
     done();
   });
 
-  it('revalue three cars', done => {
+  it('revalue three cars', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -2100,7 +2100,7 @@ describe('quantity tests', () => {
       ],
       settings: [...defaultModelSettings(roi)],
     };
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
@@ -2151,7 +2151,7 @@ describe('quantity tests', () => {
     done();
   });
 
-  it('simple buy some cars', done => {
+  it('simple buy some cars', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -2183,7 +2183,7 @@ describe('quantity tests', () => {
       ],
       settings: [...defaultModelSettings(roi)],
     };
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
@@ -2248,7 +2248,7 @@ describe('quantity tests', () => {
     done();
   });
 
-  it('be given some cars', done => {
+  it('be given some cars', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -2278,7 +2278,7 @@ describe('quantity tests', () => {
       ],
       settings: [...defaultModelSettings(roi)],
     };
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
@@ -2332,7 +2332,7 @@ describe('quantity tests', () => {
     done();
   });
 
-  it('be given some US cars', done => {
+  it('be given some US cars', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -2371,7 +2371,7 @@ describe('quantity tests', () => {
         },
       ],
     };
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
@@ -2426,7 +2426,7 @@ describe('quantity tests', () => {
     done();
   });
 
-  it('simple sell some cars', done => {
+  it('simple sell some cars', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -2459,7 +2459,7 @@ describe('quantity tests', () => {
       ],
       settings: [...defaultModelSettings(roi)],
     };
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 

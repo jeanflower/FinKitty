@@ -79,12 +79,12 @@ async function loadModelFromDB(
 function logCache() {
   if (showDBInteraction) {
     log(
-      `set up ${Array.from(localCache.keys()).map(k => {
+      `set up ${Array.from(localCache.keys()).map((k) => {
         const cachedModel = localCache.get(k);
         if (!cachedModel) {
           return '';
         } else {
-          return `[${k}, ${cachedModel.map(cm => {
+          return `[${k}, ${cachedModel.map((cm) => {
             return `${cm.modelName}${cm.status.isDirty}${cm.model.assets.length}`;
           })}]`;
         }
@@ -126,7 +126,7 @@ async function fillCacheFromDB(userID: string) {
   }
   // log('go to Promise.all(...)');
   const result = await Promise.all(
-    modelNames.map(modelName => {
+    modelNames.map((modelName) => {
       return getModel(modelName);
     }),
   );
@@ -143,7 +143,7 @@ export async function getModelNames(userID: string) {
   if (!cachedModels) {
     cachedModels = await fillCacheFromDB(userID);
   }
-  return cachedModels.map(cm => {
+  return cachedModels.map((cm) => {
     return cm.modelName;
   });
 }
@@ -162,7 +162,7 @@ export async function loadModel(userID: string, modelName: string) {
   const cachedModels = localCache.get(userID);
   let cachedModel = undefined;
   if (cachedModels) {
-    cachedModel = cachedModels.find(cm => {
+    cachedModel = cachedModels.find((cm) => {
       return cm.modelName === modelName;
     });
   }
@@ -211,7 +211,7 @@ async function saveModelToCache(
     model: modelData,
     status: { isDirty: true },
   };
-  const idx = cachedModels.findIndex(cm => {
+  const idx = cachedModels.findIndex((cm) => {
     return cm.modelName === modelName;
   });
   if (idx !== -1) {
@@ -230,7 +230,7 @@ export async function ensureModel(userID: string, modelName: string) {
     cachedModels = [];
   }
 
-  const cachedModel = cachedModels.find(cm => {
+  const cachedModel = cachedModels.find((cm) => {
     return cm.modelName === modelName;
   });
   if (cachedModel) {
@@ -421,7 +421,7 @@ export async function saveModelToDBLSM(
   const cachedModels = localCache.get(userID);
   let status;
   if (cachedModels) {
-    const cachedModel = cachedModels.find(cm => {
+    const cachedModel = cachedModels.find((cm) => {
       return cm.modelName === modelName;
     });
     if (cachedModel) {
@@ -475,7 +475,7 @@ export async function submitNewSettingLSM(
   userID: string,
 ) {
   let type = adjustableType;
-  const matchingSettings = modelData.settings.filter(s => {
+  const matchingSettings = modelData.settings.filter((s) => {
     return s.NAME === setting.NAME;
   });
   if (matchingSettings.length > 0) {
@@ -504,7 +504,7 @@ export async function deleteModel(userID: string, modelName: string) {
   if (cachedModels === undefined) {
     log(`unexpected empty local cache - no models for ${userID}??`);
   } else {
-    const idx = cachedModels.findIndex(cm => {
+    const idx = cachedModels.findIndex((cm) => {
       return cm.modelName === modelName;
     });
     if (idx === -1) {

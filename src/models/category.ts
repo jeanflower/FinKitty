@@ -3,7 +3,7 @@ import { ItemCategory, ModelData } from '../types/interfaces';
 import { makeSourceForFromChange } from './evaluations';
 
 function getCategoryFromItems(name: string, items: ItemCategory[]) {
-  const found = items.find(i => i.NAME === name);
+  const found = items.find((i) => i.NAME === name);
   if (found !== undefined) {
     if (found.CATEGORY.length > 0) {
       return found.CATEGORY;
@@ -26,7 +26,7 @@ function getCategorySub(name: string, model: ModelData) {
   if (category === undefined) {
     category = getCategoryFromItems(name, model.transactions);
   }
-  const foundTransaction = model.transactions.find(i => {
+  const foundTransaction = model.transactions.find((i) => {
     const source1 = makeSourceForFromChange(i);
     if (source1 === name) {
       return true;

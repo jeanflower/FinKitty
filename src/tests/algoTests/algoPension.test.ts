@@ -50,14 +50,14 @@ import {
   getModelCrystallizedPension,
   getMinimalModelCopySettings,
   getModelTwoCrystallizedPensions,
-} from './algotestUtils';
+} from './algoTestUtils';
 
 describe('pension tests', () => {
   if (printDebug()) {
     printTestCodeForEvals;
   }
 
-  it('pay into defined contributions pension simplest', done => {
+  it('pay into defined contributions pension simplest', (done) => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'May 2, 2018 00:00:00',
@@ -212,7 +212,7 @@ describe('pension tests', () => {
     done();
   });
 
-  it('pay one-off pension and employee pension contribution', done => {
+  it('pay one-off pension and employee pension contribution', (done) => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'May 2, 2018 00:00:00',
@@ -418,7 +418,7 @@ describe('pension tests', () => {
     done();
   });
 
-  it('pay into two defined contributions pension schemes', done => {
+  it('pay into two defined contributions pension schemes', (done) => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'May 2, 2018 00:00:00',
@@ -646,7 +646,7 @@ describe('pension tests', () => {
     done();
   });
 
-  it('pay into defined contributions pension with employer contribution', done => {
+  it('pay into defined contributions pension with employer contribution', (done) => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'May 2, 2018 00:00:00',
@@ -815,7 +815,7 @@ describe('pension tests', () => {
     done();
   });
 
-  it('pay monthly pay into defined contributions pension with employer contribution', done => {
+  it('pay monthly pay into defined contributions pension with employer contribution', (done) => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'May 2, 2018 00:00:00',
@@ -1050,7 +1050,7 @@ describe('pension tests', () => {
     done();
   });
 
-  it('pay into defined contributions pension with salary sacrifice', done => {
+  it('pay into defined contributions pension with salary sacrifice', (done) => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'May 2, 2018 00:00:00',
@@ -1224,7 +1224,7 @@ describe('pension tests', () => {
   // should be rather like the "pay pension contributions simplest"
   // test - this involves a manual pension contribution
   // where that was siphoned off at source
-  it('pay one-off pension contribution', done => {
+  it('pay one-off pension contribution', (done) => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'May 2, 2018 00:00:00',
@@ -1400,7 +1400,7 @@ describe('pension tests', () => {
   });
 
   // transfers from crystallized pensions are liable to Income tax
-  it('pay income tax on one off crystallized pension 1', done => {
+  it('pay income tax on one off crystallized pension 1', (done) => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'April 2, 2018 00:00:00',
@@ -1489,7 +1489,7 @@ describe('pension tests', () => {
     done();
   });
 
-  it('pay into defined benefits pension simplest', done => {
+  it('pay into defined benefits pension simplest', (done) => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'August 2, 2018 00:00:00',
@@ -1706,7 +1706,7 @@ describe('pension tests', () => {
     done();
   });
 
-  it('pay into defined benefits pension salary sacrifice', done => {
+  it('pay into defined benefits pension salary sacrifice', (done) => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'August 2, 2018 00:00:00',
@@ -1924,7 +1924,7 @@ describe('pension tests', () => {
     done();
   });
 
-  it('pay into defined benefits pension apply cpi', done => {
+  it('pay into defined benefits pension apply cpi', (done) => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'August 2, 2018 00:00:00',
@@ -2127,7 +2127,7 @@ describe('pension tests', () => {
     done();
   });
 
-  it('pay into defined benefits pension cant have TO equal cash', done => {
+  it('pay into defined benefits pension cant have TO equal cash', (done) => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'August 2, 2018 00:00:00',
@@ -2221,7 +2221,7 @@ describe('pension tests', () => {
     done();
   });
 
-  it('pay into defined benefits pension cant have TO equal an arbitrary income', done => {
+  it('pay into defined benefits pension cant have TO equal an arbitrary income', (done) => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'August 2, 2018 00:00:00',
@@ -2315,7 +2315,7 @@ describe('pension tests', () => {
     done();
   });
 
-  it('pay into defined benefits pension transaction must begin pensionDB', done => {
+  it('pay into defined benefits pension transaction must begin pensionDB', (done) => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'August 2, 2018 00:00:00',
@@ -2408,7 +2408,7 @@ describe('pension tests', () => {
     done();
   });
 
-  it('asset view pension transfers additions', done => {
+  it('asset view pension transfers additions', (done) => {
     const modelAndRoi = getModelCrystallizedPension();
     const model = modelAndRoi.model;
 
@@ -2457,7 +2457,7 @@ describe('pension tests', () => {
     done();
   });
 
-  it('asset view pension transfers reductions', done => {
+  it('asset view pension transfers reductions', (done) => {
     const modelAndRoi = getModelCrystallizedPension();
     const model = modelAndRoi.model;
 
@@ -2507,7 +2507,7 @@ describe('pension tests', () => {
     done();
   });
 
-  it('asset view pension transfers deltas', done => {
+  it('asset view pension transfers deltas', (done) => {
     const modelAndRoi = getModelCrystallizedPension();
     const model = modelAndRoi.model;
 
@@ -2555,7 +2555,7 @@ describe('pension tests', () => {
     done();
   });
 
-  it('pay income tax on conditional absolute crystallized pension', done => {
+  it('pay income tax on conditional absolute crystallized pension', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 2, 2018 00:00:00',
@@ -2708,7 +2708,7 @@ describe('pension tests', () => {
   });
 
   // transfers from crystallized pensions are liable to Income tax
-  it('pay income tax on one off crystallized pension 2', done => {
+  it('pay income tax on one off crystallized pension 2', (done) => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'April 2, 2018 00:00:00',
@@ -2796,7 +2796,7 @@ describe('pension tests', () => {
     done();
   });
 
-  it('pay income tax on conditional categorized crystallized pension', done => {
+  it('pay income tax on conditional categorized crystallized pension', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 2, 2018 00:00:00',
@@ -3012,7 +3012,7 @@ describe('pension tests', () => {
     done();
   });
 
-  it('pay income tax on conditional proportional crystallized pension', done => {
+  it('pay income tax on conditional proportional crystallized pension', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 2, 2018 00:00:00',
@@ -3163,7 +3163,7 @@ describe('pension tests', () => {
     done();
   });
 
-  it('pay income tax on recurring conditional proportional crystallized pension', done => {
+  it('pay income tax on recurring conditional proportional crystallized pension', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 2, 2018 00:00:00',
@@ -3354,7 +3354,7 @@ describe('pension tests', () => {
     done();
   });
 
-  it('pay income tax on list member recurring conditional proportional crystallized pension', done => {
+  it('pay income tax on list member recurring conditional proportional crystallized pension', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 2, 2018 00:00:00',
@@ -3574,7 +3574,7 @@ describe('pension tests', () => {
   });
 
   // transfers from crystallized pensions are liable to Income tax
-  it('pay income tax on monthly crystallized pension', done => {
+  it('pay income tax on monthly crystallized pension', (done) => {
     const roi = {
       start: 'April 6, 2018 00:00:00',
       end: 'April 2, 2019 00:00:00',
@@ -3739,7 +3739,7 @@ describe('pension tests', () => {
     done();
   });
 
-  it('use up income tax allowance from crystallized pension', done => {
+  it('use up income tax allowance from crystallized pension', (done) => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'May 2, 2018 00:00:00',
@@ -3865,7 +3865,7 @@ describe('pension tests', () => {
     done();
   });
 
-  it('Defined Benefits Pension evaluations', done => {
+  it('Defined Benefits Pension evaluations', (done) => {
     const roi = {
       start: 'Dec 1, 2019',
       end: 'May 02 2021',
@@ -4018,7 +4018,7 @@ describe('pension tests', () => {
     done();
   });
 
-  it('Defined Contributions Pension evaluations', done => {
+  it('Defined Contributions Pension evaluations', (done) => {
     // TODO : check
     const roi = {
       start: 'Dec 1, 2019',
@@ -4149,7 +4149,7 @@ describe('pension tests', () => {
     done();
   });
 
-  it('Transferring pensions to others', done => {
+  it('Transferring pensions to others', (done) => {
     const roi = {
       start: 'Dec 1, 2019',
       end: 'May 02 2031',
@@ -4814,7 +4814,7 @@ describe('pension tests', () => {
     done();
   });
 
-  it('unused allowances', done => {
+  it('unused allowances', (done) => {
     const modelAndRoi = getModelTwoCrystallizedPensions();
     const model = modelAndRoi.model;
 

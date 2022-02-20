@@ -298,7 +298,7 @@ export class AddDeleteSettingForm extends Component<
     }
 
     if (doCheckBeforeOverwritingExistingData()) {
-      const matchingItem = this.props.model.settings.find(a => {
+      const matchingItem = this.props.model.settings.find((a) => {
         return a.NAME === this.state.NAME;
       });
       if (matchingItem !== undefined) {

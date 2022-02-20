@@ -69,7 +69,7 @@ export function isSetting(input: string, settings: Setting[]) {
     value: '',
     numFound: 1,
   };
-  const x = settings.filter(pr => pr.NAME === input);
+  const x = settings.filter((pr) => pr.NAME === input);
   if (x.length === 1) {
     // log(`got setting ${showObj(result)}`);
     result.value = x[0].VALUE;
@@ -116,7 +116,7 @@ export function setSetting(
   type: string,
   hint = '',
 ) {
-  const idx = settings.findIndex(x => x.NAME === key);
+  const idx = settings.findIndex((x) => x.NAME === key);
   if (idx === -1) {
     // add new object
     settings.push({
@@ -162,7 +162,7 @@ export function makeModelFromJSON(input: string): ModelData {
 }
 
 export function isADebt(name: string, model: ModelData) {
-  const matchingAsset = model.assets.find(a => {
+  const matchingAsset = model.assets.find((a) => {
     return a.NAME === name;
   });
   if (matchingAsset === undefined) {
@@ -171,23 +171,24 @@ export function isADebt(name: string, model: ModelData) {
   return matchingAsset.IS_A_DEBT;
 }
 export function isAnIncome(name: string, model: ModelData) {
-  return model.incomes.find(a => a.NAME === name) !== undefined;
+  return model.incomes.find((a) => a.NAME === name) !== undefined;
 }
 export function isAnExpense(name: string, model: ModelData) {
-  return model.expenses.find(a => a.NAME === name) !== undefined;
+  return model.expenses.find((a) => a.NAME === name) !== undefined;
 }
 export function isASetting(name: string, model: ModelData) {
-  return model.settings.find(s => s.NAME === name) !== undefined;
+  return model.settings.find((s) => s.NAME === name) !== undefined;
 }
 function isAnAsset(name: string, model: ModelData) {
   return (
-    model.assets.find(a => a.NAME === name || a.CATEGORY === name) !== undefined
+    model.assets.find((a) => a.NAME === name || a.CATEGORY === name) !==
+    undefined
   );
 }
 export function isAnAssetOrAssets(name: string, model: ModelData) {
   const words = name.split(separator);
   let ok = true;
-  words.forEach(word => {
+  words.forEach((word) => {
     if (!isAnAsset(word, model)) {
       ok = false;
     }
@@ -195,7 +196,7 @@ export function isAnAssetOrAssets(name: string, model: ModelData) {
   return ok;
 }
 export function isATransaction(name: string, model: ModelData) {
-  return model.transactions.filter(t => t.NAME === name).length > 0;
+  return model.transactions.filter((t) => t.NAME === name).length > 0;
 }
 
 export function replaceCategoryWithAssetNames(
@@ -204,20 +205,20 @@ export function replaceCategoryWithAssetNames(
 ) {
   // log(`start replaceCategoryWithAssetNames with words = ${showObj(words)}`);
   let wordsNew: string[] = [];
-  words.forEach(w => {
+  words.forEach((w) => {
     // log(`look at word "${w}" - is it a category?`);
     // if w is a category of one or more assets
     // then remove w from the list and
     // if the assets are not already on the list
     // then add the asset Names.
-    const assetsWithCategory = model.assets.filter(a => {
+    const assetsWithCategory = model.assets.filter((a) => {
       return a.CATEGORY === w;
     });
     if (assetsWithCategory.length === 0) {
       wordsNew.push(w);
     } else {
       wordsNew = wordsNew.concat(
-        assetsWithCategory.map(a => {
+        assetsWithCategory.map((a) => {
           return a.NAME;
         }),
       );
@@ -233,7 +234,7 @@ export function getLiabilityPeople(model: ModelData): string[] {
     return [];
   }
   // console.log(`model for tax buttons is ${showObj(model)}`);
-  model.assets.forEach(obj => {
+  model.assets.forEach((obj) => {
     const words = obj.LIABILITY.split(separator);
     for (const word of words) {
       // console.log(`liability word = ${word}`);
@@ -245,7 +246,7 @@ export function getLiabilityPeople(model: ModelData): string[] {
       }
       if (person !== undefined) {
         if (
-          liabilityPeople.findIndex(name => {
+          liabilityPeople.findIndex((name) => {
             return person === name;
           }) === -1
         ) {
@@ -255,7 +256,7 @@ export function getLiabilityPeople(model: ModelData): string[] {
       }
     }
   });
-  model.incomes.forEach(obj => {
+  model.incomes.forEach((obj) => {
     const words = obj.LIABILITY.split(separator);
     // log(`words = ${words}`);
     for (const word of words) {
@@ -268,7 +269,7 @@ export function getLiabilityPeople(model: ModelData): string[] {
       }
       if (person !== undefined) {
         if (
-          liabilityPeople.findIndex(name => {
+          liabilityPeople.findIndex((name) => {
             return person === name;
           }) === -1
         ) {
@@ -371,14 +372,14 @@ export function attemptRenameLong(
   // be ready to undo
   markForUndo(model);
   // log(`making changes to nodel... `);
-  model.settings.forEach(obj => {
+  model.settings.forEach((obj) => {
     obj.NAME = replaceWholeString(obj.NAME, old, replacement);
     obj.VALUE = replaceNumberValueString(obj.VALUE, old, replacement);
   });
-  model.triggers.forEach(obj => {
+  model.triggers.forEach((obj) => {
     obj.NAME = replaceWholeString(obj.NAME, old, replacement);
   });
-  model.assets.forEach(obj => {
+  model.assets.forEach((obj) => {
     obj.NAME = replaceWholeString(obj.NAME, old, replacement);
     obj.START = replaceWholeString(obj.START, old, replacement);
     obj.VALUE = replaceNumberValueString(obj.VALUE, old, replacement);
@@ -391,7 +392,7 @@ export function attemptRenameLong(
       replacement,
     );
   });
-  model.incomes.forEach(obj => {
+  model.incomes.forEach((obj) => {
     obj.NAME = replaceWholeString(obj.NAME, old, replacement);
     obj.START = replaceWholeString(obj.START, old, replacement);
     obj.END = replaceWholeString(obj.END, old, replacement);
@@ -400,7 +401,7 @@ export function attemptRenameLong(
     obj.GROWTH = replaceWholeString(obj.GROWTH, old, replacement);
     obj.LIABILITY = replaceSeparatedString(obj.LIABILITY, old, replacement);
   });
-  model.expenses.forEach(obj => {
+  model.expenses.forEach((obj) => {
     obj.NAME = replaceWholeString(obj.NAME, old, replacement);
     obj.START = replaceWholeString(obj.START, old, replacement);
     obj.END = replaceWholeString(obj.END, old, replacement);
@@ -408,7 +409,7 @@ export function attemptRenameLong(
     obj.VALUE_SET = replaceWholeString(obj.VALUE_SET, old, replacement);
     obj.GROWTH = replaceWholeString(obj.GROWTH, old, replacement);
   });
-  model.transactions.forEach(obj => {
+  model.transactions.forEach((obj) => {
     obj.NAME = replaceWholeString(obj.NAME, old, replacement);
     obj.FROM = replaceSeparatedString(obj.FROM, old, replacement);
     obj.FROM_VALUE = replaceNumberValueString(obj.FROM_VALUE, old, replacement);

@@ -10,7 +10,7 @@ interface ButtonProps {
   disabled: boolean;
 }
 
-class Button extends Component<ButtonProps, {}> {
+class Button extends Component<ButtonProps> {
   public constructor(props: ButtonProps) {
     super(props);
   }

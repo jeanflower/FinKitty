@@ -57,10 +57,7 @@ export async function acceptAnyAlert(
   driver: webdriver.ThenableWebDriver,
 ): Promise<boolean> {
   try {
-    await driver
-      .switchTo()
-      .alert()
-      .accept();
+    await driver.switchTo().alert().accept();
     return true;
   } catch (err) {
     // try
@@ -72,10 +69,7 @@ export async function dismissAnyAlert(
   driver: webdriver.ThenableWebDriver,
 ): Promise<boolean> {
   try {
-    await driver
-      .switchTo()
-      .alert()
-      .dismiss();
+    await driver.switchTo().alert().dismiss();
     return true;
   } catch (err) {
     // try
@@ -88,22 +82,11 @@ export async function consumeAlert(
   accept: boolean,
   driver: webdriver.ThenableWebDriver,
 ) {
-  expect(
-    await driver
-      .switchTo()
-      .alert()
-      .getText(),
-  ).toBe(message);
+  expect(await driver.switchTo().alert().getText()).toBe(message);
   if (accept) {
-    await driver
-      .switchTo()
-      .alert()
-      .accept();
+    await driver.switchTo().alert().accept();
   } else {
-    await driver
-      .switchTo()
-      .alert()
-      .dismiss();
+    await driver.switchTo().alert().dismiss();
   }
 }
 
@@ -817,7 +800,7 @@ export async function sleep(ms: number, message: string) {
   if (printDebug()) {
     log(`sleep for ${ms}ms: ${message}`);
   }
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 /*

@@ -409,7 +409,7 @@ export class AddDeleteExpenseForm extends Component<
     }
 
     if (doCheckBeforeOverwritingExistingData()) {
-      const matchingItem = this.props.model.expenses.find(a => {
+      const matchingItem = this.props.model.expenses.find((a) => {
         return a.NAME === this.state.NAME;
       });
       if (matchingItem !== undefined) {

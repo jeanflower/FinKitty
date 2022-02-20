@@ -23,7 +23,7 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
 
   public constructor(props: DataGridProps) {
     super(props);
-    this.sortedIndices = props.rows.map(row => {
+    this.sortedIndices = props.rows.map((row) => {
       return row['index'];
     });
     // log(`row indices are ${props.rows.map((r)=>{return r['index'];})}`);
@@ -38,7 +38,7 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
   public rowGetter(i: number) {
     if (printDebug()) {
       log(
-        `in rowgetter, this.props.rows indices = ${this.props.rows.map(r => {
+        `in rowgetter, this.props.rows indices = ${this.props.rows.map((r) => {
           return r['index'];
         })}`,
       );
@@ -46,7 +46,7 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
       log(`this.sortedIndices = ${this.sortedIndices}`);
     }
 
-    const result = this.props.rows.filter(row => {
+    const result = this.props.rows.filter((row) => {
       return row['index'] === this.sortedIndices[i];
     })[0];
     //if(result == undefined){
@@ -74,7 +74,7 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
           const bi = b['index'];
           return ai < bi ? 1 : ai > bi ? -1 : 0;
         })
-        .map(row => {
+        .map((row) => {
           return row['index'];
         });
       // log(`unsortedIndices = ${showObj(this.sortedIndices)}`);
@@ -171,7 +171,7 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
           return 0;
         }
       })
-      .map(row => {
+      .map((row) => {
         return row['index'];
       });
   }

@@ -64,9 +64,10 @@ export function makeDateFromString(input: string) {
   return result;
 }
 
-export function getNumberAndWordParts(
-  input: string,
-): { numberPart: number | undefined; wordPart: string } {
+export function getNumberAndWordParts(input: string): {
+  numberPart: number | undefined;
+  wordPart: string;
+} {
   // strip away any number part from the front of the
   // string
   const re = new RegExp('^[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)');
@@ -128,9 +129,7 @@ export function makeCGTTag(person: string) {
 export function makeNetGainTag(person: string) {
   return person + ' ' + gain + ' ' + net;
 }
-export function deconstructTaxTag(
-  tag: string,
-): {
+export function deconstructTaxTag(tag: string): {
   isIncome: boolean;
   isGain: boolean;
   isIncomeTax: boolean;
@@ -370,7 +369,7 @@ export function makeValueAbsPropFromString(input: string) {
 
 export function getStartQuantity(w: string, model: ModelData) {
   // log(`try to get a quantity for ${w}`);
-  const a = model.assets.filter(a => {
+  const a = model.assets.filter((a) => {
     return a.NAME === w;
   })[0];
   if (a === undefined) {
@@ -556,7 +555,7 @@ function findMatchedTriggerDate(
     return plusOp;
   }
   // log('look for '+triggerName+'in '+triggers.map(showObj))
-  const matched = triggers.filter(trigger => trigger.NAME === triggerName);
+  const matched = triggers.filter((trigger) => trigger.NAME === triggerName);
   // log('matched = '+showObj(matched));
   let result = undefined;
   if (matched.length !== 0) {
@@ -669,7 +668,7 @@ function usesNumberValueWord(existing: string, checkWord: string) {
 function usesSeparatedString(existing: string, checkWord: string) {
   const parts = existing.split(separator);
   let numMatches = 0;
-  parts.forEach(obj => {
+  parts.forEach((obj) => {
     if (obj === checkWord) {
       numMatches += 1;
     }
@@ -710,25 +709,25 @@ export function hasDependentDate(t: Trigger, model: ModelData): boolean {
   // log(`trigger name is ${name}`);
   // is there a transaction date which begins with name
   // and appends some date algebra
-  const dependentTrigger = model.triggers.find(t => {
+  const dependentTrigger = model.triggers.find((t) => {
     return isDependentDate(t.DATE, name);
   });
   if (dependentTrigger !== undefined) {
     return true;
   }
-  const dependentTransaction = model.transactions.find(t => {
+  const dependentTransaction = model.transactions.find((t) => {
     return isDependentDate(t.DATE, name);
   });
   if (dependentTransaction !== undefined) {
     return true;
   }
-  const dependentIncome = model.incomes.find(t => {
+  const dependentIncome = model.incomes.find((t) => {
     return isDependentDate(t.START, name);
   });
   if (dependentIncome !== undefined) {
     return true;
   }
-  const dependentExpense = model.expenses.find(t => {
+  const dependentExpense = model.expenses.find((t) => {
     return isDependentDate(t.START, name);
   });
   if (dependentExpense !== undefined) {
@@ -769,7 +768,7 @@ export function getSpecialWord(name: string, model: ModelData): string {
     return bondMaturity;
   }
   if (
-    model.transactions.find(t => {
+    model.transactions.find((t) => {
       const result = t.FROM_VALUE === bondMaturity + name;
       // log(`does t TO ${t.FROM_VALUE} block change of name from ${name}? ${result}`);
       return result;
@@ -794,7 +793,7 @@ export function getSpecialWord(name: string, model: ModelData): string {
 
   if (durationEnding !== '') {
     // this might be a bond investment - take care!
-    const sourceTransaction = model.transactions.find(t => {
+    const sourceTransaction = model.transactions.find((t) => {
       if (t.TYPE !== bondInvest) {
         return false;
       }
@@ -811,7 +810,7 @@ export function getSpecialWord(name: string, model: ModelData): string {
     return durationEnding;
   }
   // account for date algebra with settings
-  const matchingTrigger = model.triggers.find(t => {
+  const matchingTrigger = model.triggers.find((t) => {
     return t.NAME === name;
   });
   // log(`check for trigger with name ${name}`);
@@ -829,7 +828,7 @@ export function checkForWordClashInModel(
   messageWord: string,
 ): string {
   const settingMessages = model.settings
-    .map(obj => {
+    .map((obj) => {
       if (usesWholeWord(obj.NAME, replacement)) {
         return `Setting '${obj.NAME}' has name ${messageWord} called ${replacement}`;
       }
@@ -838,21 +837,21 @@ export function checkForWordClashInModel(
       }
       return '';
     })
-    .filter(obj => {
+    .filter((obj) => {
       return obj.length > 0;
     });
   const triggerMessages = model.triggers
-    .map(obj => {
+    .map((obj) => {
       if (usesWholeWord(obj.NAME, replacement)) {
         return `Trigger '${obj.NAME}' has name ${messageWord} called ${replacement}`;
       }
       return '';
     })
-    .filter(obj => {
+    .filter((obj) => {
       return obj.length > 0;
     });
   const assetMessages = model.assets
-    .map(obj => {
+    .map((obj) => {
       if (usesWholeWord(obj.NAME, replacement)) {
         return `Asset '${obj.NAME}' has name ${messageWord} called ${replacement}`;
       }
@@ -876,11 +875,11 @@ export function checkForWordClashInModel(
       }
       return '';
     })
-    .filter(obj => {
+    .filter((obj) => {
       return obj.length > 0;
     });
   const incomeMessages = model.incomes
-    .map(obj => {
+    .map((obj) => {
       if (usesWholeWord(obj.NAME, replacement)) {
         return `Income '${obj.NAME}' has name ${messageWord} called ${replacement}`;
       }
@@ -904,11 +903,11 @@ export function checkForWordClashInModel(
       }
       return '';
     })
-    .filter(obj => {
+    .filter((obj) => {
       return obj.length > 0;
     });
   const expenseMessages = model.expenses
-    .map(obj => {
+    .map((obj) => {
       if (usesWholeWord(obj.NAME, replacement)) {
         return `Expense '${obj.NAME}' has name ${messageWord} called ${replacement}`;
       }
@@ -929,11 +928,11 @@ export function checkForWordClashInModel(
       }
       return '';
     })
-    .filter(obj => {
+    .filter((obj) => {
       return obj.length > 0;
     });
   const transactionMessages = model.transactions
-    .map(obj => {
+    .map((obj) => {
       if (usesWholeWord(obj.NAME, replacement)) {
         return `Transaction '${obj.NAME}' has name ${messageWord} called ${replacement}`;
       }
@@ -957,7 +956,7 @@ export function checkForWordClashInModel(
       }
       return '';
     })
-    .filter(obj => {
+    .filter((obj) => {
       return obj.length > 0;
     });
   let message = `${settingMessages} ${triggerMessages} ${assetMessages} ${incomeMessages} ${expenseMessages} ${transactionMessages}`;
@@ -989,7 +988,7 @@ export function replaceSeparatedString(
 ) {
   const parts = value.split(separator);
   let result = '';
-  parts.forEach(obj => {
+  parts.forEach((obj) => {
     if (obj === old) {
       result += replacement;
     } else {

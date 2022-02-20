@@ -33,7 +33,7 @@ import {
   getNILabel,
   getnetgainLabel,
   getCGTLabel,
-} from './algotestUtils';
+} from './algoTestUtils';
 
 describe('tax tests', () => {
   if (printDebug()) {
@@ -42,7 +42,7 @@ describe('tax tests', () => {
 
   // income tax is evident on liable income
   // one income was liable, one was not
-  it('two incomes straddling April', done => {
+  it('two incomes straddling April', (done) => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'May 2, 2018 00:00:00',
@@ -170,7 +170,7 @@ describe('tax tests', () => {
 
   // income tax is evident on liable income
   // one income was liable, one was not
-  it('income over multiple Aprils', done => {
+  it('income over multiple Aprils', (done) => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'May 2, 2020 00:00:00',
@@ -398,7 +398,7 @@ describe('tax tests', () => {
     done();
   });
 
-  it('payLowTax on single income payment', done => {
+  it('payLowTax on single income payment', (done) => {
     const roi = {
       start: 'April 1, 2018 00:00:00',
       end: 'May 10, 2018 00:00:00',
@@ -480,7 +480,7 @@ describe('tax tests', () => {
     done();
   });
 
-  it('tax exempt on single income payment', done => {
+  it('tax exempt on single income payment', (done) => {
     const roi = {
       start: 'April 1, 2018 00:00:00',
       end: 'May 10, 2018 00:00:00',
@@ -558,7 +558,7 @@ describe('tax tests', () => {
     done();
   });
 
-  it('payHighTax on single income payment', done => {
+  it('payHighTax on single income payment', (done) => {
     const roi = {
       start: 'April 1, 2018 00:00:00',
       end: 'May 10, 2018 00:00:00',
@@ -640,7 +640,7 @@ describe('tax tests', () => {
     done();
   });
 
-  it('tax allowance reduces for high earners', done => {
+  it('tax allowance reduces for high earners', (done) => {
     const roi = {
       start: 'April 1, 2018 00:00:00',
       end: 'May 10, 2018 00:00:00',
@@ -736,7 +736,7 @@ describe('tax tests', () => {
     done();
   });
 
-  it('payTopTax on single income payment', done => {
+  it('payTopTax on single income payment', (done) => {
     const roi = {
       start: 'April 1, 2018 00:00:00',
       end: 'May 10, 2018 00:00:00',
@@ -818,7 +818,7 @@ describe('tax tests', () => {
     done();
   });
 
-  it('taxBands grow with cpi', done => {
+  it('taxBands grow with cpi', (done) => {
     const roi = {
       start: 'April 1, 2020 00:00:00',
       end: 'April 10, 2026 00:00:00',
@@ -1194,7 +1194,7 @@ describe('tax tests', () => {
     done();
   });
 
-  it('payLowTax on combined income payment', done => {
+  it('payLowTax on combined income payment', (done) => {
     const roi = {
       start: 'April 1, 2018 00:00:00',
       end: 'May 10, 2018 00:00:00',
@@ -1293,7 +1293,7 @@ describe('tax tests', () => {
     done();
   });
 
-  it('payHighTax on combined income payment', done => {
+  it('payHighTax on combined income payment', (done) => {
     const roi = {
       start: 'April 1, 2018 00:00:00',
       end: 'May 10, 2018 00:00:00',
@@ -1395,7 +1395,7 @@ describe('tax tests', () => {
     done();
   });
 
-  it('payTopTax on two income payments', done => {
+  it('payTopTax on two income payments', (done) => {
     const roi = {
       start: 'April 1, 2018 00:00:00',
       end: 'May 10, 2018 00:00:00',
@@ -1494,7 +1494,7 @@ describe('tax tests', () => {
     done();
   });
 
-  it('payLowTax on separate income payments', done => {
+  it('payLowTax on separate income payments', (done) => {
     const roi = {
       start: 'April 1, 2018 00:00:00',
       end: 'May 10, 2018 00:00:00',
@@ -1601,7 +1601,7 @@ describe('tax tests', () => {
     done();
   });
 
-  it('payHighTax on separate income payments', done => {
+  it('payHighTax on separate income payments', (done) => {
     const roi = {
       start: 'April 1, 2018 00:00:00',
       end: 'May 10, 2018 00:00:00',
@@ -1703,7 +1703,7 @@ describe('tax tests', () => {
     done();
   });
 
-  it('payTopTax on separate income payments', done => {
+  it('payTopTax on separate income payments', (done) => {
     const roi = {
       start: 'April 1, 2018 00:00:00',
       end: 'May 10, 2018 00:00:00',
@@ -1803,7 +1803,7 @@ describe('tax tests', () => {
   });
 
   // NI payable on income but income too low
-  it('too low NI income', done => {
+  it('too low NI income', (done) => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'May 2, 2019 00:00:00',
@@ -1964,7 +1964,7 @@ describe('tax tests', () => {
   });
 
   // NI payable at low rate
-  it('pay low rate NI income', done => {
+  it('pay low rate NI income', (done) => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'May 2, 2019 00:00:00',
@@ -2160,7 +2160,7 @@ describe('tax tests', () => {
   });
 
   // NI payable at high rate
-  it('pay high rate NI income', done => {
+  it('pay high rate NI income', (done) => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'May 2, 2019 00:00:00',
@@ -2355,7 +2355,7 @@ describe('tax tests', () => {
   });
 
   // income liable to both NI and Income tax
-  it('pay NI and income tax', done => {
+  it('pay NI and income tax', (done) => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'May 2, 2018 00:00:00',
@@ -2484,7 +2484,7 @@ describe('tax tests', () => {
     done();
   });
 
-  it('sell some cars incurring capital gains', done => {
+  it('sell some cars incurring capital gains', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -2519,7 +2519,7 @@ describe('tax tests', () => {
       ],
       settings: [...defaultModelSettings(roi)],
     };
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.NAME === CASH_ASSET_NAME;
     })[0].START = '1 Jan 2018';
 
@@ -2622,7 +2622,7 @@ describe('tax tests', () => {
     done();
   });
 
-  it('gain a quantity of CGT-liable assets', done => {
+  it('gain a quantity of CGT-liable assets', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 7, 2018 00:00:00',
@@ -2750,7 +2750,7 @@ describe('tax tests', () => {
     done();
   });
 
-  it('dispose of two parts of an asset liable to CGT', done => {
+  it('dispose of two parts of an asset liable to CGT', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 7, 2018 00:00:00',
@@ -2896,7 +2896,7 @@ describe('tax tests', () => {
     done();
   });
 
-  it('dispose of two categorized assets liable to CGT', done => {
+  it('dispose of two categorized assets liable to CGT', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 7, 2018 00:00:00',
@@ -3096,7 +3096,7 @@ describe('tax tests', () => {
 
     done();
   });
-  it('dispose of part of an asset liable to CGT', done => {
+  it('dispose of part of an asset liable to CGT', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 7, 2018 00:00:00',
@@ -3229,7 +3229,7 @@ describe('tax tests', () => {
     done();
   });
 
-  it('use a setting to define purchase price', done => {
+  it('use a setting to define purchase price', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 7, 2018 00:00:00',
@@ -3370,7 +3370,7 @@ describe('tax tests', () => {
     done();
   });
 
-  it('use a revalued setting to define purchase price', done => {
+  it('use a revalued setting to define purchase price', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 7, 2018 00:00:00',
@@ -3544,7 +3544,7 @@ describe('tax tests', () => {
     done();
   });
 
-  it('use a setting for purchase price and quantity', done => {
+  it('use a setting for purchase price and quantity', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 7, 2018 00:00:00',

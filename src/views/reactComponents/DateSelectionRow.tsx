@@ -29,7 +29,7 @@ function makeDateTooltipForRow(props: DateSelectionProps) {
   }
   return makeDateTooltip(props.inputValue, props.triggers);
 }
-export class DateSelectionRow extends Component<DateSelectionProps, {}> {
+export class DateSelectionRow extends Component<DateSelectionProps> {
   constructor(props: DateSelectionProps) {
     super(props);
     this.handleChange = this.handleChange.bind(this);

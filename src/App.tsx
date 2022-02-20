@@ -153,7 +153,7 @@ const majorVersion = 1;
 const minorVersion = 0;
 const patchVersion = 1;
 
-export function getAppVersion(){
+export function getAppVersion(): string {
   return `${majorVersion}.${minorVersion}.${patchVersion}`;
 }
 
@@ -203,14 +203,9 @@ export function getDefaultViewSettings(): ViewSettings {
   return result;
 }
 
-function App() {
-  const {
-    isLoading,
-    user,
-    loginWithRedirect,
-    loginForTesting,
-    logout,
-  } = useAuth0();
+function App(): JSX.Element | null {
+  const { isLoading, user, loginWithRedirect, loginForTesting, logout } =
+    useAuth0();
   if (!isLoading && !user) {
     userID = '';
     return loginPage(loginWithRedirect, loginForTesting);
@@ -416,7 +411,7 @@ function makeBarData(labels: string[], chartData: ItemChartData[]): ChartData {
       const c = getColor(index);
       return {
         label: cd.item.NAME,
-        data: cd.chartDataPoints.map(c => {
+        data: cd.chartDataPoints.map((c) => {
           return Math.round(c.y * 100.0) / 100.0;
         }),
         backgroundColor: `rgb(${c.r},${c.g},${c.b})`,
@@ -453,7 +448,7 @@ async function getModel(): Promise<{
   if (
     modelNames.length === 0 ||
     (modelName === exampleModelName &&
-      modelNames.find(x => {
+      modelNames.find((x) => {
         return x === exampleModelName;
       }) === undefined)
   ) {
@@ -476,7 +471,7 @@ async function getModel(): Promise<{
       // log('recreate example models');
       // force us to have the example models
       await Promise.all(
-        exampleModels.map(async x => {
+        exampleModels.map(async (x) => {
           return await saveModelLSM(
             getUserID(),
             x.name,
@@ -484,7 +479,7 @@ async function getModel(): Promise<{
           );
         }),
       );
-      modelNames = exampleModels.map(x => {
+      modelNames = exampleModels.map((x) => {
         return x.name;
       });
       model = getExampleModel(simpleExampleData);
@@ -525,7 +520,7 @@ function getReporter(model: ModelData, viewSettings: ViewSettings) {
   // passed into the evaluation code to capture
   // data as we proceed with calculations
   let nameMatcher = '';
-  model.assets.forEach(a => {
+  model.assets.forEach((a) => {
     if (viewSettings.getShowItem(Context.Asset, a.NAME)) {
       // log(`show ${a.NAME}`);
       const name = a.NAME;
@@ -542,7 +537,7 @@ function getReporter(model: ModelData, viewSettings: ViewSettings) {
 
   const getSettingValue = (settingName: string) => {
     let value = '';
-    const s = model.settings.find(s => {
+    const s = model.settings.find((s) => {
       return s.NAME === settingName;
     });
     if (s !== undefined) {
@@ -559,7 +554,7 @@ function getReporter(model: ModelData, viewSettings: ViewSettings) {
       return false;
     }
     if (
-      model.expenses.find(e => {
+      model.expenses.find((e) => {
         return e.NAME === source;
       })
     ) {
@@ -636,7 +631,7 @@ export async function refreshDataInternal(
   refreshModel: boolean,
   refreshChart: boolean,
   sourceID: number,
-) {
+): Promise<void> {
   if (!evalMode()) {
     log('skip evaluations and chart refresh - evalMode = false');
     reactAppComponent.setState({ ...reactAppComponent.state });
@@ -730,7 +725,7 @@ export async function refreshDataInternal(
     chartData.taxData.sort((a, b) => lessThan(a.item.NAME, b.item.NAME));
 
     if (printDebug()) {
-      chartData.assetData.forEach(entry => {
+      chartData.assetData.forEach((entry) => {
         log(
           `asset item ${showObj(entry.item)} has chart points ` +
             `${showObj(entry.chartDataPoints)}`,
@@ -814,7 +809,7 @@ export async function refreshData(
   refreshModel: boolean,
   refreshChart: boolean,
   sourceID: number,
-) {
+): Promise<void> {
   if (refreshModel) {
     log(
       `go to refresh data - set as waiting...${new Date().toLocaleTimeString()}`,
@@ -870,11 +865,14 @@ export function setReportKey(textInput: string): boolean {
     return false;
   }
 }
-export function getReportKey() {
+export function getReportKey(): ReportMatcher {
   return reactAppComponent.state.reportDefiner;
 }
 
-export async function submitAsset(assetInput: Asset, modelData: ModelData) {
+export async function submitAsset(
+  assetInput: Asset,
+  modelData: ModelData,
+): Promise<void> {
   const message = await submitAssetLSM(
     assetInput,
     modelName,
@@ -895,7 +893,7 @@ export async function submitAsset(assetInput: Asset, modelData: ModelData) {
 export async function submitExpense(
   expenseInput: Expense,
   modelData: ModelData,
-) {
+): Promise<void> {
   const message = await submitExpenseLSM(
     expenseInput,
     modelName,
@@ -939,7 +937,7 @@ export async function submitIncome(
 export async function submitTransaction(
   transactionInput: Transaction,
   modelData: ModelData,
-) {
+): Promise<void> {
   const message = await submitTransactionLSM(
     transactionInput,
     modelName,
@@ -960,7 +958,7 @@ export async function submitTransaction(
 export async function submitTrigger(
   triggerInput: Trigger,
   modelData: ModelData,
-) {
+): Promise<void> {
   const message = await submitTriggerLSM(
     triggerInput,
     modelName,
@@ -986,7 +984,7 @@ export async function editSetting(
     VALUE: string;
   },
   modelData: ModelData,
-) {
+): Promise<void> {
   if (
     setViewSetting({
       NAME: settingInput.NAME,
@@ -1028,7 +1026,7 @@ export async function submitNewSetting(
   setting: Setting,
   modelData: ModelData,
   viewSettings: ViewSettings,
-) {
+): Promise<void> {
   if (viewSettings.migrateViewSettingString(setting.NAME, setting.VALUE)) {
     return await refreshData(
       false, // or false refreshModel = true,
@@ -1051,7 +1049,7 @@ export async function submitNewSetting(
   }
 }
 
-export function toggle(type: ViewType, sourceID: number) {
+export function toggle(type: ViewType, sourceID: number): void | boolean {
   if (printDebug()) {
     log(`toggle called from ${sourceID}`);
   }
@@ -1106,7 +1104,7 @@ Options to toggle are
   evalModeOption
 */
 
-function toggleOption(type: string) {
+function toggleOption(type: string): void {
   if (reactAppComponent) {
     // log(
     //   `before toggle reactAppComponent.state.${type} = `
@@ -1189,7 +1187,7 @@ export async function deleteItemFromModel(
   return false;
 }
 
-export async function deleteTrigger(name: string) {
+export async function deleteTrigger(name: string): Promise<boolean> {
   return deleteItemFromModel(
     name,
     reactAppComponent.state.modelData.triggers,
@@ -1199,7 +1197,7 @@ export async function deleteTrigger(name: string) {
   );
 }
 
-export async function deleteAsset(name: string) {
+export async function deleteAsset(name: string): Promise<boolean> {
   return deleteItemFromModel(
     name,
     reactAppComponent.state.modelData.assets,
@@ -1209,7 +1207,7 @@ export async function deleteAsset(name: string) {
   );
 }
 
-export async function deleteTransaction(name: string) {
+export async function deleteTransaction(name: string): Promise<boolean> {
   return deleteItemFromModel(
     name,
     reactAppComponent.state.modelData.transactions,
@@ -1219,7 +1217,7 @@ export async function deleteTransaction(name: string) {
   );
 }
 
-export async function deleteExpense(name: string) {
+export async function deleteExpense(name: string): Promise<boolean> {
   return deleteItemFromModel(
     name,
     reactAppComponent.state.modelData.expenses,
@@ -1229,7 +1227,7 @@ export async function deleteExpense(name: string) {
   );
 }
 
-export async function deleteIncome(name: string) {
+export async function deleteIncome(name: string): Promise<boolean> {
   return deleteItemFromModel(
     name,
     reactAppComponent.state.modelData.incomes,
@@ -1341,7 +1339,7 @@ interface AppState {
   isWaiting: boolean;
 }
 interface AppProps {
-  logOutAction: () => {};
+  logOutAction: () => void;
   user: string;
 }
 
@@ -1447,11 +1445,11 @@ export class AppContent extends Component<AppProps, AppState> {
     );
   }
 
-  public componentWillUnmount() {
+  public componentWillUnmount(): void {
     //log('in componentWillUnmount');
     //window.removeEventListener('beforeunload', this.handleUnload);
   }
-  public componentDidMount() {
+  public componentDidMount(): void {
     //log('in componentDidMount');
     toggle(
       homeView,
@@ -1465,9 +1463,9 @@ export class AppContent extends Component<AppProps, AppState> {
     //window.addEventListener('beforeunload', this.handleUnload);
   }
 
-  private navbarDiv(isWaiting: boolean) {
+  private navbarDiv(isWaiting: boolean): JSX.Element {
     return navbarContent(isWaiting, () => {
-      const estateVal = this.state.reportData.find(d => {
+      const estateVal = this.state.reportData.find((d) => {
         return d.name === 'Estate final value';
       });
       let textToDisplay = '';
@@ -1518,7 +1516,7 @@ export class AppContent extends Component<AppProps, AppState> {
     });
   }
 
-  public render() {
+  public render(): JSX.Element {
     if (printDebug()) {
       log('in render');
     }
@@ -1528,7 +1526,7 @@ export class AppContent extends Component<AppProps, AppState> {
 
       const getSettingValue = (settingName: string) => {
         let value = '';
-        const s = this.state.modelData.settings.find(s => {
+        const s = this.state.modelData.settings.find((s) => {
           return s.NAME === settingName;
         });
         if (s !== undefined) {
@@ -1543,7 +1541,7 @@ export class AppContent extends Component<AppProps, AppState> {
         return getSettingValue(roiEnd);
       };
       const updateSettingValue = (settingName: string, newDate: string) => {
-        const s = this.state.modelData.settings.find(s => {
+        const s = this.state.modelData.settings.find((s) => {
           return s.NAME === settingName;
         });
         if (s !== undefined) {
@@ -1654,7 +1652,7 @@ export class AppContent extends Component<AppProps, AppState> {
     }
   }
 
-  private internalErrorDiv(e: Error) {
+  private internalErrorDiv(e: Error): JSX.Element {
     return (
       <>
         {this.navbarDiv(
@@ -1670,9 +1668,9 @@ export class AppContent extends Component<AppProps, AppState> {
 
   private modelList(
     modelNames: string[],
-    actionOnSelect: (arg0: string) => {},
+    actionOnSelect: (arg0: string) => void,
     idKey: string,
-  ) {
+  ): JSX.Element {
     if (modelNames.length === 0) {
       return (
         <div role="group">
@@ -1682,7 +1680,7 @@ export class AppContent extends Component<AppProps, AppState> {
       );
     }
     // log(`modelNames = ${modelNames}`);
-    const buttons = modelNames.map(model => {
+    const buttons = modelNames.map((model) => {
       return makeButton(
         model,
         (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -1703,7 +1701,7 @@ export class AppContent extends Component<AppProps, AppState> {
     );
   }
 
-  private modelListForSelect(modelNames: string[]) {
+  private modelListForSelect(modelNames: string[]): JSX.Element {
     return this.modelList(
       modelNames,
       async (model: string) => {
@@ -1748,7 +1746,7 @@ export class AppContent extends Component<AppProps, AppState> {
       });
       return result;
     } else if (
-      this.state.modelNamesData.find(model => model === promptResponse)
+      this.state.modelNamesData.find((model) => model === promptResponse)
     ) {
       showAlert("There's already a model with that name");
       return result;
@@ -1758,7 +1756,7 @@ export class AppContent extends Component<AppProps, AppState> {
     return result;
   }
 
-  private async deleteModel(modelNameForDelete: string) {
+  private async deleteModel(modelNameForDelete: string): Promise<void> {
     if (
       window.confirm(
         `delete all data in model ${modelNameForDelete} - you sure?`,
@@ -1767,7 +1765,7 @@ export class AppContent extends Component<AppProps, AppState> {
       // log(`delete model ${modelNameForDelete}`);
       const modelNames = this.state.modelNamesData;
       await deleteModel(getUserID(), modelNameForDelete);
-      const idx = modelNames.findIndex(i => {
+      const idx = modelNames.findIndex((i) => {
         return i === modelNameForDelete;
       });
       if (idx !== -1) {
@@ -1796,7 +1794,7 @@ export class AppContent extends Component<AppProps, AppState> {
     }
   }
 
-  private async diffModel(modelNameForDiff: string) {
+  private async diffModel(modelNameForDiff: string): Promise<void> {
     const otherModelName: string | null = window.prompt(
       `diff ${modelNameForDiff} against which model?`,
       '',
@@ -1865,7 +1863,7 @@ export class AppContent extends Component<AppProps, AppState> {
       return false; // didn't update name OK
     }
   }
-  private homeScreenButtons() {
+  private homeScreenButtons(): JSX.Element {
     return (
       <>
         <CreateModelForm
@@ -1937,10 +1935,10 @@ export class AppContent extends Component<AppProps, AppState> {
             () => {
               const text = JSON.stringify(this.state.modelData);
               navigator.clipboard.writeText(text).then(
-                function() {
+                function () {
                   showAlert(`model as JSON on clipboard`);
                 },
-                function(err) {
+                function (err) {
                   console.error('Async: Could not copy text: ', err);
                   showAlert(
                     `sorry, something went wrong, no copy on clipboard - in console instead`,
@@ -2002,11 +2000,11 @@ export class AppContent extends Component<AppProps, AppState> {
     );
   }
 
-  private homeDiv() {
+  private homeDiv(): JSX.Element {
     // log(`this.state.modelNamesData = ${this.state.modelNamesData}`);
     if (!getDisplay(homeView)) {
       // log(`don't populate homeView`);
-      return;
+      return <></>;
     }
     // log(`do populate homeView`);
 
@@ -2053,9 +2051,9 @@ export class AppContent extends Component<AppProps, AppState> {
   private todaysSettingsTable(
     model: ModelData,
     todaysValues: Map<string, SettingVal>,
-  ) {
+  ): JSX.Element {
     if (todaysValues.size === 0) {
-      return;
+      return <></>;
     }
     const today = getTodaysDate(model);
     const rows = addIndices(
@@ -2073,7 +2071,7 @@ export class AppContent extends Component<AppProps, AppState> {
     return collapsibleFragment(
       <DataGrid
         deleteFunction={undefined}
-        handleGridRowsUpdated={function() {
+        handleGridRowsUpdated={function () {
           return false;
         }}
         rows={rows}
@@ -2108,10 +2106,13 @@ export class AppContent extends Component<AppProps, AppState> {
     );
   }
 
-  private settingsDiv(model: ModelData, todaysValues: Map<string, SettingVal>) {
+  private settingsDiv(
+    model: ModelData,
+    todaysValues: Map<string, SettingVal>,
+  ): JSX.Element {
     if (!getDisplay(settingsView)) {
       // log(`don't populate settingsView`);
-      return;
+      return <></>;
     }
     // log(`do populate settingsView`);
     return (
@@ -2155,10 +2156,10 @@ export class AppContent extends Component<AppProps, AppState> {
     );
   }
 
-  private triggersDiv() {
+  private triggersDiv(): JSX.Element {
     if (!getDisplay(triggersView)) {
       // log(`don't populate triggersView`);
-      return;
+      return <></>;
     }
     // log(`do populate triggersView`);
 
@@ -2186,10 +2187,10 @@ export class AppContent extends Component<AppProps, AppState> {
     );
   }
 
-  private transactionsDiv() {
+  private transactionsDiv(): JSX.Element {
     if (!getDisplay(transactionsView)) {
       // log(`don't populate transactionsView`);
-      return;
+      return <></>;
     }
     // log(`do populate transactionsView`);
 
@@ -2244,7 +2245,7 @@ export class AppContent extends Component<AppProps, AppState> {
       </div>
     );
   }
-  private rhsTopButtonList(estateText: string) {
+  private rhsTopButtonList(estateText: string): JSX.Element[] {
     const buttons: JSX.Element[] = [];
     buttons.push(
       makeButton(
@@ -2274,7 +2275,7 @@ export class AppContent extends Component<AppProps, AppState> {
     return buttons;
   }
 
-  private rhsBottomButtonList() {
+  private rhsBottomButtonList(): JSX.Element[] {
     const buttons: JSX.Element[] = [];
     buttons.push(this.makeUndoButton());
     buttons.push(this.makeRedoButton());
@@ -2282,7 +2283,7 @@ export class AppContent extends Component<AppProps, AppState> {
     return buttons;
   }
 
-  private viewButtonList() {
+  private viewButtonList(): JSX.Element[] {
     const buttons: JSX.Element[] = [];
     const it = views.keys();
     let viewIterator = it.next();
@@ -2323,13 +2324,13 @@ export class AppContent extends Component<AppProps, AppState> {
     return buttons;
   }
 
-  private statusButtonList() {
+  private statusButtonList(): JSX.Element[] {
     let buttons: JSX.Element[] = [];
     buttons = buttons.concat(this.makeHelpText(this.state.alertText));
     return buttons;
   }
 
-  private makeUndoButton() {
+  private makeUndoButton(): JSX.Element {
     let numUndosAvailable = 0;
     let undoModel = this.state.modelData.undoModel;
     while (undoModel !== undefined && numUndosAvailable < 100) {
@@ -2380,7 +2381,7 @@ export class AppContent extends Component<AppProps, AppState> {
       return (
         <OverlayTrigger
           key="undoOverlay"
-          overlay={props => (
+          overlay={(props) => (
             <Tooltip {...props} id="undoTooltip">
               {undoTooltip}
             </Tooltip>
@@ -2392,7 +2393,7 @@ export class AppContent extends Component<AppProps, AppState> {
       );
     }
   }
-  private makeRedoButton() {
+  private makeRedoButton(): JSX.Element {
     let numRedosAvailable = 0;
     let redoModel = this.state.modelData.redoModel;
     while (redoModel !== undefined && numRedosAvailable < 100) {
@@ -2443,7 +2444,7 @@ export class AppContent extends Component<AppProps, AppState> {
       return (
         <OverlayTrigger
           key="redoOverlay"
-          overlay={props => (
+          overlay={(props) => (
             <Tooltip {...props} id="redoTooltip">
               {redoTooltip}
             </Tooltip>
@@ -2456,7 +2457,7 @@ export class AppContent extends Component<AppProps, AppState> {
     }
   }
 
-  private makeSaveButton() {
+  private makeSaveButton(): JSX.Element {
     // log(`isDirty = ${isDirty}`);
     return makeButton(
       'Save model',
@@ -2522,7 +2523,7 @@ export async function attemptRename(
   return message;
 }
 
-export function doCheckBeforeOverwritingExistingData() {
+export function doCheckBeforeOverwritingExistingData(): boolean {
   const result = checkOverwrite();
   log(`check overwrite = ${result}`);
   return result;

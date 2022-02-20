@@ -16,7 +16,10 @@ interface TriggerOptionListProps extends FormProps {
   selectedItem: string;
 }
 
-export class TriggerOptionList extends Component<TriggerOptionListProps, {}> {
+export class TriggerOptionList extends Component<
+  TriggerOptionListProps,
+  { selectedItem: string }
+> {
   public constructor(props: TriggerOptionListProps) {
     super(props);
     this.state = { selectedItem: '' };
@@ -34,7 +37,7 @@ export class TriggerOptionList extends Component<TriggerOptionListProps, {}> {
       .sort((a, b) => {
         return lessThan(a.NAME, b.NAME);
       })
-      .map(trigger => {
+      .map((trigger) => {
         return {
           text: trigger.NAME,
           action: (e: FormEvent<Element>) => {
@@ -51,7 +54,7 @@ export class TriggerOptionList extends Component<TriggerOptionListProps, {}> {
         this.props.showAlert,
       ),
     );
-    const options = optionData.map(bd => (
+    const options = optionData.map((bd) => (
       <option
         value={bd.text}
         id={`option-useTrigger-${bd.text}`}
@@ -64,8 +67,8 @@ export class TriggerOptionList extends Component<TriggerOptionListProps, {}> {
     return (
       <select
         className="custom-select"
-        onChange={e => {
-          const found = optionData.find(od => {
+        onChange={(e) => {
+          const found = optionData.find((od) => {
             return od.text === e.target.value;
           });
           if (found !== undefined) {

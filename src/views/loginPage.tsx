@@ -14,11 +14,11 @@ export function navbarContent(isWaiting: boolean, rhContent: () => any) {
     log(`drawing navbar content`);
   }
   // log(`drawing navbar content; isWaiting = ${isWaiting}`);
-  const variantString = "light";
+  const variantString = 'light';
 
-// Toggle this if you need a visual indicator of change
-  const bgString = "light";
-//  const bgString = "primary";
+  // Toggle this if you need a visual indicator of change
+  const bgString = 'light';
+  //  const bgString = "primary";
 
   return (
     <Navbar expand="lg" bg={bgString} variant={variantString} sticky="top">
@@ -48,7 +48,9 @@ export function loginPage(loginWithRedirect: any, loginForTesting: any) {
       {navbarContent(
         false, // is not waiting
         () => {
-          return <h3>An app for financial kitty forecasting v{getAppVersion()}</h3>;
+          return (
+            <h3>An app for financial kitty forecasting v{getAppVersion()}</h3>
+          );
         },
       )}
       <div className="row">

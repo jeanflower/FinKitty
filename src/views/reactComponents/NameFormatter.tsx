@@ -10,7 +10,7 @@ interface SimpleFormatterProps {
   name: string;
   value: string;
 }
-export class SimpleFormatter extends React.Component<SimpleFormatterProps, {}> {
+export class SimpleFormatter extends React.Component<SimpleFormatterProps> {
   public render() {
     return (
       <OverlayTrigger
@@ -26,10 +26,7 @@ export class SimpleFormatter extends React.Component<SimpleFormatterProps, {}> {
     );
   }
 }
-export class SettingFormatter extends React.Component<
-  SimpleFormatterProps,
-  {}
-> {
+export class SettingFormatter extends React.Component<SimpleFormatterProps> {
   public render() {
     const rawValue = this.props.value;
     let tidyValue = rawValue;

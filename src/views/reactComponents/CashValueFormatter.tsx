@@ -9,7 +9,7 @@ interface CashValueFormatterProps {
   name: string;
   value: string;
 }
-class CashValueFormatter extends React.Component<CashValueFormatterProps, {}> {
+class CashValueFormatter extends React.Component<CashValueFormatterProps> {
   public render() {
     let result: string;
     if (isNumberString(this.props.value)) {

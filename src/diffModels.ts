@@ -208,7 +208,7 @@ function diffItems(
     if (result.length > 0 && quickExit) {
       break;
     }
-    const matchedItems = is2.filter(i2 => {
+    const matchedItems = is2.filter((i2) => {
       // log(`compare ${i1.NAME} and ${i2.NAME}`);
       return i1.NAME === i2.NAME;
     });
@@ -236,9 +236,9 @@ function diffItems(
     log(`matchedNames = ${showObj(matchedNames)}`);
   }
   if (!quickExit || result.length === 0) {
-    is2.forEach(i2 => {
+    is2.forEach((i2) => {
       if (
-        matchedNames.find(m => {
+        matchedNames.find((m) => {
           return m === i2.NAME;
         })
       ) {

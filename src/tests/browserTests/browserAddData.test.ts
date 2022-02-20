@@ -56,8 +56,9 @@ describe(testDataModelName, () => {
     return;
   }
   const driver = driverSimple;
+  jest.setTimeout(1000000); // allow time for all these tests to run
 
-  it('should add dates', async done => {
+  it('should add dates', async () => {
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -96,10 +97,9 @@ describe(testDataModelName, () => {
     );
 
     await cleanUpWork(driver, testDataModelName);
-    done();
   });
 
-  it('should add incomes', async done => {
+  it('should add incomes', async () => {
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -249,10 +249,9 @@ describe(testDataModelName, () => {
     });
 
     await cleanUpWork(driver, testDataModelName);
-    done();
   });
 
-  it('should revalue incomes', async done => {
+  it('should revalue incomes', async () => {
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -304,10 +303,9 @@ describe(testDataModelName, () => {
     });
 
     await cleanUpWork(driver, testDataModelName);
-    done();
   });
 
-  it('should add expenses', async done => {
+  it('should add expenses', async () => {
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -379,10 +377,9 @@ describe(testDataModelName, () => {
     });
 
     await cleanUpWork(driver, testDataModelName);
-    done();
   });
 
-  it('should revalue expenses', async done => {
+  it('should revalue expenses', async () => {
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -435,10 +432,9 @@ describe(testDataModelName, () => {
     });
 
     await cleanUpWork(driver, testDataModelName);
-    done();
   });
 
-  it('add asset', async done => {
+  it('add asset', async () => {
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -509,10 +505,9 @@ describe(testDataModelName, () => {
     });
 
     await cleanUpWork(driver, testDataModelName);
-    done();
   });
 
-  it('revalue assets', async done => {
+  it('revalue assets', async () => {
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -565,10 +560,9 @@ describe(testDataModelName, () => {
     });
 
     await cleanUpWork(driver, testDataModelName);
-    done();
   });
 
-  it('add debts', async done => {
+  it('add debts', async () => {
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -618,7 +612,6 @@ describe(testDataModelName, () => {
     });
 
     await cleanUpWork(driver, testDataModelName);
-    done();
   });
 
   afterAll(async () => {

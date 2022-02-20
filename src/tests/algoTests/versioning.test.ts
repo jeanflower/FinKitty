@@ -381,7 +381,7 @@ describe('loadModelsFromJSON', () => {
   it('migrateModelfromv2', () => {
     const jsonString = v2ModelJSON;
     const model2 = makeModelFromJSON(jsonString);
-    const index = model2.assets.find(a => {
+    const index = model2.assets.find((a) => {
       return a.NAME === taxPot;
     });
     expect(index).toEqual(undefined);

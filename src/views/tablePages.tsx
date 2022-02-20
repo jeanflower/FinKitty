@@ -107,9 +107,9 @@ import { ReportMatcherForm } from './reactComponents/ReportMatcherForm';
 export function collapsibleFragment(
   fragment: ReactFragment | undefined,
   title: string,
-) {
+): JSX.Element {
   if (fragment === undefined) {
-    return;
+    return <></>;
   }
   return (
     <Accordion defaultActiveKey="0">
@@ -415,7 +415,7 @@ function handleAssetGridRowsUpdated(
     attemptRename(model, doChecks, asset.NAME, args[0].updated.NAME);
     return;
   }
-  const matchedAsset = model.assets.filter(a => {
+  const matchedAsset = model.assets.filter((a) => {
     return a.NAME === asset.NAME;
   });
   if (matchedAsset.length !== 1) {
@@ -540,12 +540,12 @@ function handleTransactionGridRowsUpdated(
     doChecks &&
     transactionType !== revalueSetting &&
     !parseFrom.checksOK &&
-    !model.settings.find(s => {
+    !model.settings.find((s) => {
       return s.NAME === gridData.FROM_VALUE;
     }) &&
     !(
       gridData.FROM_VALUE.startsWith(bondMaturity) &&
-      model.settings.find(s => {
+      model.settings.find((s) => {
         return s.NAME === gridData.FROM_VALUE.substring(bondMaturity.length);
       }) !== undefined
     )
@@ -649,7 +649,7 @@ function handleSettingGridRowsUpdated(
     if (x.NAME !== args[0].updated.NAME) {
       if (doChecks) {
         if (
-          minimalModel.settings.filter(obj => {
+          minimalModel.settings.filter((obj) => {
             return obj.NAME === x.NAME;
           }).length > 0
         ) {
@@ -861,7 +861,7 @@ export function assetsOrDebtsTableDiv(
       <fieldset>
         <div className="dataGridAssets">
           <DataGrid
-            handleGridRowsUpdated={function() {
+            handleGridRowsUpdated={function () {
               return handleAssetGridRowsUpdated(
                 model,
                 showAlert,
@@ -906,7 +906,7 @@ export function getDisplayName(obj: string, type: string) {
 
 export function transactionsForTable(model: ModelData, type: string) {
   const unindexedRows = model.transactions
-    .filter(t => {
+    .filter((t) => {
       return t.TYPE === type;
     })
     .map((obj: Transaction) => {
@@ -1216,7 +1216,7 @@ export function transactionsTableDiv(
       }}
     >
       <DataGrid
-        handleGridRowsUpdated={function() {
+        handleGridRowsUpdated={function () {
           return handleTransactionGridRowsUpdated(
             model,
             showAlert,
@@ -1354,7 +1354,7 @@ function triggersTableDiv(
         <div className="dataGridTriggers">
           <DataGrid
             deleteFunction={deleteTrigger}
-            handleGridRowsUpdated={function() {
+            handleGridRowsUpdated={function () {
               return handleTriggerGridRowsUpdated(
                 model,
                 showAlert,
@@ -1453,7 +1453,7 @@ function incomesTableDiv(
         <div className="dataGridIncomes">
           <DataGrid
             deleteFunction={deleteIncome}
-            handleGridRowsUpdated={function() {
+            handleGridRowsUpdated={function () {
               return handleIncomeGridRowsUpdated(
                 model,
                 showAlert,
@@ -1617,7 +1617,7 @@ function expensesTableDiv(
         <div className="dataGridExpenses">
           <DataGrid
             deleteFunction={deleteExpense}
-            handleGridRowsUpdated={function() {
+            handleGridRowsUpdated={function () {
               return handleExpenseGridRowsUpdated(
                 model,
                 showAlert,
@@ -1769,7 +1769,7 @@ function settingsForTable(
     })
     .filter((obj: Setting) => {
       return (
-        settingsToExcludeFromTableView.find(s => {
+        settingsToExcludeFromTableView.find((s) => {
           return obj.NAME === s;
         }) === undefined
       );
@@ -1798,7 +1798,7 @@ function customSettingsTable(
   return (
     <DataGrid
       deleteFunction={deleteSetting}
-      handleGridRowsUpdated={function() {
+      handleGridRowsUpdated={function () {
         return handleSettingGridRowsUpdated(
           model,
           showAlert,
@@ -1851,7 +1851,7 @@ function adjustSettingsTable(
   return (
     <DataGrid
       deleteFunction={deleteSetting}
-      handleGridRowsUpdated={function() {
+      handleGridRowsUpdated={function () {
         return handleSettingGridRowsUpdated(
           model,
           showAlert,
@@ -1931,7 +1931,7 @@ export function settingsTableDiv(
       {collapsibleFragment(
         <DataGrid
           deleteFunction={deleteSetting}
-          handleGridRowsUpdated={function() {
+          handleGridRowsUpdated={function () {
             return handleSettingGridRowsUpdated(
               model,
               showAlert,
@@ -1999,18 +1999,18 @@ export function reportDiv(
   // log(`do populate reportView`);
   // log(`display report of length ${reportData.length}`);
   const unindexedResult = reportData
-    .filter(d => {
+    .filter((d) => {
       return d.name !== 'Estate final value';
     })
-    .map(x => {
-      const make2dpCanBeUndefined: (
-        input: number | undefined,
-      ) => string = input => {
+    .map((x) => {
+      const make2dpCanBeUndefined: (input: number | undefined) => string = (
+        input,
+      ) => {
         return input ? makeTwoDP(input) : '';
       };
-      const makeQCanBeUndefined: (
-        input: number | undefined,
-      ) => string = input => {
+      const makeQCanBeUndefined: (input: number | undefined) => string = (
+        input,
+      ) => {
         return input ? `${input}` : '';
       };
       return {
@@ -2032,7 +2032,7 @@ export function reportDiv(
   // log(`display reportDataTable ${util.inspect(reportDataTable)}`);
 
   const context = Context.Asset;
-  const items = model.assets.filter(obj => {
+  const items = model.assets.filter((obj) => {
     return obj.IS_A_DEBT === false;
   });
 
@@ -2045,7 +2045,7 @@ export function reportDiv(
       />
       <DataGrid
         deleteFunction={undefined}
-        handleGridRowsUpdated={function() {
+        handleGridRowsUpdated={function () {
           return false;
         }}
         rows={reportDataTable}

@@ -27,8 +27,9 @@ describe(testDataModelName, () => {
     return;
   }
   const driver = driverSimple;
+  jest.setTimeout(1000000); // allow time for all these tests to run
 
-  it('should add transactions', async done => {
+  it('should add transactions', async () => {
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -175,7 +176,6 @@ describe(testDataModelName, () => {
     }); // BUG! accepted junk
 
     await cleanUpWork(driver, testDataModelName);
-    done();
   });
 
   afterAll(async () => {

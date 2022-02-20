@@ -79,9 +79,9 @@ function migrateFromV0(model: ModelData) {
   // log(`in migrateOldVersions at v0, model has ${model.settings.length} settings`);
   // use getMinimalModelCopy and scan over all settings and assets
   const minimalModel = getMinimalModelCopy();
-  minimalModel.settings.forEach(x => {
+  minimalModel.settings.forEach((x) => {
     if (
-      model.settings.filter(existing => {
+      model.settings.filter((existing) => {
         return existing.NAME === x.NAME;
       }).length === 0
     ) {
@@ -90,9 +90,9 @@ function migrateFromV0(model: ModelData) {
       // throw new Error(`inserting missing data ${showObj(x)}`);
     }
   });
-  minimalModel.assets.forEach(x => {
+  minimalModel.assets.forEach((x) => {
     if (
-      model.assets.filter(existing => {
+      model.assets.filter((existing) => {
         return existing.NAME === x.NAME;
       }).length === 0
     ) {
@@ -140,13 +140,13 @@ function migrateFromV2(model: ModelData) {
   if (showMigrationLogs) {
     log(`in migrateOldVersions at v2, model has ${model.assets.length} assets`);
     log(
-      `${model.assets.map(x => {
+      `${model.assets.map((x) => {
         return x.NAME;
       })}`,
     );
   }
   // remove any asset called taxPot
-  let index = model.assets.findIndex(a => {
+  let index = model.assets.findIndex((a) => {
     return a.NAME === taxPot;
   });
   if (index >= 0) {
@@ -161,7 +161,7 @@ function migrateFromV2(model: ModelData) {
     //  `in migrateOldVersions at v2, model now has ${model.assets.length} assets`,
     // );
   }
-  index = model.assets.findIndex(a => {
+  index = model.assets.findIndex((a) => {
     return a.NAME === taxPot;
   });
   if (index >= 0) {
@@ -177,7 +177,7 @@ function migrateFromV3(model: ModelData) {
     );
   }
   if (
-    model.settings.findIndex(x => {
+    model.settings.findIndex((x) => {
       return x.NAME === taxChartFocusPerson;
     }) === -1
   ) {
@@ -188,7 +188,7 @@ function migrateFromV3(model: ModelData) {
     });
   }
   if (
-    model.settings.findIndex(x => {
+    model.settings.findIndex((x) => {
       return x.NAME === taxChartFocusType;
     }) === -1
   ) {
@@ -199,7 +199,7 @@ function migrateFromV3(model: ModelData) {
     });
   }
   if (
-    model.settings.findIndex(x => {
+    model.settings.findIndex((x) => {
       return x.NAME === taxChartShowNet;
     }) === -1
   ) {
@@ -234,8 +234,8 @@ function migrateFromV4(model: ModelData) {
     taxChartFocusType,
     taxChartShowNet,
   ];
-  namesForRemoval.forEach(name => {
-    const idx = model.settings.findIndex(s => {
+  namesForRemoval.forEach((name) => {
+    const idx = model.settings.findIndex((s) => {
       return s.NAME === name;
     });
     if (idx >= 0) {
@@ -265,8 +265,8 @@ function changeSpecialWords(
     newPart: string;
   }[],
 ) {
-  model.transactions.forEach(t => {
-    transactionChanges.forEach(ch => {
+  model.transactions.forEach((t) => {
+    transactionChanges.forEach((ch) => {
       if (t.NAME.startsWith(ch.oldPart)) {
         // log(`old t.NAME=${t.NAME}`);
         t.NAME = `${ch.newPart}${t.NAME.substring(ch.oldPart.length)}`;
@@ -275,7 +275,7 @@ function changeSpecialWords(
       let words = t.FROM.split(separator);
       let newWords: string[] = [];
       let hasChanged = false;
-      words.forEach(w => {
+      words.forEach((w) => {
         if (w.startsWith(ch.oldPart)) {
           // log(`old t.FROM w = ${w}`);
           w = `${ch.newPart}${w.substring(ch.oldPart.length)}`;
@@ -294,7 +294,7 @@ function changeSpecialWords(
       });
       if (hasChanged) {
         t.FROM = '';
-        newWords.forEach(w => {
+        newWords.forEach((w) => {
           t.FROM = `${t.FROM}${w}${separator}`;
         });
         t.FROM = t.FROM.substring(0, t.FROM.length - 1);
@@ -303,7 +303,7 @@ function changeSpecialWords(
       words = t.TO.split(separator);
       newWords = [];
       hasChanged = false;
-      words.forEach(w => {
+      words.forEach((w) => {
         if (w.startsWith(ch.oldPart)) {
           // log(`old t.TO w = ${w}`);
           w = `${ch.newPart}${w.substring(ch.oldPart.length, w.length)}`;
@@ -322,7 +322,7 @@ function changeSpecialWords(
       });
       if (hasChanged) {
         t.TO = '';
-        newWords.forEach(w => {
+        newWords.forEach((w) => {
           t.TO = `${t.TO}${w}${separator}`;
         });
         t.TO = t.TO.substring(0, t.TO.length - 1);
@@ -330,8 +330,8 @@ function changeSpecialWords(
       }
     });
   });
-  model.incomes.forEach(i => {
-    incomeChanges.forEach(ch => {
+  model.incomes.forEach((i) => {
+    incomeChanges.forEach((ch) => {
       if (i.NAME.startsWith(ch.oldPart)) {
         // log(`old i.NAME=${i.NAME}`);
         i.NAME = `${ch.newPart}${i.NAME.substring(
@@ -342,8 +342,8 @@ function changeSpecialWords(
       }
     });
   });
-  model.assets.forEach(a => {
-    assetChanges.forEach(ch => {
+  model.assets.forEach((a) => {
+    assetChanges.forEach((ch) => {
       // log(`check for name change ${a.NAME}`);
       if (a.NAME.startsWith(ch.oldPart)) {
         // log(`old a.NAME=${a.NAME}`);
@@ -474,7 +474,7 @@ function migrateFromV7(model: ModelData) {
   // Each cpAsset has a transaction which pays into it
   // where the transactionName also begins crystallizedPension
   const nameToPension = new Map<string, string>();
-  model.transactions.forEach(t => {
+  model.transactions.forEach((t) => {
     if (t.NAME.startsWith(crystallizedPension)) {
       const name = t.TO.substring(crystallizedPension.length);
       const pensionName = t.NAME.substring(crystallizedPension.length);
@@ -482,7 +482,7 @@ function migrateFromV7(model: ModelData) {
       nameToPension.set(name, pensionName);
     }
   });
-  model.transactions.forEach(t => {
+  model.transactions.forEach((t) => {
     // log(`check for name change ${a.NAME}`);
     if (
       t.FROM.startsWith(crystallizedPension) &&
@@ -499,7 +499,7 @@ function migrateFromV7(model: ModelData) {
     }
   });
 
-  model.assets.forEach(a => {
+  model.assets.forEach((a) => {
     // log(`check for name change ${a.NAME}`);
     if (a.NAME.startsWith(crystallizedPension)) {
       const person = a.NAME.substring(crystallizedPension.length);
@@ -512,11 +512,11 @@ function migrateFromV7(model: ModelData) {
       a.NAME = `${crystallizedPension}${person}${dot}${pensionName}`;
     }
   });
-  model.transactions.forEach(t => {
+  model.transactions.forEach((t) => {
     let words = t.FROM.split(separator);
     let newWords: string[] = [];
     let hasChanged = false;
-    words.forEach(w => {
+    words.forEach((w) => {
       if (w.startsWith(crystallizedPension)) {
         // log(`old t.FROM w = ${w}`);
         const person = w.substring(crystallizedPension.length);
@@ -534,7 +534,7 @@ function migrateFromV7(model: ModelData) {
     });
     if (hasChanged) {
       t.FROM = '';
-      newWords.forEach(w => {
+      newWords.forEach((w) => {
         t.FROM = `${t.FROM}${w}${separator}`;
       });
       t.FROM = t.FROM.substring(0, t.FROM.length - 1);
@@ -543,7 +543,7 @@ function migrateFromV7(model: ModelData) {
     words = t.TO.split(separator);
     newWords = [];
     hasChanged = false;
-    words.forEach(w => {
+    words.forEach((w) => {
       if (w.startsWith(crystallizedPension)) {
         // log(`old t.FROM w = ${w}`);
         const person = w.substring(crystallizedPension.length);
@@ -561,7 +561,7 @@ function migrateFromV7(model: ModelData) {
     });
     if (hasChanged) {
       t.TO = '';
-      newWords.forEach(w => {
+      newWords.forEach((w) => {
         t.TO = `${t.TO}${w}${separator}`;
       });
       t.TO = t.TO.substring(0, t.TO.length - 1);

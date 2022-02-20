@@ -31,8 +31,9 @@ describe(testDataModelName, () => {
     return;
   }
   const driver = driverSimple;
+  jest.setTimeout(1000000); // allow time for all these tests to run
 
-  it('DC Pension problem inputs', async done => {
+  it('DC Pension problem inputs', async () => {
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -232,10 +233,9 @@ describe(testDataModelName, () => {
     }); // TODO : liability should match the income liability
 
     await cleanUpWork(driver, testDataModelName);
-    done();
   });
 
-  it('DC Pension happy path', async done => {
+  it('DC Pension happy path', async () => {
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -277,7 +277,6 @@ describe(testDataModelName, () => {
     });
 
     //await cleanUpWork(driver, testDataModelName);
-    done();
   });
 
   afterAll(async () => {

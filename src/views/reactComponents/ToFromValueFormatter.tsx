@@ -8,10 +8,7 @@ interface ToFromValueFormatterProps {
   name: string;
   value: string;
 }
-class ToFromValueFormatter extends React.Component<
-  ToFromValueFormatterProps,
-  {}
-> {
+class ToFromValueFormatter extends React.Component<ToFromValueFormatterProps> {
   public render() {
     let result: string;
     if (isNumberString(this.props.value)) {

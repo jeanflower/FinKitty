@@ -134,7 +134,7 @@ export class AddDeleteTriggerForm extends Component<
     }
 
     if (doCheckBeforeOverwritingExistingData()) {
-      const matchingItem = this.props.model.triggers.find(a => {
+      const matchingItem = this.props.model.triggers.find((a) => {
         return a.NAME === this.state.NAME;
       });
       if (matchingItem !== undefined) {

@@ -27,7 +27,7 @@ describe('bonds tests', () => {
     printTestCodeForEvals;
   }
 
-  it('bond invest once mature once', done => {
+  it('bond invest once mature once', (done) => {
     const roi = {
       start: 'Dec 1, 2017',
       end: 'July 1, 2019',
@@ -153,7 +153,7 @@ describe('bonds tests', () => {
     done();
   });
 
-  it('bond invest has 0% bond interest', done => {
+  it('bond invest has 0% bond interest', (done) => {
     const roi = {
       start: 'Dec 1, 2017',
       end: 'July 1, 2019',
@@ -281,7 +281,7 @@ describe('bonds tests', () => {
     done();
   });
 
-  it('bond invest has 100% bond interest', done => {
+  it('bond invest has 100% bond interest', (done) => {
     const roi = {
       start: 'Dec 1, 2017',
       end: 'July 1, 2019',
@@ -408,7 +408,7 @@ describe('bonds tests', () => {
     done();
   });
 
-  it(`bond not enough cash to invest so don't mature`, done => {
+  it(`bond not enough cash to invest so don't mature`, (done) => {
     const roi = {
       start: 'Dec 1, 2017',
       end: 'July 1, 2019',
@@ -532,7 +532,7 @@ describe('bonds tests', () => {
     done();
   });
 
-  it('bond zero cpi', done => {
+  it('bond zero cpi', (done) => {
     const roi = {
       start: 'Dec 1, 2017',
       end: 'July 1, 2019',
@@ -658,7 +658,7 @@ describe('bonds tests', () => {
     done();
   });
 
-  it('bond zero cpi with interest', done => {
+  it('bond zero cpi with interest', (done) => {
     const roi = {
       start: 'Dec 1, 2017',
       end: 'July 1, 2019',
@@ -786,7 +786,7 @@ describe('bonds tests', () => {
     done();
   });
 
-  it('bond roi stops before bond matures', done => {
+  it('bond roi stops before bond matures', (done) => {
     const roi = {
       start: 'Dec 1, 2017',
       end: 'July 1, 2018',
@@ -886,7 +886,7 @@ describe('bonds tests', () => {
     done();
   });
 
-  it('bond repeat overlap', done => {
+  it('bond repeat overlap', (done) => {
     const roi = {
       start: 'Dec 1, 2017',
       end: 'August 1, 2019',
@@ -1033,7 +1033,7 @@ describe('bonds tests', () => {
     done();
   });
 
-  it('bond repeat cash too short for both', done => {
+  it('bond repeat cash too short for both', (done) => {
     const roi = {
       start: 'Dec 1, 2017',
       end: 'August 1, 2019',
@@ -1178,7 +1178,7 @@ describe('bonds tests', () => {
     done();
   });
 
-  it('bond repeat disjoint', done => {
+  it('bond repeat disjoint', (done) => {
     const roi = {
       start: 'Dec 1, 2017',
       end: 'June 1, 2021',
@@ -1369,7 +1369,7 @@ describe('bonds tests', () => {
     done();
   });
 
-  it('bond 5yr rolling plan no cpi', done => {
+  it('bond 5yr rolling plan no cpi', (done) => {
     const roi = {
       start: 'Dec 1, 2017',
       end: 'June 1, 2031',
@@ -1742,7 +1742,7 @@ describe('bonds tests', () => {
     done();
   });
 
-  it('bond 5yr rolling plan with target values cpi', done => {
+  it('bond 5yr rolling plan with target values cpi', (done) => {
     const roi = {
       start: 'Dec 1, 2017',
       end: 'June 1, 2031',
@@ -2106,7 +2106,7 @@ describe('bonds tests', () => {
     done();
   });
 
-  it('bond 5yr rolling plan with cpi', done => {
+  it('bond 5yr rolling plan with cpi', (done) => {
     const roi = {
       start: 'Dec 1, 2017',
       end: 'June 1, 2031',

@@ -57,7 +57,7 @@ export class CreateModelForm extends Component<
   }
 
   private exampleButtonList() {
-    const buttons: JSX.Element[] = this.props.exampleModels.map(x => {
+    const buttons: JSX.Element[] = this.props.exampleModels.map((x) => {
       return makeButton(
         `Create ${x.name} example`,
         async () => {
@@ -75,7 +75,7 @@ export class CreateModelForm extends Component<
     return (
       <form
         className="container-fluid"
-        onSubmit={async e => {
+        onSubmit={async (e) => {
           e.preventDefault();
           // log(`make copy of minimal model`);
           this.copyModel(minimalModel);

@@ -60,9 +60,10 @@ describe(testDataModelName, () => {
     return;
   }
   const driver = driverSimple;
+  jest.setTimeout(1000000); // allow time for all these tests to run
 
   it('should load the home page and get title', () =>
-    new Promise<void>(async resolve => {
+    new Promise<void>(async (resolve) => {
       await beforeAllWork(
         driver,
         testDataModelName,
@@ -79,7 +80,7 @@ describe(testDataModelName, () => {
   // the page should include a chart
   // (maybe not visible, but loaded in the document)
   it('should show a chart', () =>
-    new Promise<void>(async resolve => {
+    new Promise<void>(async (resolve) => {
       await beforeAllWork(
         driver,
         testDataModelName,
@@ -109,7 +110,7 @@ describe(testDataModelName, () => {
       resolve();
     }));
 
-  it('should show asset chart data extends with bigger roi', async done => {
+  it('should show asset chart data extends with bigger roi', async () => {
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -180,11 +181,9 @@ describe(testDataModelName, () => {
     expect(ary.datasets[0].data[14]).toBeCloseTo(-198.93939050052373, 2);
 
     await cleanUpWork(driver, testDataModelName);
-
-    done();
   });
 
-  it('should show coarse, categorised, chart data view', async done => {
+  it('should show coarse, categorised, chart data view', async () => {
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -258,10 +257,9 @@ describe(testDataModelName, () => {
     expect(ary.datasets[1].data[3]).toBeCloseTo(0, 2);
 
     await cleanUpWork(driver, testDataModelName);
-    done();
   });
 
-  it('should show fine, uncategorised, chart data view', async done => {
+  it('should show fine, uncategorised, chart data view', async () => {
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -361,10 +359,9 @@ describe(testDataModelName, () => {
     expect(ary.datasets[2].data[3]).toBeCloseTo(0, 2);
 
     await cleanUpWork(driver, testDataModelName);
-    done();
   });
 
-  it('should show coarse asset view for cash asset, vals, +, -, +- view', async done => {
+  it('should show coarse asset view for cash asset, vals, +, -, +- view', async () => {
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -513,10 +510,9 @@ describe(testDataModelName, () => {
     expect(ary.datasets[4].data[3]).toBeCloseTo(0, 2);
 
     await cleanUpWork(driver, testDataModelName);
-    done();
   });
 
-  it('should show fine asset view for selected category, vals', async done => {
+  it('should show fine asset view for selected category, vals', async () => {
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -562,10 +558,9 @@ describe(testDataModelName, () => {
     expect(ary.datasets[1].data[3]).toBeCloseTo(500, 2);
 
     await cleanUpWork(driver, testDataModelName);
-    done();
   });
 
-  it('should navigate headers', async done => {
+  it('should navigate headers', async () => {
     //log(`navigate headers test`);
     await beforeAllWork(
       driver,
@@ -584,10 +579,9 @@ describe(testDataModelName, () => {
     await gotoTabPage(driver, settingsTag);
 
     await cleanUpWork(driver, testDataModelName);
-    done();
   });
 
-  it('more crysler work with various values and adjustments', async done => {
+  it('more crysler work with various values and adjustments', async () => {
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -788,10 +782,9 @@ describe(testDataModelName, () => {
     expect(ary.datasets[4].data[14]).toBeCloseTo(718.342530408852, 2);
 
     await cleanUpWork(driver, testDataModelName);
-    done();
   });
 
-  it('more crysler work with various doublings', async done => {
+  it('more crysler work with various doublings', async () => {
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -1128,7 +1121,6 @@ describe(testDataModelName, () => {
     expect(ary.datasets[0].data[14]).toBeCloseTo(194.04000000000005, 2);
 
     await cleanUpWork(driver, testDataModelName);
-    done();
   });
 
   afterAll(async () => {

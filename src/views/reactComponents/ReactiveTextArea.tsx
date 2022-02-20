@@ -5,7 +5,7 @@ interface ReactiveTextAreaProps {
   identifier: string;
   message: string;
 }
-class ReactiveTextArea extends React.Component<ReactiveTextAreaProps, {}> {
+class ReactiveTextArea extends React.Component<ReactiveTextAreaProps> {
   public render() {
     return (
       <div style={{ display: 'none' }}>

@@ -355,7 +355,7 @@ export class AddDeleteDebtForm extends Component<
     }
 
     if (doCheckBeforeOverwritingExistingData()) {
-      const matchingItem = this.props.model.assets.find(a => {
+      const matchingItem = this.props.model.assets.find((a) => {
         return a.NAME === this.state.NAME;
       });
       if (matchingItem !== undefined) {

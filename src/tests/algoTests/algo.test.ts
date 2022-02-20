@@ -84,7 +84,7 @@ import {
 /* global describe */
 
 describe('evaluations tests', () => {
-  it('should ignore future expenses A', async done => {
+  it('should ignore future expenses A', (done) => {
     const modelAndRoi = getModelFutureExpense2();
     const model = modelAndRoi.model;
 
@@ -112,7 +112,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('should apply growth to next expense', async done => {
+  it('should apply growth to next expense', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 2, 2018 00:00:00',
@@ -188,7 +188,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('should apply cpi to next expense', async done => {
+  it('should apply cpi to next expense', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 2, 2018 00:00:00',
@@ -251,7 +251,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('should ignore future expenses B', async done => {
+  it('should ignore future expenses B', (done) => {
     const roi = {
       start: 'Dec 1, 2016 00:00:00',
       end: 'March 1, 2017 00:00:00',
@@ -297,7 +297,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('should apply growth+CPI to next expense', done => {
+  it('should apply growth+CPI to next expense', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 2, 2018 00:00:00',
@@ -359,7 +359,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('should one expense for 6m recurrence', done => {
+  it('should one expense for 6m recurrence', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 2, 2018 00:00:00',
@@ -417,7 +417,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('should two expense for 2m recurrence', done => {
+  it('should two expense for 2m recurrence', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 2, 2018 00:00:00',
@@ -476,7 +476,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('should two expense for 1y recurrence', done => {
+  it('should two expense for 1y recurrence', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 2, 2019 00:00:00',
@@ -548,7 +548,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it("shouldn't see effect of cpi for cpi-immune expense", done => {
+  it("shouldn't see effect of cpi for cpi-immune expense", (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 2, 2018 00:00:00',
@@ -611,7 +611,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('expense should grow even if CPI_IMMUNE', done => {
+  it('expense should grow even if CPI_IMMUNE', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 2, 2018 00:00:00',
@@ -672,7 +672,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('should understand trigger for start value', done => {
+  it('should understand trigger for start value', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 2, 2018 00:00:00',
@@ -737,7 +737,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('should apply growth to next two expenses', done => {
+  it('should apply growth to next two expenses', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 1, 2018 00:00:00',
@@ -795,7 +795,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('should apply growth to next income', done => {
+  it('should apply growth to next income', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 1, 2018 00:00:00',
@@ -852,7 +852,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('annual accumulation for incomes', done => {
+  it('annual accumulation for incomes', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 1, 2019 00:00:00',
@@ -910,7 +910,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('should apply growth to get first income', done => {
+  it('should apply growth to get first income', (done) => {
     const roi = {
       start: 'Dec 1, 2018 00:00:00',
       end: 'March 1, 2019 00:00:00',
@@ -968,7 +968,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('should understand cpi-immune income no growth', done => {
+  it('should understand cpi-immune income no growth', (done) => {
     const roi = {
       start: 'Dec 1, 2018 00:00:00',
       end: 'March 1, 2019 00:00:00',
@@ -1024,7 +1024,7 @@ describe('evaluations tests', () => {
     expect(result.assetData.length).toBe(0);
     done();
   });
-  it('should understand cpi-immune income with growth', done => {
+  it('should understand cpi-immune income with growth', (done) => {
     const roi = {
       start: 'Dec 1, 2018 00:00:00',
       end: 'March 1, 2019 00:00:00',
@@ -1079,7 +1079,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('should understand cpi income', done => {
+  it('should understand cpi income', (done) => {
     const roi = {
       start: 'Dec 1, 2018 00:00:00',
       end: 'April 1, 2019 00:00:00',
@@ -1139,7 +1139,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('should apply growth to next two incomes', done => {
+  it('should apply growth to next two incomes', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 1, 2018 00:00:00',
@@ -1199,7 +1199,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('cash goes first', done => {
+  it('cash goes first', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'February 1, 2018 00:00:00',
@@ -1282,7 +1282,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('should apply growth to next two assets', done => {
+  it('should apply growth to next two assets', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 1, 2018 00:00:00',
@@ -1338,7 +1338,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('should apply cpi to next two assets', done => {
+  it('should apply cpi to next two assets', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 1, 2018 00:00:00',
@@ -1395,7 +1395,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('transact from cash into cpi-affected asset', done => {
+  it('transact from cash into cpi-affected asset', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 1, 2018 00:00:00',
@@ -1514,7 +1514,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('transact zero from cash into cpi-affected asset', done => {
+  it('transact zero from cash into cpi-affected asset', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 1, 2018 00:00:00',
@@ -1577,7 +1577,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('transact from cpi-affected cash into cpi-affected asset', done => {
+  it('transact from cpi-affected cash into cpi-affected asset', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 1, 2018 00:00:00',
@@ -1696,7 +1696,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('transact zero into cpi-affected asset', done => {
+  it('transact zero into cpi-affected asset', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'July 1, 2018 00:00:00',
@@ -1761,7 +1761,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('transact from nowhere into cpi-affected asset', done => {
+  it('transact from nowhere into cpi-affected asset', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 1, 2018 00:00:00',
@@ -1875,7 +1875,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('should understand CPI_IMMUNE for growing assets', done => {
+  it('should understand CPI_IMMUNE for growing assets', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 1, 2018 00:00:00',
@@ -1933,7 +1933,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('should apply growth and cpi for growing assets', done => {
+  it('should apply growth and cpi for growing assets', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 1, 2018 00:00:00',
@@ -1991,7 +1991,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('should keep no-growth CPI_IMMUNE assets fixed', done => {
+  it('should keep no-growth CPI_IMMUNE assets fixed', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 1, 2018 00:00:00',
@@ -2049,7 +2049,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('should understand triggers', done => {
+  it('should understand triggers', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 1, 2018 00:00:00',
@@ -2107,7 +2107,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('should mix expense and income', done => {
+  it('should mix expense and income', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 1, 2018 00:00:00',
@@ -2185,7 +2185,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('has transaction adding cash', done => {
+  it('has transaction adding cash', (done) => {
     const roi = {
       start: 'Dec 1, 2017',
       end: 'April 1, 2020',
@@ -2252,7 +2252,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('has transaction adding cash and savings', done => {
+  it('has transaction adding cash and savings', (done) => {
     const roi = {
       start: 'Dec 1, 2017',
       end: 'April 1, 2020',
@@ -2356,7 +2356,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('has transaction impacting asset value', done => {
+  it('has transaction impacting asset value', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 1, 2018 00:00:00',
@@ -2419,7 +2419,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('has transaction setting as from_value', done => {
+  it('has transaction setting as from_value', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 1, 2018 00:00:00',
@@ -2491,7 +2491,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('has transaction derived setting as from_value', done => {
+  it('has transaction derived setting as from_value', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 1, 2018 00:00:00',
@@ -2569,7 +2569,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('has regular transaction impacting asset value', done => {
+  it('has regular transaction impacting asset value', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 1, 2018 00:00:00',
@@ -2635,7 +2635,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('has regular transaction every 2 months', done => {
+  it('has regular transaction every 2 months', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -2705,7 +2705,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('has regular transaction every 2 years', done => {
+  it('has regular transaction every 2 years', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2023 00:00:00',
@@ -2777,7 +2777,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('has regular transaction stop at stop date', done => {
+  it('has regular transaction stop at stop date', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 1, 2018 00:00:00',
@@ -2873,7 +2873,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('has regular transaction stop when funds run out', done => {
+  it('has regular transaction stop when funds run out', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -2986,7 +2986,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('has proportional transaction impacting asset value', done => {
+  it('has proportional transaction impacting asset value', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 1, 2018 00:00:00',
@@ -3075,7 +3075,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('transaction between assets at exact starts of assets', done => {
+  it('transaction between assets at exact starts of assets', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 1, 2018 00:00:00',
@@ -3160,7 +3160,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('income  growth', done => {
+  it('income  growth', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 1, 2018 00:00:00',
@@ -3191,7 +3191,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultModelSettings(roi)],
     };
-    model.settings.forEach(s => {
+    model.settings.forEach((s) => {
       if (s.NAME === assetChartFocus) {
         s.VALUE = allItems;
       }
@@ -3249,7 +3249,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('two expenses impact cash', done => {
+  it('two expenses impact cash', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 2, 2018 00:00:00',
@@ -3361,7 +3361,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('two incomes impact cash', done => {
+  it('two incomes impact cash', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 2, 2018 00:00:00',
@@ -3476,7 +3476,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('has monthly transaction creating cash debt', done => {
+  it('has monthly transaction creating cash debt', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 1, 2019 00:00:00',
@@ -3579,7 +3579,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('should apply income tax to some asset growth', done => {
+  it('should apply income tax to some asset growth', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 2, 2018 00:00:00',
@@ -3708,7 +3708,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('have two assets share the same growth rate', done => {
+  it('have two assets share the same growth rate', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'Feb 7, 2018 00:00:00',
@@ -3748,7 +3748,7 @@ describe('evaluations tests', () => {
         },
       ],
     };
-    model.settings.forEach(s => {
+    model.settings.forEach((s) => {
       if (s.NAME === assetChartFocus) {
         s.VALUE = allItems;
       }
@@ -3811,7 +3811,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('should apply growth and revalue expense', done => {
+  it('should apply growth and revalue expense', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 2, 2018 00:00:00',
@@ -3908,7 +3908,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('should revalue expense by proportion', done => {
+  it('should revalue expense by proportion', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'July 2, 2018 00:00:00',
@@ -4022,7 +4022,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('should revalue expense by setting proportion', done => {
+  it('should revalue expense by setting proportion', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'July 2, 2019 00:00:00',
@@ -4224,7 +4224,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('should revalue income by setting proportion', done => {
+  it('should revalue income by setting proportion', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'July 2, 2019 00:00:00',
@@ -4426,7 +4426,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('should apply growth and one-off pay revalue to income', done => {
+  it('should apply growth and one-off pay revalue to income', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -4527,7 +4527,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('should apply growth and absolute-revalue asset', done => {
+  it('should apply growth and absolute-revalue asset', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 1, 2018 00:00:00',
@@ -4593,7 +4593,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('should apply growth and proportional-revalue asset', done => {
+  it('should apply growth and proportional-revalue asset', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 1, 2018 00:00:00',
@@ -4660,7 +4660,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('should apply growth and proportional-revalue multiple assets', done => {
+  it('should apply growth and proportional-revalue multiple assets', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 1, 2018 00:00:00',
@@ -4751,7 +4751,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('should apply growth and proportional-revalue category of assets', done => {
+  it('should apply growth and proportional-revalue category of assets', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 1, 2018 00:00:00',
@@ -4862,7 +4862,7 @@ describe('evaluations tests', () => {
     expect(evals.length).toBe(0);
   }
 
-  it('check nonsense settings', done => {
+  it('check nonsense settings', (done) => {
     const settingsKeys = [
       birthDate, // '' or a string date
       viewFrequency, // monthly or annual
@@ -4883,7 +4883,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('asset growth should be a number or a numerical setting', done => {
+  it('asset growth should be a number or a numerical setting', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'Feb 7, 2018 00:00:00',
@@ -4921,7 +4921,7 @@ describe('evaluations tests', () => {
 
     done();
   });
-  it('asset value should be a number', done => {
+  it('asset value should be a number', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'Feb 7, 2018 00:00:00',
@@ -4950,7 +4950,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('trigger name cant have +', done => {
+  it('trigger name cant have +', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'Feb 7, 2018 00:00:00',
@@ -4985,7 +4985,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('trigger name cant have -', done => {
+  it('trigger name cant have -', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'Feb 7, 2018 00:00:00',
@@ -5020,7 +5020,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('trigger 1 day before', done => {
+  it('trigger 1 day before', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'Feb 7, 2018 00:00:00',
@@ -5055,7 +5055,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('trigger 1 day after', done => {
+  it('trigger 1 day after', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'Feb 7, 2018 00:00:00',
@@ -5090,7 +5090,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('trigger 1 month before', done => {
+  it('trigger 1 month before', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'Feb 7, 2018 00:00:00',
@@ -5125,7 +5125,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('trigger 1 month after', done => {
+  it('trigger 1 month after', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'Feb 7, 2018 00:00:00',
@@ -5160,7 +5160,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('trigger 1 year before', done => {
+  it('trigger 1 year before', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'Feb 7, 2018 00:00:00',
@@ -5195,7 +5195,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('trigger 1 year after', done => {
+  it('trigger 1 year after', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'Feb 7, 2018 00:00:00',
@@ -5230,7 +5230,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('trigger defined 1 day before', done => {
+  it('trigger defined 1 day before', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'Feb 7, 2018 00:00:00',
@@ -5269,7 +5269,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('trigger defined infinite recursion', done => {
+  it('trigger defined infinite recursion', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'Feb 7, 2018 00:00:00',
@@ -5306,7 +5306,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('negative value for asset which cant be negative', done => {
+  it('negative value for asset which cant be negative', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'February 1, 2018 00:00:00',
@@ -5345,7 +5345,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('negative value allowed for from asset', done => {
+  it('negative value allowed for from asset', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'February 1, 2018 00:00:00',
@@ -5410,7 +5410,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('negative value not allowed for from asset', done => {
+  it('negative value not allowed for from asset', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'February 1, 2018 00:00:00',
@@ -5446,7 +5446,7 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultModelSettings(roi)],
     };
-    model.settings.forEach(s => {
+    model.settings.forEach((s) => {
       if (s.NAME === assetChartFocus) {
         s.VALUE = allItems;
       }
@@ -5478,7 +5478,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('can use income tax on asset for taxable benefits', done => {
+  it('can use income tax on asset for taxable benefits', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 2, 2018 00:00:00',
@@ -5601,7 +5601,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('sell more things than we have', done => {
+  it('sell more things than we have', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 2, 2018 00:00:00',
@@ -5715,7 +5715,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('revalue a setting 01', done => {
+  it('revalue a setting 01', (done) => {
     const roi = {
       start: '1 Jan 2019',
       end: '1 May 2019',
@@ -5831,7 +5831,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('revalue a setting 02', done => {
+  it('revalue a setting 02', (done) => {
     const revalueData = `
     {
     "triggers":[
@@ -5970,7 +5970,7 @@ describe('evaluations tests', () => {
     expect(result.debtData.length).toBe(0);
     done();
   });
-  it('revalue a setting cpi for asset growth', done => {
+  it('revalue a setting cpi for asset growth', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'July 2, 2019 00:00:00',
@@ -6206,7 +6206,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('revalue a setting cpi for income growth', done => {
+  it('revalue a setting cpi for income growth', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'August 2, 2019 00:00:00',
@@ -6357,7 +6357,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('revalue a setting cpi for expense growth', done => {
+  it('revalue a setting cpi for expense growth', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'August 2, 2019 00:00:00',
@@ -6507,7 +6507,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('Generate taxable income from asset', done => {
+  it('Generate taxable income from asset', (done) => {
     const roi = {
       start: 'Dec 1, 2017',
       end: 'May 02 2019',

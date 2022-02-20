@@ -197,7 +197,7 @@ Options to toggle are
       // log(`modelName from JSON is ${modelName}`);
       JSON = JSON.substring(i);
     }
-    const alreadyExists = this.props.modelNames.find(existing => {
+    const alreadyExists = this.props.modelNames.find((existing) => {
       return existing === modelName;
     });
     if (

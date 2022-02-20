@@ -4,8 +4,9 @@ import { headless, quitAfterAll, testModelCreation } from './browserTestUtils';
 
 describe('BrowserWorkflowTests 02', () => {
   const driver = getDriver(headless);
+  jest.setTimeout(1000000); // allow time for all these tests to run
 
-  it('should create examples', async done => {
+  it('should create examples', async () => {
     const testDataModelName = 'testName3';
     await beforeAllWork(
       driver,
@@ -21,7 +22,6 @@ describe('BrowserWorkflowTests 02', () => {
     );
 
     await cleanUpWork(driver, testDataModelName);
-    done();
   });
 
   afterAll(async () => {

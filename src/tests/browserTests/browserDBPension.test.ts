@@ -31,8 +31,9 @@ describe(testDataModelName, () => {
     return;
   }
   const driver = driverSimple;
+  jest.setTimeout(1000000); // allow time for all these tests to run
 
-  it('DB pension inputs problem path', async done => {
+  it('DB pension inputs problem path', async () => {
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -214,10 +215,9 @@ describe(testDataModelName, () => {
     });
 
     await cleanUpWork(driver, testDataModelName);
-    done();
   });
 
-  it('DB pension inputs happy path', async done => {
+  it('DB pension inputs happy path', async () => {
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -264,7 +264,6 @@ describe(testDataModelName, () => {
     });
 
     await cleanUpWork(driver, testDataModelName);
-    done();
   });
 
   afterAll(async () => {

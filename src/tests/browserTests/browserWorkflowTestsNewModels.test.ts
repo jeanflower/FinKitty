@@ -4,7 +4,9 @@ import { headless, quitAfterAll, testModelCreation } from './browserTestUtils';
 
 describe('BrowserWorkflowTests new models', () => {
   const driver = getDriver(headless);
-  it('should create new clones', async done => {
+  jest.setTimeout(1000000); // allow time for all these tests to run
+
+  it('should create new clones', async () => {
     const testDataModelName = 'testName4';
     await beforeAllWork(
       driver,
@@ -20,10 +22,9 @@ describe('BrowserWorkflowTests new models', () => {
     );
 
     await cleanUpWork(driver, testDataModelName);
-    done();
   });
 
-  it('should create new models', async done => {
+  it('should create new models', async () => {
     const testDataModelName = 'testName5';
     await beforeAllWork(
       driver,
@@ -39,7 +40,6 @@ describe('BrowserWorkflowTests new models', () => {
     );
 
     await cleanUpWork(driver, testDataModelName);
-    done();
   });
 
   afterAll(async () => {

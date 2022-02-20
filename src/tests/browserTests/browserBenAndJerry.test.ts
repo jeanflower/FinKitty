@@ -51,11 +51,11 @@ describe(testDataModelName, () => {
     return;
   }
   const driver = driverSimple;
+  jest.setTimeout(1000000); // allow time for all these tests to run
 
-  it('my first model browser test', async done => {
+  it('my first model browser test', async () => {
     const modelName = 'Ben and Jerry';
 
-    jest.setTimeout(1000000); // allow time for all these tests to run
     // log(`go to ensure model ${modelName}`);
 
     await beforeAllWork(driver, modelName, `{"testName":"${MinimalModel}"}`);
@@ -751,11 +751,9 @@ describe(testDataModelName, () => {
       message: `added new transaction`,
     });
     // log('done Sell CrystallizedPensionBen');
-
-    done();
   });
 
-  it('should browse Ben and Jerry model', async done => {
+  it('should browse Ben and Jerry model', async () => {
     const modelName = 'Ben and Jerry';
 
     await beforeAllWork(
@@ -788,7 +786,6 @@ describe(testDataModelName, () => {
       await clickButton(driver, 'select-Ben salary');
       await clickButton(driver, 'select-Jerry salary');
     }
-    done();
   });
 
   afterAll(async () => {

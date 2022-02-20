@@ -1132,7 +1132,7 @@ export function getThreeChryslerModel(): ModelData {
     undoModel: undefined,
     redoModel: undefined,
   };
-  model.assets.filter(a => {
+  model.assets.filter((a) => {
     return a.NAME === CASH_ASSET_NAME;
   })[0].START = '1 Jan 2018';
 
@@ -1189,7 +1189,7 @@ export function getThreeChryslerModelForMigration(): ModelData {
     undoModel: undefined,
     redoModel: undefined,
   };
-  model.assets.filter(a => {
+  model.assets.filter((a) => {
     return a.NAME === CASH_ASSET_NAME;
   })[0].START = '1 Jan 2018';
 
@@ -1537,8 +1537,7 @@ function getBenAndJerryModel(): ModelData {
       {
         NAME: "Today's value focus date",
         VALUE: '',
-        HINT:
-          "Date to use for 'today's value' tables (defaults to '' meaning today)",
+        HINT: "Date to use for 'today's value' tables (defaults to '' meaning today)",
         TYPE: 'view',
       },
       {

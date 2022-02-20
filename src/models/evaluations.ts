@@ -199,7 +199,7 @@ export const momentType = {
 export function sortByDate(arrayOfDatedThings: DatedThing[]) {
   if (printDebug()) {
     log('before date sort --------------');
-    arrayOfDatedThings.forEach(t => {
+    arrayOfDatedThings.forEach((t) => {
       log(`t.name = ${t.name}, ${t.type}, ${t.date}`);
     });
   }
@@ -313,7 +313,7 @@ export function sortByDate(arrayOfDatedThings: DatedThing[]) {
 
   if (printDebug()) {
     log('after date sort --------------');
-    arrayOfDatedThings.forEach(t => {
+    arrayOfDatedThings.forEach((t) => {
       log(`(name, type, date) = (${t.name}, ${t.type}, ${t.date})`);
     });
   }
@@ -444,7 +444,7 @@ function traceEvaluation(
   if (printDebug()) {
     log(
       `in traceEvaluation, for ${source} get value of ${value} ` +
-        `using ${Array.from(values.keys()).map(k => {
+        `using ${Array.from(values.keys()).map((k) => {
           return `[${k}, ${values.get(k)}]`;
         })}`,
     );
@@ -516,8 +516,9 @@ function traceEvaluation(
         } else {
           if (debug) {
             log(
-              `calculate ${numberPart} * ${nextLevel} = ${numberPart *
-                nextLevel}`,
+              `calculate ${numberPart} * ${nextLevel} = ${
+                numberPart * nextLevel
+              }`,
             );
           }
           result = numberPart * nextLevel;
@@ -1133,7 +1134,7 @@ function sumTaxDue(
   taxDueList: { amountLiable: number; rate: number }[],
 ): number {
   let total = 0.0;
-  taxDueList.forEach(tx => {
+  taxDueList.forEach((tx) => {
     total = total + tx.amountLiable * tx.rate;
     // log(`total is now ${total}`);
   });
@@ -1254,7 +1255,7 @@ function payIncomeTax(
 
 function sumNI(niDue: { amountLiable: number; rate: number }[]): number {
   let sum = 0;
-  niDue.forEach(nd => {
+  niDue.forEach((nd) => {
     sum = sum + nd.amountLiable * nd.rate;
   });
   return sum;
@@ -1517,9 +1518,8 @@ function settleUpTax(
         recalculatedNetIncome = true;
       }
     } else if (key === nationalInsurance && value !== undefined) {
-      let liableIncomeNIInTaxMonth = liableIncomeInTaxMonth.get(
-        nationalInsurance,
-      );
+      let liableIncomeNIInTaxMonth =
+        liableIncomeInTaxMonth.get(nationalInsurance);
       if (liableIncomeNIInTaxMonth === undefined) {
         liableIncomeNIInTaxMonth = new Map<string, number>();
         liableIncomeInTaxMonth.set(nationalInsurance, liableIncomeNIInTaxMonth);
@@ -1868,7 +1868,7 @@ function handleIncome(
     // This type of income has moments which fall before the
     // income start date; allowing for other actions to
     // influence its value
-    const income = model.incomes.find(i => {
+    const income = model.incomes.find((i) => {
       return i.NAME === moment.name;
     });
     if (income === undefined) {
@@ -1899,7 +1899,7 @@ function handleIncome(
   // reduced to account for pension contributions
   // and it sometimes adjusts defined contributions pension asset
   // and it sometimes adjusts defined benefits pension benefit
-  pensionTransactions.forEach(pt => {
+  pensionTransactions.forEach((pt) => {
     if (getTriggerDate(pt.DATE, triggers) > moment.date) {
       return;
     }
@@ -2015,7 +2015,7 @@ function handleIncome(
   // log(`for ${liabilitiesMapKey}, liabilityList = ${liabilityList}`);
   if (liabilityList !== undefined) {
     const words: string[] = liabilityList.split(separator);
-    words.forEach(liability => {
+    words.forEach((liability) => {
       // log(`liability = ${liability}`);
       if (liability.endsWith(incomeTax)) {
         accumulateLiability(
@@ -2328,7 +2328,7 @@ function getRecurrentMoments(
     end: endDate,
   };
   const dates = generateSequenceOfDates(roi, recurrence);
-  const newMoments: Moment[] = dates.map(date => {
+  const newMoments: Moment[] = dates.map((date) => {
     const typeForMoment = date < startExpenseOrIncomeDate ? prepType : type;
     const result: Moment = {
       date,
@@ -2384,7 +2384,7 @@ function getAssetMonthlyMoments(
   // log(`roi = ${showObj(roi)}`)
   const dates = generateSequenceOfDates(roi, '1m');
   // log(`dates = ${showObj(dates)}`)
-  const newMoments = dates.map(date => {
+  const newMoments = dates.map((date) => {
     const result: Moment = {
       date,
       name: asset.NAME,
@@ -2441,7 +2441,7 @@ function getTransactionMoments(
       sequenceRoi,
       transaction.RECURRENCE,
     );
-    transactionDates.forEach(d => {
+    transactionDates.forEach((d) => {
       newMoments.push({
         name: transaction.NAME,
         date: d,
@@ -2508,7 +2508,7 @@ function revalueApplied(
   // log(`t.TO = ${t.TO}, tToValue = ${tToValue}`);
   let words = t.TO.split(separator);
   words = replaceCategoryWithAssetNames(words, model);
-  words.forEach(w => {
+  words.forEach((w) => {
     const wValue = values.get(w);
     // log(`word from ${t.TO} is ${w} has value ${wValue}`);
     let prevValue: number | undefined = undefined;
@@ -2567,12 +2567,12 @@ function revalueApplied(
       }
     }
     // log income tax liability for assets which grow
-    const matchingAsset = model.assets.find(a => {
+    const matchingAsset = model.assets.find((a) => {
       return a.NAME === w;
     });
     if (matchingAsset !== undefined) {
       const liabilities = matchingAsset.LIABILITY.split(separator);
-      liabilities.forEach(l => {
+      liabilities.forEach((l) => {
         if (l.endsWith(incomeTax)) {
           if (prevValue === undefined) {
             log(`WARNING : no prev value found for revalue`);
@@ -2695,7 +2695,7 @@ function calculateFromChange(
   let fromChange = 0;
   // log(`fromChange = ${fromChange}`);
 
-  const matchingAsset = model.assets.find(a => {
+  const matchingAsset = model.assets.find((a) => {
     return a.NAME === fromWord;
   });
   const assetNotAllowedNegative =
@@ -2751,7 +2751,7 @@ function calculateFromChange(
 
         // log(`for ${t.NAME}, look for a setting like
         //   ${t.FROM_VALUE}${separator}${t.DATE}${separator}${cpi}`);
-        const matchedSetting = model.settings.filter(s => {
+        const matchedSetting = model.settings.filter((s) => {
           const sparts = s.NAME.split(separator);
           if (sparts.length !== 3) {
             return false;
@@ -2781,7 +2781,7 @@ function calculateFromChange(
             log(`BUG : np cpiScaling value found for bond investment`);
           }
         } else {
-          if (!model.settings.find(s => s.NAME === `${bondMaturity}Prerun`)) {
+          if (!model.settings.find((s) => s.NAME === `${bondMaturity}Prerun`)) {
             log(
               `BUG : expected to find a setting ${t.FROM_VALUE}${separator}${d}${separator}${cpi}`,
             );
@@ -2942,7 +2942,7 @@ function calculateFromChange(
       }
     }
   }
-  const matchingIncome = model.incomes.find(i => {
+  const matchingIncome = model.incomes.find((i) => {
     return i.NAME === fromWord;
   });
   if (matchingIncome && fromChange > preFromValue) {
@@ -3090,7 +3090,7 @@ function handleCGTLiability(
   }
   const liabilityWords = liabilities.split(separator);
   // log(`liabilityWords = ${liabilityWords}`);
-  const cgtLiability = liabilityWords.find(word => word.endsWith(cgt));
+  const cgtLiability = liabilityWords.find((word) => word.endsWith(cgt));
   // log(`cgtLiability = ${cgtLiability}`);
   if (cgtLiability === undefined) {
     return;
@@ -3449,7 +3449,7 @@ function processTransactionTo(
         t.NAME,
         '37', //callerID
       );
-      const matchedAsset = model.assets.find(a => {
+      const matchedAsset = model.assets.find((a) => {
         return a.NAME === t.TO;
       });
       if (matchedAsset) {
@@ -3580,7 +3580,7 @@ function logPensionIncomeLiabilities(
 
   words = replaceCategoryWithAssetNames(words, model);
 
-  words.forEach(word => {
+  words.forEach((word) => {
     if (word.startsWith(crystallizedPension)) {
       const removedCP = `${word.substr(crystallizedPension.length)}`;
       const wds = removedCP.split(dot);
@@ -3775,7 +3775,7 @@ function generateMoments(
   // For each expense, work out monthly growth and
   // a set of moments starting when the expense began,
   // ending when the roi ends.
-  model.expenses.forEach(expense => {
+  model.expenses.forEach((expense) => {
     // Growth is important to set the value of the
     // first expense.  Later expense values are not
     // set here, but the 'moment' at which the expense
@@ -3828,7 +3828,7 @@ function generateMoments(
   // For each income, work out monthly growth and
   // a set of moments starting when the income began,
   // ending when the roi ends.
-  model.incomes.forEach(income => {
+  model.incomes.forEach((income) => {
     // log(`generate moments for income ${income.NAME}`);
     // Growth is important to set the value of the
     // first income.  Later income values are not
@@ -3842,11 +3842,11 @@ function generateMoments(
     const incomeStart = getTriggerDate(income.START, model.triggers);
     let shiftStartBackTo = new Date(incomeStart);
 
-    const dbTransaction = model.transactions.find(t => {
+    const dbTransaction = model.transactions.find((t) => {
       return t.NAME.startsWith(pensionDB) && t.TO === income.NAME;
     });
     if (dbTransaction !== undefined) {
-      const sourceIncome = model.incomes.find(i => {
+      const sourceIncome = model.incomes.find((i) => {
         return dbTransaction.FROM === i.NAME;
       });
       if (sourceIncome === undefined) {
@@ -3904,7 +3904,7 @@ function generateMoments(
   // log(`liabilitiesMap = ...`);
   // liabilitiesMap.forEach((value, key)=>{log(`{\`${key}\`, \`${value}\`}`)});
 
-  model.assets.forEach(asset => {
+  model.assets.forEach((asset) => {
     //  log(`log data for asset ${asset.NAME}`);
     logAssetGrowth(
       asset,
@@ -3933,7 +3933,7 @@ function generateMoments(
     logAssetIncomeLiabilities(asset, liabilitiesMap);
   });
 
-  model.transactions.forEach(transaction => {
+  model.transactions.forEach((transaction) => {
     // one-off asset-asset transactions generate a single moment
     // recurring asset-asset transactions generate a sequence of moments
     const newMoments = getTransactionMoments(
@@ -3962,7 +3962,7 @@ function generateMoments(
     settingVal: string;
     setDate: Date;
   }[] = [];
-  model.settings.forEach(setting => {
+  model.settings.forEach((setting) => {
     if (
       setting.NAME === 'Grain' ||
       setting.NAME.startsWith(bondMaturity) ||
@@ -3980,7 +3980,7 @@ function generateMoments(
         '35', //callerID
       );
     }
-    let referencingPrices = model.assets.filter(a => {
+    let referencingPrices = model.assets.filter((a) => {
       return a.PURCHASE_PRICE === setting.NAME;
     });
     referencingPrices = referencingPrices.sort();
@@ -4002,7 +4002,7 @@ function generateMoments(
     }
 
     let referencingDates = model.transactions
-      .filter(t => {
+      .filter((t) => {
         // log(`is setting ${setting.NAME} in t.TO  = ${t.TO}?`);
         // does the setting name appear as part of the transaction TO value?
         if (
@@ -4015,24 +4015,24 @@ function generateMoments(
         }
         return false;
       })
-      .map(t => {
+      .map((t) => {
         // log(`date for matching transaction is ${t.DATE}`);
         return t.DATE;
       })
       //.map(ds => getTriggerDate(ds, model.triggers));
-      .map(ds => new Date(ds));
+      .map((ds) => new Date(ds));
 
     // log(`got referencing dates ${showObj(referencingDates)}`);
     referencingDates = referencingDates.concat(
       model.assets
-        .filter(a => {
+        .filter((a) => {
           if (a.GROWTH === setting.NAME) {
             return true;
           }
           return false;
         })
-        .map(a => a.START)
-        .map(ds => getTriggerDate(ds, model.triggers)),
+        .map((a) => a.START)
+        .map((ds) => getTriggerDate(ds, model.triggers)),
     );
 
     // log(`referencingDates for ${setting.NAME} = ${referencingDates.map(d=>d.toDateString())}`);
@@ -4046,9 +4046,9 @@ function generateMoments(
       });
     }
   });
-  model.settings.forEach(s => {
+  model.settings.forEach((s) => {
     if (
-      !setSettingsData.find(sd => {
+      !setSettingsData.find((sd) => {
         return sd.settingName === s.NAME;
       })
     ) {
@@ -4057,7 +4057,7 @@ function generateMoments(
       // should we include it?
       // We need it if something in setSettingsData
       // builds on it
-      const match = setSettingsData.find(ss => {
+      const match = setSettingsData.find((ss) => {
         const nameIncluded = ss.settingVal.includes(s.NAME);
         // log(`${ss.settingVal} ? includes ${s.NAME} = ${nameIncluded}`);
         return nameIncluded;
@@ -4074,7 +4074,7 @@ function generateMoments(
     }
   });
 
-  setSettingsData.forEach(d => {
+  setSettingsData.forEach((d) => {
     setValue(
       values,
       growths,
@@ -4104,7 +4104,7 @@ function traceEvaluationForToday(
   name: string,
   values: ValuesContainer,
   growths: Map<string, GrowthData>,
-){
+) {
   const numberVal = traceEvaluation(name, values, growths, name);
   // log(`Unit val of ${name} is ${unitVal}`);
   if (numberVal === undefined) {
@@ -4126,7 +4126,7 @@ function traceEvaluationForToday(
         log(`BUG : missing or zero base value!`);
       }
     }
-    log(`evaluation of ${name} today is ${valForEvaluations}`);
+    // log(`evaluation of ${name} today is ${valForEvaluations}`);
     return valForEvaluations;
   }
 }
@@ -4142,8 +4142,8 @@ function evaluateAllAssets(
   todaysExpenseValues: Map<string, ExpenseVal>,
   todaysSettingValues: Map<string, SettingVal>,
 ) {
-  model.assets.forEach(asset => {
-    let val = traceEvaluationForToday(asset.NAME, values, growths)
+  model.assets.forEach((asset) => {
+    let val = traceEvaluationForToday(asset.NAME, values, growths);
 
     const q = getQuantity(asset.NAME, values, model);
     if (q !== undefined && val !== undefined) {
@@ -4167,7 +4167,7 @@ function evaluateAllAssets(
       // log(`don't report undefined today's value for ${asset.NAME}`);
     }
   });
-  model.incomes.forEach(i => {
+  model.incomes.forEach((i) => {
     const startDate = checkTriggerDate(i.START, model.triggers);
     if (startDate !== undefined && startDate > today) {
       todaysIncomeValues.set(i.NAME, {
@@ -4185,7 +4185,7 @@ function evaluateAllAssets(
       return;
     }
     // log(`income ${i.NAME} ends at ${i.END} not yet ended at ${today}`);
-    let val = traceEvaluationForToday(i.NAME, values, growths)
+    const val = traceEvaluationForToday(i.NAME, values, growths);
     if (val !== undefined) {
       todaysIncomeValues.set(i.NAME, {
         incomeVal: val,
@@ -4195,7 +4195,7 @@ function evaluateAllAssets(
       // log(`don't report undefined today's value for ${i.NAME}`);
     }
   });
-  model.expenses.forEach(e => {
+  model.expenses.forEach((e) => {
     const startDate = checkTriggerDate(e.START, model.triggers);
     if (startDate !== undefined && startDate > today) {
       todaysExpenseValues.set(e.NAME, {
@@ -4214,7 +4214,7 @@ function evaluateAllAssets(
       });
       return;
     }
-    let val = traceEvaluationForToday(e.NAME, values, growths)
+    const val = traceEvaluationForToday(e.NAME, values, growths);
     if (val !== undefined) {
       // log(`expense for todays value ${showObj(e)}`);
       todaysExpenseValues.set(e.NAME, {
@@ -4226,7 +4226,7 @@ function evaluateAllAssets(
       // log(`don't report undefined today's value for ${e.NAME}`);
     }
   });
-  model.settings.forEach(s => {
+  model.settings.forEach((s) => {
     const val = values.get(s.NAME);
     if (val !== undefined) {
       todaysSettingValues.set(s.NAME, { settingVal: `${val}` });
@@ -4460,7 +4460,7 @@ function handleStartMoment(
         '19', //callerID
       );
     }
-    const matchingAsset: Asset[] = model.assets.filter(a => {
+    const matchingAsset: Asset[] = model.assets.filter((a) => {
       return a.NAME === moment.name;
     });
     if (matchingAsset.length === 1) {
@@ -4839,7 +4839,7 @@ function getEvaluationsInternal(
 
   // log(`pensionTransactions = ${showObj(pensionTransactions)}`);
 
-  let datedMoments = allMoments.filter(moment => moment.date !== undefined);
+  let datedMoments = allMoments.filter((moment) => moment.date !== undefined);
 
   // Process the moments in date order
   sortByDate(datedMoments);
@@ -4874,7 +4874,7 @@ function getEvaluationsInternal(
       },
       '1m',
     );
-    const infMoments: Moment[] = infUpdateDates.map(date => {
+    const infMoments: Moment[] = infUpdateDates.map((date) => {
       const typeForMoment = momentType.inflation;
       const result: Moment = {
         date,
@@ -5053,7 +5053,7 @@ function getEvaluationsInternal(
   }
 
   if (printDebug()) {
-    evaluations.forEach(evalns => {
+    evaluations.forEach((evalns) => {
       log(showObj(evalns));
     });
   }
@@ -5093,12 +5093,12 @@ export function getEvaluations(
   let roiEndDate: Date = makeDateFromString(
     getSettings(model.settings, roiEnd, '1 Jan 1999'),
   );
-  const maturityTransactions = model.transactions.filter(t => {
+  const maturityTransactions = model.transactions.filter((t) => {
     return t.FROM_VALUE.startsWith(bondMaturity) && t.TO === CASH_ASSET_NAME;
   });
   // log(`maturityTransactions = ${showObj(maturityTransactions)}`);
 
-  maturityTransactions.forEach(mt => {
+  maturityTransactions.forEach((mt) => {
     const d = new Date(mt.DATE);
     if (d > roiEndDate) {
       roiEndDate = d;
@@ -5109,14 +5109,14 @@ export function getEvaluations(
     triggers: model.triggers,
     expenses: [],
     incomes: [],
-    transactions: model.transactions.filter(t => {
+    transactions: model.transactions.filter((t) => {
       return t.TYPE === revalueSetting || t.FROM_VALUE.startsWith(bondMaturity);
     }),
     assets: model.assets
-      .filter(a => {
+      .filter((a) => {
         return (
           a.NAME === CASH_ASSET_NAME ||
-          model.transactions.find(t => {
+          model.transactions.find((t) => {
             return t.FROM_VALUE.startsWith(bondMaturity) && t.FROM === a.NAME;
           }) !== undefined
         );
@@ -5149,7 +5149,7 @@ export function getEvaluations(
     undoModel: undefined,
     redoModel: undefined,
   };
-  const roiEndSetting = model.settings.find(s => {
+  const roiEndSetting = model.settings.find((s) => {
     return s.NAME === roiEnd;
   });
   let oldRoiEnd = '';
@@ -5173,7 +5173,7 @@ export function getEvaluations(
     if (evaln.name === CASH_ASSET_NAME) {
       continue;
     }
-    const t = maturityTransactions.find(t => t.NAME === evaln.source);
+    const t = maturityTransactions.find((t) => t.NAME === evaln.source);
     if (t !== undefined) {
       const settingName = `${
         t.FROM_VALUE
@@ -5206,7 +5206,7 @@ export function getEvaluations(
           const settingValue = earlierEvaln.value;
           // log(`generate setting ${settingName}, value ${settingValue}/${baseStart} = ${settingValue/baseStart} `);
           if (
-            generatedSettings.find(s => {
+            generatedSettings.find((s) => {
               return s.NAME === settingName;
             }) === undefined
           ) {

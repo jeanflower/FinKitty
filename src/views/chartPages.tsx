@@ -152,7 +152,7 @@ export function filtersList(
   refreshModel: boolean,
 ) {
   const incomeOrExpenseNames: string[] = items
-    .map(data => data.NAME)
+    .map((data) => data.NAME)
     .sort((a: string, b: string) => {
       const aCP = a.startsWith(cpPrefix);
       const bCP = b.startsWith(cpPrefix);
@@ -178,11 +178,11 @@ export function filtersList(
       }
     });
 
-  const buttons = incomeOrExpenseNames.map(buttonName => {
+  const buttons = incomeOrExpenseNames.map((buttonName) => {
     return makeFilterButton(buttonName, settings, context, refreshModel, false);
   });
   const categories: string[] = [];
-  items.forEach(data => {
+  items.forEach((data) => {
     const cat = data.CATEGORY;
     if (cat !== '') {
       if (categories.indexOf(cat) < 0) {
@@ -192,7 +192,7 @@ export function filtersList(
   });
   categories.sort();
   categories.unshift(allItems);
-  const categoryButtons = categories.map(buttonName => {
+  const categoryButtons = categories.map((buttonName) => {
     return makeFilterButton(buttonName, settings, context, refreshModel, true);
   });
 
@@ -207,7 +207,7 @@ export function filtersList(
 export function coarseFineList(settings: ViewSettings) {
   const viewTypes: string[] = [total, coarse, fine];
   const selectedCoarseFineView = getCoarseFineView(settings);
-  const buttons = viewTypes.map(viewType =>
+  const buttons = viewTypes.map((viewType) =>
     makeButton(
       viewType,
       (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -225,7 +225,7 @@ export function coarseFineList(settings: ViewSettings) {
 export function frequencyList(settings: ViewSettings) {
   const viewTypes: string[] = [monthly, annually];
   const selectedView = settings.getViewSetting(viewFrequency, annually);
-  const buttons = viewTypes.map(viewType =>
+  const buttons = viewTypes.map((viewType) =>
     makeButton(
       viewType,
       (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -265,7 +265,7 @@ export function getDefaultChartSettings(
     },
 
     axisX: {
-      labelFormatter: function(e: { label: string }) {
+      labelFormatter: function (e: { label: string }) {
         if (printDebug()) {
           log(`e.value = ${e.label}`);
           log(`showAge = ${showAge}`);
@@ -330,7 +330,7 @@ function makeBarChart(
           x: {
             stacked: true,
             ticks: {
-              callback: function(value, index, values) {
+              callback: function (value, index, values) {
                 if (printDebug()) {
                   log(
                     `convert value ${value}, ${showObj(
@@ -420,12 +420,12 @@ function noDataToDisplayFragment(
       hasData = model.expenses.length > 0;
     } else if (word === 'asset') {
       hasData =
-        model.assets.filter(a => {
+        model.assets.filter((a) => {
           return a.IS_A_DEBT === false;
         }).length > 0;
     } else if (word === 'debt') {
       hasData =
-        model.assets.filter(a => {
+        model.assets.filter((a) => {
           return a.IS_A_DEBT === true;
         }).length > 0;
     }
@@ -646,7 +646,7 @@ function assetViewTypeList(settings: ViewSettings) {
     chartDeltas,
   ];
   const selectedAssetView = getAssetChartView(settings);
-  const buttons = viewTypes.map(viewType =>
+  const buttons = viewTypes.map((viewType) =>
     makeButton(
       viewType,
       (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -700,7 +700,7 @@ export function assetsOrDebtsChartDivWithButtons(
   updateEndDate: ((newDate: string) => Promise<void>) | undefined = undefined,
 ) {
   if (
-    model.assets.filter(a => {
+    model.assets.filter((a) => {
       return a.IS_A_DEBT === isDebt;
     }).length === 0
   ) {
@@ -726,7 +726,7 @@ export function assetsOrDebtsChartDivWithButtons(
   } else {
     // log(`assetChartData = ${assetChartData}`);
     const context = isDebt ? Context.Debt : Context.Asset;
-    const items = model.assets.filter(obj => {
+    const items = model.assets.filter((obj) => {
       return obj.IS_A_DEBT === (context === Context.Debt);
     });
 
@@ -765,7 +765,7 @@ function taxButtonList(model: ModelData, viewSettings: ViewSettings) {
   liabilityPeople.unshift(allItems);
 
   // console.log(`liablityPeople for tax buttons is ${showObj(liabilityPeople)}`);
-  const buttons = liabilityPeople.map(person =>
+  const buttons = liabilityPeople.map((person) =>
     makeButton(
       person === allItems ? 'All people' : person,
       (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -940,27 +940,3 @@ export function taxDiv(
     </div>
   );
 }
-/*
-import {
-  IReactVisChartPoint,
-} from './reactComponents/ReactVisExample';
-*/
-
-/*
-function convertChartDatum(z: IChartDataPoint, name: string): IReactVisChartPoint {
-  log(`IChartDataPoint z is ${showObj(z)}`);
-  const result: IReactVisChartPoint = {
-    x: z.label,
-    y: z.y,
-    ttip: `${name} ${z.ttip}`,
-  };
-  log(`converted result is ${showObj(result)}`);
-  return result;
-}
-
-function makeReactVisChartData(x: IChartData): IReactVisChartPoint[] {
-  const result = x.dataPoints.map(w => convertChartDatum(w, x.name));
-  // log(`${result}`);
-  return result;
-}
-*/

@@ -40,15 +40,15 @@ function makeDataGrid(myMap: Map<string, AssetVal>, model: ModelData) {
   return (
     <DataGrid
       deleteFunction={undefined}
-      handleGridRowsUpdated={function() {
+      handleGridRowsUpdated={function () {
         return false;
       }}
       rows={addIndices(
         Array.from(myMap.entries())
-          .filter(key => {
+          .filter((key) => {
             return key[1].assetVal !== 0.0;
           })
-          .map(key => {
+          .map((key) => {
             if (printDebug()) {
               log(`key[0] = ${key[0]}, key[1] = ${key[1]}`);
             }

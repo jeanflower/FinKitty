@@ -54,7 +54,7 @@ export function bugSleep(message: string) {
   if (printDebug()) {
     log(`sleep for a long time: ${message}`);
   }
-  return new Promise(resolve => setTimeout(resolve, 10000));
+  return new Promise((resolve) => setTimeout(resolve, 10000));
 }
 
 // Use sleeps to hack page-not-yet-ready issues. TODO : do better.
@@ -62,7 +62,7 @@ function sleep(ms: number, message: string) {
   if (printDebug()) {
     log(`sleep for ${ms}ms: ${message}`);
   }
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 export async function selectModel(
@@ -200,8 +200,6 @@ export async function beforeAllWork(
   testDataModelName: string,
   modelString: string,
 ) {
-  jest.setTimeout(1000000); // allow time for all these tests to run
-
   await driver.get('about:blank');
   await driver.get(serverUri);
   if (allowExtraSleeps()) {
@@ -248,7 +246,7 @@ export async function cleanUpWork(
 ) {
   await gotoTabPage(driver, homeTag);
 
-  return new Promise<void>(async resolve => {
+  return new Promise<void>(async (resolve) => {
     // log(`in clean up model`);
     // log(`go seek model_input name`);
     // log(`seek btn-${testDataModelName}`);

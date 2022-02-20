@@ -246,7 +246,7 @@ export function getTestEvaluations(
     const doChecks = true;
 
     // hijack to try some renaming
-    model.triggers.forEach(obj => {
+    model.triggers.forEach((obj) => {
       // dont rename a trigger if there's a dependence
       if (hasDependentDate(obj, model)) {
         // dont attempt rename of a trigger if there's
@@ -267,7 +267,7 @@ export function getTestEvaluations(
       revertToUndoModel(model);
       revertToUndoModel(model);
     });
-    model.assets.forEach(obj => {
+    model.assets.forEach((obj) => {
       const oldName = obj.NAME;
       if (oldName === CASH_ASSET_NAME) {
         return;
@@ -294,7 +294,7 @@ export function getTestEvaluations(
       revertToUndoModel(model);
       revertToUndoModel(model);
     });
-    model.incomes.forEach(obj => {
+    model.incomes.forEach((obj) => {
       const oldName = obj.NAME;
       let newName = 'abcd';
       if (oldName.startsWith(pensionDB)) {
@@ -313,7 +313,7 @@ export function getTestEvaluations(
       revertToUndoModel(model);
       revertToUndoModel(model);
     });
-    model.expenses.forEach(obj => {
+    model.expenses.forEach((obj) => {
       const oldName = obj.NAME;
       let message = attemptRenameLong(model, doChecks, oldName, 'abcd');
       if (message.length > 0) {
@@ -326,7 +326,7 @@ export function getTestEvaluations(
       revertToUndoModel(model);
       revertToUndoModel(model);
     });
-    model.transactions.forEach(obj => {
+    model.transactions.forEach((obj) => {
       const oldName = obj.NAME;
       let newName = 'abcd';
       if (oldName.startsWith(revalue)) {
@@ -373,9 +373,9 @@ export function getTestEvaluations(
       revertToUndoModel(model);
       revertToUndoModel(model);
     });
-    model.settings.forEach(obj => {
+    model.settings.forEach((obj) => {
       if (
-        minimalModel.settings.find(s => {
+        minimalModel.settings.find((s) => {
           return s.NAME === obj.NAME;
         }) !== undefined
       ) {

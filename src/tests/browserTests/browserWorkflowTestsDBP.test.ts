@@ -3,8 +3,9 @@ import { headless, quitAfterAll, testModelContent } from './browserTestUtils';
 
 describe('BrowserWorkflowTests DBP', () => {
   const driver = getDriver(headless);
+  jest.setTimeout(1000000); // allow time for all these tests to run
 
-  it('should have right content for DBP example', async done => {
+  it('should have right content for DBP example', async () => {
     await beforeAllWork(driver, '', '');
 
     await clickButton(driver, 'btn-save-model');
@@ -12,8 +13,6 @@ describe('BrowserWorkflowTests DBP', () => {
       driver,
       'btn-create-Defined Benefits Pension-example',
     );
-
-    done();
   });
   afterAll(async () => {
     if (quitAfterAll) {

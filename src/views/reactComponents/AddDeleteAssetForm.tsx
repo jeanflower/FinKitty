@@ -127,9 +127,8 @@ export class AddDeleteAssetForm extends Component<
     this.handleStartChange = this.handleStartChange.bind(this);
     this.handleDcpTransferTo = this.handleDcpTransferTo.bind(this);
     this.setDcpTransferDate = this.setDcpTransferDate.bind(this);
-    this.handleDcpTransferDateChange = this.handleDcpTransferDateChange.bind(
-      this,
-    );
+    this.handleDcpTransferDateChange =
+      this.handleDcpTransferDateChange.bind(this);
 
     this.setStart = this.setStart.bind(this);
     this.inputPension = this.inputPension.bind(this);
@@ -139,9 +138,8 @@ export class AddDeleteAssetForm extends Component<
     this.handleStopChange = this.handleStopChange.bind(this);
     this.setCrystallize = this.setCrystallize.bind(this);
     this.handleCrystallizeChange = this.handleCrystallizeChange.bind(this);
-    this.handleDcpIncomeSourceChange = this.handleDcpIncomeSourceChange.bind(
-      this,
-    );
+    this.handleDcpIncomeSourceChange =
+      this.handleDcpIncomeSourceChange.bind(this);
     this.handleDcpContAmount = this.handleDcpContAmount.bind(this);
     this.handleDcpEmpContAmount = this.handleDcpEmpContAmount.bind(this);
     this.handleDcpSsChange = this.handleDcpSsChange.bind(this);
@@ -704,7 +702,7 @@ export class AddDeleteAssetForm extends Component<
     }
 
     if (doCheckBeforeOverwritingExistingData()) {
-      const matchingItem = this.props.model.assets.find(a => {
+      const matchingItem = this.props.model.assets.find((a) => {
         return a.NAME === this.state.NAME;
       });
       if (matchingItem !== undefined) {

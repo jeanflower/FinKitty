@@ -112,7 +112,7 @@ function checkTransactionWords(
 ) {
   // log(`date for check = ${getTriggerDate(date, triggers)}`);
   const a = assets.find(
-    as =>
+    (as) =>
       (as.NAME === word || as.CATEGORY === word) &&
       getTriggerDate(as.START, triggers) <= getTriggerDate(date, triggers),
   );
@@ -123,7 +123,7 @@ function checkTransactionWords(
   // log(`name = ${name} and transaction from word ${word}`);
   // maybe t.FROM is the name of an income
   let i = incomes.find(
-    is =>
+    (is) =>
       is.NAME === word &&
       (name.startsWith(pensionDB) ||
         name.startsWith(pensionSS) ||
@@ -147,7 +147,7 @@ function checkTransactionWords(
 
   // maybe t.FROM is an income liability
   i = incomes.find(
-    is =>
+    (is) =>
       is.LIABILITY.includes(word) &&
       getTriggerDate(is.START, triggers) <= getTriggerDate(date, triggers),
   );
@@ -352,7 +352,7 @@ export function checkIncome(i: Income, model: ModelData): string {
   if (startDate === undefined || !checkDate(startDate)) {
     return `Income start date doesn't make sense : ${showObj(i.START)}`;
   }
-  const cashAssets = model.assets.filter(m => {
+  const cashAssets = model.assets.filter((m) => {
     return m.NAME === CASH_ASSET_NAME;
   });
   if (cashAssets.length > 0) {
@@ -361,7 +361,7 @@ export function checkIncome(i: Income, model: ModelData): string {
       return `Income start date must be after cash starts; ${cashStarts.toDateString()}`;
     }
   }
-  const taxAssets = model.assets.filter(m => {
+  const taxAssets = model.assets.filter((m) => {
     return m.NAME === taxPot;
   });
   if (taxAssets.length > 0) {
@@ -437,7 +437,7 @@ export function checkExpense(e: Expense, model: ModelData): string {
   return '';
 }
 function checkTransactionFrom(word: string, settings: Setting[]) {
-  let matched = settings.find(s => s.NAME === word);
+  let matched = settings.find((s) => s.NAME === word);
   if (matched !== undefined) {
     // the FROM value is a setting - assume that it
     // will evaluate to a number without further checks
@@ -445,7 +445,7 @@ function checkTransactionFrom(word: string, settings: Setting[]) {
   }
   if (word.startsWith(bondMaturity)) {
     const trimmedWord = word.substring(bondMaturity.length);
-    matched = settings.find(s => {
+    matched = settings.find((s) => {
       const result = s.NAME === trimmedWord;
       // log(`compare ${trimmedWord} against setting ${s.NAME}; match ${result}`);
       return result;
@@ -470,7 +470,7 @@ function checkTransactionTo(
   triggers: Trigger[],
   settings: Setting[],
 ) {
-  const a = assets.find(as => as.NAME === word || as.CATEGORY === word);
+  const a = assets.find((as) => as.NAME === word || as.CATEGORY === word);
   if (a !== undefined) {
     if (t.NAME.startsWith(pensionDB)) {
       return `Transaction ${getDisplayName(
@@ -487,7 +487,7 @@ function checkTransactionTo(
     return '';
   }
 
-  const i = incomes.find(ic => ic.NAME === word);
+  const i = incomes.find((ic) => ic.NAME === word);
   if (i !== undefined) {
     if (
       !t.NAME.startsWith(revalue) &&
@@ -521,7 +521,7 @@ function checkTransactionTo(
     return '';
   }
 
-  const exp = expenses.find(e => e.NAME === word);
+  const exp = expenses.find((e) => e.NAME === word);
   if (exp !== undefined) {
     // transacting on an expense - must be a revaluation
     if (!t.NAME.startsWith(revalue)) {
@@ -545,7 +545,7 @@ function checkTransactionTo(
     return '';
   }
 
-  const s = settings.find(s => s.NAME === word);
+  const s = settings.find((s) => s.NAME === word);
   if (s !== undefined) {
     // transacting on an setting - must be a revaluation
     if (!t.NAME.startsWith(revalue)) {
@@ -1138,7 +1138,7 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
     // and all revalues finish before the date of the investment
     const trimmedFromValue = t.FROM_VALUE.substring(bondMaturity.length);
     // this should be the name of a setting
-    const matchedSettings = model.settings.filter(s => {
+    const matchedSettings = model.settings.filter((s) => {
       return s.NAME === trimmedFromValue;
     });
     if (matchedSettings.length === 0) {
@@ -1147,7 +1147,7 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
       return `May only invest into Bond if there's a unique setting ${trimmedFromValue} : malformed transaction ${t.NAME}`;
     }
     // This setting should be revalued and only revalued before the investment
-    const matchedRevalues = model.transactions.filter(rev => {
+    const matchedRevalues = model.transactions.filter((rev) => {
       if (rev.TYPE !== revalueSetting) {
         return false;
       }
@@ -1162,7 +1162,7 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
         `(so we capture the revalue date) : malformed transaction ${t.NAME}`
       );
     }
-    const tooLateRevalues = matchedRevalues.filter(late => {
+    const tooLateRevalues = matchedRevalues.filter((late) => {
       return new Date(late.DATE) > new Date(t.DATE);
     });
     if (tooLateRevalues.length > 0) {
@@ -1179,7 +1179,7 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
       return `Maturing Bond needs ${bondMaturity} as start of from value : malformed transaction ${t.NAME}`;
     }
     // every bondMature transaction needs a partner bondInvest transaction.
-    const invests = model.transactions.filter(tInvest => {
+    const invests = model.transactions.filter((tInvest) => {
       if (tInvest.TYPE !== bondInvest) {
         return false;
       }
@@ -1190,17 +1190,27 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
         return false;
       }
       // log(`considering ${tInvest.NAME} as investment transaction...`);
-      const md = getMaturityDate(new Date(getTriggerDate(tInvest.DATE, model.triggers)), tInvest.NAME);
+      const md = getMaturityDate(
+        new Date(getTriggerDate(tInvest.DATE, model.triggers)),
+        tInvest.NAME,
+      );
       const mdDS = md.toDateString();
-      const tDS = new Date(getTriggerDate(t.DATE, model.triggers)).toDateString();
+      const tDS = new Date(
+        getTriggerDate(t.DATE, model.triggers),
+      ).toDateString();
       if (mdDS !== tDS) {
         // log(`maturity date = ${mdDS} !== ${tDS}`);
         return false;
       }
-      if(tInvest.STOP_DATE !== '' || t.STOP_DATE !== ''){
-        const sd = getMaturityDate(new Date(getTriggerDate(tInvest.STOP_DATE, model.triggers)), tInvest.NAME);
+      if (tInvest.STOP_DATE !== '' || t.STOP_DATE !== '') {
+        const sd = getMaturityDate(
+          new Date(getTriggerDate(tInvest.STOP_DATE, model.triggers)),
+          tInvest.NAME,
+        );
         const sdDS = sd.toDateString();
-        const tsDS = new Date(getTriggerDate(t.STOP_DATE, model.triggers)).toDateString();
+        const tsDS = new Date(
+          getTriggerDate(t.STOP_DATE, model.triggers),
+        ).toDateString();
         if (sdDS !== tsDS) {
           // log(`stop date = ${sdDS} !== ${tsDS}`);
           return false;
@@ -1383,47 +1393,47 @@ function checkCpi(settings: Setting[]): string {
 }
 
 function checkNames(model: ModelData): string {
-  let names = model.assets.map(a => {
+  let names = model.assets.map((a) => {
     return a.NAME;
   });
   names = names.concat(
-    model.incomes.map(a => {
+    model.incomes.map((a) => {
       return a.NAME;
     }),
   );
   names = names.concat(
-    model.expenses.map(a => {
+    model.expenses.map((a) => {
       return a.NAME;
     }),
   );
   names = names.concat(
-    model.transactions.map(a => {
+    model.transactions.map((a) => {
       return a.NAME;
     }),
   );
   names = names.concat(
-    model.triggers.map(a => {
+    model.triggers.map((a) => {
       return a.NAME;
     }),
   );
   names = names.concat(
-    model.settings.map(a => {
+    model.settings.map((a) => {
       return a.NAME;
     }),
   );
 
-  if (names.find(n => n === 'base')) {
+  if (names.find((n) => n === 'base')) {
     return `'base' as name is reserved`;
   }
 
   const counts: Map<string, number> = names
-    .filter(n => {
+    .filter((n) => {
       return !n.startsWith(pension);
     })
-    .filter(n => {
+    .filter((n) => {
       return !n.startsWith(pensionTransfer);
     })
-    .filter(n => {
+    .filter((n) => {
       return !n.startsWith(pensionDB);
     })
     .reduce((acc: Map<string, number>, b: string) => {
