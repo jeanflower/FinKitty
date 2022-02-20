@@ -1,5 +1,5 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-npm run lint
+echo 'pre-commit actions here : bump version'
 npm --no-git-tag-version version patch
