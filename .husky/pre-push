@@ -1,0 +1,4 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+(git-branch-is main && npm version minor) || (git-branch-is dev && npm --no-git-tag-version version patch)

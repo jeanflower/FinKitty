@@ -151,7 +151,7 @@ let userID = '';
 let isDirty = false; // does the model need saving?
 
 export function getAppVersion(): string {
-  return packageData.version;    
+  return packageData.version;
 }
 
 export function getDefaultViewSettings(): ViewSettings {
