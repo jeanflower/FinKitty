@@ -142,6 +142,7 @@ import { lessThan, makeTwoDP } from './stringUtils';
 import { diffModels } from './diffModels';
 import { collapsibleFragment } from './views/tablePages';
 import WaitGif from './views/catWait.gif';
+import packageData from '../package.json';
 
 // import './bootstrap.css'
 
@@ -149,12 +150,8 @@ let modelName: string = exampleModelName;
 let userID = '';
 let isDirty = false; // does the model need saving?
 
-const majorVersion = 1;
-const minorVersion = 0;
-const patchVersion = 1;
-
 export function getAppVersion(): string {
-  return `${majorVersion}.${minorVersion}.${patchVersion}`;
+  return packageData.version;
 }
 
 export function getDefaultViewSettings(): ViewSettings {

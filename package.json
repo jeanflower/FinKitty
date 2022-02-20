@@ -1,7 +1,10 @@
 {
   "name": "finkitty",
   "homepage": "https://jeanflower.github.io/FinKitty",
-  "version": "0.1.0",
+  "version": "1.0.2",
+  "engines": {
+    "node": "16.x"
+  },
   "private": true,
   "dependencies": {
     "@auth0/auth0-spa-js": "^1.19.4",
