@@ -22,7 +22,6 @@
     "dateformat": "^4.6.3",
     "file-saver": "^2.0.5",
     "gh-pages": "^2.2.0",
-    "git-branch-is": "^4.0.0",
     "jquery": "^3.6.0",
     "moment": "^2.29.1",
     "popper.js": "^1.16.1",
