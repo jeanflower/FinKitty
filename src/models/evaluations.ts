@@ -4228,7 +4228,14 @@ function evaluateAllAssets(
   });
   model.settings.forEach((s) => {
     const val = values.get(s.NAME);
-    if (val !== undefined) {
+    if (
+      val !== undefined &&
+      !(
+        typeof val === 'string' &&
+        val.startsWith(bondMaturity) &&
+        val.endsWith(cpi)
+      )
+    ) {
       todaysSettingValues.set(s.NAME, { settingVal: `${val}` });
     } else {
       // log(`don't report undefined today's value for ${s.NAME}`);
