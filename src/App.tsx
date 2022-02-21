@@ -2269,6 +2269,17 @@ export class AppContent extends Component<AppProps, AppState> {
         ),
       );
     }
+    buttons.push(
+      makeButton(
+        `v. ${getAppVersion()}`,
+        () => {
+          // do nothing
+        },
+        'versionButton',
+        `btn-version`,
+        'outline-secondary',
+      ),
+    );
     return buttons;
   }
 
