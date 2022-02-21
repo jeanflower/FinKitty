@@ -4231,14 +4231,15 @@ function evaluateAllAssets(
     if (
       val !== undefined &&
       !(
-        typeof val === 'string' &&
-        val.startsWith(bondMaturity) &&
-        val.endsWith(cpi)
+        typeof s.NAME === 'string' &&
+        s.NAME.startsWith(bondMaturity) &&
+        s.NAME.endsWith(cpi)
       )
     ) {
+      // log(`report today's value for ${s.NAME}`);
       todaysSettingValues.set(s.NAME, { settingVal: `${val}` });
     } else {
-      // log(`don't report undefined today's value for ${s.NAME}`);
+      // log(`don't report  today's value for ${s.NAME}`);
     }
   });
 }
