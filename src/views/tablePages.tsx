@@ -980,7 +980,8 @@ function makeTransactionCols(model: ModelData, type: string) {
     type === revalueInc ||
     type === revalueExp ||
     type === revalueAsset ||
-    type === revalueDebt
+    type === revalueDebt ||
+    type === revalueSetting
   ) {
     // revalues don't show FROM
   } else if (type === payOffDebt) {
@@ -1077,6 +1078,21 @@ function makeTransactionCols(model: ModelData, type: string) {
         key: 'TO_VALUE',
         name: 'new value',
         formatter: <ToFromValueFormatter name="new value" value="unset" />,
+      },
+    ]);
+  } else if (type === revalueSetting) {
+    cols = cols.concat([
+      {
+        ...defaultColumn,
+        key: 'TO',
+        name: 'setting',
+        formatter: <SimpleFormatter name="setting" value="unset" />,
+      },
+      {
+        ...defaultColumn,
+        key: 'TO_VALUE',
+        name: 'new value',
+        formatter: <SimpleFormatter name="new value" value="unset" />,
       },
     ]);
   } else {
