@@ -1,28 +1,18 @@
 {
   "files": {
-    "main.css": "/FinKitty/static/css/main.193e7cc0.chunk.css",
-    "main.js": "/FinKitty/static/js/main.900753fd.chunk.js",
-    "main.js.map": "/FinKitty/static/js/main.900753fd.chunk.js.map",
-    "runtime-main.js": "/FinKitty/static/js/runtime-main.43fb0b37.js",
-    "runtime-main.js.map": "/FinKitty/static/js/runtime-main.43fb0b37.js.map",
-    "static/js/2.12fd93a3.chunk.js": "/FinKitty/static/js/2.12fd93a3.chunk.js",
-    "static/js/2.12fd93a3.chunk.js.map": "/FinKitty/static/js/2.12fd93a3.chunk.js.map",
+    "main.css": "/FinKitty/static/css/main.cf287ca6.css",
+    "main.js": "/FinKitty/static/js/main.2da28f19.js",
+    "static/media/sampleAssetGraph.png": "/FinKitty/static/media/sampleAssetGraph.194c68407a5480aa9d04.png",
+    "static/media/sampleExpenseGraph.png": "/FinKitty/static/media/sampleExpenseGraph.d8a15080700e86b5cadb.png",
+    "static/media/sampleTaxGraph.png": "/FinKitty/static/media/sampleTaxGraph.d9279f6f6ad96235d73c.png",
+    "static/media/catWait.gif": "/FinKitty/static/media/catWait.181296b05642877f0892.gif",
+    "static/media/cat.png": "/FinKitty/static/media/cat.c7ff3328b2b4372fefd4.png",
     "index.html": "/FinKitty/index.html",
-    "precache-manifest.546c885eea27b1349ebfc3b194f39754.js": "/FinKitty/precache-manifest.546c885eea27b1349ebfc3b194f39754.js",
-    "service-worker.js": "/FinKitty/service-worker.js",
-    "static/css/main.193e7cc0.chunk.css.map": "/FinKitty/static/css/main.193e7cc0.chunk.css.map",
-    "static/js/2.12fd93a3.chunk.js.LICENSE.txt": "/FinKitty/static/js/2.12fd93a3.chunk.js.LICENSE.txt",
-    "static/js/main.900753fd.chunk.js.LICENSE.txt": "/FinKitty/static/js/main.900753fd.chunk.js.LICENSE.txt",
-    "static/media/cat.png": "/FinKitty/static/media/cat.50c12de4.png",
-    "static/media/catWait.gif": "/FinKitty/static/media/catWait.87e7c7f7.gif",
-    "static/media/sampleAssetGraph.png": "/FinKitty/static/media/sampleAssetGraph.405ff0cd.png",
-    "static/media/sampleExpenseGraph.png": "/FinKitty/static/media/sampleExpenseGraph.5581786d.png",
-    "static/media/sampleTaxGraph.png": "/FinKitty/static/media/sampleTaxGraph.c9aa7cfc.png"
+    "main.cf287ca6.css.map": "/FinKitty/static/css/main.cf287ca6.css.map",
+    "main.2da28f19.js.map": "/FinKitty/static/js/main.2da28f19.js.map"
   },
   "entrypoints": [
-    "static/js/runtime-main.43fb0b37.js",
-    "static/js/2.12fd93a3.chunk.js",
-    "static/css/main.193e7cc0.chunk.css",
-    "static/js/main.900753fd.chunk.js"
+    "static/css/main.cf287ca6.css",
+    "static/js/main.2da28f19.js"
   ]
 }
