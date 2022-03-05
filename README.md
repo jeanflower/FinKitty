@@ -87,6 +87,13 @@ Updating the Chrome browser on the test machine can leave Chrome and the chromdr
 npm install chromedriver --detect_chromedriver_version
 ```
 
+If the latest chromedriver on npm falls behind the version needed for the installed Chrome, here are some steps to tide things over:
+ - delete the chromedriver entry from package.json
+ - download the appropriate zip file from https://chromedriver.storage.googleapis.com/index.html
+ - install using something equivalent to 
+ ``npm install chromedriver --chromedriver_filepath=/Users/jeanflower/Downloads/chromedriver_mac64.zip``
+ - revert changes to package.json, package-lock.json
+
 See coverage by typing `npm test -- --coverage`.
 (this seems to be dependent on changed files, not all tests)
 
