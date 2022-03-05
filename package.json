@@ -26,7 +26,6 @@
     "react-chartjs-2": "^4.0.1",
     "react-data-grid": "^6.1.0",
     "react-dom": "^16.14.0",
-
     "ws": "^8.4.2"
   },
   "scripts": {
