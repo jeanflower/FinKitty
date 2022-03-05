@@ -450,11 +450,13 @@ describe('loadModelsFromJSON', () => {
   // future versions should not load - expect an error message to come out
   it('migrateModelfromv9', () => {
     const jsonString = v9ModelJSON;
-    let foundError = '';
+    let foundError = 'error thrown in migrateModelfromv9';
     try {
       makeModelFromJSON(jsonString);
     } catch (e) {
-      foundError = e.message;
+      if((e as Error).message){
+        foundError = (e as Error).message;
+      }
     }
     expect(foundError).toBe('code not properly handling versions');
   });
