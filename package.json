@@ -10,29 +10,23 @@
     "@auth0/auth0-spa-js": "^1.19.4",
     "@types/chart.js": "^2.9.35",
     "@types/crypto-js": "^3.1.47",
-    "@types/jest": "24.0.22",
     "@types/node": "12.12.7",
     "@types/react-data-grid": "^4.0.8",
     "@types/react-dom": "16.9.4",
-    "@types/selenium-webdriver": "^4.0.16",
     "bootstrap": "^4.6.1",
     "chart.js": "^3.7.0",
-    "chromedriver": "^97.0.4",
     "crypto-js": "^3.3.0",
     "dateformat": "^4.6.3",
     "file-saver": "^2.0.5",
     "gh-pages": "^2.2.0",
     "jquery": "^3.6.0",
     "moment": "^2.29.1",
-    "popper.js": "^1.16.1",
     "react": "^16.14.0",
     "react-bootstrap": "^1.6.4",
     "react-chartjs-2": "^4.0.1",
     "react-data-grid": "^6.1.0",
     "react-dom": "^16.14.0",
-    "react-scripts": "5.0.0",
-    "selenium-webdriver": "^4.1.1",
-    "typescript": "^3.9.10",
+
     "ws": "^8.4.2"
   },
   "scripts": {
@@ -87,15 +81,21 @@
   "devDependencies": {
     "@types/dateformat": "^3.0.1",
     "@types/file-saver": "^2.0.5",
+    "@types/jest": "24.0.22",
     "@types/react": "^16.14.21",
     "@types/react-tooltip": "^3.11.0",
+    "@types/selenium-webdriver": "^4.0.16",
     "@typescript-eslint/eslint-plugin": "^5.12.0",
     "@typescript-eslint/parser": "^5.12.0",
+    "chromedriver": "^97.0.4",
     "eslint-config-prettier": "^8.4.0",
     "eslint-config-react": "^1.1.7",
     "eslint-plugin-prettier": "^4.0.0",
     "husky": "^7.0.4",
     "jest-watch-typeahead": "^0.6.5",
-    "prettier": "^2.5.1"
+    "prettier": "^2.5.1",
+    "react-scripts": "5.0.0",
+    "selenium-webdriver": "^4.1.1",
+    "typescript": "^3.9.10"
   }
 }

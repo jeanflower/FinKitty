@@ -223,7 +223,7 @@ describe('bonds tests', () => {
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
 
-    printTestCodeForEvals(evals);
+    // printTestCodeForEvals(evals);
 
     expect(evals.length).toBe(44);
     expectEvals(evals, 0, 'bondInterest', 'Fri Dec 01 2017', 0, -1);
@@ -1524,7 +1524,7 @@ describe('bonds tests', () => {
     setSetting(model.settings, cpi, '0', constType);
     setSetting(model.settings, 'BondTargetValue', '1', constType);
 
-    log(`model ${JSON.stringify(model)}`);
+    // log(`model ${JSON.stringify(model)}`);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;

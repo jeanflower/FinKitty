@@ -30,6 +30,10 @@ Install git and npm
 
 git clone this repo, go into the finance folder, and do npm install.
 
+If you see warnings, and an invitation to npm audit, then try
+``npm audit --production``
+to hide warnings which are issued only from the build tooling, and so not important to resolve (see https://github.com/facebook/create-react-app/issues/11174).
+
 This repo works stand-alone if there's a REST server
 for it to query and update.  E.g. there's a cloud server 
 running on Heroku and this app can work with that.
@@ -41,7 +45,7 @@ https://github.com/jeanflower/FinServer
 
 The FinServer app works with a mongo database.
 There's one running in the cloud or
-install a local DB following instructions here
+install a local DB, e.g. following instructions here
 https://docs.mongodb.com/manual/tutorial/install-mongodb-on-os-x/
 
 The `start*.sh` scripts expect a folder structure
@@ -89,6 +93,13 @@ See coverage by typing `npm test -- --coverage`.
 ### Linting
 Run `./lintFixes.sh` keeps things clean.
 Running the web server also reports linting issues in the console.
+The husky pre-push hook does linting and blocks a push which fails the linter.
+
+### Commits and versioning hooks
+The husky pre-commit hook edits files to bump the patch version.
+This not-yet-commited version bump serves as a reminder - 
+either commit it as a followup (if the change should have been versioned) 
+or change to a minor or major version change, or discard.
 
 ### Publishing to github pages
 Type
