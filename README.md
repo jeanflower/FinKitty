@@ -94,8 +94,8 @@ If the latest chromedriver on npm falls behind the version needed for the instal
  ``npm install chromedriver --chromedriver_filepath=/Users/jeanflower/Downloads/chromedriver_mac64.zip``
  - revert changes to package.json, package-lock.json
 
-See coverage by typing `npm test -- --coverage`.
-(this seems to be dependent on changed files, not all tests)
+See coverage by typing `CI=true npm test -- --coverage`, then look for /coverage/index.html for the results.
+
 
 ### Linting
 Run `./lintFixes.sh` keeps things clean.
