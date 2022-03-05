@@ -454,7 +454,7 @@ describe('loadModelsFromJSON', () => {
     try {
       makeModelFromJSON(jsonString);
     } catch (e) {
-      if((e as Error).message){
+      if ((e as Error).message) {
         foundError = (e as Error).message;
       }
     }
