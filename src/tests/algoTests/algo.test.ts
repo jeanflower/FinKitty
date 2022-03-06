@@ -42,7 +42,12 @@ import {
   IncomeVal,
   SettingVal,
 } from '../../types/interfaces';
-import { log, printDebug, suppressLogs, unSuppressLogs } from '../../utils/utils';
+import {
+  log,
+  printDebug,
+  suppressLogs,
+  unSuppressLogs,
+} from '../../utils/utils';
 import {
   makeModelFromJSON,
   makeModelFromJSONString,
