@@ -47,14 +47,8 @@ export function lessThan(a: string, b: string) {
 
 export function makeDateFromString(input: string) {
   // special-case parsing for DD/MM/YYYY
-  let dateMomentObject = moment(input, 'DD/MM/YYYY');
-  let dateObject = dateMomentObject.toDate(); // convert moment.js object to Date object
-  if (!Number.isNaN(dateObject.getTime())) {
-    // log(`converted ${input} into ${dateObject.toDateString()}`);
-    return dateObject;
-  }
-  dateMomentObject = moment(input, 'DD/MM/YY');
-  dateObject = dateMomentObject.toDate(); // convert moment.js object to Date object
+  const dateMomentObject = moment(input, 'DD/MM/YYYY');
+  const dateObject = dateMomentObject.toDate(); // convert moment.js object to Date object
   if (!Number.isNaN(dateObject.getTime())) {
     // log(`converted ${input} into ${dateObject.toDateString()}`);
     return dateObject;
@@ -109,6 +103,7 @@ export function makeIncomeLiabilityFromNameAndNI(
     return '';
   }
   if (name.includes(separator)) {
+    /* istanbul ignore if  */
     if (printOnError) {
       log(`Error: name ${name} can't contain ${separator}`);
     }
