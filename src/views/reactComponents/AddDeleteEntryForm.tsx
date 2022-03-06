@@ -15,6 +15,7 @@ interface EditProps {
 export class AddDeleteEntryForm extends Component<EditProps, EditFormState> {
   public constructor(props: EditProps) {
     super(props);
+    /* istanbul ignore if  */
     if (printDebug()) {
       log('props for AddDeleteEntryForm: ' + showObj(props));
     }

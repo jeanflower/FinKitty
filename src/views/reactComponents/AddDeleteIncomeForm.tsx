@@ -135,6 +135,7 @@ export class AddDeleteIncomeForm extends Component<
 
   public constructor(props: EditIncomeProps) {
     super(props);
+    /* istanbul ignore if  */
     if (printDebug()) {
       log(`props for AddDeleteIncomeForm has
         ${showObj(props.model.triggers.length)} triggers`);

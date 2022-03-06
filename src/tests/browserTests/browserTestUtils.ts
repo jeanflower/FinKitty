@@ -797,6 +797,7 @@ export async function scrollToTop(driver: webdriver.ThenableWebDriver) {
 
 // Use sleeps to hack page-not-yet-ready issues. TODO : do better - check awaits.
 export async function sleep(ms: number, message: string) {
+  /* istanbul ignore if  */
   if (printDebug()) {
     log(`sleep for ${ms}ms: ${message}`);
   }

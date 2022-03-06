@@ -30,6 +30,7 @@ export class Auth0Provider extends Component {
 
   // initialize the auth0 library
   initializeAuth0 = async () => {
+    /* istanbul ignore if  */
     if (printDebug()) {
       log(`auth config is ${showObj(this.config)}`);
     }
@@ -66,6 +67,7 @@ export class Auth0Provider extends Component {
       user,
       loginWithRedirect: (...p) => auth0Client.loginWithRedirect(...p),
       loginForTesting: (...p) => {
+        /* istanbul ignore if  */
         if (printDebug()) {
           log(`p is ${p}`);
         }

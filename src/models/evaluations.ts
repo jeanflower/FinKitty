@@ -197,6 +197,7 @@ export const momentType = {
 };
 
 export function sortByDate(arrayOfDatedThings: DatedThing[]) {
+  /* istanbul ignore if  */
   if (printDebug()) {
     log('before date sort --------------');
     arrayOfDatedThings.forEach((t) => {
@@ -311,6 +312,7 @@ export function sortByDate(arrayOfDatedThings: DatedThing[]) {
     return result;
   });
 
+  /* istanbul ignore if  */
   if (printDebug()) {
     log('after date sort --------------');
     arrayOfDatedThings.forEach((t) => {
@@ -441,6 +443,7 @@ function traceEvaluation(
   growths: Map<string, GrowthData>,
   source: string,
 ): number | undefined {
+  /* istanbul ignore if  */
   if (printDebug()) {
     log(
       `in traceEvaluation, for ${source} get value of ${value} ` +
@@ -589,6 +592,7 @@ function setValue(
   if (name === newValue) {
     log(`BUG??? don't expect value of ${name} = ${newValue}!`);
   }
+  /* istanbul ignore if  */
   if (printDebug()) {
     const existingValue = values.get(name);
     if (existingValue === undefined) {
@@ -645,9 +649,11 @@ function setValue(
     //      source: evaln.source,
     //    })}`);
     evaluations.push(evaln);
+    /* istanbul ignore if  */
     if (printDebug()) {
       log(`date = ${date}, name = ${name}, value = ${values.get(name)}`);
     }
+    /* istanbul ignore if  */
     if (printDebug()) {
       for (const key of values.keys()) {
         /* eslint-disable-line no-restricted-syntax */
@@ -1053,6 +1059,7 @@ function calculateCGTPayable(
   startYearOfTaxYear: number,
   values: ValuesContainer,
 ) {
+  /* istanbul ignore if  */
   if (printDebug()) {
     log(`startYearOfTaxYear = ${startYearOfTaxYear}`);
     log(`values = ${values}`);
@@ -1508,6 +1515,7 @@ function settleUpTax(
           // log(`for ${personsName}, reduce existing net income for ${personsName}`);
           personNetIncome.set(personsName, knownNetIncome - taxPaid);
         }
+        /* istanbul ignore if  */
         if (printDebug()) {
           log(`${person} paid income tax ${taxPaid} for ${date}`);
         }
@@ -1548,6 +1556,7 @@ function settleUpTax(
           model,
           person,
         ); // e.g. 'NIJoe'
+        /* istanbul ignore if  */
         if (printDebug()) {
           log(`${person} paid NI ${NIPaid} for ${date}`);
         }
@@ -1958,6 +1967,7 @@ function handleIncome(
       }
 
       if (pt.TO === '') {
+        /* istanbul ignore if  */
         if (printDebug()) {
           log('pension contributions going into void');
         }
@@ -3388,7 +3398,7 @@ function processTransactionFromTo(
       // total too.
       // log(`use up ${fromChange} of ${pensionAllowance} for ${t.FROM}`);
       log(
-        `ERROR : one-off income tax adjustment might affect pensionAllowance...no code for this`,
+        `WARNING : one-off income tax adjustment might affect pensionAllowance...no code for this`,
       );
       // throw new Error('unhandled pensionAllowance change');
     }
@@ -3663,6 +3673,7 @@ class ValuesContainer {
     date: Date,
     source: string,
   ) => {
+    /* istanbul ignore if  */
     if (printDebug()) {
       log(`report for name = ${name}`);
       log(`report for val = ${val}`);
@@ -4618,6 +4629,7 @@ function growAndEffectMoment(
       //if(growthObj.applyCPI && baseVal !== 1.0 && growthChangeScale !== 0 && moment.type !== momentType.expense){
       //  throw new Error(`cpi computation for ${moment.type} has baseVal = ${baseVal}, growthChangeScale = ${growthChangeScale}`);
       //}
+      /* istanbul ignore if  */
       if (printDebug()) {
         log(`growthChangeScale = ${growthChangeScale}`);
       }
@@ -4742,6 +4754,7 @@ function growAndEffectMoment(
         );
       }
     }
+    /* istanbul ignore if  */
     if (printDebug()) {
       log(`${moment.date.toDateString()},
                 ${moment.name},
@@ -4784,6 +4797,7 @@ function getEvaluationsInternal(
   }
 
   // log('in getEvaluations');
+  /* istanbul ignore if  */
   if (printDebug()) {
     log(`data = ${showObj(model)}`);
   }
@@ -4948,6 +4962,7 @@ function getEvaluationsInternal(
     }
 
     // Each moment we process is in dated order.
+    /* istanbul ignore if  */
     if (printDebug()) {
       log(
         `popped moment is ${showObj({
@@ -5060,6 +5075,7 @@ function getEvaluationsInternal(
     }
   }
 
+  /* istanbul ignore if  */
   if (printDebug()) {
     evaluations.forEach((evalns) => {
       log(showObj(evalns));

@@ -10,6 +10,7 @@ import WaitGif from './catWait.gif';
 import { log, printDebug } from '../utils';
 
 export function navbarContent(isWaiting: boolean, rhContent: () => any) {
+  /* istanbul ignore if  */
   if (printDebug()) {
     log(`drawing navbar content`);
   }

@@ -34,6 +34,7 @@ import {
 } from './algoTestUtils';
 
 describe(' chart data tests', () => {
+  /* istanbul ignore if  */
   if (printDebug()) {
     printTestCodeForEvals;
   }

@@ -189,6 +189,7 @@ Options to toggle are
     }
 
     const i = this.state.JSON.indexOf(`{`);
+    /* istanbul ignore if  */
     if (printDebug()) {
       log(`index of { in ${JSON} is ${i}`);
     }

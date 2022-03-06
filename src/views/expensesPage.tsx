@@ -56,6 +56,7 @@ function makeDataGrid(myMap: Map<string, ExpenseVal>, model: ModelData) {
             return key[1].expenseVal !== 0.0;
           })
           .map((key) => {
+            /* istanbul ignore if  */
             if (printDebug()) {
               log(`key[0] = ${key[0]}, key[1] = ${key[1]}`);
             }

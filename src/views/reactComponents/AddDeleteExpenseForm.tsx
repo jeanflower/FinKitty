@@ -61,6 +61,7 @@ export class AddDeleteExpenseForm extends Component<
 
   public constructor(props: EditExpenseProps) {
     super(props);
+    /* istanbul ignore if  */
     if (printDebug()) {
       log(`props for AddDeleteExpenseForm has
         ${showObj(props.model.triggers.length)} triggers`);

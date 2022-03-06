@@ -40,6 +40,7 @@ export function makeButton(
   type: finkittyButtonType,
   disabled?: boolean,
 ) {
+  /* istanbul ignore if  */
   if (printDebug()) {
     log(`making a Button for ${title}`);
   }

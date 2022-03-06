@@ -232,6 +232,7 @@ function diffItems(
   if (result.length > 0 && quickExit) {
     return result;
   }
+  /* istanbul ignore if  */
   if (printDebug()) {
     log(`matchedNames = ${showObj(matchedNames)}`);
   }

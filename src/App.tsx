@@ -569,6 +569,7 @@ function getReporter(model: ModelData, viewSettings: ViewSettings) {
     if (!matcher && !excluder) {
       return false;
     }
+    /* istanbul ignore if  */
     if (printDebug()) {
       log(`report for name = ${name}`);
       log(`report for val = ${val}`);
@@ -634,6 +635,7 @@ export async function refreshDataInternal(
     reactAppComponent.setState({ ...reactAppComponent.state });
     return;
   }
+  /* istanbul ignore if  */
   if (printDebug()) {
     log(`entering refreshDataInternal from sourceID ${sourceID}`);
   }
@@ -721,6 +723,7 @@ export async function refreshDataInternal(
     chartData.assetData.sort((a, b) => lessThan(a.item.NAME, b.item.NAME));
     chartData.taxData.sort((a, b) => lessThan(a.item.NAME, b.item.NAME));
 
+    /* istanbul ignore if  */
     if (printDebug()) {
       chartData.assetData.forEach((entry) => {
         log(
@@ -744,6 +747,7 @@ export async function refreshDataInternal(
       todaysSettingValues,
     } = chartData;
 
+    /* istanbul ignore if  */
     if (printDebug()) {
       log('in refreshData');
       log(` expensesData = ${expensesData}`);
@@ -785,6 +789,7 @@ export async function refreshDataInternal(
           // setState is async
           // do logging after setState using the 2nd argument
           // https://www.freecodecamp.org/news/get-pro-with-react-setstate-in-10-minutes-d38251d1c781/
+          /* istanbul ignore if  */
           if (printDebug()) {
             log(
               'reactAppComponent.state.reportData.length = ' +
@@ -1047,6 +1052,7 @@ export async function submitNewSetting(
 }
 
 export function toggle(type: ViewType, sourceID: number): void | boolean {
+  /* istanbul ignore if  */
   if (printDebug()) {
     log(`toggle called from ${sourceID}`);
   }
@@ -1514,6 +1520,7 @@ export class AppContent extends Component<AppProps, AppState> {
   }
 
   public render(): JSX.Element {
+    /* istanbul ignore if  */
     if (printDebug()) {
       log('in render');
     }

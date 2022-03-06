@@ -25,6 +25,7 @@ class TriggerDateFormatter extends React.Component<TriggerDateFormatterProps> {
     const asDate = new Date(this.props.value);
     if (!Number.isNaN(asDate.getTime())) {
       if (this.props.showTime) {
+        /* istanbul ignore if  */
         if (printDebug()) {
           log(`date to be shown with time = ${this.props.value}`);
         }

@@ -62,6 +62,7 @@ export class AddDeleteDebtForm extends Component<
 
   public constructor(props: EditDebtProps) {
     super(props);
+    /* istanbul ignore if  */
     if (printDebug()) {
       log(`props for AddDeleteDebtForm has
         ${showObj(props.model.triggers.length)} triggers`);

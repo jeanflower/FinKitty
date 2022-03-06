@@ -164,6 +164,7 @@ export function overviewDiv(
   getEndDate: () => string,
   updateEndDate: (newDate: string) => Promise<void>,
 ) {
+  /* istanbul ignore if  */
   if (printDebug()) {
     log(`called overviewDiv with a model with ${model.assets.length} assets`);
   }

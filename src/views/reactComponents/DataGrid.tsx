@@ -36,6 +36,7 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
   }
 
   public rowGetter(i: number) {
+    /* istanbul ignore if  */
     if (printDebug()) {
       log(
         `in rowgetter, this.props.rows indices = ${this.props.rows.map((r) => {
@@ -87,6 +88,7 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
         // log(`sortColumn = ${sortColumn}`);
         let aVal = a[sortColumn];
         let bVal = b[sortColumn];
+        /* istanbul ignore if  */
         if (printDebug()) {
           log(`aVal = ${showObj(aVal)}, bVal = ${showObj(bVal)}`);
         }

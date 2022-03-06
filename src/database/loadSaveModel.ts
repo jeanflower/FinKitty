@@ -21,7 +21,6 @@ import { minimalModel } from '../models/exampleModels';
 import { markForUndo, revertToUndoModel } from '../models/modelUtils';
 
 const showDBInteraction = false;
-const validateCache = false;
 
 interface ModelStatus {
   isDirty: boolean;
@@ -42,6 +41,7 @@ interface CacheModel {
 const localCache: Map<string, CacheModel[]> = new Map<string, CacheModel[]>();
 
 async function getModelNamesDB(userID: string) {
+  /* istanbul ignore if  */
   if (showDBInteraction) {
     log(`getDB get model names for user ${userID}`);
   }
@@ -49,8 +49,10 @@ async function getModelNamesDB(userID: string) {
   try {
     modelNames = await getDB().getModelNames(userID);
   } catch (error) {
+    /* istanbul ignore next */
     alert(`error contacting database ${error}`);
   }
+  /* istanbul ignore if  */
   if (showDBInteraction) {
     log(`getModelNames returning ${modelNames}`);
   }
@@ -61,6 +63,7 @@ async function loadModelFromDB(
   userID: string,
   modelName: string,
 ): Promise<ModelData | undefined> {
+  /* istanbul ignore if  */
   if (showDBInteraction) {
     log(`loadModelFromDB for ${userID}, name = ${modelName}`);
   }
@@ -68,8 +71,10 @@ async function loadModelFromDB(
   try {
     model = await getDB().loadModel(userID, modelName);
   } catch (err) {
+    /* istanbul ignore next */
     alert(`Cannot load ${modelName}; err = ${err}`);
   }
+  /* istanbul ignore if  */
   if (showDBInteraction) {
     log(`loaded model ${modelName}`);
   }
@@ -77,6 +82,7 @@ async function loadModelFromDB(
 }
 
 function logCache() {
+  /* istanbul ignore if  */
   if (showDBInteraction) {
     log(
       `set up ${Array.from(localCache.keys()).map((k) => {
@@ -97,15 +103,18 @@ function logCache() {
 async function fillCacheFromDB(userID: string) {
   const cachedModels: CacheModel[] = [];
   const modelNames = await getModelNamesDB(userID);
+  /* istanbul ignore if  */
   if (showDBInteraction) {
     log(`fill cache with these models ${modelNames}`);
   }
   async function getModel(modelName: string) {
+    /* istanbul ignore if  */
     if (showDBInteraction) {
       log(`get this model ${modelName}`);
     }
     const model = await loadModelFromDB(userID, modelName);
     if (model !== undefined) {
+      /* istanbul ignore if  */
       if (showDBInteraction) {
         log(`got model for ${modelName}, go to add to cache`);
       }
@@ -114,10 +123,12 @@ async function fillCacheFromDB(userID: string) {
         model: model,
         status: { isDirty: false },
       });
+      /* istanbul ignore if  */
       if (showDBInteraction) {
         log(`got this model ${modelName}`);
       }
     } else {
+      /* istanbul ignore next */
       throw new Error(
         `model name ${modelName} from DB but no model present???`,
       );
@@ -130,6 +141,7 @@ async function fillCacheFromDB(userID: string) {
       return getModel(modelName);
     }),
   );
+  /* istanbul ignore if  */
   if (printDebug()) {
     log(`result from Promise.all(...) is ${result}`);
   }
@@ -148,14 +160,24 @@ export async function getModelNames(userID: string) {
   });
 }
 
-export async function loadModel(userID: string, modelName: string) {
+export async function loadModel(
+  userID: string,
+  modelName: string,
+  validateCache = false,
+) {
+  /* istanbul ignore if  */
   if (showDBInteraction) {
     log(`loadModel for ${userID}, name = ${modelName}`);
   }
   if (localCache.get(userID) === undefined) {
+    /* istanbul ignore if  */
+    if (showDBInteraction) {
+      log(`no data yet - go to fill cache`);
+    }
     await fillCacheFromDB(userID);
   }
 
+  /* istanbul ignore if  */
   if (showDBInteraction) {
     log(`filled cache - now go use it!`);
   }
@@ -167,12 +189,14 @@ export async function loadModel(userID: string, modelName: string) {
     });
   }
   if (cachedModel) {
+    /* istanbul ignore if  */
     if (showDBInteraction) {
       log(`from cache load model ${modelName} for user ${userID}`);
     }
     if (validateCache && !cachedModel.status.isDirty) {
       const dbModel = await loadModelFromDB(userID, modelName);
       if (dbModel === undefined) {
+        /* istanbul ignore next */
         throw new Error(`DBValidation error: cache has clean model 
           but DB has no model for ${modelName}`);
       } else {
@@ -183,13 +207,15 @@ export async function loadModel(userID: string, modelName: string) {
           'this model',
           'cached model',
         );
-        if (diff !== []) {
+        if (diff.length !== 0) {
+          /* istanbul ignore next */
           throw new Error(`DBValidation error: ${diff} for ${modelName}`);
         }
       }
     }
     return cachedModel;
   } else {
+    /* istanbul ignore if  */
     if (showDBInteraction) {
       log(`didn't find ${modelName} in cache`);
     }
@@ -204,6 +230,7 @@ async function saveModelToCache(
   let cachedModels = localCache.get(userID);
   if (!cachedModels) {
     cachedModels = [];
+    localCache.set(userID, cachedModels);
   }
 
   const cachedModel = {
@@ -222,18 +249,21 @@ async function saveModelToCache(
 }
 
 export async function ensureModel(userID: string, modelName: string) {
+  /* istanbul ignore if  */
   if (showDBInteraction) {
     log(`ensure model ${modelName} for user ${userID}`);
   }
   let cachedModels = localCache.get(userID);
   if (!cachedModels) {
     cachedModels = [];
+    localCache.set(userID, cachedModels);
   }
 
   const cachedModel = cachedModels.find((cm) => {
     return cm.modelName === modelName;
   });
   if (cachedModel) {
+    /* istanbul ignore if  */
     if (showDBInteraction) {
       log(`nothing to do - model already exists in cache`);
     }
@@ -244,10 +274,12 @@ export async function ensureModel(userID: string, modelName: string) {
     model: minimalModel,
     status: { isDirty: true },
   });
+  /* istanbul ignore if  */
   if (showDBInteraction) {
     log(`added to cache:`);
   }
   logCache();
+  /* istanbul ignore if  */
   if (showDBInteraction) {
     log(`ensured model ${modelName}`);
   }
@@ -260,6 +292,7 @@ export async function saveModelLSM(
   model: ModelData,
 ) {
   // log(`save model ${showObj(model)}`);
+  /* istanbul ignore if  */
   if (showDBInteraction) {
     log(`save model ${modelName} for user ${userID}`);
     log(
@@ -316,6 +349,7 @@ export async function submitExpenseLSM(
   doChecks: boolean,
   userID: string,
 ) {
+  /* istanbul ignore if  */
   if (printDebug()) {
     log(`in submitExpense with input : ${showObj(expenseInput)}`);
   }
@@ -336,6 +370,7 @@ export async function submitIncomeLSM(
   doChecks: boolean,
   userID: string,
 ) {
+  /* istanbul ignore if  */
   if (printDebug()) {
     log(`in submitIncome with input : ${showObj(incomeInput)}`);
   }
@@ -356,6 +391,7 @@ export async function submitTriggerLSM(
   doChecks: boolean,
   userID: string,
 ) {
+  /* istanbul ignore if  */
   if (printDebug()) {
     log(`go to submitTriggers with input : ${showObj(trigger)}`);
   }
@@ -376,6 +412,7 @@ export async function submitAssetLSM(
   doChecks: boolean,
   userID: string,
 ): Promise<string> {
+  /* istanbul ignore if  */
   if (printDebug()) {
     log(`in submitAsset with input : ${showObj(assetInput)}`);
   }
@@ -396,6 +433,7 @@ export async function submitTransactionLSM(
   doChecks: boolean,
   userID: string,
 ) {
+  /* istanbul ignore if  */
   if (printDebug()) {
     log(`in submitTransaction with input : ${showObj(input)}`);
   }
@@ -414,6 +452,7 @@ export async function saveModelToDBLSM(
   modelName: string,
   modelData: ModelData,
 ) {
+  /* istanbul ignore if  */
   if (showDBInteraction) {
     log(`getDB go to save model ${modelName}`);
   }
@@ -443,6 +482,7 @@ export async function submitSettingLSM(
   doChecks: boolean,
   userID: string,
 ) {
+  /* istanbul ignore if  */
   if (printDebug()) {
     log(`in submitSettingLSM with input : ${showObj(input)}`);
   }
@@ -482,7 +522,7 @@ export async function submitNewSettingLSM(
     type = matchingSettings[0].TYPE;
   }
 
-  submitSettingLSM(
+  return submitSettingLSM(
     {
       NAME: setting.NAME,
       VALUE: setting.VALUE,
@@ -496,19 +536,32 @@ export async function submitNewSettingLSM(
   );
 }
 
-export async function deleteModel(userID: string, modelName: string) {
+export async function deleteModel(
+  userID: string,
+  modelName: string,
+  expectModelPresent = true,
+) {
+  /* istanbul ignore if  */
   if (showDBInteraction) {
     log(`getDB delete model ${modelName}`);
   }
   const cachedModels = localCache.get(userID);
   if (cachedModels === undefined) {
-    log(`unexpected empty local cache - no models for ${userID}??`);
+    /* istanbul ignore if  */
+    if (expectModelPresent) {
+      log(`unexpected empty local cache - no models for ${userID}??`);
+    }
   } else {
     const idx = cachedModels.findIndex((cm) => {
       return cm.modelName === modelName;
     });
     if (idx === -1) {
-      log(`unexpected local cache - no model for ${userID} and ${modelName}??`);
+      /* istanbul ignore if  */
+      if (expectModelPresent) {
+        log(
+          `unexpected local cache - no model for ${userID} and ${modelName}??`,
+        );
+      }
     } else {
       cachedModels.splice(idx, 1);
     }

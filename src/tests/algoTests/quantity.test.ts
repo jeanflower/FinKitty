@@ -25,6 +25,7 @@ import {
 } from './algoTestUtils';
 
 describe('quantity tests', () => {
+  /* istanbul ignore if  */
   if (printDebug()) {
     printTestCodeForEvals;
     log;

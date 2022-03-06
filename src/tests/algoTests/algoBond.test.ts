@@ -22,6 +22,7 @@ import {
 } from './algoTestUtils';
 
 describe('bonds tests', () => {
+  /* istanbul ignore if  */
   if (printDebug()) {
     log;
     printTestCodeForEvals;

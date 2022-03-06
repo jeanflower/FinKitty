@@ -92,6 +92,7 @@ export class CreateModelForm extends Component<
         {makeButton(
           'New model',
           async () => {
+            /* istanbul ignore if  */
             if (printDebug()) {
               log(`action on button for new model`);
             }

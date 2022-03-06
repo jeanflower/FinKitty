@@ -89,6 +89,7 @@ export class AddDeleteAssetForm extends Component<
 
   public constructor(props: EditAssetProps) {
     super(props);
+    /* istanbul ignore if  */
     if (printDebug()) {
       log(`props for AddDeleteAssetForm has
         ${showObj(props.model.triggers.length)} triggers`);

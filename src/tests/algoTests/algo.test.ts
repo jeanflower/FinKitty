@@ -140,6 +140,7 @@ describe('evaluations tests', () => {
     // this clumsy block is to allow printTestCodeForEvals to be "used"
     if (false) {
       // eslint-disable-line no-constant-condition
+      /* istanbul ignore if  */
       if (printDebug()) {
         log('generating test code');
       }
@@ -166,6 +167,7 @@ describe('evaluations tests', () => {
     // this clumsy block is to allow printTestCodeForChart to be "used"
     if (false) {
       // eslint-disable-line no-constant-condition
+      /* istanbul ignore if  */
       if (printDebug()) {
         log('generating test code');
       }

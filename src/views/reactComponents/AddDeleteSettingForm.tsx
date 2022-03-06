@@ -60,6 +60,7 @@ export class AddDeleteSettingForm extends Component<
 
   public constructor(props: EditSettingProps) {
     super(props);
+    /* istanbul ignore if  */
     if (printDebug()) {
       log(`props for AddDeleteSettingForm has
         ${showObj(props.model.triggers.length)} triggers`);

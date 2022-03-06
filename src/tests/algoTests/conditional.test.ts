@@ -32,6 +32,7 @@ import {
 } from './algoTestUtils';
 
 describe('conditional tests', () => {
+  /* istanbul ignore if  */
   if (printDebug()) {
     printTestCodeForEvals;
   }

@@ -550,6 +550,7 @@ function makeChartDataPoints(
     allChartDataPoints.push({ name: item, chartDataPoints: array });
   }
 
+  /* istanbul ignore if  */
   if (printDebug()) {
     allChartDataPoints.forEach(
       (entry: { name: string; chartDataPoints: ChartDataPoint[] }) => {
@@ -668,6 +669,7 @@ function displayAs(name: string, model: ModelData, viewSettings: ViewSettings) {
       result.tax = true;
     }
   });
+  /* istanbul ignore if  */
   if (printDebug()) {
     if (result.asset) {
       log(`display ${name} as an asset`);

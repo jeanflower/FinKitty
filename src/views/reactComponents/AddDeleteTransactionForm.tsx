@@ -131,6 +131,7 @@ export class AddDeleteTransactionForm extends Component<
 
   public constructor(props: EditTransactionProps) {
     super(props);
+    /* istanbul ignore if  */
     if (printDebug()) {
       log(`props for AddDeleteTransactionForm has
         ${showObj(props.model.triggers.length)} triggers`);

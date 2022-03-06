@@ -21,6 +21,7 @@ interface DateSelectionProps extends FormProps {
   ) => Promise<void>;
 }
 function makeDateTooltipForRow(props: DateSelectionProps) {
+  /* istanbul ignore if  */
   if (printDebug()) {
     log(`make tooltip with ${showObj(props)}`);
   }

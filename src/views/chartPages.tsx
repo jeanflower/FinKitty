@@ -266,6 +266,7 @@ export function getDefaultChartSettings(
 
     axisX: {
       labelFormatter: function (e: { label: string }) {
+        /* istanbul ignore if  */
         if (printDebug()) {
           log(`e.value = ${e.label}`);
           log(`showAge = ${showAge}`);
@@ -331,6 +332,7 @@ function makeBarChart(
             stacked: true,
             ticks: {
               callback: function (value, index, values) {
+                /* istanbul ignore if  */
                 if (printDebug()) {
                   log(
                     `convert value ${value}, ${showObj(

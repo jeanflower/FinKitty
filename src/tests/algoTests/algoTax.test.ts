@@ -36,6 +36,7 @@ import {
 } from './algoTestUtils';
 
 describe('tax tests', () => {
+  /* istanbul ignore if  */
   if (printDebug()) {
     printTestCodeForEvals;
   }

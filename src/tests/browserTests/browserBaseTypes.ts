@@ -51,6 +51,7 @@ export function getDriver(headless: boolean) {
 }
 
 export function bugSleep(message: string) {
+  /* istanbul ignore if  */
   if (printDebug()) {
     log(`sleep for a long time: ${message}`);
   }
@@ -59,6 +60,7 @@ export function bugSleep(message: string) {
 
 // Use sleeps to hack page-not-yet-ready issues. TODO : do better.
 function sleep(ms: number, message: string) {
+  /* istanbul ignore if  */
   if (printDebug()) {
     log(`sleep for ${ms}ms: ${message}`);
   }
