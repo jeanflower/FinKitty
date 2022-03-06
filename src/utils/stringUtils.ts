@@ -90,6 +90,7 @@ export function getNumberAndWordParts(input: string): {
   };
 }
 
+// if there's no leading number part, this returns undefined
 export function removeNumberPart(input: string) {
   const parts = getNumberAndWordParts(input);
   if (parts.numberPart === undefined) {
@@ -99,12 +100,18 @@ export function removeNumberPart(input: string) {
   }
 }
 
-export function makeIncomeLiabilityFromNameAndNI(name: string, NI: boolean) {
+export function makeIncomeLiabilityFromNameAndNI(
+  name: string,
+  NI: boolean,
+  printOnError = true,
+) {
   if (name === '') {
     return '';
   }
   if (name.includes(separator)) {
-    log(`Error: name ${name} can't contain ${separator}`);
+    if (printOnError) {
+      log(`Error: name ${name} can't contain ${separator}`);
+    }
     return '';
   }
   if (NI) {

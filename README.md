@@ -75,6 +75,8 @@ Watch out for lint errors in the console from either
 ### Run the tests
 `npm test` or `./startTests.sh`
 
+Or `CI=true npm test -- --t='match this string to test name'`.
+
 Launches the test runner in the interactive watch mode.<br>
 See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
