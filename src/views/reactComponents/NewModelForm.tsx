@@ -4,7 +4,7 @@ import { Component, FormEvent } from 'react';
 import { Input } from './Input';
 import { ModelData } from '../../types/interfaces';
 import { makeButton } from './Button';
-import { log, printDebug } from '../../utils';
+import { log, printDebug } from '../../utils/utils';
 import { minimalModel } from '../../models/exampleModels';
 import dateFormat from 'dateformat';
 import FileSaver from 'file-saver';

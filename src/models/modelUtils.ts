@@ -16,9 +16,9 @@ import {
   replaceWholeString,
   replaceNumberValueString,
   replaceSeparatedString,
-} from '../stringUtils';
+} from '../utils/stringUtils';
 import { ModelData, Setting } from '../types/interfaces';
-import { log, showObj } from '../utils';
+import { log, showObj } from '../utils/utils';
 import { checkData } from './checks';
 import { getTestModel } from './exampleModels';
 import { migrateOldVersions } from './versioningUtils';

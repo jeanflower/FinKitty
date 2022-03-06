@@ -1,4 +1,4 @@
-import { log, printDebug } from '../../utils';
+import { log, printDebug } from '../../utils/utils';
 import webdriver, { ThenableWebDriver, Key } from 'selenium-webdriver';
 import {
   homeTag,

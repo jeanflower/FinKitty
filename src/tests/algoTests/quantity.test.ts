@@ -15,7 +15,7 @@ import {
   getThreeChryslerModel,
 } from '../../models/exampleModels';
 import { ModelData } from '../../types/interfaces';
-import { log, printDebug } from '../../utils';
+import { log, printDebug } from '../../utils/utils';
 import {
   printTestCodeForEvals,
   getTestEvaluations,

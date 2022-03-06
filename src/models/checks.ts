@@ -52,7 +52,7 @@ import {
   Trigger,
   Evaluation,
 } from '../types/interfaces';
-import { log, showObj } from '../utils';
+import { log, showObj } from '../utils/utils';
 
 import { evaluationType, getMaturityDate } from './evaluations';
 import { getDisplayName } from '../views/tablePages';
@@ -61,7 +61,7 @@ import {
   makeDateFromString,
   getNumberAndWordParts,
   checkTriggerDate,
-} from '../stringUtils';
+} from '../utils/stringUtils';
 import {
   getSettings,
   isAnAssetOrAssets,

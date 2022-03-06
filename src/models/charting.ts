@@ -47,7 +47,7 @@ import {
   dot,
   annually,
 } from '../localization/stringConstants';
-import { Context, log, printDebug, showObj } from '../utils';
+import { Context, log, printDebug, showObj } from '../utils/utils';
 import { evaluationType, generateSequenceOfDates } from './evaluations';
 
 import { checkEvalnType } from './checks';
@@ -61,7 +61,7 @@ import {
   makeNetGainTag,
   getTriggerDate,
   deconstructTaxTag,
-} from '../stringUtils';
+} from '../utils/stringUtils';
 import { getSettings } from './modelUtils';
 import { getCategory } from './category';
 

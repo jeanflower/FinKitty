@@ -24,7 +24,7 @@ import {
   simpleTransaction,
 } from '../../models/exampleModels';
 import { ModelData } from '../../types/interfaces';
-import { Context, printDebug } from '../../utils';
+import { Context, printDebug } from '../../utils/utils';
 import {
   printTestCodeForEvals,
   getTestEvaluations,

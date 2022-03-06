@@ -27,8 +27,8 @@ import React from 'react';
 import { SimpleFormatter } from './reactComponents/NameFormatter';
 import { ViewSettings } from '../models/charting';
 import { getTodaysDate } from '../models/modelUtils';
-import { lessThan } from '../stringUtils';
-import { log, printDebug } from '../utils';
+import { lessThan } from '../utils/stringUtils';
+import { log, printDebug } from '../utils/utils';
 
 function addToMap(name: string, val: IncomeVal, myMap: Map<string, IncomeVal>) {
   const existingEntry = myMap.get(name);

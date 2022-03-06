@@ -18,9 +18,9 @@ import { assetsOrDebtsChartDivWithButtons } from './chartPages';
 import { debtsView } from '../localization/stringConstants';
 import { ViewSettings } from '../models/charting';
 import { getTodaysDate } from '../models/modelUtils';
-import { lessThan } from '../stringUtils';
+import { lessThan } from '../utils/stringUtils';
 import { collapsibleFragment } from './tablePages';
-import { log, printDebug } from '../utils';
+import { log, printDebug } from '../utils/utils';
 
 function addToMap(name: string, val: DebtVal, myMap: Map<string, DebtVal>) {
   const existingEntry = myMap.get(name);

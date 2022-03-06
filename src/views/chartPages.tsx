@@ -32,7 +32,7 @@ import {
   penPrefix,
 } from '../localization/stringConstants';
 import { getDisplay, refreshData } from '../App';
-import { Context, log, printDebug, showObj } from '../utils';
+import { Context, log, printDebug, showObj } from '../utils/utils';
 
 import { makeButton } from './reactComponents/Button';
 import React from 'react';

@@ -11,7 +11,7 @@ import {
   makeModelFromJSONString,
   getSettings,
 } from '../../models/modelUtils';
-import { log } from '../../utils';
+import { log } from '../../utils/utils';
 
 const emptyModelJSON = `{
     "triggers":[],

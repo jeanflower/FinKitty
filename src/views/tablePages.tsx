@@ -66,7 +66,7 @@ import {
   checkTrigger,
   isNumberString,
 } from '../models/checks';
-import { Context, log, showObj } from '../utils';
+import { Context, log, showObj } from '../utils/utils';
 
 import CashValueFormatter from './reactComponents/CashValueFormatter';
 import DataGrid from './reactComponents/DataGrid';
@@ -98,7 +98,7 @@ import {
   makeStringFromGrowth,
   lessThan,
   makeTwoDP,
-} from '../stringUtils';
+} from '../utils/stringUtils';
 import { ReactFragment } from 'react';
 import { Accordion, Button, Card } from 'react-bootstrap';
 import { filtersList } from './chartPages';

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Setting } from '../../types/interfaces';
-import { makeStringFromGrowth } from '../../stringUtils';
+import { makeStringFromGrowth } from '../../utils/stringUtils';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
 

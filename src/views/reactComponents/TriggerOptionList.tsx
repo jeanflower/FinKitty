@@ -2,7 +2,7 @@ import React, { Component, FormEvent } from 'react';
 
 import { Trigger, ModelData, FormProps } from '../../types/interfaces';
 import { newTriggerButtonData } from './AddDeleteTriggerForm';
-import { lessThan } from '../../stringUtils';
+import { lessThan } from '../../utils/stringUtils';
 
 const welcomeString = 'Choose a date (optional)';
 

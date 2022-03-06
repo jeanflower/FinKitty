@@ -12,7 +12,7 @@ import {
   revalue,
   revalueSetting,
 } from '../../localization/stringConstants';
-import { log, printDebug, showObj } from '../../utils';
+import { log, printDebug, showObj } from '../../utils/utils';
 
 import { makeButton } from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
@@ -23,7 +23,7 @@ import { isATransaction } from '../../models/modelUtils';
 import {
   checkTriggerDate,
   makeValueAbsPropFromString,
-} from '../../stringUtils';
+} from '../../utils/stringUtils';
 
 interface EditSettingFormState {
   NAME: string;

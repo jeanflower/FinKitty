@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDataGrid from 'react-data-grid';
-import { log, printDebug, showObj } from '../../utils';
-import { getTriggerDate } from '../../stringUtils';
+import { log, printDebug, showObj } from '../../utils/utils';
+import { getTriggerDate } from '../../utils/stringUtils';
 import { Trigger } from '../../types/interfaces';
 /**
  * Samples:

@@ -1,6 +1,6 @@
 import { DbInterface } from './database';
 import { ModelData } from '../types/interfaces';
-import { log, printDebug } from '../utils';
+import { log, printDebug } from '../utils/utils';
 import { minimalModel } from '../models/exampleModels';
 import { makeModelFromJSON } from '../models/modelUtils';
 

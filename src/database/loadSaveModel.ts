@@ -9,13 +9,13 @@ import {
   ModelData,
 } from '../types/interfaces';
 
-import { log, printDebug, showObj } from '../utils';
+import { log, printDebug, showObj } from '../utils/utils';
 
 import { getDB } from './database';
 
 import { adjustableType } from '../localization/stringConstants';
 
-import { diffModels } from '../diffModels';
+import { diffModels } from '../models/diffModels';
 import { checkData } from '../models/checks';
 import { minimalModel } from '../models/exampleModels';
 import { markForUndo, revertToUndoModel } from '../models/modelUtils';

@@ -4,8 +4,8 @@ import { Col, Row } from 'react-bootstrap';
 import { doCheckBeforeOverwritingExistingData } from '../../App';
 
 import { ModelData, Trigger, FormProps } from '../../types/interfaces';
-import { log, printDebug, showObj } from '../../utils';
-import { makeDateFromString } from '../../stringUtils';
+import { log, printDebug, showObj } from '../../utils/utils';
+import { makeDateFromString } from '../../utils/stringUtils';
 import { makeButton } from './Button';
 import { Input } from './Input';
 

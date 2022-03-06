@@ -7,7 +7,7 @@ import { homeView } from '../localization/stringConstants';
 
 import FinKittyCat from './cat.png';
 import WaitGif from './catWait.gif';
-import { log, printDebug } from '../utils';
+import { log, printDebug } from '../utils/utils';
 
 export function navbarContent(isWaiting: boolean, rhContent: () => any) {
   /* istanbul ignore if  */

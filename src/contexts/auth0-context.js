@@ -1,6 +1,6 @@
 import React, { Component, createContext, useContext } from 'react';
 import createAuth0Client from '@auth0/auth0-spa-js';
-import { log, printDebug, showObj } from './../utils';
+import { log, printDebug, showObj } from '../utils/utils';
 
 // create the context
 const Auth0Context = createContext();

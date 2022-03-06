@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { finkittyButtonType } from '../../types/interfaces';
-import { log, printDebug } from './../../utils';
+import { log, printDebug } from '../../utils/utils';
 
 interface ButtonProps {
   type: finkittyButtonType;

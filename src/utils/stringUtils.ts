@@ -18,9 +18,9 @@ import {
   transferCrystallizedPension,
   bondMaturity,
   bondInvest,
-} from './localization/stringConstants';
-import { isSetting } from './models/modelUtils';
-import { Setting, ModelData, Trigger } from './types/interfaces';
+} from '../localization/stringConstants';
+import { isSetting } from '../models/modelUtils';
+import { Setting, ModelData, Trigger } from '../types/interfaces';
 import { log } from './utils';
 
 export function lessThan(a: string, b: string) {

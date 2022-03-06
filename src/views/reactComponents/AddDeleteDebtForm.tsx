@@ -9,7 +9,7 @@ import {
   Trigger,
   FormProps,
 } from '../../types/interfaces';
-import { log, printDebug, showObj } from '../../utils';
+import { log, printDebug, showObj } from '../../utils/utils';
 import { makeButton } from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
 import { Input } from './Input';
@@ -25,7 +25,7 @@ import { isATransaction } from '../../models/modelUtils';
 import {
   makeValueAbsPropFromString,
   checkTriggerDate,
-} from '../../stringUtils';
+} from '../../utils/stringUtils';
 
 interface EditDebtFormState {
   NAME: string;

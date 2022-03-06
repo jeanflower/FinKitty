@@ -3,8 +3,8 @@ import { Col, Row } from 'react-bootstrap';
 
 import { Trigger, ModelData, FormProps } from '../../types/interfaces';
 import { TriggerOptionList } from './TriggerOptionList';
-import { log, showObj, printDebug } from '../../utils';
-import { makeDateTooltip } from '../../stringUtils';
+import { log, showObj, printDebug } from '../../utils/utils';
+import { makeDateTooltip } from '../../utils/stringUtils';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
 

@@ -7,7 +7,7 @@ import {
   Trigger,
   FormProps,
 } from '../../types/interfaces';
-import { log, printDebug, showObj } from '../../utils';
+import { log, printDebug, showObj } from '../../utils/utils';
 import { makeButton } from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
 import { Input } from './Input';
@@ -28,7 +28,7 @@ import {
   makeStringFromBoolean,
   makeBooleanFromYesNo,
   makeBooleanFromString,
-} from '../../stringUtils';
+} from '../../utils/stringUtils';
 
 interface EditTransactionFormState {
   NAME: string;

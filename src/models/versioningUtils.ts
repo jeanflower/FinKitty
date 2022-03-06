@@ -33,7 +33,7 @@ import {
 } from '../localization/stringConstants';
 import { ModelData } from '../types/interfaces';
 import { getMinimalModelCopy, viewSetting } from './exampleModels';
-import { log } from '../utils';
+import { log } from '../utils/utils';
 
 // 0; // may not include assets or settings in minimalModel
 // 1; // may not include expense recurrence, asset/debt,

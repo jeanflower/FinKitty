@@ -57,7 +57,7 @@ import {
   makeNetIncomeTag,
   makeNetGainTag,
   hasDependentDate,
-} from '../../stringUtils';
+} from '../../utils/stringUtils';
 import {
   Evaluation,
   ChartDataPoint,
@@ -69,7 +69,7 @@ import {
   ExpenseVal,
   SettingVal,
 } from '../../types/interfaces';
-import { log } from '../../utils';
+import { log } from '../../utils/utils';
 
 export function expectEvals(
   evals: Evaluation[],

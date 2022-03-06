@@ -31,7 +31,7 @@ import {
   homeTag,
   overviewTag,
 } from './browserTestUtils';
-import { log } from './../../utils';
+import { log } from '../../utils/utils';
 
 import webdriver from 'selenium-webdriver';
 

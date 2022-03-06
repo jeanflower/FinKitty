@@ -26,9 +26,9 @@ import React from 'react';
 import { SimpleFormatter } from './reactComponents/NameFormatter';
 import { ViewSettings } from '../models/charting';
 import { getTodaysDate } from '../models/modelUtils';
-import { lessThan } from '../stringUtils';
+import { lessThan } from '../utils/stringUtils';
 import { collapsibleFragment } from './tablePages';
-import { log, printDebug } from '../utils';
+import { log, printDebug } from '../utils/utils';
 
 function addToMap(
   name: string,

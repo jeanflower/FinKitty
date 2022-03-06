@@ -1,5 +1,5 @@
 import React from 'react';
-import { makeStringFromFromToValue } from '../../stringUtils';
+import { makeStringFromFromToValue } from '../../utils/stringUtils';
 import { isNumberString } from '../../models/checks';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';

@@ -37,7 +37,7 @@ import {
 } from '../../models/exampleModels';
 import { setROI, setSetting } from '../../models/modelUtils';
 import { ModelData } from '../../types/interfaces';
-import { Context, printDebug, suppressLogs, unSuppressLogs } from '../../utils';
+import { Context, printDebug, suppressLogs, unSuppressLogs } from '../../utils/utils';
 import {
   printTestCodeForEvals,
   getTestEvaluations,

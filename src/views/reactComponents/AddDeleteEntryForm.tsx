@@ -1,6 +1,6 @@
 import React, { Component, FormEvent } from 'react';
 
-import { log, printDebug, showObj } from '../../utils';
+import { log, printDebug, showObj } from '../../utils/utils';
 import { InputRow } from './Input';
 
 interface EditFormState {

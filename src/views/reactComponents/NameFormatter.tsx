@@ -4,7 +4,7 @@ import Tooltip from 'react-bootstrap/Tooltip';
 import {
   getNumberAndWordParts,
   makeStringFromCashValue,
-} from '../../stringUtils';
+} from '../../utils/stringUtils';
 
 interface SimpleFormatterProps {
   name: string;

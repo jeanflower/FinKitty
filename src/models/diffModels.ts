@@ -7,8 +7,8 @@ import {
   Transaction,
   Setting,
   ModelData,
-} from './types/interfaces';
-import { log, printDebug, showObj } from './utils';
+} from '../types/interfaces';
+import { log, printDebug, showObj } from '../utils/utils';
 
 function diffItem(i1: Item, i2: Item): string {
   if (i1.NAME !== i2.NAME) {

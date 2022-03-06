@@ -1,9 +1,9 @@
 import React from 'react';
 import { ModelData } from '../../types/interfaces';
-import { log, printDebug } from '../../utils';
+import { log, printDebug } from '../../utils/utils';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
-import { makeDateTooltip, dateFormatOptions } from '../../stringUtils';
+import { makeDateTooltip, dateFormatOptions } from '../../utils/stringUtils';
 
 interface TriggerDateFormatterProps {
   name: string;

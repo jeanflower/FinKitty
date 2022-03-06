@@ -26,7 +26,7 @@ import {
   simpleTransaction,
 } from '../../models/exampleModels';
 import { Item } from '../../types/interfaces';
-import { printDebug, log } from '../../utils';
+import { printDebug, log } from '../../utils/utils';
 
 /* global it */
 /* global expect */

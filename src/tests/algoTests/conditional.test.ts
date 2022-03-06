@@ -22,7 +22,7 @@ import {
   getMinimalModelCopy,
 } from '../../models/exampleModels';
 import { ModelData } from '../../types/interfaces';
-import { printDebug, Context } from '../../utils';
+import { printDebug, Context } from '../../utils/utils';
 import {
   printTestCodeForEvals,
   getTestEvaluations,

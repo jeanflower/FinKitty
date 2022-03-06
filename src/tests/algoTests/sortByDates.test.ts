@@ -5,7 +5,7 @@ import {
 } from '../../models/evaluations';
 import { CASH_ASSET_NAME } from '../../localization/stringConstants';
 import { DatedThing } from '../../types/interfaces';
-import { makeDateFromString } from '../../stringUtils';
+import { makeDateFromString } from '../../utils/stringUtils';
 
 describe('sortByDate', () => {
   it('should sort empty list', () => {

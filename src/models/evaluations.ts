@@ -48,7 +48,7 @@ import {
   Expense,
   Income,
 } from '../types/interfaces';
-import { getMonthlyGrowth, log, printDebug, showObj } from '../utils';
+import { getMonthlyGrowth, log, printDebug, showObj } from '../utils/utils';
 import { getDisplayName } from '../views/tablePages';
 import {
   getNumberAndWordParts,
@@ -62,7 +62,7 @@ import {
   makeNetGainTag,
   removeNumberPart,
   checkTriggerDate,
-} from '../stringUtils';
+} from '../utils/stringUtils';
 import {
   getSettings,
   replaceCategoryWithAssetNames,

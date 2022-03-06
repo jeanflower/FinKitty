@@ -21,7 +21,7 @@ import {
 } from '../../models/exampleModels';
 import { setSetting } from '../../models/modelUtils';
 import { ModelData } from '../../types/interfaces';
-import { printDebug } from '../../utils';
+import { printDebug } from '../../utils/utils';
 import {
   printTestCodeForEvals,
   getTestEvaluations,

@@ -78,7 +78,7 @@ import {
   ReportMatcher,
   ReportValueChecker,
 } from './types/interfaces';
-import { Context, log, printDebug, showObj } from './utils';
+import { Context, log, printDebug, showObj } from './utils/utils';
 import { loginPage, navbarContent } from './views/loginPage';
 import { screenshotsDiv } from './views/screenshotsPage';
 import {
@@ -138,8 +138,8 @@ import {
   markForUndo,
   revertToUndoModel,
 } from './models/modelUtils';
-import { lessThan, makeTwoDP } from './stringUtils';
-import { diffModels } from './diffModels';
+import { lessThan, makeTwoDP } from './utils/stringUtils';
+import { diffModels } from './models/diffModels';
 import { collapsibleFragment } from './views/tablePages';
 import WaitGif from './views/catWait.gif';
 import packageData from '../package.json';

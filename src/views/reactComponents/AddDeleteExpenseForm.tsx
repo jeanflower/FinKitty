@@ -8,7 +8,7 @@ import {
   Trigger,
   FormProps,
 } from '../../types/interfaces';
-import { log, printDebug, showObj } from '../../utils';
+import { log, printDebug, showObj } from '../../utils/utils';
 import { makeButton } from './Button';
 import { DateSelectionRow } from './DateSelectionRow';
 import { Input } from './Input';
@@ -21,7 +21,7 @@ import {
   checkTriggerDate,
   makeGrowthFromString,
   makeBooleanFromYesNo,
-} from '../../stringUtils';
+} from '../../utils/stringUtils';
 
 interface EditExpenseFormState {
   NAME: string;

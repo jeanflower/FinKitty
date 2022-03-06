@@ -12,7 +12,7 @@ import {
 
 import webdriver from 'selenium-webdriver';
 import { CASH_ASSET_NAME } from '../../localization/stringConstants';
-import { log, printDebug } from '../../utils';
+import { log, printDebug } from '../../utils/utils';
 
 // switch these values if you want to debug
 // one of these tests and see the Chrome window
