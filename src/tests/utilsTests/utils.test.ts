@@ -1,6 +1,9 @@
 import {
+  checkForWordClashInModel,
   checkTriggerDate,
+  getSpecialWord,
   getTriggerDate,
+  hasDependentDate,
   lessThan,
   makeBooleanFromString,
   makeBooleanFromYesNo,
@@ -9,19 +12,45 @@ import {
   makeDateTooltip,
   makeGrowthFromString,
   makeIncomeLiabilityFromNameAndNI,
+  makePurchasePriceFromString,
   makeQuantityFromString,
   makeStringFromBoolean,
   makeStringFromCashValue,
   makeStringFromFromToValue,
   makeStringFromGrowth,
+  makeStringFromPurchasePrice,
   makeStringFromValueAbsProp,
   makeValueAbsPropFromString,
   makeYesNoFromBoolean,
   removeNumberPart,
 } from '../../utils/stringUtils';
-import { minimalModel, simpleAsset } from '../../models/exampleModels';
-import { CASH_ASSET_NAME } from '../../localization/stringConstants';
+import {
+  minimalModel,
+  simpleAsset,
+  simpleExpense,
+  simpleIncome,
+  simpleSetting,
+  simpleTransaction,
+} from '../../models/exampleModels';
+import {
+  bondInvest,
+  CASH_ASSET_NAME,
+} from '../../localization/stringConstants';
 import { makeModelFromJSONString } from '../../models/modelUtils';
+
+import {
+  revalue,
+  conditional,
+  pensionSS,
+  pensionTransfer,
+  pensionDB,
+  pension,
+  moveTaxFreePart,
+  crystallizedPension,
+  transferCrystallizedPension,
+  bondMaturity,
+} from '../../localization/stringConstants';
+import { ModelData } from '../../types/interfaces';
 
 describe('utils tests', () => {
   it('less than', () => {
@@ -509,6 +538,509 @@ describe('utils tests', () => {
     expect(makeDateTooltip('a+1d', [simpleTrigger])).toEqual('2 January 2018');
     expect(makeDateTooltip('a-1d', [simpleTrigger])).toEqual(
       '31 December 2017',
+    );
+  });
+  it('makeStringFromPurchasePrice', () => {
+    expect(makeStringFromPurchasePrice('0', 'jim')).toEqual('');
+    expect(makeStringFromPurchasePrice('anything', 'jim(CGT)')).toEqual(
+      'anything',
+    );
+  });
+  it('makePurchasePriceFromString', () => {
+    expect(makePurchasePriceFromString('')).toEqual('0');
+    expect(makePurchasePriceFromString('anything')).toEqual('anything');
+  });
+  it('getSpecialWord', () => {
+    expect(getSpecialWord('anything', minimalModel)).toEqual('');
+    [
+      revalue,
+      conditional,
+      pensionSS,
+      pensionTransfer,
+      pensionDB,
+      pension,
+      moveTaxFreePart,
+      crystallizedPension,
+      transferCrystallizedPension,
+      bondMaturity,
+    ].map((x) => {
+      expect(getSpecialWord(`${x}anything`, minimalModel)).toEqual(`${x}`);
+    });
+
+    ['1y', '2y', '3y', '4y', '5y', '1m'].map((x) => {
+      const m = makeModelFromJSONString(JSON.stringify(minimalModel));
+      m.transactions.push({
+        ...simpleTransaction,
+        TYPE: bondInvest,
+        NAME: `myName${x}`,
+      });
+      expect(getSpecialWord(`anything${x}`, m)).toEqual(`${x}`);
+    });
+    expect(getSpecialWord(`anything1y`, minimalModel)).toEqual('');
+    const m = makeModelFromJSONString(JSON.stringify(minimalModel));
+    m.triggers.push({
+      NAME: 'something',
+      DATE: `1999`,
+    });
+    m.transactions.push({
+      ...simpleTransaction,
+      DATE: 'something+1d',
+    });
+    expect(getSpecialWord(`something`, m)).toEqual('dateAlgebra');
+  });
+  it('hasDependentDate', () => {
+    [
+      (x: ModelData) => {
+        x.expenses.push({
+          ...simpleExpense,
+          START: 'a+1d',
+        });
+      },
+      (x: ModelData) => {
+        x.expenses.push({
+          ...simpleExpense,
+          END: 'a+1d',
+        });
+      },
+      (x: ModelData) => {
+        x.expenses.push({
+          ...simpleExpense,
+          VALUE_SET: 'a+1d',
+        });
+      },
+      (x: ModelData) => {
+        x.incomes.push({
+          ...simpleIncome,
+          START: 'a+1d',
+        });
+      },
+      (x: ModelData) => {
+        x.incomes.push({
+          ...simpleIncome,
+          END: 'a+1d',
+        });
+      },
+      (x: ModelData) => {
+        x.incomes.push({
+          ...simpleIncome,
+          VALUE_SET: 'a+1d',
+        });
+      },
+      (x: ModelData) => {
+        x.transactions.push({
+          ...simpleTransaction,
+          DATE: 'a+1d',
+        });
+      },
+      (x: ModelData) => {
+        x.transactions.push({
+          ...simpleTransaction,
+          STOP_DATE: 'a+1d',
+        });
+      },
+      (x: ModelData) => {
+        x.triggers.push({
+          NAME: 'b',
+          DATE: 'a+1y',
+        });
+      },
+      (x: ModelData) => {
+        x.assets.push({
+          ...simpleAsset,
+          START: 'a+1d',
+        });
+      },
+    ].map((makeChange) => {
+      const x = makeModelFromJSONString(JSON.stringify(minimalModel));
+      makeChange(x);
+      expect(
+        hasDependentDate(
+          {
+            NAME: 'a',
+            DATE: '1999',
+          },
+          x,
+        ),
+      ).toBe(true);
+      expect(
+        hasDependentDate(
+          {
+            NAME: 'b',
+            DATE: '1999',
+          },
+          x,
+        ),
+      ).toBe(false);
+    });
+  });
+  it('checkForWordClashInModel', () => {
+    [
+      {
+        makeChange: (m: ModelData) => {
+          return m;
+        },
+        replacement: '',
+        outcome: `  Asset 'Cash' has quantity boo called    `,
+      },
+      {
+        makeChange: (m: ModelData) => {
+          return m;
+        },
+        replacement: CASH_ASSET_NAME,
+        outcome: `  Asset 'Cash' has name boo called Cash   `,
+      },
+      {
+        makeChange: (m: ModelData) => {
+          m.assets.push({
+            ...simpleAsset,
+            NAME: 'a',
+          });
+        },
+        replacement: 'a',
+        outcome: `  Asset 'a' has name boo called a   `,
+      },
+      {
+        makeChange: (m: ModelData) => {
+          m.assets.push({
+            ...simpleAsset,
+            CATEGORY: 'a',
+          });
+        },
+        replacement: 'a',
+        outcome: `  Asset 'NoName' has category boo called a   `,
+      },
+      {
+        makeChange: (m: ModelData) => {
+          m.assets.push({
+            ...simpleAsset,
+            START: 'a',
+          });
+        },
+        replacement: 'a',
+        outcome: `  Asset 'NoName' has start boo called a   `,
+      },
+      {
+        makeChange: (m: ModelData) => {
+          m.assets.push({
+            ...simpleAsset,
+            VALUE: 'a',
+          });
+        },
+        replacement: 'a',
+        outcome: `  Asset 'NoName' has value boo called a   `,
+      },
+      {
+        makeChange: (m: ModelData) => {
+          m.assets.push({
+            ...simpleAsset,
+            VALUE: '2a',
+          });
+        },
+        replacement: 'a',
+        outcome: `  Asset 'NoName' has value boo called a   `,
+      },
+      {
+        makeChange: (m: ModelData) => {
+          m.assets.push({
+            ...simpleAsset,
+            QUANTITY: 'a',
+          });
+        },
+        replacement: 'a',
+        outcome: `  Asset 'NoName' has quantity boo called a   `,
+      },
+      {
+        makeChange: (m: ModelData) => {
+          m.assets.push({
+            ...simpleAsset,
+            GROWTH: 'a',
+          });
+        },
+        replacement: 'a',
+        outcome: `  Asset 'NoName' has growth boo called a   `,
+      },
+      {
+        makeChange: (m: ModelData) => {
+          m.assets.push({
+            ...simpleAsset,
+            LIABILITY: 'a',
+          });
+        },
+        replacement: 'a',
+        outcome: `  Asset 'NoName' has liability boo called a   `,
+      },
+      {
+        makeChange: (m: ModelData) => {
+          m.assets.push({
+            ...simpleAsset,
+            PURCHASE_PRICE: 'a',
+          });
+        },
+        replacement: 'a',
+        outcome: `  Asset 'NoName' has purchase price boo called a   `,
+      },
+      {
+        makeChange: (m: ModelData) => {
+          m.settings.push({
+            ...simpleSetting,
+            NAME: 'a',
+          });
+        },
+        replacement: 'a',
+        outcome: `Setting 'a' has name boo called a     `,
+      },
+      {
+        makeChange: (m: ModelData) => {
+          m.settings.push({
+            ...simpleSetting,
+            VALUE: 'a',
+          });
+        },
+        replacement: 'a',
+        outcome: `Setting 'NoName' has value boo called a     `,
+      },
+      {
+        makeChange: (m: ModelData) => {
+          m.triggers.push({
+            NAME: 'a',
+            DATE: '1999',
+          });
+        },
+        replacement: 'a',
+        outcome: ` Trigger 'a' has name boo called a    `,
+      },
+      {
+        makeChange: (m: ModelData) => {
+          m.incomes.push({
+            ...simpleIncome,
+            NAME: 'a',
+          });
+        },
+        replacement: 'a',
+        outcome: `   Income 'a' has name boo called a  `,
+      },
+      {
+        makeChange: (m: ModelData) => {
+          m.incomes.push({
+            ...simpleIncome,
+            CATEGORY: 'a',
+          });
+        },
+        replacement: 'a',
+        outcome: `   Income 'NoName' has category boo called a  `,
+      },
+      {
+        makeChange: (m: ModelData) => {
+          m.incomes.push({
+            ...simpleIncome,
+            START: 'a',
+          });
+        },
+        replacement: 'a',
+        outcome: `   Income 'NoName' has start boo called a  `,
+      },
+      {
+        makeChange: (m: ModelData) => {
+          m.incomes.push({
+            ...simpleIncome,
+            END: 'a',
+          });
+        },
+        replacement: 'a',
+        outcome: `   Income 'NoName' has end boo called a  `,
+      },
+      {
+        makeChange: (m: ModelData) => {
+          m.incomes.push({
+            ...simpleIncome,
+            VALUE: 'a',
+          });
+        },
+        replacement: 'a',
+        outcome: `   Income 'NoName' has value boo called a  `,
+      },
+      {
+        makeChange: (m: ModelData) => {
+          m.incomes.push({
+            ...simpleIncome,
+            VALUE_SET: 'a',
+          });
+        },
+        replacement: 'a',
+        outcome: `   Income 'NoName' has value set boo called a  `,
+      },
+      {
+        makeChange: (m: ModelData) => {
+          m.incomes.push({
+            ...simpleIncome,
+            GROWTH: 'a',
+          });
+        },
+        replacement: 'a',
+        outcome: `   Income 'NoName' has growth boo called a  `,
+      },
+      {
+        makeChange: (m: ModelData) => {
+          m.incomes.push({
+            ...simpleIncome,
+            LIABILITY: 'a',
+          });
+        },
+        replacement: 'a',
+        outcome: `   Income 'NoName' has liability boo called a  `,
+      },
+      {
+        makeChange: (m: ModelData) => {
+          m.expenses.push({
+            ...simpleExpense,
+            NAME: 'a',
+          });
+        },
+        replacement: 'a',
+        outcome: `    Expense 'a' has name boo called a `,
+      },
+      {
+        makeChange: (m: ModelData) => {
+          m.expenses.push({
+            ...simpleExpense,
+            CATEGORY: 'a',
+          });
+        },
+        replacement: 'a',
+        outcome: `    Expense 'NoName' has category boo called a `,
+      },
+      {
+        makeChange: (m: ModelData) => {
+          m.expenses.push({
+            ...simpleExpense,
+            START: 'a',
+          });
+        },
+        replacement: 'a',
+        outcome: `    Expense 'NoName' has start boo called a `,
+      },
+      {
+        makeChange: (m: ModelData) => {
+          m.expenses.push({
+            ...simpleExpense,
+            END: 'a',
+          });
+        },
+        replacement: 'a',
+        outcome: `    Expense 'NoName' has end boo called a `,
+      },
+      {
+        makeChange: (m: ModelData) => {
+          m.expenses.push({
+            ...simpleExpense,
+            VALUE: 'a',
+          });
+        },
+        replacement: 'a',
+        outcome: `    Expense 'NoName' has value boo called a `,
+      },
+      {
+        makeChange: (m: ModelData) => {
+          m.expenses.push({
+            ...simpleExpense,
+            VALUE_SET: 'a',
+          });
+        },
+        replacement: 'a',
+        outcome: `    Expense 'NoName' has value set boo called a `,
+      },
+      {
+        makeChange: (m: ModelData) => {
+          m.expenses.push({
+            ...simpleExpense,
+            GROWTH: 'a',
+          });
+        },
+        replacement: 'a',
+        outcome: `    Expense 'NoName' has growth boo called a `,
+      },
+      {
+        makeChange: (m: ModelData) => {
+          m.transactions.push({
+            ...simpleTransaction,
+            NAME: 'a',
+          });
+        },
+        replacement: 'a',
+        outcome: `     Transaction 'a' has name boo called a`,
+      },
+      {
+        makeChange: (m: ModelData) => {
+          m.transactions.push({
+            ...simpleTransaction,
+            FROM: 'a',
+          });
+        },
+        replacement: 'a',
+        outcome: `     Transaction 'NoName' has from boo called a`,
+      },
+      {
+        makeChange: (m: ModelData) => {
+          m.transactions.push({
+            ...simpleTransaction,
+            FROM_VALUE: 'a',
+          });
+        },
+        replacement: 'a',
+        outcome: `     Transaction 'NoName' has from value boo called a`,
+      },
+      {
+        makeChange: (m: ModelData) => {
+          m.transactions.push({
+            ...simpleTransaction,
+            TO: 'a',
+          });
+        },
+        replacement: 'a',
+        outcome: `     Transaction 'NoName' has to boo called a`,
+      },
+      {
+        makeChange: (m: ModelData) => {
+          m.transactions.push({
+            ...simpleTransaction,
+            TO_VALUE: 'a',
+          });
+        },
+        replacement: 'a',
+        outcome: `     Transaction 'NoName' has to value boo called a`,
+      },
+      {
+        makeChange: (m: ModelData) => {
+          m.transactions.push({
+            ...simpleTransaction,
+            DATE: 'a',
+          });
+        },
+        replacement: 'a',
+        outcome: `     Transaction 'NoName' has date boo called a`,
+      },
+      {
+        makeChange: (m: ModelData) => {
+          m.transactions.push({
+            ...simpleTransaction,
+            STOP_DATE: 'a',
+          });
+        },
+        replacement: 'a',
+        outcome: `     Transaction 'NoName' has stop date boo called a`,
+      },
+    ].map(
+      (x: {
+        makeChange: (m: ModelData) => void;
+        replacement: string;
+        outcome: string;
+      }) => {
+        const m = makeModelFromJSONString(JSON.stringify(minimalModel));
+        x.makeChange(m);
+        expect(checkForWordClashInModel(m, x.replacement, 'boo')).toEqual(
+          x.outcome,
+        );
+      },
     );
   });
 });

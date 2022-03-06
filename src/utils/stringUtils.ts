@@ -487,6 +487,7 @@ function parseTriggerForOperator(
   } else if (opSymbol === '+') {
     numChange = 1;
   } else {
+    /* istanbul ignore next  */
     return undefined;
   }
 
@@ -707,32 +708,79 @@ function isDependentDate(dateName: string, dependent: string): boolean {
 }
 
 export function hasDependentDate(t: Trigger, model: ModelData): boolean {
+  // console.log(`see if this model depends on ${t.NAME}`);
   const name = t.NAME;
   // log(`trigger name is ${name}`);
   // is there a transaction date which begins with name
   // and appends some date algebra
-  const dependentTrigger = model.triggers.find((t) => {
-    return isDependentDate(t.DATE, name);
-  });
-  if (dependentTrigger !== undefined) {
+  if (
+    model.triggers.find((t) => {
+      // console.log(`see if trigger ${t.DATE} depends on ${name}`);
+      return isDependentDate(t.DATE, name);
+    }) !== undefined
+  ) {
     return true;
   }
-  const dependentTransaction = model.transactions.find((t) => {
-    return isDependentDate(t.DATE, name);
-  });
-  if (dependentTransaction !== undefined) {
+  if (
+    model.transactions.find((t) => {
+      return isDependentDate(t.DATE, name);
+    }) !== undefined
+  ) {
     return true;
   }
-  const dependentIncome = model.incomes.find((t) => {
+  if (
+    model.transactions.find((t) => {
+      return isDependentDate(t.STOP_DATE, name);
+    }) !== undefined
+  ) {
+    return true;
+  }
+  if (
+    model.incomes.find((t) => {
+      return isDependentDate(t.START, name);
+    }) !== undefined
+  ) {
+    return true;
+  }
+  if (
+    model.incomes.find((t) => {
+      return isDependentDate(t.END, name);
+    }) !== undefined
+  ) {
+    return true;
+  }
+  if (
+    model.incomes.find((t) => {
+      return isDependentDate(t.VALUE_SET, name);
+    }) !== undefined
+  ) {
+    return true;
+  }
+  if (
+    model.expenses.find((t) => {
+      return isDependentDate(t.START, name);
+    }) !== undefined
+  ) {
+    return true;
+  }
+  if (
+    model.expenses.find((t) => {
+      return isDependentDate(t.END, name);
+    }) !== undefined
+  ) {
+    return true;
+  }
+  if (
+    model.expenses.find((t) => {
+      return isDependentDate(t.VALUE_SET, name);
+    }) !== undefined
+  ) {
+    return true;
+  }
+  const dependentAsset = model.assets.find((t) => {
     return isDependentDate(t.START, name);
   });
-  if (dependentIncome !== undefined) {
-    return true;
-  }
-  const dependentExpense = model.expenses.find((t) => {
-    return isDependentDate(t.START, name);
-  });
-  if (dependentExpense !== undefined) {
+  if (dependentAsset !== undefined) {
     return true;
   }
   return false;
@@ -835,7 +883,7 @@ export function checkForWordClashInModel(
         return `Setting '${obj.NAME}' has name ${messageWord} called ${replacement}`;
       }
       if (usesNumberValueWord(obj.VALUE, replacement)) {
-        return `Setting '${obj.NAME}' has name ${messageWord} called ${replacement}`;
+        return `Setting '${obj.NAME}' has value ${messageWord} called ${replacement}`;
       }
       return '';
     })
@@ -875,6 +923,9 @@ export function checkForWordClashInModel(
       if (usesNumberValueWord(obj.PURCHASE_PRICE, replacement)) {
         return `Asset '${obj.NAME}' has purchase price ${messageWord} called ${replacement}`;
       }
+      if (usesWholeWord(obj.CATEGORY, replacement)) {
+        return `Asset '${obj.NAME}' has category ${messageWord} called ${replacement}`;
+      }
       return '';
     })
     .filter((obj) => {
@@ -903,6 +954,9 @@ export function checkForWordClashInModel(
       if (usesSeparatedString(obj.LIABILITY, replacement)) {
         return `Income '${obj.NAME}' has liability ${messageWord} called ${replacement}`;
       }
+      if (usesWholeWord(obj.CATEGORY, replacement)) {
+        return `Income '${obj.NAME}' has category ${messageWord} called ${replacement}`;
+      }
       return '';
     })
     .filter((obj) => {
@@ -912,6 +966,9 @@ export function checkForWordClashInModel(
     .map((obj) => {
       if (usesWholeWord(obj.NAME, replacement)) {
         return `Expense '${obj.NAME}' has name ${messageWord} called ${replacement}`;
+      }
+      if (usesWholeWord(obj.CATEGORY, replacement)) {
+        return `Expense '${obj.NAME}' has category ${messageWord} called ${replacement}`;
       }
       if (usesWholeWord(obj.START, replacement)) {
         return `Expense '${obj.NAME}' has start ${messageWord} called ${replacement}`;
@@ -948,7 +1005,7 @@ export function checkForWordClashInModel(
         return `Transaction '${obj.NAME}' has to ${messageWord} called ${replacement}`;
       }
       if (usesNumberValueWord(obj.TO_VALUE, replacement)) {
-        return `Transaction '${obj.NAME}' has to value set ${messageWord} called ${replacement}`;
+        return `Transaction '${obj.NAME}' has to value ${messageWord} called ${replacement}`;
       }
       if (usesWholeWord(obj.DATE, replacement)) {
         return `Transaction '${obj.NAME}' has date ${messageWord} called ${replacement}`;
