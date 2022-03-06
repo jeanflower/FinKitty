@@ -51,6 +51,7 @@ import {
   bondMaturity,
 } from '../../localization/stringConstants';
 import { ModelData } from '../../types/interfaces';
+import { endOfTime } from '../../utils/utils';
 
 describe('utils tests', () => {
   it('less than', () => {
@@ -650,6 +651,16 @@ describe('utils tests', () => {
           START: 'a+1d',
         });
       },
+      (x: ModelData) => {
+        x.triggers.push({
+          NAME: 'a+boo',
+          DATE: 'a+boo',
+        });
+        x.incomes.push({
+          ...simpleIncome,
+          START: 'a+1d',
+        });
+      },
     ].map((makeChange) => {
       const x = makeModelFromJSONString(JSON.stringify(minimalModel));
       makeChange(x);
@@ -1042,5 +1053,8 @@ describe('utils tests', () => {
         );
       },
     );
+  });
+  it('endOfTime', () => {
+    expect(endOfTime().toDateString()).toEqual('Fri Jan 01 2100');
   });
 });
