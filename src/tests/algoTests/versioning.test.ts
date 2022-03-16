@@ -30,7 +30,9 @@ const v1ModelJSON = `{
     "incomes":[
     {"NAME":"Main income","CATEGORY":"","START":"1 March 2018","END":"StopMainWork","VALUE":"3500","VALUE_SET":"1 March 2018","CPI_IMMUNE":false,"GROWTH":"2","LIABILITY":"Joe(incomeTax)"}],
     "assets":[
-    {"NAME":"Cash","CATEGORY":"","START":"December 2017","VALUE":"2000","GROWTH":"0","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":true,"LIABILITY":"","PURCHASE_PRICE":"0"}],
+    {"NAME":"Cash","CATEGORY":"","START":"December 2017","VALUE":"2000","GROWTH":"0","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":true,"LIABILITY":"","PURCHASE_PRICE":"0"},
+    {"NAME":"TaxPot","CATEGORY":"","START":"December 2017","VALUE":"2000","GROWTH":"0","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":true,"LIABILITY":"","PURCHASE_PRICE":"0","IS_A_DEBT":false,"QUANTITY":""},
+    {"NAME":"TaxPot","CATEGORY":"","START":"December 2017","VALUE":"2000","GROWTH":"0","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":true,"LIABILITY":"","PURCHASE_PRICE":"0","IS_A_DEBT":false,"QUANTITY":""}],
     "transactions":[
     {"NAME":"switchMortgage","FROM":"EarlyMortgage","FROM_ABSOLUTE":false,"FROM_VALUE":"1","TO":"LateMortgage","TO_ABSOLUTE":false,"TO_VALUE":"1","DATE":"TransferMortgage","STOP_DATE":"","RECURRENCE":"","CATEGORY":""}],
     "settings":[
@@ -47,7 +49,9 @@ const v1ModelJSON = `{
     {"NAME":"Type of view for debt chart","VALUE":"val","HINT":"Debt chart uses setting '+', '-', '+-' or 'val'","TYPE":"view"},
     {"NAME":"View detail","VALUE":"Detailed view","HINT":"View detail ('Categorised view' or 'Detailed view')","TYPE":"view"},
     {"NAME":"View frequency","VALUE":"Annually","HINT":"Data plotted 'monthly' or 'annually'","TYPE":"view"},
-    {"NAME": "Today\'s value focus date","VALUE": "","HINT": "Date to use for \'today\'s value\' tables (defaults to \'\' meaning today)","TYPE": "view"}]
+    {"NAME": "Today\'s value focus date","VALUE": "","HINT": "Date to use for \'today\'s value\' tables (defaults to \'\' meaning today)","TYPE": "view"},
+    {"NAME": "Mysetting","VALUE": "","HINT": "this has no type!"}
+    ]
   }`;
 
 const v2ModelJSON = `{
@@ -349,7 +353,31 @@ describe('loadModelsFromJSON', () => {
     expect(model.assets.length).toBe(1);
     expect(model.assets[0].NAME).toEqual(CASH_ASSET_NAME);
   });
-  it('migrateModelfromv1', () => {
+  it('migrateFromV0', () => {
+    const jsonString = emptyModelJSON;
+    const plainModel = makeModelFromJSONString(jsonString);
+    plainModel.version = 0;
+    plainModel.assets.push({
+      NAME: 'ISAs',
+      CATEGORY: 'stock',
+      START: 'December 2019',
+      VALUE: '2000',
+      GROWTH: 'stockMarketGrowth',
+      CPI_IMMUNE: false,
+      CAN_BE_NEGATIVE: false,
+      LIABILITY: '',
+      PURCHASE_PRICE: '0',
+      IS_A_DEBT: false,
+      QUANTITY: '',
+    });
+    const model = makeModelFromJSON(JSON.stringify(plainModel));
+
+    // log(`model = ${JSON.stringify(model)}`);
+    expect(JSON.stringify(model)).toEqual(
+      `{"triggers":[],"expenses":[],"incomes":[],"assets":[{"NAME":"ISAs","CATEGORY":"stock","START":"December 2019","VALUE":"2000","GROWTH":"stockMarketGrowth","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":false,"LIABILITY":"","PURCHASE_PRICE":"0","IS_A_DEBT":false,"QUANTITY":""},{"NAME":"Cash","CATEGORY":"","START":"1 Jan 2017","VALUE":"0.0","QUANTITY":"","GROWTH":"0.0","CPI_IMMUNE":true,"CAN_BE_NEGATIVE":true,"IS_A_DEBT":false,"LIABILITY":"","PURCHASE_PRICE":"0.0"}],"transactions":[],"settings":[{"NAME":"cpi","VALUE":"2.5","HINT":"Annual rate of inflation","TYPE":"const"},{"NAME":"Beginning of view range","VALUE":"1 Jan 2017","HINT":"Date at the start of range to be plotted","TYPE":"view"},{"NAME":"End of view range","VALUE":"1 Jan 2023","HINT":"Date at the end of range to be plotted","TYPE":"view"},{"NAME":"Date of birth","VALUE":"","HINT":"Date used for representing dates as ages","TYPE":"view"},{"NAME":"Today's value focus date","VALUE":"","HINT":"Date to use for 'today's value' tables (defaults to '' meaning today)","TYPE":"view"}],"version":8}`,
+    );
+  });
+  it('migrateFromV1', () => {
     const jsonString = v1ModelJSON;
     const plainModel = makeModelFromJSONString(jsonString);
     const model = makeModelFromJSON(jsonString);
@@ -358,12 +386,12 @@ describe('loadModelsFromJSON', () => {
     // asset quantity, transaction and settings types
     expect(plainModel.expenses.length).toBe(1);
     expect(plainModel.expenses[0].RECURRENCE).toBeUndefined();
-    expect(plainModel.assets.length).toBe(1);
+    expect(plainModel.assets.length).toBe(3);
     expect(plainModel.assets[0].IS_A_DEBT).toBeUndefined();
     expect(plainModel.assets[0].QUANTITY).toBeUndefined();
     expect(plainModel.transactions.length).toBe(1);
     expect(plainModel.transactions[0].TYPE).toBeUndefined();
-    expect(plainModel.settings.length).toBe(14);
+    expect(plainModel.settings.length).toBe(15);
     expect(plainModel.settings[0].NAME).toEqual('Beginning of view range');
     expect(plainModel.settings[0].TYPE).toBeUndefined();
 
@@ -374,11 +402,11 @@ describe('loadModelsFromJSON', () => {
     expect(model.assets[0].QUANTITY).toEqual('');
     expect(model.transactions.length).toBe(1);
     expect(model.transactions[0].TYPE).toEqual(custom);
-    expect(model.settings.length).toBe(6);
+    expect(model.settings.length).toBe(7);
     expect(model.settings[0].NAME).toEqual('Beginning of view range');
     expect(model.settings[0].TYPE).toEqual(viewType);
   });
-  it('migrateModelfromv2', () => {
+  it('migrateFromV2', () => {
     const jsonString = v2ModelJSON;
     const model2 = makeModelFromJSON(jsonString);
     const index = model2.assets.find((a) => {
@@ -387,7 +415,7 @@ describe('loadModelsFromJSON', () => {
     expect(index).toEqual(undefined);
   });
 
-  it('migrateModelfromv3', () => {
+  it('migrateFromV3', () => {
     const jsonString = v3ModelJSON;
     const model = makeModelFromJSON(jsonString);
     // from v3 to v4 we added tax view settings
@@ -397,7 +425,7 @@ describe('loadModelsFromJSON', () => {
 
   // from v4 to v5, we remove various view settings
   // which are no longer persistent
-  it('migrateModelfromv4', () => {
+  it('migrateFromV4', () => {
     const jsonString = v4ModelJSON;
     const model = makeModelFromJSON(jsonString);
     // after loading, the view settings have been added
@@ -407,7 +435,7 @@ describe('loadModelsFromJSON', () => {
     expect(checkData(model).length).toEqual(0);
   });
   // current version loads
-  it('migrateModelfromv5', () => {
+  it('migrateFromV5', () => {
     const jsonString = v5ModelJSON;
     const model = makeModelFromJSON(jsonString);
     const checkResult = checkData(model);
@@ -417,7 +445,7 @@ describe('loadModelsFromJSON', () => {
     expect(checkResult.length).toEqual(0);
   });
 
-  it('migrateModelfromv6', () => {
+  it('migrateFromV6', () => {
     const jsonString = v6ModelJSON;
     const model = makeModelFromJSON(jsonString);
     const checkResult = checkData(model);
@@ -427,7 +455,7 @@ describe('loadModelsFromJSON', () => {
     expect(checkResult.length).toEqual(0);
   });
 
-  it('migrateModelfromv7', () => {
+  it('migrateFromV7', () => {
     const jsonString = v7ModelJSON;
     const model = makeModelFromJSON(jsonString);
     const checkResult = checkData(model);
@@ -437,7 +465,7 @@ describe('loadModelsFromJSON', () => {
     expect(checkResult.length).toEqual(0);
   });
 
-  it('migrateModelfromv8', () => {
+  it('migrateFromV8', () => {
     const jsonString = v8ModelJSON;
     const model = makeModelFromJSON(jsonString);
     const checkResult = checkData(model);
@@ -448,9 +476,9 @@ describe('loadModelsFromJSON', () => {
   });
 
   // future versions should not load - expect an error message to come out
-  it('migrateModelfromv9', () => {
+  it('migrateFromV9', () => {
     const jsonString = v9ModelJSON;
-    let foundError = 'error thrown in migrateModelfromv9';
+    let foundError = 'error thrown in migrateFromV9';
     try {
       makeModelFromJSON(jsonString);
     } catch (e) {

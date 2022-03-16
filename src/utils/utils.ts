@@ -1,7 +1,7 @@
 import { makeDateFromString } from './stringUtils';
 
 let doLog = true;
-export function log(obj: string) {
+export function log(obj: string | Map<any, any>) {
   if (doLog) {
     /* eslint-disable no-console */ // all console calls routed through here
     // tslint:disable-next-line:no-console

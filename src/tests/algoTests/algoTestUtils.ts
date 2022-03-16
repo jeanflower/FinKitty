@@ -357,8 +357,6 @@ export function getTestEvaluations(
         newName = newName + '2y';
       } else if (oldName.endsWith('1y')) {
         newName = newName + '1y';
-      } else if (oldName.endsWith('1m')) {
-        newName = newName + '1m';
       }
       // log(`transaction oldName ${obj.NAME} -> ${newName}`);
 
@@ -411,10 +409,15 @@ export function getTestEvaluations(
     );
   } else {
     const copyModel = makeModelFromJSONString(JSON.stringify(model));
-    evalnsAndVals = getEvaluations(
-      copyModel,
-      undefined, // no key for a values report
-    );
+    const reporter = () =>
+      //name: string, // name of thing which has a value
+      //val: number | string, // value of the thing
+      //date: Date,
+      //source: string,
+      {
+        return true;
+      };
+    evalnsAndVals = getEvaluations(copyModel, reporter);
   }
   return evalnsAndVals;
 }

@@ -55,6 +55,7 @@ import {
   setSetting,
 } from '../../models/modelUtils';
 import {
+  billAndBenExampleData,
   defaultModelSettings,
   emptyModel,
   getMinimalModelCopy,
@@ -83,6 +84,7 @@ import {
   getModelCrystallizedPension,
   getMinimalModelCopySettings,
 } from './algoTestUtils';
+import { getCategory } from '../../models/category';
 
 /* global it */
 /* global expect */
@@ -93,11 +95,31 @@ describe('evaluations tests', () => {
     const modelAndRoi = getModelFutureExpense2();
     const model = modelAndRoi.model;
 
+    setSetting(model.settings, `Today's value focus date`, 'Jan 1 2017', viewType);
+
     const evalsAndValues = getEvaluations(
       makeModelFromJSONString(JSON.stringify(model)),
       undefined, // no key for a values report
     );
+    /*
+    log(evalsAndValues.todaysAssetValues);
+    log(evalsAndValues.todaysDebtValues);
+    log(evalsAndValues.todaysExpenseValues);
+    log(evalsAndValues.todaysIncomeValues);
+    log(evalsAndValues.todaysSettingValues);
+    */
 
+    expect(evalsAndValues.todaysAssetValues.size).toEqual(0);
+    expect(evalsAndValues.todaysDebtValues.size).toEqual(0);
+    expect(evalsAndValues.todaysExpenseValues.size).toEqual(1);
+    expect(evalsAndValues.todaysExpenseValues.get('Phon')).toEqual(
+      { expenseVal: 0, category: '', expenseFreq: '1m' }
+    );
+    expect(evalsAndValues.todaysIncomeValues.size).toEqual(0);
+    expect(evalsAndValues.todaysSettingValues.size).toEqual(1);
+    expect(evalsAndValues.todaysSettingValues.get('cpi')).toEqual(
+      { settingVal: '0' }
+    );
     // log(showObj(evals));
     expect(evalsAndValues.evaluations.length).toBe(0);
 
@@ -137,10 +159,31 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultModelSettings(roi)],
     };
+    setSetting(model.settings, `Today's value focus date`, 'Jan 1 2018', viewType);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
+
+    /*
+    log(evalsAndValues.todaysAssetValues);
+    log(evalsAndValues.todaysDebtValues);
+    log(evalsAndValues.todaysExpenseValues);
+    log(evalsAndValues.todaysIncomeValues);
+    log(evalsAndValues.todaysSettingValues);
+    */
+
+    expect(evalsAndValues.todaysAssetValues.size).toEqual(0);
+    expect(evalsAndValues.todaysDebtValues.size).toEqual(0);
+    expect(evalsAndValues.todaysExpenseValues.size).toEqual(1);
+    expect(evalsAndValues.todaysExpenseValues.get('Phon')).toEqual(
+      { expenseVal: 0, category: '', expenseFreq: '1m' }
+    );
+    expect(evalsAndValues.todaysIncomeValues.size).toEqual(0);
+    expect(evalsAndValues.todaysSettingValues.size).toEqual(1);
+    expect(evalsAndValues.todaysSettingValues.get('cpi')).toEqual(
+      { settingVal: '0' }
+    );
 
     // this clumsy block is to allow printTestCodeForEvals to be "used"
     if (false) {
@@ -215,10 +258,31 @@ describe('evaluations tests', () => {
       settings: [...defaultModelSettings(roi)],
     };
     setSetting(model.settings, cpi, '12.0', constType); // approx 1% per month
+    setSetting(model.settings, `Today's value focus date`, 'Feb 3 2018', viewType);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
+
+    /*
+    log(evalsAndValues.todaysAssetValues);
+    log(evalsAndValues.todaysDebtValues);
+    log(evalsAndValues.todaysExpenseValues);
+    log(evalsAndValues.todaysIncomeValues);
+    log(evalsAndValues.todaysSettingValues);
+    */
+
+    expect(evalsAndValues.todaysAssetValues.size).toEqual(0);
+    expect(evalsAndValues.todaysDebtValues.size).toEqual(0);
+    expect(evalsAndValues.todaysExpenseValues.size).toEqual(1);
+    expect(evalsAndValues.todaysExpenseValues.get('Phon')).toEqual(
+      { expenseVal: 0, category: '', expenseFreq: '1m' }
+    );
+    expect(evalsAndValues.todaysIncomeValues.size).toEqual(0);
+    expect(evalsAndValues.todaysSettingValues.size).toEqual(1);
+    expect(evalsAndValues.todaysSettingValues.get('cpi')).toEqual(
+      { settingVal: '12' }
+    );
 
     // printTestCodeForEvals(evals);
 
@@ -1299,7 +1363,7 @@ describe('evaluations tests', () => {
       assets: [
         {
           ...simpleAsset,
-          NAME: 'savings',
+          NAME: 'Estate',
           START: 'January 1 2018',
           VALUE: '500',
           GROWTH: '12',
@@ -1314,11 +1378,11 @@ describe('evaluations tests', () => {
     // printTestCodeForEvals(evals);
 
     expect(evals.length).toBe(3);
-    expectEvals(evals, 0, 'savings', 'Mon Jan 01 2018', 500, -1);
+    expectEvals(evals, 0, 'Estate', 'Mon Jan 01 2018', 500, -1);
     // Goes up for growth
-    expectEvals(evals, 1, 'savings', 'Thu Feb 01 2018', 504.74, 2);
+    expectEvals(evals, 1, 'Estate', 'Thu Feb 01 2018', 504.74, 2);
     // Goes up for growth again
-    expectEvals(evals, 2, 'savings', 'Thu Mar 01 2018', 509.53, 2);
+    expectEvals(evals, 2, 'Estate', 'Thu Mar 01 2018', 509.53, 2);
 
     const viewSettings = defaultTestViewSettings();
 
@@ -1333,7 +1397,7 @@ describe('evaluations tests', () => {
     expect(result.expensesData.length).toBe(0);
     expect(result.incomesData.length).toBe(0);
     expect(result.assetData.length).toBe(1);
-    expect(result.assetData[0].item.NAME).toBe('savings');
+    expect(result.assetData[0].item.NAME).toBe('Estate');
     {
       const chartPts = result.assetData[0].chartDataPoints;
       expect(chartPts.length).toBe(4);
@@ -5924,7 +5988,7 @@ describe('evaluations tests', () => {
     "incomes":[
     ],
     "assets":[
-    {"NAME":"thing","VALUE":"stockvalue","QUANTITY":"100","START":"2019","LIABILITY":"","GROWTH":"0","CPI_IMMUNE":true,"CAN_BE_NEGATIVE":false,"IS_A_DEBT":false,"PURCHASE_PRICE":"0","CATEGORY":""},
+    {"NAME":"thing","VALUE":"stockvalue","QUANTITY":"100","START":"1 Jan 2019","LIABILITY":"","GROWTH":"0","CPI_IMMUNE":true,"CAN_BE_NEGATIVE":false,"IS_A_DEBT":false,"PURCHASE_PRICE":"0","CATEGORY":""},
     {"NAME":"Cash","CATEGORY":"","START":"December 2017","VALUE":"2000","GROWTH":"0","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":true,"LIABILITY":"","PURCHASE_PRICE":"0","IS_A_DEBT":false,"QUANTITY":""}
     ],
     "transactions":[
@@ -6048,6 +6112,8 @@ describe('evaluations tests', () => {
     }
 
     expect(result.debtData.length).toBe(0);
+    expect(result.taxData.length).toBe(0);
+
     done();
   });
   it('revalue a setting cpi for asset growth', (done) => {
@@ -6831,5 +6897,16 @@ describe('evaluations tests', () => {
     }
 
     done();
+  });
+  it('get category of asset, expense, income', () => {
+    const categoryCache = new Map<string, string>()
+    const model = makeModelFromJSON(billAndBenExampleData);
+    expect(getCategory('', categoryCache, model)).toEqual('');
+    expect(getCategory('nonsense', categoryCache, model)).toEqual('nonsense');
+    expect(getCategory('CareCosts', categoryCache, model)).toEqual('Care');
+    expect(getCategory('BenSalary', categoryCache, model)).toEqual('Salary');
+    expect(getCategory('BillStocks', categoryCache, model)).toEqual('Investment');
+    expect(getCategory('CareCosts', categoryCache, model)).toEqual('Care');
+    expect(getCategory('LeisureExpensesRetired/LeisureExpensesRetired', categoryCache, model)).toEqual('Leisure/Leisure');
   });
 });

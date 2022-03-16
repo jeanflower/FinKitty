@@ -10,6 +10,7 @@ import {
   payOffDebt,
   revalue,
   revalueSetting,
+  viewType,
 } from '../../localization/stringConstants';
 import { makeChartDataFromEvaluations } from '../../models/charting';
 import {
@@ -21,8 +22,9 @@ import {
   simpleSetting,
   getMinimalModelCopy,
 } from '../../models/exampleModels';
+import { setSetting } from '../../models/modelUtils';
 import { ModelData } from '../../types/interfaces';
-import { printDebug, Context } from '../../utils/utils';
+import { printDebug, Context, log } from '../../utils/utils';
 import {
   printTestCodeForEvals,
   getTestEvaluations,
@@ -30,6 +32,8 @@ import {
   defaultTestViewSettings,
   expectChartData,
 } from './algoTestUtils';
+
+log;
 
 describe('conditional tests', () => {
   /* istanbul ignore if  */
@@ -2326,9 +2330,32 @@ describe('conditional tests', () => {
       ],
       settings: [...defaultModelSettings(roi)],
     };
+    setSetting(model.settings, `Today's value focus date`, 'Jan 1 2018', viewType);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
+
+    /*
+    log(evalsAndValues.todaysAssetValues);
+    log(evalsAndValues.todaysDebtValues);
+    log(evalsAndValues.todaysExpenseValues);
+    log(evalsAndValues.todaysIncomeValues);
+    log(evalsAndValues.todaysSettingValues);
+    */    
+    expect(evalsAndValues.todaysAssetValues.size).toEqual(1);
+    expect(evalsAndValues.todaysAssetValues.get('Cash')).toEqual(
+      { assetVal: 0, assetQ: undefined, category: '' }
+    );
+    expect(evalsAndValues.todaysDebtValues.size).toEqual(1);
+    expect(evalsAndValues.todaysDebtValues.get('Mortgage')).toEqual(
+      { debtVal: 0, category: '' }
+    );
+    expect(evalsAndValues.todaysExpenseValues.size).toEqual(0);
+    expect(evalsAndValues.todaysIncomeValues.size).toEqual(0);
+    expect(evalsAndValues.todaysSettingValues.size).toEqual(1);
+    expect(evalsAndValues.todaysSettingValues.get('cpi')).toEqual(
+      { settingVal: '0' }
+    );
 
     // printTestCodeForEvals(evals);
 
