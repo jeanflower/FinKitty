@@ -50,11 +50,11 @@ describe(testDataModelName, () => {
     const inputs = {
       name: 'pensionName',
       value: '2500',
-      valuationDate: '2022',
-      contributionsEndDate: '2025',
-      startDate: '2030',
-      pensionEndOrTransferDate: '2035',
-      transferredStopDate: '2040',
+      valuationDate: '1 Jan 2022',
+      contributionsEndDate: '1 Jan 2025',
+      startDate: '1 Jan 2030',
+      pensionEndOrTransferDate: '1 Jan 2035',
+      transferredStopDate: '1 Jan 2040',
       incomeSource: 'javaJob1',
       contributionSSIncome: 'N',
       contributionAmountPensionIncome: '0.05',
@@ -129,7 +129,7 @@ describe(testDataModelName, () => {
     await clearPensionFields(driver);
     await addDBPension(driver, {
       ...inputs,
-      valuationDate: '2020', // date is before javaJob1 begins
+      valuationDate: '1 Jan 2020', // date is before javaJob1 begins
       message:
         'Transaction from unrecognised asset (could be typo or before asset start date?) : "javaJob1"',
     });
@@ -138,8 +138,8 @@ describe(testDataModelName, () => {
     await addDBPension(driver, {
       ...inputs,
       name: 'badEndDate',
-      valuationDate: '2023',
-      contributionsEndDate: '2022', // stop before start,
+      valuationDate: '1 Jan 2023',
+      contributionsEndDate: '1 Jan 2022', // stop before start,
       message: 'added new data', // BUG the end date for contributions is being ignored
       // we should enforce it's after the start date
     });
@@ -147,8 +147,8 @@ describe(testDataModelName, () => {
     await clearPensionFields(driver);
     await addDBPension(driver, {
       ...inputs,
-      startDate: '2033',
-      pensionEndOrTransferDate: '2032', // transfer pension before pension begins paying out?
+      startDate: '1 Jan 2033',
+      pensionEndOrTransferDate: '1 Jan 2032', // transfer pension before pension begins paying out?
       message:
         'Transaction from unrecognised asset ' +
         `(could be typo or before asset start date?) : "${pensionDB}pensionName"`,
@@ -159,8 +159,8 @@ describe(testDataModelName, () => {
     await addDBPension(driver, {
       ...inputs,
       name: 'transferStopsBeforeTransfer',
-      pensionEndOrTransferDate: '2037',
-      transferredStopDate: '2035', // transferred pension stops before transfer occurred?
+      pensionEndOrTransferDate: '1 Jan 2037',
+      transferredStopDate: '1 Jan 2035', // transferred pension stops before transfer occurred?
       message: 'added new data', // BUG :this probably shouldn't be allowed?
     });
 
@@ -240,11 +240,11 @@ describe(testDataModelName, () => {
     const inputs = {
       name: 'pensionName',
       value: '2500',
-      valuationDate: '2022',
-      contributionsEndDate: '2025',
-      startDate: '2030',
-      pensionEndOrTransferDate: '2035',
-      transferredStopDate: '2040',
+      valuationDate: '1 Jan 2022',
+      contributionsEndDate: '1 Jan 2025',
+      startDate: '1 Jan 2030',
+      pensionEndOrTransferDate: '1 Jan 2035',
+      transferredStopDate: '1 Jan 2040',
       incomeSource: 'javaJob1',
       contributionSSIncome: 'N',
       contributionAmountPensionIncome: '0.05',

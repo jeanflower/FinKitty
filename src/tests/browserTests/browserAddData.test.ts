@@ -75,7 +75,7 @@ describe(testDataModelName, () => {
 
     await gotoTabPage(driver, datesTag);
 
-    await addDate(driver, 'testDate', '2020', 'added important date OK');
+    await addDate(driver, 'testDate', '1 Jan 2020', 'added important date OK');
     await addDate(
       driver,
       'testDate2',
@@ -86,13 +86,13 @@ describe(testDataModelName, () => {
       driver,
       // overwrites without qualms
       'testDate',
-      '2021',
+      '1 Jan 2021',
       'added important date OK',
     );
     await addDate(
       driver,
       '', // no name
-      '2021',
+      '1 Jan 2021',
       'Name should be not empty',
     );
 
@@ -271,7 +271,7 @@ describe(testDataModelName, () => {
     const revalueInputs = {
       name: 'javaJob1',
       revalue: '12500',
-      revaluationDate: '2022',
+      revaluationDate: '1 Jan 2022',
     };
     await revalueIncome(driver, {
       ...revalueInputs,
@@ -296,7 +296,7 @@ describe(testDataModelName, () => {
     await clearRevalueIncomeFields(driver);
     await revalueIncome(driver, {
       ...revalueInputs,
-      revaluationDate: '2020',
+      revaluationDate: '1 Jan 2020',
       message:
         'Transaction javaJob1 2 dated before start of affected income : javaJob1',
       // TODO not a helpul error message
@@ -399,7 +399,7 @@ describe(testDataModelName, () => {
     const revalueInputs = {
       name: 'broadband',
       revalue: '60.14',
-      revaluationDate: '2022',
+      revaluationDate: '1 Jan 2022',
     };
     await revalueExpense(driver, {
       ...revalueInputs,
@@ -425,7 +425,7 @@ describe(testDataModelName, () => {
     await clearRevalueExpenseFields(driver);
     await revalueExpense(driver, {
       ...revalueInputs,
-      revaluationDate: '2020',
+      revaluationDate: '1 Jan 2020',
       message:
         'Transaction broadband 2 dated before start of affected expense : broadband',
       // TODO not a helpul error message
@@ -526,7 +526,7 @@ describe(testDataModelName, () => {
     const revalueInputs = {
       name: 'hifi',
       revalue: '12500',
-      revaluationDate: '2022',
+      revaluationDate: '1 Jan 2022',
     };
     await revalueAsset(driver, {
       ...revalueInputs,
@@ -554,7 +554,7 @@ describe(testDataModelName, () => {
     await clearRevalueAssetFields(driver);
     await revalueAsset(driver, {
       ...revalueInputs,
-      revaluationDate: '2020',
+      revaluationDate: '1 Jan 2020',
       message: 'Transaction hifi 2 dated before start of affected asset : hifi',
       // TODO not a helpul error message
     });

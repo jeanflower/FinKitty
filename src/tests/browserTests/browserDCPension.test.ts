@@ -53,12 +53,12 @@ describe(testDataModelName, () => {
       name: 'dcpension',
       value: '0',
       category: 'pension',
-      startDate: '2021',
+      startDate: '1 Jan 2021',
       growth: '2.0',
       growsWithCPI: 'N',
-      contributionsStopDate: '2025',
-      crystallizesDate: '2030',
-      pensionEndOrTransferDate: '2035',
+      contributionsStopDate: '1 Jan 2025',
+      crystallizesDate: '1 Jan 2030',
+      pensionEndOrTransferDate: '1 Jan 2035',
       contributionSSIncome: 'N',
       incomeSource: 'javaJob1',
       contributionAmountPensionIncome: '0.05',
@@ -99,7 +99,7 @@ describe(testDataModelName, () => {
     await addDCPension(driver, {
       ...pensionInputs,
       name: 'dcp04',
-      startDate: '2020',
+      startDate: '1 Jan 2020',
       message: `Transaction from unrecognised asset (could be typo or before asset start date?) : \"javaJob1\"`,
     }); // TODO : confusing error message : pension can't start before income
 
@@ -107,7 +107,7 @@ describe(testDataModelName, () => {
     await addDCPension(driver, {
       ...pensionInputs,
       name: 'dcp05',
-      startDate: '2026',
+      startDate: '1 Jan 2026',
       message: `added assets and transactions`,
     }); // BUG : start date after contributions end date?
 
@@ -115,7 +115,7 @@ describe(testDataModelName, () => {
     await addDCPension(driver, {
       ...pensionInputs,
       name: 'dcp06',
-      startDate: '2036',
+      startDate: '1 Jan 2036',
       message: `Transaction from unrecognised asset (could be typo or before asset start date?) : \"${pension}dcp06\"`,
     }); // TODO : what does this error mean?  I expected "start date after end date"
 
@@ -147,7 +147,7 @@ describe(testDataModelName, () => {
     await addDCPension(driver, {
       ...pensionInputs,
       name: 'dcp10',
-      contributionsStopDate: '2036',
+      contributionsStopDate: '1 Jan 2036',
       message: `added assets and transactions`,
     }); // BUG : contributionsStopDate after pensionEndOrTransferDate?
 
@@ -163,7 +163,7 @@ describe(testDataModelName, () => {
     await addDCPension(driver, {
       ...pensionInputs,
       name: 'dcp12',
-      crystallizesDate: '2036',
+      crystallizesDate: '1 Jan 2036',
       message: `added assets and transactions`,
     }); // TODO : crystallizes after transfers??
 
@@ -256,12 +256,12 @@ describe(testDataModelName, () => {
       name: 'dcpension',
       value: '0',
       category: 'pension',
-      startDate: '2021',
+      startDate: '1 Jan 2021',
       growth: '2.0',
       growsWithCPI: 'N',
-      contributionsStopDate: '2025',
-      crystallizesDate: '2030',
-      pensionEndOrTransferDate: '2035',
+      contributionsStopDate: '1 Jan 2025',
+      crystallizesDate: '1 Jan 2030',
+      pensionEndOrTransferDate: '1 Jan 2035',
       contributionSSIncome: 'N',
       incomeSource: 'javaJob1',
       contributionAmountPensionIncome: '0.05',

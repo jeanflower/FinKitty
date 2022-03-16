@@ -1402,7 +1402,7 @@ describe('bonds tests', () => {
           NAME: 'Revalue of BondTargetValue 1',
           TO: 'BondTargetValue',
           TO_VALUE: '10',
-          DATE: '2018',
+          DATE: '1 Jan 2018',
           TYPE: revalueSetting,
         },
         {
@@ -1413,9 +1413,9 @@ describe('bonds tests', () => {
           TO: 'Bond',
           TO_VALUE: '1.0',
           TO_ABSOLUTE: false,
-          DATE: '2019',
+          DATE: '1 Jan 2019',
           RECURRENCE: '1y',
-          STOP_DATE: '2025',
+          STOP_DATE: '1 Jan 2025',
           TYPE: bondInvest,
         },
         {
@@ -1426,7 +1426,7 @@ describe('bonds tests', () => {
           TO: 'Bond',
           TO_VALUE: '1.0',
           TO_ABSOLUTE: false,
-          DATE: '2019',
+          DATE: '1 Jan 2019',
           TYPE: bondInvest,
         },
         {
@@ -1437,7 +1437,7 @@ describe('bonds tests', () => {
           TO: 'Bond',
           TO_VALUE: '1.0',
           TO_ABSOLUTE: false,
-          DATE: '2019',
+          DATE: '1 Jan 2019',
           TYPE: bondInvest,
         },
         {
@@ -1448,7 +1448,7 @@ describe('bonds tests', () => {
           TO: 'Bond',
           TO_VALUE: '1.0',
           TO_ABSOLUTE: false,
-          DATE: '2019',
+          DATE: '1 Jan 2019',
           TYPE: bondInvest,
         },
         {
@@ -1459,7 +1459,7 @@ describe('bonds tests', () => {
           TO: 'Bond',
           TO_VALUE: '1.0',
           TO_ABSOLUTE: false,
-          DATE: '2019',
+          DATE: '1 Jan 2019',
           TYPE: bondInvest,
         },
         {
@@ -1470,9 +1470,9 @@ describe('bonds tests', () => {
           TO: 'Cash',
           TO_VALUE: '1.0',
           TO_ABSOLUTE: false,
-          DATE: '2024',
+          DATE: '1 Jan 2024',
           RECURRENCE: '1y',
-          STOP_DATE: '2030',
+          STOP_DATE: '1 Jan 2030',
           TYPE: bondMature,
         },
         {
@@ -1483,7 +1483,7 @@ describe('bonds tests', () => {
           TO: 'Cash',
           TO_VALUE: '1.0',
           TO_ABSOLUTE: false,
-          DATE: '2023',
+          DATE: '1 Jan 2023',
           TYPE: bondMature,
         },
         {
@@ -1494,7 +1494,7 @@ describe('bonds tests', () => {
           TO: 'Cash',
           TO_VALUE: '1.0',
           TO_ABSOLUTE: false,
-          DATE: '2022',
+          DATE: '1 Jan 2022',
           TYPE: bondMature,
         },
         {
@@ -1505,7 +1505,7 @@ describe('bonds tests', () => {
           TO: 'Cash',
           TO_VALUE: '1.0',
           TO_ABSOLUTE: false,
-          DATE: '2021',
+          DATE: '1 Jan 2021',
           TYPE: bondMature,
         },
         {
@@ -1516,7 +1516,7 @@ describe('bonds tests', () => {
           TO: 'Cash',
           TO_VALUE: '1.0',
           TO_ABSOLUTE: false,
-          DATE: '2020',
+          DATE: '1 Jan 2020',
           TYPE: bondMature,
         },
       ],
@@ -1763,7 +1763,7 @@ describe('bonds tests', () => {
         {
           ...simpleAsset,
           NAME: 'CPI.',
-          START: '2018',
+          START: '1 Jan 2018',
           VALUE: '1',
           GROWTH: '0.0',
           CPI_IMMUNE: false,
@@ -1783,7 +1783,7 @@ describe('bonds tests', () => {
           NAME: 'Revalue of BondTargetValue 1',
           TO: 'BondTargetValue',
           TO_VALUE: '10',
-          DATE: '2018',
+          DATE: '1 Jan 2018',
           TYPE: revalueSetting,
         },
         {
@@ -1794,9 +1794,9 @@ describe('bonds tests', () => {
           TO: 'Bond',
           TO_VALUE: '1.0',
           TO_ABSOLUTE: false,
-          DATE: '2019',
+          DATE: '1 Jan 2019',
           RECURRENCE: '1y',
-          STOP_DATE: '2025',
+          STOP_DATE: '1 Jan 2025',
           TYPE: bondInvest,
         },
         {
@@ -1807,7 +1807,7 @@ describe('bonds tests', () => {
           TO: 'Bond',
           TO_VALUE: '1.0',
           TO_ABSOLUTE: false,
-          DATE: '2019',
+          DATE: '1 Jan 2019',
           TYPE: bondInvest,
         },
         {
@@ -1818,7 +1818,7 @@ describe('bonds tests', () => {
           TO: 'Bond',
           TO_VALUE: '1.0',
           TO_ABSOLUTE: false,
-          DATE: '2019',
+          DATE: '1 Jan 2019',
           TYPE: bondInvest,
         },
         {
@@ -1829,7 +1829,7 @@ describe('bonds tests', () => {
           TO: 'Bond',
           TO_VALUE: '1.0',
           TO_ABSOLUTE: false,
-          DATE: '2019',
+          DATE: '1 Jan 2019',
           TYPE: bondInvest,
         },
         {
@@ -1840,7 +1840,7 @@ describe('bonds tests', () => {
           TO: 'Bond',
           TO_VALUE: '1.0',
           TO_ABSOLUTE: false,
-          DATE: '2019',
+          DATE: '1 Jan 2019',
           TYPE: bondInvest,
         },
         {
@@ -1851,9 +1851,9 @@ describe('bonds tests', () => {
           TO: 'Cash',
           TO_VALUE: '1.0',
           TO_ABSOLUTE: false,
-          DATE: '2024',
+          DATE: '1 Jan 2024',
           RECURRENCE: '1y',
-          STOP_DATE: '2030',
+          STOP_DATE: '1 Jan 2030',
           TYPE: bondMature,
         },
         {
@@ -1864,7 +1864,7 @@ describe('bonds tests', () => {
           TO: 'Cash',
           TO_VALUE: '1.0',
           TO_ABSOLUTE: false,
-          DATE: '2023',
+          DATE: '1 Jan 2023',
           TYPE: bondMature,
         },
         {
@@ -1875,7 +1875,7 @@ describe('bonds tests', () => {
           TO: 'Cash',
           TO_VALUE: '1.0',
           TO_ABSOLUTE: false,
-          DATE: '2022',
+          DATE: '1 Jan 2022',
           TYPE: bondMature,
         },
         {
@@ -1886,7 +1886,7 @@ describe('bonds tests', () => {
           TO: 'Cash',
           TO_VALUE: '1.0',
           TO_ABSOLUTE: false,
-          DATE: '2021',
+          DATE: '1 Jan 2021',
           TYPE: bondMature,
         },
         {
@@ -1897,7 +1897,7 @@ describe('bonds tests', () => {
           TO: 'Cash',
           TO_VALUE: '1.0',
           TO_ABSOLUTE: false,
-          DATE: '2020',
+          DATE: '1 Jan 2020',
           TYPE: bondMature,
         },
       ],
@@ -2127,7 +2127,7 @@ describe('bonds tests', () => {
         {
           ...simpleAsset,
           NAME: 'CPI.',
-          START: '2018',
+          START: '1 Jan 2018',
           VALUE: '1000',
           GROWTH: '0.0',
           CPI_IMMUNE: false, // grows like cash
@@ -2147,7 +2147,7 @@ describe('bonds tests', () => {
           NAME: 'Revalue of BondTargetValue 1',
           TO: 'BondTargetValue',
           TO_VALUE: '10',
-          DATE: '2018',
+          DATE: '1 Jan 2018',
           TYPE: revalueSetting,
         },
         {
@@ -2158,9 +2158,9 @@ describe('bonds tests', () => {
           TO: 'Bond',
           TO_VALUE: '1.0',
           TO_ABSOLUTE: false,
-          DATE: '2019',
+          DATE: '1 Jan 2019',
           RECURRENCE: '1y',
-          STOP_DATE: '2025',
+          STOP_DATE: '1 Jan 2025',
           TYPE: bondInvest,
         },
         {
@@ -2171,7 +2171,7 @@ describe('bonds tests', () => {
           TO: 'Bond',
           TO_VALUE: '1.0',
           TO_ABSOLUTE: false,
-          DATE: '2019',
+          DATE: '1 Jan 2019',
           TYPE: bondInvest,
         },
         {
@@ -2182,7 +2182,7 @@ describe('bonds tests', () => {
           TO: 'Bond',
           TO_VALUE: '1.0',
           TO_ABSOLUTE: false,
-          DATE: '2019',
+          DATE: '1 Jan 2019',
           TYPE: bondInvest,
         },
         {
@@ -2193,7 +2193,7 @@ describe('bonds tests', () => {
           TO: 'Bond',
           TO_VALUE: '1.0',
           TO_ABSOLUTE: false,
-          DATE: '2019',
+          DATE: '1 Jan 2019',
           TYPE: bondInvest,
         },
         {
@@ -2204,7 +2204,7 @@ describe('bonds tests', () => {
           TO: 'Bond',
           TO_VALUE: '1.0',
           TO_ABSOLUTE: false,
-          DATE: '2019',
+          DATE: '1 Jan 2019',
           TYPE: bondInvest,
         },
         {
@@ -2215,9 +2215,9 @@ describe('bonds tests', () => {
           TO: 'Cash',
           TO_VALUE: '1.0',
           TO_ABSOLUTE: false,
-          DATE: '2024',
+          DATE: '1 Jan 2024',
           RECURRENCE: '1y',
-          STOP_DATE: '2030',
+          STOP_DATE: '1 Jan 2030',
           TYPE: bondMature,
         },
         {
@@ -2228,7 +2228,7 @@ describe('bonds tests', () => {
           TO: 'Cash',
           TO_VALUE: '1.0',
           TO_ABSOLUTE: false,
-          DATE: '2023',
+          DATE: '1 Jan 2023',
           TYPE: bondMature,
         },
         {
@@ -2239,7 +2239,7 @@ describe('bonds tests', () => {
           TO: 'Cash',
           TO_VALUE: '1.0',
           TO_ABSOLUTE: false,
-          DATE: '2022',
+          DATE: '1 Jan 2022',
           TYPE: bondMature,
         },
         {
@@ -2250,7 +2250,7 @@ describe('bonds tests', () => {
           TO: 'Cash',
           TO_VALUE: '1.0',
           TO_ABSOLUTE: false,
-          DATE: '2021',
+          DATE: '1 Jan 2021',
           TYPE: bondMature,
         },
         {
@@ -2261,7 +2261,7 @@ describe('bonds tests', () => {
           TO: 'Cash',
           TO_VALUE: '1.0',
           TO_ABSOLUTE: false,
-          DATE: '2020',
+          DATE: '1 Jan 2020',
           TYPE: bondMature,
         },
       ],

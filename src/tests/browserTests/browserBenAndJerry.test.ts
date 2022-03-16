@@ -150,13 +150,13 @@ describe(testDataModelName, () => {
     await gotoTabPage(driver, settingsTag);
     await addSetting(driver, {
       name: 'Beginning of view range',
-      value: '2020',
+      value: '1 Jan 2020',
       message: 'added new setting Beginning of view range',
     });
 
     await addSetting(driver, {
       name: 'End of view range',
-      value: '2069',
+      value: '1 Jan 2069',
       message: 'added new setting End of view range',
     });
 

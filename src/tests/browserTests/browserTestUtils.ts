@@ -169,7 +169,7 @@ export const assetInputs = {
   value: '2500',
   quantity: '2',
   category: 'audio',
-  startDate: '2021',
+  startDate: '1 Jan 2021',
   growth: '2.0',
   growsWithInflation: 'N',
   liability: 'Joe',
@@ -212,9 +212,9 @@ export async function addIncome(
 export const incomeInputs = {
   name: 'javaJob1',
   value: '2500',
-  valuationDate: '2020',
-  startDate: '2021',
-  endDate: '2022',
+  valuationDate: '1 Jan 2020',
+  startDate: '1 Jan 2021',
+  endDate: '1 Jan 2022',
   growth: '2.0',
   growsWithInflation: 'N',
   liability: 'Joe',
@@ -481,9 +481,9 @@ export async function clearRevalueExpenseFields(driver: ThenableWebDriver) {
 export const expenseInputs = {
   name: 'broadband',
   value: '56.13',
-  valuationDate: '2020',
-  startDate: '2021',
-  endDate: '2022',
+  valuationDate: '1 Jan 2020',
+  startDate: '1 Jan 2021',
+  endDate: '1 Jan 2022',
   growth: '2.0',
   growsWithInflation: 'N',
   recurrence: '1m',
@@ -699,14 +699,14 @@ export async function clearTransactionFields(driver: ThenableWebDriver) {
 
 export const transactionInputs = {
   name: 'trans1',
-  startDate: '2023',
+  startDate: '1 Jan 2023',
   fromAsset: CASH_ASSET_NAME,
   toAsset: 'hifi',
   reduction: '100',
   addition: '90%',
   recurrence: '1y',
   liquidateForCash: 'N',
-  endDate: '2027',
+  endDate: '1 Jan 2027',
   category: 'upgradeHifi',
 };
 
@@ -786,7 +786,7 @@ export const debtInputs = {
   name: 'creditCard',
   value: '2500',
   category: 'highInterest',
-  startDate: '2021',
+  startDate: '1 Jan 2021',
   growth: '20.0',
   monthlyRepayment: '10',
 };
