@@ -1,6 +1,9 @@
 import { separator, growth, revalue } from '../localization/stringConstants';
 import { ItemCategory, ModelData } from '../types/interfaces';
+import { log } from '../utils/utils';
 import { makeSourceForFromChange } from './evaluations';
+
+log;
 
 function getCategoryFromItems(name: string, items: ItemCategory[]) {
   const found = items.find((i) => i.NAME === name);
@@ -66,7 +69,9 @@ export function getCategory(
   //log(`numComputed = ${numComputed}, numCacheHits = ${numCacheHits}`);
   // log(`get category for ${name}`);
   const words = name.split(separator);
+  /* istanbul ignore if */
   if (words.length === 0) {
+    log(`Error: don't expect empty list from split`);
     cache.set(name, '');
     return '';
   }
@@ -76,16 +81,6 @@ export function getCategory(
     if (firstPartCat !== firstPart) {
       cache.set(name, firstPartCat);
       return firstPartCat;
-    }
-  }
-  // maybe use second part? for growth or revalue
-  if (words.length > 1 && (firstPart === growth || firstPart === revalue)) {
-    const secondPart = words[1];
-    const secondPartCat = getCategorySub(secondPart, model);
-    if (secondPartCat !== secondPart) {
-      const cat = firstPart + separator + secondPartCat;
-      cache.set(name, cat);
-      return cat;
     }
   }
   // maybe use second part? for deltas
