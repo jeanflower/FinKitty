@@ -105,6 +105,7 @@ function migrateFromV0(model: ModelData) {
 }
 
 function migrateFromV1(model: ModelData) {
+  /* istanbul ignore if  */ //debug
   if (showMigrationLogs) {
     log(
       `in migrateOldVersions at v1, model has ${model.settings.length} settings`,
@@ -137,6 +138,7 @@ function migrateFromV1(model: ModelData) {
 }
 
 function migrateFromV2(model: ModelData) {
+  /* istanbul ignore if  */ //debug
   if (showMigrationLogs) {
     log(`in migrateOldVersions at v2, model has ${model.assets.length} assets`);
     log(
@@ -165,12 +167,13 @@ function migrateFromV2(model: ModelData) {
     return a.NAME === taxPot;
   });
   if (index >= 0) {
-    log(`still found taxPot!`);
+    // log(`still found taxPot!`);
     model.assets.splice(index, 1);
   }
   model.version = 3;
 }
 function migrateFromV3(model: ModelData) {
+  /* istanbul ignore if  */ //debug
   if (showMigrationLogs) {
     log(
       `in migrateOldVersions at v3, model has ${model.settings.length} settings`,
@@ -213,6 +216,7 @@ function migrateFromV3(model: ModelData) {
 }
 function migrateFromV4(model: ModelData) {
   // log(`in migrateFromV4`);
+  /* istanbul ignore if  */ //debug
   if (showMigrationLogs) {
     log(
       `in migrateOldVersions at v4, model has ${model.settings.length} settings`,
@@ -282,6 +286,8 @@ function changeSpecialWords(
           hasChanged = true;
           // log(`new t.FROM w = ${w}`);
         }
+        // difficult to find test data for this
+        /* istanbul ignore if  */
         if (ch.oldPart === 'TaxFree') {
           if (w.endsWith(ch.oldPart)) {
             // log(`old w = ${w`);
@@ -576,6 +582,7 @@ function migrateFromV8(model: ModelData){
 }
 */
 export function migrateOldVersions(model: ModelData) {
+  /* istanbul ignore if  */ //debug
   if (showMigrationLogs) {
     log(`in migrateOldVersions, model is ${model.version}`);
     // log(`in migrateOldVersions, model has ${model.settings.map(showObj)}`);
