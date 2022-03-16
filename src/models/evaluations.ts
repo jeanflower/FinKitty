@@ -62,6 +62,7 @@ import {
   makeNetGainTag,
   removeNumberPart,
   checkTriggerDate,
+  stringFromDate,
 } from '../utils/stringUtils';
 import {
   getSettings,
@@ -219,11 +220,10 @@ export function sortByDate(arrayOfDatedThings: DatedThing[]) {
       // log(`undefined a`);
       result = 1;
     } else if (ad !== undefined && bd !== undefined) {
-      if (ad < bd) {
-        // log(`a before b`);
+      const bd_after_ad_ms = bd.getTime() - ad.getTime();
+      if (bd_after_ad_ms > 0) {
         result = 1;
-      } else if (ad > bd) {
-        // log(`b before a`);
+      } else if (bd_after_ad_ms < 0) {
         result = -1;
       }
     }
@@ -2760,7 +2760,7 @@ function calculateFromChange(
         tFromValue /= bondScale;
 
         // log(`for ${t.NAME}, look for a setting like
-        //   ${t.FROM_VALUE}${separator}${t.DATE}${separator}${cpi}`);
+        //   ${t.FROM_VALUE}${separator}${t.DATE locale string}${separator}${cpi}`);
         const matchedSetting = model.settings.filter((s) => {
           const sparts = s.NAME.split(separator);
           if (sparts.length !== 3) {
@@ -2772,8 +2772,8 @@ function calculateFromChange(
           if (sparts[2] !== cpi) {
             return false;
           }
-          if (d.getTime() !== new Date(sparts[1]).getTime()) {
-            // log(`different dates ${d.toDateString()} !== ${new Date(sparts[1]).toDateString()}`);
+          if (stringFromDate(d) !== sparts[1]) {
+            // log(`different dates ${stringFromDate(d)} !== ${sparts[1]}`);
             return false;
           }
 
@@ -2793,15 +2793,17 @@ function calculateFromChange(
         } else {
           if (!model.settings.find((s) => s.NAME === `${bondMaturity}Prerun`)) {
             log(
-              `BUG : expected to find a setting ${t.FROM_VALUE}${separator}${d}${separator}${cpi}`,
+              `BUG : expected to find a setting ${
+                t.FROM_VALUE
+              }${separator}${stringFromDate(d)}${separator}${cpi}`,
             );
           }
         }
       } else {
         // log('maturing');
-        const valueKey = `${t.FROM_VALUE}${separator}${new Date(
-          moment.date,
-        ).toDateString()}${separator}${cpi}invested`;
+        const valueKey = `${t.FROM_VALUE}${separator}${stringFromDate(
+          new Date(moment.date),
+        )}${separator}${cpi}invested`;
         // log(`for maturing bond, look for ${valueKey}`);
         const val = getNumberValue(values, valueKey, false);
         if (val !== undefined) {
@@ -3349,9 +3351,9 @@ function processTransactionFromTo(
         const d = getMaturityDate(moment.date, t.NAME);
         const investedValue = toChange;
 
-        const nameForMaturity = `${
-          t.FROM_VALUE
-        }${separator}${d.toDateString()}${separator}${cpi}invested`;
+        const nameForMaturity = `${t.FROM_VALUE}${separator}${stringFromDate(
+          d,
+        )}${separator}${cpi}invested`;
         // log(`create a stored value for maturity ${nameForMaturity}`);
 
         values.set(
@@ -3781,6 +3783,8 @@ function generateMoments(
   liabilitiesMap: Map<string, string>,
   pensionTransactions: Transaction[],
 ) {
+  // log(`generateMoments`);
+
   let allMoments: Moment[] = [];
 
   // For each expense, work out monthly growth and
@@ -3850,6 +3854,7 @@ function generateMoments(
       cpiVal = 0.0;
     }
     logIncomeGrowth(income, cpiVal, growths);
+    // log(`income.START = ${income.START}`);
     const incomeStart = getTriggerDate(income.START, model.triggers);
     let shiftStartBackTo = new Date(incomeStart);
 
@@ -3916,7 +3921,7 @@ function generateMoments(
   // liabilitiesMap.forEach((value, key)=>{log(`{\`${key}\`, \`${value}\`}`)});
 
   model.assets.forEach((asset) => {
-    //  log(`log data for asset ${asset.NAME}`);
+    // log(`log data for asset ${asset.NAME}`);
     logAssetGrowth(
       asset,
       asset.CPI_IMMUNE ? 0 : cpiInitialVal,
@@ -4775,7 +4780,7 @@ function getEvaluationsInternal(
   todaysSettingValues: Map<string, SettingVal>;
   reportData: ReportDatum[];
 } {
-  //log('get evaluations');
+  // log('entering getEvaluationsInternal');
   const todaysAssetValues = new Map<string, AssetVal>();
   const todaysDebtValues = new Map<string, DebtVal>();
   const todaysIncomeValues = new Map<string, IncomeVal>();
@@ -4846,6 +4851,7 @@ function getEvaluationsInternal(
 
   // Calculate a set of "moments" for each transaction/income/expense...
   // each has a date - we'll process these in date order.
+  // log(`go call generatMoments`);
   const allMoments: Moment[] = generateMoments(
     model,
     values,
@@ -5199,9 +5205,9 @@ export function getEvaluations(
     }
     const t = maturityTransactions.find((t) => t.NAME === evaln.source);
     if (t !== undefined) {
-      const settingName = `${
-        t.FROM_VALUE
-      }${separator}${evaln.date.toDateString()}${separator}${cpi}`;
+      const settingName = `${t.FROM_VALUE}${separator}${stringFromDate(
+        evaln.date,
+      )}${separator}${cpi}`;
       // log(`for t.NAME = ${t.NAME}`);
       // ${bondMaturity}BondTargetValue${separator}${transactionDateString}${separator}${cpi}
       // look forward through our evals looking for a base value when this

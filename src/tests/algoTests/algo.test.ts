@@ -5485,6 +5485,79 @@ describe('evaluations tests', () => {
     done();
   });
 
+  it('negative tiny approx value allowed for from asset', (done) => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'February 1, 2018 00:00:00',
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      expenses: [],
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: 'Move',
+          FROM: 'aaaa',
+          FROM_VALUE: '50.0000001',
+          TO: 'bbbb',
+          TO_VALUE: '1.0',
+          TO_ABSOLUTE: false,
+          DATE: 'January 2 2018',
+        },
+      ],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'aaaa',
+          START: 'January 2 2018',
+          VALUE: '50',
+        },
+        {
+          ...simpleAsset,
+          NAME: 'bbbb',
+          START: 'January 2 2018',
+          VALUE: '0',
+        },
+      ],
+      settings: [...defaultModelSettings(roi)],
+    };
+    model.settings.forEach((s) => {
+      if (s.NAME === assetChartFocus) {
+        s.VALUE = allItems;
+      }
+    });
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    //printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(4);
+    expectEvals(evals, 0, 'aaaa', 'Tue Jan 02 2018', 50, -1);
+    expectEvals(evals, 1, 'bbbb', 'Tue Jan 02 2018', 0, -1);
+    expectEvals(evals, 2, 'aaaa', 'Tue Jan 02 2018', 0, -1);
+    expectEvals(evals, 3, 'bbbb', 'Tue Jan 02 2018', 50, -1);
+    // transaction does occur
+
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(0);
+    expect(result.debtData.length).toBe(0);
+    expect(result.taxData.length).toBe(0);
+
+    done();
+  });
+
   it('can use income tax on asset for taxable benefits', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',

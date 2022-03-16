@@ -51,7 +51,9 @@ import {
   bondMaturity,
 } from '../../localization/stringConstants';
 import { ModelData } from '../../types/interfaces';
-import { endOfTime } from '../../utils/utils';
+import { endOfTime, log } from '../../utils/utils';
+
+log;
 
 describe('utils tests', () => {
   it('less than', () => {
@@ -98,6 +100,11 @@ describe('utils tests', () => {
     expect(makeDateFromString('01 February 2001').toDateString()).toBe(
       'Thu Feb 01 2001',
     );
+  });
+  it('locales woes', () => {
+    const d1 = new Date('2020');
+    const d2 = new Date('1 Jan 2020');
+    expect(d1.getTime()).toEqual(d2.getTime());
   });
   it('removeNumberPart', () => {
     expect(removeNumberPart('0a')).toBe('a');
@@ -668,7 +675,7 @@ describe('utils tests', () => {
         hasDependentDate(
           {
             NAME: 'a',
-            DATE: '1999',
+            DATE: '1 Jan 1999',
           },
           x,
         ),
@@ -677,7 +684,7 @@ describe('utils tests', () => {
         hasDependentDate(
           {
             NAME: 'b',
-            DATE: '1999',
+            DATE: '1 Jan 1999',
           },
           x,
         ),
@@ -814,7 +821,7 @@ describe('utils tests', () => {
         makeChange: (m: ModelData) => {
           m.triggers.push({
             NAME: 'a',
-            DATE: '1999',
+            DATE: '1 Jan 1999',
           });
         },
         replacement: 'a',

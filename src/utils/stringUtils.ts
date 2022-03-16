@@ -55,7 +55,24 @@ export function makeDateFromString(input: string) {
   }
 
   const result = new Date(input);
+  // log(`converted ${input} into ${result}`);
   return result;
+}
+
+export function stringFromDate(d: Date): string {
+  try {
+    const dateString = new Intl.DateTimeFormat('en-US', {
+      weekday: 'short',
+      year: 'numeric',
+      month: 'short',
+      day: '2-digit',
+    }).format(d);
+    // log(`dateString = ${dateString}`);
+    return dateString.replaceAll(',', '');
+  } catch (e) {
+    // log(`error from date ${d} = ${e}`);
+    return '';
+  }
 }
 
 export function getNumberAndWordParts(input: string): {
@@ -600,7 +617,7 @@ function checkTriggerDateRecursive(
       result = undefined;
     }
   }
-  // log(`date for ${triggerName} is ${result.toDateString()}`);
+  // log(`date for ${input} is ${result}`);
   return result;
 }
 
