@@ -42,9 +42,12 @@ import {
   getAssetChartData,
   getExpenseChartData,
   getIncomeChartData,
+  writeTestCode,
 } from './browserBaseTypes';
 
 import webdriver from 'selenium-webdriver';
+
+writeTestCode;
 
 const testDataModelName = 'BrowserTestSimple';
 

@@ -41,7 +41,9 @@ function cleanUpDates(modelFromJSON: ModelData): void {
 
 export function makeModelFromJSONString(input: string): ModelData {
   const matches = input.match(/PensionDBC/g);
+  /* istanbul ignore next */
   if (matches !== null && matches.length > 0) {
+    /* istanbul ignore next */
     log(`Old string 'PensionDBC' in loaded data!!`);
   }
 
@@ -75,8 +77,9 @@ export function isSetting(input: string, settings: Setting[]) {
     result.value = x[0].VALUE;
   } else {
     result.numFound = x.length;
+    /* istanbul ignore if */
     if (result.numFound > 1) {
-      log(`multiple settings: ${showObj(x)}`);
+      log(`Error: multiple settings: ${showObj(x)}`);
     }
   }
   return result;
@@ -89,24 +92,23 @@ export function getSettings(
   expectValue = true,
 ) {
   const searchResult = isSetting(key, settings);
+  /* istanbul ignore else */
   if (searchResult.numFound === 1) {
     return searchResult.value;
-  }
-  if (searchResult.numFound === 0) {
+  } else if (searchResult.numFound === 0) {
+    /* istanbul ignore if */
     if (expectValue) {
-      log(`BUG!!! '${key}' value not found in settings list`);
+      log(`Error: '${key}' value not found in settings list`);
       // throw new Error(`BUG!!! '${key}' value not found in settings list`);
     }
     // log(`couldn't find ${key} in ${showObj(settings)}`);
     return fallbackVal;
-  }
-  if (searchResult.numFound > 1) {
+  } else {
     log(`BUG!!! multiple '${key}' values found in settings list`);
     // log(`couldn't find ${key} in ${showObj(settings)}`);
     throw new Error(); // serious!! shows failure in browser!!
     //return fallbackVal;
   }
-  return fallbackVal;
 }
 
 export function setSetting(
@@ -139,9 +141,6 @@ export function setSetting(
 // might be today or might be set using a setting
 export function getTodaysDate(model: ModelData) {
   let today = new Date();
-  if (model.settings.length === 0) {
-    return today;
-  }
   const todaysDate = getSettings(model.settings, valueFocusDate, '');
   if (todaysDate !== '') {
     today = new Date(todaysDate);
@@ -165,7 +164,9 @@ export function isADebt(name: string, model: ModelData) {
   const matchingAsset = model.assets.find((a) => {
     return a.NAME === name;
   });
+  /* istanbul ignore if */
   if (matchingAsset === undefined) {
+    log(`Error: expect to be passed an asset name to isADebt`);
     return false;
   }
   return matchingAsset.IS_A_DEBT;
@@ -230,10 +231,7 @@ export function replaceCategoryWithAssetNames(
 
 export function getLiabilityPeople(model: ModelData): string[] {
   const liabilityPeople: string[] = [];
-  if (model.assets === undefined) {
-    return [];
-  }
-  // console.log(`model for tax buttons is ${showObj(model)}`);
+  // console.log(`model for getLiabilityPeople is ${showObj(model)}`);
   model.assets.forEach((obj) => {
     const words = obj.LIABILITY.split(separator);
     for (const word of words) {
@@ -357,13 +355,15 @@ export function attemptRenameLong(
       if (oldSpecialWord !== '') {
         return `Must maintain special formatting using ${oldSpecialWord}`;
       } else {
-        return `Must not introduce special formatting using ${newSpecialWord}`;
+        /* istanbul ignore next */ // don't add special words as part of a test system!
+        return `Error: Must not introduce special formatting using ${newSpecialWord}`;
       }
     }
     // prevent a change which clashes with an existing word
     const message = checkForWordClashInModel(model, replacement, 'already');
     if (message.length > 0) {
       // log(`found word clash ${message}`);
+      /* istanbul ignore next */ // don't expect abcd names as part of our test system!
       return message;
     }
   }
@@ -419,15 +419,17 @@ export function attemptRenameLong(
     obj.STOP_DATE = replaceWholeString(obj.STOP_DATE, old, replacement);
   });
   const message = checkForWordClashInModel(model, old, 'still');
+  /* istanbul ignore if */
   if (message.length > 0) {
-    // log(`old word still present in adjusted model`);
+    log(`Error: old word still present in adjusted model`);
     revertToUndoModel(model);
     return message;
   }
   if (doChecks) {
     const checkResult = checkData(model);
+    /* istanbul ignore if */
     if (checkResult !== '') {
-      // log(`revert adjusted model`);
+      log(`Error: reverted model fails checks with ${checkResult}`);
       revertToUndoModel(model);
       return checkResult;
     } else {

@@ -25,6 +25,8 @@ import {
   removeNumberPart,
 } from '../../utils/stringUtils';
 import {
+  definedBenefitsPension,
+  getTestModel,
   minimalModel,
   simpleAsset,
   simpleExpense,
@@ -35,8 +37,15 @@ import {
 import {
   bondInvest,
   CASH_ASSET_NAME,
+  MinimalModel,
+  ThreeChryslerModel,
 } from '../../localization/stringConstants';
-import { makeModelFromJSONString } from '../../models/modelUtils';
+import {
+  attemptRenameLong,
+  isAnAssetOrAssets,
+  makeModelFromJSON,
+  makeModelFromJSONString,
+} from '../../models/modelUtils';
 
 import {
   revalue,
@@ -52,6 +61,8 @@ import {
 } from '../../localization/stringConstants';
 import { ModelData } from '../../types/interfaces';
 import { endOfTime, log } from '../../utils/utils';
+import { getTestEvaluations } from '../algoTests/algoTestUtils';
+import { diffModels } from '../../models/diffModels';
 
 log;
 
@@ -102,15 +113,11 @@ describe('utils tests', () => {
     );
   });
 
-
-  
   it('locales woes', () => {
     const d1 = new Date('2020');
     const d2 = new Date('1 Jan 2020');
     expect(d1.getTime()).toEqual(d2.getTime());
   });
-
-
 
   it('removeNumberPart', () => {
     expect(removeNumberPart('0a')).toBe('a');
@@ -1069,5 +1076,860 @@ describe('utils tests', () => {
   });
   it('endOfTime', () => {
     expect(endOfTime().toDateString()).toEqual('Fri Jan 01 2100');
+  });
+  it('attempt rename', () => {
+    const model = getTestModel(MinimalModel);
+    expect(isAnAssetOrAssets(CASH_ASSET_NAME, model)).toBe(true);
+    expect(attemptRenameLong(model, true, CASH_ASSET_NAME, 'abcd')).toEqual('');
+    expect(isAnAssetOrAssets(CASH_ASSET_NAME, model)).toBe(false);
+    expect(attemptRenameLong(model, false, 'abcd', CASH_ASSET_NAME)).toEqual(
+      '',
+    );
+    expect(isAnAssetOrAssets(CASH_ASSET_NAME, model)).toBe(true);
+    // log(`model = ${JSON.stringify(model)}`);
+  });
+  it('diff checks', () => {
+    const model1 = makeModelFromJSON(
+      JSON.stringify(getTestModel(ThreeChryslerModel)),
+    );
+    expect(getTestEvaluations(model1, true, true).evaluations.length).toBe(13);
+
+    const model2 = makeModelFromJSON(
+      JSON.stringify(getTestModel(definedBenefitsPension)),
+    );
+
+    model2.expenses.push({
+      NAME: 'Look after dogs',
+      CATEGORY: 'living costs',
+      START: '1 April 2018',
+      END: '2 February 2047',
+      VALUE: '500',
+      VALUE_SET: '1 April 2018',
+      CPI_IMMUNE: false,
+      GROWTH: '2',
+      RECURRENCE: '1m',
+    });
+    model2.expenses.push({
+      NAME: 'Look after ducks',
+      CATEGORY: 'living costs',
+      START: '1 April 2018',
+      END: '2 February 2047',
+      VALUE: '500',
+      VALUE_SET: '1 April 2018',
+      CPI_IMMUNE: false,
+      GROWTH: '2',
+      RECURRENCE: '1m',
+    });
+
+    model2.assets.push({
+      NAME: 'ISAs',
+      CATEGORY: 'stock',
+      START: 'December 2019',
+      VALUE: '2000',
+      GROWTH: '2',
+      CPI_IMMUNE: false,
+      CAN_BE_NEGATIVE: false,
+      LIABILITY: '',
+      PURCHASE_PRICE: '0',
+      IS_A_DEBT: false,
+      QUANTITY: '',
+    });
+    model2.transactions.push({
+      DATE: '1 January 2020',
+      FROM: CASH_ASSET_NAME,
+      FROM_VALUE: '1500',
+      FROM_ABSOLUTE: true,
+      NAME: 'invest',
+      TO: 'ISAs',
+      TO_ABSOLUTE: false,
+      TO_VALUE: '1',
+      STOP_DATE: '2022',
+      RECURRENCE: '1m',
+      TYPE: 'custom',
+      CATEGORY: '',
+    });
+    /*
+    {
+      "NAME":"cpi",
+      "VALUE":"2.5",
+      "HINT":"Annual rate of inflation",
+      "TYPE":"const"
+    },
+    */
+
+    expect(getTestEvaluations(model2, true, true).evaluations.length).toBe(
+      2864,
+    );
+    const oldModelCopy = JSON.parse(JSON.stringify(model2));
+
+    // Change the date of the first trigger
+    // {"NAME":"PensionTransfers","DATE":"2035-01-01"}
+    model2.triggers[0].DATE = '2035-01-02';
+
+    // log(`oldModelCopy = ${JSON.stringify(oldModelCopy)}`);
+    let diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      true,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual(
+      'PensionTransfers: date 2035-01-02 !== Mon Jan 01 2035',
+    );
+
+    model2.triggers[0].DATE = 'Mon Jan 01 2035';
+
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(0);
+
+    //{"NAME":"TeachingJob","VALUE":"2500","VALUE_SET":"JobStart","START":"JobStart","END":"JobStop","GROWTH":"2","CPI_IMMUNE":true,"LIABILITY":"Joe(incomeTax)/Joe(NI)","CATEGORY":""},
+
+    model2.incomes[0].VALUE = '1500';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      true,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual('TeachingJob: value 1500 !== 2500');
+
+    model2.incomes[0].VALUE = '2500';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(0);
+
+    model2.incomes[0].GROWTH = '3';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual('TeachingJob: growth 3 !== 2');
+
+    model2.incomes[0].GROWTH = '2';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(0);
+
+    model2.incomes[0].CPI_IMMUNE = false;
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual('TeachingJob: cpi-immunity false !== true');
+
+    model2.incomes[0].CPI_IMMUNE = true;
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(0);
+
+    model2.incomes[0].LIABILITY = 'Joe(NI)';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual(
+      'TeachingJob: liability Joe(NI) !== Joe(incomeTax)/Joe(NI)',
+    );
+
+    model2.incomes[0].LIABILITY = 'Joe(incomeTax)/Joe(NI)';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(0);
+
+    model2.incomes[0].CATEGORY = 'Pn';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual('TeachingJob: category Pn !== ');
+
+    model2.incomes[0].CATEGORY = '';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(0);
+
+    model2.expenses[0].NAME = 'Look after cats';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      true,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual(
+      'Look after cats in model but not in oldModelCopy',
+    );
+
+    diffResult = diffModels(
+      oldModelCopy,
+      model2,
+      true,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual(
+      'Look after dogs in model but not in oldModelCopy',
+    );
+
+    model2.expenses[0].NAME = 'Look after dogs';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(0);
+
+    model2.expenses[0].START = '1 April 2019';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      true,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual(
+      'Look after dogs: start date 1 April 2019 !== 1 April 2018',
+    );
+
+    model2.expenses[0].START = '1 April 2018';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(0);
+
+    model2.expenses[0].END = '2 February 2046';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual(
+      'Look after dogs: end date 2 February 2046 !== 2 February 2047',
+    );
+
+    model2.expenses[0].END = '2 February 2047';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(0);
+
+    model2.expenses[0].VALUE = '499';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual('Look after dogs: value 499 !== 500');
+
+    model2.expenses[0].VALUE = '500';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(0);
+
+    model2.expenses[0].VALUE_SET = '2 April 2018';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual(
+      'Look after dogs: value set date 2 April 2018 !== 1 April 2018',
+    );
+
+    model2.expenses[0].VALUE_SET = '1 April 2018';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(0);
+
+    model2.expenses[0].GROWTH = '3';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual('Look after dogs: growth 3 !== 2');
+
+    model2.expenses[0].GROWTH = '2';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(0);
+
+    model2.expenses[0].CPI_IMMUNE = true;
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual(
+      'Look after dogs: cpi-immunity true !== false',
+    );
+
+    model2.expenses[0].CPI_IMMUNE = false;
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(0);
+
+    model2.expenses[0].RECURRENCE = '2m';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual('Look after dogs: recurrence 2m !== 1m');
+
+    model2.expenses[0].RECURRENCE = '1m';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(0);
+
+    model2.expenses[0].CATEGORY = 'costs';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual(
+      'Look after dogs: category costs !== living costs',
+    );
+
+    model2.expenses[0].CATEGORY = 'living costs';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(0);
+
+    model2.assets[1].START = 'December 2018';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      true,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual(
+      'ISAs: start date December 2018 !== December 2019',
+    );
+
+    model2.assets[1].START = 'December 2019';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(0);
+
+    model2.assets[1].QUANTITY = '100';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual('ISAs: quantity 100 !== ');
+
+    model2.assets[1].QUANTITY = '';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(0);
+
+    model2.assets[1].CAN_BE_NEGATIVE = true;
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual('ISAs: negativity true !== false');
+
+    model2.assets[1].CAN_BE_NEGATIVE = false;
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(0);
+
+    model2.assets[1].IS_A_DEBT = true;
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual('ISAs: is-debt true !== false');
+
+    model2.assets[1].IS_A_DEBT = false;
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(0);
+
+    model2.assets[1].GROWTH = '1';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual('ISAs: growth 1 !== 2');
+
+    model2.assets[1].GROWTH = '2';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(0);
+
+    model2.assets[1].CPI_IMMUNE = true;
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual('ISAs: cpi-immunity true !== false');
+
+    model2.assets[1].CPI_IMMUNE = false;
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(0);
+
+    model2.assets[1].PURCHASE_PRICE = '4';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual('ISAs: purchase price 4 !== 0');
+
+    model2.assets[1].PURCHASE_PRICE = '0';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(0);
+
+    model2.assets[1].CATEGORY = 'newcat';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual('ISAs: category newcat !== stock');
+
+    model2.assets[1].CATEGORY = 'stock';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(0);
+
+    model2.transactions[3].TO = '';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      true,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual('invest: to  !== ISAs');
+
+    model2.transactions[3].TO = 'ISAs';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(0);
+
+    model2.transactions[3].TO_VALUE = '2';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual('invest: to value 2 !== 1');
+
+    model2.transactions[3].TO_VALUE = '1';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(0);
+
+    model2.transactions[3].FROM = '';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual('invest: from  !== Cash');
+
+    model2.transactions[3].FROM = CASH_ASSET_NAME;
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(0);
+
+    model2.transactions[3].FROM_VALUE = '1600';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual('invest: from value 1600 !== 1500');
+
+    model2.transactions[3].FROM_VALUE = '1500';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(0);
+
+    model2.transactions[3].FROM_ABSOLUTE = false;
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual('invest: from absolute false !== true');
+
+    model2.transactions[3].FROM_ABSOLUTE = true;
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(0);
+
+    model2.transactions[3].TO_ABSOLUTE = true;
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual('invest: to absolute true !== false');
+
+    model2.transactions[3].TO_ABSOLUTE = false;
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(0);
+
+    model2.transactions[3].RECURRENCE = '2m';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual('invest: recurrence 2m !== 1m');
+
+    model2.transactions[3].RECURRENCE = '1m';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(0);
+
+    model2.transactions[3].CATEGORY = 'dothis';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual('invest: category dothis !== ');
+
+    model2.transactions[3].CATEGORY = '';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(0);
+
+    model2.transactions[3].TYPE = '';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual('invest: type  !== custom');
+
+    model2.transactions[3].TYPE = 'custom';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(0);
+    model2.settings[3].HINT = 'help here';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual(
+      'cpi: hint help here !== Annual rate of inflation',
+    );
+
+    model2.settings[3].HINT = 'Annual rate of inflation';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(0);
+    model2.settings[3].TYPE = '';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual('cpi: type  !== const');
+
+    model2.settings[3].TYPE = 'const';
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(0);
+
+    diffResult = diffModels(undefined, model2, false, 'model', 'oldModelCopy');
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual('one model undefined, other defined');
+
+    diffResult = diffModels(model2, undefined, false, 'model', 'oldModelCopy');
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual('one model defined, other undefined');
+
+    diffResult = diffModels(
+      undefined,
+      undefined,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(0);
+
+    // log(`model = ${JSON.stringify(model)}`);
   });
 });

@@ -11,6 +11,8 @@ import {
   revalue,
   revalueSetting,
   viewType,
+  viewDetail,
+  coarse,
 } from '../../localization/stringConstants';
 import { makeChartDataFromEvaluations } from '../../models/charting';
 import {
@@ -31,9 +33,11 @@ import {
   expectEvals,
   defaultTestViewSettings,
   expectChartData,
+  printTestCodeForChart,
 } from './algoTestUtils';
 
 log;
+printTestCodeForChart;
 
 describe('conditional tests', () => {
   /* istanbul ignore if  */
@@ -2319,6 +2323,7 @@ describe('conditional tests', () => {
           START: 'January 2 2018',
           VALUE: '-70',
           IS_A_DEBT: true,
+          CATEGORY: 'Lloyds',
         },
         {
           ...simpleAsset,
@@ -2330,7 +2335,12 @@ describe('conditional tests', () => {
       ],
       settings: [...defaultModelSettings(roi)],
     };
-    setSetting(model.settings, `Today's value focus date`, 'Jan 1 2018', viewType);
+    setSetting(
+      model.settings,
+      `Today's value focus date`,
+      'Jan 1 2018',
+      viewType,
+    );
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -2341,21 +2351,24 @@ describe('conditional tests', () => {
     log(evalsAndValues.todaysExpenseValues);
     log(evalsAndValues.todaysIncomeValues);
     log(evalsAndValues.todaysSettingValues);
-    */    
+    */
     expect(evalsAndValues.todaysAssetValues.size).toEqual(1);
-    expect(evalsAndValues.todaysAssetValues.get('Cash')).toEqual(
-      { assetVal: 0, assetQ: undefined, category: '' }
-    );
+    expect(evalsAndValues.todaysAssetValues.get('Cash')).toEqual({
+      assetVal: 0,
+      assetQ: undefined,
+      category: '',
+    });
     expect(evalsAndValues.todaysDebtValues.size).toEqual(1);
-    expect(evalsAndValues.todaysDebtValues.get('Mortgage')).toEqual(
-      { debtVal: 0, category: '' }
-    );
+    expect(evalsAndValues.todaysDebtValues.get('Mortgage')).toEqual({
+      debtVal: 0,
+      category: 'Lloyds',
+    });
     expect(evalsAndValues.todaysExpenseValues.size).toEqual(0);
     expect(evalsAndValues.todaysIncomeValues.size).toEqual(0);
     expect(evalsAndValues.todaysSettingValues.size).toEqual(1);
-    expect(evalsAndValues.todaysSettingValues.get('cpi')).toEqual(
-      { settingVal: '0' }
-    );
+    expect(evalsAndValues.todaysSettingValues.get('cpi')).toEqual({
+      settingVal: '0',
+    });
 
     // printTestCodeForEvals(evals);
 
@@ -2374,6 +2387,7 @@ describe('conditional tests', () => {
     expectEvals(evals, 11, 'Mortgage', 'Mon Apr 02 2018', 30, -1);
 
     const viewSettings = defaultTestViewSettings();
+    viewSettings.setViewSetting(viewDetail, coarse);
 
     const result = makeChartDataFromEvaluations(
       model,
@@ -2398,7 +2412,7 @@ describe('conditional tests', () => {
     }
 
     expect(result.debtData.length).toBe(1);
-    expect(result.debtData[0].item.NAME).toBe('Mortgage');
+    expect(result.debtData[0].item.NAME).toBe('Lloyds');
     {
       const chartPts = result.debtData[0].chartDataPoints;
       expect(chartPts.length).toBe(5);
@@ -2410,6 +2424,7 @@ describe('conditional tests', () => {
     }
     done();
   });
+
   it('pay off mortgage, conditional, to not absolute', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',

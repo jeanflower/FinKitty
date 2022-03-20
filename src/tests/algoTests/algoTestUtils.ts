@@ -70,6 +70,7 @@ import {
   SettingVal,
 } from '../../types/interfaces';
 import { log } from '../../utils/utils';
+import { diffModels } from '../../models/diffModels';
 
 export function expectEvals(
   evals: Evaluation[],
@@ -232,7 +233,8 @@ export function printTestCodeForChart(result: DataForView) {
 
 export function getTestEvaluations(
   model: ModelData,
-  extraChecks = true,
+  renamingChecks = true,
+  diffChecks = false,
 ): {
   evaluations: Evaluation[];
   todaysAssetValues: Map<string, AssetVal>;
@@ -241,9 +243,38 @@ export function getTestEvaluations(
   todaysExpenseValues: Map<string, ExpenseVal>;
   todaysSettingValues: Map<string, SettingVal>;
 } {
-  if (extraChecks) {
+  const emptyResult = {
+    evaluations: [],
+    todaysAssetValues: new Map<string, AssetVal>(),
+    todaysDebtValues: new Map<string, DebtVal>(),
+    todaysIncomeValues: new Map<string, IncomeVal>(),
+    todaysExpenseValues: new Map<string, ExpenseVal>(),
+    todaysSettingValues: new Map<string, SettingVal>(),
+  };
+
+  if (renamingChecks) {
     // only rename if new model makes sense
     const doChecks = true;
+    let oldModelCopy: ModelData | undefined = undefined;
+    if (diffChecks) {
+      // log(`model = ${JSON.stringify(model)}`);
+      oldModelCopy = JSON.parse(JSON.stringify(model));
+      // log(`oldModelCopy = ${JSON.stringify(oldModelCopy)}`);
+      const diffResult = diffModels(
+        model,
+        oldModelCopy,
+        false,
+        'model',
+        'oldModelCopy',
+      );
+      /* istanbul ignore if */
+      if (diffResult.length !== 0) {
+        log(`Error: expect copy to match original, got ${diffResult}`);
+        return emptyResult;
+      } else {
+        // log(`Good: copy matches original`);
+      }
+    }
 
     // hijack to try some renaming
     model.triggers.forEach((obj) => {
@@ -259,6 +290,33 @@ export function getTestEvaluations(
       let message = attemptRenameLong(model, doChecks, oldName, 'abcd');
       if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
+      }
+      if (diffChecks) {
+        const diffResult = diffModels(
+          model,
+          oldModelCopy,
+          false,
+          'model',
+          'oldModelCopy',
+        );
+        // log(`After renaming '${oldName}' to 'abcd': diffResult = ${diffResult}`);
+        const diff1 = diffResult.find((s) => {
+          return s === `abcd in model but not in oldModelCopy`;
+        });
+        const diff2 = diffResult.find((s) => {
+          return s === `${oldName} is in oldModelCopy but not matched in model`;
+        });
+        /* istanbul ignore if */
+        if (
+          diffResult.length < 2 ||
+          diff1 === undefined ||
+          diff2 === undefined
+        ) {
+          log(`Error: diffResult = ${diffResult}`);
+          return emptyResult;
+        } else {
+          // log(`Good: copy matches original`);
+        }
       }
       message = attemptRenameLong(model, doChecks, 'abcd', oldName);
       if (message.length > 0) {
@@ -287,6 +345,33 @@ export function getTestEvaluations(
       if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
       }
+      if (diffChecks) {
+        const diffResult = diffModels(
+          model,
+          oldModelCopy,
+          false,
+          'model',
+          'oldModelCopy',
+        );
+        // log(`After renaming '${oldName}' to 'abcd': diffResult = ${diffResult}`);
+        const diff1 = diffResult.find((s) => {
+          return s === `${newName} in model but not in oldModelCopy`;
+        });
+        const diff2 = diffResult.find((s) => {
+          return s === `${oldName} is in oldModelCopy but not matched in model`;
+        });
+        /* istanbul ignore if */
+        if (
+          diffResult.length < 2 ||
+          diff1 === undefined ||
+          diff2 === undefined
+        ) {
+          log(`Error: diffResult = ${diffResult}`);
+          return emptyResult;
+        } else {
+          // log(`Good: copy matches original`);
+        }
+      }
       message = attemptRenameLong(model, doChecks, newName, oldName);
       if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
@@ -306,6 +391,33 @@ export function getTestEvaluations(
       if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
       }
+      if (diffChecks) {
+        const diffResult = diffModels(
+          model,
+          oldModelCopy,
+          false,
+          'model',
+          'oldModelCopy',
+        );
+        // log(`After renaming '${oldName}' to 'abcd': diffResult = ${diffResult}`);
+        const diff1 = diffResult.find((s) => {
+          return s === `${newName} in model but not in oldModelCopy`;
+        });
+        const diff2 = diffResult.find((s) => {
+          return s === `${oldName} is in oldModelCopy but not matched in model`;
+        });
+        /* istanbul ignore if */
+        if (
+          diffResult.length < 2 ||
+          diff1 === undefined ||
+          diff2 === undefined
+        ) {
+          log(`Error: diffResult = ${diffResult}`);
+          return emptyResult;
+        } else {
+          // log(`Good: copy matches original`);
+        }
+      }
       message = attemptRenameLong(model, doChecks, newName, oldName);
       if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
@@ -318,6 +430,33 @@ export function getTestEvaluations(
       let message = attemptRenameLong(model, doChecks, oldName, 'abcd');
       if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
+      }
+      if (diffChecks) {
+        const diffResult = diffModels(
+          model,
+          oldModelCopy,
+          false,
+          'model',
+          'oldModelCopy',
+        );
+        // log(`After renaming '${oldName}' to 'abcd': diffResult = ${diffResult}`);
+        const diff1 = diffResult.find((s) => {
+          return s === `abcd in model but not in oldModelCopy`;
+        });
+        const diff2 = diffResult.find((s) => {
+          return s === `${oldName} is in oldModelCopy but not matched in model`;
+        });
+        /* istanbul ignore if */
+        if (
+          diffResult.length < 2 ||
+          diff1 === undefined ||
+          diff2 === undefined
+        ) {
+          log(`Error: diffResult = ${diffResult}`);
+          return emptyResult;
+        } else {
+          // log(`Good: copy matches original`);
+        }
       }
       message = attemptRenameLong(model, doChecks, 'abcd', oldName);
       if (message.length > 0) {
@@ -364,6 +503,33 @@ export function getTestEvaluations(
       if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
       }
+      if (diffChecks) {
+        const diffResult = diffModels(
+          model,
+          oldModelCopy,
+          false,
+          'model',
+          'oldModelCopy',
+        );
+        // log(`After renaming '${oldName}' to 'abcd': diffResult = ${diffResult}`);
+        const diff1 = diffResult.find((s) => {
+          return s === `${newName} in model but not in oldModelCopy`;
+        });
+        const diff2 = diffResult.find((s) => {
+          return s === `${oldName} is in oldModelCopy but not matched in model`;
+        });
+        /* istanbul ignore if */
+        if (
+          diffResult.length < 2 ||
+          diff1 === undefined ||
+          diff2 === undefined
+        ) {
+          log(`Error: diffResult = ${diffResult}`);
+          return emptyResult;
+        } else {
+          // log(`Good: copy matches original`);
+        }
+      }
       message = attemptRenameLong(model, doChecks, newName, oldName);
       if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
@@ -390,6 +556,33 @@ export function getTestEvaluations(
           throw new Error(`rename failed with message '${message}'`);
         }
       }
+      if (diffChecks) {
+        const diffResult = diffModels(
+          model,
+          oldModelCopy,
+          false,
+          'model',
+          'oldModelCopy',
+        );
+        // log(`After renaming '${oldName}' to 'abcd': diffResult = ${diffResult}`);
+        const diff1 = diffResult.find((s) => {
+          return s === `abcd in model but not in oldModelCopy`;
+        });
+        const diff2 = diffResult.find((s) => {
+          return s === `${oldName} is in oldModelCopy but not matched in model`;
+        });
+        /* istanbul ignore if */
+        if (
+          diffResult.length < 2 ||
+          diff1 === undefined ||
+          diff2 === undefined
+        ) {
+          log(`Error: diffResult = ${diffResult}`);
+          return emptyResult;
+        } else {
+          // log(`Good: copy matches original`);
+        }
+      }
       if (renamedToNew) {
         message = attemptRenameLong(model, doChecks, newName, oldName);
         if (message.length > 0) {
@@ -402,7 +595,7 @@ export function getTestEvaluations(
   }
 
   let evalnsAndVals;
-  if (!extraChecks) {
+  if (!renamingChecks) {
     evalnsAndVals = getEvaluations(
       model,
       undefined, // no key for a values report

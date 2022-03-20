@@ -46,6 +46,7 @@ import {
   transferCrystallizedPension,
   moveTaxFreePart,
   pension,
+  bondModel,
 } from '../localization/stringConstants';
 import {
   Asset,
@@ -55,6 +56,7 @@ import {
   Setting,
   Transaction,
 } from '../types/interfaces';
+import { log } from '../utils/utils';
 import {
   setSetting,
   setROI,
@@ -62,6 +64,8 @@ import {
   makeModelFromJSON,
 } from './modelUtils';
 import { getCurrentVersion } from './versioningUtils';
+
+log;
 
 export const simpleExampleData = `{"triggers":[
 {"NAME":"GetRidOfCar","DATE":"2025-12-31"},
@@ -251,70 +255,6 @@ export const nationalSavings = `{"assets":[
 "transactions":[
 ],"version":4}`;
 
-export const benAndJerryExampleData = `
-{"assets":[
-{"NAME":"PensionJerry Aegon","VALUE":"56324","QUANTITY":"","START":"21/02/2020","GROWTH":"4","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":false,"IS_A_DEBT":false,"CATEGORY":"Pension","PURCHASE_PRICE":"0.0","LIABILITY":""},
-{"NAME":"PensionBen Prudential","VALUE":"45000","QUANTITY":"","START":"21/02/2020","GROWTH":"4","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":false,"IS_A_DEBT":false,"CATEGORY":"Pension","PURCHASE_PRICE":"0.0","LIABILITY":""},
-{"NAME":"Mortgage","VALUE":"-150000","QUANTITY":"","START":"21/02/2020","GROWTH":"3.5","CPI_IMMUNE":true,"CAN_BE_NEGATIVE":true,"IS_A_DEBT":true,"CATEGORY":"Property","PURCHASE_PRICE":"0.0","LIABILITY":""},
-{"NAME":"Jerry stocks","VALUE":"25000","QUANTITY":"","START":"21/02/2020","GROWTH":"4","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":false,"IS_A_DEBT":false,"CATEGORY":"Investment","PURCHASE_PRICE":"14000","LIABILITY":"Jerry(CGT)"},
-{"NAME":"Jerry loan","VALUE":"-5000","QUANTITY":"","START":"21/02/2020","GROWTH":"2.5","CPI_IMMUNE":true,"CAN_BE_NEGATIVE":true,"IS_A_DEBT":true,"CATEGORY":"","PURCHASE_PRICE":"0.0","LIABILITY":""},
-{"NAME":"Jerry AegonTaxFree","VALUE":"0.0","QUANTITY":"","START":"21/02/2020","GROWTH":"4","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":false,"IS_A_DEBT":false,"CATEGORY":"Pension","PURCHASE_PRICE":"0.0","LIABILITY":""},
-{"NAME":"ISA","VALUE":"9000","QUANTITY":"","START":"21/02/2020","GROWTH":"4","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":false,"IS_A_DEBT":false,"CATEGORY":"Investment","PURCHASE_PRICE":"0","LIABILITY":""},
-{"NAME":"House","VALUE":"255000","QUANTITY":"","START":"21/02/2020","GROWTH":"2","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":false,"IS_A_DEBT":false,"CATEGORY":"Property","PURCHASE_PRICE":"0","LIABILITY":""},
-{"NAME":"CrystallizedPensionJerry","VALUE":"0.0","QUANTITY":"","START":"21/02/2020","GROWTH":"4","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":false,"IS_A_DEBT":false,"CATEGORY":"Pension","PURCHASE_PRICE":"0.0","LIABILITY":""},
-{"NAME":"CrystallizedPensionBen","VALUE":"0.0","QUANTITY":"","START":"21/02/2020","GROWTH":"4","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":false,"IS_A_DEBT":false,"CATEGORY":"Pension","PURCHASE_PRICE":"0.0","LIABILITY":""},
-{"NAME":"Cash","CATEGORY":"","START":"1 Jan 2017","VALUE":"0.0","QUANTITY":"","GROWTH":"0.0","CPI_IMMUNE":true,"CAN_BE_NEGATIVE":true,"IS_A_DEBT":false,"LIABILITY":"","PURCHASE_PRICE":"0.0"},
-{"NAME":"Ben PrudentialTaxFree","VALUE":"0.0","QUANTITY":"","START":"21/02/2020","GROWTH":"4","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":false,"IS_A_DEBT":false,"CATEGORY":"Pension","PURCHASE_PRICE":"0.0","LIABILITY":""},
-{"NAME":"Ben loan","VALUE":"-5000","QUANTITY":"","START":"21/02/2020","GROWTH":"0","CPI_IMMUNE":true,"CAN_BE_NEGATIVE":true,"IS_A_DEBT":true,"CATEGORY":"","PURCHASE_PRICE":"0.0","LIABILITY":""}],"incomes":[
-{"START":"Jerry state pension age","END":"Ben dies","NAME":"PensionTransferJerry work","VALUE":"0.0","VALUE_SET":"21/02/2020","LIABILITY":"Ben(incomeTax)","GROWTH":"0","CPI_IMMUNE":false,"CATEGORY":"Pension"},
-{"START":"Jerry state pension age","END":"Jerry dies","NAME":"PensionDBJerry work","VALUE":"2000","VALUE_SET":"21/02/2020","LIABILITY":"Jerry(incomeTax)","GROWTH":"0","CPI_IMMUNE":false,"CATEGORY":"Pension"},
-{"START":"Jerry state pension age","END":"Jerry dies","NAME":"PensionDBJerry state pension","VALUE":"730","VALUE_SET":"21/02/2020","LIABILITY":"Jerry(incomeTax)","GROWTH":"0","CPI_IMMUNE":false,"CATEGORY":"Pension"},
-{"START":"Ben state pension age","END":"Ben dies","NAME":"PensionDBBen state pension","VALUE":"730","VALUE_SET":"21/02/2020","LIABILITY":"Ben(incomeTax)","GROWTH":"0","CPI_IMMUNE":false,"CATEGORY":"Pension"},
-{"NAME":"Jerry salary","VALUE":"2755","VALUE_SET":"21/2/2020","START":"21/2/2020","END":"Jerry retires","GROWTH":"2","CPI_IMMUNE":false,"LIABILITY":"Jerry(incomeTax)/Jerry(NI)","CATEGORY":"Salary"},
-{"NAME":"Ben salary","VALUE":"3470","VALUE_SET":"21/2/2020","START":"21/2/2020","END":"Ben retires","GROWTH":"2","CPI_IMMUNE":false,"LIABILITY":"Ben(incomeTax)/Ben(NI)","CATEGORY":"Salary"}],"expenses":[
-{"NAME":"Replace car","VALUE":"20000","VALUE_SET":"21/02/2020","START":"21/02/2025","END":"Care costs start","GROWTH":"0","CPI_IMMUNE":false,"CATEGORY":"Major costs","RECURRENCE":"5y"},
-{"NAME":"Leisure expenses working","VALUE":"1000","VALUE_SET":"21/02/2020","START":"21/02/2020","END":"Jerry retires","GROWTH":"0","CPI_IMMUNE":false,"CATEGORY":"Leisure","RECURRENCE":"1m"},
-{"NAME":"Leisure expenses retired","VALUE":"2000","VALUE_SET":"21/02/2020","START":"Jerry retires","END":"Care costs start","GROWTH":"0","CPI_IMMUNE":false,"CATEGORY":"Leisure","RECURRENCE":"1m"},
-{"NAME":"House maintenance","VALUE":"8000","VALUE_SET":"21/02/2020","START":"21/02/2020","END":"Care costs start","GROWTH":"0","CPI_IMMUNE":false,"CATEGORY":"Major costs","RECURRENCE":"4y"},
-{"NAME":"Care costs","VALUE":"3000","VALUE_SET":"21/02/2020","START":"Care costs start","END":"Ben dies","GROWTH":"0","CPI_IMMUNE":false,"CATEGORY":"Care","RECURRENCE":"1m"},
-{"NAME":"Basic expenses small house","VALUE":"1600","VALUE_SET":"21/02/2020","START":"Downsize house","END":"Ben dies","GROWTH":"0","CPI_IMMUNE":false,"CATEGORY":"Basic","RECURRENCE":"1m"},
-{"NAME":"Basic expenses current house","VALUE":"1850","VALUE_SET":"21/02/2020","START":"21/02/2020","END":"Downsize house","GROWTH":"0","CPI_IMMUNE":false,"CATEGORY":"Basic","RECURRENCE":"1m"}],
-"triggers":[
-{"NAME":"Ben dies","DATE":"2068-08-30"},
-{"NAME":"Ben retires","DATE":"2032-07-27"},
-{"NAME":"Ben state pension age","DATE":"2040-08-30"},
-{"NAME":"Care costs start","DATE":"2060-02-20"},
-{"NAME":"Downsize house","DATE":"2047-02-28"},
-{"NAME":"Jerry dies","DATE":"2065-05-04"},
-{"NAME":"Jerry retires","DATE":"2030-05-04"},
-{"NAME":"Jerry state pension age","DATE":"2037-05-04"}],"settings":[
-{"NAME":"Today's value focus date","VALUE":"","HINT":"Date to use for 'today's value' tables (defaults to '' meaning today)","TYPE":"view"},
-{"NAME":"End of view range","VALUE":"2069","HINT":"Date at the end of range to be plotted","TYPE":"view"},
-{"NAME":"Date of birth","VALUE":"","HINT":"Date used for representing dates as ages","TYPE":"view"},
-{"NAME":"cpi","VALUE":"2.5","HINT":"Annual rate of inflation","TYPE":"const"},
-{"NAME":"Beginning of view range","VALUE":"01 Jan 2020","HINT":"Date at the start of range to be plotted","TYPE":"view"}],"transactions":[
-{"NAME":"TransferCrystallizedPensionJerry Aegon","FROM":"CrystallizedPensionJerry","FROM_ABSOLUTE":false,"FROM_VALUE":"1.0","TO":"CrystallizedPensionBen","TO_ABSOLUTE":false,"TO_VALUE":"1.0","DATE":"Jerry dies","STOP_DATE":"","RECURRENCE":"","CATEGORY":"Pension","TYPE":"auto"},
-{"NAME":"TransferCrystallizedPensionBen Prudential","FROM":"CrystallizedPensionBen","FROM_ABSOLUTE":false,"FROM_VALUE":"1.0","TO":"CrystallizedPensionJerry","TO_ABSOLUTE":false,"TO_VALUE":"1.0","DATE":"Ben dies","STOP_DATE":"","RECURRENCE":"","CATEGORY":"Pension","TYPE":"auto"},
-{"NAME":"PensionTransferJerry work","FROM":"PensionDBJerry work","FROM_ABSOLUTE":false,"FROM_VALUE":"1.0","TO":"PensionTransferJerry work","TO_ABSOLUTE":false,"TO_VALUE":"0.5","DATE":"Jerry dies","STOP_DATE":"Ben dies","RECURRENCE":"","CATEGORY":"Pension","TYPE":"auto"},
-{"NAME":"PensionJerry work","FROM":"Jerry salary","FROM_ABSOLUTE":false,"FROM_VALUE":"0.05","TO":"","TO_ABSOLUTE":false,"TO_VALUE":"0.0","DATE":"21/02/2020","STOP_DATE":"Jerry retires","RECURRENCE":"","CATEGORY":"Pension","TYPE":"auto"},
-{"NAME":"PensionJerry Aegon","FROM":"","FROM_ABSOLUTE":false,"FROM_VALUE":"0","TO":"PensionJerry Aegon","TO_ABSOLUTE":false,"TO_VALUE":"0","DATE":"21/02/2020","STOP_DATE":"","RECURRENCE":"","CATEGORY":"Pension","TYPE":"auto"},
-{"NAME":"PensionDBJerry work","FROM":"Jerry salary","FROM_ABSOLUTE":false,"FROM_VALUE":"0.00125","TO":"PensionDBJerry work","TO_ABSOLUTE":false,"TO_VALUE":"1.0","DATE":"21/02/2020","STOP_DATE":"Jerry retires","RECURRENCE":"","CATEGORY":"Pension","TYPE":"auto"},
-{"NAME":"PensionBen Prudential","FROM":"Ben salary","FROM_ABSOLUTE":false,"FROM_VALUE":"0.06","TO":"PensionBen Prudential","TO_ABSOLUTE":false,"TO_VALUE":"3","DATE":"21/02/2020","STOP_DATE":"Ben retires","RECURRENCE":"","CATEGORY":"Pension","TYPE":"auto"},
-{"NAME":"MoveTaxFreePartJerry Aegon","FROM":"PensionJerry Aegon","FROM_ABSOLUTE":false,"FROM_VALUE":"0.25","TO":"Jerry AegonTaxFree","TO_ABSOLUTE":false,"TO_VALUE":"1.0","DATE":"Jerry retires","STOP_DATE":"","RECURRENCE":"","CATEGORY":"Pension","TYPE":"auto"},
-{"NAME":"MoveTaxFreePartBen Prudential","FROM":"PensionBen Prudential","FROM_ABSOLUTE":false,"FROM_VALUE":"0.25","TO":"Ben PrudentialTaxFree","TO_ABSOLUTE":false,"TO_VALUE":"1.0","DATE":"Ben retires","STOP_DATE":"","RECURRENCE":"","CATEGORY":"Pension","TYPE":"auto"},
-{"NAME":"CrystallizedPensionJerry Aegon","FROM":"PensionJerry Aegon","FROM_ABSOLUTE":false,"FROM_VALUE":"1.0","TO":"CrystallizedPensionJerry","TO_ABSOLUTE":false,"TO_VALUE":"1.0","DATE":"Jerry retires","STOP_DATE":"","RECURRENCE":"","CATEGORY":"Pension","TYPE":"auto"},
-{"NAME":"CrystallizedPensionBen Prudential","FROM":"PensionBen Prudential","FROM_ABSOLUTE":false,"FROM_VALUE":"1.0","TO":"CrystallizedPensionBen","TO_ABSOLUTE":false,"TO_VALUE":"1.0","DATE":"Ben retires","STOP_DATE":"","RECURRENCE":"","CATEGORY":"Pension","TYPE":"auto"},
-{"NAME":"ConditionalSell stocks for cash","CATEGORY":"Cashflow","FROM":"Jerry stocks","FROM_ABSOLUTE":true,"FROM_VALUE":"500","TO":"Cash","TO_ABSOLUTE":false,"TO_VALUE":"1","DATE":"21/02/2020","STOP_DATE":"","RECURRENCE":"1m","TYPE":"liquidateAsset"},
-{"NAME":"ConditionalSell PrudentialTaxFree ","CATEGORY":"Cashflow","FROM":"Ben PrudentialTaxFree","FROM_ABSOLUTE":true,"FROM_VALUE":"250","TO":"Cash","TO_ABSOLUTE":false,"TO_VALUE":"1","DATE":"21/02/2020","STOP_DATE":"","RECURRENCE":"1m","TYPE":"liquidateAsset"},
-{"NAME":"ConditionalSell ISAs for cash","CATEGORY":"Cashflow","FROM":"ISA","FROM_ABSOLUTE":true,"FROM_VALUE":"500","TO":"Cash","TO_ABSOLUTE":false,"TO_VALUE":"1","DATE":"21/02/2020","STOP_DATE":"","RECURRENCE":"1m","TYPE":"liquidateAsset"},
-{"NAME":"ConditionalSell CrystallizedPensionJerry ","CATEGORY":"Cashflow","FROM":"CrystallizedPensionJerry","FROM_ABSOLUTE":true,"FROM_VALUE":"1000","TO":"Cash","TO_ABSOLUTE":false,"TO_VALUE":"1","DATE":"21/02/2020","STOP_DATE":"","RECURRENCE":"1m","TYPE":"liquidateAsset"},
-{"NAME":"ConditionalSell CrystallizedPensionBen ","CATEGORY":"Cashflow","FROM":"CrystallizedPensionBen","FROM_ABSOLUTE":true,"FROM_VALUE":"1000","TO":"Cash","TO_ABSOLUTE":false,"TO_VALUE":"1","DATE":"21/02/2020","STOP_DATE":"","RECURRENCE":"1m","TYPE":"liquidateAsset"},
-{"NAME":"ConditionalSell AegonTaxFree","CATEGORY":"Cashflow","FROM":"Jerry AegonTaxFree","FROM_ABSOLUTE":true,"FROM_VALUE":"250","TO":"Cash","TO_ABSOLUTE":false,"TO_VALUE":"1","DATE":"21/02/2020","STOP_DATE":"","RECURRENCE":"1m","TYPE":"liquidateAsset"},
-{"NAME":"ConditionalPayment to Mortgage 1","CATEGORY":"Property","FROM":"Cash","FROM_ABSOLUTE":true,"FROM_VALUE":"700","TO":"Mortgage","TO_ABSOLUTE":false,"TO_VALUE":"1.0","DATE":"21/02/2020","STOP_DATE":"","RECURRENCE":"1m","TYPE":"payOffDebt"},
-{"NAME":"ConditionalPayment to Jerry loan 1","CATEGORY":"","FROM":"Cash","FROM_ABSOLUTE":true,"FROM_VALUE":"250","TO":"Jerry loan","TO_ABSOLUTE":false,"TO_VALUE":"1.0","DATE":"21/02/2020","STOP_DATE":"","RECURRENCE":"1m","TYPE":"payOffDebt"},
-{"NAME":"ConditionalPayment to Ben loan 1","CATEGORY":"","FROM":"Cash","FROM_ABSOLUTE":true,"FROM_VALUE":"500","TO":"Ben loan","TO_ABSOLUTE":false,"TO_VALUE":"1.0","DATE":"21/02/2020","STOP_DATE":"","RECURRENCE":"1m","TYPE":"payOffDebt"}],
-"version":4,
-}`;
 export const pensionExampleData = `
 {"assets":[
   {"NAME":"Cash","CATEGORY":"","START":"1 Jan 2017","VALUE":"0.0","QUANTITY":"","GROWTH":"0.0","CPI_IMMUNE":true,"CAN_BE_NEGATIVE":true,"IS_A_DEBT":false,"LIABILITY":"","PURCHASE_PRICE":"0.0"},
@@ -1518,19 +1458,19 @@ function getBenAndJerryModel(): ModelData {
       },
     ],
     triggers: [
-      { NAME: 'Ben dies', DATE: '1 Jan 2068-08-30' },
-      { NAME: 'Ben retires', DATE: '1 Jan 2032-07-27' },
+      { NAME: 'Ben dies', DATE: '2068-08-30' },
+      { NAME: 'Ben retires', DATE: '2032-07-27' },
       {
         NAME: 'Ben state pension age',
-        DATE: '1 Jan 2040-08-30',
+        DATE: '2040-08-30',
       },
-      { NAME: 'Care costs start', DATE: '1 Jan 2060-02-20' },
-      { NAME: 'Downsize house', DATE: '1 Jan 2047-02-28' },
-      { NAME: 'Jerry dies', DATE: '1 Jan 2065-05-04' },
-      { NAME: 'Jerry retires', DATE: '1 Jan 2030-05-04' },
+      { NAME: 'Care costs start', DATE: '2060-02-20' },
+      { NAME: 'Downsize house', DATE: '2047-02-28' },
+      { NAME: 'Jerry dies', DATE: '2065-05-04' },
+      { NAME: 'Jerry retires', DATE: '2030-05-04' },
       {
         NAME: 'Jerry state pension age',
-        DATE: '1 Jan 2037-05-04',
+        DATE: '2037-05-04',
       },
     ],
     settings: [
@@ -1542,7 +1482,7 @@ function getBenAndJerryModel(): ModelData {
       },
       {
         NAME: 'End of view range',
-        VALUE: '2069',
+        VALUE: '1 Jan 2069',
         HINT: 'Date at the end of range to be plotted',
         TYPE: 'view',
       },
@@ -1609,7 +1549,7 @@ function getBenAndJerryModel(): ModelData {
         TYPE: 'auto',
       },
       {
-        NAME: 'PensionJerry work',
+        NAME: '-PEN Jerry work',
         FROM: 'Jerry salary',
         FROM_ABSOLUTE: false,
         FROM_VALUE: '0.05',
@@ -1866,6 +1806,306 @@ export function getPensionExampleData(): ModelData {
   return makeModelFromJSON(pensionExampleData);
 }
 
+function getBondModel() {
+  return makeModelFromJSONString(`
+  {
+    "triggers": [],
+    "incomes": [],
+    "expenses": [],
+    "transactions": [
+      {
+        "NAME": "Revalue of BondTargetValue 1",
+        "FROM": "",
+        "FROM_ABSOLUTE": true,
+        "FROM_VALUE": "0.0",
+        "TO": "BondTargetValue",
+        "TO_ABSOLUTE": true,
+        "TO_VALUE": "10",
+        "DATE": "1 Jan 2018",
+        "STOP_DATE": "",
+        "RECURRENCE": "",
+        "CATEGORY": "",
+        "TYPE": "revalueSetting"
+      },
+      {
+        "NAME": "BondInvest5y",
+        "FROM": "Cash",
+        "FROM_ABSOLUTE": true,
+        "FROM_VALUE": "BMVBondTargetValue2",
+        "TO": "Bond",
+        "TO_ABSOLUTE": false,
+        "TO_VALUE": "1.0",
+        "DATE": "1 Jan 2019",
+        "STOP_DATE": "1 Jan 2025",
+        "RECURRENCE": "1y",
+        "CATEGORY": "",
+        "TYPE": "bondInvest"
+      },
+      {
+        "NAME": "BondInvest4y",
+        "FROM": "Cash",
+        "FROM_ABSOLUTE": true,
+        "FROM_VALUE": "BMVBondTargetValue",
+        "TO": "Bond",
+        "TO_ABSOLUTE": false,
+        "TO_VALUE": "1.0",
+        "DATE": "1 Jan 2019",
+        "STOP_DATE": "",
+        "RECURRENCE": "",
+        "CATEGORY": "",
+        "TYPE": "bondInvest"
+      },
+      {
+        "NAME": "BondInvest3y",
+        "FROM": "Cash",
+        "FROM_ABSOLUTE": true,
+        "FROM_VALUE": "BMVBondTargetValue",
+        "TO": "Bond",
+        "TO_ABSOLUTE": false,
+        "TO_VALUE": "1.0",
+        "DATE": "1 Jan 2019",
+        "STOP_DATE": "",
+        "RECURRENCE": "",
+        "CATEGORY": "",
+        "TYPE": "bondInvest"
+      },
+      {
+        "NAME": "BondInvest2y",
+        "FROM": "Cash",
+        "FROM_ABSOLUTE": true,
+        "FROM_VALUE": "BMVBondTargetValue",
+        "TO": "Bond",
+        "TO_ABSOLUTE": false,
+        "TO_VALUE": "1.0",
+        "DATE": "1 Jan 2019",
+        "STOP_DATE": "",
+        "RECURRENCE": "",
+        "CATEGORY": "",
+        "TYPE": "bondInvest"
+      },
+      {
+        "NAME": "BondInvest1y",
+        "FROM": "Cash",
+        "FROM_ABSOLUTE": true,
+        "FROM_VALUE": "BMVBondTargetValue",
+        "TO": "Bond",
+        "TO_ABSOLUTE": false,
+        "TO_VALUE": "1.0",
+        "DATE": "1 Jan 2019",
+        "STOP_DATE": "",
+        "RECURRENCE": "",
+        "CATEGORY": "",
+        "TYPE": "bondInvest"
+      },
+      {
+        "NAME": "BondMature5y",
+        "FROM": "Bond",
+        "FROM_ABSOLUTE": true,
+        "FROM_VALUE": "BMVBondTargetValue2",
+        "TO": "Cash",
+        "TO_ABSOLUTE": false,
+        "TO_VALUE": "1.0",
+        "DATE": "1 Jan 2024",
+        "STOP_DATE": "1 Jan 2030",
+        "RECURRENCE": "1y",
+        "CATEGORY": "",
+        "TYPE": "bondMature"
+      },
+      {
+        "NAME": "BondMature4y",
+        "FROM": "Bond",
+        "FROM_ABSOLUTE": true,
+        "FROM_VALUE": "BMVBondTargetValue",
+        "TO": "Cash",
+        "TO_ABSOLUTE": false,
+        "TO_VALUE": "1.0",
+        "DATE": "1 Jan 2023",
+        "STOP_DATE": "",
+        "RECURRENCE": "",
+        "CATEGORY": "",
+        "TYPE": "bondMature"
+      },
+      {
+        "NAME": "BondMature3y",
+        "FROM": "Bond",
+        "FROM_ABSOLUTE": true,
+        "FROM_VALUE": "BMVBondTargetValue",
+        "TO": "Cash",
+        "TO_ABSOLUTE": false,
+        "TO_VALUE": "1.0",
+        "DATE": "1 Jan 2022",
+        "STOP_DATE": "",
+        "RECURRENCE": "",
+        "CATEGORY": "",
+        "TYPE": "bondMature"
+      },
+      {
+        "NAME": "BondMature2y",
+        "FROM": "Bond",
+        "FROM_ABSOLUTE": true,
+        "FROM_VALUE": "BMVBondTargetValue",
+        "TO": "Cash",
+        "TO_ABSOLUTE": false,
+        "TO_VALUE": "1.0",
+        "DATE": "1 Jan 2021",
+        "STOP_DATE": "",
+        "RECURRENCE": "",
+        "CATEGORY": "",
+        "TYPE": "bondMature"
+      },
+      {
+        "NAME": "BondMature1y",
+        "FROM": "Bond",
+        "FROM_ABSOLUTE": true,
+        "FROM_VALUE": "BMVBondTargetValue",
+        "TO": "Cash",
+        "TO_ABSOLUTE": false,
+        "TO_VALUE": "1.0",
+        "DATE": "1 Jan 2020",
+        "STOP_DATE": "",
+        "RECURRENCE": "",
+        "CATEGORY": "",
+        "TYPE": "bondMature"
+      },
+      {
+        "NAME": "Revalue of cpi",
+        "FROM": "",
+        "FROM_ABSOLUTE": true,
+        "FROM_VALUE": "0.0",
+        "TO": "cpi",
+        "TO_ABSOLUTE": true,
+        "TO_VALUE": "10",
+        "DATE": "1 Jan 2018",
+        "STOP_DATE": "",
+        "RECURRENCE": "",
+        "CATEGORY": "",
+        "TYPE": "revalueSetting"
+      },
+      {
+        "NAME": "Revalue of BondTargetValue2 1",
+        "FROM": "",
+        "FROM_ABSOLUTE": true,
+        "FROM_VALUE": "0.0",
+        "TO": "BondTargetValue2",
+        "TO_ABSOLUTE": true,
+        "TO_VALUE": "10",
+        "DATE": "1 Jan 2018",
+        "STOP_DATE": "",
+        "RECURRENCE": "",
+        "CATEGORY": "",
+        "TYPE": "revalueSetting"
+      },
+      {
+        "NAME": "Gain cash",
+        "FROM": "",
+        "FROM_ABSOLUTE": true,
+        "FROM_VALUE": "0.0",
+        "TO": "Cash",
+        "TO_ABSOLUTE": true,
+        "TO_VALUE": "10",
+        "DATE": "1 Jan 2018",
+        "STOP_DATE": "",
+        "RECURRENCE": "",
+        "CATEGORY": "",
+        "TYPE": "custom"
+      }
+    ],
+    "assets": [
+      {
+        "NAME": "Cash",
+        "CATEGORY": "",
+        "START": "January 1 2018",
+        "VALUE": "1000",
+        "QUANTITY": "",
+        "GROWTH": "0.0",
+        "CPI_IMMUNE": false,
+        "CAN_BE_NEGATIVE": false,
+        "IS_A_DEBT": false,
+        "LIABILITY": "",
+        "PURCHASE_PRICE": "0"
+      },
+      {
+        "NAME": "CPI.",
+        "CATEGORY": "",
+        "START": "1 Jan 2018",
+        "VALUE": "1000",
+        "QUANTITY": "",
+        "GROWTH": "0.0",
+        "CPI_IMMUNE": false,
+        "CAN_BE_NEGATIVE": false,
+        "IS_A_DEBT": false,
+        "LIABILITY": "",
+        "PURCHASE_PRICE": "0"
+      },
+      {
+        "NAME": "Bond",
+        "CATEGORY": "",
+        "START": "January 1 2018",
+        "VALUE": "1000",
+        "QUANTITY": "",
+        "GROWTH": "0.0",
+        "CPI_IMMUNE": true,
+        "CAN_BE_NEGATIVE": false,
+        "IS_A_DEBT": false,
+        "LIABILITY": "",
+        "PURCHASE_PRICE": "0"
+      }
+    ],
+    "settings": [
+      {
+        "NAME": "cpi",
+        "VALUE": "12",
+        "HINT": "",
+        "TYPE": "const"
+      },
+      {
+        "NAME": "Date of birth",
+        "VALUE": "",
+        "HINT": "Date used for representing dates as ages",
+        "TYPE": "view"
+      },
+      {
+        "NAME": "Today's value focus date",
+        "VALUE": "",
+        "HINT": "Date to use for 'today's value' tables (defaults to '' meaning today)",
+        "TYPE": "view"
+      },
+      {
+        "NAME": "Beginning of view range",
+        "VALUE": "Dec 1, 2017",
+        "HINT": "Date at the start of range to be plotted",
+        "TYPE": "view"
+      },
+      {
+        "NAME": "End of view range",
+        "VALUE": "June 1, 2031",
+        "HINT": "Date at the end of range to be plotted",
+        "TYPE": "view"
+      },
+      {
+        "NAME": "BondTargetValue",
+        "VALUE": "1",
+        "HINT": "",
+        "TYPE": "const"
+      },
+      {
+        "NAME": "BondTargetValue2",
+        "VALUE": "1",
+        "HINT": "",
+        "TYPE": "const"
+      },
+      {
+        "NAME": "mySetting",
+        "VALUE": "1",
+        "HINT": "",
+        "TYPE": "const"
+      }
+    ],
+    "version": 0
+  }
+  `);
+}
+
 export function getTestModel(input: string): ModelData {
   // log(`getTestModel making model for ${input}`);
   if (input === TestModel01) {
@@ -1875,7 +2115,10 @@ export function getTestModel(input: string): ModelData {
   } else if (input === CoarseAndFine) {
     return getModelCoarseAndFineForMigration();
   } else if (input === FutureExpense) {
-    return getModelFutureExpenseForMigration();
+    // log(`converting to from string`);
+    return makeModelFromJSON(
+      JSON.stringify(getModelFutureExpenseForMigration()),
+    );
   } else if (input === ThreeChryslerModel) {
     return getThreeChryslerModelForMigration();
   } else if (input === MinimalModel) {
@@ -1888,6 +2131,9 @@ export function getTestModel(input: string): ModelData {
     return getDefinedContributionsPension();
   } else if (input === pensionExampleData) {
     return getPensionExampleData();
+  } else if (input === bondModel) {
+    return getBondModel();
   }
+  /* istanbul ignore next */
   throw new Error('test model name not recognised');
 }

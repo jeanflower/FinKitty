@@ -4,8 +4,16 @@ import {
   viewType,
   taxPot,
   viewFrequency,
+  TestModel02,
+  TestModel01,
+  CoarseAndFine,
+  FutureExpense,
+  ThreeChryslerModel,
+  BenAndJerryModel,
 } from '../../localization/stringConstants';
 import { checkData } from '../../models/checks';
+import { diffModels } from '../../models/diffModels';
+import { getTestModel } from '../../models/exampleModels';
 import {
   makeModelFromJSON,
   makeModelFromJSONString,
@@ -487,5 +495,65 @@ describe('loadModelsFromJSON', () => {
       }
     }
     expect(foundError).toBe('code not properly handling versions');
+  });
+  it('check TestModel01', () => {
+    const model0 = makeModelFromJSONString('{ "testName": "TestModel01" }');
+    const model = getTestModel(TestModel01);
+    expect(diffModels(model, model0, false, 'model', 'model0')).toEqual([
+      'TransferMortgage: date Jan 01 2028 !== Sat Jan 01 2028',
+      'StopMainWork: date Dec 31 2050 !== Sat Dec 31 2050',
+      'GetRidOfCar: date Dec 31 2025 !== Wed Dec 31 2025',
+    ]);
+
+    const checkResult = checkData(makeModelFromJSON(JSON.stringify(model)));
+    if (checkResult.length > 0) {
+      log(`checkResult = ${checkResult}`);
+    }
+    expect(checkResult.length).toEqual(0);
+  });
+  it('check TestModel02', () => {
+    const model = getTestModel(TestModel02);
+
+    const checkResult = checkData(makeModelFromJSON(JSON.stringify(model)));
+    if (checkResult.length > 0) {
+      log(`checkResult = ${checkResult}`);
+    }
+    expect(checkResult.length).toEqual(0);
+  });
+  it('check CoarseAndFine', () => {
+    const model = getTestModel(CoarseAndFine);
+
+    const checkResult = checkData(makeModelFromJSON(JSON.stringify(model)));
+    if (checkResult.length > 0) {
+      log(`checkResult = ${checkResult}`);
+    }
+    expect(checkResult.length).toEqual(0);
+  });
+  it('check FutureExpense', () => {
+    const model = getTestModel(FutureExpense);
+
+    const checkResult = checkData(makeModelFromJSON(JSON.stringify(model)));
+    if (checkResult.length > 0) {
+      log(`checkResult = ${checkResult}`);
+    }
+    expect(checkResult.length).toEqual(0);
+  });
+  it('check ThreeChryslerModel', () => {
+    const model = getTestModel(ThreeChryslerModel);
+
+    const checkResult = checkData(makeModelFromJSON(JSON.stringify(model)));
+    if (checkResult.length > 0) {
+      log(`checkResult = ${checkResult}`);
+    }
+    expect(checkResult.length).toEqual(0);
+  });
+  it('check BenAndJerryModel', () => {
+    const model = getTestModel(BenAndJerryModel);
+
+    const checkResult = checkData(makeModelFromJSON(JSON.stringify(model)));
+    if (checkResult.length > 0) {
+      log(`checkResult = ${checkResult}`);
+    }
+    expect(checkResult.length).toEqual(0);
   });
 });

@@ -2805,9 +2805,7 @@ function calculateFromChange(
           if (sparts.length !== 3) {
             return false;
           }
-          /* istanbul ignore if */
           if (sparts[0] !== t.FROM_VALUE) {
-            log(`Error: malformed bond setting ${s.NAME}`);
             return false;
           }
           /* istanbul ignore if */
@@ -3233,7 +3231,7 @@ export function getMaturityDate(dInput: Date, n: string) {
   } else if (n.endsWith('1y')) {
     d.setFullYear(d.getFullYear() + 1);
   } else {
-    /* istanbul ignore next */
+    /* istanbul ignore if */
     log(
       `BUG - could not infer duration of bond from ${n} (does not end 1y etc)`,
     );

@@ -1,4 +1,4 @@
-import { separator, growth, revalue } from '../localization/stringConstants';
+import { separator } from '../localization/stringConstants';
 import { ItemCategory, ModelData } from '../types/interfaces';
 import { log } from '../utils/utils';
 import { makeSourceForFromChange } from './evaluations';

@@ -10,17 +10,7 @@ import {
 } from '../types/interfaces';
 import { log, printDebug, showObj } from '../utils/utils';
 
-function diffItem(i1: Item, i2: Item): string {
-  if (i1.NAME !== i2.NAME) {
-    return `name ${i1.NAME}`;
-  }
-  return '';
-}
 function diffTriggers(it1: Item, it2: Item): string {
-  const s = diffItem(it1, it2);
-  if (s.length > 0) {
-    return s;
-  }
   const t1 = it1 as Trigger;
   const t2 = it2 as Trigger;
   if (t1.DATE !== t2.DATE) {
@@ -29,10 +19,6 @@ function diffTriggers(it1: Item, it2: Item): string {
   return '';
 }
 function diffIncomes(it1: Item, it2: Item): string {
-  const s = diffItem(it1, it2);
-  if (s.length > 0) {
-    return s;
-  }
   const i1 = it1 as Income;
   const i2 = it2 as Income;
   if (i1.START !== i2.START) {
@@ -62,10 +48,6 @@ function diffIncomes(it1: Item, it2: Item): string {
   return '';
 }
 function diffExpenses(it1: Item, it2: Item): string {
-  const s = diffItem(it1, it2);
-  if (s.length > 0) {
-    return s;
-  }
   const e1 = it1 as Expense;
   const e2 = it2 as Expense;
   if (e1.START !== e2.START) {
@@ -81,7 +63,7 @@ function diffExpenses(it1: Item, it2: Item): string {
     return `${it1.NAME}: value set date ${e1.VALUE_SET} !== ${e2.VALUE_SET}`;
   }
   if (e1.GROWTH !== e2.GROWTH) {
-    return `${it1.NAME}: growth ${e1.GROWTH} !== ${e2.VALUE}`;
+    return `${it1.NAME}: growth ${e1.GROWTH} !== ${e2.GROWTH}`;
   }
   if (e1.CPI_IMMUNE !== e2.CPI_IMMUNE) {
     return `${it1.NAME}: cpi-immunity ${e1.CPI_IMMUNE} !== ${e2.CPI_IMMUNE}`;
@@ -95,20 +77,16 @@ function diffExpenses(it1: Item, it2: Item): string {
   return '';
 }
 function diffAssets(it1: Item, it2: Item): string {
-  const s = diffItem(it1, it2);
-  if (s.length > 0) {
-    return s;
-  }
   const a1 = it1 as Asset;
   const a2 = it2 as Asset;
   if (a1.START !== a2.START) {
     return `${it1.NAME}: start date ${a1.START} !== ${a2.START}`;
   }
   if (a1.VALUE !== a2.VALUE) {
-    return `${it1.NAME}: value ${a1.VALUE} !== ${a2.START}`;
+    return `${it1.NAME}: value ${a1.VALUE} !== ${a2.VALUE}`;
   }
   if (a1.QUANTITY !== a2.QUANTITY) {
-    return `${it1.NAME}: quantity ${a1.QUANTITY} !== ${a2.START}`;
+    return `${it1.NAME}: quantity ${a1.QUANTITY} !== ${a2.QUANTITY}`;
   }
   if (a1.CAN_BE_NEGATIVE !== a2.CAN_BE_NEGATIVE) {
     return `${it1.NAME}: negativity ${a1.CAN_BE_NEGATIVE} !== ${a2.CAN_BE_NEGATIVE}`;
@@ -132,10 +110,6 @@ function diffAssets(it1: Item, it2: Item): string {
 }
 
 function diffTransactions(it1: Item, it2: Item): string {
-  const s = diffItem(it1, it2);
-  if (s.length > 0) {
-    return s;
-  }
   const t1 = it1 as Transaction;
   const t2 = it2 as Transaction;
   if (t1.DATE !== t2.DATE) {
@@ -145,7 +119,7 @@ function diffTransactions(it1: Item, it2: Item): string {
     return `${it1.NAME}: end date ${t1.STOP_DATE} !== ${t2.STOP_DATE}`;
   }
   if (t1.TO !== t2.TO) {
-    return `${it1.NAME}: to ${t1.TO} !== ${t2.DATE}`;
+    return `${it1.NAME}: to ${t1.TO} !== ${t2.TO}`;
   }
   if (t1.TO_VALUE !== t2.TO_VALUE) {
     return `${it1.NAME}: to value ${t1.TO_VALUE} !== ${t2.TO_VALUE}`;
@@ -154,7 +128,7 @@ function diffTransactions(it1: Item, it2: Item): string {
     return `${it1.NAME}: from ${t1.FROM} !== ${t2.FROM}`;
   }
   if (t1.FROM_ABSOLUTE !== t2.FROM_ABSOLUTE) {
-    return `${it1.NAME}: from absolute date ${t1.FROM_ABSOLUTE} !== ${t2.FROM_ABSOLUTE}`;
+    return `${it1.NAME}: from absolute ${t1.FROM_ABSOLUTE} !== ${t2.FROM_ABSOLUTE}`;
   }
   if (t1.FROM_VALUE !== t2.FROM_VALUE) {
     //log(`${showObj(t1)}, \n${showObj(t2)}`); // Sometimes 0 and 0.0...
@@ -175,20 +149,16 @@ function diffTransactions(it1: Item, it2: Item): string {
   return '';
 }
 function diffSettings(it1: Item, it2: Item): string {
-  const s = diffItem(it1, it2);
-  if (s.length > 0) {
-    return s;
-  }
   const s1 = it1 as Setting;
   const s2 = it2 as Setting;
   if (s1.VALUE !== s2.VALUE) {
-    return `${it1.NAME}: value ${s1.VALUE} !== ${s1.NAME}`;
+    return `${it1.NAME}: value ${s1.VALUE} !== ${s2.VALUE}`;
   }
   if (s1.HINT !== s2.HINT) {
-    return `${it1.NAME}: hint ${s1.HINT} !== ${s1.HINT}`;
+    return `${it1.NAME}: hint ${s1.HINT} !== ${s2.HINT}`;
   }
   if (s1.TYPE !== s2.TYPE) {
-    return `${it1.NAME}: type ${s1.TYPE} !== ${s1.TYPE}`;
+    return `${it1.NAME}: type ${s1.TYPE} !== ${s2.TYPE}`;
   }
   return '';
 }
@@ -212,11 +182,11 @@ function diffItems(
       // log(`compare ${i1.NAME} and ${i2.NAME}`);
       return i1.NAME === i2.NAME;
     });
+    /* istanbul ignore else */
     if (matchedItems.length === 0) {
       result.push(`${i1.NAME} in ${model1Name} but not in ${model2Name}`);
-    } else if (matchedItems.length > 1) {
-      result.push(`duplicated name ${i1.NAME} present in ${model2Name}`);
-    } else {
+    } else if (matchedItems.length == 1) {
+      matchedNames.push(i1.NAME);
       const s = diffFn(i1, matchedItems[0], quickExit);
       // log(`comparison of ${i1.NAME} found diff ${s}`);
       if (s.length > 0) {
@@ -224,9 +194,9 @@ function diffItems(
         if (quickExit) {
           break;
         }
-      } else {
-        matchedNames.push(i1.NAME);
       }
+    } else {
+      result.push(`duplicated name ${i1.NAME} present in ${model2Name}`);
     }
   }
   if (result.length > 0 && quickExit) {
@@ -245,7 +215,9 @@ function diffItems(
       ) {
         return;
       }
-      result.push(`${i2.NAME} is in ${model2Name} but not in ${model1Name}`);
+      result.push(
+        `${i2.NAME} is in ${model2Name} but not matched in ${model1Name}`,
+      );
     });
   }
   return result;
@@ -341,8 +313,5 @@ export function diffModels(
       model2Name,
     ),
   );
-  if (s.length > 0 && quickExit) {
-    return s;
-  }
   return s;
 }

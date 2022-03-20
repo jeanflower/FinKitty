@@ -43,12 +43,14 @@ import {
   SettingVal,
 } from '../../types/interfaces';
 import {
+  Context,
   log,
   printDebug,
   suppressLogs,
   unSuppressLogs,
 } from '../../utils/utils';
 import {
+  isATransaction,
   makeModelFromJSON,
   makeModelFromJSONString,
   setROI,
@@ -95,7 +97,12 @@ describe('evaluations tests', () => {
     const modelAndRoi = getModelFutureExpense2();
     const model = modelAndRoi.model;
 
-    setSetting(model.settings, `Today's value focus date`, 'Jan 1 2017', viewType);
+    setSetting(
+      model.settings,
+      `Today's value focus date`,
+      'Jan 1 2017',
+      viewType,
+    );
 
     const evalsAndValues = getEvaluations(
       makeModelFromJSONString(JSON.stringify(model)),
@@ -112,14 +119,16 @@ describe('evaluations tests', () => {
     expect(evalsAndValues.todaysAssetValues.size).toEqual(0);
     expect(evalsAndValues.todaysDebtValues.size).toEqual(0);
     expect(evalsAndValues.todaysExpenseValues.size).toEqual(1);
-    expect(evalsAndValues.todaysExpenseValues.get('Phon')).toEqual(
-      { expenseVal: 0, category: '', expenseFreq: '1m' }
-    );
+    expect(evalsAndValues.todaysExpenseValues.get('Phon')).toEqual({
+      expenseVal: 0,
+      category: '',
+      expenseFreq: '1m',
+    });
     expect(evalsAndValues.todaysIncomeValues.size).toEqual(0);
     expect(evalsAndValues.todaysSettingValues.size).toEqual(1);
-    expect(evalsAndValues.todaysSettingValues.get('cpi')).toEqual(
-      { settingVal: '0' }
-    );
+    expect(evalsAndValues.todaysSettingValues.get('cpi')).toEqual({
+      settingVal: '0',
+    });
     // log(showObj(evals));
     expect(evalsAndValues.evaluations.length).toBe(0);
 
@@ -159,7 +168,12 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultModelSettings(roi)],
     };
-    setSetting(model.settings, `Today's value focus date`, 'Jan 1 2018', viewType);
+    setSetting(
+      model.settings,
+      `Today's value focus date`,
+      'Jan 1 2018',
+      viewType,
+    );
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -176,14 +190,16 @@ describe('evaluations tests', () => {
     expect(evalsAndValues.todaysAssetValues.size).toEqual(0);
     expect(evalsAndValues.todaysDebtValues.size).toEqual(0);
     expect(evalsAndValues.todaysExpenseValues.size).toEqual(1);
-    expect(evalsAndValues.todaysExpenseValues.get('Phon')).toEqual(
-      { expenseVal: 0, category: '', expenseFreq: '1m' }
-    );
+    expect(evalsAndValues.todaysExpenseValues.get('Phon')).toEqual({
+      expenseVal: 0,
+      category: '',
+      expenseFreq: '1m',
+    });
     expect(evalsAndValues.todaysIncomeValues.size).toEqual(0);
     expect(evalsAndValues.todaysSettingValues.size).toEqual(1);
-    expect(evalsAndValues.todaysSettingValues.get('cpi')).toEqual(
-      { settingVal: '0' }
-    );
+    expect(evalsAndValues.todaysSettingValues.get('cpi')).toEqual({
+      settingVal: '0',
+    });
 
     // this clumsy block is to allow printTestCodeForEvals to be "used"
     if (false) {
@@ -203,7 +219,7 @@ describe('evaluations tests', () => {
 
     const viewSettings = defaultTestViewSettings();
 
-    const result = makeChartDataFromEvaluations(model, viewSettings, {
+    let result = makeChartDataFromEvaluations(model, viewSettings, {
       evaluations: evals,
       todaysAssetValues: new Map<string, AssetVal>(),
       todaysDebtValues: new Map<string, DebtVal>(),
@@ -235,6 +251,54 @@ describe('evaluations tests', () => {
 
     expect(result.incomesData.length).toBe(0);
     expect(result.assetData.length).toBe(0);
+
+    viewSettings.toggleViewFilter(Context.Expense, 'Phon');
+
+    result = makeChartDataFromEvaluations(model, viewSettings, {
+      evaluations: evals,
+      todaysAssetValues: new Map<string, AssetVal>(),
+      todaysDebtValues: new Map<string, DebtVal>(),
+      todaysIncomeValues: new Map<string, IncomeVal>(),
+      todaysExpenseValues: new Map<string, ExpenseVal>(),
+      todaysSettingValues: new Map<string, SettingVal>(),
+    });
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(0);
+    expect(result.debtData.length).toBe(0);
+    expect(result.taxData.length).toBe(0);
+
+    viewSettings.toggleViewFilter(Context.Expense, 'Phon');
+
+    result = makeChartDataFromEvaluations(model, viewSettings, {
+      evaluations: evals,
+      todaysAssetValues: new Map<string, AssetVal>(),
+      todaysDebtValues: new Map<string, DebtVal>(),
+      todaysIncomeValues: new Map<string, IncomeVal>(),
+      todaysExpenseValues: new Map<string, ExpenseVal>(),
+      todaysSettingValues: new Map<string, SettingVal>(),
+    });
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(1);
+    expect(result.expensesData[0].item.NAME).toBe('Phon');
+    {
+      const chartPts = result.expensesData[0].chartDataPoints;
+      expect(chartPts.length).toBe(4);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 12.12, 2);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 12.24, 2);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 0, -1);
+    }
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(0);
+    expect(result.debtData.length).toBe(0);
+    expect(result.taxData.length).toBe(0);
+
     done();
   });
 
@@ -258,7 +322,12 @@ describe('evaluations tests', () => {
       settings: [...defaultModelSettings(roi)],
     };
     setSetting(model.settings, cpi, '12.0', constType); // approx 1% per month
-    setSetting(model.settings, `Today's value focus date`, 'Feb 3 2018', viewType);
+    setSetting(
+      model.settings,
+      `Today's value focus date`,
+      'Feb 3 2018',
+      viewType,
+    );
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -275,14 +344,16 @@ describe('evaluations tests', () => {
     expect(evalsAndValues.todaysAssetValues.size).toEqual(0);
     expect(evalsAndValues.todaysDebtValues.size).toEqual(0);
     expect(evalsAndValues.todaysExpenseValues.size).toEqual(1);
-    expect(evalsAndValues.todaysExpenseValues.get('Phon')).toEqual(
-      { expenseVal: 0, category: '', expenseFreq: '1m' }
-    );
+    expect(evalsAndValues.todaysExpenseValues.get('Phon')).toEqual({
+      expenseVal: 0,
+      category: '',
+      expenseFreq: '1m',
+    });
     expect(evalsAndValues.todaysIncomeValues.size).toEqual(0);
     expect(evalsAndValues.todaysSettingValues.size).toEqual(1);
-    expect(evalsAndValues.todaysSettingValues.get('cpi')).toEqual(
-      { settingVal: '12' }
-    );
+    expect(evalsAndValues.todaysSettingValues.get('cpi')).toEqual({
+      settingVal: '12',
+    });
 
     // printTestCodeForEvals(evals);
 
@@ -959,7 +1030,15 @@ describe('evaluations tests', () => {
 
     const viewSettings = defaultTestViewSettings();
 
-    viewSettings.setViewSetting(viewFrequency, annually);
+    expect(viewSettings.setViewSetting('nonsense', 'nonsense')).toBe(false);
+    expect(viewSettings.setViewSetting(viewFrequency, annually)).toBe(true);
+    expect(viewSettings.getViewSetting(viewFrequency, 'noValueFound')).toBe(
+      annually,
+    );
+    expect(viewSettings.getViewSetting('nonsense', 'noValueFound')).toBe(
+      'noValueFound',
+    );
+
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -1514,6 +1593,9 @@ describe('evaluations tests', () => {
       settings: [...defaultModelSettings(roi)],
     };
     setSetting(model.settings, cpi, '12', constType);
+
+    expect(isATransaction('invest', model)).toBe(true);
+    expect(isATransaction('invest2', model)).toBe(false);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -3262,11 +3344,6 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultModelSettings(roi)],
     };
-    model.settings.forEach((s) => {
-      if (s.NAME === assetChartFocus) {
-        s.VALUE = allItems;
-      }
-    });
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -3819,11 +3896,6 @@ describe('evaluations tests', () => {
         },
       ],
     };
-    model.settings.forEach((s) => {
-      if (s.NAME === assetChartFocus) {
-        s.VALUE = allItems;
-      }
-    });
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -5517,11 +5589,6 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultModelSettings(roi)],
     };
-    model.settings.forEach((s) => {
-      if (s.NAME === assetChartFocus) {
-        s.VALUE = allItems;
-      }
-    });
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -5585,11 +5652,6 @@ describe('evaluations tests', () => {
       ],
       settings: [...defaultModelSettings(roi)],
     };
-    model.settings.forEach((s) => {
-      if (s.NAME === assetChartFocus) {
-        s.VALUE = allItems;
-      }
-    });
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -5979,7 +6041,6 @@ describe('evaluations tests', () => {
     const revalueData = `
     {
     "triggers":[
-    {"NAME":"TransferMortgage","DATE":"2028-01-01"},
     {"NAME":"StopMainWork","DATE":"2050-12-31"},
     {"NAME":"GetRidOfCar","DATE":"2025-12-31"}
     ],
@@ -6899,14 +6960,22 @@ describe('evaluations tests', () => {
     done();
   });
   it('get category of asset, expense, income', () => {
-    const categoryCache = new Map<string, string>()
+    const categoryCache = new Map<string, string>();
     const model = makeModelFromJSON(billAndBenExampleData);
     expect(getCategory('', categoryCache, model)).toEqual('');
     expect(getCategory('nonsense', categoryCache, model)).toEqual('nonsense');
     expect(getCategory('CareCosts', categoryCache, model)).toEqual('Care');
     expect(getCategory('BenSalary', categoryCache, model)).toEqual('Salary');
-    expect(getCategory('BillStocks', categoryCache, model)).toEqual('Investment');
+    expect(getCategory('BillStocks', categoryCache, model)).toEqual(
+      'Investment',
+    );
     expect(getCategory('CareCosts', categoryCache, model)).toEqual('Care');
-    expect(getCategory('LeisureExpensesRetired/LeisureExpensesRetired', categoryCache, model)).toEqual('Leisure/Leisure');
+    expect(
+      getCategory(
+        'LeisureExpensesRetired/LeisureExpensesRetired',
+        categoryCache,
+        model,
+      ),
+    ).toEqual('Leisure/Leisure');
   });
 });

@@ -71,6 +71,7 @@ export function stringFromDate(d: Date): string {
     return dateString.replaceAll(',', '');
   } catch (e) {
     // log(`error from date ${d} = ${e}`);
+    /* istanbul ignore next */
     return '';
   }
 }

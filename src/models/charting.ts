@@ -323,7 +323,11 @@ e.g.
     }
   }
 
+  // e.g. for data in FutureExpense test data, the viewFrequency is captured
+  // as a setting, but we need it as part of the viewSettings object instead
   public migrateViewSettingString(context: string, value: string) {
+    context;
+    value;
     const ctxt = this.makeContextFromString(context);
     if (ctxt !== undefined) {
       if (this.show[ctxt].get(value) === undefined) {
@@ -335,7 +339,10 @@ e.g.
     if (this.kvPairs.get(context)) {
       this.kvPairs.set(context, value);
       if (context === viewFrequency && value !== annually) {
-        log(`migrateViewSettingString seting non-annual frequency`);
+        /* istanbul ignore if */
+        if (printDebug()) {
+          log(`migrateViewSettingString setting non-annual frequency`);
+        }
       }
       return true;
     } else {
@@ -398,6 +405,7 @@ function logMapOfMap(
   twoMap: Map<string, Map<string, number>>,
   display = false,
 ) {
+  /* istanbul ignore if */
   if (display) {
     log('twoMap:');
     for (const [key, value] of twoMap) {
@@ -415,6 +423,7 @@ function logMapOfMapofMap(
   threeMap: Map<any, Map<any, Map<any, any>>>,
   display = false,
 ) {
+  /* istanbul ignore if */
   if (display) {
     log('threeMap:');
     for (const [key, value] of threeMap) {
@@ -469,8 +478,8 @@ function makeChartDataPoints(
   dates: Date[],
   itemsIncoming: string[],
   settings: Setting[],
-  negateValues = false,
-  totalValues = false,
+  negateValues: boolean,
+  totalValues: boolean,
 ): ItemChartData[] {
   let dateNameValueMap = dateNameValueMapIncoming;
   let items = itemsIncoming;
@@ -517,6 +526,7 @@ function makeChartDataPoints(
         chartDataPointMap.set(item, []);
       }
       const chartArray = chartDataPointMap.get(item);
+      /* istanbul ignore if */
       if (chartArray === undefined) {
         log('BUG; chartArray should be defined');
       } else {
@@ -584,11 +594,10 @@ function displayWordAs(
   model: ModelData,
   viewSettings: ViewSettings,
 ) {
-  // log(`determine where/how to display ${showObj(word)} in a chart`);
+  //log(`determine where/how to display ${showObj(word)} in a chart`);
   const result = {
     asset: false,
     debt: false,
-    tax: false,
   };
 
   const assetMatch = model.assets.filter((a) => {
@@ -650,7 +659,6 @@ function displayAs(name: string, model: ModelData, viewSettings: ViewSettings) {
   const result = {
     asset: false,
     debt: false,
-    tax: false,
   };
   if (words.length > 1) {
     words.shift(); // remove the first item which is the description
@@ -665,9 +673,6 @@ function displayAs(name: string, model: ModelData, viewSettings: ViewSettings) {
     if (x.debt) {
       result.debt = true;
     }
-    if (x.tax) {
-      result.tax = true;
-    }
   });
   /* istanbul ignore if  */
   if (printDebug()) {
@@ -676,9 +681,6 @@ function displayAs(name: string, model: ModelData, viewSettings: ViewSettings) {
     }
     if (result.debt) {
       log(`display ${name} as an debt`);
-    }
-    if (result.tax) {
-      log(`display ${name} as tax`);
     }
   }
   return result;
@@ -741,6 +743,7 @@ function assignCategories(
         mapForChart.set(d, new Map<string, number>());
       }
       const nameValueMap = mapForChart.get(d);
+      /* istanbul ignore if */
       if (nameValueMap === undefined) {
         log('BUG - map should exist');
         return;
@@ -799,6 +802,7 @@ function filterIncomeOrExpenseItems(
         mapForChart.set(d, new Map<string, number>());
       }
       const nameValueMap = mapForChart.get(d);
+      /* istanbul ignore if */
       if (nameValueMap === undefined) {
         log('BUG - map should exist');
         return;
@@ -869,10 +873,7 @@ function getSettingsValues(viewSettings: ViewSettings) {
     taxChartShowNet,
     allItems,
   );
-  const taxChartNet =
-    taxChartNetString === 'Y' ||
-    taxChartNetString === 'y' ||
-    taxChartNetString === 'yes';
+  const taxChartNet = taxChartNetString === 'Y';
   return {
     detail,
     frequency,
@@ -911,12 +912,6 @@ function mapNamesToTypes(model: ModelData) {
   });
   model.assets.forEach((asset) => {
     nameToTypeMap.set(asset.NAME, evaluationType.asset);
-    if (asset.NAME.startsWith(pensionDB)) {
-      nameToTypeMap.set(
-        `${asset.NAME}Contribution`,
-        evaluationType.taxLiability,
-      );
-    }
     const liabilities = asset.LIABILITY.split(separator);
     liabilities.forEach((l) => {
       if (l.endsWith(cgt)) {
@@ -933,7 +928,10 @@ function mapNamesToTypes(model: ModelData) {
         // log(`netIncomeTag = ${netIncomeTag}, icTag   = ${icTag}`);
         nameToTypeMap.set(netIncomeTag, evaluationType.taxLiability);
         nameToTypeMap.set(icTag, evaluationType.taxLiability);
-      } else if (l.endsWith(nationalInsurance)) {
+      }
+      /* istanbul ignore if */
+      if (l.endsWith(nationalInsurance)) {
+        log(`Error : didn't expect an asse to be liable to NI??`);
         const person = l.substring(0, l.length - nationalInsurance.length);
         const niTag = makeNationalInsuranceTag(person);
         const netIncomeTag = makeNetIncomeTag(person);
@@ -1166,6 +1164,7 @@ export function makeChartData(
         const matchingIncome = model.incomes.find((i) => {
           return i.NAME === evaln.name;
         });
+        /* istanbul ignore if */
         if (matchingIncome === undefined) {
           throw new Error(`couldn't match income for ${evaln.name}`);
         }
@@ -1196,6 +1195,7 @@ export function makeChartData(
         //   +`${evaln.name}, ${evaln.value}, ${evaln.source}`);
         const existingValue = nameValueMap.get(evaln.name);
 
+        /* istanbul ignore else */
         if (evalnType === evaluationType.taxLiability) {
           //  log(`set taxLiability ${showObj(evaln)}`);
           nameValueMap.set(evaln.source, evaln.value);

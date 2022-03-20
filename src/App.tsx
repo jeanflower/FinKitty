@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 import React, { Component, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import {

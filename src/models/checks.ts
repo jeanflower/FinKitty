@@ -78,10 +78,8 @@ const numberStringCache = new Map<string, boolean>();
 // let numComputedResults = 0;
 export function isNumberString(input: string) {
   if (input === '' || input === undefined) {
+    log(`Error: don't expect empty or undefined inputs to isNumberString`);
     return false;
-  }
-  if (typeof input === 'number') {
-    return input;
   }
   const numberStringCacheResult = numberStringCache.get(input);
   if (numberStringCacheResult !== undefined) {
@@ -92,10 +90,6 @@ export function isNumberString(input: string) {
   // numComputedResults = numComputedResults + 1;
   // log(`cached = ${numCachedResults}, computed = ${numComputedResults}`);
 
-  if (!input.replace) {
-    log(`input has no replace; ${input}`);
-    return '';
-  }
   const re = new RegExp('^[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)$');
   const result = input.replace(re, '');
   const outcome = result === '';
@@ -138,7 +132,7 @@ function checkTransactionWords(
       !name.startsWith(pensionDB) && // transfer from income to pension benefit
       !name.startsWith(pensionTransfer) // transfer from one pension to another
     ) {
-      log(`Transaction ${name} from income
+      log(`Transaction ${name} from income 
         ${word} must be pension-related`);
       return false;
     }
@@ -170,13 +164,8 @@ function checkDate(d: Date) {
   return true;
 }
 export function checkAssetLiability(l: string) {
-  if (
-    l.length > 0 &&
-    !l.endsWith(cgt) &&
-    !l.endsWith(incomeTax) &&
-    !l.endsWith(nationalInsurance)
-  ) {
-    return `Asset liability ${l} should end with ${cgt}, ${incomeTax} or ${nationalInsurance}`;
+  if (l.length > 0 && !l.endsWith(cgt) && !l.endsWith(incomeTax)) {
+    return `Asset liability ${l} should end with ${cgt} or ${incomeTax}`;
   }
   return '';
 }
@@ -301,26 +290,20 @@ export function checkIncome(i: Income, model: ModelData): string {
   if (parts.length > 3) {
     return (
       `Income liability for '${i.NAME}' has parts '${parts}' ` +
-      `but should contain at most two parts`
+      `but should contain at most three parts`
     );
   }
   let incomeTaxName = '';
   let niName = '';
   for (const l of parts) {
     /* eslint-disable-line no-restricted-syntax */
-    if (
-      l.length > 0 &&
-      !l.endsWith(incomeTax) &&
-      !l.endsWith(nationalInsurance)
-    ) {
-      const x = checkIncomeLiability(l);
-      if (x.length > 0) {
-        return (
-          `Income liability for '${i.NAME}' has parts '${parts}' ` +
-          `but the part '${l}' should end with ` +
-          `'${incomeTax}' or '${nationalInsurance}'`
-        );
-      }
+    const x = checkIncomeLiability(l);
+    if (x.length > 0) {
+      return (
+        `Income liability for '${i.NAME}' has parts '${parts}' ` +
+        `but the part '${l}' should end with ` +
+        `'${incomeTax}' or '${nationalInsurance}'`
+      );
     }
     if (l.endsWith(incomeTax)) {
       incomeTaxName = l.substring(0, l.length - incomeTax.length);
@@ -923,13 +906,9 @@ function isCustomType(t: Transaction) {
   if (
     !t.NAME.startsWith(conditional) &&
     !t.NAME.startsWith(crystallizedPension) &&
-    !t.NAME.startsWith(pensionDB) &&
-    //!t.NAME.startsWith(pensionSS) &&
-    !t.NAME.startsWith(revalue)
+    !t.NAME.startsWith(pensionDB)
+    //!t.NAME.startsWith(pensionSS)
   ) {
-    recognised = true;
-  }
-  if (!recognised && t.NAME.startsWith(revalue)) {
     recognised = true;
   }
   return recognised;
@@ -1142,8 +1121,10 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
       return s.NAME === trimmedFromValue;
     });
     if (matchedSettings.length === 0) {
+      /* istanbul ignore next */ // triggers Transaction 'from' value must be numbers or a setting
       return `May only invest into Bond if there's a setting ${trimmedFromValue} : malformed transaction ${t.NAME}`;
     } else if (matchedSettings.length > 1) {
+      /* istanbul ignore next */ // don't expect duplicate settings
       return `May only invest into Bond if there's a unique setting ${trimmedFromValue} : malformed transaction ${t.NAME}`;
     }
     // This setting should be revalued and only revalued before the investment
@@ -1222,11 +1203,12 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
       if (invests.length === 0) {
         return `Malformed model : bond maturation ${t.NAME} requires an investment`;
       } else {
+        /* istanbul ignore next */ // don't test models with multiple investments
         return `Malformed model : bond maturation ${t.NAME} requires only one investment`;
       }
     }
   } else {
-    // log(`checking for use of ${bondMaturity} out of context in ${t.FROM_VALUE}`);
+    // log(`checking ${t.NAME} for use of ${bondMaturity} out of context in ${t.FROM_VALUE}`);
     if (t.FROM_VALUE.startsWith(bondMaturity)) {
       // log(`from value begins ${bondMaturity}!`);
       return `Malformed transaction : only ${bondInvest} and ${bondMature} types use ${bondMaturity}`;
@@ -1296,6 +1278,7 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
   const tFromValue = parseFloat(t.FROM_VALUE);
   // log(`transaction ${showObj(t)} appears OK`);
   if (!t.FROM_ABSOLUTE && tFromValue > 1.0) {
+    /* istanbul ignore next */
     log(`WARNING : not-absolute value from ${tFromValue} > 1.0`);
   }
   if (
@@ -1308,6 +1291,7 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
     t.TYPE !== revalueInc &&
     t.TYPE !== revalueSetting
   ) {
+    /* istanbul ignore next */
     log(`WARNING : ${t.NAME} has not-absolute value to ${tToValue} > 1.0`);
   }
   // log(`checkTransaction is OK for ${t.NAME}`);
@@ -1578,28 +1562,39 @@ export function checkEvalnType(
       // it was just logged to track CGT liability
       return;
     }
+    /* istanbul ignore next */
     if (evalnType === undefined) {
+      /* istanbul ignore next */
       throw new Error(
         `BUG!! purchase evaluation of an unknown type: ${showObj(evaln)}`,
       );
       //return;
     }
+    /* istanbul ignore next */
     log(`BUG!! Purchase of non-asset? : ${showObj(evaln)}`);
   } else if (evaln.name.startsWith(quantity)) {
     // expect 'quantity' as keeping track of discrete assets
     const evalnType = nameToTypeMap.get(evaln.name.substring(quantity.length));
+    /* istanbul ignore else */
     if (evalnType === evaluationType.asset) {
       return;
+    } else {
+      log(`Error: unexpected map re evaln expense ${evaln.name}`);
     }
   } else if (evaln.name.startsWith(bondMaturity)) {
     // expect 'BMV' as keeping track of amounts for bonds maturing
-    const evalnType = nameToTypeMap.get(
-      evaln.name.substring(bondMaturity.length),
-    );
+    const shortenedName = evaln.name
+      .substring(bondMaturity.length)
+      .split(separator)[0];
+    const evalnType = nameToTypeMap.get(shortenedName);
+    /* istanbul ignore else */
     if (evalnType === evaluationType.setting) {
       return;
+    } else {
+      log(`Error: unexpected map re evaln name ${evaln.name}`);
     }
   } else {
+    /* istanbul ignore next */
     throw new Error(`BUG!! evaluation of an unknown type: ${showObj(evaln)}`);
   }
 }
