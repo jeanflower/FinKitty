@@ -31,7 +31,7 @@ import {
   cpPrefix,
   penPrefix,
 } from '../localization/stringConstants';
-import { getDisplay, refreshData } from '../App';
+import { refreshData } from '../App';
 import { Context, log, printDebug, showObj } from '../utils/utils';
 
 import { makeButton } from './reactComponents/Button';
@@ -55,6 +55,7 @@ import {
   Tooltip as ChartTooltip,
   Legend,
 } from 'chart.js';
+import { getDisplay } from '../utils/viewUtils';
 
 ChartJS.register(
   CategoryScale,

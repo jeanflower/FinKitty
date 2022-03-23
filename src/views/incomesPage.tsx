@@ -9,7 +9,6 @@ import {
 } from './tablePages';
 import {
   deleteIncome,
-  getDisplay,
   submitIncome,
   submitTransaction,
   submitTrigger,
@@ -29,6 +28,7 @@ import { ViewSettings } from '../models/charting';
 import { getTodaysDate } from '../models/modelUtils';
 import { lessThan } from '../utils/stringUtils';
 import { log, printDebug } from '../utils/utils';
+import { getDisplay } from '../utils/viewUtils';
 
 function addToMap(name: string, val: IncomeVal, myMap: Map<string, IncomeVal>) {
   const existingEntry = myMap.get(name);

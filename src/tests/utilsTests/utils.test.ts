@@ -35,10 +35,33 @@ import {
   simpleTransaction,
 } from '../../models/exampleModels';
 import {
+  allItems,
+  annually,
+  assetsView,
   bondInvest,
   CASH_ASSET_NAME,
+  chartAdditions,
+  chartReductions,
+  chartVals,
+  chartViewType,
+  debtsView,
+  expensesView,
+  fine,
+  homeView,
+  incomesView,
   MinimalModel,
+  overview,
+  reportView,
+  settingsView,
+  taxChartFocusPerson,
+  taxChartFocusType,
+  taxChartShowNet,
+  taxView,
   ThreeChryslerModel,
+  transactionsView,
+  triggersView,
+  viewDetail,
+  viewFrequency,
 } from '../../localization/stringConstants';
 import {
   attemptRenameLong,
@@ -60,9 +83,15 @@ import {
   bondMaturity,
 } from '../../localization/stringConstants';
 import { ModelData } from '../../types/interfaces';
-import { endOfTime, log } from '../../utils/utils';
+import { Context, endOfTime, log } from '../../utils/utils';
 import { getTestEvaluations } from '../algoTests/algoTestUtils';
 import { diffModels } from '../../models/diffModels';
+import {
+  getColor,
+  getDefaultViewSettings,
+  getDisplay,
+  views,
+} from '../../utils/viewUtils';
 
 log;
 
@@ -1931,5 +1960,87 @@ describe('utils tests', () => {
     expect(diffResult.length).toBe(0);
 
     // log(`model = ${JSON.stringify(model)}`);
+  });
+  it(`test default view settings`, () => {
+    const settings = getDefaultViewSettings();
+    expect(settings.getChartViewType(chartAdditions)).toBe(false);
+    expect(settings.getChartViewType(chartReductions)).toBe(false);
+    expect(settings.getChartViewType(chartVals)).toBe(true);
+    expect(settings.getShowAll(Context.Asset)).toEqual(true);
+    expect(settings.getShowAll(Context.Debt)).toEqual(true);
+    expect(settings.getShowAll(Context.Income)).toEqual(true);
+    expect(settings.getShowAll(Context.Expense)).toEqual(true);
+    expect(settings.getShowItem(Context.Asset, 'nonsense')).toEqual(false);
+    expect(settings.getShowItem(Context.Debt, 'nonsense')).toEqual(false);
+    expect(settings.getShowItem(Context.Income, 'nonsense')).toEqual(false);
+    expect(settings.getShowItem(Context.Expense, 'nonsense')).toEqual(false);
+    expect(settings.getViewSetting(viewDetail, fine)).toEqual('Detailed view');
+    expect(settings.getViewSetting(chartViewType, chartVals)).toEqual('val');
+    expect(settings.getViewSetting(taxChartFocusPerson, allItems)).toEqual(
+      'All',
+    );
+    expect(settings.getViewSetting(taxChartFocusType, allItems)).toEqual('All');
+    expect(settings.getViewSetting(taxChartShowNet, allItems)).toEqual('Y');
+    expect(settings.getViewSetting(viewFrequency, annually)).toEqual(annually);
+
+    expect(settings.setViewSetting('nonsense', 'nonsense')).toBe(false);
+    expect(settings.getViewSetting(viewFrequency, 'noValueFound')).toBe(
+      annually,
+    );
+    expect(settings.getViewSetting('nonsense', 'noValueFound')).toBe(
+      'noValueFound',
+    );
+
+    expect(views.get(homeView)?.display).toBe(true);
+    expect(views.get(overview)?.display).toBe(false);
+    expect(views.get(incomesView)?.display).toBe(false);
+    expect(views.get(expensesView)?.display).toBe(false);
+    expect(views.get(assetsView)?.display).toBe(false);
+    expect(views.get(debtsView)?.display).toBe(false);
+    expect(views.get(taxView)?.display).toBe(false);
+    expect(views.get(triggersView)?.display).toBe(false);
+    expect(views.get(transactionsView)?.display).toBe(false);
+    expect(views.get(reportView)?.display).toBe(false);
+    expect(views.get(settingsView)?.display).toBe(false);
+
+    expect(getDisplay(homeView)).toBe(true);
+    expect(getDisplay(overview)).toBe(false);
+    expect(getDisplay(incomesView)).toBe(false);
+    expect(getDisplay(expensesView)).toBe(false);
+    expect(getDisplay(assetsView)).toBe(false);
+    expect(getDisplay(debtsView)).toBe(false);
+    expect(getDisplay(taxView)).toBe(false);
+    expect(getDisplay(triggersView)).toBe(false);
+    expect(getDisplay(transactionsView)).toBe(false);
+    expect(getDisplay(reportView)).toBe(false);
+    expect(getDisplay(settingsView)).toBe(false);
+  });
+
+  it('test colors', () => {
+    const expectedValues = [
+      { r: 78, g: 129, b: 188 },
+      { r: 192, g: 80, b: 78 },
+      { r: 156, g: 187, b: 88 },
+      { r: 35, g: 191, b: 170 },
+      { r: 128, g: 100, b: 161 },
+      { r: 75, g: 172, b: 197 },
+      { r: 247, g: 150, b: 71 },
+      { r: 127, g: 96, b: 132 },
+      { r: 119, g: 160, b: 50 },
+      { r: 51, g: 85, b: 139 },
+      { r: 78, g: 129, b: 188 },
+      { r: 192, g: 80, b: 78 },
+      { r: 156, g: 187, b: 88 },
+      { r: 35, g: 191, b: 170 },
+      { r: 128, g: 100, b: 161 },
+      { r: 75, g: 172, b: 197 },
+      { r: 247, g: 150, b: 71 },
+      { r: 127, g: 96, b: 132 },
+      { r: 119, g: 160, b: 50 },
+      { r: 51, g: 85, b: 139 },
+    ];
+    for (let i = 0; i < 19; i = i + 1) {
+      expect(getColor(i)).toEqual(expectedValues[i]);
+    }
   });
 });

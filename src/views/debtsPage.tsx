@@ -3,7 +3,6 @@ import { checkAsset, checkTransaction } from '../models/checks';
 import { debtsDivWithHeadings, defaultColumn, addIndices } from './tablePages';
 import {
   deleteAsset,
-  getDisplay,
   submitAsset,
   submitTransaction,
   submitTrigger,
@@ -21,6 +20,7 @@ import { getTodaysDate } from '../models/modelUtils';
 import { lessThan } from '../utils/stringUtils';
 import { collapsibleFragment } from './tablePages';
 import { log, printDebug } from '../utils/utils';
+import { getDisplay } from '../utils/viewUtils';
 
 function addToMap(name: string, val: DebtVal, myMap: Map<string, DebtVal>) {
   const existingEntry = myMap.get(name);

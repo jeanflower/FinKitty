@@ -32,7 +32,7 @@ import React from 'react';
 import { ViewSettings } from '../models/charting';
 import { Col, Container, Row } from 'react-bootstrap';
 import { log, printDebug } from '../utils/utils';
-import { getDisplay } from '../App';
+import { getDisplay } from '../utils/viewUtils';
 
 function suppressLegend(barData: ChartData) {
   return {

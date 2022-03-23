@@ -1,4 +1,3 @@
-import { migrateViewSetting } from '../App';
 import {
   roiEnd,
   viewType,
@@ -34,6 +33,7 @@ import {
 import { ModelData } from '../types/interfaces';
 import { getMinimalModelCopy, viewSetting } from './exampleModels';
 import { log } from '../utils/utils';
+import { migrateViewSetting } from '../App';
 
 // 0; // may not include assets or settings in minimalModel
 // 1; // may not include expense recurrence, asset/debt,

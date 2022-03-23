@@ -15,37 +15,18 @@ import { AddDeleteTransactionForm } from './views/reactComponents/AddDeleteTrans
 import { AddDeleteTriggerForm } from './views/reactComponents/AddDeleteTriggerForm';
 import { makeButton } from './views/reactComponents/Button';
 import {
-  allItems,
-  annually,
-  assetChartFocus,
-  chartVals,
-  chartViewType,
-  assetsView,
   autogen,
   custom,
-  debtChartFocus,
-  debtsView,
   exampleModelName,
-  expenseChartFocus,
-  expensesView,
-  fine,
   homeView,
-  incomeChartFocus,
-  incomesView,
   overview,
   reportView,
   roiEnd,
   roiStart,
   settingsView,
-  taxChartFocusPerson,
-  taxChartFocusType,
-  taxChartShowNet,
-  taxView,
   transactionsView,
   triggersView,
   ViewType,
-  viewDetail,
-  viewFrequency,
   viewType,
   purchase,
   defaultSourceMatcher,
@@ -54,8 +35,6 @@ import {
   bondMature,
   evalModeOption,
   checkModelOnEditOption,
-  //  pension,
-  //  crystallizedPension,
 } from './localization/stringConstants';
 import {
   AssetVal,
@@ -144,6 +123,12 @@ import { diffModels } from './models/diffModels';
 import { collapsibleFragment } from './views/tablePages';
 import WaitGif from './views/catWait.gif';
 import packageData from '../package.json';
+import {
+  getColor,
+  getDefaultViewSettings,
+  getDisplay,
+  views,
+} from './utils/viewUtils';
 
 // import './bootstrap.css'
 
@@ -153,52 +138,6 @@ let isDirty = false; // does the model need saving?
 
 export function getAppVersion(): string {
   return packageData.version;
-}
-
-export function getDefaultViewSettings(): ViewSettings {
-  const result = new ViewSettings([
-    {
-      NAME: viewFrequency,
-      VALUE: annually,
-    },
-    {
-      NAME: chartViewType,
-      VALUE: chartVals,
-    },
-    {
-      NAME: viewDetail,
-      VALUE: fine,
-    },
-    {
-      NAME: assetChartFocus,
-      VALUE: allItems,
-    },
-    {
-      NAME: debtChartFocus,
-      VALUE: allItems,
-    },
-    {
-      NAME: expenseChartFocus,
-      VALUE: allItems,
-    },
-    {
-      NAME: incomeChartFocus,
-      VALUE: allItems,
-    },
-    {
-      NAME: taxChartFocusPerson,
-      VALUE: allItems,
-    },
-    {
-      NAME: taxChartFocusType,
-      VALUE: allItems,
-    },
-    {
-      NAME: taxChartShowNet,
-      VALUE: 'Y',
-    },
-  ]);
-  return result;
 }
 
 function App(): JSX.Element | null {
@@ -237,80 +176,6 @@ function App(): JSX.Element | null {
   userID = '';
   return null;
 }
-
-const views = new Map<
-  ViewType,
-  {
-    display: boolean;
-  }
->([
-  [
-    homeView,
-    {
-      display: true,
-    },
-  ],
-  [
-    overview,
-    {
-      display: false,
-    },
-  ],
-  [
-    incomesView,
-    {
-      display: false,
-    },
-  ],
-  [
-    expensesView,
-    {
-      display: false,
-    },
-  ],
-  [
-    assetsView,
-    {
-      display: false,
-    },
-  ],
-  [
-    debtsView,
-    {
-      display: false,
-    },
-  ],
-  [
-    taxView,
-    {
-      display: false,
-    },
-  ],
-  [
-    triggersView,
-    {
-      display: false,
-    },
-  ],
-  [
-    transactionsView,
-    {
-      display: false,
-    },
-  ],
-  [
-    reportView,
-    {
-      display: false,
-    },
-  ],
-  [
-    settingsView,
-    {
-      display: false,
-    },
-  ],
-]);
 
 const exampleModels = [
   {
@@ -360,48 +225,6 @@ export function migrateViewSetting(input: Setting): boolean {
   }
 }
 
-export function getDisplay(type: ViewType): boolean {
-  const view = views.get(type);
-  if (view === undefined) {
-    log(`Error : unrecognised view ${type}`);
-    return false;
-  }
-  const result = view.display;
-  return result;
-}
-
-// from https://coolors.co
-const colors = [
-  '4E81BC',
-  'C0504E',
-  '9CBB58',
-  '23BFAA',
-  '8064A1',
-  '4BACC5',
-  'F79647',
-  '7F6084',
-  '77A032',
-  '33558B',
-];
-
-function hexToRgb(hex: string) {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result
-    ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16),
-      }
-    : {
-        r: 30,
-        g: 30,
-        b: 100,
-      };
-}
-
-function getColor(index: number) {
-  return hexToRgb(colors[index % colors.length]);
-}
 function makeBarData(labels: string[], chartData: ItemChartData[]): ChartData {
   return {
     labels: labels,

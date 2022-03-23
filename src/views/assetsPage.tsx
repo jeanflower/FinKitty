@@ -3,7 +3,6 @@ import { assetsDivWithHeadings, defaultColumn, addIndices } from './tablePages';
 import { checkAsset, checkTransaction } from '../models/checks';
 import {
   deleteAsset,
-  getDisplay,
   submitAsset,
   submitTransaction,
   submitTrigger,
@@ -21,6 +20,7 @@ import { getTodaysDate } from '../models/modelUtils';
 import { lessThan } from '../utils/stringUtils';
 import { collapsibleFragment } from './tablePages';
 import { log, printDebug } from '../utils/utils';
+import { getDisplay } from '../utils/viewUtils';
 
 function addToMap(name: string, val: AssetVal, myMap: Map<string, AssetVal>) {
   const existingEntry = myMap.get(name);

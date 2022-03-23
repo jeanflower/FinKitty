@@ -8,7 +8,6 @@ import {
 } from './tablePages';
 import {
   deleteExpense,
-  getDisplay,
   submitExpense,
   submitTransaction,
   submitTrigger,
@@ -29,6 +28,7 @@ import { getTodaysDate } from '../models/modelUtils';
 import { lessThan } from '../utils/stringUtils';
 import { collapsibleFragment } from './tablePages';
 import { log, printDebug } from '../utils/utils';
+import { getDisplay } from '../utils/viewUtils';
 
 function addToMap(
   name: string,

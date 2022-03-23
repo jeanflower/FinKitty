@@ -51,7 +51,6 @@ import {
   deleteTransaction,
   deleteTrigger,
   editSetting,
-  getDisplay,
   setReportKey,
   submitAsset,
   submitExpense,
@@ -103,6 +102,7 @@ import { ReactFragment } from 'react';
 import { Accordion, Button, Card } from 'react-bootstrap';
 import { filtersList } from './chartPages';
 import { ReportMatcherForm } from './reactComponents/ReportMatcherForm';
+import { getDisplay } from '../utils/viewUtils';
 
 export function collapsibleFragment(
   fragment: ReactFragment | undefined,

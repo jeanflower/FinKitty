@@ -1029,15 +1029,7 @@ describe('evaluations tests', () => {
     expectEvals(evals, 5, 'PRnd', 'Fri Jun 01 2018', 5.24, 2);
 
     const viewSettings = defaultTestViewSettings();
-
-    expect(viewSettings.setViewSetting('nonsense', 'nonsense')).toBe(false);
     expect(viewSettings.setViewSetting(viewFrequency, annually)).toBe(true);
-    expect(viewSettings.getViewSetting(viewFrequency, 'noValueFound')).toBe(
-      annually,
-    );
-    expect(viewSettings.getViewSetting('nonsense', 'noValueFound')).toBe(
-      'noValueFound',
-    );
 
     const result = makeChartDataFromEvaluations(
       model,
