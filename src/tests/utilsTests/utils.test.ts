@@ -1172,7 +1172,7 @@ describe('utils tests', () => {
       TO: 'ISAs',
       TO_ABSOLUTE: false,
       TO_VALUE: '1',
-      STOP_DATE: '2022',
+      STOP_DATE: '1 Jan 2022',
       RECURRENCE: '1m',
       TYPE: 'custom',
       CATEGORY: '',
@@ -1187,7 +1187,7 @@ describe('utils tests', () => {
     */
 
     expect(getTestEvaluations(model2, true, true).evaluations.length).toBe(
-      2864,
+      2862,
     );
     const oldModelCopy = JSON.parse(JSON.stringify(model2));
 
