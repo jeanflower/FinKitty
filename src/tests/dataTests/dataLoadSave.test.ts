@@ -526,7 +526,12 @@ describe('load save tests', () => {
           log('checked model for userName is changed and is dirty');
         }
 
-        await saveModelToDBLSM(junkUserName2, junkModelName, modelData.model);
+        const savedOK = await saveModelToDBLSM(
+          junkUserName2,
+          junkModelName,
+          modelData.model,
+        );
+        expect(savedOK).toBe(true);
 
         if (printStory) {
           log(`saved junk model ${junkUserName2}`);
