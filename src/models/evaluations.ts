@@ -4201,19 +4201,7 @@ function traceEvaluationForToday(
     // log(`evaluation of ${name} undefined`);
     return 0.0;
   } else {
-    let valForEvaluations = numberVal;
-    let baseVal: number | undefined;
-    if (growthData(name, growths, values).adjustForCPI) {
-      baseVal = getNumberValue(values, baseForCPI);
-      if (baseVal) {
-        const newValForEvaluations = valForEvaluations * baseVal;
-        // log(`scale ${valForEvaluations} by baseVal = ${baseVal} to give ${newValForEvaluations}`);
-        valForEvaluations = newValForEvaluations;
-      } else {
-        /* istanbul ignore next */
-        log(`Error: missing or zero base value!`);
-      }
-    }
+    const valForEvaluations = numberVal;
     // log(`evaluation of ${name} today is ${valForEvaluations}`);
     return valForEvaluations;
   }
