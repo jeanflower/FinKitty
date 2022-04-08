@@ -830,6 +830,8 @@ export async function addDate(
   date: string,
   message: string,
 ) {
+  await gotoTabPage(driver, overviewTag);
+  await gotoTabPage(driver, datesTag);
   let input = await driver.findElements(webdriver.By.id('triggername'));
   expect(input.length === 1).toBe(true);
   input[0].sendKeys(name);

@@ -21,7 +21,7 @@ import {
 } from '../localization/stringConstants';
 import { isSetting } from '../models/modelUtils';
 import { Setting, ModelData, Trigger } from '../types/interfaces';
-import { log } from './utils';
+import { log, printDebug } from './utils';
 
 export function lessThan(a: string, b: string) {
   if (a.startsWith('-') && !b.startsWith('-')) {
@@ -47,16 +47,65 @@ export function lessThan(a: string, b: string) {
 
 export function makeDateFromString(input: string) {
   // special-case parsing for DD/MM/YYYY
-  const dateMomentObject = moment(input, 'DD/MM/YYYY');
-  const dateObject = dateMomentObject.toDate(); // convert moment.js object to Date object
-  if (!Number.isNaN(dateObject.getTime())) {
-    // log(`converted ${input} into ${dateObject.toDateString()}`);
-    return dateObject;
+  let regex = /^\d{1,2}\/\d{1,2}\/\d{4}$/;
+  if (input.match(regex) !== null) {
+    const dateMomentObject = moment(input, 'DD/MM/YYYY');
+    const dateObject = dateMomentObject.toDate(); // convert moment.js object to Date object
+    if (!Number.isNaN(dateObject.getTime())) {
+      // log(`converted ${input} into ${dateObject.toDateString()}`);
+      return dateObject;
+    }
+  } else {
+    // process '12 May 2021' format
+    regex = /^\d{1,2} [a-zA-Z]* \d{2,4}$/;
+    if (input.match(regex) !== null) {
+      return new Date(input);
+    }
+    // process 'Sat 12 May 2021' format
+    regex = /^[a-zA-Z]* \d{1,2} [a-zA-Z]* \d*$/;
+    if (input.match(regex) !== null) {
+      return new Date(input);
+    }
+    // process 'Sat May 12 2021' format
+    regex = /^[a-zA-Z]* [a-zA-Z]* \d{1,2} \d*$/;
+    if (input.match(regex) !== null) {
+      return new Date(input);
+    }
+    // process 'May 12 2021' , 'May 12, 2021' format
+    regex = /^[a-zA-Z]* \d{1,2},{0,1} \d*$/;
+    if (input.match(regex) !== null) {
+      return new Date(input);
+    }
+    // process 'May 2021' format
+    regex = /^[a-zA-Z]* \d{4}$/;
+    if (input.match(regex) !== null) {
+      return new Date(input);
+    }
+    // process 'May 1, 2018 00:00:00'
+    regex = /^[a-zA-Z]* \d{1,2}, \d{4} \d{2}:\d{2}:\d{2}$/;
+    if (input.match(regex) !== null) {
+      return new Date(input);
+    }
+    // process '1/1/2021'
+    regex = /^\d{1,2}\/\d{1,2}\/\d{4}$/;
+    if (input.match(regex) !== null) {
+      return new Date(input);
+    }
+    // process '9 September 2021 8:00'
+    regex = /^\d{1,2} [a-zA-Z]* \d{4} \d{1,2}:\d{2}$/;
+    if (input.match(regex) !== null) {
+      return new Date(input);
+    }
+
+    // process '2021' format - dangerous but common for e.g. start / end of view
+    regex = /^\d{4}$/;
+    if (input.match(regex) !== null) {
+      return new Date(input);
+    }
   }
 
-  const result = new Date(input);
-  // log(`converted ${input} into ${result}`);
-  return result;
+  // console.log(`invalid date : ${input}`);
+  return new Date('invalid date');
 }
 
 export function stringFromDate(d: Date): string {
@@ -542,6 +591,11 @@ function parseTriggerForOperator(
         }
         // log(`converted ${triggerName} into ${firstPartDate.toDateString()}`);
         return firstPartDate;
+      } else {
+        /* istanbul ignore if */
+        if (printDebug()) {
+          log(`Error: can't understand ${triggerName}`);
+        }
       }
     }
   }
@@ -553,7 +607,7 @@ function findMatchedTriggerDate(
   triggers: Trigger[],
   recursionLevel: number,
 ): Date | undefined {
-  if (recursionLevel > 100) {
+  if (recursionLevel > 10) {
     //log(`infinite or too-complex recursion for dates - emergency stop`);
     return undefined;
   }

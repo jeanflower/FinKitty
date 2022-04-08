@@ -110,12 +110,12 @@ describe('utils tests', () => {
     expect(lessThan(`a`, 'A')).toBe(1);
   });
   it('makeDateFromString', () => {
-    expect(makeDateFromString('01/02/01').toDateString()).toBe(
-      'Thu Feb 01 2001',
+    expect(makeDateFromString('nonsense').toDateString()).toBe('Invalid Date');
+    expect(makeDateFromString('getTrust+1d').toDateString()).toBe(
+      'Invalid Date',
     );
-    expect(makeDateFromString('01/02/99').toDateString()).toBe(
-      'Mon Feb 01 1999',
-    );
+    expect(makeDateFromString('01/02/01').toDateString()).toBe('Invalid Date');
+    expect(makeDateFromString('01/02/99').toDateString()).toBe('Invalid Date');
     expect(makeDateFromString('01/02/2001').toDateString()).toBe(
       'Thu Feb 01 2001',
     );
@@ -139,6 +139,9 @@ describe('utils tests', () => {
     );
     expect(makeDateFromString('01 February 2001').toDateString()).toBe(
       'Thu Feb 01 2001',
+    );
+    expect(makeDateFromString('9 September 2021 8:00').toDateString()).toBe(
+      'Thu Sep 09 2021',
     );
   });
 
