@@ -28,7 +28,7 @@ in Auth0 Tenant Settings page.
 ### One-off setup steps
 Install git and npm
 
-git clone this repo, go into the finance folder, and do npm install.
+git clone this repo, go into the FinKitty folder and do npm install.
 
 If you see warnings, and an invitation to npm audit, then try
 ``npm audit --production``
@@ -49,23 +49,22 @@ install a local DB, e.g. following instructions here
 https://docs.mongodb.com/manual/tutorial/install-mongodb-on-os-x/
 
 The `start*.sh` scripts expect a folder structure
-with finkitty, FinServer and mongo as sibling folders.
+with FinKitty, FinServer inside a FinKitty folder, and mongo as sibling to the top FinKitty folder.
 
 ## Everyday scripts for developers
 
 ### Run a local web server for the app
-Start the web server locally (but still use cloud db):
-`./startLocalWebServer.sh`
-
 For local database and fast, network-free development
 and testing, ensure you have FinServer and mongo
-installed, then run the four scripts in sequence
+set up, then run the four scripts in sequence
 ```
 ./start1LocalDB.sh
 ./start2LocalRESTServer.sh
 ./start3LocalDBAndWebServer.sh
 ./start4Tests.sh
 ```
+To start the web server locally but still use cloud db:
+`./startLocalWebServer.sh`
 
 Open [https://localhost:3000](https://localhost:3000) to view it in the browser.
 
