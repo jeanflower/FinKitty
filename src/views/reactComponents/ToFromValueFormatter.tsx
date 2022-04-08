@@ -11,7 +11,9 @@ interface ToFromValueFormatterProps {
 class ToFromValueFormatter extends React.Component<ToFromValueFormatterProps> {
   public render() {
     let result: string;
-    if (isNumberString(this.props.value)) {
+    if (this.props.value === '') {
+      result = '';
+    } else if (isNumberString(this.props.value)) {
       result = makeStringFromFromToValue(this.props.value);
     } else {
       result = this.props.value;
