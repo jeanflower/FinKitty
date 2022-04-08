@@ -176,9 +176,16 @@ export class RESTDB implements DbInterface {
 
     return (
       fetch(`${url}update`, requestOptions)
-        .then((response) => {
+        .then(async (response) => {
           // log(`update successful`);
-          const result = response.text();
+          // log(`response = ${JSON.stringify(response)}`);
+          /* istanbul ignore if */
+          if (response.status > 399) {
+            // e.g. 413 means Payload too large
+            log(`status from save attempt: ${response.statusText}`);
+            return 'Failed to save';
+          }
+          const result = await response.text();
           // log(`response.text() = ${result}`);
           return result;
         })
@@ -187,11 +194,17 @@ export class RESTDB implements DbInterface {
           if (printDebug()) {
             log(result);
           }
+          /* istanbul ignore if */
+          if (result === 'Failed to save') {
+            return false;
+          }
+          return true;
         })
         /* istanbul ignore next */
         .catch((error) => {
           /* istanbul ignore next */
-          log(`error ${error}`);
+          log(`error from update ${error}`);
+          return false;
         })
     );
   }

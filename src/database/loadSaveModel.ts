@@ -468,11 +468,11 @@ export async function saveModelToDBLSM(
     }
   }
   getDB().ensureModel(userID, modelName);
-  await getDB().saveModel(userID, modelName, modelData);
-  if (status) {
+  const savedOK = await getDB().saveModel(userID, modelName, modelData);
+  if (savedOK && status) {
     status.isDirty = false;
   }
-  return true; // TODO there's no accounting for failure here
+  return savedOK;
 }
 
 export async function submitSettingLSM(

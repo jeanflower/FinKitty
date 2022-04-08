@@ -1703,12 +1703,20 @@ export class AppContent extends Component<AppProps, AppState> {
             modelName: string,
             modelData: ModelData,
           ) => {
-            await saveModelToDBLSM(userID, modelName, modelData);
-            refreshData(
-              true, // refreshModel = true,
-              true, // refreshChart = true,
-              22, //sourceID
+            const savedOK = await saveModelToDBLSM(
+              userID,
+              modelName,
+              modelData,
             );
+            if (savedOK) {
+              refreshData(
+                true, // refreshModel = true,
+                true, // refreshChart = true,
+                22, //sourceID
+              );
+            } else {
+              alert('save failed!');
+            }
           }}
           showAlert={showAlert}
           cloneModel={this.cloneModel}
@@ -2302,12 +2310,20 @@ export class AppContent extends Component<AppProps, AppState> {
       'Save model',
       async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.persist();
-        await saveModelToDBLSM(userID, modelName, this.state.modelData);
-        refreshData(
-          true, // refreshModel = true,
-          true, // refreshChart = true,
-          27, //sourceID
+        const savedOK = await saveModelToDBLSM(
+          userID,
+          modelName,
+          this.state.modelData,
         );
+        if (savedOK) {
+          refreshData(
+            true, // refreshModel = true,
+            true, // refreshChart = true,
+            27, //sourceID
+          );
+        } else {
+          alert(`save failed!`);
+        }
       },
       `btn-save-model`,
       `btn-save-model`,
