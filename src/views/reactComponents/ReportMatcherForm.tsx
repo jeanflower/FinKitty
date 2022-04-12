@@ -100,6 +100,19 @@ export class ReportMatcherForm extends Component<
 
   private async submit(e: FormEvent<Element>) {
     e.preventDefault();
+    try {
+      const regex1 = RegExp(this.state.sourceMatcher);
+      const regex2 = RegExp(this.state.sourceExcluder);
+      if ('test'.match(regex1) === null) {
+        // log(`do not show source ${source} bcs it doesn't match ${matcher}`);
+      }
+      if ('test'.match(regex2) === null) {
+        // log(`do not show source ${source} bcs it doesn't match ${matcher}`);
+      }
+    } catch (e) {
+      alert('error processing regexp');
+      return false;
+    }
 
     this.props.setReportKey(
       JSON.stringify({
