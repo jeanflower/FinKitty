@@ -5197,126 +5197,130 @@ export function getEvaluations(
   });
   // log(`maturityTransactions = ${showObj(maturityTransactions)}`);
 
-  maturityTransactions.forEach((mt) => {
-    const d = new Date(mt.DATE);
-    if (d > roiEndDate) {
-      roiEndDate = d;
-    }
-  });
-  roiEndDate.setMonth(roiEndDate.getMonth() + 1);
-  const adjustedModel: ModelData = {
-    triggers: model.triggers,
-    expenses: [],
-    incomes: [],
-    transactions: model.transactions.filter((t) => {
-      return t.TYPE === revalueSetting || t.FROM_VALUE.startsWith(bondMaturity);
-    }),
-    assets: model.assets
-      .filter((a) => {
-        return (
-          a.NAME === CASH_ASSET_NAME ||
-          model.transactions.find((t) => {
-            return t.FROM_VALUE.startsWith(bondMaturity) && t.FROM === a.NAME;
-          }) !== undefined
-        );
-      })
-      .concat([
-        {
-          NAME: `${bondMaturity}base`,
-          CATEGORY: '',
-          START: roiStartDate.toDateString(),
-          VALUE: '1.0',
-          QUANTITY: '', // Quantised assets have unit prices on-screen for table value
-          // Quantised assets can only be transacted in unit integer quantities
-          GROWTH: '0.0',
-          CPI_IMMUNE: false,
-          CAN_BE_NEGATIVE: true,
-          IS_A_DEBT: false,
-          LIABILITY: '',
-          PURCHASE_PRICE: '0.0',
-        },
-      ]),
-    settings: model.settings.concat([
-      {
-        NAME: `${bondMaturity}Prerun`,
-        VALUE: '0.0',
-        HINT: 'suppress warnings on prerun',
-        TYPE: constType,
-      },
-    ]),
-    version: model.version,
-    undoModel: undefined,
-    redoModel: undefined,
-  };
-  const roiEndSetting = model.settings.find((s) => {
-    return s.NAME === roiEnd;
-  });
-  let oldRoiEnd = '';
-  if (roiEndSetting) {
-    oldRoiEnd = roiEndSetting.VALUE;
-    roiEndSetting.VALUE = roiEndDate.toDateString();
-  }
-
-  // log(`START FIRST EVALUATIONS LOOP`);
-  const adjustedEvals = getEvaluationsInternal(adjustedModel, undefined);
-  // log(`adjustedEvals = ${showObj(adjustedEvals)}`);
-
-  if (roiEndSetting) {
-    roiEndSetting.VALUE = oldRoiEnd;
-  }
-
   const generatedSettings: Setting[] = [];
 
-  for (let i = 0; i < adjustedEvals.evaluations.length; i = i + 1) {
-    const evaln = adjustedEvals.evaluations[i];
-    if (evaln.name === CASH_ASSET_NAME) {
-      continue;
-    }
-    const t = maturityTransactions.find((t) => t.NAME === evaln.source);
-    if (t !== undefined) {
-      const settingName = `${t.FROM_VALUE}${separator}${stringFromDate(
-        evaln.date,
-      )}${separator}${cpi}`;
-      // log(`for t.NAME = ${t.NAME}`);
-      // ${bondMaturity}BondTargetValue${separator}${transactionDateString}${separator}${cpi}
-      // look forward through our evals looking for a base value when this
-      // BondTargetValue was revalued
-      let baseStart = 1.0;
-      for (let j = 0; j < adjustedEvals.evaluations.length; j = j + 1) {
-        const startEvaln = adjustedEvals.evaluations[j];
-        if (startEvaln.name === `${bondMaturity}base`) {
-          // log(`base val before revalue is ${startEvaln.value}`);
-          baseStart = startEvaln.value;
-          continue;
-        }
-        if (
-          startEvaln.name === t.FROM_VALUE.substring(bondMaturity.length) &&
-          startEvaln.source === revalue
-        ) {
-          break;
-        }
+  if (maturityTransactions.length > 0) {
+    maturityTransactions.forEach((mt) => {
+      const d = new Date(mt.DATE);
+      if (d > roiEndDate) {
+        roiEndDate = d;
       }
+    });
+    roiEndDate.setMonth(roiEndDate.getMonth() + 1);
+    const adjustedModel: ModelData = {
+      triggers: model.triggers,
+      expenses: [],
+      incomes: [],
+      transactions: model.transactions.filter((t) => {
+        return (
+          t.TYPE === revalueSetting || t.FROM_VALUE.startsWith(bondMaturity)
+        );
+      }),
+      assets: model.assets
+        .filter((a) => {
+          return (
+            a.NAME === CASH_ASSET_NAME ||
+            model.transactions.find((t) => {
+              return t.FROM_VALUE.startsWith(bondMaturity) && t.FROM === a.NAME;
+            }) !== undefined
+          );
+        })
+        .concat([
+          {
+            NAME: `${bondMaturity}base`,
+            CATEGORY: '',
+            START: roiStartDate.toDateString(),
+            VALUE: '1.0',
+            QUANTITY: '', // Quantised assets have unit prices on-screen for table value
+            // Quantised assets can only be transacted in unit integer quantities
+            GROWTH: '0.0',
+            CPI_IMMUNE: false,
+            CAN_BE_NEGATIVE: true,
+            IS_A_DEBT: false,
+            LIABILITY: '',
+            PURCHASE_PRICE: '0.0',
+          },
+        ]),
+      settings: model.settings.concat([
+        {
+          NAME: `${bondMaturity}Prerun`,
+          VALUE: '0.0',
+          HINT: 'suppress warnings on prerun',
+          TYPE: constType,
+        },
+      ]),
+      version: model.version,
+      undoModel: undefined,
+      redoModel: undefined,
+    };
+    const roiEndSetting = model.settings.find((s) => {
+      return s.NAME === roiEnd;
+    });
+    let oldRoiEnd = '';
+    if (roiEndSetting) {
+      oldRoiEnd = roiEndSetting.VALUE;
+      roiEndSetting.VALUE = roiEndDate.toDateString();
+    }
 
-      // look back through our evals looking for a base value just before this maturity
-      for (let j = i; j > 0; j = j - 1) {
-        const earlierEvaln = adjustedEvals.evaluations[j];
-        if (earlierEvaln.name.startsWith(`${bondMaturity}base`)) {
-          // log(`going back in time, ${showObj(earlierEvaln)}`);
-          const settingValue = earlierEvaln.value;
-          // log(`generate setting ${settingName}, value ${settingValue}/${baseStart} = ${settingValue/baseStart} `);
-          if (
-            generatedSettings.find((s) => {
-              return s.NAME === settingName;
-            }) === undefined
-          ) {
-            generatedSettings.push({
-              NAME: settingName,
-              VALUE: `${settingValue / baseStart}`,
-              HINT: 'autogenerated setting for Bond maturity values',
-              TYPE: constType,
-            });
+    // log(`START FIRST EVALUATIONS LOOP`);
+    const adjustedEvals = getEvaluationsInternal(adjustedModel, undefined);
+    // log(`adjustedEvals = ${showObj(adjustedEvals)}`);
+
+    if (roiEndSetting) {
+      roiEndSetting.VALUE = oldRoiEnd;
+    }
+
+    for (let i = 0; i < adjustedEvals.evaluations.length; i = i + 1) {
+      const evaln = adjustedEvals.evaluations[i];
+      if (evaln.name === CASH_ASSET_NAME) {
+        continue;
+      }
+      const t = maturityTransactions.find((t) => t.NAME === evaln.source);
+      if (t !== undefined) {
+        const settingName = `${t.FROM_VALUE}${separator}${stringFromDate(
+          evaln.date,
+        )}${separator}${cpi}`;
+        // log(`for t.NAME = ${t.NAME}`);
+        // ${bondMaturity}BondTargetValue${separator}${transactionDateString}${separator}${cpi}
+        // look forward through our evals looking for a base value when this
+        // BondTargetValue was revalued
+        let baseStart = 1.0;
+        for (let j = 0; j < adjustedEvals.evaluations.length; j = j + 1) {
+          const startEvaln = adjustedEvals.evaluations[j];
+          if (startEvaln.name === `${bondMaturity}base`) {
+            // log(`base val before revalue is ${startEvaln.value}`);
+            baseStart = startEvaln.value;
+            continue;
           }
-          break;
+          if (
+            startEvaln.name === t.FROM_VALUE.substring(bondMaturity.length) &&
+            startEvaln.source === revalue
+          ) {
+            break;
+          }
+        }
+
+        // look back through our evals looking for a base value just before this maturity
+        for (let j = i; j > 0; j = j - 1) {
+          const earlierEvaln = adjustedEvals.evaluations[j];
+          if (earlierEvaln.name.startsWith(`${bondMaturity}base`)) {
+            // log(`going back in time, ${showObj(earlierEvaln)}`);
+            const settingValue = earlierEvaln.value;
+            // log(`generate setting ${settingName}, value ${settingValue}/${baseStart} = ${settingValue/baseStart} `);
+            if (
+              generatedSettings.find((s) => {
+                return s.NAME === settingName;
+              }) === undefined
+            ) {
+              generatedSettings.push({
+                NAME: settingName,
+                VALUE: `${settingValue / baseStart}`,
+                HINT: 'autogenerated setting for Bond maturity values',
+                TYPE: constType,
+              });
+            }
+            break;
+          }
         }
       }
     }
