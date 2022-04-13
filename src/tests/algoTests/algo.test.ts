@@ -393,6 +393,134 @@ describe('evaluations tests', () => {
     done();
   });
 
+  it('should apply cpi and absolute-revalue expense', (done) => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'May 2, 2018 00:00:00',
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      expenses: [
+        {
+          ...simpleExpense,
+          START: 'January 1 2018',
+          END: 'April 2 2018',
+          NAME: 'Phon',
+          VALUE: '2',
+          VALUE_SET: 'January 1 2018',
+        },
+      ],
+      settings: [...defaultModelSettings(roi)],
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: 'Revalue of phone bill',
+          TO: 'Phon',
+          TO_VALUE: '3.00',
+          TO_ABSOLUTE: true,
+          DATE: 'March 1 2018',
+          TYPE: revalueExp,
+        },
+        {
+          NAME: 'Revalue cpi',
+          FROM: '',
+          FROM_ABSOLUTE: true,
+          FROM_VALUE: '',
+          TO: 'cpi',
+          TO_ABSOLUTE: true,
+          TO_VALUE: '0.0',
+          DATE: 'Feb 02 2018',
+          STOP_DATE: '',
+          RECURRENCE: '',
+          TYPE: 'revalueSetting',
+          CATEGORY: '',
+        },
+      ],
+    };
+    setSetting(model.settings, cpi, '12.0', constType); // approx 1% per month
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+    // log(`evals = ${showObj(evals)}`);
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(7);
+    expectEvals(evals, 0, 'cpi', 'Fri Feb 02 2018', 12, -1);
+    expectEvals(evals, 1, 'Phon', 'Mon Jan 01 2018', 2, -1);
+    expectEvals(evals, 2, 'Phon', 'Thu Feb 01 2018', 2.02, 2);
+    expectEvals(evals, 3, 'cpi', 'Fri Feb 02 2018', 0, -1);
+    expectEvals(evals, 4, 'Phon', 'Thu Mar 01 2018', 2.04, 2);
+    expectEvals(evals, 5, 'Phon', 'Thu Mar 01 2018', 3, -1);
+    expectEvals(evals, 6, 'Phon', 'Sun Apr 01 2018', 3, -1);
+
+    done();
+  });
+
+  it('should apply cpi and proportional-revalue expense', (done) => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'May 2, 2018 00:00:00',
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      expenses: [
+        {
+          ...simpleExpense,
+          START: 'January 1 2018',
+          END: 'April 2 2018',
+          NAME: 'Phon',
+          VALUE: '2',
+          VALUE_SET: 'January 1 2018',
+        },
+      ],
+      settings: [...defaultModelSettings(roi)],
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: 'Revalue of phone bill',
+          TO: 'Phon',
+          TO_VALUE: '3.00',
+          TO_ABSOLUTE: false,
+          DATE: 'March 1 2018',
+          TYPE: revalueExp,
+        },
+        {
+          NAME: 'Revalue cpi',
+          FROM: '',
+          FROM_ABSOLUTE: true,
+          FROM_VALUE: '',
+          TO: 'cpi',
+          TO_ABSOLUTE: true,
+          TO_VALUE: '0.0',
+          DATE: 'Feb 02 2018',
+          STOP_DATE: '',
+          RECURRENCE: '',
+          TYPE: 'revalueSetting',
+          CATEGORY: '',
+        },
+      ],
+    };
+    setSetting(model.settings, cpi, '12.0', constType); // approx 1% per month
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+    // log(`evals = ${showObj(evals)}`);
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(7);
+    expectEvals(evals, 0, 'cpi', 'Fri Feb 02 2018', 12, -1); // date?
+    expectEvals(evals, 1, 'Phon', 'Mon Jan 01 2018', 2, -1);
+    expectEvals(evals, 2, 'Phon', 'Thu Feb 01 2018', 2.02, 2);
+    expectEvals(evals, 3, 'cpi', 'Fri Feb 02 2018', 0, -1);
+    expectEvals(evals, 4, 'Phon', 'Thu Mar 01 2018', 2.04, 2);
+    expectEvals(evals, 5, 'Phon', 'Thu Mar 01 2018', 6.11, 2);
+    expectEvals(evals, 6, 'Phon', 'Sun Apr 01 2018', 6.11, 2);
+
+    done();
+  });
+
   it('should ignore future expenses B', (done) => {
     const roi = {
       start: 'Dec 1, 2016 00:00:00',
@@ -690,7 +818,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it("shouldn't see effect of cpi for cpi-immune expense", (done) => {
+  it(`shouldn't see effect of cpi for cpi-immune expense`, (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 2, 2018 00:00:00',

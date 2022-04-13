@@ -612,12 +612,14 @@ function setValue(
       source,
     };
     // log(`add evaluation for ${name} at ${date}`);
-    //    log(`add evaluation ${showObj({
-    //      name: evaln.name,
-    //      date: evaln.date.toDateString(),
-    //      value: evaln.value,
-    //      source: evaln.source,
-    //    })}`);
+    // log(
+    //  `add evaluation ${showObj({
+    //    name: evaln.name,
+    //    date: evaln.date.toDateString(),
+    //    value: evaln.value,
+    //    source: evaln.source,
+    //  })}`,
+    // );
     evaluations.push(evaln);
     /* istanbul ignore if  */ //debug
     if (printDebug()) {
@@ -2648,9 +2650,37 @@ function revalueApplied(
         }
       });
     }
+
+    let appliedBaseVal = false;
+    if (
+      t.TO_ABSOLUTE &&
+      typeof tToValue === 'number' &&
+      growthData(w, growths, values).adjustForCPI
+    ) {
+      const baseVal = getNumberValue(values, baseForCPI);
+      /* istanbul ignore else  */ //error
+      if (baseVal) {
+        log(
+          `for ${
+            moment.name
+          } scale ${tToValue} by baseVal = ${baseVal} to give ${
+            tToValue / baseVal
+          }`,
+        );
+        const newValForEvaluations = tToValue / baseVal;
+        tToValue = newValForEvaluations;
+        appliedBaseVal = true;
+      } else {
+        log(`Error: missing or zero base value!`);
+      }
+    }
+
     // log(`passing ${t.TO_VALUE} as new value of ${moment.name}`);
     // log('in revalueApplied:');
-    if (!t.TO_ABSOLUTE && tToValue !== undefined) {
+    if (
+      (!t.TO_ABSOLUTE && tToValue !== undefined) ||
+      (appliedBaseVal && typeof tToValue === 'number')
+    ) {
       setValue(
         values,
         growths,
@@ -4661,7 +4691,7 @@ function growAndEffectMoment(
     growths,
     moment.name,
   );
-  // log(`oldStoredNumberVal of ${moment.name} is ${oldStoredNumberVal}`);
+  // log(`visiblePoundValue for ${moment.name} is ${visiblePoundValue}`);
   if (visiblePoundValue === undefined) {
     const val = values.get(moment.name);
     if (val !== undefined) {
@@ -4685,6 +4715,7 @@ function growAndEffectMoment(
     if (visiblePoundValue && growthObj && growthObj.adjustForCPI && baseVal) {
       oldStoredNumberVal /= baseVal;
     }
+    // log(`oldStoredNumberVal for ${moment.name} is ${oldStoredNumberVal}`);
     // log(`growthObj for ${moment.name} = ${showObj(growthObj)}`);
     /* istanbul ignore if  */ //error
     if (!growthObj) {
@@ -4709,7 +4740,11 @@ function growAndEffectMoment(
       if (growthChangeScale !== 0) {
         changedToStoredValue = oldStoredNumberVal * growthChangeScale;
         changeToVisibleCash = changedToStoredValue;
-        // log(`for ${growthChangeScale}, changedToStoredValue is ${changedToStoredValue}`);
+        //log(
+        //  `for ${growthChangeScale}, changedToStoredValue is oldStoredNumberVal * growthChangeScale = ${oldStoredNumberVal} * ${growthChangeScale} = ${
+        //    oldStoredNumberVal * growthChangeScale
+        //  }`,
+        //);
       }
 
       let cPIChange = 0.0;
@@ -4734,9 +4769,13 @@ function growAndEffectMoment(
         // recover pre-existing value (don't save back as number value)
         const storedVal = values.get(moment.name);
         if (storedVal !== undefined) {
+          // log(`set valToStore as storedVal ${storedVal}`);
           valToStore = storedVal;
         }
       } else {
+        //log(
+        //  `adjust valToStore by changedToStoredValue ${changedToStoredValue}`,
+        //);
         valToStore += changedToStoredValue;
         // log(`val to store at ${moment.date} = ${valToStore}`);
       }
@@ -4758,7 +4797,7 @@ function growAndEffectMoment(
           growths,
           moment.date,
           growth,
-          '22', //callerID
+          '22a', //callerID
         );
       } else {
         // log(`set the value of ${moment.name} as ${valToStore}`);
@@ -4771,7 +4810,7 @@ function growAndEffectMoment(
           valToStore,
           model,
           growth,
-          '22', //callerID
+          '22b', //callerID
         );
       }
       // }
