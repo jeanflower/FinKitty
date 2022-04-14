@@ -1225,27 +1225,6 @@ describe('utils tests', () => {
     );
     expect(diffResult.length).toBe(0);
 
-    model2.incomes[0].GROWTH = '3';
-    diffResult = diffModels(
-      model2,
-      oldModelCopy,
-      false,
-      'model',
-      'oldModelCopy',
-    );
-    expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual('TeachingJob: growth 3 !== 2');
-
-    model2.incomes[0].GROWTH = '2';
-    diffResult = diffModels(
-      model2,
-      oldModelCopy,
-      false,
-      'model',
-      'oldModelCopy',
-    );
-    expect(diffResult.length).toBe(0);
-
     model2.incomes[0].CPI_IMMUNE = false;
     diffResult = diffModels(
       model2,
