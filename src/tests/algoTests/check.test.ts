@@ -280,32 +280,11 @@ describe('checks tests', () => {
         {
           ...simpleIncome,
           NAME: 'a',
-          GROWTH: 'nonsense',
-        },
-        model,
-      ),
-    ).toEqual(`Income growth 'nonsense' is not a number`);
-    expect(
-      checkIncome(
-        {
-          ...simpleIncome,
-          NAME: 'a',
           VALUE: 'nonsense',
         },
         model,
       ),
     ).toEqual(`Income value 'nonsense' does not make sense`);
-    expect(
-      checkIncome(
-        {
-          ...simpleIncome,
-          NAME: 'a',
-          VALUE: 'cpi',
-          GROWTH: '10',
-        },
-        model,
-      ),
-    ).toEqual(`Income value 'cpi' may not have nonzero growth`);
     expect(
       checkIncome(
         {
@@ -655,15 +634,6 @@ describe('checks tests', () => {
         model,
       ),
     ).toEqual(`Expense value 'nonsense' is not a number`);
-    expect(
-      checkExpense(
-        {
-          ...simpleExpense,
-          GROWTH: 'nonsense',
-        },
-        model,
-      ),
-    ).toEqual(`Expense growth 'nonsense' is not a number`);
     expect(
       checkExpense(
         {

@@ -936,16 +936,6 @@ describe('utils tests', () => {
         makeChange: (m: ModelData) => {
           m.incomes.push({
             ...simpleIncome,
-            GROWTH: 'a',
-          });
-        },
-        replacement: 'a',
-        outcome: `   Income 'NoName' has growth boo called a  `,
-      },
-      {
-        makeChange: (m: ModelData) => {
-          m.incomes.push({
-            ...simpleIncome,
             LIABILITY: 'a',
           });
         },
@@ -1011,16 +1001,6 @@ describe('utils tests', () => {
         },
         replacement: 'a',
         outcome: `    Expense 'NoName' has value set boo called a `,
-      },
-      {
-        makeChange: (m: ModelData) => {
-          m.expenses.push({
-            ...simpleExpense,
-            GROWTH: 'a',
-          });
-        },
-        replacement: 'a',
-        outcome: `    Expense 'NoName' has growth boo called a `,
       },
       {
         makeChange: (m: ModelData) => {
@@ -1138,7 +1118,7 @@ describe('utils tests', () => {
       VALUE: '500',
       VALUE_SET: '1 April 2018',
       CPI_IMMUNE: false,
-      GROWTH: '2',
+      GROWTH: '0',
       RECURRENCE: '1m',
     });
     model2.expenses.push({
@@ -1149,7 +1129,7 @@ describe('utils tests', () => {
       VALUE: '500',
       VALUE_SET: '1 April 2018',
       CPI_IMMUNE: false,
-      GROWTH: '2',
+      GROWTH: '0',
       RECURRENCE: '1m',
     });
 
@@ -1447,27 +1427,6 @@ describe('utils tests', () => {
     );
 
     model2.expenses[0].VALUE_SET = '1 April 2018';
-    diffResult = diffModels(
-      model2,
-      oldModelCopy,
-      false,
-      'model',
-      'oldModelCopy',
-    );
-    expect(diffResult.length).toBe(0);
-
-    model2.expenses[0].GROWTH = '3';
-    diffResult = diffModels(
-      model2,
-      oldModelCopy,
-      false,
-      'model',
-      'oldModelCopy',
-    );
-    expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual('Look after dogs: growth 3 !== 2');
-
-    model2.expenses[0].GROWTH = '2';
     diffResult = diffModels(
       model2,
       oldModelCopy,

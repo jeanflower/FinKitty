@@ -63,7 +63,7 @@ export const testExpenses01: Expense[] = [
     VALUE_SET: '1 April 2018',
     START: '1 April 2018',
     END: '2 February 2047',
-    GROWTH: '2',
+    GROWTH: '0',
     CATEGORY: 'living costs',
   },
   {
@@ -73,7 +73,7 @@ export const testExpenses01: Expense[] = [
     VALUE_SET: '1 April 2018',
     START: '1 April 2018',
     END: 'GetRidOfCar',
-    GROWTH: '5',
+    GROWTH: '0',
     CATEGORY: 'living costs',
   },
   {
@@ -83,7 +83,7 @@ export const testExpenses01: Expense[] = [
     VALUE_SET: '1 April 2018',
     START: '1 April 2018',
     END: '2 February 2099',
-    GROWTH: '2',
+    GROWTH: '0',
     CATEGORY: 'living costs',
   },
 ];
@@ -96,7 +96,7 @@ export const testIncomes01: Income[] = [
     VALUE_SET: '1 March 2018',
     START: '1 March 2018',
     END: 'StopMainWork',
-    GROWTH: '2',
+    GROWTH: '0',
     LIABILITY: `Joe${incomeTax}`,
   },
   {

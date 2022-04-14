@@ -66,7 +66,7 @@ describe(' chart data tests', () => {
           NAME: 'Phon',
           VALUE: '12.12',
           VALUE_SET: 'January 1 2018',
-          GROWTH: '12.0',
+          GROWTH: '0.0',
         },
       ],
       settings: [...defaultModelSettings(roi)],
@@ -79,7 +79,7 @@ describe(' chart data tests', () => {
     expectEvals(evals, 0, 'Phon', 'Mon Jan 01 2018', 12.12, 2);
     // notice that the next occurrence of the expense one month later has increased a bit.
     // 12% in a year is _approximately_ 1% per month and this is approximately 0.12 increase.
-    expectEvals(evals, 1, 'Phon', 'Thu Feb 01 2018', 12.24, 2);
+    expectEvals(evals, 1, 'Phon', 'Thu Feb 01 2018', 12.12, 2);
 
     const viewSettings = defaultTestViewSettings();
 
@@ -113,7 +113,7 @@ describe(' chart data tests', () => {
           NAME: 'Phon',
           VALUE: '12.12',
           VALUE_SET: 'January 1 2018',
-          GROWTH: '12.0',
+          GROWTH: '0.0',
         },
       ],
       settings: [...defaultModelSettings(roi)],
@@ -126,7 +126,7 @@ describe(' chart data tests', () => {
     expectEvals(evals, 0, 'Phon', 'Mon Jan 01 2018', 12.12, 2);
     // notice that the next occurrence of the expense one month later has increased a bit.
     // 12% in a year is _approximately_ 1% per month and this is approximately 0.12 increase.
-    expectEvals(evals, 1, 'Phon', 'Thu Feb 01 2018', 12.24, 2);
+    expectEvals(evals, 1, 'Phon', 'Thu Feb 01 2018', 12.12, 2);
 
     const viewSettings = defaultTestViewSettings();
 
@@ -145,7 +145,7 @@ describe(' chart data tests', () => {
       const chartPts = result.expensesData[0].chartDataPoints;
       expect(chartPts.length).toBe(2);
       expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
-      expectChartData(chartPts, 1, 'Sat Dec 01 2018', 24.36, 2); // two payments
+      expectChartData(chartPts, 1, 'Sat Dec 01 2018', 24.24, 2); // two payments
     }
 
     expect(result.incomesData.length).toBe(0);
