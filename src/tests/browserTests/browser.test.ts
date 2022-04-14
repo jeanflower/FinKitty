@@ -181,7 +181,7 @@ describe(testDataModelName, () => {
     expect(ary.datasets[0].data[11]).toBeCloseTo(0, 2);
     expect(ary.datasets[0].data[12]).toBeCloseTo(0, 2);
     expect(ary.datasets[0].data[13]).toBeCloseTo(-99, 2);
-    expect(ary.datasets[0].data[14]).toBeCloseTo(-198.93939050052373, 2);
+    expect(ary.datasets[0].data[14]).toBeCloseTo(-198, 2);
 
     await cleanUpWork(driver, testDataModelName);
   });
