@@ -2660,13 +2660,13 @@ function revalueApplied(
       const baseVal = getNumberValue(values, baseForCPI);
       /* istanbul ignore else  */ //error
       if (baseVal) {
-        log(
-          `for ${
-            moment.name
-          } scale ${tToValue} by baseVal = ${baseVal} to give ${
-            tToValue / baseVal
-          }`,
-        );
+        //log(
+        //  `for ${
+        //    moment.name
+        //  } scale ${tToValue} by baseVal = ${baseVal} to give ${
+        //    tToValue / baseVal
+        //  }`,
+        //);
         const newValForEvaluations = tToValue / baseVal;
         tToValue = newValForEvaluations;
         appliedBaseVal = true;
