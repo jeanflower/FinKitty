@@ -1528,18 +1528,6 @@ function incomesTableDiv(
               },
               {
                 ...defaultColumn,
-                key: 'GROWTH',
-                name: 'annual growth',
-                formatter: (
-                  <GrowthFormatter
-                    name="annual growth"
-                    settings={model.settings}
-                    value="unset"
-                  />
-                ),
-              },
-              {
-                ...defaultColumn,
                 key: 'GROWS_WITH_CPI',
                 name: 'grows with CPI',
                 formatter: (
