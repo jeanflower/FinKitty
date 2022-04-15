@@ -29,7 +29,6 @@ export interface IncomeOrExpense extends ItemCategory {
   END: string;
   VALUE: string;
   VALUE_SET: string;
-  GROWTH: string;
   CPI_IMMUNE: boolean;
 }
 export interface Expense extends IncomeOrExpense {

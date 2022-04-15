@@ -386,7 +386,6 @@ describe('evaluations tests', () => {
           NAME: 'Phon',
           VALUE: '12.12',
           VALUE_SET: 'January 1 2018',
-          GROWTH: '0.0',
         },
       ],
       settings: [...defaultModelSettings(roi)],
@@ -432,7 +431,6 @@ describe('evaluations tests', () => {
           NAME: 'Phon',
           VALUE: '12.12',
           VALUE_SET: 'January 1 2018',
-          GROWTH: '0.0',
           RECURRENCE: '6m',
         },
       ],
@@ -490,7 +488,6 @@ describe('evaluations tests', () => {
           NAME: 'Phon',
           VALUE: '12.12',
           VALUE_SET: 'January 1 2018',
-          GROWTH: '0.0',
           RECURRENCE: '2m',
         },
       ],
@@ -549,7 +546,6 @@ describe('evaluations tests', () => {
           NAME: 'Phon',
           VALUE: '12.12',
           VALUE_SET: 'January 1 2018',
-          GROWTH: '0.0',
           RECURRENCE: '1y',
         },
       ],
@@ -621,7 +617,6 @@ describe('evaluations tests', () => {
           NAME: 'Phon',
           VALUE: '12.12',
           VALUE_SET: 'January 1 2017',
-          GROWTH: '0.0',
           CPI_IMMUNE: true,
         },
       ],
@@ -690,7 +685,6 @@ describe('evaluations tests', () => {
           NAME: 'Phon',
           VALUE: '12.12',
           VALUE_SET: 'valueSetTrigger',
-          GROWTH: '0.0',
         },
       ],
       settings: [...defaultModelSettings(roi)],
@@ -747,7 +741,6 @@ describe('evaluations tests', () => {
           NAME: 'PRnd',
           VALUE: '5',
           VALUE_SET: 'January 1 2018',
-          GROWTH: '0',
         },
       ],
       settings: [...defaultModelSettings(roi)],
@@ -805,7 +798,6 @@ describe('evaluations tests', () => {
           NAME: 'PRnd',
           VALUE: '5',
           VALUE_SET: 'January 1 2018',
-          GROWTH: '0',
           CPI_IMMUNE: true,
         },
       ],
@@ -1833,7 +1825,6 @@ describe('evaluations tests', () => {
           NAME: 'Phon',
           VALUE: '12.12',
           VALUE_SET: 'January 1 2018',
-          GROWTH: '0.0',
         },
       ],
       incomes: [
@@ -1844,7 +1835,6 @@ describe('evaluations tests', () => {
           NAME: 'PRnd',
           VALUE: '5',
           VALUE_SET: 'January 1 2018',
-          GROWTH: '0',
         },
       ],
       settings: [...defaultModelSettings(roi)],
@@ -3969,7 +3959,6 @@ describe('evaluations tests', () => {
           NAME: 'PRnd',
           VALUE: '5',
           VALUE_SET: 'January 1 2018',
-          GROWTH: '0',
         },
       ],
       transactions: [
@@ -4022,29 +4011,29 @@ describe('evaluations tests', () => {
     expect(result.incomesData.length).toBe(1);
     expect(result.incomesData[0].item.NAME).toBe('PRnd');
     {
-    const chartPts = result.incomesData[0].chartDataPoints;
-    expect(chartPts.length).toBe(6);
-    expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
-    expectChartData(chartPts, 1, 'Mon Jan 01 2018', 5, -1);
-    expectChartData(chartPts, 2, 'Thu Feb 01 2018', 5, -1);
-    expectChartData(chartPts, 3, 'Thu Mar 01 2018', 5, -1);
-    expectChartData(chartPts, 4, 'Sun Apr 01 2018', 10, -1);
-    expectChartData(chartPts, 5, 'Tue May 01 2018', 10, -1);
+      const chartPts = result.incomesData[0].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 5, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 5, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 5, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 10, -1);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 10, -1);
     }
-    
+
     expect(result.assetData.length).toBe(1);
     expect(result.assetData[0].item.NAME).toBe('Cash');
     {
-    const chartPts = result.assetData[0].chartDataPoints;
-    expect(chartPts.length).toBe(6);
-    expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
-    expectChartData(chartPts, 1, 'Mon Jan 01 2018', 5, -1);
-    expectChartData(chartPts, 2, 'Thu Feb 01 2018', 10, -1);
-    expectChartData(chartPts, 3, 'Thu Mar 01 2018', 15, -1);
-    expectChartData(chartPts, 4, 'Sun Apr 01 2018', 25, -1);
-    expectChartData(chartPts, 5, 'Tue May 01 2018', 35, -1);
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 5, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 10, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 15, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 25, -1);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 35, -1);
     }
-    
+
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
 
@@ -5810,7 +5799,6 @@ describe('evaluations tests', () => {
           NAME: 'PRnd',
           VALUE: '100.0',
           VALUE_SET: 'January 1 2018',
-          GROWTH: '0.0',
           CPI_IMMUNE: false,
         },
         {
@@ -5820,7 +5808,6 @@ describe('evaluations tests', () => {
           NAME: 'Paaa',
           VALUE: '100.0',
           VALUE_SET: 'January 1 2018',
-          GROWTH: '0.0',
           CPI_IMMUNE: true,
         },
         {
@@ -5830,7 +5817,6 @@ describe('evaluations tests', () => {
           NAME: 'Pccc',
           VALUE: '100.0',
           VALUE_SET: 'January 1 2018',
-          GROWTH: '0.0',
           CPI_IMMUNE: false,
         },
       ],
@@ -5957,7 +5943,6 @@ describe('evaluations tests', () => {
           NAME: 'PHon',
           VALUE: '100.0',
           VALUE_SET: 'January 1 2018',
-          GROWTH: '0.0',
           CPI_IMMUNE: false,
         },
         {
@@ -5967,7 +5952,6 @@ describe('evaluations tests', () => {
           NAME: 'Paaa',
           VALUE: '100.0',
           VALUE_SET: 'January 1 2018',
-          GROWTH: '0.0',
           CPI_IMMUNE: true,
         },
         {
@@ -5977,7 +5961,6 @@ describe('evaluations tests', () => {
           NAME: 'Pccc',
           VALUE: '100.0',
           VALUE_SET: 'January 1 2018',
-          GROWTH: '0.0',
           CPI_IMMUNE: false,
         },
       ],

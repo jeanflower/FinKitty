@@ -19,7 +19,6 @@ import { isATransaction } from '../../models/modelUtils';
 import {
   makeValueAbsPropFromString,
   checkTriggerDate,
-  makeGrowthFromString,
   makeBooleanFromYesNo,
 } from '../../utils/stringUtils';
 
@@ -29,7 +28,6 @@ interface EditExpenseFormState {
   VALUE_SET: string;
   START: string;
   END: string;
-  GROWTH: string;
   GROWS_WITH_CPI: string;
   CATEGORY: string;
   RECURRENCE: string;
@@ -72,7 +70,6 @@ export class AddDeleteExpenseForm extends Component<
       VALUE_SET: '',
       START: '',
       END: '',
-      GROWTH: '',
       GROWS_WITH_CPI: '',
       CATEGORY: '',
       RECURRENCE: '',
@@ -83,7 +80,6 @@ export class AddDeleteExpenseForm extends Component<
 
     this.handleNameChange = this.handleNameChange.bind(this);
     this.handleValueChange = this.handleValueChange.bind(this);
-    this.handleGrowthChange = this.handleGrowthChange.bind(this);
     this.handleGrowsWithCPIChange = this.handleGrowsWithCPIChange.bind(this);
     this.handleCategoryChange = this.handleCategoryChange.bind(this);
     this.handleRecurrenceChange = this.handleRecurrenceChange.bind(this);
@@ -111,16 +107,6 @@ export class AddDeleteExpenseForm extends Component<
     return (
       <>
         <Row>
-          <Col>
-            <Input
-              title="Annual growth percentage (excluding inflation, e.g. 2 for 2% p.a.)"
-              type="text"
-              name="expensegrowth"
-              value={this.state.GROWTH}
-              placeholder="Enter growth"
-              onChange={this.handleGrowthChange}
-            />
-          </Col>{' '}
           <Col>
             <Input
               title="Does value grow with inflation?"
@@ -283,10 +269,6 @@ export class AddDeleteExpenseForm extends Component<
     const value = e.target.value;
     this.setState({ NAME: value });
   }
-  private handleGrowthChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const value = e.target.value;
-    this.setState({ GROWTH: value });
-  }
   private handleRecurrenceChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
     this.setState({ RECURRENCE: value });
@@ -446,16 +428,6 @@ export class AddDeleteExpenseForm extends Component<
       this.props.showAlert(`Value set date should be a date`);
       return;
     }
-    const parsedGrowth = makeGrowthFromString(
-      this.state.GROWTH,
-      this.props.model.settings,
-    );
-    if (!parsedGrowth.checksOK) {
-      this.props.showAlert(
-        `Growth value '${this.state.GROWTH}' should be a numerical value`,
-      );
-      return;
-    }
     const parsedYN = makeBooleanFromYesNo(this.state.GROWS_WITH_CPI);
     if (!parsedYN.checksOK) {
       this.props.showAlert(
@@ -471,7 +443,6 @@ export class AddDeleteExpenseForm extends Component<
       VALUE_SET: this.state.VALUE_SET,
       START: this.state.START,
       END: this.state.END,
-      GROWTH: parsedGrowth.value,
       CPI_IMMUNE: !parsedYN.value,
       CATEGORY: this.state.CATEGORY,
       RECURRENCE: this.state.RECURRENCE,

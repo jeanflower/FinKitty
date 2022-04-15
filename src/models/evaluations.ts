@@ -2093,12 +2093,6 @@ function logExpenseGrowth(
   cpiVal: number,
   growths: Map<string, GrowthData>,
 ) {
-  const expenseGrowth = parseFloat(x.GROWTH);
-  const adaptedExpenseGrowth =
-    cpiVal !== 0
-      ? ((1.0 + (expenseGrowth + cpiVal) / 100) / (1.0 + cpiVal / 100) - 1.0) *
-        100
-      : expenseGrowth;
   // if(cpiVal > 0 && (expenseGrowth > 0 || adaptedExpenseGrowth > 0)){
   //   log(`from ${expenseGrowth}, use cpi ${cpiVal} to create adaptedExpenseGrowth = ${getMonthlyGrowth(adaptedExpenseGrowth)}`);
   // }
@@ -2112,9 +2106,9 @@ function logExpenseGrowth(
     }
   }
   growths.set(x.NAME, {
-    itemGrowth: x.GROWTH,
+    itemGrowth: '0.0',
     powerByNumMonths: power,
-    scale: getMonthlyGrowth(adaptedExpenseGrowth),
+    scale: 0.0,
     applyCPI: !x.CPI_IMMUNE,
   });
 }
@@ -2124,19 +2118,14 @@ function logIncomeGrowth(
   cpiVal: number,
   growths: Map<string, GrowthData>,
 ) {
-  const growth = parseFloat(x.GROWTH);
-  const adaptedGrowth =
-    cpiVal !== 0
-      ? ((1.0 + (growth + cpiVal) / 100) / (1.0 + cpiVal / 100) - 1.0) * 100
-      : growth;
   // if(cpiVal > 0 && (growth > 0 || adaptedGrowth > 0)){
   //   log(`from ${growth}, use cpi ${cpiVal} to create adaptedExpenseGrowth = ${getMonthlyGrowth(adaptedGrowth)}`);
   // }
 
   growths.set(x.NAME, {
-    itemGrowth: x.GROWTH,
+    itemGrowth: '0.0',
     powerByNumMonths: 1,
-    scale: getMonthlyGrowth(adaptedGrowth),
+    scale: 0.0,
     applyCPI: !x.CPI_IMMUNE,
   });
 }

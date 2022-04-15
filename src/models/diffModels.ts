@@ -33,9 +33,6 @@ function diffIncomes(it1: Item, it2: Item): string {
   if (i1.VALUE_SET !== i2.VALUE_SET) {
     return `${it1.NAME}: value set date ${i1.VALUE_SET} !== ${i2.VALUE_SET}`;
   }
-  if (i1.GROWTH !== i2.GROWTH) {
-    return `${it1.NAME}: growth ${i1.GROWTH} !== ${i2.GROWTH}`;
-  }
   if (i1.CPI_IMMUNE !== i2.CPI_IMMUNE) {
     return `${it1.NAME}: cpi-immunity ${i1.CPI_IMMUNE} !== ${i2.CPI_IMMUNE}`;
   }
@@ -61,9 +58,6 @@ function diffExpenses(it1: Item, it2: Item): string {
   }
   if (e1.VALUE_SET !== e2.VALUE_SET) {
     return `${it1.NAME}: value set date ${e1.VALUE_SET} !== ${e2.VALUE_SET}`;
-  }
-  if (e1.GROWTH !== e2.GROWTH) {
-    return `${it1.NAME}: growth ${e1.GROWTH} !== ${e2.GROWTH}`;
   }
   if (e1.CPI_IMMUNE !== e2.CPI_IMMUNE) {
     return `${it1.NAME}: cpi-immunity ${e1.CPI_IMMUNE} !== ${e2.CPI_IMMUNE}`;

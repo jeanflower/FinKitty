@@ -136,13 +136,6 @@ describe(testDataModelName, () => {
     await clearIncomeFields(driver);
     await addIncome(driver, {
       ...incomeInputs,
-      growth: '',
-      message: `Growth value '' should be a numerical value`,
-    });
-
-    await clearIncomeFields(driver);
-    await addIncome(driver, {
-      ...incomeInputs,
       growsWithInflation: '',
       message: `Grows with inflation '' should be a Y/N value`,
     });
@@ -208,13 +201,6 @@ describe(testDataModelName, () => {
     await clearIncomeFields(driver);
     await addIncome(driver, {
       ...incomeInputs,
-      growth: 'junkjunk',
-      message: `Growth value 'junkjunk' should be a numerical value`,
-    });
-
-    await clearIncomeFields(driver);
-    await addIncome(driver, {
-      ...incomeInputs,
       growsWithInflation: 'junkjunk',
       message: `Grows with inflation 'junkjunk' should be a Y/N value`,
     });
@@ -224,7 +210,6 @@ describe(testDataModelName, () => {
       ...incomeInputs,
       name: 'proportionOfAsset',
       value: `0.5${CASH_ASSET_NAME}`,
-      growth: '0',
       growsWithInflation: 'Y',
       message: `Income value '0.5Cash' may not grow with CPI`,
     });
@@ -234,16 +219,6 @@ describe(testDataModelName, () => {
       ...incomeInputs,
       name: 'proportionOfAsset',
       value: `0.5${CASH_ASSET_NAME}`,
-      growth: '2',
-      message: `Income value '0.5Cash' may not have nonzero growth`,
-    });
-
-    await clearIncomeFields(driver);
-    await addIncome(driver, {
-      ...incomeInputs,
-      name: 'proportionOfAsset',
-      value: `0.5${CASH_ASSET_NAME}`,
-      growth: '0',
       category: '',
       message: 'added new income proportionOfAsset',
     });
@@ -352,13 +327,6 @@ describe(testDataModelName, () => {
       ...expenseInputs,
       endDate: '',
       message: `End date '' should be a date`,
-    });
-
-    await clearExpenseFields(driver);
-    await addExpense(driver, {
-      ...expenseInputs,
-      growth: '',
-      message: `Growth value '' should be a numerical value`,
     });
 
     await clearExpenseFields(driver);

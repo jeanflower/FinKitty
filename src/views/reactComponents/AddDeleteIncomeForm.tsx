@@ -33,7 +33,6 @@ import { isAnIncome, isATransaction } from '../../models/modelUtils';
 import {
   makeValueAbsPropFromString,
   checkTriggerDate,
-  makeGrowthFromString,
   makeBooleanFromYesNo,
   makeIncomeLiabilityFromNameAndNI,
 } from '../../utils/stringUtils';
@@ -44,7 +43,6 @@ interface EditIncomeFormState {
   VALUE_SET: string;
   START: string;
   END: string;
-  GROWTH: string;
   GROWS_WITH_CPI: string;
   LIABILITY: string;
   CATEGORY: string;
@@ -146,7 +144,6 @@ export class AddDeleteIncomeForm extends Component<
       VALUE_SET: '',
       START: '',
       END: '',
-      GROWTH: '',
       GROWS_WITH_CPI: '',
       LIABILITY: '',
       CATEGORY: '',
@@ -167,7 +164,6 @@ export class AddDeleteIncomeForm extends Component<
 
     this.handleNameChange = this.handleNameChange.bind(this);
     this.handleValueChange = this.handleValueChange.bind(this);
-    this.handleGrowthChange = this.handleGrowthChange.bind(this);
     this.handleGrowsWithCPIChange = this.handleGrowsWithCPIChange.bind(this);
     this.handleLiabilityChange = this.handleLiabilityChange.bind(this);
     this.handleCategoryChange = this.handleCategoryChange.bind(this);
@@ -309,16 +305,6 @@ export class AddDeleteIncomeForm extends Component<
     return (
       <>
         <Row>
-          <Col>
-            <Input
-              title="Annual growth percentage (excluding inflation, e.g. 2 for 2% p.a.)"
-              type="text"
-              name="incomegrowth"
-              value={this.state.GROWTH}
-              placeholder="Enter growth"
-              onChange={this.handleGrowthChange}
-            />
-          </Col>{' '}
           <Col>
             <Input
               title="Does value grow with inflation?"
@@ -567,9 +553,6 @@ DB_TRANSFERRED_STOP
   private handleNameChange(e: React.ChangeEvent<HTMLInputElement>) {
     this.setState({ NAME: e.target.value });
   }
-  private handleGrowthChange(e: React.ChangeEvent<HTMLInputElement>) {
-    this.setState({ GROWTH: e.target.value });
-  }
   private handleCategoryChange(e: React.ChangeEvent<HTMLInputElement>) {
     this.setState({ CATEGORY: e.target.value });
   }
@@ -763,16 +746,6 @@ DB_TRANSFERRED_STOP
       this.props.showAlert(`Value set date should be a date`);
       return;
     }
-    const parsedGrowth = makeGrowthFromString(
-      this.state.GROWTH,
-      this.props.model.settings,
-    );
-    if (!parsedGrowth.checksOK) {
-      this.props.showAlert(
-        `Growth value '${this.state.GROWTH}' should be a numerical value`,
-      );
-      return;
-    }
     const parseYNGrowsWithCPI = makeBooleanFromYesNo(this.state.GROWS_WITH_CPI);
     if (!parseYNGrowsWithCPI.checksOK) {
       this.props.showAlert(
@@ -908,7 +881,6 @@ DB_TRANSFERRED_STOP
         VALUE: this.state.VALUE,
         VALUE_SET: this.state.VALUE_SET,
         LIABILITY: inputLiability,
-        GROWTH: parsedGrowth.value,
         CPI_IMMUNE: !parseYNGrowsWithCPI.value,
         CATEGORY: this.state.CATEGORY,
       };
@@ -931,7 +903,6 @@ DB_TRANSFERRED_STOP
           VALUE: '0.0',
           VALUE_SET: this.state.VALUE_SET,
           LIABILITY: builtLiability2,
-          GROWTH: parsedGrowth.value,
           CPI_IMMUNE: !parseYNGrowsWithCPI.value,
           CATEGORY: this.state.CATEGORY,
         };
@@ -1114,7 +1085,6 @@ DB_TRANSFERRED_STOP
       VALUE_SET: this.state.VALUE_SET,
       START: this.state.START,
       END: this.state.END,
-      GROWTH: parsedGrowth.value,
       CPI_IMMUNE: !parseYNGrowsWithCPI.value,
       LIABILITY: builtLiability,
       CATEGORY: this.state.CATEGORY,

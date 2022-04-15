@@ -195,13 +195,6 @@ describe(testDataModelName, () => {
     await clearPensionFields(driver);
     await addDBPension(driver, {
       ...inputs,
-      incomeGrowth: 'junk',
-      message: "Growth value 'junk' should be a numerical value",
-    });
-
-    await clearPensionFields(driver);
-    await addDBPension(driver, {
-      ...inputs,
       liability: '',
       message: "Source income 'javaJob1' should have income tax liability",
     });

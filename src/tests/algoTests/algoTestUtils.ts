@@ -645,7 +645,6 @@ export function getModelFutureExpense2() {
         NAME: 'Phon',
         VALUE: '99',
         VALUE_SET: 'January 1 2018',
-        GROWTH: '0.0',
       },
     ],
     settings: [...defaultModelSettings(roi)],

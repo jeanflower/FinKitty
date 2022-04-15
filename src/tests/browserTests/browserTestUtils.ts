@@ -184,7 +184,6 @@ export async function addIncome(
     valuationDate: string;
     startDate: string;
     endDate: string;
-    growth: string;
     growsWithInflation: string;
     liability: string;
     category: string;
@@ -197,7 +196,6 @@ export async function addIncome(
     fillInputById(driver, 'incomevalue', inputs.value),
     fillInputByName(driver, 'income start date', inputs.startDate),
     fillInputByName(driver, 'income end date', inputs.endDate),
-    fillInputById(driver, 'incomegrowth', inputs.growth),
     fillInputById(driver, 'incomecpi-grows', inputs.growsWithInflation),
     fillInputById(driver, 'taxable', inputs.liability),
     fillInputById(driver, 'incomecategory', inputs.category),
@@ -273,7 +271,6 @@ export async function addDBPension(
     incomeaccrual: string;
     transferName: string;
     transferProportion: string;
-    incomeGrowth: string;
     incomecpiGrows: string;
     liability: string;
     category: string;
@@ -309,7 +306,6 @@ export async function addDBPension(
     fillInputById(driver, 'incomeaccrual', inputs.incomeaccrual),
     fillInputById(driver, 'transferNameIncome', inputs.transferName),
     fillInputById(driver, 'transferProportion', inputs.transferProportion),
-    fillInputById(driver, 'incomegrowth', inputs.incomeGrowth),
     fillInputById(driver, 'incomecpi-grows', inputs.incomecpiGrows),
     fillInputById(driver, 'taxable', inputs.liability),
     fillInputById(driver, 'incomecategory', inputs.category),
@@ -403,7 +399,6 @@ export async function addExpense(
     valuationDate: string;
     startDate: string;
     endDate: string;
-    growth: string;
     growsWithInflation: string;
     recurrence: string;
     category: string;
@@ -416,7 +411,6 @@ export async function addExpense(
     fillInputById(driver, 'expensevalue', inputs.value),
     fillInputByName(driver, 'start date', inputs.startDate),
     fillInputByName(driver, 'end date', inputs.endDate),
-    fillInputById(driver, 'expensegrowth', inputs.growth),
     fillInputById(driver, 'expensecpi-grows', inputs.growsWithInflation),
     fillInputById(driver, 'expenserecurrence', inputs.recurrence),
     fillInputById(driver, 'expensecategory', inputs.category),

@@ -1118,7 +1118,6 @@ describe('utils tests', () => {
       VALUE: '500',
       VALUE_SET: '1 April 2018',
       CPI_IMMUNE: false,
-      GROWTH: '0',
       RECURRENCE: '1m',
     });
     model2.expenses.push({
@@ -1129,7 +1128,6 @@ describe('utils tests', () => {
       VALUE: '500',
       VALUE_SET: '1 April 2018',
       CPI_IMMUNE: false,
-      GROWTH: '0',
       RECURRENCE: '1m',
     });
 

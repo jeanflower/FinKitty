@@ -1020,9 +1020,6 @@ export function checkForWordClashInModel(
       if (usesWholeWord(obj.VALUE_SET, replacement)) {
         return `Income '${obj.NAME}' has value set ${messageWord} called ${replacement}`;
       }
-      if (usesWholeWord(obj.GROWTH, replacement)) {
-        return `Income '${obj.NAME}' has growth ${messageWord} called ${replacement}`;
-      }
       if (usesSeparatedString(obj.LIABILITY, replacement)) {
         return `Income '${obj.NAME}' has liability ${messageWord} called ${replacement}`;
       }
@@ -1053,9 +1050,6 @@ export function checkForWordClashInModel(
       }
       if (usesWholeWord(obj.VALUE_SET, replacement)) {
         return `Expense '${obj.NAME}' has value set ${messageWord} called ${replacement}`;
-      }
-      if (usesWholeWord(obj.GROWTH, replacement)) {
-        return `Expense '${obj.NAME}' has growth ${messageWord} called ${replacement}`;
       }
       return '';
     })

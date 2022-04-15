@@ -94,7 +94,6 @@ import {
   makeStringFromPurchasePrice,
   makeYesNoFromBoolean,
   makeStringFromValueAbsProp,
-  makeStringFromGrowth,
   lessThan,
   makeTwoDP,
 } from '../utils/stringUtils';
@@ -164,16 +163,12 @@ function handleExpenseGridRowsUpdated(
   // log('new expense '+showObj(expense));
   const parsedGrowsWithCPI = makeBooleanFromYesNo(expense.GROWS_WITH_CPI);
   const parsedValue = makeCashValueFromString(expense.VALUE);
-  const parsedGrowth = makeGrowthFromString(expense.GROWTH, model.settings);
   if (doChecks) {
     if (!parsedGrowsWithCPI.checksOK) {
       showAlert("Whether expense grows with CPI should be 'y' or 'n'");
       expense[args[0].cellKey] = oldValue;
     } else if (!parsedValue.checksOK) {
       showAlert(`Value ${expense.VALUE} can't be understood as a cash value`);
-      expense[args[0].cellKey] = oldValue;
-    } else if (!parsedGrowth.checksOK) {
-      showAlert(`Value ${expense.GROWTH} can't be understood as a growth}`);
       expense[args[0].cellKey] = oldValue;
     } else {
       const expenseForSubmission: Expense = {
@@ -183,7 +178,6 @@ function handleExpenseGridRowsUpdated(
         END: expense.END,
         VALUE: `${parsedValue.value}`,
         VALUE_SET: expense.VALUE_SET,
-        GROWTH: parsedGrowth.value,
         CPI_IMMUNE: !parsedGrowsWithCPI.value,
         RECURRENCE: expense.RECURRENCE,
       };
@@ -204,7 +198,6 @@ function handleExpenseGridRowsUpdated(
       END: expense.END,
       VALUE: `${parsedValue.value}`,
       VALUE_SET: expense.VALUE_SET,
-      GROWTH: parsedGrowth.value,
       CPI_IMMUNE: !parsedGrowsWithCPI.value,
       RECURRENCE: expense.RECURRENCE,
     };
@@ -258,13 +251,9 @@ function handleIncomeGridRowsUpdated(
   // log('new income '+showObj(income));
   const parsedGrowsWithCPI = makeBooleanFromYesNo(income.GROWS_WITH_CPI);
   const parsedValue = makeCashValueFromString(income.VALUE);
-  const parsedGrowth = makeGrowthFromString(income.GROWTH, model.settings);
   if (doChecks) {
     if (!parsedGrowsWithCPI.checksOK) {
       showAlert("Whether income grows with CPI should be 'y' or 'n'");
-      income[args[0].cellKey] = oldValue;
-    } else if (!parsedGrowth.checksOK) {
-      showAlert(`Value ${income.GROWTH} can't be understood as a growth}`);
       income[args[0].cellKey] = oldValue;
     } else {
       let incValue = '';
@@ -281,7 +270,6 @@ function handleIncomeGridRowsUpdated(
         END: income.END,
         VALUE: incValue,
         VALUE_SET: income.VALUE_SET,
-        GROWTH: parsedGrowth.value,
         CPI_IMMUNE: !parsedGrowsWithCPI.value,
         LIABILITY: income.LIABILITY,
       };
@@ -308,7 +296,6 @@ function handleIncomeGridRowsUpdated(
       END: income.END,
       VALUE: incValue,
       VALUE_SET: income.VALUE_SET,
-      GROWTH: parsedGrowth.value,
       CPI_IMMUNE: !parsedGrowsWithCPI.value,
       LIABILITY: income.LIABILITY,
     };
@@ -1436,7 +1423,6 @@ function incomesForTable(model: ModelData) {
     const mapResult = {
       END: obj.END,
       GROWS_WITH_CPI: makeYesNoFromBoolean(!obj.CPI_IMMUNE),
-      GROWTH: makeStringFromGrowth(obj.GROWTH, model.settings),
       NAME: obj.NAME,
       START: obj.START,
       VALUE: obj.VALUE,
@@ -1604,7 +1590,6 @@ function expensesForTable(model: ModelData) {
     const mapResult = {
       END: obj.END,
       GROWS_WITH_CPI: makeYesNoFromBoolean(!obj.CPI_IMMUNE),
-      GROWTH: makeStringFromGrowth(obj.GROWTH, model.settings),
       CATEGORY: obj.CATEGORY,
       NAME: obj.NAME,
       START: obj.START,
@@ -1701,18 +1686,6 @@ function expensesTableDiv(
                     model={model}
                     value="unset"
                     showTime={false}
-                  />
-                ),
-              },
-              {
-                ...defaultColumn,
-                key: 'GROWTH',
-                name: 'annual growth',
-                formatter: (
-                  <GrowthFormatter
-                    name="annual growth"
-                    settings={model.settings}
-                    value="unset"
                   />
                 ),
               },

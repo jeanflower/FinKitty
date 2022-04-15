@@ -317,16 +317,10 @@ export function checkIncome(i: Income, model: ModelData): string {
       );
     }
   }
-  if (!isNumberString(i.GROWTH)) {
-    return `Income growth '${i.GROWTH}' is not a number`;
-  }
   if (!isValidValue(i.VALUE, model)) {
     return `Income value '${i.VALUE}' does not make sense`;
   }
   if (!isNumberString(i.VALUE)) {
-    if (parseFloat(i.GROWTH) !== 0.0) {
-      return `Income value '${i.VALUE}' may not have nonzero growth`;
-    }
     if (!i.CPI_IMMUNE) {
       return `Income value '${i.VALUE}' may not grow with CPI`;
     }
@@ -389,9 +383,6 @@ export function checkExpense(e: Expense, model: ModelData): string {
   }
   if (!isNumberString(e.VALUE)) {
     return `Expense value '${e.VALUE}' is not a number`;
-  }
-  if (!isNumberString(e.GROWTH)) {
-    return `Expense growth '${e.GROWTH}' is not a number`;
   }
   const startDate = checkTriggerDate(e.START, model.triggers);
   if (startDate === undefined || !checkDate(startDate)) {
