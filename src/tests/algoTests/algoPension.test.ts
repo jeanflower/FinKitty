@@ -3936,16 +3936,16 @@ describe('pension tests', () => {
       expectChartData(chartPts, 5, 'Fri May 01 2020', 10770.14, 2);
       expectChartData(chartPts, 6, 'Mon Jun 01 2020', 12764.76, 2);
       expectChartData(chartPts, 7, 'Wed Jul 01 2020', 14759.38, 2);
-      expectChartData(chartPts, 8, 'Sat Aug 01 2020', 16754.00, 2);
+      expectChartData(chartPts, 8, 'Sat Aug 01 2020', 16754.0, 2);
       expectChartData(chartPts, 9, 'Tue Sep 01 2020', 18748.62, 2);
       expectChartData(chartPts, 10, 'Thu Oct 01 2020', 20743.24, 2);
       expectChartData(chartPts, 11, 'Sun Nov 01 2020', 22737.86, 2);
       expectChartData(chartPts, 12, 'Tue Dec 01 2020', 24732.48, 2);
-      expectChartData(chartPts, 13, 'Fri Jan 01 2021', 26727.10, 2);
+      expectChartData(chartPts, 13, 'Fri Jan 01 2021', 26727.1, 2);
       expectChartData(chartPts, 14, 'Mon Feb 01 2021', 28721.72, 2);
       expectChartData(chartPts, 15, 'Mon Mar 01 2021', 30716.34, 2);
       expectChartData(chartPts, 16, 'Thu Apr 01 2021', 32710.96, 2);
-      expectChartData(chartPts, 17, 'Sat May 01 2021', 34705.50, 2);
+      expectChartData(chartPts, 17, 'Sat May 01 2021', 34705.5, 2);
     }
 
     expect(result.debtData.length).toBe(0);
