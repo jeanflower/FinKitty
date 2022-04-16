@@ -116,6 +116,7 @@ import {
   makeModelFromJSON,
   markForUndo,
   revertToUndoModel,
+  standardiseDates,
 } from './models/modelUtils';
 import { lessThan, makeTwoDP } from './utils/stringUtils';
 import { diffModels } from './models/diffModels';
@@ -1765,6 +1766,21 @@ export class AppContent extends Component<AppProps, AppState> {
             },
             `btn-check`,
             `btn-check`,
+            'outline-secondary',
+          )}
+          {makeButton(
+            'Standardise dates',
+            async () => {
+              const response = standardiseDates(
+                reactAppComponent.state.modelData,
+              );
+              // log(`setState for check result alert`);
+              reactAppComponent.setState({
+                alertText: response,
+              });
+            },
+            `btn-standardise-dates`,
+            `btn-standardise-dates`,
             'outline-secondary',
           )}
           <br></br>

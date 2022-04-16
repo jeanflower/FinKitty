@@ -16,6 +16,7 @@ import {
   replaceWholeString,
   replaceNumberValueString,
   replaceSeparatedString,
+  makeDateFromString,
 } from '../utils/stringUtils';
 import { ModelData, Setting } from '../types/interfaces';
 import { log, showObj } from '../utils/utils';
@@ -434,6 +435,53 @@ export function attemptRenameLong(
       // log(`save adjusted model`);
       return '';
     }
+  } else {
+    return '';
+  }
+}
+
+function standardiseDate(dateString: string): string {
+  const dateObj = makeDateFromString(dateString);
+  if (isNaN(dateObj.getTime())) {
+    return dateString;
+  }
+  //log(
+  //  `standardised ${dateString} to ${dateObj}, with time ${dateObj.getTime()}`,
+  //);
+  return dateObj.toDateString();
+}
+
+export function standardiseDates(model: ModelData): string {
+  // log(`get ready to make changes, be ready to undo...`);
+  // be ready to undo
+  markForUndo(model);
+  // log(`making changes to nodel... `);
+  model.triggers.forEach((obj) => {
+    obj.DATE = standardiseDate(obj.DATE);
+  });
+  model.assets.forEach((obj) => {
+    obj.START = standardiseDate(obj.START);
+  });
+  model.incomes.forEach((obj) => {
+    obj.VALUE_SET = standardiseDate(obj.VALUE_SET);
+    obj.START = standardiseDate(obj.START);
+    obj.END = standardiseDate(obj.END);
+  });
+  model.expenses.forEach((obj) => {
+    obj.VALUE_SET = standardiseDate(obj.VALUE_SET);
+    obj.START = standardiseDate(obj.START);
+    obj.END = standardiseDate(obj.END);
+  });
+  model.transactions.forEach((obj) => {
+    obj.DATE = standardiseDate(obj.DATE);
+    obj.STOP_DATE = standardiseDate(obj.STOP_DATE);
+  });
+  const checkResult = checkData(model);
+  /* istanbul ignore if */
+  if (checkResult !== '') {
+    log(`Error: model fails checks with ${checkResult}`);
+    //revertToUndoModel(model);
+    return checkResult;
   } else {
     return '';
   }

@@ -21,7 +21,9 @@ import {
 } from '../localization/stringConstants';
 import { isSetting } from '../models/modelUtils';
 import { Setting, ModelData, Trigger } from '../types/interfaces';
-import { log, printDebug } from './utils';
+import { log, printDebug, showObj } from './utils';
+
+showObj;
 
 export function lessThan(a: string, b: string) {
   if (a.startsWith('-') && !b.startsWith('-')) {
@@ -104,8 +106,8 @@ export function makeDateFromString(input: string) {
     }
   }
 
-  // console.log(`invalid date : ${input}`);
-  return new Date('invalid date');
+  console.log(`Invalid Date : ${input}`);
+  return new Date('Invalid Date');
 }
 
 export function stringFromDate(d: Date): string {
@@ -631,7 +633,7 @@ function findMatchedTriggerDate(
   }
   // log('look for '+triggerName+'in '+triggers.map(showObj))
   const matched = triggers.filter((trigger) => trigger.NAME === triggerName);
-  // log('matched = '+showObj(matched));
+  // log(`matched trigger = ${showObj(matched)}`);
   let result = undefined;
   if (matched.length !== 0) {
     // no-use-before-define
@@ -658,7 +660,7 @@ function checkTriggerDateRecursive(
   const matched = findMatchedTriggerDate(input, triggers, recursionLevel);
   /* eslint-enable no-use-before-define*/
 
-  // log('matched = '+showObj(matched));
+  // log(`matched = ${showObj(matched)}`);
   let result;
   if (matched !== undefined) {
     result = matched; // copy
