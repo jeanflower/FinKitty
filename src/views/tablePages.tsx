@@ -41,6 +41,9 @@ import {
   Item,
   ReportDatum,
   ReportMatcher,
+  IncomeVal,
+  ExpenseVal,
+  AssetOrDebtVal,
 } from '../types/interfaces';
 import {
   attemptRename,
@@ -81,6 +84,7 @@ import {
   isAnAssetOrAssets,
   isAnIncome,
   isAnExpense,
+  getTodaysDate,
 } from '../models/modelUtils';
 import {
   getNumberAndWordParts,
@@ -697,6 +701,12 @@ function getAssetOrDebtCols(model: ModelData, isDebt: boolean) {
     },
     {
       ...defaultColumn,
+      key: 'TODAYSVALUE',
+      name: `value\nat ${getTodaysDate(model).toDateString()}`,
+      formatter: <CashValueFormatter name="focus value" value="unset" />,
+    },
+    {
+      ...defaultColumn,
       key: 'VALUE',
       name: 'start value',
       formatter: <CashValueFormatter name="start value" value="unset" />,
@@ -793,7 +803,11 @@ export function addIndices(unindexedResult: any[]) {
   return result;
 }
 
-function assetsOrDebtsForTable(model: ModelData, isDebt: boolean): any[] {
+function assetsOrDebtsForTable(
+  model: ModelData,
+  todaysValues: Map<string, AssetOrDebtVal>,
+  isDebt: boolean,
+): any[] {
   const unindexedResult = model.assets
     .filter((obj: Asset) => {
       return obj.IS_A_DEBT === isDebt;
@@ -825,6 +839,7 @@ function assetsOrDebtsForTable(model: ModelData, isDebt: boolean): any[] {
         GROWS_WITH_CPI: makeYesNoFromBoolean(!obj.CPI_IMMUNE),
         IS_A_DEBT: makeYesNoFromBoolean(obj.IS_A_DEBT),
         CAN_BE_NEGATIVE: makeYesNoFromBoolean(obj.CAN_BE_NEGATIVE),
+        TODAYSVALUE: `${todaysValues.get(obj.NAME)?.val}`,
       };
       return mapResult;
     })
@@ -1264,10 +1279,11 @@ export function transactionFilteredTable(
 
 export function debtsDivWithHeadings(
   model: ModelData,
+  todaysDebtValues: Map<string, AssetOrDebtVal>,
   showAlert: (arg0: string) => void,
   doChecks: boolean,
 ) {
-  const debtData = assetsOrDebtsForTable(model, true);
+  const debtData = assetsOrDebtsForTable(model, todaysDebtValues, true);
   if (debtData.length === 0) {
     return;
   }
@@ -1297,10 +1313,11 @@ export function debtsDivWithHeadings(
 
 export function assetsDivWithHeadings(
   model: ModelData,
+  todaysAssetValues: Map<string, AssetOrDebtVal>,
   showAlert: (arg0: string) => void,
   doChecks: boolean,
 ) {
-  const assetData = assetsOrDebtsForTable(model, false);
+  const assetData = assetsOrDebtsForTable(model, todaysAssetValues, false);
   if (assetData.length === 0) {
     return;
   }
@@ -1418,7 +1435,10 @@ export function triggersTableDivWithHeading(
   );
 }
 
-function incomesForTable(model: ModelData) {
+function incomesForTable(
+  model: ModelData,
+  todaysValues: Map<string, IncomeVal>,
+) {
   const unindexedResult = model.incomes.map((obj: Income) => {
     const mapResult = {
       END: obj.END,
@@ -1429,6 +1449,7 @@ function incomesForTable(model: ModelData) {
       VALUE_SET: obj.VALUE_SET,
       LIABILITY: obj.LIABILITY,
       CATEGORY: obj.CATEGORY,
+      TODAYSVALUE: `${todaysValues.get(obj.NAME)?.incomeVal}`,
     };
     // log(`passing ${showObj(result)}`);
     return mapResult;
@@ -1478,6 +1499,14 @@ function incomesTableDiv(
                 key: 'NAME',
                 name: 'name',
                 formatter: <SimpleFormatter name="name" value="unset" />,
+              },
+              {
+                ...defaultColumn,
+                key: 'TODAYSVALUE',
+                name: `value\nat ${getTodaysDate(model).toDateString()}`,
+                formatter: (
+                  <CashValueFormatter name="focus value" value="unset" />
+                ),
               },
               {
                 ...defaultColumn,
@@ -1560,10 +1589,11 @@ function incomesTableDiv(
 
 export function incomesTableDivWithHeading(
   model: ModelData,
+  todaysValues: Map<string, IncomeVal>,
   showAlert: (arg0: string) => void,
   doChecks: boolean,
 ) {
-  const incData: any[] = incomesForTable(model);
+  const incData: any[] = incomesForTable(model, todaysValues);
   if (incData.length === 0) {
     return;
   }
@@ -1573,7 +1603,10 @@ export function incomesTableDivWithHeading(
   );
 }
 
-function expensesForTable(model: ModelData) {
+function expensesForTable(
+  model: ModelData,
+  todaysValues: Map<string, ExpenseVal>,
+) {
   const unindexedResult = model.expenses.map((obj: Expense) => {
     const mapResult = {
       END: obj.END,
@@ -1584,6 +1617,7 @@ function expensesForTable(model: ModelData) {
       VALUE: obj.VALUE,
       VALUE_SET: obj.VALUE_SET,
       RECURRENCE: obj.RECURRENCE,
+      TODAYSVALUE: `${todaysValues.get(obj.NAME)?.expenseVal}`,
     };
     return mapResult;
   });
@@ -1629,6 +1663,14 @@ function expensesTableDiv(
                 key: 'NAME',
                 name: 'name',
                 formatter: <SimpleFormatter name="name" value="unset" />,
+              },
+              {
+                ...defaultColumn,
+                key: 'TODAYSVALUE',
+                name: `value\nat ${getTodaysDate(model).toDateString()}`,
+                formatter: (
+                  <CashValueFormatter name="focus value" value="unset" />
+                ),
               },
               {
                 ...defaultColumn,
@@ -1709,10 +1751,11 @@ function expensesTableDiv(
 
 export function expensesTableDivWithHeading(
   model: ModelData,
+  todaysValues: Map<string, ExpenseVal>,
   showAlert: (arg0: string) => void,
   doChecks: boolean,
 ) {
-  const expData = expensesForTable(model);
+  const expData = expensesForTable(model, todaysValues);
   if (expData.length === 0) {
     return;
   }

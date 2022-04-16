@@ -177,13 +177,9 @@ export interface FormProps {
 export interface SettingVal {
   settingVal: string;
 }
-export interface AssetVal {
-  assetVal: number;
-  assetQ: number | undefined;
-  category: string;
-}
-export interface DebtVal {
-  debtVal: number;
+export interface AssetOrDebtVal {
+  val: number;
+  quantity: number | undefined;
   category: string;
 }
 export interface IncomeVal {

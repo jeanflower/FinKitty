@@ -137,10 +137,6 @@ export function todaysExpensesTable(
   return (
     <>
       {collapsibleFragment(
-        makeDataGrid(todaysValues, model),
-        `Expense values at ${today.toDateString()}`,
-      )}
-      {collapsibleFragment(
         makeDataGrid(categorisedValues, model),
         `Expense values (categorised) at ${today.toDateString()}`,
       )}
@@ -181,8 +177,8 @@ export function expensesDiv(
         ),
         'Expenses data chart',
       )}
+      {expensesTableDivWithHeading(model, todaysValues, showAlert, doChecks)}
       {todaysExpensesTable(model, todaysValues)}
-      {expensesTableDivWithHeading(model, showAlert, doChecks)}
       {transactionFilteredTable(
         model,
         showAlert,

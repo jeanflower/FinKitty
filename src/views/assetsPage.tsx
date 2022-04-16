@@ -1,4 +1,9 @@
-import { AssetVal, ChartData, Item, ModelData } from './../types/interfaces';
+import {
+  AssetOrDebtVal,
+  ChartData,
+  Item,
+  ModelData,
+} from './../types/interfaces';
 import { assetsDivWithHeadings, defaultColumn, addIndices } from './tablePages';
 import { checkAsset, checkTransaction } from '../models/checks';
 import {
@@ -22,21 +27,25 @@ import { collapsibleFragment } from './tablePages';
 import { log, printDebug } from '../utils/utils';
 import { getDisplay } from '../utils/viewUtils';
 
-function addToMap(name: string, val: AssetVal, myMap: Map<string, AssetVal>) {
+function addToMap(
+  name: string,
+  val: AssetOrDebtVal,
+  myMap: Map<string, AssetOrDebtVal>,
+) {
   const existingEntry = myMap.get(name);
   if (existingEntry === undefined) {
     myMap.set(name, { ...val });
   } else {
-    existingEntry.assetVal += val.assetVal;
-    if (existingEntry.assetQ && val.assetQ) {
-      existingEntry.assetQ += val.assetQ;
-    } else if (val.assetQ) {
-      existingEntry.assetQ = val.assetQ;
+    existingEntry.val += val.val;
+    if (existingEntry.quantity && val.quantity) {
+      existingEntry.quantity += val.quantity;
+    } else if (val.quantity) {
+      existingEntry.quantity = val.quantity;
     }
   }
 }
 
-function makeDataGrid(myMap: Map<string, AssetVal>, model: ModelData) {
+function makeDataGrid(myMap: Map<string, AssetOrDebtVal>, model: ModelData) {
   return (
     <DataGrid
       deleteFunction={undefined}
@@ -46,17 +55,17 @@ function makeDataGrid(myMap: Map<string, AssetVal>, model: ModelData) {
       rows={addIndices(
         Array.from(myMap.entries())
           .filter((key) => {
-            return key[1].assetVal !== 0.0;
+            return key[1].val !== 0.0;
           })
           .map((key) => {
             /* istanbul ignore if  */
             if (printDebug()) {
               log(`key[0] = ${key[0]}, key[1] = ${key[1]}`);
             }
-            const quantityText = key[1].assetQ ? `${key[1].assetQ}` : '';
+            const quantityText = key[1].quantity ? `${key[1].quantity}` : '';
             return {
               NAME: key[0],
-              VALUE: `${key[1].assetVal}`,
+              VALUE: `${key[1].val}`,
               QUANTITY: quantityText,
               CATEGORY: `${key[1].category}`,
             };
@@ -109,12 +118,12 @@ function makeDataGrid(myMap: Map<string, AssetVal>, model: ModelData) {
 
 export function todaysAssetsTable(
   model: ModelData,
-  todaysValues: Map<string, AssetVal>,
+  todaysValues: Map<string, AssetOrDebtVal>,
 ) {
   if (todaysValues.size === 0) {
     return;
   }
-  const categorisedValues = new Map<string, AssetVal>();
+  const categorisedValues = new Map<string, AssetOrDebtVal>();
 
   const entries = Array.from(todaysValues.entries());
   for (const key of entries) {
@@ -130,10 +139,6 @@ export function todaysAssetsTable(
   return (
     <>
       {collapsibleFragment(
-        makeDataGrid(todaysValues, model),
-        `Asset values at ${today.toDateString()}`,
-      )}
-      {collapsibleFragment(
         makeDataGrid(categorisedValues, model),
         `Asset values (categorised) at ${today.toDateString()}`,
       )}
@@ -147,7 +152,7 @@ export function assetsDiv(
   showAlert: (arg0: string) => void,
   doChecks: boolean,
   assetChartData: ChartData,
-  todaysValues: Map<string, AssetVal>,
+  todaysValues: Map<string, AssetOrDebtVal>,
   getStartDate: (() => string) | undefined = undefined,
   updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
   getEndDate: (() => string) | undefined = undefined,
@@ -175,8 +180,8 @@ export function assetsDiv(
         ),
         'Asset data chart',
       )}
+      {assetsDivWithHeadings(model, todaysValues, showAlert, doChecks)}
       {todaysAssetsTable(model, todaysValues)}
-      {assetsDivWithHeadings(model, showAlert, doChecks)}
       {collapsibleFragment(
         <div className="addNewAsset">
           <AddDeleteAssetForm

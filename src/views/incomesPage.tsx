@@ -126,10 +126,6 @@ export function todaysIncomesTable(
   return (
     <>
       {collapsibleFragment(
-        makeDataGrid(todaysValues, model),
-        `Income values at ${today.toDateString()}`,
-      )}
-      {collapsibleFragment(
         makeDataGrid(categorisedValues, model),
         `Income values (categorised) at ${today.toDateString()}`,
       )}
@@ -170,8 +166,8 @@ export function incomesDiv(
         ),
         'Incomes data chart',
       )}
+      {incomesTableDivWithHeading(model, todaysValues, showAlert, doChecks)}
       {todaysIncomesTable(model, todaysValues)}
-      {incomesTableDivWithHeading(model, showAlert, doChecks)}
       {transactionFilteredTable(
         model,
         showAlert,

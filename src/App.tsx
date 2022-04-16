@@ -37,7 +37,7 @@ import {
   checkModelOnEditOption,
 } from './localization/stringConstants';
 import {
-  AssetVal,
+  AssetOrDebtVal,
   ChartData,
   DataForView,
   Asset,
@@ -48,7 +48,6 @@ import {
   Setting,
   Transaction,
   Trigger,
-  DebtVal,
   Evaluation,
   ExpenseVal,
   IncomeVal,
@@ -471,8 +470,8 @@ export async function refreshDataInternal(
   let model: ModelData;
   let evaluationsAndVals: {
     evaluations: Evaluation[];
-    todaysAssetValues: Map<string, AssetVal>;
-    todaysDebtValues: Map<string, DebtVal>;
+    todaysAssetValues: Map<string, AssetOrDebtVal>;
+    todaysDebtValues: Map<string, AssetOrDebtVal>;
     todaysIncomeValues: Map<string, IncomeVal>;
     todaysExpenseValues: Map<string, ExpenseVal>;
     todaysSettingValues: Map<string, SettingVal>;
@@ -1155,8 +1154,8 @@ interface AppState {
   assetChartData: ChartData;
   debtChartData: ChartData;
   taxChartData: ChartData;
-  todaysAssetValues: Map<string, AssetVal>;
-  todaysDebtValues: Map<string, DebtVal>;
+  todaysAssetValues: Map<string, AssetOrDebtVal>;
+  todaysDebtValues: Map<string, AssetOrDebtVal>;
   todaysIncomeValues: Map<string, IncomeVal>;
   todaysExpenseValues: Map<string, ExpenseVal>;
   todaysSettingValues: Map<string, SettingVal>;
@@ -1244,8 +1243,8 @@ export class AppContent extends Component<AppProps, AppState> {
         displayLegend: true,
       },
       modelNamesData: [],
-      todaysAssetValues: new Map<string, AssetVal>(),
-      todaysDebtValues: new Map<string, DebtVal>(),
+      todaysAssetValues: new Map<string, AssetOrDebtVal>(),
+      todaysDebtValues: new Map<string, AssetOrDebtVal>(),
       todaysIncomeValues: new Map<string, IncomeVal>(),
       todaysExpenseValues: new Map<string, ExpenseVal>(),
       todaysSettingValues: new Map<string, SettingVal>(),
@@ -1393,6 +1392,9 @@ export class AppContent extends Component<AppProps, AppState> {
             {this.homeDiv()}
             {overviewDiv(
               this.state.modelData,
+              this.state.todaysAssetValues,
+              this.state.todaysIncomeValues,
+              this.state.todaysExpenseValues,
               this.state.viewState,
               showAlert,
               this.options.checkModelOnEdit,

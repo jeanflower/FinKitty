@@ -38,8 +38,7 @@ import {
   Evaluation,
   Interval,
   SettingVal,
-  AssetVal,
-  DebtVal,
+  AssetOrDebtVal,
   IncomeVal,
   ExpenseVal,
   ReportDatum,
@@ -4231,8 +4230,8 @@ function evaluateAllAssets(
   values: ValuesContainer,
   growths: Map<string, GrowthData>,
   today: Date,
-  todaysAssetValues: Map<string, AssetVal>,
-  todaysDebtValues: Map<string, DebtVal>,
+  todaysAssetValues: Map<string, AssetOrDebtVal>,
+  todaysDebtValues: Map<string, AssetOrDebtVal>,
   todaysIncomeValues: Map<string, IncomeVal>,
   todaysExpenseValues: Map<string, ExpenseVal>,
   todaysSettingValues: Map<string, SettingVal>,
@@ -4247,13 +4246,14 @@ function evaluateAllAssets(
     if (val !== undefined) {
       if (asset.IS_A_DEBT) {
         todaysDebtValues.set(asset.NAME, {
-          debtVal: val,
+          val: val,
+          quantity: undefined,
           category: asset.CATEGORY,
         });
       } else {
         todaysAssetValues.set(asset.NAME, {
-          assetVal: val,
-          assetQ: q,
+          val: val,
+          quantity: q,
           category: asset.CATEGORY,
         });
       }
@@ -4870,16 +4870,16 @@ function getEvaluationsInternal(
   reporter: ReportValueChecker | undefined,
 ): {
   evaluations: Evaluation[];
-  todaysAssetValues: Map<string, AssetVal>;
-  todaysDebtValues: Map<string, DebtVal>;
+  todaysAssetValues: Map<string, AssetOrDebtVal>;
+  todaysDebtValues: Map<string, AssetOrDebtVal>;
   todaysIncomeValues: Map<string, IncomeVal>;
   todaysExpenseValues: Map<string, ExpenseVal>;
   todaysSettingValues: Map<string, SettingVal>;
   reportData: ReportDatum[];
 } {
   //log('get evaluations');
-  const todaysAssetValues = new Map<string, AssetVal>();
-  const todaysDebtValues = new Map<string, DebtVal>();
+  const todaysAssetValues = new Map<string, AssetOrDebtVal>();
+  const todaysDebtValues = new Map<string, AssetOrDebtVal>();
   const todaysIncomeValues = new Map<string, IncomeVal>();
   const todaysExpenseValues = new Map<string, ExpenseVal>();
   const todaysSettingValues = new Map<string, SettingVal>();
@@ -5207,8 +5207,8 @@ export function getEvaluations(
   reporter: ReportValueChecker | undefined,
 ): {
   evaluations: Evaluation[];
-  todaysAssetValues: Map<string, AssetVal>;
-  todaysDebtValues: Map<string, DebtVal>;
+  todaysAssetValues: Map<string, AssetOrDebtVal>;
+  todaysDebtValues: Map<string, AssetOrDebtVal>;
   todaysIncomeValues: Map<string, IncomeVal>;
   todaysExpenseValues: Map<string, ExpenseVal>;
   todaysSettingValues: Map<string, SettingVal>;

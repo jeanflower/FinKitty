@@ -63,8 +63,7 @@ import {
   ChartDataPoint,
   DataForView,
   ModelData,
-  AssetVal,
-  DebtVal,
+  AssetOrDebtVal,
   IncomeVal,
   ExpenseVal,
   SettingVal,
@@ -237,16 +236,16 @@ export function getTestEvaluations(
   diffChecks = false,
 ): {
   evaluations: Evaluation[];
-  todaysAssetValues: Map<string, AssetVal>;
-  todaysDebtValues: Map<string, DebtVal>;
+  todaysAssetValues: Map<string, AssetOrDebtVal>;
+  todaysDebtValues: Map<string, AssetOrDebtVal>;
   todaysIncomeValues: Map<string, IncomeVal>;
   todaysExpenseValues: Map<string, ExpenseVal>;
   todaysSettingValues: Map<string, SettingVal>;
 } {
   const emptyResult = {
     evaluations: [],
-    todaysAssetValues: new Map<string, AssetVal>(),
-    todaysDebtValues: new Map<string, DebtVal>(),
+    todaysAssetValues: new Map<string, AssetOrDebtVal>(),
+    todaysDebtValues: new Map<string, AssetOrDebtVal>(),
     todaysIncomeValues: new Map<string, IncomeVal>(),
     todaysExpenseValues: new Map<string, ExpenseVal>(),
     todaysSettingValues: new Map<string, SettingVal>(),

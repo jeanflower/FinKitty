@@ -2354,13 +2354,14 @@ describe('conditional tests', () => {
     */
     expect(evalsAndValues.todaysAssetValues.size).toEqual(1);
     expect(evalsAndValues.todaysAssetValues.get('Cash')).toEqual({
-      assetVal: 0,
+      val: 0,
       assetQ: undefined,
       category: '',
     });
     expect(evalsAndValues.todaysDebtValues.size).toEqual(1);
     expect(evalsAndValues.todaysDebtValues.get('Mortgage')).toEqual({
-      debtVal: 0,
+      val: 0,
+      assetQ: undefined,
       category: 'Lloyds',
     });
     expect(evalsAndValues.todaysExpenseValues.size).toEqual(0);

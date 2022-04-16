@@ -1,4 +1,10 @@
-import { ChartData, ModelData } from '../types/interfaces';
+import {
+  ChartData,
+  AssetOrDebtVal,
+  ExpenseVal,
+  IncomeVal,
+  ModelData,
+} from '../types/interfaces';
 import {
   assetsDivWithHeadings,
   debtsDivWithHeadings,
@@ -151,6 +157,9 @@ function transactionsOverviewDiv(
 
 export function overviewDiv(
   model: ModelData,
+  todaysAssetValues: Map<string, AssetOrDebtVal>,
+  todaysIncomeValues: Map<string, IncomeVal>,
+  todaysExpenseValues: Map<string, ExpenseVal>,
   viewSettings: ViewSettings,
   showAlert: (arg0: string) => void,
   doChecks: boolean,
@@ -204,7 +213,12 @@ export function overviewDiv(
       <div className={chartDataExists ? 'scrollClass resizeClass' : ''}>
         <br />
         {triggersTableDivWithHeading(model, showAlert, doChecks)}
-        {incomesTableDivWithHeading(model, showAlert, doChecks)}
+        {incomesTableDivWithHeading(
+          model,
+          todaysIncomeValues,
+          showAlert,
+          doChecks,
+        )}
         {transactionFilteredTable(
           model,
           showAlert,
@@ -212,7 +226,12 @@ export function overviewDiv(
           revalueInc,
           'Income revaluations',
         )}
-        {expensesTableDivWithHeading(model, showAlert, doChecks)}
+        {expensesTableDivWithHeading(
+          model,
+          todaysExpenseValues,
+          showAlert,
+          doChecks,
+        )}
         {transactionFilteredTable(
           model,
           showAlert,
@@ -220,8 +239,8 @@ export function overviewDiv(
           revalueExp,
           'Expense revaluations',
         )}
-        {assetsDivWithHeadings(model, showAlert, doChecks)}
-        {debtsDivWithHeadings(model, showAlert, doChecks)}
+        {assetsDivWithHeadings(model, todaysAssetValues, showAlert, doChecks)}
+        {debtsDivWithHeadings(model, todaysAssetValues, showAlert, doChecks)}
         {transactionsOverviewDiv(model, showAlert, doChecks)}
         {settingsTableDiv(model, viewSettings, showAlert, doChecks)}
       </div>

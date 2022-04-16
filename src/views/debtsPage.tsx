@@ -1,4 +1,9 @@
-import { ChartData, Item, ModelData, DebtVal } from './../types/interfaces';
+import {
+  ChartData,
+  Item,
+  ModelData,
+  AssetOrDebtVal,
+} from './../types/interfaces';
 import { checkAsset, checkTransaction } from '../models/checks';
 import { debtsDivWithHeadings, defaultColumn, addIndices } from './tablePages';
 import {
@@ -22,16 +27,20 @@ import { collapsibleFragment } from './tablePages';
 import { log, printDebug } from '../utils/utils';
 import { getDisplay } from '../utils/viewUtils';
 
-function addToMap(name: string, val: DebtVal, myMap: Map<string, DebtVal>) {
+function addToMap(
+  name: string,
+  val: AssetOrDebtVal,
+  myMap: Map<string, AssetOrDebtVal>,
+) {
   const existingEntry = myMap.get(name);
   if (existingEntry === undefined) {
     myMap.set(name, { ...val });
   } else {
-    existingEntry.debtVal += val.debtVal;
+    existingEntry.val += val.val;
   }
 }
 
-function makeDataGrid(myMap: Map<string, DebtVal>, model: ModelData) {
+function makeDataGrid(myMap: Map<string, AssetOrDebtVal>, model: ModelData) {
   return (
     <DataGrid
       deleteFunction={undefined}
@@ -41,7 +50,7 @@ function makeDataGrid(myMap: Map<string, DebtVal>, model: ModelData) {
       rows={addIndices(
         Array.from(myMap.entries())
           .filter((key) => {
-            return key[1].debtVal !== 0.0;
+            return key[1].val !== 0.0;
           })
           .map((key) => {
             /* istanbul ignore if  */
@@ -50,7 +59,7 @@ function makeDataGrid(myMap: Map<string, DebtVal>, model: ModelData) {
             }
             return {
               NAME: key[0],
-              VALUE: `${key[1].debtVal}`,
+              VALUE: `${key[1].val}`,
               CATEGORY: `${key[1].category}`,
             };
           }),
@@ -94,12 +103,12 @@ function makeDataGrid(myMap: Map<string, DebtVal>, model: ModelData) {
 
 export function todaysDebtsTable(
   model: ModelData,
-  todaysValues: Map<string, DebtVal>,
+  todaysValues: Map<string, AssetOrDebtVal>,
 ) {
   if (todaysValues.size === 0) {
     return;
   }
-  const categorisedValues = new Map<string, DebtVal>();
+  const categorisedValues = new Map<string, AssetOrDebtVal>();
 
   const entries = Array.from(todaysValues.entries());
   for (const key of entries) {
@@ -116,10 +125,6 @@ export function todaysDebtsTable(
   return (
     <>
       {collapsibleFragment(
-        makeDataGrid(todaysValues, model),
-        `Debt values at ${today.toDateString()}`,
-      )}
-      {collapsibleFragment(
         makeDataGrid(categorisedValues, model),
         `Debt values (categorised) at ${today.toDateString()}`,
       )}
@@ -133,7 +138,7 @@ export function debtsDiv(
   showAlert: (arg0: string) => void,
   doChecks: boolean,
   debtChartData: ChartData,
-  todaysValues: Map<string, DebtVal>,
+  todaysDebtValues: Map<string, AssetOrDebtVal>,
   getStartDate: (() => string) | undefined = undefined,
   updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
   getEndDate: (() => string) | undefined = undefined,
@@ -161,8 +166,8 @@ export function debtsDiv(
         ),
         'Debts data chart',
       )}
-      {todaysDebtsTable(model, todaysValues)}
-      {debtsDivWithHeadings(model, showAlert, doChecks)}
+      {debtsDivWithHeadings(model, todaysDebtValues, showAlert, doChecks)}
+      {todaysDebtsTable(model, todaysDebtValues)}
       {collapsibleFragment(
         <div className="addNewDebt">
           <AddDeleteDebtForm

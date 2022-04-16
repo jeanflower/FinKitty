@@ -35,9 +35,8 @@ import {
   adjustableType,
 } from '../../localization/stringConstants';
 import {
-  AssetVal,
+  AssetOrDebtVal,
   ModelData,
-  DebtVal,
   ExpenseVal,
   IncomeVal,
   SettingVal,
@@ -215,8 +214,8 @@ describe('evaluations tests', () => {
 
     const result = makeChartDataFromEvaluations(model, viewSettings, {
       evaluations: evals,
-      todaysAssetValues: new Map<string, AssetVal>(),
-      todaysDebtValues: new Map<string, DebtVal>(),
+      todaysAssetValues: new Map<string, AssetOrDebtVal>(),
+      todaysDebtValues: new Map<string, AssetOrDebtVal>(),
       todaysIncomeValues: new Map<string, IncomeVal>(),
       todaysExpenseValues: new Map<string, ExpenseVal>(),
       todaysSettingValues: new Map<string, SettingVal>(),
@@ -401,8 +400,8 @@ describe('evaluations tests', () => {
 
     const result = makeChartDataFromEvaluations(model, viewSettings, {
       evaluations: evals,
-      todaysAssetValues: new Map<string, AssetVal>(),
-      todaysDebtValues: new Map<string, DebtVal>(),
+      todaysAssetValues: new Map<string, AssetOrDebtVal>(),
+      todaysDebtValues: new Map<string, AssetOrDebtVal>(),
       todaysIncomeValues: new Map<string, IncomeVal>(),
       todaysExpenseValues: new Map<string, ExpenseVal>(),
       todaysSettingValues: new Map<string, SettingVal>(),

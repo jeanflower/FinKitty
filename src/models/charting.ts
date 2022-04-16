@@ -1,11 +1,10 @@
 import {
-  AssetVal,
+  AssetOrDebtVal,
   ChartDataPoint,
   DataForView,
   ItemCategory,
   ModelData,
   Setting,
-  DebtVal,
   Evaluation,
   ExpenseVal,
   IncomeVal,
@@ -998,8 +997,8 @@ export function makeChartData(
   viewSettings: ViewSettings,
   evaluationsAndVals: {
     evaluations: Evaluation[];
-    todaysAssetValues: Map<string, AssetVal>;
-    todaysDebtValues: Map<string, DebtVal>;
+    todaysAssetValues: Map<string, AssetOrDebtVal>;
+    todaysDebtValues: Map<string, AssetOrDebtVal>;
     todaysIncomeValues: Map<string, IncomeVal>;
     todaysExpenseValues: Map<string, ExpenseVal>;
     todaysSettingValues: Map<string, SettingVal>;
@@ -1013,8 +1012,8 @@ export function makeChartData(
       assetData: [],
       debtData: [],
       taxData: [],
-      todaysAssetValues: new Map<string, AssetVal>(),
-      todaysDebtValues: new Map<string, DebtVal>(),
+      todaysAssetValues: new Map<string, AssetOrDebtVal>(),
+      todaysDebtValues: new Map<string, AssetOrDebtVal>(),
       todaysIncomeValues: new Map<string, IncomeVal>(),
       todaysExpenseValues: new Map<string, ExpenseVal>(),
       todaysSettingValues: new Map<string, SettingVal>(),
@@ -1067,8 +1066,8 @@ export function makeChartData(
     assetData: [],
     debtData: [],
     taxData: [],
-    todaysAssetValues: new Map<string, AssetVal>(),
-    todaysDebtValues: new Map<string, DebtVal>(),
+    todaysAssetValues: new Map<string, AssetOrDebtVal>(),
+    todaysDebtValues: new Map<string, AssetOrDebtVal>(),
     todaysIncomeValues: new Map<string, IncomeVal>(),
     todaysExpenseValues: new Map<string, ExpenseVal>(),
     todaysSettingValues: new Map<string, SettingVal>(),
@@ -1570,8 +1569,8 @@ export function makeChartDataFromEvaluations(
   viewSettings: ViewSettings,
   evaluationsAndVals: {
     evaluations: Evaluation[];
-    todaysAssetValues: Map<string, AssetVal>;
-    todaysDebtValues: Map<string, DebtVal>;
+    todaysAssetValues: Map<string, AssetOrDebtVal>;
+    todaysDebtValues: Map<string, AssetOrDebtVal>;
     todaysIncomeValues: Map<string, IncomeVal>;
     todaysExpenseValues: Map<string, ExpenseVal>;
     todaysSettingValues: Map<string, SettingVal>;
