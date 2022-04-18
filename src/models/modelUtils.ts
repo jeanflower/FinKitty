@@ -18,29 +18,33 @@ import {
   replaceSeparatedString,
   makeDateFromString,
 } from '../utils/stringUtils';
-import { ModelData, Setting } from '../types/interfaces';
+import { ModelData, ModelDataFromFile, Setting } from '../types/interfaces';
 import { log, showObj } from '../utils/utils';
 import { checkData } from './checks';
 import { getTestModel } from './exampleModels';
 import { migrateOldVersions } from './versioningUtils';
 
 // breaks dates (and functions too but we don't have these)
-function cleanUpDates(modelFromJSON: ModelData): void {
+function cleanUpDates(
+  modelFromJSON: ModelData,
+  cleanUndo: boolean,
+  cleanRedo: boolean,
+): void {
   for (const t of modelFromJSON.triggers) {
     //log(`type of ${t.DATE} = ${typeof t.DATE}`);
     t.DATE = new Date(t.DATE).toDateString();
     //log(`type of ${t.DATE} = ${typeof t.DATE}`);
   }
-  if (modelFromJSON.undoModel) {
-    cleanUpDates(modelFromJSON.undoModel);
+  if (cleanUndo && modelFromJSON.undoModel) {
+    cleanUpDates(modelFromJSON.undoModel, true, false);
   }
-  if (modelFromJSON.redoModel) {
-    cleanUpDates(modelFromJSON.redoModel);
+  if (cleanRedo && modelFromJSON.redoModel) {
+    cleanUpDates(modelFromJSON.redoModel, false, true);
   }
   // log(`cleaned up model assets ${showObj(result.assets)}`);
 }
 
-export function makeModelFromJSONString(input: string): ModelData {
+export function makeModelFromJSONString(input: string): ModelDataFromFile {
   const matches = input.match(/PensionDBC/g);
   /* istanbul ignore next */
   if (matches !== null && matches.length > 0) {
@@ -62,7 +66,7 @@ export function makeModelFromJSONString(input: string): ModelData {
     result.version = 0;
   }
 
-  cleanUpDates(result);
+  cleanUpDates(result, true, true);
 
   // log(`result from makeModelFromJSON = ${showObj(result)}`);
   return result;
@@ -156,7 +160,7 @@ export function setROI(model: ModelData, roi: { start: string; end: string }) {
 
 export function makeModelFromJSON(input: string): ModelData {
   // log('in makeModelFromJSON');
-  const model: ModelData = makeModelFromJSONString(input);
+  const model: ModelDataFromFile = makeModelFromJSONString(input);
   migrateOldVersions(model);
   return model;
 }

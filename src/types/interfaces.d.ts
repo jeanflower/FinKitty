@@ -157,6 +157,25 @@ export interface Evaluation {
   source: string; // the source of the change for this evaluation
 }
 
+interface IncomeFromFile extends Income {
+  GROWTH: string | undefined;
+}
+interface ExpenseFromFile extends Expense {
+  GROWTH: string | undefined;
+}
+
+export interface ModelDataFromFile {
+  triggers: Trigger[];
+  expenses: ExpenseFromFile[];
+  incomes: IncomeFromFile[];
+  transactions: Transaction[];
+  assets: Asset[];
+  settings: Setting[];
+  version: number;
+  undoModel: ModelData | undefined;
+  redoModel: ModelData | undefined;
+}
+
 export interface ModelData {
   triggers: Trigger[];
   expenses: Expense[];

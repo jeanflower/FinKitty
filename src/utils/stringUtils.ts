@@ -106,7 +106,7 @@ export function makeDateFromString(input: string) {
     }
   }
 
-  console.log(`Invalid Date : ${input}`);
+  // console.log(`Invalid Date : ${input}`);
   return new Date('Invalid Date');
 }
 

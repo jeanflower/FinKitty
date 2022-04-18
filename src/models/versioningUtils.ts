@@ -30,7 +30,7 @@ import {
   separator,
   dot,
 } from '../localization/stringConstants';
-import { ModelData } from '../types/interfaces';
+import { ModelData, ModelDataFromFile } from '../types/interfaces';
 import { getMinimalModelCopy, viewSetting } from './exampleModels';
 import { log } from '../utils/utils';
 import { migrateViewSetting } from '../App';
@@ -44,7 +44,8 @@ import { migrateViewSetting } from '../App';
 // 5; // still includes English-language special words
 // 6; // uses -DC for pensions, even if they're DB pensions
 // 7; // uses one cyrstallizedPension pot per person
-const currentVersion = 8;
+// 8; // may have non-zero growth for incomes and expenses
+const currentVersion = 9;
 
 export function getCurrentVersion() {
   return currentVersion;
@@ -576,12 +577,34 @@ function migrateFromV7(model: ModelData) {
   });
   model.version = 8;
 }
-/*
-function migrateFromV8(model: ModelData){
+function migrateFromV8(model: ModelDataFromFile) {
+  model.expenses.forEach((e) => {
+    if (e.GROWTH !== undefined) {
+      const growthNum = parseFloat(e.GROWTH);
+      if (growthNum !== 0.0) {
+        // log(`migrating : expense ${e.NAME} has non-zero growth ${e.GROWTH}`);
+        e.GROWTH = undefined;
+      }
+    }
+  });
+  model.incomes.forEach((i: any) => {
+    if (i.GROWTH !== undefined) {
+      const growthNum = parseFloat(i.GROWTH);
+      if (growthNum !== 0.0) {
+        // log(`migrating : income ${i.NAME} has non-zero growth ${i.GROWTH}`);
+        i.GROWTH = undefined;
+      }
+    }
+  });
   model.version = 9;
 }
+
+/*
+function migrateFromV9(model: ModelData){
+  model.version = 10;
+}
 */
-export function migrateOldVersions(model: ModelData) {
+export function migrateOldVersions(model: ModelDataFromFile) {
   /* istanbul ignore if  */ //debug
   if (showMigrationLogs) {
     log(`in migrateOldVersions, model is ${model.version}`);
@@ -611,9 +634,12 @@ export function migrateOldVersions(model: ModelData) {
   if (model.version === 7) {
     migrateFromV7(model);
   }
-  /*
   if (model.version === 8) {
     migrateFromV8(model);
+  }
+  /*
+  if (model.version === 9) {
+    migrateFromV9(model);
   }
   */
   // log(`model after migration is ${showObj(model)}`);
