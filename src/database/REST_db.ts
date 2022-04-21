@@ -84,7 +84,7 @@ export class RESTDB implements DbInterface {
             // log(`result has ${JSON.parse(result).assets.length} assets`);
             try {
               //log('make model from REST data');
-              resolve(makeModelFromJSON(result));
+              resolve(makeModelFromJSON(result, modelName));
             } catch (err) {
               /* istanbul ignore next */
               reject(`no model found err = ${err}`);

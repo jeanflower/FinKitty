@@ -19,7 +19,7 @@ import {
   makeModelFromJSONString,
   getSettings,
 } from '../../models/modelUtils';
-import { log } from '../../utils/utils';
+import { log, suppressLogs, unSuppressLogs } from '../../utils/utils';
 
 const emptyModelJSON = `{
     "triggers":[],
@@ -379,18 +379,22 @@ const v10ModelJSON = `{
 describe('loadModelsFromJSON', () => {
   it('cleanedModel', () => {
     const jsonString = emptyModelJSON;
-    const model = makeModelFromJSON(jsonString);
+    suppressLogs();
+    const model = makeModelFromJSON(jsonString, 'versionTests');
+    unSuppressLogs();
     expect(model.assets.length).toBe(1);
   });
   it('migrateModelMustHaveCash', () => {
     const jsonString = emptyModelJSON;
-    const model = makeModelFromJSON(jsonString);
+    const model = makeModelFromJSON(jsonString, 'versionTests');
     expect(model.assets.length).toBe(1);
     expect(model.assets[0].NAME).toEqual(CASH_ASSET_NAME);
   });
   it('migrateFromV0', () => {
     const jsonString = emptyModelJSON;
+    suppressLogs();
     const plainModel = makeModelFromJSONString(jsonString);
+    unSuppressLogs();
     plainModel.version = 0;
     plainModel.assets.push({
       NAME: 'ISAs',
@@ -405,17 +409,21 @@ describe('loadModelsFromJSON', () => {
       IS_A_DEBT: false,
       QUANTITY: '',
     });
+    suppressLogs();
     const model = makeModelFromJSON(JSON.stringify(plainModel));
+    unSuppressLogs();
 
     // log(`model = ${JSON.stringify(model)}`);
     expect(JSON.stringify(model)).toEqual(
-      `{"triggers":[],"expenses":[],"incomes":[],"assets":[{"NAME":"ISAs","CATEGORY":"stock","START":"December 2019","VALUE":"2000","GROWTH":"stockMarketGrowth","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":false,"LIABILITY":"","PURCHASE_PRICE":"0","IS_A_DEBT":false,"QUANTITY":""},{"NAME":"Cash","CATEGORY":"","START":"1 Jan 2017","VALUE":"0.0","QUANTITY":"","GROWTH":"0.0","CPI_IMMUNE":true,"CAN_BE_NEGATIVE":true,"IS_A_DEBT":false,"LIABILITY":"","PURCHASE_PRICE":"0.0"}],"transactions":[],"settings":[{"NAME":"cpi","VALUE":"2.5","HINT":"Annual rate of inflation","TYPE":"const"},{"NAME":"Beginning of view range","VALUE":"1 Jan 2017","HINT":"Date at the start of range to be plotted","TYPE":"view"},{"NAME":"End of view range","VALUE":"1 Jan 2023","HINT":"Date at the end of range to be plotted","TYPE":"view"},{"NAME":"Date of birth","VALUE":"","HINT":"Date used for representing dates as ages","TYPE":"view"},{"NAME":"Today's value focus date","VALUE":"","HINT":"Date to use for 'today's value' tables (defaults to '' meaning today)","TYPE":"view"}],"version":9}`,
+      `{"triggers":[],"expenses":[],"incomes":[],"assets":[{"NAME":"ISAs","CATEGORY":"stock","START":"December 2019","VALUE":"2000","GROWTH":"stockMarketGrowth","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":false,"LIABILITY":"","PURCHASE_PRICE":"0","IS_A_DEBT":false,"QUANTITY":""},{"NAME":"Cash","CATEGORY":"","START":"1 Jan 2017","VALUE":"0.0","QUANTITY":"","GROWTH":"0.0","CPI_IMMUNE":true,"CAN_BE_NEGATIVE":true,"IS_A_DEBT":false,"LIABILITY":"","PURCHASE_PRICE":"0.0"}],"transactions":[],"settings":[{"NAME":"cpi","VALUE":"2.5","HINT":"Annual rate of inflation","TYPE":"const"},{"NAME":"Beginning of view range","VALUE":"1 Jan 2017","HINT":"Date at the start of range to be plotted","TYPE":"view"},{"NAME":"End of view range","VALUE":"1 Jan 2023","HINT":"Date at the end of range to be plotted","TYPE":"view"},{"NAME":"Date of birth","VALUE":"","HINT":"Date used for representing dates as ages","TYPE":"view"},{"NAME":"Today's value focus date","VALUE":"","HINT":"Date to use for 'today's value' tables (defaults to '' meaning today)","TYPE":"view"}],"name":"","version":9}`,
     );
   });
   it('migrateFromV1', () => {
     const jsonString = v1ModelJSON;
+    suppressLogs();
     const plainModel = makeModelFromJSONString(jsonString);
-    const model = makeModelFromJSON(jsonString);
+    const model = makeModelFromJSON(jsonString, 'versionTests');
+    unSuppressLogs();
 
     // will include expense recurrence, asset/debt,
     // asset quantity, transaction and settings types
@@ -443,8 +451,10 @@ describe('loadModelsFromJSON', () => {
   });
   it('migrateFromV2', () => {
     const jsonString = v2ModelJSON;
-    const model2 = makeModelFromJSON(jsonString);
-    const index = model2.assets.find((a) => {
+    suppressLogs();
+    const model = makeModelFromJSON(jsonString, 'versionTests');
+    unSuppressLogs();
+    const index = model.assets.find((a) => {
       return a.NAME === taxPot;
     });
     expect(index).toEqual(undefined);
@@ -452,7 +462,9 @@ describe('loadModelsFromJSON', () => {
 
   it('migrateFromV3', () => {
     const jsonString = v3ModelJSON;
-    const model = makeModelFromJSON(jsonString);
+    suppressLogs();
+    const model = makeModelFromJSON(jsonString, 'versionTests');
+    unSuppressLogs();
     // from v3 to v4 we added tax view settings
     // but fromv4 to v5 we lost those settings again
     expect(checkData(model).length).toEqual(0);
@@ -462,7 +474,9 @@ describe('loadModelsFromJSON', () => {
   // which are no longer persistent
   it('migrateFromV4', () => {
     const jsonString = v4ModelJSON;
-    const model = makeModelFromJSON(jsonString);
+    suppressLogs();
+    const model = makeModelFromJSON(jsonString, 'versionTests');
+    unSuppressLogs();
     // after loading, the view settings have been added
     expect(
       getSettings(model.settings, viewFrequency, 'missing', false),
@@ -472,7 +486,9 @@ describe('loadModelsFromJSON', () => {
   // current version loads
   it('migrateFromV5', () => {
     const jsonString = v5ModelJSON;
-    const model = makeModelFromJSON(jsonString);
+    suppressLogs();
+    const model = makeModelFromJSON(jsonString, 'versionTests');
+    unSuppressLogs();
     const checkResult = checkData(model);
     if (checkResult.length > 0) {
       log(`checkResult = ${checkResult}`);
@@ -482,7 +498,9 @@ describe('loadModelsFromJSON', () => {
 
   it('migrateFromV6', () => {
     const jsonString = v6ModelJSON;
-    const model = makeModelFromJSON(jsonString);
+    suppressLogs();
+    const model = makeModelFromJSON(jsonString, 'versionTests');
+    unSuppressLogs();
     const checkResult = checkData(model);
     if (checkResult.length > 0) {
       log(`checkResult = ${checkResult}`);
@@ -492,7 +510,9 @@ describe('loadModelsFromJSON', () => {
 
   it('migrateFromV7', () => {
     const jsonString = v7ModelJSON;
-    const model = makeModelFromJSON(jsonString);
+    suppressLogs();
+    const model = makeModelFromJSON(jsonString, 'versionTests');
+    unSuppressLogs();
     const checkResult = checkData(model);
     if (checkResult.length > 0) {
       log(`checkResult = ${checkResult}`);
@@ -502,7 +522,9 @@ describe('loadModelsFromJSON', () => {
 
   it('migrateFromV8', () => {
     const jsonString = v8ModelJSON;
-    const model = makeModelFromJSON(jsonString);
+    suppressLogs();
+    const model = makeModelFromJSON(jsonString, 'versionTests');
+    unSuppressLogs();
     const checkResult = checkData(model);
     if (checkResult.length > 0) {
       log(`checkResult = ${checkResult}`);
@@ -512,7 +534,9 @@ describe('loadModelsFromJSON', () => {
 
   it('migrateFromV9', () => {
     const jsonString = v9ModelJSON;
-    const model = makeModelFromJSON(jsonString);
+    suppressLogs();
+    const model = makeModelFromJSON(jsonString, 'versionTests');
+    unSuppressLogs();
     const checkResult = checkData(model);
     if (checkResult.length > 0) {
       log(`checkResult = ${checkResult}`);

@@ -44,7 +44,10 @@ function cleanUpDates(
   // log(`cleaned up model assets ${showObj(result.assets)}`);
 }
 
-export function makeModelFromJSONString(input: string): ModelDataFromFile {
+export function makeModelFromJSONString(
+  input: string,
+  modelName = '',
+): ModelDataFromFile {
   const matches = input.match(/PensionDBC/g);
   /* istanbul ignore next */
   if (matches !== null && matches.length > 0) {
@@ -57,6 +60,10 @@ export function makeModelFromJSONString(input: string): ModelDataFromFile {
   if (result.testName !== undefined) {
     // log("this isn't JSON but refers to test data we can look up");
     result = getTestModel(result.testName);
+  }
+
+  if (modelName !== '' || result.name === undefined) {
+    result.name = modelName;
   }
 
   // log(`loaded model, version =${result.version}`);
@@ -158,9 +165,9 @@ export function setROI(model: ModelData, roi: { start: string; end: string }) {
   setSetting(model.settings, roiEnd, roi.end, viewType);
 }
 
-export function makeModelFromJSON(input: string): ModelData {
+export function makeModelFromJSON(input: string, modelName = ''): ModelData {
   // log('in makeModelFromJSON');
-  const model: ModelDataFromFile = makeModelFromJSONString(input);
+  const model: ModelDataFromFile = makeModelFromJSONString(input, modelName);
   migrateOldVersions(model);
   return model;
 }
@@ -298,6 +305,7 @@ export function revertToUndoModel(model: ModelData): boolean {
     const targetModel = model.undoModel;
     model.undoModel = undefined;
     targetModel.redoModel = {
+      name: model.name,
       assets: model.assets,
       expenses: model.expenses,
       incomes: model.incomes,
@@ -324,6 +332,7 @@ export function applyRedoToModel(model: ModelData): boolean {
     const targetModel = model.redoModel;
     model.redoModel = undefined;
     targetModel.undoModel = {
+      name: model.name,
       assets: model.assets,
       expenses: model.expenses,
       incomes: model.incomes,

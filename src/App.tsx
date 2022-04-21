@@ -914,8 +914,11 @@ export function toggle(type: ViewType, sourceID: number): void | boolean {
   }
 }
 
-function checkModelData(givenModel: ModelData): string {
+function checkModelData(givenModel: ModelData, expectedName: string): string {
   const response = checkData(givenModel);
+  if (givenModel.name !== expectedName) {
+    return `inconsistent model names; ${givenModel.name} and ${expectedName}`;
+  }
   if (response === '') {
     return 'model check all good';
   } else {
@@ -942,7 +945,10 @@ function toggleOption(type: string): void {
 
     // when we turn checks back on, check the model
     if (type === checkModelOnEditOption && reactAppComponent.options[type]) {
-      const response = checkModelData(reactAppComponent.state.modelData);
+      const response = checkModelData(
+        reactAppComponent.state.modelData,
+        modelName,
+      );
       // log(`setState for check result alert`);
       reactAppComponent.setState({
         alertText: response,
@@ -1611,7 +1617,7 @@ export class AppContent extends Component<AppProps, AppState> {
         await saveModelLSM(
           getUserID(),
           modelName,
-          makeModelFromJSON(simpleExampleData),
+          makeModelFromJSON(simpleExampleData, modelName),
         );
       } else {
         modelName = modelNames[0];
@@ -1672,7 +1678,7 @@ export class AppContent extends Component<AppProps, AppState> {
     const currentData = JSON.stringify(fromModel);
     const updatedOK = await updateModelName(name);
     if (updatedOK) {
-      const newModel = makeModelFromJSON(currentData);
+      const newModel = makeModelFromJSON(currentData, name);
       const replacedOK = await replaceWithModel(
         undefined,
         modelName,
@@ -1758,6 +1764,7 @@ export class AppContent extends Component<AppProps, AppState> {
             async () => {
               const response = checkModelData(
                 reactAppComponent.state.modelData,
+                modelName,
               );
               // log(`setState for check result alert`);
               reactAppComponent.setState({
@@ -1825,8 +1832,14 @@ export class AppContent extends Component<AppProps, AppState> {
                 if (decipherString === undefined) {
                   showAlert('could not decode this data');
                 } else {
-                  const decipheredModel = makeModelFromJSON(decipherString);
-                  const response = checkModelData(decipheredModel);
+                  const decipheredModel = makeModelFromJSON(
+                    decipherString,
+                    'validatingModel',
+                  );
+                  const response = checkModelData(
+                    decipheredModel,
+                    'validatingModel',
+                  );
                   // log(`setState for loaded model alert`);
                   reactAppComponent.setState({
                     alertText: response,

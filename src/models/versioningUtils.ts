@@ -582,7 +582,9 @@ function migrateFromV8(model: ModelDataFromFile) {
     if (e.GROWTH !== undefined) {
       const growthNum = parseFloat(e.GROWTH);
       if (growthNum !== 0.0) {
-        // log(`migrating : expense ${e.NAME} has non-zero growth ${e.GROWTH}`);
+        const message = `nullifying expense growth in ${model.name}! ${e.NAME} has growth ${e.GROWTH}`;
+        log(message);
+        //alert(message);
         e.GROWTH = undefined;
       }
     }
@@ -592,6 +594,9 @@ function migrateFromV8(model: ModelDataFromFile) {
       const growthNum = parseFloat(i.GROWTH);
       if (growthNum !== 0.0) {
         // log(`migrating : income ${i.NAME} has non-zero growth ${i.GROWTH}`);
+        const message = `nullifying income growth in ${model.name}! ${i.NAME} has growth ${i.GROWTH}`;
+        log(message);
+        //alert(message);
         i.GROWTH = undefined;
       }
     }

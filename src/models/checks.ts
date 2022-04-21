@@ -1431,6 +1431,9 @@ function checkNames(model: ModelData): string {
 }
 
 export function checkData(model: ModelData): string {
+  if (model.name === 'Unnamed' || model.name === '') {
+    return `model name = '${model.name}'`;
+  }
   // log(`checking data ${showObj(model)}`);
   // log(`check settings`);
   let message = checkNames(model);

@@ -67,7 +67,9 @@ import { getCurrentVersion } from './versioningUtils';
 
 log;
 
-export const simpleExampleData = `{"triggers":[
+export const simpleExampleData = `{
+"name": "Simple",
+"triggers":[
 {"NAME":"GetRidOfCar","DATE":"2025-12-31"},
 {"NAME":"StopMainWork","DATE":"2050-12-31"},
 {"NAME":"TransferMortgage","DATE":"2028-01-01"}],
@@ -101,7 +103,9 @@ export const simpleExampleData = `{"triggers":[
 {"NAME": "Today's value focus date","VALUE": "","HINT": "Date to use for 'today's value' tables (defaults to '' meaning today)","TYPE": "view"}
 ]}`;
 
-export const billAndBenExampleData = `{"triggers":[
+export const billAndBenExampleData = `{
+"name": "Bill and Ben",
+"triggers":[
 {"NAME":"BenDies","DATE":"2064-12-12"},
 {"NAME":"BenRetires","DATE":"2037-07-27"},
 {"NAME":"BenStatePensionAge","DATE":"2040-08-30"},
@@ -153,7 +157,9 @@ export const billAndBenExampleData = `{"triggers":[
 {"NAME":"End of view range","VALUE":"1 Jan 2075","HINT":"Date at the end of range to be plotted","TYPE":"view"},
  {"NAME": "Today's value focus date","VALUE": "","HINT": "Date to use for 'today's value' tables (defaults to '' meaning today)","TYPE": "view"}]}`;
 
-export const mortgageSwitchExampleData = `{"triggers":[
+export const mortgageSwitchExampleData = `{
+"name": "Mortgage switch",
+"triggers":[
 {"NAME":"GetRidOfCar","DATE":"2025-12-31"},
 {"NAME":"StopMainWork","DATE":"2050-12-31"},
 {"NAME":"TransferMortgage","DATE":"2028-01-01"}],
@@ -186,7 +192,9 @@ export const mortgageSwitchExampleData = `{"triggers":[
 {"NAME":"stockMarketGrowth","VALUE":"6.236","HINT":"Custom setting for stock market growth","TYPE":"adjustable"},
  {"NAME": "Today's value focus date","VALUE": "","HINT": "Date to use for 'today's value' tables (defaults to '' meaning today)","TYPE": "view"}]}`;
 
-export const definedBenefitsPension = `{"assets":[
+export const definedBenefitsPension = `{
+"name":"Defined Benefits Pension",
+"assets":[
 {"NAME":"Cash","CATEGORY":"","START":"1 Jan 2019","VALUE":"0.0","QUANTITY":"","GROWTH":"0.0","CPI_IMMUNE":true,"CAN_BE_NEGATIVE":true,"IS_A_DEBT":false,"LIABILITY":"","PURCHASE_PRICE":"0.0"}],
 "incomes":[
 {"NAME":"TeachingJob","VALUE":"2500","VALUE_SET":"JobStart","START":"JobStart","END":"JobStop","GROWTH":"0","CPI_IMMUNE":true,"LIABILITY":"Joe(incomeTax)/Joe(NI)","CATEGORY":""},
@@ -212,7 +220,9 @@ export const definedBenefitsPension = `{"assets":[
 {"NAME":"PensionDBTeachersPensionScheme","FROM":"TeachingJob","FROM_ABSOLUTE":false,"FROM_VALUE":"0.0016666666666666668","TO":"PensionDBTeachersPensionScheme","TO_ABSOLUTE":false,"TO_VALUE":"1.0","DATE":"PensionExists","STOP_DATE":"JobStop","RECURRENCE":"","CATEGORY":"","TYPE":"auto"}],
 "version":4}`;
 
-export const definedContributionsPension = `{"expenses":[
+export const definedContributionsPension = `{
+"name":"Defined Contributions Pension",
+"expenses":[
 ],"incomes":[
 {"NAME":"javaJob1","CATEGORY":"programming","START":"01 Jan 2021","END":"01 Jan 2028","VALUE":"2500","VALUE_SET":"01 Jan 2020","GROWTH":"0","CPI_IMMUNE":true,"LIABILITY":"Joe(incomeTax)/Joe(NI)"}],
 "assets":[
@@ -236,7 +246,9 @@ export const definedContributionsPension = `{"expenses":[
 "triggers":[
 ],"version":4}`;
 
-export const nationalSavings = `{"assets":[
+export const nationalSavings = `{
+"name": "National Savings Income Bonds",
+"assets":[
 {"NAME":"NI","VALUE":"1000000","QUANTITY":"","START":"startDate","LIABILITY":"","GROWTH":"0","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":false,"IS_A_DEBT":false,"PURCHASE_PRICE":"0","CATEGORY":""},
 {"NAME":"Cash","VALUE":"0","QUANTITY":"","START":"startDate","LIABILITY":"","GROWTH":"0","CPI_IMMUNE":true,"CAN_BE_NEGATIVE":true,"IS_A_DEBT":false,"PURCHASE_PRICE":"0","CATEGORY":""}],
 "incomes":[
@@ -256,7 +268,9 @@ export const nationalSavings = `{"assets":[
 ],"version":4}`;
 
 export const pensionExampleData = `
-{"assets":[
+{
+  "name":"Pension",
+  "assets":[
   {"NAME":"Cash","CATEGORY":"","START":"1 Jan 2017","VALUE":"0.0","QUANTITY":"","GROWTH":"0.0","CPI_IMMUNE":true,"CAN_BE_NEGATIVE":true,"IS_A_DEBT":false,"LIABILITY":"","PURCHASE_PRICE":"0.0"},
   {"NAME":"-PEN javaDCP","VALUE":"0","QUANTITY":"","START":"01 Jan 2021","GROWTH":"0","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":false,"IS_A_DEBT":false,"CATEGORY":"","PURCHASE_PRICE":"0.0","LIABILITY":""},
   {"NAME":"-PEN cppDCP","VALUE":"0","QUANTITY":"","START":"01 Jan 2022","GROWTH":"0","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":false,"IS_A_DEBT":false,"CATEGORY":"","PURCHASE_PRICE":"0.0","LIABILITY":""},
@@ -340,6 +354,7 @@ export const simpleTransaction: Transaction = {
 };
 
 export const emptyModel: ModelData = {
+  name: 'emptyModel',
   triggers: [],
   incomes: [],
   expenses: [],
@@ -505,6 +520,7 @@ export const simpleAsset: Asset = {
 
 function getTestModel01ForMigration() {
   const model: ModelData = {
+    name: 'TestModel01ForMigration',
     expenses: [
       {
         ...simpleExpense,
@@ -680,6 +696,7 @@ function getTestModel01ForMigration() {
 
 function getTestModel02ForMigration() {
   const model: ModelData = {
+    name: 'TestModel02ForMigration',
     expenses: [],
     incomes: [],
     assets: [],
@@ -928,6 +945,7 @@ export function getModelCoarseAndFineForMigration(): ModelData {
 }
 
 export const minimalModel: ModelData = {
+  name: 'minimalModel',
   assets: [
     {
       NAME: CASH_ASSET_NAME,
@@ -1017,6 +1035,7 @@ function getModelFutureExpenseForMigration() {
     NAME: viewFrequency,
     VALUE: monthly,
   });
+  model.name = 'ModelFutureExpenseForMigration';
 
   //log(`future expense settings ${model.settings.map(showObj)}`);
   return model;
@@ -1070,6 +1089,7 @@ export function getThreeChryslerModel(): ModelData {
   })[0].START = '1 Jan 2018';
 
   setROI(model, roi);
+  model.name = 'ThreeChryslerModel';
   return model;
 }
 
@@ -1127,11 +1147,13 @@ export function getThreeChryslerModelForMigration(): ModelData {
   })[0].START = '1 Jan 2018';
 
   setROI(model, roi);
+  model.name = 'ThreeChryslerModelForMigration';
   return model;
 }
 
 function getBenAndJerryModel(): ModelData {
   const model: ModelData = {
+    name: 'BenAndJerryModel',
     assets: [
       {
         NAME: 'PensionJerry Aegon',
@@ -1775,19 +1797,23 @@ function getBenAndJerryModel(): ModelData {
 }
 
 export function getDefinedBenefitsPension(): ModelData {
-  return makeModelFromJSON(definedBenefitsPension);
+  return makeModelFromJSON(definedBenefitsPension, 'definedBenefitsPension');
 }
 
 export function getDefinedContributionsPension(): ModelData {
-  return makeModelFromJSON(definedContributionsPension);
+  return makeModelFromJSON(
+    definedContributionsPension,
+    'definedContributionsPension',
+  );
 }
 
 export function getPensionExampleData(): ModelData {
-  return makeModelFromJSON(pensionExampleData);
+  return makeModelFromJSON(pensionExampleData, 'pensionExampleData');
 }
 
 function getBondModel() {
-  return makeModelFromJSONString(`
+  return makeModelFromJSONString(
+    `
   {
     "triggers": [],
     "incomes": [],
@@ -2083,7 +2109,9 @@ function getBondModel() {
     ],
     "version": 0
   }
-  `);
+  `,
+    'BondModel',
+  );
 }
 
 export function getTestModel(input: string): ModelData {
@@ -2098,6 +2126,7 @@ export function getTestModel(input: string): ModelData {
     // log(`converting to from string`);
     return makeModelFromJSON(
       JSON.stringify(getModelFutureExpenseForMigration()),
+      'FutureExpenseForMigration',
     );
   } else if (input === ThreeChryslerModel) {
     return getThreeChryslerModelForMigration();

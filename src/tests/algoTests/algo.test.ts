@@ -5296,7 +5296,8 @@ describe('evaluations tests', () => {
       end: '1 May 2019',
     };
 
-    const model = makeModelFromJSON(`{
+    const model = makeModelFromJSON(
+      `{
       "triggers":[],
       "expenses":[],
       "incomes":[],
@@ -5314,7 +5315,9 @@ describe('evaluations tests', () => {
         {"NAME":"stockMarketGrowth","VALUE":"12.0","HINT":"Custom setting for stock market growth","TYPE":"adjustable"},
         {"NAME": "Today's value focus date","VALUE": "","HINT": "Date to use for 'today's value' tables (defaults to '' meaning today)","TYPE": "view"}
       ]
-    }`);
+    }`,
+      'revalue a setting 01',
+    );
 
     model.transactions.push({
       NAME: 'Revalue a setting',
@@ -5492,7 +5495,7 @@ describe('evaluations tests', () => {
       },
     ]);
 
-    const model = makeModelFromJSON(revalueData);
+    const model = makeModelFromJSON(revalueData, 'revalue a setting 02');
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;

@@ -208,7 +208,7 @@ Options to toggle are
         `will replace ${modelName} which already exists, you sure?`,
       )
     ) {
-      const newModel = makeModelFromJSON(JSON);
+      const newModel = makeModelFromJSON(JSON, modelName); // replaces name in JSON
       replaceWithModel(this.props.userID, modelName, newModel, false);
       this.props.showAlert('replaced data OK');
       this.setState({ JSON: '' });

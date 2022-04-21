@@ -165,6 +165,7 @@ interface ExpenseFromFile extends Expense {
 }
 
 export interface ModelDataFromFile {
+  name: string;
   triggers: Trigger[];
   expenses: ExpenseFromFile[];
   incomes: IncomeFromFile[];
@@ -177,6 +178,7 @@ export interface ModelDataFromFile {
 }
 
 export interface ModelData {
+  name: string;
   triggers: Trigger[];
   expenses: Expense[];
   incomes: Income[];

@@ -5236,6 +5236,7 @@ export function getEvaluations(
     });
     roiEndDate.setMonth(roiEndDate.getMonth() + 1);
     const adjustedModel: ModelData = {
+      name: model.name,
       triggers: model.triggers,
       expenses: [],
       incomes: [],
