@@ -653,6 +653,10 @@ export function migrateOldVersions(model: ModelDataFromFile) {
   if (model.version !== getCurrentVersion()) {
     // log(`model.version = ${model.version}
     //   but current version is ${getCurrentVersion()}`);
-    throw new Error('code not properly handling versions');
+    if(model.version > getCurrentVersion()){
+      throw new Error('this data was saved with a newer version of the app - please upgrade');
+    } else {
+      throw new Error('code not properly handling versions');
+    }
   }
 }
