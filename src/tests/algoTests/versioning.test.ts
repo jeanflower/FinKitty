@@ -555,7 +555,7 @@ describe('loadModelsFromJSON', () => {
         foundError = (e as Error).message;
       }
     }
-    expect(foundError).toBe('code not properly handling versions');
+    expect(foundError).toBe('this data was saved with a newer version of the app - please upgrade');
   });
 
   it('check TestModel01', () => {
