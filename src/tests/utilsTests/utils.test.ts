@@ -206,7 +206,7 @@ describe('utils tests', () => {
       NAME: 't10',
       DATE: 'Thu 01 Feb 2001',
     });
-    
+
     expect(model.triggers[0].DATE).toEqual('01/02/2001');
     expect(model.triggers[1].DATE).toEqual('01/02/1999');
     expect(model.triggers[2].DATE).toEqual('Thu Feb 01 2001');
