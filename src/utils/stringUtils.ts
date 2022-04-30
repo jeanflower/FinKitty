@@ -88,11 +88,6 @@ export function makeDateFromString(input: string) {
     if (input.match(regex) !== null) {
       return new Date(input);
     }
-    // process '1/1/2021'
-    regex = /^\d{1,2}\/\d{1,2}\/\d{4}$/;
-    if (input.match(regex) !== null) {
-      return new Date(input);
-    }
     // process '9 September 2021 8:00'
     regex = /^\d{1,2} [a-zA-Z]* \d{4} \d{1,2}:\d{2}$/;
     if (input.match(regex) !== null) {

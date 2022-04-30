@@ -163,45 +163,50 @@ describe('utils tests', () => {
   it('standardise dates', () => {
     const model = getMinimalModelCopy();
     model.triggers.push({
-      NAME: 'a2',
+      NAME: 't0',
       DATE: '01/02/2001',
     });
     model.triggers.push({
-      NAME: 'a3',
+      NAME: 't1',
       DATE: '01/02/1999',
     });
     model.triggers.push({
-      NAME: 'a4',
+      NAME: 't2',
       DATE: 'Thu Feb 01 2001',
     });
     model.triggers.push({
-      NAME: 'a5',
+      NAME: 't3',
       DATE: 'Feb 01 2001',
     });
     model.triggers.push({
-      NAME: 'a6',
+      NAME: 't4',
       DATE: '01 Feb 2001',
     });
     model.triggers.push({
-      NAME: 'a7',
+      NAME: 't5',
       DATE: 'Thu February 01 2001',
     });
     model.triggers.push({
-      NAME: 'a8',
+      NAME: 't6',
       DATE: 'February 01 2001',
     });
     model.triggers.push({
-      NAME: 'a9',
+      NAME: 't7',
       DATE: '01 February 2001',
     });
     model.triggers.push({
-      NAME: 'a10',
+      NAME: 't8',
       DATE: '9 September 2021 8:00',
     });
     model.triggers.push({
-      NAME: 'a11',
+      NAME: 't9',
       DATE: 'refers to some setting',
     });
+    model.triggers.push({
+      NAME: 't10',
+      DATE: 'Thu 01 Feb 2001',
+    });
+    
     expect(model.triggers[0].DATE).toEqual('01/02/2001');
     expect(model.triggers[1].DATE).toEqual('01/02/1999');
     expect(model.triggers[2].DATE).toEqual('Thu Feb 01 2001');
@@ -212,6 +217,7 @@ describe('utils tests', () => {
     expect(model.triggers[7].DATE).toEqual('01 February 2001');
     expect(model.triggers[8].DATE).toEqual('9 September 2021 8:00');
     expect(model.triggers[9].DATE).toEqual('refers to some setting');
+    expect(model.triggers[10].DATE).toEqual('Thu 01 Feb 2001');
 
     model.incomes.push({
       ...simpleIncome,
@@ -245,6 +251,7 @@ describe('utils tests', () => {
     expect(model.triggers[7].DATE).toEqual('Thu Feb 01 2001');
     expect(model.triggers[8].DATE).toEqual('Thu Sep 09 2021'); /// ????
     expect(model.triggers[9].DATE).toEqual('refers to some setting');
+    expect(model.triggers[10].DATE).toEqual('Thu Feb 01 2001');
 
     expect(model.incomes[0].VALUE_SET).toEqual('Thu Feb 01 2001');
     expect(model.incomes[0].START).toEqual('Mon Feb 01 2021');
