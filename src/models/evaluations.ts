@@ -380,17 +380,19 @@ function growthData(
           : growth;
       // log(`from ${growth}, use cpi ${cpiVal} to create adaptedGrowth = ${getMonthlyGrowth(adaptedGrowth)}`);
     }
-    const monthlyGrowth = getMonthlyGrowth(adaptedGrowth);
-    let periodicGrowth = monthlyGrowth;
+
+    /* istanbul ignore if */
     if (g.powerByNumMonths !== 1) {
-      periodicGrowth = (1 + monthlyGrowth) ** g.powerByNumMonths - 1;
+      log('Error: powerByNumMonths not used to calculate growth');
     }
+
+    const monthlyGrowth = getMonthlyGrowth(adaptedGrowth);
     // log(`growth power up by ${g.powerByNumMonths} from ${monthlyGrowth} to ${periodicGrowth}`);
-    scale = periodicGrowth;
+    scale = monthlyGrowth;
     if (
       g.powerByNumMonths === 1 &&
       checkAssertion &&
-      g.scale !== periodicGrowth
+      g.scale !== monthlyGrowth
     ) {
       //log(`mismatched growths, ${periodicGrowth} not in ${showObj(g)}`);
       //throw new Error();

@@ -26,6 +26,7 @@ import {
 } from '../../utils/stringUtils';
 import {
   definedBenefitsPension,
+  getMinimalModelCopy,
   getTestModel,
   minimalModel,
   simpleAsset,
@@ -68,6 +69,7 @@ import {
   isAnAssetOrAssets,
   makeModelFromJSON,
   makeModelFromJSONString,
+  standardiseDates,
 } from '../../models/modelUtils';
 
 import {
@@ -83,7 +85,13 @@ import {
   bondMaturity,
 } from '../../localization/stringConstants';
 import { ModelData } from '../../types/interfaces';
-import { Context, endOfTime, log } from '../../utils/utils';
+import {
+  Context,
+  endOfTime,
+  log,
+  suppressLogs,
+  unSuppressLogs,
+} from '../../utils/utils';
 import { getTestEvaluations } from '../algoTests/algoTestUtils';
 import { diffModels } from '../../models/diffModels';
 import {
@@ -92,6 +100,7 @@ import {
   getDisplay,
   views,
 } from '../../utils/viewUtils';
+import { checkData } from '../../models/checks';
 
 log;
 
@@ -149,6 +158,114 @@ describe('utils tests', () => {
     const d1 = new Date('2020');
     const d2 = new Date('1 Jan 2020');
     expect(d1.getTime()).toEqual(d2.getTime());
+  });
+
+  it('standardise dates', () => {
+    const model = getMinimalModelCopy();
+    model.triggers.push({
+      NAME: 'a2',
+      DATE: '01/02/2001',
+    });
+    model.triggers.push({
+      NAME: 'a3',
+      DATE: '01/02/1999',
+    });
+    model.triggers.push({
+      NAME: 'a4',
+      DATE: 'Thu Feb 01 2001',
+    });
+    model.triggers.push({
+      NAME: 'a5',
+      DATE: 'Feb 01 2001',
+    });
+    model.triggers.push({
+      NAME: 'a6',
+      DATE: '01 Feb 2001',
+    });
+    model.triggers.push({
+      NAME: 'a7',
+      DATE: 'Thu February 01 2001',
+    });
+    model.triggers.push({
+      NAME: 'a8',
+      DATE: 'February 01 2001',
+    });
+    model.triggers.push({
+      NAME: 'a9',
+      DATE: '01 February 2001',
+    });
+    model.triggers.push({
+      NAME: 'a10',
+      DATE: '9 September 2021 8:00',
+    });
+    model.triggers.push({
+      NAME: 'a11',
+      DATE: 'refers to some setting',
+    });
+    expect(model.triggers[0].DATE).toEqual('01/02/2001');
+    expect(model.triggers[1].DATE).toEqual('01/02/1999');
+    expect(model.triggers[2].DATE).toEqual('Thu Feb 01 2001');
+    expect(model.triggers[3].DATE).toEqual('Feb 01 2001');
+    expect(model.triggers[4].DATE).toEqual('01 Feb 2001');
+    expect(model.triggers[5].DATE).toEqual('Thu February 01 2001');
+    expect(model.triggers[6].DATE).toEqual('February 01 2001');
+    expect(model.triggers[7].DATE).toEqual('01 February 2001');
+    expect(model.triggers[8].DATE).toEqual('9 September 2021 8:00');
+    expect(model.triggers[9].DATE).toEqual('refers to some setting');
+
+    model.incomes.push({
+      ...simpleIncome,
+      VALUE_SET: '01 February 2001',
+      START: '01 February 2021',
+      END: '01 February 2021',
+    });
+    model.expenses.push({
+      ...simpleExpense,
+      VALUE_SET: '01 February 2001',
+      START: '01 February 2021',
+      END: '01 February 2021',
+    });
+    model.transactions.push({
+      ...simpleTransaction,
+      DATE: '01 February 2001',
+      STOP_DATE: '01 February 2001',
+    });
+
+    suppressLogs();
+    standardiseDates(model);
+    unSuppressLogs();
+
+    expect(model.triggers[0].DATE).toEqual('Thu Feb 01 2001');
+    expect(model.triggers[1].DATE).toEqual('Mon Feb 01 1999');
+    expect(model.triggers[2].DATE).toEqual('Thu Feb 01 2001');
+    expect(model.triggers[3].DATE).toEqual('Thu Feb 01 2001');
+    expect(model.triggers[4].DATE).toEqual('Thu Feb 01 2001');
+    expect(model.triggers[5].DATE).toEqual('Thu Feb 01 2001');
+    expect(model.triggers[6].DATE).toEqual('Thu Feb 01 2001');
+    expect(model.triggers[7].DATE).toEqual('Thu Feb 01 2001');
+    expect(model.triggers[8].DATE).toEqual('Thu Sep 09 2021'); /// ????
+    expect(model.triggers[9].DATE).toEqual('refers to some setting');
+
+    expect(model.incomes[0].VALUE_SET).toEqual('Thu Feb 01 2001');
+    expect(model.incomes[0].START).toEqual('Mon Feb 01 2021');
+    expect(model.incomes[0].END).toEqual('Mon Feb 01 2021');
+
+    expect(model.expenses[0].VALUE_SET).toEqual('Thu Feb 01 2001');
+    expect(model.expenses[0].START).toEqual('Mon Feb 01 2021');
+    expect(model.expenses[0].END).toEqual('Mon Feb 01 2021');
+
+    expect(model.transactions[0].DATE).toEqual('Thu Feb 01 2001');
+    expect(model.transactions[0].STOP_DATE).toEqual('Thu Feb 01 2001');
+
+    expect(checkData(model)).toEqual('duplicate name NoName');
+    model.incomes[0].NAME = 'iName';
+    model.expenses[0].NAME = 'eName';
+    model.transactions[0].NAME = 'tName';
+    model.triggers[9].DATE = 'Mon Feb 01 2021';
+
+    expect(checkData(model)).toEqual('');
+
+    standardiseDates(model);
   });
 
   it('removeNumberPart', () => {

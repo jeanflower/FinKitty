@@ -335,7 +335,7 @@ export function checkIncome(i: Income, model: ModelData): string {
   if (cashAssets.length > 0) {
     const cashStarts = getTriggerDate(cashAssets[0].START, model.triggers);
     if (startDate < cashStarts) {
-      return `Income start date must be after cash starts; ${cashStarts.toDateString()}`;
+      return `Income start date must be after cash starts; ${startDate.toDateString()} is before ${cashStarts.toDateString()}`;
     }
   }
   const taxAssets = model.assets.filter((m) => {

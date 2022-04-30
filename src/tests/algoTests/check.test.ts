@@ -316,7 +316,9 @@ describe('checks tests', () => {
         },
         model,
       ),
-    ).toEqual(`Income start date must be after cash starts; Sun Jan 01 2017`);
+    ).toEqual(
+      `Income start date must be after cash starts; Thu Jan 01 1970 is before Sun Jan 01 2017`,
+    );
     expect(
       checkIncome(
         {
@@ -367,6 +369,7 @@ describe('checks tests', () => {
 
     unSuppressLogs();
   });
+
   it('check transaction', () => {
     const model = getTestModel(definedBenefitsPension);
 
@@ -588,6 +591,11 @@ describe('checks tests', () => {
     model2.expenses[0].NAME = '';
     expect(checkData(model2)).toEqual(`Expense name needs some characters`);
     model2.expenses[0].NAME = 'e';
+
+    const preName = model2.name;
+    model2.name = '';
+    expect(checkData(model2)).toEqual(`model name = ''`);
+    model2.name = preName;
 
     expect(checkData(model2)).toEqual(``);
 

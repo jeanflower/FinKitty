@@ -204,6 +204,7 @@ export class RESTDB implements DbInterface {
         .catch((error) => {
           /* istanbul ignore next */
           log(`error from update ${error}`);
+          /* istanbul ignore next */
           return false;
         })
     );

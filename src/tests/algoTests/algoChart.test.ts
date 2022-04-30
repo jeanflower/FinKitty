@@ -483,6 +483,78 @@ describe(' chart data tests', () => {
       expectChartData(chartPts, 3, 'Sun Jul 01 2018', 0, -1);
     }
 
+    viewSettings.toggleViewFilter(Context.Expense, 'pet food');
+
+    result = makeChartDataFromEvaluations(model, viewSettings, evalsAndValues);
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(2);
+    expect(result.expensesData[0].item.NAME).toBe('Phon');
+    {
+      const chartPts = result.expensesData[0].chartDataPoints;
+      expect(chartPts.length).toBe(4);
+      expectChartData(chartPts, 0, 'Sun Apr 01 2018', 12, -1);
+      expectChartData(chartPts, 1, 'Tue May 01 2018', 12, -1);
+      expectChartData(chartPts, 2, 'Fri Jun 01 2018', 12, -1);
+      expectChartData(chartPts, 3, 'Sun Jul 01 2018', 0, -1);
+    }
+
+    expect(result.expensesData[1].item.NAME).toBe('broadband');
+    {
+      const chartPts = result.expensesData[1].chartDataPoints;
+      expect(chartPts.length).toBe(4);
+      expectChartData(chartPts, 0, 'Sun Apr 01 2018', 12, -1);
+      expectChartData(chartPts, 1, 'Tue May 01 2018', 12, -1);
+      expectChartData(chartPts, 2, 'Fri Jun 01 2018', 12, -1);
+      expectChartData(chartPts, 3, 'Sun Jul 01 2018', 0, -1);
+    }
+
+    expect(result.incomesData.length).toBe(2);
+    expect(result.incomesData[0].item.NAME).toBe('PRn2');
+    {
+      const chartPts = result.incomesData[0].chartDataPoints;
+      expect(chartPts.length).toBe(4);
+      expectChartData(chartPts, 0, 'Sun Apr 01 2018', 10, -1);
+      expectChartData(chartPts, 1, 'Tue May 01 2018', 10, -1);
+      expectChartData(chartPts, 2, 'Fri Jun 01 2018', 10, -1);
+      expectChartData(chartPts, 3, 'Sun Jul 01 2018', 0, -1);
+    }
+
+    expect(result.incomesData[1].item.NAME).toBe('PRn3');
+    {
+      const chartPts = result.incomesData[1].chartDataPoints;
+      expect(chartPts.length).toBe(4);
+      expectChartData(chartPts, 0, 'Sun Apr 01 2018', 10, -1);
+      expectChartData(chartPts, 1, 'Tue May 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Fri Jun 01 2018', 0, -1);
+      expectChartData(chartPts, 3, 'Sun Jul 01 2018', 0, -1);
+    }
+
+    expect(result.assetData.length).toBe(2);
+    expect(result.assetData[0].item.NAME).toBe('Accessible');
+    {
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(4);
+      expectChartData(chartPts, 0, 'Sun Apr 01 2018', 494, -1);
+      expectChartData(chartPts, 1, 'Tue May 01 2018', 468, -1);
+      expectChartData(chartPts, 2, 'Fri Jun 01 2018', 942, -1);
+      expectChartData(chartPts, 3, 'Sun Jul 01 2018', 930, -1);
+    }
+
+    expect(result.assetData[1].item.NAME).toBe('stocks');
+    {
+      const chartPts = result.assetData[1].chartDataPoints;
+      expect(chartPts.length).toBe(4);
+      expectChartData(chartPts, 0, 'Sun Apr 01 2018', 500, -1);
+      expectChartData(chartPts, 1, 'Tue May 01 2018', 500, -1);
+      expectChartData(chartPts, 2, 'Fri Jun 01 2018', 500, -1);
+      expectChartData(chartPts, 3, 'Sun Jul 01 2018', 500, -1);
+    }
+
+    expect(result.debtData.length).toBe(0);
+    expect(result.taxData.length).toBe(0);
+
     done();
   });
 
