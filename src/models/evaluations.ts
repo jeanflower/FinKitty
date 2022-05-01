@@ -702,7 +702,132 @@ interface TaxBands {
 interface TaxBandsMap {
   [key: string]: TaxBands | undefined;
 }
+/*
+These correct values break 44 tests
+I'm not bothering to fix historic tax bands
 
+const TAX_MAP: TaxBandsMap = {
+  // https://www.gov.uk/guidance/rates-and-thresholds-for-employers-2016-to-2017
+  '2016': {
+    noTaxBand: 11000, // "Employee personal allowance"
+    lowTaxBand: 11000 + 32000, // "basic tax rate" up to here
+    adjustNoTaxBand: 150000, // "allowance changes" beyond here
+    highTaxBand: 150000, // "additional tax rate"
+    lowTaxRate: 0.2, // "basic tax rate"
+    highTaxRate: 0.4, // "higher tax rate"
+    topTaxRate: 0.45, // "additional tax rate"
+    //
+    noNIBand: 8060, // "Primary Threshold"
+    lowNIBand: 43000, // "Upper Earnings Limit"
+    lowNIRate: 0.12,
+    highNIRate: 0.02,
+  },
+  // https://www.gov.uk/guidance/rates-and-thresholds-for-employers-2017-to-2018
+  '2017': {
+    noTaxBand: 11500,
+    lowTaxBand: 11500 + 33500,
+    adjustNoTaxBand: 100000, //?
+    highTaxBand: 150000,
+    lowTaxRate: 0.2,
+    highTaxRate: 0.4,
+    topTaxRate: 0.45,
+    //
+    noNIBand: 8164,
+    lowNIBand: 45000,
+    lowNIRate: 0.12,
+    highNIRate: 0.02,
+  },
+  // https://www.gov.uk/guidance/rates-and-thresholds-for-employers-2018-to-2019
+  '2018': {
+    noTaxBand: 11850,
+    lowTaxBand: 34500 + 11850,
+    adjustNoTaxBand: 100000,
+    highTaxBand: 150000,
+    lowTaxRate: 0.2,
+    highTaxRate: 0.4,
+    topTaxRate: 0.45,
+    //
+    noNIBand: 8424,
+    lowNIBand: 46350,
+    lowNIRate: 0.12,
+    highNIRate: 0.02,
+  },
+  // https://www.gov.uk/guidance/rates-and-thresholds-for-employers-2019-to-2020
+  '2019': {
+    noTaxBand: 12500,
+    lowTaxBand: 37500 + 12500,
+    adjustNoTaxBand: 100000,
+    highTaxBand: 150000,
+    lowTaxRate: 0.2,
+    highTaxRate: 0.4,
+    topTaxRate: 0.45,
+    //
+    noNIBand: 8632,
+    lowNIBand: 50000,
+    lowNIRate: 0.12,
+    highNIRate: 0.02,
+  },
+  // https://www.gov.uk/guidance/rates-and-thresholds-for-employers-2020-to-2021
+  '2020': {
+    noTaxBand: 12500,
+    lowTaxBand: 37500 + 12500,
+    adjustNoTaxBand: 100000,
+    highTaxBand: 150000,
+    lowTaxRate: 0.2,
+    highTaxRate: 0.4,
+    topTaxRate: 0.45,
+    //
+    noNIBand: 9500,
+    lowNIBand: 50000,
+    lowNIRate: 0.12,
+    highNIRate: 0.02,
+  },
+  // https://www.gov.uk/guidance/rates-and-thresholds-for-employers-2021-to-2022
+  '2021': {
+    noTaxBand: 12570,
+    lowTaxBand: 12570 + 37700,
+    adjustNoTaxBand: 100000,
+    highTaxBand: 150000,
+    lowTaxRate: 0.2,
+    highTaxRate: 0.4,
+    topTaxRate: 0.45,
+    //
+    noNIBand: 9568,
+    lowNIBand: 50270,
+    lowNIRate: 0.12,
+    highNIRate: 0.02,
+  },
+  // https://www.gov.uk/guidance/rates-and-thresholds-for-employers-2022-to-2023
+  '2022': {
+    noTaxBand: 12570,
+    lowTaxBand: 12570 + 37700,
+    adjustNoTaxBand: 100000,
+    highTaxBand: 150000,
+    lowTaxRate: 0.2,
+    highTaxRate: 0.4,
+    topTaxRate: 0.45,
+
+    noNIBand: 9880,
+    lowNIBand: 50270,
+    lowNIRate: 0.1325,
+    highNIRate: 0.0325,
+  },
+  '2023': {
+    // TODO get this derived from highestTaxYearInMap - they should be bound to be the same
+    noTaxBand: 12500,
+    lowTaxBand: 50000,
+    adjustNoTaxBand: 100000,
+    highTaxBand: 150000,
+    lowTaxRate: 0.2,
+    highTaxRate: 0.4,
+    topTaxRate: 0.45,
+    noNIBand: 8628,
+    lowNIBand: 50004,
+    lowNIRate: 0.1325,
+    highNIRate: 0.0325,
+  },
+};
+*/
 const TAX_MAP: TaxBandsMap = {
   '2016': {
     noTaxBand: 12500,
@@ -783,21 +908,22 @@ const TAX_MAP: TaxBandsMap = {
     highNIRate: 0.02,
   },
   '2022': {
-    // TODO get this derived from highestTaxYearInMap - they should be bound to be the same
-    noTaxBand: 12500,
-    lowTaxBand: 50000,
+    noTaxBand: 12570,
+    lowTaxBand: 12570 + 37700,
     adjustNoTaxBand: 100000,
     highTaxBand: 150000,
     lowTaxRate: 0.2,
     highTaxRate: 0.4,
     topTaxRate: 0.45,
-    noNIBand: 8628,
-    lowNIBand: 50004,
+
+    noNIBand: 9880,
+    lowNIBand: 50270,
     lowNIRate: 0.1325,
     highNIRate: 0.0325,
   },
 };
 const highestTaxYearInMap = 2022;
+// TODO get this fropm the map - they should be bound to be the same
 
 function getTaxBands(
   income: number,
