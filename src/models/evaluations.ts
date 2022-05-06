@@ -3654,7 +3654,7 @@ function processTransactionTo(
       // proportion of the amount taken from from_asset
       change = tToValue * fromChange;
     }
-    if (q) {
+    if (q !== undefined) {
       // log(`quantity = ${q} will increase by change = ${change}`);
       q += change;
       // log('in processTransactionTo, setValue:');
