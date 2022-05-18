@@ -2313,7 +2313,7 @@ describe('quantity tests', () => {
       evalsAndValues,
     );
 
-    printTestCodeForChart(result);
+    // printTestCodeForChart(result);
 
     expect(result.expensesData.length).toBe(0);
     expect(result.incomesData.length).toBe(0);
