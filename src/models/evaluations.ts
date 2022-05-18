@@ -562,24 +562,59 @@ function setValue(
   if (name === newValue) {
     log(`Error: don't expect value of ${name} = ${newValue}!`);
   }
+  const printNet = false;
+  const printReal = false;
   /* istanbul ignore if  */ //debug
-  if (printDebug()) {
+  if (printNet || printReal) {
     const existingValue = values.get(name);
-    if (existingValue === undefined) {
-      log(
-        `setting first value of ${name}, ` +
-          `newValue = ${newValue} ` +
-          `date = ${date.toDateString()}, ` +
-          `source = ${source}, from  ${callerID}`,
-      );
-    } else {
-      log(
-        `setting value of ${name}, ` +
-          `newValue = ${newValue} ` +
-          `oldValue = ${existingValue} ` +
-          `date = ${date.toDateString()}, ` +
-          `source = ${source}, from  ${callerID}`,
-      );
+    let realExistingValue = existingValue;
+    let realNewValue = newValue;
+    if (
+      typeof realExistingValue === 'number' &&
+      typeof realNewValue === 'number' &&
+      growthData(name, growths, values).adjustForCPI
+    ) {
+      const baseVal = getNumberValue(values, baseForCPI);
+      if (baseVal !== undefined) {
+        realExistingValue *= baseVal;
+        realNewValue *= baseVal;
+      }
+    }
+    if (printNet) {
+      if (existingValue === undefined) {
+        log(
+          `setting first value of ${name}, ` +
+            `newValue = ${newValue} ` +
+            `date = ${date.toDateString()}, ` +
+            `source = ${source}, from  ${callerID}`,
+        );
+      } else {
+        log(
+          `setting value of ${name}, ` +
+            `newValue = ${newValue} ` +
+            `oldValue = ${existingValue} ` +
+            `date = ${date.toDateString()}, ` +
+            `source = ${source}, from  ${callerID}`,
+        );
+      }
+    }
+    if (printReal) {
+      if (existingValue === undefined) {
+        log(
+          `setting first value of ${name}, ` +
+            `newRealValue = ${realNewValue} ` +
+            `date = ${date.toDateString()}, ` +
+            `source = ${source}, from  ${callerID}`,
+        );
+      } else {
+        log(
+          `setting value of ${name}, ` +
+            `newRealValue = ${realNewValue} ` +
+            `oldRealValue = ${realExistingValue} ` +
+            `date = ${date.toDateString()}, ` +
+            `source = ${source}, from  ${callerID}`,
+        );
+      }
     }
   }
   values.set(name, newValue, growths, date, source, callerID);
@@ -2911,9 +2946,10 @@ function calculateFromChange(
         // log(`t.NAME = ${t.NAME} seeks a matching setting...`);
 
         const bondInterestRate = getNumberValue(values, bondInterest, false);
+        const cpiVal = getNumberValue(values, cpi);
         let bondScale = 1.0;
-        if (bondInterestRate !== undefined) {
-          bondScale = 1.0 + bondInterestRate / 100.0;
+        if (bondInterestRate !== undefined && cpiVal !== undefined) {
+          bondScale = 1.0 + (bondInterestRate + cpiVal) / 100.0;
         }
 
         // log(`before date shift, d = ${d.toDateString()}`);
@@ -3258,9 +3294,10 @@ function calculateToChange(
 
   if (t.FROM_VALUE.startsWith(bondMaturity) && t.FROM === CASH_ASSET_NAME) {
     const bondInterestRate = getNumberValue(values, bondInterest, false);
+    const cpiVal = getNumberValue(values, cpi);
     let bondScale = 1.0;
-    if (bondInterestRate !== undefined) {
-      bondScale = 1.0 + bondInterestRate / 100.0;
+    if (bondInterestRate !== undefined && cpiVal !== undefined) {
+      bondScale = 1.0 + (bondInterestRate + cpiVal) / 100.0;
     }
     // duration of the bond powers up the scaling here
     if (t.NAME.endsWith('5y')) {

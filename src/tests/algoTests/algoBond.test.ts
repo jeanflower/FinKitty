@@ -28,6 +28,135 @@ describe('bonds tests', () => {
     printTestCodeForEvals;
   }
 
+  it('bond invest simple with 100% bond interest', (done) => {
+    const roi = {
+      start: 'Dec 1, 2017',
+      end: 'July 1, 2019',
+    };
+    const settingRevalueDate = 'February 10 2018';
+    const matureDateString = 'April 12 2019';
+    const investDateString = 'April 12 2018';
+
+    const model: ModelData = {
+      ...emptyModel,
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'Cash',
+          START: 'January 1 2018',
+          VALUE: '0',
+          GROWTH: '0.0',
+          CPI_IMMUNE: false,
+          CAN_BE_NEGATIVE: true,
+        },
+        {
+          ...simpleAsset,
+          NAME: 'Bond',
+          START: 'January 1 2018',
+          VALUE: '0',
+          GROWTH: '0.0',
+          CPI_IMMUNE: true,
+        },
+      ],
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: 'Revalue of BondTargetValue 1',
+          TO: 'BondTargetValue',
+          TO_VALUE: '100',
+          DATE: settingRevalueDate,
+          TYPE: revalueSetting,
+        },
+        {
+          ...simpleTransaction,
+          NAME: 'BondInvest1y',
+          FROM: 'Cash',
+          FROM_VALUE: 'BMVBondTargetValue',
+          TO: 'Bond',
+          TO_VALUE: '1.0',
+          TO_ABSOLUTE: false,
+          DATE: investDateString,
+          TYPE: bondInvest,
+        },
+        {
+          ...simpleTransaction,
+          NAME: 'BondMature',
+          FROM: 'Bond',
+          FROM_VALUE: 'BMVBondTargetValue',
+          TO: 'Cash',
+          TO_VALUE: '1.0',
+          TO_ABSOLUTE: false,
+          DATE: matureDateString,
+          TYPE: bondMature,
+        },
+      ],
+      settings: [...defaultModelSettings(roi)],
+    };
+    setSetting(model.settings, cpi, '12', constType);
+    setSetting(model.settings, 'BondTargetValue', '1', constType);
+    setSetting(model.settings, `${bondInterest}`, '100', constType);
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(44);
+    expectEvals(evals, 0, 'bondInterest', 'Fri Dec 01 2017', 100, -1);
+    expectEvals(
+      evals,
+      1,
+      'BMVBondTargetValue/Fri Apr 12 2019/cpi',
+      'Fri Dec 01 2017',
+      1.14,
+      2,
+    );
+    expectEvals(evals, 2, 'BondTargetValue', 'Fri Apr 12 2019', 1, -1);
+    expectEvals(evals, 3, 'Cash', 'Mon Jan 01 2018', 0, -1);
+    expectEvals(evals, 4, 'Bond', 'Mon Jan 01 2018', 0, -1);
+    expectEvals(evals, 5, 'Cash', 'Thu Feb 01 2018', 0, -1);
+    expectEvals(evals, 6, 'Bond', 'Thu Feb 01 2018', 0, -1);
+    expectEvals(evals, 7, 'BondTargetValue', 'Sat Feb 10 2018', 100, -1);
+    expectEvals(evals, 8, 'Cash', 'Thu Mar 01 2018', 0, -1);
+    expectEvals(evals, 9, 'Bond', 'Thu Mar 01 2018', 0, -1);
+    expectEvals(evals, 10, 'Cash', 'Sun Apr 01 2018', 0, -1);
+    expectEvals(evals, 11, 'Bond', 'Sun Apr 01 2018', 0, -1);
+    expectEvals(evals, 12, 'Cash', 'Thu Apr 12 2018', -53.84, 2);
+    expectEvals(evals, 13, 'Bond', 'Thu Apr 12 2018', 114.14, 2);
+    expectEvals(evals, 14, 'Cash', 'Tue May 01 2018', -53.84, 2);
+    expectEvals(evals, 15, 'Bond', 'Tue May 01 2018', 114.14, 2);
+    expectEvals(evals, 16, 'Cash', 'Fri Jun 01 2018', -54.35, 2);
+    expectEvals(evals, 17, 'Bond', 'Fri Jun 01 2018', 114.14, 2);
+    expectEvals(evals, 18, 'Cash', 'Sun Jul 01 2018', -54.86, 2);
+    expectEvals(evals, 19, 'Bond', 'Sun Jul 01 2018', 114.14, 2);
+    expectEvals(evals, 20, 'Cash', 'Wed Aug 01 2018', -55.38, 2);
+    expectEvals(evals, 21, 'Bond', 'Wed Aug 01 2018', 114.14, 2);
+    expectEvals(evals, 22, 'Cash', 'Sat Sep 01 2018', -55.91, 2);
+    expectEvals(evals, 23, 'Bond', 'Sat Sep 01 2018', 114.14, 2);
+    expectEvals(evals, 24, 'Cash', 'Mon Oct 01 2018', -56.44, 2);
+    expectEvals(evals, 25, 'Bond', 'Mon Oct 01 2018', 114.14, 2);
+    expectEvals(evals, 26, 'Cash', 'Thu Nov 01 2018', -56.98, 2);
+    expectEvals(evals, 27, 'Bond', 'Thu Nov 01 2018', 114.14, 2);
+    expectEvals(evals, 28, 'Cash', 'Sat Dec 01 2018', -57.52, 2);
+    expectEvals(evals, 29, 'Bond', 'Sat Dec 01 2018', 114.14, 2);
+    expectEvals(evals, 30, 'Cash', 'Tue Jan 01 2019', -58.06, 2);
+    expectEvals(evals, 31, 'Bond', 'Tue Jan 01 2019', 114.14, 2);
+    expectEvals(evals, 32, 'Cash', 'Fri Feb 01 2019', -58.61, 2);
+    expectEvals(evals, 33, 'Bond', 'Fri Feb 01 2019', 114.14, 2);
+    expectEvals(evals, 34, 'Cash', 'Fri Mar 01 2019', -59.17, 2);
+    expectEvals(evals, 35, 'Bond', 'Fri Mar 01 2019', 114.14, 2);
+    expectEvals(evals, 36, 'Cash', 'Mon Apr 01 2019', -59.73, 2);
+    expectEvals(evals, 37, 'Bond', 'Mon Apr 01 2019', 114.14, 2);
+    expectEvals(evals, 38, 'Bond', 'Fri Apr 12 2019', 0, -1);
+    expectEvals(evals, 39, 'Cash', 'Fri Apr 12 2019', 53.84, 2);
+    expectEvals(evals, 40, 'Cash', 'Wed May 01 2019', 53.84, 2);
+    expectEvals(evals, 41, 'Bond', 'Wed May 01 2019', 0, -1);
+    expectEvals(evals, 42, 'Cash', 'Sat Jun 01 2019', 54.35, 2);
+    expectEvals(evals, 43, 'Bond', 'Sat Jun 01 2019', 0, -1);
+
+    done();
+  });
+
   it('bond invest once mature once', (done) => {
     const roi = {
       start: 'Dec 1, 2017',
@@ -246,37 +375,37 @@ describe('bonds tests', () => {
     expectEvals(evals, 9, 'Bond', 'Thu Mar 01 2018', 1000, -1);
     expectEvals(evals, 10, 'Cash', 'Sun Apr 01 2018', 1028.74, 2);
     expectEvals(evals, 11, 'Bond', 'Sun Apr 01 2018', 1000, -1);
-    expectEvals(evals, 12, 'Cash', 'Thu Apr 12 2018', 924.36, 2);
+    expectEvals(evals, 12, 'Cash', 'Thu Apr 12 2018', 936.59, 2);
     expectEvals(evals, 13, 'Bond', 'Thu Apr 12 2018', 1114.14, 2);
-    expectEvals(evals, 14, 'Cash', 'Tue May 01 2018', 924.36, 2);
+    expectEvals(evals, 14, 'Cash', 'Tue May 01 2018', 936.59, 2);
     expectEvals(evals, 15, 'Bond', 'Tue May 01 2018', 1114.14, 2);
-    expectEvals(evals, 16, 'Cash', 'Fri Jun 01 2018', 933.13, 2);
+    expectEvals(evals, 16, 'Cash', 'Fri Jun 01 2018', 945.48, 2);
     expectEvals(evals, 17, 'Bond', 'Fri Jun 01 2018', 1114.14, 2);
-    expectEvals(evals, 18, 'Cash', 'Sun Jul 01 2018', 941.99, 2);
+    expectEvals(evals, 18, 'Cash', 'Sun Jul 01 2018', 954.45, 2);
     expectEvals(evals, 19, 'Bond', 'Sun Jul 01 2018', 1114.14, 2);
-    expectEvals(evals, 20, 'Cash', 'Wed Aug 01 2018', 950.93, 2);
+    expectEvals(evals, 20, 'Cash', 'Wed Aug 01 2018', 963.51, 2);
     expectEvals(evals, 21, 'Bond', 'Wed Aug 01 2018', 1114.14, 2);
-    expectEvals(evals, 22, 'Cash', 'Sat Sep 01 2018', 959.95, 2);
+    expectEvals(evals, 22, 'Cash', 'Sat Sep 01 2018', 972.65, 2);
     expectEvals(evals, 23, 'Bond', 'Sat Sep 01 2018', 1114.14, 2);
-    expectEvals(evals, 24, 'Cash', 'Mon Oct 01 2018', 969.06, 2);
+    expectEvals(evals, 24, 'Cash', 'Mon Oct 01 2018', 981.88, 2);
     expectEvals(evals, 25, 'Bond', 'Mon Oct 01 2018', 1114.14, 2);
-    expectEvals(evals, 26, 'Cash', 'Thu Nov 01 2018', 978.25, 2);
+    expectEvals(evals, 26, 'Cash', 'Thu Nov 01 2018', 991.2, 2);
     expectEvals(evals, 27, 'Bond', 'Thu Nov 01 2018', 1114.14, 2);
-    expectEvals(evals, 28, 'Cash', 'Sat Dec 01 2018', 987.54, 2);
+    expectEvals(evals, 28, 'Cash', 'Sat Dec 01 2018', 1000.6, 2);
     expectEvals(evals, 29, 'Bond', 'Sat Dec 01 2018', 1114.14, 2);
-    expectEvals(evals, 30, 'Cash', 'Tue Jan 01 2019', 996.91, 2);
+    expectEvals(evals, 30, 'Cash', 'Tue Jan 01 2019', 1010.1, 2);
     expectEvals(evals, 31, 'Bond', 'Tue Jan 01 2019', 1114.14, 2);
-    expectEvals(evals, 32, 'Cash', 'Fri Feb 01 2019', 1006.37, 2);
+    expectEvals(evals, 32, 'Cash', 'Fri Feb 01 2019', 1019.68, 2);
     expectEvals(evals, 33, 'Bond', 'Fri Feb 01 2019', 1114.14, 2);
-    expectEvals(evals, 34, 'Cash', 'Fri Mar 01 2019', 1015.92, 2);
+    expectEvals(evals, 34, 'Cash', 'Fri Mar 01 2019', 1029.36, 2);
     expectEvals(evals, 35, 'Bond', 'Fri Mar 01 2019', 1114.14, 2);
-    expectEvals(evals, 36, 'Cash', 'Mon Apr 01 2019', 1025.56, 2);
+    expectEvals(evals, 36, 'Cash', 'Mon Apr 01 2019', 1039.12, 2);
     expectEvals(evals, 37, 'Bond', 'Mon Apr 01 2019', 1114.14, 2); // 114.14 = 100.00*(1.12^(14/12))
     expectEvals(evals, 38, 'Bond', 'Fri Apr 12 2019', 1000, -1);
-    expectEvals(evals, 39, 'Cash', 'Fri Apr 12 2019', 1149.42, 2);
-    expectEvals(evals, 40, 'Cash', 'Wed May 01 2019', 1149.42, 2);
+    expectEvals(evals, 39, 'Cash', 'Fri Apr 12 2019', 1163.12, 2);
+    expectEvals(evals, 40, 'Cash', 'Wed May 01 2019', 1163.12, 2);
     expectEvals(evals, 41, 'Bond', 'Wed May 01 2019', 1000, -1);
-    expectEvals(evals, 42, 'Cash', 'Sat Jun 01 2019', 1160.33, 2); //109.91*(1.12^(5/12)) + (1000-109.91)*(1.12^(17/12))
+    expectEvals(evals, 42, 'Cash', 'Sat Jun 01 2019', 1174.16, 2);
     expectEvals(evals, 43, 'Bond', 'Sat Jun 01 2019', 1000, -1);
 
     done();
@@ -374,37 +503,37 @@ describe('bonds tests', () => {
     expectEvals(evals, 9, 'Bond', 'Thu Mar 01 2018', 1000, -1);
     expectEvals(evals, 10, 'Cash', 'Sun Apr 01 2018', 972.21, 2);
     expectEvals(evals, 11, 'Bond', 'Sun Apr 01 2018', 1000, -1);
-    expectEvals(evals, 12, 'Cash', 'Thu Apr 12 2018', 924.37, 2); // invest about 50
+    expectEvals(evals, 12, 'Cash', 'Thu Apr 12 2018', 927.6, 2); // invest about 50
     expectEvals(evals, 13, 'Bond', 'Thu Apr 12 2018', 1114.14, 2); // will relase about 100 upon maturity
-    expectEvals(evals, 14, 'Cash', 'Tue May 01 2018', 924.37, 2);
+    expectEvals(evals, 14, 'Cash', 'Tue May 01 2018', 927.6, 2);
     expectEvals(evals, 15, 'Bond', 'Tue May 01 2018', 1114.14, 2);
-    expectEvals(evals, 16, 'Cash', 'Fri Jun 01 2018', 933.14, 2);
+    expectEvals(evals, 16, 'Cash', 'Fri Jun 01 2018', 936.4, 2);
     expectEvals(evals, 17, 'Bond', 'Fri Jun 01 2018', 1114.14, 2);
-    expectEvals(evals, 18, 'Cash', 'Sun Jul 01 2018', 941.99, 2);
+    expectEvals(evals, 18, 'Cash', 'Sun Jul 01 2018', 945.28, 2);
     expectEvals(evals, 19, 'Bond', 'Sun Jul 01 2018', 1114.14, 2);
-    expectEvals(evals, 20, 'Cash', 'Wed Aug 01 2018', 950.93, 2);
+    expectEvals(evals, 20, 'Cash', 'Wed Aug 01 2018', 954.25, 2);
     expectEvals(evals, 21, 'Bond', 'Wed Aug 01 2018', 1114.14, 2);
-    expectEvals(evals, 22, 'Cash', 'Sat Sep 01 2018', 959.95, 2);
+    expectEvals(evals, 22, 'Cash', 'Sat Sep 01 2018', 963.31, 2);
     expectEvals(evals, 23, 'Bond', 'Sat Sep 01 2018', 1114.14, 2);
-    expectEvals(evals, 24, 'Cash', 'Mon Oct 01 2018', 969.06, 2);
+    expectEvals(evals, 24, 'Cash', 'Mon Oct 01 2018', 972.45, 2);
     expectEvals(evals, 25, 'Bond', 'Mon Oct 01 2018', 1114.14, 2);
-    expectEvals(evals, 26, 'Cash', 'Thu Nov 01 2018', 978.26, 2);
+    expectEvals(evals, 26, 'Cash', 'Thu Nov 01 2018', 981.68, 2);
     expectEvals(evals, 27, 'Bond', 'Thu Nov 01 2018', 1114.14, 2);
-    expectEvals(evals, 28, 'Cash', 'Sat Dec 01 2018', 987.54, 2);
+    expectEvals(evals, 28, 'Cash', 'Sat Dec 01 2018', 990.99, 2);
     expectEvals(evals, 29, 'Bond', 'Sat Dec 01 2018', 1114.14, 2);
-    expectEvals(evals, 30, 'Cash', 'Tue Jan 01 2019', 996.91, 2);
+    expectEvals(evals, 30, 'Cash', 'Tue Jan 01 2019', 1000.39, 2);
     expectEvals(evals, 31, 'Bond', 'Tue Jan 01 2019', 1114.14, 2);
-    expectEvals(evals, 32, 'Cash', 'Fri Feb 01 2019', 1006.37, 2);
+    expectEvals(evals, 32, 'Cash', 'Fri Feb 01 2019', 1009.89, 2);
     expectEvals(evals, 33, 'Bond', 'Fri Feb 01 2019', 1114.14, 2);
-    expectEvals(evals, 34, 'Cash', 'Fri Mar 01 2019', 1015.92, 2);
+    expectEvals(evals, 34, 'Cash', 'Fri Mar 01 2019', 1019.47, 2);
     expectEvals(evals, 35, 'Bond', 'Fri Mar 01 2019', 1114.14, 2);
-    expectEvals(evals, 36, 'Cash', 'Mon Apr 01 2019', 1025.56, 2);
+    expectEvals(evals, 36, 'Cash', 'Mon Apr 01 2019', 1029.14, 2);
     expectEvals(evals, 37, 'Bond', 'Mon Apr 01 2019', 1114.14, 2); // 114.14 = 100.00*(1.12^(14/12))
     expectEvals(evals, 38, 'Bond', 'Fri Apr 12 2019', 1000, -1);
-    expectEvals(evals, 39, 'Cash', 'Fri Apr 12 2019', 1149.42, 2); // will relase about 100 upon maturity
-    expectEvals(evals, 40, 'Cash', 'Wed May 01 2019', 1149.42, 2);
+    expectEvals(evals, 39, 'Cash', 'Fri Apr 12 2019', 1153.04, 2); // will relase about 100 upon maturity
+    expectEvals(evals, 40, 'Cash', 'Wed May 01 2019', 1153.04, 2);
     expectEvals(evals, 41, 'Bond', 'Wed May 01 2019', 1000, -1);
-    expectEvals(evals, 42, 'Cash', 'Sat Jun 01 2019', 1160.33, 2); //109.91*(1.12^(5/12)) + (1000-109.91)*(1.12^(17/12))
+    expectEvals(evals, 42, 'Cash', 'Sat Jun 01 2019', 1163.98, 2);
     expectEvals(evals, 43, 'Bond', 'Sat Jun 01 2019', 1000, -1);
     done();
   });
