@@ -4043,6 +4043,7 @@ function generateMoments(
   // a set of moments starting when the expense began,
   // ending when the roi ends.
   model.expenses.forEach((expense) => {
+    // log(`generate moments for expense ${expense.NAME}`);
     // Growth is important to set the value of the
     // first expense.  Later expense values are not
     // set here, but the 'moment' at which the expense
@@ -4063,13 +4064,37 @@ function generateMoments(
       shiftStartBackTo = expenseSetDate;
     }
 
-    shiftStartBackTo.setMonth(shiftStartBackTo.getMonth() + 1);
+    // log(`expense start is ${expenseStartDate.toDateString()}
+    //  but shift back to ${shiftStartBackTo}`);
+    const freq = parseRecurrenceString(expense.RECURRENCE);
+    const mFreq = freq.frequency === monthly;
+    const yFreq = freq.frequency === annually;
+    if (mFreq) {
+      shiftStartBackTo.setMonth(shiftStartBackTo.getMonth() + freq.count);
+    } else if (yFreq) {
+      shiftStartBackTo.setFullYear(shiftStartBackTo.getFullYear() + freq.count);
+    } else {
+      throw new Error(`unhandled frequency ${expense.RECURRENCE}`);
+    }
     const startSequenceFrom = new Date(expenseStart);
     let numAdjustments = 0;
     while (shiftStartBackTo <= startSequenceFrom) {
       // log(`shift ${incomeStartDate} back towards ${shiftStartBackTo}`);
-      startSequenceFrom.setMonth(startSequenceFrom.getMonth() - 1);
+      if (mFreq) {
+        const oldMonth = startSequenceFrom.getMonth();
+        startSequenceFrom.setMonth(oldMonth - freq.count);
+        // TODO skip multiple months in one go not one at a time
+        // because going from 30 March back 2 months incrementally
+        // goes through feb and shifts to 30th Feb = 2nd of March.
+      } else if (yFreq) {
+        startSequenceFrom.setFullYear(
+          startSequenceFrom.getFullYear() - freq.count,
+        );
+      } else {
+        throw new Error(`unhandled frequency ${expense.RECURRENCE}`);
+      }
       numAdjustments += 1;
+      /* istanbul ignore if */
       if (numAdjustments > 1000) {
         /* istanbul ignore next */
         throw new Error(
@@ -4090,6 +4115,28 @@ function generateMoments(
       roiEndDate,
       expense.RECURRENCE,
     );
+
+    /*
+    if (
+      newMoments.length > 0 &&
+      newMoments[newMoments.length - 1].date.getTime() >= expenseStart.getTime()
+    ) {
+      const startMoment = newMoments.find((m) => {
+        return m.date.getTime() === expenseStart.getTime();
+      });
+      if (startMoment === undefined) {
+        log(`expense ${expense.NAME}`);
+        log(`start date ${expenseStart.toDateString()}`);
+        log(`startSequenceFrom = ${startSequenceFrom}`);
+        allMoments.forEach((m) => {
+          log(`moment date ${m.date.toDateString()}`);
+        });
+        // throw new Error(`expenses moments missing start date`);
+        // see earlier TODO on incrementing one month at a time
+      }
+    }
+    */
+
     allMoments = allMoments.concat(newMoments);
   });
 
@@ -4151,12 +4198,15 @@ function generateMoments(
       numAdjustments += 1;
       /* istanbul ignore if */
       if (numAdjustments > 1000) {
+        /* istanbul ignore next */
         throw new Error(
           `${income.NAME} start ${income.START} too far ` +
             `from ${shiftStartBackTo}`,
         );
       }
     }
+
+    // log(`income start = ${incomeStart}`);
     const newMoments = getRecurrentMoments(
       income,
       momentType.incomePrep,
