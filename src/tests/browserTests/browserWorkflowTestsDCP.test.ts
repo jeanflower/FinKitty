@@ -3,7 +3,7 @@ import { headless, quitAfterAll, testModelContent } from './browserTestUtils';
 
 describe('BrowserWorkflowTests DCP', () => {
   const driver = getDriver(headless);
-  jest.setTimeout(1000000); // allow time for all these tests to run
+  jest.setTimeout(40000); // allow time for all these tests to run
 
   it('should have right content for DCP example', async () => {
     await beforeAllWork(driver, '', '');

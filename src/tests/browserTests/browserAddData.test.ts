@@ -56,7 +56,7 @@ describe(testDataModelName, () => {
     return;
   }
   const driver = driverSimple;
-  jest.setTimeout(1000000); // allow time for all these tests to run
+  jest.setTimeout(200000); // allow time for all these tests to run
 
   it('should add dates', async () => {
     await beforeAllWork(

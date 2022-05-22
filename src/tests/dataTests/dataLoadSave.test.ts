@@ -36,7 +36,7 @@ if (printDebug()) {
 }
 
 describe('load save tests', () => {
-  jest.setTimeout(20000); // allow time for this test to run
+  jest.setTimeout(8600); // allow time for this test to run
 
   // the cache of models is shared between tests
   // tests that assert about the contents of the cache

@@ -153,7 +153,7 @@ describe('BrowserWorkflowTests 01', () => {
     return;
   }
   const driver = driverSimple;
-  jest.setTimeout(1000000); // allow time for all these tests to run
+  jest.setTimeout(90000); // allow time for all these tests to run
 
   it('new, switch, cancel', async () => {
     const testDataModelName = 'testName1';
