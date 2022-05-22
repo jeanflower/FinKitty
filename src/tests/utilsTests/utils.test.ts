@@ -154,6 +154,51 @@ describe('utils tests', () => {
     );
   });
 
+  it('cleanupDates', () => {
+    const cleanedString = { cleaned: '' };
+    checkTriggerDate('nonsense', [], cleanedString);
+    expect(cleanedString.cleaned).toBe('Invalid Date nonsense');
+
+    checkTriggerDate('getTrust+1d', [], cleanedString);
+    expect(cleanedString.cleaned).toBe('Invalid Date getTrust+1d');
+
+    checkTriggerDate('01/02/01', [], cleanedString);
+    expect(cleanedString.cleaned).toBe('Invalid Date 01/02/01');
+
+    checkTriggerDate('2001-02-01', [], cleanedString);
+    expect(cleanedString.cleaned).toBe('Invalid Date 2001-02-01');
+
+    expect(makeDateFromString('01/02/01').toDateString()).toBe('Invalid Date');
+    expect(makeDateFromString('01/02/99').toDateString()).toBe('Invalid Date');
+    expect(makeDateFromString('01/02/2001').toDateString()).toBe(
+      'Thu Feb 01 2001',
+    );
+    expect(makeDateFromString('01/02/1999').toDateString()).toBe(
+      'Mon Feb 01 1999',
+    );
+    expect(makeDateFromString('Thu Feb 01 2001').toDateString()).toBe(
+      'Thu Feb 01 2001',
+    );
+    expect(makeDateFromString('Feb 01 2001').toDateString()).toBe(
+      'Thu Feb 01 2001',
+    );
+    expect(makeDateFromString('01 Feb 2001').toDateString()).toBe(
+      'Thu Feb 01 2001',
+    );
+    expect(makeDateFromString('Thu February 01 2001').toDateString()).toBe(
+      'Thu Feb 01 2001',
+    );
+    expect(makeDateFromString('February 01 2001').toDateString()).toBe(
+      'Thu Feb 01 2001',
+    );
+    expect(makeDateFromString('01 February 2001').toDateString()).toBe(
+      'Thu Feb 01 2001',
+    );
+    expect(makeDateFromString('9 September 2021 8:00').toDateString()).toBe(
+      'Thu Sep 09 2021',
+    );
+  });
+
   it('locales woes', () => {
     const d1 = new Date('2020');
     const d2 = new Date('1 Jan 2020');
@@ -643,6 +688,7 @@ describe('utils tests', () => {
       DATE: '1 Jan 2018',
     };
     expect(checkTriggerDate('', [simpleTrigger])).toEqual(undefined);
+    expect(checkTriggerDate('nonsense', [simpleTrigger])).toEqual(undefined);
     expect(checkTriggerDate('a', [simpleTrigger])?.toDateString()).toEqual(
       'Mon Jan 01 2018',
     );
@@ -664,39 +710,104 @@ describe('utils tests', () => {
     expect(checkTriggerDate('a-1d', [simpleTrigger])?.toDateString()).toEqual(
       'Sun Dec 31 2017',
     );
+    expect(
+      checkTriggerDate('1 Jan 2018-1d-2d', [simpleTrigger])?.toDateString(),
+    ).toEqual(undefined);
+    expect(
+      checkTriggerDate('a-1m-2d', [simpleTrigger])?.toDateString(),
+    ).toEqual(undefined);
     expect(checkTriggerDate('nonsense', [simpleTrigger])).toEqual(undefined);
+    expect(
+      checkTriggerDate('nonsense<1 Nov 2018?1 Dec 2019:2 Dec 2019', [
+        simpleTrigger,
+      ])?.toDateString(),
+    ).toEqual(undefined);
+    expect(
+      checkTriggerDate('1 Nov 2018<nonsense?1 Dec 2019:2 Dec 2019', [
+        simpleTrigger,
+      ])?.toDateString(),
+    ).toEqual(undefined);
+    expect(
+      checkTriggerDate('2 Nov 2018<1 Nov 2018?1 Dec 2019:nonsense', [
+        simpleTrigger,
+      ])?.toDateString(),
+    ).toEqual(undefined);
   });
   it('getTriggerDate', () => {
     const simpleTrigger = {
       NAME: 'a',
       DATE: '1 Jan 2018',
     };
-    expect(getTriggerDate('', [simpleTrigger]).toDateString()).toEqual(
-      new Date().toDateString(),
-    );
-    expect(getTriggerDate('a', [simpleTrigger]).toDateString()).toEqual(
+    //expect(getTriggerDate('', [simpleTrigger])?.toDateString()).toEqual(
+    //  undefined,
+    //);
+    expect(getTriggerDate('a', [simpleTrigger])?.toDateString()).toEqual(
       'Mon Jan 01 2018',
     );
-    expect(getTriggerDate('a+1y', [simpleTrigger]).toDateString()).toEqual(
+    expect(getTriggerDate('a+1y', [simpleTrigger])?.toDateString()).toEqual(
       'Tue Jan 01 2019',
     );
-    expect(getTriggerDate('a-1y', [simpleTrigger]).toDateString()).toEqual(
+    expect(getTriggerDate('a-1y', [simpleTrigger])?.toDateString()).toEqual(
       'Sun Jan 01 2017',
     );
-    expect(getTriggerDate('a+1m', [simpleTrigger]).toDateString()).toEqual(
+    expect(getTriggerDate('a+1m', [simpleTrigger])?.toDateString()).toEqual(
       'Thu Feb 01 2018',
     );
-    expect(getTriggerDate('a-1m', [simpleTrigger]).toDateString()).toEqual(
+    expect(getTriggerDate('a-1m', [simpleTrigger])?.toDateString()).toEqual(
       'Fri Dec 01 2017',
     );
-    expect(getTriggerDate('a+1d', [simpleTrigger]).toDateString()).toEqual(
+    expect(getTriggerDate('a+1d', [simpleTrigger])?.toDateString()).toEqual(
       'Tue Jan 02 2018',
     );
-    expect(getTriggerDate('a-1d', [simpleTrigger]).toDateString()).toEqual(
+    expect(getTriggerDate('a-1d', [simpleTrigger])?.toDateString()).toEqual(
       'Sun Dec 31 2017',
     );
-    expect(getTriggerDate('nonsense', [simpleTrigger]).toDateString()).toEqual(
-      new Date().toDateString(),
+    expect(
+      getTriggerDate('1 Jan 2018-1d', [simpleTrigger])?.toDateString(),
+    ).toEqual('Sun Dec 31 2017');
+    expect(getTriggerDate('2018-1d', [simpleTrigger])?.toDateString()).toEqual(
+      'Sun Dec 31 2017',
+    );
+    expect(
+      getTriggerDate('1 Jan 2018-1d-2d', [simpleTrigger])?.toDateString(),
+    ).toEqual('Invalid Date');
+    expect(getTriggerDate('a-1m-2d', [simpleTrigger])?.toDateString()).toEqual(
+      'Invalid Date',
+    );
+    expect(
+      getTriggerDate('1 Nov 2018<2 Nov 2018?1 Dec 2019:2 Dec 2019', [
+        simpleTrigger,
+      ])?.toDateString(),
+    ).toEqual('Sun Dec 01 2019');
+    expect(
+      getTriggerDate('2 Nov 2018<1 Nov 2018?1 Dec 2019:2 Dec 2019', [
+        simpleTrigger,
+      ])?.toDateString(),
+    ).toEqual('Mon Dec 02 2019');
+    expect(
+      getTriggerDate('1 Nov 2018<2 Nov 2018?1 Dec 2019:nonsense', [
+        simpleTrigger,
+      ])?.toDateString(),
+    ).toEqual('Sun Dec 01 2019');
+
+    expect(
+      getTriggerDate('nonsense<1 Nov 2018?1 Dec 2019:2 Dec 2019', [
+        simpleTrigger,
+      ])?.toDateString(),
+    ).toEqual('Invalid Date');
+    expect(
+      getTriggerDate('1 Nov 2018<nonsense?1 Dec 2019:2 Dec 2019', [
+        simpleTrigger,
+      ])?.toDateString(),
+    ).toEqual('Invalid Date');
+    expect(
+      getTriggerDate('2 Nov 2018<1 Nov 2018?1 Dec 2019:nonsense', [
+        simpleTrigger,
+      ])?.toDateString(),
+    ).toEqual('Invalid Date');
+
+    expect(getTriggerDate('nonsense', [simpleTrigger])?.toDateString()).toEqual(
+      'Invalid Date',
     );
   });
   it('makeDateTooltip', () => {
@@ -1282,14 +1393,6 @@ describe('utils tests', () => {
       TYPE: 'custom',
       CATEGORY: '',
     });
-    /*
-    {
-      "NAME":"cpi",
-      "VALUE":"2.5",
-      "HINT":"Annual rate of inflation",
-      "TYPE":"const"
-    },
-    */
 
     expect(getTestEvaluations(model2, true, true).evaluations.length).toBe(
       2862,
@@ -1297,8 +1400,8 @@ describe('utils tests', () => {
     const oldModelCopy = JSON.parse(JSON.stringify(model2));
 
     // Change the date of the first trigger
-    // {"NAME":"PensionTransfers","DATE":"2035-01-01"}
-    model2.triggers[0].DATE = '2035-01-02';
+    // {"NAME":"PensionTransfers","DATE":"1 Jan 2035"}
+    model2.triggers[0].DATE = '1 Feb 2035';
 
     // log(`oldModelCopy = ${JSON.stringify(oldModelCopy)}`);
     let diffResult = diffModels(
@@ -1310,7 +1413,7 @@ describe('utils tests', () => {
     );
     expect(diffResult.length).toBe(1);
     expect(diffResult[0]).toEqual(
-      'PensionTransfers: date 2035-01-02 !== Mon Jan 01 2035',
+      'PensionTransfers: date 1 Feb 2035 !== Mon Jan 01 2035',
     );
 
     model2.triggers[0].DATE = 'Mon Jan 01 2035';

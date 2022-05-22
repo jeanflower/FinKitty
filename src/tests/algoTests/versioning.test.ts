@@ -65,9 +65,9 @@ const v1ModelJSON = `{
 const v2ModelJSON = `{
     "version":2, 
     "triggers":[
-    {"NAME":"GetRidOfCar","DATE":"2025-12-31"},
-    {"NAME":"StopMainWork","DATE":"2050-12-31"},
-    {"NAME":"TransferMortgage","DATE":"2028-01-01"}],
+      {"NAME":"GetRidOfCar","DATE":"31 Dec 2025"},
+      {"NAME":"StopMainWork","DATE":"31 Dec 2050"},
+      {"NAME":"TransferMortgage","DATE":"1 Jan 2028"}],
     "expenses":[
     {"NAME":"Look after dogs","CATEGORY":"living costs","START":"1 April 2018","END":"2 February 2047","VALUE":"500","VALUE_SET":"1 April 2018","CPI_IMMUNE":false,"GROWTH":"2","RECURRENCE":"1m"},
     {"NAME":"Run car","CATEGORY":"living costs","START":"1 April 2018","END":"GetRidOfCar","VALUE":"700","VALUE_SET":"1 April 2018","CPI_IMMUNE":false,"GROWTH":"5","RECURRENCE":"1m"},
@@ -110,9 +110,9 @@ const v2ModelJSON = `{
 const v3ModelJSON = `{
     "version":3, 
     "triggers":[
-    {"NAME":"GetRidOfCar","DATE":"2025-12-31"},
-    {"NAME":"StopMainWork","DATE":"2050-12-31"},
-    {"NAME":"TransferMortgage","DATE":"2028-01-01"}],
+      {"NAME":"GetRidOfCar","DATE":"31 Dec 2025"},
+      {"NAME":"StopMainWork","DATE":"31 Dec 2050"},
+      {"NAME":"TransferMortgage","DATE":"1 Jan 2028"}],
     "expenses":[
     {"NAME":"Look after dogs","CATEGORY":"living costs","START":"1 April 2018","END":"2 February 2047","VALUE":"500","VALUE_SET":"1 April 2018","CPI_IMMUNE":false,"GROWTH":"2","RECURRENCE":"1m"},
     {"NAME":"Run car","CATEGORY":"living costs","START":"1 April 2018","END":"GetRidOfCar","VALUE":"700","VALUE_SET":"1 April 2018","CPI_IMMUNE":false,"GROWTH":"5","RECURRENCE":"1m"},
@@ -154,9 +154,9 @@ const v3ModelJSON = `{
 const v4ModelJSON = `{
     "version":4, 
     "triggers":[
-    {"NAME":"TransferMortgage","DATE":"2028-01-01"},
-    {"NAME":"StopMainWork","DATE":"2050-12-31"},
-    {"NAME":"GetRidOfCar","DATE":"2025-12-31"}],
+      {"NAME":"GetRidOfCar","DATE":"31 Dec 2025"},
+      {"NAME":"StopMainWork","DATE":"31 Dec 2050"},
+      {"NAME":"TransferMortgage","DATE":"1 Jan 2028"}],
     "expenses":[
     {"NAME":"Run house","CATEGORY":"living costs","START":"1 April 2018","END":"2 February 2099","VALUE":"1300","VALUE_SET":"1 April 2018","CPI_IMMUNE":false,"GROWTH":"2","RECURRENCE":"1m"},
     {"NAME":"Run car","CATEGORY":"living costs","START":"1 April 2018","END":"GetRidOfCar","VALUE":"700","VALUE_SET":"1 April 2018","CPI_IMMUNE":false,"GROWTH":"5","RECURRENCE":"1m"},
@@ -201,9 +201,9 @@ const v4ModelJSON = `{
 const v5ModelJSON = `{
     "version":5, 
     "triggers":[
-    {"NAME":"GetRidOfCar","DATE":"2025-12-31"},
-    {"NAME":"StopMainWork","DATE":"2050-12-31"},
-    {"NAME":"TransferMortgage","DATE":"2028-01-01"}],
+      {"NAME":"GetRidOfCar","DATE":"31 Dec 2025"},
+      {"NAME":"StopMainWork","DATE":"31 Dec 2050"},
+      {"NAME":"TransferMortgage","DATE":"1 Jan 2028"}],
     "expenses":[
     {"NAME":"Look after dogs","CATEGORY":"living costs","START":"1 April 2018","END":"2 February 2047","VALUE":"500","VALUE_SET":"1 April 2018","CPI_IMMUNE":false,"GROWTH":"2","RECURRENCE":"1m"},
     {"NAME":"Run car","CATEGORY":"living costs","START":"1 April 2018","END":"GetRidOfCar","VALUE":"700","VALUE_SET":"1 April 2018","CPI_IMMUNE":false,"GROWTH":"5","RECURRENCE":"1m"},
@@ -237,9 +237,9 @@ const v5ModelJSON = `{
 const v6ModelJSON = `{
     "version":6, 
     "triggers":[
-    {"NAME":"GetRidOfCar","DATE":"2025-12-31"},
-    {"NAME":"StopMainWork","DATE":"2050-12-31"},
-    {"NAME":"TransferMortgage","DATE":"2028-01-01"}],
+    {"NAME":"GetRidOfCar","DATE":"31 Dec 2025"},
+    {"NAME":"StopMainWork","DATE":"31 Dec 2050"},
+    {"NAME":"TransferMortgage","DATE":"1 Jan 2028"}],
     "expenses":[
     {"NAME":"Look after dogs","CATEGORY":"living costs","START":"1 April 2018","END":"2 February 2047","VALUE":"500","VALUE_SET":"1 April 2018","CPI_IMMUNE":false,"GROWTH":"2","RECURRENCE":"1m"},
     {"NAME":"Run car","CATEGORY":"living costs","START":"1 April 2018","END":"GetRidOfCar","VALUE":"700","VALUE_SET":"1 April 2018","CPI_IMMUNE":false,"GROWTH":"5","RECURRENCE":"1m"},
@@ -278,12 +278,12 @@ const v7ModelJSON = `{
   {"START":"PensionBegins","END":"PensionTransfers","NAME":"-PDB TeachersPensionScheme","VALUE":"0","VALUE_SET":"PensionExists","LIABILITY":"Joe(incomeTax)","GROWTH":"2","CPI_IMMUNE":true,"CATEGORY":""}],
   "expenses":[],
   "triggers":
-  [{"NAME":"PensionTransfers","DATE":"2035-01-01"},
-  {"NAME":"PensionStops","DATE":"2040-01-01"},
-  {"NAME":"PensionExists","DATE":"2022-01-01"},
-  {"NAME":"PensionBegins","DATE":"2030-01-01"},
-  {"NAME":"JobStop","DATE":"2028-01-01"},
-  {"NAME":"JobStart","DATE":"2020-01-01"}],
+  [{"NAME":"PensionTransfers","DATE":"1 Jan 2035"},
+  {"NAME":"PensionStops","DATE":"1 Jan 2040"},
+  {"NAME":"PensionExists","DATE":"1 Jan 2022"},
+  {"NAME":"PensionBegins","DATE":"1 Jan 2030"},
+  {"NAME":"JobStop","DATE":"1 Jan 2028"},
+  {"NAME":"JobStart","DATE":"1 Jan 2020"}],
   "settings":
   [{"NAME":"Today's value focus date","VALUE":"","HINT":"Date to use for 'today's value' tables (defaults to '' meaning today)","TYPE":"view"},
   {"NAME":"End of view range","VALUE":"1 Jan 2045","HINT":"Date at the end of range to be plotted","TYPE":"view"},
@@ -304,12 +304,12 @@ const v8ModelJSON = `{
   {"START":"PensionBegins","END":"PensionTransfers","NAME":"-PDB TeachersPensionScheme","VALUE":"0","VALUE_SET":"PensionExists","LIABILITY":"Joe(incomeTax)","GROWTH":"2","CPI_IMMUNE":true,"CATEGORY":""}],
   "expenses":[],
   "triggers":
-  [{"NAME":"PensionTransfers","DATE":"2035-01-01"},
-  {"NAME":"PensionStops","DATE":"2040-01-01"},
-  {"NAME":"PensionExists","DATE":"2022-01-01"},
-  {"NAME":"PensionBegins","DATE":"2030-01-01"},
-  {"NAME":"JobStop","DATE":"2028-01-01"},
-  {"NAME":"JobStart","DATE":"2020-01-01"}],
+  [{"NAME":"PensionTransfers","DATE":"1 Jan 2035"},
+  {"NAME":"PensionStops","DATE":"1 Jan 2040"},
+  {"NAME":"PensionExists","DATE":"1 Jan 2022"},
+  {"NAME":"PensionBegins","DATE":"1 Jan 2030"},
+  {"NAME":"JobStop","DATE":"1 Jan 2028"},
+  {"NAME":"JobStart","DATE":"1 Jan 2020"}],  
   "settings":
   [{"NAME":"Today's value focus date","VALUE":"","HINT":"Date to use for 'today's value' tables (defaults to '' meaning today)","TYPE":"view"},
   {"NAME":"End of view range","VALUE":"1 Jan 2045","HINT":"Date at the end of range to be plotted","TYPE":"view"},
@@ -331,12 +331,12 @@ const v9ModelJSON = `{
   {"START":"PensionBegins","END":"PensionTransfers","NAME":"-PDB TeachersPensionScheme","VALUE":"0","VALUE_SET":"PensionExists","LIABILITY":"Joe(incomeTax)","GROWTH":"2","CPI_IMMUNE":true,"CATEGORY":""}],
   "expenses":[],
   "triggers":
-  [{"NAME":"PensionTransfers","DATE":"2035-01-01"},
-  {"NAME":"PensionStops","DATE":"2040-01-01"},
-  {"NAME":"PensionExists","DATE":"2022-01-01"},
-  {"NAME":"PensionBegins","DATE":"2030-01-01"},
-  {"NAME":"JobStop","DATE":"2028-01-01"},
-  {"NAME":"JobStart","DATE":"2020-01-01"}],
+  [{"NAME":"PensionTransfers","DATE":"1 Jan 2035"},
+  {"NAME":"PensionStops","DATE":"1 Jan 2040"},
+  {"NAME":"PensionExists","DATE":"1 Jan 2022"},
+  {"NAME":"PensionBegins","DATE":"1 Jan 2030"},
+  {"NAME":"JobStop","DATE":"1 Jan 2028"},
+  {"NAME":"JobStart","DATE":"1 Jan 2020"}],
   "settings":
   [{"NAME":"Today's value focus date","VALUE":"","HINT":"Date to use for 'today's value' tables (defaults to '' meaning today)","TYPE":"view"},
   {"NAME":"End of view range","VALUE":"1 Jan 2045","HINT":"Date at the end of range to be plotted","TYPE":"view"},
@@ -358,12 +358,12 @@ const v10ModelJSON = `{
     {"START":"PensionBegins","END":"PensionTransfers","NAME":"-PDB TeachersPensionScheme","VALUE":"0","VALUE_SET":"PensionExists","LIABILITY":"Joe(incomeTax)","CPI_IMMUNE":true,"CATEGORY":""}],
     "expenses":[],
     "triggers":
-    [{"NAME":"PensionTransfers","DATE":"2035-01-01"},
-    {"NAME":"PensionStops","DATE":"2040-01-01"},
-    {"NAME":"PensionExists","DATE":"2022-01-01"},
-    {"NAME":"PensionBegins","DATE":"2030-01-01"},
-    {"NAME":"JobStop","DATE":"2028-01-01"},
-    {"NAME":"JobStart","DATE":"2020-01-01"}],
+    [{"NAME":"PensionTransfers","DATE":"1 Jan 2035"},
+    {"NAME":"PensionStops","DATE":"1 Jan 2040"},
+    {"NAME":"PensionExists","DATE":"1 Jan 2022"},
+    {"NAME":"PensionBegins","DATE":"1 Jan 2030"},
+    {"NAME":"JobStop","DATE":"1 Jan 2028"},
+    {"NAME":"JobStart","DATE":"1 Jan 2020"}],
     "settings":
     [{"NAME":"Today's value focus date","VALUE":"","HINT":"Date to use for 'today's value' tables (defaults to '' meaning today)","TYPE":"view"},
     {"NAME":"End of view range","VALUE":"1 Jan 2045","HINT":"Date at the end of range to be plotted","TYPE":"view"},

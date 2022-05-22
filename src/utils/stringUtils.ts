@@ -539,13 +539,179 @@ export function makeStringFromFromToValue(input: string) {
   }
 }
 
+/*
 function parseTriggerForOperator(
   triggerName: string,
   opSymbol: string,
   triggers: Trigger[],
   recursionLevel: number,
+  cleanedUp: { cleaned: string } | undefined,
+) {
+  if (opSymbol === '?') {
+    const parts = triggerName.split('?');
+    if (parts.length !== 2) {
+      return undefined;
+    }
+    const parts2 = parts[1].split(':');
+    if (parts2.length !== 2) {
+      return undefined;
+    }
+    const condition = parts[0];
+    const ifTrue = parts2[0];
+    const ifFalse = parts2[1];
+    const parts3 = condition.split('<');
+    if (parts3.length !== 2) {
+      return undefined;
+    }
+    
+    const earlierDate: Date | undefined = checkTriggerDateRecursive(
+      parts3[0],
+      triggers,
+      recursionLevel + 1,
+      cleanedUp,
+    );
+    const laterDate: Date | undefined = checkTriggerDateRecursive(
+      parts3[1],
+      triggers,
+      recursionLevel + 1,
+      cleanedUp,
+    );
+    if (earlierDate === undefined || laterDate === undefined) {
+      return undefined;
+    }
+    if (earlierDate.getTime() < laterDate.getTime()) {
+      return checkTriggerDateRecursive(
+        ifTrue,
+        triggers,
+        recursionLevel + 1,
+        cleanedUp,
+      );
+    } else {
+      return checkTriggerDateRecursive(
+        ifFalse,
+        triggers,
+        recursionLevel + 1,
+        cleanedUp,
+      );
+    }
+  } else if (opSymbol === '+' || opSymbol === '-') {
+    const parts = triggerName.split(opSymbol);
+    if (parts.length < 2) {
+      return undefined;
+    }
+    // concantenate all early parts into one, process the last part
+    parts[0] = triggerName.substring(
+      0,
+      triggerName.length - parts[parts.length - 1].length - 1,
+    );
+    parts[1] = parts[parts.length - 1];
+
+    let numChange = 0;
+    if (opSymbol === '-') {
+      numChange = -1;
+    } else if (opSymbol === '+') {
+      numChange = 1;
+    } else {
+      return undefined;
+    }
+    const secondPartNW = getNumberAndWordParts(parts[1]);
+    if (secondPartNW.numberPart === undefined) {
+      return undefined;
+    }
+    if (
+      secondPartNW.wordPart !== 'd' &&
+      secondPartNW.wordPart !== 'm' &&
+      secondPartNW.wordPart !== 'y'
+    ) {
+      return undefined;
+    }
+
+    //no-use-before-define
+    const cleanedUpFirstPart = cleanedUp ? {
+      cleaned: ''
+    } : undefined;
+    const firstPartDate: Date | undefined = checkTriggerDateRecursive(
+      parts[0],
+      triggers,
+      recursionLevel + 1,
+      cleanedUpFirstPart,
+    );
+    if(cleanedUp){
+      cleanedUp.cleaned = `${cleanedUpFirstPart?.cleaned}${opSymbol}${parts[1]}`;
+    }
+
+    if (firstPartDate !== undefined) {
+      if (secondPartNW.wordPart === 'd') {
+        firstPartDate.setDate(
+          firstPartDate.getDate() + numChange * secondPartNW.numberPart,
+        );
+      } else if (secondPartNW.wordPart === 'm') {
+        firstPartDate.setMonth(
+          firstPartDate.getMonth() + numChange * secondPartNW.numberPart,
+        );
+      } else if (secondPartNW.wordPart === 'y') {
+        firstPartDate.setFullYear(
+          firstPartDate.getFullYear() + numChange * secondPartNW.numberPart,
+        );
+      }
+      // log(`converted ${triggerName} into ${firstPartDate.toDateString()}`);
+      return firstPartDate;
+    } else {
+      if (printDebug()) {
+        log(`Error: can't understand ${triggerName}`);
+      }
+    }
+  }
+}
+*/
+
+function parseTriggerForOperator(
+  triggerName: string,
+  opSymbol: string,
+  triggers: Trigger[],
+  recursionLevel: number,
+  cleanedUp: { cleaned: string } | undefined,
 ) {
   let numChange = 0;
+  if (opSymbol === '?') {
+    const parts = triggerName.split(opSymbol);
+    if (parts.length === 2) {
+      const partsLessThan = parts[0].split('<');
+      const partsElse = parts[1].split(':');
+      if (partsLessThan.length === 2 && partsElse.length === 2) {
+        const date1: Date | undefined = findMatchedTriggerDate(
+          partsLessThan[0],
+          triggers,
+          recursionLevel + 1,
+          cleanedUp,
+        );
+        const date2: Date | undefined = findMatchedTriggerDate(
+          partsLessThan[1],
+          triggers,
+          recursionLevel + 1,
+          cleanedUp,
+        );
+        if (date1 !== undefined && date2 !== undefined) {
+          if (date1.getTime() < date2.getTime()) {
+            return findMatchedTriggerDate(
+              partsElse[0],
+              triggers,
+              recursionLevel + 1,
+              cleanedUp,
+            );
+          } else {
+            return findMatchedTriggerDate(
+              partsElse[1],
+              triggers,
+              recursionLevel + 1,
+              cleanedUp,
+            );
+          }
+        }
+      }
+    }
+  }
+
   if (opSymbol === '-') {
     numChange = -1;
   } else if (opSymbol === '+') {
@@ -570,6 +736,7 @@ function parseTriggerForOperator(
         parts[0],
         triggers,
         recursionLevel + 1,
+        cleanedUp,
       );
       /* eslint-enable */
       if (firstPartDate !== undefined) {
@@ -603,16 +770,29 @@ function findMatchedTriggerDate(
   triggerName: string,
   triggers: Trigger[],
   recursionLevel: number,
+  cleanedUp: { cleaned: string } | undefined,
 ): Date | undefined {
+  // log(`findMatchedTriggerDate recursionLevel = ${recursionLevel}, triggerName = ${triggerName}`)
   if (recursionLevel > 10) {
     //log(`infinite or too-complex recursion for dates - emergency stop`);
     return undefined;
+  }
+  const conditionalOp = parseTriggerForOperator(
+    triggerName,
+    '?',
+    triggers,
+    recursionLevel,
+    cleanedUp,
+  );
+  if (conditionalOp !== undefined) {
+    return conditionalOp;
   }
   const minusOp = parseTriggerForOperator(
     triggerName,
     '-',
     triggers,
     recursionLevel,
+    cleanedUp,
   );
   if (minusOp !== undefined) {
     return minusOp;
@@ -622,6 +802,7 @@ function findMatchedTriggerDate(
     '+',
     triggers,
     recursionLevel,
+    cleanedUp,
   );
   if (plusOp !== undefined) {
     return plusOp;
@@ -637,35 +818,23 @@ function findMatchedTriggerDate(
       matched[0].DATE,
       triggers,
       recursionLevel + 1,
+      cleanedUp,
     );
     /* eslint-enable */
 
     // log(`converted ${triggerName} into ${result.toDateString()}`);
   }
-  return result;
-}
 
-function checkTriggerDateRecursive(
-  input: string,
-  triggers: Trigger[],
-  recursionLevel: number,
-) {
-  // log('first look for '+input+'in '+showObj(triggers));
-  /* eslint-disable no-use-before-define*/ // recursion
-  const matched = findMatchedTriggerDate(input, triggers, recursionLevel);
-  /* eslint-enable no-use-before-define*/
-
-  // log(`matched = ${showObj(matched)}`);
-  let result;
-  if (matched !== undefined) {
-    result = matched; // copy
-  } else {
-    const dateTry = makeDateFromString(input);
+  if (result === undefined) {
+    const dateTry = makeDateFromString(triggerName);
     if (dateTry.getTime()) {
       result = dateTry;
     } else {
       //log(`BUG : unrecognised date!!! ${input}, `
       // `${showObj(triggers.length)}`);
+      if (cleanedUp) {
+        cleanedUp.cleaned = `Invalid Date ${triggerName}`;
+      }
       result = undefined;
     }
   }
@@ -673,19 +842,47 @@ function checkTriggerDateRecursive(
   return result;
 }
 
-// returns a date for a trigger or for a date string, or undefined for junk
-export function checkTriggerDate(input: string, triggers: Trigger[]) {
-  return checkTriggerDateRecursive(input, triggers, 0);
+function checkTriggerDateRecursive(
+  input: string,
+  triggers: Trigger[],
+  recursionLevel: number,
+  cleanedUp: { cleaned: string } | undefined,
+) {
+  // log(`checkTriggerDateRecursive recursionLevel = ${recursionLevel}, input = ${input}`);
+  // log('first look for '+input+'in '+showObj(triggers));
+  /* eslint-disable no-use-before-define*/ // recursion
+  const matched = findMatchedTriggerDate(
+    input,
+    triggers,
+    recursionLevel,
+    cleanedUp,
+  );
+  /* eslint-enable no-use-before-define*/
+
+  // log(`matched = ${showObj(matched)}`);
+  return matched;
 }
 
-// Suppresses any not-understood values and returns new Date()
-export function getTriggerDate(triggerName: string, triggers: Trigger[]) {
+// returns a date for a trigger or for a date string, or undefined for junk
+export function checkTriggerDate(
+  input: string,
+  triggers: Trigger[],
+  cleanedUp: { cleaned: string } | undefined = undefined,
+) {
+  // log(`checking input ${input}`);
+  const result = checkTriggerDateRecursive(input, triggers, 0, cleanedUp);
+  // log(`checking input ${input} got result = ${result}`);
+  return result;
+}
+
+// Suppresses any not-understood values and returns new Date('Invalid Date')
+export function getTriggerDate(triggerName: string, triggers: Trigger[]): Date {
   // log(`triggers length is ${triggers.length}`);
   const checkResult = checkTriggerDate(triggerName, triggers);
   if (checkResult !== undefined) {
     return checkResult;
   }
-  return new Date();
+  return new Date('Invalid Date');
 }
 
 export const dateFormatOptions = {

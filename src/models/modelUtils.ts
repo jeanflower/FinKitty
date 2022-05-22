@@ -24,16 +24,70 @@ import { checkData } from './checks';
 import { getTestModel } from './exampleModels';
 import { migrateOldVersions } from './versioningUtils';
 
-// breaks dates (and functions too but we don't have these)
 function cleanUpDates(
   modelFromJSON: ModelData,
   cleanUndo: boolean,
   cleanRedo: boolean,
 ): void {
+  // TODO use the cleaned part of 
+  // findMatchedTriggerDate
+  
   for (const t of modelFromJSON.triggers) {
-    //log(`type of ${t.DATE} = ${typeof t.DATE}`);
-    t.DATE = new Date(t.DATE).toDateString();
-    //log(`type of ${t.DATE} = ${typeof t.DATE}`);
+    const plusParts = t.DATE.split('+');
+    const minusParts = t.DATE.split('-');
+    const qParts = t.DATE.split('?');
+    if (plusParts.length + minusParts.length + qParts.length > 4) {
+      throw new Error(`unsupported date ${t.DATE}`);
+    }
+
+    let wasPlusOrMinus = false;
+    if (plusParts.length === 2) {
+      wasPlusOrMinus = true;
+      const newDate = `${new Date(plusParts[0]).toDateString()}+${
+        plusParts[1]
+      }`;
+      // log(`t.DATE plus ${t.DATE} -> ${newDate}`);
+      t.DATE = newDate;
+    } else {
+      if (minusParts.length === 2) {
+        wasPlusOrMinus = true;
+        const newDate = `${new Date(minusParts[0]).toDateString()}-${
+          minusParts[1]
+        }`;
+        // log(`t.DATE minus ${t.DATE} -> ${newDate}`);
+        t.DATE = newDate;
+      }
+    }
+
+    let wasConditional = false;
+
+    if (!wasPlusOrMinus) {
+      if (qParts.length === 2) {
+        const parts2 = qParts[1].split(':');
+        if (parts2.length === 2) {
+          const condition = qParts[0];
+          const ifTrue = parts2[0];
+          const ifFalse = parts2[1];
+          const parts3 = condition.split('<');
+          if (parts3.length === 2) {
+            wasConditional = true;
+            const newDate =
+              `${new Date(parts3[0]).toDateString()}` +
+              `<${new Date(parts3[1]).toDateString()}` +
+              `?${new Date(ifTrue).toDateString()}` +
+              `:${new Date(ifFalse).toDateString()}`;
+            // log(`t.DATE plus ${t.DATE} -> ${newDate}`);
+            t.DATE = newDate;
+          }
+        }
+      }
+    }
+
+    if (!wasConditional && !wasPlusOrMinus) {
+      //log(`type of ${t.DATE} = ${typeof t.DATE}`);
+      t.DATE = new Date(t.DATE).toDateString();
+      //log(`type of ${t.DATE} = ${typeof t.DATE}`);
+    }
   }
   if (cleanUndo && modelFromJSON.undoModel) {
     cleanUpDates(modelFromJSON.undoModel, true, false);
@@ -44,6 +98,7 @@ function cleanUpDates(
   // log(`cleaned up model assets ${showObj(result.assets)}`);
 }
 
+// breaks dates (and functions too but we don't have these)
 export function makeModelFromJSONString(
   input: string,
   modelName = '',

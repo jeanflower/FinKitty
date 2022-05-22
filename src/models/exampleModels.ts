@@ -70,9 +70,9 @@ log;
 export const simpleExampleData = `{
 "name": "Simple",
 "triggers":[
-{"NAME":"GetRidOfCar","DATE":"2025-12-31"},
-{"NAME":"StopMainWork","DATE":"2050-12-31"},
-{"NAME":"TransferMortgage","DATE":"2028-01-01"}],
+{"NAME":"GetRidOfCar","DATE":"31 Dec 2025"},
+{"NAME":"StopMainWork","DATE":"31 Dec 2050"},
+{"NAME":"TransferMortgage","DATE":"1 Jan 2028"}],
 "expenses":[
 {"NAME":"Look after dogs","CATEGORY":"living costs","START":"1 April 2018","END":"2 February 2047","VALUE":"500","VALUE_SET":"1 April 2018","CPI_IMMUNE":false,"GROWTH":"0","RECURRENCE":"1m"},
 {"NAME":"Run car","CATEGORY":"living costs","START":"1 April 2018","END":"GetRidOfCar","VALUE":"700","VALUE_SET":"1 April 2018","CPI_IMMUNE":false,"GROWTH":"0","RECURRENCE":"1m"},
@@ -106,15 +106,15 @@ export const simpleExampleData = `{
 export const billAndBenExampleData = `{
 "name": "Bill and Ben",
 "triggers":[
-{"NAME":"BenDies","DATE":"2064-12-12"},
-{"NAME":"BenRetires","DATE":"2037-07-27"},
-{"NAME":"BenStatePensionAge","DATE":"2040-08-30"},
-{"NAME":"BillDies","DATE":"2071-07-19"},
-{"NAME":"BillRetires","DATE":"2040-05-04"},
-{"NAME":"BillStatePensionAge","DATE":"2047-05-04"},
-{"NAME":"CareCostsStart","DATE":"2055-12-12"},
-{"NAME":"DownsizeHouse","DATE":"2047-02-28"},
-{"NAME":"start","DATE":"2021-01-01"}],
+{"NAME":"BenDies","DATE":"12 Dec 2064"},
+{"NAME":"BenRetires","DATE":"27 July 2037"},
+{"NAME":"BenStatePensionAge","DATE":"30 Aug 2040"},
+{"NAME":"BillDies","DATE":"19 Jul 2071"},
+{"NAME":"BillRetires","DATE":"4 May 2040"},
+{"NAME":"BillStatePensionAge","DATE":"4 May 2047"},
+{"NAME":"CareCostsStart","DATE":"12 Dec 2055"},
+{"NAME":"DownsizeHouse","DATE":"28 Feb 2047"},
+{"NAME":"start","DATE":"1 Jan 2021"}],
 "expenses":[
 {"NAME":"BasicExpensesDownsize","VALUE":"1600","VALUE_SET":"25/11/2019","START":"DownsizeHouse","END":"BillDies","GROWTH":"0","CPI_IMMUNE":false,"CATEGORY":"Basic","RECURRENCE":"1m"},
 {"NAME":"BasicExpensesWorking","VALUE":"1850","VALUE_SET":"25/11/2019","START":"25/11/2019","END":"DownsizeHouse","GROWTH":"0","CPI_IMMUNE":true,"CATEGORY":"Basic","RECURRENCE":"1m"},
@@ -160,9 +160,9 @@ export const billAndBenExampleData = `{
 export const mortgageSwitchExampleData = `{
 "name": "Mortgage switch",
 "triggers":[
-{"NAME":"GetRidOfCar","DATE":"2025-12-31"},
-{"NAME":"StopMainWork","DATE":"2050-12-31"},
-{"NAME":"TransferMortgage","DATE":"2028-01-01"}],
+  {"NAME":"GetRidOfCar","DATE":"31 Dec 2025"},
+  {"NAME":"StopMainWork","DATE":"31 Dec 2050"},
+  {"NAME":"TransferMortgage","DATE":"1 Jan 2028"}],
 "expenses":[
 {"NAME":"Look after dogs","CATEGORY":"living costs","START":"1 April 2018","END":"2 February 2047","VALUE":"500","VALUE_SET":"1 April 2018","CPI_IMMUNE":false,"GROWTH":"0","RECURRENCE":"1m"},
 {"NAME":"Run car","CATEGORY":"living costs","START":"1 April 2018","END":"GetRidOfCar","VALUE":"700","VALUE_SET":"1 April 2018","CPI_IMMUNE":false,"GROWTH":"0","RECURRENCE":"1m"},
@@ -202,12 +202,12 @@ export const definedBenefitsPension = `{
 {"START":"PensionBegins","END":"PensionTransfers","NAME":"PensionDBTeachersPensionScheme","VALUE":"0","VALUE_SET":"PensionExists","LIABILITY":"Joe(incomeTax)","GROWTH":"0","CPI_IMMUNE":true,"CATEGORY":""}],
 "expenses":[
 ],"triggers":[
-{"NAME":"PensionTransfers","DATE":"2035-01-01"},
-{"NAME":"PensionStops","DATE":"2040-01-01"},
-{"NAME":"PensionExists","DATE":"2022-01-01"},
-{"NAME":"PensionBegins","DATE":"2030-01-01"},
-{"NAME":"JobStop","DATE":"2028-01-01"},
-{"NAME":"JobStart","DATE":"2020-01-01"}],
+{"NAME":"PensionTransfers","DATE":"1 Jan 2035"},
+{"NAME":"PensionStops","DATE":"1 Jan 2040"},
+{"NAME":"PensionExists","DATE":"1 Jan 2022"},
+{"NAME":"PensionBegins","DATE":"1 Jan 2030"},
+{"NAME":"JobStop","DATE":"1 Jan 2028"},
+{"NAME":"JobStart","DATE":"1 Jan 2020"}],
 "settings":[
 {"NAME":"Today's value focus date","VALUE":"","HINT":"Date to use for 'today's value' tables (defaults to '' meaning today)","TYPE":"view"},
 {"NAME":"End of view range","VALUE":"1 Jan 2045","HINT":"Date at the end of range to be plotted","TYPE":"view"},
@@ -256,8 +256,8 @@ export const nationalSavings = `{
 "expenses":[
 {"NAME":"LivingCosts","CATEGORY":"","START":"startDate","END":"stopDate","VALUE":"900","VALUE_SET":"startDate","GROWTH":"0","CPI_IMMUNE":false,"RECURRENCE":"1m"}],
 "triggers":[
-{"NAME":"stopDate","DATE":"2040-01-01"},
-{"NAME":"startDate","DATE":"2020-01-01"}],
+{"NAME":"stopDate","DATE":"1 Jan 2040"},
+{"NAME":"startDate","DATE":"1 Jan 2020"}],
 "settings":[
 {"NAME":"Today's value focus date","VALUE":"","HINT":"Date to use for 'today's value' tables (defaults to '' meaning today)","TYPE":"view"},
 {"NAME":"End of view range","VALUE":"1 Jan 2030","HINT":"Date at the end of range to be plotted","TYPE":"view"},
@@ -1460,19 +1460,19 @@ function getBenAndJerryModel(): ModelData {
       },
     ],
     triggers: [
-      { NAME: 'Ben dies', DATE: '2068-08-30' },
-      { NAME: 'Ben retires', DATE: '2032-07-27' },
+      { NAME: 'Ben dies', DATE: '30 Aug 2068' },
+      { NAME: 'Ben retires', DATE: '27 July 2032' },
       {
         NAME: 'Ben state pension age',
-        DATE: '2040-08-30',
+        DATE: '30 Aug 2040',
       },
-      { NAME: 'Care costs start', DATE: '2060-02-20' },
-      { NAME: 'Downsize house', DATE: '2047-02-28' },
-      { NAME: 'Jerry dies', DATE: '2065-05-04' },
-      { NAME: 'Jerry retires', DATE: '2030-05-04' },
+      { NAME: 'Care costs start', DATE: '20 Feb 2060' },
+      { NAME: 'Downsize house', DATE: '28 Feb 2047' },
+      { NAME: 'Jerry dies', DATE: '4 May 2065' },
+      { NAME: 'Jerry retires', DATE: '4 May 2030' },
       {
         NAME: 'Jerry state pension age',
-        DATE: '2037-05-04',
+        DATE: '4 May 2037',
       },
     ],
     settings: [
