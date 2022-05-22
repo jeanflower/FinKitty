@@ -29,9 +29,9 @@ function cleanUpDates(
   cleanUndo: boolean,
   cleanRedo: boolean,
 ): void {
-  // TODO use the cleaned part of 
+  // TODO use the cleaned part of
   // findMatchedTriggerDate
-  
+
   for (const t of modelFromJSON.triggers) {
     const plusParts = t.DATE.split('+');
     const minusParts = t.DATE.split('-');
