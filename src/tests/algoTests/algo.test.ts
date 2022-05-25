@@ -580,65 +580,28 @@ describe('evaluations tests', () => {
           VALUE: '12.12',
           VALUE_SET: 'January 1 2017',
           RECURRENCE: '6m',
+          CPI_IMMUNE: false,
         },
       ],
       settings: [...defaultModelSettings(roi)],
-    };
-
-    const evalsAndValues = getTestEvaluations(model);
-    const evals = evalsAndValues.evaluations;
-    // log(`evals = ${showObj(evals)}`);
-
-    // printTestCodeForEvals(evals);
-
-    expect(evals.length).toBe(1);
-    expectEvals(evals, 0, 'Phon', 'Mon Jan 01 2018', 12.12, 2);
-
-    const viewSettings = defaultTestViewSettings();
-
-    const result = makeChartDataFromEvaluations(
-      model,
-      viewSettings,
-      evalsAndValues,
-    );
-
-    // printTestCodeForChart(result);
-
-    expect(result.expensesData.length).toBe(1);
-    expect(result.expensesData[0].item.NAME).toBe('Phon');
-    {
-      const chartPts = result.expensesData[0].chartDataPoints;
-      expect(chartPts.length).toBe(4);
-      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
-      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 12.12, 2);
-      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 0, -1);
-      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 0, -1);
-    }
-
-    expect(result.incomesData.length).toBe(0);
-    expect(result.assetData.length).toBe(0);
-    done();
-  });
-
-  it('should one expense 6m recurrence set oddly displaced', (done) => {
-    const roi = {
-      start: 'Dec 1, 2017 00:00:00',
-      end: 'March 2, 2018 00:00:00',
-    };
-    const model: ModelData = {
-      ...emptyModel,
-      expenses: [
+      transactions: [
         {
-          ...simpleExpense,
-          START: 'January 1 2018',
-          END: 'February 2 2019',
-          NAME: 'Phon',
-          VALUE: '12.12',
-          VALUE_SET: 'May 15 2017',
-          RECURRENCE: '6m',
+          ...simpleTransaction,
+          NAME: 'Revalue of cpi 1',
+          TO: 'cpi',
+          TO_VALUE: '10',
+          DATE: '1 March 2017',
+          TYPE: revalueSetting,
+        },
+        {
+          ...simpleTransaction,
+          NAME: 'Revalue of cpi 2',
+          TO: 'cpi',
+          TO_VALUE: '0',
+          DATE: '1 July 2017',
+          TYPE: revalueSetting,
         },
       ],
-      settings: [...defaultModelSettings(roi)],
     };
 
     const evalsAndValues = getTestEvaluations(model);
@@ -647,8 +610,11 @@ describe('evaluations tests', () => {
 
     // printTestCodeForEvals(evals);
 
-    expect(evals.length).toBe(1);
-    expectEvals(evals, 0, 'Phon', 'Mon Jan 01 2018', 12.12, 2);
+    expect(evals.length).toBe(4);
+    expectEvals(evals, 0, 'cpi', 'Sat Jul 01 2017', 0, -1);
+    expectEvals(evals, 1, 'cpi', 'Wed Mar 01 2017', 10, -1);
+    expectEvals(evals, 2, 'cpi', 'Sat Jul 01 2017', 0, -1);
+    expectEvals(evals, 3, 'Phon', 'Mon Jan 01 2018', 12.51, 2);
 
     const viewSettings = defaultTestViewSettings();
 
@@ -666,13 +632,16 @@ describe('evaluations tests', () => {
       const chartPts = result.expensesData[0].chartDataPoints;
       expect(chartPts.length).toBe(4);
       expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
-      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 12.12, 2);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 12.51, 2);
       expectChartData(chartPts, 2, 'Thu Feb 01 2018', 0, -1);
       expectChartData(chartPts, 3, 'Thu Mar 01 2018', 0, -1);
     }
 
     expect(result.incomesData.length).toBe(0);
     expect(result.assetData.length).toBe(0);
+    expect(result.debtData.length).toBe(0);
+    expect(result.taxData.length).toBe(0);
+
     done();
   });
 

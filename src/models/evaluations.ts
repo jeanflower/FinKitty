@@ -4054,55 +4054,14 @@ function generateMoments(
     }
     logExpenseGrowth(expense, cpiVal, growths);
     const expenseStart = getTriggerDate(expense.START, model.triggers);
-    let shiftStartBackTo = new Date(expenseStart);
 
     const expenseSetDate = getTriggerDate(expense.VALUE_SET, model.triggers);
     // log(`income start is ${incomeStartDate.toDateString()}`);
     // log(`value set is ${incomeSetDate.toDateString()}`);
     // log(`shiftStartBackTo = ${shiftStartBackTo.toDateString()}`);
-    if (expenseSetDate < expenseStart && expenseSetDate < shiftStartBackTo) {
-      shiftStartBackTo = expenseSetDate;
-    }
+    // log(`shiftStartBackTo = ${shiftStartBackTo}`);
 
     // log(`expense start is ${expenseStartDate.toDateString()}
-    //  but shift back to ${shiftStartBackTo}`);
-    const freq = parseRecurrenceString(expense.RECURRENCE);
-    const mFreq = freq.frequency === monthly;
-    const yFreq = freq.frequency === annually;
-    if (mFreq) {
-      shiftStartBackTo.setMonth(shiftStartBackTo.getMonth() + freq.count);
-    } else if (yFreq) {
-      shiftStartBackTo.setFullYear(shiftStartBackTo.getFullYear() + freq.count);
-    } else {
-      throw new Error(`unhandled frequency ${expense.RECURRENCE}`);
-    }
-    const startSequenceFrom = new Date(expenseStart);
-    let numAdjustments = 0;
-    while (shiftStartBackTo <= startSequenceFrom) {
-      // log(`shift ${incomeStartDate} back towards ${shiftStartBackTo}`);
-      if (mFreq) {
-        const oldMonth = startSequenceFrom.getMonth();
-        startSequenceFrom.setMonth(oldMonth - freq.count);
-        // TODO skip multiple months in one go not one at a time
-        // because going from 30 March back 2 months incrementally
-        // goes through feb and shifts to 30th Feb = 2nd of March.
-      } else if (yFreq) {
-        startSequenceFrom.setFullYear(
-          startSequenceFrom.getFullYear() - freq.count,
-        );
-      } else {
-        throw new Error(`unhandled frequency ${expense.RECURRENCE}`);
-      }
-      numAdjustments += 1;
-      /* istanbul ignore if */
-      if (numAdjustments > 1000) {
-        /* istanbul ignore next */
-        throw new Error(
-          `${expense.NAME} start ${expense.START} too far ` +
-            `from ${shiftStartBackTo}`,
-        );
-      }
-    }
 
     // log(`expense start = ${expenseStart}`);
     const newMoments = getRecurrentMoments(
@@ -4110,32 +4069,32 @@ function generateMoments(
       momentType.expensePrep,
       momentType.expense,
       model.triggers,
-      startSequenceFrom,
+      expenseStart,
       expenseStart,
       roiEndDate,
       expense.RECURRENCE,
     );
-
-    /*
     if (
       newMoments.length > 0 &&
       newMoments[newMoments.length - 1].date.getTime() >= expenseStart.getTime()
     ) {
-      const startMoment = newMoments.find((m) => {
-        return m.date.getTime() === expenseStart.getTime();
+      const setMoment = newMoments.find((m) => {
+        return m.date.getTime() === expenseSetDate.getTime();
       });
-      if (startMoment === undefined) {
-        log(`expense ${expense.NAME}`);
-        log(`start date ${expenseStart.toDateString()}`);
-        log(`startSequenceFrom = ${startSequenceFrom}`);
-        allMoments.forEach((m) => {
-          log(`moment date ${m.date.toDateString()}`);
+      if (setMoment === undefined) {
+        newMoments[0].type = momentType.expense;
+        newMoments.push({
+          date: expenseSetDate,
+          name: expense.NAME,
+          type: momentType.expenseStartPrep, // TODO : rationalise how these are set up
+          transaction: undefined,
+          setValue: expense.VALUE,
         });
-        // throw new Error(`expenses moments missing start date`);
-        // see earlier TODO on incrementing one month at a time
       }
     }
-    */
+    //newMoments.forEach((m) => {
+    //  log(`moment date ${m.date.toDateString()}`);
+    //});
 
     allMoments = allMoments.concat(newMoments);
   });
@@ -4821,6 +4780,7 @@ function handleStartMoment(
     moment.type === momentType.incomeStartPrep ||
     moment.type === momentType.expenseStartPrep
   ) {
+    // log(`set ${moment.name} value from ${moment.setValue} as ${valueToStore}`);
     values.set(
       moment.name,
       valueToStore,

@@ -1,7 +1,10 @@
+import { revalueSetting } from '../../localization/stringConstants';
+import { makeChartDataFromEvaluations } from '../../models/charting';
 import {
   emptyModel,
   simpleExpense,
   defaultModelSettings,
+  simpleTransaction,
 } from '../../models/exampleModels';
 import { ModelData } from '../../types/interfaces';
 import { log, printDebug } from '../../utils/utils';
@@ -9,9 +12,14 @@ import {
   printTestCodeForEvals,
   expectEvals,
   getTestEvaluations,
+  defaultTestViewSettings,
+  expectChartData,
+  printTestCodeForChart,
 } from './algoTestUtils';
 
 expectEvals;
+expectChartData;
+printTestCodeForChart;
 
 describe('debug test', () => {
   /* istanbul ignore if  */
@@ -20,35 +28,63 @@ describe('debug test', () => {
     printTestCodeForEvals;
   }
 
-  it('should one expense 6m recurrence set oddly displaced', (done) => {
+  it('debugTest', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
-      end: 'March 2, 2018 00:00:00',
+      end: 'March 2, 2039 00:00:00',
     };
     const model: ModelData = {
       ...emptyModel,
       expenses: [
         {
           ...simpleExpense,
-          START: 'January 1 2018',
-          END: 'February 2 2019',
+          START: 'January 1 2028',
+          END: 'February 2 2039',
           NAME: 'Phon',
-          VALUE: '12.12',
-          VALUE_SET: 'May 15 2017',
-          RECURRENCE: '6m',
+          VALUE: '100.0',
+          VALUE_SET: 'January 1 2019',
+          RECURRENCE: '10y',
+          CPI_IMMUNE: false,
         },
       ],
       settings: [...defaultModelSettings(roi)],
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: 'Revalue of cpi 1',
+          TO: 'cpi',
+          TO_VALUE: '10',
+          DATE: '1 March 2020',
+          TYPE: revalueSetting,
+        },
+        {
+          ...simpleTransaction,
+          NAME: 'Revalue of cpi 2',
+          TO: 'cpi',
+          TO_VALUE: '0',
+          DATE: '1 July 2020',
+          TYPE: revalueSetting,
+        },
+      ],
     };
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
+    evals;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
 
-    expect(evals.length).toBe(1);
-    expectEvals(evals, 0, 'Phon', 'Mon Jan 01 2018', 12.12, 2);
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
+    result;
+
+    // printTestCodeForChart(result);
 
     done();
   });
