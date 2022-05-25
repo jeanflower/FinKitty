@@ -31,13 +31,20 @@ function cleanUpDates(
 ): void {
   // TODO use the cleaned part of
   // findMatchedTriggerDate
-
   for (const t of modelFromJSON.triggers) {
     const plusParts = t.DATE.split('+');
     const minusParts = t.DATE.split('-');
     const qParts = t.DATE.split('?');
     if (plusParts.length + minusParts.length + qParts.length > 4) {
-      throw new Error(`unsupported date ${t.DATE}`);
+      const newDate = new Date(t.DATE);
+      if (newDate.toISOString() === t.DATE) {
+        t.DATE = newDate.toDateString();
+      } else {
+        alert(
+          `unsupported date in ${modelFromJSON.name} for date ${t.NAME}, ${t.DATE}`,
+        );
+      }
+      continue;
     }
 
     let wasPlusOrMinus = false;
