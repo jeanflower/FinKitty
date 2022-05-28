@@ -785,6 +785,28 @@ describe('utils tests', () => {
       ])?.toDateString(),
     ).toEqual('Mon Dec 02 2019');
     expect(
+      getTriggerDate('1 Nov 2018<2 Nov 2018?a:2 Dec 2019', [
+        simpleTrigger,
+      ])?.toDateString(),
+    ).toEqual('Mon Jan 01 2018');
+    expect(
+      getTriggerDate('2 Nov 2018<1 Nov 2018?1 Dec 2019:a', [
+        simpleTrigger,
+      ])?.toDateString(),
+    ).toEqual('Mon Jan 01 2018');
+
+    expect(
+      getTriggerDate('a<2 Nov 2018?1 Dec 2019:2 Dec 2019', [
+        simpleTrigger,
+      ])?.toDateString(),
+    ).toEqual('Sun Dec 01 2019');
+    expect(
+      getTriggerDate('2 Nov 2018<a?1 Dec 2019:2 Dec 2019', [
+        simpleTrigger,
+      ])?.toDateString(),
+    ).toEqual('Mon Dec 02 2019');
+
+    expect(
       getTriggerDate('1 Nov 2018<2 Nov 2018?1 Dec 2019:nonsense', [
         simpleTrigger,
       ])?.toDateString(),
@@ -801,7 +823,7 @@ describe('utils tests', () => {
       ])?.toDateString(),
     ).toEqual('Invalid Date');
     expect(
-      getTriggerDate('2 Nov 2018<1 Nov 2018?1 Dec 2019:nonsense', [
+      getTriggerDate('1 Nov 2018<2 Nov 2018?nonsense:2 Dec 2019', [
         simpleTrigger,
       ])?.toDateString(),
     ).toEqual('Invalid Date');
