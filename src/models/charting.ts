@@ -1317,6 +1317,13 @@ export function makeChartData(
             if (mapValue !== undefined) {
               prevValue = mapValue;
             }
+            // compare prevValue against evaln data
+            if (prevValue !== evaln.oldValue) {
+              // log(
+              //   `${evaln.name} at ${evaln.date} was ${evaln.oldValue}, last known was ${prevValue}`,
+              // );
+              prevValue = evaln.oldValue;
+            }
             // log(`asset ${evaln.name} val is `+
             //    `${evaln.value}, was ${prevValue}`);
             // log(`and the source of change is ${evaln.source}`);

@@ -153,6 +153,7 @@ export interface DataForView {
 export interface Evaluation {
   name: string; // what's being evaluated (e.g. Cash)
   date: Date;
+  oldValue: number; // as CPI can shift things over time, don't rely on a previous eval
   value: number;
   source: string; // the source of the change for this evaluation
 }

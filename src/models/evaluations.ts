@@ -565,8 +565,8 @@ function setValue(
   const printNet = false;
   const printReal = false;
   /* istanbul ignore if  */ //debug
+  const existingValue = values.get(name);
   if (printNet || printReal) {
-    const existingValue = values.get(name);
     let realExistingValue = existingValue;
     let realNewValue = newValue;
     if (
@@ -617,6 +617,13 @@ function setValue(
       }
     }
   }
+  let oldNumberVal = 0;
+  if (existingValue !== undefined) {
+    const traceVal = traceEvaluation(existingValue, values, growths, name);
+    if (traceVal !== undefined) {
+      oldNumberVal = traceVal;
+    }
+  }
   values.set(name, newValue, growths, date, source, callerID);
   // log(`Go to find unit val for ${name}'s, we have value = some of ${newValue}`);
   const numberVal = traceEvaluation(newValue, values, growths, name);
@@ -628,6 +635,7 @@ function setValue(
     // log(`evaluation of ${newValue} for ${name} undefined`);
   } else {
     let valForEvaluations = numberVal;
+    let oldValForEvaluations = oldNumberVal;
     let baseVal: number | undefined;
     if (growthData(name, growths, values).adjustForCPI) {
       baseVal = getNumberValue(values, baseForCPI);
@@ -636,14 +644,22 @@ function setValue(
         const newValForEvaluations = valForEvaluations * baseVal;
         // log(`scale ${valForEvaluations} by baseVal = ${baseVal} to give ${newValForEvaluations}`);
         valForEvaluations = newValForEvaluations;
+        oldValForEvaluations = oldValForEvaluations * baseVal;
       } else {
         log(`Error: missing or zero base value!`);
       }
     }
     const totalVal = applyQuantity(valForEvaluations, values, name, model);
+    const totalOldVal = applyQuantity(
+      oldValForEvaluations,
+      values,
+      name,
+      model,
+    );
     const evaln = {
       name,
       date,
+      oldValue: totalOldVal,
       value: totalVal,
       source,
     };
