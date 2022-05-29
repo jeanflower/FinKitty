@@ -18,7 +18,7 @@ import {
   chartViewType,
   chartVals,
   viewDetail,
-  fine,
+  fineDetail,
   assetChartFocus,
   debtChartFocus,
   allItems,
@@ -782,7 +782,7 @@ export function getMinimalModelCopySettings(): ViewSettings {
     },
     {
       NAME: viewDetail,
-      VALUE: fine,
+      VALUE: fineDetail,
     },
     {
       NAME: assetChartFocus,
@@ -823,7 +823,7 @@ export function getMinimalModelCopySettings(): ViewSettings {
 export function defaultTestViewSettings(): ViewSettings {
   const result = new ViewSettings([
     { ...viewSetting, NAME: viewFrequency, VALUE: monthly },
-    { ...viewSetting, NAME: viewDetail, VALUE: fine },
+    { ...viewSetting, NAME: viewDetail, VALUE: fineDetail },
     { ...viewSetting, NAME: chartViewType, VALUE: chartVals },
     {
       ...viewSetting,

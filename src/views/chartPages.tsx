@@ -16,8 +16,8 @@ import {
   chartVals,
   chartViewType,
   birthDate,
-  coarse,
-  fine,
+  coarseDetail,
+  fineDetail,
   gain,
   income,
   monthly,
@@ -25,7 +25,7 @@ import {
   taxChartFocusType,
   taxChartShowNet,
   taxView,
-  total,
+  totalDetail,
   viewDetail,
   viewFrequency,
   cpPrefix,
@@ -67,7 +67,7 @@ ChartJS.register(
 );
 
 function getCoarseFineView(settings: ViewSettings) {
-  return settings.getViewSetting(viewDetail, fine);
+  return settings.getViewSetting(viewDetail, fineDetail);
 }
 
 function getAssetChartView(settings: ViewSettings) {
@@ -206,7 +206,7 @@ export function filtersList(
 }
 
 export function coarseFineList(settings: ViewSettings) {
-  const viewTypes: string[] = [total, coarse, fine];
+  const viewTypes: string[] = [totalDetail, coarseDetail, fineDetail];
   const selectedCoarseFineView = getCoarseFineView(settings);
   const buttons = viewTypes.map((viewType) =>
     makeButton(

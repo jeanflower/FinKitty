@@ -21,11 +21,11 @@ import {
   chartViewType,
   birthDate,
   cgt,
-  coarse,
+  coarseDetail,
   crystallizedPension,
   debtChartFocus,
   expenseChartFocus,
-  fine,
+  fineDetail,
   gain,
   income,
   incomeChartFocus,
@@ -40,7 +40,7 @@ import {
   taxChartFocusPerson,
   taxChartFocusType,
   taxChartShowNet,
-  total,
+  totalDetail,
   viewDetail,
   viewFrequency,
   dot,
@@ -852,7 +852,7 @@ function ensureDateValueMapsExist(
 }
 
 function getSettingsValues(viewSettings: ViewSettings) {
-  const detail: string = viewSettings.getViewSetting(viewDetail, fine);
+  const detail: string = viewSettings.getViewSetting(viewDetail, fineDetail);
   const frequency: string = viewSettings.getViewSetting(
     viewFrequency,
     annually,
@@ -1370,7 +1370,7 @@ export function makeChartData(
   allDates.shift();
 
   const taxValueSources = assetOrDebtValueSources;
-  if (detail === coarse || detail === total) {
+  if (detail === coarseDetail || detail === totalDetail) {
     // log('gather chart data into categories');
     let dateNameValueMap = typeDateNameValueMap.get('assetOrDebtFocus');
     if (dateNameValueMap !== undefined) {
@@ -1507,7 +1507,7 @@ export function makeChartData(
       aDTAssetChartNames.assetChartNames,
       model.settings,
       false, // don't negate
-      detail === total,
+      detail === totalDetail,
     );
 
     result.debtData = makeChartDataPoints(
@@ -1516,7 +1516,7 @@ export function makeChartData(
       aDTDebtChartNames.debtChartNames,
       model.settings,
       true, // negate values
-      detail === total,
+      detail === totalDetail,
     );
   }
 
@@ -1529,7 +1529,7 @@ export function makeChartData(
       taxValueSources,
       model.settings,
       false, // don't negate
-      detail === total,
+      detail === totalDetail,
     );
   }
 
@@ -1545,7 +1545,7 @@ export function makeChartData(
       expenseNames,
       model.settings,
       false, // don't negate
-      detail === total,
+      detail === totalDetail,
     );
   }
   const incomeDateNameValueMap = typeDateNameValueMap.get(
@@ -1558,7 +1558,7 @@ export function makeChartData(
       incomeNames,
       model.settings,
       false, // don't negate
-      detail === total,
+      detail === totalDetail,
     );
   }
 

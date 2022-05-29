@@ -9,7 +9,7 @@ import {
   cpi,
   cpiHint,
   expenseChartFocus,
-  fine,
+  fineDetail,
   incomeChartFocus,
   incomeTax,
   roiEnd,
@@ -257,7 +257,7 @@ export const testSettings01: Setting[] = [
   {
     ...viewSetting,
     NAME: viewDetail,
-    VALUE: fine, // could be coarse
+    VALUE: fineDetail, // could be coarse
   },
   {
     ...simpleSetting,

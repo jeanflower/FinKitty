@@ -12,7 +12,7 @@ import {
   revalueSetting,
   viewType,
   viewDetail,
-  coarse,
+  coarseDetail,
 } from '../../localization/stringConstants';
 import { makeChartDataFromEvaluations } from '../../models/charting';
 import {
@@ -2388,7 +2388,7 @@ describe('conditional tests', () => {
     expectEvals(evals, 11, 'Mortgage', 'Mon Apr 02 2018', 30, -1);
 
     const viewSettings = defaultTestViewSettings();
-    viewSettings.setViewSetting(viewDetail, coarse);
+    viewSettings.setViewSetting(viewDetail, coarseDetail);
 
     const result = makeChartDataFromEvaluations(
       model,

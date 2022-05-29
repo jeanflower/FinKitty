@@ -13,13 +13,13 @@ import {
   chartViewType,
   birthDate,
   birthDateHint,
-  coarse,
+  coarseDetail,
   constType,
   cpi,
   cpiHint,
   debtChartFocus,
   expenseChartFocus,
-  fine,
+  fineDetail,
   incomeChartFocus,
   incomeTax,
   monthly,
@@ -403,7 +403,7 @@ const browserTestSettingsForMigration: Setting[] = [
   {
     ...viewSetting,
     NAME: viewDetail,
-    VALUE: fine, // could be coarse
+    VALUE: fineDetail, // could be coarse
   },
   {
     ...simpleSetting,
@@ -447,7 +447,7 @@ const browserTestSettingsForMigration: Setting[] = [
 ];
 
 const defaultModelSettingsForMigration: Setting[] = [
-  { ...viewSetting, NAME: viewDetail, VALUE: fine },
+  { ...viewSetting, NAME: viewDetail, VALUE: fineDetail },
   { ...viewSetting, NAME: chartViewType, VALUE: chartVals },
   {
     ...viewSetting,
@@ -849,7 +849,7 @@ export function getModelCoarseAndFineForMigration(): ModelData {
   };
 
   const settings = defaultModelSettingsForMigration;
-  setSetting(settings, viewDetail, coarse, viewType);
+  setSetting(settings, viewDetail, coarseDetail, viewType);
   setSetting(settings, viewFrequency, monthly, viewType);
 
   const model: ModelData = {

@@ -5,7 +5,7 @@ import {
   roiEnd,
   CoarseAndFine,
   viewDetail,
-  fine,
+  fineDetail,
   assetChartFocus,
   CASH_ASSET_NAME,
   chartViewType,
@@ -272,7 +272,7 @@ describe(testDataModelName, () => {
     await gotoTabPage(driver, settingsTag);
     await addSetting(driver, {
       name: viewDetail,
-      value: fine,
+      value: fineDetail,
       message: `added new setting ${viewDetail}`,
     });
     await gotoTabPage(driver, assetsTag);
@@ -525,7 +525,7 @@ describe(testDataModelName, () => {
     await gotoTabPage(driver, settingsTag);
     await addSetting(driver, {
       name: viewDetail,
-      value: fine,
+      value: fineDetail,
       message: `added new setting ${viewDetail}`,
     });
 

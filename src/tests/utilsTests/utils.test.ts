@@ -47,7 +47,7 @@ import {
   chartViewType,
   debtsView,
   expensesView,
-  fine,
+  fineDetail,
   homeView,
   incomesView,
   MinimalModel,
@@ -2162,7 +2162,7 @@ describe('utils tests', () => {
     expect(settings.getShowItem(Context.Debt, 'nonsense')).toEqual(false);
     expect(settings.getShowItem(Context.Income, 'nonsense')).toEqual(false);
     expect(settings.getShowItem(Context.Expense, 'nonsense')).toEqual(false);
-    expect(settings.getViewSetting(viewDetail, fine)).toEqual('Detailed view');
+    expect(settings.getViewSetting(viewDetail, fineDetail)).toEqual('Detailed view');
     expect(settings.getViewSetting(chartViewType, chartVals)).toEqual('val');
     expect(settings.getViewSetting(taxChartFocusPerson, allItems)).toEqual(
       'All',

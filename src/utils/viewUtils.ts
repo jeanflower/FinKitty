@@ -4,7 +4,7 @@ import {
   chartViewType,
   chartVals,
   viewDetail,
-  fine,
+  fineDetail,
   assetChartFocus,
   allItems,
   debtChartFocus,
@@ -41,7 +41,7 @@ export function getDefaultViewSettings(): ViewSettings {
     },
     {
       NAME: viewDetail,
-      VALUE: fine,
+      VALUE: fineDetail,
     },
     {
       NAME: assetChartFocus,

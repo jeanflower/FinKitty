@@ -16,8 +16,8 @@ import {
   chartReductions,
   chartVals,
   chartViewType,
-  coarse,
-  fine,
+  coarseDetail,
+  fineDetail,
   viewDetail,
   viewFrequency,
   liquidateAsset,
@@ -2431,9 +2431,9 @@ describe('pension tests', () => {
     const viewSettings = defaultTestViewSettings();
 
     viewSettings.setViewSetting(chartViewType, chartVals);
-    viewSettings.setViewSetting(viewDetail, fine);
+    viewSettings.setViewSetting(viewDetail, fineDetail);
     viewSettings.setViewSetting(viewFrequency, annually);
-    viewSettings.setViewSetting(viewDetail, coarse);
+    viewSettings.setViewSetting(viewDetail, coarseDetail);
     viewSettings.setViewSetting(chartViewType, chartAdditions);
     const result = makeChartDataFromEvaluations(
       model,
@@ -2478,9 +2478,9 @@ describe('pension tests', () => {
     const viewSettings = defaultTestViewSettings();
 
     viewSettings.setViewSetting(chartViewType, chartVals);
-    viewSettings.setViewSetting(viewDetail, fine);
+    viewSettings.setViewSetting(viewDetail, fineDetail);
     viewSettings.setViewSetting(viewFrequency, annually);
-    viewSettings.setViewSetting(viewDetail, coarse);
+    viewSettings.setViewSetting(viewDetail, coarseDetail);
     viewSettings.setViewSetting(chartViewType, chartReductions);
     const result = makeChartDataFromEvaluations(
       model,
@@ -2528,9 +2528,9 @@ describe('pension tests', () => {
     const viewSettings = defaultTestViewSettings();
 
     viewSettings.setViewSetting(chartViewType, chartVals);
-    viewSettings.setViewSetting(viewDetail, fine);
+    viewSettings.setViewSetting(viewDetail, fineDetail);
     viewSettings.setViewSetting(viewFrequency, annually);
-    viewSettings.setViewSetting(viewDetail, coarse);
+    viewSettings.setViewSetting(viewDetail, coarseDetail);
     viewSettings.setViewSetting(chartViewType, chartDeltas);
     const result = makeChartDataFromEvaluations(
       model,

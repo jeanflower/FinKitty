@@ -7,11 +7,11 @@ import {
   chartDeltas,
   chartReductions,
   chartViewType,
-  coarse,
-  fine,
+  coarseDetail,
+  fineDetail,
   growth,
   separator,
-  total,
+  totalDetail,
   viewDetail,
   birthDate,
   viewType,
@@ -509,7 +509,7 @@ describe(' chart data tests', () => {
 
     const viewSettings = defaultTestViewSettings();
 
-    viewSettings.setViewSetting(viewDetail, coarse);
+    viewSettings.setViewSetting(viewDetail, coarseDetail);
     let result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -760,7 +760,7 @@ describe(' chart data tests', () => {
 
     const viewSettings = defaultTestViewSettings();
 
-    viewSettings.setViewSetting(viewDetail, total);
+    viewSettings.setViewSetting(viewDetail, totalDetail);
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -864,7 +864,7 @@ describe(' chart data tests', () => {
 
     const viewSettings = defaultTestViewSettings();
 
-    viewSettings.setViewSetting(viewDetail, fine);
+    viewSettings.setViewSetting(viewDetail, fineDetail);
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -1030,7 +1030,7 @@ describe(' chart data tests', () => {
 
     viewSettings.toggleViewFilter(Context.Asset, allItems);
     viewSettings.toggleViewFilter(Context.Asset, CASH_ASSET_NAME);
-    viewSettings.setViewSetting(viewDetail, coarse);
+    viewSettings.setViewSetting(viewDetail, coarseDetail);
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -1125,7 +1125,7 @@ describe(' chart data tests', () => {
 
     viewSettings.toggleViewFilter(Context.Asset, allItems);
     viewSettings.toggleViewFilter(Context.Asset, 'Accessible');
-    viewSettings.setViewSetting(viewDetail, coarse);
+    viewSettings.setViewSetting(viewDetail, coarseDetail);
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -1164,7 +1164,7 @@ describe(' chart data tests', () => {
 
     viewSettings.toggleViewFilter(Context.Asset, allItems);
     viewSettings.toggleViewFilter(Context.Asset, 'stocks');
-    viewSettings.setViewSetting(viewDetail, coarse);
+    viewSettings.setViewSetting(viewDetail, coarseDetail);
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -1244,7 +1244,7 @@ describe(' chart data tests', () => {
 
     viewSettings.toggleViewFilter(Context.Asset, allItems);
     viewSettings.toggleViewFilter(Context.Asset, 'savings');
-    viewSettings.setViewSetting(viewDetail, coarse);
+    viewSettings.setViewSetting(viewDetail, coarseDetail);
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -1324,7 +1324,7 @@ describe(' chart data tests', () => {
 
     viewSettings.toggleViewFilter(Context.Asset, allItems);
     viewSettings.toggleViewFilter(Context.Asset, 'Accessible');
-    viewSettings.setViewSetting(viewDetail, fine);
+    viewSettings.setViewSetting(viewDetail, fineDetail);
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -1369,7 +1369,7 @@ describe(' chart data tests', () => {
 
     const viewSettings = defaultTestViewSettings();
 
-    viewSettings.setViewSetting(viewDetail, coarse);
+    viewSettings.setViewSetting(viewDetail, coarseDetail);
     viewSettings.setViewSetting(chartViewType, chartDeltas);
     const result = makeChartDataFromEvaluations(
       model,
@@ -1456,7 +1456,7 @@ describe(' chart data tests', () => {
 
     const viewSettings = defaultTestViewSettings();
 
-    viewSettings.setViewSetting(viewDetail, coarse);
+    viewSettings.setViewSetting(viewDetail, coarseDetail);
     viewSettings.setViewSetting(chartViewType, chartReductions);
     const result = makeChartDataFromEvaluations(
       model,
@@ -1504,7 +1504,7 @@ describe(' chart data tests', () => {
 
     const viewSettings = defaultTestViewSettings();
 
-    viewSettings.setViewSetting(viewDetail, coarse);
+    viewSettings.setViewSetting(viewDetail, coarseDetail);
     viewSettings.setViewSetting(chartViewType, chartAdditions);
     const result = makeChartDataFromEvaluations(
       model,
@@ -1588,7 +1588,7 @@ describe(' chart data tests', () => {
 
     viewSettings.toggleViewFilter(Context.Asset, allItems);
     viewSettings.toggleViewFilter(Context.Asset, 'Accessible');
-    viewSettings.setViewSetting(viewDetail, coarse);
+    viewSettings.setViewSetting(viewDetail, coarseDetail);
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -1631,7 +1631,7 @@ describe(' chart data tests', () => {
 
     viewSettings.toggleViewFilter(Context.Asset, allItems);
     viewSettings.toggleViewFilter(Context.Asset, 'Accessible');
-    viewSettings.setViewSetting(viewDetail, fine);
+    viewSettings.setViewSetting(viewDetail, fineDetail);
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
