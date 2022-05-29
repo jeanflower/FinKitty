@@ -146,10 +146,7 @@ export async function scrollIntoViewByID(
   await driver.executeScript('window.scrollBy(0, -5000)');
 }
 
-export async function scrollIntoViewByName(
-  driver: ThenableWebDriver,
-  name: string,
-) {
+async function scrollIntoViewByName(driver: ThenableWebDriver, name: string) {
   let input: any[] = [];
   for (let i = 0; i < 10; i = i + 1) {
     input = await driver.findElements(webdriver.By.name(name));
@@ -160,9 +157,12 @@ export async function scrollIntoViewByName(
     }
     break;
   }
-  expect(input.length === 1).toBe(true);
-
-  await driver.executeScript('arguments[0].scrollIntoView(true);', input[0]);
+  if (input.length !== 1) {
+    log(`found ${input.length} elements for ${name}, expected 1 element`);
+    // expect(input.length === 1).toBe(true);
+  } else {
+    await driver.executeScript('arguments[0].scrollIntoView(true);', input[0]);
+  }
 }
 
 export async function fillInputByName(
@@ -173,19 +173,26 @@ export async function fillInputByName(
   await scrollIntoViewByName(driver, name);
 
   const input = await driver.findElements(webdriver.By.name(name));
-  const result = await input[0].sendKeys(content);
-  // log(`got ${result} from content ${content}`);
-  return result;
+  if (input.length === 1) {
+    await input[0].sendKeys(content);
+  } else {
+    log(`expected 1 input for ${name}, failed to sendKeys ${content}`);
+  }
 }
 
 export async function enterTextControl(
   driver: ThenableWebDriver,
   inputString: string,
 ) {
+  await driver.executeScript('window.scrollBy(0, 1000)');
   await fillInputByName(driver, 'replaceWithJSON', inputString);
   const input = await driver.findElements(webdriver.By.id('replaceWithJSON'));
-  expect(input.length === 1).toBe(true);
-  await input[0].sendKeys(Key.ENTER);
+  if (input.length !== 1) {
+    // expect(input.length === 1).toBe(true);
+    log(`expected 1 input for ${name}, failing to sendKeys ENTER`);
+  } else {
+    await input[0].sendKeys(Key.ENTER);
+  }
 }
 
 export async function replaceWithTestModel(
