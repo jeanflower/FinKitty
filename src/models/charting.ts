@@ -1018,6 +1018,7 @@ export function makeChartData(
       todaysExpenseValues: new Map<string, ExpenseVal>(),
       todaysSettingValues: new Map<string, SettingVal>(),
       reportData: [],
+      totalTaxPaid: 0,
     };
     return emptyData;
   }
@@ -1072,6 +1073,7 @@ export function makeChartData(
     todaysExpenseValues: new Map<string, ExpenseVal>(),
     todaysSettingValues: new Map<string, SettingVal>(),
     reportData: [],
+    totalTaxPaid: 0,
   };
 
   result.todaysAssetValues = evaluationsAndVals.todaysAssetValues;
@@ -1126,6 +1128,7 @@ export function makeChartData(
   const prevEvalAssetValue = new Map<string, number>();
   // prev is used to calc + or -
 
+  let taxTotal = 0.0;
   evaluationsAndVals.evaluations.forEach((evaln) => {
     const firstDateAfterEvaln = allDates.find((d) => d >= evaln.date);
     if (firstDateAfterEvaln === undefined) {
@@ -1261,6 +1264,9 @@ export function makeChartData(
         }
       }
       doIncludeEvaln = rightType && rightPerson;
+      if (!tagData.isNet && doIncludeEvaln) {
+        taxTotal += evaln.value;
+      }
       // log(`include taxLiability? = ${doIncludeEvaln}`);
     } else {
       doIncludeEvaln =
@@ -1363,6 +1369,7 @@ export function makeChartData(
       }
     }
   });
+  // log(`taxTotal = ${taxTotal}`);
 
   logMapOfMapofMap(typeDateNameValueMap);
 
@@ -1518,6 +1525,8 @@ export function makeChartData(
       true, // negate values
       detail === totalDetail,
     );
+
+    result.totalTaxPaid = taxTotal;
   }
 
   const mapForTaxChart = typeDateNameValueMap.get('tax');

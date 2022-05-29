@@ -56,6 +56,7 @@ import {
   Legend,
 } from 'chart.js';
 import { getDisplay } from '../utils/viewUtils';
+import { makeTwoDP } from '../utils/stringUtils';
 
 ChartJS.register(
   CategoryScale,
@@ -925,6 +926,7 @@ export function taxDiv(
   model: ModelData,
   viewSettings: ViewSettings,
   taxChartData: ChartData,
+  totalTaxPaid: number,
 ) {
   if (!getDisplay(taxView)) {
     // log(`don't populate taxView`);
@@ -940,6 +942,7 @@ export function taxDiv(
         taxChartData,
         getDefaultChartSettings(viewSettings, model.settings),
       )}
+      <h2>Total tax paid: {makeTwoDP(totalTaxPaid)}</h2>
     </div>
   );
 }

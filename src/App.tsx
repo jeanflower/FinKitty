@@ -569,6 +569,7 @@ export async function refreshDataInternal(
       todaysIncomeValues,
       todaysExpenseValues,
       todaysSettingValues,
+      totalTaxPaid,
     } = chartData;
 
     /* istanbul ignore if  */
@@ -607,6 +608,7 @@ export async function refreshDataInternal(
           todaysExpenseValues: todaysExpenseValues,
           todaysSettingValues: todaysSettingValues,
           reportData: evaluationsAndVals.reportData,
+          totalTaxPaid: totalTaxPaid,
         },
         () => {
           //alert('done!');
@@ -1168,6 +1170,7 @@ interface AppState {
   todaysSettingValues: Map<string, SettingVal>;
   reportDefiner: ReportMatcher;
   reportData: ReportDatum[];
+  totalTaxPaid: number;
   alertText: string;
   isWaiting: boolean;
 }
@@ -1260,6 +1263,7 @@ export class AppContent extends Component<AppProps, AppState> {
         sourceExcluder: defaultSourceExcluder,
       },
       reportData: [],
+      totalTaxPaid: 0,
       alertText: '',
       isWaiting: false,
     };
@@ -1472,6 +1476,7 @@ export class AppContent extends Component<AppProps, AppState> {
               this.state.modelData,
               this.state.viewState,
               this.state.taxChartData,
+              this.state.totalTaxPaid,
             )}
             {this.triggersDiv()}
             {reportDiv(

@@ -148,6 +148,7 @@ export interface DataForView {
   todaysExpenseValues: Map<string, ExpenseVal>;
   todaysSettingValues: Map<string, SettingVal>;
   reportData: reportDataType;
+  totalTaxPaid: number;
 }
 
 export interface Evaluation {
