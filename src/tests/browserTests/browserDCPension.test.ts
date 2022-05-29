@@ -100,7 +100,7 @@ describe(testDataModelName, () => {
       ...pensionInputs,
       name: 'dcp04',
       startDate: '1 Jan 2020',
-      message: `Transaction from unrecognised asset (could be typo or before asset start date?) : \"javaJob1\"`,
+      message: `Transaction -PEN dcp04 from unrecognised asset (could be typo or before asset start date?) : \"javaJob1\"`,
     }); // TODO : confusing error message : pension can't start before income
 
     await clearDCPension(driver);
@@ -116,7 +116,7 @@ describe(testDataModelName, () => {
       ...pensionInputs,
       name: 'dcp06',
       startDate: '1 Jan 2036',
-      message: `Transaction from unrecognised asset (could be typo or before asset start date?) : \"${pension}dcp06\"`,
+      message: `Transaction -CPTaxFreeM dcp06 from unrecognised asset (could be typo or before asset start date?) : \"${pension}dcp06\"`,
     }); // TODO : what does this error mean?  I expected "start date after end date"
 
     await clearDCPension(driver);
@@ -156,7 +156,7 @@ describe(testDataModelName, () => {
       ...pensionInputs,
       name: 'dcp11',
       crystallizesDate: 'junk',
-      message: `Transaction has bad date : \"junk\"`,
+      message: `Transaction -CPTaxFreeM dcp11 has bad date : \"junk\"`,
     }); // TODO : confusing error message about transactions?
 
     await clearDCPension(driver);
@@ -172,7 +172,7 @@ describe(testDataModelName, () => {
       ...pensionInputs,
       name: 'dcp13',
       pensionEndOrTransferDate: 'junk',
-      message: `Transaction has bad date : \"junk\"`,
+      message: `Transaction -CPT dcp13 has bad date : \"junk\"`,
     }); // TODO : confusing error message about transactions?
 
     await clearDCPension(driver);

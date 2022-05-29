@@ -925,11 +925,11 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
     return 'Transaction name needs some characters';
   }
   if (t.NAME.startsWith(conditional) && t.TO === '') {
-    return 'conditional transactions need a To asset defined';
+    return `Conditional transaction ${t.NAME} needs a 'To' asset defined`;
   }
   const d = checkTriggerDate(t.DATE, triggers);
   if (d === undefined || !checkDate(d)) {
-    return `Transaction has bad date : ${showObj(t.DATE)}`;
+    return `Transaction ${t.NAME} has bad date : ${showObj(t.DATE)}`;
   }
   // log(`transaction date ${getTriggerDate(t.DATE, triggers)}`);
   if (t.FROM !== '') {
@@ -955,10 +955,23 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
         ) {
           // flag a problem
           return (
-            'Transaction from unrecognised asset (could ' +
+            `Transaction ${t.NAME} from unrecognised asset (could ` +
             `be typo or before asset start date?) : ${showObj(word)}`
           );
         }
+      }
+    }
+    if (t.FROM.startsWith(crystallizedPension)) {
+      if (t.TO.startsWith(crystallizedPension)) {
+        // ok we can transfer from one CP to another
+      } else if (t.TO === CASH_ASSET_NAME) {
+        // ok we will trigger income tax on this
+      } else {
+        // flag a problem
+        return (
+          `Transaction ${t.NAME} needs to go to ${CASH_ASSET_NAME}` +
+          ` for proper income tax calculation`
+        );
       }
     }
     if (t.FROM_VALUE === '') {

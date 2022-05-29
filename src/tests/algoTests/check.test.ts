@@ -3,6 +3,7 @@ import {
   bondModel,
   CASH_ASSET_NAME,
   conditional,
+  crystallizedPension,
   custom,
   debtChartFocus,
   incomeTax,
@@ -414,7 +415,7 @@ describe('checks tests', () => {
     oldName = model.transactions[1].NAME;
     model.transactions[1].NAME = `${conditional}nonsense`;
     expect(checkData(model)).toEqual(
-      `conditional transactions need a To asset defined`,
+      `Conditional transaction Conditionalnonsense needs a 'To' asset defined`,
     );
     model.transactions[1].NAME = oldName;
 
@@ -423,7 +424,7 @@ describe('checks tests', () => {
     oldName = model.transactions[2].NAME;
     model.transactions[2].NAME = 'nonsense';
     expect(checkData(model)).toEqual(
-      `Transaction from unrecognised asset (could be typo or before asset start date?) : \"TeachingJob\"`,
+      `Transaction nonsense from unrecognised asset (could be typo or before asset start date?) : \"TeachingJob\"`,
     );
     model.transactions[2].NAME = oldName;
 
@@ -435,7 +436,7 @@ describe('checks tests', () => {
     );
     model.transactions[0].NAME = `${revalue} ${oldName}`;
     expect(checkData(model)).toEqual(
-      `Transaction from unrecognised asset (could be typo or before asset start date?) : \"-PDB TeachersPensionScheme\"`,
+      `Transaction Revalue -PT TeachersPensionScheme from unrecognised asset (could be typo or before asset start date?) : \"-PDB TeachersPensionScheme\"`,
     );
     model.transactions[0].NAME = oldName;
     model.transactions[0].TYPE = revalueAsset;
@@ -480,7 +481,9 @@ describe('checks tests', () => {
 
     const oldDate = model.transactions[0].DATE;
     model.transactions[0].DATE = 'nonsense';
-    expect(checkData(model)).toEqual(`Transaction has bad date : \"nonsense\"`);
+    expect(checkData(model)).toEqual(
+      `Transaction -PT TeachersPensionScheme has bad date : \"nonsense\"`,
+    );
     model.transactions[0].DATE = oldDate;
 
     const oldFromValue = model.transactions[0].FROM_VALUE;
@@ -598,6 +601,51 @@ describe('checks tests', () => {
     model2.name = preName;
 
     expect(checkData(model2)).toEqual(``);
+
+    const roi = {
+      start: 'March 1, 2018',
+      end: 'April 2, 2018',
+    };
+    const model3: ModelData = {
+      ...emptyModel,
+      transactions: [
+        {
+          // when you take cash from your pension pot
+          ...simpleTransaction,
+          NAME: 'get some pension', //
+          FROM: crystallizedPension + 'Joe.PNN', // name is important
+          FROM_VALUE: '30000', // a one-off payment
+          TO: 'ISA',
+          TO_ABSOLUTE: false,
+          TO_VALUE: '1.0', // all of what is removed goes to cash
+          DATE: 'March 20 2018',
+        },
+      ],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
+          START: 'March 1 2018',
+        },
+        {
+          ...simpleAsset,
+          NAME: 'ISA',
+          CAN_BE_NEGATIVE: true,
+          START: 'March 1 2018',
+        },
+        {
+          ...simpleAsset,
+          NAME: crystallizedPension + 'Joe.PNN', // name is important - will be '+incomeTax+'Joe
+          START: 'March 1 2018',
+          VALUE: '60000',
+        },
+      ],
+      settings: [...defaultModelSettings(roi)],
+    };
+    expect(checkData(model3)).toEqual(
+      `Transaction get some pension needs to go to Cash for proper income tax calculation`,
+    );
 
     unSuppressLogs();
   });

@@ -61,7 +61,7 @@ describe(testDataModelName, () => {
     await addTransaction(driver, {
       ...transactionInputs,
       startDate: 'junk',
-      message: `Transaction has bad date : "junk"`,
+      message: `Transaction trans1 has bad date : "junk"`,
     });
 
     await clearTransactionFields(driver);

@@ -131,7 +131,7 @@ describe(testDataModelName, () => {
       ...inputs,
       valuationDate: '1 Jan 2020', // date is before javaJob1 begins
       message:
-        'Transaction from unrecognised asset (could be typo or before asset start date?) : "javaJob1"',
+        'Transaction -PEN pensionName from unrecognised asset (could be typo or before asset start date?) : "javaJob1"',
     });
 
     await clearPensionFields(driver);
@@ -150,7 +150,7 @@ describe(testDataModelName, () => {
       startDate: '1 Jan 2033',
       pensionEndOrTransferDate: '1 Jan 2032', // transfer pension before pension begins paying out?
       message:
-        'Transaction from unrecognised asset ' +
+        'Transaction -PT pensionName from unrecognised asset ' +
         `(could be typo or before asset start date?) : "${pensionDB}pensionName"`,
       // TODO this message is mysterious
     });
