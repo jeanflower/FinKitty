@@ -10,7 +10,12 @@ import {
 } from './models/exampleModels';
 import { useAuth0 } from './contexts/auth0-context';
 import { makeChartData, ViewSettings } from './models/charting';
-import { checkData, checkTransaction, checkTrigger } from './models/checks';
+import {
+  checkData,
+  checkTransaction,
+  checkTrigger,
+  isNumberString,
+} from './models/checks';
 import { AddDeleteTransactionForm } from './views/reactComponents/AddDeleteTransactionForm';
 import { AddDeleteTriggerForm } from './views/reactComponents/AddDeleteTriggerForm';
 import { makeButton } from './views/reactComponents/Button';
@@ -51,7 +56,6 @@ import {
   Evaluation,
   ExpenseVal,
   IncomeVal,
-  ItemChartData,
   SettingVal,
   ReportDatum,
   ReportMatcher,
@@ -67,9 +71,10 @@ import {
   triggersTableDivWithHeading,
   addIndices,
   reportDiv,
+  optimizerDiv,
 } from './views/tablePages';
 import { overviewDiv } from './views/overviewPage';
-import { taxDiv } from './views/chartPages';
+import { makeBarData, taxDiv } from './views/chartPages';
 import { incomesDiv } from './views/incomesPage';
 import { expensesDiv } from './views/expensesPage';
 import { assetsDiv } from './views/assetsPage';
@@ -112,10 +117,12 @@ import { getEvaluations } from './models/evaluations';
 import {
   applyRedoToModel,
   attemptRenameLong,
+  getSettings,
   getTodaysDate,
   makeModelFromJSON,
   markForUndo,
   revertToUndoModel,
+  setSetting,
   standardiseDates,
 } from './models/modelUtils';
 import { lessThan, makeTwoDP } from './utils/stringUtils';
@@ -123,12 +130,7 @@ import { diffModels } from './models/diffModels';
 import { collapsibleFragment } from './views/tablePages';
 import WaitGif from './views/catWait.gif';
 import packageData from '../package.json';
-import {
-  getColor,
-  getDefaultViewSettings,
-  getDisplay,
-  views,
-} from './utils/viewUtils';
+import { getDefaultViewSettings, getDisplay, views } from './utils/viewUtils';
 
 // import './bootstrap.css'
 
@@ -223,24 +225,6 @@ export function migrateViewSetting(input: Setting): boolean {
   } else {
     return false;
   }
-}
-
-function makeBarData(labels: string[], chartData: ItemChartData[]): ChartData {
-  return {
-    labels: labels,
-    datasets: chartData.map((cd, index) => {
-      const c = getColor(index);
-      return {
-        label: cd.item.NAME,
-        data: cd.chartDataPoints.map((c) => {
-          return Math.round(c.y * 100.0) / 100.0;
-        }),
-        backgroundColor: `rgb(${c.r},${c.g},${c.b})`,
-        barPercentage: 1.0,
-      };
-    }),
-    displayLegend: true,
-  };
 }
 
 function getUserID() {
@@ -1163,6 +1147,7 @@ interface AppState {
   assetChartData: ChartData;
   debtChartData: ChartData;
   taxChartData: ChartData;
+  optimizationChartData: ChartData;
   todaysAssetValues: Map<string, AssetOrDebtVal>;
   todaysDebtValues: Map<string, AssetOrDebtVal>;
   todaysIncomeValues: Map<string, IncomeVal>;
@@ -1221,8 +1206,6 @@ export class AppContent extends Component<AppProps, AppState> {
 
     const viewSettings = getDefaultViewSettings();
     // log(`frequency is ${viewSettings.getViewSetting(viewFrequency, 'none')}`);
-
-    reactAppComponent = this;
     this.state = {
       modelData: emptyModel,
       evaluations: [],
@@ -1252,6 +1235,11 @@ export class AppContent extends Component<AppProps, AppState> {
         datasets: [],
         displayLegend: true,
       },
+      optimizationChartData: {
+        labels: [],
+        datasets: [],
+        displayLegend: false,
+      },
       modelNamesData: [],
       todaysAssetValues: new Map<string, AssetOrDebtVal>(),
       todaysDebtValues: new Map<string, AssetOrDebtVal>(),
@@ -1274,7 +1262,7 @@ export class AppContent extends Component<AppProps, AppState> {
       evalMode: true,
       checkModelOnEdit: true,
     };
-
+    reactAppComponent = this;
     refreshData(
       true, // refreshModel = true,
       true, // refreshChart = true,
@@ -1485,6 +1473,7 @@ export class AppContent extends Component<AppProps, AppState> {
               this.state.reportDefiner,
               this.state.reportData,
             )}
+            {optimizerDiv(this.state.modelData, this.state.viewState)}{' '}
           </>
         </>
       );
@@ -1674,6 +1663,88 @@ export class AppContent extends Component<AppProps, AppState> {
     }
   }
 
+  private async optimizeModel(): Promise<void> {
+    const varSetting = getSettings(
+      this.state.modelData.settings,
+      'variable',
+      'missing',
+      false,
+    );
+    if (varSetting === 'missing') {
+      alert(`optimiser needs a setting called 'variable'`);
+      return;
+    }
+    if (!isNumberString(varSetting)) {
+      alert(`optimiser needs a number setting called 'variable'`);
+      return;
+    }
+    const varLowSetting = getSettings(
+      this.state.modelData.settings,
+      'variableLow',
+      'missing',
+      false,
+    );
+    if (varLowSetting === 'missing') {
+      alert(`optimiser needs a setting called 'variableLow'`);
+      return;
+    }
+    if (!isNumberString(varLowSetting)) {
+      alert(`optimiser needs a number setting called 'variableLow'`);
+      return;
+    }
+    const varHighSetting = getSettings(
+      this.state.modelData.settings,
+      'variableHigh',
+      'missing',
+      false,
+    );
+    if (varHighSetting === 'missing') {
+      alert(`optimiser needs a setting called 'variableHigh'`);
+      return;
+    }
+    if (!isNumberString(varHighSetting)) {
+      alert(`optimiser needs a number setting called 'variableHigh'`);
+      return;
+    }
+    let varCount = 10;
+    const varCountSetting = getSettings(
+      this.state.modelData.settings,
+      'variableCount',
+      'missing',
+      false,
+    );
+    if (varCountSetting !== 'missing') {
+      log(`found varCount setting ${varCountSetting}`);
+      if (isNumberString(varCountSetting)) {
+        const parsed = parseInt(varCountSetting);
+        if (parsed !== undefined && parsed > 0) {
+          log(`set varCount = ${varCount}`);
+          varCount = parsed;
+        }
+      }
+    }
+    const tempModel = makeModelFromJSON(JSON.stringify(this.state.modelData));
+
+    const low = parseFloat(varLowSetting);
+    const high = parseFloat(varHighSetting);
+
+    for (let step = 0; step <= varCount; step++) {
+      const varVal = low + ((high - low) * step) / varCount;
+      setSetting(tempModel.settings, 'variable', `${varVal}`, custom);
+      const evalResult = getEvaluations(tempModel, undefined);
+      const estateVal = evalResult.reportData.find((d) => {
+        return d.name === 'Estate final value';
+      });
+      let textToDisplay = 'unknown';
+      if (estateVal !== undefined) {
+        if (estateVal.newVal !== undefined) {
+          textToDisplay = `${makeTwoDP(estateVal.newVal)}`;
+        }
+      }
+      log(`variable = ${varVal}, estate = ${textToDisplay}`);
+    }
+  }
+
   private async cloneModel(
     name: string,
     fromModel: ModelData,
@@ -1756,6 +1827,15 @@ export class AppContent extends Component<AppProps, AppState> {
             },
             `btn-diff`,
             `btn-diff`,
+            'outline-secondary',
+          )}
+          {makeButton(
+            'Optimise model',
+            async () => {
+              this.optimizeModel();
+            },
+            `btn-optimize`,
+            `btn-optimize`,
             'outline-secondary',
           )}
         </div>
@@ -1992,7 +2072,6 @@ export class AppContent extends Component<AppProps, AppState> {
         <fieldset>
           {settingsTableDiv(
             this.state.modelData,
-            this.state.viewState,
             showAlert,
             this.options.checkModelOnEdit,
           )}
@@ -2416,7 +2495,7 @@ export async function attemptRename(
 
 export function doCheckBeforeOverwritingExistingData(): boolean {
   const result = checkOverwrite();
-  log(`check overwrite = ${result}`);
+  // log(`check overwrite = ${result}`);
   return result;
 }
 

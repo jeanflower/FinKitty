@@ -3119,7 +3119,7 @@ function calculateFromChange(
     // log(`before considering granular changes, fromChange = ${fromChange}`);
     // log(`cap conditional amount - we only need ${preToValue}`);
     const lowestFromChange = -preToValue / tToValue;
-    const grain = getNumberValue(values, 'Grain', false);
+    const grain = traceEvaluation('Grain', values, growths, t.NAME);
     // log(`Grain's value is ${grain}`);
     if (grain !== undefined && t.TO === CASH_ASSET_NAME && !fromHasQuantity) {
       const granularChange = Math.ceil(lowestFromChange / grain) * grain;
@@ -4295,7 +4295,26 @@ function generateMoments(
         '36', //callerID
       );
     }
-
+    let referencingSettings = model.settings.filter((s) => {
+      return s.VALUE === setting.NAME;
+    });
+    referencingSettings = referencingSettings.sort();
+    if (
+      referencingSettings.length > 0 &&
+      values.get(setting.NAME) === undefined
+    ) {
+      setValue(
+        values,
+        growths,
+        evaluations,
+        roiStartDate,
+        setting.NAME,
+        setting.VALUE,
+        model,
+        setting.NAME,
+        '42', //callerID
+      );
+    }
     let referencingDates = model.transactions
       .filter((t) => {
         // log(`is setting ${setting.NAME} in t.TO  = ${t.TO}?`);

@@ -29,6 +29,8 @@ import {
   viewType,
   reportView,
   bondMaturity,
+  optimizerView,
+  custom,
 } from '../localization/stringConstants';
 import {
   Asset,
@@ -44,6 +46,9 @@ import {
   IncomeVal,
   ExpenseVal,
   AssetOrDebtVal,
+  ChartData,
+  ChartDataPoint,
+  ItemChartData,
 } from '../types/interfaces';
 import {
   attemptRename,
@@ -85,6 +90,9 @@ import {
   isAnIncome,
   isAnExpense,
   getTodaysDate,
+  getSettings,
+  makeModelFromJSON,
+  setSetting,
 } from '../models/modelUtils';
 import {
   getNumberAndWordParts,
@@ -103,9 +111,15 @@ import {
 } from '../utils/stringUtils';
 import { ReactFragment } from 'react';
 import { Accordion, Button, Card } from 'react-bootstrap';
-import { filtersList } from './chartPages';
+import {
+  filtersList,
+  getDefaultChartSettings,
+  makeBarData,
+  makeContainedBarChart,
+} from './chartPages';
 import { ReportMatcherForm } from './reactComponents/ReportMatcherForm';
 import { getDisplay } from '../utils/viewUtils';
+import { getEvaluations } from '../models/evaluations';
 
 export function collapsibleFragment(
   fragment: ReactFragment | undefined,
@@ -1777,11 +1791,7 @@ const settingsToExcludeFromTableView: string[] = [
   taxChartShowNet,
 ];
 
-function settingsForTable(
-  model: ModelData,
-  viewSettings: ViewSettings,
-  type: string,
-) {
+function settingsForTable(model: ModelData, type: string) {
   const data = model.settings;
   const unindexedResult = data
     .filter((obj: Setting) => {
@@ -1915,12 +1925,11 @@ function adjustSettingsTable(
 
 function settingsTables(
   model: ModelData,
-  viewSettings: ViewSettings,
   showAlert: (arg0: string) => void,
   doChecks: boolean,
 ) {
-  const constSettings = settingsForTable(model, viewSettings, constType);
-  const adjustSettings = settingsForTable(model, viewSettings, adjustableType);
+  const constSettings = settingsForTable(model, constType);
+  const adjustSettings = settingsForTable(model, adjustableType);
 
   if (constSettings.length === 0 && adjustSettings.length === 0) {
     return;
@@ -1937,7 +1946,6 @@ function settingsTables(
 
 export function settingsTableDiv(
   model: ModelData,
-  viewSettings: ViewSettings,
   showAlert: (arg0: string) => void,
   doChecks: boolean,
 ) {
@@ -1959,7 +1967,7 @@ export function settingsTableDiv(
               arguments,
             );
           }}
-          rows={settingsForTable(model, viewSettings, viewType)}
+          rows={settingsForTable(model, viewType)}
           columns={[
             /*
           {
@@ -1994,7 +2002,7 @@ export function settingsTableDiv(
         />,
         `Settings about the view of the model`,
       )}
-      {settingsTables(model, viewSettings, showAlert, doChecks)}
+      {settingsTables(model, showAlert, doChecks)}
       {transactionFilteredTable(
         model,
         showAlert,
@@ -2147,6 +2155,204 @@ export function reportDiv(
         //${util.inspect(reportDataTable)}`
         //}
       }
+    </div>
+  );
+}
+/*
+interface StateProps {
+  texts: string[];
+}
+
+class StateUpdater extends Component<StateProps> {
+  public constructor(props: StateProps) {
+    super(props);
+  }
+
+  public render(): JSX.Element[] {
+    return this.props.texts.map((t) => {
+      return <div key={t}>{t}</div>;
+    });
+  }
+}
+*/
+async function performOneCalc(
+  model: ModelData,
+  varVal: number,
+  unindexedResult: {
+    VAR: number;
+    ESTATE: string;
+    ESTATE_VAL: number;
+  }[],
+  stateTexts: string[],
+) {
+  const tempModel = makeModelFromJSON(JSON.stringify(model));
+
+  setSetting(tempModel.settings, 'variable', `${varVal}`, custom);
+  const evalResult = getEvaluations(tempModel, undefined);
+  const estateVal = evalResult.reportData.find((d) => {
+    return d.name === 'Estate final value';
+  });
+  let textToDisplay = 'unknown';
+  let estateValueForChart = 0.0;
+  if (estateVal !== undefined) {
+    if (estateVal.newVal !== undefined) {
+      estateValueForChart = estateVal.newVal;
+      textToDisplay = `${makeTwoDP(estateValueForChart)}`;
+    }
+  }
+  // log(`variable = ${varVal}, estate = ${textToDisplay}`);
+  unindexedResult.push({
+    VAR: varVal,
+    ESTATE: textToDisplay,
+    ESTATE_VAL: estateValueForChart,
+  });
+  stateTexts.push(`\nvariable = ${varVal}, estate = ${textToDisplay}`);
+}
+
+export function optimizerDiv(model: ModelData, settings: ViewSettings) {
+  if (!getDisplay(optimizerView)) {
+    // log(`don't populate optimizerView`);
+    return;
+  }
+  // log(`do populate optimizerView`);
+
+  const varSetting = getSettings(model.settings, 'variable', 'missing', false);
+  if (varSetting === 'missing') {
+    alert(`optimiser needs a setting called 'variable'`);
+    return;
+  }
+  if (!isNumberString(varSetting)) {
+    alert(`optimiser needs a number setting called 'variable'`);
+    return;
+  }
+  const varLowSetting = getSettings(
+    model.settings,
+    'variableLow',
+    'missing',
+    false,
+  );
+  if (varLowSetting === 'missing') {
+    alert(`optimiser needs a setting called 'variableLow'`);
+    return;
+  }
+  if (!isNumberString(varLowSetting)) {
+    alert(`optimiser needs a number setting called 'variableLow'`);
+    return;
+  }
+  const varHighSetting = getSettings(
+    model.settings,
+    'variableHigh',
+    'missing',
+    false,
+  );
+  if (varHighSetting === 'missing') {
+    alert(`optimiser needs a setting called 'variableHigh'`);
+    return;
+  }
+  if (!isNumberString(varHighSetting)) {
+    alert(`optimiser needs a number setting called 'variableHigh'`);
+    return;
+  }
+  let varCount = 10;
+  const varCountSetting = getSettings(
+    model.settings,
+    'variableCount',
+    'missing',
+    false,
+  );
+  if (varCountSetting !== 'missing') {
+    // log(`found varCount setting ${varCountSetting}`);
+    if (isNumberString(varCountSetting)) {
+      const parsed = parseInt(varCountSetting);
+      if (parsed !== undefined && parsed > 0) {
+        // log(`set varCount = ${varCount}`);
+        varCount = parsed;
+      }
+    }
+  }
+  const low = parseFloat(varLowSetting);
+  const high = parseFloat(varHighSetting);
+
+  const varVals = [];
+  for (let step = 0; step <= varCount; step++) {
+    const varVal = low + ((high - low) * step) / varCount;
+    varVals.push(Math.floor(varVal * 100.0) / 100.0);
+  }
+  const unindexedResult: {
+    VAR: number;
+    ESTATE: string;
+    ESTATE_VAL: number;
+  }[] = [];
+  const stateTexts: string[] = [];
+
+  // TODO : I wanted to run these in parallel...
+  varVals.forEach((varVal) => {
+    performOneCalc(model, varVal, unindexedResult, stateTexts);
+  });
+  const data = addIndices(
+    unindexedResult.sort((a, b) => {
+      return a.VAR < b.VAR ? -1 : 1;
+    }),
+  );
+  //log(
+  //  `data = ${data.map((d) => {
+  //    return `\n${d.index}\t–${d.VAR}\t${d.ESTATE}`;
+  //  })}`,
+  //);
+  const cdps: ChartDataPoint[] = data.map((d) => {
+    return {
+      label: d.VAR,
+      y: d.ESTATE_VAL,
+      ttip: d.ESTATE,
+    };
+  });
+  const icd: ItemChartData = {
+    item: {
+      NAME: 'optimisation result',
+    },
+    chartDataPoints: cdps,
+  };
+
+  const cd: ChartData = makeBarData(
+    data.map((d) => {
+      return d.VAR;
+    }),
+    [icd],
+  );
+
+  const chartSettings = getDefaultChartSettings(settings, model.settings);
+
+  /*
+  return (
+    <div className="ml-3">
+      <StateUpdater texts={stateTexts}></StateUpdater>
+    </div>
+  );
+  */
+  return (
+    <div className="ml-3">
+      <DataGrid
+        deleteFunction={undefined}
+        handleGridRowsUpdated={function () {
+          return false;
+        }}
+        rows={data}
+        columns={[
+          {
+            ...defaultColumn,
+            key: 'VAR',
+            name: 'variable',
+          },
+          {
+            ...defaultColumn,
+            key: 'ESTATE',
+            name: 'estate',
+            formatter: <CashValueFormatter name="change" value="unset" />,
+          },
+        ]}
+        triggers={model.triggers}
+      />
+      {makeContainedBarChart(cd, chartSettings, settings)}
     </div>
   );
 }

@@ -25,6 +25,7 @@ import {
   taxView,
   transactionsView,
   triggersView,
+  optimizerView,
 } from '../localization/stringConstants';
 import { ViewSettings } from '../models/charting';
 import { log } from './utils';
@@ -137,6 +138,12 @@ export const views = new Map<
   ],
   [
     reportView,
+    {
+      display: false,
+    },
+  ],
+  [
+    optimizerView,
     {
       display: false,
     },

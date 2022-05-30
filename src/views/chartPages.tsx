@@ -4,6 +4,7 @@ import {
   ChartSettings,
   finkittyButtonType,
   ItemCategory,
+  ItemChartData,
   ModelData,
   Setting,
 } from '../types/interfaces';
@@ -55,8 +56,29 @@ import {
   Tooltip as ChartTooltip,
   Legend,
 } from 'chart.js';
-import { getDisplay } from '../utils/viewUtils';
+import { getColor, getDisplay } from '../utils/viewUtils';
 import { makeTwoDP } from '../utils/stringUtils';
+
+export function makeBarData(
+  labels: string[],
+  chartData: ItemChartData[],
+): ChartData {
+  return {
+    labels: labels,
+    datasets: chartData.map((cd, index) => {
+      const c = getColor(index);
+      return {
+        label: cd.item.NAME,
+        data: cd.chartDataPoints.map((c) => {
+          return Math.round(c.y * 100.0) / 100.0;
+        }),
+        backgroundColor: `rgb(${c.r},${c.g},${c.b})`,
+        barPercentage: 1.0,
+      };
+    }),
+    displayLegend: true,
+  };
+}
 
 ChartJS.register(
   CategoryScale,
@@ -309,6 +331,7 @@ function makeBarChart(
   chartSettings: ChartSettings,
   viewSettings: ViewSettings,
 ) {
+  // log(`data in makeBarChart = ${JSON.stringify(data)}`);
   return (
     <Bar
       options={{
@@ -365,7 +388,7 @@ function makeBarChart(
   );
 }
 
-function makeContainedBarChart(
+export function makeContainedBarChart(
   data: ChartData,
   chartSettings: ChartSettings,
   viewSettings: ViewSettings,
@@ -943,6 +966,23 @@ export function taxDiv(
         getDefaultChartSettings(viewSettings, model.settings),
       )}
       <h2>Total tax paid: {makeTwoDP(totalTaxPaid)}</h2>
+    </div>
+  );
+}
+
+export function optimizationDiv(
+  model: ModelData,
+  settings: ViewSettings,
+  data: ChartData,
+  chartSettings: ChartSettings,
+) {
+  return (
+    <div
+      style={{
+        display: 'block',
+      }}
+    >
+      {makeBarChart(data, chartSettings, settings)}
     </div>
   );
 }

@@ -204,6 +204,7 @@ export const triggersView: ViewType = { lc: 'Dates' };
 export const settingsView: ViewType = { lc: 'Settings' };
 export const taxView: ViewType = { lc: 'Tax' };
 export const reportView: ViewType = { lc: 'Asset actions' };
+export const optimizerView: ViewType = { lc: 'Optimizer' };
 
 export const expensesChart: ViewType = { lc: 'Expenses chart' };
 export const incomesChart: ViewType = { lc: 'Incomes chart' };

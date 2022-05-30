@@ -242,7 +242,7 @@ export function overviewDiv(
         {assetsDivWithHeadings(model, todaysAssetValues, showAlert, doChecks)}
         {debtsDivWithHeadings(model, todaysAssetValues, showAlert, doChecks)}
         {transactionsOverviewDiv(model, showAlert, doChecks)}
-        {settingsTableDiv(model, viewSettings, showAlert, doChecks)}
+        {settingsTableDiv(model, showAlert, doChecks)}
       </div>
     </div>
   );
