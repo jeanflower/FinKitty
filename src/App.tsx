@@ -40,6 +40,7 @@ import {
   bondMature,
   evalModeOption,
   checkModelOnEditOption,
+  optimizerView,
 } from './localization/stringConstants';
 import {
   AssetOrDebtVal,
@@ -72,6 +73,7 @@ import {
   addIndices,
   reportDiv,
   optimizerDiv,
+  calcOptimizer,
 } from './views/tablePages';
 import { overviewDiv } from './views/overviewPage';
 import { makeBarData, taxDiv } from './views/chartPages';
@@ -622,6 +624,13 @@ export async function refreshData(
   refreshChart: boolean,
   sourceID: number,
 ): Promise<void> {
+  if (getDisplay(optimizerView)) {
+    const cd: ChartData = calcOptimizer(reactAppComponent.state.modelData);
+    reactAppComponent.setState({
+      optimizationChartData: cd,
+    });
+    return;
+  }
   if (refreshModel) {
     log(
       `go to refresh data - set as waiting...${new Date().toLocaleTimeString()}`,
@@ -1473,7 +1482,12 @@ export class AppContent extends Component<AppProps, AppState> {
               this.state.reportDefiner,
               this.state.reportData,
             )}
-            {optimizerDiv(this.state.modelData, this.state.viewState)}{' '}
+            {optimizerDiv(
+              this.state.modelData,
+              this.state.viewState,
+              showAlert,
+              this.state.optimizationChartData,
+            )}{' '}
           </>
         </>
       );

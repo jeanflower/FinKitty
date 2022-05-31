@@ -1792,12 +1792,10 @@ const settingsToExcludeFromTableView: string[] = [
   taxChartShowNet,
 ];
 
-function settingsForTable(model: ModelData, type: string) {
+function settingsForTable(model: ModelData, doShow: (s: Setting) => boolean) {
   const data = model.settings;
   const unindexedResult = data
-    .filter((obj: Setting) => {
-      return obj.TYPE === type;
-    })
+    .filter(doShow)
     .filter((obj: Setting) => {
       return (
         settingsToExcludeFromTableView.find((s) => {
@@ -1813,6 +1811,9 @@ function settingsForTable(model: ModelData, type: string) {
         HINT: obj.HINT,
       };
       return mapResult;
+    })
+    .sort((a, b) => {
+      return a.NAME < b.NAME ? -1 : 1;
     });
   return addIndices(unindexedResult);
 }
@@ -1929,8 +1930,12 @@ function settingsTables(
   showAlert: (arg0: string) => void,
   doChecks: boolean,
 ) {
-  const constSettings = settingsForTable(model, constType);
-  const adjustSettings = settingsForTable(model, adjustableType);
+  const constSettings = settingsForTable(model, (s) => {
+    return s.TYPE === constType;
+  });
+  const adjustSettings = settingsForTable(model, (s) => {
+    return s.TYPE === adjustableType;
+  });
 
   if (constSettings.length === 0 && adjustSettings.length === 0) {
     return;
@@ -1968,7 +1973,9 @@ export function settingsTableDiv(
               arguments,
             );
           }}
-          rows={settingsForTable(model, viewType)}
+          rows={settingsForTable(model, (s) => {
+            return s.TYPE === viewType;
+          })}
           columns={[
             /*
           {
@@ -2176,7 +2183,7 @@ class StateUpdater extends Component<StateProps> {
   }
 }
 */
-async function performOneCalc(
+function performOneCalc(
   model: ModelData,
   varVal: number,
   unindexedResult: {
@@ -2184,8 +2191,8 @@ async function performOneCalc(
     ESTATE: string;
     ESTATE_VAL: number;
   }[],
-  stateTexts: string[],
 ) {
+  // log(`calculate optimisation task for varVal = ${varVal}`);
   const tempModel = makeModelFromJSON(JSON.stringify(model));
 
   setSetting(tempModel.settings, 'variable', `${varVal}`, custom);
@@ -2201,30 +2208,35 @@ async function performOneCalc(
       textToDisplay = `${makeTwoDP(estateValueForChart)}`;
     }
   }
-  // log(`variable = ${varVal}, estate = ${textToDisplay}`);
+  //log(`variable = ${varVal}, estate = ${textToDisplay}`);
   unindexedResult.push({
     VAR: varVal,
     ESTATE: textToDisplay,
     ESTATE_VAL: estateValueForChart,
   });
-  stateTexts.push(`\nvariable = ${varVal}, estate = ${textToDisplay}`);
+  //log(
+  //  `unindexedResult vars = ${unindexedResult.map((x) => {
+  //    return x.VAR;
+  //  })}`,
+  //);
 }
 
-export function optimizerDiv(model: ModelData, settings: ViewSettings) {
-  if (!getDisplay(optimizerView)) {
-    // log(`don't populate optimizerView`);
-    return;
-  }
+export function calcOptimizer(model: ModelData): ChartData {
   // log(`do populate optimizerView`);
+  const noData: ChartData = {
+    labels: [],
+    datasets: [],
+    displayLegend: false,
+  };
 
   const varSetting = getSettings(model.settings, 'variable', 'missing', false);
   if (varSetting === 'missing') {
     alert(`optimiser needs a setting called 'variable'`);
-    return;
+    return noData;
   }
   if (!isNumberString(varSetting)) {
     alert(`optimiser needs a number setting called 'variable'`);
-    return;
+    return noData;
   }
   const varLowSetting = getSettings(
     model.settings,
@@ -2234,11 +2246,11 @@ export function optimizerDiv(model: ModelData, settings: ViewSettings) {
   );
   if (varLowSetting === 'missing') {
     alert(`optimiser needs a setting called 'variableLow'`);
-    return;
+    return noData;
   }
   if (!isNumberString(varLowSetting)) {
     alert(`optimiser needs a number setting called 'variableLow'`);
-    return;
+    return noData;
   }
   const varHighSetting = getSettings(
     model.settings,
@@ -2248,11 +2260,11 @@ export function optimizerDiv(model: ModelData, settings: ViewSettings) {
   );
   if (varHighSetting === 'missing') {
     alert(`optimiser needs a setting called 'variableHigh'`);
-    return;
+    return noData;
   }
   if (!isNumberString(varHighSetting)) {
     alert(`optimiser needs a number setting called 'variableHigh'`);
-    return;
+    return noData;
   }
   let varCount = 10;
   const varCountSetting = getSettings(
@@ -2267,7 +2279,7 @@ export function optimizerDiv(model: ModelData, settings: ViewSettings) {
       const parsed = parseInt(varCountSetting);
       if (parsed !== undefined && parsed > 0) {
         // log(`set varCount = ${varCount}`);
-        varCount = parsed;
+        varCount = parsed - 1;
       }
     }
   }
@@ -2279,27 +2291,21 @@ export function optimizerDiv(model: ModelData, settings: ViewSettings) {
     const varVal = low + ((high - low) * step) / varCount;
     varVals.push(Math.floor(varVal * 100.0) / 100.0);
   }
+  // showAlert(`starting compute...`);
   const unindexedResult: {
     VAR: number;
     ESTATE: string;
     ESTATE_VAL: number;
   }[] = [];
-  const stateTexts: string[] = [];
-
-  // TODO : I wanted to run these in parallel...
-  varVals.forEach((varVal) => {
-    performOneCalc(model, varVal, unindexedResult, stateTexts);
-  });
+  for (const varVal of varVals) {
+    performOneCalc(model, varVal, unindexedResult);
+  }
+  // showAlert(`done compute...`);
   const data = addIndices(
     unindexedResult.sort((a, b) => {
-      return a.VAR < b.VAR ? -1 : 1;
+      return a.VAR < b.VAR ? 1 : -1;
     }),
   );
-  //log(
-  //  `data = ${data.map((d) => {
-  //    return `\n${d.index}\t–${d.VAR}\t${d.ESTATE}`;
-  //  })}`,
-  //);
   const cdps: ChartDataPoint[] = data.map((d) => {
     return {
       label: d.VAR,
@@ -2321,6 +2327,18 @@ export function optimizerDiv(model: ModelData, settings: ViewSettings) {
     [icd],
   );
 
+  // log(`cd = ${showObj(cd)}`);
+  return cd;
+}
+export function optimizerDiv(
+  model: ModelData,
+  settings: ViewSettings,
+  showAlert: (arg0: string) => void,
+  cd: ChartData,
+) {
+  if (!getDisplay(optimizerView)) {
+    return;
+  }
   const chartSettings = getDefaultChartSettings(settings, model.settings);
 
   /*
@@ -2332,12 +2350,30 @@ export function optimizerDiv(model: ModelData, settings: ViewSettings) {
   */
   return (
     <div className="ml-3">
+      {adjustSettingsTable(
+        model,
+        settingsForTable(model, (s) => {
+          return s.TYPE === adjustableType && s.NAME.startsWith('variable');
+        }),
+        showAlert,
+        true,
+      )}
       <DataGrid
         deleteFunction={undefined}
         handleGridRowsUpdated={function () {
           return false;
         }}
-        rows={data}
+        rows={Array.from(Array(cd.labels.length).keys())
+          .map((i) => {
+            return {
+              index: i,
+              ESTATE: `${cd.datasets[0].data[i]}`,
+              VAR: cd.labels[i],
+            };
+          })
+          .sort((a, b) => {
+            return a.VAR < b.VAR ? -1 : 1;
+          })}
         columns={[
           {
             ...defaultColumn,

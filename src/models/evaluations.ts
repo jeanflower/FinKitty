@@ -5107,7 +5107,7 @@ function getEvaluationsInternal(
 
   const message = checkData(model);
   if (message.length > 0) {
-    log(message);
+    // log(`check failed, do no evaluations: ${message}`);
     return {
       evaluations: [],
       todaysAssetValues: todaysAssetValues,
