@@ -652,7 +652,7 @@ export class AddDeleteAssetForm extends Component<
       count += 1;
     }
 
-    const revalueExpenseTransaction: Transaction = {
+    const revalueTransaction: Transaction = {
       NAME: `${revalue} ${this.state.NAME} ${count}`,
       FROM: '',
       FROM_ABSOLUTE: false,
@@ -668,7 +668,7 @@ export class AddDeleteAssetForm extends Component<
     };
     // log(`adding transaction ${showObj(revalueExpenseTransaction)}`);
     const message = this.props.checkTransactionFunction(
-      revalueExpenseTransaction,
+      revalueTransaction,
       this.props.model,
     );
     if (message.length > 0) {
@@ -676,7 +676,7 @@ export class AddDeleteAssetForm extends Component<
       return;
     }
     await this.props.submitTransactionFunction(
-      revalueExpenseTransaction,
+      revalueTransaction,
       this.props.model,
     );
 

@@ -909,10 +909,11 @@ export function getDisplayName(obj: string, type: string) {
     (type === revalueAsset ||
       type === revalueDebt ||
       type === revalueExp ||
-      type === revalueInc) &&
+      type === revalueInc ||
+      type === revalueSetting) &&
     obj.startsWith(revalue)
   ) {
-    result = obj.substring(revalue.length);
+    result = obj.substring(revalue.length).trimStart();
   } else {
     result = obj;
   }
