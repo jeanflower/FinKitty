@@ -366,6 +366,9 @@ function makeBarChart(
                   );
                 }
                 const l = data.labels[index];
+                if (typeof l === 'number') {
+                  return `${l}`;
+                }
                 const d = new Date(l);
                 const showMonth =
                   viewSettings.getViewSetting(viewFrequency, annually) ===
