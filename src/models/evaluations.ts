@@ -4402,6 +4402,17 @@ function generateMoments(
     );
   });
 
+  model.settings.forEach((setting) => {
+    if (setting.HINT.includes('grows with cpi')) {
+      growths.set(setting.NAME, {
+        itemGrowth: '0.0',
+        powerByNumMonths: 1,
+        scale: 0.0,
+        applyCPI: true,
+      });
+    }
+  });
+
   if (roiEndDate > today) {
     allMoments.push({
       date: today,

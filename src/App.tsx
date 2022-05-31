@@ -794,6 +794,7 @@ export async function editSetting(
   settingInput: {
     NAME: string;
     VALUE: string;
+    HINT: string;
   },
   modelData: ModelData,
 ): Promise<void> {
@@ -813,7 +814,6 @@ export async function editSetting(
   }
   const settingWithBlanks = {
     ...settingInput,
-    HINT: '',
     TYPE: '',
   };
   const message = await submitSettingLSM(
