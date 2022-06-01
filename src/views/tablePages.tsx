@@ -152,6 +152,12 @@ function handleExpenseGridRowsUpdated(
 ) {
   // log('handleExpenseGridRowsUpdated', arguments);
   const expense = args[0].fromRowData;
+  const oldValue = expense[args[0].cellKey];
+  const newValue = args[0].updated[args[0].cellKey];
+  if (oldValue === newValue) {
+    return;
+  }
+
   // log('old expense '+showObj(expense));
   if (args[0].cellKey === 'NAME') {
     if (expense.NAME !== args[0].updated.NAME) {
@@ -176,7 +182,6 @@ function handleExpenseGridRowsUpdated(
     return;
   }
 
-  const oldValue = expense[args[0].cellKey];
   expense[args[0].cellKey] = args[0].updated[args[0].cellKey];
   // log('new expense '+showObj(expense));
   const parsedGrowsWithCPI = makeBooleanFromYesNo(expense.GROWS_WITH_CPI);
@@ -232,6 +237,12 @@ function handleIncomeGridRowsUpdated(
 ) {
   // log('handleIncomeGridRowsUpdated');
   const income = args[0].fromRowData;
+  const oldValue = income[args[0].cellKey];
+  const newValue = args[0].updated[args[0].cellKey];
+  if (oldValue === newValue) {
+    return;
+  }
+
   // log('old income '+showObj(income));
   if (args[0].cellKey === 'NAME') {
     if (doChecks) {
@@ -264,7 +275,6 @@ function handleIncomeGridRowsUpdated(
     return;
   }
 
-  const oldValue = income[args[0].cellKey];
   income[args[0].cellKey] = args[0].updated[args[0].cellKey];
   // log('new income '+showObj(income));
   const parsedGrowsWithCPI = makeBooleanFromYesNo(income.GROWS_WITH_CPI);
@@ -329,6 +339,12 @@ function handleTriggerGridRowsUpdated(
 ) {
   // log('handleTriggerGridRowsUpdated', arguments);
   const trigger = args[0].fromRowData;
+  const oldValue = trigger[args[0].cellKey];
+  const newValue = args[0].updated[args[0].cellKey];
+  if (oldValue === newValue) {
+    return;
+  }
+
   if (args[0].cellKey === 'NAME') {
     if (trigger.NAME !== args[0].updated.NAME) {
       if (doChecks) {
@@ -351,7 +367,6 @@ function handleTriggerGridRowsUpdated(
     }
     return;
   }
-  const oldValue = trigger[args[0].cellKey];
   trigger[args[0].cellKey] = args[0].updated[args[0].cellKey];
   const forSubmit: Trigger = {
     NAME: trigger.NAME,
@@ -378,6 +393,12 @@ function handleAssetGridRowsUpdated(
 ) {
   // log('handleAssetGridRowsUpdated', args);
   const asset = args[0].fromRowData;
+  const oldValue = asset[args[0].cellKey];
+  const newValue = args[0].updated[args[0].cellKey];
+  if (oldValue === newValue) {
+    return;
+  }
+
   if (args[0].cellKey === 'NAME') {
     if (doChecks) {
       if (asset.NAME !== args[0].updated.NAME) {
@@ -427,7 +448,6 @@ function handleAssetGridRowsUpdated(
     log(`Error: asset ${asset.NAME} not found in model?`);
     return;
   }
-  const oldValue = asset[args[0].cellKey];
   asset[args[0].cellKey] = args[0].updated[args[0].cellKey];
   const parsedValue = makeCashValueFromString(asset.VALUE);
   const parsedQuantity = makeQuantityFromString(asset.QUANTITY);
@@ -528,12 +548,12 @@ function handleTransactionGridRowsUpdated(
 ) {
   // log('handleTransactionGridRowsUpdated', args);
   const gridData = args[0].fromRowData;
-
   const oldValue = gridData[args[0].cellKey];
   const newValue = args[0].updated[args[0].cellKey];
   if (oldValue === newValue) {
     return;
   }
+
   gridData[args[0].cellKey] = newValue;
 
   // log(`gridData.FROM_VALUE = ${gridData.FROM_VALUE}`);
@@ -655,6 +675,12 @@ function handleSettingGridRowsUpdated(
 ) {
   // log('handleSettingGridRowsUpdated', args);
   const x = args[0].fromRowData;
+  const oldValue = x[args[0].cellKey];
+  const newValue = args[0].updated[args[0].cellKey];
+  if (oldValue === newValue) {
+    return;
+  }
+
   if (args[0].cellKey === 'NAME') {
     if (x.NAME !== args[0].updated.NAME) {
       if (doChecks) {
