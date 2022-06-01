@@ -694,13 +694,13 @@ DB_TRANSFERRED_STOP
     }
     let count = 1;
     while (
-      isATransaction(`${revalue} ${this.state.NAME} ${count}`, this.props.model)
+      isATransaction(`${revalue}${this.state.NAME} ${count}`, this.props.model)
     ) {
       count += 1;
     }
 
     const revalueIncomeTransaction: Transaction = {
-      NAME: `${revalue} ${this.state.NAME} ${count}`,
+      NAME: `${revalue}${this.state.NAME} ${count}`,
       FROM: '',
       FROM_ABSOLUTE: false,
       FROM_VALUE: '0.0',

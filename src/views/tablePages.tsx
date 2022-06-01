@@ -511,7 +511,8 @@ function getTransactionName(name: string, type: string) {
     type === revalueAsset ||
     type === revalueDebt ||
     type === revalueExp ||
-    type === revalueInc
+    type === revalueInc ||
+    type === revalueSetting
   ) {
     prefix = revalue;
   }
@@ -529,7 +530,11 @@ function handleTransactionGridRowsUpdated(
   const gridData = args[0].fromRowData;
 
   const oldValue = gridData[args[0].cellKey];
-  gridData[args[0].cellKey] = args[0].updated[args[0].cellKey];
+  const newValue = args[0].updated[args[0].cellKey];
+  if (oldValue === newValue) {
+    return;
+  }
+  gridData[args[0].cellKey] = newValue;
 
   // log(`gridData.FROM_VALUE = ${gridData.FROM_VALUE}`);
   // revalue tables have a hidden FROM_VALUE column
@@ -570,16 +575,16 @@ function handleTransactionGridRowsUpdated(
     gridData[args[0].cellKey] = oldValue;
   } else {
     let type = gridData.TYPE;
+    // log(`type = ${type}`);
     if (
       type === revalueAsset ||
       type === revalueDebt ||
       type === revalueExp ||
-      type === revalueInc
+      type === revalueInc ||
+      type === revalueSetting
     ) {
       // enable auto-switch of revalue types if TO changes
-      if (isADebt(gridData.TO, model)) {
-        type = revalueDebt;
-      } else if (isAnAssetOrAssets(gridData.TO, model)) {
+      if (isAnAssetOrAssets(gridData.TO, model)) {
         type = revalueAsset;
       } else if (isADebt(gridData.TO, model)) {
         type = revalueDebt;
@@ -913,7 +918,10 @@ export function getDisplayName(obj: string, type: string) {
       type === revalueSetting) &&
     obj.startsWith(revalue)
   ) {
-    result = obj.substring(revalue.length).trimStart();
+    result = obj.substring(revalue.length);
+    //if (result.startsWith(' ')) {
+    //  alert(`revalue starts with a space '${result}'`);
+    //}
   } else {
     result = obj;
   }
