@@ -6,10 +6,11 @@ import {
   Transaction,
   Trigger,
   FormProps,
+  Item,
 } from '../../types/interfaces';
 import { log, printDebug, showObj } from '../../utils/utils';
 import { makeButton } from './Button';
-import { DateSelectionRow } from './DateSelectionRow';
+import { itemOptions, DateSelectionRow } from './DateSelectionRow';
 import { Input } from './Input';
 import {
   custom,
@@ -54,70 +55,6 @@ interface EditTransactionProps extends FormProps {
     triggerInput: Trigger,
     modelData: ModelData,
   ) => Promise<void>;
-}
-function assetOptions(model: ModelData, handleChange: any, id: string) {
-  const optionData = model.assets
-    .sort((a, b) => {
-      return lessThan(a.NAME, b.NAME);
-    })
-    .map((asset) => {
-      return {
-        text: asset.NAME,
-        action: (e: FormEvent<Element>) => {
-          // log(`detected action`);
-          // e.persist();
-          e.preventDefault();
-          handleChange(asset.NAME);
-        },
-      };
-    })
-    .concat(
-      model.settings
-        .filter((setting) => {
-          return setting.TYPE === adjustableType;
-        })
-        .sort((a, b) => {
-          return lessThan(a.NAME, b.NAME);
-        })
-        .map((setting) => {
-          return {
-            text: setting.NAME,
-            action: (e: FormEvent<Element>) => {
-              // log(`detected action`);
-              // e.persist();
-              e.preventDefault();
-              handleChange(setting.NAME);
-            },
-          };
-        }),
-    );
-  const options = optionData.map((bd) => (
-    <option
-      value={bd.text}
-      id={`option-asset-${bd.text}`}
-      key={bd.text}
-      className="text-muted"
-    >
-      {bd.text}
-    </option>
-  ));
-  return (
-    <select
-      className="custom-select"
-      id={id}
-      onChange={(e) => {
-        const found = optionData.find((od) => {
-          return od.text === e.target.value;
-        });
-        if (found !== undefined) {
-          found.action(e);
-        }
-      }}
-    >
-      <option>Choose an asset/setting</option>
-      {options}
-    </select>
-  );
 }
 
 export class AddDeleteTransactionForm extends Component<
@@ -218,17 +155,51 @@ export class AddDeleteTransactionForm extends Component<
         {/* end row */}
         <Row>
           <Col>
-            {assetOptions(
+            {itemOptions(
+              (this.props.model.assets as Item[])
+                .sort((a, b) => {
+                  return lessThan(a.NAME, b.NAME);
+                })
+                .concat(
+                  this.props.model.settings
+                    .filter((setting) => {
+                      return (
+                        setting.TYPE === adjustableType &&
+                        !setting.NAME.startsWith('variable')
+                      );
+                    })
+                    .sort((a, b) => {
+                      return lessThan(a.NAME, b.NAME);
+                    }),
+                ),
               this.props.model,
               this.handleFromChange,
               this.transactionFromSelectID,
+              'Choose an asset/setting',
             )}
           </Col>{' '}
           <Col>
-            {assetOptions(
+            {itemOptions(
+              (this.props.model.assets as Item[])
+                .sort((a, b) => {
+                  return lessThan(a.NAME, b.NAME);
+                })
+                .concat(
+                  this.props.model.settings
+                    .filter((setting) => {
+                      return (
+                        setting.TYPE === adjustableType &&
+                        !setting.NAME.startsWith('variable')
+                      );
+                    })
+                    .sort((a, b) => {
+                      return lessThan(a.NAME, b.NAME);
+                    }),
+                ),
               this.props.model,
               this.handleToChange,
               this.transactionToSelectID,
+              'Choose an asset/setting',
             )}
           </Col>{' '}
         </Row>

@@ -11,7 +11,7 @@ import {
 } from '../../types/interfaces';
 import { log, printDebug, showObj } from '../../utils/utils';
 import { makeButton } from './Button';
-import { DateSelectionRow } from './DateSelectionRow';
+import { DateSelectionRow, itemOptions } from './DateSelectionRow';
 import { Input } from './Input';
 import {
   revalue,
@@ -26,6 +26,7 @@ import {
   makeValueAbsPropFromString,
   checkTriggerDate,
 } from '../../utils/stringUtils';
+import Spacer from 'react-spacer';
 
 interface EditDebtFormState {
   NAME: string;
@@ -96,20 +97,29 @@ export class AddDeleteDebtForm extends Component<
     this.revalue = this.revalue.bind(this);
   }
 
+  private inputDebtName(): React.ReactNode {
+    return (
+      <>
+        Debt name
+        <Spacer height={10} />
+        {itemOptions(
+          this.props.model.assets.filter((a) => {
+            return a.IS_A_DEBT;
+          }),
+          this.props.model,
+          this.handleNameChange,
+          'debtname',
+          'Select debt',
+        )}
+      </>
+    );
+  }
+
   private ValueAndCategory(): React.ReactNode {
     if (this.state.inputting === inputtingRevalue) {
       return (
         <Row>
-          <Col>
-            <Input
-              title={'Debt name'}
-              type="text"
-              name="debtname"
-              value={this.state.NAME}
-              placeholder="Enter name"
-              onChange={this.handleNameChange}
-            />
-          </Col>
+          <Col>{this.inputDebtName()}</Col>
           <Col>
             <Input
               title={`Debt value`}
@@ -132,7 +142,9 @@ export class AddDeleteDebtForm extends Component<
               name="debtname"
               value={this.state.NAME}
               placeholder="Enter name"
-              onChange={this.handleNameChange}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                return this.handleNameChange(e.target.value);
+              }}
             />
           </Col>
           <Col>
@@ -319,8 +331,8 @@ export class AddDeleteDebtForm extends Component<
     );
   }
 
-  private handleNameChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const value = e.target.value;
+  private handleNameChange(name: string) {
+    const value = name;
     this.setState({ NAME: value });
   }
   private handleGrowthChange(e: React.ChangeEvent<HTMLInputElement>) {

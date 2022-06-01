@@ -367,7 +367,7 @@ export async function revalueIncome(
   },
 ): Promise<boolean> {
   await Promise.all([
-    fillInputById(driver, 'incomename', inputs.name),
+    fillInputById(driver, 'incomenameselect', inputs.name),
     fillInputByName(driver, 'income valuation date', inputs.revaluationDate),
     fillInputById(driver, 'incomevalue', inputs.revalue),
   ]);

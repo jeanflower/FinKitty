@@ -15,7 +15,7 @@ import {
 } from '../../types/interfaces';
 import { log, printDebug, showObj } from '../../utils/utils';
 import { makeButton } from './Button';
-import { DateSelectionRow } from './DateSelectionRow';
+import { DateSelectionRow, itemOptions } from './DateSelectionRow';
 import { Input } from './Input';
 import {
   pensionDB,
@@ -36,6 +36,7 @@ import {
   makeBooleanFromYesNo,
   makeIncomeLiabilityFromNameAndNI,
 } from '../../utils/stringUtils';
+import Spacer from 'react-spacer';
 
 interface EditIncomeFormState {
   NAME: string;
@@ -236,20 +237,7 @@ export class AddDeleteIncomeForm extends Component<
         </div>
         <form className="container-fluid" onSubmit={this.add}>
           <Row>
-            <Col>
-              <Input
-                title={
-                  this.state.inputting === inputtingPension
-                    ? 'Pension name'
-                    : 'Income name'
-                }
-                type="text"
-                name="incomename"
-                value={this.state.NAME}
-                placeholder="Enter name"
-                onChange={this.handleNameChange}
-              />
-            </Col>
+            <Col>{this.inputIncomeName()}</Col>
             <Col>
               <Input
                 title={`${
@@ -295,6 +283,42 @@ export class AddDeleteIncomeForm extends Component<
       </>
     );
   }
+
+  private inputIncomeName(): React.ReactNode {
+    if (this.state.inputting === inputtingRevalue) {
+      return (
+        <>
+          Income name
+          <Spacer height={10} />
+          {itemOptions(
+            this.props.model.incomes,
+            this.props.model,
+            this.handleNameChange,
+            'incomenameselect',
+            'Select income',
+          )}
+        </>
+      );
+    } else {
+      return (
+        <Input
+          title={
+            this.state.inputting === inputtingPension
+              ? 'Pension name'
+              : 'Income name'
+          }
+          type="text"
+          name="incomename"
+          value={this.state.NAME}
+          placeholder="Enter name"
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+            return this.handleNameChange(e.target.value);
+          }}
+        />
+      );
+    }
+  }
+
   private growthsEtc(): React.ReactNode {
     if (
       this.state.inputting !== inputtingIncome &&
@@ -550,8 +574,9 @@ DB_TRANSFERRED_STOP
       </div>
     );
   }
-  private handleNameChange(e: React.ChangeEvent<HTMLInputElement>) {
-    this.setState({ NAME: e.target.value });
+
+  private handleNameChange(name: string) {
+    this.setState({ NAME: name });
   }
   private handleCategoryChange(e: React.ChangeEvent<HTMLInputElement>) {
     this.setState({ CATEGORY: e.target.value });

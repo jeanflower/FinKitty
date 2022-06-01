@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
+import React, { Component, FormEvent } from 'react';
 import { Col, Row } from 'react-bootstrap';
 
-import { Trigger, ModelData, FormProps } from '../../types/interfaces';
+import { Trigger, ModelData, FormProps, Item } from '../../types/interfaces';
 import { TriggerOptionList } from './TriggerOptionList';
 import { log, showObj, printDebug } from '../../utils/utils';
 import { makeDateTooltip } from '../../utils/stringUtils';
@@ -91,4 +91,51 @@ export class DateSelectionRow extends Component<DateSelectionProps> {
       </Row>
     );
   }
+}
+
+export function itemOptions(
+  items: Item[],
+  model: ModelData,
+  handleChange: any,
+  id: string,
+  welcomeString: string,
+) {
+  const optionData = items.map((i) => {
+    return {
+      text: i.NAME,
+      action: (e: FormEvent<Element>) => {
+        // log(`detected action`);
+        // e.persist();
+        e.preventDefault();
+        handleChange(i.NAME);
+      },
+    };
+  });
+  const options = optionData.map((bd) => (
+    <option
+      value={bd.text}
+      id={`option-${id}-${bd.text}`}
+      key={bd.text}
+      className="text-muted"
+    >
+      {bd.text}
+    </option>
+  ));
+  return (
+    <select
+      className="custom-select"
+      id={id}
+      onChange={(e) => {
+        const found = optionData.find((od) => {
+          return od.text === e.target.value;
+        });
+        if (found !== undefined) {
+          found.action(e);
+        }
+      }}
+    >
+      <option>{welcomeString}</option>
+      {options}
+    </select>
+  );
 }

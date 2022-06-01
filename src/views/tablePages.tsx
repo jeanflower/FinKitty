@@ -1262,6 +1262,7 @@ export function transactionsTableDiv(
         columns={makeTransactionCols(model, type)}
         deleteFunction={(name: string) => {
           const completeName = getTransactionName(name, type);
+          log(`delete transaction`);
           return deleteTransaction(completeName);
         }}
         triggers={model.triggers}

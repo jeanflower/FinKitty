@@ -10,7 +10,7 @@ import {
 } from '../../types/interfaces';
 import { log, printDebug, showObj } from '../../utils/utils';
 import { makeButton } from './Button';
-import { DateSelectionRow } from './DateSelectionRow';
+import { DateSelectionRow, itemOptions } from './DateSelectionRow';
 import { Input } from './Input';
 import { isNumberString } from '../../models/checks';
 import { revalue, revalueExp } from '../../localization/stringConstants';
@@ -21,6 +21,7 @@ import {
   checkTriggerDate,
   makeBooleanFromYesNo,
 } from '../../utils/stringUtils';
+import Spacer from 'react-spacer';
 
 interface EditExpenseFormState {
   NAME: string;
@@ -222,16 +223,7 @@ export class AddDeleteExpenseForm extends Component<
         </div>
         <form className="container-fluid" onSubmit={this.add}>
           <Row>
-            <Col>
-              <Input
-                title="Expense name"
-                type="text"
-                name="expensename"
-                value={this.state.NAME}
-                placeholder="Enter name"
-                onChange={this.handleNameChange}
-              />
-            </Col>
+            <Col>{this.inputExpenseName()}</Col>
             <Col>
               <Input
                 title="Expense value"
@@ -264,9 +256,39 @@ export class AddDeleteExpenseForm extends Component<
       </>
     );
   }
+  private inputExpenseName(): React.ReactNode {
+    if (this.state.inputting === inputtingRevalue) {
+      return (
+        <>
+          Expense name
+          <Spacer height={10} />
+          {itemOptions(
+            this.props.model.expenses,
+            this.props.model,
+            this.handleNameChange,
+            'expensename',
+            'Select expense',
+          )}
+        </>
+      );
+    } else {
+      return (
+        <Input
+          title="Expense name"
+          type="text"
+          name="expensename"
+          value={this.state.NAME}
+          placeholder="Enter name"
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+            return this.handleNameChange(e.target.value);
+          }}
+        />
+      );
+    }
+  }
 
-  private handleNameChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const value = e.target.value;
+  private handleNameChange(name: string) {
+    const value = name;
     this.setState({ NAME: value });
   }
   private handleRecurrenceChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -326,6 +348,7 @@ export class AddDeleteExpenseForm extends Component<
   private async revalue(e: React.MouseEvent<HTMLButtonElement>): Promise<void> {
     e.preventDefault();
 
+    log('in function revalue');
     const parseVal = makeValueAbsPropFromString(this.state.VALUE);
     if (!parseVal.checksOK) {
       this.props.showAlert(
@@ -365,6 +388,7 @@ export class AddDeleteExpenseForm extends Component<
       STOP_DATE: '',
       CATEGORY: '',
     };
+    log(`revalueExpenseTransaction = ${showObj(revalueExpenseTransaction)}`);
     const message = await this.props.checkTransactionFunction(
       revalueExpenseTransaction,
       this.props.model,

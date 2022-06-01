@@ -15,7 +15,7 @@ import {
 import { log, printDebug, showObj } from '../../utils/utils';
 
 import { makeButton } from './Button';
-import { DateSelectionRow } from './DateSelectionRow';
+import { DateSelectionRow, itemOptions } from './DateSelectionRow';
 import { Input } from './Input';
 import { doCheckBeforeOverwritingExistingData } from '../../App';
 import { ViewSettings } from '../../models/charting';
@@ -24,6 +24,7 @@ import {
   checkTriggerDate,
   makeValueAbsPropFromString,
 } from '../../utils/stringUtils';
+import Spacer from 'react-spacer';
 
 interface EditSettingFormState {
   NAME: string;
@@ -90,16 +91,7 @@ export class AddDeleteSettingForm extends Component<
     if (this.state.inputting === inputtingRevalue) {
       return (
         <Row>
-          <Col>
-            <Input
-              title={'Setting name'}
-              type="text"
-              name="settingname"
-              value={this.state.NAME}
-              placeholder="Enter name"
-              onChange={this.handleNameChange}
-            />
-          </Col>
+          <Col>{this.inputSettingName()}</Col>
           <Col>
             <Input
               title={`Setting value`}
@@ -122,7 +114,9 @@ export class AddDeleteSettingForm extends Component<
               name="settingname"
               value={this.state.NAME}
               placeholder="Enter name"
-              onChange={this.handleNameChange}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                return this.handleNameChange(e.target.value);
+              }}
             />
           </Col>
           <Col>
@@ -274,8 +268,26 @@ export class AddDeleteSettingForm extends Component<
     );
   }
 
-  private handleNameChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const value = e.target.value;
+  private inputSettingName(): React.ReactNode {
+    return (
+      <>
+        Setting name
+        <Spacer height={10} />
+        {itemOptions(
+          this.props.model.settings.filter((s) => {
+            return s.TYPE === adjustableType;
+          }),
+          this.props.model,
+          this.handleNameChange,
+          'settingname',
+          'Select setting',
+        )}
+      </>
+    );
+  }
+
+  private handleNameChange(name: string) {
+    const value = name;
     this.setState({ NAME: value });
   }
   private handleValueChange(e: React.ChangeEvent<HTMLInputElement>) {

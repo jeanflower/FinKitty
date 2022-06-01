@@ -257,13 +257,6 @@ describe(testDataModelName, () => {
 
     await revalueIncome(driver, {
       ...revalueInputs,
-      name: 'junk',
-      message: 'Income name junk should be an existing income',
-    });
-
-    await clearRevalueIncomeFields(driver);
-    await revalueIncome(driver, {
-      ...revalueInputs,
       revalue: 'junk',
       message: 'Income value junk should be a numerical or % value',
     });
@@ -376,14 +369,6 @@ describe(testDataModelName, () => {
 
     await clickButton(driver, 'useRevalueInputsExpense');
 
-    await revalueExpense(driver, {
-      ...revalueInputs,
-      name: 'junk',
-      message: 'Transaction junk 1 to unrecognised thing : junk',
-      // TODO : not a great message
-    });
-
-    await clearRevalueExpenseFields(driver);
     await revalueExpense(driver, {
       ...revalueInputs,
       revalue: 'junk',
@@ -505,18 +490,8 @@ describe(testDataModelName, () => {
 
     await revalueAsset(driver, {
       ...revalueInputs,
-      name: 'junk',
-      message: 'Transaction junk 1 to unrecognised thing : junk',
-      // TODO : unhelpful error message
-    });
-
-    await clearRevalueAssetFields(driver);
-
-    await revalueAsset(driver, {
-      ...revalueInputs,
       revalue: 'junk',
-      message: 'Income value junk should be a numerical or % value',
-      // TODO Income -> Asset
+      message: 'Asset value junk should be a numerical or % value',
     });
 
     await clearRevalueAssetFields(driver);

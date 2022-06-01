@@ -119,7 +119,7 @@ export async function fillInputById(
 ) {
   const input = await driver.findElements(webdriver.By.id(id));
   if (input.length !== 1) {
-    log(`found ${input.length} elements with id=${id}`);
+    log(`found ${input.length} elements with id=${id} for content ${content}`);
   }
   expect(input.length === 1).toBe(true);
   if (id === 'liquidateForCash') {

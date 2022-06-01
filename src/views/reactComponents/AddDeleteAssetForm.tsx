@@ -15,7 +15,7 @@ import {
 } from '../../types/interfaces';
 import { log, printDebug, showObj } from '../../utils/utils';
 import { makeButton } from './Button';
-import { DateSelectionRow } from './DateSelectionRow';
+import { DateSelectionRow, itemOptions } from './DateSelectionRow';
 import { Input } from './Input';
 import {
   cgt,
@@ -39,6 +39,7 @@ import {
   makeBooleanFromYesNo,
   makeQuantityFromString,
 } from '../../utils/stringUtils';
+import Spacer from 'react-spacer';
 
 interface EditAssetFormState {
   NAME: string;
@@ -188,6 +189,24 @@ export class AddDeleteAssetForm extends Component<
     );
   }
 
+  private inputAssetName(): React.ReactNode {
+    return (
+      <>
+        Asset name
+        <Spacer height={10} />
+        {itemOptions(
+          this.props.model.assets.filter((a) => {
+            return !a.IS_A_DEBT;
+          }),
+          this.props.model,
+          this.handleNameChange,
+          'assetname',
+          'Select asset',
+        )}
+      </>
+    );
+  }
+
   private growthAndInflation(): React.ReactNode {
     if (this.state.inputting !== inputtingRevalue) {
       return (
@@ -222,16 +241,7 @@ export class AddDeleteAssetForm extends Component<
     if (this.state.inputting === inputtingRevalue) {
       return (
         <Row>
-          <Col>
-            <Input
-              title={`${'Asset'} name`}
-              type="text"
-              name="assetname"
-              value={this.state.NAME}
-              placeholder="Enter name"
-              onChange={this.handleNameChange}
-            />
-          </Col>
+          <Col>{this.inputAssetName()}</Col>
           <Col>
             <Input
               title={`Asset value`}
@@ -256,7 +266,9 @@ export class AddDeleteAssetForm extends Component<
               name="assetname"
               value={this.state.NAME}
               placeholder="Enter name"
-              onChange={this.handleNameChange}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                return this.handleNameChange(e.target.value);
+              }}
             />
           </Col>
           <Col>
@@ -295,7 +307,9 @@ export class AddDeleteAssetForm extends Component<
               name="assetname"
               value={this.state.NAME}
               placeholder="Enter name"
-              onChange={this.handleNameChange}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                return this.handleNameChange(e.target.value);
+              }}
             />
           </Col>
           <Col>
@@ -547,8 +561,8 @@ export class AddDeleteAssetForm extends Component<
     );
   }
 
-  private handleNameChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const value = e.target.value;
+  private handleNameChange(name: string) {
+    const value = name;
     this.setState({ NAME: value });
   }
   private handleGrowthChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -633,7 +647,7 @@ export class AddDeleteAssetForm extends Component<
     const parseVal = makeValueAbsPropFromString(this.state.VALUE);
     if (!parseVal.checksOK) {
       this.props.showAlert(
-        `Income value ${this.state.VALUE} should be a numerical or % value`,
+        `Asset value ${this.state.VALUE} should be a numerical or % value`,
       );
       return;
     }
@@ -666,7 +680,7 @@ export class AddDeleteAssetForm extends Component<
       STOP_DATE: '',
       CATEGORY: '',
     };
-    // log(`adding transaction ${showObj(revalueExpenseTransaction)}`);
+    log(`adding transaction ${showObj(revalueTransaction)}`);
     const message = this.props.checkTransactionFunction(
       revalueTransaction,
       this.props.model,

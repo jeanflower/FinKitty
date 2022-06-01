@@ -973,7 +973,7 @@ export async function deleteItemFromModel(
   model: ModelData,
   doChecks: boolean,
 ): Promise<boolean> {
-  //log(`delete item ${name}`);
+  log(`delete item ${name}`);
   //log(`before itemList ${itemList.map((i)=>{return i.NAME})}`);
 
   markForUndo(model);
@@ -1011,6 +1011,8 @@ export async function deleteItemFromModel(
       13, //sourceID
     );
     return true;
+  } else {
+    showAlert(`item to delete ${name} not found in model!`);
   }
   return false;
 }
