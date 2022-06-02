@@ -2339,9 +2339,10 @@ export function calcOptimizer(model: ModelData): ChartData {
   // showAlert(`done compute...`);
   const data = addIndices(
     unindexedResult.sort((a, b) => {
-      return a.VAR < b.VAR ? 1 : -1;
+      return a.VAR < b.VAR ? -1 : 1;
     }),
   );
+  // log(`optimised data = ${showObj(data)}`);
   const cdps: ChartDataPoint[] = data.map((d) => {
     return {
       label: d.VAR,

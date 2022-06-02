@@ -318,6 +318,30 @@ export const pensionExampleData = `
   "version":8}
 `;
 
+const variableDateExampleData = `{
+  "name":"test",
+  "assets":[
+{"NAME":"Estate","VALUE":"0","QUANTITY":"","START":"2019","GROWTH":"0","CPI_IMMUNE":true,"CAN_BE_NEGATIVE":false,"IS_A_DEBT":false,"CATEGORY":"","PURCHASE_PRICE":"0","LIABILITY":""},
+{"NAME":"Cash","CATEGORY":"","START":"1 Jan 2019","VALUE":"0.0","QUANTITY":"","GROWTH":"0.0","CPI_IMMUNE":true,"CAN_BE_NEGATIVE":true,"IS_A_DEBT":false,"LIABILITY":"","PURCHASE_PRICE":"0.0"}],
+  "incomes":[],
+  "expenses":[],
+  "triggers":[],
+  "settings":[
+{"NAME":"variableLow","VALUE":"1","HINT":"","TYPE":"adjustable"},
+{"NAME":"variableHigh","VALUE":"5","HINT":"","TYPE":"adjustable"},
+{"NAME":"variableCount","VALUE":"5","HINT":"","TYPE":"adjustable"},
+{"NAME":"variable","VALUE":"4","HINT":"","TYPE":"adjustable"},
+{"NAME":"Today's value focus date","VALUE":"","HINT":"Date to use for 'today's value' tables (defaults to '' meaning today)","TYPE":"view"},
+{"NAME":"End of view range","VALUE":"1 Jan 2020","HINT":"Date at the end of range to be plotted","TYPE":"view"},
+{"NAME":"Date of birth","VALUE":"","HINT":"Date used for representing dates as ages","TYPE":"view"},
+{"NAME":"cpi","VALUE":"2.5","HINT":"Annual rate of inflation","TYPE":"const"},
+{"NAME":"Beginning of view range","VALUE":"1 Jan 2019","HINT":"Date at the start of range to be plotted","TYPE":"view"}],
+  "transactions":[
+{"DATE":"1 Nov 2019","FROM":"Cash","FROM_VALUE":"1","FROM_ABSOLUTE":false,"NAME":"makeEstate","TO":"Estate","TO_ABSOLUTE":false,"TO_VALUE":"1","STOP_DATE":"","RECURRENCE":"","TYPE":"custom","CATEGORY":""},
+{"DATE":"1 Jan 2019+variable1m","FROM":"","FROM_VALUE":"0.0","FROM_ABSOLUTE":true,"NAME":"getCash","TO":"Cash","TO_ABSOLUTE":true,"TO_VALUE":"100","STOP_DATE":"","RECURRENCE":"1m","TYPE":"custom","CATEGORY":""}],
+"version":9
+}`;
+
 export const simpleExpense: Expense = {
   NAME: 'NoName',
   CATEGORY: '',
@@ -1809,6 +1833,10 @@ export function getDefinedContributionsPension(): ModelData {
 
 export function getPensionExampleData(): ModelData {
   return makeModelFromJSON(pensionExampleData, 'pensionExampleData');
+}
+
+export function getVariableDateExampleData(): ModelData {
+  return makeModelFromJSON(variableDateExampleData, 'variableDateExample');
 }
 
 function getBondModel() {
