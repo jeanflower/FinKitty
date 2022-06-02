@@ -27,7 +27,7 @@ import { migrateOldVersions } from './versioningUtils';
 
 export function getVarVal(model: ModelData) {
   let varVal = 1.0;
-  const varSetting = getSettings(model.settings, 'variable', 'missing');
+  const varSetting = getSettings(model.settings, 'variable', 'missing', false);
   if (varSetting !== 'missing' && isNumberString(varSetting)) {
     const val = parseInt(varSetting);
     varVal = val;
