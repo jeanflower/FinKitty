@@ -1,12 +1,8 @@
-import { getVariableDateExampleData2 } from '../../models/exampleModels';
-import { ChartData } from '../../types/interfaces';
 import { checkTriggerDate } from '../../utils/stringUtils';
 import { log, printDebug } from '../../utils/utils';
-import { calcOptimizer } from '../../views/tablePages';
 import {
   printTestCodeForEvals,
   expectEvals,
-  getTestEvaluations,
   expectChartData,
   printTestCodeForChart,
 } from './algoTestUtils';
@@ -38,17 +34,21 @@ describe('debug test', () => {
       )?.toDateString(),
     ).toEqual(undefined);
     cleanedString.cleaned = '';
-    checkTriggerDate('1 Jan 2018-1d-2d', [simpleTrigger], varVal, cleanedString)
+    checkTriggerDate(
+      '1 Jan 2018-1d-2d',
+      [simpleTrigger],
+      varVal,
+      cleanedString,
+    );
     expect(cleanedString.cleaned).toEqual('Invalid Date 1 Jan 2018-1d-2d');
 
     expect(
       checkTriggerDate('a-1m-2d', [simpleTrigger], varVal)?.toDateString(),
     ).toEqual(undefined);
     cleanedString.cleaned = '';
-    checkTriggerDate('a-1m-2d', [simpleTrigger], varVal, cleanedString)
+    checkTriggerDate('a-1m-2d', [simpleTrigger], varVal, cleanedString);
     expect(cleanedString.cleaned).toEqual('Invalid Date a-1m-2d');
 
-    
     expect(checkTriggerDate('nonsense', [simpleTrigger], varVal)).toEqual(
       undefined,
     );

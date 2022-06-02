@@ -698,48 +698,48 @@ describe('utils tests', () => {
       checkTriggerDate('a', [simpleTrigger], varVal)?.toDateString(),
     ).toEqual('Mon Jan 01 2018');
     const cleanedString = { cleaned: '' };
-    checkTriggerDate('a', [simpleTrigger], varVal, cleanedString)
+    checkTriggerDate('a', [simpleTrigger], varVal, cleanedString);
     expect(cleanedString.cleaned).toEqual('a');
     expect(
       checkTriggerDate('a+1y', [simpleTrigger], varVal)?.toDateString(),
     ).toEqual('Tue Jan 01 2019');
     cleanedString.cleaned = '';
-    checkTriggerDate('a+1y', [simpleTrigger], varVal, cleanedString)
+    checkTriggerDate('a+1y', [simpleTrigger], varVal, cleanedString);
     expect(cleanedString.cleaned).toEqual('a+1y');
 
     expect(
       checkTriggerDate('a-1y', [simpleTrigger], varVal)?.toDateString(),
     ).toEqual('Sun Jan 01 2017');
     cleanedString.cleaned = '';
-    checkTriggerDate('a-1y', [simpleTrigger], varVal, cleanedString)
+    checkTriggerDate('a-1y', [simpleTrigger], varVal, cleanedString);
     expect(cleanedString.cleaned).toEqual('a-1y');
 
     expect(
       checkTriggerDate('a+1m', [simpleTrigger], varVal)?.toDateString(),
     ).toEqual('Thu Feb 01 2018');
     cleanedString.cleaned = '';
-    checkTriggerDate('a+1m', [simpleTrigger], varVal, cleanedString)
+    checkTriggerDate('a+1m', [simpleTrigger], varVal, cleanedString);
     expect(cleanedString.cleaned).toEqual('a+1m');
 
     expect(
       checkTriggerDate('a-1m', [simpleTrigger], varVal)?.toDateString(),
     ).toEqual('Fri Dec 01 2017');
     cleanedString.cleaned = '';
-    checkTriggerDate('a-1m', [simpleTrigger], varVal, cleanedString)
+    checkTriggerDate('a-1m', [simpleTrigger], varVal, cleanedString);
     expect(cleanedString.cleaned).toEqual('a-1m');
 
     expect(
       checkTriggerDate('a+1d', [simpleTrigger], varVal)?.toDateString(),
     ).toEqual('Tue Jan 02 2018');
     cleanedString.cleaned = '';
-    checkTriggerDate('a+1d', [simpleTrigger], varVal, cleanedString)
+    checkTriggerDate('a+1d', [simpleTrigger], varVal, cleanedString);
     expect(cleanedString.cleaned).toEqual('a+1d');
 
     expect(
       checkTriggerDate('a-1d', [simpleTrigger], varVal)?.toDateString(),
     ).toEqual('Sun Dec 31 2017');
     cleanedString.cleaned = '';
-    checkTriggerDate('a-1d', [simpleTrigger], varVal, cleanedString)
+    checkTriggerDate('a-1d', [simpleTrigger], varVal, cleanedString);
     expect(cleanedString.cleaned).toEqual('a-1d');
 
     expect(
@@ -750,23 +750,28 @@ describe('utils tests', () => {
       )?.toDateString(),
     ).toEqual(undefined);
     cleanedString.cleaned = '';
-    checkTriggerDate('1 Jan 2018-1d-2d', [simpleTrigger], varVal, cleanedString)
+    checkTriggerDate(
+      '1 Jan 2018-1d-2d',
+      [simpleTrigger],
+      varVal,
+      cleanedString,
+    );
     expect(cleanedString.cleaned).toEqual('Invalid Date 1 Jan 2018-1d-2d');
 
     expect(
       checkTriggerDate('a-1m-2d', [simpleTrigger], varVal)?.toDateString(),
     ).toEqual(undefined);
     cleanedString.cleaned = '';
-    checkTriggerDate('a-1m-2d', [simpleTrigger], varVal, cleanedString)
+    checkTriggerDate('a-1m-2d', [simpleTrigger], varVal, cleanedString);
     expect(cleanedString.cleaned).toEqual('Invalid Date a-1m-2d');
 
     expect(
       checkTriggerDate('a-1m+2d', [simpleTrigger], varVal)?.toDateString(),
     ).toEqual('Sun Dec 03 2017');
     cleanedString.cleaned = '';
-    checkTriggerDate('a-1m+2d', [simpleTrigger], varVal, cleanedString)
+    checkTriggerDate('a-1m+2d', [simpleTrigger], varVal, cleanedString);
     expect(cleanedString.cleaned).toEqual('a-1m+2d');
-    
+
     expect(checkTriggerDate('nonsense', [simpleTrigger], varVal)).toEqual(
       undefined,
     );
