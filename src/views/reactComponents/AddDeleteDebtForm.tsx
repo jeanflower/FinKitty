@@ -21,7 +21,7 @@ import {
   CASH_ASSET_NAME,
 } from '../../localization/stringConstants';
 import { doCheckBeforeOverwritingExistingData } from '../../App';
-import { isATransaction } from '../../models/modelUtils';
+import { getVarVal, isATransaction } from '../../models/modelUtils';
 import {
   makeValueAbsPropFromString,
   checkTriggerDate,
@@ -212,7 +212,11 @@ export class AddDeleteDebtForm extends Component<
       return;
     }
 
-    const date = checkTriggerDate(this.state.START, this.props.model.triggers);
+    const date = checkTriggerDate(
+      this.state.START,
+      this.props.model.triggers,
+      getVarVal(this.props.model),
+    );
     const isNotADate = date === undefined;
     if (isNotADate) {
       this.props.showAlert(`Value set date should be a date`);
@@ -392,7 +396,11 @@ export class AddDeleteDebtForm extends Component<
       );
       return;
     }
-    const date = checkTriggerDate(this.state.START, this.props.model.triggers);
+    const date = checkTriggerDate(
+      this.state.START,
+      this.props.model.triggers,
+      getVarVal(this.props.model),
+    );
     const isNotADate = date === undefined;
     if (isNotADate) {
       this.props.showAlert(`Start date '${this.state.START}' should be a date`);

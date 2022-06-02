@@ -2,7 +2,8 @@ import React from 'react';
 import ReactDataGrid from 'react-data-grid';
 import { log, printDebug, showObj } from '../../utils/utils';
 import { getTriggerDate } from '../../utils/stringUtils';
-import { Trigger } from '../../types/interfaces';
+import { ModelData } from '../../types/interfaces';
+import { getVarVal } from '../../models/modelUtils';
 /**
  * Samples:
  * https://adazzle.github.io/react-data-grid/examples.html#/all-features
@@ -12,7 +13,7 @@ interface DataGridProps {
   rows: any[]; // TODO any
   columns: any[]; // TODO any
   deleteFunction: ((name: string) => Promise<boolean>) | undefined;
-  triggers: Trigger[];
+  model: ModelData;
 }
 interface DataGridState {
   colSortIndex: string;
@@ -66,6 +67,7 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
     //log(`this.props.rows.slice() indices = ${showObj(this.props.rows.slice().map((row)=>{
     //  return row['index'];
     //}))}`);
+    const v = getVarVal(this.props.model);
 
     if (sortDirection === 'NONE') {
       this.sortedIndices = this.props.rows
@@ -103,8 +105,16 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
           sortColumn === 'VALUE_SET'
         ) {
           // log(`sortColumn is time-based`);
-          const aTimeVal = getTriggerDate(aVal, this.props.triggers).getTime();
-          const bTimeVal = getTriggerDate(bVal, this.props.triggers).getTime();
+          const aTimeVal = getTriggerDate(
+            aVal,
+            this.props.model.triggers,
+            v,
+          ).getTime();
+          const bTimeVal = getTriggerDate(
+            bVal,
+            this.props.model.triggers,
+            v,
+          ).getTime();
           // this puts trigers seperate from dates
           // const aTimeVal = new Date(aVal).getTime();
           // const bTimeVal = new Date(bVal).getTime();

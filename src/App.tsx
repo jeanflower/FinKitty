@@ -1488,6 +1488,7 @@ export class AppContent extends Component<AppProps, AppState> {
               this.state.modelData,
               this.state.viewState,
               showAlert,
+              this.optimizeModel,
               this.state.optimizationChartData,
             )}{' '}
           </>
@@ -1679,7 +1680,8 @@ export class AppContent extends Component<AppProps, AppState> {
     }
   }
 
-  private async optimizeModel(): Promise<void> {
+  public async optimizeModel(): Promise<void> {
+    log(`start optimisation function`);
     const varSetting = getSettings(
       this.state.modelData.settings,
       'variable',
@@ -1744,8 +1746,10 @@ export class AppContent extends Component<AppProps, AppState> {
     const low = parseFloat(varLowSetting);
     const high = parseFloat(varHighSetting);
 
+    log(`start optimisation loop`);
     for (let step = 0; step <= varCount; step++) {
       const varVal = low + ((high - low) * step) / varCount;
+      log(`run model with variable = ${varVal}`);
       setSetting(tempModel.settings, 'variable', `${varVal}`, custom);
       const evalResult = getEvaluations(tempModel, undefined);
       const estateVal = evalResult.reportData.find((d) => {
@@ -2068,7 +2072,7 @@ export class AppContent extends Component<AppProps, AppState> {
             editable: false,
           },
         ]}
-        triggers={model.triggers}
+        model={model}
       />,
       `Settings values at ${today.toDateString()}`,
     );

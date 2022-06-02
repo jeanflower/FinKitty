@@ -120,6 +120,7 @@ import {
 import { ReportMatcherForm } from './reactComponents/ReportMatcherForm';
 import { getDisplay } from '../utils/viewUtils';
 import { getEvaluations } from '../models/evaluations';
+import { makeButton } from './reactComponents/Button';
 
 export function collapsibleFragment(
   fragment: ReactFragment | undefined,
@@ -919,7 +920,7 @@ export function assetsOrDebtsTableDiv(
             rows={rowData}
             columns={getAssetOrDebtCols(model, isDebt)}
             deleteFunction={deleteAsset}
-            triggers={model.triggers}
+            model={model}
           />
         </div>
         <p />
@@ -1299,7 +1300,7 @@ export function transactionsTableDiv(
           log(`delete transaction`);
           return deleteTransaction(completeName);
         }}
-        triggers={model.triggers}
+        model={model}
       />
     </div>,
     headingText,
@@ -1462,7 +1463,7 @@ function triggersTableDiv(
                 ),
               },
             ]}
-            triggers={model.triggers}
+            model={model}
           />
         </div>
       </fieldset>
@@ -1628,7 +1629,7 @@ function incomesTableDiv(
                 formatter: <SimpleFormatter name="category" value="unset" />,
               },
             ]}
-            triggers={model.triggers}
+            model={model}
           />
         </div>
         <p />
@@ -1790,7 +1791,7 @@ function expensesTableDiv(
                 formatter: <SimpleFormatter name="category" value="unset" />,
               },
             ]}
-            triggers={model.triggers}
+            model={model}
           />
         </div>
         <p />
@@ -1902,7 +1903,7 @@ function customSettingsTable(
           formatter: <SimpleFormatter name="hint" value="unset" />,
         },
       ]}
-      triggers={model.triggers}
+      model={model}
     />
   );
 }
@@ -1955,7 +1956,7 @@ function adjustSettingsTable(
           formatter: <SimpleFormatter name="hint" value="unset" />,
         },
       ]}
-      triggers={model.triggers}
+      model={model}
     />
   );
 }
@@ -2041,7 +2042,7 @@ export function settingsTableDiv(
               formatter: <SimpleFormatter name="hint" value="unset" />,
             },
           ]}
-          triggers={model.triggers}
+          model={model}
         />,
         `Settings about the view of the model`,
       )}
@@ -2191,7 +2192,7 @@ export function reportDiv(
             formatter: <SimpleFormatter name="source" value="unset" />,
           },
         ]}
-        triggers={model.triggers}
+        model={model}
       />
       {
         //`Table data in text form :
@@ -2369,6 +2370,7 @@ export function optimizerDiv(
   model: ModelData,
   settings: ViewSettings,
   showAlert: (arg0: string) => void,
+  optimizeFunction: () => Promise<void>,
   cd: ChartData,
 ) {
   if (!getDisplay(optimizerView)) {
@@ -2392,6 +2394,15 @@ export function optimizerDiv(
         }),
         showAlert,
         true,
+      )}
+      {makeButton(
+        'Optimise model',
+        async () => {
+          optimizeFunction();
+        },
+        `btn-optimize`,
+        `btn-optimize`,
+        'outline-secondary',
       )}
       <DataGrid
         deleteFunction={undefined}
@@ -2422,7 +2433,7 @@ export function optimizerDiv(
             formatter: <CashValueFormatter name="change" value="unset" />,
           },
         ]}
-        triggers={model.triggers}
+        model={model}
       />
       {makeContainedBarChart(cd, chartSettings, settings)}
     </div>

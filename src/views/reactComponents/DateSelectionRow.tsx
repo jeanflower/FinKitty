@@ -7,6 +7,7 @@ import { log, showObj, printDebug } from '../../utils/utils';
 import { makeDateTooltip } from '../../utils/stringUtils';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
+import { getVarVal } from '../../models/modelUtils';
 
 interface DateSelectionProps extends FormProps {
   introLabel: string;
@@ -28,7 +29,11 @@ function makeDateTooltipForRow(props: DateSelectionProps) {
   if (props.model.settings.length === 0) {
     return '';
   }
-  return makeDateTooltip(props.inputValue, props.triggers);
+  return makeDateTooltip(
+    props.inputValue,
+    props.triggers,
+    getVarVal(props.model),
+  );
 }
 export class DateSelectionRow extends Component<DateSelectionProps> {
   constructor(props: DateSelectionProps) {

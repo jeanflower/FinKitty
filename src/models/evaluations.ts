@@ -34,7 +34,6 @@ import {
   ModelData,
   Setting,
   Transaction,
-  Trigger,
   Evaluation,
   Interval,
   SettingVal,
@@ -67,6 +66,7 @@ import {
   getSettings,
   replaceCategoryWithAssetNames,
   getTodaysDate,
+  getVarVal,
 } from './modelUtils';
 
 function parseRecurrenceString(recurrence: string) {
@@ -2052,6 +2052,7 @@ function handleIncome(
 ) {
   // log(`handle income value = ${incomeValue}`);
   const triggers = model.triggers;
+  const v = getVarVal(model);
 
   // log(`handle income for moment ${moment.name}`);
 
@@ -2066,7 +2067,7 @@ function handleIncome(
     if (income === undefined) {
       throw new Error(`income ${moment.name} not found in model`);
     }
-    const incomeStartDate = getTriggerDate(income.START, triggers);
+    const incomeStartDate = getTriggerDate(income.START, triggers, v);
     // log(`income start is ${incomeStartDate}, moment date is ${moment.date}`);
     /* istanbul ignore if */
     if (incomeStartDate > moment.date) {
@@ -2094,7 +2095,7 @@ function handleIncome(
   // and it sometimes adjusts defined contributions pension asset
   // and it sometimes adjusts defined benefits pension benefit
   pensionTransactions.forEach((pt) => {
-    if (getTriggerDate(pt.DATE, triggers) > moment.date) {
+    if (getTriggerDate(pt.DATE, triggers, v) > moment.date) {
       return;
     }
     const tFromValue = parseFloat(pt.FROM_VALUE);
@@ -2440,7 +2441,7 @@ function logAssetValueString(
         values,
         growths,
         evaluations,
-        getTriggerDate(assetStart, model.triggers),
+        getTriggerDate(assetStart, model.triggers, getVarVal(model)),
         assetVal,
         parseFloat(settingVal),
         model,
@@ -2484,7 +2485,7 @@ function logAssetValueString(
         values,
         growths,
         evaluations,
-        getTriggerDate(assetStart, model.triggers),
+        getTriggerDate(assetStart, model.triggers, getVarVal(model)),
         assetName,
         assetVal,
         model,
@@ -2518,14 +2519,15 @@ function getRecurrentMoments(
   },
   prepType: string,
   type: string,
-  triggers: Trigger[],
+  model: ModelData,
   startSequenceFrom: Date,
   startExpenseOrIncomeDate: Date,
   rOIEndDate: Date,
   recurrence: string,
 ) {
+  const v = getVarVal(model);
   // log(`in getRecurrentMoments`);
-  let endDate = getTriggerDate(x.END, triggers);
+  let endDate = getTriggerDate(x.END, model.triggers, v);
   if (rOIEndDate < endDate) {
     endDate = rOIEndDate;
   }
@@ -2562,7 +2564,7 @@ function getRecurrentMoments(
       }
     }
     const startVal = x.VALUE;
-    const from = getTriggerDate(x.VALUE_SET, triggers);
+    const from = getTriggerDate(x.VALUE_SET, model.triggers, v);
     const to = roi.start;
     // log(`${x.NAME} grew between ${from} and ${to}`);
     const numMonths = diffMonths(from, to);
@@ -2581,11 +2583,11 @@ function getRecurrentMoments(
 
 function getAssetMonthlyMoments(
   asset: Asset,
-  triggers: Trigger[],
+  model: ModelData,
   rOIEndDate: Date,
 ) {
   const roi = {
-    start: getTriggerDate(asset.START, triggers),
+    start: getTriggerDate(asset.START, model.triggers, getVarVal(model)),
     end: rOIEndDate,
   };
   // log(`roi = ${showObj(roi)}`)
@@ -2615,9 +2617,11 @@ function getAssetMonthlyMoments(
 
 function getTransactionMoments(
   transaction: Transaction,
-  triggers: Trigger[],
+  model: ModelData,
   rOIEndDate: Date,
 ) {
+  const triggers = model.triggers;
+  const v = getVarVal(model);
   const newMoments: Moment[] = [];
   if (
     !transaction.NAME.startsWith(pensionTransfer) &&
@@ -2635,13 +2639,13 @@ function getTransactionMoments(
     // use ROI to limit number of moments generated
     let stop = rOIEndDate;
     if (transaction.STOP_DATE !== '') {
-      const transStop = getTriggerDate(transaction.STOP_DATE, triggers);
+      const transStop = getTriggerDate(transaction.STOP_DATE, triggers, v);
       if (stop > transStop) {
         stop = transStop;
       }
     }
     const sequenceRoi: Interval = {
-      start: getTriggerDate(transaction.DATE, triggers),
+      start: getTriggerDate(transaction.DATE, triggers, v),
       end: stop,
     };
     const transactionDates = generateSequenceOfDates(
@@ -2658,7 +2662,7 @@ function getTransactionMoments(
       });
     });
   } else {
-    const date = getTriggerDate(transaction.DATE, triggers);
+    const date = getTriggerDate(transaction.DATE, triggers, v);
     if (date < rOIEndDate) {
       newMoments.push({
         name: transaction.NAME,
@@ -2747,15 +2751,23 @@ function revalueApplied(
             scaledNumberWordParts = true;
           } else {
             /* istanbul ignore next */
-            throw new Error(
-              `proportional change to a not-number value ${wValue} not implemented`,
+            //throw new Error(
+            //  `proportional change to a not-number value ${wValue} not implemented`,
+            //);
+            log(
+              `ERROR: proportional change to a not-number value ${wValue} not implemented`,
             );
+            tToValue = 999999; // TODO  make this fail the checker
           }
         } else {
           /* istanbul ignore next */
-          throw new Error(
-            `proportional change to a not-number value ${wValue} not implemented`,
+          //throw new Error(
+          //  `proportional change to a not-number value ${wValue} not implemented`,
+          //);
+          log(
+            `ERROR: proportional change to a not-number value ${wValue} not implemented`,
           );
+          tToValue = 999999; // TODO  make this fail the checker
         }
       }
     }
@@ -3919,7 +3931,7 @@ function logPurchaseValues(
       values,
       growths,
       evaluations,
-      getTriggerDate(a.START, model.triggers),
+      getTriggerDate(a.START, model.triggers, getVarVal(model)),
       `${purchase}${a.NAME}`,
       purchaseValue,
       model,
@@ -4054,6 +4066,7 @@ function generateMoments(
   pensionTransactions: Transaction[],
 ) {
   let allMoments: Moment[] = [];
+  const v = getVarVal(model);
 
   // For each expense, work out monthly growth and
   // a set of moments starting when the expense began,
@@ -4069,9 +4082,9 @@ function generateMoments(
       cpiVal = 0.0;
     }
     logExpenseGrowth(expense, cpiVal, growths);
-    const expenseStart = getTriggerDate(expense.START, model.triggers);
+    const expenseStart = getTriggerDate(expense.START, model.triggers, v);
 
-    const expenseSetDate = getTriggerDate(expense.VALUE_SET, model.triggers);
+    const expenseSetDate = getTriggerDate(expense.VALUE_SET, model.triggers, v);
     // log(`income start is ${incomeStartDate.toDateString()}`);
     // log(`value set is ${incomeSetDate.toDateString()}`);
     // log(`shiftStartBackTo = ${shiftStartBackTo.toDateString()}`);
@@ -4084,7 +4097,7 @@ function generateMoments(
       expense,
       momentType.expensePrep,
       momentType.expense,
-      model.triggers,
+      model,
       expenseStart,
       expenseStart,
       roiEndDate,
@@ -4129,7 +4142,7 @@ function generateMoments(
       cpiVal = 0.0;
     }
     logIncomeGrowth(income, cpiVal, growths);
-    const incomeStart = getTriggerDate(income.START, model.triggers);
+    const incomeStart = getTriggerDate(income.START, model.triggers, v);
     let shiftStartBackTo = new Date(incomeStart);
 
     const dbTransaction = model.transactions.find((t) => {
@@ -4150,10 +4163,10 @@ function generateMoments(
             `with no source income`,
         );
       }
-      shiftStartBackTo = getTriggerDate(sourceIncome.START, model.triggers);
+      shiftStartBackTo = getTriggerDate(sourceIncome.START, model.triggers, v);
     }
 
-    const incomeSetDate = getTriggerDate(income.VALUE_SET, model.triggers);
+    const incomeSetDate = getTriggerDate(income.VALUE_SET, model.triggers, v);
     // log(`income start is ${incomeStartDate.toDateString()}`);
     // log(`value set is ${incomeSetDate.toDateString()}`);
     // log(`shiftStartBackTo = ${shiftStartBackTo.toDateString()}`);
@@ -4186,7 +4199,7 @@ function generateMoments(
       income,
       momentType.incomePrep,
       momentType.income,
-      model.triggers,
+      model,
       startSequenceFrom,
       incomeStart,
       roiEndDate,
@@ -4218,11 +4231,7 @@ function generateMoments(
       model,
     );
 
-    const newMoments = getAssetMonthlyMoments(
-      asset,
-      model.triggers,
-      roiEndDate,
-    );
+    const newMoments = getAssetMonthlyMoments(asset, model, roiEndDate);
     allMoments = allMoments.concat(newMoments);
 
     logAssetIncomeLiabilities(asset, liabilitiesMap);
@@ -4231,11 +4240,7 @@ function generateMoments(
   model.transactions.forEach((transaction) => {
     // one-off asset-asset transactions generate a single moment
     // recurring asset-asset transactions generate a sequence of moments
-    const newMoments = getTransactionMoments(
-      transaction,
-      model.triggers,
-      roiEndDate,
-    );
+    const newMoments = getTransactionMoments(transaction, model, roiEndDate);
     allMoments = allMoments.concat(newMoments);
 
     // some transactions affect income processing
@@ -4346,7 +4351,7 @@ function generateMoments(
           return false;
         })
         .map((a) => a.START)
-        .map((ds) => getTriggerDate(ds, model.triggers)),
+        .map((ds) => getTriggerDate(ds, model.triggers, v)),
     );
 
     // log(`referencingDates for ${setting.NAME} = ${referencingDates.map(d=>d.toDateString())}`);
@@ -4456,6 +4461,7 @@ function evaluateAllAssets(
   todaysExpenseValues: Map<string, ExpenseVal>,
   todaysSettingValues: Map<string, SettingVal>,
 ) {
+  const v = getVarVal(model);
   model.assets.forEach((asset) => {
     let val = traceEvaluationForToday(asset.NAME, values, growths);
 
@@ -4483,7 +4489,7 @@ function evaluateAllAssets(
     }
   });
   model.incomes.forEach((i) => {
-    const startDate = checkTriggerDate(i.START, model.triggers);
+    const startDate = checkTriggerDate(i.START, model.triggers, v);
     if (startDate !== undefined && startDate > today) {
       todaysIncomeValues.set(i.NAME, {
         incomeVal: 0,
@@ -4491,7 +4497,7 @@ function evaluateAllAssets(
       });
       return;
     }
-    const endDate = checkTriggerDate(i.END, model.triggers);
+    const endDate = checkTriggerDate(i.END, model.triggers, v);
     if (endDate !== undefined && endDate < today) {
       todaysIncomeValues.set(i.NAME, {
         incomeVal: 0,
@@ -4511,7 +4517,7 @@ function evaluateAllAssets(
     }
   });
   model.expenses.forEach((e) => {
-    const startDate = checkTriggerDate(e.START, model.triggers);
+    const startDate = checkTriggerDate(e.START, model.triggers, v);
     if (startDate !== undefined && startDate > today) {
       todaysExpenseValues.set(e.NAME, {
         expenseVal: 0,
@@ -4520,7 +4526,7 @@ function evaluateAllAssets(
       });
       return;
     }
-    const endDate = checkTriggerDate(e.END, model.triggers);
+    const endDate = checkTriggerDate(e.END, model.triggers, v);
     if (endDate !== undefined && endDate < today) {
       todaysExpenseValues.set(e.NAME, {
         expenseVal: 0,

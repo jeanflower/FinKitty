@@ -70,6 +70,7 @@ import {
   isAnExpense,
   isASetting,
   replaceCategoryWithAssetNames,
+  getVarVal,
 } from './modelUtils';
 
 const numberStringCache = new Map<string, boolean>();
@@ -100,15 +101,16 @@ function checkTransactionWords(
   name: string,
   word: string,
   date: string,
-  triggers: Trigger[],
-  assets: Asset[],
-  incomes: Income[],
+  model: ModelData,
 ) {
   // log(`date for check = ${getTriggerDate(date, triggers)}`);
-  const a = assets.find(
+  const triggers = model.triggers;
+  const v = getVarVal(model);
+  const a = model.assets.find(
     (as) =>
       (as.NAME === word || as.CATEGORY === word) &&
-      getTriggerDate(as.START, triggers) <= getTriggerDate(date, triggers),
+      getTriggerDate(as.START, triggers, v) <=
+        getTriggerDate(date, triggers, v),
   );
   if (a !== undefined) {
     return true;
@@ -116,12 +118,13 @@ function checkTransactionWords(
 
   // log(`name = ${name} and transaction from word ${word}`);
   // maybe t.FROM is the name of an income
-  let i = incomes.find(
+  let i = model.incomes.find(
     (is) =>
       is.NAME === word &&
       (name.startsWith(pensionDB) ||
         name.startsWith(pensionSS) ||
-        getTriggerDate(is.START, triggers) <= getTriggerDate(date, triggers)),
+        getTriggerDate(is.START, triggers, v) <=
+          getTriggerDate(date, triggers, v)),
   );
   if (i !== undefined) {
     // the word is an income
@@ -140,10 +143,11 @@ function checkTransactionWords(
   }
 
   // maybe t.FROM is an income liability
-  i = incomes.find(
+  i = model.incomes.find(
     (is) =>
       is.LIABILITY.includes(word) &&
-      getTriggerDate(is.START, triggers) <= getTriggerDate(date, triggers),
+      getTriggerDate(is.START, triggers, v) <=
+        getTriggerDate(date, triggers, v),
   );
   if (i !== undefined) {
     // the word is an income liability
@@ -260,7 +264,7 @@ export function checkAsset(a: Asset, model: ModelData): string {
     }
   }
 
-  const d = checkTriggerDate(a.START, model.triggers);
+  const d = checkTriggerDate(a.START, model.triggers, getVarVal(model));
   if (d === undefined || !checkDate(d)) {
     return `Asset start date doesn't make sense :
       ${showObj(a.START)}`;
@@ -325,7 +329,8 @@ export function checkIncome(i: Income, model: ModelData): string {
       return `Income value '${i.VALUE}' may not grow with CPI`;
     }
   }
-  const startDate = checkTriggerDate(i.START, model.triggers);
+  const v = getVarVal(model);
+  const startDate = checkTriggerDate(i.START, model.triggers, v);
   if (startDate === undefined || !checkDate(startDate)) {
     return `Income start date doesn't make sense : ${showObj(i.START)}`;
   }
@@ -333,7 +338,7 @@ export function checkIncome(i: Income, model: ModelData): string {
     return m.NAME === CASH_ASSET_NAME;
   });
   if (cashAssets.length > 0) {
-    const cashStarts = getTriggerDate(cashAssets[0].START, model.triggers);
+    const cashStarts = getTriggerDate(cashAssets[0].START, model.triggers, v);
     if (startDate < cashStarts) {
       return `Income start date must be after cash starts; ${startDate.toDateString()} is before ${cashStarts.toDateString()}`;
     }
@@ -344,11 +349,11 @@ export function checkIncome(i: Income, model: ModelData): string {
   if (taxAssets.length > 0) {
     return `We don't need taxPot any more`;
   }
-  const valueSetDate = checkTriggerDate(i.VALUE_SET, model.triggers);
+  const valueSetDate = checkTriggerDate(i.VALUE_SET, model.triggers, v);
   if (valueSetDate === undefined || !checkDate(valueSetDate)) {
     return `Income value set date doesn't make sense : ${showObj(i.VALUE_SET)}`;
   }
-  const endDate = checkTriggerDate(i.END, model.triggers);
+  const endDate = checkTriggerDate(i.END, model.triggers, v);
   if (endDate === undefined || !checkDate(endDate)) {
     return `Income end date doesn't make sense : ${showObj(i.END)}`;
   }
@@ -384,17 +389,18 @@ export function checkExpense(e: Expense, model: ModelData): string {
   if (!isNumberString(e.VALUE)) {
     return `Expense value '${e.VALUE}' is not a number`;
   }
-  const startDate = checkTriggerDate(e.START, model.triggers);
+  const v = getVarVal(model);
+  const startDate = checkTriggerDate(e.START, model.triggers, v);
   if (startDate === undefined || !checkDate(startDate)) {
     return `Expense start date doesn't make sense :
       ${showObj(e.START)}`;
   }
-  const valueSetDate = checkTriggerDate(e.VALUE_SET, model.triggers);
+  const valueSetDate = checkTriggerDate(e.VALUE_SET, model.triggers, v);
   if (valueSetDate === undefined || !checkDate(valueSetDate)) {
     return `Expense value set date doesn't make sense :
       ${showObj(e.VALUE_SET)}`;
   }
-  const endDate = checkTriggerDate(e.END, model.triggers);
+  const endDate = checkTriggerDate(e.END, model.triggers, v);
   if (endDate === undefined || !checkDate(endDate)) {
     return `Expense end date doesn't make sense :
       ${showObj(e.END)}`;
@@ -435,16 +441,10 @@ function checkTransactionFrom(word: string, settings: Setting[]) {
   return `Transaction 'from' value must be numbers or a setting, not ${word}`;
 }
 
-function checkTransactionTo(
-  word: string,
-  t: Transaction,
-  assets: Asset[],
-  incomes: Income[],
-  expenses: Expense[],
-  triggers: Trigger[],
-  settings: Setting[],
-) {
-  const a = assets.find((as) => as.NAME === word || as.CATEGORY === word);
+function checkTransactionTo(word: string, t: Transaction, model: ModelData) {
+  const v = getVarVal(model);
+  const triggers = model.triggers;
+  const a = model.assets.find((as) => as.NAME === word || as.CATEGORY === word);
   if (a !== undefined) {
     if (t.NAME.startsWith(pensionDB)) {
       return `Transaction ${getDisplayName(
@@ -452,7 +452,9 @@ function checkTransactionTo(
         t.TYPE,
       )} should have TO an income not an asset : ${a.NAME}`;
     }
-    if (getTriggerDate(a.START, triggers) > getTriggerDate(t.DATE, triggers)) {
+    if (
+      getTriggerDate(a.START, triggers, v) > getTriggerDate(t.DATE, triggers, v)
+    ) {
       return (
         `Transaction ${getDisplayName(t.NAME, t.TYPE)} dated before start ` +
         `of affected asset : ${a.NAME}`
@@ -461,7 +463,7 @@ function checkTransactionTo(
     return '';
   }
 
-  const i = incomes.find((ic) => ic.NAME === word);
+  const i = model.incomes.find((ic) => ic.NAME === word);
   if (i !== undefined) {
     if (
       !t.NAME.startsWith(revalue) &&
@@ -484,7 +486,8 @@ function checkTransactionTo(
     // transacting on an income - check dates
     if (!t.NAME.startsWith(pensionDB)) {
       if (
-        getTriggerDate(i.START, triggers) > getTriggerDate(t.DATE, triggers)
+        getTriggerDate(i.START, triggers, v) >
+        getTriggerDate(t.DATE, triggers, v)
       ) {
         return (
           `Transaction ${getDisplayName(t.NAME, t.TYPE)} dated before start ` +
@@ -495,7 +498,7 @@ function checkTransactionTo(
     return '';
   }
 
-  const exp = expenses.find((e) => e.NAME === word);
+  const exp = model.expenses.find((e) => e.NAME === word);
   if (exp !== undefined) {
     // transacting on an expense - must be a revaluation
     if (!t.NAME.startsWith(revalue)) {
@@ -503,14 +506,17 @@ function checkTransactionTo(
     }
     // transacting on an expense - check dates
     if (
-      getTriggerDate(exp.START, triggers) > getTriggerDate(t.DATE, triggers)
+      getTriggerDate(exp.START, triggers, v) >
+      getTriggerDate(t.DATE, triggers, v)
     ) {
       return (
         `Transaction ${getDisplayName(t.NAME, t.TYPE)} dated before start ` +
         `of affected expense : ${exp.NAME}`
       );
     }
-    if (getTriggerDate(exp.END, triggers) < getTriggerDate(t.DATE, triggers)) {
+    if (
+      getTriggerDate(exp.END, triggers, v) < getTriggerDate(t.DATE, triggers, v)
+    ) {
       return (
         `Transaction ${getDisplayName(t.NAME, t.TYPE)} dated after end ` +
         `of affected expense : ${exp.NAME}`
@@ -519,7 +525,7 @@ function checkTransactionTo(
     return '';
   }
 
-  const s = settings.find((s) => s.NAME === word);
+  const s = model.settings.find((s) => s.NAME === word);
   if (s !== undefined) {
     // transacting on an setting - must be a revaluation
     if (!t.NAME.startsWith(revalue)) {
@@ -920,22 +926,20 @@ function isPayOffDebtType(t: Transaction, model: ModelData) {
 
 export function checkTransaction(t: Transaction, model: ModelData): string {
   // log(`checking transaction ${showObj(t)}`);
-  const { assets, incomes, expenses, triggers, settings } = model;
+  const { triggers, settings } = model;
   if (t.NAME.length === 0) {
     return 'Transaction name needs some characters';
   }
   if (t.NAME.startsWith(conditional) && t.TO === '') {
     return `Conditional transaction ${t.NAME} needs a 'To' asset defined`;
   }
-  const d = checkTriggerDate(t.DATE, triggers);
+  const d = checkTriggerDate(t.DATE, triggers, getVarVal(model));
   if (d === undefined || !checkDate(d)) {
     return `Transaction ${t.NAME} has bad date : ${showObj(t.DATE)}`;
   }
   // log(`transaction date ${getTriggerDate(t.DATE, triggers)}`);
   if (t.FROM !== '') {
-    if (
-      !checkTransactionWords(t.NAME, t.FROM, t.DATE, triggers, assets, incomes)
-    ) {
+    if (!checkTransactionWords(t.NAME, t.FROM, t.DATE, model)) {
       // log(`split up t.FROM ${t.FROM}`);
       const words = t.FROM.split(separator);
       // log(`words ${showObj(words)}`);
@@ -943,16 +947,7 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
       for (let i = 0; i < arrayLength; i += 1) {
         const word = words[i];
         // log(`word to check is ${word}`);
-        if (
-          !checkTransactionWords(
-            t.NAME,
-            word,
-            t.DATE,
-            triggers,
-            assets,
-            incomes,
-          )
-        ) {
+        if (!checkTransactionWords(t.NAME, word, t.DATE, model)) {
           // flag a problem
           return (
             `Transaction ${t.NAME} from unrecognised asset (could ` +
@@ -991,15 +986,7 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
       // log(`transaction to words as assets : ${words}`);
       for (let idx = 0; idx < words.length; idx += 1) {
         const w = words[idx];
-        const outcome = checkTransactionTo(
-          w,
-          t,
-          assets,
-          incomes,
-          expenses,
-          triggers,
-          settings,
-        );
+        const outcome = checkTransactionTo(w, t, model);
         if (outcome.length > 0) {
           return outcome;
         }
@@ -1021,15 +1008,7 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
       }
       */
     } else {
-      const outcome = checkTransactionTo(
-        t.TO,
-        t,
-        assets,
-        incomes,
-        expenses,
-        triggers,
-        settings,
-      );
+      const outcome = checkTransactionTo(t.TO, t, model);
       if (outcome.length > 0) {
         return outcome;
       }
@@ -1163,6 +1142,7 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
     if (!t.FROM_VALUE.startsWith(bondMaturity)) {
       return `Maturing Bond needs ${bondMaturity} as start of from value : malformed transaction ${t.NAME}`;
     }
+    const v = getVarVal(model);
     // every bondMature transaction needs a partner bondInvest transaction.
     const invests = model.transactions.filter((tInvest) => {
       if (tInvest.TYPE !== bondInvest) {
@@ -1176,12 +1156,12 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
       }
       // log(`considering ${tInvest.NAME} as investment transaction...`);
       const md = getMaturityDate(
-        new Date(getTriggerDate(tInvest.DATE, model.triggers)),
+        new Date(getTriggerDate(tInvest.DATE, model.triggers, v)),
         tInvest.NAME,
       );
       const mdDS = md.toDateString();
       const tDS = new Date(
-        getTriggerDate(t.DATE, model.triggers),
+        getTriggerDate(t.DATE, model.triggers, v),
       ).toDateString();
       if (mdDS !== tDS) {
         // log(`maturity date = ${mdDS} !== ${tDS}`);
@@ -1189,12 +1169,12 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
       }
       if (tInvest.STOP_DATE !== '' || t.STOP_DATE !== '') {
         const sd = getMaturityDate(
-          new Date(getTriggerDate(tInvest.STOP_DATE, model.triggers)),
+          new Date(getTriggerDate(tInvest.STOP_DATE, model.triggers, v)),
           tInvest.NAME,
         );
         const sdDS = sd.toDateString();
         const tsDS = new Date(
-          getTriggerDate(t.STOP_DATE, model.triggers),
+          getTriggerDate(t.STOP_DATE, model.triggers, v),
         ).toDateString();
         if (sdDS !== tsDS) {
           // log(`stop date = ${sdDS} !== ${tsDS}`);
@@ -1324,7 +1304,7 @@ export function checkTrigger(t: Trigger, model: ModelData): string {
   if (nameCheck.length > 0) {
     return nameCheck;
   }
-  if (!checkTriggerDate(t.DATE, model.triggers)) {
+  if (!checkTriggerDate(t.DATE, model.triggers, getVarVal(model))) {
     return `Your important date is not valid : ${t.DATE}`;
   }
   return '';

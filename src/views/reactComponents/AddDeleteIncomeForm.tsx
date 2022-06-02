@@ -29,7 +29,7 @@ import {
   revalueInc,
 } from '../../localization/stringConstants';
 import { doCheckBeforeOverwritingExistingData } from '../../App';
-import { isAnIncome, isATransaction } from '../../models/modelUtils';
+import { getVarVal, isAnIncome, isATransaction } from '../../models/modelUtils';
 import {
   makeValueAbsPropFromString,
   checkTriggerDate,
@@ -686,6 +686,7 @@ DB_TRANSFERRED_STOP
     const date = checkTriggerDate(
       this.state.VALUE_SET,
       this.props.model.triggers,
+      getVarVal(this.props.model),
     );
     const isNotADate = date === undefined;
     if (isNotADate) {
@@ -765,6 +766,7 @@ DB_TRANSFERRED_STOP
     let date = checkTriggerDate(
       this.state.VALUE_SET,
       this.props.model.triggers,
+      getVarVal(this.props.model),
     );
     let isNotADate = date === undefined;
     if (isNotADate) {
@@ -1080,13 +1082,21 @@ DB_TRANSFERRED_STOP
       return;
     }
 
-    date = checkTriggerDate(this.state.START, this.props.model.triggers);
+    date = checkTriggerDate(
+      this.state.START,
+      this.props.model.triggers,
+      getVarVal(this.props.model),
+    );
     isNotADate = date === undefined;
     if (isNotADate) {
       this.props.showAlert(`Start date '${this.state.START}' should be a date`);
       return;
     }
-    date = checkTriggerDate(this.state.END, this.props.model.triggers);
+    date = checkTriggerDate(
+      this.state.END,
+      this.props.model.triggers,
+      getVarVal(this.props.model),
+    );
     isNotADate = date === undefined;
     if (isNotADate) {
       this.props.showAlert(`End date '${this.state.END}' should be a date`);

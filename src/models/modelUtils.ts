@@ -21,20 +21,31 @@ import {
 } from '../utils/stringUtils';
 import { ModelData, ModelDataFromFile, Setting } from '../types/interfaces';
 import { log, showObj } from '../utils/utils';
-import { checkData } from './checks';
+import { checkData, isNumberString } from './checks';
 import { getTestModel } from './exampleModels';
 import { migrateOldVersions } from './versioningUtils';
 
+export function getVarVal(model: ModelData) {
+  let varVal = 1.0;
+  const varSetting = getSettings(model.settings, 'variable', 'missing');
+  if (varSetting !== 'missing' && isNumberString(varSetting)) {
+    const val = parseInt(varSetting);
+    varVal = val;
+  }
+  return varVal;
+}
 function cleanUpDates(
   modelFromJSON: ModelData,
   cleanUndo: boolean,
   cleanRedo: boolean,
 ): void {
+  const varVal = getVarVal(modelFromJSON);
+
   for (const t of modelFromJSON.triggers) {
     const cleaningResult = {
       cleaned: '',
     };
-    checkTriggerDate(t.DATE, modelFromJSON.triggers, cleaningResult);
+    checkTriggerDate(t.DATE, modelFromJSON.triggers, varVal, cleaningResult);
     // log(`cleaningResult = ${cleaningResult.cleaned}`);
     t.DATE = cleaningResult.cleaned;
   }

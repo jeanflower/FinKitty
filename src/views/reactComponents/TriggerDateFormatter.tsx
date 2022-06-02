@@ -4,6 +4,7 @@ import { log, printDebug } from '../../utils/utils';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
 import { makeDateTooltip, dateFormatOptions } from '../../utils/stringUtils';
+import { getVarVal } from '../../models/modelUtils';
 
 interface TriggerDateFormatterProps {
   name: string;
@@ -17,7 +18,11 @@ function makeDateTooltipLocal(props: TriggerDateFormatterProps) {
   if (props.model.settings.length === 0) {
     return '';
   }
-  return makeDateTooltip(props.value, props.model.triggers);
+  return makeDateTooltip(
+    props.value,
+    props.model.triggers,
+    getVarVal(props.model),
+  );
 }
 class TriggerDateFormatter extends React.Component<TriggerDateFormatterProps> {
   public render() {

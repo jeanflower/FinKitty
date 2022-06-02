@@ -107,7 +107,7 @@ function makeDataGrid(myMap: Map<string, ExpenseVal>, model: ModelData) {
           editable: false,
         },
       ]}
-      triggers={model.triggers}
+      model={model}
     />
   );
 }

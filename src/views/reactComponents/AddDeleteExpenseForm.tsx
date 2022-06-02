@@ -15,7 +15,7 @@ import { Input } from './Input';
 import { isNumberString } from '../../models/checks';
 import { revalue, revalueExp } from '../../localization/stringConstants';
 import { doCheckBeforeOverwritingExistingData } from '../../App';
-import { isATransaction } from '../../models/modelUtils';
+import { getVarVal, isATransaction } from '../../models/modelUtils';
 import {
   makeValueAbsPropFromString,
   checkTriggerDate,
@@ -360,6 +360,7 @@ export class AddDeleteExpenseForm extends Component<
     const date = checkTriggerDate(
       this.state.VALUE_SET,
       this.props.model.triggers,
+      getVarVal(this.props.model),
     );
     const isNotADate = date === undefined;
     if (isNotADate) {
@@ -434,19 +435,31 @@ export class AddDeleteExpenseForm extends Component<
       );
       return;
     }
-    let date = checkTriggerDate(this.state.START, this.props.model.triggers);
+    let date = checkTriggerDate(
+      this.state.START,
+      this.props.model.triggers,
+      getVarVal(this.props.model),
+    );
     let isNotADate = date === undefined;
     if (isNotADate) {
       this.props.showAlert(`Start date '${this.state.START}' should be a date`);
       return;
     }
-    date = checkTriggerDate(this.state.END, this.props.model.triggers);
+    date = checkTriggerDate(
+      this.state.END,
+      this.props.model.triggers,
+      getVarVal(this.props.model),
+    );
     isNotADate = date === undefined;
     if (isNotADate) {
       this.props.showAlert(`End date '${this.state.END}' should be a date`);
       return;
     }
-    date = checkTriggerDate(this.state.VALUE_SET, this.props.model.triggers);
+    date = checkTriggerDate(
+      this.state.VALUE_SET,
+      this.props.model.triggers,
+      getVarVal(this.props.model),
+    );
     isNotADate = date === undefined;
     if (isNotADate) {
       this.props.showAlert(`Value set date should be a date`);

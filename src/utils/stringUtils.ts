@@ -539,140 +539,14 @@ export function makeStringFromFromToValue(input: string) {
   }
 }
 
-/*
 function parseTriggerForOperator(
   triggerName: string,
   opSymbol: string,
   triggers: Trigger[],
+  varValue: number,
   recursionLevel: number,
   cleanedUp: { cleaned: string } | undefined,
 ) {
-  if (opSymbol === '?') {
-    const parts = triggerName.split('?');
-    if (parts.length !== 2) {
-      return undefined;
-    }
-    const parts2 = parts[1].split(':');
-    if (parts2.length !== 2) {
-      return undefined;
-    }
-    const condition = parts[0];
-    const ifTrue = parts2[0];
-    const ifFalse = parts2[1];
-    const parts3 = condition.split('<');
-    if (parts3.length !== 2) {
-      return undefined;
-    }
-    
-    const earlierDate: Date | undefined = checkTriggerDateRecursive(
-      parts3[0],
-      triggers,
-      recursionLevel + 1,
-      cleanedUp,
-    );
-    const laterDate: Date | undefined = checkTriggerDateRecursive(
-      parts3[1],
-      triggers,
-      recursionLevel + 1,
-      cleanedUp,
-    );
-    if (earlierDate === undefined || laterDate === undefined) {
-      return undefined;
-    }
-    if (earlierDate.getTime() < laterDate.getTime()) {
-      return checkTriggerDateRecursive(
-        ifTrue,
-        triggers,
-        recursionLevel + 1,
-        cleanedUp,
-      );
-    } else {
-      return checkTriggerDateRecursive(
-        ifFalse,
-        triggers,
-        recursionLevel + 1,
-        cleanedUp,
-      );
-    }
-  } else if (opSymbol === '+' || opSymbol === '-') {
-    const parts = triggerName.split(opSymbol);
-    if (parts.length < 2) {
-      return undefined;
-    }
-    // concantenate all early parts into one, process the last part
-    parts[0] = triggerName.substring(
-      0,
-      triggerName.length - parts[parts.length - 1].length - 1,
-    );
-    parts[1] = parts[parts.length - 1];
-
-    let numChange = 0;
-    if (opSymbol === '-') {
-      numChange = -1;
-    } else if (opSymbol === '+') {
-      numChange = 1;
-    } else {
-      return undefined;
-    }
-    const secondPartNW = getNumberAndWordParts(parts[1]);
-    if (secondPartNW.numberPart === undefined) {
-      return undefined;
-    }
-    if (
-      secondPartNW.wordPart !== 'd' &&
-      secondPartNW.wordPart !== 'm' &&
-      secondPartNW.wordPart !== 'y'
-    ) {
-      return undefined;
-    }
-
-    //no-use-before-define
-    const cleanedUpFirstPart = cleanedUp ? {
-      cleaned: ''
-    } : undefined;
-    const firstPartDate: Date | undefined = checkTriggerDateRecursive(
-      parts[0],
-      triggers,
-      recursionLevel + 1,
-      cleanedUpFirstPart,
-    );
-    if(cleanedUp){
-      cleanedUp.cleaned = `${cleanedUpFirstPart?.cleaned}${opSymbol}${parts[1]}`;
-    }
-
-    if (firstPartDate !== undefined) {
-      if (secondPartNW.wordPart === 'd') {
-        firstPartDate.setDate(
-          firstPartDate.getDate() + numChange * secondPartNW.numberPart,
-        );
-      } else if (secondPartNW.wordPart === 'm') {
-        firstPartDate.setMonth(
-          firstPartDate.getMonth() + numChange * secondPartNW.numberPart,
-        );
-      } else if (secondPartNW.wordPart === 'y') {
-        firstPartDate.setFullYear(
-          firstPartDate.getFullYear() + numChange * secondPartNW.numberPart,
-        );
-      }
-      // log(`converted ${triggerName} into ${firstPartDate.toDateString()}`);
-      return firstPartDate;
-    } else {
-      if (printDebug()) {
-        log(`Error: can't understand ${triggerName}`);
-      }
-    }
-  }
-}
-*/
-
-function parseTriggerForOperator(
-  triggerName: string,
-  opSymbol: string,
-  triggers: Trigger[],
-  recursionLevel: number,
-  cleanedUp: { cleaned: string } | undefined,
-) {
-  let numChange = 0;
   if (opSymbol === '?') {
     const parts = triggerName.split(opSymbol);
     if (parts.length === 2) {
@@ -694,24 +568,28 @@ function parseTriggerForOperator(
         const date1: Date | undefined = findMatchedTriggerDate(
           partsLessThan[0],
           triggers,
+          varValue,
           recursionLevel + 1,
           cleaned1,
         );
         const date2: Date | undefined = findMatchedTriggerDate(
           partsLessThan[1],
           triggers,
+          varValue,
           recursionLevel + 1,
           cleaned2,
         );
         const date3: Date | undefined = findMatchedTriggerDate(
           partsElse[0],
           triggers,
+          varValue,
           recursionLevel + 1,
           cleaned3,
         );
         const date4: Date | undefined = findMatchedTriggerDate(
           partsElse[1],
           triggers,
+          varValue,
           recursionLevel + 1,
           cleaned4,
         );
@@ -729,6 +607,7 @@ function parseTriggerForOperator(
     }
   }
 
+  let numChange = 0;
   if (opSymbol === '-') {
     numChange = -1;
   } else if (opSymbol === '+') {
@@ -740,6 +619,13 @@ function parseTriggerForOperator(
 
   const parts = triggerName.split(opSymbol);
   if (parts.length === 2) {
+    const varString = 'variable';
+    //    let secondPartStartsVariable = false;
+    if (parts[1].startsWith(varString)) {
+      numChange *= varValue;
+      parts[1] = parts[1].substring(varString.length);
+      //      secondPartStartsVariable = true;
+    }
     const secondPartNW = getNumberAndWordParts(parts[1]);
     if (
       secondPartNW.numberPart !== undefined &&
@@ -752,6 +638,7 @@ function parseTriggerForOperator(
       const firstPartDate: Date | undefined = findMatchedTriggerDate(
         parts[0],
         triggers,
+        varValue,
         recursionLevel + 1,
         cleanedUp,
       );
@@ -786,6 +673,7 @@ function parseTriggerForOperator(
 function findMatchedTriggerDate(
   triggerName: string,
   triggers: Trigger[],
+  varValue: number,
   recursionLevel: number,
   cleanedUp: { cleaned: string } | undefined,
 ): Date | undefined {
@@ -798,6 +686,7 @@ function findMatchedTriggerDate(
     triggerName,
     '?',
     triggers,
+    varValue,
     recursionLevel,
     cleanedUp,
   );
@@ -808,6 +697,7 @@ function findMatchedTriggerDate(
     triggerName,
     '-',
     triggers,
+    varValue,
     recursionLevel,
     cleanedUp,
   );
@@ -818,6 +708,7 @@ function findMatchedTriggerDate(
     triggerName,
     '+',
     triggers,
+    varValue,
     recursionLevel,
     cleanedUp,
   );
@@ -837,6 +728,7 @@ function findMatchedTriggerDate(
     result = checkTriggerDateRecursive(
       matched[0].DATE,
       triggers,
+      varValue, 
       recursionLevel + 1,
       undefined,
     );
@@ -877,6 +769,7 @@ function findMatchedTriggerDate(
 function checkTriggerDateRecursive(
   input: string,
   triggers: Trigger[],
+  varValue: number,
   recursionLevel: number,
   cleanedUp: { cleaned: string } | undefined,
 ) {
@@ -886,6 +779,7 @@ function checkTriggerDateRecursive(
   const matched = findMatchedTriggerDate(
     input,
     triggers,
+    varValue,
     recursionLevel,
     cleanedUp,
   );
@@ -899,18 +793,29 @@ function checkTriggerDateRecursive(
 export function checkTriggerDate(
   input: string,
   triggers: Trigger[],
+  varValue: number,
   cleanedUp: { cleaned: string } | undefined = undefined,
 ) {
   // log(`checking input ${input}`);
-  const result = checkTriggerDateRecursive(input, triggers, 0, cleanedUp);
+  const result = checkTriggerDateRecursive(
+    input,
+    triggers,
+    varValue,
+    0,
+    cleanedUp,
+  );
   // log(`checking input ${input} got result = ${result}`);
   return result;
 }
 
 // Suppresses any not-understood values and returns new Date('Invalid Date')
-export function getTriggerDate(triggerName: string, triggers: Trigger[]): Date {
+export function getTriggerDate(
+  triggerName: string,
+  triggers: Trigger[],
+  varValue: number,
+): Date {
   // log(`triggers length is ${triggers.length}`);
-  const checkResult = checkTriggerDate(triggerName, triggers);
+  const checkResult = checkTriggerDate(triggerName, triggers, varValue);
   if (checkResult !== undefined) {
     return checkResult;
   }
@@ -925,11 +830,15 @@ export const dateFormatOptions = {
 } as const;
 
 // returns a date string for a trigger, or '' for date or junk
-export function makeDateTooltip(input: string, triggers: Trigger[]) {
+export function makeDateTooltip(
+  input: string,
+  triggers: Trigger[],
+  varValue: number,
+) {
   // log(`triggers.length = ${triggers.length}`);
   let result = '';
   if (input !== '') {
-    const date = checkTriggerDate(input, triggers);
+    const date = checkTriggerDate(input, triggers, varValue);
     if (date !== undefined) {
       result = date.toLocaleDateString(undefined, dateFormatOptions);
     }

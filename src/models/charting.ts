@@ -61,7 +61,7 @@ import {
   getTriggerDate,
   deconstructTaxTag,
 } from '../utils/stringUtils';
-import { getSettings } from './modelUtils';
+import { getSettings, getVarVal } from './modelUtils';
 import { getCategory } from './category';
 
 export class ViewSettings {
@@ -1170,7 +1170,10 @@ export function makeChartData(
         if (matchingIncome === undefined) {
           throw new Error(`couldn't match income for ${evaln.name}`);
         }
-        if (evaln.date < getTriggerDate(matchingIncome.START, model.triggers)) {
+        if (
+          evaln.date <
+          getTriggerDate(matchingIncome.START, model.triggers, getVarVal(model))
+        ) {
           // we tracked this evaluation just to adjust accrued benefit
           // but don't actually received any of this income yet...
           // so skip for charting purposes

@@ -19,7 +19,7 @@ import { DateSelectionRow, itemOptions } from './DateSelectionRow';
 import { Input } from './Input';
 import { doCheckBeforeOverwritingExistingData } from '../../App';
 import { ViewSettings } from '../../models/charting';
-import { isATransaction } from '../../models/modelUtils';
+import { getVarVal, isATransaction } from '../../models/modelUtils';
 import {
   checkTriggerDate,
   makeValueAbsPropFromString,
@@ -137,7 +137,11 @@ export class AddDeleteSettingForm extends Component<
   private async revalue(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
 
-    const date = checkTriggerDate(this.state.START, this.props.model.triggers);
+    const date = checkTriggerDate(
+      this.state.START,
+      this.props.model.triggers,
+      getVarVal(this.props.model),
+    );
     const isNotADate = date === undefined;
     if (isNotADate) {
       this.props.showAlert(`Given date ${this.state.START} should be a date`);
