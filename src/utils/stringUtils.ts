@@ -620,11 +620,11 @@ function parseTriggerForOperator(
   const parts = triggerName.split(opSymbol);
   if (parts.length === 2) {
     const varString = 'variable';
-    //    let secondPartStartsVariable = false;
+    let secondPartStartsVariable = false;
     if (parts[1].startsWith(varString)) {
       numChange *= varValue;
       parts[1] = parts[1].substring(varString.length);
-      //      secondPartStartsVariable = true;
+      secondPartStartsVariable = true;
     }
     const secondPartNW = getNumberAndWordParts(parts[1]);
     if (
@@ -642,20 +642,35 @@ function parseTriggerForOperator(
         recursionLevel + 1,
         cleanedUp,
       );
+      if(cleanedUp){
+        cleanedUp.cleaned = `${cleanedUp.cleaned}${opSymbol}`;
+        if(secondPartStartsVariable){
+          cleanedUp.cleaned = `${cleanedUp.cleaned}variable`;
+        }
+      }
       /* eslint-enable */
       if (firstPartDate !== undefined) {
         if (secondPartNW.wordPart === 'd') {
           firstPartDate.setDate(
             firstPartDate.getDate() + numChange * secondPartNW.numberPart,
           );
+          if (cleanedUp) {
+            cleanedUp.cleaned = `${cleanedUp.cleaned}${secondPartNW.numberPart}d`;
+          }
         } else if (secondPartNW.wordPart === 'm') {
           firstPartDate.setMonth(
             firstPartDate.getMonth() + numChange * secondPartNW.numberPart,
           );
+          if (cleanedUp) {
+            cleanedUp.cleaned = `${cleanedUp.cleaned}${secondPartNW.numberPart}m`;
+          }
         } else if (secondPartNW.wordPart === 'y') {
           firstPartDate.setFullYear(
             firstPartDate.getFullYear() + numChange * secondPartNW.numberPart,
           );
+          if (cleanedUp) {
+            cleanedUp.cleaned = `${cleanedUp.cleaned}${secondPartNW.numberPart}y`;
+          }
         }
         // log(`converted ${triggerName} into ${firstPartDate.toDateString()}`);
         return firstPartDate;

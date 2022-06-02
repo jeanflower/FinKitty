@@ -46,7 +46,7 @@ function cleanUpDates(
       cleaned: '',
     };
     checkTriggerDate(t.DATE, modelFromJSON.triggers, varVal, cleaningResult);
-    // log(`cleaningResult = ${cleaningResult.cleaned}`);
+    // log(`cleaningResult from ${t.DATE} = ${cleaningResult.cleaned}`);
     t.DATE = cleaningResult.cleaned;
   }
 

@@ -1,18 +1,12 @@
-import { revalueSetting } from '../../localization/stringConstants';
-import { makeChartDataFromEvaluations } from '../../models/charting';
-import {
-  emptyModel,
-  simpleExpense,
-  defaultModelSettings,
-  simpleTransaction,
-} from '../../models/exampleModels';
-import { ModelData } from '../../types/interfaces';
+import { getVariableDateExampleData2 } from '../../models/exampleModels';
+import { ChartData } from '../../types/interfaces';
+import { checkTriggerDate } from '../../utils/stringUtils';
 import { log, printDebug } from '../../utils/utils';
+import { calcOptimizer } from '../../views/tablePages';
 import {
   printTestCodeForEvals,
   expectEvals,
   getTestEvaluations,
-  defaultTestViewSettings,
   expectChartData,
   printTestCodeForChart,
 } from './algoTestUtils';
@@ -28,64 +22,56 @@ describe('debug test', () => {
     printTestCodeForEvals;
   }
 
-  it('debugTest', (done) => {
-    const roi = {
-      start: 'Dec 1, 2017 00:00:00',
-      end: 'March 2, 2039 00:00:00',
+  it('debugTest', () => {
+    const varVal = 1.0;
+    const simpleTrigger = {
+      NAME: 'a',
+      DATE: '1 Jan 2018',
     };
-    const model: ModelData = {
-      ...emptyModel,
-      expenses: [
-        {
-          ...simpleExpense,
-          START: 'January 1 2028',
-          END: 'February 2 2039',
-          NAME: 'Phon',
-          VALUE: '100.0',
-          VALUE_SET: 'January 1 2019',
-          RECURRENCE: '10y',
-          CPI_IMMUNE: false,
-        },
-      ],
-      settings: [...defaultModelSettings(roi)],
-      transactions: [
-        {
-          ...simpleTransaction,
-          NAME: 'Revalue of cpi 1',
-          TO: 'cpi',
-          TO_VALUE: '10',
-          DATE: '1 March 2020',
-          TYPE: revalueSetting,
-        },
-        {
-          ...simpleTransaction,
-          NAME: 'Revalue of cpi 2',
-          TO: 'cpi',
-          TO_VALUE: '0',
-          DATE: '1 July 2020',
-          TYPE: revalueSetting,
-        },
-      ],
-    };
+    const cleanedString = { cleaned: '' };
 
-    const evalsAndValues = getTestEvaluations(model);
-    const evals = evalsAndValues.evaluations;
-    evals;
-    // log(`evals = ${showObj(evals)}`);
+    expect(
+      checkTriggerDate(
+        '1 Jan 2018-1d-2d',
+        [simpleTrigger],
+        varVal,
+      )?.toDateString(),
+    ).toEqual(undefined);
+    cleanedString.cleaned = '';
+    checkTriggerDate('1 Jan 2018-1d-2d', [simpleTrigger], varVal, cleanedString)
+    expect(cleanedString.cleaned).toEqual('Invalid Date 1 Jan 2018-1d-2d');
 
-    // printTestCodeForEvals(evals);
+    expect(
+      checkTriggerDate('a-1m-2d', [simpleTrigger], varVal)?.toDateString(),
+    ).toEqual(undefined);
+    cleanedString.cleaned = '';
+    checkTriggerDate('a-1m-2d', [simpleTrigger], varVal, cleanedString)
+    expect(cleanedString.cleaned).toEqual('Invalid Date a-1m-2d');
 
-    const viewSettings = defaultTestViewSettings();
-
-    const result = makeChartDataFromEvaluations(
-      model,
-      viewSettings,
-      evalsAndValues,
+    
+    expect(checkTriggerDate('nonsense', [simpleTrigger], varVal)).toEqual(
+      undefined,
     );
-    result;
-
-    // printTestCodeForChart(result);
-
-    done();
+    expect(
+      checkTriggerDate(
+        'nonsense<1 Nov 2018?1 Dec 2019:2 Dec 2019',
+        [simpleTrigger],
+        varVal,
+      )?.toDateString(),
+    ).toEqual(undefined);
+    expect(
+      checkTriggerDate(
+        '1 Nov 2018<nonsense?1 Dec 2019:2 Dec 2019',
+        [simpleTrigger],
+        varVal,
+      )?.toDateString(),
+    ).toEqual(undefined);
+    expect(
+      checkTriggerDate(
+        '2 Nov 2018<1 Nov 2018?1 Dec 2019:nonsense',
+        [simpleTrigger],
+        varVal,
+      )?.toDateString(),
+    ).toEqual(undefined);
   });
 });

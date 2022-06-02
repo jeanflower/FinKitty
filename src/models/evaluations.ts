@@ -5113,7 +5113,20 @@ function getEvaluationsInternal(
 
   const message = checkData(model);
   if (message.length > 0) {
-    // log(`check failed, do no evaluations: ${message}`);
+    log(`check failed, do no evaluations: ${message}`);
+    const reportData: ReportDatum[] = [
+      {
+        name: 'Error from evaluations',
+        date: new Date().toDateString(),
+        source: `check failed: ${message}`,
+        change: undefined,
+        oldVal: undefined,
+        newVal: undefined,
+        qchange: undefined,
+        qoldVal: undefined,
+        qnewVal: undefined,
+      },
+    ];
     return {
       evaluations: [],
       todaysAssetValues: todaysAssetValues,
@@ -5121,7 +5134,7 @@ function getEvaluationsInternal(
       todaysIncomeValues: todaysIncomeValues,
       todaysExpenseValues: todaysExpenseValues,
       todaysSettingValues: todaysSettingValues,
-      reportData: [],
+      reportData: reportData,
     };
   }
 
@@ -5441,6 +5454,7 @@ export function getEvaluations(
   todaysSettingValues: Map<string, SettingVal>;
   reportData: ReportDatum[];
 } {
+  // log(`Entered getEvaluations for model ${model.name}`);
   const roiStartDate: Date = makeDateFromString(
     getSettings(model.settings, roiStart, '1 Jan 1999'),
   );

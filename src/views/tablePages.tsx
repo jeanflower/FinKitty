@@ -120,7 +120,6 @@ import {
 import { ReportMatcherForm } from './reactComponents/ReportMatcherForm';
 import { getDisplay } from '../utils/viewUtils';
 import { getEvaluations } from '../models/evaluations';
-import { makeButton } from './reactComponents/Button';
 
 export function collapsibleFragment(
   fragment: ReactFragment | undefined,
@@ -2227,12 +2226,19 @@ function performOneCalc(
     ESTATE: string;
     ESTATE_VAL: number;
   }[],
+  showAlert: (msg: string) => void,
 ) {
   // log(`calculate optimisation task for varVal = ${varVal}`);
   const tempModel = makeModelFromJSON(JSON.stringify(model));
 
   setSetting(tempModel.settings, 'variable', `${varVal}`, custom);
   const evalResult = getEvaluations(tempModel, undefined);
+  const errorMsg = evalResult.reportData.find((d) => {
+    return d.name === 'Error from evaluations';
+  });
+  if (errorMsg !== undefined) {
+    showAlert(errorMsg.source);
+  }
   const estateVal = evalResult.reportData.find((d) => {
     return d.name === 'Estate final value';
   });
@@ -2257,7 +2263,10 @@ function performOneCalc(
   //);
 }
 
-export function calcOptimizer(model: ModelData): ChartData {
+export function calcOptimizer(
+  model: ModelData,
+  showAlert: (msg: string) => void,
+): ChartData {
   // log(`do populate optimizerView`);
   const noData: ChartData = {
     labels: [],
@@ -2334,7 +2343,9 @@ export function calcOptimizer(model: ModelData): ChartData {
     ESTATE_VAL: number;
   }[] = [];
   for (const varVal of varVals) {
-    performOneCalc(model, varVal, unindexedResult);
+    // this dpoesn't display right away - shame
+    // showAlert(`calc for variable = ${varVal}`);
+    performOneCalc(model, varVal, unindexedResult, showAlert);
   }
   // showAlert(`done compute...`);
   const data = addIndices(
@@ -2371,7 +2382,6 @@ export function optimizerDiv(
   model: ModelData,
   settings: ViewSettings,
   showAlert: (arg0: string) => void,
-  optimizeFunction: () => Promise<void>,
   cd: ChartData,
 ) {
   if (!getDisplay(optimizerView)) {
@@ -2386,6 +2396,16 @@ export function optimizerDiv(
     </div>
   );
   */
+  const rows = Array.from(Array(cd.labels.length).keys())
+    .map((i) => {
+      return {
+        ESTATE: `${cd.datasets[0].data[i]}`,
+        VAR: cd.labels[i],
+      };
+    })
+    .sort((a, b) => {
+      return a.VAR < b.VAR ? 1 : -1;
+    });
   return (
     <div className="ml-3">
       {adjustSettingsTable(
@@ -2396,31 +2416,17 @@ export function optimizerDiv(
         showAlert,
         true,
       )}
-      {makeButton(
-        'Optimise model',
-        async () => {
-          optimizeFunction();
-        },
-        `btn-optimize`,
-        `btn-optimize`,
-        'outline-secondary',
-      )}
       <DataGrid
         deleteFunction={undefined}
         handleGridRowsUpdated={function () {
           return false;
         }}
-        rows={Array.from(Array(cd.labels.length).keys())
-          .map((i) => {
-            return {
-              index: i,
-              ESTATE: `${cd.datasets[0].data[i]}`,
-              VAR: cd.labels[i],
-            };
-          })
-          .sort((a, b) => {
-            return a.VAR < b.VAR ? -1 : 1;
-          })}
+        rows={Array.from(Array(cd.labels.length).keys()).map((i) => {
+          return {
+            ...rows[i],
+            index: i,
+          };
+        })}
         columns={[
           {
             ...defaultColumn,
