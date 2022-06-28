@@ -34,8 +34,6 @@ import {
   nationalInsurance,
   pensionDB,
   revalue,
-  roiEnd,
-  roiStart,
   separator,
   taxChartFocusPerson,
   taxChartFocusType,
@@ -61,7 +59,7 @@ import {
   getTriggerDate,
   deconstructTaxTag,
 } from '../utils/stringUtils';
-import { getSettings, getVarVal } from './modelUtils';
+import { getROI, getSettings, getVarVal } from './modelUtils';
 import { getCategory } from './category';
 
 export class ViewSettings {
@@ -1023,16 +1021,7 @@ export function makeChartData(
     return emptyData;
   }
 
-  const roiStartDate: Date = makeDateFromString(
-    getSettings(model.settings, roiStart, 'Oct 1, 2017'),
-  );
-  const roiEndDate: Date = makeDateFromString(
-    getSettings(model.settings, roiEnd, 'Oct 1, 2022'),
-  );
-  const roi = {
-    start: roiStartDate,
-    end: roiEndDate,
-  };
+  const roi = getROI(model);
 
   let incomeNames: string[] = model.incomes.map((i) => i.NAME);
   let expenseNames: string[] = model.expenses.map((e) => e.NAME);
@@ -1172,7 +1161,11 @@ export function makeChartData(
         }
         if (
           evaln.date <
-          getTriggerDate(matchingIncome.START, model.triggers, getVarVal(model))
+          getTriggerDate(
+            matchingIncome.START,
+            model.triggers,
+            getVarVal(model.settings),
+          )
         ) {
           // we tracked this evaluation just to adjust accrued benefit
           // but don't actually received any of this income yet...

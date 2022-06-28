@@ -114,6 +114,7 @@ import { getEvaluations } from './models/evaluations';
 import {
   applyRedoToModel,
   attemptRenameLong,
+  getROI,
   getTodaysDate,
   makeModelFromJSON,
   markForUndo,
@@ -335,18 +336,9 @@ function getReporter(model: ModelData, viewSettings: ViewSettings) {
   });
   //log(`nameMatcher for reporter = ${nameMatcher}`);
 
-  const getSettingValue = (settingName: string) => {
-    let value = '';
-    const s = model.settings.find((s) => {
-      return s.NAME === settingName;
-    });
-    if (s !== undefined) {
-      value = s.VALUE;
-    }
-    return value;
-  };
-  const startDate = new Date(getSettingValue(roiStart));
-  const endDate = new Date(getSettingValue(roiEnd));
+  const viewRange = getROI(model);
+  const startDate = viewRange.start;
+  const endDate = viewRange.end;
   //log(`startDate for reporter = ${startDate}`);
   //log(`endDate for reporter = ${endDate}`);
   return (name: string, val: number | string, date: Date, source: string) => {
@@ -1356,22 +1348,13 @@ export class AppContent extends Component<AppProps, AppState> {
     // log(`this.state.reportData.length = ${this.state.reportData.length}`);
     try {
       // throw new Error('pretend something went wrong');
-
-      const getSettingValue = (settingName: string) => {
-        let value = '';
-        const s = this.state.modelData.settings.find((s) => {
-          return s.NAME === settingName;
-        });
-        if (s !== undefined) {
-          value = s.VALUE;
-        }
-        return value;
-      };
       const getStartDate = () => {
-        return getSettingValue(roiStart);
+        const start: Date = getROI(this.state.modelData).start;
+        return start.toDateString();
       };
       const getEndDate = () => {
-        return getSettingValue(roiEnd);
+        const end: Date = getROI(this.state.modelData).end;
+        return end.toDateString();
       };
       const updateSettingValue = (settingName: string, newDate: string) => {
         const s = this.state.modelData.settings.find((s) => {

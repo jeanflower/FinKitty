@@ -19,7 +19,6 @@ import {
   pensionTransfer,
   quantity,
   EvaluateAllAssets,
-  roiStart,
   purchase,
   dot,
   baseForCPI,
@@ -51,7 +50,6 @@ import { getDisplayName } from '../views/tablePages';
 import {
   getNumberAndWordParts,
   getStartQuantity,
-  makeDateFromString,
   getTriggerDate,
   makeIncomeTaxTag,
   makeNationalInsuranceTag,
@@ -67,6 +65,7 @@ import {
   replaceCategoryWithAssetNames,
   getTodaysDate,
   getVarVal,
+  getROI,
 } from './modelUtils';
 
 function parseRecurrenceString(recurrence: string) {
@@ -2052,7 +2051,7 @@ function handleIncome(
 ) {
   // log(`handle income value = ${incomeValue}`);
   const triggers = model.triggers;
-  const v = getVarVal(model);
+  const v = getVarVal(model.settings);
 
   // log(`handle income for moment ${moment.name}`);
 
@@ -2441,7 +2440,7 @@ function logAssetValueString(
         values,
         growths,
         evaluations,
-        getTriggerDate(assetStart, model.triggers, getVarVal(model)),
+        getTriggerDate(assetStart, model.triggers, getVarVal(model.settings)),
         assetVal,
         parseFloat(settingVal),
         model,
@@ -2485,7 +2484,7 @@ function logAssetValueString(
         values,
         growths,
         evaluations,
-        getTriggerDate(assetStart, model.triggers, getVarVal(model)),
+        getTriggerDate(assetStart, model.triggers, getVarVal(model.settings)),
         assetName,
         assetVal,
         model,
@@ -2525,7 +2524,7 @@ function getRecurrentMoments(
   rOIEndDate: Date,
   recurrence: string,
 ) {
-  const v = getVarVal(model);
+  const v = getVarVal(model.settings);
   // log(`in getRecurrentMoments`);
   let endDate = getTriggerDate(x.END, model.triggers, v);
   if (rOIEndDate < endDate) {
@@ -2587,7 +2586,11 @@ function getAssetMonthlyMoments(
   rOIEndDate: Date,
 ) {
   const roi = {
-    start: getTriggerDate(asset.START, model.triggers, getVarVal(model)),
+    start: getTriggerDate(
+      asset.START,
+      model.triggers,
+      getVarVal(model.settings),
+    ),
     end: rOIEndDate,
   };
   // log(`roi = ${showObj(roi)}`)
@@ -2621,7 +2624,7 @@ function getTransactionMoments(
   rOIEndDate: Date,
 ) {
   const triggers = model.triggers;
-  const v = getVarVal(model);
+  const v = getVarVal(model.settings);
   const newMoments: Moment[] = [];
   if (
     !transaction.NAME.startsWith(pensionTransfer) &&
@@ -3931,7 +3934,7 @@ function logPurchaseValues(
       values,
       growths,
       evaluations,
-      getTriggerDate(a.START, model.triggers, getVarVal(model)),
+      getTriggerDate(a.START, model.triggers, getVarVal(model.settings)),
       `${purchase}${a.NAME}`,
       purchaseValue,
       model,
@@ -4066,7 +4069,7 @@ function generateMoments(
   pensionTransactions: Transaction[],
 ) {
   let allMoments: Moment[] = [];
-  const v = getVarVal(model);
+  const v = getVarVal(model.settings);
 
   // For each expense, work out monthly growth and
   // a set of moments starting when the expense began,
@@ -4461,7 +4464,7 @@ function evaluateAllAssets(
   todaysExpenseValues: Map<string, ExpenseVal>,
   todaysSettingValues: Map<string, SettingVal>,
 ) {
-  const v = getVarVal(model);
+  const v = getVarVal(model.settings);
   model.assets.forEach((asset) => {
     let val = traceEvaluationForToday(asset.NAME, values, growths);
 
@@ -5158,16 +5161,13 @@ function getEvaluationsInternal(
     getSettings(model.settings, cpi, '0.0'),
   );
 
+  const viewRange = getROI(model);
   // We set a start date to set, for example, our CPI base value to 1.0.
-  const roiStartDate: Date = makeDateFromString(
-    getSettings(model.settings, roiStart, '1 Jan 1999'),
-  );
+  const roiStartDate: Date = viewRange.start;
   // log(`roiStartDate = ${roiStartDate}`);
 
   // We set an end date to act as a stop for recurrent events.
-  const roiEndDate: Date = makeDateFromString(
-    getSettings(model.settings, roiEnd, '1 Jan 1999'),
-  );
+  const roiEndDate: Date = viewRange.end;
   // log(`roiEndDate = ${roiEndDate}`);
 
   // might be set using a settings value
@@ -5455,12 +5455,9 @@ export function getEvaluations(
   reportData: ReportDatum[];
 } {
   // log(`Entered getEvaluations for model ${model.name}`);
-  const roiStartDate: Date = makeDateFromString(
-    getSettings(model.settings, roiStart, '1 Jan 1999'),
-  );
-  let roiEndDate: Date = makeDateFromString(
-    getSettings(model.settings, roiEnd, '1 Jan 1999'),
-  );
+  const viewRange = getROI(model);
+  const roiStartDate: Date = viewRange.start;
+  let roiEndDate: Date = viewRange.end;
   const maturityTransactions = model.transactions.filter((t) => {
     return t.FROM_VALUE.startsWith(bondMaturity) && t.TO === CASH_ASSET_NAME;
   });

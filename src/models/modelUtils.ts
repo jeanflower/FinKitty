@@ -25,9 +25,9 @@ import { checkData, isNumberString } from './checks';
 import { getTestModel } from './exampleModels';
 import { migrateOldVersions } from './versioningUtils';
 
-export function getVarVal(model: ModelData) {
+export function getVarVal(settings: Setting[]) {
   let varVal = 1.0;
-  const varSetting = getSettings(model.settings, 'variable', 'missing', false);
+  const varSetting = getSettings(settings, 'variable', 'missing', false);
   if (varSetting !== 'missing' && isNumberString(varSetting)) {
     const val = parseInt(varSetting);
     varVal = val;
@@ -39,7 +39,7 @@ function cleanUpDates(
   cleanUndo: boolean,
   cleanRedo: boolean,
 ): void {
-  const varVal = getVarVal(modelFromJSON);
+  const varVal = getVarVal(modelFromJSON.settings);
 
   for (const t of modelFromJSON.triggers) {
     const cleaningResult = {
@@ -174,6 +174,22 @@ export function getTodaysDate(model: ModelData) {
     today = new Date(todaysDate);
   }
   return today;
+}
+
+export function getROI(model: ModelData): {
+  start: Date;
+  end: Date;
+} {
+  const start = getSettings(model.settings, roiStart, 'noneFound');
+  const end = getSettings(model.settings, roiEnd, 'noneFound');
+  const v = getVarVal(model.settings);
+
+  const startDate = checkTriggerDate(start, model.triggers, v);
+  const endDate = checkTriggerDate(end, model.triggers, v);
+  return {
+    start: startDate !== undefined ? startDate : new Date('1999'),
+    end: endDate !== undefined ? endDate : new Date('2099'),
+  };
 }
 
 export function setROI(model: ModelData, roi: { start: string; end: string }) {
