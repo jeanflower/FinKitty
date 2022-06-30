@@ -308,92 +308,92 @@ describe(' chart data tests', () => {
     expect(result.assetData.length).toBe(4);
     expect(result.assetData[0].item.NAME).toBe('savings/savings');
     {
-    const chartPts = result.assetData[0].chartDataPoints;
-    expect(chartPts.length).toBe(16);
-    expectChartData(chartPts, 0, '37', 0, -1);
-    expectChartData(chartPts, 1, '37', 500, -1);
-    expectChartData(chartPts, 2, '38', 0, -1);
-    expectChartData(chartPts, 3, '38', 0, -1);
-    expectChartData(chartPts, 4, '38', 0, -1);
-    expectChartData(chartPts, 5, '38', 0, -1);
-    expectChartData(chartPts, 6, '38', 0, -1);
-    expectChartData(chartPts, 7, '38', 0, -1);
-    expectChartData(chartPts, 8, '38', 0, -1);
-    expectChartData(chartPts, 9, '38', 0, -1);
-    expectChartData(chartPts, 10, '38', 0, -1);
-    expectChartData(chartPts, 11, '38', 0, -1);
-    expectChartData(chartPts, 12, '38', 0, -1);
-    expectChartData(chartPts, 13, '38', 0, -1);
-    expectChartData(chartPts, 14, '39', 0, -1);
-    expectChartData(chartPts, 15, '39', 0, -1);
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(16);
+      expectChartData(chartPts, 0, '37', 0, -1);
+      expectChartData(chartPts, 1, '37', 500, -1);
+      expectChartData(chartPts, 2, '38', 0, -1);
+      expectChartData(chartPts, 3, '38', 0, -1);
+      expectChartData(chartPts, 4, '38', 0, -1);
+      expectChartData(chartPts, 5, '38', 0, -1);
+      expectChartData(chartPts, 6, '38', 0, -1);
+      expectChartData(chartPts, 7, '38', 0, -1);
+      expectChartData(chartPts, 8, '38', 0, -1);
+      expectChartData(chartPts, 9, '38', 0, -1);
+      expectChartData(chartPts, 10, '38', 0, -1);
+      expectChartData(chartPts, 11, '38', 0, -1);
+      expectChartData(chartPts, 12, '38', 0, -1);
+      expectChartData(chartPts, 13, '38', 0, -1);
+      expectChartData(chartPts, 14, '39', 0, -1);
+      expectChartData(chartPts, 15, '39', 0, -1);
     }
-    
+
     expect(result.assetData[1].item.NAME).toBe('unidentified/savings');
     {
-    const chartPts = result.assetData[1].chartDataPoints;
-    expect(chartPts.length).toBe(16);
-    expectChartData(chartPts, 0, '37', 0, -1);
-    expectChartData(chartPts, 1, '37', 0, -1);
-    expectChartData(chartPts, 2, '38', 4.74, 2);
-    expectChartData(chartPts, 3, '38', 4.83, 2);
-    expectChartData(chartPts, 4, '38', 4.92, 2);
-    expectChartData(chartPts, 5, '38', 5.01, 2);
-    expectChartData(chartPts, 6, '38', 5.10, 2);
-    expectChartData(chartPts, 7, '38', 5.19, 2);
-    expectChartData(chartPts, 8, '38', 5.28, 2);
-    expectChartData(chartPts, 9, '38', 5.38, 2);
-    expectChartData(chartPts, 10, '38', 5.48, 2);
-    expectChartData(chartPts, 11, '38', 5.58, 2);
-    expectChartData(chartPts, 12, '38', 5.68, 2);
-    expectChartData(chartPts, 13, '38', 5.78, 2);
-    expectChartData(chartPts, 14, '39', 5.88, 2);
-    expectChartData(chartPts, 15, '39', 5.03, 2);
+      const chartPts = result.assetData[1].chartDataPoints;
+      expect(chartPts.length).toBe(16);
+      expectChartData(chartPts, 0, '37', 0, -1);
+      expectChartData(chartPts, 1, '37', 0, -1);
+      expectChartData(chartPts, 2, '38', 4.74, 2);
+      expectChartData(chartPts, 3, '38', 4.83, 2);
+      expectChartData(chartPts, 4, '38', 4.92, 2);
+      expectChartData(chartPts, 5, '38', 5.01, 2);
+      expectChartData(chartPts, 6, '38', 5.1, 2);
+      expectChartData(chartPts, 7, '38', 5.19, 2);
+      expectChartData(chartPts, 8, '38', 5.28, 2);
+      expectChartData(chartPts, 9, '38', 5.38, 2);
+      expectChartData(chartPts, 10, '38', 5.48, 2);
+      expectChartData(chartPts, 11, '38', 5.58, 2);
+      expectChartData(chartPts, 12, '38', 5.68, 2);
+      expectChartData(chartPts, 13, '38', 5.78, 2);
+      expectChartData(chartPts, 14, '39', 5.88, 2);
+      expectChartData(chartPts, 15, '39', 5.03, 2);
     }
-    
+
     expect(result.assetData[2].item.NAME).toBe('growth/savings');
     {
-    const chartPts = result.assetData[2].chartDataPoints;
-    expect(chartPts.length).toBe(16);
-    expectChartData(chartPts, 0, '37', 0, -1);
-    expectChartData(chartPts, 1, '37', 0, -1);
-    expectChartData(chartPts, 2, '38', 4.30, 2);
-    expectChartData(chartPts, 3, '38', 4.38, 2);
-    expectChartData(chartPts, 4, '38', 4.46, 2);
-    expectChartData(chartPts, 5, '38', 4.54, 2);
-    expectChartData(chartPts, 6, '38', 4.62, 2);
-    expectChartData(chartPts, 7, '38', 4.70, 2);
-    expectChartData(chartPts, 8, '38', 4.79, 2);
-    expectChartData(chartPts, 9, '38', 4.87, 2);
-    expectChartData(chartPts, 10, '38', 4.96, 2);
-    expectChartData(chartPts, 11, '38', 5.05, 2);
-    expectChartData(chartPts, 12, '38', 5.14, 2);
-    expectChartData(chartPts, 13, '38', 5.24, 2);
-    expectChartData(chartPts, 14, '39', 4.48, 2);
-    expectChartData(chartPts, 15, '39', 4.56, 2);
+      const chartPts = result.assetData[2].chartDataPoints;
+      expect(chartPts.length).toBe(16);
+      expectChartData(chartPts, 0, '37', 0, -1);
+      expectChartData(chartPts, 1, '37', 0, -1);
+      expectChartData(chartPts, 2, '38', 4.3, 2);
+      expectChartData(chartPts, 3, '38', 4.38, 2);
+      expectChartData(chartPts, 4, '38', 4.46, 2);
+      expectChartData(chartPts, 5, '38', 4.54, 2);
+      expectChartData(chartPts, 6, '38', 4.62, 2);
+      expectChartData(chartPts, 7, '38', 4.7, 2);
+      expectChartData(chartPts, 8, '38', 4.79, 2);
+      expectChartData(chartPts, 9, '38', 4.87, 2);
+      expectChartData(chartPts, 10, '38', 4.96, 2);
+      expectChartData(chartPts, 11, '38', 5.05, 2);
+      expectChartData(chartPts, 12, '38', 5.14, 2);
+      expectChartData(chartPts, 13, '38', 5.24, 2);
+      expectChartData(chartPts, 14, '39', 4.48, 2);
+      expectChartData(chartPts, 15, '39', 4.56, 2);
     }
-    
+
     expect(result.assetData[3].item.NAME).toBe('sell some/savings');
     {
-    const chartPts = result.assetData[3].chartDataPoints;
-    expect(chartPts.length).toBe(16);
-    expectChartData(chartPts, 0, '37', 0, -1);
-    expectChartData(chartPts, 1, '37', 0, -1);
-    expectChartData(chartPts, 2, '38', 0, -1);
-    expectChartData(chartPts, 3, '38', 0, -1);
-    expectChartData(chartPts, 4, '38', 0, -1);
-    expectChartData(chartPts, 5, '38', 0, -1);
-    expectChartData(chartPts, 6, '38', 0, -1);
-    expectChartData(chartPts, 7, '38', 0, -1);
-    expectChartData(chartPts, 8, '38', 0, -1);
-    expectChartData(chartPts, 9, '38', 0, -1);
-    expectChartData(chartPts, 10, '38', 0, -1);
-    expectChartData(chartPts, 11, '38', 0, -1);
-    expectChartData(chartPts, 12, '38', 0, -1);
-    expectChartData(chartPts, 13, '38', 0, -1);
-    expectChartData(chartPts, 14, '39', -100, -1);
-    expectChartData(chartPts, 15, '39', 0, -1);
+      const chartPts = result.assetData[3].chartDataPoints;
+      expect(chartPts.length).toBe(16);
+      expectChartData(chartPts, 0, '37', 0, -1);
+      expectChartData(chartPts, 1, '37', 0, -1);
+      expectChartData(chartPts, 2, '38', 0, -1);
+      expectChartData(chartPts, 3, '38', 0, -1);
+      expectChartData(chartPts, 4, '38', 0, -1);
+      expectChartData(chartPts, 5, '38', 0, -1);
+      expectChartData(chartPts, 6, '38', 0, -1);
+      expectChartData(chartPts, 7, '38', 0, -1);
+      expectChartData(chartPts, 8, '38', 0, -1);
+      expectChartData(chartPts, 9, '38', 0, -1);
+      expectChartData(chartPts, 10, '38', 0, -1);
+      expectChartData(chartPts, 11, '38', 0, -1);
+      expectChartData(chartPts, 12, '38', 0, -1);
+      expectChartData(chartPts, 13, '38', 0, -1);
+      expectChartData(chartPts, 14, '39', -100, -1);
+      expectChartData(chartPts, 15, '39', 0, -1);
     }
-    
+
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
 
@@ -2297,22 +2297,22 @@ describe(' chart data tests', () => {
     expect(result.assetData.length).toBe(2);
     expect(result.assetData[0].item.NAME).toBe('Share/Share');
     {
-    const chartPts = result.assetData[0].chartDataPoints;
-    expect(chartPts.length).toBe(3);
-    expectChartData(chartPts, 0, 'Sat Jan 01 2022', 0, -1);
-    expectChartData(chartPts, 1, 'Sun Jan 01 2023', 100, -1);
-    expectChartData(chartPts, 2, 'Mon Jan 01 2024', 0, -1);
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(3);
+      expectChartData(chartPts, 0, 'Sat Jan 01 2022', 0, -1);
+      expectChartData(chartPts, 1, 'Sun Jan 01 2023', 100, -1);
+      expectChartData(chartPts, 2, 'Mon Jan 01 2024', 0, -1);
     }
-    
+
     expect(result.assetData[1].item.NAME).toBe('unidentified/Share');
     {
-    const chartPts = result.assetData[1].chartDataPoints;
-    expect(chartPts.length).toBe(3);
-    expectChartData(chartPts, 0, 'Sat Jan 01 2022', 0, -1);
-    expectChartData(chartPts, 1, 'Sun Jan 01 2023', 0, -1);
-    expectChartData(chartPts, 2, 'Mon Jan 01 2024', 100, -1);
+      const chartPts = result.assetData[1].chartDataPoints;
+      expect(chartPts.length).toBe(3);
+      expectChartData(chartPts, 0, 'Sat Jan 01 2022', 0, -1);
+      expectChartData(chartPts, 1, 'Sun Jan 01 2023', 0, -1);
+      expectChartData(chartPts, 2, 'Mon Jan 01 2024', 100, -1);
     }
-    
+
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
 
