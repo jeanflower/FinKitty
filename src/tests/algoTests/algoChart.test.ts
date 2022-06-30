@@ -2353,61 +2353,61 @@ describe(' chart data tests', () => {
     expect(result.assetData.length).toBe(3);
     expect(result.assetData[0].item.NAME).toBe('FixedTermBonds');
     {
-    const chartPts = result.assetData[0].chartDataPoints;
-    expect(chartPts.length).toBe(13);
-    expectChartData(chartPts, 0, 'Sat Apr 10 2021', 0, -1);
-    expectChartData(chartPts, 1, 'Sun Apr 10 2022', 0, -1);
-    expectChartData(chartPts, 2, 'Mon Apr 10 2023', 0, -1);
-    expectChartData(chartPts, 3, 'Wed Apr 10 2024', 11692.30, 2);
-    expectChartData(chartPts, 4, 'Thu Apr 10 2025', 11692.30, 2);
-    expectChartData(chartPts, 5, 'Fri Apr 10 2026', 11692.30, 2);
-    expectChartData(chartPts, 6, 'Sat Apr 10 2027', 11692.30, 2);
-    expectChartData(chartPts, 7, 'Mon Apr 10 2028', 11692.30, 2);
-    expectChartData(chartPts, 8, 'Tue Apr 10 2029', 0, -1);
-    expectChartData(chartPts, 9, 'Wed Apr 10 2030', 0, -1);
-    expectChartData(chartPts, 10, 'Thu Apr 10 2031', 0, -1);
-    expectChartData(chartPts, 11, 'Sat Apr 10 2032', 0, -1);
-    expectChartData(chartPts, 12, 'Sun Apr 10 2033', 0, -1);
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(13);
+      expectChartData(chartPts, 0, 'Sat Apr 10 2021', 0, -1);
+      expectChartData(chartPts, 1, 'Sun Apr 10 2022', 0, -1);
+      expectChartData(chartPts, 2, 'Mon Apr 10 2023', 0, -1);
+      expectChartData(chartPts, 3, 'Wed Apr 10 2024', 11692.3, 2);
+      expectChartData(chartPts, 4, 'Thu Apr 10 2025', 11692.3, 2);
+      expectChartData(chartPts, 5, 'Fri Apr 10 2026', 11692.3, 2);
+      expectChartData(chartPts, 6, 'Sat Apr 10 2027', 11692.3, 2);
+      expectChartData(chartPts, 7, 'Mon Apr 10 2028', 11692.3, 2);
+      expectChartData(chartPts, 8, 'Tue Apr 10 2029', 0, -1);
+      expectChartData(chartPts, 9, 'Wed Apr 10 2030', 0, -1);
+      expectChartData(chartPts, 10, 'Thu Apr 10 2031', 0, -1);
+      expectChartData(chartPts, 11, 'Sat Apr 10 2032', 0, -1);
+      expectChartData(chartPts, 12, 'Sun Apr 10 2033', 0, -1);
     }
-    
+
     expect(result.assetData[1].item.NAME).toBe('Estate');
     {
-    const chartPts = result.assetData[1].chartDataPoints;
-    expect(chartPts.length).toBe(13);
-    expectChartData(chartPts, 0, 'Sat Apr 10 2021', 0, -1);
-    expectChartData(chartPts, 1, 'Sun Apr 10 2022', 0, -1);
-    expectChartData(chartPts, 2, 'Mon Apr 10 2023', 0, -1);
-    expectChartData(chartPts, 3, 'Wed Apr 10 2024', 0, -1);
-    expectChartData(chartPts, 4, 'Thu Apr 10 2025', 0, -1);
-    expectChartData(chartPts, 5, 'Fri Apr 10 2026', 0, -1);
-    expectChartData(chartPts, 6, 'Sat Apr 10 2027', 0, -1);
-    expectChartData(chartPts, 7, 'Mon Apr 10 2028', 0, -1);
-    expectChartData(chartPts, 8, 'Tue Apr 10 2029', 0, -1);
-    expectChartData(chartPts, 9, 'Wed Apr 10 2030', 0, -1);
-    expectChartData(chartPts, 10, 'Thu Apr 10 2031', 0, -1);
-    expectChartData(chartPts, 11, 'Sat Apr 10 2032', 4432.30, 2);
-    expectChartData(chartPts, 12, 'Sun Apr 10 2033', 4432.30, 2);
+      const chartPts = result.assetData[1].chartDataPoints;
+      expect(chartPts.length).toBe(13);
+      expectChartData(chartPts, 0, 'Sat Apr 10 2021', 0, -1);
+      expectChartData(chartPts, 1, 'Sun Apr 10 2022', 0, -1);
+      expectChartData(chartPts, 2, 'Mon Apr 10 2023', 0, -1);
+      expectChartData(chartPts, 3, 'Wed Apr 10 2024', 0, -1);
+      expectChartData(chartPts, 4, 'Thu Apr 10 2025', 0, -1);
+      expectChartData(chartPts, 5, 'Fri Apr 10 2026', 0, -1);
+      expectChartData(chartPts, 6, 'Sat Apr 10 2027', 0, -1);
+      expectChartData(chartPts, 7, 'Mon Apr 10 2028', 0, -1);
+      expectChartData(chartPts, 8, 'Tue Apr 10 2029', 0, -1);
+      expectChartData(chartPts, 9, 'Wed Apr 10 2030', 0, -1);
+      expectChartData(chartPts, 10, 'Thu Apr 10 2031', 0, -1);
+      expectChartData(chartPts, 11, 'Sat Apr 10 2032', 4432.3, 2);
+      expectChartData(chartPts, 12, 'Sun Apr 10 2033', 4432.3, 2);
     }
-    
+
     expect(result.assetData[2].item.NAME).toBe('Cash');
     {
-    const chartPts = result.assetData[2].chartDataPoints;
-    expect(chartPts.length).toBe(13);
-    expectChartData(chartPts, 0, 'Sat Apr 10 2021', 0, -1);
-    expectChartData(chartPts, 1, 'Sun Apr 10 2022', 0, -1);
-    expectChartData(chartPts, 2, 'Mon Apr 10 2023', 0, -1);
-    expectChartData(chartPts, 3, 'Wed Apr 10 2024', -7260.00, 2);
-    expectChartData(chartPts, 4, 'Thu Apr 10 2025', -7260.00, 2);
-    expectChartData(chartPts, 5, 'Fri Apr 10 2026', -7260.00, 2);
-    expectChartData(chartPts, 6, 'Sat Apr 10 2027', -7260.00, 2);
-    expectChartData(chartPts, 7, 'Mon Apr 10 2028', -7260.00, 2);
-    expectChartData(chartPts, 8, 'Tue Apr 10 2029', 4432.30, 2);
-    expectChartData(chartPts, 9, 'Wed Apr 10 2030', 4432.30, 2);
-    expectChartData(chartPts, 10, 'Thu Apr 10 2031', 4432.30, 2);
-    expectChartData(chartPts, 11, 'Sat Apr 10 2032', 0, -1);
-    expectChartData(chartPts, 12, 'Sun Apr 10 2033', 0, -1);
+      const chartPts = result.assetData[2].chartDataPoints;
+      expect(chartPts.length).toBe(13);
+      expectChartData(chartPts, 0, 'Sat Apr 10 2021', 0, -1);
+      expectChartData(chartPts, 1, 'Sun Apr 10 2022', 0, -1);
+      expectChartData(chartPts, 2, 'Mon Apr 10 2023', 0, -1);
+      expectChartData(chartPts, 3, 'Wed Apr 10 2024', -7260.0, 2);
+      expectChartData(chartPts, 4, 'Thu Apr 10 2025', -7260.0, 2);
+      expectChartData(chartPts, 5, 'Fri Apr 10 2026', -7260.0, 2);
+      expectChartData(chartPts, 6, 'Sat Apr 10 2027', -7260.0, 2);
+      expectChartData(chartPts, 7, 'Mon Apr 10 2028', -7260.0, 2);
+      expectChartData(chartPts, 8, 'Tue Apr 10 2029', 4432.3, 2);
+      expectChartData(chartPts, 9, 'Wed Apr 10 2030', 4432.3, 2);
+      expectChartData(chartPts, 10, 'Thu Apr 10 2031', 4432.3, 2);
+      expectChartData(chartPts, 11, 'Sat Apr 10 2032', 0, -1);
+      expectChartData(chartPts, 12, 'Sun Apr 10 2033', 0, -1);
     }
-    
+
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
 
@@ -2479,46 +2479,46 @@ describe(' chart data tests', () => {
     expect(result.assetData.length).toBe(3);
     expect(result.assetData[0].item.NAME).toBe('FixedTermBonds');
     {
-    const chartPts = result.assetData[0].chartDataPoints;
-    expect(chartPts.length).toBe(8);
-    expectChartData(chartPts, 0, 'Fri Apr 10 2026', 11692.30, 2);
-    expectChartData(chartPts, 1, 'Sat Apr 10 2027', 11692.30, 2);
-    expectChartData(chartPts, 2, 'Mon Apr 10 2028', 11692.30, 2);
-    expectChartData(chartPts, 3, 'Tue Apr 10 2029', 0, -1);
-    expectChartData(chartPts, 4, 'Wed Apr 10 2030', 0, -1);
-    expectChartData(chartPts, 5, 'Thu Apr 10 2031', 0, -1);
-    expectChartData(chartPts, 6, 'Sat Apr 10 2032', 0, -1);
-    expectChartData(chartPts, 7, 'Sun Apr 10 2033', 0, -1);
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(8);
+      expectChartData(chartPts, 0, 'Fri Apr 10 2026', 11692.3, 2);
+      expectChartData(chartPts, 1, 'Sat Apr 10 2027', 11692.3, 2);
+      expectChartData(chartPts, 2, 'Mon Apr 10 2028', 11692.3, 2);
+      expectChartData(chartPts, 3, 'Tue Apr 10 2029', 0, -1);
+      expectChartData(chartPts, 4, 'Wed Apr 10 2030', 0, -1);
+      expectChartData(chartPts, 5, 'Thu Apr 10 2031', 0, -1);
+      expectChartData(chartPts, 6, 'Sat Apr 10 2032', 0, -1);
+      expectChartData(chartPts, 7, 'Sun Apr 10 2033', 0, -1);
     }
-    
+
     expect(result.assetData[1].item.NAME).toBe('Estate');
     {
-    const chartPts = result.assetData[1].chartDataPoints;
-    expect(chartPts.length).toBe(8);
-    expectChartData(chartPts, 0, 'Fri Apr 10 2026', 0, -1);
-    expectChartData(chartPts, 1, 'Sat Apr 10 2027', 0, -1);
-    expectChartData(chartPts, 2, 'Mon Apr 10 2028', 0, -1);
-    expectChartData(chartPts, 3, 'Tue Apr 10 2029', 0, -1);
-    expectChartData(chartPts, 4, 'Wed Apr 10 2030', 0, -1);
-    expectChartData(chartPts, 5, 'Thu Apr 10 2031', 0, -1);
-    expectChartData(chartPts, 6, 'Sat Apr 10 2032', 4432.30, 2);
-    expectChartData(chartPts, 7, 'Sun Apr 10 2033', 4432.30, 2);
+      const chartPts = result.assetData[1].chartDataPoints;
+      expect(chartPts.length).toBe(8);
+      expectChartData(chartPts, 0, 'Fri Apr 10 2026', 0, -1);
+      expectChartData(chartPts, 1, 'Sat Apr 10 2027', 0, -1);
+      expectChartData(chartPts, 2, 'Mon Apr 10 2028', 0, -1);
+      expectChartData(chartPts, 3, 'Tue Apr 10 2029', 0, -1);
+      expectChartData(chartPts, 4, 'Wed Apr 10 2030', 0, -1);
+      expectChartData(chartPts, 5, 'Thu Apr 10 2031', 0, -1);
+      expectChartData(chartPts, 6, 'Sat Apr 10 2032', 4432.3, 2);
+      expectChartData(chartPts, 7, 'Sun Apr 10 2033', 4432.3, 2);
     }
-    
+
     expect(result.assetData[2].item.NAME).toBe('Cash');
     {
-    const chartPts = result.assetData[2].chartDataPoints;
-    expect(chartPts.length).toBe(8);
-    expectChartData(chartPts, 0, 'Fri Apr 10 2026', -7260.00, 2);
-    expectChartData(chartPts, 1, 'Sat Apr 10 2027', -7260.00, 2);
-    expectChartData(chartPts, 2, 'Mon Apr 10 2028', -7260.00, 2);
-    expectChartData(chartPts, 3, 'Tue Apr 10 2029', 4432.30, 2);
-    expectChartData(chartPts, 4, 'Wed Apr 10 2030', 4432.30, 2);
-    expectChartData(chartPts, 5, 'Thu Apr 10 2031', 4432.30, 2);
-    expectChartData(chartPts, 6, 'Sat Apr 10 2032', 0, -1);
-    expectChartData(chartPts, 7, 'Sun Apr 10 2033', 0, -1);
+      const chartPts = result.assetData[2].chartDataPoints;
+      expect(chartPts.length).toBe(8);
+      expectChartData(chartPts, 0, 'Fri Apr 10 2026', -7260.0, 2);
+      expectChartData(chartPts, 1, 'Sat Apr 10 2027', -7260.0, 2);
+      expectChartData(chartPts, 2, 'Mon Apr 10 2028', -7260.0, 2);
+      expectChartData(chartPts, 3, 'Tue Apr 10 2029', 4432.3, 2);
+      expectChartData(chartPts, 4, 'Wed Apr 10 2030', 4432.3, 2);
+      expectChartData(chartPts, 5, 'Thu Apr 10 2031', 4432.3, 2);
+      expectChartData(chartPts, 6, 'Sat Apr 10 2032', 0, -1);
+      expectChartData(chartPts, 7, 'Sun Apr 10 2033', 0, -1);
     }
-    
+
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
 
