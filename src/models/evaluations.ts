@@ -648,6 +648,15 @@ function setValue(
         log(`Error: missing or zero base value!`);
       }
     }
+    /*
+    if (name.startsWith(quantity)) {
+      // we're changing the quantity of asset
+      const assetName = name.substring(quantity.length);
+      // quantity changes from oldValForEvaluations to valForEvaluations
+      // so what change does this effect to the value of the asset?
+      log(`changing quantity of ${assetName} will change its value`);
+    }
+    */
     const totalVal = applyQuantity(valForEvaluations, values, name, model);
     const totalOldVal = applyQuantity(
       oldValForEvaluations,
