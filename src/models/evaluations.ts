@@ -5456,7 +5456,19 @@ export function getEvaluations(
 } {
   // log(`Entered getEvaluations for model ${model.name}`);
   const viewRange = getROI(model);
-  const roiStartDate: Date = viewRange.start;
+  let startDateForBondMaturityCalculation: Date = viewRange.start;
+
+  const revalueTransactions = model.transactions.filter((t) => {
+    return t.TYPE === revalueSetting;
+  });
+  for (const t of revalueTransactions) {
+    const varValue = getVarVal(model.settings);
+    const tDate = getTriggerDate(t.DATE, model.triggers, varValue);
+    if (tDate < startDateForBondMaturityCalculation) {
+      startDateForBondMaturityCalculation = tDate;
+    }
+  }
+
   let roiEndDate: Date = viewRange.end;
   const maturityTransactions = model.transactions.filter((t) => {
     return t.FROM_VALUE.startsWith(bondMaturity) && t.TO === CASH_ASSET_NAME;
@@ -5496,7 +5508,7 @@ export function getEvaluations(
           {
             NAME: `${bondMaturity}base`,
             CATEGORY: '',
-            START: roiStartDate.toDateString(),
+            START: startDateForBondMaturityCalculation.toDateString(),
             VALUE: '1.0',
             QUANTITY: '', // Quantised assets have unit prices on-screen for table value
             // Quantised assets can only be transacted in unit integer quantities

@@ -94,7 +94,7 @@ describe('optimizer tests', () => {
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
 
-    printTestCodeForEvals(evals);
+    // printTestCodeForEvals(evals);
 
     expect(evals.length).toBe(34);
     expectEvals(evals, 0, 'Cash', 'Tue Jan 01 2019', 0, -1);
