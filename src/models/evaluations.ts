@@ -5470,8 +5470,8 @@ export function getEvaluations(
   const revalueTransactions = model.transactions.filter((t) => {
     return t.TYPE === revalueSetting;
   });
+  const varValue = getVarVal(model.settings);
   for (const t of revalueTransactions) {
-    const varValue = getVarVal(model.settings);
     const tDate = getTriggerDate(t.DATE, model.triggers, varValue);
     if (tDate < startDateForBondMaturityCalculation) {
       startDateForBondMaturityCalculation = tDate;
@@ -5488,9 +5488,15 @@ export function getEvaluations(
 
   if (maturityTransactions.length > 0) {
     maturityTransactions.forEach((mt) => {
-      const d = new Date(mt.DATE);
+      const d = getTriggerDate(mt.DATE, model.triggers, varValue);
       if (d > roiEndDate) {
         roiEndDate = d;
+      }
+      if (mt.STOP_DATE !== '') {
+        const stopDate = getTriggerDate(mt.STOP_DATE, model.triggers, varValue);
+        if (stopDate > roiEndDate) {
+          roiEndDate = stopDate;
+        }
       }
     });
     roiEndDate.setMonth(roiEndDate.getMonth() + 1);
