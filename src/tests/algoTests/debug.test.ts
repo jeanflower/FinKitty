@@ -2,24 +2,12 @@ import {
   viewFrequency,
   chartViewType,
   chartDeltas,
-  allItems,
-  birthDate,
-  constType,
-  cpi,
-  monthly,
-  viewType,
   annually,
 } from '../../localization/stringConstants';
 import { makeChartDataFromEvaluations } from '../../models/charting';
-import {
-  emptyModel,
-  simpleAsset,
-  simpleTransaction,
-  defaultModelSettings,
-} from '../../models/exampleModels';
-import { makeModelFromJSON, setSetting } from '../../models/modelUtils';
-import { ModelData } from '../../types/interfaces';
-import { Context, log, printDebug } from '../../utils/utils';
+import {} from '../../models/exampleModels';
+import { makeModelFromJSON } from '../../models/modelUtils';
+import { log, printDebug } from '../../utils/utils';
 import {
   printTestCodeForEvals,
   expectEvals,
