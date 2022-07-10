@@ -137,6 +137,7 @@ export function incomesDiv(
   model: ModelData,
   viewSettings: ViewSettings,
   showAlert: (arg0: string) => void,
+  deleteTransactions: (arg: string[]) => void,
   doChecks: boolean,
   incomesChartData: ChartData,
   todaysValues: Map<string, IncomeVal>,
@@ -171,6 +172,7 @@ export function incomesDiv(
       {transactionFilteredTable(
         model,
         showAlert,
+        deleteTransactions,
         doChecks,
         revalueInc,
         'Income revaluations',

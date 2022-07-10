@@ -1271,6 +1271,7 @@ export function transactionsTableDiv(
   contents: any[],
   model: ModelData,
   showAlert: (arg0: string) => void,
+  deleteTransactions: (arg: string[]) => void,
   doChecks: boolean,
   type: string,
   headingText: string,
@@ -1282,6 +1283,42 @@ export function transactionsTableDiv(
         display: 'block',
       }}
     >
+      <Button
+        onClick={() => {
+          deleteTransactions(
+            contents
+              .filter((x) => {
+                if (
+                  model.transactions.find((t) => {
+                    return t.FROM_VALUE.startsWith(`${bondMaturity}${x.TO}`);
+                  }) === undefined
+                ) {
+                  // there is no transaction from Bond Maturity + this name
+                  // so do include it for delete
+                  //log(
+                  //  `no transaction from-value ${bondMaturity}${
+                  //    x.TO
+                  //  }, do delete ${getTransactionName(x.NAME, type)}`,
+                  //);
+                  return true;
+                } else {
+                  //log(
+                  //  `found transaction from-value ${bondMaturity}${
+                  //    x.TO
+                  //  }, do not delete ${getTransactionName(x.NAME, type)}`,
+                  //);
+                  return false;
+                }
+              })
+              .map((x) => {
+                const completeName = getTransactionName(x.NAME, type);
+                return completeName;
+              }),
+          );
+        }}
+      >
+        delete all transactions
+      </Button>
       <DataGrid
         handleGridRowsUpdated={function () {
           return handleTransactionGridRowsUpdated(
@@ -1309,6 +1346,7 @@ export function transactionsTableDiv(
 export function transactionFilteredTable(
   model: ModelData,
   showAlert: (arg0: string) => void,
+  deleteTransactions: (arg: string[]) => void,
   doChecks: boolean,
   type: string,
   headingText: string,
@@ -1321,6 +1359,7 @@ export function transactionFilteredTable(
     contents,
     model,
     showAlert,
+    deleteTransactions,
     doChecks,
     type,
     headingText,
@@ -1331,6 +1370,7 @@ export function debtsDivWithHeadings(
   model: ModelData,
   todaysDebtValues: Map<string, AssetOrDebtVal>,
   showAlert: (arg0: string) => void,
+  deleteTransactions: (arg: string[]) => void,
   doChecks: boolean,
 ) {
   const debtData = assetsOrDebtsForTable(model, todaysDebtValues, true);
@@ -1346,6 +1386,7 @@ export function debtsDivWithHeadings(
       {transactionFilteredTable(
         model,
         showAlert,
+        deleteTransactions,
         doChecks,
         revalueDebt,
         'Revalue debts',
@@ -1353,6 +1394,7 @@ export function debtsDivWithHeadings(
       {transactionFilteredTable(
         model,
         showAlert,
+        deleteTransactions,
         doChecks,
         payOffDebt,
         'Pay off debts',
@@ -1365,6 +1407,7 @@ export function assetsDivWithHeadings(
   model: ModelData,
   todaysAssetValues: Map<string, AssetOrDebtVal>,
   showAlert: (arg0: string) => void,
+  deleteTransactions: (args: string[]) => void,
   doChecks: boolean,
 ) {
   const assetData = assetsOrDebtsForTable(model, todaysAssetValues, false);
@@ -1380,6 +1423,7 @@ export function assetsDivWithHeadings(
       {transactionFilteredTable(
         model,
         showAlert,
+        deleteTransactions,
         doChecks,
         liquidateAsset,
         'Liquidate assets to keep cash afloat',
@@ -1387,6 +1431,7 @@ export function assetsDivWithHeadings(
       {transactionFilteredTable(
         model,
         showAlert,
+        deleteTransactions,
         doChecks,
         revalueAsset,
         'Revalue assets',
@@ -1678,6 +1723,7 @@ function expensesTableDiv(
   model: ModelData,
   expData: any[],
   showAlert: (arg0: string) => void,
+  deleteAll: (arg: string[]) => void,
   doChecks: boolean,
 ) {
   return (
@@ -1686,6 +1732,17 @@ function expensesTableDiv(
         display: 'block',
       }}
     >
+      <Button
+        onClick={() => {
+          deleteAll(
+            expData.map((x) => {
+              return x.NAME;
+            }),
+          );
+        }}
+      >
+        delete all expenses
+      </Button>
       <fieldset>
         <div className="dataGridExpenses">
           <DataGrid
@@ -1803,6 +1860,7 @@ export function expensesTableDivWithHeading(
   model: ModelData,
   todaysValues: Map<string, ExpenseVal>,
   showAlert: (arg0: string) => void,
+  deleteExpenses: (arg: string[]) => void,
   doChecks: boolean,
 ) {
   const expData = expensesForTable(model, todaysValues);
@@ -1810,7 +1868,7 @@ export function expensesTableDivWithHeading(
     return;
   }
   return collapsibleFragment(
-    expensesTableDiv(model, expData, showAlert, doChecks),
+    expensesTableDiv(model, expData, showAlert, deleteExpenses, doChecks),
     `Expense definitions`,
   );
 }
@@ -1988,6 +2046,7 @@ function settingsTables(
 export function settingsTableDiv(
   model: ModelData,
   showAlert: (arg0: string) => void,
+  deleteTransactions: (arg: string[]) => void,
   doChecks: boolean,
 ) {
   return (
@@ -2049,6 +2108,7 @@ export function settingsTableDiv(
       {transactionFilteredTable(
         model,
         showAlert,
+        deleteTransactions,
         doChecks,
         revalueSetting,
         'Revalue settings',

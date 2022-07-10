@@ -148,6 +148,8 @@ export function expensesDiv(
   model: ModelData,
   viewSettings: ViewSettings,
   showAlert: (arg0: string) => void,
+  deleteTransactions: (arg: string[]) => void,
+  deleteExpenses: (arg: string[]) => void,
   doChecks: boolean,
   expensesChartData: ChartData,
   todaysValues: Map<string, ExpenseVal>,
@@ -177,11 +179,18 @@ export function expensesDiv(
         ),
         'Expenses data chart',
       )}
-      {expensesTableDivWithHeading(model, todaysValues, showAlert, doChecks)}
+      {expensesTableDivWithHeading(
+        model,
+        todaysValues,
+        showAlert,
+        deleteExpenses,
+        doChecks,
+      )}
       {todaysExpensesTable(model, todaysValues)}
       {transactionFilteredTable(
         model,
         showAlert,
+        deleteTransactions,
         doChecks,
         revalueExp,
         'Expense revaluations',

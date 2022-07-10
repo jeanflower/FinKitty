@@ -26,6 +26,7 @@ import { lessThan } from '../utils/stringUtils';
 import { collapsibleFragment } from './tablePages';
 import { log, printDebug } from '../utils/utils';
 import { getDisplay } from '../utils/viewUtils';
+import { AddDeleteEntryForm } from './reactComponents/AddDeleteEntryForm';
 
 function addToMap(
   name: string,
@@ -150,6 +151,7 @@ export function assetsDiv(
   model: ModelData,
   viewSettings: ViewSettings,
   showAlert: (arg0: string) => void,
+  deleteTransactions: (arg: string[]) => void,
   doChecks: boolean,
   assetChartData: ChartData,
   todaysValues: Map<string, AssetOrDebtVal>,
@@ -180,7 +182,49 @@ export function assetsDiv(
         ),
         'Asset data chart',
       )}
-      {assetsDivWithHeadings(model, todaysValues, showAlert, doChecks)}
+      <AddDeleteEntryForm
+        name="start"
+        getValue={
+          getStartDate
+            ? getStartDate
+            : () => {
+                return '';
+              }
+        }
+        submitFunction={
+          updateStartDate
+            ? updateStartDate
+            : async () => {
+                return;
+              }
+        }
+        showAlert={showAlert}
+      />
+      <AddDeleteEntryForm
+        name="end"
+        getValue={
+          getEndDate
+            ? getEndDate
+            : () => {
+                return '';
+              }
+        }
+        submitFunction={
+          updateEndDate
+            ? updateEndDate
+            : async () => {
+                return;
+              }
+        }
+        showAlert={showAlert}
+      />
+      {assetsDivWithHeadings(
+        model,
+        todaysValues,
+        showAlert,
+        deleteTransactions,
+        doChecks,
+      )}
       {todaysAssetsTable(model, todaysValues)}
       {collapsibleFragment(
         <div className="addNewAsset">

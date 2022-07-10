@@ -5104,6 +5104,16 @@ function growAndEffectMoment(
   }
 }
 
+function getEvaluationsROI(model: ModelData) {
+  const range = getROI(model);
+  const startDate = range.start;
+  const start2018 = new Date('1 Jan 2018');
+  if (start2018.getTime() < startDate.getTime()) {
+    range.start = start2018;
+  }
+  return range;
+}
+
 function getEvaluationsInternal(
   model: ModelData,
   reporter: ReportValueChecker | undefined,
@@ -5170,7 +5180,7 @@ function getEvaluationsInternal(
     getSettings(model.settings, cpi, '0.0'),
   );
 
-  const viewRange = getROI(model);
+  const viewRange = getEvaluationsROI(model);
   // We set a start date to set, for example, our CPI base value to 1.0.
   const roiStartDate: Date = viewRange.start;
   // log(`roiStartDate = ${roiStartDate}`);
@@ -5464,7 +5474,7 @@ export function getEvaluations(
   reportData: ReportDatum[];
 } {
   // log(`Entered getEvaluations for model ${model.name}`);
-  const viewRange = getROI(model);
+  const viewRange = getEvaluationsROI(model);
   let startDateForBondMaturityCalculation: Date = viewRange.start;
 
   const revalueTransactions = model.transactions.filter((t) => {
