@@ -126,6 +126,7 @@ function chartsForOverview(
 function transactionsOverviewDiv(
   model: ModelData,
   showAlert: (arg0: string) => void,
+  deleteTransactions: (arg: string[]) => void,
   doChecks: boolean,
 ) {
   const customContents = transactionsForTable(model, custom);
@@ -139,6 +140,7 @@ function transactionsOverviewDiv(
         customContents,
         model,
         showAlert,
+        deleteTransactions,
         doChecks,
         'Custom transactions',
         'Custom transactions',
@@ -147,6 +149,7 @@ function transactionsOverviewDiv(
         autogenContents,
         model,
         showAlert,
+        deleteTransactions,
         doChecks,
         'Auto-generated transactions',
         'Auto-generated transactions',
@@ -162,6 +165,8 @@ export function overviewDiv(
   todaysExpenseValues: Map<string, ExpenseVal>,
   viewSettings: ViewSettings,
   showAlert: (arg0: string) => void,
+  deleteTransactions: (arg: string[]) => void,
+  deleteExpenses: (arg: string[]) => void,
   doChecks: boolean,
   assetChartData: ChartData,
   debtChartData: ChartData,
@@ -222,6 +227,7 @@ export function overviewDiv(
         {transactionFilteredTable(
           model,
           showAlert,
+          deleteTransactions,
           doChecks,
           revalueInc,
           'Income revaluations',
@@ -230,19 +236,38 @@ export function overviewDiv(
           model,
           todaysExpenseValues,
           showAlert,
+          deleteExpenses,
           doChecks,
         )}
         {transactionFilteredTable(
           model,
           showAlert,
+          deleteTransactions,
           doChecks,
           revalueExp,
           'Expense revaluations',
         )}
-        {assetsDivWithHeadings(model, todaysAssetValues, showAlert, doChecks)}
-        {debtsDivWithHeadings(model, todaysAssetValues, showAlert, doChecks)}
-        {transactionsOverviewDiv(model, showAlert, doChecks)}
-        {settingsTableDiv(model, showAlert, doChecks)}
+        {assetsDivWithHeadings(
+          model,
+          todaysAssetValues,
+          showAlert,
+          deleteTransactions,
+          doChecks,
+        )}
+        {debtsDivWithHeadings(
+          model,
+          todaysAssetValues,
+          showAlert,
+          deleteTransactions,
+          doChecks,
+        )}
+        {transactionsOverviewDiv(
+          model,
+          showAlert,
+          deleteTransactions,
+          doChecks,
+        )}
+        {settingsTableDiv(model, showAlert, deleteTransactions, doChecks)}
       </div>
     </div>
   );
