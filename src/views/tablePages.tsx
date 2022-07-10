@@ -1449,7 +1449,7 @@ function triggersForTable(model: ModelData) {
       };
       return mapResult;
     })
-    .sort((a: Item, b: Item) => lessThan(a.NAME, b.NAME));
+    .sort((a: Item, b: Item) => lessThan(b.NAME, a.NAME));
   return addIndices(unindexedResult);
 }
 
@@ -1906,7 +1906,7 @@ function settingsForTable(model: ModelData, doShow: (s: Setting) => boolean) {
       return mapResult;
     })
     .sort((a, b) => {
-      return a.NAME < b.NAME ? -1 : 1;
+      return a.NAME < b.NAME ? 1 : -1;
     });
   return addIndices(unindexedResult);
 }
