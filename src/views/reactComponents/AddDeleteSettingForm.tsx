@@ -9,7 +9,6 @@ import {
 } from '../../types/interfaces';
 import {
   adjustableType,
-  revalue,
   revalueSetting,
 } from '../../localization/stringConstants';
 import { log, printDebug, showObj } from '../../utils/utils';
@@ -19,7 +18,7 @@ import { DateSelectionRow, itemOptions } from './DateSelectionRow';
 import { Input } from './Input';
 import { doCheckBeforeOverwritingExistingData } from '../../App';
 import { ViewSettings } from '../../models/charting';
-import { getVarVal, isATransaction } from '../../models/modelUtils';
+import { getVarVal, makeRevalueName } from '../../models/modelUtils';
 import {
   checkTriggerDate,
   makeValueAbsPropFromString,
@@ -148,12 +147,7 @@ export class AddDeleteSettingForm extends Component<
       return;
     }
 
-    let count = 1;
-    while (
-      isATransaction(`${revalue}${this.state.NAME} ${count}`, this.props.model)
-    ) {
-      count += 1;
-    }
+    const newName = makeRevalueName(this.state.NAME, this.props.model);
 
     let toAbsolute = true;
     let toValue = this.state.VALUE;
@@ -165,7 +159,7 @@ export class AddDeleteSettingForm extends Component<
     }
 
     const revalueTransaction: Transaction = {
-      NAME: `${revalue}${this.state.NAME} ${count}`,
+      NAME: `${newName}`,
       FROM: '',
       FROM_ABSOLUTE: false,
       FROM_VALUE: '0.0',

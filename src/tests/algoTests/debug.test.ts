@@ -1,11 +1,3 @@
-import {
-  viewFrequency,
-  chartViewType,
-  chartDeltas,
-  annually,
-} from '../../localization/stringConstants';
-import { makeChartDataFromEvaluations } from '../../models/charting';
-import {} from '../../models/exampleModels';
 import { makeModelFromJSON } from '../../models/modelUtils';
 import { log, printDebug } from '../../utils/utils';
 import {
@@ -13,7 +5,6 @@ import {
   expectEvals,
   expectChartData,
   printTestCodeForChart,
-  defaultTestViewSettings,
   getTestEvaluations,
 } from './algoTestUtils';
 
@@ -63,9 +54,10 @@ describe('debug test', () => {
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
+    evals;
     // log(`evals = ${showObj(evals)}`);
 
-    printTestCodeForEvals(evals);
+    // printTestCodeForEvals(evals);
 
     done();
   });

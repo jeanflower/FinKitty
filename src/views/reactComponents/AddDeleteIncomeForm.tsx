@@ -25,11 +25,14 @@ import {
   separator,
   pensionTransfer,
   autogen,
-  revalue,
   revalueInc,
 } from '../../localization/stringConstants';
 import { doCheckBeforeOverwritingExistingData } from '../../App';
-import { getVarVal, isAnIncome, isATransaction } from '../../models/modelUtils';
+import {
+  getVarVal,
+  isAnIncome,
+  makeRevalueName,
+} from '../../models/modelUtils';
 import {
   makeValueAbsPropFromString,
   checkTriggerDate,
@@ -693,15 +696,11 @@ DB_TRANSFERRED_STOP
       this.props.showAlert(`Value set date should be a date`);
       return;
     }
-    let count = 1;
-    while (
-      isATransaction(`${revalue}${this.state.NAME} ${count}`, this.props.model)
-    ) {
-      count += 1;
-    }
+
+    const newName = makeRevalueName(this.state.NAME, this.props.model);
 
     const revalueIncomeTransaction: Transaction = {
-      NAME: `${revalue}${this.state.NAME} ${count}`,
+      NAME: `${newName}`,
       FROM: '',
       FROM_ABSOLUTE: false,
       FROM_VALUE: '0.0',

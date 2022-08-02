@@ -51,6 +51,7 @@ import {
   isATransaction,
   makeModelFromJSON,
   makeModelFromJSONString,
+  makeRevalueName,
   setROI,
   setSetting,
 } from '../../models/modelUtils';
@@ -6512,5 +6513,52 @@ describe('evaluations tests', () => {
         model,
       ),
     ).toEqual('Leisure/Leisure');
+  });
+
+  it('Autoname revaluation transactions', (done) => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'May 1, 2018 00:00:00',
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'savings',
+          START: 'January 1 2018',
+          VALUE: '500',
+          GROWTH: '12',
+        },
+      ],
+      transactions: [],
+      settings: [...defaultModelSettings(roi)],
+    };
+
+    model.transactions = [
+      {
+        ...simpleTransaction,
+        NAME: 'Revaluesavings',
+        TO: 'savings',
+        TO_VALUE: '300', // market crash!
+        DATE: 'March 5 2018',
+        TYPE: revalueAsset,
+      },
+    ];
+    expect(makeRevalueName('savings', model)).toEqual('Revaluesavings 1');
+
+    model.transactions[0].NAME = 'Revaluesavings 1';
+    expect(makeRevalueName('savings', model)).toEqual('Revaluesavings 2');
+
+    model.transactions[0].NAME = 'Revaluesavings1';
+    expect(makeRevalueName('savings', model)).toEqual('Revaluesavings2');
+
+    model.transactions[0].NAME = 'Revaluesavings 01';
+    expect(makeRevalueName('savings', model)).toEqual('Revaluesavings 02');
+
+    model.transactions[0].NAME = 'Revaluesavings01';
+    expect(makeRevalueName('savings', model)).toEqual('Revaluesavings02');
+
+    done();
   });
 });

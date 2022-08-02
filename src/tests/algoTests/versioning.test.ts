@@ -19,7 +19,9 @@ import {
   makeModelFromJSONString,
   getSettings,
 } from '../../models/modelUtils';
-import { log, suppressLogs, unSuppressLogs } from '../../utils/utils';
+import { log, showObj, suppressLogs, unSuppressLogs } from '../../utils/utils';
+
+showObj;
 
 const emptyModelJSON = `{
     "triggers":[],
@@ -329,8 +331,10 @@ const v9ModelJSON = `{
   [{"NAME":"TeachingJob","VALUE":"2500","VALUE_SET":"JobStart","START":"JobStart","END":"JobStop","GROWTH":"2","CPI_IMMUNE":true,"LIABILITY":"Joe(incomeTax)/Joe(NI)","CATEGORY":""},
   {"START":"PensionBegins","END":"PensionStops","NAME":"-PT TeachersPensionScheme","VALUE":"0.0","VALUE_SET":"PensionExists","LIABILITY":"Jack(incomeTax)","GROWTH":"2","CPI_IMMUNE":true,"CATEGORY":""},
   {"START":"PensionBegins","END":"PensionTransfers","NAME":"-PDB TeachersPensionScheme","VALUE":"0","VALUE_SET":"PensionExists","LIABILITY":"Joe(incomeTax)","GROWTH":"2","CPI_IMMUNE":true,"CATEGORY":""}],
-  "expenses":[],
-  "triggers":
+  "expenses":[
+    {"NAME":"Look after dogs","CATEGORY":"living costs","START":"1 April 2018","END":"2 February 2047","VALUE":"500","VALUE_SET":"1 April 2018","CPI_IMMUNE":false,"GROWTH":"2","RECURRENCE":"1m"}
+  ],
+"triggers":
   [{"NAME":"PensionTransfers","DATE":"1 Jan 2035"},
   {"NAME":"PensionStops","DATE":"1 Jan 2040"},
   {"NAME":"PensionExists","DATE":"1 Jan 2022"},
@@ -344,12 +348,78 @@ const v9ModelJSON = `{
   {"NAME":"cpi","VALUE":"2.5","HINT":"Annual rate of inflation","TYPE":"const"},
   {"NAME":"Beginning of view range","VALUE":"1 Jan 2017","HINT":"Date at the start of range to be plotted","TYPE":"view"}],
   "transactions":
-  [{"NAME":"-PEN TeachersPensionScheme","FROM":"TeachingJob","FROM_ABSOLUTE":false,"FROM_VALUE":"0.05","TO":"","TO_ABSOLUTE":false,"TO_VALUE":"0.0","DATE":"PensionExists","STOP_DATE":"JobStop","RECURRENCE":"","CATEGORY":"","TYPE":"auto"},
-  {"NAME":"-PT TeachersPensionScheme","FROM":"-PDB TeachersPensionScheme","FROM_ABSOLUTE":false,"FROM_VALUE":"1.0","TO":"-PT TeachersPensionScheme","TO_ABSOLUTE":false,"TO_VALUE":"0.5","DATE":"PensionTransfers","STOP_DATE":"PensionStops","RECURRENCE":"","CATEGORY":"","TYPE":"auto"},
-  {"NAME":"-PDB TeachersPensionScheme","FROM":"TeachingJob","FROM_ABSOLUTE":false,"FROM_VALUE":"0.0016666666666666668","TO":"-PDB TeachersPensionScheme","TO_ABSOLUTE":false,"TO_VALUE":"1.0","DATE":"PensionExists","STOP_DATE":"JobStop","RECURRENCE":"","CATEGORY":"","TYPE":"auto"}],
-  "version":9}`;
+  [
+    {
+        "NAME": "Revalue Cash 1",
+        "FROM": "",
+        "FROM_ABSOLUTE": true,
+        "FROM_VALUE": "0.0",
+        "TO": "Cash",
+        "TO_ABSOLUTE": true,
+        "TO_VALUE": "50",
+        "DATE": "Mar 10 2018",
+        "STOP_DATE": "",
+        "RECURRENCE": "",
+        "CATEGORY": "",
+        "TYPE": "revalueAsset"
+    },
+    {
+        "NAME": "Revalue TeachingJob 1",
+        "FROM": "",
+        "FROM_ABSOLUTE": true,
+        "FROM_VALUE": "0.0",
+        "TO": "TeachingJob",
+        "TO_ABSOLUTE": true,
+        "TO_VALUE": "50",
+        "DATE": "Mar 10 2018",
+        "STOP_DATE": "",
+        "RECURRENCE": "",
+        "CATEGORY": "",
+        "TYPE": "revalueInc"
+    },
+    {
+        "NAME": "Revalue Look after dogs 9",
+        "FROM": "",
+        "FROM_ABSOLUTE": true,
+        "FROM_VALUE": "0.0",
+        "TO": "Look after dogs",
+        "TO_ABSOLUTE": true,
+        "TO_VALUE": "50",
+        "DATE": "Mar 10 2018",
+        "STOP_DATE": "",
+        "RECURRENCE": "",
+        "CATEGORY": "",
+        "TYPE": "revalueExp"
+    }],
+    "version":9}`;
 
 const v10ModelJSON = `{
+    "assets":
+    [{"NAME":"Cash","CATEGORY":"","START":"1 Jan 2019","VALUE":"0.0","QUANTITY":"","GROWTH":"0.0","CPI_IMMUNE":true,"CAN_BE_NEGATIVE":true,"IS_A_DEBT":false,"LIABILITY":"","PURCHASE_PRICE":"0.0"}],
+    "incomes":
+    [{"NAME":"TeachingJob","VALUE":"2500","VALUE_SET":"JobStart","START":"JobStart","END":"JobStop","CPI_IMMUNE":true,"LIABILITY":"Joe(incomeTax)/Joe(NI)","CATEGORY":""},
+    {"START":"PensionBegins","END":"PensionStops","NAME":"-PT TeachersPensionScheme","VALUE":"0.0","VALUE_SET":"PensionExists","LIABILITY":"Jack(incomeTax)","CPI_IMMUNE":true,"CATEGORY":""},
+    {"START":"PensionBegins","END":"PensionTransfers","NAME":"-PDB TeachersPensionScheme","VALUE":"0","VALUE_SET":"PensionExists","LIABILITY":"Joe(incomeTax)","CPI_IMMUNE":true,"CATEGORY":""}],
+    "expenses":[
+      {"NAME":"Look after dogs","CATEGORY":"living costs","START":"1 April 2018","END":"2 February 2047","VALUE":"500","VALUE_SET":"1 April 2018","CPI_IMMUNE":false,"GROWTH":"2","RECURRENCE":"1m"}
+    ],
+    "triggers":
+    [{"NAME":"PensionTransfers","DATE":"1 Jan 2035"},
+    {"NAME":"PensionStops","DATE":"1 Jan 2040"},
+    {"NAME":"PensionExists","DATE":"1 Jan 2022"},
+    {"NAME":"PensionBegins","DATE":"1 Jan 2030"},
+    {"NAME":"JobStop","DATE":"1 Jan 2028"},
+    {"NAME":"JobStart","DATE":"1 Jan 2020"}],
+    "settings":
+    [{"NAME":"Today's value focus date","VALUE":"","HINT":"Date to use for 'today's value' tables (defaults to '' meaning today)","TYPE":"view"},
+    {"NAME":"End of view range","VALUE":"1 Jan 2045","HINT":"Date at the end of range to be plotted","TYPE":"view"},
+    {"NAME":"Date of birth","VALUE":"","HINT":"Date used for representing dates as ages","TYPE":"view"},
+    {"NAME":"cpi","VALUE":"2.5","HINT":"Annual rate of inflation","TYPE":"const"},
+    {"NAME":"Beginning of view range","VALUE":"1 Jan 2017","HINT":"Date at the start of range to be plotted","TYPE":"view"}],
+    "transactions":[],
+    "version":10}`;
+
+const v11ModelJSON = `{
     "assets":
     [{"NAME":"Cash","CATEGORY":"","START":"1 Jan 2019","VALUE":"0.0","QUANTITY":"","GROWTH":"0.0","CPI_IMMUNE":true,"CAN_BE_NEGATIVE":true,"IS_A_DEBT":false,"LIABILITY":"","PURCHASE_PRICE":"0.0"}],
     "incomes":
@@ -374,7 +444,7 @@ const v10ModelJSON = `{
     [{"NAME":"-PEN TeachersPensionScheme","FROM":"TeachingJob","FROM_ABSOLUTE":false,"FROM_VALUE":"0.05","TO":"","TO_ABSOLUTE":false,"TO_VALUE":"0.0","DATE":"PensionExists","STOP_DATE":"JobStop","RECURRENCE":"","CATEGORY":"","TYPE":"auto"},
     {"NAME":"-PT TeachersPensionScheme","FROM":"-PDB TeachersPensionScheme","FROM_ABSOLUTE":false,"FROM_VALUE":"1.0","TO":"-PT TeachersPensionScheme","TO_ABSOLUTE":false,"TO_VALUE":"0.5","DATE":"PensionTransfers","STOP_DATE":"PensionStops","RECURRENCE":"","CATEGORY":"","TYPE":"auto"},
     {"NAME":"-PDB TeachersPensionScheme","FROM":"TeachingJob","FROM_ABSOLUTE":false,"FROM_VALUE":"0.0016666666666666668","TO":"-PDB TeachersPensionScheme","TO_ABSOLUTE":false,"TO_VALUE":"1.0","DATE":"PensionExists","STOP_DATE":"JobStop","RECURRENCE":"","CATEGORY":"","TYPE":"auto"}],
-    "version":10}`;
+    "version":11}`;
 
 describe('loadModelsFromJSON', () => {
   it('cleanedModel', () => {
@@ -415,7 +485,7 @@ describe('loadModelsFromJSON', () => {
 
     // log(`model = ${JSON.stringify(model)}`);
     expect(JSON.stringify(model)).toEqual(
-      `{"triggers":[],"expenses":[],"incomes":[],"assets":[{"NAME":"ISAs","CATEGORY":"stock","START":"December 2019","VALUE":"2000","GROWTH":"stockMarketGrowth","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":false,"LIABILITY":"","PURCHASE_PRICE":"0","IS_A_DEBT":false,"QUANTITY":""},{"NAME":"Cash","CATEGORY":"","START":"1 Jan 2017","VALUE":"0.0","QUANTITY":"","GROWTH":"0.0","CPI_IMMUNE":true,"CAN_BE_NEGATIVE":true,"IS_A_DEBT":false,"LIABILITY":"","PURCHASE_PRICE":"0.0"}],"transactions":[],"settings":[{"NAME":"cpi","VALUE":"2.5","HINT":"Annual rate of inflation","TYPE":"const"},{"NAME":"Beginning of view range","VALUE":"1 Jan 2017","HINT":"Date at the start of range to be plotted","TYPE":"view"},{"NAME":"End of view range","VALUE":"1 Jan 2023","HINT":"Date at the end of range to be plotted","TYPE":"view"},{"NAME":"Date of birth","VALUE":"","HINT":"Date used for representing dates as ages","TYPE":"view"},{"NAME":"Today's value focus date","VALUE":"","HINT":"Date to use for 'today's value' tables (defaults to '' meaning today)","TYPE":"view"}],"name":"","version":9}`,
+      `{"triggers":[],"expenses":[],"incomes":[],"assets":[{"NAME":"ISAs","CATEGORY":"stock","START":"December 2019","VALUE":"2000","GROWTH":"stockMarketGrowth","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":false,"LIABILITY":"","PURCHASE_PRICE":"0","IS_A_DEBT":false,"QUANTITY":""},{"NAME":"Cash","CATEGORY":"","START":"1 Jan 2017","VALUE":"0.0","QUANTITY":"","GROWTH":"0.0","CPI_IMMUNE":true,"CAN_BE_NEGATIVE":true,"IS_A_DEBT":false,"LIABILITY":"","PURCHASE_PRICE":"0.0"}],"transactions":[],"settings":[{"NAME":"cpi","VALUE":"2.5","HINT":"Annual rate of inflation","TYPE":"const"},{"NAME":"Beginning of view range","VALUE":"1 Jan 2017","HINT":"Date at the start of range to be plotted","TYPE":"view"},{"NAME":"End of view range","VALUE":"1 Jan 2023","HINT":"Date at the end of range to be plotted","TYPE":"view"},{"NAME":"Date of birth","VALUE":"","HINT":"Date used for representing dates as ages","TYPE":"view"},{"NAME":"Today's value focus date","VALUE":"","HINT":"Date to use for 'today's value' tables (defaults to '' meaning today)","TYPE":"view"}],"name":"","version":10}`,
     );
   });
   it('migrateFromV1', () => {
@@ -534,6 +604,15 @@ describe('loadModelsFromJSON', () => {
 
   it('migrateFromV9', () => {
     const jsonString = v9ModelJSON;
+    const model = makeModelFromJSON(jsonString);
+    // log(`model = ${showObj(model)}`);
+    expect(model.transactions[0].NAME).toBe('Revalue Cash 01');
+    expect(model.transactions[1].NAME).toBe('Revalue TeachingJob 01');
+    expect(model.transactions[2].NAME).toBe('Revalue Look after dogs 09');
+  });
+
+  it('migrateFromV10', () => {
+    const jsonString = v10ModelJSON;
     suppressLogs();
     const model = makeModelFromJSON(jsonString, 'versionTests');
     unSuppressLogs();
@@ -545,9 +624,9 @@ describe('loadModelsFromJSON', () => {
   });
 
   // future versions should not load - expect an error message to come out
-  it('migrateFromV10', () => {
-    const jsonString = v10ModelJSON;
-    let foundError = 'error thrown in migrateFromV10';
+  it('migrateFromV11', () => {
+    const jsonString = v11ModelJSON;
+    let foundError = 'error thrown in migrateFromV11';
     try {
       makeModelFromJSON(jsonString);
     } catch (e) {

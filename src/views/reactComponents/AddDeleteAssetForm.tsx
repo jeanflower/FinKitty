@@ -23,7 +23,6 @@ import {
   crystallizedPension,
   pensionSS,
   autogen,
-  revalue,
   revalueAsset,
   moveTaxFreePart,
   taxFree,
@@ -33,9 +32,9 @@ import {
 import { incomeOptions } from './AddDeleteIncomeForm';
 import { doCheckBeforeOverwritingExistingData } from '../../App';
 import {
-  isATransaction,
   getSettings,
   getVarVal,
+  makeRevalueName,
 } from '../../models/modelUtils';
 import {
   makeValueAbsPropFromString,
@@ -667,15 +666,10 @@ export class AddDeleteAssetForm extends Component<
       return;
     }
 
-    let count = 1;
-    while (
-      isATransaction(`${revalue}${this.state.NAME} ${count}`, this.props.model)
-    ) {
-      count += 1;
-    }
+    const newName = makeRevalueName(this.state.NAME, this.props.model);
 
     const revalueTransaction: Transaction = {
-      NAME: `${revalue}${this.state.NAME} ${count}`,
+      NAME: `${newName}`,
       FROM: '',
       FROM_ABSOLUTE: false,
       FROM_VALUE: '0.0',

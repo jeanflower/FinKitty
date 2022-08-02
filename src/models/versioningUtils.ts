@@ -29,6 +29,7 @@ import {
   crystallizedPension,
   separator,
   dot,
+  revalue,
 } from '../localization/stringConstants';
 import { ModelData, ModelDataFromFile } from '../types/interfaces';
 import { getMinimalModelCopy, viewSetting } from './exampleModels';
@@ -45,7 +46,8 @@ import { migrateViewSetting } from '../App';
 // 6; // uses -DC for pensions, even if they're DB pensions
 // 7; // uses one cyrstallizedPension pot per person
 // 8; // may have non-zero growth for incomes and expenses
-const currentVersion = 9;
+// 9: // revalue transactions numbers using double-digit scheme
+const currentVersion = 10;
 
 export function getCurrentVersion() {
   return currentVersion;
@@ -603,10 +605,26 @@ function migrateFromV8(model: ModelDataFromFile) {
   });
   model.version = 9;
 }
+function migrateFromV9(model: ModelData) {
+  // log(`migrate from v9`);
+  model.transactions
+    .filter((t) => {
+      return t.NAME.startsWith(revalue);
+    })
+    .forEach((t) => {
+      // log(`tramsaction name = ${t.NAME}`);
+      for (let count = 1; count < 10; count = count + 1) {
+        if (t.NAME.endsWith(` ${count}`)) {
+          t.NAME = `${t.NAME.substring(0, t.NAME.length - 2)} 0${count}`;
+        }
+      }
+    });
+  model.version = 10;
+}
 
 /*
-function migrateFromV9(model: ModelData){
-  model.version = 10;
+function migrateFromV10(model: ModelData){
+  model.version = 11;
 }
 */
 export function migrateOldVersions(model: ModelDataFromFile) {
@@ -642,9 +660,12 @@ export function migrateOldVersions(model: ModelDataFromFile) {
   if (model.version === 8) {
     migrateFromV8(model);
   }
-  /*
   if (model.version === 9) {
     migrateFromV9(model);
+  }
+  /*
+  if (model.version === 10) {
+    migrateFromV10(model);
   }
   */
   // log(`model after migration is ${showObj(model)}`);

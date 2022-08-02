@@ -9,6 +9,7 @@ import {
   cgt,
   incomeTax,
   nationalInsurance,
+  revalue,
 } from '../localization/stringConstants';
 import {
   getSpecialWord,
@@ -530,4 +531,48 @@ export function standardiseDates(model: ModelData): string {
   } else {
     return '';
   }
+}
+
+export function makeRevalueName(name: string, model: ModelData) {
+  let isDoubleDigit = false;
+  let hasSpace = true;
+  if (isATransaction(`${revalue}${name} 1`, model)) {
+    isDoubleDigit = false;
+    hasSpace = true;
+  } else if (isATransaction(`${revalue}${name}1`, model)) {
+    isDoubleDigit = false;
+    hasSpace = false;
+  } else if (isATransaction(`${revalue}${name} 01`, model)) {
+    isDoubleDigit = true;
+    hasSpace = true;
+  } else if (isATransaction(`${revalue}${name}01`, model)) {
+    isDoubleDigit = true;
+    hasSpace = false;
+  }
+  // log(`isDoubleDigit = ${isDoubleDigit}, hasSpace = ${hasSpace}`);
+
+  let count = 1;
+  const spacePart = hasSpace ? ' ' : '';
+  const makeNumberPart = (n: number) => {
+    if (isDoubleDigit) {
+      if (n < 10) {
+        return `0${n}`;
+      } else {
+        return `${n}`;
+      }
+    } else {
+      return `${n}`;
+    }
+  };
+  const makeName = (n: number, spacePart: string) => {
+    return `${revalue}${name}` + `${spacePart}${makeNumberPart(count)}`;
+  };
+
+  // log(`spacePart = '${spacePart}'`);
+  // log(`makeNumberPart(1) = '${makeNumberPart(1)}'`);
+  while (isATransaction(`${makeName(count, spacePart)}`, model)) {
+    count += 1;
+  }
+  const newName = makeName(count, spacePart);
+  return newName;
 }
