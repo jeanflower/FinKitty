@@ -41,6 +41,7 @@ import {
   checkTriggerDate,
   makeBooleanFromYesNo,
   makeQuantityFromString,
+  lessThan,
 } from '../../utils/stringUtils';
 import Spacer from 'react-spacer';
 
@@ -198,9 +199,13 @@ export class AddDeleteAssetForm extends Component<
         Asset name
         <Spacer height={10} />
         {itemOptions(
-          this.props.model.assets.filter((a) => {
-            return !a.IS_A_DEBT;
-          }),
+          this.props.model.assets
+            .filter((a) => {
+              return !a.IS_A_DEBT;
+            })
+            .sort((a: Asset, b: Asset) => {
+              return lessThan(a.NAME, b.NAME);
+            }),
           this.props.model,
           this.handleNameChange,
           'assetname',

@@ -20,6 +20,7 @@ import {
   makeValueAbsPropFromString,
   checkTriggerDate,
   makeBooleanFromYesNo,
+  lessThan,
 } from '../../utils/stringUtils';
 import Spacer from 'react-spacer';
 
@@ -263,7 +264,9 @@ export class AddDeleteExpenseForm extends Component<
           Expense name
           <Spacer height={10} />
           {itemOptions(
-            this.props.model.expenses,
+            this.props.model.expenses.sort((a: Expense, b: Expense) => {
+              return lessThan(a.NAME, b.NAME);
+            }),
             this.props.model,
             this.handleNameChange,
             'expensename',

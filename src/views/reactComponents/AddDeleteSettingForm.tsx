@@ -21,6 +21,7 @@ import { ViewSettings } from '../../models/charting';
 import { getVarVal, makeRevalueName } from '../../models/modelUtils';
 import {
   checkTriggerDate,
+  lessThan,
   makeValueAbsPropFromString,
 } from '../../utils/stringUtils';
 import Spacer from 'react-spacer';
@@ -272,9 +273,13 @@ export class AddDeleteSettingForm extends Component<
         Setting name
         <Spacer height={10} />
         {itemOptions(
-          this.props.model.settings.filter((s) => {
-            return s.TYPE === adjustableType;
-          }),
+          this.props.model.settings
+            .filter((s) => {
+              return s.TYPE === adjustableType;
+            })
+            .sort((a: Setting, b: Setting) => {
+              return lessThan(a.NAME, b.NAME);
+            }),
           this.props.model,
           this.handleNameChange,
           'settingname',

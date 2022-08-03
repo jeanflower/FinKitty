@@ -38,6 +38,7 @@ import {
   checkTriggerDate,
   makeBooleanFromYesNo,
   makeIncomeLiabilityFromNameAndNI,
+  lessThan,
 } from '../../utils/stringUtils';
 import Spacer from 'react-spacer';
 
@@ -294,7 +295,9 @@ export class AddDeleteIncomeForm extends Component<
           Income name
           <Spacer height={10} />
           {itemOptions(
-            this.props.model.incomes,
+            this.props.model.incomes.sort((a: Income, b: Income) => {
+              return lessThan(a.NAME, b.NAME);
+            }),
             this.props.model,
             this.handleNameChange,
             'incomenameselect',
