@@ -1535,6 +1535,13 @@ function incomesForTable(
   todaysValues: Map<string, IncomeVal>,
 ) {
   const unindexedResult = model.incomes.map((obj: Income) => {
+    let todaysVForTable = 0.0;
+    const todaysV = todaysValues.get(obj.NAME);
+    if (todaysV !== undefined) {
+      if (!todaysV.hasEnded) {
+        todaysVForTable = todaysV.incomeVal;
+      }
+    }
     const mapResult = {
       END: obj.END,
       GROWS_WITH_CPI: makeYesNoFromBoolean(!obj.CPI_IMMUNE),
@@ -1544,7 +1551,7 @@ function incomesForTable(
       VALUE_SET: obj.VALUE_SET,
       LIABILITY: obj.LIABILITY,
       CATEGORY: obj.CATEGORY,
-      TODAYSVALUE: `${todaysValues.get(obj.NAME)?.incomeVal}`,
+      TODAYSVALUE: `${todaysVForTable}`,
     };
     // log(`passing ${showObj(result)}`);
     return mapResult;
@@ -1703,6 +1710,13 @@ function expensesForTable(
   todaysValues: Map<string, ExpenseVal>,
 ) {
   const unindexedResult = model.expenses.map((obj: Expense) => {
+    let todaysVForTable = 0.0;
+    const todaysV = todaysValues.get(obj.NAME);
+    if (todaysV !== undefined) {
+      if (!todaysV.hasEnded) {
+        todaysVForTable = todaysV.expenseVal;
+      }
+    }
     const mapResult = {
       END: obj.END,
       GROWS_WITH_CPI: makeYesNoFromBoolean(!obj.CPI_IMMUNE),
@@ -1712,7 +1726,7 @@ function expensesForTable(
       VALUE: obj.VALUE,
       VALUE_SET: obj.VALUE_SET,
       RECURRENCE: obj.RECURRENCE,
-      TODAYSVALUE: `${todaysValues.get(obj.NAME)?.expenseVal}`,
+      TODAYSVALUE: `${todaysVForTable}`,
     };
     return mapResult;
   });

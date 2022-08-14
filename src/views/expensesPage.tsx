@@ -124,7 +124,7 @@ export function todaysExpensesTable(
 
   const entries = Array.from(todaysValues.entries());
   for (const key of entries) {
-    if (key[1].isActive) {
+    if (key[1].hasStarted && !key[1].hasEnded) {
       const cat = key[1].category;
       if (cat === '') {
         addToMap(key[0], key[1], categorisedValues);

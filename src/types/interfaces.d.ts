@@ -207,13 +207,15 @@ export interface AssetOrDebtVal {
 }
 export interface IncomeVal {
   incomeVal: number;
-  isActive: boolean;
+  hasStarted: boolean;
+  hasEnded: boolean;
   category: string;
 }
 export interface ExpenseVal {
   expenseVal: number;
   expenseFreq: string;
-  isActive: boolean;
+  hasStarted: boolean;
+  hasEnded: boolean;
   category: string;
 }
 

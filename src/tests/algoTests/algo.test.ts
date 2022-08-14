@@ -127,7 +127,8 @@ describe('evaluations tests', () => {
       expenseVal: 0,
       category: '',
       expenseFreq: '1m',
-      isActive: false,
+      hasStarted: false,
+      hasEnded: false,
     });
     expect(evalsAndValues.todaysIncomeValues.size).toEqual(0);
     expect(evalsAndValues.todaysSettingValues.size).toEqual(1);
@@ -195,10 +196,21 @@ describe('evaluations tests', () => {
     expect(evalsAndValues.todaysAssetValues.size).toEqual(0);
     expect(evalsAndValues.todaysDebtValues.size).toEqual(0);
     expect(evalsAndValues.todaysExpenseValues.size).toEqual(1);
-    expect(evalsAndValues.todaysExpenseValues.get('Phon')?.expenseVal).toBeCloseTo(1.01907);
-    expect(evalsAndValues.todaysExpenseValues.get('Phon')?.category).toEqual('');
-    expect(evalsAndValues.todaysExpenseValues.get('Phon')?.expenseFreq).toEqual('1m');
-    expect(evalsAndValues.todaysExpenseValues.get('Phon')?.isActive).toEqual(false);
+    expect(
+      evalsAndValues.todaysExpenseValues.get('Phon')?.expenseVal,
+    ).toBeCloseTo(1.01907);
+    expect(evalsAndValues.todaysExpenseValues.get('Phon')?.category).toEqual(
+      '',
+    );
+    expect(evalsAndValues.todaysExpenseValues.get('Phon')?.expenseFreq).toEqual(
+      '1m',
+    );
+    expect(evalsAndValues.todaysExpenseValues.get('Phon')?.hasStarted).toEqual(
+      true,
+    );
+    expect(evalsAndValues.todaysExpenseValues.get('Phon')?.hasEnded).toEqual(
+      true,
+    );
     expect(evalsAndValues.todaysIncomeValues.size).toEqual(0);
     expect(evalsAndValues.todaysSettingValues.size).toEqual(1);
     expect(evalsAndValues.todaysSettingValues.get('cpi')).toEqual({
@@ -290,7 +302,8 @@ describe('evaluations tests', () => {
       expenseVal: 1.0190676230605216,
       category: '',
       expenseFreq: '2m',
-      isActive: true
+      hasStarted: true,
+      hasEnded: false,
     });
     expect(evalsAndValues.todaysIncomeValues.size).toEqual(0);
     expect(evalsAndValues.todaysSettingValues.size).toEqual(1);

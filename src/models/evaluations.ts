@@ -4501,16 +4501,15 @@ function evaluateAllAssets(
     }
   });
   model.incomes.forEach((i) => {
-    let isActive = true;
+    let hasStarted = true;
+    let hasEnded = false;
     const startDate = checkTriggerDate(i.START, model.triggers, v);
     if (startDate !== undefined && startDate > today) {
-      isActive = false;
+      hasStarted = false;
     }
-    if (isActive) {
-      const endDate = checkTriggerDate(i.END, model.triggers, v);
-      if (endDate !== undefined && endDate < today) {
-        isActive = false;
-      }
+    const endDate = checkTriggerDate(i.END, model.triggers, v);
+    if (endDate !== undefined && endDate < today) {
+      hasEnded = true;
     }
     // log(`income ${i.NAME} ends at ${i.END} not yet ended at ${today}`);
     const val = traceEvaluationForToday(i.NAME, values, growths);
@@ -4518,21 +4517,23 @@ function evaluateAllAssets(
       todaysIncomeValues.set(i.NAME, {
         incomeVal: val,
         category: i.CATEGORY,
-        isActive: isActive,
+        hasStarted: hasStarted,
+        hasEnded: hasEnded,
       });
     } else {
       // log(`don't report undefined today's value for ${i.NAME}`);
     }
   });
   model.expenses.forEach((e) => {
-    let isActive = true;
+    let hasStarted = true;
+    let hasEnded = false;
     const startDate = checkTriggerDate(e.START, model.triggers, v);
     if (startDate !== undefined && startDate > today) {
-      isActive = false;
+      hasStarted = false;
     }
     const endDate = checkTriggerDate(e.END, model.triggers, v);
     if (endDate !== undefined && endDate < today) {
-      isActive = false;
+      hasEnded = true;
     }
     const val = traceEvaluationForToday(e.NAME, values, growths);
     if (val !== undefined) {
@@ -4541,7 +4542,8 @@ function evaluateAllAssets(
         expenseVal: val,
         expenseFreq: e.RECURRENCE,
         category: e.CATEGORY,
-        isActive: isActive,
+        hasStarted: hasStarted,
+        hasEnded: hasEnded,
       });
     } else {
       // log(`don't report undefined today's value for ${e.NAME}`);
