@@ -4501,21 +4501,16 @@ function evaluateAllAssets(
     }
   });
   model.incomes.forEach((i) => {
+    let isActive = true;
     const startDate = checkTriggerDate(i.START, model.triggers, v);
     if (startDate !== undefined && startDate > today) {
-      todaysIncomeValues.set(i.NAME, {
-        incomeVal: 0,
-        category: i.CATEGORY,
-      });
-      return;
+      isActive = false;
     }
-    const endDate = checkTriggerDate(i.END, model.triggers, v);
-    if (endDate !== undefined && endDate < today) {
-      todaysIncomeValues.set(i.NAME, {
-        incomeVal: 0,
-        category: i.CATEGORY,
-      });
-      return;
+    if (isActive) {
+      const endDate = checkTriggerDate(i.END, model.triggers, v);
+      if (endDate !== undefined && endDate < today) {
+        isActive = false;
+      }
     }
     // log(`income ${i.NAME} ends at ${i.END} not yet ended at ${today}`);
     const val = traceEvaluationForToday(i.NAME, values, growths);
@@ -4523,29 +4518,21 @@ function evaluateAllAssets(
       todaysIncomeValues.set(i.NAME, {
         incomeVal: val,
         category: i.CATEGORY,
+        isActive: isActive,
       });
     } else {
       // log(`don't report undefined today's value for ${i.NAME}`);
     }
   });
   model.expenses.forEach((e) => {
+    let isActive = true;
     const startDate = checkTriggerDate(e.START, model.triggers, v);
     if (startDate !== undefined && startDate > today) {
-      todaysExpenseValues.set(e.NAME, {
-        expenseVal: 0,
-        category: e.CATEGORY,
-        expenseFreq: e.RECURRENCE,
-      });
-      return;
+      isActive = false;
     }
     const endDate = checkTriggerDate(e.END, model.triggers, v);
     if (endDate !== undefined && endDate < today) {
-      todaysExpenseValues.set(e.NAME, {
-        expenseVal: 0,
-        category: e.CATEGORY,
-        expenseFreq: e.RECURRENCE,
-      });
-      return;
+      isActive = false;
     }
     const val = traceEvaluationForToday(e.NAME, values, growths);
     if (val !== undefined) {
@@ -4554,6 +4541,7 @@ function evaluateAllAssets(
         expenseVal: val,
         expenseFreq: e.RECURRENCE,
         category: e.CATEGORY,
+        isActive: isActive,
       });
     } else {
       // log(`don't report undefined today's value for ${e.NAME}`);

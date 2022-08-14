@@ -124,12 +124,14 @@ export function todaysExpensesTable(
 
   const entries = Array.from(todaysValues.entries());
   for (const key of entries) {
-    const cat = key[1].category;
-    if (cat === '') {
-      addToMap(key[0], key[1], categorisedValues);
-    } else {
-      const catName: string = key[1].category;
-      addToMap(`${catName}${key[1].expenseFreq}`, key[1], categorisedValues);
+    if (key[1].isActive) {
+      const cat = key[1].category;
+      if (cat === '') {
+        addToMap(key[0], key[1], categorisedValues);
+      } else {
+        const catName: string = key[1].category;
+        addToMap(`${catName}${key[1].expenseFreq}`, key[1], categorisedValues);
+      }
     }
   }
 
