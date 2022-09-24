@@ -663,18 +663,21 @@ export function setReportKey(textInput: string): boolean {
     const inputObj = JSON.parse(textInput);
 
     // log(`setState for report writing`);
-    reactAppComponent.setState({
-      reportDefiner: {
-        sourceMatcher: inputObj.sourceMatcher,
-        sourceExcluder: inputObj.sourceExcluder,
+    reactAppComponent.setState(
+      {
+        reportDefiner: {
+          sourceMatcher: inputObj.sourceMatcher,
+          sourceExcluder: inputObj.sourceExcluder,
+        },
       },
-    });
-
-    // log('setting key for report : go refresh data');
-    refreshData(
-      true, // refreshModel = true,
-      true, // refreshChart = true,
-      1, //sourceID
+      async () => {
+        log('set key for report : go refresh data');
+        refreshData(
+          true, // refreshModel = true,
+          true, // refreshChart = true,
+          1, //sourceID
+        );
+      },
     );
     return true;
   } catch (e) {
