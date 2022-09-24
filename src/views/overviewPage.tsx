@@ -115,7 +115,11 @@ function chartsForOverview(
             submitFunction={updateEndDate}
             showAlert={showAlert}
           />
-          {coarseFineList(viewSettings)}
+          {coarseFineList(viewSettings, {
+            labels: [],
+            datasets: [],
+            displayLegend: false,
+          })}
           {frequencyList(viewSettings)}
         </Col>
       </Row>

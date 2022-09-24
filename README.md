@@ -92,7 +92,7 @@ If the latest chromedriver on npm falls behind the version needed for the instal
  - delete the chromedriver entry from package.json
  - download the appropriate zip file from https://chromedriver.storage.googleapis.com/index.html
  - install using something equivalent to 
- ``npm install chromedriver --chromedriver_filepath=/Users/jeanflower/Downloads/chromedriver_mac64.zip``
+ ``npm install chromedriver --chromedriver_filepath=/Users/jeanflower/Downloads/chromedriver_mac64_m1.zip``
  - revert changes to package.json, package-lock.json
 
 See coverage by typing `CI=true npm test -- --coverage`, then look for /coverage/index.html for the results.  To exclude selenium browser tests (which don't seem to generate coverage data anyway), use `CI=true npm test -- --testPathIgnorePatterns=browser  --coverage`, or to use the local server, `REACT_APP_ORIGIN_APPENDAGE= REACT_APP_SERVER_URL_NOT_SECRET=http://localhost:3001/finkitty/ CI=true npm test -- --testPathIgnorePatterns=browser  --coverage`
