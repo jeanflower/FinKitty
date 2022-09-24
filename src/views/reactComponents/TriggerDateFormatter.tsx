@@ -21,7 +21,7 @@ function makeDateTooltipLocal(props: TriggerDateFormatterProps) {
   return makeDateTooltip(
     props.value,
     props.model.triggers,
-    getVarVal(props.model),
+    getVarVal(props.model.settings),
   );
 }
 class TriggerDateFormatter extends React.Component<TriggerDateFormatterProps> {

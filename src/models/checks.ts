@@ -105,7 +105,7 @@ function checkTransactionWords(
 ) {
   // log(`date for check = ${getTriggerDate(date, triggers)}`);
   const triggers = model.triggers;
-  const v = getVarVal(model);
+  const v = getVarVal(model.settings);
   const a = model.assets.find(
     (as) =>
       (as.NAME === word || as.CATEGORY === word) &&
@@ -264,7 +264,11 @@ export function checkAsset(a: Asset, model: ModelData): string {
     }
   }
 
-  const d = checkTriggerDate(a.START, model.triggers, getVarVal(model));
+  const d = checkTriggerDate(
+    a.START,
+    model.triggers,
+    getVarVal(model.settings),
+  );
   if (d === undefined || !checkDate(d)) {
     return `Asset start date doesn't make sense :
       ${showObj(a.START)}`;
@@ -329,7 +333,7 @@ export function checkIncome(i: Income, model: ModelData): string {
       return `Income value '${i.VALUE}' may not grow with CPI`;
     }
   }
-  const v = getVarVal(model);
+  const v = getVarVal(model.settings);
   const startDate = checkTriggerDate(i.START, model.triggers, v);
   if (startDate === undefined || !checkDate(startDate)) {
     return `Income start date doesn't make sense : ${showObj(i.START)}`;
@@ -389,7 +393,7 @@ export function checkExpense(e: Expense, model: ModelData): string {
   if (!isNumberString(e.VALUE)) {
     return `Expense value '${e.VALUE}' is not a number`;
   }
-  const v = getVarVal(model);
+  const v = getVarVal(model.settings);
   const startDate = checkTriggerDate(e.START, model.triggers, v);
   if (startDate === undefined || !checkDate(startDate)) {
     return `Expense start date doesn't make sense :
@@ -442,7 +446,7 @@ function checkTransactionFrom(word: string, settings: Setting[]) {
 }
 
 function checkTransactionTo(word: string, t: Transaction, model: ModelData) {
-  const v = getVarVal(model);
+  const v = getVarVal(model.settings);
   const triggers = model.triggers;
   const a = model.assets.find((as) => as.NAME === word || as.CATEGORY === word);
   if (a !== undefined) {
@@ -933,7 +937,7 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
   if (t.NAME.startsWith(conditional) && t.TO === '') {
     return `Conditional transaction ${t.NAME} needs a 'To' asset defined`;
   }
-  const d = checkTriggerDate(t.DATE, triggers, getVarVal(model));
+  const d = checkTriggerDate(t.DATE, triggers, getVarVal(model.settings));
   if (d === undefined || !checkDate(d)) {
     return `Transaction ${t.NAME} has bad date : ${showObj(t.DATE)}`;
   }
@@ -1142,7 +1146,7 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
     if (!t.FROM_VALUE.startsWith(bondMaturity)) {
       return `Maturing Bond needs ${bondMaturity} as start of from value : malformed transaction ${t.NAME}`;
     }
-    const v = getVarVal(model);
+    const v = getVarVal(model.settings);
     // every bondMature transaction needs a partner bondInvest transaction.
     const invests = model.transactions.filter((tInvest) => {
       if (tInvest.TYPE !== bondInvest) {
@@ -1304,7 +1308,7 @@ export function checkTrigger(t: Trigger, model: ModelData): string {
   if (nameCheck.length > 0) {
     return nameCheck;
   }
-  if (!checkTriggerDate(t.DATE, model.triggers, getVarVal(model))) {
+  if (!checkTriggerDate(t.DATE, model.triggers, getVarVal(model.settings))) {
     return `Your important date is not valid : ${t.DATE}`;
   }
   return '';
@@ -1316,24 +1320,28 @@ function checkSettingAbsent(settings: Setting[], name: string) {
   }
   return '';
 }
-function checkViewROI(settings: Setting[]) {
+function checkViewROI(settings: Setting[], triggers: Trigger[]) {
   // log(`check settings ${showObj(settings)}`);
+
   const start = getSettings(settings, roiStart, 'noneFound');
   if (start === 'noneFound') {
     return `"${roiStart}" should be present in settings (value is a date)`;
   }
-  const startDate = makeDateFromString(start);
-  if (Number.isNaN(startDate.getTime())) {
+  const startDate = checkTriggerDate(start, triggers, getVarVal(settings));
+  if (startDate === undefined || !checkDate(startDate)) {
     return `Setting "${roiStart}" should be a valid date string (e.g. 1 April 2018)`;
   }
+
   const end = getSettings(settings, roiEnd, 'noneFound');
   if (end === 'noneFound') {
     return `"${roiEnd}" should be present in settings (value is a date)`;
   }
-  const endDate = makeDateFromString(end);
-  if (Number.isNaN(endDate.getTime())) {
+
+  const endDate = checkTriggerDate(end, triggers, getVarVal(settings));
+  if (endDate === undefined || !checkDate(endDate)) {
     return `Setting "${roiEnd}" should be a valid date string (e.g. 1 April 2018)`;
   }
+
   if (endDate < startDate) {
     return `Setting "${roiEnd}" should be after setting "${roiStart}"`;
   }
@@ -1441,7 +1449,7 @@ export function checkData(model: ModelData): string {
   if (message.length > 0) {
     return message;
   }
-  message = checkViewROI(model.settings);
+  message = checkViewROI(model.settings, model.triggers);
   if (message.length > 0) {
     return message;
   }

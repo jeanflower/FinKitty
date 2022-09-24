@@ -51,6 +51,7 @@ import {
   isATransaction,
   makeModelFromJSON,
   makeModelFromJSONString,
+  makeRevalueName,
   setROI,
   setSetting,
 } from '../../models/modelUtils';
@@ -126,6 +127,8 @@ describe('evaluations tests', () => {
       expenseVal: 0,
       category: '',
       expenseFreq: '1m',
+      hasStarted: false,
+      hasEnded: false,
     });
     expect(evalsAndValues.todaysIncomeValues.size).toEqual(0);
     expect(evalsAndValues.todaysSettingValues.size).toEqual(1);
@@ -193,11 +196,21 @@ describe('evaluations tests', () => {
     expect(evalsAndValues.todaysAssetValues.size).toEqual(0);
     expect(evalsAndValues.todaysDebtValues.size).toEqual(0);
     expect(evalsAndValues.todaysExpenseValues.size).toEqual(1);
-    expect(evalsAndValues.todaysExpenseValues.get('Phon')).toEqual({
-      expenseVal: 0,
-      category: '',
-      expenseFreq: '1m',
-    });
+    expect(
+      evalsAndValues.todaysExpenseValues.get('Phon')?.expenseVal,
+    ).toBeCloseTo(1.01907);
+    expect(evalsAndValues.todaysExpenseValues.get('Phon')?.category).toEqual(
+      '',
+    );
+    expect(evalsAndValues.todaysExpenseValues.get('Phon')?.expenseFreq).toEqual(
+      '1m',
+    );
+    expect(evalsAndValues.todaysExpenseValues.get('Phon')?.hasStarted).toEqual(
+      true,
+    );
+    expect(evalsAndValues.todaysExpenseValues.get('Phon')?.hasEnded).toEqual(
+      true,
+    );
     expect(evalsAndValues.todaysIncomeValues.size).toEqual(0);
     expect(evalsAndValues.todaysSettingValues.size).toEqual(1);
     expect(evalsAndValues.todaysSettingValues.get('cpi')).toEqual({
@@ -289,6 +302,8 @@ describe('evaluations tests', () => {
       expenseVal: 1.0190676230605216,
       category: '',
       expenseFreq: '2m',
+      hasStarted: true,
+      hasEnded: false,
     });
     expect(evalsAndValues.todaysIncomeValues.size).toEqual(0);
     expect(evalsAndValues.todaysSettingValues.size).toEqual(1);
@@ -6512,5 +6527,52 @@ describe('evaluations tests', () => {
         model,
       ),
     ).toEqual('Leisure/Leisure');
+  });
+
+  it('Autoname revaluation transactions', (done) => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'May 1, 2018 00:00:00',
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'savings',
+          START: 'January 1 2018',
+          VALUE: '500',
+          GROWTH: '12',
+        },
+      ],
+      transactions: [],
+      settings: [...defaultModelSettings(roi)],
+    };
+
+    model.transactions = [
+      {
+        ...simpleTransaction,
+        NAME: 'Revaluesavings',
+        TO: 'savings',
+        TO_VALUE: '300', // market crash!
+        DATE: 'March 5 2018',
+        TYPE: revalueAsset,
+      },
+    ];
+    expect(makeRevalueName('savings', model)).toEqual('Revaluesavings 1');
+
+    model.transactions[0].NAME = 'Revaluesavings 1';
+    expect(makeRevalueName('savings', model)).toEqual('Revaluesavings 2');
+
+    model.transactions[0].NAME = 'Revaluesavings1';
+    expect(makeRevalueName('savings', model)).toEqual('Revaluesavings2');
+
+    model.transactions[0].NAME = 'Revaluesavings 01';
+    expect(makeRevalueName('savings', model)).toEqual('Revaluesavings 02');
+
+    model.transactions[0].NAME = 'Revaluesavings01';
+    expect(makeRevalueName('savings', model)).toEqual('Revaluesavings02');
+
+    done();
   });
 });

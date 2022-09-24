@@ -1,10 +1,3 @@
-import {
-  viewFrequency,
-  annually,
-  chartViewType,
-  chartDeltas,
-} from '../../localization/stringConstants';
-import { makeChartDataFromEvaluations } from '../../models/charting';
 import { makeModelFromJSON } from '../../models/modelUtils';
 import { log, printDebug } from '../../utils/utils';
 import {
@@ -12,13 +5,13 @@ import {
   expectEvals,
   expectChartData,
   printTestCodeForChart,
-  defaultTestViewSettings,
   getTestEvaluations,
 } from './algoTestUtils';
 
 expectEvals;
 expectChartData;
 printTestCodeForChart;
+makeModelFromJSON;
 
 describe('debug test', () => {
   /* istanbul ignore if  */
@@ -28,93 +21,79 @@ describe('debug test', () => {
   }
 
   it('debug test', (done) => {
-    const json = `{
-      "name":"quantised deltas",
-      "assets":[{
-        "NAME":"Share","VALUE":"1","QUANTITY":"100","START":"Sat Jun 18 2022","GROWTH":"0","CPI_IMMUNE":true,"CAN_BE_NEGATIVE":false,"IS_A_DEBT":false,"CATEGORY":"","PURCHASE_PRICE":"0","LIABILITY":""}],
-      "incomes":[],
-      "expenses":[],
-      "triggers":[],
-      "settings":[{
-        "NAME":"Today's value focus date","VALUE":"","HINT":"Date to use for 'today's value' tables (defaults to '' meaning today)","TYPE":"view"},{
-        "NAME":"End of view range","VALUE":"2025","HINT":"Date at the end of range to be plotted","TYPE":"view"},{
-        "NAME":"Date of birth","VALUE":"","HINT":"Date used for representing dates as ages","TYPE":"view"},{
-        "NAME":"cpi","VALUE":"2.5","HINT":"Annual rate of inflation","TYPE":"const"},{
-        "NAME":"Beginning of view range","VALUE":"1 Jan 2022","HINT":"Date at the start of range to be plotted","TYPE":"view"}],"transactions":[{
-        "NAME":"GetRich","CATEGORY":"","FROM":"","FROM_ABSOLUTE":true,"FROM_VALUE":"0","TO":"Share","TO_ABSOLUTE":true,"TO_VALUE":"100","DATE":"Sat Jun 18 2023","STOP_DATE":"2025","RECURRENCE":"1y","TYPE":"custom"}],"version":9}`;
+    const json = `{"triggers":[
+{"NAME":"StartBonds50k","DATE":"Tue Jan 01 2030"},
+{"NAME":"Start","DATE":"Sat Apr 06 2019"},
+{"NAME":"BothDead","DATE":"Tue Jan 01 2034"}],
+"expenses":[],
+"incomes":[],
+"transactions":[{"NAME":"Revaluecpi 6","FROM":"","FROM_ABSOLUTE":false,"FROM_VALUE":"0.0","TO":"cpi","TO_ABSOLUTE":true,"TO_VALUE":"0","DATE":"6 April 2027","TYPE":"revalueSetting","RECURRENCE":"","STOP_DATE":"","CATEGORY":""},
+{"NAME":"Revaluecpi 1","FROM":"","FROM_ABSOLUTE":false,"FROM_VALUE":"0.0","TO":"cpi","TO_ABSOLUTE":true,"TO_VALUE":"0.8","DATE":"Wed Apr 01 2020","TYPE":"revalueSetting","RECURRENCE":"","STOP_DATE":"","CATEGORY":""},
+{"NAME":"RevalueBondMediumTargetValue 1","FROM":"","FROM_ABSOLUTE":false,"FROM_VALUE":"0.0","TO":"BondMediumTargetValue","TO_ABSOLUTE":true,"TO_VALUE":"50000","DATE":"Start","TYPE":"revalueSetting","RECURRENCE":"","STOP_DATE":"","CATEGORY":""},
+{"DATE":"StartBonds50k+5y","FROM":"FixedTermBonds","FROM_VALUE":"BMVBondMediumTargetValue","FROM_ABSOLUTE":true,"NAME":"MatureBondJeanPension5y","TO":"Cash","TO_ABSOLUTE":false,"TO_VALUE":"1","STOP_DATE":"StartBonds50k+11y","RECURRENCE":"","TYPE":"bondMature","CATEGORY":""},
+{"DATE":"BothDead","FROM":"Cash/Bonds","FROM_VALUE":"1","FROM_ABSOLUTE":false,"NAME":"CreateEstate","TO":"Estate","TO_ABSOLUTE":false,"TO_VALUE":"1","STOP_DATE":"","RECURRENCE":"","TYPE":"custom","CATEGORY":""},
+{"DATE":"StartBonds50k","FROM":"Cash","FROM_VALUE":"BMVBondMediumTargetValue","FROM_ABSOLUTE":true,"NAME":"BuyBondJeanPension5y","TO":"FixedTermBonds","TO_ABSOLUTE":false,"TO_VALUE":"1","STOP_DATE":"StartBonds50k+6y","RECURRENCE":"","TYPE":"bondInvest","CATEGORY":""}],
+"assets":[{"NAME":"FixedTermBonds","VALUE":"0","QUANTITY":"","START":"Start","LIABILITY":"","GROWTH":"0","CPI_IMMUNE":true,"CAN_BE_NEGATIVE":false,"IS_A_DEBT":false,"PURCHASE_PRICE":"0","CATEGORY":"Bonds"},
+{"NAME":"Estate","VALUE":"0","QUANTITY":"","START":"BothDead","LIABILITY":"","GROWTH":"0","CPI_IMMUNE":true,"CAN_BE_NEGATIVE":false,"IS_A_DEBT":false,"PURCHASE_PRICE":"0","CATEGORY":""},
+{"NAME":"Cash","VALUE":"0","QUANTITY":"","START":"Start","LIABILITY":"","GROWTH":"0","CPI_IMMUNE":true,"CAN_BE_NEGATIVE":true,"IS_A_DEBT":false,"PURCHASE_PRICE":"0","CATEGORY":""}],
+"settings":[{"NAME":"variableLow","VALUE":"0","HINT":"","TYPE":"adjustable"},
+{"NAME":"variableHigh","VALUE":"1","HINT":"","TYPE":"adjustable"},
+{"NAME":"variableCount","VALUE":"2","HINT":"","TYPE":"adjustable"},
+{"NAME":"variable","VALUE":"0","HINT":"","TYPE":"adjustable"},
+{"NAME":"Type of view for asset chart","VALUE":"val","HINT":"Asset chart uses setting '+', '-', '+-' or 'val'","TYPE":"view"},
+{"NAME":"Today's value focus date","VALUE":"","HINT":"Date to use for 'today's value' tables (defaults to '' meaning today)","TYPE":"view"},
+{"NAME":"End of view range","VALUE":"Fri Dec 01 2035","HINT":"Date at the end of range to be plotted","TYPE":"view"},
+{"NAME":"Date of birth","VALUE":"","HINT":"Date used for representing dates as ages","TYPE":"view"},
+{"NAME":"cpi","VALUE":"0","HINT":"Annual rate of inflation","TYPE":"const"},
+{"NAME":"BondMediumTargetValue","VALUE":"0","HINT":"","TYPE":"adjustable"},
+{"NAME":"bondInterest","VALUE":"-3.15","HINT":"","TYPE":"adjustable"},
+{"NAME":"Beginning of view range","VALUE":"Sat Jan 05 2019+variable1d","HINT":"Date at the start of range to be plotted","TYPE":"view"}],
+"version":9,"name":"x"}`;
+
     const model = makeModelFromJSON(json);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
+    evals;
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
 
-    expect(evals.length).toBe(34);
-    expectEvals(evals, 0, 'quantityShare', 'Sat Jun 18 2022', 100, -1);
-    expectEvals(evals, 1, 'Share', 'Sat Jun 18 2022', 100, -1);
-    expectEvals(evals, 2, 'Share', 'Mon Jul 18 2022', 100, -1);
-    expectEvals(evals, 3, 'Share', 'Thu Aug 18 2022', 100, -1);
-    expectEvals(evals, 4, 'Share', 'Sun Sep 18 2022', 100, -1);
-    expectEvals(evals, 5, 'Share', 'Tue Oct 18 2022', 100, -1);
-    expectEvals(evals, 6, 'Share', 'Fri Nov 18 2022', 100, -1);
-    expectEvals(evals, 7, 'Share', 'Sun Dec 18 2022', 100, -1);
-    expectEvals(evals, 8, 'Share', 'Wed Jan 18 2023', 100, -1);
-    expectEvals(evals, 9, 'Share', 'Sat Feb 18 2023', 100, -1);
-    expectEvals(evals, 10, 'Share', 'Sat Mar 18 2023', 100, -1);
-    expectEvals(evals, 11, 'Share', 'Tue Apr 18 2023', 100, -1);
-    expectEvals(evals, 12, 'Share', 'Thu May 18 2023', 100, -1);
-    expectEvals(evals, 13, 'Share', 'Sun Jun 18 2023', 100, -1);
-    expectEvals(evals, 14, 'quantityShare', 'Sun Jun 18 2023', 200, -1);
-    expectEvals(evals, 15, 'Share', 'Tue Jul 18 2023', 200, -1);
-    expectEvals(evals, 16, 'Share', 'Fri Aug 18 2023', 200, -1);
-    expectEvals(evals, 17, 'Share', 'Mon Sep 18 2023', 200, -1);
-    expectEvals(evals, 18, 'Share', 'Wed Oct 18 2023', 200, -1);
-    expectEvals(evals, 19, 'Share', 'Sat Nov 18 2023', 200, -1);
-    expectEvals(evals, 20, 'Share', 'Mon Dec 18 2023', 200, -1);
-    expectEvals(evals, 21, 'Share', 'Thu Jan 18 2024', 200, -1);
-    expectEvals(evals, 22, 'Share', 'Sun Feb 18 2024', 200, -1);
-    expectEvals(evals, 23, 'Share', 'Mon Mar 18 2024', 200, -1);
-    expectEvals(evals, 24, 'Share', 'Thu Apr 18 2024', 200, -1);
-    expectEvals(evals, 25, 'Share', 'Sat May 18 2024', 200, -1);
-    expectEvals(evals, 26, 'Share', 'Tue Jun 18 2024', 200, -1);
-    expectEvals(evals, 27, 'quantityShare', 'Tue Jun 18 2024', 300, -1);
-    expectEvals(evals, 28, 'Share', 'Thu Jul 18 2024', 300, -1);
-    expectEvals(evals, 29, 'Share', 'Sun Aug 18 2024', 300, -1);
-    expectEvals(evals, 30, 'Share', 'Wed Sep 18 2024', 300, -1);
-    expectEvals(evals, 31, 'Share', 'Fri Oct 18 2024', 300, -1);
-    expectEvals(evals, 32, 'Share', 'Mon Nov 18 2024', 300, -1);
-    expectEvals(evals, 33, 'Share', 'Wed Dec 18 2024', 300, -1);
-
-    const viewSettings = defaultTestViewSettings();
-
-    viewSettings.setViewSetting(viewFrequency, annually);
-    viewSettings.setViewSetting(chartViewType, chartDeltas);
-    const result = makeChartDataFromEvaluations(
-      model,
-      viewSettings,
-      evalsAndValues,
-    );
-
-    // log(showObj(result));
-
-    // printTestCodeForChart(result);
-
-    expect(result.expensesData.length).toBe(0);
-    expect(result.incomesData.length).toBe(0);
-    expect(result.assetData.length).toBe(1);
-    expect(result.assetData[0].item.NAME).toBe('Share/Share');
-    {
-      const chartPts = result.assetData[0].chartDataPoints;
-      expect(chartPts.length).toBe(3);
-      expectChartData(chartPts, 0, 'Sat Jan 01 2022', 0, -1);
-      expectChartData(chartPts, 1, 'Sun Jan 01 2023', 100, -1);
-      expectChartData(chartPts, 2, 'Mon Jan 01 2024', 0, -1);
-    }
-
-    expect(result.debtData.length).toBe(0);
-    expect(result.taxData.length).toBe(0);
-
     done();
   });
 });
+
+/*
+
+
+  ●  chart data tests › early view end date
+
+    expect(received).toBeCloseTo(expected, precision)
+
+    Expected: -7260
+    Received: -7317.892259513855
+
+    Expected precision:    2
+    Expected difference: < 0.005
+    Received difference:   57.8922595138547
+
+      117 |     expect(pts[i].y).toBeCloseTo(val, undefined);
+      118 |   } else {
+    > 119 |     expect(pts[i].y).toBeCloseTo(val, numDigits);
+          |                      ^
+      120 |   }
+      121 | }
+      122 |
+
+      at expectChartData (src/tests/algoTests/algoTestUtils.ts:119:22)
+      at Object.<anonymous> (src/tests/algoTests/algoChart.test.ts:2626:7)
+
+Test Suites: 2 failed, 2 total
+Tests:       4 failed, 53 passed, 57 total
+Snapshots:   0 total
+Time:        3.255 s, estimated 6 s
+Ran all test suites related to changed files.
+
+Watch Usage: Press w to show more.
+
+*/

@@ -1012,7 +1012,7 @@ describe('conditional tests', () => {
     // printTestCodeForEvals(evals);
 
     expect(evals.length).toBe(29);
-    expectEvals(evals, 0, 'Grain', 'Sun Apr 01 2018', 10, -1);
+    expectEvals(evals, 0, 'Grain', 'Mon Jan 01 2018', 10, -1);
     expectEvals(evals, 1, 'Cash', 'Fri Mar 02 2018', 15, -1);
     expectEvals(evals, 2, 'Stff', 'Fri Mar 02 2018', 72, -1);
     expectEvals(evals, 3, 'Cash', 'Mon Apr 02 2018', 15, -1);

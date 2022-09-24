@@ -25,16 +25,20 @@ import {
   separator,
   pensionTransfer,
   autogen,
-  revalue,
   revalueInc,
 } from '../../localization/stringConstants';
 import { doCheckBeforeOverwritingExistingData } from '../../App';
-import { getVarVal, isAnIncome, isATransaction } from '../../models/modelUtils';
+import {
+  getVarVal,
+  isAnIncome,
+  makeRevalueName,
+} from '../../models/modelUtils';
 import {
   makeValueAbsPropFromString,
   checkTriggerDate,
   makeBooleanFromYesNo,
   makeIncomeLiabilityFromNameAndNI,
+  lessThan,
 } from '../../utils/stringUtils';
 import Spacer from 'react-spacer';
 
@@ -291,7 +295,9 @@ export class AddDeleteIncomeForm extends Component<
           Income name
           <Spacer height={10} />
           {itemOptions(
-            this.props.model.incomes,
+            this.props.model.incomes.sort((a: Income, b: Income) => {
+              return lessThan(a.NAME, b.NAME);
+            }),
             this.props.model,
             this.handleNameChange,
             'incomenameselect',
@@ -686,22 +692,18 @@ DB_TRANSFERRED_STOP
     const date = checkTriggerDate(
       this.state.VALUE_SET,
       this.props.model.triggers,
-      getVarVal(this.props.model),
+      getVarVal(this.props.model.settings),
     );
     const isNotADate = date === undefined;
     if (isNotADate) {
       this.props.showAlert(`Value set date should be a date`);
       return;
     }
-    let count = 1;
-    while (
-      isATransaction(`${revalue}${this.state.NAME} ${count}`, this.props.model)
-    ) {
-      count += 1;
-    }
+
+    const newName = makeRevalueName(this.state.NAME, this.props.model);
 
     const revalueIncomeTransaction: Transaction = {
-      NAME: `${revalue}${this.state.NAME} ${count}`,
+      NAME: `${newName}`,
       FROM: '',
       FROM_ABSOLUTE: false,
       FROM_VALUE: '0.0',
@@ -766,7 +768,7 @@ DB_TRANSFERRED_STOP
     let date = checkTriggerDate(
       this.state.VALUE_SET,
       this.props.model.triggers,
-      getVarVal(this.props.model),
+      getVarVal(this.props.model.settings),
     );
     let isNotADate = date === undefined;
     if (isNotADate) {
@@ -1085,7 +1087,7 @@ DB_TRANSFERRED_STOP
     date = checkTriggerDate(
       this.state.START,
       this.props.model.triggers,
-      getVarVal(this.props.model),
+      getVarVal(this.props.model.settings),
     );
     isNotADate = date === undefined;
     if (isNotADate) {
@@ -1095,7 +1097,7 @@ DB_TRANSFERRED_STOP
     date = checkTriggerDate(
       this.state.END,
       this.props.model.triggers,
-      getVarVal(this.props.model),
+      getVarVal(this.props.model.settings),
     );
     isNotADate = date === undefined;
     if (isNotADate) {

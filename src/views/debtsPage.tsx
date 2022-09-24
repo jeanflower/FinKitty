@@ -136,6 +136,7 @@ export function debtsDiv(
   model: ModelData,
   viewSettings: ViewSettings,
   showAlert: (arg0: string) => void,
+  deleteTransactions: (arg: string[]) => void,
   doChecks: boolean,
   debtChartData: ChartData,
   todaysDebtValues: Map<string, AssetOrDebtVal>,
@@ -166,7 +167,13 @@ export function debtsDiv(
         ),
         'Debts data chart',
       )}
-      {debtsDivWithHeadings(model, todaysDebtValues, showAlert, doChecks)}
+      {debtsDivWithHeadings(
+        model,
+        todaysDebtValues,
+        showAlert,
+        deleteTransactions,
+        doChecks,
+      )}
       {todaysDebtsTable(model, todaysDebtValues)}
       {collapsibleFragment(
         <div className="addNewDebt">

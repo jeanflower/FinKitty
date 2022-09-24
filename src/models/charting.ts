@@ -34,8 +34,6 @@ import {
   nationalInsurance,
   pensionDB,
   revalue,
-  roiEnd,
-  roiStart,
   separator,
   taxChartFocusPerson,
   taxChartFocusType,
@@ -61,7 +59,7 @@ import {
   getTriggerDate,
   deconstructTaxTag,
 } from '../utils/stringUtils';
-import { getSettings, getVarVal } from './modelUtils';
+import { getROI, getSettings, getVarVal } from './modelUtils';
 import { getCategory } from './category';
 
 export class ViewSettings {
@@ -992,6 +990,71 @@ function getDisplayType(evaln: Evaluation, nameToTypeMap: Map<string, string>) {
   return evalnType;
 }
 
+function needsEmptyCharts(evaluationsAndVals: {
+  evaluations: Evaluation[];
+  todaysAssetValues: Map<string, AssetOrDebtVal>;
+  todaysDebtValues: Map<string, AssetOrDebtVal>;
+  todaysIncomeValues: Map<string, IncomeVal>;
+  todaysExpenseValues: Map<string, ExpenseVal>;
+  todaysSettingValues: Map<string, SettingVal>;
+}) {
+  return evaluationsAndVals.evaluations.length === 0;
+}
+function emptyCharts() {
+  const emptyData: DataForView = {
+    labels: [],
+    expensesData: [],
+    incomesData: [],
+    assetData: [],
+    debtData: [],
+    taxData: [],
+    todaysAssetValues: new Map<string, AssetOrDebtVal>(),
+    todaysDebtValues: new Map<string, AssetOrDebtVal>(),
+    todaysIncomeValues: new Map<string, IncomeVal>(),
+    todaysExpenseValues: new Map<string, ExpenseVal>(),
+    todaysSettingValues: new Map<string, SettingVal>(),
+    reportData: [],
+    totalTaxPaid: 0,
+  };
+  return emptyData;
+}
+
+function addAssetValueToChart(
+  valueForChart: number,
+  assetOrDebtNameValueMap: Map<string, number>,
+  mapKey: string,
+  showAssetAdditions: boolean,
+  showAssetReductions: boolean,
+  assetOrDebtValueSources: string[],
+) {
+  // log(`asset val change is ${valueForChart}
+  //   from ${evaln.source}`);
+  // log(`this delta is ${valueForChart}`);
+  const existingDelta = assetOrDebtNameValueMap.get(mapKey);
+  if (existingDelta !== undefined) {
+    // accumulate changes
+    // log(`existing delta is ${existingDelta}`);
+    valueForChart += existingDelta;
+    // log(`accumulated delta is ${valueForChart}`);
+  } else if (valueForChart !== 0) {
+    // log(`no pre-existing delta`);
+  }
+  if (showAssetAdditions && valueForChart < 0) {
+    // log(`suppress -ve deltas when looking for additions`);
+  } else if (showAssetReductions && valueForChart > 0) {
+    // log(`suppress +ve deltas when looking for reductions`);
+  } else if (valueForChart === 0) {
+    // log(`don\'t include zero values for chart: ${evaln.source}`);
+  } else {
+    // log(`log chart delta ${valueForChart}`);
+    assetOrDebtNameValueMap.set(mapKey, valueForChart);
+    if (assetOrDebtValueSources.indexOf(mapKey) < 0) {
+      // log(`log chart mapKey ${mapKey}`);
+      assetOrDebtValueSources.push(mapKey);
+    }
+  }
+}
+
 export function makeChartData(
   model: ModelData,
   viewSettings: ViewSettings,
@@ -1004,53 +1067,27 @@ export function makeChartData(
     todaysSettingValues: Map<string, SettingVal>;
   },
 ) {
-  if (evaluationsAndVals.evaluations.length === 0) {
-    const emptyData: DataForView = {
-      labels: [],
-      expensesData: [],
-      incomesData: [],
-      assetData: [],
-      debtData: [],
-      taxData: [],
-      todaysAssetValues: new Map<string, AssetOrDebtVal>(),
-      todaysDebtValues: new Map<string, AssetOrDebtVal>(),
-      todaysIncomeValues: new Map<string, IncomeVal>(),
-      todaysExpenseValues: new Map<string, ExpenseVal>(),
-      todaysSettingValues: new Map<string, SettingVal>(),
-      reportData: [],
-      totalTaxPaid: 0,
-    };
-    return emptyData;
+  if (needsEmptyCharts(evaluationsAndVals)) {
+    return emptyCharts();
   }
 
-  const roiStartDate: Date = makeDateFromString(
-    getSettings(model.settings, roiStart, 'Oct 1, 2017'),
-  );
-  const roiEndDate: Date = makeDateFromString(
-    getSettings(model.settings, roiEnd, 'Oct 1, 2022'),
-  );
-  const roi = {
-    start: roiStartDate,
-    end: roiEndDate,
-  };
+  const roi = getROI(model);
 
+  const assets = model.assets.filter((a) => {
+    return a.IS_A_DEBT === false;
+  });
+  const debts = model.assets.filter((a) => {
+    return a.IS_A_DEBT === true;
+  });
   let incomeNames: string[] = model.incomes.map((i) => i.NAME);
   let expenseNames: string[] = model.expenses.map((e) => e.NAME);
-  let assetNames: string[] = model.assets
-    .filter((a) => {
-      return a.IS_A_DEBT === false;
-    })
-    .map((a) => a.NAME);
-  let debtNames: string[] = model.assets
-    .filter((a) => {
-      return a.IS_A_DEBT === true;
-    })
-    .map((a) => a.NAME);
+  let assetNames: string[] = assets.map((a) => a.NAME);
+  let debtNames: string[] = debts.map((d) => d.NAME);
 
   const categoryCache = new Map<string, string>();
+
   const { detail, frequency, taxChartType, taxChartPerson, taxChartNet } =
     getSettingsValues(viewSettings);
-
   const showAllAssets = viewSettings.getShowAll(Context.Asset);
   const showAllDebts = viewSettings.getShowAll(Context.Debt);
   const showAllIncomes = viewSettings.getShowAll(Context.Income);
@@ -1104,7 +1141,7 @@ export function makeChartData(
   >();
 
   typeDateNameValueMap.set(
-    'assetOrDebtFocus', // we will track data for this special asset
+    'assetOrDebtFocus',
     new Map<
       string, // date
       Map<
@@ -1114,7 +1151,7 @@ export function makeChartData(
     >(),
   );
   typeDateNameValueMap.set(
-    'tax', // we will track data for this special "asset"
+    'tax',
     new Map<
       string, // date
       Map<
@@ -1139,6 +1176,7 @@ export function makeChartData(
     }
     const evalnType = getDisplayType(evaln, nameToTypeMap);
     if (!evalnType) {
+      // e.g. when quantities change we come here
       return;
     }
     // log(`processing ${showObj(evaln)}`);
@@ -1172,7 +1210,11 @@ export function makeChartData(
         }
         if (
           evaln.date <
-          getTriggerDate(matchingIncome.START, model.triggers, getVarVal(model))
+          getTriggerDate(
+            matchingIncome.START,
+            model.triggers,
+            getVarVal(model.settings),
+          )
         ) {
           // we tracked this evaluation just to adjust accrued benefit
           // but don't actually received any of this income yet...
@@ -1331,39 +1373,30 @@ export function makeChartData(
               // log(
               //   `${evaln.name} at ${evaln.date} was ${evaln.oldValue}, last known was ${prevValue}`,
               // );
+              const unidentifiedChange = evaln.oldValue - prevValue;
+              addAssetValueToChart(
+                unidentifiedChange,
+                assetOrDebtNameValueMap,
+                `unidentified${separator}${evaln.name}`,
+                showAssetAdditions,
+                showAssetReductions,
+                assetOrDebtValueSources,
+              );
               prevValue = evaln.oldValue;
             }
             // log(`asset ${evaln.name} val is `+
             //    `${evaln.value}, was ${prevValue}`);
             // log(`and the source of change is ${evaln.source}`);
             // log(`and change happened ${evaln.date}`);
-            let valueForChart = evaln.value - prevValue;
-            // log(`asset val change is ${valueForChart}
-            //   from ${evaln.source}`);
-            // log(`this delta is ${valueForChart}`);
-            const existingDelta = assetOrDebtNameValueMap.get(mapKey);
-            if (existingDelta !== undefined) {
-              // accumulate changes
-              // log(`existing delta is ${existingDelta}`);
-              valueForChart += existingDelta;
-              // log(`accumulated delta is ${valueForChart}`);
-            } else if (valueForChart !== 0) {
-              // log(`no pre-existing delta`);
-            }
-            if (showAssetAdditions && valueForChart < 0) {
-              // log(`suppress -ve deltas when looking for additions`);
-            } else if (showAssetReductions && valueForChart > 0) {
-              // log(`suppress +ve deltas when looking for reductions`);
-            } else if (valueForChart === 0) {
-              // log(`don\'t include zero values for chart: ${evaln.source}`);
-            } else {
-              // log(`log chart delta ${valueForChart}`);
-              assetOrDebtNameValueMap.set(mapKey, valueForChart);
-              if (assetOrDebtValueSources.indexOf(mapKey) < 0) {
-                // log(`log chart mapKey ${mapKey}`);
-                assetOrDebtValueSources.push(mapKey);
-              }
-            }
+            const valueForChart = evaln.value - prevValue;
+            addAssetValueToChart(
+              valueForChart,
+              assetOrDebtNameValueMap,
+              mapKey,
+              showAssetAdditions,
+              showAssetReductions,
+              assetOrDebtValueSources,
+            );
             // log(`set asset value as 'previous'
             //   for ${evaln.name} is ${evaln.value}`);
             prevEvalAssetValue.set(evaln.name, evaln.value);

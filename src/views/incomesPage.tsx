@@ -113,12 +113,14 @@ export function todaysIncomesTable(
 
   const entries = Array.from(todaysValues.entries());
   for (const key of entries) {
-    const cat = key[1].category;
-    if (cat === '') {
-      addToMap(key[0], key[1], categorisedValues);
-    } else {
-      const catName: string = key[1].category;
-      addToMap(catName, key[1], categorisedValues);
+    if (key[1].hasStarted && !key[1].hasEnded) {
+      const cat = key[1].category;
+      if (cat === '') {
+        addToMap(key[0], key[1], categorisedValues);
+      } else {
+        const catName: string = key[1].category;
+        addToMap(catName, key[1], categorisedValues);
+      }
     }
   }
 
@@ -137,6 +139,7 @@ export function incomesDiv(
   model: ModelData,
   viewSettings: ViewSettings,
   showAlert: (arg0: string) => void,
+  deleteTransactions: (arg: string[]) => void,
   doChecks: boolean,
   incomesChartData: ChartData,
   todaysValues: Map<string, IncomeVal>,
@@ -171,6 +174,7 @@ export function incomesDiv(
       {transactionFilteredTable(
         model,
         showAlert,
+        deleteTransactions,
         doChecks,
         revalueInc,
         'Income revaluations',

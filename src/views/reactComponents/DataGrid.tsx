@@ -67,7 +67,7 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
     //log(`this.props.rows.slice() indices = ${showObj(this.props.rows.slice().map((row)=>{
     //  return row['index'];
     //}))}`);
-    const v = getVarVal(this.props.model);
+    const v = getVarVal(this.props.model.settings);
 
     if (sortDirection === 'NONE') {
       this.sortedIndices = this.props.rows

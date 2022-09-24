@@ -23,7 +23,6 @@ import {
   crystallizedPension,
   pensionSS,
   autogen,
-  revalue,
   revalueAsset,
   moveTaxFreePart,
   taxFree,
@@ -33,15 +32,16 @@ import {
 import { incomeOptions } from './AddDeleteIncomeForm';
 import { doCheckBeforeOverwritingExistingData } from '../../App';
 import {
-  isATransaction,
   getSettings,
   getVarVal,
+  makeRevalueName,
 } from '../../models/modelUtils';
 import {
   makeValueAbsPropFromString,
   checkTriggerDate,
   makeBooleanFromYesNo,
   makeQuantityFromString,
+  lessThan,
 } from '../../utils/stringUtils';
 import Spacer from 'react-spacer';
 
@@ -199,9 +199,13 @@ export class AddDeleteAssetForm extends Component<
         Asset name
         <Spacer height={10} />
         {itemOptions(
-          this.props.model.assets.filter((a) => {
-            return !a.IS_A_DEBT;
-          }),
+          this.props.model.assets
+            .filter((a) => {
+              return !a.IS_A_DEBT;
+            })
+            .sort((a: Asset, b: Asset) => {
+              return lessThan(a.NAME, b.NAME);
+            }),
           this.props.model,
           this.handleNameChange,
           'assetname',
@@ -659,7 +663,7 @@ export class AddDeleteAssetForm extends Component<
     const date = checkTriggerDate(
       this.state.START,
       this.props.model.triggers,
-      getVarVal(this.props.model),
+      getVarVal(this.props.model.settings),
     );
     const isNotADate = date === undefined;
     if (isNotADate) {
@@ -667,15 +671,10 @@ export class AddDeleteAssetForm extends Component<
       return;
     }
 
-    let count = 1;
-    while (
-      isATransaction(`${revalue}${this.state.NAME} ${count}`, this.props.model)
-    ) {
-      count += 1;
-    }
+    const newName = makeRevalueName(this.state.NAME, this.props.model);
 
     const revalueTransaction: Transaction = {
-      NAME: `${revalue}${this.state.NAME} ${count}`,
+      NAME: `${newName}`,
       FROM: '',
       FROM_ABSOLUTE: false,
       FROM_VALUE: '0.0',
@@ -752,7 +751,7 @@ export class AddDeleteAssetForm extends Component<
     const date = checkTriggerDate(
       this.state.START,
       this.props.model.triggers,
-      getVarVal(this.props.model),
+      getVarVal(this.props.model.settings),
     );
     const isNotADate = date === undefined;
     if (isNotADate) {

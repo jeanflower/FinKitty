@@ -114,6 +114,7 @@ import { getEvaluations } from './models/evaluations';
 import {
   applyRedoToModel,
   attemptRenameLong,
+  getROI,
   getTodaysDate,
   makeModelFromJSON,
   markForUndo,
@@ -335,18 +336,9 @@ function getReporter(model: ModelData, viewSettings: ViewSettings) {
   });
   //log(`nameMatcher for reporter = ${nameMatcher}`);
 
-  const getSettingValue = (settingName: string) => {
-    let value = '';
-    const s = model.settings.find((s) => {
-      return s.NAME === settingName;
-    });
-    if (s !== undefined) {
-      value = s.VALUE;
-    }
-    return value;
-  };
-  const startDate = new Date(getSettingValue(roiStart));
-  const endDate = new Date(getSettingValue(roiEnd));
+  const viewRange = getROI(model);
+  const startDate = viewRange.start;
+  const endDate = viewRange.end;
   //log(`startDate for reporter = ${startDate}`);
   //log(`endDate for reporter = ${endDate}`);
   return (name: string, val: number | string, date: Date, source: string) => {
@@ -965,60 +957,75 @@ function getOption(type: string): boolean {
   return reactAppComponent.options[type];
 }
 
-export async function deleteItemFromModel(
-  name: string,
+export async function deleteItemsFromModel(
+  names: string[],
   itemList: Item[],
   modelName: string,
   model: ModelData,
   doChecks: boolean,
 ): Promise<boolean> {
-  log(`delete item ${name}`);
+  // log(`delete items ${names}`);
   //log(`before itemList ${itemList.map((i)=>{return i.NAME})}`);
 
   markForUndo(model);
+  let missingItem: string | undefined = undefined;
+  names.map((name) => {
+    const idx = itemList.findIndex((i: Item) => {
+      return i.NAME === name;
+    });
+    // log(`idx of ${name} is ${idx}`);
 
-  const idx = itemList.findIndex((i: Item) => {
-    return i.NAME === name;
-  });
-  if (idx !== -1) {
-    const oldItem = itemList[idx];
-    // log(`before delete itemList = ${showObj(itemList)}`);
-    itemList.splice(idx, 1);
-    // log(`after delete itemList = ${showObj(itemList)}`);
-
-    if (doChecks) {
-      const checkResponse = checkData(model);
-      if (checkResponse !== '') {
-        const response = `edited  model fails checks :${checkResponse}', reverting`;
-        // log(`setState for delete item alert`);
-        reactAppComponent.setState({
-          alertText: response,
-        });
-        itemList.splice(idx, 0, oldItem);
-        // log(`after putback itemList = ${showObj(itemList)}`);
-        revertToUndoModel(model);
-        return false;
-      }
+    if (idx !== -1) {
+      // log(`before delete ${name}, itemList = ${showObj(itemList)}`);
+      itemList.splice(idx, 1);
+      // log(`after delete ${name}, itemList = ${showObj(itemList)}`);
+    } else {
+      missingItem = name;
     }
-
-    //log(`after itemList  ${itemList.map((i)=>{return i.NAME})}`);
-
-    await saveModelLSM(getUserID(), modelName, model);
-    await refreshData(
-      true, // refreshModel = true,
-      true, // refreshChart = true,
-      13, //sourceID
-    );
-    return true;
-  } else {
-    showAlert(`item to delete ${name} not found in model!`);
+  });
+  if (missingItem !== undefined) {
+    const response = `item not found for delete :${missingItem}`;
+    // log(`setState for delete item alert`);
+    reactAppComponent.setState({
+      alertText: response,
+    });
+    // log(`revert attempt to delete - missing item`);
+    revertToUndoModel(model);
+    return false;
   }
-  return false;
+
+  if (doChecks) {
+    const checkResponse = checkData(model);
+    if (checkResponse !== '') {
+      const response = `edited  model fails checks :${checkResponse}', reverting`;
+      // log(`setState for delete item alert`);
+      reactAppComponent.setState({
+        alertText: response,
+      });
+      // log(`revert attempt to delete - fails checks`);
+      revertToUndoModel(model);
+      return false;
+    }
+  }
+
+  //log(
+  //  `now itemList = ${itemList.map((i) => {
+  //    return i.NAME;
+  //  })}`,
+  //);
+
+  await saveModelLSM(getUserID(), modelName, model);
+  await refreshData(
+    true, // refreshModel = true,
+    true, // refreshChart = true,
+    13, //sourceID
+  );
+  return true;
 }
 
 export async function deleteTrigger(name: string): Promise<boolean> {
-  return deleteItemFromModel(
-    name,
+  return deleteItemsFromModel(
+    [name],
     reactAppComponent.state.modelData.triggers,
     modelName,
     reactAppComponent.state.modelData,
@@ -1027,8 +1034,8 @@ export async function deleteTrigger(name: string): Promise<boolean> {
 }
 
 export async function deleteAsset(name: string): Promise<boolean> {
-  return deleteItemFromModel(
-    name,
+  return deleteItemsFromModel(
+    [name],
     reactAppComponent.state.modelData.assets,
     modelName,
     reactAppComponent.state.modelData,
@@ -1037,8 +1044,8 @@ export async function deleteAsset(name: string): Promise<boolean> {
 }
 
 export async function deleteTransaction(name: string): Promise<boolean> {
-  return deleteItemFromModel(
-    name,
+  return deleteItemsFromModel(
+    [name],
     reactAppComponent.state.modelData.transactions,
     modelName,
     reactAppComponent.state.modelData,
@@ -1047,8 +1054,8 @@ export async function deleteTransaction(name: string): Promise<boolean> {
 }
 
 export async function deleteExpense(name: string): Promise<boolean> {
-  return deleteItemFromModel(
-    name,
+  return deleteItemsFromModel(
+    [name],
     reactAppComponent.state.modelData.expenses,
     modelName,
     reactAppComponent.state.modelData,
@@ -1057,8 +1064,8 @@ export async function deleteExpense(name: string): Promise<boolean> {
 }
 
 export async function deleteIncome(name: string): Promise<boolean> {
-  return deleteItemFromModel(
-    name,
+  return deleteItemsFromModel(
+    [name],
     reactAppComponent.state.modelData.incomes,
     modelName,
     reactAppComponent.state.modelData,
@@ -1067,8 +1074,8 @@ export async function deleteIncome(name: string): Promise<boolean> {
 }
 
 export async function deleteSetting(name: string): Promise<boolean> {
-  return deleteItemFromModel(
-    name,
+  return deleteItemsFromModel(
+    [name],
     reactAppComponent.state.modelData.settings,
     modelName,
     reactAppComponent.state.modelData,
@@ -1359,22 +1366,13 @@ export class AppContent extends Component<AppProps, AppState> {
     // log(`this.state.reportData.length = ${this.state.reportData.length}`);
     try {
       // throw new Error('pretend something went wrong');
-
-      const getSettingValue = (settingName: string) => {
-        let value = '';
-        const s = this.state.modelData.settings.find((s) => {
-          return s.NAME === settingName;
-        });
-        if (s !== undefined) {
-          value = s.VALUE;
-        }
-        return value;
-      };
       const getStartDate = () => {
-        return getSettingValue(roiStart);
+        const start: Date = getROI(this.state.modelData).start;
+        return start.toDateString();
       };
       const getEndDate = () => {
-        return getSettingValue(roiEnd);
+        const end: Date = getROI(this.state.modelData).end;
+        return end.toDateString();
       };
       const updateSettingValue = (settingName: string, newDate: string) => {
         const s = this.state.modelData.settings.find((s) => {
@@ -1385,6 +1383,15 @@ export class AppContent extends Component<AppProps, AppState> {
           submitNewSetting(s, this.state.modelData, this.state.viewState);
         }
       };
+      const deleteTransactions = (arg: string[]) => {
+        const model = this.state.modelData;
+        deleteItemsFromModel(arg, model.transactions, model.name, model, true);
+      };
+      const deleteExpenses = (arg: string[]) => {
+        const model = this.state.modelData;
+        deleteItemsFromModel(arg, model.expenses, model.name, model, true);
+      };
+
       const updateStartDate = async (newDate: string) => {
         updateSettingValue(roiStart, newDate);
       };
@@ -1406,6 +1413,8 @@ export class AppContent extends Component<AppProps, AppState> {
               this.state.todaysExpenseValues,
               this.state.viewState,
               showAlert,
+              deleteTransactions,
+              deleteExpenses,
               this.options.checkModelOnEdit,
               this.state.assetChartData,
               this.state.debtChartData,
@@ -1420,11 +1429,13 @@ export class AppContent extends Component<AppProps, AppState> {
             {this.settingsDiv(
               this.state.modelData,
               this.state.todaysSettingValues,
+              deleteTransactions,
             )}
             {incomesDiv(
               this.state.modelData,
               this.state.viewState,
               showAlert,
+              deleteTransactions,
               this.options.checkModelOnEdit,
               this.state.incomesChartData,
               this.state.todaysIncomeValues,
@@ -1437,6 +1448,8 @@ export class AppContent extends Component<AppProps, AppState> {
               this.state.modelData,
               this.state.viewState,
               showAlert,
+              deleteTransactions,
+              deleteExpenses,
               this.options.checkModelOnEdit,
               this.state.expensesChartData,
               this.state.todaysExpenseValues,
@@ -1449,6 +1462,7 @@ export class AppContent extends Component<AppProps, AppState> {
               this.state.modelData,
               this.state.viewState,
               showAlert,
+              deleteTransactions,
               this.options.checkModelOnEdit,
               this.state.assetChartData,
               this.state.todaysAssetValues,
@@ -1461,6 +1475,7 @@ export class AppContent extends Component<AppProps, AppState> {
               this.state.modelData,
               this.state.viewState,
               showAlert,
+              deleteTransactions,
               this.options.checkModelOnEdit,
               this.state.debtChartData,
               this.state.todaysDebtValues,
@@ -1469,7 +1484,7 @@ export class AppContent extends Component<AppProps, AppState> {
               getEndDate,
               updateEndDate,
             )}
-            {this.transactionsDiv()}
+            {this.transactionsDiv(deleteTransactions)}
             {taxDiv(
               this.state.modelData,
               this.state.viewState,
@@ -1985,6 +2000,7 @@ export class AppContent extends Component<AppProps, AppState> {
   private settingsDiv(
     model: ModelData,
     todaysValues: Map<string, SettingVal>,
+    deleteTransactions: (arg: string[]) => void,
   ): JSX.Element {
     if (!getDisplay(settingsView)) {
       // log(`don't populate settingsView`);
@@ -1997,6 +2013,7 @@ export class AppContent extends Component<AppProps, AppState> {
           {settingsTableDiv(
             this.state.modelData,
             showAlert,
+            deleteTransactions,
             this.options.checkModelOnEdit,
           )}
           {this.todaysSettingsTable(model, todaysValues)}
@@ -2062,7 +2079,9 @@ export class AppContent extends Component<AppProps, AppState> {
     );
   }
 
-  private transactionsDiv(): JSX.Element {
+  private transactionsDiv(
+    deleteTransactions: (arg: string[]) => void,
+  ): JSX.Element {
     if (!getDisplay(transactionsView)) {
       // log(`don't populate transactionsView`);
       return <></>;
@@ -2074,6 +2093,7 @@ export class AppContent extends Component<AppProps, AppState> {
         {transactionFilteredTable(
           this.state.modelData,
           showAlert,
+          deleteTransactions,
           this.options.checkModelOnEdit,
           custom,
           'Custom transactions',
@@ -2081,6 +2101,7 @@ export class AppContent extends Component<AppProps, AppState> {
         {transactionFilteredTable(
           this.state.modelData,
           showAlert,
+          deleteTransactions,
           this.options.checkModelOnEdit,
           autogen,
           'Auto-generated transactions',
@@ -2088,6 +2109,7 @@ export class AppContent extends Component<AppProps, AppState> {
         {transactionFilteredTable(
           this.state.modelData,
           showAlert,
+          deleteTransactions,
           this.options.checkModelOnEdit,
           bondInvest,
           'Investments into bonds',
@@ -2095,6 +2117,7 @@ export class AppContent extends Component<AppProps, AppState> {
         {transactionFilteredTable(
           this.state.modelData,
           showAlert,
+          deleteTransactions,
           this.options.checkModelOnEdit,
           bondMature,
           'Maturities of bonds',

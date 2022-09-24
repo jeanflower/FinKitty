@@ -13,13 +13,14 @@ import { makeButton } from './Button';
 import { DateSelectionRow, itemOptions } from './DateSelectionRow';
 import { Input } from './Input';
 import { isNumberString } from '../../models/checks';
-import { revalue, revalueExp } from '../../localization/stringConstants';
+import { revalueExp } from '../../localization/stringConstants';
 import { doCheckBeforeOverwritingExistingData } from '../../App';
-import { getVarVal, isATransaction } from '../../models/modelUtils';
+import { getVarVal, makeRevalueName } from '../../models/modelUtils';
 import {
   makeValueAbsPropFromString,
   checkTriggerDate,
   makeBooleanFromYesNo,
+  lessThan,
 } from '../../utils/stringUtils';
 import Spacer from 'react-spacer';
 
@@ -263,7 +264,9 @@ export class AddDeleteExpenseForm extends Component<
           Expense name
           <Spacer height={10} />
           {itemOptions(
-            this.props.model.expenses,
+            this.props.model.expenses.sort((a: Expense, b: Expense) => {
+              return lessThan(a.NAME, b.NAME);
+            }),
             this.props.model,
             this.handleNameChange,
             'expensename',
@@ -360,7 +363,7 @@ export class AddDeleteExpenseForm extends Component<
     const date = checkTriggerDate(
       this.state.VALUE_SET,
       this.props.model.triggers,
-      getVarVal(this.props.model),
+      getVarVal(this.props.model.settings),
     );
     const isNotADate = date === undefined;
     if (isNotADate) {
@@ -368,15 +371,10 @@ export class AddDeleteExpenseForm extends Component<
       return;
     }
 
-    let count = 1;
-    while (
-      isATransaction(`${revalue}${this.state.NAME} ${count}`, this.props.model)
-    ) {
-      count += 1;
-    }
+    const newName = makeRevalueName(this.state.NAME, this.props.model);
 
     const revalueExpenseTransaction: Transaction = {
-      NAME: `${revalue}${this.state.NAME} ${count}`,
+      NAME: `${newName}`,
       FROM: '',
       FROM_ABSOLUTE: false,
       FROM_VALUE: '0.0',
@@ -438,7 +436,7 @@ export class AddDeleteExpenseForm extends Component<
     let date = checkTriggerDate(
       this.state.START,
       this.props.model.triggers,
-      getVarVal(this.props.model),
+      getVarVal(this.props.model.settings),
     );
     let isNotADate = date === undefined;
     if (isNotADate) {
@@ -448,7 +446,7 @@ export class AddDeleteExpenseForm extends Component<
     date = checkTriggerDate(
       this.state.END,
       this.props.model.triggers,
-      getVarVal(this.props.model),
+      getVarVal(this.props.model.settings),
     );
     isNotADate = date === undefined;
     if (isNotADate) {
@@ -458,7 +456,7 @@ export class AddDeleteExpenseForm extends Component<
     date = checkTriggerDate(
       this.state.VALUE_SET,
       this.props.model.triggers,
-      getVarVal(this.props.model),
+      getVarVal(this.props.model.settings),
     );
     isNotADate = date === undefined;
     if (isNotADate) {

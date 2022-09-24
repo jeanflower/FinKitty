@@ -19,7 +19,6 @@ import {
   pensionTransfer,
   quantity,
   EvaluateAllAssets,
-  roiStart,
   purchase,
   dot,
   baseForCPI,
@@ -51,7 +50,6 @@ import { getDisplayName } from '../views/tablePages';
 import {
   getNumberAndWordParts,
   getStartQuantity,
-  makeDateFromString,
   getTriggerDate,
   makeIncomeTaxTag,
   makeNationalInsuranceTag,
@@ -67,6 +65,7 @@ import {
   replaceCategoryWithAssetNames,
   getTodaysDate,
   getVarVal,
+  getROI,
 } from './modelUtils';
 
 function parseRecurrenceString(recurrence: string) {
@@ -649,6 +648,15 @@ function setValue(
         log(`Error: missing or zero base value!`);
       }
     }
+    /*
+    if (name.startsWith(quantity)) {
+      // we're changing the quantity of asset
+      const assetName = name.substring(quantity.length);
+      // quantity changes from oldValForEvaluations to valForEvaluations
+      // so what change does this effect to the value of the asset?
+      log(`changing quantity of ${assetName} will change its value`);
+    }
+    */
     const totalVal = applyQuantity(valForEvaluations, values, name, model);
     const totalOldVal = applyQuantity(
       oldValForEvaluations,
@@ -2052,7 +2060,7 @@ function handleIncome(
 ) {
   // log(`handle income value = ${incomeValue}`);
   const triggers = model.triggers;
-  const v = getVarVal(model);
+  const v = getVarVal(model.settings);
 
   // log(`handle income for moment ${moment.name}`);
 
@@ -2441,7 +2449,7 @@ function logAssetValueString(
         values,
         growths,
         evaluations,
-        getTriggerDate(assetStart, model.triggers, getVarVal(model)),
+        getTriggerDate(assetStart, model.triggers, getVarVal(model.settings)),
         assetVal,
         parseFloat(settingVal),
         model,
@@ -2485,7 +2493,7 @@ function logAssetValueString(
         values,
         growths,
         evaluations,
-        getTriggerDate(assetStart, model.triggers, getVarVal(model)),
+        getTriggerDate(assetStart, model.triggers, getVarVal(model.settings)),
         assetName,
         assetVal,
         model,
@@ -2525,7 +2533,7 @@ function getRecurrentMoments(
   rOIEndDate: Date,
   recurrence: string,
 ) {
-  const v = getVarVal(model);
+  const v = getVarVal(model.settings);
   // log(`in getRecurrentMoments`);
   let endDate = getTriggerDate(x.END, model.triggers, v);
   if (rOIEndDate < endDate) {
@@ -2587,7 +2595,11 @@ function getAssetMonthlyMoments(
   rOIEndDate: Date,
 ) {
   const roi = {
-    start: getTriggerDate(asset.START, model.triggers, getVarVal(model)),
+    start: getTriggerDate(
+      asset.START,
+      model.triggers,
+      getVarVal(model.settings),
+    ),
     end: rOIEndDate,
   };
   // log(`roi = ${showObj(roi)}`)
@@ -2621,7 +2633,7 @@ function getTransactionMoments(
   rOIEndDate: Date,
 ) {
   const triggers = model.triggers;
-  const v = getVarVal(model);
+  const v = getVarVal(model.settings);
   const newMoments: Moment[] = [];
   if (
     !transaction.NAME.startsWith(pensionTransfer) &&
@@ -3931,7 +3943,7 @@ function logPurchaseValues(
       values,
       growths,
       evaluations,
-      getTriggerDate(a.START, model.triggers, getVarVal(model)),
+      getTriggerDate(a.START, model.triggers, getVarVal(model.settings)),
       `${purchase}${a.NAME}`,
       purchaseValue,
       model,
@@ -4066,7 +4078,7 @@ function generateMoments(
   pensionTransactions: Transaction[],
 ) {
   let allMoments: Moment[] = [];
-  const v = getVarVal(model);
+  const v = getVarVal(model.settings);
 
   // For each expense, work out monthly growth and
   // a set of moments starting when the expense began,
@@ -4461,7 +4473,7 @@ function evaluateAllAssets(
   todaysExpenseValues: Map<string, ExpenseVal>,
   todaysSettingValues: Map<string, SettingVal>,
 ) {
-  const v = getVarVal(model);
+  const v = getVarVal(model.settings);
   model.assets.forEach((asset) => {
     let val = traceEvaluationForToday(asset.NAME, values, growths);
 
@@ -4489,21 +4501,15 @@ function evaluateAllAssets(
     }
   });
   model.incomes.forEach((i) => {
+    let hasStarted = true;
+    let hasEnded = false;
     const startDate = checkTriggerDate(i.START, model.triggers, v);
     if (startDate !== undefined && startDate > today) {
-      todaysIncomeValues.set(i.NAME, {
-        incomeVal: 0,
-        category: i.CATEGORY,
-      });
-      return;
+      hasStarted = false;
     }
     const endDate = checkTriggerDate(i.END, model.triggers, v);
     if (endDate !== undefined && endDate < today) {
-      todaysIncomeValues.set(i.NAME, {
-        incomeVal: 0,
-        category: i.CATEGORY,
-      });
-      return;
+      hasEnded = true;
     }
     // log(`income ${i.NAME} ends at ${i.END} not yet ended at ${today}`);
     const val = traceEvaluationForToday(i.NAME, values, growths);
@@ -4511,29 +4517,23 @@ function evaluateAllAssets(
       todaysIncomeValues.set(i.NAME, {
         incomeVal: val,
         category: i.CATEGORY,
+        hasStarted: hasStarted,
+        hasEnded: hasEnded,
       });
     } else {
       // log(`don't report undefined today's value for ${i.NAME}`);
     }
   });
   model.expenses.forEach((e) => {
+    let hasStarted = true;
+    let hasEnded = false;
     const startDate = checkTriggerDate(e.START, model.triggers, v);
     if (startDate !== undefined && startDate > today) {
-      todaysExpenseValues.set(e.NAME, {
-        expenseVal: 0,
-        category: e.CATEGORY,
-        expenseFreq: e.RECURRENCE,
-      });
-      return;
+      hasStarted = false;
     }
     const endDate = checkTriggerDate(e.END, model.triggers, v);
     if (endDate !== undefined && endDate < today) {
-      todaysExpenseValues.set(e.NAME, {
-        expenseVal: 0,
-        category: e.CATEGORY,
-        expenseFreq: e.RECURRENCE,
-      });
-      return;
+      hasEnded = true;
     }
     const val = traceEvaluationForToday(e.NAME, values, growths);
     if (val !== undefined) {
@@ -4542,6 +4542,8 @@ function evaluateAllAssets(
         expenseVal: val,
         expenseFreq: e.RECURRENCE,
         category: e.CATEGORY,
+        hasStarted: hasStarted,
+        hasEnded: hasEnded,
       });
     } else {
       // log(`don't report undefined today's value for ${e.NAME}`);
@@ -5092,6 +5094,16 @@ function growAndEffectMoment(
   }
 }
 
+function getEvaluationsROI(model: ModelData) {
+  const range = getROI(model);
+  const startDate = range.start;
+  const start2018 = new Date('1 Jan 2018');
+  if (start2018.getTime() < startDate.getTime()) {
+    range.start = start2018;
+  }
+  return range;
+}
+
 function getEvaluationsInternal(
   model: ModelData,
   reporter: ReportValueChecker | undefined,
@@ -5158,16 +5170,13 @@ function getEvaluationsInternal(
     getSettings(model.settings, cpi, '0.0'),
   );
 
+  const viewRange = getEvaluationsROI(model);
   // We set a start date to set, for example, our CPI base value to 1.0.
-  const roiStartDate: Date = makeDateFromString(
-    getSettings(model.settings, roiStart, '1 Jan 1999'),
-  );
+  const roiStartDate: Date = viewRange.start;
   // log(`roiStartDate = ${roiStartDate}`);
 
   // We set an end date to act as a stop for recurrent events.
-  const roiEndDate: Date = makeDateFromString(
-    getSettings(model.settings, roiEnd, '1 Jan 1999'),
-  );
+  const roiEndDate: Date = viewRange.end;
   // log(`roiEndDate = ${roiEndDate}`);
 
   // might be set using a settings value
@@ -5455,12 +5464,21 @@ export function getEvaluations(
   reportData: ReportDatum[];
 } {
   // log(`Entered getEvaluations for model ${model.name}`);
-  const roiStartDate: Date = makeDateFromString(
-    getSettings(model.settings, roiStart, '1 Jan 1999'),
-  );
-  let roiEndDate: Date = makeDateFromString(
-    getSettings(model.settings, roiEnd, '1 Jan 1999'),
-  );
+  const viewRange = getEvaluationsROI(model);
+  let startDateForBondMaturityCalculation: Date = viewRange.start;
+
+  const revalueTransactions = model.transactions.filter((t) => {
+    return t.TYPE === revalueSetting;
+  });
+  const varValue = getVarVal(model.settings);
+  for (const t of revalueTransactions) {
+    const tDate = getTriggerDate(t.DATE, model.triggers, varValue);
+    if (tDate < startDateForBondMaturityCalculation) {
+      startDateForBondMaturityCalculation = tDate;
+    }
+  }
+
+  let roiEndDate: Date = viewRange.end;
   const maturityTransactions = model.transactions.filter((t) => {
     return t.FROM_VALUE.startsWith(bondMaturity) && t.TO === CASH_ASSET_NAME;
   });
@@ -5470,9 +5488,15 @@ export function getEvaluations(
 
   if (maturityTransactions.length > 0) {
     maturityTransactions.forEach((mt) => {
-      const d = new Date(mt.DATE);
+      const d = getTriggerDate(mt.DATE, model.triggers, varValue);
       if (d > roiEndDate) {
         roiEndDate = d;
+      }
+      if (mt.STOP_DATE !== '') {
+        const stopDate = getTriggerDate(mt.STOP_DATE, model.triggers, varValue);
+        if (stopDate > roiEndDate) {
+          roiEndDate = stopDate;
+        }
       }
     });
     roiEndDate.setMonth(roiEndDate.getMonth() + 1);
@@ -5499,7 +5523,7 @@ export function getEvaluations(
           {
             NAME: `${bondMaturity}base`,
             CATEGORY: '',
-            START: roiStartDate.toDateString(),
+            START: startDateForBondMaturityCalculation.toDateString(),
             VALUE: '1.0',
             QUANTITY: '', // Quantised assets have unit prices on-screen for table value
             // Quantised assets can only be transacted in unit integer quantities

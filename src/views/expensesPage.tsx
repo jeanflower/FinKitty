@@ -124,12 +124,14 @@ export function todaysExpensesTable(
 
   const entries = Array.from(todaysValues.entries());
   for (const key of entries) {
-    const cat = key[1].category;
-    if (cat === '') {
-      addToMap(key[0], key[1], categorisedValues);
-    } else {
-      const catName: string = key[1].category;
-      addToMap(`${catName}${key[1].expenseFreq}`, key[1], categorisedValues);
+    if (key[1].hasStarted && !key[1].hasEnded) {
+      const cat = key[1].category;
+      if (cat === '') {
+        addToMap(key[0], key[1], categorisedValues);
+      } else {
+        const catName: string = key[1].category;
+        addToMap(`${catName}${key[1].expenseFreq}`, key[1], categorisedValues);
+      }
     }
   }
 
@@ -148,6 +150,8 @@ export function expensesDiv(
   model: ModelData,
   viewSettings: ViewSettings,
   showAlert: (arg0: string) => void,
+  deleteTransactions: (arg: string[]) => void,
+  deleteExpenses: (arg: string[]) => void,
   doChecks: boolean,
   expensesChartData: ChartData,
   todaysValues: Map<string, ExpenseVal>,
@@ -177,11 +181,18 @@ export function expensesDiv(
         ),
         'Expenses data chart',
       )}
-      {expensesTableDivWithHeading(model, todaysValues, showAlert, doChecks)}
+      {expensesTableDivWithHeading(
+        model,
+        todaysValues,
+        showAlert,
+        deleteExpenses,
+        doChecks,
+      )}
       {todaysExpensesTable(model, todaysValues)}
       {transactionFilteredTable(
         model,
         showAlert,
+        deleteTransactions,
         doChecks,
         revalueExp,
         'Expense revaluations',
