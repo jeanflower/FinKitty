@@ -228,12 +228,12 @@ export function filtersList(
   );
 }
 
-export function coarseFineList(settings: ViewSettings) {
-  const viewTypes: string[] = [totalDetail, coarseDetail, fineDetail];
+export function coarseFineList(settings: ViewSettings, chartData: ChartData) {
+  const viewTypes: string[] = [coarseDetail, fineDetail, totalDetail];
   const selectedCoarseFineView = getCoarseFineView(settings);
   const buttons = viewTypes.map((viewType) =>
     makeButton(
-      viewType,
+      `${viewType}${tideLines(viewType, settings, chartData)}`,
       (e: React.MouseEvent<HTMLButtonElement>) => {
         e.persist();
         setViewSettingNameVal(settings, viewDetail, viewType);
@@ -516,6 +516,22 @@ export function incomesChartDiv(
     return incomesChart(incomesChartData, chartSettings, viewSettings);
   }
 }
+export function tideLines(
+  viewType: string,
+  settings: ViewSettings,
+  chartData: ChartData,
+): string {
+  if (viewType !== totalDetail || getCoarseFineView(settings) !== totalDetail) {
+    return '';
+  }
+  if (chartData.datasets[0] === undefined) {
+    return '';
+  }
+  const mx = Math.max(...chartData.datasets[0].data);
+  const mn = Math.min(...chartData.datasets[0].data);
+  return ` ${makeTwoDP(mn)}, ${makeTwoDP(mx)}`;
+}
+
 export function incomesChartDivWithButtons(
   model: ModelData,
   settings: ViewSettings,
@@ -557,7 +573,7 @@ export function incomesChartDivWithButtons(
           message={showObj(incomesChartData)}
         />
         {filtersList(model.incomes, settings, Context.Income, false)}
-        {coarseFineList(settings)}
+        {coarseFineList(settings, incomesChartData)}
         {incomesChartDiv(
           incomesChartData,
           chartSettings,
@@ -649,7 +665,7 @@ export function expensesChartDivWithButtons(
           message={showObj(expensesChartData)}
         />
         {filtersList(model.expenses, settings, Context.Expense, false)}
-        {coarseFineList(settings)}
+        {coarseFineList(settings, expensesChartData)}
         <fieldset>
           {expensesChartDiv(
             expensesChartData,
@@ -768,7 +784,7 @@ export function assetsOrDebtsChartDivWithButtons(
       >
         {filtersList(items, viewSettings, context, false)}
         {assetViewTypeList(viewSettings)}
-        {coarseFineList(viewSettings)}
+        {coarseFineList(viewSettings, assetChartData)}
         <ReactiveTextArea
           identifier={isDebt ? 'debtDataDump' : 'assetDataDump'}
           message={showObj(assetChartData)}
@@ -934,7 +950,7 @@ function taxChartDivWithButtons(
   return (
     <>
       {taxButtonList(model, viewSettings)}
-      {coarseFineList(viewSettings)}
+      {coarseFineList(viewSettings, taxChartData)}
       {taxChartDiv(
         taxChartData,
         settings,
