@@ -651,8 +651,8 @@ export function migrateOldVersions(model: ModelDataFromFile) {
 
   // should throw immediately to alert of problems
   if (model.version !== getCurrentVersion()) {
-    // log(`model.version = ${model.version}
-    //   but current version is ${getCurrentVersion()}`);
+    log(`model.version = ${model.version}
+      but current version is ${getCurrentVersion()}`);
     if (model.version > getCurrentVersion()) {
       /* istanbul ignore next */
       throw new Error(
