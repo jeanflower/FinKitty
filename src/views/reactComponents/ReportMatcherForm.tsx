@@ -62,7 +62,7 @@ export class ReportMatcherForm extends Component<
         </div>
         <Input
           type={'text'}
-          title={'Match sources'}
+          title={'Match sources (. means everything)'}
           name={'reportSourceMatcher'}
           value={this.state.sourceMatcher}
           placeholder={'Enter matcher here'}
