@@ -764,13 +764,13 @@ describe(testDataModelName, () => {
     for (let i = 0; i < 2; i = i + 1) {
       await gotoTabPage(driver, expensesTag);
       await gotoTabPage(driver, incomesTag);
-      await clickButton(driver, 'chooseViewDetailTypeTotalled view');
+      await clickButton(driver, 'chooseViewDetailTypeTotalled');
       await clickButton(driver, 'select-Pension');
       await clickButton(driver, 'select-Salary');
       await clickButton(driver, 'select-All');
       await clickButton(driver, 'select-Ben salary');
       await clickButton(driver, 'select-Jerry salary');
-      await clickButton(driver, 'chooseViewDetailTypeDetailed view');
+      await clickButton(driver, 'chooseViewDetailTypeDetailed');
       await clickButton(driver, 'select-Pension');
       await clickButton(driver, 'select-Salary');
       await clickButton(driver, 'select-All');

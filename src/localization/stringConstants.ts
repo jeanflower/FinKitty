@@ -42,9 +42,9 @@ export const monthly = 'Monthly';
 // separately
 export const viewDetail = 'View detail';
 //  "View detail ('Categorised view' or 'Detailed view')";
-export const totalDetail = 'Totalled view';
-export const coarseDetail = 'Categorised view';
-export const fineDetail = 'Detailed view';
+export const totalDetail = 'Totalled';
+export const coarseDetail = 'Categorised';
+export const fineDetail = 'Detailed';
 // The asset chart can show all assets/expenses/incomes
 // (set focus to All)
 // or all things in a given category

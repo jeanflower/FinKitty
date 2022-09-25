@@ -5645,7 +5645,7 @@ describe('evaluations tests', () => {
       },
       {
         NAME: 'View detail',
-        VALUE: 'Detailed view',
+        VALUE: 'Detailed',
       },
       {
         NAME: 'Type of view for debt chart',

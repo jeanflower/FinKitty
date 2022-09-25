@@ -2267,7 +2267,7 @@ describe('utils tests', () => {
     expect(settings.getShowItem(Context.Income, 'nonsense')).toEqual(false);
     expect(settings.getShowItem(Context.Expense, 'nonsense')).toEqual(false);
     expect(settings.getViewSetting(viewDetail, fineDetail)).toEqual(
-      'Detailed view',
+      'Detailed',
     );
     expect(settings.getViewSetting(chartViewType, chartVals)).toEqual('val');
     expect(settings.getViewSetting(taxChartFocusPerson, allItems)).toEqual(
