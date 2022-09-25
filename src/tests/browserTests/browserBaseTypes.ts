@@ -140,7 +140,7 @@ export async function fillInputById(
     await input[0].sendKeys(Key.BACK_SPACE); //0
     await input[0].sendKeys(Key.BACK_SPACE); //0
     await input[0].sendKeys(Key.BACK_SPACE); //%
-  }  
+  }
   const result = await input[0].sendKeys(content);
   //log(`got ${result} from content ${content}`);
   return result;

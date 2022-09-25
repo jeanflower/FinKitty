@@ -4390,14 +4390,14 @@ describe('pension tests', () => {
       expectChartData(chartPts, 1, 'Tue Dec 01 2020', 60732.4, 2);
       expectChartData(chartPts, 2, 'Wed Dec 01 2021', 143749.2, 2);
       expectChartData(chartPts, 3, 'Thu Dec 01 2022', 233776.39, 2);
-      expectChartData(chartPts, 4, 'Fri Dec 01 2023', 294425.79, 2);
-      expectChartData(chartPts, 5, 'Sun Dec 01 2024', 355593.99, 2);
-      expectChartData(chartPts, 6, 'Mon Dec 01 2025', 416762.19, 2);
-      expectChartData(chartPts, 7, 'Tue Dec 01 2026', 479302.39, 2);
-      expectChartData(chartPts, 8, 'Wed Dec 01 2027', 541072.59, 2);
-      expectChartData(chartPts, 9, 'Fri Dec 01 2028', 602226.79, 2);
-      expectChartData(chartPts, 10, 'Sat Dec 01 2029', 663394.99, 2);
-      expectChartData(chartPts, 11, 'Sun Dec 01 2030', 669542.34, 2);
+      expectChartData(chartPts, 4, 'Fri Dec 01 2023', 294815.39, 2);
+      expectChartData(chartPts, 5, 'Sun Dec 01 2024', 356154.89, 2);
+      expectChartData(chartPts, 6, 'Mon Dec 01 2025', 417494.39, 2);
+      expectChartData(chartPts, 7, 'Tue Dec 01 2026', 480221.29, 2);
+      expectChartData(chartPts, 8, 'Wed Dec 01 2027', 542171.19, 2);
+      expectChartData(chartPts, 9, 'Fri Dec 01 2028', 603497.39, 2);
+      expectChartData(chartPts, 10, 'Sat Dec 01 2029', 664836.89, 2);
+      expectChartData(chartPts, 11, 'Sun Dec 01 2030', 670998.54, 2);
     }
 
     expect(result.assetData[1].item.NAME).toBe('-PEN javaDCP');
@@ -4554,14 +4554,14 @@ describe('pension tests', () => {
       expectChartData(chartPts, 1, 'Tue Dec 01 2020', 4041.12, 2);
       expectChartData(chartPts, 2, 'Wed Dec 01 2021', 12103.36, 2);
       expectChartData(chartPts, 3, 'Thu Dec 01 2022', 12117.36, 2);
-      expectChartData(chartPts, 4, 'Fri Dec 01 2023', 12233.64, 2);
-      expectChartData(chartPts, 5, 'Sun Dec 01 2024', 12233.64, 2);
-      expectChartData(chartPts, 6, 'Mon Dec 01 2025', 12233.64, 2);
-      expectChartData(chartPts, 7, 'Tue Dec 01 2026', 12233.64, 2);
-      expectChartData(chartPts, 8, 'Wed Dec 01 2027', 12329.64, 2);
-      expectChartData(chartPts, 9, 'Fri Dec 01 2028', 12489.64, 2);
-      expectChartData(chartPts, 10, 'Sat Dec 01 2029', 12233.64, 2);
-      expectChartData(chartPts, 11, 'Sun Dec 01 2030', 8159.76, 2);
+      expectChartData(chartPts, 4, 'Fri Dec 01 2023', 12233.94, 2);
+      expectChartData(chartPts, 5, 'Sun Dec 01 2024', 12267.9, 2);
+      expectChartData(chartPts, 6, 'Mon Dec 01 2025', 12267.9, 2);
+      expectChartData(chartPts, 7, 'Tue Dec 01 2026', 12267.9, 2);
+      expectChartData(chartPts, 8, 'Wed Dec 01 2027', 12365.1, 2);
+      expectChartData(chartPts, 9, 'Fri Dec 01 2028', 12527.1, 2);
+      expectChartData(chartPts, 10, 'Sat Dec 01 2029', 12267.9, 2);
+      expectChartData(chartPts, 11, 'Sun Dec 01 2030', 8182.4, 2);
     }
 
     expect(result.taxData[1].item.NAME).toBe('Jane income (net)');
@@ -4572,14 +4572,14 @@ describe('pension tests', () => {
       expectChartData(chartPts, 1, 'Tue Dec 01 2020', 4041.12, 2);
       expectChartData(chartPts, 2, 'Wed Dec 01 2021', 12103.36, 2);
       expectChartData(chartPts, 3, 'Thu Dec 01 2022', 12117.36, 2);
-      expectChartData(chartPts, 4, 'Fri Dec 01 2023', 12233.64, 2);
-      expectChartData(chartPts, 5, 'Sun Dec 01 2024', 12233.64, 2);
-      expectChartData(chartPts, 6, 'Mon Dec 01 2025', 12233.64, 2);
-      expectChartData(chartPts, 7, 'Tue Dec 01 2026', 12233.64, 2);
-      expectChartData(chartPts, 8, 'Wed Dec 01 2027', 12233.64, 2);
-      expectChartData(chartPts, 9, 'Fri Dec 01 2028', 12233.64, 2);
-      expectChartData(chartPts, 10, 'Sat Dec 01 2029', 12233.64, 2);
-      expectChartData(chartPts, 11, 'Sun Dec 01 2030', 10859.76, 2);
+      expectChartData(chartPts, 4, 'Fri Dec 01 2023', 12233.94, 2);
+      expectChartData(chartPts, 5, 'Sun Dec 01 2024', 12267.9, 2);
+      expectChartData(chartPts, 6, 'Mon Dec 01 2025', 12267.9, 2);
+      expectChartData(chartPts, 7, 'Tue Dec 01 2026', 12267.9, 2);
+      expectChartData(chartPts, 8, 'Wed Dec 01 2027', 12267.9, 2);
+      expectChartData(chartPts, 9, 'Fri Dec 01 2028', 12267.9, 2);
+      expectChartData(chartPts, 10, 'Sat Dec 01 2029', 12267.9, 2);
+      expectChartData(chartPts, 11, 'Sun Dec 01 2030', 10882.4, 2);
     }
 
     expect(result.taxData[2].item.NAME).toBe('Jeff income (net)');
@@ -4590,14 +4590,14 @@ describe('pension tests', () => {
       expectChartData(chartPts, 1, 'Tue Dec 01 2020', 4041.12, 2);
       expectChartData(chartPts, 2, 'Wed Dec 01 2021', 12103.36, 2);
       expectChartData(chartPts, 3, 'Thu Dec 01 2022', 12117.36, 2);
-      expectChartData(chartPts, 4, 'Fri Dec 01 2023', 12233.64, 2);
-      expectChartData(chartPts, 5, 'Sun Dec 01 2024', 12233.64, 2);
-      expectChartData(chartPts, 6, 'Mon Dec 01 2025', 12233.64, 2);
-      expectChartData(chartPts, 7, 'Tue Dec 01 2026', 12233.64, 2);
-      expectChartData(chartPts, 8, 'Wed Dec 01 2027', 12305.64, 2);
-      expectChartData(chartPts, 9, 'Fri Dec 01 2028', 12425.64, 2);
-      expectChartData(chartPts, 10, 'Sat Dec 01 2029', 12233.64, 2);
-      expectChartData(chartPts, 11, 'Sun Dec 01 2030', 8159.76, 2);
+      expectChartData(chartPts, 4, 'Fri Dec 01 2023', 12233.94, 2);
+      expectChartData(chartPts, 5, 'Sun Dec 01 2024', 12267.9, 2);
+      expectChartData(chartPts, 6, 'Mon Dec 01 2025', 12267.9, 2);
+      expectChartData(chartPts, 7, 'Tue Dec 01 2026', 12267.9, 2);
+      expectChartData(chartPts, 8, 'Wed Dec 01 2027', 12340.8, 2);
+      expectChartData(chartPts, 9, 'Fri Dec 01 2028', 12462.3, 2);
+      expectChartData(chartPts, 10, 'Sat Dec 01 2029', 12267.9, 2);
+      expectChartData(chartPts, 11, 'Sun Dec 01 2030', 8182.4, 2);
     }
 
     expect(result.taxData[3].item.NAME).toBe('Jen income (net)');
@@ -4608,14 +4608,14 @@ describe('pension tests', () => {
       expectChartData(chartPts, 1, 'Tue Dec 01 2020', 4041.12, 2);
       expectChartData(chartPts, 2, 'Wed Dec 01 2021', 12103.36, 2);
       expectChartData(chartPts, 3, 'Thu Dec 01 2022', 12117.36, 2);
-      expectChartData(chartPts, 4, 'Fri Dec 01 2023', 12233.64, 2);
-      expectChartData(chartPts, 5, 'Sun Dec 01 2024', 12233.64, 2);
-      expectChartData(chartPts, 6, 'Mon Dec 01 2025', 12233.64, 2);
-      expectChartData(chartPts, 7, 'Tue Dec 01 2026', 12233.64, 2);
-      expectChartData(chartPts, 8, 'Wed Dec 01 2027', 12233.64, 2);
-      expectChartData(chartPts, 9, 'Fri Dec 01 2028', 12233.64, 2);
-      expectChartData(chartPts, 10, 'Sat Dec 01 2029', 12233.64, 2);
-      expectChartData(chartPts, 11, 'Sun Dec 01 2030', 11759.76, 2);
+      expectChartData(chartPts, 4, 'Fri Dec 01 2023', 12233.94, 2);
+      expectChartData(chartPts, 5, 'Sun Dec 01 2024', 12267.9, 2);
+      expectChartData(chartPts, 6, 'Mon Dec 01 2025', 12267.9, 2);
+      expectChartData(chartPts, 7, 'Tue Dec 01 2026', 12267.9, 2);
+      expectChartData(chartPts, 8, 'Wed Dec 01 2027', 12267.9, 2);
+      expectChartData(chartPts, 9, 'Fri Dec 01 2028', 12267.9, 2);
+      expectChartData(chartPts, 10, 'Sat Dec 01 2029', 12267.9, 2);
+      expectChartData(chartPts, 11, 'Sun Dec 01 2030', 11782.4, 2);
     }
 
     expect(result.taxData[4].item.NAME).toBe('Joe income (net)');
@@ -4626,14 +4626,14 @@ describe('pension tests', () => {
       expectChartData(chartPts, 1, 'Tue Dec 01 2020', 4041.12, 2);
       expectChartData(chartPts, 2, 'Wed Dec 01 2021', 19303.36, 2);
       expectChartData(chartPts, 3, 'Thu Dec 01 2022', 36470.56, 2);
-      expectChartData(chartPts, 4, 'Fri Dec 01 2023', 31722.28, 2);
-      expectChartData(chartPts, 5, 'Sun Dec 01 2024', 12233.64, 2);
-      expectChartData(chartPts, 6, 'Mon Dec 01 2025', 12233.64, 2);
-      expectChartData(chartPts, 7, 'Tue Dec 01 2026', 12681.64, 2);
-      expectChartData(chartPts, 8, 'Wed Dec 01 2027', 13129.64, 2);
-      expectChartData(chartPts, 9, 'Fri Dec 01 2028', 12233.64, 2);
-      expectChartData(chartPts, 10, 'Sat Dec 01 2029', 12233.64, 2);
-      expectChartData(chartPts, 11, 'Sun Dec 01 2030', 8159.76, 2);
+      expectChartData(chartPts, 4, 'Fri Dec 01 2023', 32010.58, 2);
+      expectChartData(chartPts, 5, 'Sun Dec 01 2024', 12267.9, 2);
+      expectChartData(chartPts, 6, 'Mon Dec 01 2025', 12267.9, 2);
+      expectChartData(chartPts, 7, 'Tue Dec 01 2026', 12721.5, 2);
+      expectChartData(chartPts, 8, 'Wed Dec 01 2027', 13175.1, 2);
+      expectChartData(chartPts, 9, 'Fri Dec 01 2028', 12267.9, 2);
+      expectChartData(chartPts, 10, 'Sat Dec 01 2029', 12267.9, 2);
+      expectChartData(chartPts, 11, 'Sun Dec 01 2030', 8182.4, 2);
     }
 
     expect(result.taxData[5].item.NAME).toBe('Jake income (NI)');
@@ -4645,13 +4645,13 @@ describe('pension tests', () => {
       expectChartData(chartPts, 2, 'Wed Dec 01 2021', 476.64, 2);
       expectChartData(chartPts, 3, 'Thu Dec 01 2022', 476.64, 2);
       expectChartData(chartPts, 4, 'Fri Dec 01 2023', 360.36, 2);
-      expectChartData(chartPts, 5, 'Sun Dec 01 2024', 360.36, 2);
-      expectChartData(chartPts, 6, 'Mon Dec 01 2025', 360.36, 2);
-      expectChartData(chartPts, 7, 'Tue Dec 01 2026', 360.36, 2);
-      expectChartData(chartPts, 8, 'Wed Dec 01 2027', 360.36, 2);
-      expectChartData(chartPts, 9, 'Fri Dec 01 2028', 360.36, 2);
-      expectChartData(chartPts, 10, 'Sat Dec 01 2029', 360.36, 2);
-      expectChartData(chartPts, 11, 'Sun Dec 01 2030', 240.24, 2);
+      expectChartData(chartPts, 5, 'Sun Dec 01 2024', 326.4, 2);
+      expectChartData(chartPts, 6, 'Mon Dec 01 2025', 326.4, 2);
+      expectChartData(chartPts, 7, 'Tue Dec 01 2026', 326.4, 2);
+      expectChartData(chartPts, 8, 'Wed Dec 01 2027', 326.4, 2);
+      expectChartData(chartPts, 9, 'Fri Dec 01 2028', 326.4, 2);
+      expectChartData(chartPts, 10, 'Sat Dec 01 2029', 326.4, 2);
+      expectChartData(chartPts, 11, 'Sun Dec 01 2030', 217.6, 2);
     }
 
     expect(result.taxData[6].item.NAME).toBe('Jane income (NI)');
@@ -4663,13 +4663,13 @@ describe('pension tests', () => {
       expectChartData(chartPts, 2, 'Wed Dec 01 2021', 476.64, 2);
       expectChartData(chartPts, 3, 'Thu Dec 01 2022', 476.64, 2);
       expectChartData(chartPts, 4, 'Fri Dec 01 2023', 360.36, 2);
-      expectChartData(chartPts, 5, 'Sun Dec 01 2024', 360.36, 2);
-      expectChartData(chartPts, 6, 'Mon Dec 01 2025', 360.36, 2);
-      expectChartData(chartPts, 7, 'Tue Dec 01 2026', 360.36, 2);
-      expectChartData(chartPts, 8, 'Wed Dec 01 2027', 360.36, 2);
-      expectChartData(chartPts, 9, 'Fri Dec 01 2028', 360.36, 2);
-      expectChartData(chartPts, 10, 'Sat Dec 01 2029', 360.36, 2);
-      expectChartData(chartPts, 11, 'Sun Dec 01 2030', 240.24, 2);
+      expectChartData(chartPts, 5, 'Sun Dec 01 2024', 326.4, 2);
+      expectChartData(chartPts, 6, 'Mon Dec 01 2025', 326.4, 2);
+      expectChartData(chartPts, 7, 'Tue Dec 01 2026', 326.4, 2);
+      expectChartData(chartPts, 8, 'Wed Dec 01 2027', 326.4, 2);
+      expectChartData(chartPts, 9, 'Fri Dec 01 2028', 326.4, 2);
+      expectChartData(chartPts, 10, 'Sat Dec 01 2029', 326.4, 2);
+      expectChartData(chartPts, 11, 'Sun Dec 01 2030', 217.6, 2);
     }
 
     expect(result.taxData[7].item.NAME).toBe('Jeff income (NI)');
@@ -4681,13 +4681,13 @@ describe('pension tests', () => {
       expectChartData(chartPts, 2, 'Wed Dec 01 2021', 476.64, 2);
       expectChartData(chartPts, 3, 'Thu Dec 01 2022', 476.64, 2);
       expectChartData(chartPts, 4, 'Fri Dec 01 2023', 360.36, 2);
-      expectChartData(chartPts, 5, 'Sun Dec 01 2024', 360.36, 2);
-      expectChartData(chartPts, 6, 'Mon Dec 01 2025', 360.36, 2);
-      expectChartData(chartPts, 7, 'Tue Dec 01 2026', 360.36, 2);
-      expectChartData(chartPts, 8, 'Wed Dec 01 2027', 360.36, 2);
-      expectChartData(chartPts, 9, 'Fri Dec 01 2028', 360.36, 2);
-      expectChartData(chartPts, 10, 'Sat Dec 01 2029', 360.36, 2);
-      expectChartData(chartPts, 11, 'Sun Dec 01 2030', 240.24, 2);
+      expectChartData(chartPts, 5, 'Sun Dec 01 2024', 326.4, 2);
+      expectChartData(chartPts, 6, 'Mon Dec 01 2025', 326.4, 2);
+      expectChartData(chartPts, 7, 'Tue Dec 01 2026', 326.4, 2);
+      expectChartData(chartPts, 8, 'Wed Dec 01 2027', 326.4, 2);
+      expectChartData(chartPts, 9, 'Fri Dec 01 2028', 326.4, 2);
+      expectChartData(chartPts, 10, 'Sat Dec 01 2029', 326.4, 2);
+      expectChartData(chartPts, 11, 'Sun Dec 01 2030', 217.6, 2);
     }
 
     expect(result.taxData[8].item.NAME).toBe('Jen income (NI)');
@@ -4699,13 +4699,13 @@ describe('pension tests', () => {
       expectChartData(chartPts, 2, 'Wed Dec 01 2021', 476.64, 2);
       expectChartData(chartPts, 3, 'Thu Dec 01 2022', 476.64, 2);
       expectChartData(chartPts, 4, 'Fri Dec 01 2023', 360.36, 2);
-      expectChartData(chartPts, 5, 'Sun Dec 01 2024', 360.36, 2);
-      expectChartData(chartPts, 6, 'Mon Dec 01 2025', 360.36, 2);
-      expectChartData(chartPts, 7, 'Tue Dec 01 2026', 360.36, 2);
-      expectChartData(chartPts, 8, 'Wed Dec 01 2027', 360.36, 2);
-      expectChartData(chartPts, 9, 'Fri Dec 01 2028', 360.36, 2);
-      expectChartData(chartPts, 10, 'Sat Dec 01 2029', 360.36, 2);
-      expectChartData(chartPts, 11, 'Sun Dec 01 2030', 240.24, 2);
+      expectChartData(chartPts, 5, 'Sun Dec 01 2024', 326.4, 2);
+      expectChartData(chartPts, 6, 'Mon Dec 01 2025', 326.4, 2);
+      expectChartData(chartPts, 7, 'Tue Dec 01 2026', 326.4, 2);
+      expectChartData(chartPts, 8, 'Wed Dec 01 2027', 326.4, 2);
+      expectChartData(chartPts, 9, 'Fri Dec 01 2028', 326.4, 2);
+      expectChartData(chartPts, 10, 'Sat Dec 01 2029', 326.4, 2);
+      expectChartData(chartPts, 11, 'Sun Dec 01 2030', 217.6, 2);
     }
 
     expect(result.taxData[9].item.NAME).toBe('Joe income (NI)');
@@ -4717,13 +4717,13 @@ describe('pension tests', () => {
       expectChartData(chartPts, 2, 'Wed Dec 01 2021', 1916.64, 2);
       expectChartData(chartPts, 3, 'Thu Dec 01 2022', 4923.44, 2);
       expectChartData(chartPts, 4, 'Fri Dec 01 2023', 3911.72, 2);
-      expectChartData(chartPts, 5, 'Sun Dec 01 2024', 360.36, 2);
-      expectChartData(chartPts, 6, 'Mon Dec 01 2025', 360.36, 2);
-      expectChartData(chartPts, 7, 'Tue Dec 01 2026', 360.36, 2);
-      expectChartData(chartPts, 8, 'Wed Dec 01 2027', 360.36, 2);
-      expectChartData(chartPts, 9, 'Fri Dec 01 2028', 360.36, 2);
-      expectChartData(chartPts, 10, 'Sat Dec 01 2029', 360.36, 2);
-      expectChartData(chartPts, 11, 'Sun Dec 01 2030', 240.24, 2);
+      expectChartData(chartPts, 5, 'Sun Dec 01 2024', 326.4, 2);
+      expectChartData(chartPts, 6, 'Mon Dec 01 2025', 326.4, 2);
+      expectChartData(chartPts, 7, 'Tue Dec 01 2026', 326.4, 2);
+      expectChartData(chartPts, 8, 'Wed Dec 01 2027', 326.4, 2);
+      expectChartData(chartPts, 9, 'Fri Dec 01 2028', 326.4, 2);
+      expectChartData(chartPts, 10, 'Sat Dec 01 2029', 326.4, 2);
+      expectChartData(chartPts, 11, 'Sun Dec 01 2030', 217.6, 2);
     }
 
     expect(result.taxData[10].item.NAME).toBe('Jake income (incomeTax)');
@@ -4734,13 +4734,13 @@ describe('pension tests', () => {
       expectChartData(chartPts, 1, 'Tue Dec 01 2020', 0, -1);
       expectChartData(chartPts, 2, 'Wed Dec 01 2021', 20, -1);
       expectChartData(chartPts, 3, 'Thu Dec 01 2022', 6, -1);
-      expectChartData(chartPts, 4, 'Fri Dec 01 2023', 6, -1);
-      expectChartData(chartPts, 5, 'Sun Dec 01 2024', 6, -1);
-      expectChartData(chartPts, 6, 'Mon Dec 01 2025', 6, -1);
-      expectChartData(chartPts, 7, 'Tue Dec 01 2026', 6, -1);
-      expectChartData(chartPts, 8, 'Wed Dec 01 2027', 30, -1);
-      expectChartData(chartPts, 9, 'Fri Dec 01 2028', 70, -1);
-      expectChartData(chartPts, 10, 'Sat Dec 01 2029', 6, -1);
+      expectChartData(chartPts, 4, 'Fri Dec 01 2023', 5.7, 2);
+      expectChartData(chartPts, 5, 'Sun Dec 01 2024', 5.7, 2);
+      expectChartData(chartPts, 6, 'Mon Dec 01 2025', 5.7, 2);
+      expectChartData(chartPts, 7, 'Tue Dec 01 2026', 5.7, 2);
+      expectChartData(chartPts, 8, 'Wed Dec 01 2027', 28.5, 2);
+      expectChartData(chartPts, 9, 'Fri Dec 01 2028', 66.5, 2);
+      expectChartData(chartPts, 10, 'Sat Dec 01 2029', 5.7, 2);
       expectChartData(chartPts, 11, 'Sun Dec 01 2030', 0, -1);
     }
 
@@ -4752,13 +4752,13 @@ describe('pension tests', () => {
       expectChartData(chartPts, 1, 'Tue Dec 01 2020', 0, -1);
       expectChartData(chartPts, 2, 'Wed Dec 01 2021', 20, -1);
       expectChartData(chartPts, 3, 'Thu Dec 01 2022', 6, -1);
-      expectChartData(chartPts, 4, 'Fri Dec 01 2023', 6, -1);
-      expectChartData(chartPts, 5, 'Sun Dec 01 2024', 6, -1);
-      expectChartData(chartPts, 6, 'Mon Dec 01 2025', 6, -1);
-      expectChartData(chartPts, 7, 'Tue Dec 01 2026', 6, -1);
-      expectChartData(chartPts, 8, 'Wed Dec 01 2027', 6, -1);
-      expectChartData(chartPts, 9, 'Fri Dec 01 2028', 6, -1);
-      expectChartData(chartPts, 10, 'Sat Dec 01 2029', 6, -1);
+      expectChartData(chartPts, 4, 'Fri Dec 01 2023', 5.7, 2);
+      expectChartData(chartPts, 5, 'Sun Dec 01 2024', 5.7, 2);
+      expectChartData(chartPts, 6, 'Mon Dec 01 2025', 5.7, 2);
+      expectChartData(chartPts, 7, 'Tue Dec 01 2026', 5.7, 2);
+      expectChartData(chartPts, 8, 'Wed Dec 01 2027', 5.7, 2);
+      expectChartData(chartPts, 9, 'Fri Dec 01 2028', 5.7, 2);
+      expectChartData(chartPts, 10, 'Sat Dec 01 2029', 5.7, 2);
       expectChartData(chartPts, 11, 'Sun Dec 01 2030', 0, -1);
     }
 
@@ -4770,13 +4770,13 @@ describe('pension tests', () => {
       expectChartData(chartPts, 1, 'Tue Dec 01 2020', 0, -1);
       expectChartData(chartPts, 2, 'Wed Dec 01 2021', 20, -1);
       expectChartData(chartPts, 3, 'Thu Dec 01 2022', 6, -1);
-      expectChartData(chartPts, 4, 'Fri Dec 01 2023', 6, -1);
-      expectChartData(chartPts, 5, 'Sun Dec 01 2024', 6, -1);
-      expectChartData(chartPts, 6, 'Mon Dec 01 2025', 6, -1);
-      expectChartData(chartPts, 7, 'Tue Dec 01 2026', 6, -1);
-      expectChartData(chartPts, 8, 'Wed Dec 01 2027', 24, -1);
-      expectChartData(chartPts, 9, 'Fri Dec 01 2028', 54, -1);
-      expectChartData(chartPts, 10, 'Sat Dec 01 2029', 6, -1);
+      expectChartData(chartPts, 4, 'Fri Dec 01 2023', 5.7, 2);
+      expectChartData(chartPts, 5, 'Sun Dec 01 2024', 5.7, 2);
+      expectChartData(chartPts, 6, 'Mon Dec 01 2025', 5.7, 2);
+      expectChartData(chartPts, 7, 'Tue Dec 01 2026', 5.7, 2);
+      expectChartData(chartPts, 8, 'Wed Dec 01 2027', 22.8, 2);
+      expectChartData(chartPts, 9, 'Fri Dec 01 2028', 51.3, 2);
+      expectChartData(chartPts, 10, 'Sat Dec 01 2029', 5.7, 2);
       expectChartData(chartPts, 11, 'Sun Dec 01 2030', 0, -1);
     }
 
@@ -4788,13 +4788,13 @@ describe('pension tests', () => {
       expectChartData(chartPts, 1, 'Tue Dec 01 2020', 0, -1);
       expectChartData(chartPts, 2, 'Wed Dec 01 2021', 20, -1);
       expectChartData(chartPts, 3, 'Thu Dec 01 2022', 6, -1);
-      expectChartData(chartPts, 4, 'Fri Dec 01 2023', 6, -1);
-      expectChartData(chartPts, 5, 'Sun Dec 01 2024', 6, -1);
-      expectChartData(chartPts, 6, 'Mon Dec 01 2025', 6, -1);
-      expectChartData(chartPts, 7, 'Tue Dec 01 2026', 6, -1);
-      expectChartData(chartPts, 8, 'Wed Dec 01 2027', 6, -1);
-      expectChartData(chartPts, 9, 'Fri Dec 01 2028', 6, -1);
-      expectChartData(chartPts, 10, 'Sat Dec 01 2029', 6, -1);
+      expectChartData(chartPts, 4, 'Fri Dec 01 2023', 5.7, 2);
+      expectChartData(chartPts, 5, 'Sun Dec 01 2024', 5.7, 2);
+      expectChartData(chartPts, 6, 'Mon Dec 01 2025', 5.7, 2);
+      expectChartData(chartPts, 7, 'Tue Dec 01 2026', 5.7, 2);
+      expectChartData(chartPts, 8, 'Wed Dec 01 2027', 5.7, 2);
+      expectChartData(chartPts, 9, 'Fri Dec 01 2028', 5.7, 2);
+      expectChartData(chartPts, 10, 'Sat Dec 01 2029', 5.7, 2);
       expectChartData(chartPts, 11, 'Sun Dec 01 2030', 0, -1);
     }
 
@@ -4806,13 +4806,13 @@ describe('pension tests', () => {
       expectChartData(chartPts, 1, 'Tue Dec 01 2020', 0, -1);
       expectChartData(chartPts, 2, 'Wed Dec 01 2021', 2180, -1);
       expectChartData(chartPts, 3, 'Thu Dec 01 2022', 7206, -1);
-      expectChartData(chartPts, 4, 'Fri Dec 01 2023', 5766, -1);
-      expectChartData(chartPts, 5, 'Sun Dec 01 2024', 6, -1);
-      expectChartData(chartPts, 6, 'Mon Dec 01 2025', 6, -1);
-      expectChartData(chartPts, 7, 'Tue Dec 01 2026', 118, -1);
-      expectChartData(chartPts, 8, 'Wed Dec 01 2027', 230, -1);
-      expectChartData(chartPts, 9, 'Fri Dec 01 2028', 6, -1);
-      expectChartData(chartPts, 10, 'Sat Dec 01 2029', 6, -1);
+      expectChartData(chartPts, 4, 'Fri Dec 01 2023', 5477.7, 2);
+      expectChartData(chartPts, 5, 'Sun Dec 01 2024', 5.7, 2);
+      expectChartData(chartPts, 6, 'Mon Dec 01 2025', 5.7, 2);
+      expectChartData(chartPts, 7, 'Tue Dec 01 2026', 112.1, 2);
+      expectChartData(chartPts, 8, 'Wed Dec 01 2027', 218.5, 2);
+      expectChartData(chartPts, 9, 'Fri Dec 01 2028', 5.7, 2);
+      expectChartData(chartPts, 10, 'Sat Dec 01 2029', 5.7, 2);
       expectChartData(chartPts, 11, 'Sun Dec 01 2030', 0, -1);
     }
 
