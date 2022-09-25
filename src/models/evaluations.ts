@@ -983,11 +983,11 @@ const TAX_MAP: TaxBandsMap = {
     highNIRate: 0.0325,
   },
   '2023': {
-    noTaxBand: 12570,
-    lowTaxBand: 12570 + 37700, // = 50270
-    adjustNoTaxBand: 100000,
+    noTaxBand: 12570,  // Note that by fixing this to the same level as previous, we get poorer
+    lowTaxBand: 12570 + 37700, // because the tax baands are coded to increase with CPI
+    adjustNoTaxBand: 100000, // and if they don't increase, more of our income falls into the tax bands
     highTaxBand: 150000,
-    lowTaxRate: 0.19,
+    lowTaxRate: 0.19, // even though this is lower than 2022, we got poorer!! see above
     highTaxRate: 0.4,
     topTaxRate: 0.4,
 
