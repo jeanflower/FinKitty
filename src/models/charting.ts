@@ -1431,6 +1431,7 @@ export function makeChartData(
       assetNames = [...categories.sources]; // NQR
       debtNames = [...categories.sources]; // NQR
     }
+    /**/
     if (showAllExpenses) {
       // unfocussed expense views can have coarse views
       dateNameValueMap = typeDateNameValueMap.get(evaluationType.expense);
@@ -1445,7 +1446,9 @@ export function makeChartData(
         typeDateNameValueMap.set(evaluationType.expense, categories.map);
         expenseNames = [...categories.sources];
       }
+      /**/
     }
+    /**/
     if (showAllIncomes) {
       // unfocussed income views can have coarse views
       dateNameValueMap = typeDateNameValueMap.get(evaluationType.income);
@@ -1460,6 +1463,7 @@ export function makeChartData(
         typeDateNameValueMap.set(evaluationType.income, categories.map);
         incomeNames = [...categories.sources];
       }
+      /**/
     }
   }
 
