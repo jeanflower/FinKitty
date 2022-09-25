@@ -31,6 +31,8 @@ import {
   bondMaturity,
   optimizerView,
   custom,
+  bondInvest,
+  bondMature,
 } from '../localization/stringConstants';
 import {
   Asset,
@@ -958,7 +960,13 @@ export function getDisplayName(obj: string, type: string) {
 export function transactionsForTable(model: ModelData, type: string) {
   const unindexedRows = model.transactions
     .filter((t) => {
-      return t.TYPE === type;
+      if (t.TYPE === type) {
+        return true;
+      }
+      if (type === bondInvest && t.TYPE === bondMature) {
+        return true;
+      }
+      return false;
     })
     .map((obj: Transaction) => {
       // log(`obj.FROM_ABSOLUTE = ${obj.FROM_ABSOLUTE}`)
@@ -1276,6 +1284,9 @@ export function transactionsTableDiv(
   type: string,
   headingText: string,
 ) {
+  if (contents.length === 0) {
+    return <></>;
+  }
   return collapsibleFragment(
     <div
       className={`dataGridTransactions${type}`}
@@ -1283,6 +1294,7 @@ export function transactionsTableDiv(
         display: 'block',
       }}
     >
+      {/*
       <Button
         onClick={() => {
           deleteTransactions(
@@ -1319,6 +1331,8 @@ export function transactionsTableDiv(
       >
         delete all transactions
       </Button>
+      */}
+
       <DataGrid
         handleGridRowsUpdated={function () {
           return handleTransactionGridRowsUpdated(
@@ -1352,9 +1366,6 @@ export function transactionFilteredTable(
   headingText: string,
 ) {
   const contents = transactionsForTable(model, type);
-  if (contents.length === 0) {
-    return;
-  }
   return transactionsTableDiv(
     contents,
     model,
