@@ -22,7 +22,7 @@
     "file-saver": "^2.0.5",
     "gh-pages": "^2.2.0",
     "jquery": "^3.6.0",
-    "moment": "^2.29.3",
+    "moment": "^2.29.4",
     "react": "^16.14.0",
     "react-bootstrap": "^1.6.4",
     "react-chartjs-2": "^4.0.1",
