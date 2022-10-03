@@ -32,7 +32,6 @@ import {
   defaultSourceMatcher,
   defaultSourceExcluder,
   bondInvest,
-  bondMature,
   evalModeOption,
   checkModelOnEditOption,
   optimizerView,
@@ -2112,15 +2111,7 @@ export class AppContent extends Component<AppProps, AppState> {
           deleteTransactions,
           this.options.checkModelOnEdit,
           bondInvest,
-          'Investments into bonds',
-        )}
-        {transactionFilteredTable(
-          this.state.modelData,
-          showAlert,
-          deleteTransactions,
-          this.options.checkModelOnEdit,
-          bondMature,
-          'Maturities of bonds',
+          'Bond transactions',
         )}
         <p />
         <div className="addNewTransaction">

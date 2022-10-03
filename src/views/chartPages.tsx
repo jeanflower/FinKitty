@@ -57,7 +57,7 @@ import {
   Legend,
 } from 'chart.js';
 import { getColor, getDisplay } from '../utils/viewUtils';
-import { makeTwoDP } from '../utils/stringUtils';
+import { makeStringFromCashValue, makeTwoDP } from '../utils/stringUtils';
 
 export function makeBarData(
   labels: string[],
@@ -529,7 +529,9 @@ export function tideLines(
   }
   const mx = Math.max(...chartData.datasets[0].data);
   const mn = Math.min(...chartData.datasets[0].data);
-  return ` ${makeTwoDP(mn)}, ${makeTwoDP(mx)}`;
+  const mxString = makeStringFromCashValue(`${mx}`, '£');
+  const mnString = makeStringFromCashValue(`${mn}`, '£');
+  return ` min = ${mnString}, max = ${mxString}`;
 }
 
 export function incomesChartDivWithButtons(

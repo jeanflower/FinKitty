@@ -961,14 +961,16 @@ const TAX_MAP: TaxBandsMap = {
     lowTaxRate: 0.2,
     highTaxRate: 0.4,
     topTaxRate: 0.45,
+
     noNIBand: 8628,
     lowNIBand: 50004,
     lowNIRate: 0.12,
     highNIRate: 0.02,
   },
   '2022': {
+    // https://www.gov.uk/guidance/rates-and-thresholds-for-employers-2022-to-2023
     noTaxBand: 12570,
-    lowTaxBand: 12570 + 37700,
+    lowTaxBand: 12570 + 37700, // = 50270
     adjustNoTaxBand: 100000,
     highTaxBand: 150000,
     lowTaxRate: 0.2,
@@ -980,9 +982,23 @@ const TAX_MAP: TaxBandsMap = {
     lowNIRate: 0.1325,
     highNIRate: 0.0325,
   },
+  '2023': {
+    noTaxBand: 12570, // Note that by fixing this to the same level as previous, we get poorer
+    lowTaxBand: 12570 + 37700, // because the tax baands are coded to increase with CPI
+    adjustNoTaxBand: 100000, // and if they don't increase, more of our income falls into the tax bands
+    highTaxBand: 150000,
+    lowTaxRate: 0.19, // even though this is lower than 2022, we got poorer!! see above
+    highTaxRate: 0.4,
+    topTaxRate: 0.4,
+
+    noNIBand: 9880,
+    lowNIBand: 50270,
+    lowNIRate: 0.12,
+    highNIRate: 0.02,
+  },
 };
-const highestTaxYearInMap = 2022;
-// TODO get this fropm the map - they should be bound to be the same
+const highestTaxYearInMap = 2023;
+// TODO get this from the map - they should be bound to be the same
 
 function getTaxBands(
   income: number,
@@ -1728,7 +1744,7 @@ function settleUpTax(
           alreadyPaid = 0;
         }
         /* eslint-disable-line no-restricted-syntax */
-        const NIPaid = logAnnualNIPayments(
+        logAnnualNIPayments(
           date,
           alreadyPaid,
           values,
@@ -1739,7 +1755,7 @@ function settleUpTax(
         ); // e.g. 'NIJoe'
         /* istanbul ignore if  */ //debug
         if (printDebug()) {
-          log(`${person} paid NI ${NIPaid} for ${date}`);
+          log(`${person} paid NI ${alreadyPaid} for ${date}`);
         }
         const personsName = person.substring(
           0,

@@ -79,11 +79,11 @@ export class AddDeleteTransactionForm extends Component<
       FROM: '',
       FROM_ABSOLUTE: '',
       FROM_VALUE: '',
-      FROM_INPUT_VALUE: '',
+      FROM_INPUT_VALUE: '100%',
       TO: '',
       TO_ABSOLUTE: '',
       TO_VALUE: '',
-      TO_INPUT_VALUE: '',
+      TO_INPUT_VALUE: '100%',
       DATE: '',
       STOP_DATE: '',
       RECURRENCE: '',
@@ -145,10 +145,10 @@ export class AddDeleteTransactionForm extends Component<
         </div>
         <Row>
           <Col>
-            <label>Transact from asset (optional):</label>
+            <label>Source asset (optional):</label>
           </Col>{' '}
           <Col>
-            <label>Transact to asset (optional):</label>
+            <label>Target asset (optional):</label>
           </Col>{' '}
           {/* end col */}
         </Row>
@@ -206,7 +206,7 @@ export class AddDeleteTransactionForm extends Component<
         <Row>
           <Col>
             <Input
-              title="How much to reduce the value of the asset being sold (can be % of asset value)"
+              title="How much to reduce the source asset (can be % of asset value)"
               type="text"
               name="fromValue"
               value={this.state.FROM_INPUT_VALUE}
@@ -216,7 +216,7 @@ export class AddDeleteTransactionForm extends Component<
           </Col>{' '}
           <Col>
             <Input
-              title="How much to add to the value of the asset being purchased (can be % of transaction amount)"
+              title="How much to add to the target asset (can be % of transaction amount)"
               type="text"
               name="toValue"
               value={this.state.TO_INPUT_VALUE}
