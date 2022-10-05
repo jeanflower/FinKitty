@@ -26,6 +26,7 @@ import {
   constType,
   bondMaturity,
   bondInterest,
+  weekly,
 } from '../localization/stringConstants';
 import {
   DatedThing,
@@ -70,7 +71,7 @@ import {
 
 function parseRecurrenceString(recurrence: string) {
   const result = {
-    frequency: '', // monthly or annual
+    frequency: '', // weekly, monthly or annual
     count: 0,
   };
   const l = recurrence.length;
@@ -78,6 +79,8 @@ function parseRecurrenceString(recurrence: string) {
   // log(`lastChar of ${recurrence} is ${lastChar}`);
   if (lastChar === 'm') {
     result.frequency = monthly;
+  } else if (lastChar === 'w') {
+    result.frequency = weekly;
   } else if (lastChar === 'y') {
     result.frequency = annually;
   } else {
@@ -110,12 +113,15 @@ export function generateSequenceOfDates(
   const freq = parseRecurrenceString(frequency);
   const mFreq = freq.frequency === monthly;
   const yFreq = freq.frequency === annually;
+  const wFreq = freq.frequency === weekly;
 
   if (addPreDate) {
     // add a pre-dates before roi
     const preDate = new Date(roi.start);
     if (frequency === '1m') {
       preDate.setMonth(preDate.getMonth() - 1);
+    } else if (frequency === '1w') {
+      preDate.setDate(preDate.getDate() - 7);
     } else if (frequency === '1y') {
       preDate.setFullYear(preDate.getFullYear() - 1);
     } else {
@@ -131,6 +137,8 @@ export function generateSequenceOfDates(
   let initialCount;
   if (mFreq) {
     initialCount = thisDate.getMonth();
+  } else if (wFreq) {
+    initialCount = thisDate.getDate();
   } else {
     initialCount = thisDate.getFullYear();
   }
@@ -140,10 +148,17 @@ export function generateSequenceOfDates(
 
     // advance thisDate for the next transaction
     const nextDate = new Date(roi.start);
-    numstepsAdvanced += freq.count;
+    if (mFreq || yFreq) {
+      numstepsAdvanced += freq.count;
+    } else if (wFreq) {
+      numstepsAdvanced += 7 * freq.count;
+    }
     if (mFreq) {
       // log(`monthly dates for ${frequency}`);
       nextDate.setMonth(initialCount + numstepsAdvanced);
+    } else if (wFreq) {
+      // log(`monthly dates for ${frequency}`);
+      nextDate.setDate(initialCount + numstepsAdvanced);
     } else if (yFreq) {
       // log(`annual dates for ${frequency}`);
       nextDate.setFullYear(initialCount + numstepsAdvanced);

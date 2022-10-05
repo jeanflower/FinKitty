@@ -372,8 +372,8 @@ export function checkIncome(i: Income, model: ModelData): string {
 function checkRecurrence(rec: string) {
   const lastChar = rec.substring(rec.length - 1);
   // log(`lastChar of ${rec} = ${lastChar}`);
-  if (!(lastChar === 'm' || lastChar === 'y')) {
-    return `transaction recurrence '${rec}' must end in m or y`;
+  if (!(lastChar === 'm' || lastChar === 'y' || lastChar === 'w')) {
+    return `transaction recurrence '${rec}' must end in w, m or y`;
   }
   const firstPart = rec.substring(0, rec.length - 1);
   // log(`firstPart of ${rec} = ${firstPart}`);
@@ -381,7 +381,7 @@ function checkRecurrence(rec: string) {
   const val = parseFloat(firstPart);
   // log(`val from ${rec} = ${val}`);
   if (Number.isNaN(val)) {
-    return `transaction recurrence '${rec}' must be a number ending in m or y`;
+    return `transaction recurrence '${rec}' must be a number ending in w, m or y`;
   }
   return '';
 }

@@ -631,6 +631,7 @@ function parseTriggerForOperator(
       secondPartNW.numberPart !== undefined &&
       (secondPartNW.wordPart === 'd' ||
         secondPartNW.wordPart === 'm' ||
+        secondPartNW.wordPart === 'w' ||
         secondPartNW.wordPart === 'y')
     ) {
       //no-use-before-define
@@ -656,6 +657,13 @@ function parseTriggerForOperator(
           );
           if (cleanedUp) {
             cleanedUp.cleaned = `${cleanedUp.cleaned}${secondPartNW.numberPart}d`;
+          }
+        } else if (secondPartNW.wordPart === 'w') {
+          firstPartDate.setDate(
+            firstPartDate.getDate() + numChange * secondPartNW.numberPart,
+          );
+          if (cleanedUp) {
+            cleanedUp.cleaned = `${cleanedUp.cleaned}${secondPartNW.numberPart}w`;
           }
         } else if (secondPartNW.wordPart === 'm') {
           firstPartDate.setMonth(
@@ -920,6 +928,7 @@ function isDependentDate(dateName: string, dependent: string): boolean {
   const hasLetter =
     breakDown.wordPart === 'm' ||
     breakDown.wordPart === 'd' ||
+    breakDown.wordPart === 'w' ||
     breakDown.wordPart === 'y';
   if (hasLetter) {
     // log(`${dateName} is dependent upon ${dependent}`);

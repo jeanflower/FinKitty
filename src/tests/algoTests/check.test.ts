@@ -378,11 +378,11 @@ describe('checks tests', () => {
     expect(checkData(model)).toEqual(``);
     model.transactions[0].RECURRENCE = 'nonsense';
     expect(checkData(model)).toEqual(
-      `transaction recurrence 'nonsense' must end in m or y`,
+      `transaction recurrence 'nonsense' must end in w, m or y`,
     );
     model.transactions[0].RECURRENCE = 'am';
     expect(checkData(model)).toEqual(
-      `transaction recurrence 'am' must be a number ending in m or y`,
+      `transaction recurrence 'am' must be a number ending in w, m or y`,
     );
     model.transactions[0].RECURRENCE = '2m';
     expect(checkData(model)).toEqual(
@@ -748,7 +748,7 @@ describe('checks tests', () => {
         },
         model,
       ),
-    ).toEqual(`transaction recurrence 'nonsense' must end in m or y`);
+    ).toEqual(`transaction recurrence 'nonsense' must end in w, m or y`);
 
     unSuppressLogs();
   });
