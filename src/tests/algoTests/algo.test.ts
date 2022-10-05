@@ -2706,17 +2706,17 @@ describe('evaluations tests', () => {
     expect(result.assetData.length).toBe(1);
     expect(result.assetData[0].item.NAME).toBe('MyCa');
     {
-    const chartPts = result.assetData[0].chartDataPoints;
-    expect(chartPts.length).toBe(2);
-    expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
-    expectChartData(chartPts, 1, 'Mon Jan 01 2018', 500, -1);
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(2);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 500, -1);
     }
-    
+
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
 
     done();
-  });  
+  });
 
   it('has regular transaction every 2 years', (done) => {
     const roi = {
