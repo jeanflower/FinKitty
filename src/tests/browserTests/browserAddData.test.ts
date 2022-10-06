@@ -333,7 +333,7 @@ describe(testDataModelName, () => {
     await addExpense(driver, {
       ...expenseInputs,
       recurrence: 'junk',
-      message: `transaction recurrence 'junk' must end in m or y`,
+      message: `transaction recurrence 'junk' must end in w, m or y`,
       // TODO not a great message
     });
 

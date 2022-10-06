@@ -36,6 +36,7 @@ export const viewFrequency = 'View frequency';
 // "Data plotted 'monthly' or 'annually'";
 export const annually = 'Annually';
 export const monthly = 'Monthly';
+export const weekly = 'Weekly';
 // whether charts bundle items into categories
 // a coarse view uses categories and is simpler to look at
 // a detailed view ignores categories and represents everything

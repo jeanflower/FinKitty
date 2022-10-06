@@ -43,6 +43,7 @@ import {
   viewFrequency,
   dot,
   annually,
+  weekly,
 } from '../localization/stringConstants';
 import { Context, log, printDebug, showObj } from '../utils/utils';
 import { evaluationType, generateSequenceOfDates } from './evaluations';
@@ -969,6 +970,8 @@ function generateEvaluationDates(roi: Interval, frequency: string) {
   let freqString = '';
   if (frequency === monthly) {
     freqString = '1m';
+  } else if (frequency === weekly) {
+    freqString = '1w';
   } else {
     freqString = '1y';
   }

@@ -20,6 +20,7 @@ import {
   monthly,
   bondModel,
   constType,
+  weekly,
 } from '../../localization/stringConstants';
 import { makeChartDataFromEvaluations } from '../../models/charting';
 import {
@@ -231,6 +232,51 @@ describe(' chart data tests', () => {
       expectChartData(chartPts, 0, '37', 0, -1);
       expectChartData(chartPts, 1, '38', 54.74, 2);
     }
+
+    done();
+  });
+
+  it('weekly chart data for assets', (done) => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'April 1, 2018 00:00:00',
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'savings',
+          START: 'January 1 2018',
+          VALUE: '500',
+          GROWTH: '12',
+        },
+      ],
+      settings: [...defaultModelSettings(roi)],
+    };
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(3);
+    expectEvals(evals, 0, 'savings', 'Mon Jan 01 2018', 500, -1);
+    expectEvals(evals, 1, 'savings', 'Thu Feb 01 2018', 504.74, 2);
+    expectEvals(evals, 2, 'savings', 'Thu Mar 01 2018', 509.53, 2);
+
+    const viewSettings = defaultTestViewSettings();
+
+    viewSettings.toggleViewFilter(Context.Asset, allItems);
+    viewSettings.toggleViewFilter(Context.Asset, 'savings');
+    viewSettings.setViewSetting(viewFrequency, weekly);
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
+
+    printTestCodeForChart(result);
 
     done();
   });

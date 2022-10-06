@@ -1404,7 +1404,7 @@ describe('evaluations tests', () => {
     done();
   });
 
-  it('transact zero from cash into cpi-affected asset', (done) => {
+  it('transact zero from cash into cpi-affected asset monthly', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 1, 2018 00:00:00',
@@ -1463,6 +1463,65 @@ describe('evaluations tests', () => {
     expectEvals(evals, 9, 'Svgs', 'Thu Mar 01 2018', 101.91, 2);
     expectEvals(evals, 10, 'Saaa', 'Sat Mar 10 2018', 102.87, 2);
     expectEvals(evals, 11, 'Svgs', 'Sat Mar 10 2018', 102.87, 2);
+
+    done();
+  });
+
+  it('transact zero from cash into cpi-affected asset weekly', (done) => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'Jan 1, 2018 00:00:00',
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'Svgs',
+          START: 'Dec 1 2017',
+          VALUE: '100',
+          GROWTH: '0.0',
+          CPI_IMMUNE: false,
+        },
+        {
+          ...simpleAsset,
+          NAME: 'Saaa',
+          START: 'Dec 1 2017',
+          VALUE: '100',
+          GROWTH: '0.0',
+          CPI_IMMUNE: false,
+        },
+      ],
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: 'invest',
+          FROM: 'Saaa',
+          FROM_VALUE: '10',
+          TO: 'Svgs',
+          TO_VALUE: '10',
+          DATE: 'December 8 2017',
+          RECURRENCE: '1w',
+        },
+      ],
+      settings: [...defaultModelSettings(roi)],
+    };
+    setSetting(model.settings, cpi, '12', constType);
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    expect(evals.length).toBe(10);
+    expectEvals(evals, 0, 'Saaa', 'Fri Dec 01 2017', 100, -1);
+    expectEvals(evals, 1, 'Svgs', 'Fri Dec 01 2017', 100, -1);
+    expectEvals(evals, 2, 'Saaa', 'Fri Dec 08 2017', 90.95, 2);
+    expectEvals(evals, 3, 'Svgs', 'Fri Dec 08 2017', 110.95, 2);
+    expectEvals(evals, 4, 'Saaa', 'Fri Dec 15 2017', 80.95, 2);
+    expectEvals(evals, 5, 'Svgs', 'Fri Dec 15 2017', 120.95, 2);
+    expectEvals(evals, 6, 'Saaa', 'Fri Dec 22 2017', 70.95, 2);
+    expectEvals(evals, 7, 'Svgs', 'Fri Dec 22 2017', 130.95, 2);
+    expectEvals(evals, 8, 'Saaa', 'Fri Dec 29 2017', 60.95, 2);
+    expectEvals(evals, 9, 'Svgs', 'Fri Dec 29 2017', 140.95, 2);
 
     done();
   });
@@ -2590,6 +2649,72 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 300, -1);
       expectChartData(chartPts, 5, 'Tue May 01 2018', 300, -1);
     }
+    done();
+  });
+
+  it('has regular transaction every 2 weeks', (done) => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'Feb 1, 2018 00:00:00',
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: 'Each month buy food',
+          FROM: 'MyCa',
+          FROM_VALUE: '100',
+          DATE: 'January 2 2018',
+          RECURRENCE: '2w',
+        },
+      ],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'MyCa',
+          START: 'January 1 2018',
+          VALUE: '500',
+        },
+      ],
+      settings: [...defaultModelSettings(roi)],
+    };
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(4);
+    expectEvals(evals, 0, 'MyCa', 'Mon Jan 01 2018', 500, -1);
+    expectEvals(evals, 1, 'MyCa', 'Tue Jan 02 2018', 400, -1);
+    expectEvals(evals, 2, 'MyCa', 'Tue Jan 16 2018', 300, -1);
+    expectEvals(evals, 3, 'MyCa', 'Tue Jan 30 2018', 200, -1);
+
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(1);
+    expect(result.assetData[0].item.NAME).toBe('MyCa');
+    {
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(2);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 500, -1);
+    }
+
+    expect(result.debtData.length).toBe(0);
+    expect(result.taxData.length).toBe(0);
+
     done();
   });
 

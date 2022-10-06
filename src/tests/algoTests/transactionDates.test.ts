@@ -17,7 +17,7 @@ export const testAsset: Asset = {
 };
 
 describe('generateTransactionDates', () => {
-  it('make simple pair', () => {
+  it('make simple pair monthly', () => {
     const roi = {
       start: makeDateFromString('May 1, 2018 00:00:00'),
       end: makeDateFromString('June 30, 2018 00:00:00'),
@@ -28,6 +28,19 @@ describe('generateTransactionDates', () => {
 
     expect(moments[0].toDateString()).toBe('Tue May 01 2018');
     expect(moments[1].toDateString()).toBe('Fri Jun 01 2018');
+  });
+
+  it('make simple pair weekly', () => {
+    const roi = {
+      start: makeDateFromString('May 1, 2018 00:00:00'),
+      end: makeDateFromString('May 9, 2018 00:00:00'),
+    };
+    const moments = generateSequenceOfDates(roi, '1w');
+
+    expect(moments.length).toBe(2);
+
+    expect(moments[0].toDateString()).toBe('Tue May 01 2018');
+    expect(moments[1].toDateString()).toBe('Tue May 08 2018');
   });
 
   it('short roi', () => {

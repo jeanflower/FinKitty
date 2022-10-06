@@ -130,7 +130,7 @@ describe(testDataModelName, () => {
     await addTransaction(driver, {
       ...transactionInputs,
       recurrence: 'junk',
-      message: `transaction recurrence 'junk' must end in m or y`,
+      message: `transaction recurrence 'junk' must end in w, m or y`,
     });
 
     await clearTransactionFields(driver);
@@ -138,7 +138,7 @@ describe(testDataModelName, () => {
     await addTransaction(driver, {
       ...transactionInputs,
       recurrence: 'mmm',
-      message: `transaction recurrence 'mmm' must be a number ending in m or y`,
+      message: `transaction recurrence 'mmm' must be a number ending in w, m or y`,
     });
 
     await clearTransactionFields(driver);
