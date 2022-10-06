@@ -278,10 +278,8 @@ describe(' chart data tests', () => {
 
     printTestCodeForChart(result);
 
-
-
     done();
-  });  
+  });
 
   it('delta chart data for cpi assets', (done) => {
     const roi = {
