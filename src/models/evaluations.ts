@@ -5120,9 +5120,13 @@ function getEvaluationsROI(model: ModelData) {
   return range;
 }
 
+export class EvaluationHelper {
+  public reporter: ReportValueChecker | undefined;
+}
+
 function getEvaluationsInternal(
   model: ModelData,
-  reporter: ReportValueChecker | undefined,
+  helper: EvaluationHelper | undefined,
 ): {
   evaluations: Evaluation[];
   todaysAssetValues: Map<string, AssetOrDebtVal>;
@@ -5174,8 +5178,8 @@ function getEvaluationsInternal(
 
   // Keep track of current value of any expense, income or asset
   const values = new ValuesContainer();
-  if (reporter) {
-    values.setIncludeInReport(reporter);
+  if (helper && helper.reporter) {
+    values.setIncludeInReport(helper && helper.reporter);
   }
 
   // Calculate a monthly growth once per item,
@@ -5469,7 +5473,7 @@ function getEvaluationsInternal(
 // this file.
 export function getEvaluations(
   model: ModelData,
-  reporter: ReportValueChecker | undefined,
+  helper: EvaluationHelper | undefined,
 ): {
   evaluations: Evaluation[];
   todaysAssetValues: Map<string, AssetOrDebtVal>;
@@ -5573,7 +5577,10 @@ export function getEvaluations(
     }
 
     // log(`START FIRST EVALUATIONS LOOP`);
-    const adjustedEvals = getEvaluationsInternal(adjustedModel, undefined);
+    const adjustedEvals = getEvaluationsInternal(adjustedModel, {
+      ...helper,
+      reporter: undefined,
+    });
     // log(`adjustedEvals = ${showObj(adjustedEvals)}`);
 
     if (roiEndSetting) {
@@ -5642,7 +5649,7 @@ export function getEvaluations(
       ...model,
       settings: model.settings.concat(generatedSettings),
     },
-    reporter,
+    helper,
   );
   // log(`evals = ${showObj(result.evaluations)}`);
   return result;

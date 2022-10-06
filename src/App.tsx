@@ -109,7 +109,7 @@ import {
   OverlayTrigger,
   Tooltip,
 } from 'react-bootstrap';
-import { getEvaluations } from './models/evaluations';
+import { EvaluationHelper, getEvaluations } from './models/evaluations';
 import {
   applyRedoToModel,
   attemptRenameLong,
@@ -500,7 +500,10 @@ export async function refreshDataInternal(
       reporter = getReporter(model, viewSettings);
     }
     // go and do the actual modeling, the calculations
-    evaluationsAndVals = getEvaluations(model, reporter);
+    const helper: EvaluationHelper = {
+      reporter: reporter,
+    };
+    evaluationsAndVals = getEvaluations(model, helper);
 
     // log(`evaluationsAndVals.reportData.length = ${evaluationsAndVals.reportData.length}`);
   }

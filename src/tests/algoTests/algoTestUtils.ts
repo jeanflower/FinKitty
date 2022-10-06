@@ -609,7 +609,9 @@ export function getTestEvaluations(
       {
         return true;
       };
-    evalnsAndVals = getEvaluations(copyModel, reporter);
+    evalnsAndVals = getEvaluations(copyModel, {
+      reporter: reporter,
+    });
   }
   return evalnsAndVals;
 }
