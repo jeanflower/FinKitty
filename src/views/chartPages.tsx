@@ -31,6 +31,7 @@ import {
   viewFrequency,
   cpPrefix,
   penPrefix,
+  weekly,
 } from '../localization/stringConstants';
 import { refreshData } from '../App';
 import { Context, log, printDebug, showObj } from '../utils/utils';
@@ -115,9 +116,22 @@ async function setViewSettingNameVal(
   name: string,
   val: string,
 ) {
+  let needsRefreshData = false;
+  if (name === viewFrequency) {
+    // we do need to redo evaluations when we switch
+    // between weekly and monthly/annually
+    const oldVal = settings.getViewSetting(name, monthly);
+    settings.setViewSetting(name, val);
+    if (
+      (oldVal === weekly && val !== weekly) ||
+      (oldVal !== weekly && val === weekly)
+    ) {
+      needsRefreshData = true;
+    }
+  }
   settings.setViewSetting(name, val);
   return await refreshData(
-    false, // refreshModel = true,
+    needsRefreshData, // refreshModel = true,
     true, // refreshChart = true,
     29, //sourceID
   );
@@ -247,7 +261,7 @@ export function coarseFineList(settings: ViewSettings, chartData: ChartData) {
 }
 
 export function frequencyList(settings: ViewSettings) {
-  const viewTypes: string[] = [monthly, annually];
+  const viewTypes: string[] = [weekly, monthly, annually];
   const selectedView = settings.getViewSetting(viewFrequency, annually);
   const buttons = viewTypes.map((viewType) =>
     makeButton(
@@ -370,10 +384,13 @@ function makeBarChart(
                   return `${l}`;
                 }
                 const d = new Date(l);
-                const showMonth =
-                  viewSettings.getViewSetting(viewFrequency, annually) ===
-                  monthly;
-                if (showMonth) {
+                const freq = viewSettings.getViewSetting(
+                  viewFrequency,
+                  annually,
+                );
+                if (freq === weekly) {
+                  return dateFormat(d, 'dd mmmm yyyy');
+                } else if (freq === monthly) {
                   return dateFormat(d, 'mmmm yyyy');
                 } else {
                   return dateFormat(d, 'yyyy');

@@ -4870,7 +4870,7 @@ describe('evaluations tests', () => {
       ],
     };
 
-    const evalsAndValues = getTestEvaluations(model, false);
+    const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
     // printTestCodeForEvals(evals);
     expect(evals.length).toBe(2);
@@ -4905,7 +4905,7 @@ describe('evaluations tests', () => {
       ],
     };
 
-    const evalsAndValues = getTestEvaluations(model, false);
+    const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
     // printTestCodeForEvals(evals);
     expect(evals.length).toBe(2);
@@ -4940,7 +4940,7 @@ describe('evaluations tests', () => {
       ],
     };
 
-    const evalsAndValues = getTestEvaluations(model, false);
+    const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
     // printTestCodeForEvals(evals);
     expect(evals.length).toBe(2);
@@ -4975,7 +4975,7 @@ describe('evaluations tests', () => {
       ],
     };
 
-    const evalsAndValues = getTestEvaluations(model, false);
+    const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
     // printTestCodeForEvals(evals);
     expect(evals.length).toBe(2);
@@ -5010,7 +5010,7 @@ describe('evaluations tests', () => {
       ],
     };
 
-    const evalsAndValues = getTestEvaluations(model, false);
+    const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
     // printTestCodeForEvals(evals);
     expect(evals.length).toBe(2);
@@ -5045,7 +5045,7 @@ describe('evaluations tests', () => {
       ],
     };
 
-    const evalsAndValues = getTestEvaluations(model, false);
+    const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
     // printTestCodeForEvals(evals);
     expect(evals.length).toBe(2);
@@ -5084,7 +5084,7 @@ describe('evaluations tests', () => {
       ],
     };
 
-    const evalsAndValues = getTestEvaluations(model, false);
+    const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
     // printTestCodeForEvals(evals);
     expect(evals.length).toBe(2);
@@ -5676,7 +5676,6 @@ describe('evaluations tests', () => {
 
     const viewSettings = defaultTestViewSettings();
 
-    // viewSettings.setViewSetting(viewFrequency, annually);
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,

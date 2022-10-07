@@ -395,12 +395,10 @@ function growthData(
       // log(`from ${growth}, use cpi ${cpiVal} to create adaptedGrowth = ${getMonthlyGrowth(adaptedGrowth)}`);
     }
 
-    /* istanbul ignore if */
+    let monthlyGrowth = getMonthlyGrowth(adaptedGrowth);
     if (g.powerByNumMonths !== 1) {
-      log('Error: powerByNumMonths not used to calculate growth');
+      monthlyGrowth = (1 + monthlyGrowth) ** g.powerByNumMonths - 1;
     }
-
-    const monthlyGrowth = getMonthlyGrowth(adaptedGrowth);
     // log(`growth power up by ${g.powerByNumMonths} from ${monthlyGrowth} to ${periodicGrowth}`);
     scale = monthlyGrowth;
     if (
@@ -2321,6 +2319,8 @@ function logExpenseGrowth(
     power = freq.count;
     if (freq.frequency === annually) {
       power *= 12;
+    } else if (freq.frequency === weekly) {
+      power *= 52 / 12;
     }
   }
   growths.set(x.NAME, {
@@ -2353,6 +2353,7 @@ function logAssetGrowth(
   cpiVal: number,
   growths: Map<string, GrowthData>,
   settings: Setting[],
+  frequency: string,
 ) {
   // log(`stored growth is ${asset.GROWTH}`);
   let growth: number = parseFloat(asset.GROWTH);
@@ -2387,9 +2388,15 @@ function logAssetGrowth(
   // if(cpiVal > 0 && (growth > 0 || adaptedAssetGrowth > 0)){
   //   log(`from ${asset.GROWTH}, use cpi ${cpiVal} to create adaptedExpenseGrowth = ${getMonthlyGrowth(adaptedAssetGrowth)}`);
   // }
+  let powerByNumMonths = 1;
+  if (frequency === annually) {
+    powerByNumMonths = 12;
+  } else if (frequency === weekly) {
+    powerByNumMonths = 12 / 52;
+  }
   growths.set(asset.NAME, {
     itemGrowth: asset.GROWTH,
-    powerByNumMonths: 1,
+    powerByNumMonths: powerByNumMonths,
     scale: getMonthlyGrowth(adaptedAssetGrowth),
     applyCPI: !asset.CPI_IMMUNE,
   });
@@ -2620,10 +2627,11 @@ function getRecurrentMoments(
   return newMoments;
 }
 
-function getAssetMonthlyMoments(
+function getAssetMoments(
   asset: Asset,
   model: ModelData,
   rOIEndDate: Date,
+  frequency: string,
 ) {
   const roi = {
     start: getTriggerDate(
@@ -2634,7 +2642,13 @@ function getAssetMonthlyMoments(
     end: rOIEndDate,
   };
   // log(`roi = ${showObj(roi)}`)
-  const dates = generateSequenceOfDates(roi, '1m');
+  let freqString = '1m';
+  if (frequency === weekly) {
+    freqString = '1w';
+  } else if (frequency === annually) {
+    freqString = '1y';
+  }
+  const dates = generateSequenceOfDates(roi, freqString);
   // log(`dates = ${showObj(dates)}`)
   const newMoments = dates.map((date) => {
     const result: Moment = {
@@ -4098,6 +4112,7 @@ class ValuesContainer {
 
 function generateMoments(
   model: ModelData,
+  frequency: string,
   values: ValuesContainer,
   growths: Map<string, GrowthData>,
   cpiInitialVal: number,
@@ -4262,6 +4277,7 @@ function generateMoments(
       asset.CPI_IMMUNE ? 0 : cpiInitialVal,
       growths,
       model.settings,
+      frequency,
     );
 
     logAssetValueString(
@@ -4274,7 +4290,7 @@ function generateMoments(
       model,
     );
 
-    const newMoments = getAssetMonthlyMoments(asset, model, roiEndDate);
+    const newMoments = getAssetMoments(asset, model, roiEndDate, frequency);
     allMoments = allMoments.concat(newMoments);
 
     logAssetIncomeLiabilities(asset, liabilitiesMap);
@@ -5137,6 +5153,7 @@ function getEvaluationsROI(model: ModelData) {
 
 export class EvaluationHelper {
   public reporter: ReportValueChecker | undefined;
+  public frequency: string = monthly;
 }
 
 function getEvaluationsInternal(
@@ -5232,8 +5249,10 @@ function getEvaluationsInternal(
 
   // Calculate a set of "moments" for each transaction/income/expense...
   // each has a date - we'll process these in date order.
+  const freq = helper ? helper.frequency : monthly;
   const allMoments: Moment[] = generateMoments(
     model,
+    freq,
     values,
     growths,
     cpiInitialVal,
@@ -5593,7 +5612,7 @@ export function getEvaluations(
 
     // log(`START FIRST EVALUATIONS LOOP`);
     const adjustedEvals = getEvaluationsInternal(adjustedModel, {
-      ...helper,
+      frequency: helper ? helper.frequency : monthly,
       reporter: undefined,
     });
     // log(`adjustedEvals = ${showObj(adjustedEvals)}`);

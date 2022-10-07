@@ -3881,7 +3881,7 @@ describe('pension tests', () => {
 
     setROI(model, roi);
 
-    const evalsAndValues = getTestEvaluations(model, false); // todo reinstate extrachecks
+    const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);

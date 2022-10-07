@@ -35,6 +35,8 @@ import {
   evalModeOption,
   checkModelOnEditOption,
   optimizerView,
+  monthly,
+  viewFrequency,
 } from './localization/stringConstants';
 import {
   AssetOrDebtVal,
@@ -502,6 +504,7 @@ export async function refreshDataInternal(
     // go and do the actual modeling, the calculations
     const helper: EvaluationHelper = {
       reporter: reporter,
+      frequency: viewSettings.getViewSetting(viewFrequency, monthly),
     };
     evaluationsAndVals = getEvaluations(model, helper);
 

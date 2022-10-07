@@ -234,6 +234,7 @@ export function getTestEvaluations(
   model: ModelData,
   renamingChecks = true,
   diffChecks = false,
+  frequency = monthly,
 ): {
   evaluations: Evaluation[];
   todaysAssetValues: Map<string, AssetOrDebtVal>;
@@ -610,6 +611,7 @@ export function getTestEvaluations(
         return true;
       };
     evalnsAndVals = getEvaluations(copyModel, {
+      frequency: frequency,
       reporter: reporter,
     });
   }
