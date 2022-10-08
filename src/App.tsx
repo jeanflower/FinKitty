@@ -362,9 +362,7 @@ function getReporter(model: ModelData, viewSettings: ViewSettings) {
     }
     const matcher = reactAppComponent.state.reportDefiner.sourceMatcher;
     const excluder = reactAppComponent.state.reportDefiner.sourceExcluder;
-    if (!matcher && !excluder) {
-      return false;
-    }
+
     /* istanbul ignore if  */
     if (printDebug()) {
       log(`report for name = ${name}`);
