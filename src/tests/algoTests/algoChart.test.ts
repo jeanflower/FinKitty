@@ -860,7 +860,7 @@ describe(' chart data tests', () => {
     // printTestCodeForChart(result);
 
     expect(result.incomesData.length).toBe(2);
-    expect(result.incomesData[0].item.NAME).toBe('PRn2');
+    expect(result.incomesData[0].item.NAME).toBe('PaperRound');
     {
       const chartPts = result.incomesData[0].chartDataPoints;
       expect(chartPts.length).toBe(4);
@@ -886,29 +886,19 @@ describe(' chart data tests', () => {
 
     // printTestCodeForChart(result);
 
-    expect(result.expensesData.length).toBe(2);
-    expect(result.expensesData[0].item.NAME).toBe('Phon');
+    expect(result.expensesData.length).toBe(1);
+    expect(result.expensesData[0].item.NAME).toBe('comms');
     {
       const chartPts = result.expensesData[0].chartDataPoints;
       expect(chartPts.length).toBe(4);
-      expectChartData(chartPts, 0, 'Sun Apr 01 2018', 12, -1);
-      expectChartData(chartPts, 1, 'Tue May 01 2018', 12, -1);
-      expectChartData(chartPts, 2, 'Fri Jun 01 2018', 12, -1);
-      expectChartData(chartPts, 3, 'Sun Jul 01 2018', 0, -1);
-    }
-
-    expect(result.expensesData[1].item.NAME).toBe('broadband');
-    {
-      const chartPts = result.expensesData[1].chartDataPoints;
-      expect(chartPts.length).toBe(4);
-      expectChartData(chartPts, 0, 'Sun Apr 01 2018', 12, -1);
-      expectChartData(chartPts, 1, 'Tue May 01 2018', 12, -1);
-      expectChartData(chartPts, 2, 'Fri Jun 01 2018', 12, -1);
+      expectChartData(chartPts, 0, 'Sun Apr 01 2018', 24, -1);
+      expectChartData(chartPts, 1, 'Tue May 01 2018', 24, -1);
+      expectChartData(chartPts, 2, 'Fri Jun 01 2018', 24, -1);
       expectChartData(chartPts, 3, 'Sun Jul 01 2018', 0, -1);
     }
 
     expect(result.incomesData.length).toBe(2);
-    expect(result.incomesData[0].item.NAME).toBe('PRn2');
+    expect(result.incomesData[0].item.NAME).toBe('PaperRound');
     {
       const chartPts = result.incomesData[0].chartDataPoints;
       expect(chartPts.length).toBe(4);

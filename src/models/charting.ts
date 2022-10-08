@@ -1418,7 +1418,7 @@ export function makeChartData(
   const taxValueSources = assetOrDebtValueSources;
   if (detail === coarseDetail || detail === totalDetail) {
     // log('gather chart data into categories');
-    let dateNameValueMap = typeDateNameValueMap.get('assetOrDebtFocus');
+    const dateNameValueMap = typeDateNameValueMap.get('assetOrDebtFocus');
     if (dateNameValueMap !== undefined) {
       const categories = assignCategories(
         dateNameValueMap,
@@ -1433,40 +1433,6 @@ export function makeChartData(
       }
       assetNames = [...categories.sources]; // NQR
       debtNames = [...categories.sources]; // NQR
-    }
-    /**/
-    if (showAllExpenses) {
-      // unfocussed expense views can have coarse views
-      dateNameValueMap = typeDateNameValueMap.get(evaluationType.expense);
-      if (dateNameValueMap !== undefined) {
-        const categories = assignCategories(
-          dateNameValueMap,
-          allDates,
-          expenseNames,
-          model,
-          categoryCache,
-        );
-        typeDateNameValueMap.set(evaluationType.expense, categories.map);
-        expenseNames = [...categories.sources];
-      }
-      /**/
-    }
-    /**/
-    if (showAllIncomes) {
-      // unfocussed income views can have coarse views
-      dateNameValueMap = typeDateNameValueMap.get(evaluationType.income);
-      if (dateNameValueMap !== undefined) {
-        const categories = assignCategories(
-          dateNameValueMap,
-          allDates,
-          incomeNames,
-          model,
-          categoryCache,
-        );
-        typeDateNameValueMap.set(evaluationType.income, categories.map);
-        incomeNames = [...categories.sources];
-      }
-      /**/
     }
   }
 
@@ -1486,6 +1452,20 @@ export function makeChartData(
       typeDateNameValueMap.set(evaluationType.expense, focusItems.map);
     }
   }
+  if (detail === coarseDetail || detail === totalDetail) {
+    const dateNameValueMap = typeDateNameValueMap.get(evaluationType.expense);
+    if (dateNameValueMap !== undefined) {
+      const categories = assignCategories(
+        dateNameValueMap,
+        allDates,
+        expenseNames,
+        model,
+        categoryCache,
+      );
+      typeDateNameValueMap.set(evaluationType.expense, categories.map);
+      expenseNames = [...categories.sources];
+    }
+  }
   if (!showAllIncomes) {
     // apply a filter to income data
     // focussed income views have fewer items displayed
@@ -1499,6 +1479,21 @@ export function makeChartData(
         Context.Income,
       );
       typeDateNameValueMap.set(evaluationType.income, focusItems.map);
+    }
+  }
+  if (detail === coarseDetail || detail === totalDetail) {
+    // unfocussed income views can have coarse views
+    const dateNameValueMap = typeDateNameValueMap.get(evaluationType.income);
+    if (dateNameValueMap !== undefined) {
+      const categories = assignCategories(
+        dateNameValueMap,
+        allDates,
+        incomeNames,
+        model,
+        categoryCache,
+      );
+      typeDateNameValueMap.set(evaluationType.income, categories.map);
+      incomeNames = [...categories.sources];
     }
   }
 
