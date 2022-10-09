@@ -3997,10 +3997,10 @@ function logPurchaseValues(
     );
   }
 }
-const maxReportSize = 400;
 
 class ValuesContainer {
   private reportValues = new Map<string, number | string>([]);
+  private maxReportSize = 0;
   private includeInReport: ReportValueChecker = (
     name: string, // name of something which has a value
     val: number | string,
@@ -4022,6 +4022,10 @@ class ValuesContainer {
     this.includeInReport = fn;
     this.report = [];
   }
+  public setMaxReportSize(num: number) {
+    this.maxReportSize = num;
+    this.report = [];
+  }
 
   public set(
     name: string, // thing which has this value
@@ -4032,7 +4036,7 @@ class ValuesContainer {
     callerID: string,
   ) {
     const reportChange =
-      this.report.length < maxReportSize &&
+      this.report.length < this.maxReportSize &&
       this.includeInReport(name, val, date, source);
     let oldVal: number | undefined = 0.0;
     if (reportChange) {
@@ -5153,6 +5157,7 @@ function getEvaluationsROI(model: ModelData) {
 
 export class EvaluationHelper {
   public reporter: ReportValueChecker | undefined;
+  public maxReportSize = 400;
   public frequency: string = monthly;
 }
 
@@ -5212,6 +5217,7 @@ function getEvaluationsInternal(
   const values = new ValuesContainer();
   if (helper && helper.reporter) {
     values.setIncludeInReport(helper && helper.reporter);
+    values.setMaxReportSize(helper && helper.maxReportSize);
   }
 
   // Calculate a monthly growth once per item,
@@ -5613,6 +5619,7 @@ export function getEvaluations(
     // log(`START FIRST EVALUATIONS LOOP`);
     const adjustedEvals = getEvaluationsInternal(adjustedModel, {
       frequency: helper ? helper.frequency : monthly,
+      maxReportSize: 0,
       reporter: undefined,
     });
     // log(`adjustedEvals = ${showObj(adjustedEvals)}`);

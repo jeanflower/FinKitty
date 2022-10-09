@@ -502,6 +502,7 @@ export async function refreshDataInternal(
     // go and do the actual modeling, the calculations
     const helper: EvaluationHelper = {
       reporter: reporter,
+      maxReportSize: reactAppComponent.state.maxReportSize,
       frequency: viewSettings.getViewSetting(viewFrequency, monthly),
     };
     evaluationsAndVals = getEvaluations(model, helper);
@@ -650,7 +651,7 @@ export async function refreshData(
   }
 }
 
-export function setReportKey(textInput: string): boolean {
+export function setReportKey(textInput: string, maxSize: number): boolean {
   /*
   report:{"sourceExcluder":"growth"}
   */
@@ -664,6 +665,7 @@ export function setReportKey(textInput: string): boolean {
           sourceMatcher: inputObj.sourceMatcher,
           sourceExcluder: inputObj.sourceExcluder,
         },
+        maxReportSize: maxSize,
       },
       async () => {
         log('set key for report : go refresh data');
@@ -1174,6 +1176,7 @@ interface AppState {
   todaysExpenseValues: Map<string, ExpenseVal>;
   todaysSettingValues: Map<string, SettingVal>;
   reportDefiner: ReportMatcher;
+  maxReportSize: number;
   reportData: ReportDatum[];
   totalTaxPaid: number;
   alertText: string;
@@ -1270,6 +1273,7 @@ export class AppContent extends Component<AppProps, AppState> {
         sourceMatcher: defaultSourceMatcher,
         sourceExcluder: defaultSourceExcluder,
       },
+      maxReportSize: 10,
       reportData: [],
       totalTaxPaid: 0,
       alertText: '',

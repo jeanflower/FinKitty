@@ -20,7 +20,7 @@ interface ReplaceWithJSONFormProps {
   modelNames: string[];
   userID: string;
   showAlert: (arg0: string) => void;
-  setReportKey: (args0: string) => void;
+  setReportKey: (args0: string, args1: number) => void;
   toggleOption: (type: string) => void;
   getOption: (type: string) => boolean;
 }
@@ -145,7 +145,6 @@ Options to toggle are
     let modelName = this.props.modelName;
 
     // special words
-    const reportStarter = 'report:';
     const overwriteWord = 'overwrite';
     const gotoOverview = 'overview';
     const checkModelOnEdit = checkModelOnEditOption;
@@ -153,19 +152,14 @@ Options to toggle are
 
     // log(`modelName from props is ${modelName}`);
     let JSON = this.state.JSON.trim();
-    if (JSON.startsWith(reportStarter)) {
-      this.props.setReportKey(JSON.substring(reportStarter.length));
-      this.setState({ JSON: '' });
-      return;
-    }
 
     /*
-Options to toggle are
- checkOverwriteOption
-  goToOverviewPageOption
-  checkModelOnEditOption
-  'evalMode'
-*/
+    Options to toggle are
+    - checkOverwriteOption
+    - goToOverviewPageOption
+    - checkModelOnEditOption
+    - 'evalMode'
+    */
 
     if (JSON === overwriteWord) {
       this.props.toggleOption(checkOverwriteOption);

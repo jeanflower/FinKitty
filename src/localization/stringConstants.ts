@@ -216,6 +216,7 @@ export const overview: ViewType = { lc: 'Overview' };
 
 export const defaultSourceMatcher = 'Buy|Sell';
 export const defaultSourceExcluder = '';
+export const defaultReportSize = 10;
 
 export const evalModeOption = 'evalMode';
 export const checkModelOnEditOption = 'checkModelOnEdit';

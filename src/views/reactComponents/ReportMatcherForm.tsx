@@ -4,6 +4,7 @@ import { Input } from './Input';
 import { ReportMatcher } from '../../types/interfaces';
 import { makeButton } from './Button';
 import {
+  defaultReportSize,
   defaultSourceExcluder,
   defaultSourceMatcher,
 } from '../../localization/stringConstants';
@@ -11,10 +12,11 @@ import {
 interface ReportMatcherFormState {
   sourceMatcher: string;
   sourceExcluder: string;
+  maxReportSize: string;
 }
 interface ReportMatcherFormProps {
   reportMatcher: ReportMatcher;
-  setReportKey: (args0: string) => void;
+  setReportKey: (args0: string, args1: number) => void;
 }
 
 export class ReportMatcherForm extends Component<
@@ -28,6 +30,7 @@ export class ReportMatcherForm extends Component<
     this.defaultState = {
       sourceMatcher: this.props.reportMatcher.sourceMatcher,
       sourceExcluder: this.props.reportMatcher.sourceExcluder,
+      maxReportSize: `${defaultReportSize}`,
     };
 
     this.state = this.defaultState;
@@ -35,6 +38,7 @@ export class ReportMatcherForm extends Component<
     this.submit = this.submit.bind(this);
     this.handleMatcherChange = this.handleMatcherChange.bind(this);
     this.handleExcluderChange = this.handleExcluderChange.bind(this);
+    this.handleMaxReportChange = this.handleMaxReportChange.bind(this);
   }
 
   private handleMatcherChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -46,6 +50,10 @@ export class ReportMatcherForm extends Component<
     const value = e.target.value;
     // log(`setting new value for sourceExcluder form ${value}`);
     this.setState({ sourceExcluder: value });
+  }
+  private handleMaxReportChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const value = e.target.value;
+    this.setState({ maxReportSize: value });
   }
 
   public render() {
@@ -76,6 +84,14 @@ export class ReportMatcherForm extends Component<
           placeholder={'Enter excluder here'}
           onChange={this.handleExcluderChange}
         />
+        <Input
+          type={'text'}
+          title={'Max number or report items'}
+          name={'maxReportSize'}
+          value={this.state.maxReportSize}
+          placeholder={'0'}
+          onChange={this.handleMaxReportChange}
+        />
         {makeButton(
           'reset to default',
           (e) => {
@@ -84,6 +100,7 @@ export class ReportMatcherForm extends Component<
               {
                 sourceMatcher: defaultSourceMatcher,
                 sourceExcluder: defaultSourceExcluder,
+                maxReportSize: `${defaultReportSize}`,
               },
               () => {
                 this.submit(e);
@@ -119,6 +136,7 @@ export class ReportMatcherForm extends Component<
         sourceMatcher: this.state.sourceMatcher,
         sourceExcluder: this.state.sourceExcluder,
       }),
+      parseInt(this.state.maxReportSize),
     );
     return;
   }

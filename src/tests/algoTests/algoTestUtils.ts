@@ -613,6 +613,7 @@ export function getTestEvaluations(
     evalnsAndVals = getEvaluations(copyModel, {
       frequency: frequency,
       reporter: reporter,
+      maxReportSize: 100,
     });
   }
   return evalnsAndVals;
