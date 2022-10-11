@@ -128,6 +128,8 @@ import { collapsibleFragment } from './views/tablePages';
 import WaitGif from './views/catWait.gif';
 import packageData from '../package.json';
 import { getDefaultViewSettings, getDisplay, views } from './utils/viewUtils';
+import dateFormat from 'dateformat';
+import FileSaver from 'file-saver';
 
 // import './bootstrap.css'
 
@@ -335,6 +337,15 @@ function getReporter(model: ModelData, viewSettings: ViewSettings) {
       // log(`do not show ${a.NAME}`);
     }
   });
+  // include settings changes in the report
+  model.settings.forEach((s) => {
+    const name = s.NAME;
+    if (nameMatcher === '') {
+      nameMatcher = name;
+    } else {
+      nameMatcher = nameMatcher + '|' + name;
+    }
+  });
   //log(`nameMatcher for reporter = ${nameMatcher}`);
 
   const viewRange = getROI(model);
@@ -506,6 +517,33 @@ export async function refreshDataInternal(
       frequency: viewSettings.getViewSetting(viewFrequency, monthly),
     };
     evaluationsAndVals = getEvaluations(model, helper);
+    if (reactAppComponent.state.saveReportAsCSV) {
+      const data = evaluationsAndVals.reportData;
+
+      const mapElementToColumns = (fieldNames: string[]) => {
+        return function (element: any) {
+          const fields = fieldNames.map((n) =>
+            element[n] ? JSON.stringify(element[n]) : '""',
+          );
+          return fields.join(',');
+        };
+      };
+
+      const fieldnames = Object.keys(data[0]);
+      let csvtxt = fieldnames.join(',').concat('\n');
+      csvtxt = csvtxt.concat(
+        data.map(mapElementToColumns(fieldnames)).join('\n'),
+      );
+
+      if (confirm(`save as csv to... ${csvtxt}`)) {
+        const d = new Date();
+        const csvName =
+          model.name + 'csv ' + dateFormat(d, 'yyyy-mm-dd HH:MM:ss');
+
+        const blob = new Blob([csvtxt], { type: 'text/plain;charset=utf-8' });
+        FileSaver.saveAs(blob, `${csvName}.csv`);
+      }
+    }
 
     // log(`evaluationsAndVals.reportData.length = ${evaluationsAndVals.reportData.length}`);
   }
@@ -651,7 +689,11 @@ export async function refreshData(
   }
 }
 
-export function setReportKey(textInput: string, maxSize: number): boolean {
+export function setReportKey(
+  textInput: string,
+  maxSize: number,
+  saveAsCSV: boolean,
+): boolean {
   /*
   report:{"sourceExcluder":"growth"}
   */
@@ -665,6 +707,7 @@ export function setReportKey(textInput: string, maxSize: number): boolean {
           sourceMatcher: inputObj.sourceMatcher,
           sourceExcluder: inputObj.sourceExcluder,
         },
+        saveReportAsCSV: saveAsCSV,
         maxReportSize: maxSize,
       },
       async () => {
@@ -1177,6 +1220,7 @@ interface AppState {
   todaysSettingValues: Map<string, SettingVal>;
   reportDefiner: ReportMatcher;
   maxReportSize: number;
+  saveReportAsCSV: boolean;
   reportData: ReportDatum[];
   totalTaxPaid: number;
   alertText: string;
@@ -1274,6 +1318,7 @@ export class AppContent extends Component<AppProps, AppState> {
         sourceExcluder: defaultSourceExcluder,
       },
       maxReportSize: 10,
+      saveReportAsCSV: false,
       reportData: [],
       totalTaxPaid: 0,
       alertText: '',
@@ -1503,7 +1548,8 @@ export class AppContent extends Component<AppProps, AppState> {
               this.state.modelData,
               this.state.viewState,
               this.state.reportDefiner,
-              this.state.reportData,
+              this.state.maxReportSize,
+              this.state.reportData.slice(0, this.state.maxReportSize),
             )}
             {optimizerDiv(
               this.state.modelData,

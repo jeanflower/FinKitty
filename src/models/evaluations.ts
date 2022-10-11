@@ -3689,28 +3689,58 @@ function processTransactionFromTo(
         );
         // log(`recorded investedValue = ${investedValue} with name ${nameForMaturity}`);
       }
-      // log('in processTransactionFromTo, setValue:');
-      // log(`in processTransactionFromTo, setValue of ${toWord} to ${preToValue + toChange}`);
-      let newToValue = preToValue + toChange;
-      if (growthData(toWord, growths, values).adjustForCPI) {
-        const b = values.get(baseForCPI);
-        if (b && typeof b === 'number') {
-          // log(`scale newToValue = ${newToValue} by b = ${b}`);
-          newToValue = newToValue / b;
-          // log(`scaled newToValue = ${newToValue}`);
+      const x: string | number | undefined = values.get(toWord);
+      const updateTargetValue = true;
+      /*
+      const updateTargetValue = 
+        toWord.startsWith(pensionTransfer) ||
+        !x ||
+        typeof x === 'number' ||
+        isNumberString(x)
+      */
+      if (updateTargetValue) {
+        // log('in processTransactionFromTo, setValue:');
+        // log(`in processTransactionFromTo, setValue of ${toWord} to ${preToValue + toChange}`);
+        let newToValue = preToValue + toChange;
+        if (growthData(toWord, growths, values).adjustForCPI) {
+          const b = values.get(baseForCPI);
+          if (b && typeof b === 'number') {
+            // log(`scale newToValue = ${newToValue} by b = ${b}`);
+            newToValue = newToValue / b;
+            // log(`scaled newToValue = ${newToValue}`);
+          }
         }
-      }
-      setValue(
-        values,
-        growths,
-        evaluations,
-        moment.date,
-        toWord,
-        newToValue,
-        model,
-        makeSourceForToChange(t),
-        '15', //callerID
-      );
+        log(
+          `for ${t.NAME}, for asset ${t.TO}, write newToValue = ${newToValue}`,
+        );
+        setValue(
+          values,
+          growths,
+          evaluations,
+          moment.date,
+          toWord,
+          newToValue,
+          model,
+          makeSourceForToChange(t),
+          '15', //callerID
+        );
+      } /*else {
+        log(`Don't write new value for toWord = ${toWord} with value ${x}`);
+        //throw new Error(
+        //  `Don't write value for toWord = ${toWord} with value ${x}`,
+        //);
+        setValue(
+          values,
+          growths,
+          evaluations,
+          moment.date,
+          toWord,
+          x,
+          model,
+          makeSourceForToChange(t),
+          '15', //callerID
+        );
+      }*/
     }
   } else {
     // special case - if we're reducing an income tax liability
@@ -4001,6 +4031,7 @@ function logPurchaseValues(
 class ValuesContainer {
   private reportValues = new Map<string, number | string>([]);
   private maxReportSize = 0;
+  private saveAsCSV = false;
   private includeInReport: ReportValueChecker = (
     name: string, // name of something which has a value
     val: number | string,
@@ -4036,7 +4067,7 @@ class ValuesContainer {
     callerID: string,
   ) {
     const reportChange =
-      this.report.length < this.maxReportSize &&
+      // this.report.length < this.maxReportSize &&
       this.includeInReport(name, val, date, source);
     let oldVal: number | undefined = 0.0;
     if (reportChange) {
@@ -4105,7 +4136,9 @@ class ValuesContainer {
         source: 'estate',
       });
     }
-    this.report.reverse();
+    this.report.sort((a, b) => {
+      return new Date(a.date) < new Date(b.date) ? 1 : -1;
+    });
     return this.report;
   }
 
@@ -4425,6 +4458,7 @@ function generateMoments(
         settingName: setting.NAME,
         settingVal: setting.VALUE,
         setDate: referencingDates[0],
+        //        setDate: roiStartDate, ????
       });
     }
   });
@@ -5503,7 +5537,7 @@ function getEvaluationsInternal(
     todaysIncomeValues: todaysIncomeValues,
     todaysExpenseValues: todaysExpenseValues,
     todaysSettingValues: todaysSettingValues,
-    reportData: report,
+    reportData: report.reverse(),
   };
   // log(`result.reportData.length = ${result.reportData.length}`);
   return result;

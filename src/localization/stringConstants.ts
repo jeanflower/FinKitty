@@ -214,7 +214,7 @@ export const debtsChart: ViewType = { lc: 'Debts chart' };
 
 export const overview: ViewType = { lc: 'Overview' };
 
-export const defaultSourceMatcher = 'Buy|Sell';
+export const defaultSourceMatcher = '.';
 export const defaultSourceExcluder = '';
 export const defaultReportSize = 10;
 

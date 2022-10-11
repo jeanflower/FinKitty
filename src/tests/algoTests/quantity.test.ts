@@ -1009,6 +1009,14 @@ describe('quantity tests', () => {
           TO_VALUE: '3', // buy 3 for this price
           DATE: 'Mar 10 2018',
         },
+        {
+          ...simpleTransaction,
+          NAME: 'Revalue of USD',
+          TO: 'USD',
+          TO_VALUE: '2.5',
+          DATE: 'April 10 2018',
+          TYPE: revalueSetting,
+        },
       ],
       settings: [
         ...defaultModelSettings(roi),
@@ -1035,7 +1043,7 @@ describe('quantity tests', () => {
 
     // printTestCodeForEvals(evals);
 
-    expect(evals.length).toBe(16);
+    expect(evals.length).toBe(17);
     expectEvals(evals, 0, 'USD', 'Tue Jan 02 2018', 2, -1);
     expectEvals(evals, 1, 'chrysler', 'Tue Jan 02 2018', 100, -1);
     expectEvals(evals, 2, 'Cash', 'Mon Jan 01 2018', 0, -1);
@@ -1045,13 +1053,14 @@ describe('quantity tests', () => {
     expectEvals(evals, 6, 'Cars', 'Fri Feb 02 2018', 300, -1);
     expectEvals(evals, 7, 'Cash', 'Thu Mar 01 2018', 0, -1);
     expectEvals(evals, 8, 'Cars', 'Fri Mar 02 2018', 300, -1);
-    expectEvals(evals, 9, 'quantityCars', 'Sat Mar 10 2018', 6, -1); // now own six
-    expectEvals(evals, 10, 'Cash', 'Sat Mar 10 2018', -333, -1); // spent this money!
-    expectEvals(evals, 11, 'Cars', 'Sat Mar 10 2018', 600, -1); // value scaled up
+    expectEvals(evals, 9, 'quantityCars', 'Sat Mar 10 2018', 6, -1);
+    expectEvals(evals, 10, 'Cash', 'Sat Mar 10 2018', -333, -1);
+    expectEvals(evals, 11, 'Cars', 'Sat Mar 10 2018', 600, -1);
     expectEvals(evals, 12, 'Cash', 'Sun Apr 01 2018', -333, -1);
     expectEvals(evals, 13, 'Cars', 'Mon Apr 02 2018', 600, -1);
-    expectEvals(evals, 14, 'Cash', 'Tue May 01 2018', -333, -1);
-    expectEvals(evals, 15, 'Cars', 'Wed May 02 2018', 600, -1);
+    expectEvals(evals, 14, 'USD', 'Tue Apr 10 2018', 2.5, 2);
+    expectEvals(evals, 15, 'Cash', 'Tue May 01 2018', -333, -1);
+    expectEvals(evals, 16, 'Cars', 'Wed May 02 2018', 600, -1); // wrong!!
 
     const viewSettings = defaultTestViewSettings();
 

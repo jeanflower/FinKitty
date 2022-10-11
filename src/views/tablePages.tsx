@@ -2146,6 +2146,7 @@ export function reportDiv(
   model: ModelData,
   viewSettings: ViewSettings,
   reportMatcher: ReportMatcher,
+  maxReportSize: number,
   reportData: ReportDatum[],
 ) {
   if (!getDisplay(reportView)) {
@@ -2182,6 +2183,7 @@ export function reportDiv(
         SOURCE: x.source,
       };
     });
+  unindexedResult.reverse();
   const reportDataTable = addIndices(unindexedResult);
 
   // log(`display reportDataTable of length ${reportDataTable.length}`);
@@ -2199,6 +2201,7 @@ export function reportDiv(
       <ReportMatcherForm
         reportMatcher={reportMatcher}
         setReportKey={setReportKey}
+        maxReportSize={maxReportSize}
       />
       <DataGrid
         deleteFunction={undefined}

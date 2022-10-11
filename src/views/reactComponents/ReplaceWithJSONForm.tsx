@@ -20,7 +20,7 @@ interface ReplaceWithJSONFormProps {
   modelNames: string[];
   userID: string;
   showAlert: (arg0: string) => void;
-  setReportKey: (args0: string, args1: number) => void;
+  setReportKey: (args0: string, args1: number, args2: boolean) => void;
   toggleOption: (type: string) => void;
   getOption: (type: string) => boolean;
 }

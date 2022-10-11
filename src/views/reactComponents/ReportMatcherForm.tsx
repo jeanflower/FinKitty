@@ -13,10 +13,12 @@ interface ReportMatcherFormState {
   sourceMatcher: string;
   sourceExcluder: string;
   maxReportSize: string;
+  saveAsCSV: boolean;
 }
 interface ReportMatcherFormProps {
   reportMatcher: ReportMatcher;
-  setReportKey: (args0: string, args1: number) => void;
+  setReportKey: (args0: string, args1: number, args2: boolean) => void;
+  maxReportSize: number;
 }
 
 export class ReportMatcherForm extends Component<
@@ -30,7 +32,8 @@ export class ReportMatcherForm extends Component<
     this.defaultState = {
       sourceMatcher: this.props.reportMatcher.sourceMatcher,
       sourceExcluder: this.props.reportMatcher.sourceExcluder,
-      maxReportSize: `${defaultReportSize}`,
+      maxReportSize: `${this.props.maxReportSize}`,
+      saveAsCSV: false,
     };
 
     this.state = this.defaultState;
@@ -70,7 +73,7 @@ export class ReportMatcherForm extends Component<
         </div>
         <Input
           type={'text'}
-          title={'Match sources (. means everything)'}
+          title={'Match sources (e.g. Buy|Sell, or . means everything)'}
           name={'reportSourceMatcher'}
           value={this.state.sourceMatcher}
           placeholder={'Enter matcher here'}
@@ -107,9 +110,26 @@ export class ReportMatcherForm extends Component<
               },
             );
           },
-          'test',
-          'test',
+          'resetToDefault',
+          'resetToDefault',
           'primary',
+        )}
+        {makeButton(
+          'export to csv',
+          (e) => {
+            e.persist();
+            this.setState(
+              {
+                saveAsCSV: !this.state.saveAsCSV,
+              },
+              () => {
+                this.submit(e);
+              },
+            );
+          },
+          'exportToCSV',
+          'exportToCSV',
+          this.state.saveAsCSV ? 'primary' : 'secondary',
         )}
       </form>
     );
@@ -137,6 +157,7 @@ export class ReportMatcherForm extends Component<
         sourceExcluder: this.state.sourceExcluder,
       }),
       parseInt(this.state.maxReportSize),
+      this.state.saveAsCSV,
     );
     return;
   }
