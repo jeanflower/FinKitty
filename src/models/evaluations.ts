@@ -3690,14 +3690,11 @@ function processTransactionFromTo(
         // log(`recorded investedValue = ${investedValue} with name ${nameForMaturity}`);
       }
       const x: string | number | undefined = values.get(toWord);
-      const updateTargetValue = true;
-      /*
-      const updateTargetValue = 
+      const updateTargetValue =
         toWord.startsWith(pensionTransfer) ||
         !x ||
         typeof x === 'number' ||
-        isNumberString(x)
-      */
+        isNumberString(x);
       if (updateTargetValue) {
         // log('in processTransactionFromTo, setValue:');
         // log(`in processTransactionFromTo, setValue of ${toWord} to ${preToValue + toChange}`);
@@ -3710,9 +3707,9 @@ function processTransactionFromTo(
             // log(`scaled newToValue = ${newToValue}`);
           }
         }
-        log(
-          `for ${t.NAME}, for asset ${t.TO}, write newToValue = ${newToValue}`,
-        );
+        //log(
+        //  `for ${t.NAME}, for asset ${t.TO}, write newToValue = ${newToValue}`,
+        //);
         setValue(
           values,
           growths,
@@ -3724,11 +3721,9 @@ function processTransactionFromTo(
           makeSourceForToChange(t),
           '15', //callerID
         );
-      } /*else {
-        log(`Don't write new value for toWord = ${toWord} with value ${x}`);
-        //throw new Error(
-        //  `Don't write value for toWord = ${toWord} with value ${x}`,
-        //);
+      } else if (x) {
+        // log(`Don't write new value for toWord = ${toWord} with value ${x}`);
+        // log(`Do write a pre-existing defined value`);
         setValue(
           values,
           growths,
@@ -3740,7 +3735,7 @@ function processTransactionFromTo(
           makeSourceForToChange(t),
           '15', //callerID
         );
-      }*/
+      }
     }
   } else {
     // special case - if we're reducing an income tax liability

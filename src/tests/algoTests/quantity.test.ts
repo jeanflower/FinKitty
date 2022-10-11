@@ -1060,7 +1060,7 @@ describe('quantity tests', () => {
     expectEvals(evals, 13, 'Cars', 'Mon Apr 02 2018', 600, -1);
     expectEvals(evals, 14, 'USD', 'Tue Apr 10 2018', 2.5, 2);
     expectEvals(evals, 15, 'Cash', 'Tue May 01 2018', -333, -1);
-    expectEvals(evals, 16, 'Cars', 'Wed May 02 2018', 600, -1); // wrong!!
+    expectEvals(evals, 16, 'Cars', 'Wed May 02 2018', 750, -1);
 
     const viewSettings = defaultTestViewSettings();
 
