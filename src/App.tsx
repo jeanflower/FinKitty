@@ -319,7 +319,12 @@ function evalMode(): boolean {
     return false;
   }
 }
-function getReporter(model: ModelData, viewSettings: ViewSettings) {
+function getReporter(
+  model: ModelData,
+  viewSettings: ViewSettings,
+  reportIncludesSettings: boolean,
+  reportIncludesExpenses: boolean,
+) {
   // define a 'reporter' function which will be
   // passed into the evaluation code to capture
   // data as we proceed with calculations
@@ -337,15 +342,17 @@ function getReporter(model: ModelData, viewSettings: ViewSettings) {
       // log(`do not show ${a.NAME}`);
     }
   });
-  // include settings changes in the report
-  model.settings.forEach((s) => {
-    const name = s.NAME;
-    if (nameMatcher === '') {
-      nameMatcher = name;
-    } else {
-      nameMatcher = nameMatcher + '|' + name;
-    }
-  });
+  if (reportIncludesSettings) {
+    // include settings changes in the report
+    model.settings.forEach((s) => {
+      const name = s.NAME;
+      if (nameMatcher === '') {
+        nameMatcher = name;
+      } else {
+        nameMatcher = nameMatcher + '|' + name;
+      }
+    });
+  }
   //log(`nameMatcher for reporter = ${nameMatcher}`);
 
   const viewRange = getROI(model);
@@ -357,13 +364,15 @@ function getReporter(model: ModelData, viewSettings: ViewSettings) {
     if (!reactAppComponent.state.reportDefiner) {
       return false;
     }
-    if (
-      model.expenses.find((e) => {
-        return e.NAME === source;
-      })
-    ) {
-      // expenses just happen - do not include them in 'actions'
-      return false;
+    if (!reportIncludesExpenses) {
+      if (
+        model.expenses.find((e) => {
+          return e.NAME === source;
+        })
+      ) {
+        // expenses just happen - do not include them in 'actions'
+        return false;
+      }
     }
 
     // log(`sourceMatcher = ${reactAppComponent.reportDefiner.sourceMatcher}`)
@@ -508,7 +517,12 @@ export async function refreshDataInternal(
       // log(`don't compute report`);
     } else {
       // log(`create the report data`);
-      reporter = getReporter(model, viewSettings);
+      reporter = getReporter(
+        model,
+        viewSettings,
+        reactAppComponent.state.reportIncludesSettings,
+        reactAppComponent.state.reportIncludesExpenses,
+      );
     }
     // go and do the actual modeling, the calculations
     const helper: EvaluationHelper = {
@@ -693,6 +707,8 @@ export function setReportKey(
   textInput: string,
   maxSize: number,
   saveAsCSV: boolean,
+  reportIncludesSettings: boolean,
+  reportIncludesExpenses: boolean,
 ): boolean {
   /*
   report:{"sourceExcluder":"growth"}
@@ -709,6 +725,8 @@ export function setReportKey(
         },
         saveReportAsCSV: saveAsCSV,
         maxReportSize: maxSize,
+        reportIncludesSettings: reportIncludesSettings,
+        reportIncludesExpenses: reportIncludesExpenses,
       },
       async () => {
         log('set key for report : go refresh data');
@@ -1220,6 +1238,8 @@ interface AppState {
   todaysSettingValues: Map<string, SettingVal>;
   reportDefiner: ReportMatcher;
   maxReportSize: number;
+  reportIncludesSettings: boolean;
+  reportIncludesExpenses: boolean;
   saveReportAsCSV: boolean;
   reportData: ReportDatum[];
   totalTaxPaid: number;
@@ -1318,6 +1338,8 @@ export class AppContent extends Component<AppProps, AppState> {
         sourceExcluder: defaultSourceExcluder,
       },
       maxReportSize: 10,
+      reportIncludesSettings: false,
+      reportIncludesExpenses: true,
       saveReportAsCSV: false,
       reportData: [],
       totalTaxPaid: 0,
@@ -1549,6 +1571,8 @@ export class AppContent extends Component<AppProps, AppState> {
               this.state.viewState,
               this.state.reportDefiner,
               this.state.maxReportSize,
+              this.state.reportIncludesSettings,
+              this.state.reportIncludesExpenses,
               this.state.reportData.slice(0, this.state.maxReportSize),
             )}
             {optimizerDiv(

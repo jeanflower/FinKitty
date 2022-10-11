@@ -14,11 +14,21 @@ interface ReportMatcherFormState {
   sourceExcluder: string;
   maxReportSize: string;
   saveAsCSV: boolean;
+  reportIncludesSettings: boolean;
+  reportIncludesExpenses: boolean;
 }
 interface ReportMatcherFormProps {
   reportMatcher: ReportMatcher;
-  setReportKey: (args0: string, args1: number, args2: boolean) => void;
+  setReportKey: (
+    args0: string,
+    args1: number,
+    args2: boolean,
+    args3: boolean,
+    args4: boolean,
+  ) => void;
   maxReportSize: number;
+  reportIncludesSettings: boolean;
+  reportIncludesExpenses: boolean;
 }
 
 export class ReportMatcherForm extends Component<
@@ -34,6 +44,8 @@ export class ReportMatcherForm extends Component<
       sourceExcluder: this.props.reportMatcher.sourceExcluder,
       maxReportSize: `${this.props.maxReportSize}`,
       saveAsCSV: false,
+      reportIncludesSettings: false,
+      reportIncludesExpenses: false,
     };
 
     this.state = this.defaultState;
@@ -131,6 +143,40 @@ export class ReportMatcherForm extends Component<
           'exportToCSV',
           this.state.saveAsCSV ? 'primary' : 'secondary',
         )}
+        {makeButton(
+          'include settings',
+          (e) => {
+            e.persist();
+            this.setState(
+              {
+                reportIncludesSettings: !this.state.reportIncludesSettings,
+              },
+              () => {
+                this.submit(e);
+              },
+            );
+          },
+          'includeSettings',
+          'includeSettings',
+          this.state.reportIncludesSettings ? 'primary' : 'secondary',
+        )}
+        {makeButton(
+          'include expenses',
+          (e) => {
+            e.persist();
+            this.setState(
+              {
+                reportIncludesExpenses: !this.state.reportIncludesExpenses,
+              },
+              () => {
+                this.submit(e);
+              },
+            );
+          },
+          'includeExpenses',
+          'includeExpenses',
+          this.state.reportIncludesExpenses ? 'primary' : 'secondary',
+        )}
       </form>
     );
   }
@@ -158,6 +204,8 @@ export class ReportMatcherForm extends Component<
       }),
       parseInt(this.state.maxReportSize),
       this.state.saveAsCSV,
+      this.state.reportIncludesSettings,
+      this.state.reportIncludesExpenses,
     );
     return;
   }

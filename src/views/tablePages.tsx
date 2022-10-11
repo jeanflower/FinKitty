@@ -2147,6 +2147,8 @@ export function reportDiv(
   viewSettings: ViewSettings,
   reportMatcher: ReportMatcher,
   maxReportSize: number,
+  reportIncludesSettings: boolean,
+  reportIncludesExpenses: boolean,
   reportData: ReportDatum[],
 ) {
   if (!getDisplay(reportView)) {
@@ -2202,6 +2204,8 @@ export function reportDiv(
         reportMatcher={reportMatcher}
         setReportKey={setReportKey}
         maxReportSize={maxReportSize}
+        reportIncludesSettings={reportIncludesSettings}
+        reportIncludesExpenses={reportIncludesExpenses}
       />
       <DataGrid
         deleteFunction={undefined}
