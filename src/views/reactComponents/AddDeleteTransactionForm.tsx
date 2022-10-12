@@ -79,7 +79,7 @@ export class AddDeleteTransactionForm extends Component<
       FROM: '',
       FROM_ABSOLUTE: 'F',
       FROM_VALUE: '1.0',
-      FROM_INPUT_VALUE: '%',
+      FROM_INPUT_VALUE: '',
       TO: '',
       TO_ABSOLUTE: 'F',
       TO_VALUE: '1.0',

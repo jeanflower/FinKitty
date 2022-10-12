@@ -353,7 +353,7 @@ function getReporter(
       }
     });
   }
-  //log(`nameMatcher for reporter = ${nameMatcher}`);
+  // log(`nameMatcher for reporter = ${nameMatcher}`);
 
   const viewRange = getROI(model);
   const startDate = viewRange.start;
@@ -364,6 +364,7 @@ function getReporter(
     if (!reactAppComponent.state.reportDefiner) {
       return false;
     }
+    // log(`should we display ${name} at ${date.toDateString()}?`);
     if (!reportIncludesExpenses) {
       if (
         model.expenses.find((e) => {
@@ -371,6 +372,7 @@ function getReporter(
         })
       ) {
         // expenses just happen - do not include them in 'actions'
+        // log(`do not display ${name} bcs it's an expense`);
         return false;
       }
     }
@@ -391,15 +393,19 @@ function getReporter(
       log(`report for source = ${source}`);
     }
     if (date < getTodaysDate(model)) {
+      // log(`do not display ${name} bcs date is before today's date`);
       return false;
     }
     if (date < startDate) {
+      // log(`do not display ${name} bcs date is before startDate`);
       return false;
     }
     if (date > endDate) {
+      // log(`do not display ${name} bcs date is aftee endDate`);
       return false;
     }
     if (name.startsWith(purchase)) {
+      // log(`do not display ${name} bcs name starts with purchase`);
       return false;
     }
     if (nameMatcher) {
@@ -435,6 +441,7 @@ function getReporter(
         return false;
       }
     }
+    // log(`yes, do display ${name} at ${date.toDateString()}?`);
     return true;
   };
 }

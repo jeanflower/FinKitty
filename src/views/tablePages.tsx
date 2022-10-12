@@ -2243,6 +2243,12 @@ export function reportDiv(
           },
           {
             ...defaultColumn,
+            key: 'SOURCE',
+            name: 'source',
+            formatter: <SimpleFormatter name="source" value="unset" />,
+          },
+          {
+            ...defaultColumn,
             key: 'CHANGE',
             name: 'change',
             formatter: <CashValueFormatter name="change" value="unset" />,
@@ -2276,12 +2282,6 @@ export function reportDiv(
             key: 'QNEW_VALUE',
             name: 'new quantity',
             formatter: <SimpleFormatter name="new quantity" value="unset" />,
-          },
-          {
-            ...defaultColumn,
-            key: 'SOURCE',
-            name: 'source',
-            formatter: <SimpleFormatter name="source" value="unset" />,
           },
         ]}
         model={model}
