@@ -2193,13 +2193,13 @@ export function reportDiv(
   // log(`display reportDataTable ${util.inspect(reportDataTable)}`);
 
   const context = Context.Asset;
-  const items = model.assets.filter((obj) => {
+  const itemsForFilterButtons = model.assets.filter((obj) => {
     return obj.IS_A_DEBT === false;
   });
 
   return (
     <div className="ml-3">
-      {filtersList(items, viewSettings, context, true)}
+      {filtersList(itemsForFilterButtons, viewSettings, context, true)}
       <ReportMatcherForm
         reportMatcher={reportMatcher}
         setReportKey={setReportKey}
