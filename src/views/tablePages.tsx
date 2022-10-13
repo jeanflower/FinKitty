@@ -995,7 +995,7 @@ export function transactionsForTable(model: ModelData, type: string) {
         model,
         obj.NAME,
       );
-      if (obj.TO === '' && toValueEntry === '0') {
+      if (obj.TO === '' && (toValueEntry === '0' || toValueEntry === '0.0')) {
         toValueEntry = '';
       }
       const mapResult = {
