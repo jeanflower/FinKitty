@@ -3639,6 +3639,10 @@ function processTransactionFromTo(
       makeSourceForFromChange(t),
       '14', //callerID
     );
+    if (t.FROM === t.TO && typeof newFromValue === 'number') {
+      // we have changed the to value now because we just set the from value!
+      preToValue = newFromValue;
+    }
   }
 
   // log(`for ${t.NAME}, toChange = ${toChange}`);

@@ -2999,6 +2999,141 @@ describe('evaluations tests', () => {
     done();
   });
 
+  it('has 100% transaction from X to X', (done) => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'March 1, 2018 00:00:00',
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: 'Sell all Stff',
+          FROM: 'Stff',
+          FROM_ABSOLUTE: false,
+          FROM_VALUE: '1.0',
+          TO: 'Stff',
+          TO_ABSOLUTE: false,
+          TO_VALUE: '1.0',
+          DATE: 'January 3 2018',
+        },
+      ],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'Stff',
+          START: 'January 2 2018',
+          VALUE: '222',
+        },
+      ],
+      settings: [...defaultModelSettings(roi)],
+    };
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(4);
+    expectEvals(evals, 0, 'Stff', 'Tue Jan 02 2018', 222, -1);
+    expectEvals(evals, 1, 'Stff', 'Wed Jan 03 2018', 0, -1);
+    expectEvals(evals, 2, 'Stff', 'Wed Jan 03 2018', 222, -1);
+    expectEvals(evals, 3, 'Stff', 'Fri Feb 02 2018', 222, -1);
+
+    done();
+  });
+
+  it('has 50% transaction from X to X', (done) => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'March 1, 2018 00:00:00',
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: 'Sell all Stff',
+          FROM: 'Stff',
+          FROM_ABSOLUTE: false,
+          FROM_VALUE: '1.0',
+          TO: 'Stff',
+          TO_ABSOLUTE: false,
+          TO_VALUE: '0.5',
+          DATE: 'January 3 2018',
+        },
+      ],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'Stff',
+          START: 'January 2 2018',
+          VALUE: '222',
+        },
+      ],
+      settings: [...defaultModelSettings(roi)],
+    };
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(4);
+    expectEvals(evals, 0, 'Stff', 'Tue Jan 02 2018', 222, -1);
+    expectEvals(evals, 1, 'Stff', 'Wed Jan 03 2018', 0, -1);
+    expectEvals(evals, 2, 'Stff', 'Wed Jan 03 2018', 111, -1);
+    expectEvals(evals, 3, 'Stff', 'Fri Feb 02 2018', 111, -1);
+
+    done();
+  });
+
+  it('has 50%-sqrd transaction from X to X', (done) => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'March 1, 2018 00:00:00',
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: 'Sell all Stff',
+          FROM: 'Stff',
+          FROM_ABSOLUTE: false,
+          FROM_VALUE: '0.5',
+          TO: 'Stff',
+          TO_ABSOLUTE: false,
+          TO_VALUE: '0.5',
+          DATE: 'January 3 2018',
+        },
+      ],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'Stff',
+          START: 'January 2 2018',
+          VALUE: '222',
+        },
+      ],
+      settings: [...defaultModelSettings(roi)],
+    };
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(4);
+    expectEvals(evals, 0, 'Stff', 'Tue Jan 02 2018', 222, -1);
+    expectEvals(evals, 1, 'Stff', 'Wed Jan 03 2018', 111, -1);
+    expectEvals(evals, 2, 'Stff', 'Wed Jan 03 2018', 166.5, -1);
+    expectEvals(evals, 3, 'Stff', 'Fri Feb 02 2018', 166.5, -1);
+
+    done();
+  });
+
   it('has proportional transaction impacting asset value', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
