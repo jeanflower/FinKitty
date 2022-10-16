@@ -4025,8 +4025,6 @@ function logPurchaseValues(
 
 class ValuesContainer {
   private reportValues = new Map<string, number | string>([]);
-  private maxReportSize = 0;
-  private saveAsCSV = false;
   private includeInReport: ReportValueChecker = (
     name: string, // name of something which has a value
     val: number | string,
@@ -4046,10 +4044,6 @@ class ValuesContainer {
 
   public setIncludeInReport(fn: ReportValueChecker) {
     this.includeInReport = fn;
-    this.report = [];
-  }
-  public setMaxReportSize(num: number) {
-    this.maxReportSize = num;
     this.report = [];
   }
 
@@ -5246,7 +5240,6 @@ function getEvaluationsInternal(
   const values = new ValuesContainer();
   if (helper && helper.reporter) {
     values.setIncludeInReport(helper && helper.reporter);
-    values.setMaxReportSize(helper && helper.maxReportSize);
   }
 
   // Calculate a monthly growth once per item,

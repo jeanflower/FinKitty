@@ -829,7 +829,7 @@ function taxButtonList(model: ModelData, viewSettings: ViewSettings) {
   const liabilityPeople = getLiabilityPeople(model);
   liabilityPeople.unshift(allItems);
 
-  // console.log(`liablityPeople for tax buttons is ${showObj(liabilityPeople)}`);
+  // log(`liablityPeople for tax buttons is ${showObj(liabilityPeople)}`);
   const buttons = liabilityPeople.map((person) =>
     makeButton(
       person === allItems ? 'All people' : person,

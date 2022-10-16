@@ -101,7 +101,7 @@ export function makeDateFromString(input: string) {
     }
   }
 
-  // console.log(`Invalid Date : ${input}`);
+  // log(`Invalid Date : ${input}`);
   return new Date('Invalid Date');
 }
 
@@ -939,14 +939,14 @@ function isDependentDate(dateName: string, dependent: string): boolean {
 }
 
 export function hasDependentDate(t: Trigger, model: ModelData): boolean {
-  // console.log(`see if this model depends on ${t.NAME}`);
+  // log(`see if this model depends on ${t.NAME}`);
   const name = t.NAME;
   // log(`trigger name is ${name}`);
   // is there a transaction date which begins with name
   // and appends some date algebra
   if (
     model.triggers.find((t) => {
-      // console.log(`see if trigger ${t.DATE} depends on ${name}`);
+      // log(`see if trigger ${t.DATE} depends on ${name}`);
       return isDependentDate(t.DATE, name);
     }) !== undefined
   ) {

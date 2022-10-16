@@ -276,11 +276,11 @@ export function replaceCategoryWithAssetNames(
 
 export function getLiabilityPeople(model: ModelData): string[] {
   const liabilityPeople: string[] = [];
-  // console.log(`model for getLiabilityPeople is ${showObj(model)}`);
+  // log(`model for getLiabilityPeople is ${showObj(model)}`);
   model.assets.forEach((obj) => {
     const words = obj.LIABILITY.split(separator);
     for (const word of words) {
-      // console.log(`liability word = ${word}`);
+      // log(`liability word = ${word}`);
       let person: string | undefined = undefined;
       if (word.endsWith(cgt)) {
         person = word.substring(0, word.length - cgt.length);
@@ -293,7 +293,7 @@ export function getLiabilityPeople(model: ModelData): string[] {
             return person === name;
           }) === -1
         ) {
-          // console.log(`person = ${person}`);
+          // log(`person = ${person}`);
           liabilityPeople.push(person);
         }
       }
@@ -316,7 +316,7 @@ export function getLiabilityPeople(model: ModelData): string[] {
             return person === name;
           }) === -1
         ) {
-          // console.log(`person = ${person}`);
+          // log(`person = ${person}`);
           liabilityPeople.push(person);
         }
       }
