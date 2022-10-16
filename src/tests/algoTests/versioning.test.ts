@@ -635,7 +635,7 @@ describe('loadModelsFromJSON', () => {
       }
     }
     expect(foundError).toBe(
-      'this data was saved with a newer version of the app - please upgrade',
+      'this data (v 11) was saved with a newer version of the app (v 10) - please upgrade the app',
     );
   });
 

@@ -121,7 +121,7 @@ import {
 } from './chartPages';
 import { ReportMatcherForm } from './reactComponents/ReportMatcherForm';
 import { getDisplay } from '../utils/viewUtils';
-import { getEvaluations } from '../models/evaluations';
+import { EvaluationHelper, getEvaluations } from '../models/evaluations';
 
 export function collapsibleFragment(
   fragment: ReactFragment | undefined,
@@ -2319,13 +2319,14 @@ function performOneCalc(
     ESTATE: string;
     ESTATE_VAL: number;
   }[],
+  helper: EvaluationHelper,
   showAlert: (msg: string) => void,
 ) {
   // log(`calculate optimisation task for varVal = ${varVal}`);
   const tempModel = makeModelFromJSON(JSON.stringify(model));
 
   setSetting(tempModel.settings, 'variable', `${varVal}`, custom);
-  const evalResult = getEvaluations(tempModel, undefined);
+  const evalResult = getEvaluations(tempModel, helper);
   const errorMsg = evalResult.reportData.find((d) => {
     return d.name === 'Error from evaluations';
   });
@@ -2358,9 +2359,9 @@ function performOneCalc(
 
 export function calcOptimizer(
   model: ModelData,
+  helper: EvaluationHelper,
   showAlert: (msg: string) => void,
 ): ChartData {
-  // log(`do populate optimizerView`);
   const noData: ChartData = {
     labels: [],
     datasets: [],
@@ -2436,9 +2437,9 @@ export function calcOptimizer(
     ESTATE_VAL: number;
   }[] = [];
   for (const varVal of varVals) {
-    // this dpoesn't display right away - shame
-    // showAlert(`calc for variable = ${varVal}`);
-    performOneCalc(model, varVal, unindexedResult, showAlert);
+    // this doesn't display results right away - shame
+    // log(`calc for variable = ${varVal}`);
+    performOneCalc(model, varVal, unindexedResult, helper, showAlert);
   }
   // showAlert(`done compute...`);
   const data = addIndices(

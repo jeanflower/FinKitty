@@ -27,6 +27,7 @@ import {
   bondMaturity,
   bondInterest,
   weekly,
+  tracking,
 } from '../localization/stringConstants';
 import {
   DatedThing,
@@ -2632,6 +2633,7 @@ function getAssetMoments(
   model: ModelData,
   rOIEndDate: Date,
   frequency: string,
+  trackingOnly: boolean,
 ) {
   const roi = {
     start: getTriggerDate(
@@ -2644,23 +2646,31 @@ function getAssetMoments(
   // log(`roi = ${showObj(roi)}`)
   let freqString = '1m';
   if (frequency === weekly) {
-    freqString = '1w';
+    if (trackingOnly) {
+      freqString = '1w';
+    } else {
+      freqString = '1m';
+    }
   } else if (frequency === annually) {
-    freqString = '1y';
+    freqString = '1m';
   }
   const dates = generateSequenceOfDates(roi, freqString);
   // log(`dates = ${showObj(dates)}`)
+  const name = trackingOnly ? `${asset.NAME}${tracking}` : asset.NAME;
+  if (trackingOnly) {
+    dates.shift();
+  }
   const newMoments = dates.map((date) => {
     const result: Moment = {
       date,
-      name: asset.NAME,
+      name: name,
       type: momentType.asset,
       setValue: 0,
       transaction: undefined,
     };
     return result;
   });
-  if (newMoments.length > 0) {
+  if (newMoments.length > 0 && !trackingOnly) {
     newMoments[0].type = momentType.assetStart;
     if (isNumberString(asset.VALUE)) {
       newMoments[0].setValue = parseFloat(asset.VALUE);
@@ -4303,7 +4313,7 @@ function generateMoments(
       asset.CPI_IMMUNE ? 0 : cpiInitialVal,
       growths,
       model.settings,
-      frequency,
+      monthly,
     );
 
     logAssetValueString(
@@ -4316,8 +4326,24 @@ function generateMoments(
       model,
     );
 
-    const newMoments = getAssetMoments(asset, model, roiEndDate, frequency);
+    const newMoments = getAssetMoments(
+      asset,
+      model,
+      roiEndDate,
+      frequency,
+      false,
+    );
     allMoments = allMoments.concat(newMoments);
+    if (frequency === weekly) {
+      const tracxkingMoments = getAssetMoments(
+        asset,
+        model,
+        roiEndDate,
+        frequency,
+        true,
+      );
+      allMoments = allMoments.concat(tracxkingMoments);
+    }
 
     logAssetIncomeLiabilities(asset, liabilitiesMap);
   });
@@ -4977,22 +5003,28 @@ function growAndEffectMoment(
   liableIncomeInTaxMonth: Map<string, Map<string, number>>,
   evaluations: Evaluation[],
 ) {
+  let momentName = moment.name;
+  const includeGrowth = !momentName.endsWith(tracking);
+  if (!includeGrowth) {
+    momentName = momentName.substring(0, momentName.length - tracking.length);
+  }
+
   const visiblePoundValue: string | number | undefined = traceEvaluation(
-    moment.name,
+    momentName,
     values,
     growths,
-    moment.name,
+    momentName,
   );
   // log(`visiblePoundValue for ${moment.name} is ${visiblePoundValue}`);
   if (visiblePoundValue === undefined) {
-    const val = values.get(moment.name);
+    const val = values.get(momentName);
     if (val !== undefined) {
       setValue(
         values,
         growths,
         evaluations,
         moment.date,
-        moment.name,
+        momentName,
         val,
         model,
         growth,
@@ -5000,18 +5032,23 @@ function growAndEffectMoment(
       );
     }
   } else {
-    const growthObj = growthData(moment.name, growths, values);
+    const growthObj = includeGrowth
+      ? growthData(momentName, growths, values)
+      : {
+          adjustForCPI: false,
+          scale: 0.0,
+        };
     const baseVal = getNumberValue(values, baseForCPI);
     // log(`baseVal = ${baseVal}`);
     let oldStoredNumberVal = visiblePoundValue;
     if (visiblePoundValue && growthObj && growthObj.adjustForCPI && baseVal) {
       oldStoredNumberVal /= baseVal;
     }
-    // log(`oldStoredNumberVal for ${moment.name} is ${oldStoredNumberVal}`);
-    // log(`growthObj for ${moment.name} = ${showObj(growthObj)}`);
+    // log(`oldStoredNumberVal for ${momentName} is ${oldStoredNumberVal}`);
+    // log(`growthObj for ${momentName} = ${showObj(growthObj)}`);
     /* istanbul ignore if  */ //error
-    if (!growthObj) {
-      log(`Error: missing growth for ${moment.name}`);
+    if (growthObj === undefined) {
+      log(`Error: missing growth for ${momentName}`);
     } else {
       // We _do_ want to log changes of 0
       // because this is how we generate monthly
@@ -5042,7 +5079,7 @@ function growAndEffectMoment(
       let cPIChange = 0.0;
       // log(`moment.type = ${moment.type}`);
       if (growthObj.adjustForCPI) {
-        // log(`do work on a CPI change for ${moment.name}`);
+        // log(`do work on a CPI change for ${momentName}`);
         /* istanbul ignore if  */ //error
         if (!baseVal) {
           log(`Error: missing or zero baseVal`);
@@ -5059,7 +5096,7 @@ function growAndEffectMoment(
       let valToStore: string | number = oldStoredNumberVal;
       if (changedToStoredValue === 0.0) {
         // recover pre-existing value (don't save back as number value)
-        const storedVal = values.get(moment.name);
+        const storedVal = values.get(momentName);
         if (storedVal !== undefined) {
           // log(`set valToStore as storedVal ${storedVal}`);
           valToStore = storedVal;
@@ -5080,11 +5117,11 @@ function growAndEffectMoment(
       if (
         moment.type === momentType.expensePrep ||
         (moment.type === momentType.incomePrep &&
-          !moment.name.startsWith(pensionDB))
+          !momentName.startsWith(pensionDB))
       ) {
-        // log(`quietly set the value of ${moment.name} as ${valToStore}`);
+        // log(`quietly set the value of ${momentName} as ${valToStore}`);
         values.set(
-          moment.name,
+          momentName,
           valToStore,
           growths,
           moment.date,
@@ -5092,13 +5129,13 @@ function growAndEffectMoment(
           '22a', //callerID
         );
       } else {
-        // log(`set the value of ${moment.name} as ${valToStore}`);
+        // log(`set the value of ${momentName} as ${valToStore}`);
         setValue(
           values,
           growths,
           evaluations,
           moment.date,
-          moment.name,
+          momentName,
           valToStore,
           model,
           growth,
@@ -5109,10 +5146,10 @@ function growAndEffectMoment(
       if (moment.type === momentType.asset) {
         // some assets experience growth which is
         // liable for tax
-        // log(`asset moment for growth : ${moment.date}, ${moment.name}`);
+        // log(`asset moment for growth : ${moment.date}, ${momentName}`);
         const changeToCash = cPIChange + changeToVisibleCash;
-        if (moment.name.startsWith(crystallizedPension) && changeToCash > 0) {
-          // log(`skip asset moment for growth : ${moment.date}, ${moment.name}, ${change}`);
+        if (momentName.startsWith(crystallizedPension) && changeToCash > 0) {
+          // log(`skip asset moment for growth : ${moment.date}, ${momentName}, ${change}`);
         } else {
           handleIncome(
             changeToCash,
@@ -5125,7 +5162,7 @@ function growAndEffectMoment(
             liabilitiesMap,
             liableIncomeInTaxYear,
             liableIncomeInTaxMonth,
-            moment.name,
+            momentName,
           );
         }
       } else if (moment.type === momentType.income) {
@@ -5142,7 +5179,7 @@ function growAndEffectMoment(
           liabilitiesMap,
           liableIncomeInTaxYear,
           liableIncomeInTaxMonth,
-          moment.name,
+          momentName,
         );
       } else if (moment.type === momentType.expense) {
         // log('in getEvaluations, adjustCash:');
@@ -5155,15 +5192,15 @@ function growAndEffectMoment(
           growths,
           evaluations,
           model,
-          moment.name,
+          momentName,
         );
       }
     }
     /* istanbul ignore if  */ //debug
     if (printDebug()) {
       log(`${moment.date.toDateString()},
-                ${moment.name},
-                value = ${values.get(moment.name)}`);
+                ${momentName},
+                value = ${values.get(momentName)}`);
     }
   }
 }
@@ -5278,6 +5315,7 @@ function getEvaluationsInternal(
   // Calculate a set of "moments" for each transaction/income/expense...
   // each has a date - we'll process these in date order.
   const freq = helper ? helper.frequency : monthly;
+  // log(`freq = ${freq}`);
   const allMoments: Moment[] = generateMoments(
     model,
     freq,
@@ -5638,12 +5676,13 @@ export function getEvaluations(
       roiEndSetting.VALUE = roiEndDate.toDateString();
     }
 
-    // log(`START FIRST EVALUATIONS LOOP`);
+    // log(`START FIRST EVALUATIONS for ${model.name}`);
     const adjustedEvals = getEvaluationsInternal(adjustedModel, {
       frequency: helper ? helper.frequency : monthly,
       maxReportSize: 0,
       reporter: undefined,
     });
+    // log(`END FIRST EVALUATIONS for ${model.name}`);
     // log(`adjustedEvals = ${showObj(adjustedEvals)}`);
 
     if (roiEndSetting) {
@@ -5704,9 +5743,11 @@ export function getEvaluations(
         }
       }
     }
+  } else {
+    // log(`SKIP FIRST EVALUATIONS for ${model.name}`);
   }
 
-  // log(`START SECOND EVALUATIONS LOOP`);
+  // log(`START SECOND EVALUATIONS for ${model.name}`);
   const result = getEvaluationsInternal(
     {
       ...model,
@@ -5714,6 +5755,8 @@ export function getEvaluations(
     },
     helper,
   );
+  // log(`END SECOND EVALUATIONS for ${model.name}`);
+
   // log(`evals = ${showObj(result.evaluations)}`);
   return result;
 }

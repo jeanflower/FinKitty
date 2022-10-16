@@ -1,14 +1,24 @@
 import { makeDateFromString } from './stringUtils';
+import FileSaver from 'file-saver';
 
 let doLog = true;
+
+let logText = '';
+
 export function log(obj: string | Map<any, any> | boolean) {
   if (doLog) {
     /* eslint-disable no-console */ // all console calls routed through here
     // tslint:disable-next-line:no-console
     console.log(obj);
+    logText = `${logText}${obj}\n`;
     /* eslint-enable no-console */
   }
 }
+export function saveLogs() {
+  const blob = new Blob([logText], { type: 'text/plain;charset=utf-8' });
+  FileSaver.saveAs(blob, `logs.txt`);
+}
+
 export function suppressLogs() {
   doLog = false;
 }

@@ -58,7 +58,7 @@ import {
   ReportMatcher,
   ReportValueChecker,
 } from './types/interfaces';
-import { Context, log, printDebug, showObj } from './utils/utils';
+import { Context, log, printDebug, saveLogs, showObj } from './utils/utils';
 import { loginPage, navbarContent } from './views/loginPage';
 import { screenshotsDiv } from './views/screenshotsPage';
 import {
@@ -673,8 +673,23 @@ export async function refreshData(
   sourceID: number,
 ): Promise<void> {
   if (getDisplay(optimizerView)) {
+    const viewSettings = reactAppComponent.state.viewState;
+    const reporter: ReportValueChecker = () =>
+      //name: string,
+      //val: number | string,
+      //date: Date,
+      //source: string,
+      {
+        return false;
+      };
+    const helper: EvaluationHelper = {
+      reporter: reporter,
+      maxReportSize: reactAppComponent.state.maxReportSize,
+      frequency: viewSettings.getViewSetting(viewFrequency, monthly),
+    };
     const cd: ChartData = calcOptimizer(
       reactAppComponent.state.modelData,
+      helper,
       showAlert,
     );
     reactAppComponent.setState({
@@ -1920,6 +1935,15 @@ export class AppContent extends Component<AppProps, AppState> {
             },
             `btn-log`,
             `btn-log`,
+            'outline-secondary',
+          )}
+          {makeButton(
+            'Save log data',
+            () => {
+              saveLogs();
+            },
+            `btn-saveLogs`,
+            `btnsaveLogs`,
             'outline-secondary',
           )}
           {makeButton(

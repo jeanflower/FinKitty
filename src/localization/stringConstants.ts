@@ -172,6 +172,7 @@ export const payOffDebt = 'payOffDebt';
 export const bondInvest = 'bondInvest';
 // Bond maturity
 export const bondMature = 'bondMature';
+export const tracking = 'traaacking';
 
 // settings types
 export const constType = 'const';

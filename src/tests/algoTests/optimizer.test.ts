@@ -1,9 +1,12 @@
+import { viewFrequency, monthly } from '../../localization/stringConstants';
+import { EvaluationHelper } from '../../models/evaluations';
 import {
   getVariableDateExampleData,
   getVariableDateExampleData2,
 } from '../../models/exampleModels';
-import { ChartData } from '../../types/interfaces';
+import { ChartData, ReportValueChecker } from '../../types/interfaces';
 import { log, printDebug, showObj } from '../../utils/utils';
+import { getDefaultViewSettings } from '../../utils/viewUtils';
 import { calcOptimizer } from '../../views/tablePages';
 import {
   printTestCodeForEvals,
@@ -64,7 +67,22 @@ describe('optimizer tests', () => {
     expectEvals(evals, 33, 'Cash', 'Sun Dec 01 2019', 100, -1);
 
     let errorMsg = '';
-    const cd: ChartData = calcOptimizer(model, (msg: string) => {
+
+    const viewSettings = getDefaultViewSettings();
+    const reporter: ReportValueChecker = () =>
+      //name: string,
+      //val: number | string,
+      //date: Date,
+      //source: string,
+      {
+        return false;
+      };
+    const helper: EvaluationHelper = {
+      reporter: reporter,
+      maxReportSize: 0,
+      frequency: viewSettings.getViewSetting(viewFrequency, monthly),
+    };
+    const cd: ChartData = calcOptimizer(model, helper, (msg: string) => {
       errorMsg = msg;
     });
     expect(errorMsg).toEqual('');
@@ -132,8 +150,22 @@ describe('optimizer tests', () => {
     expectEvals(evals, 32, 'Estate', 'Sun Dec 01 2019', 700, -1);
     expectEvals(evals, 33, 'Cash', 'Sun Dec 01 2019', 100, -1);
 
+    const viewSettings = getDefaultViewSettings();
+    const reporter: ReportValueChecker = () =>
+      //name: string,
+      //val: number | string,
+      //date: Date,
+      //source: string,
+      {
+        return false;
+      };
+    const helper: EvaluationHelper = {
+      reporter: reporter,
+      maxReportSize: 0,
+      frequency: viewSettings.getViewSetting(viewFrequency, monthly),
+    };
     let errorMsg = '';
-    const cd: ChartData = calcOptimizer(model, (msg: string) => {
+    const cd: ChartData = calcOptimizer(model, helper, (msg: string) => {
       errorMsg = msg;
     });
     expect(errorMsg).toEqual('');

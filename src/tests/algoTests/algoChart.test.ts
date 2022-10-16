@@ -345,20 +345,22 @@ describe(' chart data tests', () => {
 
     // printTestCodeForEvals(evals);
 
-    expect(evals.length).toBe(13);
+    expect(evals.length).toBe(15);
     expectEvals(evals, 0, 'savings', 'Mon Jan 01 2018', 500, -1);
-    expectEvals(evals, 1, 'savings', 'Mon Jan 08 2018', 501.09, 2);
-    expectEvals(evals, 2, 'savings', 'Mon Jan 15 2018', 502.18, 2);
-    expectEvals(evals, 3, 'savings', 'Mon Jan 22 2018', 503.28, 2);
-    expectEvals(evals, 4, 'savings', 'Mon Jan 29 2018', 504.38, 2);
-    expectEvals(evals, 5, 'savings', 'Mon Feb 05 2018', 505.48, 2);
-    expectEvals(evals, 6, 'savings', 'Mon Feb 12 2018', 506.58, 2);
-    expectEvals(evals, 7, 'savings', 'Mon Feb 19 2018', 507.69, 2);
-    expectEvals(evals, 8, 'savings', 'Mon Feb 26 2018', 508.79, 2);
-    expectEvals(evals, 9, 'savings', 'Mon Mar 05 2018', 509.9, 2);
-    expectEvals(evals, 10, 'savings', 'Mon Mar 12 2018', 511.02, 2);
-    expectEvals(evals, 11, 'savings', 'Mon Mar 19 2018', 512.13, 2);
-    expectEvals(evals, 12, 'savings', 'Mon Mar 26 2018', 513.25, 2);
+    expectEvals(evals, 1, 'savings', 'Mon Jan 08 2018', 500, -1);
+    expectEvals(evals, 2, 'savings', 'Mon Jan 15 2018', 500, -1);
+    expectEvals(evals, 3, 'savings', 'Mon Jan 22 2018', 500, -1);
+    expectEvals(evals, 4, 'savings', 'Mon Jan 29 2018', 500, -1);
+    expectEvals(evals, 5, 'savings', 'Thu Feb 01 2018', 504.74, 2);
+    expectEvals(evals, 6, 'savings', 'Mon Feb 05 2018', 504.74, 2);
+    expectEvals(evals, 7, 'savings', 'Mon Feb 12 2018', 504.74, 2);
+    expectEvals(evals, 8, 'savings', 'Mon Feb 19 2018', 504.74, 2);
+    expectEvals(evals, 9, 'savings', 'Mon Feb 26 2018', 504.74, 2);
+    expectEvals(evals, 10, 'savings', 'Thu Mar 01 2018', 509.53, 2);
+    expectEvals(evals, 11, 'savings', 'Mon Mar 05 2018', 509.53, 2);
+    expectEvals(evals, 12, 'savings', 'Mon Mar 12 2018', 509.53, 2);
+    expectEvals(evals, 13, 'savings', 'Mon Mar 19 2018', 509.53, 2);
+    expectEvals(evals, 14, 'savings', 'Mon Mar 26 2018', 509.53, 2);
     const viewSettings = defaultTestViewSettings();
 
     viewSettings.toggleViewFilter(Context.Asset, allItems);
@@ -385,18 +387,18 @@ describe(' chart data tests', () => {
       expectChartData(chartPts, 3, 'Fri Dec 22 2017', 0, -1);
       expectChartData(chartPts, 4, 'Fri Dec 29 2017', 0, -1);
       expectChartData(chartPts, 5, 'Fri Jan 05 2018', 500, -1);
-      expectChartData(chartPts, 6, 'Fri Jan 12 2018', 501.09, 2);
-      expectChartData(chartPts, 7, 'Fri Jan 19 2018', 502.18, 2);
-      expectChartData(chartPts, 8, 'Fri Jan 26 2018', 503.28, 2);
-      expectChartData(chartPts, 9, 'Fri Feb 02 2018', 504.38, 2);
-      expectChartData(chartPts, 10, 'Fri Feb 09 2018', 505.48, 2);
-      expectChartData(chartPts, 11, 'Fri Feb 16 2018', 506.58, 2);
-      expectChartData(chartPts, 12, 'Fri Feb 23 2018', 507.69, 2);
-      expectChartData(chartPts, 13, 'Fri Mar 02 2018', 508.79, 2);
-      expectChartData(chartPts, 14, 'Fri Mar 09 2018', 509.9, 2);
-      expectChartData(chartPts, 15, 'Fri Mar 16 2018', 511.02, 2);
-      expectChartData(chartPts, 16, 'Fri Mar 23 2018', 512.13, 2);
-      expectChartData(chartPts, 17, 'Fri Mar 30 2018', 513.25, 2);
+      expectChartData(chartPts, 6, 'Fri Jan 12 2018', 500, -1);
+      expectChartData(chartPts, 7, 'Fri Jan 19 2018', 500, -1);
+      expectChartData(chartPts, 8, 'Fri Jan 26 2018', 500, -1);
+      expectChartData(chartPts, 9, 'Fri Feb 02 2018', 504.74, 2);
+      expectChartData(chartPts, 10, 'Fri Feb 09 2018', 504.74, 2);
+      expectChartData(chartPts, 11, 'Fri Feb 16 2018', 504.74, 2);
+      expectChartData(chartPts, 12, 'Fri Feb 23 2018', 504.74, 2);
+      expectChartData(chartPts, 13, 'Fri Mar 02 2018', 509.53, 2);
+      expectChartData(chartPts, 14, 'Fri Mar 09 2018', 509.53, 2);
+      expectChartData(chartPts, 15, 'Fri Mar 16 2018', 509.53, 2);
+      expectChartData(chartPts, 16, 'Fri Mar 23 2018', 509.53, 2);
+      expectChartData(chartPts, 17, 'Fri Mar 30 2018', 509.53, 2);
     }
 
     expect(result.debtData.length).toBe(0);
@@ -405,7 +407,7 @@ describe(' chart data tests', () => {
     done();
   });
 
-  it('annual chart data for assets computed annually', (done) => {
+  it('annual chart data for assets displayed annually', (done) => {
     const roi = {
       start: 'Jan 1, 2017 00:00:00',
       end: 'April 1, 2020 00:00:00',
@@ -429,10 +431,34 @@ describe(' chart data tests', () => {
 
     // printTestCodeForEvals(evals);
 
-    expect(evals.length).toBe(3);
+    expect(evals.length).toBe(27);
     expectEvals(evals, 0, 'savings', 'Mon Jan 01 2018', 500, -1);
-    expectEvals(evals, 1, 'savings', 'Tue Jan 01 2019', 560.0, 2);
-    expectEvals(evals, 2, 'savings', 'Wed Jan 01 2020', 627.2, 2);
+    expectEvals(evals, 1, 'savings', 'Thu Feb 01 2018', 504.74, 2);
+    expectEvals(evals, 2, 'savings', 'Thu Mar 01 2018', 509.53, 2);
+    expectEvals(evals, 3, 'savings', 'Sun Apr 01 2018', 514.37, 2);
+    expectEvals(evals, 4, 'savings', 'Tue May 01 2018', 519.25, 2);
+    expectEvals(evals, 5, 'savings', 'Fri Jun 01 2018', 524.18, 2);
+    expectEvals(evals, 6, 'savings', 'Sun Jul 01 2018', 529.15, 2);
+    expectEvals(evals, 7, 'savings', 'Wed Aug 01 2018', 534.17, 2);
+    expectEvals(evals, 8, 'savings', 'Sat Sep 01 2018', 539.24, 2);
+    expectEvals(evals, 9, 'savings', 'Mon Oct 01 2018', 544.36, 2);
+    expectEvals(evals, 10, 'savings', 'Thu Nov 01 2018', 549.52, 2);
+    expectEvals(evals, 11, 'savings', 'Sat Dec 01 2018', 554.74, 2);
+    expectEvals(evals, 12, 'savings', 'Tue Jan 01 2019', 560.0, 2);
+    expectEvals(evals, 13, 'savings', 'Fri Feb 01 2019', 565.31, 2);
+    expectEvals(evals, 14, 'savings', 'Fri Mar 01 2019', 570.68, 2);
+    expectEvals(evals, 15, 'savings', 'Mon Apr 01 2019', 576.09, 2);
+    expectEvals(evals, 16, 'savings', 'Wed May 01 2019', 581.56, 2);
+    expectEvals(evals, 17, 'savings', 'Sat Jun 01 2019', 587.08, 2);
+    expectEvals(evals, 18, 'savings', 'Mon Jul 01 2019', 592.65, 2);
+    expectEvals(evals, 19, 'savings', 'Thu Aug 01 2019', 598.27, 2);
+    expectEvals(evals, 20, 'savings', 'Sun Sep 01 2019', 603.95, 2);
+    expectEvals(evals, 21, 'savings', 'Tue Oct 01 2019', 609.68, 2);
+    expectEvals(evals, 22, 'savings', 'Fri Nov 01 2019', 615.46, 2);
+    expectEvals(evals, 23, 'savings', 'Sun Dec 01 2019', 621.3, 2);
+    expectEvals(evals, 24, 'savings', 'Wed Jan 01 2020', 627.2, 2);
+    expectEvals(evals, 25, 'savings', 'Sat Feb 01 2020', 633.15, 2);
+    expectEvals(evals, 26, 'savings', 'Sun Mar 01 2020', 639.16, 2);
 
     const viewSettings = defaultTestViewSettings();
 
