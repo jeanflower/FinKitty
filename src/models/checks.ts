@@ -390,8 +390,13 @@ export function checkExpense(e: Expense, model: ModelData): string {
   if (e.NAME.length === 0) {
     return 'Expense name needs some characters';
   }
-  if (!isNumberString(e.VALUE)) {
+  if (!isValidValue(e.VALUE, model)) {
     return `Expense value '${e.VALUE}' is not a number`;
+  }
+  if (!isNumberString(e.VALUE)) {
+    if (!e.CPI_IMMUNE) {
+      return `Expense '${e.NAME}' value '${e.VALUE}' may not grow with CPI`;
+    }
   }
   const v = getVarVal(model.settings);
   const startDate = checkTriggerDate(e.START, model.triggers, v);

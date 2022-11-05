@@ -187,12 +187,16 @@ function handleExpenseGridRowsUpdated(
   expense[args[0].cellKey] = args[0].updated[args[0].cellKey];
   // log('new expense '+showObj(expense));
   const parsedGrowsWithCPI = makeBooleanFromYesNo(expense.GROWS_WITH_CPI);
+
+  const valueIsSetting = model.settings.find((s) => {
+    return s.NAME === expense.VALUE;
+  });
   const parsedValue = makeCashValueFromString(expense.VALUE);
   if (doChecks) {
     if (!parsedGrowsWithCPI.checksOK) {
       showAlert("Whether expense grows with CPI should be 'y' or 'n'");
       expense[args[0].cellKey] = oldValue;
-    } else if (!parsedValue.checksOK) {
+    } else if (!valueIsSetting && !parsedValue.checksOK) {
       showAlert(`Value ${expense.VALUE} can't be understood as a cash value`);
       expense[args[0].cellKey] = oldValue;
     } else {
@@ -201,7 +205,7 @@ function handleExpenseGridRowsUpdated(
         CATEGORY: expense.CATEGORY,
         START: expense.START,
         END: expense.END,
-        VALUE: `${parsedValue.value}`,
+        VALUE: valueIsSetting ? expense.VALUE : `${parsedValue.value}`,
         VALUE_SET: expense.VALUE_SET,
         CPI_IMMUNE: !parsedGrowsWithCPI.value,
         RECURRENCE: expense.RECURRENCE,

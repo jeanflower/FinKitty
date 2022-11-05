@@ -1,4 +1,5 @@
 import {
+  adjustableType,
   bondInvest,
   bondModel,
   CASH_ASSET_NAME,
@@ -185,7 +186,15 @@ describe('checks tests', () => {
           LIABILITY: 'nonsense',
         },
       ],
-      settings: [...defaultModelSettings(roi)],
+      settings: [
+        ...defaultModelSettings(roi),
+        {
+          NAME: 'x',
+          VALUE: '1.00',
+          HINT: 'growthValue',
+          TYPE: adjustableType,
+        },
+      ],
     };
     suppressLogs();
     expect(checkIncomeLiability('nonsense')).toEqual(
@@ -286,6 +295,39 @@ describe('checks tests', () => {
         model,
       ),
     ).toEqual(`Income value 'nonsense' does not make sense`);
+    expect(
+      checkIncome(
+        {
+          ...simpleIncome,
+          NAME: 'a',
+          VALUE: 'x',
+          CPI_IMMUNE: false,
+        },
+        model,
+      ),
+    ).toEqual(`Income value 'x' may not grow with CPI`);
+    expect(
+      checkIncome(
+        {
+          ...simpleIncome,
+          NAME: 'a',
+          VALUE: 'x',
+          CPI_IMMUNE: true,
+        },
+        model,
+      ),
+    ).toEqual(``);
+    expect(
+      checkIncome(
+        {
+          ...simpleIncome,
+          NAME: 'a',
+          VALUE: '2x',
+          CPI_IMMUNE: true,
+        },
+        model,
+      ),
+    ).toEqual(``);
     expect(
       checkIncome(
         {
@@ -669,7 +711,15 @@ describe('checks tests', () => {
           LIABILITY: 'nonsense',
         },
       ],
-      settings: [...defaultModelSettings(roi)],
+      settings: [
+        ...defaultModelSettings(roi),
+        {
+          NAME: 'x',
+          VALUE: '1.00',
+          HINT: 'growthValue',
+          TYPE: adjustableType,
+        },
+      ],
     };
     suppressLogs();
     expect(
@@ -690,6 +740,36 @@ describe('checks tests', () => {
         model,
       ),
     ).toEqual(`Expense value 'nonsense' is not a number`);
+    expect(
+      checkExpense(
+        {
+          ...simpleExpense,
+          VALUE: 'x', // this is a setting name
+          CPI_IMMUNE: true, // defined by setting => OK as long as doesn't grow by CPI
+        },
+        model,
+      ),
+    ).toEqual(``);
+    expect(
+      checkExpense(
+        {
+          ...simpleExpense,
+          VALUE: '2x', // this is a setting name
+          CPI_IMMUNE: true, // defined by setting => OK as long as doesn't grow by CPI
+        },
+        model,
+      ),
+    ).toEqual(``);
+    expect(
+      checkExpense(
+        {
+          ...simpleExpense,
+          VALUE: 'x', // this is a setting name
+          CPI_IMMUNE: false, // defined by setting => can't directly grow by CPI
+        },
+        model,
+      ),
+    ).toEqual(`Expense 'NoName' value 'x' may not grow with CPI`);
     expect(
       checkExpense(
         {

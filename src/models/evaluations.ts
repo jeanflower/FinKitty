@@ -4395,25 +4395,30 @@ function generateMoments(
         '35', //callerID
       );
     }
-    let referencingPrices = model.assets.filter((a) => {
-      return a.PURCHASE_PRICE === setting.NAME;
-    });
-    referencingPrices = referencingPrices.sort();
-    if (
-      referencingPrices.length > 0 &&
-      values.get(setting.NAME) === undefined
-    ) {
-      setValue(
-        values,
-        growths,
-        evaluations,
-        roiStartDate,
-        setting.NAME,
-        setting.VALUE,
-        model,
-        setting.NAME,
-        '36', //callerID
-      );
+    {
+      const referencingPrices = model.assets.filter((a) => {
+        return a.PURCHASE_PRICE === setting.NAME;
+      });
+      const referencingExpenses = model.expenses.filter((e) => {
+        const parts = getNumberAndWordParts(e.VALUE);
+        return parts.wordPart === setting.NAME;
+      });
+      if (
+        (referencingPrices.length > 0 || referencingExpenses.length > 0) &&
+        values.get(setting.NAME) === undefined
+      ) {
+        setValue(
+          values,
+          growths,
+          evaluations,
+          roiStartDate,
+          setting.NAME,
+          setting.VALUE,
+          model,
+          setting.NAME,
+          '36', //callerID
+        );
+      }
     }
     let referencingSettings = model.settings.filter((s) => {
       return s.VALUE === setting.NAME;
@@ -4984,15 +4989,25 @@ function handleStartMoment(
   } else if (moment.type === momentType.expenseStart) {
     ////////////////// ???? startPrep or not ????
     // log('in getEvaluations, adjustCash:');
-    adjustCash(
-      -startValue,
-      moment.date,
+    const evaluationStartExpense = traceEvaluation(
+      startValue,
       values,
       growths,
-      evaluations,
-      model,
-      moment.name,
+      'expenseStart',
     );
+    if (evaluationStartExpense) {
+      adjustCash(
+        -evaluationStartExpense,
+        moment.date,
+        values,
+        growths,
+        evaluations,
+        model,
+        moment.name,
+      );
+    } else {
+      throw new Error(`can't understand start of expenseChartFocus`);
+    }
   }
 }
 
