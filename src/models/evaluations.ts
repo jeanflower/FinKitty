@@ -3778,15 +3778,6 @@ function processTransactionTo(
   evaluations: Evaluation[],
   model: ModelData,
 ) {
-  // log(`in processTransactionTo`);
-  if (!t.FROM_ABSOLUTE) {
-    /* istanbul ignore next */
-    throw new Error(
-      `Error: transacting from a proportional amount of undefined ${showObj(
-        t,
-      )}`,
-    );
-  }
   const tToValue = parseFloat(t.TO_VALUE);
   const fromChange = parseFloat(t.FROM_VALUE);
   // Determine how much to add to the To asset.

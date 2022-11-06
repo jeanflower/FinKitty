@@ -744,13 +744,14 @@ function getTestModel01ForMigration() {
 }
 
 function getTestModel02ForMigration() {
+  const ss = JSON.parse(JSON.stringify(browserTestSettingsForMigration));
   const model: ModelData = {
     name: 'TestModel02ForMigration',
     expenses: [],
     incomes: [],
     assets: [],
     transactions: [],
-    settings: [...browserTestSettingsForMigration],
+    settings: [...ss],
     triggers: [],
     version: 0,
     undoModel: undefined,
@@ -2202,4 +2203,72 @@ export function getTestModel(input: string): ModelData {
   }
   /* istanbul ignore next */
   throw new Error('test model name not recognised');
+}
+
+export function transactionFromUndefinedModel(): ModelData {
+  return makeModelFromJSONString(
+    `{"name":"x",
+"triggers":[
+{"NAME":"TransferMortgage","DATE":"Sat Jan 01 2028"},
+{"NAME":"StopMainWork","DATE":"Sat Dec 31 2050"},
+{"NAME":"GetRidOfCar","DATE":"Wed Dec 31 2025"}],
+"expenses":[],
+"incomes":[],
+"assets":[
+{"NAME":"Stocks","CATEGORY":"stock","START":"December 2017","VALUE":"4000","GROWTH":"stockMarketGrowth","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":false,"LIABILITY":"","PURCHASE_PRICE":"0","IS_A_DEBT":false,"QUANTITY":""},
+{"NAME":"ISAs","CATEGORY":"stock","START":"December 2019","VALUE":"2000","GROWTH":"stockMarketGrowth","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":false,"LIABILITY":"","PURCHASE_PRICE":"0","IS_A_DEBT":false,"QUANTITY":""},
+{"NAME":"Cash","CATEGORY":"","START":"December 2017","VALUE":"2000","GROWTH":"0","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":true,"LIABILITY":"","PURCHASE_PRICE":"0","IS_A_DEBT":false,"QUANTITY":""}],
+"transactions":[
+{"NAME":"t1","CATEGORY":"","FROM":"","FROM_ABSOLUTE":false,"FROM_VALUE":"1.0","TO":"Cash","TO_ABSOLUTE":true,"TO_VALUE":"100","DATE":"Sat Nov 05 2022","STOP_DATE":"","RECURRENCE":"","TYPE":"custom"},
+{"NAME":"t2","CATEGORY":"","FROM":"","FROM_ABSOLUTE":true,"FROM_VALUE":"1.0","TO":"Cash","TO_ABSOLUTE":true,"TO_VALUE":"100","DATE":"Sat Nov 05 2022","STOP_DATE":"","RECURRENCE":"","TYPE":"custom"},
+{"DATE":"1 March 2022","FROM":"","FROM_VALUE":"0","FROM_ABSOLUTE":false,"NAME":"RevalueCouncil Tax Paying Month 2","TO":"Council Tax Paying Month","TO_ABSOLUTE":true,"TO_VALUE":"1","STOP_DATE":"","RECURRENCE":"1y","TYPE":"revalueSetting","CATEGORY":""},
+{"DATE":"1 Jan 2022","FROM":"","FROM_VALUE":"0","FROM_ABSOLUTE":false,"NAME":"RevalueCouncil Tax Paying Month 1","TO":"Council Tax Paying Month","TO_ABSOLUTE":true,"TO_VALUE":"0","STOP_DATE":"","RECURRENCE":"1y","TYPE":"revalueSetting","CATEGORY":""},
+{"DATE":"January 2 2020","FROM":"","FROM_VALUE":"0","FROM_ABSOLUTE":true,"NAME":"Revalue stocks after loss in 2020 market crash","TO":"Stocks","TO_ABSOLUTE":true,"TO_VALUE":"3000","STOP_DATE":"","RECURRENCE":"","TYPE":"revalueAsset","CATEGORY":""},
+{"DATE":"15 October 2022","FROM":"Cash","FROM_VALUE":"Council Tax Amount","FROM_ABSOLUTE":true,"NAME":"Council Tax","TO":"","TO_ABSOLUTE":false,"TO_VALUE":"1","STOP_DATE":"","RECURRENCE":"1m","TYPE":"custom","CATEGORY":""}],
+"settings":[
+{"NAME":"Today's value focus date","VALUE":"","HINT":"Date to use for 'today's value' tables (defaults to '' meaning today)","TYPE":"view"},
+{"NAME":"stockMarketGrowth","VALUE":"6.236","HINT":"Custom setting for stock market growth","TYPE":"adjustable"},
+{"NAME":"End of view range","VALUE":"1 Jan 2026","HINT":"Date at the end of range to be plotted","TYPE":"view"},
+{"NAME":"Date of birth","VALUE":"","HINT":"Date used for representing dates as ages","TYPE":"view"},
+{"NAME":"cpi","VALUE":"2.5","HINT":"Annual rate of inflation","TYPE":"const"},
+{"NAME":"Council Tax Paying Month","VALUE":"1","HINT":"","TYPE":"adjustable"},
+{"NAME":"Council Tax Amount","VALUE":"55Council Tax Paying Month","HINT":"","TYPE":"adjustable"},
+{"NAME":"Beginning of view range","VALUE":"1 Jan 2019","HINT":"Date at the start of range to be plotted","TYPE":"view"}],
+"version":10
+}`,
+  );
+}
+
+export function transactionToUndefinedModel(): ModelData {
+  return makeModelFromJSONString(
+    `{"name":"x",
+"triggers":[
+{"NAME":"TransferMortgage","DATE":"Sat Jan 01 2028"},
+{"NAME":"StopMainWork","DATE":"Sat Dec 31 2050"},
+{"NAME":"GetRidOfCar","DATE":"Wed Dec 31 2025"}],
+"expenses":[],
+"incomes":[],
+"assets":[
+{"NAME":"Stocks","CATEGORY":"stock","START":"December 2017","VALUE":"4000","GROWTH":"stockMarketGrowth","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":false,"LIABILITY":"","PURCHASE_PRICE":"0","IS_A_DEBT":false,"QUANTITY":""},
+{"NAME":"ISAs","CATEGORY":"stock","START":"December 2019","VALUE":"2000","GROWTH":"stockMarketGrowth","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":false,"LIABILITY":"","PURCHASE_PRICE":"0","IS_A_DEBT":false,"QUANTITY":""},
+{"NAME":"Cash","CATEGORY":"","START":"December 2017","VALUE":"2000","GROWTH":"0","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":true,"LIABILITY":"","PURCHASE_PRICE":"0","IS_A_DEBT":false,"QUANTITY":""}],
+"transactions":[
+{"NAME":"t1","CATEGORY":"","FROM":"ISAs","FROM_ABSOLUTE":false,"FROM_VALUE":"1.0","TO":"","TO_ABSOLUTE":false,"TO_VALUE":"1.0","DATE":"Sat Nov 05 2022","STOP_DATE":"","RECURRENCE":"","TYPE":"custom"},
+{"NAME":"t2","CATEGORY":"","FROM":"ISAs","FROM_ABSOLUTE":false,"FROM_VALUE":"1.0","TO":"","TO_ABSOLUTE":true,"TO_VALUE":"1.0","DATE":"Sat Nov 05 2022","STOP_DATE":"","RECURRENCE":"","TYPE":"custom"},
+{"DATE":"1 March 2022","FROM":"","FROM_VALUE":"0","FROM_ABSOLUTE":false,"NAME":"RevalueCouncil Tax Paying Month 2","TO":"Council Tax Paying Month","TO_ABSOLUTE":true,"TO_VALUE":"1","STOP_DATE":"","RECURRENCE":"1y","TYPE":"revalueSetting","CATEGORY":""},
+{"DATE":"1 Jan 2022","FROM":"","FROM_VALUE":"0","FROM_ABSOLUTE":false,"NAME":"RevalueCouncil Tax Paying Month 1","TO":"Council Tax Paying Month","TO_ABSOLUTE":true,"TO_VALUE":"0","STOP_DATE":"","RECURRENCE":"1y","TYPE":"revalueSetting","CATEGORY":""},
+{"DATE":"January 2 2020","FROM":"","FROM_VALUE":"0","FROM_ABSOLUTE":true,"NAME":"Revalue stocks after loss in 2020 market crash","TO":"Stocks","TO_ABSOLUTE":true,"TO_VALUE":"3000","STOP_DATE":"","RECURRENCE":"","TYPE":"revalueAsset","CATEGORY":""},
+{"DATE":"15 October 2022","FROM":"Cash","FROM_VALUE":"Council Tax Amount","FROM_ABSOLUTE":true,"NAME":"Council Tax","TO":"","TO_ABSOLUTE":false,"TO_VALUE":"1","STOP_DATE":"","RECURRENCE":"1m","TYPE":"custom","CATEGORY":""}],
+"settings":[
+{"NAME":"Today's value focus date","VALUE":"","HINT":"Date to use for 'today's value' tables (defaults to '' meaning today)","TYPE":"view"},
+{"NAME":"stockMarketGrowth","VALUE":"6.236","HINT":"Custom setting for stock market growth","TYPE":"adjustable"},
+{"NAME":"End of view range","VALUE":"1 Jan 2026","HINT":"Date at the end of range to be plotted","TYPE":"view"},
+{"NAME":"Date of birth","VALUE":"","HINT":"Date used for representing dates as ages","TYPE":"view"},
+{"NAME":"cpi","VALUE":"2.5","HINT":"Annual rate of inflation","TYPE":"const"},
+{"NAME":"Council Tax Paying Month","VALUE":"1","HINT":"","TYPE":"adjustable"},
+{"NAME":"Council Tax Amount","VALUE":"55Council Tax Paying Month","HINT":"","TYPE":"adjustable"},
+{"NAME":"Beginning of view range","VALUE":"1 Jan 2019","HINT":"Date at the start of range to be plotted","TYPE":"view"}],
+"version":10
+}`,
+  );
 }

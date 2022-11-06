@@ -66,6 +66,8 @@ import {
   simpleIncome,
   simpleSetting,
   simpleTransaction,
+  transactionFromUndefinedModel,
+  transactionToUndefinedModel,
 } from '../../models/exampleModels';
 import { getEvaluations } from '../../models/evaluations';
 import {
@@ -7415,6 +7417,23 @@ describe('evaluations tests', () => {
     model.transactions[0].NAME = 'Revaluesavings01';
     expect(makeRevalueName('savings', model)).toEqual('Revaluesavings02');
 
+    done();
+  });
+
+  it('models with undefined to/from', (done) => {
+    {
+    const model = transactionFromUndefinedModel();
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+    }
+
+    {
+    const model = transactionToUndefinedModel();
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+    }
+
+    // printTestCodeForEvals(evals);
     done();
   });
 });
