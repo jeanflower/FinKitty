@@ -136,6 +136,8 @@ export function itemOptions(
         });
         if (found !== undefined) {
           found.action(e);
+        } else {
+          handleChange('');
         }
       }}
     >

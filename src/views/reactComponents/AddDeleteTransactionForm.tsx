@@ -78,11 +78,11 @@ export class AddDeleteTransactionForm extends Component<
       CATEGORY: '',
       FROM: '',
       FROM_ABSOLUTE: 'F',
-      FROM_VALUE: '1.0',
+      FROM_VALUE: '',
       FROM_INPUT_VALUE: '',
       TO: '',
       TO_ABSOLUTE: 'F',
-      TO_VALUE: '1.0',
+      TO_VALUE: '',
       TO_INPUT_VALUE: '',
       DATE: '',
       STOP_DATE: '',
@@ -385,27 +385,10 @@ export class AddDeleteTransactionForm extends Component<
       }
     }
 
-    let fromAbsolute = this.state.FROM_ABSOLUTE;
-    let fromValue = this.state.FROM_VALUE;
-    if (this.state.FROM === '') {
-      if (fromAbsolute === '') {
-        // log('setting fromAbsolute = True');
-        fromAbsolute = 'True';
-      }
-      if (fromValue === '') {
-        fromValue = '0';
-      }
-    }
-    let toAbsolute = this.state.TO_ABSOLUTE;
-    let toValue = this.state.TO_VALUE;
-    if (this.state.TO === '') {
-      if (toAbsolute === '') {
-        toAbsolute = 'True';
-      }
-      if (toValue === '') {
-        toValue = '0';
-      }
-    }
+    const fromAbsolute = this.state.FROM_ABSOLUTE;
+    const fromValue = this.state.FROM_VALUE;
+    const toAbsolute = this.state.TO_ABSOLUTE;
+    const toValue = this.state.TO_VALUE;
     if (fromAbsolute === '') {
       this.props.showAlert(
         'From absolute should be T (absolute value) or F (relative value',
