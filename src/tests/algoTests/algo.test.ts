@@ -7423,14 +7423,12 @@ describe('evaluations tests', () => {
   it('models with undefined to/from', (done) => {
     {
     const model = transactionFromUndefinedModel();
-    const evalsAndValues = getTestEvaluations(model);
-    const evals = evalsAndValues.evaluations;
+    getTestEvaluations(model);
     }
 
     {
     const model = transactionToUndefinedModel();
-    const evalsAndValues = getTestEvaluations(model);
-    const evals = evalsAndValues.evaluations;
+    getTestEvaluations(model);
     }
 
     // printTestCodeForEvals(evals);
