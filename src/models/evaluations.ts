@@ -4995,16 +4995,18 @@ function handleStartMoment(
       growths,
       'expenseStart',
     );
-    if (evaluationStartExpense) {
-      adjustCash(
-        -evaluationStartExpense,
-        moment.date,
-        values,
-        growths,
-        evaluations,
-        model,
-        moment.name,
-      );
+    if (evaluationStartExpense !== undefined) {
+      if (evaluationStartExpense !== 0) {
+        adjustCash(
+          -evaluationStartExpense,
+          moment.date,
+          values,
+          growths,
+          evaluations,
+          model,
+          moment.name,
+        );
+      }
     } else {
       throw new Error(`can't understand start of expenseChartFocus`);
     }

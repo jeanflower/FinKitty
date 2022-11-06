@@ -255,6 +255,94 @@ describe('evaluations tests', () => {
     done();
   });
 
+  it('should allow a zero expense', (done) => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'March 2, 2018 00:00:00',
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      expenses: [
+        {
+          ...simpleExpense,
+          START: 'January 1 2018',
+          END: 'February 2 2018',
+          NAME: 'Phon',
+          VALUE: '1',
+          VALUE_SET: 'January 1 2018',
+        },
+        {
+          ...simpleExpense,
+          START: 'January 1 2018',
+          END: 'February 2 2018',
+          NAME: 'Hols',
+          VALUE: '0',
+          VALUE_SET: 'January 1 2018',
+        },
+      ],
+      settings: [...defaultModelSettings(roi)],
+    };
+    setSetting(model.settings, cpi, '12.0', constType); // approx 1% per month
+    setSetting(
+      model.settings,
+      `Today's value focus date`,
+      'Feb 3 2018',
+      viewType,
+    );
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+    // log(`evals = ${showObj(evals)}`);
+
+    /*
+    log(evalsAndValues.todaysAssetValues);
+    log(evalsAndValues.todaysDebtValues);
+    log(evalsAndValues.todaysExpenseValues);
+    log(evalsAndValues.todaysIncomeValues);
+    log(evalsAndValues.todaysSettingValues);
+    */
+
+
+    printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(4);
+    expectEvals(evals, 0, 'Hols', 'Mon Jan 01 2018', 0, -1);
+    expectEvals(evals, 1, 'Phon', 'Mon Jan 01 2018', 1, -1);
+    expectEvals(evals, 2, 'Hols', 'Thu Feb 01 2018', 0, -1);
+    expectEvals(evals, 3, 'Phon', 'Thu Feb 01 2018', 1.01, 2);
+
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(model, viewSettings, {
+      evaluations: evals,
+      todaysAssetValues: new Map<string, AssetOrDebtVal>(),
+      todaysDebtValues: new Map<string, AssetOrDebtVal>(),
+      todaysIncomeValues: new Map<string, IncomeVal>(),
+      todaysExpenseValues: new Map<string, ExpenseVal>(),
+      todaysSettingValues: new Map<string, SettingVal>(),
+    });
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(1);
+    expect(result.expensesData[0].item.NAME).toBe('Phon');
+    {
+      const chartPts = result.expensesData[0].chartDataPoints;
+      expect(chartPts.length).toBe(4);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 1, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 1.01, 2);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 0, -1);
+    }
+
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(0);
+    expect(result.debtData.length).toBe(0);
+    expect(result.taxData.length).toBe(0);
+
+    done();
+  });
+
   it('should apply cpi to next 2m expense', (done) => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
