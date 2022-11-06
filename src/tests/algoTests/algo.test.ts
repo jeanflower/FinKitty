@@ -302,7 +302,6 @@ describe('evaluations tests', () => {
     log(evalsAndValues.todaysSettingValues);
     */
 
-
     printTestCodeForEvals(evals);
 
     expect(evals.length).toBe(4);
