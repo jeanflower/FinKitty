@@ -98,9 +98,9 @@ export function loginPage(loginWithRedirect: any, loginForTesting: any) {
           </div>
           <div className="alert alert-block">
             <strong>Modeling tax</strong> Income tax is calculated according to
-            UK tax regulations as at December 2019. Capital Gains tax is
+            UK tax regulations as at October 2022. Capital Gains tax is
             implemented as a somewhat simplified version of the real thing in UK
-            as at December 2019. Whilst FinKitty accounts for tax relief on
+            as at October 2022. Whilst FinKitty accounts for tax relief on
             pension contributions it does not cover any tax penalties incurred
             for breaching the Annual Pension Allowance. For most people, this
             allowance is £40,000pa, but it is reduced for high earners: always
