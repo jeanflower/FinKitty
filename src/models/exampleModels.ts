@@ -369,6 +369,7 @@ const variableDateExampleData2 = `{
 
 export const simpleExpense: Expense = {
   NAME: 'NoName',
+  FAVOURITE: undefined,
   CATEGORY: '',
   START: '1 Jan 2017',
   END: '1 Jan 2017',
@@ -379,6 +380,7 @@ export const simpleExpense: Expense = {
 };
 export const simpleIncome: Income = {
   NAME: 'NoName',
+  FAVOURITE: undefined,
   CATEGORY: '',
   START: '1 Jan 2017',
   END: '1 Jan 2017',
@@ -389,6 +391,7 @@ export const simpleIncome: Income = {
 };
 export const simpleTransaction: Transaction = {
   NAME: 'NoName',
+  FAVOURITE: undefined,
   FROM: '',
   FROM_ABSOLUTE: true,
   FROM_VALUE: '0.0',
@@ -416,6 +419,7 @@ export const emptyModel: ModelData = {
 };
 export const simpleSetting: Setting = {
   NAME: 'NoName',
+  FAVOURITE: undefined,
   VALUE: 'NoValue',
   HINT: 'NoHint',
   TYPE: constType,
@@ -555,6 +559,7 @@ const defaultModelSettingsForMigration: Setting[] = [
 
 export const simpleAsset: Asset = {
   NAME: 'NoName',
+  FAVOURITE: undefined,
   CATEGORY: '',
   START: '1 Jan 2017',
   VALUE: '0',
@@ -723,14 +728,17 @@ function getTestModel01ForMigration() {
     triggers: [
       {
         NAME: 'TransferMortgage',
+        FAVOURITE: undefined,
         DATE: 'Jan 01 2028',
       },
       {
         NAME: 'StopMainWork',
+        FAVOURITE: undefined,
         DATE: 'Dec 31 2050',
       },
       {
         NAME: 'GetRidOfCar',
+        FAVOURITE: undefined,
         DATE: 'Dec 31 2025',
       },
     ],
@@ -999,6 +1007,7 @@ export const minimalModel: ModelData = {
   assets: [
     {
       NAME: CASH_ASSET_NAME,
+      FAVOURITE: undefined,
       CATEGORY: '',
       START: '1 Jan 2017',
       VALUE: '0.0',
@@ -1017,30 +1026,35 @@ export const minimalModel: ModelData = {
   settings: [
     {
       NAME: cpi,
+      FAVOURITE: undefined,
       VALUE: '2.5',
       HINT: cpiHint,
       TYPE: constType,
     },
     {
       NAME: roiStart,
+      FAVOURITE: undefined,
       VALUE: '1 Jan 2017',
       HINT: roiStartHint,
       TYPE: viewType,
     },
     {
       NAME: roiEnd,
+      FAVOURITE: undefined,
       VALUE: '1 Jan 2023',
       HINT: roiEndHint,
       TYPE: viewType,
     },
     {
       NAME: birthDate,
+      FAVOURITE: undefined,
       VALUE: '',
       HINT: birthDateHint,
       TYPE: viewType,
     },
     {
       NAME: valueFocusDate,
+      FAVOURITE: undefined,
       VALUE: '',
       HINT: valueFocusDateHint,
       TYPE: viewType,
@@ -1113,18 +1127,21 @@ export function getThreeChryslerModel(): ModelData {
       ...minimalModel.settings,
       {
         NAME: 'twoChryslers',
+        FAVOURITE: undefined,
         VALUE: '2chrysler',
         HINT: '',
         TYPE: 'const',
       },
       {
         NAME: 'chrysler',
+        FAVOURITE: undefined,
         VALUE: '50USD',
         HINT: '',
         TYPE: 'const',
       },
       {
         NAME: 'USD',
+        FAVOURITE: undefined,
         VALUE: '2',
         HINT: '',
         TYPE: 'adjustable',
@@ -1166,18 +1183,21 @@ export function getThreeChryslerModelForMigration(): ModelData {
       ...minimalModel.settings,
       {
         NAME: 'twoChryslers',
+        FAVOURITE: undefined,
         VALUE: '2chrysler',
         HINT: '',
         TYPE: 'const',
       },
       {
         NAME: 'chrysler',
+        FAVOURITE: undefined,
         VALUE: '50USD',
         HINT: '',
         TYPE: 'const',
       },
       {
         NAME: 'USD',
+        FAVOURITE: undefined,
         VALUE: '2',
         HINT: '',
         TYPE: 'adjustable',
@@ -1207,6 +1227,7 @@ function getBenAndJerryModel(): ModelData {
     assets: [
       {
         NAME: 'PensionJerry Aegon',
+        FAVOURITE: undefined,
         VALUE: '56324',
         QUANTITY: '',
         START: '21/02/2020',
@@ -1220,6 +1241,7 @@ function getBenAndJerryModel(): ModelData {
       },
       {
         NAME: 'PensionBen Prudential',
+        FAVOURITE: undefined,
         VALUE: '45000',
         QUANTITY: '',
         START: '21/02/2020',
@@ -1233,6 +1255,7 @@ function getBenAndJerryModel(): ModelData {
       },
       {
         NAME: 'Mortgage',
+        FAVOURITE: undefined,
         VALUE: '-150000',
         QUANTITY: '',
         START: '21/02/2020',
@@ -1246,6 +1269,7 @@ function getBenAndJerryModel(): ModelData {
       },
       {
         NAME: 'Jerry stocks',
+        FAVOURITE: undefined,
         VALUE: '25000',
         QUANTITY: '',
         START: '21/02/2020',
@@ -1259,6 +1283,7 @@ function getBenAndJerryModel(): ModelData {
       },
       {
         NAME: 'Jerry loan',
+        FAVOURITE: undefined,
         VALUE: '-5000',
         QUANTITY: '',
         START: '21/02/2020',
@@ -1272,6 +1297,7 @@ function getBenAndJerryModel(): ModelData {
       },
       {
         NAME: `${taxFree}Jerry Aegon`,
+        FAVOURITE: undefined,
         VALUE: '0.0',
         QUANTITY: '',
         START: '21/02/2020',
@@ -1285,6 +1311,7 @@ function getBenAndJerryModel(): ModelData {
       },
       {
         NAME: 'ISA',
+        FAVOURITE: undefined,
         VALUE: '9000',
         QUANTITY: '',
         START: '21/02/2020',
@@ -1298,6 +1325,7 @@ function getBenAndJerryModel(): ModelData {
       },
       {
         NAME: 'House',
+        FAVOURITE: undefined,
         VALUE: '255000',
         QUANTITY: '',
         START: '21/02/2020',
@@ -1311,6 +1339,7 @@ function getBenAndJerryModel(): ModelData {
       },
       {
         NAME: `${crystallizedPension}Jerry`,
+        FAVOURITE: undefined,
         VALUE: '0.0',
         QUANTITY: '',
         START: '21/02/2020',
@@ -1324,6 +1353,7 @@ function getBenAndJerryModel(): ModelData {
       },
       {
         NAME: `${crystallizedPension}Ben`,
+        FAVOURITE: undefined,
         VALUE: '0.0',
         QUANTITY: '',
         START: '21/02/2020',
@@ -1337,6 +1367,7 @@ function getBenAndJerryModel(): ModelData {
       },
       {
         NAME: 'Cash',
+        FAVOURITE: undefined,
         CATEGORY: '',
         START: '1 Jan 2017',
         VALUE: '0.0',
@@ -1350,6 +1381,7 @@ function getBenAndJerryModel(): ModelData {
       },
       {
         NAME: `${taxFree}Ben Prudential`,
+        FAVOURITE: undefined,
         VALUE: '0.0',
         QUANTITY: '',
         START: '21/02/2020',
@@ -1363,6 +1395,7 @@ function getBenAndJerryModel(): ModelData {
       },
       {
         NAME: 'Ben loan',
+        FAVOURITE: undefined,
         VALUE: '-5000',
         QUANTITY: '',
         START: '21/02/2020',
@@ -1380,6 +1413,7 @@ function getBenAndJerryModel(): ModelData {
         START: 'Jerry state pension age',
         END: 'Ben dies',
         NAME: `${pensionTransfer}Jerry work`,
+        FAVOURITE: undefined,
         VALUE: '0.0',
         VALUE_SET: '21/02/2020',
         LIABILITY: 'Ben(incomeTax)',
@@ -1390,6 +1424,7 @@ function getBenAndJerryModel(): ModelData {
         START: 'Jerry state pension age',
         END: 'Jerry dies',
         NAME: `${pensionDB}Jerry work`,
+        FAVOURITE: undefined,
         VALUE: '2000',
         VALUE_SET: '21/02/2020',
         LIABILITY: 'Jerry(incomeTax)',
@@ -1400,6 +1435,7 @@ function getBenAndJerryModel(): ModelData {
         START: 'Jerry state pension age',
         END: 'Jerry dies',
         NAME: `${pensionDB}Jerry state pension`,
+        FAVOURITE: undefined,
         VALUE: '730',
         VALUE_SET: '21/02/2020',
         LIABILITY: 'Jerry(incomeTax)',
@@ -1410,6 +1446,7 @@ function getBenAndJerryModel(): ModelData {
         START: 'Ben state pension age',
         END: 'Ben dies',
         NAME: `${pensionDB}Ben state pension`,
+        FAVOURITE: undefined,
         VALUE: '730',
         VALUE_SET: '21/02/2020',
         LIABILITY: 'Ben(incomeTax)',
@@ -1418,6 +1455,7 @@ function getBenAndJerryModel(): ModelData {
       },
       {
         NAME: 'Jerry salary',
+        FAVOURITE: undefined,
         VALUE: '2755',
         VALUE_SET: '21/2/2020',
         START: '21/2/2020',
@@ -1428,6 +1466,7 @@ function getBenAndJerryModel(): ModelData {
       },
       {
         NAME: 'Ben salary',
+        FAVOURITE: undefined,
         VALUE: '3470',
         VALUE_SET: '21/2/2020',
         START: '21/2/2020',
@@ -1440,6 +1479,7 @@ function getBenAndJerryModel(): ModelData {
     expenses: [
       {
         NAME: 'Replace car',
+        FAVOURITE: undefined,
         VALUE: '20000',
         VALUE_SET: '21/02/2020',
         START: '21/02/2025',
@@ -1450,6 +1490,7 @@ function getBenAndJerryModel(): ModelData {
       },
       {
         NAME: 'Leisure expenses working',
+        FAVOURITE: undefined,
         VALUE: '1000',
         VALUE_SET: '21/02/2020',
         START: '21/02/2020',
@@ -1460,6 +1501,7 @@ function getBenAndJerryModel(): ModelData {
       },
       {
         NAME: 'Leisure expenses retired',
+        FAVOURITE: undefined,
         VALUE: '2000',
         VALUE_SET: '21/02/2020',
         START: 'Jerry retires',
@@ -1470,6 +1512,7 @@ function getBenAndJerryModel(): ModelData {
       },
       {
         NAME: 'House maintenance',
+        FAVOURITE: undefined,
         VALUE: '8000',
         VALUE_SET: '21/02/2020',
         START: '21/02/2020',
@@ -1480,6 +1523,7 @@ function getBenAndJerryModel(): ModelData {
       },
       {
         NAME: 'Care costs',
+        FAVOURITE: undefined,
         VALUE: '3000',
         VALUE_SET: '21/02/2020',
         START: 'Care costs start',
@@ -1490,6 +1534,7 @@ function getBenAndJerryModel(): ModelData {
       },
       {
         NAME: 'Basic expenses small house',
+        FAVOURITE: undefined,
         VALUE: '1600',
         VALUE_SET: '21/02/2020',
         START: 'Downsize house',
@@ -1500,6 +1545,7 @@ function getBenAndJerryModel(): ModelData {
       },
       {
         NAME: 'Basic expenses current house',
+        FAVOURITE: undefined,
         VALUE: '1850',
         VALUE_SET: '21/02/2020',
         START: '21/02/2020',
@@ -1510,48 +1556,55 @@ function getBenAndJerryModel(): ModelData {
       },
     ],
     triggers: [
-      { NAME: 'Ben dies', DATE: '30 Aug 2068' },
-      { NAME: 'Ben retires', DATE: '27 July 2032' },
+      { NAME: 'Ben dies', FAVOURITE: undefined, DATE: '30 Aug 2068' },
+      { NAME: 'Ben retires', FAVOURITE: undefined, DATE: '27 July 2032' },
       {
         NAME: 'Ben state pension age',
+        FAVOURITE: undefined,
         DATE: '30 Aug 2040',
       },
-      { NAME: 'Care costs start', DATE: '20 Feb 2060' },
-      { NAME: 'Downsize house', DATE: '28 Feb 2047' },
-      { NAME: 'Jerry dies', DATE: '4 May 2065' },
-      { NAME: 'Jerry retires', DATE: '4 May 2030' },
+      { NAME: 'Care costs start', FAVOURITE: undefined, DATE: '20 Feb 2060' },
+      { NAME: 'Downsize house', FAVOURITE: undefined, DATE: '28 Feb 2047' },
+      { NAME: 'Jerry dies', FAVOURITE: undefined, DATE: '4 May 2065' },
+      { NAME: 'Jerry retires', FAVOURITE: undefined, DATE: '4 May 2030' },
       {
         NAME: 'Jerry state pension age',
+        FAVOURITE: undefined,
         DATE: '4 May 2037',
       },
     ],
     settings: [
       {
         NAME: "Today's value focus date",
+        FAVOURITE: undefined,
         VALUE: '',
         HINT: "Date to use for 'today's value' tables (defaults to '' meaning today)",
         TYPE: 'view',
       },
       {
         NAME: 'End of view range',
+        FAVOURITE: undefined,
         VALUE: '1 Jan 2069',
         HINT: 'Date at the end of range to be plotted',
         TYPE: 'view',
       },
       {
         NAME: 'Date of birth',
+        FAVOURITE: undefined,
         VALUE: '',
         HINT: 'Date used for representing dates as ages',
         TYPE: 'view',
       },
       {
         NAME: 'cpi',
+        FAVOURITE: undefined,
         VALUE: '2.5',
         HINT: 'Annual rate of inflation',
         TYPE: 'const',
       },
       {
         NAME: 'Beginning of view range',
+        FAVOURITE: undefined,
         VALUE: '1 Jan 2020',
         HINT: 'Date at the start of range to be plotted',
         TYPE: 'view',
@@ -1560,6 +1613,7 @@ function getBenAndJerryModel(): ModelData {
     transactions: [
       {
         NAME: `${transferCrystallizedPension}Jerry Aegon`,
+        FAVOURITE: undefined,
         FROM: `${crystallizedPension}Jerry`,
         FROM_ABSOLUTE: false,
         FROM_VALUE: '1.0',
@@ -1574,6 +1628,7 @@ function getBenAndJerryModel(): ModelData {
       },
       {
         NAME: `${transferCrystallizedPension}Ben Prudential`,
+        FAVOURITE: undefined,
         FROM: `${crystallizedPension}Ben`,
         FROM_ABSOLUTE: false,
         FROM_VALUE: '1.0',
@@ -1588,6 +1643,7 @@ function getBenAndJerryModel(): ModelData {
       },
       {
         NAME: `${pensionTransfer}Jerry work`,
+        FAVOURITE: undefined,
         FROM: `${pensionDB}Jerry work`,
         FROM_ABSOLUTE: false,
         FROM_VALUE: '1.0',
@@ -1602,6 +1658,7 @@ function getBenAndJerryModel(): ModelData {
       },
       {
         NAME: '-PEN Jerry work',
+        FAVOURITE: undefined,
         FROM: 'Jerry salary',
         FROM_ABSOLUTE: false,
         FROM_VALUE: '0.05',
@@ -1616,6 +1673,7 @@ function getBenAndJerryModel(): ModelData {
       },
       {
         NAME: 'PensionJerry Aegon',
+        FAVOURITE: undefined,
         FROM: '',
         FROM_ABSOLUTE: false,
         FROM_VALUE: '0',
@@ -1630,6 +1688,7 @@ function getBenAndJerryModel(): ModelData {
       },
       {
         NAME: `${pensionDB}Jerry work`,
+        FAVOURITE: undefined,
         FROM: 'Jerry salary',
         FROM_ABSOLUTE: false,
         FROM_VALUE: '0.00125',
@@ -1644,6 +1703,7 @@ function getBenAndJerryModel(): ModelData {
       },
       {
         NAME: `${pension}Ben Prudential`,
+        FAVOURITE: undefined,
         FROM: 'Ben salary',
         FROM_ABSOLUTE: false,
         FROM_VALUE: '0.06',
@@ -1658,6 +1718,7 @@ function getBenAndJerryModel(): ModelData {
       },
       {
         NAME: `${moveTaxFreePart}Jerry Aegon`,
+        FAVOURITE: undefined,
         FROM: `${pension}Jerry Aegon`,
         FROM_ABSOLUTE: false,
         FROM_VALUE: '0.25',
@@ -1672,6 +1733,7 @@ function getBenAndJerryModel(): ModelData {
       },
       {
         NAME: `${moveTaxFreePart}Ben Prudential`,
+        FAVOURITE: undefined,
         FROM: `${pension}Ben Prudential`,
         FROM_ABSOLUTE: false,
         FROM_VALUE: '0.25',
@@ -1686,6 +1748,7 @@ function getBenAndJerryModel(): ModelData {
       },
       {
         NAME: `${crystallizedPension}Jerry Aegon`,
+        FAVOURITE: undefined,
         FROM: `${pension}Jerry Aegon`,
         FROM_ABSOLUTE: false,
         FROM_VALUE: '1.0',
@@ -1700,6 +1763,7 @@ function getBenAndJerryModel(): ModelData {
       },
       {
         NAME: `${crystallizedPension}Ben Prudential`,
+        FAVOURITE: undefined,
         FROM: `${pension}Ben Prudential`,
         FROM_ABSOLUTE: false,
         FROM_VALUE: '1.0',
@@ -1714,6 +1778,7 @@ function getBenAndJerryModel(): ModelData {
       },
       {
         NAME: 'ConditionalSell stocks for cash',
+        FAVOURITE: undefined,
         CATEGORY: 'Cashflow',
         FROM: 'Jerry stocks',
         FROM_ABSOLUTE: true,
@@ -1728,6 +1793,7 @@ function getBenAndJerryModel(): ModelData {
       },
       {
         NAME: `ConditionalSell ${taxFree}Ben Prudential`,
+        FAVOURITE: undefined,
         CATEGORY: 'Cashflow',
         FROM: `${taxFree}Ben Prudential`,
         FROM_ABSOLUTE: true,
@@ -1742,6 +1808,7 @@ function getBenAndJerryModel(): ModelData {
       },
       {
         NAME: 'ConditionalSell ISAs for cash',
+        FAVOURITE: undefined,
         CATEGORY: 'Cashflow',
         FROM: 'ISA',
         FROM_ABSOLUTE: true,
@@ -1756,6 +1823,7 @@ function getBenAndJerryModel(): ModelData {
       },
       {
         NAME: `ConditionalSell ${crystallizedPension}Jerry`,
+        FAVOURITE: undefined,
         CATEGORY: 'Cashflow',
         FROM: `${crystallizedPension}Jerry`,
         FROM_ABSOLUTE: true,
@@ -1770,6 +1838,7 @@ function getBenAndJerryModel(): ModelData {
       },
       {
         NAME: `ConditionalSell ${crystallizedPension}Ben`,
+        FAVOURITE: undefined,
         CATEGORY: 'Cashflow',
         FROM: `${crystallizedPension}Ben`,
         FROM_ABSOLUTE: true,
@@ -1784,6 +1853,7 @@ function getBenAndJerryModel(): ModelData {
       },
       {
         NAME: `ConditionalSell ${taxFree}Jerry Aegon`,
+        FAVOURITE: undefined,
         CATEGORY: 'Cashflow',
         FROM: `${taxFree}Jerry Aegon`,
         FROM_ABSOLUTE: true,
@@ -1798,6 +1868,7 @@ function getBenAndJerryModel(): ModelData {
       },
       {
         NAME: 'ConditionalPayment to Mortgage 1',
+        FAVOURITE: undefined,
         CATEGORY: 'Property',
         FROM: 'Cash',
         FROM_ABSOLUTE: true,
@@ -1812,6 +1883,7 @@ function getBenAndJerryModel(): ModelData {
       },
       {
         NAME: 'ConditionalPayment to Jerry loan 1',
+        FAVOURITE: undefined,
         CATEGORY: '',
         FROM: 'Cash',
         FROM_ABSOLUTE: true,
@@ -1826,6 +1898,7 @@ function getBenAndJerryModel(): ModelData {
       },
       {
         NAME: 'ConditionalPayment to Ben loan 1',
+        FAVOURITE: undefined,
         CATEGORY: '',
         FROM: 'Cash',
         FROM_ABSOLUTE: true,

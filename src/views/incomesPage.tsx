@@ -6,6 +6,7 @@ import {
   incomesTableDivWithHeading,
   transactionFilteredTable,
   addIndices,
+  faveColumn,
 } from './tablePages';
 import {
   deleteIncome,
@@ -43,6 +44,7 @@ function makeDataGrid(myMap: Map<string, IncomeVal>, model: ModelData) {
   return (
     <DataGrid
       deleteFunction={undefined}
+      setFavouriteFunction={undefined}
       handleGridRowsUpdated={function () {
         return false;
       }}
@@ -58,6 +60,7 @@ function makeDataGrid(myMap: Map<string, IncomeVal>, model: ModelData) {
             }
             return {
               NAME: key[0],
+              FAVOURITE: undefined,
               VALUE: `${key[1].incomeVal}`,
               CATEGORY: `${key[1].category}`,
             };
@@ -74,6 +77,7 @@ function makeDataGrid(myMap: Map<string, IncomeVal>, model: ModelData) {
           editable: false,
         },
         */
+        faveColumn,
         {
           ...defaultColumn,
           key: 'NAME',

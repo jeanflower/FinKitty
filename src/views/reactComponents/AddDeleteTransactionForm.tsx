@@ -436,6 +436,7 @@ export class AddDeleteTransactionForm extends Component<
 
     const transaction: Transaction = {
       NAME: transactionName,
+      FAVOURITE: false,
       CATEGORY: this.state.CATEGORY,
       FROM: this.state.FROM,
       FROM_ABSOLUTE: makeBooleanFromString(fromAbsolute),

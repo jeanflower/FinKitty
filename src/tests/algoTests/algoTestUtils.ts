@@ -696,6 +696,7 @@ export function getModelCrystallizedPension() {
     transactions: [
       {
         NAME: 'MoveQuarterPension',
+        FAVOURITE: undefined,
         FROM: 'EmploymentPension',
         FROM_ABSOLUTE: false,
         FROM_VALUE: '0.25',
@@ -710,6 +711,7 @@ export function getModelCrystallizedPension() {
       },
       {
         NAME: 'MoveRemainingPension',
+        FAVOURITE: undefined,
         FROM: 'EmploymentPension',
         FROM_ABSOLUTE: false,
         FROM_VALUE: '1',

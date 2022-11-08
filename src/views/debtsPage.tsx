@@ -5,7 +5,12 @@ import {
   AssetOrDebtVal,
 } from './../types/interfaces';
 import { checkAsset, checkTransaction } from '../models/checks';
-import { debtsDivWithHeadings, defaultColumn, addIndices } from './tablePages';
+import {
+  debtsDivWithHeadings,
+  defaultColumn,
+  addIndices,
+  faveColumn,
+} from './tablePages';
 import {
   deleteAsset,
   submitAsset,
@@ -44,6 +49,7 @@ function makeDataGrid(myMap: Map<string, AssetOrDebtVal>, model: ModelData) {
   return (
     <DataGrid
       deleteFunction={undefined}
+      setFavouriteFunction={undefined}
       handleGridRowsUpdated={function () {
         return false;
       }}
@@ -74,6 +80,7 @@ function makeDataGrid(myMap: Map<string, AssetOrDebtVal>, model: ModelData) {
           editable: false,
         },
         */
+        faveColumn,
         {
           ...defaultColumn,
           key: 'NAME',

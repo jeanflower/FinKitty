@@ -525,6 +525,7 @@ export async function submitNewSettingLSM(
   return submitSettingLSM(
     {
       NAME: setting.NAME,
+      FAVOURITE: setting.FAVOURITE,
       VALUE: setting.VALUE,
       HINT: setting.HINT,
       TYPE: type,

@@ -48,6 +48,7 @@ export function newTriggerButtonData(
       }
       await submitTriggerFunction({
         NAME: nameString,
+        FAVOURITE: false,
         DATE: dateString,
       });
     },
@@ -149,6 +150,7 @@ export class AddDeleteTriggerForm extends Component<
     // log('adding something ' + showObj(this));
     const trigger: Trigger = {
       NAME: this.state.NAME,
+      FAVOURITE: false,
       DATE: this.state.DATE,
     };
     const message = this.props.checkFunction(trigger, this.props.model);

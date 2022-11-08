@@ -468,6 +468,7 @@ describe('loadModelsFromJSON', () => {
     plainModel.version = 0;
     plainModel.assets.push({
       NAME: 'ISAs',
+      FAVOURITE: undefined,
       CATEGORY: 'stock',
       START: 'December 2019',
       VALUE: '2000',

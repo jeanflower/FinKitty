@@ -4,6 +4,7 @@ import { makeDateFromString } from '../../utils/stringUtils';
 
 export const testAsset: Asset = {
   NAME: 'test_asset',
+  FAVOURITE: undefined,
   CATEGORY: '',
   START: 'Jan 2017',
   VALUE: '1.2',

@@ -1361,6 +1361,7 @@ describe('conditional tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'pound',
+          FAVOURITE: undefined,
           VALUE: '1.0',
           HINT: 'a setting for a currency',
           TYPE: constType,
@@ -3176,6 +3177,7 @@ describe('conditional tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'mini',
+          FAVOURITE: undefined,
           VALUE: '100',
           HINT: '',
           TYPE: 'const',
@@ -3289,6 +3291,7 @@ describe('conditional tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'mini',
+          FAVOURITE: undefined,
           VALUE: '100',
           HINT: '',
           TYPE: 'const',
@@ -3402,6 +3405,7 @@ describe('conditional tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'mini',
+          FAVOURITE: undefined,
           VALUE: '100',
           HINT: '',
           TYPE: 'const',
@@ -3515,6 +3519,7 @@ describe('conditional tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'mini',
+          FAVOURITE: undefined,
           VALUE: '100',
           HINT: '',
           TYPE: 'const',
@@ -3628,12 +3633,14 @@ describe('conditional tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'chrysler',
+          FAVOURITE: undefined,
           VALUE: '50USD',
           HINT: '',
           TYPE: 'const',
         },
         {
           NAME: 'USD',
+          FAVOURITE: undefined,
           VALUE: '2',
           HINT: '',
           TYPE: 'const',
@@ -3748,12 +3755,14 @@ describe('conditional tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'chrysler',
+          FAVOURITE: undefined,
           VALUE: '50USD',
           HINT: '',
           TYPE: 'const',
         },
         {
           NAME: 'USD',
+          FAVOURITE: undefined,
           VALUE: '2',
           HINT: '',
           TYPE: 'const',
@@ -3868,12 +3877,14 @@ describe('conditional tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'chrysler',
+          FAVOURITE: undefined,
           VALUE: '50USD',
           HINT: '',
           TYPE: 'const',
         },
         {
           NAME: 'USD',
+          FAVOURITE: undefined,
           VALUE: '2',
           HINT: '',
           TYPE: 'const',
@@ -3988,12 +3999,14 @@ describe('conditional tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'chrysler',
+          FAVOURITE: undefined,
           VALUE: '50USD',
           HINT: '',
           TYPE: 'const',
         },
         {
           NAME: 'USD',
+          FAVOURITE: undefined,
           VALUE: '2',
           HINT: '',
           TYPE: 'const',
@@ -4110,12 +4123,14 @@ describe('conditional tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'chrysler',
+          FAVOURITE: undefined,
           VALUE: '50USD',
           HINT: '',
           TYPE: 'const',
         },
         {
           NAME: 'USD',
+          FAVOURITE: undefined,
           VALUE: '2',
           HINT: '',
           TYPE: 'const',
@@ -4241,12 +4256,14 @@ describe('conditional tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'chrysler',
+          FAVOURITE: undefined,
           VALUE: '50USD',
           HINT: '',
           TYPE: 'const',
         },
         {
           NAME: 'USD',
+          FAVOURITE: undefined,
           VALUE: '2',
           HINT: '',
           TYPE: 'const',
@@ -4370,12 +4387,14 @@ describe('conditional tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'chrysler',
+          FAVOURITE: undefined,
           VALUE: '50USD',
           HINT: '',
           TYPE: 'const',
         },
         {
           NAME: 'USD',
+          FAVOURITE: undefined,
           VALUE: '2',
           HINT: '',
           TYPE: 'const',

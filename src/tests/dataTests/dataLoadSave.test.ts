@@ -106,6 +106,7 @@ describe('load save tests', () => {
           {
             DATE: 'nonsense',
             NAME: 'testTrigger',
+            FAVOURITE: undefined,
           },
           modelName,
           modelData.model,
@@ -143,6 +144,7 @@ describe('load save tests', () => {
           {
             DATE: '1 Jan 1999',
             NAME: 'testTrigger',
+            FAVOURITE: undefined,
           },
           modelName,
           modelData.model,
@@ -159,6 +161,7 @@ describe('load save tests', () => {
           {
             DATE: '1 Jan 2000',
             NAME: 'testTrigger',
+            FAVOURITE: undefined,
           },
           modelName,
           modelData.model,
@@ -501,6 +504,7 @@ describe('load save tests', () => {
 
         modelData.model.triggers.push({
           NAME: 'testTrigger',
+          FAVOURITE: undefined,
           DATE: '1 Jan 1999',
         });
         // save this adjusted model back

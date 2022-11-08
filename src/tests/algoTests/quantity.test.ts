@@ -63,6 +63,7 @@ describe('quantity tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: thingName,
+          FAVOURITE: undefined,
           VALUE: '123',
           HINT: 'something',
           TYPE: constType, // eventually we will want to adjust...
@@ -149,12 +150,14 @@ describe('quantity tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: thingName,
+          FAVOURITE: undefined,
           VALUE: '10' + dollar,
           HINT: 'something',
           TYPE: constType, // eventually we will want to adjust...
         },
         {
           NAME: dollar,
+          FAVOURITE: undefined,
           VALUE: '0.88', // exchange rate
           HINT: 'something',
           TYPE: constType, // eventually we will want to adjust...
@@ -255,6 +258,7 @@ describe('quantity tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: thingName,
+          FAVOURITE: undefined,
           VALUE: '123',
           HINT: 'something',
           TYPE: constType, // eventually we will want to adjust...
@@ -370,6 +374,7 @@ describe('quantity tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: thingName,
+          FAVOURITE: undefined,
           VALUE: '123',
           HINT: 'something',
           TYPE: constType, // eventually we will want to adjust...
@@ -465,6 +470,7 @@ describe('quantity tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'mini',
+          FAVOURITE: undefined,
           VALUE: '100',
           HINT: '',
           TYPE: 'const',
@@ -556,6 +562,7 @@ describe('quantity tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'mini',
+          FAVOURITE: undefined,
           VALUE: '100',
           HINT: '',
           TYPE: 'const',
@@ -649,6 +656,7 @@ describe('quantity tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'mini',
+          FAVOURITE: undefined,
           VALUE: '100',
           HINT: '',
           TYPE: 'const',
@@ -757,6 +765,7 @@ describe('quantity tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'mini',
+          FAVOURITE: undefined,
           VALUE: '100',
           HINT: '',
           TYPE: 'const',
@@ -914,12 +923,14 @@ describe('quantity tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'chrysler',
+          FAVOURITE: undefined,
           VALUE: '50USD',
           HINT: '',
           TYPE: 'const',
         },
         {
           NAME: 'USD',
+          FAVOURITE: undefined,
           VALUE: '2',
           HINT: '',
           TYPE: 'const',
@@ -1022,12 +1033,14 @@ describe('quantity tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'chrysler',
+          FAVOURITE: undefined,
           VALUE: '50USD',
           HINT: '',
           TYPE: 'const',
         },
         {
           NAME: 'USD',
+          FAVOURITE: undefined,
           VALUE: '2',
           HINT: '',
           TYPE: 'adjustable',
@@ -1138,12 +1151,14 @@ describe('quantity tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'chrysler',
+          FAVOURITE: undefined,
           VALUE: '50USD',
           HINT: '',
           TYPE: 'const',
         },
         {
           NAME: 'USD',
+          FAVOURITE: undefined,
           VALUE: '2',
           HINT: '',
           TYPE: 'const',
@@ -1240,12 +1255,14 @@ describe('quantity tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'daimler',
+          FAVOURITE: undefined,
           VALUE: '0.25USD',
           HINT: '',
           TYPE: 'const',
         },
         {
           NAME: 'USD',
+          FAVOURITE: undefined,
           VALUE: '400',
           HINT: '',
           TYPE: 'const',
@@ -1327,12 +1344,14 @@ describe('quantity tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'ford',
+          FAVOURITE: undefined,
           VALUE: '400USD',
           HINT: '',
           TYPE: 'const',
         },
         {
           NAME: 'USD',
+          FAVOURITE: undefined,
           VALUE: '0.25',
           HINT: '',
           TYPE: 'const',
@@ -1414,12 +1433,14 @@ describe('quantity tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'chrysler',
+          FAVOURITE: undefined,
           VALUE: '50USD',
           HINT: '',
           TYPE: 'const',
         },
         {
           NAME: 'USD',
+          FAVOURITE: undefined,
           VALUE: '2',
           HINT: '',
           TYPE: 'const',
@@ -1513,12 +1534,14 @@ describe('quantity tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'chrysler',
+          FAVOURITE: undefined,
           VALUE: '50USD',
           HINT: '',
           TYPE: 'const',
         },
         {
           NAME: 'USD',
+          FAVOURITE: undefined,
           VALUE: '2',
           HINT: '',
           TYPE: 'const',
@@ -1600,6 +1623,7 @@ describe('quantity tests', () => {
       triggers: [
         {
           NAME: 'carStartDate',
+          FAVOURITE: undefined,
           DATE: 'January 2 2018',
         },
       ],
@@ -1618,6 +1642,7 @@ describe('quantity tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'USD',
+          FAVOURITE: undefined,
           VALUE: '2',
           HINT: '',
           TYPE: 'const',
@@ -1710,6 +1735,7 @@ describe('quantity tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'USD',
+          FAVOURITE: undefined,
           VALUE: '0.25',
           HINT: '',
           TYPE: 'const',
@@ -1807,18 +1833,21 @@ describe('quantity tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'fourUSD',
+          FAVOURITE: undefined,
           VALUE: '2twoUSD',
           HINT: '',
           TYPE: 'const',
         },
         {
           NAME: 'twoUSD',
+          FAVOURITE: undefined,
           VALUE: '2USD',
           HINT: '',
           TYPE: 'const',
         },
         {
           NAME: 'USD',
+          FAVOURITE: undefined,
           VALUE: '0.25',
           HINT: '',
           TYPE: 'const',
@@ -1916,18 +1945,21 @@ describe('quantity tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'someUSD',
+          FAVOURITE: undefined,
           VALUE: '2twoUSD',
           HINT: '',
           TYPE: 'const',
         },
         {
           NAME: 'twoUSD',
+          FAVOURITE: undefined,
           VALUE: '2USD',
           HINT: '',
           TYPE: 'const',
         },
         {
           NAME: 'USD',
+          FAVOURITE: undefined,
           VALUE: '0.25',
           HINT: '',
           TYPE: 'const',
@@ -2460,6 +2492,7 @@ describe('quantity tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'USD',
+          FAVOURITE: undefined,
           VALUE: '0.88', // exchange rate
           HINT: 'something',
           TYPE: constType, // eventually we will want to adjust...

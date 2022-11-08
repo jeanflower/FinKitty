@@ -219,6 +219,7 @@ export const defaultSourceMatcher = '.';
 export const defaultSourceExcluder = '';
 export const defaultReportSize = 10;
 
+export const favourites = 'favourites';
 export const evalModeOption = 'evalMode';
 export const checkModelOnEditOption = 'checkModelOnEdit';
 export const goToOverviewPageOption = 'goToOverviewPage';

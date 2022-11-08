@@ -161,6 +161,7 @@ export class AddDeleteSettingForm extends Component<
 
     const revalueTransaction: Transaction = {
       NAME: `${newName}`,
+      FAVOURITE: false,
       FROM: '',
       FROM_ABSOLUTE: false,
       FROM_VALUE: '0.0',
@@ -331,6 +332,7 @@ export class AddDeleteSettingForm extends Component<
     // log('adding something ' + showObj(this));
     const setting: Setting = {
       NAME: this.state.NAME,
+      FAVOURITE: false,
       VALUE: this.state.VALUE,
       HINT: '',
       TYPE: adjustableType,

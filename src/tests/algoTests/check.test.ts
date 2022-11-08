@@ -190,6 +190,7 @@ describe('checks tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'x',
+          FAVOURITE: undefined,
           VALUE: '1.00',
           HINT: 'growthValue',
           TYPE: adjustableType,
@@ -715,6 +716,7 @@ describe('checks tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'x',
+          FAVOURITE: undefined,
           VALUE: '1.00',
           HINT: 'growthValue',
           TYPE: adjustableType,
@@ -838,6 +840,7 @@ describe('checks tests', () => {
       checkTrigger(
         {
           NAME: '',
+          FAVOURITE: undefined,
           DATE: '1 Jan 2018',
         },
         model,
@@ -847,6 +850,7 @@ describe('checks tests', () => {
       checkTrigger(
         {
           NAME: 'today',
+          FAVOURITE: undefined,
           DATE: '1 Jan 2018',
         },
         model,

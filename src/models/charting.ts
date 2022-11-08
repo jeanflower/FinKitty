@@ -579,7 +579,10 @@ function makeChartDataPoints(
     if (nonZeroInstance >= 0) {
       // log(`non-zero instance found ${showObj(pr)}`);
       result.push({
-        item: { NAME: pr.name },
+        item: {
+          NAME: pr.name,
+          FAVOURITE: undefined,
+        },
         chartDataPoints: pr.chartDataPoints,
       });
     }

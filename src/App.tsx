@@ -37,6 +37,7 @@ import {
   optimizerView,
   monthly,
   viewFrequency,
+  favourites,
 } from './localization/stringConstants';
 import {
   AssetOrDebtVal,
@@ -319,6 +320,13 @@ function evalMode(): boolean {
     return false;
   }
 }
+export function favouritesOnly(): boolean {
+  if (reactAppComponent) {
+    return reactAppComponent.options.favourites;
+  } else {
+    return false;
+  }
+}
 function getReporter(
   model: ModelData,
   viewSettings: ViewSettings,
@@ -451,7 +459,7 @@ export async function refreshDataInternal(
   refreshChart: boolean,
   sourceID: number,
 ): Promise<void> {
-  if (!evalMode()) {
+  if (!evalMode() || sourceID === 32) {
     log('skip evaluations and chart refresh - evalMode = false');
     reactAppComponent.setState({ ...reactAppComponent.state });
     return;
@@ -881,6 +889,7 @@ export async function submitTrigger(
 export async function editSetting(
   settingInput: {
     NAME: string;
+    FAVOURITE: boolean | undefined;
     VALUE: string;
     HINT: string;
   },
@@ -889,6 +898,7 @@ export async function editSetting(
   if (
     setViewSetting({
       NAME: settingInput.NAME,
+      FAVOURITE: settingInput.FAVOURITE,
       VALUE: settingInput.VALUE,
       TYPE: viewType,
       HINT: '',
@@ -1034,7 +1044,13 @@ function toggleOption(type: string): void {
       refreshData(
         true, // refreshModel
         true, // refreshChart
-        999, //sourceID
+        31, //sourceID
+      );
+    } else if (type === favourites) {
+      refreshData(
+        true, // refreshModel
+        true, // refreshChart
+        33, //sourceID
       );
     }
   } else {
@@ -1044,7 +1060,52 @@ function toggleOption(type: string): void {
 function getOption(type: string): boolean {
   return reactAppComponent.options[type];
 }
+export async function setFavouriteInModel(
+  name: string,
+  value: boolean,
+  itemList: Item[],
+  modelName: string,
+  model: ModelData,
+): Promise<boolean> {
+  markForUndo(model);
+  let missingItem: string | undefined = undefined;
+  const idx = itemList.findIndex((i: Item) => {
+    return i.NAME === name;
+  });
+  // log(`idx of ${name} is ${idx}`);
 
+  if (idx !== -1) {
+    itemList[idx].FAVOURITE = value;
+    log(`item is now ${showObj(itemList[idx])})}`);
+  } else {
+    missingItem = name;
+  }
+
+  if (missingItem !== undefined) {
+    const response = `item not found for setting favourite :${missingItem}`;
+    // log(`setState for delete item alert`);
+    reactAppComponent.setState({
+      alertText: response,
+    });
+    // log(`revert attempt to set favourite - missing item`);
+    revertToUndoModel(model);
+    return false;
+  }
+
+  //log(
+  //  `now itemList = ${itemList.map((i) => {
+  //    return i.NAME;
+  //  })}`,
+  //);
+
+  await saveModelLSM(getUserID(), modelName, model);
+  await refreshData(
+    true, // refreshModel = true,
+    false, // refreshChart = true,
+    32, //sourceID
+  );
+  return true;
+}
 export async function deleteItemsFromModel(
   names: string[],
   itemList: Item[],
@@ -1170,7 +1231,78 @@ export async function deleteSetting(name: string): Promise<boolean> {
     reactAppComponent.options.checkModelOnEdit,
   );
 }
-
+export async function setFavouriteTrigger(
+  name: string,
+  value: boolean,
+): Promise<boolean> {
+  return setFavouriteInModel(
+    name,
+    value,
+    reactAppComponent.state.modelData.triggers,
+    modelName,
+    reactAppComponent.state.modelData,
+  );
+}
+export async function setFavouriteAsset(
+  name: string,
+  value: boolean,
+): Promise<boolean> {
+  return setFavouriteInModel(
+    name,
+    value,
+    reactAppComponent.state.modelData.assets,
+    modelName,
+    reactAppComponent.state.modelData,
+  );
+}
+export async function setFavouriteTransaction(
+  name: string,
+  value: boolean,
+): Promise<boolean> {
+  return setFavouriteInModel(
+    name,
+    value,
+    reactAppComponent.state.modelData.transactions,
+    modelName,
+    reactAppComponent.state.modelData,
+  );
+}
+export async function setFavouriteExpense(
+  name: string,
+  value: boolean,
+): Promise<boolean> {
+  return setFavouriteInModel(
+    name,
+    value,
+    reactAppComponent.state.modelData.expenses,
+    modelName,
+    reactAppComponent.state.modelData,
+  );
+}
+export async function setFavouriteIncome(
+  name: string,
+  value: boolean,
+): Promise<boolean> {
+  return setFavouriteInModel(
+    name,
+    value,
+    reactAppComponent.state.modelData.incomes,
+    modelName,
+    reactAppComponent.state.modelData,
+  );
+}
+export async function setFavouriteSetting(
+  name: string,
+  value: boolean,
+): Promise<boolean> {
+  return setFavouriteInModel(
+    name,
+    value,
+    reactAppComponent.state.modelData.settings,
+    modelName,
+    reactAppComponent.state.modelData,
+  );
+}
 export async function updateModelName(newValue: string): Promise<boolean> {
   // log(`model name is now ${newValue}`);
   if (modelName === newValue) {
@@ -1374,6 +1506,7 @@ export class AppContent extends Component<AppProps, AppState> {
       checkOverwrite: true,
       evalMode: true,
       checkModelOnEdit: true,
+      favouritesOnly: false,
     };
     reactAppComponent = this;
     refreshData(
@@ -2061,6 +2194,7 @@ export class AppContent extends Component<AppProps, AppState> {
           // log(`key[0] = ${key[0]}, key[1] = ${key[1]}`);
           return {
             NAME: key,
+            FAVOURITE: undefined,
             VALUE: `${value.settingVal}`,
           };
         })
@@ -2070,6 +2204,7 @@ export class AppContent extends Component<AppProps, AppState> {
     return collapsibleFragment(
       <DataGrid
         deleteFunction={undefined}
+        setFavouriteFunction={undefined}
         handleGridRowsUpdated={function () {
           return false;
         }}
@@ -2289,6 +2424,17 @@ export class AppContent extends Component<AppProps, AppState> {
     buttons.push(this.makeUndoButton());
     buttons.push(this.makeRedoButton());
     buttons.push(this.makeSaveButton());
+    buttons.push(
+      makeButton(
+        favouritesOnly() ? 'Show all' : `Show favourites`,
+        () => {
+          toggleOption(favourites);
+        },
+        'toggleFav',
+        'toggleFav',
+        'outline-secondary',
+      ),
+    );
     return buttons;
   }
 

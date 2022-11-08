@@ -76,10 +76,12 @@ describe('pension tests', () => {
       triggers: [
         {
           NAME: 'javaStartTrigger',
+          FAVOURITE: undefined,
           DATE: 'March 10 2018',
         },
         {
           NAME: 'javaStopTrigger',
+          FAVOURITE: undefined,
           DATE: 'April 9 2018',
         },
       ],
@@ -231,10 +233,12 @@ describe('pension tests', () => {
       triggers: [
         {
           NAME: 'javaStartTrigger',
+          FAVOURITE: undefined,
           DATE: 'March 10 2018',
         },
         {
           NAME: 'javaStopTrigger',
+          FAVOURITE: undefined,
           DATE: 'April 9 2018',
         },
       ],
@@ -437,18 +441,22 @@ describe('pension tests', () => {
       triggers: [
         {
           NAME: 'javaStartTrigger',
+          FAVOURITE: undefined,
           DATE: 'Jan 10 2018',
         },
         {
           NAME: 'javaStopTrigger',
+          FAVOURITE: undefined,
           DATE: 'Feb 9 2018',
         },
         {
           NAME: 'cppStartTrigger',
+          FAVOURITE: undefined,
           DATE: 'March 10 2018',
         },
         {
           NAME: 'cppStopTrigger',
+          FAVOURITE: undefined,
           DATE: 'April 9 2018',
         },
       ],
@@ -665,10 +673,12 @@ describe('pension tests', () => {
       triggers: [
         {
           NAME: 'javaStartTrigger',
+          FAVOURITE: undefined,
           DATE: 'March 10 2018',
         },
         {
           NAME: 'javaStopTrigger',
+          FAVOURITE: undefined,
           DATE: 'April 9 2018',
         },
       ],
@@ -834,10 +844,12 @@ describe('pension tests', () => {
       triggers: [
         {
           NAME: 'javaStartTrigger',
+          FAVOURITE: undefined,
           DATE: 'April 7 2017',
         },
         {
           NAME: 'javaStopTrigger',
+          FAVOURITE: undefined,
           DATE: 'April 4 2018',
         },
       ],
@@ -1069,10 +1081,12 @@ describe('pension tests', () => {
       triggers: [
         {
           NAME: 'javaStartTrigger',
+          FAVOURITE: undefined,
           DATE: 'March 10 2018',
         },
         {
           NAME: 'javaStopTrigger',
+          FAVOURITE: undefined,
           DATE: 'April 9 2018',
         },
       ],
@@ -1243,10 +1257,12 @@ describe('pension tests', () => {
       triggers: [
         {
           NAME: 'javaStartTrigger',
+          FAVOURITE: undefined,
           DATE: 'March 10 2018',
         },
         {
           NAME: 'javaStopTrigger',
+          FAVOURITE: undefined,
           DATE: 'April 9 2018',
         },
       ],
@@ -1508,18 +1524,22 @@ describe('pension tests', () => {
       triggers: [
         {
           NAME: 'javaStartTrigger',
+          FAVOURITE: undefined,
           DATE: 'March 10 2018',
         },
         {
           NAME: 'javaStopTrigger',
+          FAVOURITE: undefined,
           DATE: 'April 9 2018',
         },
         {
           NAME: 'pensionStartDraw',
+          FAVOURITE: undefined,
           DATE: 'June 10 2018',
         },
         {
           NAME: 'pensionStopDraw',
+          FAVOURITE: undefined,
           DATE: 'July 9 2018',
         },
       ],
@@ -1725,18 +1745,22 @@ describe('pension tests', () => {
       triggers: [
         {
           NAME: 'javaStartTrigger',
+          FAVOURITE: undefined,
           DATE: 'March 10 2018',
         },
         {
           NAME: 'javaStopTrigger',
+          FAVOURITE: undefined,
           DATE: 'April 9 2018',
         },
         {
           NAME: 'pensionStartDraw',
+          FAVOURITE: undefined,
           DATE: 'June 10 2018',
         },
         {
           NAME: 'pensionStopDraw',
+          FAVOURITE: undefined,
           DATE: 'July 9 2018',
         },
       ],
@@ -1943,18 +1967,22 @@ describe('pension tests', () => {
       triggers: [
         {
           NAME: 'javaStartTrigger',
+          FAVOURITE: undefined,
           DATE: 'March 10 2018',
         },
         {
           NAME: 'javaStopTrigger',
+          FAVOURITE: undefined,
           DATE: 'April 9 2018',
         },
         {
           NAME: 'pensionStartDraw',
+          FAVOURITE: undefined,
           DATE: 'June 10 2018',
         },
         {
           NAME: 'pensionStopDraw',
+          FAVOURITE: undefined,
           DATE: 'July 9 2018',
         },
       ],
@@ -2146,18 +2174,22 @@ describe('pension tests', () => {
       triggers: [
         {
           NAME: 'javaStartTrigger',
+          FAVOURITE: undefined,
           DATE: 'March 10 2018',
         },
         {
           NAME: 'javaStopTrigger',
+          FAVOURITE: undefined,
           DATE: 'April 9 2018',
         },
         {
           NAME: 'pensionStartDraw',
+          FAVOURITE: undefined,
           DATE: 'June 10 2018',
         },
         {
           NAME: 'pensionStopDraw',
+          FAVOURITE: undefined,
           DATE: 'July 9 2018',
         },
       ],
@@ -2240,18 +2272,22 @@ describe('pension tests', () => {
       triggers: [
         {
           NAME: 'javaStartTrigger',
+          FAVOURITE: undefined,
           DATE: 'March 10 2018',
         },
         {
           NAME: 'javaStopTrigger',
+          FAVOURITE: undefined,
           DATE: 'April 9 2018',
         },
         {
           NAME: 'pensionStartDraw',
+          FAVOURITE: undefined,
           DATE: 'June 10 2018',
         },
         {
           NAME: 'pensionStopDraw',
+          FAVOURITE: undefined,
           DATE: 'July 9 2018',
         },
       ],
@@ -2334,18 +2370,22 @@ describe('pension tests', () => {
       triggers: [
         {
           NAME: 'javaStartTrigger',
+          FAVOURITE: undefined,
           DATE: 'March 10 2018',
         },
         {
           NAME: 'javaStopTrigger',
+          FAVOURITE: undefined,
           DATE: 'April 9 2018',
         },
         {
           NAME: 'pensionStartDraw',
+          FAVOURITE: undefined,
           DATE: 'June 10 2018',
         },
         {
           NAME: 'pensionStopDraw',
+          FAVOURITE: undefined,
           DATE: 'July 9 2018',
         },
       ],

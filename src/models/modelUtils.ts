@@ -152,6 +152,7 @@ export function setSetting(
     // add new object
     settings.push({
       NAME: key,
+      FAVOURITE: undefined,
       VALUE: val,
       HINT: hint,
       TYPE: type,
@@ -160,6 +161,7 @@ export function setSetting(
     // replace with a new object
     settings.splice(idx, 1, {
       NAME: key,
+      FAVOURITE: settings[idx].FAVOURITE,
       VALUE: val,
       HINT: hint,
       TYPE: type,

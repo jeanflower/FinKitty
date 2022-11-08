@@ -13,6 +13,9 @@ interface DataGridProps {
   rows: any[]; // TODO any
   columns: any[]; // TODO any
   deleteFunction: ((name: string) => Promise<boolean>) | undefined;
+  setFavouriteFunction:
+    | ((name: string, value: boolean) => Promise<boolean>)
+    | undefined;
   model: ModelData;
 }
 interface DataGridState {
@@ -215,6 +218,29 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
           callback: async () => {
             if (this.props.deleteFunction !== undefined) {
               await this.props.deleteFunction(row['NAME']);
+              this.sortHandler(
+                this.state.colSortIndex,
+                this.state.sortDirection,
+              );
+              //log(`this.props.rows.length = ${this.props.rows.length}`);
+              //log(`this.sortedIndices = ${this.sortedIndices}`);
+            }
+          },
+        },
+      ];
+    } else if (
+      column.key === 'FAVE' &&
+      this.props.setFavouriteFunction !== undefined
+    ) {
+      // log(`add glyph`);
+      return [
+        {
+          icon: row['FAVOURITE'] === true ? 'fa fa-star' : 'fa fa-circle',
+          callback: async () => {
+            if (this.props.setFavouriteFunction !== undefined) {
+              const oldVal = row['FAVOURITE'] === true;
+
+              await this.props.setFavouriteFunction(row['NAME'], !oldVal);
               this.sortHandler(
                 this.state.colSortIndex,
                 this.state.sortDirection,

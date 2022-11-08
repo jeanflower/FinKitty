@@ -43,14 +43,17 @@ import {
 export const testTriggers01: Trigger[] = [
   {
     NAME: 'TransferMortgage',
+    FAVOURITE: undefined,
     DATE: 'Jan 01 2028',
   },
   {
     NAME: 'StopMainWork',
+    FAVOURITE: undefined,
     DATE: 'Dec 31 2050',
   },
   {
     NAME: 'GetRidOfCar',
+    FAVOURITE: undefined,
     DATE: 'Dec 31 2025',
   },
 ];
@@ -223,6 +226,7 @@ export const testTransactions01: Transaction[] = [
 ];
 const simpleSetting: Setting = {
   NAME: 'NoName',
+  FAVOURITE: undefined,
   VALUE: 'NoValue',
   HINT: 'NoHint',
   TYPE: constType,

@@ -375,6 +375,7 @@ export class AddDeleteExpenseForm extends Component<
 
     const revalueExpenseTransaction: Transaction = {
       NAME: `${newName}`,
+      FAVOURITE: false,
       FROM: '',
       FROM_ABSOLUTE: false,
       FROM_VALUE: '0.0',
@@ -474,6 +475,7 @@ export class AddDeleteExpenseForm extends Component<
     // log('adding something ' + showObj(this));
     const expense: Expense = {
       NAME: this.state.NAME,
+      FAVOURITE: false,
       VALUE: this.state.VALUE,
       VALUE_SET: this.state.VALUE_SET,
       START: this.state.START,

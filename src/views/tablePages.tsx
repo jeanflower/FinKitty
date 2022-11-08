@@ -61,6 +61,13 @@ import {
   deleteTransaction,
   deleteTrigger,
   editSetting,
+  favouritesOnly,
+  setFavouriteAsset,
+  setFavouriteExpense,
+  setFavouriteIncome,
+  setFavouriteSetting,
+  setFavouriteTransaction,
+  setFavouriteTrigger,
   setReportKey,
   submitAsset,
   submitExpense,
@@ -202,6 +209,7 @@ function handleExpenseGridRowsUpdated(
     } else {
       const expenseForSubmission: Expense = {
         NAME: expense.NAME,
+        FAVOURITE: undefined,
         CATEGORY: expense.CATEGORY,
         START: expense.START,
         END: expense.END,
@@ -222,6 +230,7 @@ function handleExpenseGridRowsUpdated(
   } else {
     const expenseForSubmission: Expense = {
       NAME: expense.NAME,
+      FAVOURITE: undefined,
       CATEGORY: expense.CATEGORY,
       START: expense.START,
       END: expense.END,
@@ -299,6 +308,7 @@ function handleIncomeGridRowsUpdated(
 
       const incomeForSubmission: Income = {
         NAME: income.NAME,
+        FAVOURITE: undefined,
         CATEGORY: income.CATEGORY,
         START: income.START,
         END: income.END,
@@ -325,6 +335,7 @@ function handleIncomeGridRowsUpdated(
 
     const incomeForSubmission: Income = {
       NAME: income.NAME,
+      FAVOURITE: undefined,
       CATEGORY: income.CATEGORY,
       START: income.START,
       END: income.END,
@@ -376,6 +387,7 @@ function handleTriggerGridRowsUpdated(
   trigger[args[0].cellKey] = args[0].updated[args[0].cellKey];
   const forSubmit: Trigger = {
     NAME: trigger.NAME,
+    FAVOURITE: undefined,
     DATE: trigger.DATE,
   };
   if (doChecks) {
@@ -493,6 +505,7 @@ function handleAssetGridRowsUpdated(
       // log(`valueForSubmission = ${valueForSubmission}`);
       const assetForSubmission: Asset = {
         NAME: asset.NAME,
+        FAVOURITE: undefined,
         VALUE: valueForSubmission,
         QUANTITY: asset.QUANTITY,
         START: asset.START,
@@ -514,6 +527,7 @@ function handleAssetGridRowsUpdated(
     // log(`valueForSubmission = ${valueForSubmission}`);
     const assetForSubmission: Asset = {
       NAME: asset.NAME,
+      FAVOURITE: undefined,
       VALUE: valueForSubmission,
       QUANTITY: asset.QUANTITY,
       START: asset.START,
@@ -651,6 +665,7 @@ function handleTransactionGridRowsUpdated(
       FROM_VALUE: parseFrom.value,
       FROM_ABSOLUTE: parseFrom.absolute,
       NAME: tName,
+      FAVOURITE: gridData.FAVOURITE,
       TO: gridData.TO,
       TO_ABSOLUTE: parseTo.absolute,
       TO_VALUE: parseTo.value,
@@ -721,6 +736,7 @@ function handleSettingGridRowsUpdated(
   x[args[0].cellKey] = args[0].updated[args[0].cellKey];
   const forSubmission = {
     NAME: x.NAME,
+    FAVOURITE: x.FAVOURITE,
     VALUE: x.VALUE,
     HINT: x.HINT,
   };
@@ -732,7 +748,13 @@ export const defaultColumn = {
   resizable: true,
   sortable: true,
 };
-
+export const faveColumn = {
+  ...defaultColumn,
+  key: 'FAVE',
+  name: '',
+  suppressSizeToFit: true,
+  width: 40,
+};
 function getAssetOrDebtCols(model: ModelData, isDebt: boolean) {
   let cols: any[] = [
     /*
@@ -744,6 +766,7 @@ function getAssetOrDebtCols(model: ModelData, isDebt: boolean) {
       editable: false,
     },
     */
+    faveColumn,
     {
       ...defaultColumn,
       key: 'NAME',
@@ -863,6 +886,9 @@ function assetsOrDebtsForTable(
     .filter((obj: Asset) => {
       return obj.IS_A_DEBT === isDebt;
     })
+    .filter((obj: Item) => {
+      return !favouritesOnly() || obj.FAVOURITE;
+    })
     .map((obj: Asset) => {
       const dbStringValue = obj.VALUE;
       let displayValue: number | string;
@@ -878,6 +904,7 @@ function assetsOrDebtsForTable(
       const mapResult = {
         GROWTH: obj.GROWTH,
         NAME: obj.NAME,
+        FAVOURITE: obj.FAVOURITE,
         CATEGORY: obj.CATEGORY,
         START: obj.START,
         VALUE: tableValue,
@@ -925,6 +952,7 @@ export function assetsOrDebtsTableDiv(
             rows={rowData}
             columns={getAssetOrDebtCols(model, isDebt)}
             deleteFunction={deleteAsset}
+            setFavouriteFunction={setFavouriteAsset}
             model={model}
           />
         </div>
@@ -972,6 +1000,9 @@ export function transactionsForTable(model: ModelData, type: string) {
       }
       return false;
     })
+    .filter((obj: Item) => {
+      return !favouritesOnly() || obj.FAVOURITE;
+    })
     .map((obj: Transaction) => {
       // log(`obj.FROM_ABSOLUTE = ${obj.FROM_ABSOLUTE}`)
       let fromValueEntry = makeStringFromValueAbsProp(
@@ -1007,6 +1038,7 @@ export function transactionsForTable(model: ModelData, type: string) {
         FROM: obj.FROM,
         FROM_VALUE: fromValueEntry,
         NAME: getDisplayName(obj.NAME, type),
+        FAVOURITE: obj.FAVOURITE,
         TO: obj.TO,
         TO_VALUE: toValueEntry,
         STOP_DATE: obj.STOP_DATE,
@@ -1031,6 +1063,7 @@ function makeTransactionCols(model: ModelData, type: string) {
       editable: false,
     },
     */
+    faveColumn,
     {
       ...defaultColumn,
       key: 'NAME',
@@ -1354,6 +1387,11 @@ export function transactionsTableDiv(
           log(`delete transaction`);
           return deleteTransaction(completeName);
         }}
+        setFavouriteFunction={(name: string, val: boolean) => {
+          const completeName = getTransactionName(name, type);
+          log(`set Favourite for transaction`);
+          return setFavouriteTransaction(completeName, val);
+        }}
         model={model}
       />
     </div>,
@@ -1457,10 +1495,14 @@ export function assetsDivWithHeadings(
 
 function triggersForTable(model: ModelData) {
   const unindexedResult = model.triggers
+    .filter((obj: Item) => {
+      return !favouritesOnly() || obj.FAVOURITE;
+    })
     .map((obj: Trigger) => {
       const mapResult = {
         DATE: obj.DATE,
         NAME: obj.NAME,
+        FAVOURITE: obj.FAVOURITE,
       };
       return mapResult;
     })
@@ -1484,6 +1526,7 @@ function triggersTableDiv(
         <div className="dataGridTriggers">
           <DataGrid
             deleteFunction={deleteTrigger}
+            setFavouriteFunction={setFavouriteTrigger}
             handleGridRowsUpdated={function () {
               return handleTriggerGridRowsUpdated(
                 model,
@@ -1502,6 +1545,7 @@ function triggersTableDiv(
                 formatter: <SimpleFormatter name="name" value="unset" />,
               },
               */
+              faveColumn,
               {
                 ...defaultColumn,
                 key: 'NAME',
@@ -1549,28 +1593,33 @@ function incomesForTable(
   model: ModelData,
   todaysValues: Map<string, IncomeVal>,
 ) {
-  const unindexedResult = model.incomes.map((obj: Income) => {
-    let todaysVForTable = 0.0;
-    const todaysV = todaysValues.get(obj.NAME);
-    if (todaysV !== undefined) {
-      if (!todaysV.hasEnded) {
-        todaysVForTable = todaysV.incomeVal;
+  const unindexedResult = model.incomes
+    .filter((obj: Item) => {
+      return !favouritesOnly() || obj.FAVOURITE;
+    })
+    .map((obj: Income) => {
+      let todaysVForTable = 0.0;
+      const todaysV = todaysValues.get(obj.NAME);
+      if (todaysV !== undefined) {
+        if (!todaysV.hasEnded) {
+          todaysVForTable = todaysV.incomeVal;
+        }
       }
-    }
-    const mapResult = {
-      END: obj.END,
-      GROWS_WITH_CPI: makeYesNoFromBoolean(!obj.CPI_IMMUNE),
-      NAME: obj.NAME,
-      START: obj.START,
-      VALUE: obj.VALUE,
-      VALUE_SET: obj.VALUE_SET,
-      LIABILITY: obj.LIABILITY,
-      CATEGORY: obj.CATEGORY,
-      TODAYSVALUE: `${todaysVForTable}`,
-    };
-    // log(`passing ${showObj(result)}`);
-    return mapResult;
-  });
+      const mapResult = {
+        END: obj.END,
+        GROWS_WITH_CPI: makeYesNoFromBoolean(!obj.CPI_IMMUNE),
+        NAME: obj.NAME,
+        FAVOURITE: obj.FAVOURITE,
+        START: obj.START,
+        VALUE: obj.VALUE,
+        VALUE_SET: obj.VALUE_SET,
+        LIABILITY: obj.LIABILITY,
+        CATEGORY: obj.CATEGORY,
+        TODAYSVALUE: `${todaysVForTable}`,
+      };
+      // log(`passing ${showObj(result)}`);
+      return mapResult;
+    });
   return addIndices(unindexedResult);
 }
 
@@ -1593,6 +1642,7 @@ function incomesTableDiv(
         <div className="dataGridIncomes">
           <DataGrid
             deleteFunction={deleteIncome}
+            setFavouriteFunction={setFavouriteIncome}
             handleGridRowsUpdated={function () {
               return handleIncomeGridRowsUpdated(
                 model,
@@ -1611,6 +1661,7 @@ function incomesTableDiv(
                 formatter: <SimpleFormatter name="name" value="unset" />,
               },
               */
+              faveColumn,
               {
                 ...defaultColumn,
                 key: 'NAME',
@@ -1724,27 +1775,32 @@ function expensesForTable(
   model: ModelData,
   todaysValues: Map<string, ExpenseVal>,
 ) {
-  const unindexedResult = model.expenses.map((obj: Expense) => {
-    let todaysVForTable = 0.0;
-    const todaysV = todaysValues.get(obj.NAME);
-    if (todaysV !== undefined) {
-      if (!todaysV.hasEnded) {
-        todaysVForTable = todaysV.expenseVal;
+  const unindexedResult = model.expenses
+    .filter((obj: Item) => {
+      return !favouritesOnly() || obj.FAVOURITE;
+    })
+    .map((obj: Expense) => {
+      let todaysVForTable = 0.0;
+      const todaysV = todaysValues.get(obj.NAME);
+      if (todaysV !== undefined) {
+        if (!todaysV.hasEnded) {
+          todaysVForTable = todaysV.expenseVal;
+        }
       }
-    }
-    const mapResult = {
-      END: obj.END,
-      GROWS_WITH_CPI: makeYesNoFromBoolean(!obj.CPI_IMMUNE),
-      CATEGORY: obj.CATEGORY,
-      NAME: obj.NAME,
-      START: obj.START,
-      VALUE: obj.VALUE,
-      VALUE_SET: obj.VALUE_SET,
-      RECURRENCE: obj.RECURRENCE,
-      TODAYSVALUE: `${todaysVForTable}`,
-    };
-    return mapResult;
-  });
+      const mapResult = {
+        END: obj.END,
+        GROWS_WITH_CPI: makeYesNoFromBoolean(!obj.CPI_IMMUNE),
+        CATEGORY: obj.CATEGORY,
+        NAME: obj.NAME,
+        FAVOURITE: obj.FAVOURITE,
+        START: obj.START,
+        VALUE: obj.VALUE,
+        VALUE_SET: obj.VALUE_SET,
+        RECURRENCE: obj.RECURRENCE,
+        TODAYSVALUE: `${todaysVForTable}`,
+      };
+      return mapResult;
+    });
   return addIndices(unindexedResult);
 }
 
@@ -1761,6 +1817,7 @@ function expensesTableDiv(
         display: 'block',
       }}
     >
+      {/*
       <Button
         onClick={() => {
           deleteAll(
@@ -1772,10 +1829,12 @@ function expensesTableDiv(
       >
         delete all expenses
       </Button>
+      */}
       <fieldset>
         <div className="dataGridExpenses">
           <DataGrid
             deleteFunction={deleteExpense}
+            setFavouriteFunction={setFavouriteExpense}
             handleGridRowsUpdated={function () {
               return handleExpenseGridRowsUpdated(
                 model,
@@ -1794,6 +1853,7 @@ function expensesTableDiv(
                 formatter: <SimpleFormatter name="name" value="unset" />,
               },
               */
+              faveColumn,
               {
                 ...defaultColumn,
                 key: 'NAME',
@@ -1917,6 +1977,9 @@ const settingsToExcludeFromTableView: string[] = [
 function settingsForTable(model: ModelData, doShow: (s: Setting) => boolean) {
   const data = model.settings;
   const unindexedResult = data
+    .filter((obj: Item) => {
+      return !favouritesOnly() || obj.FAVOURITE;
+    })
     .filter(doShow)
     .filter((obj: Setting) => {
       return (
@@ -1929,6 +1992,7 @@ function settingsForTable(model: ModelData, doShow: (s: Setting) => boolean) {
       showObj(`obj = ${obj}`);
       const mapResult = {
         NAME: obj.NAME,
+        FAVOURITE: obj.FAVOURITE,
         VALUE: obj.VALUE,
         HINT: obj.HINT,
       };
@@ -1952,6 +2016,7 @@ function customSettingsTable(
   return (
     <DataGrid
       deleteFunction={deleteSetting}
+      setFavouriteFunction={setFavouriteSetting}
       handleGridRowsUpdated={function () {
         return handleSettingGridRowsUpdated(
           model,
@@ -1970,6 +2035,7 @@ function customSettingsTable(
           formatter: <SimpleFormatter name="name" value="unset" />,
         },
         */
+        faveColumn,
         {
           ...defaultColumn,
           key: 'NAME',
@@ -2005,6 +2071,7 @@ function adjustSettingsTable(
   return (
     <DataGrid
       deleteFunction={deleteSetting}
+      setFavouriteFunction={setFavouriteSetting}
       handleGridRowsUpdated={function () {
         return handleSettingGridRowsUpdated(
           model,
@@ -2023,6 +2090,7 @@ function adjustSettingsTable(
           formatter: <SimpleFormatter name="name" value="unset" />,
         },
         */
+        faveColumn,
         {
           ...defaultColumn,
           key: 'NAME',
@@ -2088,6 +2156,7 @@ export function settingsTableDiv(
       {collapsibleFragment(
         <DataGrid
           deleteFunction={deleteSetting}
+          setFavouriteFunction={setFavouriteSetting}
           handleGridRowsUpdated={function () {
             return handleSettingGridRowsUpdated(
               model,
@@ -2101,13 +2170,14 @@ export function settingsTableDiv(
           })}
           columns={[
             /*
-          {
-            ...defaultColumn,
-            key: 'index',
-            name: 'index',
-            formatter: <SimpleFormatter name="name" value="unset" />,
-          },
-          */
+            {
+              ...defaultColumn,
+              key: 'index',
+              name: 'index',
+              formatter: <SimpleFormatter name="name" value="unset" />,
+            },
+            */
+            faveColumn,
             {
               ...defaultColumn,
               key: 'NAME',
@@ -2213,6 +2283,7 @@ export function reportDiv(
       />
       <DataGrid
         deleteFunction={undefined}
+        setFavouriteFunction={undefined}
         handleGridRowsUpdated={function () {
           return false;
         }}
@@ -2239,6 +2310,7 @@ export function reportDiv(
               />
             ),
           },
+          faveColumn,
           {
             ...defaultColumn,
             key: 'NAME',
@@ -2462,6 +2534,7 @@ export function calcOptimizer(
   const icd: ItemChartData = {
     item: {
       NAME: 'optimisation result',
+      FAVOURITE: undefined,
     },
     chartDataPoints: cdps,
   };
@@ -2516,6 +2589,7 @@ export function optimizerDiv(
       )}
       <DataGrid
         deleteFunction={undefined}
+        setFavouriteFunction={undefined}
         handleGridRowsUpdated={function () {
           return false;
         }}

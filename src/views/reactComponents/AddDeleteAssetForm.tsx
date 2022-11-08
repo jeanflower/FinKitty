@@ -675,6 +675,7 @@ export class AddDeleteAssetForm extends Component<
 
     const revalueTransaction: Transaction = {
       NAME: `${newName}`,
+      FAVOURITE: false,
       FROM: '',
       FROM_ABSOLUTE: false,
       FROM_VALUE: '0.0',
@@ -787,6 +788,7 @@ export class AddDeleteAssetForm extends Component<
 
       const asset1: Asset = {
         NAME: asset1Name,
+        FAVOURITE: false,
         VALUE: this.state.VALUE,
         QUANTITY: '', // pensions are continuous
         START: this.state.START,
@@ -806,6 +808,7 @@ export class AddDeleteAssetForm extends Component<
 
       const asset2: Asset = {
         NAME: asset2Name,
+        FAVOURITE: false,
         VALUE: '0.0',
         QUANTITY: '', // pensions are continuous
         START: this.state.START,
@@ -825,6 +828,7 @@ export class AddDeleteAssetForm extends Component<
 
       const asset3: Asset = {
         NAME: asset3Name,
+        FAVOURITE: false,
         VALUE: '0.0',
         QUANTITY: '', // pensions are continuous
         START: this.state.START,
@@ -844,6 +848,7 @@ export class AddDeleteAssetForm extends Component<
 
       const asset4: Asset = {
         NAME: asset4Name,
+        FAVOURITE: false,
         VALUE: '0.0',
         QUANTITY: '', // pensions are continuous
         START: this.state.START,
@@ -899,6 +904,7 @@ export class AddDeleteAssetForm extends Component<
 
       const contributions: Transaction = {
         NAME: (parseYNSS.value ? pensionSS : pension) + this.state.NAME,
+        FAVOURITE: false,
         FROM: this.state.DCP_INCOME_SOURCE,
         FROM_ABSOLUTE: false,
         FROM_VALUE: this.state.DCP_CONTRIBUTION_AMOUNT,
@@ -927,6 +933,7 @@ export class AddDeleteAssetForm extends Component<
       }
       const crystallizeTaxFree: Transaction = {
         NAME: moveTaxFreePart + this.state.NAME,
+        FAVOURITE: false,
         FROM: asset1Name,
         FROM_ABSOLUTE: false,
         FROM_VALUE: '0.25', // TODO move hard coded value out of UI code
@@ -955,6 +962,7 @@ export class AddDeleteAssetForm extends Component<
       }
       const crystallize: Transaction = {
         NAME: crystallizedPension + this.state.NAME,
+        FAVOURITE: false,
         FROM: asset1Name,
         FROM_ABSOLUTE: false,
         FROM_VALUE: '1.0',
@@ -985,6 +993,7 @@ export class AddDeleteAssetForm extends Component<
       if (this.state.DCP_TRANSFER_TO !== '') {
         transfer = {
           NAME: transferCrystallizedPension + this.state.NAME,
+          FAVOURITE: false,
           FROM: asset3Name,
           FROM_ABSOLUTE: false,
           FROM_VALUE: '1.0',
@@ -1062,6 +1071,7 @@ export class AddDeleteAssetForm extends Component<
       // log('adding something ' + showObj(this));
       const asset: Asset = {
         NAME: this.state.NAME,
+        FAVOURITE: false,
         VALUE: this.state.VALUE,
         QUANTITY: this.state.QUANTITY,
         START: this.state.START,

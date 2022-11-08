@@ -468,6 +468,7 @@ describe('evaluations tests', () => {
         },
         {
           NAME: 'Revalue cpi',
+          FAVOURITE: undefined,
           FROM: '',
           FROM_ABSOLUTE: true,
           FROM_VALUE: '',
@@ -532,6 +533,7 @@ describe('evaluations tests', () => {
         },
         {
           NAME: 'Revalue cpi',
+          FAVOURITE: undefined,
           FROM: '',
           FROM_ABSOLUTE: true,
           FROM_VALUE: '',
@@ -950,6 +952,7 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'valueSetTrigger',
+          FAVOURITE: undefined,
           DATE: 'January 1 2017',
         },
       ],
@@ -2097,6 +2100,7 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'then',
+          FAVOURITE: undefined,
           DATE: 'January 1 2018',
         },
       ],
@@ -2483,6 +2487,7 @@ describe('evaluations tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'amountFrom',
+          FAVOURITE: undefined,
           VALUE: '100',
           HINT: '',
           TYPE: custom,
@@ -2555,12 +2560,14 @@ describe('evaluations tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'amountFrom',
+          FAVOURITE: undefined,
           VALUE: '10x',
           HINT: '',
           TYPE: custom,
         },
         {
           NAME: 'x',
+          FAVOURITE: undefined,
           VALUE: '10',
           HINT: '',
           TYPE: custom,
@@ -4110,6 +4117,7 @@ describe('evaluations tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'x',
+          FAVOURITE: undefined,
           VALUE: '1.00',
           HINT: 'growthValue',
           TYPE: adjustableType,
@@ -4234,6 +4242,7 @@ describe('evaluations tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'x',
+          FAVOURITE: undefined,
           VALUE: '1.00',
           HINT: 'growthValue',
           TYPE: adjustableType,
@@ -4358,6 +4367,7 @@ describe('evaluations tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'x',
+          FAVOURITE: undefined,
           VALUE: '1.00',
           HINT: 'growthValue',
           TYPE: adjustableType,
@@ -4482,6 +4492,7 @@ describe('evaluations tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'x',
+          FAVOURITE: undefined,
           VALUE: '1.00',
           HINT: 'growthValue',
           TYPE: adjustableType,
@@ -4613,6 +4624,7 @@ describe('evaluations tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'g',
+          FAVOURITE: undefined,
           VALUE: '2.00',
           HINT: 'growthValue',
           TYPE: adjustableType,
@@ -4815,6 +4827,7 @@ describe('evaluations tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'g',
+          FAVOURITE: undefined,
           VALUE: '2.00',
           HINT: 'growthValue',
           TYPE: adjustableType,
@@ -5515,6 +5528,7 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'a+',
+          FAVOURITE: undefined,
           DATE: '1 Jan 2018',
         },
       ],
@@ -5550,6 +5564,7 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'a-',
+          FAVOURITE: undefined,
           DATE: '1 Jan 2018',
         },
       ],
@@ -5585,6 +5600,7 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'a',
+          FAVOURITE: undefined,
           DATE: '2 Jan 2018',
         },
       ],
@@ -5620,6 +5636,7 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'a',
+          FAVOURITE: undefined,
           DATE: '31 Dec 2017',
         },
       ],
@@ -5655,6 +5672,7 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'a',
+          FAVOURITE: undefined,
           DATE: '1 Feb 2018',
         },
       ],
@@ -5690,6 +5708,7 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'a',
+          FAVOURITE: undefined,
           DATE: '1 Dec 2017',
         },
       ],
@@ -5725,6 +5744,7 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'a',
+          FAVOURITE: undefined,
           DATE: '1 Jan 2019',
         },
       ],
@@ -5760,6 +5780,7 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'a',
+          FAVOURITE: undefined,
           DATE: '1 Jan 2017',
         },
       ],
@@ -5795,10 +5816,12 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'a',
+          FAVOURITE: undefined,
           DATE: '3 Jan 2018',
         },
         {
           NAME: 'b',
+          FAVOURITE: undefined,
           DATE: 'a-2d',
         },
       ],
@@ -5834,10 +5857,12 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'a',
+          FAVOURITE: undefined,
           DATE: 'b-1d',
         },
         {
           NAME: 'b',
+          FAVOURITE: undefined,
           DATE: 'a-2d',
         },
       ],
@@ -6253,6 +6278,7 @@ describe('evaluations tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: thingName,
+          FAVOURITE: undefined,
           VALUE: '123',
           HINT: 'something',
           TYPE: constType, // eventually we will want to adjust...
@@ -6356,6 +6382,7 @@ describe('evaluations tests', () => {
 
     model.transactions.push({
       NAME: 'Revalue a setting',
+      FAVOURITE: undefined,
       FROM: '',
       FROM_ABSOLUTE: true,
       FROM_VALUE: '',
@@ -6627,6 +6654,7 @@ describe('evaluations tests', () => {
       transactions: [
         {
           NAME: 'Revalue grow cpi',
+          FAVOURITE: undefined,
           FROM: '',
           FROM_ABSOLUTE: true,
           FROM_VALUE: '',
@@ -6641,6 +6669,7 @@ describe('evaluations tests', () => {
         },
         {
           NAME: 'Revalue drop cpi',
+          FAVOURITE: undefined,
           FROM: '',
           FROM_ABSOLUTE: true,
           FROM_VALUE: '',
@@ -6655,6 +6684,7 @@ describe('evaluations tests', () => {
         },
         {
           NAME: 'Revalue grow x',
+          FAVOURITE: undefined,
           FROM: '',
           FROM_ABSOLUTE: true,
           FROM_VALUE: '',
@@ -6669,6 +6699,7 @@ describe('evaluations tests', () => {
         },
         {
           NAME: 'Revalue drop x',
+          FAVOURITE: undefined,
           FROM: '',
           FROM_ABSOLUTE: true,
           FROM_VALUE: '',
@@ -6683,6 +6714,7 @@ describe('evaluations tests', () => {
         },
         {
           NAME: 'Revalue grow rises',
+          FAVOURITE: undefined,
           FROM: '',
           FROM_ABSOLUTE: true,
           FROM_VALUE: '',
@@ -6697,6 +6729,7 @@ describe('evaluations tests', () => {
         },
         {
           NAME: 'Revalue drop rises',
+          FAVOURITE: undefined,
           FROM: '',
           FROM_ABSOLUTE: true,
           FROM_VALUE: '',
@@ -6859,6 +6892,7 @@ describe('evaluations tests', () => {
       transactions: [
         {
           NAME: 'Revalue grow cpi',
+          FAVOURITE: undefined,
           FROM: '',
           FROM_ABSOLUTE: true,
           FROM_VALUE: '',
@@ -6873,6 +6907,7 @@ describe('evaluations tests', () => {
         },
         {
           NAME: 'Revalue drop cpi',
+          FAVOURITE: undefined,
           FROM: '',
           FROM_ABSOLUTE: true,
           FROM_VALUE: '',
@@ -7003,6 +7038,7 @@ describe('evaluations tests', () => {
       transactions: [
         {
           NAME: 'Revalue grow cpi',
+          FAVOURITE: undefined,
           FROM: '',
           FROM_ABSOLUTE: true,
           FROM_VALUE: '',
@@ -7017,6 +7053,7 @@ describe('evaluations tests', () => {
         },
         {
           NAME: 'Revalue drop cpi',
+          FAVOURITE: undefined,
           FROM: '',
           FROM_ABSOLUTE: true,
           FROM_VALUE: '',

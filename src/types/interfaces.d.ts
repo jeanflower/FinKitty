@@ -1,5 +1,6 @@
 export interface Item {
   NAME: string;
+  FAVOURITE: boolean | undefined;
 }
 export interface ItemCategory extends Item {
   CATEGORY: string;
