@@ -1,4 +1,10 @@
-import { ChartData, Item, ModelData, ExpenseVal } from '../types/interfaces';
+import {
+  ChartData,
+  Item,
+  ModelData,
+  ExpenseVal,
+  Expense,
+} from '../types/interfaces';
 import { checkExpense, checkTransaction } from '../models/checks';
 import {
   defaultColumn,
@@ -30,11 +36,12 @@ import { lessThan } from '../utils/stringUtils';
 import { collapsibleFragment } from './tablePages';
 import { log, printDebug } from '../utils/utils';
 import { getDisplay } from '../utils/viewUtils';
+import { simpleExpense } from '../models/exampleModels';
 
 function addToMap(
-  name: string,
+  name: Expense,
   val: ExpenseVal,
-  myMap: Map<string, ExpenseVal>,
+  myMap: Map<Expense, ExpenseVal>,
 ) {
   const existingEntry = myMap.get(name);
   if (existingEntry === undefined) {
@@ -44,7 +51,7 @@ function addToMap(
   }
 }
 
-function makeDataGrid(myMap: Map<string, ExpenseVal>, model: ModelData) {
+function makeDataGrid(myMap: Map<Expense, ExpenseVal>, model: ModelData) {
   return (
     <DataGrid
       deleteFunction={undefined}
@@ -62,12 +69,13 @@ function makeDataGrid(myMap: Map<string, ExpenseVal>, model: ModelData) {
             if (printDebug()) {
               log(`key[0] = ${key[0]}, key[1] = ${key[1]}`);
             }
-            return {
-              NAME: key[0],
+            const result = {
+              NAME: key[0].NAME,
               VALUE: `${key[1].expenseVal}`,
               FREQ: `${key[1].expenseFreq}`,
               CATEGORY: `${key[1].category}`,
             };
+            return result;
           }),
       ).sort((a: Item, b: Item) => lessThan(a.NAME, b.NAME))}
       columns={[
@@ -117,13 +125,13 @@ function makeDataGrid(myMap: Map<string, ExpenseVal>, model: ModelData) {
 
 export function todaysExpensesTable(
   model: ModelData,
-  todaysValues: Map<string, ExpenseVal>,
+  todaysValues: Map<Expense, ExpenseVal>,
 ) {
   if (todaysValues.size === 0) {
     return;
   }
 
-  const categorisedValues = new Map<string, ExpenseVal>();
+  const categorisedValues = new Map<Expense, ExpenseVal>();
 
   const entries = Array.from(todaysValues.entries());
   for (const key of entries) {
@@ -133,7 +141,11 @@ export function todaysExpensesTable(
         addToMap(key[0], key[1], categorisedValues);
       } else {
         const catName: string = key[1].category;
-        addToMap(`${catName}${key[1].expenseFreq}`, key[1], categorisedValues);
+        const exp = {
+          ...simpleExpense,
+          NAME: `${catName}${key[1].expenseFreq}`,
+        };
+        addToMap(exp, key[1], categorisedValues);
       }
     }
   }
@@ -157,7 +169,7 @@ export function expensesDiv(
   deleteExpenses: (arg: string[]) => void,
   doChecks: boolean,
   expensesChartData: ChartData,
-  todaysValues: Map<string, ExpenseVal>,
+  todaysValues: Map<Expense, ExpenseVal>,
   getStartDate: (() => string) | undefined = undefined,
   updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
   getEndDate: (() => string) | undefined = undefined,

@@ -9,7 +9,6 @@ import {
   checkModelOnEditOption,
   checkOverwriteOption,
   evalModeOption,
-  favourites,
   goToOverviewPageOption,
 } from '../../localization/stringConstants';
 

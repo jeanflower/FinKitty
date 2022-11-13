@@ -155,6 +155,12 @@ export class CreateModelForm extends Component<
   private async copyModel(model: ModelData) {
     // log(`in copyModel`);
     const newName = this.state.newName;
+    if (newName.includes('{')) {
+      this.props.showAlert(
+        `Names of models are not permitted to include characaters '{'`,
+      );
+      return;
+    }
     if (newName.length === 0) {
       this.props.showAlert('Please provide a new name for the model');
       return;

@@ -40,6 +40,10 @@ import {
   ExpenseVal,
   IncomeVal,
   SettingVal,
+  Setting,
+  Expense,
+  Income,
+  Asset,
 } from '../../types/interfaces';
 import {
   log,
@@ -125,18 +129,31 @@ describe('evaluations tests', () => {
     expect(evalsAndValues.todaysAssetValues.size).toEqual(0);
     expect(evalsAndValues.todaysDebtValues.size).toEqual(0);
     expect(evalsAndValues.todaysExpenseValues.size).toEqual(1);
-    expect(evalsAndValues.todaysExpenseValues.get('Phon')).toEqual({
-      expenseVal: 0,
-      category: '',
-      expenseFreq: '1m',
-      hasStarted: false,
-      hasEnded: false,
+    const PhonE = [...evalsAndValues.todaysExpenseValues.keys()].find((s) => {
+      return s.NAME === 'Phon';
     });
+    expect(PhonE).toBeDefined();
+    if (PhonE) {
+      expect(evalsAndValues.todaysExpenseValues.get(PhonE)).toEqual({
+        expenseVal: 0,
+        category: '',
+        expenseFreq: '1m',
+        hasStarted: false,
+        hasEnded: false,
+      });
+    }
     expect(evalsAndValues.todaysIncomeValues.size).toEqual(0);
     expect(evalsAndValues.todaysSettingValues.size).toEqual(1);
-    expect(evalsAndValues.todaysSettingValues.get('cpi')).toEqual({
-      settingVal: '0',
+
+    const cpiS = [...evalsAndValues.todaysSettingValues.keys()].find((s) => {
+      return s.NAME === 'cpi';
     });
+    expect(cpiS).toBeDefined();
+    if (cpiS) {
+      expect(evalsAndValues.todaysSettingValues.get(cpiS)).toEqual({
+        settingVal: '0',
+      });
+    }
     // log(showObj(evals));
     expect(evalsAndValues.evaluations.length).toBe(0);
 
@@ -198,26 +215,39 @@ describe('evaluations tests', () => {
     expect(evalsAndValues.todaysAssetValues.size).toEqual(0);
     expect(evalsAndValues.todaysDebtValues.size).toEqual(0);
     expect(evalsAndValues.todaysExpenseValues.size).toEqual(1);
-    expect(
-      evalsAndValues.todaysExpenseValues.get('Phon')?.expenseVal,
-    ).toBeCloseTo(1.01907);
-    expect(evalsAndValues.todaysExpenseValues.get('Phon')?.category).toEqual(
-      '',
-    );
-    expect(evalsAndValues.todaysExpenseValues.get('Phon')?.expenseFreq).toEqual(
-      '1m',
-    );
-    expect(evalsAndValues.todaysExpenseValues.get('Phon')?.hasStarted).toEqual(
-      true,
-    );
-    expect(evalsAndValues.todaysExpenseValues.get('Phon')?.hasEnded).toEqual(
-      true,
-    );
+    expect(evalsAndValues.todaysExpenseValues.size).toEqual(1);
+    const PhonE = [...evalsAndValues.todaysExpenseValues.keys()].find((s) => {
+      return s.NAME === 'Phon';
+    });
+    expect(PhonE).toBeDefined();
+    if (PhonE) {
+      expect(
+        evalsAndValues.todaysExpenseValues.get(PhonE)?.expenseVal,
+      ).toBeCloseTo(1.01907);
+      expect(evalsAndValues.todaysExpenseValues.get(PhonE)?.category).toEqual(
+        '',
+      );
+      expect(
+        evalsAndValues.todaysExpenseValues.get(PhonE)?.expenseFreq,
+      ).toEqual('1m');
+      expect(evalsAndValues.todaysExpenseValues.get(PhonE)?.hasStarted).toEqual(
+        true,
+      );
+      expect(evalsAndValues.todaysExpenseValues.get(PhonE)?.hasEnded).toEqual(
+        true,
+      );
+    }
     expect(evalsAndValues.todaysIncomeValues.size).toEqual(0);
     expect(evalsAndValues.todaysSettingValues.size).toEqual(1);
-    expect(evalsAndValues.todaysSettingValues.get('cpi')).toEqual({
-      settingVal: '12',
+    const cpiS = [...evalsAndValues.todaysSettingValues.keys()].find((s) => {
+      return s.NAME === 'cpi';
     });
+    expect(cpiS).toBeDefined();
+    if (cpiS) {
+      expect(evalsAndValues.todaysSettingValues.get(cpiS)).toEqual({
+        settingVal: '12',
+      });
+    }
 
     // printTestCodeForEvals(evals);
 
@@ -229,11 +259,11 @@ describe('evaluations tests', () => {
 
     const result = makeChartDataFromEvaluations(model, viewSettings, {
       evaluations: evals,
-      todaysAssetValues: new Map<string, AssetOrDebtVal>(),
-      todaysDebtValues: new Map<string, AssetOrDebtVal>(),
-      todaysIncomeValues: new Map<string, IncomeVal>(),
-      todaysExpenseValues: new Map<string, ExpenseVal>(),
-      todaysSettingValues: new Map<string, SettingVal>(),
+      todaysAssetValues: new Map<Asset, AssetOrDebtVal>(),
+      todaysDebtValues: new Map<Asset, AssetOrDebtVal>(),
+      todaysIncomeValues: new Map<Income, IncomeVal>(),
+      todaysExpenseValues: new Map<Expense, ExpenseVal>(),
+      todaysSettingValues: new Map<Setting, SettingVal>(),
     });
 
     // printTestCodeForChart(result);
@@ -316,11 +346,11 @@ describe('evaluations tests', () => {
 
     const result = makeChartDataFromEvaluations(model, viewSettings, {
       evaluations: evals,
-      todaysAssetValues: new Map<string, AssetOrDebtVal>(),
-      todaysDebtValues: new Map<string, AssetOrDebtVal>(),
-      todaysIncomeValues: new Map<string, IncomeVal>(),
-      todaysExpenseValues: new Map<string, ExpenseVal>(),
-      todaysSettingValues: new Map<string, SettingVal>(),
+      todaysAssetValues: new Map<Asset, AssetOrDebtVal>(),
+      todaysDebtValues: new Map<Asset, AssetOrDebtVal>(),
+      todaysIncomeValues: new Map<Income, IncomeVal>(),
+      todaysExpenseValues: new Map<Expense, ExpenseVal>(),
+      todaysSettingValues: new Map<Setting, SettingVal>(),
     });
 
     // printTestCodeForChart(result);
@@ -387,18 +417,30 @@ describe('evaluations tests', () => {
     expect(evalsAndValues.todaysAssetValues.size).toEqual(0);
     expect(evalsAndValues.todaysDebtValues.size).toEqual(0);
     expect(evalsAndValues.todaysExpenseValues.size).toEqual(1);
-    expect(evalsAndValues.todaysExpenseValues.get('Phon')).toEqual({
-      expenseVal: 1.0190676230605216,
-      category: '',
-      expenseFreq: '2m',
-      hasStarted: true,
-      hasEnded: false,
+    const PhonE = [...evalsAndValues.todaysExpenseValues.keys()].find((s) => {
+      return s.NAME === 'Phon';
     });
+    expect(PhonE).toBeDefined();
+    if (PhonE) {
+      expect(evalsAndValues.todaysExpenseValues.get(PhonE)).toEqual({
+        expenseVal: 1.0190676230605216,
+        category: '',
+        expenseFreq: '2m',
+        hasStarted: true,
+        hasEnded: false,
+      });
+    }
     expect(evalsAndValues.todaysIncomeValues.size).toEqual(0);
     expect(evalsAndValues.todaysSettingValues.size).toEqual(1);
-    expect(evalsAndValues.todaysSettingValues.get('cpi')).toEqual({
-      settingVal: '12',
+    const cpiS = [...evalsAndValues.todaysSettingValues.keys()].find((s) => {
+      return s.NAME === 'cpi';
     });
+    expect(cpiS).toBeDefined();
+    if (cpiS) {
+      expect(evalsAndValues.todaysSettingValues.get(cpiS)).toEqual({
+        settingVal: '12',
+      });
+    }
 
     // printTestCodeForEvals(evals);
 
@@ -410,11 +452,11 @@ describe('evaluations tests', () => {
 
     const result = makeChartDataFromEvaluations(model, viewSettings, {
       evaluations: evals,
-      todaysAssetValues: new Map<string, AssetOrDebtVal>(),
-      todaysDebtValues: new Map<string, AssetOrDebtVal>(),
-      todaysIncomeValues: new Map<string, IncomeVal>(),
-      todaysExpenseValues: new Map<string, ExpenseVal>(),
-      todaysSettingValues: new Map<string, SettingVal>(),
+      todaysAssetValues: new Map<Asset, AssetOrDebtVal>(),
+      todaysDebtValues: new Map<Asset, AssetOrDebtVal>(),
+      todaysIncomeValues: new Map<Income, IncomeVal>(),
+      todaysExpenseValues: new Map<Expense, ExpenseVal>(),
+      todaysSettingValues: new Map<Setting, SettingVal>(),
     });
 
     // printTestCodeForChart(result);
@@ -598,11 +640,11 @@ describe('evaluations tests', () => {
 
     const result = makeChartDataFromEvaluations(model, viewSettings, {
       evaluations: evals,
-      todaysAssetValues: new Map<string, AssetOrDebtVal>(),
-      todaysDebtValues: new Map<string, AssetOrDebtVal>(),
-      todaysIncomeValues: new Map<string, IncomeVal>(),
-      todaysExpenseValues: new Map<string, ExpenseVal>(),
-      todaysSettingValues: new Map<string, SettingVal>(),
+      todaysAssetValues: new Map<Asset, AssetOrDebtVal>(),
+      todaysDebtValues: new Map<Asset, AssetOrDebtVal>(),
+      todaysIncomeValues: new Map<Income, IncomeVal>(),
+      todaysExpenseValues: new Map<Expense, ExpenseVal>(),
+      todaysSettingValues: new Map<Setting, SettingVal>(),
     });
 
     // log(showObj(result));

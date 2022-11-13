@@ -17,8 +17,12 @@ import { adjustableType } from '../localization/stringConstants';
 
 import { diffModels } from '../models/diffModels';
 import { checkData } from '../models/checks';
-import { minimalModel } from '../models/exampleModels';
-import { markForUndo, revertToUndoModel } from '../models/modelUtils';
+import { minimalModel, simpleExampleData } from '../models/exampleModels';
+import {
+  makeModelFromJSON,
+  markForUndo,
+  revertToUndoModel,
+} from '../models/modelUtils';
 
 const showDBInteraction = false;
 
@@ -72,7 +76,10 @@ async function loadModelFromDB(
     model = await getDB().loadModel(userID, modelName);
   } catch (err) {
     /* istanbul ignore next */
-    alert(`Cannot load ${modelName}; err = ${err}`);
+    alert(
+      `Cannot load ${modelName}; err = ${err} - will create a simple model instead`,
+    );
+    model = makeModelFromJSON(simpleExampleData, modelName);
   }
   /* istanbul ignore if  */
   if (showDBInteraction) {
@@ -129,9 +136,10 @@ async function fillCacheFromDB(userID: string) {
       }
     } else {
       /* istanbul ignore next */
-      throw new Error(
-        `model name ${modelName} from DB but no model present???`,
-      );
+      // don't let toxic models prevent all other models from loading
+      //throw new Error(
+      //  `model name ${modelName} from DB but no model present???`,
+      //);
     }
     return;
   }

@@ -11,10 +11,15 @@ import {
 import { log, printDebug, showObj } from '../utils/utils';
 
 function diffTriggers(it1: Item, it2: Item): string {
-  const t1 = it1 as Trigger;
-  const t2 = it2 as Trigger;
-  if (t1.DATE !== t2.DATE) {
-    return `${it1.NAME}: date ${t1.DATE} !== ${t2.DATE}`;
+  const i1 = it1 as Trigger;
+  const i2 = it2 as Trigger;
+  if (i1.DATE !== i2.DATE) {
+    return `${it1.NAME}: date ${i1.DATE} !== ${i2.DATE}`;
+  }
+  if (i1.FAVOURITE && !i2.FAVOURITE) {
+    return `${it1.NAME}: became favourite`;
+  } else if (!i1.FAVOURITE && i2.FAVOURITE) {
+    return `${it1.NAME}: no longer favourite`;
   }
   return '';
 }
@@ -42,118 +47,148 @@ function diffIncomes(it1: Item, it2: Item): string {
   if (i1.CATEGORY !== i2.CATEGORY) {
     return `${it1.NAME}: category ${i1.CATEGORY} !== ${i2.CATEGORY}`;
   }
+  if (i1.FAVOURITE && !i2.FAVOURITE) {
+    return `${it1.NAME}: became favourite`;
+  } else if (!i1.FAVOURITE && i2.FAVOURITE) {
+    return `${it1.NAME}: no longer favourite`;
+  }
+
   return '';
 }
 function diffExpenses(it1: Item, it2: Item): string {
-  const e1 = it1 as Expense;
-  const e2 = it2 as Expense;
-  if (e1.START !== e2.START) {
-    return `${it1.NAME}: start date ${e1.START} !== ${e2.START}`;
+  const i1 = it1 as Expense;
+  const i2 = it2 as Expense;
+  if (i1.START !== i2.START) {
+    return `${it1.NAME}: start date ${i1.START} !== ${i2.START}`;
   }
-  if (e1.END !== e2.END) {
-    return `${it1.NAME}: end date ${e1.END} !== ${e2.END}`;
+  if (i1.END !== i2.END) {
+    return `${it1.NAME}: end date ${i1.END} !== ${i2.END}`;
   }
-  if (e1.VALUE !== e2.VALUE) {
-    return `${it1.NAME}: value ${e1.VALUE} !== ${e2.VALUE}`;
+  if (i1.VALUE !== i2.VALUE) {
+    return `${it1.NAME}: value ${i1.VALUE} !== ${i2.VALUE}`;
   }
-  if (e1.VALUE_SET !== e2.VALUE_SET) {
-    return `${it1.NAME}: value set date ${e1.VALUE_SET} !== ${e2.VALUE_SET}`;
+  if (i1.VALUE_SET !== i2.VALUE_SET) {
+    return `${it1.NAME}: value set date ${i1.VALUE_SET} !== ${i2.VALUE_SET}`;
   }
-  if (e1.CPI_IMMUNE !== e2.CPI_IMMUNE) {
-    return `${it1.NAME}: cpi-immunity ${e1.CPI_IMMUNE} !== ${e2.CPI_IMMUNE}`;
+  if (i1.CPI_IMMUNE !== i2.CPI_IMMUNE) {
+    return `${it1.NAME}: cpi-immunity ${i1.CPI_IMMUNE} !== ${i2.CPI_IMMUNE}`;
   }
-  if (e1.RECURRENCE !== e2.RECURRENCE) {
-    return `${it1.NAME}: recurrence ${e1.RECURRENCE} !== ${e2.RECURRENCE}`;
+  if (i1.RECURRENCE !== i2.RECURRENCE) {
+    return `${it1.NAME}: recurrence ${i1.RECURRENCE} !== ${i2.RECURRENCE}`;
   }
-  if (e1.CATEGORY !== e2.CATEGORY) {
-    return `${it1.NAME}: category ${e1.CATEGORY} !== ${e2.CATEGORY}`;
+  if (i1.CATEGORY !== i2.CATEGORY) {
+    return `${it1.NAME}: category ${i1.CATEGORY} !== ${i2.CATEGORY}`;
   }
+  if (i1.FAVOURITE && !i2.FAVOURITE) {
+    return `${it1.NAME}: became favourite`;
+  } else if (!i1.FAVOURITE && i2.FAVOURITE) {
+    return `${it1.NAME}: no longer favourite`;
+  }
+
   return '';
 }
 function diffAssets(it1: Item, it2: Item): string {
-  const a1 = it1 as Asset;
-  const a2 = it2 as Asset;
-  if (a1.START !== a2.START) {
-    return `${it1.NAME}: start date ${a1.START} !== ${a2.START}`;
+  const i1 = it1 as Asset;
+  const i2 = it2 as Asset;
+  if (i1.START !== i2.START) {
+    return `${it1.NAME}: start date ${i1.START} !== ${i2.START}`;
   }
-  if (a1.VALUE !== a2.VALUE) {
-    return `${it1.NAME}: value ${a1.VALUE} !== ${a2.VALUE}`;
+  if (i1.VALUE !== i2.VALUE) {
+    return `${it1.NAME}: value ${i1.VALUE} !== ${i2.VALUE}`;
   }
-  if (a1.QUANTITY !== a2.QUANTITY) {
-    return `${it1.NAME}: quantity ${a1.QUANTITY} !== ${a2.QUANTITY}`;
+  if (i1.QUANTITY !== i2.QUANTITY) {
+    return `${it1.NAME}: quantity ${i1.QUANTITY} !== ${i2.QUANTITY}`;
   }
-  if (a1.CAN_BE_NEGATIVE !== a2.CAN_BE_NEGATIVE) {
-    return `${it1.NAME}: negativity ${a1.CAN_BE_NEGATIVE} !== ${a2.CAN_BE_NEGATIVE}`;
+  if (i1.CAN_BE_NEGATIVE !== i2.CAN_BE_NEGATIVE) {
+    return `${it1.NAME}: negativity ${i1.CAN_BE_NEGATIVE} !== ${i2.CAN_BE_NEGATIVE}`;
   }
-  if (a1.IS_A_DEBT !== a2.IS_A_DEBT) {
-    return `${it1.NAME}: is-debt ${a1.IS_A_DEBT} !== ${a2.IS_A_DEBT}`;
+  if (i1.IS_A_DEBT !== i2.IS_A_DEBT) {
+    return `${it1.NAME}: is-debt ${i1.IS_A_DEBT} !== ${i2.IS_A_DEBT}`;
   }
-  if (a1.GROWTH !== a2.GROWTH) {
-    return `${it1.NAME}: growth ${a1.GROWTH} !== ${a2.GROWTH}`;
+  if (i1.GROWTH !== i2.GROWTH) {
+    return `${it1.NAME}: growth ${i1.GROWTH} !== ${i2.GROWTH}`;
   }
-  if (a1.CPI_IMMUNE !== a2.CPI_IMMUNE) {
-    return `${it1.NAME}: cpi-immunity ${a1.CPI_IMMUNE} !== ${a2.CPI_IMMUNE}`;
+  if (i1.CPI_IMMUNE !== i2.CPI_IMMUNE) {
+    return `${it1.NAME}: cpi-immunity ${i1.CPI_IMMUNE} !== ${i2.CPI_IMMUNE}`;
   }
-  if (a1.PURCHASE_PRICE !== a2.PURCHASE_PRICE) {
-    return `${it1.NAME}: purchase price ${a1.PURCHASE_PRICE} !== ${a2.PURCHASE_PRICE}`;
+  if (i1.PURCHASE_PRICE !== i2.PURCHASE_PRICE) {
+    return `${it1.NAME}: purchase price ${i1.PURCHASE_PRICE} !== ${i2.PURCHASE_PRICE}`;
   }
-  if (a1.CATEGORY !== a2.CATEGORY) {
-    return `${it1.NAME}: category ${a1.CATEGORY} !== ${a2.CATEGORY}`;
+  if (i1.CATEGORY !== i2.CATEGORY) {
+    return `${it1.NAME}: category ${i1.CATEGORY} !== ${i2.CATEGORY}`;
   }
+  if (i1.FAVOURITE && !i2.FAVOURITE) {
+    return `${it1.NAME}: became favourite`;
+  } else if (!i1.FAVOURITE && i2.FAVOURITE) {
+    return `${it1.NAME}: no longer favourite`;
+  }
+
   return '';
 }
 
 function diffTransactions(it1: Item, it2: Item): string {
-  const t1 = it1 as Transaction;
-  const t2 = it2 as Transaction;
-  if (t1.DATE !== t2.DATE) {
-    return `${it1.NAME}: date ${t1.DATE} !== ${t2.DATE}`;
+  const i1 = it1 as Transaction;
+  const i2 = it2 as Transaction;
+  if (i1.DATE !== i2.DATE) {
+    return `${it1.NAME}: date ${i1.DATE} !== ${i2.DATE}`;
   }
-  if (t1.STOP_DATE !== t2.STOP_DATE) {
-    return `${it1.NAME}: end date ${t1.STOP_DATE} !== ${t2.STOP_DATE}`;
+  if (i1.STOP_DATE !== i2.STOP_DATE) {
+    return `${it1.NAME}: end date ${i1.STOP_DATE} !== ${i2.STOP_DATE}`;
   }
-  if (t1.TO !== t2.TO) {
-    return `${it1.NAME}: to ${t1.TO} !== ${t2.TO}`;
+  if (i1.TO !== i2.TO) {
+    return `${it1.NAME}: to ${i1.TO} !== ${i2.TO}`;
   }
-  if (t1.TO_VALUE !== t2.TO_VALUE) {
-    return `${it1.NAME}: to value ${t1.TO_VALUE} !== ${t2.TO_VALUE}`;
+  if (i1.TO_VALUE !== i2.TO_VALUE) {
+    return `${it1.NAME}: to value ${i1.TO_VALUE} !== ${i2.TO_VALUE}`;
   }
-  if (t1.FROM !== t2.FROM) {
-    return `${it1.NAME}: from ${t1.FROM} !== ${t2.FROM}`;
+  if (i1.FROM !== i2.FROM) {
+    return `${it1.NAME}: from ${i1.FROM} !== ${i2.FROM}`;
   }
-  if (t1.FROM_ABSOLUTE !== t2.FROM_ABSOLUTE) {
-    return `${it1.NAME}: from absolute ${t1.FROM_ABSOLUTE} !== ${t2.FROM_ABSOLUTE}`;
+  if (i1.FROM_ABSOLUTE !== i2.FROM_ABSOLUTE) {
+    return `${it1.NAME}: from absolute ${i1.FROM_ABSOLUTE} !== ${i2.FROM_ABSOLUTE}`;
   }
-  if (t1.FROM_VALUE !== t2.FROM_VALUE) {
+  if (i1.FROM_VALUE !== i2.FROM_VALUE) {
     //log(`${showObj(t1)}, \n${showObj(t2)}`); // Sometimes 0 and 0.0...
-    return `${it1.NAME}: from value ${t1.FROM_VALUE} !== ${t2.FROM_VALUE}`;
+    return `${it1.NAME}: from value ${i1.FROM_VALUE} !== ${i2.FROM_VALUE}`;
   }
-  if (t1.TO_ABSOLUTE !== t2.TO_ABSOLUTE) {
-    return `${it1.NAME}: to absolute ${t1.TO_ABSOLUTE} !== ${t2.TO_ABSOLUTE}`;
+  if (i1.TO_ABSOLUTE !== i2.TO_ABSOLUTE) {
+    return `${it1.NAME}: to absolute ${i1.TO_ABSOLUTE} !== ${i2.TO_ABSOLUTE}`;
   }
-  if (t1.TYPE !== t2.TYPE) {
-    return `${it1.NAME}: type ${t1.TYPE} !== ${t2.TYPE}`;
+  if (i1.TYPE !== i2.TYPE) {
+    return `${it1.NAME}: type ${i1.TYPE} !== ${i2.TYPE}`;
   }
-  if (t1.RECURRENCE !== t2.RECURRENCE) {
-    return `${it1.NAME}: recurrence ${t1.RECURRENCE} !== ${t2.RECURRENCE}`;
+  if (i1.RECURRENCE !== i2.RECURRENCE) {
+    return `${it1.NAME}: recurrence ${i1.RECURRENCE} !== ${i2.RECURRENCE}`;
   }
-  if (t1.CATEGORY !== t2.CATEGORY) {
-    return `${it1.NAME}: category ${t1.CATEGORY} !== ${t2.CATEGORY}`;
+  if (i1.CATEGORY !== i2.CATEGORY) {
+    return `${it1.NAME}: category ${i1.CATEGORY} !== ${i2.CATEGORY}`;
   }
+  if (i1.FAVOURITE && !i2.FAVOURITE) {
+    return `${it1.NAME}: became favourite`;
+  } else if (!i1.FAVOURITE && i2.FAVOURITE) {
+    return `${it1.NAME}: no longer favourite`;
+  }
+
   return '';
 }
 function diffSettings(it1: Item, it2: Item): string {
-  const s1 = it1 as Setting;
-  const s2 = it2 as Setting;
-  if (s1.VALUE !== s2.VALUE) {
-    return `${it1.NAME}: value ${s1.VALUE} !== ${s2.VALUE}`;
+  const i1 = it1 as Setting;
+  const i2 = it2 as Setting;
+  if (i1.VALUE !== i2.VALUE) {
+    return `${it1.NAME}: value ${i1.VALUE} !== ${i2.VALUE}`;
   }
-  if (s1.HINT !== s2.HINT) {
-    return `${it1.NAME}: hint ${s1.HINT} !== ${s2.HINT}`;
+  if (i1.HINT !== i2.HINT) {
+    return `${it1.NAME}: hint ${i1.HINT} !== ${i2.HINT}`;
   }
-  if (s1.TYPE !== s2.TYPE) {
-    return `${it1.NAME}: type ${s1.TYPE} !== ${s2.TYPE}`;
+  if (i1.TYPE !== i2.TYPE) {
+    return `${it1.NAME}: type ${i1.TYPE} !== ${i2.TYPE}`;
   }
+  if (i1.FAVOURITE && !i2.FAVOURITE) {
+    return `${it1.NAME}: became favourite`;
+  } else if (!i1.FAVOURITE && i2.FAVOURITE) {
+    return `${it1.NAME}: no longer favourite`;
+  }
+
   return '';
 }
 function diffItems(

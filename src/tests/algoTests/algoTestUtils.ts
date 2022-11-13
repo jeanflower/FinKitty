@@ -67,6 +67,10 @@ import {
   IncomeVal,
   ExpenseVal,
   SettingVal,
+  Setting,
+  Expense,
+  Income,
+  Asset,
 } from '../../types/interfaces';
 import { log } from '../../utils/utils';
 import { diffModels } from '../../models/diffModels';
@@ -237,19 +241,19 @@ export function getTestEvaluations(
   frequency = monthly,
 ): {
   evaluations: Evaluation[];
-  todaysAssetValues: Map<string, AssetOrDebtVal>;
-  todaysDebtValues: Map<string, AssetOrDebtVal>;
-  todaysIncomeValues: Map<string, IncomeVal>;
-  todaysExpenseValues: Map<string, ExpenseVal>;
-  todaysSettingValues: Map<string, SettingVal>;
+  todaysAssetValues: Map<Asset, AssetOrDebtVal>;
+  todaysDebtValues: Map<Asset, AssetOrDebtVal>;
+  todaysIncomeValues: Map<Income, IncomeVal>;
+  todaysExpenseValues: Map<Expense, ExpenseVal>;
+  todaysSettingValues: Map<Setting, SettingVal>;
 } {
   const emptyResult = {
     evaluations: [],
-    todaysAssetValues: new Map<string, AssetOrDebtVal>(),
-    todaysDebtValues: new Map<string, AssetOrDebtVal>(),
-    todaysIncomeValues: new Map<string, IncomeVal>(),
-    todaysExpenseValues: new Map<string, ExpenseVal>(),
-    todaysSettingValues: new Map<string, SettingVal>(),
+    todaysAssetValues: new Map<Asset, AssetOrDebtVal>(),
+    todaysDebtValues: new Map<Asset, AssetOrDebtVal>(),
+    todaysIncomeValues: new Map<Income, IncomeVal>(),
+    todaysExpenseValues: new Map<Expense, ExpenseVal>(),
+    todaysSettingValues: new Map<Setting, SettingVal>(),
   };
 
   if (renamingChecks) {

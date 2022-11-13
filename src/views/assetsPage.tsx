@@ -1,4 +1,5 @@
 import {
+  Asset,
   AssetOrDebtVal,
   ChartData,
   Item,
@@ -32,11 +33,12 @@ import { collapsibleFragment } from './tablePages';
 import { log, printDebug } from '../utils/utils';
 import { getDisplay } from '../utils/viewUtils';
 import { AddDeleteEntryForm } from './reactComponents/AddDeleteEntryForm';
+import { simpleAsset } from '../models/exampleModels';
 
 function addToMap(
-  name: string,
+  name: Asset,
   val: AssetOrDebtVal,
-  myMap: Map<string, AssetOrDebtVal>,
+  myMap: Map<Asset, AssetOrDebtVal>,
 ) {
   const existingEntry = myMap.get(name);
   if (existingEntry === undefined) {
@@ -51,7 +53,7 @@ function addToMap(
   }
 }
 
-function makeDataGrid(myMap: Map<string, AssetOrDebtVal>, model: ModelData) {
+function makeDataGrid(myMap: Map<Asset, AssetOrDebtVal>, model: ModelData) {
   return (
     <DataGrid
       deleteFunction={undefined}
@@ -71,8 +73,8 @@ function makeDataGrid(myMap: Map<string, AssetOrDebtVal>, model: ModelData) {
             }
             const quantityText = key[1].quantity ? `${key[1].quantity}` : '';
             return {
-              NAME: key[0],
-              FAVOURITE: undefined,
+              NAME: key[0].NAME,
+              FAVOURITE: key[0].FAVOURITE,
               VALUE: `${key[1].val}`,
               QUANTITY: quantityText,
               CATEGORY: `${key[1].category}`,
@@ -127,12 +129,12 @@ function makeDataGrid(myMap: Map<string, AssetOrDebtVal>, model: ModelData) {
 
 export function todaysAssetsTable(
   model: ModelData,
-  todaysValues: Map<string, AssetOrDebtVal>,
+  todaysValues: Map<Asset, AssetOrDebtVal>,
 ) {
   if (todaysValues.size === 0) {
     return;
   }
-  const categorisedValues = new Map<string, AssetOrDebtVal>();
+  const categorisedValues = new Map<Asset, AssetOrDebtVal>();
 
   const entries = Array.from(todaysValues.entries());
   for (const key of entries) {
@@ -141,7 +143,11 @@ export function todaysAssetsTable(
       addToMap(key[0], key[1], categorisedValues);
     } else {
       const catName: string = key[1].category;
-      addToMap(catName, key[1], categorisedValues);
+      const a = {
+        ...simpleAsset,
+        NAME: catName,
+      };
+      addToMap(a, key[1], categorisedValues);
     }
   }
   const today = getTodaysDate(model);
@@ -162,7 +168,7 @@ export function assetsDiv(
   deleteTransactions: (arg: string[]) => void,
   doChecks: boolean,
   assetChartData: ChartData,
-  todaysValues: Map<string, AssetOrDebtVal>,
+  todaysValues: Map<Asset, AssetOrDebtVal>,
   getStartDate: (() => string) | undefined = undefined,
   updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
   getEndDate: (() => string) | undefined = undefined,

@@ -2247,32 +2247,51 @@ function getBondModel() {
 
 export function getTestModel(input: string): ModelData {
   // log(`getTestModel making model for ${input}`);
+  let model: ModelData | undefined;
   if (input === TestModel01) {
-    return getTestModel01ForMigration();
+    model = getTestModel01ForMigration();
   } else if (input === TestModel02) {
-    return getTestModel02ForMigration();
+    model = getTestModel02ForMigration();
   } else if (input === CoarseAndFine) {
-    return getModelCoarseAndFineForMigration();
+    model = getModelCoarseAndFineForMigration();
   } else if (input === FutureExpense) {
     // log(`converting to from string`);
-    return makeModelFromJSON(
+    model = makeModelFromJSON(
       JSON.stringify(getModelFutureExpenseForMigration()),
       'FutureExpenseForMigration',
     );
   } else if (input === ThreeChryslerModel) {
-    return getThreeChryslerModelForMigration();
+    model = getThreeChryslerModelForMigration();
   } else if (input === MinimalModel) {
-    return getMinimalModelCopy();
+    model = getMinimalModelCopy();
   } else if (input === BenAndJerryModel) {
-    return getBenAndJerryModel();
+    model = getBenAndJerryModel();
   } else if (input === definedBenefitsPension) {
-    return getDefinedBenefitsPension();
+    model = getDefinedBenefitsPension();
   } else if (input === definedContributionsPension) {
-    return getDefinedContributionsPension();
+    model = getDefinedContributionsPension();
   } else if (input === pensionExampleData) {
-    return getPensionExampleData();
+    model = getPensionExampleData();
   } else if (input === bondModel) {
-    return getBondModel();
+    model = getBondModel();
+  }
+
+  // TODO : should we make a copy here for more stable tests?
+  // even with this JSON round-trip change, I'm seeing failure of
+  //   my first model browser test
+  // with
+  //   Expected: "added new setting Beginning of view range"
+  //   Received: "There's already a setting called Beginning of view range"
+  //   127 |   const labelText = await label[0].getText();
+  //   128 |   //log(`compare expected ${message} against found ${labelText}`);
+  //   > 129 |   expect(labelText).toBe(message);
+  // but all tests pass in sequential mode
+
+  //if (model !== undefined) {
+  //  model = JSON.parse(JSON.stringify(model));
+  //}
+  if (model !== undefined) {
+    return model;
   }
   /* istanbul ignore next */
   throw new Error('test model name not recognised');

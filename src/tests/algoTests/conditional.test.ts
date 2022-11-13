@@ -2354,23 +2354,43 @@ describe('conditional tests', () => {
     log(evalsAndValues.todaysSettingValues);
     */
     expect(evalsAndValues.todaysAssetValues.size).toEqual(1);
-    expect(evalsAndValues.todaysAssetValues.get('Cash')).toEqual({
-      val: 0,
-      assetQ: undefined,
-      category: '',
+    const cashAsset = [...evalsAndValues.todaysAssetValues.keys()].find((a) => {
+      return a.NAME === 'Cash';
     });
+    expect(cashAsset).toBeDefined();
+    if (cashAsset) {
+      expect(evalsAndValues.todaysAssetValues.get(cashAsset)).toEqual({
+        val: 0,
+        assetQ: undefined,
+        category: '',
+      });
+    }
     expect(evalsAndValues.todaysDebtValues.size).toEqual(1);
-    expect(evalsAndValues.todaysDebtValues.get('Mortgage')).toEqual({
-      val: 0,
-      assetQ: undefined,
-      category: 'Lloyds',
+    const mAsset = [...evalsAndValues.todaysDebtValues.keys()].find((a) => {
+      return a.NAME === 'Mortgage';
     });
+    expect(mAsset).toBeDefined();
+    if (mAsset) {
+      expect(evalsAndValues.todaysDebtValues.get(mAsset)).toEqual({
+        val: 0,
+        assetQ: undefined,
+        category: 'Lloyds',
+      });
+    }
     expect(evalsAndValues.todaysExpenseValues.size).toEqual(0);
     expect(evalsAndValues.todaysIncomeValues.size).toEqual(0);
     expect(evalsAndValues.todaysSettingValues.size).toEqual(1);
-    expect(evalsAndValues.todaysSettingValues.get('cpi')).toEqual({
-      settingVal: '0',
-    });
+    const cpiSetting = [...evalsAndValues.todaysSettingValues.keys()].find(
+      (s) => {
+        return s.NAME === 'cpi';
+      },
+    );
+    expect(cpiSetting).toBeDefined();
+    if (cpiSetting) {
+      expect(evalsAndValues.todaysSettingValues.get(cpiSetting)).toEqual({
+        settingVal: '0',
+      });
+    }
 
     // printTestCodeForEvals(evals);
 

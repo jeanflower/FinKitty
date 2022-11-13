@@ -387,7 +387,7 @@ function handleTriggerGridRowsUpdated(
   trigger[args[0].cellKey] = args[0].updated[args[0].cellKey];
   const forSubmit: Trigger = {
     NAME: trigger.NAME,
-    FAVOURITE: undefined,
+    FAVOURITE: trigger.FAVOURITE,
     DATE: trigger.DATE,
   };
   if (doChecks) {
@@ -505,7 +505,7 @@ function handleAssetGridRowsUpdated(
       // log(`valueForSubmission = ${valueForSubmission}`);
       const assetForSubmission: Asset = {
         NAME: asset.NAME,
-        FAVOURITE: undefined,
+        FAVOURITE: asset.FAVOURITE,
         VALUE: valueForSubmission,
         QUANTITY: asset.QUANTITY,
         START: asset.START,
@@ -624,11 +624,11 @@ function handleTransactionGridRowsUpdated(
       type === revalueSetting
     ) {
       // enable auto-switch of revalue types if TO changes
-      if (isAnAssetOrAssets(gridData.TO, model)) {
-        type = revalueAsset;
-      } else if (isADebt(gridData.TO, model)) {
+      if (isADebt(gridData.TO, model)) {
         type = revalueDebt;
         parseTo.value = `${-parseFloat(parseTo.value)}`;
+      } else if (isAnAssetOrAssets(gridData.TO, model)) {
+        type = revalueAsset;
       } else if (isAnIncome(gridData.TO, model)) {
         type = revalueInc;
       } else if (isAnExpense(gridData.TO, model)) {
@@ -879,7 +879,7 @@ export function addIndices(unindexedResult: any[]) {
 
 function assetsOrDebtsForTable(
   model: ModelData,
-  todaysValues: Map<string, AssetOrDebtVal>,
+  todaysValues: Map<Asset, AssetOrDebtVal>,
   isDebt: boolean,
 ): any[] {
   const unindexedResult = model.assets
@@ -901,6 +901,9 @@ function assetsOrDebtsForTable(
         displayValue = obj.VALUE;
       }
       const tableValue = `${displayValue}`;
+      const todaysValkey = [...todaysValues.keys()].find((a) => {
+        return a.NAME === obj.NAME;
+      });
       const mapResult = {
         GROWTH: obj.GROWTH,
         NAME: obj.NAME,
@@ -917,7 +920,9 @@ function assetsOrDebtsForTable(
         GROWS_WITH_CPI: makeYesNoFromBoolean(!obj.CPI_IMMUNE),
         IS_A_DEBT: makeYesNoFromBoolean(obj.IS_A_DEBT),
         CAN_BE_NEGATIVE: makeYesNoFromBoolean(obj.CAN_BE_NEGATIVE),
-        TODAYSVALUE: `${todaysValues.get(obj.NAME)?.val}`,
+        TODAYSVALUE: todaysValkey
+          ? `${todaysValues.get(todaysValkey)?.val}`
+          : ``,
       };
       return mapResult;
     })
@@ -1421,7 +1426,7 @@ export function transactionFilteredTable(
 
 export function debtsDivWithHeadings(
   model: ModelData,
-  todaysDebtValues: Map<string, AssetOrDebtVal>,
+  todaysDebtValues: Map<Asset, AssetOrDebtVal>,
   showAlert: (arg0: string) => void,
   deleteTransactions: (arg: string[]) => void,
   doChecks: boolean,
@@ -1458,7 +1463,7 @@ export function debtsDivWithHeadings(
 
 export function assetsDivWithHeadings(
   model: ModelData,
-  todaysAssetValues: Map<string, AssetOrDebtVal>,
+  todaysAssetValues: Map<Asset, AssetOrDebtVal>,
   showAlert: (arg0: string) => void,
   deleteTransactions: (args: string[]) => void,
   doChecks: boolean,
@@ -1591,7 +1596,7 @@ export function triggersTableDivWithHeading(
 
 function incomesForTable(
   model: ModelData,
-  todaysValues: Map<string, IncomeVal>,
+  todaysValues: Map<Income, IncomeVal>,
 ) {
   const unindexedResult = model.incomes
     .filter((obj: Item) => {
@@ -1599,7 +1604,11 @@ function incomesForTable(
     })
     .map((obj: Income) => {
       let todaysVForTable = 0.0;
-      const todaysV = todaysValues.get(obj.NAME);
+      const todaysValkey = [...todaysValues.keys()].find((i) => {
+        return i.NAME === obj.NAME;
+      });
+
+      const todaysV = todaysValkey ? todaysValues.get(todaysValkey) : undefined;
       if (todaysV !== undefined) {
         if (!todaysV.hasEnded) {
           todaysVForTable = todaysV.incomeVal;
@@ -1757,7 +1766,7 @@ function incomesTableDiv(
 
 export function incomesTableDivWithHeading(
   model: ModelData,
-  todaysValues: Map<string, IncomeVal>,
+  todaysValues: Map<Income, IncomeVal>,
   showAlert: (arg0: string) => void,
   doChecks: boolean,
 ) {
@@ -1773,7 +1782,7 @@ export function incomesTableDivWithHeading(
 
 function expensesForTable(
   model: ModelData,
-  todaysValues: Map<string, ExpenseVal>,
+  todaysValues: Map<Expense, ExpenseVal>,
 ) {
   const unindexedResult = model.expenses
     .filter((obj: Item) => {
@@ -1781,7 +1790,11 @@ function expensesForTable(
     })
     .map((obj: Expense) => {
       let todaysVForTable = 0.0;
-      const todaysV = todaysValues.get(obj.NAME);
+      const todaysValkey = [...todaysValues.keys()].find((e) => {
+        return e.NAME === obj.NAME;
+      });
+
+      const todaysV = todaysValkey ? todaysValues.get(todaysValkey) : undefined;
       if (todaysV !== undefined) {
         if (!todaysV.hasEnded) {
           todaysVForTable = todaysV.expenseVal;
@@ -1947,7 +1960,7 @@ function expensesTableDiv(
 
 export function expensesTableDivWithHeading(
   model: ModelData,
-  todaysValues: Map<string, ExpenseVal>,
+  todaysValues: Map<Expense, ExpenseVal>,
   showAlert: (arg0: string) => void,
   deleteExpenses: (arg: string[]) => void,
   doChecks: boolean,

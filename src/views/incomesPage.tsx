@@ -1,4 +1,10 @@
-import { ChartData, Item, ModelData, IncomeVal } from '../types/interfaces';
+import {
+  ChartData,
+  Item,
+  ModelData,
+  IncomeVal,
+  Income,
+} from '../types/interfaces';
 import { checkIncome, checkTransaction } from '../models/checks';
 import {
   collapsibleFragment,
@@ -30,8 +36,9 @@ import { getTodaysDate } from '../models/modelUtils';
 import { lessThan } from '../utils/stringUtils';
 import { log, printDebug } from '../utils/utils';
 import { getDisplay } from '../utils/viewUtils';
+import { simpleIncome } from '../models/exampleModels';
 
-function addToMap(name: string, val: IncomeVal, myMap: Map<string, IncomeVal>) {
+function addToMap(name: Income, val: IncomeVal, myMap: Map<Income, IncomeVal>) {
   const existingEntry = myMap.get(name);
   if (existingEntry === undefined) {
     myMap.set(name, { ...val });
@@ -40,7 +47,7 @@ function addToMap(name: string, val: IncomeVal, myMap: Map<string, IncomeVal>) {
   }
 }
 
-function makeDataGrid(myMap: Map<string, IncomeVal>, model: ModelData) {
+function makeDataGrid(myMap: Map<Income, IncomeVal>, model: ModelData) {
   return (
     <DataGrid
       deleteFunction={undefined}
@@ -59,8 +66,8 @@ function makeDataGrid(myMap: Map<string, IncomeVal>, model: ModelData) {
               log(`key[0] = ${key[0]}, key[1] = ${key[1]}`);
             }
             return {
-              NAME: key[0],
-              FAVOURITE: undefined,
+              NAME: key[0].NAME,
+              FAVOURITE: key[0].FAVOURITE,
               VALUE: `${key[1].incomeVal}`,
               CATEGORY: `${key[1].category}`,
             };
@@ -107,13 +114,13 @@ function makeDataGrid(myMap: Map<string, IncomeVal>, model: ModelData) {
 
 export function todaysIncomesTable(
   model: ModelData,
-  todaysValues: Map<string, IncomeVal>,
+  todaysValues: Map<Income, IncomeVal>,
 ) {
   if (todaysValues.size === 0) {
     return;
   }
 
-  const categorisedValues = new Map<string, IncomeVal>();
+  const categorisedValues = new Map<Income, IncomeVal>();
 
   const entries = Array.from(todaysValues.entries());
   for (const key of entries) {
@@ -123,7 +130,14 @@ export function todaysIncomesTable(
         addToMap(key[0], key[1], categorisedValues);
       } else {
         const catName: string = key[1].category;
-        addToMap(catName, key[1], categorisedValues);
+        addToMap(
+          {
+            ...simpleIncome,
+            NAME: catName,
+          },
+          key[1],
+          categorisedValues,
+        );
       }
     }
   }
@@ -146,7 +160,7 @@ export function incomesDiv(
   deleteTransactions: (arg: string[]) => void,
   doChecks: boolean,
   incomesChartData: ChartData,
-  todaysValues: Map<string, IncomeVal>,
+  todaysValues: Map<Income, IncomeVal>,
   getStartDate: (() => string) | undefined = undefined,
   updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
   getEndDate: (() => string) | undefined = undefined,

@@ -143,11 +143,11 @@ export interface DataForView {
   expensesData: ItemChartData[];
   incomesData: ItemChartData[];
   taxData: ItemChartData[];
-  todaysAssetValues: Map<string, AssetVal>;
-  todaysDebtValues: Map<string, DebtVal>;
-  todaysIncomeValues: Map<string, IncomeVal>;
-  todaysExpenseValues: Map<string, ExpenseVal>;
-  todaysSettingValues: Map<string, SettingVal>;
+  todaysAssetValues: Map<Asset, AssetVal>;
+  todaysDebtValues: Map<Asset, DebtVal>;
+  todaysIncomeValues: Map<Income, IncomeVal>;
+  todaysExpenseValues: Map<Expense, ExpenseVal>;
+  todaysSettingValues: Map<Setting, SettingVal>;
   reportData: reportDataType;
   totalTaxPaid: number;
 }

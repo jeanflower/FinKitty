@@ -476,11 +476,11 @@ export async function refreshDataInternal(
   let model: ModelData;
   let evaluationsAndVals: {
     evaluations: Evaluation[];
-    todaysAssetValues: Map<string, AssetOrDebtVal>;
-    todaysDebtValues: Map<string, AssetOrDebtVal>;
-    todaysIncomeValues: Map<string, IncomeVal>;
-    todaysExpenseValues: Map<string, ExpenseVal>;
-    todaysSettingValues: Map<string, SettingVal>;
+    todaysAssetValues: Map<Asset, AssetOrDebtVal>;
+    todaysDebtValues: Map<Asset, AssetOrDebtVal>;
+    todaysIncomeValues: Map<Income, IncomeVal>;
+    todaysExpenseValues: Map<Expense, ExpenseVal>;
+    todaysSettingValues: Map<Setting, SettingVal>;
     reportData: ReportDatum[];
   } = {
     evaluations: reactAppComponent.state.evaluations,
@@ -1385,11 +1385,11 @@ interface AppState {
   debtChartData: ChartData;
   taxChartData: ChartData;
   optimizationChartData: ChartData;
-  todaysAssetValues: Map<string, AssetOrDebtVal>;
-  todaysDebtValues: Map<string, AssetOrDebtVal>;
-  todaysIncomeValues: Map<string, IncomeVal>;
-  todaysExpenseValues: Map<string, ExpenseVal>;
-  todaysSettingValues: Map<string, SettingVal>;
+  todaysAssetValues: Map<Asset, AssetOrDebtVal>;
+  todaysDebtValues: Map<Asset, AssetOrDebtVal>;
+  todaysIncomeValues: Map<Income, IncomeVal>;
+  todaysExpenseValues: Map<Expense, ExpenseVal>;
+  todaysSettingValues: Map<Setting, SettingVal>;
   reportDefiner: ReportMatcher;
   maxReportSize: number;
   reportIncludesSettings: boolean;
@@ -1482,11 +1482,11 @@ export class AppContent extends Component<AppProps, AppState> {
         displayLegend: false,
       },
       modelNamesData: [],
-      todaysAssetValues: new Map<string, AssetOrDebtVal>(),
-      todaysDebtValues: new Map<string, AssetOrDebtVal>(),
-      todaysIncomeValues: new Map<string, IncomeVal>(),
-      todaysExpenseValues: new Map<string, ExpenseVal>(),
-      todaysSettingValues: new Map<string, SettingVal>(),
+      todaysAssetValues: new Map<Asset, AssetOrDebtVal>(),
+      todaysDebtValues: new Map<Asset, AssetOrDebtVal>(),
+      todaysIncomeValues: new Map<Income, IncomeVal>(),
+      todaysExpenseValues: new Map<Expense, ExpenseVal>(),
+      todaysSettingValues: new Map<Setting, SettingVal>(),
       reportDefiner: {
         sourceMatcher: defaultSourceMatcher,
         sourceExcluder: defaultSourceExcluder,
@@ -2182,7 +2182,7 @@ export class AppContent extends Component<AppProps, AppState> {
 
   private todaysSettingsTable(
     model: ModelData,
-    todaysValues: Map<string, SettingVal>,
+    todaysValues: Map<Setting, SettingVal>,
   ): JSX.Element {
     if (todaysValues.size === 0) {
       return <></>;
@@ -2193,8 +2193,8 @@ export class AppContent extends Component<AppProps, AppState> {
         .map(([key, value]) => {
           // log(`key[0] = ${key[0]}, key[1] = ${key[1]}`);
           return {
-            NAME: key,
-            FAVOURITE: undefined,
+            NAME: key.NAME,
+            FAVOURITE: key.FAVOURITE,
             VALUE: `${value.settingVal}`,
           };
         })
@@ -2242,7 +2242,7 @@ export class AppContent extends Component<AppProps, AppState> {
 
   private settingsDiv(
     model: ModelData,
-    todaysValues: Map<string, SettingVal>,
+    todaysValues: Map<Setting, SettingVal>,
     deleteTransactions: (arg: string[]) => void,
   ): JSX.Element {
     if (!getDisplay(settingsView)) {

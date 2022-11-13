@@ -11,6 +11,9 @@ import {
   Interval,
   ItemChartData,
   SettingVal,
+  Expense,
+  Income,
+  Asset,
 } from '../types/interfaces';
 import {
   allItems,
@@ -998,11 +1001,11 @@ function getDisplayType(evaln: Evaluation, nameToTypeMap: Map<string, string>) {
 
 function needsEmptyCharts(evaluationsAndVals: {
   evaluations: Evaluation[];
-  todaysAssetValues: Map<string, AssetOrDebtVal>;
-  todaysDebtValues: Map<string, AssetOrDebtVal>;
-  todaysIncomeValues: Map<string, IncomeVal>;
-  todaysExpenseValues: Map<string, ExpenseVal>;
-  todaysSettingValues: Map<string, SettingVal>;
+  todaysAssetValues: Map<Asset, AssetOrDebtVal>;
+  todaysDebtValues: Map<Asset, AssetOrDebtVal>;
+  todaysIncomeValues: Map<Income, IncomeVal>;
+  todaysExpenseValues: Map<Expense, ExpenseVal>;
+  todaysSettingValues: Map<Setting, SettingVal>;
 }) {
   return evaluationsAndVals.evaluations.length === 0;
 }
@@ -1014,11 +1017,11 @@ function emptyCharts() {
     assetData: [],
     debtData: [],
     taxData: [],
-    todaysAssetValues: new Map<string, AssetOrDebtVal>(),
-    todaysDebtValues: new Map<string, AssetOrDebtVal>(),
-    todaysIncomeValues: new Map<string, IncomeVal>(),
-    todaysExpenseValues: new Map<string, ExpenseVal>(),
-    todaysSettingValues: new Map<string, SettingVal>(),
+    todaysAssetValues: new Map<Asset, AssetOrDebtVal>(),
+    todaysDebtValues: new Map<Asset, AssetOrDebtVal>(),
+    todaysIncomeValues: new Map<Income, IncomeVal>(),
+    todaysExpenseValues: new Map<Expense, ExpenseVal>(),
+    todaysSettingValues: new Map<Setting, SettingVal>(),
     reportData: [],
     totalTaxPaid: 0,
   };
@@ -1066,11 +1069,11 @@ export function makeChartData(
   viewSettings: ViewSettings,
   evaluationsAndVals: {
     evaluations: Evaluation[];
-    todaysAssetValues: Map<string, AssetOrDebtVal>;
-    todaysDebtValues: Map<string, AssetOrDebtVal>;
-    todaysIncomeValues: Map<string, IncomeVal>;
-    todaysExpenseValues: Map<string, ExpenseVal>;
-    todaysSettingValues: Map<string, SettingVal>;
+    todaysAssetValues: Map<Asset, AssetOrDebtVal>;
+    todaysDebtValues: Map<Asset, AssetOrDebtVal>;
+    todaysIncomeValues: Map<Income, IncomeVal>;
+    todaysExpenseValues: Map<Expense, ExpenseVal>;
+    todaysSettingValues: Map<Setting, SettingVal>;
   },
 ) {
   if (needsEmptyCharts(evaluationsAndVals)) {
@@ -1110,11 +1113,11 @@ export function makeChartData(
     assetData: [],
     debtData: [],
     taxData: [],
-    todaysAssetValues: new Map<string, AssetOrDebtVal>(),
-    todaysDebtValues: new Map<string, AssetOrDebtVal>(),
-    todaysIncomeValues: new Map<string, IncomeVal>(),
-    todaysExpenseValues: new Map<string, ExpenseVal>(),
-    todaysSettingValues: new Map<string, SettingVal>(),
+    todaysAssetValues: new Map<Asset, AssetOrDebtVal>(),
+    todaysDebtValues: new Map<Asset, AssetOrDebtVal>(),
+    todaysIncomeValues: new Map<Income, IncomeVal>(),
+    todaysExpenseValues: new Map<Expense, ExpenseVal>(),
+    todaysSettingValues: new Map<Setting, SettingVal>(),
     reportData: [],
     totalTaxPaid: 0,
   };
@@ -1626,11 +1629,11 @@ export function makeChartDataFromEvaluations(
   viewSettings: ViewSettings,
   evaluationsAndVals: {
     evaluations: Evaluation[];
-    todaysAssetValues: Map<string, AssetOrDebtVal>;
-    todaysDebtValues: Map<string, AssetOrDebtVal>;
-    todaysIncomeValues: Map<string, IncomeVal>;
-    todaysExpenseValues: Map<string, ExpenseVal>;
-    todaysSettingValues: Map<string, SettingVal>;
+    todaysAssetValues: Map<Asset, AssetOrDebtVal>;
+    todaysDebtValues: Map<Asset, AssetOrDebtVal>;
+    todaysIncomeValues: Map<Income, IncomeVal>;
+    todaysExpenseValues: Map<Expense, ExpenseVal>;
+    todaysSettingValues: Map<Setting, SettingVal>;
   },
 ) {
   viewSettings.setModel(model);

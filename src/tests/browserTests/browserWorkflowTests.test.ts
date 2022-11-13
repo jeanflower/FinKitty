@@ -16,8 +16,6 @@ import {
 import {
   headless,
   addSetting,
-  addAsset,
-  assetInputs,
   acceptAnyAlert,
   checkMessage,
   alertIsShowing,
@@ -27,9 +25,9 @@ import {
   consumeAlert,
   quitAfterAll,
   settingsTag,
-  assetsTag,
   homeTag,
   overviewTag,
+  revalueAsset,
 } from './browserTestUtils';
 import { log } from '../../utils/utils';
 
@@ -52,16 +50,12 @@ async function setNarrowViewRange(driver: any) {
 }
 
 async function setCashValue(driver: any, val: number) {
-  await gotoTabPage(driver, assetsTag);
-  await addAsset(driver, {
-    ...assetInputs,
+  await clickButton(driver, 'revalueAssetInputs');
+  await revalueAsset(driver, {
     name: 'Cash',
-    value: `${val}`,
-    startDate: '1 Jan 2019',
-    growth: '0',
-    growsWithInflation: 'n',
-    quantity: '',
-    message: `added new asset`,
+    revalue: `${val}`,
+    revaluationDate: '1 Jan 2019',
+    message: `added new data`,
   });
 }
 

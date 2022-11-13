@@ -4,6 +4,9 @@ import {
   ExpenseVal,
   IncomeVal,
   ModelData,
+  Asset,
+  Expense,
+  Income,
 } from '../types/interfaces';
 import {
   assetsDivWithHeadings,
@@ -173,9 +176,9 @@ function transactionsOverviewDiv(
 
 export function overviewDiv(
   model: ModelData,
-  todaysAssetValues: Map<string, AssetOrDebtVal>,
-  todaysIncomeValues: Map<string, IncomeVal>,
-  todaysExpenseValues: Map<string, ExpenseVal>,
+  todaysAssetValues: Map<Asset, AssetOrDebtVal>,
+  todaysIncomeValues: Map<Income, IncomeVal>,
+  todaysExpenseValues: Map<Expense, ExpenseVal>,
   viewSettings: ViewSettings,
   showAlert: (arg0: string) => void,
   deleteTransactions: (arg: string[]) => void,

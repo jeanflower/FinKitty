@@ -2203,6 +2203,7 @@ function handleIncome(
       } else if (pensionValue === undefined) {
         /* istanbul ignore next */
         log('Error: contributing to undefined pension scheme');
+        log(`model is ${showObj(model)}`);
       } else if (
         moment.date > getTriggerDate(pt.STOP_DATE, model.triggers, v)
       ) {
@@ -4571,11 +4572,11 @@ function evaluateAllAssets(
   values: ValuesContainer,
   growths: Map<string, GrowthData>,
   today: Date,
-  todaysAssetValues: Map<string, AssetOrDebtVal>,
-  todaysDebtValues: Map<string, AssetOrDebtVal>,
-  todaysIncomeValues: Map<string, IncomeVal>,
-  todaysExpenseValues: Map<string, ExpenseVal>,
-  todaysSettingValues: Map<string, SettingVal>,
+  todaysAssetValues: Map<Asset, AssetOrDebtVal>,
+  todaysDebtValues: Map<Asset, AssetOrDebtVal>,
+  todaysIncomeValues: Map<Income, IncomeVal>,
+  todaysExpenseValues: Map<Expense, ExpenseVal>,
+  todaysSettingValues: Map<Setting, SettingVal>,
 ) {
   const v = getVarVal(model.settings);
   model.assets.forEach((asset) => {
@@ -4587,13 +4588,13 @@ function evaluateAllAssets(
     }
     if (val !== undefined) {
       if (asset.IS_A_DEBT) {
-        todaysDebtValues.set(asset.NAME, {
+        todaysDebtValues.set(asset, {
           val: val,
           quantity: undefined,
           category: asset.CATEGORY,
         });
       } else {
-        todaysAssetValues.set(asset.NAME, {
+        todaysAssetValues.set(asset, {
           val: val,
           quantity: q,
           category: asset.CATEGORY,
@@ -4618,7 +4619,7 @@ function evaluateAllAssets(
     // log(`income ${i.NAME} ends at ${i.END} not yet ended at ${today}`);
     const val = traceEvaluationForToday(i.NAME, values, growths);
     if (val !== undefined) {
-      todaysIncomeValues.set(i.NAME, {
+      todaysIncomeValues.set(i, {
         incomeVal: val,
         category: i.CATEGORY,
         hasStarted: hasStarted,
@@ -4642,7 +4643,7 @@ function evaluateAllAssets(
     const val = traceEvaluationForToday(e.NAME, values, growths);
     if (val !== undefined) {
       // log(`expense for todays value ${showObj(e)}`);
-      todaysExpenseValues.set(e.NAME, {
+      todaysExpenseValues.set(e, {
         expenseVal: val,
         expenseFreq: e.RECURRENCE,
         category: e.CATEGORY,
@@ -4664,7 +4665,7 @@ function evaluateAllAssets(
       )
     ) {
       // log(`report today's value for ${s.NAME}`);
-      todaysSettingValues.set(s.NAME, { settingVal: `${val}` });
+      todaysSettingValues.set(s, { settingVal: `${val}` });
     } else {
       // log(`don't report  today's value for ${s.NAME}`);
     }
@@ -5242,19 +5243,19 @@ function getEvaluationsInternal(
   helper: EvaluationHelper | undefined,
 ): {
   evaluations: Evaluation[];
-  todaysAssetValues: Map<string, AssetOrDebtVal>;
-  todaysDebtValues: Map<string, AssetOrDebtVal>;
-  todaysIncomeValues: Map<string, IncomeVal>;
-  todaysExpenseValues: Map<string, ExpenseVal>;
-  todaysSettingValues: Map<string, SettingVal>;
+  todaysAssetValues: Map<Asset, AssetOrDebtVal>;
+  todaysDebtValues: Map<Asset, AssetOrDebtVal>;
+  todaysIncomeValues: Map<Income, IncomeVal>;
+  todaysExpenseValues: Map<Expense, ExpenseVal>;
+  todaysSettingValues: Map<Setting, SettingVal>;
   reportData: ReportDatum[];
 } {
   //log('get evaluations');
-  const todaysAssetValues = new Map<string, AssetOrDebtVal>();
-  const todaysDebtValues = new Map<string, AssetOrDebtVal>();
-  const todaysIncomeValues = new Map<string, IncomeVal>();
-  const todaysExpenseValues = new Map<string, ExpenseVal>();
-  const todaysSettingValues = new Map<string, SettingVal>();
+  const todaysAssetValues = new Map<Asset, AssetOrDebtVal>();
+  const todaysDebtValues = new Map<Asset, AssetOrDebtVal>();
+  const todaysIncomeValues = new Map<Income, IncomeVal>();
+  const todaysExpenseValues = new Map<Expense, ExpenseVal>();
+  const todaysSettingValues = new Map<Setting, SettingVal>();
 
   const message = checkData(model);
   if (message.length > 0) {
@@ -5592,11 +5593,11 @@ export function getEvaluations(
   helper: EvaluationHelper | undefined,
 ): {
   evaluations: Evaluation[];
-  todaysAssetValues: Map<string, AssetOrDebtVal>;
-  todaysDebtValues: Map<string, AssetOrDebtVal>;
-  todaysIncomeValues: Map<string, IncomeVal>;
-  todaysExpenseValues: Map<string, ExpenseVal>;
-  todaysSettingValues: Map<string, SettingVal>;
+  todaysAssetValues: Map<Asset, AssetOrDebtVal>;
+  todaysDebtValues: Map<Asset, AssetOrDebtVal>;
+  todaysIncomeValues: Map<Income, IncomeVal>;
+  todaysExpenseValues: Map<Expense, ExpenseVal>;
+  todaysSettingValues: Map<Setting, SettingVal>;
   reportData: ReportDatum[];
 } {
   // log(`Entered getEvaluations for model ${model.name}`);
@@ -5658,7 +5659,7 @@ export function getEvaluations(
         .concat([
           {
             NAME: `${bondMaturity}base`,
-            FAVOURITE: undefined,
+            FAVOURITE: undefined, // bond transaction
             CATEGORY: '',
             START: startDateForBondMaturityCalculation.toDateString(),
             VALUE: '1.0',
@@ -5675,7 +5676,7 @@ export function getEvaluations(
       settings: model.settings.concat([
         {
           NAME: `${bondMaturity}Prerun`,
-          FAVOURITE: undefined,
+          FAVOURITE: undefined, // bond setting
           VALUE: '0.0',
           HINT: 'suppress warnings on prerun',
           TYPE: constType,
@@ -5751,7 +5752,7 @@ export function getEvaluations(
             ) {
               generatedSettings.push({
                 NAME: settingName,
-                FAVOURITE: undefined,
+                FAVOURITE: undefined, // cpi base setting
                 VALUE: `${settingValue / baseStart}`,
                 HINT: 'autogenerated setting for Bond maturity values',
                 TYPE: constType,
