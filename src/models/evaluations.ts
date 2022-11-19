@@ -1000,10 +1000,80 @@ const TAX_MAP: TaxBandsMap = {
     noTaxBand: 12570, // Note that by fixing this to the same level as previous, we get poorer
     lowTaxBand: 12570 + 37700, // because the tax baands are coded to increase with CPI
     adjustNoTaxBand: 100000, // and if they don't increase, more of our income falls into the tax bands
-    highTaxBand: 150000,
-    lowTaxRate: 0.19, // even though this is lower than 2022, we got poorer!! see above
+    highTaxBand: 125140,
+    lowTaxRate: 0.2,
     highTaxRate: 0.4,
-    topTaxRate: 0.4,
+    topTaxRate: 0.45,
+
+    noNIBand: 9880,
+    lowNIBand: 50270,
+    lowNIRate: 0.12,
+    highNIRate: 0.02,
+  },
+  '2024': {
+    noTaxBand: 12570, // Note that by fixing this to the same level as previous, we get poorer
+    lowTaxBand: 12570 + 37700, // because the tax baands are coded to increase with CPI
+    adjustNoTaxBand: 100000, // and if they don't increase, more of our income falls into the tax bands
+    highTaxBand: 125140,
+    lowTaxRate: 0.2,
+    highTaxRate: 0.4,
+    topTaxRate: 0.45,
+
+    noNIBand: 9880,
+    lowNIBand: 50270,
+    lowNIRate: 0.12,
+    highNIRate: 0.02,
+  },
+  '2025': {
+    noTaxBand: 12570, // Note that by fixing this to the same level as previous, we get poorer
+    lowTaxBand: 12570 + 37700, // because the tax baands are coded to increase with CPI
+    adjustNoTaxBand: 100000, // and if they don't increase, more of our income falls into the tax bands
+    highTaxBand: 125140,
+    lowTaxRate: 0.2,
+    highTaxRate: 0.4,
+    topTaxRate: 0.45,
+
+    noNIBand: 9880,
+    lowNIBand: 50270,
+    lowNIRate: 0.12,
+    highNIRate: 0.02,
+  },
+  '2026': {
+    noTaxBand: 12570, // Note that by fixing this to the same level as previous, we get poorer
+    lowTaxBand: 12570 + 37700, // because the tax baands are coded to increase with CPI
+    adjustNoTaxBand: 100000, // and if they don't increase, more of our income falls into the tax bands
+    highTaxBand: 125140,
+    lowTaxRate: 0.2,
+    highTaxRate: 0.4,
+    topTaxRate: 0.45,
+
+    noNIBand: 9880,
+    lowNIBand: 50270,
+    lowNIRate: 0.12,
+    highNIRate: 0.02,
+  },
+  '2027': {
+    noTaxBand: 12570, // Note that by fixing this to the same level as previous, we get poorer
+    lowTaxBand: 12570 + 37700, // because the tax baands are coded to increase with CPI
+    adjustNoTaxBand: 100000, // and if they don't increase, more of our income falls into the tax bands
+    highTaxBand: 125140,
+    lowTaxRate: 0.2,
+    highTaxRate: 0.4,
+    topTaxRate: 0.45,
+
+    noNIBand: 9880,
+    lowNIBand: 50270,
+    lowNIRate: 0.12,
+    highNIRate: 0.02,
+  },
+  '2028': {
+    noTaxBand: 12570, // Note that by fixing this to the same level as previous, we get poorer
+    lowTaxBand: 12570 + 37700, // because the tax baands are coded to increase with CPI
+    adjustNoTaxBand: 100000, // and if they don't increase, more of our income falls into the tax bands
+    highTaxBand: 125140,
+    lowTaxRate: 0.2,
+    highTaxRate: 0.4,
+    topTaxRate: 0.45,
 
     noNIBand: 9880,
     lowNIBand: 50270,
@@ -1011,7 +1081,7 @@ const TAX_MAP: TaxBandsMap = {
     highNIRate: 0.02,
   },
 };
-const highestTaxYearInMap = 2023;
+const highestTaxYearInMap = 2028;
 // TODO get this from the map - they should be bound to be the same
 
 function getTaxBands(
@@ -1417,6 +1487,7 @@ function payIncomeTax(
   }[] = calculateIncomeTaxPayable(income, startOfTaxYear.getFullYear(), values);
   // log(`taxDue for ${source} on ${startOfTaxYear} = ${taxDue}`);
   const totalTaxDue = sumTaxDue(taxDue);
+  // log(`totalTaxDue for ${source}, ${makeTwoDP(income)} on ${startOfTaxYear.getFullYear()} is ${makeTwoDP(totalTaxDue)}`);
 
   const totalTaxDueFromCash = totalTaxDue - alreadyPaid;
   // log(`totalTaxDueFromCash for ${makeTwoDP(income)} on ${startOfTaxYear.getFullYear()} is ${makeTwoDP(totalTaxDueFromCash)}, already paid ${makeTwoDP(alreadyPaid)}`);
