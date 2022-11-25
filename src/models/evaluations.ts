@@ -771,6 +771,8 @@ interface TaxBands {
   lowNIBand: number;
   lowNIRate: number;
   highNIRate: number;
+  cgtThreshhold: number;
+  cgtRate: number;
 }
 interface TaxBandsMap {
   [key: string]: TaxBands | undefined;
@@ -914,6 +916,8 @@ const TAX_MAP: TaxBandsMap = {
     lowNIBand: 50004,
     lowNIRate: 0.12,
     highNIRate: 0.02,
+    cgtThreshhold: 12000,
+    cgtRate: 0.2,
   },
   '2017': {
     noTaxBand: 12500,
@@ -927,6 +931,8 @@ const TAX_MAP: TaxBandsMap = {
     lowNIBand: 50004,
     lowNIRate: 0.12,
     highNIRate: 0.02,
+    cgtThreshhold: 12000,
+    cgtRate: 0.2,
   },
   '2018': {
     noTaxBand: 12500,
@@ -940,6 +946,8 @@ const TAX_MAP: TaxBandsMap = {
     lowNIBand: 50004,
     lowNIRate: 0.12,
     highNIRate: 0.02,
+    cgtThreshhold: 12000,
+    cgtRate: 0.2,
   },
   '2019': {
     noTaxBand: 12500,
@@ -953,6 +961,8 @@ const TAX_MAP: TaxBandsMap = {
     lowNIBand: 50004,
     lowNIRate: 0.12,
     highNIRate: 0.02,
+    cgtThreshhold: 12000,
+    cgtRate: 0.2,
   },
   '2020': {
     noTaxBand: 12500,
@@ -966,6 +976,8 @@ const TAX_MAP: TaxBandsMap = {
     lowNIBand: 50004,
     lowNIRate: 0.12,
     highNIRate: 0.02,
+    cgtThreshhold: 12000,
+    cgtRate: 0.2,
   },
   '2021': {
     noTaxBand: 12500,
@@ -980,6 +992,8 @@ const TAX_MAP: TaxBandsMap = {
     lowNIBand: 50004,
     lowNIRate: 0.12,
     highNIRate: 0.02,
+    cgtThreshhold: 12000,
+    cgtRate: 0.2,
   },
   '2022': {
     // https://www.gov.uk/guidance/rates-and-thresholds-for-employers-2022-to-2023
@@ -995,6 +1009,8 @@ const TAX_MAP: TaxBandsMap = {
     lowNIBand: 50270,
     lowNIRate: 0.1325,
     highNIRate: 0.0325,
+    cgtThreshhold: 12000,
+    cgtRate: 0.2,
   },
   '2023': {
     noTaxBand: 12570, // Note that by fixing this to the same level as previous, we get poorer
@@ -1009,6 +1025,8 @@ const TAX_MAP: TaxBandsMap = {
     lowNIBand: 50270,
     lowNIRate: 0.12,
     highNIRate: 0.02,
+    cgtThreshhold: 12000,
+    cgtRate: 0.2,
   },
   '2024': {
     noTaxBand: 12570, // Note that by fixing this to the same level as previous, we get poorer
@@ -1023,6 +1041,8 @@ const TAX_MAP: TaxBandsMap = {
     lowNIBand: 50270,
     lowNIRate: 0.12,
     highNIRate: 0.02,
+    cgtThreshhold: 12000,
+    cgtRate: 0.2,
   },
   '2025': {
     noTaxBand: 12570, // Note that by fixing this to the same level as previous, we get poorer
@@ -1037,6 +1057,8 @@ const TAX_MAP: TaxBandsMap = {
     lowNIBand: 50270,
     lowNIRate: 0.12,
     highNIRate: 0.02,
+    cgtThreshhold: 12000,
+    cgtRate: 0.2,
   },
   '2026': {
     noTaxBand: 12570, // Note that by fixing this to the same level as previous, we get poorer
@@ -1051,6 +1073,8 @@ const TAX_MAP: TaxBandsMap = {
     lowNIBand: 50270,
     lowNIRate: 0.12,
     highNIRate: 0.02,
+    cgtThreshhold: 12000,
+    cgtRate: 0.2,
   },
   '2027': {
     noTaxBand: 12570, // Note that by fixing this to the same level as previous, we get poorer
@@ -1065,6 +1089,8 @@ const TAX_MAP: TaxBandsMap = {
     lowNIBand: 50270,
     lowNIRate: 0.12,
     highNIRate: 0.02,
+    cgtThreshhold: 12000,
+    cgtRate: 0.2,
   },
   '2028': {
     noTaxBand: 12570, // Note that by fixing this to the same level as previous, we get poorer
@@ -1079,6 +1105,8 @@ const TAX_MAP: TaxBandsMap = {
     lowNIBand: 50270,
     lowNIRate: 0.12,
     highNIRate: 0.02,
+    cgtThreshhold: 12000,
+    cgtRate: 0.2,
   },
 };
 const highestTaxYearInMap = 2028;
@@ -1131,6 +1159,8 @@ function getTaxBands(
           lowNIRate: result.lowNIRate,
           lowNIBand: lowNIBand * baseVal,
           highNIRate: result.highNIRate,
+          cgtThreshhold: result.cgtThreshhold,
+          cgtRate: result.cgtRate,
         };
         // log(`now vals at ${startYearOfTaxYear}, ${makeTwoDP(result.noTaxBand)}, ${makeTwoDP(result.lowTaxBand)}, ${makeTwoDP(result.highTaxBand)}, ${makeTwoDP(result.adjustNoTaxBand)}`);
       } else {
@@ -1171,6 +1201,8 @@ function getTaxBands(
     lowNIBand: result.lowNIBand,
     lowNIRate: result.lowNIRate,
     highNIRate: result.highNIRate,
+    cgtThreshhold: result.cgtThreshhold,
+    cgtRate: result.cgtRate,
   };
   const topEndIncome = income - result.adjustNoTaxBand;
   if (topEndIncome > 0) {
@@ -1315,31 +1347,22 @@ function calculateNIPayable(
   return niPayable;
 }
 
-//const startYearOfTaxYearCGTBandsSet = 2018;
-const noCGTBandSet = 12000;
-
 function calculateCGTPayable(
   gain: number,
   startYearOfTaxYear: number,
   values: ValuesContainer,
+  liableIncome: number,
 ) {
   /* istanbul ignore if  */ //debug
   if (printDebug()) {
     log(`startYearOfTaxYear = ${startYearOfTaxYear}`);
     log(`values = ${values}`);
   }
-  // log(`in calculateCGTPayable, gain = ${gain}`);//////////////////////// TODO
-  /*
-  const noCGTBand = updateTaxBandValueForCPI(
-    startYearOfTaxYearCGTBandsSet, 
-    startYearOfTaxYear, 
-    noCGTBandSet, 
-    cpiVal,
-  );
-  */
-  const noCGTBand = noCGTBandSet;
+  const bands = getTaxBands(liableIncome, startYearOfTaxYear, values);
 
-  const CGTRate = 0.2;
+  // log(`in calculateCGTPayable, gain = ${gain}`);
+  const noCGTBand = bands.cgtThreshhold;
+
   // TODO - this should depend on whether payer is high income tax payer
 
   if (gain < noCGTBand) {
@@ -1347,7 +1370,7 @@ function calculateCGTPayable(
     return 0.0;
   }
 
-  const payable = CGTRate * (gain - noCGTBand);
+  const payable = bands.cgtRate * (gain - noCGTBand);
   // log(`${payable} due as CGT`);
   return payable;
 }
@@ -1561,6 +1584,7 @@ function logAnnualNIPayments(
 function payCGT(
   startOfTaxYear: Date, // should be April 5th of some year
   gain: number,
+  liableIncome: number,
   values: ValuesContainer,
   growths: Map<string, GrowthData>,
   evaluations: Evaluation[],
@@ -1574,6 +1598,7 @@ function payCGT(
     gain,
     startOfTaxYear.getFullYear(),
     values,
+    liableIncome,
   );
   // log(`taxDue = ${taxDue}`);
   if (CGTDue > 0) {
@@ -1863,9 +1888,15 @@ function settleUpTax(
     } else if (key === 'cgt' && value !== undefined) {
       for (const [person, amount] of value) {
         /* eslint-disable-line no-restricted-syntax */
+        const personsName = person.substring(0, person.length - cgt.length);
+        const liableIncomeFromMap = liableIncomeInTaxYear
+          .get(incomeTax)
+          ?.get(`${personsName}${incomeTax}`);
+        const liableIncome = liableIncomeFromMap ? liableIncomeFromMap : 0;
         const cgtPaid = payCGT(
           date,
           amount,
+          liableIncome,
           values,
           growths,
           evaluations,
@@ -1873,7 +1904,6 @@ function settleUpTax(
           person,
         ); // e.g. 'CGTJoe'
         // log('resetting liableIncomeInTaxYear');
-        const personsName = person.substring(0, person.length - cgt.length);
         const knownNetGain = personNetGain.get(personsName);
         if (knownNetGain === undefined) {
           personNetGain.set(personsName, amount - cgtPaid);
