@@ -39,7 +39,11 @@ import { getDisplay } from '../utils/viewUtils';
 import { simpleIncome } from '../models/exampleModels';
 
 function addToMap(name: Income, val: IncomeVal, myMap: Map<Income, IncomeVal>) {
-  const existingEntry = myMap.get(name);
+  const existingKey = [...myMap.keys()].find((x) => {
+    return x.NAME === name.NAME;
+  });
+  const existingEntry = existingKey ? myMap.get(existingKey) : undefined;
+
   if (existingEntry === undefined) {
     myMap.set(name, { ...val });
   } else {

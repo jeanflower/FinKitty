@@ -43,7 +43,11 @@ function addToMap(
   val: ExpenseVal,
   myMap: Map<Expense, ExpenseVal>,
 ) {
-  const existingEntry = myMap.get(name);
+  const existingKey = [...myMap.keys()].find((x) => {
+    return x.NAME === name.NAME;
+  });
+  const existingEntry = existingKey ? myMap.get(existingKey) : undefined;
+
   if (existingEntry === undefined) {
     myMap.set(name, { ...val });
   } else {
