@@ -704,7 +704,7 @@ DB_TRANSFERRED_STOP
 
     const revalueIncomeTransaction: Transaction = {
       NAME: `${newName}`,
-      FAVOURITE: false,
+      FAVOURITE: true, // new things are automatically favourites,
       FROM: '',
       FROM_ABSOLUTE: false,
       FROM_VALUE: '0.0',
@@ -908,7 +908,7 @@ DB_TRANSFERRED_STOP
         START: this.state.DB_START,
         END: this.state.DB_END,
         NAME: newIncomeName1,
-        FAVOURITE: false,
+        FAVOURITE: true, // new things are automatically favourites,
         VALUE: this.state.VALUE,
         VALUE_SET: this.state.VALUE_SET,
         LIABILITY: inputLiability,
@@ -931,7 +931,7 @@ DB_TRANSFERRED_STOP
           START: this.state.DB_START,
           END: this.state.DB_TRANSFERRED_STOP,
           NAME: newIncomeName2,
-          FAVOURITE: false,
+          FAVOURITE: true, // new things are automatically favourites,
           VALUE: '0.0',
           VALUE_SET: this.state.VALUE_SET,
           LIABILITY: builtLiability2,
@@ -963,7 +963,7 @@ DB_TRANSFERRED_STOP
       if (this.state.DB_INCOME_SOURCE !== '') {
         pensionDbptran1 = {
           NAME: (parseYNDBSS.value ? pensionSS : pension) + this.state.NAME,
-          FAVOURITE: false,
+          FAVOURITE: true, // new things are automatically favourites,
           FROM: this.state.DB_INCOME_SOURCE,
           FROM_ABSOLUTE: false,
           FROM_VALUE: this.state.DB_CONTRIBUTION_AMOUNT,
@@ -1005,7 +1005,7 @@ DB_TRANSFERRED_STOP
         // log(`monthlyAccrualValue = ${monthlyAccrualValue}`);
         pensionDbptran2 = {
           NAME: newIncomeName1, // kicks in when we see income java
-          FAVOURITE: false,
+          FAVOURITE: true, // new things are automatically favourites,
           FROM: this.state.DB_INCOME_SOURCE,
           FROM_ABSOLUTE: false,
           FROM_VALUE: monthlyAccrualValue, // percentage of income offered up to pension
@@ -1036,7 +1036,7 @@ DB_TRANSFERRED_STOP
       if (this.state.DB_TRANSFER_TO !== '' && newIncomeName2) {
         pensionDbptran3 = {
           NAME: newIncomeName2,
-          FAVOURITE: false,
+          FAVOURITE: true, // new things are automatically favourites,
           FROM: newIncomeName1,
           FROM_ABSOLUTE: false,
           FROM_VALUE: '1.0',
@@ -1124,7 +1124,7 @@ DB_TRANSFERRED_STOP
     // log('adding something ' + showObj(this));
     const income: Income = {
       NAME: this.state.NAME,
-      FAVOURITE: false,
+      FAVOURITE: true, // new things are automatically favourites,
       VALUE: this.state.VALUE,
       VALUE_SET: this.state.VALUE_SET,
       START: this.state.START,
