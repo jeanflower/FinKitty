@@ -474,6 +474,13 @@ function totalChartDataPoints(
   return result;
 }
 
+function makeAgeString(date: Date, birthDateSetting: string) {
+  const diff = date.getTime() - makeDateFromString(birthDateSetting).getTime();
+  const age = Math.floor(diff / 31557600000); // Divide by 1000*60*60*24*365.25
+  // log(`age from birthDate '${birthDateSetting}' = ${age}`);
+  return `${age}`;
+}
+
 function makeChartDataPoints(
   dateNameValueMapIncoming: Map<string, Map<string, number>>,
   dates: Date[],
@@ -497,6 +504,7 @@ function makeChartDataPoints(
     ChartDataPoint[]
   >();
 
+  const birthDateSetting = getSettings(settings, birthDate, '');
   dates.forEach((date) => {
     const dateString = date.toDateString();
     items.forEach((item) => {
@@ -533,14 +541,9 @@ function makeChartDataPoints(
       } else {
         // log(`add to array ${showObj({label: dateString, y:value})}`);
         const twoDPstring = makeTwoDP(value);
-        const birthDateSetting = getSettings(settings, birthDate, '');
         let dataLabel = dateString;
         if (birthDateSetting !== '') {
-          const diff =
-            date.getTime() - makeDateFromString(birthDateSetting).getTime();
-          const age = Math.floor(diff / 31557600000); // Divide by 1000*60*60*24*365.25
-          // log(`age from birthDate '${birthDateSetting}' = ${age}`);
-          dataLabel = `${age}`;
+          dataLabel = makeAgeString(date, birthDateSetting);
         } else {
           // log(`no birthDate given, dataLabel = ${dataLabel}`);
         }
@@ -1616,8 +1619,13 @@ export function makeChartData(
   }
 
   // log(`chart data produced: ${showObj(result)}`);
+  const birthDateSetting = getSettings(model.settings, birthDate, '');
   result.labels = allDates.map((d) => {
-    return d.toDateString();
+    if (birthDateSetting !== '') {
+      return makeAgeString(d, birthDateSetting);
+    } else {
+      return d.toDateString();
+    }
   });
 
   // log(`labels = ${result.labels}`);

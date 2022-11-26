@@ -59,6 +59,7 @@ import {
 } from 'chart.js';
 import { getColor, getDisplay } from '../utils/viewUtils';
 import { makeStringFromCashValue, makeTwoDP } from '../utils/stringUtils';
+import { isNumberString } from '../models/checks';
 
 export function makeBarData(
   labels: string[],
@@ -380,8 +381,8 @@ function makeBarChart(
                   );
                 }
                 const l = data.labels[index];
-                if (typeof l === 'number') {
-                  return `${l}`;
+                if (isNumberString(l)) {
+                  return l;
                 }
                 const d = new Date(l);
                 const freq = viewSettings.getViewSetting(
