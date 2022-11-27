@@ -2,7 +2,7 @@ import React, { Component, FormEvent } from 'react';
 
 import { log, printDebug } from '../../utils/utils';
 import { Input } from './Input';
-import { replaceWithModel } from '../../App';
+import { favouritesOnly, replaceWithModel } from '../../App';
 import { makeModelFromJSON } from '../../models/modelUtils';
 import { makeButton } from './Button';
 import {
@@ -10,6 +10,11 @@ import {
   checkOverwriteOption,
   evalModeOption,
   goToOverviewPageOption,
+  showTransactionsButtonOption,
+  showTaxButtonOption,
+  showAssetActionsButtonOption,
+  showOptimiserButtonOption,
+  favourites,
 } from '../../localization/stringConstants';
 
 interface ReplaceWithJSONFormState {
@@ -67,6 +72,10 @@ Options to toggle are
   goToOverviewPageOption
   checkModelOnEditOption
   evalModeOption
+  showTransactionsButtonOption
+  showTaxButtonOption
+  showAssetActionsButtonOption
+  showOptimiserButtonOption
 */
 
   public render() {
@@ -83,6 +92,72 @@ Options to toggle are
           onChange={this.handleValueChange}
           onSubmit={this.handleSubmit}
         />
+        {makeButton(
+          this.props.getOption(showTransactionsButtonOption)
+            ? `don't show Transactions button`
+            : 'do show Transactions button',
+          async (e: FormEvent<Element>) => {
+            await this.setState({
+              JSON: showTransactionsButtonOption,
+            });
+            this.replace(e);
+          },
+          'toggleTransB',
+          'toggleTransB',
+          'outline-secondary',
+        )}
+        {makeButton(
+          this.props.getOption(showTaxButtonOption)
+            ? `don't show Tax button`
+            : 'do show Tax button',
+          async (e: FormEvent<Element>) => {
+            await this.setState({
+              JSON: showTaxButtonOption,
+            });
+            this.replace(e);
+          },
+          'toggleTaxB',
+          'toggleTaxB',
+          'outline-secondary',
+        )}
+        {makeButton(
+          this.props.getOption(showAssetActionsButtonOption)
+            ? `don't show Asset Actions button`
+            : 'do show Asset Actions button',
+          async (e: FormEvent<Element>) => {
+            await this.setState({
+              JSON: showAssetActionsButtonOption,
+            });
+            this.replace(e);
+          },
+          'toggleAActionsB',
+          'toggleAActionsB',
+          'outline-secondary',
+        )}
+        {makeButton(
+          this.props.getOption(showTransactionsButtonOption)
+            ? `don't show Optimiser button`
+            : 'do show Optimiser button',
+          async (e: FormEvent<Element>) => {
+            await this.setState({
+              JSON: showOptimiserButtonOption,
+            });
+            this.replace(e);
+          },
+          'toggleOptB',
+          'toggleOptB',
+          'outline-secondary',
+        )}
+        <br></br>
+        {makeButton(
+          favouritesOnly() ? 'show all items' : `show favourite items`,
+          () => {
+            this.props.toggleOption(favourites);
+          },
+          'toggleFav',
+          'toggleFav',
+          'outline-secondary',
+        )}
         {makeButton(
           this.props.getOption(evalModeOption)
             ? `don't refresh charts on model edit`
@@ -167,6 +242,26 @@ Options to toggle are
     - 'evalMode'
     */
 
+    if (JSON === showTransactionsButtonOption) {
+      this.props.toggleOption(showTransactionsButtonOption);
+      this.setState({ JSON: '' });
+      return;
+    }
+    if (JSON === showTaxButtonOption) {
+      this.props.toggleOption(showTaxButtonOption);
+      this.setState({ JSON: '' });
+      return;
+    }
+    if (JSON === showAssetActionsButtonOption) {
+      this.props.toggleOption(showAssetActionsButtonOption);
+      this.setState({ JSON: '' });
+      return;
+    }
+    if (JSON === showOptimiserButtonOption) {
+      this.props.toggleOption(showOptimiserButtonOption);
+      this.setState({ JSON: '' });
+      return;
+    }
     if (JSON === overwriteWord) {
       this.props.toggleOption(checkOverwriteOption);
       this.setState({ JSON: '' });

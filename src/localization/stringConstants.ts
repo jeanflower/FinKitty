@@ -224,3 +224,7 @@ export const evalModeOption = 'evalMode';
 export const checkModelOnEditOption = 'checkModelOnEdit';
 export const goToOverviewPageOption = 'goToOverviewPage';
 export const checkOverwriteOption = 'checkOverwrite';
+export const showTransactionsButtonOption = 'showTransactionsButton';
+export const showTaxButtonOption = 'showTaxButton';
+export const showAssetActionsButtonOption = 'showAssetActionsButton';
+export const showOptimiserButtonOption = 'showOptimiserButton';

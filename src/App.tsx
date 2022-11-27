@@ -38,6 +38,11 @@ import {
   monthly,
   viewFrequency,
   favourites,
+  showTransactionsButtonOption,
+  taxView,
+  showAssetActionsButtonOption,
+  showOptimiserButtonOption,
+  showTaxButtonOption,
 } from './localization/stringConstants';
 import {
   AssetOrDebtVal,
@@ -1016,6 +1021,10 @@ Options to toggle are
   goToOverviewPageOption
   checkModelOnEditOption
   evalModeOption
+  showTransactionsButtonOption
+  showTaxButtonOption
+  showAssetActionsButtonOption
+  showOptimiserButtonOption
 */
 
 function toggleOption(type: string): void {
@@ -1051,6 +1060,17 @@ function toggleOption(type: string): void {
         true, // refreshModel
         true, // refreshChart
         33, //sourceID
+      );
+    } else if (
+      type === showTransactionsButtonOption ||
+      type === showTaxButtonOption ||
+      type === showAssetActionsButtonOption ||
+      type === showOptimiserButtonOption
+    ) {
+      refreshData(
+        true, // refreshModel
+        true, // refreshChart
+        99, //sourceID
       );
     }
   } else {
@@ -1345,6 +1365,38 @@ function checkOverwrite(): boolean {
     return false;
   }
 }
+function doShowTransactionsButton(): boolean {
+  if (reactAppComponent) {
+    const result = reactAppComponent.options.showTransactionsButton;
+    return result;
+  } else {
+    return false;
+  }
+}
+function doShowTaxButton(): boolean {
+  if (reactAppComponent) {
+    const result = reactAppComponent.options.showTaxButton;
+    return result;
+  } else {
+    return false;
+  }
+}
+function doShowAssetActionsButton(): boolean {
+  if (reactAppComponent) {
+    const result = reactAppComponent.options.showAssetActionsButton;
+    return result;
+  } else {
+    return false;
+  }
+}
+function doShowOptimiserButton(): boolean {
+  if (reactAppComponent) {
+    const result = reactAppComponent.options.showOptimiserButton;
+    return result;
+  } else {
+    return false;
+  }
+}
 export async function replaceWithModel(
   userName: string | undefined,
   thisModelName: string,
@@ -1507,6 +1559,10 @@ export class AppContent extends Component<AppProps, AppState> {
       evalMode: true,
       checkModelOnEdit: true,
       favouritesOnly: false,
+      showTransactionsButton: false,
+      showTaxButton: false,
+      showAssetActionsButton: false,
+      showOptimiserButton: false,
     };
     reactAppComponent = this;
     refreshData(
@@ -1989,7 +2045,6 @@ export class AppContent extends Component<AppProps, AppState> {
           getExampleModel={getExampleModel}
           getModelNames={getModelNames}
         />
-        <br></br>
         <div className="btn-group ml-3" role="group">
           {makeButton(
             'Delete model',
@@ -2144,30 +2199,6 @@ export class AppContent extends Component<AppProps, AppState> {
       <div className="ml-3">
         <div className="row">
           <div className="col-sm mb-4">
-            <div className="ml-3">
-              {makeButton(
-                'Create a new model',
-                async () => {
-                  const newNameFromUser = this.getNewName();
-                  if (!newNameFromUser.gotNameOK) {
-                    return;
-                  }
-                  if (await updateModelName(newNameFromUser.newName)) {
-                    // log(`created new model`);
-                    if (goToOverviewPage()) {
-                      await toggle(
-                        overview,
-                        23, //sourceID
-                      );
-                    }
-                  }
-                },
-                'startNewModel',
-                'startNewModel',
-                'outline-secondary',
-              )}
-            </div>
-            <br />
             {this.modelListForSelect(this.state.modelNamesData)}
             <br />
             {this.state.modelNamesData.length > 0
@@ -2424,17 +2455,6 @@ export class AppContent extends Component<AppProps, AppState> {
     buttons.push(this.makeUndoButton());
     buttons.push(this.makeRedoButton());
     buttons.push(this.makeSaveButton());
-    buttons.push(
-      makeButton(
-        favouritesOnly() ? 'Show all' : `Show favourites`,
-        () => {
-          toggleOption(favourites);
-        },
-        'toggleFav',
-        'toggleFav',
-        'outline-secondary',
-      ),
-    );
     return buttons;
   }
 
@@ -2453,6 +2473,22 @@ export class AppContent extends Component<AppProps, AppState> {
       const viewValue = views.get(view);
       if (viewValue === undefined) {
         log(`Error : unrecognised view ${view}`);
+        viewIterator = it.next();
+        continue;
+      }
+      if (view.lc === transactionsView.lc && !doShowTransactionsButton()) {
+        viewIterator = it.next();
+        continue;
+      }
+      if (view.lc === taxView.lc && !doShowTaxButton()) {
+        viewIterator = it.next();
+        continue;
+      }
+      if (view.lc === reportView.lc && !doShowAssetActionsButton()) {
+        viewIterator = it.next();
+        continue;
+      }
+      if (view.lc === optimizerView.lc && !doShowOptimiserButton()) {
         viewIterator = it.next();
         continue;
       }
