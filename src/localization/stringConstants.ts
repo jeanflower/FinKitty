@@ -228,3 +228,4 @@ export const showTransactionsButtonOption = 'showTransactionsButton';
 export const showTaxButtonOption = 'showTaxButton';
 export const showAssetActionsButtonOption = 'showAssetActionsButton';
 export const showOptimiserButtonOption = 'showOptimiserButton';
+export const showHistoricalOption = 'showHistorical';

@@ -43,6 +43,7 @@ import {
   showAssetActionsButtonOption,
   showOptimiserButtonOption,
   showTaxButtonOption,
+  showHistoricalOption,
 } from './localization/stringConstants';
 import {
   AssetOrDebtVal,
@@ -328,6 +329,13 @@ function evalMode(): boolean {
 export function favouritesOnly(): boolean {
   if (reactAppComponent) {
     return reactAppComponent.options.favourites;
+  } else {
+    return false;
+  }
+}
+export function showHistorical(): boolean {
+  if (reactAppComponent) {
+    return reactAppComponent.options.showHistorical;
   } else {
     return false;
   }
@@ -1025,6 +1033,7 @@ Options to toggle are
   showTaxButtonOption
   showAssetActionsButtonOption
   showOptimiserButtonOption
+  showHistoricalOption
 */
 
 function toggleOption(type: string): void {
@@ -1055,7 +1064,7 @@ function toggleOption(type: string): void {
         true, // refreshChart
         31, //sourceID
       );
-    } else if (type === favourites) {
+    } else if (type === favourites || type === showHistoricalOption) {
       refreshData(
         true, // refreshModel
         true, // refreshChart
@@ -1563,6 +1572,7 @@ export class AppContent extends Component<AppProps, AppState> {
       showTaxButton: false,
       showAssetActionsButton: false,
       showOptimiserButton: false,
+      showHistorical: true,
     };
     reactAppComponent = this;
     refreshData(

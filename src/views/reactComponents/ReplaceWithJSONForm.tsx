@@ -2,7 +2,7 @@ import React, { Component, FormEvent } from 'react';
 
 import { log, printDebug } from '../../utils/utils';
 import { Input } from './Input';
-import { favouritesOnly, replaceWithModel } from '../../App';
+import { favouritesOnly, replaceWithModel, showHistorical } from '../../App';
 import { makeModelFromJSON } from '../../models/modelUtils';
 import { makeButton } from './Button';
 import {
@@ -15,6 +15,7 @@ import {
   showAssetActionsButtonOption,
   showOptimiserButtonOption,
   favourites,
+  showHistoricalOption,
 } from '../../localization/stringConstants';
 
 interface ReplaceWithJSONFormState {
@@ -76,6 +77,7 @@ Options to toggle are
   showTaxButtonOption
   showAssetActionsButtonOption
   showOptimiserButtonOption
+  showHistoricalOption
 */
 
   public render() {
@@ -156,6 +158,15 @@ Options to toggle are
           },
           'toggleFav',
           'toggleFav',
+          'outline-secondary',
+        )}
+        {makeButton(
+          showHistorical() ? 'hide old items' : `show old items`,
+          () => {
+            this.props.toggleOption(showHistoricalOption);
+          },
+          'showHistoricalOption',
+          'showHistoricalOption',
           'outline-secondary',
         )}
         {makeButton(
@@ -282,7 +293,11 @@ Options to toggle are
       this.setState({ JSON: '' });
       return;
     }
-
+    if (JSON === showHistoricalOption) {
+      this.props.toggleOption(showHistoricalOption);
+      this.setState({ JSON: '' });
+      return;
+    }
     const i = this.state.JSON.indexOf(`{`);
     /* istanbul ignore if  */
     if (printDebug()) {

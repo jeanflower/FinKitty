@@ -69,6 +69,7 @@ import {
   setFavouriteTransaction,
   setFavouriteTrigger,
   setReportKey,
+  showHistorical,
   submitAsset,
   submitExpense,
   submitIncome,
@@ -102,6 +103,7 @@ import {
   getSettings,
   makeModelFromJSON,
   setSetting,
+  getVarVal,
 } from '../models/modelUtils';
 import {
   getNumberAndWordParts,
@@ -117,6 +119,7 @@ import {
   makeStringFromValueAbsProp,
   lessThan,
   makeTwoDP,
+  getTriggerDate,
 } from '../utils/stringUtils';
 import { ReactFragment } from 'react';
 import { Accordion, Button, Card } from 'react-bootstrap';
@@ -877,6 +880,107 @@ export function addIndices(unindexedResult: any[]) {
   return result;
 }
 
+function determineIfIsAsset(toBeDetermined: Item): toBeDetermined is Asset {
+  if ((toBeDetermined as Asset).CAN_BE_NEGATIVE !== undefined) {
+    return true;
+  }
+  return false;
+}
+function determineIfIsIncome(toBeDetermined: Item): toBeDetermined is Income {
+  if ((toBeDetermined as Income).LIABILITY !== undefined) {
+    return true;
+  }
+  return false;
+}
+function determineIfIsExpense(toBeDetermined: Item): toBeDetermined is Expense {
+  if (
+    (toBeDetermined as Expense).CPI_IMMUNE !== undefined &&
+    (toBeDetermined as Expense).RECURRENCE !== undefined
+  ) {
+    return true;
+  }
+  return false;
+}
+function determineIfIsTransaction(
+  toBeDetermined: Item,
+): toBeDetermined is Transaction {
+  if ((toBeDetermined as Transaction).FROM_ABSOLUTE !== undefined) {
+    return true;
+  }
+  return false;
+}
+function isHistorical(obj: Item, model: ModelData) {
+  if (determineIfIsAsset(obj)) {
+    return false;
+  } else {
+    const date = getTodaysDate(model);
+    const v = getVarVal(model.settings);
+    if (determineIfIsIncome(obj)) {
+      const i = obj as Income;
+      const hasFinished = getTriggerDate(i.END, model.triggers, v) < date;
+      if (hasFinished) {
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      if (determineIfIsExpense(obj)) {
+        const e = obj as Expense;
+        const hasFinished = getTriggerDate(e.END, model.triggers, v) < date;
+        if (hasFinished) {
+          return true;
+        } else {
+          return false;
+        }
+      } else {
+        if (determineIfIsTransaction(obj)) {
+          const t = obj as Transaction;
+          if (t.NAME.startsWith(revalue)) {
+            const tDate = getTriggerDate(t.DATE, model.triggers, v);
+            if (tDate < date) {
+              // this feels old - is this the latest revalue of this asset?
+              const assetName = t.TO;
+              const laterOldRevalue = model.transactions.find((lor) => {
+                if (lor === t) {
+                  return false;
+                }
+                if (!lor.NAME.startsWith(revalue)) {
+                  return false;
+                }
+                if (lor.TO !== assetName) {
+                  return false;
+                }
+                const lorDate = getTriggerDate(lor.DATE, model.triggers, v);
+                if (lorDate > date) {
+                  return false;
+                }
+                if (lorDate <= tDate) {
+                  return false;
+                }
+                return true;
+              });
+              if (laterOldRevalue) {
+                return true;
+              } else {
+                return false;
+              }
+            }
+          } else if (t.RECURRENCE === '') {
+            const tDate = getTriggerDate(t.DATE, model.triggers, v);
+            if (tDate < date) {
+              return true;
+            }
+          }
+          // TODO more filtering here
+          return false;
+        }
+      }
+    }
+  }
+  // include this thing
+  return false;
+}
+
 function assetsOrDebtsForTable(
   model: ModelData,
   todaysValues: Map<Asset, AssetOrDebtVal>,
@@ -888,6 +992,9 @@ function assetsOrDebtsForTable(
     })
     .filter((obj: Item) => {
       return !favouritesOnly() || obj.FAVOURITE;
+    })
+    .filter((obj: Item) => {
+      return showHistorical() || !isHistorical(obj, model);
     })
     .map((obj: Asset) => {
       const dbStringValue = obj.VALUE;
@@ -1007,6 +1114,9 @@ export function transactionsForTable(model: ModelData, type: string) {
     })
     .filter((obj: Item) => {
       return !favouritesOnly() || obj.FAVOURITE;
+    })
+    .filter((obj: Item) => {
+      return showHistorical() || !isHistorical(obj, model);
     })
     .map((obj: Transaction) => {
       // log(`obj.FROM_ABSOLUTE = ${obj.FROM_ABSOLUTE}`)
@@ -1503,6 +1613,9 @@ function triggersForTable(model: ModelData) {
     .filter((obj: Item) => {
       return !favouritesOnly() || obj.FAVOURITE;
     })
+    .filter((obj: Item) => {
+      return showHistorical() || !isHistorical(obj, model);
+    })
     .map((obj: Trigger) => {
       const mapResult = {
         DATE: obj.DATE,
@@ -1601,6 +1714,9 @@ function incomesForTable(
   const unindexedResult = model.incomes
     .filter((obj: Item) => {
       return !favouritesOnly() || obj.FAVOURITE;
+    })
+    .filter((obj: Item) => {
+      return showHistorical() || !isHistorical(obj, model);
     })
     .map((obj: Income) => {
       let todaysVForTable = 0.0;
@@ -1787,6 +1903,9 @@ function expensesForTable(
   const unindexedResult = model.expenses
     .filter((obj: Item) => {
       return !favouritesOnly() || obj.FAVOURITE;
+    })
+    .filter((obj: Item) => {
+      return showHistorical() || !isHistorical(obj, model);
     })
     .map((obj: Expense) => {
       let todaysVForTable = 0.0;
@@ -1992,6 +2111,9 @@ function settingsForTable(model: ModelData, doShow: (s: Setting) => boolean) {
   const unindexedResult = data
     .filter((obj: Item) => {
       return !favouritesOnly() || obj.FAVOURITE;
+    })
+    .filter((obj: Item) => {
+      return showHistorical() || !isHistorical(obj, model);
     })
     .filter(doShow)
     .filter((obj: Setting) => {
