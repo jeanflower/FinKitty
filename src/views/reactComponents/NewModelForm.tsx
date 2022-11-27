@@ -73,51 +73,59 @@ export class CreateModelForm extends Component<
 
   public render() {
     return (
-      <form
-        className="container-fluid"
-        onSubmit={async (e) => {
-          e.preventDefault();
-          // log(`make copy of minimal model`);
-          this.copyModel(minimalModel);
-        }}
-      >
-        <Input
-          type={'text'}
-          title={'Create new model'}
-          name={'createModel'}
-          value={this.state.newName}
-          placeholder={'Enter new model name here'}
-          onChange={this.handleValueChange}
-        />
-        {makeButton(
-          'New model',
-          async () => {
-            /* istanbul ignore if  */
-            if (printDebug()) {
-              log(`action on button for new model`);
-            }
+      <>
+        <div className="btn-group ml-3" role="group">
+          {makeButton(
+            'Make backup of model',
+            this.backupModel,
+            `btn-backup`,
+            `btn-backup`,
+            'outline-primary',
+          )}
+        </div>
+        <br></br>
+        <br></br>
+        <form
+          className="container-fluid"
+          onSubmit={async (e) => {
+            e.preventDefault();
+            // log(`make copy of minimal model`);
             this.copyModel(minimalModel);
-          },
-          `btn-createMinimalModel`,
-          `btn-createMinimalModel`,
-          'outline-primary',
-        )}
-        {makeButton(
-          'Make backup of model',
-          this.backupModel,
-          `btn-backup`,
-          `btn-backup`,
-          'outline-primary',
-        )}
-        {makeButton(
-          'Clone model',
-          this.clonePropsModel,
-          `btn-clone`,
-          `btn-clone`,
-          'outline-primary',
-        )}
-        {this.exampleButtonList()}
-      </form>
+          }}
+        >
+          <Input
+            type={'text'}
+            title={'Create new model'}
+            name={'createModel'}
+            value={this.state.newName}
+            placeholder={'Enter new model name here'}
+            onChange={this.handleValueChange}
+          />
+          {makeButton(
+            'New model',
+            async () => {
+              /* istanbul ignore if  */
+              if (printDebug()) {
+                log(`action on button for new model`);
+              }
+              this.copyModel(minimalModel);
+            },
+            `btn-createMinimalModel`,
+            `btn-createMinimalModel`,
+            'outline-primary',
+          )}
+          {makeButton(
+            'Clone model',
+            this.clonePropsModel,
+            `btn-clone`,
+            `btn-clone`,
+            'outline-primary',
+          )}
+          <br></br>
+          {this.exampleButtonList()}
+          <br></br>
+        </form>
+      </>
     );
   }
 
