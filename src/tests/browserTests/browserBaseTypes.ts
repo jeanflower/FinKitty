@@ -8,7 +8,12 @@ import {
   gotoTabPage,
   incomesTag,
 } from './browserTestUtils';
-import { showTransactionsButtonOption, showTaxButtonOption, showAssetActionsButtonOption, showOptimiserButtonOption } from '../../localization/stringConstants';
+import {
+  showTransactionsButtonOption,
+  showTaxButtonOption,
+  showAssetActionsButtonOption,
+  showOptimiserButtonOption,
+} from '../../localization/stringConstants';
 
 export function allowExtraSleeps() {
   if (
