@@ -269,4 +269,5 @@ export interface ViewCallbacks {
   updateStartDate: (newDate: string) => Promise<void>;
   updateEndDate: (newDate: string) => Promise<void>;
   filterForFavourites: (item: Item) => boolean;
+  filterForAge: (item: Item) => boolean;
 }

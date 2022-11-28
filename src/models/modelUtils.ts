@@ -19,8 +19,18 @@ import {
   replaceSeparatedString,
   makeDateFromString,
   checkTriggerDate,
+  getTriggerDate,
 } from '../utils/stringUtils';
-import { ModelData, ModelDataFromFile, Setting } from '../types/interfaces';
+import {
+  Asset,
+  Expense,
+  Income,
+  Item,
+  ModelData,
+  ModelDataFromFile,
+  Setting,
+  Transaction,
+} from '../types/interfaces';
 import { log, showObj } from '../utils/utils';
 import { checkData, isNumberString } from './checks';
 import { getTestModel } from './exampleModels';
@@ -577,4 +587,119 @@ export function makeRevalueName(name: string, model: ModelData) {
   }
   const newName = makeName(count, spacePart);
   return newName;
+}
+
+function determineIfIsAsset(toBeDetermined: Item): toBeDetermined is Asset {
+  if ((toBeDetermined as Asset).CAN_BE_NEGATIVE !== undefined) {
+    return true;
+  }
+  return false;
+}
+function determineIfIsIncome(toBeDetermined: Item): toBeDetermined is Income {
+  if ((toBeDetermined as Income).LIABILITY !== undefined) {
+    return true;
+  }
+  return false;
+}
+function determineIfIsExpense(toBeDetermined: Item): toBeDetermined is Expense {
+  if (
+    (toBeDetermined as Expense).CPI_IMMUNE !== undefined &&
+    (toBeDetermined as Expense).RECURRENCE !== undefined
+  ) {
+    return true;
+  }
+  return false;
+}
+function determineIfIsTransaction(
+  toBeDetermined: Item,
+): toBeDetermined is Transaction {
+  if ((toBeDetermined as Transaction).FROM_ABSOLUTE !== undefined) {
+    return true;
+  }
+  return false;
+}
+export function isHistorical(obj: Item, model: ModelData) {
+  if (determineIfIsAsset(obj)) {
+    return false;
+  } else {
+    const date = getTodaysDate(model);
+    const v = getVarVal(model.settings);
+    if (determineIfIsIncome(obj)) {
+      const i = obj as Income;
+      const hasFinished = getTriggerDate(i.END, model.triggers, v) < date;
+      if (hasFinished) {
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      if (determineIfIsExpense(obj)) {
+        const e = obj as Expense;
+        const hasFinished = getTriggerDate(e.END, model.triggers, v) < date;
+        if (hasFinished) {
+          return true;
+        } else {
+          return false;
+        }
+      } else {
+        if (determineIfIsTransaction(obj)) {
+          const t = obj as Transaction;
+          if (t.NAME.startsWith(revalue)) {
+            const itemName = t.TO;
+
+            const matchedExpense = model.expenses.find((e) => {
+              return e.NAME === itemName;
+            });
+            if (matchedExpense && isHistorical(matchedExpense, model)) {
+              return true;
+            }
+            const matchedIncome = model.incomes.find((e) => {
+              return e.NAME === itemName;
+            });
+            if (matchedIncome && isHistorical(matchedIncome, model)) {
+              return true;
+            }
+
+            const tDate = getTriggerDate(t.DATE, model.triggers, v);
+            if (tDate < date) {
+              // this feels old - is this the latest revalue of this asset?
+              const laterOldRevalue = model.transactions.find((lor) => {
+                if (lor === t) {
+                  return false;
+                }
+                if (!lor.NAME.startsWith(revalue)) {
+                  return false;
+                }
+                if (lor.TO !== itemName) {
+                  return false;
+                }
+                const lorDate = getTriggerDate(lor.DATE, model.triggers, v);
+                if (lorDate > date) {
+                  return false;
+                }
+                if (lorDate <= tDate) {
+                  return false;
+                }
+                return true;
+              });
+              if (laterOldRevalue) {
+                return true;
+              } else {
+                return false;
+              }
+            }
+          } else if (t.RECURRENCE === '') {
+            const tDate = getTriggerDate(t.DATE, model.triggers, v);
+            if (tDate < date) {
+              return true;
+            }
+          }
+          // TODO more filtering here
+          return false;
+        }
+      }
+    }
+  }
+  // include this thing
+  return false;
 }
