@@ -936,10 +936,24 @@ function isHistorical(obj: Item, model: ModelData) {
         if (determineIfIsTransaction(obj)) {
           const t = obj as Transaction;
           if (t.NAME.startsWith(revalue)) {
+            const itemName = t.TO;
+
+            const matchedExpense = model.expenses.find((e) => {
+              return e.NAME === itemName;
+            });
+            if (matchedExpense && isHistorical(matchedExpense, model)) {
+              return true;
+            }
+            const matchedIncome = model.incomes.find((e) => {
+              return e.NAME === itemName;
+            });
+            if (matchedIncome && isHistorical(matchedIncome, model)) {
+              return true;
+            }
+
             const tDate = getTriggerDate(t.DATE, model.triggers, v);
             if (tDate < date) {
               // this feels old - is this the latest revalue of this asset?
-              const assetName = t.TO;
               const laterOldRevalue = model.transactions.find((lor) => {
                 if (lor === t) {
                   return false;
@@ -947,7 +961,7 @@ function isHistorical(obj: Item, model: ModelData) {
                 if (!lor.NAME.startsWith(revalue)) {
                   return false;
                 }
-                if (lor.TO !== assetName) {
+                if (lor.TO !== itemName) {
                   return false;
                 }
                 const lorDate = getTriggerDate(lor.DATE, model.triggers, v);

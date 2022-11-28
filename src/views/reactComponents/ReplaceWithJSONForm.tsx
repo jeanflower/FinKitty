@@ -137,7 +137,7 @@ Options to toggle are
           'outline-secondary',
         )}
         {makeButton(
-          this.props.getOption(showTransactionsButtonOption)
+          this.props.getOption(showOptimiserButtonOption)
             ? `don't show Optimiser button`
             : 'do show Optimiser button',
           async (e: FormEvent<Element>) => {
