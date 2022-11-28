@@ -7,6 +7,7 @@ import {
   ItemChartData,
   ModelData,
   Setting,
+  ViewCallbacks,
 } from '../types/interfaces';
 import {
   allItems,
@@ -437,20 +438,16 @@ function incomesChart(
 function noDataToDisplayFragment(
   word: string,
   model: ModelData | undefined = undefined,
-  showAlert: ((arg0: string) => void) | undefined = undefined,
-  getStartDate: (() => string) | undefined = undefined,
-  updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
-  getEndDate: (() => string) | undefined = undefined,
-  updateEndDate: ((newDate: string) => Promise<void>) | undefined = undefined,
+  parentCallbacks: ViewCallbacks,
 ) {
   // log(`in noDataToDisplayFragment`);
   if (
     model === undefined ||
-    showAlert === undefined ||
-    getStartDate === undefined ||
-    updateStartDate === undefined ||
-    getEndDate === undefined ||
-    updateEndDate === undefined
+    parentCallbacks.showAlert === undefined ||
+    parentCallbacks.getStartDate === undefined ||
+    parentCallbacks.updateStartDate === undefined ||
+    parentCallbacks.getEndDate === undefined ||
+    parentCallbacks.updateEndDate === undefined
   ) {
     return (
       <>
@@ -489,15 +486,15 @@ function noDataToDisplayFragment(
           <div className="d-inline-flex p-2">
             <AddDeleteEntryForm
               name="view start date"
-              getValue={getStartDate}
-              submitFunction={updateStartDate}
-              showAlert={showAlert}
+              getValue={parentCallbacks.getStartDate}
+              submitFunction={parentCallbacks.updateStartDate}
+              showAlert={parentCallbacks.showAlert}
             />
             <AddDeleteEntryForm
               name="view end date"
-              getValue={getEndDate}
-              submitFunction={updateEndDate}
-              showAlert={showAlert}
+              getValue={parentCallbacks.getEndDate}
+              submitFunction={parentCallbacks.updateEndDate}
+              showAlert={parentCallbacks.showAlert}
             />
           </div>
           <br />
@@ -513,23 +510,11 @@ export function incomesChartDiv(
   chartSettings: ChartSettings,
   viewSettings: ViewSettings,
   model: ModelData | undefined = undefined,
-  showAlert: ((arg0: string) => void) | undefined = undefined,
-  getStartDate: (() => string) | undefined = undefined,
-  updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
-  getEndDate: (() => string) | undefined = undefined,
-  updateEndDate: ((newDate: string) => Promise<void>) | undefined = undefined,
+  parentCallbacks: ViewCallbacks,
 ): JSX.Element {
   if (incomesChartData.labels.length === 0) {
     log(`incomesChartData.length === 0, no data`);
-    return noDataToDisplayFragment(
-      'income',
-      model,
-      showAlert,
-      getStartDate,
-      updateStartDate,
-      getEndDate,
-      updateEndDate,
-    );
+    return noDataToDisplayFragment('income', model, parentCallbacks);
   } else {
     return incomesChart(incomesChartData, chartSettings, viewSettings);
   }
@@ -557,11 +542,7 @@ export function incomesChartDivWithButtons(
   settings: ViewSettings,
   incomesChartData: ChartData,
   chartSettings: ChartSettings,
-  showAlert: ((arg0: string) => void) | undefined = undefined,
-  getStartDate: (() => string) | undefined = undefined,
-  updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
-  getEndDate: (() => string) | undefined = undefined,
-  updateEndDate: ((newDate: string) => Promise<void>) | undefined = undefined,
+  parentCallbacks: ViewCallbacks,
 ) {
   if (model.incomes.length === 0) {
     return (
@@ -570,15 +551,7 @@ export function incomesChartDivWithButtons(
           identifier="incomeDataDump"
           message={showObj(incomesChartData)}
         />
-        {noDataToDisplayFragment(
-          'income',
-          model,
-          showAlert,
-          getStartDate,
-          updateStartDate,
-          getEndDate,
-          updateEndDate,
-        )}
+        {noDataToDisplayFragment('income', model, parentCallbacks)}
       </>
     );
   } else {
@@ -599,11 +572,7 @@ export function incomesChartDivWithButtons(
           chartSettings,
           settings,
           model,
-          showAlert,
-          getStartDate,
-          updateStartDate,
-          getEndDate,
-          updateEndDate,
+          parentCallbacks,
         )}
       </div>
     );
@@ -623,22 +592,10 @@ export function expensesChartDiv(
   chartSettings: ChartSettings,
   viewSettings: ViewSettings,
   model: ModelData | undefined = undefined,
-  showAlert: ((arg0: string) => void) | undefined = undefined,
-  getStartDate: (() => string) | undefined = undefined,
-  updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
-  getEndDate: (() => string) | undefined = undefined,
-  updateEndDate: ((newDate: string) => Promise<void>) | undefined = undefined,
+  parentCallbacks: ViewCallbacks,
 ) {
   if (expensesChartData.labels.length === 0) {
-    return noDataToDisplayFragment(
-      'expense',
-      model,
-      showAlert,
-      getStartDate,
-      updateStartDate,
-      getEndDate,
-      updateEndDate,
-    );
+    return noDataToDisplayFragment('expense', model, parentCallbacks);
   } else {
     return expensesChart(expensesChartData, chartSettings, viewSettings);
   }
@@ -649,11 +606,7 @@ export function expensesChartDivWithButtons(
   settings: ViewSettings,
   expensesChartData: ChartData,
   chartSettings: ChartSettings,
-  showAlert: ((arg0: string) => void) | undefined = undefined,
-  getStartDate: (() => string) | undefined = undefined,
-  updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
-  getEndDate: (() => string) | undefined = undefined,
-  updateEndDate: ((newDate: string) => Promise<void>) | undefined = undefined,
+  parentCallbacks: ViewCallbacks,
 ) {
   if (model.expenses.length === 0) {
     return (
@@ -662,15 +615,7 @@ export function expensesChartDivWithButtons(
           identifier="expenseDataDump"
           message={showObj(expensesChartData)}
         />
-        {noDataToDisplayFragment(
-          'expense',
-          model,
-          showAlert,
-          getStartDate,
-          updateStartDate,
-          getEndDate,
-          updateEndDate,
-        )}
+        {noDataToDisplayFragment('expense', model, parentCallbacks)}
       </>
     );
   } else {
@@ -692,11 +637,7 @@ export function expensesChartDivWithButtons(
             chartSettings,
             settings,
             model,
-            showAlert,
-            getStartDate,
-            updateStartDate,
-            getEndDate,
-            updateEndDate,
+            parentCallbacks,
           )}
         </fieldset>
       </div>
@@ -733,21 +674,13 @@ export function assetsOrDebtsChartDiv(
   chartSettings: ChartSettings,
   viewSettings: ViewSettings,
   model: ModelData | undefined = undefined,
-  showAlert: ((arg0: string) => void) | undefined = undefined,
-  getStartDate: (() => string) | undefined = undefined,
-  updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
-  getEndDate: (() => string) | undefined = undefined,
-  updateEndDate: ((newDate: string) => Promise<void>) | undefined = undefined,
+  parentCallbacks: ViewCallbacks,
 ) {
   if (assetChartData.labels.length === 0) {
     return noDataToDisplayFragment(
       isDebt ? 'debt' : 'asset',
       model,
-      showAlert,
-      getStartDate,
-      updateStartDate,
-      getEndDate,
-      updateEndDate,
+      parentCallbacks,
     );
   } else {
     return makeContainedBarChart(assetChartData, chartSettings, viewSettings);
@@ -759,11 +692,7 @@ export function assetsOrDebtsChartDivWithButtons(
   viewSettings: ViewSettings,
   assetChartData: ChartData,
   isDebt: boolean,
-  showAlert: ((arg0: string) => void) | undefined = undefined,
-  getStartDate: (() => string) | undefined = undefined,
-  updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
-  getEndDate: (() => string) | undefined = undefined,
-  updateEndDate: ((newDate: string) => Promise<void>) | undefined = undefined,
+  parentCallbacks: ViewCallbacks,
 ) {
   if (
     model.assets.filter((a) => {
@@ -778,15 +707,7 @@ export function assetsOrDebtsChartDivWithButtons(
           identifier={dataDumpName}
           message={showObj(assetChartData)}
         />
-        {noDataToDisplayFragment(
-          word,
-          model,
-          showAlert,
-          getStartDate,
-          updateStartDate,
-          getEndDate,
-          updateEndDate,
-        )}
+        {noDataToDisplayFragment(word, model, parentCallbacks)}
       </>
     );
   } else {
@@ -815,11 +736,7 @@ export function assetsOrDebtsChartDivWithButtons(
           getDefaultChartSettings(viewSettings, model.settings),
           viewSettings,
           model,
-          showAlert,
-          getStartDate,
-          updateStartDate,
-          getEndDate,
-          updateEndDate,
+          parentCallbacks,
         )}
       </div>
     );

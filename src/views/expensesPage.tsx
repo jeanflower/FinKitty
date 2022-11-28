@@ -4,6 +4,7 @@ import {
   ModelData,
   ExpenseVal,
   Expense,
+  ViewCallbacks,
 } from '../types/interfaces';
 import { checkExpense, checkTransaction } from '../models/checks';
 import {
@@ -168,16 +169,10 @@ export function todaysExpensesTable(
 export function expensesDiv(
   model: ModelData,
   viewSettings: ViewSettings,
-  showAlert: (arg0: string) => void,
-  deleteTransactions: (arg: string[]) => void,
-  deleteExpenses: (arg: string[]) => void,
   doChecks: boolean,
   expensesChartData: ChartData,
   todaysValues: Map<Expense, ExpenseVal>,
-  getStartDate: (() => string) | undefined = undefined,
-  updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
-  getEndDate: (() => string) | undefined = undefined,
-  updateEndDate: ((newDate: string) => Promise<void>) | undefined = undefined,
+  parentCallbacks: ViewCallbacks,
 ) {
   if (!getDisplay(expensesView)) {
     // log(`don't populate expensesView`);
@@ -192,29 +187,23 @@ export function expensesDiv(
           viewSettings,
           expensesChartData,
           getDefaultChartSettings(viewSettings, model.settings),
-          showAlert,
-          getStartDate,
-          updateStartDate,
-          getEndDate,
-          updateEndDate,
+          parentCallbacks,
         ),
         'Expenses data chart',
       )}
       {expensesTableDivWithHeading(
         model,
         todaysValues,
-        showAlert,
-        deleteExpenses,
         doChecks,
+        parentCallbacks,
       )}
       {todaysExpensesTable(model, todaysValues)}
       {transactionFilteredTable(
         model,
-        showAlert,
-        deleteTransactions,
         doChecks,
         revalueExp,
         'Expense revaluations',
+        parentCallbacks,
       )}
       {collapsibleFragment(
         <div className="addNewExpense">
@@ -224,7 +213,7 @@ export function expensesDiv(
             deleteFunction={deleteExpense}
             submitTriggerFunction={submitTrigger}
             model={model}
-            showAlert={showAlert}
+            showAlert={parentCallbacks.showAlert}
             checkTransactionFunction={checkTransaction}
             submitTransactionFunction={submitTransaction}
           />

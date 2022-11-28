@@ -64,6 +64,7 @@ import {
   ReportDatum,
   ReportMatcher,
   ReportValueChecker,
+  ViewCallbacks,
 } from './types/interfaces';
 import { Context, log, printDebug, saveLogs, showObj } from './utils/utils';
 import { loginPage, navbarContent } from './views/loginPage';
@@ -1694,7 +1695,31 @@ export class AppContent extends Component<AppProps, AppState> {
         updateSettingValue(roiEnd, newDate);
       };
 
+      const filterForFavourites = (item: Item) => {
+        const favesOnly = favouritesOnly();
+        if (favesOnly) {
+          if (item.FAVOURITE) {
+            return true;
+          } else {
+            return false;
+          }
+        } else {
+          return true;
+        }
+      };
+
       // log(`report is length ${this.state.reportData.length}`);
+
+      const parentCallbacks: ViewCallbacks = {
+        showAlert: showAlert,
+        deleteTransactions: deleteTransactions,
+        deleteExpenses: deleteExpenses,
+        getStartDate: getStartDate,
+        getEndDate: getEndDate,
+        updateStartDate: updateStartDate,
+        updateEndDate: updateEndDate,
+        filterForFavourites: filterForFavourites,
+      };
 
       return (
         <>
@@ -1707,86 +1732,59 @@ export class AppContent extends Component<AppProps, AppState> {
               this.state.todaysIncomeValues,
               this.state.todaysExpenseValues,
               this.state.viewState,
-              showAlert,
-              deleteTransactions,
-              deleteExpenses,
               this.options.checkModelOnEdit,
               this.state.assetChartData,
               this.state.debtChartData,
               this.state.expensesChartData,
               this.state.incomesChartData,
               this.state.taxChartData,
-              getStartDate,
-              updateStartDate,
-              getEndDate,
-              updateEndDate,
+              parentCallbacks,
             )}
             {this.settingsDiv(
               this.state.modelData,
               this.state.todaysSettingValues,
-              deleteTransactions,
+              parentCallbacks,
             )}
             {incomesDiv(
               this.state.modelData,
               this.state.viewState,
-              showAlert,
-              deleteTransactions,
               this.options.checkModelOnEdit,
               this.state.incomesChartData,
               this.state.todaysIncomeValues,
-              getStartDate,
-              updateStartDate,
-              getEndDate,
-              updateEndDate,
+              parentCallbacks,
             )}
             {expensesDiv(
               this.state.modelData,
               this.state.viewState,
-              showAlert,
-              deleteTransactions,
-              deleteExpenses,
               this.options.checkModelOnEdit,
               this.state.expensesChartData,
               this.state.todaysExpenseValues,
-              getStartDate,
-              updateStartDate,
-              getEndDate,
-              updateEndDate,
+              parentCallbacks,
             )}
             {assetsDiv(
               this.state.modelData,
               this.state.viewState,
-              showAlert,
-              deleteTransactions,
               this.options.checkModelOnEdit,
               this.state.assetChartData,
               this.state.todaysAssetValues,
-              getStartDate,
-              updateStartDate,
-              getEndDate,
-              updateEndDate,
+              parentCallbacks,
             )}
             {debtsDiv(
               this.state.modelData,
               this.state.viewState,
-              showAlert,
-              deleteTransactions,
               this.options.checkModelOnEdit,
               this.state.debtChartData,
               this.state.todaysDebtValues,
-              getStartDate,
-              updateStartDate,
-              getEndDate,
-              updateEndDate,
+              parentCallbacks,
             )}
-            {this.transactionsDiv(deleteTransactions)}
+            {this.transactionsDiv(parentCallbacks)}
             {taxDiv(
               this.state.modelData,
               this.state.viewState,
               this.state.taxChartData,
               this.state.totalTaxPaid,
             )}
-            {this.triggersDiv()}
+            {this.triggersDiv(parentCallbacks)}
             {reportDiv(
               this.state.modelData,
               this.state.viewState,
@@ -1799,8 +1797,8 @@ export class AppContent extends Component<AppProps, AppState> {
             {optimizerDiv(
               this.state.modelData,
               this.state.viewState,
-              showAlert,
               this.state.optimizationChartData,
+              parentCallbacks,
             )}{' '}
           </>
         </>
@@ -2284,7 +2282,7 @@ export class AppContent extends Component<AppProps, AppState> {
   private settingsDiv(
     model: ModelData,
     todaysValues: Map<Setting, SettingVal>,
-    deleteTransactions: (arg: string[]) => void,
+    parentCallbacks: ViewCallbacks,
   ): JSX.Element {
     if (!getDisplay(settingsView)) {
       // log(`don't populate settingsView`);
@@ -2296,9 +2294,8 @@ export class AppContent extends Component<AppProps, AppState> {
         <fieldset>
           {settingsTableDiv(
             this.state.modelData,
-            showAlert,
-            deleteTransactions,
             this.options.checkModelOnEdit,
+            parentCallbacks,
           )}
           {this.todaysSettingsTable(model, todaysValues)}
           <p />
@@ -2332,7 +2329,7 @@ export class AppContent extends Component<AppProps, AppState> {
     );
   }
 
-  private triggersDiv(): JSX.Element {
+  private triggersDiv(parentCallbacks: ViewCallbacks): JSX.Element {
     if (!getDisplay(triggersView)) {
       // log(`don't populate triggersView`);
       return <></>;
@@ -2343,8 +2340,8 @@ export class AppContent extends Component<AppProps, AppState> {
       <div className="ml-3">
         {triggersTableDivWithHeading(
           this.state.modelData,
-          showAlert,
           this.options.checkModelOnEdit,
+          parentCallbacks,
         )}
         <p />
         {collapsibleFragment(
@@ -2363,9 +2360,7 @@ export class AppContent extends Component<AppProps, AppState> {
     );
   }
 
-  private transactionsDiv(
-    deleteTransactions: (arg: string[]) => void,
-  ): JSX.Element {
+  private transactionsDiv(parentCallbacks: ViewCallbacks): JSX.Element {
     if (!getDisplay(transactionsView)) {
       // log(`don't populate transactionsView`);
       return <></>;
@@ -2376,27 +2371,24 @@ export class AppContent extends Component<AppProps, AppState> {
       <div className="ml-3">
         {transactionFilteredTable(
           this.state.modelData,
-          showAlert,
-          deleteTransactions,
           this.options.checkModelOnEdit,
           custom,
           'Custom transactions',
+          parentCallbacks,
         )}
         {transactionFilteredTable(
           this.state.modelData,
-          showAlert,
-          deleteTransactions,
           this.options.checkModelOnEdit,
           autogen,
           'Auto-generated transactions',
+          parentCallbacks,
         )}
         {transactionFilteredTable(
           this.state.modelData,
-          showAlert,
-          deleteTransactions,
           this.options.checkModelOnEdit,
           bondInvest,
           'Bond transactions',
+          parentCallbacks,
         )}
         <p />
         <div className="addNewTransaction">
@@ -2413,7 +2405,7 @@ export class AppContent extends Component<AppProps, AppState> {
             deleteFunction={deleteTransaction}
             submitTriggerFunction={submitTrigger}
             model={this.state.modelData}
-            showAlert={showAlert}
+            showAlert={parentCallbacks.showAlert}
           />
         </div>
       </div>

@@ -4,6 +4,7 @@ import {
   ModelData,
   AssetOrDebtVal,
   Asset,
+  ViewCallbacks,
 } from './../types/interfaces';
 import { checkAsset, checkTransaction } from '../models/checks';
 import {
@@ -152,15 +153,10 @@ export function todaysDebtsTable(
 export function debtsDiv(
   model: ModelData,
   viewSettings: ViewSettings,
-  showAlert: (arg0: string) => void,
-  deleteTransactions: (arg: string[]) => void,
   doChecks: boolean,
   debtChartData: ChartData,
   todaysDebtValues: Map<Asset, AssetOrDebtVal>,
-  getStartDate: (() => string) | undefined = undefined,
-  updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
-  getEndDate: (() => string) | undefined = undefined,
-  updateEndDate: ((newDate: string) => Promise<void>) | undefined = undefined,
+  parentCallbacks: ViewCallbacks,
 ) {
   if (!getDisplay(debtsView)) {
     // log(`don't populate debtsView`);
@@ -176,21 +172,11 @@ export function debtsDiv(
           viewSettings,
           debtChartData,
           true,
-          showAlert,
-          getStartDate,
-          updateStartDate,
-          getEndDate,
-          updateEndDate,
+          parentCallbacks,
         ),
         'Debts data chart',
       )}
-      {debtsDivWithHeadings(
-        model,
-        todaysDebtValues,
-        showAlert,
-        deleteTransactions,
-        doChecks,
-      )}
+      {debtsDivWithHeadings(model, todaysDebtValues, doChecks, parentCallbacks)}
       {todaysDebtsTable(model, todaysDebtValues)}
       {collapsibleFragment(
         <div className="addNewDebt">
@@ -202,7 +188,7 @@ export function debtsDiv(
             deleteAssetFunction={deleteAsset}
             submitTriggerFunction={submitTrigger}
             model={model}
-            showAlert={showAlert}
+            showAlert={parentCallbacks.showAlert}
           />
         </div>,
         'Add or revalue a debt',

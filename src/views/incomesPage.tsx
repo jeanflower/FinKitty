@@ -4,6 +4,7 @@ import {
   ModelData,
   IncomeVal,
   Income,
+  ViewCallbacks,
 } from '../types/interfaces';
 import { checkIncome, checkTransaction } from '../models/checks';
 import {
@@ -160,15 +161,10 @@ export function todaysIncomesTable(
 export function incomesDiv(
   model: ModelData,
   viewSettings: ViewSettings,
-  showAlert: (arg0: string) => void,
-  deleteTransactions: (arg: string[]) => void,
   doChecks: boolean,
   incomesChartData: ChartData,
   todaysValues: Map<Income, IncomeVal>,
-  getStartDate: (() => string) | undefined = undefined,
-  updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
-  getEndDate: (() => string) | undefined = undefined,
-  updateEndDate: ((newDate: string) => Promise<void>) | undefined = undefined,
+  parentCallbacks: ViewCallbacks,
 ) {
   if (!getDisplay(incomesView)) {
     // log(`don't populate incomesView`);
@@ -183,23 +179,23 @@ export function incomesDiv(
           viewSettings,
           incomesChartData,
           getDefaultChartSettings(viewSettings, model.settings),
-          showAlert,
-          getStartDate,
-          updateStartDate,
-          getEndDate,
-          updateEndDate,
+          parentCallbacks,
         ),
         'Incomes data chart',
       )}
-      {incomesTableDivWithHeading(model, todaysValues, showAlert, doChecks)}
+      {incomesTableDivWithHeading(
+        model,
+        todaysValues,
+        doChecks,
+        parentCallbacks,
+      )}
       {todaysIncomesTable(model, todaysValues)}
       {transactionFilteredTable(
         model,
-        showAlert,
-        deleteTransactions,
         doChecks,
         revalueInc,
         'Income revaluations',
+        parentCallbacks,
       )}
 
       {collapsibleFragment(
@@ -212,7 +208,7 @@ export function incomesDiv(
             deleteFunction={deleteIncome}
             submitTriggerFunction={submitTrigger}
             model={model}
-            showAlert={showAlert}
+            showAlert={parentCallbacks.showAlert}
           />
         </div>,
         'Add an income, a defined-benefits pension, or revalue an income',

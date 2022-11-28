@@ -7,6 +7,7 @@ import {
   Asset,
   Expense,
   Income,
+  ViewCallbacks,
 } from '../types/interfaces';
 import {
   assetsDivWithHeadings,
@@ -43,6 +44,8 @@ import { ViewSettings } from '../models/charting';
 import { Col, Container, Row } from 'react-bootstrap';
 import { log, printDebug } from '../utils/utils';
 import { getDisplay } from '../utils/viewUtils';
+import { makeButton } from './reactComponents/Button';
+// import Fuse from 'fuse.js';
 
 function suppressLegend(barData: ChartData) {
   return {
@@ -53,16 +56,12 @@ function suppressLegend(barData: ChartData) {
 function chartsForOverview(
   model: ModelData,
   viewSettings: ViewSettings,
-  showAlert: (arg0: string) => void,
   assetChartData: ChartData,
   debtChartData: ChartData,
   expensesChartData: ChartData,
   incomesChartData: ChartData,
   taxChartData: ChartData,
-  getStartDate: () => string,
-  updateStartDate: (newDate: string) => Promise<void>,
-  getEndDate: () => string,
-  updateEndDate: (newDate: string) => Promise<void>,
+  parentCallbacks: ViewCallbacks,
 ) {
   return (
     <Container>
@@ -72,6 +71,8 @@ function chartsForOverview(
             suppressLegend(incomesChartData),
             getSmallerChartSettings(viewSettings, model.settings, 'Incomes'),
             viewSettings,
+            undefined,
+            parentCallbacks,
           )}
         </Col>
         <Col>
@@ -79,6 +80,8 @@ function chartsForOverview(
             suppressLegend(expensesChartData),
             getSmallerChartSettings(viewSettings, model.settings, 'Expenses'),
             viewSettings,
+            undefined,
+            parentCallbacks,
           )}
         </Col>
         <Col>
@@ -87,6 +90,8 @@ function chartsForOverview(
             false,
             getSmallerChartSettings(viewSettings, model.settings, 'Assets'),
             viewSettings,
+            undefined,
+            parentCallbacks,
           )}
         </Col>
       </Row>
@@ -104,20 +109,22 @@ function chartsForOverview(
             true,
             getSmallerChartSettings(viewSettings, model.settings, 'Debts'),
             viewSettings,
+            undefined,
+            parentCallbacks,
           )}
         </Col>
         <Col>
           <AddDeleteEntryForm
             name="view start date"
-            getValue={getStartDate}
-            submitFunction={updateStartDate}
-            showAlert={showAlert}
+            getValue={parentCallbacks.getStartDate}
+            submitFunction={parentCallbacks.updateStartDate}
+            showAlert={parentCallbacks.showAlert}
           />
           <AddDeleteEntryForm
             name="view end date"
-            getValue={getEndDate}
-            submitFunction={updateEndDate}
-            showAlert={showAlert}
+            getValue={parentCallbacks.getEndDate}
+            submitFunction={parentCallbacks.updateEndDate}
+            showAlert={parentCallbacks.showAlert}
           />
           {coarseFineList(viewSettings, {
             labels: [],
@@ -133,12 +140,11 @@ function chartsForOverview(
 
 function transactionsOverviewDiv(
   model: ModelData,
-  showAlert: (arg0: string) => void,
-  deleteTransactions: (arg: string[]) => void,
   doChecks: boolean,
+  parentCallbacks: ViewCallbacks,
 ) {
-  const customContents = transactionsForTable(model, custom);
-  const autogenContents = transactionsForTable(model, autogen);
+  const customContents = transactionsForTable(model, custom, parentCallbacks);
+  const autogenContents = transactionsForTable(model, autogen, parentCallbacks);
   if (customContents.length === 0 && autogenContents.length === 0) {
     return;
   }
@@ -147,28 +153,25 @@ function transactionsOverviewDiv(
       {transactionsTableDiv(
         customContents,
         model,
-        showAlert,
-        deleteTransactions,
         doChecks,
         'Custom transactions',
         'Custom transactions',
+        parentCallbacks,
       )}
       {transactionsTableDiv(
         autogenContents,
         model,
-        showAlert,
-        deleteTransactions,
         doChecks,
         'Auto-generated transactions',
         'Auto-generated transactions',
+        parentCallbacks,
       )}
       {transactionFilteredTable(
         model,
-        showAlert,
-        deleteTransactions,
         doChecks,
         bondInvest,
         'Bond transactions',
+        parentCallbacks,
       )}
     </>
   );
@@ -180,19 +183,13 @@ export function overviewDiv(
   todaysIncomeValues: Map<Income, IncomeVal>,
   todaysExpenseValues: Map<Expense, ExpenseVal>,
   viewSettings: ViewSettings,
-  showAlert: (arg0: string) => void,
-  deleteTransactions: (arg: string[]) => void,
-  deleteExpenses: (arg: string[]) => void,
   doChecks: boolean,
   assetChartData: ChartData,
   debtChartData: ChartData,
   expensesChartData: ChartData,
   incomesChartData: ChartData,
   taxChartData: ChartData,
-  getStartDate: () => string,
-  updateStartDate: (newDate: string) => Promise<void>,
-  getEndDate: () => string,
-  updateEndDate: (newDate: string) => Promise<void>,
+  parentCallbacks: ViewCallbacks,
 ) {
   /* istanbul ignore if  */
   if (printDebug()) {
@@ -213,77 +210,103 @@ export function overviewDiv(
 
   return (
     <div className="ml-3">
+      {makeButton(
+        'search model',
+        () => {
+          /*
+          const options = {
+            // isCaseSensitive: false,
+            // includeScore: false,
+            // shouldSort: true,
+            // includeMatches: false,
+            // findAllMatches: false,
+            // minMatchCharLength: 1,
+            // location: 0,
+            // threshold: 0.6,
+            // distance: 100,
+            // useExtendedSearch: false,
+            // ignoreLocation: false,
+            // ignoreFieldNorm: false,
+            // fieldNormWeight: 1,
+            keys: ['NAME', 'CATEGORY'],
+          };
+          const list = ([...model.assets] as Item[])
+            .concat(model.incomes)
+            .concat(model.expenses)
+            .concat(model.transactions)
+            .concat(model.settings);
+
+          const fuse = new Fuse(list, options);
+
+          // Change the pattern
+          const pattern = prompt('search term');
+          if (pattern !== null) {
+            const searchResult = fuse.search(pattern);
+            log(`searchResult ${searchResult.map(showObj)}`);
+          }
+          */
+        },
+        'search model',
+        'search model',
+        'outline-secondary',
+      )}
       {chartDataExists ? (
         chartsForOverview(
           model,
           viewSettings,
-          showAlert,
           assetChartData,
           debtChartData,
           expensesChartData,
           incomesChartData,
           taxChartData,
-          getStartDate,
-          updateStartDate,
-          getEndDate,
-          updateEndDate,
+          parentCallbacks,
         )
       ) : (
         <></>
       )}
       <div className={chartDataExists ? 'scrollClass resizeClass' : ''}>
         <br />
-        {triggersTableDivWithHeading(model, showAlert, doChecks)}
+        {triggersTableDivWithHeading(model, doChecks, parentCallbacks)}
         {incomesTableDivWithHeading(
           model,
           todaysIncomeValues,
-          showAlert,
           doChecks,
+          parentCallbacks,
         )}
         {transactionFilteredTable(
           model,
-          showAlert,
-          deleteTransactions,
           doChecks,
           revalueInc,
           'Income revaluations',
+          parentCallbacks,
         )}
         {expensesTableDivWithHeading(
           model,
           todaysExpenseValues,
-          showAlert,
-          deleteExpenses,
           doChecks,
+          parentCallbacks,
         )}
         {transactionFilteredTable(
           model,
-          showAlert,
-          deleteTransactions,
           doChecks,
           revalueExp,
           'Expense revaluations',
+          parentCallbacks,
         )}
         {assetsDivWithHeadings(
           model,
           todaysAssetValues,
-          showAlert,
-          deleteTransactions,
           doChecks,
+          parentCallbacks,
         )}
         {debtsDivWithHeadings(
           model,
           todaysAssetValues,
-          showAlert,
-          deleteTransactions,
           doChecks,
+          parentCallbacks,
         )}
-        {transactionsOverviewDiv(
-          model,
-          showAlert,
-          deleteTransactions,
-          doChecks,
-        )}
-        {settingsTableDiv(model, showAlert, deleteTransactions, doChecks)}
+        {transactionsOverviewDiv(model, doChecks, parentCallbacks)}
+        {settingsTableDiv(model, doChecks, parentCallbacks)}
       </div>
     </div>
   );

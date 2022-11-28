@@ -51,6 +51,7 @@ import {
   ChartData,
   ChartDataPoint,
   ItemChartData,
+  ViewCallbacks,
 } from '../types/interfaces';
 import {
   attemptRename,
@@ -61,7 +62,6 @@ import {
   deleteTransaction,
   deleteTrigger,
   editSetting,
-  favouritesOnly,
   setFavouriteAsset,
   setFavouriteExpense,
   setFavouriteIncome,
@@ -999,13 +999,14 @@ function assetsOrDebtsForTable(
   model: ModelData,
   todaysValues: Map<Asset, AssetOrDebtVal>,
   isDebt: boolean,
+  parentCallbacks: ViewCallbacks,
 ): any[] {
   const unindexedResult = model.assets
     .filter((obj: Asset) => {
       return obj.IS_A_DEBT === isDebt;
     })
     .filter((obj: Item) => {
-      return !favouritesOnly() || obj.FAVOURITE;
+      return parentCallbacks.filterForFavourites(obj);
     })
     .filter((obj: Item) => {
       return showHistorical() || !isHistorical(obj, model);
@@ -1054,9 +1055,9 @@ function assetsOrDebtsForTable(
 export function assetsOrDebtsTableDiv(
   model: ModelData,
   rowData: any[],
-  showAlert: (arg0: string) => void,
   doChecks: boolean,
   isDebt: boolean,
+  parentCallbacks: ViewCallbacks,
 ) {
   return (
     <div
@@ -1070,7 +1071,7 @@ export function assetsOrDebtsTableDiv(
             handleGridRowsUpdated={function () {
               return handleAssetGridRowsUpdated(
                 model,
-                showAlert,
+                parentCallbacks.showAlert,
                 doChecks,
                 arguments,
               );
@@ -1115,7 +1116,11 @@ export function getDisplayName(obj: string, type: string) {
   return result;
 }
 
-export function transactionsForTable(model: ModelData, type: string) {
+export function transactionsForTable(
+  model: ModelData,
+  type: string,
+  parentCallbacks: ViewCallbacks,
+) {
   const unindexedRows = model.transactions
     .filter((t) => {
       if (t.TYPE === type) {
@@ -1127,7 +1132,7 @@ export function transactionsForTable(model: ModelData, type: string) {
       return false;
     })
     .filter((obj: Item) => {
-      return !favouritesOnly() || obj.FAVOURITE;
+      return parentCallbacks.filterForFavourites(obj);
     })
     .filter((obj: Item) => {
       return showHistorical() || !isHistorical(obj, model);
@@ -1444,11 +1449,10 @@ function makeTransactionCols(model: ModelData, type: string) {
 export function transactionsTableDiv(
   contents: any[],
   model: ModelData,
-  showAlert: (arg0: string) => void,
-  deleteTransactions: (arg: string[]) => void,
   doChecks: boolean,
   type: string,
   headingText: string,
+  parentCallbacks: ViewCallbacks,
 ) {
   if (contents.length === 0) {
     return <></>;
@@ -1503,7 +1507,7 @@ export function transactionsTableDiv(
         handleGridRowsUpdated={function () {
           return handleTransactionGridRowsUpdated(
             model,
-            showAlert,
+            parentCallbacks.showAlert,
             doChecks,
             type,
             arguments,
@@ -1530,56 +1534,56 @@ export function transactionsTableDiv(
 
 export function transactionFilteredTable(
   model: ModelData,
-  showAlert: (arg0: string) => void,
-  deleteTransactions: (arg: string[]) => void,
   doChecks: boolean,
   type: string,
   headingText: string,
+  parentCallbacks: ViewCallbacks,
 ) {
-  const contents = transactionsForTable(model, type);
+  const contents = transactionsForTable(model, type, parentCallbacks);
   return transactionsTableDiv(
     contents,
     model,
-    showAlert,
-    deleteTransactions,
     doChecks,
     type,
     headingText,
+    parentCallbacks,
   );
 }
 
 export function debtsDivWithHeadings(
   model: ModelData,
   todaysDebtValues: Map<Asset, AssetOrDebtVal>,
-  showAlert: (arg0: string) => void,
-  deleteTransactions: (arg: string[]) => void,
   doChecks: boolean,
+  parentCallbacks: ViewCallbacks,
 ) {
-  const debtData = assetsOrDebtsForTable(model, todaysDebtValues, true);
+  const debtData = assetsOrDebtsForTable(
+    model,
+    todaysDebtValues,
+    true,
+    parentCallbacks,
+  );
   if (debtData.length === 0) {
     return;
   }
   return (
     <>
       {collapsibleFragment(
-        assetsOrDebtsTableDiv(model, debtData, showAlert, doChecks, true),
+        assetsOrDebtsTableDiv(model, debtData, doChecks, true, parentCallbacks),
         'Debt definitions',
       )}
       {transactionFilteredTable(
         model,
-        showAlert,
-        deleteTransactions,
         doChecks,
         revalueDebt,
         'Revalue debts',
+        parentCallbacks,
       )}
       {transactionFilteredTable(
         model,
-        showAlert,
-        deleteTransactions,
         doChecks,
         payOffDebt,
         'Pay off debts',
+        parentCallbacks,
       )}
     </>
   );
@@ -1588,44 +1592,52 @@ export function debtsDivWithHeadings(
 export function assetsDivWithHeadings(
   model: ModelData,
   todaysAssetValues: Map<Asset, AssetOrDebtVal>,
-  showAlert: (arg0: string) => void,
-  deleteTransactions: (args: string[]) => void,
   doChecks: boolean,
+  parentCallbacks: ViewCallbacks,
 ) {
-  const assetData = assetsOrDebtsForTable(model, todaysAssetValues, false);
+  const assetData = assetsOrDebtsForTable(
+    model,
+    todaysAssetValues,
+    false,
+    parentCallbacks,
+  );
   if (assetData.length === 0) {
     return;
   }
   return (
     <>
       {collapsibleFragment(
-        assetsOrDebtsTableDiv(model, assetData, showAlert, doChecks, false),
+        assetsOrDebtsTableDiv(
+          model,
+          assetData,
+          doChecks,
+          false,
+          parentCallbacks,
+        ),
         `Asset definition table`,
       )}
       {transactionFilteredTable(
         model,
-        showAlert,
-        deleteTransactions,
         doChecks,
         liquidateAsset,
         'Liquidate assets to keep cash afloat',
+        parentCallbacks,
       )}
       {transactionFilteredTable(
         model,
-        showAlert,
-        deleteTransactions,
         doChecks,
         revalueAsset,
         'Revalue assets',
+        parentCallbacks,
       )}
     </>
   );
 }
 
-function triggersForTable(model: ModelData) {
+function triggersForTable(model: ModelData, parentCallbacks: ViewCallbacks) {
   const unindexedResult = model.triggers
     .filter((obj: Item) => {
-      return !favouritesOnly() || obj.FAVOURITE;
+      return parentCallbacks.filterForFavourites(obj);
     })
     .filter((obj: Item) => {
       return showHistorical() || !isHistorical(obj, model);
@@ -1645,8 +1657,8 @@ function triggersForTable(model: ModelData) {
 function triggersTableDiv(
   model: ModelData,
   trigData: any[],
-  showAlert: (arg0: string) => void,
   doChecks: boolean,
+  parentCallbacks: ViewCallbacks,
 ) {
   return (
     <div
@@ -1662,7 +1674,7 @@ function triggersTableDiv(
             handleGridRowsUpdated={function () {
               return handleTriggerGridRowsUpdated(
                 model,
-                showAlert,
+                parentCallbacks.showAlert,
                 doChecks,
                 arguments,
               );
@@ -1708,15 +1720,15 @@ function triggersTableDiv(
 
 export function triggersTableDivWithHeading(
   model: ModelData,
-  showAlert: (arg0: string) => void,
   doChecks: boolean,
+  parentCallbacks: ViewCallbacks,
 ) {
-  const trigData = triggersForTable(model);
+  const trigData = triggersForTable(model, parentCallbacks);
   if (trigData.length === 0) {
     return;
   }
   return collapsibleFragment(
-    triggersTableDiv(model, trigData, showAlert, doChecks),
+    triggersTableDiv(model, trigData, doChecks, parentCallbacks),
     `Important dates`,
   );
 }
@@ -1724,10 +1736,11 @@ export function triggersTableDivWithHeading(
 function incomesForTable(
   model: ModelData,
   todaysValues: Map<Income, IncomeVal>,
+  parentCallbacks: ViewCallbacks,
 ) {
   const unindexedResult = model.incomes
     .filter((obj: Item) => {
-      return !favouritesOnly() || obj.FAVOURITE;
+      return parentCallbacks.filterForFavourites(obj);
     })
     .filter((obj: Item) => {
       return showHistorical() || !isHistorical(obj, model);
@@ -1765,8 +1778,8 @@ function incomesForTable(
 function incomesTableDiv(
   model: ModelData,
   incData: any[],
-  showAlert: (arg0: string) => void,
   doChecks: boolean,
+  parentCallbacks: ViewCallbacks,
 ) {
   if (incData.length === 0) {
     return;
@@ -1785,7 +1798,7 @@ function incomesTableDiv(
             handleGridRowsUpdated={function () {
               return handleIncomeGridRowsUpdated(
                 model,
-                showAlert,
+                parentCallbacks.showAlert,
                 doChecks,
                 arguments,
               );
@@ -1897,15 +1910,15 @@ function incomesTableDiv(
 export function incomesTableDivWithHeading(
   model: ModelData,
   todaysValues: Map<Income, IncomeVal>,
-  showAlert: (arg0: string) => void,
   doChecks: boolean,
+  parentCallbacks: ViewCallbacks,
 ) {
-  const incData: any[] = incomesForTable(model, todaysValues);
+  const incData: any[] = incomesForTable(model, todaysValues, parentCallbacks);
   if (incData.length === 0) {
     return;
   }
   return collapsibleFragment(
-    incomesTableDiv(model, incData, showAlert, doChecks),
+    incomesTableDiv(model, incData, doChecks, parentCallbacks),
     `Income definitions`,
   );
 }
@@ -1913,10 +1926,11 @@ export function incomesTableDivWithHeading(
 function expensesForTable(
   model: ModelData,
   todaysValues: Map<Expense, ExpenseVal>,
+  parentCallbacks: ViewCallbacks,
 ) {
   const unindexedResult = model.expenses
     .filter((obj: Item) => {
-      return !favouritesOnly() || obj.FAVOURITE;
+      return parentCallbacks.filterForFavourites(obj);
     })
     .filter((obj: Item) => {
       return showHistorical() || !isHistorical(obj, model);
@@ -1953,9 +1967,8 @@ function expensesForTable(
 function expensesTableDiv(
   model: ModelData,
   expData: any[],
-  showAlert: (arg0: string) => void,
-  deleteAll: (arg: string[]) => void,
   doChecks: boolean,
+  parentCallbacks: ViewCallbacks,
 ) {
   return (
     <div
@@ -1984,7 +1997,7 @@ function expensesTableDiv(
             handleGridRowsUpdated={function () {
               return handleExpenseGridRowsUpdated(
                 model,
-                showAlert,
+                parentCallbacks.showAlert,
                 doChecks,
                 arguments,
               );
@@ -2094,16 +2107,15 @@ function expensesTableDiv(
 export function expensesTableDivWithHeading(
   model: ModelData,
   todaysValues: Map<Expense, ExpenseVal>,
-  showAlert: (arg0: string) => void,
-  deleteExpenses: (arg: string[]) => void,
   doChecks: boolean,
+  parentCallbacks: ViewCallbacks,
 ) {
-  const expData = expensesForTable(model, todaysValues);
+  const expData = expensesForTable(model, todaysValues, parentCallbacks);
   if (expData.length === 0) {
     return;
   }
   return collapsibleFragment(
-    expensesTableDiv(model, expData, showAlert, deleteExpenses, doChecks),
+    expensesTableDiv(model, expData, doChecks, parentCallbacks),
     `Expense definitions`,
   );
 }
@@ -2120,11 +2132,15 @@ const settingsToExcludeFromTableView: string[] = [
   taxChartShowNet,
 ];
 
-function settingsForTable(model: ModelData, doShow: (s: Setting) => boolean) {
+function settingsForTable(
+  model: ModelData,
+  doShow: (s: Setting) => boolean,
+  parentCallbacks: ViewCallbacks,
+) {
   const data = model.settings;
   const unindexedResult = data
     .filter((obj: Item) => {
-      return !favouritesOnly() || obj.FAVOURITE;
+      return parentCallbacks.filterForFavourites(obj);
     })
     .filter((obj: Item) => {
       return showHistorical() || !isHistorical(obj, model);
@@ -2156,8 +2172,8 @@ function settingsForTable(model: ModelData, doShow: (s: Setting) => boolean) {
 function customSettingsTable(
   model: ModelData,
   constSettings: any[],
-  showAlert: (arg0: string) => void,
   doChecks: boolean,
+  parentCallbacks: ViewCallbacks,
 ) {
   if (constSettings.length === 0) {
     return;
@@ -2169,7 +2185,7 @@ function customSettingsTable(
       handleGridRowsUpdated={function () {
         return handleSettingGridRowsUpdated(
           model,
-          showAlert,
+          parentCallbacks.showAlert,
           doChecks,
           arguments,
         );
@@ -2211,8 +2227,8 @@ function customSettingsTable(
 function adjustSettingsTable(
   model: ModelData,
   adjustSettings: any[],
-  showAlert: (arg0: string) => void,
   doChecks: boolean,
+  parentCallbacks: ViewCallbacks,
 ) {
   if (adjustSettings.length === 0) {
     return;
@@ -2224,7 +2240,7 @@ function adjustSettingsTable(
       handleGridRowsUpdated={function () {
         return handleSettingGridRowsUpdated(
           model,
-          showAlert,
+          parentCallbacks.showAlert,
           doChecks,
           arguments,
         );
@@ -2266,15 +2282,23 @@ function adjustSettingsTable(
 
 function settingsTables(
   model: ModelData,
-  showAlert: (arg0: string) => void,
   doChecks: boolean,
+  parentCallbacks: ViewCallbacks,
 ) {
-  const constSettings = settingsForTable(model, (s) => {
-    return s.TYPE === constType;
-  });
-  const adjustSettings = settingsForTable(model, (s) => {
-    return s.TYPE === adjustableType;
-  });
+  const constSettings = settingsForTable(
+    model,
+    (s) => {
+      return s.TYPE === constType;
+    },
+    parentCallbacks,
+  );
+  const adjustSettings = settingsForTable(
+    model,
+    (s) => {
+      return s.TYPE === adjustableType;
+    },
+    parentCallbacks,
+  );
 
   if (constSettings.length === 0 && adjustSettings.length === 0) {
     return;
@@ -2282,8 +2306,8 @@ function settingsTables(
 
   return collapsibleFragment(
     <>
-      {customSettingsTable(model, constSettings, showAlert, doChecks)}
-      {adjustSettingsTable(model, adjustSettings, showAlert, doChecks)}
+      {customSettingsTable(model, constSettings, doChecks, parentCallbacks)}
+      {adjustSettingsTable(model, adjustSettings, doChecks, parentCallbacks)}
     </>,
     `Other settings affecting the model`,
   );
@@ -2291,9 +2315,8 @@ function settingsTables(
 
 export function settingsTableDiv(
   model: ModelData,
-  showAlert: (arg0: string) => void,
-  deleteTransactions: (arg: string[]) => void,
   doChecks: boolean,
+  parentCallbacks: ViewCallbacks,
 ) {
   return (
     <div
@@ -2309,14 +2332,18 @@ export function settingsTableDiv(
           handleGridRowsUpdated={function () {
             return handleSettingGridRowsUpdated(
               model,
-              showAlert,
+              parentCallbacks.showAlert,
               doChecks,
               arguments,
             );
           }}
-          rows={settingsForTable(model, (s) => {
-            return s.TYPE === viewType;
-          })}
+          rows={settingsForTable(
+            model,
+            (s) => {
+              return s.TYPE === viewType;
+            },
+            parentCallbacks,
+          )}
           columns={[
             /*
             {
@@ -2352,14 +2379,13 @@ export function settingsTableDiv(
         />,
         `Settings about the view of the model`,
       )}
-      {settingsTables(model, showAlert, doChecks)}
+      {settingsTables(model, doChecks, parentCallbacks)}
       {transactionFilteredTable(
         model,
-        showAlert,
-        deleteTransactions,
         doChecks,
         revalueSetting,
         'Revalue settings',
+        parentCallbacks,
       )}
     </div>
   );
@@ -2701,8 +2727,8 @@ export function calcOptimizer(
 export function optimizerDiv(
   model: ModelData,
   settings: ViewSettings,
-  showAlert: (arg0: string) => void,
   cd: ChartData,
+  parentCallbacks: ViewCallbacks,
 ) {
   if (!getDisplay(optimizerView)) {
     return;
@@ -2730,11 +2756,15 @@ export function optimizerDiv(
     <div className="ml-3">
       {adjustSettingsTable(
         model,
-        settingsForTable(model, (s) => {
-          return s.TYPE === adjustableType && s.NAME.startsWith('variable');
-        }),
-        showAlert,
+        settingsForTable(
+          model,
+          (s) => {
+            return s.TYPE === adjustableType && s.NAME.startsWith('variable');
+          },
+          parentCallbacks,
+        ),
         true,
+        parentCallbacks,
       )}
       <DataGrid
         deleteFunction={undefined}

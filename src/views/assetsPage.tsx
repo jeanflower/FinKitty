@@ -4,6 +4,7 @@ import {
   ChartData,
   Item,
   ModelData,
+  ViewCallbacks,
 } from './../types/interfaces';
 import {
   assetsDivWithHeadings,
@@ -168,15 +169,10 @@ export function todaysAssetsTable(
 export function assetsDiv(
   model: ModelData,
   viewSettings: ViewSettings,
-  showAlert: (arg0: string) => void,
-  deleteTransactions: (arg: string[]) => void,
   doChecks: boolean,
   assetChartData: ChartData,
   todaysValues: Map<Asset, AssetOrDebtVal>,
-  getStartDate: (() => string) | undefined = undefined,
-  updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
-  getEndDate: (() => string) | undefined = undefined,
-  updateEndDate: ((newDate: string) => Promise<void>) | undefined = undefined,
+  parentsCallbacks: ViewCallbacks,
 ) {
   if (!getDisplay(assetsView)) {
     // log(`don't populate assetsView`);
@@ -192,57 +188,47 @@ export function assetsDiv(
           viewSettings,
           assetChartData,
           false,
-          showAlert,
-          getStartDate,
-          updateStartDate,
-          getEndDate,
-          updateEndDate,
+          parentsCallbacks,
         ),
         'Asset data chart',
       )}
       <AddDeleteEntryForm
         name="start"
         getValue={
-          getStartDate
-            ? getStartDate
+          parentsCallbacks.getStartDate
+            ? parentsCallbacks.getStartDate
             : () => {
                 return '';
               }
         }
         submitFunction={
-          updateStartDate
-            ? updateStartDate
+          parentsCallbacks.updateStartDate
+            ? parentsCallbacks.updateStartDate
             : async () => {
                 return;
               }
         }
-        showAlert={showAlert}
+        showAlert={parentsCallbacks.showAlert}
       />
       <AddDeleteEntryForm
         name="end"
         getValue={
-          getEndDate
-            ? getEndDate
+          parentsCallbacks.getEndDate
+            ? parentsCallbacks.getEndDate
             : () => {
                 return '';
               }
         }
         submitFunction={
-          updateEndDate
-            ? updateEndDate
+          parentsCallbacks.updateEndDate
+            ? parentsCallbacks.updateEndDate
             : async () => {
                 return;
               }
         }
-        showAlert={showAlert}
+        showAlert={parentsCallbacks.showAlert}
       />
-      {assetsDivWithHeadings(
-        model,
-        todaysValues,
-        showAlert,
-        deleteTransactions,
-        doChecks,
-      )}
+      {assetsDivWithHeadings(model, todaysValues, doChecks, parentsCallbacks)}
       {todaysAssetsTable(model, todaysValues)}
       {collapsibleFragment(
         <div className="addNewAsset">
@@ -254,7 +240,7 @@ export function assetsDiv(
             deleteAssetFunction={deleteAsset}
             submitTriggerFunction={submitTrigger}
             model={model}
-            showAlert={showAlert}
+            showAlert={parentsCallbacks.showAlert}
           />
         </div>,
         `Add an asset, a defined-contributions pension, or revalue an asset`,

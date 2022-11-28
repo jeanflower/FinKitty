@@ -259,3 +259,14 @@ export type finkittyButtonType =
   | 'outline-primary'
   | 'outline-secondary'
   | 'outline-success';
+
+export interface ViewCallbacks {
+  showAlert: (arg0: string) => void;
+  deleteTransactions: (arg: string[]) => void;
+  deleteExpenses: (arg: string[]) => void;
+  getStartDate: () => string;
+  getEndDate: () => string;
+  updateStartDate: (newDate: string) => Promise<void>;
+  updateEndDate: (newDate: string) => Promise<void>;
+  filterForFavourites: (item: Item) => boolean;
+}
