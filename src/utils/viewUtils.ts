@@ -167,6 +167,14 @@ export function getDisplay(type: ViewType): boolean {
   return result;
 }
 
+export function getDisplayedView(): ViewType | undefined {
+  const view = [...views.keys()].find((k) => {
+    const val = views.get(k);
+    return val && val.display;
+  });
+  return view;
+}
+
 // from https://coolors.co
 const colors = [
   '4E81BC',

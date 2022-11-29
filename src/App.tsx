@@ -137,7 +137,12 @@ import { diffModels } from './models/diffModels';
 import { collapsibleFragment } from './views/tablePages';
 import WaitGif from './views/catWait.gif';
 import packageData from '../package.json';
-import { getDefaultViewSettings, getDisplay, views } from './utils/viewUtils';
+import {
+  getDefaultViewSettings,
+  getDisplay,
+  getDisplayedView,
+  views,
+} from './utils/viewUtils';
 import dateFormat from 'dateformat';
 import FileSaver from 'file-saver';
 
@@ -1625,7 +1630,10 @@ export class AppContent extends Component<AppProps, AppState> {
     //window.addEventListener('beforeunload', this.handleUnload);
   }
 
-  private navbarDiv(isWaiting: boolean): JSX.Element {
+  private navbarDiv(
+    isWaiting: boolean,
+    view: ViewType | undefined,
+  ): JSX.Element {
     return navbarContent(isWaiting, () => {
       const estateVal = this.state.reportData.find((d) => {
         return d.name === 'Estate final value';
@@ -1664,7 +1672,7 @@ export class AppContent extends Component<AppProps, AppState> {
               >
                 <Col>
                   <div className="d-flex flex-row-reverse">
-                    {this.rhsTopButtonList(textToDisplay)}
+                    {this.rhsTopButtonList(textToDisplay, view)}
                   </div>
                   <div className="d-flex flex-row-reverse">
                     {this.rhsBottomButtonList()}
@@ -1777,7 +1785,7 @@ export class AppContent extends Component<AppProps, AppState> {
 
       return (
         <>
-          {this.navbarDiv(this.state.isWaiting)}
+          {this.navbarDiv(this.state.isWaiting, getDisplayedView())}
           <>
             {this.homeDiv()}
             {overviewDiv(
@@ -1868,6 +1876,7 @@ export class AppContent extends Component<AppProps, AppState> {
       <>
         {this.navbarDiv(
           false, // is not waiting
+          getDisplayedView(),
         )}
         <h1>
           Oops! something has gone wrong with FinKitty. Sad FinKitty apologises.
@@ -2469,7 +2478,10 @@ export class AppContent extends Component<AppProps, AppState> {
       </div>
     );
   }
-  private rhsTopButtonList(estateText: string): JSX.Element[] {
+  private rhsTopButtonList(
+    estateText: string,
+    view: ViewType | undefined,
+  ): JSX.Element[] {
     const buttons: JSX.Element[] = [];
     buttons.push(
       makeButton(
@@ -2496,17 +2508,19 @@ export class AppContent extends Component<AppProps, AppState> {
         ),
       );
     }
-    buttons.push(
-      makeButton(
-        `v. ${getAppVersion()}`,
-        () => {
-          // do nothing
-        },
-        'versionButton',
-        `btn-version`,
-        'outline-secondary',
-      ),
-    );
+    if (view === homeView) {
+      buttons.push(
+        makeButton(
+          `v. ${getAppVersion()}`,
+          () => {
+            // do nothing
+          },
+          'versionButton',
+          `btn-version`,
+          'outline-secondary',
+        ),
+      );
+    }
     return buttons;
   }
 
