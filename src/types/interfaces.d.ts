@@ -270,4 +270,7 @@ export interface ViewCallbacks {
   updateEndDate: (newDate: string) => Promise<void>;
   filterForFavourites: (item: Item) => boolean;
   filterForAge: (item: Item) => boolean;
+  filterForSearch: (item: Item) => boolean;
+  getSearchString: () => string;
+  setSearchString: (s: string) => void;
 }

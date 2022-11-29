@@ -432,7 +432,7 @@ function getReporter(
       return false;
     }
     if (nameMatcher) {
-      const nameRegex = RegExp(nameMatcher);
+      const nameRegex = RegExp(nameMatcher, 'i');
       if (name.match(nameRegex) === null) {
         // log(`do not display ${name} bcs it doesn't match ${nameMatcher}`);
         return false;
@@ -441,7 +441,7 @@ function getReporter(
 
     if (matcher) {
       try {
-        const sourceRegex = RegExp(matcher);
+        const sourceRegex = RegExp(matcher, 'i');
         if (source.match(sourceRegex) === null) {
           // log(`do not show source ${source} bcs it doesn't match ${matcher}`);
           return false;
@@ -454,7 +454,7 @@ function getReporter(
 
     if (excluder) {
       try {
-        const sourceRegex = RegExp(excluder);
+        const sourceRegex = RegExp(excluder, 'i');
         if (source.match(sourceRegex) !== null) {
           // log(`do not show source ${source} bcs it does match ${excluder}`);
           return false;
@@ -1037,6 +1037,21 @@ Options to toggle are
   showOptimiserButtonOption
   showHistoricalOption
 */
+function setSearchString(s: string): boolean {
+  try {
+    const regex = RegExp(s);
+    if ('test'.match(regex) === null) {
+      // log(`test does not match regex`);
+    }
+  } catch (e) {
+    alert('error processing regexp');
+    return false;
+  }
+  if (reactAppComponent) {
+    reactAppComponent.options.searchString = s;
+  }
+  return true;
+}
 
 function toggleOption(type: string): void {
   if (reactAppComponent) {
@@ -1376,6 +1391,15 @@ function checkOverwrite(): boolean {
     return false;
   }
 }
+function getSearchString(): string {
+  if (reactAppComponent) {
+    const result = reactAppComponent.options.searchString;
+    // log(`should we check before overwrite? ${result}`);
+    return result;
+  } else {
+    return '';
+  }
+}
 function doShowTransactionsButton(): boolean {
   if (reactAppComponent) {
     const result = reactAppComponent.options.showTransactionsButton;
@@ -1575,6 +1599,7 @@ export class AppContent extends Component<AppProps, AppState> {
       showAssetActionsButton: false,
       showOptimiserButton: false,
       showHistorical: true,
+      searchString: '',
     };
     reactAppComponent = this;
     refreshData(
@@ -1723,6 +1748,20 @@ export class AppContent extends Component<AppProps, AppState> {
         }
       };
 
+      const regexString = this.options.searchString;
+      const regex = RegExp(regexString, 'i');
+
+      const filterForSearch = (item: Item) => {
+        if (regexString === undefined || regexString === '') {
+          return true;
+        }
+        if (JSON.stringify(item).match(regex) === null) {
+          return false;
+        } else {
+          return true;
+        }
+      };
+
       const parentCallbacks: ViewCallbacks = {
         showAlert: showAlert,
         deleteTransactions: deleteTransactions,
@@ -1733,6 +1772,9 @@ export class AppContent extends Component<AppProps, AppState> {
         updateEndDate: updateEndDate,
         filterForFavourites: filterForFavourites,
         filterForAge: filterForAge,
+        filterForSearch: filterForSearch,
+        getSearchString: getSearchString,
+        setSearchString: setSearchString,
       };
 
       return (

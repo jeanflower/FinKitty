@@ -45,6 +45,7 @@ import { Col, Container, Row } from 'react-bootstrap';
 import { log, printDebug } from '../utils/utils';
 import { getDisplay } from '../utils/viewUtils';
 import { makeButton } from './reactComponents/Button';
+import { refreshData } from '../App';
 // import Fuse from 'fuse.js';
 
 function suppressLegend(barData: ChartData) {
@@ -210,46 +211,6 @@ export function overviewDiv(
 
   return (
     <div className="ml-3">
-      {makeButton(
-        'search model',
-        () => {
-          /*
-          const options = {
-            // isCaseSensitive: false,
-            // includeScore: false,
-            // shouldSort: true,
-            // includeMatches: false,
-            // findAllMatches: false,
-            // minMatchCharLength: 1,
-            // location: 0,
-            // threshold: 0.6,
-            // distance: 100,
-            // useExtendedSearch: false,
-            // ignoreLocation: false,
-            // ignoreFieldNorm: false,
-            // fieldNormWeight: 1,
-            keys: ['NAME', 'CATEGORY'],
-          };
-          const list = ([...model.assets] as Item[])
-            .concat(model.incomes)
-            .concat(model.expenses)
-            .concat(model.transactions)
-            .concat(model.settings);
-
-          const fuse = new Fuse(list, options);
-
-          // Change the pattern
-          const pattern = prompt('search term');
-          if (pattern !== null) {
-            const searchResult = fuse.search(pattern);
-            log(`searchResult ${searchResult.map(showObj)}`);
-          }
-          */
-        },
-        'search model',
-        'search model',
-        'outline-secondary',
-      )}
       {chartDataExists ? (
         chartsForOverview(
           model,
@@ -263,6 +224,26 @@ export function overviewDiv(
         )
       ) : (
         <></>
+      )}
+      {makeButton(
+        parentCallbacks.getSearchString() === ''
+          ? `enter search term for table data`
+          : `alter search term, currently set to '${parentCallbacks.getSearchString()}'`,
+        () => {
+          // Change the pattern
+          const pattern = prompt('search term');
+          if (pattern !== null) {
+            parentCallbacks.setSearchString(pattern);
+            refreshData(
+              false, // refreshModel = true,
+              false, // refreshChart = true,
+              31, //sourceID
+            );
+          }
+        },
+        'search model',
+        'search model',
+        'outline-secondary',
       )}
       <div className={chartDataExists ? 'scrollClass resizeClass' : ''}>
         <br />

@@ -888,10 +888,11 @@ function assetsOrDebtsForTable(
       return obj.IS_A_DEBT === isDebt;
     })
     .filter((obj: Item) => {
-      return parentCallbacks.filterForFavourites(obj);
-    })
-    .filter((obj: Item) => {
-      return parentCallbacks.filterForAge(obj);
+      return (
+        parentCallbacks.filterForFavourites(obj) &&
+        parentCallbacks.filterForAge(obj) &&
+        parentCallbacks.filterForSearch(obj)
+      );
     })
     .map((obj: Asset) => {
       const dbStringValue = obj.VALUE;
@@ -1014,11 +1015,13 @@ export function transactionsForTable(
       return false;
     })
     .filter((obj: Item) => {
-      return parentCallbacks.filterForFavourites(obj);
+      return (
+        parentCallbacks.filterForFavourites(obj) &&
+        parentCallbacks.filterForAge(obj) &&
+        parentCallbacks.filterForSearch(obj)
+      );
     })
-    .filter((obj: Item) => {
-      return parentCallbacks.filterForAge(obj);
-    })
+
     .map((obj: Transaction) => {
       // log(`obj.FROM_ABSOLUTE = ${obj.FROM_ABSOLUTE}`)
       let fromValueEntry = makeStringFromValueAbsProp(
@@ -1519,11 +1522,13 @@ export function assetsDivWithHeadings(
 function triggersForTable(model: ModelData, parentCallbacks: ViewCallbacks) {
   const unindexedResult = model.triggers
     .filter((obj: Item) => {
-      return parentCallbacks.filterForFavourites(obj);
+      return (
+        parentCallbacks.filterForFavourites(obj) &&
+        parentCallbacks.filterForAge(obj) &&
+        parentCallbacks.filterForSearch(obj)
+      );
     })
-    .filter((obj: Item) => {
-      return parentCallbacks.filterForAge(obj);
-    })
+
     .map((obj: Trigger) => {
       const mapResult = {
         DATE: obj.DATE,
@@ -1622,11 +1627,13 @@ function incomesForTable(
 ) {
   const unindexedResult = model.incomes
     .filter((obj: Item) => {
-      return parentCallbacks.filterForFavourites(obj);
+      return (
+        parentCallbacks.filterForFavourites(obj) &&
+        parentCallbacks.filterForAge(obj) &&
+        parentCallbacks.filterForSearch(obj)
+      );
     })
-    .filter((obj: Item) => {
-      return parentCallbacks.filterForAge(obj);
-    })
+
     .map((obj: Income) => {
       let todaysVForTable = 0.0;
       const todaysValkey = [...todaysValues.keys()].find((i) => {
@@ -1812,11 +1819,13 @@ function expensesForTable(
 ) {
   const unindexedResult = model.expenses
     .filter((obj: Item) => {
-      return parentCallbacks.filterForFavourites(obj);
+      return (
+        parentCallbacks.filterForFavourites(obj) &&
+        parentCallbacks.filterForAge(obj) &&
+        parentCallbacks.filterForSearch(obj)
+      );
     })
-    .filter((obj: Item) => {
-      return parentCallbacks.filterForAge(obj);
-    })
+
     .map((obj: Expense) => {
       let todaysVForTable = 0.0;
       const todaysValkey = [...todaysValues.keys()].find((e) => {
@@ -2022,11 +2031,13 @@ function settingsForTable(
   const data = model.settings;
   const unindexedResult = data
     .filter((obj: Item) => {
-      return parentCallbacks.filterForFavourites(obj);
+      return (
+        parentCallbacks.filterForFavourites(obj) &&
+        parentCallbacks.filterForAge(obj) &&
+        parentCallbacks.filterForSearch(obj)
+      );
     })
-    .filter((obj: Item) => {
-      return parentCallbacks.filterForAge(obj);
-    })
+
     .filter(doShow)
     .filter((obj: Setting) => {
       return (
