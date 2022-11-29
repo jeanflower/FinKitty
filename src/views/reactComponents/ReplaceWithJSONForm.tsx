@@ -10,6 +10,7 @@ import {
   checkOverwriteOption,
   evalModeOption,
   goToAssetsPageOption,
+  showTodaysValueColumnOption,
   showTransactionsButtonOption,
   showTaxButtonOption,
   showAssetActionsButtonOption,
@@ -73,6 +74,7 @@ Options to toggle are
   goToAssetsPageOption
   checkModelOnEditOption
   evalModeOption
+  showTodaysValueColumnOption
   showTransactionsButtonOption
   showTaxButtonOption
   showAssetActionsButtonOption
@@ -148,6 +150,20 @@ Options to toggle are
           },
           'toggleOptB',
           'toggleOptB',
+          'outline-secondary',
+        )}
+        {makeButton(
+          this.props.getOption(showTodaysValueColumnOption)
+            ? `don't show todays value column`
+            : 'do show todays value column',
+          async (e: FormEvent<Element>) => {
+            await this.setState({
+              JSON: showTodaysValueColumnOption,
+            });
+            this.replace(e);
+          },
+          'toggleOptTVC',
+          'toggleOptTVC',
           'outline-secondary',
         )}
         <br></br>
@@ -255,6 +271,11 @@ Options to toggle are
 
     if (JSON === showTransactionsButtonOption) {
       this.props.toggleOption(showTransactionsButtonOption);
+      this.setState({ JSON: '' });
+      return;
+    }
+    if (JSON === showTodaysValueColumnOption) {
+      this.props.toggleOption(showTodaysValueColumnOption);
       this.setState({ JSON: '' });
       return;
     }

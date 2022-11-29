@@ -33,6 +33,7 @@ import {
   custom,
   bondInvest,
   bondMature,
+  showTodaysValueColumnOption,
 } from '../localization/stringConstants';
 import {
   Asset,
@@ -62,6 +63,7 @@ import {
   deleteTransaction,
   deleteTrigger,
   editSetting,
+  getOption,
   setFavouriteAsset,
   setFavouriteExpense,
   setFavouriteIncome,
@@ -773,19 +775,25 @@ function getAssetOrDebtCols(model: ModelData, isDebt: boolean) {
       name: 'name',
       formatter: <SimpleFormatter name="name" value="unset" />,
     },
-    {
-      ...defaultColumn,
-      key: 'TODAYSVALUE',
-      name: `value\nat ${getTodaysDate(model).toDateString()}`,
-      formatter: <CashValueFormatter name="focus value" value="unset" />,
-    },
+  ];
+  if (getOption(showTodaysValueColumnOption)) {
+    cols = cols.concat([
+      {
+        ...defaultColumn,
+        key: 'TODAYSVALUE',
+        name: `value\nat ${getTodaysDate(model).toDateString()}`,
+        formatter: <CashValueFormatter name="focus value" value="unset" />,
+      },
+    ]);
+  }
+  cols = cols.concat([
     {
       ...defaultColumn,
       key: 'VALUE',
       name: 'start value',
       formatter: <CashValueFormatter name="start value" value="unset" />,
     },
-  ];
+  ]);
   if (!isDebt) {
     cols = cols.concat([
       {
@@ -1673,6 +1681,98 @@ function incomesTableDiv(
   if (incData.length === 0) {
     return;
   }
+  let columns = [
+    /*
+    {
+      ...defaultColumn,
+      key: 'index',
+      name: 'index',
+      formatter: <SimpleFormatter name="name" value="unset" />,
+    },
+    */
+    faveColumn,
+    {
+      ...defaultColumn,
+      key: 'NAME',
+      name: 'name',
+      formatter: <SimpleFormatter name="name" value="unset" />,
+    },
+  ];
+  if (getOption(showTodaysValueColumnOption)) {
+    columns = columns.concat([
+      {
+        ...defaultColumn,
+        key: 'TODAYSVALUE',
+        name: `value\nat ${getTodaysDate(model).toDateString()}`,
+        formatter: <CashValueFormatter name="focus value" value="unset" />,
+      },
+    ]);
+  }
+  columns = columns.concat([
+    {
+      ...defaultColumn,
+      key: 'VALUE',
+      name: 'value definition',
+      formatter: <CashValueFormatter name="value definition" value="unset" />,
+    },
+    {
+      ...defaultColumn,
+      key: 'VALUE_SET',
+      name: 'definition date',
+      formatter: (
+        <TriggerDateFormatter
+          name="definition date"
+          model={model}
+          value="unset"
+          showTime={false}
+        />
+      ),
+    },
+    {
+      ...defaultColumn,
+      key: 'START',
+      name: 'start',
+      formatter: (
+        <TriggerDateFormatter
+          name="start"
+          model={model}
+          value="unset"
+          showTime={false}
+        />
+      ),
+    },
+    {
+      ...defaultColumn,
+      key: 'END',
+      name: 'end',
+      formatter: (
+        <TriggerDateFormatter
+          name="end"
+          model={model}
+          value="unset"
+          showTime={false}
+        />
+      ),
+    },
+    {
+      ...defaultColumn,
+      key: 'GROWS_WITH_CPI',
+      name: 'grows with CPI',
+      formatter: <SimpleFormatter name="grows with CPI" value="unset" />,
+    },
+    {
+      ...defaultColumn,
+      key: 'LIABILITY',
+      name: 'tax Liability',
+      formatter: <SimpleFormatter name="tax Liability" value="unset" />,
+    },
+    {
+      ...defaultColumn,
+      key: 'CATEGORY',
+      name: 'category',
+      formatter: <SimpleFormatter name="category" value="unset" />,
+    },
+  ]);
   return (
     <div
       style={{
@@ -1693,100 +1793,7 @@ function incomesTableDiv(
               );
             }}
             rows={incData}
-            columns={[
-              /*
-              {
-                ...defaultColumn,
-                key: 'index',
-                name: 'index',
-                formatter: <SimpleFormatter name="name" value="unset" />,
-              },
-              */
-              faveColumn,
-              {
-                ...defaultColumn,
-                key: 'NAME',
-                name: 'name',
-                formatter: <SimpleFormatter name="name" value="unset" />,
-              },
-              {
-                ...defaultColumn,
-                key: 'TODAYSVALUE',
-                name: `value\nat ${getTodaysDate(model).toDateString()}`,
-                formatter: (
-                  <CashValueFormatter name="focus value" value="unset" />
-                ),
-              },
-              {
-                ...defaultColumn,
-                key: 'VALUE',
-                name: 'value definition',
-                formatter: (
-                  <CashValueFormatter name="value definition" value="unset" />
-                ),
-              },
-              {
-                ...defaultColumn,
-                key: 'VALUE_SET',
-                name: 'definition date',
-                formatter: (
-                  <TriggerDateFormatter
-                    name="definition date"
-                    model={model}
-                    value="unset"
-                    showTime={false}
-                  />
-                ),
-              },
-              {
-                ...defaultColumn,
-                key: 'START',
-                name: 'start',
-                formatter: (
-                  <TriggerDateFormatter
-                    name="start"
-                    model={model}
-                    value="unset"
-                    showTime={false}
-                  />
-                ),
-              },
-              {
-                ...defaultColumn,
-                key: 'END',
-                name: 'end',
-                formatter: (
-                  <TriggerDateFormatter
-                    name="end"
-                    model={model}
-                    value="unset"
-                    showTime={false}
-                  />
-                ),
-              },
-              {
-                ...defaultColumn,
-                key: 'GROWS_WITH_CPI',
-                name: 'grows with CPI',
-                formatter: (
-                  <SimpleFormatter name="grows with CPI" value="unset" />
-                ),
-              },
-              {
-                ...defaultColumn,
-                key: 'LIABILITY',
-                name: 'tax Liability',
-                formatter: (
-                  <SimpleFormatter name="tax Liability" value="unset" />
-                ),
-              },
-              {
-                ...defaultColumn,
-                key: 'CATEGORY',
-                name: 'category',
-                formatter: <SimpleFormatter name="category" value="unset" />,
-              },
-            ]}
+            columns={columns}
             model={model}
           />
         </div>
@@ -1861,6 +1868,98 @@ function expensesTableDiv(
   doChecks: boolean,
   parentCallbacks: ViewCallbacks,
 ) {
+  let cols = [
+    /*
+    {
+      ...defaultColumn,
+      key: 'index',
+      name: 'index',
+      formatter: <SimpleFormatter name="name" value="unset" />,
+    },
+    */
+    faveColumn,
+    {
+      ...defaultColumn,
+      key: 'NAME',
+      name: 'name',
+      formatter: <SimpleFormatter name="name" value="unset" />,
+    },
+  ];
+  if (getOption(showTodaysValueColumnOption)) {
+    cols = cols.concat([
+      {
+        ...defaultColumn,
+        key: 'TODAYSVALUE',
+        name: `value\nat ${getTodaysDate(model).toDateString()}`,
+        formatter: <CashValueFormatter name="focus value" value="unset" />,
+      },
+    ]);
+  }
+  cols = cols.concat([
+    {
+      ...defaultColumn,
+      key: 'VALUE',
+      name: 'value definition',
+      formatter: <CashValueFormatter name="value definition" value="unset" />,
+    },
+    {
+      ...defaultColumn,
+      key: 'VALUE_SET',
+      name: 'definition date',
+      formatter: (
+        <TriggerDateFormatter
+          name="definition date"
+          model={model}
+          value="unset"
+          showTime={false}
+        />
+      ),
+    },
+    {
+      ...defaultColumn,
+      key: 'START',
+      name: 'start',
+      formatter: (
+        <TriggerDateFormatter
+          name="start"
+          model={model}
+          value="unset"
+          showTime={false}
+        />
+      ),
+    },
+    {
+      ...defaultColumn,
+      key: 'END',
+      name: 'end',
+      formatter: (
+        <TriggerDateFormatter
+          name="end"
+          model={model}
+          value="unset"
+          showTime={false}
+        />
+      ),
+    },
+    {
+      ...defaultColumn,
+      key: 'GROWS_WITH_CPI',
+      name: 'grows with CPI',
+      formatter: <SimpleFormatter name="grows with CPI" value="unset" />,
+    },
+    {
+      ...defaultColumn,
+      key: 'RECURRENCE',
+      name: 'recurrence',
+      formatter: <SimpleFormatter name="recurrence" value="unset" />,
+    },
+    {
+      ...defaultColumn,
+      key: 'CATEGORY',
+      name: 'category',
+      formatter: <SimpleFormatter name="category" value="unset" />,
+    },
+  ]);
   return (
     <div
       style={{
@@ -1894,98 +1993,7 @@ function expensesTableDiv(
               );
             }}
             rows={expData}
-            columns={[
-              /*
-              {
-                ...defaultColumn,
-                key: 'index',
-                name: 'index',
-                formatter: <SimpleFormatter name="name" value="unset" />,
-              },
-              */
-              faveColumn,
-              {
-                ...defaultColumn,
-                key: 'NAME',
-                name: 'name',
-                formatter: <SimpleFormatter name="name" value="unset" />,
-              },
-              {
-                ...defaultColumn,
-                key: 'TODAYSVALUE',
-                name: `value\nat ${getTodaysDate(model).toDateString()}`,
-                formatter: (
-                  <CashValueFormatter name="focus value" value="unset" />
-                ),
-              },
-              {
-                ...defaultColumn,
-                key: 'VALUE',
-                name: 'value definition',
-                formatter: (
-                  <CashValueFormatter name="value definition" value="unset" />
-                ),
-              },
-              {
-                ...defaultColumn,
-                key: 'VALUE_SET',
-                name: 'definition date',
-                formatter: (
-                  <TriggerDateFormatter
-                    name="definition date"
-                    model={model}
-                    value="unset"
-                    showTime={false}
-                  />
-                ),
-              },
-              {
-                ...defaultColumn,
-                key: 'START',
-                name: 'start',
-                formatter: (
-                  <TriggerDateFormatter
-                    name="start"
-                    model={model}
-                    value="unset"
-                    showTime={false}
-                  />
-                ),
-              },
-              {
-                ...defaultColumn,
-                key: 'END',
-                name: 'end',
-                formatter: (
-                  <TriggerDateFormatter
-                    name="end"
-                    model={model}
-                    value="unset"
-                    showTime={false}
-                  />
-                ),
-              },
-              {
-                ...defaultColumn,
-                key: 'GROWS_WITH_CPI',
-                name: 'grows with CPI',
-                formatter: (
-                  <SimpleFormatter name="grows with CPI" value="unset" />
-                ),
-              },
-              {
-                ...defaultColumn,
-                key: 'RECURRENCE',
-                name: 'recurrence',
-                formatter: <SimpleFormatter name="recurrence" value="unset" />,
-              },
-              {
-                ...defaultColumn,
-                key: 'CATEGORY',
-                name: 'category',
-                formatter: <SimpleFormatter name="category" value="unset" />,
-              },
-            ]}
+            columns={cols}
             model={model}
           />
         </div>

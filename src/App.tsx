@@ -38,6 +38,7 @@ import {
   monthly,
   viewFrequency,
   favourites,
+  showTodaysValueColumnOption,
   showTransactionsButtonOption,
   taxView,
   showAssetActionsButtonOption,
@@ -1037,6 +1038,7 @@ Options to toggle are
   goToAssetsPageOption
   checkModelOnEditOption
   evalModeOption
+  showTodaysValueColumnOption
   showTransactionsButtonOption
   showTaxButtonOption
   showAssetActionsButtonOption
@@ -1094,6 +1096,7 @@ function toggleOption(type: string): void {
         33, //sourceID
       );
     } else if (
+      type === showTodaysValueColumnOption ||
       type === showTransactionsButtonOption ||
       type === showTaxButtonOption ||
       type === showAssetActionsButtonOption ||
@@ -1109,7 +1112,7 @@ function toggleOption(type: string): void {
     alert(`error: data not ready to set ${type} mode`);
   }
 }
-function getOption(type: string): boolean {
+export function getOption(type: string): boolean {
   return reactAppComponent.options[type];
 }
 export async function setFavouriteInModel(
@@ -2290,7 +2293,7 @@ export class AppContent extends Component<AppProps, AppState> {
     model: ModelData,
     todaysValues: Map<Setting, SettingVal>,
   ): JSX.Element {
-    if (todaysValues.size === 0) {
+    if (todaysValues.size === 0 || !getOption(showTodaysValueColumnOption)) {
       return <></>;
     }
     const today = getTodaysDate(model);
@@ -2364,7 +2367,9 @@ export class AppContent extends Component<AppProps, AppState> {
             this.options.checkModelOnEdit,
             parentCallbacks,
           )}
-          {this.todaysSettingsTable(model, todaysValues)}
+          {showTodaysValueColumnOption
+            ? this.todaysSettingsTable(model, todaysValues)
+            : ''}
           <p />
 
           {collapsibleFragment(
@@ -2526,8 +2531,8 @@ export class AppContent extends Component<AppProps, AppState> {
 
   private rhsBottomButtonList(): JSX.Element[] {
     const buttons: JSX.Element[] = [];
-    buttons.push(this.makeUndoButton());
     buttons.push(this.makeRedoButton());
+    buttons.push(this.makeUndoButton());
     buttons.push(this.makeSaveButton());
     return buttons;
   }

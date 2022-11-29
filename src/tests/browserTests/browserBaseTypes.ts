@@ -9,6 +9,7 @@ import {
   incomesTag,
 } from './browserTestUtils';
 import {
+  // showTodaysValueColumnOption,
   showTransactionsButtonOption,
   showTaxButtonOption,
   showAssetActionsButtonOption,

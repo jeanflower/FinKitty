@@ -245,7 +245,7 @@ export function filtersList(
 }
 
 export function coarseFineList(settings: ViewSettings, chartData: ChartData) {
-  const viewTypesDetail: string[] = [coarseDetail, fineDetail, totalDetail];
+  const viewTypesDetail: string[] = [fineDetail, coarseDetail, totalDetail];
   const selectedCoarseFineView = getCoarseFineView(settings);
   const buttonsDetail = viewTypesDetail.map((viewType) =>
     makeButton(
@@ -270,13 +270,13 @@ export function coarseFineList(settings: ViewSettings, chartData: ChartData) {
       },
       viewType,
       'chooseViewFrequencyType',
-      viewType === selectedView ? 'secondary' : 'outline-secondary',
+      viewType === selectedView ? 'primary' : 'outline-primary',
     ),
   );
   return (
     <div role="group">
-      {buttonsDetail}
       {buttonsFrequency}
+      {buttonsDetail}
     </div>
   );
 }
