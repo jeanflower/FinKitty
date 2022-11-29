@@ -334,7 +334,7 @@ describe('evaluations tests', () => {
     log(evalsAndValues.todaysSettingValues);
     */
 
-    printTestCodeForEvals(evals);
+    // printTestCodeForEvals(evals);
 
     expect(evals.length).toBe(4);
     expectEvals(evals, 0, 'Hols', 'Mon Jan 01 2018', 0, -1);
