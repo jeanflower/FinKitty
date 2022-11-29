@@ -2308,7 +2308,7 @@ function handleIncome(
       } else if (
         moment.date > getTriggerDate(pt.STOP_DATE, model.triggers, v)
       ) {
-        log('pt has stopped at this time');
+        // log('pt has stopped at this time');
       } else {
         // log(`old pensionValue is ${pensionValue} becomes ${pensionValue + amountForPension}`);
         pensionValue += amountForPension;
