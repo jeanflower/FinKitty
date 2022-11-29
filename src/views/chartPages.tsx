@@ -133,8 +133,8 @@ async function setViewSettingNameVal(
   }
   settings.setViewSetting(name, val);
   return await refreshData(
-    needsRefreshData, // refreshModel = true,
-    true, // refreshChart = true,
+    needsRefreshData, // refreshModel
+    true, // refreshChart
     29, //sourceID
   );
 }
@@ -174,8 +174,8 @@ function makeFilterButton(
       e.persist();
       settings.toggleViewFilter(context, buttonName);
       return await refreshData(
-        refreshModel, // refreshModel = true,
-        true, // refreshChart = true,
+        refreshModel, // refreshModel
+        true, // refreshChart
         30, //sourceID
       );
     },
@@ -245,9 +245,9 @@ export function filtersList(
 }
 
 export function coarseFineList(settings: ViewSettings, chartData: ChartData) {
-  const viewTypes: string[] = [coarseDetail, fineDetail, totalDetail];
+  const viewTypesDetail: string[] = [coarseDetail, fineDetail, totalDetail];
   const selectedCoarseFineView = getCoarseFineView(settings);
-  const buttons = viewTypes.map((viewType) =>
+  const buttonsDetail = viewTypesDetail.map((viewType) =>
     makeButton(
       `${viewType}${tideLines(viewType, settings, chartData)}`,
       (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -259,13 +259,9 @@ export function coarseFineList(settings: ViewSettings, chartData: ChartData) {
       viewType === selectedCoarseFineView ? 'secondary' : 'outline-secondary',
     ),
   );
-  return <div role="group">{buttons}</div>;
-}
-
-export function frequencyList(settings: ViewSettings) {
-  const viewTypes: string[] = [weekly, monthly, annually];
+  const viewTypeFrequencys: string[] = [weekly, monthly, annually];
   const selectedView = settings.getViewSetting(viewFrequency, annually);
-  const buttons = viewTypes.map((viewType) =>
+  const buttonsFrequency = viewTypeFrequencys.map((viewType) =>
     makeButton(
       viewType,
       (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -277,7 +273,12 @@ export function frequencyList(settings: ViewSettings) {
       viewType === selectedView ? 'secondary' : 'outline-secondary',
     ),
   );
-  return <div role="group">{buttons}</div>;
+  return (
+    <div role="group">
+      {buttonsDetail}
+      {buttonsFrequency}
+    </div>
+  );
 }
 
 export function getDefaultChartSettings(

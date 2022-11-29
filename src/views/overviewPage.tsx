@@ -24,7 +24,6 @@ import {
   assetsOrDebtsChartDiv,
   coarseFineList,
   expensesChartDiv,
-  frequencyList,
   getSmallerChartSettings,
   incomesChartDiv,
   taxChartDiv,
@@ -132,7 +131,6 @@ function chartsForOverview(
             datasets: [],
             displayLegend: false,
           })}
-          {frequencyList(viewSettings)}
         </Col>
       </Row>
     </Container>
@@ -235,8 +233,8 @@ export function overviewDiv(
           if (pattern !== null) {
             parentCallbacks.setSearchString(pattern);
             refreshData(
-              false, // refreshModel = true,
-              false, // refreshChart = true,
+              false, // refreshModel
+              false, // refreshChart
               31, //sourceID
             );
           }

@@ -9,7 +9,7 @@ import {
   checkModelOnEditOption,
   checkOverwriteOption,
   evalModeOption,
-  goToOverviewPageOption,
+  goToAssetsPageOption,
   showTransactionsButtonOption,
   showTaxButtonOption,
   showAssetActionsButtonOption,
@@ -70,7 +70,7 @@ export class ReplaceWithJSONForm extends Component<
   /*
 Options to toggle are
   checkOverwriteOption
-  goToOverviewPageOption
+  goToAssetsPageOption
   checkModelOnEditOption
   evalModeOption
   showTransactionsButtonOption
@@ -215,9 +215,9 @@ Options to toggle are
         )}
         <br></br>
         {makeButton(
-          this.props.getOption(goToOverviewPageOption)
-            ? `don't jump to overview page when selecting a model`
-            : `do jump to overview page when selecting a model`,
+          this.props.getOption(goToAssetsPageOption)
+            ? `don't jump to Assets page when selecting a model`
+            : `do jump to Assets page when selecting a model`,
           async (e: FormEvent<Element>) => {
             await this.setState({
               JSON: 'overview',
@@ -248,7 +248,7 @@ Options to toggle are
     /*
     Options to toggle are
     - checkOverwriteOption
-    - goToOverviewPageOption
+    - goToAssetsPageOption
     - checkModelOnEditOption
     - 'evalMode'
     */
@@ -284,7 +284,7 @@ Options to toggle are
       return;
     }
     if (JSON === gotoOverview) {
-      this.props.toggleOption(goToOverviewPageOption);
+      this.props.toggleOption(goToAssetsPageOption);
       this.setState({ JSON: '' });
       return;
     }

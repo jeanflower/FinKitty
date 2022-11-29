@@ -32,6 +32,8 @@ export function navbarContent(isWaiting: boolean, rhContent: () => any) {
           onClick={() => {
             toggle(
               homeView,
+              false, // refreshModel
+              false, // refreshChart
               6, //call
             );
           }}
