@@ -44,6 +44,7 @@ import {
   showOptimiserButtonOption,
   showTaxButtonOption,
   showHistoricalOption,
+  assetsView,
 } from './localization/stringConstants';
 import {
   AssetOrDebtVal,
@@ -695,6 +696,9 @@ export async function refreshData(
   refreshChart: boolean,
   sourceID: number,
 ): Promise<void> {
+  // log(
+  //   `refreshData called refreshModel = ${refreshModel}, refreshChart = ${refreshChart} from sourceID = ${sourceID}`,
+  // );
   if (getDisplay(optimizerView)) {
     const viewSettings = reactAppComponent.state.viewState;
     const reporter: ReportValueChecker = () =>
@@ -776,8 +780,8 @@ export function setReportKey(
       async () => {
         log('set key for report : go refresh data');
         refreshData(
-          true, // refreshModel = true,
-          true, // refreshChart = true,
+          true, // refreshModel
+          true, // refreshChart
           1, //sourceID
         );
       },
@@ -805,8 +809,8 @@ export async function submitAsset(
   );
   if (message === '') {
     return await refreshData(
-      true, // refreshModel = true,
-      true, // refreshChart = true,
+      true, // refreshModel
+      true, // refreshChart
       2, //sourceID
     );
   } else {
@@ -826,8 +830,8 @@ export async function submitExpense(
   );
   if (message === '') {
     return await refreshData(
-      true, // refreshModel = true,
-      true, // refreshChart = true,
+      true, // refreshModel
+      true, // refreshChart
       3, //sourceID
     );
   } else {
@@ -847,8 +851,8 @@ export async function submitIncome(
   );
   if (message === '') {
     await refreshData(
-      true, // refreshModel = true,
-      true, // refreshChart = true,
+      true, // refreshModel
+      true, // refreshChart
       4, //sourceID
     );
     return true;
@@ -870,8 +874,8 @@ export async function submitTransaction(
   );
   if (message === '') {
     return await refreshData(
-      true, // refreshModel = true,
-      true, // refreshChart = true,
+      true, // refreshModel
+      true, // refreshChart
       5, //sourceID
     );
   } else {
@@ -891,8 +895,8 @@ export async function submitTrigger(
   );
   if (message === '') {
     return await refreshData(
-      true, // refreshModel = true,
-      true, // refreshChart = true,
+      true, // refreshModel
+      true, // refreshChart
       6, //sourceID
     );
   } else {
@@ -920,8 +924,8 @@ export async function editSetting(
     })
   ) {
     return await refreshData(
-      false, // or false refreshModel = true,
-      true, // refreshChart = true,
+      false, // refreshModel
+      true, // refreshChart
       7, //sourceID
     );
   }
@@ -938,8 +942,8 @@ export async function editSetting(
   );
   if (message === '') {
     return await refreshData(
-      true, // refreshModel = true,
-      true, // refreshChart = true,
+      true, // refreshModel
+      true, // refreshChart
       8, //sourceID
     );
   } else {
@@ -954,8 +958,8 @@ export async function submitNewSetting(
 ): Promise<void> {
   if (viewSettings.migrateViewSettingString(setting.NAME, setting.VALUE)) {
     return await refreshData(
-      false, // or false refreshModel = true,
-      true, // refreshChart = true,
+      false, // refreshModel
+      true, // refreshChart
       9, //sourceID
     );
   } else {
@@ -967,14 +971,19 @@ export async function submitNewSetting(
       getUserID(),
     );
     return await refreshData(
-      true, // refreshModel = true,
-      true, // refreshChart = true,
+      true, // refreshModel
+      true, // refreshChart
       10, //sourceID
     );
   }
 }
 
-export function toggle(type: ViewType, sourceID: number): void | boolean {
+export function toggle(
+  type: ViewType,
+  refreshModel: boolean,
+  refreshChart: boolean,
+  sourceID: number,
+): void | boolean {
   /* istanbul ignore if  */
   if (printDebug()) {
     log(`toggle called from ${sourceID}`);
@@ -998,19 +1007,11 @@ export function toggle(type: ViewType, sourceID: number): void | boolean {
     return false;
   }
   view.display = true;
-  if (type === reportView) {
-    refreshData(
-      true, // refreshModel = true,
-      true, // refreshChart = true,
-      11, //sourceID
-    );
-  } else {
-    refreshData(
-      false, // refreshModel = true,
-      true, // refreshChart = true,
-      12, //sourceID
-    );
-  }
+  refreshData(
+    refreshModel, // refreshModel
+    refreshChart, // refreshChart
+    11, //sourceID
+  );
 }
 
 function checkModelData(givenModel: ModelData, expectedName: string): string {
@@ -1028,7 +1029,7 @@ function checkModelData(givenModel: ModelData, expectedName: string): string {
 /*
 Options to toggle are
   checkOverwriteOption
-  goToOverviewPageOption
+  goToAssetsPageOption
   checkModelOnEditOption
   evalModeOption
   showTransactionsButtonOption
@@ -1146,8 +1147,8 @@ export async function setFavouriteInModel(
 
   await saveModelLSM(getUserID(), modelName, model);
   await refreshData(
-    true, // refreshModel = true,
-    false, // refreshChart = true,
+    true, // refreshModel
+    false, // refreshChart
     32, //sourceID
   );
   return true;
@@ -1211,8 +1212,8 @@ export async function deleteItemsFromModel(
 
   await saveModelLSM(getUserID(), modelName, model);
   await refreshData(
-    true, // refreshModel = true,
-    true, // refreshChart = true,
+    true, // refreshModel
+    true, // refreshChart
     13, //sourceID
   );
   return true;
@@ -1368,16 +1369,16 @@ export async function updateModelName(newValue: string): Promise<boolean> {
   modelName = newValue;
   await ensureModel(getUserID(), modelName);
   await refreshData(
-    true, // refreshModel = true,
-    true, // refreshChart = true,
+    true, // refreshModel
+    true, // refreshChart
     14, //sourceID
   );
   return true;
 }
 
-function goToOverviewPage(): boolean {
+function goToAssetsPage(): boolean {
   if (reactAppComponent) {
-    return reactAppComponent.options.goToOverviewPage;
+    return reactAppComponent.options.goToAssetsPage;
   } else {
     return false;
   }
@@ -1454,8 +1455,8 @@ export async function replaceWithModel(
   // log(`save ${modelName} with new model data ${newModel}`);
   await saveModelLSM(userName, modelName, newModel);
   await refreshData(
-    true, // refreshModel = true,
-    true, // refreshChart = true,
+    true, // refreshModel
+    true, // refreshChart
     15, //sourceID
   );
   return true;
@@ -1589,7 +1590,7 @@ export class AppContent extends Component<AppProps, AppState> {
     };
 
     this.options = {
-      goToOverviewPage: true,
+      goToAssetsPage: true,
       checkOverwrite: true,
       evalMode: true,
       checkModelOnEdit: true,
@@ -1603,8 +1604,8 @@ export class AppContent extends Component<AppProps, AppState> {
     };
     reactAppComponent = this;
     refreshData(
-      true, // refreshModel = true,
-      true, // refreshChart = true,
+      true, // refreshModel
+      true, // refreshChart
       16, //sourceID
     );
   }
@@ -1617,12 +1618,9 @@ export class AppContent extends Component<AppProps, AppState> {
     //log('in componentDidMount');
     toggle(
       homeView,
+      true, // refreshModel
+      true, // refreshChart
       17, //sourceID
-    );
-    refreshData(
-      true, // refreshModel = true,
-      true, // refreshChart = true,
-      18, //sourceID
     );
     //window.addEventListener('beforeunload', this.handleUnload);
   }
@@ -1919,9 +1917,11 @@ export class AppContent extends Component<AppProps, AppState> {
       modelNames,
       async (model: string) => {
         if (await updateModelName(model)) {
-          if (goToOverviewPage()) {
+          if (goToAssetsPage()) {
             await toggle(
-              overview,
+              assetsView,
+              false, // refreshModel
+              false, // refreshChart
               19, //sourceID
             );
           }
@@ -2000,8 +2000,8 @@ export class AppContent extends Component<AppProps, AppState> {
         // log(`model name after delete is ${modelName}`);
       }
       await refreshData(
-        true, // refreshModel = true,
-        true, // refreshChart = true,
+        true, // refreshModel
+        true, // refreshChart
         20, //sourceID
       );
     }
@@ -2062,9 +2062,11 @@ export class AppContent extends Component<AppProps, AppState> {
         false,
       );
       if (replacedOK) {
-        if (goToOverviewPage()) {
+        if (goToAssetsPage()) {
           await toggle(
             overview,
+            false, // refreshModel
+            false, // refreshChart
             21, //sourceID
           );
         }
@@ -2095,8 +2097,8 @@ export class AppContent extends Component<AppProps, AppState> {
             );
             if (savedOK) {
               refreshData(
-                true, // refreshModel = true,
-                true, // refreshChart = true,
+                true, // refreshModel
+                true, // refreshChart
                 22, //sourceID
               );
             } else {
@@ -2559,6 +2561,8 @@ export class AppContent extends Component<AppProps, AppState> {
             event.persist();
             toggle(
               view,
+              false, // refreshModel
+              false, // refreshChart
               24, //sourceID
             );
           },
@@ -2611,8 +2615,8 @@ export class AppContent extends Component<AppProps, AppState> {
         if (await revertToUndoModel(this.state.modelData)) {
           await saveModelLSM(userID, modelName, this.state.modelData);
           refreshData(
-            true, // refreshModel = true,
-            true, // refreshChart = true,
+            true, // refreshModel
+            true, // refreshChart
             25, //sourceID
           );
         }
@@ -2674,8 +2678,8 @@ export class AppContent extends Component<AppProps, AppState> {
         if (await applyRedoToModel(this.state.modelData)) {
           await saveModelLSM(userID, modelName, this.state.modelData);
           refreshData(
-            true, // refreshModel = true,
-            true, // refreshChart = true,
+            true, // refreshModel
+            true, // refreshChart
             26, //sourceID
           );
         }
@@ -2719,8 +2723,8 @@ export class AppContent extends Component<AppProps, AppState> {
         );
         if (savedOK) {
           refreshData(
-            true, // refreshModel = true,
-            true, // refreshChart = true,
+            true, // refreshModel
+            true, // refreshChart
             27, //sourceID
           );
         } else {
@@ -2770,8 +2774,8 @@ export async function attemptRename(
     // log(`message is empty, go to refreshData`);
     await saveModelLSM(getUserID(), modelName, model);
     refreshData(
-      true, // refreshModel = true,
-      true, // refreshChart = true,
+      true, // refreshModel
+      true, // refreshChart
       28, //sourceID
     );
   } else {
