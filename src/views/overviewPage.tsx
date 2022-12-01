@@ -101,6 +101,7 @@ function chartsForOverview(
             suppressLegend(taxChartData),
             getSmallerChartSettings(viewSettings, model.settings, 'Tax'),
             viewSettings,
+            parentCallbacks,
           )}
         </Col>
         <Col>
@@ -126,11 +127,15 @@ function chartsForOverview(
             submitFunction={parentCallbacks.updateEndDate}
             showAlert={parentCallbacks.showAlert}
           />
-          {coarseFineList(viewSettings, {
-            labels: [],
-            datasets: [],
-            displayLegend: false,
-          })}
+          {coarseFineList(
+            viewSettings,
+            {
+              labels: [],
+              datasets: [],
+              displayLegend: false,
+            },
+            parentCallbacks,
+          )}
         </Col>
       </Row>
     </Container>

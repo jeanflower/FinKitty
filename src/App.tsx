@@ -1848,6 +1848,7 @@ export class AppContent extends Component<AppProps, AppState> {
               this.state.viewState,
               this.state.taxChartData,
               this.state.totalTaxPaid,
+              parentCallbacks,
             )}
             {this.triggersDiv(parentCallbacks)}
             {reportDiv(

@@ -244,7 +244,61 @@ export function filtersList(
   );
 }
 
-export function coarseFineList(settings: ViewSettings, chartData: ChartData) {
+export function startEndDateInputs(parentCallbacks: ViewCallbacks) {
+  return (
+    <div className="ml-3">
+      <div className="row">
+        <div className="col-3">
+          <AddDeleteEntryForm
+            name="Start"
+            getValue={
+              parentCallbacks.getStartDate
+                ? parentCallbacks.getStartDate
+                : () => {
+                    return '';
+                  }
+            }
+            submitFunction={
+              parentCallbacks.updateStartDate
+                ? parentCallbacks.updateStartDate
+                : async () => {
+                    return;
+                  }
+            }
+            showAlert={parentCallbacks.showAlert}
+          />
+        </div>
+        <div className="col-3">
+          <AddDeleteEntryForm
+            name="End"
+            getValue={
+              parentCallbacks.getEndDate
+                ? parentCallbacks.getEndDate
+                : () => {
+                    return '';
+                  }
+            }
+            submitFunction={
+              parentCallbacks.updateEndDate
+                ? parentCallbacks.updateEndDate
+                : async () => {
+                    return;
+                  }
+            }
+            showAlert={parentCallbacks.showAlert}
+          />
+        </div>
+        <div className="col" />
+      </div>
+    </div>
+  );
+}
+
+export function coarseFineList(
+  settings: ViewSettings,
+  chartData: ChartData,
+  parentCallbacks: ViewCallbacks,
+) {
   const viewTypesDetail: string[] = [fineDetail, coarseDetail, totalDetail];
   const selectedCoarseFineView = getCoarseFineView(settings);
   const buttonsDetail = viewTypesDetail.map((viewType) =>
@@ -277,6 +331,7 @@ export function coarseFineList(settings: ViewSettings, chartData: ChartData) {
     <div role="group">
       {buttonsFrequency}
       {buttonsDetail}
+      {startEndDateInputs(parentCallbacks)}
     </div>
   );
 }
@@ -567,7 +622,7 @@ export function incomesChartDivWithButtons(
           message={showObj(incomesChartData)}
         />
         {filtersList(model.incomes, settings, Context.Income, false)}
-        {coarseFineList(settings, incomesChartData)}
+        {coarseFineList(settings, incomesChartData, parentCallbacks)}
         {incomesChartDiv(
           incomesChartData,
           chartSettings,
@@ -631,7 +686,7 @@ export function expensesChartDivWithButtons(
           message={showObj(expensesChartData)}
         />
         {filtersList(model.expenses, settings, Context.Expense, false)}
-        {coarseFineList(settings, expensesChartData)}
+        {coarseFineList(settings, expensesChartData, parentCallbacks)}
         <fieldset>
           {expensesChartDiv(
             expensesChartData,
@@ -726,7 +781,7 @@ export function assetsOrDebtsChartDivWithButtons(
       >
         {filtersList(items, viewSettings, context, false)}
         {assetViewTypeList(viewSettings)}
-        {coarseFineList(viewSettings, assetChartData)}
+        {coarseFineList(viewSettings, assetChartData, parentCallbacks)}
         <ReactiveTextArea
           identifier={isDebt ? 'debtDataDump' : 'assetDataDump'}
           message={showObj(assetChartData)}
@@ -827,19 +882,15 @@ export function taxChartDiv(
   taxChartData: ChartData,
   chartSettings: ChartSettings,
   viewSettings: ViewSettings,
-  showAlert: ((arg0: string) => void) | undefined = undefined,
-  getStartDate: (() => string) | undefined = undefined,
-  updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
-  getEndDate: (() => string) | undefined = undefined,
-  updateEndDate: ((newDate: string) => Promise<void>) | undefined = undefined,
+  parentCallbacks: ViewCallbacks,
 ) {
   if (taxChartData.labels.length === 0) {
     if (
-      showAlert === undefined ||
-      getStartDate === undefined ||
-      updateStartDate === undefined ||
-      getEndDate === undefined ||
-      updateEndDate === undefined
+      parentCallbacks.showAlert === undefined ||
+      parentCallbacks.getStartDate === undefined ||
+      parentCallbacks.updateStartDate === undefined ||
+      parentCallbacks.getEndDate === undefined ||
+      parentCallbacks.updateEndDate === undefined
     ) {
       return (
         <>
@@ -856,15 +907,15 @@ export function taxChartDiv(
           <Col>
             <AddDeleteEntryForm
               name="view start date"
-              getValue={getStartDate}
-              submitFunction={updateStartDate}
-              showAlert={showAlert}
+              getValue={parentCallbacks.getStartDate}
+              submitFunction={parentCallbacks.updateStartDate}
+              showAlert={parentCallbacks.showAlert}
             />
             <AddDeleteEntryForm
               name="view end date"
-              getValue={getEndDate}
-              submitFunction={updateEndDate}
-              showAlert={showAlert}
+              getValue={parentCallbacks.getEndDate}
+              submitFunction={parentCallbacks.updateEndDate}
+              showAlert={parentCallbacks.showAlert}
             />
           </Col>
         </>
@@ -879,26 +930,13 @@ function taxChartDivWithButtons(
   viewSettings: ViewSettings,
   taxChartData: ChartData,
   settings: ChartSettings,
-  showAlert: ((arg0: string) => void) | undefined = undefined,
-  getStartDate: (() => string) | undefined = undefined,
-  updateStartDate: ((newDate: string) => Promise<void>) | undefined = undefined,
-  getEndDate: (() => string) | undefined = undefined,
-  updateEndDate: ((newDate: string) => Promise<void>) | undefined = undefined,
+  parentCallbacks: ViewCallbacks,
 ) {
   return (
     <>
       {taxButtonList(model, viewSettings)}
-      {coarseFineList(viewSettings, taxChartData)}
-      {taxChartDiv(
-        taxChartData,
-        settings,
-        viewSettings,
-        showAlert,
-        getStartDate,
-        updateStartDate,
-        getEndDate,
-        updateEndDate,
-      )}
+      {coarseFineList(viewSettings, taxChartData, parentCallbacks)}
+      {taxChartDiv(taxChartData, settings, viewSettings, parentCallbacks)}
     </>
   );
 }
@@ -907,6 +945,7 @@ export function taxDiv(
   viewSettings: ViewSettings,
   taxChartData: ChartData,
   totalTaxPaid: number,
+  parentCallbacks: ViewCallbacks,
 ) {
   if (!getDisplay(taxView)) {
     // log(`don't populate taxView`);
@@ -921,6 +960,7 @@ export function taxDiv(
         viewSettings,
         taxChartData,
         getDefaultChartSettings(viewSettings, model.settings),
+        parentCallbacks,
       )}
       <h2>Total tax paid: {makeTwoDP(totalTaxPaid)}</h2>
     </div>

@@ -28,7 +28,7 @@ export const InputRow = (props) => {
       <label htmlFor={props.name} className="col-sm col-form-label">
         {props.title}
       </label>
-      <div className="col-sm">
+      <div className="col-med">
         <input
           className="form-control"
           id={props.name}

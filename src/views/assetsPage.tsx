@@ -37,7 +37,6 @@ import { lessThan } from '../utils/stringUtils';
 import { collapsibleFragment } from './tablePages';
 import { log, printDebug } from '../utils/utils';
 import { getDisplay } from '../utils/viewUtils';
-import { AddDeleteEntryForm } from './reactComponents/AddDeleteEntryForm';
 import { simpleAsset } from '../models/exampleModels';
 
 function addToMap(
@@ -176,7 +175,7 @@ export function assetsDiv(
   doChecks: boolean,
   assetChartData: ChartData,
   todaysValues: Map<Asset, AssetOrDebtVal>,
-  parentsCallbacks: ViewCallbacks,
+  parentCallbacks: ViewCallbacks,
 ) {
   if (!getDisplay(assetsView)) {
     // log(`don't populate assetsView`);
@@ -192,47 +191,11 @@ export function assetsDiv(
           viewSettings,
           assetChartData,
           false,
-          parentsCallbacks,
+          parentCallbacks,
         ),
         'Asset data chart',
       )}
-      <AddDeleteEntryForm
-        name="start"
-        getValue={
-          parentsCallbacks.getStartDate
-            ? parentsCallbacks.getStartDate
-            : () => {
-                return '';
-              }
-        }
-        submitFunction={
-          parentsCallbacks.updateStartDate
-            ? parentsCallbacks.updateStartDate
-            : async () => {
-                return;
-              }
-        }
-        showAlert={parentsCallbacks.showAlert}
-      />
-      <AddDeleteEntryForm
-        name="end"
-        getValue={
-          parentsCallbacks.getEndDate
-            ? parentsCallbacks.getEndDate
-            : () => {
-                return '';
-              }
-        }
-        submitFunction={
-          parentsCallbacks.updateEndDate
-            ? parentsCallbacks.updateEndDate
-            : async () => {
-                return;
-              }
-        }
-        showAlert={parentsCallbacks.showAlert}
-      />
-      {assetsDivWithHeadings(model, todaysValues, doChecks, parentsCallbacks)}
+      {assetsDivWithHeadings(model, todaysValues, doChecks, parentCallbacks)}
       {todaysAssetsTable(model, todaysValues)}
       {collapsibleFragment(
         <div className="addNewAsset">
@@ -244,7 +207,7 @@ export function assetsDiv(
             deleteAssetFunction={deleteAsset}
             submitTriggerFunction={submitTrigger}
             model={model}
-            showAlert={parentsCallbacks.showAlert}
+            showAlert={parentCallbacks.showAlert}
           />
         </div>,
         `Add an asset, a defined-contributions pension, or revalue an asset`,
