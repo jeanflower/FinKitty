@@ -438,7 +438,7 @@ function makeBarChart(
                   );
                 }
                 const l = data.labels[index];
-                if (isNumberString(l)) {
+                if (typeof l === 'number' || isNumberString(l)) {
                   return l;
                 }
                 const d = new Date(l);
