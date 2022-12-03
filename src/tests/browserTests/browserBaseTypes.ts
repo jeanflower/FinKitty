@@ -10,7 +10,7 @@ import {
 } from './browserTestUtils';
 import {
   // showTodaysValueColumnOption,
-  showTransactionsButtonOption,
+  // showTransactionsButtonOption,
   showTaxButtonOption,
   showAssetActionsButtonOption,
   showOptimiserButtonOption,
