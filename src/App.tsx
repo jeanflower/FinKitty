@@ -1603,7 +1603,7 @@ export class AppContent extends Component<AppProps, AppState> {
       evalMode: true,
       checkModelOnEdit: true,
       favouritesOnly: false,
-      showTransactionsButton: false,
+      showTransactionsButton: true,
       showTaxButton: false,
       showAssetActionsButton: false,
       showOptimiserButton: false,

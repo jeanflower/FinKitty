@@ -258,7 +258,6 @@ export async function beforeAllWork(
   // tests overwrite data using input forms
   // even though we don't expect people to do this
   await enterTextControl(driver, 'overwrite');
-  await enterTextControl(driver, showTransactionsButtonOption);
   await enterTextControl(driver, showTaxButtonOption);
   await enterTextControl(driver, showAssetActionsButtonOption);
   await enterTextControl(driver, showOptimiserButtonOption);
