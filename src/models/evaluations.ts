@@ -980,6 +980,7 @@ const TAX_MAP: TaxBandsMap = {
     cgtRate: 0.2,
   },
   '2021': {
+    // 2021/22
     noTaxBand: 12500,
     lowTaxBand: 50000,
     adjustNoTaxBand: 100000,
@@ -996,6 +997,7 @@ const TAX_MAP: TaxBandsMap = {
     cgtRate: 0.2,
   },
   '2022': {
+    // 2022/23
     // https://www.gov.uk/guidance/rates-and-thresholds-for-employers-2022-to-2023
     noTaxBand: 12570,
     lowTaxBand: 12570 + 37700, // = 50270
@@ -1025,7 +1027,7 @@ const TAX_MAP: TaxBandsMap = {
     lowNIBand: 50270,
     lowNIRate: 0.12,
     highNIRate: 0.02,
-    cgtThreshhold: 12000,
+    cgtThreshhold: 6000,
     cgtRate: 0.2,
   },
   '2024': {
@@ -1041,7 +1043,7 @@ const TAX_MAP: TaxBandsMap = {
     lowNIBand: 50270,
     lowNIRate: 0.12,
     highNIRate: 0.02,
-    cgtThreshhold: 12000,
+    cgtThreshhold: 3000,
     cgtRate: 0.2,
   },
   '2025': {
@@ -1057,7 +1059,7 @@ const TAX_MAP: TaxBandsMap = {
     lowNIBand: 50270,
     lowNIRate: 0.12,
     highNIRate: 0.02,
-    cgtThreshhold: 12000,
+    cgtThreshhold: 3000,
     cgtRate: 0.2,
   },
   '2026': {
@@ -1073,7 +1075,7 @@ const TAX_MAP: TaxBandsMap = {
     lowNIBand: 50270,
     lowNIRate: 0.12,
     highNIRate: 0.02,
-    cgtThreshhold: 12000,
+    cgtThreshhold: 3000,
     cgtRate: 0.2,
   },
   '2027': {
@@ -1089,7 +1091,7 @@ const TAX_MAP: TaxBandsMap = {
     lowNIBand: 50270,
     lowNIRate: 0.12,
     highNIRate: 0.02,
-    cgtThreshhold: 12000,
+    cgtThreshhold: 3000,
     cgtRate: 0.2,
   },
   '2028': {
@@ -1105,7 +1107,7 @@ const TAX_MAP: TaxBandsMap = {
     lowNIBand: 50270,
     lowNIRate: 0.12,
     highNIRate: 0.02,
-    cgtThreshhold: 12000,
+    cgtThreshhold: 3000,
     cgtRate: 0.2,
   },
 };
@@ -1514,11 +1516,12 @@ function payIncomeTax(
 
   const totalTaxDueFromCash = totalTaxDue - alreadyPaid;
   // log(`totalTaxDueFromCash for ${makeTwoDP(income)} on ${startOfTaxYear.getFullYear()} is ${makeTwoDP(totalTaxDueFromCash)}, already paid ${makeTwoDP(alreadyPaid)}`);
+  const endOfTaxYear = new Date(startOfTaxYear.getFullYear() + 1, 3, 5);
   if (totalTaxDue !== 0) {
     // log(`in payIncomeTax for ${startOfTaxYear.toDateString()}, adjustCash by ${totalTaxDueFromCash}`);
     adjustCash(
       -totalTaxDueFromCash,
-      startOfTaxYear,
+      endOfTaxYear,
       values,
       growths,
       evaluations,
@@ -1534,7 +1537,7 @@ function payIncomeTax(
       values,
       growths,
       evaluations,
-      startOfTaxYear,
+      endOfTaxYear,
       incomeTax,
       totalTaxDue,
       model,
@@ -1554,7 +1557,7 @@ function sumNI(niDue: { amountLiable: number; rate: number }[]): number {
 }
 
 function logAnnualNIPayments(
-  startOfTaxYear: Date,
+  endOfTaxYear: Date,
   nIMonthlyPaymentsPaid: number,
   values: ValuesContainer,
   growths: Map<string, GrowthData>,
@@ -1571,7 +1574,7 @@ function logAnnualNIPayments(
       values,
       growths,
       evaluations,
-      startOfTaxYear,
+      endOfTaxYear,
       nationalInsurance,
       nIMonthlyPaymentsPaid,
       model,
@@ -1600,12 +1603,14 @@ function payCGT(
     values,
     liableIncome,
   );
+  const endOfTaxYear = new Date(startOfTaxYear.getFullYear() + 1, 3, 5);
+
   // log(`taxDue = ${taxDue}`);
   if (CGTDue > 0) {
     // log('in payCGT, adjustCash:');
     adjustCash(
       -CGTDue,
-      startOfTaxYear,
+      endOfTaxYear,
       values,
       growths,
       evaluations,
@@ -1617,7 +1622,7 @@ function payCGT(
       values,
       growths,
       evaluations,
-      startOfTaxYear,
+      endOfTaxYear,
       cgt,
       CGTDue,
       model,
@@ -1639,6 +1644,7 @@ function OptimizeIncomeTax(
 ) {
   // log(`OptimizeIncomeTax income tax for ${person} and ${liableIncome} on ${date.toDateString()}`);
   const startYearOfTaxYear = date.getFullYear();
+  const endYearOfTaxYear = new Date(startYearOfTaxYear + 1, 3, 5);
   const bands = getTaxBands(liableIncome, startYearOfTaxYear, values);
   if (liableIncome > bands.noTaxBand) {
     return;
@@ -1695,7 +1701,7 @@ function OptimizeIncomeTax(
             values,
             growths,
             evaluations,
-            date,
+            endYearOfTaxYear,
             CASH_ASSET_NAME,
             cashVal + amountToTransfer,
             model,
@@ -1706,7 +1712,7 @@ function OptimizeIncomeTax(
             values,
             growths,
             evaluations,
-            date,
+            endYearOfTaxYear,
             valueKey,
             pensionVal - amountToTransfer,
             model,
@@ -1731,7 +1737,7 @@ function settleUpTax(
   evaluations: Evaluation[],
   model: ModelData,
 ) {
-  const date = new Date(startYearOfTaxYear + 1, 3, 5);
+  const date = new Date(startYearOfTaxYear, 3, 5);
   /* istanbul ignore if  */ //debug
   if (printDebug()) {
     log(`in settleUpTax, date = ${date.toDateString()}`);
@@ -1759,6 +1765,7 @@ function settleUpTax(
       }
     }
   }
+  const endOfTaxYear = new Date(date.getFullYear() + 1, 3, 5);
 
   const personNetIncome = new Map<string, number>();
   const personNetGain = new Map<string, number>();
@@ -1855,7 +1862,7 @@ function settleUpTax(
         }
         /* eslint-disable-line no-restricted-syntax */
         logAnnualNIPayments(
-          date,
+          endOfTaxYear,
           alreadyPaid,
           values,
           growths,
@@ -1920,6 +1927,7 @@ function settleUpTax(
       /* istanbul ignore next */
       log(`unhandled key from liableIncomeInTaxYear = ${key} `);
     }
+
     if (recalculatedNetIncome) {
       for (const [person, amount] of personNetIncome) {
         if (amount > 0) {
@@ -1928,7 +1936,7 @@ function settleUpTax(
             values,
             growths,
             evaluations,
-            date,
+            endOfTaxYear,
             netIncTag,
             amount,
             model,
@@ -1946,7 +1954,7 @@ function settleUpTax(
             values,
             growths,
             evaluations,
-            date,
+            endOfTaxYear,
             makeNetGainTag(person),
             amount,
             model,
