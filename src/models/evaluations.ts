@@ -771,8 +771,10 @@ interface TaxBands {
   lowNIBand: number;
   lowNIRate: number;
   highNIRate: number;
-  cgtThreshhold: number;
-  cgtRate: number;
+
+  cgtThreshholdLow: number;
+  cgtRateLow: number;
+  cgtRateHigh: number;
 }
 interface TaxBandsMap {
   [key: string]: TaxBands | undefined;
@@ -916,8 +918,9 @@ const TAX_MAP: TaxBandsMap = {
     lowNIBand: 50004,
     lowNIRate: 0.12,
     highNIRate: 0.02,
-    cgtThreshhold: 12000,
-    cgtRate: 0.2,
+    cgtThreshholdLow: 12000,
+    cgtRateLow: 0.1,
+    cgtRateHigh: 0.2,
   },
   '2017': {
     noTaxBand: 12500,
@@ -931,8 +934,9 @@ const TAX_MAP: TaxBandsMap = {
     lowNIBand: 50004,
     lowNIRate: 0.12,
     highNIRate: 0.02,
-    cgtThreshhold: 12000,
-    cgtRate: 0.2,
+    cgtThreshholdLow: 12000,
+    cgtRateLow: 0.1,
+    cgtRateHigh: 0.2,
   },
   '2018': {
     noTaxBand: 12500,
@@ -946,8 +950,9 @@ const TAX_MAP: TaxBandsMap = {
     lowNIBand: 50004,
     lowNIRate: 0.12,
     highNIRate: 0.02,
-    cgtThreshhold: 12000,
-    cgtRate: 0.2,
+    cgtThreshholdLow: 12000,
+    cgtRateLow: 0.1,
+    cgtRateHigh: 0.2,
   },
   '2019': {
     noTaxBand: 12500,
@@ -961,8 +966,9 @@ const TAX_MAP: TaxBandsMap = {
     lowNIBand: 50004,
     lowNIRate: 0.12,
     highNIRate: 0.02,
-    cgtThreshhold: 12000,
-    cgtRate: 0.2,
+    cgtThreshholdLow: 12000,
+    cgtRateLow: 0.1,
+    cgtRateHigh: 0.2,
   },
   '2020': {
     noTaxBand: 12500,
@@ -976,8 +982,9 @@ const TAX_MAP: TaxBandsMap = {
     lowNIBand: 50004,
     lowNIRate: 0.12,
     highNIRate: 0.02,
-    cgtThreshhold: 12000,
-    cgtRate: 0.2,
+    cgtThreshholdLow: 12000,
+    cgtRateLow: 0.1,
+    cgtRateHigh: 0.2,
   },
   '2021': {
     // 2021/22
@@ -993,8 +1000,9 @@ const TAX_MAP: TaxBandsMap = {
     lowNIBand: 50004,
     lowNIRate: 0.12,
     highNIRate: 0.02,
-    cgtThreshhold: 12000,
-    cgtRate: 0.2,
+    cgtThreshholdLow: 12000,
+    cgtRateLow: 0.1,
+    cgtRateHigh: 0.2,
   },
   '2022': {
     // 2022/23
@@ -1011,8 +1019,9 @@ const TAX_MAP: TaxBandsMap = {
     lowNIBand: 50270,
     lowNIRate: 0.1325,
     highNIRate: 0.0325,
-    cgtThreshhold: 12000,
-    cgtRate: 0.2,
+    cgtThreshholdLow: 12000,
+    cgtRateLow: 0.1,
+    cgtRateHigh: 0.2,
   },
   '2023': {
     noTaxBand: 12570, // Note that by fixing this to the same level as previous, we get poorer
@@ -1027,8 +1036,9 @@ const TAX_MAP: TaxBandsMap = {
     lowNIBand: 50270,
     lowNIRate: 0.12,
     highNIRate: 0.02,
-    cgtThreshhold: 6000,
-    cgtRate: 0.2,
+    cgtThreshholdLow: 6000,
+    cgtRateLow: 0.1,
+    cgtRateHigh: 0.2,
   },
   '2024': {
     noTaxBand: 12570, // Note that by fixing this to the same level as previous, we get poorer
@@ -1043,8 +1053,9 @@ const TAX_MAP: TaxBandsMap = {
     lowNIBand: 50270,
     lowNIRate: 0.12,
     highNIRate: 0.02,
-    cgtThreshhold: 3000,
-    cgtRate: 0.2,
+    cgtThreshholdLow: 3000,
+    cgtRateLow: 0.1,
+    cgtRateHigh: 0.2,
   },
   '2025': {
     noTaxBand: 12570, // Note that by fixing this to the same level as previous, we get poorer
@@ -1059,8 +1070,9 @@ const TAX_MAP: TaxBandsMap = {
     lowNIBand: 50270,
     lowNIRate: 0.12,
     highNIRate: 0.02,
-    cgtThreshhold: 3000,
-    cgtRate: 0.2,
+    cgtThreshholdLow: 3000,
+    cgtRateLow: 0.1,
+    cgtRateHigh: 0.2,
   },
   '2026': {
     noTaxBand: 12570, // Note that by fixing this to the same level as previous, we get poorer
@@ -1075,8 +1087,9 @@ const TAX_MAP: TaxBandsMap = {
     lowNIBand: 50270,
     lowNIRate: 0.12,
     highNIRate: 0.02,
-    cgtThreshhold: 3000,
-    cgtRate: 0.2,
+    cgtThreshholdLow: 3000,
+    cgtRateLow: 0.1,
+    cgtRateHigh: 0.2,
   },
   '2027': {
     noTaxBand: 12570, // Note that by fixing this to the same level as previous, we get poorer
@@ -1091,8 +1104,9 @@ const TAX_MAP: TaxBandsMap = {
     lowNIBand: 50270,
     lowNIRate: 0.12,
     highNIRate: 0.02,
-    cgtThreshhold: 3000,
-    cgtRate: 0.2,
+    cgtThreshholdLow: 3000,
+    cgtRateLow: 0.1,
+    cgtRateHigh: 0.2,
   },
   '2028': {
     noTaxBand: 12570, // Note that by fixing this to the same level as previous, we get poorer
@@ -1107,8 +1121,9 @@ const TAX_MAP: TaxBandsMap = {
     lowNIBand: 50270,
     lowNIRate: 0.12,
     highNIRate: 0.02,
-    cgtThreshhold: 3000,
-    cgtRate: 0.2,
+    cgtThreshholdLow: 3000,
+    cgtRateLow: 0.1,
+    cgtRateHigh: 0.2,
   },
 };
 const highestTaxYearInMap = 2028;
@@ -1161,8 +1176,9 @@ function getTaxBands(
           lowNIRate: result.lowNIRate,
           lowNIBand: lowNIBand * baseVal,
           highNIRate: result.highNIRate,
-          cgtThreshhold: result.cgtThreshhold,
-          cgtRate: result.cgtRate,
+          cgtThreshholdLow: result.cgtThreshholdLow,
+          cgtRateLow: result.cgtRateLow,
+          cgtRateHigh: result.cgtRateHigh,
         };
         // log(`now vals at ${startYearOfTaxYear}, ${makeTwoDP(result.noTaxBand)}, ${makeTwoDP(result.lowTaxBand)}, ${makeTwoDP(result.highTaxBand)}, ${makeTwoDP(result.adjustNoTaxBand)}`);
       } else {
@@ -1203,8 +1219,9 @@ function getTaxBands(
     lowNIBand: result.lowNIBand,
     lowNIRate: result.lowNIRate,
     highNIRate: result.highNIRate,
-    cgtThreshhold: result.cgtThreshhold,
-    cgtRate: result.cgtRate,
+    cgtThreshholdLow: result.cgtThreshholdLow,
+    cgtRateLow: result.cgtRateLow,
+    cgtRateHigh: result.cgtRateHigh,
   };
   const topEndIncome = income - result.adjustNoTaxBand;
   if (topEndIncome > 0) {
@@ -1363,16 +1380,28 @@ function calculateCGTPayable(
   const bands = getTaxBands(liableIncome, startYearOfTaxYear, values);
 
   // log(`in calculateCGTPayable, gain = ${gain}`);
-  const noCGTBand = bands.cgtThreshhold;
+  const noCGTBand = bands.cgtThreshholdLow;
+  let highCGTBand = noCGTBand;
 
-  // TODO - this should depend on whether payer is high income tax payer
+  if (liableIncome < bands.lowTaxBand) {
+    highCGTBand = noCGTBand + bands.lowTaxBand - liableIncome;
+  }
 
   if (gain < noCGTBand) {
     // log(`CGT not payable on ${gain}`);
     return 0.0;
   }
 
-  const payable = bands.cgtRate * (gain - noCGTBand);
+  const liable = gain - noCGTBand;
+  let liableInLowBand = liable;
+  let liableInHighBand = 0;
+  if (gain > highCGTBand) {
+    liableInLowBand = highCGTBand - noCGTBand;
+    liableInHighBand = liable - highCGTBand + noCGTBand;
+  }
+
+  const payable =
+    bands.cgtRateLow * liableInLowBand + bands.cgtRateHigh * liableInHighBand;
   // log(`${payable} due as CGT`);
   return payable;
 }
