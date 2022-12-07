@@ -46,6 +46,7 @@ import {
   showTaxButtonOption,
   showHistoricalOption,
   assetsView,
+  defaultReportSize,
 } from './localization/stringConstants';
 import {
   AssetOrDebtVal,
@@ -1587,7 +1588,7 @@ export class AppContent extends Component<AppProps, AppState> {
         sourceMatcher: defaultSourceMatcher,
         sourceExcluder: defaultSourceExcluder,
       },
-      maxReportSize: 10,
+      maxReportSize: defaultReportSize,
       reportIncludesSettings: false,
       reportIncludesExpenses: true,
       saveReportAsCSV: false,

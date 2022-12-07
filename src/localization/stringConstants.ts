@@ -217,7 +217,7 @@ export const overview: ViewType = { lc: 'Overview' };
 
 export const defaultSourceMatcher = '.';
 export const defaultSourceExcluder = '';
-export const defaultReportSize = 10;
+export const defaultReportSize = 40;
 
 export const favourites = 'favourites';
 export const evalModeOption = 'evalMode';
