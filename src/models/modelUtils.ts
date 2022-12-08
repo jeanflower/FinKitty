@@ -20,6 +20,7 @@ import {
   makeDateFromString,
   checkTriggerDate,
   getTriggerDate,
+  dateAsString,
 } from '../utils/stringUtils';
 import {
   Asset,
@@ -60,7 +61,18 @@ function cleanUpDates(
     // log(`cleaningResult from ${t.DATE} = ${cleaningResult.cleaned}`);
     t.DATE = cleaningResult.cleaned;
   }
-
+/*
+  for (const s of modelFromJSON.settings) {
+    if (s.NAME === roiStart || s.NAME === roiEnd) {
+      const cleaningResult = {
+        cleaned: '',
+      };
+      checkTriggerDate(s.VALUE, modelFromJSON.triggers, varVal, cleaningResult);
+      // log(`cleaningResult from ${t.DATE} = ${cleaningResult.cleaned}`);
+      s.VALUE = cleaningResult.cleaned;
+    }
+  }
+*/
   if (cleanUndo && modelFromJSON.undoModel) {
     cleanUpDates(modelFromJSON.undoModel, true, false);
   }
@@ -506,7 +518,7 @@ function standardiseDate(dateString: string): string {
   //log(
   //  `standardised ${dateString} to ${dateObj}, with time ${dateObj.getTime()}`,
   //);
-  return dateObj.toDateString();
+  return dateAsString(dateObj);
 }
 
 export function standardiseDates(model: ModelData): string {

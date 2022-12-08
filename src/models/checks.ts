@@ -61,6 +61,7 @@ import {
   makeDateFromString,
   getNumberAndWordParts,
   checkTriggerDate,
+  dateAsString,
 } from '../utils/stringUtils';
 import {
   getSettings,
@@ -344,7 +345,9 @@ export function checkIncome(i: Income, model: ModelData): string {
   if (cashAssets.length > 0) {
     const cashStarts = getTriggerDate(cashAssets[0].START, model.triggers, v);
     if (startDate < cashStarts) {
-      return `Income start date must be after cash starts; ${startDate.toDateString()} is before ${cashStarts.toDateString()}`;
+      return `Income start date must be after cash starts; ${dateAsString(
+        startDate,
+      )} is before ${dateAsString(cashStarts)}`;
     }
   }
   const taxAssets = model.assets.filter((m) => {
@@ -363,8 +366,8 @@ export function checkIncome(i: Income, model: ModelData): string {
   }
   if (valueSetDate > startDate) {
     return `Income value must be set on or before the start of the income.
-      For ${i.NAME}, start is ${startDate.toDateString()} and
-      value is set ${valueSetDate.toDateString()}.`;
+      For ${i.NAME}, start is ${dateAsString(startDate)} and
+      value is set ${dateAsString(valueSetDate)}.`;
   }
   return '';
 }
@@ -416,8 +419,8 @@ export function checkExpense(e: Expense, model: ModelData): string {
   }
   if (valueSetDate > startDate) {
     return `Expense value must be set on or before the start of the income.
-      For ${e.NAME}, start is ${startDate.toDateString()} and
-      value is set ${valueSetDate.toDateString()}.`;
+      For ${e.NAME}, start is ${dateAsString(startDate)} and
+      value is set ${dateAsString(valueSetDate)}.`;
   }
   const checkRec = checkRecurrence(e.RECURRENCE);
   if (checkRec !== '') {
@@ -1168,10 +1171,10 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
         new Date(getTriggerDate(tInvest.DATE, model.triggers, v)),
         tInvest.NAME,
       );
-      const mdDS = md.toDateString();
-      const tDS = new Date(
-        getTriggerDate(t.DATE, model.triggers, v),
-      ).toDateString();
+      const mdDS = dateAsString(md);
+      const tDS = dateAsString(
+        new Date(getTriggerDate(t.DATE, model.triggers, v)),
+      );
       if (mdDS !== tDS) {
         // log(`maturity date = ${mdDS} !== ${tDS}`);
         return false;
@@ -1181,10 +1184,10 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
           new Date(getTriggerDate(tInvest.STOP_DATE, model.triggers, v)),
           tInvest.NAME,
         );
-        const sdDS = sd.toDateString();
-        const tsDS = new Date(
-          getTriggerDate(t.STOP_DATE, model.triggers, v),
-        ).toDateString();
+        const sdDS = dateAsString(sd);
+        const tsDS = dateAsString(
+          new Date(getTriggerDate(t.STOP_DATE, model.triggers, v)),
+        );
         if (sdDS !== tsDS) {
           // log(`stop date = ${sdDS} !== ${tsDS}`);
           return false;
@@ -1491,6 +1494,19 @@ export function checkData(model: ModelData): string {
     return message;
   }
 
+  /*
+  for (const s of model.settings) {
+    if (s.NAME === roiStart) {
+      if (!checkTriggerDate(s.VALUE, [], 0)) {
+        return `Bad date for start of view range : ${s.VALUE}`;
+      }
+    } else if (s.NAME === roiEnd) {
+      if (!checkTriggerDate(s.VALUE, [], 0)) {
+        return `Bad date for end of view range : ${s.VALUE}`;
+      }
+    }
+  }
+*/
   // Any transactions must have date inside
   // the lifetime of relevant assets
   // Don't use forEach because we want to log a bug and

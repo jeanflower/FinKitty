@@ -134,7 +134,7 @@ import {
   revertToUndoModel,
   standardiseDates,
 } from './models/modelUtils';
-import { lessThan, makeTwoDP } from './utils/stringUtils';
+import { dateAsString, lessThan, makeTwoDP } from './utils/stringUtils';
 import { diffModels } from './models/diffModels';
 import { collapsibleFragment } from './views/tablePages';
 import WaitGif from './views/catWait.gif';
@@ -395,7 +395,7 @@ function getReporter(
     if (!reactAppComponent.state.reportDefiner) {
       return false;
     }
-    // log(`should we display ${name} at ${date.toDateString()}?`);
+    // log(`should we display ${name} at ${dateAsString(date)}?`);
     if (!reportIncludesExpenses) {
       if (
         model.expenses.find((e) => {
@@ -472,7 +472,7 @@ function getReporter(
         return false;
       }
     }
-    // log(`yes, do display ${name} at ${date.toDateString()}?`);
+    // log(`yes, do display ${name} at ${dateAsString(date)}?`);
     return true;
   };
 }
@@ -1700,11 +1700,11 @@ export class AppContent extends Component<AppProps, AppState> {
       // throw new Error('pretend something went wrong');
       const getStartDate = () => {
         const start: Date = getROI(this.state.modelData).start;
-        return start.toDateString();
+        return dateAsString(start);
       };
       const getEndDate = () => {
         const end: Date = getROI(this.state.modelData).end;
-        return end.toDateString();
+        return dateAsString(end);
       };
       const updateSettingValue = (settingName: string, newDate: string) => {
         const s = this.state.modelData.settings.find((s) => {
@@ -2347,7 +2347,7 @@ export class AppContent extends Component<AppProps, AppState> {
         ]}
         model={model}
       />,
-      `Settings values at ${today.toDateString()}`,
+      `Settings values at ${dateAsString(today)}`,
     );
   }
 

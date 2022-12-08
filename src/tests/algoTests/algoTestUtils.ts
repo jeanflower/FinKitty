@@ -57,6 +57,7 @@ import {
   makeNetIncomeTag,
   makeNetGainTag,
   hasDependentDate,
+  dateAsString,
 } from '../../utils/stringUtils';
 import {
   Evaluation,
@@ -84,7 +85,7 @@ export function expectEvals(
   numDigits: number,
 ) {
   expect(evals[i].name).toBe(name);
-  expect(evals[i].date.toDateString()).toBe(dateString);
+  expect(dateAsString(evals[i].date)).toBe(dateString);
   if (numDigits < 0) {
     expect(evals[i].value).toBe(value);
   } else {
@@ -99,7 +100,7 @@ export function printTestCodeForEvals(evals: Evaluation[]) {
     // log(`evals[${i}] is ${showObj(evals[i])}`);
     result +=
       `expectEvals(evals, ${i}, ` +
-      `'${evals[i].name}', '${evals[i].date.toDateString()}', `;
+      `'${evals[i].name}', '${dateAsString(evals[i].date)}', `;
     if (evals[i].value.toFixed(0) === `${evals[i].value}`) {
       result += `${evals[i].value}, -1);\n`;
     } else {

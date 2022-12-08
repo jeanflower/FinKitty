@@ -119,6 +119,7 @@ import {
   makeStringFromValueAbsProp,
   lessThan,
   makeTwoDP,
+  dateAsString,
 } from '../utils/stringUtils';
 import { ReactFragment } from 'react';
 import { Accordion, Button, Card } from 'react-bootstrap';
@@ -781,7 +782,7 @@ function getAssetOrDebtCols(model: ModelData, isDebt: boolean) {
       {
         ...defaultColumn,
         key: 'TODAYSVALUE',
-        name: `value\nat ${getTodaysDate(model).toDateString()}`,
+        name: `value\nat ${dateAsString(getTodaysDate(model))}`,
         formatter: <CashValueFormatter name="focus value" value="unset" />,
       },
     ]);
@@ -1703,7 +1704,7 @@ function incomesTableDiv(
       {
         ...defaultColumn,
         key: 'TODAYSVALUE',
-        name: `value\nat ${getTodaysDate(model).toDateString()}`,
+        name: `value\nat ${dateAsString(getTodaysDate(model))}`,
         formatter: <CashValueFormatter name="focus value" value="unset" />,
       },
     ]);
@@ -1890,7 +1891,7 @@ function expensesTableDiv(
       {
         ...defaultColumn,
         key: 'TODAYSVALUE',
-        name: `value\nat ${getTodaysDate(model).toDateString()}`,
+        name: `value\nat ${dateAsString(getTodaysDate(model))}`,
         formatter: <CashValueFormatter name="focus value" value="unset" />,
       },
     ]);

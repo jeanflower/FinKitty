@@ -54,7 +54,7 @@ export function makeDateFromString(input: string) {
     const dateMomentObject = moment(input, 'DD/MM/YYYY');
     const dateObject = dateMomentObject.toDate(); // convert moment.js object to Date object
     if (!Number.isNaN(dateObject.getTime())) {
-      // log(`converted ${input} into ${dateObject.toDateString()}`);
+      // log(`converted ${input} into ${dateObject)}`);
       return dateObject;
     }
   } else {
@@ -680,7 +680,7 @@ function parseTriggerForOperator(
             cleanedUp.cleaned = `${cleanedUp.cleaned}${secondPartNW.numberPart}y`;
           }
         }
-        // log(`converted ${triggerName} into ${firstPartDate.toDateString()}`);
+        // log(`converted ${triggerName} into ${firstPartDate)}`);
         return firstPartDate;
       } else {
         /* istanbul ignore if */
@@ -691,7 +691,20 @@ function parseTriggerForOperator(
     }
   }
 }
-
+export function dateAsString(d: Date | undefined): string {
+  if (d === undefined) {
+    return 'Invalid date';
+  }
+  return d?.toDateString();
+  /*
+  const result = new Intl.DateTimeFormat('en-GB', {
+    year: 'numeric',
+    month: 'short',
+    day: '2-digit',
+  }).format(d);
+  return result;
+  */
+}
 // returns a date for a trigger, or undefined
 function findMatchedTriggerDate(
   triggerName: string,
@@ -760,7 +773,7 @@ function findMatchedTriggerDate(
     }
     /* eslint-enable */
 
-    // log(`converted ${triggerName} into ${result.toDateString()}`);
+    // log(`converted ${triggerName} into ${dateAsString(result)}`);
   }
 
   if (result === undefined) {
@@ -768,7 +781,7 @@ function findMatchedTriggerDate(
     if (dateTry.getTime()) {
       result = dateTry;
       if (cleanedUp) {
-        const shortString = dateTry.toDateString();
+        const shortString = dateAsString(dateTry);
         const shortStringDate = new Date(shortString);
         if (shortStringDate.getTime() === dateTry.getTime()) {
           cleanedUp.cleaned = shortString;

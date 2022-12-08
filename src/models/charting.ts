@@ -62,6 +62,7 @@ import {
   makeNetGainTag,
   getTriggerDate,
   deconstructTaxTag,
+  dateAsString,
 } from '../utils/stringUtils';
 import { getROI, getSettings, getVarVal } from './modelUtils';
 import { getCategory } from './category';
@@ -450,7 +451,7 @@ function totalChartDataPoints(
   const result = new Map<string, Map<string, number>>();
   dates.forEach((date) => {
     let totalValue = 0.0;
-    const dateString = date.toDateString();
+    const dateString = dateAsString(date);
     items.forEach((item) => {
       // log(`get data from map for date ${dateString}`);
       const nameValueMap = dateNameValueMap.get(dateString);
@@ -506,7 +507,7 @@ function makeChartDataPoints(
 
   const birthDateSetting = getSettings(settings, birthDate, '');
   dates.forEach((date) => {
-    const dateString = date.toDateString();
+    const dateString = dateAsString(date);
     items.forEach((item) => {
       let value = 0.0;
       // log(`get data from map for date ${dateString}`);
@@ -734,7 +735,7 @@ function assignCategories(
   allDates.forEach((date) => {
     items.forEach((item) => {
       // log(`item = ${showObj(item)}`);
-      const d = date.toDateString();
+      const d = dateAsString(date);
 
       const NVM = dateNameValueMap.get(d);
       if (NVM === undefined) {
@@ -793,7 +794,7 @@ function filterIncomeOrExpenseItems(
   const mapForChart = new Map<string, Map<string, number>>();
   allDates.forEach((date) => {
     names.forEach((item) => {
-      const d = date.toDateString();
+      const d = dateAsString(date);
 
       const NVM = dateNameValueMap.get(d);
       if (NVM === undefined) {
@@ -1241,7 +1242,7 @@ export function makeChartData(
     ensureDateValueMapsExist(typeDateNameValueMap, evalnType);
     const dateNameValueMap = typeDateNameValueMap.get(evalnType);
     if (dateNameValueMap !== undefined) {
-      const date = firstDateAfterEvaln.toDateString();
+      const date = dateAsString(firstDateAfterEvaln);
       if (!dateNameValueMap.has(date)) {
         // log(`make a map for date ${date}`);
         dateNameValueMap.set(date, new Map<string, number>());
@@ -1345,7 +1346,7 @@ export function makeChartData(
           typeDateNameValueMap.get('assetOrDebtFocus');
       }
       if (assetOrDebtDateNameValueMap !== undefined) {
-        const date = firstDateAfterEvaln.toDateString();
+        const date = dateAsString(firstDateAfterEvaln);
         if (!assetOrDebtDateNameValueMap.has(date)) {
           assetOrDebtDateNameValueMap.set(date, new Map<string, number>());
         }
@@ -1624,7 +1625,7 @@ export function makeChartData(
     if (birthDateSetting !== '') {
       return makeAgeString(d, birthDateSetting);
     } else {
-      return d.toDateString();
+      return dateAsString(d);
     }
   });
 

@@ -33,7 +33,7 @@ import {
 } from '../localization/stringConstants';
 import { ViewSettings } from '../models/charting';
 import { getTodaysDate } from '../models/modelUtils';
-import { lessThan } from '../utils/stringUtils';
+import { dateAsString, lessThan } from '../utils/stringUtils';
 import { collapsibleFragment } from './tablePages';
 import { log, printDebug } from '../utils/utils';
 import { getDisplay } from '../utils/viewUtils';
@@ -148,7 +148,7 @@ export function todaysDebtsTable(
     <>
       {collapsibleFragment(
         makeDataGrid(categorisedValues, model),
-        `Debt values (categorised) at ${today.toDateString()}`,
+        `Debt values (categorised) at ${dateAsString(today)}`,
       )}
     </>
   );

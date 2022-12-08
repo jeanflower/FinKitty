@@ -1,6 +1,6 @@
 import { generateSequenceOfDates } from '../../models/evaluations';
 import { Asset } from '../../types/interfaces';
-import { makeDateFromString } from '../../utils/stringUtils';
+import { dateAsString, makeDateFromString } from '../../utils/stringUtils';
 
 export const testAsset: Asset = {
   NAME: 'test_asset',
@@ -27,8 +27,8 @@ describe('generateTransactionDates', () => {
 
     expect(moments.length).toBe(2);
 
-    expect(moments[0].toDateString()).toBe('Tue May 01 2018');
-    expect(moments[1].toDateString()).toBe('Fri Jun 01 2018');
+    expect(dateAsString(moments[0])).toBe('Tue May 01 2018');
+    expect(dateAsString(moments[1])).toBe('Fri Jun 01 2018');
   });
 
   it('make simple pair weekly', () => {
@@ -40,8 +40,8 @@ describe('generateTransactionDates', () => {
 
     expect(moments.length).toBe(2);
 
-    expect(moments[0].toDateString()).toBe('Tue May 01 2018');
-    expect(moments[1].toDateString()).toBe('Tue May 08 2018');
+    expect(dateAsString(moments[0])).toBe('Tue May 01 2018');
+    expect(dateAsString(moments[1])).toBe('Tue May 08 2018');
   });
 
   it('short roi', () => {
@@ -53,7 +53,7 @@ describe('generateTransactionDates', () => {
 
     expect(moments.length).toBe(1);
 
-    expect(moments[0].toDateString()).toBe('Tue May 01 2018');
+    expect(dateAsString(moments[0])).toBe('Tue May 01 2018');
   });
 
   it('zero-length roi', () => {
@@ -74,7 +74,7 @@ describe('generateTransactionDates', () => {
     const moments = generateSequenceOfDates(roi, '1m');
 
     expect(moments.length).toBe(1);
-    expect(moments[0].toDateString()).toBe('Tue May 01 2018');
+    expect(dateAsString(moments[0])).toBe('Tue May 01 2018');
   });
 
   it('make two pairs and sort', () => {
@@ -94,9 +94,9 @@ describe('generateTransactionDates', () => {
     moments.sort((a, b) => (a > b ? 1 : a === b ? 0 : -1));
     expect(moments.length).toBe(4);
 
-    expect(moments[0].toDateString()).toBe('Tue May 01 2018');
-    expect(moments[1].toDateString()).toBe('Wed May 02 2018');
-    expect(moments[2].toDateString()).toBe('Fri Jun 01 2018');
-    expect(moments[3].toDateString()).toBe('Sat Jun 02 2018');
+    expect(dateAsString(moments[0])).toBe('Tue May 01 2018');
+    expect(dateAsString(moments[1])).toBe('Wed May 02 2018');
+    expect(dateAsString(moments[2])).toBe('Fri Jun 01 2018');
+    expect(dateAsString(moments[3])).toBe('Sat Jun 02 2018');
   });
 });

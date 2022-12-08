@@ -4,7 +4,7 @@ import { Col, Row } from 'react-bootstrap';
 import { Trigger, ModelData, FormProps, Item } from '../../types/interfaces';
 import { TriggerOptionList } from './TriggerOptionList';
 import { log, showObj, printDebug } from '../../utils/utils';
-import { makeDateTooltip } from '../../utils/stringUtils';
+import { dateAsString, makeDateTooltip } from '../../utils/stringUtils';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
 import { getVarVal } from '../../models/modelUtils';
@@ -43,7 +43,7 @@ export class DateSelectionRow extends Component<DateSelectionProps> {
 
   handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     if (e.target.value === 'today') {
-      e.target.value = new Date().toDateString();
+      e.target.value = dateAsString(new Date());
     }
     this.props.onChangeHandler(e);
   }
