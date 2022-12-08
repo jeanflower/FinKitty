@@ -763,7 +763,7 @@ describe('utils tests', () => {
       dateAsString(
         checkTriggerDate('1 Jan 2018-1d-2d', [simpleTrigger], varVal),
       ),
-    ).toEqual(undefined);
+    ).toEqual('Invalid date');
     cleanedString.cleaned = '';
     checkTriggerDate(
       '1 Jan 2018-1d-2d',
@@ -775,7 +775,7 @@ describe('utils tests', () => {
 
     expect(
       dateAsString(checkTriggerDate('a-1m-2d', [simpleTrigger], varVal)),
-    ).toEqual(undefined);
+    ).toEqual('Invalid date');
     cleanedString.cleaned = '';
     checkTriggerDate('a-1m-2d', [simpleTrigger], varVal, cleanedString);
     expect(cleanedString.cleaned).toEqual('Invalid Date a-1m-2d');
@@ -798,7 +798,7 @@ describe('utils tests', () => {
           varVal,
         ),
       ),
-    ).toEqual(undefined);
+    ).toEqual('Invalid date');
     expect(
       dateAsString(
         checkTriggerDate(
@@ -807,7 +807,7 @@ describe('utils tests', () => {
           varVal,
         ),
       ),
-    ).toEqual(undefined);
+    ).toEqual('Invalid date');
     expect(
       dateAsString(
         checkTriggerDate(
@@ -816,7 +816,7 @@ describe('utils tests', () => {
           varVal,
         ),
       ),
-    ).toEqual(undefined);
+    ).toEqual('Invalid date');
   });
   it('getTriggerDate', () => {
     const varVal = 1.0;

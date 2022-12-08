@@ -165,7 +165,7 @@ export function todaysExpensesTable(
     <>
       {collapsibleFragment(
         makeDataGrid(categorisedValues, model),
-        `Expense values (categorised) at ${ dateAsString(today)}`,
+        `Expense values (categorised) at ${dateAsString(today)}`,
       )}
     </>
   );

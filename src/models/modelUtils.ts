@@ -61,7 +61,7 @@ function cleanUpDates(
     // log(`cleaningResult from ${t.DATE} = ${cleaningResult.cleaned}`);
     t.DATE = cleaningResult.cleaned;
   }
-/*
+  /*
   for (const s of modelFromJSON.settings) {
     if (s.NAME === roiStart || s.NAME === roiEnd) {
       const cleaningResult = {
