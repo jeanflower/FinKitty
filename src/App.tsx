@@ -69,7 +69,14 @@ import {
   ReportValueChecker,
   ViewCallbacks,
 } from './types/interfaces';
-import { Context, log, printDebug, saveLogs, showObj } from './utils/utils';
+import {
+  Context,
+  DateFormatType,
+  log,
+  printDebug,
+  saveLogs,
+  showObj,
+} from './utils/utils';
 import { loginPage, navbarContent } from './views/loginPage';
 import { screenshotsDiv } from './views/screenshotsPage';
 import {
@@ -395,7 +402,7 @@ function getReporter(
     if (!reactAppComponent.state.reportDefiner) {
       return false;
     }
-    // log(`should we display ${name} at ${dateAsString(date)}?`);
+    // log(`should we display ${name} at ${dateAsString(DateFormatType.Unknown,date)}?`);
     if (!reportIncludesExpenses) {
       if (
         model.expenses.find((e) => {
@@ -472,7 +479,7 @@ function getReporter(
         return false;
       }
     }
-    // log(`yes, do display ${name} at ${dateAsString(date)}?`);
+    // log(`yes, do display ${name} at ${dateAsString(DateFormatType.Unknown,date)}?`);
     return true;
   };
 }
@@ -1700,11 +1707,11 @@ export class AppContent extends Component<AppProps, AppState> {
       // throw new Error('pretend something went wrong');
       const getStartDate = () => {
         const start: Date = getROI(this.state.modelData).start;
-        return dateAsString(start);
+        return dateAsString(DateFormatType.View, start);
       };
       const getEndDate = () => {
         const end: Date = getROI(this.state.modelData).end;
-        return dateAsString(end);
+        return dateAsString(DateFormatType.View, end);
       };
       const updateSettingValue = (settingName: string, newDate: string) => {
         const s = this.state.modelData.settings.find((s) => {
@@ -2347,7 +2354,7 @@ export class AppContent extends Component<AppProps, AppState> {
         ]}
         model={model}
       />,
-      `Settings values at ${dateAsString(today)}`,
+      `Settings values at ${dateAsString(DateFormatType.View, today)}`,
     );
   }
 

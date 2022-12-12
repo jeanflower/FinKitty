@@ -21,7 +21,7 @@ import {
 } from '../localization/stringConstants';
 import { isSetting } from '../models/modelUtils';
 import { Setting, ModelData, Trigger } from '../types/interfaces';
-import { log, printDebug, showObj } from './utils';
+import { DateFormatType, log, printDebug, showObj } from './utils';
 
 showObj;
 
@@ -691,19 +691,23 @@ function parseTriggerForOperator(
     }
   }
 }
-export function dateAsString(d: Date | undefined): string {
+export function dateAsString(
+  mode: DateFormatType,
+  d: Date | undefined,
+): string {
   if (d === undefined) {
     return 'Invalid date';
   }
-  return d?.toDateString();
-  /*
-  const result = new Intl.DateTimeFormat('en-GB', {
-    year: 'numeric',
-    month: 'short',
-    day: '2-digit',
-  }).format(d);
-  return result;
-  */
+  if (mode === DateFormatType.View || mode === DateFormatType.Debug) {
+    const result = new Intl.DateTimeFormat('en-GB', {
+      year: 'numeric',
+      month: 'short',
+      day: '2-digit',
+    }).format(d);
+    return result;
+  } else {
+    return d.toDateString();
+  }
 }
 // returns a date for a trigger, or undefined
 function findMatchedTriggerDate(
@@ -773,7 +777,7 @@ function findMatchedTriggerDate(
     }
     /* eslint-enable */
 
-    // log(`converted ${triggerName} into ${dateAsString(result)}`);
+    // log(`converted ${triggerName} into ${dateAsString(DateFormatType.Debug,result)}`);
   }
 
   if (result === undefined) {
@@ -781,7 +785,7 @@ function findMatchedTriggerDate(
     if (dateTry.getTime()) {
       result = dateTry;
       if (cleanedUp) {
-        const shortString = dateAsString(dateTry);
+        const shortString = dateAsString(DateFormatType.Unknown, dateTry);
         const shortStringDate = new Date(shortString);
         if (shortStringDate.getTime() === dateTry.getTime()) {
           cleanedUp.cleaned = shortString;

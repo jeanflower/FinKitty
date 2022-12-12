@@ -40,7 +40,7 @@ import { ViewSettings } from '../models/charting';
 import { getTodaysDate } from '../models/modelUtils';
 import { dateAsString, lessThan } from '../utils/stringUtils';
 import { collapsibleFragment } from './tablePages';
-import { log, printDebug } from '../utils/utils';
+import { DateFormatType, log, printDebug } from '../utils/utils';
 import { getDisplay } from '../utils/viewUtils';
 import { simpleExpense } from '../models/exampleModels';
 
@@ -165,7 +165,10 @@ export function todaysExpensesTable(
     <>
       {collapsibleFragment(
         makeDataGrid(categorisedValues, model),
-        `Expense values (categorised) at ${dateAsString(today)}`,
+        `Expense values (categorised) at ${dateAsString(
+          DateFormatType.View,
+          today,
+        )}`,
       )}
     </>
   );

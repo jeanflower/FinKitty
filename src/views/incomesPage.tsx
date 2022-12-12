@@ -40,7 +40,7 @@ import { SimpleFormatter } from './reactComponents/NameFormatter';
 import { ViewSettings } from '../models/charting';
 import { getTodaysDate } from '../models/modelUtils';
 import { dateAsString, lessThan } from '../utils/stringUtils';
-import { log, printDebug } from '../utils/utils';
+import { DateFormatType, log, printDebug } from '../utils/utils';
 import { getDisplay } from '../utils/viewUtils';
 import { simpleIncome } from '../models/exampleModels';
 
@@ -157,7 +157,10 @@ export function todaysIncomesTable(
     <>
       {collapsibleFragment(
         makeDataGrid(categorisedValues, model),
-        `Income values (categorised) at ${dateAsString(today)}`,
+        `Income values (categorised) at ${dateAsString(
+          DateFormatType.View,
+          today,
+        )}`,
       )}
     </>
   );

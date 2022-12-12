@@ -361,7 +361,7 @@ describe('checks tests', () => {
         model,
       ),
     ).toEqual(
-      `Income start date must be after cash starts; Thu Jan 01 1970 is before Sun Jan 01 2017`,
+      `Income start date must be after cash starts; 01 Jan 1970 is before 01 Jan 2017`,
     );
     expect(
       checkIncome(
@@ -394,8 +394,8 @@ describe('checks tests', () => {
         model,
       ),
     ).toEqual(`Income value must be set on or before the start of the income.
-      For a, start is Wed Jan 01 2020 and
-      value is set Fri Jan 01 2021.`);
+      For a, start is 01 Jan 2020 and
+      value is set 01 Jan 2021.`);
     model.assets.push({
       ...simpleAsset,
       NAME: 'TaxPot',
@@ -819,8 +819,8 @@ describe('checks tests', () => {
       ),
     ).toEqual(
       `Expense value must be set on or before the start of the income.
-      For NoName, start is Sun Jan 01 2017 and
-      value is set Mon Jan 01 2018.`,
+      For NoName, start is 01 Jan 2017 and
+      value is set 01 Jan 2018.`,
     );
     expect(
       checkExpense(

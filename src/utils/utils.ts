@@ -57,3 +57,11 @@ export enum Context {
   Income,
   Expense,
 }
+
+export enum DateFormatType {
+  View,
+  Test,
+  Data,
+  Debug,
+  Unknown,
+}

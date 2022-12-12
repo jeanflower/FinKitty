@@ -47,7 +47,13 @@ import {
   Expense,
   Income,
 } from '../types/interfaces';
-import { getMonthlyGrowth, log, printDebug, showObj } from '../utils/utils';
+import {
+  DateFormatType,
+  getMonthlyGrowth,
+  log,
+  printDebug,
+  showObj,
+} from '../utils/utils';
 import { getDisplayName } from '../views/tablePages';
 import {
   getNumberAndWordParts,
@@ -599,7 +605,7 @@ function setValue(
         log(
           `setting first value of ${name}, ` +
             `newValue = ${newValue} ` +
-            `date = ${dateAsString(date)}, ` +
+            `date = ${dateAsString(DateFormatType.Unknown, date)}, ` +
             `source = ${source}, from  ${callerID}`,
         );
       } else {
@@ -607,7 +613,7 @@ function setValue(
           `setting value of ${name}, ` +
             `newValue = ${newValue} ` +
             `oldValue = ${existingValue} ` +
-            `date = ${dateAsString(date)}, ` +
+            `date = ${dateAsString(DateFormatType.Unknown, date)}, ` +
             `source = ${source}, from  ${callerID}`,
         );
       }
@@ -617,7 +623,7 @@ function setValue(
         log(
           `setting first value of ${name}, ` +
             `newRealValue = ${realNewValue} ` +
-            `date = ${dateAsString(date)}, ` +
+            `date = ${dateAsString(DateFormatType.Unknown, date)}, ` +
             `source = ${source}, from  ${callerID}`,
         );
       } else {
@@ -625,7 +631,7 @@ function setValue(
           `setting value of ${name}, ` +
             `newRealValue = ${realNewValue} ` +
             `oldRealValue = ${realExistingValue} ` +
-            `date = ${dateAsString(date)}, ` +
+            `date = ${dateAsString(DateFormatType.Unknown, date)}, ` +
             `source = ${source}, from  ${callerID}`,
         );
       }
@@ -690,7 +696,7 @@ function setValue(
     // log(
     //  `add evaluation ${showObj({
     //    name: evaln.name,
-    //    date: dateAsString(evaln.date),
+    //    date: dateAsString(DateFormatType.Unknown,evaln.date),
     //    value: evaln.value,
     //    source: evaln.source,
     //  })}`,
@@ -740,7 +746,7 @@ export function getYearOfTaxYear(d: Date) {
   } else {
     startYearOfTaxYear = d.getFullYear() - 1;
   }
-  // log(`tax year of ${dateAsString(d)} = ${startYearOfTaxYear}`);
+  // log(`tax year of ${dateAsString(DateFormatType.Unknown,d)} = ${startYearOfTaxYear}`);
   // log(`details: d.getDate() = ${d.getDate()}, `+
   //  `d.getMonth() = ${d.getMonth()}, `+
   //  `d.getFullYear() = ${d.getFullYear()}, `);
@@ -1416,7 +1422,7 @@ function adjustCash(
   model: ModelData,
   source: string, // what led to the change
 ) {
-  // log(`adjustCash by amount = ${amount} at ${dateAsString(d)}`);
+  // log(`adjustCash by amount = ${amount} at ${dateAsString(DateFormatType.Unknown,d)}`);
   let cashValue = getNumberValue(values, CASH_ASSET_NAME, false);
   // log(`current stored value = ${cashValue}`);
   if (cashValue === undefined) {
@@ -1548,7 +1554,7 @@ function payIncomeTax(
   // log(`totalTaxDueFromCash for ${makeTwoDP(income)} on ${startOfTaxYear.getFullYear()} is ${makeTwoDP(totalTaxDueFromCash)}, already paid ${makeTwoDP(alreadyPaid)}`);
   const endOfTaxYear = new Date(startOfTaxYear.getFullYear() + 1, 3, 5);
   if (totalTaxDue !== 0) {
-    // log(`in payIncomeTax for ${dateAsString(startOfTaxYear)}, adjustCash by ${totalTaxDueFromCash}`);
+    // log(`in payIncomeTax for ${dateAsString(DateFormatType.Unknown,startOfTaxYear)}, adjustCash by ${totalTaxDueFromCash}`);
     adjustCash(
       -totalTaxDueFromCash,
       endOfTaxYear,
@@ -1672,7 +1678,7 @@ function OptimizeIncomeTax(
   evaluations: Evaluation[],
   model: ModelData,
 ) {
-  // log(`OptimizeIncomeTax income tax for ${person} and ${liableIncome} on ${dateAsString(date)}`);
+  // log(`OptimizeIncomeTax income tax for ${person} and ${liableIncome} on ${dateAsString(DateFormatType.Unknown,date)}`);
   const startYearOfTaxYear = date.getFullYear();
   const endYearOfTaxYear = new Date(startYearOfTaxYear + 1, 3, 5);
   const bands = getTaxBands(liableIncome, startYearOfTaxYear, values);
@@ -1770,7 +1776,7 @@ function settleUpTax(
   const date = new Date(startYearOfTaxYear, 3, 5);
   /* istanbul ignore if  */ //debug
   if (printDebug()) {
-    log(`in settleUpTax, date = ${dateAsString(date)}`);
+    log(`in settleUpTax, date = ${dateAsString(DateFormatType.Debug, date)}`);
   }
   // before going to pay income tax,
   // see if there's a wise move to use up unused income tax allowance
@@ -1995,7 +2001,7 @@ function settleUpTax(
       }
     }
   }
-  // log(`finished settleUpTax, date = ${dateAsString(date)}`);
+  // log(`finished settleUpTax, date = ${dateAsString(DateFormatType.Debug,date)}`);
 }
 
 function getTaxMonthDate(startYearOfTaxYear: number, monthOfTaxYear: number) {
@@ -2009,7 +2015,7 @@ function getTaxMonthDate(startYearOfTaxYear: number, monthOfTaxYear: number) {
     // gives May 2020
     result = new Date(startYearOfTaxYear, monthOfTaxYear, 5);
   }
-  // log(`month ${monthOfTaxYear} and year ${startYearOfTaxYear} make date ${dateAsString(result)}`);
+  // log(`month ${monthOfTaxYear} and year ${startYearOfTaxYear} make date ${dateAsString(DateFormatType.Debug,result)}`);
   return result;
 }
 
@@ -3191,7 +3197,7 @@ function calculateFromChange(
           bondScale = 1.0 + (bondInterestRate + cpiVal) / 100.0;
         }
 
-        // log(`before date shift, d = ${dateAsString(d)}`);
+        // log(`before date shift, d = ${dateAsString(DateFormatType.Debug,d)}`);
         if (t.NAME.endsWith('5y')) {
           d.setFullYear(d.getFullYear() + 5);
           bondScale = bondScale ** 5;
@@ -3212,7 +3218,7 @@ function calculateFromChange(
             'BUG - could not infer duration of bond from bond name (does not end 1y etc)',
           );
         }
-        // log(`after date shift, d = ${dateAsString(d)}`);
+        // log(`after date shift, d = ${dateAsString(DateFormatType.Debug,d)}`);
 
         // the bond will grow by bondScale, so to reach a target value of
         // tFromValue, we actually invest tFromValue / bondScale
@@ -3235,12 +3241,12 @@ function calculateFromChange(
             return false;
           }
           if (d.getTime() !== new Date(sparts[1]).getTime()) {
-            // log(`different dates ${dateAsString(d)} !== ${dateAsString(new Date(sparts[1]))}`);
+            // log(`different dates ${dateAsString(DateFormatType.Debug,d)} !== ${dateAsString(DateFormatType.Debug,new Date(sparts[1]))}`);
             return false;
           }
 
           // log(`matched to ${s.NAME}`);
-          // log(`same dates ${dateAsString(new Date(moment.date))} === ${sparts[1]}`);
+          // log(`same dates ${dateAsString(DateFormatType.Debug,new Date(moment.date))} === ${sparts[1]}`);
           return true;
         });
         if (matchedSetting.length === 1) {
@@ -3675,7 +3681,7 @@ function processTransactionFromTo(
   liableIncomeInTaxMonth: Map<string, Map<string, number>>,
 ) {
   // log(`process t = ${showObj(t)}`);
-  // log(`processTransactionFromTo fromWord = ${fromWord} toWord = ${toWord}, date = ${dateAsString(moment.date)}`);
+  // log(`processTransactionFromTo fromWord = ${fromWord} toWord = ${toWord}, date = ${dateAsString(DateFormatType.Debug,moment.date)}`);
   // log(`processTransactionFromTo takes in ${showObj(t)}`);
   const preFromValue = traceEvaluation(fromWord, values, growths, fromWord);
   // log(`pound value of ${fromWord} before transaction is ${preFromValue}`);
@@ -4318,12 +4324,12 @@ function generateMoments(
     const expenseStart = getTriggerDate(expense.START, model.triggers, v);
 
     const expenseSetDate = getTriggerDate(expense.VALUE_SET, model.triggers, v);
-    // log(`income start is ${dateAsString(incomeStartDate)}`);
-    // log(`value set is ${dateAsString(incomeSetDate)}`);
-    // log(`shiftStartBackTo = ${dateAsString(shiftStartBackTo)}`);
+    // log(`income start is ${dateAsString(DateFormatType.Debug,incomeStartDate)}`);
+    // log(`value set is ${dateAsString(DateFormatType.Debug,incomeSetDate)}`);
+    // log(`shiftStartBackTo = ${dateAsString(DateFormatType.Debug,shiftStartBackTo)}`);
     // log(`shiftStartBackTo = ${shiftStartBackTo}`);
 
-    // log(`expense start is ${dateAsString(expenseStartDate)}
+    // log(`expense start is ${dateAsString(DateFormatType.Debug,expenseStartDate)}
 
     // log(`expense start = ${expenseStart}`);
     const newMoments = getRecurrentMoments(
@@ -4609,7 +4615,7 @@ function generateMoments(
         .map((ds) => getTriggerDate(ds, model.triggers, v)),
     );
 
-    // log(`referencingDates for ${setting.NAME} = ${referencingDates.map(d=>dateAsString(d))}`);
+    // log(`referencingDates for ${setting.NAME} = ${referencingDates.map(d=>dateAsString(DateFormatType.Debug,d))}`);
     referencingDates = referencingDates.sort();
     if (referencingDates.length > 0 && values.get(setting.NAME) === undefined) {
       // log(`setValue ${setting.NAME} = ${setting.VALUE}`);
@@ -4844,7 +4850,7 @@ function handleTaxObligations(
     timeInTaxCycle.monthOfTaxYear !== undefined &&
     enteringNewTaxMonth
   ) {
-    // log(`${momentsTaxMonth} is beyond ${monthOfTaxYear} for ${dateAsString(moment.date)}`);
+    // log(`${momentsTaxMonth} is beyond ${monthOfTaxYear} for ${dateAsString(DateFormatType.Debug,moment.date)}`);
     payNIEstimate(
       liableIncomeInTaxMonth,
       taxMonthlyPaymentsPaid,
@@ -4856,7 +4862,7 @@ function handleTaxObligations(
       model,
     );
   } else {
-    // log(`waiting for ${momentsTaxMonth} to get beyond ${monthOfTaxYear} for ${dateAsString(moment.date)}`);
+    // log(`waiting for ${momentsTaxMonth} to get beyond ${monthOfTaxYear} for ${dateAsString(DateFormatType.Debug,moment.date)}`);
   }
 
   if (timeInTaxCycle.startYearOfTaxYear !== undefined && enteringNewTaxYear) {
@@ -4880,7 +4886,7 @@ function handleTaxObligations(
     timeInTaxCycle.monthOfTaxYear !== undefined &&
     enteringNewTaxMonth
   ) {
-    // log(`${momentsTaxMonth} is beyond ${monthOfTaxYear} for ${dateAsString(moment.date)}`);
+    // log(`${momentsTaxMonth} is beyond ${monthOfTaxYear} for ${dateAsString(DateFormatType.Debug,moment.date)}`);
     payTaxEstimate(
       liableIncomeInTaxMonth,
       taxMonthlyPaymentsPaid,
@@ -4892,7 +4898,7 @@ function handleTaxObligations(
       model,
     );
   } else {
-    // log(`waiting for ${momentsTaxMonth} to get beyond ${monthOfTaxYear} for ${dateAsString(moment.date)}`);
+    // log(`waiting for ${momentsTaxMonth} to get beyond ${monthOfTaxYear} for ${dateAsString(DateFormatType.Debug,moment.date)}`);
   }
   if (enteringNewTaxYear || enteringNewTaxMonth) {
     timeInTaxCycle.monthOfTaxYear = momentsTaxMonth;
@@ -4934,7 +4940,7 @@ function captureLastTaxBands(
   growths: Map<string, GrowthData>,
   moment: Moment,
 ) {
-  // log(`at ${dateAsString(moment.date)}, go log tax band values to get inflated values later`);
+  // log(`at ${dateAsString(DateFormatType.Debug,moment.date)}, go log tax band values to get inflated values later`);
   const resultFromMap = TAX_MAP[`${highestTaxYearInMap}`];
   const baseVal = getNumberValue(values, baseForCPI);
 
@@ -5354,7 +5360,7 @@ function growAndEffectMoment(
     }
     /* istanbul ignore if  */ //debug
     if (printDebug()) {
-      log(`${dateAsString(moment.date)},
+      log(`${dateAsString(DateFormatType.Debug, moment.date)},
                 ${momentName},
                 value = ${values.get(momentName)}`);
     }
@@ -5402,7 +5408,7 @@ function getEvaluationsInternal(
     const reportData: ReportDatum[] = [
       {
         name: 'Error from evaluations',
-        date: dateAsString(new Date()),
+        date: dateAsString(DateFormatType.View, new Date()),
         source: `check failed: ${message}`,
         change: undefined,
         oldVal: undefined,
@@ -5540,7 +5546,7 @@ function getEvaluationsInternal(
     const needPredictedTaxBands = new Date(highestTaxYearInMap, 3, 5);
     if (needPredictedTaxBands < roiEndDate) {
       const d = new Date(highestTaxYearInMap, 3, 4);
-      // log(`prepare to log tax band values at ${dateAsString(d)}`);
+      // log(`prepare to log tax band values at ${dateAsString(DateFormatType.Debug,d)}`);
       datedMoments.push({
         date: d,
         name: 'captureLastTaxBands',
@@ -5594,7 +5600,7 @@ function getEvaluationsInternal(
     if (printDebug()) {
       log(
         `popped moment is ${showObj({
-          date: dateAsString(moment.date),
+          date: dateAsString(DateFormatType.Debug, moment.date),
           name: moment.name,
           type: moment.type,
           setValue: moment.setValue,
@@ -5602,7 +5608,7 @@ function getEvaluationsInternal(
       );
     }
     // log(`${datedMoments.length} moments left`);
-    // log(`moment.date is ${dateAsString(moment.date)}`);
+    // log(`moment.date is ${dateAsString(DateFormatType.Debug,moment.date)}`);
 
     if (moment.name === EvaluateAllAssets) {
       evaluateAllAssets(
@@ -5800,7 +5806,10 @@ export function getEvaluations(
             NAME: `${bondMaturity}base`,
             FAVOURITE: undefined, // bond transaction
             CATEGORY: '',
-            START: dateAsString(startDateForBondMaturityCalculation),
+            START: dateAsString(
+              DateFormatType.Unknown,
+              startDateForBondMaturityCalculation,
+            ),
             VALUE: '1.0',
             QUANTITY: '', // Quantised assets have unit prices on-screen for table value
             // Quantised assets can only be transacted in unit integer quantities
@@ -5831,7 +5840,7 @@ export function getEvaluations(
     let oldRoiEnd = '';
     if (roiEndSetting) {
       oldRoiEnd = roiEndSetting.VALUE;
-      roiEndSetting.VALUE = dateAsString(roiEndDate);
+      roiEndSetting.VALUE = dateAsString(DateFormatType.Unknown, roiEndDate);
     }
 
     // log(`START FIRST EVALUATIONS for ${model.name}`);

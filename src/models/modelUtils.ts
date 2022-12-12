@@ -32,7 +32,7 @@ import {
   Setting,
   Transaction,
 } from '../types/interfaces';
-import { log, showObj } from '../utils/utils';
+import { DateFormatType, log, showObj } from '../utils/utils';
 import { checkData, isNumberString } from './checks';
 import { getTestModel } from './exampleModels';
 import { migrateOldVersions } from './versioningUtils';
@@ -518,7 +518,7 @@ function standardiseDate(dateString: string): string {
   //log(
   //  `standardised ${dateString} to ${dateObj}, with time ${dateObj.getTime()}`,
   //);
-  return dateAsString(dateObj);
+  return dateAsString(DateFormatType.Unknown, dateObj);
 }
 
 export function standardiseDates(model: ModelData): string {

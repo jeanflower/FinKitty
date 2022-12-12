@@ -35,7 +35,7 @@ import { ViewSettings } from '../models/charting';
 import { getTodaysDate } from '../models/modelUtils';
 import { dateAsString, lessThan } from '../utils/stringUtils';
 import { collapsibleFragment } from './tablePages';
-import { log, printDebug } from '../utils/utils';
+import { DateFormatType, log, printDebug } from '../utils/utils';
 import { getDisplay } from '../utils/viewUtils';
 import { simpleAsset } from '../models/exampleModels';
 
@@ -163,7 +163,10 @@ export function todaysAssetsTable(
     <>
       {collapsibleFragment(
         makeDataGrid(categorisedValues, model),
-        `Asset values (categorised) at ${dateAsString(today)}`,
+        `Asset values (categorised) at ${dateAsString(
+          DateFormatType.View,
+          today,
+        )}`,
       )}
     </>
   );

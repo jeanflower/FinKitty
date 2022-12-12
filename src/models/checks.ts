@@ -52,7 +52,7 @@ import {
   Trigger,
   Evaluation,
 } from '../types/interfaces';
-import { log, showObj } from '../utils/utils';
+import { DateFormatType, log, showObj } from '../utils/utils';
 
 import { evaluationType, getMaturityDate } from './evaluations';
 import { getDisplayName } from '../views/tablePages';
@@ -346,8 +346,9 @@ export function checkIncome(i: Income, model: ModelData): string {
     const cashStarts = getTriggerDate(cashAssets[0].START, model.triggers, v);
     if (startDate < cashStarts) {
       return `Income start date must be after cash starts; ${dateAsString(
+        DateFormatType.View,
         startDate,
-      )} is before ${dateAsString(cashStarts)}`;
+      )} is before ${dateAsString(DateFormatType.View, cashStarts)}`;
     }
   }
   const taxAssets = model.assets.filter((m) => {
@@ -366,8 +367,11 @@ export function checkIncome(i: Income, model: ModelData): string {
   }
   if (valueSetDate > startDate) {
     return `Income value must be set on or before the start of the income.
-      For ${i.NAME}, start is ${dateAsString(startDate)} and
-      value is set ${dateAsString(valueSetDate)}.`;
+      For ${i.NAME}, start is ${dateAsString(
+      DateFormatType.View,
+      startDate,
+    )} and
+      value is set ${dateAsString(DateFormatType.View, valueSetDate)}.`;
   }
   return '';
 }
@@ -419,8 +423,11 @@ export function checkExpense(e: Expense, model: ModelData): string {
   }
   if (valueSetDate > startDate) {
     return `Expense value must be set on or before the start of the income.
-      For ${e.NAME}, start is ${dateAsString(startDate)} and
-      value is set ${dateAsString(valueSetDate)}.`;
+      For ${e.NAME}, start is ${dateAsString(
+      DateFormatType.View,
+      startDate,
+    )} and
+      value is set ${dateAsString(DateFormatType.View, valueSetDate)}.`;
   }
   const checkRec = checkRecurrence(e.RECURRENCE);
   if (checkRec !== '') {
@@ -1171,8 +1178,9 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
         new Date(getTriggerDate(tInvest.DATE, model.triggers, v)),
         tInvest.NAME,
       );
-      const mdDS = dateAsString(md);
+      const mdDS = dateAsString(DateFormatType.Unknown, md);
       const tDS = dateAsString(
+        DateFormatType.Unknown,
         new Date(getTriggerDate(t.DATE, model.triggers, v)),
       );
       if (mdDS !== tDS) {
@@ -1184,8 +1192,9 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
           new Date(getTriggerDate(tInvest.STOP_DATE, model.triggers, v)),
           tInvest.NAME,
         );
-        const sdDS = dateAsString(sd);
+        const sdDS = dateAsString(DateFormatType.Unknown, sd);
         const tsDS = dateAsString(
+          DateFormatType.Unknown,
           new Date(getTriggerDate(t.STOP_DATE, model.triggers, v)),
         );
         if (sdDS !== tsDS) {

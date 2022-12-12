@@ -84,7 +84,7 @@ import {
   checkTrigger,
   isNumberString,
 } from '../models/checks';
-import { Context, log, showObj } from '../utils/utils';
+import { Context, DateFormatType, log, showObj } from '../utils/utils';
 
 import CashValueFormatter from './reactComponents/CashValueFormatter';
 import DataGrid from './reactComponents/DataGrid';
@@ -782,7 +782,10 @@ function getAssetOrDebtCols(model: ModelData, isDebt: boolean) {
       {
         ...defaultColumn,
         key: 'TODAYSVALUE',
-        name: `value\nat ${dateAsString(getTodaysDate(model))}`,
+        name: `value\nat ${dateAsString(
+          DateFormatType.View,
+          getTodaysDate(model),
+        )}`,
         formatter: <CashValueFormatter name="focus value" value="unset" />,
       },
     ]);
@@ -1704,7 +1707,10 @@ function incomesTableDiv(
       {
         ...defaultColumn,
         key: 'TODAYSVALUE',
-        name: `value\nat ${dateAsString(getTodaysDate(model))}`,
+        name: `value\nat ${dateAsString(
+          DateFormatType.View,
+          getTodaysDate(model),
+        )}`,
         formatter: <CashValueFormatter name="focus value" value="unset" />,
       },
     ]);
@@ -1891,7 +1897,10 @@ function expensesTableDiv(
       {
         ...defaultColumn,
         key: 'TODAYSVALUE',
-        name: `value\nat ${dateAsString(getTodaysDate(model))}`,
+        name: `value\nat ${dateAsString(
+          DateFormatType.View,
+          getTodaysDate(model),
+        )}`,
         formatter: <CashValueFormatter name="focus value" value="unset" />,
       },
     ]);
