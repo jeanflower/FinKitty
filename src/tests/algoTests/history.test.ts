@@ -194,7 +194,7 @@ describe('history tests', () => {
 
     cannotUndo(model);
     let roiStartVal = getSettings(model.settings, roiStart, 'unknown');
-    expect(roiStartVal).toBe('1 Jan 2017');
+    expect(roiStartVal).toBe('01 Jan 2017');
     // log(`model without undo = ${showObj(model)}`);
 
     markForUndo(model);
@@ -209,13 +209,13 @@ describe('history tests', () => {
     // can be "undone"
     expect(revertToUndoModel(model)).toBe(true);
     roiStartVal = getSettings(model.settings, roiStart, 'unknown');
-    expect(roiStartVal).toBe('1 Jan 2017');
+    expect(roiStartVal).toBe('01 Jan 2017');
     // log(`model = ${showObj(model)}`);
 
     // can't "undo"
     cannotUndo(model);
     roiStartVal = getSettings(model.settings, roiStart, 'unknown');
-    expect(roiStartVal).toBe('1 Jan 2017');
+    expect(roiStartVal).toBe('01 Jan 2017');
   });
 
   it('should mark, edit, mark, edit setting and recover', () => {
@@ -223,7 +223,7 @@ describe('history tests', () => {
 
     cannotUndo(model);
     let roiStartVal = getSettings(model.settings, roiStart, 'unknown');
-    expect(roiStartVal).toBe('1 Jan 2017');
+    expect(roiStartVal).toBe('01 Jan 2017');
     // log(`model without undo = ${showObj(model)}`);
 
     markForUndo(model);
@@ -236,11 +236,11 @@ describe('history tests', () => {
 
     expect(revertToUndoModel(model)).toBe(true);
     roiStartVal = getSettings(model.settings, roiStart, 'unknown');
-    expect(roiStartVal).toBe('1 Jan 2018');
+    expect(roiStartVal).toBe('01 Jan 2018');
 
     expect(revertToUndoModel(model)).toBe(true);
     roiStartVal = getSettings(model.settings, roiStart, 'unknown');
-    expect(roiStartVal).toBe('1 Jan 2017');
+    expect(roiStartVal).toBe('01 Jan 2017');
 
     cannotUndo(model);
   });

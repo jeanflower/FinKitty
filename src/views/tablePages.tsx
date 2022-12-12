@@ -815,12 +815,7 @@ function getAssetOrDebtCols(model: ModelData, isDebt: boolean) {
       key: 'START',
       name: 'start',
       formatter: (
-        <TriggerDateFormatter
-          name="start"
-          model={model}
-          value="unset"
-          showTime={false}
-        />
+        <TriggerDateFormatter name="start" model={model} value="unset" />
       ),
     },
     {
@@ -1250,23 +1245,6 @@ function makeTransactionCols(model: ModelData, type: string) {
             name="payments start date"
             model={model}
             value="unset"
-            showTime={false}
-          />
-        ),
-      },
-    ]);
-  } else if (type === liquidateAsset) {
-    cols = cols.concat([
-      {
-        ...defaultColumn,
-        key: 'DATE',
-        name: 'date',
-        formatter: (
-          <TriggerDateFormatter
-            name="date"
-            model={model}
-            value="unset"
-            showTime={true}
           />
         ),
       },
@@ -1278,12 +1256,7 @@ function makeTransactionCols(model: ModelData, type: string) {
         key: 'DATE',
         name: 'date',
         formatter: (
-          <TriggerDateFormatter
-            name="date"
-            model={model}
-            value="unset"
-            showTime={false}
-          />
+          <TriggerDateFormatter name="date" model={model} value="unset" />
         ),
       },
     ]);
@@ -1309,7 +1282,6 @@ function makeTransactionCols(model: ModelData, type: string) {
             name="recurrence end date"
             model={model}
             value="unset"
-            showTime={false}
           />
         ),
       },
@@ -1604,7 +1576,6 @@ function triggersTableDiv(
                     name="date"
                     model={model}
                     value="unset"
-                    showTime={false}
                   />
                 ),
               },
@@ -1731,7 +1702,6 @@ function incomesTableDiv(
           name="definition date"
           model={model}
           value="unset"
-          showTime={false}
         />
       ),
     },
@@ -1740,12 +1710,7 @@ function incomesTableDiv(
       key: 'START',
       name: 'start',
       formatter: (
-        <TriggerDateFormatter
-          name="start"
-          model={model}
-          value="unset"
-          showTime={false}
-        />
+        <TriggerDateFormatter name="start" model={model} value="unset" />
       ),
     },
     {
@@ -1753,12 +1718,7 @@ function incomesTableDiv(
       key: 'END',
       name: 'end',
       formatter: (
-        <TriggerDateFormatter
-          name="end"
-          model={model}
-          value="unset"
-          showTime={false}
-        />
+        <TriggerDateFormatter name="end" model={model} value="unset" />
       ),
     },
     {
@@ -1921,7 +1881,6 @@ function expensesTableDiv(
           name="definition date"
           model={model}
           value="unset"
-          showTime={false}
         />
       ),
     },
@@ -1930,12 +1889,7 @@ function expensesTableDiv(
       key: 'START',
       name: 'start',
       formatter: (
-        <TriggerDateFormatter
-          name="start"
-          model={model}
-          value="unset"
-          showTime={false}
-        />
+        <TriggerDateFormatter name="start" model={model} value="unset" />
       ),
     },
     {
@@ -1943,12 +1897,7 @@ function expensesTableDiv(
       key: 'END',
       name: 'end',
       formatter: (
-        <TriggerDateFormatter
-          name="end"
-          model={model}
-          value="unset"
-          showTime={false}
-        />
+        <TriggerDateFormatter name="end" model={model} value="unset" />
       ),
     },
     {
@@ -2388,12 +2337,7 @@ export function reportDiv(
             key: 'DATE',
             name: 'date',
             formatter: (
-              <TriggerDateFormatter
-                name="date"
-                model={model}
-                value="unset"
-                showTime={false}
-              />
+              <TriggerDateFormatter name="date" model={model} value="unset" />
             ),
           },
           faveColumn,

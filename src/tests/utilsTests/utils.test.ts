@@ -1085,30 +1085,30 @@ describe('utils tests', () => {
       DATE: '1 Jan 2018',
     };
     expect(makeDateTooltip('a', [simpleTrigger], varVal)).toEqual(
-      '1 January 2018',
+      '01 Jan 2018',
     );
     expect(makeDateTooltip('', [simpleTrigger], varVal)).toEqual('');
     expect(makeDateTooltip('nonsense', [simpleTrigger], varVal)).toEqual('');
     expect(makeDateTooltip('a', [simpleTrigger], varVal)).toEqual(
-      '1 January 2018',
+      '01 Jan 2018',
     );
     expect(makeDateTooltip('a+1y', [simpleTrigger], varVal)).toEqual(
-      '1 January 2019',
+      '01 Jan 2019',
     );
     expect(makeDateTooltip('a-1y', [simpleTrigger], varVal)).toEqual(
-      '1 January 2017',
+      '01 Jan 2017',
     );
     expect(makeDateTooltip('a+1m', [simpleTrigger], varVal)).toEqual(
-      '1 February 2018',
+      '01 Feb 2018',
     );
     expect(makeDateTooltip('a-1m', [simpleTrigger], varVal)).toEqual(
-      '1 December 2017',
+      '01 Dec 2017',
     );
     expect(makeDateTooltip('a+1d', [simpleTrigger], varVal)).toEqual(
-      '2 January 2018',
+      '02 Jan 2018',
     );
     expect(makeDateTooltip('a-1d', [simpleTrigger], varVal)).toEqual(
-      '31 December 2017',
+      '31 Dec 2017',
     );
   });
   it('makeStringFromPurchasePrice', () => {
@@ -1708,10 +1708,10 @@ describe('utils tests', () => {
     );
     expect(diffResult.length).toBe(1);
     expect(diffResult[0]).toEqual(
-      'PensionTransfers: date 1 Feb 2035 !== Mon Jan 01 2035',
+      'PensionTransfers: date 1 Feb 2035 !== 01 Jan 2035',
     );
 
-    model2.triggers[0].DATE = 'Mon Jan 01 2035';
+    model2.triggers[0].DATE = '01 Jan 2035';
 
     diffResult = diffModels(
       model2,

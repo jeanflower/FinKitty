@@ -698,7 +698,11 @@ export function dateAsString(
   if (d === undefined) {
     return 'Invalid date';
   }
-  if (mode === DateFormatType.View || mode === DateFormatType.Debug) {
+  if (
+    mode === DateFormatType.View ||
+    mode === DateFormatType.Debug ||
+    mode === DateFormatType.Data
+  ) {
     const result = new Intl.DateTimeFormat('en-GB', {
       year: 'numeric',
       month: 'short',
@@ -785,7 +789,7 @@ function findMatchedTriggerDate(
     if (dateTry.getTime()) {
       result = dateTry;
       if (cleanedUp) {
-        const shortString = dateAsString(DateFormatType.Unknown, dateTry);
+        const shortString = dateAsString(DateFormatType.Data, dateTry);
         const shortStringDate = new Date(shortString);
         if (shortStringDate.getTime() === dateTry.getTime()) {
           cleanedUp.cleaned = shortString;
@@ -880,7 +884,7 @@ export function makeDateTooltip(
   if (input !== '') {
     const date = checkTriggerDate(input, triggers, varValue);
     if (date !== undefined) {
-      result = date.toLocaleDateString(undefined, dateFormatOptions);
+      result = dateAsString(DateFormatType.View, date);
     }
   }
   // log(`make date tooltip for ${input}: ${result}`);
