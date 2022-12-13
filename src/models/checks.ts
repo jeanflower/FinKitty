@@ -1178,9 +1178,9 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
         new Date(getTriggerDate(tInvest.DATE, model.triggers, v)),
         tInvest.NAME,
       );
-      const mdDS = dateAsString(DateFormatType.Unknown, md);
+      const mdDS = dateAsString(DateFormatType.Data, md);
       const tDS = dateAsString(
-        DateFormatType.Unknown,
+        DateFormatType.Data,
         new Date(getTriggerDate(t.DATE, model.triggers, v)),
       );
       if (mdDS !== tDS) {
@@ -1192,9 +1192,9 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
           new Date(getTriggerDate(tInvest.STOP_DATE, model.triggers, v)),
           tInvest.NAME,
         );
-        const sdDS = dateAsString(DateFormatType.Unknown, sd);
+        const sdDS = dateAsString(DateFormatType.Data, sd);
         const tsDS = dateAsString(
-          DateFormatType.Unknown,
+          DateFormatType.Data,
           new Date(getTriggerDate(t.STOP_DATE, model.triggers, v)),
         );
         if (sdDS !== tsDS) {
