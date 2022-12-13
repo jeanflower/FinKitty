@@ -105,23 +105,6 @@ export function makeDateFromString(input: string) {
   return new Date('Invalid Date');
 }
 
-export function stringFromDate(d: Date): string {
-  try {
-    const dateString = new Intl.DateTimeFormat('en-US', {
-      weekday: 'short',
-      year: 'numeric',
-      month: 'short',
-      day: '2-digit',
-    }).format(d);
-    // log(`dateString = ${dateString}`);
-    return dateString.replaceAll(',', '');
-  } catch (e) {
-    // log(`error from date ${d} = ${e}`);
-    /* istanbul ignore next */
-    return '';
-  }
-}
-
 export function getNumberAndWordParts(input: string): {
   numberPart: number | undefined;
   wordPart: string;
@@ -703,12 +686,20 @@ export function dateAsString(
     mode === DateFormatType.Debug ||
     mode === DateFormatType.Data
   ) {
-    const result = new Intl.DateTimeFormat('en-GB', {
-      year: 'numeric',
-      month: 'short',
-      day: '2-digit',
-    }).format(d);
-    return result;
+    try {
+      const result = new Intl.DateTimeFormat('en-GB', {
+        year: 'numeric',
+        month: 'short',
+        day: '2-digit',
+      }).format(d);
+      return result;
+    } catch (e) {
+      // log(`error from date ${d} = ${e}`);
+      /* istanbul ignore next */
+      return 'Invalid Date';
+    }
+  } else if (mode === DateFormatType.Test) {
+    return d.toDateString();
   } else {
     return d.toDateString();
   }

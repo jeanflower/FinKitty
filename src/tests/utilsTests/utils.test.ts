@@ -120,61 +120,99 @@ describe('utils tests', () => {
     expect(lessThan(`A`, 'a')).toBe(-1);
     expect(lessThan(`a`, 'A')).toBe(1);
   });
-  it('makeDateFromString', () => {
+  it('makeDateFromString Unknown', () => {
     expect(
-      dateAsString(DateFormatType.Unknown, makeDateFromString('nonsense')),
+      dateAsString(DateFormatType.Test, makeDateFromString('nonsense')),
     ).toBe('Invalid Date');
     expect(
-      dateAsString(DateFormatType.Unknown, makeDateFromString('getTrust+1d')),
+      dateAsString(DateFormatType.Test, makeDateFromString('getTrust+1d')),
     ).toBe('Invalid Date');
     expect(
-      dateAsString(DateFormatType.Unknown, makeDateFromString('01/02/01')),
+      dateAsString(DateFormatType.Test, makeDateFromString('01/02/01')),
     ).toBe('Invalid Date');
     expect(
-      dateAsString(DateFormatType.Unknown, makeDateFromString('01/02/99')),
+      dateAsString(DateFormatType.Test, makeDateFromString('01/02/99')),
     ).toBe('Invalid Date');
     expect(
-      dateAsString(DateFormatType.Unknown, makeDateFromString('01/02/2001')),
+      dateAsString(DateFormatType.Test, makeDateFromString('01/02/2001')),
     ).toBe('Thu Feb 01 2001');
     expect(
-      dateAsString(DateFormatType.Unknown, makeDateFromString('01/02/1999')),
+      dateAsString(DateFormatType.Test, makeDateFromString('01/02/1999')),
     ).toBe('Mon Feb 01 1999');
     expect(
-      dateAsString(
-        DateFormatType.Unknown,
-        makeDateFromString('Thu Feb 01 2001'),
-      ),
+      dateAsString(DateFormatType.Test, makeDateFromString('Thu Feb 01 2001')),
     ).toBe('Thu Feb 01 2001');
     expect(
-      dateAsString(DateFormatType.Unknown, makeDateFromString('Feb 01 2001')),
+      dateAsString(DateFormatType.Test, makeDateFromString('Feb 01 2001')),
     ).toBe('Thu Feb 01 2001');
     expect(
-      dateAsString(DateFormatType.Unknown, makeDateFromString('01 Feb 2001')),
+      dateAsString(DateFormatType.Test, makeDateFromString('01 Feb 2001')),
     ).toBe('Thu Feb 01 2001');
     expect(
       dateAsString(
-        DateFormatType.Unknown,
+        DateFormatType.Test,
         makeDateFromString('Thu February 01 2001'),
       ),
     ).toBe('Thu Feb 01 2001');
     expect(
-      dateAsString(
-        DateFormatType.Unknown,
-        makeDateFromString('February 01 2001'),
-      ),
+      dateAsString(DateFormatType.Test, makeDateFromString('February 01 2001')),
+    ).toBe('Thu Feb 01 2001');
+    expect(
+      dateAsString(DateFormatType.Test, makeDateFromString('01 February 2001')),
     ).toBe('Thu Feb 01 2001');
     expect(
       dateAsString(
-        DateFormatType.Unknown,
-        makeDateFromString('01 February 2001'),
-      ),
-    ).toBe('Thu Feb 01 2001');
-    expect(
-      dateAsString(
-        DateFormatType.Unknown,
+        DateFormatType.Test,
         makeDateFromString('9 September 2021 8:00'),
       ),
     ).toBe('Thu Sep 09 2021');
+  });
+  it('makeDateFromString View', () => {
+    expect(
+      dateAsString(DateFormatType.View, makeDateFromString('nonsense')),
+    ).toBe('Invalid Date');
+    expect(
+      dateAsString(DateFormatType.View, makeDateFromString('getTrust+1d')),
+    ).toBe('Invalid Date');
+    expect(
+      dateAsString(DateFormatType.View, makeDateFromString('01/02/01')),
+    ).toBe('Invalid Date');
+    expect(
+      dateAsString(DateFormatType.View, makeDateFromString('01/02/99')),
+    ).toBe('Invalid Date');
+    expect(
+      dateAsString(DateFormatType.View, makeDateFromString('01/02/2001')),
+    ).toBe('01 Feb 2001');
+    expect(
+      dateAsString(DateFormatType.View, makeDateFromString('01/02/1999')),
+    ).toBe('01 Feb 1999');
+    expect(
+      dateAsString(DateFormatType.View, makeDateFromString('01 Feb 2001')),
+    ).toBe('01 Feb 2001');
+    expect(
+      dateAsString(DateFormatType.View, makeDateFromString('Feb 01 2001')),
+    ).toBe('01 Feb 2001');
+    expect(
+      dateAsString(DateFormatType.View, makeDateFromString('01 Feb 2001')),
+    ).toBe('01 Feb 2001');
+    expect(
+      dateAsString(
+        DateFormatType.View,
+        makeDateFromString('Thu February 01 2001'),
+      ),
+    ).toBe('01 Feb 2001');
+    expect(
+      dateAsString(DateFormatType.View, makeDateFromString('February 01 2001')),
+    ).toBe('01 Feb 2001');
+    expect(
+      dateAsString(DateFormatType.View, makeDateFromString('01 February 2001')),
+    ).toBe('01 Feb 2001');
+    expect(
+      dateAsString(
+        DateFormatType.View,
+        makeDateFromString('9 September 2021 8:00'),
+      ),
+    ).toBe('09 Sept 2021');
   });
 
   it('cleanupDates', () => {
@@ -193,51 +231,42 @@ describe('utils tests', () => {
     expect(cleanedString.cleaned).toBe('Invalid Date 2001-02-01');
 
     expect(
-      dateAsString(DateFormatType.Unknown, makeDateFromString('01/02/01')),
+      dateAsString(DateFormatType.Test, makeDateFromString('01/02/01')),
     ).toBe('Invalid Date');
     expect(
-      dateAsString(DateFormatType.Unknown, makeDateFromString('01/02/99')),
+      dateAsString(DateFormatType.Test, makeDateFromString('01/02/99')),
     ).toBe('Invalid Date');
     expect(
-      dateAsString(DateFormatType.Unknown, makeDateFromString('01/02/2001')),
+      dateAsString(DateFormatType.Test, makeDateFromString('01/02/2001')),
     ).toBe('Thu Feb 01 2001');
 
     expect(
-      dateAsString(DateFormatType.Unknown, makeDateFromString('01/02/1999')),
+      dateAsString(DateFormatType.Test, makeDateFromString('01/02/1999')),
     ).toBe('Mon Feb 01 1999');
     expect(
-      dateAsString(
-        DateFormatType.Unknown,
-        makeDateFromString('Thu Feb 01 2001'),
-      ),
+      dateAsString(DateFormatType.Test, makeDateFromString('Thu Feb 01 2001')),
     ).toBe('Thu Feb 01 2001');
     expect(
-      dateAsString(DateFormatType.Unknown, makeDateFromString('Feb 01 2001')),
+      dateAsString(DateFormatType.Test, makeDateFromString('Feb 01 2001')),
     ).toBe('Thu Feb 01 2001');
     expect(
-      dateAsString(DateFormatType.Unknown, makeDateFromString('01 Feb 2001')),
+      dateAsString(DateFormatType.Test, makeDateFromString('01 Feb 2001')),
     ).toBe('Thu Feb 01 2001');
     expect(
       dateAsString(
-        DateFormatType.Unknown,
+        DateFormatType.Test,
         makeDateFromString('Thu February 01 2001'),
       ),
     ).toBe('Thu Feb 01 2001');
     expect(
-      dateAsString(
-        DateFormatType.Unknown,
-        makeDateFromString('February 01 2001'),
-      ),
+      dateAsString(DateFormatType.Test, makeDateFromString('February 01 2001')),
+    ).toBe('Thu Feb 01 2001');
+    expect(
+      dateAsString(DateFormatType.Test, makeDateFromString('01 February 2001')),
     ).toBe('Thu Feb 01 2001');
     expect(
       dateAsString(
-        DateFormatType.Unknown,
-        makeDateFromString('01 February 2001'),
-      ),
-    ).toBe('Thu Feb 01 2001');
-    expect(
-      dateAsString(
-        DateFormatType.Unknown,
+        DateFormatType.Test,
         makeDateFromString('9 September 2021 8:00'),
       ),
     ).toBe('Thu Sep 09 2021');
@@ -754,7 +783,7 @@ describe('utils tests', () => {
     );
     expect(
       dateAsString(
-        DateFormatType.Unknown,
+        DateFormatType.Test,
         checkTriggerDate('a', [simpleTrigger], varVal),
       ),
     ).toEqual('Mon Jan 01 2018');
@@ -763,7 +792,7 @@ describe('utils tests', () => {
     expect(cleanedString.cleaned).toEqual('a');
     expect(
       dateAsString(
-        DateFormatType.Unknown,
+        DateFormatType.Test,
         checkTriggerDate('a+1y', [simpleTrigger], varVal),
       ),
     ).toEqual('Tue Jan 01 2019');
@@ -773,7 +802,7 @@ describe('utils tests', () => {
 
     expect(
       dateAsString(
-        DateFormatType.Unknown,
+        DateFormatType.Test,
         checkTriggerDate('a-1y', [simpleTrigger], varVal),
       ),
     ).toEqual('Sun Jan 01 2017');
@@ -783,7 +812,7 @@ describe('utils tests', () => {
 
     expect(
       dateAsString(
-        DateFormatType.Unknown,
+        DateFormatType.Test,
         checkTriggerDate('a+1m', [simpleTrigger], varVal),
       ),
     ).toEqual('Thu Feb 01 2018');
@@ -793,7 +822,7 @@ describe('utils tests', () => {
 
     expect(
       dateAsString(
-        DateFormatType.Unknown,
+        DateFormatType.Test,
         checkTriggerDate('a-1m', [simpleTrigger], varVal),
       ),
     ).toEqual('Fri Dec 01 2017');
@@ -803,7 +832,7 @@ describe('utils tests', () => {
 
     expect(
       dateAsString(
-        DateFormatType.Unknown,
+        DateFormatType.Test,
         checkTriggerDate('a+1d', [simpleTrigger], varVal),
       ),
     ).toEqual('Tue Jan 02 2018');
@@ -813,7 +842,7 @@ describe('utils tests', () => {
 
     expect(
       dateAsString(
-        DateFormatType.Unknown,
+        DateFormatType.Test,
         checkTriggerDate('a-1d', [simpleTrigger], varVal),
       ),
     ).toEqual('Sun Dec 31 2017');
@@ -823,7 +852,7 @@ describe('utils tests', () => {
 
     expect(
       dateAsString(
-        DateFormatType.Unknown,
+        DateFormatType.Test,
         checkTriggerDate('1 Jan 2018-1d-2d', [simpleTrigger], varVal),
       ),
     ).toEqual('Invalid date');
@@ -838,7 +867,7 @@ describe('utils tests', () => {
 
     expect(
       dateAsString(
-        DateFormatType.Unknown,
+        DateFormatType.Test,
         checkTriggerDate('a-1m-2d', [simpleTrigger], varVal),
       ),
     ).toEqual('Invalid date');
@@ -848,7 +877,7 @@ describe('utils tests', () => {
 
     expect(
       dateAsString(
-        DateFormatType.Unknown,
+        DateFormatType.Test,
         checkTriggerDate('a-1m+2d', [simpleTrigger], varVal),
       ),
     ).toEqual('Sun Dec 03 2017');
@@ -861,7 +890,7 @@ describe('utils tests', () => {
     );
     expect(
       dateAsString(
-        DateFormatType.Unknown,
+        DateFormatType.Test,
         checkTriggerDate(
           'nonsense<1 Nov 2018?1 Dec 2019:2 Dec 2019',
           [simpleTrigger],
@@ -871,7 +900,7 @@ describe('utils tests', () => {
     ).toEqual('Invalid date');
     expect(
       dateAsString(
-        DateFormatType.Unknown,
+        DateFormatType.Test,
         checkTriggerDate(
           '1 Nov 2018<nonsense?1 Dec 2019:2 Dec 2019',
           [simpleTrigger],
@@ -881,7 +910,7 @@ describe('utils tests', () => {
     ).toEqual('Invalid date');
     expect(
       dateAsString(
-        DateFormatType.Unknown,
+        DateFormatType.Test,
         checkTriggerDate(
           '2 Nov 2018<1 Nov 2018?1 Dec 2019:nonsense',
           [simpleTrigger],
@@ -902,73 +931,73 @@ describe('utils tests', () => {
     //);
     expect(
       dateAsString(
-        DateFormatType.Unknown,
+        DateFormatType.Test,
         getTriggerDate('a', [simpleTrigger], varVal),
       ),
     ).toEqual('Mon Jan 01 2018');
     expect(
       dateAsString(
-        DateFormatType.Unknown,
+        DateFormatType.Test,
         getTriggerDate('a+1y', [simpleTrigger], varVal),
       ),
     ).toEqual('Tue Jan 01 2019');
     expect(
       dateAsString(
-        DateFormatType.Unknown,
+        DateFormatType.Test,
         getTriggerDate('a-1y', [simpleTrigger], varVal),
       ),
     ).toEqual('Sun Jan 01 2017');
     expect(
       dateAsString(
-        DateFormatType.Unknown,
+        DateFormatType.Test,
         getTriggerDate('a+1m', [simpleTrigger], varVal),
       ),
     ).toEqual('Thu Feb 01 2018');
     expect(
       dateAsString(
-        DateFormatType.Unknown,
+        DateFormatType.Test,
         getTriggerDate('a-1m', [simpleTrigger], varVal),
       ),
     ).toEqual('Fri Dec 01 2017');
     expect(
       dateAsString(
-        DateFormatType.Unknown,
+        DateFormatType.Test,
         getTriggerDate('a+1d', [simpleTrigger], varVal),
       ),
     ).toEqual('Tue Jan 02 2018');
     expect(
       dateAsString(
-        DateFormatType.Unknown,
+        DateFormatType.Test,
         getTriggerDate('a-1d', [simpleTrigger], varVal),
       ),
     ).toEqual('Sun Dec 31 2017');
     expect(
       dateAsString(
-        DateFormatType.Unknown,
+        DateFormatType.Test,
         getTriggerDate('1 Jan 2018-1d', [simpleTrigger], varVal),
       ),
     ).toEqual('Sun Dec 31 2017');
     expect(
       dateAsString(
-        DateFormatType.Unknown,
+        DateFormatType.Test,
         getTriggerDate('2018-1d', [simpleTrigger], varVal),
       ),
     ).toEqual('Sun Dec 31 2017');
     expect(
       dateAsString(
-        DateFormatType.Unknown,
+        DateFormatType.Test,
         getTriggerDate('1 Jan 2018-1d-2d', [simpleTrigger], varVal),
       ),
     ).toEqual('Invalid Date');
     expect(
       dateAsString(
-        DateFormatType.Unknown,
+        DateFormatType.Test,
         getTriggerDate('a-1m-2d', [simpleTrigger], varVal),
       ),
     ).toEqual('Invalid Date');
     expect(
       dateAsString(
-        DateFormatType.Unknown,
+        DateFormatType.Test,
         getTriggerDate(
           '1 Nov 2018<2 Nov 2018?1 Dec 2019:2 Dec 2019',
           [simpleTrigger],
@@ -978,7 +1007,7 @@ describe('utils tests', () => {
     ).toEqual('Sun Dec 01 2019');
     expect(
       dateAsString(
-        DateFormatType.Unknown,
+        DateFormatType.Test,
         getTriggerDate(
           '2 Nov 2018<1 Nov 2018?1 Dec 2019:2 Dec 2019',
           [simpleTrigger],
@@ -988,7 +1017,7 @@ describe('utils tests', () => {
     ).toEqual('Mon Dec 02 2019');
     expect(
       dateAsString(
-        DateFormatType.Unknown,
+        DateFormatType.Test,
         getTriggerDate(
           '1 Nov 2018<2 Nov 2018?a:2 Dec 2019',
           [simpleTrigger],
@@ -998,7 +1027,7 @@ describe('utils tests', () => {
     ).toEqual('Mon Jan 01 2018');
     expect(
       dateAsString(
-        DateFormatType.Unknown,
+        DateFormatType.Test,
         getTriggerDate(
           '2 Nov 2018<1 Nov 2018?1 Dec 2019:a',
           [simpleTrigger],
@@ -1009,7 +1038,7 @@ describe('utils tests', () => {
 
     expect(
       dateAsString(
-        DateFormatType.Unknown,
+        DateFormatType.Test,
         getTriggerDate(
           'a<2 Nov 2018?1 Dec 2019:2 Dec 2019',
           [simpleTrigger],
@@ -1019,7 +1048,7 @@ describe('utils tests', () => {
     ).toEqual('Sun Dec 01 2019');
     expect(
       dateAsString(
-        DateFormatType.Unknown,
+        DateFormatType.Test,
         getTriggerDate(
           '2 Nov 2018<a?1 Dec 2019:2 Dec 2019',
           [simpleTrigger],
@@ -1030,7 +1059,7 @@ describe('utils tests', () => {
 
     expect(
       dateAsString(
-        DateFormatType.Unknown,
+        DateFormatType.Test,
         getTriggerDate(
           '1 Nov 2018<2 Nov 2018?1 Dec 2019:nonsense',
           [simpleTrigger],
@@ -1041,7 +1070,7 @@ describe('utils tests', () => {
 
     expect(
       dateAsString(
-        DateFormatType.Unknown,
+        DateFormatType.Test,
         getTriggerDate(
           'nonsense<1 Nov 2018?1 Dec 2019:2 Dec 2019',
           [simpleTrigger],
@@ -1051,7 +1080,7 @@ describe('utils tests', () => {
     ).toEqual('Invalid Date');
     expect(
       dateAsString(
-        DateFormatType.Unknown,
+        DateFormatType.Test,
         getTriggerDate(
           '1 Nov 2018<nonsense?1 Dec 2019:2 Dec 2019',
           [simpleTrigger],
@@ -1061,7 +1090,7 @@ describe('utils tests', () => {
     ).toEqual('Invalid Date');
     expect(
       dateAsString(
-        DateFormatType.Unknown,
+        DateFormatType.Test,
         getTriggerDate(
           '1 Nov 2018<2 Nov 2018?nonsense:2 Dec 2019',
           [simpleTrigger],
@@ -1072,7 +1101,7 @@ describe('utils tests', () => {
 
     expect(
       dateAsString(
-        DateFormatType.Unknown,
+        DateFormatType.Test,
         getTriggerDate('nonsense', [simpleTrigger], varVal),
       ),
     ).toEqual('Invalid Date');
@@ -1611,7 +1640,7 @@ describe('utils tests', () => {
     );
   });
   it('endOfTime', () => {
-    expect(dateAsString(DateFormatType.Unknown, endOfTime())).toEqual(
+    expect(dateAsString(DateFormatType.Test, endOfTime())).toEqual(
       'Fri Jan 01 2100',
     );
   });

@@ -66,7 +66,6 @@ import {
   makeNetGainTag,
   removeNumberPart,
   checkTriggerDate,
-  stringFromDate,
   dateAsString,
 } from '../utils/stringUtils';
 import {
@@ -605,7 +604,7 @@ function setValue(
         log(
           `setting first value of ${name}, ` +
             `newValue = ${newValue} ` +
-            `date = ${dateAsString(DateFormatType.Unknown, date)}, ` +
+            `date = ${dateAsString(DateFormatType.Debug, date)}, ` +
             `source = ${source}, from  ${callerID}`,
         );
       } else {
@@ -613,7 +612,7 @@ function setValue(
           `setting value of ${name}, ` +
             `newValue = ${newValue} ` +
             `oldValue = ${existingValue} ` +
-            `date = ${dateAsString(DateFormatType.Unknown, date)}, ` +
+            `date = ${dateAsString(DateFormatType.Debug, date)}, ` +
             `source = ${source}, from  ${callerID}`,
         );
       }
@@ -623,7 +622,7 @@ function setValue(
         log(
           `setting first value of ${name}, ` +
             `newRealValue = ${realNewValue} ` +
-            `date = ${dateAsString(DateFormatType.Unknown, date)}, ` +
+            `date = ${dateAsString(DateFormatType.Debug, date)}, ` +
             `source = ${source}, from  ${callerID}`,
         );
       } else {
@@ -631,7 +630,7 @@ function setValue(
           `setting value of ${name}, ` +
             `newRealValue = ${realNewValue} ` +
             `oldRealValue = ${realExistingValue} ` +
-            `date = ${dateAsString(DateFormatType.Unknown, date)}, ` +
+            `date = ${dateAsString(DateFormatType.Debug, date)}, ` +
             `source = ${source}, from  ${callerID}`,
         );
       }
@@ -696,7 +695,7 @@ function setValue(
     // log(
     //  `add evaluation ${showObj({
     //    name: evaln.name,
-    //    date: dateAsString(DateFormatType.Unknown,evaln.date),
+    //    date: dateAsString(DateFormatType.Debug,evaln.date),
     //    value: evaln.value,
     //    source: evaln.source,
     //  })}`,
@@ -746,7 +745,7 @@ export function getYearOfTaxYear(d: Date) {
   } else {
     startYearOfTaxYear = d.getFullYear() - 1;
   }
-  // log(`tax year of ${dateAsString(DateFormatType.Unknown,d)} = ${startYearOfTaxYear}`);
+  // log(`tax year of ${dateAsString(DateFormatType.Debug,d)} = ${startYearOfTaxYear}`);
   // log(`details: d.getDate() = ${d.getDate()}, `+
   //  `d.getMonth() = ${d.getMonth()}, `+
   //  `d.getFullYear() = ${d.getFullYear()}, `);
@@ -1422,7 +1421,7 @@ function adjustCash(
   model: ModelData,
   source: string, // what led to the change
 ) {
-  // log(`adjustCash by amount = ${amount} at ${dateAsString(DateFormatType.Unknown,d)}`);
+  // log(`adjustCash by amount = ${amount} at ${dateAsString(DateFormatType.Debug,d)}`);
   let cashValue = getNumberValue(values, CASH_ASSET_NAME, false);
   // log(`current stored value = ${cashValue}`);
   if (cashValue === undefined) {
@@ -1554,7 +1553,7 @@ function payIncomeTax(
   // log(`totalTaxDueFromCash for ${makeTwoDP(income)} on ${startOfTaxYear.getFullYear()} is ${makeTwoDP(totalTaxDueFromCash)}, already paid ${makeTwoDP(alreadyPaid)}`);
   const endOfTaxYear = new Date(startOfTaxYear.getFullYear() + 1, 3, 5);
   if (totalTaxDue !== 0) {
-    // log(`in payIncomeTax for ${dateAsString(DateFormatType.Unknown,startOfTaxYear)}, adjustCash by ${totalTaxDueFromCash}`);
+    // log(`in payIncomeTax for ${dateAsString(DateFormatType.Debug,startOfTaxYear)}, adjustCash by ${totalTaxDueFromCash}`);
     adjustCash(
       -totalTaxDueFromCash,
       endOfTaxYear,
@@ -1678,7 +1677,7 @@ function OptimizeIncomeTax(
   evaluations: Evaluation[],
   model: ModelData,
 ) {
-  // log(`OptimizeIncomeTax income tax for ${person} and ${liableIncome} on ${dateAsString(DateFormatType.Unknown,date)}`);
+  // log(`OptimizeIncomeTax income tax for ${person} and ${liableIncome} on ${dateAsString(DateFormatType.Debug,date)}`);
   const startYearOfTaxYear = date.getFullYear();
   const endYearOfTaxYear = new Date(startYearOfTaxYear + 1, 3, 5);
   const bands = getTaxBands(liableIncome, startYearOfTaxYear, values);
@@ -3104,6 +3103,12 @@ function revalueApplied(
     }
   });
   return true;
+}
+
+function stringFromDate(d: Date): string {
+  const result = dateAsString(DateFormatType.Data, d);
+  // log(`stringFromDate ${result}`);
+  return result;
 }
 
 function calculateFromChange(
@@ -5807,7 +5812,7 @@ export function getEvaluations(
             FAVOURITE: undefined, // bond transaction
             CATEGORY: '',
             START: dateAsString(
-              DateFormatType.Unknown,
+              DateFormatType.Data,
               startDateForBondMaturityCalculation,
             ),
             VALUE: '1.0',
@@ -5840,7 +5845,7 @@ export function getEvaluations(
     let oldRoiEnd = '';
     if (roiEndSetting) {
       oldRoiEnd = roiEndSetting.VALUE;
-      roiEndSetting.VALUE = dateAsString(DateFormatType.Unknown, roiEndDate);
+      roiEndSetting.VALUE = dateAsString(DateFormatType.Data, roiEndDate);
     }
 
     // log(`START FIRST EVALUATIONS for ${model.name}`);

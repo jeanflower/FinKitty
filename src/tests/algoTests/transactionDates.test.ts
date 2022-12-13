@@ -28,10 +28,10 @@ describe('generateTransactionDates', () => {
 
     expect(moments.length).toBe(2);
 
-    expect(dateAsString(DateFormatType.Unknown, moments[0])).toBe(
+    expect(dateAsString(DateFormatType.Test, moments[0])).toBe(
       'Tue May 01 2018',
     );
-    expect(dateAsString(DateFormatType.Unknown, moments[1])).toBe(
+    expect(dateAsString(DateFormatType.Test, moments[1])).toBe(
       'Fri Jun 01 2018',
     );
   });
@@ -45,10 +45,10 @@ describe('generateTransactionDates', () => {
 
     expect(moments.length).toBe(2);
 
-    expect(dateAsString(DateFormatType.Unknown, moments[0])).toBe(
+    expect(dateAsString(DateFormatType.Test, moments[0])).toBe(
       'Tue May 01 2018',
     );
-    expect(dateAsString(DateFormatType.Unknown, moments[1])).toBe(
+    expect(dateAsString(DateFormatType.Test, moments[1])).toBe(
       'Tue May 08 2018',
     );
   });
@@ -62,7 +62,7 @@ describe('generateTransactionDates', () => {
 
     expect(moments.length).toBe(1);
 
-    expect(dateAsString(DateFormatType.Unknown, moments[0])).toBe(
+    expect(dateAsString(DateFormatType.Test, moments[0])).toBe(
       'Tue May 01 2018',
     );
   });
@@ -85,7 +85,7 @@ describe('generateTransactionDates', () => {
     const moments = generateSequenceOfDates(roi, '1m');
 
     expect(moments.length).toBe(1);
-    expect(dateAsString(DateFormatType.Unknown, moments[0])).toBe(
+    expect(dateAsString(DateFormatType.Test, moments[0])).toBe(
       'Tue May 01 2018',
     );
   });
@@ -107,16 +107,16 @@ describe('generateTransactionDates', () => {
     moments.sort((a, b) => (a > b ? 1 : a === b ? 0 : -1));
     expect(moments.length).toBe(4);
 
-    expect(dateAsString(DateFormatType.Unknown, moments[0])).toBe(
+    expect(dateAsString(DateFormatType.Test, moments[0])).toBe(
       'Tue May 01 2018',
     );
-    expect(dateAsString(DateFormatType.Unknown, moments[1])).toBe(
+    expect(dateAsString(DateFormatType.Test, moments[1])).toBe(
       'Wed May 02 2018',
     );
-    expect(dateAsString(DateFormatType.Unknown, moments[2])).toBe(
+    expect(dateAsString(DateFormatType.Test, moments[2])).toBe(
       'Fri Jun 01 2018',
     );
-    expect(dateAsString(DateFormatType.Unknown, moments[3])).toBe(
+    expect(dateAsString(DateFormatType.Test, moments[3])).toBe(
       'Sat Jun 02 2018',
     );
   });

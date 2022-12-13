@@ -402,7 +402,7 @@ function getReporter(
     if (!reactAppComponent.state.reportDefiner) {
       return false;
     }
-    // log(`should we display ${name} at ${dateAsString(DateFormatType.Unknown,date)}?`);
+    // log(`should we display ${name} at ${dateAsString(DateFormatType.Debug,date)}?`);
     if (!reportIncludesExpenses) {
       if (
         model.expenses.find((e) => {
@@ -479,7 +479,7 @@ function getReporter(
         return false;
       }
     }
-    // log(`yes, do display ${name} at ${dateAsString(DateFormatType.Unknown,date)}?`);
+    // log(`yes, do display ${name} at ${dateAsString(DateFormatType.Debug,date)}?`);
     return true;
   };
 }

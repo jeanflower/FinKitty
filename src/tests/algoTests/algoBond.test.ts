@@ -106,7 +106,7 @@ describe('bonds tests', () => {
     expectEvals(
       evals,
       1,
-      'BMVBondTargetValue/Fri Apr 12 2019/cpi',
+      'BMVBondTargetValue/12 Apr 2019/cpi',
       'Fri Dec 01 2017',
       1.14,
       2,
@@ -232,7 +232,7 @@ describe('bonds tests', () => {
     expectEvals(
       evals,
       0,
-      'BMVBondTargetValue/Fri Apr 12 2019/cpi',
+      'BMVBondTargetValue/12 Apr 2019/cpi',
       'Fri Dec 01 2017',
       1.14,
       2,
@@ -360,7 +360,7 @@ describe('bonds tests', () => {
     expectEvals(
       evals,
       1,
-      'BMVBondTargetValue/Fri Apr 12 2019/cpi',
+      'BMVBondTargetValue/12 Apr 2019/cpi',
       'Fri Dec 01 2017',
       1.14,
       2,
@@ -488,7 +488,7 @@ describe('bonds tests', () => {
     expectEvals(
       evals,
       1,
-      'BMVBondTargetValue/Fri Apr 12 2019/cpi',
+      'BMVBondTargetValue/12 Apr 2019/cpi',
       'Fri Dec 01 2017',
       1.14,
       2,
@@ -613,7 +613,7 @@ describe('bonds tests', () => {
     expectEvals(
       evals,
       0,
-      'BMVBondTargetValue/Fri Apr 12 2019/cpi',
+      'BMVBondTargetValue/12 Apr 2019/cpi',
       'Fri Dec 01 2017',
       1.14,
       2,
@@ -737,7 +737,7 @@ describe('bonds tests', () => {
     expectEvals(
       evals,
       0,
-      'BMVBondTargetValue/Fri Apr 12 2019/cpi',
+      'BMVBondTargetValue/12 Apr 2019/cpi',
       'Fri Dec 01 2017',
       1,
       -1,
@@ -865,7 +865,7 @@ describe('bonds tests', () => {
     expectEvals(
       evals,
       1,
-      'BMVBondTargetValue/Fri Apr 12 2019/cpi',
+      'BMVBondTargetValue/12 Apr 2019/cpi',
       'Fri Dec 01 2017',
       1,
       -1,
@@ -991,7 +991,7 @@ describe('bonds tests', () => {
     expectEvals(
       evals,
       0,
-      'BMVBondTargetValue/Fri Apr 12 2019/cpi',
+      'BMVBondTargetValue/12 Apr 2019/cpi',
       'Fri Dec 01 2017',
       1.14,
       2,
@@ -1098,7 +1098,7 @@ describe('bonds tests', () => {
     expectEvals(
       evals,
       0,
-      'BMVBondTargetValue/Fri Apr 12 2019/cpi',
+      'BMVBondTargetValue/12 Apr 2019/cpi',
       'Fri Dec 01 2017',
       1,
       -1,
@@ -1106,7 +1106,7 @@ describe('bonds tests', () => {
     expectEvals(
       evals,
       1,
-      'BMVBondTargetValue/Sun May 12 2019/cpi',
+      'BMVBondTargetValue/12 May 2019/cpi',
       'Fri Dec 01 2017',
       1,
       -1,
@@ -1245,7 +1245,7 @@ describe('bonds tests', () => {
     expectEvals(
       evals,
       0,
-      'BMVBondTargetValue/Fri Apr 12 2019/cpi',
+      'BMVBondTargetValue/12 Apr 2019/cpi',
       'Fri Dec 01 2017',
       1,
       -1,
@@ -1253,7 +1253,7 @@ describe('bonds tests', () => {
     expectEvals(
       evals,
       1,
-      'BMVBondTargetValue/Sun May 12 2019/cpi',
+      'BMVBondTargetValue/12 May 2019/cpi',
       'Fri Dec 01 2017',
       1,
       -1,
@@ -1390,7 +1390,7 @@ describe('bonds tests', () => {
     expectEvals(
       evals,
       0,
-      'BMVBondTargetValue/Fri Apr 12 2019/cpi',
+      'BMVBondTargetValue/12 Apr 2019/cpi',
       'Fri Dec 01 2017',
       1,
       -1,
@@ -1398,7 +1398,7 @@ describe('bonds tests', () => {
     expectEvals(
       evals,
       1,
-      'BMVBondTargetValue/Mon Apr 12 2021/cpi',
+      'BMVBondTargetValue/12 Apr 2021/cpi',
       'Fri Dec 01 2017',
       1,
       -1,
@@ -1665,7 +1665,7 @@ describe('bonds tests', () => {
     expectEvals(
       evals,
       0,
-      'BMVBondTargetValue/Wed Jan 01 2020/cpi',
+      'BMVBondTargetValue/01 Jan 2020/cpi',
       'Fri Dec 01 2017',
       1,
       -1,
@@ -1673,7 +1673,7 @@ describe('bonds tests', () => {
     expectEvals(
       evals,
       1,
-      'BMVBondTargetValue/Fri Jan 01 2021/cpi',
+      'BMVBondTargetValue/01 Jan 2021/cpi',
       'Fri Dec 01 2017',
       1,
       -1,
@@ -1681,7 +1681,7 @@ describe('bonds tests', () => {
     expectEvals(
       evals,
       2,
-      'BMVBondTargetValue/Sat Jan 01 2022/cpi',
+      'BMVBondTargetValue/01 Jan 2022/cpi',
       'Fri Dec 01 2017',
       1,
       -1,
@@ -1689,7 +1689,7 @@ describe('bonds tests', () => {
     expectEvals(
       evals,
       3,
-      'BMVBondTargetValue/Sun Jan 01 2023/cpi',
+      'BMVBondTargetValue/01 Jan 2023/cpi',
       'Fri Dec 01 2017',
       1,
       -1,
@@ -1697,7 +1697,7 @@ describe('bonds tests', () => {
     expectEvals(
       evals,
       4,
-      'BMVBondTargetValue/Mon Jan 01 2024/cpi',
+      'BMVBondTargetValue/01 Jan 2024/cpi',
       'Fri Dec 01 2017',
       1,
       -1,
@@ -1705,7 +1705,7 @@ describe('bonds tests', () => {
     expectEvals(
       evals,
       5,
-      'BMVBondTargetValue/Wed Jan 01 2025/cpi',
+      'BMVBondTargetValue/01 Jan 2025/cpi',
       'Fri Dec 01 2017',
       1,
       -1,
@@ -1713,7 +1713,7 @@ describe('bonds tests', () => {
     expectEvals(
       evals,
       6,
-      'BMVBondTargetValue/Thu Jan 01 2026/cpi',
+      'BMVBondTargetValue/01 Jan 2026/cpi',
       'Fri Dec 01 2017',
       1,
       -1,
@@ -1721,7 +1721,7 @@ describe('bonds tests', () => {
     expectEvals(
       evals,
       7,
-      'BMVBondTargetValue/Fri Jan 01 2027/cpi',
+      'BMVBondTargetValue/01 Jan 2027/cpi',
       'Fri Dec 01 2017',
       1,
       -1,
@@ -1729,7 +1729,7 @@ describe('bonds tests', () => {
     expectEvals(
       evals,
       8,
-      'BMVBondTargetValue/Sat Jan 01 2028/cpi',
+      'BMVBondTargetValue/01 Jan 2028/cpi',
       'Fri Dec 01 2017',
       1,
       -1,
@@ -1737,7 +1737,7 @@ describe('bonds tests', () => {
     expectEvals(
       evals,
       9,
-      'BMVBondTargetValue/Mon Jan 01 2029/cpi',
+      'BMVBondTargetValue/01 Jan 2029/cpi',
       'Fri Dec 01 2017',
       1,
       -1,
@@ -2044,7 +2044,7 @@ describe('bonds tests', () => {
     expectEvals(
       evals,
       0,
-      'BMVBondTargetValue/Wed Jan 01 2020/cpi',
+      'BMVBondTargetValue/01 Jan 2020/cpi',
       'Fri Dec 01 2017',
       1.25,
       2,
@@ -2052,7 +2052,7 @@ describe('bonds tests', () => {
     expectEvals(
       evals,
       1,
-      'BMVBondTargetValue/Fri Jan 01 2021/cpi',
+      'BMVBondTargetValue/01 Jan 2021/cpi',
       'Fri Dec 01 2017',
       1.4,
       2,
@@ -2060,7 +2060,7 @@ describe('bonds tests', () => {
     expectEvals(
       evals,
       2,
-      'BMVBondTargetValue/Sat Jan 01 2022/cpi',
+      'BMVBondTargetValue/01 Jan 2022/cpi',
       'Fri Dec 01 2017',
       1.57,
       2,
@@ -2068,7 +2068,7 @@ describe('bonds tests', () => {
     expectEvals(
       evals,
       3,
-      'BMVBondTargetValue/Sun Jan 01 2023/cpi',
+      'BMVBondTargetValue/01 Jan 2023/cpi',
       'Fri Dec 01 2017',
       1.76,
       2,
@@ -2076,7 +2076,7 @@ describe('bonds tests', () => {
     expectEvals(
       evals,
       4,
-      'BMVBondTargetValue/Mon Jan 01 2024/cpi',
+      'BMVBondTargetValue/01 Jan 2024/cpi',
       'Fri Dec 01 2017',
       1.97,
       2,
@@ -2084,7 +2084,7 @@ describe('bonds tests', () => {
     expectEvals(
       evals,
       5,
-      'BMVBondTargetValue/Wed Jan 01 2025/cpi',
+      'BMVBondTargetValue/01 Jan 2025/cpi',
       'Fri Dec 01 2017',
       2.21,
       2,
@@ -2092,7 +2092,7 @@ describe('bonds tests', () => {
     expectEvals(
       evals,
       6,
-      'BMVBondTargetValue/Thu Jan 01 2026/cpi',
+      'BMVBondTargetValue/01 Jan 2026/cpi',
       'Fri Dec 01 2017',
       2.48,
       2,
@@ -2100,7 +2100,7 @@ describe('bonds tests', () => {
     expectEvals(
       evals,
       7,
-      'BMVBondTargetValue/Fri Jan 01 2027/cpi',
+      'BMVBondTargetValue/01 Jan 2027/cpi',
       'Fri Dec 01 2017',
       2.77,
       2,
@@ -2108,7 +2108,7 @@ describe('bonds tests', () => {
     expectEvals(
       evals,
       8,
-      'BMVBondTargetValue/Sat Jan 01 2028/cpi',
+      'BMVBondTargetValue/01 Jan 2028/cpi',
       'Fri Dec 01 2017',
       3.11,
       2,
@@ -2116,7 +2116,7 @@ describe('bonds tests', () => {
     expectEvals(
       evals,
       9,
-      'BMVBondTargetValue/Mon Jan 01 2029/cpi',
+      'BMVBondTargetValue/01 Jan 2029/cpi',
       'Fri Dec 01 2017',
       3.48,
       2,
@@ -2410,7 +2410,7 @@ describe('bonds tests', () => {
     expectEvals(
       evals,
       0,
-      'BMVBondTargetValue/Wed Jan 01 2020/cpi',
+      'BMVBondTargetValue/01 Jan 2020/cpi',
       'Fri Dec 01 2017',
       1.25,
       2,
@@ -2418,7 +2418,7 @@ describe('bonds tests', () => {
     expectEvals(
       evals,
       1,
-      'BMVBondTargetValue/Fri Jan 01 2021/cpi',
+      'BMVBondTargetValue/01 Jan 2021/cpi',
       'Fri Dec 01 2017',
       1.4,
       2,
@@ -2426,7 +2426,7 @@ describe('bonds tests', () => {
     expectEvals(
       evals,
       2,
-      'BMVBondTargetValue/Sat Jan 01 2022/cpi',
+      'BMVBondTargetValue/01 Jan 2022/cpi',
       'Fri Dec 01 2017',
       1.57,
       2,
@@ -2434,7 +2434,7 @@ describe('bonds tests', () => {
     expectEvals(
       evals,
       3,
-      'BMVBondTargetValue/Sun Jan 01 2023/cpi',
+      'BMVBondTargetValue/01 Jan 2023/cpi',
       'Fri Dec 01 2017',
       1.76,
       2,
@@ -2442,7 +2442,7 @@ describe('bonds tests', () => {
     expectEvals(
       evals,
       4,
-      'BMVBondTargetValue/Mon Jan 01 2024/cpi',
+      'BMVBondTargetValue/01 Jan 2024/cpi',
       'Fri Dec 01 2017',
       1.97,
       2,
@@ -2450,7 +2450,7 @@ describe('bonds tests', () => {
     expectEvals(
       evals,
       5,
-      'BMVBondTargetValue/Wed Jan 01 2025/cpi',
+      'BMVBondTargetValue/01 Jan 2025/cpi',
       'Fri Dec 01 2017',
       2.21,
       2,
@@ -2458,7 +2458,7 @@ describe('bonds tests', () => {
     expectEvals(
       evals,
       6,
-      'BMVBondTargetValue/Thu Jan 01 2026/cpi',
+      'BMVBondTargetValue/01 Jan 2026/cpi',
       'Fri Dec 01 2017',
       2.48,
       2,
@@ -2466,7 +2466,7 @@ describe('bonds tests', () => {
     expectEvals(
       evals,
       7,
-      'BMVBondTargetValue/Fri Jan 01 2027/cpi',
+      'BMVBondTargetValue/01 Jan 2027/cpi',
       'Fri Dec 01 2017',
       2.77,
       2,
@@ -2474,7 +2474,7 @@ describe('bonds tests', () => {
     expectEvals(
       evals,
       8,
-      'BMVBondTargetValue/Sat Jan 01 2028/cpi',
+      'BMVBondTargetValue/01 Jan 2028/cpi',
       'Fri Dec 01 2017',
       3.11,
       2,
@@ -2482,7 +2482,7 @@ describe('bonds tests', () => {
     expectEvals(
       evals,
       9,
-      'BMVBondTargetValue/Mon Jan 01 2029/cpi',
+      'BMVBondTargetValue/01 Jan 2029/cpi',
       'Fri Dec 01 2017',
       3.48,
       2,

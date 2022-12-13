@@ -85,7 +85,7 @@ export function expectEvals(
   numDigits: number,
 ) {
   expect(evals[i].name).toBe(name);
-  expect(dateAsString(DateFormatType.Unknown, evals[i].date)).toBe(dateString);
+  expect(dateAsString(DateFormatType.Test, evals[i].date)).toBe(dateString);
   if (numDigits < 0) {
     expect(evals[i].value).toBe(value);
   } else {
@@ -101,7 +101,7 @@ export function printTestCodeForEvals(evals: Evaluation[]) {
     result +=
       `expectEvals(evals, ${i}, ` +
       `'${evals[i].name}', '${dateAsString(
-        DateFormatType.Unknown,
+        DateFormatType.Test,
         evals[i].date,
       )}', `;
     if (evals[i].value.toFixed(0) === `${evals[i].value}`) {
