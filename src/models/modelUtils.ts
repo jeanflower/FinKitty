@@ -52,24 +52,50 @@ function cleanUpDates(
   cleanRedo: boolean,
 ): void {
   const varVal = getVarVal(modelFromJSON.settings);
+  const cleaningResult = {
+    cleaned: '',
+  };
 
   for (const t of modelFromJSON.triggers) {
-    const cleaningResult = {
-      cleaned: '',
-    };
+    cleaningResult.cleaned = '';
     checkTriggerDate(t.DATE, modelFromJSON.triggers, varVal, cleaningResult);
     // log(`cleaningResult from ${t.DATE} = ${cleaningResult.cleaned}`);
     t.DATE = cleaningResult.cleaned;
   }
   for (const s of modelFromJSON.settings) {
     if (s.NAME === roiStart || s.NAME === roiEnd) {
-      const cleaningResult = {
-        cleaned: '',
-      };
+      cleaningResult.cleaned = '';
       checkTriggerDate(s.VALUE, modelFromJSON.triggers, varVal, cleaningResult);
       // log(`cleaningResult from ${t.DATE} = ${cleaningResult.cleaned}`);
       s.VALUE = cleaningResult.cleaned;
     }
+  }
+  for (const x of modelFromJSON.assets) {
+    cleaningResult.cleaned = '';
+    checkTriggerDate(x.START, modelFromJSON.triggers, varVal, cleaningResult);
+    // log(`cleaningResult from ${t.DATE} = ${cleaningResult.cleaned}`);
+    x.START = cleaningResult.cleaned;
+  }
+  for (const x of modelFromJSON.incomes) {
+    cleaningResult.cleaned = '';
+    checkTriggerDate(x.START, modelFromJSON.triggers, varVal, cleaningResult);
+    // log(`cleaningResult from ${t.DATE} = ${cleaningResult.cleaned}`);
+    x.START = cleaningResult.cleaned;
+    cleaningResult.cleaned = '';
+
+    checkTriggerDate(x.END, modelFromJSON.triggers, varVal, cleaningResult);
+    // log(`cleaningResult from ${t.DATE} = ${cleaningResult.cleaned}`);
+    x.END = cleaningResult.cleaned;
+  }
+  for (const x of modelFromJSON.incomes) {
+    cleaningResult.cleaned = '';
+    checkTriggerDate(x.START, modelFromJSON.triggers, varVal, cleaningResult);
+    // log(`cleaningResult from ${t.DATE} = ${cleaningResult.cleaned}`);
+    x.START = cleaningResult.cleaned;
+    cleaningResult.cleaned = '';
+    checkTriggerDate(x.END, modelFromJSON.triggers, varVal, cleaningResult);
+    // log(`cleaningResult from ${t.DATE} = ${cleaningResult.cleaned}`);
+    x.END = cleaningResult.cleaned;
   }
   if (cleanUndo && modelFromJSON.undoModel) {
     cleanUpDates(modelFromJSON.undoModel, true, false);

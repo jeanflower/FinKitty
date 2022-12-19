@@ -64,6 +64,7 @@ import {
   triggersView,
   viewDetail,
   viewFrequency,
+  ViewType,
 } from '../../localization/stringConstants';
 import {
   attemptRenameLong,
@@ -100,9 +101,11 @@ import {
   getColor,
   getDefaultViewSettings,
   getDisplay,
+  getDisplayedView,
   views,
 } from '../../utils/viewUtils';
 import { checkData } from '../../models/checks';
+import { toggle } from '../../App';
 
 log;
 
@@ -2041,10 +2044,10 @@ describe('utils tests', () => {
     );
     expect(diffResult.length).toBe(1);
     expect(diffResult[0]).toEqual(
-      'ISAs: start date December 2018 !== December 2019',
+      'ISAs: start date December 2018 !== 01 Dec 2019',
     );
 
-    model2.assets[1].START = 'December 2019';
+    model2.assets[1].START = '01 Dec 2019';
     diffResult = diffModels(
       model2,
       oldModelCopy,
@@ -2532,5 +2535,20 @@ describe('utils tests', () => {
     for (let i = 0; i < 19; i = i + 1) {
       expect(getColor(i)).toEqual(expectedValues[i]);
     }
+  });
+  it('getDisplayedView', () => {
+    const switchView = (v: ViewType) => {
+      toggle(
+        v,
+        false,
+        false,
+        33, //sourceID
+      );
+    };
+    expect(getDisplayedView()?.lc).toBe(homeView.lc);
+    switchView(homeView);
+    expect(getDisplayedView()?.lc).toBe(homeView.lc);
+    switchView(expensesView);
+    expect(getDisplayedView()?.lc).toBe(expensesView.lc);
   });
 });

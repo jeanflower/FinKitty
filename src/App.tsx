@@ -1002,9 +1002,6 @@ export function toggle(
   if (printDebug()) {
     log(`toggle called from ${sourceID}`);
   }
-  if (reactAppComponent === undefined) {
-    return;
-  }
   for (const k of views.keys()) {
     if (k !== type) {
       const view = views.get(k);
@@ -1021,11 +1018,13 @@ export function toggle(
     return false;
   }
   view.display = true;
-  refreshData(
-    refreshModel, // refreshModel
-    refreshChart, // refreshChart
-    11, //sourceID
-  );
+  if (reactAppComponent?.mounted) {
+    refreshData(
+      refreshModel, // refreshModel
+      refreshChart, // refreshChart
+      11, //sourceID
+    );
+  }
 }
 
 function checkModelData(givenModel: ModelData, expectedName: string): string {
@@ -1113,7 +1112,7 @@ function toggleOption(type: string): void {
       refreshData(
         true, // refreshModel
         true, // refreshChart
-        99, //sourceID
+        12, //sourceID
       );
     }
   } else {
@@ -1544,66 +1543,65 @@ function AlertDismissibleExample(props: {
 
 export class AppContent extends Component<AppProps, AppState> {
   options: any;
+  public mounted = false;
+
+  public state = {
+    modelData: emptyModel,
+    evaluations: [],
+    viewState: getDefaultViewSettings(),
+    expensesChartData: {
+      labels: [],
+      datasets: [],
+      displayLegend: true,
+    },
+    incomesChartData: {
+      labels: [],
+      datasets: [],
+      displayLegend: true,
+    },
+    assetChartData: {
+      labels: [],
+      datasets: [],
+      displayLegend: true,
+    },
+    debtChartData: {
+      labels: [],
+      datasets: [],
+      displayLegend: true,
+    },
+    taxChartData: {
+      labels: [],
+      datasets: [],
+      displayLegend: true,
+    },
+    optimizationChartData: {
+      labels: [],
+      datasets: [],
+      displayLegend: false,
+    },
+    modelNamesData: [],
+    todaysAssetValues: new Map<Asset, AssetOrDebtVal>(),
+    todaysDebtValues: new Map<Asset, AssetOrDebtVal>(),
+    todaysIncomeValues: new Map<Income, IncomeVal>(),
+    todaysExpenseValues: new Map<Expense, ExpenseVal>(),
+    todaysSettingValues: new Map<Setting, SettingVal>(),
+    reportDefiner: {
+      sourceMatcher: defaultSourceMatcher,
+      sourceExcluder: defaultSourceExcluder,
+    },
+    maxReportSize: defaultReportSize,
+    reportIncludesSettings: false,
+    reportIncludesExpenses: true,
+    saveReportAsCSV: false,
+    reportData: [] as ReportDatum[],
+    totalTaxPaid: 0,
+    alertText: '',
+    isWaiting: false,
+  };
 
   public constructor(props: AppProps) {
     super(props);
     //this.handleUnload = this.handleUnload.bind(this);
-
-    const viewSettings = getDefaultViewSettings();
-    // log(`frequency is ${viewSettings.getViewSetting(viewFrequency, 'none')}`);
-    this.state = {
-      modelData: emptyModel,
-      evaluations: [],
-      viewState: viewSettings,
-      expensesChartData: {
-        labels: [],
-        datasets: [],
-        displayLegend: true,
-      },
-      incomesChartData: {
-        labels: [],
-        datasets: [],
-        displayLegend: true,
-      },
-      assetChartData: {
-        labels: [],
-        datasets: [],
-        displayLegend: true,
-      },
-      debtChartData: {
-        labels: [],
-        datasets: [],
-        displayLegend: true,
-      },
-      taxChartData: {
-        labels: [],
-        datasets: [],
-        displayLegend: true,
-      },
-      optimizationChartData: {
-        labels: [],
-        datasets: [],
-        displayLegend: false,
-      },
-      modelNamesData: [],
-      todaysAssetValues: new Map<Asset, AssetOrDebtVal>(),
-      todaysDebtValues: new Map<Asset, AssetOrDebtVal>(),
-      todaysIncomeValues: new Map<Income, IncomeVal>(),
-      todaysExpenseValues: new Map<Expense, ExpenseVal>(),
-      todaysSettingValues: new Map<Setting, SettingVal>(),
-      reportDefiner: {
-        sourceMatcher: defaultSourceMatcher,
-        sourceExcluder: defaultSourceExcluder,
-      },
-      maxReportSize: defaultReportSize,
-      reportIncludesSettings: false,
-      reportIncludesExpenses: true,
-      saveReportAsCSV: false,
-      reportData: [],
-      totalTaxPaid: 0,
-      alertText: '',
-      isWaiting: false,
-    };
 
     this.options = {
       goToAssetsPage: true,
@@ -1619,11 +1617,6 @@ export class AppContent extends Component<AppProps, AppState> {
       searchString: '',
     };
     reactAppComponent = this;
-    refreshData(
-      true, // refreshModel
-      true, // refreshChart
-      16, //sourceID
-    );
   }
 
   public componentWillUnmount(): void {
@@ -1631,6 +1624,7 @@ export class AppContent extends Component<AppProps, AppState> {
     //window.removeEventListener('beforeunload', this.handleUnload);
   }
   public componentDidMount(): void {
+    this.mounted = true;
     //log('in componentDidMount');
     toggle(
       homeView,

@@ -486,7 +486,7 @@ describe('loadModelsFromJSON', () => {
 
     // log(`model = ${JSON.stringify(model)}`);
     expect(JSON.stringify(model)).toEqual(
-      `{"triggers":[],"expenses":[],"incomes":[],"assets":[{"NAME":"ISAs","CATEGORY":"stock","START":"December 2019","VALUE":"2000","GROWTH":"stockMarketGrowth","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":false,"LIABILITY":"","PURCHASE_PRICE":"0","IS_A_DEBT":false,"QUANTITY":""},{"NAME":"Cash","CATEGORY":"","START":"1 Jan 2017","VALUE":"0.0","QUANTITY":"","GROWTH":"0.0","CPI_IMMUNE":true,"CAN_BE_NEGATIVE":true,"IS_A_DEBT":false,"LIABILITY":"","PURCHASE_PRICE":"0.0"}],"transactions":[],"settings":[{"NAME":"cpi","VALUE":"2.5","HINT":"Annual rate of inflation","TYPE":"const"},{"NAME":"Beginning of view range","VALUE":"01 Jan 2017","HINT":"Date at the start of range to be plotted","TYPE":"view"},{"NAME":"End of view range","VALUE":"01 Jan 2023","HINT":"Date at the end of range to be plotted","TYPE":"view"},{"NAME":"Date of birth","VALUE":"","HINT":"Date used for representing dates as ages","TYPE":"view"},{"NAME":"Today's value focus date","VALUE":"","HINT":"Date to use for 'today's value' tables (defaults to '' meaning today)","TYPE":"view"}],"name":"","version":10}`,
+      `{"triggers":[],"expenses":[],"incomes":[],"assets":[{"NAME":"ISAs","CATEGORY":"stock","START":"01 Dec 2019","VALUE":"2000","GROWTH":"stockMarketGrowth","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":false,"LIABILITY":"","PURCHASE_PRICE":"0","IS_A_DEBT":false,"QUANTITY":""},{"NAME":"Cash","CATEGORY":"","START":"01 Jan 2017","VALUE":"0.0","QUANTITY":"","GROWTH":"0.0","CPI_IMMUNE":true,"CAN_BE_NEGATIVE":true,"IS_A_DEBT":false,"LIABILITY":"","PURCHASE_PRICE":"0.0"}],"transactions":[],"settings":[{"NAME":"cpi","VALUE":"2.5","HINT":"Annual rate of inflation","TYPE":"const"},{"NAME":"Beginning of view range","VALUE":"01 Jan 2017","HINT":"Date at the start of range to be plotted","TYPE":"view"},{"NAME":"End of view range","VALUE":"01 Jan 2023","HINT":"Date at the end of range to be plotted","TYPE":"view"},{"NAME":"Date of birth","VALUE":"","HINT":"Date used for representing dates as ages","TYPE":"view"},{"NAME":"Today's value focus date","VALUE":"","HINT":"Date to use for 'today's value' tables (defaults to '' meaning today)","TYPE":"view"}],"name":"","version":10}`,
     );
   });
   it('migrateFromV1', () => {
@@ -647,6 +647,12 @@ describe('loadModelsFromJSON', () => {
       'TransferMortgage: date Jan 01 2028 !== 01 Jan 2028',
       'StopMainWork: date Dec 31 2050 !== 31 Dec 2050',
       'GetRidOfCar: date Dec 31 2025 !== 31 Dec 2025',
+      'Main income: start date 1 March 2018 !== 01 Mar 2018',
+      'Cash: start date December 2017 !== 01 Dec 2017',
+      'Stocks: start date December 2017 !== 01 Dec 2017',
+      'ISAs: start date December 2019 !== 01 Dec 2019',
+      'EarlyMortgage: start date 1 January 2018 !== 01 Jan 2018',
+      'LateMortgage: start date 1 January 2018 !== 01 Jan 2018',
       'Beginning of view range: value 1 Jan 2019 !== 01 Jan 2019',
       'End of view range: value 1 Feb 2019 !== 01 Feb 2019',
     ]);

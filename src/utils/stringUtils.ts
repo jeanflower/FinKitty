@@ -785,7 +785,15 @@ function findMatchedTriggerDate(
         if (shortStringDate.getTime() === dateTry.getTime()) {
           cleanedUp.cleaned = shortString;
         } else {
-          cleanedUp.cleaned = triggerName;
+          // we are about to accept this string because it
+          // can be made sense of
+          // if it's of the form '2019', convert it to '1 Jan 2019'
+          const regExp = RegExp('[1-2]{1}[0-9]{3}');
+          if (triggerName.match(regExp)) {
+            cleanedUp.cleaned = `1 Jan ${triggerName}`;
+          } else {
+            cleanedUp.cleaned = triggerName;
+          }
         }
       }
     } else {
