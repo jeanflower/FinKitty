@@ -16,6 +16,7 @@ import {
 } from './tablePages';
 import {
   deleteExpense,
+  doShowTodaysValueColumns,
   getOption,
   submitExpense,
   submitTransaction,
@@ -25,11 +26,7 @@ import {
   expensesChartDivWithButtons,
   getDefaultChartSettings,
 } from './chartPages';
-import {
-  expensesView,
-  revalueExp,
-  showTodaysValueColumnOption,
-} from '../localization/stringConstants';
+import { expensesView, revalueExp } from '../localization/stringConstants';
 
 import { AddDeleteExpenseForm } from './reactComponents/AddDeleteExpenseForm';
 import CashValueFormatter from './reactComponents/CashValueFormatter';
@@ -137,7 +134,7 @@ export function todaysExpensesTable(
   model: ModelData,
   todaysValues: Map<Expense, ExpenseVal>,
 ) {
-  if (todaysValues.size === 0 || !getOption(showTodaysValueColumnOption)) {
+  if (todaysValues.size === 0 || !doShowTodaysValueColumns()) {
     return;
   }
 

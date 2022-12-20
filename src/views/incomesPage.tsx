@@ -17,6 +17,7 @@ import {
 } from './tablePages';
 import {
   deleteIncome,
+  doShowTodaysValueColumns,
   getOption,
   submitIncome,
   submitTransaction,
@@ -26,11 +27,7 @@ import {
   getDefaultChartSettings,
   incomesChartDivWithButtons,
 } from './chartPages';
-import {
-  incomesView,
-  revalueInc,
-  showTodaysValueColumnOption,
-} from '../localization/stringConstants';
+import { incomesView, revalueInc } from '../localization/stringConstants';
 
 import { AddDeleteIncomeForm } from './reactComponents/AddDeleteIncomeForm';
 import CashValueFormatter from './reactComponents/CashValueFormatter';
@@ -126,7 +123,7 @@ export function todaysIncomesTable(
   model: ModelData,
   todaysValues: Map<Income, IncomeVal>,
 ) {
-  if (todaysValues.size === 0 || !getOption(showTodaysValueColumnOption)) {
+  if (todaysValues.size === 0 || !doShowTodaysValueColumns()) {
     return;
   }
 

@@ -10,13 +10,10 @@ import {
   checkOverwriteOption,
   evalModeOption,
   goToAssetsPageOption,
-  showTodaysValueColumnOption,
-  showTransactionsButtonOption,
-  showTaxButtonOption,
-  showAssetActionsButtonOption,
-  showOptimiserButtonOption,
   favourites,
   showHistoricalOption,
+  advancedUI,
+  simpleUI,
 } from '../../localization/stringConstants';
 
 interface ReplaceWithJSONFormState {
@@ -35,7 +32,9 @@ interface ReplaceWithJSONFormProps {
     args4: boolean,
   ) => void;
   toggleOption: (type: string) => void;
+  setUIMode: (type: string) => void;
   getOption: (type: string) => boolean;
+  getUIMode: () => string;
 }
 
 export class ReplaceWithJSONForm extends Component<
@@ -68,20 +67,6 @@ export class ReplaceWithJSONForm extends Component<
     this.replace(e);
   }
 
-  /*
-Options to toggle are
-  checkOverwriteOption
-  goToAssetsPageOption
-  checkModelOnEditOption
-  evalModeOption
-  showTodaysValueColumnOption
-  showTransactionsButtonOption
-  showTaxButtonOption
-  showAssetActionsButtonOption
-  showOptimiserButtonOption
-  showHistoricalOption
-*/
-
   public render() {
     return (
       <form className="container-fluid" onSubmit={this.replace}>
@@ -97,73 +82,23 @@ Options to toggle are
           onSubmit={this.handleSubmit}
         />
         {makeButton(
-          this.props.getOption(showTransactionsButtonOption)
-            ? `don't show Transactions button`
-            : 'do show Transactions button',
+          this.props.getUIMode() === simpleUI
+            ? 'switch to advanced UI mode'
+            : 'switch to simple UI mode',
           async (e: FormEvent<Element>) => {
-            await this.setState({
-              JSON: showTransactionsButtonOption,
-            });
+            if (this.props.getUIMode() === simpleUI) {
+              await this.setState({
+                JSON: advancedUI,
+              });
+            } else {
+              await this.setState({
+                JSON: simpleUI,
+              });
+            }
             this.replace(e);
           },
           'toggleTransB',
           'toggleTransB',
-          'outline-secondary',
-        )}
-        {makeButton(
-          this.props.getOption(showTaxButtonOption)
-            ? `don't show Tax button`
-            : 'do show Tax button',
-          async (e: FormEvent<Element>) => {
-            await this.setState({
-              JSON: showTaxButtonOption,
-            });
-            this.replace(e);
-          },
-          'toggleTaxB',
-          'toggleTaxB',
-          'outline-secondary',
-        )}
-        {makeButton(
-          this.props.getOption(showAssetActionsButtonOption)
-            ? `don't show Asset Actions button`
-            : 'do show Asset Actions button',
-          async (e: FormEvent<Element>) => {
-            await this.setState({
-              JSON: showAssetActionsButtonOption,
-            });
-            this.replace(e);
-          },
-          'toggleAActionsB',
-          'toggleAActionsB',
-          'outline-secondary',
-        )}
-        {makeButton(
-          this.props.getOption(showOptimiserButtonOption)
-            ? `don't show Optimiser button`
-            : 'do show Optimiser button',
-          async (e: FormEvent<Element>) => {
-            await this.setState({
-              JSON: showOptimiserButtonOption,
-            });
-            this.replace(e);
-          },
-          'toggleOptB',
-          'toggleOptB',
-          'outline-secondary',
-        )}
-        {makeButton(
-          this.props.getOption(showTodaysValueColumnOption)
-            ? `don't show todays value column`
-            : 'do show todays value column',
-          async (e: FormEvent<Element>) => {
-            await this.setState({
-              JSON: showTodaysValueColumnOption,
-            });
-            this.replace(e);
-          },
-          'toggleOptTVC',
-          'toggleOptTVC',
           'outline-secondary',
         )}
         <br></br>
@@ -269,28 +204,13 @@ Options to toggle are
     - 'evalMode'
     */
 
-    if (JSON === showTransactionsButtonOption) {
-      this.props.toggleOption(showTransactionsButtonOption);
+    if (JSON === simpleUI) {
+      this.props.setUIMode(simpleUI);
       this.setState({ JSON: '' });
       return;
     }
-    if (JSON === showTodaysValueColumnOption) {
-      this.props.toggleOption(showTodaysValueColumnOption);
-      this.setState({ JSON: '' });
-      return;
-    }
-    if (JSON === showTaxButtonOption) {
-      this.props.toggleOption(showTaxButtonOption);
-      this.setState({ JSON: '' });
-      return;
-    }
-    if (JSON === showAssetActionsButtonOption) {
-      this.props.toggleOption(showAssetActionsButtonOption);
-      this.setState({ JSON: '' });
-      return;
-    }
-    if (JSON === showOptimiserButtonOption) {
-      this.props.toggleOption(showOptimiserButtonOption);
+    if (JSON === advancedUI) {
+      this.props.setUIMode(advancedUI);
       this.setState({ JSON: '' });
       return;
     }

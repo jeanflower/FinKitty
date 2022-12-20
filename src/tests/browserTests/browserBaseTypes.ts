@@ -8,13 +8,6 @@ import {
   gotoTabPage,
   incomesTag,
 } from './browserTestUtils';
-import {
-  // showTodaysValueColumnOption,
-  // showTransactionsButtonOption,
-  showTaxButtonOption,
-  showAssetActionsButtonOption,
-  showOptimiserButtonOption,
-} from '../../localization/stringConstants';
 
 export function allowExtraSleeps() {
   if (
@@ -258,9 +251,7 @@ export async function beforeAllWork(
   // tests overwrite data using input forms
   // even though we don't expect people to do this
   await enterTextControl(driver, 'overwrite');
-  await enterTextControl(driver, showTaxButtonOption);
-  await enterTextControl(driver, showAssetActionsButtonOption);
-  await enterTextControl(driver, showOptimiserButtonOption);
+  await enterTextControl(driver, 'advancedUI');
 
   if (testDataModelName !== '' && modelString !== '') {
     await replaceWithTestModel(driver, testDataModelName, modelString);

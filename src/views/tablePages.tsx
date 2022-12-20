@@ -33,7 +33,6 @@ import {
   custom,
   bondInvest,
   bondMature,
-  showTodaysValueColumnOption,
 } from '../localization/stringConstants';
 import {
   Asset,
@@ -62,6 +61,7 @@ import {
   deleteSetting,
   deleteTransaction,
   deleteTrigger,
+  doShowTodaysValueColumns,
   editSetting,
   getOption,
   setFavouriteAsset,
@@ -777,7 +777,7 @@ function getAssetOrDebtCols(model: ModelData, isDebt: boolean) {
       formatter: <SimpleFormatter name="name" value="unset" />,
     },
   ];
-  if (getOption(showTodaysValueColumnOption)) {
+  if (doShowTodaysValueColumns()) {
     cols = cols.concat([
       {
         ...defaultColumn,
@@ -1673,7 +1673,7 @@ function incomesTableDiv(
       formatter: <SimpleFormatter name="name" value="unset" />,
     },
   ];
-  if (getOption(showTodaysValueColumnOption)) {
+  if (doShowTodaysValueColumns()) {
     columns = columns.concat([
       {
         ...defaultColumn,
@@ -1852,7 +1852,7 @@ function expensesTableDiv(
       formatter: <SimpleFormatter name="name" value="unset" />,
     },
   ];
-  if (getOption(showTodaysValueColumnOption)) {
+  if (doShowTodaysValueColumns()) {
     cols = cols.concat([
       {
         ...defaultColumn,

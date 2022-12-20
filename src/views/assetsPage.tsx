@@ -15,6 +15,7 @@ import {
 import { checkAsset, checkTransaction } from '../models/checks';
 import {
   deleteAsset,
+  doShowTodaysValueColumns,
   getOption,
   submitAsset,
   submitTransaction,
@@ -27,10 +28,7 @@ import DataGrid from './reactComponents/DataGrid';
 import React from 'react';
 import { SimpleFormatter } from './reactComponents/NameFormatter';
 import { assetsOrDebtsChartDivWithButtons } from './chartPages';
-import {
-  assetsView,
-  showTodaysValueColumnOption,
-} from '../localization/stringConstants';
+import { assetsView } from '../localization/stringConstants';
 import { ViewSettings } from '../models/charting';
 import { getTodaysDate } from '../models/modelUtils';
 import { dateAsString, lessThan } from '../utils/stringUtils';
@@ -139,7 +137,7 @@ export function todaysAssetsTable(
   model: ModelData,
   todaysValues: Map<Asset, AssetOrDebtVal>,
 ) {
-  if (todaysValues.size === 0 || !getOption(showTodaysValueColumnOption)) {
+  if (todaysValues.size === 0 || !doShowTodaysValueColumns()) {
     return;
   }
   const categorisedValues = new Map<Asset, AssetOrDebtVal>();

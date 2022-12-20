@@ -38,15 +38,12 @@ import {
   monthly,
   viewFrequency,
   favourites,
-  showTodaysValueColumnOption,
-  showTransactionsButtonOption,
+  uiMode,
   taxView,
-  showAssetActionsButtonOption,
-  showOptimiserButtonOption,
-  showTaxButtonOption,
   showHistoricalOption,
   assetsView,
   defaultReportSize,
+  advancedUI,
 } from './localization/stringConstants';
 import {
   AssetOrDebtVal,
@@ -1039,19 +1036,6 @@ function checkModelData(givenModel: ModelData, expectedName: string): string {
   }
 }
 
-/*
-Options to toggle are
-  checkOverwriteOption
-  goToAssetsPageOption
-  checkModelOnEditOption
-  evalModeOption
-  showTodaysValueColumnOption
-  showTransactionsButtonOption
-  showTaxButtonOption
-  showAssetActionsButtonOption
-  showOptimiserButtonOption
-  showHistoricalOption
-*/
 function setSearchString(s: string): boolean {
   try {
     const regex = RegExp(s);
@@ -1067,7 +1051,18 @@ function setSearchString(s: string): boolean {
   }
   return true;
 }
-
+function setUIMode(type: string): void {
+  if (reactAppComponent) {
+    reactAppComponent.options[uiMode] = type;
+    refreshData(
+      true, // refreshModel
+      true, // refreshChart
+      99, //sourceID
+    );
+  } else {
+    alert(`error: data not ready to set ${type} mode`);
+  }
+}
 function toggleOption(type: string): void {
   if (reactAppComponent) {
     // log(
@@ -1102,13 +1097,7 @@ function toggleOption(type: string): void {
         true, // refreshChart
         33, //sourceID
       );
-    } else if (
-      type === showTodaysValueColumnOption ||
-      type === showTransactionsButtonOption ||
-      type === showTaxButtonOption ||
-      type === showAssetActionsButtonOption ||
-      type === showOptimiserButtonOption
-    ) {
+    } else if (type === uiMode) {
       refreshData(
         true, // refreshModel
         true, // refreshChart
@@ -1121,6 +1110,9 @@ function toggleOption(type: string): void {
 }
 export function getOption(type: string): boolean {
   return reactAppComponent.options[type];
+}
+export function getUIMode(): string {
+  return reactAppComponent.options[uiMode];
 }
 export async function setFavouriteInModel(
   name: string,
@@ -1418,7 +1410,7 @@ function getSearchString(): string {
 }
 function doShowTransactionsButton(): boolean {
   if (reactAppComponent) {
-    const result = reactAppComponent.options.showTransactionsButton;
+    const result = reactAppComponent.options.uiMode === advancedUI;
     return result;
   } else {
     return false;
@@ -1426,7 +1418,7 @@ function doShowTransactionsButton(): boolean {
 }
 function doShowTaxButton(): boolean {
   if (reactAppComponent) {
-    const result = reactAppComponent.options.showTaxButton;
+    const result = reactAppComponent.options.uiMode === advancedUI;
     return result;
   } else {
     return false;
@@ -1434,7 +1426,7 @@ function doShowTaxButton(): boolean {
 }
 function doShowAssetActionsButton(): boolean {
   if (reactAppComponent) {
-    const result = reactAppComponent.options.showAssetActionsButton;
+    const result = reactAppComponent.options.uiMode === advancedUI;
     return result;
   } else {
     return false;
@@ -1442,7 +1434,15 @@ function doShowAssetActionsButton(): boolean {
 }
 function doShowOptimiserButton(): boolean {
   if (reactAppComponent) {
-    const result = reactAppComponent.options.showOptimiserButton;
+    const result = reactAppComponent.options.uiMode === advancedUI;
+    return result;
+  } else {
+    return false;
+  }
+}
+export function doShowTodaysValueColumns(): boolean {
+  if (reactAppComponent) {
+    const result = reactAppComponent.options.uiMode === advancedUI;
     return result;
   } else {
     return false;
@@ -1609,10 +1609,9 @@ export class AppContent extends Component<AppProps, AppState> {
       evalMode: true,
       checkModelOnEdit: true,
       favouritesOnly: false,
-      showTransactionsButton: true,
-      showTaxButton: false,
-      showAssetActionsButton: false,
-      showOptimiserButton: false,
+
+      uiMode: 'simpleUI',
+
       showHistorical: true,
       searchString: '',
     };
@@ -2262,7 +2261,9 @@ export class AppContent extends Component<AppProps, AppState> {
           showAlert={showAlert}
           setReportKey={setReportKey}
           toggleOption={toggleOption}
+          setUIMode={setUIMode}
           getOption={getOption}
+          getUIMode={getUIMode}
         />
       </>
     );
@@ -2296,7 +2297,7 @@ export class AppContent extends Component<AppProps, AppState> {
     model: ModelData,
     todaysValues: Map<Setting, SettingVal>,
   ): JSX.Element {
-    if (todaysValues.size === 0 || !getOption(showTodaysValueColumnOption)) {
+    if (todaysValues.size === 0 || !doShowTodaysValueColumns()) {
       return <></>;
     }
     const today = getTodaysDate(model);
@@ -2370,7 +2371,7 @@ export class AppContent extends Component<AppProps, AppState> {
             this.options.checkModelOnEdit,
             parentCallbacks,
           )}
-          {showTodaysValueColumnOption
+          {doShowTodaysValueColumns()
             ? this.todaysSettingsTable(model, todaysValues)
             : ''}
           <p />
