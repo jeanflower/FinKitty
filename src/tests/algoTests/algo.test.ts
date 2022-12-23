@@ -44,6 +44,7 @@ import {
   Expense,
   Income,
   Asset,
+  Item,
 } from '../../types/interfaces';
 import {
   log,
@@ -53,6 +54,7 @@ import {
 } from '../../utils/utils';
 import {
   isATransaction,
+  isHistorical,
   makeModelFromJSON,
   makeModelFromJSONString,
   makeRevalueName,
@@ -65,6 +67,7 @@ import {
   emptyModel,
   getMinimalModelCopy,
   minimalModel,
+  mortgageSwitchExampleData,
   simpleAsset,
   simpleExpense,
   simpleIncome,
@@ -7496,6 +7499,15 @@ describe('evaluations tests', () => {
     model.transactions[0].NAME = 'Revaluesavings01';
     expect(makeRevalueName('savings', model)).toEqual('Revaluesavings02');
 
+    model.transactions[0].NAME = 'Revaluesavings01';
+    for (let i = 1; i < 10; i = i + 1) {
+      model.transactions.push({
+        ...simpleTransaction,
+        NAME: `Revaluesavings0${i}`,
+      });
+    }
+    expect(makeRevalueName('savings', model)).toEqual('Revaluesavings10');
+
     done();
   });
 
@@ -7511,6 +7523,110 @@ describe('evaluations tests', () => {
     }
 
     // printTestCodeForEvals(evals);
+    done();
+  });
+
+  it('historical assessments', (done) => {
+    const model = makeModelFromJSON(mortgageSwitchExampleData);
+    expect(model.assets.length).toBe(5);
+    expect(model.expenses.length).toBe(3);
+    expect(model.incomes.length).toBe(3);
+    expect(model.transactions.length).toBe(6);
+
+    const filterForOld = (items: Item[]) => {
+      return items.filter((x) => {
+        return isHistorical(x, model);
+      });
+    };
+
+    expect(filterForOld(model.assets).length).toBe(0);
+    expect(filterForOld(model.expenses).length).toBe(0);
+
+    model.settings[5].VALUE = '01 Jan 2050';
+    expect(filterForOld(model.assets).length).toBe(0);
+    expect(filterForOld(model.expenses).length).toBe(2);
+
+    model.settings[5].VALUE = '01 Jan 2026';
+    expect(filterForOld(model.incomes).length).toBe(1);
+
+    model.settings[5].VALUE = '01 Jan 2026';
+    expect(filterForOld(model.transactions).length).toBe(1);
+
+    model.settings[5].VALUE = '01 Jan 2048';
+    expect(filterForOld(model.transactions).length).toBe(2);
+
+    model.transactions.push({
+      DATE: '1 Jan 2049',
+      FROM: '',
+      FROM_VALUE: '0',
+      FROM_ABSOLUTE: false,
+      NAME: 'Revalue dogs',
+      TO: 'Look after dogs',
+      TO_ABSOLUTE: true,
+      TO_VALUE: '1',
+      STOP_DATE: '',
+      RECURRENCE: '',
+      TYPE: 'revalueExpense',
+      CATEGORY: '',
+      FAVOURITE: false,
+    });
+    expect(filterForOld(model.transactions).length).toBe(3);
+
+    model.settings[5].VALUE = '01 Jan 2030';
+    expect(filterForOld(model.transactions).length).toBe(2);
+
+    model.transactions.push(
+      {
+        DATE: '1 Jan 2031',
+        FROM: '',
+        FROM_VALUE: '0',
+        FROM_ABSOLUTE: false,
+        NAME: 'Revalue income',
+        TO: 'Main income',
+        TO_ABSOLUTE: true,
+        TO_VALUE: '11',
+        STOP_DATE: '',
+        RECURRENCE: '',
+        TYPE: 'revalueIncome',
+        CATEGORY: '',
+        FAVOURITE: false,
+      },
+      {
+        DATE: '2 Jan 2031',
+        FROM: '',
+        FROM_VALUE: '0',
+        FROM_ABSOLUTE: false,
+        NAME: 'Revalue income',
+        TO: 'Main income',
+        TO_ABSOLUTE: true,
+        TO_VALUE: '12',
+        STOP_DATE: '',
+        RECURRENCE: '',
+        TYPE: 'revalueIncome',
+        CATEGORY: '',
+        FAVOURITE: false,
+      },
+      {
+        DATE: '3 Jan 2032',
+        FROM: '',
+        FROM_VALUE: '0',
+        FROM_ABSOLUTE: false,
+        NAME: 'Revalue income',
+        TO: 'Main income',
+        TO_ABSOLUTE: true,
+        TO_VALUE: '13',
+        STOP_DATE: '',
+        RECURRENCE: '',
+        TYPE: 'revalueIncome',
+        CATEGORY: '',
+        FAVOURITE: false,
+      },
+    );
+    expect(filterForOld(model.transactions).length).toBe(2);
+
+    model.settings[5].VALUE = '01 Jan 2032';
+    expect(filterForOld(model.transactions).length).toBe(3);
+
     done();
   });
 });
