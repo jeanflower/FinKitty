@@ -7592,6 +7592,21 @@ describe('evaluations tests', () => {
         FAVOURITE: false,
       },
       {
+        DATE: '1 Jan 2031',
+        FROM: '',
+        FROM_VALUE: '0',
+        FROM_ABSOLUTE: false,
+        NAME: 'Revalue income',
+        TO: 'Side hustle income',
+        TO_ABSOLUTE: true,
+        TO_VALUE: '111',
+        STOP_DATE: '',
+        RECURRENCE: '',
+        TYPE: 'revalueIncome',
+        CATEGORY: '',
+        FAVOURITE: false,
+      },
+      {
         DATE: '2 Jan 2031',
         FROM: '',
         FROM_VALUE: '0',
@@ -7622,10 +7637,12 @@ describe('evaluations tests', () => {
         FAVOURITE: false,
       },
     );
-    expect(filterForOld(model.transactions).length).toBe(2);
+    expect(filterForOld(model.transactions).length).toBe(3);
 
     model.settings[5].VALUE = '01 Jan 2032';
-    expect(filterForOld(model.transactions).length).toBe(3);
+    expect(filterForOld(model.transactions).length).toBe(4);
+
+    expect(filterForOld(model.settings).length).toBe(0);
 
     done();
   });
