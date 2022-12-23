@@ -63,7 +63,6 @@ import {
   deleteTrigger,
   doShowTodaysValueColumns,
   editSetting,
-  getOption,
   setFavouriteAsset,
   setFavouriteExpense,
   setFavouriteIncome,
