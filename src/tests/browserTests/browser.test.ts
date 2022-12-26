@@ -1026,7 +1026,7 @@ describe(testDataModelName, () => {
       recurrence: '',
       endDate: '',
       category: 'car',
-      message: `added new transaction`,
+      message: `Dont allow a proportional transaction to a word-valued asset`,
     });
 
     ary = await getAssetChartData(driver);
@@ -1061,11 +1061,11 @@ describe(testDataModelName, () => {
     expect(ary.datasets[0].data[7]).toBeCloseTo(255.25631250000006, 2);
     expect(ary.datasets[0].data[8]).toBeCloseTo(22, 2);
     expect(ary.datasets[0].data[9]).toBeCloseTo(44, 2);
-    expect(ary.datasets[0].data[10]).toBeCloseTo(92.4, 2);
-    expect(ary.datasets[0].data[11]).toBeCloseTo(92.4, 2);
-    expect(ary.datasets[0].data[12]).toBeCloseTo(92.4, 2);
-    expect(ary.datasets[0].data[13]).toBeCloseTo(92.4, 2);
-    expect(ary.datasets[0].data[14]).toBeCloseTo(92.4, 2);
+    expect(ary.datasets[0].data[10]).toBeCloseTo(44, 2);
+    expect(ary.datasets[0].data[11]).toBeCloseTo(44, 2);
+    expect(ary.datasets[0].data[12]).toBeCloseTo(44, 2);
+    expect(ary.datasets[0].data[13]).toBeCloseTo(44, 2);
+    expect(ary.datasets[0].data[14]).toBeCloseTo(44, 2);
 
     // log(`done fourth block of expectations`);
 
@@ -1117,11 +1117,11 @@ describe(testDataModelName, () => {
     expect(ary.datasets[0].data[7]).toBeCloseTo(255.25631250000006, 2);
     expect(ary.datasets[0].data[8]).toBeCloseTo(22, 2);
     expect(ary.datasets[0].data[9]).toBeCloseTo(44, 2);
-    expect(ary.datasets[0].data[10]).toBeCloseTo(92.4, 2);
-    expect(ary.datasets[0].data[11]).toBeCloseTo(92.4, 2);
-    expect(ary.datasets[0].data[12]).toBeCloseTo(194.04000000000005, 2);
-    expect(ary.datasets[0].data[13]).toBeCloseTo(194.04000000000005, 2);
-    expect(ary.datasets[0].data[14]).toBeCloseTo(194.04000000000005, 2);
+    expect(ary.datasets[0].data[10]).toBeCloseTo(44, 2);
+    expect(ary.datasets[0].data[11]).toBeCloseTo(44, 2);
+    expect(ary.datasets[0].data[12]).toBeCloseTo(92.4, 2);
+    expect(ary.datasets[0].data[13]).toBeCloseTo(92.4, 2);
+    expect(ary.datasets[0].data[14]).toBeCloseTo(92.4, 2);
 
     await cleanUpWork(driver, testDataModelName);
   });

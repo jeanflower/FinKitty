@@ -79,6 +79,7 @@ async function loadModelFromDB(
     alert(
       `Cannot load ${modelName}; err = ${err} - will create a simple model instead`,
     );
+    /* istanbul ignore next */
     model = makeModelFromJSON(simpleExampleData, modelName);
   }
   /* istanbul ignore if  */
@@ -548,7 +549,7 @@ export async function submitNewSettingLSM(
 export async function deleteModel(
   userID: string,
   modelName: string,
-  expectModelPresent = true,
+  expectModelPresent: boolean,
 ) {
   /* istanbul ignore if  */
   if (showDBInteraction) {

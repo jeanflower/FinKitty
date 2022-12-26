@@ -6,13 +6,14 @@ import {
   bondInvest,
   bondInterest,
 } from '../../localization/stringConstants';
+import { getEvaluations } from '../../models/evaluations';
 import {
   emptyModel,
   simpleAsset,
   simpleTransaction,
   defaultModelSettings,
 } from '../../models/exampleModels';
-import { setSetting } from '../../models/modelUtils';
+import { makeModelFromJSONString, setSetting } from '../../models/modelUtils';
 import { ModelData } from '../../types/interfaces';
 import { log, printDebug } from '../../utils/utils';
 import {
@@ -96,7 +97,11 @@ describe('bonds tests', () => {
     setSetting(model.settings, 'BondTargetValue', '1', constType);
     setSetting(model.settings, `${bondInterest}`, '100', constType);
 
-    const evalsAndValues = getTestEvaluations(model);
+    const evalsAndValues = getEvaluations(
+      makeModelFromJSONString(JSON.stringify(model)),
+      undefined, // no key for a values report
+    );
+
     const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);

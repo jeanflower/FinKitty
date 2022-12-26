@@ -17,7 +17,6 @@ import {
 import {
   deleteExpense,
   doShowTodaysValueColumns,
-  getOption,
   submitExpense,
   submitTransaction,
   submitTrigger,

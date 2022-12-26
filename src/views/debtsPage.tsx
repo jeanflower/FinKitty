@@ -16,7 +16,6 @@ import {
 import {
   deleteAsset,
   doShowTodaysValueColumns,
-  getOption,
   submitAsset,
   submitTransaction,
   submitTrigger,

@@ -36,7 +36,7 @@ if (printDebug()) {
 }
 
 describe('load save tests', () => {
-  jest.setTimeout(14000); // allow time for this test to run
+  jest.setTimeout(24000); // allow time for this test to run
 
   // the cache of models is shared between tests
   // tests that assert about the contents of the cache
@@ -45,8 +45,12 @@ describe('load save tests', () => {
 
   // do not assume the cache is empty at the start of this test
 
-  it('load save test', async () => {
+  it('load save test1', async () => {
     const printStory = false;
+
+    if (printStory) {
+      log('starting test');
+    }
     try {
       const userName = 'TestUserID';
       const junkUserName = 'junkjunkjunk';

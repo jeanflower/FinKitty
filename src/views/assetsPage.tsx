@@ -16,7 +16,6 @@ import { checkAsset, checkTransaction } from '../models/checks';
 import {
   deleteAsset,
   doShowTodaysValueColumns,
-  getOption,
   submitAsset,
   submitTransaction,
   submitTrigger,

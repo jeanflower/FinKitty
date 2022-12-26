@@ -945,7 +945,7 @@ function mapNamesToTypes(model: ModelData) {
       }
       /* istanbul ignore if */
       if (l.endsWith(nationalInsurance)) {
-        log(`Error : didn't expect an asse to be liable to NI??`);
+        log(`Error : didn't expect an asset to be liable to NI??`);
         const person = l.substring(0, l.length - nationalInsurance.length);
         const niTag = makeNationalInsuranceTag(person);
         const netIncomeTag = makeNetIncomeTag(person);

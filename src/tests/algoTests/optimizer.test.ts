@@ -77,11 +77,11 @@ describe('optimizer tests', () => {
       {
         return false;
       };
-    const helper: EvaluationHelper = {
-      reporter: reporter,
-      maxReportSize: 0,
-      frequency: viewSettings.getViewSetting(viewFrequency, monthly),
-    };
+    const helper = new EvaluationHelper(
+      reporter,
+      0,
+      viewSettings.getViewSetting(viewFrequency, monthly),
+    );
     const cd: ChartData = calcOptimizer(model, helper, (msg: string) => {
       errorMsg = msg;
     });
@@ -159,11 +159,11 @@ describe('optimizer tests', () => {
       {
         return false;
       };
-    const helper: EvaluationHelper = {
-      reporter: reporter,
-      maxReportSize: 0,
-      frequency: viewSettings.getViewSetting(viewFrequency, monthly),
-    };
+    const helper = new EvaluationHelper(
+      reporter,
+      0,
+      viewSettings.getViewSetting(viewFrequency, monthly),
+    );
     let errorMsg = '';
     const cd: ChartData = calcOptimizer(model, helper, (msg: string) => {
       errorMsg = msg;

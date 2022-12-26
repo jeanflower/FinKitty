@@ -522,7 +522,7 @@ export function makeStringFromFromToValue(input: string) {
   }
 }
 
-function parseTriggerForOperator(
+function parseDateStringForOperator(
   triggerName: string,
   opSymbol: string,
   triggers: Trigger[],
@@ -643,7 +643,7 @@ function parseTriggerForOperator(
           }
         } else if (secondPartNW.wordPart === 'w') {
           firstPartDate.setDate(
-            firstPartDate.getDate() + numChange * secondPartNW.numberPart,
+            firstPartDate.getDate() + numChange * secondPartNW.numberPart * 7,
           );
           if (cleanedUp) {
             cleanedUp.cleaned = `${cleanedUp.cleaned}${secondPartNW.numberPart}w`;
@@ -706,7 +706,7 @@ export function dateAsString(
 }
 // returns a date for a trigger, or undefined
 function findMatchedTriggerDate(
-  triggerName: string,
+  dateString: string,
   triggers: Trigger[],
   varValue: number,
   recursionLevel: number,
@@ -717,8 +717,8 @@ function findMatchedTriggerDate(
     //log(`infinite or too-complex recursion for dates - emergency stop`);
     return undefined;
   }
-  const conditionalOp = parseTriggerForOperator(
-    triggerName,
+  const conditionalOp = parseDateStringForOperator(
+    dateString,
     '?',
     triggers,
     varValue,
@@ -728,8 +728,8 @@ function findMatchedTriggerDate(
   if (conditionalOp !== undefined) {
     return conditionalOp;
   }
-  const minusOp = parseTriggerForOperator(
-    triggerName,
+  const minusOp = parseDateStringForOperator(
+    dateString,
     '-',
     triggers,
     varValue,
@@ -739,8 +739,8 @@ function findMatchedTriggerDate(
   if (minusOp !== undefined) {
     return minusOp;
   }
-  const plusOp = parseTriggerForOperator(
-    triggerName,
+  const plusOp = parseDateStringForOperator(
+    dateString,
     '+',
     triggers,
     varValue,
@@ -751,7 +751,7 @@ function findMatchedTriggerDate(
     return plusOp;
   }
   // log('look for '+triggerName+'in '+triggers.map(showObj))
-  const matched = triggers.filter((trigger) => trigger.NAME === triggerName);
+  const matched = triggers.filter((trigger) => trigger.NAME === dateString);
   // log(`matched trigger = ${showObj(matched)}`);
   let result = undefined;
   if (matched.length !== 0) {
@@ -768,7 +768,7 @@ function findMatchedTriggerDate(
       undefined,
     );
     if(cleanedUp !== undefined){
-      cleanedUp.cleaned = triggerName;
+      cleanedUp.cleaned = dateString;
     }
     /* eslint-enable */
 
@@ -776,23 +776,27 @@ function findMatchedTriggerDate(
   }
 
   if (result === undefined) {
-    const dateTry = makeDateFromString(triggerName);
-    if (dateTry.getTime()) {
-      result = dateTry;
+    const parsedDate = makeDateFromString(dateString);
+    if (parsedDate.getTime()) {
+      result = parsedDate;
       if (cleanedUp) {
-        const shortString = dateAsString(DateFormatType.Data, dateTry);
-        const shortStringDate = new Date(shortString);
-        if (shortStringDate.getTime() === dateTry.getTime()) {
-          cleanedUp.cleaned = shortString;
+        const preferredString = dateAsString(DateFormatType.Data, parsedDate);
+        const preferredStringDate = new Date(preferredString);
+        if (preferredStringDate.getTime() === parsedDate.getTime()) {
+          cleanedUp.cleaned = preferredString;
         } else {
           // we are about to accept this string because it
           // can be made sense of
           // if it's of the form '2019', convert it to '1 Jan 2019'
           const regExp = RegExp('[1-2]{1}[0-9]{3}');
-          if (triggerName.match(regExp)) {
-            cleanedUp.cleaned = `1 Jan ${triggerName}`;
+          if (dateString.match(regExp)) {
+            cleanedUp.cleaned = `1 Jan ${dateString}`;
           } else {
-            cleanedUp.cleaned = triggerName;
+            // we have a string for a date which
+            // becomes a different date when we convert
+            // string -> Date -> string -> Date
+            /* istanbul ignore next */
+            cleanedUp.cleaned = dateString;
           }
         }
       }
@@ -800,7 +804,7 @@ function findMatchedTriggerDate(
       //log(`BUG : unrecognised date!!! ${input}, `
       // `${showObj(triggers.length)}`);
       if (cleanedUp) {
-        cleanedUp.cleaned = `Invalid Date ${triggerName}`;
+        cleanedUp.cleaned = `Invalid Date ${dateString}`;
       }
       result = undefined;
     }

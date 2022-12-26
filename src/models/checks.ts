@@ -234,8 +234,11 @@ export function checkAsset(a: Asset, model: ModelData): string {
         but no corresponding setting found`;
     }
     if (!isNumberString(settingVal)) {
-      return `Asset growth set to '${a.GROWTH}'
-        but corresponding setting not a number`;
+      const settingVal2 = getSettings(model.settings, settingVal, 'missing');
+      if (settingVal2 === 'missing') {
+        return `Asset growth set to '${a.GROWTH}'
+          but corresponding setting not a number`;
+      }
     }
   }
 
@@ -429,6 +432,19 @@ export function checkExpense(e: Expense, model: ModelData): string {
     )} and
       value is set ${dateAsString(DateFormatType.View, valueSetDate)}.`;
   }
+
+  if (valueSetDate < startDate) {
+    const cpiSetting = model.settings.find((s) => {
+      return s.NAME === cpi;
+    });
+    if (cpiSetting) {
+      const val = parseFloat(cpiSetting.VALUE);
+      if (val > 0.0) {
+        // return 'expense needs to grow!';
+      }
+    }
+  }
+
   const checkRec = checkRecurrence(e.RECURRENCE);
   if (checkRec !== '') {
     return checkRec;
@@ -1286,6 +1302,36 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
     /* istanbul ignore next */
     log(`WARNING : not-absolute value from ${tFromValue} > 1.0`);
   }
+  if (!t.TO_ABSOLUTE) {
+    const targetAsset = model.assets.find((a) => {
+      return a.NAME === t.TO;
+    });
+    if (targetAsset) {
+      const wordsAndNum = getNumberAndWordParts(targetAsset.VALUE);
+      if (wordsAndNum.wordPart !== '') {
+        return 'Dont allow a proportional transaction to a word-valued asset';
+      }
+    }
+    const targetIncome = model.incomes.find((i) => {
+      return i.NAME === t.TO;
+    });
+    if (targetIncome) {
+      const wordsAndNum = getNumberAndWordParts(targetIncome.VALUE);
+      if (wordsAndNum.wordPart !== '') {
+        return 'Dont allow a proportional transaction to a word-valued income';
+      }
+    }
+    const targetExpense = model.expenses.find((i) => {
+      return i.NAME === t.TO;
+    });
+    if (targetExpense) {
+      const wordsAndNum = getNumberAndWordParts(targetExpense.VALUE);
+      if (wordsAndNum.wordPart !== '') {
+        return 'Dont allow a proportional transaction to a word-valued expense';
+      }
+    }
+  }
+
   if (
     !t.TO_ABSOLUTE &&
     tToValue > 1.0 &&

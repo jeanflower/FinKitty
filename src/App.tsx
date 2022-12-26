@@ -567,11 +567,11 @@ export async function refreshDataInternal(
       );
     }
     // go and do the actual modeling, the calculations
-    const helper: EvaluationHelper = {
-      reporter: reporter,
-      maxReportSize: reactAppComponent.state.maxReportSize,
-      frequency: viewSettings.getViewSetting(viewFrequency, monthly),
-    };
+    const helper = new EvaluationHelper(
+      reporter,
+      reactAppComponent.state.maxReportSize,
+      viewSettings.getViewSetting(viewFrequency, monthly),
+    );
     evaluationsAndVals = getEvaluations(model, helper);
     if (reactAppComponent.state.saveReportAsCSV) {
       const data = evaluationsAndVals.reportData;
@@ -720,11 +720,11 @@ export async function refreshData(
       {
         return false;
       };
-    const helper: EvaluationHelper = {
-      reporter: reporter,
-      maxReportSize: reactAppComponent.state.maxReportSize,
-      frequency: viewSettings.getViewSetting(viewFrequency, monthly),
-    };
+    const helper = new EvaluationHelper(
+      reporter,
+      reactAppComponent.state.maxReportSize,
+      viewSettings.getViewSetting(viewFrequency, monthly),
+    );
     const cd: ChartData = calcOptimizer(
       reactAppComponent.state.modelData,
       helper,
@@ -1991,7 +1991,7 @@ export class AppContent extends Component<AppProps, AppState> {
     ) {
       // log(`delete model ${modelNameForDelete}`);
       const modelNames = this.state.modelNamesData;
-      await deleteModel(getUserID(), modelNameForDelete);
+      await deleteModel(getUserID(), modelNameForDelete, true);
       const idx = modelNames.findIndex((i) => {
         return i === modelNameForDelete;
       });

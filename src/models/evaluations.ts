@@ -402,9 +402,14 @@ function growthData(
       // log(`from ${growth}, use cpi ${cpiVal} to create adaptedGrowth = ${getMonthlyGrowth(adaptedGrowth)}`);
     }
 
-    let monthlyGrowth = getMonthlyGrowth(adaptedGrowth);
+    const monthlyGrowth = getMonthlyGrowth(adaptedGrowth);
+    /* istanbul ignore if */
     if (g.powerByNumMonths !== 1) {
-      monthlyGrowth = (1 + monthlyGrowth) ** g.powerByNumMonths - 1;
+      log(
+        `Error : didn't expect something to have non-monthly recurrent growth`,
+      );
+      // an Asset has monthly growth, an Income can have different frequencies
+      // monthlyGrowth = (1 + monthlyGrowth) ** g.powerByNumMonths - 1;
     }
     // log(`growth power up by ${g.powerByNumMonths} from ${monthlyGrowth} to ${periodicGrowth}`);
     scale = monthlyGrowth;
@@ -583,8 +588,8 @@ function setValue(
   }
   const printNet = false;
   const printReal = false;
-  /* istanbul ignore if  */ //debug
   const existingValue = values.get(name);
+  /* istanbul ignore if  */ //debug
   if (printNet || printReal) {
     let realExistingValue = existingValue;
     let realNewValue = newValue;
@@ -2347,6 +2352,7 @@ function handleIncome(
       } else if (pensionValue === undefined) {
         /* istanbul ignore next */
         log('Error: contributing to undefined pension scheme');
+        /* istanbul ignore next */
         log(`model is ${showObj(model)}`);
       } else if (
         moment.date > getTriggerDate(pt.STOP_DATE, model.triggers, v)
@@ -2520,11 +2526,15 @@ function logAssetGrowth(
     growth = parseFloat(settingVal);
     /* istanbul ignore if */
     if (Number.isNaN(growth)) {
-      log(
-        'Error: cant parse setting value for asset growth ' +
-          `${asset.GROWTH} = ${settingVal}`,
-      );
-      growth = 0.0;
+      const settingVal2 = getSettings(settings, settingVal, 'None');
+      growth = parseFloat(settingVal2);
+      if (Number.isNaN(growth)) {
+        log(
+          'Error: cant parse setting value for asset growth ' +
+            `${asset.GROWTH} = ${settingVal}`,
+        );
+        growth = 0.0;
+      }
     }
   } else {
     // log(`growth is not recognised as a NaN - assume parseFloat gave something useful`);
@@ -2538,11 +2548,16 @@ function logAssetGrowth(
   // if(cpiVal > 0 && (growth > 0 || adaptedAssetGrowth > 0)){
   //   log(`from ${asset.GROWTH}, use cpi ${cpiVal} to create adaptedExpenseGrowth = ${getMonthlyGrowth(adaptedAssetGrowth)}`);
   // }
-  let powerByNumMonths = 1;
+  const powerByNumMonths = 1;
+  /* istanbul ignore if */
   if (frequency === annually) {
-    powerByNumMonths = 12;
+    /* istanbul ignore next */
+    log(`Error : didn't expect assets to have annual recurrent growth`);
+    // powerByNumMonths = 12;
   } else if (frequency === weekly) {
-    powerByNumMonths = 12 / 52;
+    /* istanbul ignore next */
+    log(`Error : didn't expect assets to have weekly recurrent growth`);
+    // powerByNumMonths = 12 / 52;
   }
   growths.set(asset.NAME, {
     itemGrowth: asset.GROWTH,
@@ -2733,7 +2748,10 @@ function getRecurrentMoments(
   };
   const dates = generateSequenceOfDates(roi, recurrence);
   const newMoments: Moment[] = dates.map((date) => {
-    const typeForMoment = date < startExpenseOrIncomeDate ? prepType : type;
+    let typeForMoment = type;
+    if (date < startExpenseOrIncomeDate) {
+      typeForMoment = prepType;
+    }
     const result: Moment = {
       date,
       name: x.NAME,
@@ -2747,14 +2765,22 @@ function getRecurrentMoments(
   // Set up special values in the first value.
   if (newMoments.length > 0) {
     if (type === momentType.expense) {
+      /* istanbul ignore if  */
       if (newMoments[0].type === momentType.expensePrep) {
-        newMoments[0].type = momentType.expenseStartPrep;
+        // this would be consistent with incomes
+        // but it never happens
+        // because the code to set expenseStartPrep
+        // is elsewhere
+        // see "TODO : rationalise how these are set up"
+        // newMoments[0].type = momentType.expenseStartPrep;
+        log(`Error: don't expect to set starts of expenses like this`);
       } else {
         newMoments[0].type = momentType.expenseStart;
       }
     } else if (type === momentType.income) {
       if (newMoments[0].type === momentType.incomePrep) {
         newMoments[0].type = momentType.incomeStartPrep;
+        //throw new Error('break!');
       } else {
         newMoments[0].type = momentType.incomeStart;
       }
@@ -2973,6 +2999,7 @@ function revalueApplied(
             log(
               `ERROR: proportional change to a not-number value ${wValue} not implemented`,
             );
+            /* istanbul ignore next */
             tToValue = 999999; // TODO  make this fail the checker
           }
         } else {
@@ -2983,6 +3010,7 @@ function revalueApplied(
           log(
             `ERROR: proportional change to a not-number value ${wValue} not implemented`,
           );
+          /* istanbul ignore next */
           tToValue = 999999; // TODO  make this fail the checker
         }
       }
@@ -4329,8 +4357,8 @@ function generateMoments(
     const expenseStart = getTriggerDate(expense.START, model.triggers, v);
 
     const expenseSetDate = getTriggerDate(expense.VALUE_SET, model.triggers, v);
-    // log(`income start is ${dateAsString(DateFormatType.Debug,incomeStartDate)}`);
-    // log(`value set is ${dateAsString(DateFormatType.Debug,incomeSetDate)}`);
+    // log(`expense start is ${dateAsString(DateFormatType.Debug,espenseStartDate)}`);
+    // log(`value set is ${dateAsString(DateFormatType.Debug,expenseSetDate)}`);
     // log(`shiftStartBackTo = ${dateAsString(DateFormatType.Debug,shiftStartBackTo)}`);
     // log(`shiftStartBackTo = ${shiftStartBackTo}`);
 
@@ -4672,17 +4700,6 @@ function generateMoments(
       d.settingName,
       '18', //callerID
     );
-  });
-
-  model.settings.forEach((setting) => {
-    if (setting.HINT.includes('grows with cpi')) {
-      growths.set(setting.NAME, {
-        itemGrowth: '0.0',
-        powerByNumMonths: 1,
-        scale: 0.0,
-        applyCPI: true,
-      });
-    }
   });
 
   if (roiEndDate > today) {
@@ -5154,6 +5171,7 @@ function handleStartMoment(
         );
       }
     } else {
+      /* istanbul ignore next */
       throw new Error(`can't understand start of expenseChartFocus`);
     }
   }
@@ -5384,8 +5402,18 @@ function getEvaluationsROI(model: ModelData) {
 
 export class EvaluationHelper {
   public reporter: ReportValueChecker | undefined;
-  public maxReportSize = 400;
-  public frequency: string = monthly;
+  public maxReportSize: number;
+  public frequency: string;
+
+  constructor(
+    reporter: ReportValueChecker | undefined,
+    maxReportSize: number,
+    frequency: string,
+  ) {
+    this.reporter = reporter;
+    this.maxReportSize = maxReportSize;
+    this.frequency = frequency;
+  }
 }
 
 function getEvaluationsInternal(
@@ -5849,8 +5877,12 @@ export function getEvaluations(
     }
 
     // log(`START FIRST EVALUATIONS for ${model.name}`);
+    let freq = monthly;
+    if (helper) {
+      freq = helper.frequency;
+    }
     const adjustedEvals = getEvaluationsInternal(adjustedModel, {
-      frequency: helper ? helper.frequency : monthly,
+      frequency: freq,
       maxReportSize: 0,
       reporter: undefined,
     });

@@ -18,7 +18,6 @@ import {
 import {
   deleteIncome,
   doShowTodaysValueColumns,
-  getOption,
   submitIncome,
   submitTransaction,
   submitTrigger,

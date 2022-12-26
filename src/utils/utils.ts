@@ -14,8 +14,12 @@ export function log(obj: string | Map<any, any> | boolean) {
     /* eslint-enable no-console */
   }
 }
+
+/* istanbul ignore next */
 export function saveLogs() {
+  /* istanbul ignore next */
   const blob = new Blob([logText], { type: 'text/plain;charset=utf-8' });
+  /* istanbul ignore next */
   FileSaver.saveAs(blob, `logs.txt`);
 }
 

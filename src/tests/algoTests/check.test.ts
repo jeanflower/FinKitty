@@ -952,4 +952,157 @@ describe('checks tests', () => {
     unSuppressLogs();
     expect(checkData(model)).toEqual('');
   });
+
+  it('has proportional transaction blocked for string-valued asset', (done) => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'March 1, 2018 00:00:00',
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: 'Sell all Stff',
+          FROM: 'Stff',
+          FROM_ABSOLUTE: false,
+          FROM_VALUE: '1.0',
+          TO: 'MyCa',
+          TO_ABSOLUTE: false,
+          TO_VALUE: '0.5',
+          DATE: 'January 3 2018',
+        },
+      ],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: 'Stff',
+          START: 'January 2 2018',
+          VALUE: '222',
+          GROWTH: '12',
+        },
+        {
+          ...simpleAsset,
+          NAME: 'MyCa',
+          START: 'January 1 2018',
+          VALUE: 'MyCarValue',
+          GROWTH: '12',
+        },
+      ],
+      settings: [
+        ...defaultModelSettings(roi),
+        {
+          ...simpleSetting,
+          NAME: 'MyCarValue',
+          VALUE: '10',
+        },
+      ],
+    };
+
+    suppressLogs();
+
+    expect(checkData(model)).toEqual(
+      `Dont allow a proportional transaction to a word-valued asset`,
+    );
+
+    unSuppressLogs();
+    done();
+  });
+  it('has proportional transaction blocked for string-valued income', (done) => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'March 1, 2018 00:00:00',
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: 'Revalue PRound',
+          FROM: '',
+          FROM_ABSOLUTE: false,
+          FROM_VALUE: '1.0',
+          TO: 'PRound',
+          TO_ABSOLUTE: false,
+          TO_VALUE: '0.5',
+          DATE: 'January 3 2018',
+        },
+      ],
+      incomes: [
+        {
+          ...simpleIncome,
+          NAME: 'PRound',
+          START: 'January 2 2018',
+          VALUE: 'PRoundValue',
+          CPI_IMMUNE: true,
+        },
+      ],
+      settings: [
+        ...defaultModelSettings(roi),
+        {
+          ...simpleSetting,
+          NAME: 'PRoundValue',
+          VALUE: '10',
+        },
+      ],
+    };
+
+    suppressLogs();
+
+    expect(checkData(model)).toEqual(
+      `Dont allow a proportional transaction to a word-valued income`,
+    );
+
+    unSuppressLogs();
+    done();
+  });
+  it('has proportional transaction blocked for string-valued expense', (done) => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'March 1, 2018 00:00:00',
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: 'Revalue Dogs',
+          FROM: '',
+          FROM_ABSOLUTE: false,
+          FROM_VALUE: '1.0',
+          TO: 'Dogs',
+          TO_ABSOLUTE: false,
+          TO_VALUE: '0.5',
+          DATE: 'January 3 2018',
+        },
+      ],
+      expenses: [
+        {
+          ...simpleExpense,
+          NAME: 'Dogs',
+          START: 'January 2 2018',
+          END: 'January 4 2018',
+          VALUE: 'DogsValue',
+          CPI_IMMUNE: true,
+        },
+      ],
+      settings: [
+        ...defaultModelSettings(roi),
+        {
+          ...simpleSetting,
+          NAME: 'DogsValue',
+          VALUE: '10',
+        },
+      ],
+    };
+
+    suppressLogs();
+
+    expect(checkData(model)).toEqual(
+      `Dont allow a proportional transaction to a word-valued expense`,
+    );
+
+    unSuppressLogs();
+    done();
+  });
 });

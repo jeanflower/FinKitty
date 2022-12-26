@@ -800,6 +800,15 @@ describe('utils tests', () => {
       ),
     ).toEqual('Tue Jan 01 2019');
     cleanedString.cleaned = '';
+    checkTriggerDate('a', [simpleTrigger], varVal, cleanedString);
+    expect(cleanedString.cleaned).toEqual('a');
+    expect(
+      dateAsString(
+        DateFormatType.Test,
+        checkTriggerDate('a+1w', [simpleTrigger], varVal, cleanedString),
+      ),
+    ).toEqual('Mon Jan 08 2018');
+    cleanedString.cleaned = '';
     checkTriggerDate('a+1y', [simpleTrigger], varVal, cleanedString);
     expect(cleanedString.cleaned).toEqual('a+1y');
 
@@ -1726,12 +1735,240 @@ describe('utils tests', () => {
     );
     const oldModelCopy = JSON.parse(JSON.stringify(model2));
 
+    // Change the favourite status of an income
+    model2.incomes[0].FAVOURITE = true;
+
+    // log(`oldModelCopy = ${JSON.stringify(oldModelCopy)}`);
+    let diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      true,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual('TeachingJob: became favourite');
+
+    model2.incomes[0].FAVOURITE = false;
+    oldModelCopy.incomes[0].FAVOURITE = true;
+
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      true,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual('TeachingJob: no longer favourite');
+
+    oldModelCopy.incomes[0].FAVOURITE = false;
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(0);
+
+    // Change the favourite status of an expense
+    model2.expenses[0].FAVOURITE = true;
+
+    // log(`oldModelCopy = ${JSON.stringify(oldModelCopy)}`);
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      true,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual('Look after dogs: became favourite');
+
+    model2.expenses[0].FAVOURITE = false;
+    oldModelCopy.expenses[0].FAVOURITE = true;
+
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      true,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual('Look after dogs: no longer favourite');
+
+    oldModelCopy.expenses[0].FAVOURITE = false;
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(0);
+
+    // Change the favourite status of an asset
+    model2.assets[0].FAVOURITE = true;
+
+    // log(`oldModelCopy = ${JSON.stringify(oldModelCopy)}`);
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      true,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual('Cash: became favourite');
+
+    model2.assets[0].FAVOURITE = false;
+    oldModelCopy.assets[0].FAVOURITE = true;
+
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      true,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual('Cash: no longer favourite');
+
+    oldModelCopy.assets[0].FAVOURITE = false;
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(0);
+
+    // Change the favourite status of a setting
+    model2.settings[0].FAVOURITE = true;
+
+    // log(`oldModelCopy = ${JSON.stringify(oldModelCopy)}`);
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      true,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual(`Today's value focus date: became favourite`);
+
+    model2.settings[0].FAVOURITE = false;
+    oldModelCopy.settings[0].FAVOURITE = true;
+
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      true,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual(
+      `Today's value focus date: no longer favourite`,
+    );
+
+    oldModelCopy.settings[0].FAVOURITE = false;
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(0);
+
+    // Change the favourite status of a transaction
+    model2.transactions[0].FAVOURITE = true;
+
+    // log(`oldModelCopy = ${JSON.stringify(oldModelCopy)}`);
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      true,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual(
+      '-PT TeachersPensionScheme: became favourite',
+    );
+
+    model2.transactions[0].FAVOURITE = false;
+    oldModelCopy.transactions[0].FAVOURITE = true;
+
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      true,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual(
+      '-PT TeachersPensionScheme: no longer favourite',
+    );
+
+    oldModelCopy.transactions[0].FAVOURITE = false;
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(0);
+
+    // Change the favourite status of a trigger
+    model2.triggers[0].FAVOURITE = true;
+
+    // log(`oldModelCopy = ${JSON.stringify(oldModelCopy)}`);
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      true,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual('PensionTransfers: became favourite');
+
+    model2.triggers[0].FAVOURITE = false;
+    oldModelCopy.triggers[0].FAVOURITE = true;
+
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      true,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual('PensionTransfers: no longer favourite');
+
+    oldModelCopy.triggers[0].FAVOURITE = false;
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      'model',
+      'oldModelCopy',
+    );
+    expect(diffResult.length).toBe(0);
+
     // Change the date of the first trigger
     // {"NAME":"PensionTransfers","DATE":"1 Jan 2035"}
     model2.triggers[0].DATE = '1 Feb 2035';
 
     // log(`oldModelCopy = ${JSON.stringify(oldModelCopy)}`);
-    let diffResult = diffModels(
+    diffResult = diffModels(
       model2,
       oldModelCopy,
       true,
