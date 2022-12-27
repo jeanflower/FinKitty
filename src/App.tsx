@@ -1527,7 +1527,7 @@ function AlertDismissibleExample(props: {
   return (
     <>
       <Alert show={show} variant={variant}>
-        <div id="pageTitle" key="pageTitle">
+        <div id="alert-message" key="alert-message">
           {props.message}
         </div>
         <Button
@@ -1537,6 +1537,7 @@ function AlertDismissibleExample(props: {
           }}
           variant={`outline-${variant}`}
           id="btn-clear-alert"
+          key="btn-clear-alert"
         >
           OK
         </Button>
@@ -2789,6 +2790,7 @@ export class AppContent extends Component<AppProps, AppState> {
             // log(`setState for clear alert`);
             this.setState({ alertText: '' });
           }}
+          key={'alert-button'}
         />,
       );
     }
