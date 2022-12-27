@@ -118,7 +118,7 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
             this.props.model.triggers,
             v,
           ).getTime();
-          // this puts trigers seperate from dates
+          // this puts triggers seperate from dates
           // const aTimeVal = new Date(aVal).getTime();
           // const bTimeVal = new Date(bVal).getTime();
           // log(`aTimeVal = ${aTimeVal}, bTimeVal = ${bTimeVal}`);
@@ -139,7 +139,13 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
         } else if (
           sortColumn === 'VALUE' ||
           sortColumn === 'FROM_VALUE' ||
-          sortColumn === 'TO_VALUE'
+          sortColumn === 'TO_VALUE' ||
+          sortColumn === 'OLD_VALUE' ||
+          sortColumn === 'NEW_VALUE' ||
+          sortColumn === 'CHANGE' ||
+          sortColumn === 'QOLD_VALUE' ||
+          sortColumn === 'QNEW_VALUE' ||
+          sortColumn === 'QCHANGE'
         ) {
           if (aVal.endsWith('%') && !bVal.endsWith('%')) {
             return this.state.sortDirection === 'ASC' ? +1 : -1;
