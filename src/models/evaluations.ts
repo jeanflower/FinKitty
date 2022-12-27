@@ -115,7 +115,7 @@ function parseRecurrenceString(recurrence: string) {
 export function generateSequenceOfDates(
   roi: Interval,
   frequency: string /* e.g. 1m or 1y */,
-  addPreDate = false,
+  addPreDate = false, // for charting
 ): Date[] {
   // numCalls = numCalls + 1;
   // log(`numCalls = ${numCalls}`);
@@ -127,7 +127,7 @@ export function generateSequenceOfDates(
   const wFreq = freq.frequency === weekly;
 
   if (addPreDate) {
-    // add a pre-dates before roi
+    // add a pre-dates before roi - always either 1w, 1m or 1y prior
     const preDate = new Date(roi.start);
     if (frequency === '1m') {
       preDate.setMonth(preDate.getMonth() - 1);
@@ -2713,6 +2713,7 @@ function getRecurrentMoments(
     END: string; // trigger string
     VALUE: string;
     VALUE_SET: string; // trigger string
+    RECURRENCE: string;
   },
   prepType: string,
   type: string,
@@ -2720,7 +2721,6 @@ function getRecurrentMoments(
   startSequenceFrom: Date,
   startExpenseOrIncomeDate: Date,
   rOIEndDate: Date,
-  recurrence: string,
 ) {
   const v = getVarVal(model.settings);
   // log(`in getRecurrentMoments`);
@@ -2732,7 +2732,7 @@ function getRecurrentMoments(
     start: startSequenceFrom,
     end: endDate,
   };
-  const dates = generateSequenceOfDates(roi, recurrence);
+  const dates = generateSequenceOfDates(roi, x.RECURRENCE);
   const newMoments: Moment[] = dates.map((date) => {
     let typeForMoment = type;
     if (date < startExpenseOrIncomeDate) {
@@ -4310,6 +4310,30 @@ class ValuesContainer {
   }
 }
 
+function shiftDate(
+  oldDate: Date,
+  recurrence: string, // TODO
+  stepCount: number,
+): Date {
+  const freq = parseRecurrenceString(recurrence);
+  if (freq.frequency === monthly) {
+    const newDate = oldDate;
+    newDate.setMonth(oldDate.getMonth() + stepCount * freq.count);
+    return newDate;
+  } else if (freq.frequency === weekly) {
+    const newDate = oldDate;
+    newDate.setDate(oldDate.getDate() + 7 * stepCount * freq.count);
+    return newDate;
+  } else if (freq.frequency === annually) {
+    const newDate = oldDate;
+    newDate.setFullYear(oldDate.getFullYear() + stepCount * freq.count);
+    return newDate;
+  } else {
+    log('Error : unsupported recurrence');
+    return oldDate;
+  }
+}
+
 function generateMoments(
   model: ModelData,
   frequency: string,
@@ -4335,10 +4359,6 @@ function generateMoments(
     // first expense.  Later expense values are not
     // set here, but the 'moment' at which the expense
     // changes is set here.
-    let cpiVal = cpiInitialVal;
-    if (expense.CPI_IMMUNE) {
-      cpiVal = 0.0;
-    }
     logIncomeOrExpenseGrowth(expense, growths);
     const expenseStart = getTriggerDate(expense.START, model.triggers, v);
 
@@ -4359,7 +4379,6 @@ function generateMoments(
       expenseStart,
       expenseStart,
       roiEndDate,
-      expense.RECURRENCE,
     );
     if (
       newMoments.length > 0 &&
@@ -4395,10 +4414,6 @@ function generateMoments(
     // first income.  Later income values are not
     // set here, but the 'moment' at which the income
     // changes is set here.
-    let cpiVal = cpiInitialVal;
-    if (income.CPI_IMMUNE) {
-      cpiVal = 0.0;
-    }
     logIncomeOrExpenseGrowth(income, growths);
     const incomeStart = getTriggerDate(income.START, model.triggers, v);
     let shiftStartBackTo = new Date(incomeStart);
@@ -4436,11 +4451,13 @@ function generateMoments(
     //  but shift back to ${shiftStartBackTo}`);
 
     shiftStartBackTo.setMonth(shiftStartBackTo.getMonth() + 1);
-    const startSequenceFrom = new Date(incomeStart);
+    let startSequenceFrom = new Date(incomeStart);
     let numAdjustments = 0;
     while (shiftStartBackTo <= startSequenceFrom) {
       // log(`shift ${startSequenceFrom} back towards ${shiftStartBackTo}`);
-      startSequenceFrom.setMonth(startSequenceFrom.getMonth() - 1);
+
+      startSequenceFrom = shiftDate(startSequenceFrom, income.RECURRENCE, -1);
+
       numAdjustments += 1;
       /* istanbul ignore if */
       if (numAdjustments > 1000) {
@@ -4461,7 +4478,6 @@ function generateMoments(
       startSequenceFrom,
       incomeStart,
       roiEndDate,
-      '1m', // all incomes are received monthly
     );
     allMoments = allMoments.concat(newMoments);
     liabilitiesMap.set(income.NAME, income.LIABILITY);

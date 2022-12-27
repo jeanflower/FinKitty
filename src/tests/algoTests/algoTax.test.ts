@@ -1754,6 +1754,118 @@ describe('tax tests', () => {
     done();
   });
 
+  it('payLowTax on two 2w income payment', (done) => {
+    const roi = {
+      start: 'March 1, 2018 00:00:00',
+      end: 'May 10, 2018 00:00:00',
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      incomes: [
+        {
+          ...simpleIncome,
+          START: 'March 1 2018',
+          END: 'April 2 2018',
+          NAME: 'PRnd',
+          VALUE: '2501',
+          VALUE_SET: 'January 1 2018',
+          LIABILITY: 'Joe' + incomeTax,
+          RECURRENCE: '1w',
+        },
+      ],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
+          START: 'March 1 2018',
+          VALUE: '500',
+        },
+      ],
+      settings: [...defaultModelSettings(roi)],
+    };
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+    // log(`evals = ${showObj(evals)}`);
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(17);
+    expectEvals(evals, 0, 'Cash', 'Thu Mar 01 2018', 500, -1);
+    expectEvals(evals, 1, 'PRnd', 'Thu Mar 01 2018', 2501, -1);
+    expectEvals(evals, 2, 'Cash', 'Thu Mar 01 2018', 3001, -1);
+    expectEvals(evals, 3, 'Cash', 'Mon Mar 05 2018', 2709.14, 2);
+    expectEvals(evals, 4, 'PRnd', 'Thu Mar 08 2018', 2501, -1);
+    expectEvals(evals, 5, 'Cash', 'Thu Mar 08 2018', 5210.14, 2);
+    expectEvals(evals, 6, 'PRnd', 'Thu Mar 15 2018', 2501, -1);
+    expectEvals(evals, 7, 'Cash', 'Thu Mar 15 2018', 7711.14, 2);
+    expectEvals(evals, 8, 'PRnd', 'Thu Mar 22 2018', 2501, -1);
+    expectEvals(evals, 9, 'Cash', 'Thu Mar 22 2018', 10212.14, 2);
+    expectEvals(evals, 10, 'PRnd', 'Thu Mar 29 2018', 2501, -1);
+    expectEvals(evals, 11, 'Cash', 'Thu Mar 29 2018', 12713.14, 2);
+    expectEvals(evals, 12, 'Cash', 'Sun Apr 01 2018', 12713.14, 2);
+    expectEvals(evals, 13, 'Cash', 'Thu Apr 05 2018', 13004, -1);
+    expectEvals(evals, 14, '(incomeTax)', 'Thu Apr 05 2018', 1, -1);
+    expectEvals(evals, 15, 'Joe income (net)', 'Thu Apr 05 2018', 12504, -1);
+    expectEvals(evals, 16, 'Cash', 'Tue May 01 2018', 13004, -1);
+
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
+
+    // log(showObj(result));
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(1);
+    expect(result.incomesData[0].item.NAME).toBe('PRnd');
+    {
+    const chartPts = result.incomesData[0].chartDataPoints;
+    expect(chartPts.length).toBe(3);
+    expectChartData(chartPts, 0, 'Thu Mar 01 2018', 2501, -1);
+    expectChartData(chartPts, 1, 'Sun Apr 01 2018', 10004, -1);
+    expectChartData(chartPts, 2, 'Tue May 01 2018', 0, -1);
+    }
+    
+    expect(result.assetData.length).toBe(1);
+    expect(result.assetData[0].item.NAME).toBe('Cash');
+    {
+    const chartPts = result.assetData[0].chartDataPoints;
+    expect(chartPts.length).toBe(3);
+    expectChartData(chartPts, 0, 'Thu Mar 01 2018', 3001, -1);
+    expectChartData(chartPts, 1, 'Sun Apr 01 2018', 12713.14, 2);
+    expectChartData(chartPts, 2, 'Tue May 01 2018', 13004, -1);
+    }
+    
+    expect(result.debtData.length).toBe(0);
+    expect(result.taxData.length).toBe(2);
+    expect(result.taxData[0].item.NAME).toBe('Joe income (incomeTax)');
+    {
+    const chartPts = result.taxData[0].chartDataPoints;
+    expect(chartPts.length).toBe(3);
+    expectChartData(chartPts, 0, 'Thu Mar 01 2018', 0, -1);
+    expectChartData(chartPts, 1, 'Sun Apr 01 2018', 0, -1);
+    expectChartData(chartPts, 2, 'Tue May 01 2018', 1, -1);
+    }
+    
+    expect(result.taxData[1].item.NAME).toBe('Joe income (net)');
+    {
+    const chartPts = result.taxData[1].chartDataPoints;
+    expect(chartPts.length).toBe(3);
+    expectChartData(chartPts, 0, 'Thu Mar 01 2018', 0, -1);
+    expectChartData(chartPts, 1, 'Sun Apr 01 2018', 0, -1);
+    expectChartData(chartPts, 2, 'Tue May 01 2018', 12504, -1);
+    }
+    
+    done();
+  });
+
   it('tax exempt on single income payment', (done) => {
     const roi = {
       start: 'April 1, 2018 00:00:00',
