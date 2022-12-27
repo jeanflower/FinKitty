@@ -710,6 +710,12 @@ export async function refreshData(
   // log(
   //   `refreshData called refreshModel = ${refreshModel}, refreshChart = ${refreshChart} from sourceID = ${sourceID}`,
   // );
+  if (refreshModel) {
+    // log('in refreshData with refreshModel = true');
+  }
+  if (refreshChart) {
+    // log('in refreshData with refreshChart = true');
+  }
   if (getDisplay(optimizerView)) {
     const viewSettings = reactAppComponent.state.viewState;
     const reporter: ReportValueChecker = () =>
@@ -2553,6 +2559,8 @@ export class AppContent extends Component<AppProps, AppState> {
         viewIterator = it.next();
         continue;
       }
+      let refreshModel = false;
+
       const viewValue = views.get(view);
       if (viewValue === undefined) {
         log(`Error : unrecognised view ${view}`);
@@ -2567,9 +2575,12 @@ export class AppContent extends Component<AppProps, AppState> {
         viewIterator = it.next();
         continue;
       }
-      if (view.lc === reportView.lc && !doShowAssetActionsButton()) {
-        viewIterator = it.next();
-        continue;
+      if (view.lc === reportView.lc) {
+        if (!doShowAssetActionsButton()) {
+          viewIterator = it.next();
+          continue;
+        }
+        refreshModel = true;
       }
       if (view.lc === optimizerView.lc && !doShowOptimiserButton()) {
         viewIterator = it.next();
@@ -2584,7 +2595,7 @@ export class AppContent extends Component<AppProps, AppState> {
             event.persist();
             toggle(
               view,
-              false, // refreshModel
+              refreshModel, // refreshModel
               false, // refreshChart
               24, //sourceID
             );
