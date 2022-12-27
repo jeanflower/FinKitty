@@ -387,6 +387,7 @@ export const simpleIncome: Income = {
   VALUE: '0',
   VALUE_SET: '1 Jan 2017',
   CPI_IMMUNE: false,
+  RECURRENCE: '1m',
   LIABILITY: '',
 };
 export const simpleTransaction: Transaction = {
@@ -1410,6 +1411,7 @@ function getBenAndJerryModel(): ModelData {
     ],
     incomes: [
       {
+        ...simpleIncome,
         START: 'Jerry state pension age',
         END: 'Ben dies',
         NAME: `${pensionTransfer}Jerry work`,
@@ -1421,6 +1423,7 @@ function getBenAndJerryModel(): ModelData {
         CATEGORY: 'Pension',
       },
       {
+        ...simpleIncome,
         START: 'Jerry state pension age',
         END: 'Jerry dies',
         NAME: `${pensionDB}Jerry work`,
@@ -1432,6 +1435,7 @@ function getBenAndJerryModel(): ModelData {
         CATEGORY: 'Pension',
       },
       {
+        ...simpleIncome,
         START: 'Jerry state pension age',
         END: 'Jerry dies',
         NAME: `${pensionDB}Jerry state pension`,
@@ -1443,6 +1447,7 @@ function getBenAndJerryModel(): ModelData {
         CATEGORY: 'Pension',
       },
       {
+        ...simpleIncome,
         START: 'Ben state pension age',
         END: 'Ben dies',
         NAME: `${pensionDB}Ben state pension`,
@@ -1454,6 +1459,7 @@ function getBenAndJerryModel(): ModelData {
         CATEGORY: 'Pension',
       },
       {
+        ...simpleIncome,
         NAME: 'Jerry salary',
         FAVOURITE: undefined,
         VALUE: '2755',
@@ -1465,6 +1471,7 @@ function getBenAndJerryModel(): ModelData {
         CATEGORY: 'Salary',
       },
       {
+        ...simpleIncome,
         NAME: 'Ben salary',
         FAVOURITE: undefined,
         VALUE: '3470',

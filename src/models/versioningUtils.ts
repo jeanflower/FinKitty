@@ -44,10 +44,12 @@ import { migrateViewSetting } from '../App';
 // 4; // still includes many view settings
 // 5; // still includes English-language special words
 // 6; // uses -DC for pensions, even if they're DB pensions
-// 7; // uses one cyrstallizedPension pot per person
+// 7; // has one crystallizedPension pot for everyone
 // 8; // may have non-zero growth for incomes and expenses
-// 9: // revalue transactions numbers using double-digit scheme
-const currentVersion = 10;
+// 9: // revalue transactions numbers didn't yet use double-digit scheme
+// 10: // incomes were all recurrence of 1m
+
+const currentVersion = 11;
 
 export function getCurrentVersion() {
   return currentVersion;
@@ -621,6 +623,16 @@ function migrateFromV9(model: ModelData) {
     });
   model.version = 10;
 }
+function migrateFromV10(model: ModelData) {
+  // log(`migrate from v10`);
+  model.incomes.forEach((i) => {
+    // log(`incomes were all 1m recurrence');
+    if (i.RECURRENCE === undefined) {
+      i.RECURRENCE = '1m';
+    }
+  });
+  model.version = 11;
+}
 
 /*
 function migrateFromV10(model: ModelData){
@@ -663,9 +675,12 @@ export function migrateOldVersions(model: ModelDataFromFile) {
   if (model.version === 9) {
     migrateFromV9(model);
   }
-  /*
   if (model.version === 10) {
     migrateFromV10(model);
+  }
+  /*
+  if (model.version === 11) {
+    migrateFromV11(model);
   }
   */
   // log(`model after migration is ${showObj(model)}`);

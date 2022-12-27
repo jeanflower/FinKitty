@@ -46,6 +46,7 @@ import {
   GrowthData,
   Expense,
   Income,
+  IncomeOrExpense,
 } from '../types/interfaces';
 import {
   DateFormatType,
@@ -77,6 +78,9 @@ import {
 } from './modelUtils';
 
 function parseRecurrenceString(recurrence: string) {
+  if (recurrence === undefined) {
+    log('Error : undefined recurrence string!!');
+  }
   const result = {
     frequency: '', // weekly, monthly or annual
     count: 0,
@@ -2460,9 +2464,8 @@ function handleIncome(
   // log(`finished handleIncome`);
 }
 
-function logExpenseGrowth(
-  x: Expense,
-  cpiVal: number,
+function logIncomeOrExpenseGrowth(
+  x: IncomeOrExpense,
   growths: Map<string, GrowthData>,
 ) {
   // if(cpiVal > 0 && (expenseGrowth > 0 || adaptedExpenseGrowth > 0)){
@@ -2482,23 +2485,6 @@ function logExpenseGrowth(
   growths.set(x.NAME, {
     itemGrowth: '0.0',
     powerByNumMonths: power,
-    scale: 0.0,
-    applyCPI: !x.CPI_IMMUNE,
-  });
-}
-
-function logIncomeGrowth(
-  x: Income,
-  cpiVal: number,
-  growths: Map<string, GrowthData>,
-) {
-  // if(cpiVal > 0 && (growth > 0 || adaptedGrowth > 0)){
-  //   log(`from ${growth}, use cpi ${cpiVal} to create adaptedExpenseGrowth = ${getMonthlyGrowth(adaptedGrowth)}`);
-  // }
-
-  growths.set(x.NAME, {
-    itemGrowth: '0.0',
-    powerByNumMonths: 1,
     scale: 0.0,
     applyCPI: !x.CPI_IMMUNE,
   });
@@ -4353,7 +4339,7 @@ function generateMoments(
     if (expense.CPI_IMMUNE) {
       cpiVal = 0.0;
     }
-    logExpenseGrowth(expense, cpiVal, growths);
+    logIncomeOrExpenseGrowth(expense, growths);
     const expenseStart = getTriggerDate(expense.START, model.triggers, v);
 
     const expenseSetDate = getTriggerDate(expense.VALUE_SET, model.triggers, v);
@@ -4413,7 +4399,7 @@ function generateMoments(
     if (income.CPI_IMMUNE) {
       cpiVal = 0.0;
     }
-    logIncomeGrowth(income, cpiVal, growths);
+    logIncomeOrExpenseGrowth(income, growths);
     const incomeStart = getTriggerDate(income.START, model.triggers, v);
     let shiftStartBackTo = new Date(incomeStart);
 

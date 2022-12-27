@@ -31,10 +31,9 @@ export interface IncomeOrExpense extends ItemCategory {
   VALUE: string;
   VALUE_SET: string;
   CPI_IMMUNE: boolean;
-}
-export interface Expense extends IncomeOrExpense {
   RECURRENCE: string;
 }
+export type Expense = IncomeOrExpense;
 export interface Income extends IncomeOrExpense {
   LIABILITY: string; // e.g. "IncomeTaxJoe NIJoe"
 }

@@ -293,6 +293,24 @@ export function checkIncomeLiability(l: string) {
   }
   return '';
 }
+
+function checkRecurrence(descriptor: string, rec: string) {
+  const lastChar = rec.substring(rec.length - 1);
+  // log(`lastChar of ${rec} = ${lastChar}`);
+  if (!(lastChar === 'm' || lastChar === 'y' || lastChar === 'w')) {
+    return `${descriptor} recurrence '${rec}' must end in w, m or y`;
+  }
+  const firstPart = rec.substring(0, rec.length - 1);
+  // log(`firstPart of ${rec} = ${firstPart}`);
+
+  const val = parseFloat(firstPart);
+  // log(`val from ${rec} = ${val}`);
+  if (Number.isNaN(val)) {
+    return `${descriptor} recurrence '${rec}' must be a number ending in w, m or y`;
+  }
+  return '';
+}
+
 export function checkIncome(i: Income, model: ModelData): string {
   if (i.NAME.length === 0) {
     return 'Income name needs some characters';
@@ -376,22 +394,9 @@ export function checkIncome(i: Income, model: ModelData): string {
     )} and
       value is set ${dateAsString(DateFormatType.View, valueSetDate)}.`;
   }
-  return '';
-}
-
-function checkRecurrence(rec: string) {
-  const lastChar = rec.substring(rec.length - 1);
-  // log(`lastChar of ${rec} = ${lastChar}`);
-  if (!(lastChar === 'm' || lastChar === 'y' || lastChar === 'w')) {
-    return `transaction recurrence '${rec}' must end in w, m or y`;
-  }
-  const firstPart = rec.substring(0, rec.length - 1);
-  // log(`firstPart of ${rec} = ${firstPart}`);
-
-  const val = parseFloat(firstPart);
-  // log(`val from ${rec} = ${val}`);
-  if (Number.isNaN(val)) {
-    return `transaction recurrence '${rec}' must be a number ending in w, m or y`;
+  const checkRec = checkRecurrence('income', i.RECURRENCE);
+  if (checkRec !== '') {
+    return checkRec;
   }
   return '';
 }
@@ -445,7 +450,7 @@ export function checkExpense(e: Expense, model: ModelData): string {
     }
   }
 
-  const checkRec = checkRecurrence(e.RECURRENCE);
+  const checkRec = checkRecurrence('expense', e.RECURRENCE);
   if (checkRec !== '') {
     return checkRec;
   }
@@ -1071,7 +1076,7 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
       );
     }
 
-    const checkRec = checkRecurrence(t.RECURRENCE);
+    const checkRec = checkRecurrence('transaction', t.RECURRENCE);
     if (checkRec !== '') {
       return checkRec;
     }

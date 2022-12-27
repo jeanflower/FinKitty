@@ -317,6 +317,7 @@ function handleIncomeGridRowsUpdated(
         VALUE: incValue,
         VALUE_SET: income.VALUE_SET,
         CPI_IMMUNE: !parsedGrowsWithCPI.value,
+        RECURRENCE: income.RECURRENCE,
         LIABILITY: income.LIABILITY,
       };
       const checks = checkIncome(incomeForSubmission, model);
@@ -344,6 +345,7 @@ function handleIncomeGridRowsUpdated(
       VALUE: incValue,
       VALUE_SET: income.VALUE_SET,
       CPI_IMMUNE: !parsedGrowsWithCPI.value,
+      RECURRENCE: income.RECURRENCE,
       LIABILITY: income.LIABILITY,
     };
     submitIncome(incomeForSubmission, model);
@@ -1637,6 +1639,7 @@ function incomesForTable(
         VALUE: obj.VALUE,
         VALUE_SET: obj.VALUE_SET,
         LIABILITY: obj.LIABILITY,
+        RECURRENCE: obj.RECURRENCE,
         CATEGORY: obj.CATEGORY,
         TODAYSVALUE: `${todaysVForTable}`,
       };
@@ -1731,6 +1734,12 @@ function incomesTableDiv(
       key: 'LIABILITY',
       name: 'tax Liability',
       formatter: <SimpleFormatter name="tax Liability" value="unset" />,
+    },
+    {
+      ...defaultColumn,
+      key: 'RECURRENCE',
+      name: 'recurrence',
+      formatter: <SimpleFormatter name="recurrence" value="unset" />,
     },
     {
       ...defaultColumn,

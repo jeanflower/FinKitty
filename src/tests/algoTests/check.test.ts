@@ -396,6 +396,16 @@ describe('checks tests', () => {
     ).toEqual(`Income value must be set on or before the start of the income.
       For a, start is 01 Jan 2020 and
       value is set 01 Jan 2021.`);
+    expect(
+      checkIncome(
+        {
+          ...simpleIncome,
+          RECURRENCE: 'nonsense',
+        },
+        model,
+      ),
+    ).toEqual(`income recurrence 'nonsense' must end in w, m or y`);
+
     model.assets.push({
       ...simpleAsset,
       NAME: 'TaxPot',
@@ -830,7 +840,7 @@ describe('checks tests', () => {
         },
         model,
       ),
-    ).toEqual(`transaction recurrence 'nonsense' must end in w, m or y`);
+    ).toEqual(`expense recurrence 'nonsense' must end in w, m or y`);
 
     unSuppressLogs();
   });

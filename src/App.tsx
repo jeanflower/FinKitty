@@ -1527,7 +1527,7 @@ function AlertDismissibleExample(props: {
   return (
     <>
       <Alert show={show} variant={variant}>
-        <div id="alert-message" key="alert-message">
+        <div id="pageTitle" key="pageTitle">
           {props.message}
         </div>
         <Button

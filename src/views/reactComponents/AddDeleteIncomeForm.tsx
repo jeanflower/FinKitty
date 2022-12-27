@@ -50,6 +50,7 @@ interface EditIncomeFormState {
   END: string;
   GROWS_WITH_CPI: string;
   LIABILITY: string;
+  RECURRENCE: string;
   CATEGORY: string;
   inputting: string;
   DB_INCOME_SOURCE: string;
@@ -151,6 +152,7 @@ export class AddDeleteIncomeForm extends Component<
       END: '',
       GROWS_WITH_CPI: '',
       LIABILITY: '',
+      RECURRENCE: '1m',
       CATEGORY: '',
       inputting: inputtingIncome,
       DB_INCOME_SOURCE: '',
@@ -913,6 +915,7 @@ DB_TRANSFERRED_STOP
         VALUE_SET: this.state.VALUE_SET,
         LIABILITY: inputLiability,
         CPI_IMMUNE: !parseYNGrowsWithCPI.value,
+        RECURRENCE: this.state.RECURRENCE,
         CATEGORY: this.state.CATEGORY,
       };
       let message = await this.props.checkIncomeFunction(
@@ -936,6 +939,7 @@ DB_TRANSFERRED_STOP
           VALUE_SET: this.state.VALUE_SET,
           LIABILITY: builtLiability2,
           CPI_IMMUNE: !parseYNGrowsWithCPI.value,
+          RECURRENCE: this.state.RECURRENCE,
           CATEGORY: this.state.CATEGORY,
         };
         const message = await this.props.checkIncomeFunction(
@@ -1131,6 +1135,7 @@ DB_TRANSFERRED_STOP
       END: this.state.END,
       CPI_IMMUNE: !parseYNGrowsWithCPI.value,
       LIABILITY: builtLiability,
+      RECURRENCE: this.state.RECURRENCE,
       CATEGORY: this.state.CATEGORY,
     };
     const message = await this.props.checkIncomeFunction(
