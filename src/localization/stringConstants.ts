@@ -16,6 +16,7 @@ export const taxPot = 'TaxPot';
 export const cpi = 'cpi';
 export const cpiHint = 'Annual rate of inflation';
 export const baseForCPI = 'base';
+export const annualBaseForCPI = 'annualBase';
 
 // All models include these settings which control the view:
 // date range for charts

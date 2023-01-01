@@ -28,6 +28,7 @@ import {
   bondInterest,
   weekly,
   tracking,
+  annualBaseForCPI,
 } from '../localization/stringConstants';
 import {
   DatedThing,
@@ -365,21 +366,28 @@ function getNumberValue(
   }
   return result;
 }
+
+interface growthType {
+  adjustForCPI: boolean;
+  annualCPI: boolean; // or monthly
+  scale: number;
+  baseVal: number;
+}
+
 function growthData(
   name: string,
   growths: Map<string, GrowthData>,
   values: ValuesContainer,
   checkAssertion = true,
-): {
-  adjustForCPI: boolean;
-  scale: number;
-} {
+): growthType {
   const g = growths.get(name);
 
   if (!g) {
     return {
       adjustForCPI: false,
+      annualCPI: false,
       scale: 0.0,
+      baseVal: 1.0,
     };
   }
   let scale = 0.0;
@@ -432,10 +440,28 @@ function growthData(
     //throw new Error();
   }
 
+  const baseVal = getNumberValue(values, getBaseForCPI(name, g.annualCPI));
+  /* istanbul ignore if  */ //error
+  if (baseVal === undefined) {
+    log('Error: baseVal undefined for growth data!');
+  }
+
   return {
     adjustForCPI: g.applyCPI,
+    annualCPI: g.annualCPI,
     scale: scale,
+    baseVal: baseVal ? baseVal : 1.0,
   };
+}
+
+function getBaseForCPI(name: string, isAnnual: boolean) {
+  if (printDebug()) {
+    log(`TODO: use ${name} to get a setting name, default is baseForCPI`);
+  }
+  if (isAnnual /*|| name === 'PRnd'*/) {
+    return annualBaseForCPI;
+  }
+  return baseForCPI;
 }
 
 function traceEvaluation(
@@ -528,11 +554,10 @@ function traceEvaluation(
         }
       } else {
         //log(`calculate ${numberPart} * ${settingForWordPart} = ${numberPart * settingForWordPart}`);
-        if (growthData(wordPart, growths, values).adjustForCPI) {
-          const b = values.get(baseForCPI);
-          if (b && typeof b === 'number') {
-            valueForWordPart *= b;
-          }
+        const gd = growthData(wordPart, growths, values);
+        if (gd.adjustForCPI) {
+          const baseVal = gd.baseVal;
+          valueForWordPart *= baseVal;
         }
         result = numberPart * valueForWordPart;
       }
@@ -597,16 +622,15 @@ function setValue(
   if (printNet || printReal) {
     let realExistingValue = existingValue;
     let realNewValue = newValue;
+    const gd = growthData(name, growths, values);
     if (
       typeof realExistingValue === 'number' &&
       typeof realNewValue === 'number' &&
-      growthData(name, growths, values).adjustForCPI
+      gd.adjustForCPI
     ) {
-      const baseVal = getNumberValue(values, baseForCPI);
-      if (baseVal !== undefined) {
-        realExistingValue *= baseVal;
-        realNewValue *= baseVal;
-      }
+      const baseVal = gd.baseVal;
+      realExistingValue *= baseVal;
+      realNewValue *= baseVal;
     }
     if (printNet) {
       if (existingValue === undefined) {
@@ -665,17 +689,13 @@ function setValue(
     let valForEvaluations = numberVal;
     let oldValForEvaluations = oldNumberVal;
     let baseVal: number | undefined;
-    if (growthData(name, growths, values).adjustForCPI) {
-      baseVal = getNumberValue(values, baseForCPI);
-      /* istanbul ignore else  */ //error
-      if (baseVal) {
-        const newValForEvaluations = valForEvaluations * baseVal;
-        // log(`scale ${valForEvaluations} by baseVal = ${baseVal} to give ${newValForEvaluations}`);
-        valForEvaluations = newValForEvaluations;
-        oldValForEvaluations = oldValForEvaluations * baseVal;
-      } else {
-        log(`Error: missing or zero base value!`);
-      }
+    const gd = growthData(name, growths, values);
+    if (gd.adjustForCPI) {
+      baseVal = gd.baseVal;
+      const newValForEvaluations = valForEvaluations * baseVal;
+      // log(`scale ${valForEvaluations} by baseVal = ${baseVal} to give ${newValForEvaluations}`);
+      valForEvaluations = newValForEvaluations;
+      oldValForEvaluations = oldValForEvaluations * baseVal;
     }
     /*
     if (name.startsWith(quantity)) {
@@ -1159,7 +1179,7 @@ function getTaxBands(
     result = resultFromMap;
 
     const baseVal = getNumberValue(values, baseForCPI);
-    if (baseVal) {
+    if (baseVal !== undefined) {
       // log(`scale by baseVal = ${baseVal}`);
       const noTaxBand = getNumberValue(values, 'noTaxBand');
       const lowTaxBand = getNumberValue(values, 'lowTaxBand');
@@ -1439,17 +1459,12 @@ function adjustCash(
     // without having a cash asset to decrement
   } else {
     let scaleBy: number | undefined;
-    if (
-      cashValue !== undefined &&
-      growthData(CASH_ASSET_NAME, growths, values).adjustForCPI
-    ) {
-      const b = values.get(baseForCPI);
-      // log(`base for CPI is ${b}`);
-      if (b && typeof b === 'number') {
-        scaleBy = b;
-        // log(`for CPI, scaleBy = ${scaleBy}`);
-        cashValue = cashValue * scaleBy;
-      }
+    const gd = growthData(CASH_ASSET_NAME, growths, values);
+    if (cashValue !== undefined && gd.adjustForCPI) {
+      const baseVal = gd.baseVal;
+      scaleBy = baseVal;
+      // log(`for CPI, scaleBy = ${scaleBy}`);
+      cashValue = cashValue * scaleBy;
     }
     let newValue = cashValue + amount;
     // log(`in adjustCash, setValue to ${newValue}`);
@@ -2340,12 +2355,14 @@ function handleIncome(
       }
       let pensionValue = getNumberValue(values, pt.TO, false);
 
-      const scaleBy = getNumberValue(values, baseForCPI);
+      // this base CPI should behave like an income of some kind
+      const baseVal = getNumberValue(values, getBaseForCPI(pt.TO, true));
+
       /* istanbul ignore else */ //error
-      if (scaleBy !== undefined && pensionValue !== undefined) {
-        pensionValue = pensionValue * scaleBy;
-      } else if (scaleBy === undefined) {
-        log(`Error: undefined scaleBy ${scaleBy}`);
+      if (baseVal !== undefined && pensionValue !== undefined) {
+        pensionValue = pensionValue * baseVal;
+      } else if (baseVal === undefined) {
+        log(`Error: undefined baseVal ${baseVal}`);
       }
 
       if (pt.TO === '') {
@@ -2370,8 +2387,8 @@ function handleIncome(
         // log(`new pensionValue is ${pensionValue}`);
         // log(`income source = ${transaction.NAME}`);
         // log('in handleIncome:');
-        if (scaleBy && pensionValue) {
-          pensionValue = pensionValue / scaleBy;
+        if (baseVal !== undefined && pensionValue) {
+          pensionValue = pensionValue / baseVal;
         }
         setValue(
           values,
@@ -2466,6 +2483,7 @@ function handleIncome(
 
 function logIncomeOrExpenseGrowth(
   x: IncomeOrExpense,
+  isIncome: boolean,
   growths: Map<string, GrowthData>,
 ) {
   // if(cpiVal > 0 && (expenseGrowth > 0 || adaptedExpenseGrowth > 0)){
@@ -2487,6 +2505,7 @@ function logIncomeOrExpenseGrowth(
     powerByNumMonths: power,
     scale: 0.0,
     applyCPI: !x.CPI_IMMUNE,
+    annualCPI: isIncome,
   });
 }
 
@@ -2550,6 +2569,7 @@ function logAssetGrowth(
     powerByNumMonths: powerByNumMonths,
     scale: getMonthlyGrowth(adaptedAssetGrowth),
     applyCPI: !asset.CPI_IMMUNE,
+    annualCPI: false,
   });
 }
 
@@ -3061,27 +3081,19 @@ function revalueApplied(
     }
 
     let appliedBaseVal = false;
-    if (
-      t.TO_ABSOLUTE &&
-      typeof tToValue === 'number' &&
-      growthData(w, growths, values).adjustForCPI
-    ) {
-      const baseVal = getNumberValue(values, baseForCPI);
-      /* istanbul ignore else  */ //error
-      if (baseVal) {
-        //log(
-        //  `for ${
-        //    moment.name
-        //  } scale ${tToValue} by baseVal = ${baseVal} to give ${
-        //    tToValue / baseVal
-        //  }`,
-        //);
-        const newValForEvaluations = tToValue / baseVal;
-        tToValue = newValForEvaluations;
-        appliedBaseVal = true;
-      } else {
-        log(`Error: missing or zero base value!`);
-      }
+    const gd = growthData(w, growths, values);
+    if (t.TO_ABSOLUTE && typeof tToValue === 'number' && gd.adjustForCPI) {
+      const baseVal = gd.baseVal;
+      //log(
+      //  `for ${
+      //    moment.name
+      //  } scale ${tToValue} by baseVal = ${baseVal} to give ${
+      //    tToValue / baseVal
+      //  }`,
+      //);
+      const newValForEvaluations = tToValue / baseVal;
+      tToValue = newValForEvaluations;
+      appliedBaseVal = true;
     }
 
     // log(`passing ${t.TO_VALUE} as new value of ${moment.name}`);
@@ -3789,11 +3801,10 @@ function processTransactionFromTo(
     } else {
       newFromValue = preFromValue - fromChange.fromImpact;
       // log(`newFromValue = ${newFromValue}`);
-      if (growthData(fromWord, growths, values).adjustForCPI) {
-        const b = values.get(baseForCPI);
-        if (b && typeof b === 'number') {
-          newFromValue = newFromValue / b;
-        }
+      const gd = growthData(fromWord, growths, values);
+      if (gd.adjustForCPI) {
+        const baseVal = gd.baseVal;
+        newFromValue = newFromValue / baseVal;
       }
     }
     // log(`newFromValue to store = ${newFromValue}`);
@@ -3882,13 +3893,12 @@ function processTransactionFromTo(
         // log('in processTransactionFromTo, setValue:');
         // log(`in processTransactionFromTo, setValue of ${toWord} to ${preToValue + toChange}`);
         let newToValue = preToValue + toChange;
-        if (growthData(toWord, growths, values).adjustForCPI) {
-          const b = values.get(baseForCPI);
-          if (b && typeof b === 'number') {
-            // log(`scale newToValue = ${newToValue} by b = ${b}`);
-            newToValue = newToValue / b;
-            // log(`scaled newToValue = ${newToValue}`);
-          }
+        const gd = growthData(toWord, growths, values);
+        if (gd.adjustForCPI) {
+          const baseVal = gd.baseVal;
+          // log(`scale newToValue = ${newToValue} by b = ${b}`);
+          newToValue = newToValue / baseVal;
+          // log(`scaled newToValue = ${newToValue}`);
         }
         //log(
         //  `for ${t.NAME}, for asset ${t.TO}, write newToValue = ${newToValue}`,
@@ -4008,12 +4018,11 @@ function processTransactionTo(
     } else {
       // log(`value = ${value} will increase by change = ${change}`);
       value += change;
-      if (growthData(t.TO, growths, values).adjustForCPI) {
-        const b = values.get(baseForCPI);
-        if (b && typeof b === 'number') {
-          value = value / b;
-          // log(`scaled value = ${value}`);
-        }
+      const gd = growthData(t.TO, growths, values);
+      if (gd.adjustForCPI) {
+        const baseVal = gd.baseVal;
+        value = value / baseVal;
+        // log(`scaled value = ${value}`);
       }
       // log('in processTransactionTo, setValue:');
       setValue(
@@ -4359,7 +4368,7 @@ function generateMoments(
     // first expense.  Later expense values are not
     // set here, but the 'moment' at which the expense
     // changes is set here.
-    logIncomeOrExpenseGrowth(expense, growths);
+    logIncomeOrExpenseGrowth(expense, false, growths);
     const expenseStart = getTriggerDate(expense.START, model.triggers, v);
 
     const expenseSetDate = getTriggerDate(expense.VALUE_SET, model.triggers, v);
@@ -4414,7 +4423,7 @@ function generateMoments(
     // first income.  Later income values are not
     // set here, but the 'moment' at which the income
     // changes is set here.
-    logIncomeOrExpenseGrowth(income, growths);
+    logIncomeOrExpenseGrowth(income, true, growths);
     const incomeStart = getTriggerDate(income.START, model.triggers, v);
     let shiftStartBackTo = new Date(incomeStart);
 
@@ -4440,9 +4449,9 @@ function generateMoments(
     }
 
     const incomeSetDate = getTriggerDate(income.VALUE_SET, model.triggers, v);
-    // log(`income start is ${incomeStartDate)}`);
-    // log(`value set is ${incomeSetDate)}`);
-    // log(`shiftStartBackTo = ${shiftStartBackTo)}`);
+    // log(`income start is ${incomeStart.toDateString()}`);
+    // log(`value set is ${incomeSetDate.toDateString()}`);
+    // log(`shiftStartBackTo = ${shiftStartBackTo.toDateString()}`);
     if (incomeSetDate < incomeStart && incomeSetDate < shiftStartBackTo) {
       shiftStartBackTo = incomeSetDate;
     }
@@ -4469,7 +4478,7 @@ function generateMoments(
       }
     }
 
-    // log(`income start = ${incomeStart}`);
+    // log(`income start = ${incomeStart.toDateString()}, startSequenceFrom = ${startSequenceFrom.toDateString()}`);
     const newMoments = getRecurrentMoments(
       income,
       momentType.incomePrep,
@@ -4479,6 +4488,9 @@ function generateMoments(
       incomeStart,
       roiEndDate,
     );
+    // for (let i = 0; i < newMoments.length; i = i + 1) {
+    //   log(`newMoments[${i}] = ${newMoments[i].date.toDateString()}`);
+    // }
     allMoments = allMoments.concat(newMoments);
     liabilitiesMap.set(income.NAME, income.LIABILITY);
   });
@@ -4613,7 +4625,7 @@ function generateMoments(
         setting.VALUE,
         model,
         setting.NAME,
-        '42', //callerID
+        '43', //callerID
       );
     }
     let referencingDates = model.transactions
@@ -4713,6 +4725,9 @@ function generateMoments(
       transaction: undefined,
     });
   }
+  // for(let i = 0; i < allMoments.length; i = i + 1) {
+  //   log(`allMoments[${i}] = ${allMoments[i].date.toDateString()}`);
+  // }
   return allMoments;
 }
 
@@ -4937,12 +4952,12 @@ function handleInflationStep(
   // increment base (which started as 1.0) according to inflation value
   // at this moment in time
 
-  const baseObj = getNumberValue(values, baseForCPI);
+  const baseVal = getNumberValue(values, baseForCPI);
   const infObj = getNumberValue(values, cpi);
   /* istanbul ignore else  */ //error
-  if (baseObj !== undefined && infObj !== undefined) {
-    const newValue = baseObj * (1.0 + getMonthlyGrowth(infObj));
-    // log(`time to update base using ${infObj} from ${baseObj} to ${newValue}`);
+  if (baseVal !== undefined && infObj !== undefined) {
+    const newValue = baseVal * (1.0 + getMonthlyGrowth(infObj));
+    // log(`at ${date.toDateString()}, update base using ${infObj} from ${baseVal} to ${newValue}`);
     // log(`newValue = ${newValue}`);
     values.set(
       baseForCPI,
@@ -4954,7 +4969,28 @@ function handleInflationStep(
     );
   } else {
     log(
-      `Error: missing baseObj or infObj for CPI handling; ${baseObj}, ${infObj}`,
+      `Error: missing baseObj or infObj for CPI handling; ${baseVal}, ${infObj}`,
+    );
+  }
+}
+function handleAnnualInflationStep(
+  values: ValuesContainer,
+  growths: Map<string, GrowthData>,
+  date: Date,
+) {
+  // increment base (which started as 1.0) according to inflation value
+  // at this moment in time
+
+  const baseVal = getNumberValue(values, baseForCPI);
+  if (baseVal !== undefined) {
+    // log(`at ${date.toDateString()}, update annual base using to ${baseVal}`);
+    values.set(
+      annualBaseForCPI,
+      baseVal,
+      growths,
+      date,
+      'annualBaseChange',
+      '44', //callerID
     );
   }
 }
@@ -4978,54 +5014,23 @@ function captureLastTaxBands(
     const adjustNoTaxBand = resultFromMap.adjustNoTaxBand / baseVal;
     const noNIBand = resultFromMap.noNIBand / baseVal;
     const lowNIBand = resultFromMap.lowNIBand / baseVal;
-    values.set(
-      'noTaxBand',
-      noTaxBand,
-      growths,
-      moment.date,
-      moment.name,
-      '39', //callerID
-    );
-    values.set(
-      'lowTaxBand',
-      lowTaxBand,
-      growths,
-      moment.date,
-      moment.name,
-      '39', //callerID
-    );
-    values.set(
-      'highTaxBand',
-      highTaxBand,
-      growths,
-      moment.date,
-      moment.name,
-      '39', //callerID
-    );
-    values.set(
-      'adjustNoTaxBand',
-      adjustNoTaxBand,
-      growths,
-      moment.date,
-      moment.name,
-      '39', //callerID
-    );
-    values.set(
-      'noNIBand',
-      noNIBand,
-      growths,
-      moment.date,
-      moment.name,
-      '39', //callerID
-    );
-    values.set(
-      'lowNIBand',
-      lowNIBand,
-      growths,
-      moment.date,
-      moment.name,
-      '39', //callerID
-    );
+    const setValFn = (name: string, val: number) => {
+      values.set(
+        name,
+        val,
+        growths,
+        moment.date,
+        moment.name,
+        '39', //callerID
+      );
+    };
+    setValFn('noTaxBand', noTaxBand);
+    setValFn('lowTaxBand', lowTaxBand);
+    setValFn('highTaxBand', highTaxBand);
+    setValFn('adjustNoTaxBand', adjustNoTaxBand);
+    setValFn('noNIBand', noNIBand);
+    setValFn('lowNIBand', lowNIBand);
+
     // log(`in vals at ${startYearOfTaxYear}, ${makeTwoDP(noTaxBand)}, ${makeTwoDP(lowTaxBand)}, ${makeTwoDP(highTaxBand)}, ${makeTwoDP(adjustNoTaxBand)}`);
   } else {
     log('Error: undefined resultFromMap or baseVal');
@@ -5082,7 +5087,8 @@ function handleStartMoment(
   }
   const startValue = moment.setValue;
   let valueToStore = startValue;
-  if (growthData(moment.name, growths, values).adjustForCPI) {
+  const gd = growthData(moment.name, growths, values);
+  if (gd.adjustForCPI) {
     // log(`start value for ${valueToStore} needs adjusting for CPI`);
     let valueToScale: number | undefined;
     if (typeof valueToStore === 'number') {
@@ -5093,12 +5099,10 @@ function handleStartMoment(
 
     /* istanbul ignore else  */ //error
     if (valueToScale !== undefined) {
-      const scaleBy = getNumberValue(values, baseForCPI);
-      if (scaleBy) {
-        // log(`divide ${valueToStore} by base value ${scaleBy} to store ${valueToScale / scaleBy}`);
-        valueToStore = valueToScale / scaleBy;
-        // log(`divided result is ${valueToStore}`);
-      }
+      const baseVal = gd.baseVal;
+      // log(`divide ${valueToStore} by base value ${scaleBy} to store ${valueToScale / scaleBy}`);
+      valueToStore = valueToScale / baseVal;
+      // log(`divided result is ${valueToStore}`);
     } else {
       log(`Error: don't scale something that's not a number`);
     }
@@ -5108,7 +5112,7 @@ function handleStartMoment(
     moment.type === momentType.incomeStartPrep ||
     moment.type === momentType.expenseStartPrep
   ) {
-    // log(`set ${moment.name} value from ${moment.setValue} as ${valueToStore}`);
+    // log(`at ${moment.date.toDateString()}, set ${moment.name} value from ${moment.setValue} as ${valueToStore}`);
     values.set(
       moment.name,
       valueToStore,
@@ -5219,16 +5223,22 @@ function growAndEffectMoment(
       );
     }
   } else {
-    const growthObj = includeGrowth
-      ? growthData(momentName, growths, values)
-      : {
-          adjustForCPI: false,
-          scale: 0.0,
-        };
-    const baseVal = getNumberValue(values, baseForCPI);
+    let growthObj = undefined;
+    if (includeGrowth) {
+      growthObj = growthData(momentName, growths, values);
+    } else {
+      growthObj = {
+        adjustForCPI: false,
+        annualCPI: false,
+        scale: 0.0,
+      };
+    }
+    // log(`growthObj = ${showObj(growthObj)}`);
+
+    const baseVal = growthObj.baseVal;
     // log(`baseVal = ${baseVal}`);
     let oldStoredNumberVal = visiblePoundValue;
-    if (visiblePoundValue && growthObj && growthObj.adjustForCPI && baseVal) {
+    if (visiblePoundValue && growthObj.adjustForCPI && baseVal) {
       oldStoredNumberVal /= baseVal;
     }
     // log(`oldStoredNumberVal for ${momentName} is ${oldStoredNumberVal}`);
@@ -5553,10 +5563,22 @@ function getEvaluationsInternal(
       'start value',
       '0',
     );
-
+    values.set(
+      annualBaseForCPI,
+      1.0,
+      growths,
+      datedMoments[0].date,
+      'start value',
+      '0',
+    );
     const first = datedMoments[0].date;
-    const last = datedMoments[datedMoments.length - 1].date;
+    const last = new Date(datedMoments[datedMoments.length - 1].date);
+    // have annual inflation effects provide a whole year's worth
+    // of change by tracking an extra year of inflationary effect
+    // before things start
+    last.setFullYear(last.getFullYear() - 1);
     // log(`base will get updated from ${last} to ${first}`);
+
     const infUpdateDates = generateSequenceOfDates(
       {
         start: last,
@@ -5576,6 +5598,33 @@ function getEvaluationsInternal(
       return result;
     });
     datedMoments = datedMoments.concat(infMoments);
+    // we generate annual CPI raises on 6 April every year
+    // start at the first 6th April after 'last'
+    const startAnnualCPIEffect = new Date(last);
+    startAnnualCPIEffect.setDate(5);
+    startAnnualCPIEffect.setMonth(3);
+    if (startAnnualCPIEffect < last) {
+      startAnnualCPIEffect.setFullYear(startAnnualCPIEffect.getFullYear() + 1);
+    }
+    const annualInfUpdateDates = generateSequenceOfDates(
+      {
+        start: startAnnualCPIEffect,
+        end: first,
+      },
+      '1y',
+    );
+    const annualInfMoments: Moment[] = annualInfUpdateDates.map((date) => {
+      const typeForMoment = momentType.inflation;
+      const result: Moment = {
+        date,
+        name: annualBaseForCPI,
+        type: typeForMoment,
+        setValue: NaN,
+        transaction: undefined,
+      };
+      return result;
+    });
+    datedMoments = datedMoments.concat(annualInfMoments);
     // log(`with moments for updating base values, have ${datedMoments.length}`);
 
     const needPredictedTaxBands = new Date(highestTaxYearInMap, 3, 5);
@@ -5674,6 +5723,8 @@ function getEvaluationsInternal(
     if (moment.name === EvaluateAllAssets) {
     } else if (moment.name === cpi) {
       handleInflationStep(values, growths, moment.date);
+    } else if (moment.name === annualBaseForCPI) {
+      handleAnnualInflationStep(values, growths, moment.date);
     } else if (moment.name === 'captureLastTaxBands') {
       captureLastTaxBands(values, growths, moment);
     } else if (moment.type === momentType.transaction) {

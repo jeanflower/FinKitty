@@ -224,6 +224,7 @@ export interface GrowthData {
   powerByNumMonths: number;
   scale: number;
   applyCPI: boolean;
+  annualCPI: boolean;
 }
 
 export interface ChartSettings {
