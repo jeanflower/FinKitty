@@ -159,6 +159,18 @@ export class CreateModelForm extends Component<
       this.props.modelData,
     );
   }
+  private mounted = false;
+
+  public newModelFormIsMounted() {
+    return this.mounted;
+  }
+
+  public componentWillUnmount(): void {
+    this.mounted = false;
+  }
+  public componentDidMount(): void {
+    this.mounted = true;
+  }
 
   private async copyModel(model: ModelData) {
     // log(`in copyModel`);
@@ -181,7 +193,9 @@ export class CreateModelForm extends Component<
       log(`go to clone model`);
       if (await this.props.cloneModel(newName, model)) {
         // log('cloned ok -  clear name field');
-        this.setState({ newName: '' });
+        if (this.mounted) {
+          this.setState({ newName: '' });
+        }
       } else {
         log('failed to clone ok');
       }
