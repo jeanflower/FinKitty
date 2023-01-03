@@ -437,7 +437,7 @@ function makeBarChart(
                     )} to make tick text`,
                   );
                 }
-                const l = data.labels[index];
+                const l: number | string = data.labels[index];
                 if (typeof l === 'number' || isNumberString(l)) {
                   return l;
                 }
