@@ -1,35 +1,12 @@
 import {
-  allItems,
-  annually,
-  chartDeltas,
-  chartViewType,
-  birthDate,
-  birthDateHint,
   CASH_ASSET_NAME,
-  cpi,
-  cpiHint,
-  expenseChartFocus,
-  fineDetail,
-  incomeChartFocus,
   incomeTax,
-  roiEnd,
-  roiEndHint,
-  roiStart,
-  roiStartHint,
-  assetChartFocus,
-  viewDetail,
-  viewFrequency,
   revalueAsset,
-  constType,
-  viewType,
-  valueFocusDate,
-  valueFocusDateHint,
 } from '../../localization/stringConstants';
 import {
   Asset,
   Expense,
   Income,
-  Setting,
   Transaction,
   Trigger,
 } from '../../types/interfaces';
@@ -222,84 +199,5 @@ export const testTransactions01: Transaction[] = [
     STOP_DATE: '1 January 2040',
     RECURRENCE: '1m',
     CATEGORY: 'pay mortgage',
-  },
-];
-const simpleSetting: Setting = {
-  NAME: 'NoName',
-  FAVOURITE: undefined,
-  VALUE: 'NoValue',
-  HINT: 'NoHint',
-  TYPE: constType,
-};
-const viewSetting: Setting = {
-  ...simpleSetting,
-  TYPE: viewType,
-};
-export const testSettings01: Setting[] = [
-  {
-    ...viewSetting,
-    NAME: roiStart,
-    VALUE: '1 Jan 2019',
-    HINT: roiStartHint,
-  },
-  {
-    ...viewSetting,
-    NAME: roiEnd,
-    VALUE: '1 Jan 2042',
-    HINT: roiEndHint,
-  },
-  {
-    ...viewSetting,
-    NAME: chartViewType,
-    VALUE: chartDeltas, // could be 'val'
-  },
-  {
-    ...viewSetting,
-    NAME: viewFrequency,
-    VALUE: annually, // could be 'Monthly'
-  },
-  {
-    ...viewSetting,
-    NAME: viewDetail,
-    VALUE: fineDetail, // could be coarse
-  },
-  {
-    ...simpleSetting,
-    NAME: cpi,
-    VALUE: '2.5',
-    HINT: cpiHint,
-  },
-  {
-    ...simpleSetting,
-    NAME: 'stockMarketGrowth',
-    VALUE: '6.236',
-    HINT: 'Custom setting for stock market growth',
-  },
-  {
-    ...viewSetting,
-    NAME: assetChartFocus,
-    VALUE: CASH_ASSET_NAME,
-  },
-  {
-    ...viewSetting,
-    NAME: expenseChartFocus,
-    VALUE: allItems,
-  },
-  {
-    ...viewSetting,
-    NAME: incomeChartFocus,
-    VALUE: allItems,
-  },
-  {
-    ...viewSetting,
-    NAME: birthDate,
-    VALUE: '',
-    HINT: birthDateHint,
-  },
-  {
-    ...viewSetting,
-    NAME: valueFocusDate,
-    VALUE: '',
-    HINT: valueFocusDateHint,
   },
 ];
