@@ -30,49 +30,69 @@ import {
 import { ViewSettings } from '../models/charting';
 import { log } from './utils';
 
+export const allViews = [
+  homeView,
+  overview,
+  incomesView,
+  expensesView,
+  assetsView,
+  debtsView,
+  taxView,
+  triggersView,
+  transactionsView,
+  reportView,
+  optimizerView,
+  settingsView,
+];
+
 export function getDefaultViewSettings(): ViewSettings {
-  const result = new ViewSettings([
-    {
-      NAME: viewFrequency,
-      VALUE: annually,
-    },
-    {
-      NAME: chartViewType,
-      VALUE: chartVals,
-    },
-    {
-      NAME: viewDetail,
-      VALUE: fineDetail,
-    },
-    {
-      NAME: assetChartFocus,
-      VALUE: allItems,
-    },
-    {
-      NAME: debtChartFocus,
-      VALUE: allItems,
-    },
-    {
-      NAME: expenseChartFocus,
-      VALUE: allItems,
-    },
-    {
-      NAME: incomeChartFocus,
-      VALUE: allItems,
-    },
-    {
-      NAME: taxChartFocusPerson,
-      VALUE: allItems,
-    },
-    {
-      NAME: taxChartFocusType,
-      VALUE: allItems,
-    },
-    {
-      NAME: taxChartShowNet,
-      VALUE: 'Y',
-    },
-  ]);
+  const result = new ViewSettings(
+    allViews
+      .map((v) => {
+        return {
+          NAME: `${viewFrequency}${v.lc}`,
+          VALUE: annually,
+        };
+      })
+      .concat([
+        {
+          NAME: chartViewType,
+          VALUE: chartVals,
+        },
+        {
+          NAME: viewDetail,
+          VALUE: fineDetail,
+        },
+        {
+          NAME: assetChartFocus,
+          VALUE: allItems,
+        },
+        {
+          NAME: debtChartFocus,
+          VALUE: allItems,
+        },
+        {
+          NAME: expenseChartFocus,
+          VALUE: allItems,
+        },
+        {
+          NAME: incomeChartFocus,
+          VALUE: allItems,
+        },
+        {
+          NAME: taxChartFocusPerson,
+          VALUE: allItems,
+        },
+        {
+          NAME: taxChartFocusType,
+          VALUE: allItems,
+        },
+        {
+          NAME: taxChartShowNet,
+          VALUE: 'Y',
+        },
+      ]),
+  );
   return result;
 }
 

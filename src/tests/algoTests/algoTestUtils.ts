@@ -75,6 +75,7 @@ import {
 } from '../../types/interfaces';
 import { DateFormatType, log } from '../../utils/utils';
 import { diffModels } from '../../models/diffModels';
+import { allViews } from '../../utils/viewUtils';
 
 export function expectEvals(
   evals: Evaluation[],
@@ -786,113 +787,127 @@ export function getModelTwoCrystallizedPensions() {
 }
 
 export function getMinimalModelCopySettings(): ViewSettings {
-  const result = new ViewSettings([
-    {
-      NAME: viewFrequency,
-      VALUE: monthly,
-    },
-    {
-      NAME: chartViewType,
-      VALUE: chartVals,
-    },
-    {
-      NAME: viewDetail,
-      VALUE: fineDetail,
-    },
-    {
-      NAME: assetChartFocus,
-      VALUE: CASH_ASSET_NAME,
-    },
-    {
-      NAME: debtChartFocus,
-      VALUE: allItems,
-    },
-    {
-      NAME: expenseChartFocus,
-      VALUE: allItems,
-    },
-    {
-      NAME: incomeChartFocus,
-      VALUE: allItems,
-    },
-    {
-      NAME: taxChartFocusPerson,
-      VALUE: allItems,
-    },
-    {
-      NAME: taxChartFocusType,
-      VALUE: allItems,
-    },
-    {
-      NAME: taxChartShowNet,
-      VALUE: 'Y',
-    },
-    {
-      NAME: valueFocusDate,
-      VALUE: '',
-    },
-  ]);
+  const result = new ViewSettings(
+    allViews
+      .map((v) => {
+        return {
+          NAME: `${viewFrequency}${v.lc}`,
+          VALUE: monthly,
+        };
+      })
+      .concat([
+        {
+          NAME: chartViewType,
+          VALUE: chartVals,
+        },
+        {
+          NAME: viewDetail,
+          VALUE: fineDetail,
+        },
+        {
+          NAME: assetChartFocus,
+          VALUE: CASH_ASSET_NAME,
+        },
+        {
+          NAME: debtChartFocus,
+          VALUE: allItems,
+        },
+        {
+          NAME: expenseChartFocus,
+          VALUE: allItems,
+        },
+        {
+          NAME: incomeChartFocus,
+          VALUE: allItems,
+        },
+        {
+          NAME: taxChartFocusPerson,
+          VALUE: allItems,
+        },
+        {
+          NAME: taxChartFocusType,
+          VALUE: allItems,
+        },
+        {
+          NAME: taxChartShowNet,
+          VALUE: 'Y',
+        },
+        {
+          NAME: valueFocusDate,
+          VALUE: '',
+        },
+      ]),
+  );
   return result;
 }
 
 export function defaultTestViewSettings(): ViewSettings {
-  const result = new ViewSettings([
-    { ...viewSetting, NAME: viewFrequency, VALUE: monthly },
-    { ...viewSetting, NAME: viewDetail, VALUE: fineDetail },
-    { ...viewSetting, NAME: chartViewType, VALUE: chartVals },
-    {
-      ...viewSetting,
-      NAME: assetChartFocus,
-      VALUE: allItems,
-    },
-    {
-      ...viewSetting,
-      NAME: debtChartFocus,
-      VALUE: allItems,
-    },
-    {
-      ...viewSetting,
-      NAME: expenseChartFocus,
-      VALUE: allItems,
-    },
-    {
-      ...viewSetting,
-      NAME: incomeChartFocus,
-      VALUE: allItems,
-    },
-    {
-      ...viewSetting,
-      NAME: taxChartFocusPerson,
-      VALUE: allItems,
-    },
-    {
-      ...viewSetting,
-      NAME: taxChartFocusType,
-      VALUE: allItems,
-    },
-    {
-      ...viewSetting,
-      NAME: taxChartShowNet,
-      VALUE: 'Y',
-    },
-    {
-      ...simpleSetting,
-      NAME: cpi,
-      VALUE: '0.0',
-      HINT: cpiHint,
-    },
-    {
-      ...viewSetting,
-      NAME: birthDate,
-      VALUE: '',
-      HINT: birthDateHint,
-    },
-    {
-      ...viewSetting,
-      NAME: valueFocusDate,
-      VALUE: '',
-      HINT: valueFocusDateHint,
-    },
-  ]);
+  const result = new ViewSettings(
+    allViews
+      .map((v) => {
+        return {
+          ...viewSetting,
+          NAME: `${viewFrequency}${v.lc}`,
+          VALUE: monthly,
+        };
+      })
+      .concat([
+        { ...viewSetting, NAME: viewDetail, VALUE: fineDetail },
+        { ...viewSetting, NAME: chartViewType, VALUE: chartVals },
+        {
+          ...viewSetting,
+          NAME: assetChartFocus,
+          VALUE: allItems,
+        },
+        {
+          ...viewSetting,
+          NAME: debtChartFocus,
+          VALUE: allItems,
+        },
+        {
+          ...viewSetting,
+          NAME: expenseChartFocus,
+          VALUE: allItems,
+        },
+        {
+          ...viewSetting,
+          NAME: incomeChartFocus,
+          VALUE: allItems,
+        },
+        {
+          ...viewSetting,
+          NAME: taxChartFocusPerson,
+          VALUE: allItems,
+        },
+        {
+          ...viewSetting,
+          NAME: taxChartFocusType,
+          VALUE: allItems,
+        },
+        {
+          ...viewSetting,
+          NAME: taxChartShowNet,
+          VALUE: 'Y',
+        },
+        {
+          ...simpleSetting,
+          NAME: cpi,
+          VALUE: '0.0',
+          HINT: cpiHint,
+        },
+        {
+          ...viewSetting,
+          NAME: birthDate,
+          VALUE: '',
+          HINT: birthDateHint,
+        },
+        {
+          ...viewSetting,
+          NAME: valueFocusDate,
+          VALUE: '',
+          HINT: valueFocusDateHint,
+        },
+      ]),
+  );
   return result;
 }

@@ -56,7 +56,8 @@ import {
   Setting,
   Transaction,
 } from '../types/interfaces';
-import { log } from '../utils/utils';
+import { log, showObj } from '../utils/utils';
+import { allViews } from '../utils/viewUtils';
 import {
   setSetting,
   setROI,
@@ -66,6 +67,7 @@ import {
 import { getCurrentVersion } from './versioningUtils';
 
 log;
+showObj;
 
 export const simpleExampleData = `{
 "name": "Simple",
@@ -449,56 +451,61 @@ const browserTestSettingsForMigration: Setting[] = [
     NAME: chartViewType,
     VALUE: chartVals, // could be 'deltas'
   },
-  {
-    ...viewSetting,
-    NAME: viewFrequency,
-    VALUE: annually, // could be 'Monthly'
-  },
-  {
-    ...viewSetting,
-    NAME: viewDetail,
-    VALUE: fineDetail, // could be coarse
-  },
-  {
-    ...simpleSetting,
-    NAME: cpi,
-    VALUE: '2.5',
-    HINT: cpiHint,
-  },
-  {
-    ...simpleSetting,
-    NAME: 'stockMarketGrowth',
-    VALUE: '6.236',
-    HINT: 'Custom setting for stock market growth',
-  },
-  {
-    ...viewSetting,
-    NAME: assetChartFocus,
-    VALUE: CASH_ASSET_NAME,
-  },
-  {
-    ...viewSetting,
-    NAME: expenseChartFocus,
-    VALUE: allItems,
-  },
-  {
-    ...viewSetting,
-    NAME: incomeChartFocus,
-    VALUE: allItems,
-  },
-  {
-    ...viewSetting,
-    NAME: birthDate,
-    VALUE: '',
-    HINT: birthDateHint,
-  },
-  {
-    ...viewSetting,
-    NAME: valueFocusDate,
-    VALUE: '',
-    HINT: valueFocusDateHint,
-  },
-];
+].concat(
+  allViews.map((v) => {
+    return {
+      ...viewSetting,
+      NAME: `${viewFrequency}${v.lc}`,
+      VALUE: annually, // could be 'Monthly'
+    };
+  }),
+  [
+    {
+      ...viewSetting,
+      NAME: viewDetail,
+      VALUE: fineDetail, // could be coarse
+    },
+    {
+      ...simpleSetting,
+      NAME: cpi,
+      VALUE: '2.5',
+      HINT: cpiHint,
+    },
+    {
+      ...simpleSetting,
+      NAME: 'stockMarketGrowth',
+      VALUE: '6.236',
+      HINT: 'Custom setting for stock market growth',
+    },
+    {
+      ...viewSetting,
+      NAME: assetChartFocus,
+      VALUE: CASH_ASSET_NAME,
+    },
+    {
+      ...viewSetting,
+      NAME: expenseChartFocus,
+      VALUE: allItems,
+    },
+    {
+      ...viewSetting,
+      NAME: incomeChartFocus,
+      VALUE: allItems,
+    },
+    {
+      ...viewSetting,
+      NAME: birthDate,
+      VALUE: '',
+      HINT: birthDateHint,
+    },
+    {
+      ...viewSetting,
+      NAME: valueFocusDate,
+      VALUE: '',
+      HINT: valueFocusDateHint,
+    },
+  ],
+);
 
 const defaultModelSettingsForMigration: Setting[] = [
   { ...viewSetting, NAME: viewDetail, VALUE: fineDetail },
@@ -909,7 +916,10 @@ export function getModelCoarseAndFineForMigration(): ModelData {
 
   const settings = defaultModelSettingsForMigration;
   setSetting(settings, viewDetail, coarseDetail, viewType);
-  setSetting(settings, viewFrequency, monthly, viewType);
+
+  allViews.map((v) => {
+    setSetting(settings, `${viewFrequency}${v.lc}`, monthly, viewType);
+  });
 
   const model: ModelData = {
     ...emptyModel,
@@ -1100,9 +1110,16 @@ function getModelFutureExpenseForMigration() {
     NAME: viewFrequency,
     VALUE: monthly,
   });
+  allViews.map((v) => {
+    model.settings.push({
+      ...viewSetting,
+      NAME: `${viewFrequency}${v.lc}`,
+      VALUE: monthly,
+    });
+  });
   model.name = 'ModelFutureExpenseForMigration';
 
-  //log(`future expense settings ${model.settings.map(showObj)}`);
+  // log(`future expense settings ${model.settings.map(showObj)}`);
   return model;
 }
 export function getThreeChryslerModel(): ModelData {
@@ -1208,7 +1225,15 @@ export function getThreeChryslerModelForMigration(): ModelData {
         NAME: viewFrequency,
         VALUE: monthly,
       },
-    ],
+    ].concat(
+      allViews.map((v) => {
+        return {
+          ...viewSetting,
+          NAME: `${viewFrequency}${v.lc}`,
+          VALUE: monthly,
+        };
+      }),
+    ),
     version: 0,
     undoModel: undefined,
     redoModel: undefined,

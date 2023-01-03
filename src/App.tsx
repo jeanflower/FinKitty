@@ -19,7 +19,6 @@ import {
   custom,
   exampleModelName,
   homeView,
-  overview,
   reportView,
   roiEnd,
   roiStart,
@@ -44,6 +43,7 @@ import {
   assetsView,
   defaultReportSize,
   advancedUI,
+  annually,
 } from './localization/stringConstants';
 import {
   AssetOrDebtVal,
@@ -765,6 +765,9 @@ export async function refreshData(
       },
     );
   } else {
+    if (refreshChart) {
+      log('go to refresh chart');
+    }
     return await refreshDataInternal(refreshModel, refreshChart, sourceID);
   }
 }
@@ -1021,7 +1024,7 @@ export function toggle(
     return false;
   }
   view.display = true;
-  if (reactAppComponent?.mounted) {
+  if (reactAppComponent?.appContentIsMounted()) {
     refreshData(
       refreshModel, // refreshModel
       refreshChart, // refreshChart
@@ -1548,9 +1551,43 @@ function AlertDismissibleExample(props: {
   );
 }
 
+function needsChartRefresh(
+  viewSettingsHolder: {
+    viewState: ViewSettings;
+  },
+  oldViewType: ViewType | undefined,
+  newViewType: ViewType | undefined,
+) {
+  let oldFrequency = annually;
+  let newFrequency = monthly;
+  if (viewSettingsHolder && viewSettingsHolder.viewState) {
+    oldFrequency = viewSettingsHolder.viewState.getViewSetting(
+      viewFrequency,
+      'unknown1',
+      oldViewType,
+    );
+    newFrequency = viewSettingsHolder.viewState.getViewSetting(
+      viewFrequency,
+      'unknown2',
+      newViewType,
+    );
+  }
+  const refreshChart = oldFrequency !== newFrequency;
+  if (refreshChart) {
+    log(`need to refresh chart oldF = ${oldFrequency}, newF = ${newFrequency}`);
+  } else {
+    log(`no need to refresh chart oldF = newF = ${newFrequency}`);
+  }
+  return refreshChart;
+}
+
 export class AppContent extends Component<AppProps, AppState> {
   options: any;
-  public mounted = false;
+  private mounted = false;
+
+  public appContentIsMounted() {
+    return this.mounted;
+  }
 
   public state = {
     modelData: emptyModel,
@@ -1626,6 +1663,7 @@ export class AppContent extends Component<AppProps, AppState> {
   }
 
   public componentWillUnmount(): void {
+    this.mounted = false;
     //log('in componentWillUnmount');
     //window.removeEventListener('beforeunload', this.handleUnload);
   }
@@ -1938,11 +1976,13 @@ export class AppContent extends Component<AppProps, AppState> {
       modelNames,
       async (model: string) => {
         if (await updateModelName(model)) {
+          const oldView = getDisplayedView();
           if (goToAssetsPage()) {
+            const newView = assetsView;
             await toggle(
               assetsView,
               false, // refreshModel
-              false, // refreshChart
+              needsChartRefresh(this.state, oldView, newView), // refreshChart
               19, //sourceID
             );
           }
@@ -2083,11 +2123,13 @@ export class AppContent extends Component<AppProps, AppState> {
         false,
       );
       if (replacedOK) {
+        const oldView = getDisplayedView();
         if (goToAssetsPage()) {
+          const newView = assetsView;
           await toggle(
-            overview,
+            assetsView,
             false, // refreshModel
-            false, // refreshChart
+            needsChartRefresh(this.state, oldView, newView), // refreshChart
             21, //sourceID
           );
         }
@@ -2594,10 +2636,11 @@ export class AppContent extends Component<AppProps, AppState> {
           view.lc,
           (event: React.MouseEvent<HTMLButtonElement>) => {
             event.persist();
+            const oldView = getDisplayedView();
             toggle(
               view,
               refreshModel, // refreshModel
-              false, // refreshChart
+              needsChartRefresh(this.state, oldView, view), // refreshChart
               24, //sourceID
             );
           },

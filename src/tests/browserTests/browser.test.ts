@@ -120,6 +120,9 @@ describe(testDataModelName, () => {
       `{"testName":"${FutureExpense}"}`,
     );
 
+    await gotoTabPage(driver, assetsTag);
+    await clickButton(driver, 'chooseViewFrequencyTypeMonthly');
+
     let ary = await getAssetChartData(driver);
     // console.log(`ary = ${JSON.stringify(ary)}`);
 
@@ -193,6 +196,9 @@ describe(testDataModelName, () => {
       `{"testName":"${CoarseAndFine}"}`,
     );
 
+    await gotoTabPage(driver, assetsTag);
+    await clickButton(driver, 'chooseViewFrequencyTypeMonthly');
+
     let ary = await getAssetChartData(driver);
     // writeTestCode(ary);
 
@@ -215,6 +221,9 @@ describe(testDataModelName, () => {
     expect(ary.datasets[1].data[2]).toBeCloseTo(500, 2);
     expect(ary.datasets[1].data[3]).toBeCloseTo(500, 2);
 
+    await gotoTabPage(driver, expensesTag);
+    await clickButton(driver, 'chooseViewFrequencyTypeMonthly');
+
     ary = await getExpenseChartData(driver);
     // writeTestCode(ary);
 
@@ -236,6 +245,9 @@ describe(testDataModelName, () => {
     expect(ary.datasets[1].data[1]).toBeCloseTo(12, 2);
     expect(ary.datasets[1].data[2]).toBeCloseTo(12, 2);
     expect(ary.datasets[1].data[3]).toBeCloseTo(12, 2);
+
+    await gotoTabPage(driver, incomesTag);
+    await clickButton(driver, 'chooseViewFrequencyTypeMonthly');
 
     ary = await getIncomeChartData(driver);
     // writeTestCode(ary);
@@ -276,6 +288,7 @@ describe(testDataModelName, () => {
       message: `added new setting ${viewDetail}`,
     });
     await gotoTabPage(driver, assetsTag);
+    await clickButton(driver, 'chooseViewFrequencyTypeMonthly');
 
     let ary = await getAssetChartData(driver);
     // writeTestCode(ary);
@@ -305,6 +318,9 @@ describe(testDataModelName, () => {
     expect(ary.datasets[2].data[2]).toBeCloseTo(500, 2);
     expect(ary.datasets[2].data[3]).toBeCloseTo(500, 2);
 
+    await gotoTabPage(driver, expensesTag);
+    await clickButton(driver, 'chooseViewFrequencyTypeMonthly');
+
     ary = await getExpenseChartData(driver);
     // writeTestCode(ary);
 
@@ -332,6 +348,9 @@ describe(testDataModelName, () => {
     expect(ary.datasets[2].data[1]).toBeCloseTo(12, 2);
     expect(ary.datasets[2].data[2]).toBeCloseTo(12, 2);
     expect(ary.datasets[2].data[3]).toBeCloseTo(0, 2);
+
+    await gotoTabPage(driver, incomesTag);
+    await clickButton(driver, 'chooseViewFrequencyTypeMonthly');
 
     ary = await getIncomeChartData(driver);
     // writeTestCode(ary);
@@ -380,6 +399,7 @@ describe(testDataModelName, () => {
       message: `added new setting ${assetChartFocus}`,
     });
     await gotoTabPage(driver, assetsTag);
+    await clickButton(driver, 'chooseViewFrequencyTypeMonthly');
 
     let ary = await getAssetChartData(driver);
     // writeTestCode(ary);
@@ -537,6 +557,7 @@ describe(testDataModelName, () => {
       message: `added new setting ${assetChartFocus}`,
     });
     await gotoTabPage(driver, assetsTag);
+    await clickButton(driver, 'chooseViewFrequencyTypeMonthly');
 
     const ary = await getAssetChartData(driver);
     // writeTestCode(ary);
@@ -605,6 +626,7 @@ describe(testDataModelName, () => {
     });
 
     await gotoTabPage(driver, assetsTag);
+    await clickButton(driver, 'chooseViewFrequencyTypeMonthly');
 
     await addAsset(driver, {
       ...assetInputs,
@@ -802,6 +824,7 @@ describe(testDataModelName, () => {
     });
 
     await gotoTabPage(driver, assetsTag);
+    await clickButton(driver, 'chooseViewFrequencyTypeMonthly');
 
     await addAsset(driver, {
       ...assetInputs,

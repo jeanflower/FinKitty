@@ -47,6 +47,7 @@ import {
   dot,
   annually,
   weekly,
+  ViewType,
 } from '../localization/stringConstants';
 import {
   Context,
@@ -72,6 +73,7 @@ import {
 } from '../utils/stringUtils';
 import { getROI, getSettings, getVarVal } from './modelUtils';
 import { getCategory } from './category';
+import { getDisplayedView } from '../utils/viewUtils';
 
 export class ViewSettings {
   private kvPairs: Map<string, string> = new Map<string, string>();
@@ -142,7 +144,7 @@ e.g.
 */
 
   public constructor(pairs: { NAME: string; VALUE: string }[]) {
-    // log(`build new ViewSettings object`);
+    // log(`build new ViewSettings object from ${showObj(pairs)}`);
     pairs.forEach((p) => {
       // log(`input pair ${p.NAME}, ${p.VALUE}`);
       this.kvPairs.set(p.NAME, p.VALUE);
@@ -290,11 +292,14 @@ e.g.
 
   // call from e.g. people adding a new Setting in a UI
   public setViewSetting(settingName: string, settingValue: string): boolean {
-    //if(settingName === viewFrequency &&  settingValue !== annually){
-    //  log(`setViewSetting seting non-annual frequency`);
-    //}
+    if (settingName === viewFrequency) {
+      const v = getDisplayedView();
+      settingName = `${viewFrequency}${v?.lc}`;
+    }
+
     if (this.kvPairs.get(settingName)) {
       this.kvPairs.set(settingName, settingValue);
+      // log(`set ${settingName} to value ${settingValue}`);
       return true;
     } else {
       return false;
@@ -389,11 +394,25 @@ e.g.
   }
 
   //no need to optimise this
-  public getViewSetting(settingType: string, defaultValue: string) {
+  public getViewSetting(
+    settingType: string,
+    defaultValue: string,
+    viewType: ViewType | undefined = undefined,
+  ) {
+    if (viewType == undefined) {
+      viewType = getDisplayedView();
+    }
+    if (settingType === viewFrequency) {
+      settingType = `${viewFrequency}${viewType?.lc}`;
+      // log(`settingType = ${settingType}`);
+    }
     let result = this.kvPairs.get(settingType);
     if (result === undefined) {
+      // log(`Error: missing view setting for ${settingType}`);
       result = defaultValue;
     }
+
+    // log(`get ${settingType} as value ${result}}`);
     return result;
   }
 
@@ -868,10 +887,13 @@ function ensureDateValueMapsExist(
 
 function getSettingsValues(viewSettings: ViewSettings) {
   const detail: string = viewSettings.getViewSetting(viewDetail, fineDetail);
+  const v = getDisplayedView();
   const frequency: string = viewSettings.getViewSetting(
-    viewFrequency,
+    `${viewFrequency}${v?.lc}`,
     annually,
   );
+  // log(`get viewFrequency${getDisplayedView()?.lc} = ${frequency}`);
+
   //if(frequency !== annually){
   //  log(`viewSettings gave monthly viewSetting`);
   //}

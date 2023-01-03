@@ -1,4 +1,4 @@
-import { viewFrequency, monthly } from '../../localization/stringConstants';
+import { annually } from '../../localization/stringConstants';
 import { EvaluationHelper } from '../../models/evaluations';
 import {
   getVariableDateExampleData,
@@ -6,7 +6,6 @@ import {
 } from '../../models/exampleModels';
 import { ChartData, ReportValueChecker } from '../../types/interfaces';
 import { log, printDebug, showObj } from '../../utils/utils';
-import { getDefaultViewSettings } from '../../utils/viewUtils';
 import { calcOptimizer } from '../../views/tablePages';
 import {
   printTestCodeForEvals,
@@ -68,7 +67,6 @@ describe('optimizer tests', () => {
 
     let errorMsg = '';
 
-    const viewSettings = getDefaultViewSettings();
     const reporter: ReportValueChecker = () =>
       //name: string,
       //val: number | string,
@@ -77,11 +75,7 @@ describe('optimizer tests', () => {
       {
         return false;
       };
-    const helper = new EvaluationHelper(
-      reporter,
-      0,
-      viewSettings.getViewSetting(viewFrequency, monthly),
-    );
+    const helper = new EvaluationHelper(reporter, 0, annually);
     const cd: ChartData = calcOptimizer(model, helper, (msg: string) => {
       errorMsg = msg;
     });
@@ -150,7 +144,6 @@ describe('optimizer tests', () => {
     expectEvals(evals, 32, 'Estate', 'Sun Dec 01 2019', 700, -1);
     expectEvals(evals, 33, 'Cash', 'Sun Dec 01 2019', 100, -1);
 
-    const viewSettings = getDefaultViewSettings();
     const reporter: ReportValueChecker = () =>
       //name: string,
       //val: number | string,
@@ -159,11 +152,7 @@ describe('optimizer tests', () => {
       {
         return false;
       };
-    const helper = new EvaluationHelper(
-      reporter,
-      0,
-      viewSettings.getViewSetting(viewFrequency, monthly),
-    );
+    const helper = new EvaluationHelper(reporter, 0, annually);
     let errorMsg = '';
     const cd: ChartData = calcOptimizer(model, helper, (msg: string) => {
       errorMsg = msg;

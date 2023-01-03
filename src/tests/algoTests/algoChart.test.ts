@@ -21,6 +21,7 @@ import {
   bondModel,
   constType,
   weekly,
+  homeView,
 } from '../../localization/stringConstants';
 import { makeChartDataFromEvaluations } from '../../models/charting';
 import {
@@ -1384,9 +1385,12 @@ describe(' chart data tests', () => {
     expect(
       viewSettings.migrateViewSettingString(assetChartFocus, allItems),
     ).toBe(true);
-    expect(viewSettings.migrateViewSettingString(viewFrequency, monthly)).toBe(
-      true,
-    );
+    expect(
+      viewSettings.migrateViewSettingString(
+        `${viewFrequency}${homeView.lc}`,
+        monthly,
+      ),
+    ).toBe(true);
     expect(viewSettings.migrateViewSettingString(cpi, '12.0')).toBe(true);
     expect(viewSettings.migrateViewSettingString('nonsense', '12.0')).toBe(
       false,

@@ -10,6 +10,7 @@ import {
   incomeTax,
   nationalInsurance,
   revalue,
+  viewFrequency,
 } from '../localization/stringConstants';
 import {
   getSpecialWord,
@@ -187,6 +188,38 @@ export function getSettings(
 }
 
 export function setSetting(
+  settings: Setting[],
+  key: string,
+  val: string,
+  type: string,
+  hint = '',
+) {
+  if (key === viewFrequency) {
+    throw new Error('set setting for frequency');
+  }
+  const idx = settings.findIndex((x) => x.NAME === key);
+  if (idx === -1) {
+    // add new object
+    settings.push({
+      NAME: key,
+      FAVOURITE: undefined,
+      VALUE: val,
+      HINT: hint,
+      TYPE: type,
+    });
+  } else {
+    // replace with a new object
+    settings.splice(idx, 1, {
+      NAME: key,
+      FAVOURITE: settings[idx].FAVOURITE,
+      VALUE: val,
+      HINT: hint,
+      TYPE: type,
+    });
+  }
+}
+
+export function setNonsenseSetting(
   settings: Setting[],
   key: string,
   val: string,

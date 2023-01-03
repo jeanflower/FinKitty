@@ -58,6 +58,7 @@ import {
   makeModelFromJSON,
   makeModelFromJSONString,
   makeRevalueName,
+  setNonsenseSetting,
   setROI,
   setSetting,
 } from '../../models/modelUtils';
@@ -5870,12 +5871,12 @@ describe('evaluations tests', () => {
     done();
   });
 
-  function checkSettingValue(key: string, value: string) {
+  function checkNonsenseSettingValue(key: string, value: string) {
     const modelAndRoi = getModelCrystallizedPension();
 
     const model = modelAndRoi.model;
 
-    setSetting(model.settings, key, value, viewType);
+    setNonsenseSetting(model.settings, key, value, viewType);
 
     suppressLogs();
     const evalsAndValues = getTestEvaluations(model, false);
@@ -5891,7 +5892,6 @@ describe('evaluations tests', () => {
   it('check nonsense settings', (done) => {
     const settingsKeys = [
       birthDate, // '' or a string date
-      viewFrequency, // monthly or annual
       viewDetail, // coarse or fine
       roiStart,
       roiEnd,
@@ -5903,7 +5903,7 @@ describe('evaluations tests', () => {
     ];
 
     for (const key of settingsKeys) {
-      checkSettingValue(key, 'nonsense');
+      checkNonsenseSettingValue(key, 'nonsense');
     }
 
     done();
@@ -6979,7 +6979,7 @@ describe('evaluations tests', () => {
     }`;
     const viewSettings: ViewSettings = new ViewSettings([
       {
-        NAME: 'View frequency',
+        NAME: 'View frequencyHome',
         VALUE: 'Annually',
       },
       {
