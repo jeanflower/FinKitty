@@ -1444,23 +1444,15 @@ function checkNames(model: ModelData): string {
     model.incomes.map((a) => {
       return a.NAME;
     }),
-  );
-  names = names.concat(
     model.expenses.map((a) => {
       return a.NAME;
     }),
-  );
-  names = names.concat(
     model.transactions.map((a) => {
       return a.NAME;
     }),
-  );
-  names = names.concat(
     model.triggers.map((a) => {
       return a.NAME;
     }),
-  );
-  names = names.concat(
     model.settings.map((a) => {
       return a.NAME;
     }),
