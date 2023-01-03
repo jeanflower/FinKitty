@@ -323,7 +323,7 @@ export function coarseFineList(
         setViewSettingNameVal(settings, viewFrequency, viewType);
       },
       viewType,
-      'chooseViewFrequencyType',
+      `chooseViewFrequencyType${viewType}`,
       viewType === selectedView ? 'primary' : 'outline-primary',
     ),
   );
