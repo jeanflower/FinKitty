@@ -1049,7 +1049,9 @@ describe(testDataModelName, () => {
       recurrence: '',
       endDate: '',
       category: 'car',
-      message: `Dont allow a proportional transaction to a word-valued asset`,
+      message:
+        `Transaction 'Revalue carTest1 doubles we dont allow ` +
+        `a proportional transaction to a word-valued asset`,
     });
 
     ary = await getAssetChartData(driver);

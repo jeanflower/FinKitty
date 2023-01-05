@@ -136,7 +136,7 @@ function checkTransactionWords(
       !name.startsWith(pensionDB) && // transfer from income to pension benefit
       !name.startsWith(pensionTransfer) // transfer from one pension to another
     ) {
-      log(`Transaction ${name} from income 
+      log(`Transaction '${name}' from income 
         ${word} must be pension-related`);
       return false;
     }
@@ -170,7 +170,7 @@ function checkDate(d: Date) {
 }
 export function checkAssetLiability(l: string) {
   if (l.length > 0 && !l.endsWith(cgt) && !l.endsWith(incomeTax)) {
-    return `Asset liability ${l} should end with ${cgt} or ${incomeTax}`;
+    return `liability '${l}' should end with ${cgt} or ${incomeTax}`;
   }
   return '';
 }
@@ -205,10 +205,10 @@ export function isValidValue(value: string, model: ModelData): boolean {
 export function checkAsset(a: Asset, model: ModelData): string {
   // log(`checkAsset ${showObj(a)}`);
   if (a.NAME.length === 0) {
-    return 'Name should be not empty';
+    return 'Asset name should be not empty';
   }
   if (a.NAME.split(separator).length !== 1) {
-    return `Asset name '${a.NAME}' should not contain '${separator}'`;
+    return `Asset '${a.NAME}' should not contain '${separator}'`;
   }
   const val = parseFloat(a.VALUE);
   // log(`asset value is ${val}`);
@@ -222,36 +222,41 @@ export function checkAsset(a: Asset, model: ModelData): string {
       const word = words[idx];
       const x = checkAssetLiability(word);
       if (x.length > 0) {
-        return x;
+        return `Asset '${a.NAME}' ${x}`;
       }
     }
   }
 
   if (!isNumberString(a.GROWTH)) {
-    const settingVal = getSettings(model.settings, a.GROWTH, 'missing');
+    const settingVal = getSettings(model.settings, a.GROWTH, 'missing', false);
     if (settingVal === 'missing') {
-      return `Asset growth set to '${a.GROWTH}'
+      return `Asset '${a.NAME}' growth set to '${a.GROWTH}'
         but no corresponding setting found`;
     }
     if (!isNumberString(settingVal)) {
-      const settingVal2 = getSettings(model.settings, settingVal, 'missing');
+      const settingVal2 = getSettings(
+        model.settings,
+        settingVal,
+        'missing',
+        false,
+      );
       if (settingVal2 === 'missing') {
-        return `Asset growth set to '${a.GROWTH}'
+        return `Asset '${a.NAME}' growth set to '${a.GROWTH}'
           but corresponding setting not a number`;
       }
     }
   }
 
   if (!isValidValue(a.VALUE, model)) {
-    return `Asset value set to '${a.VALUE}'
+    return `Asset '${a.NAME}' value set to '${a.VALUE}'
       but no corresponding setting found`;
   }
   if (!isNumberString(a.VALUE)) {
     if (parseFloat(a.GROWTH) !== 0.0) {
-      return `Asset value '${a.VALUE}' may not have nonzero growth`;
+      return `Asset '${a.NAME}' value '${a.VALUE}' may not have nonzero growth`;
     }
     if (!a.CPI_IMMUNE) {
-      return `Asset value '${a.VALUE}' may not grow with CPI`;
+      return `Asset '${a.NAME}' value '${a.VALUE}' may not grow with CPI`;
     }
   }
 
@@ -264,7 +269,7 @@ export function checkAsset(a: Asset, model: ModelData): string {
       false, // allow for it not being there
     );
     if (setting === '') {
-      return `Purchase price '${a.PURCHASE_PRICE}' should be a numerical or setting value`;
+      return `Asset '${a.NAME}' purchase price '${a.PURCHASE_PRICE}' should be a numerical or setting value`;
     }
   }
 
@@ -274,7 +279,7 @@ export function checkAsset(a: Asset, model: ModelData): string {
     getVarVal(model.settings),
   );
   if (d === undefined || !checkDate(d)) {
-    return `Asset start date doesn't make sense :
+    return `Asset '${a.NAME}' start date doesn't make sense :
       ${showObj(a.START)}`;
   }
   return '';
@@ -287,18 +292,18 @@ export function checkIncomeLiability(l: string) {
     !l.endsWith(nationalInsurance)
   ) {
     return (
-      `Income liability '${l}' should end with ` +
+      `liability '${l}' should end with ` +
       `'${incomeTax}' or '${nationalInsurance}'`
     );
   }
   return '';
 }
 
-function checkRecurrence(descriptor: string, rec: string) {
+function checkRecurrence(rec: string) {
   const lastChar = rec.substring(rec.length - 1);
   // log(`lastChar of ${rec} = ${lastChar}`);
   if (!(lastChar === 'm' || lastChar === 'y' || lastChar === 'w')) {
-    return `${descriptor} recurrence '${rec}' must end in w, m or y`;
+    return `recurrence '${rec}' must end in w, m or y`;
   }
   const firstPart = rec.substring(0, rec.length - 1);
   // log(`firstPart of ${rec} = ${firstPart}`);
@@ -306,7 +311,7 @@ function checkRecurrence(descriptor: string, rec: string) {
   const val = parseFloat(firstPart);
   // log(`val from ${rec} = ${val}`);
   if (Number.isNaN(val)) {
-    return `${descriptor} recurrence '${rec}' must be a number ending in w, m or y`;
+    return `recurrence '${rec}' must be a number ending in w, m or y`;
   }
   return '';
 }
@@ -348,17 +353,19 @@ export function checkIncome(i: Income, model: ModelData): string {
     }
   }
   if (!isValidValue(i.VALUE, model)) {
-    return `Income value '${i.VALUE}' does not make sense`;
+    return `Income '${i.NAME}' value '${i.VALUE}' does not make sense`;
   }
   if (!isNumberString(i.VALUE)) {
     if (!i.CPI_IMMUNE) {
-      return `Income value '${i.VALUE}' may not grow with CPI`;
+      return `Income '${i.NAME}' value '${i.VALUE}' may not grow with CPI`;
     }
   }
   const v = getVarVal(model.settings);
   const startDate = checkTriggerDate(i.START, model.triggers, v);
   if (startDate === undefined || !checkDate(startDate)) {
-    return `Income start date doesn't make sense : ${showObj(i.START)}`;
+    return `Income '${i.NAME}' start date doesn't make sense : ${showObj(
+      i.START,
+    )}`;
   }
   const cashAssets = model.assets.filter((m) => {
     return m.NAME === CASH_ASSET_NAME;
@@ -366,7 +373,9 @@ export function checkIncome(i: Income, model: ModelData): string {
   if (cashAssets.length > 0) {
     const cashStarts = getTriggerDate(cashAssets[0].START, model.triggers, v);
     if (startDate < cashStarts) {
-      return `Income start date must be after cash starts; ${dateAsString(
+      return `Income '${
+        i.NAME
+      }' start date must be after cash starts; ${dateAsString(
         DateFormatType.View,
         startDate,
       )} is before ${dateAsString(DateFormatType.View, cashStarts)}`;
@@ -380,23 +389,24 @@ export function checkIncome(i: Income, model: ModelData): string {
   }
   const valueSetDate = checkTriggerDate(i.VALUE_SET, model.triggers, v);
   if (valueSetDate === undefined || !checkDate(valueSetDate)) {
-    return `Income value set date doesn't make sense : ${showObj(i.VALUE_SET)}`;
+    return `Income '${i.NAME}' value set date doesn't make sense : ${showObj(
+      i.VALUE_SET,
+    )}`;
   }
   const endDate = checkTriggerDate(i.END, model.triggers, v);
   if (endDate === undefined || !checkDate(endDate)) {
-    return `Income end date doesn't make sense : ${showObj(i.END)}`;
+    return `Income '${i.NAME}' end date doesn't make sense : ${showObj(i.END)}`;
   }
   if (valueSetDate > startDate) {
-    return `Income value must be set on or before the start of the income.
-      For ${i.NAME}, start is ${dateAsString(
-      DateFormatType.View,
-      startDate,
-    )} and
+    return `Income '${
+      i.NAME
+    }' value must be set on or before the start of the income.
+      Start is ${dateAsString(DateFormatType.View, startDate)} and
       value is set ${dateAsString(DateFormatType.View, valueSetDate)}.`;
   }
-  const checkRec = checkRecurrence('income', i.RECURRENCE);
+  const checkRec = checkRecurrence(i.RECURRENCE);
   if (checkRec !== '') {
-    return checkRec;
+    return `Income '${i.NAME}' ${checkRec}`;
   }
   return '';
 }
@@ -406,7 +416,7 @@ export function checkExpense(e: Expense, model: ModelData): string {
     return 'Expense name needs some characters';
   }
   if (!isValidValue(e.VALUE, model)) {
-    return `Expense value '${e.VALUE}' is not a number`;
+    return `Expense '${e.NAME}' value '${e.VALUE}' is not a number`;
   }
   if (!isNumberString(e.VALUE)) {
     if (!e.CPI_IMMUNE) {
@@ -416,25 +426,24 @@ export function checkExpense(e: Expense, model: ModelData): string {
   const v = getVarVal(model.settings);
   const startDate = checkTriggerDate(e.START, model.triggers, v);
   if (startDate === undefined || !checkDate(startDate)) {
-    return `Expense start date doesn't make sense :
+    return `Expense '${e.NAME}' start date doesn't make sense :
       ${showObj(e.START)}`;
   }
   const valueSetDate = checkTriggerDate(e.VALUE_SET, model.triggers, v);
   if (valueSetDate === undefined || !checkDate(valueSetDate)) {
-    return `Expense value set date doesn't make sense :
+    return `Expense '${e.NAME}' value set date doesn't make sense :
       ${showObj(e.VALUE_SET)}`;
   }
   const endDate = checkTriggerDate(e.END, model.triggers, v);
   if (endDate === undefined || !checkDate(endDate)) {
-    return `Expense end date doesn't make sense :
+    return `Expense '${e.NAME}' end date doesn't make sense :
       ${showObj(e.END)}`;
   }
   if (valueSetDate > startDate) {
-    return `Expense value must be set on or before the start of the income.
-      For ${e.NAME}, start is ${dateAsString(
-      DateFormatType.View,
-      startDate,
-    )} and
+    return `Expense '${
+      e.NAME
+    }' value must be set on or before the start of the income.
+      Start is ${dateAsString(DateFormatType.View, startDate)} and
       value is set ${dateAsString(DateFormatType.View, valueSetDate)}.`;
   }
 
@@ -450,9 +459,9 @@ export function checkExpense(e: Expense, model: ModelData): string {
     }
   }
 
-  const checkRec = checkRecurrence('expense', e.RECURRENCE);
+  const checkRec = checkRecurrence(e.RECURRENCE);
   if (checkRec !== '') {
-    return checkRec;
+    return `Expense '${e.NAME}' ${checkRec}`;
   }
   return '';
 }
@@ -478,7 +487,7 @@ function checkTransactionFrom(word: string, settings: Setting[]) {
       return '';
     }
   }
-  return `Transaction 'from' value must be numbers or a setting, not ${word}`;
+  return `'from' value must be numbers or a setting, not '${word}'`;
 }
 
 function checkTransactionTo(word: string, t: Transaction, model: ModelData) {
@@ -487,17 +496,17 @@ function checkTransactionTo(word: string, t: Transaction, model: ModelData) {
   const a = model.assets.find((as) => as.NAME === word || as.CATEGORY === word);
   if (a !== undefined) {
     if (t.NAME.startsWith(pensionDB)) {
-      return `Transaction ${getDisplayName(
+      return `Transaction '${getDisplayName(
         t.NAME,
         t.TYPE,
-      )} should have TO an income not an asset : ${a.NAME}`;
+      )}'' should have TO an income not an asset : ${a.NAME}`;
     }
     if (
       getTriggerDate(a.START, triggers, v) > getTriggerDate(t.DATE, triggers, v)
     ) {
       return (
-        `Transaction ${getDisplayName(t.NAME, t.TYPE)} dated before start ` +
-        `of affected asset : ${a.NAME}`
+        `Transaction '${getDisplayName(t.NAME, t.TYPE)}' dated before start ` +
+        `of affected asset : '${a.NAME}'`
       );
     }
     return '';
@@ -511,16 +520,17 @@ function checkTransactionTo(word: string, t: Transaction, model: ModelData) {
       !t.NAME.startsWith(pensionTransfer)
     ) {
       return (
-        `Transactions to incomes must begin '${revalue}' ` +
+        `Transaction '${getDisplayName(t.NAME, t.TYPE)}' to an income ` +
+        `must begin '${revalue}' ` +
         `or '${pensionDB} or ${pensionTransfer}`
       );
     }
     if (t.NAME.startsWith(pensionDB)) {
       if (!i.NAME.startsWith(pensionDB)) {
-        return `Transaction ${getDisplayName(
+        return `Transaction '${getDisplayName(
           t.NAME,
           t.TYPE,
-        )} must have TO income ${t.TO} named starting ${pensionDB}`;
+        )}' must have TO income ${t.TO} named starting ${pensionDB}`;
       }
     }
     // transacting on an income - check dates
@@ -530,8 +540,10 @@ function checkTransactionTo(word: string, t: Transaction, model: ModelData) {
         getTriggerDate(t.DATE, triggers, v)
       ) {
         return (
-          `Transaction ${getDisplayName(t.NAME, t.TYPE)} dated before start ` +
-          `of affected income : ${i.NAME}`
+          `Transaction '${getDisplayName(
+            t.NAME,
+            t.TYPE,
+          )}' dated before start ` + `of affected income : '${i.NAME}'`
         );
       }
     }
@@ -542,7 +554,10 @@ function checkTransactionTo(word: string, t: Transaction, model: ModelData) {
   if (exp !== undefined) {
     // transacting on an expense - must be a revaluation
     if (!t.NAME.startsWith(revalue)) {
-      return `Transactions to expenses must begin '${revalue}'`;
+      return (
+        `Transaction '${getDisplayName(t.NAME, t.TYPE)}' ` +
+        `to an expense must begin '${revalue}'`
+      );
     }
     // transacting on an expense - check dates
     if (
@@ -550,16 +565,16 @@ function checkTransactionTo(word: string, t: Transaction, model: ModelData) {
       getTriggerDate(t.DATE, triggers, v)
     ) {
       return (
-        `Transaction ${getDisplayName(t.NAME, t.TYPE)} dated before start ` +
-        `of affected expense : ${exp.NAME}`
+        `Transaction '${getDisplayName(t.NAME, t.TYPE)}' dated before start ` +
+        `of affected expense : '${exp.NAME}'`
       );
     }
     if (
       getTriggerDate(exp.END, triggers, v) < getTriggerDate(t.DATE, triggers, v)
     ) {
       return (
-        `Transaction ${getDisplayName(t.NAME, t.TYPE)} dated after end ` +
-        `of affected expense : ${exp.NAME}`
+        `Transaction '${getDisplayName(t.NAME, t.TYPE)}' dated after end ` +
+        `of affected expense : '${exp.NAME}'`
       );
     }
     return '';
@@ -569,18 +584,21 @@ function checkTransactionTo(word: string, t: Transaction, model: ModelData) {
   if (s !== undefined) {
     // transacting on an setting - must be a revaluation
     if (!t.NAME.startsWith(revalue)) {
-      return `Transactions to setting must begin '${revalue}'`;
+      return (
+        `Transaction '${getDisplayName(t.NAME, t.TYPE)}' ` +
+        `to a setting must begin '${revalue}'`
+      );
     }
     return '';
   }
-  return `Transaction ${getDisplayName(
+  return `Transaction '${getDisplayName(
     t.NAME,
     t.TYPE,
   )} to unrecognised thing : ${word}`;
 }
 
 function isAutogenType(t: Transaction, model: ModelData) {
-  // log(`check transaction ${getDisplayName(t.NAME, t.TYPE)}`);
+  // log(`check Transaction '${getDisplayName(t.NAME, t.TYPE)}'`);
   let recognised = false;
   /*
     const contributions: Transaction = {
@@ -885,7 +903,7 @@ function isRevalueAssetType(t: Transaction, model: ModelData) {
 }
 
 function isRevalueIncomeType(t: Transaction, model: ModelData) {
-  // log(`check transaction ${getDisplayName(t.NAME, t.TYPE)}`);
+  // log(`check Transaction '${getDisplayName(t.NAME, t.TYPE)}'`);
   let recognised = false;
   if (
     t.NAME.startsWith(revalue) &&
@@ -971,11 +989,17 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
     return 'Transaction name needs some characters';
   }
   if (t.NAME.startsWith(conditional) && t.TO === '') {
-    return `Conditional transaction ${t.NAME} needs a 'To' asset defined`;
+    return `Conditional Transaction '${getDisplayName(
+      t.NAME,
+      t.TYPE,
+    )}'  needs a 'To' asset defined`;
   }
   const d = checkTriggerDate(t.DATE, triggers, getVarVal(model.settings));
   if (d === undefined || !checkDate(d)) {
-    return `Transaction ${t.NAME} has bad date : ${showObj(t.DATE)}`;
+    return `Transaction '${getDisplayName(
+      t.NAME,
+      t.TYPE,
+    )}'  has bad date : ${showObj(t.DATE)}`;
   }
   // log(`transaction date ${getTriggerDate(t.DATE, triggers)}`);
   if (t.FROM !== '') {
@@ -990,7 +1014,8 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
         if (!checkTransactionWords(t.NAME, word, t.DATE, model)) {
           // flag a problem
           return (
-            `Transaction ${t.NAME} from unrecognised asset (could ` +
+            `Transaction '${getDisplayName(t.NAME, t.TYPE)}' ` +
+            `from unrecognised asset (could ` +
             `be typo or before asset start date?) : ${showObj(word)}`
           );
         }
@@ -1004,7 +1029,8 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
       } else {
         // flag a problem
         return (
-          `Transaction ${t.NAME} needs to go to ${CASH_ASSET_NAME}` +
+          `Transaction '${getDisplayName(t.NAME, t.TYPE)}'` +
+          ` needs to go to ${CASH_ASSET_NAME}` +
           ` for proper income tax calculation`
         );
       }
@@ -1014,7 +1040,7 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
     } else if (!isNumberString(t.FROM_VALUE)) {
       const outcome = checkTransactionFrom(t.FROM_VALUE, settings);
       if (outcome !== '') {
-        return outcome;
+        return `Transaction '${getDisplayName(t.NAME, t.TYPE)}' ${outcome}`;
       }
     }
   }
@@ -1056,9 +1082,14 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
     if (t.TYPE === revalueSetting) {
       // log(`anything goes!`);
     } else if (t.TO_VALUE === '') {
-      return `Transaction to ${t.TO} needs a non-empty to value`;
+      return `Transaction '${getDisplayName(
+        t.NAME,
+        t.TYPE,
+      )}' needs a non-empty to value`;
     } else if (!isValidValue(t.TO_VALUE, model)) {
-      return `Transaction to value ${t.TO_VALUE} isn't a number or setting`;
+      return `Transaction '${getDisplayName(t.NAME, t.TYPE)}' to value '${
+        t.TO_VALUE
+      }' isn't a number or setting`;
     }
   }
   if (t.RECURRENCE.length > 0) {
@@ -1068,17 +1099,17 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
       t.NAME.startsWith(pensionDB)
     ) {
       return (
-        `Pension transaction ${getDisplayName(
+        `Pension transaction '${getDisplayName(
           t.NAME,
           t.TYPE,
-        )} gets frequency from income, ` +
-        `should not have recurrence ${t.RECURRENCE} defined`
+        )}' gets frequency from income, ` +
+        `should not have recurrence '${t.RECURRENCE}' defined`
       );
     }
 
-    const checkRec = checkRecurrence('transaction', t.RECURRENCE);
+    const checkRec = checkRecurrence(t.RECURRENCE);
     if (checkRec !== '') {
-      return checkRec;
+      return `Transaction '${getDisplayName(t.NAME, t.TYPE)}' ${checkRec}`;
     }
   }
   if (
@@ -1094,10 +1125,13 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
     t.TYPE !== revalueExp &&
     t.TYPE !== revalueSetting
   ) {
-    return `transaction type  ${t.TYPE} for ${getDisplayName(
-      t.NAME,
-      t.TYPE,
-    )} is not one of allowed types - internal bug`;
+    return (
+      `Transaction '${getDisplayName(t.NAME, t.TYPE)}' ` +
+      `type  ${t.TYPE} for ${getDisplayName(
+        t.NAME,
+        t.TYPE,
+      )} is not one of allowed types - internal bug`
+    );
   }
   if (t.TYPE === autogen) {
     // there are a known set of type of
@@ -1105,36 +1139,42 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
     const recognised = isAutogenType(t, model);
     if (!recognised) {
       log(`bad transaction ${showObj(t)} in model ${showObj(model)}`);
-      return `autogenerated type of transaction ${getDisplayName(
+      return `Transaction '${getDisplayName(
         t.NAME,
         t.TYPE,
-      )} not a recognised format`;
+      )}' is not in a recognised auto-generated format`;
     }
   }
   if (t.TYPE === liquidateAsset) {
     const recognised = isLiquidateAssetType(t);
     if (!recognised) {
-      return `liquidating type of transaction ${getDisplayName(
+      return `Transaction '${getDisplayName(
         t.NAME,
         t.TYPE,
-      )} not a recognised format`;
+      )}' has liquidating type not in a recognised format`;
     }
   }
   if (t.TYPE === payOffDebt) {
     const recognised = isPayOffDebtType(t, model);
     if (!recognised) {
-      return `payoff debt type of transaction ${getDisplayName(
+      return `Transaction '${getDisplayName(
         t.NAME,
         t.TYPE,
-      )} not a recognised format`;
+      )}' has payoff debt type not in a recognised format`;
     }
   }
   if (t.TYPE === bondInvest) {
     if (t.FROM !== CASH_ASSET_NAME) {
-      return `May only invest in Bond from ${CASH_ASSET_NAME} : malformed transaction ${t.NAME}`;
+      return `Transaction '${getDisplayName(
+        t.NAME,
+        t.TYPE,
+      )}' may only invest in Bond from ${CASH_ASSET_NAME}`;
     }
     if (!t.FROM_VALUE.startsWith(bondMaturity)) {
-      return `Investment in Bond needs ${bondMaturity} as start of from value : malformed transaction ${t.NAME}`;
+      return `Transaction '${getDisplayName(
+        t.NAME,
+        t.TYPE,
+      )}' investment in Bond needs ${bondMaturity} as start of from value`;
     }
     // The bondInvest value should be BMV + a setting which is revalued at least once
     // and all revalues finish before the date of the investment
@@ -1145,10 +1185,16 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
     });
     if (matchedSettings.length === 0) {
       /* istanbul ignore next */ // triggers Transaction 'from' value must be numbers or a setting
-      return `May only invest into Bond if there's a setting ${trimmedFromValue} : malformed transaction ${t.NAME}`;
+      return `Transaction '${getDisplayName(
+        t.NAME,
+        t.TYPE,
+      )}' may only invest into Bond if there's a setting ${trimmedFromValue}`;
     } else if (matchedSettings.length > 1) {
       /* istanbul ignore next */ // don't expect duplicate settings
-      return `May only invest into Bond if there's a unique setting ${trimmedFromValue} : malformed transaction ${t.NAME}`;
+      return `Transaction '${getDisplayName(
+        t.NAME,
+        t.TYPE,
+      )}' may only invest into Bond if there's a unique setting ${trimmedFromValue}`;
     }
     // This setting should be revalued and only revalued before the investment
     const matchedRevalues = model.transactions.filter((rev) => {
@@ -1162,8 +1208,11 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
     });
     if (matchedRevalues.length === 0) {
       return (
-        `May only invest into Bond if the setting ${trimmedFromValue} is revalued ` +
-        `(so we capture the revalue date) : malformed transaction ${t.NAME}`
+        `'${getDisplayName(
+          t.NAME,
+          t.TYPE,
+        )}' may only invest into Bond if the setting ${trimmedFromValue} is revalued ` +
+        `(so we capture the revalue date)`
       );
     }
     const tooLateRevalues = matchedRevalues.filter((late) => {
@@ -1171,16 +1220,25 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
     });
     if (tooLateRevalues.length > 0) {
       return (
-        `May only invest into Bond if the setting ${trimmedFromValue} is not revalued ` +
-        `after investment date : malformed transaction ${t.NAME}`
+        `'${getDisplayName(
+          t.NAME,
+          t.TYPE,
+        )}' may only invest into Bond if the setting ${trimmedFromValue} is not revalued ` +
+        `after investment date`
       );
     }
   } else if (t.TYPE === bondMature) {
     if (t.TO !== CASH_ASSET_NAME) {
-      return `May only mature from Bond to ${CASH_ASSET_NAME} : malformed transaction ${t.NAME}`;
+      return `Transaction '${getDisplayName(
+        t.NAME,
+        t.TYPE,
+      )}' may only mature from Bond to ${CASH_ASSET_NAME}`;
     }
     if (!t.FROM_VALUE.startsWith(bondMaturity)) {
-      return `Maturing Bond needs ${bondMaturity} as start of from value : malformed transaction ${t.NAME}`;
+      return `Transaction '${getDisplayName(
+        t.NAME,
+        t.TYPE,
+      )}' maturing Bond needs ${bondMaturity} as start of from value`;
     }
     const v = getVarVal(model.settings);
     // every bondMature transaction needs a partner bondInvest transaction.
@@ -1227,65 +1285,74 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
     });
     if (invests.length !== 1) {
       if (invests.length === 0) {
-        return `Malformed model : bond maturation ${t.NAME} requires an investment`;
+        return `Transaction '${getDisplayName(
+          t.NAME,
+          t.TYPE,
+        )} bond maturation requires an investment`;
       } else {
         /* istanbul ignore next */ // don't test models with multiple investments
-        return `Malformed model : bond maturation ${t.NAME} requires only one investment`;
+        return `Transaction '${getDisplayName(
+          t.NAME,
+          t.TYPE,
+        )} bond maturation requires only one investment`;
       }
     }
   } else {
     // log(`checking ${t.NAME} for use of ${bondMaturity} out of context in ${t.FROM_VALUE}`);
     if (t.FROM_VALUE.startsWith(bondMaturity)) {
       // log(`from value begins ${bondMaturity}!`);
-      return `Malformed transaction : only ${bondInvest} and ${bondMature} types use ${bondMaturity}`;
+      return `Transaction '${getDisplayName(
+        t.NAME,
+        t.TYPE,
+      )}' only ${bondInvest} and ${bondMature} types use ${bondMaturity}`;
     }
   }
   if (t.TYPE === revalueAsset) {
     const recognised = isRevalueAssetType(t, model);
     if (!recognised) {
-      return `revalue asset type of transaction ${getDisplayName(
+      return `Transaction '${getDisplayName(
         t.NAME,
         t.TYPE,
-      )} not a recognised format`;
+      )}' revalue asset type of not in a recognised format`;
       //} else {
-      //  log(`revalue asset type of transaction ${getDisplayName(t.NAME, t.TYPE)} is a recognised format`);
+      //  log(`revalue asset type of Transaction '${getDisplayName(t.NAME, t.TYPE)}' is a recognised format`);
       //}
     }
   }
   if (t.TYPE === revalueDebt) {
     const recognised = isRevalueDebtType(t, model);
     if (!recognised) {
-      return `revalue debt type of transaction ${getDisplayName(
+      return `Transaction '${getDisplayName(
         t.NAME,
         t.TYPE,
-      )} not a recognised format`;
+      )}' revalue debt type not in a recognised format`;
     }
   }
   if (t.TYPE === revalueInc) {
     const recognised = isRevalueIncomeType(t, model);
     if (!recognised) {
-      return `revalue income type of transaction ${getDisplayName(
+      return `Transaction '${getDisplayName(
         t.NAME,
         t.TYPE,
-      )} not a recognised format`;
+      )}' revalue income type not in a recognised format`;
     }
   }
   if (t.TYPE === revalueExp) {
     const recognised = isRevalueExpenseType(t, model);
     if (!recognised) {
-      return `revalue expense type of transaction ${getDisplayName(
+      return `Transaction '${getDisplayName(
         t.NAME,
         t.TYPE,
-      )} not a recognised format`;
+      )}' revalue expense type not in a recognised format`;
     }
   }
   if (t.TYPE === revalueSetting) {
     const recognised = isRevalueSettingType(t, model);
     if (!recognised) {
-      return `revalue setting type of transaction ${getDisplayName(
+      return `Transaction '${getDisplayName(
         t.NAME,
         t.TYPE,
-      )} not a recognised format`;
+      )}' revalue setting type not in a recognised format`;
     }
   }
   if (t.TYPE === custom) {
@@ -1293,10 +1360,10 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
     // autogenerated transactions - we should be one of these
     const recognised = isCustomType(t);
     if (!recognised) {
-      return `custom type of transaction ${getDisplayName(
+      return `Transaction '${getDisplayName(
         t.NAME,
         t.TYPE,
-      )} not a recognised format`;
+      )}' custom type not in a recognised format`;
     }
   }
 
@@ -1314,7 +1381,10 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
     if (targetAsset) {
       const wordsAndNum = getNumberAndWordParts(targetAsset.VALUE);
       if (wordsAndNum.wordPart !== '') {
-        return 'Dont allow a proportional transaction to a word-valued asset';
+        return `Transaction '${getDisplayName(
+          t.NAME,
+          t.TYPE,
+        )} we dont allow a proportional transaction to a word-valued asset`;
       }
     }
     const targetIncome = model.incomes.find((i) => {
@@ -1323,7 +1393,10 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
     if (targetIncome) {
       const wordsAndNum = getNumberAndWordParts(targetIncome.VALUE);
       if (wordsAndNum.wordPart !== '') {
-        return 'Dont allow a proportional transaction to a word-valued income';
+        return `Transaction '${getDisplayName(
+          t.NAME,
+          t.TYPE,
+        )} don't allow a proportional transaction to a word-valued income`;
       }
     }
     const targetExpense = model.expenses.find((i) => {
@@ -1332,7 +1405,10 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
     if (targetExpense) {
       const wordsAndNum = getNumberAndWordParts(targetExpense.VALUE);
       if (wordsAndNum.wordPart !== '') {
-        return 'Dont allow a proportional transaction to a word-valued expense';
+        return `Transaction '${getDisplayName(
+          t.NAME,
+          t.TYPE,
+        )} don't allow a proportional transaction to a word-valued expense`;
       }
     }
   }
@@ -1359,13 +1435,13 @@ function checkTriggerName(tName: string): string {
     return 'Date name needs some characters';
   }
   if (tName === 'today') {
-    return `Date name can't be 'today'`;
+    return `Date ${tName} name prohibited as a special word`;
   }
   if (tName.includes('+')) {
-    return `Date names cannot contain a '+' character`;
+    return `Date ${tName} cannot contain a '+' character`;
   }
   if (tName.includes('-')) {
-    return `Date names cannot contain a '-' character`;
+    return `Date ${tName} cannot contain a '-' character`;
   }
   return '';
 }
@@ -1377,7 +1453,7 @@ export function checkTrigger(t: Trigger, model: ModelData): string {
     return nameCheck;
   }
   if (!checkTriggerDate(t.DATE, model.triggers, getVarVal(model.settings))) {
-    return `Your important date is not valid : ${t.DATE}`;
+    return `Date '${t.NAME}' is not valid : '${t.DATE}'`;
   }
   return '';
 }

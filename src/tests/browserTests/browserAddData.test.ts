@@ -80,7 +80,7 @@ describe(testDataModelName, () => {
       driver,
       'testDate2',
       'junk',
-      'Your important date is not valid : junk',
+      `Date 'testDate2' is not valid : 'junk'`,
     );
     await addDate(
       driver,
@@ -211,7 +211,8 @@ describe(testDataModelName, () => {
       name: 'proportionOfAsset',
       value: `0.5${CASH_ASSET_NAME}`,
       growsWithInflation: 'Y',
-      message: `Income value '0.5Cash' may not grow with CPI`,
+      message:
+        `Income 'proportionOfAsset' value '0.5Cash' ` + `may not grow with CPI`,
     });
 
     await clearIncomeFields(driver);
@@ -265,9 +266,7 @@ describe(testDataModelName, () => {
     await revalueIncome(driver, {
       ...revalueInputs,
       revaluationDate: '1 Jan 2020',
-      message:
-        'Transaction javaJob1 2 dated before start of affected income : javaJob1',
-      // TODO not a helpul error message
+      message: `Transaction 'javaJob1 2' dated before start of affected income : 'javaJob1'`,
     });
 
     await cleanUpWork(driver, testDataModelName);
@@ -333,7 +332,7 @@ describe(testDataModelName, () => {
     await addExpense(driver, {
       ...expenseInputs,
       recurrence: 'junk',
-      message: `expense recurrence 'junk' must end in w, m or y`,
+      message: `Expense 'broadband' recurrence 'junk' must end in w, m or y`,
     });
 
     await cleanUpWork(driver, testDataModelName);
@@ -378,9 +377,7 @@ describe(testDataModelName, () => {
     await revalueExpense(driver, {
       ...revalueInputs,
       revaluationDate: '1 Jan 2020',
-      message:
-        'Transaction broadband 2 dated before start of affected expense : broadband',
-      // TODO not a helpul error message
+      message: `Transaction 'broadband 2' dated before start of affected expense : 'broadband'`,
     });
 
     await cleanUpWork(driver, testDataModelName);
@@ -453,7 +450,7 @@ describe(testDataModelName, () => {
     await addAsset(driver, {
       ...assetInputs,
       purchasePrice: 'junk',
-      message: `Purchase price 'junk' should be a numerical or setting value`,
+      message: `Asset 'hifi' purchase price 'junk' should be a numerical or setting value`,
     });
 
     await cleanUpWork(driver, testDataModelName);
@@ -497,7 +494,7 @@ describe(testDataModelName, () => {
     await revalueAsset(driver, {
       ...revalueInputs,
       revaluationDate: '1 Jan 2020',
-      message: 'Transaction hifi 2 dated before start of affected asset : hifi',
+      message: `Transaction 'hifi 2' dated before start of affected asset : 'hifi'`,
       // TODO not a helpul error message
     });
 

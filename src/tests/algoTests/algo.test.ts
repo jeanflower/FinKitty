@@ -49,6 +49,7 @@ import {
 import {
   log,
   printDebug,
+  showObj,
   suppressLogs,
   unSuppressLogs,
 } from '../../utils/utils';
@@ -58,6 +59,8 @@ import {
   makeModelFromJSON,
   makeModelFromJSONString,
   makeRevalueName,
+  markForUndo,
+  revertToUndoModel,
   setNonsenseSetting,
   setROI,
   setSetting,
@@ -96,6 +99,7 @@ import {
   getMinimalModelCopySettings,
 } from './algoTestUtils';
 import { getCategory } from '../../models/category';
+import { deleteItemsFromModelInternal } from '../../App';
 
 /* global it */
 /* global expect */
@@ -105,6 +109,7 @@ log;
 printDebug;
 printTestCodeForEvals;
 printTestCodeForChart;
+showObj;
 
 describe('evaluations tests', () => {
   it('should ignore future expenses A', (done) => {
@@ -8068,5 +8073,264 @@ describe('evaluations tests', () => {
     expect(filterForOld(model.settings).length).toBe(0);
 
     done();
+  });
+  it('delete items from model', async () => {
+    const model = makeModelFromJSON(mortgageSwitchExampleData);
+    // log(showObj(model));
+
+    [
+      model.assets,
+      model.incomes,
+      model.expenses,
+      model.triggers,
+      model.transactions,
+      model.settings,
+    ].map(async (items) => {
+      const response = await deleteItemsFromModelInternal(
+        ['nonsense'],
+        items,
+        model.name,
+        model,
+        true,
+      );
+      expect(response).toBe('nonsense');
+    });
+    let response = await deleteItemsFromModelInternal(
+      [CASH_ASSET_NAME],
+      model.incomes,
+      model.name,
+      model,
+      true,
+    );
+    expect(response).toBe(CASH_ASSET_NAME);
+    response = await deleteItemsFromModelInternal(
+      [CASH_ASSET_NAME],
+      model.assets,
+      model.name,
+      model,
+      true,
+    );
+    expect(response).not.toBe('');
+
+    // log(showObj(model.assets.map((i)=>{return i.NAME})));
+
+    expect(model.assets.length).toBe(5);
+    markForUndo(model);
+    response = await deleteItemsFromModelInternal(
+      ['ISAs'],
+      model.assets,
+      model.name,
+      model,
+      true,
+    );
+    expect(response).toBe('');
+    expect(model.assets.length).toBe(4);
+    revertToUndoModel(model);
+    expect(model.assets.length).toBe(5);
+
+    response = await deleteItemsFromModelInternal(
+      ['ISAs', 'Stocks'],
+      model.assets,
+      model.name,
+      model,
+      true,
+    );
+    expect(response).not.toBe('');
+
+    // log(showObj(model.incomes.map((i)=>{return i.NAME})));
+
+    expect(model.incomes.length).toBe(3);
+    markForUndo(model);
+    response = await deleteItemsFromModelInternal(
+      ['Side hustle income'],
+      model.incomes,
+      model.name,
+      model,
+      true,
+    );
+    expect(response).toBe('');
+    expect(model.incomes.length).toBe(2);
+    revertToUndoModel(model);
+    expect(model.incomes.length).toBe(3);
+
+    expect(model.incomes.length).toBe(3);
+    markForUndo(model);
+    response = await deleteItemsFromModelInternal(
+      ['Side hustle income', 'Side hustle income later'],
+      model.incomes,
+      model.name,
+      model,
+      true,
+    );
+    expect(response).toBe('');
+    expect(model.incomes.length).toBe(1);
+    revertToUndoModel(model);
+    expect(model.incomes.length).toBe(3);
+
+    // log(showObj(model.expenses.map((i)=>{return i.NAME})));
+
+    expect(model.expenses.length).toBe(3);
+    markForUndo(model);
+    response = await deleteItemsFromModelInternal(
+      ['Look after dogs'],
+      model.expenses,
+      model.name,
+      model,
+      true,
+    );
+    expect(response).toBe('');
+    expect(model.expenses.length).toBe(2);
+    revertToUndoModel(model);
+    expect(model.expenses.length).toBe(3);
+
+    expect(model.expenses.length).toBe(3);
+    markForUndo(model);
+    response = await deleteItemsFromModelInternal(
+      ['Look after dogs', 'Run house'],
+      model.expenses,
+      model.name,
+      model,
+      true,
+    );
+    expect(response).toBe('');
+    expect(model.expenses.length).toBe(1);
+    revertToUndoModel(model);
+    expect(model.expenses.length).toBe(3);
+
+    // log(showObj(model.transactions.map((i)=>{return i.NAME})));
+
+    expect(model.transactions.length).toBe(6);
+    markForUndo(model);
+    response = await deleteItemsFromModelInternal(
+      ['SellCar'],
+      model.transactions,
+      model.name,
+      model,
+      true,
+    );
+    expect(response).toBe('');
+    expect(model.transactions.length).toBe(5);
+    revertToUndoModel(model);
+    expect(model.transactions.length).toBe(6);
+    markForUndo(model);
+    response = await deleteItemsFromModelInternal(
+      ['SellCar', 'switchMortgage'],
+      model.transactions,
+      model.name,
+      model,
+      true,
+    );
+    expect(response).toBe('');
+    expect(model.transactions.length).toBe(4);
+    revertToUndoModel(model);
+    expect(model.transactions.length).toBe(6);
+
+    //log(showObj(model.triggers.map((i)=>{return i.NAME})));
+
+    expect(model.triggers.length).toBe(3);
+    markForUndo(model);
+    response = await deleteItemsFromModelInternal(
+      ['TransferMortgage'],
+      model.transactions,
+      model.name,
+      model,
+      true,
+    );
+    expect(response).toBe('TransferMortgage');
+    expect(model.triggers.length).toBe(3);
+
+    response = await deleteItemsFromModelInternal(
+      ['Conditional pay early mortgage'],
+      model.transactions,
+      model.name,
+      model,
+      true,
+    );
+    expect(response).toBe('');
+    response = await deleteItemsFromModelInternal(
+      ['Conditional pay late mortgage'],
+      model.transactions,
+      model.name,
+      model,
+      true,
+    );
+    expect(response).toBe('');
+    response = await deleteItemsFromModelInternal(
+      ['switchMortgage'],
+      model.transactions,
+      model.name,
+      model,
+      true,
+    );
+    expect(response).toBe('');
+    response = await deleteItemsFromModelInternal(
+      ['TransferMortgage'],
+      model.triggers,
+      model.name,
+      model,
+      true,
+    );
+    expect(response).toBe('');
+    expect(model.triggers.length).toBe(2);
+
+    revertToUndoModel(model);
+    expect(model.triggers.length).toBe(3);
+
+    /*
+    log(
+      showObj(
+        model.settings.map((i) => {
+          return i.NAME;
+        }),
+      ),
+    );
+    */
+    expect(model.settings.length).toBe(6);
+    markForUndo(model);
+    response = await deleteItemsFromModelInternal(
+      ['stockMarketGrowth'],
+      model.settings,
+      model.name,
+      model,
+      true,
+    );
+    expect(response).not.toBe('');
+    expect(model.settings.length).toBe(6);
+
+    response = await deleteItemsFromModelInternal(
+      ['Revalue stocks after loss in 2020 market crash'],
+      model.transactions,
+      model.name,
+      model,
+      true,
+    );
+    expect(response).toBe('');
+    response = await deleteItemsFromModelInternal(
+      ['Stocks'],
+      model.assets,
+      model.name,
+      model,
+      true,
+    );
+    expect(response).toBe('');
+    response = await deleteItemsFromModelInternal(
+      ['ISAs'],
+      model.assets,
+      model.name,
+      model,
+      true,
+    );
+    expect(response).toBe('');
+    response = await deleteItemsFromModelInternal(
+      ['stockMarketGrowth'],
+      model.settings,
+      model.name,
+      model,
+      true,
+    );
+    expect(response).toBe('');
+    expect(model.settings.length).toBe(5);
+    revertToUndoModel(model);
+    expect(model.settings.length).toBe(6);
   });
 });

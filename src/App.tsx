@@ -1169,18 +1169,55 @@ export async function setFavouriteInModel(
   );
   return true;
 }
-export async function deleteItemsFromModel(
+
+// returns '' for success and an error message
+// if the deletion would cause a checker error
+export async function deleteItemsFromModelInternal(
   names: string[],
   itemList: Item[],
   modelName: string,
   model: ModelData,
   doChecks: boolean,
-): Promise<boolean> {
+): Promise<string> {
   // log(`delete items ${names}`);
   //log(`before itemList ${itemList.map((i)=>{return i.NAME})}`);
 
+  // If we are to delete something, there might be dependent
+  // items.  We could just refuse to delete and let the customer
+  // go and delete the dependenta manually, first.
+  // What follows is an attempt to be more helpful...
+  // let dependentsFound = true;
+  let nameFound = true;
+  let nameIndex = 0;
+  while (nameIndex < names.length && nameFound) {
+    // dependentsFound = false;
+    nameFound = false;
+    const name = names[nameIndex];
+    // we expect this to be a name of something
+    const idx = itemList.findIndex((i: Item) => {
+      return i.NAME === name;
+    });
+    if (idx === -1) {
+      nameFound = false;
+      break;
+    }
+
+    nameFound = true;
+    nameIndex = nameIndex + 1;
+  }
+  // upon exit, check whether nameFound === false
+  if (!nameFound) {
+    const response = `item not found for delete :${names[nameIndex]}`;
+    // log(`setState for delete item alert`);
+    if (reactAppComponent) {
+      reactAppComponent.setState({
+        alertText: response,
+      });
+    }
+    return names[nameIndex];
+  }
+
   markForUndo(model);
-  let missingItem: string | undefined = undefined;
   names.map((name) => {
     const idx = itemList.findIndex((i: Item) => {
       return i.NAME === name;
@@ -1192,31 +1229,23 @@ export async function deleteItemsFromModel(
       itemList.splice(idx, 1);
       // log(`after delete ${name}, itemList = ${showObj(itemList)}`);
     } else {
-      missingItem = name;
+      throw new Error(`we didn't find ${name}, should have noticed earlier`);
     }
   });
-  if (missingItem !== undefined) {
-    const response = `item not found for delete :${missingItem}`;
-    // log(`setState for delete item alert`);
-    reactAppComponent.setState({
-      alertText: response,
-    });
-    // log(`revert attempt to delete - missing item`);
-    revertToUndoModel(model);
-    return false;
-  }
 
   if (doChecks) {
     const checkResponse = checkData(model);
     if (checkResponse !== '') {
       const response = `edited  model fails checks :${checkResponse}', reverting`;
       // log(`setState for delete item alert`);
-      reactAppComponent.setState({
-        alertText: response,
-      });
+      if (reactAppComponent) {
+        reactAppComponent.setState({
+          alertText: response,
+        });
+      }
       // log(`revert attempt to delete - fails checks`);
       revertToUndoModel(model);
-      return false;
+      return response;
     }
   }
 
@@ -1227,14 +1256,32 @@ export async function deleteItemsFromModel(
   //);
 
   await saveModelLSM(getUserID(), modelName, model);
-  await refreshData(
-    true, // refreshModel
-    true, // refreshChart
-    13, //sourceID
-  );
-  return true;
+  if (reactAppComponent) {
+    await refreshData(
+      true, // refreshModel
+      true, // refreshChart
+      13, //sourceID
+    );
+  }
+  return '';
 }
 
+async function deleteItemsFromModel(
+  names: string[],
+  itemList: Item[],
+  modelName: string,
+  model: ModelData,
+  doChecks: boolean,
+): Promise<boolean> {
+  const response = await deleteItemsFromModelInternal(
+    names,
+    itemList,
+    modelName,
+    model,
+    doChecks,
+  );
+  return response === '';
+}
 export async function deleteTrigger(name: string): Promise<boolean> {
   return deleteItemsFromModel(
     [name],

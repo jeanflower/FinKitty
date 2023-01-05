@@ -108,30 +108,28 @@ describe(testDataModelName, () => {
     await addDBPension(driver, {
       ...inputs,
       startDate: 'junkjunk',
-      message: 'Income start date doesn\'t make sense : "junkjunk"', // TODO 'Pension' not 'Income'
+      message: `Income '-PDB pensionName' start date doesn't make sense : \"junkjunk\"`,
     });
 
     await clearPensionFields(driver);
     await addDBPension(driver, {
       ...inputs,
       pensionEndOrTransferDate: 'junkjunk',
-      message: 'Income end date doesn\'t make sense : "junkjunk"', // TODO 'Pension' not 'Income'
+      message: `Income '-PDB pensionName' end date doesn\'t make sense : "junkjunk"`,
     });
 
     await clearPensionFields(driver);
     await addDBPension(driver, {
       ...inputs,
       transferredStopDate: 'junkjunk',
-      message: 'Income end date doesn\'t make sense : "junkjunk"', // TODO needs a better message
-      // it is the end date of the transferred pension
+      message: `Income '-PT pensionName' end date doesn't make sense : \"junkjunk\"`,
     });
 
     await clearPensionFields(driver);
     await addDBPension(driver, {
       ...inputs,
       valuationDate: '1 Jan 2020', // date is before javaJob1 begins
-      message:
-        'Transaction -PEN pensionName from unrecognised asset (could be typo or before asset start date?) : "javaJob1"',
+      message: `Transaction '-PEN pensionName' from unrecognised asset (could be typo or before asset start date?) : "javaJob1"`,
     });
 
     await clearPensionFields(driver);
@@ -150,7 +148,7 @@ describe(testDataModelName, () => {
       startDate: '1 Jan 2033',
       pensionEndOrTransferDate: '1 Jan 2032', // transfer pension before pension begins paying out?
       message:
-        'Transaction -PT pensionName from unrecognised asset ' +
+        `Transaction '-PT pensionName' from unrecognised asset ` +
         `(could be typo or before asset start date?) : "${pensionDB}pensionName"`,
       // TODO this message is mysterious
     });

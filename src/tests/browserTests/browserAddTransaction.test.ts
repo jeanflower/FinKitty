@@ -61,7 +61,7 @@ describe(testDataModelName, () => {
     await addTransaction(driver, {
       ...transactionInputs,
       startDate: 'junk',
-      message: `Transaction trans1 has bad date : "junk"`,
+      message: `Transaction 'trans1' has bad date : \"junk\"`,
     });
 
     await clearTransactionFields(driver);
@@ -87,7 +87,7 @@ describe(testDataModelName, () => {
     await addTransaction(driver, {
       ...transactionInputs,
       reduction: 'junk',
-      message: `Transaction 'from' value must be numbers or a setting, not junk`,
+      message: `Transaction 'trans1' 'from' value must be numbers or a setting, not 'junk'`,
     });
 
     await clearTransactionFields(driver);
@@ -104,7 +104,7 @@ describe(testDataModelName, () => {
     await addTransaction(driver, {
       ...transactionInputs,
       addition: 'junk',
-      message: `Transaction to value junk isn't a number or setting`,
+      message: `Transaction 'trans1' to value 'junk' isn't a number or setting`,
     });
 
     await clearTransactionFields(driver);
@@ -130,7 +130,7 @@ describe(testDataModelName, () => {
     await addTransaction(driver, {
       ...transactionInputs,
       recurrence: 'junk',
-      message: `transaction recurrence 'junk' must end in w, m or y`,
+      message: `Transaction 'trans1' recurrence 'junk' must end in w, m or y`,
     });
 
     await clearTransactionFields(driver);
@@ -138,7 +138,7 @@ describe(testDataModelName, () => {
     await addTransaction(driver, {
       ...transactionInputs,
       recurrence: 'mmm',
-      message: `transaction recurrence 'mmm' must be a number ending in w, m or y`,
+      message: `Transaction 'trans1' recurrence 'mmm' must be a number ending in w, m or y`,
     });
 
     await clearTransactionFields(driver);
