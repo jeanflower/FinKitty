@@ -846,9 +846,7 @@ describe('checks tests', () => {
         },
         model,
       ),
-    ).toEqual(
-      `Expense 'NoName' recurrence 'nonsense' must end in w, m or y`,
-    );
+    ).toEqual(`Expense 'NoName' recurrence 'nonsense' must end in w, m or y`);
 
     unSuppressLogs();
   });
