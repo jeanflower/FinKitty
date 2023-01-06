@@ -65,7 +65,7 @@ describe('checks tests', () => {
       ],
       settings: [...defaultModelSettings(roi)],
     };
-    expect(checkData(model)).toEqual(
+    expect(checkData(model).message).toEqual(
       `Asset 'savings' liability 'nonsense' should end with (CGT) or (incomeTax)`,
     );
     suppressLogs();
@@ -429,59 +429,61 @@ describe('checks tests', () => {
     const model = getTestModel(definedBenefitsPension);
 
     suppressLogs();
-    expect(checkData(model)).toEqual(``);
+    expect(checkData(model).message).toEqual(``);
     model.transactions[0].RECURRENCE = 'nonsense';
-    expect(checkData(model)).toEqual(
+    expect(checkData(model).message).toEqual(
       `Transaction '-PT TeachersPensionScheme' recurrence ` +
         `'nonsense' must end in w, m or y`,
     );
     model.transactions[0].RECURRENCE = 'am';
-    expect(checkData(model)).toEqual(
+    expect(checkData(model).message).toEqual(
       `Transaction '-PT TeachersPensionScheme' recurrence ` +
         `'am' must be a number ending in w, m or y`,
     );
     model.transactions[0].RECURRENCE = '2m';
-    expect(checkData(model)).toEqual(
+    expect(checkData(model).message).toEqual(
       `Transaction '-PT TeachersPensionScheme' is not in a ` +
         `recognised auto-generated format`,
     );
     model.transactions[0].RECURRENCE = '';
-    expect(checkData(model)).toEqual(``);
+    expect(checkData(model).message).toEqual(``);
 
     model.transactions[2].RECURRENCE = '2m';
-    expect(checkData(model)).toEqual(
+    expect(checkData(model).message).toEqual(
       `Pension transaction '-PDB TeachersPensionScheme' gets frequency from income, should not have recurrence '2m' defined`,
     );
     model.transactions[2].RECURRENCE = '';
 
     model.transactions[0].FROM_VALUE = 'nonsense';
-    expect(checkData(model)).toEqual(
+    expect(checkData(model).message).toEqual(
       `Transaction '-PT TeachersPensionScheme' 'from' value must be numbers ` +
         `or a setting, not 'nonsense'`,
     );
     model.transactions[0].FROM_VALUE = '1.0';
 
-    expect(checkData(model)).toEqual(``);
+    expect(checkData(model).message).toEqual(``);
 
     let oldName = model.transactions[0].NAME;
     model.transactions[0].NAME = '';
-    expect(checkData(model)).toEqual(`Transaction name needs some characters`);
+    expect(checkData(model).message).toEqual(
+      `Transaction name needs some characters`,
+    );
     model.transactions[0].NAME = oldName;
 
-    expect(checkData(model)).toEqual(``);
+    expect(checkData(model).message).toEqual(``);
 
     oldName = model.transactions[1].NAME;
     model.transactions[1].NAME = `${conditional}nonsense`;
-    expect(checkData(model)).toEqual(
+    expect(checkData(model).message).toEqual(
       `Conditional Transaction 'Conditionalnonsense'  needs a 'To' asset defined`,
     );
     model.transactions[1].NAME = oldName;
 
-    expect(checkData(model)).toEqual(``);
+    expect(checkData(model).message).toEqual(``);
 
     oldName = model.transactions[2].NAME;
     model.transactions[2].NAME = 'nonsense';
-    expect(checkData(model)).toEqual(
+    expect(checkData(model).message).toEqual(
       `Transaction 'nonsense' from unrecognised asset (could be typo or before asset start date?) : \"TeachingJob\"`,
     );
     model.transactions[2].NAME = oldName;
@@ -489,50 +491,50 @@ describe('checks tests', () => {
     const oldType = model.transactions[0].TYPE;
     oldName = model.transactions[0].NAME;
     model.transactions[0].TYPE = revalueDebt;
-    expect(checkData(model)).toEqual(
+    expect(checkData(model).message).toEqual(
       `Transaction '-PT TeachersPensionScheme' revalue debt type not in a recognised format`,
     );
     model.transactions[0].NAME = `${revalue} ${oldName}`;
-    expect(checkData(model)).toEqual(
+    expect(checkData(model).message).toEqual(
       `Transaction ' -PT TeachersPensionScheme' from unrecognised asset (could be typo or before asset start date?) : \"-PDB TeachersPensionScheme\"`,
     );
     model.transactions[0].NAME = oldName;
     model.transactions[0].TYPE = revalueAsset;
-    expect(checkData(model)).toEqual(
+    expect(checkData(model).message).toEqual(
       `Transaction '-PT TeachersPensionScheme' revalue asset type of not in a recognised format`,
     );
     model.transactions[0].TYPE = revalueInc;
-    expect(checkData(model)).toEqual(
+    expect(checkData(model).message).toEqual(
       `Transaction '-PT TeachersPensionScheme' revalue income type not in a recognised format`,
     );
     model.transactions[0].TYPE = revalueExp;
-    expect(checkData(model)).toEqual(
+    expect(checkData(model).message).toEqual(
       `Transaction '-PT TeachersPensionScheme' revalue expense type not in a recognised format`,
     );
     model.transactions[0].TYPE = revalueSetting;
-    expect(checkData(model)).toEqual(
+    expect(checkData(model).message).toEqual(
       `Transaction '-PT TeachersPensionScheme' revalue setting type not in a recognised format`,
     );
     model.transactions[0].TYPE = 'nonsense';
-    expect(checkData(model)).toEqual(
+    expect(checkData(model).message).toEqual(
       `Transaction '-PT TeachersPensionScheme' type  nonsense for -PT TeachersPensionScheme ` +
         `is not one of allowed types - internal bug`,
     );
     model.transactions[0].TYPE = liquidateAsset;
-    expect(checkData(model)).toEqual(
+    expect(checkData(model).message).toEqual(
       `Transaction '-PT TeachersPensionScheme' has liquidating type not in a recognised format`,
     );
     model.transactions[0].TYPE = payOffDebt;
-    expect(checkData(model)).toEqual(
+    expect(checkData(model).message).toEqual(
       `Transaction '-PT TeachersPensionScheme' has payoff debt type not in a recognised format`,
     );
     model.transactions[0].TYPE = bondInvest;
-    expect(checkData(model)).toEqual(
+    expect(checkData(model).message).toEqual(
       `Transaction '-PT TeachersPensionScheme' may only invest in Bond from Cash`,
     );
     const oldFrom = model.transactions[0].FROM;
     model.transactions[0].FROM = CASH_ASSET_NAME;
-    expect(checkData(model)).toEqual(
+    expect(checkData(model).message).toEqual(
       `Transaction '-PT TeachersPensionScheme' investment in Bond needs BMV as start of from value`,
     );
     model.transactions[0].FROM = oldFrom;
@@ -540,37 +542,37 @@ describe('checks tests', () => {
 
     const oldDate = model.transactions[0].DATE;
     model.transactions[0].DATE = 'nonsense';
-    expect(checkData(model)).toEqual(
+    expect(checkData(model).message).toEqual(
       `Transaction '-PT TeachersPensionScheme'  has bad date : \"nonsense\"`,
     );
     model.transactions[0].DATE = oldDate;
 
     const oldFromValue = model.transactions[0].FROM_VALUE;
     model.transactions[0].FROM_VALUE = '';
-    expect(checkData(model)).toEqual(
+    expect(checkData(model).message).toEqual(
       `Transaction from -PDB TeachersPensionScheme needs a non-empty from value`,
     );
     model.transactions[0].FROM_VALUE = oldFromValue;
 
     const oldTo = model.transactions[0].TO;
     model.transactions[0].TO = 'nonsense';
-    expect(checkData(model)).toEqual(
+    expect(checkData(model).message).toEqual(
       `Transaction '-PT TeachersPensionScheme to unrecognised thing : nonsense`,
     );
     model.transactions[0].TO = oldTo;
 
     const oldToValue = model.transactions[0].TO_VALUE;
     model.transactions[0].TO_VALUE = '';
-    expect(checkData(model)).toEqual(
+    expect(checkData(model).message).toEqual(
       `Transaction '-PT TeachersPensionScheme' needs a non-empty to value`,
     );
     model.transactions[0].TO_VALUE = 'nonsense';
-    expect(checkData(model)).toEqual(
+    expect(checkData(model).message).toEqual(
       `Transaction '-PT TeachersPensionScheme' to value 'nonsense' isn't a number or setting`,
     );
     model.transactions[0].TO_VALUE = oldToValue;
 
-    expect(checkData(model)).toEqual(``);
+    expect(checkData(model).message).toEqual(``);
 
     const model2 = getMinimalModelCopy();
     model2.assets.push({
@@ -605,61 +607,65 @@ describe('checks tests', () => {
       NAME: 't',
       DATE: '1 Jan 2018',
     });
-    expect(checkData(model2)).toEqual(``);
+    expect(checkData(model2).message).toEqual(``);
     model2.transactions[0].TO = 'a';
-    expect(checkData(model2)).toEqual(
+    expect(checkData(model2).message).toEqual(
       `Transaction 't' dated before start of affected asset : 'a'`,
     );
     model2.transactions[0].TO = 'i';
-    expect(checkData(model2)).toEqual(
+    expect(checkData(model2).message).toEqual(
       `Transaction 't' to an income must begin 'Revalue' or '-PDB  or -PT `,
     );
     model2.transactions[0].NAME = `${revalue}t`;
-    expect(checkData(model2)).toEqual(
+    expect(checkData(model2).message).toEqual(
       `Transaction 'Revaluet' dated before start of affected income : 'i'`,
     );
     model2.transactions[0].NAME = `t`;
     model2.transactions[0].TO = 'e';
-    expect(checkData(model2)).toEqual(
+    expect(checkData(model2).message).toEqual(
       `Transaction 't' to an expense must begin 'Revalue'`,
     );
     model2.transactions[0].NAME = `${revalue}t`;
-    expect(checkData(model2)).toEqual(
+    expect(checkData(model2).message).toEqual(
       `Transaction 'Revaluet' dated before start of affected expense : 'e'`,
     );
     model2.transactions[0].DATE = `1 Jan 2021`;
-    expect(checkData(model2)).toEqual(
+    expect(checkData(model2).message).toEqual(
       `Transaction 'Revaluet' dated after end of affected expense : 'e'`,
     );
     model2.transactions[0].NAME = `t`;
     model2.transactions[0].TO = 's';
-    expect(checkData(model2)).toEqual(
+    expect(checkData(model2).message).toEqual(
       `Transaction 't' to a setting must begin 'Revalue'`,
     );
     model2.transactions[0].TO = 'd';
     model2.transactions[0].TYPE = revalueDebt;
-    expect(checkData(model2)).toEqual(
+    expect(checkData(model2).message).toEqual(
       `Transaction 't' revalue debt type not in a recognised format`,
     );
     model2.transactions[0].NAME = `${revalue}t`;
-    expect(checkData(model2)).toEqual(``);
+    expect(checkData(model2).message).toEqual(``);
 
     model2.transactions[0].TYPE = custom;
 
     model2.incomes[0].NAME = '';
-    expect(checkData(model2)).toEqual(`Income name needs some characters`);
+    expect(checkData(model2).message).toEqual(
+      `Income name needs some characters`,
+    );
     model2.incomes[0].NAME = 'i';
 
     model2.expenses[0].NAME = '';
-    expect(checkData(model2)).toEqual(`Expense name needs some characters`);
+    expect(checkData(model2).message).toEqual(
+      `Expense name needs some characters`,
+    );
     model2.expenses[0].NAME = 'e';
 
     const preName = model2.name;
     model2.name = '';
-    expect(checkData(model2)).toEqual(`model name = ''`);
+    expect(checkData(model2).message).toEqual(`model name = ''`);
     model2.name = preName;
 
-    expect(checkData(model2)).toEqual(``);
+    expect(checkData(model2).message).toEqual(``);
 
     const roi = {
       start: 'March 1, 2018',
@@ -702,7 +708,7 @@ describe('checks tests', () => {
       ],
       settings: [...defaultModelSettings(roi)],
     };
-    expect(checkData(model3)).toEqual(
+    expect(checkData(model3).message).toEqual(
       `Transaction 'get some pension' needs to go to Cash for proper income tax calculation`,
     );
 
@@ -875,100 +881,100 @@ describe('checks tests', () => {
   });
   it('check bond model', () => {
     const model = getTestModel(bondModel);
-    expect(checkData(model)).toEqual(``);
+    expect(checkData(model).message).toEqual(``);
 
     suppressLogs();
 
     model.transactions[0].TYPE = 'custom';
-    expect(checkData(model)).toEqual(
+    expect(checkData(model).message).toEqual(
       `'BondInvest4y' may only invest into Bond if the setting BondTargetValue` +
         ` is revalued (so we capture the revalue date)`,
     );
     model.transactions[0].TYPE = 'revalueSetting';
 
     model.transactions[1].NAME = 'nonsense';
-    expect(checkData(model)).toEqual(
+    expect(checkData(model).message).toEqual(
       `Transaction 'BondMature5y bond maturation requires an investment`,
     );
     model.transactions[1].NAME = 'BondInvest5y';
 
     model.transactions[0].DATE = '1 Jan 2020';
-    expect(checkData(model)).toEqual(
+    expect(checkData(model).message).toEqual(
       `'BondInvest4y' may only invest into Bond if the setting BondTargetValue` +
         ` is not revalued after investment date`,
     );
     model.transactions[0].DATE = '1 Jan 2018';
 
     model.transactions[6].TO = '';
-    expect(checkData(model)).toEqual(
+    expect(checkData(model).message).toEqual(
       `Transaction 'BondMature5y' may only mature from Bond to Cash`,
     );
     model.transactions[6].TO = CASH_ASSET_NAME;
 
     model.transactions[6].FROM_VALUE = 'BondTargetValue2';
-    expect(checkData(model)).toEqual(
+    expect(checkData(model).message).toEqual(
       `Transaction 'BondMature5y' maturing Bond needs BMV as start of from value`,
     );
     model.transactions[6].FROM_VALUE = 'BMVBondTargetValue2';
 
     model.transactions[6].STOP_DATE = '1 Jan 2029';
-    expect(checkData(model)).toEqual(
+    expect(checkData(model).message).toEqual(
       `Transaction 'BondMature5y bond maturation requires an investment`,
     );
     model.transactions[6].STOP_DATE = '1 Jan 2030';
 
     model.transactions[13].FROM_VALUE = 'BMVBondTargetValue';
-    expect(checkData(model)).toEqual(
+    expect(checkData(model).message).toEqual(
       `Transaction 'Gain cash' only bondInvest and bondMature types use BMV`,
     );
     model.transactions[13].FROM_VALUE = '0.0';
 
     model.settings[3].NAME = 'nonsense';
-    expect(checkData(model)).toEqual(
+    expect(checkData(model).message).toEqual(
       `\"Beginning of view range\" should be present in settings (value is a date)`,
     );
     model.settings[3].NAME = 'Beginning of view range';
 
     model.settings[4].NAME = 'nonsense';
-    expect(checkData(model)).toEqual(
+    expect(checkData(model).message).toEqual(
       `\"End of view range\" should be present in settings (value is a date)`,
     );
     model.settings[4].NAME = 'End of view range';
 
     model.settings[4].VALUE = 'nonsense';
-    expect(checkData(model)).toEqual(
+    expect(checkData(model).message).toEqual(
       `Setting \"End of view range\" should be a valid date string (e.g. 1 April 2018)`,
     );
     model.settings[4].VALUE = 'Dec 1, 2016';
-    expect(checkData(model)).toEqual(
+    expect(checkData(model).message).toEqual(
       `Setting \"End of view range\" should be after setting \"Beginning of view range\"`,
     );
     model.settings[4].VALUE = 'June 1, 2031';
 
     model.transactions[13].NAME = `${conditional} gain cash`;
-    expect(checkData(model)).toEqual(
+    expect(checkData(model).message).toEqual(
       `Transaction 'Conditional gain cash' custom type not in a recognised format`,
     );
     model.transactions[13].NAME = `base`;
-    expect(checkData(model)).toEqual(`'base' as name is reserved`);
+    expect(checkData(model).message).toEqual(`'base' as name is reserved`);
     model.transactions[13].NAME = model.transactions[12].NAME;
-    expect(checkData(model)).toEqual(
+    expect(checkData(model).message).toEqual(
       `duplicate name Revalue of BondTargetValue2 1`,
     );
     model.transactions[13].NAME = 'Gain Cash';
 
     model.settings[7].NAME = debtChartFocus;
-    expect(checkData(model)).toEqual(
+    expect(checkData(model).message).toEqual(
       `\"Focus of debts chart\" setting should not be present`,
     );
     model.settings[7].NAME = taxChartFocusType;
-    expect(checkData(model)).toEqual(
+    expect(checkData(model).message).toEqual(
       `\"Focus of tax chart, type\" setting should not be present`,
     );
     model.settings[7].NAME = 'mySetting';
 
     unSuppressLogs();
-    expect(checkData(model)).toEqual('');
+    expect(checkData(model).message).toEqual('');
   });
 
   it('has proportional transaction blocked for string-valued asset', (done) => {
@@ -1019,7 +1025,7 @@ describe('checks tests', () => {
 
     suppressLogs();
 
-    expect(checkData(model)).toEqual(
+    expect(checkData(model).message).toEqual(
       `Transaction 'Sell all Stff we dont allow a proportional ` +
         `transaction to a word-valued asset`,
     );
@@ -1068,7 +1074,7 @@ describe('checks tests', () => {
 
     suppressLogs();
 
-    expect(checkData(model)).toEqual(
+    expect(checkData(model).message).toEqual(
       `Transaction 'Revalue PRound don't allow a proportional ` +
         `transaction to a word-valued income`,
     );
@@ -1118,7 +1124,7 @@ describe('checks tests', () => {
 
     suppressLogs();
 
-    expect(checkData(model)).toEqual(
+    expect(checkData(model).message).toEqual(
       `Transaction 'Revalue Dogs don't allow a proportional ` +
         `transaction to a word-valued expense`,
     );

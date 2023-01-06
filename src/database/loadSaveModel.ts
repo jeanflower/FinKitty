@@ -16,7 +16,7 @@ import { getDB } from './database';
 import { adjustableType } from '../localization/stringConstants';
 
 import { diffModels } from '../models/diffModels';
-import { checkData } from '../models/checks';
+import { checkData, CheckResult } from '../models/checks';
 import { minimalModel, simpleExampleData } from '../models/exampleModels';
 import {
   makeModelFromJSON,
@@ -335,20 +335,24 @@ async function submitItemLSM(
   modelData: ModelData,
   doChecks: boolean,
   userID: string,
-) {
+): Promise<CheckResult> {
   markForUndo(modelData);
   updateItemList(itemList, inputItem);
 
   if (doChecks) {
-    const checkResult = checkData(modelData);
-    if (checkResult !== '') {
+    const outcome = checkData(modelData);
+    if (outcome.message !== '') {
       revertToUndoModel(modelData);
-      return checkResult;
+      return outcome;
     }
   }
 
   await saveModelLSM(userID, modelName, modelData);
-  return '';
+  return {
+    type: undefined,
+    itemName: undefined,
+    message: '',
+  };
 }
 
 export async function submitExpenseLSM(
@@ -357,7 +361,7 @@ export async function submitExpenseLSM(
   modelData: ModelData,
   doChecks: boolean,
   userID: string,
-) {
+): Promise<CheckResult> {
   /* istanbul ignore if  */
   if (printDebug()) {
     log(`in submitExpense with input : ${showObj(expenseInput)}`);
@@ -378,7 +382,7 @@ export async function submitIncomeLSM(
   modelData: ModelData,
   doChecks: boolean,
   userID: string,
-) {
+): Promise<CheckResult> {
   /* istanbul ignore if  */
   if (printDebug()) {
     log(`in submitIncome with input : ${showObj(incomeInput)}`);
@@ -420,7 +424,7 @@ export async function submitAssetLSM(
   modelData: ModelData,
   doChecks: boolean,
   userID: string,
-): Promise<string> {
+): Promise<CheckResult> {
   /* istanbul ignore if  */
   if (printDebug()) {
     log(`in submitAsset with input : ${showObj(assetInput)}`);

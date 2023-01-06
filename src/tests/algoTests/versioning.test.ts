@@ -567,7 +567,7 @@ describe('loadModelsFromJSON', () => {
     unSuppressLogs();
     // from v3 to v4 we added tax view settings
     // but fromv4 to v5 we lost those settings again
-    expect(checkData(model).length).toEqual(0);
+    expect(checkData(model).message.length).toEqual(0);
   });
 
   // from v4 to v5, we remove various view settings
@@ -581,7 +581,7 @@ describe('loadModelsFromJSON', () => {
     expect(
       getSettings(model.settings, viewFrequency, 'missing', false),
     ).toEqual('missing');
-    expect(checkData(model).length).toEqual(0);
+    expect(checkData(model).message.length).toEqual(0);
   });
   // current version loads
   it('migrateFromV5', () => {
@@ -589,11 +589,11 @@ describe('loadModelsFromJSON', () => {
     suppressLogs();
     const model = makeModelFromJSON(jsonString, 'versionTests');
     unSuppressLogs();
-    const checkResult = checkData(model);
-    if (checkResult.length > 0) {
-      log(`checkResult = ${checkResult}`);
+    const outcome = checkData(model);
+    if (outcome.message.length > 0) {
+      log(`outcome.message = ${outcome.message}`);
     }
-    expect(checkResult.length).toEqual(0);
+    expect(outcome.message.length).toEqual(0);
   });
 
   it('migrateFromV6', () => {
@@ -601,11 +601,11 @@ describe('loadModelsFromJSON', () => {
     suppressLogs();
     const model = makeModelFromJSON(jsonString, 'versionTests');
     unSuppressLogs();
-    const checkResult = checkData(model);
-    if (checkResult.length > 0) {
-      log(`checkResult = ${checkResult}`);
+    const outcome = checkData(model);
+    if (outcome.message.length > 0) {
+      log(`outcome.message = ${outcome.message}`);
     }
-    expect(checkResult.length).toEqual(0);
+    expect(outcome.message.length).toEqual(0);
   });
 
   it('migrateFromV7', () => {
@@ -613,11 +613,11 @@ describe('loadModelsFromJSON', () => {
     suppressLogs();
     const model = makeModelFromJSON(jsonString, 'versionTests');
     unSuppressLogs();
-    const checkResult = checkData(model);
-    if (checkResult.length > 0) {
-      log(`checkResult = ${checkResult}`);
+    const outcome = checkData(model);
+    if (outcome.message.length > 0) {
+      log(`outcome.message = ${outcome.message}`);
     }
-    expect(checkResult.length).toEqual(0);
+    expect(outcome.message.length).toEqual(0);
   });
 
   it('migrateFromV8', () => {
@@ -625,11 +625,11 @@ describe('loadModelsFromJSON', () => {
     suppressLogs();
     const model = makeModelFromJSON(jsonString, 'versionTests');
     unSuppressLogs();
-    const checkResult = checkData(model);
-    if (checkResult.length > 0) {
-      log(`checkResult = ${checkResult}`);
+    const outcome = checkData(model);
+    if (outcome.message.length > 0) {
+      log(`outcome.message = ${outcome.message}`);
     }
-    expect(checkResult.length).toEqual(0);
+    expect(outcome.message.length).toEqual(0);
   });
 
   it('migrateFromV9', () => {
@@ -646,11 +646,11 @@ describe('loadModelsFromJSON', () => {
     suppressLogs();
     const model = makeModelFromJSON(jsonString, 'versionTests');
     unSuppressLogs();
-    const checkResult = checkData(model);
-    if (checkResult.length > 0) {
-      log(`checkResult = ${checkResult}`);
+    const outcome = checkData(model);
+    if (outcome.message.length > 0) {
+      log(`outcome.message = ${outcome.message}`);
     }
-    expect(checkResult.length).toEqual(0);
+    expect(outcome.message.length).toEqual(0);
   });
 
   // at current version, no migration is needed!
@@ -659,11 +659,11 @@ describe('loadModelsFromJSON', () => {
     suppressLogs();
     const model = makeModelFromJSON(jsonString, 'versionTests');
     unSuppressLogs();
-    const checkResult = checkData(model);
-    if (checkResult.length > 0) {
-      log(`checkResult = ${checkResult}`);
+    const outcome = checkData(model);
+    if (outcome.message.length > 0) {
+      log(`outcome.message = ${outcome.message}`);
     }
-    expect(checkResult.length).toEqual(0);
+    expect(outcome.message.length).toEqual(0);
   });
 
   // future versions should not load - expect an error message to come out
@@ -699,55 +699,55 @@ describe('loadModelsFromJSON', () => {
       'End of view range: value 1 Feb 2019 !== 01 Feb 2019',
     ]);
 
-    const checkResult = checkData(makeModelFromJSON(JSON.stringify(model)));
-    if (checkResult.length > 0) {
-      log(`checkResult = ${checkResult}`);
+    const outcome = checkData(makeModelFromJSON(JSON.stringify(model)));
+    if (outcome.message.length > 0) {
+      log(`outcome.message = ${outcome.message}`);
     }
-    expect(checkResult.length).toEqual(0);
+    expect(outcome.message.length).toEqual(0);
   });
   it('check TestModel02', () => {
     const model = getTestModel(TestModel02);
 
-    const checkResult = checkData(makeModelFromJSON(JSON.stringify(model)));
-    if (checkResult.length > 0) {
-      log(`checkResult = ${checkResult}`);
+    const outcome = checkData(makeModelFromJSON(JSON.stringify(model)));
+    if (outcome.message.length > 0) {
+      log(`outcome.message = ${outcome.message}`);
     }
-    expect(checkResult.length).toEqual(0);
+    expect(outcome.message.length).toEqual(0);
   });
   it('check CoarseAndFine', () => {
     const model = getTestModel(CoarseAndFine);
 
-    const checkResult = checkData(makeModelFromJSON(JSON.stringify(model)));
-    if (checkResult.length > 0) {
-      log(`checkResult = ${checkResult}`);
+    const outcome = checkData(makeModelFromJSON(JSON.stringify(model)));
+    if (outcome.message.length > 0) {
+      log(`outcome.message = ${outcome.message}`);
     }
-    expect(checkResult.length).toEqual(0);
+    expect(outcome.message.length).toEqual(0);
   });
   it('check FutureExpense', () => {
     const model = getTestModel(FutureExpense);
 
-    const checkResult = checkData(makeModelFromJSON(JSON.stringify(model)));
-    if (checkResult.length > 0) {
-      log(`checkResult = ${checkResult}`);
+    const outcome = checkData(makeModelFromJSON(JSON.stringify(model)));
+    if (outcome.message.length > 0) {
+      log(`outcome.message = ${outcome.message}`);
     }
-    expect(checkResult.length).toEqual(0);
+    expect(outcome.message.length).toEqual(0);
   });
   it('check ThreeChryslerModel', () => {
     const model = getTestModel(ThreeChryslerModel);
 
-    const checkResult = checkData(makeModelFromJSON(JSON.stringify(model)));
-    if (checkResult.length > 0) {
-      log(`checkResult = ${checkResult}`);
+    const outcome = checkData(makeModelFromJSON(JSON.stringify(model)));
+    if (outcome.message.length > 0) {
+      log(`outcome.message = ${outcome.message}`);
     }
-    expect(checkResult.length).toEqual(0);
+    expect(outcome.message.length).toEqual(0);
   });
   it('check BenAndJerryModel', () => {
     const model = getTestModel(BenAndJerryModel);
 
-    const checkResult = checkData(makeModelFromJSON(JSON.stringify(model)));
-    if (checkResult.length > 0) {
-      log(`checkResult = ${checkResult}`);
+    const outcome = checkData(makeModelFromJSON(JSON.stringify(model)));
+    if (outcome.message.length > 0) {
+      log(`outcome.message = ${outcome.message}`);
     }
-    expect(checkResult.length).toEqual(0);
+    expect(outcome.message.length).toEqual(0);
   });
 });

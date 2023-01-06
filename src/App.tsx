@@ -820,42 +820,42 @@ export async function submitAsset(
   assetInput: Asset,
   modelData: ModelData,
 ): Promise<void> {
-  const message = await submitAssetLSM(
+  const outcome = await submitAssetLSM(
     assetInput,
     modelName,
     modelData,
     reactAppComponent.options.checkModelOnEdit,
     getUserID(),
   );
-  if (message === '') {
+  if (outcome.message === '') {
     return await refreshData(
       true, // refreshModel
       true, // refreshChart
       2, //sourceID
     );
   } else {
-    showAlert(message);
+    showAlert(outcome.message);
   }
 }
 export async function submitExpense(
   expenseInput: Expense,
   modelData: ModelData,
 ): Promise<void> {
-  const message = await submitExpenseLSM(
+  const outcome = await submitExpenseLSM(
     expenseInput,
     modelName,
     modelData,
     reactAppComponent.options.checkModelOnEdit,
     getUserID(),
   );
-  if (message === '') {
+  if (outcome.message === '') {
     return await refreshData(
       true, // refreshModel
       true, // refreshChart
       3, //sourceID
     );
   } else {
-    showAlert(message);
+    showAlert(outcome.message);
   }
 }
 export async function submitIncome(
@@ -869,7 +869,7 @@ export async function submitIncome(
     reactAppComponent.options.checkModelOnEdit,
     getUserID(),
   );
-  if (message === '') {
+  if (message.message === '') {
     await refreshData(
       true, // refreshModel
       true, // refreshChart
@@ -877,7 +877,7 @@ export async function submitIncome(
     );
     return true;
   } else {
-    showAlert(message);
+    showAlert(message.message);
     return false;
   }
 }
@@ -885,42 +885,42 @@ export async function submitTransaction(
   transactionInput: Transaction,
   modelData: ModelData,
 ): Promise<void> {
-  const message = await submitTransactionLSM(
+  const outcome = await submitTransactionLSM(
     transactionInput,
     modelName,
     modelData,
     reactAppComponent.options.checkModelOnEdit,
     getUserID(),
   );
-  if (message === '') {
+  if (outcome.message === '') {
     return await refreshData(
       true, // refreshModel
       true, // refreshChart
       5, //sourceID
     );
   } else {
-    showAlert(message);
+    showAlert(outcome.message);
   }
 }
 export async function submitTrigger(
   triggerInput: Trigger,
   modelData: ModelData,
 ): Promise<void> {
-  const message = await submitTriggerLSM(
+  const outcome = await submitTriggerLSM(
     triggerInput,
     modelName,
     modelData,
     reactAppComponent.options.checkModelOnEdit,
     getUserID(),
   );
-  if (message === '') {
+  if (outcome.message === '') {
     return await refreshData(
       true, // refreshModel
       true, // refreshChart
       6, //sourceID
     );
   } else {
-    showAlert(message);
+    showAlert(outcome.message);
   }
 }
 
@@ -953,21 +953,21 @@ export async function editSetting(
     ...settingInput,
     TYPE: '',
   };
-  const message = await submitSettingLSM(
+  const outcome = await submitSettingLSM(
     settingWithBlanks,
     modelName,
     modelData,
     reactAppComponent.options.checkModelOnEdit,
     getUserID(),
   );
-  if (message === '') {
+  if (outcome.message === '') {
     return await refreshData(
       true, // refreshModel
       true, // refreshChart
       8, //sourceID
     );
   } else {
-    showAlert(message);
+    showAlert(outcome.message);
   }
 }
 
@@ -1034,14 +1034,14 @@ export function toggle(
 }
 
 function checkModelData(givenModel: ModelData, expectedName: string): string {
-  const response = checkData(givenModel);
+  const outcome = checkData(givenModel);
   if (givenModel.name !== expectedName) {
     return `inconsistent model names; ${givenModel.name} and ${expectedName}`;
   }
-  if (response === '') {
+  if (outcome.message === '') {
     return 'model check all good';
   } else {
-    return response;
+    return outcome.message;
   }
 }
 
@@ -1234,9 +1234,9 @@ export async function deleteItemsFromModelInternal(
   });
 
   if (doChecks) {
-    const checkResponse = checkData(model);
-    if (checkResponse !== '') {
-      const response = `edited  model fails checks :${checkResponse}', reverting`;
+    const outcome = checkData(model);
+    if (outcome.message !== '') {
+      const response = `edited  model fails checks :${outcome.message}', reverting`;
       // log(`setState for delete item alert`);
       if (reactAppComponent) {
         reactAppComponent.setState({

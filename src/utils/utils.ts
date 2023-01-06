@@ -60,6 +60,9 @@ export enum Context {
   Debt,
   Income,
   Expense,
+  Transaction,
+  Trigger,
+  Setting,
 }
 
 export enum DateFormatType {

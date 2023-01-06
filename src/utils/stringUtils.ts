@@ -862,9 +862,9 @@ export function getTriggerDate(
   varValue: number,
 ): Date {
   // log(`triggers length is ${triggers.length}`);
-  const checkResult = checkTriggerDate(triggerName, triggers, varValue);
-  if (checkResult !== undefined) {
-    return checkResult;
+  const outcomeDate = checkTriggerDate(triggerName, triggers, varValue);
+  if (outcomeDate !== undefined) {
+    return outcomeDate;
   }
   return new Date('Invalid Date');
 }

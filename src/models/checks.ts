@@ -52,7 +52,7 @@ import {
   Trigger,
   Evaluation,
 } from '../types/interfaces';
-import { DateFormatType, log, showObj } from '../utils/utils';
+import { Context, DateFormatType, log, showObj } from '../utils/utils';
 
 import { evaluationType, getMaturityDate } from './evaluations';
 import { getDisplayName } from '../views/tablePages';
@@ -1567,59 +1567,117 @@ function checkNames(model: ModelData): string {
   return '';
 }
 
-export function checkData(model: ModelData): string {
+export interface CheckResult {
+  type: Context | undefined;
+  itemName: string | undefined;
+  message: string;
+}
+
+export function checkData(model: ModelData): CheckResult {
   if (model.name === 'Unnamed' || model.name === '') {
-    return `model name = '${model.name}'`;
+    return {
+      type: undefined,
+      itemName: undefined,
+      message: `model name = '${model.name}'`,
+    };
   }
   // log(`checking data ${showObj(model)}`);
   // log(`check settings`);
   let message = checkNames(model);
   if (message.length > 0) {
-    return message;
+    return {
+      type: undefined,
+      itemName: undefined,
+      message: message,
+    };
   }
   message = checkSettingAbsent(model.settings, viewFrequency);
   if (message.length > 0) {
-    return message;
+    return {
+      type: Context.Setting,
+      itemName: viewFrequency,
+      message: message,
+    };
   }
   message = checkSettingAbsent(model.settings, viewDetail);
   if (message.length > 0) {
-    return message;
+    return {
+      type: Context.Setting,
+      itemName: viewDetail,
+      message: message,
+    };
   }
   message = checkViewROI(model.settings, model.triggers);
   if (message.length > 0) {
-    return message;
+    return {
+      type: undefined,
+      itemName: undefined,
+      message: message,
+    };
   }
   message = checkSettingAbsent(model.settings, chartViewType);
   if (message.length > 0) {
-    return message;
+    return {
+      type: Context.Setting,
+      itemName: chartViewType,
+      message: message,
+    };
   }
   message = checkDateOfBirth(model.settings);
   if (message.length > 0) {
-    return message;
+    return {
+      type: Context.Setting,
+      itemName: birthDate,
+      message: message,
+    };
   }
   message = checkCpi(model.settings);
   if (message.length > 0) {
-    return message;
+    return {
+      type: Context.Setting,
+      itemName: cpi,
+      message: message,
+    };
   }
   message = checkSettingAbsent(model.settings, assetChartFocus);
   if (message.length > 0) {
-    return message;
+    return {
+      type: Context.Setting,
+      itemName: assetChartFocus,
+      message: message,
+    };
   }
   message = checkSettingAbsent(model.settings, debtChartFocus);
   if (message.length > 0) {
-    return message;
+    return {
+      type: Context.Setting,
+      itemName: debtChartFocus,
+      message: message,
+    };
   }
   message = checkSettingAbsent(model.settings, expenseChartFocus);
   if (message.length > 0) {
-    return message;
+    return {
+      type: Context.Setting,
+      itemName: expenseChartFocus,
+      message: message,
+    };
   }
   message = checkSettingAbsent(model.settings, incomeChartFocus);
   if (message.length > 0) {
-    return message;
+    return {
+      type: Context.Setting,
+      itemName: incomeChartFocus,
+      message: message,
+    };
   }
   message = checkSettingAbsent(model.settings, taxChartFocusType);
   if (message.length > 0) {
-    return message;
+    return {
+      type: Context.Setting,
+      itemName: taxChartFocusType,
+      message: message,
+    };
   }
 
   /*
@@ -1656,7 +1714,11 @@ export function checkData(model: ModelData): string {
     /* eslint-disable-line no-restricted-syntax */
     message = checkTransaction(t, model);
     if (message.length > 0) {
-      return message;
+      return {
+        type: Context.Transaction,
+        itemName: t.NAME,
+        message: message,
+      };
     }
   }
   // log(`check assets`);
@@ -1664,7 +1726,11 @@ export function checkData(model: ModelData): string {
     /* eslint-disable-line no-restricted-syntax */
     message = checkAsset(a, model);
     if (message.length > 0) {
-      return message;
+      return {
+        type: Context.Asset,
+        itemName: a.NAME,
+        message: message,
+      };
     }
   }
   // log(`check incomes`);
@@ -1672,7 +1738,11 @@ export function checkData(model: ModelData): string {
     /* eslint-disable-line no-restricted-syntax */
     message = checkIncome(i, model);
     if (message.length > 0) {
-      return message;
+      return {
+        type: Context.Income,
+        itemName: i.NAME,
+        message: message,
+      };
     }
   }
   // log(`check expenses`);
@@ -1680,7 +1750,11 @@ export function checkData(model: ModelData): string {
     /* eslint-disable-line no-restricted-syntax */
     message = checkExpense(e, model);
     if (message.length > 0) {
-      return message;
+      return {
+        type: Context.Expense,
+        itemName: e.NAME,
+        message: message,
+      };
     }
   }
   // log(`check triggers`);
@@ -1688,10 +1762,18 @@ export function checkData(model: ModelData): string {
     /* eslint-disable-line no-restricted-syntax */
     message = checkTrigger(t, model);
     if (message.length > 0) {
-      return message;
+      return {
+        type: Context.Trigger,
+        itemName: t.NAME,
+        message: message,
+      };
     }
   }
-  return '';
+  return {
+    type: undefined,
+    itemName: undefined,
+    message: '',
+  };
 }
 
 export function checkEvalnType(

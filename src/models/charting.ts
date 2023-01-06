@@ -82,18 +82,27 @@ export class ViewSettings {
     [Context.Debt]: new Map<string, boolean>(),
     [Context.Income]: new Map<string, boolean>(),
     [Context.Expense]: new Map<string, boolean>(),
+    [Context.Transaction]: new Map<string, boolean>(),
+    [Context.Trigger]: new Map<string, boolean>(),
+    [Context.Setting]: new Map<string, boolean>(),
   };
   private dependents = {
     [Context.Asset]: new Map<string, string[]>(),
     [Context.Debt]: new Map<string, string[]>(),
     [Context.Income]: new Map<string, string[]>(),
     [Context.Expense]: new Map<string, string[]>(),
+    [Context.Transaction]: new Map<string, string[]>(),
+    [Context.Trigger]: new Map<string, string[]>(),
+    [Context.Setting]: new Map<string, string[]>(),
   };
   private supercategories = {
     [Context.Asset]: new Map<string, string[]>(),
     [Context.Debt]: new Map<string, string[]>(),
     [Context.Income]: new Map<string, string[]>(),
     [Context.Expense]: new Map<string, string[]>(),
+    [Context.Transaction]: new Map<string, string[]>(),
+    [Context.Trigger]: new Map<string, string[]>(),
+    [Context.Setting]: new Map<string, string[]>(),
   };
   /*
 e.g.
@@ -162,11 +171,17 @@ e.g.
       [Context.Debt]: Map<string, string[]>;
       [Context.Income]: Map<string, string[]>;
       [Context.Expense]: Map<string, string[]>;
+      [Context.Transaction]: Map<string, string[]>;
+      [Context.Trigger]: Map<string, string[]>;
+      [Context.Setting]: Map<string, string[]>;
     } = {
       [Context.Asset]: new Map<string, string[]>(),
       [Context.Debt]: new Map<string, string[]>(),
       [Context.Income]: new Map<string, string[]>(),
       [Context.Expense]: new Map<string, string[]>(),
+      [Context.Transaction]: new Map<string, string[]>(),
+      [Context.Trigger]: new Map<string, string[]>(),
+      [Context.Setting]: new Map<string, string[]>(),
     };
     result[Context.Asset].set(allItems, []);
     result[Context.Debt].set(allItems, []);
@@ -180,11 +195,17 @@ e.g.
       [Context.Debt]: Map<string, string[]>;
       [Context.Income]: Map<string, string[]>;
       [Context.Expense]: Map<string, string[]>;
+      [Context.Transaction]: Map<string, string[]>;
+      [Context.Trigger]: Map<string, string[]>;
+      [Context.Setting]: Map<string, string[]>;
     } = {
       [Context.Asset]: new Map<string, string[]>(),
       [Context.Debt]: new Map<string, string[]>(),
       [Context.Income]: new Map<string, string[]>(),
       [Context.Expense]: new Map<string, string[]>(),
+      [Context.Transaction]: new Map<string, string[]>(),
+      [Context.Trigger]: new Map<string, string[]>(),
+      [Context.Setting]: new Map<string, string[]>(),
     };
     return result;
   }

@@ -396,13 +396,13 @@ describe('utils tests', () => {
     expect(model.transactions[0].DATE).toEqual('Thu Feb 01 2001');
     expect(model.transactions[0].STOP_DATE).toEqual('Thu Feb 01 2001');
 
-    expect(checkData(model)).toEqual('duplicate name NoName');
+    expect(checkData(model).message).toEqual('duplicate name NoName');
     model.incomes[0].NAME = 'iName';
     model.expenses[0].NAME = 'eName';
     model.transactions[0].NAME = 'tName';
     model.triggers[9].DATE = 'Mon Feb 01 2021';
 
-    expect(checkData(model)).toEqual('');
+    expect(checkData(model).message).toEqual('');
 
     standardiseDates(model);
   });

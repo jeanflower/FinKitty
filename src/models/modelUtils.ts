@@ -552,12 +552,12 @@ export function attemptRenameLong(
     return message;
   }
   if (doChecks) {
-    const checkResult = checkData(model);
+    const outcome = checkData(model);
     /* istanbul ignore if */
-    if (checkResult !== '') {
-      log(`Error: reverted model fails checks with ${checkResult}`);
+    if (outcome.message !== '') {
+      log(`Error: reverted model fails checks with ${outcome}`);
       revertToUndoModel(model);
-      return checkResult;
+      return outcome.message;
     } else {
       // log(`save adjusted model`);
       return '';
@@ -603,12 +603,12 @@ export function standardiseDates(model: ModelData): string {
     obj.DATE = standardiseDate(obj.DATE);
     obj.STOP_DATE = standardiseDate(obj.STOP_DATE);
   });
-  const checkResult = checkData(model);
+  const outcome = checkData(model);
   /* istanbul ignore if */
-  if (checkResult !== '') {
-    log(`Error: model fails checks with ${checkResult}`);
+  if (outcome.message !== '') {
+    log(`Error: model fails checks with ${outcome.message}`);
     //revertToUndoModel(model);
-    return checkResult;
+    return outcome.message;
   } else {
     return '';
   }

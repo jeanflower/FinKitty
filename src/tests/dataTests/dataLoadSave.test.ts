@@ -117,7 +117,7 @@ describe('load save tests', () => {
           true,
           userName,
         );
-        expect(response.length).toBeGreaterThan(0);
+        expect(response.message.length).toBeGreaterThan(0);
 
         if (printStory) {
           log(`failed to add nonsense trigger ${response}`);
@@ -307,7 +307,7 @@ describe('load save tests', () => {
         if (printStory) {
           log('covered many submitLSM functions');
         }
-        expect(response.length).toBe(0);
+        expect(response.message.length).toBe(0);
 
         modelData = await loadModel(userName, modelName);
         expect(modelData).toBeDefined();

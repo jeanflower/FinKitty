@@ -5447,14 +5447,14 @@ function getEvaluationsInternal(
   const todaysExpenseValues = new Map<Expense, ExpenseVal>();
   const todaysSettingValues = new Map<Setting, SettingVal>();
 
-  const message = checkData(model);
-  if (message.length > 0) {
-    log(`check failed, do no evaluations: ${message}`);
+  const outcome = checkData(model);
+  if (outcome.message.length > 0) {
+    log(`check failed, do no evaluations: ${outcome.message}`);
     const reportData: ReportDatum[] = [
       {
         name: 'Error from evaluations',
         date: dateAsString(DateFormatType.View, new Date()),
-        source: `check failed: ${message}`,
+        source: `check failed: ${outcome.message}`,
         change: undefined,
         oldVal: undefined,
         newVal: undefined,
