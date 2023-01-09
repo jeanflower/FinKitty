@@ -8074,10 +8074,11 @@ describe('evaluations tests', () => {
 
     done();
   });
-  it('delete items from model', async () => {
+
+  it('delete items from model should refuse to delete', async () => {
     const model = makeModelFromJSON(mortgageSwitchExampleData);
     // log(showObj(model));
-
+    // can't delete things which don't exist in the model
     [
       model.assets,
       model.incomes,
@@ -8091,49 +8092,71 @@ describe('evaluations tests', () => {
         items,
         model.name,
         model,
-        true,
+        true, // doChecks
+        true, // allowRecursion
       );
-      expect(response).toBe('nonsense');
+      expect(response.itemsDeleted.length).toBe(0);
+      expect(response.message.length).not.toBe(0);
     });
+
+    // can't delete CASH_ASSET_NAME from incomes
     let response = await deleteItemsFromModelInternal(
       [CASH_ASSET_NAME],
       model.incomes,
       model.name,
       model,
-      true,
+      true, // doChecks
+      true, // allowRecursion
     );
-    expect(response).toBe(CASH_ASSET_NAME);
+    expect(response.itemsDeleted.length).toBe(0);
+    expect(response.message.length).not.toBe(0);
+
+    // can't delete CASH_ASSET_NAME from assets
+    // unless we also delete anything else interacting
+    // with cash
     response = await deleteItemsFromModelInternal(
       [CASH_ASSET_NAME],
       model.assets,
       model.name,
       model,
-      true,
+      true, // doChecks
+      false, // allowRecursion
     );
+    expect(response.itemsDeleted.length).toBe(0);
     expect(response).not.toBe('');
+  });
+
+  it('delete items from model no recursion', async () => {
+    const model = makeModelFromJSON(mortgageSwitchExampleData);
+    // log(showObj(model));
 
     // log(showObj(model.assets.map((i)=>{return i.NAME})));
 
     expect(model.assets.length).toBe(5);
     markForUndo(model);
-    response = await deleteItemsFromModelInternal(
-      ['ISAs'],
+    let listForDelete = ['ISAs'];
+    let response = await deleteItemsFromModelInternal(
+      listForDelete,
       model.assets,
       model.name,
       model,
-      true,
+      true, // doChecks
+      false, // allowRecursion
     );
-    expect(response).toBe('');
+    expect(response.message).toBe('');
+    expect(response.itemsDeleted).toEqual(listForDelete);
     expect(model.assets.length).toBe(4);
     revertToUndoModel(model);
     expect(model.assets.length).toBe(5);
 
+    listForDelete = ['ISAs', 'Stocks'];
     response = await deleteItemsFromModelInternal(
-      ['ISAs', 'Stocks'],
+      listForDelete,
       model.assets,
       model.name,
       model,
-      true,
+      true, // doChecks
+      false, // allowRecursion
     );
     expect(response).not.toBe('');
 
@@ -8141,28 +8164,35 @@ describe('evaluations tests', () => {
 
     expect(model.incomes.length).toBe(3);
     markForUndo(model);
+    listForDelete = ['Side hustle income'];
     response = await deleteItemsFromModelInternal(
-      ['Side hustle income'],
+      listForDelete,
       model.incomes,
       model.name,
       model,
-      true,
+      true, // doChecks
+      false, // allowRecursion
     );
-    expect(response).toBe('');
+    expect(response.message).toBe('');
+    expect(response.itemsDeleted).toEqual(listForDelete);
     expect(model.incomes.length).toBe(2);
     revertToUndoModel(model);
     expect(model.incomes.length).toBe(3);
 
     expect(model.incomes.length).toBe(3);
     markForUndo(model);
+    listForDelete = ['Side hustle income', 'Side hustle income later'];
     response = await deleteItemsFromModelInternal(
-      ['Side hustle income', 'Side hustle income later'],
+      listForDelete,
       model.incomes,
       model.name,
       model,
-      true,
+      true, // doChecks
+      false, // allowRecursion
     );
-    expect(response).toBe('');
+    expect(response.message).toBe('');
+    expect(response.itemsDeleted).toEqual(listForDelete);
+
     expect(model.incomes.length).toBe(1);
     revertToUndoModel(model);
     expect(model.incomes.length).toBe(3);
@@ -8171,28 +8201,34 @@ describe('evaluations tests', () => {
 
     expect(model.expenses.length).toBe(3);
     markForUndo(model);
+    listForDelete = ['Look after dogs'];
     response = await deleteItemsFromModelInternal(
-      ['Look after dogs'],
+      listForDelete,
       model.expenses,
       model.name,
       model,
-      true,
+      true, // doChecks
+      false, // allowRecursion
     );
-    expect(response).toBe('');
+    expect(response.message).toBe('');
+    expect(response.itemsDeleted).toEqual(listForDelete);
     expect(model.expenses.length).toBe(2);
     revertToUndoModel(model);
     expect(model.expenses.length).toBe(3);
 
     expect(model.expenses.length).toBe(3);
     markForUndo(model);
+    listForDelete = ['Look after dogs', 'Run house'];
     response = await deleteItemsFromModelInternal(
-      ['Look after dogs', 'Run house'],
+      listForDelete,
       model.expenses,
       model.name,
       model,
-      true,
+      true, // doChecks
+      false, // allowRecursion
     );
-    expect(response).toBe('');
+    expect(response.message).toBe('');
+    expect(response.itemsDeleted).toEqual(listForDelete);
     expect(model.expenses.length).toBe(1);
     revertToUndoModel(model);
     expect(model.expenses.length).toBe(3);
@@ -8201,26 +8237,32 @@ describe('evaluations tests', () => {
 
     expect(model.transactions.length).toBe(6);
     markForUndo(model);
+    listForDelete = ['SellCar'];
     response = await deleteItemsFromModelInternal(
-      ['SellCar'],
+      listForDelete,
       model.transactions,
       model.name,
       model,
-      true,
+      true, // doChecks
+      false, // allowRecursion
     );
-    expect(response).toBe('');
+    expect(response.message).toBe('');
+    expect(response.itemsDeleted).toEqual(listForDelete);
     expect(model.transactions.length).toBe(5);
     revertToUndoModel(model);
     expect(model.transactions.length).toBe(6);
     markForUndo(model);
+    listForDelete = ['SellCar', 'switchMortgage'];
     response = await deleteItemsFromModelInternal(
-      ['SellCar', 'switchMortgage'],
+      listForDelete,
       model.transactions,
       model.name,
       model,
-      true,
+      true, // doChecks
+      false, // allowRecursion
     );
-    expect(response).toBe('');
+    expect(response.message).toBe('');
+    expect(response.itemsDeleted).toEqual(listForDelete);
     expect(model.transactions.length).toBe(4);
     revertToUndoModel(model);
     expect(model.transactions.length).toBe(6);
@@ -8229,48 +8271,73 @@ describe('evaluations tests', () => {
 
     expect(model.triggers.length).toBe(3);
     markForUndo(model);
+    listForDelete = ['TransferMortgage'];
     response = await deleteItemsFromModelInternal(
-      ['TransferMortgage'],
-      model.transactions,
-      model.name,
-      model,
-      true,
-    );
-    expect(response).toBe('TransferMortgage');
-    expect(model.triggers.length).toBe(3);
-
-    response = await deleteItemsFromModelInternal(
-      ['Conditional pay early mortgage'],
-      model.transactions,
-      model.name,
-      model,
-      true,
-    );
-    expect(response).toBe('');
-    response = await deleteItemsFromModelInternal(
-      ['Conditional pay late mortgage'],
-      model.transactions,
-      model.name,
-      model,
-      true,
-    );
-    expect(response).toBe('');
-    response = await deleteItemsFromModelInternal(
-      ['switchMortgage'],
-      model.transactions,
-      model.name,
-      model,
-      true,
-    );
-    expect(response).toBe('');
-    response = await deleteItemsFromModelInternal(
-      ['TransferMortgage'],
+      listForDelete,
       model.triggers,
       model.name,
       model,
-      true,
+      true, // doChecks
+      false, // allowRecursion
     );
-    expect(response).toBe('');
+    expect(response).not.toBe('');
+    expect(model.triggers.length).toBe(3);
+
+    listForDelete = ['Conditional pay early mortgage'];
+    response = await deleteItemsFromModelInternal(
+      listForDelete,
+      model.transactions,
+      model.name,
+      model,
+      true, // doChecks
+      false, // allowRecursion
+    );
+    expect(response.message).toBe('');
+    expect(response.itemsDeleted).toEqual(listForDelete);
+    listForDelete = ['Each month buy food'];
+    response = await deleteItemsFromModelInternal(
+      listForDelete,
+      model.transactions,
+      model.name,
+      model,
+      true, // doChecks
+      false, // allowRecursion
+    );
+    expect(response.message).toBe('');
+    expect(response.itemsDeleted).toEqual(listForDelete);
+    listForDelete = ['Conditional pay late mortgage'];
+    response = await deleteItemsFromModelInternal(
+      listForDelete,
+      model.transactions,
+      model.name,
+      model,
+      true, // doChecks
+      false, // allowRecursion
+    );
+    expect(response.message).toBe('');
+    expect(response.itemsDeleted).toEqual(listForDelete);
+    listForDelete = ['switchMortgage'];
+    response = await deleteItemsFromModelInternal(
+      listForDelete,
+      model.transactions,
+      model.name,
+      model,
+      true, // doChecks
+      false, // allowRecursion
+    );
+    expect(response.message).toBe('');
+    expect(response.itemsDeleted).toEqual(listForDelete);
+    listForDelete = ['TransferMortgage'];
+    response = await deleteItemsFromModelInternal(
+      listForDelete,
+      model.triggers,
+      model.name,
+      model,
+      true, // doChecks
+      false, // allowRecursion
+    );
+    expect(response.message).toBe('');
+    expect(response.itemsDeleted).toEqual(listForDelete);
     expect(model.triggers.length).toBe(2);
 
     revertToUndoModel(model);
@@ -8287,50 +8354,147 @@ describe('evaluations tests', () => {
     */
     expect(model.settings.length).toBe(6);
     markForUndo(model);
+    listForDelete = ['stockMarketGrowth'];
     response = await deleteItemsFromModelInternal(
-      ['stockMarketGrowth'],
+      listForDelete,
       model.settings,
       model.name,
       model,
-      true,
+      true, // doChecks
+      false, // allowRecursion
     );
     expect(response).not.toBe('');
     expect(model.settings.length).toBe(6);
-
+    listForDelete = ['Revalue stocks after loss in 2020 market crash'];
     response = await deleteItemsFromModelInternal(
-      ['Revalue stocks after loss in 2020 market crash'],
+      listForDelete,
       model.transactions,
       model.name,
       model,
-      true,
+      true, // doChecks
+      false, // allowRecursion
     );
-    expect(response).toBe('');
+    expect(response.message).toBe('');
+    expect(response.itemsDeleted).toEqual(listForDelete);
+    listForDelete = ['Stocks'];
     response = await deleteItemsFromModelInternal(
-      ['Stocks'],
+      listForDelete,
       model.assets,
       model.name,
       model,
-      true,
+      true, // doChecks
+      false, // allowRecursion
     );
-    expect(response).toBe('');
+    expect(response.message).toBe('');
+    expect(response.itemsDeleted).toEqual(listForDelete);
+    listForDelete = ['ISAs'];
     response = await deleteItemsFromModelInternal(
-      ['ISAs'],
+      listForDelete,
       model.assets,
       model.name,
       model,
-      true,
+      true, // doChecks
+      false, // allowRecursion
     );
-    expect(response).toBe('');
+    expect(response.message).toBe('');
+    expect(response.itemsDeleted).toEqual(listForDelete);
+    listForDelete = ['stockMarketGrowth'];
     response = await deleteItemsFromModelInternal(
-      ['stockMarketGrowth'],
+      listForDelete,
       model.settings,
       model.name,
       model,
-      true,
+      true, // doChecks
+      false, // allowRecursion
     );
-    expect(response).toBe('');
+    expect(response.message).toBe('');
+    expect(response.itemsDeleted).toEqual(listForDelete);
     expect(model.settings.length).toBe(5);
     revertToUndoModel(model);
     expect(model.settings.length).toBe(6);
+  });
+
+  it('delete items from model with recursion', async () => {
+    const model = makeModelFromJSON(mortgageSwitchExampleData);
+    // log(showObj(model));
+    // log(showObj(model.assets.map((i)=>{return i.NAME})));
+    // log(showObj(model.expenses.map((i)=>{return i.NAME})));
+    // log(showObj(model.transactions.map((i)=>{return i.NAME})));
+    // log(showObj(model.triggers.map((i)=>{return i.NAME})));
+
+    expect(model.triggers.length).toBe(3);
+    expect(model.transactions.length).toBe(6);
+    markForUndo(model);
+    let listForDelete = ['TransferMortgage'];
+    let response = await deleteItemsFromModelInternal(
+      listForDelete,
+      model.triggers,
+      model.name,
+      model,
+      true, // doChecks
+      true, // allowRecursion
+    );
+    // requires additional delete of
+    // 'Conditional pay early mortgage',
+    // 'Conditional pay late mortgage'
+    // 'Each month buy food'
+    // 'switchMortgage'
+    expect(response.message).toBe('');
+    // log(`response.itemsDeleted = ${response.itemsDeleted}`);
+    expect(response.itemsDeleted).toEqual([
+      'TransferMortgage',
+      'Conditional pay early mortgage',
+      'Conditional pay late mortgage',
+      'switchMortgage',
+    ]);
+    expect(model.triggers.length).toBe(2); // switchMortgage
+    expect(model.transactions.length).toBe(3); // Conditionals, food
+
+    revertToUndoModel(model);
+    expect(model.triggers.length).toBe(3);
+    expect(model.transactions.length).toBe(6);
+
+    /*
+    log(
+      showObj(
+        model.settings.map((i) => {
+          return i.NAME;
+        }),
+      ),
+    );
+    */
+    expect(model.settings.length).toBe(6);
+    expect(model.assets.length).toBe(5);
+    expect(model.transactions.length).toBe(6);
+    markForUndo(model);
+    listForDelete = ['stockMarketGrowth'];
+    response = await deleteItemsFromModelInternal(
+      listForDelete,
+      model.settings,
+      model.name,
+      model,
+      true, // doChecks
+      true, // allowRecursion
+    );
+    // requires additional delete of
+    // 'Revalue stocks after loss in 2020 market crash'
+    // 'Stocks'
+    // 'ISAs'
+    expect(response.message).toBe('');
+    // log(`response.itemsDeleted = ${response.itemsDeleted}`);
+    expect(response.itemsDeleted).toEqual([
+      'stockMarketGrowth',
+      'ISAs',
+      'Stocks',
+      'Revalue stocks after loss in 2020 market crash',
+    ]);
+    expect(model.settings.length).toBe(5);
+    expect(model.assets.length).toBe(3);
+    expect(model.transactions.length).toBe(5);
+
+    revertToUndoModel(model);
+    expect(model.settings.length).toBe(6);
+    expect(model.assets.length).toBe(5);
+    expect(model.transactions.length).toBe(6);
   });
 });

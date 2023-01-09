@@ -1170,23 +1170,10 @@ export async function setFavouriteInModel(
   return true;
 }
 
-// returns '' for success and an error message
-// if the deletion would cause a checker error
-export async function deleteItemsFromModelInternal(
+function checkItemsFoundInList(
   names: string[],
   itemList: Item[],
-  modelName: string,
-  model: ModelData,
-  doChecks: boolean,
-): Promise<string> {
-  // log(`delete items ${names}`);
-  //log(`before itemList ${itemList.map((i)=>{return i.NAME})}`);
-
-  // If we are to delete something, there might be dependent
-  // items.  We could just refuse to delete and let the customer
-  // go and delete the dependenta manually, first.
-  // What follows is an attempt to be more helpful...
-  // let dependentsFound = true;
+): string | undefined {
   let nameFound = true;
   let nameIndex = 0;
   while (nameIndex < names.length && nameFound) {
@@ -1205,25 +1192,52 @@ export async function deleteItemsFromModelInternal(
     nameFound = true;
     nameIndex = nameIndex + 1;
   }
-  // upon exit, check whether nameFound === false
   if (!nameFound) {
-    const response = `item not found for delete :${names[nameIndex]}`;
-    // log(`setState for delete item alert`);
-    if (reactAppComponent) {
-      reactAppComponent.setState({
-        alertText: response,
-      });
-    }
     return names[nameIndex];
+  } else {
+    return undefined;
   }
+}
 
-  markForUndo(model);
+export interface DeleteResult {
+  itemsDeleted: string[];
+  message: string;
+}
+
+function getListFromModel(type: Context, model: ModelData): Item[] {
+  let result: Item[] = [];
+
+  if (type === Context.Asset) {
+    result = model.assets;
+  } else if (type === Context.Expense) {
+    result = model.expenses;
+  } else if (type === Context.Income) {
+    result = model.incomes;
+  } else if (type === Context.Transaction) {
+    result = model.transactions;
+  } else if (type === Context.Trigger) {
+    result = model.triggers;
+  } else if (type === Context.Setting) {
+    result = model.settings;
+  } else {
+    log('Error : unexpected outcome.type');
+  }
+  return result;
+}
+
+// assumes that the names are present in the itemList
+async function deleteItemsRecursive(
+  names: string[],
+  itemList: Item[],
+  model: ModelData,
+  doChecks: boolean,
+  allowRecursion: boolean,
+): Promise<DeleteResult> {
   names.map((name) => {
     const idx = itemList.findIndex((i: Item) => {
       return i.NAME === name;
     });
-    // log(`idx of ${name} is ${idx}`);
-
+    // remove from the given list
     if (idx !== -1) {
       // log(`before delete ${name}, itemList = ${showObj(itemList)}`);
       itemList.splice(idx, 1);
@@ -1233,37 +1247,129 @@ export async function deleteItemsFromModelInternal(
     }
   });
 
-  if (doChecks) {
+  if (!doChecks) {
+    return {
+      itemsDeleted: names,
+      message: '',
+    };
+  }
+
+  // is the model still good? do we need to delete recursively?
+  let itemsDeleted: string[] = names;
+  let message = '';
+  let checksClean = false;
+  while (!checksClean) {
     const outcome = checkData(model);
-    if (outcome.message !== '') {
-      const response = `edited  model fails checks :${outcome.message}', reverting`;
-      // log(`setState for delete item alert`);
-      if (reactAppComponent) {
-        reactAppComponent.setState({
-          alertText: response,
-        });
-      }
-      // log(`revert attempt to delete - fails checks`);
-      revertToUndoModel(model);
-      return response;
+    checksClean = outcome.message === '';
+    if (checksClean) {
+      break;
     }
-  }
-
-  //log(
-  //  `now itemList = ${itemList.map((i) => {
-  //    return i.NAME;
-  //  })}`,
-  //);
-
-  await saveModelLSM(getUserID(), modelName, model);
-  if (reactAppComponent) {
-    await refreshData(
-      true, // refreshModel
-      true, // refreshChart
-      13, //sourceID
+    if (!allowRecursion) {
+      // log(`delete makes bad model : recursion blocked`);
+      message = `edited  model fails checks :${outcome.message}', reverting`;
+      break;
+    }
+    if (outcome.itemName === undefined || outcome.type === undefined) {
+      // log(`delete makes bad model : no obvious item to delete next`);
+      message = `edited  model fails checks :${outcome.message}', reverting`;
+      break;
+    }
+    // log(`try removing ${outcome.itemName}...`);
+    const secondLevelResult: DeleteResult = await deleteItemsRecursive(
+      [outcome.itemName],
+      getListFromModel(outcome.type, model),
+      model,
+      doChecks,
+      allowRecursion,
     );
+    if (secondLevelResult.message === '') {
+      // log(`attempt to delete dependents - fails checks`);
+      itemsDeleted = itemsDeleted.concat(secondLevelResult.itemsDeleted);
+      continue;
+    }
+    log(`recursive delete makes bad model : stop`);
+    message = `edited  model fails checks :${outcome.message}', reverting`;
   }
-  return '';
+  if (checksClean) {
+    return {
+      itemsDeleted: itemsDeleted,
+      message: '',
+    };
+  } else {
+    return {
+      itemsDeleted: [],
+      message: message,
+    };
+  }
+}
+
+// returns '' for success and an error message
+// if the deletion would cause a checker error
+export async function deleteItemsFromModelInternal(
+  names: string[],
+  itemList: Item[],
+  modelName: string,
+  model: ModelData,
+  doChecks: boolean,
+  allowRecursion: boolean,
+): Promise<DeleteResult> {
+  // log(`delete items ${names}`);
+  //log(`before itemList ${itemList.map((i)=>{return i.NAME})}`);
+
+  const missingName = checkItemsFoundInList(names, itemList);
+  if (missingName !== undefined) {
+    const response = `item not found for delete :${missingName}`;
+    // log(`setState for delete item alert`);
+    if (reactAppComponent) {
+      reactAppComponent.setState({
+        alertText: response,
+      });
+    }
+    return {
+      itemsDeleted: [],
+      message: `Item ${missingName} not found in model`,
+    };
+  }
+
+  // If we are to delete something, there might be dependent
+  // items.  We could just refuse to delete and let the customer
+  // go and delete the dependenta manually, first.
+  // What follows is an attempt to be more helpful...
+
+  markForUndo(model);
+  const response = await deleteItemsRecursive(
+    names,
+    itemList,
+    model,
+    doChecks,
+    allowRecursion,
+  );
+
+  if (response.message !== '') {
+    revertToUndoModel(model);
+    if (reactAppComponent) {
+      reactAppComponent.setState({
+        alertText: response.message,
+      });
+    }
+    return {
+      itemsDeleted: [],
+      message: response.message,
+    };
+  } else {
+    await saveModelLSM(getUserID(), modelName, model);
+    if (reactAppComponent) {
+      await refreshData(
+        true, // refreshModel
+        true, // refreshChart
+        13, //sourceID
+      );
+    }
+    return {
+      itemsDeleted: response.itemsDeleted,
+      message: '',
+    };
+  }
 }
 
 async function deleteItemsFromModel(
@@ -1272,6 +1378,7 @@ async function deleteItemsFromModel(
   modelName: string,
   model: ModelData,
   doChecks: boolean,
+  allowRecursion: boolean,
 ): Promise<boolean> {
   const response = await deleteItemsFromModelInternal(
     names,
@@ -1279,66 +1386,73 @@ async function deleteItemsFromModel(
     modelName,
     model,
     doChecks,
+    allowRecursion,
   );
-  return response === '';
+  return response.message === '';
 }
-export async function deleteTrigger(name: string): Promise<boolean> {
-  return deleteItemsFromModel(
+export async function deleteTrigger(name: string): Promise<DeleteResult> {
+  return deleteItemsFromModelInternal(
     [name],
     reactAppComponent.state.modelData.triggers,
     modelName,
     reactAppComponent.state.modelData,
     reactAppComponent.options.checkModelOnEdit,
+    true, // allowRecursion
   );
 }
 
-export async function deleteAsset(name: string): Promise<boolean> {
-  return deleteItemsFromModel(
+export async function deleteAsset(name: string): Promise<DeleteResult> {
+  return deleteItemsFromModelInternal(
     [name],
     reactAppComponent.state.modelData.assets,
     modelName,
     reactAppComponent.state.modelData,
     reactAppComponent.options.checkModelOnEdit,
+    true, // allowRecursion
   );
 }
 
-export async function deleteTransaction(name: string): Promise<boolean> {
-  return deleteItemsFromModel(
+export async function deleteTransaction(name: string): Promise<DeleteResult> {
+  return deleteItemsFromModelInternal(
     [name],
     reactAppComponent.state.modelData.transactions,
     modelName,
     reactAppComponent.state.modelData,
     reactAppComponent.options.checkModelOnEdit,
+    true, // allowRecursion
   );
 }
 
-export async function deleteExpense(name: string): Promise<boolean> {
-  return deleteItemsFromModel(
+export async function deleteExpense(name: string): Promise<DeleteResult> {
+  return deleteItemsFromModelInternal(
     [name],
     reactAppComponent.state.modelData.expenses,
     modelName,
     reactAppComponent.state.modelData,
     reactAppComponent.options.checkModelOnEdit,
+    true, // allowRecursion
   );
 }
 
-export async function deleteIncome(name: string): Promise<boolean> {
-  return deleteItemsFromModel(
+export async function deleteIncome(name: string): Promise<DeleteResult> {
+  return deleteItemsFromModelInternal(
     [name],
     reactAppComponent.state.modelData.incomes,
     modelName,
     reactAppComponent.state.modelData,
     reactAppComponent.options.checkModelOnEdit,
+    true, // allowRecursion
   );
 }
 
-export async function deleteSetting(name: string): Promise<boolean> {
-  return deleteItemsFromModel(
+export async function deleteSetting(name: string): Promise<DeleteResult> {
+  return deleteItemsFromModelInternal(
     [name],
     reactAppComponent.state.modelData.settings,
     modelName,
     reactAppComponent.state.modelData,
     reactAppComponent.options.checkModelOnEdit,
+    true, // allowRecursion
   );
 }
 export async function setFavouriteTrigger(
@@ -1809,11 +1923,25 @@ export class AppContent extends Component<AppProps, AppState> {
       };
       const deleteTransactions = (arg: string[]) => {
         const model = this.state.modelData;
-        deleteItemsFromModel(arg, model.transactions, model.name, model, true);
+        deleteItemsFromModel(
+          arg,
+          model.transactions,
+          model.name,
+          model,
+          true,
+          true,
+        );
       };
       const deleteExpenses = (arg: string[]) => {
         const model = this.state.modelData;
-        deleteItemsFromModel(arg, model.expenses, model.name, model, true);
+        deleteItemsFromModel(
+          arg,
+          model.expenses,
+          model.name,
+          model,
+          true,
+          true,
+        );
       };
 
       const updateStartDate = async (newDate: string) => {

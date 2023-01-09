@@ -1001,6 +1001,19 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
       t.TYPE,
     )}'  has bad date : ${showObj(t.DATE)}`;
   }
+  if (t.STOP_DATE !== '') {
+    const stopD = checkTriggerDate(
+      t.STOP_DATE,
+      triggers,
+      getVarVal(model.settings),
+    );
+    if (stopD === undefined || !checkDate(stopD)) {
+      return `Transaction '${getDisplayName(
+        t.NAME,
+        t.TYPE,
+      )}'  has bad stop date : ${showObj(t.STOP_DATE)}`; // TODO test
+    }
+  }
   // log(`transaction date ${getTriggerDate(t.DATE, triggers)}`);
   if (t.FROM !== '') {
     if (!checkTransactionWords(t.NAME, t.FROM, t.DATE, model)) {

@@ -4,6 +4,7 @@ import { log, printDebug, showObj } from '../../utils/utils';
 import { getTriggerDate } from '../../utils/stringUtils';
 import { ModelData } from '../../types/interfaces';
 import { getVarVal } from '../../models/modelUtils';
+import { DeleteResult } from '../../App';
 /**
  * Samples:
  * https://adazzle.github.io/react-data-grid/examples.html#/all-features
@@ -12,7 +13,7 @@ interface DataGridProps {
   handleGridRowsUpdated: any; // TODO any
   rows: any[]; // TODO any
   columns: any[]; // TODO any
-  deleteFunction: ((name: string) => Promise<boolean>) | undefined;
+  deleteFunction: ((name: string) => Promise<DeleteResult>) | undefined;
   setFavouriteFunction:
     | ((name: string, value: boolean) => Promise<boolean>)
     | undefined;
@@ -223,7 +224,10 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
           icon: 'fa fa-trash',
           callback: async () => {
             if (this.props.deleteFunction !== undefined) {
-              await this.props.deleteFunction(row['NAME']);
+              const deleteResult = await this.props.deleteFunction(row['NAME']);
+              if (deleteResult.itemsDeleted.length > 1) {
+                alert(`deleted ${deleteResult.itemsDeleted}`);
+              }
               this.sortHandler(
                 this.state.colSortIndex,
                 this.state.sortDirection,

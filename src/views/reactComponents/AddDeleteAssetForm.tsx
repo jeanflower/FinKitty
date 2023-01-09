@@ -30,7 +30,7 @@ import {
   dot,
 } from '../../localization/stringConstants';
 import { incomeOptions } from './AddDeleteIncomeForm';
-import { doCheckBeforeOverwritingExistingData } from '../../App';
+import { DeleteResult, doCheckBeforeOverwritingExistingData } from '../../App';
 import {
   getSettings,
   getVarVal,
@@ -73,7 +73,7 @@ const inputtingPension = 'definedContributionsPension';
 interface EditAssetProps extends FormProps {
   checkAssetFunction: (a: Asset, model: ModelData) => string;
   submitAssetFunction: (arg0: Asset, arg1: ModelData) => Promise<void>;
-  deleteAssetFunction: (name: string) => Promise<boolean>;
+  deleteAssetFunction: (name: string) => Promise<DeleteResult>;
   checkTransactionFunction: (t: Transaction, model: ModelData) => string;
   submitTransactionFunction: (
     transactionInput: Transaction,
@@ -1099,8 +1099,13 @@ export class AddDeleteAssetForm extends Component<
   private async delete(e: React.ChangeEvent<HTMLInputElement>) {
     e.preventDefault();
     // log('deleting something ' + showObj(this));
-    if (await this.props.deleteAssetFunction(this.state.NAME)) {
-      this.props.showAlert('deleted asset');
+    const deleteResult = await this.props.deleteAssetFunction(this.state.NAME);
+    if (deleteResult.message === '') {
+      if (deleteResult.itemsDeleted.length === 1) {
+        this.props.showAlert('deleted asset');
+      } else {
+        this.props.showAlert(`deleted ${deleteResult.itemsDeleted}`);
+      }
       // clear fields
       this.setState(this.defaultState);
     } else {

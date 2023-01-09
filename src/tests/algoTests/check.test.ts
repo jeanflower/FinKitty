@@ -448,11 +448,19 @@ describe('checks tests', () => {
     model.transactions[0].RECURRENCE = '';
     expect(checkData(model).message).toEqual(``);
 
+    const oldStop = model.transactions[0].STOP_DATE;
+    model.transactions[0].STOP_DATE = 'junk';
+    expect(checkData(model).message).toEqual(
+      `Transaction '-PT TeachersPensionScheme'  has bad stop date : "junk"`,
+    );
+    model.transactions[0].STOP_DATE = oldStop;
+
     model.transactions[2].RECURRENCE = '2m';
     expect(checkData(model).message).toEqual(
       `Pension transaction '-PDB TeachersPensionScheme' gets frequency from income, should not have recurrence '2m' defined`,
     );
     model.transactions[2].RECURRENCE = '';
+    expect(checkData(model).message).toEqual(``);
 
     model.transactions[0].FROM_VALUE = 'nonsense';
     expect(checkData(model).message).toEqual(
@@ -460,7 +468,6 @@ describe('checks tests', () => {
         `or a setting, not 'nonsense'`,
     );
     model.transactions[0].FROM_VALUE = '1.0';
-
     expect(checkData(model).message).toEqual(``);
 
     let oldName = model.transactions[0].NAME;
@@ -469,7 +476,6 @@ describe('checks tests', () => {
       `Transaction name needs some characters`,
     );
     model.transactions[0].NAME = oldName;
-
     expect(checkData(model).message).toEqual(``);
 
     oldName = model.transactions[1].NAME;
@@ -478,7 +484,6 @@ describe('checks tests', () => {
       `Conditional Transaction 'Conditionalnonsense'  needs a 'To' asset defined`,
     );
     model.transactions[1].NAME = oldName;
-
     expect(checkData(model).message).toEqual(``);
 
     oldName = model.transactions[2].NAME;

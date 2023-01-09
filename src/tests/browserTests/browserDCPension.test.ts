@@ -140,10 +140,10 @@ describe(testDataModelName, () => {
       ...pensionInputs,
       name: 'dcp09',
       contributionsStopDate: 'junk',
-      message: `added assets and transactions`,
-    }); // BUG : junk shouldn't be recognised as an input here
+      message: `Transaction '-PEN dcp09' has bad stop date : "junk"`,
+    });
 
-    await clickButton(driver, 'useDCPInputs');
+    await clearDCPension(driver);
     await addDCPension(driver, {
       ...pensionInputs,
       name: 'dcp10',

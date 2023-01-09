@@ -14,7 +14,7 @@ import { DateSelectionRow, itemOptions } from './DateSelectionRow';
 import { Input } from './Input';
 import { isNumberString } from '../../models/checks';
 import { revalueExp } from '../../localization/stringConstants';
-import { doCheckBeforeOverwritingExistingData } from '../../App';
+import { DeleteResult, doCheckBeforeOverwritingExistingData } from '../../App';
 import { getVarVal, makeRevalueName } from '../../models/modelUtils';
 import {
   makeValueAbsPropFromString,
@@ -42,7 +42,7 @@ const inputtingExpense = 'expense';
 interface EditExpenseProps extends FormProps {
   checkFunction: (e: Expense, model: ModelData) => string;
   submitFunction: (expenseInput: Expense, modelData: ModelData) => Promise<any>;
-  deleteFunction: (name: string) => Promise<boolean>;
+  deleteFunction: (name: string) => Promise<DeleteResult>;
   submitTriggerFunction: (
     triggerInput: Trigger,
     modelData: ModelData,
@@ -497,8 +497,13 @@ export class AddDeleteExpenseForm extends Component<
   private async delete(e: React.ChangeEvent<HTMLInputElement>) {
     e.preventDefault();
     // log('deleting something ' + showObj(this));
-    if (await this.props.deleteFunction(this.state.NAME)) {
-      this.props.showAlert('deleted expense');
+    const deleteResult = await this.props.deleteFunction(this.state.NAME);
+    if (deleteResult.message === '') {
+      if (deleteResult.itemsDeleted.length === 1) {
+        this.props.showAlert('deleted expense');
+      } else {
+        this.props.showAlert(`deleted ${deleteResult.itemsDeleted}`);
+      }
       // clear fields
       this.setState(this.defaultState);
     } else {

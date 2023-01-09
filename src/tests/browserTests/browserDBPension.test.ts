@@ -99,9 +99,7 @@ describe(testDataModelName, () => {
       ...inputs,
       name: 'xyzJunk',
       contributionsEndDate: 'junkjunk',
-      message: 'added new data', // BUGS!!  this junkjunk entry should be blocked at UI
-      // should trigger model check failure
-      // and, internally, the date here should be used
+      message: `Transaction '-PEN xyzJunk' has bad stop date : "junkjunk"`,
     });
 
     await clearPensionFields(driver);

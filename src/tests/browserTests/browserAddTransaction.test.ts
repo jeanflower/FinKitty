@@ -172,8 +172,8 @@ describe(testDataModelName, () => {
       ...transactionInputs,
       name: 'junkEndDate',
       endDate: 'junk',
-      message: `added new transaction`,
-    }); // BUG! accepted junk
+      message: `Transaction 'junkEndDate' has bad stop date : "junk"`,
+    });
 
     await cleanUpWork(driver, testDataModelName);
   });

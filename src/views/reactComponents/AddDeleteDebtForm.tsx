@@ -20,7 +20,7 @@ import {
   conditional,
   CASH_ASSET_NAME,
 } from '../../localization/stringConstants';
-import { doCheckBeforeOverwritingExistingData } from '../../App';
+import { DeleteResult, doCheckBeforeOverwritingExistingData } from '../../App';
 import { getVarVal, isATransaction } from '../../models/modelUtils';
 import {
   makeValueAbsPropFromString,
@@ -41,7 +41,7 @@ interface EditDebtFormState {
 interface EditDebtProps extends FormProps {
   checkAssetFunction: (a: Asset, model: ModelData) => string;
   submitAssetFunction: (arg0: Asset, arg1: ModelData) => Promise<void>;
-  deleteAssetFunction: (name: string) => Promise<boolean>;
+  deleteAssetFunction: (name: string) => Promise<DeleteResult>;
   checkTransactionFunction: (t: Transaction, model: ModelData) => string;
   submitTransactionFunction: (
     transactionInput: Transaction,

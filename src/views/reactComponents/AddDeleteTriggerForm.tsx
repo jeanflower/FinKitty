@@ -1,7 +1,7 @@
 import React, { Component, FormEvent } from 'react';
 import { Col, Row } from 'react-bootstrap';
 
-import { doCheckBeforeOverwritingExistingData } from '../../App';
+import { DeleteResult, doCheckBeforeOverwritingExistingData } from '../../App';
 
 import { ModelData, Trigger, FormProps } from '../../types/interfaces';
 import { log, printDebug, showObj } from '../../utils/utils';
@@ -19,7 +19,7 @@ interface EditTriggerProps extends FormProps {
     triggerInput: Trigger,
     modelData: ModelData,
   ) => Promise<void>;
-  deleteFunction: (settingName: string) => Promise<boolean>;
+  deleteFunction: (settingName: string) => Promise<DeleteResult>;
 }
 
 export function newTriggerButtonData(
@@ -167,9 +167,15 @@ export class AddDeleteTriggerForm extends Component<
   private async delete(e: React.ChangeEvent<HTMLInputElement>) {
     e.preventDefault();
     // log('deleting something ' + showObj(this));
-    if (await this.props.deleteFunction(this.state.NAME)) {
+    const deleteResult = await this.props.deleteFunction(this.state.NAME);
+    if (deleteResult.message === '') {
+      if (deleteResult.itemsDeleted.length === 1) {
+        this.props.showAlert('deleted important date');
+      } else {
+        this.props.showAlert(`deleted ${deleteResult.itemsDeleted}`);
+      }
+      // clear fields
       this.setState(this.defaultState);
-      this.props.showAlert('deleted important date');
     } else {
       this.props.showAlert(`failed to delete ${this.state.NAME}`);
     }
