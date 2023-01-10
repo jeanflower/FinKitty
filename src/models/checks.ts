@@ -175,12 +175,20 @@ export function checkAssetLiability(l: string) {
   return '';
 }
 
-export function isValidValue(value: string, model: ModelData): boolean {
+export function isValidValueInternal(
+  value: string,
+  model: ModelData,
+  iterationDepth: number,
+): boolean {
   if (value.length === 0) {
     return false;
   }
   if (isNumberString(value)) {
     return true;
+  }
+  if (iterationDepth > 10) {
+    // TODO : how low can iteration get?
+    return false;
   }
 
   const parsed = getNumberAndWordParts(value);
@@ -192,8 +200,16 @@ export function isValidValue(value: string, model: ModelData): boolean {
       false,
     );
     if (settingVal !== 'missing') {
-      // log(`guess setting ${settingVal} makes sense for a value...`);
-      return true; // still a guess as we don't know... TODO drill lower
+      // log(`does setting ${settingVal} makes sense for a value...`);
+      const recursiveVal = isValidValueInternal(
+        settingVal,
+        model,
+        iterationDepth + 1,
+      );
+      if (!recursiveVal) {
+        log(`${settingVal} is not a valid value`);
+      }
+      return recursiveVal;
     }
     if (isAnAssetOrAssets(parsed.wordPart, model)) {
       return true; // could be appropriate ... TODO always workable?
@@ -201,7 +217,9 @@ export function isValidValue(value: string, model: ModelData): boolean {
   }
   return false;
 }
-
+export function isValidValue(value: string, model: ModelData): boolean {
+  return isValidValueInternal(value, model, 1);
+}
 export function checkAsset(a: Asset, model: ModelData): string {
   // log(`checkAsset ${showObj(a)}`);
   if (a.NAME.length === 0) {
@@ -249,7 +267,7 @@ export function checkAsset(a: Asset, model: ModelData): string {
 
   if (!isValidValue(a.VALUE, model)) {
     return `Asset '${a.NAME}' value set to '${a.VALUE}'
-      but no corresponding setting found`;
+      but no suitable setting evaluation is possible`;
   }
   if (!isNumberString(a.VALUE)) {
     if (parseFloat(a.GROWTH) !== 0.0) {
@@ -1693,19 +1711,6 @@ export function checkData(model: ModelData): CheckResult {
     };
   }
 
-  /*
-  for (const s of model.settings) {
-    if (s.NAME === roiStart) {
-      if (!checkTriggerDate(s.VALUE, [], 0)) {
-        return `Bad date for start of view range : ${s.VALUE}`;
-      }
-    } else if (s.NAME === roiEnd) {
-      if (!checkTriggerDate(s.VALUE, [], 0)) {
-        return `Bad date for end of view range : ${s.VALUE}`;
-      }
-    }
-  }
-*/
   // Any transactions must have date inside
   // the lifetime of relevant assets
   // Don't use forEach because we want to log a bug and

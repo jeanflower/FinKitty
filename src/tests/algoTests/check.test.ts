@@ -164,6 +164,145 @@ describe('checks tests', () => {
       ),
     ).toEqual(`Asset 'a' start date doesn't make sense :
       "nonsense"`);
+    model.settings.push({
+      ...simpleSetting,
+      VALUE: 'nonense',
+      NAME: 'wordSetting',
+    });
+    expect(
+      checkAsset(
+        {
+          ...simpleAsset,
+          NAME: 'a',
+          VALUE: 'wordSetting', // there is a setting called wordSetting with a word-style value
+        },
+        model,
+      ),
+    ).toEqual(`Asset 'a' value set to 'wordSetting'
+      but no suitable setting evaluation is possible`);
+    model.settings.push({
+      ...simpleSetting,
+      VALUE: 'wordSetting',
+      NAME: 'x',
+    });
+    expect(
+      checkAsset(
+        {
+          ...simpleAsset,
+          NAME: 'a',
+          VALUE: 'x', // there is a setting called x with a value which is another setting
+        },
+        model,
+      ),
+    ).toEqual(`Asset 'a' value set to 'x'
+      but no suitable setting evaluation is possible`);
+    model.settings.push({
+      ...simpleSetting,
+      VALUE: '10',
+      NAME: 'ten',
+    });
+    expect(
+      checkAsset(
+        {
+          ...simpleAsset,
+          NAME: 'a',
+          VALUE: 'ten', // can be evaluated
+        },
+        model,
+      ),
+    ).toEqual(`Asset 'a' value 'ten' may not grow with CPI`);
+    expect(
+      checkAsset(
+        {
+          ...simpleAsset,
+          NAME: 'a',
+          VALUE: 'ten', // can be evaluated
+          CPI_IMMUNE: true,
+        },
+        model,
+      ),
+    ).toEqual('');
+    model.settings.push({
+      ...simpleSetting,
+      VALUE: 'ten',
+      NAME: 'tenLevel1',
+    });
+    expect(
+      checkAsset(
+        {
+          ...simpleAsset,
+          NAME: 'a',
+          VALUE: 'tenLevel1', // can be evaluated recursively
+          CPI_IMMUNE: true,
+        },
+        model,
+      ),
+    ).toEqual('');
+    model.settings.push({
+      ...simpleSetting,
+      VALUE: 'tenLevel1',
+      NAME: 'tenLevel2',
+    });
+    expect(
+      checkAsset(
+        {
+          ...simpleAsset,
+          NAME: 'a',
+          VALUE: 'tenLevel2', // can be evaluated recursively
+          CPI_IMMUNE: true,
+        },
+        model,
+      ),
+    ).toEqual('');
+    model.settings.push({
+      ...simpleSetting,
+      VALUE: 'tenLevel2',
+      NAME: 'tenLevel3',
+    });
+    expect(
+      checkAsset(
+        {
+          ...simpleAsset,
+          NAME: 'a',
+          VALUE: 'tenLevel3', // can be evaluated recursively
+          CPI_IMMUNE: true,
+        },
+        model,
+      ),
+    ).toEqual('');
+    model.settings.push({
+      ...simpleSetting,
+      VALUE: 'tenLevel3',
+      NAME: 'tenLevel4',
+    });
+    expect(
+      checkAsset(
+        {
+          ...simpleAsset,
+          NAME: 'a',
+          VALUE: 'tenLevel4', // can be evaluated recursively
+          CPI_IMMUNE: true,
+        },
+        model,
+      ),
+    ).toEqual('');
+    model.settings.push({
+      ...simpleSetting,
+      VALUE: 'tenLevel4',
+      NAME: 'tenLevel5',
+    });
+    expect(
+      checkAsset(
+        {
+          ...simpleAsset,
+          NAME: 'a',
+          VALUE: 'tenLevel5', // can be evaluated recursively
+          CPI_IMMUNE: true,
+        },
+        model,
+      ),
+    ).toEqual('');
+
     unSuppressLogs();
   });
   it('check income', () => {

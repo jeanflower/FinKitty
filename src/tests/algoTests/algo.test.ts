@@ -8496,5 +8496,103 @@ describe('evaluations tests', () => {
     expect(model.settings.length).toBe(6);
     expect(model.assets.length).toBe(5);
     expect(model.transactions.length).toBe(6);
+
+    model.settings.push({
+      ...simpleSetting,
+      NAME: 'ten',
+      VALUE: '10',
+    });
+    model.settings.push({
+      ...simpleSetting,
+      NAME: 'tenl1',
+      VALUE: 'ten',
+    });
+    model.settings.push({
+      ...simpleSetting,
+      NAME: 'tenl2',
+      VALUE: 'tenl1',
+    });
+    model.settings.push({
+      ...simpleSetting,
+      NAME: 'tenl3',
+      VALUE: 'tenl2',
+    });
+    model.settings.push({
+      ...simpleSetting,
+      NAME: 'tenl2a',
+      VALUE: 'tenl1',
+    });
+    model.settings.push({
+      ...simpleSetting,
+      NAME: 'tenl3a',
+      VALUE: 'tenl2',
+    });
+    model.settings.push({
+      ...simpleSetting,
+      NAME: 'tenl3b',
+      VALUE: 'tenl2a',
+    });
+    model.assets.push({
+      ...simpleAsset,
+      NAME: 'valIsTen3b',
+      VALUE: 'ten3b',
+    });
+    model.assets.push({
+      ...simpleAsset,
+      NAME: 'valIsTen3a',
+      VALUE: 'ten3a',
+    });
+    model.assets.push({
+      ...simpleAsset,
+      NAME: 'valIsTen2a',
+      VALUE: 'ten2a',
+    });
+    model.assets.push({
+      ...simpleAsset,
+      NAME: 'valIsTen3',
+      VALUE: 'ten3',
+    });
+    model.assets.push({
+      ...simpleAsset,
+      NAME: 'valIsTen2',
+      VALUE: 'ten2',
+    });
+    model.assets.push({
+      ...simpleAsset,
+      NAME: 'valIsTen1',
+      VALUE: 'ten1',
+    });
+    model.assets.push({
+      ...simpleAsset,
+      NAME: 'valIsTen',
+      VALUE: 'ten',
+    });
+
+    expect(model.settings.length).toBe(13);
+    expect(model.assets.length).toBe(12);
+    listForDelete = ['ten'];
+    response = await deleteItemsFromModelInternal(
+      listForDelete,
+      model.settings,
+      model.name,
+      model,
+      true, // doChecks
+      true, // allowRecursion
+    );
+    // requires additional delete
+    expect(response.message).toBe('');
+    log(`response.itemsDeleted = ${response.itemsDeleted}`);
+    expect(response.itemsDeleted).toEqual([
+      'ten',
+      'valIsTen3b',
+      'valIsTen3a',
+      'valIsTen2a',
+      'valIsTen3',
+      'valIsTen2',
+      'valIsTen1',
+      'valIsTen',
+    ]);
+    expect(model.settings.length).toBe(12);
+    expect(model.assets.length).toBe(5);
   });
 });
