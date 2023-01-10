@@ -1,6 +1,5 @@
 import { TestModel02 } from '../../localization/stringConstants';
 import {
-  headless,
   addAsset,
   assetInputs,
   addTransaction,
@@ -21,7 +20,7 @@ describe(testDataModelName, () => {
   let driverSimple = undefined;
   if (!alreadyRunning) {
     alreadyRunning = true;
-    driverSimple = getDriver(headless);
+    driverSimple = getDriver();
   }
   if (driverSimple == undefined) {
     return;

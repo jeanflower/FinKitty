@@ -3,7 +3,6 @@ import {
   CASH_ASSET_NAME,
 } from '../../localization/stringConstants';
 import {
-  headless,
   addDate,
   addIncome,
   incomeInputs,
@@ -50,7 +49,7 @@ describe(testDataModelName, () => {
   let driverSimple = undefined;
   if (!alreadyRunning) {
     alreadyRunning = true;
-    driverSimple = getDriver(headless);
+    driverSimple = getDriver();
   }
   if (driverSimple == undefined) {
     return;

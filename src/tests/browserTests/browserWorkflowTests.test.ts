@@ -14,7 +14,6 @@ import {
   enterTextControl,
 } from './browserBaseTypes';
 import {
-  headless,
   addSetting,
   acceptAnyAlert,
   checkMessage,
@@ -141,7 +140,7 @@ describe('BrowserWorkflowTests 01', () => {
   let driverSimple = undefined;
   if (!alreadyRunning) {
     alreadyRunning = true;
-    driverSimple = getDriver(headless);
+    driverSimple = getDriver();
   }
   if (driverSimple == undefined) {
     return;

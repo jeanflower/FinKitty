@@ -24,7 +24,6 @@ import {
   datesTag,
   expensesTag,
   gotoTabPage,
-  headless,
   homeTag,
   incomesTag,
   overviewTag,
@@ -57,7 +56,7 @@ describe(testDataModelName, () => {
   let driverSimple = undefined;
   if (!alreadyRunning) {
     alreadyRunning = true;
-    driverSimple = getDriver(headless);
+    driverSimple = getDriver();
   }
   if (driverSimple == undefined) {
     return;

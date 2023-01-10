@@ -17,9 +17,7 @@ import { log, printDebug } from '../../utils/utils';
 // switch these values if you want to debug
 // one of these tests and see the Chrome window
 // alive
-// export const headless = true;
 export const quitAfterAll = true;
-export const headless = false;
 // export const quitAfterAll = false;
 
 export const homeTag = 'btn-Home';

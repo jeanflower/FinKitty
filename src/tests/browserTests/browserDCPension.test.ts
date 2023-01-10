@@ -5,7 +5,6 @@ import {
   assetsTag,
   clearDCPension,
   gotoTabPage,
-  headless,
   incomeInputs,
   incomesTag,
   quitAfterAll,
@@ -25,7 +24,7 @@ describe(testDataModelName, () => {
   let driverSimple = undefined;
   if (!alreadyRunning) {
     alreadyRunning = true;
-    driverSimple = getDriver(headless);
+    driverSimple = getDriver();
   }
   if (driverSimple == undefined) {
     return;

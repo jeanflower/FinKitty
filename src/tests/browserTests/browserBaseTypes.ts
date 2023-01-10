@@ -27,16 +27,19 @@ export const dBSleep = 1500; // time to round trip through DB
 export const calcSleep = 1000; // time to recalculate charts etc
 const shortSleep = 200;
 
-export function getDriver(headless: boolean) {
+export function getDriver() {
   // from
   // https://jakebinstein.com/blog/how-to-set-browser-capabilities-in-webdriverjs-example-headless-mode/
 
   const browserOptions = {
     args: ['--disable-gpu', '--no-sandbox'],
   };
-  if (headless) {
-    browserOptions.args.unshift('--headless');
-  }
+
+  // this hasn't worked for a long time - needs fresh attention
+  //if (headless) {
+  //  browserOptions.args.unshift('--headless');
+  //}
+
   // Set up the browser capabilities.
   // Some lines could be condensed into one-liners if that's your preferred style.
   let browserCapabilities = webdriver.Capabilities.chrome();

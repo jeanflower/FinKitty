@@ -14,7 +14,6 @@ import {
   addSetting,
   addTransaction,
   gotoTabPage,
-  headless,
   incomeInputs,
   quitAfterAll,
   sleep,
@@ -45,7 +44,7 @@ describe(testDataModelName, () => {
   let driverSimple = undefined;
   if (!alreadyRunning) {
     alreadyRunning = true;
-    driverSimple = getDriver(headless);
+    driverSimple = getDriver();
   }
   if (driverSimple == undefined) {
     return;

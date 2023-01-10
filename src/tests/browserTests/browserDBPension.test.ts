@@ -1,6 +1,5 @@
 import { pensionDB, TestModel02 } from '../../localization/stringConstants';
 import {
-  headless,
   addIncome,
   incomeInputs,
   addDBPension,
@@ -25,7 +24,7 @@ describe(testDataModelName, () => {
   let driverSimple = undefined;
   if (!alreadyRunning) {
     alreadyRunning = true;
-    driverSimple = getDriver(headless);
+    driverSimple = getDriver();
   }
   if (driverSimple == undefined) {
     return;

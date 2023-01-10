@@ -1,9 +1,9 @@
 import { TestModel01 } from '../../localization/stringConstants';
 import { getDriver, beforeAllWork, cleanUpWork } from './browserBaseTypes';
-import { headless, quitAfterAll, testModelCreation } from './browserTestUtils';
+import { quitAfterAll, testModelCreation } from './browserTestUtils';
 
 describe('BrowserWorkflowTests 02', () => {
-  const driver = getDriver(headless);
+  const driver = getDriver();
   jest.setTimeout(90000); // allow time for all these tests to run
 
   it('should create examples', async () => {

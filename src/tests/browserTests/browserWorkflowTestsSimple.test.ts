@@ -1,8 +1,8 @@
 import { getDriver, clickButton, beforeAllWork } from './browserBaseTypes';
-import { headless, quitAfterAll, testModelContent } from './browserTestUtils';
+import { quitAfterAll, testModelContent } from './browserTestUtils';
 
 describe('BrowserWorkflowTests Simple', () => {
-  const driver = getDriver(headless);
+  const driver = getDriver();
   jest.setTimeout(60000); // allow time for all these tests to run
 
   it('should have right content for Simple example', async () => {
