@@ -440,7 +440,7 @@ function growthData(
     //throw new Error();
   }
 
-  const baseVal = getNumberValue(values, getBaseForCPI(name, g.annualCPI));
+  const baseVal = getNumberValue(values, getBaseForCPI(g.annualCPI));
   /* istanbul ignore if  */ //error
   if (baseVal === undefined) {
     log('Error: baseVal undefined for growth data!');
@@ -454,11 +454,8 @@ function growthData(
   };
 }
 
-function getBaseForCPI(name: string, isAnnual: boolean) {
-  if (printDebug()) {
-    log(`TODO: use ${name} to get a setting name, default is baseForCPI`);
-  }
-  if (isAnnual /*|| name === 'PRnd'*/) {
+function getBaseForCPI(isAnnual: boolean) {
+  if (isAnnual) {
     return annualBaseForCPI;
   }
   return baseForCPI;
@@ -925,7 +922,6 @@ const TAX_MAP: TaxBandsMap = {
     highNIRate: 0.0325,
   },
   '2023': {
-    // TODO get this derived from highestTaxYearInMap - they should be bound to be the same
     noTaxBand: 12500,
     lowTaxBand: 50000,
     adjustNoTaxBand: 100000,
@@ -2356,7 +2352,7 @@ function handleIncome(
       let pensionValue = getNumberValue(values, pt.TO, false);
 
       // this base CPI should behave like an income of some kind
-      const baseVal = getNumberValue(values, getBaseForCPI(pt.TO, true));
+      const baseVal = getNumberValue(values, getBaseForCPI(true));
 
       /* istanbul ignore else */ //error
       if (baseVal !== undefined && pensionValue !== undefined) {
@@ -4319,11 +4315,7 @@ class ValuesContainer {
   }
 }
 
-function shiftDate(
-  oldDate: Date,
-  recurrence: string, // TODO
-  stepCount: number,
-): Date {
+function shiftDate(oldDate: Date, recurrence: string, stepCount: number): Date {
   const freq = parseRecurrenceString(recurrence);
   if (freq.frequency === monthly) {
     const newDate = oldDate;

@@ -1029,7 +1029,7 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
       return `Transaction '${getDisplayName(
         t.NAME,
         t.TYPE,
-      )}'  has bad stop date : ${showObj(t.STOP_DATE)}`; // TODO test
+      )}'  has bad stop date : ${showObj(t.STOP_DATE)}`;
     }
   }
   // log(`transaction date ${getTriggerDate(t.DATE, triggers)}`);

@@ -8581,7 +8581,7 @@ describe('evaluations tests', () => {
     );
     // requires additional delete
     expect(response.message).toBe('');
-    log(`response.itemsDeleted = ${response.itemsDeleted}`);
+    // log(`response.itemsDeleted = ${response.itemsDeleted}`);
     expect(response.itemsDeleted).toEqual([
       'ten',
       'valIsTen3b',

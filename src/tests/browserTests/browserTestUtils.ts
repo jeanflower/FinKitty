@@ -137,13 +137,13 @@ export async function addAsset(
     name: string;
     value: string; // TODO why no valuation date?
     quantity: string;
-    category: string; // TODO why so early?
     startDate: string;
     growth: string;
     growsWithInflation: string;
     liability: string;
     purchasePrice: string;
     message: string;
+    category: string;
   },
 ) {
   await Promise.all([
