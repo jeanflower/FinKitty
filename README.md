@@ -95,9 +95,9 @@ If the latest chromedriver on npm falls behind the version needed for the instal
  ``npm install chromedriver --chromedriver_filepath=/Users/jeanflower/Downloads/chromedriver_mac64_m1.zip``
  - revert changes to package.json, package-lock.json
 
- Here's how to add a new dependency in the context of the locally-installed chromedriver.
+ Here's how to update or add a new dependency in the context of the locally-installed chromedriver.
  - install the new dependency using something like
- ``npm install newpackage@3.4.5``
+ ``npm install newpackage@3.4.5`` or ``npm update existingPackage``
  - stage the changes to package.json
  - delete the chromedriver entry from package.json
  - install chromedriver using something equivalent to 
