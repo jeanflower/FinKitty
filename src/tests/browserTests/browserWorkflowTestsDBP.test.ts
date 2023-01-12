@@ -6,7 +6,12 @@ describe('BrowserWorkflowTests DBP', () => {
   jest.setTimeout(50000); // allow time for all these tests to run
 
   it('should have right content for DBP example', async () => {
-    await beforeAllWork(driver, '', '');
+    const testDataModelName = 'testName04';
+    await beforeAllWork(
+      driver, 
+      testDataModelName, 
+      '',
+    );
 
     await clickButton(driver, 'btn-save-model');
     await testModelContent(

@@ -16,11 +16,11 @@ import {
   scrollIntoViewByID,
 } from './browserBaseTypes';
 
-const testDataModelName = 'BrowserDBPensionTest';
+const testName = 'BrowserDBPensionTest';
 
 let alreadyRunning = false;
 
-describe(testDataModelName, () => {
+describe(testName, () => {
   let driverSimple = undefined;
   if (!alreadyRunning) {
     alreadyRunning = true;
@@ -33,6 +33,7 @@ describe(testDataModelName, () => {
   jest.setTimeout(200000); // allow time for all these tests to run
 
   it('DB pension inputs problem path', async () => {
+    const testDataModelName = 'BrowserDBPensionTest01';
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -206,6 +207,7 @@ describe(testDataModelName, () => {
   });
 
   it('DB pension inputs happy path', async () => {
+    const testDataModelName = 'BrowserDBPensionTest02';
     await beforeAllWork(
       driver,
       testDataModelName,

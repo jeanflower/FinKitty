@@ -14,11 +14,10 @@ import webdriver from 'selenium-webdriver';
 import { CASH_ASSET_NAME } from '../../localization/stringConstants';
 import { log, printDebug } from '../../utils/utils';
 
-// switch these values if you want to debug
+// switch this value if you want to debug
 // one of these tests and see the Chrome window
-// alive
+// stay alive
 export const quitAfterAll = true;
-// export const quitAfterAll = false;
 
 export const homeTag = 'btn-Home';
 export const settingsTag = 'btn-Settings';

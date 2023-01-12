@@ -16,11 +16,11 @@ import {
   getDriver,
 } from './browserBaseTypes';
 
-const testDataModelName = 'BrowserDCPensionTest';
+const testName = 'BrowserDCPensionTest';
 
 let alreadyRunning = false;
 
-describe(testDataModelName, () => {
+describe(testName, () => {
   let driverSimple = undefined;
   if (!alreadyRunning) {
     alreadyRunning = true;
@@ -33,6 +33,7 @@ describe(testDataModelName, () => {
   jest.setTimeout(200000); // allow time for all these tests to run
 
   it('DC Pension problem inputs', async () => {
+    const testDataModelName = 'BrowserDCPensionTest01';
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -235,6 +236,7 @@ describe(testDataModelName, () => {
   });
 
   it('DC Pension happy path', async () => {
+    const testDataModelName = 'BrowserDCPensionTest02';
     await beforeAllWork(
       driver,
       testDataModelName,

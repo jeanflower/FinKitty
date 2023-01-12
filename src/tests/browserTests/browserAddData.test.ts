@@ -41,23 +41,24 @@ import {
 
 import webdriver from 'selenium-webdriver';
 
-const testDataModelName = 'BrowserAddDataTest';
+const testName = 'BrowserAddDataTest';
 
 let alreadyRunning = false;
 
-describe(testDataModelName, () => {
+describe(testName, () => {
   let driverSimple = undefined;
   if (!alreadyRunning) {
     alreadyRunning = true;
     driverSimple = getDriver();
   }
-  if (driverSimple == undefined) {
+  if (driverSimple === undefined) {
     return;
   }
   const driver = driverSimple;
   jest.setTimeout(200000); // allow time for all these tests to run
 
-  it('should add dates', async () => {
+  it('should add data dates', async () => {
+    const testDataModelName = 'BrowserAddDataTest01';
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -98,291 +99,8 @@ describe(testDataModelName, () => {
     await cleanUpWork(driver, testDataModelName);
   });
 
-  it('should add incomes', async () => {
-    await beforeAllWork(
-      driver,
-      testDataModelName,
-      `{"testName":"${TestModel02}"}`,
-    );
-
-    await gotoTabPage(driver, incomesTag);
-
-    await addIncome(driver, {
-      ...incomeInputs,
-      message: `added new income ${incomeInputs.name}`,
-    });
-
-    await addIncome(driver, {
-      ...incomeInputs,
-      name: '',
-      message: `Income name should be non-empty`,
-    });
-
-    await clearIncomeFields(driver);
-    await addIncome(driver, {
-      ...incomeInputs,
-      value: '',
-      message: `Income value should be numerical or built from an Asset or setting`,
-    });
-
-    await clearIncomeFields(driver);
-    await addIncome(driver, {
-      ...incomeInputs,
-      valuationDate: '',
-      message: `Value set date should be a date`,
-    });
-
-    await clearIncomeFields(driver);
-    await addIncome(driver, {
-      ...incomeInputs,
-      growsWithInflation: '',
-      message: `Grows with inflation '' should be a Y/N value`,
-    });
-
-    await clearIncomeFields(driver);
-    await addIncome(driver, {
-      ...incomeInputs,
-      startDate: '',
-      message: `Start date '' should be a date`,
-    });
-
-    await clearIncomeFields(driver);
-    await addIncome(driver, {
-      ...incomeInputs,
-      endDate: '',
-      message: `End date '' should be a date`,
-    });
-
-    await clearIncomeFields(driver);
-    await addIncome(driver, {
-      ...incomeInputs,
-      name: 'javaJob2',
-      liability: '',
-      category: '',
-      message: `added new income javaJob2`,
-    });
-
-    await addIncome(driver, {
-      ...incomeInputs,
-      name: 'javaJob3',
-      liability: 'Joe',
-      category: 'programming',
-      message: `added new income javaJob3`,
-    });
-
-    await addIncome(driver, {
-      ...incomeInputs,
-      value: 'junkforvalue',
-      message: `Income value junkforvalue should be numerical or built from an Asset or setting`,
-    });
-
-    await clearIncomeFields(driver);
-    await addIncome(driver, {
-      ...incomeInputs,
-      valuationDate: 'junkjunk',
-      message: `Value set date should be a date`,
-    });
-
-    await clearIncomeFields(driver);
-    await addIncome(driver, {
-      ...incomeInputs,
-      startDate: 'junkjunk',
-      message: `Start date 'junkjunk' should be a date`,
-    });
-
-    await clearIncomeFields(driver);
-    await addIncome(driver, {
-      ...incomeInputs,
-      endDate: 'junkjunk',
-      message: `End date 'junkjunk' should be a date`,
-    });
-
-    await clearIncomeFields(driver);
-    await addIncome(driver, {
-      ...incomeInputs,
-      growsWithInflation: 'junkjunk',
-      message: `Grows with inflation 'junkjunk' should be a Y/N value`,
-    });
-
-    await clearIncomeFields(driver);
-    await addIncome(driver, {
-      ...incomeInputs,
-      name: 'proportionOfAsset',
-      value: `0.5${CASH_ASSET_NAME}`,
-      growsWithInflation: 'Y',
-      message:
-        `Income 'proportionOfAsset' value '0.5Cash' ` + `may not grow with CPI`,
-    });
-
-    await clearIncomeFields(driver);
-    await addIncome(driver, {
-      ...incomeInputs,
-      name: 'proportionOfAsset',
-      value: `0.5${CASH_ASSET_NAME}`,
-      category: '',
-      message: 'added new income proportionOfAsset',
-    });
-
-    await cleanUpWork(driver, testDataModelName);
-  });
-
-  it('should revalue incomes', async () => {
-    await beforeAllWork(
-      driver,
-      testDataModelName,
-      `{"testName":"${TestModel02}"}`,
-    );
-
-    await gotoTabPage(driver, incomesTag);
-
-    await addIncome(driver, {
-      ...incomeInputs,
-      message: `added new income ${incomeInputs.name}`,
-    });
-
-    await scrollIntoViewByID(driver, `useRevalueInputsIncome`);
-    await clickButton(driver, 'useRevalueInputsIncome');
-
-    const revalueInputs = {
-      name: 'javaJob1',
-      revalue: '12500',
-      revaluationDate: '1 Jan 2022',
-    };
-    await revalueIncome(driver, {
-      ...revalueInputs,
-      message: 'added new data', // TODO "added revaluation of income",
-    });
-
-    await clickButton(driver, 'useRevalueInputsIncome');
-
-    await revalueIncome(driver, {
-      ...revalueInputs,
-      revalue: 'junk',
-      message: 'Income value junk should be a numerical or % value',
-    });
-
-    await clearRevalueIncomeFields(driver);
-    await revalueIncome(driver, {
-      ...revalueInputs,
-      revaluationDate: '1 Jan 2020',
-      message: `Transaction 'javaJob1 2' dated before start of affected income : 'javaJob1'`,
-    });
-
-    await cleanUpWork(driver, testDataModelName);
-  });
-
-  it('should add expenses', async () => {
-    await beforeAllWork(
-      driver,
-      testDataModelName,
-      `{"testName":"${TestModel02}"}`,
-    );
-
-    await gotoTabPage(driver, expensesTag);
-
-    await addExpense(driver, {
-      ...expenseInputs,
-      message: `added new expense`,
-    });
-
-    await clearExpenseFields(driver);
-    await addExpense(driver, {
-      ...expenseInputs,
-      name: '',
-      message: `Name should be not empty`,
-    });
-
-    await clearExpenseFields(driver);
-    await addExpense(driver, {
-      ...expenseInputs,
-      value: '',
-      message: `Expense value should be a numerical value`,
-    });
-
-    await clearExpenseFields(driver);
-    await addExpense(driver, {
-      ...expenseInputs,
-      valuationDate: '',
-      message: `Value set date should be a date`,
-    });
-
-    await clearExpenseFields(driver);
-    await addExpense(driver, {
-      ...expenseInputs,
-      startDate: '',
-      message: `Start date '' should be a date`,
-    });
-
-    await clearExpenseFields(driver);
-    await addExpense(driver, {
-      ...expenseInputs,
-      endDate: '',
-      message: `End date '' should be a date`,
-    });
-
-    await clearExpenseFields(driver);
-    await addExpense(driver, {
-      ...expenseInputs,
-      growsWithInflation: '',
-      message: `Grows with inflation '' should be a Y/N value`,
-    });
-
-    await clearExpenseFields(driver);
-    await addExpense(driver, {
-      ...expenseInputs,
-      recurrence: 'junk',
-      message: `Expense 'broadband' recurrence 'junk' must end in w, m or y`,
-    });
-
-    await cleanUpWork(driver, testDataModelName);
-  });
-
-  it('should revalue expenses', async () => {
-    await beforeAllWork(
-      driver,
-      testDataModelName,
-      `{"testName":"${TestModel02}"}`,
-    );
-
-    await gotoTabPage(driver, expensesTag);
-
-    await addExpense(driver, {
-      ...expenseInputs,
-      message: `added new expense`,
-    });
-
-    await scrollIntoViewByID(driver, 'useRevalueInputsExpense');
-    await clickButton(driver, 'useRevalueInputsExpense');
-
-    const revalueInputs = {
-      name: 'broadband',
-      revalue: '60.14',
-      revaluationDate: '1 Jan 2022',
-    };
-    await revalueExpense(driver, {
-      ...revalueInputs,
-      message: 'added new data', // TODO "added revaluation of expense",
-    });
-
-    await clickButton(driver, 'useRevalueInputsExpense');
-
-    await revalueExpense(driver, {
-      ...revalueInputs,
-      revalue: 'junk',
-      message: 'Expense value junk should be a numerical or % value',
-    });
-
-    await clearRevalueExpenseFields(driver);
-    await revalueExpense(driver, {
-      ...revalueInputs,
-      revaluationDate: '1 Jan 2020',
-      message: `Transaction 'broadband 2' dated before start of affected expense : 'broadband'`,
-    });
-
-    await cleanUpWork(driver, testDataModelName);
-  });
-
   it('add asset', async () => {
+    const testDataModelName = 'BrowserAddDataTest06';
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -456,6 +174,7 @@ describe(testDataModelName, () => {
   });
 
   it('revalue assets', async () => {
+    const testDataModelName = 'BrowserAddDataTest07';
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -501,6 +220,7 @@ describe(testDataModelName, () => {
   });
 
   it('add debts', async () => {
+    const testDataModelName = 'BrowserAddDataTest08';
     await beforeAllWork(
       driver,
       testDataModelName,

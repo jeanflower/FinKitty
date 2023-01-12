@@ -12,11 +12,11 @@ import {
 } from './browserTestUtils';
 import { getDriver, beforeAllWork, cleanUpWork } from './browserBaseTypes';
 
-const testDataModelName = 'BrowserAddTransactionTest';
+const testName = 'BrowserAddTransactionTest';
 
 let alreadyRunning = false;
 
-describe(testDataModelName, () => {
+describe(testName, () => {
   let driverSimple = undefined;
   if (!alreadyRunning) {
     alreadyRunning = true;
@@ -28,7 +28,8 @@ describe(testDataModelName, () => {
   const driver = driverSimple;
   jest.setTimeout(150000); // allow time for all these tests to run
 
-  it('should add transactions', async () => {
+  it('should do add transactions', async () => {
+    const testDataModelName = 'BrowserAddTransactionTest';
     await beforeAllWork(
       driver,
       testDataModelName,

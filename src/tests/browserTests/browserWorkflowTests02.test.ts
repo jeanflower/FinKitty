@@ -7,7 +7,7 @@ describe('BrowserWorkflowTests 02', () => {
   jest.setTimeout(90000); // allow time for all these tests to run
 
   it('should create examples', async () => {
-    const testDataModelName = 'testName3';
+    const testDataModelName = 'testName03';
     await beforeAllWork(
       driver,
       testDataModelName,

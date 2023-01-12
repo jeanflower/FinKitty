@@ -36,11 +36,11 @@ import {
 } from './browserBaseTypes';
 import webdriver from 'selenium-webdriver';
 
-const testDataModelName = 'BrowserBenAndJerryTest';
+const testName = 'BrowserBenAndJerryTest';
 
 let alreadyRunning = false;
 
-describe(testDataModelName, () => {
+describe(testName, () => {
   let driverSimple = undefined;
   if (!alreadyRunning) {
     alreadyRunning = true;
@@ -53,11 +53,15 @@ describe(testDataModelName, () => {
   jest.setTimeout(200000); // allow time for all these tests to run
 
   it('my first model browser test', async () => {
-    const modelName = 'Ben and Jerry';
 
     // log(`go to ensure model ${modelName}`);
 
-    await beforeAllWork(driver, modelName, `{"testName":"${MinimalModel}"}`);
+    const testDataModelName = 'BrowserBenAndJerryTest';
+    await beforeAllWork(
+      driver, 
+      testDataModelName, 
+      `{"testName":"${MinimalModel}"}`,
+    );
 
     if (allowExtraSleeps()) {
       await sleep(
@@ -86,7 +90,7 @@ describe(testDataModelName, () => {
       await btnData[0].click();
     }
 
-    await selectModel(driver, modelName);
+    await selectModel(driver, testDataModelName);
     if (allowExtraSleeps()) {
       await sleep(calcSleep, '--- after model selected');
     }
@@ -744,11 +748,11 @@ describe(testDataModelName, () => {
   });
 
   it('should browse Ben and Jerry model', async () => {
-    const modelName = 'Ben and Jerry';
+    const testDataModelName = 'Ben and Jerry';
 
     await beforeAllWork(
       driver,
-      modelName,
+      testDataModelName,
       `{"testName":"${BenAndJerryModel}"}`,
     );
 

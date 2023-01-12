@@ -48,11 +48,11 @@ import webdriver from 'selenium-webdriver';
 
 writeTestCode;
 
-const testDataModelName = 'BrowserTestSimple';
+const testName = 'BrowserTestSimple';
 
 let alreadyRunning = false;
 
-describe(testDataModelName, () => {
+describe(testName, () => {
   let driverSimple = undefined;
   if (!alreadyRunning) {
     alreadyRunning = true;
@@ -66,6 +66,7 @@ describe(testDataModelName, () => {
 
   it('should load the home page and get title', () =>
     new Promise<void>(async (resolve) => {
+      const testDataModelName = 'BrowserTestSimple01';
       await beforeAllWork(
         driver,
         testDataModelName,
@@ -83,6 +84,7 @@ describe(testDataModelName, () => {
   // (maybe not visible, but loaded in the document)
   it('should show a chart', () =>
     new Promise<void>(async (resolve) => {
+      const testDataModelName = 'BrowserTestSimple02';
       await beforeAllWork(
         driver,
         testDataModelName,
@@ -113,6 +115,7 @@ describe(testDataModelName, () => {
     }));
 
   it('should show asset chart data extends with bigger roi', async () => {
+    const testDataModelName = 'BrowserTestSimple03';
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -189,6 +192,7 @@ describe(testDataModelName, () => {
   });
 
   it('should show coarse, categorised, chart data view', async () => {
+    const testDataModelName = 'BrowserTestSimple04';
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -274,6 +278,7 @@ describe(testDataModelName, () => {
   });
 
   it('should show fine, uncategorised, chart data view', async () => {
+    const testDataModelName = 'BrowserTestSimple05';
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -383,6 +388,7 @@ describe(testDataModelName, () => {
   });
 
   it('should show coarse asset view for cash asset, vals, +, -, +- view', async () => {
+    const testDataModelName = 'BrowserTestSimple06';
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -535,6 +541,7 @@ describe(testDataModelName, () => {
   });
 
   it('should show fine asset view for selected category, vals', async () => {
+    const testDataModelName = 'BrowserTestSimple07';
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -585,6 +592,7 @@ describe(testDataModelName, () => {
 
   it('should navigate headers', async () => {
     //log(`navigate headers test`);
+    const testDataModelName = 'BrowserTestSimple08';
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -605,6 +613,7 @@ describe(testDataModelName, () => {
   });
 
   it('more crysler work with various values and adjustments', async () => {
+    const testDataModelName = 'BrowserTestSimple09';
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -809,6 +818,7 @@ describe(testDataModelName, () => {
   });
 
   it('more crysler work with various doublings', async () => {
+    const testDataModelName = 'BrowserTestSimple10';
     await beforeAllWork(
       driver,
       testDataModelName,

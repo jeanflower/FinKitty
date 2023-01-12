@@ -6,7 +6,12 @@ describe('BrowserWorkflowTests NSI', () => {
   jest.setTimeout(40000); // allow time for all these tests to run
 
   it('should have right content for NSI example', async () => {
-    await beforeAllWork(driver, '', '');
+    const testDataModelName = 'testName08';
+    await beforeAllWork(
+      driver, 
+      testDataModelName, 
+      '',
+    );
 
     await clickButton(driver, 'btn-save-model');
     await testModelContent(

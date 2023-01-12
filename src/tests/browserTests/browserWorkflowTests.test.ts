@@ -149,7 +149,7 @@ describe('BrowserWorkflowTests 01', () => {
   jest.setTimeout(90000); // allow time for all these tests to run
 
   it('new, switch, cancel', async () => {
-    const testDataModelName = 'testName1';
+    const testDataModelName = 'testName01';
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -185,7 +185,7 @@ describe('BrowserWorkflowTests 01', () => {
   });
 
   it('new, clone, save, manipulate cash value', async () => {
-    const testDataModelName = 'testName2';
+    const testDataModelName = 'testName02';
     await beforeAllWork(
       driver,
       testDataModelName,
