@@ -7,11 +7,7 @@ describe('BrowserWorkflowTests DCP', () => {
 
   it('should have right content for DCP example', async () => {
     const testDataModelName = 'testName05';
-    await beforeAllWork(
-      driver, 
-      testDataModelName, 
-      '',
-    );
+    await beforeAllWork(driver, testDataModelName, '');
 
     await clickButton(driver, 'btn-save-model');
     await testModelContent(

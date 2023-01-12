@@ -7,11 +7,7 @@ describe('BrowserWorkflowTests Simple', () => {
 
   it('should have right content for Simple example', async () => {
     const testDataModelName = 'testName09';
-    await beforeAllWork(
-      driver, 
-      testDataModelName, 
-      '',
-    );
+    await beforeAllWork(driver, testDataModelName, '');
 
     await clickButton(driver, 'btn-save-model');
     await testModelContent(driver, 'btn-create-Simple-example');

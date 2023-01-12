@@ -53,13 +53,12 @@ describe(testName, () => {
   jest.setTimeout(200000); // allow time for all these tests to run
 
   it('my first model browser test', async () => {
-
     // log(`go to ensure model ${modelName}`);
 
     const testDataModelName = 'BrowserBenAndJerryTest';
     await beforeAllWork(
-      driver, 
-      testDataModelName, 
+      driver,
+      testDataModelName,
       `{"testName":"${MinimalModel}"}`,
     );
 

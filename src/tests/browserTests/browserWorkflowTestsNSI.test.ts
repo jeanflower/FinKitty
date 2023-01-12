@@ -7,11 +7,7 @@ describe('BrowserWorkflowTests NSI', () => {
 
   it('should have right content for NSI example', async () => {
     const testDataModelName = 'testName08';
-    await beforeAllWork(
-      driver, 
-      testDataModelName, 
-      '',
-    );
+    await beforeAllWork(driver, testDataModelName, '');
 
     await clickButton(driver, 'btn-save-model');
     await testModelContent(

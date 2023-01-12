@@ -3,33 +3,14 @@ import {
   CASH_ASSET_NAME,
 } from '../../localization/stringConstants';
 import {
-  addDate,
   addIncome,
   incomeInputs,
   clearIncomeFields,
   revalueIncome,
   clearRevalueIncomeFields,
-  addExpense,
-  expenseInputs,
-  clearExpenseFields,
-  revalueExpense,
-  clearRevalueExpenseFields,
-  addAsset,
-  assetInputs,
-  clearAssetFields,
-  clearRevalueAssetFields,
-  addDebt,
-  debtInputs,
-  clearDebtFields,
   gotoTabPage,
   quitAfterAll,
-  revalueAsset,
-  overviewTag,
-  datesTag,
   incomesTag,
-  assetsTag,
-  expensesTag,
-  debtsTag,
 } from './browserTestUtils';
 import {
   getDriver,
@@ -38,8 +19,6 @@ import {
   cleanUpWork,
   scrollIntoViewByID,
 } from './browserBaseTypes';
-
-import webdriver from 'selenium-webdriver';
 
 const testName = 'BrowserAddDataTest';
 
