@@ -1,7 +1,7 @@
 {
   "name": "finkitty",
   "homepage": "https://jeanflower.github.io/FinKitty",
-  "version": "1.4.20",
+  "version": "1.4.22",
   "engines": {
     "node": "16.x"
   },
@@ -94,7 +94,7 @@
     "husky": "^8.0.3",
     "jest-watch-typeahead": "^0.6.5",
     "prettier": "^2.5.1",
-    "react-scripts": "5.0.0",
+    "react-scripts": "^5.0.1",
     "selenium-webdriver": "^4.1.1",
     "typescript": "^3.9.10"
   },
