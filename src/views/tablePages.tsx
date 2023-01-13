@@ -121,7 +121,7 @@ import {
   dateAsString,
 } from '../utils/stringUtils';
 import { ReactFragment } from 'react';
-import { Accordion, Button, Card } from 'react-bootstrap';
+import { Accordion, Button, Card, useAccordionButton } from 'react-bootstrap';
 import {
   filtersList,
   getDefaultChartSettings,
@@ -131,6 +131,21 @@ import {
 import { ReportMatcherForm } from './reactComponents/ReportMatcherForm';
 import { getDisplay } from '../utils/viewUtils';
 import { EvaluationHelper, getEvaluations } from '../models/evaluations';
+
+function CustomToggle({ children, eventKey }: any) {
+  const decoratedOnClick = useAccordionButton(eventKey, () =>
+    console.log('totally custom!'),
+  );
+
+  return (
+    <Button
+      onClick={decoratedOnClick}
+      variant={'link'}
+    >
+      {children}
+    </Button>
+  );
+}
 
 export function collapsibleFragment(
   fragment: ReactFragment | undefined,
@@ -143,9 +158,9 @@ export function collapsibleFragment(
     <Accordion defaultActiveKey="0">
       <Card>
         <Card.Header>
-          <Accordion.Toggle as={Button} variant="link" eventKey="0">
+          <CustomToggle eventKey="0">
             {title}
-          </Accordion.Toggle>
+        </CustomToggle>
         </Card.Header>
         <Accordion.Collapse eventKey="0">
           <Card.Body>{fragment}</Card.Body>

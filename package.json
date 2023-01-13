@@ -1,7 +1,7 @@
 {
   "name": "finkitty",
   "homepage": "https://jeanflower.github.io/FinKitty",
-  "version": "1.4.19",
+  "version": "1.4.20",
   "engines": {
     "node": "16.x"
   },
@@ -14,7 +14,7 @@
     "@types/react": "^16.14.21",
     "@types/react-data-grid": "^4.0.8",
     "@types/react-dom": "16.9.4",
-    "bootstrap": "^4.6.1",
+    "bootstrap": "^5.2.3",
     "chart.js": "^3.7.0",
     "crypto-js": "^4.1.1",
     "dateformat": "^5.0.3",
@@ -23,7 +23,7 @@
     "jquery": "^3.6.0",
     "moment": "^2.29.3",
     "react": "^16.14.0",
-    "react-bootstrap": "^1.6.4",
+    "react-bootstrap": "^2.7.0",
     "react-chartjs-2": "^4.0.1",
     "react-data-grid": "^6.1.0",
     "react-dom": "^16.14.0",

@@ -1861,7 +1861,6 @@ export class AppContent extends Component<AppProps, AppState> {
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="mr-auto">
               <Form
-                inline
                 onSubmit={(e: React.FormEvent<Element>) => {
                   e.preventDefault();
                   return false;
@@ -1875,7 +1874,6 @@ export class AppContent extends Component<AppProps, AppState> {
             </Nav>
             <Nav>
               <Form
-                inline
                 onSubmit={(e: React.FormEvent<Element>) => {
                   e.preventDefault();
                   return false;
