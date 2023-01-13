@@ -138,10 +138,7 @@ function CustomToggle({ children, eventKey }: any) {
   );
 
   return (
-    <Button
-      onClick={decoratedOnClick}
-      variant={'link'}
-    >
+    <Button onClick={decoratedOnClick} variant={'link'}>
       {children}
     </Button>
   );
@@ -158,9 +155,7 @@ export function collapsibleFragment(
     <Accordion defaultActiveKey="0">
       <Card>
         <Card.Header>
-          <CustomToggle eventKey="0">
-            {title}
-        </CustomToggle>
+          <CustomToggle eventKey="0">{title}</CustomToggle>
         </Card.Header>
         <Accordion.Collapse eventKey="0">
           <Card.Body>{fragment}</Card.Body>
