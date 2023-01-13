@@ -1,2 +1,2 @@
 #!/bin/bash
-npm test
+npm test -- --transformIgnorePatterns 'node_modules/(?!dateformat)/'

@@ -1,7 +1,7 @@
 {
   "name": "finkitty",
   "homepage": "https://jeanflower.github.io/FinKitty",
-  "version": "1.4.13",
+  "version": "1.4.14",
   "engines": {
     "node": "16.x"
   },
@@ -17,7 +17,7 @@
     "bootstrap": "^4.6.1",
     "chart.js": "^3.7.0",
     "crypto-js": "^3.3.0",
-    "dateformat": "^4.6.3",
+    "dateformat": "^5.0.3",
     "file-saver": "^2.0.5",
     "gh-pages": "^2.2.0",
     "jquery": "^3.6.0",
@@ -80,7 +80,7 @@
     ]
   },
   "devDependencies": {
-    "@types/dateformat": "^3.0.1",
+    "@types/dateformat": "^5.0.0",
     "@types/file-saver": "^2.0.5",
     "@types/jest": "24.0.22",
     "@types/react-tooltip": "^3.11.0",

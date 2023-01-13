@@ -32,7 +32,8 @@ git clone this repo, go into the FinKitty folder and do npm install.
 
 If you see warnings, and an invitation to npm audit, then try
 ``npm audit --production``
-to hide warnings which are issued only from the build tooling, and so not important to resolve (see https://github.com/facebook/create-react-app/issues/11174).
+to hide warnings which are issued only from the build tooling, and so not 
+important to resolve (see https://github.com/facebook/create-react-app/issues/11174).
 
 This repo works stand-alone if there's a REST server
 for it to query and update.  E.g. there's a cloud server 
@@ -72,24 +73,32 @@ Watch out for lint errors in the console from either
 `startLocalWebServer.sh` or `start3LocalDBAndWebServer.sh`.
 
 ### Run the tests
-`npm test` or `./startTests.sh`
+``npm test -- --transformIgnorePatterns 'node_modules/(?!dateformat)/'``
+(as from dateformat v5, we need this extra argument)
+or ``./start4Tests.sh``
+or ``./start5SingleTest.sh "myTestName"``
+or ``./start6SequentialTests.sh``
 
-Or `CI=true npm test -- --t='match this string to test name'`.
+The browser tests (automated with selenium) will fail unless the web server 
+is running (do 'npm start' before 'npm test').
 
-Launches the test runner in the interactive watch mode.<br>
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-The browser tests (automated with selenium) will fail unless the web server is running (do 'npm start' before 'npm test').
-
-The selenium tests fire up and drive Chrome processes.  If the tests properly complete, the Chrome process for the tests should close down properly.  But the chromedriver process does not get cleaned up.  If the tests are interrupted (e.g. restart partway through) then the cleanup does not occur.  After a lengthy testing session, you may prefer to clean up manually; open Activity Monitor, search by the text "chrome", and in a terminal window, `killall chromedriver` and `killall "Google Chrome"`.
+The selenium tests fire up and drive Chrome processes.  If the tests properly 
+complete, the Chrome process for the tests should close down properly.  But the 
+chromedriver process does not get cleaned up.  If the tests are interrupted 
+(e.g. restart partway through) then the cleanup does not occur.  After a lengthy 
+testing session, you may prefer to clean up manually; open Activity Monitor, 
+search by the text "chrome", and in a terminal window, 
+`killall chromedriver` and `killall "Google Chrome"`.
 
 ### Handling dependencies
-Updating the Chrome browser on the test machine can leave Chrome and the chromdriver out of sync.  To recover, use
+Updating the Chrome browser on the test machine can leave Chrome and the chromdriver 
+out of sync.  To recover, use
 ```
 npm install chromedriver --detect_chromedriver_version
 ```
 
-If the latest chromedriver on npm falls behind the version needed for the installed Chrome, here are some steps to tide things over:
+If the latest chromedriver on npm falls behind the version needed for the installed 
+Chrome, here are some steps to tide things over:
  - download the appropriate zip file from https://chromedriver.storage.googleapis.com/index.html
  - delete the chromedriver entry from package.json
  - install chromedriver using something equivalent to 
@@ -106,8 +115,12 @@ If the latest chromedriver on npm falls behind the version needed for the instal
  - revert changes to package.json, package-lock.json
  - run tests to see if the new package is working as expected
 
-See coverage by typing `CI=true npm test -- --coverage`, then look for /coverage/index.html for the results.  To exclude selenium browser tests (which don't seem to generate coverage data anyway), use `CI=true npm test -- --testPathIgnorePatterns=browser  --coverage`, or to use the local server, `REACT_APP_ORIGIN_APPENDAGE= REACT_APP_SERVER_URL_NOT_SECRET=http://localhost:3001/finkitty/ CI=true npm test -- --testPathIgnorePatterns=browser  --coverage`
-
+See coverage by typing 
+``CI=true npm test -- --transformIgnorePatterns 'node_modules/(?!dateformat)/'  --coverage``
+then look for /coverage/index.html for the results.  
+To exclude selenium browser tests (which don't seem to generate coverage data anyway), 
+use 
+``CI=true npm test -- --testPathIgnorePatterns=browser  --transformIgnorePatterns 'node_modules/(?!dateformat)/' --coverage``
 
 ### Linting
 Run `./lintFixes.sh` keeps things clean.
@@ -134,8 +147,8 @@ It correctly bundles React in production mode and optimizes the build for the be
 The build is minified and the filenames include the hashes.<br>
 Your app is ready to be deployed!
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) 
+for more information.
 
 This repo has been ejected from the default create-react-app
 You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
