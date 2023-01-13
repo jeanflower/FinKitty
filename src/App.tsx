@@ -1820,6 +1820,7 @@ export class AppContent extends Component<AppProps, AppState> {
       showHistorical: true,
       searchString: '',
     };
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     reactAppComponent = this;
   }
 
