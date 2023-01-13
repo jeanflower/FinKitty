@@ -1,7 +1,7 @@
 {
   "name": "finkitty",
   "homepage": "https://jeanflower.github.io/FinKitty",
-  "version": "1.4.16",
+  "version": "1.4.17",
   "engines": {
     "node": "16.x"
   },
@@ -91,7 +91,7 @@
     "eslint-config-prettier": "^8.4.0",
     "eslint-config-react": "^1.1.7",
     "eslint-plugin-prettier": "^4.0.0",
-    "husky": "^7.0.4",
+    "husky": "^8.0.3",
     "jest-watch-typeahead": "^0.6.5",
     "prettier": "^2.5.1",
     "react-scripts": "5.0.0",
