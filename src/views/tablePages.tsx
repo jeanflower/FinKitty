@@ -88,7 +88,7 @@ import { Context, DateFormatType, log, showObj } from '../utils/utils';
 import CashValueFormatter from './reactComponents/CashValueFormatter';
 import DataGrid from './reactComponents/DataGrid';
 import GrowthFormatter from './reactComponents/GrowthFormatter';
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { SimpleFormatter } from './reactComponents/NameFormatter';
 import ToFromValueFormatter from './reactComponents/ToFromValueFormatter';
 import TriggerDateFormatter from './reactComponents/TriggerDateFormatter';
@@ -120,7 +120,6 @@ import {
   makeTwoDP,
   dateAsString,
 } from '../utils/stringUtils';
-import { ReactFragment } from 'react';
 import { Accordion, Button, Card, useAccordionButton } from 'react-bootstrap';
 import {
   filtersList,
@@ -145,9 +144,9 @@ function CustomToggle({ children, eventKey }: any) {
 }
 
 export function collapsibleFragment(
-  fragment: ReactFragment | undefined,
+  fragment: JSX.Element | undefined,
   title: string,
-): JSX.Element {
+): ReactNode {
   if (fragment === undefined) {
     return <></>;
   }

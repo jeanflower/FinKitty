@@ -1,5 +1,5 @@
 /* istanbul ignore file */
-import React, { Component, useState } from 'react';
+import React, { Component, ReactNode, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import {
   definedBenefitsPension,
@@ -2519,7 +2519,7 @@ export class AppContent extends Component<AppProps, AppState> {
   private todaysSettingsTable(
     model: ModelData,
     todaysValues: Map<Setting, SettingVal>,
-  ): JSX.Element {
+  ): ReactNode {
     if (todaysValues.size === 0 || !doShowTodaysValueColumns()) {
       return <></>;
     }
