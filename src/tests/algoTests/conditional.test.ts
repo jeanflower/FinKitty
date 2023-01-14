@@ -45,7 +45,7 @@ describe('conditional tests', () => {
     printTestCodeForEvals;
   }
 
-  it('conditional transaction stops negative cash absolute', (done) => {
+  it('conditional transaction stops negative cash absolute', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'October 1, 2018 00:00:00',
@@ -196,10 +196,9 @@ describe('conditional tests', () => {
       expectChartData(chartPts, 8, 'Wed Aug 01 2018', 25, -1);
       expectChartData(chartPts, 9, 'Sat Sep 01 2018', 25, -1);
     }
-    done();
   });
 
-  it('conditional transaction stops negative cash proportional', (done) => {
+  it('conditional transaction stops negative cash proportional', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'October 1, 2018 00:00:00',
@@ -353,10 +352,9 @@ describe('conditional tests', () => {
       expectChartData(chartPts, 8, 'Wed Aug 01 2018', -10, -1);
       expectChartData(chartPts, 9, 'Sat Sep 01 2018', 0, -1);
     }
-    done();
   });
 
-  it('conditional transaction stops negative cash abs->proportional', (done) => {
+  it('conditional transaction stops negative cash abs->proportional', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'October 1, 2018 00:00:00',
@@ -509,10 +507,9 @@ describe('conditional tests', () => {
       expectChartData(chartPts, 8, 'Wed Aug 01 2018', -10, -1);
       expectChartData(chartPts, 9, 'Sat Sep 01 2018', 0, -1);
     }
-    done();
   });
 
-  it('conditional transaction transfers more than once', (done) => {
+  it('conditional transaction transfers more than once', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'October 1, 2018 00:00:00',
@@ -669,10 +666,9 @@ describe('conditional tests', () => {
       expectChartData(chartPts, 8, 'Wed Aug 01 2018', -5, -1);
       expectChartData(chartPts, 9, 'Sat Sep 01 2018', 45, -1);
     }
-    done();
   });
 
-  it('conditional transaction transfers stop when funds run out abs to', (done) => {
+  it('conditional transaction transfers stop when funds run out abs to', () => {
     const roi = {
       start: 'April 1, 2018 00:00:00',
       end: 'October 1, 2018 00:00:00',
@@ -809,10 +805,9 @@ describe('conditional tests', () => {
       expectChartData(chartPts, 4, 'Wed Aug 01 2018', -5, -1);
       expectChartData(chartPts, 5, 'Sat Sep 01 2018', -5, -1);
     }
-    done();
   });
 
-  it('conditional transaction transfers stop when funds run out prop to', (done) => {
+  it('conditional transaction transfers stop when funds run out prop to', () => {
     const roi = {
       start: 'April 1, 2018 00:00:00',
       end: 'October 1, 2018 00:00:00',
@@ -947,10 +942,9 @@ describe('conditional tests', () => {
       expectChartData(chartPts, 4, 'Wed Aug 01 2018', -33, -1);
       expectChartData(chartPts, 5, 'Sat Sep 01 2018', -33, -1);
     }
-    done();
   });
 
-  it('conditional transaction granular transfers stop when funds run out prop to', (done) => {
+  it('conditional transaction granular transfers stop when funds run out prop to', () => {
     const roi = {
       start: 'April 1, 2018 00:00:00',
       end: 'October 1, 2018 00:00:00',
@@ -1091,10 +1085,9 @@ describe('conditional tests', () => {
       expectChartData(chartPts, 4, 'Wed Aug 01 2018', -33, -1);
       expectChartData(chartPts, 5, 'Sat Sep 01 2018', -33, -1);
     }
-    done();
   });
 
-  it('conditional transaction from multiple sources simple', (done) => {
+  it('conditional transaction from multiple sources simple', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'October 1, 2018 00:00:00',
@@ -1297,10 +1290,9 @@ describe('conditional tests', () => {
 
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
-    done();
   });
 
-  it('conditional transaction from multiple sources by quantity', (done) => {
+  it('conditional transaction from multiple sources by quantity', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'October 1, 2018 00:00:00',
@@ -1524,10 +1516,9 @@ describe('conditional tests', () => {
 
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
-    done();
   });
 
-  it('conditional transaction from multiple sources by category', (done) => {
+  it('conditional transaction from multiple sources by category', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'October 1, 2018 00:00:00',
@@ -1732,10 +1723,9 @@ describe('conditional tests', () => {
 
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
-    done();
   });
 
-  it('conditional transaction from multiple sources abs->prop', (done) => {
+  it('conditional transaction from multiple sources abs->prop', () => {
     const roi = {
       start: 'March 15, 2018 00:00:00',
       end: 'October 1, 2018 00:00:00',
@@ -1907,11 +1897,9 @@ describe('conditional tests', () => {
       expectChartData(chartPts, 5, 'Wed Aug 15 2018', 0, -1);
       expectChartData(chartPts, 6, 'Sat Sep 15 2018', 0, -1);
     }
-
-    done();
   });
 
-  it('conditional transaction from abs to half, asset runs out', (done) => {
+  it('conditional transaction from abs to half, asset runs out', () => {
     const roi = {
       start: 'January 15, 2018 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -2006,11 +1994,9 @@ describe('conditional tests', () => {
       expectChartData(chartPts, 3, 'Sun Apr 15 2018', -35.5, 2);
       expectChartData(chartPts, 4, 'Tue May 15 2018', -35.5, 2);
     }
-
-    done();
   });
 
-  it('conditional transaction from abs to half, cash is zerod', (done) => {
+  it('conditional transaction from abs to half, cash is zerod', () => {
     const roi = {
       start: 'January 15, 2018 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -2107,11 +2093,9 @@ describe('conditional tests', () => {
       expectChartData(chartPts, 3, 'Sun Apr 15 2018', 0, -1);
       expectChartData(chartPts, 4, 'Tue May 15 2018', 0, -1);
     }
-
-    done();
   });
 
-  it('conditional transaction from prop to half, cash reduces', (done) => {
+  it('conditional transaction from prop to half, cash reduces', () => {
     const roi = {
       start: 'January 15, 2018 00:00:00',
       end: 'April 1, 2018 00:00:00',
@@ -2199,11 +2183,9 @@ describe('conditional tests', () => {
       expectChartData(chartPts, 1, 'Thu Feb 15 2018', -58.5, 2);
       expectChartData(chartPts, 2, 'Thu Mar 15 2018', -29.25, 2);
     }
-
-    done();
   });
 
-  it('conditional transaction from prop to half, asset runs out', (done) => {
+  it('conditional transaction from prop to half, asset runs out', () => {
     const roi = {
       start: 'January 15, 2018 00:00:00',
       end: 'April 1, 2018 00:00:00',
@@ -2291,10 +2273,8 @@ describe('conditional tests', () => {
       expectChartData(chartPts, 1, 'Thu Feb 15 2018', -308.5, 2);
       expectChartData(chartPts, 2, 'Thu Mar 15 2018', -297, -1);
     }
-
-    done();
   });
-  it('pay off mortgage, conditional, to absolute', (done) => {
+  it('pay off mortgage, conditional, to absolute', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 1, 2018 00:00:00',
@@ -2444,10 +2424,9 @@ describe('conditional tests', () => {
       expectChartData(chartPts, 3, 'Thu Mar 01 2018', 20, -1);
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', -30, -1);
     }
-    done();
   });
 
-  it('pay off mortgage, conditional, to not absolute', (done) => {
+  it('pay off mortgage, conditional, to not absolute', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 1, 2018 00:00:00',
@@ -2544,10 +2523,9 @@ describe('conditional tests', () => {
       expectChartData(chartPts, 3, 'Thu Mar 01 2018', 20, -1);
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
     }
-    done();
   });
 
-  it('pay off loan, conditional, to absolute', (done) => {
+  it('pay off loan, conditional, to absolute', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 1, 2018 00:00:00',
@@ -2643,10 +2621,9 @@ describe('conditional tests', () => {
       expectChartData(chartPts, 3, 'Thu Mar 01 2018', 20, -1);
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', -30, -1);
     }
-    done();
   });
 
-  it('pay off loan, conditional, to not absolute', (done) => {
+  it('pay off loan, conditional, to not absolute', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 1, 2018 00:00:00',
@@ -2744,11 +2721,9 @@ describe('conditional tests', () => {
       expectChartData(chartPts, 3, 'Thu Mar 01 2018', 20, -1);
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
     }
-
-    done();
   });
 
-  it('conditionally sell some cars need all', (done) => {
+  it('conditionally sell some cars need all', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -2847,11 +2822,9 @@ describe('conditional tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
       expectChartData(chartPts, 5, 'Tue May 01 2018', 0, -1);
     }
-
-    done();
   });
 
-  it('conditionally sell some cars need two', (done) => {
+  it('conditionally sell some cars need two', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -2950,11 +2923,9 @@ describe('conditional tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 100, -1);
       expectChartData(chartPts, 5, 'Tue May 01 2018', 100, -1);
     }
-
-    done();
   });
 
-  it('conditionally sell some cars need exactly two', (done) => {
+  it('conditionally sell some cars need exactly two', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -3053,11 +3024,9 @@ describe('conditional tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 100, -1);
       expectChartData(chartPts, 5, 'Tue May 01 2018', 100, -1);
     }
-
-    done();
   });
 
-  it('conditionally sell some cars fees matter', (done) => {
+  it('conditionally sell some cars fees matter', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -3156,11 +3125,9 @@ describe('conditional tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 100, -1);
       expectChartData(chartPts, 5, 'Tue May 01 2018', 100, -1);
     }
-
-    done();
   });
 
-  it('conditionally sell some mini cars need all', (done) => {
+  it('conditionally sell some mini cars need all', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -3270,11 +3237,9 @@ describe('conditional tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
       expectChartData(chartPts, 5, 'Tue May 01 2018', 0, -1);
     }
-
-    done();
   });
 
-  it('conditionally sell some mini cars need two', (done) => {
+  it('conditionally sell some mini cars need two', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -3384,11 +3349,9 @@ describe('conditional tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 100, -1);
       expectChartData(chartPts, 5, 'Tue May 01 2018', 100, -1);
     }
-
-    done();
   });
 
-  it('conditionally sell some mini cars need exactly two', (done) => {
+  it('conditionally sell some mini cars need exactly two', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -3498,11 +3461,9 @@ describe('conditional tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 100, -1);
       expectChartData(chartPts, 5, 'Tue May 01 2018', 100, -1);
     }
-
-    done();
   });
 
-  it('conditionally sell some mini cars fees matter', (done) => {
+  it('conditionally sell some mini cars fees matter', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -3612,11 +3573,9 @@ describe('conditional tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 100, -1);
       expectChartData(chartPts, 5, 'Tue May 01 2018', 100, -1);
     }
-
-    done();
   });
 
-  it('conditionally sell some chrysler cars need all', (done) => {
+  it('conditionally sell some chrysler cars need all', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -3734,11 +3693,9 @@ describe('conditional tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
       expectChartData(chartPts, 5, 'Tue May 01 2018', 0, -1);
     }
-
-    done();
   });
 
-  it('conditionally sell some chrysler cars need two', (done) => {
+  it('conditionally sell some chrysler cars need two', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -3856,11 +3813,9 @@ describe('conditional tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 100, -1);
       expectChartData(chartPts, 5, 'Tue May 01 2018', 100, -1);
     }
-
-    done();
   });
 
-  it('conditionally sell some chrysler cars need exactly two', (done) => {
+  it('conditionally sell some chrysler cars need exactly two', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -3978,11 +3933,9 @@ describe('conditional tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 100, -1);
       expectChartData(chartPts, 5, 'Tue May 01 2018', 100, -1);
     }
-
-    done();
   });
 
-  it('conditionally sell some chrysler cars capped', (done) => {
+  it('conditionally sell some chrysler cars capped', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -4102,11 +4055,9 @@ describe('conditional tests', () => {
     }
 
     expect(result.debtData.length).toBe(0);
-
-    done();
   });
 
-  it('conditionally sell some chrysler cars fees matter', (done) => {
+  it('conditionally sell some chrysler cars fees matter', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -4224,11 +4175,9 @@ describe('conditional tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 100, -1);
       expectChartData(chartPts, 5, 'Tue May 01 2018', 100, -1);
     }
-
-    done();
   });
 
-  it('conditionally sell some chrysler cars then revalue chrysler', (done) => {
+  it('conditionally sell some chrysler cars then revalue chrysler', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -4358,11 +4307,9 @@ describe('conditional tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 100, -1);
       expectChartData(chartPts, 5, 'Tue May 01 2018', 50, -1);
     }
-
-    done();
   });
 
-  it('conditionally sell some chrysler fleets need some', (done) => {
+  it('conditionally sell some chrysler fleets need some', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -4513,7 +4460,5 @@ describe('conditional tests', () => {
     }
 
     expect(result.debtData.length).toBe(0);
-
-    done();
   });
 });

@@ -29,7 +29,7 @@ describe('bonds tests', () => {
     printTestCodeForEvals;
   }
 
-  it('bond invest simple with 100% bond interest', (done) => {
+  it('bond invest simple with 100% bond interest', () => {
     const roi = {
       start: 'Dec 1, 2017',
       end: 'July 1, 2019',
@@ -158,11 +158,9 @@ describe('bonds tests', () => {
     expectEvals(evals, 41, 'Bond', 'Wed May 01 2019', 0, -1);
     expectEvals(evals, 42, 'Cash', 'Sat Jun 01 2019', 54.35, 2);
     expectEvals(evals, 43, 'Bond', 'Sat Jun 01 2019', 0, -1);
-
-    done();
   });
 
-  it('bond invest once mature once', (done) => {
+  it('bond invest once mature once', () => {
     const roi = {
       start: 'Dec 1, 2017',
       end: 'July 1, 2019',
@@ -284,11 +282,9 @@ describe('bonds tests', () => {
     expectEvals(evals, 40, 'Bond', 'Wed May 01 2019', 1000, -1);
     expectEvals(evals, 41, 'Cash', 'Sat Jun 01 2019', 1160.33, 2); //109.91*(1.12^(5/12)) + (1000-109.91)*(1.12^(17/12))
     expectEvals(evals, 42, 'Bond', 'Sat Jun 01 2019', 1000, -1);
-
-    done();
   });
 
-  it('bond invest has 0% bond interest', (done) => {
+  it('bond invest has 0% bond interest', () => {
     const roi = {
       start: 'Dec 1, 2017',
       end: 'July 1, 2019',
@@ -412,11 +408,9 @@ describe('bonds tests', () => {
     expectEvals(evals, 41, 'Bond', 'Wed May 01 2019', 1000, -1);
     expectEvals(evals, 42, 'Cash', 'Sat Jun 01 2019', 1174.16, 2);
     expectEvals(evals, 43, 'Bond', 'Sat Jun 01 2019', 1000, -1);
-
-    done();
   });
 
-  it('bond invest has 100% bond interest', (done) => {
+  it('bond invest has 100% bond interest', () => {
     const roi = {
       start: 'Dec 1, 2017',
       end: 'July 1, 2019',
@@ -540,10 +534,9 @@ describe('bonds tests', () => {
     expectEvals(evals, 41, 'Bond', 'Wed May 01 2019', 1000, -1);
     expectEvals(evals, 42, 'Cash', 'Sat Jun 01 2019', 1163.98, 2);
     expectEvals(evals, 43, 'Bond', 'Sat Jun 01 2019', 1000, -1);
-    done();
   });
 
-  it(`bond not enough cash to invest so don't mature`, (done) => {
+  it(`bond not enough cash to invest so don't mature`, () => {
     const roi = {
       start: 'Dec 1, 2017',
       end: 'July 1, 2019',
@@ -663,11 +656,9 @@ describe('bonds tests', () => {
     expectEvals(evals, 38, 'Bond', 'Wed May 01 2019', 1000, -1);
     expectEvals(evals, 39, 'Cash', 'Sat Jun 01 2019', 0, -1);
     expectEvals(evals, 40, 'Bond', 'Sat Jun 01 2019', 1000, -1);
-
-    done();
   });
 
-  it('bond zero cpi', (done) => {
+  it('bond zero cpi', () => {
     const roi = {
       start: 'Dec 1, 2017',
       end: 'July 1, 2019',
@@ -789,11 +780,9 @@ describe('bonds tests', () => {
     expectEvals(evals, 40, 'Bond', 'Wed May 01 2019', 1000, -1);
     expectEvals(evals, 41, 'Cash', 'Sat Jun 01 2019', 1000, -1);
     expectEvals(evals, 42, 'Bond', 'Sat Jun 01 2019', 1000, -1);
-
-    done();
   });
 
-  it('bond zero cpi with interest', (done) => {
+  it('bond zero cpi with interest', () => {
     const roi = {
       start: 'Dec 1, 2017',
       end: 'July 1, 2019',
@@ -917,11 +906,9 @@ describe('bonds tests', () => {
     expectEvals(evals, 41, 'Bond', 'Wed May 01 2019', 1000, -1);
     expectEvals(evals, 42, 'Cash', 'Sat Jun 01 2019', 1050, -1);
     expectEvals(evals, 43, 'Bond', 'Sat Jun 01 2019', 1000, -1);
-
-    done();
   });
 
-  it('bond roi stops before bond matures', (done) => {
+  it('bond roi stops before bond matures', () => {
     const roi = {
       start: 'Dec 1, 2017',
       end: 'July 1, 2018',
@@ -1017,11 +1004,9 @@ describe('bonds tests', () => {
     expectEvals(evals, 14, 'Bond', 'Tue May 01 2018', 1114.14, 2);
     expectEvals(evals, 15, 'Cash', 'Fri Jun 01 2018', 933.13, 2);
     expectEvals(evals, 16, 'Bond', 'Fri Jun 01 2018', 1114.14, 2); // 114.14 = 109.91*(1.12^(4/12))
-
-    done();
   });
 
-  it('bond repeat overlap', (done) => {
+  it('bond repeat overlap', () => {
     const roi = {
       start: 'Dec 1, 2017',
       end: 'August 1, 2019',
@@ -1164,11 +1149,9 @@ describe('bonds tests', () => {
     expectEvals(evals, 47, 'Bond', 'Sat Jun 01 2019', 1000, -1);
     expectEvals(evals, 48, 'Cash', 'Mon Jul 01 2019', 1000, -1);
     expectEvals(evals, 49, 'Bond', 'Mon Jul 01 2019', 1000, -1);
-
-    done();
   });
 
-  it('bond repeat cash too short for both', (done) => {
+  it('bond repeat cash too short for both', () => {
     const roi = {
       start: 'Dec 1, 2017',
       end: 'August 1, 2019',
@@ -1309,11 +1292,9 @@ describe('bonds tests', () => {
     expectEvals(evals, 45, 'Bond', 'Sat Jun 01 2019', 15, -1);
     expectEvals(evals, 46, 'Cash', 'Mon Jul 01 2019', 15, -1);
     expectEvals(evals, 47, 'Bond', 'Mon Jul 01 2019', 15, -1);
-
-    done();
   });
 
-  it('bond repeat disjoint', (done) => {
+  it('bond repeat disjoint', () => {
     const roi = {
       start: 'Dec 1, 2017',
       end: 'June 1, 2021',
@@ -1500,11 +1481,9 @@ describe('bonds tests', () => {
     expectEvals(evals, 91, 'Cash', 'Mon Apr 12 2021', 1000, -1);
     expectEvals(evals, 92, 'Cash', 'Sat May 01 2021', 1000, -1);
     expectEvals(evals, 93, 'Bond', 'Sat May 01 2021', 1000, -1);
-
-    done();
   });
 
-  it('bond 5yr rolling plan no cpi', (done) => {
+  it('bond 5yr rolling plan no cpi', () => {
     const roi = {
       start: 'Dec 1, 2017',
       end: 'June 1, 2031',
@@ -1873,11 +1852,9 @@ describe('bonds tests', () => {
 
     expectEvals(evals, 372, 'Cash', 'Thu May 01 2031', 1000, -1);
     expectEvals(evals, 373, 'Bond', 'Thu May 01 2031', 1000, -1);
-
-    done();
   });
 
-  it('bond 5yr rolling plan with target values cpi', (done) => {
+  it('bond 5yr rolling plan with target values cpi', () => {
     const roi = {
       start: 'Dec 1, 2017',
       end: 'June 1, 2031',
@@ -2237,11 +2214,9 @@ describe('bonds tests', () => {
     expectEvals(evals, 448, 'CPI.', 'Mon Jan 01 2029', 3.48, 2); // matches the setting value
     expectEvals(evals, 449, 'Bond', 'Mon Jan 01 2029', 1000, -1);
     expectEvals(evals, 450, 'Cash', 'Mon Jan 01 2029', 1000, -1); // Cash does not grow, Bond does not grow, total effect = 0
-
-    done();
   });
 
-  it('bond 5yr rolling plan with cpi', (done) => {
+  it('bond 5yr rolling plan with cpi', () => {
     const roi = {
       start: 'Dec 1, 2017',
       end: 'June 1, 2031',
@@ -2526,7 +2501,5 @@ describe('bonds tests', () => {
     Add it all up
     11.20 * (1.12)^(1/12)^148 + 12.54 * (1.12)^(1/12)^148 +... = 4262.91
     */
-
-    done();
   });
 });

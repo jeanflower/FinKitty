@@ -50,7 +50,7 @@ describe('tax tests', () => {
     printTestCodeForEvals;
   }
 
-  it('income tax 2017/18', (done) => {
+  it('income tax 2017/18', () => {
     const startYear = 2017;
     const roi = {
       start: `March 1, ${startYear + 1}`,
@@ -149,11 +149,9 @@ describe('tax tests', () => {
       expectChartData(chartPts, 1, 'Sun Apr 01 2018', 0, -1);
       expectChartData(chartPts, 2, 'Tue May 01 2018', 12580, -1);
     }
-
-    done();
   });
 
-  it('income tax 2018/19', (done) => {
+  it('income tax 2018/19', () => {
     const startYear = 2018;
     const roi = {
       start: `March 1, ${startYear + 1}`,
@@ -250,11 +248,9 @@ describe('tax tests', () => {
       expectChartData(chartPts, 1, 'Mon Apr 01 2019', 0, -1);
       expectChartData(chartPts, 2, 'Wed May 01 2019', 12580, -1);
     }
-
-    done();
   });
 
-  it('income tax 2019/20', (done) => {
+  it('income tax 2019/20', () => {
     const startYear = 2019;
     const roi = {
       start: `March 1, ${startYear + 1}`,
@@ -351,11 +347,9 @@ describe('tax tests', () => {
       expectChartData(chartPts, 1, 'Wed Apr 01 2020', 0, -1);
       expectChartData(chartPts, 2, 'Fri May 01 2020', 12580, -1);
     }
-
-    done();
   });
 
-  it('income tax 2020/21', (done) => {
+  it('income tax 2020/21', () => {
     const startYear = 2020;
     const roi = {
       start: `March 1, ${startYear + 1}`,
@@ -453,11 +447,9 @@ describe('tax tests', () => {
       expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
       expectChartData(chartPts, 2, 'Sat May 01 2021', 12580, -1);
     }
-
-    done();
   });
 
-  it('income tax 2021/22', (done) => {
+  it('income tax 2021/22', () => {
     const startYear = 2021;
     const roi = {
       start: `March 1, ${startYear + 1}`,
@@ -554,11 +546,9 @@ describe('tax tests', () => {
       expectChartData(chartPts, 1, 'Fri Apr 01 2022', 0, -1);
       expectChartData(chartPts, 2, 'Sun May 01 2022', 12580, -1);
     }
-
-    done();
   });
 
-  it('income tax 2022/23', (done) => {
+  it('income tax 2022/23', () => {
     const startYear = 2022;
     const roi = {
       start: `March 1, ${startYear + 1}`,
@@ -655,11 +645,9 @@ describe('tax tests', () => {
       expectChartData(chartPts, 1, 'Sat Apr 01 2023', 0, -1);
       expectChartData(chartPts, 2, 'Mon May 01 2023', 12594, -1);
     }
-
-    done();
   });
 
-  it('income tax 2023/24', (done) => {
+  it('income tax 2023/24', () => {
     const startYear = 2023;
     const roi = {
       start: `March 1, ${startYear + 1}`,
@@ -757,11 +745,9 @@ describe('tax tests', () => {
       expectChartData(chartPts, 1, 'Mon Apr 01 2024', 0, -1);
       expectChartData(chartPts, 2, 'Wed May 01 2024', 12594, -1);
     }
-
-    done();
   });
 
-  it('income tax 2024/25', (done) => {
+  it('income tax 2024/25', () => {
     const startYear = 2024;
     const roi = {
       start: `March 1, ${startYear + 1}`,
@@ -858,11 +844,9 @@ describe('tax tests', () => {
       expectChartData(chartPts, 1, 'Tue Apr 01 2025', 0, -1);
       expectChartData(chartPts, 2, 'Thu May 01 2025', 12594, -1);
     }
-
-    done();
   });
 
-  it('income tax 2025/26', (done) => {
+  it('income tax 2025/26', () => {
     const startYear = 2025;
     const roi = {
       start: `March 1, ${startYear + 1}`,
@@ -959,11 +943,9 @@ describe('tax tests', () => {
       expectChartData(chartPts, 1, 'Wed Apr 01 2026', 0, -1);
       expectChartData(chartPts, 2, 'Fri May 01 2026', 12594, -1);
     }
-
-    done();
   });
 
-  it('income tax 2026/27', (done) => {
+  it('income tax 2026/27', () => {
     const startYear = 2026;
     const roi = {
       start: `March 1, ${startYear + 1}`,
@@ -1060,11 +1042,9 @@ describe('tax tests', () => {
       expectChartData(chartPts, 1, 'Thu Apr 01 2027', 0, -1);
       expectChartData(chartPts, 2, 'Sat May 01 2027', 12594, -1);
     }
-
-    done();
   });
 
-  it('income tax 2027/28', (done) => {
+  it('income tax 2027/28', () => {
     const startYear = 2027;
     const roi = {
       start: `March 1, ${startYear + 1}`,
@@ -1161,11 +1141,9 @@ describe('tax tests', () => {
       expectChartData(chartPts, 1, 'Sat Apr 01 2028', 0, -1);
       expectChartData(chartPts, 2, 'Mon May 01 2028', 12594, -1);
     }
-
-    done();
   });
 
-  it('income tax 2028/29', (done) => {
+  it('income tax 2028/29', () => {
     const startYear = 2028;
     const roi = {
       start: `March 1, ${startYear + 1}`,
@@ -1262,13 +1240,11 @@ describe('tax tests', () => {
       expectChartData(chartPts, 1, 'Sun Apr 01 2029', 0, -1);
       expectChartData(chartPts, 2, 'Tue May 01 2029', 12594, -1);
     }
-
-    done();
   });
 
   // income tax is evident on liable income
   // one income was liable, one was not
-  it('two incomes straddling April', (done) => {
+  it('two incomes straddling April', () => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'May 2, 2018 00:00:00',
@@ -1438,13 +1414,11 @@ describe('tax tests', () => {
       expectChartData(chartPts, 1, 'Sun Apr 01 2018', 0, -1);
       expectChartData(chartPts, 2, 'Tue May 01 2018', 12504, -1);
     }
-
-    done();
   });
 
   // income tax is evident on liable income
   // one income was liable, one was not
-  it('income over multiple Aprils', (done) => {
+  it('income over multiple Aprils', () => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'May 2, 2020 00:00:00',
@@ -1668,11 +1642,9 @@ describe('tax tests', () => {
       expectChartData(chartPts, 25, 'Wed Apr 01 2020', 0, -1);
       expectChartData(chartPts, 26, 'Fri May 01 2020', 0, -1);
     }
-
-    done();
   });
 
-  it('payLowTax on single income payment', (done) => {
+  it('payLowTax on single income payment', () => {
     const roi = {
       start: 'April 1, 2018 00:00:00',
       end: 'May 10, 2018 00:00:00',
@@ -1751,10 +1723,9 @@ describe('tax tests', () => {
       expect(chartPts[1].label).toBe('Tue May 01 2018');
       expect(chartPts[1].y).toBe(13004);
     }
-    done();
   });
 
-  it('payLowTax on two 2w income payment', (done) => {
+  it('payLowTax on two 2w income payment', () => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'May 10, 2018 00:00:00',
@@ -1862,11 +1833,9 @@ describe('tax tests', () => {
       expectChartData(chartPts, 1, 'Sun Apr 01 2018', 0, -1);
       expectChartData(chartPts, 2, 'Tue May 01 2018', 12504, -1);
     }
-
-    done();
   });
 
-  it('tax exempt on single income payment', (done) => {
+  it('tax exempt on single income payment', () => {
     const roi = {
       start: 'April 1, 2018 00:00:00',
       end: 'May 10, 2018 00:00:00',
@@ -1941,10 +1910,9 @@ describe('tax tests', () => {
       expect(chartPts[1].label).toBe('Tue May 01 2018');
       expect(chartPts[1].y).toBe(13005);
     }
-    done();
   });
 
-  it('payHighTax on single income payment', (done) => {
+  it('payHighTax on single income payment', () => {
     const roi = {
       start: 'April 1, 2018 00:00:00',
       end: 'May 10, 2018 00:00:00',
@@ -2023,10 +1991,9 @@ describe('tax tests', () => {
       expect(chartPts[1].label).toBe('Tue May 01 2018');
       expect(chartPts[1].y).toBe(43060);
     }
-    done();
   });
 
-  it('tax allowance reduces for high earners', (done) => {
+  it('tax allowance reduces for high earners', () => {
     const roi = {
       start: 'April 1, 2018 00:00:00',
       end: 'May 10, 2018 00:00:00',
@@ -2119,10 +2086,9 @@ describe('tax tests', () => {
       expectChartData(chartPts, 0, 'Sun Apr 01 2018', 0, -1);
       expectChartData(chartPts, 1, 'Tue May 01 2018', 72550, -1);
     }
-    done();
   });
 
-  it('payTopTax on single income payment', (done) => {
+  it('payTopTax on single income payment', () => {
     const roi = {
       start: 'April 1, 2018 00:00:00',
       end: 'May 10, 2018 00:00:00',
@@ -2201,10 +2167,9 @@ describe('tax tests', () => {
       expect(chartPts[1].label).toBe('Tue May 01 2018');
       expect(chartPts[1].y).toBe(100555);
     }
-    done();
   });
 
-  it('taxBands grow with cpi', (done) => {
+  it('taxBands grow with cpi', () => {
     const roi = {
       start: 'April 1, 2020 00:00:00',
       end: 'April 10, 2026 00:00:00',
@@ -2576,11 +2541,9 @@ describe('tax tests', () => {
       expectChartData(chartPts, 71, 'Sun Mar 01 2026', 0, -1);
       expectChartData(chartPts, 72, 'Wed Apr 01 2026', 0, -1);
     }
-
-    done();
   });
 
-  it('payLowTax on combined income payment', (done) => {
+  it('payLowTax on combined income payment', () => {
     const roi = {
       start: 'April 1, 2018 00:00:00',
       end: 'May 10, 2018 00:00:00',
@@ -2676,10 +2639,9 @@ describe('tax tests', () => {
       expect(chartPts[1].label).toBe('Tue May 01 2018');
       expect(chartPts[1].y).toBe(13004);
     }
-    done();
   });
 
-  it('payHighTax on combined income payment', (done) => {
+  it('payHighTax on combined income payment', () => {
     const roi = {
       start: 'April 1, 2018 00:00:00',
       end: 'May 10, 2018 00:00:00',
@@ -2778,10 +2740,9 @@ describe('tax tests', () => {
       expect(chartPts[1].label).toBe('Tue May 01 2018');
       expect(chartPts[1].y).toBe(43060);
     }
-    done();
   });
 
-  it('payTopTax on two income payments', (done) => {
+  it('payTopTax on two income payments', () => {
     const roi = {
       start: 'April 1, 2018 00:00:00',
       end: 'May 10, 2018 00:00:00',
@@ -2877,10 +2838,9 @@ describe('tax tests', () => {
       expect(chartPts[1].label).toBe('Tue May 01 2018');
       expect(chartPts[1].y).toBe(100555);
     }
-    done();
   });
 
-  it('payLowTax on separate income payments', (done) => {
+  it('payLowTax on separate income payments', () => {
     const roi = {
       start: 'April 1, 2018 00:00:00',
       end: 'May 10, 2018 00:00:00',
@@ -2986,10 +2946,9 @@ describe('tax tests', () => {
       expectChartData(chartPts, 0, 'Sun Apr 01 2018', 26010, -1);
       expectChartData(chartPts, 1, 'Tue May 01 2018', 26008, -1);
     }
-    done();
   });
 
-  it('payHighTax on separate income payments', (done) => {
+  it('payHighTax on separate income payments', () => {
     const roi = {
       start: 'April 1, 2018 00:00:00',
       end: 'May 10, 2018 00:00:00',
@@ -3088,10 +3047,9 @@ describe('tax tests', () => {
       expect(chartPts[1].label).toBe('Tue May 01 2018');
       expect(chartPts[1].y).toBe(43060);
     }
-    done();
   });
 
-  it('payTopTax on separate income payments', (done) => {
+  it('payTopTax on separate income payments', () => {
     const roi = {
       start: 'April 1, 2018 00:00:00',
       end: 'May 10, 2018 00:00:00',
@@ -3187,11 +3145,10 @@ describe('tax tests', () => {
       expect(chartPts[1].label).toBe('Tue May 01 2018');
       expect(chartPts[1].y).toBe(100555);
     }
-    done();
   });
 
   // NI payable on income but income too low
-  it('too low NI income', (done) => {
+  it('too low NI income', () => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'May 2, 2019 00:00:00',
@@ -3347,12 +3304,10 @@ describe('tax tests', () => {
       expectChartData(chartPts, 13, 'Mon Apr 01 2019', 0, -1);
       expectChartData(chartPts, 14, 'Wed May 01 2019', 8628, -1);
     }
-
-    done();
   });
 
   // NI payable at low rate
-  it('pay low rate NI income 2018/19', (done) => {
+  it('pay low rate NI income 2018/19', () => {
     const year = 2018;
     const roi = {
       start: `March 1 ${year}`,
@@ -3544,11 +3499,9 @@ describe('tax tests', () => {
       expectChartData(chartPts, 13, 'Mon Apr 01 2019', 0, -1);
       expectChartData(chartPts, 14, 'Wed May 01 2019', 8716.0, 2);
     }
-
-    done();
   });
 
-  it('pay low rate NI income 2019/20', (done) => {
+  it('pay low rate NI income 2019/20', () => {
     const year = 2019;
     const roi = {
       start: `March 1 ${year}`,
@@ -3738,11 +3691,9 @@ describe('tax tests', () => {
       expectChartData(chartPts, 13, 'Wed Apr 01 2020', 0, -1);
       expectChartData(chartPts, 14, 'Fri May 01 2020', 8716.0, 2);
     }
-
-    done();
   });
 
-  it('pay low rate NI income 2020/21', (done) => {
+  it('pay low rate NI income 2020/21', () => {
     const year = 2020;
     const roi = {
       start: `March 1 ${year}`,
@@ -3932,11 +3883,9 @@ describe('tax tests', () => {
       expectChartData(chartPts, 13, 'Thu Apr 01 2021', 0, -1);
       expectChartData(chartPts, 14, 'Sat May 01 2021', 8716.0, 2);
     }
-
-    done();
   });
 
-  it('pay low rate NI income 2021/2022', (done) => {
+  it('pay low rate NI income 2021/2022', () => {
     const year = 2021;
     const roi = {
       start: `March 1 ${year}`,
@@ -4126,11 +4075,9 @@ describe('tax tests', () => {
       expectChartData(chartPts, 13, 'Fri Apr 01 2022', 0, -1);
       expectChartData(chartPts, 14, 'Sun May 01 2022', 8716.0, 2);
     }
-
-    done();
   });
 
-  it('pay low rate NI income 2022/23', (done) => {
+  it('pay low rate NI income 2022/23', () => {
     const year = 2022;
     const roi = {
       start: `March 1 ${year}`,
@@ -4287,11 +4234,9 @@ describe('tax tests', () => {
       expectChartData(chartPts, 13, 'Sat Apr 01 2023', 0, -1);
       expectChartData(chartPts, 14, 'Mon May 01 2023', 8728.0, 2);
     }
-
-    done();
   });
 
-  it('pay low rate NI income 2023/24', (done) => {
+  it('pay low rate NI income 2023/24', () => {
     const year = 2023;
     const roi = {
       start: `March 1 ${year}`,
@@ -4446,11 +4391,9 @@ describe('tax tests', () => {
       expectChartData(chartPts, 13, 'Mon Apr 01 2024', 0, -1);
       expectChartData(chartPts, 14, 'Wed May 01 2024', 8728.0, 2);
     }
-
-    done();
   });
 
-  it('pay low rate NI income 2024/25', (done) => {
+  it('pay low rate NI income 2024/25', () => {
     const year = 2024;
     const roi = {
       start: `March 1 ${year}`,
@@ -4606,11 +4549,9 @@ describe('tax tests', () => {
       expectChartData(chartPts, 13, 'Tue Apr 01 2025', 0, -1);
       expectChartData(chartPts, 14, 'Thu May 01 2025', 8728.0, 2);
     }
-
-    done();
   });
 
-  it('pay low rate NI income 2025/26', (done) => {
+  it('pay low rate NI income 2025/26', () => {
     const year = 2025;
     const roi = {
       start: `March 1 ${year}`,
@@ -4767,11 +4708,9 @@ describe('tax tests', () => {
       expectChartData(chartPts, 13, 'Wed Apr 01 2026', 0, -1);
       expectChartData(chartPts, 14, 'Fri May 01 2026', 8728.0, 2);
     }
-
-    done();
   });
 
-  it('pay low rate NI income 2026/27', (done) => {
+  it('pay low rate NI income 2026/27', () => {
     const year = 2026;
     const roi = {
       start: `March 1 ${year}`,
@@ -4927,11 +4866,9 @@ describe('tax tests', () => {
       expectChartData(chartPts, 13, 'Thu Apr 01 2027', 0, -1);
       expectChartData(chartPts, 14, 'Sat May 01 2027', 8728.0, 2);
     }
-
-    done();
   });
 
-  it('pay low rate NI income 2027/28', (done) => {
+  it('pay low rate NI income 2027/28', () => {
     const year = 2027;
     const roi = {
       start: `March 1 ${year}`,
@@ -5087,12 +5024,10 @@ describe('tax tests', () => {
       expectChartData(chartPts, 13, 'Sat Apr 01 2028', 0, -1);
       expectChartData(chartPts, 14, 'Mon May 01 2028', 8728.0, 2);
     }
-
-    done();
   });
 
   // NI payable at high rate
-  it('pay high rate NI income', (done) => {
+  it('pay high rate NI income', () => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'May 2, 2019 00:00:00',
@@ -5283,11 +5218,10 @@ describe('tax tests', () => {
       expectChartData(chartPts, 13, 'Mon Apr 01 2019', 0, -1);
       expectChartData(chartPts, 14, 'Wed May 01 2019', 45136.96, 2);
     }
-    done();
   });
 
   // income liable to both NI and Income tax
-  it('pay NI and income tax', (done) => {
+  it('pay NI and income tax', () => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'May 2, 2018 00:00:00',
@@ -5414,11 +5348,9 @@ describe('tax tests', () => {
       expectChartData(chartPts, 1, 'Sun Apr 01 2018', 0, -1);
       expectChartData(chartPts, 2, 'Tue May 01 2018', 3500, -1);
     }
-
-    done();
   });
 
-  it('sell some cars incurring capital gains', (done) => {
+  it('sell some cars incurring capital gains', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -5565,11 +5497,9 @@ describe('tax tests', () => {
     viewSettings.setViewSetting(taxChartFocusPerson, 'Jake');
     result = makeChartDataFromEvaluations(model, viewSettings, evalsAndValues);
     expect(result.taxData.length).toBe(0);
-
-    done();
   });
 
-  it('sell some cars incurring cgt with low income', (done) => {
+  it('sell some cars incurring cgt with low income', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -5734,11 +5664,9 @@ describe('tax tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
       expectChartData(chartPts, 5, 'Tue May 01 2018', 5, -1);
     }
-
-    done();
   });
 
-  it('sell some cars incurring cgt with high income', (done) => {
+  it('sell some cars incurring cgt with high income', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -5917,11 +5845,9 @@ describe('tax tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
       expectChartData(chartPts, 5, 'Tue May 01 2018', 45500, -1);
     }
-
-    done();
   });
 
-  it('own some cars liable to income tax', (done) => {
+  it('own some cars liable to income tax', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -6048,11 +5974,9 @@ describe('tax tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
       expectChartData(chartPts, 5, 'Tue May 01 2018', 3617.05, 2);
     }
-
-    done();
   });
 
-  it('gain a quantity of CGT-liable assets', (done) => {
+  it('gain a quantity of CGT-liable assets', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 7, 2018 00:00:00',
@@ -6178,11 +6102,9 @@ describe('tax tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
       expectChartData(chartPts, 5, 'Tue May 01 2018', 1000, -1);
     }
-
-    done();
   });
 
-  it('dispose of two parts of an asset liable to CGT', (done) => {
+  it('dispose of two parts of an asset liable to CGT', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 7, 2018 00:00:00',
@@ -6324,11 +6246,9 @@ describe('tax tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
       expectChartData(chartPts, 5, 'Tue May 01 2018', 31200.0, 2);
     }
-
-    done();
   });
 
-  it('dispose of two categorized assets liable to CGT', (done) => {
+  it('dispose of two categorized assets liable to CGT', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 7, 2018 00:00:00',
@@ -6511,11 +6431,9 @@ describe('tax tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
       expectChartData(chartPts, 5, 'Tue May 01 2018', 28200, -1);
     }
-
-    done();
   });
 
-  it('dispose of part of an asset liable to CGT 2017/8', (done) => {
+  it('dispose of part of an asset liable to CGT 2017/8', () => {
     const startYear = 2017;
     const roi = {
       start: `Dec 1, ${startYear}`,
@@ -6639,11 +6557,9 @@ describe('tax tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
       expectChartData(chartPts, 5, 'Tue May 01 2018', 46200, -1);
     }
-
-    done();
   });
 
-  it('dispose of part of an asset liable to CGT 2018/9', (done) => {
+  it('dispose of part of an asset liable to CGT 2018/9', () => {
     const startYear = 2018;
     const roi = {
       start: `Dec 1, ${startYear}`,
@@ -6768,11 +6684,9 @@ describe('tax tests', () => {
       expectChartData(chartPts, 4, 'Mon Apr 01 2019', 0, -1);
       expectChartData(chartPts, 5, 'Wed May 01 2019', 46200, -1);
     }
-
-    done();
   });
 
-  it('dispose of part of an asset liable to CGT 2019/20', (done) => {
+  it('dispose of part of an asset liable to CGT 2019/20', () => {
     const startYear = 2019;
     const roi = {
       start: `Dec 1, ${startYear}`,
@@ -6897,11 +6811,9 @@ describe('tax tests', () => {
       expectChartData(chartPts, 4, 'Wed Apr 01 2020', 0, -1);
       expectChartData(chartPts, 5, 'Fri May 01 2020', 46200, -1);
     }
-
-    done();
   });
 
-  it('dispose of part of an asset liable to CGT 2020/21', (done) => {
+  it('dispose of part of an asset liable to CGT 2020/21', () => {
     const startYear = 2020;
     const roi = {
       start: `Dec 1, ${startYear}`,
@@ -7025,11 +6937,9 @@ describe('tax tests', () => {
       expectChartData(chartPts, 4, 'Thu Apr 01 2021', 0, -1);
       expectChartData(chartPts, 5, 'Sat May 01 2021', 46200, -1);
     }
-
-    done();
   });
 
-  it('dispose of part of an asset liable to CGT 2021/22', (done) => {
+  it('dispose of part of an asset liable to CGT 2021/22', () => {
     const startYear = 2021;
     const roi = {
       start: `Dec 1, ${startYear}`,
@@ -7154,11 +7064,9 @@ describe('tax tests', () => {
       expectChartData(chartPts, 4, 'Fri Apr 01 2022', 0, -1);
       expectChartData(chartPts, 5, 'Sun May 01 2022', 46200, -1);
     }
-
-    done();
   });
 
-  it('dispose of part of an asset liable to CGT 2022/23', (done) => {
+  it('dispose of part of an asset liable to CGT 2022/23', () => {
     const startYear = 2022;
     const roi = {
       start: `Dec 1, ${startYear}`,
@@ -7282,11 +7190,9 @@ describe('tax tests', () => {
       expectChartData(chartPts, 4, 'Sat Apr 01 2023', 0, -1);
       expectChartData(chartPts, 5, 'Mon May 01 2023', 46200, -1);
     }
-
-    done();
   });
 
-  it('dispose of part of an asset liable to CGT 2023/24', (done) => {
+  it('dispose of part of an asset liable to CGT 2023/24', () => {
     const startYear = 2023;
     const roi = {
       start: `Dec 1, ${startYear}`,
@@ -7410,11 +7316,9 @@ describe('tax tests', () => {
       expectChartData(chartPts, 4, 'Mon Apr 01 2024', 0, -1);
       expectChartData(chartPts, 5, 'Wed May 01 2024', 45600, -1);
     }
-
-    done();
   });
 
-  it('dispose of part of an asset liable to CGT 2024/25', (done) => {
+  it('dispose of part of an asset liable to CGT 2024/25', () => {
     const startYear = 2024;
     const roi = {
       start: `Dec 1, ${startYear}`,
@@ -7537,11 +7441,9 @@ describe('tax tests', () => {
       expectChartData(chartPts, 4, 'Tue Apr 01 2025', 0, -1);
       expectChartData(chartPts, 5, 'Thu May 01 2025', 45300, -1);
     }
-
-    done();
   });
 
-  it('dispose of part of an asset liable to CGT 2025/26', (done) => {
+  it('dispose of part of an asset liable to CGT 2025/26', () => {
     const startYear = 2025;
     const roi = {
       start: `Dec 1, ${startYear}`,
@@ -7666,11 +7568,9 @@ describe('tax tests', () => {
       expectChartData(chartPts, 4, 'Wed Apr 01 2026', 0, -1);
       expectChartData(chartPts, 5, 'Fri May 01 2026', 45300, -1);
     }
-
-    done();
   });
 
-  it('dispose of part of an asset liable to CGT 2026/27', (done) => {
+  it('dispose of part of an asset liable to CGT 2026/27', () => {
     const startYear = 2026;
     const roi = {
       start: `Dec 1, ${startYear}`,
@@ -7795,11 +7695,9 @@ describe('tax tests', () => {
       expectChartData(chartPts, 4, 'Thu Apr 01 2027', 0, -1);
       expectChartData(chartPts, 5, 'Sat May 01 2027', 45300, -1);
     }
-
-    done();
   });
 
-  it('dispose of part of an asset liable to CGT 2027/28', (done) => {
+  it('dispose of part of an asset liable to CGT 2027/28', () => {
     const startYear = 2027;
     const roi = {
       start: `Dec 1, ${startYear}`,
@@ -7924,11 +7822,9 @@ describe('tax tests', () => {
       expectChartData(chartPts, 4, 'Sat Apr 01 2028', 0, -1);
       expectChartData(chartPts, 5, 'Mon May 01 2028', 45300, -1);
     }
-
-    done();
   });
 
-  it('dispose of part of an asset liable to CGT 2028/29', (done) => {
+  it('dispose of part of an asset liable to CGT 2028/29', () => {
     const startYear = 2028;
     const roi = {
       start: `Dec 1, ${startYear}`,
@@ -8053,11 +7949,9 @@ describe('tax tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2029', 0, -1);
       expectChartData(chartPts, 5, 'Tue May 01 2029', 45300, -1);
     }
-
-    done();
   });
 
-  it('use a setting to define purchase price', (done) => {
+  it('use a setting to define purchase price', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 7, 2018 00:00:00',
@@ -8189,11 +8083,9 @@ describe('tax tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
       expectChartData(chartPts, 5, 'Tue May 01 2018', 16200.0, 2);
     }
-
-    done();
   });
 
-  it('use a revalued setting to define purchase price', (done) => {
+  it('use a revalued setting to define purchase price', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 7, 2018 00:00:00',
@@ -8358,11 +8250,9 @@ describe('tax tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
       expectChartData(chartPts, 5, 'Tue May 01 2018', 16200.0, 2);
     }
-
-    done();
   });
 
-  it('use a setting for purchase price and quantity', (done) => {
+  it('use a setting for purchase price and quantity', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 7, 2018 00:00:00',
@@ -8491,8 +8381,6 @@ describe('tax tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
       expectChartData(chartPts, 5, 'Tue May 01 2018', 16275, -1);
     }
-
-    done();
   });
 
   // CGT on selling some cars ???

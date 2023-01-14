@@ -34,7 +34,7 @@ describe('quantity tests', () => {
     log;
   }
 
-  it('an asset can be a quantity of things', (done) => {
+  it('an asset can be a quantity of things', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 2, 2018 00:00:00',
@@ -116,11 +116,9 @@ describe('quantity tests', () => {
     }
 
     expect(result.debtData.length).toBe(0);
-
-    done();
   });
 
-  it('an asset can be a quantity of dollar-priced things', (done) => {
+  it('an asset can be a quantity of dollar-priced things', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 2, 2018 00:00:00',
@@ -211,11 +209,9 @@ describe('quantity tests', () => {
     }
 
     expect(result.debtData.length).toBe(0);
-
-    done();
   });
 
-  it('sell 100% of a quantity of things', (done) => {
+  it('sell 100% of a quantity of things', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 2, 2018 00:00:00',
@@ -327,11 +323,9 @@ describe('quantity tests', () => {
 
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
-
-    done();
   });
 
-  it('sell 99% of a quantity of things', (done) => {
+  it('sell 99% of a quantity of things', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 2, 2018 00:00:00',
@@ -443,11 +437,9 @@ describe('quantity tests', () => {
 
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
-
-    done();
   });
 
-  it('define three mini cars', (done) => {
+  it('define three mini cars', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -524,11 +516,9 @@ describe('quantity tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 300, -1);
       expectChartData(chartPts, 5, 'Tue May 01 2018', 300, -1);
     }
-
-    done();
   });
 
-  it('revalue three mini cars', (done) => {
+  it('revalue three mini cars', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -617,11 +607,9 @@ describe('quantity tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 150, -1);
       expectChartData(chartPts, 5, 'Tue May 01 2018', 150, -1);
     }
-
-    done();
   });
 
-  it('simple buy some mini cars', (done) => {
+  it('simple buy some mini cars', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -725,11 +713,9 @@ describe('quantity tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 600, -1); // gain in asset value
       expectChartData(chartPts, 5, 'Tue May 01 2018', 600, -1);
     }
-
-    done();
   });
 
-  it('simple sell some mini cars', (done) => {
+  it('simple sell some mini cars', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -834,11 +820,9 @@ describe('quantity tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 100, -1);
       expectChartData(chartPts, 5, 'Tue May 01 2018', 100, -1);
     }
-
-    done();
   });
 
-  it('define three chrysler cars', (done) => {
+  it('define three chrysler cars', () => {
     const model = getThreeChryslerModel();
 
     const evalsAndValues = getTestEvaluations(model);
@@ -885,11 +869,9 @@ describe('quantity tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 300, -1);
       expectChartData(chartPts, 5, 'Tue May 01 2018', 300, -1);
     }
-
-    done();
   });
 
-  it('revalue three chrysler cars', (done) => {
+  it('revalue three chrysler cars', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -986,11 +968,9 @@ describe('quantity tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 150, -1);
       expectChartData(chartPts, 5, 'Tue May 01 2018', 150, -1);
     }
-
-    done();
   });
 
-  it('simple buy some chrysler cars', (done) => {
+  it('simple buy some chrysler cars', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -1111,11 +1091,9 @@ describe('quantity tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 600, -1); // gain in asset value
       expectChartData(chartPts, 5, 'Tue May 01 2018', 600, -1);
     }
-
-    done();
   });
 
-  it('simple sell some chrysler cars', (done) => {
+  it('simple sell some chrysler cars', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -1228,11 +1206,9 @@ describe('quantity tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 100, -1);
       expectChartData(chartPts, 5, 'Tue May 01 2018', 100, -1);
     }
-
-    done();
   });
 
-  it('define three daimler cars', (done) => {
+  it('define three daimler cars', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -1317,11 +1293,9 @@ describe('quantity tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 300, -1);
       expectChartData(chartPts, 5, 'Tue May 01 2018', 300, -1);
     }
-
-    done();
   });
 
-  it('define three ford cars', (done) => {
+  it('define three ford cars', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -1406,11 +1380,9 @@ describe('quantity tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 300, -1);
       expectChartData(chartPts, 5, 'Tue May 01 2018', 300, -1);
     }
-
-    done();
   });
 
-  it('revalue chrysler cars for USD change', (done) => {
+  it('revalue chrysler cars for USD change', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -1507,11 +1479,9 @@ describe('quantity tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 300, -1);
       expectChartData(chartPts, 5, 'Tue May 01 2018', 375, -1);
     }
-
-    done();
   });
 
-  it('revalue chrysler cars for crysler val change', (done) => {
+  it('revalue chrysler cars for crysler val change', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -1608,11 +1578,9 @@ describe('quantity tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 300, -1);
       expectChartData(chartPts, 5, 'Tue May 01 2018', 375, -1);
     }
-
-    done();
   });
 
-  it('revalue chrysler cars from number to expression', (done) => {
+  it('revalue chrysler cars from number to expression', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -1708,11 +1676,9 @@ describe('quantity tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 600, -1);
       expectChartData(chartPts, 5, 'Tue May 01 2018', 600, -1);
     }
-
-    done();
   });
 
-  it('define three cadillac cars', (done) => {
+  it('define three cadillac cars', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -1806,11 +1772,9 @@ describe('quantity tests', () => {
     }
 
     expect(result.debtData.length).toBe(0);
-
-    done();
   });
 
-  it('define two cadillac cars deeper indirection', (done) => {
+  it('define two cadillac cars deeper indirection', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -1917,11 +1881,9 @@ describe('quantity tests', () => {
     }
 
     expect(result.debtData.length).toBe(0);
-
-    done();
   });
 
-  it('define two cadillac cars double formula', (done) => {
+  it('define two cadillac cars double formula', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -2040,11 +2002,9 @@ describe('quantity tests', () => {
     }
 
     expect(result.debtData.length).toBe(0);
-
-    done();
   });
 
-  it('define three cars', (done) => {
+  it('define three cars', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -2110,11 +2070,9 @@ describe('quantity tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 300, -1);
       expectChartData(chartPts, 5, 'Tue May 01 2018', 300, -1);
     }
-
-    done();
   });
 
-  it('revalue three cars', (done) => {
+  it('revalue three cars', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -2192,11 +2150,9 @@ describe('quantity tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 150, -1);
       expectChartData(chartPts, 5, 'Tue May 01 2018', 150, -1);
     }
-
-    done();
   });
 
-  it('simple buy some cars', (done) => {
+  it('simple buy some cars', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -2289,11 +2245,9 @@ describe('quantity tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 600, -1); // gain in asset value
       expectChartData(chartPts, 5, 'Tue May 01 2018', 600, -1);
     }
-
-    done();
   });
 
-  it('simple get first cars', (done) => {
+  it('simple get first cars', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -2371,11 +2325,9 @@ describe('quantity tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
       expectChartData(chartPts, 5, 'Tue May 01 2018', 300, -1);
     }
-
-    done();
   });
 
-  it('be given some cars', (done) => {
+  it('be given some cars', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -2455,11 +2407,9 @@ describe('quantity tests', () => {
 
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
-
-    done();
   });
 
-  it('be given some US cars', (done) => {
+  it('be given some US cars', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -2550,11 +2500,9 @@ describe('quantity tests', () => {
 
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
-
-    done();
   });
 
-  it('simple sell some cars', (done) => {
+  it('simple sell some cars', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -2648,7 +2596,5 @@ describe('quantity tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 100, -1);
       expectChartData(chartPts, 5, 'Tue May 01 2018', 100, -1);
     }
-
-    done();
   });
 });

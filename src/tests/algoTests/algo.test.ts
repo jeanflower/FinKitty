@@ -112,7 +112,7 @@ printTestCodeForChart;
 showObj;
 
 describe('evaluations tests', () => {
-  it('should ignore future expenses A', (done) => {
+  it('should ignore future expenses A', () => {
     const modelAndRoi = getModelFutureExpense2();
     const model = modelAndRoi.model;
 
@@ -179,10 +179,9 @@ describe('evaluations tests', () => {
     expect(result.expensesData.length).toBe(0);
     expect(result.incomesData.length).toBe(0);
     expect(result.assetData.length).toBe(0);
-    done();
   });
 
-  it('should apply cpi to next expense', (done) => {
+  it('should apply cpi to next expense', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 2, 2018 00:00:00',
@@ -292,11 +291,9 @@ describe('evaluations tests', () => {
     expect(result.assetData.length).toBe(0);
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
-
-    done();
   });
 
-  it('should allow a zero expense', (done) => {
+  it('should allow a zero expense', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 2, 2018 00:00:00',
@@ -379,11 +376,9 @@ describe('evaluations tests', () => {
     expect(result.assetData.length).toBe(0);
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
-
-    done();
   });
 
-  it('should apply cpi to next 2m expense', (done) => {
+  it('should apply cpi to next 2m expense', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 2, 2018 00:00:00',
@@ -485,11 +480,9 @@ describe('evaluations tests', () => {
     expect(result.assetData.length).toBe(0);
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
-
-    done();
   });
 
-  it('should apply cpi and absolute-revalue expense', (done) => {
+  it('should apply cpi and absolute-revalue expense', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 2, 2018 00:00:00',
@@ -550,11 +543,9 @@ describe('evaluations tests', () => {
     expectEvals(evals, 4, 'Phon', 'Thu Mar 01 2018', 2.04, 2);
     expectEvals(evals, 5, 'Phon', 'Thu Mar 01 2018', 3, -1);
     expectEvals(evals, 6, 'Phon', 'Sun Apr 01 2018', 3, -1);
-
-    done();
   });
 
-  it('should apply cpi and proportional-revalue expense', (done) => {
+  it('should apply cpi and proportional-revalue expense', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 2, 2018 00:00:00',
@@ -615,11 +606,9 @@ describe('evaluations tests', () => {
     expectEvals(evals, 4, 'Phon', 'Thu Mar 01 2018', 2.04, 2);
     expectEvals(evals, 5, 'Phon', 'Thu Mar 01 2018', 6.11, 2);
     expectEvals(evals, 6, 'Phon', 'Sun Apr 01 2018', 6.11, 2);
-
-    done();
   });
 
-  it('should ignore future expenses B', (done) => {
+  it('should ignore future expenses B', () => {
     const roi = {
       start: 'Dec 1, 2016 00:00:00',
       end: 'March 1, 2017 00:00:00',
@@ -661,10 +650,9 @@ describe('evaluations tests', () => {
     expect(result.expensesData.length).toBe(0);
     expect(result.assetData.length).toBe(0);
     expect(result.incomesData.length).toBe(0);
-    done();
   });
 
-  it('should one expense for 6m recurrence', (done) => {
+  it('should one expense for 6m recurrence', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 2, 2018 00:00:00',
@@ -718,10 +706,9 @@ describe('evaluations tests', () => {
 
     expect(result.incomesData.length).toBe(0);
     expect(result.assetData.length).toBe(0);
-    done();
   });
 
-  it('should one expense for 6w recurrence', (done) => {
+  it('should one expense for 6w recurrence', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'Feb 2, 2019 00:00:00',
@@ -797,11 +784,9 @@ describe('evaluations tests', () => {
     expect(result.assetData.length).toBe(0);
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
-
-    done();
   });
 
-  it('should one expense 6m recurrence set displaced', (done) => {
+  it('should one expense 6m recurrence set displaced', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 2, 2018 00:00:00',
@@ -878,11 +863,9 @@ describe('evaluations tests', () => {
     expect(result.assetData.length).toBe(0);
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
-
-    done();
   });
 
-  it('should two expense for 2m recurrence', (done) => {
+  it('should two expense for 2m recurrence', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 2, 2018 00:00:00',
@@ -937,10 +920,9 @@ describe('evaluations tests', () => {
 
     expect(result.incomesData.length).toBe(0);
     expect(result.assetData.length).toBe(0);
-    done();
   });
 
-  it('should two expense for 1y recurrence', (done) => {
+  it('should two expense for 1y recurrence', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 2, 2019 00:00:00',
@@ -1008,10 +990,9 @@ describe('evaluations tests', () => {
     expect(result.incomesData.length).toBe(0);
     expect(result.assetData.length).toBe(0);
     expect(result.debtData.length).toBe(0);
-    done();
   });
 
-  it(`shouldn't see effect of cpi for cpi-immune expense`, (done) => {
+  it(`shouldn't see effect of cpi for cpi-immune expense`, () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 2, 2018 00:00:00',
@@ -1070,10 +1051,9 @@ describe('evaluations tests', () => {
 
     expect(result.incomesData.length).toBe(0);
     expect(result.assetData.length).toBe(0);
-    done();
   });
 
-  it('should understand trigger for start value', (done) => {
+  it('should understand trigger for start value', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 2, 2018 00:00:00',
@@ -1133,10 +1113,9 @@ describe('evaluations tests', () => {
 
     expect(result.incomesData.length).toBe(0);
     expect(result.assetData.length).toBe(0);
-    done();
   });
 
-  it('annual accumulation for incomes', (done) => {
+  it('annual accumulation for incomes', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 1, 2019 00:00:00',
@@ -1190,10 +1169,9 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 1, 'Sat Dec 01 2018', 30, 2);
     }
     expect(result.assetData.length).toBe(0);
-    done();
   });
 
-  it('recurrence at 2m for incomes', (done) => {
+  it('recurrence at 2m for incomes', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 1, 2019 00:00:00',
@@ -1245,10 +1223,9 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 1, 'Sat Dec 01 2018', 15, 2);
     }
     expect(result.assetData.length).toBe(0);
-    done();
   });
 
-  it('recurrence at 2w for incomes', (done) => {
+  it('recurrence at 2w for incomes', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 1, 2019 00:00:00',
@@ -1310,10 +1287,9 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 1, 'Sat Dec 01 2018', 65, 2);
     }
     expect(result.assetData.length).toBe(0);
-    done();
   });
 
-  it('should understand cpi-immune income no growth', (done) => {
+  it('should understand cpi-immune income no growth', () => {
     const roi = {
       start: 'Dec 1, 2018 00:00:00',
       end: 'March 1, 2019 00:00:00',
@@ -1367,10 +1343,9 @@ describe('evaluations tests', () => {
     }
 
     expect(result.assetData.length).toBe(0);
-    done();
   });
 
-  it('should understand cpi-impacted expense no growth', (done) => {
+  it('should understand cpi-impacted expense no growth', () => {
     const roi = {
       start: 'Dec 1, 2018 00:00:00',
       end: 'March 1, 2019 00:00:00',
@@ -1425,11 +1400,9 @@ describe('evaluations tests', () => {
     expect(result.assetData.length).toBe(0);
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
-
-    done();
   });
 
-  it('should understand cpi income', (done) => {
+  it('should understand cpi income', () => {
     const roi = {
       start: 'Dec 1, 2018 00:00:00',
       end: 'June 1, 2020 00:00:00',
@@ -1513,11 +1486,9 @@ describe('evaluations tests', () => {
     expect(result.assetData.length).toBe(0);
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
-
-    done();
   });
 
-  it('should understand cpi 2m income', (done) => {
+  it('should understand cpi 2m income', () => {
     const roi = {
       start: 'Dec 1, 2018 00:00:00',
       end: 'June 1, 2019 00:00:00',
@@ -1576,11 +1547,9 @@ describe('evaluations tests', () => {
     expect(result.assetData.length).toBe(0);
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
-
-    done();
   });
 
-  it('cash goes first', (done) => {
+  it('cash goes first', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'February 1, 2018 00:00:00',
@@ -1660,10 +1629,9 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
       expectChartData(chartPts, 1, 'Mon Jan 01 2018', 500, -1);
     }
-    done();
   });
 
-  it('should apply growth to next two assets', (done) => {
+  it('should apply growth to next two assets', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 1, 2018 00:00:00',
@@ -1716,10 +1684,9 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 2, 'Thu Feb 01 2018', 504.74, 2);
       expectChartData(chartPts, 3, 'Thu Mar 01 2018', 509.53, 2);
     }
-    done();
   });
 
-  it('should apply cpi to next two assets', (done) => {
+  it('should apply cpi to next two assets', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 1, 2018 00:00:00',
@@ -1773,10 +1740,9 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 2, 'Thu Feb 01 2018', 504.74, 2);
       expectChartData(chartPts, 3, 'Thu Mar 01 2018', 509.53, 2);
     }
-    done();
   });
 
-  it('transact from cash into cpi-affected asset', (done) => {
+  it('transact from cash into cpi-affected asset', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 1, 2018 00:00:00',
@@ -1895,10 +1861,9 @@ describe('evaluations tests', () => {
 
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
-    done();
   });
 
-  it('transact zero from cash into cpi-affected asset monthly', (done) => {
+  it('transact zero from cash into cpi-affected asset monthly', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 1, 2018 00:00:00',
@@ -1957,11 +1922,9 @@ describe('evaluations tests', () => {
     expectEvals(evals, 9, 'Svgs', 'Thu Mar 01 2018', 101.91, 2);
     expectEvals(evals, 10, 'Saaa', 'Sat Mar 10 2018', 102.87, 2);
     expectEvals(evals, 11, 'Svgs', 'Sat Mar 10 2018', 102.87, 2);
-
-    done();
   });
 
-  it('transact zero from cash into cpi-affected asset weekly', (done) => {
+  it('transact zero from cash into cpi-affected asset weekly', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'Jan 1, 2018 00:00:00',
@@ -2016,11 +1979,9 @@ describe('evaluations tests', () => {
     expectEvals(evals, 7, 'Svgs', 'Fri Dec 22 2017', 130.95, 2);
     expectEvals(evals, 8, 'Saaa', 'Fri Dec 29 2017', 60.95, 2);
     expectEvals(evals, 9, 'Svgs', 'Fri Dec 29 2017', 140.95, 2);
-
-    done();
   });
 
-  it('transact from cpi-affected cash into cpi-affected asset', (done) => {
+  it('transact from cpi-affected cash into cpi-affected asset', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 1, 2018 00:00:00',
@@ -2136,10 +2097,9 @@ describe('evaluations tests', () => {
 
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
-    done();
   });
 
-  it('transact zero into cpi-affected asset', (done) => {
+  it('transact zero into cpi-affected asset', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'July 1, 2018 00:00:00',
@@ -2200,11 +2160,9 @@ describe('evaluations tests', () => {
     expectEvals(evals, 9, '-CPTaxable  Svgs', 'Tue May 01 2018', 103.85, 2);
     expectEvals(evals, 10, 'Cash', 'Fri Jun 01 2018', 104.84, 2);
     expectEvals(evals, 11, '-CPTaxable  Svgs', 'Fri Jun 01 2018', 104.84, 2);
-
-    done();
   });
 
-  it('transact from nowhere into cpi-affected asset', (done) => {
+  it('transact from nowhere into cpi-affected asset', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 1, 2018 00:00:00',
@@ -2315,10 +2273,9 @@ describe('evaluations tests', () => {
 
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
-    done();
   });
 
-  it('should understand CPI_IMMUNE for growing assets', (done) => {
+  it('should understand CPI_IMMUNE for growing assets', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 1, 2018 00:00:00',
@@ -2373,10 +2330,9 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 2, 'Thu Feb 01 2018', 504.74, 2);
       expectChartData(chartPts, 3, 'Thu Mar 01 2018', 509.53, 2);
     }
-    done();
   });
 
-  it('should apply growth and cpi for growing assets', (done) => {
+  it('should apply growth and cpi for growing assets', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 1, 2018 00:00:00',
@@ -2431,10 +2387,9 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 2, 'Thu Feb 01 2018', 509.044, 2);
       expectChartData(chartPts, 3, 'Thu Mar 01 2018', 518.25, 2);
     }
-    done();
   });
 
-  it('should keep no-growth CPI_IMMUNE assets fixed', (done) => {
+  it('should keep no-growth CPI_IMMUNE assets fixed', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 1, 2018 00:00:00',
@@ -2489,10 +2444,9 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 2, 'Thu Feb 01 2018', 500, -1);
       expectChartData(chartPts, 3, 'Thu Mar 01 2018', 500, -1);
     }
-    done();
   });
 
-  it('should understand triggers', (done) => {
+  it('should understand triggers', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 1, 2018 00:00:00',
@@ -2548,10 +2502,9 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 1, 'Mon Jan 01 2018', 500, -1);
       expectChartData(chartPts, 2, 'Thu Feb 01 2018', 504.74, 2);
     }
-    done();
   });
 
-  it('should mix expense and income', (done) => {
+  it('should mix expense and income', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 1, 2018 00:00:00',
@@ -2624,10 +2577,9 @@ describe('evaluations tests', () => {
     }
 
     expect(result.assetData.length).toBe(0);
-    done();
   });
 
-  it('has transaction adding cash', (done) => {
+  it('has transaction adding cash', () => {
     const roi = {
       start: 'Dec 1, 2017',
       end: 'April 1, 2020',
@@ -2690,11 +2642,9 @@ describe('evaluations tests', () => {
     expectEvals(evals, 26, 'Cash', 'Thu Jan 02 2020', 1639.16, 2);
     expectEvals(evals, 27, 'Cash', 'Sat Feb 01 2020', 1639.16, 2);
     expectEvals(evals, 28, 'Cash', 'Sun Mar 01 2020', 1654.71, 2);
-
-    done();
   });
 
-  it('has transaction adding cash and savings', (done) => {
+  it('has transaction adding cash and savings', () => {
     const roi = {
       start: 'Dec 1, 2017',
       end: 'April 1, 2020',
@@ -2794,11 +2744,9 @@ describe('evaluations tests', () => {
     expectEvals(evals, 55, 'savings', 'Sat Feb 01 2020', 1063.92, 2);
     expectEvals(evals, 56, 'Cash', 'Sun Mar 01 2020', 644214.57, 2);
     expectEvals(evals, 57, 'savings', 'Sun Mar 01 2020', 1074.01, 2);
-
-    done();
   });
 
-  it('has transaction impacting asset value', (done) => {
+  it('has transaction impacting asset value', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 1, 2018 00:00:00',
@@ -2858,10 +2806,9 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 2, 'Thu Feb 01 2018', 400, -1);
       expectChartData(chartPts, 3, 'Thu Mar 01 2018', 400, -1);
     }
-    done();
   });
 
-  it('has transaction setting as from_value', (done) => {
+  it('has transaction setting as from_value', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 1, 2018 00:00:00',
@@ -2931,10 +2878,9 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 2, 'Thu Feb 01 2018', 400, -1);
       expectChartData(chartPts, 3, 'Thu Mar 01 2018', 400, -1);
     }
-    done();
   });
 
-  it('has transaction derived setting as from_value', (done) => {
+  it('has transaction derived setting as from_value', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 1, 2018 00:00:00',
@@ -3011,10 +2957,9 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 2, 'Thu Feb 01 2018', 400, -1);
       expectChartData(chartPts, 3, 'Thu Mar 01 2018', 400, -1);
     }
-    done();
   });
 
-  it('has regular transaction impacting asset value', (done) => {
+  it('has regular transaction impacting asset value', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 1, 2018 00:00:00',
@@ -3077,10 +3022,9 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 2, 'Thu Feb 01 2018', 400, -1);
       expectChartData(chartPts, 3, 'Thu Mar 01 2018', 300, -1);
     }
-    done();
   });
 
-  it('has regular transaction every 2 months', (done) => {
+  it('has regular transaction every 2 months', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -3147,10 +3091,9 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 300, -1);
       expectChartData(chartPts, 5, 'Tue May 01 2018', 300, -1);
     }
-    done();
   });
 
-  it('has regular transaction every 2 weeks', (done) => {
+  it('has regular transaction every 2 weeks', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'Feb 1, 2018 00:00:00',
@@ -3212,11 +3155,9 @@ describe('evaluations tests', () => {
 
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
-
-    done();
   });
 
-  it('has regular transaction every 2 years', (done) => {
+  it('has regular transaction every 2 years', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2023 00:00:00',
@@ -3285,10 +3226,9 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 50, 'Tue Feb 01 2022', 200, -1);
       expectChartData(chartPts, 65, 'Mon May 01 2023', 200, -1);
     }
-    done();
   });
 
-  it('has regular transaction stop at stop date', (done) => {
+  it('has regular transaction stop at stop date', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 1, 2018 00:00:00',
@@ -3381,10 +3321,9 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 3, 'Thu Mar 01 2018', 180, -1);
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 180, -1);
     }
-    done();
   });
 
-  it('has regular transaction stop when funds run out', (done) => {
+  it('has regular transaction stop when funds run out', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -3494,10 +3433,9 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 180, -1);
       expectChartData(chartPts, 5, 'Tue May 01 2018', 180, -1);
     }
-    done();
   });
 
-  it('has 100% transaction from X to X', (done) => {
+  it('has 100% transaction from X to X', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 1, 2018 00:00:00',
@@ -3538,11 +3476,9 @@ describe('evaluations tests', () => {
     expectEvals(evals, 1, 'Stff', 'Wed Jan 03 2018', 0, -1);
     expectEvals(evals, 2, 'Stff', 'Wed Jan 03 2018', 222, -1);
     expectEvals(evals, 3, 'Stff', 'Fri Feb 02 2018', 222, -1);
-
-    done();
   });
 
-  it('has 50% transaction from X to X', (done) => {
+  it('has 50% transaction from X to X', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 1, 2018 00:00:00',
@@ -3583,11 +3519,9 @@ describe('evaluations tests', () => {
     expectEvals(evals, 1, 'Stff', 'Wed Jan 03 2018', 0, -1);
     expectEvals(evals, 2, 'Stff', 'Wed Jan 03 2018', 111, -1);
     expectEvals(evals, 3, 'Stff', 'Fri Feb 02 2018', 111, -1);
-
-    done();
   });
 
-  it('has 50%-sqrd transaction from X to X', (done) => {
+  it('has 50%-sqrd transaction from X to X', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 1, 2018 00:00:00',
@@ -3628,11 +3562,9 @@ describe('evaluations tests', () => {
     expectEvals(evals, 1, 'Stff', 'Wed Jan 03 2018', 111, -1);
     expectEvals(evals, 2, 'Stff', 'Wed Jan 03 2018', 166.5, -1);
     expectEvals(evals, 3, 'Stff', 'Fri Feb 02 2018', 166.5, -1);
-
-    done();
   });
 
-  it('has proportional transaction impacting asset value', (done) => {
+  it('has proportional transaction impacting asset value', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 1, 2018 00:00:00',
@@ -3718,10 +3650,9 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 2, 'Thu Feb 01 2018', 122.15, 2);
     }
 */
-    done();
   });
 
-  it('transaction between assets at exact starts of assets', (done) => {
+  it('transaction between assets at exact starts of assets', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 1, 2018 00:00:00',
@@ -3803,10 +3734,9 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
       expectChartData(chartPts, 2, 'Thu Feb 01 2018', 121, -1);
     }
-    done();
   });
 
-  it('two expenses impact cash', (done) => {
+  it('two expenses impact cash', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 2, 2018 00:00:00',
@@ -3915,10 +3845,9 @@ describe('evaluations tests', () => {
       expect(chartPts[3].label).toBe('Thu Mar 01 2018');
       expect(chartPts[3].y).toBe(390);
     }
-    done();
   });
 
-  it('two incomes impact cash', (done) => {
+  it('two incomes impact cash', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 2, 2018 00:00:00',
@@ -4030,10 +3959,9 @@ describe('evaluations tests', () => {
       expect(chartPts[3].label).toBe('Thu Mar 01 2018');
       expect(chartPts[3].y).toBe(1505);
     }
-    done();
   });
 
-  it('has monthly transaction creating cash debt', (done) => {
+  it('has monthly transaction creating cash debt', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 1, 2019 00:00:00',
@@ -4133,10 +4061,9 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 14, 'Fri Feb 01 2019', -800, -1);
       expectChartData(chartPts, 15, 'Fri Mar 01 2019', -900, -1);
     }
-    done();
   });
 
-  it('should apply income tax to some asset growth', (done) => {
+  it('should apply income tax to some asset growth', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 2, 2018 00:00:00',
@@ -4262,10 +4189,9 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
       expectChartData(chartPts, 5, 'Tue May 01 2018', 13994.94, 2);
     }
-    done();
   });
 
-  it('have two assets share the same growth rate', (done) => {
+  it('have two assets share the same growth rate', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'Feb 7, 2018 00:00:00',
@@ -4360,10 +4286,9 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 1, 'Mon Jan 01 2018', 200, -1);
       expectChartData(chartPts, 2, 'Thu Feb 01 2018', 200.17, 2);
     }
-    done();
   });
 
-  it('have an asset use an indirect growth rate', (done) => {
+  it('have an asset use an indirect growth rate', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'Feb 7, 2018 00:00:00',
@@ -4431,11 +4356,9 @@ describe('evaluations tests', () => {
 
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
-
-    done();
   });
 
-  it('should revalue expense by proportion', (done) => {
+  it('should revalue expense by proportion', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'July 2, 2018 00:00:00',
@@ -4546,10 +4469,9 @@ describe('evaluations tests', () => {
 
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
-    done();
   });
 
-  it('should revalue income defined by setting', (done) => {
+  it('should revalue income defined by setting', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'July 2, 2018 00:00:00',
@@ -4671,10 +4593,9 @@ describe('evaluations tests', () => {
 
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
-    done();
   });
 
-  it('should revalue income defined by double setting', (done) => {
+  it('should revalue income defined by double setting', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'July 2, 2018 00:00:00',
@@ -4796,10 +4717,9 @@ describe('evaluations tests', () => {
 
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
-    done();
   });
 
-  it('should revalue expense defined by setting', (done) => {
+  it('should revalue expense defined by setting', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'July 2, 2018 00:00:00',
@@ -4921,10 +4841,9 @@ describe('evaluations tests', () => {
 
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
-    done();
   });
 
-  it('should revalue expense defined by double setting', (done) => {
+  it('should revalue expense defined by double setting', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'July 2, 2018 00:00:00',
@@ -5046,10 +4965,9 @@ describe('evaluations tests', () => {
 
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
-    done();
   });
 
-  it('should revalue expense by setting proportion', (done) => {
+  it('should revalue expense by setting proportion', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'July 2, 2019 00:00:00',
@@ -5248,11 +5166,9 @@ describe('evaluations tests', () => {
 
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
-
-    done();
   });
 
-  it('should revalue income by setting proportion', (done) => {
+  it('should revalue income by setting proportion', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'July 2, 2019 00:00:00',
@@ -5451,11 +5367,9 @@ describe('evaluations tests', () => {
 
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
-
-    done();
   });
 
-  it('should apply growth and one-off pay revalue to income', (done) => {
+  it('should apply growth and one-off pay revalue to income', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 1, 2018 00:00:00',
@@ -5555,11 +5469,9 @@ describe('evaluations tests', () => {
 
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
-
-    done();
   });
 
-  it('should apply growth and absolute-revalue asset', (done) => {
+  it('should apply growth and absolute-revalue asset', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 1, 2018 00:00:00',
@@ -5622,10 +5534,9 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 3, 'Thu Mar 01 2018', 509.53, 2);
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 302.85, 2);
     }
-    done();
   });
 
-  it('should apply growth and proportional-revalue asset', (done) => {
+  it('should apply growth and proportional-revalue asset', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 1, 2018 00:00:00',
@@ -5689,10 +5600,9 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 3, 'Thu Mar 01 2018', 509.53, 2);
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 257.18, 2);
     }
-    done();
   });
 
-  it('should apply growth and proportional-revalue multiple assets', (done) => {
+  it('should apply growth and proportional-revalue multiple assets', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 1, 2018 00:00:00',
@@ -5779,11 +5689,9 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 3, 'Thu Mar 01 2018', 407.63, 2);
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 205.75, 2);
     }
-
-    done();
   });
 
-  it('should apply growth and proportional-revalue category of assets', (done) => {
+  it('should apply growth and proportional-revalue category of assets', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 1, 2018 00:00:00',
@@ -5872,8 +5780,6 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 3, 'Thu Mar 01 2018', 407.63, 2);
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 205.75, 2);
     }
-
-    done();
   });
 
   function checkNonsenseSettingValue(key: string, value: string) {
@@ -5894,7 +5800,7 @@ describe('evaluations tests', () => {
     expect(evals.length).toBe(0);
   }
 
-  it('check nonsense settings', (done) => {
+  it('check nonsense settings', () => {
     const settingsKeys = [
       birthDate, // '' or a string date
       viewDetail, // coarse or fine
@@ -5910,11 +5816,9 @@ describe('evaluations tests', () => {
     for (const key of settingsKeys) {
       checkNonsenseSettingValue(key, 'nonsense');
     }
-
-    done();
   });
 
-  it('asset growth should be a number or a numerical setting', (done) => {
+  it('asset growth should be a number or a numerical setting', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'Feb 7, 2018 00:00:00',
@@ -5949,10 +5853,8 @@ describe('evaluations tests', () => {
     unSuppressLogs();
     // printTestCodeForEvals(evals);
     expect(evals.length).toBe(0);
-
-    done();
   });
-  it('asset value should be a number', (done) => {
+  it('asset value should be a number', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'Feb 7, 2018 00:00:00',
@@ -5977,11 +5879,9 @@ describe('evaluations tests', () => {
     unSuppressLogs();
     // printTestCodeForEvals(evals);
     expect(evals.length).toBe(0);
-
-    done();
   });
 
-  it('trigger name cant have +', (done) => {
+  it('trigger name cant have +', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'Feb 7, 2018 00:00:00',
@@ -6013,11 +5913,9 @@ describe('evaluations tests', () => {
     unSuppressLogs();
     // printTestCodeForEvals(evals);
     expect(evals.length).toBe(0);
-
-    done();
   });
 
-  it('trigger name cant have -', (done) => {
+  it('trigger name cant have -', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'Feb 7, 2018 00:00:00',
@@ -6049,11 +5947,9 @@ describe('evaluations tests', () => {
     unSuppressLogs();
     // printTestCodeForEvals(evals);
     expect(evals.length).toBe(0);
-
-    done();
   });
 
-  it('trigger 1 day before', (done) => {
+  it('trigger 1 day before', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'Feb 7, 2018 00:00:00',
@@ -6085,11 +5981,9 @@ describe('evaluations tests', () => {
     expect(evals.length).toBe(2);
     expectEvals(evals, 0, 'Shr1', 'Mon Jan 01 2018', 1, -1);
     expectEvals(evals, 1, 'Shr1', 'Thu Feb 01 2018', 1, -1);
-
-    done();
   });
 
-  it('trigger 1 day after', (done) => {
+  it('trigger 1 day after', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'Feb 7, 2018 00:00:00',
@@ -6121,11 +6015,9 @@ describe('evaluations tests', () => {
     expect(evals.length).toBe(2);
     expectEvals(evals, 0, 'Shr1', 'Mon Jan 01 2018', 1, -1);
     expectEvals(evals, 1, 'Shr1', 'Thu Feb 01 2018', 1, -1);
-
-    done();
   });
 
-  it('trigger 1 month before', (done) => {
+  it('trigger 1 month before', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'Feb 7, 2018 00:00:00',
@@ -6157,11 +6049,9 @@ describe('evaluations tests', () => {
     expect(evals.length).toBe(2);
     expectEvals(evals, 0, 'Shr1', 'Mon Jan 01 2018', 1, -1);
     expectEvals(evals, 1, 'Shr1', 'Thu Feb 01 2018', 1, -1);
-
-    done();
   });
 
-  it('trigger 1 month after', (done) => {
+  it('trigger 1 month after', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'Feb 7, 2018 00:00:00',
@@ -6193,11 +6083,9 @@ describe('evaluations tests', () => {
     expect(evals.length).toBe(2);
     expectEvals(evals, 0, 'Shr1', 'Mon Jan 01 2018', 1, -1);
     expectEvals(evals, 1, 'Shr1', 'Thu Feb 01 2018', 1, -1);
-
-    done();
   });
 
-  it('trigger 1 year before', (done) => {
+  it('trigger 1 year before', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'Feb 7, 2018 00:00:00',
@@ -6229,11 +6117,9 @@ describe('evaluations tests', () => {
     expect(evals.length).toBe(2);
     expectEvals(evals, 0, 'Shr1', 'Mon Jan 01 2018', 1, -1);
     expectEvals(evals, 1, 'Shr1', 'Thu Feb 01 2018', 1, -1);
-
-    done();
   });
 
-  it('trigger 1 year after', (done) => {
+  it('trigger 1 year after', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'Feb 7, 2018 00:00:00',
@@ -6265,11 +6151,9 @@ describe('evaluations tests', () => {
     expect(evals.length).toBe(2);
     expectEvals(evals, 0, 'Shr1', 'Mon Jan 01 2018', 1, -1);
     expectEvals(evals, 1, 'Shr1', 'Thu Feb 01 2018', 1, -1);
-
-    done();
   });
 
-  it('trigger defined 1 day before', (done) => {
+  it('trigger defined 1 day before', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'Feb 7, 2018 00:00:00',
@@ -6306,11 +6190,9 @@ describe('evaluations tests', () => {
     expect(evals.length).toBe(2);
     expectEvals(evals, 0, 'Shr1', 'Mon Jan 01 2018', 1, -1);
     expectEvals(evals, 1, 'Shr1', 'Thu Feb 01 2018', 1, -1);
-
-    done();
   });
 
-  it('trigger defined infinite recursion', (done) => {
+  it('trigger defined infinite recursion', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'Feb 7, 2018 00:00:00',
@@ -6347,11 +6229,9 @@ describe('evaluations tests', () => {
     const evals = evalsAndValues.evaluations;
     // printTestCodeForEvals(evals);
     expect(evals.length).toBe(0);
-
-    done();
   });
 
-  it('negative value for asset which cant be negative', (done) => {
+  it('negative value for asset which cant be negative', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'February 1, 2018 00:00:00',
@@ -6386,11 +6266,9 @@ describe('evaluations tests', () => {
 
     // printTestCodeForEvals(evals);
     expect(evals.length).toBe(0); // failure of checks!
-
-    done();
   });
 
-  it('negative value allowed for from asset', (done) => {
+  it('negative value allowed for from asset', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'February 1, 2018 00:00:00',
@@ -6451,11 +6329,9 @@ describe('evaluations tests', () => {
     expect(result.expensesData.length).toBe(0);
     expect(result.incomesData.length).toBe(0);
     expect(result.assetData.length).toBe(0);
-
-    done();
   });
 
-  it('negative value not allowed for from asset', (done) => {
+  it('negative value not allowed for from asset', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'February 1, 2018 00:00:00',
@@ -6514,11 +6390,9 @@ describe('evaluations tests', () => {
     expect(result.expensesData.length).toBe(0);
     expect(result.incomesData.length).toBe(0);
     expect(result.assetData.length).toBe(0);
-
-    done();
   });
 
-  it('negative tiny approx value allowed for from asset', (done) => {
+  it('negative tiny approx value allowed for from asset', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'February 1, 2018 00:00:00',
@@ -6582,11 +6456,9 @@ describe('evaluations tests', () => {
     expect(result.assetData.length).toBe(0);
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
-
-    done();
   });
 
-  it('can use income tax on asset for taxable benefits', (done) => {
+  it('can use income tax on asset for taxable benefits', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 2, 2018 00:00:00',
@@ -6705,11 +6577,9 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
       expectChartData(chartPts, 5, 'Tue May 01 2018', 72500, -1);
     }
-
-    done();
   });
 
-  it('sell more things than we have', (done) => {
+  it('sell more things than we have', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 2, 2018 00:00:00',
@@ -6820,11 +6690,9 @@ describe('evaluations tests', () => {
 
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
-
-    done();
   });
 
-  it('revalue a setting 01', (done) => {
+  it('revalue a setting 01', () => {
     const roi = {
       start: '1 Jan 2019',
       end: '1 May 2019',
@@ -6939,11 +6807,9 @@ describe('evaluations tests', () => {
 
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
-
-    done();
   });
 
-  it('revalue a setting 02', (done) => {
+  it('revalue a setting 02', () => {
     const revalueData = `
     {
     "triggers":[
@@ -7080,10 +6946,8 @@ describe('evaluations tests', () => {
 
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
-
-    done();
   });
-  it('revalue a setting cpi for asset growth', (done) => {
+  it('revalue a setting cpi for asset growth', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'July 2, 2019 00:00:00',
@@ -7321,11 +7185,9 @@ describe('evaluations tests', () => {
     // by some value between 3 and 4.
     // 10 months of overlap and 2 * 2 months of non-overlap makes for
     // 3^(10/12)*2^(2*2/12) = 3.1473...
-
-    done();
   });
 
-  it('revalue a setting cpi for income growth', (done) => {
+  it('revalue a setting cpi for income growth', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'August 2, 2019 00:00:00',
@@ -7468,11 +7330,9 @@ describe('evaluations tests', () => {
     expectEvals(evals, 60, 'PRnd', 'Thu Aug 01 2019', 200.0, 2);
     expectEvals(evals, 61, 'Paaa', 'Thu Aug 01 2019', 100, -1);
     expectEvals(evals, 62, 'Pccc', 'Thu Aug 01 2019', 200.0, 2);
-
-    done();
   });
 
-  it('revalue a setting cpi for expense growth', (done) => {
+  it('revalue a setting cpi for expense growth', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'August 2, 2019 00:00:00',
@@ -7614,11 +7474,9 @@ describe('evaluations tests', () => {
     expectEvals(evals, 60, 'PHon', 'Thu Aug 01 2019', 200.0, 2);
     expectEvals(evals, 61, 'Paaa', 'Thu Aug 01 2019', 100, -1);
     expectEvals(evals, 62, 'Pccc', 'Thu Aug 01 2019', 200.0, 2);
-
-    done();
   });
 
-  it('Generate taxable income from asset', (done) => {
+  it('Generate taxable income from asset', () => {
     const roi = {
       start: 'Dec 1, 2017',
       end: 'May 02 2019',
@@ -7860,8 +7718,6 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 16, 'Mon Apr 01 2019', 0, -1);
       expectChartData(chartPts, 17, 'Wed May 01 2019', 573.52, 2);
     }
-
-    done();
   });
   it('get category of asset, expense, income', () => {
     const categoryCache = new Map<string, string>();
@@ -7883,7 +7739,7 @@ describe('evaluations tests', () => {
     ).toEqual('Leisure/Leisure');
   });
 
-  it('Autoname revaluation transactions', (done) => {
+  it('Autoname revaluation transactions', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'May 1, 2018 00:00:00',
@@ -7935,11 +7791,9 @@ describe('evaluations tests', () => {
       });
     }
     expect(makeRevalueName('savings', model)).toEqual('Revaluesavings10');
-
-    done();
   });
 
-  it('models with undefined to/from', (done) => {
+  it('models with undefined to/from', () => {
     {
       const model = transactionFromUndefinedModel();
       getTestEvaluations(model);
@@ -7951,10 +7805,9 @@ describe('evaluations tests', () => {
     }
 
     // printTestCodeForEvals(evals);
-    done();
   });
 
-  it('historical assessments', (done) => {
+  it('historical assessments', () => {
     const model = makeModelFromJSON(mortgageSwitchExampleData);
     expect(model.assets.length).toBe(5);
     expect(model.expenses.length).toBe(3);
@@ -8071,8 +7924,6 @@ describe('evaluations tests', () => {
     expect(filterForOld(model.transactions).length).toBe(4);
 
     expect(filterForOld(model.settings).length).toBe(0);
-
-    done();
   });
 
   it('delete items from model should refuse to delete', async () => {

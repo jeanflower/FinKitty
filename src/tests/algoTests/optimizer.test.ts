@@ -21,7 +21,7 @@ printTestCodeForChart;
 showObj;
 
 describe('optimizer tests', () => {
-  it('should load optimizer model', (done) => {
+  it('should load optimizer model', () => {
     const model = getVariableDateExampleData();
 
     const evalsAndValues = getTestEvaluations(model);
@@ -97,10 +97,9 @@ describe('optimizer tests', () => {
         displayLegend: true,
       }),
     );
-    done();
   });
 
-  it('should load second optimizer model', (done) => {
+  it('should load second optimizer model', () => {
     const model = getVariableDateExampleData2();
 
     const evalsAndValues = getTestEvaluations(model);
@@ -175,6 +174,5 @@ describe('optimizer tests', () => {
         displayLegend: true,
       }),
     );
-    done();
   });
 });

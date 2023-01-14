@@ -54,7 +54,7 @@ describe(' chart data tests', () => {
     printTestCodeForEvals;
   }
 
-  it('annual accumulation for chart less than one year', (done) => {
+  it('annual accumulation for chart less than one year', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 2, 2018 00:00:00',
@@ -97,10 +97,9 @@ describe(' chart data tests', () => {
     expect(result.expensesData.length).toBe(0);
     expect(result.incomesData.length).toBe(0);
     expect(result.assetData.length).toBe(0);
-    done();
   });
 
-  it('annual accumulation for chart more than one year', (done) => {
+  it('annual accumulation for chart more than one year', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 2, 2019 00:00:00',
@@ -151,10 +150,9 @@ describe(' chart data tests', () => {
 
     expect(result.incomesData.length).toBe(0);
     expect(result.assetData.length).toBe(0);
-    done();
   });
 
-  it('annual chart data for assets deltas', (done) => {
+  it('annual chart data for assets deltas', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 1, 2019 00:00:00',
@@ -233,11 +231,9 @@ describe(' chart data tests', () => {
       expectChartData(chartPts, 0, '37', 0, -1);
       expectChartData(chartPts, 1, '38', 54.74, 2);
     }
-
-    done();
   });
 
-  it('annual chart data for assets computed monthly', (done) => {
+  it('annual chart data for assets computed monthly', () => {
     const roi = {
       start: 'Jan 1, 2017 00:00:00',
       end: 'April 1, 2020 00:00:00',
@@ -318,11 +314,9 @@ describe(' chart data tests', () => {
 
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
-
-    done();
   });
 
-  it('weekly chart data for assets', (done) => {
+  it('weekly chart data for assets', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 1, 2018 00:00:00',
@@ -404,11 +398,9 @@ describe(' chart data tests', () => {
 
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
-
-    done();
   });
 
-  it('annual chart data for assets displayed annually', (done) => {
+  it('annual chart data for assets displayed annually', () => {
     const roi = {
       start: 'Jan 1, 2017 00:00:00',
       end: 'April 1, 2020 00:00:00',
@@ -489,11 +481,9 @@ describe(' chart data tests', () => {
 
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
-
-    done();
   });
 
-  it('delta chart data for cpi assets', (done) => {
+  it('delta chart data for cpi assets', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 1, 2019 00:00:00',
@@ -654,11 +644,9 @@ describe(' chart data tests', () => {
 
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
-
-    done();
   });
 
-  it('annual chart data for debts', (done) => {
+  it('annual chart data for debts', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'April 1, 2019 00:00:00',
@@ -728,11 +716,9 @@ describe(' chart data tests', () => {
     }
 
     expect(result.taxData.length).toBe(0);
-
-    done();
   });
 
-  it('Check coarse, categorised, chart data data', (done) => {
+  it('Check coarse, categorised, chart data data', () => {
     const model = getModelCoarseAndFine();
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -968,11 +954,9 @@ describe(' chart data tests', () => {
 
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
-
-    done();
   });
 
-  it('Check totalled, chart data data', (done) => {
+  it('Check totalled, chart data data', () => {
     const model = getModelCoarseAndFine();
 
     const evalsAndValues = getTestEvaluations(model);
@@ -1073,10 +1057,9 @@ describe(' chart data tests', () => {
       expectChartData(chartPts, 2, 'Fri Jun 01 2018', 1442, -1);
       expectChartData(chartPts, 3, 'Sun Jul 01 2018', 1430, -1);
     }
-    done();
   });
 
-  it('Check fine, uncategorised, chart data data', (done) => {
+  it('Check fine, uncategorised, chart data data', () => {
     const model = getModelCoarseAndFine();
 
     const evalsAndValues = getTestEvaluations(model);
@@ -1237,10 +1220,9 @@ describe(' chart data tests', () => {
       expectChartData(chartPts, 2, 'Fri Jun 01 2018', 500, -1);
       expectChartData(chartPts, 3, 'Sun Jul 01 2018', 500, -1);
     }
-    done();
   });
 
-  it('Coarse asset view for cash asset, vals, +, -, +- data1', (done) => {
+  it('Coarse asset view for cash asset, vals, +, -, +- data1', () => {
     const model = getModelCoarseAndFine();
 
     const evalsAndValues = getTestEvaluations(model);
@@ -1363,11 +1345,9 @@ describe(' chart data tests', () => {
       expectChartData(chartPts, 2, 'Fri Jun 01 2018', 442, -1);
       expectChartData(chartPts, 3, 'Sun Jul 01 2018', 430, -1);
     }
-
-    done();
   });
 
-  it('filter chart data into single category, coarse', (done) => {
+  it('filter chart data into single category, coarse', () => {
     const model = getModelCoarseAndFine();
 
     const evalsAndValues = getTestEvaluations(model);
@@ -1419,11 +1399,9 @@ describe(' chart data tests', () => {
       expectChartData(chartPts, 2, 'Fri Jun 01 2018', 942, -1);
       expectChartData(chartPts, 3, 'Sun Jul 01 2018', 930, -1);
     }
-
-    done();
   });
 
-  it('filter chart data into single uncategorised asset, coarse', (done) => {
+  it('filter chart data into single uncategorised asset, coarse', () => {
     const model = getModelCoarseAndFine();
     // log(`model - ${showObj(model)}`);
 
@@ -1500,11 +1478,9 @@ describe(' chart data tests', () => {
       expectChartData(chartPts, 2, 'Fri Jun 01 2018', 500, -1);
       expectChartData(chartPts, 3, 'Sun Jul 01 2018', 500, -1);
     }
-
-    done();
   });
 
-  it('filter chart data into single categorised asset, coarse', (done) => {
+  it('filter chart data into single categorised asset, coarse', () => {
     const model = getModelCoarseAndFine();
 
     const evalsAndValues = getTestEvaluations(model);
@@ -1580,11 +1556,9 @@ describe(' chart data tests', () => {
       expectChartData(chartPts, 2, 'Fri Jun 01 2018', 500, -1);
       expectChartData(chartPts, 3, 'Sun Jul 01 2018', 500, -1);
     }
-
-    done();
   });
 
-  it('filter chart data into single category, fine', (done) => {
+  it('filter chart data into single category, fine', () => {
     const model = getModelCoarseAndFine();
 
     const evalsAndValues = getTestEvaluations(model);
@@ -1628,11 +1602,9 @@ describe(' chart data tests', () => {
       expectChartData(chartPts, 2, 'Fri Jun 01 2018', 500, -1);
       expectChartData(chartPts, 3, 'Sun Jul 01 2018', 500, -1);
     }
-
-    done();
   });
 
-  it('asset view type deltas', (done) => {
+  it('asset view type deltas', () => {
     const model = getModelCoarseAndFine();
 
     const evalsAndValues = getTestEvaluations(model);
@@ -1715,11 +1687,9 @@ describe(' chart data tests', () => {
       expectChartData(chartPts, 2, 'Fri Jun 01 2018', -12, -1);
       expectChartData(chartPts, 3, 'Sun Jul 01 2018', -12, -1);
     }
-
-    done();
   });
 
-  it('asset view type reductions', (done) => {
+  it('asset view type reductions', () => {
     const model = getModelCoarseAndFine();
 
     const evalsAndValues = getTestEvaluations(model);
@@ -1763,11 +1733,9 @@ describe(' chart data tests', () => {
       expectChartData(chartPts, 2, 'Fri Jun 01 2018', -12, -1);
       expectChartData(chartPts, 3, 'Sun Jul 01 2018', -12, -1);
     }
-
-    done();
   });
 
-  it('asset view type additions', (done) => {
+  it('asset view type additions', () => {
     const model = getModelCoarseAndFine();
 
     const evalsAndValues = getTestEvaluations(model);
@@ -1830,11 +1798,9 @@ describe(' chart data tests', () => {
       expectChartData(chartPts, 2, 'Fri Jun 01 2018', 0, -1);
       expectChartData(chartPts, 3, 'Sun Jul 01 2018', 0, -1);
     }
-
-    done();
   });
 
-  it('filter chart data into single category with transfer, coarse', (done) => {
+  it('filter chart data into single category with transfer, coarse', () => {
     const model = getModelCoarseAndFine();
 
     model.transactions = [
@@ -1882,11 +1848,9 @@ describe(' chart data tests', () => {
       expectChartData(chartPts, 2, 'Fri Jun 01 2018', 1042, -1);
       expectChartData(chartPts, 3, 'Sun Jul 01 2018', 1030, -1);
     }
-
-    done();
   });
 
-  it('filter chart data into single category with income, fine', (done) => {
+  it('filter chart data into single category with income, fine', () => {
     const model = getModelCoarseAndFine();
 
     // set the category of an income to match
@@ -1935,8 +1899,6 @@ describe(' chart data tests', () => {
       expectChartData(chartPts, 2, 'Fri Jun 01 2018', 500, -1);
       expectChartData(chartPts, 3, 'Sun Jul 01 2018', 500, -1);
     }
-
-    done();
   });
   it('bond test charts', () => {
     const model = getTestModel(bondModel);
@@ -2470,7 +2432,7 @@ describe(' chart data tests', () => {
     expect(result.taxData.length).toBe(0);
   });
 
-  it('display quantised deltas', (done) => {
+  it('display quantised deltas', () => {
     const json = `{
       "name":"quantised deltas",
       "assets":[{
@@ -2566,11 +2528,9 @@ describe(' chart data tests', () => {
 
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
-
-    done();
   });
 
-  it('delayed view start date - early', (done) => {
+  it('delayed view start date - early', () => {
     const json = `{
       "triggers":[{"NAME":"Start","DATE":"Sat Apr 06 2019"}],
       "expenses":[],
@@ -2692,11 +2652,9 @@ describe(' chart data tests', () => {
 
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
-
-    done();
   });
 
-  it('delayed view start date - late', (done) => {
+  it('delayed view start date - late', () => {
     const json = `{
       "triggers":[{"NAME":"Start","DATE":"Sat Apr 06 2019"}],
       "expenses":[],
@@ -2803,11 +2761,9 @@ describe(' chart data tests', () => {
 
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
-
-    done();
   });
 
-  it('early view end date', (done) => {
+  it('early view end date', () => {
     const json = `{
       "triggers":[{"NAME":"Start","DATE":"Sat Apr 06 2019"}],
       "expenses":[],
@@ -2929,7 +2885,5 @@ describe(' chart data tests', () => {
 
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
-
-    done();
   });
 });

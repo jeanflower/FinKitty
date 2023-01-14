@@ -66,7 +66,7 @@ describe('pension tests', () => {
     printTestCodeForEvals;
   }
 
-  it('pay into defined contributions pension simplest', (done) => {
+  it('pay into defined contributions pension simplest', () => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'May 2, 2018 00:00:00',
@@ -219,11 +219,9 @@ describe('pension tests', () => {
       expectChartData(chartPts, 1, 'Sun Apr 01 2018', 0, -1);
       expectChartData(chartPts, 2, 'Tue May 01 2018', 3200, -1);
     }
-
-    done();
   });
 
-  it('pay one-off pension and employee pension contribution', (done) => {
+  it('pay one-off pension and employee pension contribution', () => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'May 2, 2018 00:00:00',
@@ -427,11 +425,9 @@ describe('pension tests', () => {
       expectChartData(chartPts, 1, 'Sun Apr 01 2018', 0, -1);
       expectChartData(chartPts, 2, 'Tue May 01 2018', 3200, -1);
     }
-
-    done();
   });
 
-  it('pay into two defined contributions pension schemes', (done) => {
+  it('pay into two defined contributions pension schemes', () => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'May 2, 2018 00:00:00',
@@ -659,11 +655,9 @@ describe('pension tests', () => {
       expectChartData(chartPts, 1, 'Sun Apr 01 2018', 0, -1);
       expectChartData(chartPts, 2, 'Tue May 01 2018', 12580, -1);
     }
-
-    done();
   });
 
-  it('pay into defined contributions pension with employer contribution', (done) => {
+  it('pay into defined contributions pension with employer contribution', () => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'May 2, 2018 00:00:00',
@@ -830,11 +824,9 @@ describe('pension tests', () => {
       expectChartData(chartPts, 1, 'Sun Apr 01 2018', 0, -1);
       expectChartData(chartPts, 2, 'Tue May 01 2018', 3200, -1);
     }
-
-    done();
   });
 
-  it('pay monthly pay into defined contributions pension with employer contribution', (done) => {
+  it('pay monthly pay into defined contributions pension with employer contribution', () => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'May 2, 2018 00:00:00',
@@ -1067,11 +1059,9 @@ describe('pension tests', () => {
       expectChartData(chartPts, 1, 'Sun Apr 01 2018', 0, -1);
       expectChartData(chartPts, 2, 'Tue May 01 2018', 3200, -1);
     }
-
-    done();
   });
 
-  it('pay into defined contributions pension with salary sacrifice', (done) => {
+  it('pay into defined contributions pension with salary sacrifice', () => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'May 2, 2018 00:00:00',
@@ -1238,8 +1228,6 @@ describe('pension tests', () => {
       expectChartData(chartPts, 1, 'Sun Apr 01 2018', 0, -1);
       expectChartData(chartPts, 2, 'Tue May 01 2018', 3200, -1);
     }
-
-    done();
   });
 
   ///// this is giving the wrong answer
@@ -1247,7 +1235,7 @@ describe('pension tests', () => {
   // should be rather like the "pay pension contributions simplest"
   // test - this involves a manual pension contribution
   // where that was siphoned off at source
-  it('pay one-off pension contribution', (done) => {
+  it('pay one-off pension contribution', () => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'May 2, 2018 00:00:00',
@@ -1420,12 +1408,10 @@ describe('pension tests', () => {
       expectChartData(chartPts, 1, 'Sun Apr 01 2018', 0, -1);
       expectChartData(chartPts, 2, 'Tue May 01 2018', 3500, -1);
     }
-
-    done();
   });
 
   // transfers from crystallized pensions are liable to Income tax
-  it('pay income tax on one off crystallized pension 1', (done) => {
+  it('pay income tax on one off crystallized pension 1', () => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'April 2, 2018 00:00:00',
@@ -1511,10 +1497,9 @@ describe('pension tests', () => {
       expectChartData(chartPts, 0, 'Thu Mar 01 2018', 60000, -1);
       expectChartData(chartPts, 1, 'Sun Apr 01 2018', 30000, -1);
     }
-    done();
   });
 
-  it('pay into defined benefits pension simplest', (done) => {
+  it('pay into defined benefits pension simplest', () => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'August 2, 2018 00:00:00',
@@ -1731,11 +1716,9 @@ describe('pension tests', () => {
       expectChartData(chartPts, 4, 'Sun Jul 01 2018', 0, -1);
       expectChartData(chartPts, 5, 'Wed Aug 01 2018', 0, -1);
     }
-
-    done();
   });
 
-  it('pay into defined benefits pension salary sacrifice', (done) => {
+  it('pay into defined benefits pension salary sacrifice', () => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'August 2, 2018 00:00:00',
@@ -1953,11 +1936,9 @@ describe('pension tests', () => {
       expectChartData(chartPts, 4, 'Sun Jul 01 2018', 0, -1);
       expectChartData(chartPts, 5, 'Wed Aug 01 2018', 0, -1);
     }
-
-    done();
   });
 
-  it('pay into defined benefits pension apply cpi', (done) => {
+  it('pay into defined benefits pension apply cpi', () => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'August 2, 2018 00:00:00',
@@ -2161,11 +2142,9 @@ describe('pension tests', () => {
       expectChartData(chartPts, 4, 'Sun Jul 01 2018', 0, -1);
       expectChartData(chartPts, 5, 'Wed Aug 01 2018', 0, -1);
     }
-
-    done();
   });
 
-  it('pay into defined benefits pension cant have TO equal cash', (done) => {
+  it('pay into defined benefits pension cant have TO equal cash', () => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'August 2, 2018 00:00:00',
@@ -2259,11 +2238,9 @@ describe('pension tests', () => {
 
     // printTestCodeForEvals(evals);
     expect(evals.length).toBe(0);
-
-    done();
   });
 
-  it('pay into defined benefits pension cant have TO equal an arbitrary income', (done) => {
+  it('pay into defined benefits pension cant have TO equal an arbitrary income', () => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'August 2, 2018 00:00:00',
@@ -2357,11 +2334,9 @@ describe('pension tests', () => {
 
     // printTestCodeForEvals(evals);
     expect(evals.length).toBe(0);
-
-    done();
   });
 
-  it('pay into defined benefits pension transaction must begin pensionDB', (done) => {
+  it('pay into defined benefits pension transaction must begin pensionDB', () => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'August 2, 2018 00:00:00',
@@ -2455,10 +2430,9 @@ describe('pension tests', () => {
     // printTestCodeForEvals(evals);
 
     expect(evals.length).toBe(0);
-    done();
   });
 
-  it('asset view pension transfers additions', (done) => {
+  it('asset view pension transfers additions', () => {
     const modelAndRoi = getModelCrystallizedPension();
     const model = modelAndRoi.model;
 
@@ -2555,11 +2529,9 @@ describe('pension tests', () => {
 
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
-
-    done();
   });
 
-  it('asset view pension transfers reductions', (done) => {
+  it('asset view pension transfers reductions', () => {
     const modelAndRoi = getModelCrystallizedPension();
     const model = modelAndRoi.model;
 
@@ -2606,11 +2578,9 @@ describe('pension tests', () => {
 
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
-
-    done();
   });
 
-  it('asset view pension transfers deltas', (done) => {
+  it('asset view pension transfers deltas', () => {
     const modelAndRoi = getModelCrystallizedPension();
     const model = modelAndRoi.model;
 
@@ -2657,11 +2627,9 @@ describe('pension tests', () => {
 
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
-
-    done();
   });
 
-  it('pay income tax on conditional absolute crystallized pension', (done) => {
+  it('pay income tax on conditional absolute crystallized pension', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 2, 2018 00:00:00',
@@ -2809,12 +2777,10 @@ describe('pension tests', () => {
       expectChartData(chartPts, 5, 'Tue May 01 2018', 26500, -1);
       expectChartData(chartPts, 6, 'Fri Jun 01 2018', 0, -1);
     }
-
-    done();
   });
 
   // transfers from crystallized pensions are liable to Income tax
-  it('pay income tax on one off crystallized pension 2', (done) => {
+  it('pay income tax on one off crystallized pension 2', () => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'April 2, 2018 00:00:00',
@@ -2899,10 +2865,9 @@ describe('pension tests', () => {
       expectChartData(chartPts, 0, 'Thu Mar 01 2018', 60000, -1);
       expectChartData(chartPts, 1, 'Sun Apr 01 2018', 30000, -1);
     }
-    done();
   });
 
-  it('pay income tax on conditional categorized crystallized pension', (done) => {
+  it('pay income tax on conditional categorized crystallized pension', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 2, 2018 00:00:00',
@@ -3114,11 +3079,9 @@ describe('pension tests', () => {
       expectChartData(chartPts, 5, 'Tue May 01 2018', 14500, -1);
       expectChartData(chartPts, 6, 'Fri Jun 01 2018', 0, -1);
     }
-
-    done();
   });
 
-  it('pay income tax on conditional proportional crystallized pension', (done) => {
+  it('pay income tax on conditional proportional crystallized pension', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 2, 2018 00:00:00',
@@ -3265,11 +3228,9 @@ describe('pension tests', () => {
       expectChartData(chartPts, 5, 'Tue May 01 2018', 26500, -1);
       expectChartData(chartPts, 6, 'Fri Jun 01 2018', 0, -1);
     }
-
-    done();
   });
 
-  it('pay income tax on recurring conditional proportional crystallized pension', (done) => {
+  it('pay income tax on recurring conditional proportional crystallized pension', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 2, 2018 00:00:00',
@@ -3456,11 +3417,9 @@ describe('pension tests', () => {
       expectChartData(chartPts, 5, 'Tue May 01 2018', 36133.33, 2);
       expectChartData(chartPts, 6, 'Fri Jun 01 2018', 0, -1);
     }
-
-    done();
   });
 
-  it('pay income tax on list member recurring conditional proportional crystallized pension', (done) => {
+  it('pay income tax on list member recurring conditional proportional crystallized pension', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'June 2, 2018 00:00:00',
@@ -3675,12 +3634,10 @@ describe('pension tests', () => {
       expectChartData(chartPts, 5, 'Tue May 01 2018', 36075.33, 2);
       expectChartData(chartPts, 6, 'Fri Jun 01 2018', 0, -1);
     }
-
-    done();
   });
 
   // transfers from crystallized pensions are liable to Income tax
-  it('pay income tax on monthly crystallized pension', (done) => {
+  it('pay income tax on monthly crystallized pension', () => {
     const roi = {
       start: 'April 6, 2018 00:00:00',
       end: 'April 2, 2019 00:00:00',
@@ -3841,11 +3798,9 @@ describe('pension tests', () => {
 
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
-
-    done();
   });
 
-  it('use up income tax allowance from crystallized pension', (done) => {
+  it('use up income tax allowance from crystallized pension', () => {
     const roi = {
       start: 'March 1, 2018 00:00:00',
       end: 'May 2, 2018 00:00:00',
@@ -3966,10 +3921,9 @@ describe('pension tests', () => {
       expectChartData(chartPts, 1, 'Sun Apr 01 2018', 60000, -1);
       expectChartData(chartPts, 2, 'Tue May 01 2018', 47500, -1);
     }
-    done();
   });
 
-  it('Defined Benefits Pension evaluations', (done) => {
+  it('Defined Benefits Pension evaluations', () => {
     const roi = {
       start: 'Dec 1, 2019',
       end: 'May 02 2021',
@@ -4118,11 +4072,9 @@ describe('pension tests', () => {
       expectChartData(chartPts, 16, 'Thu Apr 01 2021', 0, -1);
       expectChartData(chartPts, 17, 'Sat May 01 2021', 3500, -1);
     }
-
-    done();
   });
 
-  it('Defined Contributions Pension evaluations', (done) => {
+  it('Defined Contributions Pension evaluations', () => {
     // TODO : check
     const roi = {
       start: 'Dec 1, 2019',
@@ -4248,11 +4200,9 @@ describe('pension tests', () => {
       expectChartData(chartPts, 16, 'Thu Apr 01 2021', 0, -1);
       expectChartData(chartPts, 17, 'Sat May 01 2021', 854.88, 2);
     }
-
-    done();
   });
 
-  it('Transferring pensions to others', (done) => {
+  it('Transferring pensions to others', () => {
     const roi = {
       start: 'Dec 1, 2019',
       end: 'May 02 2031',
@@ -4912,11 +4862,9 @@ describe('pension tests', () => {
       expectChartData(chartPts, 10, 'Sat Dec 01 2029', 6, -1);
       expectChartData(chartPts, 11, 'Sun Dec 01 2030', 0, -1);
     }
-
-    done();
   });
 
-  it('unused allowances', (done) => {
+  it('unused allowances', () => {
     const modelAndRoi = getModelTwoCrystallizedPensions();
     const model = modelAndRoi.model;
 
@@ -5174,7 +5122,5 @@ describe('pension tests', () => {
       expectChartData(chartPts, 25, 'Thu Apr 01 2021', 0, -1);
       expectChartData(chartPts, 26, 'Sat May 01 2021', 2000, -1);
     }
-
-    done();
   });
 });

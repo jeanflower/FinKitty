@@ -1121,7 +1121,7 @@ describe('checks tests', () => {
     expect(checkData(model).message).toEqual('');
   });
 
-  it('has proportional transaction blocked for string-valued asset', (done) => {
+  it('has proportional transaction blocked for string-valued asset', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 1, 2018 00:00:00',
@@ -1175,9 +1175,8 @@ describe('checks tests', () => {
     );
 
     unSuppressLogs();
-    done();
   });
-  it('has proportional transaction blocked for string-valued income', (done) => {
+  it('has proportional transaction blocked for string-valued income', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 1, 2018 00:00:00',
@@ -1224,9 +1223,8 @@ describe('checks tests', () => {
     );
 
     unSuppressLogs();
-    done();
   });
-  it('has proportional transaction blocked for string-valued expense', (done) => {
+  it('has proportional transaction blocked for string-valued expense', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
       end: 'March 1, 2018 00:00:00',
@@ -1274,6 +1272,5 @@ describe('checks tests', () => {
     );
 
     unSuppressLogs();
-    done();
   });
 });

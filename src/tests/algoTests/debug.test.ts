@@ -20,7 +20,7 @@ describe('debug test', () => {
     printTestCodeForEvals;
   }
 
-  it('debug test', (done) => {
+  it('debug test', () => {
     const json = `{"triggers":[
 {"NAME":"StartBonds50k","DATE":"Tue Jan 01 2030"},
 {"NAME":"Start","DATE":"Sat Apr 06 2019"},
@@ -58,8 +58,6 @@ describe('debug test', () => {
     // log(`evals = ${showObj(evals)}`);
 
     // printTestCodeForEvals(evals);
-
-    done();
   });
 });
 
