@@ -86,7 +86,7 @@ import {
 import { Context, DateFormatType, log, showObj } from '../utils/utils';
 
 import CashValueFormatter from './reactComponents/CashValueFormatter';
-import DataGrid from './reactComponents/DataGrid';
+import DataGridFinKitty from './reactComponents/DataGridFinKitty';
 import GrowthFormatter from './reactComponents/GrowthFormatter';
 import React from 'react';
 import { SimpleFormatter } from './reactComponents/NameFormatter';
@@ -968,7 +968,7 @@ export function assetsOrDebtsTableDiv(
     >
       <fieldset>
         <div className="dataGridAssets">
-          <DataGrid
+          <DataGridFinKitty
             handleGridRowsUpdated={function () {
               return handleAssetGridRowsUpdated(
                 model,
@@ -1383,7 +1383,7 @@ export function transactionsTableDiv(
       </Button>
       */}
 
-      <DataGrid
+      <DataGridFinKitty
         handleGridRowsUpdated={function () {
           return handleTransactionGridRowsUpdated(
             model,
@@ -1550,7 +1550,7 @@ function triggersTableDiv(
     >
       <fieldset>
         <div className="dataGridTriggers">
-          <DataGrid
+          <DataGridFinKitty
             deleteFunction={deleteTrigger}
             setFavouriteFunction={setFavouriteTrigger}
             handleGridRowsUpdated={function () {
@@ -1766,7 +1766,7 @@ function incomesTableDiv(
     >
       <fieldset>
         <div className="dataGridIncomes">
-          <DataGrid
+          <DataGridFinKitty
             deleteFunction={deleteIncome}
             setFavouriteFunction={setFavouriteIncome}
             handleGridRowsUpdated={function () {
@@ -1958,7 +1958,7 @@ function expensesTableDiv(
       */}
       <fieldset>
         <div className="dataGridExpenses">
-          <DataGrid
+          <DataGridFinKitty
             deleteFunction={deleteExpense}
             setFavouriteFunction={setFavouriteExpense}
             handleGridRowsUpdated={function () {
@@ -2057,7 +2057,7 @@ function customSettingsTable(
     return;
   }
   return (
-    <DataGrid
+    <DataGridFinKitty
       deleteFunction={deleteSetting}
       setFavouriteFunction={setFavouriteSetting}
       handleGridRowsUpdated={function () {
@@ -2112,7 +2112,7 @@ function adjustSettingsTable(
     return;
   }
   return (
-    <DataGrid
+    <DataGridFinKitty
       deleteFunction={deleteSetting}
       setFavouriteFunction={setFavouriteSetting}
       handleGridRowsUpdated={function () {
@@ -2204,7 +2204,7 @@ export function settingsTableDiv(
       }}
     >
       {collapsibleFragment(
-        <DataGrid
+        <DataGridFinKitty
           deleteFunction={deleteSetting}
           setFavouriteFunction={setFavouriteSetting}
           handleGridRowsUpdated={function () {
@@ -2334,7 +2334,7 @@ export function reportDiv(
         reportIncludesSettings={reportIncludesSettings}
         reportIncludesExpenses={reportIncludesExpenses}
       />
-      <DataGrid
+      <DataGridFinKitty
         deleteFunction={undefined}
         setFavouriteFunction={undefined}
         handleGridRowsUpdated={function () {
@@ -2639,7 +2639,7 @@ export function optimizerDiv(
         true,
         parentCallbacks,
       )}
-      <DataGrid
+      <DataGridFinKitty
         deleteFunction={undefined}
         setFavouriteFunction={undefined}
         handleGridRowsUpdated={function () {

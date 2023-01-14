@@ -23,7 +23,7 @@ import {
 
 import { AddDeleteDebtForm } from './reactComponents/AddDeleteDebtForm';
 import CashValueFormatter from './reactComponents/CashValueFormatter';
-import DataGrid from './reactComponents/DataGrid';
+import DataGridFinKitty from './reactComponents/DataGridFinKitty';
 import React from 'react';
 import { SimpleFormatter } from './reactComponents/NameFormatter';
 import { assetsOrDebtsChartDivWithButtons } from './chartPages';
@@ -55,7 +55,7 @@ function addToMap(
 
 function makeDataGrid(myMap: Map<Asset, AssetOrDebtVal>, model: ModelData) {
   return (
-    <DataGrid
+    <DataGridFinKitty
       deleteFunction={undefined}
       setFavouriteFunction={undefined}
       handleGridRowsUpdated={function () {

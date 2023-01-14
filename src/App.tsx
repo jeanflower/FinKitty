@@ -109,7 +109,7 @@ import {
   submitIncomeLSM,
   submitSettingLSM,
 } from './database/loadSaveModel';
-import DataGrid from './views/reactComponents/DataGrid';
+import DataGridFinKitty from './views/reactComponents/DataGridFinKitty';
 import {
   SimpleFormatter,
   SettingFormatter,
@@ -2538,7 +2538,7 @@ export class AppContent extends Component<AppProps, AppState> {
     );
     // log(`display ${showObj(rows)}`);
     return collapsibleFragment(
-      <DataGrid
+      <DataGridFinKitty
         deleteFunction={undefined}
         setFavouriteFunction={undefined}
         handleGridRowsUpdated={function () {

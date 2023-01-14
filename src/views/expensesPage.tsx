@@ -29,7 +29,7 @@ import { expensesView, revalueExp } from '../localization/stringConstants';
 
 import { AddDeleteExpenseForm } from './reactComponents/AddDeleteExpenseForm';
 import CashValueFormatter from './reactComponents/CashValueFormatter';
-import DataGrid from './reactComponents/DataGrid';
+import DataGridFinKitty from './reactComponents/DataGridFinKitty';
 import React from 'react';
 import { SimpleFormatter } from './reactComponents/NameFormatter';
 import { ViewSettings } from '../models/charting';
@@ -59,7 +59,7 @@ function addToMap(
 
 function makeDataGrid(myMap: Map<Expense, ExpenseVal>, model: ModelData) {
   return (
-    <DataGrid
+    <DataGridFinKitty
       deleteFunction={undefined}
       setFavouriteFunction={undefined}
       handleGridRowsUpdated={function () {

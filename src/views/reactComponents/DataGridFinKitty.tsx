@@ -23,7 +23,7 @@ interface DataGridState {
   colSortIndex: string;
   sortDirection: 'ASC' | 'DESC' | 'NONE';
 }
-class DataGrid extends React.Component<DataGridProps, DataGridState> {
+class DataGridFinKitty extends React.Component<DataGridProps, DataGridState> {
   sortedIndices: number[];
 
   public constructor(props: DataGridProps) {
@@ -285,4 +285,4 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
   }
 }
 
-export default DataGrid;
+export default DataGridFinKitty;

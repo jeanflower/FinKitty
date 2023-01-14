@@ -30,7 +30,7 @@ import { incomesView, revalueInc } from '../localization/stringConstants';
 
 import { AddDeleteIncomeForm } from './reactComponents/AddDeleteIncomeForm';
 import CashValueFormatter from './reactComponents/CashValueFormatter';
-import DataGrid from './reactComponents/DataGrid';
+import DataGridFinKitty from './reactComponents/DataGridFinKitty';
 import React from 'react';
 import { SimpleFormatter } from './reactComponents/NameFormatter';
 import { ViewSettings } from '../models/charting';
@@ -55,7 +55,7 @@ function addToMap(name: Income, val: IncomeVal, myMap: Map<Income, IncomeVal>) {
 
 function makeDataGrid(myMap: Map<Income, IncomeVal>, model: ModelData) {
   return (
-    <DataGrid
+    <DataGridFinKitty
       deleteFunction={undefined}
       setFavouriteFunction={undefined}
       handleGridRowsUpdated={function () {
