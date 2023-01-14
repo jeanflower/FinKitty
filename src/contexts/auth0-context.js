@@ -20,9 +20,11 @@ export class Auth0Provider extends Component {
   };
   config = {
     domain: process.env.REACT_APP_AUTH0_DOMAIN_NOT_SECRET,
-    client_id: process.env.REACT_APP_AUTH0_CLIENT_ID_NOT_SECRET,
-    redirect_uri:
-      window.location.origin + process.env.REACT_APP_ORIGIN_APPENDAGE,
+    clientId: process.env.REACT_APP_AUTH0_CLIENT_ID_NOT_SECRET,
+    authorizationParams: {
+      redirect_uri:
+        window.location.origin + process.env.REACT_APP_ORIGIN_APPENDAGE,
+    },
   };
 
   componentDidMount() {
