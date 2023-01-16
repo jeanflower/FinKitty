@@ -2589,14 +2589,14 @@ export class AppContent extends Component<AppProps, AppState> {
     return (
       <div className="ml-3">
         <fieldset>
+          {doShowTodaysValueColumns()
+            ? this.todaysSettingsTable(model, todaysValues)
+            : ''}
           {settingsTableDiv(
             this.state.modelData,
             this.options.checkModelOnEdit,
             parentCallbacks,
           )}
-          {doShowTodaysValueColumns()
-            ? this.todaysSettingsTable(model, todaysValues)
-            : ''}
           <p />
 
           {collapsibleFragment(
