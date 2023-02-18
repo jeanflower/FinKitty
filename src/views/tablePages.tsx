@@ -119,6 +119,7 @@ import {
   lessThan,
   makeTwoDP,
   dateAsString,
+  makeStringFromGrowth,
 } from '../utils/stringUtils';
 import { Accordion, Button, Card, useAccordionButton } from 'react-bootstrap';
 import {
@@ -927,7 +928,7 @@ function assetsOrDebtsForTable(
         return a.NAME === obj.NAME;
       });
       const mapResult = {
-        GROWTH: obj.GROWTH,
+        GROWTH: makeStringFromGrowth(obj.GROWTH, model.settings),
         NAME: obj.NAME,
         FAVOURITE: obj.FAVOURITE,
         CATEGORY: obj.CATEGORY,
