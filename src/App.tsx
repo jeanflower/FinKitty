@@ -2079,12 +2079,14 @@ export class AppContent extends Component<AppProps, AppState> {
               this.state.reportIncludesSettings,
               this.state.reportIncludesExpenses,
               this.state.reportData.slice(0, this.state.maxReportSize),
+              'report',
             )}
             {optimizerDiv(
               this.state.modelData,
               this.state.viewState,
               this.state.optimizationChartData,
               parentCallbacks,
+              'optimizer',
             )}{' '}
           </>
         </>
@@ -2519,6 +2521,7 @@ export class AppContent extends Component<AppProps, AppState> {
   private todaysSettingsTable(
     model: ModelData,
     todaysValues: Map<Setting, SettingVal>,
+    tableID: string,
   ): ReactNode {
     if (todaysValues.size === 0 || !doShowTodaysValueColumns()) {
       return <></>;
@@ -2539,6 +2542,7 @@ export class AppContent extends Component<AppProps, AppState> {
     // log(`display ${showObj(rows)}`);
     return collapsibleFragment(
       <DataGridFinKitty
+        tableID={tableID}
         deleteFunction={undefined}
         setFavouriteFunction={undefined}
         handleGridRowsUpdated={function () {
@@ -2590,12 +2594,13 @@ export class AppContent extends Component<AppProps, AppState> {
       <div className="ml-3">
         <fieldset>
           {doShowTodaysValueColumns()
-            ? this.todaysSettingsTable(model, todaysValues)
+            ? this.todaysSettingsTable(model, todaysValues, 'todaysSettings')
             : ''}
           {settingsTableDiv(
             this.state.modelData,
             this.options.checkModelOnEdit,
             parentCallbacks,
+            '',
           )}
           <p />
 
@@ -2641,6 +2646,7 @@ export class AppContent extends Component<AppProps, AppState> {
           this.state.modelData,
           this.options.checkModelOnEdit,
           parentCallbacks,
+          '',
         )}
         <p />
         {collapsibleFragment(
@@ -2674,6 +2680,7 @@ export class AppContent extends Component<AppProps, AppState> {
           custom,
           'Custom transactions',
           parentCallbacks,
+          'customTransactions',
         )}
         {transactionFilteredTable(
           this.state.modelData,
@@ -2681,6 +2688,7 @@ export class AppContent extends Component<AppProps, AppState> {
           autogen,
           'Auto-generated transactions',
           parentCallbacks,
+          'autogenTransactions',
         )}
         {transactionFilteredTable(
           this.state.modelData,
@@ -2688,6 +2696,7 @@ export class AppContent extends Component<AppProps, AppState> {
           bondInvest,
           'Bond transactions',
           parentCallbacks,
+          'bondTransactions',
         )}
         <p />
         <div className="addNewTransaction">

@@ -604,7 +604,7 @@ export function incomesChartDivWithButtons(
     return (
       <>
         <ReactiveTextArea
-          identifier="incomeDataDump"
+          identifier="incomeChartDataDump"
           message={showObj(incomesChartData)}
         />
         {noDataToDisplayFragment('income', model, parentCallbacks)}
@@ -618,7 +618,7 @@ export function incomesChartDivWithButtons(
         }}
       >
         <ReactiveTextArea
-          identifier="incomeDataDump"
+          identifier="incomeChartDataDump"
           message={showObj(incomesChartData)}
         />
         {filtersList(model.incomes, settings, Context.Income, false)}
@@ -668,7 +668,7 @@ export function expensesChartDivWithButtons(
     return (
       <>
         <ReactiveTextArea
-          identifier="expenseDataDump"
+          identifier="expenseChartDataDump"
           message={showObj(expensesChartData)}
         />
         {noDataToDisplayFragment('expense', model, parentCallbacks)}
@@ -682,7 +682,7 @@ export function expensesChartDivWithButtons(
         }}
       >
         <ReactiveTextArea
-          identifier="expenseDataDump"
+          identifier="expenseChartDataDump"
           message={showObj(expensesChartData)}
         />
         {filtersList(model.expenses, settings, Context.Expense, false)}
@@ -756,7 +756,7 @@ export function assetsOrDebtsChartDivWithButtons(
     }).length === 0
   ) {
     const word = isDebt ? 'debt' : 'asset';
-    const dataDumpName = `${word}DataDump`;
+    const dataDumpName = `${word}ChartDataDump`;
     return (
       <>
         <ReactiveTextArea
@@ -783,7 +783,7 @@ export function assetsOrDebtsChartDivWithButtons(
         {assetViewTypeList(viewSettings)}
         {coarseFineList(viewSettings, assetChartData, parentCallbacks)}
         <ReactiveTextArea
-          identifier={isDebt ? 'debtDataDump' : 'assetDataDump'}
+          identifier={isDebt ? 'debtChartDataDump' : 'assetChartDataDump'}
           message={showObj(assetChartData)}
         />
         {assetsOrDebtsChartDiv(

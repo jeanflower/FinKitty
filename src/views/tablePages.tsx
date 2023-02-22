@@ -959,6 +959,7 @@ export function assetsOrDebtsTableDiv(
   doChecks: boolean,
   isDebt: boolean,
   parentCallbacks: ViewCallbacks,
+  tableID: string,
 ) {
   return (
     <div
@@ -969,6 +970,7 @@ export function assetsOrDebtsTableDiv(
       <fieldset>
         <div className="dataGridAssets">
           <DataGridFinKitty
+            tableID={tableID}
             handleGridRowsUpdated={function () {
               return handleAssetGridRowsUpdated(
                 model,
@@ -1333,6 +1335,7 @@ export function transactionsTableDiv(
   type: string,
   headingText: string,
   parentCallbacks: ViewCallbacks,
+  tableID: string,
 ) {
   if (contents.length === 0) {
     return <></>;
@@ -1384,6 +1387,7 @@ export function transactionsTableDiv(
       */}
 
       <DataGridFinKitty
+        tableID={tableID}
         handleGridRowsUpdated={function () {
           return handleTransactionGridRowsUpdated(
             model,
@@ -1418,6 +1422,7 @@ export function transactionFilteredTable(
   type: string,
   headingText: string,
   parentCallbacks: ViewCallbacks,
+  tableID: string,
 ) {
   const contents = transactionsForTable(model, type, parentCallbacks);
   return transactionsTableDiv(
@@ -1427,6 +1432,7 @@ export function transactionFilteredTable(
     type,
     headingText,
     parentCallbacks,
+    tableID,
   );
 }
 
@@ -1435,6 +1441,7 @@ export function debtsDivWithHeadings(
   todaysDebtValues: Map<Asset, AssetOrDebtVal>,
   doChecks: boolean,
   parentCallbacks: ViewCallbacks,
+  tableIDEnding: string,
 ) {
   const debtData = assetsOrDebtsForTable(
     model,
@@ -1448,7 +1455,14 @@ export function debtsDivWithHeadings(
   return (
     <>
       {collapsibleFragment(
-        assetsOrDebtsTableDiv(model, debtData, doChecks, true, parentCallbacks),
+        assetsOrDebtsTableDiv(
+          model,
+          debtData,
+          doChecks,
+          true,
+          parentCallbacks,
+          `debts${tableIDEnding}`,
+        ),
         'Debt definitions',
       )}
       {transactionFilteredTable(
@@ -1457,6 +1471,7 @@ export function debtsDivWithHeadings(
         revalueDebt,
         'Revalue debts',
         parentCallbacks,
+        `debtRevals${tableIDEnding}`,
       )}
       {transactionFilteredTable(
         model,
@@ -1464,6 +1479,7 @@ export function debtsDivWithHeadings(
         payOffDebt,
         'Pay off debts',
         parentCallbacks,
+        `payoffDebts${tableIDEnding}`,
       )}
     </>
   );
@@ -1474,6 +1490,7 @@ export function assetsDivWithHeadings(
   todaysAssetValues: Map<Asset, AssetOrDebtVal>,
   doChecks: boolean,
   parentCallbacks: ViewCallbacks,
+  tableIDEnding: string,
 ) {
   const assetData = assetsOrDebtsForTable(
     model,
@@ -1493,6 +1510,7 @@ export function assetsDivWithHeadings(
           doChecks,
           false,
           parentCallbacks,
+          `assets${tableIDEnding}`,
         ),
         `Asset definition table`,
       )}
@@ -1502,6 +1520,7 @@ export function assetsDivWithHeadings(
         liquidateAsset,
         'Liquidate assets to keep cash afloat',
         parentCallbacks,
+        `liquidateAssets${tableIDEnding}`,
       )}
       {transactionFilteredTable(
         model,
@@ -1509,6 +1528,7 @@ export function assetsDivWithHeadings(
         revalueAsset,
         'Revalue assets',
         parentCallbacks,
+        `assetsRevals${tableIDEnding}`,
       )}
     </>
   );
@@ -1541,6 +1561,7 @@ function triggersTableDiv(
   trigData: any[],
   doChecks: boolean,
   parentCallbacks: ViewCallbacks,
+  tableID: string,
 ) {
   return (
     <div
@@ -1551,6 +1572,7 @@ function triggersTableDiv(
       <fieldset>
         <div className="dataGridTriggers">
           <DataGridFinKitty
+            tableID={tableID}
             deleteFunction={deleteTrigger}
             setFavouriteFunction={setFavouriteTrigger}
             handleGridRowsUpdated={function () {
@@ -1603,13 +1625,20 @@ export function triggersTableDivWithHeading(
   model: ModelData,
   doChecks: boolean,
   parentCallbacks: ViewCallbacks,
+  tableIDEnding: string,
 ) {
   const trigData = triggersForTable(model, parentCallbacks);
   if (trigData.length === 0) {
     return;
   }
   return collapsibleFragment(
-    triggersTableDiv(model, trigData, doChecks, parentCallbacks),
+    triggersTableDiv(
+      model,
+      trigData,
+      doChecks,
+      parentCallbacks,
+      `triggers${tableIDEnding}`,
+    ),
     `Important dates`,
   );
 }
@@ -1664,6 +1693,7 @@ function incomesTableDiv(
   incData: any[],
   doChecks: boolean,
   parentCallbacks: ViewCallbacks,
+  tableID: string,
 ) {
   if (incData.length === 0) {
     return;
@@ -1767,6 +1797,7 @@ function incomesTableDiv(
       <fieldset>
         <div className="dataGridIncomes">
           <DataGridFinKitty
+            tableID={tableID}
             deleteFunction={deleteIncome}
             setFavouriteFunction={setFavouriteIncome}
             handleGridRowsUpdated={function () {
@@ -1799,7 +1830,7 @@ export function incomesTableDivWithHeading(
     return;
   }
   return collapsibleFragment(
-    incomesTableDiv(model, incData, doChecks, parentCallbacks),
+    incomesTableDiv(model, incData, doChecks, parentCallbacks, 'incomesTable'),
     `Income definitions`,
   );
 }
@@ -1852,6 +1883,7 @@ function expensesTableDiv(
   expData: any[],
   doChecks: boolean,
   parentCallbacks: ViewCallbacks,
+  tableID: string,
 ) {
   let cols = [
     /*
@@ -1959,6 +1991,7 @@ function expensesTableDiv(
       <fieldset>
         <div className="dataGridExpenses">
           <DataGridFinKitty
+            tableID={tableID}
             deleteFunction={deleteExpense}
             setFavouriteFunction={setFavouriteExpense}
             handleGridRowsUpdated={function () {
@@ -1985,13 +2018,20 @@ export function expensesTableDivWithHeading(
   todaysValues: Map<Expense, ExpenseVal>,
   doChecks: boolean,
   parentCallbacks: ViewCallbacks,
+  tableIDEnding: string,
 ) {
   const expData = expensesForTable(model, todaysValues, parentCallbacks);
   if (expData.length === 0) {
     return;
   }
   return collapsibleFragment(
-    expensesTableDiv(model, expData, doChecks, parentCallbacks),
+    expensesTableDiv(
+      model,
+      expData,
+      doChecks,
+      parentCallbacks,
+      `expenses${tableIDEnding}`,
+    ),
     `Expense definitions`,
   );
 }
@@ -2052,12 +2092,14 @@ function customSettingsTable(
   constSettings: any[],
   doChecks: boolean,
   parentCallbacks: ViewCallbacks,
+  tableID: string,
 ) {
   if (constSettings.length === 0) {
     return;
   }
   return (
     <DataGridFinKitty
+      tableID={tableID}
       deleteFunction={deleteSetting}
       setFavouriteFunction={setFavouriteSetting}
       handleGridRowsUpdated={function () {
@@ -2107,12 +2149,14 @@ function adjustSettingsTable(
   adjustSettings: any[],
   doChecks: boolean,
   parentCallbacks: ViewCallbacks,
+  tableID: string,
 ) {
   if (adjustSettings.length === 0) {
     return;
   }
   return (
     <DataGridFinKitty
+      tableID={tableID}
       deleteFunction={deleteSetting}
       setFavouriteFunction={setFavouriteSetting}
       handleGridRowsUpdated={function () {
@@ -2184,8 +2228,20 @@ function settingsTables(
 
   return collapsibleFragment(
     <>
-      {customSettingsTable(model, constSettings, doChecks, parentCallbacks)}
-      {adjustSettingsTable(model, adjustSettings, doChecks, parentCallbacks)}
+      {customSettingsTable(
+        model,
+        constSettings,
+        doChecks,
+        parentCallbacks,
+        'customSettingsTable',
+      )}
+      {adjustSettingsTable(
+        model,
+        adjustSettings,
+        doChecks,
+        parentCallbacks,
+        'adjustableSettingsTable',
+      )}
     </>,
     `Other settings affecting the model`,
   );
@@ -2195,6 +2251,7 @@ export function settingsTableDiv(
   model: ModelData,
   doChecks: boolean,
   parentCallbacks: ViewCallbacks,
+  tableIDEnding: string,
 ) {
   return (
     <div
@@ -2205,6 +2262,7 @@ export function settingsTableDiv(
     >
       {collapsibleFragment(
         <DataGridFinKitty
+          tableID={`settings${tableIDEnding}`}
           deleteFunction={deleteSetting}
           setFavouriteFunction={setFavouriteSetting}
           handleGridRowsUpdated={function () {
@@ -2264,6 +2322,7 @@ export function settingsTableDiv(
         revalueSetting,
         'Revalue settings',
         parentCallbacks,
+        'settingsRevalsTable',
       )}
     </div>
   );
@@ -2277,6 +2336,7 @@ export function reportDiv(
   reportIncludesSettings: boolean,
   reportIncludesExpenses: boolean,
   reportData: ReportDatum[],
+  tableID: string,
 ) {
   if (!getDisplay(reportView)) {
     // log(`don't populate reportView`);
@@ -2335,6 +2395,7 @@ export function reportDiv(
         reportIncludesExpenses={reportIncludesExpenses}
       />
       <DataGridFinKitty
+        tableID={tableID}
         deleteFunction={undefined}
         setFavouriteFunction={undefined}
         handleGridRowsUpdated={function () {
@@ -2602,6 +2663,7 @@ export function optimizerDiv(
   settings: ViewSettings,
   cd: ChartData,
   parentCallbacks: ViewCallbacks,
+  tableID: string,
 ) {
   if (!getDisplay(optimizerView)) {
     return;
@@ -2638,8 +2700,10 @@ export function optimizerDiv(
         ),
         true,
         parentCallbacks,
+        'variableSettingsTable',
       )}
       <DataGridFinKitty
+        tableID={tableID}
         deleteFunction={undefined}
         setFavouriteFunction={undefined}
         handleGridRowsUpdated={function () {

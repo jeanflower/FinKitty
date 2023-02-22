@@ -1,3 +1,4 @@
+#!/bin/bash
 if [ -z "$2" ]
 then
       echo "Run test(s) matching: $1"

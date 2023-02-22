@@ -526,7 +526,7 @@ DB_TRANSFERRED_STOP
           </Col>{' '}
           <Col>
             <Input
-              title="Is contribution salary-sacrificed (optional)"
+              title="Is contribution salary-sacrificed"
               type="text"
               name="contributionSSIncome"
               value={this.state.DB_SS}
@@ -880,7 +880,7 @@ DB_TRANSFERRED_STOP
           if (incomeTaxWord !== inputLiability) {
             log(`${incomeTaxWord} !== ${inputLiability}`);
             this.props.showAlert(
-              `Source income '${sourceIncome.NAME}' should have income tax liability ${inputLiability}`,
+              `Source income '${sourceIncome.NAME}' should have income tax liability matching '${inputLiability}'`,
             );
             return;
           }

@@ -53,9 +53,14 @@ function addToMap(
   }
 }
 
-function makeDataGrid(myMap: Map<Asset, AssetOrDebtVal>, model: ModelData) {
+function makeDataGrid(
+  myMap: Map<Asset, AssetOrDebtVal>,
+  model: ModelData,
+  tableID: string,
+) {
   return (
     <DataGridFinKitty
+      tableID={tableID}
       deleteFunction={undefined}
       setFavouriteFunction={undefined}
       handleGridRowsUpdated={function () {
@@ -144,7 +149,7 @@ export function todaysDebtsTable(
   return (
     <>
       {collapsibleFragment(
-        makeDataGrid(categorisedValues, model),
+        makeDataGrid(categorisedValues, model, 'todaysDebtsTable'),
         `Debt values (categorised) at ${dateAsString(
           DateFormatType.View,
           today,
@@ -180,7 +185,13 @@ export function debtsDiv(
         ),
         'Debts data chart',
       )}
-      {debtsDivWithHeadings(model, todaysDebtValues, doChecks, parentCallbacks)}
+      {debtsDivWithHeadings(
+        model,
+        todaysDebtValues,
+        doChecks,
+        parentCallbacks,
+        '',
+      )}
       {todaysDebtsTable(model, todaysDebtValues)}
       {collapsibleFragment(
         <div className="addNewDebt">

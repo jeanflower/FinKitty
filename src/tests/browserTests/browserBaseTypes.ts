@@ -1,4 +1,4 @@
-import { log, printDebug } from '../../utils/utils';
+import { log, printDebug, showObj } from '../../utils/utils';
 import webdriver, { ThenableWebDriver, Key } from 'selenium-webdriver';
 import {
   homeTag,
@@ -7,7 +7,14 @@ import {
   expensesTag,
   gotoTabPage,
   incomesTag,
+  reportTag,
+  settingsTag,
+  datesTag,
+  transactionsTag,
+  overviewTag,
 } from './browserTestUtils';
+
+showObj;
 
 export function allowExtraSleeps() {
   if (
@@ -338,7 +345,7 @@ export function makeTestCode(ary: any) {
 export function writeTestCode(ary: any) {
   log(makeTestCode(ary));
 }
-export async function getChartData(driver: ThenableWebDriver, label: string) {
+export async function getDumpedData(driver: ThenableWebDriver, label: string) {
   // locate the asset text dump
   const divElement = await driver.findElement(webdriver.By.id(label));
   // extract the content
@@ -349,7 +356,7 @@ export async function getChartData(driver: ThenableWebDriver, label: string) {
   return ary;
 }
 
-async function getTypedChartData(
+async function getTypedDumpData(
   driver: ThenableWebDriver,
   switchButtonID: string,
   dataDumpName: string,
@@ -361,17 +368,41 @@ async function getTypedChartData(
   if (allowExtraSleeps()) {
     await sleep(shortSleep, '--- after switching to correct context');
   }
-  return getChartData(driver, dataDumpName);
+  return await getDumpedData(driver, dataDumpName);
 }
-export async function getAssetChartData(driver: ThenableWebDriver) {
-  return getTypedChartData(driver, assetsTag, 'assetDataDump');
-}
-export async function getDebtChartData(driver: ThenableWebDriver) {
-  return getTypedChartData(driver, debtsTag, 'debtDataDump');
-}
-export async function getExpenseChartData(driver: ThenableWebDriver) {
-  return getTypedChartData(driver, expensesTag, 'expenseDataDump');
-}
-export async function getIncomeChartData(driver: ThenableWebDriver) {
-  return getTypedChartData(driver, incomesTag, 'incomeDataDump');
+
+export async function getDataDumpFromPage(
+  driver: ThenableWebDriver,
+  type: string,
+) {
+  const pageForDataDump = new Map<string, string>();
+  pageForDataDump.set('assetChartDataDump', assetsTag);
+  pageForDataDump.set('debtChartDataDump', debtsTag);
+  pageForDataDump.set('expenseChartDataDump', expensesTag);
+  pageForDataDump.set('incomeChartDataDump', incomesTag);
+  pageForDataDump.set('debtChartDataDump', debtsTag);
+  pageForDataDump.set('assetsTableDataDump', assetsTag);
+  pageForDataDump.set('assetsOverviewTableDataDump', overviewTag);
+  pageForDataDump.set('debtsTableDataDump', debtsTag);
+  pageForDataDump.set('debtsOverviewTableDataDump', overviewTag);
+  pageForDataDump.set('reportTableDataDump', reportTag);
+  pageForDataDump.set('todaysSettingsTableDataDump', settingsTag);
+  pageForDataDump.set('settingsTableDataDump', settingsTag);
+  pageForDataDump.set('settingsTableOverviewDataDump', overviewTag);
+  pageForDataDump.set('triggersTableDataDump', datesTag);
+  pageForDataDump.set('triggersTableOverviewDataDump', overviewTag);
+  pageForDataDump.set('customTransactionsTableDataDump', transactionsTag);
+  pageForDataDump.set('customTransactionsOverviewTableDataDump', overviewTag);
+  pageForDataDump.set('autogenTransactionsTableDataDump', transactionsTag);
+  pageForDataDump.set('autogenTransactionsOverviewTableDataDump', overviewTag);
+  pageForDataDump.set('bondTransactionsTableDataDump', transactionsTag);
+  pageForDataDump.set('bondTransactionsOverviewTableDataDump', overviewTag);
+
+  const tag = `${type}DataDump`;
+  const page = pageForDataDump.get(tag);
+  if (page === undefined) {
+    throw new Error(`page should be defined for ${tag}`);
+  } else {
+    return getTypedDumpData(driver, page, tag);
+  }
 }

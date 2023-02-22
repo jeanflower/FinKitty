@@ -32,16 +32,16 @@ import {
   transactionInputs,
   transactionsTag,
   quitAfterAll,
+  reportTag,
+  debtsTag,
 } from './browserTestUtils';
 import {
   getDriver,
   beforeAllWork,
   cleanUpWork,
   clickButton,
-  getAssetChartData,
-  getExpenseChartData,
-  getIncomeChartData,
   writeTestCode,
+  getDataDumpFromPage,
 } from './browserBaseTypes';
 
 import webdriver from 'selenium-webdriver';
@@ -125,7 +125,7 @@ describe(testName, () => {
     await gotoTabPage(driver, assetsTag);
     await clickButton(driver, 'chooseViewFrequencyTypeMonthly');
 
-    let ary = await getAssetChartData(driver);
+    let ary = await getDataDumpFromPage(driver, 'assetChart');
     // console.log(`ary = ${JSON.stringify(ary)}`);
 
     // writeTestCode(ary);
@@ -146,7 +146,7 @@ describe(testName, () => {
 
     // log('submitted new roi setting');
 
-    ary = await getAssetChartData(driver);
+    ary = await getDataDumpFromPage(driver, 'assetChart');
     // console.log(`ary = ${JSON.stringify(ary)}`);
 
     //if (debug) {
@@ -202,7 +202,7 @@ describe(testName, () => {
     await gotoTabPage(driver, assetsTag);
     await clickButton(driver, 'chooseViewFrequencyTypeMonthly');
 
-    let ary = await getAssetChartData(driver);
+    let ary = await getDataDumpFromPage(driver, 'assetChart');
     // writeTestCode(ary);
 
     expect(ary.labels.length).toEqual(4);
@@ -227,7 +227,7 @@ describe(testName, () => {
     await gotoTabPage(driver, expensesTag);
     await clickButton(driver, 'chooseViewFrequencyTypeMonthly');
 
-    ary = await getExpenseChartData(driver);
+    ary = await getDataDumpFromPage(driver, 'expenseChart');
     // writeTestCode(ary);
 
     expect(ary.labels.length).toEqual(4);
@@ -252,7 +252,7 @@ describe(testName, () => {
     await gotoTabPage(driver, incomesTag);
     await clickButton(driver, 'chooseViewFrequencyTypeMonthly');
 
-    ary = await getIncomeChartData(driver);
+    ary = await getDataDumpFromPage(driver, 'incomeChart');
     // writeTestCode(ary);
 
     expect(ary.labels.length).toEqual(4);
@@ -294,7 +294,7 @@ describe(testName, () => {
     await gotoTabPage(driver, assetsTag);
     await clickButton(driver, 'chooseViewFrequencyTypeMonthly');
 
-    let ary = await getAssetChartData(driver);
+    let ary = await getDataDumpFromPage(driver, 'assetChart');
     // writeTestCode(ary);
 
     expect(ary.labels.length).toEqual(4);
@@ -325,7 +325,7 @@ describe(testName, () => {
     await gotoTabPage(driver, expensesTag);
     await clickButton(driver, 'chooseViewFrequencyTypeMonthly');
 
-    ary = await getExpenseChartData(driver);
+    ary = await getDataDumpFromPage(driver, 'expenseChart');
     // writeTestCode(ary);
 
     expect(ary.labels.length).toEqual(4);
@@ -356,7 +356,7 @@ describe(testName, () => {
     await gotoTabPage(driver, incomesTag);
     await clickButton(driver, 'chooseViewFrequencyTypeMonthly');
 
-    ary = await getIncomeChartData(driver);
+    ary = await getDataDumpFromPage(driver, 'incomeChart');
     // writeTestCode(ary);
 
     expect(ary.labels.length).toEqual(4);
@@ -406,7 +406,7 @@ describe(testName, () => {
     await gotoTabPage(driver, assetsTag);
     await clickButton(driver, 'chooseViewFrequencyTypeMonthly');
 
-    let ary = await getAssetChartData(driver);
+    let ary = await getDataDumpFromPage(driver, 'assetChart');
     // writeTestCode(ary);
 
     expect(ary.labels.length).toEqual(4);
@@ -430,7 +430,7 @@ describe(testName, () => {
     });
     await gotoTabPage(driver, assetsTag);
 
-    ary = await getAssetChartData(driver);
+    ary = await getDataDumpFromPage(driver, 'assetChart');
 
     // writeTestCode(ary);
 
@@ -467,7 +467,7 @@ describe(testName, () => {
     });
     await gotoTabPage(driver, assetsTag);
 
-    ary = await getAssetChartData(driver);
+    ary = await getDataDumpFromPage(driver, 'assetChart');
     // writeTestCode(ary);
 
     expect(ary.labels.length).toEqual(4);
@@ -497,7 +497,7 @@ describe(testName, () => {
     });
     await gotoTabPage(driver, assetsTag);
 
-    ary = await getAssetChartData(driver);
+    ary = await getDataDumpFromPage(driver, 'assetChart');
     // writeTestCode(ary);
 
     expect(ary.labels.length).toEqual(4);
@@ -565,7 +565,7 @@ describe(testName, () => {
     await gotoTabPage(driver, assetsTag);
     await clickButton(driver, 'chooseViewFrequencyTypeMonthly');
 
-    const ary = await getAssetChartData(driver);
+    const ary = await getDataDumpFromPage(driver, 'assetChart');
     // writeTestCode(ary);
 
     expect(ary.labels.length).toEqual(4);
@@ -592,7 +592,7 @@ describe(testName, () => {
 
   it('should navigate headers', async () => {
     //log(`navigate headers test`);
-    const testDataModelName = 'BrowserTestSimple08';
+    const testDataModelName = 'should navigate headers test';
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -601,12 +601,16 @@ describe(testName, () => {
 
     await gotoTabPage(driver, homeTag);
     await gotoTabPage(driver, overviewTag);
-    await gotoTabPage(driver, datesTag);
     await gotoTabPage(driver, incomesTag);
-    await gotoTabPage(driver, assetsTag);
-    await gotoTabPage(driver, transactionsTag);
     await gotoTabPage(driver, expensesTag);
+    await gotoTabPage(driver, assetsTag);
+    await gotoTabPage(driver, debtsTag);
     await gotoTabPage(driver, taxTag);
+    await gotoTabPage(driver, datesTag);
+    await gotoTabPage(driver, transactionsTag);
+    await gotoTabPage(driver, reportTag);
+    //await gotoTabPage(driver, optimizerTag); // needs 'variable' setting
+    //await sleep(2000, 'wait');
     await gotoTabPage(driver, settingsTag);
 
     await cleanUpWork(driver, testDataModelName);
@@ -706,7 +710,7 @@ describe(testName, () => {
 
     // scrolling
 
-    const ary = await getAssetChartData(driver);
+    const ary = await getDataDumpFromPage(driver, 'assetChart');
     // log(`ary = ${showObj(ary)}`);
 
     // writeTestCode(ary);
@@ -889,7 +893,7 @@ describe(testName, () => {
 
     // scrolling
 
-    let ary = await getAssetChartData(driver);
+    let ary = await getDataDumpFromPage(driver, 'assetChart');
     //log(`ary = ${showObj(ary)}`);
 
     // writeTestCode(ary);
@@ -953,7 +957,7 @@ describe(testName, () => {
       message: `added new transaction`,
     });
 
-    ary = await getAssetChartData(driver);
+    ary = await getDataDumpFromPage(driver, 'assetChart');
     // writeTestCode(ary);
 
     expect(ary.labels.length).toEqual(15);
@@ -1006,7 +1010,7 @@ describe(testName, () => {
       message: `added new transaction`,
     });
 
-    ary = await getAssetChartData(driver);
+    ary = await getDataDumpFromPage(driver, 'assetChart');
     // writeTestCode(ary);
 
     expect(ary.labels.length).toEqual(15);
@@ -1063,7 +1067,7 @@ describe(testName, () => {
         `a proportional transaction to a word-valued asset`,
     });
 
-    ary = await getAssetChartData(driver);
+    ary = await getDataDumpFromPage(driver, 'assetChart');
     // writeTestCode(ary);
 
     AUTO_GENERATED_TEST_CODE: expect(ary.labels.length).toEqual(15);
@@ -1118,7 +1122,7 @@ describe(testName, () => {
       message: `added new transaction`,
     });
 
-    ary = await getAssetChartData(driver);
+    ary = await getDataDumpFromPage(driver, 'assetChart');
 
     // writeTestCode(ary);
 

@@ -53,9 +53,14 @@ function addToMap(name: Income, val: IncomeVal, myMap: Map<Income, IncomeVal>) {
   }
 }
 
-function makeDataGrid(myMap: Map<Income, IncomeVal>, model: ModelData) {
+function makeDataGrid(
+  myMap: Map<Income, IncomeVal>,
+  model: ModelData,
+  tableID: string,
+) {
   return (
     <DataGridFinKitty
+      tableID={tableID}
       deleteFunction={undefined}
       setFavouriteFunction={undefined}
       handleGridRowsUpdated={function () {
@@ -152,7 +157,7 @@ export function todaysIncomesTable(
   return (
     <>
       {collapsibleFragment(
-        makeDataGrid(categorisedValues, model),
+        makeDataGrid(categorisedValues, model, 'todaysIncomesTable'),
         `Income values (categorised) at ${dateAsString(
           DateFormatType.View,
           today,
@@ -200,6 +205,7 @@ export function incomesDiv(
         revalueInc,
         'Income revaluations',
         parentCallbacks,
+        'incomeRevalsTable',
       )}
 
       {collapsibleFragment(

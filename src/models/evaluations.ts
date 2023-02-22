@@ -4276,7 +4276,7 @@ class ValuesContainer {
           qchange: qchange,
           qoldVal: qoldVal,
           qnewVal: qnewVal,
-          date: date.toString(),
+          date: dateAsString(DateFormatType.View, date),
           source: reportSource,
         });
       }

@@ -57,9 +57,14 @@ function addToMap(
   }
 }
 
-function makeDataGrid(myMap: Map<Expense, ExpenseVal>, model: ModelData) {
+function makeDataGrid(
+  myMap: Map<Expense, ExpenseVal>,
+  model: ModelData,
+  tableID: string,
+) {
   return (
     <DataGridFinKitty
+      tableID={tableID}
       deleteFunction={undefined}
       setFavouriteFunction={undefined}
       handleGridRowsUpdated={function () {
@@ -160,7 +165,7 @@ export function todaysExpensesTable(
   return (
     <>
       {collapsibleFragment(
-        makeDataGrid(categorisedValues, model),
+        makeDataGrid(categorisedValues, model, 'todaysExpensesTable'),
         `Expense values (categorised) at ${dateAsString(
           DateFormatType.View,
           today,
@@ -200,6 +205,7 @@ export function expensesDiv(
         todaysValues,
         doChecks,
         parentCallbacks,
+        '',
       )}
       {todaysExpensesTable(model, todaysValues)}
       {transactionFilteredTable(
@@ -208,6 +214,7 @@ export function expensesDiv(
         revalueExp,
         'Expense revaluations',
         parentCallbacks,
+        'expenseRevalsTable',
       )}
       {collapsibleFragment(
         <div className="addNewExpense">

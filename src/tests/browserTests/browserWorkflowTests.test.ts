@@ -7,11 +7,11 @@ import {
   getDriver,
   clickButton,
   fillInputById,
-  getAssetChartData,
   beforeAllWork,
   cleanUpWork,
   serverUri,
   enterTextControl,
+  getDataDumpFromPage,
 } from './browserBaseTypes';
 import {
   addSetting,
@@ -125,7 +125,7 @@ async function modelExists(driver: any, name: string, exists: boolean) {
 }
 
 async function expectCashValue(driver: any, val: number) {
-  const ary = await getAssetChartData(driver);
+  const ary = await getDataDumpFromPage(driver, 'assetChart');
   if (val === 0) {
     expect(ary.datasets.length).toEqual(0);
   } else {

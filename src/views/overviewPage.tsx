@@ -161,6 +161,7 @@ function transactionsOverviewDiv(
         'Custom transactions',
         'Custom transactions',
         parentCallbacks,
+        'customTransactionsOverview',
       )}
       {transactionsTableDiv(
         autogenContents,
@@ -169,6 +170,7 @@ function transactionsOverviewDiv(
         'Auto-generated transactions',
         'Auto-generated transactions',
         parentCallbacks,
+        'autogenTransactionsOverview',
       )}
       {transactionFilteredTable(
         model,
@@ -176,6 +178,7 @@ function transactionsOverviewDiv(
         bondInvest,
         'Bond transactions',
         parentCallbacks,
+        'bondTransactionsOverview',
       )}
     </>
   );
@@ -250,7 +253,12 @@ export function overviewDiv(
       )}
       <div className={chartDataExists ? 'scrollClass resizeClass' : ''}>
         <br />
-        {triggersTableDivWithHeading(model, doChecks, parentCallbacks)}
+        {triggersTableDivWithHeading(
+          model,
+          doChecks,
+          parentCallbacks,
+          'Overview',
+        )}
         {incomesTableDivWithHeading(
           model,
           todaysIncomeValues,
@@ -263,12 +271,14 @@ export function overviewDiv(
           revalueInc,
           'Income revaluations',
           parentCallbacks,
+          'incomesRevalsOverviewTable',
         )}
         {expensesTableDivWithHeading(
           model,
           todaysExpenseValues,
           doChecks,
           parentCallbacks,
+          'Overview',
         )}
         {transactionFilteredTable(
           model,
@@ -276,21 +286,24 @@ export function overviewDiv(
           revalueExp,
           'Expense revaluations',
           parentCallbacks,
+          'expensesRevalsOverviewTable',
         )}
         {assetsDivWithHeadings(
           model,
           todaysAssetValues,
           doChecks,
           parentCallbacks,
+          'Overview',
         )}
         {debtsDivWithHeadings(
           model,
           todaysAssetValues,
           doChecks,
           parentCallbacks,
+          'Overview',
         )}
         {transactionsOverviewDiv(model, doChecks, parentCallbacks)}
-        {settingsTableDiv(model, doChecks, parentCallbacks)}
+        {settingsTableDiv(model, doChecks, parentCallbacks, 'Overview')}
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ import { getTriggerDate } from '../../utils/stringUtils';
 import { ModelData } from '../../types/interfaces';
 import { getVarVal } from '../../models/modelUtils';
 import { DeleteResult } from '../../App';
+import ReactiveTextArea from './ReactiveTextArea';
 /**
  * Samples:
  * https://adazzle.github.io/react-data-grid/examples.html#/all-features
@@ -18,6 +19,7 @@ interface DataGridProps {
     | ((name: string, value: boolean) => Promise<boolean>)
     | undefined;
   model: ModelData;
+  tableID: string;
 }
 interface DataGridState {
   colSortIndex: string;
@@ -269,18 +271,24 @@ class DataGridFinKitty extends React.Component<DataGridProps, DataGridState> {
   public render() {
     this.handleSort(this.state.colSortIndex, this.state.sortDirection);
     return (
-      <ReactDataGrid
-        columns={this.props.columns}
-        rowGetter={this.rowGetter.bind(this)}
-        rowsCount={this.props.rows.length}
-        onGridRowsUpdated={this.props.handleGridRowsUpdated}
-        minHeight={this.props.rows.length * 35 + 50}
-        // minWidth={500}
-        enableCellSelect={true}
-        enableRowSelect={undefined}
-        onGridSort={this.sortHandler.bind(this)}
-        getCellActions={this.getCellActions.bind(this)}
-      />
+      <>
+        <ReactiveTextArea
+          identifier={`${this.props.tableID}TableDataDump`}
+          message={showObj(this.props.rows)}
+        />
+        <ReactDataGrid
+          columns={this.props.columns}
+          rowGetter={this.rowGetter.bind(this)}
+          rowsCount={this.props.rows.length}
+          onGridRowsUpdated={this.props.handleGridRowsUpdated}
+          minHeight={this.props.rows.length * 35 + 50}
+          // minWidth={500}
+          enableCellSelect={true}
+          enableRowSelect={undefined}
+          onGridSort={this.sortHandler.bind(this)}
+          getCellActions={this.getCellActions.bind(this)}
+        />
+      </>
     );
   }
 }

@@ -58,9 +58,14 @@ function addToMap(
   }
 }
 
-function makeDataGrid(myMap: Map<Asset, AssetOrDebtVal>, model: ModelData) {
+function makeDataGrid(
+  myMap: Map<Asset, AssetOrDebtVal>,
+  model: ModelData,
+  tableID: string,
+) {
   return (
     <DataGridFinKitty
+      tableID={tableID}
       deleteFunction={undefined}
       setFavouriteFunction={undefined}
       handleGridRowsUpdated={function () {
@@ -159,7 +164,7 @@ export function todaysAssetsTable(
   return (
     <>
       {collapsibleFragment(
-        makeDataGrid(categorisedValues, model),
+        makeDataGrid(categorisedValues, model, 'todaysAssetsTable'),
         `Asset values (categorised) at ${dateAsString(
           DateFormatType.View,
           today,
@@ -195,7 +200,13 @@ export function assetsDiv(
         ),
         'Asset data chart',
       )}
-      {assetsDivWithHeadings(model, todaysValues, doChecks, parentCallbacks)}
+      {assetsDivWithHeadings(
+        model,
+        todaysValues,
+        doChecks,
+        parentCallbacks,
+        '',
+      )}
       {todaysAssetsTable(model, todaysValues)}
       {collapsibleFragment(
         <div className="addNewAsset">

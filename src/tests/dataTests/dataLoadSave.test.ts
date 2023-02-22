@@ -19,6 +19,7 @@ import {
 } from '../../database/loadSaveModel';
 import { CASH_ASSET_NAME } from '../../localization/stringConstants';
 import {
+  getMinimalModelCopy,
   simpleAsset,
   simpleExpense,
   simpleIncome,
@@ -52,17 +53,25 @@ describe('load save tests', () => {
       log('starting test');
     }
     const userName = 'TestUserID';
+
+    // log(`cache has ${getCacheCount()} elements`);
+    let names = await getModelNames(userName);
+    // log(`cache has ${getCacheCount()} elements`);
+    if (names.length === 0) {
+      await saveModelToDBLSM(
+        userName,
+        'NeedAModelForLoadSaveTests',
+        getMinimalModelCopy(),
+      );
+      names = await getModelNames(userName);
+    }
+
+    expect(names.length).toBeGreaterThan(0);
+
     const junkUserName = 'junkjunkjunk';
     const junkUserName2 = 'junkjunkjunk2';
     const junkUserName3 = 'junkjunkjunk3';
     const junkModelName = 'junkjunkjunk';
-
-    // log(`cache has ${getCacheCount()} elements`);
-    const names = await getModelNames(userName);
-    // log(`cache has ${getCacheCount()} elements`);
-
-    // log(`names are ${names}`);
-    expect(names.length).toBeGreaterThan(0);
 
     await deleteModel(userName, junkModelName, false);
     await deleteModel(junkUserName, junkModelName, false);

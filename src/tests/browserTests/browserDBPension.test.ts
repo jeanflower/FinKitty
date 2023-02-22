@@ -7,6 +7,7 @@ import {
   gotoTabPage,
   incomesTag,
   quitAfterAll,
+  transactionsTag,
 } from './browserTestUtils';
 import {
   getDriver,
@@ -14,7 +15,11 @@ import {
   clickButton,
   cleanUpWork,
   scrollIntoViewByID,
+  getDataDumpFromPage,
 } from './browserBaseTypes';
+import { showObj } from '../../utils/utils';
+
+showObj;
 
 const testName = 'BrowserDBPensionTest';
 
@@ -32,6 +37,26 @@ describe(testName, () => {
   const driver = driverSimple;
   jest.setTimeout(200000); // allow time for all these tests to run
 
+  const inputs = {
+    name: 'pensionName',
+    value: '2500',
+    valuationDate: '1 Jan 2022',
+    contributionsEndDate: '1 Jan 2025',
+    startDate: '1 Jan 2030',
+    pensionEndOrTransferDate: '1 Jan 2035',
+    transferredStopDate: '1 Jan 2040',
+    incomeSource: 'javaJob1',
+    contributionSSIncome: 'N',
+    contributionAmountPensionIncome: '0.05',
+    incomeaccrual: '0.02',
+    transferName: 'Jack',
+    transferProportion: '0.5',
+    incomeGrowth: '2.0',
+    incomecpiGrows: 'N',
+    liability: 'Joe',
+    category: 'pension',
+  };
+
   it('DB pension inputs problem path', async () => {
     const testDataModelName = 'BrowserDBPensionTest01';
     await beforeAllWork(
@@ -46,26 +71,6 @@ describe(testName, () => {
       ...incomeInputs,
       message: `added new income ${incomeInputs.name}`,
     });
-
-    const inputs = {
-      name: 'pensionName',
-      value: '2500',
-      valuationDate: '1 Jan 2022',
-      contributionsEndDate: '1 Jan 2025',
-      startDate: '1 Jan 2030',
-      pensionEndOrTransferDate: '1 Jan 2035',
-      transferredStopDate: '1 Jan 2040',
-      incomeSource: 'javaJob1',
-      contributionSSIncome: 'N',
-      contributionAmountPensionIncome: '0.05',
-      incomeaccrual: '0.02',
-      transferName: 'Jack',
-      transferProportion: '0.5',
-      incomeGrowth: '2.0',
-      incomecpiGrows: 'N',
-      liability: 'Joe',
-      category: 'pension',
-    };
 
     await scrollIntoViewByID(driver, `useDBPInputs`);
 
@@ -192,7 +197,8 @@ describe(testName, () => {
     await addDBPension(driver, {
       ...inputs,
       liability: '',
-      message: "Source income 'javaJob1' should have income tax liability",
+      message:
+        "Source income 'javaJob1' should have income tax liability matching ''",
     });
 
     await clearPensionFields(driver);
@@ -200,7 +206,7 @@ describe(testName, () => {
       ...inputs,
       liability: 'Susan',
       message:
-        "Source income 'javaJob1' should have income tax liability Susan(incomeTax)",
+        "Source income 'javaJob1' should have income tax liability matching 'Susan(incomeTax)'",
     });
 
     await cleanUpWork(driver, testDataModelName);
@@ -227,32 +233,112 @@ describe(testName, () => {
     await clickButton(driver, 'useDBPInputs');
     // console.log(`clicked...`);
 
-    const inputs = {
-      name: 'pensionName',
-      value: '2500',
-      valuationDate: '1 Jan 2022',
-      contributionsEndDate: '1 Jan 2025',
-      startDate: '1 Jan 2030',
-      pensionEndOrTransferDate: '1 Jan 2035',
-      transferredStopDate: '1 Jan 2040',
-      incomeSource: 'javaJob1',
-      contributionSSIncome: 'N',
-      contributionAmountPensionIncome: '0.05',
-      incomeaccrual: '0.02',
-      transferName: 'Jack',
-      transferProportion: '0.5',
-      incomeGrowth: '2.0',
-      incomecpiGrows: 'N',
-      liability: 'Joe',
-      category: 'pension',
-    };
-
     await addDBPension(driver, {
       ...inputs,
       name: 'TeachersPensionScheme',
       message: 'added new data', // TODO "added pension information",
     });
 
+    await gotoTabPage(driver, transactionsTag);
+    let data = await getDataDumpFromPage(driver, 'autogenTransactionsTable');
+    expect(data.length).toBe(3);
+    expect(data[0]).toEqual({
+      DATE: '1 Jan 2035',
+      FROM: '-PDB TeachersPensionScheme',
+      FROM_VALUE: '100%',
+      NAME: '-PT TeachersPensionScheme',
+      FAVOURITE: true,
+      TO: '-PT TeachersPensionScheme',
+      TO_VALUE: '50%',
+      STOP_DATE: '1 Jan 2040',
+      RECURRENCE: '',
+      TYPE: 'auto',
+      CATEGORY: 'pension',
+      index: 0,
+    });
+    expect(data[2]).toEqual({
+      DATE: '1 Jan 2022',
+      FROM: 'javaJob1',
+      FROM_VALUE: '0.16666666666666669%',
+      NAME: '-PDB TeachersPensionScheme',
+      FAVOURITE: true,
+      TO: '-PDB TeachersPensionScheme',
+      TO_VALUE: '100%',
+      STOP_DATE: '1 Jan 2025',
+      RECURRENCE: '',
+      TYPE: 'auto',
+      CATEGORY: 'pension',
+      index: 2,
+    });
+    data = await getDataDumpFromPage(
+      driver,
+      'autogenTransactionsOverviewTable',
+    );
+    expect(data.length).toBe(3);
+    expect(data[0]).toEqual({
+      DATE: '1 Jan 2035',
+      FROM: '-PDB TeachersPensionScheme',
+      FROM_VALUE: '100%',
+      NAME: '-PT TeachersPensionScheme',
+      FAVOURITE: true,
+      TO: '-PT TeachersPensionScheme',
+      TO_VALUE: '50%',
+      STOP_DATE: '1 Jan 2040',
+      RECURRENCE: '',
+      TYPE: 'auto',
+      CATEGORY: 'pension',
+      index: 0,
+    });
+    expect(data[2]).toEqual({
+      DATE: '1 Jan 2022',
+      FROM: 'javaJob1',
+      FROM_VALUE: '0.16666666666666669%',
+      NAME: '-PDB TeachersPensionScheme',
+      FAVOURITE: true,
+      TO: '-PDB TeachersPensionScheme',
+      TO_VALUE: '100%',
+      STOP_DATE: '1 Jan 2025',
+      RECURRENCE: '',
+      TYPE: 'auto',
+      CATEGORY: 'pension',
+      index: 2,
+    });
+    data = await getDataDumpFromPage(driver, 'assetsTable');
+    // console.log(`data = ${showObj(data)}`);
+    expect(data.length).toBe(1);
+    expect(data[0]).toEqual({
+      GROWTH: '0%',
+      NAME: 'Cash',
+      CATEGORY: '',
+      START: '01 Jan 2017',
+      VALUE: '0',
+      QUANTITY: '',
+      LIABILITY: '',
+      PURCHASE_PRICE: '',
+      GROWS_WITH_CPI: 'No',
+      IS_A_DEBT: 'No',
+      CAN_BE_NEGATIVE: 'Yes',
+      TODAYSVALUE: '',
+      index: 0,
+    });
+    data = await getDataDumpFromPage(driver, 'assetsOverviewTable');
+    // console.log(`data = ${showObj(data)}`);
+    expect(data.length).toBe(1);
+    expect(data[0]).toEqual({
+      GROWTH: '0%',
+      NAME: 'Cash',
+      CATEGORY: '',
+      START: '01 Jan 2017',
+      VALUE: '0',
+      QUANTITY: '',
+      LIABILITY: '',
+      PURCHASE_PRICE: '',
+      GROWS_WITH_CPI: 'No',
+      IS_A_DEBT: 'No',
+      CAN_BE_NEGATIVE: 'Yes',
+      TODAYSVALUE: '',
+      index: 0,
+    });    
     await cleanUpWork(driver, testDataModelName);
   });
 
