@@ -1815,7 +1815,7 @@ export class AppContent extends Component<AppProps, AppState> {
       checkModelOnEdit: true,
       favouritesOnly: false,
 
-      uiMode: 'simpleUI',
+      uiMode: 'advancedUI',
 
       showHistorical: true,
       searchString: '',
