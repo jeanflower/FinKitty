@@ -48,6 +48,11 @@ export function lessThan(a: string, b: string) {
 }
 
 export function makeDateFromString(input: string) {
+  if (input === 'tomorrow') {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return tomorrow;
+  }
   // special-case parsing for DD/MM/YYYY
   let regex = /^\d{1,2}\/\d{1,2}\/\d{4}$/;
   if (input.match(regex) !== null) {
