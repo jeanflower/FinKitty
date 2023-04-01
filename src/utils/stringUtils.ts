@@ -755,23 +755,16 @@ function findMatchedTriggerDate(
   // log(`matched trigger = ${showObj(matched)}`);
   let result = undefined;
   if (matched.length !== 0) {
-    // no-use-before-define
-    /* eslint-disable */
-    const cleaned5 = {
-      cleaned: '',
-    }
     result = checkTriggerDateRecursive(
       matched[0].DATE,
       triggers,
-      varValue, 
+      varValue,
       recursionLevel + 1,
       undefined,
     );
-    if(cleanedUp !== undefined){
+    if (cleanedUp !== undefined) {
       cleanedUp.cleaned = dateString;
     }
-    /* eslint-enable */
-
     // log(`converted ${triggerName} into ${dateAsString(DateFormatType.Debug,result)}`);
   }
 

@@ -338,7 +338,7 @@ describe(testName, () => {
       CAN_BE_NEGATIVE: 'Yes',
       TODAYSVALUE: '',
       index: 0,
-    });    
+    });
     await cleanUpWork(driver, testDataModelName);
   });
 
