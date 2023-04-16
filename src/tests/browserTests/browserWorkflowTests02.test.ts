@@ -64,14 +64,14 @@ describe('BrowserWorkflowTests 02', () => {
     expect(data.length).toBe(5);
     expect(data[0]).toEqual({
       NAME: 'Type of view for asset chart',
-      TODAYSVALUE: "undefined",
+      TODAYSVALUE: 'undefined',
       VALUE: 'val',
       index: 0,
       HINT: "Asset chart uses setting '+', '-', '+-' or 'val'",
     });
     expect(data[4]).toEqual({
       NAME: 'Beginning of view range',
-      TODAYSVALUE: "undefined",
+      TODAYSVALUE: 'undefined',
       VALUE: '10 Apr 2019',
       index: 4,
       HINT: 'Date at the start of range to be plotted',
