@@ -1,5 +1,5 @@
 /* istanbul ignore file */
-import React, { Component, ReactNode, useState } from 'react';
+import React, { Component, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import {
   definedBenefitsPension,
@@ -77,11 +77,9 @@ import {
 import { loginPage, navbarContent } from './views/loginPage';
 import { screenshotsDiv } from './views/screenshotsPage';
 import {
-  defaultColumn,
   settingsTableDiv,
   transactionFilteredTable,
   triggersTableDivWithHeading,
-  addIndices,
   reportDiv,
   optimizerDiv,
   calcOptimizer,
@@ -109,11 +107,6 @@ import {
   submitIncomeLSM,
   submitSettingLSM,
 } from './database/loadSaveModel';
-import DataGridFinKitty from './views/reactComponents/DataGridFinKitty';
-import {
-  SimpleFormatter,
-  SettingFormatter,
-} from './views/reactComponents/NameFormatter';
 import { AddDeleteSettingForm } from './views/reactComponents/AddDeleteSettingForm';
 import { ReplaceWithJSONForm } from './views/reactComponents/ReplaceWithJSONForm';
 import { CreateModelForm } from './views/reactComponents/NewModelForm';
@@ -2016,6 +2009,7 @@ export class AppContent extends Component<AppProps, AppState> {
               this.state.todaysAssetValues,
               this.state.todaysIncomeValues,
               this.state.todaysExpenseValues,
+              this.state.todaysSettingValues,
               this.state.viewState,
               this.options.checkModelOnEdit,
               this.state.assetChartData,
@@ -2083,6 +2077,7 @@ export class AppContent extends Component<AppProps, AppState> {
             )}
             {optimizerDiv(
               this.state.modelData,
+              this.state.todaysSettingValues,
               this.state.viewState,
               this.state.optimizationChartData,
               parentCallbacks,
@@ -2518,68 +2513,6 @@ export class AppContent extends Component<AppProps, AppState> {
     );
   }
 
-  private todaysSettingsTable(
-    model: ModelData,
-    todaysValues: Map<Setting, SettingVal>,
-    tableID: string,
-  ): ReactNode {
-    if (todaysValues.size === 0 || !doShowTodaysValueColumns()) {
-      return <></>;
-    }
-    const today = getTodaysDate(model);
-    const rows = addIndices(
-      Array.from(todaysValues)
-        .map(([key, value]) => {
-          // log(`key[0] = ${key[0]}, key[1] = ${key[1]}`);
-          return {
-            NAME: key.NAME,
-            FAVOURITE: key.FAVOURITE,
-            VALUE: `${value.settingVal}`,
-          };
-        })
-        .sort((a: Item, b: Item) => lessThan(b.NAME, a.NAME)),
-    );
-    // log(`display ${showObj(rows)}`);
-    return collapsibleFragment(
-      <DataGridFinKitty
-        tableID={tableID}
-        deleteFunction={undefined}
-        setFavouriteFunction={undefined}
-        handleGridRowsUpdated={function () {
-          return false;
-        }}
-        rows={rows}
-        columns={[
-          /*
-          {
-            ...defaultColumn,
-            key: 'index',
-            name: 'index',
-            formatter: <SimpleFormatter name="name" value="unset" />,
-            editable: false,
-          },
-          */
-          {
-            ...defaultColumn,
-            key: 'NAME',
-            name: 'name',
-            formatter: <SimpleFormatter name="name" value="unset" />,
-            editable: false,
-          },
-          {
-            ...defaultColumn,
-            key: 'VALUE',
-            name: `value`,
-            formatter: <SettingFormatter name="value" value="unset" />,
-            editable: false,
-          },
-        ]}
-        model={model}
-      />,
-      `Settings values at ${dateAsString(DateFormatType.View, today)}`,
-    );
-  }
-
   private settingsDiv(
     model: ModelData,
     todaysValues: Map<Setting, SettingVal>,
@@ -2593,11 +2526,9 @@ export class AppContent extends Component<AppProps, AppState> {
     return (
       <div className="ml-3">
         <fieldset>
-          {doShowTodaysValueColumns()
-            ? this.todaysSettingsTable(model, todaysValues, 'todaysSettings')
-            : ''}
           {settingsTableDiv(
             this.state.modelData,
+            todaysValues,
             this.options.checkModelOnEdit,
             parentCallbacks,
             '',

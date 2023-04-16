@@ -39,18 +39,19 @@ import {
   Expense,
   Income,
   ModelData,
-  Setting,
-  Transaction,
-  Trigger,
   Item,
-  ReportDatum,
-  ReportMatcher,
   IncomeVal,
   ExpenseVal,
   AssetOrDebtVal,
   ChartData,
   ChartDataPoint,
   ItemChartData,
+  ReportDatum,
+  ReportMatcher,
+  Setting,
+  SettingVal,
+  Transaction,
+  Trigger,
   ViewCallbacks,
 } from '../types/interfaces';
 import {
@@ -769,6 +770,7 @@ export const faveColumn = {
   suppressSizeToFit: true,
   width: 40,
 };
+
 function getAssetOrDebtCols(model: ModelData, isDebt: boolean) {
   let cols: any[] = [
     /*
@@ -2050,6 +2052,7 @@ const settingsToExcludeFromTableView: string[] = [
 
 function settingsForTable(
   model: ModelData,
+  todaysValues: Map<Setting, SettingVal>,
   doShow: (s: Setting) => boolean,
   parentCallbacks: ViewCallbacks,
 ) {
@@ -2073,11 +2076,18 @@ function settingsForTable(
     })
     .map((obj: Setting) => {
       showObj(`obj = ${obj}`);
+      const todaysValkey = [...todaysValues.keys()].find((e) => {
+        return e.NAME === obj.NAME;
+      });
+      const todaysVForTable = todaysValkey
+        ? todaysValues.get(todaysValkey)
+        : undefined;
       const mapResult = {
         NAME: obj.NAME,
         FAVOURITE: obj.FAVOURITE,
         VALUE: obj.VALUE,
         HINT: obj.HINT,
+        TODAYSVALUE: `${todaysVForTable?.settingVal}`,
       };
       return mapResult;
     })
@@ -2097,6 +2107,50 @@ function customSettingsTable(
   if (constSettings.length === 0) {
     return;
   }
+  let cols = [
+    /*
+    {
+      ...defaultColumn,
+      key: 'index',
+      name: 'index',
+      formatter: <SimpleFormatter name="name" value="unset" />,
+    },
+    */
+    faveColumn,
+    {
+      ...defaultColumn,
+      key: 'NAME',
+      name: 'name',
+      formatter: <SimpleFormatter name="name" value="unset" />,
+    },
+  ];
+  if (doShowTodaysValueColumns()) {
+    cols = cols.concat([
+      {
+        ...defaultColumn,
+        key: 'TODAYSVALUE',
+        name: `value\nat ${dateAsString(
+          DateFormatType.View,
+          getTodaysDate(model),
+        )}`,
+        formatter: <SimpleFormatter name="focus value" value="unset" />,
+      },
+    ]);
+  }
+  cols = cols.concat([
+    {
+      ...defaultColumn,
+      key: 'VALUE',
+      name: 'defining value',
+      formatter: <SimpleFormatter name="defining value" value="unset" />,
+    },
+    {
+      ...defaultColumn,
+      key: 'HINT',
+      name: 'hint',
+      formatter: <SimpleFormatter name="hint" value="unset" />,
+    },
+  ]);
   return (
     <DataGridFinKitty
       tableID={tableID}
@@ -2111,35 +2165,7 @@ function customSettingsTable(
         );
       }}
       rows={constSettings}
-      columns={[
-        /*
-        {
-          ...defaultColumn,
-          key: 'index',
-          name: 'index',
-          formatter: <SimpleFormatter name="name" value="unset" />,
-        },
-        */
-        faveColumn,
-        {
-          ...defaultColumn,
-          key: 'NAME',
-          name: 'name',
-          formatter: <SimpleFormatter name="name" value="unset" />,
-        },
-        {
-          ...defaultColumn,
-          key: 'VALUE',
-          name: 'defining value',
-          formatter: <SimpleFormatter name="defining value" value="unset" />,
-        },
-        {
-          ...defaultColumn,
-          key: 'HINT',
-          name: 'hint',
-          formatter: <SimpleFormatter name="hint" value="unset" />,
-        },
-      ]}
+      columns={cols}
       model={model}
     />
   );
@@ -2184,6 +2210,16 @@ function adjustSettingsTable(
           name: 'name',
           formatter: <SimpleFormatter name="name" value="unset" />,
         },
+        // doShowTodaysValueColumns()...
+        {
+          ...defaultColumn,
+          key: 'TODAYSVALUE',
+          name: `value\nat ${dateAsString(
+            DateFormatType.View,
+            getTodaysDate(model),
+          )}`,
+          formatter: <SimpleFormatter name="focus value" value="unset" />,
+        },
         {
           ...defaultColumn,
           key: 'VALUE',
@@ -2204,11 +2240,13 @@ function adjustSettingsTable(
 
 function settingsTables(
   model: ModelData,
+  todaysValues: Map<Setting, SettingVal>,
   doChecks: boolean,
   parentCallbacks: ViewCallbacks,
 ) {
   const constSettings = settingsForTable(
     model,
+    todaysValues,
     (s) => {
       return s.TYPE === constType;
     },
@@ -2216,6 +2254,7 @@ function settingsTables(
   );
   const adjustSettings = settingsForTable(
     model,
+    todaysValues,
     (s) => {
       return s.TYPE === adjustableType;
     },
@@ -2249,6 +2288,7 @@ function settingsTables(
 
 export function settingsTableDiv(
   model: ModelData,
+  todaysValues: Map<Setting, SettingVal>,
   doChecks: boolean,
   parentCallbacks: ViewCallbacks,
   tableIDEnding: string,
@@ -2275,6 +2315,7 @@ export function settingsTableDiv(
           }}
           rows={settingsForTable(
             model,
+            todaysValues,
             (s) => {
               return s.TYPE === viewType;
             },
@@ -2315,7 +2356,7 @@ export function settingsTableDiv(
         />,
         `Settings about the view of the model`,
       )}
-      {settingsTables(model, doChecks, parentCallbacks)}
+      {settingsTables(model, todaysValues, doChecks, parentCallbacks)}
       {transactionFilteredTable(
         model,
         doChecks,
@@ -2660,6 +2701,7 @@ export function calcOptimizer(
 }
 export function optimizerDiv(
   model: ModelData,
+  todaysSettingValues: Map<Setting, SettingVal>,
   settings: ViewSettings,
   cd: ChartData,
   parentCallbacks: ViewCallbacks,
@@ -2693,6 +2735,7 @@ export function optimizerDiv(
         model,
         settingsForTable(
           model,
+          todaysSettingValues,
           (s) => {
             return s.TYPE === adjustableType && s.NAME.startsWith('variable');
           },

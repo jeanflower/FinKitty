@@ -60,29 +60,18 @@ describe('BrowserWorkflowTests 02', () => {
       index: 39,
     });
     */
-    data = await getDataDumpFromPage(driver, 'todaysSettingsTable');
-    //console.log(`data.length = ${data.length}`);
-    expect(data.length).toBe(13);
-    expect(data[0]).toEqual({
-      NAME: 'windfall',
-      VALUE: '100000',
-      index: 0,
-    });
-    expect(data[12]).toEqual({
-      NAME: 'ADSKStock',
-      VALUE: '198USD',
-      index: 12,
-    });
     data = await getDataDumpFromPage(driver, 'settingsTable');
     expect(data.length).toBe(5);
     expect(data[0]).toEqual({
       NAME: 'Type of view for asset chart',
+      TODAYSVALUE: "undefined",
       VALUE: 'val',
       index: 0,
       HINT: "Asset chart uses setting '+', '-', '+-' or 'val'",
     });
     expect(data[4]).toEqual({
       NAME: 'Beginning of view range',
+      TODAYSVALUE: "undefined",
       VALUE: '10 Apr 2019',
       index: 4,
       HINT: 'Date at the start of range to be plotted',

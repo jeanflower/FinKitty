@@ -8,6 +8,8 @@ import {
   Expense,
   Income,
   ViewCallbacks,
+  Setting,
+  SettingVal,
 } from '../types/interfaces';
 import {
   assetsDivWithHeadings,
@@ -189,6 +191,7 @@ export function overviewDiv(
   todaysAssetValues: Map<Asset, AssetOrDebtVal>,
   todaysIncomeValues: Map<Income, IncomeVal>,
   todaysExpenseValues: Map<Expense, ExpenseVal>,
+  todaysSettingValues: Map<Setting, SettingVal>,
   viewSettings: ViewSettings,
   doChecks: boolean,
   assetChartData: ChartData,
@@ -303,7 +306,13 @@ export function overviewDiv(
           'Overview',
         )}
         {transactionsOverviewDiv(model, doChecks, parentCallbacks)}
-        {settingsTableDiv(model, doChecks, parentCallbacks, 'Overview')}
+        {settingsTableDiv(
+          model,
+          todaysSettingValues,
+          doChecks,
+          parentCallbacks,
+          'Overview',
+        )}
       </div>
     </div>
   );
