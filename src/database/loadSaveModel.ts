@@ -133,7 +133,7 @@ async function fillCacheFromDB(userID: string) {
       });
       /* istanbul ignore if  */
       if (showDBInteraction) {
-        log(`got this model ${modelName}`);
+        log(`got this model ${showObj(model)}`);
       }
     } else {
       /* istanbul ignore next */

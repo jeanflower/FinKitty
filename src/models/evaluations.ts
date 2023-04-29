@@ -1704,6 +1704,7 @@ function OptimizeIncomeTax(
   if (liableIncome > bands.noTaxBand) {
     return;
   }
+  // log(`bands.noTaxBand = ${bands.noTaxBand}`);
   let unusedAllowance = bands.noTaxBand - liableIncome;
   // log(`unusedAllowance = ${unusedAllowance}`);
   // if we have unused allowance, see
@@ -1752,6 +1753,7 @@ function OptimizeIncomeTax(
 
           liableIncome = liableIncome + amountToTransfer;
           unusedAllowance = unusedAllowance - amountToTransfer;
+          // console.log(`use allowance by transferring ${amountToTransfer}`);
           setValue(
             values,
             growths,
@@ -1763,6 +1765,15 @@ function OptimizeIncomeTax(
             valueKey,
             '5', //callerID
           ); // e.g. 'CrystallizedPensionNorwich'
+
+          const gd = growthData(valueKey, growths, values);
+          if (gd.adjustForCPI) {
+            const baseVal = getNumberValue(values, getBaseForCPI(true));
+            if (baseVal !== undefined) {
+              amountToTransfer = amountToTransfer / baseVal;
+            }
+          }
+
           setValue(
             values,
             growths,

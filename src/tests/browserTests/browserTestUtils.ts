@@ -1674,7 +1674,7 @@ function assertData(
     expect(ary.labels[24]).toEqual('Thu Jan 01 2043');
     expect(ary.labels[25]).toEqual('Fri Jan 01 2044');
     expect(ary.labels[26]).toEqual('Sun Jan 01 2045');
-    expect(ary.datasets.length).toEqual(4);
+    expect(ary.datasets.length).toEqual(5);
     expect(ary.datasets[0].label).toEqual('Cash');
     expect(ary.datasets[0].data.length).toEqual(27);
     expect(ary.datasets[0].data[0]).toBeCloseTo(0, 6);
@@ -1692,18 +1692,22 @@ function assertData(
     expect(ary.datasets[0].data[12]).toBeCloseTo(174137.86, 6);
     expect(ary.datasets[0].data[13]).toBeCloseTo(187674.37, 6);
     expect(ary.datasets[0].data[14]).toBeCloseTo(201549.3, 6);
-    expect(ary.datasets[0].data[15]).toBeCloseTo(211829.6, 6);
-    expect(ary.datasets[0].data[16]).toBeCloseTo(211829.6, 6);
-    expect(ary.datasets[0].data[17]).toBeCloseTo(211829.6, 6);
-    expect(ary.datasets[0].data[18]).toBeCloseTo(211829.6, 6);
-    expect(ary.datasets[0].data[19]).toBeCloseTo(211829.6, 6);
-    expect(ary.datasets[0].data[20]).toBeCloseTo(211829.6, 6);
-    expect(ary.datasets[0].data[21]).toBeCloseTo(211829.6, 6);
-    expect(ary.datasets[0].data[22]).toBeCloseTo(211829.6, 6);
-    expect(ary.datasets[0].data[23]).toBeCloseTo(211829.6, 6);
-    expect(ary.datasets[0].data[24]).toBeCloseTo(211829.6, 6);
-    expect(ary.datasets[0].data[25]).toBeCloseTo(211829.6, 6);
-    expect(ary.datasets[0].data[26]).toBeCloseTo(211829.6, 6);
+    expect(ary.datasets[0].data[15]).toBeCloseTo(215771.1, 6);
+    expect(ary.datasets[0].data[16]).toBeCloseTo(230348.45, 6);
+    expect(ary.datasets[0].data[17]).toBeCloseTo(235773.13, 6);
+    expect(ary.datasets[0].data[18]).toBeCloseTo(237872.53, 6);
+    expect(ary.datasets[0].data[19]).toBeCloseTo(238717.39, 6);
+    expect(ary.datasets[0].data[20]).toBeCloseTo(239070.11, 6);
+    expect(ary.datasets[0].data[21]).toBeCloseTo(239222.54, 6);
+    expect(ary.datasets[0].data[22]).toBeCloseTo(239290.6, 6);
+    expect(ary.datasets[0].data[23]).toBeCloseTo(239321.94, 6);
+    expect(ary.datasets[0].data[24]).toBeCloseTo(239336.8, 6);
+    expect(ary.datasets[0].data[25]).toBeCloseTo(239344.04, 6);
+    expect(ary.datasets[0].data[26]).toBeCloseTo(239347.67, 6);
+    // swap ary.datasets[1] and ary.datasets[2]
+    let tmp =  ary.datasets[1];
+    ary.datasets[1] = ary.datasets[2];
+    ary.datasets[2] = tmp;
     expect(ary.datasets[1].label).toEqual('-CPTaxable Joe.Aegon');
     expect(ary.datasets[1].data.length).toEqual(27);
     expect(ary.datasets[1].data[0]).toBeCloseTo(0, 6);
@@ -1718,10 +1722,10 @@ function assertData(
     expect(ary.datasets[1].data[9]).toBeCloseTo(0, 6);
     expect(ary.datasets[1].data[10]).toBeCloseTo(0, 6);
     expect(ary.datasets[1].data[11]).toBeCloseTo(69796.38, 6);
-    expect(ary.datasets[1].data[12]).toBeCloseTo(53381.32, 6);
-    expect(ary.datasets[1].data[13]).toBeCloseTo(35395.08, 6);
-    expect(ary.datasets[1].data[14]).toBeCloseTo(15567.3, 6);
-    expect(ary.datasets[1].data[15]).toBeCloseTo(0, 6);
+    expect(ary.datasets[1].data[12]).toBeCloseTo(59165.73, 6);
+    expect(ary.datasets[1].data[13]).toBeCloseTo(47866.1, 6);
+    expect(ary.datasets[1].data[14]).toBeCloseTo(35708.94, 6);
+    expect(ary.datasets[1].data[15]).toBeCloseTo(22646.92, 6);
     expect(ary.datasets[1].data[16]).toBeCloseTo(0, 6);
     expect(ary.datasets[1].data[17]).toBeCloseTo(0, 6);
     expect(ary.datasets[1].data[18]).toBeCloseTo(0, 6);
@@ -1733,6 +1737,11 @@ function assertData(
     expect(ary.datasets[1].data[24]).toBeCloseTo(0, 6);
     expect(ary.datasets[1].data[25]).toBeCloseTo(0, 6);
     expect(ary.datasets[1].data[26]).toBeCloseTo(0, 6);
+    // swap ary.datasets[2] and ary.datasets[3]
+    tmp =  ary.datasets[2];
+    ary.datasets[2] = ary.datasets[3];
+    ary.datasets[3] = tmp;
+
     expect(ary.datasets[2].label).toEqual('-CPTaxFree Aegon');
     expect(ary.datasets[2].data.length).toEqual(27);
     expect(ary.datasets[2].data[0]).toBeCloseTo(0, 6);
@@ -1762,6 +1771,11 @@ function assertData(
     expect(ary.datasets[2].data[24]).toBeCloseTo(41146.2, 6);
     expect(ary.datasets[2].data[25]).toBeCloseTo(42997.78, 6);
     expect(ary.datasets[2].data[26]).toBeCloseTo(44932.68, 6);
+    // swap ary.datasets[3] and ary.datasets[4]
+    tmp =  ary.datasets[3];
+    ary.datasets[3] = ary.datasets[4];
+    ary.datasets[4] = tmp;
+
     expect(ary.datasets[3].label).toEqual('-PEN Aegon');
     expect(ary.datasets[3].data.length).toEqual(27);
     expect(ary.datasets[3].data[0]).toBeCloseTo(0, 6);
@@ -1791,6 +1805,37 @@ function assertData(
     expect(ary.datasets[3].data[24]).toBeCloseTo(0, 6);
     expect(ary.datasets[3].data[25]).toBeCloseTo(0, 6);
     expect(ary.datasets[3].data[26]).toBeCloseTo(0, 6);
+
+    expect(ary.datasets[4].label).toEqual('-CPTaxable Jack.Aegon');
+    expect(ary.datasets[4].data.length).toEqual(27);
+    expect(ary.datasets[4].data[0]).toBeCloseTo(0, 6);
+    expect(ary.datasets[4].data[1]).toBeCloseTo(0, 6);
+    expect(ary.datasets[4].data[2]).toBeCloseTo(0, 6);
+    expect(ary.datasets[4].data[3]).toBeCloseTo(0, 6);
+    expect(ary.datasets[4].data[4]).toBeCloseTo(0, 6);
+    expect(ary.datasets[4].data[5]).toBeCloseTo(0, 6);
+    expect(ary.datasets[4].data[6]).toBeCloseTo(0, 6);
+    expect(ary.datasets[4].data[7]).toBeCloseTo(0, 6);
+    expect(ary.datasets[4].data[8]).toBeCloseTo(0, 6);
+    expect(ary.datasets[4].data[9]).toBeCloseTo(0, 6);
+    expect(ary.datasets[4].data[10]).toBeCloseTo(0, 6);
+    expect(ary.datasets[4].data[11]).toBeCloseTo(0, 6);
+    expect(ary.datasets[4].data[12]).toBeCloseTo(0, 6);
+    expect(ary.datasets[4].data[13]).toBeCloseTo(0, 6);
+    expect(ary.datasets[4].data[14]).toBeCloseTo(0, 6);
+    expect(ary.datasets[4].data[15]).toBeCloseTo(0, 6);
+    expect(ary.datasets[4].data[16]).toBeCloseTo(8630.38, 6);
+    expect(ary.datasets[4].data[17]).toBeCloseTo(3423.52, 6);
+    expect(ary.datasets[4].data[18]).toBeCloseTo(1412.18, 6);
+    expect(ary.datasets[4].data[19]).toBeCloseTo(604.3, 6);
+    expect(ary.datasets[4].data[20]).toBeCloseTo(267.69, 6);
+    expect(ary.datasets[4].data[21]).toBeCloseTo(122.51, 6);
+    expect(ary.datasets[4].data[22]).toBeCloseTo(57.82, 6);
+    expect(ary.datasets[4].data[23]).toBeCloseTo(28.1, 6);
+    expect(ary.datasets[4].data[24]).toBeCloseTo(14.04, 6);
+    expect(ary.datasets[4].data[25]).toBeCloseTo(7.2, 6);
+    expect(ary.datasets[4].data[26]).toBeCloseTo(3.79, 6);
+    
     ary = debtData;expect(ary.labels.length).toEqual(27);
     expect(ary.labels[0]).toEqual('Tue Jan 01 2019');
     expect(ary.labels[1]).toEqual('Wed Jan 01 2020');
