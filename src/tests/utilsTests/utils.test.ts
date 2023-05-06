@@ -994,7 +994,7 @@ describe('utils tests', () => {
         DateFormatType.Test,
         getTriggerDate('2018-1d', [simpleTrigger], varVal),
       ),
-    ).toEqual('Sun Dec 31 2017');
+    ).toEqual('Sun Dec 31 2017'); // will fail in different locales
     expect(
       dateAsString(
         DateFormatType.Test,

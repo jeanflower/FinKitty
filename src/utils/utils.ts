@@ -39,7 +39,7 @@ export function showObj(obj: any) {
 }
 
 export function endOfTime() {
-  return makeDateFromString('2100');
+  return makeDateFromString('1 Jan 2100');
 }
 
 // Something like 12 as input (for 12%pa)
