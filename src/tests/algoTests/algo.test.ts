@@ -1115,6 +1115,130 @@ describe('evaluations tests', () => {
     expect(result.assetData.length).toBe(0);
   });
 
+  it('weekly incomes', () => {
+    const numbers = [
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+    ];
+    const model: ModelData = {
+      triggers: numbers
+        .map((n) => {
+          return {
+            NAME: `J${n}StatePensionAge`,
+            DATE: `${n} Apr 2036`,
+            FAVOURITE: true,
+          };
+        })
+        .concat([
+          { NAME: 'Start', DATE: '06 Apr 2019', FAVOURITE: true },
+          { NAME: 'End', DATE: '01 Jan 2064', FAVOURITE: true },
+        ]),
+      expenses: [],
+      incomes: numbers.map((n) => {
+        return {
+          NAME: `J${n}StatePension`,
+          CATEGORY: 'Pension',
+          START: `J${n}StatePensionAge`,
+          END: 'End',
+          VALUE: '203.85',
+          VALUE_SET: 'Wed Apr 06 2023',
+          CPI_IMMUNE: false,
+          RECURRENCE: '1w',
+          LIABILITY: 'J1(incomeTax)',
+          FAVOURITE: true,
+        };
+      }),
+      transactions: [],
+      assets: [
+        {
+          NAME: 'Cash',
+          START: 'Start',
+          VALUE: '15600',
+          GROWTH: '-1.5',
+          CPI_IMMUNE: true,
+          CAN_BE_NEGATIVE: true,
+          LIABILITY: '',
+          PURCHASE_PRICE: '0',
+          CATEGORY: '',
+          IS_A_DEBT: false,
+          QUANTITY: '',
+          FAVOURITE: true,
+        },
+      ],
+      settings: [
+        {
+          NAME: 'Type of view for asset chart',
+          VALUE: 'val',
+          HINT: "Asset chart uses setting '+', '-', '+-' or 'val'",
+          TYPE: 'view',
+          FAVOURITE: true,
+        },
+        {
+          NAME: "Today's value focus date",
+          FAVOURITE: true,
+          VALUE: '4 May 2023',
+          HINT: "Date to use for 'today's value' tables (defaults to '' meaning today)",
+          TYPE: 'view',
+        },
+        {
+          NAME: 'End of view range',
+          FAVOURITE: true,
+          VALUE: '01 Jan 2025',
+          HINT: 'Date at the end of range to be plotted',
+          TYPE: 'view',
+        },
+        {
+          NAME: 'Date of birth',
+          FAVOURITE: true,
+          VALUE: '',
+          HINT: 'Date used for representing dates as ages',
+          TYPE: 'view',
+        },
+        {
+          NAME: 'cpi',
+          VALUE: '0',
+          HINT: 'Annual rate of inflation',
+          TYPE: 'adjustable',
+          FAVOURITE: true,
+        },
+        {
+          NAME: 'Beginning of view range',
+          FAVOURITE: true,
+          VALUE: '30 Dec 2020',
+          HINT: 'Date at the start of range to be plotted',
+          TYPE: 'view',
+        },
+      ],
+      version: 11,
+      name: 'NeoTest',
+      undoModel: undefined,
+      redoModel: undefined,
+    };
+    const evalsAndValues = getTestEvaluations(model);
+
+    // const evals = evalsAndValues.evaluations;
+    // printTestCodeForEvals(evals);
+    /*
+    for (const [key, val] of evalsAndValues.todaysIncomeValues) {
+      console.log(
+        `evalsAndValues.todaysIncome ${JSON.stringify(key)} ${JSON.stringify(val)}` 
+      );
+    }
+    */
+    //console.log(JSON.stringify(Array.from(evalsAndValues.todaysIncomeValues.keys())));
+    //console.log(JSON.stringify(Array.from(evalsAndValues.todaysIncomeValues.values())));
+
+    expect(Array.from(evalsAndValues.todaysIncomeValues.keys()).length).toEqual(
+      numbers.length,
+    );
+    for (const [key, val] of evalsAndValues.todaysIncomeValues) {
+      // if we shift the start moment forward too far some of these become 0
+      // and we display 0 for 'today's value' in the table
+      key;
+      expect(val.incomeVal).toBe(203.85);
+      // console.log(`val.incomeVal) = ${val.incomeVal}`);
+    }
+  });
+
   it('annual accumulation for incomes', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
@@ -6825,10 +6949,10 @@ describe('evaluations tests', () => {
     {"NAME":"Cash","CATEGORY":"","START":"December 2017","VALUE":"2000","GROWTH":"0","CPI_IMMUNE":false,"CAN_BE_NEGATIVE":true,"LIABILITY":"","PURCHASE_PRICE":"0","IS_A_DEBT":false,"QUANTITY":""}
     ],
     "transactions":[
-    {"DATE":"2026","FROM":"","FROM_VALUE":"0","FROM_ABSOLUTE":false,"NAME":"Revalue stockvalue 3","TO":"stockvalue","TO_ABSOLUTE":true,"TO_VALUE":"2026EUR","STOP_DATE":"","RECURRENCE":"","TYPE":"revalueSetting","CATEGORY":""},
-    {"NAME":"Revalue stockvalue 2","FROM":"","FROM_ABSOLUTE":false,"FROM_VALUE":"0.0","TO":"stockvalue","TO_ABSOLUTE":false,"TO_VALUE":"0.5","DATE":"2024","TYPE":"revalueSetting","RECURRENCE":"","STOP_DATE":"","CATEGORY":""},
-    {"DATE":"2030","FROM":"","FROM_VALUE":"0","FROM_ABSOLUTE":false,"NAME":"Revalue stockvalue 1","TO":"stockvalue","TO_ABSOLUTE":false,"TO_VALUE":"0.9","STOP_DATE":"","RECURRENCE":"1y","TYPE":"revalueSetting","CATEGORY":""},
-    {"NAME":"Revalue EUR 1","FROM":"","FROM_ABSOLUTE":false,"FROM_VALUE":"0.0","TO":"EUR","TO_ABSOLUTE":true,"TO_VALUE":"1.6","DATE":"2028","TYPE":"revalueSetting","RECURRENCE":"","STOP_DATE":"","CATEGORY":""}],
+    {"DATE":"1 Jan 2026","FROM":"","FROM_VALUE":"0","FROM_ABSOLUTE":false,"NAME":"Revalue stockvalue 3","TO":"stockvalue","TO_ABSOLUTE":true,"TO_VALUE":"2026EUR","STOP_DATE":"","RECURRENCE":"","TYPE":"revalueSetting","CATEGORY":""},
+    {"NAME":"Revalue stockvalue 2","FROM":"","FROM_ABSOLUTE":false,"FROM_VALUE":"0.0","TO":"stockvalue","TO_ABSOLUTE":false,"TO_VALUE":"0.5","DATE":"1 Jan 2024","TYPE":"revalueSetting","RECURRENCE":"","STOP_DATE":"","CATEGORY":""},
+    {"DATE":"1 Jan 2030","FROM":"","FROM_VALUE":"0","FROM_ABSOLUTE":false,"NAME":"Revalue stockvalue 1","TO":"stockvalue","TO_ABSOLUTE":false,"TO_VALUE":"0.9","STOP_DATE":"","RECURRENCE":"1y","TYPE":"revalueSetting","CATEGORY":""},
+    {"NAME":"Revalue EUR 1","FROM":"","FROM_ABSOLUTE":false,"FROM_VALUE":"0.0","TO":"EUR","TO_ABSOLUTE":true,"TO_VALUE":"1.6","DATE":"1 Jan 2028","TYPE":"revalueSetting","RECURRENCE":"","STOP_DATE":"","CATEGORY":""}],
     "settings":
     [
     {"NAME":"View frequency","VALUE":"Annually","HINT":"Data plotted 'monthly' or 'annually'","TYPE":"view"},

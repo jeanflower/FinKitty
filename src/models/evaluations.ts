@@ -4459,10 +4459,8 @@ function generateMoments(
       shiftStartBackTo = incomeSetDate;
     }
 
-    // log(`income start is ${incomeStartDate)}
-    //  but shift back to ${shiftStartBackTo}`);
+    shiftDate(shiftStartBackTo, income.RECURRENCE, +1);
 
-    shiftStartBackTo.setMonth(shiftStartBackTo.getMonth() + 1);
     let startSequenceFrom = new Date(incomeStart);
     let numAdjustments = 0;
     while (shiftStartBackTo <= startSequenceFrom) {
@@ -4803,7 +4801,7 @@ function evaluateAllAssets(
     if (endDate !== undefined && endDate < today) {
       hasEnded = true;
     }
-    // log(`income ${i.NAME} ends at ${i.END} not yet ended at ${today}`);
+    // log(`income ${i.NAME} hasStarted ${hasStarted} hasEnded ${hasEnded}`);
     const val = traceEvaluationForToday(i.NAME, values, growths);
     if (val !== undefined) {
       todaysIncomeValues.set(i, {

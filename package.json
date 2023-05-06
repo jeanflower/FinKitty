@@ -1,7 +1,7 @@
 {
   "name": "finkitty",
   "homepage": "https://jeanflower.github.io/FinKitty",
-  "version": "1.4.36",
+  "version": "1.4.38",
   "engines": {
     "node": "16.x"
   },
