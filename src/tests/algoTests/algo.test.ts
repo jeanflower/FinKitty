@@ -1349,6 +1349,39 @@ describe('evaluations tests', () => {
     expect(result.assetData.length).toBe(0);
   });
 
+  it('income starts tomorrow', () => {
+    const roi = {
+      start: new Date().toDateString(),
+      end: 'tomorrow+2m',
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      incomes: [
+        {
+          ...simpleIncome,
+          START: 'tomorrow',
+          END: 'tomorrow+2m',
+          NAME: 'PRnd',
+          VALUE: '5',
+          VALUE_SET: new Date().toDateString(),
+          RECURRENCE: '1m',
+        },
+      ],
+      settings: [...defaultModelSettings(roi)],
+    };
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    //printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(2);
+    expect(evals[0].name).toBe('PRnd');
+    expect(evals[1].name).toBe('PRnd');
+    expect(evals[0].value).toBe(5);
+    expect(evals[1].value).toBe(5);
+  });
+
   it('recurrence at 2w for incomes', () => {
     const roi = {
       start: 'Dec 1, 2017 00:00:00',
@@ -1411,6 +1444,70 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 1, 'Sat Dec 01 2018', 65, 2);
     }
     expect(result.assetData.length).toBe(0);
+  });
+
+  it('recurrence at 2y for incomes', () => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'March 1, 2025 00:00:00',
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      incomes: [
+        {
+          ...simpleIncome,
+          START: 'January 1 2018',
+          END: 'July 1 2025',
+          NAME: 'PRnd',
+          VALUE: '5',
+          VALUE_SET: 'January 1 2018',
+          RECURRENCE: '2y',
+        },
+      ],
+      settings: [...defaultModelSettings(roi)],
+    };
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(4);
+    expectEvals(evals, 0, 'PRnd', 'Mon Jan 01 2018', 5, -1);
+    expectEvals(evals, 1, 'PRnd', 'Wed Jan 01 2020', 5, -1);
+    expectEvals(evals, 2, 'PRnd', 'Sat Jan 01 2022', 5, -1);
+    expectEvals(evals, 3, 'PRnd', 'Mon Jan 01 2024', 5, -1);
+
+    const viewSettings = defaultTestViewSettings();
+    expect(viewSettings.setViewSetting(viewFrequency, annually)).toBe(true);
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(1);
+    expect(result.incomesData[0].item.NAME).toBe('PRnd');
+    {
+      const chartPts = result.incomesData[0].chartDataPoints;
+      expect(chartPts.length).toBe(8);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Sat Dec 01 2018', 5, -1);
+      expectChartData(chartPts, 2, 'Sun Dec 01 2019', 0, -1);
+      expectChartData(chartPts, 3, 'Tue Dec 01 2020', 5, -1);
+      expectChartData(chartPts, 4, 'Wed Dec 01 2021', 0, -1);
+      expectChartData(chartPts, 5, 'Thu Dec 01 2022', 5, -1);
+      expectChartData(chartPts, 6, 'Fri Dec 01 2023', 0, -1);
+      expectChartData(chartPts, 7, 'Sun Dec 01 2024', 5, -1);
+    }
+
+    expect(result.assetData.length).toBe(0);
+    expect(result.debtData.length).toBe(0);
+    expect(result.taxData.length).toBe(0);
   });
 
   it('should understand cpi-immune income no growth', () => {

@@ -4,6 +4,7 @@ import {
   bondModel,
   CASH_ASSET_NAME,
   conditional,
+  cpi,
   crystallizedPension,
   custom,
   debtChartFocus,
@@ -18,6 +19,7 @@ import {
   revalueInc,
   revalueSetting,
   taxChartFocusType,
+  viewFrequency,
 } from '../../localization/stringConstants';
 import {
   checkData,
@@ -302,6 +304,37 @@ describe('checks tests', () => {
         model,
       ),
     ).toEqual('');
+
+    const model2 = { ...emptyModel };
+    model2.settings.push({
+      ...simpleSetting,
+      VALUE: 'monthly',
+      NAME: viewFrequency,
+    });
+    model2.settings.push({
+      ...simpleSetting,
+      NAME: 'Beginning of view range',
+      VALUE: '1 Jan 2017',
+      HINT: 'Date at the start of range to be plotted',
+      TYPE: 'view',
+    });
+    model2.settings.push({
+      ...simpleSetting,
+      NAME: 'End of view range',
+      VALUE: '1 Jan 2018',
+      HINT: 'Date at the end of range to be plotted',
+      TYPE: 'view',
+    });
+    model2.settings.push({
+      ...simpleSetting,
+      NAME: cpi,
+      VALUE: '0.0',
+      HINT: '',
+      TYPE: 'adjustable',
+    });
+    expect(checkData(model2).message).toEqual(
+      `"View frequency" setting should not be present`,
+    );
 
     unSuppressLogs();
   });
@@ -1022,6 +1055,16 @@ describe('checks tests', () => {
         model,
       ),
     ).toEqual(`Date today name prohibited as a special word`);
+    expect(
+      checkTrigger(
+        {
+          NAME: 'zzz',
+          FAVOURITE: undefined,
+          DATE: 'nonsense',
+        },
+        model,
+      ),
+    ).toEqual(`Date 'zzz' is not valid : 'nonsense'`);
   });
   it('check bond model', () => {
     const model = getTestModel(bondModel);

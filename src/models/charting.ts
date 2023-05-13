@@ -372,6 +372,7 @@ e.g.
     }
     if (this.kvPairs.get(context)) {
       this.kvPairs.set(context, value);
+      /* istanbul ignore if */
       if (context === viewFrequency && value !== annually) {
         /* istanbul ignore if */
         if (printDebug()) {

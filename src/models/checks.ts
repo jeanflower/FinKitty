@@ -188,6 +188,7 @@ export function isValidValueInternal(
   }
   if (iterationDepth > 10) {
     // TODO : how low can iteration get?
+    /* istanbul ignore next */
     return false;
   }
 

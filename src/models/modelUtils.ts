@@ -195,6 +195,7 @@ export function setSetting(
   hint = '',
 ) {
   if (key === viewFrequency) {
+    /* istanbul ignore next  */ //error
     throw new Error('set setting for frequency');
   }
   const idx = settings.findIndex((x) => x.NAME === key);

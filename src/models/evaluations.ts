@@ -80,6 +80,7 @@ import {
 
 function parseRecurrenceString(recurrence: string) {
   if (recurrence === undefined) {
+    /* istanbul ignore next  */ //error
     log('Error : undefined recurrence string!!');
   }
   const result = {
@@ -444,13 +445,19 @@ function growthData(
   /* istanbul ignore if  */ //error
   if (baseVal === undefined) {
     log('Error: baseVal undefined for growth data!');
+    return {
+      adjustForCPI: g.applyCPI,
+      annualCPI: g.annualCPI,
+      scale: scale,
+      baseVal: 1.0,
+    };
   }
 
   return {
     adjustForCPI: g.applyCPI,
     annualCPI: g.annualCPI,
     scale: scale,
-    baseVal: baseVal ? baseVal : 1.0,
+    baseVal: baseVal,
   };
 }
 
@@ -2219,6 +2226,8 @@ function accumulateLiability(
   if (type === incomeTax) {
     /////////// TODO duplication of code
     let liableIncomeTaxInTaxMonth = liableIncomeInTaxMonth.get(incomeTax);
+
+    /* istanbul ignore if  */ //redundant untested
     if (liableIncomeTaxInTaxMonth === undefined) {
       liableIncomeTaxInTaxMonth = new Map<string, number>();
       liableIncomeInTaxMonth.set(incomeTax, liableIncomeTaxInTaxMonth);
@@ -4341,7 +4350,9 @@ function shiftDate(oldDate: Date, recurrence: string, stepCount: number): Date {
     newDate.setFullYear(oldDate.getFullYear() + stepCount * freq.count);
     return newDate;
   } else {
+    /* istanbul ignore next  */ //error
     log('Error : unsupported recurrence');
+    /* istanbul ignore next  */ //error
     return oldDate;
   }
 }

@@ -233,6 +233,16 @@ describe('utils tests', () => {
     checkTriggerDate('2001-02-01', [], varVal, cleanedString);
     expect(cleanedString.cleaned).toBe('Invalid Date 2001-02-01');
 
+    checkTriggerDate(
+      '1 January 2001<2 January 2001?3 January 2001:4 January 2001',
+      [],
+      varVal,
+      cleanedString,
+    );
+    expect(cleanedString.cleaned).toBe(
+      '01 Jan 2001<02 Jan 2001?03 Jan 2001:04 Jan 2001',
+    );
+
     expect(
       dateAsString(DateFormatType.Test, makeDateFromString('01/02/01')),
     ).toBe('Invalid Date');
