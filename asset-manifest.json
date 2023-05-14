@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/FinKitty/static/css/main.cf287ca6.css",
-    "main.js": "/FinKitty/static/js/main.fd08e1bd.js",
+    "main.js": "/FinKitty/static/js/main.74826efa.js",
     "static/media/sampleAssetGraph.png": "/FinKitty/static/media/sampleAssetGraph.194c68407a5480aa9d04.png",
     "static/media/sampleExpenseGraph.png": "/FinKitty/static/media/sampleExpenseGraph.d8a15080700e86b5cadb.png",
     "static/media/sampleTaxGraph.png": "/FinKitty/static/media/sampleTaxGraph.d9279f6f6ad96235d73c.png",
@@ -9,10 +9,10 @@
     "static/media/cat.png": "/FinKitty/static/media/cat.c7ff3328b2b4372fefd4.png",
     "index.html": "/FinKitty/index.html",
     "main.cf287ca6.css.map": "/FinKitty/static/css/main.cf287ca6.css.map",
-    "main.fd08e1bd.js.map": "/FinKitty/static/js/main.fd08e1bd.js.map"
+    "main.74826efa.js.map": "/FinKitty/static/js/main.74826efa.js.map"
   },
   "entrypoints": [
     "static/css/main.cf287ca6.css",
-    "static/js/main.fd08e1bd.js"
+    "static/js/main.74826efa.js"
   ]
 }
