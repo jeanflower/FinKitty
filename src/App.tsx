@@ -179,7 +179,7 @@ function App(): JSX.Element | null {
             // current workaround is to navigate back in browser
             // to get back to login page
           }
-          alert(`window.location.origin = ${window.location.origin}`);
+          // alert(`window.location.origin = ${window.location.origin}`);
           return logout({
             returnTo:
               window.location.origin + process.env.REACT_APP_ORIGIN_APPENDAGE,
