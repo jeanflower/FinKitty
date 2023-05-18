@@ -2407,7 +2407,7 @@ export function reportDiv(
         CHANGE: make2dpCanBeUndefined(x.change),
         OLD_VALUE: make2dpCanBeUndefined(x.oldVal),
         NEW_VALUE: make2dpCanBeUndefined(x.newVal),
-        QCHANGE: makeQCanBeUndefined(x.qchange),
+        QCHANGE: x.qchange ? x.qchange : '',
         QOLD_VALUE: makeQCanBeUndefined(x.qoldVal),
         QNEW_VALUE: makeQCanBeUndefined(x.qnewVal),
         SOURCE: x.source,

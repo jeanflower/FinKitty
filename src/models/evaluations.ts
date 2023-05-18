@@ -69,6 +69,7 @@ import {
   removeNumberPart,
   checkTriggerDate,
   dateAsString,
+  makeTwoDP,
 } from '../utils/stringUtils';
 import {
   getSettings,
@@ -4223,6 +4224,12 @@ function logPurchaseValues(
 }
 
 class ValuesContainer {
+  private model: ModelData;
+
+  constructor(model: ModelData) {
+    this.model = model;
+  }
+
   private reportValues = new Map<string, number | string>([]);
   private includeInReport: ReportValueChecker = (
     name: string, // name of something which has a value
@@ -4269,12 +4276,34 @@ class ValuesContainer {
         if (newVal !== undefined && oldVal !== undefined) {
           change = newVal - oldVal;
         }
-        let qchange: number | undefined = undefined;
+        let qchange: string | undefined = undefined;
         let qoldVal: number | undefined = undefined;
         let qnewVal: number | undefined = undefined;
         if (name.startsWith(quantity)) {
           name = name.substring(quantity.length);
-          qchange = change;
+          const matchedAsset = this.model.assets.find((a) => {
+            return a.NAME === name;
+          });
+          let details = '';
+          if (matchedAsset) {
+            const val = matchedAsset.VALUE;
+            const matchedSetting = this.model.settings.find((s) => {
+              return s.NAME === val;
+            });
+            if (matchedSetting !== undefined) {
+              const rawDetails = `${this.get(matchedSetting.NAME)}`;
+              const nwp = getNumberAndWordParts(rawDetails);
+              if (nwp.numberPart !== undefined) {
+                details = makeTwoDP(nwp.numberPart);
+                if (nwp.wordPart) {
+                  details += nwp.wordPart;
+                }
+              }
+            }
+          }
+
+          qchange =
+            details.length > 0 ? `${change} at ${details}` : `${change}`;
           qoldVal = oldVal;
           qnewVal = newVal;
           change = undefined;
@@ -4317,7 +4346,7 @@ class ValuesContainer {
         change: 0,
         oldVal: 0,
         newVal: estateVal,
-        qchange: 0,
+        qchange: '',
         qoldVal: 0,
         qnewVal: 0,
         date: '2999',
@@ -5493,7 +5522,7 @@ function getEvaluationsInternal(
   }
 
   // Keep track of current value of any expense, income or asset
-  const values = new ValuesContainer();
+  const values = new ValuesContainer(model);
   if (helper && helper.reporter) {
     values.setIncludeInReport(helper && helper.reporter);
   }
