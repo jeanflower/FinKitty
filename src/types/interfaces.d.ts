@@ -1,6 +1,6 @@
 export interface Item {
   NAME: string;
-  FAVOURITE: boolean | undefined;
+  ERA: number | undefined;
 }
 export interface ItemCategory extends Item {
   CATEGORY: string;
@@ -268,7 +268,7 @@ export interface ViewCallbacks {
   getEndDate: () => string;
   updateStartDate: (newDate: string) => Promise<void>;
   updateEndDate: (newDate: string) => Promise<void>;
-  filterForFavourites: (item: Item) => boolean;
+  filterForEra: (item: Item) => boolean;
   filterForAge: (item: Item) => boolean;
   filterForSearch: (item: Item) => boolean;
   getSearchString: () => string;

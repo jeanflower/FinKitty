@@ -161,7 +161,7 @@ export class AddDeleteSettingForm extends Component<
 
     const revalueTransaction: Transaction = {
       NAME: `${newName}`,
-      FAVOURITE: true, // new things are automatically favourites,
+      ERA: 0, // new things are automatically current,
       FROM: '',
       FROM_ABSOLUTE: false,
       FROM_VALUE: '0.0',
@@ -332,7 +332,7 @@ export class AddDeleteSettingForm extends Component<
     // log('adding something ' + showObj(this));
     const setting: Setting = {
       NAME: this.state.NAME,
-      FAVOURITE: true, // new things are automatically favourites,
+      ERA: 0, // new things are automatically current,
       VALUE: this.state.VALUE,
       HINT: '',
       TYPE: adjustableType,

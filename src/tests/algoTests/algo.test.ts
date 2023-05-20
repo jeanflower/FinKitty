@@ -512,7 +512,7 @@ describe('evaluations tests', () => {
         },
         {
           NAME: 'Revalue cpi',
-          FAVOURITE: undefined,
+          ERA: undefined,
           FROM: '',
           FROM_ABSOLUTE: true,
           FROM_VALUE: '',
@@ -575,7 +575,7 @@ describe('evaluations tests', () => {
         },
         {
           NAME: 'Revalue cpi',
-          FAVOURITE: undefined,
+          ERA: undefined,
           FROM: '',
           FROM_ABSOLUTE: true,
           FROM_VALUE: '',
@@ -1063,7 +1063,7 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'valueSetTrigger',
-          FAVOURITE: undefined,
+          ERA: undefined,
           DATE: 'January 1 2017',
         },
       ],
@@ -1125,12 +1125,12 @@ describe('evaluations tests', () => {
           return {
             NAME: `J${n}StatePensionAge`,
             DATE: `${n} Apr 2036`,
-            FAVOURITE: true,
+            ERA: 1,
           };
         })
         .concat([
-          { NAME: 'Start', DATE: '06 Apr 2019', FAVOURITE: true },
-          { NAME: 'End', DATE: '01 Jan 2064', FAVOURITE: true },
+          { NAME: 'Start', DATE: '06 Apr 2019', ERA: 1 },
+          { NAME: 'End', DATE: '01 Jan 2064', ERA: 1 },
         ]),
       expenses: [],
       incomes: numbers.map((n) => {
@@ -1144,7 +1144,7 @@ describe('evaluations tests', () => {
           CPI_IMMUNE: false,
           RECURRENCE: '1w',
           LIABILITY: 'J1(incomeTax)',
-          FAVOURITE: true,
+          ERA: 1,
         };
       }),
       transactions: [],
@@ -1161,7 +1161,7 @@ describe('evaluations tests', () => {
           CATEGORY: '',
           IS_A_DEBT: false,
           QUANTITY: '',
-          FAVOURITE: true,
+          ERA: 1,
         },
       ],
       settings: [
@@ -1170,25 +1170,25 @@ describe('evaluations tests', () => {
           VALUE: 'val',
           HINT: "Asset chart uses setting '+', '-', '+-' or 'val'",
           TYPE: 'view',
-          FAVOURITE: true,
+          ERA: 1,
         },
         {
           NAME: "Today's value focus date",
-          FAVOURITE: true,
+          ERA: 1,
           VALUE: '4 May 2023',
           HINT: "Date to use for 'today's value' tables (defaults to '' meaning today)",
           TYPE: 'view',
         },
         {
           NAME: 'End of view range',
-          FAVOURITE: true,
+          ERA: 1,
           VALUE: '01 Jan 2025',
           HINT: 'Date at the end of range to be plotted',
           TYPE: 'view',
         },
         {
           NAME: 'Date of birth',
-          FAVOURITE: true,
+          ERA: 1,
           VALUE: '',
           HINT: 'Date used for representing dates as ages',
           TYPE: 'view',
@@ -1198,11 +1198,11 @@ describe('evaluations tests', () => {
           VALUE: '0',
           HINT: 'Annual rate of inflation',
           TYPE: 'adjustable',
-          FAVOURITE: true,
+          ERA: 1,
         },
         {
           NAME: 'Beginning of view range',
-          FAVOURITE: true,
+          ERA: 1,
           VALUE: '30 Dec 2020',
           HINT: 'Date at the start of range to be plotted',
           TYPE: 'view',
@@ -2677,7 +2677,7 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'then',
-          FAVOURITE: undefined,
+          ERA: undefined,
           DATE: 'January 1 2018',
         },
       ],
@@ -3057,7 +3057,7 @@ describe('evaluations tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'amountFrom',
-          FAVOURITE: undefined,
+          ERA: undefined,
           VALUE: '100',
           HINT: '',
           TYPE: custom,
@@ -3129,14 +3129,14 @@ describe('evaluations tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'amountFrom',
-          FAVOURITE: undefined,
+          ERA: undefined,
           VALUE: '10x',
           HINT: '',
           TYPE: custom,
         },
         {
           NAME: 'x',
-          FAVOURITE: undefined,
+          ERA: undefined,
           VALUE: '10',
           HINT: '',
           TYPE: custom,
@@ -4734,7 +4734,7 @@ describe('evaluations tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'x',
-          FAVOURITE: undefined,
+          ERA: undefined,
           VALUE: '1.00',
           HINT: 'growthValue',
           TYPE: adjustableType,
@@ -4858,7 +4858,7 @@ describe('evaluations tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'x',
-          FAVOURITE: undefined,
+          ERA: undefined,
           VALUE: '1.00',
           HINT: 'growthValue',
           TYPE: adjustableType,
@@ -4982,7 +4982,7 @@ describe('evaluations tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'x',
-          FAVOURITE: undefined,
+          ERA: undefined,
           VALUE: '1.00',
           HINT: 'growthValue',
           TYPE: adjustableType,
@@ -5106,7 +5106,7 @@ describe('evaluations tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'x',
-          FAVOURITE: undefined,
+          ERA: undefined,
           VALUE: '1.00',
           HINT: 'growthValue',
           TYPE: adjustableType,
@@ -5237,7 +5237,7 @@ describe('evaluations tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'g',
-          FAVOURITE: undefined,
+          ERA: undefined,
           VALUE: '2.00',
           HINT: 'growthValue',
           TYPE: adjustableType,
@@ -5438,7 +5438,7 @@ describe('evaluations tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'g',
-          FAVOURITE: undefined,
+          ERA: undefined,
           VALUE: '2.00',
           HINT: 'growthValue',
           TYPE: adjustableType,
@@ -6122,7 +6122,7 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'a+',
-          FAVOURITE: undefined,
+          ERA: undefined,
           DATE: '1 Jan 2018',
         },
       ],
@@ -6156,7 +6156,7 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'a-',
-          FAVOURITE: undefined,
+          ERA: undefined,
           DATE: '1 Jan 2018',
         },
       ],
@@ -6190,7 +6190,7 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'a',
-          FAVOURITE: undefined,
+          ERA: undefined,
           DATE: '2 Jan 2018',
         },
       ],
@@ -6224,7 +6224,7 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'a',
-          FAVOURITE: undefined,
+          ERA: undefined,
           DATE: '31 Dec 2017',
         },
       ],
@@ -6258,7 +6258,7 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'a',
-          FAVOURITE: undefined,
+          ERA: undefined,
           DATE: '1 Feb 2018',
         },
       ],
@@ -6292,7 +6292,7 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'a',
-          FAVOURITE: undefined,
+          ERA: undefined,
           DATE: '1 Dec 2017',
         },
       ],
@@ -6326,7 +6326,7 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'a',
-          FAVOURITE: undefined,
+          ERA: undefined,
           DATE: '1 Jan 2019',
         },
       ],
@@ -6360,7 +6360,7 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'a',
-          FAVOURITE: undefined,
+          ERA: undefined,
           DATE: '1 Jan 2017',
         },
       ],
@@ -6394,12 +6394,12 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'a',
-          FAVOURITE: undefined,
+          ERA: undefined,
           DATE: '3 Jan 2018',
         },
         {
           NAME: 'b',
-          FAVOURITE: undefined,
+          ERA: undefined,
           DATE: 'a-2d',
         },
       ],
@@ -6433,12 +6433,12 @@ describe('evaluations tests', () => {
       triggers: [
         {
           NAME: 'a',
-          FAVOURITE: undefined,
+          ERA: undefined,
           DATE: 'b-1d',
         },
         {
           NAME: 'b',
-          FAVOURITE: undefined,
+          ERA: undefined,
           DATE: 'a-2d',
         },
       ],
@@ -6842,7 +6842,7 @@ describe('evaluations tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: thingName,
-          FAVOURITE: undefined,
+          ERA: undefined,
           VALUE: '123',
           HINT: 'something',
           TYPE: constType, // eventually we will want to adjust...
@@ -6944,7 +6944,7 @@ describe('evaluations tests', () => {
 
     model.transactions.push({
       NAME: 'Revalue a setting',
-      FAVOURITE: undefined,
+      ERA: undefined,
       FROM: '',
       FROM_ABSOLUTE: true,
       FROM_VALUE: '',
@@ -7212,7 +7212,7 @@ describe('evaluations tests', () => {
       transactions: [
         {
           NAME: 'Revalue grow cpi',
-          FAVOURITE: undefined,
+          ERA: undefined,
           FROM: '',
           FROM_ABSOLUTE: true,
           FROM_VALUE: '',
@@ -7227,7 +7227,7 @@ describe('evaluations tests', () => {
         },
         {
           NAME: 'Revalue drop cpi',
-          FAVOURITE: undefined,
+          ERA: undefined,
           FROM: '',
           FROM_ABSOLUTE: true,
           FROM_VALUE: '',
@@ -7242,7 +7242,7 @@ describe('evaluations tests', () => {
         },
         {
           NAME: 'Revalue grow x',
-          FAVOURITE: undefined,
+          ERA: undefined,
           FROM: '',
           FROM_ABSOLUTE: true,
           FROM_VALUE: '',
@@ -7257,7 +7257,7 @@ describe('evaluations tests', () => {
         },
         {
           NAME: 'Revalue drop x',
-          FAVOURITE: undefined,
+          ERA: undefined,
           FROM: '',
           FROM_ABSOLUTE: true,
           FROM_VALUE: '',
@@ -7272,7 +7272,7 @@ describe('evaluations tests', () => {
         },
         {
           NAME: 'Revalue grow rises',
-          FAVOURITE: undefined,
+          ERA: undefined,
           FROM: '',
           FROM_ABSOLUTE: true,
           FROM_VALUE: '',
@@ -7287,7 +7287,7 @@ describe('evaluations tests', () => {
         },
         {
           NAME: 'Revalue drop rises',
-          FAVOURITE: undefined,
+          ERA: undefined,
           FROM: '',
           FROM_ABSOLUTE: true,
           FROM_VALUE: '',
@@ -7448,7 +7448,7 @@ describe('evaluations tests', () => {
       transactions: [
         {
           NAME: 'Revalue grow cpi',
-          FAVOURITE: undefined,
+          ERA: undefined,
           FROM: '',
           FROM_ABSOLUTE: true,
           FROM_VALUE: '',
@@ -7463,7 +7463,7 @@ describe('evaluations tests', () => {
         },
         {
           NAME: 'Revalue drop cpi',
-          FAVOURITE: undefined,
+          ERA: undefined,
           FROM: '',
           FROM_ABSOLUTE: true,
           FROM_VALUE: '',
@@ -7592,7 +7592,7 @@ describe('evaluations tests', () => {
       transactions: [
         {
           NAME: 'Revalue grow cpi',
-          FAVOURITE: undefined,
+          ERA: undefined,
           FROM: '',
           FROM_ABSOLUTE: true,
           FROM_VALUE: '',
@@ -7607,7 +7607,7 @@ describe('evaluations tests', () => {
         },
         {
           NAME: 'Revalue drop cpi',
-          FAVOURITE: undefined,
+          ERA: undefined,
           FROM: '',
           FROM_ABSOLUTE: true,
           FROM_VALUE: '',
@@ -8070,7 +8070,7 @@ describe('evaluations tests', () => {
       RECURRENCE: '',
       TYPE: 'revalueExpense',
       CATEGORY: '',
-      FAVOURITE: false,
+      ERA: -1,
     });
     expect(filterForOld(model.transactions).length).toBe(3);
 
@@ -8091,7 +8091,7 @@ describe('evaluations tests', () => {
         RECURRENCE: '',
         TYPE: 'revalueIncome',
         CATEGORY: '',
-        FAVOURITE: false,
+        ERA: -1,
       },
       {
         DATE: '1 Jan 2031',
@@ -8106,7 +8106,7 @@ describe('evaluations tests', () => {
         RECURRENCE: '',
         TYPE: 'revalueIncome',
         CATEGORY: '',
-        FAVOURITE: false,
+        ERA: -1,
       },
       {
         DATE: '2 Jan 2031',
@@ -8121,7 +8121,7 @@ describe('evaluations tests', () => {
         RECURRENCE: '',
         TYPE: 'revalueIncome',
         CATEGORY: '',
-        FAVOURITE: false,
+        ERA: -1,
       },
       {
         DATE: '3 Jan 2032',
@@ -8136,7 +8136,7 @@ describe('evaluations tests', () => {
         RECURRENCE: '',
         TYPE: 'revalueIncome',
         CATEGORY: '',
-        FAVOURITE: false,
+        ERA: -1,
       },
     );
     expect(filterForOld(model.transactions).length).toBe(3);

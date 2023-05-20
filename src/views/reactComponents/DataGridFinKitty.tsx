@@ -15,8 +15,8 @@ interface DataGridProps {
   rows: any[]; // TODO any
   columns: any[]; // TODO any
   deleteFunction: ((name: string) => Promise<DeleteResult>) | undefined;
-  setFavouriteFunction:
-    | ((name: string, value: boolean) => Promise<boolean>)
+  setEraFunction:
+    | ((name: string, value: number) => Promise<boolean>)
     | undefined;
   model: ModelData;
   tableID: string;
@@ -242,17 +242,35 @@ class DataGridFinKitty extends React.Component<DataGridProps, DataGridState> {
       ];
     } else if (
       column.key === 'FAVE' &&
-      this.props.setFavouriteFunction !== undefined
+      this.props.setEraFunction !== undefined
     ) {
       // log(`add glyph`);
+      let icon = '';
+      if (row['ERA'] === 0) {
+        icon = 'fa fa-arrows-h';
+      } else if (row['ERA'] === 1) {
+        icon = 'fa fa-arrow-right';
+      } else if (row['ERA'] === -1) {
+        icon = 'fa fa-arrow-left';
+      }
+
       return [
         {
-          icon: row['FAVOURITE'] === true ? 'fa fa-star' : 'fa fa-circle',
+          icon: icon,
           callback: async () => {
-            if (this.props.setFavouriteFunction !== undefined) {
-              const oldVal = row['FAVOURITE'] === true;
+            if (this.props.setEraFunction !== undefined) {
+              const oldVal = row['ERA'];
 
-              await this.props.setFavouriteFunction(row['NAME'], !oldVal);
+              let newVal = 0;
+              if (oldVal === -1) {
+                newVal = 0;
+              } else if (oldVal === 0) {
+                newVal = 1;
+              } else if (oldVal === 1) {
+                newVal = -1;
+              }
+
+              await this.props.setEraFunction(row['NAME'], newVal);
               this.sortHandler(
                 this.state.colSortIndex,
                 this.state.sortDirection,

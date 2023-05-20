@@ -1,7 +1,7 @@
 {
   "name": "finkitty",
   "homepage": "https://jeanflower.github.io/FinKitty",
-  "version": "1.4.44",
+  "version": "1.4.45",
   "engines": {
     "node": "16.x"
   },
@@ -40,7 +40,7 @@
     "eject": "react-scripts eject",
     "lint": "eslint './src/**/*.{ts,tsx}'",
     "predeploy": "npm run build",
-    "deploy": "NODE_DEBUG=gh-pages gh-pages -d build",
+    "deploy": "NODE_DEBUG=gh-pages dotenv -e .env -- gh-pages -d build",
     "prepare": "husky install"
   },
   "eslintConfig": {

@@ -64,12 +64,12 @@ import {
   deleteTrigger,
   doShowTodaysValueColumns,
   editSetting,
-  setFavouriteAsset,
-  setFavouriteExpense,
-  setFavouriteIncome,
-  setFavouriteSetting,
-  setFavouriteTransaction,
-  setFavouriteTrigger,
+  setEraAsset,
+  setEraExpense,
+  setEraIncome,
+  setEraSetting,
+  setEraTransaction,
+  setEraTrigger,
   setReportKey,
   submitAsset,
   submitExpense,
@@ -222,7 +222,7 @@ function handleExpenseGridRowsUpdated(
     } else {
       const expenseForSubmission: Expense = {
         NAME: expense.NAME,
-        FAVOURITE: undefined,
+        ERA: undefined,
         CATEGORY: expense.CATEGORY,
         START: expense.START,
         END: expense.END,
@@ -243,7 +243,7 @@ function handleExpenseGridRowsUpdated(
   } else {
     const expenseForSubmission: Expense = {
       NAME: expense.NAME,
-      FAVOURITE: undefined,
+      ERA: undefined,
       CATEGORY: expense.CATEGORY,
       START: expense.START,
       END: expense.END,
@@ -321,7 +321,7 @@ function handleIncomeGridRowsUpdated(
 
       const incomeForSubmission: Income = {
         NAME: income.NAME,
-        FAVOURITE: undefined,
+        ERA: undefined,
         CATEGORY: income.CATEGORY,
         START: income.START,
         END: income.END,
@@ -349,7 +349,7 @@ function handleIncomeGridRowsUpdated(
 
     const incomeForSubmission: Income = {
       NAME: income.NAME,
-      FAVOURITE: undefined,
+      ERA: undefined,
       CATEGORY: income.CATEGORY,
       START: income.START,
       END: income.END,
@@ -402,7 +402,7 @@ function handleTriggerGridRowsUpdated(
   trigger[args[0].cellKey] = args[0].updated[args[0].cellKey];
   const forSubmit: Trigger = {
     NAME: trigger.NAME,
-    FAVOURITE: trigger.FAVOURITE,
+    ERA: trigger.ERA,
     DATE: trigger.DATE,
   };
   if (doChecks) {
@@ -520,7 +520,7 @@ function handleAssetGridRowsUpdated(
       // log(`valueForSubmission = ${valueForSubmission}`);
       const assetForSubmission: Asset = {
         NAME: asset.NAME,
-        FAVOURITE: asset.FAVOURITE,
+        ERA: asset.ERA,
         VALUE: valueForSubmission,
         QUANTITY: asset.QUANTITY,
         START: asset.START,
@@ -542,7 +542,7 @@ function handleAssetGridRowsUpdated(
     // log(`valueForSubmission = ${valueForSubmission}`);
     const assetForSubmission: Asset = {
       NAME: asset.NAME,
-      FAVOURITE: undefined,
+      ERA: undefined,
       VALUE: valueForSubmission,
       QUANTITY: asset.QUANTITY,
       START: asset.START,
@@ -680,7 +680,7 @@ function handleTransactionGridRowsUpdated(
       FROM_VALUE: parseFrom.value,
       FROM_ABSOLUTE: parseFrom.absolute,
       NAME: tName,
-      FAVOURITE: gridData.FAVOURITE,
+      ERA: gridData.ERA,
       TO: gridData.TO,
       TO_ABSOLUTE: parseTo.absolute,
       TO_VALUE: parseTo.value,
@@ -751,7 +751,7 @@ function handleSettingGridRowsUpdated(
   x[args[0].cellKey] = args[0].updated[args[0].cellKey];
   const forSubmission = {
     NAME: x.NAME,
-    FAVOURITE: x.FAVOURITE,
+    ERA: x.ERA,
     VALUE: x.VALUE,
     HINT: x.HINT,
   };
@@ -909,7 +909,7 @@ function assetsOrDebtsForTable(
     })
     .filter((obj: Item) => {
       return (
-        parentCallbacks.filterForFavourites(obj) &&
+        parentCallbacks.filterForEra(obj) &&
         parentCallbacks.filterForAge(obj) &&
         parentCallbacks.filterForSearch(obj)
       );
@@ -932,7 +932,7 @@ function assetsOrDebtsForTable(
       const mapResult = {
         GROWTH: makeStringFromGrowth(obj.GROWTH, model.settings),
         NAME: obj.NAME,
-        FAVOURITE: obj.FAVOURITE,
+        ERA: obj.ERA,
         CATEGORY: obj.CATEGORY,
         START: obj.START,
         VALUE: tableValue,
@@ -984,7 +984,7 @@ export function assetsOrDebtsTableDiv(
             rows={rowData}
             columns={getAssetOrDebtCols(model, isDebt)}
             deleteFunction={deleteAsset}
-            setFavouriteFunction={setFavouriteAsset}
+            setEraFunction={setEraAsset}
             model={model}
           />
         </div>
@@ -1038,7 +1038,7 @@ export function transactionsForTable(
     })
     .filter((obj: Item) => {
       return (
-        parentCallbacks.filterForFavourites(obj) &&
+        parentCallbacks.filterForEra(obj) &&
         parentCallbacks.filterForAge(obj) &&
         parentCallbacks.filterForSearch(obj)
       );
@@ -1079,7 +1079,7 @@ export function transactionsForTable(
         FROM: obj.FROM,
         FROM_VALUE: fromValueEntry,
         NAME: getDisplayName(obj.NAME, type),
-        FAVOURITE: obj.FAVOURITE,
+        ERA: obj.ERA,
         TO: obj.TO,
         TO_VALUE: toValueEntry,
         STOP_DATE: obj.STOP_DATE,
@@ -1406,10 +1406,10 @@ export function transactionsTableDiv(
           log(`delete transaction`);
           return deleteTransaction(completeName);
         }}
-        setFavouriteFunction={(name: string, val: boolean) => {
+        setEraFunction={(name: string, val: number) => {
           const completeName = getTransactionName(name, type);
           log(`set Favourite for transaction`);
-          return setFavouriteTransaction(completeName, val);
+          return setEraTransaction(completeName, val);
         }}
         model={model}
       />
@@ -1540,7 +1540,7 @@ function triggersForTable(model: ModelData, parentCallbacks: ViewCallbacks) {
   const unindexedResult = model.triggers
     .filter((obj: Item) => {
       return (
-        parentCallbacks.filterForFavourites(obj) &&
+        parentCallbacks.filterForEra(obj) &&
         parentCallbacks.filterForAge(obj) &&
         parentCallbacks.filterForSearch(obj)
       );
@@ -1550,7 +1550,7 @@ function triggersForTable(model: ModelData, parentCallbacks: ViewCallbacks) {
       const mapResult = {
         DATE: obj.DATE,
         NAME: obj.NAME,
-        FAVOURITE: obj.FAVOURITE,
+        ERA: obj.ERA,
       };
       return mapResult;
     })
@@ -1576,7 +1576,7 @@ function triggersTableDiv(
           <DataGridFinKitty
             tableID={tableID}
             deleteFunction={deleteTrigger}
-            setFavouriteFunction={setFavouriteTrigger}
+            setEraFunction={setEraTrigger}
             handleGridRowsUpdated={function () {
               return handleTriggerGridRowsUpdated(
                 model,
@@ -1653,7 +1653,7 @@ function incomesForTable(
   const unindexedResult = model.incomes
     .filter((obj: Item) => {
       return (
-        parentCallbacks.filterForFavourites(obj) &&
+        parentCallbacks.filterForEra(obj) &&
         parentCallbacks.filterForAge(obj) &&
         parentCallbacks.filterForSearch(obj)
       );
@@ -1675,7 +1675,7 @@ function incomesForTable(
         END: obj.END,
         GROWS_WITH_CPI: makeYesNoFromBoolean(!obj.CPI_IMMUNE),
         NAME: obj.NAME,
-        FAVOURITE: obj.FAVOURITE,
+        ERA: obj.ERA,
         START: obj.START,
         VALUE: obj.VALUE,
         VALUE_SET: obj.VALUE_SET,
@@ -1801,7 +1801,7 @@ function incomesTableDiv(
           <DataGridFinKitty
             tableID={tableID}
             deleteFunction={deleteIncome}
-            setFavouriteFunction={setFavouriteIncome}
+            setEraFunction={setEraIncome}
             handleGridRowsUpdated={function () {
               return handleIncomeGridRowsUpdated(
                 model,
@@ -1845,7 +1845,7 @@ function expensesForTable(
   const unindexedResult = model.expenses
     .filter((obj: Item) => {
       return (
-        parentCallbacks.filterForFavourites(obj) &&
+        parentCallbacks.filterForEra(obj) &&
         parentCallbacks.filterForAge(obj) &&
         parentCallbacks.filterForSearch(obj)
       );
@@ -1868,7 +1868,7 @@ function expensesForTable(
         GROWS_WITH_CPI: makeYesNoFromBoolean(!obj.CPI_IMMUNE),
         CATEGORY: obj.CATEGORY,
         NAME: obj.NAME,
-        FAVOURITE: obj.FAVOURITE,
+        ERA: obj.ERA,
         START: obj.START,
         VALUE: obj.VALUE,
         VALUE_SET: obj.VALUE_SET,
@@ -1995,7 +1995,7 @@ function expensesTableDiv(
           <DataGridFinKitty
             tableID={tableID}
             deleteFunction={deleteExpense}
-            setFavouriteFunction={setFavouriteExpense}
+            setEraFunction={setEraExpense}
             handleGridRowsUpdated={function () {
               return handleExpenseGridRowsUpdated(
                 model,
@@ -2060,7 +2060,7 @@ function settingsForTable(
   const unindexedResult = data
     .filter((obj: Item) => {
       return (
-        parentCallbacks.filterForFavourites(obj) &&
+        parentCallbacks.filterForEra(obj) &&
         parentCallbacks.filterForAge(obj) &&
         parentCallbacks.filterForSearch(obj)
       );
@@ -2084,7 +2084,7 @@ function settingsForTable(
         : undefined;
       const mapResult = {
         NAME: obj.NAME,
-        FAVOURITE: obj.FAVOURITE,
+        ERA: obj.ERA,
         VALUE: obj.VALUE,
         HINT: obj.HINT,
         TODAYSVALUE: `${todaysVForTable?.settingVal}`,
@@ -2155,7 +2155,7 @@ function customSettingsTable(
     <DataGridFinKitty
       tableID={tableID}
       deleteFunction={deleteSetting}
-      setFavouriteFunction={setFavouriteSetting}
+      setEraFunction={setEraSetting}
       handleGridRowsUpdated={function () {
         return handleSettingGridRowsUpdated(
           model,
@@ -2184,7 +2184,7 @@ function adjustSettingsTable(
     <DataGridFinKitty
       tableID={tableID}
       deleteFunction={deleteSetting}
-      setFavouriteFunction={setFavouriteSetting}
+      setEraFunction={setEraSetting}
       handleGridRowsUpdated={function () {
         return handleSettingGridRowsUpdated(
           model,
@@ -2304,7 +2304,7 @@ export function settingsTableDiv(
         <DataGridFinKitty
           tableID={`settings${tableIDEnding}`}
           deleteFunction={deleteSetting}
-          setFavouriteFunction={setFavouriteSetting}
+          setEraFunction={setEraSetting}
           handleGridRowsUpdated={function () {
             return handleSettingGridRowsUpdated(
               model,
@@ -2438,7 +2438,7 @@ export function reportDiv(
       <DataGridFinKitty
         tableID={tableID}
         deleteFunction={undefined}
-        setFavouriteFunction={undefined}
+        setEraFunction={undefined}
         handleGridRowsUpdated={function () {
           return false;
         }}
@@ -2684,7 +2684,7 @@ export function calcOptimizer(
   const icd: ItemChartData = {
     item: {
       NAME: 'optimisation result',
-      FAVOURITE: undefined,
+      ERA: undefined,
     },
     chartDataPoints: cdps,
   };
@@ -2748,7 +2748,7 @@ export function optimizerDiv(
       <DataGridFinKitty
         tableID={tableID}
         deleteFunction={undefined}
-        setFavouriteFunction={undefined}
+        setEraFunction={undefined}
         handleGridRowsUpdated={function () {
           return false;
         }}

@@ -241,13 +241,13 @@ describe(testName, () => {
 
     await gotoTabPage(driver, transactionsTag);
     let data = await getDataDumpFromPage(driver, 'autogenTransactionsTable');
-    expect(data.length).toBe(3);
+    expect(data.length).toBe(1);
     expect(data[0]).toEqual({
       DATE: '1 Jan 2035',
       FROM: '-PDB TeachersPensionScheme',
       FROM_VALUE: '100%',
       NAME: '-PT TeachersPensionScheme',
-      FAVOURITE: true,
+      ERA: 0,
       TO: '-PT TeachersPensionScheme',
       TO_VALUE: '50%',
       STOP_DATE: '1 Jan 2040',
@@ -255,32 +255,18 @@ describe(testName, () => {
       TYPE: 'auto',
       CATEGORY: 'pension',
       index: 0,
-    });
-    expect(data[2]).toEqual({
-      DATE: '1 Jan 2022',
-      FROM: 'javaJob1',
-      FROM_VALUE: '0.16666666666666669%',
-      NAME: '-PDB TeachersPensionScheme',
-      FAVOURITE: true,
-      TO: '-PDB TeachersPensionScheme',
-      TO_VALUE: '100%',
-      STOP_DATE: '1 Jan 2025',
-      RECURRENCE: '',
-      TYPE: 'auto',
-      CATEGORY: 'pension',
-      index: 2,
     });
     data = await getDataDumpFromPage(
       driver,
       'autogenTransactionsOverviewTable',
     );
-    expect(data.length).toBe(3);
+    expect(data.length).toBe(1);
     expect(data[0]).toEqual({
       DATE: '1 Jan 2035',
       FROM: '-PDB TeachersPensionScheme',
       FROM_VALUE: '100%',
       NAME: '-PT TeachersPensionScheme',
-      FAVOURITE: true,
+      ERA: 0,
       TO: '-PT TeachersPensionScheme',
       TO_VALUE: '50%',
       STOP_DATE: '1 Jan 2040',
@@ -289,20 +275,7 @@ describe(testName, () => {
       CATEGORY: 'pension',
       index: 0,
     });
-    expect(data[2]).toEqual({
-      DATE: '1 Jan 2022',
-      FROM: 'javaJob1',
-      FROM_VALUE: '0.16666666666666669%',
-      NAME: '-PDB TeachersPensionScheme',
-      FAVOURITE: true,
-      TO: '-PDB TeachersPensionScheme',
-      TO_VALUE: '100%',
-      STOP_DATE: '1 Jan 2025',
-      RECURRENCE: '',
-      TYPE: 'auto',
-      CATEGORY: 'pension',
-      index: 2,
-    });
+
     data = await getDataDumpFromPage(driver, 'assetsTable');
     // console.log(`data = ${showObj(data)}`);
     expect(data.length).toBe(1);
@@ -320,6 +293,7 @@ describe(testName, () => {
       CAN_BE_NEGATIVE: 'Yes',
       TODAYSVALUE: '',
       index: 0,
+      ERA: 0,
     });
     data = await getDataDumpFromPage(driver, 'assetsOverviewTable');
     // console.log(`data = ${showObj(data)}`);
@@ -338,6 +312,7 @@ describe(testName, () => {
       CAN_BE_NEGATIVE: 'Yes',
       TODAYSVALUE: '',
       index: 0,
+      ERA: 0,
     });
     await cleanUpWork(driver, testDataModelName);
   });

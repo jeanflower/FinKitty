@@ -4,6 +4,7 @@ import {
   getDriver,
   beforeAllWork,
   cleanUpWork,
+  clickButton,
   getDataDumpFromPage,
 } from './browserBaseTypes';
 import { quitAfterAll, testModelCreation } from './browserTestUtils';
@@ -28,6 +29,8 @@ describe('BrowserWorkflowTests 02', () => {
       testDataModelName,
       'should create examples',
     );
+
+    await clickButton(driver, `btn-overview-${testDataModelName}`);
 
     let data = await getDataDumpFromPage(driver, 'reportTable');
     /*
@@ -61,91 +64,99 @@ describe('BrowserWorkflowTests 02', () => {
     });
     */
     data = await getDataDumpFromPage(driver, 'settingsTable');
-    expect(data.length).toBe(5);
+    expect(data.length).toBe(16);
     expect(data[0]).toEqual({
-      NAME: 'Type of view for asset chart',
+      NAME: 'View frequencyTransactions',
       TODAYSVALUE: 'undefined',
-      VALUE: 'val',
+      VALUE: 'Annually',
       index: 0,
-      HINT: "Asset chart uses setting '+', '-', '+-' or 'val'",
+      HINT: '',
+      ERA: 0,
     });
     expect(data[4]).toEqual({
-      NAME: 'Beginning of view range',
+      NAME: 'View frequencyOptimizer',
       TODAYSVALUE: 'undefined',
-      VALUE: '10 Apr 2019',
+      VALUE: 'Annually',
       index: 4,
-      HINT: 'Date at the start of range to be plotted',
+      HINT: '',
+      ERA: 0,
     });
     data = await getDataDumpFromPage(driver, 'triggersTable');
-    expect(data.length).toBe(48);
+    expect(data.length).toBe(3);
     expect(data[0]).toEqual({
-      DATE: '01 Jan 2030',
-      NAME: 'UpSpend',
+      DATE: '01 Jan 2028',
+      NAME: 'TransferMortgage',
       index: 0,
+      ERA: 0,
     });
-    expect(data[47]).toEqual({
-      DATE: 'GemDies<JeanDies?JeanDies:GemDies',
-      NAME: 'BothDead',
-      index: 47,
+    expect(data[2]).toEqual({
+      DATE: '31 Dec 2025',
+      NAME: 'GetRidOfCar',
+      index: 2,
+      ERA: 0,
     });
     data = await getDataDumpFromPage(driver, 'customTransactionsTable');
 
-    expect(data.length).toBe(11);
+    expect(data.length).toBe(3);
     expect(data[0]).toEqual({
-      DATE: 'BothDead',
-      FROM: 'Bonds',
-      FROM_VALUE: '100%',
-      NAME: 'CreateEstate',
-      TO: 'Estate',
-      TO_VALUE: '100%',
-      STOP_DATE: '',
-      RECURRENCE: '',
-      TYPE: 'custom',
       CATEGORY: '',
+      DATE: 'TransferMortgage',
+      ERA: 0,
+      FROM: 'EarlyMortgage',
+      FROM_VALUE: '100%',
+      NAME: 'switchMortgage',
+      RECURRENCE: '',
+      STOP_DATE: '',
+      TO: 'LateMortgage',
+      TO_VALUE: '100%',
+      TYPE: 'custom',
       index: 0,
     });
-    expect(data[10]).toEqual({
-      DATE: 'SoldFlat',
+    expect(data[2]).toEqual({
+      CATEGORY: 'living costs',
+      DATE: 'January 2 2018',
+      ERA: 0,
       FROM: 'Cash',
-      FROM_VALUE: '68046',
-      NAME: 'BondBuy1y',
-      TO: 'BondsFixedTerm',
-      TO_VALUE: '68046',
+      FROM_VALUE: '200',
+      NAME: 'Each month buy food',
+      RECURRENCE: '1m',
       STOP_DATE: '',
-      RECURRENCE: '',
+      TO: '',
+      TO_VALUE: '',
       TYPE: 'custom',
-      CATEGORY: '',
-      index: 10,
+      index: 2,
     });
 
     data = await getDataDumpFromPage(driver, 'customTransactionsOverviewTable');
 
-    expect(data.length).toBe(11);
+    expect(data.length).toBe(3);
     expect(data[0]).toEqual({
-      DATE: 'BothDead',
-      FROM: 'Bonds',
-      FROM_VALUE: '100%',
-      NAME: 'CreateEstate',
-      TO: 'Estate',
-      TO_VALUE: '100%',
-      STOP_DATE: '',
-      RECURRENCE: '',
-      TYPE: 'custom',
       CATEGORY: '',
+      DATE: 'TransferMortgage',
+      ERA: 0,
+      FROM: 'EarlyMortgage',
+      FROM_VALUE: '100%',
+      NAME: 'switchMortgage',
+      RECURRENCE: '',
+      STOP_DATE: '',
+      TO: 'LateMortgage',
+      TO_VALUE: '100%',
+      TYPE: 'custom',
       index: 0,
     });
-    expect(data[10]).toEqual({
-      DATE: 'SoldFlat',
+    expect(data[2]).toEqual({
+      CATEGORY: 'living costs',
+      DATE: 'January 2 2018',
+      ERA: 0,
       FROM: 'Cash',
-      FROM_VALUE: '68046',
-      NAME: 'BondBuy1y',
-      TO: 'BondsFixedTerm',
-      TO_VALUE: '68046',
+      FROM_VALUE: '200',
+      NAME: 'Each month buy food',
+      RECURRENCE: '1m',
       STOP_DATE: '',
-      RECURRENCE: '',
+      TO: '',
+      TO_VALUE: '',
       TYPE: 'custom',
-      CATEGORY: '',
-      index: 10,
+      index: 2,
     });
 
     await cleanUpWork(driver, testDataModelName);

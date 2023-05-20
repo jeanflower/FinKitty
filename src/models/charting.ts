@@ -635,7 +635,7 @@ function makeChartDataPoints(
       result.push({
         item: {
           NAME: pr.name,
-          FAVOURITE: undefined,
+          ERA: undefined,
         },
         chartDataPoints: pr.chartDataPoints,
       });

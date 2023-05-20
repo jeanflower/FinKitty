@@ -36,14 +36,16 @@ import {
   optimizerView,
   monthly,
   viewFrequency,
-  favourites,
   uiMode,
   taxView,
   showHistoricalOption,
+  showCurrentOption,
+  showFutureOption,
   assetsView,
   defaultReportSize,
   advancedUI,
   annually,
+  erasOption,
 } from './localization/stringConstants';
 import {
   AssetOrDebtVal,
@@ -334,16 +336,23 @@ function evalMode(): boolean {
     return false;
   }
 }
-export function favouritesOnly(): boolean {
+export function showHistorical(): boolean {
   if (reactAppComponent) {
-    return reactAppComponent.options.favourites;
+    return reactAppComponent.options.showHistorical;
   } else {
     return false;
   }
 }
-export function showHistorical(): boolean {
+export function showCurrent(): boolean {
   if (reactAppComponent) {
-    return reactAppComponent.options.showHistorical;
+    return reactAppComponent.options.showCurrent;
+  } else {
+    return false;
+  }
+}
+export function showFuture(): boolean {
+  if (reactAppComponent) {
+    return reactAppComponent.options.showFuture;
   } else {
     return false;
   }
@@ -922,7 +931,7 @@ export async function submitTrigger(
 export async function editSetting(
   settingInput: {
     NAME: string;
-    FAVOURITE: boolean | undefined;
+    ERA: number | undefined;
     VALUE: string;
     HINT: string;
   },
@@ -931,7 +940,7 @@ export async function editSetting(
   if (
     setViewSetting({
       NAME: settingInput.NAME,
-      FAVOURITE: settingInput.FAVOURITE,
+      ERA: settingInput.ERA,
       VALUE: settingInput.VALUE,
       TYPE: viewType,
       HINT: '',
@@ -1094,7 +1103,12 @@ function toggleOption(type: string): void {
         true, // refreshChart
         31, //sourceID
       );
-    } else if (type === favourites || type === showHistoricalOption) {
+    } else if (
+      type === erasOption ||
+      type === showHistoricalOption ||
+      type === showCurrentOption ||
+      type === showFutureOption
+    ) {
       refreshData(
         true, // refreshModel
         true, // refreshChart
@@ -1117,9 +1131,9 @@ export function getOption(type: string): boolean {
 export function getUIMode(): string {
   return reactAppComponent.options[uiMode];
 }
-export async function setFavouriteInModel(
+export async function setEraInModel(
   name: string,
-  value: boolean,
+  value: number,
   itemList: Item[],
   modelName: string,
   model: ModelData,
@@ -1132,14 +1146,14 @@ export async function setFavouriteInModel(
   // log(`idx of ${name} is ${idx}`);
 
   if (idx !== -1) {
-    itemList[idx].FAVOURITE = value;
+    itemList[idx].ERA = value;
     log(`item is now ${showObj(itemList[idx])})}`);
   } else {
     missingItem = name;
   }
 
   if (missingItem !== undefined) {
-    const response = `item not found for setting favourite :${missingItem}`;
+    const response = `item not found for setting era :${missingItem}`;
     // log(`setState for delete item alert`);
     reactAppComponent.setState({
       alertText: response,
@@ -1449,77 +1463,150 @@ export async function deleteSetting(name: string): Promise<DeleteResult> {
     true, // allowRecursion
   );
 }
-export async function setFavouriteTrigger(
-  name: string,
-  value: boolean,
-): Promise<boolean> {
-  return setFavouriteInModel(
-    name,
-    value,
-    reactAppComponent.state.modelData.triggers,
-    modelName,
-    reactAppComponent.state.modelData,
-  );
+function okToContinue(newEraValue: number): boolean {
+  // only change the era if it'll be visible
+  if (newEraValue === -1) {
+    if (showHistorical()) {
+      return true;
+    } else {
+      const gotPermission = window.confirm(
+        'make historical items visible in tables?',
+      );
+      if (gotPermission) {
+        toggleOption(showHistoricalOption);
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }
+  if (newEraValue === 0) {
+    if (showCurrent()) {
+      return true;
+    } else {
+      const gotPermission = window.confirm(
+        'make current items visible in tables?',
+      );
+      if (gotPermission) {
+        toggleOption(showCurrentOption);
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }
+  if (newEraValue === -1) {
+    if (showFuture()) {
+      return true;
+    } else {
+      const gotPermission = window.confirm(
+        'make future items visible in tables?',
+      );
+      if (gotPermission) {
+        toggleOption(showFutureOption);
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }
+  return true;
 }
-export async function setFavouriteAsset(
+export async function setEraTrigger(
   name: string,
-  value: boolean,
+  value: number,
 ): Promise<boolean> {
-  return setFavouriteInModel(
-    name,
-    value,
-    reactAppComponent.state.modelData.assets,
-    modelName,
-    reactAppComponent.state.modelData,
-  );
+  if (okToContinue(value)) {
+    return setEraInModel(
+      name,
+      value,
+      reactAppComponent.state.modelData.triggers,
+      modelName,
+      reactAppComponent.state.modelData,
+    );
+  } else {
+    return false;
+  }
 }
-export async function setFavouriteTransaction(
+export async function setEraAsset(
   name: string,
-  value: boolean,
+  value: number,
 ): Promise<boolean> {
-  return setFavouriteInModel(
-    name,
-    value,
-    reactAppComponent.state.modelData.transactions,
-    modelName,
-    reactAppComponent.state.modelData,
-  );
+  if (okToContinue(value)) {
+    return setEraInModel(
+      name,
+      value,
+      reactAppComponent.state.modelData.assets,
+      modelName,
+      reactAppComponent.state.modelData,
+    );
+  } else {
+    return false;
+  }
 }
-export async function setFavouriteExpense(
+export async function setEraTransaction(
   name: string,
-  value: boolean,
+  value: number,
 ): Promise<boolean> {
-  return setFavouriteInModel(
-    name,
-    value,
-    reactAppComponent.state.modelData.expenses,
-    modelName,
-    reactAppComponent.state.modelData,
-  );
+  if (okToContinue(value)) {
+    return setEraInModel(
+      name,
+      value,
+      reactAppComponent.state.modelData.transactions,
+      modelName,
+      reactAppComponent.state.modelData,
+    );
+  } else {
+    return false;
+  }
 }
-export async function setFavouriteIncome(
+export async function setEraExpense(
   name: string,
-  value: boolean,
+  value: number,
 ): Promise<boolean> {
-  return setFavouriteInModel(
-    name,
-    value,
-    reactAppComponent.state.modelData.incomes,
-    modelName,
-    reactAppComponent.state.modelData,
-  );
+  if (okToContinue(value)) {
+    return setEraInModel(
+      name,
+      value,
+      reactAppComponent.state.modelData.expenses,
+      modelName,
+      reactAppComponent.state.modelData,
+    );
+  } else {
+    return false;
+  }
 }
-export async function setFavouriteSetting(
+export async function setEraIncome(
   name: string,
-  value: boolean,
+  value: number,
 ): Promise<boolean> {
-  return setFavouriteInModel(
-    name,
-    value,
-    reactAppComponent.state.modelData.settings,
-    modelName,
-    reactAppComponent.state.modelData,
-  );
+  if (okToContinue(value)) {
+    return setEraInModel(
+      name,
+      value,
+      reactAppComponent.state.modelData.incomes,
+      modelName,
+      reactAppComponent.state.modelData,
+    );
+  } else {
+    return false;
+  }
+}
+export async function setEraSetting(
+  name: string,
+  value: number,
+): Promise<boolean> {
+  if (okToContinue(value)) {
+    return setEraInModel(
+      name,
+      value,
+      reactAppComponent.state.modelData.settings,
+      modelName,
+      reactAppComponent.state.modelData,
+    );
+  } else {
+    return false;
+  }
 }
 export async function updateModelName(newValue: string): Promise<boolean> {
   // log(`model name is now ${newValue}`);
@@ -1808,10 +1895,10 @@ export class AppContent extends Component<AppProps, AppState> {
       evalMode: true,
       checkModelOnEdit: true,
       favouritesOnly: false,
-
       uiMode: 'advancedUI',
-
-      showHistorical: true,
+      showHistorical: false,
+      showCurrent: true,
+      showFuture: true,
       searchString: '',
     };
     // eslint-disable-next-line @typescript-eslint/no-this-alias
@@ -1944,16 +2031,18 @@ export class AppContent extends Component<AppProps, AppState> {
         updateSettingValue(roiEnd, newDate);
       };
 
-      const filterForFavourites = (item: Item) => {
-        const favesOnly = favouritesOnly();
-        if (favesOnly) {
-          if (item.FAVOURITE) {
-            return true;
-          } else {
-            return false;
-          }
-        } else {
+      const filterForEra = (item: Item) => {
+        if (showHistorical() && item.ERA === -1) {
           return true;
+        } else if (
+          showCurrent() &&
+          (item.ERA === 0 || item.ERA === undefined)
+        ) {
+          return true;
+        } else if (showFuture() && item.ERA === 1) {
+          return true;
+        } else {
+          return false;
         }
       };
 
@@ -1993,7 +2082,7 @@ export class AppContent extends Component<AppProps, AppState> {
         getEndDate: getEndDate,
         updateStartDate: updateStartDate,
         updateEndDate: updateEndDate,
-        filterForFavourites: filterForFavourites,
+        filterForEra: filterForEra,
         filterForAge: filterForAge,
         filterForSearch: filterForSearch,
         getSearchString: getSearchString,

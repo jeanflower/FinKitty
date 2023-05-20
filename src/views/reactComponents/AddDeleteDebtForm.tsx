@@ -237,7 +237,7 @@ export class AddDeleteDebtForm extends Component<
 
     const revalueTransaction: Transaction = {
       NAME: `${revalue}${this.state.NAME} ${count}`,
-      FAVOURITE: true, // new things are automatically favourites,
+      ERA: 0, // new things are automatically current,
       FROM: '',
       FROM_ABSOLUTE: false,
       FROM_VALUE: '0.0',
@@ -432,7 +432,7 @@ export class AddDeleteDebtForm extends Component<
     // log('adding something ' + showObj(this));
     const asset: Asset = {
       NAME: this.state.NAME,
-      FAVOURITE: true, // new things are automatically favourites,
+      ERA: 0, // new things are automatically current,
       VALUE: `-${parseFloat(this.state.VALUE)}`,
       QUANTITY: '', // debts are continuous
       START: this.state.START,
@@ -461,7 +461,7 @@ export class AddDeleteDebtForm extends Component<
         }
         const transaction: Transaction = {
           NAME: `${conditional}Payment to ${this.state.NAME} ${count}`,
-          FAVOURITE: true, // new things are automatically favourites,
+          ERA: 0, // new things are automatically current,
           CATEGORY: this.state.CATEGORY,
           FROM: CASH_ASSET_NAME,
           FROM_ABSOLUTE: true,

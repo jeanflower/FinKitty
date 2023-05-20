@@ -2,7 +2,12 @@ import React, { Component, FormEvent } from 'react';
 
 import { log, printDebug } from '../../utils/utils';
 import { Input } from './Input';
-import { favouritesOnly, replaceWithModel, showHistorical } from '../../App';
+import {
+  replaceWithModel,
+  showHistorical,
+  showCurrent,
+  showFuture,
+} from '../../App';
 import { makeModelFromJSON } from '../../models/modelUtils';
 import { makeButton } from './Button';
 import {
@@ -10,8 +15,9 @@ import {
   checkOverwriteOption,
   evalModeOption,
   goToAssetsPageOption,
-  favourites,
   showHistoricalOption,
+  showCurrentOption,
+  showFutureOption,
   advancedUI,
   simpleUI,
 } from '../../localization/stringConstants';
@@ -103,21 +109,30 @@ export class ReplaceWithJSONForm extends Component<
         )}
         <br></br>
         {makeButton(
-          favouritesOnly() ? 'show all items' : `show favourite items`,
-          () => {
-            this.props.toggleOption(favourites);
-          },
-          'toggleFav',
-          'toggleFav',
-          'outline-secondary',
-        )}
-        {makeButton(
           showHistorical() ? 'hide old items' : `show old items`,
           () => {
             this.props.toggleOption(showHistoricalOption);
           },
           'showHistoricalOption',
           'showHistoricalOption',
+          'outline-secondary',
+        )}
+        {makeButton(
+          showCurrent() ? 'hide current items' : `show current items`,
+          () => {
+            this.props.toggleOption(showCurrentOption);
+          },
+          'showCurrentOption',
+          'showCurrentOption',
+          'outline-secondary',
+        )}
+        {makeButton(
+          showFuture() ? 'hide future items' : `show future items`,
+          () => {
+            this.props.toggleOption(showFutureOption);
+          },
+          'showFutureOption',
+          'showFutureOption',
           'outline-secondary',
         )}
         {makeButton(
@@ -236,6 +251,16 @@ export class ReplaceWithJSONForm extends Component<
     }
     if (JSON === showHistoricalOption) {
       this.props.toggleOption(showHistoricalOption);
+      this.setState({ JSON: '' });
+      return;
+    }
+    if (JSON === showCurrentOption) {
+      this.props.toggleOption(showCurrentOption);
+      this.setState({ JSON: '' });
+      return;
+    }
+    if (JSON === showFutureOption) {
+      this.props.toggleOption(showFutureOption);
       this.setState({ JSON: '' });
       return;
     }

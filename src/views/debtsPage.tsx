@@ -62,7 +62,7 @@ function makeDataGrid(
     <DataGridFinKitty
       tableID={tableID}
       deleteFunction={undefined}
-      setFavouriteFunction={undefined}
+      setEraFunction={undefined}
       handleGridRowsUpdated={function () {
         return false;
       }}

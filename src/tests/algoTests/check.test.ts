@@ -362,7 +362,7 @@ describe('checks tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'x',
-          FAVOURITE: undefined,
+          ERA: undefined,
           VALUE: '1.00',
           HINT: 'growthValue',
           TYPE: adjustableType,
@@ -915,7 +915,7 @@ describe('checks tests', () => {
         ...defaultModelSettings(roi),
         {
           NAME: 'x',
-          FAVOURITE: undefined,
+          ERA: undefined,
           VALUE: '1.00',
           HINT: 'growthValue',
           TYPE: adjustableType,
@@ -1039,7 +1039,7 @@ describe('checks tests', () => {
       checkTrigger(
         {
           NAME: '',
-          FAVOURITE: undefined,
+          ERA: undefined,
           DATE: '1 Jan 2018',
         },
         model,
@@ -1049,7 +1049,7 @@ describe('checks tests', () => {
       checkTrigger(
         {
           NAME: 'today',
-          FAVOURITE: undefined,
+          ERA: undefined,
           DATE: '1 Jan 2018',
         },
         model,
@@ -1059,7 +1059,7 @@ describe('checks tests', () => {
       checkTrigger(
         {
           NAME: 'zzz',
-          FAVOURITE: undefined,
+          ERA: undefined,
           DATE: 'nonsense',
         },
         model,

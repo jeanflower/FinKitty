@@ -47,6 +47,20 @@ export function getVarVal(settings: Setting[]) {
   }
   return varVal;
 }
+
+function convertFavouriteToEra(i: any) {
+  if (i.ERA !== undefined) {
+    return;
+  }
+  if (i.FAVOURITE === true) {
+    i.ERA = 1;
+  } else if (i.FAVOURITE === false) {
+    i.ERA = 0;
+  } else {
+    i.ERA = 0;
+  }
+}
+
 function cleanUpDates(
   modelFromJSON: ModelData,
   cleanUndo: boolean,
@@ -137,6 +151,25 @@ export function makeModelFromJSONString(
     result.version = 0;
   }
 
+  for (const asset of result.assets) {
+    convertFavouriteToEra(asset);
+  }
+  for (const income of result.incomes) {
+    convertFavouriteToEra(income);
+  }
+  for (const expense of result.expenses) {
+    convertFavouriteToEra(expense);
+  }
+  for (const trigger of result.triggers) {
+    convertFavouriteToEra(trigger);
+  }
+  for (const setting of result.settings) {
+    convertFavouriteToEra(setting);
+  }
+  for (const transaction of result.transactions) {
+    convertFavouriteToEra(transaction);
+  }
+
   cleanUpDates(result, true, true);
 
   // log(`result from makeModelFromJSON = ${showObj(result)}`);
@@ -203,7 +236,7 @@ export function setSetting(
     // add new object
     settings.push({
       NAME: key,
-      FAVOURITE: undefined,
+      ERA: undefined,
       VALUE: val,
       HINT: hint,
       TYPE: type,
@@ -212,7 +245,7 @@ export function setSetting(
     // replace with a new object
     settings.splice(idx, 1, {
       NAME: key,
-      FAVOURITE: settings[idx].FAVOURITE,
+      ERA: settings[idx].ERA,
       VALUE: val,
       HINT: hint,
       TYPE: type,
@@ -232,7 +265,7 @@ export function setNonsenseSetting(
     // add new object
     settings.push({
       NAME: key,
-      FAVOURITE: undefined,
+      ERA: undefined,
       VALUE: val,
       HINT: hint,
       TYPE: type,
@@ -241,7 +274,7 @@ export function setNonsenseSetting(
     // replace with a new object
     settings.splice(idx, 1, {
       NAME: key,
-      FAVOURITE: settings[idx].FAVOURITE,
+      ERA: settings[idx].ERA,
       VALUE: val,
       HINT: hint,
       TYPE: type,

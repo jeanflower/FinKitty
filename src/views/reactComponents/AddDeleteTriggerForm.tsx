@@ -48,7 +48,7 @@ export function newTriggerButtonData(
       }
       await submitTriggerFunction({
         NAME: nameString,
-        FAVOURITE: true, // new things are automatically favourites,
+        ERA: 0, // new things are automatically current,
         DATE: dateString,
       });
     },
@@ -150,7 +150,7 @@ export class AddDeleteTriggerForm extends Component<
     // log('adding something ' + showObj(this));
     const trigger: Trigger = {
       NAME: this.state.NAME,
-      FAVOURITE: true, // new things are automatically favourites,
+      ERA: 0, // new things are automatically current,
       DATE: this.state.DATE,
     };
     const message = this.props.checkFunction(trigger, this.props.model);

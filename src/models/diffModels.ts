@@ -16,10 +16,8 @@ function diffTriggers(it1: Item, it2: Item): string {
   if (i1.DATE !== i2.DATE) {
     return `${it1.NAME}: date ${i1.DATE} !== ${i2.DATE}`;
   }
-  if (i1.FAVOURITE && !i2.FAVOURITE) {
-    return `${it1.NAME}: became favourite`;
-  } else if (!i1.FAVOURITE && i2.FAVOURITE) {
-    return `${it1.NAME}: no longer favourite`;
+  if (i1.ERA != i2.ERA) {
+    return `${it1.NAME}: changed era`;
   }
   return '';
 }
@@ -47,10 +45,8 @@ function diffIncomes(it1: Item, it2: Item): string {
   if (i1.CATEGORY !== i2.CATEGORY) {
     return `${it1.NAME}: category ${i1.CATEGORY} !== ${i2.CATEGORY}`;
   }
-  if (i1.FAVOURITE && !i2.FAVOURITE) {
-    return `${it1.NAME}: became favourite`;
-  } else if (!i1.FAVOURITE && i2.FAVOURITE) {
-    return `${it1.NAME}: no longer favourite`;
+  if (i1.ERA != i2.ERA) {
+    return `${it1.NAME}: changed era`;
   }
 
   return '';
@@ -79,10 +75,8 @@ function diffExpenses(it1: Item, it2: Item): string {
   if (i1.CATEGORY !== i2.CATEGORY) {
     return `${it1.NAME}: category ${i1.CATEGORY} !== ${i2.CATEGORY}`;
   }
-  if (i1.FAVOURITE && !i2.FAVOURITE) {
-    return `${it1.NAME}: became favourite`;
-  } else if (!i1.FAVOURITE && i2.FAVOURITE) {
-    return `${it1.NAME}: no longer favourite`;
+  if (i1.ERA != i2.ERA) {
+    return `${it1.NAME}: changed era`;
   }
 
   return '';
@@ -117,10 +111,8 @@ function diffAssets(it1: Item, it2: Item): string {
   if (i1.CATEGORY !== i2.CATEGORY) {
     return `${it1.NAME}: category ${i1.CATEGORY} !== ${i2.CATEGORY}`;
   }
-  if (i1.FAVOURITE && !i2.FAVOURITE) {
-    return `${it1.NAME}: became favourite`;
-  } else if (!i1.FAVOURITE && i2.FAVOURITE) {
-    return `${it1.NAME}: no longer favourite`;
+  if (i1.ERA != i2.ERA) {
+    return `${it1.NAME}: changed era`;
   }
 
   return '';
@@ -163,10 +155,8 @@ function diffTransactions(it1: Item, it2: Item): string {
   if (i1.CATEGORY !== i2.CATEGORY) {
     return `${it1.NAME}: category ${i1.CATEGORY} !== ${i2.CATEGORY}`;
   }
-  if (i1.FAVOURITE && !i2.FAVOURITE) {
-    return `${it1.NAME}: became favourite`;
-  } else if (!i1.FAVOURITE && i2.FAVOURITE) {
-    return `${it1.NAME}: no longer favourite`;
+  if (i1.ERA != i2.ERA) {
+    return `${it1.NAME}: changed era`;
   }
 
   return '';
@@ -183,10 +173,8 @@ function diffSettings(it1: Item, it2: Item): string {
   if (i1.TYPE !== i2.TYPE) {
     return `${it1.NAME}: type ${i1.TYPE} !== ${i2.TYPE}`;
   }
-  if (i1.FAVOURITE && !i2.FAVOURITE) {
-    return `${it1.NAME}: became favourite`;
-  } else if (!i1.FAVOURITE && i2.FAVOURITE) {
-    return `${it1.NAME}: no longer favourite`;
+  if (i1.ERA != i2.ERA) {
+    return `${it1.NAME}: changed era`;
   }
 
   return '';

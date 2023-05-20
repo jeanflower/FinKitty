@@ -220,7 +220,7 @@ export const defaultSourceMatcher = '.';
 export const defaultSourceExcluder = '';
 export const defaultReportSize = 40;
 
-export const favourites = 'favourites';
+export const erasOption = 'eras';
 export const evalModeOption = 'evalMode';
 export const checkModelOnEditOption = 'checkModelOnEdit';
 export const goToAssetsPageOption = 'goToAssetsPage';
@@ -231,3 +231,5 @@ export const simpleUI = 'simpleUI';
 export const advancedUI = 'advancedUI';
 
 export const showHistoricalOption = 'showHistorical';
+export const showCurrentOption = 'showCurrent';
+export const showFutureOption = 'showFuture';

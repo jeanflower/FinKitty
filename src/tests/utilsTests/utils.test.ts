@@ -295,57 +295,57 @@ describe('utils tests', () => {
     const model = getMinimalModelCopy();
     model.triggers.push({
       NAME: 't0',
-      FAVOURITE: undefined,
+      ERA: undefined,
       DATE: '01/02/2001',
     });
     model.triggers.push({
       NAME: 't1',
-      FAVOURITE: undefined,
+      ERA: undefined,
       DATE: '01/02/1999',
     });
     model.triggers.push({
       NAME: 't2',
-      FAVOURITE: undefined,
+      ERA: undefined,
       DATE: 'Thu Feb 01 2001',
     });
     model.triggers.push({
       NAME: 't3',
-      FAVOURITE: undefined,
+      ERA: undefined,
       DATE: 'Feb 01 2001',
     });
     model.triggers.push({
       NAME: 't4',
-      FAVOURITE: undefined,
+      ERA: undefined,
       DATE: '01 Feb 2001',
     });
     model.triggers.push({
       NAME: 't5',
-      FAVOURITE: undefined,
+      ERA: undefined,
       DATE: 'Thu February 01 2001',
     });
     model.triggers.push({
       NAME: 't6',
-      FAVOURITE: undefined,
+      ERA: undefined,
       DATE: 'February 01 2001',
     });
     model.triggers.push({
       NAME: 't7',
-      FAVOURITE: undefined,
+      ERA: undefined,
       DATE: '01 February 2001',
     });
     model.triggers.push({
       NAME: 't8',
-      FAVOURITE: undefined,
+      ERA: undefined,
       DATE: '9 September 2021 8:00',
     });
     model.triggers.push({
       NAME: 't9',
-      FAVOURITE: undefined,
+      ERA: undefined,
       DATE: 'refers to some setting',
     });
     model.triggers.push({
       NAME: 't10',
-      FAVOURITE: undefined,
+      ERA: undefined,
       DATE: 'Thu 01 Feb 2001',
     });
 
@@ -482,14 +482,14 @@ describe('utils tests', () => {
     const settings = [
       {
         NAME: 'a',
-        FAVOURITE: undefined,
+        ERA: undefined,
         VALUE: '10.0',
         HINT: '',
         TYPE: '',
       },
       {
         NAME: 'b',
-        FAVOURITE: undefined,
+        ERA: undefined,
         VALUE: '10a',
         HINT: '',
         TYPE: '',
@@ -536,14 +536,14 @@ describe('utils tests', () => {
     const settings = [
       {
         NAME: 'a',
-        FAVOURITE: undefined,
+        ERA: undefined,
         VALUE: '10.0',
         HINT: '',
         TYPE: '',
       },
       {
         NAME: 'b',
-        FAVOURITE: undefined,
+        ERA: undefined,
         VALUE: '10a',
         HINT: '',
         TYPE: '',
@@ -787,7 +787,7 @@ describe('utils tests', () => {
     const varVal = 1.0;
     const simpleTrigger = {
       NAME: 'a',
-      FAVOURITE: undefined,
+      ERA: undefined,
       DATE: '1 Jan 2018',
     };
     expect(checkTriggerDate('', [simpleTrigger], varVal)).toEqual(undefined);
@@ -945,7 +945,7 @@ describe('utils tests', () => {
     const varVal = 1.0;
     const simpleTrigger = {
       NAME: 'a',
-      FAVOURITE: undefined,
+      ERA: undefined,
       DATE: '1 Jan 2018',
     };
     //expect(getTriggerDate('', [simpleTrigger], varVal))).toEqual(
@@ -1132,7 +1132,7 @@ describe('utils tests', () => {
     const varVal = 1.0;
     const simpleTrigger = {
       NAME: 'a',
-      FAVOURITE: undefined,
+      ERA: undefined,
       DATE: '1 Jan 2018',
     };
     expect(makeDateTooltip('a', [simpleTrigger], varVal)).toEqual(
@@ -1202,7 +1202,7 @@ describe('utils tests', () => {
     const m = makeModelFromJSONString(JSON.stringify(minimalModel));
     m.triggers.push({
       NAME: 'something',
-      FAVOURITE: undefined,
+      ERA: undefined,
       DATE: `1999`,
     });
     m.transactions.push({
@@ -1264,7 +1264,7 @@ describe('utils tests', () => {
       (x: ModelData) => {
         x.triggers.push({
           NAME: 'b',
-          FAVOURITE: undefined,
+          ERA: undefined,
           DATE: 'a+1y',
         });
       },
@@ -1277,7 +1277,7 @@ describe('utils tests', () => {
       (x: ModelData) => {
         x.triggers.push({
           NAME: 'a+boo',
-          FAVOURITE: undefined,
+          ERA: undefined,
           DATE: 'a+boo',
         });
         x.incomes.push({
@@ -1292,7 +1292,7 @@ describe('utils tests', () => {
         hasDependentDate(
           {
             NAME: 'a',
-            FAVOURITE: undefined,
+            ERA: undefined,
             DATE: '1 Jan 1999',
           },
           x,
@@ -1302,7 +1302,7 @@ describe('utils tests', () => {
         hasDependentDate(
           {
             NAME: 'b',
-            FAVOURITE: undefined,
+            ERA: undefined,
             DATE: '1 Jan 1999',
           },
           x,
@@ -1440,7 +1440,7 @@ describe('utils tests', () => {
         makeChange: (m: ModelData) => {
           m.triggers.push({
             NAME: 'a',
-            FAVOURITE: undefined,
+            ERA: undefined,
             DATE: '1 Jan 1999',
           });
         },
@@ -1689,7 +1689,7 @@ describe('utils tests', () => {
 
     model2.expenses.push({
       NAME: 'Look after dogs',
-      FAVOURITE: undefined,
+      ERA: undefined,
       CATEGORY: 'living costs',
       START: '1 April 2018',
       END: '2 February 2047',
@@ -1700,7 +1700,7 @@ describe('utils tests', () => {
     });
     model2.expenses.push({
       NAME: 'Look after ducks',
-      FAVOURITE: undefined,
+      ERA: undefined,
       CATEGORY: 'living costs',
       START: '1 April 2018',
       END: '2 February 2047',
@@ -1712,7 +1712,7 @@ describe('utils tests', () => {
 
     model2.assets.push({
       NAME: 'ISAs',
-      FAVOURITE: undefined,
+      ERA: undefined,
       CATEGORY: 'stock',
       START: 'December 2019',
       VALUE: '2000',
@@ -1730,7 +1730,7 @@ describe('utils tests', () => {
       FROM_VALUE: '1500',
       FROM_ABSOLUTE: true,
       NAME: 'invest',
-      FAVOURITE: undefined,
+      ERA: undefined,
       TO: 'ISAs',
       TO_ABSOLUTE: false,
       TO_VALUE: '1',
@@ -1746,7 +1746,7 @@ describe('utils tests', () => {
     const oldModelCopy = JSON.parse(JSON.stringify(model2));
 
     // Change the favourite status of an income
-    model2.incomes[0].FAVOURITE = true;
+    model2.incomes[0].ERA = 1;
 
     // log(`oldModelCopy = ${JSON.stringify(oldModelCopy)}`);
     let diffResult = diffModels(
@@ -1757,10 +1757,10 @@ describe('utils tests', () => {
       'oldModelCopy',
     );
     expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual('TeachingJob: became favourite');
+    expect(diffResult[0]).toEqual('TeachingJob: changed era');
 
-    model2.incomes[0].FAVOURITE = false;
-    oldModelCopy.incomes[0].FAVOURITE = true;
+    model2.incomes[0].ERA = -1;
+    oldModelCopy.incomes[0].ERA = 1;
 
     diffResult = diffModels(
       model2,
@@ -1770,9 +1770,9 @@ describe('utils tests', () => {
       'oldModelCopy',
     );
     expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual('TeachingJob: no longer favourite');
+    expect(diffResult[0]).toEqual('TeachingJob: changed era');
 
-    oldModelCopy.incomes[0].FAVOURITE = false;
+    oldModelCopy.incomes[0].ERA = -1;
     diffResult = diffModels(
       model2,
       oldModelCopy,
@@ -1783,7 +1783,7 @@ describe('utils tests', () => {
     expect(diffResult.length).toBe(0);
 
     // Change the favourite status of an expense
-    model2.expenses[0].FAVOURITE = true;
+    model2.expenses[0].ERA = 1;
 
     // log(`oldModelCopy = ${JSON.stringify(oldModelCopy)}`);
     diffResult = diffModels(
@@ -1794,10 +1794,10 @@ describe('utils tests', () => {
       'oldModelCopy',
     );
     expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual('Look after dogs: became favourite');
+    expect(diffResult[0]).toEqual('Look after dogs: changed era');
 
-    model2.expenses[0].FAVOURITE = false;
-    oldModelCopy.expenses[0].FAVOURITE = true;
+    model2.expenses[0].ERA = -1;
+    oldModelCopy.expenses[0].ERA = 1;
 
     diffResult = diffModels(
       model2,
@@ -1807,9 +1807,9 @@ describe('utils tests', () => {
       'oldModelCopy',
     );
     expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual('Look after dogs: no longer favourite');
+    expect(diffResult[0]).toEqual('Look after dogs: changed era');
 
-    oldModelCopy.expenses[0].FAVOURITE = false;
+    oldModelCopy.expenses[0].ERA = -1;
     diffResult = diffModels(
       model2,
       oldModelCopy,
@@ -1820,7 +1820,7 @@ describe('utils tests', () => {
     expect(diffResult.length).toBe(0);
 
     // Change the favourite status of an asset
-    model2.assets[0].FAVOURITE = true;
+    model2.assets[0].ERA = 1;
 
     // log(`oldModelCopy = ${JSON.stringify(oldModelCopy)}`);
     diffResult = diffModels(
@@ -1831,10 +1831,10 @@ describe('utils tests', () => {
       'oldModelCopy',
     );
     expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual('Cash: became favourite');
+    expect(diffResult[0]).toEqual('Cash: changed era');
 
-    model2.assets[0].FAVOURITE = false;
-    oldModelCopy.assets[0].FAVOURITE = true;
+    model2.assets[0].ERA = -1;
+    oldModelCopy.assets[0].ERA = 1;
 
     diffResult = diffModels(
       model2,
@@ -1844,9 +1844,9 @@ describe('utils tests', () => {
       'oldModelCopy',
     );
     expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual('Cash: no longer favourite');
+    expect(diffResult[0]).toEqual('Cash: changed era');
 
-    oldModelCopy.assets[0].FAVOURITE = false;
+    oldModelCopy.assets[0].ERA = -1;
     diffResult = diffModels(
       model2,
       oldModelCopy,
@@ -1857,7 +1857,7 @@ describe('utils tests', () => {
     expect(diffResult.length).toBe(0);
 
     // Change the favourite status of a setting
-    model2.settings[0].FAVOURITE = true;
+    model2.settings[0].ERA = 1;
 
     // log(`oldModelCopy = ${JSON.stringify(oldModelCopy)}`);
     diffResult = diffModels(
@@ -1868,10 +1868,10 @@ describe('utils tests', () => {
       'oldModelCopy',
     );
     expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual(`Today's value focus date: became favourite`);
+    expect(diffResult[0]).toEqual(`Today's value focus date: changed era`);
 
-    model2.settings[0].FAVOURITE = false;
-    oldModelCopy.settings[0].FAVOURITE = true;
+    model2.settings[0].ERA = -1;
+    oldModelCopy.settings[0].ERA = 1;
 
     diffResult = diffModels(
       model2,
@@ -1881,11 +1881,9 @@ describe('utils tests', () => {
       'oldModelCopy',
     );
     expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual(
-      `Today's value focus date: no longer favourite`,
-    );
+    expect(diffResult[0]).toEqual(`Today's value focus date: changed era`);
 
-    oldModelCopy.settings[0].FAVOURITE = false;
+    oldModelCopy.settings[0].ERA = -1;
     diffResult = diffModels(
       model2,
       oldModelCopy,
@@ -1896,7 +1894,7 @@ describe('utils tests', () => {
     expect(diffResult.length).toBe(0);
 
     // Change the favourite status of a transaction
-    model2.transactions[0].FAVOURITE = true;
+    model2.transactions[0].ERA = 1;
 
     // log(`oldModelCopy = ${JSON.stringify(oldModelCopy)}`);
     diffResult = diffModels(
@@ -1907,12 +1905,10 @@ describe('utils tests', () => {
       'oldModelCopy',
     );
     expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual(
-      '-PT TeachersPensionScheme: became favourite',
-    );
+    expect(diffResult[0]).toEqual('-PT TeachersPensionScheme: changed era');
 
-    model2.transactions[0].FAVOURITE = false;
-    oldModelCopy.transactions[0].FAVOURITE = true;
+    model2.transactions[0].ERA = -1;
+    oldModelCopy.transactions[0].ERA = 1;
 
     diffResult = diffModels(
       model2,
@@ -1922,11 +1918,9 @@ describe('utils tests', () => {
       'oldModelCopy',
     );
     expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual(
-      '-PT TeachersPensionScheme: no longer favourite',
-    );
+    expect(diffResult[0]).toEqual('-PT TeachersPensionScheme: changed era');
 
-    oldModelCopy.transactions[0].FAVOURITE = false;
+    oldModelCopy.transactions[0].ERA = -1;
     diffResult = diffModels(
       model2,
       oldModelCopy,
@@ -1937,7 +1931,7 @@ describe('utils tests', () => {
     expect(diffResult.length).toBe(0);
 
     // Change the favourite status of a trigger
-    model2.triggers[0].FAVOURITE = true;
+    model2.triggers[0].ERA = 1;
 
     // log(`oldModelCopy = ${JSON.stringify(oldModelCopy)}`);
     diffResult = diffModels(
@@ -1948,10 +1942,10 @@ describe('utils tests', () => {
       'oldModelCopy',
     );
     expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual('PensionTransfers: became favourite');
+    expect(diffResult[0]).toEqual('PensionTransfers: changed era');
 
-    model2.triggers[0].FAVOURITE = false;
-    oldModelCopy.triggers[0].FAVOURITE = true;
+    model2.triggers[0].ERA = -1;
+    oldModelCopy.triggers[0].ERA = 1;
 
     diffResult = diffModels(
       model2,
@@ -1961,9 +1955,9 @@ describe('utils tests', () => {
       'oldModelCopy',
     );
     expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual('PensionTransfers: no longer favourite');
+    expect(diffResult[0]).toEqual('PensionTransfers: changed era');
 
-    oldModelCopy.triggers[0].FAVOURITE = false;
+    oldModelCopy.triggers[0].ERA = -1;
     diffResult = diffModels(
       model2,
       oldModelCopy,

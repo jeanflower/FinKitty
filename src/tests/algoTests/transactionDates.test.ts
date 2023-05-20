@@ -5,7 +5,7 @@ import { DateFormatType } from '../../utils/utils';
 
 export const testAsset: Asset = {
   NAME: 'test_asset',
-  FAVOURITE: undefined,
+  ERA: undefined,
   CATEGORY: '',
   START: 'Jan 2017',
   VALUE: '1.2',

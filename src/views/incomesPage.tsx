@@ -62,7 +62,7 @@ function makeDataGrid(
     <DataGridFinKitty
       tableID={tableID}
       deleteFunction={undefined}
-      setFavouriteFunction={undefined}
+      setEraFunction={undefined}
       handleGridRowsUpdated={function () {
         return false;
       }}
@@ -78,7 +78,7 @@ function makeDataGrid(
             }
             return {
               NAME: key[0].NAME,
-              FAVOURITE: key[0].FAVOURITE,
+              ERA: key[0].ERA,
               VALUE: `${key[1].incomeVal}`,
               CATEGORY: `${key[1].category}`,
             };

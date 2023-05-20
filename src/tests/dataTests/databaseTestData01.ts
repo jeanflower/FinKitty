@@ -20,17 +20,17 @@ import {
 export const testTriggers01: Trigger[] = [
   {
     NAME: 'TransferMortgage',
-    FAVOURITE: undefined,
+    ERA: undefined,
     DATE: 'Jan 01 2028',
   },
   {
     NAME: 'StopMainWork',
-    FAVOURITE: undefined,
+    ERA: undefined,
     DATE: 'Dec 31 2050',
   },
   {
     NAME: 'GetRidOfCar',
-    FAVOURITE: undefined,
+    ERA: undefined,
     DATE: 'Dec 31 2025',
   },
 ];
