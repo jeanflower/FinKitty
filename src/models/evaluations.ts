@@ -646,13 +646,15 @@ function setValue(
             `source = ${source}, from  ${callerID}`,
         );
       } else {
-        log(
-          `setting value of ${name}, ` +
-            `newValue = ${newValue} ` +
-            `oldValue = ${existingValue} ` +
-            `date = ${dateAsString(DateFormatType.Debug, date)}, ` +
-            `source = ${source}, from  ${callerID}`,
-        );
+        if (newValue !== existingValue) {
+          log(
+            `setting value of ${name}, ` +
+              `newValue = ${newValue} ` +
+              `oldValue = ${existingValue} ` +
+              `date = ${dateAsString(DateFormatType.Debug, date)}, ` +
+              `source = ${source}, from  ${callerID}`,
+          );
+        }
       }
     }
     if (printReal) {
@@ -664,13 +666,15 @@ function setValue(
             `source = ${source}, from  ${callerID}`,
         );
       } else {
-        log(
-          `setting value of ${name}, ` +
-            `newRealValue = ${realNewValue} ` +
-            `oldRealValue = ${realExistingValue} ` +
-            `date = ${dateAsString(DateFormatType.Debug, date)}, ` +
-            `source = ${source}, from  ${callerID}`,
-        );
+        if (newValue !== existingValue) {
+          log(
+            `setting value of ${name}, ` +
+              `newRealValue = ${realNewValue} ` +
+              `oldRealValue = ${realExistingValue} ` +
+              `date = ${dateAsString(DateFormatType.Debug, date)}, ` +
+              `source = ${source}, from  ${callerID}`,
+          );
+        }
       }
     }
   }
@@ -2022,7 +2026,7 @@ function settleUpTax(
     }
     if (recalculatedNetGain) {
       for (const [person, amount] of personNetGain) {
-        if (amount > 0) {
+        if (amount !== 0) {
           // log(`setValue ${'netgain'+person} amount ${amount}`)
           setValue(
             values,
@@ -3641,9 +3645,13 @@ function handleCGTLiability(
   // log(`purchasePrice = ${purchasePrice}`);
   if (purchasePrice !== undefined) {
     const totalGain = preFromValue - purchasePrice;
+    // if (fromWord.includes('ESPP') || fromWord.includes('RSU')) {
     // log(`at ${moment.date}, totalGain = preFromValue - purchasePrice = ${preFromValue} - ${purchasePrice} = ${totalGain}`);
+    // }
     const proportionGain = totalGain * proportionSale;
+    // if (fromWord.includes('ESPP') || fromWord.includes('RSU')) {
     // log(`proportionGain = ${proportionGain}`);
+    // }
     let cgtMap = liableIncomeInTaxYear.get('cgt');
     if (cgtMap === undefined) {
       liableIncomeInTaxYear.set('cgt', new Map<string, number>());
@@ -3655,7 +3663,9 @@ function handleCGTLiability(
         currentcgtVal = 0.0;
       }
       currentcgtVal += proportionGain;
+      // if (fromWord.includes('ESPP') || fromWord.includes('RSU')) {
       // log(`setting new value for cgt ${currentcgtVal}`);
+      // }
       cgtMap.set(cgtLiability, currentcgtVal);
       // log(`logged cgt for ${cgtLiability}, accumulated value ${currentcgtVal}`);
     }

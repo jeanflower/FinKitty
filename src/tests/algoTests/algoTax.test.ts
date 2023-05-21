@@ -14,6 +14,7 @@ import {
   allItems,
   taxChartShowNet,
   taxChartFocusPerson,
+  adjustableType,
 } from '../../localization/stringConstants';
 import { makeChartDataFromEvaluations } from '../../models/charting';
 import {
@@ -27,7 +28,7 @@ import {
 } from '../../models/exampleModels';
 import { getLiabilityPeople, setSetting } from '../../models/modelUtils';
 import { ModelData } from '../../types/interfaces';
-import { printDebug } from '../../utils/utils';
+import { printDebug, showObj } from '../../utils/utils';
 import {
   printTestCodeForEvals,
   getTestEvaluations,
@@ -43,6 +44,7 @@ import {
 } from './algoTestUtils';
 
 printTestCodeForChart;
+showObj;
 
 describe('tax tests', () => {
   /* istanbul ignore if  */
@@ -8093,7 +8095,7 @@ describe('tax tests', () => {
     const model: ModelData = {
       ...emptyModel,
       transactions: [
-        // at start of model, purchasePriceSetting
+        // at start of model, PurchasePriceSetting
         // is 300000
         // just before start of asset, set purchasePriceSetting
         // to 50000
@@ -8150,32 +8152,24 @@ describe('tax tests', () => {
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
 
+    // console.log(`model = ${showObj(model)}`);
+
     // printTestCodeForEvals(evals);
 
     expect(evals.length).toBe(20);
-    expectEvals(
-      evals,
-      0,
-      'purchasePriceSetting',
-      'Fri Dec 01 2017',
-      300000,
-      -1,
-    );
-    expectEvals(evals, 1, 'purchasePriceSetting', 'Sun Dec 31 2017', 50000, -1);
+    expectEvals(evals, 0, 'purchasePriceSetting', 'Fri Dec 01 2017', 300000, -1);
+    expectEvals(evals, 1, 'purchasePriceSetting', 'Sun Dec 31 2017', 50000, -1); // 50,000 -> 300,000
+    // total gain = 250,000
+
     expectEvals(evals, 2, 'Cash', 'Mon Jan 01 2018', 0, -1);
     expectEvals(evals, 3, 'PurchaseShrs', 'Mon Jan 01 2018', 50000, -1);
     expectEvals(evals, 4, 'Shrs', 'Mon Jan 01 2018', 300000, -1);
-    expectEvals(
-      evals,
-      5,
-      'purchasePriceSetting',
-      'Tue Jan 02 2018',
-      300000,
-      -1,
-    );
-    expectEvals(evals, 6, 'PurchaseShrs', 'Wed Jan 03 2018', 46666.67, 2);
-    expectEvals(evals, 7, 'Shrs', 'Wed Jan 03 2018', 280000, -1);
-    expectEvals(evals, 8, 'Cash', 'Wed Jan 03 2018', 20000, -1);
+    expectEvals(evals, 5, 'purchasePriceSetting', 'Tue Jan 02 2018', 300000, -1); // if I bought more....
+
+    expectEvals(evals, 6, 'PurchaseShrs', 'Wed Jan 03 2018', 46666.67, 2); // 50,000 * 280 / 300
+    expectEvals(evals, 7, 'Shrs', 'Wed Jan 03 2018', 280000, -1); // dropped by 20,000
+    expectEvals(evals, 8, 'Cash', 'Wed Jan 03 2018', 20000, -1); // gained
+    //  250,000 * 20 / 300 = 16,666.67
     expectEvals(evals, 9, 'Cash', 'Thu Feb 01 2018', 20000, -1);
     expectEvals(evals, 10, 'Shrs', 'Thu Feb 01 2018', 280000, -1);
     expectEvals(evals, 11, 'Cash', 'Thu Mar 01 2018', 20000, -1);
@@ -8183,7 +8177,7 @@ describe('tax tests', () => {
     expectEvals(evals, 13, 'Cash', 'Sun Apr 01 2018', 20000, -1);
     expectEvals(evals, 14, 'Shrs', 'Sun Apr 01 2018', 280000, -1);
     expectEvals(evals, 15, 'Cash', 'Thu Apr 05 2018', 19533.33, 2);
-    expectEvals(evals, 16, '(CGT)', 'Thu Apr 05 2018', 466.67, 2);
+    expectEvals(evals, 16, '(CGT)', 'Thu Apr 05 2018', 466.67, 2); // Gain = 16,666.67
     expectEvals(evals, 17, 'Joe gain (net)', 'Thu Apr 05 2018', 16200.0, 2);
     expectEvals(evals, 18, 'Cash', 'Tue May 01 2018', 19533.33, 2);
     expectEvals(evals, 19, 'Shrs', 'Tue May 01 2018', 280000, -1);
@@ -8250,6 +8244,117 @@ describe('tax tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
       expectChartData(chartPts, 5, 'Tue May 01 2018', 16200.0, 2);
     }
+  });
+
+  it('use a revalued setting to define quantised purchase price', () => {
+    const roi = {
+      start: 'Dec 1, 2017 00:00:00',
+      end: 'May 7, 2018 00:00:00',
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      transactions: [
+        // at start of model, PurchasePriceSetting
+        // is 300000
+        // just before start of asset, set purchasePriceSetting
+        // to 50000
+        {
+          ...simpleTransaction,
+          NAME: 'Revalue of purchase price 1',
+          TO: 'purchasePriceSetting',
+          TO_VALUE: '166.66667',
+          DATE: 'December 31 2017',
+          TYPE: revalueSetting,
+        },
+        // just after start of asset, set purchasePriceSetting
+        // to 300000
+        {
+          ...simpleTransaction,
+          NAME: 'Revalue of purchase price 2',
+          TO: 'purchasePriceSetting',
+          TO_VALUE: '1000',
+          DATE: 'January 2 2018',
+          TYPE: revalueSetting,
+        },
+        // when asset is sold, purchasePriceSetting is 300000
+        {
+          ...simpleTransaction,
+          NAME: 'sell some shares',
+          FROM: 'Shrs',
+          FROM_VALUE: '20',
+          TO: CASH_ASSET_NAME,
+          TO_ABSOLUTE: false,
+          TO_VALUE: '1.0',
+          DATE: 'January 3 2018',
+        },
+      ],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
+          START: 'January 1 2018',
+        },
+        {
+          ...simpleAsset,
+          NAME: 'Shrs',
+          START: 'January 1 2018',
+          VALUE: '1000',
+          LIABILITY: `Joe${cgt}`,
+          QUANTITY: '300',
+          PURCHASE_PRICE: 'purchasePriceSetting',
+        },
+      ],
+      settings: [...defaultModelSettings(roi)],
+    };
+    setSetting(model.settings, 'purchasePriceSetting', '1000', adjustableType);
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // console.log(`model = ${showObj(model)}`);
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(22);
+    expectEvals(evals, 0, 'purchasePriceSetting', 'Fri Dec 01 2017', 1000, -1);
+    expectEvals(evals, 1, 'purchasePriceSetting', 'Sun Dec 31 2017', 166.67, 2);
+
+    expectEvals(evals, 2, 'Cash', 'Mon Jan 01 2018', 0, -1);
+    expectEvals(evals, 3, 'quantityShrs', 'Mon Jan 01 2018', 300, -1);
+    expectEvals(evals, 4, 'PurchaseShrs', 'Mon Jan 01 2018', 50000.00, 2);
+    expectEvals(evals, 5, 'Shrs', 'Mon Jan 01 2018', 300000, -1);
+    expectEvals(evals, 6, 'purchasePriceSetting', 'Tue Jan 02 2018', 1000, -1);
+
+    expectEvals(evals, 7, 'quantityShrs', 'Wed Jan 03 2018', 280, -1);
+    expectEvals(evals, 8, 'PurchaseShrs', 'Wed Jan 03 2018', 46666.67, 2);
+    expectEvals(evals, 9, 'Shrs', 'Wed Jan 03 2018', 280000, -1);
+    expectEvals(evals, 10, 'Cash', 'Wed Jan 03 2018', 20000, -1);
+
+    expectEvals(evals, 11, 'Cash', 'Thu Feb 01 2018', 20000, -1);
+    expectEvals(evals, 12, 'Shrs', 'Thu Feb 01 2018', 280000, -1);
+    expectEvals(evals, 13, 'Cash', 'Thu Mar 01 2018', 20000, -1);
+    expectEvals(evals, 14, 'Shrs', 'Thu Mar 01 2018', 280000, -1);
+    expectEvals(evals, 15, 'Cash', 'Sun Apr 01 2018', 20000, -1);
+    expectEvals(evals, 16, 'Shrs', 'Sun Apr 01 2018', 280000, -1);
+    expectEvals(evals, 17, 'Cash', 'Thu Apr 05 2018', 19533.33, 2);
+    expectEvals(evals, 18, '(CGT)', 'Thu Apr 05 2018', 466.67, 2);
+    expectEvals(evals, 19, 'Joe gain (net)', 'Thu Apr 05 2018', 16200.00, 2);
+    expectEvals(evals, 20, 'Cash', 'Tue May 01 2018', 19533.33, 2);
+    expectEvals(evals, 21, 'Shrs', 'Tue May 01 2018', 280000, -1);
+
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
+
+    // printTestCodeForChart(result);
+
+    // TODO
+
   });
 
   it('use a setting for purchase price and quantity', () => {
