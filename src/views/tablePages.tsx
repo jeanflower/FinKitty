@@ -1408,7 +1408,7 @@ export function transactionsTableDiv(
         }}
         setEraFunction={(name: string, val: number) => {
           const completeName = getTransactionName(name, type);
-          log(`set Favourite for transaction`);
+          // log(`set Favourite for transaction`);
           return setEraTransaction(completeName, val);
         }}
         model={model}

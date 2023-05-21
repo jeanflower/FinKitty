@@ -1147,7 +1147,7 @@ export async function setEraInModel(
 
   if (idx !== -1) {
     itemList[idx].ERA = value;
-    log(`item is now ${showObj(itemList[idx])})}`);
+    // log(`item is now ${showObj(itemList[idx])})}`);
   } else {
     missingItem = name;
   }
