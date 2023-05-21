@@ -8419,7 +8419,6 @@ describe('tax tests', () => {
       expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
       expectChartData(chartPts, 5, 'Tue May 01 2018', 16200.0, 2);
     }
-
   });
 
   it('use a setting for purchase price and quantity', () => {
