@@ -35,7 +35,7 @@ describe(testName, () => {
 
     await gotoTabPage(driver, transactionsTag);
 
-    let data = await getDataDumpFromPage(driver, 'bondTransactionsTable');
+    const data = await getDataDumpFromPage(driver, 'bondTransactionsTable');
     expect(data.length).toBe(2);
     expect(data[0]).toEqual({
       DATE: '1 Jan 2024',
@@ -52,18 +52,18 @@ describe(testName, () => {
       ERA: 0,
     });
     expect(data[1]).toEqual({
-      "CATEGORY": "",
-        "DATE": "1 Jan 2019",
-       "ERA": 0,
-        "FROM": "Cash",
-       "FROM_VALUE": "BMVBondTargetValue2",
-       "NAME": "BondInvest5y",
-       "RECURRENCE": "1y",
-       "STOP_DATE": "1 Jan 2025",
-        "TO": "Bond",
-        "TO_VALUE": "100%",
-        "TYPE": "bondInvest",
-       "index": 1,
+      CATEGORY: '',
+      DATE: '1 Jan 2019',
+      ERA: 0,
+      FROM: 'Cash',
+      FROM_VALUE: 'BMVBondTargetValue2',
+      NAME: 'BondInvest5y',
+      RECURRENCE: '1y',
+      STOP_DATE: '1 Jan 2025',
+      TO: 'Bond',
+      TO_VALUE: '100%',
+      TYPE: 'bondInvest',
+      index: 1,
     });
     /*
     data = await getDataDumpFromPage(driver, 'bondTransactionsOverviewTable');
