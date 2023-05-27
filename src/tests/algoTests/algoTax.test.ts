@@ -8552,5 +8552,356 @@ describe('tax tests', () => {
     }
   });
 
+  it('use a setting for purchase price and quantity', () => {
+    const model = {
+      triggers: [{ 
+        NAME: 'Start', 
+        DATE: '06 Apr 2022', 
+        ERA: 0 
+      }],
+      expenses: [],
+      incomes: [],
+      transactions: [
+        {
+          DATE: '01 April 2023',
+          FROM: 'SFut',
+          FROM_VALUE: '1',
+          FROM_ABSOLUTE: false,
+          NAME: 'Buy',
+          ERA: 1,
+          TO: 'Shrs',
+          TO_ABSOLUTE: true,
+          TO_VALUE: '100',
+          STOP_DATE: '',
+          RECURRENCE: '',
+          TYPE: 'custom',
+          CATEGORY: '',
+        },
+        {
+          DATE: '15 October 2023',
+          FROM: 'Shrs',
+          FROM_VALUE: '100',
+          FROM_ABSOLUTE: true,
+          NAME: 'SellShares',
+          ERA: 1,
+          TO: 'Cash',
+          TO_ABSOLUTE: false,
+          TO_VALUE: '1.0',
+          STOP_DATE: '',
+          RECURRENCE: '',
+          TYPE: 'custom',
+          CATEGORY: 'Bonds',
+        },
+      ],
+      assets: [
+        {
+          NAME: 'SFut',
+          ERA: 0,
+          VALUE: '10000',
+          QUANTITY: '',
+          START: '01 Sept 2022',
+          LIABILITY: '',
+          GROWTH: '0',
+          CPI_IMMUNE: true,
+          CAN_BE_NEGATIVE: false,
+          IS_A_DEBT: false,
+          PURCHASE_PRICE: '0',
+          CATEGORY: '',
+        },
+        {
+          NAME: 'Shrs',
+          ERA: 0,
+          VALUE: 'ShareVal',
+          QUANTITY: '100',
+          START: '28 Sept 2022',
+          LIABILITY: 'Joe(CGT)',
+          GROWTH: '0',
+          CPI_IMMUNE: true,
+          CAN_BE_NEGATIVE: false,
+          IS_A_DEBT: false,
+          PURCHASE_PRICE: 'SharePurchasePrice',
+          CATEGORY: '',
+        },
+        {
+          NAME: 'Cash',
+          ERA: 0,
+          VALUE: '0',
+          QUANTITY: '',
+          START: 'Start',
+          LIABILITY: '',
+          GROWTH: '0',
+          CPI_IMMUNE: true,
+          CAN_BE_NEGATIVE: true,
+          IS_A_DEBT: false,
+          PURCHASE_PRICE: '0',
+          CATEGORY: '',
+        },
+      ],
+      settings: [
+        {
+          NAME: 'Type of view for asset chart',
+          VALUE: 'val',
+          HINT: "Asset chart uses setting '+', '-', '+-' or 'val'",
+          TYPE: 'view',
+          ERA: 0,
+        },
+        {
+          NAME: "Today's value focus date",
+          FAVOURITE: true,
+          VALUE: '',
+          HINT: "Date to use for 'today's value' tables (defaults to '' meaning today)",
+          TYPE: 'view',
+          ERA: 1,
+        },
+        {
+          NAME: 'ShareVal',
+          ERA: 0,
+          VALUE: '100',
+          HINT: '',
+          TYPE: 'adjustable',
+        },
+        {
+          NAME: 'SharePurchasePrice',
+          ERA: 0,
+          VALUE: '99',
+          HINT: '',
+          TYPE: 'adjustable',
+        },
+        {
+          NAME: 'End of view range',
+          ERA: 1,
+          VALUE: '01 July 2024',
+          HINT: 'Date at the end of range to be plotted',
+          TYPE: 'view',
+        },
+        {
+          NAME: 'Date of birth',
+          FAVOURITE: true,
+          VALUE: '',
+          HINT: 'Date used for representing dates as ages',
+          TYPE: 'view',
+          ERA: 1,
+        },
+        {
+          NAME: 'cpi',
+          VALUE: '0',
+          HINT: 'Annual rate of inflation',
+          TYPE: 'adjustable',
+          ERA: 0,
+        },
+        {
+          NAME: 'Beginning of view range',
+          FAVOURITE: true,
+          VALUE: '06 Feb 2023',
+          HINT: 'Date at the start of range to be plotted',
+          TYPE: 'view',
+          ERA: 1,
+        },
+      ],
+      version: 11,
+      name: 'test',
+      undoModel: undefined,
+      redoModel: undefined,
+    };
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(83);
+    expectEvals(evals, 0, 'ShareVal', 'Wed Sep 28 2022', 100, -1);
+    expectEvals(evals, 1, 'SharePurchasePrice', 'Mon Jan 01 2018', 99, -1);
+    expectEvals(evals, 2, 'Cash', 'Wed Apr 06 2022', 0, -1);
+    expectEvals(evals, 3, 'Cash', 'Fri May 06 2022', 0, -1);
+    expectEvals(evals, 4, 'Cash', 'Mon Jun 06 2022', 0, -1);
+    expectEvals(evals, 5, 'Cash', 'Wed Jul 06 2022', 0, -1);
+    expectEvals(evals, 6, 'Cash', 'Sat Aug 06 2022', 0, -1);
+    expectEvals(evals, 7, 'SFut', 'Thu Sep 01 2022', 10000, -1);
+    expectEvals(evals, 8, 'Cash', 'Tue Sep 06 2022', 0, -1);
+    expectEvals(evals, 9, 'quantityShrs', 'Wed Sep 28 2022', 100, -1);
+    expectEvals(evals, 10, 'PurchaseShrs', 'Wed Sep 28 2022', 9900, -1);
+    expectEvals(evals, 11, 'Shrs', 'Wed Sep 28 2022', 10000, -1);
+    expectEvals(evals, 12, 'SFut', 'Sat Oct 01 2022', 10000, -1);
+    expectEvals(evals, 13, 'Cash', 'Thu Oct 06 2022', 0, -1);
+    expectEvals(evals, 14, 'Shrs', 'Fri Oct 28 2022', 10000, -1);
+    expectEvals(evals, 15, 'SFut', 'Tue Nov 01 2022', 10000, -1);
+    expectEvals(evals, 16, 'Cash', 'Sun Nov 06 2022', 0, -1);
+    expectEvals(evals, 17, 'Shrs', 'Mon Nov 28 2022', 10000, -1);
+    expectEvals(evals, 18, 'SFut', 'Thu Dec 01 2022', 10000, -1);
+    expectEvals(evals, 19, 'Cash', 'Tue Dec 06 2022', 0, -1);
+    expectEvals(evals, 20, 'Shrs', 'Wed Dec 28 2022', 10000, -1);
+    expectEvals(evals, 21, 'SFut', 'Sun Jan 01 2023', 10000, -1);
+    expectEvals(evals, 22, 'Cash', 'Fri Jan 06 2023', 0, -1);
+    expectEvals(evals, 23, 'Shrs', 'Sat Jan 28 2023', 10000, -1);
+    expectEvals(evals, 24, 'SFut', 'Wed Feb 01 2023', 10000, -1);
+    expectEvals(evals, 25, 'Cash', 'Mon Feb 06 2023', 0, -1);
+    expectEvals(evals, 26, 'Shrs', 'Tue Feb 28 2023', 10000, -1);
+    expectEvals(evals, 27, 'SFut', 'Wed Mar 01 2023', 10000, -1);
+    expectEvals(evals, 28, 'Cash', 'Mon Mar 06 2023', 0, -1);
+    expectEvals(evals, 29, 'Shrs', 'Tue Mar 28 2023', 10000, -1);
+    expectEvals(evals, 30, 'SFut', 'Sat Apr 01 2023', 10000, -1);
+    expectEvals(evals, 31, 'quantityShrs', 'Sat Apr 01 2023', 200, -1);
+    expectEvals(evals, 32, 'SFut', 'Sat Apr 01 2023', 0, -1);
+    expectEvals(evals, 33, 'Shrs', 'Sat Apr 01 2023', 20000, -1);
+    expectEvals(evals, 34, 'Cash', 'Thu Apr 06 2023', 0, -1);
+    expectEvals(evals, 35, 'Shrs', 'Fri Apr 28 2023', 20000, -1);
+    expectEvals(evals, 36, 'SFut', 'Mon May 01 2023', 0, -1);
+    expectEvals(evals, 37, 'Cash', 'Sat May 06 2023', 0, -1);
+    expectEvals(evals, 38, 'Shrs', 'Sun May 28 2023', 20000, -1);
+    expectEvals(evals, 39, 'SFut', 'Thu Jun 01 2023', 0, -1);
+    expectEvals(evals, 40, 'Cash', 'Tue Jun 06 2023', 0, -1);
+    expectEvals(evals, 41, 'Shrs', 'Wed Jun 28 2023', 20000, -1);
+    expectEvals(evals, 42, 'SFut', 'Sat Jul 01 2023', 0, -1);
+    expectEvals(evals, 43, 'Cash', 'Thu Jul 06 2023', 0, -1);
+    expectEvals(evals, 44, 'Shrs', 'Fri Jul 28 2023', 20000, -1);
+    expectEvals(evals, 45, 'SFut', 'Tue Aug 01 2023', 0, -1);
+    expectEvals(evals, 46, 'Cash', 'Sun Aug 06 2023', 0, -1);
+    expectEvals(evals, 47, 'Shrs', 'Mon Aug 28 2023', 20000, -1);
+    expectEvals(evals, 48, 'SFut', 'Fri Sep 01 2023', 0, -1);
+    expectEvals(evals, 49, 'Cash', 'Wed Sep 06 2023', 0, -1);
+    expectEvals(evals, 50, 'Shrs', 'Thu Sep 28 2023', 20000, -1);
+    expectEvals(evals, 51, 'SFut', 'Sun Oct 01 2023', 0, -1);
+    expectEvals(evals, 52, 'Cash', 'Fri Oct 06 2023', 0, -1);
+    expectEvals(evals, 53, 'quantityShrs', 'Sun Oct 15 2023', 100, -1);
+    expectEvals(evals, 54, 'PurchaseShrs', 'Sun Oct 15 2023', 4950, -1);
+    expectEvals(evals, 55, 'Shrs', 'Sun Oct 15 2023', 10000, -1);
+    expectEvals(evals, 56, 'Cash', 'Sun Oct 15 2023', 10000, -1);
+    expectEvals(evals, 57, 'Shrs', 'Sat Oct 28 2023', 10000, -1);
+    expectEvals(evals, 58, 'SFut', 'Wed Nov 01 2023', 0, -1);
+    expectEvals(evals, 59, 'Cash', 'Mon Nov 06 2023', 10000, -1);
+    expectEvals(evals, 60, 'Shrs', 'Tue Nov 28 2023', 10000, -1);
+    expectEvals(evals, 61, 'SFut', 'Fri Dec 01 2023', 0, -1);
+    expectEvals(evals, 62, 'Cash', 'Wed Dec 06 2023', 10000, -1);
+    expectEvals(evals, 63, 'Shrs', 'Thu Dec 28 2023', 10000, -1);
+    expectEvals(evals, 64, 'SFut', 'Mon Jan 01 2024', 0, -1);
+    expectEvals(evals, 65, 'Cash', 'Sat Jan 06 2024', 10000, -1);
+    expectEvals(evals, 66, 'Shrs', 'Sun Jan 28 2024', 10000, -1);
+    expectEvals(evals, 67, 'SFut', 'Thu Feb 01 2024', 0, -1);
+    expectEvals(evals, 68, 'Cash', 'Tue Feb 06 2024', 10000, -1);
+    expectEvals(evals, 69, 'Shrs', 'Wed Feb 28 2024', 10000, -1);
+    expectEvals(evals, 70, 'SFut', 'Fri Mar 01 2024', 0, -1);
+    expectEvals(evals, 71, 'Cash', 'Wed Mar 06 2024', 10000, -1);
+    expectEvals(evals, 72, 'Shrs', 'Thu Mar 28 2024', 10000, -1);
+    expectEvals(evals, 73, 'SFut', 'Mon Apr 01 2024', 0, -1);
+    expectEvals(evals, 74, 'Joe gain (net)', 'Fri Apr 05 2024', 5050, -1);
+    expectEvals(evals, 75, 'Cash', 'Sat Apr 06 2024', 10000, -1);
+    expectEvals(evals, 76, 'Shrs', 'Sun Apr 28 2024', 10000, -1);
+    expectEvals(evals, 77, 'SFut', 'Wed May 01 2024', 0, -1);
+    expectEvals(evals, 78, 'Cash', 'Mon May 06 2024', 10000, -1);
+    expectEvals(evals, 79, 'Shrs', 'Tue May 28 2024', 10000, -1);
+    expectEvals(evals, 80, 'SFut', 'Sat Jun 01 2024', 0, -1);
+    expectEvals(evals, 81, 'Cash', 'Thu Jun 06 2024', 10000, -1);
+    expectEvals(evals, 82, 'Shrs', 'Fri Jun 28 2024', 10000, -1);
+
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(3);
+    expect(result.assetData[0].item.NAME).toBe('SFut');
+    {
+    const chartPts = result.assetData[0].chartDataPoints;
+    expect(chartPts.length).toBe(17);
+    expectChartData(chartPts, 0, 'Mon Feb 06 2023', 10000, -1);
+    expectChartData(chartPts, 1, 'Mon Mar 06 2023', 10000, -1);
+    expectChartData(chartPts, 2, 'Thu Apr 06 2023', 0, -1);
+    expectChartData(chartPts, 3, 'Sat May 06 2023', 0, -1);
+    expectChartData(chartPts, 4, 'Tue Jun 06 2023', 0, -1);
+    expectChartData(chartPts, 5, 'Thu Jul 06 2023', 0, -1);
+    expectChartData(chartPts, 6, 'Sun Aug 06 2023', 0, -1);
+    expectChartData(chartPts, 7, 'Wed Sep 06 2023', 0, -1);
+    expectChartData(chartPts, 8, 'Fri Oct 06 2023', 0, -1);
+    expectChartData(chartPts, 9, 'Mon Nov 06 2023', 0, -1);
+    expectChartData(chartPts, 10, 'Wed Dec 06 2023', 0, -1);
+    expectChartData(chartPts, 11, 'Sat Jan 06 2024', 0, -1);
+    expectChartData(chartPts, 12, 'Tue Feb 06 2024', 0, -1);
+    expectChartData(chartPts, 13, 'Wed Mar 06 2024', 0, -1);
+    expectChartData(chartPts, 14, 'Sat Apr 06 2024', 0, -1);
+    expectChartData(chartPts, 15, 'Mon May 06 2024', 0, -1);
+    expectChartData(chartPts, 16, 'Thu Jun 06 2024', 0, -1);
+    }
+    
+    expect(result.assetData[1].item.NAME).toBe('Shrs');
+    {
+    const chartPts = result.assetData[1].chartDataPoints;
+    expect(chartPts.length).toBe(17);
+    expectChartData(chartPts, 0, 'Mon Feb 06 2023', 10000, -1);
+    expectChartData(chartPts, 1, 'Mon Mar 06 2023', 10000, -1);
+    expectChartData(chartPts, 2, 'Thu Apr 06 2023', 20000, -1);
+    expectChartData(chartPts, 3, 'Sat May 06 2023', 20000, -1);
+    expectChartData(chartPts, 4, 'Tue Jun 06 2023', 20000, -1);
+    expectChartData(chartPts, 5, 'Thu Jul 06 2023', 20000, -1);
+    expectChartData(chartPts, 6, 'Sun Aug 06 2023', 20000, -1);
+    expectChartData(chartPts, 7, 'Wed Sep 06 2023', 20000, -1);
+    expectChartData(chartPts, 8, 'Fri Oct 06 2023', 20000, -1);
+    expectChartData(chartPts, 9, 'Mon Nov 06 2023', 10000, -1);
+    expectChartData(chartPts, 10, 'Wed Dec 06 2023', 10000, -1);
+    expectChartData(chartPts, 11, 'Sat Jan 06 2024', 10000, -1);
+    expectChartData(chartPts, 12, 'Tue Feb 06 2024', 10000, -1);
+    expectChartData(chartPts, 13, 'Wed Mar 06 2024', 10000, -1);
+    expectChartData(chartPts, 14, 'Sat Apr 06 2024', 10000, -1);
+    expectChartData(chartPts, 15, 'Mon May 06 2024', 10000, -1);
+    expectChartData(chartPts, 16, 'Thu Jun 06 2024', 10000, -1);
+    }
+    
+    expect(result.assetData[2].item.NAME).toBe('Cash');
+    {
+    const chartPts = result.assetData[2].chartDataPoints;
+    expect(chartPts.length).toBe(17);
+    expectChartData(chartPts, 0, 'Mon Feb 06 2023', 0, -1);
+    expectChartData(chartPts, 1, 'Mon Mar 06 2023', 0, -1);
+    expectChartData(chartPts, 2, 'Thu Apr 06 2023', 0, -1);
+    expectChartData(chartPts, 3, 'Sat May 06 2023', 0, -1);
+    expectChartData(chartPts, 4, 'Tue Jun 06 2023', 0, -1);
+    expectChartData(chartPts, 5, 'Thu Jul 06 2023', 0, -1);
+    expectChartData(chartPts, 6, 'Sun Aug 06 2023', 0, -1);
+    expectChartData(chartPts, 7, 'Wed Sep 06 2023', 0, -1);
+    expectChartData(chartPts, 8, 'Fri Oct 06 2023', 0, -1);
+    expectChartData(chartPts, 9, 'Mon Nov 06 2023', 10000, -1);
+    expectChartData(chartPts, 10, 'Wed Dec 06 2023', 10000, -1);
+    expectChartData(chartPts, 11, 'Sat Jan 06 2024', 10000, -1);
+    expectChartData(chartPts, 12, 'Tue Feb 06 2024', 10000, -1);
+    expectChartData(chartPts, 13, 'Wed Mar 06 2024', 10000, -1);
+    expectChartData(chartPts, 14, 'Sat Apr 06 2024', 10000, -1);
+    expectChartData(chartPts, 15, 'Mon May 06 2024', 10000, -1);
+    expectChartData(chartPts, 16, 'Thu Jun 06 2024', 10000, -1);
+    }
+    
+    expect(result.debtData.length).toBe(0);
+    expect(result.taxData.length).toBe(1);
+    expect(result.taxData[0].item.NAME).toBe('Joe gain (net)');
+    {
+    const chartPts = result.taxData[0].chartDataPoints;
+    expect(chartPts.length).toBe(17);
+    expectChartData(chartPts, 0, 'Mon Feb 06 2023', 0, -1);
+    expectChartData(chartPts, 1, 'Mon Mar 06 2023', 0, -1);
+    expectChartData(chartPts, 2, 'Thu Apr 06 2023', 0, -1);
+    expectChartData(chartPts, 3, 'Sat May 06 2023', 0, -1);
+    expectChartData(chartPts, 4, 'Tue Jun 06 2023', 0, -1);
+    expectChartData(chartPts, 5, 'Thu Jul 06 2023', 0, -1);
+    expectChartData(chartPts, 6, 'Sun Aug 06 2023', 0, -1);
+    expectChartData(chartPts, 7, 'Wed Sep 06 2023', 0, -1);
+    expectChartData(chartPts, 8, 'Fri Oct 06 2023', 0, -1);
+    expectChartData(chartPts, 9, 'Mon Nov 06 2023', 0, -1);
+    expectChartData(chartPts, 10, 'Wed Dec 06 2023', 0, -1);
+    expectChartData(chartPts, 11, 'Sat Jan 06 2024', 0, -1);
+    expectChartData(chartPts, 12, 'Tue Feb 06 2024', 0, -1);
+    expectChartData(chartPts, 13, 'Wed Mar 06 2024', 0, -1);
+    expectChartData(chartPts, 14, 'Sat Apr 06 2024', 5050, -1);
+    expectChartData(chartPts, 15, 'Mon May 06 2024', 0, -1);
+    expectChartData(chartPts, 16, 'Thu Jun 06 2024', 0, -1);
+    }
+
+  });
+
   // CGT on selling some cars ???
 });
