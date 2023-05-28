@@ -1515,6 +1515,7 @@ function updatePurchaseValue(
   model: ModelData,
   source: string, // e.g. IncomeTaxJoe
 ) {
+  // log('in updatePurchaseValue');
   const currentPurchaseValue = values.get(`${purchase}${a.NAME}`);
   if (currentPurchaseValue !== undefined) {
     let numberPart = 0.0;
@@ -3571,8 +3572,35 @@ function calculateToChange(
           newNumUnits,
           model,
           t.TO,
-          '13', //callerID
+          '45', //callerID
         );
+        const matchedAsset = model.assets.find((a) => {
+          return a.NAME === t.TO;
+        });
+        if (matchedAsset) {
+          const oldPurchaseVal = getNumberValue(
+            values,
+            `${purchase}${matchedAsset.NAME}`,
+          );
+          const purchasePrice = getNumberValue(
+            values,
+            matchedAsset.PURCHASE_PRICE,
+          );
+          if (oldPurchaseVal !== undefined && purchasePrice !== undefined) {
+            const newPurchaseVal = oldPurchaseVal + purchasePrice * numUnits;
+            setValue(
+              values,
+              growths,
+              evaluations,
+              moment.date,
+              `${purchase}${matchedAsset.NAME}`,
+              newPurchaseVal,
+              model,
+              t.TO,
+              '46', //callerID
+            );
+          }
+        }
         toChange = 0.0;
         // log(`toChange = ${toChange}`);
       }
