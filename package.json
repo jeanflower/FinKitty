@@ -34,7 +34,7 @@
   "scripts": {
     "postinstall": "react-scripts build",
     "start": "export HTTPS=true&&PORT=3000 react-scripts start",
-    "startLocal": "export HTTPS=true&&PORT=3000 dotenv -e .env.local -- react-scripts start",
+    "startLocal": "export HTTPS=true&&PORT=3000&&REACT_APP_SERVER_URL_NOT_SECRET=http://localhost:3001/finkitty/ react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",

@@ -31,6 +31,7 @@ export const reportTag = 'btn-Asset actions';
 export const optimizerTag = 'btn-Optimizer';
 
 export async function gotoTabPage(driver: ThenableWebDriver, tag: string) {
+  // log(`go to tab page with tag = ${tag}`);
   await driver.executeScript('window.scrollBy(0, -4000)');
   const btn = await driver.findElements(webdriver.By.id(tag));
   // log(`btnMms.length = ${btnMms.length}`);
@@ -79,6 +80,7 @@ export async function consumeAlert(
   accept: boolean,
   driver: webdriver.ThenableWebDriver,
 ) {
+  // log(`expect alert with message ${message}`);
   expect(await driver.switchTo().alert().getText()).toBe(message);
   if (accept) {
     await driver.switchTo().alert().accept();
@@ -845,15 +847,23 @@ export async function testModelCreation(
   const ex1Name = `${testID}ex1`;
   const ex2Name = `${testID}ex2`;
 
+  const showLogs = false;
+  
   // await checkMessage(driver, `wrong`);
 
   // clear away any old data!
+  if(showLogs){
+    log(`delete any preexisting ${ex1Name}, ${ex2Name}`);
+  }
   await deleteIfExists(ex1Name, driver);
   await deleteIfExists(ex2Name, driver);
   await clickButton(driver, `btn-overview-${testDataModelName}`);
   await gotoTabPage(driver, homeTag);
 
   // there's no model
+  if(showLogs){
+    log(`check there's no button for ${ex1Name}`);
+  }
   let btn = await driver.findElements(
     webdriver.By.id(`btn-overview-${ex1Name}`),
   );
@@ -861,14 +871,20 @@ export async function testModelCreation(
   expect(btn.length === 0).toBe(true);
 
   // can't create a model with no name
+  if(showLogs){
+    log(`check we fail to create a model with empty name`);
+  }
   await clickButton(driver, createButtonID);
   await checkMessage(driver, 'Please provide a new name for the model');
 
   // warned if creating a model when existing model is not saved
   // choose to not switch
   // check the model did not get created
+  if(showLogs){
+    log(`try to create a model ${ex1Name} when we haven't saved current one - stop`);
+  }
   await fillInputById(driver, 'createModel', ex1Name);
-  await clickButton(driver, createButtonID);
+  await clickButton(driver, createButtonID);  
   await consumeAlert(
     `Continue without saving unsaved model ${testDataModelName}?`,
     false,
@@ -881,6 +897,9 @@ export async function testModelCreation(
   await gotoTabPage(driver, homeTag);
 
   // no button for not-saved model
+  if(showLogs){
+    log(`check we didn't create a model ${ex1Name}`);
+  }
   btn = await driver.findElements(webdriver.By.id(`btn-overview-${ex1Name}`));
   // log(`found ${btn.length} elements with id=${id}`);
   expect(btn.length === 0).toBe(true);
@@ -890,6 +909,9 @@ export async function testModelCreation(
   // warned if creating a model when existing model is not saved
   // choose to accept warning
   // check the model did get created
+  if(showLogs){
+    log(`try to create a model ${ex1Name} when we haven't saved current one - continue`);
+  }
   await fillInputById(driver, 'createModel', ex1Name);
 
   await clickButton(driver, createButtonID);
@@ -899,9 +921,17 @@ export async function testModelCreation(
     driver,
   );
 
+  if(showLogs){
+    log(`check we did create a model ${ex1Name}`);
+  }
   btn = await driver.findElements(webdriver.By.id(`btn-overview-${ex1Name}`));
-  // log(`found ${btn.length} elements with id=${id}`);
-  expect(btn.length === 0).toBe(true);
+  // log(`found ${btn.length} elements with id=${id}`);  
+  expect(btn.length === 0).toBe(true); ///??
+
+  if(showLogs){
+    log(`check ${ex1Name} is active model`);
+  }
+
   await gotoTabPage(driver, overviewTag);
   await checkMessage(driver, `${ex1Name}`);
   await gotoTabPage(driver, homeTag);
@@ -912,6 +942,9 @@ export async function testModelCreation(
   // choose to not switch
   // check the model did not get created
   // save, go round again
+  if(showLogs){
+    log(`try to create a model ${ex2Name} when we haven't saved current one - stop`);
+  }
   await clickButton(driver, createButtonID);
   await consumeAlert(
     `Continue without saving unsaved model ${ex1Name}?`,
@@ -926,11 +959,17 @@ export async function testModelCreation(
   // log(`found ${btn.length} elements with id=${ex2Name}`);
   expect(btn.length === 0).toBe(true);
 
+  if(showLogs){
+    log(`go to save ${ex1Name}`);
+  }
   await gotoTabPage(driver, overviewTag);
   await checkMessage(driver, `${ex1Name}`);
   await gotoTabPage(driver, homeTag);
   await clickButton(driver, 'btn-save-model');
-
+  if(showLogs){
+    log(`we have saved ${ex1Name}`);
+    log(`try to create a model ${ex2Name} when we have saved current one`);
+  }
   await fillInputById(driver, 'createModel', ex2Name);
   await clickButton(driver, createButtonID);
 

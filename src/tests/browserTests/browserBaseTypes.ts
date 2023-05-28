@@ -12,6 +12,7 @@ import {
   datesTag,
   transactionsTag,
   overviewTag,
+  deleteIfExists,
 } from './browserTestUtils';
 
 showObj;
@@ -110,7 +111,7 @@ export async function clickButton(driver: ThenableWebDriver, id: string) {
     btn = await driver.findElements(webdriver.By.id(id));
     if (btn.length !== 1) {
       // log(`found ${btn.length} elements with id=${id}`);
-      sleep(100, 'button not present yet');
+      await sleep(100, 'button not present yet');
       continue; // try again
     }
     await btn[0].click();
@@ -176,7 +177,7 @@ async function scrollIntoViewByName(driver: ThenableWebDriver, name: string) {
     input = await driver.findElements(webdriver.By.name(name));
     if (input.length !== 1) {
       // log(`attempt ${i}; found ${input.length} elements with name=${name}`);
-      sleep(100, 'button not present yet');
+      await sleep(100, 'button not present yet');
       continue; // try again
     }
     break;
@@ -213,7 +214,7 @@ export async function enterTextControl(
   const input = await driver.findElements(webdriver.By.id('replaceWithJSON'));
   if (input.length !== 1) {
     // expect(input.length === 1).toBe(true);
-    log(`expected 1 input for ${name}, failing to sendKeys ENTER`);
+    log(`expected 1 input for ${input}, failing to sendKeys ENTER`);
   } else {
     await input[0].sendKeys(Key.ENTER);
   }
@@ -264,6 +265,7 @@ export async function beforeAllWork(
   await enterTextControl(driver, 'advancedUI');
 
   if (testDataModelName !== '' && modelString !== '') {
+    await deleteIfExists(testDataModelName, driver);
     await replaceWithTestModel(driver, testDataModelName, modelString);
 
     await selectModel(driver, testDataModelName);
