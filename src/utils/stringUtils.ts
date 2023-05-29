@@ -1119,7 +1119,7 @@ export function getSpecialWord(name: string, model: ModelData): string {
   // log(`check for trigger with name ${name}`);
   if (matchingTrigger !== undefined) {
     if (hasDependentDate(matchingTrigger, model)) {
-      return 'dateAlgebra';
+      return `${matchingTrigger.NAME} in date algebra`;
     }
   }
   return '';

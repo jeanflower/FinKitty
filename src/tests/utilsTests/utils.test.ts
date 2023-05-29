@@ -1209,7 +1209,7 @@ describe('utils tests', () => {
       ...simpleTransaction,
       DATE: 'something+1d',
     });
-    expect(getSpecialWord(`something`, m)).toEqual('dateAlgebra');
+    expect(getSpecialWord(`something`, m)).toEqual('something in date algebra');
   });
   it('hasDependentDate', () => {
     [
