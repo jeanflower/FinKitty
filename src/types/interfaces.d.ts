@@ -269,7 +269,6 @@ export interface ViewCallbacks {
   updateStartDate: (newDate: string) => Promise<void>;
   updateEndDate: (newDate: string) => Promise<void>;
   filterForEra: (item: Item) => boolean;
-  filterForAge: (item: Item) => boolean;
   filterForSearch: (item: Item) => boolean;
   getSearchString: () => string;
   setSearchString: (s: string) => void;

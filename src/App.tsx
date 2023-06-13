@@ -127,7 +127,6 @@ import {
   attemptRenameLong,
   getROI,
   getTodaysDate,
-  isHistorical,
   makeModelFromJSON,
   markForUndo,
   revertToUndoModel,
@@ -2046,20 +2045,6 @@ export class AppContent extends Component<AppProps, AppState> {
         }
       };
 
-      // log(`report is length ${this.state.reportData.length}`);
-      const filterForAge = (item: Item) => {
-        if (showHistorical()) {
-          return true;
-        } else {
-          const isOld = isHistorical(item, this.state.modelData);
-          if (isOld) {
-            return false;
-          } else {
-            return true;
-          }
-        }
-      };
-
       const regexString = this.options.searchString;
       const regex = RegExp(regexString, 'i');
 
@@ -2083,7 +2068,6 @@ export class AppContent extends Component<AppProps, AppState> {
         updateStartDate: updateStartDate,
         updateEndDate: updateEndDate,
         filterForEra: filterForEra,
-        filterForAge: filterForAge,
         filterForSearch: filterForSearch,
         getSearchString: getSearchString,
         setSearchString: setSearchString,

@@ -1,7 +1,7 @@
 {
   "name": "finkitty",
   "homepage": "https://jeanflower.github.io/FinKitty",
-  "version": "1.4.53",
+  "version": "1.4.55",
   "engines": {
     "node": "16.x"
   },
@@ -34,13 +34,13 @@
   "scripts": {
     "postinstall": "react-scripts build",
     "start": "export HTTPS=true&&PORT=3000 react-scripts start",
-    "startLocal": "export HTTPS=true&&PORT=3000 dotenv -e .env.local -- react-scripts start",
+    "startLocal": "export HTTPS=true&&PORT=3000&&REACT_APP_SERVER_URL_NOT_SECRET=http://localhost:3001/finkitty/ react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "lint": "eslint './src/**/*.{ts,tsx}'",
     "predeploy": "npm run build",
-    "deploy": "NODE_DEBUG=gh-pages dotenv -e .env -- gh-pages -d build",
+    "deploy": "NODE_DEBUG=gh-pages&&REACT_APP_SERVER_URL_NOT_SECRET=https://desolate-refuge-81883.herokuapp.com/finkitty/ gh-pages -d build",
     "prepare": "husky install"
   },
   "eslintConfig": {

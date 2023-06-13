@@ -910,7 +910,6 @@ function assetsOrDebtsForTable(
     .filter((obj: Item) => {
       return (
         parentCallbacks.filterForEra(obj) &&
-        parentCallbacks.filterForAge(obj) &&
         parentCallbacks.filterForSearch(obj)
       );
     })
@@ -1039,7 +1038,6 @@ export function transactionsForTable(
     .filter((obj: Item) => {
       return (
         parentCallbacks.filterForEra(obj) &&
-        parentCallbacks.filterForAge(obj) &&
         parentCallbacks.filterForSearch(obj)
       );
     })
@@ -1541,7 +1539,6 @@ function triggersForTable(model: ModelData, parentCallbacks: ViewCallbacks) {
     .filter((obj: Item) => {
       return (
         parentCallbacks.filterForEra(obj) &&
-        parentCallbacks.filterForAge(obj) &&
         parentCallbacks.filterForSearch(obj)
       );
     })
@@ -1654,7 +1651,6 @@ function incomesForTable(
     .filter((obj: Item) => {
       return (
         parentCallbacks.filterForEra(obj) &&
-        parentCallbacks.filterForAge(obj) &&
         parentCallbacks.filterForSearch(obj)
       );
     })
@@ -1846,7 +1842,6 @@ function expensesForTable(
     .filter((obj: Item) => {
       return (
         parentCallbacks.filterForEra(obj) &&
-        parentCallbacks.filterForAge(obj) &&
         parentCallbacks.filterForSearch(obj)
       );
     })
@@ -2061,7 +2056,6 @@ function settingsForTable(
     .filter((obj: Item) => {
       return (
         parentCallbacks.filterForEra(obj) &&
-        parentCallbacks.filterForAge(obj) &&
         parentCallbacks.filterForSearch(obj)
       );
     })

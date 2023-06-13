@@ -241,7 +241,7 @@ describe(testName, () => {
 
     await gotoTabPage(driver, transactionsTag);
     let data = await getDataDumpFromPage(driver, 'autogenTransactionsTable');
-    expect(data.length).toBe(1);
+    expect(data.length).toBe(3);
     expect(data[0]).toEqual({
       DATE: '1 Jan 2035',
       FROM: '-PDB TeachersPensionScheme',
@@ -260,7 +260,7 @@ describe(testName, () => {
       driver,
       'autogenTransactionsOverviewTable',
     );
-    expect(data.length).toBe(1);
+    expect(data.length).toBe(3);
     expect(data[0]).toEqual({
       DATE: '1 Jan 2035',
       FROM: '-PDB TeachersPensionScheme',
