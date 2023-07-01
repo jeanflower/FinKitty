@@ -1260,12 +1260,6 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
       );
     }
   } else if (t.TYPE === bondMature) {
-    if (t.TO !== CASH_ASSET_NAME) {
-      return `Transaction '${getDisplayName(
-        t.NAME,
-        t.TYPE,
-      )}' may only mature from Bond to ${CASH_ASSET_NAME}`;
-    }
     if (!t.FROM_VALUE.startsWith(bondMaturity)) {
       return `Transaction '${getDisplayName(
         t.NAME,

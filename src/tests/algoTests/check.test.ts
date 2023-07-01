@@ -1092,12 +1092,6 @@ describe('checks tests', () => {
     );
     model.transactions[0].DATE = '1 Jan 2018';
 
-    model.transactions[6].TO = '';
-    expect(checkData(model).message).toEqual(
-      `Transaction 'BondMature5y' may only mature from Bond to Cash`,
-    );
-    model.transactions[6].TO = CASH_ASSET_NAME;
-
     model.transactions[6].FROM_VALUE = 'BondTargetValue2';
     expect(checkData(model).message).toEqual(
       `Transaction 'BondMature5y' maturing Bond needs BMV as start of from value`,
