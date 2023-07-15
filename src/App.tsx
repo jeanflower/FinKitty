@@ -46,6 +46,9 @@ import {
   advancedUI,
   annually,
   erasOption,
+  allItems,
+  viewDetail,
+  coarseDetail,
 } from './localization/stringConstants';
 import {
   AssetOrDebtVal,
@@ -658,6 +661,23 @@ export async function refreshDataInternal(
     const debtChartData = makeBarData(chartData.labels, debtData);
     const taxChartData = makeBarData(chartData.labels, taxData);
 
+    const planningViewSettings = getDefaultViewSettings();
+    planningViewSettings.setModel(model);
+    planningViewSettings.toggleViewFilter(Context.Expense, allItems);
+    planningViewSettings.toggleViewFilter(Context.Expense, 'Basic');
+    planningViewSettings.toggleViewFilter(Context.Expense, 'Leisure');
+    planningViewSettings.setViewSetting(viewDetail, coarseDetail);
+
+    const planningChartData: DataForView = makeChartData(
+      model,
+      planningViewSettings,
+      evaluationsAndVals,
+    );
+    const planningExpensesChartData = makeBarData(
+      planningChartData.labels,
+      planningChartData.expensesData,
+    );
+
     if (reactAppComponent !== undefined) {
       // log(`go setState with modelNames = ${modelNames}`);
 
@@ -672,6 +692,7 @@ export async function refreshDataInternal(
           assetChartData,
           debtChartData,
           taxChartData,
+          planningExpensesChartData,
           modelNamesData: modelNames,
           todaysAssetValues: todaysAssetValues,
           todaysDebtValues: todaysDebtValues,
@@ -1737,6 +1758,7 @@ interface AppState {
   assetChartData: ChartData;
   debtChartData: ChartData;
   taxChartData: ChartData;
+  planningExpensesChartData: ChartData;
   optimizationChartData: ChartData;
   todaysAssetValues: Map<Asset, AssetOrDebtVal>;
   todaysDebtValues: Map<Asset, AssetOrDebtVal>;
@@ -1860,6 +1882,11 @@ export class AppContent extends Component<AppProps, AppState> {
       displayLegend: true,
     },
     optimizationChartData: {
+      labels: [],
+      datasets: [],
+      displayLegend: false,
+    },
+    planningExpensesChartData: {
       labels: [],
       datasets: [],
       displayLegend: false,
@@ -2112,6 +2139,7 @@ export class AppContent extends Component<AppProps, AppState> {
               this.options.checkModelOnEdit,
               this.state.expensesChartData,
               this.state.todaysExpenseValues,
+              this.state.planningExpensesChartData,
               parentCallbacks,
             )}
             {assetsDiv(

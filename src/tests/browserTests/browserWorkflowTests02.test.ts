@@ -64,7 +64,7 @@ describe('BrowserWorkflowTests 02', () => {
     });
     */
     data = await getDataDumpFromPage(driver, 'settingsTable');
-    expect(data.length).toBe(16);
+    expect(data.length).toBe(17);
     expect(data[0]).toEqual({
       NAME: 'View frequencyTransactions',
       TODAYSVALUE: 'undefined',
@@ -74,7 +74,7 @@ describe('BrowserWorkflowTests 02', () => {
       ERA: 0,
     });
     expect(data[4]).toEqual({
-      NAME: 'View frequencyOptimizer',
+      NAME: 'View frequencyOverview',
       TODAYSVALUE: 'undefined',
       VALUE: 'Annually',
       index: 4,

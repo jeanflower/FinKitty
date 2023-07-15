@@ -25,7 +25,11 @@ import {
   expensesChartDivWithButtons,
   getDefaultChartSettings,
 } from './chartPages';
-import { expensesView, revalueExp } from '../localization/stringConstants';
+import {
+  expensesView,
+  planningView,
+  revalueExp,
+} from '../localization/stringConstants';
 
 import { AddDeleteExpenseForm } from './reactComponents/AddDeleteExpenseForm';
 import CashValueFormatter from './reactComponents/CashValueFormatter';
@@ -39,6 +43,7 @@ import { collapsibleFragment } from './tablePages';
 import { DateFormatType, log, printDebug } from '../utils/utils';
 import { getDisplay } from '../utils/viewUtils';
 import { simpleExpense } from '../models/exampleModels';
+import TriggerDateFormatter from './reactComponents/TriggerDateFormatter';
 
 function addToMap(
   name: Expense,
@@ -181,8 +186,95 @@ export function expensesDiv(
   doChecks: boolean,
   expensesChartData: ChartData,
   todaysValues: Map<Expense, ExpenseVal>,
+  planningExpensesChartData: ChartData,
   parentCallbacks: ViewCallbacks,
 ) {
+  if (getDisplay(planningView)) {
+    const gemData = planningExpensesChartData.datasets;
+    if (gemData.length === 0) {
+      return <>You need Basic and/or Leisure expense categories to plan</>;
+    }
+    let tableData = [];
+
+    for (let idx = 0; idx < gemData[0].data.length; idx++) {
+      //console.log(`Expect Basic = ${gemData[0].label}`);
+      //console.log(`Expect Leisure = ${gemData[1].label}`);
+      const basic = gemData[0].data[idx];
+      const leisure = gemData[1].data[idx];
+      const combined = basic + leisure;
+      //console.log(`basic = ${basic}, leisure = ${leisure}`);
+      const date = planningExpensesChartData.labels[idx];
+      tableData.push({
+        DATE: date,
+        BASIC: `${basic}`,
+        LEISURE: `${leisure}`,
+        COMBINED: `${combined}`,
+      });
+    }
+    tableData = tableData.reverse();
+
+    return (
+      <div className="ml-3">
+        {
+          <DataGridFinKitty
+            tableID={'planningTable'}
+            deleteFunction={undefined}
+            setEraFunction={undefined}
+            handleGridRowsUpdated={function () {
+              return false;
+            }}
+            rows={addIndices(tableData)}
+            columns={[
+              /*
+              {
+                ...defaultColumn,
+                key: 'index',
+                name: 'index',
+                formatter: <SimpleFormatter name="name" value="unset" />,
+                editable: false,
+              },
+              */
+              {
+                ...defaultColumn,
+                key: 'DATE',
+                name: 'date',
+                formatter: (
+                  <TriggerDateFormatter
+                    name="date"
+                    model={model}
+                    value="unset"
+                  />
+                ),
+              },
+              {
+                ...defaultColumn,
+                key: 'BASIC',
+                name: 'Basic expenses',
+                formatter: <CashValueFormatter name="basic" value="unset" />,
+                editable: false,
+              },
+              {
+                ...defaultColumn,
+                key: 'LEISURE',
+                name: 'Leisure expenses',
+                formatter: <CashValueFormatter name="basic" value="unset" />,
+                editable: false,
+              },
+              {
+                ...defaultColumn,
+                key: 'COMBINED',
+                name: 'Basic + Leisure',
+                formatter: <CashValueFormatter name="name" value="unset" />,
+                editable: false,
+              },
+            ]}
+            model={model}
+          />
+        }
+      </div>
+    );
+  }
+
   if (!getDisplay(expensesView)) {
     // log(`don't populate expensesView`);
     return;

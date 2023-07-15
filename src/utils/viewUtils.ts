@@ -26,6 +26,7 @@ import {
   transactionsView,
   triggersView,
   optimizerView,
+  planningView,
 } from '../localization/stringConstants';
 import { ViewSettings } from '../models/charting';
 import { log } from './utils';
@@ -42,6 +43,7 @@ export const allViews = [
   transactionsView,
   reportView,
   optimizerView,
+  planningView,
   settingsView,
 ];
 
@@ -164,6 +166,12 @@ export const views = new Map<
   ],
   [
     optimizerView,
+    {
+      display: false,
+    },
+  ],
+  [
+    planningView,
     {
       display: false,
     },
