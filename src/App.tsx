@@ -49,6 +49,8 @@ import {
   allItems,
   viewDetail,
   coarseDetail,
+  chartViewType,
+  chartDeltas,
 } from './localization/stringConstants';
 import {
   AssetOrDebtVal,
@@ -668,7 +670,10 @@ export async function refreshDataInternal(
     planningViewSettings.toggleViewFilter(Context.Expense, allItems);
     planningViewSettings.toggleViewFilter(Context.Expense, 'Basic');
     planningViewSettings.toggleViewFilter(Context.Expense, 'Leisure');
+    planningViewSettings.toggleViewFilter(Context.Asset, allItems);
+    planningViewSettings.toggleViewFilter(Context.Asset, 'BondsFixedTerm');
     planningViewSettings.setViewSetting(viewDetail, coarseDetail);
+    planningViewSettings.setViewSetting(chartViewType, chartDeltas);
 
     const planningChartData: DataForView = makeChartData(
       model,
@@ -682,6 +687,10 @@ export async function refreshDataInternal(
     const planningIncomesChartData = makeBarData(
       planningChartData.labels,
       planningChartData.incomesData,
+    );
+    const planningAssetsChartData = makeBarData(
+      planningChartData.labels,
+      planningChartData.assetData,
     );
 
     if (reactAppComponent !== undefined) {
@@ -700,6 +709,7 @@ export async function refreshDataInternal(
           taxChartData,
           planningExpensesChartData,
           planningIncomesChartData,
+          planningAssetsChartData,
           modelNamesData: modelNames,
           todaysAssetValues: todaysAssetValues,
           todaysDebtValues: todaysDebtValues,
@@ -1767,6 +1777,7 @@ interface AppState {
   taxChartData: ChartData;
   planningExpensesChartData: ChartData;
   planningIncomesChartData: ChartData;
+  planningAssetsChartData: ChartData;
   optimizationChartData: ChartData;
   todaysAssetValues: Map<Asset, AssetOrDebtVal>;
   todaysDebtValues: Map<Asset, AssetOrDebtVal>;
@@ -1900,6 +1911,11 @@ export class AppContent extends Component<AppProps, AppState> {
       displayLegend: false,
     },
     planningIncomesChartData: {
+      labels: [],
+      datasets: [],
+      displayLegend: false,
+    },
+    planningAssetsChartData: {
       labels: [],
       datasets: [],
       displayLegend: false,
@@ -2154,6 +2170,7 @@ export class AppContent extends Component<AppProps, AppState> {
               this.state.todaysExpenseValues,
               this.state.planningExpensesChartData,
               this.state.planningIncomesChartData,
+              this.state.planningAssetsChartData,
               parentCallbacks,
             )}
             {assetsDiv(

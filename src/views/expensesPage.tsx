@@ -192,6 +192,7 @@ export function expensesDiv(
   todaysValues: Map<Expense, ExpenseVal>,
   planningExpensesChartData: ChartData,
   planningIncomesChartData: ChartData,
+  planningAssetsChartData: ChartData,
   parentCallbacks: ViewCallbacks,
 ) {
   if (getDisplay(planningView)) {
@@ -232,9 +233,15 @@ export function expensesDiv(
       //console.log(`basic = ${basic}, leisure = ${leisure}`);
       const date = planningExpensesChartData.labels[idx];
       const date2 = planningIncomesChartData.labels[idx];
+      const date3 = planningAssetsChartData.labels[idx];
       if (date !== date2) {
         throw new Error(
           'Error: mismatch Expense/Income dates in planningExpensesChartData',
+        );
+      }
+      if (date !== date3) {
+        throw new Error(
+          'Error: mismatch Expense/Asset dates in planningExpensesChartData',
         );
       }
       const pension = planningIncomes[0].data[idx];
@@ -248,6 +255,14 @@ export function expensesDiv(
         tax += b.amountLiable * b.rate;
       });
 
+      let bondsReleaseFunds = 0;
+      planningAssetsChartData.datasets.forEach((pscd) => {
+        console.log(`pscd.data[idx] = ${pscd.data[idx]}`);
+        if (pscd.data[idx] < 0) {
+          bondsReleaseFunds += -pscd.data[idx];
+        }
+      });
+
       tableData.push({
         DATE: date,
         BASIC: `${basic}`,
@@ -256,6 +271,8 @@ export function expensesDiv(
         PENSION: `${pension}`,
         TAX: `${tax}`,
         PENSION_NET: `${pension - tax}`,
+        BONDS: `${bondsReleaseFunds}`,
+        INCOMING: `${pension - tax + bondsReleaseFunds}`,
       });
     }
     tableData = tableData.reverse();
@@ -309,13 +326,6 @@ export function expensesDiv(
               },
               {
                 ...defaultColumn,
-                key: 'COMBINED',
-                name: 'Basic + Leisure',
-                formatter: <CashValueFormatter name="b and l" value="unset" />,
-                editable: false,
-              },
-              {
-                ...defaultColumn,
                 key: 'PENSION',
                 name: 'Pension income',
                 formatter: <CashValueFormatter name="pension" value="unset" />,
@@ -333,8 +343,29 @@ export function expensesDiv(
                 key: 'PENSION_NET',
                 name: 'Pension after tax',
                 formatter: (
-                  <CashValueFormatter name="p after t" value="unset" />
+                  <CashValueFormatter name="net pension" value="unset" />
                 ),
+                editable: false,
+              },
+              {
+                ...defaultColumn,
+                key: 'BONDS',
+                name: 'Bonds release',
+                formatter: <CashValueFormatter name="bonds" value="unset" />,
+                editable: false,
+              },
+              {
+                ...defaultColumn,
+                key: 'INCOMING',
+                name: 'Incoming',
+                formatter: <CashValueFormatter name="incoming" value="unset" />,
+                editable: false,
+              },
+              {
+                ...defaultColumn,
+                key: 'COMBINED',
+                name: 'Outgoings',
+                formatter: <CashValueFormatter name="outgoing" value="unset" />,
                 editable: false,
               },
             ]}
