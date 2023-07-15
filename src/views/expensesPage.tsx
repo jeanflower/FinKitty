@@ -44,6 +44,10 @@ import { DateFormatType, log, printDebug } from '../utils/utils';
 import { getDisplay } from '../utils/viewUtils';
 import { simpleExpense } from '../models/exampleModels';
 import TriggerDateFormatter from './reactComponents/TriggerDateFormatter';
+import {
+  ValuesContainer,
+  calculateIncomeTaxPayable,
+} from '../models/evaluations';
 
 function addToMap(
   name: Expense,
@@ -187,28 +191,71 @@ export function expensesDiv(
   expensesChartData: ChartData,
   todaysValues: Map<Expense, ExpenseVal>,
   planningExpensesChartData: ChartData,
+  planningIncomesChartData: ChartData,
   parentCallbacks: ViewCallbacks,
 ) {
   if (getDisplay(planningView)) {
-    const gemData = planningExpensesChartData.datasets;
-    if (gemData.length === 0) {
+    const planningExpenses = planningExpensesChartData.datasets;
+    if (planningExpenses.length !== 2) {
       return <>You need Basic and/or Leisure expense categories to plan</>;
+    }
+    const planningIncomes = planningIncomesChartData.datasets;
+    if (planningIncomes.length !== 1) {
+      return <>You need Pension income categories to plan</>;
+    }
+    if (planningExpenses[0].label !== 'Basic') {
+      throw new Error('Error: Basic not in planningExpensesChartData');
+    }
+    if (planningExpenses[1].label !== 'Leisure') {
+      throw new Error('Error: Leisure not in planningExpensesChartData');
+    }
+    if (planningExpenses[0].data.length !== planningExpenses[1].data.length) {
+      throw new Error(
+        'Error: mismatch Basic/Leisure in planningExpensesChartData',
+      );
+    }
+    if (planningIncomes[0].label !== 'Pension') {
+      throw new Error('Error: Pension not in planningIncomesChartData');
+    }
+    if (planningExpenses[0].data.length !== planningIncomes[0].data.length) {
+      throw new Error(
+        'Error: mismatch Expense/Income in planningExpensesChartData',
+      );
     }
     let tableData = [];
 
-    for (let idx = 0; idx < gemData[0].data.length; idx++) {
-      //console.log(`Expect Basic = ${gemData[0].label}`);
+    for (let idx = 0; idx < planningExpenses[0].data.length; idx++) {
       //console.log(`Expect Leisure = ${gemData[1].label}`);
-      const basic = gemData[0].data[idx];
-      const leisure = gemData[1].data[idx];
+      const basic = planningExpenses[0].data[idx];
+      const leisure = planningExpenses[1].data[idx];
       const combined = basic + leisure;
       //console.log(`basic = ${basic}, leisure = ${leisure}`);
       const date = planningExpensesChartData.labels[idx];
+      const date2 = planningIncomesChartData.labels[idx];
+      if (date !== date2) {
+        throw new Error(
+          'Error: mismatch Expense/Income dates in planningExpensesChartData',
+        );
+      }
+      const pension = planningIncomes[0].data[idx];
+      const taxBands = calculateIncomeTaxPayable(
+        pension,
+        2023,
+        new ValuesContainer(model),
+      );
+      let tax = 0.0;
+      taxBands.forEach((b) => {
+        tax += b.amountLiable * b.rate;
+      });
+
       tableData.push({
         DATE: date,
         BASIC: `${basic}`,
         LEISURE: `${leisure}`,
         COMBINED: `${combined}`,
+        PENSION: `${pension}`,
+        TAX: `${tax}`,
+        PENSION_NET: `${pension - tax}`,
       });
     }
     tableData = tableData.reverse();
@@ -257,14 +304,37 @@ export function expensesDiv(
                 ...defaultColumn,
                 key: 'LEISURE',
                 name: 'Leisure expenses',
-                formatter: <CashValueFormatter name="basic" value="unset" />,
+                formatter: <CashValueFormatter name="leisure" value="unset" />,
                 editable: false,
               },
               {
                 ...defaultColumn,
                 key: 'COMBINED',
                 name: 'Basic + Leisure',
-                formatter: <CashValueFormatter name="name" value="unset" />,
+                formatter: <CashValueFormatter name="b and l" value="unset" />,
+                editable: false,
+              },
+              {
+                ...defaultColumn,
+                key: 'PENSION',
+                name: 'Pension income',
+                formatter: <CashValueFormatter name="pension" value="unset" />,
+                editable: false,
+              },
+              {
+                ...defaultColumn,
+                key: 'TAX',
+                name: 'Tax estimate',
+                formatter: <CashValueFormatter name="tax" value="unset" />,
+                editable: false,
+              },
+              {
+                ...defaultColumn,
+                key: 'PENSION_NET',
+                name: 'Pension after tax',
+                formatter: (
+                  <CashValueFormatter name="p after t" value="unset" />
+                ),
                 editable: false,
               },
             ]}

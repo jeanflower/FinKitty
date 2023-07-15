@@ -1275,7 +1275,7 @@ function getTaxBands(
   return result;
 }
 
-function calculateIncomeTaxPayable(
+export function calculateIncomeTaxPayable(
   income: number,
   startYearOfTaxYear: number,
   values: ValuesContainer,
@@ -4261,7 +4261,7 @@ function logPurchaseValues(
   }
 }
 
-class ValuesContainer {
+export class ValuesContainer {
   private model: ModelData;
 
   constructor(model: ModelData) {

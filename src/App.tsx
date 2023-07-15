@@ -663,6 +663,8 @@ export async function refreshDataInternal(
 
     const planningViewSettings = getDefaultViewSettings();
     planningViewSettings.setModel(model);
+    planningViewSettings.toggleViewFilter(Context.Income, allItems);
+    planningViewSettings.toggleViewFilter(Context.Income, 'Pension');
     planningViewSettings.toggleViewFilter(Context.Expense, allItems);
     planningViewSettings.toggleViewFilter(Context.Expense, 'Basic');
     planningViewSettings.toggleViewFilter(Context.Expense, 'Leisure');
@@ -676,6 +678,10 @@ export async function refreshDataInternal(
     const planningExpensesChartData = makeBarData(
       planningChartData.labels,
       planningChartData.expensesData,
+    );
+    const planningIncomesChartData = makeBarData(
+      planningChartData.labels,
+      planningChartData.incomesData,
     );
 
     if (reactAppComponent !== undefined) {
@@ -693,6 +699,7 @@ export async function refreshDataInternal(
           debtChartData,
           taxChartData,
           planningExpensesChartData,
+          planningIncomesChartData,
           modelNamesData: modelNames,
           todaysAssetValues: todaysAssetValues,
           todaysDebtValues: todaysDebtValues,
@@ -1759,6 +1766,7 @@ interface AppState {
   debtChartData: ChartData;
   taxChartData: ChartData;
   planningExpensesChartData: ChartData;
+  planningIncomesChartData: ChartData;
   optimizationChartData: ChartData;
   todaysAssetValues: Map<Asset, AssetOrDebtVal>;
   todaysDebtValues: Map<Asset, AssetOrDebtVal>;
@@ -1887,6 +1895,11 @@ export class AppContent extends Component<AppProps, AppState> {
       displayLegend: false,
     },
     planningExpensesChartData: {
+      labels: [],
+      datasets: [],
+      displayLegend: false,
+    },
+    planningIncomesChartData: {
       labels: [],
       datasets: [],
       displayLegend: false,
@@ -2140,6 +2153,7 @@ export class AppContent extends Component<AppProps, AppState> {
               this.state.expensesChartData,
               this.state.todaysExpenseValues,
               this.state.planningExpensesChartData,
+              this.state.planningIncomesChartData,
               parentCallbacks,
             )}
             {assetsDiv(
