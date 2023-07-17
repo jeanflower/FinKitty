@@ -1706,7 +1706,7 @@ function OptimizeIncomeTax(
   values: ValuesContainer,
   growths: Map<string, GrowthData>,
   person: string,
-  liableIncomeInTaxYear: Map<string, Map<string, number>>,
+  incomes: LiableIncomes,
   evaluations: Evaluation[],
   model: ModelData,
 ) {
@@ -1751,7 +1751,7 @@ function OptimizeIncomeTax(
         }
         // log(`to use allowance, on ${date}, '
         //  +'move ${amountToTransfer} from ${valueKey}`);
-        const personAmountMap = liableIncomeInTaxYear.get(incomeTax);
+        const personAmountMap = incomes.inTaxYear.get(incomeTax);
         /* istanbul ignore if */
         if (personAmountMap === undefined) {
           log('BUG!!! person has no liability');
@@ -1806,9 +1806,13 @@ function OptimizeIncomeTax(
 
 const doOptimizeForIncomeTax = true;
 
+interface LiableIncomes {
+  inTaxYear: Map<string, Map<string, number>>;
+  inTaxMonth: Map<string, Map<string, number>>;
+}
+
 function settleUpTax(
-  liableIncomeInTaxYear: Map<string, Map<string, number>>,
-  liableIncomeInTaxMonth: Map<string, Map<string, number>>,
+  incomes: LiableIncomes,
   taxMonthlyPaymentsPaid: Map<string, Map<string, number>>,
   startYearOfTaxYear: number,
   values: ValuesContainer,
@@ -1824,7 +1828,7 @@ function settleUpTax(
   // before going to pay income tax,
   // see if there's a wise move to use up unused income tax allowance
   // for each person
-  for (const [key, value] of liableIncomeInTaxYear) {
+  for (const [key, value] of incomes.inTaxYear) {
     /* eslint-disable-line no-restricted-syntax */
     if (key === incomeTax && value !== undefined) {
       for (const [person, liableIncome] of value) {
@@ -1836,7 +1840,7 @@ function settleUpTax(
             values,
             growths,
             person,
-            liableIncomeInTaxYear,
+            incomes,
             evaluations,
             model,
           );
@@ -1849,19 +1853,19 @@ function settleUpTax(
   const personNetIncome = new Map<string, number>();
   const personNetGain = new Map<string, number>();
   // log(`iterate over liable income key, value`);
-  for (const [key, value] of liableIncomeInTaxYear) {
+  for (const [key, value] of incomes.inTaxYear) {
     // log(`liable income key = ${key}, value = ${value}`);
     let recalculatedNetIncome = false;
     let recalculatedNetGain = false;
     /* eslint-disable-line no-restricted-syntax */
     if (key === incomeTax && value !== undefined) {
-      let liableIncomeTaxInTaxMonth = liableIncomeInTaxMonth.get(incomeTax);
+      let liableIncomeTaxInTaxMonth = incomes.inTaxMonth.get(incomeTax);
 
       /* istanbul ignore if  */ //redundant untested
       if (liableIncomeTaxInTaxMonth === undefined) {
         log('Error : expect maps to have been set up in accumulateLiability');
         liableIncomeTaxInTaxMonth = new Map<string, number>();
-        liableIncomeInTaxMonth.set(incomeTax, liableIncomeTaxInTaxMonth);
+        incomes.inTaxMonth.set(incomeTax, liableIncomeTaxInTaxMonth);
       }
       let incomeTaxMonthlyPaymentsPaid = taxMonthlyPaymentsPaid.get(incomeTax);
       /* istanbul ignore if  */ //redundant untested
@@ -1911,14 +1915,13 @@ function settleUpTax(
         recalculatedNetIncome = true;
       }
     } else if (key === nationalInsurance && value !== undefined) {
-      let liableIncomeNIInTaxMonth =
-        liableIncomeInTaxMonth.get(nationalInsurance);
+      let liableIncomeNIInTaxMonth = incomes.inTaxMonth.get(nationalInsurance);
 
       /* istanbul ignore if  */ //redundant untested
       if (liableIncomeNIInTaxMonth === undefined) {
         log('Error : expect maps to have been set up in accumulateLiability');
         liableIncomeNIInTaxMonth = new Map<string, number>();
-        liableIncomeInTaxMonth.set(nationalInsurance, liableIncomeNIInTaxMonth);
+        incomes.inTaxMonth.set(nationalInsurance, liableIncomeNIInTaxMonth);
       }
       let nIMonthlyPaymentsPaid = taxMonthlyPaymentsPaid.get(nationalInsurance);
 
@@ -1975,7 +1978,7 @@ function settleUpTax(
       for (const [person, amount] of value) {
         /* eslint-disable-line no-restricted-syntax */
         const personsName = person.substring(0, person.length - cgt.length);
-        const liableIncomeFromMap = liableIncomeInTaxYear
+        const liableIncomeFromMap = incomes.inTaxYear
           .get(incomeTax)
           ?.get(`${personsName}${incomeTax}`);
         const liableIncome = liableIncomeFromMap ? liableIncomeFromMap : 0;
@@ -2063,7 +2066,7 @@ function getTaxMonthDate(startYearOfTaxYear: number, monthOfTaxYear: number) {
 }
 
 function payTaxEstimate(
-  liableIncomeInTaxMonth: Map<string, Map<string, number>>,
+  incomes: LiableIncomes,
   taxMonthlyPaymentsPaid: Map<string, Map<string, number>>,
   startYearOfTaxYear: number,
   monthOfTaxYear: number,
@@ -2074,10 +2077,10 @@ function payTaxEstimate(
 ) {
   // income tax
   // log(`payTaxEstimate for month ${monthOfTaxYear} and startYearOfTaxYear ${startYearOfTaxYear}`);
-  let liableIncomeTaxInTaxMonth = liableIncomeInTaxMonth.get(incomeTax);
+  let liableIncomeTaxInTaxMonth = incomes.inTaxMonth.get(incomeTax);
   if (liableIncomeTaxInTaxMonth === undefined) {
     liableIncomeTaxInTaxMonth = new Map<string, number>();
-    liableIncomeInTaxMonth.set(incomeTax, liableIncomeTaxInTaxMonth);
+    incomes.inTaxMonth.set(incomeTax, liableIncomeTaxInTaxMonth);
   }
   let incomeTaxMonthlyPaymentsPaid = taxMonthlyPaymentsPaid.get(incomeTax);
   if (incomeTaxMonthlyPaymentsPaid === undefined) {
@@ -2128,7 +2131,7 @@ function payTaxEstimate(
   }
 }
 function payNIEstimate(
-  liableIncomeInTaxMonth: Map<string, Map<string, number>>,
+  incomes: LiableIncomes,
   taxMonthlyPaymentsPaid: Map<string, Map<string, number>>,
   startYearOfTaxYear: number,
   monthOfTaxYear: number,
@@ -2139,10 +2142,10 @@ function payNIEstimate(
 ) {
   // log(`pay NI estimate for month ${monthOfTaxYear} and startYearOfTaxYear ${startYearOfTaxYear} `)
   // NI
-  let liableNIInTaxMonth = liableIncomeInTaxMonth.get(nationalInsurance);
+  let liableNIInTaxMonth = incomes.inTaxMonth.get(nationalInsurance);
   if (liableNIInTaxMonth === undefined) {
     liableNIInTaxMonth = new Map<string, number>();
-    liableIncomeInTaxMonth.set(nationalInsurance, liableNIInTaxMonth);
+    incomes.inTaxMonth.set(nationalInsurance, liableNIInTaxMonth);
   }
   let nIMonthlyPaymentsPaid = taxMonthlyPaymentsPaid.get(nationalInsurance);
   if (nIMonthlyPaymentsPaid === undefined) {
@@ -2197,8 +2200,8 @@ function accumulateLiability(
   liability: string,
   type: string, // "income" or "NI"
   incomeValue: number,
-  liableIncomeInTaxYear: Map<string, Map<string, number>>,
-  liableIncomeInTaxMonth: Map<string, Map<string, number>>,
+  incomes: LiableIncomes,
+  typeOfMoment: string,
 ) {
   // log(`accumulateLiability,
   //    liability = ${liability}, type = ${type}, incomeValue = ${incomeValue}`);
@@ -2212,11 +2215,11 @@ function accumulateLiability(
     return;
   }
   */
-  let map = liableIncomeInTaxYear.get(type);
+  let map = incomes.inTaxYear.get(type);
   if (map === undefined) {
     // set up a map to collect accumulations for type
-    liableIncomeInTaxYear.set(type, new Map<string, number>());
-    map = liableIncomeInTaxYear.get(type);
+    incomes.inTaxYear.set(type, new Map<string, number>());
+    map = incomes.inTaxYear.get(type);
   }
   if (map !== undefined) {
     // log this amount in the accumulating total
@@ -2231,12 +2234,12 @@ function accumulateLiability(
   }
   if (type === incomeTax) {
     /////////// TODO duplication of code
-    let liableIncomeTaxInTaxMonth = liableIncomeInTaxMonth.get(incomeTax);
+    let liableIncomeTaxInTaxMonth = incomes.inTaxMonth.get(incomeTax);
 
     /* istanbul ignore if  */ //redundant untested
     if (liableIncomeTaxInTaxMonth === undefined) {
       liableIncomeTaxInTaxMonth = new Map<string, number>();
-      liableIncomeInTaxMonth.set(incomeTax, liableIncomeTaxInTaxMonth);
+      incomes.inTaxMonth.set(incomeTax, liableIncomeTaxInTaxMonth);
     }
     let taxLiability = liableIncomeTaxInTaxMonth.get(liability);
     if (taxLiability === undefined) {
@@ -2245,15 +2248,33 @@ function accumulateLiability(
     const newLiability = taxLiability + incomeValue;
     // log(`${liability} accumulate income tax liability ${incomeValue} for the month: ${newLiability}`);
     liableIncomeTaxInTaxMonth.set(liability, newLiability);
+
+    /*
+    if (
+      typeOfMoment !== momentType.income &&
+      typeOfMoment !== momentType.incomeStart &&
+      typeOfMoment !== momentType.transaction &&
+      typeOfMoment !== momentType.asset
+    ) {
+      throw new Error(`unexpected income tax moment : ${typeOfMoment}`);
+    }
+    */
+    if (
+      typeOfMoment !== momentType.income &&
+      typeOfMoment !== momentType.incomeStart
+    ) {
+      // track this type of liability in addition
+      // to feed data into the planning page
+    }
   }
   if (type === nationalInsurance) {
-    let liableNIInTaxMonth = liableIncomeInTaxMonth.get(nationalInsurance);
+    let liableNIInTaxMonth = incomes.inTaxMonth.get(nationalInsurance);
 
     /* istanbul ignore if */
     if (liableNIInTaxMonth === undefined) {
       log(`Error: don't expect liableNIInTaxMonth to be undefined!`);
       liableNIInTaxMonth = new Map<string, number>();
-      liableIncomeInTaxMonth.set(nationalInsurance, liableNIInTaxMonth);
+      incomes.inTaxMonth.set(nationalInsurance, liableNIInTaxMonth);
     }
     let taxLiability = liableNIInTaxMonth.get(liability);
     if (taxLiability === undefined) {
@@ -2274,8 +2295,7 @@ function handleIncome(
   model: ModelData,
   pensionTransactions: Transaction[],
   liabilitiesMap: Map<string, string>,
-  liableIncomeInTaxYear: Map<string, Map<string, number>>,
-  liableIncomeInTaxMonth: Map<string, Map<string, number>>,
+  incomes: LiableIncomes,
   sourceDescription: string,
 ) {
   // log(`handle income value = ${incomeValue}`);
@@ -2460,8 +2480,8 @@ function handleIncome(
           liability,
           incomeTax,
           amountForIncomeTax,
-          liableIncomeInTaxYear,
-          liableIncomeInTaxMonth,
+          incomes,
+          moment.type,
         );
         const thisPerson = liability.substring(
           0,
@@ -2482,8 +2502,8 @@ function handleIncome(
           liability,
           nationalInsurance,
           amountForNI,
-          liableIncomeInTaxYear,
-          liableIncomeInTaxMonth,
+          incomes,
+          moment.type,
         );
         const thisPerson = liability.substring(
           0,
@@ -2966,8 +2986,7 @@ function revalueApplied(
   values: ValuesContainer,
   growths: Map<string, GrowthData>,
   evaluations: Evaluation[],
-  liableIncomeInTaxYear: Map<string, Map<string, number>>,
-  liableIncomeInTaxMonth: Map<string, Map<string, number>>,
+  incomes: LiableIncomes,
   model: ModelData,
 ) {
   if (!t.NAME.startsWith(revalue)) {
@@ -3089,13 +3108,7 @@ function revalueApplied(
                 log('Error: income tax on quantities');
                 throw new Error('income tax on quantities not allowed');
               }
-              accumulateLiability(
-                l,
-                incomeTax,
-                gain,
-                liableIncomeInTaxYear,
-                liableIncomeInTaxMonth,
-              );
+              accumulateLiability(l, incomeTax, gain, incomes, moment.type);
             }
           }
         }
@@ -3651,7 +3664,7 @@ function handleCGTLiability(
   growths: Map<string, GrowthData>,
   evaluations: Evaluation[],
   liabliitiesMap: Map<string, string>,
-  liableIncomeInTaxYear: Map<string, Map<string, number>>,
+  incomes: LiableIncomes,
   model: ModelData,
 ) {
   // log(`${fromWord} reducing from ${preFromValue} by ${fromChange}`);
@@ -3680,10 +3693,10 @@ function handleCGTLiability(
     // if (fromWord.includes('ESPP') || fromWord.includes('RSU')) {
     // log(`proportionGain = ${proportionGain}`);
     // }
-    let cgtMap = liableIncomeInTaxYear.get('cgt');
+    let cgtMap = incomes.inTaxYear.get('cgt');
     if (cgtMap === undefined) {
-      liableIncomeInTaxYear.set('cgt', new Map<string, number>());
-      cgtMap = liableIncomeInTaxYear.get('cgt');
+      incomes.inTaxYear.set('cgt', new Map<string, number>());
+      cgtMap = incomes.inTaxYear.get('cgt');
     }
     if (cgtMap !== undefined) {
       let currentcgtVal = cgtMap.get(cgtLiability);
@@ -3763,8 +3776,7 @@ function processTransactionFromTo(
   model: ModelData,
   pensionTransactions: Transaction[],
   liabliitiesMap: Map<string, string>,
-  liableIncomeInTaxYear: Map<string, Map<string, number>>,
-  liableIncomeInTaxMonth: Map<string, Map<string, number>>,
+  incomes: LiableIncomes,
 ) {
   // log(`process t = ${showObj(t)}`);
   // log(`processTransactionFromTo fromWord = ${fromWord} toWord = ${toWord}, date = ${dateAsString(DateFormatType.Debug,moment.date)}`);
@@ -3843,7 +3855,7 @@ function processTransactionFromTo(
       growths,
       evaluations,
       liabliitiesMap,
-      liableIncomeInTaxYear,
+      incomes,
       model,
     );
     // log(`reduce ${fromWord}'s ${preFromValue} by ${showObj(fromChange)}`);
@@ -3904,8 +3916,7 @@ function processTransactionFromTo(
         model,
         pensionTransactions,
         liabliitiesMap,
-        liableIncomeInTaxYear,
-        liableIncomeInTaxMonth,
+        incomes,
         fromWord,
       );
     } else {
@@ -4103,8 +4114,7 @@ function processTransactionMoment(
   model: ModelData,
   pensionTransactions: Transaction[],
   liabliitiesMap: Map<string, string>,
-  liableIncomeInTaxYear: Map<string, Map<string, number>>,
-  liableIncomeInTaxMonth: Map<string, Map<string, number>>,
+  incomes: LiableIncomes,
 ) {
   // log(`in processTransactionMoment`);
   // transactions have a direct effect on their
@@ -4120,18 +4130,7 @@ function processTransactionMoment(
   // Some transactions are simple Revalues.  They have no
   // FROM and a value for TO.  Code similar to application
   // of growth to assets, except we know the new value.
-  if (
-    revalueApplied(
-      t,
-      moment,
-      values,
-      growths,
-      evaluations,
-      liableIncomeInTaxYear,
-      liableIncomeInTaxMonth,
-      model,
-    )
-  ) {
+  if (revalueApplied(t, moment, values, growths, evaluations, incomes, model)) {
     return;
   }
 
@@ -4164,8 +4163,7 @@ function processTransactionMoment(
           model,
           pensionTransactions,
           liabliitiesMap,
-          liableIncomeInTaxYear,
-          liableIncomeInTaxMonth,
+          incomes,
         );
       }
     }
@@ -4944,8 +4942,7 @@ function handleTaxObligations(
     startYearOfTaxYear: number | undefined;
     monthOfTaxYear: number | undefined;
   },
-  liableIncomeInTaxYear: Map<string, Map<string, number>>,
-  liableIncomeInTaxMonth: Map<string, Map<string, number>>,
+  incomes: LiableIncomes,
   taxMonthlyPaymentsPaid: Map<string, Map<string, number>>,
   evaluations: Evaluation[],
 ) {
@@ -4970,7 +4967,7 @@ function handleTaxObligations(
   ) {
     // log(`${momentsTaxMonth} is beyond ${monthOfTaxYear} for ${dateAsString(DateFormatType.Debug,moment.date)}`);
     payNIEstimate(
-      liableIncomeInTaxMonth,
+      incomes,
       taxMonthlyPaymentsPaid,
       timeInTaxCycle.startYearOfTaxYear,
       timeInTaxCycle.monthOfTaxYear,
@@ -4987,8 +4984,7 @@ function handleTaxObligations(
     // change of tax year - report count of moments
     // log('change of tax year...');
     settleUpTax(
-      liableIncomeInTaxYear,
-      liableIncomeInTaxMonth,
+      incomes,
       taxMonthlyPaymentsPaid,
       timeInTaxCycle.startYearOfTaxYear,
       values,
@@ -5006,7 +5002,7 @@ function handleTaxObligations(
   ) {
     // log(`${momentsTaxMonth} is beyond ${monthOfTaxYear} for ${dateAsString(DateFormatType.Debug,moment.date)}`);
     payTaxEstimate(
-      liableIncomeInTaxMonth,
+      incomes,
       taxMonthlyPaymentsPaid,
       timeInTaxCycle.startYearOfTaxYear,
       timeInTaxCycle.monthOfTaxYear,
@@ -5123,8 +5119,7 @@ function handleStartMoment(
   moment: Moment,
   pensionTransactions: Transaction[],
   liabilitiesMap: Map<string, string>,
-  liableIncomeInTaxYear: Map<string, Map<string, number>>,
-  liableIncomeInTaxMonth: Map<string, Map<string, number>>,
+  incomes: LiableIncomes,
   evaluations: Evaluation[],
 ) {
   // Starts are well defined
@@ -5226,8 +5221,7 @@ function handleStartMoment(
         model,
         pensionTransactions,
         liabilitiesMap,
-        liableIncomeInTaxYear,
-        liableIncomeInTaxMonth,
+        incomes,
         moment.name,
       );
     } else {
@@ -5269,8 +5263,7 @@ function growAndEffectMoment(
   moment: Moment,
   pensionTransactions: Transaction[],
   liabilitiesMap: Map<string, string>,
-  liableIncomeInTaxYear: Map<string, Map<string, number>>,
-  liableIncomeInTaxMonth: Map<string, Map<string, number>>,
+  incomes: LiableIncomes,
   evaluations: Evaluation[],
 ) {
   let momentName = moment.name;
@@ -5436,8 +5429,7 @@ function growAndEffectMoment(
             model,
             pensionTransactions,
             liabilitiesMap,
-            liableIncomeInTaxYear,
-            liableIncomeInTaxMonth,
+            incomes,
             momentName,
           );
         }
@@ -5453,8 +5445,7 @@ function growAndEffectMoment(
           model,
           pensionTransactions,
           liabilitiesMap,
-          liableIncomeInTaxYear,
-          liableIncomeInTaxMonth,
+          incomes,
           momentName,
         );
       } else if (moment.type === momentType.expense) {
@@ -5742,12 +5733,15 @@ function getEvaluationsInternal(
   // the outer map has a key for "cgt", "incomeTax" and "NI".
   // the inner map has a key for the person who is liable to pay and
   // a value for the accrued liable value as a tax year progresses
-  const liableIncomeInTaxYear = new Map<string, Map<string, number>>();
+  //
   // we track different types of income liability for different individuals
   // for monthly income tax payments, we only need a map from
   // the person who is liable to pay and
   // a value for the accrued liable value as a tax month progresses
-  const liableIncomeInTaxMonth = new Map<string, Map<string, number>>();
+  const incomes: LiableIncomes = {
+    inTaxMonth: new Map<string, Map<string, number>>(),
+    inTaxYear: new Map<string, Map<string, number>>(),
+  };
   const taxMonthlyPaymentsPaid = new Map<string, Map<string, number>>();
 
   // log(`gathered ${datedMoments.length} moments to process`);
@@ -5793,8 +5787,7 @@ function getEvaluationsInternal(
       growths,
       moment,
       timeInTaxCycle,
-      liableIncomeInTaxYear,
-      liableIncomeInTaxMonth,
+      incomes,
       taxMonthlyPaymentsPaid,
       evaluations,
     );
@@ -5816,8 +5809,7 @@ function getEvaluationsInternal(
         model,
         pensionTransactions,
         liabilitiesMap,
-        liableIncomeInTaxYear,
-        liableIncomeInTaxMonth,
+        incomes,
       );
     } else if (
       moment.type === momentType.expenseStart ||
@@ -5833,8 +5825,7 @@ function getEvaluationsInternal(
         moment,
         pensionTransactions,
         liabilitiesMap,
-        liableIncomeInTaxYear,
-        liableIncomeInTaxMonth,
+        incomes,
         evaluations,
       );
     } else {
@@ -5845,8 +5836,7 @@ function getEvaluationsInternal(
         moment,
         pensionTransactions,
         liabilitiesMap,
-        liableIncomeInTaxYear,
-        liableIncomeInTaxMonth,
+        incomes,
         evaluations,
       );
     }
@@ -5860,8 +5850,7 @@ function getEvaluationsInternal(
       // change of tax year - report count of moments
       // log('last item in tax year...');
       settleUpTax(
-        liableIncomeInTaxYear,
-        liableIncomeInTaxMonth,
+        incomes,
         taxMonthlyPaymentsPaid,
         timeInTaxCycle.startYearOfTaxYear,
         values,
