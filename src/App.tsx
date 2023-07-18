@@ -665,8 +665,6 @@ export async function refreshDataInternal(
 
     const planningViewSettings = getDefaultViewSettings();
     planningViewSettings.setModel(model);
-    planningViewSettings.toggleViewFilter(Context.Income, allItems);
-    planningViewSettings.toggleViewFilter(Context.Income, 'Pension');
     planningViewSettings.toggleViewFilter(Context.Expense, allItems);
     planningViewSettings.toggleViewFilter(Context.Expense, 'Basic');
     planningViewSettings.toggleViewFilter(Context.Expense, 'Leisure');
