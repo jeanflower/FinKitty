@@ -70,6 +70,7 @@ import {
   getTriggerDate,
   deconstructTaxTag,
   dateAsString,
+  lessThan,
 } from '../utils/stringUtils';
 import { getROI, getSettings, getVarVal } from './modelUtils';
 import { getCategory } from './category';
@@ -1696,5 +1697,9 @@ export function makeChartDataFromEvaluations(
   },
 ) {
   viewSettings.setModel(model);
-  return makeChartData(model, viewSettings, evaluationsAndVals);
+  const result = makeChartData(model, viewSettings, evaluationsAndVals);
+
+  result.taxData.sort((a, b) => lessThan(a.item.NAME, b.item.NAME));
+
+  return result;
 }

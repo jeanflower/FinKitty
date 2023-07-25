@@ -622,6 +622,7 @@ function setValue(
   }
   const printNet = false;
   const printReal = false;
+  const printSameValueInputs = false;
   const existingValue = values.get(name);
   /* istanbul ignore if  */ //debug
   if (printNet || printReal) {
@@ -654,6 +655,14 @@ function setValue(
               `date = ${dateAsString(DateFormatType.Debug, date)}, ` +
               `source = ${source}, from  ${callerID}`,
           );
+        } else if (printSameValueInputs) {
+          log(
+            `set same existing value of ${name}, ` +
+              `newValue = ${newValue} ` +
+              `oldValue = ${existingValue} ` +
+              `date = ${dateAsString(DateFormatType.Debug, date)}, ` +
+              `source = ${source}, from  ${callerID}`,
+          );
         }
       }
     }
@@ -669,6 +678,14 @@ function setValue(
         if (newValue !== existingValue) {
           log(
             `setting value of ${name}, ` +
+              `newRealValue = ${realNewValue} ` +
+              `oldRealValue = ${realExistingValue} ` +
+              `date = ${dateAsString(DateFormatType.Debug, date)}, ` +
+              `source = ${source}, from  ${callerID}`,
+          );
+        } else if (printSameValueInputs) {
+          log(
+            `set same existing value of ${name}, ` +
               `newRealValue = ${realNewValue} ` +
               `oldRealValue = ${realExistingValue} ` +
               `date = ${dateAsString(DateFormatType.Debug, date)}, ` +
@@ -1751,7 +1768,7 @@ function OptimizeIncomeTax(
         }
         // log(`to use allowance, on ${date}, '
         //  +'move ${amountToTransfer} from ${valueKey}`);
-        const personAmountMap = incomes.inTaxYear.get(incomeTax);
+        const personAmountMap = incomes.inTaxYear.incomeTax;
         /* istanbul ignore if */
         if (personAmountMap === undefined) {
           log('BUG!!! person has no liability');
@@ -1806,8 +1823,22 @@ function OptimizeIncomeTax(
 
 const doOptimizeForIncomeTax = true;
 
+// we track different types of income liability for different individuals
+// the outer map has a key for "cgt", "incomeTax" and "NI".
+// the inner map has a key for the person who is liable to pay and
+// a value for the accrued liable value as a tax year progresses
+//
+// we track different types of income liability for different individuals
+// for monthly income tax payments, we only need a map from
+// the person who is liable to pay and
+// a value for the accrued liable value as a tax month progresses
+
 interface LiableIncomes {
-  inTaxYear: Map<string, Map<string, number>>;
+  inTaxYear: {
+    cgt: undefined | Map<string, number>;
+    incomeTax: undefined | Map<string, number>;
+    NI: undefined | Map<string, number>;
+  };
   inTaxMonth: Map<string, Map<string, number>>;
 }
 
@@ -1828,32 +1859,44 @@ function settleUpTax(
   // before going to pay income tax,
   // see if there's a wise move to use up unused income tax allowance
   // for each person
-  for (const [key, value] of incomes.inTaxYear) {
-    /* eslint-disable-line no-restricted-syntax */
-    if (key === incomeTax && value !== undefined) {
-      for (const [person, liableIncome] of value) {
-        /* eslint-disable-line no-restricted-syntax */
-        if (doOptimizeForIncomeTax) {
-          OptimizeIncomeTax(
-            date,
-            liableIncome,
-            values,
-            growths,
-            person,
-            incomes,
-            evaluations,
-            model,
-          );
-        }
+
+  const value = incomes.inTaxYear.incomeTax;
+  if (value !== undefined) {
+    for (const [person, liableIncome] of value) {
+      if (doOptimizeForIncomeTax) {
+        OptimizeIncomeTax(
+          date,
+          liableIncome,
+          values,
+          growths,
+          person,
+          incomes,
+          evaluations,
+          model,
+        );
       }
     }
   }
   const endOfTaxYear = new Date(date.getFullYear() + 1, 3, 5);
 
+  // console.log(`clear net income and net gain maps for the new tax year`);
   const personNetIncome = new Map<string, number>();
   const personNetGain = new Map<string, number>();
   // log(`iterate over liable income key, value`);
-  for (const [key, value] of incomes.inTaxYear) {
+  const keyArray = ['cgt', incomeTax, nationalInsurance];
+  for (const key of keyArray) {
+    let value;
+    if (key === incomeTax) {
+      value = incomes.inTaxYear.incomeTax;
+    } else if (key === nationalInsurance) {
+      value = incomes.inTaxYear.NI;
+    } else if (key === 'cgt') {
+      value = incomes.inTaxYear.cgt;
+    }
+    if (value === undefined) {
+      continue;
+    }
+
     // log(`liable income key = ${key}, value = ${value}`);
     let recalculatedNetIncome = false;
     let recalculatedNetGain = false;
@@ -1898,10 +1941,10 @@ function settleUpTax(
         // log(`paid some income tax for ${personsName}`);
         const knownNetIncome = personNetIncome.get(personsName);
         if (knownNetIncome === undefined) {
-          // log(`for ${personsName}, set first net income ${amount} - ${taxPaid}`);
+          // log(`for ${personsName}'s incomeTax, set first net income ${amount} - ${taxPaid} = ${amount - taxPaid}`);
           personNetIncome.set(personsName, amount - taxPaid);
         } else {
-          // log(`for ${personsName}, reduce existing net income for ${personsName}`);
+          // log(`for ${personsName}'s incomeTax, reduce existing net income ${knownNetIncome} - ${taxPaid} = ${knownNetIncome - taxPaid}`);
           personNetIncome.set(personsName, knownNetIncome - taxPaid);
         }
         /* istanbul ignore if  */ //debug
@@ -1963,24 +2006,25 @@ function settleUpTax(
         // log(`paid some NI for ${personsName}`);
         const knownNetIncome = personNetIncome.get(personsName);
         if (knownNetIncome === undefined) {
-          // log(`for ni, set first net income for ${personsName}`);
+          // log(`for ${personsName}'s ni, set first net income ${amount} - ${alreadyPaid} = ${amount - alreadyPaid}`);
           personNetIncome.set(personsName, amount - alreadyPaid);
-        } else {
-          // log(`for ni, reduce existing net income for ${personsName}`);
+          recalculatedNetIncome = true;
+        } else if (alreadyPaid !== 0) {
+          // log(`for ${personsName}'s ni, set net income ${knownNetIncome} - ${alreadyPaid} = ${knownNetIncome - alreadyPaid}`);
           personNetIncome.set(personsName, knownNetIncome - alreadyPaid);
+          recalculatedNetIncome = true;
         }
         // log('resetting liableIncomeInTaxYear');
         value.set(person, 0);
         nIMonthlyPaymentsPaid.set(person, 0);
       }
-      recalculatedNetIncome = true;
     } else if (key === 'cgt' && value !== undefined) {
       for (const [person, amount] of value) {
         /* eslint-disable-line no-restricted-syntax */
         const personsName = person.substring(0, person.length - cgt.length);
-        const liableIncomeFromMap = incomes.inTaxYear
-          .get(incomeTax)
-          ?.get(`${personsName}${incomeTax}`);
+        const liableIncomeFromMap = incomes.inTaxYear.incomeTax?.get(
+          `${personsName}${incomeTax}`,
+        );
         const liableIncome = liableIncomeFromMap ? liableIncomeFromMap : 0;
         const cgtPaid = payCGT(
           date,
@@ -2011,9 +2055,12 @@ function settleUpTax(
     }
 
     if (recalculatedNetIncome) {
+      // console.log(`recalculatedNetIncome with key = ${key} at ${endOfTaxYear.toDateString()}`);
       for (const [person, amount] of personNetIncome) {
+        // console.log(`person = ${person} amount = ${amount}`);
         if (amount > 0) {
           const netIncTag = makeNetIncomeTag(person);
+          // console.log(`setValue netIncTag = ${netIncTag} amount = ${amount}`);
           setValue(
             values,
             growths,
@@ -2198,7 +2245,7 @@ function payNIEstimate(
 
 function accumulateLiability(
   liability: string,
-  type: string, // "income" or "NI"
+  type: string, // incomeTax or nationalInsurance
   incomeValue: number,
   incomes: LiableIncomes,
   typeOfMoment: string,
@@ -2215,11 +2262,24 @@ function accumulateLiability(
     return;
   }
   */
-  let map = incomes.inTaxYear.get(type);
-  if (map === undefined) {
-    // set up a map to collect accumulations for type
-    incomes.inTaxYear.set(type, new Map<string, number>());
-    map = incomes.inTaxYear.get(type);
+  let map = undefined;
+  // console.log(`in accumulateLiability for type = ${type}`);
+  if (type === incomeTax) {
+    map = incomes.inTaxYear.incomeTax;
+    // console.log(`current income tax map is = ${map}`);
+    if (map === undefined) {
+      // console.log(`set up new map for income tax`);
+      incomes.inTaxYear.incomeTax = new Map<string, number>();
+      map = incomes.inTaxYear.incomeTax;
+    }
+  } else if (type === nationalInsurance) {
+    map = incomes.inTaxYear.NI;
+    // console.log(`current NI map is = ${map}`);
+    if (map === undefined) {
+      // console.log(`set up new map for NI`);
+      incomes.inTaxYear.NI = new Map<string, number>();
+      map = incomes.inTaxYear.NI;
+    }
   }
   if (map !== undefined) {
     // log this amount in the accumulating total
@@ -3591,13 +3651,17 @@ function calculateToChange(
           return a.NAME === t.TO;
         });
         if (matchedAsset) {
+          // if the asset is subject to CGT there will be a
+          // purchase value (and if not, there won't be)
           const oldPurchaseVal = getNumberValue(
             values,
             `${purchase}${matchedAsset.NAME}`,
+            false, // don't expect the value to necessarily be there
           );
           const purchasePrice = getNumberValue(
             values,
             matchedAsset.PURCHASE_PRICE,
+            false,
           );
           if (oldPurchaseVal !== undefined && purchasePrice !== undefined) {
             const newPurchaseVal = oldPurchaseVal + purchasePrice * numUnits;
@@ -3693,23 +3757,22 @@ function handleCGTLiability(
     // if (fromWord.includes('ESPP') || fromWord.includes('RSU')) {
     // log(`proportionGain = ${proportionGain}`);
     // }
-    let cgtMap = incomes.inTaxYear.get('cgt');
+    let cgtMap = incomes.inTaxYear.cgt;
     if (cgtMap === undefined) {
-      incomes.inTaxYear.set('cgt', new Map<string, number>());
-      cgtMap = incomes.inTaxYear.get('cgt');
+      incomes.inTaxYear.cgt = new Map<string, number>();
+      cgtMap = incomes.inTaxYear.cgt;
     }
-    if (cgtMap !== undefined) {
-      let currentcgtVal = cgtMap.get(cgtLiability);
-      if (currentcgtVal === undefined) {
-        currentcgtVal = 0.0;
-      }
-      currentcgtVal += proportionGain;
-      // if (fromWord.includes('ESPP') || fromWord.includes('RSU')) {
-      // log(`setting new value for cgt ${currentcgtVal}`);
-      // }
-      cgtMap.set(cgtLiability, currentcgtVal);
-      // log(`logged cgt for ${cgtLiability}, accumulated value ${currentcgtVal}`);
+    let currentcgtVal = cgtMap.get(cgtLiability);
+    if (currentcgtVal === undefined) {
+      currentcgtVal = 0.0;
     }
+    currentcgtVal += proportionGain;
+    // if (fromWord.includes('ESPP') || fromWord.includes('RSU')) {
+    // log(`setting new value for cgt ${currentcgtVal}`);
+    // }
+    cgtMap.set(cgtLiability, currentcgtVal);
+    // log(`logged cgt for ${cgtLiability}, accumulated value ${currentcgtVal}`);
+
     const newPurchasePrice = purchasePrice * (1 - proportionSale);
     // when selling some asset, we reduce the Purchase value
     // of what's left for CGT purposes
@@ -5740,7 +5803,11 @@ function getEvaluationsInternal(
   // a value for the accrued liable value as a tax month progresses
   const incomes: LiableIncomes = {
     inTaxMonth: new Map<string, Map<string, number>>(),
-    inTaxYear: new Map<string, Map<string, number>>(),
+    inTaxYear: {
+      incomeTax: undefined,
+      NI: undefined,
+      cgt: undefined,
+    },
   };
   const taxMonthlyPaymentsPaid = new Map<string, Map<string, number>>();
 

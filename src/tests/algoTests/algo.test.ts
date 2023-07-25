@@ -7892,9 +7892,9 @@ describe('evaluations tests', () => {
 
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(2);
-    expect(result.taxData[0].item.NAME).toBe(getnetincLabel('Joe'));
+    expect(result.taxData[1].item.NAME).toBe(getnetincLabel('Joe'));
     {
-      const chartPts = result.taxData[0].chartDataPoints;
+      const chartPts = result.taxData[1].chartDataPoints;
       expect(chartPts.length).toBe(18);
       expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
       expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
@@ -7916,9 +7916,9 @@ describe('evaluations tests', () => {
       expectChartData(chartPts, 17, 'Wed May 01 2019', 14794.06, 2);
     }
 
-    expect(result.taxData[1].item.NAME).toBe(getICLabel('Joe'));
+    expect(result.taxData[0].item.NAME).toBe(getICLabel('Joe'));
     {
-      const chartPts = result.taxData[1].chartDataPoints;
+      const chartPts = result.taxData[0].chartDataPoints;
       expect(chartPts.length).toBe(18);
       expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
       expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
