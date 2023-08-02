@@ -5,6 +5,7 @@ import {
   ExpenseVal,
   Expense,
   ViewCallbacks,
+  ReportDatum,
 } from '../types/interfaces';
 import { checkExpense, checkTransaction } from '../models/checks';
 import {
@@ -44,10 +45,6 @@ import { DateFormatType, log, printDebug } from '../utils/utils';
 import { getDisplay } from '../utils/viewUtils';
 import { simpleExpense } from '../models/exampleModels';
 import TriggerDateFormatter from './reactComponents/TriggerDateFormatter';
-import {
-  ValuesContainer,
-  calculateIncomeTaxPayable,
-} from '../models/evaluations';
 
 function addToMap(
   name: Expense,
@@ -190,89 +187,86 @@ export function expensesDiv(
   doChecks: boolean,
   expensesChartData: ChartData,
   todaysValues: Map<Expense, ExpenseVal>,
-  planningExpensesChartData: ChartData,
-  planningIncomesChartData: ChartData,
-  planningAssetsChartData: ChartData,
+  planningExpensesChartData: ChartData, // to collect Basic and Leisure for Planning
+  planningAssetsChartData: ChartData, // to collect maturing Bonds for Planning
+  reportData: ReportDatum[],
   parentCallbacks: ViewCallbacks,
 ) {
+  //reportData.forEach((d) => {
+  //  log(`report's item ${d.date}, ${d.name}, ${d.newVal}`);
+  //});
+
   if (getDisplay(planningView)) {
     const planningExpenses = planningExpensesChartData.datasets;
-    if (planningExpenses.length !== 2) {
-      return <>You need Basic and/or Leisure expense categories to plan</>;
-    }
-    const planningIncomes = planningIncomesChartData.datasets;
-    if (planningIncomes.length !== 1) {
-      return <>You need Pension income categories to plan</>;
-    }
-    if (planningExpenses[0].label !== 'Basic') {
-      throw new Error('Error: Basic not in planningExpensesChartData');
-    }
-    if (planningExpenses[1].label !== 'Leisure') {
-      throw new Error('Error: Leisure not in planningExpensesChartData');
-    }
-    if (planningExpenses[0].data.length !== planningExpenses[1].data.length) {
-      throw new Error(
-        'Error: mismatch Basic/Leisure in planningExpensesChartData',
-      );
-    }
-    if (planningIncomes[0].label !== 'Pension') {
-      throw new Error('Error: Pension not in planningIncomesChartData');
-    }
-    if (planningExpenses[0].data.length !== planningIncomes[0].data.length) {
-      throw new Error(
-        'Error: mismatch Expense/Income in planningExpensesChartData',
-      );
-    }
+
     let tableData = [];
 
-    for (let idx = 0; idx < planningExpenses[0].data.length; idx++) {
+    const basicExpenses = planningExpenses.find((pe) => {
+      return pe.label === 'Basic'
+    });
+    const leisureExpenses = planningExpenses.find((pe) => {
+      return pe.label === 'Leisure'
+    });
+    for (let idx = 0; idx < expensesChartData.labels.length; idx++) {
       //console.log(`Expect Leisure = ${gemData[1].label}`);
-      const basic = planningExpenses[0].data[idx];
-      const leisure = planningExpenses[1].data[idx];
+      let basic = 0;
+      if (basicExpenses) {
+        basic = basicExpenses.data[idx];
+      }
+      let leisure = 0;
+      if (leisureExpenses) {
+        leisure = leisureExpenses.data[idx];
+      }
+  
       const combined = basic + leisure;
       //console.log(`basic = ${basic}, leisure = ${leisure}`);
-      const date = planningExpensesChartData.labels[idx];
-      const date2 = planningIncomesChartData.labels[idx];
-      const date3 = planningAssetsChartData.labels[idx];
-      if (date !== date2) {
-        throw new Error(
-          'Error: mismatch Expense/Income dates in planningExpensesChartData',
-        );
-      }
-      if (date !== date3) {
-        throw new Error(
-          'Error: mismatch Expense/Asset dates in planningExpensesChartData',
-        );
-      }
-      const pension = planningIncomes[0].data[idx];
-      const taxBands = calculateIncomeTaxPayable(
-        pension,
-        2023,
-        new ValuesContainer(model),
-      );
-      let tax = 0.0;
-      taxBands.forEach((b) => {
-        tax += b.amountLiable * b.rate;
-      });
+      const date = expensesChartData.labels[idx];
 
       let bondsReleaseFunds = 0;
-      planningAssetsChartData.datasets.forEach((pscd) => {
-        console.log(`pscd.data[idx] = ${pscd.data[idx]}`);
-        if (pscd.data[idx] < 0) {
-          bondsReleaseFunds += -pscd.data[idx];
+      if (idx > 0) {
+        const bondsIdx = idx - 1; // show bond funds one year later
+        planningAssetsChartData.datasets.forEach((pscd) => {
+          // console.log(`pscd.data[idx] = ${pscd.data[idx]}`);
+          if (pscd.data[bondsIdx] < 0) {
+            bondsReleaseFunds += -pscd.data[bondsIdx];
+          }
+        });
+      }
+
+      const dateObj = new Date(date);
+      const dateObjBefore = new Date(date);
+      dateObjBefore.setFullYear(dateObj.getFullYear() - 1);
+
+      const reportsInYear = reportData.filter((d) => {
+        const ddate = d.date;
+        const ddateObj = new Date(ddate);
+        const result =
+          ddateObj.getTime() >= dateObjBefore.getTime() &&
+          ddateObj.getTime() < dateObj.getTime();
+        // console.log(`include report item ${d.date}, ${d.name}? ${result}`);
+        return result;
+      });
+
+      let fixedIncome = 0;
+      // log(`for date ${date}`);
+      reportsInYear.forEach((d) => {
+        // log(`report's item ${d.date}, ${d.name}, ${d.newVal}`);
+        if (d.newVal) {
+          fixedIncome += d.newVal;
+          // log(`after adding ${d.newVal} for ${d.name},${d.date} fixedIncome = ${fixedIncome}`)
         }
       });
+      // log(`accumulated fixedIncome = ${fixedIncome}`)
 
       tableData.push({
         DATE: date,
         BASIC: `${basic}`,
         LEISURE: `${leisure}`,
         COMBINED: `${combined}`,
-        PENSION: `${pension}`,
-        TAX: `${tax}`,
-        PENSION_NET: `${pension - tax}`,
+        FIXED_INCOME: `${fixedIncome}`,
         BONDS: `${bondsReleaseFunds}`,
-        INCOMING: `${pension - tax + bondsReleaseFunds}`,
+        INCOMING: `${fixedIncome + bondsReleaseFunds}`,
+        SURPLUS: `${fixedIncome + bondsReleaseFunds - combined}`,
       });
     }
     tableData = tableData.reverse();
@@ -326,24 +320,10 @@ export function expensesDiv(
               },
               {
                 ...defaultColumn,
-                key: 'PENSION',
-                name: 'Pension income',
-                formatter: <CashValueFormatter name="pension" value="unset" />,
-                editable: false,
-              },
-              {
-                ...defaultColumn,
-                key: 'TAX',
-                name: 'Tax estimate',
-                formatter: <CashValueFormatter name="tax" value="unset" />,
-                editable: false,
-              },
-              {
-                ...defaultColumn,
-                key: 'PENSION_NET',
-                name: 'Pension after tax',
+                key: 'FIXED_INCOME',
+                name: 'Fixed income',
                 formatter: (
-                  <CashValueFormatter name="net pension" value="unset" />
+                  <CashValueFormatter name="fixedIncome" value="unset" />
                 ),
                 editable: false,
               },
@@ -365,6 +345,13 @@ export function expensesDiv(
                 ...defaultColumn,
                 key: 'COMBINED',
                 name: 'Outgoings',
+                formatter: <CashValueFormatter name="outgoing" value="unset" />,
+                editable: false,
+              },
+              {
+                ...defaultColumn,
+                key: 'SURPLUS',
+                name: 'Surplus',
                 formatter: <CashValueFormatter name="outgoing" value="unset" />,
                 editable: false,
               },

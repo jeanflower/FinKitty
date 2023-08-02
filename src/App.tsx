@@ -51,6 +51,7 @@ import {
   coarseDetail,
   chartViewType,
   chartDeltas,
+  planningView,
 } from './localization/stringConstants';
 import {
   AssetOrDebtVal,
@@ -403,6 +404,7 @@ function getReporter(
   //log(`startDate for reporter = ${startDate}`);
   //log(`endDate for reporter = ${endDate}`);
   return (name: string, val: number | string, date: Date, source: string) => {
+    // log(`name for matching = ${name}`);
     if (!reactAppComponent.state.reportDefiner) {
       return false;
     }
@@ -562,9 +564,7 @@ export async function refreshDataInternal(
       {
         return false;
       };
-    if (!getDisplay(reportView)) {
-      // log(`don't compute report`);
-    } else {
+    if (getDisplay(reportView)) {
       // log(`create the report data`);
       reporter = getReporter(
         model,
@@ -572,6 +572,22 @@ export async function refreshDataInternal(
         reactAppComponent.state.reportIncludesSettings,
         reactAppComponent.state.reportIncludesExpenses,
       );
+    } else if (getDisplay(planningView)) {
+      // log('make reporter for planning view');
+      reporter = (
+        name: string,
+        val: number | string,
+        date: Date,
+        source: string,
+      ) => {
+        val;
+        date;
+        source;
+        const result =
+          name.startsWith('taxForFixed') || name.startsWith('incomeFixed');
+        // console.log(`include ${name} for report? ${result}`);
+        return result;
+      };
     }
     // go and do the actual modeling, the calculations
     const helper = new EvaluationHelper(
@@ -666,10 +682,10 @@ export async function refreshDataInternal(
     const planningViewSettings = getDefaultViewSettings();
     planningViewSettings.setModel(model);
     planningViewSettings.toggleViewFilter(Context.Expense, allItems);
-    planningViewSettings.toggleViewFilter(Context.Expense, 'Basic');
-    planningViewSettings.toggleViewFilter(Context.Expense, 'Leisure');
+    planningViewSettings.toggleViewFilter(Context.Expense, 'Basic'); // the Planning page works with this category
+    planningViewSettings.toggleViewFilter(Context.Expense, 'Leisure'); // the Planning page works with this category
     planningViewSettings.toggleViewFilter(Context.Asset, allItems);
-    planningViewSettings.toggleViewFilter(Context.Asset, 'BondsFixedTerm');
+    planningViewSettings.toggleViewFilter(Context.Asset, 'BondsFixedTerm'); // the Planning page works with this category
     planningViewSettings.setViewSetting(viewDetail, coarseDetail);
     planningViewSettings.setViewSetting(chartViewType, chartDeltas);
 
@@ -682,15 +698,17 @@ export async function refreshDataInternal(
       planningChartData.labels,
       planningChartData.expensesData,
     );
-    const planningIncomesChartData = makeBarData(
-      planningChartData.labels,
-      planningChartData.incomesData,
-    );
     const planningAssetsChartData = makeBarData(
       planningChartData.labels,
       planningChartData.assetData,
     );
-
+    if (printDebug()) {
+      console.log(
+        `evaluationsAndVals.reportData = ${JSON.stringify(
+          evaluationsAndVals.reportData,
+        )}`,
+      );
+    }
     if (reactAppComponent !== undefined) {
       // log(`go setState with modelNames = ${modelNames}`);
 
@@ -706,7 +724,6 @@ export async function refreshDataInternal(
           debtChartData,
           taxChartData,
           planningExpensesChartData,
-          planningIncomesChartData,
           planningAssetsChartData,
           modelNamesData: modelNames,
           todaysAssetValues: todaysAssetValues,
@@ -1740,7 +1757,7 @@ export async function replaceWithModel(
   newModel: ModelData,
   confirmBeforeReplace: boolean,
 ): Promise<boolean> {
-  // log(`replaceWithModel...`);
+  log(`replaceWithModel, targetName = ${thisModelName}...`);
   if (userName === undefined) {
     userName = getUserID();
   }
@@ -1752,8 +1769,10 @@ export async function replaceWithModel(
       return false;
     }
   }
+  console.log(`update model name to ${thisModelName}`);
+  newModel.name = thisModelName;
   modelName = thisModelName;
-  // log(`save ${modelName} with new model data ${newModel}`);
+  log(`save ${modelName} with new model data ${newModel}`);
   await saveModelLSM(userName, modelName, newModel);
   await refreshData(
     true, // refreshModel
@@ -1773,9 +1792,8 @@ interface AppState {
   assetChartData: ChartData;
   debtChartData: ChartData;
   taxChartData: ChartData;
-  planningExpensesChartData: ChartData;
-  planningIncomesChartData: ChartData;
-  planningAssetsChartData: ChartData;
+  planningExpensesChartData: ChartData; // to collect Basic and Leisure for Planning
+  planningAssetsChartData: ChartData; // to collect maturing Bonds for Planning
   optimizationChartData: ChartData;
   todaysAssetValues: Map<Asset, AssetOrDebtVal>;
   todaysDebtValues: Map<Asset, AssetOrDebtVal>;
@@ -1904,11 +1922,6 @@ export class AppContent extends Component<AppProps, AppState> {
       displayLegend: false,
     },
     planningExpensesChartData: {
-      labels: [],
-      datasets: [],
-      displayLegend: false,
-    },
-    planningIncomesChartData: {
       labels: [],
       datasets: [],
       displayLegend: false,
@@ -2167,8 +2180,8 @@ export class AppContent extends Component<AppProps, AppState> {
               this.state.expensesChartData,
               this.state.todaysExpenseValues,
               this.state.planningExpensesChartData,
-              this.state.planningIncomesChartData,
               this.state.planningAssetsChartData,
+              this.state.reportData,
               parentCallbacks,
             )}
             {assetsDiv(
@@ -2412,7 +2425,7 @@ export class AppContent extends Component<AppProps, AppState> {
     name: string,
     fromModel: ModelData,
   ): Promise<boolean> {
-    // log(`going to clone a model and give it name ${name}`);
+    log(`going to clone a model and give it name ${name}`);
     // log(`stringify model for clone`);
     const currentData = JSON.stringify(fromModel);
     const updatedOK = await updateModelName(name);
@@ -2884,7 +2897,7 @@ export class AppContent extends Component<AppProps, AppState> {
             const oldView = getDisplayedView();
             toggle(
               view,
-              refreshModel, // refreshModel
+              view.lc === 'Planning' || refreshModel, // refreshModel
               needsChartRefresh(this.state, oldView, view), // refreshChart
               24, //sourceID
             );

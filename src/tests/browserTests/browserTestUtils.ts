@@ -1055,7 +1055,7 @@ function assertData(
   expenseData: any, 
   createButtonID: string
 ) {
-  if(printDebug()){
+  // if(printDebug()){
     let result = '';
     result += 'let ary = assetData;';
     result += makeTestCode(assetData);
@@ -1066,7 +1066,7 @@ function assertData(
     result += 'ary = expenseData;';
     result += makeTestCode(expenseData);
     log(result);
-  }
+  // }
 
   if (createButtonID === 'btn-create-Simple-example') {
 
@@ -1729,26 +1729,26 @@ function assertData(
     expect(ary.datasets[0].data[4]).toBeCloseTo(48054.3, 6);
     expect(ary.datasets[0].data[5]).toBeCloseTo(70870.1, 6);
     expect(ary.datasets[0].data[6]).toBeCloseTo(93769.7, 6);
-    expect(ary.datasets[0].data[7]).toBeCloseTo(116669.3, 6);
-    expect(ary.datasets[0].data[8]).toBeCloseTo(139568.9, 6);
-    expect(ary.datasets[0].data[9]).toBeCloseTo(160093.5, 6);
-    expect(ary.datasets[0].data[10]).toBeCloseTo(160931.5, 6);
-    expect(ary.datasets[0].data[11]).toBeCloseTo(160931.5, 6);
-    expect(ary.datasets[0].data[12]).toBeCloseTo(174137.86, 6);
-    expect(ary.datasets[0].data[13]).toBeCloseTo(187674.37, 6);
-    expect(ary.datasets[0].data[14]).toBeCloseTo(201549.3, 6);
-    expect(ary.datasets[0].data[15]).toBeCloseTo(215771.1, 6);
-    expect(ary.datasets[0].data[16]).toBeCloseTo(230348.45, 6);
-    expect(ary.datasets[0].data[17]).toBeCloseTo(235773.13, 6);
-    expect(ary.datasets[0].data[18]).toBeCloseTo(237872.53, 6);
-    expect(ary.datasets[0].data[19]).toBeCloseTo(238717.39, 6);
-    expect(ary.datasets[0].data[20]).toBeCloseTo(239070.11, 6);
-    expect(ary.datasets[0].data[21]).toBeCloseTo(239222.54, 6);
-    expect(ary.datasets[0].data[22]).toBeCloseTo(239290.6, 6);
-    expect(ary.datasets[0].data[23]).toBeCloseTo(239321.94, 6);
-    expect(ary.datasets[0].data[24]).toBeCloseTo(239336.8, 6);
-    expect(ary.datasets[0].data[25]).toBeCloseTo(239344.04, 6);
-    expect(ary.datasets[0].data[26]).toBeCloseTo(239347.67, 6);
+    expect(ary.datasets[0].data[7]).toBeCloseTo(117894.3, 6);
+    expect(ary.datasets[0].data[8]).toBeCloseTo(141993.9, 6);
+    expect(ary.datasets[0].data[9]).toBeCloseTo(163593.5, 6);
+    expect(ary.datasets[0].data[10]).toBeCloseTo(164431.5, 6);
+    expect(ary.datasets[0].data[11]).toBeCloseTo(164431.5, 6);
+    expect(ary.datasets[0].data[12]).toBeCloseTo(177637.86, 6);
+    expect(ary.datasets[0].data[13]).toBeCloseTo(191174.37, 6);
+    expect(ary.datasets[0].data[14]).toBeCloseTo(205049.3, 6);
+    expect(ary.datasets[0].data[15]).toBeCloseTo(219271.1, 6);
+    expect(ary.datasets[0].data[16]).toBeCloseTo(233848.45, 6);
+    expect(ary.datasets[0].data[17]).toBeCloseTo(239273.13, 6);
+    expect(ary.datasets[0].data[18]).toBeCloseTo(241372.53, 6);
+    expect(ary.datasets[0].data[19]).toBeCloseTo(242217.39, 6);
+    expect(ary.datasets[0].data[20]).toBeCloseTo(242570.11, 6);
+    expect(ary.datasets[0].data[21]).toBeCloseTo(242722.54, 6);
+    expect(ary.datasets[0].data[22]).toBeCloseTo(242790.6, 6);
+    expect(ary.datasets[0].data[23]).toBeCloseTo(242821.94, 6);
+    expect(ary.datasets[0].data[24]).toBeCloseTo(242836.8, 6);
+    expect(ary.datasets[0].data[25]).toBeCloseTo(242844.04, 6);
+    expect(ary.datasets[0].data[26]).toBeCloseTo(242847.67, 6);
     // swap ary.datasets[1] and ary.datasets[2]
     let tmp =  ary.datasets[1];
     ary.datasets[1] = ary.datasets[2];

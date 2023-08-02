@@ -101,7 +101,7 @@ export class ReportMatcherForm extends Component<
         />
         <Input
           type={'text'}
-          title={'Max number or report items'}
+          title={'Max number of report items'}
           name={'maxReportSize'}
           value={this.state.maxReportSize}
           placeholder={'0'}

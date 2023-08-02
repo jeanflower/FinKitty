@@ -61,7 +61,9 @@ export class CreateModelForm extends Component<
       return makeButton(
         `Create ${x.name} example`,
         async () => {
-          return this.copyModel(this.props.getExampleModel(x.model));
+          const model = this.props.getExampleModel(x.model);
+          // console.log(`from button click, created model ${model.name}`);
+          await this.copyModel(model);
         },
         `btn-create-${x.name}-example`,
         `btn-create-${x.name}-example`,
