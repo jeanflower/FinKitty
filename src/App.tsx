@@ -1735,6 +1735,14 @@ function doShowAssetActionsButton(): boolean {
     return false;
   }
 }
+function doShowPlanningButton(): boolean {
+  if (reactAppComponent) {
+    const result = reactAppComponent.options.uiMode === advancedUI;
+    return result;
+  } else {
+    return false;
+  }
+}
 function doShowOptimiserButton(): boolean {
   if (reactAppComponent) {
     const result = reactAppComponent.options.uiMode === advancedUI;
@@ -2884,6 +2892,10 @@ export class AppContent extends Component<AppProps, AppState> {
         refreshModel = true;
       }
       if (view.lc === optimizerView.lc && !doShowOptimiserButton()) {
+        viewIterator = it.next();
+        continue;
+      }
+      if (view.lc === planningView.lc && !doShowPlanningButton()) {
         viewIterator = it.next();
         continue;
       }

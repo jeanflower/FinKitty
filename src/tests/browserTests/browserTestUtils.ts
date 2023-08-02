@@ -1055,7 +1055,7 @@ function assertData(
   expenseData: any, 
   createButtonID: string
 ) {
-  // if(printDebug()){
+  if(printDebug()){
     let result = '';
     result += 'let ary = assetData;';
     result += makeTestCode(assetData);
@@ -1066,7 +1066,7 @@ function assertData(
     result += 'ary = expenseData;';
     result += makeTestCode(expenseData);
     log(result);
-  // }
+  }
 
   if (createButtonID === 'btn-create-Simple-example') {
 
