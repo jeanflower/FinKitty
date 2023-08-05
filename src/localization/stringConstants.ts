@@ -221,7 +221,6 @@ export const defaultSourceMatcher = '.';
 export const defaultSourceExcluder = '';
 export const defaultReportSize = 40;
 
-export const erasOption = 'eras';
 export const evalModeOption = 'evalMode';
 export const checkModelOnEditOption = 'checkModelOnEdit';
 export const goToAssetsPageOption = 'goToAssetsPage';

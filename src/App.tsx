@@ -46,7 +46,6 @@ import {
   defaultReportSize,
   advancedUI,
   annually,
-  erasOption,
   allItems,
   viewDetail,
   coarseDetail,
@@ -513,7 +512,7 @@ export async function refreshDataInternal(
   refreshChart: boolean,
   sourceID: number,
 ): Promise<void> {
-  if (!evalMode() || sourceID === 32) {
+  if (!evalMode()) {
     log('skip evaluations and chart refresh - evalMode = false');
     reactAppComponent.setState({ ...reactAppComponent.state });
     return;
@@ -1174,7 +1173,6 @@ function toggleOption(type: string): void {
         31, //sourceID
       );
     } else if (
-      type === erasOption ||
       type === showHistoricalOption ||
       type === showCurrentOption ||
       type === showFutureOption
