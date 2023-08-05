@@ -154,7 +154,7 @@ import FileSaver from 'file-saver';
 
 // import './bootstrap.css'
 
-let modelName: string = myFirstModelName;
+let modelName: string = '';
 let userID = '';
 let isDirty = false; // does the model need saving?
 
@@ -272,6 +272,19 @@ function showAlert(text: string) {
   });
 }
 
+function getMyFirstModel() {
+  const modelFromExamplesList = exampleModelsForNewUser.find((nAndM) => {
+    return nAndM.name === modelName;
+  });
+  if (modelFromExamplesList) {
+    return makeModelFromJSON(modelFromExamplesList.model);
+  } else {
+    throw new Error(
+      `Error: ${myFirstModelName} should be in the exampleModelsForNewUser list`,
+    );
+  } 
+}
+
 async function getModel(): Promise<{
   model: ModelData | undefined;
   modelNames: string[];
@@ -282,15 +295,16 @@ async function getModel(): Promise<{
 
   if (
     modelNames.length === 0 ||
+    modelName === '' ||
     (modelName === myFirstModelName &&
       modelNames.find((x) => {
         return x === myFirstModelName;
       }) === undefined)
   ) {
     // log(`modelNames are ${modelNames}`);
-    // log(`does not include ${exampleModelName}, so`);
+    // log(`does not include ${myFirstModelName}, so`);
     if (modelNames.length > 0) {
-      // log(`no model called ${exampleModelName}, so just choose the 1st one`);
+      // log(`no model called ${myFirstModelName}, so just choose the 1st one`);
       modelName = modelNames.sort((a, b) => lessThan(a, b))[0];
       // log(`switch to a different modelName ${modelName}`);
 
@@ -317,16 +331,7 @@ async function getModel(): Promise<{
         return x.name;
       });
       modelName = myFirstModelName;
-      const modelFromExamplesList = exampleModelsForNewUser.find((nAndM) => {
-        return nAndM.name === modelName;
-      });
-      if (modelFromExamplesList) {
-        model = makeModelFromJSON(modelFromExamplesList.model);
-      } else {
-        throw new Error(
-          `Error: ${myFirstModelName} should be in the exampleModelsForNewUser list`,
-        );
-      }
+      model = getMyFirstModel();
     }
   } else {
     // log(`modelNames are ${modelNames}`);
@@ -2393,10 +2398,11 @@ export class AppContent extends Component<AppProps, AppState> {
       if (modelNames.length === 0) {
         showAlert('no data left: recreating a blank model');
         modelName = myFirstModelName;
+        const model = getMyFirstModel();
         await saveModelLSM(
           getUserID(),
           modelName,
-          makeModelFromJSON(simpleExampleData, modelName),
+          model,
         );
       } else {
         modelName = modelNames[0];
