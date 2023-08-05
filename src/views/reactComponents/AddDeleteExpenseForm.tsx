@@ -123,7 +123,7 @@ export class AddDeleteExpenseForm extends Component<
         <Row>
           <Col>
             <Input
-              title="Recurrence"
+              title="Recurrence (e.g. 1m or 2y)"
               type="text"
               name="expenserecurrence"
               value={this.state.RECURRENCE}
