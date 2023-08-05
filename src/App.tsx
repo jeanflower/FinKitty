@@ -154,7 +154,7 @@ import FileSaver from 'file-saver';
 
 // import './bootstrap.css'
 
-let modelName: string = '';
+let modelName = '';
 let userID = '';
 let isDirty = false; // does the model need saving?
 
@@ -282,7 +282,7 @@ function getMyFirstModel() {
     throw new Error(
       `Error: ${myFirstModelName} should be in the exampleModelsForNewUser list`,
     );
-  } 
+  }
 }
 
 async function getModel(): Promise<{
@@ -2399,11 +2399,7 @@ export class AppContent extends Component<AppProps, AppState> {
         showAlert('no data left: recreating a blank model');
         modelName = myFirstModelName;
         const model = getMyFirstModel();
-        await saveModelLSM(
-          getUserID(),
-          modelName,
-          model,
-        );
+        await saveModelLSM(getUserID(), modelName, model);
       } else {
         modelName = modelNames[0];
         // log(`model name after delete is ${modelName}`);
