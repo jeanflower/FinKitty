@@ -78,7 +78,7 @@ export const chartDeltas = '+-';
 // The app ships with a sample model that covers some of the
 // types of assets, income, expenses and transactions.
 // The sample data can be loaded into a model.
-export const exampleModelName = 'Simple';
+export const myFirstModelName = 'My First Model';
 
 // Incomes can be liable to incomeTax or NI
 // concatenate with liable person's name

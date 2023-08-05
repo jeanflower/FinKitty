@@ -5,6 +5,7 @@ import {
   definedBenefitsPension,
   definedContributionsPension,
   emptyModel,
+  minimalModel,
   nationalSavings,
   simpleExampleData,
 } from './models/exampleModels';
@@ -17,7 +18,7 @@ import { makeButton } from './views/reactComponents/Button';
 import {
   autogen,
   custom,
-  exampleModelName,
+  myFirstModelName,
   homeView,
   reportView,
   roiEnd,
@@ -154,7 +155,7 @@ import FileSaver from 'file-saver';
 
 // import './bootstrap.css'
 
-let modelName: string = exampleModelName;
+let modelName: string = myFirstModelName;
 let userID = '';
 let isDirty = false; // does the model need saving?
 
@@ -202,7 +203,7 @@ function App(): JSX.Element | null {
 
 const exampleModels = [
   {
-    name: exampleModelName,
+    name: 'Simple',
     model: simpleExampleData,
   },
   {
@@ -216,6 +217,16 @@ const exampleModels = [
   {
     name: 'National Savings Income Bonds',
     model: nationalSavings,
+  },
+];
+
+const exampleModelsForNewUser: {
+  name: string,
+  model: string, // JSON
+}[] = [
+  {
+    name: myFirstModelName,
+    model: JSON.stringify(minimalModel),
   },
 ];
 
@@ -252,10 +263,6 @@ function getUserID() {
   return userID;
 }
 
-function getExampleModel(modelString: string) {
-  return makeModelFromJSON(modelString);
-}
-
 function showAlert(text: string) {
   // log(`setState for alert update : ${text}`);
   reactAppComponent.setState({
@@ -273,9 +280,9 @@ async function getModel(): Promise<{
 
   if (
     modelNames.length === 0 ||
-    (modelName === exampleModelName &&
+    (modelName === myFirstModelName &&
       modelNames.find((x) => {
-        return x === exampleModelName;
+        return x === myFirstModelName;
       }) === undefined)
   ) {
     // log(`modelNames are ${modelNames}`);
@@ -294,22 +301,28 @@ async function getModel(): Promise<{
       isDirty = modelAndStatus.status.isDirty;
       model = modelAndStatus.model;
     } else {
-      // log('recreate example models');
-      // force us to have the example models
+      // log('recreate new user models');
       await Promise.all(
-        exampleModels.map(async (x) => {
+        exampleModelsForNewUser.map(async (x) => {
           return await saveModelLSM(
             getUserID(),
             x.name,
-            getExampleModel(x.model),
+            makeModelFromJSON(x.model),
           );
         }),
       );
-      modelNames = exampleModels.map((x) => {
+      modelNames = exampleModelsForNewUser.map((x) => {
         return x.name;
       });
-      model = getExampleModel(simpleExampleData);
-      modelName = exampleModelName;
+      modelName = myFirstModelName;
+      const modelFromExamplesList = exampleModelsForNewUser.find((nAndM) => {
+        return nAndM.name === modelName;
+      });
+      if (modelFromExamplesList) {
+        model = makeModelFromJSON(modelFromExamplesList.model);
+      } else {
+        throw new Error(`Error: ${myFirstModelName} should be in the exampleModelsForNewUser list`)
+      }
     }
   } else {
     // log(`modelNames are ${modelNames}`);
@@ -2372,8 +2385,8 @@ export class AppContent extends Component<AppProps, AppState> {
       }
       // log(`model names after delete are ${modelNames}`);
       if (modelNames.length === 0) {
-        showAlert('no data left: recreating example model');
-        modelName = exampleModelName;
+        showAlert('no data left: recreating a blank model');
+        modelName = myFirstModelName;
         await saveModelLSM(
           getUserID(),
           modelName,
@@ -2494,7 +2507,7 @@ export class AppContent extends Component<AppProps, AppState> {
           showAlert={showAlert}
           cloneModel={this.cloneModel}
           exampleModels={exampleModels}
-          getExampleModel={getExampleModel}
+          getExampleModel={makeModelFromJSON}
           getModelNames={getModelNames}
         />
         <div className="btn-group ml-3" role="group">
