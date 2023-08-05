@@ -79,7 +79,7 @@ export class ReplaceWithJSONForm extends Component<
         <Input
           type={'text'}
           title={
-            'input report:{sourceMatcher:regexp,sourceExcluder:regexp}|newModelName:{jsonModelData}'
+            'newModelName:{jsonModelData}'
           }
           name={'replaceWithJSON'}
           value={this.state.JSON}
