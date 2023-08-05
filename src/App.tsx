@@ -226,7 +226,10 @@ const exampleModelsForNewUser: {
 }[] = [
   {
     name: myFirstModelName,
-    model: JSON.stringify(minimalModel),
+    model: JSON.stringify({
+      ...minimalModel,
+      name: myFirstModelName,
+    })
   },
 ];
 
@@ -1833,7 +1836,9 @@ interface AppState {
 }
 interface AppProps {
   logOutAction: () => void;
-  user: string;
+  user: {
+    name: string,    
+  };
 }
 
 function AlertDismissibleExample(props: {
@@ -2168,6 +2173,7 @@ export class AppContent extends Component<AppProps, AppState> {
             {this.homeDiv()}
             {overviewDiv(
               this.state.modelData,
+              this.props.user.name,
               this.state.todaysAssetValues,
               this.state.todaysIncomeValues,
               this.state.todaysExpenseValues,

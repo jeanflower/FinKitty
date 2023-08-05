@@ -188,6 +188,7 @@ function transactionsOverviewDiv(
 
 export function overviewDiv(
   model: ModelData,
+  user: string,
   todaysAssetValues: Map<Asset, AssetOrDebtVal>,
   todaysIncomeValues: Map<Income, IncomeVal>,
   todaysExpenseValues: Map<Expense, ExpenseVal>,
@@ -218,8 +219,15 @@ export function overviewDiv(
     taxChartData.labels.length !== 0 ||
     debtChartData.labels.length !== 0;
 
+  let introText = `Model ${model.name}`;
+  if (user === undefined) {
+    introText += ' in shared sandpit';
+  } else {
+    introText += ` for ${user}`;
+  }
   return (
     <div className="ml-3">
+      <>{introText}</>
       {chartDataExists ? (
         chartsForOverview(
           model,
