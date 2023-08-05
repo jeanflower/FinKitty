@@ -133,7 +133,7 @@ export class AddDeleteExpenseForm extends Component<
           </Col>{' '}
           <Col>
             <Input
-              title="Category (optional)"
+              title="Category (optional, e.g. Basic or Leisure)"
               type="text"
               name="expensecategory"
               value={this.state.CATEGORY}
