@@ -202,10 +202,10 @@ export function expensesDiv(
     let tableData = [];
 
     const basicExpenses = planningExpenses.find((pe) => {
-      return pe.label === 'Basic'
+      return pe.label === 'Basic';
     });
     const leisureExpenses = planningExpenses.find((pe) => {
-      return pe.label === 'Leisure'
+      return pe.label === 'Leisure';
     });
     for (let idx = 0; idx < expensesChartData.labels.length; idx++) {
       //console.log(`Expect Leisure = ${gemData[1].label}`);
@@ -217,7 +217,7 @@ export function expensesDiv(
       if (leisureExpenses) {
         leisure = leisureExpenses.data[idx];
       }
-  
+
       const combined = basic + leisure;
       //console.log(`basic = ${basic}, leisure = ${leisure}`);
       const date = expensesChartData.labels[idx];

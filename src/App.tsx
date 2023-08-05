@@ -221,15 +221,15 @@ const exampleModels = [
 ];
 
 const exampleModelsForNewUser: {
-  name: string,
-  model: string, // JSON
+  name: string;
+  model: string; // JSON
 }[] = [
   {
     name: myFirstModelName,
     model: JSON.stringify({
       ...minimalModel,
       name: myFirstModelName,
-    })
+    }),
   },
 ];
 
@@ -324,7 +324,9 @@ async function getModel(): Promise<{
       if (modelFromExamplesList) {
         model = makeModelFromJSON(modelFromExamplesList.model);
       } else {
-        throw new Error(`Error: ${myFirstModelName} should be in the exampleModelsForNewUser list`)
+        throw new Error(
+          `Error: ${myFirstModelName} should be in the exampleModelsForNewUser list`,
+        );
       }
     }
   } else {
@@ -1837,7 +1839,7 @@ interface AppState {
 interface AppProps {
   logOutAction: () => void;
   user: {
-    name: string,    
+    name: string;
   };
 }
 

@@ -78,9 +78,7 @@ export class ReplaceWithJSONForm extends Component<
       <form className="container-fluid" onSubmit={this.replace}>
         <Input
           type={'text'}
-          title={
-            'newModelName:{jsonModelData}'
-          }
+          title={'newModelName:{jsonModelData}'}
           name={'replaceWithJSON'}
           value={this.state.JSON}
           placeholder={'Enter text input here'}
