@@ -19,7 +19,7 @@ import {
   bondMaturity,
   bondInvest,
 } from '../localization/stringConstants';
-import { isSetting } from '../models/modelUtils';
+import { getVarVal, isSetting } from '../models/modelUtils';
 import { Setting, ModelData, Trigger } from '../types/interfaces';
 import { DateFormatType, log, printDebug, showObj } from './utils';
 
@@ -709,8 +709,9 @@ export function dateAsString(
     return d.toDateString();
   }
 }
+
 // returns a date for a trigger, or undefined
-function findMatchedTriggerDate(
+export function findMatchedTriggerDate(
   dateString: string,
   triggers: Trigger[],
   varValue: number,
@@ -809,6 +810,19 @@ function findMatchedTriggerDate(
   }
   // log(`date for ${input} is ${result}`);
   return result;
+}
+
+export function usesTriggerDate(value: string, model: ModelData) {
+  const recognisedTriggerDate = findMatchedTriggerDate(
+    value,
+    model.triggers,
+    getVarVal(model.settings),
+    0,
+    {
+      cleaned: '',
+    },
+  );
+  return recognisedTriggerDate !== undefined;
 }
 
 function checkTriggerDateRecursive(

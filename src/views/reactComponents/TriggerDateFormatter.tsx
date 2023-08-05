@@ -3,7 +3,11 @@ import { ModelData } from '../../types/interfaces';
 import { DateFormatType, log, printDebug } from '../../utils/utils';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
-import { makeDateTooltip, dateAsString } from '../../utils/stringUtils';
+import {
+  makeDateTooltip,
+  dateAsString,
+  usesTriggerDate,
+} from '../../utils/stringUtils';
 import { getVarVal } from '../../models/modelUtils';
 
 log;
@@ -29,9 +33,13 @@ function makeDateTooltipLocal(props: TriggerDateFormatterProps) {
 class TriggerDateFormatter extends React.Component<TriggerDateFormatterProps> {
   public render() {
     let tableValue = this.props.value;
-    const asDate = new Date(this.props.value);
-    if (!Number.isNaN(asDate.getTime())) {
-      tableValue = dateAsString(DateFormatType.View, asDate);
+    // The Date class can be keen to pick up values it can make sense of
+    // that match triggers.  Check for this first.
+    if (!usesTriggerDate(this.props.value, this.props.model)) {
+      const asDate = new Date(this.props.value);
+      if (!Number.isNaN(asDate.getTime())) {
+        tableValue = dateAsString(DateFormatType.View, asDate);
+      }
     }
     return (
       <OverlayTrigger
