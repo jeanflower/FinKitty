@@ -39,9 +39,9 @@ export function taxDiv(
     });
   }
   const rows = addIndices(tableData.reverse());
-  for (const r of rows) {
-    console.log(`row ${r.index}, ${r.DATE}`);
-  }
+  // for (const r of rows) {
+  //   console.log(`row ${r.index}, ${r.DATE}`);
+  // }
 
   return (
     <div className="ml-3">
