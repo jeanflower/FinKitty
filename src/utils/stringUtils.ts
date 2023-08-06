@@ -813,16 +813,10 @@ export function findMatchedTriggerDate(
 }
 
 export function usesTriggerDate(value: string, model: ModelData) {
-  const recognisedTriggerDate = findMatchedTriggerDate(
-    value,
-    model.triggers,
-    getVarVal(model.settings),
-    0,
-    {
-      cleaned: '',
-    },
-  );
-  return recognisedTriggerDate !== undefined;
+  const matchedTrigger = model.triggers.find((t)=>{
+    return value.includes(t.NAME);
+  })
+  return matchedTrigger !== undefined;
 }
 
 function checkTriggerDateRecursive(
