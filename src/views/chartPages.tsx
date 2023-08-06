@@ -26,7 +26,6 @@ import {
   taxChartFocusPerson,
   taxChartFocusType,
   taxChartShowNet,
-  taxView,
   totalDetail,
   viewDetail,
   viewFrequency,
@@ -58,8 +57,8 @@ import {
   Tooltip as ChartTooltip,
   Legend,
 } from 'chart.js';
-import { getColor, getDisplay } from '../utils/viewUtils';
-import { makeStringFromCashValue, makeTwoDP } from '../utils/stringUtils';
+import { getColor } from '../utils/viewUtils';
+import { makeStringFromCashValue } from '../utils/stringUtils';
 import { isNumberString } from '../models/checks';
 
 export function makeBarData(
@@ -925,7 +924,7 @@ export function taxChartDiv(
   return makeContainedBarChart(taxChartData, chartSettings, viewSettings);
 }
 
-function taxChartDivWithButtons(
+export function taxChartDivWithButtons(
   model: ModelData,
   viewSettings: ViewSettings,
   taxChartData: ChartData,
@@ -938,32 +937,6 @@ function taxChartDivWithButtons(
       {coarseFineList(viewSettings, taxChartData, parentCallbacks)}
       {taxChartDiv(taxChartData, settings, viewSettings, parentCallbacks)}
     </>
-  );
-}
-export function taxDiv(
-  model: ModelData,
-  viewSettings: ViewSettings,
-  taxChartData: ChartData,
-  totalTaxPaid: number,
-  parentCallbacks: ViewCallbacks,
-) {
-  if (!getDisplay(taxView)) {
-    // log(`don't populate taxView`);
-    return;
-  }
-  // log(`do populate taxView`);
-
-  return (
-    <div className="ml-3">
-      {taxChartDivWithButtons(
-        model,
-        viewSettings,
-        taxChartData,
-        getDefaultChartSettings(viewSettings, model.settings),
-        parentCallbacks,
-      )}
-      <h2>Total tax paid: {makeTwoDP(totalTaxPaid)}</h2>
-    </div>
   );
 }
 

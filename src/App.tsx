@@ -93,7 +93,7 @@ import {
   calcOptimizer,
 } from './views/tablePages';
 import { overviewDiv } from './views/overviewPage';
-import { makeBarData, taxDiv } from './views/chartPages';
+import { makeBarData } from './views/chartPages';
 import { incomesDiv } from './views/incomesPage';
 import { expensesDiv } from './views/expensesPage';
 import { assetsDiv } from './views/assetsPage';
@@ -151,6 +151,7 @@ import {
 } from './utils/viewUtils';
 import dateFormat from 'dateformat';
 import FileSaver from 'file-saver';
+import { taxDiv } from './views/taxPage';
 
 // import './bootstrap.css'
 
@@ -607,6 +608,21 @@ export async function refreshDataInternal(
         source;
         const result =
           name.startsWith('taxForFixed') || name.startsWith('incomeFixed');
+        // console.log(`include ${name} for report? ${result}`);
+        return result;
+      };
+    } else if (getDisplay(taxView)) {
+      // log('make reporter for planning view');
+      reporter = (
+        name: string,
+        val: number | string,
+        date: Date,
+        source: string,
+      ) => {
+        val;
+        date;
+        source;
+        const result = name.startsWith('taxBreakdown');
         // console.log(`include ${name} for report? ${result}`);
         return result;
       };
@@ -2238,6 +2254,7 @@ export class AppContent extends Component<AppProps, AppState> {
               this.state.viewState,
               this.state.taxChartData,
               this.state.totalTaxPaid,
+              this.state.reportData,
               parentCallbacks,
             )}
             {this.triggersDiv(parentCallbacks)}
@@ -2930,7 +2947,7 @@ export class AppContent extends Component<AppProps, AppState> {
             const oldView = getDisplayedView();
             toggle(
               view,
-              view.lc === 'Planning' || refreshModel, // refreshModel
+              view.lc === 'Planning' || view.lc === 'Tax' || refreshModel, // refreshModel
               needsChartRefresh(this.state, oldView, view), // refreshChart
               24, //sourceID
             );

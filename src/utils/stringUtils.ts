@@ -19,7 +19,7 @@ import {
   bondMaturity,
   bondInvest,
 } from '../localization/stringConstants';
-import { getVarVal, isSetting } from '../models/modelUtils';
+import { isSetting } from '../models/modelUtils';
 import { Setting, ModelData, Trigger } from '../types/interfaces';
 import { DateFormatType, log, printDebug, showObj } from './utils';
 
@@ -813,9 +813,9 @@ export function findMatchedTriggerDate(
 }
 
 export function usesTriggerDate(value: string, model: ModelData) {
-  const matchedTrigger = model.triggers.find((t)=>{
+  const matchedTrigger = model.triggers.find((t) => {
     return value.includes(t.NAME);
-  })
+  });
   return matchedTrigger !== undefined;
 }
 

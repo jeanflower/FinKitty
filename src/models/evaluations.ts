@@ -1903,7 +1903,7 @@ function payCGT(
 }
 function OptimizeIncomeTax(
   date: Date,
-  liableIncome: number,
+  liableIncome: LiabilityTotalAndSources,
   values: ValuesContainer,
   growths: Map<string, GrowthData>,
   person: string,
@@ -1914,12 +1914,12 @@ function OptimizeIncomeTax(
   // log(`OptimizeIncomeTax income tax for ${person} and ${liableIncome} on ${dateAsString(DateFormatType.Debug,date)}`);
   const startYearOfTaxYear = date.getFullYear();
   const endYearOfTaxYear = new Date(startYearOfTaxYear + 1, 3, 5);
-  const bands = getTaxBands(liableIncome, startYearOfTaxYear, values);
-  if (liableIncome > bands.noTaxBand) {
+  const bands = getTaxBands(liableIncome.amount, startYearOfTaxYear, values);
+  if (liableIncome.amount > bands.noTaxBand) {
     return;
   }
   // log(`bands.noTaxBand = ${bands.noTaxBand}`);
-  let unusedAllowance = bands.noTaxBand - liableIncome;
+  let unusedAllowance = bands.noTaxBand - liableIncome.amount;
   // log(`unusedAllowance = ${unusedAllowance}`);
   // if we have unused allowance, see
   // have we got some crystallised pension we can use?
@@ -1964,7 +1964,11 @@ function OptimizeIncomeTax(
           log('BUG!!! cash has no value');
         } else {
           // set income tax in map
-          incomeTaxTotalMap.set(person, liableIncome + amountToTransfer);
+          addToTaxLiability(
+            liableIncome,
+            amountToTransfer,
+            `auto-transfer from ${valueKey}`,
+          );
 
           // using up the allowance in optimised way is a 'flexible' income
           // not a 'fixed' income
@@ -1980,7 +1984,6 @@ function OptimizeIncomeTax(
           }
           flexibleIncomesMap.set(person, personVal + amountToTransfer);
 
-          liableIncome = liableIncome + amountToTransfer;
           unusedAllowance = unusedAllowance - amountToTransfer;
           // log(`use allowance by transferring ${amountToTransfer}`);
           setValue(
@@ -2032,13 +2035,20 @@ const doOptimizeForIncomeTax = true;
 // the person who is liable to pay and
 // a value for the accrued liable value as a tax month progresses
 
+interface LiabilityTotalAndSources {
+  amount: number;
+  sources: {
+    amount: number;
+    source: string;
+  }[];
+}
 interface LiableIncomes {
   inTaxYear: {
-    cgt: undefined | Map<string, number>;
-    incomeTaxTotal: undefined | Map<string, number>;
+    cgt: undefined | Map<string, LiabilityTotalAndSources>;
+    incomeTaxTotal: undefined | Map<string, LiabilityTotalAndSources>;
     incomeTaxFromFixedIncome: undefined | Map<string, number>;
     incomeTaxFromFlexibleIncome: undefined | Map<string, number>;
-    NITotal: undefined | Map<string, number>;
+    NITotal: undefined | Map<string, LiabilityTotalAndSources>;
     NIFromFixedIncome: undefined | Map<string, number>;
     NIFromFlexibleIncome: undefined | Map<string, number>;
   };
@@ -2167,7 +2177,7 @@ function settleUpTax(
         // log(`go to pay income tax for ${person}, amount = ${amount} for ${date}`);
         const taxPaid = payIncomeTax(
           date,
-          amount,
+          amount.amount,
           amountFixed,
           alreadyPaid,
           alreadyPaidForFixed,
@@ -2185,7 +2195,7 @@ function settleUpTax(
         const knownNetIncome = personNetIncome.get(personsName);
         if (knownNetIncome === undefined) {
           // log(`for ${personsName}'s incomeTax, set first net income ${amount} - ${taxPaid} = ${amount - taxPaid}`);
-          personNetIncome.set(personsName, amount - taxPaid);
+          personNetIncome.set(personsName, amount.amount - taxPaid);
         } else {
           // log(`for ${personsName}'s incomeTax, reduce existing net income ${knownNetIncome} - ${taxPaid} = ${knownNetIncome - taxPaid}`);
           personNetIncome.set(personsName, knownNetIncome - taxPaid);
@@ -2196,8 +2206,24 @@ function settleUpTax(
         }
         // log('resetting liableIncomeInTaxYear');
 
+        // log these values for a tax reporter to pick up
+        for (const s of amount.sources) {
+          values.set(
+            `taxBreakdown${person} ${s.source}`,
+            s.amount,
+            growths,
+            date,
+            `taxBreakdown${person} ${s.source}`,
+            true, // reportIfNoChange
+            '99', //callerID
+          );
+        }
+
         // set income tax in map
-        incomeTaxPersonLiabilityMap.set(person, 0);
+        incomeTaxPersonLiabilityMap.set(person, {
+          amount: 0,
+          sources: [],
+        });
 
         // reset the flexible and fixed income trackers too
         const flexibleIncomesMap =
@@ -2333,7 +2359,7 @@ function settleUpTax(
         let newNetIncomeValue: undefined | number = undefined;
         if (knownNetIncome === undefined) {
           // log(`for ${personsName}'s ni, set first net income ${amount} - ${alreadyPaid} = ${amount - alreadyPaid}`);
-          newNetIncomeValue = amount - alreadyPaid;
+          newNetIncomeValue = amount.amount - alreadyPaid;
         } else if (alreadyPaid !== 0) {
           // log(`for ${personsName}'s ni, set net income ${knownNetIncome} - ${alreadyPaid} = ${knownNetIncome - alreadyPaid}`);
           newNetIncomeValue = knownNetIncome - alreadyPaid;
@@ -2344,7 +2370,10 @@ function settleUpTax(
         }
         // log('resetting liableIncomeInTaxYear');
 
-        niPersonLiabilityMap.set(person, 0);
+        niPersonLiabilityMap.set(person, {
+          amount: 0,
+          sources: [],
+        });
         nIMonthlyPaymentsPaid.set(person, 0);
       }
     } else if (key === 'cgt' && personLiabilityMap !== undefined) {
@@ -2355,11 +2384,10 @@ function settleUpTax(
         const liableIncomeFromMap = incomes.inTaxYear.incomeTaxTotal?.get(
           `${personsName}${incomeTax}`,
         );
-        const liableIncome = liableIncomeFromMap ? liableIncomeFromMap : 0;
         const cgtPaid = payCGT(
           date,
-          amount,
-          liableIncome,
+          amount.amount,
+          liableIncomeFromMap ? liableIncomeFromMap.amount : 0,
           values,
           growths,
           evaluations,
@@ -2369,7 +2397,7 @@ function settleUpTax(
         // log('resetting liableIncomeInTaxYear');
         const knownNetGain = personNetGain.get(personsName);
         if (knownNetGain === undefined) {
-          personNetGain.set(personsName, amount - cgtPaid);
+          personNetGain.set(personsName, amount.amount - cgtPaid);
         } else {
           /* istanbul ignore next */
           log(`Error: don't expect knownNetGain to be undefined!`);
@@ -2377,7 +2405,23 @@ function settleUpTax(
           personNetGain.set(personsName, knownNetGain - cgtPaid);
         }
 
-        cgtPersonLiabilityMap.set(person, 0);
+        // log these values for a tax reporter to pick up
+        for (const s of amount.sources) {
+          values.set(
+            `taxBreakdown${person} ${s.source}`,
+            s.amount,
+            growths,
+            date,
+            `taxBreakdown${person} ${s.source}`,
+            true, // reportIfNoChange
+            '99', //callerID
+          );
+        }
+
+        cgtPersonLiabilityMap.set(person, {
+          amount: 0,
+          sources: [],
+        });
         recalculatedNetGain = true;
       }
     } else {
@@ -2690,6 +2734,27 @@ function payNIEstimate(
   }
 }
 
+function addToTaxLiability(
+  taxLiability: LiabilityTotalAndSources,
+  incomeValue: number,
+  sourceDescription: string,
+) {
+  if (incomeValue !== 0.0) {
+    taxLiability.amount += incomeValue;
+    const matchedSource = taxLiability.sources.find((s) => {
+      return s.source === sourceDescription;
+    });
+    if (matchedSource) {
+      matchedSource.amount += incomeValue;
+    } else {
+      taxLiability.sources.push({
+        amount: incomeValue,
+        source: sourceDescription,
+      });
+    }
+  }
+}
+
 function accumulateLiability(
   liability: string,
   type: string, // incomeTax or nationalInsurance
@@ -2698,6 +2763,7 @@ function accumulateLiability(
   typeOfMoment: string,
   isFlexibleIncome: boolean,
   isFixedIncome: boolean,
+  sourceDescription: string,
 ) {
   // log(`accumulateLiability,
   //    liability = ${liability}, type = ${type}, incomeValue = ${incomeValue}`);
@@ -2718,7 +2784,10 @@ function accumulateLiability(
     // log(`current income tax map is = ${map}`);
     if (personLiabilityMap === undefined) {
       // log(`set up new map for income tax`);
-      incomes.inTaxYear.incomeTaxTotal = new Map<string, number>();
+      incomes.inTaxYear.incomeTaxTotal = new Map<
+        string,
+        LiabilityTotalAndSources
+      >();
       incomes.inTaxYear.incomeTaxFromFixedIncome = new Map<string, number>();
       incomes.inTaxYear.incomeTaxFromFlexibleIncome = new Map<string, number>();
       personLiabilityMap = incomes.inTaxYear.incomeTaxTotal;
@@ -2728,7 +2797,7 @@ function accumulateLiability(
     // log(`current NI map is = ${map}`);
     if (personLiabilityMap === undefined) {
       // log(`set up new map for NI`);
-      incomes.inTaxYear.NITotal = new Map<string, number>();
+      incomes.inTaxYear.NITotal = new Map<string, LiabilityTotalAndSources>();
       incomes.inTaxYear.NIFromFixedIncome = new Map<string, number>();
       incomes.inTaxYear.NIFromFlexibleIncome = new Map<string, number>();
       personLiabilityMap = incomes.inTaxYear.NITotal;
@@ -2738,14 +2807,14 @@ function accumulateLiability(
     // log this amount in the accumulating total
     let taxLiability = personLiabilityMap.get(liability);
     if (taxLiability === undefined) {
-      taxLiability = 0;
+      taxLiability = {
+        amount: 0,
+        sources: [],
+      };
+      personLiabilityMap.set(liability, taxLiability);
     }
     // log(`${liability} accumulate ${incomeValue} into ${taxLiability}`);
-    const newLiability = taxLiability + incomeValue;
-
-    // set income tax in map
-    personLiabilityMap.set(liability, newLiability);
-    // log(`${type} accumulated ${liability} liability = ${newLiability}`);
+    addToTaxLiability(taxLiability, incomeValue, sourceDescription);
   }
   if (type === incomeTax) {
     if (isFlexibleIncome) {
@@ -2934,8 +3003,6 @@ function handleIncome(
     // !!! TODO only apply this transaction before the STOP_DATE !!!
     const ptStopDate = getTriggerDate(pt.STOP_DATE, triggers, v);
     if (ptStopDate < moment.date) {
-      log(`return here?`);
-      // throw new Error('pt should stop now');
       return;
     }
 
@@ -3085,6 +3152,7 @@ function handleIncome(
           moment.type,
           isFlexibleIncome,
           isFixedIncome,
+          sourceDescription,
         );
         const thisPerson = liability.substring(
           0,
@@ -3109,6 +3177,7 @@ function handleIncome(
           moment.type,
           isFlexibleIncome,
           isFixedIncome,
+          sourceDescription,
         );
         const thisPerson = liability.substring(
           0,
@@ -3721,6 +3790,7 @@ function revalueApplied(
                 moment.type,
                 true, // isFlexibleIncome
                 false, // isFixedIncome
+                `revalue ${matchingAsset.NAME}`,
               );
             }
           }
@@ -4304,7 +4374,7 @@ function handleCGTLiability(
   if (purchasePrice !== undefined) {
     const totalGain = preFromValue - purchasePrice;
     // if (fromWord.includes('ESPP') || fromWord.includes('RSU')) {
-    // log(`at ${moment.date}, totalGain = preFromValue - purchasePrice = ${preFromValue} - ${purchasePrice} = ${totalGain}`);
+    // log(`at ${moment.date.toDateString()}, \ntotalGain = preFromValue - purchasePrice = ${preFromValue} - ${purchasePrice} = ${totalGain}`);
     // }
     const proportionGain = totalGain * proportionSale;
     // if (fromWord.includes('ESPP') || fromWord.includes('RSU')) {
@@ -4312,14 +4382,19 @@ function handleCGTLiability(
     // }
     let cgtMap = incomes.inTaxYear.cgt;
     if (cgtMap === undefined) {
-      incomes.inTaxYear.cgt = new Map<string, number>();
+      incomes.inTaxYear.cgt = new Map<string, LiabilityTotalAndSources>();
       cgtMap = incomes.inTaxYear.cgt;
     }
     let currentcgtVal = cgtMap.get(cgtLiability);
     if (currentcgtVal === undefined) {
-      currentcgtVal = 0.0;
+      currentcgtVal = {
+        amount: 0.0,
+        sources: [],
+      };
+      cgtMap.set(cgtLiability, currentcgtVal);
     }
-    currentcgtVal += proportionGain;
+
+    addToTaxLiability(currentcgtVal, proportionGain, `${t.NAME}`);
     // if (fromWord.includes('ESPP') || fromWord.includes('RSU')) {
     // log(`setting new value for cgt ${currentcgtVal}`);
     // }
