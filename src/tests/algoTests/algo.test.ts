@@ -152,7 +152,7 @@ describe('evaluations tests', () => {
       });
     }
     expect(evalsAndValues.todaysIncomeValues.size).toEqual(0);
-    expect(evalsAndValues.todaysSettingValues.size).toEqual(1);
+    expect(evalsAndValues.todaysSettingValues.size).toEqual(5);
 
     const cpiS = [...evalsAndValues.todaysSettingValues.keys()].find((s) => {
       return s.NAME === 'cpi';
@@ -246,7 +246,7 @@ describe('evaluations tests', () => {
       );
     }
     expect(evalsAndValues.todaysIncomeValues.size).toEqual(0);
-    expect(evalsAndValues.todaysSettingValues.size).toEqual(1);
+    expect(evalsAndValues.todaysSettingValues.size).toEqual(5);
     const cpiS = [...evalsAndValues.todaysSettingValues.keys()].find((s) => {
       return s.NAME === 'cpi';
     });
@@ -410,13 +410,11 @@ describe('evaluations tests', () => {
     const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
-    /*
-    log(evalsAndValues.todaysAssetValues);
-    log(evalsAndValues.todaysDebtValues);
-    log(evalsAndValues.todaysExpenseValues);
-    log(evalsAndValues.todaysIncomeValues);
-    log(evalsAndValues.todaysSettingValues);
-    */
+    // log(evalsAndValues.todaysAssetValues);
+    // log(evalsAndValues.todaysDebtValues);
+    // log(evalsAndValues.todaysExpenseValues);
+    // log(evalsAndValues.todaysIncomeValues);
+    // log(evalsAndValues.todaysSettingValues);
 
     expect(evalsAndValues.todaysAssetValues.size).toEqual(0);
     expect(evalsAndValues.todaysDebtValues.size).toEqual(0);
@@ -435,7 +433,7 @@ describe('evaluations tests', () => {
       });
     }
     expect(evalsAndValues.todaysIncomeValues.size).toEqual(0);
-    expect(evalsAndValues.todaysSettingValues.size).toEqual(1);
+    expect(evalsAndValues.todaysSettingValues.size).toEqual(5);
     const cpiS = [...evalsAndValues.todaysSettingValues.keys()].find((s) => {
       return s.NAME === 'cpi';
     });
@@ -8666,5 +8664,142 @@ describe('evaluations tests', () => {
     ]);
     expect(model.settings.length).toBe(12);
     expect(model.assets.length).toBe(5);
+  });
+
+  it(`RSU example`, () => {
+    const modelFromJSON = makeModelFromJSONString(
+      `{
+        "name":"RSUs example",
+        "assets":[
+        {"NAME":"RSUs",
+          "ERA":0,
+          "VALUE":"ADSK stock",
+          "QUANTITY":"34",
+          "START":"1 Jan 2023",
+          "LIABILITY":"John(CGT)",
+          "GROWTH":"0",
+          "CPI_IMMUNE":true,
+          "CAN_BE_NEGATIVE":false,
+          "IS_A_DEBT":false,
+          "PURCHASE_PRICE":"1",
+          "CATEGORY":""},
+        {"NAME":"Cash",
+          "ERA":0,"VALUE":"0",
+          "QUANTITY":"",
+          "START":"01 Jan 2023",
+          "LIABILITY":"",
+          "GROWTH":"0",
+          "CPI_IMMUNE":true,
+          "CAN_BE_NEGATIVE":true,
+          "IS_A_DEBT":false,
+          "PURCHASE_PRICE":"0",
+          "CATEGORY":""}],
+        "incomes":[],
+        "expenses":[],
+        "triggers":[],
+        "settings":[{"NAME":"USD",
+          "ERA":0,"VALUE":"0.78",
+          "HINT":"",
+          "TYPE":"adjustable"},
+        {"NAME":"Today's value focus date",
+          "VALUE":"",
+          "HINT":"Date to use for 'today's value' tables (defaults to '' meaning today)",
+          "TYPE":"view",
+          "ERA":0},
+        {"NAME":"RSU average purchase price",
+          "ERA":0,"VALUE":"150",
+          "HINT":"",
+          "TYPE":"adjustable"},
+        {"NAME":"ESPP average purchase price",
+          "ERA":0,"VALUE":"130",
+          "HINT":"",
+          "TYPE":"adjustable"},
+        {"NAME":"End of view range",
+          "ERA":0,"VALUE":"01 Jan 2026",
+          "HINT":"Date at the end of range to be plotted",
+          "TYPE":"view"},
+        {"NAME":"Date of birth",
+          "VALUE":"",
+          "HINT":"Date used for representing dates as ages",
+          "TYPE":"view",
+          "ERA":0},
+        {"NAME":"cpi",
+          "VALUE":"2.5",
+          "HINT":"Annual rate of inflation",
+          "TYPE":"const",
+          "ERA":0},
+        {"NAME":"Beginning of view range",
+          "ERA":0,"VALUE":"01 Jan 2023",
+          "HINT":"Date at the start of range to be plotted",
+          "TYPE":"view"},
+        {"NAME":"ADSK stock",
+          "ERA":0,"VALUE":"204USD",
+          "HINT":"",
+          "TYPE":"adjustable"}],
+        "transactions":[
+        {"NAME":"RSUs vest April 2023",
+          "ERA":0,"CATEGORY":"",
+          "FROM":"",
+          "FROM_ABSOLUTE":false,"FROM_VALUE":"",
+          "TO":"RSUs",
+          "TO_ABSOLUTE":true,"TO_VALUE":"10",
+          "DATE":"10 April 2023",
+          "STOP_DATE":"",
+          "RECURRENCE":"",
+          "TYPE":"custom"},
+        {"NAME":"RevalueRSU average purchase price 1",
+          "ERA":0,"FROM":"",
+          "FROM_ABSOLUTE":false,"FROM_VALUE":"0.0",
+          "TO":"RSU average purchase price",
+          "TO_ABSOLUTE":true,"TO_VALUE":"155",
+          "DATE":"10 April 2023",
+          "TYPE":"revalueSetting",
+          "RECURRENCE":"",
+          "STOP_DATE":"",
+          "CATEGORY":""},
+        {"DATE":"1 Jan 2023",
+          "FROM":"",
+          "FROM_VALUE":"0",
+          "FROM_ABSOLUTE":false,"NAME":"RevalueADSK stock 1",
+          "ERA":0,"TO":"ADSK stock",
+          "TO_ABSOLUTE":false,"TO_VALUE":"1.005",
+          "STOP_DATE":"",
+          "RECURRENCE":"1m",
+          "TYPE":"revalueSetting",
+          "CATEGORY":""}],
+        "version":11
+        }`
+      );
+    const model = modelFromJSON;
+
+    setSetting(
+      model.settings,
+      `Today's value focus date`,
+      'Aug 10 2023',
+      viewType,
+    );
+
+    const evalsAndValues = getEvaluations(
+      makeModelFromJSONString(JSON.stringify(model)),
+      undefined, // no key for a values report
+    );
+
+    // log(evalsAndValues.todaysAssetValues);
+    // log(evalsAndValues.todaysDebtValues);
+    // log(evalsAndValues.todaysExpenseValues);
+    // log(evalsAndValues.todaysIncomeValues);
+    // log(evalsAndValues.todaysSettingValues);
+
+    // printTestCodeForEvals(evalsAndValues.evaluations);
+
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
+
+    // printTestCodeForChart(result);
   });
 });

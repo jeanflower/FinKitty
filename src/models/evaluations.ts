@@ -5470,18 +5470,17 @@ function evaluateAllAssets(
   });
   model.settings.forEach((s) => {
     const val = values.get(s.NAME);
-    if (
-      val !== undefined &&
-      !(
-        typeof s.NAME === 'string' &&
-        s.NAME.startsWith(bondMaturity) &&
-        s.NAME.endsWith(cpi)
-      )
-    ) {
+    if (typeof s.NAME === 'string' &&
+      s.NAME.startsWith(bondMaturity) &&
+      s.NAME.endsWith(cpi)){
+      // don't log these
+      // log(`don't log today's value for ${s.NAME}`);
+    } else if (val !== undefined) {
       // log(`report today's value for ${s.NAME}`);
       todaysSettingValues.set(s, { settingVal: `${val}` });
     } else {
-      // log(`don't report  today's value for ${s.NAME}`);
+      // log(`use initial = today's value for ${s.NAME}`);
+      todaysSettingValues.set(s, { settingVal: `${s.VALUE}` });
     }
   });
 }

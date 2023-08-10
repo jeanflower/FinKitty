@@ -132,6 +132,7 @@ import {
 import { ReportMatcherForm } from './reactComponents/ReportMatcherForm';
 import { getDisplay } from '../utils/viewUtils';
 import { EvaluationHelper, getEvaluations } from '../models/evaluations';
+import SettingValueFormatter from './reactComponents/SettingValueFormatter';
 
 function CustomToggle({ children, eventKey }: any) {
   const decoratedOnClick = useAccordionButton(eventKey, () =>
@@ -2212,7 +2213,7 @@ function adjustSettingsTable(
             DateFormatType.View,
             getTodaysDate(model),
           )}`,
-          formatter: <SimpleFormatter name="focus value" value="unset" />,
+          formatter: <SettingValueFormatter name="focus value" value="unset" />,
         },
         {
           ...defaultColumn,
