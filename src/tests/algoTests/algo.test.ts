@@ -8768,8 +8768,8 @@ describe('evaluations tests', () => {
           "TYPE":"revalueSetting",
           "CATEGORY":""}],
         "version":11
-        }`
-      );
+        }`,
+    );
     const model = modelFromJSON;
 
     setSetting(

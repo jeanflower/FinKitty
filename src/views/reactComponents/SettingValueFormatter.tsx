@@ -1,6 +1,8 @@
 import React from 'react';
-import { getNumberAndWordParts, makeStringFromCashValue, makeTwoDP } from '../../utils/stringUtils';
-import { isNumberString } from '../../models/checks';
+import {
+  getNumberAndWordParts,
+  makeTwoDP,
+} from '../../utils/stringUtils';
 // import { showObj } from ''../../utils''
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
@@ -26,12 +28,14 @@ class SettingValueFormatter extends React.Component<SettingValueFormatterProps> 
     result = this.props.value;
     const numAndWords = getNumberAndWordParts(this.props.value);
     if (numAndWords.numberPart !== undefined) {
-      if (!Number.isInteger(numAndWords.numberPart) && 
-        !Number.isInteger(numAndWords.numberPart * 10)) {
+      if (
+        !Number.isInteger(numAndWords.numberPart) &&
+        !Number.isInteger(numAndWords.numberPart * 10)
+      ) {
         result = makeTwoDP(numAndWords.numberPart) + numAndWords.wordPart;
       }
     }
-    
+
     // log(`cash formatter from ${this.props.value} = ${result}`);
     return (
       <OverlayTrigger

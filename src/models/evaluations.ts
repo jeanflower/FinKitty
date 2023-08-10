@@ -5470,9 +5470,11 @@ function evaluateAllAssets(
   });
   model.settings.forEach((s) => {
     const val = values.get(s.NAME);
-    if (typeof s.NAME === 'string' &&
+    if (
+      typeof s.NAME === 'string' &&
       s.NAME.startsWith(bondMaturity) &&
-      s.NAME.endsWith(cpi)){
+      s.NAME.endsWith(cpi)
+    ) {
       // don't log these
       // log(`don't log today's value for ${s.NAME}`);
     } else if (val !== undefined) {
