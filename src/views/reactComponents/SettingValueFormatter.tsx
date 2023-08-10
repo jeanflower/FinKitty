@@ -1,8 +1,5 @@
 import React from 'react';
-import {
-  getNumberAndWordParts,
-  makeTwoDP,
-} from '../../utils/stringUtils';
+import { getNumberAndWordParts, makeTwoDP } from '../../utils/stringUtils';
 // import { showObj } from ''../../utils''
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
