@@ -73,8 +73,7 @@ Watch out for lint errors in the console from either
 `startLocalWebServer.sh` or `start3LocalDBAndWebServer.sh`.
 
 ### Run the tests
-``npm test -- --transformIgnorePatterns 'node_modules/(?!dateformat)/'``
-(as from dateformat v5, we need this extra argument)
+``npm test``
 or ``./start4Tests.sh``
 or ``./start5SingleTest.sh "myTestName"``
 or ``./start6SequentialTests.sh``
@@ -116,11 +115,11 @@ Chrome, here are some steps to tide things over:
  - run tests to see if the new package is working as expected
 
 See coverage by typing 
-``CI=true npm test -- --transformIgnorePatterns 'node_modules/(?!dateformat)/'  --coverage``
+``CI=true npm test -- --coverage``
 then look for /coverage/index.html for the results.  
 To exclude selenium browser tests (which don't seem to generate coverage data anyway), 
 use 
-``CI=true npm test -- --testPathIgnorePatterns=browser  --transformIgnorePatterns 'node_modules/(?!dateformat)/' --coverage``
+``CI=true npm test -- --testPathIgnorePatterns=browser --coverage``
 
 ### Linting
 Run `./lintFixes.sh` keeps things clean.
@@ -133,12 +132,8 @@ This not-yet-commited version bump serves as a reminder -
 either commit it as a followup (if the change should have been versioned) 
 or change to a minor or major version change, or discard.
 
-### Publishing to github pages
-Type
-`npm run deploy`
-and go to
-https://jeanflower.github.io/FinKitty/
-
+### `git pish -f heroku main`
+Deploys to a heroku instance
 
 ### `npm run build`
 Builds the app for production to the `build` folder.<br>
@@ -147,8 +142,3 @@ It correctly bundles React in production mode and optimizes the build for the be
 The build is minified and the filenames include the hashes.<br>
 Your app is ready to be deployed!
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) 
-for more information.
-
-This repo has been ejected from the default create-react-app
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).

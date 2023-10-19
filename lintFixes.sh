@@ -1,2 +1,2 @@
 #!/bin/bash
-npx eslint --fix './src/**/*.ts' './src/**/*.tsx' './src/**/*.js' './src/**/*.jsx'
+npx eslint --fix './**/*.ts' './**/*.tsx' './**/*.js' './**/*.jsx'
