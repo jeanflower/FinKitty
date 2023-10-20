@@ -9,6 +9,11 @@ export default function MyApp({ Component, pageProps }: AppProps) {
   return (<div>
     <Head>
       <title>FinKitty</title>
+      <link rel="icon" href="/cat.ico" />
+      <meta
+          name="Finkitty personal financial forecaster"
+          content={'FinKitty'}
+      />      
     </Head>
     <Component {...pageProps} />
   </div>);
