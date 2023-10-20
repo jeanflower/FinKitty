@@ -21,6 +21,7 @@ import {
   printTestCodeForEvals,
   getTestEvaluations,
   expectEvals,
+  defaultTestViewSettings,
 } from './algoTestUtils';
 
 describe('bonds tests', () => {
@@ -35,6 +36,7 @@ describe('bonds tests', () => {
       start: 'Dec 1, 2017',
       end: 'July 1, 2019',
     };
+    const viewSettings = defaultTestViewSettings();
     const settingRevalueDate = 'February 10 2018';
     const matureDateString = 'April 12 2019';
     const investDateString = 'April 12 2018';
@@ -99,7 +101,7 @@ describe('bonds tests', () => {
     setSetting(model.settings, `${bondInterest}`, '100', constType);
 
     const evalsAndValues = getEvaluations(
-      makeModelFromJSONString(JSON.stringify(model)),
+      makeModelFromJSONString(JSON.stringify(model), viewSettings),
       undefined, // no key for a values report
     );
 
@@ -117,7 +119,7 @@ describe('bonds tests', () => {
       1.14,
       2,
     );
-    expectEvals(evals, 2, 'BondTargetValue', 'Fri Apr 12 2019', 1, -1);
+    expectEvals(evals, 2, 'BondTargetValue', 'Sat Feb 10 2018', 1, -1);
     expectEvals(evals, 3, 'Cash', 'Mon Jan 01 2018', 0, -1);
     expectEvals(evals, 4, 'Bond', 'Mon Jan 01 2018', 0, -1);
     expectEvals(evals, 5, 'Cash', 'Thu Feb 01 2018', 0, -1);
@@ -241,7 +243,7 @@ describe('bonds tests', () => {
       1.14,
       2,
     );
-    expectEvals(evals, 1, 'BondTargetValue', 'Fri Apr 12 2019', 1, -1);
+    expectEvals(evals, 1, 'BondTargetValue', 'Sat Feb 10 2018', 1, -1);
     expectEvals(evals, 2, 'Cash', 'Mon Jan 01 2018', 1000, -1);
     expectEvals(evals, 3, 'Bond', 'Mon Jan 01 2018', 1000, -1);
     expectEvals(evals, 4, 'Cash', 'Thu Feb 01 2018', 1009.49, 2);
@@ -367,7 +369,7 @@ describe('bonds tests', () => {
       1.14,
       2,
     );
-    expectEvals(evals, 2, 'BondTargetValue', 'Fri Apr 12 2019', 1, -1);
+    expectEvals(evals, 2, 'BondTargetValue', 'Sat Feb 10 2018', 1, -1);
     expectEvals(evals, 3, 'Cash', 'Mon Jan 01 2018', 1000, -1);
     expectEvals(evals, 4, 'Bond', 'Mon Jan 01 2018', 1000, -1);
     expectEvals(evals, 5, 'Cash', 'Thu Feb 01 2018', 1009.49, 2);
@@ -493,7 +495,7 @@ describe('bonds tests', () => {
       1.14,
       2,
     );
-    expectEvals(evals, 2, 'BondTargetValue', 'Fri Apr 12 2019', 1, -1);
+    expectEvals(evals, 2, 'BondTargetValue', 'Sat Feb 10 2018', 1, -1);
     expectEvals(evals, 3, 'Cash', 'Mon Jan 01 2018', 945.05, 2); // start with inflated 100 / 2 less than 1000
     expectEvals(evals, 4, 'Bond', 'Mon Jan 01 2018', 1000, -1);
     expectEvals(evals, 5, 'Cash', 'Thu Feb 01 2018', 954.02, 2);
@@ -617,7 +619,7 @@ describe('bonds tests', () => {
       1.14,
       2,
     );
-    expectEvals(evals, 1, 'BondTargetValue', 'Fri Apr 12 2019', 1, -1);
+    expectEvals(evals, 1, 'BondTargetValue', 'Sat Feb 10 2018', 1, -1);
     expectEvals(evals, 2, 'Cash', 'Mon Jan 01 2018', 0, -1);
     expectEvals(evals, 3, 'Bond', 'Mon Jan 01 2018', 1000, -1);
     expectEvals(evals, 4, 'Cash', 'Thu Feb 01 2018', 0, -1);
@@ -739,7 +741,7 @@ describe('bonds tests', () => {
       1,
       -1,
     );
-    expectEvals(evals, 1, 'BondTargetValue', 'Fri Apr 12 2019', 1, -1);
+    expectEvals(evals, 1, 'BondTargetValue', 'Sat Feb 10 2018', 1, -1);
     expectEvals(evals, 2, 'Cash', 'Mon Jan 01 2018', 1000, -1);
     expectEvals(evals, 3, 'Bond', 'Mon Jan 01 2018', 1000, -1);
     expectEvals(evals, 4, 'Cash', 'Thu Feb 01 2018', 1000, -1);
@@ -865,7 +867,7 @@ describe('bonds tests', () => {
       1,
       -1,
     );
-    expectEvals(evals, 2, 'BondTargetValue', 'Fri Apr 12 2019', 1, -1);
+    expectEvals(evals, 2, 'BondTargetValue', 'Sat Feb 10 2018', 1, -1);
     expectEvals(evals, 3, 'Cash', 'Mon Jan 01 2018', 1000, -1);
     expectEvals(evals, 4, 'Bond', 'Mon Jan 01 2018', 1000, -1);
     expectEvals(evals, 5, 'Cash', 'Thu Feb 01 2018', 1000, -1);
@@ -989,7 +991,7 @@ describe('bonds tests', () => {
       1.14,
       2,
     );
-    expectEvals(evals, 1, 'BondTargetValue', 'Fri Apr 12 2019', 1, -1);
+    expectEvals(evals, 1, 'BondTargetValue', 'Sat Feb 10 2018', 1, -1);
     expectEvals(evals, 2, 'Cash', 'Mon Jan 01 2018', 1000, -1);
     expectEvals(evals, 3, 'Bond', 'Mon Jan 01 2018', 1000, -1);
     expectEvals(evals, 4, 'Cash', 'Thu Feb 01 2018', 1009.49, 2);
@@ -1102,7 +1104,7 @@ describe('bonds tests', () => {
       1,
       -1,
     );
-    expectEvals(evals, 2, 'BondTargetValue', 'Fri Apr 12 2019', 1, -1);
+    expectEvals(evals, 2, 'BondTargetValue', 'Sat Feb 10 2018', 1, -1);
     expectEvals(evals, 3, 'Cash', 'Mon Jan 01 2018', 1000, -1);
     expectEvals(evals, 4, 'Bond', 'Mon Jan 01 2018', 1000, -1);
     expectEvals(evals, 5, 'Cash', 'Thu Feb 01 2018', 1000, -1);
@@ -1247,7 +1249,7 @@ describe('bonds tests', () => {
       1,
       -1,
     );
-    expectEvals(evals, 2, 'BondTargetValue', 'Fri Apr 12 2019', 1, -1);
+    expectEvals(evals, 2, 'BondTargetValue', 'Sat Feb 10 2018', 1, -1);
     expectEvals(evals, 3, 'Cash', 'Mon Jan 01 2018', 15, -1);
     expectEvals(evals, 4, 'Bond', 'Mon Jan 01 2018', 15, -1);
     expectEvals(evals, 5, 'Cash', 'Thu Feb 01 2018', 15, -1);
@@ -1390,7 +1392,7 @@ describe('bonds tests', () => {
       1,
       -1,
     );
-    expectEvals(evals, 2, 'BondTargetValue', 'Fri Apr 12 2019', 1, -1);
+    expectEvals(evals, 2, 'BondTargetValue', 'Sat Feb 10 2018', 1, -1);
     expectEvals(evals, 3, 'Cash', 'Mon Jan 01 2018', 1000, -1);
     expectEvals(evals, 4, 'Bond', 'Mon Jan 01 2018', 1000, -1);
     expectEvals(evals, 5, 'Cash', 'Thu Feb 01 2018', 1000, -1);
@@ -1727,7 +1729,7 @@ describe('bonds tests', () => {
       1,
       -1,
     );
-    expectEvals(evals, 10, 'BondTargetValue', 'Fri Jan 01 2021', 1, -1);
+    expectEvals(evals, 10, 'BondTargetValue', 'Mon Jan 01 2018', 1, -1);
     expectEvals(evals, 11, 'Cash', 'Mon Jan 01 2018', 1000, -1);
     expectEvals(evals, 12, 'Bond', 'Mon Jan 01 2018', 1000, -1);
     expectEvals(evals, 13, 'BondTargetValue', 'Mon Jan 01 2018', 10, -1);
@@ -2104,7 +2106,7 @@ describe('bonds tests', () => {
       3.48,
       2,
     );
-    expectEvals(evals, 10, 'BondTargetValue', 'Fri Jan 01 2021', 1, -1);
+    expectEvals(evals, 10, 'BondTargetValue', 'Mon Jan 01 2018', 1, -1);
     expectEvals(evals, 11, 'Cash', 'Mon Jan 01 2018', 1000, -1);
     expectEvals(evals, 12, 'Bond', 'Mon Jan 01 2018', 1000, -1);
     expectEvals(evals, 13, 'CPI.', 'Mon Jan 01 2018', 1, -1);
@@ -2468,7 +2470,7 @@ describe('bonds tests', () => {
       3.48,
       2,
     );
-    expectEvals(evals, 10, 'BondTargetValue', 'Fri Jan 01 2021', 1, -1);
+    expectEvals(evals, 10, 'BondTargetValue', 'Mon Jan 01 2018', 1, -1);
     expectEvals(evals, 11, 'Cash', 'Mon Jan 01 2018', 1000, -1);
     expectEvals(evals, 12, 'Bond', 'Mon Jan 01 2018', 1000, -1);
     expectEvals(evals, 13, 'CPI.', 'Mon Jan 01 2018', 1000, -1);

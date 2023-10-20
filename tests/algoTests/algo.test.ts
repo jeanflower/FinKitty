@@ -828,7 +828,7 @@ describe('evaluations tests', () => {
     // printTestCodeForEvals(evals);
 
     expect(evals.length).toBe(4);
-    expectEvals(evals, 0, 'cpi', 'Sat Jul 01 2017', 0, -1);
+    expectEvals(evals, 0, 'cpi', 'Wed Mar 01 2017', 0, -1);
     expectEvals(evals, 1, 'cpi', 'Wed Mar 01 2017', 10, -1);
     expectEvals(evals, 2, 'cpi', 'Sat Jul 01 2017', 0, -1);
     expectEvals(evals, 3, 'Phon', 'Mon Jan 01 2018', 12.51, 2);
@@ -5246,7 +5246,7 @@ describe('evaluations tests', () => {
     // printTestCodeForEvals(evals);
 
     expect(evals.length).toBe(68);
-    expectEvals(evals, 0, 'g', 'Sat Aug 04 2018', 2, -1);
+    expectEvals(evals, 0, 'g', 'Sat May 05 2018', 2, -1);
     expectEvals(evals, 1, 'Cash', 'Fri Dec 01 2017', 0, -1);
     expectEvals(evals, 2, 'Cash', 'Mon Jan 01 2018', 0, -1);
     expectEvals(evals, 3, 'Phon', 'Mon Jan 01 2018', 1, -1);
@@ -5447,7 +5447,7 @@ describe('evaluations tests', () => {
     // printTestCodeForEvals(evals);
 
     expect(evals.length).toBe(68);
-    expectEvals(evals, 0, 'g', 'Sat Aug 04 2018', 2, -1);
+    expectEvals(evals, 0, 'g', 'Sat May 05 2018', 2, -1);
     expectEvals(evals, 1, 'Cash', 'Fri Dec 01 2017', 0, -1);
     expectEvals(evals, 2, 'Cash', 'Mon Jan 01 2018', 0, -1);
     expectEvals(evals, 3, 'Incm', 'Mon Jan 01 2018', 1, -1);
@@ -7311,7 +7311,7 @@ describe('evaluations tests', () => {
     expect(evals.length).toBe(85);
     expectEvals(evals, 0, 'cpi', 'Tue May 01 2018', 0, -1);
     expectEvals(evals, 1, 'x', 'Mon Jan 01 2018', 0, -1);
-    expectEvals(evals, 2, 'rises', 'Fri Mar 01 2019', 0, -1);
+    expectEvals(evals, 2, 'rises', 'Mon Jan 01 2018', 0, -1);
     expectEvals(evals, 3, 'saaaaaa', 'Mon Jan 01 2018', 100, -1);
     expectEvals(evals, 4, 'savings', 'Mon Jan 01 2018', 100, -1);
     expectEvals(evals, 5, 'sbbbbbb', 'Mon Jan 01 2018', 100, -1);

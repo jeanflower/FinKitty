@@ -48,6 +48,7 @@ import {
   Expense,
   Income,
   IncomeOrExpense,
+  Item,
 } from '../types/interfaces';
 import {
   DateFormatType,
@@ -5166,6 +5167,7 @@ function generateMoments(
     setDate: Date;
   }[] = [];
   model.settings.forEach((setting) => {
+    // Some types of settings have values at the start of the roi
     if (
       setting.NAME === 'Grain' ||
       setting.NAME.startsWith(bondMaturity) ||
@@ -5182,7 +5184,11 @@ function generateMoments(
         setting.NAME,
         '35', //callerID
       );
+      return;
     }
+
+    // settings for purchase prices or expense values
+    // are set at the start
     {
       const referencingPrices = model.assets.filter((a) => {
         return a.PURCHASE_PRICE === setting.NAME;
@@ -5206,74 +5212,126 @@ function generateMoments(
           setting.NAME,
           '36', //callerID
         );
+        return;
       }
     }
-    let referencingSettings = model.settings.filter((s) => {
-      return s.VALUE === setting.NAME;
-    });
-    referencingSettings = referencingSettings.sort();
-    if (
-      referencingSettings.length > 0 &&
-      values.get(setting.NAME) === undefined
-    ) {
-      setValue(
-        values,
-        growths,
-        evaluations,
-        roiStartDate,
-        setting.NAME,
-        setting.VALUE,
-        model,
-        setting.NAME,
-        '43', //callerID
-      );
+
+    // settings which are the values of other settings
+    // are set right away
+    {
+      let referencingSetting = model.settings.find((s) => {
+        return s.VALUE === setting.NAME;
+      });
+      if (
+        referencingSetting !== undefined &&
+        values.get(setting.NAME) === undefined
+      ) {
+        setValue(
+          values,
+          growths,
+          evaluations,
+          roiStartDate,
+          setting.NAME,
+          setting.VALUE,
+          model,
+          setting.NAME,
+          '43', //callerID
+        );
+        return;
+      }
     }
-    let referencingDates = model.transactions
-      .filter((t) => {
-        // log(`is setting ${setting.NAME} in t.TO  = ${t.TO}?`);
-        // does the setting name appear as part of the transaction TO value?
-        if (
-          t.TO_VALUE.includes(setting.NAME) ||
-          t.TO.includes(setting.NAME) ||
-          t.FROM_VALUE.includes(setting.NAME) ||
-          t.FROM.includes(setting.NAME)
-        ) {
-          return true;
-        }
-        return false;
-      })
-      .map((t) => {
-        // log(`date for matching transaction is ${t.DATE}`);
-        return t.DATE;
-      })
-      //.map(ds => getTriggerDate(ds, model.triggers));
-      .map((ds) => new Date(ds));
+
+    const referencingTransactions = model.transactions
+    .filter((t) => {
+      // log(`is setting ${setting.NAME} in t.TO  = ${t.TO}?`);
+      // does the setting name appear as part of the transaction TO value?
+      if (
+        t.TO_VALUE.includes(setting.NAME) ||
+        t.TO.includes(setting.NAME) ||
+        t.FROM_VALUE.includes(setting.NAME) ||
+        t.FROM.includes(setting.NAME)
+      ) {
+        return true;
+      }
+      return false;
+    });
+
+    let referencingDates:{
+      item: Item,
+      date: Date,
+    }[] = referencingTransactions.map((t) => {
+      return {
+        item: t,
+        date: getTriggerDate(t.DATE, model.triggers, v),
+      }
+    });
 
     // log(`got referencing dates ${showObj(referencingDates)}`);
+
+    const referencingAssets = model.assets.filter((a) => {
+      if (a.GROWTH === setting.NAME) {
+        return true;
+      }
+      return false;
+    });
+
+    referencingAssets.sort((a,b) => {
+      if(a.NAME < b.NAME) {
+        return 1;
+      } else if(a.NAME > b.NAME) {
+        return -1;
+      } else {
+        return 0;
+        // throw new Error('attempting to sort matching assets!');
+      }
+    });
+
     referencingDates = referencingDates.concat(
-      model.assets
-        .filter((a) => {
-          if (a.GROWTH === setting.NAME) {
-            return true;
-          }
-          return false;
-        })
-        .map((a) => a.START)
-        .map((ds) => getTriggerDate(ds, model.triggers, v)),
+      referencingAssets.map((a) => {
+        return {
+          item: a,
+          date: getTriggerDate(a.START, model.triggers, v),
+        }
+      }),
     );
 
-    // log(`referencingDates for ${setting.NAME} = ${referencingDates.map(d=>dateAsString(DateFormatType.Debug,d))}`);
-    referencingDates = referencingDates.sort();
+    if(referencingDates.length > 1) {
+      // log(`referencingDates for ${setting.NAME} = ${referencingDates.map(d=>dateAsString(DateFormatType.Test,d))}`);
+      referencingDates = referencingDates.sort((a, b) => {
+        if(a.date.getTime() < b.date.getTime()){
+          return -1;
+        } else if(a.date.getTime() > b.date.getTime()){
+          return +1;
+        } else if(a.item.NAME < b.item.NAME){ // a silly way but gets stability
+          return 1;
+        } else if(a.item.NAME > b.item.NAME){
+          return -1;
+        } else {
+          return JSON.stringify(a) < JSON.stringify(b) ? 1 : -1; // NQR
+        }
+      });
+    }
+
     if (referencingDates.length > 0 && values.get(setting.NAME) === undefined) {
+
+      //if(referencingDates.length > 0 && referencingDates[0].date.getTime() !== referencingDates[referencingDates.length -1].date.getTime()) {
+        // log(`could set ${setting.NAME} at 
+        // ${referencingDates[0].item.NAME}-${dateAsString(DateFormatType.Test,referencingDates[0].date)} or 
+        // ${referencingDates[referencingDates.length - 1].item.NAME}-${dateAsString(DateFormatType.Test,referencingDates[referencingDates.length - 1].date)}`);
+      //}
+
       // log(`setValue ${setting.NAME} = ${setting.VALUE}`);
       setSettingsData.push({
         settingName: setting.NAME,
         settingVal: setting.VALUE,
-        setDate: referencingDates[0],
-        //        setDate: roiStartDate, ????
+        setDate: referencingDates[0].date,
+        // setDate: roiStartDate, ????
       });
     }
   });
+
+  // some settings are included in the names of other settings
+  // make sure those are set appropriately as well
   model.settings.forEach((s) => {
     if (
       !setSettingsData.find((sd) => {
