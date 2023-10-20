@@ -1,7 +1,7 @@
 {
   "name": "finkitty",
   "homepage": "https://jeanflower.github.io/FinKitty",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "engines": {
     "node": "18.x"
   },
@@ -12,6 +12,7 @@
     "start": "next start",
     "test": "jest --watch",
     "test:ci": "jest --ci",
+    "lint": "eslint './**/*.{ts,tsx,js,jsx}'",
     "predeploy": "npm run build",
     "deploy": "git push -g heroku main",
     "prepare": "husky install"
