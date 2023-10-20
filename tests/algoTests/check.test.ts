@@ -43,6 +43,7 @@ import {
 } from '../../models/exampleModels';
 import { ModelData } from '../../types/interfaces';
 import { log, suppressLogs, unSuppressLogs } from '../../utils/utils';
+import { defaultTestViewSettings } from './algoTestUtils';
 
 log;
 
@@ -597,7 +598,9 @@ describe('checks tests', () => {
   });
 
   it('check transaction', () => {
-    const model = getTestModel(definedBenefitsPension);
+    const viewSettings = defaultTestViewSettings();
+
+    const model = getTestModel(definedBenefitsPension, viewSettings);
 
     suppressLogs();
     expect(checkData(model).message).toEqual(``);
@@ -737,6 +740,19 @@ describe('checks tests', () => {
     );
     model.transactions[0].TO = oldTo;
 
+    model.assets.push({
+      ...simpleAsset,
+      NAME: 'a',
+      START: '1 Jan 2019',
+      CATEGORY: 'cat',      
+    });
+
+    model.transactions[0].TO = 'cat';
+    expect(checkData(model).message).toEqual(
+      `Transaction '-PT TeachersPensionScheme to unrecognised thing : cat`,
+    );
+    model.transactions[0].TO = oldTo;
+
     const oldToValue = model.transactions[0].TO_VALUE;
     model.transactions[0].TO_VALUE = '';
     expect(checkData(model).message).toEqual(
@@ -750,7 +766,7 @@ describe('checks tests', () => {
 
     expect(checkData(model).message).toEqual(``);
 
-    const model2 = getMinimalModelCopy();
+    const model2 = getMinimalModelCopy(viewSettings);
     model2.assets.push({
       ...simpleAsset,
       NAME: 'a',
@@ -1033,7 +1049,8 @@ describe('checks tests', () => {
     unSuppressLogs();
   });
   it('check trigger', () => {
-    const model = getMinimalModelCopy();
+    const viewSettings = defaultTestViewSettings();
+    const model = getMinimalModelCopy(viewSettings);
     expect(
       checkTrigger(
         {
@@ -1066,7 +1083,8 @@ describe('checks tests', () => {
     ).toEqual(`Date 'zzz' is not valid : 'nonsense'`);
   });
   it('check bond model', () => {
-    const model = getTestModel(bondModel);
+    const viewSettings = defaultTestViewSettings();
+    const model = getTestModel(bondModel, viewSettings);
     expect(checkData(model).message).toEqual(``);
 
     suppressLogs();

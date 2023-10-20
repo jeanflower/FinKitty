@@ -477,7 +477,7 @@ function checkTransactionFrom(word: string, settings: Setting[]) {
 function checkTransactionTo(word: string, t: Transaction, model: ModelData) {
   const v = getVarVal(model.settings);
   const triggers = model.triggers;
-  const a = model.assets.find((as) => as.NAME === word || as.CATEGORY === word);
+  const a = model.assets.find((as) => as.NAME === word);
   if (a !== undefined) {
     if (t.NAME.startsWith(pensionDB)) {
       return `Transaction '${getDisplayName(
