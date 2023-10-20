@@ -24,10 +24,7 @@ export class Auth0Provider extends Component {
     domain: process.env.NEXT_PUBLIC_REACT_APP_AUTH0_DOMAIN_NOT_SECRET,
     clientId: process.env.NEXT_PUBLIC_REACT_APP_AUTH0_CLIENT_ID_NOT_SECRET,
     authorizationParams: {
-      redirect_uri: '',
-      /*JAF
-        window.location.origin + process.env.NEXT_PUBLIC_REACT_APP_ORIGIN_APPENDAGE,
-      */
+      redirect_uri: process.env.NEXT_PUBLIC_REACT_APP_CLIENT_URL_NOT_SECRET,
     },
   };
 
@@ -37,27 +34,33 @@ export class Auth0Provider extends Component {
 
   // initialize the auth0 library
   initializeAuth0 = async () => {
+    // console.log(`auth domain = ${process.env.NEXT_PUBLIC_REACT_APP_AUTH0_DOMAIN_NOT_SECRET}`);
+    // console.log(`auth clientID = ${process.env.NEXT_PUBLIC_REACT_APP_AUTH0_CLIENT_ID_NOT_SECRET}`);
+
     /* istanbul ignore if  */
     if (printDebug()) {
       log(`auth config is ${showObj(this.config)}`);
     }
     const auth0Client = await createAuth0Client(this.config);
-    this.setState({ auth0Client });
-
-    // check to see if they have been redirected after login
-/*JAF
-    if (window.location.search.includes('code=')) {
-      return this.handleRedirectCallback();
-    }
-*/
-    const isAuthenticated = await auth0Client.isAuthenticated();
-    const user = isAuthenticated ? await auth0Client.getUser() : null;
-    this.setState({ isLoading: false, isAuthenticated, user });
+    // console.log(`Have auth0Client = ${auth0Client}, gp to set state`);
+    this.setState({ auth0Client },
+      async () => {
+      // check to see if they have been redirected after login
+      if (window.location.search.includes('code=')) {
+        // console.log('redirected with code');
+        return this.handleRedirectCallback();
+      }
+      const isAuthenticated = await auth0Client.isAuthenticated();
+      const user = isAuthenticated ? await auth0Client.getUser() : null;
+      this.setState({ isLoading: false, isAuthenticated, user });
+    });
   };
 
   handleRedirectCallback = async () => {
+    // console.log('in handleRedirectCallback');
     this.setState({ isLoading: true });
 
+    // console.log(`go to auth0Client's handleRedirectCallback, this.state.auth0Client = ${this.state.auth0Client}`);
     await this.state.auth0Client.handleRedirectCallback();
     const user = await this.state.auth0Client.getUser();
 

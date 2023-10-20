@@ -132,7 +132,7 @@ This not-yet-commited version bump serves as a reminder -
 either commit it as a followup (if the change should have been versioned) 
 or change to a minor or major version change, or discard.
 
-### `git pish -f heroku main`
+### `git push -f heroku main`
 Deploys to a heroku instance
 
 ### `npm run build`

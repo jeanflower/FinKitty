@@ -189,10 +189,14 @@ function App(): JSX.Element | null {
             // current workaround is to navigate back in browser
             // to get back to login page
           }
-          // alert(`window.location.origin = ${window.location.origin}`);
+
+          // this doesn't seem to be working - I need to set the correct redirect
+          // in Auth0 to get it to redirect to the right place
+          // regardless of what goes here
+          const returnTo = window.location.origin; // + process.env.NEXT_PUBLIC_REACT_APP_ORIGIN_APPENDAGE;
+          // alert(`returnTo = ${returnTo}`);
           return logout({
-            returnTo:
-              window.location.origin + process.env.NEXT_PUBLIC_REACT_APP_ORIGIN_APPENDAGE,
+            returnTo:returnTo,
           });
         }}
         user={user}
