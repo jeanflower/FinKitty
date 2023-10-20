@@ -7,6 +7,8 @@ import { ViewSettings } from '../utils/viewUtils';
 
 const url = process.env.NEXT_PUBLIC_REACT_APP_SERVER_URL_NOT_SECRET;
 
+console.log(`database URL is ${url}`);
+
 export class RESTDB implements DbInterface {
   getModelNames(userID: string): Promise<string[]> {
     /* istanbul ignore if  */
