@@ -173,7 +173,6 @@ export function debtsDiv(
         doChecks,
         parentCallbacks,
         '',
-        viewSettings,
       )}
       {todaysDebtsTable(model, todaysDebtValues, parentCallbacks.doShowTodaysValueColumns)}
       {collapsibleFragment(
@@ -188,7 +187,6 @@ export function debtsDiv(
             model={model}
             showAlert={parentCallbacks.showAlert}
             doCheckBeforeOverwritingExistingData={parentCallbacks.doCheckBeforeOverwritingExistingData}
-            viewState={viewSettings}
             />
         </div>,
         'Add or revalue a debt',

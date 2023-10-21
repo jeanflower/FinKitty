@@ -253,23 +253,6 @@ function setViewSetting(input: Setting): boolean {
   }
 }
 
-/*
-// When loading in an old model, set the view from the
-// old-style settings data
-// This only matters for keeping tests passing.
-export function migrateViewSetting(input: Setting): boolean {
-  // log(`setview setting being processed`);
-  if (reactAppComponent) {
-    return reactAppComponent.state.viewState.migrateViewSettingString(
-      input.NAME,
-      input.VALUE,
-    );
-  } else {
-    return false;
-  }
-}
-*/
-
 function showAlert(text: string) {
   // log(`setState for alert update : ${text}`);
   if(reactAppComponent) {
@@ -279,12 +262,12 @@ function showAlert(text: string) {
   }
 }
 
-function getMyFirstModel(viewState: ViewSettings) {
+function getMyFirstModel() {
   const modelFromExamplesList = exampleModelsForNewUser.find((nAndM) => {
     return nAndM.name === modelName;
   });
   if (modelFromExamplesList) {
-    return makeModelFromJSON(modelFromExamplesList.model, viewState);
+    return makeModelFromJSON(modelFromExamplesList.model);
   } else {
     throw new Error(
       `Error: ${myFirstModelName} should be in the exampleModelsForNewUser list`,
@@ -292,11 +275,11 @@ function getMyFirstModel(viewState: ViewSettings) {
   }
 }
 
-async function getModel(viewState: ViewSettings): Promise<{
+async function getModel(): Promise<{
   model: ModelData | undefined;
   modelNames: string[];
 }> {
-  let modelNames = await getModelNames(getUserID(), viewState);
+  let modelNames = await getModelNames(getUserID());
   let model: ModelData | undefined = undefined;
   // log(`got ${modelNames.length} modelNames`);
 
@@ -315,7 +298,7 @@ async function getModel(viewState: ViewSettings): Promise<{
       modelName = modelNames.sort((a, b) => lessThan(a, b))[0];
       // log(`switch to a different modelName ${modelName}`);
 
-      const modelAndStatus = await loadModel(getUserID(), modelName, viewState);
+      const modelAndStatus = await loadModel(getUserID(), modelName);
       if (modelAndStatus === undefined) {
         const response = 'problem with model data';
         showAlert(response);
@@ -330,7 +313,7 @@ async function getModel(viewState: ViewSettings): Promise<{
           return await saveModelLSM(
             getUserID(),
             x.name,
-            makeModelFromJSON(x.model, reactAppComponent.state.viewState),
+            makeModelFromJSON(x.model),
           );
         }),
       );
@@ -338,7 +321,7 @@ async function getModel(viewState: ViewSettings): Promise<{
         return x.name;
       });
       modelName = myFirstModelName;
-      model = getMyFirstModel(reactAppComponent.state.viewState);
+      model = getMyFirstModel();
     }
   } else {
     // log(`modelNames are ${modelNames}`);
@@ -346,7 +329,7 @@ async function getModel(viewState: ViewSettings): Promise<{
     let gotModelOK = true;
     try {
       // log(`look for ${modelName} from ${modelNames}`);
-      const modelAndStatus = await loadModel(getUserID(), modelName, reactAppComponent.state.viewState);
+      const modelAndStatus = await loadModel(getUserID(), modelName);
       if (modelAndStatus) {
         isDirty = modelAndStatus.status.isDirty;
         model = modelAndStatus.model;
@@ -564,7 +547,7 @@ async function refreshDataInternal(
     model = reactAppComponent.state.modelData;
   } else {
     // log(`refresh the model - get the model and recalculate values`);
-    const x = await getModel(viewSettings);
+    const x = await getModel();
     if (x.model === undefined) {
       return;
     }
@@ -834,7 +817,6 @@ export async function refreshData(
       reactAppComponent.state.modelData,
       helper,
       showAlert,
-      viewSettings,
     );
     reactAppComponent.setState({
       optimizationChartData: cd,
@@ -919,7 +901,6 @@ export function getReportKey(): ReportMatcher {
 async function submitAsset(
   assetInput: Asset,
   modelData: ModelData,
-  viewState: ViewSettings,
 ): Promise<void> {
   const outcome = await submitAssetLSM(
     assetInput,
@@ -927,7 +908,6 @@ async function submitAsset(
     modelData,
     reactAppComponent.options.checkModelOnEdit,
     getUserID(),
-    viewState,
   );
   if (outcome.message === '') {
     return await refreshData(
@@ -942,7 +922,6 @@ async function submitAsset(
 async function submitExpense(
   expenseInput: Expense,
   modelData: ModelData,
-  viewState: ViewSettings,
 ): Promise<void> {
   const outcome = await submitExpenseLSM(
     expenseInput,
@@ -950,7 +929,6 @@ async function submitExpense(
     modelData,
     reactAppComponent.options.checkModelOnEdit,
     getUserID(),
-    viewState,
   );
   if (outcome.message === '') {
     return await refreshData(
@@ -965,7 +943,6 @@ async function submitExpense(
 async function submitIncome(
   incomeInput: Income,
   modelData: ModelData,
-  viewState: ViewSettings,
 ): Promise<boolean> {
   const message = await submitIncomeLSM(
     incomeInput,
@@ -973,7 +950,6 @@ async function submitIncome(
     modelData,
     reactAppComponent.options.checkModelOnEdit,
     getUserID(),
-    viewState,
   );
   if (message.message === '') {
     await refreshData(
@@ -990,7 +966,6 @@ async function submitIncome(
 async function submitTransaction(
   transactionInput: Transaction,
   modelData: ModelData,
-  viewState: ViewSettings,
 ): Promise<void> {
   const outcome = await submitTransactionLSM(
     transactionInput,
@@ -998,7 +973,6 @@ async function submitTransaction(
     modelData,
     reactAppComponent.options.checkModelOnEdit,
     getUserID(),
-    viewState,
   );
   if (outcome.message === '') {
     return await refreshData(
@@ -1013,7 +987,6 @@ async function submitTransaction(
 async function submitTrigger(
   triggerInput: Trigger,
   modelData: ModelData,
-  viewState: ViewSettings,
 ): Promise<void> {
   const outcome = await submitTriggerLSM(
     triggerInput,
@@ -1021,7 +994,6 @@ async function submitTrigger(
     modelData,
     reactAppComponent.options.checkModelOnEdit,
     getUserID(),
-    viewState,
   );
   if (outcome.message === '') {
     return await refreshData(
@@ -1043,7 +1015,6 @@ export async function editSetting(
     HINT: string;
   },
   modelData: ModelData,
-  viewState: ViewSettings,
 ): Promise<void> {
   if (
     setViewSetting({
@@ -1070,7 +1041,6 @@ export async function editSetting(
     modelData,
     reactAppComponent.options.checkModelOnEdit,
     getUserID(),
-    viewState,
   );
   if (outcome.message === '') {
     return await refreshData(
@@ -1086,29 +1056,19 @@ export async function editSetting(
 export async function submitNewSetting(
   setting: Setting,
   modelData: ModelData,
-  viewSettings: ViewSettings,
 ): Promise<void> {
-  if (viewSettings.migrateViewSettingString(setting.NAME, setting.VALUE)) {
-    return await refreshData(
-      false, // refreshModel
-      true, // refreshChart
-      9, //sourceID
-    );
-  } else {
-    await submitNewSettingLSM(
-      setting,
-      modelName,
-      modelData,
-      reactAppComponent.options.checkModelOnEdit,
-      getUserID(),
-      viewSettings,
-    );
-    return await refreshData(
-      true, // refreshModel
-      true, // refreshChart
-      10, //sourceID
-    );
-  }
+  await submitNewSettingLSM(
+    setting,
+    modelName,
+    modelData,
+    reactAppComponent.options.checkModelOnEdit,
+    getUserID(),
+  );
+  return await refreshData(
+    true, // refreshModel
+    true, // refreshChart
+    10, //sourceID
+  );
 }
 
 export function toggle(
@@ -1246,9 +1206,8 @@ export async function setEraInModel(
   itemList: Item[],
   modelName: string,
   model: ModelData,
-  viewSettings: ViewSettings,
 ): Promise<boolean> {
-  markForUndo(model, viewSettings);
+  markForUndo(model);
   let missingItem: string | undefined = undefined;
   const idx = itemList.findIndex((i: Item) => {
     return i.NAME === name;
@@ -1296,7 +1255,6 @@ async function deleteItemsFromModel(
   doChecks: boolean,
   allowRecursion: boolean,
   showAlert: (message: string) => void,
-  viewState: ViewSettings,
 ): Promise<boolean> {
   const response = await deleteItemsFromModelInternal(
     names,
@@ -1310,13 +1268,11 @@ async function deleteItemsFromModel(
         return refreshData(a, b, c);
       }
     },
-    viewState,
   );
   return response.message === '';
 }
 async function deleteTrigger(
   name: string,
-  viewState: ViewSettings,
 ): Promise<DeleteResult> {
   return deleteItemsFromModelInternal(
     [name],
@@ -1329,13 +1285,11 @@ async function deleteTrigger(
     async (a, b, c)=>{ if(reactAppComponent){
       return refreshData(a, b, c);
     }},
-    viewState,    
   );
 }
 
 async function deleteAsset(
   name: string,
-  viewState: ViewSettings,
 ): Promise<DeleteResult> {
   return deleteItemsFromModelInternal(
     [name],
@@ -1348,13 +1302,11 @@ async function deleteAsset(
     async (a, b, c)=>{ if(reactAppComponent){
       return refreshData(a, b, c);
     }},
-    viewState,
   );
 }
 
 async function deleteTransaction(
   name: string,
-  viewState: ViewSettings,
 ): Promise<DeleteResult> {
   return deleteItemsFromModelInternal(
     [name],
@@ -1367,13 +1319,11 @@ async function deleteTransaction(
     async (a, b, c)=>{ if(reactAppComponent){
       return refreshData(a, b, c);
     }},
-    viewState,
   );
 }
 
 async function deleteExpense(
   name: string,
-  viewState: ViewSettings,
 ): Promise<DeleteResult> {
   return deleteItemsFromModelInternal(
     [name],
@@ -1386,13 +1336,11 @@ async function deleteExpense(
     async (a, b, c)=>{ if(reactAppComponent){
       return refreshData(a, b, c);
     }},
-    viewState,
   );
 }
 
 async function deleteIncome(
   name: string,
-  viewState: ViewSettings,
 ): Promise<DeleteResult> {
   return deleteItemsFromModelInternal(
     [name],
@@ -1405,13 +1353,11 @@ async function deleteIncome(
     async (a, b, c)=>{ if(reactAppComponent){
       return refreshData(a, b, c);
     }},
-    viewState,
   );
 }
 
 async function deleteSetting(
   name: string,
-  viewState: ViewSettings,
 ): Promise<DeleteResult> {
   return deleteItemsFromModelInternal(
     [name],
@@ -1424,7 +1370,6 @@ async function deleteSetting(
     async (a, b, c)=>{ if(reactAppComponent){
       return refreshData(a, b, c);
     }},
-    viewState,
   );
 }
 function okToContinue(newEraValue: number): boolean {
@@ -1487,7 +1432,6 @@ async function setEraTrigger(
       reactAppComponent.state.modelData.triggers,
       modelName,
       reactAppComponent.state.modelData,
-      reactAppComponent.state.viewState,
     );
   } else {
     return false;
@@ -1504,7 +1448,6 @@ async function setEraAsset(
       reactAppComponent.state.modelData.assets,
       modelName,
       reactAppComponent.state.modelData,
-      reactAppComponent.state.viewState,
     );
   } else {
     return false;
@@ -1521,7 +1464,6 @@ async function setEraTransaction(
       reactAppComponent.state.modelData.transactions,
       modelName,
       reactAppComponent.state.modelData,
-      reactAppComponent.state.viewState,
     );
   } else {
     return false;
@@ -1538,7 +1480,6 @@ async function setEraExpense(
       reactAppComponent.state.modelData.expenses,
       modelName,
       reactAppComponent.state.modelData,
-      reactAppComponent.state.viewState,
     );
   } else {
     return false;
@@ -1555,7 +1496,6 @@ async function setEraIncome(
       reactAppComponent.state.modelData.incomes,
       modelName,
       reactAppComponent.state.modelData,
-      reactAppComponent.state.viewState,
     );
   } else {
     return false;
@@ -1572,7 +1512,6 @@ async function setEraSetting(
       reactAppComponent.state.modelData.settings,
       modelName,
       reactAppComponent.state.modelData,
-      reactAppComponent.state.viewState,
     );
   } else {
     return false;
@@ -1991,7 +1930,7 @@ export class AppContent extends Component<AppProps, AppState> {
         });
         if (s !== undefined) {
           s.VALUE = newDate;
-          submitNewSetting(s, this.state.modelData, this.state.viewState);
+          submitNewSetting(s, this.state.modelData);
         }
       };
       const deleteTransactions = (arg: string[]) => {
@@ -2004,7 +1943,6 @@ export class AppContent extends Component<AppProps, AppState> {
           true,
           true,
           showAlert,
-          this.state.viewState
         );
       };
       const deleteExpenses = (arg: string[]) => {
@@ -2017,7 +1955,6 @@ export class AppContent extends Component<AppProps, AppState> {
           true,
           true,
           showAlert,
-          this.state.viewState,
         );
       };
 
@@ -2105,7 +2042,6 @@ export class AppContent extends Component<AppProps, AppState> {
           {this.navbarDiv(this.state.isWaiting, getDisplayedView())}
           <>
             {this.homeDiv(
-              this.state.viewState,
             )}
             {overviewDiv(
               this.state.modelData,
@@ -2127,7 +2063,6 @@ export class AppContent extends Component<AppProps, AppState> {
               this.state.modelData,
               this.state.todaysSettingValues,
               parentCallbacks,
-              this.state.viewState,
             )}
             {incomesDiv(
               this.state.modelData,
@@ -2166,7 +2101,6 @@ export class AppContent extends Component<AppProps, AppState> {
             )}
             {this.transactionsDiv(
               parentCallbacks, 
-              this.state.viewState,
             )}
             {taxDiv(
               this.state.modelData,
@@ -2196,7 +2130,6 @@ export class AppContent extends Component<AppProps, AppState> {
               this.state.optimizationChartData,
               parentCallbacks,
               'optimizer',
-              this.state.viewState,
             )}{' '}
           </>
         </>
@@ -2339,7 +2272,7 @@ export class AppContent extends Component<AppProps, AppState> {
       if (modelNames.length === 0) {
         showAlert('no data left: recreating a blank model');
         modelName = myFirstModelName;
-        const model = getMyFirstModel(this.state.viewState);
+        const model = getMyFirstModel();
         await saveModelLSM(getUserID(), modelName, model);
       } else {
         modelName = modelNames[0];
@@ -2361,7 +2294,7 @@ export class AppContent extends Component<AppProps, AppState> {
     if (otherModelName === null) {
       return;
     }
-    const otherModelAndStatus = await loadModel(getUserID(), otherModelName, reactAppComponent.state.viewState);
+    const otherModelAndStatus = await loadModel(getUserID(), otherModelName);
     if (otherModelAndStatus === undefined) {
       const response = `Can't load a model named ${otherModelName}`;
       showAlert(response);
@@ -2400,7 +2333,7 @@ export class AppContent extends Component<AppProps, AppState> {
     const currentData = JSON.stringify(fromModel);
     const updatedOK = await updateModelName(name);
     if (updatedOK) {
-      const newModel = makeModelFromJSON(currentData, reactAppComponent.state.viewState, name);
+      const newModel = makeModelFromJSON(currentData, name);
       const replacedOK = await replaceWithModel(
         undefined,
         modelName,
@@ -2457,10 +2390,10 @@ export class AppContent extends Component<AppProps, AppState> {
           cloneModel={this.cloneModel}
           exampleModels={exampleModels}
           getExampleModel={(s) => {
-            return makeModelFromJSON(s, reactAppComponent.state.viewState);
+            return makeModelFromJSON(s);
           }}
           getModelNames={(userID: string)=>{
-            return getModelNames(userID, reactAppComponent.state.viewState);
+            return getModelNames(userID);
           }}
         />
         <div className="btn-group ml-3" role="group">
@@ -2509,7 +2442,6 @@ export class AppContent extends Component<AppProps, AppState> {
             async () => {
               const response = standardiseDates(
                 reactAppComponent.state.modelData,
-                reactAppComponent.state.viewState,
               );
               // log(`setState for check result alert`);
               reactAppComponent.setState({
@@ -2573,7 +2505,6 @@ export class AppContent extends Component<AppProps, AppState> {
                 } else {
                   const decipheredModel = makeModelFromJSON(
                     decipherString,
-                    reactAppComponent.state.viewState,
                     'validatingModel',
                   );
                   const response = checkModelData(
@@ -2608,14 +2539,12 @@ export class AppContent extends Component<AppProps, AppState> {
           showCurrent={showCurrent}
           showFuture={showFuture}
           replaceWithModel={replaceWithModel}
-          viewState={reactAppComponent.state.viewState}
         />
       </>
     );
   }
 
   private homeDiv(
-    viewState: ViewSettings,
   ): JSX.Element {
     // log(`this.state.modelNamesData = ${this.state.modelNamesData}`);
     if (!getDisplay(homeView)) {
@@ -2644,7 +2573,6 @@ export class AppContent extends Component<AppProps, AppState> {
     model: ModelData,
     todaysValues: Map<Setting, SettingVal>,
     parentCallbacks: ViewCallbacks,
-    viewState: ViewSettings,
   ): JSX.Element {
     if (!getDisplay(settingsView)) {
       // log(`don't populate settingsView`);
@@ -2660,7 +2588,6 @@ export class AppContent extends Component<AppProps, AppState> {
             this.options.checkModelOnEdit,
             parentCallbacks,
             '',
-            viewState,
           )}
           <p />
 
@@ -2672,10 +2599,8 @@ export class AppContent extends Component<AppProps, AppState> {
                 submitTransactionFunction={submitTransaction}
                 submitTriggerFunction={submitTrigger}
                 model={this.state.modelData}
-                viewSettings={this.state.viewState}
                 showAlert={showAlert}
                 doCheckBeforeOverwritingExistingData={doCheckBeforeOverwritingExistingData}
-                viewState={reactAppComponent.state.viewState}
               />
               {/*
             // adding this wierdly makes tooltips work!
@@ -2709,7 +2634,6 @@ export class AppContent extends Component<AppProps, AppState> {
           this.options.checkModelOnEdit,
           parentCallbacks,
           '',
-          reactAppComponent.state.viewState
         )}
         <p />
         {collapsibleFragment(
@@ -2721,7 +2645,6 @@ export class AppContent extends Component<AppProps, AppState> {
               model={this.state.modelData}
               showAlert={showAlert}
               doCheckBeforeOverwritingExistingData={doCheckBeforeOverwritingExistingData}
-              viewState={reactAppComponent.state.viewState}
               />
           </div>,
           `Add an important date`,
@@ -2732,7 +2655,6 @@ export class AppContent extends Component<AppProps, AppState> {
 
   private transactionsDiv(
     parentCallbacks: ViewCallbacks,
-    viewState: ViewSettings,
   ): JSX.Element {
     if (!getDisplay(transactionsView)) {
       // log(`don't populate transactionsView`);
@@ -2749,7 +2671,6 @@ export class AppContent extends Component<AppProps, AppState> {
           'Custom transactions',
           parentCallbacks,
           'customTransactions',
-          viewState,
         )}
         {transactionFilteredTable(
           this.state.modelData,
@@ -2758,7 +2679,6 @@ export class AppContent extends Component<AppProps, AppState> {
           'Auto-generated transactions',
           parentCallbacks,
           'autogenTransactions',
-          viewState,
         )}
         {transactionFilteredTable(
           this.state.modelData,
@@ -2767,7 +2687,6 @@ export class AppContent extends Component<AppProps, AppState> {
           'Bond transactions',
           parentCallbacks,
           'bondTransactions',
-          viewState,
         )}
         <p />
         <div className="addNewTransaction">
@@ -2786,7 +2705,6 @@ export class AppContent extends Component<AppProps, AppState> {
             model={this.state.modelData}
             showAlert={parentCallbacks.showAlert}
             doCheckBeforeOverwritingExistingData={doCheckBeforeOverwritingExistingData}
-            viewState={reactAppComponent.state.viewState}
             />
         </div>
       </div>

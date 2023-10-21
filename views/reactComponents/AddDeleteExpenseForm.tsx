@@ -24,7 +24,6 @@ import {
 } from '../../utils/stringUtils';
 import Spacer from 'react-spacer';
 import { getVarVal, isNumberString } from '../../models/modelQueries';
-import { ViewSettings } from '../../utils/viewUtils';
 
 interface EditExpenseFormState {
   NAME: string;
@@ -46,22 +45,18 @@ interface EditExpenseProps extends FormProps {
   submitFunction: (
     expenseInput: Expense, 
     modelData: ModelData,
-    viewState: ViewSettings,
   ) => Promise<any>;
   deleteFunction: (
     name: string,
-    viewState: ViewSettings,
   ) => Promise<DeleteResult>;
   submitTriggerFunction: (
     triggerInput: Trigger,
     modelData: ModelData,
-    viewState: ViewSettings,
   ) => Promise<void>;
   checkTransactionFunction: (t: Transaction, model: ModelData) => string;
   submitTransactionFunction: (
     transactionInput: Transaction,
     modelData: ModelData,
-    viewState: ViewSettings,
   ) => Promise<void>;
   doCheckBeforeOverwritingExistingData: () => boolean;
 }
@@ -174,7 +169,6 @@ export class AddDeleteExpenseForm extends Component<
           onChangeHandler={this.handleStartChange}
           triggers={this.props.model.triggers}
           submitTriggerFunction={this.props.submitTriggerFunction}
-          viewState={this.props.viewState}
         />
         <DateSelectionRow
           introLabel="Date on which the expense ends"
@@ -186,7 +180,6 @@ export class AddDeleteExpenseForm extends Component<
           onChangeHandler={this.handleEndChange}
           triggers={this.props.model.triggers}
           submitTriggerFunction={this.props.submitTriggerFunction}
-          viewState={this.props.viewState}
         />
       </>
     );
@@ -262,7 +255,6 @@ export class AddDeleteExpenseForm extends Component<
               onChangeHandler={this.handleValueSetChange}
               triggers={this.props.model.triggers}
               submitTriggerFunction={this.props.submitTriggerFunction}
-              viewState={this.props.viewState}
             />
             {this.twoExtraDates()}
           </div>
@@ -415,7 +407,6 @@ export class AddDeleteExpenseForm extends Component<
     await this.props.submitTransactionFunction(
       revalueExpenseTransaction,
       this.props.model,
-      this.props.viewState,
     );
 
     this.props.showAlert('added new data');
@@ -504,7 +495,7 @@ export class AddDeleteExpenseForm extends Component<
     if (message.length > 0) {
       this.props.showAlert(message);
     } else {
-      await this.props.submitFunction(expense, this.props.model, this.props.viewState);
+      await this.props.submitFunction(expense, this.props.model);
       this.props.showAlert('added new expense');
       // clear fields
       this.setState(this.defaultState);
@@ -513,7 +504,7 @@ export class AddDeleteExpenseForm extends Component<
   private async delete(e: React.ChangeEvent<HTMLInputElement>) {
     e.preventDefault();
     // log('deleting something ' + showObj(this));
-    const deleteResult = await this.props.deleteFunction(this.state.NAME, this.props.viewState);
+    const deleteResult = await this.props.deleteFunction(this.state.NAME);
     if (deleteResult.message === '') {
       if (deleteResult.itemsDeleted.length === 1) {
         this.props.showAlert('deleted expense');

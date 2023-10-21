@@ -16,7 +16,6 @@ import {
 } from '../../localization/stringConstants';
 import { makeModelFromJSON } from '../../models/modelFromJSON';
 import { ModelData } from '../../types/interfaces';
-import { ViewSettings } from '../../utils/viewUtils';
 
 interface ReplaceWithJSONFormState {
   JSON: string;
@@ -46,7 +45,6 @@ interface ReplaceWithJSONFormProps {
     newModel: ModelData,
     confirmBeforeReplace: boolean,
   ) => Promise<boolean>;
-  viewState: ViewSettings;
 }
 
 export class ReplaceWithJSONForm extends Component<
@@ -288,7 +286,7 @@ export class ReplaceWithJSONForm extends Component<
         `will replace ${modelName} which already exists, you sure?`,
       )
     ) {
-      const newModel = makeModelFromJSON(JSON, this.props.viewState, modelName); // replaces name in JSON
+      const newModel = makeModelFromJSON(JSON, modelName); // replaces name in JSON
       this.props.replaceWithModel(this.props.userID, modelName, newModel, false);
       this.props.showAlert('replaced data OK');
       this.setState({ JSON: '' });

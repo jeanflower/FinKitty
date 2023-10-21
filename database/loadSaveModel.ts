@@ -24,7 +24,6 @@ import {
 } from '../models/modelUtils';
 import { minimalModel } from '../models/minimalModel';
 import { makeModelFromJSON } from '../models/modelFromJSON';
-import { ViewSettings } from '../utils/viewUtils';
 
 const showDBInteraction = false;
 
@@ -68,7 +67,6 @@ async function getModelNamesDB(userID: string) {
 async function loadModelFromDB(
   userID: string,
   modelName: string,
-  viewState: ViewSettings,
 ): Promise<ModelData | undefined> {
   /* istanbul ignore if  */
   if (showDBInteraction) {
@@ -76,14 +74,14 @@ async function loadModelFromDB(
   }
   let model: ModelData | undefined;
   try {
-    model = await getDB().loadModel(userID, modelName, viewState);
+    model = await getDB().loadModel(userID, modelName);
   } catch (err) {
     /* istanbul ignore next */
     alert(
       `Cannot load ${modelName}; err = ${err} - will create a simple model instead`,
     );
     /* istanbul ignore next */
-    model = makeModelFromJSON(simpleExampleData, viewState, modelName);
+    model = makeModelFromJSON(simpleExampleData, modelName);
   }
   /* istanbul ignore if  */
   if (showDBInteraction) {
@@ -113,7 +111,6 @@ function logCache() {
 
 async function fillCacheFromDB(
   userID: string,
-  viewState: ViewSettings,
 ) {
   const cachedModels: CacheModel[] = [];
   const modelNames = await getModelNamesDB(userID);
@@ -126,7 +123,7 @@ async function fillCacheFromDB(
     if (showDBInteraction) {
       log(`get this model ${modelName}`);
     }
-    const model = await loadModelFromDB(userID, modelName, viewState);
+    const model = await loadModelFromDB(userID, modelName);
     if (model !== undefined) {
       /* istanbul ignore if  */
       if (showDBInteraction) {
@@ -167,11 +164,10 @@ async function fillCacheFromDB(
 
 export async function getModelNames(
   userID: string,
-  viewState: ViewSettings,
 ) {
   let cachedModels = localCache.get(userID);
   if (!cachedModels) {
-    cachedModels = await fillCacheFromDB(userID, viewState);
+    cachedModels = await fillCacheFromDB(userID);
   }
   return cachedModels.map((cm) => {
     return cm.modelName;
@@ -181,7 +177,6 @@ export async function getModelNames(
 export async function loadModel(
   userID: string,
   modelName: string,
-  viewState: ViewSettings,
   validateCache = false,
 ) {
   /* istanbul ignore if  */
@@ -193,7 +188,7 @@ export async function loadModel(
     if (showDBInteraction) {
       log(`no data yet - go to fill cache`);
     }
-    await fillCacheFromDB(userID, viewState);
+    await fillCacheFromDB(userID);
   }
 
   /* istanbul ignore if  */
@@ -213,7 +208,7 @@ export async function loadModel(
       log(`from cache load model ${modelName} for user ${userID}`);
     }
     if (validateCache && !cachedModel.status.isDirty) {
-      const dbModel = await loadModelFromDB(userID, modelName, viewState);
+      const dbModel = await loadModelFromDB(userID, modelName);
       if (dbModel === undefined) {
         /* istanbul ignore next */
         throw new Error(`DBValidation error: cache has clean model 
@@ -345,9 +340,8 @@ async function submitItemLSM(
   modelData: ModelData,
   doChecks: boolean,
   userID: string,
-  viewState: ViewSettings,
 ): Promise<CheckResult> {
-  markForUndo(modelData, viewState);
+  markForUndo(modelData);
   updateItemList(itemList, inputItem);
 
   if (doChecks) {
@@ -372,7 +366,6 @@ export async function submitExpenseLSM(
   modelData: ModelData,
   doChecks: boolean,
   userID: string,
-  viewState: ViewSettings,
 ): Promise<CheckResult> {
   /* istanbul ignore if  */
   if (printDebug()) {
@@ -385,7 +378,6 @@ export async function submitExpenseLSM(
     modelData,
     doChecks,
     userID,
-    viewState,
   );
 }
 
@@ -395,7 +387,6 @@ export async function submitIncomeLSM(
   modelData: ModelData,
   doChecks: boolean,
   userID: string,
-  viewState: ViewSettings,
 ): Promise<CheckResult> {
   /* istanbul ignore if  */
   if (printDebug()) {
@@ -408,7 +399,6 @@ export async function submitIncomeLSM(
     modelData,
     doChecks,
     userID,
-    viewState,
   );
 }
 
@@ -418,7 +408,6 @@ export async function submitTriggerLSM(
   modelData: ModelData,
   doChecks: boolean,
   userID: string,
-  viewState: ViewSettings,
 ) {
   /* istanbul ignore if  */
   if (printDebug()) {
@@ -431,7 +420,6 @@ export async function submitTriggerLSM(
     modelData,
     doChecks,
     userID,
-    viewState,
   );
 }
 
@@ -441,7 +429,6 @@ export async function submitAssetLSM(
   modelData: ModelData,
   doChecks: boolean,
   userID: string, 
-  viewState: ViewSettings,
 ): Promise<CheckResult> {
   /* istanbul ignore if  */
   if (printDebug()) {
@@ -454,7 +441,6 @@ export async function submitAssetLSM(
     modelData,
     doChecks,
     userID,
-    viewState,
   );
 }
 
@@ -464,7 +450,6 @@ export async function submitTransactionLSM(
   modelData: ModelData,
   doChecks: boolean,
   userID: string,
-  viewState: ViewSettings,
 ) {
   /* istanbul ignore if  */
   if (printDebug()) {
@@ -477,7 +462,6 @@ export async function submitTransactionLSM(
     modelData,
     doChecks,
     userID,
-    viewState,
   );
 }
 
@@ -515,7 +499,6 @@ export async function submitSettingLSM(
   modelData: ModelData,
   doChecks: boolean,
   userID: string,
-  viewState: ViewSettings,
 ) {
   /* istanbul ignore if  */
   if (printDebug()) {
@@ -539,7 +522,6 @@ export async function submitSettingLSM(
     modelData,
     doChecks,
     userID,
-    viewState,
   );
 }
 
@@ -549,7 +531,6 @@ export async function submitNewSettingLSM(
   modelData: ModelData,
   doChecks: boolean,
   userID: string,
-  viewState: ViewSettings,
 ) {
   let type = adjustableType;
   const matchingSettings = modelData.settings.filter((s) => {
@@ -571,7 +552,6 @@ export async function submitNewSettingLSM(
     modelData,
     doChecks,
     userID,
-    viewState,    
   );
 }
 

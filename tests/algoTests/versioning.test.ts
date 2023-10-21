@@ -477,23 +477,20 @@ describe('loadModelsFromJSON', () => {
   it('cleanedModel', () => {
     const jsonString = emptyModelJSON;
     suppressLogs();
-    const viewSettings = defaultTestViewSettings();
-    const model = makeModelFromJSON(jsonString, viewSettings, 'versionTests');
+    const model = makeModelFromJSON(jsonString, 'versionTests');
     unSuppressLogs();
     expect(model.assets.length).toBe(1);
   });
   it('migrateModelMustHaveCash', () => {
     const jsonString = emptyModelJSON;
-    const viewSettings = defaultTestViewSettings();
-    const model = makeModelFromJSON(jsonString, viewSettings, 'versionTests');
+    const model = makeModelFromJSON(jsonString, 'versionTests');
     expect(model.assets.length).toBe(1);
     expect(model.assets[0].NAME).toEqual(CASH_ASSET_NAME);
   });
   it('migrateFromV0', () => {
     const jsonString = emptyModelJSON;
     suppressLogs();
-    const viewSettings = defaultTestViewSettings();
-    const plainModel = makeModelFromJSONString(jsonString, viewSettings);
+    const plainModel = makeModelFromJSONString(jsonString);
     unSuppressLogs();
     plainModel.version = 0;
     plainModel.assets.push({
@@ -511,7 +508,7 @@ describe('loadModelsFromJSON', () => {
       QUANTITY: '',
     });
     suppressLogs();
-    const model = makeModelFromJSON(JSON.stringify(plainModel), viewSettings);
+    const model = makeModelFromJSON(JSON.stringify(plainModel));
     unSuppressLogs();
 
     // log(`model = ${JSON.stringify(model)}`);
@@ -522,9 +519,8 @@ describe('loadModelsFromJSON', () => {
   it('migrateFromV1', () => {
     const jsonString = v1ModelJSON;
     suppressLogs();
-    const viewSettings = defaultTestViewSettings();
-    const plainModel = makeModelFromJSONString(jsonString, viewSettings);
-    const model = makeModelFromJSON(jsonString, viewSettings, 'versionTests');
+    const plainModel = makeModelFromJSONString(jsonString);
+    const model = makeModelFromJSON(jsonString, 'versionTests');
     unSuppressLogs();
 
     // will include expense recurrence, asset/debt,
@@ -554,8 +550,7 @@ describe('loadModelsFromJSON', () => {
   it('migrateFromV2', () => {
     const jsonString = v2ModelJSON;
     suppressLogs();
-    const viewSettings = defaultTestViewSettings();
-    const model = makeModelFromJSON(jsonString, viewSettings, 'versionTests');
+    const model = makeModelFromJSON(jsonString, 'versionTests');
     unSuppressLogs();
     const index = model.assets.find((a) => {
       return a.NAME === taxPot;
@@ -566,8 +561,7 @@ describe('loadModelsFromJSON', () => {
   it('migrateFromV3', () => {
     const jsonString = v3ModelJSON;
     suppressLogs();
-    const viewSettings = defaultTestViewSettings();
-    const model = makeModelFromJSON(jsonString, viewSettings, 'versionTests');
+    const model = makeModelFromJSON(jsonString, 'versionTests');
     unSuppressLogs();
     // from v3 to v4 we added tax view settings
     // but fromv4 to v5 we lost those settings again
@@ -579,8 +573,7 @@ describe('loadModelsFromJSON', () => {
   it('migrateFromV4', () => {
     const jsonString = v4ModelJSON;
     suppressLogs();
-    const viewSettings = defaultTestViewSettings();
-    const model = makeModelFromJSON(jsonString, viewSettings, 'versionTests');
+    const model = makeModelFromJSON(jsonString, 'versionTests');
     unSuppressLogs();
     // after loading, the view settings have been added
     expect(
@@ -592,8 +585,7 @@ describe('loadModelsFromJSON', () => {
   it('migrateFromV5', () => {
     const jsonString = v5ModelJSON;
     suppressLogs();
-    const viewSettings = defaultTestViewSettings();
-    const model = makeModelFromJSON(jsonString, viewSettings, 'versionTests');
+    const model = makeModelFromJSON(jsonString, 'versionTests');
     unSuppressLogs();
     const outcome = checkData(model);
     if (outcome.message.length > 0) {
@@ -605,8 +597,7 @@ describe('loadModelsFromJSON', () => {
   it('migrateFromV6', () => {
     const jsonString = v6ModelJSON;
     suppressLogs();
-    const viewSettings = defaultTestViewSettings();
-    const model = makeModelFromJSON(jsonString, viewSettings, 'versionTests');
+    const model = makeModelFromJSON(jsonString, 'versionTests');
     unSuppressLogs();
     const outcome = checkData(model);
     if (outcome.message.length > 0) {
@@ -618,8 +609,7 @@ describe('loadModelsFromJSON', () => {
   it('migrateFromV7', () => {
     const jsonString = v7ModelJSON;
     suppressLogs();
-    const viewSettings = defaultTestViewSettings();
-    const model = makeModelFromJSON(jsonString, viewSettings, 'versionTests');
+    const model = makeModelFromJSON(jsonString, 'versionTests');
     unSuppressLogs();
     const outcome = checkData(model);
     if (outcome.message.length > 0) {
@@ -631,8 +621,7 @@ describe('loadModelsFromJSON', () => {
   it('migrateFromV8', () => {
     const jsonString = v8ModelJSON;
     suppressLogs();
-    const viewSettings = defaultTestViewSettings();
-    const model = makeModelFromJSON(jsonString, viewSettings, 'versionTests');
+    const model = makeModelFromJSON(jsonString, 'versionTests');
     unSuppressLogs();
     const outcome = checkData(model);
     if (outcome.message.length > 0) {
@@ -643,8 +632,7 @@ describe('loadModelsFromJSON', () => {
 
   it('migrateFromV9', () => {
     const jsonString = v9ModelJSON;
-    const viewSettings = defaultTestViewSettings();
-    const model = makeModelFromJSON(jsonString, viewSettings);
+    const model = makeModelFromJSON(jsonString);
     // log(`model = ${showObj(model)}`);
     expect(model.transactions[0].NAME).toBe('Revalue Cash 01');
     expect(model.transactions[1].NAME).toBe('Revalue TeachingJob 01');
@@ -654,8 +642,7 @@ describe('loadModelsFromJSON', () => {
   it('migrateFromV10', () => {
     const jsonString = v10ModelJSON;
     suppressLogs();
-    const viewSettings = defaultTestViewSettings();
-    const model = makeModelFromJSON(jsonString, viewSettings, 'versionTests');
+    const model = makeModelFromJSON(jsonString, 'versionTests');
     unSuppressLogs();
     const outcome = checkData(model);
     if (outcome.message.length > 0) {
@@ -668,8 +655,7 @@ describe('loadModelsFromJSON', () => {
   it('migrateFromV11', () => {
     const jsonString = v11ModelJSON;
     suppressLogs();
-    const viewSettings = defaultTestViewSettings();
-    const model = makeModelFromJSON(jsonString, viewSettings, 'versionTests');
+    const model = makeModelFromJSON(jsonString, 'versionTests');
     unSuppressLogs();
     const outcome = checkData(model);
     if (outcome.message.length > 0) {
@@ -683,8 +669,7 @@ describe('loadModelsFromJSON', () => {
     const jsonString = v12ModelJSON;
     let foundError = 'no error thrown in migrateFromV12';
     try {
-      const viewSettings = defaultTestViewSettings();
-      makeModelFromJSON(jsonString, viewSettings);
+      makeModelFromJSON(jsonString);
     } catch (e) {
       if ((e as Error).message) {
         foundError = (e as Error).message;
@@ -696,9 +681,8 @@ describe('loadModelsFromJSON', () => {
   });
 
   it('check TestModel01', () => {
-    const viewSettings = defaultTestViewSettings();
-    const model0 = makeModelFromJSONString('{ "testName": "TestModel01" }', viewSettings);
-    const model = getTestModel(TestModel01, viewSettings);
+    const model0 = makeModelFromJSONString('{ "testName": "TestModel01" }');
+    const model = getTestModel(TestModel01);
     expect(diffModels(model, model0, false, 'model', 'model0')).toEqual([
       'TransferMortgage: date Jan 01 2028 !== 01 Jan 2028',
       'StopMainWork: date Dec 31 2050 !== 31 Dec 2050',
@@ -722,57 +706,52 @@ describe('loadModelsFromJSON', () => {
       'End of view range: value 1 Feb 2019 !== 01 Feb 2019',
     ]);
 
-    const outcome = checkData(makeModelFromJSON(JSON.stringify(model), viewSettings));
+    const outcome = checkData(makeModelFromJSON(JSON.stringify(model)));
     if (outcome.message.length > 0) {
       log(`outcome.message = ${outcome.message}`);
     }
     expect(outcome.message.length).toEqual(0);
   });
   it('check TestModel02', () => {
-    const viewSettings = defaultTestViewSettings();
-    const model = getTestModel(TestModel02, viewSettings);
+    const model = getTestModel(TestModel02);
 
-    const outcome = checkData(makeModelFromJSON(JSON.stringify(model), viewSettings));
+    const outcome = checkData(makeModelFromJSON(JSON.stringify(model)));
     if (outcome.message.length > 0) {
       log(`outcome.message = ${outcome.message}`);
     }
     expect(outcome.message.length).toEqual(0);
   });
   it('check CoarseAndFine', () => {
-    const viewSettings = defaultTestViewSettings();
-    const model = getTestModel(CoarseAndFine, viewSettings);
+    const model = getTestModel(CoarseAndFine);
 
-    const outcome = checkData(makeModelFromJSON(JSON.stringify(model), viewSettings));
+    const outcome = checkData(makeModelFromJSON(JSON.stringify(model)));
     if (outcome.message.length > 0) {
       log(`outcome.message = ${outcome.message}`);
     }
     expect(outcome.message.length).toEqual(0);
   });
   it('check FutureExpense', () => {
-    const viewSettings = defaultTestViewSettings();
-    const model = getTestModel(FutureExpense, viewSettings);
+    const model = getTestModel(FutureExpense);
 
-    const outcome = checkData(makeModelFromJSON(JSON.stringify(model), viewSettings));
+    const outcome = checkData(makeModelFromJSON(JSON.stringify(model)));
     if (outcome.message.length > 0) {
       log(`outcome.message = ${outcome.message}`);
     }
     expect(outcome.message.length).toEqual(0);
   });
   it('check ThreeChryslerModel', () => {
-    const viewSettings = defaultTestViewSettings();
-    const model = getTestModel(ThreeChryslerModel, viewSettings);
+    const model = getTestModel(ThreeChryslerModel);
 
-    const outcome = checkData(makeModelFromJSON(JSON.stringify(model), viewSettings));
+    const outcome = checkData(makeModelFromJSON(JSON.stringify(model)));
     if (outcome.message.length > 0) {
       log(`outcome.message = ${outcome.message}`);
     }
     expect(outcome.message.length).toEqual(0);
   });
   it('check BenAndJerryModel', () => {
-    const viewSettings = defaultTestViewSettings();
-    const model = getTestModel(BenAndJerryModel, viewSettings);
+    const model = getTestModel(BenAndJerryModel);
 
-    const outcome = checkData(makeModelFromJSON(JSON.stringify(model), viewSettings));
+    const outcome = checkData(makeModelFromJSON(JSON.stringify(model)));
     if (outcome.message.length > 0) {
       log(`outcome.message = ${outcome.message}`);
     }

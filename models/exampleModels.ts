@@ -41,7 +41,6 @@ import {
 } from './modelUtils';
 import { getMinimalModelCopy } from './minimalModel';
 import { makeModelFromJSON, makeModelFromJSONString } from './modelFromJSON';
-import { ViewSettings } from '../utils/viewUtils';
 
 log;
 showObj;
@@ -577,12 +576,12 @@ export function getModelCoarseAndFineForMigration(): ModelData {
   return model;
 }
 
-export function getThreeChryslerModel(viewSettings: ViewSettings): ModelData {
+export function getThreeChryslerModel(): ModelData {
   const roi = {
     start: 'Dec 1, 2017 00:00:00',
     end: 'June 1, 2018 00:00:00',
   };
-  const minimalModel = getMinimalModelCopy(viewSettings);
+  const minimalModel = getMinimalModelCopy();
   const model: ModelData = {
     ...minimalModel,
     assets: [
@@ -633,12 +632,12 @@ export function getThreeChryslerModel(viewSettings: ViewSettings): ModelData {
   return model;
 }
 
-export function getThreeChryslerModelForMigration(viewSettings: ViewSettings): ModelData {
+export function getThreeChryslerModelForMigration(): ModelData {
   const roi = {
     start: 'Dec 1, 2017 00:00:00',
     end: 'June 1, 2018 00:00:00',
   };
-  const minimalModel = getMinimalModelCopy(viewSettings);
+  const minimalModel = getMinimalModelCopy();
   const model: ModelData = {
     ...minimalModel,
     assets: [
@@ -702,30 +701,30 @@ export function getThreeChryslerModelForMigration(viewSettings: ViewSettings): M
   return model;
 }
 
-export function getDefinedBenefitsPension(viewState: ViewSettings): ModelData {
-  return makeModelFromJSON(definedBenefitsPension, viewState, 'definedBenefitsPension');
+export function getDefinedBenefitsPension(): ModelData {
+  return makeModelFromJSON(definedBenefitsPension, 'definedBenefitsPension');
 }
 
-export function getDefinedContributionsPension(viewState: ViewSettings): ModelData {
+export function getDefinedContributionsPension(): ModelData {
   return makeModelFromJSON(
-    definedContributionsPension, viewState,
+    definedContributionsPension,
     'definedContributionsPension',
   );
 }
 
-export function getPensionExampleData(viewState: ViewSettings): ModelData {
-  return makeModelFromJSON(pensionExampleData, viewState, 'pensionExampleData');
+export function getPensionExampleData(): ModelData {
+  return makeModelFromJSON(pensionExampleData, 'pensionExampleData');
 }
 
-export function getVariableDateExampleData(viewState: ViewSettings): ModelData {
-  return makeModelFromJSON(variableDateExampleData, viewState, 'variableDateExample');
+export function getVariableDateExampleData(): ModelData {
+  return makeModelFromJSON(variableDateExampleData, 'variableDateExample');
 }
 
-export function getVariableDateExampleData2(viewState: ViewSettings): ModelData {
-  return makeModelFromJSON(variableDateExampleData2, viewState, 'variableDateExample2');
+export function getVariableDateExampleData2(): ModelData {
+  return makeModelFromJSON(variableDateExampleData2, 'variableDateExample2');
 }
 
-export function transactionFromUndefinedModel(viewState: ViewSettings): ModelData {
+export function transactionFromUndefinedModel(): ModelData {
   return makeModelFromJSONString(
     `{"name":"x",
 "triggers":[
@@ -756,11 +755,10 @@ export function transactionFromUndefinedModel(viewState: ViewSettings): ModelDat
 {"NAME":"Beginning of view range","VALUE":"1 Jan 2019","HINT":"Date at the start of range to be plotted","TYPE":"view"}],
 "version":10
 }`,
-viewState,
   );
 }
 
-export function transactionToUndefinedModel(viewState: ViewSettings): ModelData {
+export function transactionToUndefinedModel(): ModelData {
   return makeModelFromJSONString(
     `{"name":"x",
 "triggers":[
@@ -791,6 +789,5 @@ export function transactionToUndefinedModel(viewState: ViewSettings): ModelData 
 {"NAME":"Beginning of view range","VALUE":"1 Jan 2019","HINT":"Date at the start of range to be plotted","TYPE":"view"}],
 "version":10
 }`,
-viewState,
   );
 }

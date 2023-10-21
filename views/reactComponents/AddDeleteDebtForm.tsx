@@ -27,7 +27,6 @@ import {
 } from '../../utils/stringUtils';
 import Spacer from 'react-spacer';
 import { getVarVal, isATransaction, isNumberString } from '../../models/modelQueries';
-import { ViewSettings } from 'utils/viewUtils';
 
 interface EditDebtFormState {
   NAME: string;
@@ -40,18 +39,16 @@ interface EditDebtFormState {
 }
 interface EditDebtProps extends FormProps {
   checkAssetFunction: (a: Asset, model: ModelData) => string;
-  submitAssetFunction: (arg0: Asset, arg1: ModelData, viewSettings: ViewSettings) => Promise<void>;
-  deleteAssetFunction: (name: string, viewSettings: ViewSettings) => Promise<DeleteResult>;
+  submitAssetFunction: (arg0: Asset, arg1: ModelData) => Promise<void>;
+  deleteAssetFunction: (name: string) => Promise<DeleteResult>;
   checkTransactionFunction: (t: Transaction, model: ModelData) => string;
   submitTransactionFunction: (
     transactionInput: Transaction,
     modelData: ModelData,
-    viewSettings: ViewSettings,
   ) => Promise<void>;
   submitTriggerFunction: (
     triggerInput: Trigger,
     modelData: ModelData,
-    viewSettings: ViewSettings,
   ) => Promise<void>;
   doCheckBeforeOverwritingExistingData: () => boolean;
 }
@@ -265,7 +262,6 @@ export class AddDeleteDebtForm extends Component<
     await this.props.submitTransactionFunction(
       revalueTransaction,
       this.props.model,
-      this.props.viewState,
     );
 
     this.props.showAlert('added new data');
@@ -335,7 +331,6 @@ export class AddDeleteDebtForm extends Component<
             onChangeHandler={this.handleStartChange}
             triggers={this.props.model.triggers}
             submitTriggerFunction={this.props.submitTriggerFunction}
-            viewState={this.props.viewState}
           />
           {this.growthAndInflation()}
           {this.goButtons()}
@@ -451,7 +446,7 @@ export class AddDeleteDebtForm extends Component<
     if (message.length > 0) {
       this.props.showAlert(message);
     } else {
-      await this.props.submitAssetFunction(asset, this.props.model, this.props.viewState);
+      await this.props.submitAssetFunction(asset, this.props.model);
       if (this.state.PAYMENT !== '') {
         let count = 1;
         while (
@@ -484,12 +479,11 @@ export class AddDeleteDebtForm extends Component<
         );
         if (message.length > 0) {
           this.props.showAlert(message);
-          await this.props.deleteAssetFunction(asset.NAME, this.props.viewState);
+          await this.props.deleteAssetFunction(asset.NAME);
         } else {
           await this.props.submitTransactionFunction(
             transaction,
             this.props.model,
-            this.props.viewState,
           );
           this.props.showAlert('added new debt and payment');
           // clear fields
@@ -506,7 +500,7 @@ export class AddDeleteDebtForm extends Component<
   private async delete(e: React.ChangeEvent<HTMLInputElement>) {
     e.preventDefault();
     // log('deleting something ' + showObj(this));
-    if (await this.props.deleteAssetFunction(this.state.NAME, this.props.viewState)) {
+    if (await this.props.deleteAssetFunction(this.state.NAME)) {
       this.props.showAlert('deleted debt');
       // clear fields
       this.setState(this.defaultState);

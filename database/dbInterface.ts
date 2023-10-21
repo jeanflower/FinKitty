@@ -1,4 +1,3 @@
-import { ViewSettings } from "../utils/viewUtils";
 import { ModelData } from "../types/interfaces";
 
 export interface DbInterface {
@@ -6,7 +5,6 @@ export interface DbInterface {
   loadModel(
     userID: string, 
     modelName: string,
-    viewState: ViewSettings,
   ): Promise<ModelData>;
   ensureModel(userID: string, modelName: string): Promise<void>;
   saveModel(

@@ -735,7 +735,7 @@ function assetViewTypeList(
         setViewSettingNameVal(settings, chartViewType, viewType, refreshData);
       },
       viewType,
-      'chooseAssetChartType',
+      `chooseAssetChartType${viewType}`,
       viewType === selectedAssetView ? 'primary' : 'outline-primary',
     ),
   );

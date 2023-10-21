@@ -112,7 +112,6 @@ import { minimalModel } from '../models/minimalModel';
 import { makeModelFromJSON } from '../models/modelFromJSON';
 import { attemptRename } from '../utils/appActions';
 import { getTodaysDate, setSetting } from '../models/modelUtils';
-import { viewSetting } from 'models/exampleSettings';
 
 function CustomToggle({ children, eventKey }: any) {
   const decoratedOnClick = useAccordionButton(eventKey, () =>
@@ -155,14 +154,12 @@ function handleExpenseGridRowsUpdated(
   submitExpense: (
     expenseInput: Expense, 
     modelData: ModelData,
-    viewState: ViewSettings,
   ) => Promise<void>,
   refreshData: (
     refreshModel: boolean,
     refreshChart: boolean,
     sourceID: number,
   ) => Promise<void>, 
-  viewState: ViewSettings,
   args: any,
 ) {
   // log('handleExpenseGridRowsUpdated', arguments);
@@ -210,7 +207,7 @@ function handleExpenseGridRowsUpdated(
         }
       }
       console.log('rename expense');
-      attemptRename(model, doChecks, oldRow.NAME, newRow.NAME, showAlert, refreshData, viewState);
+      attemptRename(model, doChecks, oldRow.NAME, newRow.NAME, showAlert, refreshData);
     }
     return;
   }
@@ -242,7 +239,7 @@ function handleExpenseGridRowsUpdated(
       // log(`expenseForSubmission = ${showObj(expenseForSubmission)}`);
       const checks = checkExpense(expenseForSubmission, model);
       if (checks === '') {
-        submitExpense(expenseForSubmission, model, viewState);
+        submitExpense(expenseForSubmission, model);
       } else {
         showAlert(checks);
       }
@@ -260,7 +257,7 @@ function handleExpenseGridRowsUpdated(
       RECURRENCE: newRow.RECURRENCE,
     };
     // log(`expenseForSubmission = ${showObj(expenseForSubmission)}`);
-    submitExpense(expenseForSubmission, model, viewState);
+    submitExpense(expenseForSubmission, model);
   }
 }
 
@@ -272,14 +269,12 @@ function handleIncomeGridRowsUpdated(
   submitIncome: (
     incomeInput: Income, 
     modelData: ModelData,
-    viewState: ViewSettings,
   ) => Promise<boolean>,
   refreshData: (
     refreshModel: boolean,
     refreshChart: boolean,
     sourceID: number,
   ) => Promise<void>,  
-  viewState: ViewSettings,
   args: any,
 ) {
   log(`handleIncomeGridRowsUpdated ${JSON.stringify(args)}`);
@@ -332,7 +327,7 @@ function handleIncomeGridRowsUpdated(
           return;
         }
       }
-      attemptRename(model, doChecks, oldRow.NAME, newRow.NAME, showAlert, refreshData, viewState);
+      attemptRename(model, doChecks, oldRow.NAME, newRow.NAME, showAlert, refreshData);
     }
     return;
   }
@@ -366,7 +361,7 @@ function handleIncomeGridRowsUpdated(
       };
       const checks = checkIncome(incomeForSubmission, model);
       if (checks === '') {
-        submitIncome(incomeForSubmission, model, viewState);
+        submitIncome(incomeForSubmission, model);
       } else {
         showAlert(checks);
       }
@@ -391,7 +386,7 @@ function handleIncomeGridRowsUpdated(
       RECURRENCE: newRow.RECURRENCE,
       LIABILITY: newRow.LIABILITY,
     };
-    submitIncome(incomeForSubmission, model, viewState);
+    submitIncome(incomeForSubmission, model);
   }
 }
 
@@ -400,13 +395,12 @@ function handleTriggerGridRowsUpdated(
   showAlert: (arg0: string) => void,
   doChecks: boolean,
   rows: any[],
-  submitTrigger: (triggerInput: Trigger, modelData: ModelData, viewState: ViewSettings) => Promise<void>,
+  submitTrigger: (triggerInput: Trigger, modelData: ModelData) => Promise<void>,
   refreshData: (
     refreshModel: boolean,
     refreshChart: boolean,
     sourceID: number,
   ) => Promise<void>,
-  viewState: ViewSettings,
   args: any,
 ) {
   log(`handleTriggerGridRowsUpdated ${JSON.stringify(args)}`);
@@ -451,7 +445,7 @@ function handleTriggerGridRowsUpdated(
           return;
         }
       }
-      attemptRename(model, doChecks, oldRow.NAME, newRow.NAME, showAlert, refreshData, viewState);
+      attemptRename(model, doChecks, oldRow.NAME, newRow.NAME, showAlert, refreshData);
     }
     return;
   }
@@ -463,12 +457,12 @@ function handleTriggerGridRowsUpdated(
   if (doChecks) {
     const checks = checkTrigger(forSubmit, model);
     if (checks === '') {
-      submitTrigger(forSubmit, model, viewState);
+      submitTrigger(forSubmit, model);
     } else {
       showAlert(checks);
     }
   } else {
-    submitTrigger(forSubmit, model, viewState);
+    submitTrigger(forSubmit, model);
   }
 }
 
@@ -494,13 +488,12 @@ function handleAssetGridRowsUpdated(
   showAlert: (arg0: string) => void,
   doChecks: boolean,
   rows: any[],
-  submitAsset: (assetInput: Asset, modelData: ModelData, viewState: ViewSettings) => Promise<void>,
+  submitAsset: (assetInput: Asset, modelData: ModelData) => Promise<void>,
   refreshData: (
     refreshModel: boolean,
     refreshChart: boolean,
     sourceID: number,
   ) => Promise<void>,
-  viewState: ViewSettings,
   args: any,
 ) {
   log(`handleAssetGridRowsUpdated ${JSON.stringify(args)}`);
@@ -566,7 +559,7 @@ function handleAssetGridRowsUpdated(
         }
       }
     }
-    attemptRename(model, doChecks, oldVal, newVal, showAlert, refreshData, viewState);
+    attemptRename(model, doChecks, oldVal, newVal, showAlert, refreshData);
     return;
   }
 
@@ -628,7 +621,7 @@ function handleAssetGridRowsUpdated(
         PURCHASE_PRICE: parsedPurchasePrice,
         CATEGORY: newRow.CATEGORY,
       };
-      submitAsset(assetForSubmission, model, viewState);
+      submitAsset(assetForSubmission, model);
     }
   } else {
     // log(`parsedValue = ${showObj(parsedValue)}`);
@@ -650,7 +643,7 @@ function handleAssetGridRowsUpdated(
       PURCHASE_PRICE: parsedPurchasePrice,
       CATEGORY: newRow.CATEGORY,
     };
-    submitAsset(assetForSubmission, model, viewState);
+    submitAsset(assetForSubmission, model);
   }
 }
 
@@ -675,13 +668,12 @@ function handleTransactionGridRowsUpdated(
   showAlert: (arg0: string) => void,
   doChecks: boolean,
   rows: any[],
-  submitTransaction: (transactionInput: Transaction, modelData: ModelData, viewState: ViewSettings) => Promise<void>,
+  submitTransaction: (transactionInput: Transaction, modelData: ModelData) => Promise<void>,
   refreshData: (
     refreshModel: boolean,
     refreshChart: boolean,
     sourceID: number,
   ) => Promise<void>,
-  viewState: ViewSettings,
   args: any,
 ) {
   log(`handleTransactionGridRowsUpdated ${JSON.stringify(args)}`);
@@ -785,7 +777,7 @@ function handleTransactionGridRowsUpdated(
           }
         }
         log(`attempt rename`);
-        attemptRename(model, doChecks, oldtName, tName, showAlert, refreshData, viewState);
+        attemptRename(model, doChecks, oldtName, tName, showAlert, refreshData);
       }
       return;
     }
@@ -810,14 +802,14 @@ function handleTransactionGridRowsUpdated(
       if (checks === '') {
         // log(`checks OK, submitting transaction`);
         console.log(`submitting transaction after edit ${showObj(transaction)}`);
-        submitTransaction(transaction, model, viewState);
+        submitTransaction(transaction, model);
       } else {
         showAlert(checks);
         // gridData[args[0].cellKey] = oldValue;
       }
     } else {
       console.log(`submitting transaction after edit ${showObj(transaction)}`);
-      submitTransaction(transaction, model, viewState);
+      submitTransaction(transaction, model);
     }
   }
 }
@@ -839,9 +831,7 @@ function handleSettingGridRowsUpdated(
       HINT: string;
     },
     modelData: ModelData,
-    viewState: ViewSettings,
   ) => Promise<void>,
-  viewState: ViewSettings,
   args: any,
 ) {
   log(`handleTransactionGridRowsUpdated ${JSON.stringify(args)}`);
@@ -895,7 +885,7 @@ function handleSettingGridRowsUpdated(
         }
       }
 
-      attemptRename(model, doChecks, oldRow.NAME, newRow.NAME, showAlert, refreshData, viewState);
+      attemptRename(model, doChecks, oldRow.NAME, newRow.NAME, showAlert, refreshData);
     }
     return;
   }
@@ -905,7 +895,7 @@ function handleSettingGridRowsUpdated(
     VALUE: newRow.VALUE,
     HINT: newRow.HINT,
   };
-  editSetting(forSubmission, model, viewState);
+  editSetting(forSubmission, model);
 }
 
 export const defaultColumn = {
@@ -986,9 +976,8 @@ export const cashValueColumn = {
     },
 };
 export function faveColumn(
-  deleteFunction: (name:string, viewState: ViewSettings)=>Promise<DeleteResult>,
+  deleteFunction: (name:string)=>Promise<DeleteResult>,
   buttonKey: string,
-  viewState: ViewSettings,
 ) {
   return {
     ...defaultColumn,
@@ -1004,7 +993,7 @@ export function faveColumn(
         key={`${buttonKey}${props.row.NAME}`}
         onClick={async ()=>{
           console.log("clicked!");
-          const result = await deleteFunction(props.row.NAME, viewState);
+          const result = await deleteFunction(props.row.NAME);
           if(result.message){
             alert(result.message);
           } else if(result.itemsDeleted){
@@ -1024,7 +1013,6 @@ function getAssetOrDebtCols(
   model: ModelData, 
   isDebt: boolean,
   parentCallbacks: ViewCallbacks,
-  viewState: ViewSettings,
 ) {
 
   let cols: any[] = [
@@ -1035,7 +1023,7 @@ function getAssetOrDebtCols(
       name: 'index',
     },
     */
-    faveColumn(parentCallbacks.deleteAsset, 'assetDefTable', viewState),
+    faveColumn(parentCallbacks.deleteAsset, 'assetDefTable'),
     {
       ...defaultColumn,
       key: 'NAME',
@@ -1210,7 +1198,6 @@ export function assetsOrDebtsTableDiv(
   isDebt: boolean,
   parentCallbacks: ViewCallbacks,
   tableID: string,
-  viewState: ViewSettings,
 ) {
   return (
     <div
@@ -1230,7 +1217,6 @@ export function assetsOrDebtsTableDiv(
                 rowData,
                 parentCallbacks.submitAsset,
                 parentCallbacks.refreshData,
-                viewState,
                 arguments,
               );
             }}
@@ -1239,7 +1225,6 @@ export function assetsOrDebtsTableDiv(
               model, 
               isDebt,
               parentCallbacks,
-              viewState,
             )}
             deleteFunction={parentCallbacks.deleteAsset}
             setEraFunction={parentCallbacks.setEraAsset}
@@ -1531,7 +1516,6 @@ export function transactionsTableDiv(
   headingText: string,
   parentCallbacks: ViewCallbacks,
   tableID: string,
-  viewState: ViewSettings,
 ) {
   if (contents.length === 0) {
     return <></>;
@@ -1592,7 +1576,6 @@ export function transactionsTableDiv(
             contents,
             parentCallbacks.submitTransaction,
             parentCallbacks.refreshData,
-            viewState,
             arguments,
           );
         }}
@@ -1601,7 +1584,7 @@ export function transactionsTableDiv(
         deleteFunction={(name: string) => {
           const completeName = getTransactionName(name, type);
           log(`delete transaction`);
-          return parentCallbacks.deleteTransaction(completeName, viewState);
+          return parentCallbacks.deleteTransaction(completeName);
         }}
         setEraFunction={(name: string, val: number) => {
           const completeName = getTransactionName(name, type);
@@ -1622,7 +1605,6 @@ export function transactionFilteredTable(
   headingText: string,
   parentCallbacks: ViewCallbacks,
   tableID: string,
-  viewState: ViewSettings,
 ) {
   const contents = transactionsForTable(model, type, parentCallbacks);
   return transactionsTableDiv(
@@ -1633,7 +1615,6 @@ export function transactionFilteredTable(
     headingText,
     parentCallbacks,
     tableID,
-    viewState,
   );
 }
 
@@ -1643,7 +1624,6 @@ export function debtsDivWithHeadings(
   doChecks: boolean,
   parentCallbacks: ViewCallbacks,
   tableIDEnding: string,
-  viewState: ViewSettings,
 ) {
   const debtData: AssetRow[] = assetsOrDebtsForTable(
     model,
@@ -1664,7 +1644,6 @@ export function debtsDivWithHeadings(
           true,
           parentCallbacks,
           `debts${tableIDEnding}`,
-          viewState,
         ),
         'Debt definitions',
       )}
@@ -1675,7 +1654,6 @@ export function debtsDivWithHeadings(
         'Revalue debts',
         parentCallbacks,
         `debtRevals${tableIDEnding}`,
-        viewState,
       )}
       {transactionFilteredTable(
         model,
@@ -1684,7 +1662,6 @@ export function debtsDivWithHeadings(
         'Pay off debts',
         parentCallbacks,
         `payoffDebts${tableIDEnding}`,
-        viewState,
       )}
     </>
   );
@@ -1696,7 +1673,6 @@ export function assetsDivWithHeadings(
   doChecks: boolean,
   parentCallbacks: ViewCallbacks,
   tableIDEnding: string,
-  viewState: ViewSettings,
 ) {
   const assetData: AssetRow[] = assetsOrDebtsForTable(
     model,
@@ -1717,7 +1693,6 @@ export function assetsDivWithHeadings(
           false,
           parentCallbacks,
           `assets${tableIDEnding}`,
-          viewState,
         ),
         `Asset definition table`,
       )}
@@ -1728,7 +1703,6 @@ export function assetsDivWithHeadings(
         'Liquidate assets to keep cash afloat',
         parentCallbacks,
         `liquidateAssets${tableIDEnding}`,
-        viewState,
       )}
       {transactionFilteredTable(
         model,
@@ -1737,7 +1711,6 @@ export function assetsDivWithHeadings(
         'Revalue assets',
         parentCallbacks,
         `assetsRevals${tableIDEnding}`,
-        viewState,
       )}
     </>
   );
@@ -1770,7 +1743,6 @@ function triggersTableDiv(
   doChecks: boolean,
   parentCallbacks: ViewCallbacks,
   tableID: string,
-  viewState: ViewSettings,
 ) {
   return (
     <div
@@ -1792,7 +1764,6 @@ function triggersTableDiv(
                 trigData,
                 parentCallbacks.submitTrigger,
                 parentCallbacks.refreshData,
-                viewState,
                 arguments,
               );
             }}
@@ -1830,7 +1801,6 @@ export function triggersTableDivWithHeading(
   doChecks: boolean,
   parentCallbacks: ViewCallbacks,
   tableIDEnding: string,
-  viewState: ViewSettings,
 ) {
   const trigData = triggersForTable(model, parentCallbacks);
   if (trigData.length === 0) {
@@ -1843,7 +1813,6 @@ export function triggersTableDivWithHeading(
       doChecks,
       parentCallbacks,
       `triggers${tableIDEnding}`,
-      viewState,
     ),
     `Important dates`,
   );
@@ -1899,7 +1868,6 @@ function incomesTableDiv(
   doChecks: boolean,
   parentCallbacks: ViewCallbacks,
   tableID: string,
-  viewState: ViewSettings,
 ) {
   if (incData.length === 0) {
     return;
@@ -1994,7 +1962,6 @@ function incomesTableDiv(
                 incData,
                 parentCallbacks.submitIncome,
                 parentCallbacks.refreshData,
-                viewState,
                 arguments,
               );
             }}
@@ -2014,14 +1981,13 @@ export function incomesTableDivWithHeading(
   todaysValues: Map<Income, IncomeVal>,
   doChecks: boolean,
   parentCallbacks: ViewCallbacks,
-  viewState: ViewSettings,
 ) {
   const incData: any[] = incomesForTable(model, todaysValues, parentCallbacks);
   if (incData.length === 0) {
     return;
   }
   return collapsibleFragment(
-    incomesTableDiv(model, incData, doChecks, parentCallbacks, 'incomesTable', viewState),
+    incomesTableDiv(model, incData, doChecks, parentCallbacks, 'incomesTable'),
     `Income definitions`,
   );
 }
@@ -2074,7 +2040,6 @@ function expensesTableDiv(
   doChecks: boolean,
   parentCallbacks: ViewCallbacks,
   tableID: string,
-  viewState: ViewSettings,
 ) {
   let cols: any[] = [
     /*
@@ -2174,7 +2139,6 @@ function expensesTableDiv(
                 expData,
                 parentCallbacks.submitExpense,
                 parentCallbacks.refreshData,
-                viewState,
                 arguments,
               );
             }}
@@ -2195,7 +2159,6 @@ export function expensesTableDivWithHeading(
   doChecks: boolean,
   parentCallbacks: ViewCallbacks,
   tableIDEnding: string,
-  viewState: ViewSettings,
 ) {
   const expData = expensesForTable(model, todaysValues, parentCallbacks);
   if (expData.length === 0) {
@@ -2208,7 +2171,6 @@ export function expensesTableDivWithHeading(
       doChecks,
       parentCallbacks,
       `expenses${tableIDEnding}`,
-      viewState,
     ),
     `Expense definitions`,
   );
@@ -2278,7 +2240,6 @@ function customSettingsTable(
   doChecks: boolean,
   parentCallbacks: ViewCallbacks,
   tableID: string,
-  viewState: ViewSettings,
 ) {
   if (constSettings.length === 0) {
     return;
@@ -2335,7 +2296,6 @@ function customSettingsTable(
           constSettings,
           parentCallbacks.refreshData,
           parentCallbacks.editSetting,
-          viewState,
           arguments,
         );
       }}
@@ -2351,7 +2311,6 @@ function adjustSettingsTable(
   doChecks: boolean,
   parentCallbacks: ViewCallbacks,
   tableID: string,
-  viewState: ViewSettings,
 ) {
   if (adjustSettings.length === 0) {
     return;
@@ -2369,7 +2328,6 @@ function adjustSettingsTable(
           adjustSettings,
           parentCallbacks.refreshData,
           parentCallbacks.editSetting,
-          viewState,
           arguments,
         );
       }}
@@ -2419,7 +2377,6 @@ function settingsTables(
   todaysValues: Map<Setting, SettingVal>,
   doChecks: boolean,
   parentCallbacks: ViewCallbacks,
-  viewState: ViewSettings,
 ) {
   const constSettings = settingsForTable(
     model,
@@ -2450,7 +2407,6 @@ function settingsTables(
         doChecks,
         parentCallbacks,
         'customSettingsTable',
-        viewState,
       )}
       {adjustSettingsTable(
         model,
@@ -2458,7 +2414,6 @@ function settingsTables(
         doChecks,
         parentCallbacks,
         'adjustableSettingsTable',
-        viewState,
       )}
     </>,
     `Other settings affecting the model`,
@@ -2471,7 +2426,6 @@ export function settingsTableDiv(
   doChecks: boolean,
   parentCallbacks: ViewCallbacks,
   tableIDEnding: string,
-  viewState: ViewSettings,
 ) {
   const contents = settingsForTable(
     model,
@@ -2501,7 +2455,6 @@ export function settingsTableDiv(
               contents,
               parentCallbacks.refreshData,
               parentCallbacks.editSetting,
-              viewState,
               arguments,
             );
           }}
@@ -2540,7 +2493,6 @@ export function settingsTableDiv(
         todaysValues, 
         doChecks, 
         parentCallbacks, 
-        viewState,
       )}
       {transactionFilteredTable(
         model,
@@ -2549,7 +2501,6 @@ export function settingsTableDiv(
         'Revalue settings',
         parentCallbacks,
         'settingsRevalsTable',
-        viewState,
       )}
     </div>
   );
@@ -2739,10 +2690,9 @@ function performOneCalc(
   }[],
   helper: EvaluationHelper,
   showAlert: (msg: string) => void,
-  viewState: ViewSettings,
 ) {
   // log(`calculate optimisation task for varVal = ${varVal}`);
-  const tempModel = makeModelFromJSON(JSON.stringify(model), viewState);
+  const tempModel = makeModelFromJSON(JSON.stringify(model));
 
   setSetting(tempModel.settings, 'variable', `${varVal}`, custom);
   const evalResult = getEvaluations(tempModel, helper);
@@ -2780,7 +2730,6 @@ export function calcOptimizer(
   model: ModelData,
   helper: EvaluationHelper,
   showAlert: (msg: string) => void,
-  viewState: ViewSettings,
 ): ChartData {
   const noData: ChartData = {
     labels: [],
@@ -2859,7 +2808,7 @@ export function calcOptimizer(
   for (const varVal of varVals) {
     // this doesn't display results right away - shame
     // log(`calc for variable = ${varVal}`);
-    performOneCalc(model, varVal, unindexedResult, helper, showAlert, viewState);
+    performOneCalc(model, varVal, unindexedResult, helper, showAlert);
   }
   // showAlert(`done compute...`);
   const data = addIndices(
@@ -2900,7 +2849,6 @@ export function optimizerDiv(
   cd: ChartData,
   parentCallbacks: ViewCallbacks,
   tableID: string,
-  viewState: ViewSettings,
 ) {
   if (!getDisplay(optimizerView)) {
     return;
@@ -2939,7 +2887,6 @@ export function optimizerDiv(
         true,
         parentCallbacks,
         'variableSettingsTable',
-        viewState,
       )}
       <DataGridFinKitty
         tableID={tableID}

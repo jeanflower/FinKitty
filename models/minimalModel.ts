@@ -3,7 +3,6 @@ import { ModelData } from "../types/interfaces";
 
 import { makeModelFromJSONString } from "./modelFromJSON";
 import { getCurrentVersion } from "./currentVersion";
-import { ViewSettings } from "../utils/viewUtils";
 
 export const minimalModel: ModelData = {
   name: 'minimalModel',
@@ -70,8 +69,7 @@ export const minimalModel: ModelData = {
 };
 
 export function getMinimalModelCopy(
-  viewState: ViewSettings,
 ): ModelData {
   // log('in getMinimalModelCopy');
-  return makeModelFromJSONString(JSON.stringify(minimalModel), viewState);
+  return makeModelFromJSONString(JSON.stringify(minimalModel));
 }

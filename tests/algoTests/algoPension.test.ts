@@ -3924,7 +3924,7 @@ describe('pension tests', () => {
       end: 'May 02 2021',
     };
     const viewSettings = getMinimalModelCopySettings();
-    const model: ModelData = getTestModel(definedBenefitsPension, viewSettings);
+    const model: ModelData = getTestModel(definedBenefitsPension);
 
     setROI(model, roi);
 
@@ -4077,7 +4077,7 @@ describe('pension tests', () => {
       end: 'May 02 2021',
     };
     const viewSettings = getMinimalModelCopySettings();
-    const model: ModelData = getTestModel(definedContributionsPension, viewSettings);
+    const model: ModelData = getTestModel(definedContributionsPension);
 
     setROI(model, roi);
 
@@ -4206,7 +4206,7 @@ describe('pension tests', () => {
       end: 'May 02 2031',
     };
     const viewSettings = getMinimalModelCopySettings();
-    const model: ModelData = getTestModel(pensionExampleData, viewSettings);
+    const model: ModelData = getTestModel(pensionExampleData);
 
     setROI(model, roi);
 

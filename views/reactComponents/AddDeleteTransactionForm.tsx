@@ -31,7 +31,6 @@ import {
   makeBooleanFromYesNo,
   makeBooleanFromString,
 } from '../../utils/stringUtils';
-import { ViewSettings } from 'utils/viewUtils';
 
 interface EditTransactionFormState {
   NAME: string;
@@ -51,15 +50,13 @@ interface EditTransactionFormState {
 }
 interface EditTransactionProps extends FormProps {
   checkFunction: (transaction: Transaction, model: ModelData) => string;
-  submitFunction: (transaction: Transaction, model: ModelData, viewState: ViewSettings) => Promise<void>;
-  deleteFunction: (name: string, viewState: ViewSettings) => Promise<DeleteResult>;
+  submitFunction: (transaction: Transaction, model: ModelData) => Promise<void>;
+  deleteFunction: (name: string) => Promise<DeleteResult>;
   submitTriggerFunction: (
     triggerInput: Trigger,
     modelData: ModelData,
-    viewState: ViewSettings,
   ) => Promise<void>;
   doCheckBeforeOverwritingExistingData: () => boolean;
-  viewState: ViewSettings,
 }
 
 export class AddDeleteTransactionForm extends Component<
@@ -146,7 +143,6 @@ export class AddDeleteTransactionForm extends Component<
             onChangeHandler={this.handleDateChange}
             triggers={this.props.model.triggers}
             submitTriggerFunction={this.props.submitTriggerFunction}
-            viewState={this.props.viewState}
           />
         </div>
         <Row>
@@ -266,7 +262,6 @@ export class AddDeleteTransactionForm extends Component<
             onChangeHandler={this.handleStopDateChange}
             triggers={this.props.model.triggers}
             submitTriggerFunction={this.props.submitTriggerFunction}
-            viewState={this.props.viewState}
           />
         </div>
         <Row>
@@ -461,7 +456,7 @@ export class AddDeleteTransactionForm extends Component<
     if (message.length > 0) {
       this.props.showAlert(message);
     } else {
-      await this.props.submitFunction(transaction, this.props.model, this.props.viewState);
+      await this.props.submitFunction(transaction, this.props.model);
       this.props.showAlert('added new transaction');
       // clear fields
       this.setState(this.defaultState);
@@ -472,7 +467,7 @@ export class AddDeleteTransactionForm extends Component<
   private async delete(e: React.ChangeEvent<HTMLInputElement>) {
     e.preventDefault();
     // log('deleting something ' + showObj(this));
-    const deleteResult = await this.props.deleteFunction(this.state.NAME, this.props.viewState);
+    const deleteResult = await this.props.deleteFunction(this.state.NAME);
     if (deleteResult.message === '') {
       if (deleteResult.itemsDeleted.length === 1) {
         this.props.showAlert('deleted transaction');

@@ -195,7 +195,6 @@ export interface ModelData {
 export interface FormProps {
   model: ModelData;
   showAlert: (string) => void;
-  viewState: ViewSettings,
 }
 
 export interface SettingVal {
@@ -287,12 +286,12 @@ export interface ViewCallbacks {
     sourceID: number,
   ) => Promise<void>,
 
-  deleteAsset: (name: string, viewState: ViewSettings) => Promise<DeleteResult>,
-  deleteExpense: (name: string, viewState: ViewSettings) => Promise<DeleteResult>,
-  deleteIncome: (name: string, viewState: ViewSettings) => Promise<DeleteResult>,
-  deleteSetting: (name: string, viewState: ViewSettings) => Promise<DeleteResult>,
-  deleteTrigger: (name: string, viewState: ViewSettings) => Promise<DeleteResult>,
-  deleteTransaction: (name: string, viewState: ViewSettings) => Promise<DeleteResult>,
+  deleteAsset: (name: string) => Promise<DeleteResult>,
+  deleteExpense: (name: string) => Promise<DeleteResult>,
+  deleteIncome: (name: string) => Promise<DeleteResult>,
+  deleteSetting: (name: string) => Promise<DeleteResult>,
+  deleteTrigger: (name: string) => Promise<DeleteResult>,
+  deleteTransaction: (name: string) => Promise<DeleteResult>,
 
   setEraAsset: (name: string, value: number) => Promise<boolean>,
   setEraExpense: (name: string, value: number) => Promise<boolean>,
@@ -301,11 +300,11 @@ export interface ViewCallbacks {
   setEraTrigger: (name: string, value: number) => Promise<boolean>,
   setEraTransaction: (name: string, value: number) => Promise<boolean>,
 
-  submitAsset: (assetInput: Asset, modelData: ModelData, viewState: ViewSettings) => Promise<void>,
-  submitExpense: (expenseInput: Expense, modelData: ModelData, viewState: ViewSettings) => Promise<void>,
-  submitIncome: (incomeInput: Income, modelData: ModelData, viewState: ViewSettings) => Promise<boolean>,
-  submitTransaction: (transactionInput: Transaction, modelData: ModelData, viewState: ViewSettings) => Promise<void>,
-  submitTrigger: (triggerInput: Trigger, modelData: ModelData, viewState: ViewSettings) => Promise<void>,
+  submitAsset: (assetInput: Asset, modelData: ModelData) => Promise<void>,
+  submitExpense: (expenseInput: Expense, modelData: ModelData) => Promise<void>,
+  submitIncome: (incomeInput: Income, modelData: ModelData) => Promise<boolean>,
+  submitTransaction: (transactionInput: Transaction, modelData: ModelData) => Promise<void>,
+  submitTrigger: (triggerInput: Trigger, modelData: ModelData) => Promise<void>,
 
   editSetting: (
     settingInput: {
@@ -315,6 +314,5 @@ export interface ViewCallbacks {
       HINT: string;
     },
     modelData: ModelData,
-    viewState: ViewSettings,
   ) => Promise<void>,
 }

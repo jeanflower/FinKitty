@@ -88,7 +88,7 @@ import {
   suppressLogs,
   unSuppressLogs,
 } from '../../utils/utils';
-import { defaultTestViewSettings, getMinimalModelCopySettings, getTestEvaluations } from '../algoTests/algoTestUtils';
+import { getMinimalModelCopySettings, getTestEvaluations } from '../algoTests/algoTestUtils';
 import { diffModels } from '../../models/diffModels';
 import {
   getColor,
@@ -290,9 +290,7 @@ describe('utils tests', () => {
   });
 
   it('standardise dates', () => {
-    const viewSettings = getMinimalModelCopySettings();
-
-    const model = getMinimalModelCopy(viewSettings);
+    const model = getMinimalModelCopy();
     model.triggers.push({
       NAME: 't0',
       ERA: undefined,
@@ -380,7 +378,7 @@ describe('utils tests', () => {
     });
 
     suppressLogs();
-    standardiseDates(model, viewSettings);
+    standardiseDates(model);
     unSuppressLogs();
 
     expect(model.triggers[0].DATE).toEqual('Thu Feb 01 2001');
@@ -414,7 +412,7 @@ describe('utils tests', () => {
 
     expect(checkData(model).message).toEqual('');
 
-    standardiseDates(model, viewSettings);
+    standardiseDates(model);
   });
 
   it('removeNumberPart', () => {
@@ -688,8 +686,7 @@ describe('utils tests', () => {
         '',
       ),
     ).toEqual('2 units');
-    const viewSettings = defaultTestViewSettings();
-    const copyModel = makeModelFromJSONString(JSON.stringify(minimalModel), viewSettings);
+    const copyModel = makeModelFromJSONString(JSON.stringify(minimalModel));
     copyModel.assets.push({
       ...simpleAsset,
       NAME: 'cars',
@@ -1190,9 +1187,8 @@ describe('utils tests', () => {
       expect(getSpecialWord(`${x}anything`, minimalModel)).toEqual(`${x}`);
     });
 
-    const viewSettings = defaultTestViewSettings();
     ['1y', '2y', '3y', '4y', '5y', '1m'].map((x) => {
-      const m = makeModelFromJSONString(JSON.stringify(minimalModel), viewSettings);
+      const m = makeModelFromJSONString(JSON.stringify(minimalModel));
       m.transactions.push({
         ...simpleTransaction,
         TYPE: bondInvest,
@@ -1201,7 +1197,7 @@ describe('utils tests', () => {
       expect(getSpecialWord(`anything${x}`, m)).toEqual(`${x}`);
     });
     expect(getSpecialWord(`anything1y`, minimalModel)).toEqual('');
-    const m = makeModelFromJSONString(JSON.stringify(minimalModel), viewSettings);
+    const m = makeModelFromJSONString(JSON.stringify(minimalModel));
     m.triggers.push({
       NAME: 'something',
       ERA: undefined,
@@ -1288,8 +1284,7 @@ describe('utils tests', () => {
         });
       },
     ].map((makeChange) => {
-      const viewSettings = defaultTestViewSettings();
-      const x = makeModelFromJSONString(JSON.stringify(minimalModel), viewSettings);
+      const x = makeModelFromJSONString(JSON.stringify(minimalModel));
       makeChange(x);
       expect(
         hasDependentDate(
@@ -1656,8 +1651,7 @@ describe('utils tests', () => {
         replacement: string;
         outcome: string;
       }) => {
-        const viewSettings = defaultTestViewSettings();
-        const m = makeModelFromJSONString(JSON.stringify(minimalModel), viewSettings);
+        const m = makeModelFromJSONString(JSON.stringify(minimalModel));
         x.makeChange(m);
         expect(checkForWordClashInModel(m, x.replacement, 'boo')).toEqual(
           x.outcome,
@@ -1671,28 +1665,24 @@ describe('utils tests', () => {
     );
   });
   it('attempt rename', () => {
-    const viewSettings = defaultTestViewSettings();
-    const model = getTestModel(MinimalModel, viewSettings);
+    const model = getTestModel(MinimalModel);
     expect(isAnAssetOrAssets(CASH_ASSET_NAME, model)).toBe(true);
-    expect(attemptRenameLong(model, true, CASH_ASSET_NAME, 'abcd', viewSettings)).toEqual('');
+    expect(attemptRenameLong(model, true, CASH_ASSET_NAME, 'abcd')).toEqual('');
     expect(isAnAssetOrAssets(CASH_ASSET_NAME, model)).toBe(false);
-    expect(attemptRenameLong(model, false, 'abcd', CASH_ASSET_NAME, viewSettings)).toEqual(
+    expect(attemptRenameLong(model, false, 'abcd', CASH_ASSET_NAME)).toEqual(
       '',
     );
     expect(isAnAssetOrAssets(CASH_ASSET_NAME, model)).toBe(true);
     // log(`model = ${JSON.stringify(model)}`);
   });
   it('diff checks', () => {
-    const viewSettings = defaultTestViewSettings();
     const model1 = makeModelFromJSON(
-      JSON.stringify(getTestModel(ThreeChryslerModel, viewSettings)),
-      viewSettings,
+      JSON.stringify(getTestModel(ThreeChryslerModel)),
     );
     expect(getTestEvaluations(model1, true, true).evaluations.length).toBe(13);
 
     const model2 = makeModelFromJSON(
-      JSON.stringify(getTestModel(definedBenefitsPension, viewSettings)),
-      viewSettings,
+      JSON.stringify(getTestModel(definedBenefitsPension)),
     );
 
     model2.expenses.push({

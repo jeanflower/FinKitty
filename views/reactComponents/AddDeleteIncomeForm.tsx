@@ -40,7 +40,6 @@ import {
 } from '../../utils/stringUtils';
 import Spacer from 'react-spacer';
 import { isAnIncome, getVarVal, isNumberString } from '../../models/modelQueries';
-import { ViewSettings } from 'utils/viewUtils';
 
 interface EditIncomeFormState {
   NAME: string;
@@ -75,21 +74,17 @@ interface EditIncomeProps extends FormProps {
   submitIncomeFunction: (
     incomeInput: Income,
     modelData: ModelData,
-    viewState: ViewSettings,
   ) => Promise<boolean>;
   submitTransactionFunction: (
     transactionInput: Transaction,
     modelData: ModelData,
-    viewState: ViewSettings,
   ) => Promise<void>;
   deleteFunction: (
     name: string,
-    viewState: ViewSettings,
   ) => Promise<DeleteResult>;
   submitTriggerFunction: (
     triggerInput: Trigger,
     modelData: ModelData,
-    viewState: ViewSettings,
   ) => Promise<void>;
   doCheckBeforeOverwritingExistingData: () => boolean;
 }
@@ -286,7 +281,6 @@ export class AddDeleteIncomeForm extends Component<
               onChangeHandler={this.handleValueSetChange}
               triggers={this.props.model.triggers}
               submitTriggerFunction={this.props.submitTriggerFunction}
-              viewState={this.props.viewState}
             />
           </div>
           {this.inputsForGeneralIncome()}
@@ -419,7 +413,6 @@ export class AddDeleteIncomeForm extends Component<
             onChangeHandler={this.handleStartChange}
             triggers={this.props.model.triggers}
             submitTriggerFunction={this.props.submitTriggerFunction}
-            viewState={this.props.viewState}
           />
           <DateSelectionRow
             introLabel="Date on which the income ends"
@@ -431,7 +424,6 @@ export class AddDeleteIncomeForm extends Component<
             onChangeHandler={this.handleEndChange}
             triggers={this.props.model.triggers}
             submitTriggerFunction={this.props.submitTriggerFunction}
-            viewState={this.props.viewState}
           />
         </div>
       </div>
@@ -488,7 +480,6 @@ DB_TRANSFERRED_STOP
             onChangeHandler={this.handleDbpStopSourceChange}
             triggers={this.props.model.triggers}
             submitTriggerFunction={this.props.submitTriggerFunction}
-            viewState={this.props.viewState}
           />
           <DateSelectionRow
             introLabel="Date on which the pension starts"
@@ -500,7 +491,6 @@ DB_TRANSFERRED_STOP
             onChangeHandler={this.handleDbpStartChange}
             triggers={this.props.model.triggers}
             submitTriggerFunction={this.props.submitTriggerFunction}
-            viewState={this.props.viewState}
           />
           <DateSelectionRow
             introLabel="Date on which the pension ends" ///transfers"
@@ -512,7 +502,6 @@ DB_TRANSFERRED_STOP
             onChangeHandler={this.handleDbpEndChange}
             triggers={this.props.model.triggers}
             submitTriggerFunction={this.props.submitTriggerFunction}
-            viewState={this.props.viewState}
           />
           {
             <DateSelectionRow
@@ -525,7 +514,6 @@ DB_TRANSFERRED_STOP
               onChangeHandler={this.handleDbpTransferredStopChange}
               triggers={this.props.model.triggers}
               submitTriggerFunction={this.props.submitTriggerFunction}
-              viewState={this.props.viewState}
               />
           }
         </div>
@@ -744,7 +732,6 @@ DB_TRANSFERRED_STOP
     await this.props.submitTransactionFunction(
       revalueIncomeTransaction,
       this.props.model,
-      this.props.viewState,
     );
 
     this.props.showAlert('added new data');
@@ -970,13 +957,11 @@ DB_TRANSFERRED_STOP
       await this.props.submitIncomeFunction(
         pensionDbpIncome1,
         this.props.model,
-        this.props.viewState,
         );
       if (pensionDbpIncome2) {
         await this.props.submitIncomeFunction(
           pensionDbpIncome2,
           this.props.model,
-          this.props.viewState,
           );
       }
       let pensionDbptran1: Transaction | undefined;
@@ -1006,12 +991,10 @@ DB_TRANSFERRED_STOP
           this.props.showAlert(message);
           await this.props.deleteFunction(
             pensionDbpIncome1.NAME,
-            this.props.viewState,
           );
           if (pensionDbpIncome2) {
             await this.props.deleteFunction(
               pensionDbpIncome2.NAME,
-              this.props.viewState,
             );
           }
           return;
@@ -1054,12 +1037,10 @@ DB_TRANSFERRED_STOP
           this.props.showAlert(message);
           await this.props.deleteFunction(
             pensionDbpIncome1.NAME,
-            this.props.viewState,
             );
           if (pensionDbpIncome2) {
             await this.props.deleteFunction(
               pensionDbpIncome2.NAME,
-              this.props.viewState,
               );
           }
           return;
@@ -1091,12 +1072,10 @@ DB_TRANSFERRED_STOP
           this.props.showAlert(message);
           await this.props.deleteFunction(
             pensionDbpIncome1.NAME,
-            this.props.viewState,
             );
           if (pensionDbpIncome2) {
             await this.props.deleteFunction(
               pensionDbpIncome2.NAME,
-              this.props.viewState,
               );
           }
           return;
@@ -1107,21 +1086,18 @@ DB_TRANSFERRED_STOP
         await this.props.submitTransactionFunction(
           pensionDbptran1,
           this.props.model,
-          this.props.viewState,
           );
       }
       if (pensionDbptran2) {
         await this.props.submitTransactionFunction(
           pensionDbptran2,
           this.props.model,
-          this.props.viewState,
           );
       }
       if (pensionDbptran3) {
         await this.props.submitTransactionFunction(
           pensionDbptran3,
           this.props.model,
-          this.props.viewState,
           );
       }
 
@@ -1186,7 +1162,6 @@ DB_TRANSFERRED_STOP
       if (await this.props.submitIncomeFunction(
         income, 
         this.props.model,
-        this.props.viewState,
       )) {
         this.props.showAlert(`added new income ${income.NAME}`);
         // clear fields
@@ -1201,7 +1176,6 @@ DB_TRANSFERRED_STOP
     // log('deleting something ' + showObj(this));
     const deleteResult = await this.props.deleteFunction(
       this.state.NAME,
-      this.props.viewState,
     );
     if (deleteResult.message === '') {
       if (deleteResult.itemsDeleted.length === 1) {

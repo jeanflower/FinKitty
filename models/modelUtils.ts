@@ -37,7 +37,6 @@ import { checkData } from './checks';
 
 import { makeModelFromJSONString } from './modelFromJSON';
 import { getSettings, getVarVal, isATransaction } from './modelQueries';
-import { ViewSettings } from 'utils/viewUtils';
 
 export function setSetting(
   settings: Setting[],
@@ -182,9 +181,8 @@ export function getLiabilityPeople(model: ModelData): string[] {
 
 export function markForUndo(
   model: ModelData,
-  viewSettings: ViewSettings,
 ) {
-  const modelClone = makeModelFromJSONString(JSON.stringify(model), viewSettings);
+  const modelClone = makeModelFromJSONString(JSON.stringify(model));
   model.undoModel = modelClone;
   model.redoModel = undefined;
 }
@@ -247,7 +245,6 @@ export function attemptRenameLong(
   doChecks: boolean,
   old: string,
   replacement: string,
-  viewState: ViewSettings,  
 ): string {
   // log(`attempt rename from ${old} to ${replacement}`);
 
@@ -276,7 +273,7 @@ export function attemptRenameLong(
 
   // log(`get ready to make changes, be ready to undo...`);
   // be ready to undo
-  markForUndo(model, viewState);
+  markForUndo(model);
   // log(`making changes to nodel... `);
   model.settings.forEach((obj) => {
     obj.NAME = replaceWholeString(obj.NAME, old, replacement);
@@ -358,11 +355,10 @@ function standardiseDate(dateString: string): string {
 
 export function standardiseDates(
   model: ModelData,
-  viewState: ViewSettings,
 ): string {
   // log(`get ready to make changes, be ready to undo...`);
   // be ready to undo
-  markForUndo(model, viewState);
+  markForUndo(model);
   // log(`making changes to nodel... `);
   model.triggers.forEach((obj) => {
     obj.DATE = standardiseDate(obj.DATE);

@@ -101,9 +101,8 @@ describe('history tests', () => {
   });
 
   it('should mark, add setting and recover', () => {
-    const viewSettings = defaultTestViewSettings();
 
-    const model = getTestModel(MinimalModel, viewSettings);
+    const model = getTestModel(MinimalModel);
 
     // no data for "undo", no data for "redo"
     cannotUndo(model);
@@ -115,7 +114,7 @@ describe('history tests', () => {
     // log(`model without undo = ${showObj(model)}`);
 
     // take a copy for undo
-    markForUndo(model, viewSettings);
+    markForUndo(model);
     // log(`model with undo = ${showObj(model)}`);
 
     // have undo data, don't have redo data
@@ -151,7 +150,7 @@ describe('history tests', () => {
     cannotUndo(model);
 
     // prepare to mark another change
-    markForUndo(model, viewSettings);
+    markForUndo(model);
 
     // have undo data, don't have redo data
     couldUndo(model);
@@ -159,8 +158,8 @@ describe('history tests', () => {
   });
 
   it('should mark, edit setting and recover 01', () => {
-    const viewSettings = defaultTestViewSettings();
-    const model = getTestModel(MinimalModel, viewSettings);
+
+    const model = getTestModel(MinimalModel);
 
     const numSettings = 5;
 
@@ -173,7 +172,7 @@ describe('history tests', () => {
     let dob = getSettings(model.settings, birthDate, 'missingDOB');
     expect(dob === '').toBe(true);
 
-    markForUndo(model, viewSettings);
+    markForUndo(model);
     // log(`model with undo = ${showObj(model)}`);
 
     couldUndo(model);
@@ -195,15 +194,15 @@ describe('history tests', () => {
   });
 
   it('should mark, edit setting and recover  02', () => {
-    const viewSettings = defaultTestViewSettings();
-    const model = getTestModel(MinimalModel, viewSettings);
+
+    const model = getTestModel(MinimalModel);
 
     cannotUndo(model);
     let roiStartVal = getSettings(model.settings, roiStart, 'unknown');
     expect(roiStartVal).toBe('01 Jan 2017');
     // log(`model without undo = ${showObj(model)}`);
 
-    markForUndo(model, viewSettings);
+    markForUndo(model);
     // log(`model with undo = ${showObj(model)}`);
 
     setSetting(model.settings, roiStart, '1 Jan 2018', viewType, 'for testing');
@@ -225,17 +224,17 @@ describe('history tests', () => {
   });
 
   it('should mark, edit, mark, edit setting and recover', () => {
-    const viewSettings = defaultTestViewSettings();
-    const model = getTestModel(MinimalModel, viewSettings);
+
+    const model = getTestModel(MinimalModel);
 
     cannotUndo(model);
     let roiStartVal = getSettings(model.settings, roiStart, 'unknown');
     expect(roiStartVal).toBe('01 Jan 2017');
     // log(`model without undo = ${showObj(model)}`);
 
-    markForUndo(model, viewSettings);
+    markForUndo(model);
     setSetting(model.settings, roiStart, '1 Jan 2018', viewType, 'for testing');
-    markForUndo(model, viewSettings);
+    markForUndo(model);
     setSetting(model.settings, roiStart, '1 Jan 2019', viewType, 'for testing');
 
     roiStartVal = getSettings(model.settings, roiStart, 'unknown');

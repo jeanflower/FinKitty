@@ -180,7 +180,6 @@ export function incomesDiv(
         todaysValues,
         doChecks,
         parentCallbacks,
-        viewSettings,
       )}
       {todaysIncomesTable(model, todaysValues, parentCallbacks.doShowTodaysValueColumns)}
       {transactionFilteredTable(
@@ -190,7 +189,6 @@ export function incomesDiv(
         'Income revaluations',
         parentCallbacks,
         'incomeRevalsTable',
-        viewSettings,
       )}
 
       {collapsibleFragment(
@@ -205,7 +203,6 @@ export function incomesDiv(
             model={model}
             showAlert={parentCallbacks.showAlert}
             doCheckBeforeOverwritingExistingData={parentCallbacks.doCheckBeforeOverwritingExistingData}
-            viewState={viewSettings}
           />
         </div>,
         'Add an income, a defined-benefits pension, or revalue an income',

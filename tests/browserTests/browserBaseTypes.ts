@@ -260,6 +260,8 @@ export async function beforeAllWork(
   await enterTextControl(driver, 'overwrite');
   await enterTextControl(driver, 'advancedUI');
 
+  await sleep(200, 'wait for settings to take effect');
+
   if (testDataModelName !== '' && modelString !== '') {
     await deleteIfExists(testDataModelName, driver);
     await replaceWithTestModel(driver, testDataModelName, modelString);

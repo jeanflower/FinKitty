@@ -123,7 +123,7 @@ describe('evaluations tests', () => {
     );
 
     const evalsAndValues = getEvaluations(
-      makeModelFromJSONString(JSON.stringify(model), viewSettings),
+      makeModelFromJSONString(JSON.stringify(model)),
       undefined, // no key for a values report
     );
     /*
@@ -6935,7 +6935,6 @@ describe('evaluations tests', () => {
         {"NAME": "Today's value focus date","VALUE": "","HINT": "Date to use for 'today's value' tables (defaults to '' meaning today)","TYPE": "view"}
       ]
     }`,
-    viewSettings,
       'revalue a setting 01',
     );
 
@@ -7111,7 +7110,7 @@ describe('evaluations tests', () => {
       },
     ]);
 
-    const model = makeModelFromJSON(revalueData, viewSettings, 'revalue a setting 02');
+    const model = makeModelFromJSON(revalueData, 'revalue a setting 02');
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -7699,7 +7698,7 @@ describe('evaluations tests', () => {
     };
     const viewSettings = getMinimalModelCopySettings();
 
-    const minimalModel = getMinimalModelCopy(viewSettings);
+    const minimalModel = getMinimalModelCopy();
     const model: ModelData = {
       ...minimalModel,
       assets: [
@@ -7938,8 +7937,7 @@ describe('evaluations tests', () => {
   });
   it('get category of asset, expense, income', () => {
     const categoryCache = new Map<string, string>();
-    const viewSettings = getMinimalModelCopySettings();
-    const model = makeModelFromJSON(billAndBenExampleData, viewSettings);
+    const model = makeModelFromJSON(billAndBenExampleData);
     expect(getCategory('', categoryCache, model)).toEqual('');
     expect(getCategory('nonsense', categoryCache, model)).toEqual('nonsense');
     expect(getCategory('CareCosts', categoryCache, model)).toEqual('Care');
@@ -8013,14 +8011,12 @@ describe('evaluations tests', () => {
 
   it('models with undefined to/from', () => {
     {
-      const viewSettings = getMinimalModelCopySettings();
-      const model = transactionFromUndefinedModel(viewSettings);
+      const model = transactionFromUndefinedModel();
       getTestEvaluations(model);
     }
 
     {
-      const viewSettings = getMinimalModelCopySettings();
-      const model = transactionToUndefinedModel(viewSettings);
+      const model = transactionToUndefinedModel();
       getTestEvaluations(model);
     }
 
@@ -8028,8 +8024,7 @@ describe('evaluations tests', () => {
   });
 
   it('historical assessments', () => {
-    const viewSettings = getMinimalModelCopySettings();
-    const model = makeModelFromJSON(mortgageSwitchExampleData, viewSettings);
+    const model = makeModelFromJSON(mortgageSwitchExampleData);
     expect(model.assets.length).toBe(5);
     expect(model.expenses.length).toBe(3);
     expect(model.incomes.length).toBe(3);
@@ -8148,8 +8143,7 @@ describe('evaluations tests', () => {
   });
 
   it('delete items from model should refuse to delete', async () => {
-    const viewSettings = getMinimalModelCopySettings();
-    const model = makeModelFromJSON(mortgageSwitchExampleData, viewSettings);
+    const model = makeModelFromJSON(mortgageSwitchExampleData);
     // log(showObj(model));
     // can't delete things which don't exist in the model
     [
@@ -8169,7 +8163,6 @@ describe('evaluations tests', () => {
         true, // allowRecursion
         ()=>{},
         async (a, b, c)=>{},
-        viewSettings,
       );
       expect(response.itemsDeleted.length).toBe(0);
       expect(response.message.length).not.toBe(0);
@@ -8185,7 +8178,6 @@ describe('evaluations tests', () => {
       true, // allowRecursion
       ()=>{},
       async (a, b, c)=>{},
-      viewSettings,
       );
     expect(response.itemsDeleted.length).toBe(0);
     expect(response.message.length).not.toBe(0);
@@ -8202,21 +8194,19 @@ describe('evaluations tests', () => {
       false, // allowRecursion
       ()=>{},
       async (a, b, c)=>{},
-      viewSettings,
       );
     expect(response.itemsDeleted.length).toBe(0);
     expect(response).not.toBe('');
   });
 
   it('delete items from model no recursion', async () => {
-    const viewSettings = getMinimalModelCopySettings();
-    const model = makeModelFromJSON(mortgageSwitchExampleData, viewSettings);
+    const model = makeModelFromJSON(mortgageSwitchExampleData);
     // log(showObj(model));
 
     // log(showObj(model.assets.map((i)=>{return i.NAME})));
 
     expect(model.assets.length).toBe(5);
-    markForUndo(model, viewSettings);
+    markForUndo(model);
     let listForDelete = ['ISAs'];
     let response = await deleteItemsFromModelInternal(
       listForDelete,
@@ -8227,7 +8217,6 @@ describe('evaluations tests', () => {
       false, // allowRecursion
       ()=>{},
       async (a, b, c)=>{},
-      viewSettings,
     );
     expect(response.message).toBe('');
     expect(response.itemsDeleted).toEqual(listForDelete);
@@ -8245,14 +8234,13 @@ describe('evaluations tests', () => {
       false, // allowRecursion
       ()=>{},
       async (a, b, c)=>{},
-      viewSettings,
     );
     expect(response).not.toBe('');
 
     // log(showObj(model.incomes.map((i)=>{return i.NAME})));
 
     expect(model.incomes.length).toBe(3);
-    markForUndo(model, viewSettings);
+    markForUndo(model);
     listForDelete = ['Side hustle income'];
     response = await deleteItemsFromModelInternal(
       listForDelete,
@@ -8263,7 +8251,6 @@ describe('evaluations tests', () => {
       false, // allowRecursion
       ()=>{},
       async (a, b, c)=>{},
-      viewSettings,
     );
     expect(response.message).toBe('');
     expect(response.itemsDeleted).toEqual(listForDelete);
@@ -8272,7 +8259,7 @@ describe('evaluations tests', () => {
     expect(model.incomes.length).toBe(3);
 
     expect(model.incomes.length).toBe(3);
-    markForUndo(model, viewSettings);
+    markForUndo(model);
     listForDelete = ['Side hustle income', 'Side hustle income later'];
     response = await deleteItemsFromModelInternal(
       listForDelete,
@@ -8283,7 +8270,6 @@ describe('evaluations tests', () => {
       false, // allowRecursion
       ()=>{},
       async (a, b, c)=>{},
-      viewSettings,
     );
     expect(response.message).toBe('');
     expect(response.itemsDeleted).toEqual(listForDelete);
@@ -8295,7 +8281,7 @@ describe('evaluations tests', () => {
     // log(showObj(model.expenses.map((i)=>{return i.NAME})));
 
     expect(model.expenses.length).toBe(3);
-    markForUndo(model, viewSettings);
+    markForUndo(model);
     listForDelete = ['Look after dogs'];
     response = await deleteItemsFromModelInternal(
       listForDelete,
@@ -8306,7 +8292,6 @@ describe('evaluations tests', () => {
       false, // allowRecursion
       ()=>{},
       async (a, b, c)=>{},
-      viewSettings,
     );
     expect(response.message).toBe('');
     expect(response.itemsDeleted).toEqual(listForDelete);
@@ -8315,7 +8300,7 @@ describe('evaluations tests', () => {
     expect(model.expenses.length).toBe(3);
 
     expect(model.expenses.length).toBe(3);
-    markForUndo(model, viewSettings);
+    markForUndo(model);
     listForDelete = ['Look after dogs', 'Run house'];
     response = await deleteItemsFromModelInternal(
       listForDelete,
@@ -8326,7 +8311,6 @@ describe('evaluations tests', () => {
       false, // allowRecursion
       ()=>{},
       async (a, b, c)=>{},
-      viewSettings,
     );
     expect(response.message).toBe('');
     expect(response.itemsDeleted).toEqual(listForDelete);
@@ -8337,7 +8321,7 @@ describe('evaluations tests', () => {
     // log(showObj(model.transactions.map((i)=>{return i.NAME})));
 
     expect(model.transactions.length).toBe(6);
-    markForUndo(model, viewSettings);
+    markForUndo(model);
     listForDelete = ['SellCar'];
     response = await deleteItemsFromModelInternal(
       listForDelete,
@@ -8348,14 +8332,13 @@ describe('evaluations tests', () => {
       false, // allowRecursion
       ()=>{},
       async (a, b, c)=>{},
-      viewSettings,
     );
     expect(response.message).toBe('');
     expect(response.itemsDeleted).toEqual(listForDelete);
     expect(model.transactions.length).toBe(5);
     revertToUndoModel(model);
     expect(model.transactions.length).toBe(6);
-    markForUndo(model, viewSettings);
+    markForUndo(model);
     listForDelete = ['SellCar', 'switchMortgage'];
     response = await deleteItemsFromModelInternal(
       listForDelete,
@@ -8366,7 +8349,6 @@ describe('evaluations tests', () => {
       false, // allowRecursion
       ()=>{},
       async (a, b, c)=>{},
-      viewSettings,
     );
     expect(response.message).toBe('');
     expect(response.itemsDeleted).toEqual(listForDelete);
@@ -8377,7 +8359,7 @@ describe('evaluations tests', () => {
     //log(showObj(model.triggers.map((i)=>{return i.NAME})));
 
     expect(model.triggers.length).toBe(3);
-    markForUndo(model, viewSettings);
+    markForUndo(model);
     listForDelete = ['TransferMortgage'];
     response = await deleteItemsFromModelInternal(
       listForDelete,
@@ -8388,7 +8370,6 @@ describe('evaluations tests', () => {
       false, // allowRecursion
       ()=>{},
       async (a, b, c)=>{},
-      viewSettings,
     );
     expect(response).not.toBe('');
     expect(model.triggers.length).toBe(3);
@@ -8403,7 +8384,6 @@ describe('evaluations tests', () => {
       false, // allowRecursion
       ()=>{},
       async (a, b, c)=>{},
-      viewSettings,
     );
     expect(response.message).toBe('');
     expect(response.itemsDeleted).toEqual(listForDelete);
@@ -8417,7 +8397,6 @@ describe('evaluations tests', () => {
       false, // allowRecursion
       ()=>{},
       async (a, b, c)=>{},
-      viewSettings,
     );
     expect(response.message).toBe('');
     expect(response.itemsDeleted).toEqual(listForDelete);
@@ -8431,7 +8410,6 @@ describe('evaluations tests', () => {
       false, // allowRecursion
       ()=>{},
       async (a, b, c)=>{},
-      viewSettings,
     );
     expect(response.message).toBe('');
     expect(response.itemsDeleted).toEqual(listForDelete);
@@ -8445,7 +8423,6 @@ describe('evaluations tests', () => {
       false, // allowRecursion
       ()=>{},
       async (a, b, c)=>{},
-      viewSettings,
     );
     expect(response.message).toBe('');
     expect(response.itemsDeleted).toEqual(listForDelete);
@@ -8459,7 +8436,6 @@ describe('evaluations tests', () => {
       false, // allowRecursion
       ()=>{},
       async (a, b, c)=>{},
-      viewSettings,
     );
     expect(response.message).toBe('');
     expect(response.itemsDeleted).toEqual(listForDelete);
@@ -8478,7 +8454,7 @@ describe('evaluations tests', () => {
     );
     */
     expect(model.settings.length).toBe(6);
-    markForUndo(model, viewSettings);
+    markForUndo(model);
     listForDelete = ['stockMarketGrowth'];
     response = await deleteItemsFromModelInternal(
       listForDelete,
@@ -8489,7 +8465,6 @@ describe('evaluations tests', () => {
       false, // allowRecursion
       ()=>{},
       async (a, b, c)=>{},
-      viewSettings,
     );
     expect(response).not.toBe('');
     expect(model.settings.length).toBe(6);
@@ -8503,7 +8478,6 @@ describe('evaluations tests', () => {
       false, // allowRecursion
       ()=>{},
       async (a, b, c)=>{},
-      viewSettings,
     );
     expect(response.message).toBe('');
     expect(response.itemsDeleted).toEqual(listForDelete);
@@ -8517,7 +8491,6 @@ describe('evaluations tests', () => {
       false, // allowRecursion
       ()=>{},
       async (a, b, c)=>{},
-      viewSettings,
     );
     expect(response.message).toBe('');
     expect(response.itemsDeleted).toEqual(listForDelete);
@@ -8531,7 +8504,6 @@ describe('evaluations tests', () => {
       false, // allowRecursion
       ()=>{},
       async (a, b, c)=>{},
-      viewSettings,
     );
     expect(response.message).toBe('');
     expect(response.itemsDeleted).toEqual(listForDelete);
@@ -8545,7 +8517,6 @@ describe('evaluations tests', () => {
       false, // allowRecursion
       ()=>{},
       async (a, b, c)=>{},
-      viewSettings,
     );
     expect(response.message).toBe('');
     expect(response.itemsDeleted).toEqual(listForDelete);
@@ -8555,8 +8526,7 @@ describe('evaluations tests', () => {
   });
 
   it('delete items from model with recursion', async () => {
-    const viewSettings = getMinimalModelCopySettings();
-    const model = makeModelFromJSON(mortgageSwitchExampleData, viewSettings);
+    const model = makeModelFromJSON(mortgageSwitchExampleData);
     // log(showObj(model));
     // log(showObj(model.assets.map((i)=>{return i.NAME})));
     // log(showObj(model.expenses.map((i)=>{return i.NAME})));
@@ -8565,7 +8535,7 @@ describe('evaluations tests', () => {
 
     expect(model.triggers.length).toBe(3);
     expect(model.transactions.length).toBe(6);
-    markForUndo(model, viewSettings);
+    markForUndo(model);
     let listForDelete = ['TransferMortgage'];
     let response = await deleteItemsFromModelInternal(
       listForDelete,
@@ -8576,7 +8546,6 @@ describe('evaluations tests', () => {
       true, // allowRecursion
       ()=>{},
       async (a, b, c)=>{},
-      viewSettings,
     );
     // requires additional delete of
     // 'Conditional pay early mortgage',
@@ -8610,7 +8579,7 @@ describe('evaluations tests', () => {
     expect(model.settings.length).toBe(6);
     expect(model.assets.length).toBe(5);
     expect(model.transactions.length).toBe(6);
-    markForUndo(model, viewSettings);
+    markForUndo(model);
     listForDelete = ['stockMarketGrowth'];
     response = await deleteItemsFromModelInternal(
       listForDelete,
@@ -8621,7 +8590,6 @@ describe('evaluations tests', () => {
       true, // allowRecursion
       ()=>{},
       async (a, b, c)=>{},
-      viewSettings,
     );
     // requires additional delete of
     // 'Revalue stocks after loss in 2020 market crash'
@@ -8727,7 +8695,6 @@ describe('evaluations tests', () => {
       true, // allowRecursion
       ()=>{},
       async (a, b, c)=>{},
-      viewSettings,
     );
     // requires additional delete
     expect(response.message).toBe('');
@@ -8850,7 +8817,6 @@ describe('evaluations tests', () => {
           "CATEGORY":""}],
         "version":11
         }`,
-        viewSettings,
     );
     const model = modelFromJSON;
 
@@ -8862,7 +8828,7 @@ describe('evaluations tests', () => {
     );
 
     const evalsAndValues = getEvaluations(
-      makeModelFromJSONString(JSON.stringify(model), viewSettings),
+      makeModelFromJSONString(JSON.stringify(model)),
       undefined, // no key for a values report
     );
 

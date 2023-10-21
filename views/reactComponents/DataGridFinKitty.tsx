@@ -7,7 +7,6 @@ import { getVarVal } from '../../models/modelQueries';
 import ReactiveTextArea from './ReactiveTextArea';
 import { inspect } from 'util';
 import 'react-data-grid/lib/styles.css';
-import { ViewSettings } from '../../utils/viewUtils';
 
 /**
  * Samples:
@@ -19,7 +18,7 @@ interface DataGridProps {
   handleGridRowsUpdated?: any; // TODO any
   rows: GridRow[]; // TODO any
   columns: any[]; // TODO any
-  deleteFunction: ((name: string, viewState: ViewSettings) => Promise<DeleteResult>) | undefined;
+  deleteFunction: ((name: string) => Promise<DeleteResult>) | undefined;
   setEraFunction:
     | ((name: string, value: number) => Promise<boolean>)
     | undefined;

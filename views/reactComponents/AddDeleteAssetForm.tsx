@@ -42,7 +42,6 @@ import {
 } from '../../utils/stringUtils';
 import Spacer from 'react-spacer';
 import { getVarVal, getSettings, isNumberString } from '../../models/modelQueries';
-import { ViewSettings } from '../../utils/viewUtils';
 
 interface EditAssetFormState {
   NAME: string;
@@ -71,18 +70,16 @@ const inputtingPension = 'definedContributionsPension';
 
 interface EditAssetProps extends FormProps {
   checkAssetFunction: (a: Asset, model: ModelData) => string;
-  submitAssetFunction: (arg0: Asset, arg1: ModelData, viewState: ViewSettings) => Promise<void>;
-  deleteAssetFunction: (name: string, viewState: ViewSettings) => Promise<DeleteResult>;
+  submitAssetFunction: (arg0: Asset, arg1: ModelData) => Promise<void>;
+  deleteAssetFunction: (name: string) => Promise<DeleteResult>;
   checkTransactionFunction: (t: Transaction, model: ModelData) => string;
   submitTransactionFunction: (
     transactionInput: Transaction,
     modelData: ModelData,
-    viewState: ViewSettings,
   ) => Promise<void>;
   submitTriggerFunction: (
     triggerInput: Trigger,
     modelData: ModelData,
-    viewState: ViewSettings,
   ) => Promise<void>;
   doCheckBeforeOverwritingExistingData: () => boolean;
 }
@@ -406,8 +403,7 @@ export class AddDeleteAssetForm extends Component<
             onChangeHandler={this.handleStopChange}
             triggers={this.props.model.triggers}
             submitTriggerFunction={this.props.submitTriggerFunction}
-            viewState={this.props.viewState}
-          />
+            />
         </div>
         <div className="container-fluid">
           {/* fills width */}
@@ -421,7 +417,6 @@ export class AddDeleteAssetForm extends Component<
             onChangeHandler={this.handleCrystallizeChange}
             triggers={this.props.model.triggers}
             submitTriggerFunction={this.props.submitTriggerFunction}
-            viewState={this.props.viewState}
           />
         </div>
         <div className="container-fluid">
@@ -436,7 +431,6 @@ export class AddDeleteAssetForm extends Component<
               onChangeHandler={this.handleDcpTransferDateChange}
               triggers={this.props.model.triggers}
               submitTriggerFunction={this.props.submitTriggerFunction}
-              viewState={this.props.viewState}
             />
           ) : (
             <div />
@@ -563,7 +557,6 @@ export class AddDeleteAssetForm extends Component<
               onChangeHandler={this.handleStartChange}
               triggers={this.props.model.triggers}
               submitTriggerFunction={this.props.submitTriggerFunction}
-              viewState={this.props.viewState}
             />
           </div>
           {this.growthAndInflation()}
@@ -706,7 +699,6 @@ export class AddDeleteAssetForm extends Component<
     await this.props.submitTransactionFunction(
       revalueTransaction,
       this.props.model,
-      this.props.viewState,
      );
 
     this.props.showAlert('added new data');
@@ -902,11 +894,11 @@ export class AddDeleteAssetForm extends Component<
       const toProp = contPc === 0 ? 0.0 : (contPc + contEmpPc) / contPc;
 
       const model = this.props.model;
-      await this.props.submitAssetFunction(asset1, model, this.props.viewState);
-      await this.props.submitAssetFunction(asset2, model, this.props.viewState);
-      await this.props.submitAssetFunction(asset3, model, this.props.viewState);
+      await this.props.submitAssetFunction(asset1, model);
+      await this.props.submitAssetFunction(asset2, model);
+      await this.props.submitAssetFunction(asset3, model);
       if (this.state.DCP_TRANSFER_TO !== '') {
-        await this.props.submitAssetFunction(asset4, model, this.props.viewState);
+        await this.props.submitAssetFunction(asset4, model);
       }
 
       const contributions: Transaction = {
@@ -929,11 +921,11 @@ export class AddDeleteAssetForm extends Component<
         this.props.model,
       );
       if (message.length > 0) {
-        await this.props.deleteAssetFunction(asset1.NAME, this.props.viewState);
-        await this.props.deleteAssetFunction(asset2.NAME, this.props.viewState);
-        await this.props.deleteAssetFunction(asset3.NAME, this.props.viewState);
+        await this.props.deleteAssetFunction(asset1.NAME);
+        await this.props.deleteAssetFunction(asset2.NAME);
+        await this.props.deleteAssetFunction(asset3.NAME);
         if (this.state.DCP_TRANSFER_TO !== '') {
-          await this.props.deleteAssetFunction(asset4.NAME, this.props.viewState);
+          await this.props.deleteAssetFunction(asset4.NAME);
         }
         this.props.showAlert(message);
         return;
@@ -958,11 +950,11 @@ export class AddDeleteAssetForm extends Component<
         this.props.model,
       );
       if (message.length > 0) {
-        await this.props.deleteAssetFunction(asset1.NAME, this.props.viewState);
-        await this.props.deleteAssetFunction(asset2.NAME, this.props.viewState);
-        await this.props.deleteAssetFunction(asset3.NAME, this.props.viewState);
+        await this.props.deleteAssetFunction(asset1.NAME);
+        await this.props.deleteAssetFunction(asset2.NAME);
+        await this.props.deleteAssetFunction(asset3.NAME);
         if (this.state.DCP_TRANSFER_TO !== '') {
-          await this.props.deleteAssetFunction(asset4.NAME, this.props.viewState);
+          await this.props.deleteAssetFunction(asset4.NAME);
         }
         this.props.showAlert(message);
         return;
@@ -987,11 +979,11 @@ export class AddDeleteAssetForm extends Component<
         this.props.model,
       );
       if (message.length > 0) {
-        await this.props.deleteAssetFunction(asset1.NAME, this.props.viewState);
-        await this.props.deleteAssetFunction(asset2.NAME, this.props.viewState);
-        await this.props.deleteAssetFunction(asset3.NAME, this.props.viewState);
+        await this.props.deleteAssetFunction(asset1.NAME);
+        await this.props.deleteAssetFunction(asset2.NAME);
+        await this.props.deleteAssetFunction(asset3.NAME);
         if (this.state.DCP_TRANSFER_TO !== '') {
-          await this.props.deleteAssetFunction(asset4.NAME, this.props.viewState);
+          await this.props.deleteAssetFunction(asset4.NAME);
         }
         this.props.showAlert(message);
         return;
@@ -1018,10 +1010,10 @@ export class AddDeleteAssetForm extends Component<
           this.props.model,
         );
         if (message.length > 0) {
-          await this.props.deleteAssetFunction(asset1.NAME, this.props.viewState);
-          await this.props.deleteAssetFunction(asset2.NAME, this.props.viewState);
-          await this.props.deleteAssetFunction(asset3.NAME, this.props.viewState);
-          await this.props.deleteAssetFunction(asset4.NAME, this.props.viewState);
+          await this.props.deleteAssetFunction(asset1.NAME);
+          await this.props.deleteAssetFunction(asset2.NAME);
+          await this.props.deleteAssetFunction(asset3.NAME);
+          await this.props.deleteAssetFunction(asset4.NAME);
           this.props.showAlert(message);
           return;
         }
@@ -1030,16 +1022,14 @@ export class AddDeleteAssetForm extends Component<
       await this.props.submitTransactionFunction(
         contributions,
         this.props.model,
-        this.props.viewState,
       );
       await this.props.submitTransactionFunction(
         crystallizeTaxFree,
         this.props.model,
-        this.props.viewState,
       );
-      await this.props.submitTransactionFunction(crystallize, this.props.model, this.props.viewState);
+      await this.props.submitTransactionFunction(crystallize, this.props.model);
       if (transfer) {
-        await this.props.submitTransactionFunction(transfer, this.props.model, this.props.viewState);
+        await this.props.submitTransactionFunction(transfer, this.props.model);
       }
 
       this.props.showAlert('added assets and transactions');
@@ -1097,7 +1087,7 @@ export class AddDeleteAssetForm extends Component<
       if (message.length > 0) {
         this.props.showAlert(message);
       } else {
-        await this.props.submitAssetFunction(asset, this.props.model, this.props.viewState);
+        await this.props.submitAssetFunction(asset, this.props.model);
         this.props.showAlert('added new asset');
         // clear fields
         this.setState(this.defaultState);
@@ -1108,7 +1098,7 @@ export class AddDeleteAssetForm extends Component<
   private async delete(e: React.ChangeEvent<HTMLInputElement>) {
     e.preventDefault();
     // log('deleting something ' + showObj(this));
-    const deleteResult = await this.props.deleteAssetFunction(this.state.NAME, this.props.viewState);
+    const deleteResult = await this.props.deleteAssetFunction(this.state.NAME);
     if (deleteResult.message === '') {
       if (deleteResult.itemsDeleted.length === 1) {
         this.props.showAlert('deleted asset');

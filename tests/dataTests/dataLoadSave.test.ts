@@ -48,7 +48,7 @@ describe('load save tests', () => {
   // do not assume the cache is empty at the start of this test
 
   it('load save test1', async () => {
-    const viewSettings = defaultTestViewSettings();
+
     const printStory = false;
 
     if (printStory) {
@@ -57,15 +57,15 @@ describe('load save tests', () => {
     const userName = 'TestUserID';
 
     // log(`cache has ${getCacheCount()} elements`);
-    let names = await getModelNames(userName, viewSettings);
+    let names = await getModelNames(userName);
     // log(`cache has ${getCacheCount()} elements`);
     if (names.length === 0) {
       await saveModelToDBLSM(
         userName,
         'NeedAModelForLoadSaveTests',
-        getMinimalModelCopy(viewSettings),
+        getMinimalModelCopy(),
       );
-      names = await getModelNames(userName, viewSettings);
+      names = await getModelNames(userName);
     }
 
     expect(names.length).toBeGreaterThan(0);
@@ -82,17 +82,17 @@ describe('load save tests', () => {
       log('deleted models');
     }
 
-    let modelData = await loadModel(userName, junkModelName, viewSettings);
+    let modelData = await loadModel(userName, junkModelName);
     expect(modelData).toBeUndefined();
-    modelData = await loadModel(userName, junkModelName, viewSettings, true);
+    modelData = await loadModel(userName, junkModelName, true);
     expect(modelData).toBeUndefined();
 
     const modelName = names[0];
     // log(`load model called ${modelName}`);
-    modelData = await loadModel(userName, modelName, viewSettings);
+    modelData = await loadModel(userName, modelName);
     expect(modelData).toBeDefined();
 
-    modelData = await loadModel(userName, modelName, viewSettings, true);
+    modelData = await loadModel(userName, modelName, true);
 
     // if a name has come back then we expect
     // a model with that name
@@ -126,7 +126,6 @@ describe('load save tests', () => {
         modelData.model,
         true,
         userName,
-        viewSettings,
       );
       expect(response.message.length).toBeGreaterThan(0);
 
@@ -136,7 +135,7 @@ describe('load save tests', () => {
 
       // load the model again to refresh the
       // status to see it as dirty
-      modelData = await loadModel(userName, modelName, viewSettings);
+      modelData = await loadModel(userName, modelName);
       expect(modelData).toBeDefined();
 
       // the compiler thinks this could be undefined still so
@@ -165,7 +164,6 @@ describe('load save tests', () => {
         modelData.model,
         true,
         userName, 
-        viewSettings,
       );
       expect(response.message).toEqual('');
 
@@ -183,7 +181,6 @@ describe('load save tests', () => {
         modelData.model,
         true,
         userName, 
-        viewSettings,
       );
       expect(response.message).toEqual('');
 
@@ -195,7 +192,7 @@ describe('load save tests', () => {
         );
       }
 
-      modelData = await loadModel(userName, modelName, viewSettings);
+      modelData = await loadModel(userName, modelName);
       expect(modelData).toBeDefined();
       // the compiler thinks this could be undefined still so
       // make another code block to keep it happy
@@ -239,9 +236,8 @@ describe('load save tests', () => {
         modelData.model,
         true,
         userName, 
-        viewSettings,
       );
-      modelData = await loadModel(userName, modelName, viewSettings);
+      modelData = await loadModel(userName, modelName);
       expect(modelData).toBeDefined();
       // the compiler thinks this could be undefined still so
       // make another code block to keep it happy
@@ -279,12 +275,11 @@ describe('load save tests', () => {
         modelData.model,
         true,
         userName, 
-        viewSettings,
       );
       if (printStory) {
         log(`response from adding Income ${response}`);
       }
-      modelData = await loadModel(userName, modelName, viewSettings);
+      modelData = await loadModel(userName, modelName);
       expect(modelData).toBeDefined();
       // the compiler thinks this could be undefined still so
       // make another code block to keep it happy
@@ -308,7 +303,6 @@ describe('load save tests', () => {
         modelData.model,
         true,
         userName, 
-        viewSettings,
       );
       response = await submitTransactionLSM(
         {
@@ -319,14 +313,13 @@ describe('load save tests', () => {
         modelData.model,
         true,
         userName, 
-        viewSettings,
       );
       if (printStory) {
         log('covered many submitLSM functions');
       }
       expect(response.message.length).toBe(0);
 
-      modelData = await loadModel(userName, modelName, viewSettings);
+      modelData = await loadModel(userName, modelName);
       expect(modelData).toBeDefined();
       // the compiler thinks this could be undefined still so
       // make another code block to keep it happy
@@ -352,7 +345,6 @@ describe('load save tests', () => {
         modelData.model,
         true,
         userName, 
-        viewSettings,
       );
 
       if (printStory) {
@@ -369,7 +361,7 @@ describe('load save tests', () => {
         );
       }
 
-      modelData = await loadModel(userName, modelName, viewSettings);
+      modelData = await loadModel(userName, modelName);
       expect(modelData).toBeDefined();
       // the compiler thinks this could be undefined still so
       // make another code block to keep it happy
@@ -385,13 +377,12 @@ describe('load save tests', () => {
         modelData.model,
         true,
         userName, 
-        viewSettings,
       );
       if (printStory) {
         log(`submitted a setting, response = ${response}`);
       }
 
-      modelData = await loadModel(userName, modelName, viewSettings);
+      modelData = await loadModel(userName, modelName);
       expect(modelData).toBeDefined();
       // the compiler thinks this could be undefined still so
       // make another code block to keep it happy
@@ -425,12 +416,11 @@ describe('load save tests', () => {
         modelData.model,
         true,
         userName,
-        viewSettings,
       );
       if (printStory) {
         log(`submitted a new setting, response = ${response}`);
       }
-      modelData = await loadModel(userName, modelName, viewSettings);
+      modelData = await loadModel(userName, modelName);
       expect(modelData).toBeDefined();
       // the compiler thinks this could be undefined still so
       // make another code block to keep it happy
@@ -448,12 +438,11 @@ describe('load save tests', () => {
         modelData.model,
         true,
         userName,
-        viewSettings,
       );
       if (printStory) {
         log(`submitted a setting, response = ${response}`);
       }
-      modelData = await loadModel(userName, modelName, viewSettings);
+      modelData = await loadModel(userName, modelName);
       expect(modelData).toBeDefined();
       // the compiler thinks this could be undefined still so
       // make another code block to keep it happy
@@ -475,7 +464,7 @@ describe('load save tests', () => {
 
       // load the model again to refresh
       // expect status is dirty
-      modelData = await loadModel(userName, modelName, viewSettings);
+      modelData = await loadModel(userName, modelName);
       expect(modelData).toBeDefined();
 
       if (printStory) {
@@ -497,7 +486,7 @@ describe('load save tests', () => {
     // !! there is no way to do this !!
 
     // unknown users get undefined back for loaded models
-    modelData = await loadModel(junkUserName, junkModelName, viewSettings);
+    modelData = await loadModel(junkUserName, junkModelName);
     expect(modelData).toBeUndefined();
 
     if (printStory) {
@@ -518,7 +507,7 @@ describe('load save tests', () => {
       log(`set up junk models for userName and ${junkUserName2}`);
     }
 
-    modelData = await loadModel(userName, junkModelName, viewSettings);
+    modelData = await loadModel(userName, junkModelName);
     expect(modelData).toBeDefined();
 
     if (modelData !== undefined) {
@@ -539,7 +528,7 @@ describe('load save tests', () => {
         log(`changed junk model for userName and ${junkUserName2}`);
       }
 
-      modelData = await loadModel(userName, junkModelName, viewSettings);
+      modelData = await loadModel(userName, junkModelName);
       expect(modelData).toBeDefined();
       // the compiler thinks this could be undefined still so
       // make another code block to keep it happy
@@ -566,7 +555,7 @@ describe('load save tests', () => {
         log(`saved junk model ${junkUserName2}`);
       }
 
-      modelData = await loadModel(junkUserName2, junkModelName, viewSettings);
+      modelData = await loadModel(junkUserName2, junkModelName);
       expect(modelData).toBeDefined();
 
       if (printStory) {
@@ -593,7 +582,7 @@ describe('load save tests', () => {
         log(`saved model for ${junkUserName3}`);
       }
 
-      modelData = await loadModel(junkUserName3, junkModelName, viewSettings);
+      modelData = await loadModel(junkUserName3, junkModelName);
       expect(modelData).toBeDefined();
 
       if (printStory) {
@@ -612,11 +601,9 @@ describe('load save tests', () => {
   });
   it('load save model2', async () => {
     const userName = 'TestUserID';
-    const junkModelName = 'junkjunkjunk';
-    const viewSettings = defaultTestViewSettings();
-    
+    const junkModelName = 'junkjunkjunk';    
     try {
-      expect(await getDB().loadModel(userName, junkModelName, viewSettings)).toBeUndefined();
+      expect(await getDB().loadModel(userName, junkModelName)).toBeUndefined();
     } catch (e) {
       // log(`error ${e}`);
     }

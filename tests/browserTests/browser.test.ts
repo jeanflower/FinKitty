@@ -42,6 +42,7 @@ import {
   clickButton,
   writeTestCode,
   getDataDumpFromPage,
+  scrollIntoViewByID,
 } from './browserBaseTypes';
 
 import webdriver from 'selenium-webdriver';
@@ -199,6 +200,7 @@ describe(testName, () => {
 
     await gotoTabPage(driver, assetsTag);
     await clickButton(driver, 'chooseViewFrequencyTypeMonthly');
+    await clickButton(driver, 'chooseViewDetailTypeCategorised');
 
     let ary = await getDataDumpFromPage(driver, 'assetChart');
     // writeTestCode(ary);
@@ -283,13 +285,11 @@ describe(testName, () => {
       `{"testName":"${CoarseAndFine}"}`,
     );
 
-    await gotoTabPage(driver, settingsTag);
-    await addSetting(driver, {
-      name: viewDetail,
-      value: fineDetail,
-      message: `added new setting ${viewDetail}`,
-    });
     await gotoTabPage(driver, assetsTag);
+
+    await scrollIntoViewByID(driver, 'chooseViewDetailTypeDetailed');
+    await clickButton(driver, 'chooseViewDetailTypeDetailed');
+
     await clickButton(driver, 'chooseViewFrequencyTypeMonthly');
 
     let ary = await getDataDumpFromPage(driver, 'assetChart');
@@ -385,7 +385,7 @@ describe(testName, () => {
     await cleanUpWork(driver, testDataModelName);
   });
 
-  it('should show coarse asset view for cash asset, vals, +, -, +- view', async () => {
+  it('should show coarse asset view for cash asset, vals, delta view', async () => {
     const testDataModelName = 'BrowserTestSimple06';
     await beforeAllWork(
       driver,
@@ -395,14 +395,18 @@ describe(testName, () => {
 
     // existing value for singleAssetName was allAssets;
     // now overwrite that for cash
-    await gotoTabPage(driver, settingsTag);
-    await addSetting(driver, {
-      name: assetChartFocus,
-      value: CASH_ASSET_NAME,
-      message: `added new setting ${assetChartFocus}`,
-    });
+
     await gotoTabPage(driver, assetsTag);
+
+    await scrollIntoViewByID(driver, 'chooseAssetOrDebtChartSetting--asset-All');
+    await clickButton(driver, 'chooseAssetOrDebtChartSetting--asset-All');
+
+    await scrollIntoViewByID(driver, 'chooseAssetOrDebtChartSetting--asset-Cash');
+    await clickButton(driver, 'chooseAssetOrDebtChartSetting--asset-Cash');
+
     await clickButton(driver, 'chooseViewFrequencyTypeMonthly');
+
+    await clickButton(driver, 'chooseViewDetailTypeCategorised');
 
     let ary = await getDataDumpFromPage(driver, 'assetChart');
     // writeTestCode(ary);
@@ -420,13 +424,8 @@ describe(testName, () => {
     expect(ary.datasets[0].data[2]).toBeCloseTo(442, 2);
     expect(ary.datasets[0].data[3]).toBeCloseTo(430, 2);
 
-    await gotoTabPage(driver, settingsTag);
-    await addSetting(driver, {
-      name: chartViewType,
-      value: chartAdditions,
-      message: `added new setting ${chartViewType}`,
-    });
-    await gotoTabPage(driver, assetsTag);
+    await scrollIntoViewByID(driver, 'chooseAssetChartType+');
+    await clickButton(driver, 'chooseAssetChartType+');
 
     ary = await getDataDumpFromPage(driver, 'assetChart');
 
@@ -457,13 +456,8 @@ describe(testName, () => {
     expect(ary.datasets[2].data[2]).toBeCloseTo(0, 2);
     expect(ary.datasets[2].data[3]).toBeCloseTo(0, 2);
 
-    await gotoTabPage(driver, settingsTag);
-    await addSetting(driver, {
-      name: chartViewType,
-      value: chartReductions,
-      message: `added new setting ${chartViewType}`,
-    });
-    await gotoTabPage(driver, assetsTag);
+    await scrollIntoViewByID(driver, 'chooseAssetChartType-');
+    await clickButton(driver, 'chooseAssetChartType-');
 
     ary = await getDataDumpFromPage(driver, 'assetChart');
     // writeTestCode(ary);
@@ -487,13 +481,8 @@ describe(testName, () => {
     expect(ary.datasets[1].data[2]).toBeCloseTo(-12, 2);
     expect(ary.datasets[1].data[3]).toBeCloseTo(-12, 2);
 
-    await gotoTabPage(driver, settingsTag);
-    await addSetting(driver, {
-      name: chartViewType,
-      value: chartDeltas,
-      message: `added new setting ${chartViewType}`,
-    });
-    await gotoTabPage(driver, assetsTag);
+    await scrollIntoViewByID(driver, 'chooseAssetChartType+-');
+    await clickButton(driver, 'chooseAssetChartType+-');
 
     ary = await getDataDumpFromPage(driver, 'assetChart');
     // writeTestCode(ary);
@@ -546,21 +535,17 @@ describe(testName, () => {
       `{"testName":"${CoarseAndFine}"}`,
     );
 
-    await gotoTabPage(driver, settingsTag);
-    await addSetting(driver, {
-      name: viewDetail,
-      value: fineDetail,
-      message: `added new setting ${viewDetail}`,
-    });
-
-    // log(`submitted model settings`);
-
-    await addSetting(driver, {
-      name: assetChartFocus,
-      value: 'Accessible',
-      message: `added new setting ${assetChartFocus}`,
-    });
     await gotoTabPage(driver, assetsTag);
+
+    await scrollIntoViewByID(driver, 'chooseAssetOrDebtChartSetting--asset-All');
+    await clickButton(driver, 'chooseAssetOrDebtChartSetting--asset-All');
+
+    await scrollIntoViewByID(driver, 'chooseAssetOrDebtChartSetting--asset-Accessible');
+    await clickButton(driver, 'chooseAssetOrDebtChartSetting--asset-Accessible');
+
+    await scrollIntoViewByID(driver, 'chooseViewDetailTypeDetailed');
+    await clickButton(driver, 'chooseViewDetailTypeDetailed');
+
     await clickButton(driver, 'chooseViewFrequencyTypeMonthly');
 
     const ary = await getDataDumpFromPage(driver, 'assetChart');
@@ -628,13 +613,8 @@ describe(testName, () => {
       message: `added new setting ${roiEnd}`,
     });
 
-    await addSetting(driver, {
-      name: assetChartFocus,
-      value: allItems,
-      message: `added new setting ${assetChartFocus}`,
-    });
-
     await gotoTabPage(driver, assetsTag);
+
     await clickButton(driver, 'chooseViewFrequencyTypeMonthly');
 
     await addAsset(driver, {
@@ -843,15 +823,22 @@ describe(testName, () => {
       value: 'chrysler',
       message: `added new asset`,
       growth: '0.0',
-    });
+    });    
 
+    await scrollIntoViewByID(driver, 'chooseAssetOrDebtChartSetting--asset-All');
+    await clickButton(driver, 'chooseAssetOrDebtChartSetting--asset-All');
+
+    await scrollIntoViewByID(driver, 'chooseAssetOrDebtChartSetting--asset-carTest1');
+    await clickButton(driver, 'chooseAssetOrDebtChartSetting--asset-carTest1');
+
+    /*
     await gotoTabPage(driver, settingsTag);
-
     await addSetting(driver, {
       name: assetChartFocus,
       value: 'carTest1',
       message: 'added new setting Focus of assets chart',
     });
+    */
 
     //await clickButton(driver, 'startNewModel2');
     //driver.switchTo().alert().sendKeys('banana');

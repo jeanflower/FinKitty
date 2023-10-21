@@ -339,7 +339,6 @@ export function expensesDiv(
         doChecks,
         parentCallbacks,
         '',
-        viewSettings,
       )}
       {todaysExpensesTable(model, todaysValues, parentCallbacks.doShowTodaysValueColumns)}
       {transactionFilteredTable(
@@ -349,7 +348,6 @@ export function expensesDiv(
         'Expense revaluations',
         parentCallbacks,
         'expenseRevalsTable',
-        viewSettings,
       )}
       {collapsibleFragment(
         <div className="addNewExpense">
@@ -363,7 +361,6 @@ export function expensesDiv(
             checkTransactionFunction={checkTransaction}
             submitTransactionFunction={parentCallbacks.submitTransaction}
             doCheckBeforeOverwritingExistingData={parentCallbacks.doCheckBeforeOverwritingExistingData}
-            viewState={viewSettings}
           />
         </div>,
         'Add or revalue an expense',

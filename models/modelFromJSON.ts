@@ -5,7 +5,6 @@ import { migrateOldVersions } from "./versioningUtils";
 import { roiStart, roiEnd } from "../localization/stringConstants";
 import { checkTriggerDate } from "../utils/stringUtils";
 import { getVarVal } from "./modelQueries";
-import { ViewSettings } from "../utils/viewUtils";
 
 function convertFavouriteToEra(i: any) {
   if (i.ERA !== undefined) {
@@ -83,7 +82,6 @@ function cleanUpDates(
 // breaks dates (and functions too but we don't have these)
 export function makeModelFromJSONString(
   input: string,
-  viewState: ViewSettings,
   modelName = '',
 ): ModelDataFromFile {
   const matches = input.match(/PensionDBC/g);
@@ -97,7 +95,7 @@ export function makeModelFromJSONString(
   // log(`parsed JSON and found ${showObj(result)}`);
   if (result.testName !== undefined) {
     // log("this isn't JSON but refers to test data we can look up");
-    result = getTestModel(result.testName, viewState);
+    result = getTestModel(result.testName);
   }
 
   if (modelName !== '' || result.name === undefined) {
@@ -138,11 +136,10 @@ export function makeModelFromJSONString(
 
 export function makeModelFromJSON(
   input: string, 
-  viewState: ViewSettings,
   modelName = '',
 ): ModelData {
   // log('in makeModelFromJSON');
-  const model: ModelDataFromFile = makeModelFromJSONString(input, viewState, modelName);
-  migrateOldVersions(model, viewState);
+  const model: ModelDataFromFile = makeModelFromJSONString(input, modelName);
+  migrateOldVersions(model);
   return model;
 }

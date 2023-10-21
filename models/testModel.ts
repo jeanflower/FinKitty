@@ -1,12 +1,11 @@
 import { TestModel01, TestModel02, CoarseAndFine, FutureExpense, ThreeChryslerModel, MinimalModel, BenAndJerryModel, bondModel, CASH_ASSET_NAME, birthDate, birthDateHint, constType, cpi, cpiHint, incomeTax, payOffDebt, revalueAsset, roiEnd, roiEndHint, roiStart, roiStartHint, valueFocusDate, valueFocusDateHint, viewType, allItems, annually, assetChartFocus, chartVals, chartViewType, expenseChartFocus, fineDetail, incomeChartFocus, viewDetail, viewFrequency, monthly, crystallizedPension, moveTaxFreePart, pension, pensionDB, pensionTransfer, taxFree, transferCrystallizedPension } from "../localization/stringConstants";
 import { ModelData, Setting } from "../types/interfaces";
-import { getModelCoarseAndFineForMigration, getThreeChryslerModelForMigration, definedBenefitsPension, getDefinedBenefitsPension, definedContributionsPension, getDefinedContributionsPension, pensionExampleData, getPensionExampleData, simpleAsset, simpleExpense, simpleIncome, simpleTransaction, emptyModel } from "./exampleModels";
+import { getModelCoarseAndFineForMigration, getThreeChryslerModelForMigration, definedBenefitsPension, definedContributionsPension, pensionExampleData, getPensionExampleData, simpleAsset, simpleExpense, simpleIncome, simpleTransaction, emptyModel, getDefinedBenefitsPension, getDefinedContributionsPension } from "./exampleModels";
 import { setSetting } from "./modelUtils";
 import { simpleSetting, viewSetting } from "./exampleSettings";
 import { allViews } from "../utils/allViews";
 import { getMinimalModelCopy } from "./minimalModel";
 import { makeModelFromJSON, makeModelFromJSONString } from "./modelFromJSON";
-import { ViewSettings } from "../utils/viewUtils";
 
 const browserTestSettingsForMigration: Setting[] = [
   {
@@ -314,12 +313,12 @@ export function defaultModelSettings(roi: { start: string; end: string }) {
   ];
 }
 
-function getModelFutureExpenseForMigration(viewSettings: ViewSettings) {
+function getModelFutureExpenseForMigration() {
   const roi = {
     start: 'Dec 1, 2016 00:00:00',
     end: 'March 1, 2017 00:00:00',
   };
-  const minimalModel = getMinimalModelCopy(viewSettings);
+  const minimalModel = getMinimalModelCopy();
   const model: ModelData = {
     ...minimalModel,
     expenses: [
@@ -1059,7 +1058,7 @@ function getBenAndJerryModel(): ModelData {
   return model;
 }
 
-function getBondModel(viewState: ViewSettings) {
+function getBondModel() {
   return makeModelFromJSONString(
     `
   {
@@ -1358,14 +1357,12 @@ function getBondModel(viewState: ViewSettings) {
     "version": 0
   }
   `,
-  viewState,
   'BondModel',
   );
 }
 
 export function getTestModel(
   input: string,
-  viewState: ViewSettings,
 ): ModelData {
   // log(`getTestModel making model for ${input}`);
   let model: ModelData | undefined;
@@ -1378,24 +1375,23 @@ export function getTestModel(
   } else if (input === FutureExpense) {
     // log(`converting to from string`);
     model = makeModelFromJSON(
-      JSON.stringify(getModelFutureExpenseForMigration(viewState)),
-      viewState,
+      JSON.stringify(getModelFutureExpenseForMigration()),
       'FutureExpenseForMigration',
     );
   } else if (input === ThreeChryslerModel) {
-    model = getThreeChryslerModelForMigration(viewState);
+    model = getThreeChryslerModelForMigration();
   } else if (input === MinimalModel) {
-    model = getMinimalModelCopy(viewState);
+    model = getMinimalModelCopy();
   } else if (input === BenAndJerryModel) {
     model = getBenAndJerryModel();
   } else if (input === definedBenefitsPension) {
-    model = getDefinedBenefitsPension(viewState);
+    model = getDefinedBenefitsPension();
   } else if (input === definedContributionsPension) {
-    model = getDefinedContributionsPension(viewState);
+    model = getDefinedContributionsPension();
   } else if (input === pensionExampleData) {
-    model = getPensionExampleData(viewState);
+    model = getPensionExampleData();
   } else if (input === bondModel) {
-    model = getBondModel(viewState);
+    model = getBondModel();
   }
 
   // TODO : should we make a copy here for more stable tests?

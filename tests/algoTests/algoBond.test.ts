@@ -36,7 +36,6 @@ describe('bonds tests', () => {
       start: 'Dec 1, 2017',
       end: 'July 1, 2019',
     };
-    const viewSettings = defaultTestViewSettings();
     const settingRevalueDate = 'February 10 2018';
     const matureDateString = 'April 12 2019';
     const investDateString = 'April 12 2018';
@@ -101,7 +100,7 @@ describe('bonds tests', () => {
     setSetting(model.settings, `${bondInterest}`, '100', constType);
 
     const evalsAndValues = getEvaluations(
-      makeModelFromJSONString(JSON.stringify(model), viewSettings),
+      makeModelFromJSONString(JSON.stringify(model)),
       undefined, // no key for a values report
     );
 

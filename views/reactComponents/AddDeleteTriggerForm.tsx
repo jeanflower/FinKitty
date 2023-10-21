@@ -5,7 +5,6 @@ import { ModelData, Trigger, FormProps, DeleteResult } from '../../types/interfa
 import { log, makeDateFromString, printDebug, showObj } from '../../utils/utils';
 import { makeButton } from './Button';
 import { Input } from './Input';
-import { ViewSettings } from 'utils/viewUtils';
 
 interface EditTriggerFormState {
   NAME: string;
@@ -16,11 +15,9 @@ interface EditTriggerProps extends FormProps {
   submitFunction: (
     triggerInput: Trigger,
     modelData: ModelData,
-    viewState: ViewSettings,
   ) => Promise<void>;
-  deleteFunction: (settingName: string, viewState: ViewSettings) => Promise<DeleteResult>;
+  deleteFunction: (settingName: string) => Promise<DeleteResult>;
   doCheckBeforeOverwritingExistingData: () => boolean;
-  viewState: ViewSettings,
 }
 
 export function newTriggerButtonData(
@@ -158,7 +155,7 @@ export class AddDeleteTriggerForm extends Component<
     if (message.length > 0) {
       this.props.showAlert(message);
     } else {
-      await this.props.submitFunction(trigger, this.props.model, this.props.viewState);
+      await this.props.submitFunction(trigger, this.props.model);
       // this.props.showAlert('added new important date');
       // clear fields
       this.setState(this.defaultState);
@@ -168,7 +165,7 @@ export class AddDeleteTriggerForm extends Component<
   private async delete(e: React.ChangeEvent<HTMLInputElement>) {
     e.preventDefault();
     // log('deleting something ' + showObj(this));
-    const deleteResult = await this.props.deleteFunction(this.state.NAME, this.props.viewState);
+    const deleteResult = await this.props.deleteFunction(this.state.NAME);
     if (deleteResult.message === '') {
       if (deleteResult.itemsDeleted.length === 1) {
         this.props.showAlert('deleted important date');

@@ -4,7 +4,6 @@ import { DeleteResult, Item, ModelData } from "../types/interfaces";
 import { getUserID } from "./user";
 import { checkData } from "../models/checks";
 import { Context, log } from "./utils";
-import { ViewSettings } from "./viewUtils";
 
 export async function attemptRename(
   model: ModelData,
@@ -17,9 +16,8 @@ export async function attemptRename(
     refreshChart: boolean,
     sourceID: number,
   ) => Promise<void>,
-  viewState: ViewSettings,
 ): Promise<string> {
-  const message = attemptRenameLong(model, doChecks, old, replacement, viewState);
+  const message = attemptRenameLong(model, doChecks, old, replacement);
   // log(`message from attemptRenameLong is ${message}`);
   if (message === '') {
     // log(`message is empty, go to refreshData`);
@@ -184,7 +182,6 @@ export async function deleteItemsFromModelInternal(
     refreshChart: boolean,
     sourceID: number,
   ) => Promise<void>,
-  viewState: ViewSettings,
 ): Promise<DeleteResult> {
   // log(`delete items ${names}`);
   //log(`before itemList ${itemList.map((i)=>{return i.NAME})}`);
@@ -205,7 +202,7 @@ export async function deleteItemsFromModelInternal(
   // go and delete the dependenta manually, first.
   // What follows is an attempt to be more helpful...
 
-  markForUndo(model, viewState);
+  markForUndo(model);
   const response = await deleteItemsRecursive(
     names,
     itemList,

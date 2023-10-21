@@ -598,9 +598,7 @@ describe('checks tests', () => {
   });
 
   it('check transaction', () => {
-    const viewSettings = defaultTestViewSettings();
-
-    const model = getTestModel(definedBenefitsPension, viewSettings);
+    const model = getTestModel(definedBenefitsPension);
 
     suppressLogs();
     expect(checkData(model).message).toEqual(``);
@@ -766,7 +764,7 @@ describe('checks tests', () => {
 
     expect(checkData(model).message).toEqual(``);
 
-    const model2 = getMinimalModelCopy(viewSettings);
+    const model2 = getMinimalModelCopy();
     model2.assets.push({
       ...simpleAsset,
       NAME: 'a',
@@ -1049,8 +1047,7 @@ describe('checks tests', () => {
     unSuppressLogs();
   });
   it('check trigger', () => {
-    const viewSettings = defaultTestViewSettings();
-    const model = getMinimalModelCopy(viewSettings);
+    const model = getMinimalModelCopy();
     expect(
       checkTrigger(
         {
@@ -1082,9 +1079,9 @@ describe('checks tests', () => {
       ),
     ).toEqual(`Date 'zzz' is not valid : 'nonsense'`);
   });
+
   it('check bond model', () => {
-    const viewSettings = defaultTestViewSettings();
-    const model = getTestModel(bondModel, viewSettings);
+    const model = getTestModel(bondModel);
     expect(checkData(model).message).toEqual(``);
 
     suppressLogs();

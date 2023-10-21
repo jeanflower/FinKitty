@@ -74,7 +74,7 @@ import { viewSetting, simpleSetting } from '../../models/exampleSettings';
 import { allViews } from '../../utils/allViews';
 import { minimalModel } from '../../models/minimalModel';
 import { makeModelFromJSONString } from '../../models/modelFromJSON';
-import { ViewSettings, getDefaultViewSettings } from '../../utils/viewUtils';
+import { ViewSettings } from '../../utils/viewUtils';
 
 export function expectEvals(
   evals: Evaluation[],
@@ -260,8 +260,6 @@ export function getTestEvaluations(
     todaysSettingValues: new Map<Setting, SettingVal>(),
   };
 
-  const viewState = getDefaultViewSettings();
-
   if (renamingChecks) {
     // only rename if new model makes sense
     const doChecks = true;
@@ -298,7 +296,7 @@ export function getTestEvaluations(
         return;
       }
       const oldName = obj.NAME;
-      let message = attemptRenameLong(model, doChecks, oldName, 'abcd', viewState);
+      let message = attemptRenameLong(model, doChecks, oldName, 'abcd');
       if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
       }
@@ -329,7 +327,7 @@ export function getTestEvaluations(
           // log(`Good: copy matches original`);
         }
       }
-      message = attemptRenameLong(model, doChecks, 'abcd', oldName, viewState);
+      message = attemptRenameLong(model, doChecks, 'abcd', oldName);
       if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
       }
@@ -352,7 +350,7 @@ export function getTestEvaluations(
         newName = crystallizedPension + newName;
       }
 
-      let message = attemptRenameLong(model, doChecks, oldName, newName, viewState);
+      let message = attemptRenameLong(model, doChecks, oldName, newName);
       if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
       }
@@ -383,7 +381,7 @@ export function getTestEvaluations(
           // log(`Good: copy matches original`);
         }
       }
-      message = attemptRenameLong(model, doChecks, newName, oldName, viewState);
+      message = attemptRenameLong(model, doChecks, newName, oldName);
       if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
       }
@@ -398,7 +396,7 @@ export function getTestEvaluations(
       } else if (oldName.startsWith(pensionTransfer)) {
         newName = pensionTransfer + newName;
       }
-      let message = attemptRenameLong(model, doChecks, oldName, newName, viewState);
+      let message = attemptRenameLong(model, doChecks, oldName, newName);
       if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
       }
@@ -429,7 +427,7 @@ export function getTestEvaluations(
           // log(`Good: copy matches original`);
         }
       }
-      message = attemptRenameLong(model, doChecks, newName, oldName, viewState);
+      message = attemptRenameLong(model, doChecks, newName, oldName);
       if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
       }
@@ -438,7 +436,7 @@ export function getTestEvaluations(
     });
     model.expenses.forEach((obj) => {
       const oldName = obj.NAME;
-      let message = attemptRenameLong(model, doChecks, oldName, 'abcd', viewState);
+      let message = attemptRenameLong(model, doChecks, oldName, 'abcd');
       if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
       }
@@ -469,7 +467,7 @@ export function getTestEvaluations(
           // log(`Good: copy matches original`);
         }
       }
-      message = attemptRenameLong(model, doChecks, 'abcd', oldName, viewState);
+      message = attemptRenameLong(model, doChecks, 'abcd', oldName);
       if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
       }
@@ -510,7 +508,7 @@ export function getTestEvaluations(
       }
       // log(`transaction oldName ${obj.NAME} -> ${newName}`);
 
-      let message = attemptRenameLong(model, doChecks, oldName, newName, viewState);
+      let message = attemptRenameLong(model, doChecks, oldName, newName);
       if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
       }
@@ -541,7 +539,7 @@ export function getTestEvaluations(
           // log(`Good: copy matches original`);
         }
       }
-      message = attemptRenameLong(model, doChecks, newName, oldName, viewState);
+      message = attemptRenameLong(model, doChecks, newName, oldName);
       if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
       }
@@ -558,7 +556,7 @@ export function getTestEvaluations(
       }
       const oldName = obj.NAME;
       const newName = 'abcd';
-      let message = attemptRenameLong(model, doChecks, oldName, newName, viewState);
+      let message = attemptRenameLong(model, doChecks, oldName, newName);
       let renamedToNew = true;
       if (message.length > 0) {
         if (message === 'Must maintain special formatting using BMV') {
@@ -595,7 +593,7 @@ export function getTestEvaluations(
         }
       }
       if (renamedToNew) {
-        message = attemptRenameLong(model, doChecks, newName, oldName, viewState);
+        message = attemptRenameLong(model, doChecks, newName, oldName);
         if (message.length > 0) {
           throw new Error(`rename failed with message '${message}'`);
         }
@@ -612,7 +610,7 @@ export function getTestEvaluations(
       undefined, // no key for a values report
     );
   } else {
-    const copyModel = makeModelFromJSONString(JSON.stringify(model), viewState);
+    const copyModel = makeModelFromJSONString(JSON.stringify(model));
     const reporter = () =>
       //name: string, // name of thing which has a value
       //val: number | string, // value of the thing

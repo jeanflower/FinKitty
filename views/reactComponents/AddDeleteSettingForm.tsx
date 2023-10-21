@@ -25,7 +25,6 @@ import {
   makeValueAbsPropFromString,
 } from '../../utils/stringUtils';
 import Spacer from 'react-spacer';
-import { ViewSettings } from '../../utils/viewUtils';
 import { getVarVal } from '../../models/modelQueries';
 
 interface EditSettingFormState {
@@ -35,22 +34,18 @@ interface EditSettingFormState {
   inputting: string;
 }
 interface EditSettingProps extends FormProps {
-  viewSettings: ViewSettings;
   submitSettingFunction: (
     arg0: Setting,
     arg1: ModelData,
-    arg2: ViewSettings,
   ) => Promise<void>;
   checkTransactionFunction: (t: Transaction, model: ModelData) => string;
   submitTransactionFunction: (
     transactionInput: Transaction,
     modelData: ModelData,
-    viewState: ViewSettings,
   ) => Promise<void>;
   submitTriggerFunction: (
     triggerInput: Trigger,
     modelData: ModelData,
-    viewState: ViewSettings,
   ) => Promise<void>;
   doCheckBeforeOverwritingExistingData: () => boolean;
 }
@@ -191,7 +186,6 @@ export class AddDeleteSettingForm extends Component<
     await this.props.submitTransactionFunction(
       revalueTransaction,
       this.props.model,
-      this.props.viewSettings,
     );
 
     this.props.showAlert('added new data');
@@ -235,7 +229,6 @@ export class AddDeleteSettingForm extends Component<
             onChangeHandler={this.handleStartChange}
             triggers={this.props.model.triggers}
             submitTriggerFunction={this.props.submitTriggerFunction}
-            viewState={this.props.viewSettings}
           />
         </div>
       );
@@ -348,7 +341,6 @@ export class AddDeleteSettingForm extends Component<
     await this.props.submitSettingFunction(
       setting,
       this.props.model,
-      this.props.viewSettings,
     );
 
     this.props.showAlert(`added new setting ${this.state.NAME}`);

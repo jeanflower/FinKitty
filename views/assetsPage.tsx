@@ -54,7 +54,6 @@ function makeDataGrid(
   model: ModelData,
   tableID: string,
   parentCallbacks: ViewCallbacks,
-  viewState: ViewSettings,
 ) {
   return (
     <DataGridFinKitty
@@ -93,7 +92,6 @@ function makeDataGrid(
         faveColumn(
           parentCallbacks.deleteAsset,
           'delAsset',
-          viewState,
         ),
         {
           ...defaultColumn,
@@ -125,7 +123,6 @@ export function todaysAssetsTable(
   model: ModelData,
   todaysValues: Map<Asset, AssetOrDebtVal>,
   parentCallbacks: ViewCallbacks,
-  viewState: ViewSettings,
 ) {
   if (todaysValues.size === 0 || !parentCallbacks.doShowTodaysValueColumns()) {
     return;
@@ -155,7 +152,6 @@ export function todaysAssetsTable(
           model, 
           'todaysAssetsTable',
           parentCallbacks,
-          viewState,
         ),
         `Asset values (categorised) at ${dateAsString(
           DateFormatType.View,
@@ -198,13 +194,11 @@ export function assetsDiv(
         doChecks,
         parentCallbacks,
         '',
-        viewSettings,
       )}
       {todaysAssetsTable(
         model, 
         todaysValues,
         parentCallbacks,
-        viewSettings,
         )}
       {collapsibleFragment(
         <div className="addNewAsset">
@@ -218,7 +212,6 @@ export function assetsDiv(
             model={model}
             showAlert={parentCallbacks.showAlert}
             doCheckBeforeOverwritingExistingData={parentCallbacks.doCheckBeforeOverwritingExistingData}
-            viewState={viewSettings}
           />
         </div>,
         `Add an asset, a defined-contributions pension, or revalue an asset`,

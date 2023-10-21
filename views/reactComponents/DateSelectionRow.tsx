@@ -8,7 +8,6 @@ import { dateAsString, makeDateTooltip } from '../../utils/stringUtils';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
 import { getVarVal } from '../../models/modelQueries';
-import { ViewSettings } from 'utils/viewUtils';
 
 interface DateSelectionProps extends FormProps {
   introLabel: string;
@@ -20,9 +19,7 @@ interface DateSelectionProps extends FormProps {
   submitTriggerFunction: (
     triggerInput: Trigger,
     modelData: ModelData,
-    viewState: ViewSettings,
   ) => Promise<void>;
-  viewState: ViewSettings;
 }
 function makeDateTooltipForRow(props: DateSelectionProps) {
   /* istanbul ignore if  */
@@ -68,7 +65,6 @@ export class DateSelectionRow extends Component<DateSelectionProps> {
             submitTriggerFunction={this.props.submitTriggerFunction}
             handleChange={this.props.setDateFunction}
             selectedItem=""
-            viewState={this.props.viewState}
           />
         </Col>
         <Col>

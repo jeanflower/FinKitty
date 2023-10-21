@@ -36,7 +36,6 @@ import { log } from '../utils/utils';
 import { viewSetting } from './exampleSettings';
 import { getMinimalModelCopy } from './minimalModel';
 import { getCurrentVersion } from './currentVersion';
-import { ViewSettings } from '../utils/viewUtils';
 
 // 0; // may not include assets or settings in minimalModel
 // 1; // may not include expense recurrence, asset/debt,
@@ -78,11 +77,10 @@ const showMigrationLogs = false;
 
 function migrateFromV0(
   model: ModelData,
-  viewState: ViewSettings,
 ) {
   // log(`in migrateOldVersions at v0, model has ${model.settings.length} settings`);
   // use getMinimalModelCopy and scan over all settings and assets
-  const minimalModel = getMinimalModelCopy(viewState);
+  const minimalModel = getMinimalModelCopy();
   minimalModel.settings.forEach((x) => {
     if (
       model.settings.filter((existing) => {
@@ -218,52 +216,6 @@ function migrateFromV3(model: ModelData) {
   }
   model.version = 4;
 }
-function migrateFromV4(
-  model: ModelData,
-  viewState: ViewSettings,
-) {
-  // log(`in migrateFromV4`);
-  /* istanbul ignore if  */ //debug
-  if (showMigrationLogs) {
-    log(
-      `in migrateOldVersions at v4, model has ${model.settings.length} settings`,
-    );
-  }
-  // strip away any settings values which are no longer
-  // stored persistently
-  const debtChartView = 'Type of view for debt chart';
-  const namesForRemoval = [
-    viewFrequency,
-    chartViewType,
-    debtChartView,
-    viewDetail,
-    assetChartFocus,
-    debtChartFocus,
-    expenseChartFocus,
-    incomeChartFocus,
-    taxChartFocusPerson,
-    taxChartFocusType,
-    taxChartShowNet,
-  ];
-  namesForRemoval.forEach((name) => {
-    const idx = model.settings.findIndex((s) => {
-      return s.NAME === name;
-    });
-    if (idx >= 0) {
-      // log(`setting setting ${name} to value ${model.settings[idx].VALUE}`);
-      // When loading in an old model, set the view from the
-      // old-style settings data.
-      // This only matters for keeping tests passing.
-      // migrateViewSetting(model.settings[idx]); // Do not import this from App.tsx!
-      viewState.migrateViewSettingString(
-        model.settings[idx].NAME,
-        model.settings[idx].VALUE,
-      );
-      model.settings.splice(idx, 1);
-    }
-  });
-  model.version = 5;
-}
 
 function changeSpecialWords(
   model: ModelData,
@@ -382,6 +334,48 @@ function changeSpecialWords(
       }
     });
   });
+}
+
+function migrateFromV4(
+  model: ModelData,
+) {
+  // log(`in migrateFromV4`);
+  /* istanbul ignore if  */ //debug
+  if (showMigrationLogs) {
+    log(
+      `in migrateOldVersions at v4, model has ${model.settings.length} settings`,
+    );
+  }
+  // strip away any settings values which are no longer
+  // stored persistently
+  const debtChartView = 'Type of view for debt chart';
+  const namesForRemoval = [
+    viewFrequency,
+    chartViewType,
+    debtChartView,
+    viewDetail,
+    assetChartFocus,
+    debtChartFocus,
+    expenseChartFocus,
+    incomeChartFocus,
+    taxChartFocusPerson,
+    taxChartFocusType,
+    taxChartShowNet,
+  ];
+  namesForRemoval.forEach((name) => {
+    const idx = model.settings.findIndex((s) => {
+      return s.NAME === name;
+    });
+    if (idx >= 0) {
+      // log(`setting setting ${name} to value ${model.settings[idx].VALUE}`);
+      // When loading in an old model, set the view from the
+      // old-style settings data.
+      // This only matters for keeping tests passing.
+      // migrateViewSetting(model.settings[idx]); // Do not import this from App.tsx!
+      model.settings.splice(idx, 1);
+    }
+  });
+  model.version = 5;
 }
 
 function migrateFromV5(model: ModelData) {
@@ -640,14 +634,8 @@ function migrateFromV10(model: ModelData) {
   model.version = 11;
 }
 
-/*
-function migrateFromV10(model: ModelData){
-  model.version = 11;
-}
-*/
 export function migrateOldVersions(
   model: ModelDataFromFile,
-  viewState: ViewSettings,
 ) {
   /* istanbul ignore if  */ //debug
   if (showMigrationLogs) {
@@ -655,7 +643,7 @@ export function migrateOldVersions(
     // log(`in migrateOldVersions, model has ${model.settings.map(showObj)}`);
   }
   if (model.version === 0) {
-    migrateFromV0(model, viewState);
+    migrateFromV0(model);
   }
   if (model.version === 1) {
     migrateFromV1(model);
@@ -667,7 +655,7 @@ export function migrateOldVersions(
     migrateFromV3(model);
   }
   if (model.version === 4) {
-    migrateFromV4(model, viewState);
+    migrateFromV4(model);
   }
   if (model.version === 5) {
     migrateFromV5(model);

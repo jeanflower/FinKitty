@@ -7,13 +7,11 @@ import {
   expectChartData,
   printTestCodeForChart,
   getTestEvaluations,
-  defaultTestViewSettings,
 } from './algoTestUtils';
 
 expectEvals;
 expectChartData;
 printTestCodeForChart;
-makeModelFromJSON;
 
 describe('debug test', () => {
   /* istanbul ignore if  */
@@ -52,8 +50,7 @@ describe('debug test', () => {
 {"NAME":"Beginning of view range","VALUE":"Sat Jan 05 2019+variable1d","HINT":"Date at the start of range to be plotted","TYPE":"view"}],
 "version":9,"name":"x"}`;
 
-    const viewSettings = defaultTestViewSettings();
-    const model = makeModelFromJSON(json, viewSettings);
+    const model = makeModelFromJSON(json);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;

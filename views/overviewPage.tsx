@@ -148,7 +148,6 @@ function transactionsOverviewDiv(
   model: ModelData,
   doChecks: boolean,
   parentCallbacks: ViewCallbacks,
-  viewState: ViewSettings,
 ) {
   const customContents = transactionsForTable(model, custom, parentCallbacks);
   const autogenContents = transactionsForTable(model, autogen, parentCallbacks);
@@ -165,7 +164,6 @@ function transactionsOverviewDiv(
         'Custom transactions',
         parentCallbacks,
         'customTransactionsOverview',
-        viewState,
       )}
       {transactionsTableDiv(
         autogenContents,
@@ -175,7 +173,6 @@ function transactionsOverviewDiv(
         'Auto-generated transactions',
         parentCallbacks,
         'autogenTransactionsOverview',
-        viewState,
       )}
       {transactionFilteredTable(
         model,
@@ -184,7 +181,6 @@ function transactionsOverviewDiv(
         'Bond transactions',
         parentCallbacks,
         'bondTransactionsOverview',
-        viewState,
       )}
     </>
   );
@@ -273,14 +269,12 @@ export function overviewDiv(
           doChecks,
           parentCallbacks,
           'Overview',
-          viewSettings,
         )}
         {incomesTableDivWithHeading(
           model,
           todaysIncomeValues,
           doChecks,
           parentCallbacks,
-          viewSettings,
         )}
         {transactionFilteredTable(
           model,
@@ -289,7 +283,6 @@ export function overviewDiv(
           'Income revaluations',
           parentCallbacks,
           'incomesRevalsOverviewTable',
-          viewSettings,
         )}
         {expensesTableDivWithHeading(
           model,
@@ -297,7 +290,6 @@ export function overviewDiv(
           doChecks,
           parentCallbacks,
           'Overview',
-          viewSettings,
         )}
         {transactionFilteredTable(
           model,
@@ -306,7 +298,6 @@ export function overviewDiv(
           'Expense revaluations',
           parentCallbacks,
           'expensesRevalsOverviewTable',
-          viewSettings,
         )}
         {assetsDivWithHeadings(
           model,
@@ -314,7 +305,6 @@ export function overviewDiv(
           doChecks,
           parentCallbacks,
           'Overview',
-          viewSettings,
         )}
         {debtsDivWithHeadings(
           model,
@@ -322,16 +312,14 @@ export function overviewDiv(
           doChecks,
           parentCallbacks,
           'Overview',
-          viewSettings,
         )}
-        {transactionsOverviewDiv(model, doChecks, parentCallbacks, viewSettings)}
+        {transactionsOverviewDiv(model, doChecks, parentCallbacks)}
         {settingsTableDiv(
           model,
           todaysSettingValues,
           doChecks,
           parentCallbacks,
           'Overview',
-          viewSettings,
         )}
       </div>
     </div>

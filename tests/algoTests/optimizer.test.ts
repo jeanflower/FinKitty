@@ -1,8 +1,9 @@
+import { getDefaultViewSettings } from '../../utils/viewUtils';
 import { annually } from '../../localization/stringConstants';
 import { EvaluationHelper } from '../../models/evaluations';
 import {
-  getVariableDateExampleData,
   getVariableDateExampleData2,
+  getVariableDateExampleData,
 } from '../../models/exampleModels';
 import { ChartData, ReportValueChecker } from '../../types/interfaces';
 import { log, printDebug, showObj } from '../../utils/utils';
@@ -75,10 +76,12 @@ describe('optimizer tests', () => {
       {
         return false;
       };
+
     const helper = new EvaluationHelper(reporter, 0, annually);
     const cd: ChartData = calcOptimizer(model, helper, (msg: string) => {
       errorMsg = msg;
-    });
+    },
+    );
     expect(errorMsg).toEqual('');
 
     // log(`cd === \n${showObj(cd)}`);
@@ -152,10 +155,12 @@ describe('optimizer tests', () => {
         return false;
       };
     const helper = new EvaluationHelper(reporter, 0, annually);
+
     let errorMsg = '';
     const cd: ChartData = calcOptimizer(model, helper, (msg: string) => {
       errorMsg = msg;
-    });
+    },
+    );
     expect(errorMsg).toEqual('');
 
     // log(`cd === \n${showObj(cd)}`);

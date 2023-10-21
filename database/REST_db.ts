@@ -3,7 +3,6 @@ import { ModelData } from '../types/interfaces';
 import { log, printDebug } from '../utils/utils';
 import { DbInterface } from './dbInterface';
 import { minimalModel } from '../models/minimalModel';
-import { ViewSettings } from '../utils/viewUtils';
 
 const url = process.env.NEXT_PUBLIC_REACT_APP_SERVER_URL_NOT_SECRET;
 
@@ -58,7 +57,6 @@ export class RESTDB implements DbInterface {
   loadModel(
     userID: string, 
     modelName: string,
-    viewState: ViewSettings,
   ): Promise<ModelData> {
     const myHeaders = new Headers();
     myHeaders.append('Content-Type', 'application/x-www-form-urlencoded');
@@ -91,7 +89,7 @@ export class RESTDB implements DbInterface {
             // log(`result has ${JSON.parse(result).assets.length} assets`);
             try {
               //log('make model from REST data');
-              resolve(makeModelFromJSON(result, viewState, modelName));
+              resolve(makeModelFromJSON(result, modelName));
             } catch (err) {
               /* istanbul ignore next */
               reject(`no model found err = ${err}`);

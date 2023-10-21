@@ -3,7 +3,6 @@ import React, { Component, FormEvent } from 'react';
 import { Trigger, ModelData, FormProps } from '../../types/interfaces';
 import { newTriggerButtonData } from './AddDeleteTriggerForm';
 import { lessThan } from '../../utils/stringUtils';
-import { ViewSettings } from 'utils/viewUtils';
 
 const welcomeString = 'Choose a date (optional)';
 
@@ -13,10 +12,8 @@ interface TriggerOptionListProps extends FormProps {
   submitTriggerFunction: (
     triggerInput: Trigger,
     modelData: ModelData,
-    viewState: ViewSettings,
   ) => Promise<void>;
   selectedItem: string;
-  viewState: ViewSettings;
 }
 
 export class TriggerOptionList extends Component<
@@ -28,7 +25,7 @@ export class TriggerOptionList extends Component<
     this.state = { selectedItem: '' };
   }
   private newTriggerMade(e: Trigger) {
-    this.props.submitTriggerFunction(e, this.props.model, this.props.viewState);
+    this.props.submitTriggerFunction(e, this.props.model);
     this.setState({
       ...this.state,
       selectedItem: e.NAME,

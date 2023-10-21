@@ -1904,7 +1904,7 @@ describe(' chart data tests', () => {
   it('bond test charts', () => {
 
     const viewSettings = defaultTestViewSettings();
-    const model = getTestModel(bondModel, viewSettings);
+    const model = getTestModel(bondModel);
 
     const evalsAndValues = getTestEvaluations(model);
 
@@ -2452,7 +2452,7 @@ describe(' chart data tests', () => {
         "NAME":"GetRich","CATEGORY":"","FROM":"","FROM_ABSOLUTE":true,"FROM_VALUE":"0","TO":"Share","TO_ABSOLUTE":true,"TO_VALUE":"100","DATE":"Sat Jun 18 2023","STOP_DATE":"2025","RECURRENCE":"1y","TYPE":"custom"}],"version":9}`;
 
     const viewSettings = defaultTestViewSettings();
-    const model = makeModelFromJSON(json, viewSettings);
+    const model = makeModelFromJSON(json);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -2571,7 +2571,7 @@ describe(' chart data tests', () => {
       "name":"Test"}`;
 
       const viewSettings = defaultTestViewSettings();
-      const model = makeModelFromJSON(json, viewSettings);
+      const model = makeModelFromJSON(json);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -2695,7 +2695,7 @@ describe(' chart data tests', () => {
       "name":"Test"}`;
 
     const viewSettings = defaultTestViewSettings();
-    const model = makeModelFromJSON(json, viewSettings);
+    const model = makeModelFromJSON(json);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -2799,7 +2799,7 @@ describe(' chart data tests', () => {
       }`;
 
     const viewSettings = defaultTestViewSettings();
-    const model = makeModelFromJSON(json, viewSettings);
+    const model = makeModelFromJSON(json);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
