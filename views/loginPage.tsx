@@ -2,15 +2,24 @@ import React from 'react';
 import { makeButton } from './reactComponents/Button';
 import { screenshotsDiv } from './screenshotsPage';
 import { Navbar } from 'react-bootstrap';
-import { getAppVersion, toggle } from '../App';
-import { homeView } from '../localization/stringConstants';
+import { ViewType, homeView } from '../localization/stringConstants';
 
 import FinKittyCat from './cat.png';
 import WaitGif from './catWait.gif';
 import { log, printDebug } from '../utils/utils';
 import Image from 'next/image'
+import { getAppVersion } from '../utils/appVersion';
 
-export function navbarContent(isWaiting: boolean, rhContent: () => any) {
+export function navbarContent(
+  isWaiting: boolean, 
+  rhContent: () => any,
+  toggle: (
+    type: ViewType,
+    refreshModel: boolean,
+    refreshChart: boolean,
+    sourceID: number,
+  ) => void | boolean,
+) {
   /* istanbul ignore if  */
   if (printDebug()) {
     log(`drawing navbar content`);
@@ -55,6 +64,14 @@ export function loginPage(loginWithRedirect: any, loginForTesting: any) {
             <h3>An app for financial kitty forecasting v{getAppVersion()}</h3>
           );
         },
+        (
+          type: ViewType,
+          refreshModel: boolean,
+          refreshChart: boolean,
+          sourceID: number,
+        ) => {
+          // do nothing!
+        },        
       )}
       <div className="row">
         <div className="col-sm mb-4">

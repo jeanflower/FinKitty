@@ -1,6 +1,6 @@
 /* istanbul ignore file */
 import React, { Component, useState } from 'react';
-import { Col, Container, Row } from 'react-bootstrap';
+import { Col, Row } from 'react-bootstrap';
 import {
   definedBenefitsPension,
   definedContributionsPension,
@@ -140,7 +140,6 @@ import { dateAsString, lessThan, makeTwoDP } from './utils/stringUtils';
 import { diffModels } from './models/diffModels';
 import { collapsibleFragment } from './views/tablePages';
 import WaitGif from './views/catWait.gif';
-import packageData from './package.json';
 import {
   ViewSettings,
   getDefaultViewSettings,
@@ -156,14 +155,11 @@ import { minimalModel } from './models/minimalModel';
 import { makeModelFromJSON } from './models/modelFromJSON';
 import { setUserID, getUserID } from './utils/user';
 import { deleteItemsFromModelInternal } from './utils/appActions';
+import { getAppVersion } from './utils/appVersion';
 
 let modelName = '';
 
 let isDirty = false; // does the model need saving?
-
-export function getAppVersion(): string {
-  return packageData.version;
-}
 
 function App(): JSX.Element | null {
   const { isLoading, user, loginWithRedirect, loginForTesting, logout } =
@@ -1858,7 +1854,9 @@ export class AppContent extends Component<AppProps, AppState> {
     isWaiting: boolean,
     view: ViewType | undefined,
   ): JSX.Element {
-    return navbarContent(isWaiting, () => {
+    return navbarContent(
+      isWaiting, 
+      () => {
       const estateVal = this.state.reportData.find((d) => {
         return d.name === 'Estate final value';
       });
@@ -1905,7 +1903,16 @@ export class AppContent extends Component<AppProps, AppState> {
           </Navbar.Collapse>
         </>
       );
-    });
+    },
+    (
+      type: ViewType,
+      refreshModel: boolean,
+      refreshChart: boolean,
+      sourceID: number,
+    ) => {
+      return toggle(type, refreshModel, refreshChart, sourceID);
+    },    
+    );
   }
 
   public render(): JSX.Element {
