@@ -121,6 +121,9 @@ To exclude selenium browser tests (which don't seem to generate coverage data an
 use 
 ``CI=true npm test -- --testPathIgnorePatterns=browser --coverage``
 
+Assess file structure using skott
+``./node_modules/.bin/skott pages/index.tsx``
+
 ### Linting
 Run `./lintFixes.sh` keeps things clean.
 Running the web server also reports linting issues in the console.
