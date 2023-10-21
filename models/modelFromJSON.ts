@@ -1,6 +1,5 @@
 import { ModelData, ModelDataFromFile } from "../types/interfaces";
 import { log } from "../utils/utils";
-import { getTestModel } from "./testModel";
 import { migrateOldVersions } from "./versioningUtils";
 import { roiStart, roiEnd } from "../localization/stringConstants";
 import { checkTriggerDate } from "../utils/stringUtils";
@@ -93,10 +92,6 @@ export function makeModelFromJSONString(
 
   let result = JSON.parse(input);
   // log(`parsed JSON and found ${showObj(result)}`);
-  if (result.testName !== undefined) {
-    // log("this isn't JSON but refers to test data we can look up");
-    result = getTestModel(result.testName);
-  }
 
   if (modelName !== '' || result.name === undefined) {
     result.name = modelName;

@@ -16,6 +16,7 @@ import {
 } from '../../localization/stringConstants';
 import { makeModelFromJSON } from '../../models/modelFromJSON';
 import { ModelData } from '../../types/interfaces';
+import { getTestModel } from '../../models/testModel';
 
 interface ReplaceWithJSONFormState {
   JSON: string;
@@ -211,7 +212,7 @@ export class ReplaceWithJSONForm extends Component<
     const evalWord = 'eval';
 
     // log(`modelName from props is ${modelName}`);
-    let JSON = this.state.JSON.trim();
+    let JSONinput = this.state.JSON.trim();
 
     /*
     Options to toggle are
@@ -221,47 +222,47 @@ export class ReplaceWithJSONForm extends Component<
     - 'evalMode'
     */
 
-    if (JSON === simpleUI) {
+    if (JSONinput === simpleUI) {
       this.props.setUIMode(simpleUI);
       this.setState({ JSON: '' });
       return;
     }
-    if (JSON === advancedUI) {
+    if (JSONinput === advancedUI) {
       this.props.setUIMode(advancedUI);
       this.setState({ JSON: '' });
       return;
     }
-    if (JSON === overwriteWord) {
+    if (JSONinput === overwriteWord) {
       this.props.toggleOption(checkOverwriteOption);
       this.setState({ JSON: '' });
       return;
     }
-    if (JSON === evalWord) {
+    if (JSONinput === evalWord) {
       this.props.toggleOption(evalModeOption);
       this.setState({ JSON: '' });
       return;
     }
-    if (JSON === gotoOverview) {
+    if (JSONinput === gotoOverview) {
       this.props.toggleOption(goToAssetsPageOption);
       this.setState({ JSON: '' });
       return;
     }
-    if (JSON === checkModelOnEdit) {
+    if (JSONinput === checkModelOnEdit) {
       this.props.toggleOption(checkModelOnEditOption);
       this.setState({ JSON: '' });
       return;
     }
-    if (JSON === showHistoricalOption) {
+    if (JSONinput === showHistoricalOption) {
       this.props.toggleOption(showHistoricalOption);
       this.setState({ JSON: '' });
       return;
     }
-    if (JSON === showCurrentOption) {
+    if (JSONinput === showCurrentOption) {
       this.props.toggleOption(showCurrentOption);
       this.setState({ JSON: '' });
       return;
     }
-    if (JSON === showFutureOption) {
+    if (JSONinput === showFutureOption) {
       this.props.toggleOption(showFutureOption);
       this.setState({ JSON: '' });
       return;
@@ -269,12 +270,12 @@ export class ReplaceWithJSONForm extends Component<
     const i = this.state.JSON.indexOf(`{`);
     /* istanbul ignore if  */
     if (printDebug()) {
-      log(`index of { in ${JSON} is ${i}`);
+      log(`index of { in ${JSONinput} is ${i}`);
     }
     if (i !== 0) {
-      modelName = JSON.substring(0, i);
+      modelName = JSONinput.substring(0, i);
       // log(`modelName from JSON is ${modelName}`);
-      JSON = JSON.substring(i);
+      JSONinput = JSONinput.substring(i);
     }
     const alreadyExists = this.props.modelNames.find((existing) => {
       return existing === modelName;
@@ -286,7 +287,21 @@ export class ReplaceWithJSONForm extends Component<
         `will replace ${modelName} which already exists, you sure?`,
       )
     ) {
-      const newModel = makeModelFromJSON(JSON, modelName); // replaces name in JSON
+      let newModel;
+
+      let result = JSON.parse(JSONinput);
+      // log(`parsed JSON and found ${showObj(result)}`);
+      if (result.testName !== undefined) {
+        // log("this isn't JSON but refers to test data we can look up");
+        const testModel = getTestModel(result.testName);
+
+        // still use makeModelFromJSON as it does some checks and migrations
+        // from old data
+        newModel = makeModelFromJSON(JSON.stringify(testModel));
+      } else {
+        newModel = makeModelFromJSON(JSONinput);
+      }
+
       this.props.replaceWithModel(this.props.userID, modelName, newModel, false);
       this.props.showAlert('replaced data OK');
       this.setState({ JSON: '' });

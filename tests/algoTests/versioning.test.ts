@@ -14,10 +14,8 @@ import {
   BenAndJerryModel,
 } from '../../localization/stringConstants';
 import { checkData } from '../../models/checks';
-import { diffModels } from '../../models/diffModels';
 import { log, showObj, suppressLogs, unSuppressLogs } from '../../utils/utils';
 import { getSettings } from '../../models/modelQueries';
-import { defaultTestViewSettings } from './algoTestUtils';
 
 showObj;
 
@@ -681,30 +679,7 @@ describe('loadModelsFromJSON', () => {
   });
 
   it('check TestModel01', () => {
-    const model0 = makeModelFromJSONString('{ "testName": "TestModel01" }');
     const model = getTestModel(TestModel01);
-    expect(diffModels(model, model0, false, 'model', 'model0')).toEqual([
-      'TransferMortgage: date Jan 01 2028 !== 01 Jan 2028',
-      'StopMainWork: date Dec 31 2050 !== 31 Dec 2050',
-      'GetRidOfCar: date Dec 31 2025 !== 31 Dec 2025',
-      'Main income: start date 1 March 2018 !== 01 Mar 2018',
-      'Look after dogs: changed era',
-      'Run car: changed era',
-      'Run house: changed era',
-      'Cash: start date December 2017 !== 01 Dec 2017',
-      'Stocks: start date December 2017 !== 01 Dec 2017',
-      'ISAs: start date December 2019 !== 01 Dec 2019',
-      'EarlyMortgage: start date 1 January 2018 !== 01 Jan 2018',
-      'LateMortgage: start date 1 January 2018 !== 01 Jan 2018',
-      'Each month buy food: changed era',
-      'Revalue stocks after loss in 2020 market crash: changed era',
-      'SellCar: changed era',
-      'switchMortgage: changed era',
-      'Conditional pay early mortgage: changed era',
-      'Conditional pay late mortgage: changed era',
-      'Beginning of view range: value 1 Jan 2019 !== 01 Jan 2019',
-      'End of view range: value 1 Feb 2019 !== 01 Feb 2019',
-    ]);
 
     const outcome = checkData(makeModelFromJSON(JSON.stringify(model)));
     if (outcome.message.length > 0) {
