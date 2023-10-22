@@ -115,7 +115,7 @@ import { getTodaysDate, setSetting } from '../models/modelUtils';
 
 function CustomToggle({ children, eventKey }: any) {
   const decoratedOnClick = useAccordionButton(eventKey, () =>
-    console.log('totally custom!'),
+    log('totally custom!'),
   );
 
   return (
@@ -206,7 +206,7 @@ function handleExpenseGridRowsUpdated(
           return;
         }
       }
-      console.log('rename expense');
+      log('rename expense');
       attemptRename(model, doChecks, oldRow.NAME, newRow.NAME, showAlert, refreshData);
     }
     return;
@@ -277,7 +277,7 @@ function handleIncomeGridRowsUpdated(
   ) => Promise<void>,  
   args: any,
 ) {
-  log(`handleIncomeGridRowsUpdated ${JSON.stringify(args)}`);
+  // log(`handleIncomeGridRowsUpdated ${JSON.stringify(args)}`);
   const newTable = args[0];
   const change = args[1];
   const changedIndexes = change.indexes;
@@ -403,7 +403,7 @@ function handleTriggerGridRowsUpdated(
   ) => Promise<void>,
   args: any,
 ) {
-  log(`handleTriggerGridRowsUpdated ${JSON.stringify(args)}`);
+  // log(`handleTriggerGridRowsUpdated ${JSON.stringify(args)}`);
   const newTable = args[0];
   const change = args[1];
   const changedIndexes = change.indexes;
@@ -676,7 +676,7 @@ function handleTransactionGridRowsUpdated(
   ) => Promise<void>,
   args: any,
 ) {
-  log(`handleTransactionGridRowsUpdated ${JSON.stringify(args)}`);
+  // log(`handleTransactionGridRowsUpdated ${JSON.stringify(args)}`);
   const newTable = args[0];
   const change = args[1];
   const changedIndexes = change.indexes;
@@ -801,14 +801,14 @@ function handleTransactionGridRowsUpdated(
       const checks = checkTransaction(transaction, model);
       if (checks === '') {
         // log(`checks OK, submitting transaction`);
-        console.log(`submitting transaction after edit ${showObj(transaction)}`);
+        log(`submitting transaction after edit ${showObj(transaction)}`);
         submitTransaction(transaction, model);
       } else {
         showAlert(checks);
         // gridData[args[0].cellKey] = oldValue;
       }
     } else {
-      console.log(`submitting transaction after edit ${showObj(transaction)}`);
+      log(`submitting transaction after edit ${showObj(transaction)}`);
       submitTransaction(transaction, model);
     }
   }
@@ -834,7 +834,7 @@ function handleSettingGridRowsUpdated(
   ) => Promise<void>,
   args: any,
 ) {
-  log(`handleTransactionGridRowsUpdated ${JSON.stringify(args)}`);
+  // log(`handleTransactionGridRowsUpdated ${JSON.stringify(args)}`);
   const newTable = args[0];
   const change = args[1];
   const changedIndexes = change.indexes;
@@ -903,7 +903,7 @@ export const defaultColumn = {
   sortable: true,
   renderEditCell: textEditor,
   renderCell(props: any) {
-    //console.log(`in formatter, JSON.stringify(props) = ${JSON.stringify(props)}`);
+    // log(`in formatter, JSON.stringify(props) = ${JSON.stringify(props)}`);
     const val = props.row[props.column.key];
 
     return <SimpleFormatter 
@@ -918,7 +918,7 @@ export function triggerDateColumn(model: ModelData){
     sortable: true,
     renderEditCell: textEditor,
     renderCell(props: any) {
-      //console.log(`in formatter, JSON.stringify(props) = ${JSON.stringify(props)}`);
+      //log(`in formatter, JSON.stringify(props) = ${JSON.stringify(props)}`);
       const val = props.row[props.column.key];
 
       return <TriggerDateFormatter 
@@ -935,7 +935,7 @@ export function growthColumn(settings: Setting[]){
     sortable: true,
     renderEditCell: textEditor,
     renderCell(props: any) {
-      //console.log(`in formatter, JSON.stringify(props) = ${JSON.stringify(props)}`);
+      //log(`in formatter, JSON.stringify(props) = ${JSON.stringify(props)}`);
       const val = props.row[props.column.key];
 
       return <GrowthFormatter 
@@ -952,7 +952,7 @@ export const ToFromValueColumn = {
   sortable: true,
   renderEditCell: textEditor,
   renderCell(props: any) {
-    //console.log(`in formatter, JSON.stringify(props) = ${JSON.stringify(props)}`);
+    //log(`in formatter, JSON.stringify(props) = ${JSON.stringify(props)}`);
     const val = props.row[props.column.key];
 
     return <ToFromValueFormatter 
@@ -966,7 +966,7 @@ export const cashValueColumn = {
   sortable: true,
   renderEditCell: textEditor,
   renderCell(props: any) {
-    //console.log(`in formatter, JSON.stringify(props) = ${JSON.stringify(props)}`);
+    //log(`in formatter, JSON.stringify(props) = ${JSON.stringify(props)}`);
     const val = props.row[props.column.key];
 
     return <CashValueFormatter 
@@ -987,14 +987,14 @@ export function faveColumn(
     suppressSizeToFit: true,
     width: 120,
     renderCell(props: any) {
-      // console.log(`in formatter, JSON.stringify(props) = ${JSON.stringify(props)}`);
+      // log(`in formatter, JSON.stringify(props) = ${JSON.stringify(props)}`);
       const val = props.row[props.column.key];
 
       return <>
       {deleteFunction !== undefined && <Button
         key={`del${buttonKey}${props.row.NAME}`}
         onClick={async ()=>{
-          console.log("clicked!");
+          log("clicked!");
           const result = await deleteFunction(props.row.NAME);
           if(result.message){
             alert(result.message);
