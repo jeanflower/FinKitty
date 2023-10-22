@@ -45,7 +45,7 @@ function addToMap(name: Income, val: IncomeVal, myMap: Map<Income, IncomeVal>) {
   }
 }
 
-function makeDataGrid(
+function makeDataGridForTodaysIncomes(
   myMap: Map<Income, IncomeVal>,
   model: ModelData,
   tableID: string,
@@ -114,7 +114,7 @@ export function todaysIncomesTable(
 
   const entries = Array.from(todaysValues.entries());
   for (const key of entries) {
-    if (key[1].hasStarted && !key[1].hasEnded) {
+    if (!key[1].hasEnded) {
       const cat = key[1].category;
       if (cat === '') {
         addToMap(key[0], key[1], categorisedValues);
@@ -136,7 +136,11 @@ export function todaysIncomesTable(
   return (
     <>
       {collapsibleFragment(
-        makeDataGrid(categorisedValues, model, 'todaysIncomesTable'),
+         makeDataGridForTodaysIncomes(
+           categorisedValues, 
+           model, 
+           'todaysIncomesTable'
+         ),
         `Income values (categorised) at ${dateAsString(
           DateFormatType.View,
           today,
