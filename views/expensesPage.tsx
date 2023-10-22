@@ -246,7 +246,6 @@ export function expensesDiv(
         SURPLUS: `${fixedIncome + bondsReleaseFunds - combined}`,
       });
     }
-    tableData = tableData.reverse();
 
     return (
       <div className="ml-3">

@@ -1,5 +1,5 @@
 import React from 'react';
-import DataGrid from 'react-data-grid';
+import ReactDataGrid, { SortColumn } from 'react-data-grid';
 import { log, printDebug, showObj } from '../../utils/utils';
 import { getTriggerDate } from '../../utils/stringUtils';
 import { ModelData } from '../../types/interfaces';
@@ -39,10 +39,14 @@ class DataGridFinKitty extends React.Component<DataGridProps, DataGridState> {
     // log(`row indices are ${props.rows.map((r)=>{return r['index'];})}`);
     // log(`sortedIndices are ${this.sortedIndices}`);
     this.state = {
-      colSortIndex: 'index',
-      sortDirection: 'NONE',
+      colSortIndex: 'NAME',
+      sortDirection: 'ASC',
     };
     this.handleSort(this.state.colSortIndex, 'NONE');
+  }
+
+  public rowKeyGetter(r: any) {
+    return r.index;
   }
 
   public rowGetter(i: number) {
@@ -73,9 +77,12 @@ class DataGridFinKitty extends React.Component<DataGridProps, DataGridState> {
     sortColumn: string,
     sortDirection: 'ASC' | 'DESC' | 'NONE',
   ) {
-    //log(`this.props.rows.slice() indices = ${showObj(this.props.rows.slice().map((row)=>{
-    //  return row['index'];
-    //}))}`);
+    // log(`this.props.rows.slice() indices = ${showObj(this.props.rows.slice().map((row)=>{
+    //   return `${row['index']}, ${row['NAME']}`;
+    // }))}`);
+
+    // log(`before sort, this.sortedIndices = ${showObj(this.sortedIndices)}`);
+
     const v = getVarVal(this.props.model.settings);
 
     if (sortDirection === 'NONE') {
@@ -89,7 +96,7 @@ class DataGridFinKitty extends React.Component<DataGridProps, DataGridState> {
         .map((row) => {
           return row['index'];
         });
-      // log(`unsortedIndices = ${showObj(this.sortedIndices)}`);
+      // log(`none-sortedIndices = ${showObj(this.sortedIndices)}`);
       return;
     }
 
@@ -154,24 +161,24 @@ class DataGridFinKitty extends React.Component<DataGridProps, DataGridState> {
           sortColumn === 'QCHANGE'
         ) {
           if (aVal.endsWith('%') && !bVal.endsWith('%')) {
-            return this.state.sortDirection === 'ASC' ? +1 : -1;
+            return this.state.sortDirection === 'DESC' ? +1 : -1;
           } else if (!aVal.endsWith('%') && bVal.endsWith('%')) {
-            return this.state.sortDirection === 'ASC' ? -1 : +1;
+            return this.state.sortDirection === 'DESC' ? -1 : +1;
           }
           const paVal = parseFloat(aVal);
           const pbVal = parseFloat(bVal);
           if (Number.isNaN(paVal) && !Number.isNaN(pbVal)) {
-            return this.state.sortDirection === 'ASC' ? 1 : -1;
+            return this.state.sortDirection === 'DESC' ? 1 : -1;
           }
           if (!Number.isNaN(paVal) && Number.isNaN(pbVal)) {
-            return this.state.sortDirection === 'ASC' ? -1 : +1;
+            return this.state.sortDirection === 'DESC' ? -1 : +1;
           } else if (!Number.isNaN(paVal) && !Number.isNaN(pbVal)) {
             return paVal < pbVal
-              ? this.state.sortDirection === 'ASC'
+              ? this.state.sortDirection === 'DESC'
                 ? +1
                 : -1
               : paVal > pbVal
-              ? this.state.sortDirection === 'ASC'
+              ? this.state.sortDirection === 'DESC'
                 ? -1
                 : +1
               : 0;
@@ -183,13 +190,13 @@ class DataGridFinKitty extends React.Component<DataGridProps, DataGridState> {
         }
         // log(`aVal = ${aVal}, bVal = ${bVal}`);
         if (aVal < bVal) {
-          if (this.state.sortDirection === 'ASC') {
+          if (this.state.sortDirection === 'DESC') {
             return +1;
           } else {
             return -1;
           }
         } else if (aVal > bVal) {
-          if (this.state.sortDirection === 'ASC') {
+          if (this.state.sortDirection === 'DESC') {
             return -1;
           } else {
             return +1;
@@ -201,17 +208,38 @@ class DataGridFinKitty extends React.Component<DataGridProps, DataGridState> {
       .map((row) => {
         return row['index'];
       });
+    
+    // log(`after sort, this.sortedIndices = ${showObj(this.sortedIndices)}`);
   }
 
-  private sortHandler(
-    sortColumn: string,
-    sortDirection: 'ASC' | 'DESC' | 'NONE',
-  ) {
-    // log(`sortColumn = ${sortColumn}`);
-    // log(`sortDirection = ${sortDirection}`);
+  private sortHandler(cols: SortColumn[]) {
+    // log(`in sortHandler, sorting ${showObj(cols)}`);
+
+    if(cols.length > 1) {
+      log('Attention only to first col of sortCols');
+    }
+    // log(`sortColumn = ${cols[0].columnKey}`);
+    // log(`sortDirection = ${cols[0].direction}`);
+
+    const newColumnBeingSorted = this.state.colSortIndex !== cols[0].columnKey;
+
+    const oldSortDirection = this.state.sortDirection;
+    let newSortDirection: "ASC" | "DESC" | "NONE" = "NONE";
+    if (newColumnBeingSorted) {
+      newSortDirection = "ASC";
+    } else if (oldSortDirection === "NONE") {
+      newSortDirection = "ASC";
+    } else if (oldSortDirection === "ASC") {
+      newSortDirection = "DESC";
+    } else if (oldSortDirection === "DESC") {
+      newSortDirection = "NONE";
+    }
+
+    // log(`newSortDirection = ${newSortDirection}`);
+
     this.setState({
-      colSortIndex: sortColumn,
-      sortDirection: sortDirection,
+      colSortIndex: cols[0].columnKey,
+      sortDirection: newSortDirection,
     });
 
     // run the sort in the render function instead
@@ -221,21 +249,21 @@ class DataGridFinKitty extends React.Component<DataGridProps, DataGridState> {
   }
 
   public render() {
+    // log(`before sort rows = ${this.props.rows.map(
+    //   (r) => {
+    //     return `${r.index}-${r["NAME"]}`}
+    // )}`);
     this.handleSort(this.state.colSortIndex, this.state.sortDirection);
+    // log(`after sort rows = ${this.props.rows.map(
+    //   (r) => {
+    //     return `${r.index}-${r["NAME"]}`}
+    // )}`);
 
     if(this.props.columns === undefined) {
       console.log(`this.props.columns = ${inspect(this.props.columns)}`);
     }
     if(this.props.rows === undefined) {
       console.log(`this.props.rows = ${inspect(this.props.rows)}`);
-    }
-
-    function renderName(x: any) {
-      return (
-        <>
-          {JSON.stringify(x)}
-        </>
-      );
     }
 
     return (
@@ -245,18 +273,30 @@ class DataGridFinKitty extends React.Component<DataGridProps, DataGridState> {
           message={showObj(this.props.rows)}
         />
         {this.props.rows &&
-        <DataGrid
+        <ReactDataGrid
           columns={this.props.columns}
           onRowsChange={this.props.handleGridRowsUpdated}
-          rowKeyGetter={this.rowGetter.bind(this)}
+          rowKeyGetter={this.rowKeyGetter.bind(this)}
           // rowsCount={this.props.rows.length}
-          rows={this.props.rows}
+          rows={this.sortedIndices.map((idx) => {
+            // log(`find row for idx=${idx}`);
+            const matchedRow = this.props.rows.find((r)=> {
+              return r.index === idx; 
+            });
+            // log(`matchedRowrow ${matchedRow}`);
+            // log(`row ${matchedRow.idx}=${matchedRow["NAME"]}`);
+            return matchedRow;
+          })}
           // rowHeight={this.props.rows.length * 35 + 50}
           // minWidth={500}
           // enableCellSelect={true}
           // enableRowSelect={undefined}
-          // onSortColumnsChange={this.sortHandler.bind(this)}
+          onSortColumnsChange={this.sortHandler.bind(this)}
           // onSelectedCellChange={this.getCellActions.bind(this)}
+          //sortColumns={[{
+          //  columnKey: 'NAME',
+          //  direction: 'ASC',
+          //}]}
         />
         }
       </>
