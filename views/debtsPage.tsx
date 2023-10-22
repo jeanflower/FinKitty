@@ -11,7 +11,6 @@ import {
   debtsDivWithHeadings,
   defaultColumn,
   addIndices,
-  faveColumn,
   cashValueColumn,
 } from './tablePages';
 
@@ -45,7 +44,7 @@ function addToMap(
   }
 }
 
-function makeDataGrid(
+function makeDataGridForTodaysDebts(
   myMap: Map<Asset, AssetOrDebtVal>,
   model: ModelData,
   tableID: string,
@@ -53,8 +52,6 @@ function makeDataGrid(
   return (
     <DataGridFinKitty
       tableID={tableID}
-      deleteFunction={undefined}
-      setEraFunction={undefined}
       rows={addIndices(
         Array.from(myMap.entries())
           .filter((key) => {
@@ -80,7 +77,6 @@ function makeDataGrid(
           name: 'index',
         },
         */
-        faveColumn,
         {
           ...defaultColumn,
           key: 'NAME',
@@ -131,7 +127,7 @@ export function todaysDebtsTable(
   return (
     <>
       {collapsibleFragment(
-        makeDataGrid(categorisedValues, model, 'todaysDebtsTable'),
+        makeDataGridForTodaysDebts(categorisedValues, model, 'todaysDebtsTable'),
         `Debt values (categorised) at ${dateAsString(
           DateFormatType.View,
           today,

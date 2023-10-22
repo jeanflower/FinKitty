@@ -13,7 +13,6 @@ import {
   incomesTableDivWithHeading,
   transactionFilteredTable,
   addIndices,
-  faveColumn,
   cashValueColumn,
 } from './tablePages';
 
@@ -54,8 +53,6 @@ function makeDataGrid(
   return (
     <DataGridFinKitty
       tableID={tableID}
-      deleteFunction={undefined}
-      setEraFunction={undefined}
       rows={addIndices(
         Array.from(myMap.entries())
           .filter((key) => {
@@ -83,7 +80,6 @@ function makeDataGrid(
           name: 'index',
         },
         */
-        faveColumn,
         {
           ...defaultColumn,
           key: 'NAME',

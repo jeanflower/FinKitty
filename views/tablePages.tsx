@@ -976,7 +976,8 @@ export const cashValueColumn = {
     },
 };
 export function faveColumn(
-  deleteFunction: (name:string)=>Promise<DeleteResult>,
+  deleteFunction: undefined | ((name:string)=>Promise<DeleteResult>),
+  setEraFunction: undefined | ((name:string, value: number)=>Promise<boolean>),
   buttonKey: string,
 ) {
   return {
@@ -984,13 +985,14 @@ export function faveColumn(
     key: 'FAVE',
     name: '',
     suppressSizeToFit: true,
-    width: 40,
+    width: 120,
     renderCell(props: any) {
       // console.log(`in formatter, JSON.stringify(props) = ${JSON.stringify(props)}`);
       const val = props.row[props.column.key];
 
-      return <><Button
-        key={`${buttonKey}${props.row.NAME}`}
+      return <>
+      {deleteFunction !== undefined && <Button
+        key={`del${buttonKey}${props.row.NAME}`}
         onClick={async ()=>{
           console.log("clicked!");
           const result = await deleteFunction(props.row.NAME);
@@ -1002,9 +1004,34 @@ export function faveColumn(
             alert(`not sure what has happened with this delete attempt!`)
           }
         }}
-      >del<i className="fa fa-trash-o"></i></Button>;
-      </>
+      >del</Button>}
+      {(setEraFunction !== undefined) && <Button
+        key={`era${buttonKey}${props.row.NAME}`}
+        disabled={deleteFunction === undefined}
+        onClick={async () => {
+          const oldVal = props.row['ERA'];
 
+          let newVal = 0;
+          if (oldVal === -1) {
+            newVal = 0;
+          } else if (oldVal === 0) {
+            newVal = 1;
+          } else if (oldVal === 1) {
+            newVal = -1;
+          }
+
+          await setEraFunction(props.row['NAME'], newVal);
+          /*
+          this.sortHandler(
+            this.state.colSortIndex,
+            this.state.sortDirection,
+          );
+          */
+          //log(`this.props.rows.length = ${this.props.rows.length}`);
+          //log(`this.sortedIndices = ${this.sortedIndices}`);
+        }}
+      >{props.row.ERA}</Button>}
+      </>
       }
   };
 }
@@ -1023,7 +1050,11 @@ function getAssetOrDebtCols(
       name: 'index',
     },
     */
-    faveColumn(parentCallbacks.deleteAsset, 'assetDefTable'),
+    faveColumn(
+      parentCallbacks.deleteAsset,
+      parentCallbacks.setEraAsset, 
+      'assetDefTable'
+    ),
     {
       ...defaultColumn,
       key: 'NAME',
@@ -1226,8 +1257,6 @@ export function assetsOrDebtsTableDiv(
               isDebt,
               parentCallbacks,
             )}
-            deleteFunction={parentCallbacks.deleteAsset}
-            setEraFunction={parentCallbacks.setEraAsset}
             model={model}
           />
         </div>
@@ -1308,7 +1337,11 @@ export function transactionsForTable(
   return addIndices(unindexedRows);
 }
 
-function makeTransactionCols(model: ModelData, type: string) {
+function makeTransactionCols(
+  model: ModelData, 
+  type: string,
+  parentCallbacks: ViewCallbacks,
+) {
   let cols: any[] = [
     /*
     {
@@ -1317,7 +1350,18 @@ function makeTransactionCols(model: ModelData, type: string) {
       name: 'index',
     },
     */
-    faveColumn,
+   
+    faveColumn(
+      (name: string) => {
+        const completeName = getTransactionName(name, type);
+        return parentCallbacks.deleteTransaction(completeName); 
+      }, // needs getTransactionName see above
+      (name: string, value: number) => {
+        const completeName = getTransactionName(name, type);
+        return parentCallbacks.setEraTransaction(completeName, value); 
+      },  // needs getTransactionName see above
+      'transactionDefTable',
+    ),
     {
       ...defaultColumn,
       key: 'NAME',
@@ -1580,17 +1624,7 @@ export function transactionsTableDiv(
           );
         }}
         rows={contents}
-        columns={makeTransactionCols(model, type)}
-        deleteFunction={(name: string) => {
-          const completeName = getTransactionName(name, type);
-          log(`delete transaction`);
-          return parentCallbacks.deleteTransaction(completeName);
-        }}
-        setEraFunction={(name: string, val: number) => {
-          const completeName = getTransactionName(name, type);
-          // log(`set Favourite for transaction`);
-          return parentCallbacks.setEraTransaction(completeName, val);
-        }}
+        columns={makeTransactionCols(model, type, parentCallbacks)}
         model={model}
       />
     </div>,
@@ -1754,8 +1788,6 @@ function triggersTableDiv(
         <div className="dataGridTriggers">
           <DataGridFinKitty
             tableID={tableID}
-            deleteFunction={parentCallbacks.deleteTrigger}
-            setEraFunction={parentCallbacks.setEraTrigger}
             handleGridRowsUpdated={function () {
               return handleTriggerGridRowsUpdated(
                 model,
@@ -1776,7 +1808,11 @@ function triggersTableDiv(
                 name: 'index',
               },
               */
-              faveColumn,
+              faveColumn(
+                parentCallbacks.deleteTrigger, 
+                parentCallbacks.setEraTrigger, 
+                'triggerDefTable'
+              ),
               {
                 ...defaultColumn,
                 key: 'NAME',
@@ -1880,7 +1916,11 @@ function incomesTableDiv(
       name: 'index',
     },
     */
-    faveColumn,
+    faveColumn(
+      parentCallbacks.deleteIncome, 
+      parentCallbacks.setEraIncome, 
+      'incomeDefTable',
+    ),
     {
       ...defaultColumn,
       key: 'NAME',
@@ -1952,8 +1992,6 @@ function incomesTableDiv(
         <div className="dataGridIncomes">
           <DataGridFinKitty
             tableID={tableID}
-            deleteFunction={parentCallbacks.deleteIncome}
-            setEraFunction={parentCallbacks.setEraIncome}
             handleGridRowsUpdated={function () {
               return handleIncomeGridRowsUpdated(
                 model,
@@ -2049,7 +2087,11 @@ function expensesTableDiv(
       name: 'index',
     },
     */
-    faveColumn,
+    faveColumn(
+      parentCallbacks.deleteExpense, 
+      parentCallbacks.setEraExpense, 
+      'expenseDefTable'
+    ),
     {
       ...defaultColumn,
       key: 'NAME',
@@ -2129,8 +2171,6 @@ function expensesTableDiv(
         <div className="dataGridExpenses">
           <DataGridFinKitty
             tableID={tableID}
-            deleteFunction={parentCallbacks.deleteExpense}
-            setEraFunction={parentCallbacks.setEraExpense}
             handleGridRowsUpdated={function () {
               return handleExpenseGridRowsUpdated(
                 model,
@@ -2252,7 +2292,11 @@ function customSettingsTable(
       name: 'index',
     },
     */
-    faveColumn,
+    faveColumn(
+      parentCallbacks.deleteSetting, 
+      parentCallbacks.setEraSetting, 
+      'settingDefTable'
+    ),
     {
       ...defaultColumn,
       key: 'NAME',
@@ -2286,8 +2330,6 @@ function customSettingsTable(
   return (
     <DataGridFinKitty
       tableID={tableID}
-      deleteFunction={parentCallbacks.deleteSetting}
-      setEraFunction={parentCallbacks.setEraSetting}
       handleGridRowsUpdated={function () {
         return handleSettingGridRowsUpdated(
           model,
@@ -2318,8 +2360,6 @@ function adjustSettingsTable(
   return (
     <DataGridFinKitty
       tableID={tableID}
-      deleteFunction={parentCallbacks.deleteSetting}
-      setEraFunction={parentCallbacks.setEraSetting}
       handleGridRowsUpdated={function () {
         return handleSettingGridRowsUpdated(
           model,
@@ -2340,7 +2380,11 @@ function adjustSettingsTable(
           name: 'index',
         },
         */
-        faveColumn,
+        faveColumn(
+          parentCallbacks.deleteSetting, 
+          parentCallbacks.setEraSetting, 
+          'settingAdjustTable'
+        ),
         {
           ...defaultColumn,
           key: 'NAME',
@@ -2445,8 +2489,6 @@ export function settingsTableDiv(
       {collapsibleFragment(
         <DataGridFinKitty
           tableID={`settings${tableIDEnding}`}
-          deleteFunction={parentCallbacks.deleteSetting}
-          setEraFunction={parentCallbacks.setEraSetting}
           handleGridRowsUpdated={function () {
             return handleSettingGridRowsUpdated(
               model,
@@ -2467,7 +2509,11 @@ export function settingsTableDiv(
               name: 'index',
             },
             */
-            faveColumn,
+            faveColumn(
+              parentCallbacks.deleteSetting, 
+              parentCallbacks.setEraSetting, 
+              'settingTableDiv'
+            ),
             {
               ...defaultColumn,
               key: 'NAME',
@@ -2586,8 +2632,6 @@ export function reportDiv(
       />
       <DataGridFinKitty
         tableID={tableID}
-        deleteFunction={undefined}
-        setEraFunction={undefined}
         rows={reportDataTable}
         columns={[
           /*
@@ -2603,7 +2647,6 @@ export function reportDiv(
             name: 'date',
             renderEditCell: undefined,
           },
-          faveColumn,
           {
             ...defaultColumn,
             key: 'NAME',
@@ -2890,8 +2933,6 @@ export function optimizerDiv(
       )}
       <DataGridFinKitty
         tableID={tableID}
-        deleteFunction={undefined}
-        setEraFunction={undefined}
         rows={Array.from(Array(cd.labels.length).keys()).map((i) => {
           return {
             ...rows[i],

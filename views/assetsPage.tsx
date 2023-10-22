@@ -10,7 +10,6 @@ import {
   assetsDivWithHeadings,
   defaultColumn,
   addIndices,
-  faveColumn,
   cashValueColumn,
 } from './tablePages';
 import { checkAsset, checkTransaction } from '../models/checks';
@@ -49,17 +48,14 @@ function addToMap(
   }
 }
 
-function makeDataGrid(
+function makeDataGridForTodaysAssets(
   myMap: Map<Asset, AssetOrDebtVal>,
   model: ModelData,
   tableID: string,
-  parentCallbacks: ViewCallbacks,
 ) {
   return (
     <DataGridFinKitty
       tableID={tableID}
-      deleteFunction={undefined}
-      setEraFunction={undefined}
       rows={addIndices(
         Array.from(myMap.entries())
           .filter((key) => {
@@ -89,10 +85,6 @@ function makeDataGrid(
           name: 'index',
         },
         */
-        faveColumn(
-          parentCallbacks.deleteAsset,
-          'delAsset',
-        ),
         {
           ...defaultColumn,
           key: 'NAME',
@@ -147,11 +139,10 @@ export function todaysAssetsTable(
   return (
     <>
       {collapsibleFragment(
-        makeDataGrid(
+        makeDataGridForTodaysAssets(
           categorisedValues, 
           model, 
           'todaysAssetsTable',
-          parentCallbacks,
         ),
         `Asset values (categorised) at ${dateAsString(
           DateFormatType.View,

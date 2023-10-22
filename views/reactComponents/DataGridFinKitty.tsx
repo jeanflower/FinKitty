@@ -18,10 +18,6 @@ interface DataGridProps {
   handleGridRowsUpdated?: any; // TODO any
   rows: GridRow[]; // TODO any
   columns: any[]; // TODO any
-  deleteFunction: ((name: string) => Promise<DeleteResult>) | undefined;
-  setEraFunction:
-    | ((name: string, value: number) => Promise<boolean>)
-    | undefined;
   model: ModelData;
   tableID: string;
 }
