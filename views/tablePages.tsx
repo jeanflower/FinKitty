@@ -172,6 +172,8 @@ function handleExpenseGridRowsUpdated(
     throw new Error(`don't handle multirow edits`);
   }
 
+  // log(`changedIndexes = ${showObj(changedIndexes)}`);
+
   const oldRow = rows.find((r) => {
     return r.index === changedIndexes[0];
   });
@@ -181,6 +183,9 @@ function handleExpenseGridRowsUpdated(
     return r.index === changedIndexes[0];
   });
   const newVal = newRow[changedColumn.key];
+
+  // log(`oldRow = ${showObj(oldRow)}`);
+  // log(`newRow = ${showObj(newRow)}`);
 
   if (oldVal === newVal) {
     return;

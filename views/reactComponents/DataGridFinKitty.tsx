@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDataGrid, { SortColumn } from 'react-data-grid';
+import ReactDataGrid, { RowsChangeData, SortColumn } from 'react-data-grid';
 import { log, printDebug, showObj } from '../../utils/utils';
 import { getTriggerDate } from '../../utils/stringUtils';
 import { ModelData } from '../../types/interfaces';
@@ -275,7 +275,29 @@ class DataGridFinKitty extends React.Component<DataGridProps, DataGridState> {
         {this.props.rows &&
         <ReactDataGrid
           columns={this.props.columns}
-          onRowsChange={this.props.handleGridRowsUpdated}
+          onRowsChange={(
+            rows: any[],
+            data: RowsChangeData<any, any>
+          ) => {
+            //console.log(`in onRowsChange, rows = ${showObj(rows)}`);
+            //console.log(`in onRowsChange, data = ${showObj(data)}`);
+            // data.indexes is 0 for the 0th row on the screen
+            // but this isn't the 0th index of the rowsData
+            // so use this.sortedIndices to transform the indices
+
+            // log(`data.indexes before transformation = ${showObj(data.indexes)}`);
+            // log(`this.sortedIndices = ${showObj(this.sortedIndices)}`);
+
+            for(let i = 0; i < data.indexes.length; i++) {
+              data.indexes[i] = this.sortedIndices[data.indexes[i]];
+            }
+            // log(`data.indexes after transformation = ${showObj(data.indexes)}`);
+
+            this.props.handleGridRowsUpdated(
+              rows, 
+              data,
+            )
+          }}
           rowKeyGetter={this.rowKeyGetter.bind(this)}
           // rowsCount={this.props.rows.length}
           rows={this.sortedIndices.map((idx) => {
