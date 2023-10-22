@@ -2,7 +2,7 @@ import React from 'react';
 import DataGrid from 'react-data-grid';
 import { log, printDebug, showObj } from '../../utils/utils';
 import { getTriggerDate } from '../../utils/stringUtils';
-import { DeleteResult, ModelData } from '../../types/interfaces';
+import { ModelData } from '../../types/interfaces';
 import { getVarVal } from '../../models/modelQueries';
 import ReactiveTextArea from './ReactiveTextArea';
 import { inspect } from 'util';
@@ -219,76 +219,6 @@ class DataGridFinKitty extends React.Component<DataGridProps, DataGridState> {
     // this.handleSort(sortColumn, sortDirection);
     // log(`sortedIndices = ${showObj(this.sortedIndices)}`);
   }
-/*
-  private getCellActions(column: any, row: any) {
-    // log(`get cell actions?`);
-    if (column.key === 'NAME' && this.props.deleteFunction !== undefined) {
-      // log(`add glyph`);
-      return [
-        {
-          icon: 'fa fa-trash',
-          callback: async () => {
-            if (this.props.deleteFunction !== undefined) {
-              const deleteResult = await this.props.deleteFunction(row['NAME']);
-              if (deleteResult.itemsDeleted.length > 1) {
-                alert(`deleted ${deleteResult.itemsDeleted}`);
-              }
-              this.sortHandler(
-                this.state.colSortIndex,
-                this.state.sortDirection,
-              );
-              //log(`this.props.rows.length = ${this.props.rows.length}`);
-              //log(`this.sortedIndices = ${this.sortedIndices}`);
-            }
-          },
-        },
-      ];
-    } else if (
-      column.key === 'FAVE' &&
-      this.props.setEraFunction !== undefined
-    ) {
-      // log(`add glyph`);
-      let icon = '';
-      if (row['ERA'] === 0) {
-        icon = 'fa fa-arrows-h';
-      } else if (row['ERA'] === 1) {
-        icon = 'fa fa-arrow-right';
-      } else if (row['ERA'] === -1) {
-        icon = 'fa fa-arrow-left';
-      }
-
-      return [
-        {
-          icon: icon,
-          callback: async () => {
-            if (this.props.setEraFunction !== undefined) {
-              const oldVal = row['ERA'];
-
-              let newVal = 0;
-              if (oldVal === -1) {
-                newVal = 0;
-              } else if (oldVal === 0) {
-                newVal = 1;
-              } else if (oldVal === 1) {
-                newVal = -1;
-              }
-
-              await this.props.setEraFunction(row['NAME'], newVal);
-              this.sortHandler(
-                this.state.colSortIndex,
-                this.state.sortDirection,
-              );
-              //log(`this.props.rows.length = ${this.props.rows.length}`);
-              //log(`this.sortedIndices = ${this.sortedIndices}`);
-            }
-          },
-        },
-      ];
-    } else {
-      return [];
-    }
-  }
-*/
 
   public render() {
     this.handleSort(this.state.colSortIndex, this.state.sortDirection);
