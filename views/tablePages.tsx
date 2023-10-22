@@ -496,7 +496,7 @@ function handleAssetGridRowsUpdated(
   ) => Promise<void>,
   args: any,
 ) {
-  log(`handleAssetGridRowsUpdated ${JSON.stringify(args)}`);
+  // log(`handleAssetGridRowsUpdated ${JSON.stringify(args)}`);
   const newTable = args[0];
   const change = args[1];
   const changedIndexes = change.indexes;
@@ -570,7 +570,7 @@ function handleAssetGridRowsUpdated(
     log(`Error: asset ${oldRow.NAME} not found in model?`);
     return;
   }
-  newRow[changedColumn.key] = args[0].updated[changedColumn.key];
+  newRow[changedColumn.key] = newVal
   const parsedValue = makeCashValueFromString(newRow.VALUE);
   const parsedQuantity = makeQuantityFromString(newRow.QUANTITY);
   const parsedGrowth = makeGrowthFromString(newRow.GROWTH, model.settings);
