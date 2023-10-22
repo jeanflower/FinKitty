@@ -54,8 +54,6 @@ export function taxDiv(
 
       <DataGridFinKitty
         tableID={'planningTable'}
-        deleteFunction={undefined}
-        setEraFunction={undefined}
         rows={rows}
         columns={[
           /*
