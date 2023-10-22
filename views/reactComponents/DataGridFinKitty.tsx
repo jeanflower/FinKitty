@@ -185,8 +185,22 @@ class DataGridFinKitty extends React.Component<DataGridProps, DataGridState> {
           }
         } else if (sortColumn === 'index') {
         } else if (aVal !== undefined && bVal !== undefined) {
-          aVal = aVal.toUpperCase();
-          bVal = bVal.toUpperCase();
+          if(aVal.startsWith('-') && !bVal.startsWith('-')){
+            if (this.state.sortDirection === 'DESC') {
+              return -1;
+            } else {
+              return +1;
+            }  
+          } else if(!aVal.startsWith('-') && bVal.startsWith('-')){
+            if (this.state.sortDirection === 'DESC') {
+              return +1;
+            } else {
+              return -1;
+            }
+          } else {
+            aVal = aVal.toUpperCase();
+            bVal = bVal.toUpperCase();
+          }
         }
         // log(`aVal = ${aVal}, bVal = ${bVal}`);
         if (aVal < bVal) {
@@ -299,7 +313,6 @@ class DataGridFinKitty extends React.Component<DataGridProps, DataGridState> {
             )
           }}
           rowKeyGetter={this.rowKeyGetter.bind(this)}
-          // rowsCount={this.props.rows.length}
           rows={this.sortedIndices.map((idx) => {
             // log(`find row for idx=${idx}`);
             const matchedRow = this.props.rows.find((r)=> {
@@ -311,14 +324,7 @@ class DataGridFinKitty extends React.Component<DataGridProps, DataGridState> {
           })}
           // rowHeight={this.props.rows.length * 35 + 50}
           // minWidth={500}
-          // enableCellSelect={true}
-          // enableRowSelect={undefined}
           onSortColumnsChange={this.sortHandler.bind(this)}
-          // onSelectedCellChange={this.getCellActions.bind(this)}
-          //sortColumns={[{
-          //  columnKey: 'NAME',
-          //  direction: 'ASC',
-          //}]}
         />
         }
       </>
