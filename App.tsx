@@ -1100,6 +1100,9 @@ async function submitROISetting(
       if (freq === weekly && numYears >= 5) {
         warnOfChange = true;
       }
+      if (freq === monthly && numYears >= 20) {
+        warnOfChange = true;
+      }
     }
   }
   if (warnOfChange) {
@@ -2076,6 +2079,12 @@ export class AppContent extends Component<AppProps, AppState> {
         if (newVal === weekly) {
           const numYears = getNumYears(this.state.modelData);
           if(numYears >= 5) {
+            warnOfChange = true;
+          }
+        }
+        if (newVal === monthly) {
+          const numYears = getNumYears(this.state.modelData);
+          if(numYears >= 20) {
             warnOfChange = true;
           }
         }
