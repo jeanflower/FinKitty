@@ -110,6 +110,26 @@ function getTaxShowNet(settings: ViewSettings) {
   return type === 'Y' || type === 'y' || type === 'yes';
 }
 
+async function setViewFrequency(
+  viewState: ViewSettings,
+  val: string,
+  refreshData: (
+    refreshModel: boolean,
+    refreshChart: boolean,
+    sourceID: number,
+  ) => Promise<void>,
+  updateFrequency: (
+    newVal: string
+  ) => boolean,
+) {
+  return setViewSettingNameVal(
+    viewState,
+    viewFrequency,
+    val,
+    refreshData,
+    updateFrequency,
+  );
+}
 async function setViewSettingNameVal(
   settings: ViewSettings,
   name: string,
@@ -118,14 +138,27 @@ async function setViewSettingNameVal(
     refreshModel: boolean,
     refreshChart: boolean,
     sourceID: number,
-  ) => Promise<void>
+  ) => Promise<void>,
+  updateFrequency?: ((
+    newVal: string
+  ) => boolean),
 ) {
   let needsRefreshData = false;
   if (name === viewFrequency) {
     // we do need to redo evaluations when we switch
     // between weekly and monthly/annually
     const oldVal = settings.getViewSetting(name, monthly);
-    settings.setViewSetting(name, val);
+
+    if (updateFrequency) {
+      const outcome = updateFrequency(val);
+      // log(`outcome in setViewSettingNameVal is ${outcome}`);
+      if (!outcome) {
+        return;
+      }
+    } else {
+      throw new Error('undefined setViewSettingNameVal');
+    } 
+
     if (
       (oldVal === weekly && val !== weekly) ||
       (oldVal !== weekly && val === weekly)
@@ -274,8 +307,11 @@ export function startEndDateInputs(parentCallbacks: ViewCallbacks) {
               parentCallbacks.updateStartDate
                 ? parentCallbacks.updateStartDate
                 : async () => {
-                    return;
-                  }
+                  return {
+                    updated: false,
+                    value: 'undefined',
+                  };
+                }
             }
             showAlert={parentCallbacks.showAlert}
           />
@@ -294,7 +330,10 @@ export function startEndDateInputs(parentCallbacks: ViewCallbacks) {
               parentCallbacks.updateEndDate
                 ? parentCallbacks.updateEndDate
                 : async () => {
-                    return;
+                    return {
+                      updated: false,
+                      value: 'undefined',
+                    };
                   }
             }
             showAlert={parentCallbacks.showAlert}
@@ -332,7 +371,12 @@ export function coarseFineList(
       viewType,
       (e: React.MouseEvent<HTMLButtonElement>) => {
         e.persist();
-        setViewSettingNameVal(settings, viewFrequency, viewType, parentCallbacks.refreshData);
+        setViewFrequency(
+          settings, 
+          viewType, 
+          parentCallbacks.refreshData,
+          parentCallbacks.updateFrequency,
+        );
       },
       viewType,
       `chooseViewFrequencyType${viewType}`,

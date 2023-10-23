@@ -37,7 +37,10 @@ interface EditSettingProps extends FormProps {
   submitSettingFunction: (
     arg0: Setting,
     arg1: ModelData,
-  ) => Promise<void>;
+  ) => Promise<{
+    updated: boolean,
+    value: string,
+  }>;
   checkTransactionFunction: (t: Transaction, model: ModelData) => string;
   submitTransactionFunction: (
     transactionInput: Transaction,
@@ -338,12 +341,16 @@ export class AddDeleteSettingForm extends Component<
       TYPE: adjustableType,
     };
 
-    await this.props.submitSettingFunction(
+    const response = await this.props.submitSettingFunction(
       setting,
       this.props.model,
     );
 
-    this.props.showAlert(`added new setting ${this.state.NAME}`);
+    if (response.updated) {
+      this.props.showAlert(`added new setting ${this.state.NAME}`);
+    } else {
+      this.props.showAlert(`failed to add setting ${this.state.NAME}`);
+    }
     // clear fields
     this.setState(this.defaultState);
   }

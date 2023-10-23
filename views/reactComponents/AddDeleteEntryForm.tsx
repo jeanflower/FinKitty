@@ -4,12 +4,16 @@ import { log, printDebug, showObj } from '../../utils/utils';
 import { InputRow } from './Input';
 
 interface EditFormState {
-  VALUE: string;
+  originalValue: string
+  value: string;
 }
 interface EditProps {
   name: string;
   getValue: () => string;
-  submitFunction: (value: string) => Promise<any>;
+  submitFunction: (value: string) => Promise<{
+    updated: boolean,
+    value: string,
+  }>;
   showAlert: (message: string) => void;
 }
 export class AddDeleteEntryForm extends Component<EditProps, EditFormState> {
@@ -21,7 +25,8 @@ export class AddDeleteEntryForm extends Component<EditProps, EditFormState> {
     }
 
     this.state = {
-      VALUE: this.props.getValue(),
+      value: this.props.getValue(),
+      originalValue: this.props.getValue(),
     };
 
     this.handleValue = this.handleValue.bind(this);
@@ -37,7 +42,7 @@ export class AddDeleteEntryForm extends Component<EditProps, EditFormState> {
           title={`${this.props.name}`}
           type={'text'}
           name={`EditWidget${this.props.name}`}
-          value={this.state.VALUE}
+          value={this.state.value}
           placeholder={this.props.getValue()}
           onChange={this.handleValue}
         />
@@ -46,12 +51,22 @@ export class AddDeleteEntryForm extends Component<EditProps, EditFormState> {
   }
   private handleValue(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
-    this.setState({ VALUE: value });
+    this.setState({ value: value });
   }
   private async add(e: FormEvent<Element>) {
     e.preventDefault();
     // log('adding something ' + showObj(this));
-    await this.props.submitFunction(this.state.VALUE);
     this.props.showAlert(`updating`);
+    const outcome = await this.props.submitFunction(this.state.value);
+    if (outcome.updated) {
+      this.setState({
+        originalValue: this.state.value,
+      });
+    } else {
+      // log(`submit returned false, set state to ${this.state.originalValue}`);
+      this.setState({
+        value: this.state.originalValue,
+      });
+    }
   }
 }

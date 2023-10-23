@@ -51,6 +51,7 @@ import {
   chartViewType,
   chartDeltas,
   planningView,
+  weekly,
 } from './localization/stringConstants';
 import {
   AssetOrDebtVal,
@@ -136,7 +137,7 @@ import {
   revertToUndoModel,
   standardiseDates,
 } from './models/modelUtils';
-import { dateAsString, lessThan, makeTwoDP } from './utils/stringUtils';
+import { dateAsString, getTriggerDate, lessThan, makeTwoDP } from './utils/stringUtils';
 import { diffModels } from './models/diffModels';
 import { collapsibleFragment } from './views/tablePages';
 import WaitGif from './views/catWait.gif';
@@ -156,6 +157,7 @@ import { makeModelFromJSON } from './models/modelFromJSON';
 import { setUserID, getUserID } from './utils/user';
 import { deleteItemsFromModelInternal } from './utils/appActions';
 import { getAppVersion } from './utils/appVersion';
+import { getVarVal } from 'models/modelQueries';
 
 let modelName = '';
 
@@ -1049,10 +1051,69 @@ export async function editSetting(
   }
 }
 
-export async function submitNewSetting(
+function getNumYears(
+  modelData: ModelData,
+){
+  const roiStartSetting = modelData.settings.find((s) => {
+    return s.NAME === roiStart;
+  });
+  const roiEndSetting = modelData.settings.find((s) => {
+    return s.NAME === roiEnd;
+  });
+  if(roiStartSetting !== undefined && roiEndSetting !== undefined) {
+    const v = getVarVal(modelData.settings);
+
+    const startD = getTriggerDate(roiStartSetting.VALUE, modelData.triggers, v);
+    const endD = getTriggerDate(roiEndSetting.VALUE, modelData.triggers, v);
+    const numYears = (endD.getTime() - startD.getTime())/1000/60/60/24/365;
+    // log(`numYears = ${numYears}`);
+    return numYears;
+  } else {
+    return 0;
+  }
+}
+
+
+async function submitROISetting(
   setting: Setting,
   modelData: ModelData,
-): Promise<void> {
+  viewState: ViewSettings | undefined,
+): Promise<{
+  updated: boolean,
+  value: string,
+}> {
+  // log(`submitNewSetting was given ${showObj(setting)}`);
+  /*
+  const existing = modelData.settings.find((s) => {
+    return s.NAME === setting.NAME;
+  });
+  log(`existing was ${showObj(existing)}`);
+  */
+  let warnOfChange = false;
+
+  if (viewState !== undefined) {
+    // if you're changing the date range for viewing, 
+    // check to proceed if the range isn't large and the frequency is fine.
+    if (setting.NAME === roiStart || setting.NAME === roiEnd) {
+      const numYears = getNumYears(modelData);
+      const freq = viewState.getViewSetting(viewFrequency, 'noValueFound');
+      if (freq === weekly && numYears >= 5) {
+        warnOfChange = true;
+      }
+    }
+  }
+  if (warnOfChange) {
+    if( !window.confirm('are you sure you want this range with weekly-view charts?')){
+      // log('returning false from submitNewSetting');
+      const existing = modelData.settings.find((s) => {
+        return s.NAME === setting.NAME;
+      });
+      return {
+        updated: false,
+        value: existing ? existing.VALUE : 'undefined',
+      }
+    }
+  }
   await submitNewSettingLSM(
     setting,
     modelName,
@@ -1060,11 +1121,15 @@ export async function submitNewSetting(
     reactAppComponent.options.checkModelOnEdit,
     getUserID(),
   );
-  return await refreshData(
+  await refreshData(
     true, // refreshModel
     true, // refreshChart
     10, //sourceID
   );
+  return {
+    updated: true,
+    value: setting.VALUE,
+  }
 }
 
 export function toggle(
@@ -1931,14 +1996,19 @@ export class AppContent extends Component<AppProps, AppState> {
         const end: Date = getROI(this.state.modelData).end;
         return dateAsString(DateFormatType.View, end);
       };
-      const updateSettingValue = (settingName: string, newDate: string) => {
+      const updateROISettingValue = async (settingName: string, newDate: string) => {
         const s = this.state.modelData.settings.find((s) => {
           return s.NAME === settingName;
         });
+        let result = {
+          updated: false,
+          value: 'undefined',
+        };
         if (s !== undefined) {
           s.VALUE = newDate;
-          submitNewSetting(s, this.state.modelData);
+          result = await submitROISetting(s, this.state.modelData, this.state.viewState);
         }
+        return result;
       };
       const deleteTransactions = (arg: string[]) => {
         const model = this.state.modelData;
@@ -1966,10 +2036,10 @@ export class AppContent extends Component<AppProps, AppState> {
       };
 
       const updateStartDate = async (newDate: string) => {
-        updateSettingValue(roiStart, newDate);
+        return updateROISettingValue(roiStart, newDate);
       };
       const updateEndDate = async (newDate: string) => {
-        updateSettingValue(roiEnd, newDate);
+        return updateROISettingValue(roiEnd, newDate);
       };
 
       const filterForEra = (item: Item) => {
@@ -2001,6 +2071,26 @@ export class AppContent extends Component<AppProps, AppState> {
         }
       };
 
+      const updateFrequency = (newVal: string) => {
+        let warnOfChange = false;
+        if (newVal === weekly) {
+          const numYears = getNumYears(this.state.modelData);
+          if(numYears >= 5) {
+            warnOfChange = true;
+          }
+        }
+        if (warnOfChange) {
+          if( !window.confirm('are you sure you want this range with weekly-view charts?')){
+            // log('returning false from updateFrequency');
+            const existing = this.state.viewState.getViewSetting(viewFrequency, 'unknown');
+            // log(`existing value = ${existing}`);
+            return false;
+          }
+        }
+        const updated = this.state.viewState.setViewSetting(viewFrequency, newVal);
+        return updated;
+      }
+
       const parentCallbacks: ViewCallbacks = {
         showAlert,
 
@@ -2008,6 +2098,7 @@ export class AppContent extends Component<AppProps, AppState> {
         getEndDate,
         updateStartDate,
         updateEndDate,
+        updateFrequency,
 
         filterForEra,
         filterForSearch,
@@ -2601,7 +2692,9 @@ export class AppContent extends Component<AppProps, AppState> {
           {collapsibleFragment(
             <div className="addNewSetting">
               <AddDeleteSettingForm
-                submitSettingFunction={submitNewSetting}
+                submitSettingFunction={(setting: Setting, model: ModelData) => { 
+                  return submitROISetting(setting, model, undefined);
+                }}
                 checkTransactionFunction={checkTransaction}
                 submitTransactionFunction={submitTransaction}
                 submitTriggerFunction={submitTrigger}

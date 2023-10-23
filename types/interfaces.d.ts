@@ -271,8 +271,15 @@ export interface ViewCallbacks {
   deleteExpenses: (arg: string[]) => void;
   getStartDate: () => string;
   getEndDate: () => string;
-  updateStartDate: (newDate: string) => Promise<void>;
-  updateEndDate: (newDate: string) => Promise<void>;
+  updateStartDate: (newDate: string) => Promise<{
+    updated: boolean,
+    value: string, // value after attempt (pre-existing if updated = false)
+  }>;
+  updateEndDate: (newDate: string) => Promise<{
+    updated: boolean,
+    value: string, // value after attempt (pre-existing if updated = false)
+  }>;
+  updateFrequency: (newVal: string) => boolean;
   filterForEra: (item: Item) => boolean;
   filterForSearch: (item: Item) => boolean;
   getSearchString: () => string;
