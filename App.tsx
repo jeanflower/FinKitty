@@ -157,7 +157,7 @@ import { makeModelFromJSON } from './models/modelFromJSON';
 import { setUserID, getUserID } from './utils/user';
 import { deleteItemsFromModelInternal } from './utils/appActions';
 import { getAppVersion } from './utils/appVersion';
-import { getVarVal } from 'models/modelQueries';
+import { getVarVal } from './models/modelQueries';
 
 let modelName = '';
 
@@ -2091,7 +2091,7 @@ export class AppContent extends Component<AppProps, AppState> {
         if (warnOfChange) {
           if( !window.confirm('are you sure you want this range with weekly-view charts?')){
             // log('returning false from updateFrequency');
-            const existing = this.state.viewState.getViewSetting(viewFrequency, 'unknown');
+            // const existing = this.state.viewState.getViewSetting(viewFrequency, 'unknown');
             // log(`existing value = ${existing}`);
             return false;
           }

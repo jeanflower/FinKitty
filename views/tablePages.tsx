@@ -162,7 +162,6 @@ function handleExpenseGridRowsUpdated(
   ) => Promise<void>, 
   args: any,
 ) {
-  // log('handleExpenseGridRowsUpdated', arguments);
   const newTable = args[0];
   const change = args[1];
   const changedIndexes = change.indexes;
@@ -933,7 +932,7 @@ export function triggerDateColumn(model: ModelData){
         />;
       },
     }
-};
+}
 export function growthColumn(settings: Setting[]){
   return {
     resizable: true,
@@ -950,7 +949,7 @@ export function growthColumn(settings: Setting[]){
         />;
       },
     }
-};
+}
 
 export const ToFromValueColumn = {
   resizable: true,
@@ -993,8 +992,7 @@ export function faveColumn(
     width: 120,
     renderCell(props: any) {
       // log(`in formatter, JSON.stringify(props) = ${JSON.stringify(props)}`);
-      const val = props.row[props.column.key];
-
+      
       return <>
       {deleteFunction !== undefined && <Button
         key={`del${buttonKey}${props.row.NAME}`}
@@ -1168,7 +1166,7 @@ interface AssetRow extends GridRow {
     IS_A_DEBT: string,
     CAN_BE_NEGATIVE: string,
     TODAYSVALUE: string,
-};
+}
 
 function assetsOrDebtsForTable(
   model: ModelData,
@@ -1245,7 +1243,9 @@ export function assetsOrDebtsTableDiv(
         <div className="dataGridAssets">
           <DataGridFinKitty
             tableID={tableID}
-            handleGridRowsUpdated={function () {
+            handleGridRowsUpdated={function (
+              ...args: any[]
+            ) {
               return handleAssetGridRowsUpdated(
                 model,
                 parentCallbacks.showAlert,
@@ -1253,7 +1253,7 @@ export function assetsOrDebtsTableDiv(
                 rowData,
                 parentCallbacks.submitAsset,
                 parentCallbacks.refreshData,
-                arguments,
+                args,
               );
             }}
             rows={rowData}
@@ -1617,7 +1617,9 @@ export function transactionsTableDiv(
 
       <DataGridFinKitty
         tableID={tableID}
-        handleGridRowsUpdated={function () {
+        handleGridRowsUpdated={function (
+          ...args: any[]
+        ) {
           return handleTransactionGridRowsUpdated(
             model,
             parentCallbacks.showAlert,
@@ -1625,7 +1627,7 @@ export function transactionsTableDiv(
             contents,
             parentCallbacks.submitTransaction,
             parentCallbacks.refreshData,
-            arguments,
+            args,
           );
         }}
         rows={contents}
@@ -1793,7 +1795,9 @@ function triggersTableDiv(
         <div className="dataGridTriggers">
           <DataGridFinKitty
             tableID={tableID}
-            handleGridRowsUpdated={function () {
+            handleGridRowsUpdated={function (
+              ...args: any[]
+            ) {
               return handleTriggerGridRowsUpdated(
                 model,
                 parentCallbacks.showAlert,
@@ -1801,7 +1805,7 @@ function triggersTableDiv(
                 trigData,
                 parentCallbacks.submitTrigger,
                 parentCallbacks.refreshData,
-                arguments,
+                args,
               );
             }}
             rows={trigData}
@@ -1997,7 +2001,9 @@ function incomesTableDiv(
         <div className="dataGridIncomes">
           <DataGridFinKitty
             tableID={tableID}
-            handleGridRowsUpdated={function () {
+            handleGridRowsUpdated={function (
+              ...args: any[]
+            ) {
               return handleIncomeGridRowsUpdated(
                 model,
                 parentCallbacks.showAlert,
@@ -2005,7 +2011,7 @@ function incomesTableDiv(
                 incData,
                 parentCallbacks.submitIncome,
                 parentCallbacks.refreshData,
-                arguments,
+                args,
               );
             }}
             rows={incData}
@@ -2176,7 +2182,7 @@ function expensesTableDiv(
         <div className="dataGridExpenses">
           <DataGridFinKitty
             tableID={tableID}
-            handleGridRowsUpdated={function () {
+            handleGridRowsUpdated={function (...args:any[]) {
               return handleExpenseGridRowsUpdated(
                 model,
                 parentCallbacks.showAlert,
@@ -2184,7 +2190,7 @@ function expensesTableDiv(
                 expData,
                 parentCallbacks.submitExpense,
                 parentCallbacks.refreshData,
-                arguments,
+                args,
               );
             }}
             rows={expData}
@@ -2335,7 +2341,9 @@ function customSettingsTable(
   return (
     <DataGridFinKitty
       tableID={tableID}
-      handleGridRowsUpdated={function () {
+      handleGridRowsUpdated={function (
+        ...args:any[]
+      ) {
         return handleSettingGridRowsUpdated(
           model,
           parentCallbacks.showAlert,
@@ -2343,7 +2351,7 @@ function customSettingsTable(
           constSettings,
           parentCallbacks.refreshData,
           parentCallbacks.editSetting,
-          arguments,
+          args,
         );
       }}
       rows={constSettings}
@@ -2365,7 +2373,9 @@ function adjustSettingsTable(
   return (
     <DataGridFinKitty
       tableID={tableID}
-      handleGridRowsUpdated={function () {
+      handleGridRowsUpdated={function (
+        ...args: any[]
+      ) {
         return handleSettingGridRowsUpdated(
           model,
           parentCallbacks.showAlert,
@@ -2373,7 +2383,7 @@ function adjustSettingsTable(
           adjustSettings,
           parentCallbacks.refreshData,
           parentCallbacks.editSetting,
-          arguments,
+          args,
         );
       }}
       rows={adjustSettings}
@@ -2494,7 +2504,9 @@ export function settingsTableDiv(
       {collapsibleFragment(
         <DataGridFinKitty
           tableID={`settings${tableIDEnding}`}
-          handleGridRowsUpdated={function () {
+          handleGridRowsUpdated={function (
+            ...args: any[]
+          ) {
             return handleSettingGridRowsUpdated(
               model,
               parentCallbacks.showAlert,
@@ -2502,7 +2514,7 @@ export function settingsTableDiv(
               contents,
               parentCallbacks.refreshData,
               parentCallbacks.editSetting,
-              arguments,
+              args,
             );
           }}
           rows={contents}

@@ -1054,7 +1054,7 @@ describe(testName, () => {
     ary = await getDataDumpFromPage(driver, 'assetChart');
     // writeTestCode(ary);
 
-    AUTO_GENERATED_TEST_CODE: expect(ary.labels.length).toEqual(15);
+    expect(ary.labels.length).toEqual(15);
     expect(ary.labels[0]).toEqual('Fri Dec 01 2017');
     expect(ary.labels[1]).toEqual('Mon Jan 01 2018');
     expect(ary.labels[2]).toEqual('Thu Feb 01 2018');

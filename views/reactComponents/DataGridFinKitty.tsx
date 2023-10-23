@@ -184,6 +184,7 @@ class DataGridFinKitty extends React.Component<DataGridProps, DataGridState> {
               : 0;
           }
         } else if (sortColumn === 'index') {
+          // do nothing
         } else if (aVal !== undefined && bVal !== undefined) {
           if(aVal.startsWith('-') && !bVal.startsWith('-')){
             if (this.state.sortDirection === 'DESC') {

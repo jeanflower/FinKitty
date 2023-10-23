@@ -1,15 +1,23 @@
 {
   "root": true,
-  "extends": ["next/core-web-vitals"],
-  "plugins": ["testing-library"],
-  "overrides": [
-    // Only uses Testing Library lint rules in test files
-    {
-      "files": [
-        "**/__tests__/**/*.[jt]s?(x)",
-        "**/?(*.)+(spec|test).[jt]s?(x)"
-      ],
-      "extends": ["plugin:testing-library/react"]
-    }
+  "extends": [
+      "eslint:recommended",
+      "plugin:@typescript-eslint/recommended"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": { "project": ["./tsconfig.json"] },
+  "plugins": [
+      "@typescript-eslint"
+  ],
+  "rules": {
+      "@typescript-eslint/strict-boolean-expressions": "off",
+      "@typescript-eslint/no-explicit-any": "off"
+  },
+  "ignorePatterns": [
+    "**/*.test.ts",
+    "coverage/*",
+    "next.config.js",
+    "jest.setup.js",
+    "jest.config.js"
   ]
 }

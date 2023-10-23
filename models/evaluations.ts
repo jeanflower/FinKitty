@@ -536,8 +536,7 @@ function growthData(
     growths,
     '40', //callerID
   );
-  if (!growth) {
-  } else {
+  if (growth) {
     const cpiVal = traceEvaluation(
       cpi,
       values,
@@ -4107,7 +4106,6 @@ function calculateFromChange(
       //log(`quantity involved in working out fromChange`);
       numberUnits = Math.ceil(fromChange / unitValue);
       fromChange = numberUnits * unitValue;
-    } else {
     }
   }
   // apply change for quantised assets
@@ -4326,6 +4324,7 @@ function calculateToChange(
     } else if (t.NAME.endsWith('2y')) {
       bondScale = bondScale ** 2;
     } else if (t.NAME.endsWith('1y')) {
+      // do nothing
     }
     toChange *= bondScale;
   }
@@ -5219,7 +5218,7 @@ function generateMoments(
     // settings which are the values of other settings
     // are set right away
     {
-      let referencingSetting = model.settings.find((s) => {
+      const referencingSetting = model.settings.find((s) => {
         return s.VALUE === setting.NAME;
       });
       if (
@@ -6411,6 +6410,7 @@ function getEvaluationsInternal(
     );
 
     if (moment.name === EvaluateAllAssets) {
+      // do nothing
     } else if (moment.name === cpi) {
       handleInflationStep(values, growths, moment.date);
     } else if (moment.name === annualBaseForCPI) {

@@ -289,7 +289,7 @@ export class ReplaceWithJSONForm extends Component<
     ) {
       let newModel;
 
-      let result = JSON.parse(JSONinput);
+      const result = JSON.parse(JSONinput);
       // log(`parsed JSON and found ${showObj(result)}`);
       if (result.testName !== undefined) {
         // log("this isn't JSON but refers to test data we can look up");

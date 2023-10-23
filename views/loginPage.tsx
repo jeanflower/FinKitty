@@ -70,6 +70,10 @@ export function loginPage(loginWithRedirect: any, loginForTesting: any) {
           refreshChart: boolean,
           sourceID: number,
         ) => {
+          type;
+          refreshModel;
+          refreshChart;
+          sourceID;
           // do nothing!
         },        
       )}

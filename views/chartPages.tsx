@@ -298,20 +298,9 @@ export function startEndDateInputs(parentCallbacks: ViewCallbacks) {
             name="Start"
             getValue={
               parentCallbacks.getStartDate
-                ? parentCallbacks.getStartDate
-                : () => {
-                    return '';
-                  }
             }
             submitFunction={
               parentCallbacks.updateStartDate
-                ? parentCallbacks.updateStartDate
-                : async () => {
-                  return {
-                    updated: false,
-                    value: 'undefined',
-                  };
-                }
             }
             showAlert={parentCallbacks.showAlert}
           />

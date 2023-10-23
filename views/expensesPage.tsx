@@ -176,7 +176,7 @@ export function expensesDiv(
   if (getDisplay(planningView)) {
     const planningExpenses = planningExpensesChartData.datasets;
 
-    let tableData = [];
+    const tableData = [];
 
     const basicExpenses = planningExpenses.find((pe) => {
       return pe.label === 'Basic';

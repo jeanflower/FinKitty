@@ -90,7 +90,7 @@ export function makeModelFromJSONString(
     log(`Old string 'PensionDBC' in loaded data!!`);
   }
 
-  let result = JSON.parse(input);
+  const result = JSON.parse(input);
   // log(`parsed JSON and found ${showObj(result)}`);
 
   if (modelName !== '' || result.name === undefined) {
