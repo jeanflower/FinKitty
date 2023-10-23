@@ -1898,7 +1898,7 @@ export class AppContent extends Component<AppProps, AppState> {
       showFuture: true,
       searchString: '',
     };
-    reactAppComponent = this;
+    reactAppComponent = this; // eslint-disable-line
   }
 
   public componentWillUnmount(): void {
