@@ -1,26 +1,25 @@
-
-import { makeModelFromJSON } from '../../models/modelFromJSON';
-import { log, printDebug } from '../../utils/utils';
+import { makeModelFromJSON } from "../../models/modelFromJSON";
+import { log, printDebug } from "../../utils/utils";
 import {
   printTestCodeForEvals,
   expectEvals,
   expectChartData,
   printTestCodeForChart,
   getTestEvaluations,
-} from './algoTestUtils';
+} from "./algoTestUtils";
 
 expectEvals;
 expectChartData;
 printTestCodeForChart;
 
-describe('debug test', () => {
+describe("debug test", () => {
   /* istanbul ignore if  */
   if (printDebug()) {
     log;
     printTestCodeForEvals;
   }
 
-  it('debug test', () => {
+  it("debug test", () => {
     const json = `{"triggers":[
 {"NAME":"StartBonds50k","DATE":"Tue Jan 01 2030"},
 {"NAME":"Start","DATE":"Sat Apr 06 2019"},

@@ -5,8 +5,8 @@ import {
   IncomeVal,
   Income,
   ViewCallbacks,
-} from '../types/interfaces';
-import { checkIncome, checkTransaction } from '../models/checks';
+} from "../types/interfaces";
+import { checkIncome, checkTransaction } from "../models/checks";
 import {
   collapsibleFragment,
   defaultColumn,
@@ -14,23 +14,23 @@ import {
   transactionFilteredTable,
   addIndices,
   cashValueColumn,
-} from './tablePages';
+} from "./tablePages";
 
 import {
   getDefaultChartSettings,
   incomesChartDivWithButtons,
-} from './chartPages';
-import { incomesView, revalueInc } from '../localization/stringConstants';
+} from "./chartPages";
+import { incomesView, revalueInc } from "../localization/stringConstants";
 
-import { AddDeleteIncomeForm } from './reactComponents/AddDeleteIncomeForm';
-import DataGridFinKitty from './reactComponents/DataGridFinKitty';
-import React from 'react';
+import { AddDeleteIncomeForm } from "./reactComponents/AddDeleteIncomeForm";
+import DataGridFinKitty from "./reactComponents/DataGridFinKitty";
+import React from "react";
 
-import { getTodaysDate } from '../models/modelUtils';
-import { dateAsString, lessThan } from '../utils/stringUtils';
-import { DateFormatType, log, printDebug } from '../utils/utils';
-import { ViewSettings, getDisplay } from '../utils/viewUtils';
-import { simpleIncome } from '../models/exampleModels';
+import { getTodaysDate } from "../models/modelUtils";
+import { dateAsString, lessThan } from "../utils/stringUtils";
+import { DateFormatType, log, printDebug } from "../utils/utils";
+import { ViewSettings, getDisplay } from "../utils/viewUtils";
+import { simpleIncome } from "../models/exampleModels";
 
 function addToMap(name: Income, val: IncomeVal, myMap: Map<Income, IncomeVal>) {
   const existingKey = [...myMap.keys()].find((x) => {
@@ -82,17 +82,17 @@ function makeDataGridForTodaysIncomes(
         */
         {
           ...defaultColumn,
-          key: 'NAME',
-          name: 'name',
+          key: "NAME",
+          name: "name",
         },
         {
           ...cashValueColumn,
-          key: 'VALUE',
+          key: "VALUE",
           name: `value`,
         },
         {
           ...defaultColumn,
-          key: 'CATEGORY',
+          key: "CATEGORY",
           name: `category`,
         },
       ]}
@@ -116,7 +116,7 @@ export function todaysIncomesTable(
   for (const key of entries) {
     if (!key[1].hasEnded) {
       const cat = key[1].category;
-      if (cat === '') {
+      if (cat === "") {
         addToMap(key[0], key[1], categorisedValues);
       } else {
         const catName: string = key[1].category;
@@ -136,11 +136,11 @@ export function todaysIncomesTable(
   return (
     <>
       {collapsibleFragment(
-         makeDataGridForTodaysIncomes(
-           categorisedValues, 
-           model, 
-           'todaysIncomesTable'
-         ),
+        makeDataGridForTodaysIncomes(
+          categorisedValues,
+          model,
+          "todaysIncomesTable",
+        ),
         `Income values (categorised) at ${dateAsString(
           DateFormatType.View,
           today,
@@ -173,7 +173,7 @@ export function incomesDiv(
           getDefaultChartSettings(viewSettings, model.settings),
           parentCallbacks,
         ),
-        'Incomes data chart',
+        "Incomes data chart",
       )}
       {incomesTableDivWithHeading(
         model,
@@ -181,14 +181,18 @@ export function incomesDiv(
         doChecks,
         parentCallbacks,
       )}
-      {todaysIncomesTable(model, todaysValues, parentCallbacks.doShowTodaysValueColumns)}
+      {todaysIncomesTable(
+        model,
+        todaysValues,
+        parentCallbacks.doShowTodaysValueColumns,
+      )}
       {transactionFilteredTable(
         model,
         doChecks,
         revalueInc,
-        'Income revaluations',
+        "Income revaluations",
         parentCallbacks,
-        'incomeRevalsTable',
+        "incomeRevalsTable",
       )}
 
       {collapsibleFragment(
@@ -202,10 +206,12 @@ export function incomesDiv(
             submitTriggerFunction={parentCallbacks.submitTrigger}
             model={model}
             showAlert={parentCallbacks.showAlert}
-            doCheckBeforeOverwritingExistingData={parentCallbacks.doCheckBeforeOverwritingExistingData}
+            doCheckBeforeOverwritingExistingData={
+              parentCallbacks.doCheckBeforeOverwritingExistingData
+            }
           />
         </div>,
-        'Add an income, a defined-benefits pension, or revalue an income',
+        "Add an income, a defined-benefits pension, or revalue an income",
       )}
     </div>
   );

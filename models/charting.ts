@@ -25,7 +25,7 @@ import {
   dot,
   annually,
   weekly,
-} from '../localization/stringConstants';
+} from "../localization/stringConstants";
 import {
   Context,
   DateFormatType,
@@ -33,10 +33,10 @@ import {
   makeDateFromString,
   printDebug,
   showObj,
-} from '../utils/utils';
-import { generateSequenceOfDates } from './evaluations';
+} from "../utils/utils";
+import { generateSequenceOfDates } from "./evaluations";
 
-import { checkEvalnType, evaluationType } from './checks';
+import { checkEvalnType, evaluationType } from "./checks";
 import {
   makeTwoDP,
   makeIncomeTaxTag,
@@ -48,13 +48,27 @@ import {
   deconstructTaxTag,
   dateAsString,
   lessThan,
-} from '../utils/stringUtils';
-import { getROI } from './modelUtils';
-import { getCategory } from './category';
-import { ViewSettings, getDisplayedView } from '../utils/viewUtils';
-import { getSettings, getVarVal } from './modelQueries';
-import { Setting, ItemChartData, ChartDataPoint, ModelData, Evaluation, Asset, AssetOrDebtVal, Income, IncomeVal, Expense, ExpenseVal, SettingVal, DataForView, Interval } from '../types/interfaces';
-
+} from "../utils/stringUtils";
+import { getROI } from "./modelUtils";
+import { getCategory } from "./category";
+import { ViewSettings, getDisplayedView } from "../utils/viewUtils";
+import { getSettings, getVarVal } from "./modelQueries";
+import {
+  Setting,
+  ItemChartData,
+  ChartDataPoint,
+  ModelData,
+  Evaluation,
+  Asset,
+  AssetOrDebtVal,
+  Income,
+  IncomeVal,
+  Expense,
+  ExpenseVal,
+  SettingVal,
+  DataForView,
+  Interval,
+} from "../types/interfaces";
 
 function logMapOfMap(
   twoMap: Map<string, Map<string, number>>,
@@ -62,7 +76,7 @@ function logMapOfMap(
 ) {
   /* istanbul ignore if */
   if (display) {
-    log('twoMap:');
+    log("twoMap:");
     for (const [key, value] of twoMap) {
       /* eslint-disable-line no-restricted-syntax */
       log(`twoMap[${key}]...`);
@@ -80,7 +94,7 @@ function logMapOfMapofMap(
 ) {
   /* istanbul ignore if */
   if (display) {
-    log('threeMap:');
+    log("threeMap:");
     for (const [key, value] of threeMap) {
       /* eslint-disable-line no-restricted-syntax */
       log(`threeMap[${key}]...`);
@@ -121,7 +135,7 @@ function totalChartDataPoints(
       nvm = result.get(dateString);
     }
     if (nvm !== undefined) {
-      nvm.set('Total', totalValue);
+      nvm.set("Total", totalValue);
     }
   });
   logMapOfMap(result);
@@ -148,7 +162,7 @@ function makeChartDataPoints(
   if (totalValues) {
     // log(`total the items in map`);
     dateNameValueMap = totalChartDataPoints(dateNameValueMap, dates, items);
-    items = ['Total'];
+    items = ["Total"];
   }
 
   // log(`now make chart data for ${items}`);
@@ -158,7 +172,7 @@ function makeChartDataPoints(
     ChartDataPoint[]
   >();
 
-  const birthDateSetting = getSettings(settings, birthDate, '');
+  const birthDateSetting = getSettings(settings, birthDate, "");
   dates.forEach((date) => {
     const dateString = dateAsString(DateFormatType.Test, date);
     items.forEach((item) => {
@@ -191,12 +205,12 @@ function makeChartDataPoints(
       const chartArray = chartDataPointMap.get(item);
       /* istanbul ignore if */
       if (chartArray === undefined) {
-        log('BUG; chartArray should be defined');
+        log("BUG; chartArray should be defined");
       } else {
         // log(`add to array ${showObj({label: dateString, y:value})}`);
         const twoDPstring = makeTwoDP(value);
         let dataLabel = dateString;
-        if (birthDateSetting !== '') {
+        if (birthDateSetting !== "") {
           dataLabel = makeAgeString(date, birthDateSetting);
         } else {
           // log(`no birthDate given, dataLabel = ${dataLabel}`);
@@ -406,7 +420,7 @@ function assignCategories(
       const nameValueMap = mapForChart.get(d);
       /* istanbul ignore if */
       if (nameValueMap === undefined) {
-        log('BUG - map should exist');
+        log("BUG - map should exist");
         return;
       }
 
@@ -465,7 +479,7 @@ function filterIncomeOrExpenseItems(
       const nameValueMap = mapForChart.get(d);
       /* istanbul ignore if */
       if (nameValueMap === undefined) {
-        log('BUG - map should exist');
+        log("BUG - map should exist");
         return;
       }
       // log(`item ${item} has category ${category}`);
@@ -537,7 +551,7 @@ function getSettingsValues(viewSettings: ViewSettings) {
     taxChartShowNet,
     allItems,
   );
-  const taxChartNet = taxChartNetString === 'Y';
+  const taxChartNet = taxChartNetString === "Y";
   return {
     detail,
     frequency,
@@ -633,13 +647,13 @@ function mapNamesToTypes(model: ModelData) {
 
 function generateEvaluationDates(roi: Interval, frequency: string) {
   const addPreDate = true;
-  let freqString = '';
+  let freqString = "";
   if (frequency === monthly) {
-    freqString = '1m';
+    freqString = "1m";
   } else if (frequency === weekly) {
-    freqString = '1w';
+    freqString = "1w";
   } else {
-    freqString = '1y';
+    freqString = "1y";
   }
   return generateSequenceOfDates(roi, freqString, addPreDate);
 }
@@ -810,7 +824,7 @@ export function makeChartData(
   >();
 
   typeDateNameValueMap.set(
-    'assetOrDebtFocus',
+    "assetOrDebtFocus",
     new Map<
       string, // date
       Map<
@@ -820,7 +834,7 @@ export function makeChartData(
     >(),
   );
   typeDateNameValueMap.set(
-    'tax',
+    "tax",
     new Map<
       string, // date
       Map<
@@ -996,10 +1010,10 @@ export function makeChartData(
       let assetOrDebtDateNameValueMap;
       if (evalnType === evaluationType.taxLiability) {
         // log(`evaln for tax chart = ${showObj(evaln)}`);
-        assetOrDebtDateNameValueMap = typeDateNameValueMap.get('tax');
+        assetOrDebtDateNameValueMap = typeDateNameValueMap.get("tax");
       } else {
         assetOrDebtDateNameValueMap =
-          typeDateNameValueMap.get('assetOrDebtFocus');
+          typeDateNameValueMap.get("assetOrDebtFocus");
       }
       if (assetOrDebtDateNameValueMap !== undefined) {
         const date = dateAsString(DateFormatType.Test, firstDateAfterEvaln);
@@ -1084,7 +1098,7 @@ export function makeChartData(
   const taxValueSources = assetOrDebtValueSources;
   if (detail === coarseDetail || detail === totalDetail) {
     // log('gather chart data into categories');
-    const dateNameValueMap = typeDateNameValueMap.get('assetOrDebtFocus');
+    const dateNameValueMap = typeDateNameValueMap.get("assetOrDebtFocus");
     if (dateNameValueMap !== undefined) {
       const categories = assignCategories(
         dateNameValueMap,
@@ -1094,7 +1108,7 @@ export function makeChartData(
         categoryCache,
       );
       if (categories !== undefined) {
-        typeDateNameValueMap.set('assetOrDebtFocus', categories.map);
+        typeDateNameValueMap.set("assetOrDebtFocus", categories.map);
         assetOrDebtValueSources = [...categories.sources];
       }
       assetNames = [...categories.sources]; // NQR
@@ -1163,7 +1177,7 @@ export function makeChartData(
     }
   }
 
-  const mapForChart = typeDateNameValueMap.get('assetOrDebtFocus');
+  const mapForChart = typeDateNameValueMap.get("assetOrDebtFocus");
   if (mapForChart !== undefined) {
     // log(`go to make asset points@`);
 
@@ -1233,7 +1247,7 @@ export function makeChartData(
     result.totalTaxPaid = taxTotal;
   }
 
-  const mapForTaxChart = typeDateNameValueMap.get('tax');
+  const mapForTaxChart = typeDateNameValueMap.get("tax");
   if (mapForTaxChart !== undefined) {
     logMapOfMap(mapForTaxChart);
     result.taxData = makeChartDataPoints(
@@ -1276,9 +1290,9 @@ export function makeChartData(
   }
 
   // log(`chart data produced: ${showObj(result)}`);
-  const birthDateSetting = getSettings(model.settings, birthDate, '');
+  const birthDateSetting = getSettings(model.settings, birthDate, "");
   result.labels = allDates.map((d) => {
-    if (birthDateSetting !== '') {
+    if (birthDateSetting !== "") {
       return makeAgeString(d, birthDateSetting);
     } else {
       return dateAsString(DateFormatType.Test, d);

@@ -1,14 +1,14 @@
-import React from 'react';
-import { ModelData } from '../../types/interfaces';
-import { DateFormatType, log, printDebug } from '../../utils/utils';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Tooltip from 'react-bootstrap/Tooltip';
+import React from "react";
+import { ModelData } from "../../types/interfaces";
+import { DateFormatType, log, printDebug } from "../../utils/utils";
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Tooltip from "react-bootstrap/Tooltip";
 import {
   makeDateTooltip,
   dateAsString,
   usesTriggerDate,
-} from '../../utils/stringUtils';
-import { getVarVal } from '../../models/modelQueries';
+} from "../../utils/stringUtils";
+import { getVarVal } from "../../models/modelQueries";
 
 log;
 printDebug;
@@ -22,7 +22,7 @@ interface TriggerDateFormatterProps {
 function makeDateTooltipLocal(props: TriggerDateFormatterProps) {
   // log(`make tooltip with ${showObj(props)}`);
   if (props.model.settings.length === 0) {
-    return '';
+    return "";
   }
   return makeDateTooltip(
     props.value,

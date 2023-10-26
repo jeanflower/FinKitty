@@ -1,4 +1,4 @@
-import { TestModel02 } from '../../localization/stringConstants';
+import { TestModel02 } from "../../localization/stringConstants";
 import {
   addAsset,
   assetInputs,
@@ -9,10 +9,10 @@ import {
   quitAfterAll,
   assetsTag,
   transactionsTag,
-} from './browserTestUtils';
-import { getDriver, beforeAllWork, cleanUpWork } from './browserBaseTypes';
+} from "./browserTestUtils";
+import { getDriver, beforeAllWork, cleanUpWork } from "./browserBaseTypes";
 
-const testName = 'BrowserAddTransactionTest';
+const testName = "BrowserAddTransactionTest";
 
 let alreadyRunning = false;
 
@@ -28,8 +28,8 @@ describe(testName, () => {
   const driver = driverSimple;
   jest.setTimeout(150000); // allow time for all these tests to run
 
-  it('should do add transactions', async () => {
-    const testDataModelName = 'BrowserAddTransactionTest';
+  it("should do add transactions", async () => {
+    const testDataModelName = "BrowserAddTransactionTest";
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -52,7 +52,7 @@ describe(testName, () => {
 
     await addTransaction(driver, {
       ...transactionInputs,
-      name: '',
+      name: "",
       message: `Name should be not empty`,
     });
 
@@ -60,7 +60,7 @@ describe(testName, () => {
 
     await addTransaction(driver, {
       ...transactionInputs,
-      startDate: 'junk',
+      startDate: "junk",
       message: `Transaction 'trans1' has bad date : \"junk\"`,
     });
 
@@ -68,8 +68,8 @@ describe(testName, () => {
 
     await addTransaction(driver, {
       ...transactionInputs,
-      name: 'fromJunk',
-      fromAsset: 'junk',
+      name: "fromJunk",
+      fromAsset: "junk",
       message: `added new transaction`,
     }); // BUG! ignores 'from'
 
@@ -77,8 +77,8 @@ describe(testName, () => {
 
     await addTransaction(driver, {
       ...transactionInputs,
-      name: 'toJunk',
-      toAsset: 'junk',
+      name: "toJunk",
+      toAsset: "junk",
       message: `added new transaction`,
     }); // BUG! ignores 'to'
 
@@ -86,7 +86,7 @@ describe(testName, () => {
 
     await addTransaction(driver, {
       ...transactionInputs,
-      reduction: 'junk',
+      reduction: "junk",
       message: `Transaction 'trans1' 'from' value must be numbers or a setting, not 'junk'`,
     });
 
@@ -94,8 +94,8 @@ describe(testName, () => {
 
     await addTransaction(driver, {
       ...transactionInputs,
-      name: 'fromAsPercentage',
-      reduction: '90%',
+      name: "fromAsPercentage",
+      reduction: "90%",
       message: `added new transaction`,
     });
 
@@ -103,7 +103,7 @@ describe(testName, () => {
 
     await addTransaction(driver, {
       ...transactionInputs,
-      addition: 'junk',
+      addition: "junk",
       message: `Transaction 'trans1' to value 'junk' isn't a number or setting`,
     });
 
@@ -111,8 +111,8 @@ describe(testName, () => {
 
     await addTransaction(driver, {
       ...transactionInputs,
-      name: 'toAsAbsolute',
-      reduction: '90',
+      name: "toAsAbsolute",
+      reduction: "90",
       message: `added new transaction`,
     });
 
@@ -120,8 +120,8 @@ describe(testName, () => {
 
     await addTransaction(driver, {
       ...transactionInputs,
-      name: 'no recurrence',
-      recurrence: '',
+      name: "no recurrence",
+      recurrence: "",
       message: `added new transaction`,
     });
 
@@ -129,7 +129,7 @@ describe(testName, () => {
 
     await addTransaction(driver, {
       ...transactionInputs,
-      recurrence: 'junk',
+      recurrence: "junk",
       message: `Transaction 'trans1' recurrence 'junk' must end in w, m or y`,
     });
 
@@ -137,7 +137,7 @@ describe(testName, () => {
 
     await addTransaction(driver, {
       ...transactionInputs,
-      recurrence: 'mmm',
+      recurrence: "mmm",
       message: `Transaction 'trans1' recurrence 'mmm' must be a number ending in w, m or y`,
     });
 
@@ -145,8 +145,8 @@ describe(testName, () => {
 
     await addTransaction(driver, {
       ...transactionInputs,
-      name: 'partMonths',
-      recurrence: '5.5m',
+      name: "partMonths",
+      recurrence: "5.5m",
       message: `added new transaction`,
     });
 
@@ -154,7 +154,7 @@ describe(testName, () => {
 
     await addTransaction(driver, {
       ...transactionInputs,
-      liquidateForCash: 'junk',
+      liquidateForCash: "junk",
       message: `Whether we're keeping cash afloat should be 'y' or 'n'`,
     });
 
@@ -162,7 +162,7 @@ describe(testName, () => {
 
     await addTransaction(driver, {
       ...transactionInputs,
-      liquidateForCash: 'Y',
+      liquidateForCash: "Y",
       message: `If we're liquidating assets to keep cash afloat, the TO asset should be CASH`,
     });
 
@@ -170,8 +170,8 @@ describe(testName, () => {
 
     await addTransaction(driver, {
       ...transactionInputs,
-      name: 'junkEndDate',
-      endDate: 'junk',
+      name: "junkEndDate",
+      endDate: "junk",
       message: `Transaction 'junkEndDate' has bad stop date : "junk"`,
     });
 

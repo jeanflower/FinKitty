@@ -33,7 +33,7 @@ import {
   custom,
   bondInvest,
   bondMature,
-} from '../localization/stringConstants';
+} from "../localization/stringConstants";
 import {
   Asset,
   Expense,
@@ -54,21 +54,21 @@ import {
   Trigger,
   ViewCallbacks,
   DeleteResult,
-} from '../types/interfaces';
+} from "../types/interfaces";
 import {
   checkExpense,
   checkIncome,
   checkTransaction,
   checkTrigger,
-} from '../models/checks';
-import { Context, DateFormatType, log, showObj } from '../utils/utils';
+} from "../models/checks";
+import { Context, DateFormatType, log, showObj } from "../utils/utils";
 
-import DataGridFinKitty, { GridRow } from './reactComponents/DataGridFinKitty';
-import GrowthFormatter from './reactComponents/GrowthFormatter';
-import React, { ReactNode } from 'react';
-import { SimpleFormatter } from './reactComponents/NameFormatter';
-import ToFromValueFormatter from './reactComponents/ToFromValueFormatter';
-import TriggerDateFormatter from './reactComponents/TriggerDateFormatter';
+import DataGridFinKitty, { GridRow } from "./reactComponents/DataGridFinKitty";
+import GrowthFormatter from "./reactComponents/GrowthFormatter";
+import React, { ReactNode } from "react";
+import { SimpleFormatter } from "./reactComponents/NameFormatter";
+import ToFromValueFormatter from "./reactComponents/ToFromValueFormatter";
+import TriggerDateFormatter from "./reactComponents/TriggerDateFormatter";
 
 import {
   isADebt,
@@ -77,7 +77,7 @@ import {
   isAnExpense,
   getSettings,
   isNumberString,
-} from '../models/modelQueries';
+} from "../models/modelQueries";
 import {
   getNumberAndWordParts,
   checkForWordClashInModel,
@@ -95,31 +95,31 @@ import {
   dateAsString,
   makeStringFromGrowth,
   getDisplayName,
-} from '../utils/stringUtils';
-import { Accordion, Button, Card, useAccordionButton } from 'react-bootstrap';
+} from "../utils/stringUtils";
+import { Accordion, Button, Card, useAccordionButton } from "react-bootstrap";
 import {
   filtersList,
   getDefaultChartSettings,
   makeBarData,
   makeContainedBarChart,
-} from './chartPages';
-import { ReportMatcherForm } from './reactComponents/ReportMatcherForm';
-import { ViewSettings, getDisplay } from '../utils/viewUtils';
-import { EvaluationHelper, getEvaluations } from '../models/evaluations';
-import { textEditor } from 'react-data-grid';
-import CashValueFormatter from './reactComponents/CashValueFormatter';
-import { minimalModel } from '../models/minimalModel';
-import { makeModelFromJSON } from '../models/modelFromJSON';
-import { attemptRename } from '../utils/appActions';
-import { getTodaysDate, setSetting } from '../models/modelUtils';
+} from "./chartPages";
+import { ReportMatcherForm } from "./reactComponents/ReportMatcherForm";
+import { ViewSettings, getDisplay } from "../utils/viewUtils";
+import { EvaluationHelper, getEvaluations } from "../models/evaluations";
+import { textEditor } from "react-data-grid";
+import CashValueFormatter from "./reactComponents/CashValueFormatter";
+import { minimalModel } from "../models/minimalModel";
+import { makeModelFromJSON } from "../models/modelFromJSON";
+import { attemptRename } from "../utils/appActions";
+import { getTodaysDate, setSetting } from "../models/modelUtils";
 
 function CustomToggle({ children, eventKey }: any) {
   const decoratedOnClick = useAccordionButton(eventKey, () =>
-    log('totally custom!'),
+    log("totally custom!"),
   );
 
   return (
-    <Button onClick={decoratedOnClick} variant={'link'}>
+    <Button onClick={decoratedOnClick} variant={"link"}>
       {children}
     </Button>
   );
@@ -151,15 +151,12 @@ function handleExpenseGridRowsUpdated(
   showAlert: (arg0: string) => void,
   doChecks: boolean,
   rows: any[],
-  submitExpense: (
-    expenseInput: Expense, 
-    modelData: ModelData,
-  ) => Promise<void>,
+  submitExpense: (expenseInput: Expense, modelData: ModelData) => Promise<void>,
   refreshData: (
     refreshModel: boolean,
     refreshChart: boolean,
     sourceID: number,
-  ) => Promise<void>, 
+  ) => Promise<void>,
   args: any,
 ) {
   const newTable = args[0];
@@ -167,7 +164,7 @@ function handleExpenseGridRowsUpdated(
   const changedIndexes = change.indexes;
   const changedColumn = change.column;
 
-  if(changedIndexes.length > 1) {
+  if (changedIndexes.length > 1) {
     throw new Error(`don't handle multirow edits`);
   }
 
@@ -191,8 +188,7 @@ function handleExpenseGridRowsUpdated(
   }
 
   // log('old expense '+showObj(expense));
-  if (changedColumn.key === 'NAME') {
-
+  if (changedColumn.key === "NAME") {
     if (oldRow.NAME !== newRow.NAME) {
       if (doChecks) {
         const parsed = getNumberAndWordParts(newRow.NAME);
@@ -203,15 +199,22 @@ function handleExpenseGridRowsUpdated(
         const clashCheck = checkForWordClashInModel(
           model,
           newRow.NAME,
-          'already',
+          "already",
         );
-        if (clashCheck !== '') {
+        if (clashCheck !== "") {
           showAlert(clashCheck);
           return;
         }
       }
-      log('rename expense');
-      attemptRename(model, doChecks, oldRow.NAME, newRow.NAME, showAlert, refreshData);
+      log("rename expense");
+      attemptRename(
+        model,
+        doChecks,
+        oldRow.NAME,
+        newRow.NAME,
+        showAlert,
+        refreshData,
+      );
     }
     return;
   }
@@ -242,7 +245,7 @@ function handleExpenseGridRowsUpdated(
       };
       // log(`expenseForSubmission = ${showObj(expenseForSubmission)}`);
       const checks = checkExpense(expenseForSubmission, model);
-      if (checks === '') {
+      if (checks === "") {
         submitExpense(expenseForSubmission, model);
       } else {
         showAlert(checks);
@@ -270,15 +273,12 @@ function handleIncomeGridRowsUpdated(
   showAlert: (arg0: string) => void,
   doChecks: boolean,
   rows: any[],
-  submitIncome: (
-    incomeInput: Income, 
-    modelData: ModelData,
-  ) => Promise<boolean>,
+  submitIncome: (incomeInput: Income, modelData: ModelData) => Promise<boolean>,
   refreshData: (
     refreshModel: boolean,
     refreshChart: boolean,
     sourceID: number,
-  ) => Promise<void>,  
+  ) => Promise<void>,
   args: any,
 ) {
   // log(`handleIncomeGridRowsUpdated ${JSON.stringify(args)}`);
@@ -287,7 +287,7 @@ function handleIncomeGridRowsUpdated(
   const changedIndexes = change.indexes;
   const changedColumn = change.column;
 
-  if(changedIndexes.length > 1) {
+  if (changedIndexes.length > 1) {
     throw new Error(`don't handle multirow edits`);
   }
 
@@ -305,7 +305,7 @@ function handleIncomeGridRowsUpdated(
     return;
   }
 
-  if (changedColumn.key === 'NAME') {
+  if (changedColumn.key === "NAME") {
     if (doChecks) {
       if (newRow.NAME !== oldRow.NAME) {
         if (newRow.NAME.startsWith(pensionDB)) {
@@ -324,14 +324,21 @@ function handleIncomeGridRowsUpdated(
         const clashCheck = checkForWordClashInModel(
           model,
           newRow.NAME,
-          'already',
+          "already",
         );
-        if (clashCheck !== '') {
+        if (clashCheck !== "") {
           showAlert(clashCheck);
           return;
         }
       }
-      attemptRename(model, doChecks, oldRow.NAME, newRow.NAME, showAlert, refreshData);
+      attemptRename(
+        model,
+        doChecks,
+        oldRow.NAME,
+        newRow.NAME,
+        showAlert,
+        refreshData,
+      );
     }
     return;
   }
@@ -344,7 +351,7 @@ function handleIncomeGridRowsUpdated(
       showAlert("Whether income grows with CPI should be 'y' or 'n'");
       //newValue = oldValue;
     } else {
-      let incValue = '';
+      let incValue = "";
       if (parsedValue.checksOK) {
         incValue = `${parsedValue.value}`;
       } else {
@@ -364,14 +371,14 @@ function handleIncomeGridRowsUpdated(
         LIABILITY: newRow.LIABILITY,
       };
       const checks = checkIncome(incomeForSubmission, model);
-      if (checks === '') {
+      if (checks === "") {
         submitIncome(incomeForSubmission, model);
       } else {
         showAlert(checks);
       }
     }
   } else {
-    let incValue = '';
+    let incValue = "";
     if (parsedValue.checksOK) {
       incValue = `${parsedValue.value}`;
     } else {
@@ -413,7 +420,7 @@ function handleTriggerGridRowsUpdated(
   const changedIndexes = change.indexes;
   const changedColumn = change.column;
 
-  if(changedIndexes.length > 1) {
+  if (changedIndexes.length > 1) {
     throw new Error(`don't handle multirow edits`);
   }
 
@@ -431,7 +438,7 @@ function handleTriggerGridRowsUpdated(
     return;
   }
 
-  if (changedColumn.key === 'NAME') {
+  if (changedColumn.key === "NAME") {
     if (oldRow.NAME !== newRow.NAME) {
       if (doChecks) {
         const parsed = getNumberAndWordParts(newRow.NAME);
@@ -442,14 +449,21 @@ function handleTriggerGridRowsUpdated(
         const clashCheck = checkForWordClashInModel(
           model,
           newRow.NAME,
-          'already',
+          "already",
         );
-        if (clashCheck !== '') {
+        if (clashCheck !== "") {
           showAlert(clashCheck);
           return;
         }
       }
-      attemptRename(model, doChecks, oldRow.NAME, newRow.NAME, showAlert, refreshData);
+      attemptRename(
+        model,
+        doChecks,
+        oldRow.NAME,
+        newRow.NAME,
+        showAlert,
+        refreshData,
+      );
     }
     return;
   }
@@ -460,7 +474,7 @@ function handleTriggerGridRowsUpdated(
   };
   if (doChecks) {
     const checks = checkTrigger(forSubmit, model);
-    if (checks === '') {
+    if (checks === "") {
       submitTrigger(forSubmit, model);
     } else {
       showAlert(checks);
@@ -506,7 +520,7 @@ function handleAssetGridRowsUpdated(
   const changedIndexes = change.indexes;
   const changedColumn = change.column;
 
-  if(changedIndexes.length > 1) {
+  if (changedIndexes.length > 1) {
     throw new Error(`don't handle multirow edits`);
   }
 
@@ -524,7 +538,7 @@ function handleAssetGridRowsUpdated(
     return;
   }
 
-  if (changedColumn.key === 'NAME') {
+  if (changedColumn.key === "NAME") {
     if (doChecks) {
       if (oldVal !== newVal) {
         if (oldVal === CASH_ASSET_NAME) {
@@ -552,12 +566,8 @@ function handleAssetGridRowsUpdated(
           showAlert(`Don't name an asset beginning with a number`);
           return;
         }
-        const clashCheck = checkForWordClashInModel(
-          model,
-          newVal,
-          'already',
-        );
-        if (clashCheck !== '') {
+        const clashCheck = checkForWordClashInModel(model, newVal, "already");
+        if (clashCheck !== "") {
           showAlert(clashCheck);
           return;
         }
@@ -574,11 +584,13 @@ function handleAssetGridRowsUpdated(
     log(`Error: asset ${oldRow.NAME} not found in model?`);
     return;
   }
-  newRow[changedColumn.key] = newVal
+  newRow[changedColumn.key] = newVal;
   const parsedValue = makeCashValueFromString(newRow.VALUE);
   const parsedQuantity = makeQuantityFromString(newRow.QUANTITY);
   const parsedGrowth = makeGrowthFromString(newRow.GROWTH, model.settings);
-  const parsedPurchasePrice = makePurchasePriceFromString(newRow.PURCHASE_PRICE);
+  const parsedPurchasePrice = makePurchasePriceFromString(
+    newRow.PURCHASE_PRICE,
+  );
   const parsedGrowsWithCPI = makeBooleanFromYesNo(newRow.GROWS_WITH_CPI);
   const parsedIsADebt = makeBooleanFromYesNo(newRow.IS_A_DEBT);
   const parsedCanBeNegative = makeBooleanFromYesNo(newRow.CAN_BE_NEGATIVE);
@@ -652,7 +664,7 @@ function handleAssetGridRowsUpdated(
 }
 
 function getTransactionName(name: string, type: string) {
-  let prefix = '';
+  let prefix = "";
   if (type === liquidateAsset || type === payOffDebt) {
     prefix = conditional;
   } else if (
@@ -672,7 +684,10 @@ function handleTransactionGridRowsUpdated(
   showAlert: (arg0: string) => void,
   doChecks: boolean,
   rows: any[],
-  submitTransaction: (transactionInput: Transaction, modelData: ModelData) => Promise<void>,
+  submitTransaction: (
+    transactionInput: Transaction,
+    modelData: ModelData,
+  ) => Promise<void>,
   refreshData: (
     refreshModel: boolean,
     refreshChart: boolean,
@@ -686,7 +701,7 @@ function handleTransactionGridRowsUpdated(
   const changedIndexes = change.indexes;
   const changedColumn = change.column;
 
-  if(changedIndexes.length > 1) {
+  if (changedIndexes.length > 1) {
     throw new Error(`don't handle multirow edits`);
   }
 
@@ -729,7 +744,8 @@ function handleTransactionGridRowsUpdated(
     )
   ) {
     showAlert(
-      `From value ${newRow.FROM_VALUE} should be a number or a number with % symbol`,
+      `From value ${newRow.FROM_VALUE} should be a number` +
+        ` or a number with % symbol`,
     );
   } else if (
     doChecks &&
@@ -737,7 +753,8 @@ function handleTransactionGridRowsUpdated(
     !parseTo.checksOK
   ) {
     showAlert(
-      `To value ${newRow.TO_VALUE} should be a number or a number with % symbol`,
+      `To value ${newRow.TO_VALUE} should be a number or a number` +
+        ` with % symbol`,
     );
   } else {
     let type = newRow.TYPE;
@@ -764,7 +781,7 @@ function handleTransactionGridRowsUpdated(
     const tName = getTransactionName(newRow.NAME, type);
     const oldtName = getTransactionName(oldRow.NAME, type);
 
-    if (changedColumn.key === 'NAME') {
+    if (changedColumn.key === "NAME") {
       log(`try to edit name from ${oldtName} to ${tName}`);
       if (doChecks) {
         if (tName !== oldtName) {
@@ -774,8 +791,8 @@ function handleTransactionGridRowsUpdated(
             return;
           }
           // log(`check for ${dbName} in model...`)
-          const clashCheck = checkForWordClashInModel(model, tName, 'already');
-          if (clashCheck !== '') {
+          const clashCheck = checkForWordClashInModel(model, tName, "already");
+          if (clashCheck !== "") {
             showAlert(clashCheck);
             return;
           }
@@ -803,7 +820,7 @@ function handleTransactionGridRowsUpdated(
     };
     if (doChecks) {
       const checks = checkTransaction(transaction, model);
-      if (checks === '') {
+      if (checks === "") {
         // log(`checks OK, submitting transaction`);
         log(`submitting transaction after edit ${showObj(transaction)}`);
         submitTransaction(transaction, model);
@@ -826,7 +843,7 @@ function handleSettingGridRowsUpdated(
     refreshModel: boolean,
     refreshChart: boolean,
     sourceID: number,
-  ) => Promise<void>,  
+  ) => Promise<void>,
   editSetting: (
     settingInput: {
       NAME: string;
@@ -844,7 +861,7 @@ function handleSettingGridRowsUpdated(
   const changedIndexes = change.indexes;
   const changedColumn = change.column;
 
-  if(changedIndexes.length > 1) {
+  if (changedIndexes.length > 1) {
     throw new Error(`don't handle multirow edits`);
   }
 
@@ -862,7 +879,7 @@ function handleSettingGridRowsUpdated(
     return;
   }
 
-  if (changedColumn.key === 'NAME') {
+  if (changedColumn.key === "NAME") {
     if (oldRow.NAME !== newRow.NAME) {
       if (doChecks) {
         if (
@@ -881,15 +898,22 @@ function handleSettingGridRowsUpdated(
         const clashCheck = checkForWordClashInModel(
           model,
           newRow.NAME,
-          'already',
+          "already",
         );
-        if (clashCheck !== '') {
+        if (clashCheck !== "") {
           showAlert(clashCheck);
           return;
         }
       }
 
-      attemptRename(model, doChecks, oldRow.NAME, newRow.NAME, showAlert, refreshData);
+      attemptRename(
+        model,
+        doChecks,
+        oldRow.NAME,
+        newRow.NAME,
+        showAlert,
+        refreshData,
+      );
     }
     return;
   }
@@ -910,13 +934,10 @@ export const defaultColumn = {
     // log(`in formatter, JSON.stringify(props) = ${JSON.stringify(props)}`);
     const val = props.row[props.column.key];
 
-    return <SimpleFormatter 
-        name={props.column.name}
-        value={val}
-      />;
-    },
+    return <SimpleFormatter name={props.column.name} value={val} />;
+  },
 };
-export function triggerDateColumn(model: ModelData){
+export function triggerDateColumn(model: ModelData) {
   return {
     resizable: true,
     sortable: true,
@@ -925,15 +946,17 @@ export function triggerDateColumn(model: ModelData){
       //log(`in formatter, JSON.stringify(props) = ${JSON.stringify(props)}`);
       const val = props.row[props.column.key];
 
-      return <TriggerDateFormatter 
+      return (
+        <TriggerDateFormatter
           name={props.column.name}
           value={val}
           model={model}
-        />;
-      },
-    }
+        />
+      );
+    },
+  };
 }
-export function growthColumn(settings: Setting[]){
+export function growthColumn(settings: Setting[]) {
   return {
     resizable: true,
     sortable: true,
@@ -942,13 +965,15 @@ export function growthColumn(settings: Setting[]){
       //log(`in formatter, JSON.stringify(props) = ${JSON.stringify(props)}`);
       const val = props.row[props.column.key];
 
-      return <GrowthFormatter 
+      return (
+        <GrowthFormatter
           name={props.column.name}
           value={val}
           settings={settings}
-        />;
-      },
-    }
+        />
+      );
+    },
+  };
 }
 
 export const ToFromValueColumn = {
@@ -959,11 +984,8 @@ export const ToFromValueColumn = {
     //log(`in formatter, JSON.stringify(props) = ${JSON.stringify(props)}`);
     const val = props.row[props.column.key];
 
-    return <ToFromValueFormatter 
-        name={props.column.name}
-        value={val}
-      />;
-    },
+    return <ToFromValueFormatter name={props.column.name} value={val} />;
+  },
 };
 export const cashValueColumn = {
   resizable: true,
@@ -973,78 +995,86 @@ export const cashValueColumn = {
     //log(`in formatter, JSON.stringify(props) = ${JSON.stringify(props)}`);
     const val = props.row[props.column.key];
 
-    return <CashValueFormatter 
-        name={props.column.name}
-        value={val}
-      />;
-    },
+    return <CashValueFormatter name={props.column.name} value={val} />;
+  },
 };
 export function faveColumn(
-  deleteFunction: undefined | ((name:string)=>Promise<DeleteResult>),
-  setEraFunction: undefined | ((name:string, value: number)=>Promise<boolean>),
+  deleteFunction: undefined | ((name: string) => Promise<DeleteResult>),
+  setEraFunction:
+    | undefined
+    | ((name: string, value: number) => Promise<boolean>),
   buttonKey: string,
 ) {
   return {
     ...defaultColumn,
-    key: 'FAVE',
-    name: '',
+    key: "FAVE",
+    name: "",
     suppressSizeToFit: true,
     width: 120,
     renderCell(props: any) {
       // log(`in formatter, JSON.stringify(props) = ${JSON.stringify(props)}`);
-      
-      return <>
-      {deleteFunction !== undefined && <Button
-        key={`del${buttonKey}${props.row.NAME}`}
-        onClick={async ()=>{
-          log("clicked!");
-          const result = await deleteFunction(props.row.NAME);
-          if(result.message){
-            alert(result.message);
-          } else if(result.itemsDeleted){
-            alert(`deleted ${result.itemsDeleted}`);
-          } else {
-            alert(`not sure what has happened with this delete attempt!`)
-          }
-        }}
-      >del</Button>}
-      {(setEraFunction !== undefined) && <Button
-        key={`era${buttonKey}${props.row.NAME}`}
-        disabled={deleteFunction === undefined}
-        onClick={async () => {
-          const oldVal = props.row['ERA'];
 
-          let newVal = 0;
-          if (oldVal === -1) {
-            newVal = 0;
-          } else if (oldVal === 0) {
-            newVal = 1;
-          } else if (oldVal === 1) {
-            newVal = -1;
-          }
+      return (
+        <>
+          {deleteFunction !== undefined && (
+            <Button
+              key={`del${buttonKey}${props.row.NAME}`}
+              onClick={async () => {
+                log("clicked!");
+                const result = await deleteFunction(props.row.NAME);
+                if (result.message) {
+                  alert(result.message);
+                } else if (result.itemsDeleted) {
+                  alert(`deleted ${result.itemsDeleted}`);
+                } else {
+                  alert(`not sure what has happened with this delete attempt!`);
+                }
+              }}
+            >
+              del
+            </Button>
+          )}
+          {setEraFunction !== undefined && (
+            <Button
+              key={`era${buttonKey}${props.row.NAME}`}
+              disabled={deleteFunction === undefined}
+              onClick={async () => {
+                const oldVal = props.row["ERA"];
 
-          await setEraFunction(props.row['NAME'], newVal);
-          /*
+                let newVal = 0;
+                if (oldVal === -1) {
+                  newVal = 0;
+                } else if (oldVal === 0) {
+                  newVal = 1;
+                } else if (oldVal === 1) {
+                  newVal = -1;
+                }
+
+                await setEraFunction(props.row["NAME"], newVal);
+                /*
           this.sortHandler(
             this.state.colSortIndex,
             this.state.sortDirection,
           );
           */
-          //log(`this.props.rows.length = ${this.props.rows.length}`);
-          //log(`this.sortedIndices = ${this.sortedIndices}`);
-        }}
-      >{props.row.ERA}</Button>}
-      </>
-      }
+                //log(`this.props.rows.length = ${this.props.rows.length}`);
+                //log(`this.sortedIndices = ${this.sortedIndices}`);
+              }}
+            >
+              {props.row.ERA}
+            </Button>
+          )}
+        </>
+      );
+    },
   };
 }
 
 function getAssetOrDebtCols(
-  model: ModelData, 
+  model: ModelData,
   isDebt: boolean,
   parentCallbacks: ViewCallbacks,
 ) {
-
   let cols: any[] = [
     /*
     {
@@ -1055,20 +1085,20 @@ function getAssetOrDebtCols(
     */
     faveColumn(
       parentCallbacks.deleteAsset,
-      parentCallbacks.setEraAsset, 
-      'assetDefTable'
+      parentCallbacks.setEraAsset,
+      "assetDefTable",
     ),
     {
       ...defaultColumn,
-      key: 'NAME',
-      name: 'name',
+      key: "NAME",
+      name: "name",
     },
   ];
   if (parentCallbacks.doShowTodaysValueColumns()) {
     cols = cols.concat([
       {
         ...cashValueColumn,
-        key: 'TODAYSVALUE',
+        key: "TODAYSVALUE",
         name: `value\nat ${dateAsString(
           DateFormatType.View,
           getTodaysDate(model),
@@ -1080,29 +1110,29 @@ function getAssetOrDebtCols(
   cols = cols.concat([
     {
       ...cashValueColumn,
-      key: 'VALUE',
-      name: 'start value',
+      key: "VALUE",
+      name: "start value",
     },
   ]);
   if (!isDebt) {
     cols = cols.concat([
       {
         ...defaultColumn,
-        key: 'QUANTITY',
-        name: 'quantity',
+        key: "QUANTITY",
+        name: "quantity",
       },
     ]);
   }
-  const growthName = isDebt ? 'interest rate' : 'growth';
+  const growthName = isDebt ? "interest rate" : "growth";
   cols = cols.concat([
     {
       ...triggerDateColumn(model),
-      key: 'START',
-      name: 'start',
+      key: "START",
+      name: "start",
     },
     {
       ...growthColumn(model.settings),
-      key: 'GROWTH',
+      key: "GROWTH",
       name: growthName,
     },
     // for debugging, we can find it useful to see this column
@@ -1118,26 +1148,26 @@ function getAssetOrDebtCols(
     cols = cols.concat([
       {
         ...defaultColumn,
-        key: 'GROWS_WITH_CPI',
-        name: 'grows with CPI',
+        key: "GROWS_WITH_CPI",
+        name: "grows with CPI",
       },
       {
         ...defaultColumn,
-        key: 'LIABILITY',
-        name: 'tax Liability',
-    },
+        key: "LIABILITY",
+        name: "tax Liability",
+      },
       {
         ...cashValueColumn,
-        key: 'PURCHASE_PRICE',
-        name: 'purchase price',
+        key: "PURCHASE_PRICE",
+        name: "purchase price",
       },
     ]);
   }
   cols = cols.concat([
     {
       ...defaultColumn,
-      key: 'CATEGORY',
-      name: 'category',
+      key: "CATEGORY",
+      name: "category",
     },
   ]);
   return cols;
@@ -1156,16 +1186,16 @@ export function addIndices(unindexedResult: any[]) {
 }
 
 interface AssetRow extends GridRow {
-    GROWTH: string,
-    START: string,
-    VALUE: string,
-    QUANTITY: string,
-    LIABILITY: string,
-    PURCHASE_PRICE: string,
-    GROWS_WITH_CPI: string,
-    IS_A_DEBT: string,
-    CAN_BE_NEGATIVE: string,
-    TODAYSVALUE: string,
+  GROWTH: string;
+  START: string;
+  VALUE: string;
+  QUANTITY: string;
+  LIABILITY: string;
+  PURCHASE_PRICE: string;
+  GROWS_WITH_CPI: string;
+  IS_A_DEBT: string;
+  CAN_BE_NEGATIVE: string;
+  TODAYSVALUE: string;
 }
 
 function assetsOrDebtsForTable(
@@ -1236,16 +1266,14 @@ export function assetsOrDebtsTableDiv(
   return (
     <div
       style={{
-        display: 'block',
+        display: "block",
       }}
     >
       <fieldset>
         <div className="dataGridAssets">
           <DataGridFinKitty
             tableID={tableID}
-            handleGridRowsUpdated={function (
-              ...args: any[]
-            ) {
+            handleGridRowsUpdated={function (...args: any[]) {
               return handleAssetGridRowsUpdated(
                 model,
                 parentCallbacks.showAlert,
@@ -1257,11 +1285,7 @@ export function assetsOrDebtsTableDiv(
               );
             }}
             rows={rowData}
-            columns={getAssetOrDebtCols(
-              model, 
-              isDebt,
-              parentCallbacks,
-            )}
+            columns={getAssetOrDebtCols(model, isDebt, parentCallbacks)}
             model={model}
           />
         </div>
@@ -1304,10 +1328,10 @@ export function transactionsForTable(
       );
       // log(`obj.FROM = ${obj.FROM}, fromValueEntry = ${fromValueEntry}`);
       if (
-        obj.FROM === '' &&
-        (fromValueEntry === '0' || fromValueEntry === '0.0')
+        obj.FROM === "" &&
+        (fromValueEntry === "0" || fromValueEntry === "0.0")
       ) {
-        fromValueEntry = '';
+        fromValueEntry = "";
       }
       let toNumber = obj.TO_VALUE;
       if (type === revalueDebt) {
@@ -1320,8 +1344,8 @@ export function transactionsForTable(
         model,
         obj.NAME,
       );
-      if (obj.TO === '' && (toValueEntry === '0' || toValueEntry === '0.0')) {
-        toValueEntry = '';
+      if (obj.TO === "" && (toValueEntry === "0" || toValueEntry === "0.0")) {
+        toValueEntry = "";
       }
       const mapResult = {
         DATE: obj.DATE,
@@ -1343,7 +1367,7 @@ export function transactionsForTable(
 }
 
 function makeTransactionCols(
-  model: ModelData, 
+  model: ModelData,
   type: string,
   parentCallbacks: ViewCallbacks,
 ) {
@@ -1355,22 +1379,22 @@ function makeTransactionCols(
       name: 'index',
     },
     */
-   
+
     faveColumn(
       (name: string) => {
         const completeName = getTransactionName(name, type);
-        return parentCallbacks.deleteTransaction(completeName); 
+        return parentCallbacks.deleteTransaction(completeName);
       }, // needs getTransactionName see above
       (name: string, value: number) => {
         const completeName = getTransactionName(name, type);
-        return parentCallbacks.setEraTransaction(completeName, value); 
-      },  // needs getTransactionName see above
-      'transactionDefTable',
+        return parentCallbacks.setEraTransaction(completeName, value);
+      }, // needs getTransactionName see above
+      "transactionDefTable",
     ),
     {
       ...defaultColumn,
-      key: 'NAME',
-      name: 'name',
+      key: "NAME",
+      name: "name",
     },
   ];
   // FROM, FROM_VALUE display rules
@@ -1389,8 +1413,8 @@ function makeTransactionCols(
     cols = cols.concat([
       {
         ...ToFromValueColumn,
-        key: 'FROM_VALUE',
-        name: 'amount',
+        key: "FROM_VALUE",
+        name: "amount",
       },
     ]);
   } else {
@@ -1400,13 +1424,13 @@ function makeTransactionCols(
     cols = cols.concat([
       {
         ...defaultColumn,
-        key: 'FROM',
-        name: 'coming from',
+        key: "FROM",
+        name: "coming from",
       },
       {
         ...defaultColumn,
-        key: 'FROM_VALUE',
-        name: 'from amount',
+        key: "FROM_VALUE",
+        name: "from amount",
       },
     ]);
   }
@@ -1419,65 +1443,65 @@ function makeTransactionCols(
     cols = cols.concat([
       {
         ...defaultColumn,
-        key: 'TO',
-        name: 'income',
+        key: "TO",
+        name: "income",
       },
       {
         ...ToFromValueColumn,
-        key: 'TO_VALUE',
-        name: 'new value',
+        key: "TO_VALUE",
+        name: "new value",
       },
     ]);
   } else if (type === revalueExp) {
     cols = cols.concat([
       {
         ...defaultColumn,
-        key: 'TO',
-        name: 'expense',
+        key: "TO",
+        name: "expense",
       },
       {
         ...ToFromValueColumn,
-        key: 'TO_VALUE',
-        name: 'new value',
+        key: "TO_VALUE",
+        name: "new value",
       },
     ]);
   } else if (type === revalueAsset) {
     cols = cols.concat([
       {
         ...defaultColumn,
-        key: 'TO',
-        name: 'asset',
+        key: "TO",
+        name: "asset",
       },
       {
         ...defaultColumn,
-        key: 'TO_VALUE',
-        name: 'new value',
+        key: "TO_VALUE",
+        name: "new value",
       },
     ]);
   } else if (type === revalueDebt) {
     cols = cols.concat([
       {
         ...defaultColumn,
-        key: 'TO',
-        name: 'debt',
+        key: "TO",
+        name: "debt",
       },
       {
         ...defaultColumn,
-        key: 'TO_VALUE',
-        name: 'new value',
+        key: "TO_VALUE",
+        name: "new value",
       },
     ]);
   } else if (type === revalueSetting) {
     cols = cols.concat([
       {
         ...defaultColumn,
-        key: 'TO',
-        name: 'setting',
+        key: "TO",
+        name: "setting",
       },
       {
         ...defaultColumn,
-        key: 'TO_VALUE',
-        name: 'new value',
+        key: "TO_VALUE",
+        name: "new value",
       },
     ]);
   } else {
@@ -1485,13 +1509,13 @@ function makeTransactionCols(
     cols = cols.concat([
       {
         ...defaultColumn,
-        key: 'TO',
-        name: 'going to',
+        key: "TO",
+        name: "going to",
       },
       {
         ...ToFromValueColumn,
-        key: 'TO_VALUE',
-        name: 'to amount',
+        key: "TO_VALUE",
+        name: "to amount",
       },
     ]);
   }
@@ -1499,16 +1523,16 @@ function makeTransactionCols(
     cols = cols.concat([
       {
         ...triggerDateColumn(model),
-        key: 'DATE',
-        name: 'payments start date',
+        key: "DATE",
+        name: "payments start date",
       },
     ]);
   } else {
     cols = cols.concat([
       {
         ...triggerDateColumn(model),
-        key: 'DATE',
-        name: 'date',
+        key: "DATE",
+        name: "date",
       },
     ]);
   }
@@ -1516,8 +1540,8 @@ function makeTransactionCols(
     cols = cols.concat([
       {
         ...defaultColumn,
-        key: 'RECURRENCE',
-        name: 'recurrence',
+        key: "RECURRENCE",
+        name: "recurrence",
       },
     ]);
   }
@@ -1525,8 +1549,8 @@ function makeTransactionCols(
     cols = cols.concat([
       {
         ...triggerDateColumn(model),
-        key: 'STOP_DATE',
-        name: 'recurrence end date',
+        key: "STOP_DATE",
+        name: "recurrence end date",
       },
     ]);
   }
@@ -1539,8 +1563,8 @@ function makeTransactionCols(
     cols = cols.concat([
       {
         ...defaultColumn,
-        key: 'CATEGORY',
-        name: 'category',
+        key: "CATEGORY",
+        name: "category",
       },
     ]);
   }
@@ -1573,7 +1597,7 @@ export function transactionsTableDiv(
     <div
       className={`dataGridTransactions${type}`}
       style={{
-        display: 'block',
+        display: "block",
       }}
     >
       {/*
@@ -1617,9 +1641,7 @@ export function transactionsTableDiv(
 
       <DataGridFinKitty
         tableID={tableID}
-        handleGridRowsUpdated={function (
-          ...args: any[]
-        ) {
+        handleGridRowsUpdated={function (...args: any[]) {
           return handleTransactionGridRowsUpdated(
             model,
             parentCallbacks.showAlert,
@@ -1686,13 +1708,13 @@ export function debtsDivWithHeadings(
           parentCallbacks,
           `debts${tableIDEnding}`,
         ),
-        'Debt definitions',
+        "Debt definitions",
       )}
       {transactionFilteredTable(
         model,
         doChecks,
         revalueDebt,
-        'Revalue debts',
+        "Revalue debts",
         parentCallbacks,
         `debtRevals${tableIDEnding}`,
       )}
@@ -1700,7 +1722,7 @@ export function debtsDivWithHeadings(
         model,
         doChecks,
         payOffDebt,
-        'Pay off debts',
+        "Pay off debts",
         parentCallbacks,
         `payoffDebts${tableIDEnding}`,
       )}
@@ -1741,7 +1763,7 @@ export function assetsDivWithHeadings(
         model,
         doChecks,
         liquidateAsset,
-        'Liquidate assets to keep cash afloat',
+        "Liquidate assets to keep cash afloat",
         parentCallbacks,
         `liquidateAssets${tableIDEnding}`,
       )}
@@ -1749,7 +1771,7 @@ export function assetsDivWithHeadings(
         model,
         doChecks,
         revalueAsset,
-        'Revalue assets',
+        "Revalue assets",
         parentCallbacks,
         `assetsRevals${tableIDEnding}`,
       )}
@@ -1788,16 +1810,14 @@ function triggersTableDiv(
   return (
     <div
       style={{
-        display: 'block',
+        display: "block",
       }}
     >
       <fieldset>
         <div className="dataGridTriggers">
           <DataGridFinKitty
             tableID={tableID}
-            handleGridRowsUpdated={function (
-              ...args: any[]
-            ) {
+            handleGridRowsUpdated={function (...args: any[]) {
               return handleTriggerGridRowsUpdated(
                 model,
                 parentCallbacks.showAlert,
@@ -1818,19 +1838,19 @@ function triggersTableDiv(
               },
               */
               faveColumn(
-                parentCallbacks.deleteTrigger, 
-                parentCallbacks.setEraTrigger, 
-                'triggerDefTable'
+                parentCallbacks.deleteTrigger,
+                parentCallbacks.setEraTrigger,
+                "triggerDefTable",
               ),
               {
                 ...defaultColumn,
-                key: 'NAME',
-                name: 'name',
+                key: "NAME",
+                name: "name",
               },
               {
                 ...triggerDateColumn(model),
-                key: 'DATE',
-                name: 'date',
+                key: "DATE",
+                name: "date",
               },
             ]}
             model={model}
@@ -1926,21 +1946,21 @@ function incomesTableDiv(
     },
     */
     faveColumn(
-      parentCallbacks.deleteIncome, 
-      parentCallbacks.setEraIncome, 
-      'incomeDefTable',
+      parentCallbacks.deleteIncome,
+      parentCallbacks.setEraIncome,
+      "incomeDefTable",
     ),
     {
       ...defaultColumn,
-      key: 'NAME',
-      name: 'name',
+      key: "NAME",
+      name: "name",
     },
   ];
   if (parentCallbacks.doShowTodaysValueColumns()) {
     columns = columns.concat([
       {
         ...cashValueColumn,
-        key: 'TODAYSVALUE',
+        key: "TODAYSVALUE",
         name: `value\nat ${dateAsString(
           DateFormatType.View,
           getTodaysDate(model),
@@ -1952,58 +1972,56 @@ function incomesTableDiv(
   columns = columns.concat([
     {
       ...cashValueColumn,
-      key: 'VALUE',
-      name: 'value definition',
+      key: "VALUE",
+      name: "value definition",
     },
     {
       ...triggerDateColumn(model),
-      key: 'VALUE_SET',
-      name: 'definition date',
+      key: "VALUE_SET",
+      name: "definition date",
     },
     {
       ...triggerDateColumn(model),
-      key: 'START',
-      name: 'start',
+      key: "START",
+      name: "start",
     },
     {
       ...triggerDateColumn(model),
-      key: 'END',
-      name: 'end',
+      key: "END",
+      name: "end",
     },
     {
       ...defaultColumn,
-      key: 'GROWS_WITH_CPI',
-      name: 'grows with CPI',
+      key: "GROWS_WITH_CPI",
+      name: "grows with CPI",
     },
     {
       ...defaultColumn,
-      key: 'LIABILITY',
-      name: 'tax Liability',
+      key: "LIABILITY",
+      name: "tax Liability",
     },
     {
       ...defaultColumn,
-      key: 'RECURRENCE',
-      name: 'recurrence',
+      key: "RECURRENCE",
+      name: "recurrence",
     },
     {
       ...defaultColumn,
-      key: 'CATEGORY',
-      name: 'category',
+      key: "CATEGORY",
+      name: "category",
     },
   ]);
   return (
     <div
       style={{
-        display: 'block',
+        display: "block",
       }}
     >
       <fieldset>
         <div className="dataGridIncomes">
           <DataGridFinKitty
             tableID={tableID}
-            handleGridRowsUpdated={function (
-              ...args: any[]
-            ) {
+            handleGridRowsUpdated={function (...args: any[]) {
               return handleIncomeGridRowsUpdated(
                 model,
                 parentCallbacks.showAlert,
@@ -2036,7 +2054,7 @@ export function incomesTableDivWithHeading(
     return;
   }
   return collapsibleFragment(
-    incomesTableDiv(model, incData, doChecks, parentCallbacks, 'incomesTable'),
+    incomesTableDiv(model, incData, doChecks, parentCallbacks, "incomesTable"),
     `Income definitions`,
   );
 }
@@ -2099,21 +2117,21 @@ function expensesTableDiv(
     },
     */
     faveColumn(
-      parentCallbacks.deleteExpense, 
-      parentCallbacks.setEraExpense, 
-      'expenseDefTable'
+      parentCallbacks.deleteExpense,
+      parentCallbacks.setEraExpense,
+      "expenseDefTable",
     ),
     {
       ...defaultColumn,
-      key: 'NAME',
-      name: 'name',
+      key: "NAME",
+      name: "name",
     },
   ];
   if (parentCallbacks.doShowTodaysValueColumns()) {
     cols = cols.concat([
       {
         ...cashValueColumn,
-        key: 'TODAYSVALUE',
+        key: "TODAYSVALUE",
         name: `value\nat ${dateAsString(
           DateFormatType.View,
           getTodaysDate(model),
@@ -2125,44 +2143,44 @@ function expensesTableDiv(
   cols = cols.concat([
     {
       ...cashValueColumn,
-      key: 'VALUE',
-      name: 'value definition',
+      key: "VALUE",
+      name: "value definition",
     },
     {
       ...triggerDateColumn(model),
-      key: 'VALUE_SET',
-      name: 'definition date',
+      key: "VALUE_SET",
+      name: "definition date",
     },
     {
       ...triggerDateColumn(model),
-      key: 'START',
-      name: 'start',
+      key: "START",
+      name: "start",
     },
     {
       ...triggerDateColumn(model),
-      key: 'END',
-      name: 'end',
+      key: "END",
+      name: "end",
     },
     {
       ...defaultColumn,
-      key: 'GROWS_WITH_CPI',
-      name: 'grows with CPI',
+      key: "GROWS_WITH_CPI",
+      name: "grows with CPI",
     },
     {
       ...defaultColumn,
-      key: 'RECURRENCE',
-      name: 'recurrence',
+      key: "RECURRENCE",
+      name: "recurrence",
     },
     {
       ...defaultColumn,
-      key: 'CATEGORY',
-      name: 'category',
+      key: "CATEGORY",
+      name: "category",
     },
   ]);
   return (
     <div
       style={{
-        display: 'block',
+        display: "block",
       }}
     >
       {/*
@@ -2182,7 +2200,7 @@ function expensesTableDiv(
         <div className="dataGridExpenses">
           <DataGridFinKitty
             tableID={tableID}
-            handleGridRowsUpdated={function (...args:any[]) {
+            handleGridRowsUpdated={function (...args: any[]) {
               return handleExpenseGridRowsUpdated(
                 model,
                 parentCallbacks.showAlert,
@@ -2304,21 +2322,21 @@ function customSettingsTable(
     },
     */
     faveColumn(
-      parentCallbacks.deleteSetting, 
-      parentCallbacks.setEraSetting, 
-      'settingDefTable'
+      parentCallbacks.deleteSetting,
+      parentCallbacks.setEraSetting,
+      "settingDefTable",
     ),
     {
       ...defaultColumn,
-      key: 'NAME',
-      name: 'name',
+      key: "NAME",
+      name: "name",
     },
   ];
   if (parentCallbacks.doShowTodaysValueColumns()) {
     cols = cols.concat([
       {
         ...defaultColumn,
-        key: 'TODAYSVALUE',
+        key: "TODAYSVALUE",
         name: `value\nat ${dateAsString(
           DateFormatType.View,
           getTodaysDate(model),
@@ -2329,21 +2347,19 @@ function customSettingsTable(
   cols = cols.concat([
     {
       ...defaultColumn,
-      key: 'VALUE',
-      name: 'defining value',
+      key: "VALUE",
+      name: "defining value",
     },
     {
       ...defaultColumn,
-      key: 'HINT',
-      name: 'hint',
+      key: "HINT",
+      name: "hint",
     },
   ]);
   return (
     <DataGridFinKitty
       tableID={tableID}
-      handleGridRowsUpdated={function (
-        ...args:any[]
-      ) {
+      handleGridRowsUpdated={function (...args: any[]) {
         return handleSettingGridRowsUpdated(
           model,
           parentCallbacks.showAlert,
@@ -2373,9 +2389,7 @@ function adjustSettingsTable(
   return (
     <DataGridFinKitty
       tableID={tableID}
-      handleGridRowsUpdated={function (
-        ...args: any[]
-      ) {
+      handleGridRowsUpdated={function (...args: any[]) {
         return handleSettingGridRowsUpdated(
           model,
           parentCallbacks.showAlert,
@@ -2396,34 +2410,33 @@ function adjustSettingsTable(
         },
         */
         faveColumn(
-          parentCallbacks.deleteSetting, 
-          parentCallbacks.setEraSetting, 
-          'settingAdjustTable'
+          parentCallbacks.deleteSetting,
+          parentCallbacks.setEraSetting,
+          "settingAdjustTable",
         ),
         {
           ...defaultColumn,
-          key: 'NAME',
-          name: 'name',
+          key: "NAME",
+          name: "name",
         },
         // parentCallbacks.doShowTodaysValueColumns()...
         {
           ...defaultColumn,
-          key: 'TODAYSVALUE',
+          key: "TODAYSVALUE",
           name: `value\nat ${dateAsString(
             DateFormatType.View,
             getTodaysDate(model),
           )}`,
-          //renderCell: <SettingValueFormatter name="focus value" value="unset" />,
         },
         {
           ...defaultColumn,
-          key: 'VALUE',
-          name: 'defining value',
+          key: "VALUE",
+          name: "defining value",
         },
         {
           ...defaultColumn,
-          key: 'HINT',
-          name: 'hint',
+          key: "HINT",
+          name: "hint",
         },
       ]}
       model={model}
@@ -2465,14 +2478,14 @@ function settingsTables(
         constSettings,
         doChecks,
         parentCallbacks,
-        'customSettingsTable',
+        "customSettingsTable",
       )}
       {adjustSettingsTable(
         model,
         adjustSettings,
         doChecks,
         parentCallbacks,
-        'adjustableSettingsTable',
+        "adjustableSettingsTable",
       )}
     </>,
     `Other settings affecting the model`,
@@ -2493,20 +2506,18 @@ export function settingsTableDiv(
       return s.TYPE === viewType;
     },
     parentCallbacks,
-  )
+  );
   return (
     <div
       className="dataGridSettings"
       style={{
-        display: 'block',
+        display: "block",
       }}
     >
       {collapsibleFragment(
         <DataGridFinKitty
           tableID={`settings${tableIDEnding}`}
-          handleGridRowsUpdated={function (
-            ...args: any[]
-          ) {
+          handleGridRowsUpdated={function (...args: any[]) {
             return handleSettingGridRowsUpdated(
               model,
               parentCallbacks.showAlert,
@@ -2527,43 +2538,38 @@ export function settingsTableDiv(
             },
             */
             faveColumn(
-              parentCallbacks.deleteSetting, 
-              parentCallbacks.setEraSetting, 
-              'settingTableDiv'
+              parentCallbacks.deleteSetting,
+              parentCallbacks.setEraSetting,
+              "settingTableDiv",
             ),
             {
               ...defaultColumn,
-              key: 'NAME',
-              name: 'name',
+              key: "NAME",
+              name: "name",
             },
             {
               ...defaultColumn,
-              key: 'VALUE',
-              name: 'defining value',
+              key: "VALUE",
+              name: "defining value",
             },
             {
               ...defaultColumn,
-              key: 'HINT',
-              name: 'hint',
+              key: "HINT",
+              name: "hint",
             },
           ]}
           model={model}
         />,
         `Settings about the view of the model`,
       )}
-      {settingsTables(
-        model, 
-        todaysValues, 
-        doChecks, 
-        parentCallbacks, 
-      )}
+      {settingsTables(model, todaysValues, doChecks, parentCallbacks)}
       {transactionFilteredTable(
         model,
         doChecks,
         revalueSetting,
-        'Revalue settings',
+        "Revalue settings",
         parentCallbacks,
-        'settingsRevalsTable',
+        "settingsRevalsTable",
       )}
     </div>
   );
@@ -2600,18 +2606,18 @@ export function reportDiv(
   const unindexedResult = reportData
     .slice(0, 100)
     .filter((d) => {
-      return d.name !== 'Estate final value';
+      return d.name !== "Estate final value";
     })
     .map((x) => {
       const make2dpCanBeUndefined: (input: number | undefined) => string = (
         input,
       ) => {
-        return input ? makeTwoDP(input) : '';
+        return input ? makeTwoDP(input) : "";
       };
       const makeQCanBeUndefined: (input: number | undefined) => string = (
         input,
       ) => {
-        return input ? `${input}` : '';
+        return input ? `${input}` : "";
       };
       return {
         DATE: x.date,
@@ -2619,7 +2625,7 @@ export function reportDiv(
         CHANGE: make2dpCanBeUndefined(x.change),
         OLD_VALUE: make2dpCanBeUndefined(x.oldVal),
         NEW_VALUE: make2dpCanBeUndefined(x.newVal),
-        QCHANGE: x.qchange ? x.qchange : '',
+        QCHANGE: x.qchange ? x.qchange : "",
         QOLD_VALUE: makeQCanBeUndefined(x.qoldVal),
         QNEW_VALUE: makeQCanBeUndefined(x.qnewVal),
         SOURCE: x.source,
@@ -2639,7 +2645,13 @@ export function reportDiv(
 
   return (
     <div className="ml-3">
-      {filtersList(itemsForFilterButtons, viewSettings, context, true, refreshData)}
+      {filtersList(
+        itemsForFilterButtons,
+        viewSettings,
+        context,
+        true,
+        refreshData,
+      )}
       <ReportMatcherForm
         reportMatcher={reportMatcher}
         setReportKey={setReportKey}
@@ -2660,56 +2672,56 @@ export function reportDiv(
           */
           {
             ...triggerDateColumn(model),
-            key: 'DATE',
-            name: 'date',
+            key: "DATE",
+            name: "date",
             renderEditCell: undefined,
           },
           {
             ...defaultColumn,
-            key: 'NAME',
-            name: 'name',
+            key: "NAME",
+            name: "name",
             renderEditCell: undefined,
           },
           {
             ...defaultColumn,
-            key: 'SOURCE',
-            name: 'source',
+            key: "SOURCE",
+            name: "source",
             renderEditCell: undefined,
           },
           {
             ...defaultColumn,
-            key: 'CHANGE',
-            name: 'change',
+            key: "CHANGE",
+            name: "change",
             renderEditCell: undefined,
           },
           {
             ...defaultColumn,
-            key: 'OLD_VALUE',
-            name: 'old value',
+            key: "OLD_VALUE",
+            name: "old value",
             renderEditCell: undefined,
           },
           {
             ...cashValueColumn,
-            key: 'NEW_VALUE',
-            name: 'new value',
+            key: "NEW_VALUE",
+            name: "new value",
             renderEditCell: undefined,
           },
           {
             ...defaultColumn,
-            key: 'QCHANGE',
-            name: 'quantity change',
+            key: "QCHANGE",
+            name: "quantity change",
             renderEditCell: undefined,
           },
           {
             ...defaultColumn,
-            key: 'QOLD_VALUE',
-            name: 'old quantity',
+            key: "QOLD_VALUE",
+            name: "old quantity",
             renderEditCell: undefined,
           },
           {
             ...defaultColumn,
-            key: 'QNEW_VALUE',
-            name: 'new quantity',
+            key: "QNEW_VALUE",
+            name: "new quantity",
             renderEditCell: undefined,
           },
         ]}
@@ -2754,18 +2766,18 @@ function performOneCalc(
   // log(`calculate optimisation task for varVal = ${varVal}`);
   const tempModel = makeModelFromJSON(JSON.stringify(model));
 
-  setSetting(tempModel.settings, 'variable', `${varVal}`, custom);
+  setSetting(tempModel.settings, "variable", `${varVal}`, custom);
   const evalResult = getEvaluations(tempModel, helper);
   const errorMsg = evalResult.reportData.find((d) => {
-    return d.name === 'Error from evaluations';
+    return d.name === "Error from evaluations";
   });
   if (errorMsg !== undefined) {
     showAlert(errorMsg.source);
   }
   const estateVal = evalResult.reportData.find((d) => {
-    return d.name === 'Estate final value';
+    return d.name === "Estate final value";
   });
-  let textToDisplay = 'unknown';
+  let textToDisplay = "unknown";
   let estateValueForChart = 0.0;
   if (estateVal !== undefined) {
     if (estateVal.newVal !== undefined) {
@@ -2797,8 +2809,8 @@ export function calcOptimizer(
     displayLegend: false,
   };
 
-  const varSetting = getSettings(model.settings, 'variable', 'missing', false);
-  if (varSetting === 'missing') {
+  const varSetting = getSettings(model.settings, "variable", "missing", false);
+  if (varSetting === "missing") {
     alert(`optimiser needs a setting called 'variable'`);
     return noData;
   }
@@ -2808,11 +2820,11 @@ export function calcOptimizer(
   }
   const varLowSetting = getSettings(
     model.settings,
-    'variableLow',
-    'missing',
+    "variableLow",
+    "missing",
     false,
   );
-  if (varLowSetting === 'missing') {
+  if (varLowSetting === "missing") {
     alert(`optimiser needs a setting called 'variableLow'`);
     return noData;
   }
@@ -2822,11 +2834,11 @@ export function calcOptimizer(
   }
   const varHighSetting = getSettings(
     model.settings,
-    'variableHigh',
-    'missing',
+    "variableHigh",
+    "missing",
     false,
   );
-  if (varHighSetting === 'missing') {
+  if (varHighSetting === "missing") {
     alert(`optimiser needs a setting called 'variableHigh'`);
     return noData;
   }
@@ -2837,11 +2849,11 @@ export function calcOptimizer(
   let varCount = 10;
   const varCountSetting = getSettings(
     model.settings,
-    'variableCount',
-    'missing',
+    "variableCount",
+    "missing",
     false,
   );
-  if (varCountSetting !== 'missing') {
+  if (varCountSetting !== "missing") {
     // log(`found varCount setting ${varCountSetting}`);
     if (isNumberString(varCountSetting)) {
       const parsed = parseInt(varCountSetting);
@@ -2886,7 +2898,7 @@ export function calcOptimizer(
   });
   const icd: ItemChartData = {
     item: {
-      NAME: 'optimisation result',
+      NAME: "optimisation result",
       ERA: undefined,
     },
     chartDataPoints: cdps,
@@ -2940,13 +2952,13 @@ export function optimizerDiv(
           model,
           todaysSettingValues,
           (s) => {
-            return s.TYPE === adjustableType && s.NAME.startsWith('variable');
+            return s.TYPE === adjustableType && s.NAME.startsWith("variable");
           },
           parentCallbacks,
         ),
         true,
         parentCallbacks,
-        'variableSettingsTable',
+        "variableSettingsTable",
       )}
       <DataGridFinKitty
         tableID={tableID}
@@ -2959,14 +2971,14 @@ export function optimizerDiv(
         columns={[
           {
             ...defaultColumn,
-            key: 'VAR',
-            name: 'variable',
+            key: "VAR",
+            name: "variable",
             renderEditCell: undefined,
           },
           {
             ...cashValueColumn,
-            key: 'ESTATE',
-            name: 'estate',
+            key: "ESTATE",
+            name: "estate",
             renderEditCell: undefined,
           },
         ]}

@@ -7,23 +7,20 @@ import {
   Setting,
   Item,
   ModelData,
-} from '../types/interfaces';
+} from "../types/interfaces";
 
-import { log, printDebug, showObj } from '../utils/utils';
+import { log, printDebug, showObj } from "../utils/utils";
 
-import { getDB } from './database';
+import { getDB } from "./database";
 
-import { adjustableType } from '../localization/stringConstants';
+import { adjustableType } from "../localization/stringConstants";
 
-import { diffModels } from '../models/diffModels';
-import { checkData, CheckResult } from '../models/checks';
-import { simpleExampleData } from '../models/exampleModels';
-import {
-  markForUndo,
-  revertToUndoModel,
-} from '../models/modelUtils';
-import { minimalModel } from '../models/minimalModel';
-import { makeModelFromJSON } from '../models/modelFromJSON';
+import { diffModels } from "../models/diffModels";
+import { checkData, CheckResult } from "../models/checks";
+import { simpleExampleData } from "../models/exampleModels";
+import { markForUndo, revertToUndoModel } from "../models/modelUtils";
+import { minimalModel } from "../models/minimalModel";
+import { makeModelFromJSON } from "../models/modelFromJSON";
 
 const showDBInteraction = false;
 
@@ -97,7 +94,7 @@ function logCache() {
       `set up ${Array.from(localCache.keys()).map((k) => {
         const cachedModel = localCache.get(k);
         if (!cachedModel) {
-          return '';
+          return "";
         } else {
           return `[${k}, ${cachedModel.map((cm) => {
             return `${cm.modelName}${cm.status.isDirty}${cm.model.assets.length}`;
@@ -109,9 +106,7 @@ function logCache() {
   }
 }
 
-async function fillCacheFromDB(
-  userID: string,
-) {
+async function fillCacheFromDB(userID: string) {
   const cachedModels: CacheModel[] = [];
   const modelNames = await getModelNamesDB(userID);
   /* istanbul ignore if  */
@@ -162,9 +157,7 @@ async function fillCacheFromDB(
   return cachedModels;
 }
 
-export async function getModelNames(
-  userID: string,
-) {
+export async function getModelNames(userID: string) {
   let cachedModels = localCache.get(userID);
   if (!cachedModels) {
     cachedModels = await fillCacheFromDB(userID);
@@ -218,8 +211,8 @@ export async function loadModel(
           dbModel,
           cachedModel.model,
           true,
-          'this model',
-          'cached model',
+          "this model",
+          "cached model",
         );
         if (diff.length !== 0) {
           /* istanbul ignore next */
@@ -314,8 +307,8 @@ export async function saveModelLSM(
         model,
         model.undoModel,
         true,
-        'this model',
-        'undo model',
+        "this model",
+        "undo model",
       )}`,
     );
   }
@@ -346,7 +339,7 @@ async function submitItemLSM(
 
   if (doChecks) {
     const outcome = checkData(modelData);
-    if (outcome.message !== '') {
+    if (outcome.message !== "") {
       revertToUndoModel(modelData);
       return outcome;
     }
@@ -356,7 +349,7 @@ async function submitItemLSM(
   return {
     type: undefined,
     itemName: undefined,
-    message: '',
+    message: "",
   };
 }
 
@@ -428,7 +421,7 @@ export async function submitAssetLSM(
   modelName: string,
   modelData: ModelData,
   doChecks: boolean,
-  userID: string, 
+  userID: string,
 ): Promise<CheckResult> {
   /* istanbul ignore if  */
   if (printDebug()) {
@@ -508,10 +501,10 @@ export async function submitSettingLSM(
     return i.NAME === input.NAME;
   });
   if (idx !== undefined) {
-    if (input.HINT === '') {
+    if (input.HINT === "") {
       input.HINT = idx.HINT;
     }
-    if (input.TYPE === '') {
+    if (input.TYPE === "") {
       input.TYPE = idx.TYPE;
     }
   }

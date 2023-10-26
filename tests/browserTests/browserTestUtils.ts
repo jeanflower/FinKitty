@@ -1,4 +1,4 @@
-import { ThenableWebDriver } from 'selenium-webdriver';
+import { ThenableWebDriver } from "selenium-webdriver";
 import {
   clickButton,
   fillInputById,
@@ -6,33 +6,33 @@ import {
   scrollIntoViewByID,
   getDataDumpFromPage,
   makeTestCode,
-} from './browserBaseTypes';
+} from "./browserBaseTypes";
 
-import webdriver from 'selenium-webdriver';
-import { CASH_ASSET_NAME } from '../../localization/stringConstants';
-import { log, printDebug } from '../../utils/utils';
+import webdriver from "selenium-webdriver";
+import { CASH_ASSET_NAME } from "../../localization/stringConstants";
+import { log, printDebug } from "../../utils/utils";
 
 // switch this value if you want to debug
 // one of these tests and see the Chrome window
 // stay alive
 export const quitAfterAll = true;
 
-export const homeTag = 'btn-Home';
-export const settingsTag = 'btn-Settings';
-export const transactionsTag = 'btn-Transactions';
-export const datesTag = 'btn-Dates';
-export const overviewTag = 'btn-Overview';
-export const expensesTag = 'btn-Expenses';
-export const incomesTag = 'btn-Incomes';
-export const assetsTag = 'btn-Assets';
-export const debtsTag = 'btn-Debts';
-export const taxTag = 'btn-Tax';
-export const reportTag = 'btn-Asset actions';
-export const optimizerTag = 'btn-Optimizer';
+export const homeTag = "btn-Home";
+export const settingsTag = "btn-Settings";
+export const transactionsTag = "btn-Transactions";
+export const datesTag = "btn-Dates";
+export const overviewTag = "btn-Overview";
+export const expensesTag = "btn-Expenses";
+export const incomesTag = "btn-Incomes";
+export const assetsTag = "btn-Assets";
+export const debtsTag = "btn-Debts";
+export const taxTag = "btn-Tax";
+export const reportTag = "btn-Asset actions";
+export const optimizerTag = "btn-Optimizer";
 
 export async function gotoTabPage(driver: ThenableWebDriver, tag: string) {
   // log(`go to tab page with tag = ${tag}`);
-  await driver.executeScript('window.scrollBy(0, -4000)');
+  await driver.executeScript("window.scrollBy(0, -4000)");
   const btn = await driver.findElements(webdriver.By.id(tag));
   // log(`btnMms.length = ${btnMms.length}`);
   expect(btn.length === 1).toBe(true);
@@ -100,7 +100,10 @@ export async function deleteIfExists(
   );
   if (btn.length === 1) {
     // log(`${name} exists`);
-    await driver.executeScript(`arguments[0].scrollIntoView({ block: 'center' });`, btn[0]);
+    await driver.executeScript(
+      `arguments[0].scrollIntoView({ block: 'center' });`,
+      btn[0],
+    );
 
     await sleep(1000, `before selecting model ${name}`);
     await btn[0].click();
@@ -109,7 +112,7 @@ export async function deleteIfExists(
     await acceptAnyAlert(driver);
     await gotoTabPage(driver, homeTag);
 
-    await clickButton(driver, 'btn-delete');
+    await clickButton(driver, "btn-delete");
     await consumeAlert(
       `delete all data in model ${name} - you sure?`,
       true,
@@ -122,13 +125,13 @@ export async function deleteIfExists(
 }
 
 export async function checkMessage(driver: ThenableWebDriver, message: string) {
-  const label = await driver.findElements(webdriver.By.id('pageTitle'));
+  const label = await driver.findElements(webdriver.By.id("pageTitle"));
   expect(label.length === 1).toBe(true);
   const labelText = await label[0].getText();
   //log(`compare expected ${message} against found ${labelText}`);
   expect(labelText).toBe(message);
 
-  const btn = await driver.findElements(webdriver.By.id('btn-clear-alert'));
+  const btn = await driver.findElements(webdriver.By.id("btn-clear-alert"));
   if (btn.length !== 0) {
     await btn[0].click();
   }
@@ -150,35 +153,35 @@ export async function addAsset(
   },
 ) {
   await Promise.all([
-    fillInputById(driver, 'assetname', inputs.name),
-    fillInputById(driver, 'assetvalue', inputs.value),
-    fillInputById(driver, 'assetquantity', inputs.quantity),
-    fillInputByName(driver, 'start date', inputs.startDate),
-    fillInputById(driver, 'assetgrowth', inputs.growth),
-    fillInputById(driver, 'assetcpi-grows', inputs.growsWithInflation),
-    fillInputById(driver, 'liabilityCGT', inputs.liability),
-    fillInputById(driver, 'purchase', inputs.purchasePrice),
-    fillInputById(driver, 'assetcategory', inputs.category),
+    fillInputById(driver, "assetname", inputs.name),
+    fillInputById(driver, "assetvalue", inputs.value),
+    fillInputById(driver, "assetquantity", inputs.quantity),
+    fillInputByName(driver, "start date", inputs.startDate),
+    fillInputById(driver, "assetgrowth", inputs.growth),
+    fillInputById(driver, "assetcpi-grows", inputs.growsWithInflation),
+    fillInputById(driver, "liabilityCGT", inputs.liability),
+    fillInputById(driver, "purchase", inputs.purchasePrice),
+    fillInputById(driver, "assetcategory", inputs.category),
   ]);
 
-  await driver.executeScript('window.scrollBy(0, 1000)');
+  await driver.executeScript("window.scrollBy(0, 1000)");
 
-  await clickButton(driver, 'addAsset');
+  await clickButton(driver, "addAsset");
   // log(`added date`);
 
   await checkMessage(driver, inputs.message);
 }
 
 export const assetInputs = {
-  name: 'hifi',
-  value: '2500',
-  quantity: '2',
-  category: 'audio',
-  startDate: '1 Jan 2021',
-  growth: '2.0',
-  growsWithInflation: 'N',
-  liability: 'Joe',
-  purchasePrice: '10',
+  name: "hifi",
+  value: "2500",
+  quantity: "2",
+  category: "audio",
+  startDate: "1 Jan 2021",
+  growth: "2.0",
+  growsWithInflation: "N",
+  liability: "Joe",
+  purchasePrice: "10",
 };
 
 export async function addIncome(
@@ -196,32 +199,32 @@ export async function addIncome(
   },
 ) {
   await Promise.all([
-    fillInputById(driver, 'incomename', inputs.name),
-    fillInputByName(driver, 'income valuation date', inputs.valuationDate),
-    fillInputById(driver, 'incomevalue', inputs.value),
-    fillInputByName(driver, 'income start date', inputs.startDate),
-    fillInputByName(driver, 'income end date', inputs.endDate),
-    fillInputById(driver, 'incomecpi-grows', inputs.growsWithInflation),
-    fillInputById(driver, 'taxable', inputs.liability),
-    fillInputById(driver, 'incomecategory', inputs.category),
+    fillInputById(driver, "incomename", inputs.name),
+    fillInputByName(driver, "income valuation date", inputs.valuationDate),
+    fillInputById(driver, "incomevalue", inputs.value),
+    fillInputByName(driver, "income start date", inputs.startDate),
+    fillInputByName(driver, "income end date", inputs.endDate),
+    fillInputById(driver, "incomecpi-grows", inputs.growsWithInflation),
+    fillInputById(driver, "taxable", inputs.liability),
+    fillInputById(driver, "incomecategory", inputs.category),
   ]);
 
-  await clickButton(driver, 'addIncome');
+  await clickButton(driver, "addIncome");
   // log(`added date`);
 
   await checkMessage(driver, inputs.message);
 }
 
 export const incomeInputs = {
-  name: 'javaJob1',
-  value: '2500',
-  valuationDate: '1 Jan 2020',
-  startDate: '1 Jan 2021',
-  endDate: '1 Jan 2022',
-  growth: '2.0',
-  growsWithInflation: 'N',
-  liability: 'Joe',
-  category: 'programming',
+  name: "javaJob1",
+  value: "2500",
+  valuationDate: "1 Jan 2020",
+  startDate: "1 Jan 2021",
+  endDate: "1 Jan 2022",
+  growth: "2.0",
+  growsWithInflation: "N",
+  liability: "Joe",
+  category: "programming",
 };
 
 export async function addSetting(
@@ -233,11 +236,11 @@ export async function addSetting(
   },
 ) {
   await Promise.all([
-    fillInputById(driver, 'settingname', inputs.name),
-    fillInputById(driver, 'settingvalue', inputs.value),
+    fillInputById(driver, "settingname", inputs.name),
+    fillInputById(driver, "settingvalue", inputs.value),
   ]);
 
-  await clickButton(driver, 'addSetting');
+  await clickButton(driver, "addSetting");
 
   await checkMessage(driver, inputs.message);
 }
@@ -283,48 +286,48 @@ export async function addDBPension(
   },
 ): Promise<boolean> {
   await Promise.all([
-    fillInputById(driver, 'incomename', inputs.name),
-    fillInputByName(driver, 'income valuation date', inputs.valuationDate),
-    fillInputById(driver, 'incomevalue', inputs.value),
-    fillInputByName(driver, 'end date', inputs.contributionsEndDate),
-    fillInputByName(driver, 'pension start date', inputs.startDate),
+    fillInputById(driver, "incomename", inputs.name),
+    fillInputByName(driver, "income valuation date", inputs.valuationDate),
+    fillInputById(driver, "incomevalue", inputs.value),
+    fillInputByName(driver, "end date", inputs.contributionsEndDate),
+    fillInputByName(driver, "pension start date", inputs.startDate),
     fillInputByName(
       driver,
-      'pension end/transfer date',
+      "pension end/transfer date",
       inputs.pensionEndOrTransferDate,
     ),
     fillInputByName(
       driver,
-      'transferred stop date',
+      "transferred stop date",
       inputs.transferredStopDate,
     ),
     fillInputByName(
       driver,
-      'contributionSSIncome',
+      "contributionSSIncome",
       inputs.contributionSSIncome,
     ),
     fillInputById(
       driver,
-      'contributionAmountPensionIncome',
+      "contributionAmountPensionIncome",
       inputs.contributionAmountPensionIncome,
     ),
-    fillInputById(driver, 'incomeaccrual', inputs.incomeaccrual),
-    fillInputById(driver, 'transferNameIncome', inputs.transferName),
-    fillInputById(driver, 'transferProportion', inputs.transferProportion),
-    fillInputById(driver, 'incomecpi-grows', inputs.incomecpiGrows),
-    fillInputById(driver, 'taxable', inputs.liability),
-    fillInputById(driver, 'incomecategory', inputs.category),
+    fillInputById(driver, "incomeaccrual", inputs.incomeaccrual),
+    fillInputById(driver, "transferNameIncome", inputs.transferName),
+    fillInputById(driver, "transferProportion", inputs.transferProportion),
+    fillInputById(driver, "incomecpi-grows", inputs.incomecpiGrows),
+    fillInputById(driver, "taxable", inputs.liability),
+    fillInputById(driver, "incomecategory", inputs.category),
   ]);
 
-  if (inputs.incomeSource !== '') {
+  if (inputs.incomeSource !== "") {
     await fillInputById(
       driver,
-      'fromIncomeSelectIncomeForm',
+      "fromIncomeSelectIncomeForm",
       inputs.incomeSource,
     );
   }
 
-  await clickButton(driver, 'addIncome');
+  await clickButton(driver, "addIncome");
   // log(`added date`);
 
   await checkMessage(driver, inputs.message);
@@ -355,7 +358,7 @@ export async function clearPensionFields(driver: ThenableWebDriver) {
   await scrollIntoViewByID(driver, `useDBPInputs`);
 
   // console.log(`clicking...`);
-  await clickButton(driver, 'useDBPInputs');
+  await clickButton(driver, "useDBPInputs");
   // console.log(`clicked...`);
 
   // log(`cleared ready for next pension inputs`);
@@ -372,12 +375,12 @@ export async function revalueIncome(
   },
 ): Promise<boolean> {
   await Promise.all([
-    fillInputById(driver, 'incomenameselect', inputs.name),
-    fillInputByName(driver, 'income valuation date', inputs.revaluationDate),
-    fillInputById(driver, 'incomevalue', inputs.revalue),
+    fillInputById(driver, "incomenameselect", inputs.name),
+    fillInputByName(driver, "income valuation date", inputs.revaluationDate),
+    fillInputById(driver, "incomevalue", inputs.revalue),
   ]);
 
-  await clickButton(driver, 'revalueIncome');
+  await clickButton(driver, "revalueIncome");
   await checkMessage(driver, inputs.message);
   return true;
 }
@@ -391,7 +394,7 @@ export async function clearRevalueIncomeFields(driver: ThenableWebDriver) {
 
   await gotoTabPage(driver, overviewTag);
   await gotoTabPage(driver, incomesTag);
-  await clickButton(driver, 'useRevalueInputsIncome');
+  await clickButton(driver, "useRevalueInputsIncome");
 
   return;
 }
@@ -411,17 +414,17 @@ export async function addExpense(
   },
 ) {
   await Promise.all([
-    fillInputById(driver, 'expensename', inputs.name),
-    fillInputByName(driver, 'expense valuation date', inputs.valuationDate),
-    fillInputById(driver, 'expensevalue', inputs.value),
-    fillInputByName(driver, 'start date', inputs.startDate),
-    fillInputByName(driver, 'end date', inputs.endDate),
-    fillInputById(driver, 'expensecpi-grows', inputs.growsWithInflation),
-    fillInputById(driver, 'expenserecurrence', inputs.recurrence),
-    fillInputById(driver, 'expensecategory', inputs.category),
+    fillInputById(driver, "expensename", inputs.name),
+    fillInputByName(driver, "expense valuation date", inputs.valuationDate),
+    fillInputById(driver, "expensevalue", inputs.value),
+    fillInputByName(driver, "start date", inputs.startDate),
+    fillInputByName(driver, "end date", inputs.endDate),
+    fillInputById(driver, "expensecpi-grows", inputs.growsWithInflation),
+    fillInputById(driver, "expenserecurrence", inputs.recurrence),
+    fillInputById(driver, "expensecategory", inputs.category),
   ]);
 
-  await clickButton(driver, 'addExpense');
+  await clickButton(driver, "addExpense");
   await checkMessage(driver, inputs.message);
 }
 
@@ -453,12 +456,12 @@ export async function revalueExpense(
   },
 ): Promise<boolean> {
   await Promise.all([
-    fillInputById(driver, 'expensename', inputs.name),
-    fillInputByName(driver, 'expense valuation date', inputs.revaluationDate),
-    fillInputById(driver, 'expensevalue', inputs.revalue),
+    fillInputById(driver, "expensename", inputs.name),
+    fillInputByName(driver, "expense valuation date", inputs.revaluationDate),
+    fillInputById(driver, "expensevalue", inputs.revalue),
   ]);
 
-  await clickButton(driver, 'revalueExpense');
+  await clickButton(driver, "revalueExpense");
   await checkMessage(driver, inputs.message);
   return true;
 }
@@ -472,21 +475,21 @@ export async function clearRevalueExpenseFields(driver: ThenableWebDriver) {
 
   await gotoTabPage(driver, overviewTag);
   await gotoTabPage(driver, expensesTag);
-  await clickButton(driver, 'useRevalueInputsExpense');
+  await clickButton(driver, "useRevalueInputsExpense");
 
   return;
 }
 
 export const expenseInputs = {
-  name: 'broadband',
-  value: '56.13',
-  valuationDate: '1 Jan 2020',
-  startDate: '1 Jan 2021',
-  endDate: '1 Jan 2022',
-  growth: '2.0',
-  growsWithInflation: 'N',
-  recurrence: '1m',
-  category: 'connectivity',
+  name: "broadband",
+  value: "56.13",
+  valuationDate: "1 Jan 2020",
+  startDate: "1 Jan 2021",
+  endDate: "1 Jan 2022",
+  growth: "2.0",
+  growsWithInflation: "N",
+  recurrence: "1m",
+  category: "connectivity",
 };
 
 export async function clearAssetFields(driver: ThenableWebDriver) {
@@ -516,12 +519,12 @@ export async function revalueAsset(
   },
 ): Promise<boolean> {
   await Promise.all([
-    fillInputById(driver, 'assetname', inputs.name),
-    fillInputByName(driver, 'start date', inputs.revaluationDate),
-    fillInputById(driver, 'assetvalue', inputs.revalue),
+    fillInputById(driver, "assetname", inputs.name),
+    fillInputByName(driver, "start date", inputs.revaluationDate),
+    fillInputById(driver, "assetvalue", inputs.revalue),
   ]);
 
-  await clickButton(driver, 'revalueAsset');
+  await clickButton(driver, "revalueAsset");
   await checkMessage(driver, inputs.message);
   return true;
 }
@@ -535,7 +538,7 @@ export async function clearRevalueAssetFields(driver: ThenableWebDriver) {
 
   await gotoTabPage(driver, overviewTag);
   await gotoTabPage(driver, assetsTag);
-  await clickButton(driver, 'revalueAssetInputs');
+  await clickButton(driver, "revalueAssetInputs");
 
   return;
 }
@@ -562,39 +565,39 @@ export async function addDCPension(
   },
 ): Promise<boolean> {
   await Promise.all([
-    fillInputById(driver, 'assetname', inputs.name),
-    fillInputByName(driver, 'assetvalue', inputs.value),
-    fillInputById(driver, 'assetcategory', inputs.category),
-    fillInputByName(driver, 'start date', inputs.startDate),
-    fillInputByName(driver, 'assetgrowth', inputs.growth),
-    fillInputByName(driver, 'assetcpi-grows', inputs.growsWithCPI),
-    fillInputByName(driver, 'stop date', inputs.contributionsStopDate),
-    fillInputByName(driver, 'crystallize date', inputs.crystallizesDate),
+    fillInputById(driver, "assetname", inputs.name),
+    fillInputByName(driver, "assetvalue", inputs.value),
+    fillInputById(driver, "assetcategory", inputs.category),
+    fillInputByName(driver, "start date", inputs.startDate),
+    fillInputByName(driver, "assetgrowth", inputs.growth),
+    fillInputByName(driver, "assetcpi-grows", inputs.growsWithCPI),
+    fillInputByName(driver, "stop date", inputs.contributionsStopDate),
+    fillInputByName(driver, "crystallize date", inputs.crystallizesDate),
     fillInputByName(
       driver,
-      'transferred stop date',
+      "transferred stop date",
       inputs.pensionEndOrTransferDate,
     ),
-    fillInputById(driver, 'contributionSSAsset', inputs.contributionSSIncome),
+    fillInputById(driver, "contributionSSAsset", inputs.contributionSSIncome),
     fillInputById(
       driver,
-      'contributionAmountPensionAsset',
+      "contributionAmountPensionAsset",
       inputs.contributionAmountPensionIncome,
     ),
-    fillInputById(driver, 'contributionAmount', inputs.employerContribution),
-    fillInputById(driver, 'liabilityIC', inputs.liability),
-    fillInputById(driver, 'transferNameAsset', inputs.transferName),
+    fillInputById(driver, "contributionAmount", inputs.employerContribution),
+    fillInputById(driver, "liabilityIC", inputs.liability),
+    fillInputById(driver, "transferNameAsset", inputs.transferName),
   ]);
 
-  if (inputs.incomeSource !== '') {
+  if (inputs.incomeSource !== "") {
     await fillInputById(
       driver,
-      'fromIncomeSelectAssetForm',
+      "fromIncomeSelectAssetForm",
       inputs.incomeSource,
     );
   }
 
-  await clickButton(driver, 'addPension');
+  await clickButton(driver, "addPension");
 
   await checkMessage(driver, inputs.message);
   return true;
@@ -626,7 +629,7 @@ export async function clearDCPension(driver: ThenableWebDriver): Promise<void> {
   await gotoTabPage(driver, overviewTag);
   await gotoTabPage(driver, assetsTag);
   // need scroll?
-  await clickButton(driver, 'useDCPInputs');
+  await clickButton(driver, "useDCPInputs");
 
   return;
 }
@@ -648,24 +651,24 @@ export async function addTransaction(
   },
 ) {
   await Promise.all([
-    fillInputById(driver, 'transactionname', inputs.name),
-    fillInputByName(driver, 'date', inputs.startDate),
-    fillInputById(driver, 'fromValue', inputs.reduction),
-    fillInputById(driver, 'toValue', inputs.addition),
-    fillInputById(driver, 'recurrence', inputs.recurrence),
-    fillInputById(driver, 'liquidateForCash', inputs.liquidateForCash),
-    fillInputByName(driver, 'stopDate', inputs.endDate),
-    fillInputById(driver, 'transactioncategory', inputs.category),
+    fillInputById(driver, "transactionname", inputs.name),
+    fillInputByName(driver, "date", inputs.startDate),
+    fillInputById(driver, "fromValue", inputs.reduction),
+    fillInputById(driver, "toValue", inputs.addition),
+    fillInputById(driver, "recurrence", inputs.recurrence),
+    fillInputById(driver, "liquidateForCash", inputs.liquidateForCash),
+    fillInputByName(driver, "stopDate", inputs.endDate),
+    fillInputById(driver, "transactioncategory", inputs.category),
   ]);
 
-  if (inputs.fromAsset !== '') {
-    await fillInputById(driver, 'fromAssetSelect', inputs.fromAsset);
+  if (inputs.fromAsset !== "") {
+    await fillInputById(driver, "fromAssetSelect", inputs.fromAsset);
   }
-  if (inputs.toAsset !== '') {
-    await fillInputById(driver, 'toAssetSelect', inputs.toAsset);
+  if (inputs.toAsset !== "") {
+    await fillInputById(driver, "toAssetSelect", inputs.toAsset);
   }
 
-  await clickButton(driver, 'addTransaction');
+  await clickButton(driver, "addTransaction");
   await checkMessage(driver, inputs.message);
 }
 
@@ -697,16 +700,16 @@ export async function clearTransactionFields(driver: ThenableWebDriver) {
 }
 
 export const transactionInputs = {
-  name: 'trans1',
-  startDate: '1 Jan 2023',
+  name: "trans1",
+  startDate: "1 Jan 2023",
   fromAsset: CASH_ASSET_NAME,
-  toAsset: 'hifi',
-  reduction: '100',
-  addition: '90%',
-  recurrence: '1y',
-  liquidateForCash: 'N',
-  endDate: '1 Jan 2027',
-  category: 'upgradeHifi',
+  toAsset: "hifi",
+  reduction: "100",
+  addition: "90%",
+  recurrence: "1y",
+  liquidateForCash: "N",
+  endDate: "1 Jan 2027",
+  category: "upgradeHifi",
 };
 
 export async function addDebt(
@@ -722,19 +725,19 @@ export async function addDebt(
   },
 ) {
   await Promise.all([
-    fillInputById(driver, 'debtname', inputs.name),
-    fillInputById(driver, 'debtvalue', inputs.value),
-    fillInputById(driver, 'debtcategory', inputs.category),
-    fillInputByName(driver, 'start date', inputs.startDate),
-    fillInputById(driver, 'debtgrowth', inputs.growth),
-    fillInputById(driver, 'debtpayoff', inputs.monthlyRepayment),
+    fillInputById(driver, "debtname", inputs.name),
+    fillInputById(driver, "debtvalue", inputs.value),
+    fillInputById(driver, "debtcategory", inputs.category),
+    fillInputByName(driver, "start date", inputs.startDate),
+    fillInputById(driver, "debtgrowth", inputs.growth),
+    fillInputById(driver, "debtpayoff", inputs.monthlyRepayment),
   ]);
 
-  await sleep(2000, 'wait for addDebt button to be ready');
+  await sleep(2000, "wait for addDebt button to be ready");
 
-  await driver.executeScript('window.scrollBy(0, 1000)');
-  
-  await clickButton(driver, 'addDebt');
+  await driver.executeScript("window.scrollBy(0, 1000)");
+
+  await clickButton(driver, "addDebt");
   await checkMessage(driver, inputs.message);
 }
 
@@ -762,11 +765,11 @@ export async function revalueDebt(
     message: string;
   },
 ): Promise<boolean> {
-  await fillInputById(driver, 'debtname', inputs.name);
-  await fillInputByName(driver, 'start date', inputs.revaluationDate);
-  await fillInputById(driver, 'debtvalue', inputs.revalue);
+  await fillInputById(driver, "debtname", inputs.name);
+  await fillInputByName(driver, "start date", inputs.revaluationDate);
+  await fillInputById(driver, "debtvalue", inputs.revalue);
 
-  await clickButton(driver, 'revalueDebt');
+  await clickButton(driver, "revalueDebt");
   await checkMessage(driver, inputs.message);
   return true;
 }
@@ -780,22 +783,22 @@ export async function clearRevalueDebtFields(driver: ThenableWebDriver) {
 
   await gotoTabPage(driver, overviewTag);
   await gotoTabPage(driver, debtsTag);
-  await clickButton(driver, 'revalueDebtInputs');
+  await clickButton(driver, "revalueDebtInputs");
 
   return;
 }
 
 export const debtInputs = {
-  name: 'creditCard',
-  value: '2500',
-  category: 'highInterest',
-  startDate: '1 Jan 2021',
-  growth: '20.0',
-  monthlyRepayment: '10',
+  name: "creditCard",
+  value: "2500",
+  category: "highInterest",
+  startDate: "1 Jan 2021",
+  growth: "20.0",
+  monthlyRepayment: "10",
 };
 
 export async function scrollToTop(driver: webdriver.ThenableWebDriver) {
-  await driver.executeScript('window.scrollBy(0, -1000)');
+  await driver.executeScript("window.scrollBy(0, -1000)");
 }
 
 // Use sleeps to hack page-not-yet-ready issues. TODO : do better - check awaits.
@@ -835,16 +838,16 @@ export async function addDate(
 ) {
   await gotoTabPage(driver, overviewTag);
   await gotoTabPage(driver, datesTag);
-  let input = await driver.findElements(webdriver.By.id('triggername'));
+  let input = await driver.findElements(webdriver.By.id("triggername"));
   expect(input.length === 1).toBe(true);
   input[0].sendKeys(name);
-  input = await driver.findElements(webdriver.By.id('date'));
+  input = await driver.findElements(webdriver.By.id("date"));
   expect(input.length === 1).toBe(true);
   input[0].sendKeys(date);
 
-  await driver.executeScript('window.scrollBy(0, 2000)');
-  await sleep(1000, 'wait for addTrigger before going to click');
-  await clickButton(driver, 'addTrigger');
+  await driver.executeScript("window.scrollBy(0, 2000)");
+  await sleep(1000, "wait for addTrigger before going to click");
+  await clickButton(driver, "addTrigger");
   // log(`added date`);
 
   await checkMessage(driver, message);
@@ -887,7 +890,7 @@ export async function testModelCreation(
     log(`check we fail to create a model with empty name`);
   }
   await clickButton(driver, createButtonID);
-  await checkMessage(driver, 'Please provide a new name for the model');
+  await checkMessage(driver, "Please provide a new name for the model");
 
   // warned if creating a model when existing model is not saved
   // choose to not switch
@@ -897,7 +900,7 @@ export async function testModelCreation(
       `try to create a model ${ex1Name} when we haven't saved current one - stop`,
     );
   }
-  await fillInputById(driver, 'createModel', ex1Name);
+  await fillInputById(driver, "createModel", ex1Name);
   await clickButton(driver, createButtonID);
   await consumeAlert(
     `Continue without saving unsaved model ${testDataModelName}?`,
@@ -928,7 +931,7 @@ export async function testModelCreation(
       `try to create a model ${ex1Name} when we haven't saved current one - continue`,
     );
   }
-  await fillInputById(driver, 'createModel', ex1Name);
+  await fillInputById(driver, "createModel", ex1Name);
 
   await clickButton(driver, createButtonID);
   await consumeAlert(
@@ -952,7 +955,7 @@ export async function testModelCreation(
   await checkMessage(driver, `${ex1Name}`);
   await gotoTabPage(driver, homeTag);
 
-  await fillInputById(driver, 'createModel', ex2Name);
+  await fillInputById(driver, "createModel", ex2Name);
 
   // warned if creating a model when existing model is not saved
   // choose to not switch
@@ -983,12 +986,12 @@ export async function testModelCreation(
   await gotoTabPage(driver, overviewTag);
   await checkMessage(driver, `${ex1Name}`);
   await gotoTabPage(driver, homeTag);
-  await clickButton(driver, 'btn-save-model');
+  await clickButton(driver, "btn-save-model");
   if (showLogs) {
     log(`we have saved ${ex1Name}`);
     log(`try to create a model ${ex2Name} when we have saved current one`);
   }
-  await fillInputById(driver, 'createModel', ex2Name);
+  await fillInputById(driver, "createModel", ex2Name);
   await clickButton(driver, createButtonID);
 
   btn = await driver.findElements(webdriver.By.id(`btn-overview-${ex2Name}`));
@@ -1004,7 +1007,7 @@ export async function testModelCreation(
   // try to create ex1Name
   // warn ex2 is unsaved
   // warn ex1 exists
-  await fillInputById(driver, 'createModel', ex1Name);
+  await fillInputById(driver, "createModel", ex1Name);
   await clickButton(driver, createButtonID);
   await consumeAlert(`will replace ${ex1Name}, you sure?`, false, driver);
   await gotoTabPage(driver, homeTag);
@@ -1029,12 +1032,12 @@ export async function testModelCreation(
   );
   await gotoTabPage(driver, homeTag);
 
-  await clickButton(driver, 'btn-save-model');
+  await clickButton(driver, "btn-save-model");
 
   // try to create ex2Name but we're in ex1Name and
   // ex1Name is saved, ex2Name is present
   // warn ex2 exists
-  await fillInputById(driver, 'createModel', ex2Name);
+  await fillInputById(driver, "createModel", ex2Name);
   await clickButton(driver, createButtonID);
   await consumeAlert(`will replace ${ex2Name}, you sure?`, false, driver);
   await gotoTabPage(driver, homeTag);
@@ -1045,7 +1048,7 @@ export async function testModelCreation(
 
   // try to create ex2Name but we're in ex2Name and
   // ex2Name is not saved
-  await fillInputById(driver, 'createModel', ex2Name);
+  await fillInputById(driver, "createModel", ex2Name);
   await clickButton(driver, createButtonID);
   await consumeAlert(`will replace ${ex2Name}, you sure?`, false, driver);
   await gotoTabPage(driver, homeTag);
@@ -1061,436 +1064,438 @@ export async function testModelCreation(
 
 /* eslint-disable */
 function assertData(
-  assetData: any, 
-  debtData: any, 
-  incomeData: any, 
-  expenseData: any, 
-  createButtonID: string
+  assetData: any,
+  debtData: any,
+  incomeData: any,
+  expenseData: any,
+  createButtonID: string,
 ) {
-  if(printDebug()){
-    let result = '';
-    result += 'let ary = assetData;';
+  if (printDebug()) {
+    let result = "";
+    result += "let ary = assetData;";
     result += makeTestCode(assetData);
-    result += 'ary = debtData;';
+    result += "ary = debtData;";
     result += makeTestCode(debtData);
-    result += 'ary = incomeData;';
+    result += "ary = incomeData;";
     result += makeTestCode(incomeData);
-    result += 'ary = expenseData;';
+    result += "ary = expenseData;";
     result += makeTestCode(expenseData);
     log(result);
   }
 
-  if (createButtonID === 'btn-create-Simple-example') {
-
-    let ary = assetData;expect(ary.labels.length).toEqual(23);
-      expect(ary.labels[0]).toEqual('Tue Jan 01 2019');
-      expect(ary.labels[1]).toEqual('Wed Jan 01 2020');
-      expect(ary.labels[2]).toEqual('Fri Jan 01 2021');
-      expect(ary.labels[3]).toEqual('Sat Jan 01 2022');
-      expect(ary.labels[4]).toEqual('Sun Jan 01 2023');
-      expect(ary.labels[5]).toEqual('Mon Jan 01 2024');
-      expect(ary.labels[6]).toEqual('Wed Jan 01 2025');
-      expect(ary.labels[7]).toEqual('Thu Jan 01 2026');
-      expect(ary.labels[8]).toEqual('Fri Jan 01 2027');
-      expect(ary.labels[9]).toEqual('Sat Jan 01 2028');
-      expect(ary.labels[10]).toEqual('Mon Jan 01 2029');
-      expect(ary.labels[11]).toEqual('Tue Jan 01 2030');
-      expect(ary.labels[12]).toEqual('Wed Jan 01 2031');
-      expect(ary.labels[13]).toEqual('Thu Jan 01 2032');
-      expect(ary.labels[14]).toEqual('Sat Jan 01 2033');
-      expect(ary.labels[15]).toEqual('Sun Jan 01 2034');
-      expect(ary.labels[16]).toEqual('Mon Jan 01 2035');
-      expect(ary.labels[17]).toEqual('Tue Jan 01 2036');
-      expect(ary.labels[18]).toEqual('Thu Jan 01 2037');
-      expect(ary.labels[19]).toEqual('Fri Jan 01 2038');
-      expect(ary.labels[20]).toEqual('Sat Jan 01 2039');
-      expect(ary.labels[21]).toEqual('Sun Jan 01 2040');
-      expect(ary.labels[22]).toEqual('Tue Jan 01 2041');
-      expect(ary.datasets.length).toEqual(3);
-      expect(ary.datasets[0].label).toEqual('Cash');
-      expect(ary.datasets[0].data.length).toEqual(23);
-      expect(ary.datasets[0].data[0]).toBeCloseTo(6517.38, 6);
-      expect(ary.datasets[0].data[1]).toBeCloseTo(11762.79, 6);
-      expect(ary.datasets[0].data[2]).toBeCloseTo(17718.99, 6);
-      expect(ary.datasets[0].data[3]).toBeCloseTo(24418.32, 6);
-      expect(ary.datasets[0].data[4]).toBeCloseTo(31903.52, 6);
-      expect(ary.datasets[0].data[5]).toBeCloseTo(40204.83, 6);
-      expect(ary.datasets[0].data[6]).toBeCloseTo(49353.48, 6);
-      expect(ary.datasets[0].data[7]).toBeCloseTo(61067.79, 6);
-      expect(ary.datasets[0].data[8]).toBeCloseTo(82091.16, 6);
-      expect(ary.datasets[0].data[9]).toBeCloseTo(105825.52, 6);
-      expect(ary.datasets[0].data[10]).toBeCloseTo(129355.85, 6);
-      expect(ary.datasets[0].data[11]).toBeCloseTo(136229.6, 6);
-      expect(ary.datasets[0].data[12]).toBeCloseTo(137950.57, 6);
-      expect(ary.datasets[0].data[13]).toBeCloseTo(140188.27, 6);
-      expect(ary.datasets[0].data[14]).toBeCloseTo(142967.43, 6);
-      expect(ary.datasets[0].data[15]).toBeCloseTo(149364.58, 6);
-      expect(ary.datasets[0].data[16]).toBeCloseTo(171586.27, 6);
-      expect(ary.datasets[0].data[17]).toBeCloseTo(194886.41, 6);
-      expect(ary.datasets[0].data[18]).toBeCloseTo(219304.98, 6);
-      expect(ary.datasets[0].data[19]).toBeCloseTo(244883.35, 6);
-      expect(ary.datasets[0].data[20]).toBeCloseTo(271664.28, 6);
-      expect(ary.datasets[0].data[21]).toBeCloseTo(299691.86, 6);
-      expect(ary.datasets[0].data[22]).toBeCloseTo(329011.75, 6);
-      expect(ary.datasets[1].label).toEqual('ISAs');
-      expect(ary.datasets[1].data.length).toEqual(23);
-      expect(ary.datasets[1].data[0]).toBeCloseTo(0, 6);
-      expect(ary.datasets[1].data[1]).toBeCloseTo(2014.01, 6);
-      expect(ary.datasets[1].data[2]).toBeCloseTo(2189.95, 6);
-      expect(ary.datasets[1].data[3]).toBeCloseTo(2381.27, 6);
-      expect(ary.datasets[1].data[4]).toBeCloseTo(2589.29, 6);
-      expect(ary.datasets[1].data[5]).toBeCloseTo(2815.49, 6);
-      expect(ary.datasets[1].data[6]).toBeCloseTo(3061.45, 6);
-      expect(ary.datasets[1].data[7]).toBeCloseTo(3328.9, 6);
-      expect(ary.datasets[1].data[8]).toBeCloseTo(3619.72, 6);
-      expect(ary.datasets[1].data[9]).toBeCloseTo(3935.94, 6);
-      expect(ary.datasets[1].data[10]).toBeCloseTo(4279.78, 6);
-      expect(ary.datasets[1].data[11]).toBeCloseTo(4653.66, 6);
-      expect(ary.datasets[1].data[12]).toBeCloseTo(5060.2, 6);
-      expect(ary.datasets[1].data[13]).toBeCloseTo(5502.26, 6);
-      expect(ary.datasets[1].data[14]).toBeCloseTo(5982.94, 6);
-      expect(ary.datasets[1].data[15]).toBeCloseTo(6505.61, 6);
-      expect(ary.datasets[1].data[16]).toBeCloseTo(7073.94, 6);
-      expect(ary.datasets[1].data[17]).toBeCloseTo(7691.92, 6);
-      expect(ary.datasets[1].data[18]).toBeCloseTo(8363.89, 6);
-      expect(ary.datasets[1].data[19]).toBeCloseTo(9094.56, 6);
-      expect(ary.datasets[1].data[20]).toBeCloseTo(9889.06, 6);
-      expect(ary.datasets[1].data[21]).toBeCloseTo(10752.96, 6);
-      expect(ary.datasets[1].data[22]).toBeCloseTo(11692.34, 6);
-      expect(ary.datasets[2].label).toEqual('Stocks');
-      expect(ary.datasets[2].data.length).toEqual(23);
-      expect(ary.datasets[2].data[0]).toBeCloseTo(4379.9, 6);
-      expect(ary.datasets[2].data[1]).toBeCloseTo(4762.53, 6);
-      expect(ary.datasets[2].data[2]).toBeCloseTo(3255.37, 6);
-      expect(ary.datasets[2].data[3]).toBeCloseTo(3539.76, 6);
-      expect(ary.datasets[2].data[4]).toBeCloseTo(3849, 6);
-      expect(ary.datasets[2].data[5]).toBeCloseTo(4185.25, 6);
-      expect(ary.datasets[2].data[6]).toBeCloseTo(4550.87, 6);
-      expect(ary.datasets[2].data[7]).toBeCloseTo(4948.43, 6);
-      expect(ary.datasets[2].data[8]).toBeCloseTo(5380.73, 6);
-      expect(ary.datasets[2].data[9]).toBeCloseTo(5850.79, 6);
-      expect(ary.datasets[2].data[10]).toBeCloseTo(6361.91, 6);
-      expect(ary.datasets[2].data[11]).toBeCloseTo(6917.69, 6);
-      expect(ary.datasets[2].data[12]).toBeCloseTo(7522.02, 6);
-      expect(ary.datasets[2].data[13]).toBeCloseTo(8179.14, 6);
-      expect(ary.datasets[2].data[14]).toBeCloseTo(8893.67, 6);
-      expect(ary.datasets[2].data[15]).toBeCloseTo(9670.62, 6);
-      expect(ary.datasets[2].data[16]).toBeCloseTo(10515.45, 6);
-      expect(ary.datasets[2].data[17]).toBeCloseTo(11434.08, 6);
-      expect(ary.datasets[2].data[18]).toBeCloseTo(12432.96, 6);
-      expect(ary.datasets[2].data[19]).toBeCloseTo(13519.11, 6);
-      expect(ary.datasets[2].data[20]).toBeCloseTo(14700.13, 6);
-      expect(ary.datasets[2].data[21]).toBeCloseTo(15984.34, 6);
-      expect(ary.datasets[2].data[22]).toBeCloseTo(17380.73, 6);
-      ary = debtData;expect(ary.labels.length).toEqual(23);
-      expect(ary.labels[0]).toEqual('Tue Jan 01 2019');
-      expect(ary.labels[1]).toEqual('Wed Jan 01 2020');
-      expect(ary.labels[2]).toEqual('Fri Jan 01 2021');
-      expect(ary.labels[3]).toEqual('Sat Jan 01 2022');
-      expect(ary.labels[4]).toEqual('Sun Jan 01 2023');
-      expect(ary.labels[5]).toEqual('Mon Jan 01 2024');
-      expect(ary.labels[6]).toEqual('Wed Jan 01 2025');
-      expect(ary.labels[7]).toEqual('Thu Jan 01 2026');
-      expect(ary.labels[8]).toEqual('Fri Jan 01 2027');
-      expect(ary.labels[9]).toEqual('Sat Jan 01 2028');
-      expect(ary.labels[10]).toEqual('Mon Jan 01 2029');
-      expect(ary.labels[11]).toEqual('Tue Jan 01 2030');
-      expect(ary.labels[12]).toEqual('Wed Jan 01 2031');
-      expect(ary.labels[13]).toEqual('Thu Jan 01 2032');
-      expect(ary.labels[14]).toEqual('Sat Jan 01 2033');
-      expect(ary.labels[15]).toEqual('Sun Jan 01 2034');
-      expect(ary.labels[16]).toEqual('Mon Jan 01 2035');
-      expect(ary.labels[17]).toEqual('Tue Jan 01 2036');
-      expect(ary.labels[18]).toEqual('Thu Jan 01 2037');
-      expect(ary.labels[19]).toEqual('Fri Jan 01 2038');
-      expect(ary.labels[20]).toEqual('Sat Jan 01 2039');
-      expect(ary.labels[21]).toEqual('Sun Jan 01 2040');
-      expect(ary.labels[22]).toEqual('Tue Jan 01 2041');
-      expect(ary.datasets.length).toEqual(2);
-      expect(ary.datasets[0].label).toEqual('LateMortgage');
-      expect(ary.datasets[0].data.length).toEqual(23);
-      expect(ary.datasets[0].data[0]).toBeCloseTo(0, 6);
-      expect(ary.datasets[0].data[1]).toBeCloseTo(0, 6);
-      expect(ary.datasets[0].data[2]).toBeCloseTo(0, 6);
-      expect(ary.datasets[0].data[3]).toBeCloseTo(0, 6);
-      expect(ary.datasets[0].data[4]).toBeCloseTo(0, 6);
-      expect(ary.datasets[0].data[5]).toBeCloseTo(0, 6);
-      expect(ary.datasets[0].data[6]).toBeCloseTo(0, 6);
-      expect(ary.datasets[0].data[7]).toBeCloseTo(0, 6);
-      expect(ary.datasets[0].data[8]).toBeCloseTo(0, 6);
-      expect(ary.datasets[0].data[9]).toBeCloseTo(91997.42, 6);
-      expect(ary.datasets[0].data[10]).toBeCloseTo(77903.22, 6);
-      expect(ary.datasets[0].data[11]).toBeCloseTo(63152.22, 6);
-      expect(ary.datasets[0].data[12]).toBeCloseTo(47713.82, 6);
-      expect(ary.datasets[0].data[13]).toBeCloseTo(31556, 6);
-      expect(ary.datasets[0].data[14]).toBeCloseTo(14645.22, 6);
-      expect(ary.datasets[0].data[15]).toBeCloseTo(0, 6);
-      expect(ary.datasets[0].data[16]).toBeCloseTo(0, 6);
-      expect(ary.datasets[0].data[17]).toBeCloseTo(0, 6);
-      expect(ary.datasets[0].data[18]).toBeCloseTo(0, 6);
-      expect(ary.datasets[0].data[19]).toBeCloseTo(0, 6);
-      expect(ary.datasets[0].data[20]).toBeCloseTo(0, 6);
-      expect(ary.datasets[0].data[21]).toBeCloseTo(0, 6);
-      expect(ary.datasets[0].data[22]).toBeCloseTo(0, 6);
-      expect(ary.datasets[1].label).toEqual('EarlyMortgage');
-      expect(ary.datasets[1].data.length).toEqual(23);
-      expect(ary.datasets[1].data[0]).toBeCloseTo(219725.82, 6);
-      expect(ary.datasets[1].data[1]).toBeCloseTo(206654.01, 6);
-      expect(ary.datasets[1].data[2]).toBeCloseTo(193277.62, 6);
-      expect(ary.datasets[1].data[3]).toBeCloseTo(179589.57, 6);
-      expect(ary.datasets[1].data[4]).toBeCloseTo(165582.58, 6);
-      expect(ary.datasets[1].data[5]).toBeCloseTo(151249.23, 6);
-      expect(ary.datasets[1].data[6]).toBeCloseTo(136581.91, 6);
-      expect(ary.datasets[1].data[7]).toBeCloseTo(121572.84, 6);
-      expect(ary.datasets[1].data[8]).toBeCloseTo(106214.06, 6);
-      expect(ary.datasets[1].data[9]).toBeCloseTo(0, 6);
-      expect(ary.datasets[1].data[10]).toBeCloseTo(0, 6);
-      expect(ary.datasets[1].data[11]).toBeCloseTo(0, 6);
-      expect(ary.datasets[1].data[12]).toBeCloseTo(0, 6);
-      expect(ary.datasets[1].data[13]).toBeCloseTo(0, 6);
-      expect(ary.datasets[1].data[14]).toBeCloseTo(0, 6);
-      expect(ary.datasets[1].data[15]).toBeCloseTo(0, 6);
-      expect(ary.datasets[1].data[16]).toBeCloseTo(0, 6);
-      expect(ary.datasets[1].data[17]).toBeCloseTo(0, 6);
-      expect(ary.datasets[1].data[18]).toBeCloseTo(0, 6);
-      expect(ary.datasets[1].data[19]).toBeCloseTo(0, 6);
-      expect(ary.datasets[1].data[20]).toBeCloseTo(0, 6);
-      expect(ary.datasets[1].data[21]).toBeCloseTo(0, 6);
-      expect(ary.datasets[1].data[22]).toBeCloseTo(0, 6);
-      ary = incomeData;expect(ary.labels.length).toEqual(23);
-      expect(ary.labels[0]).toEqual('Tue Jan 01 2019');
-      expect(ary.labels[1]).toEqual('Wed Jan 01 2020');
-      expect(ary.labels[2]).toEqual('Fri Jan 01 2021');
-      expect(ary.labels[3]).toEqual('Sat Jan 01 2022');
-      expect(ary.labels[4]).toEqual('Sun Jan 01 2023');
-      expect(ary.labels[5]).toEqual('Mon Jan 01 2024');
-      expect(ary.labels[6]).toEqual('Wed Jan 01 2025');
-      expect(ary.labels[7]).toEqual('Thu Jan 01 2026');
-      expect(ary.labels[8]).toEqual('Fri Jan 01 2027');
-      expect(ary.labels[9]).toEqual('Sat Jan 01 2028');
-      expect(ary.labels[10]).toEqual('Mon Jan 01 2029');
-      expect(ary.labels[11]).toEqual('Tue Jan 01 2030');
-      expect(ary.labels[12]).toEqual('Wed Jan 01 2031');
-      expect(ary.labels[13]).toEqual('Thu Jan 01 2032');
-      expect(ary.labels[14]).toEqual('Sat Jan 01 2033');
-      expect(ary.labels[15]).toEqual('Sun Jan 01 2034');
-      expect(ary.labels[16]).toEqual('Mon Jan 01 2035');
-      expect(ary.labels[17]).toEqual('Tue Jan 01 2036');
-      expect(ary.labels[18]).toEqual('Thu Jan 01 2037');
-      expect(ary.labels[19]).toEqual('Fri Jan 01 2038');
-      expect(ary.labels[20]).toEqual('Sat Jan 01 2039');
-      expect(ary.labels[21]).toEqual('Sun Jan 01 2040');
-      expect(ary.labels[22]).toEqual('Tue Jan 01 2041');
-      expect(ary.datasets.length).toEqual(3);
-      expect(ary.datasets[0].label).toEqual('Main income');
-      expect(ary.datasets[0].data.length).toEqual(23);
-      expect(ary.datasets[0].data[0]).toBeCloseTo(39287.5, 6);
-      expect(ary.datasets[0].data[1]).toBeCloseTo(43857.19, 6);
-      expect(ary.datasets[0].data[2]).toBeCloseTo(44953.62, 6);
-      expect(ary.datasets[0].data[3]).toBeCloseTo(46077.46, 6);
-      expect(ary.datasets[0].data[4]).toBeCloseTo(47229.39, 6);
-      expect(ary.datasets[0].data[5]).toBeCloseTo(48410.13, 6);
-      expect(ary.datasets[0].data[6]).toBeCloseTo(49620.38, 6);
-      expect(ary.datasets[0].data[7]).toBeCloseTo(50860.89, 6);
-      expect(ary.datasets[0].data[8]).toBeCloseTo(52132.41, 6);
-      expect(ary.datasets[0].data[9]).toBeCloseTo(53435.72, 6);
-      expect(ary.datasets[0].data[10]).toBeCloseTo(54771.62, 6);
-      expect(ary.datasets[0].data[11]).toBeCloseTo(56140.91, 6);
-      expect(ary.datasets[0].data[12]).toBeCloseTo(57544.43, 6);
-      expect(ary.datasets[0].data[13]).toBeCloseTo(58983.04, 6);
-      expect(ary.datasets[0].data[14]).toBeCloseTo(60457.62, 6);
-      expect(ary.datasets[0].data[15]).toBeCloseTo(61969.06, 6);
-      expect(ary.datasets[0].data[16]).toBeCloseTo(63518.28, 6);
-      expect(ary.datasets[0].data[17]).toBeCloseTo(65106.24, 6);
-      expect(ary.datasets[0].data[18]).toBeCloseTo(66733.9, 6);
-      expect(ary.datasets[0].data[19]).toBeCloseTo(68402.24, 6);
-      expect(ary.datasets[0].data[20]).toBeCloseTo(70112.3, 6);
-      expect(ary.datasets[0].data[21]).toBeCloseTo(71865.11, 6);
-      expect(ary.datasets[0].data[22]).toBeCloseTo(73661.74, 6);
-      expect(ary.datasets[1].label).toEqual('Side hustle income');
-      expect(ary.datasets[1].data.length).toEqual(23);
-      expect(ary.datasets[1].data[0]).toBeCloseTo(16837.5, 6);
-      expect(ary.datasets[1].data[1]).toBeCloseTo(18795.94, 6);
-      expect(ary.datasets[1].data[2]).toBeCloseTo(19265.84, 6);
-      expect(ary.datasets[1].data[3]).toBeCloseTo(19747.48, 6);
-      expect(ary.datasets[1].data[4]).toBeCloseTo(20241.17, 6);
-      expect(ary.datasets[1].data[5]).toBeCloseTo(20747.2, 6);
-      expect(ary.datasets[1].data[6]).toBeCloseTo(21265.88, 6);
-      expect(ary.datasets[1].data[7]).toBeCloseTo(5349.09, 6);
-      expect(ary.datasets[1].data[8]).toBeCloseTo(0, 6);
-      expect(ary.datasets[1].data[9]).toBeCloseTo(0, 6);
-      expect(ary.datasets[1].data[10]).toBeCloseTo(0, 6);
-      expect(ary.datasets[1].data[11]).toBeCloseTo(0, 6);
-      expect(ary.datasets[1].data[12]).toBeCloseTo(0, 6);
-      expect(ary.datasets[1].data[13]).toBeCloseTo(0, 6);
-      expect(ary.datasets[1].data[14]).toBeCloseTo(0, 6);
-      expect(ary.datasets[1].data[15]).toBeCloseTo(0, 6);
-      expect(ary.datasets[1].data[16]).toBeCloseTo(0, 6);
-      expect(ary.datasets[1].data[17]).toBeCloseTo(0, 6);
-      expect(ary.datasets[1].data[18]).toBeCloseTo(0, 6);
-      expect(ary.datasets[1].data[19]).toBeCloseTo(0, 6);
-      expect(ary.datasets[1].data[20]).toBeCloseTo(0, 6);
-      expect(ary.datasets[1].data[21]).toBeCloseTo(0, 6);
-      expect(ary.datasets[1].data[22]).toBeCloseTo(0, 6);
-      expect(ary.datasets[2].label).toEqual('Side hustle income later');
-      expect(ary.datasets[2].data.length).toEqual(23);
-      expect(ary.datasets[2].data[0]).toBeCloseTo(0, 6);
-      expect(ary.datasets[2].data[1]).toBeCloseTo(0, 6);
-      expect(ary.datasets[2].data[2]).toBeCloseTo(0, 6);
-      expect(ary.datasets[2].data[3]).toBeCloseTo(0, 6);
-      expect(ary.datasets[2].data[4]).toBeCloseTo(0, 6);
-      expect(ary.datasets[2].data[5]).toBeCloseTo(0, 6);
-      expect(ary.datasets[2].data[6]).toBeCloseTo(0, 6);
-      expect(ary.datasets[2].data[7]).toBeCloseTo(16403.86, 6);
-      expect(ary.datasets[2].data[8]).toBeCloseTo(22296.77, 6);
-      expect(ary.datasets[2].data[9]).toBeCloseTo(22854.19, 6);
-      expect(ary.datasets[2].data[10]).toBeCloseTo(23425.55, 6);
-      expect(ary.datasets[2].data[11]).toBeCloseTo(5904.39, 6);
-      expect(ary.datasets[2].data[12]).toBeCloseTo(0, 6);
-      expect(ary.datasets[2].data[13]).toBeCloseTo(0, 6);
-      expect(ary.datasets[2].data[14]).toBeCloseTo(0, 6);
-      expect(ary.datasets[2].data[15]).toBeCloseTo(0, 6);
-      expect(ary.datasets[2].data[16]).toBeCloseTo(0, 6);
-      expect(ary.datasets[2].data[17]).toBeCloseTo(0, 6);
-      expect(ary.datasets[2].data[18]).toBeCloseTo(0, 6);
-      expect(ary.datasets[2].data[19]).toBeCloseTo(0, 6);
-      expect(ary.datasets[2].data[20]).toBeCloseTo(0, 6);
-      expect(ary.datasets[2].data[21]).toBeCloseTo(0, 6);
-      expect(ary.datasets[2].data[22]).toBeCloseTo(0, 6);
-      ary = expenseData;expect(ary.labels.length).toEqual(23);
-      expect(ary.labels[0]).toEqual('Tue Jan 01 2019');
-      expect(ary.labels[1]).toEqual('Wed Jan 01 2020');
-      expect(ary.labels[2]).toEqual('Fri Jan 01 2021');
-      expect(ary.labels[3]).toEqual('Sat Jan 01 2022');
-      expect(ary.labels[4]).toEqual('Sun Jan 01 2023');
-      expect(ary.labels[5]).toEqual('Mon Jan 01 2024');
-      expect(ary.labels[6]).toEqual('Wed Jan 01 2025');
-      expect(ary.labels[7]).toEqual('Thu Jan 01 2026');
-      expect(ary.labels[8]).toEqual('Fri Jan 01 2027');
-      expect(ary.labels[9]).toEqual('Sat Jan 01 2028');
-      expect(ary.labels[10]).toEqual('Mon Jan 01 2029');
-      expect(ary.labels[11]).toEqual('Tue Jan 01 2030');
-      expect(ary.labels[12]).toEqual('Wed Jan 01 2031');
-      expect(ary.labels[13]).toEqual('Thu Jan 01 2032');
-      expect(ary.labels[14]).toEqual('Sat Jan 01 2033');
-      expect(ary.labels[15]).toEqual('Sun Jan 01 2034');
-      expect(ary.labels[16]).toEqual('Mon Jan 01 2035');
-      expect(ary.labels[17]).toEqual('Tue Jan 01 2036');
-      expect(ary.labels[18]).toEqual('Thu Jan 01 2037');
-      expect(ary.labels[19]).toEqual('Fri Jan 01 2038');
-      expect(ary.labels[20]).toEqual('Sat Jan 01 2039');
-      expect(ary.labels[21]).toEqual('Sun Jan 01 2040');
-      expect(ary.labels[22]).toEqual('Tue Jan 01 2041');
-      expect(ary.datasets.length).toEqual(3);
-      expect(ary.datasets[0].label).toEqual('Look after dogs');
-      expect(ary.datasets[0].data.length).toEqual(23);
-      expect(ary.datasets[0].data[0]).toBeCloseTo(5046.6, 6);
-      expect(ary.datasets[0].data[1]).toBeCloseTo(6194.61, 6);
-      expect(ary.datasets[0].data[2]).toBeCloseTo(6349.47, 6);
-      expect(ary.datasets[0].data[3]).toBeCloseTo(6508.21, 6);
-      expect(ary.datasets[0].data[4]).toBeCloseTo(6670.92, 6);
-      expect(ary.datasets[0].data[5]).toBeCloseTo(6837.69, 6);
-      expect(ary.datasets[0].data[6]).toBeCloseTo(7008.63, 6);
-      expect(ary.datasets[0].data[7]).toBeCloseTo(7183.85, 6);
-      expect(ary.datasets[0].data[8]).toBeCloseTo(7363.44, 6);
-      expect(ary.datasets[0].data[9]).toBeCloseTo(7547.53, 6);
-      expect(ary.datasets[0].data[10]).toBeCloseTo(7736.22, 6);
-      expect(ary.datasets[0].data[11]).toBeCloseTo(7929.62, 6);
-      expect(ary.datasets[0].data[12]).toBeCloseTo(8127.86, 6);
-      expect(ary.datasets[0].data[13]).toBeCloseTo(8331.06, 6);
-      expect(ary.datasets[0].data[14]).toBeCloseTo(8539.34, 6);
-      expect(ary.datasets[0].data[15]).toBeCloseTo(8752.82, 6);
-      expect(ary.datasets[0].data[16]).toBeCloseTo(8971.64, 6);
-      expect(ary.datasets[0].data[17]).toBeCloseTo(9195.93, 6);
-      expect(ary.datasets[0].data[18]).toBeCloseTo(9425.83, 6);
-      expect(ary.datasets[0].data[19]).toBeCloseTo(9661.48, 6);
-      expect(ary.datasets[0].data[20]).toBeCloseTo(9903.01, 6);
-      expect(ary.datasets[0].data[21]).toBeCloseTo(10150.59, 6);
-      expect(ary.datasets[0].data[22]).toBeCloseTo(10404.35, 6);
-      expect(ary.datasets[1].label).toEqual('Run car');
-      expect(ary.datasets[1].data.length).toEqual(23);
-      expect(ary.datasets[1].data[0]).toBeCloseTo(7065.24, 6);
-      expect(ary.datasets[1].data[1]).toBeCloseTo(8672.45, 6);
-      expect(ary.datasets[1].data[2]).toBeCloseTo(8889.26, 6);
-      expect(ary.datasets[1].data[3]).toBeCloseTo(9111.49, 6);
-      expect(ary.datasets[1].data[4]).toBeCloseTo(9339.28, 6);
-      expect(ary.datasets[1].data[5]).toBeCloseTo(9572.76, 6);
-      expect(ary.datasets[1].data[6]).toBeCloseTo(9812.08, 6);
-      expect(ary.datasets[1].data[7]).toBeCloseTo(9209.75, 6);
-      expect(ary.datasets[1].data[8]).toBeCloseTo(0, 6);
-      expect(ary.datasets[1].data[9]).toBeCloseTo(0, 6);
-      expect(ary.datasets[1].data[10]).toBeCloseTo(0, 6);
-      expect(ary.datasets[1].data[11]).toBeCloseTo(0, 6);
-      expect(ary.datasets[1].data[12]).toBeCloseTo(0, 6);
-      expect(ary.datasets[1].data[13]).toBeCloseTo(0, 6);
-      expect(ary.datasets[1].data[14]).toBeCloseTo(0, 6);
-      expect(ary.datasets[1].data[15]).toBeCloseTo(0, 6);
-      expect(ary.datasets[1].data[16]).toBeCloseTo(0, 6);
-      expect(ary.datasets[1].data[17]).toBeCloseTo(0, 6);
-      expect(ary.datasets[1].data[18]).toBeCloseTo(0, 6);
-      expect(ary.datasets[1].data[19]).toBeCloseTo(0, 6);
-      expect(ary.datasets[1].data[20]).toBeCloseTo(0, 6);
-      expect(ary.datasets[1].data[21]).toBeCloseTo(0, 6);
-      expect(ary.datasets[1].data[22]).toBeCloseTo(0, 6);
-      expect(ary.datasets[2].label).toEqual('Run house');
-      expect(ary.datasets[2].data.length).toEqual(23);
-      expect(ary.datasets[2].data[0]).toBeCloseTo(13121.16, 6);
-      expect(ary.datasets[2].data[1]).toBeCloseTo(16105.98, 6);
-      expect(ary.datasets[2].data[2]).toBeCloseTo(16508.63, 6);
-      expect(ary.datasets[2].data[3]).toBeCloseTo(16921.35, 6);
-      expect(ary.datasets[2].data[4]).toBeCloseTo(17344.38, 6);
-      expect(ary.datasets[2].data[5]).toBeCloseTo(17777.99, 6);
-      expect(ary.datasets[2].data[6]).toBeCloseTo(18222.44, 6);
-      expect(ary.datasets[2].data[7]).toBeCloseTo(18678, 6);
-      expect(ary.datasets[2].data[8]).toBeCloseTo(19144.95, 6);
-      expect(ary.datasets[2].data[9]).toBeCloseTo(19623.58, 6);
-      expect(ary.datasets[2].data[10]).toBeCloseTo(20114.16, 6);
-      expect(ary.datasets[2].data[11]).toBeCloseTo(20617.02, 6);
-      expect(ary.datasets[2].data[12]).toBeCloseTo(21132.44, 6);
-      expect(ary.datasets[2].data[13]).toBeCloseTo(21660.76, 6);
-      expect(ary.datasets[2].data[14]).toBeCloseTo(22202.27, 6);
-      expect(ary.datasets[2].data[15]).toBeCloseTo(22757.33, 6);
-      expect(ary.datasets[2].data[16]).toBeCloseTo(23326.26, 6);
-      expect(ary.datasets[2].data[17]).toBeCloseTo(23909.42, 6);
-      expect(ary.datasets[2].data[18]).toBeCloseTo(24507.16, 6);
-      expect(ary.datasets[2].data[19]).toBeCloseTo(25119.84, 6);
-      expect(ary.datasets[2].data[20]).toBeCloseTo(25747.83, 6);
-      expect(ary.datasets[2].data[21]).toBeCloseTo(26391.53, 6);
-      expect(ary.datasets[2].data[22]).toBeCloseTo(27051.32, 6);
-  } else if (
-    createButtonID === 'btn-create-Defined Benefits Pension-example'
-  ) {
-    let ary = assetData;expect(ary.labels.length).toEqual(28);
-    expect(ary.labels[0]).toEqual('Sun Jan 01 2017');
-    expect(ary.labels[1]).toEqual('Mon Jan 01 2018');
-    expect(ary.labels[2]).toEqual('Tue Jan 01 2019');
-    expect(ary.labels[3]).toEqual('Wed Jan 01 2020');
-    expect(ary.labels[4]).toEqual('Fri Jan 01 2021');
-    expect(ary.labels[5]).toEqual('Sat Jan 01 2022');
-    expect(ary.labels[6]).toEqual('Sun Jan 01 2023');
-    expect(ary.labels[7]).toEqual('Mon Jan 01 2024');
-    expect(ary.labels[8]).toEqual('Wed Jan 01 2025');
-    expect(ary.labels[9]).toEqual('Thu Jan 01 2026');
-    expect(ary.labels[10]).toEqual('Fri Jan 01 2027');
-    expect(ary.labels[11]).toEqual('Sat Jan 01 2028');
-    expect(ary.labels[12]).toEqual('Mon Jan 01 2029');
-    expect(ary.labels[13]).toEqual('Tue Jan 01 2030');
-    expect(ary.labels[14]).toEqual('Wed Jan 01 2031');
-    expect(ary.labels[15]).toEqual('Thu Jan 01 2032');
-    expect(ary.labels[16]).toEqual('Sat Jan 01 2033');
-    expect(ary.labels[17]).toEqual('Sun Jan 01 2034');
-    expect(ary.labels[18]).toEqual('Mon Jan 01 2035');
-    expect(ary.labels[19]).toEqual('Tue Jan 01 2036');
-    expect(ary.labels[20]).toEqual('Thu Jan 01 2037');
-    expect(ary.labels[21]).toEqual('Fri Jan 01 2038');
-    expect(ary.labels[22]).toEqual('Sat Jan 01 2039');
-    expect(ary.labels[23]).toEqual('Sun Jan 01 2040');
-    expect(ary.labels[24]).toEqual('Tue Jan 01 2041');
-    expect(ary.labels[25]).toEqual('Wed Jan 01 2042');
-    expect(ary.labels[26]).toEqual('Thu Jan 01 2043');
-    expect(ary.labels[27]).toEqual('Fri Jan 01 2044');
+  if (createButtonID === "btn-create-Simple-example") {
+    let ary = assetData;
+    expect(ary.labels.length).toEqual(23);
+    expect(ary.labels[0]).toEqual("Tue Jan 01 2019");
+    expect(ary.labels[1]).toEqual("Wed Jan 01 2020");
+    expect(ary.labels[2]).toEqual("Fri Jan 01 2021");
+    expect(ary.labels[3]).toEqual("Sat Jan 01 2022");
+    expect(ary.labels[4]).toEqual("Sun Jan 01 2023");
+    expect(ary.labels[5]).toEqual("Mon Jan 01 2024");
+    expect(ary.labels[6]).toEqual("Wed Jan 01 2025");
+    expect(ary.labels[7]).toEqual("Thu Jan 01 2026");
+    expect(ary.labels[8]).toEqual("Fri Jan 01 2027");
+    expect(ary.labels[9]).toEqual("Sat Jan 01 2028");
+    expect(ary.labels[10]).toEqual("Mon Jan 01 2029");
+    expect(ary.labels[11]).toEqual("Tue Jan 01 2030");
+    expect(ary.labels[12]).toEqual("Wed Jan 01 2031");
+    expect(ary.labels[13]).toEqual("Thu Jan 01 2032");
+    expect(ary.labels[14]).toEqual("Sat Jan 01 2033");
+    expect(ary.labels[15]).toEqual("Sun Jan 01 2034");
+    expect(ary.labels[16]).toEqual("Mon Jan 01 2035");
+    expect(ary.labels[17]).toEqual("Tue Jan 01 2036");
+    expect(ary.labels[18]).toEqual("Thu Jan 01 2037");
+    expect(ary.labels[19]).toEqual("Fri Jan 01 2038");
+    expect(ary.labels[20]).toEqual("Sat Jan 01 2039");
+    expect(ary.labels[21]).toEqual("Sun Jan 01 2040");
+    expect(ary.labels[22]).toEqual("Tue Jan 01 2041");
+    expect(ary.datasets.length).toEqual(3);
+    expect(ary.datasets[0].label).toEqual("Cash");
+    expect(ary.datasets[0].data.length).toEqual(23);
+    expect(ary.datasets[0].data[0]).toBeCloseTo(6517.38, 6);
+    expect(ary.datasets[0].data[1]).toBeCloseTo(11762.79, 6);
+    expect(ary.datasets[0].data[2]).toBeCloseTo(17718.99, 6);
+    expect(ary.datasets[0].data[3]).toBeCloseTo(24418.32, 6);
+    expect(ary.datasets[0].data[4]).toBeCloseTo(31903.52, 6);
+    expect(ary.datasets[0].data[5]).toBeCloseTo(40204.83, 6);
+    expect(ary.datasets[0].data[6]).toBeCloseTo(49353.48, 6);
+    expect(ary.datasets[0].data[7]).toBeCloseTo(61067.79, 6);
+    expect(ary.datasets[0].data[8]).toBeCloseTo(82091.16, 6);
+    expect(ary.datasets[0].data[9]).toBeCloseTo(105825.52, 6);
+    expect(ary.datasets[0].data[10]).toBeCloseTo(129355.85, 6);
+    expect(ary.datasets[0].data[11]).toBeCloseTo(136229.6, 6);
+    expect(ary.datasets[0].data[12]).toBeCloseTo(137950.57, 6);
+    expect(ary.datasets[0].data[13]).toBeCloseTo(140188.27, 6);
+    expect(ary.datasets[0].data[14]).toBeCloseTo(142967.43, 6);
+    expect(ary.datasets[0].data[15]).toBeCloseTo(149364.58, 6);
+    expect(ary.datasets[0].data[16]).toBeCloseTo(171586.27, 6);
+    expect(ary.datasets[0].data[17]).toBeCloseTo(194886.41, 6);
+    expect(ary.datasets[0].data[18]).toBeCloseTo(219304.98, 6);
+    expect(ary.datasets[0].data[19]).toBeCloseTo(244883.35, 6);
+    expect(ary.datasets[0].data[20]).toBeCloseTo(271664.28, 6);
+    expect(ary.datasets[0].data[21]).toBeCloseTo(299691.86, 6);
+    expect(ary.datasets[0].data[22]).toBeCloseTo(329011.75, 6);
+    expect(ary.datasets[1].label).toEqual("ISAs");
+    expect(ary.datasets[1].data.length).toEqual(23);
+    expect(ary.datasets[1].data[0]).toBeCloseTo(0, 6);
+    expect(ary.datasets[1].data[1]).toBeCloseTo(2014.01, 6);
+    expect(ary.datasets[1].data[2]).toBeCloseTo(2189.95, 6);
+    expect(ary.datasets[1].data[3]).toBeCloseTo(2381.27, 6);
+    expect(ary.datasets[1].data[4]).toBeCloseTo(2589.29, 6);
+    expect(ary.datasets[1].data[5]).toBeCloseTo(2815.49, 6);
+    expect(ary.datasets[1].data[6]).toBeCloseTo(3061.45, 6);
+    expect(ary.datasets[1].data[7]).toBeCloseTo(3328.9, 6);
+    expect(ary.datasets[1].data[8]).toBeCloseTo(3619.72, 6);
+    expect(ary.datasets[1].data[9]).toBeCloseTo(3935.94, 6);
+    expect(ary.datasets[1].data[10]).toBeCloseTo(4279.78, 6);
+    expect(ary.datasets[1].data[11]).toBeCloseTo(4653.66, 6);
+    expect(ary.datasets[1].data[12]).toBeCloseTo(5060.2, 6);
+    expect(ary.datasets[1].data[13]).toBeCloseTo(5502.26, 6);
+    expect(ary.datasets[1].data[14]).toBeCloseTo(5982.94, 6);
+    expect(ary.datasets[1].data[15]).toBeCloseTo(6505.61, 6);
+    expect(ary.datasets[1].data[16]).toBeCloseTo(7073.94, 6);
+    expect(ary.datasets[1].data[17]).toBeCloseTo(7691.92, 6);
+    expect(ary.datasets[1].data[18]).toBeCloseTo(8363.89, 6);
+    expect(ary.datasets[1].data[19]).toBeCloseTo(9094.56, 6);
+    expect(ary.datasets[1].data[20]).toBeCloseTo(9889.06, 6);
+    expect(ary.datasets[1].data[21]).toBeCloseTo(10752.96, 6);
+    expect(ary.datasets[1].data[22]).toBeCloseTo(11692.34, 6);
+    expect(ary.datasets[2].label).toEqual("Stocks");
+    expect(ary.datasets[2].data.length).toEqual(23);
+    expect(ary.datasets[2].data[0]).toBeCloseTo(4379.9, 6);
+    expect(ary.datasets[2].data[1]).toBeCloseTo(4762.53, 6);
+    expect(ary.datasets[2].data[2]).toBeCloseTo(3255.37, 6);
+    expect(ary.datasets[2].data[3]).toBeCloseTo(3539.76, 6);
+    expect(ary.datasets[2].data[4]).toBeCloseTo(3849, 6);
+    expect(ary.datasets[2].data[5]).toBeCloseTo(4185.25, 6);
+    expect(ary.datasets[2].data[6]).toBeCloseTo(4550.87, 6);
+    expect(ary.datasets[2].data[7]).toBeCloseTo(4948.43, 6);
+    expect(ary.datasets[2].data[8]).toBeCloseTo(5380.73, 6);
+    expect(ary.datasets[2].data[9]).toBeCloseTo(5850.79, 6);
+    expect(ary.datasets[2].data[10]).toBeCloseTo(6361.91, 6);
+    expect(ary.datasets[2].data[11]).toBeCloseTo(6917.69, 6);
+    expect(ary.datasets[2].data[12]).toBeCloseTo(7522.02, 6);
+    expect(ary.datasets[2].data[13]).toBeCloseTo(8179.14, 6);
+    expect(ary.datasets[2].data[14]).toBeCloseTo(8893.67, 6);
+    expect(ary.datasets[2].data[15]).toBeCloseTo(9670.62, 6);
+    expect(ary.datasets[2].data[16]).toBeCloseTo(10515.45, 6);
+    expect(ary.datasets[2].data[17]).toBeCloseTo(11434.08, 6);
+    expect(ary.datasets[2].data[18]).toBeCloseTo(12432.96, 6);
+    expect(ary.datasets[2].data[19]).toBeCloseTo(13519.11, 6);
+    expect(ary.datasets[2].data[20]).toBeCloseTo(14700.13, 6);
+    expect(ary.datasets[2].data[21]).toBeCloseTo(15984.34, 6);
+    expect(ary.datasets[2].data[22]).toBeCloseTo(17380.73, 6);
+    ary = debtData;
+    expect(ary.labels.length).toEqual(23);
+    expect(ary.labels[0]).toEqual("Tue Jan 01 2019");
+    expect(ary.labels[1]).toEqual("Wed Jan 01 2020");
+    expect(ary.labels[2]).toEqual("Fri Jan 01 2021");
+    expect(ary.labels[3]).toEqual("Sat Jan 01 2022");
+    expect(ary.labels[4]).toEqual("Sun Jan 01 2023");
+    expect(ary.labels[5]).toEqual("Mon Jan 01 2024");
+    expect(ary.labels[6]).toEqual("Wed Jan 01 2025");
+    expect(ary.labels[7]).toEqual("Thu Jan 01 2026");
+    expect(ary.labels[8]).toEqual("Fri Jan 01 2027");
+    expect(ary.labels[9]).toEqual("Sat Jan 01 2028");
+    expect(ary.labels[10]).toEqual("Mon Jan 01 2029");
+    expect(ary.labels[11]).toEqual("Tue Jan 01 2030");
+    expect(ary.labels[12]).toEqual("Wed Jan 01 2031");
+    expect(ary.labels[13]).toEqual("Thu Jan 01 2032");
+    expect(ary.labels[14]).toEqual("Sat Jan 01 2033");
+    expect(ary.labels[15]).toEqual("Sun Jan 01 2034");
+    expect(ary.labels[16]).toEqual("Mon Jan 01 2035");
+    expect(ary.labels[17]).toEqual("Tue Jan 01 2036");
+    expect(ary.labels[18]).toEqual("Thu Jan 01 2037");
+    expect(ary.labels[19]).toEqual("Fri Jan 01 2038");
+    expect(ary.labels[20]).toEqual("Sat Jan 01 2039");
+    expect(ary.labels[21]).toEqual("Sun Jan 01 2040");
+    expect(ary.labels[22]).toEqual("Tue Jan 01 2041");
+    expect(ary.datasets.length).toEqual(2);
+    expect(ary.datasets[0].label).toEqual("LateMortgage");
+    expect(ary.datasets[0].data.length).toEqual(23);
+    expect(ary.datasets[0].data[0]).toBeCloseTo(0, 6);
+    expect(ary.datasets[0].data[1]).toBeCloseTo(0, 6);
+    expect(ary.datasets[0].data[2]).toBeCloseTo(0, 6);
+    expect(ary.datasets[0].data[3]).toBeCloseTo(0, 6);
+    expect(ary.datasets[0].data[4]).toBeCloseTo(0, 6);
+    expect(ary.datasets[0].data[5]).toBeCloseTo(0, 6);
+    expect(ary.datasets[0].data[6]).toBeCloseTo(0, 6);
+    expect(ary.datasets[0].data[7]).toBeCloseTo(0, 6);
+    expect(ary.datasets[0].data[8]).toBeCloseTo(0, 6);
+    expect(ary.datasets[0].data[9]).toBeCloseTo(91997.42, 6);
+    expect(ary.datasets[0].data[10]).toBeCloseTo(77903.22, 6);
+    expect(ary.datasets[0].data[11]).toBeCloseTo(63152.22, 6);
+    expect(ary.datasets[0].data[12]).toBeCloseTo(47713.82, 6);
+    expect(ary.datasets[0].data[13]).toBeCloseTo(31556, 6);
+    expect(ary.datasets[0].data[14]).toBeCloseTo(14645.22, 6);
+    expect(ary.datasets[0].data[15]).toBeCloseTo(0, 6);
+    expect(ary.datasets[0].data[16]).toBeCloseTo(0, 6);
+    expect(ary.datasets[0].data[17]).toBeCloseTo(0, 6);
+    expect(ary.datasets[0].data[18]).toBeCloseTo(0, 6);
+    expect(ary.datasets[0].data[19]).toBeCloseTo(0, 6);
+    expect(ary.datasets[0].data[20]).toBeCloseTo(0, 6);
+    expect(ary.datasets[0].data[21]).toBeCloseTo(0, 6);
+    expect(ary.datasets[0].data[22]).toBeCloseTo(0, 6);
+    expect(ary.datasets[1].label).toEqual("EarlyMortgage");
+    expect(ary.datasets[1].data.length).toEqual(23);
+    expect(ary.datasets[1].data[0]).toBeCloseTo(219725.82, 6);
+    expect(ary.datasets[1].data[1]).toBeCloseTo(206654.01, 6);
+    expect(ary.datasets[1].data[2]).toBeCloseTo(193277.62, 6);
+    expect(ary.datasets[1].data[3]).toBeCloseTo(179589.57, 6);
+    expect(ary.datasets[1].data[4]).toBeCloseTo(165582.58, 6);
+    expect(ary.datasets[1].data[5]).toBeCloseTo(151249.23, 6);
+    expect(ary.datasets[1].data[6]).toBeCloseTo(136581.91, 6);
+    expect(ary.datasets[1].data[7]).toBeCloseTo(121572.84, 6);
+    expect(ary.datasets[1].data[8]).toBeCloseTo(106214.06, 6);
+    expect(ary.datasets[1].data[9]).toBeCloseTo(0, 6);
+    expect(ary.datasets[1].data[10]).toBeCloseTo(0, 6);
+    expect(ary.datasets[1].data[11]).toBeCloseTo(0, 6);
+    expect(ary.datasets[1].data[12]).toBeCloseTo(0, 6);
+    expect(ary.datasets[1].data[13]).toBeCloseTo(0, 6);
+    expect(ary.datasets[1].data[14]).toBeCloseTo(0, 6);
+    expect(ary.datasets[1].data[15]).toBeCloseTo(0, 6);
+    expect(ary.datasets[1].data[16]).toBeCloseTo(0, 6);
+    expect(ary.datasets[1].data[17]).toBeCloseTo(0, 6);
+    expect(ary.datasets[1].data[18]).toBeCloseTo(0, 6);
+    expect(ary.datasets[1].data[19]).toBeCloseTo(0, 6);
+    expect(ary.datasets[1].data[20]).toBeCloseTo(0, 6);
+    expect(ary.datasets[1].data[21]).toBeCloseTo(0, 6);
+    expect(ary.datasets[1].data[22]).toBeCloseTo(0, 6);
+    ary = incomeData;
+    expect(ary.labels.length).toEqual(23);
+    expect(ary.labels[0]).toEqual("Tue Jan 01 2019");
+    expect(ary.labels[1]).toEqual("Wed Jan 01 2020");
+    expect(ary.labels[2]).toEqual("Fri Jan 01 2021");
+    expect(ary.labels[3]).toEqual("Sat Jan 01 2022");
+    expect(ary.labels[4]).toEqual("Sun Jan 01 2023");
+    expect(ary.labels[5]).toEqual("Mon Jan 01 2024");
+    expect(ary.labels[6]).toEqual("Wed Jan 01 2025");
+    expect(ary.labels[7]).toEqual("Thu Jan 01 2026");
+    expect(ary.labels[8]).toEqual("Fri Jan 01 2027");
+    expect(ary.labels[9]).toEqual("Sat Jan 01 2028");
+    expect(ary.labels[10]).toEqual("Mon Jan 01 2029");
+    expect(ary.labels[11]).toEqual("Tue Jan 01 2030");
+    expect(ary.labels[12]).toEqual("Wed Jan 01 2031");
+    expect(ary.labels[13]).toEqual("Thu Jan 01 2032");
+    expect(ary.labels[14]).toEqual("Sat Jan 01 2033");
+    expect(ary.labels[15]).toEqual("Sun Jan 01 2034");
+    expect(ary.labels[16]).toEqual("Mon Jan 01 2035");
+    expect(ary.labels[17]).toEqual("Tue Jan 01 2036");
+    expect(ary.labels[18]).toEqual("Thu Jan 01 2037");
+    expect(ary.labels[19]).toEqual("Fri Jan 01 2038");
+    expect(ary.labels[20]).toEqual("Sat Jan 01 2039");
+    expect(ary.labels[21]).toEqual("Sun Jan 01 2040");
+    expect(ary.labels[22]).toEqual("Tue Jan 01 2041");
+    expect(ary.datasets.length).toEqual(3);
+    expect(ary.datasets[0].label).toEqual("Main income");
+    expect(ary.datasets[0].data.length).toEqual(23);
+    expect(ary.datasets[0].data[0]).toBeCloseTo(39287.5, 6);
+    expect(ary.datasets[0].data[1]).toBeCloseTo(43857.19, 6);
+    expect(ary.datasets[0].data[2]).toBeCloseTo(44953.62, 6);
+    expect(ary.datasets[0].data[3]).toBeCloseTo(46077.46, 6);
+    expect(ary.datasets[0].data[4]).toBeCloseTo(47229.39, 6);
+    expect(ary.datasets[0].data[5]).toBeCloseTo(48410.13, 6);
+    expect(ary.datasets[0].data[6]).toBeCloseTo(49620.38, 6);
+    expect(ary.datasets[0].data[7]).toBeCloseTo(50860.89, 6);
+    expect(ary.datasets[0].data[8]).toBeCloseTo(52132.41, 6);
+    expect(ary.datasets[0].data[9]).toBeCloseTo(53435.72, 6);
+    expect(ary.datasets[0].data[10]).toBeCloseTo(54771.62, 6);
+    expect(ary.datasets[0].data[11]).toBeCloseTo(56140.91, 6);
+    expect(ary.datasets[0].data[12]).toBeCloseTo(57544.43, 6);
+    expect(ary.datasets[0].data[13]).toBeCloseTo(58983.04, 6);
+    expect(ary.datasets[0].data[14]).toBeCloseTo(60457.62, 6);
+    expect(ary.datasets[0].data[15]).toBeCloseTo(61969.06, 6);
+    expect(ary.datasets[0].data[16]).toBeCloseTo(63518.28, 6);
+    expect(ary.datasets[0].data[17]).toBeCloseTo(65106.24, 6);
+    expect(ary.datasets[0].data[18]).toBeCloseTo(66733.9, 6);
+    expect(ary.datasets[0].data[19]).toBeCloseTo(68402.24, 6);
+    expect(ary.datasets[0].data[20]).toBeCloseTo(70112.3, 6);
+    expect(ary.datasets[0].data[21]).toBeCloseTo(71865.11, 6);
+    expect(ary.datasets[0].data[22]).toBeCloseTo(73661.74, 6);
+    expect(ary.datasets[1].label).toEqual("Side hustle income");
+    expect(ary.datasets[1].data.length).toEqual(23);
+    expect(ary.datasets[1].data[0]).toBeCloseTo(16837.5, 6);
+    expect(ary.datasets[1].data[1]).toBeCloseTo(18795.94, 6);
+    expect(ary.datasets[1].data[2]).toBeCloseTo(19265.84, 6);
+    expect(ary.datasets[1].data[3]).toBeCloseTo(19747.48, 6);
+    expect(ary.datasets[1].data[4]).toBeCloseTo(20241.17, 6);
+    expect(ary.datasets[1].data[5]).toBeCloseTo(20747.2, 6);
+    expect(ary.datasets[1].data[6]).toBeCloseTo(21265.88, 6);
+    expect(ary.datasets[1].data[7]).toBeCloseTo(5349.09, 6);
+    expect(ary.datasets[1].data[8]).toBeCloseTo(0, 6);
+    expect(ary.datasets[1].data[9]).toBeCloseTo(0, 6);
+    expect(ary.datasets[1].data[10]).toBeCloseTo(0, 6);
+    expect(ary.datasets[1].data[11]).toBeCloseTo(0, 6);
+    expect(ary.datasets[1].data[12]).toBeCloseTo(0, 6);
+    expect(ary.datasets[1].data[13]).toBeCloseTo(0, 6);
+    expect(ary.datasets[1].data[14]).toBeCloseTo(0, 6);
+    expect(ary.datasets[1].data[15]).toBeCloseTo(0, 6);
+    expect(ary.datasets[1].data[16]).toBeCloseTo(0, 6);
+    expect(ary.datasets[1].data[17]).toBeCloseTo(0, 6);
+    expect(ary.datasets[1].data[18]).toBeCloseTo(0, 6);
+    expect(ary.datasets[1].data[19]).toBeCloseTo(0, 6);
+    expect(ary.datasets[1].data[20]).toBeCloseTo(0, 6);
+    expect(ary.datasets[1].data[21]).toBeCloseTo(0, 6);
+    expect(ary.datasets[1].data[22]).toBeCloseTo(0, 6);
+    expect(ary.datasets[2].label).toEqual("Side hustle income later");
+    expect(ary.datasets[2].data.length).toEqual(23);
+    expect(ary.datasets[2].data[0]).toBeCloseTo(0, 6);
+    expect(ary.datasets[2].data[1]).toBeCloseTo(0, 6);
+    expect(ary.datasets[2].data[2]).toBeCloseTo(0, 6);
+    expect(ary.datasets[2].data[3]).toBeCloseTo(0, 6);
+    expect(ary.datasets[2].data[4]).toBeCloseTo(0, 6);
+    expect(ary.datasets[2].data[5]).toBeCloseTo(0, 6);
+    expect(ary.datasets[2].data[6]).toBeCloseTo(0, 6);
+    expect(ary.datasets[2].data[7]).toBeCloseTo(16403.86, 6);
+    expect(ary.datasets[2].data[8]).toBeCloseTo(22296.77, 6);
+    expect(ary.datasets[2].data[9]).toBeCloseTo(22854.19, 6);
+    expect(ary.datasets[2].data[10]).toBeCloseTo(23425.55, 6);
+    expect(ary.datasets[2].data[11]).toBeCloseTo(5904.39, 6);
+    expect(ary.datasets[2].data[12]).toBeCloseTo(0, 6);
+    expect(ary.datasets[2].data[13]).toBeCloseTo(0, 6);
+    expect(ary.datasets[2].data[14]).toBeCloseTo(0, 6);
+    expect(ary.datasets[2].data[15]).toBeCloseTo(0, 6);
+    expect(ary.datasets[2].data[16]).toBeCloseTo(0, 6);
+    expect(ary.datasets[2].data[17]).toBeCloseTo(0, 6);
+    expect(ary.datasets[2].data[18]).toBeCloseTo(0, 6);
+    expect(ary.datasets[2].data[19]).toBeCloseTo(0, 6);
+    expect(ary.datasets[2].data[20]).toBeCloseTo(0, 6);
+    expect(ary.datasets[2].data[21]).toBeCloseTo(0, 6);
+    expect(ary.datasets[2].data[22]).toBeCloseTo(0, 6);
+    ary = expenseData;
+    expect(ary.labels.length).toEqual(23);
+    expect(ary.labels[0]).toEqual("Tue Jan 01 2019");
+    expect(ary.labels[1]).toEqual("Wed Jan 01 2020");
+    expect(ary.labels[2]).toEqual("Fri Jan 01 2021");
+    expect(ary.labels[3]).toEqual("Sat Jan 01 2022");
+    expect(ary.labels[4]).toEqual("Sun Jan 01 2023");
+    expect(ary.labels[5]).toEqual("Mon Jan 01 2024");
+    expect(ary.labels[6]).toEqual("Wed Jan 01 2025");
+    expect(ary.labels[7]).toEqual("Thu Jan 01 2026");
+    expect(ary.labels[8]).toEqual("Fri Jan 01 2027");
+    expect(ary.labels[9]).toEqual("Sat Jan 01 2028");
+    expect(ary.labels[10]).toEqual("Mon Jan 01 2029");
+    expect(ary.labels[11]).toEqual("Tue Jan 01 2030");
+    expect(ary.labels[12]).toEqual("Wed Jan 01 2031");
+    expect(ary.labels[13]).toEqual("Thu Jan 01 2032");
+    expect(ary.labels[14]).toEqual("Sat Jan 01 2033");
+    expect(ary.labels[15]).toEqual("Sun Jan 01 2034");
+    expect(ary.labels[16]).toEqual("Mon Jan 01 2035");
+    expect(ary.labels[17]).toEqual("Tue Jan 01 2036");
+    expect(ary.labels[18]).toEqual("Thu Jan 01 2037");
+    expect(ary.labels[19]).toEqual("Fri Jan 01 2038");
+    expect(ary.labels[20]).toEqual("Sat Jan 01 2039");
+    expect(ary.labels[21]).toEqual("Sun Jan 01 2040");
+    expect(ary.labels[22]).toEqual("Tue Jan 01 2041");
+    expect(ary.datasets.length).toEqual(3);
+    expect(ary.datasets[0].label).toEqual("Look after dogs");
+    expect(ary.datasets[0].data.length).toEqual(23);
+    expect(ary.datasets[0].data[0]).toBeCloseTo(5046.6, 6);
+    expect(ary.datasets[0].data[1]).toBeCloseTo(6194.61, 6);
+    expect(ary.datasets[0].data[2]).toBeCloseTo(6349.47, 6);
+    expect(ary.datasets[0].data[3]).toBeCloseTo(6508.21, 6);
+    expect(ary.datasets[0].data[4]).toBeCloseTo(6670.92, 6);
+    expect(ary.datasets[0].data[5]).toBeCloseTo(6837.69, 6);
+    expect(ary.datasets[0].data[6]).toBeCloseTo(7008.63, 6);
+    expect(ary.datasets[0].data[7]).toBeCloseTo(7183.85, 6);
+    expect(ary.datasets[0].data[8]).toBeCloseTo(7363.44, 6);
+    expect(ary.datasets[0].data[9]).toBeCloseTo(7547.53, 6);
+    expect(ary.datasets[0].data[10]).toBeCloseTo(7736.22, 6);
+    expect(ary.datasets[0].data[11]).toBeCloseTo(7929.62, 6);
+    expect(ary.datasets[0].data[12]).toBeCloseTo(8127.86, 6);
+    expect(ary.datasets[0].data[13]).toBeCloseTo(8331.06, 6);
+    expect(ary.datasets[0].data[14]).toBeCloseTo(8539.34, 6);
+    expect(ary.datasets[0].data[15]).toBeCloseTo(8752.82, 6);
+    expect(ary.datasets[0].data[16]).toBeCloseTo(8971.64, 6);
+    expect(ary.datasets[0].data[17]).toBeCloseTo(9195.93, 6);
+    expect(ary.datasets[0].data[18]).toBeCloseTo(9425.83, 6);
+    expect(ary.datasets[0].data[19]).toBeCloseTo(9661.48, 6);
+    expect(ary.datasets[0].data[20]).toBeCloseTo(9903.01, 6);
+    expect(ary.datasets[0].data[21]).toBeCloseTo(10150.59, 6);
+    expect(ary.datasets[0].data[22]).toBeCloseTo(10404.35, 6);
+    expect(ary.datasets[1].label).toEqual("Run car");
+    expect(ary.datasets[1].data.length).toEqual(23);
+    expect(ary.datasets[1].data[0]).toBeCloseTo(7065.24, 6);
+    expect(ary.datasets[1].data[1]).toBeCloseTo(8672.45, 6);
+    expect(ary.datasets[1].data[2]).toBeCloseTo(8889.26, 6);
+    expect(ary.datasets[1].data[3]).toBeCloseTo(9111.49, 6);
+    expect(ary.datasets[1].data[4]).toBeCloseTo(9339.28, 6);
+    expect(ary.datasets[1].data[5]).toBeCloseTo(9572.76, 6);
+    expect(ary.datasets[1].data[6]).toBeCloseTo(9812.08, 6);
+    expect(ary.datasets[1].data[7]).toBeCloseTo(9209.75, 6);
+    expect(ary.datasets[1].data[8]).toBeCloseTo(0, 6);
+    expect(ary.datasets[1].data[9]).toBeCloseTo(0, 6);
+    expect(ary.datasets[1].data[10]).toBeCloseTo(0, 6);
+    expect(ary.datasets[1].data[11]).toBeCloseTo(0, 6);
+    expect(ary.datasets[1].data[12]).toBeCloseTo(0, 6);
+    expect(ary.datasets[1].data[13]).toBeCloseTo(0, 6);
+    expect(ary.datasets[1].data[14]).toBeCloseTo(0, 6);
+    expect(ary.datasets[1].data[15]).toBeCloseTo(0, 6);
+    expect(ary.datasets[1].data[16]).toBeCloseTo(0, 6);
+    expect(ary.datasets[1].data[17]).toBeCloseTo(0, 6);
+    expect(ary.datasets[1].data[18]).toBeCloseTo(0, 6);
+    expect(ary.datasets[1].data[19]).toBeCloseTo(0, 6);
+    expect(ary.datasets[1].data[20]).toBeCloseTo(0, 6);
+    expect(ary.datasets[1].data[21]).toBeCloseTo(0, 6);
+    expect(ary.datasets[1].data[22]).toBeCloseTo(0, 6);
+    expect(ary.datasets[2].label).toEqual("Run house");
+    expect(ary.datasets[2].data.length).toEqual(23);
+    expect(ary.datasets[2].data[0]).toBeCloseTo(13121.16, 6);
+    expect(ary.datasets[2].data[1]).toBeCloseTo(16105.98, 6);
+    expect(ary.datasets[2].data[2]).toBeCloseTo(16508.63, 6);
+    expect(ary.datasets[2].data[3]).toBeCloseTo(16921.35, 6);
+    expect(ary.datasets[2].data[4]).toBeCloseTo(17344.38, 6);
+    expect(ary.datasets[2].data[5]).toBeCloseTo(17777.99, 6);
+    expect(ary.datasets[2].data[6]).toBeCloseTo(18222.44, 6);
+    expect(ary.datasets[2].data[7]).toBeCloseTo(18678, 6);
+    expect(ary.datasets[2].data[8]).toBeCloseTo(19144.95, 6);
+    expect(ary.datasets[2].data[9]).toBeCloseTo(19623.58, 6);
+    expect(ary.datasets[2].data[10]).toBeCloseTo(20114.16, 6);
+    expect(ary.datasets[2].data[11]).toBeCloseTo(20617.02, 6);
+    expect(ary.datasets[2].data[12]).toBeCloseTo(21132.44, 6);
+    expect(ary.datasets[2].data[13]).toBeCloseTo(21660.76, 6);
+    expect(ary.datasets[2].data[14]).toBeCloseTo(22202.27, 6);
+    expect(ary.datasets[2].data[15]).toBeCloseTo(22757.33, 6);
+    expect(ary.datasets[2].data[16]).toBeCloseTo(23326.26, 6);
+    expect(ary.datasets[2].data[17]).toBeCloseTo(23909.42, 6);
+    expect(ary.datasets[2].data[18]).toBeCloseTo(24507.16, 6);
+    expect(ary.datasets[2].data[19]).toBeCloseTo(25119.84, 6);
+    expect(ary.datasets[2].data[20]).toBeCloseTo(25747.83, 6);
+    expect(ary.datasets[2].data[21]).toBeCloseTo(26391.53, 6);
+    expect(ary.datasets[2].data[22]).toBeCloseTo(27051.32, 6);
+  } else if (createButtonID === "btn-create-Defined Benefits Pension-example") {
+    let ary = assetData;
+    expect(ary.labels.length).toEqual(28);
+    expect(ary.labels[0]).toEqual("Sun Jan 01 2017");
+    expect(ary.labels[1]).toEqual("Mon Jan 01 2018");
+    expect(ary.labels[2]).toEqual("Tue Jan 01 2019");
+    expect(ary.labels[3]).toEqual("Wed Jan 01 2020");
+    expect(ary.labels[4]).toEqual("Fri Jan 01 2021");
+    expect(ary.labels[5]).toEqual("Sat Jan 01 2022");
+    expect(ary.labels[6]).toEqual("Sun Jan 01 2023");
+    expect(ary.labels[7]).toEqual("Mon Jan 01 2024");
+    expect(ary.labels[8]).toEqual("Wed Jan 01 2025");
+    expect(ary.labels[9]).toEqual("Thu Jan 01 2026");
+    expect(ary.labels[10]).toEqual("Fri Jan 01 2027");
+    expect(ary.labels[11]).toEqual("Sat Jan 01 2028");
+    expect(ary.labels[12]).toEqual("Mon Jan 01 2029");
+    expect(ary.labels[13]).toEqual("Tue Jan 01 2030");
+    expect(ary.labels[14]).toEqual("Wed Jan 01 2031");
+    expect(ary.labels[15]).toEqual("Thu Jan 01 2032");
+    expect(ary.labels[16]).toEqual("Sat Jan 01 2033");
+    expect(ary.labels[17]).toEqual("Sun Jan 01 2034");
+    expect(ary.labels[18]).toEqual("Mon Jan 01 2035");
+    expect(ary.labels[19]).toEqual("Tue Jan 01 2036");
+    expect(ary.labels[20]).toEqual("Thu Jan 01 2037");
+    expect(ary.labels[21]).toEqual("Fri Jan 01 2038");
+    expect(ary.labels[22]).toEqual("Sat Jan 01 2039");
+    expect(ary.labels[23]).toEqual("Sun Jan 01 2040");
+    expect(ary.labels[24]).toEqual("Tue Jan 01 2041");
+    expect(ary.labels[25]).toEqual("Wed Jan 01 2042");
+    expect(ary.labels[26]).toEqual("Thu Jan 01 2043");
+    expect(ary.labels[27]).toEqual("Fri Jan 01 2044");
     expect(ary.datasets.length).toEqual(1);
-    expect(ary.datasets[0].label).toEqual('Cash');
+    expect(ary.datasets[0].label).toEqual("Cash");
     expect(ary.datasets[0].data.length).toEqual(28);
     expect(ary.datasets[0].data[0]).toBeCloseTo(0, 6);
     expect(ary.datasets[0].data[1]).toBeCloseTo(0, 6);
@@ -1520,67 +1525,69 @@ function assertData(
     expect(ary.datasets[0].data[25]).toBeCloseTo(208982.33, 6);
     expect(ary.datasets[0].data[26]).toBeCloseTo(208982.33, 6);
     expect(ary.datasets[0].data[27]).toBeCloseTo(208982.33, 6);
-    ary = debtData;expect(ary.labels.length).toEqual(28);
-    expect(ary.labels[0]).toEqual('Sun Jan 01 2017');
-    expect(ary.labels[1]).toEqual('Mon Jan 01 2018');
-    expect(ary.labels[2]).toEqual('Tue Jan 01 2019');
-    expect(ary.labels[3]).toEqual('Wed Jan 01 2020');
-    expect(ary.labels[4]).toEqual('Fri Jan 01 2021');
-    expect(ary.labels[5]).toEqual('Sat Jan 01 2022');
-    expect(ary.labels[6]).toEqual('Sun Jan 01 2023');
-    expect(ary.labels[7]).toEqual('Mon Jan 01 2024');
-    expect(ary.labels[8]).toEqual('Wed Jan 01 2025');
-    expect(ary.labels[9]).toEqual('Thu Jan 01 2026');
-    expect(ary.labels[10]).toEqual('Fri Jan 01 2027');
-    expect(ary.labels[11]).toEqual('Sat Jan 01 2028');
-    expect(ary.labels[12]).toEqual('Mon Jan 01 2029');
-    expect(ary.labels[13]).toEqual('Tue Jan 01 2030');
-    expect(ary.labels[14]).toEqual('Wed Jan 01 2031');
-    expect(ary.labels[15]).toEqual('Thu Jan 01 2032');
-    expect(ary.labels[16]).toEqual('Sat Jan 01 2033');
-    expect(ary.labels[17]).toEqual('Sun Jan 01 2034');
-    expect(ary.labels[18]).toEqual('Mon Jan 01 2035');
-    expect(ary.labels[19]).toEqual('Tue Jan 01 2036');
-    expect(ary.labels[20]).toEqual('Thu Jan 01 2037');
-    expect(ary.labels[21]).toEqual('Fri Jan 01 2038');
-    expect(ary.labels[22]).toEqual('Sat Jan 01 2039');
-    expect(ary.labels[23]).toEqual('Sun Jan 01 2040');
-    expect(ary.labels[24]).toEqual('Tue Jan 01 2041');
-    expect(ary.labels[25]).toEqual('Wed Jan 01 2042');
-    expect(ary.labels[26]).toEqual('Thu Jan 01 2043');
-    expect(ary.labels[27]).toEqual('Fri Jan 01 2044');
+    ary = debtData;
+    expect(ary.labels.length).toEqual(28);
+    expect(ary.labels[0]).toEqual("Sun Jan 01 2017");
+    expect(ary.labels[1]).toEqual("Mon Jan 01 2018");
+    expect(ary.labels[2]).toEqual("Tue Jan 01 2019");
+    expect(ary.labels[3]).toEqual("Wed Jan 01 2020");
+    expect(ary.labels[4]).toEqual("Fri Jan 01 2021");
+    expect(ary.labels[5]).toEqual("Sat Jan 01 2022");
+    expect(ary.labels[6]).toEqual("Sun Jan 01 2023");
+    expect(ary.labels[7]).toEqual("Mon Jan 01 2024");
+    expect(ary.labels[8]).toEqual("Wed Jan 01 2025");
+    expect(ary.labels[9]).toEqual("Thu Jan 01 2026");
+    expect(ary.labels[10]).toEqual("Fri Jan 01 2027");
+    expect(ary.labels[11]).toEqual("Sat Jan 01 2028");
+    expect(ary.labels[12]).toEqual("Mon Jan 01 2029");
+    expect(ary.labels[13]).toEqual("Tue Jan 01 2030");
+    expect(ary.labels[14]).toEqual("Wed Jan 01 2031");
+    expect(ary.labels[15]).toEqual("Thu Jan 01 2032");
+    expect(ary.labels[16]).toEqual("Sat Jan 01 2033");
+    expect(ary.labels[17]).toEqual("Sun Jan 01 2034");
+    expect(ary.labels[18]).toEqual("Mon Jan 01 2035");
+    expect(ary.labels[19]).toEqual("Tue Jan 01 2036");
+    expect(ary.labels[20]).toEqual("Thu Jan 01 2037");
+    expect(ary.labels[21]).toEqual("Fri Jan 01 2038");
+    expect(ary.labels[22]).toEqual("Sat Jan 01 2039");
+    expect(ary.labels[23]).toEqual("Sun Jan 01 2040");
+    expect(ary.labels[24]).toEqual("Tue Jan 01 2041");
+    expect(ary.labels[25]).toEqual("Wed Jan 01 2042");
+    expect(ary.labels[26]).toEqual("Thu Jan 01 2043");
+    expect(ary.labels[27]).toEqual("Fri Jan 01 2044");
     expect(ary.datasets.length).toEqual(0);
-    ary = incomeData;expect(ary.labels.length).toEqual(28);
-    expect(ary.labels[0]).toEqual('Sun Jan 01 2017');
-    expect(ary.labels[1]).toEqual('Mon Jan 01 2018');
-    expect(ary.labels[2]).toEqual('Tue Jan 01 2019');
-    expect(ary.labels[3]).toEqual('Wed Jan 01 2020');
-    expect(ary.labels[4]).toEqual('Fri Jan 01 2021');
-    expect(ary.labels[5]).toEqual('Sat Jan 01 2022');
-    expect(ary.labels[6]).toEqual('Sun Jan 01 2023');
-    expect(ary.labels[7]).toEqual('Mon Jan 01 2024');
-    expect(ary.labels[8]).toEqual('Wed Jan 01 2025');
-    expect(ary.labels[9]).toEqual('Thu Jan 01 2026');
-    expect(ary.labels[10]).toEqual('Fri Jan 01 2027');
-    expect(ary.labels[11]).toEqual('Sat Jan 01 2028');
-    expect(ary.labels[12]).toEqual('Mon Jan 01 2029');
-    expect(ary.labels[13]).toEqual('Tue Jan 01 2030');
-    expect(ary.labels[14]).toEqual('Wed Jan 01 2031');
-    expect(ary.labels[15]).toEqual('Thu Jan 01 2032');
-    expect(ary.labels[16]).toEqual('Sat Jan 01 2033');
-    expect(ary.labels[17]).toEqual('Sun Jan 01 2034');
-    expect(ary.labels[18]).toEqual('Mon Jan 01 2035');
-    expect(ary.labels[19]).toEqual('Tue Jan 01 2036');
-    expect(ary.labels[20]).toEqual('Thu Jan 01 2037');
-    expect(ary.labels[21]).toEqual('Fri Jan 01 2038');
-    expect(ary.labels[22]).toEqual('Sat Jan 01 2039');
-    expect(ary.labels[23]).toEqual('Sun Jan 01 2040');
-    expect(ary.labels[24]).toEqual('Tue Jan 01 2041');
-    expect(ary.labels[25]).toEqual('Wed Jan 01 2042');
-    expect(ary.labels[26]).toEqual('Thu Jan 01 2043');
-    expect(ary.labels[27]).toEqual('Fri Jan 01 2044');
+    ary = incomeData;
+    expect(ary.labels.length).toEqual(28);
+    expect(ary.labels[0]).toEqual("Sun Jan 01 2017");
+    expect(ary.labels[1]).toEqual("Mon Jan 01 2018");
+    expect(ary.labels[2]).toEqual("Tue Jan 01 2019");
+    expect(ary.labels[3]).toEqual("Wed Jan 01 2020");
+    expect(ary.labels[4]).toEqual("Fri Jan 01 2021");
+    expect(ary.labels[5]).toEqual("Sat Jan 01 2022");
+    expect(ary.labels[6]).toEqual("Sun Jan 01 2023");
+    expect(ary.labels[7]).toEqual("Mon Jan 01 2024");
+    expect(ary.labels[8]).toEqual("Wed Jan 01 2025");
+    expect(ary.labels[9]).toEqual("Thu Jan 01 2026");
+    expect(ary.labels[10]).toEqual("Fri Jan 01 2027");
+    expect(ary.labels[11]).toEqual("Sat Jan 01 2028");
+    expect(ary.labels[12]).toEqual("Mon Jan 01 2029");
+    expect(ary.labels[13]).toEqual("Tue Jan 01 2030");
+    expect(ary.labels[14]).toEqual("Wed Jan 01 2031");
+    expect(ary.labels[15]).toEqual("Thu Jan 01 2032");
+    expect(ary.labels[16]).toEqual("Sat Jan 01 2033");
+    expect(ary.labels[17]).toEqual("Sun Jan 01 2034");
+    expect(ary.labels[18]).toEqual("Mon Jan 01 2035");
+    expect(ary.labels[19]).toEqual("Tue Jan 01 2036");
+    expect(ary.labels[20]).toEqual("Thu Jan 01 2037");
+    expect(ary.labels[21]).toEqual("Fri Jan 01 2038");
+    expect(ary.labels[22]).toEqual("Sat Jan 01 2039");
+    expect(ary.labels[23]).toEqual("Sun Jan 01 2040");
+    expect(ary.labels[24]).toEqual("Tue Jan 01 2041");
+    expect(ary.labels[25]).toEqual("Wed Jan 01 2042");
+    expect(ary.labels[26]).toEqual("Thu Jan 01 2043");
+    expect(ary.labels[27]).toEqual("Fri Jan 01 2044");
     expect(ary.datasets.length).toEqual(3);
-    expect(ary.datasets[0].label).toEqual('TeachingJob');
+    expect(ary.datasets[0].label).toEqual("TeachingJob");
     expect(ary.datasets[0].data.length).toEqual(28);
     expect(ary.datasets[0].data[0]).toBeCloseTo(0, 6);
     expect(ary.datasets[0].data[1]).toBeCloseTo(0, 6);
@@ -1610,7 +1617,7 @@ function assertData(
     expect(ary.datasets[0].data[25]).toBeCloseTo(0, 6);
     expect(ary.datasets[0].data[26]).toBeCloseTo(0, 6);
     expect(ary.datasets[0].data[27]).toBeCloseTo(0, 6);
-    expect(ary.datasets[1].label).toEqual('-PDB TeachersPensionScheme');
+    expect(ary.datasets[1].label).toEqual("-PDB TeachersPensionScheme");
     expect(ary.datasets[1].data.length).toEqual(28);
     expect(ary.datasets[1].data[0]).toBeCloseTo(0, 6);
     expect(ary.datasets[1].data[1]).toBeCloseTo(0, 6);
@@ -1640,7 +1647,7 @@ function assertData(
     expect(ary.datasets[1].data[25]).toBeCloseTo(0, 6);
     expect(ary.datasets[1].data[26]).toBeCloseTo(0, 6);
     expect(ary.datasets[1].data[27]).toBeCloseTo(0, 6);
-    expect(ary.datasets[2].label).toEqual('-PT TeachersPensionScheme');
+    expect(ary.datasets[2].label).toEqual("-PT TeachersPensionScheme");
     expect(ary.datasets[2].data.length).toEqual(28);
     expect(ary.datasets[2].data[0]).toBeCloseTo(0, 6);
     expect(ary.datasets[2].data[1]).toBeCloseTo(0, 6);
@@ -1670,69 +1677,71 @@ function assertData(
     expect(ary.datasets[2].data[25]).toBeCloseTo(0, 6);
     expect(ary.datasets[2].data[26]).toBeCloseTo(0, 6);
     expect(ary.datasets[2].data[27]).toBeCloseTo(0, 6);
-    ary = expenseData;expect(ary.labels.length).toEqual(28);
-    expect(ary.labels[0]).toEqual('Sun Jan 01 2017');
-    expect(ary.labels[1]).toEqual('Mon Jan 01 2018');
-    expect(ary.labels[2]).toEqual('Tue Jan 01 2019');
-    expect(ary.labels[3]).toEqual('Wed Jan 01 2020');
-    expect(ary.labels[4]).toEqual('Fri Jan 01 2021');
-    expect(ary.labels[5]).toEqual('Sat Jan 01 2022');
-    expect(ary.labels[6]).toEqual('Sun Jan 01 2023');
-    expect(ary.labels[7]).toEqual('Mon Jan 01 2024');
-    expect(ary.labels[8]).toEqual('Wed Jan 01 2025');
-    expect(ary.labels[9]).toEqual('Thu Jan 01 2026');
-    expect(ary.labels[10]).toEqual('Fri Jan 01 2027');
-    expect(ary.labels[11]).toEqual('Sat Jan 01 2028');
-    expect(ary.labels[12]).toEqual('Mon Jan 01 2029');
-    expect(ary.labels[13]).toEqual('Tue Jan 01 2030');
-    expect(ary.labels[14]).toEqual('Wed Jan 01 2031');
-    expect(ary.labels[15]).toEqual('Thu Jan 01 2032');
-    expect(ary.labels[16]).toEqual('Sat Jan 01 2033');
-    expect(ary.labels[17]).toEqual('Sun Jan 01 2034');
-    expect(ary.labels[18]).toEqual('Mon Jan 01 2035');
-    expect(ary.labels[19]).toEqual('Tue Jan 01 2036');
-    expect(ary.labels[20]).toEqual('Thu Jan 01 2037');
-    expect(ary.labels[21]).toEqual('Fri Jan 01 2038');
-    expect(ary.labels[22]).toEqual('Sat Jan 01 2039');
-    expect(ary.labels[23]).toEqual('Sun Jan 01 2040');
-    expect(ary.labels[24]).toEqual('Tue Jan 01 2041');
-    expect(ary.labels[25]).toEqual('Wed Jan 01 2042');
-    expect(ary.labels[26]).toEqual('Thu Jan 01 2043');
-    expect(ary.labels[27]).toEqual('Fri Jan 01 2044');
+    ary = expenseData;
+    expect(ary.labels.length).toEqual(28);
+    expect(ary.labels[0]).toEqual("Sun Jan 01 2017");
+    expect(ary.labels[1]).toEqual("Mon Jan 01 2018");
+    expect(ary.labels[2]).toEqual("Tue Jan 01 2019");
+    expect(ary.labels[3]).toEqual("Wed Jan 01 2020");
+    expect(ary.labels[4]).toEqual("Fri Jan 01 2021");
+    expect(ary.labels[5]).toEqual("Sat Jan 01 2022");
+    expect(ary.labels[6]).toEqual("Sun Jan 01 2023");
+    expect(ary.labels[7]).toEqual("Mon Jan 01 2024");
+    expect(ary.labels[8]).toEqual("Wed Jan 01 2025");
+    expect(ary.labels[9]).toEqual("Thu Jan 01 2026");
+    expect(ary.labels[10]).toEqual("Fri Jan 01 2027");
+    expect(ary.labels[11]).toEqual("Sat Jan 01 2028");
+    expect(ary.labels[12]).toEqual("Mon Jan 01 2029");
+    expect(ary.labels[13]).toEqual("Tue Jan 01 2030");
+    expect(ary.labels[14]).toEqual("Wed Jan 01 2031");
+    expect(ary.labels[15]).toEqual("Thu Jan 01 2032");
+    expect(ary.labels[16]).toEqual("Sat Jan 01 2033");
+    expect(ary.labels[17]).toEqual("Sun Jan 01 2034");
+    expect(ary.labels[18]).toEqual("Mon Jan 01 2035");
+    expect(ary.labels[19]).toEqual("Tue Jan 01 2036");
+    expect(ary.labels[20]).toEqual("Thu Jan 01 2037");
+    expect(ary.labels[21]).toEqual("Fri Jan 01 2038");
+    expect(ary.labels[22]).toEqual("Sat Jan 01 2039");
+    expect(ary.labels[23]).toEqual("Sun Jan 01 2040");
+    expect(ary.labels[24]).toEqual("Tue Jan 01 2041");
+    expect(ary.labels[25]).toEqual("Wed Jan 01 2042");
+    expect(ary.labels[26]).toEqual("Thu Jan 01 2043");
+    expect(ary.labels[27]).toEqual("Fri Jan 01 2044");
     expect(ary.datasets.length).toEqual(0);
   } else if (
-    createButtonID === 'btn-create-Defined Contributions Pension-example'
+    createButtonID === "btn-create-Defined Contributions Pension-example"
   ) {
-    let ary = assetData;expect(ary.labels.length).toEqual(27);
-    expect(ary.labels[0]).toEqual('Tue Jan 01 2019');
-    expect(ary.labels[1]).toEqual('Wed Jan 01 2020');
-    expect(ary.labels[2]).toEqual('Fri Jan 01 2021');
-    expect(ary.labels[3]).toEqual('Sat Jan 01 2022');
-    expect(ary.labels[4]).toEqual('Sun Jan 01 2023');
-    expect(ary.labels[5]).toEqual('Mon Jan 01 2024');
-    expect(ary.labels[6]).toEqual('Wed Jan 01 2025');
-    expect(ary.labels[7]).toEqual('Thu Jan 01 2026');
-    expect(ary.labels[8]).toEqual('Fri Jan 01 2027');
-    expect(ary.labels[9]).toEqual('Sat Jan 01 2028');
-    expect(ary.labels[10]).toEqual('Mon Jan 01 2029');
-    expect(ary.labels[11]).toEqual('Tue Jan 01 2030');
-    expect(ary.labels[12]).toEqual('Wed Jan 01 2031');
-    expect(ary.labels[13]).toEqual('Thu Jan 01 2032');
-    expect(ary.labels[14]).toEqual('Sat Jan 01 2033');
-    expect(ary.labels[15]).toEqual('Sun Jan 01 2034');
-    expect(ary.labels[16]).toEqual('Mon Jan 01 2035');
-    expect(ary.labels[17]).toEqual('Tue Jan 01 2036');
-    expect(ary.labels[18]).toEqual('Thu Jan 01 2037');
-    expect(ary.labels[19]).toEqual('Fri Jan 01 2038');
-    expect(ary.labels[20]).toEqual('Sat Jan 01 2039');
-    expect(ary.labels[21]).toEqual('Sun Jan 01 2040');
-    expect(ary.labels[22]).toEqual('Tue Jan 01 2041');
-    expect(ary.labels[23]).toEqual('Wed Jan 01 2042');
-    expect(ary.labels[24]).toEqual('Thu Jan 01 2043');
-    expect(ary.labels[25]).toEqual('Fri Jan 01 2044');
-    expect(ary.labels[26]).toEqual('Sun Jan 01 2045');
+    let ary = assetData;
+    expect(ary.labels.length).toEqual(27);
+    expect(ary.labels[0]).toEqual("Tue Jan 01 2019");
+    expect(ary.labels[1]).toEqual("Wed Jan 01 2020");
+    expect(ary.labels[2]).toEqual("Fri Jan 01 2021");
+    expect(ary.labels[3]).toEqual("Sat Jan 01 2022");
+    expect(ary.labels[4]).toEqual("Sun Jan 01 2023");
+    expect(ary.labels[5]).toEqual("Mon Jan 01 2024");
+    expect(ary.labels[6]).toEqual("Wed Jan 01 2025");
+    expect(ary.labels[7]).toEqual("Thu Jan 01 2026");
+    expect(ary.labels[8]).toEqual("Fri Jan 01 2027");
+    expect(ary.labels[9]).toEqual("Sat Jan 01 2028");
+    expect(ary.labels[10]).toEqual("Mon Jan 01 2029");
+    expect(ary.labels[11]).toEqual("Tue Jan 01 2030");
+    expect(ary.labels[12]).toEqual("Wed Jan 01 2031");
+    expect(ary.labels[13]).toEqual("Thu Jan 01 2032");
+    expect(ary.labels[14]).toEqual("Sat Jan 01 2033");
+    expect(ary.labels[15]).toEqual("Sun Jan 01 2034");
+    expect(ary.labels[16]).toEqual("Mon Jan 01 2035");
+    expect(ary.labels[17]).toEqual("Tue Jan 01 2036");
+    expect(ary.labels[18]).toEqual("Thu Jan 01 2037");
+    expect(ary.labels[19]).toEqual("Fri Jan 01 2038");
+    expect(ary.labels[20]).toEqual("Sat Jan 01 2039");
+    expect(ary.labels[21]).toEqual("Sun Jan 01 2040");
+    expect(ary.labels[22]).toEqual("Tue Jan 01 2041");
+    expect(ary.labels[23]).toEqual("Wed Jan 01 2042");
+    expect(ary.labels[24]).toEqual("Thu Jan 01 2043");
+    expect(ary.labels[25]).toEqual("Fri Jan 01 2044");
+    expect(ary.labels[26]).toEqual("Sun Jan 01 2045");
     expect(ary.datasets.length).toEqual(5);
-    expect(ary.datasets[0].label).toEqual('Cash');
+    expect(ary.datasets[0].label).toEqual("Cash");
     expect(ary.datasets[0].data.length).toEqual(27);
     expect(ary.datasets[0].data[0]).toBeCloseTo(0, 6);
     expect(ary.datasets[0].data[1]).toBeCloseTo(0, 6);
@@ -1762,10 +1771,10 @@ function assertData(
     expect(ary.datasets[0].data[25]).toBeCloseTo(242844.04, 6);
     expect(ary.datasets[0].data[26]).toBeCloseTo(242847.67, 6);
     // swap ary.datasets[1] and ary.datasets[2]
-    let tmp =  ary.datasets[1];
+    let tmp = ary.datasets[1];
     ary.datasets[1] = ary.datasets[2];
     ary.datasets[2] = tmp;
-    expect(ary.datasets[1].label).toEqual('-CPTaxable Joe.Aegon');
+    expect(ary.datasets[1].label).toEqual("-CPTaxable Joe.Aegon");
     expect(ary.datasets[1].data.length).toEqual(27);
     expect(ary.datasets[1].data[0]).toBeCloseTo(0, 6);
     expect(ary.datasets[1].data[1]).toBeCloseTo(0, 6);
@@ -1795,11 +1804,11 @@ function assertData(
     expect(ary.datasets[1].data[25]).toBeCloseTo(0, 6);
     expect(ary.datasets[1].data[26]).toBeCloseTo(0, 6);
     // swap ary.datasets[2] and ary.datasets[3]
-    tmp =  ary.datasets[2];
+    tmp = ary.datasets[2];
     ary.datasets[2] = ary.datasets[3];
     ary.datasets[3] = tmp;
 
-    expect(ary.datasets[2].label).toEqual('-CPTaxFree Aegon');
+    expect(ary.datasets[2].label).toEqual("-CPTaxFree Aegon");
     expect(ary.datasets[2].data.length).toEqual(27);
     expect(ary.datasets[2].data[0]).toBeCloseTo(0, 6);
     expect(ary.datasets[2].data[1]).toBeCloseTo(0, 6);
@@ -1829,11 +1838,11 @@ function assertData(
     expect(ary.datasets[2].data[25]).toBeCloseTo(42997.78, 6);
     expect(ary.datasets[2].data[26]).toBeCloseTo(44932.68, 6);
     // swap ary.datasets[3] and ary.datasets[4]
-    tmp =  ary.datasets[3];
+    tmp = ary.datasets[3];
     ary.datasets[3] = ary.datasets[4];
     ary.datasets[4] = tmp;
 
-    expect(ary.datasets[3].label).toEqual('-PEN Aegon');
+    expect(ary.datasets[3].label).toEqual("-PEN Aegon");
     expect(ary.datasets[3].data.length).toEqual(27);
     expect(ary.datasets[3].data[0]).toBeCloseTo(0, 6);
     expect(ary.datasets[3].data[1]).toBeCloseTo(0, 6);
@@ -1863,7 +1872,7 @@ function assertData(
     expect(ary.datasets[3].data[25]).toBeCloseTo(0, 6);
     expect(ary.datasets[3].data[26]).toBeCloseTo(0, 6);
 
-    expect(ary.datasets[4].label).toEqual('-CPTaxable Jack.Aegon');
+    expect(ary.datasets[4].label).toEqual("-CPTaxable Jack.Aegon");
     expect(ary.datasets[4].data.length).toEqual(27);
     expect(ary.datasets[4].data[0]).toBeCloseTo(0, 6);
     expect(ary.datasets[4].data[1]).toBeCloseTo(0, 6);
@@ -1892,66 +1901,68 @@ function assertData(
     expect(ary.datasets[4].data[24]).toBeCloseTo(14.04, 6);
     expect(ary.datasets[4].data[25]).toBeCloseTo(7.2, 6);
     expect(ary.datasets[4].data[26]).toBeCloseTo(3.79, 6);
-    
-    ary = debtData;expect(ary.labels.length).toEqual(27);
-    expect(ary.labels[0]).toEqual('Tue Jan 01 2019');
-    expect(ary.labels[1]).toEqual('Wed Jan 01 2020');
-    expect(ary.labels[2]).toEqual('Fri Jan 01 2021');
-    expect(ary.labels[3]).toEqual('Sat Jan 01 2022');
-    expect(ary.labels[4]).toEqual('Sun Jan 01 2023');
-    expect(ary.labels[5]).toEqual('Mon Jan 01 2024');
-    expect(ary.labels[6]).toEqual('Wed Jan 01 2025');
-    expect(ary.labels[7]).toEqual('Thu Jan 01 2026');
-    expect(ary.labels[8]).toEqual('Fri Jan 01 2027');
-    expect(ary.labels[9]).toEqual('Sat Jan 01 2028');
-    expect(ary.labels[10]).toEqual('Mon Jan 01 2029');
-    expect(ary.labels[11]).toEqual('Tue Jan 01 2030');
-    expect(ary.labels[12]).toEqual('Wed Jan 01 2031');
-    expect(ary.labels[13]).toEqual('Thu Jan 01 2032');
-    expect(ary.labels[14]).toEqual('Sat Jan 01 2033');
-    expect(ary.labels[15]).toEqual('Sun Jan 01 2034');
-    expect(ary.labels[16]).toEqual('Mon Jan 01 2035');
-    expect(ary.labels[17]).toEqual('Tue Jan 01 2036');
-    expect(ary.labels[18]).toEqual('Thu Jan 01 2037');
-    expect(ary.labels[19]).toEqual('Fri Jan 01 2038');
-    expect(ary.labels[20]).toEqual('Sat Jan 01 2039');
-    expect(ary.labels[21]).toEqual('Sun Jan 01 2040');
-    expect(ary.labels[22]).toEqual('Tue Jan 01 2041');
-    expect(ary.labels[23]).toEqual('Wed Jan 01 2042');
-    expect(ary.labels[24]).toEqual('Thu Jan 01 2043');
-    expect(ary.labels[25]).toEqual('Fri Jan 01 2044');
-    expect(ary.labels[26]).toEqual('Sun Jan 01 2045');
+
+    ary = debtData;
+    expect(ary.labels.length).toEqual(27);
+    expect(ary.labels[0]).toEqual("Tue Jan 01 2019");
+    expect(ary.labels[1]).toEqual("Wed Jan 01 2020");
+    expect(ary.labels[2]).toEqual("Fri Jan 01 2021");
+    expect(ary.labels[3]).toEqual("Sat Jan 01 2022");
+    expect(ary.labels[4]).toEqual("Sun Jan 01 2023");
+    expect(ary.labels[5]).toEqual("Mon Jan 01 2024");
+    expect(ary.labels[6]).toEqual("Wed Jan 01 2025");
+    expect(ary.labels[7]).toEqual("Thu Jan 01 2026");
+    expect(ary.labels[8]).toEqual("Fri Jan 01 2027");
+    expect(ary.labels[9]).toEqual("Sat Jan 01 2028");
+    expect(ary.labels[10]).toEqual("Mon Jan 01 2029");
+    expect(ary.labels[11]).toEqual("Tue Jan 01 2030");
+    expect(ary.labels[12]).toEqual("Wed Jan 01 2031");
+    expect(ary.labels[13]).toEqual("Thu Jan 01 2032");
+    expect(ary.labels[14]).toEqual("Sat Jan 01 2033");
+    expect(ary.labels[15]).toEqual("Sun Jan 01 2034");
+    expect(ary.labels[16]).toEqual("Mon Jan 01 2035");
+    expect(ary.labels[17]).toEqual("Tue Jan 01 2036");
+    expect(ary.labels[18]).toEqual("Thu Jan 01 2037");
+    expect(ary.labels[19]).toEqual("Fri Jan 01 2038");
+    expect(ary.labels[20]).toEqual("Sat Jan 01 2039");
+    expect(ary.labels[21]).toEqual("Sun Jan 01 2040");
+    expect(ary.labels[22]).toEqual("Tue Jan 01 2041");
+    expect(ary.labels[23]).toEqual("Wed Jan 01 2042");
+    expect(ary.labels[24]).toEqual("Thu Jan 01 2043");
+    expect(ary.labels[25]).toEqual("Fri Jan 01 2044");
+    expect(ary.labels[26]).toEqual("Sun Jan 01 2045");
     expect(ary.datasets.length).toEqual(0);
-    ary = incomeData;expect(ary.labels.length).toEqual(27);
-    expect(ary.labels[0]).toEqual('Tue Jan 01 2019');
-    expect(ary.labels[1]).toEqual('Wed Jan 01 2020');
-    expect(ary.labels[2]).toEqual('Fri Jan 01 2021');
-    expect(ary.labels[3]).toEqual('Sat Jan 01 2022');
-    expect(ary.labels[4]).toEqual('Sun Jan 01 2023');
-    expect(ary.labels[5]).toEqual('Mon Jan 01 2024');
-    expect(ary.labels[6]).toEqual('Wed Jan 01 2025');
-    expect(ary.labels[7]).toEqual('Thu Jan 01 2026');
-    expect(ary.labels[8]).toEqual('Fri Jan 01 2027');
-    expect(ary.labels[9]).toEqual('Sat Jan 01 2028');
-    expect(ary.labels[10]).toEqual('Mon Jan 01 2029');
-    expect(ary.labels[11]).toEqual('Tue Jan 01 2030');
-    expect(ary.labels[12]).toEqual('Wed Jan 01 2031');
-    expect(ary.labels[13]).toEqual('Thu Jan 01 2032');
-    expect(ary.labels[14]).toEqual('Sat Jan 01 2033');
-    expect(ary.labels[15]).toEqual('Sun Jan 01 2034');
-    expect(ary.labels[16]).toEqual('Mon Jan 01 2035');
-    expect(ary.labels[17]).toEqual('Tue Jan 01 2036');
-    expect(ary.labels[18]).toEqual('Thu Jan 01 2037');
-    expect(ary.labels[19]).toEqual('Fri Jan 01 2038');
-    expect(ary.labels[20]).toEqual('Sat Jan 01 2039');
-    expect(ary.labels[21]).toEqual('Sun Jan 01 2040');
-    expect(ary.labels[22]).toEqual('Tue Jan 01 2041');
-    expect(ary.labels[23]).toEqual('Wed Jan 01 2042');
-    expect(ary.labels[24]).toEqual('Thu Jan 01 2043');
-    expect(ary.labels[25]).toEqual('Fri Jan 01 2044');
-    expect(ary.labels[26]).toEqual('Sun Jan 01 2045');
+    ary = incomeData;
+    expect(ary.labels.length).toEqual(27);
+    expect(ary.labels[0]).toEqual("Tue Jan 01 2019");
+    expect(ary.labels[1]).toEqual("Wed Jan 01 2020");
+    expect(ary.labels[2]).toEqual("Fri Jan 01 2021");
+    expect(ary.labels[3]).toEqual("Sat Jan 01 2022");
+    expect(ary.labels[4]).toEqual("Sun Jan 01 2023");
+    expect(ary.labels[5]).toEqual("Mon Jan 01 2024");
+    expect(ary.labels[6]).toEqual("Wed Jan 01 2025");
+    expect(ary.labels[7]).toEqual("Thu Jan 01 2026");
+    expect(ary.labels[8]).toEqual("Fri Jan 01 2027");
+    expect(ary.labels[9]).toEqual("Sat Jan 01 2028");
+    expect(ary.labels[10]).toEqual("Mon Jan 01 2029");
+    expect(ary.labels[11]).toEqual("Tue Jan 01 2030");
+    expect(ary.labels[12]).toEqual("Wed Jan 01 2031");
+    expect(ary.labels[13]).toEqual("Thu Jan 01 2032");
+    expect(ary.labels[14]).toEqual("Sat Jan 01 2033");
+    expect(ary.labels[15]).toEqual("Sun Jan 01 2034");
+    expect(ary.labels[16]).toEqual("Mon Jan 01 2035");
+    expect(ary.labels[17]).toEqual("Tue Jan 01 2036");
+    expect(ary.labels[18]).toEqual("Thu Jan 01 2037");
+    expect(ary.labels[19]).toEqual("Fri Jan 01 2038");
+    expect(ary.labels[20]).toEqual("Sat Jan 01 2039");
+    expect(ary.labels[21]).toEqual("Sun Jan 01 2040");
+    expect(ary.labels[22]).toEqual("Tue Jan 01 2041");
+    expect(ary.labels[23]).toEqual("Wed Jan 01 2042");
+    expect(ary.labels[24]).toEqual("Thu Jan 01 2043");
+    expect(ary.labels[25]).toEqual("Fri Jan 01 2044");
+    expect(ary.labels[26]).toEqual("Sun Jan 01 2045");
     expect(ary.datasets.length).toEqual(1);
-    expect(ary.datasets[0].label).toEqual('javaJob1');
+    expect(ary.datasets[0].label).toEqual("javaJob1");
     expect(ary.datasets[0].data.length).toEqual(27);
     expect(ary.datasets[0].data[0]).toBeCloseTo(0, 6);
     expect(ary.datasets[0].data[1]).toBeCloseTo(0, 6);
@@ -1980,54 +1991,56 @@ function assertData(
     expect(ary.datasets[0].data[24]).toBeCloseTo(0, 6);
     expect(ary.datasets[0].data[25]).toBeCloseTo(0, 6);
     expect(ary.datasets[0].data[26]).toBeCloseTo(0, 6);
-    ary = expenseData;expect(ary.labels.length).toEqual(27);
-    expect(ary.labels[0]).toEqual('Tue Jan 01 2019');
-    expect(ary.labels[1]).toEqual('Wed Jan 01 2020');
-    expect(ary.labels[2]).toEqual('Fri Jan 01 2021');
-    expect(ary.labels[3]).toEqual('Sat Jan 01 2022');
-    expect(ary.labels[4]).toEqual('Sun Jan 01 2023');
-    expect(ary.labels[5]).toEqual('Mon Jan 01 2024');
-    expect(ary.labels[6]).toEqual('Wed Jan 01 2025');
-    expect(ary.labels[7]).toEqual('Thu Jan 01 2026');
-    expect(ary.labels[8]).toEqual('Fri Jan 01 2027');
-    expect(ary.labels[9]).toEqual('Sat Jan 01 2028');
-    expect(ary.labels[10]).toEqual('Mon Jan 01 2029');
-    expect(ary.labels[11]).toEqual('Tue Jan 01 2030');
-    expect(ary.labels[12]).toEqual('Wed Jan 01 2031');
-    expect(ary.labels[13]).toEqual('Thu Jan 01 2032');
-    expect(ary.labels[14]).toEqual('Sat Jan 01 2033');
-    expect(ary.labels[15]).toEqual('Sun Jan 01 2034');
-    expect(ary.labels[16]).toEqual('Mon Jan 01 2035');
-    expect(ary.labels[17]).toEqual('Tue Jan 01 2036');
-    expect(ary.labels[18]).toEqual('Thu Jan 01 2037');
-    expect(ary.labels[19]).toEqual('Fri Jan 01 2038');
-    expect(ary.labels[20]).toEqual('Sat Jan 01 2039');
-    expect(ary.labels[21]).toEqual('Sun Jan 01 2040');
-    expect(ary.labels[22]).toEqual('Tue Jan 01 2041');
-    expect(ary.labels[23]).toEqual('Wed Jan 01 2042');
-    expect(ary.labels[24]).toEqual('Thu Jan 01 2043');
-    expect(ary.labels[25]).toEqual('Fri Jan 01 2044');
-    expect(ary.labels[26]).toEqual('Sun Jan 01 2045');
+    ary = expenseData;
+    expect(ary.labels.length).toEqual(27);
+    expect(ary.labels[0]).toEqual("Tue Jan 01 2019");
+    expect(ary.labels[1]).toEqual("Wed Jan 01 2020");
+    expect(ary.labels[2]).toEqual("Fri Jan 01 2021");
+    expect(ary.labels[3]).toEqual("Sat Jan 01 2022");
+    expect(ary.labels[4]).toEqual("Sun Jan 01 2023");
+    expect(ary.labels[5]).toEqual("Mon Jan 01 2024");
+    expect(ary.labels[6]).toEqual("Wed Jan 01 2025");
+    expect(ary.labels[7]).toEqual("Thu Jan 01 2026");
+    expect(ary.labels[8]).toEqual("Fri Jan 01 2027");
+    expect(ary.labels[9]).toEqual("Sat Jan 01 2028");
+    expect(ary.labels[10]).toEqual("Mon Jan 01 2029");
+    expect(ary.labels[11]).toEqual("Tue Jan 01 2030");
+    expect(ary.labels[12]).toEqual("Wed Jan 01 2031");
+    expect(ary.labels[13]).toEqual("Thu Jan 01 2032");
+    expect(ary.labels[14]).toEqual("Sat Jan 01 2033");
+    expect(ary.labels[15]).toEqual("Sun Jan 01 2034");
+    expect(ary.labels[16]).toEqual("Mon Jan 01 2035");
+    expect(ary.labels[17]).toEqual("Tue Jan 01 2036");
+    expect(ary.labels[18]).toEqual("Thu Jan 01 2037");
+    expect(ary.labels[19]).toEqual("Fri Jan 01 2038");
+    expect(ary.labels[20]).toEqual("Sat Jan 01 2039");
+    expect(ary.labels[21]).toEqual("Sun Jan 01 2040");
+    expect(ary.labels[22]).toEqual("Tue Jan 01 2041");
+    expect(ary.labels[23]).toEqual("Wed Jan 01 2042");
+    expect(ary.labels[24]).toEqual("Thu Jan 01 2043");
+    expect(ary.labels[25]).toEqual("Fri Jan 01 2044");
+    expect(ary.labels[26]).toEqual("Sun Jan 01 2045");
     expect(ary.datasets.length).toEqual(0);
   } else if (
-    createButtonID === 'btn-create-National Savings Income Bonds-example'
+    createButtonID === "btn-create-National Savings Income Bonds-example"
   ) {
-    let ary = assetData;expect(ary.labels.length).toEqual(13);
-    expect(ary.labels[0]).toEqual('Sun Jan 01 2017');
-    expect(ary.labels[1]).toEqual('Mon Jan 01 2018');
-    expect(ary.labels[2]).toEqual('Tue Jan 01 2019');
-    expect(ary.labels[3]).toEqual('Wed Jan 01 2020');
-    expect(ary.labels[4]).toEqual('Fri Jan 01 2021');
-    expect(ary.labels[5]).toEqual('Sat Jan 01 2022');
-    expect(ary.labels[6]).toEqual('Sun Jan 01 2023');
-    expect(ary.labels[7]).toEqual('Mon Jan 01 2024');
-    expect(ary.labels[8]).toEqual('Wed Jan 01 2025');
-    expect(ary.labels[9]).toEqual('Thu Jan 01 2026');
-    expect(ary.labels[10]).toEqual('Fri Jan 01 2027');
-    expect(ary.labels[11]).toEqual('Sat Jan 01 2028');
-    expect(ary.labels[12]).toEqual('Mon Jan 01 2029');
+    let ary = assetData;
+    expect(ary.labels.length).toEqual(13);
+    expect(ary.labels[0]).toEqual("Sun Jan 01 2017");
+    expect(ary.labels[1]).toEqual("Mon Jan 01 2018");
+    expect(ary.labels[2]).toEqual("Tue Jan 01 2019");
+    expect(ary.labels[3]).toEqual("Wed Jan 01 2020");
+    expect(ary.labels[4]).toEqual("Fri Jan 01 2021");
+    expect(ary.labels[5]).toEqual("Sat Jan 01 2022");
+    expect(ary.labels[6]).toEqual("Sun Jan 01 2023");
+    expect(ary.labels[7]).toEqual("Mon Jan 01 2024");
+    expect(ary.labels[8]).toEqual("Wed Jan 01 2025");
+    expect(ary.labels[9]).toEqual("Thu Jan 01 2026");
+    expect(ary.labels[10]).toEqual("Fri Jan 01 2027");
+    expect(ary.labels[11]).toEqual("Sat Jan 01 2028");
+    expect(ary.labels[12]).toEqual("Mon Jan 01 2029");
     expect(ary.datasets.length).toEqual(2);
-    expect(ary.datasets[0].label).toEqual('Cash');
+    expect(ary.datasets[0].label).toEqual("Cash");
     expect(ary.datasets[0].data.length).toEqual(13);
     expect(ary.datasets[0].data[0]).toBeCloseTo(0, 6);
     expect(ary.datasets[0].data[1]).toBeCloseTo(0, 6);
@@ -2042,7 +2055,7 @@ function assertData(
     expect(ary.datasets[0].data[10]).toBeCloseTo(20744.51, 6);
     expect(ary.datasets[0].data[11]).toBeCloseTo(23644.7, 6);
     expect(ary.datasets[0].data[12]).toBeCloseTo(26524.87, 6);
-    expect(ary.datasets[1].label).toEqual('NI');
+    expect(ary.datasets[1].label).toEqual("NI");
     expect(ary.datasets[1].data.length).toEqual(13);
     expect(ary.datasets[1].data[0]).toBeCloseTo(0, 6);
     expect(ary.datasets[1].data[1]).toBeCloseTo(0, 6);
@@ -2057,37 +2070,39 @@ function assertData(
     expect(ary.datasets[1].data[10]).toBeCloseTo(1188685.75, 6);
     expect(ary.datasets[1].data[11]).toBeCloseTo(1218402.9, 6);
     expect(ary.datasets[1].data[12]).toBeCloseTo(1248862.97, 6);
-    ary = debtData;expect(ary.labels.length).toEqual(13);
-    expect(ary.labels[0]).toEqual('Sun Jan 01 2017');
-    expect(ary.labels[1]).toEqual('Mon Jan 01 2018');
-    expect(ary.labels[2]).toEqual('Tue Jan 01 2019');
-    expect(ary.labels[3]).toEqual('Wed Jan 01 2020');
-    expect(ary.labels[4]).toEqual('Fri Jan 01 2021');
-    expect(ary.labels[5]).toEqual('Sat Jan 01 2022');
-    expect(ary.labels[6]).toEqual('Sun Jan 01 2023');
-    expect(ary.labels[7]).toEqual('Mon Jan 01 2024');
-    expect(ary.labels[8]).toEqual('Wed Jan 01 2025');
-    expect(ary.labels[9]).toEqual('Thu Jan 01 2026');
-    expect(ary.labels[10]).toEqual('Fri Jan 01 2027');
-    expect(ary.labels[11]).toEqual('Sat Jan 01 2028');
-    expect(ary.labels[12]).toEqual('Mon Jan 01 2029');
+    ary = debtData;
+    expect(ary.labels.length).toEqual(13);
+    expect(ary.labels[0]).toEqual("Sun Jan 01 2017");
+    expect(ary.labels[1]).toEqual("Mon Jan 01 2018");
+    expect(ary.labels[2]).toEqual("Tue Jan 01 2019");
+    expect(ary.labels[3]).toEqual("Wed Jan 01 2020");
+    expect(ary.labels[4]).toEqual("Fri Jan 01 2021");
+    expect(ary.labels[5]).toEqual("Sat Jan 01 2022");
+    expect(ary.labels[6]).toEqual("Sun Jan 01 2023");
+    expect(ary.labels[7]).toEqual("Mon Jan 01 2024");
+    expect(ary.labels[8]).toEqual("Wed Jan 01 2025");
+    expect(ary.labels[9]).toEqual("Thu Jan 01 2026");
+    expect(ary.labels[10]).toEqual("Fri Jan 01 2027");
+    expect(ary.labels[11]).toEqual("Sat Jan 01 2028");
+    expect(ary.labels[12]).toEqual("Mon Jan 01 2029");
     expect(ary.datasets.length).toEqual(0);
-    ary = incomeData;expect(ary.labels.length).toEqual(13);
-    expect(ary.labels[0]).toEqual('Sun Jan 01 2017');
-    expect(ary.labels[1]).toEqual('Mon Jan 01 2018');
-    expect(ary.labels[2]).toEqual('Tue Jan 01 2019');
-    expect(ary.labels[3]).toEqual('Wed Jan 01 2020');
-    expect(ary.labels[4]).toEqual('Fri Jan 01 2021');
-    expect(ary.labels[5]).toEqual('Sat Jan 01 2022');
-    expect(ary.labels[6]).toEqual('Sun Jan 01 2023');
-    expect(ary.labels[7]).toEqual('Mon Jan 01 2024');
-    expect(ary.labels[8]).toEqual('Wed Jan 01 2025');
-    expect(ary.labels[9]).toEqual('Thu Jan 01 2026');
-    expect(ary.labels[10]).toEqual('Fri Jan 01 2027');
-    expect(ary.labels[11]).toEqual('Sat Jan 01 2028');
-    expect(ary.labels[12]).toEqual('Mon Jan 01 2029');
+    ary = incomeData;
+    expect(ary.labels.length).toEqual(13);
+    expect(ary.labels[0]).toEqual("Sun Jan 01 2017");
+    expect(ary.labels[1]).toEqual("Mon Jan 01 2018");
+    expect(ary.labels[2]).toEqual("Tue Jan 01 2019");
+    expect(ary.labels[3]).toEqual("Wed Jan 01 2020");
+    expect(ary.labels[4]).toEqual("Fri Jan 01 2021");
+    expect(ary.labels[5]).toEqual("Sat Jan 01 2022");
+    expect(ary.labels[6]).toEqual("Sun Jan 01 2023");
+    expect(ary.labels[7]).toEqual("Mon Jan 01 2024");
+    expect(ary.labels[8]).toEqual("Wed Jan 01 2025");
+    expect(ary.labels[9]).toEqual("Thu Jan 01 2026");
+    expect(ary.labels[10]).toEqual("Fri Jan 01 2027");
+    expect(ary.labels[11]).toEqual("Sat Jan 01 2028");
+    expect(ary.labels[12]).toEqual("Mon Jan 01 2029");
     expect(ary.datasets.length).toEqual(1);
-    expect(ary.datasets[0].label).toEqual('NIinterest');
+    expect(ary.datasets[0].label).toEqual("NIinterest");
     expect(ary.datasets[0].data.length).toEqual(13);
     expect(ary.datasets[0].data[0]).toBeCloseTo(0, 6);
     expect(ary.datasets[0].data[1]).toBeCloseTo(0, 6);
@@ -2102,22 +2117,23 @@ function assertData(
     expect(ary.datasets[0].data[10]).toBeCloseTo(17503.14, 6);
     expect(ary.datasets[0].data[11]).toBeCloseTo(17940.72, 6);
     expect(ary.datasets[0].data[12]).toBeCloseTo(18389.24, 6);
-    ary = expenseData;expect(ary.labels.length).toEqual(13);
-    expect(ary.labels[0]).toEqual('Sun Jan 01 2017');
-    expect(ary.labels[1]).toEqual('Mon Jan 01 2018');
-    expect(ary.labels[2]).toEqual('Tue Jan 01 2019');
-    expect(ary.labels[3]).toEqual('Wed Jan 01 2020');
-    expect(ary.labels[4]).toEqual('Fri Jan 01 2021');
-    expect(ary.labels[5]).toEqual('Sat Jan 01 2022');
-    expect(ary.labels[6]).toEqual('Sun Jan 01 2023');
-    expect(ary.labels[7]).toEqual('Mon Jan 01 2024');
-    expect(ary.labels[8]).toEqual('Wed Jan 01 2025');
-    expect(ary.labels[9]).toEqual('Thu Jan 01 2026');
-    expect(ary.labels[10]).toEqual('Fri Jan 01 2027');
-    expect(ary.labels[11]).toEqual('Sat Jan 01 2028');
-    expect(ary.labels[12]).toEqual('Mon Jan 01 2029');
+    ary = expenseData;
+    expect(ary.labels.length).toEqual(13);
+    expect(ary.labels[0]).toEqual("Sun Jan 01 2017");
+    expect(ary.labels[1]).toEqual("Mon Jan 01 2018");
+    expect(ary.labels[2]).toEqual("Tue Jan 01 2019");
+    expect(ary.labels[3]).toEqual("Wed Jan 01 2020");
+    expect(ary.labels[4]).toEqual("Fri Jan 01 2021");
+    expect(ary.labels[5]).toEqual("Sat Jan 01 2022");
+    expect(ary.labels[6]).toEqual("Sun Jan 01 2023");
+    expect(ary.labels[7]).toEqual("Mon Jan 01 2024");
+    expect(ary.labels[8]).toEqual("Wed Jan 01 2025");
+    expect(ary.labels[9]).toEqual("Thu Jan 01 2026");
+    expect(ary.labels[10]).toEqual("Fri Jan 01 2027");
+    expect(ary.labels[11]).toEqual("Sat Jan 01 2028");
+    expect(ary.labels[12]).toEqual("Mon Jan 01 2029");
     expect(ary.datasets.length).toEqual(1);
-    expect(ary.datasets[0].label).toEqual('LivingCosts');
+    expect(ary.datasets[0].label).toEqual("LivingCosts");
     expect(ary.datasets[0].data.length).toEqual(13);
     expect(ary.datasets[0].data[0]).toBeCloseTo(0, 6);
     expect(ary.datasets[0].data[1]).toBeCloseTo(0, 6);
@@ -2139,27 +2155,27 @@ function assertData(
 /* eslint-enable */
 
 export async function testModelContent(driver: any, createButtonID: string) {
-  const ex1Name = 'ex1Name';
+  const ex1Name = "ex1Name";
   await deleteIfExists(ex1Name, driver);
 
   // console.log(`provide name for ${createButtonID}`);
-  await fillInputById(driver, 'createModel', ex1Name);
+  await fillInputById(driver, "createModel", ex1Name);
   // console.log(`create model ${createButtonID}`);
   await clickButton(driver, createButtonID);
   // console.log(`save model ${createButtonID}`);
-  await clickButton(driver, 'btn-save-model');
+  await clickButton(driver, "btn-save-model");
 
   await gotoTabPage(driver, homeTag);
-  await clickButton(driver, 'btn-check');
+  await clickButton(driver, "btn-check");
 
   // console.log(`go to check model for ${createButtonID}`);
-  await checkMessage(driver, 'model check all good');
+  await checkMessage(driver, "model check all good");
   // console.log(`checked model for ${createButtonID}`);
 
-  const assetData = await getDataDumpFromPage(driver, 'assetChart');
-  const debtData = await getDataDumpFromPage(driver, 'debtChart');
-  const incomeData = await getDataDumpFromPage(driver, 'incomeChart');
-  const expenseData = await getDataDumpFromPage(driver, 'expenseChart');
+  const assetData = await getDataDumpFromPage(driver, "assetChart");
+  const debtData = await getDataDumpFromPage(driver, "debtChart");
+  const incomeData = await getDataDumpFromPage(driver, "incomeChart");
+  const expenseData = await getDataDumpFromPage(driver, "expenseChart");
 
   assertData(assetData, debtData, incomeData, expenseData, createButtonID);
 

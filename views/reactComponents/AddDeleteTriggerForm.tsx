@@ -1,10 +1,20 @@
-import React, { Component, FormEvent } from 'react';
-import { Col, Row } from 'react-bootstrap';
+import React, { Component, FormEvent } from "react";
+import { Col, Row } from "react-bootstrap";
 
-import { ModelData, Trigger, FormProps, DeleteResult } from '../../types/interfaces';
-import { log, makeDateFromString, printDebug, showObj } from '../../utils/utils';
-import { makeButton } from './Button';
-import { Input } from './Input';
+import {
+  ModelData,
+  Trigger,
+  FormProps,
+  DeleteResult,
+} from "../../types/interfaces";
+import {
+  log,
+  makeDateFromString,
+  printDebug,
+  showObj,
+} from "../../utils/utils";
+import { makeButton } from "./Button";
+import { Input } from "./Input";
 
 interface EditTriggerFormState {
   NAME: string;
@@ -25,16 +35,16 @@ export function newTriggerButtonData(
   showAlert: (arg0: string) => void,
 ) {
   return {
-    text: 'Make new important date',
+    text: "Make new important date",
     action: async (e: FormEvent<Element>) => {
       // e.persist();
       e.preventDefault();
-      const nameString = prompt('Name for new important date', '');
+      const nameString = prompt("Name for new important date", "");
       if (nameString === null || nameString.length === 0) {
-        showAlert('names need to have some characters');
+        showAlert("names need to have some characters");
         return;
       }
-      const dateString = prompt('Important date (e.g. 1 Jan 2019)', '');
+      const dateString = prompt("Important date (e.g. 1 Jan 2019)", "");
       if (dateString === null || dateString.length === 0) {
         showAlert(`date didn't make sense`);
         return;
@@ -66,8 +76,8 @@ export class AddDeleteTriggerForm extends Component<
         ${showObj(props.model.triggers.length)} triggers`);
     }
     this.defaultState = {
-      NAME: '',
-      DATE: '',
+      NAME: "",
+      DATE: "",
     };
 
     this.state = this.defaultState;
@@ -85,33 +95,34 @@ export class AddDeleteTriggerForm extends Component<
           <Col>
             Name:
             <Input
-              type={'text'}
-              name={'triggername'}
+              type={"text"}
+              name={"triggername"}
               value={this.state.NAME}
-              placeholder={'Enter name'}
+              placeholder={"Enter name"}
               onChange={this.handleName}
             />
-          </Col>{' '}
-        </Row>{' '}
+          </Col>{" "}
+        </Row>{" "}
         <Row>
           <Col>
             Date:
             <Input
-              type={'text'}
-              name={'date'}
+              type={"text"}
+              name={"date"}
               value={this.state.DATE}
-              placeholder={'Enter date'}
+              placeholder={"Enter date"}
               onChange={this.handleValueChange}
             />
             {makeButton(
-              'Create new important date (over-writes any existing with the same name)',
+              "Create new important date " +
+                "(over-writes any existing with the same name)",
               this.add,
-              'addTrigger',
-              'addTrigger',
-              'primary',
+              "addTrigger",
+              "addTrigger",
+              "primary",
             )}
-          </Col>{' '}
-        </Row>{' '}
+          </Col>{" "}
+        </Row>{" "}
       </form>
     );
   }
@@ -128,7 +139,7 @@ export class AddDeleteTriggerForm extends Component<
   private async add(e: FormEvent<Element>) {
     e.preventDefault();
 
-    if (this.state.NAME === '') {
+    if (this.state.NAME === "") {
       this.props.showAlert(`Name should be not empty`);
       return;
     }
@@ -159,16 +170,16 @@ export class AddDeleteTriggerForm extends Component<
       // this.props.showAlert('added new important date');
       // clear fields
       this.setState(this.defaultState);
-      this.props.showAlert('added important date OK');
+      this.props.showAlert("added important date OK");
     }
   }
   private async delete(e: React.ChangeEvent<HTMLInputElement>) {
     e.preventDefault();
     // log('deleting something ' + showObj(this));
     const deleteResult = await this.props.deleteFunction(this.state.NAME);
-    if (deleteResult.message === '') {
+    if (deleteResult.message === "") {
       if (deleteResult.itemsDeleted.length === 1) {
-        this.props.showAlert('deleted important date');
+        this.props.showAlert("deleted important date");
       } else {
         this.props.showAlert(`deleted ${deleteResult.itemsDeleted}`);
       }

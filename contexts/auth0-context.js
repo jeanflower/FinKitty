@@ -1,9 +1,10 @@
-'use client'
+/* eslint-disable */
+"use client";
 
 /* istanbul ignore file */
-import React, { Component, createContext, useContext } from 'react';
-import { createAuth0Client } from '@auth0/auth0-spa-js';
-import { log, printDebug, showObj } from '../utils/utils';
+import React, { Component, createContext, useContext } from "react";
+import { createAuth0Client } from "@auth0/auth0-spa-js";
+import { log, printDebug, showObj } from "../utils/utils";
 
 // create the context
 const Auth0Context = createContext();
@@ -43,10 +44,9 @@ export class Auth0Provider extends Component {
     }
     const auth0Client = await createAuth0Client(this.config);
     // console.log(`Have auth0Client = ${auth0Client}, gp to set state`);
-    this.setState({ auth0Client },
-      async () => {
+    this.setState({ auth0Client }, async () => {
       // check to see if they have been redirected after login
-      if (window.location.search.includes('code=')) {
+      if (window.location.search.includes("code=")) {
         // console.log('redirected with code');
         return this.handleRedirectCallback();
       }
@@ -83,7 +83,7 @@ export class Auth0Provider extends Component {
           log(`p is ${p}`);
         }
         this.setState({
-          user: { sub: 'TestUserID' },
+          user: { sub: "TestUserID" },
           isAuthenticated: true,
           isLoading: false,
         });

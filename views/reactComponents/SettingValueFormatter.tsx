@@ -1,25 +1,25 @@
-import React from 'react';
-import { getNumberAndWordParts, makeTwoDP } from '../../utils/stringUtils';
+import React from "react";
+import { getNumberAndWordParts, makeTwoDP } from "../../utils/stringUtils";
 // import { showObj } from ''../../utils''
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Tooltip from 'react-bootstrap/Tooltip';
-import { log } from '../../utils/utils';
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Tooltip from "react-bootstrap/Tooltip";
+import { log } from "../../utils/utils";
 
 log;
 
-interface SettingValueFormatterProps {
+interface SettingValFormatterProps {
   name: string;
   value: string;
 }
-class SettingValueFormatter extends React.Component<SettingValueFormatterProps> {
+class SettingValFormatter extends React.Component<SettingValFormatterProps> {
   public render() {
     let result: string;
     if (
-      this.props.value === '' ||
+      this.props.value === "" ||
       this.props.value === undefined ||
-      this.props.value === 'undefined'
+      this.props.value === "undefined"
     ) {
-      return '';
+      return "";
     }
 
     result = this.props.value;
@@ -47,4 +47,4 @@ class SettingValueFormatter extends React.Component<SettingValueFormatterProps> 
   }
 }
 
-export default SettingValueFormatter;
+export default SettingValFormatter;

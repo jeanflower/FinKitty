@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
-import { finkittyButtonType } from '../../types/interfaces';
-import { log, printDebug } from '../../utils/utils';
+import React, { Component } from "react";
+import { finkittyButtonType } from "../../types/interfaces";
+import { log, printDebug } from "../../utils/utils";
 
 interface ButtonProps {
   type: finkittyButtonType;
@@ -16,13 +16,13 @@ class Button extends Component<ButtonProps> {
   }
 
   render() {
-    const spacer = ' mr-1 mb-1';
+    const spacer = " mr-1 mb-1";
     const className = `btn btn-${this.props.type}${spacer}`;
     return (
       <button
         onClick={this.props.action}
         id={this.props.id} // id can be checked by selenium
-        type={this.props.type === 'primary' ? 'submit' : 'button'}
+        type={this.props.type === "primary" ? "submit" : "button"}
         className={className}
         disabled={this.props.disabled}
       >

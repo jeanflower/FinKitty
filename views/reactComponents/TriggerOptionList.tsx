@@ -1,10 +1,10 @@
-import React, { Component, FormEvent } from 'react';
+import React, { Component, FormEvent } from "react";
 
-import { Trigger, ModelData, FormProps } from '../../types/interfaces';
-import { newTriggerButtonData } from './AddDeleteTriggerForm';
-import { lessThan } from '../../utils/stringUtils';
+import { Trigger, ModelData, FormProps } from "../../types/interfaces";
+import { newTriggerButtonData } from "./AddDeleteTriggerForm";
+import { lessThan } from "../../utils/stringUtils";
 
-const welcomeString = 'Choose a date (optional)';
+const welcomeString = "Choose a date (optional)";
 
 interface TriggerOptionListProps extends FormProps {
   triggers: Trigger[];
@@ -22,7 +22,7 @@ export class TriggerOptionList extends Component<
 > {
   public constructor(props: TriggerOptionListProps) {
     super(props);
-    this.state = { selectedItem: '' };
+    this.state = { selectedItem: "" };
   }
   private newTriggerMade(e: Trigger) {
     this.props.submitTriggerFunction(e, this.props.model);

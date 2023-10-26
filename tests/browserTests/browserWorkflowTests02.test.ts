@@ -1,22 +1,22 @@
-import { TestModel01 } from '../../localization/stringConstants';
-import { showObj } from '../../utils/utils';
+import { TestModel01 } from "../../localization/stringConstants";
+import { showObj } from "../../utils/utils";
 import {
   getDriver,
   beforeAllWork,
   cleanUpWork,
   clickButton,
   getDataDumpFromPage,
-} from './browserBaseTypes';
-import { quitAfterAll, testModelCreation } from './browserTestUtils';
+} from "./browserBaseTypes";
+import { quitAfterAll, testModelCreation } from "./browserTestUtils";
 
 showObj;
 
-describe('BrowserWorkflowTests 02', () => {
+describe("BrowserWorkflowTests 02", () => {
   const driver = getDriver();
   jest.setTimeout(90000); // allow time for all these tests to run
 
-  it('should create examples', async () => {
-    const testDataModelName = 'testName03';
+  it("should create examples", async () => {
+    const testDataModelName = "testName03";
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -25,14 +25,14 @@ describe('BrowserWorkflowTests 02', () => {
 
     await testModelCreation(
       driver,
-      'btn-create-Simple-example',
+      "btn-create-Simple-example",
       testDataModelName,
-      'should create examples',
+      "should create examples",
     );
 
     await clickButton(driver, `btn-overview-${testDataModelName}`);
 
-    let data = await getDataDumpFromPage(driver, 'reportTable');
+    let data = await getDataDumpFromPage(driver, "reportTable");
     /*
     // The report table contents depends upon "today"
     // Do not expect consistent results from one day to the next
@@ -63,99 +63,99 @@ describe('BrowserWorkflowTests 02', () => {
       index: 39,
     });
     */
-    data = await getDataDumpFromPage(driver, 'settingsTable');
+    data = await getDataDumpFromPage(driver, "settingsTable");
     expect(data.length).toBe(17);
     expect(data[0]).toEqual({
-      NAME: 'View frequencyTransactions',
-      TODAYSVALUE: 'undefined',
-      VALUE: 'Annually',
+      NAME: "View frequencyTransactions",
+      TODAYSVALUE: "undefined",
+      VALUE: "Annually",
       index: 0,
-      HINT: '',
+      HINT: "",
       ERA: 0,
     });
     expect(data[4]).toEqual({
-      NAME: 'View frequencyOverview',
-      TODAYSVALUE: 'undefined',
-      VALUE: 'Annually',
+      NAME: "View frequencyOverview",
+      TODAYSVALUE: "undefined",
+      VALUE: "Annually",
       index: 4,
-      HINT: '',
+      HINT: "",
       ERA: 0,
     });
-    data = await getDataDumpFromPage(driver, 'triggersTable');
+    data = await getDataDumpFromPage(driver, "triggersTable");
     expect(data.length).toBe(3);
     expect(data[0]).toEqual({
-      DATE: '01 Jan 2028',
-      NAME: 'TransferMortgage',
+      DATE: "01 Jan 2028",
+      NAME: "TransferMortgage",
       index: 0,
       ERA: 0,
     });
     expect(data[2]).toEqual({
-      DATE: '31 Dec 2025',
-      NAME: 'GetRidOfCar',
+      DATE: "31 Dec 2025",
+      NAME: "GetRidOfCar",
       index: 2,
       ERA: 0,
     });
-    data = await getDataDumpFromPage(driver, 'customTransactionsTable');
+    data = await getDataDumpFromPage(driver, "customTransactionsTable");
 
     expect(data.length).toBe(3);
     expect(data[0]).toEqual({
-      CATEGORY: '',
-      DATE: 'TransferMortgage',
+      CATEGORY: "",
+      DATE: "TransferMortgage",
       ERA: 0,
-      FROM: 'EarlyMortgage',
-      FROM_VALUE: '100%',
-      NAME: 'switchMortgage',
-      RECURRENCE: '',
-      STOP_DATE: '',
-      TO: 'LateMortgage',
-      TO_VALUE: '100%',
-      TYPE: 'custom',
+      FROM: "EarlyMortgage",
+      FROM_VALUE: "100%",
+      NAME: "switchMortgage",
+      RECURRENCE: "",
+      STOP_DATE: "",
+      TO: "LateMortgage",
+      TO_VALUE: "100%",
+      TYPE: "custom",
       index: 0,
     });
     expect(data[2]).toEqual({
-      CATEGORY: 'living costs',
-      DATE: 'January 2 2018',
+      CATEGORY: "living costs",
+      DATE: "January 2 2018",
       ERA: 0,
-      FROM: 'Cash',
-      FROM_VALUE: '200',
-      NAME: 'Each month buy food',
-      RECURRENCE: '1m',
-      STOP_DATE: '',
-      TO: '',
-      TO_VALUE: '',
-      TYPE: 'custom',
+      FROM: "Cash",
+      FROM_VALUE: "200",
+      NAME: "Each month buy food",
+      RECURRENCE: "1m",
+      STOP_DATE: "",
+      TO: "",
+      TO_VALUE: "",
+      TYPE: "custom",
       index: 2,
     });
 
-    data = await getDataDumpFromPage(driver, 'customTransactionsOverviewTable');
+    data = await getDataDumpFromPage(driver, "customTransactionsOverviewTable");
 
     expect(data.length).toBe(3);
     expect(data[0]).toEqual({
-      CATEGORY: '',
-      DATE: 'TransferMortgage',
+      CATEGORY: "",
+      DATE: "TransferMortgage",
       ERA: 0,
-      FROM: 'EarlyMortgage',
-      FROM_VALUE: '100%',
-      NAME: 'switchMortgage',
-      RECURRENCE: '',
-      STOP_DATE: '',
-      TO: 'LateMortgage',
-      TO_VALUE: '100%',
-      TYPE: 'custom',
+      FROM: "EarlyMortgage",
+      FROM_VALUE: "100%",
+      NAME: "switchMortgage",
+      RECURRENCE: "",
+      STOP_DATE: "",
+      TO: "LateMortgage",
+      TO_VALUE: "100%",
+      TYPE: "custom",
       index: 0,
     });
     expect(data[2]).toEqual({
-      CATEGORY: 'living costs',
-      DATE: 'January 2 2018',
+      CATEGORY: "living costs",
+      DATE: "January 2 2018",
       ERA: 0,
-      FROM: 'Cash',
-      FROM_VALUE: '200',
-      NAME: 'Each month buy food',
-      RECURRENCE: '1m',
-      STOP_DATE: '',
-      TO: '',
-      TO_VALUE: '',
-      TYPE: 'custom',
+      FROM: "Cash",
+      FROM_VALUE: "200",
+      NAME: "Each month buy food",
+      RECURRENCE: "1m",
+      STOP_DATE: "",
+      TO: "",
+      TO_VALUE: "",
+      TYPE: "custom",
       index: 2,
     });
 

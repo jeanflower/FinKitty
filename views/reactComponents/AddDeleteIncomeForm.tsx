@@ -1,10 +1,7 @@
-import React, { Component, FormEvent } from 'react';
-import { Col, Row } from 'react-bootstrap';
+import React, { Component, FormEvent } from "react";
+import { Col, Row } from "react-bootstrap";
 
-import {
-  checkIncomeLiability,
-  isValidValue,
-} from '../../models/checks';
+import { checkIncomeLiability, isValidValue } from "../../models/checks";
 import {
   Income,
   ModelData,
@@ -12,11 +9,11 @@ import {
   Trigger,
   FormProps,
   DeleteResult,
-} from '../../types/interfaces';
-import { log, printDebug, showObj } from '../../utils/utils';
-import { makeButton } from './Button';
-import { DateSelectionRow, itemOptions } from './DateSelectionRow';
-import { Input } from './Input';
+} from "../../types/interfaces";
+import { log, printDebug, showObj } from "../../utils/utils";
+import { makeButton } from "./Button";
+import { DateSelectionRow, itemOptions } from "./DateSelectionRow";
+import { Input } from "./Input";
 import {
   pensionDB,
   incomeTax,
@@ -26,20 +23,22 @@ import {
   pensionTransfer,
   autogen,
   revalueInc,
-} from '../../localization/stringConstants';
+} from "../../localization/stringConstants";
 
-import {
-  makeRevalueName,
-} from '../../models/modelUtils';
+import { makeRevalueName } from "../../models/modelUtils";
 import {
   makeValueAbsPropFromString,
   checkTriggerDate,
   makeBooleanFromYesNo,
   makeIncomeLiabilityFromNameAndNI,
   lessThan,
-} from '../../utils/stringUtils';
-import Spacer from 'react-spacer';
-import { isAnIncome, getVarVal, isNumberString } from '../../models/modelQueries';
+} from "../../utils/stringUtils";
+import Spacer from "react-spacer";
+import {
+  isAnIncome,
+  getVarVal,
+  isNumberString,
+} from "../../models/modelQueries";
 
 interface EditIncomeFormState {
   NAME: string;
@@ -64,9 +63,9 @@ interface EditIncomeFormState {
   DB_TRANSFERRED_STOP: string;
 }
 
-const inputtingRevalue = 'revalue';
-const inputtingIncome = 'income';
-const inputtingPension = 'definedBenefitsPension';
+const inputtingRevalue = "revalue";
+const inputtingIncome = "income";
+const inputtingPension = "definedBenefitsPension";
 
 interface EditIncomeProps extends FormProps {
   checkIncomeFunction: (i: Income, model: ModelData) => string;
@@ -79,9 +78,7 @@ interface EditIncomeProps extends FormProps {
     transactionInput: Transaction,
     modelData: ModelData,
   ) => Promise<void>;
-  deleteFunction: (
-    name: string,
-  ) => Promise<DeleteResult>;
+  deleteFunction: (name: string) => Promise<DeleteResult>;
   submitTriggerFunction: (
     triggerInput: Trigger,
     modelData: ModelData,
@@ -137,7 +134,7 @@ export class AddDeleteIncomeForm extends Component<
 > {
   public defaultState: EditIncomeFormState;
 
-  private incomeSourceSelectID = 'fromIncomeSelectIncomeForm';
+  private incomeSourceSelectID = "fromIncomeSelectIncomeForm";
 
   public constructor(props: EditIncomeProps) {
     super(props);
@@ -147,26 +144,26 @@ export class AddDeleteIncomeForm extends Component<
         ${showObj(props.model.triggers.length)} triggers`);
     }
     this.defaultState = {
-      NAME: '',
-      VALUE: '',
-      VALUE_SET: '',
-      START: '',
-      END: '',
-      GROWS_WITH_CPI: '',
-      LIABILITY: '',
-      RECURRENCE: '1m',
-      CATEGORY: '',
+      NAME: "",
+      VALUE: "",
+      VALUE_SET: "",
+      START: "",
+      END: "",
+      GROWS_WITH_CPI: "",
+      LIABILITY: "",
+      RECURRENCE: "1m",
+      CATEGORY: "",
       inputting: inputtingIncome,
-      DB_INCOME_SOURCE: '',
-      DB_CONTRIBUTION_AMOUNT: '',
-      DB_ACCRUAL: '',
-      DB_SS: '',
-      DB_STOP_SOURCE: '',
-      DB_START: '',
-      DB_END: '',
-      DB_TRANSFER_TO: '',
-      DB_TRANSFER_PROPORTION: '',
-      DB_TRANSFERRED_STOP: '',
+      DB_INCOME_SOURCE: "",
+      DB_CONTRIBUTION_AMOUNT: "",
+      DB_ACCRUAL: "",
+      DB_SS: "",
+      DB_STOP_SOURCE: "",
+      DB_START: "",
+      DB_END: "",
+      DB_TRANSFER_TO: "",
+      DB_TRANSFER_PROPORTION: "",
+      DB_TRANSFERRED_STOP: "",
     };
 
     this.state = this.defaultState;
@@ -216,31 +213,31 @@ export class AddDeleteIncomeForm extends Component<
       <>
         <div className="btn-group ml-3" role="group">
           {makeButton(
-            'Add new income mode',
+            "Add new income mode",
             this.setInputincome,
-            'useIncomeInputs',
-            'useIncomeInputs',
+            "useIncomeInputs",
+            "useIncomeInputs",
             this.state.inputting === inputtingIncome
-              ? 'primary'
-              : 'outline-secondary',
+              ? "primary"
+              : "outline-secondary",
           )}
           {makeButton(
-            'Add pension mode',
+            "Add pension mode",
             this.setInputDBP,
-            'useDBPInputs',
-            'useDBPInputs',
+            "useDBPInputs",
+            "useDBPInputs",
             this.state.inputting === inputtingPension
-              ? 'primary'
-              : 'outline-secondary',
+              ? "primary"
+              : "outline-secondary",
           )}
           {makeButton(
-            'Revalue income mode',
+            "Revalue income mode",
             this.setInputRevalue,
-            'useRevalueInputsIncome',
-            'useRevalueInputsIncome',
+            "useRevalueInputsIncome",
+            "useRevalueInputsIncome",
             this.state.inputting === inputtingRevalue
-              ? 'primary'
-              : 'outline-secondary',
+              ? "primary"
+              : "outline-secondary",
           )}
         </div>
         <form className="container-fluid" onSubmit={this.add}>
@@ -250,10 +247,10 @@ export class AddDeleteIncomeForm extends Component<
               <Input
                 title={`${
                   this.state.inputting === inputtingPension
-                    ? 'Pension'
+                    ? "Pension"
                     : this.state.inputting === inputtingIncome
-                    ? 'Income'
-                    : 'New income'
+                    ? "Income"
+                    : "New income"
                 } value (amount before tax, per month)`}
                 type="text"
                 name="incomevalue"
@@ -304,8 +301,8 @@ export class AddDeleteIncomeForm extends Component<
             }),
             this.props.model,
             this.handleNameChange,
-            'incomenameselect',
-            'Select income',
+            "incomenameselect",
+            "Select income",
           )}
         </>
       );
@@ -314,8 +311,8 @@ export class AddDeleteIncomeForm extends Component<
         <Input
           title={
             this.state.inputting === inputtingPension
-              ? 'Pension name'
-              : 'Income name'
+              ? "Pension name"
+              : "Income name"
           }
           type="text"
           name="incomename"
@@ -348,7 +345,7 @@ export class AddDeleteIncomeForm extends Component<
               placeholder="Enter Y/N"
               onChange={this.handleGrowsWithCPIChange}
             />
-          </Col>{' '}
+          </Col>{" "}
         </Row>
         <Row>
           <Col>
@@ -370,14 +367,14 @@ export class AddDeleteIncomeForm extends Component<
               placeholder="category"
               onChange={this.handleCategoryChange}
             />
-          </Col>{' '}
+          </Col>{" "}
         </Row>
         {makeButton(
-          'Create new income (over-writes any existing with the same name)',
+          "Create new income (over-writes any existing with the same name)",
           this.add,
-          'addIncome',
-          'addIncome',
-          'primary',
+          "addIncome",
+          "addIncome",
+          "primary",
         )}
       </>
     );
@@ -387,18 +384,18 @@ export class AddDeleteIncomeForm extends Component<
       return;
     }
     return makeButton(
-      'Add income revaluation',
+      "Add income revaluation",
       this.revalue,
-      'revalueIncome',
-      'revalueIncome',
-      'primary',
+      "revalueIncome",
+      "revalueIncome",
+      "primary",
     );
   }
   private inputsForGeneralIncome(): React.ReactNode {
     return (
       <div
         style={{
-          display: this.state.inputting === inputtingIncome ? 'block' : 'none',
+          display: this.state.inputting === inputtingIncome ? "block" : "none",
         }}
       >
         <div className="container-fluid">
@@ -434,7 +431,7 @@ export class AddDeleteIncomeForm extends Component<
     return (
       <div
         style={{
-          display: this.state.inputting === inputtingPension ? 'block' : 'none',
+          display: this.state.inputting === inputtingPension ? "block" : "none",
         }}
       >
         {/*
@@ -514,7 +511,7 @@ DB_TRANSFERRED_STOP
               onChangeHandler={this.handleDbpTransferredStopChange}
               triggers={this.props.model.triggers}
               submitTriggerFunction={this.props.submitTriggerFunction}
-              />
+            />
           }
         </div>
         <Row>
@@ -525,7 +522,7 @@ DB_TRANSFERRED_STOP
               this.handleDbpIncomeSourceChange,
               this.incomeSourceSelectID,
             )}
-          </Col>{' '}
+          </Col>{" "}
           <Col>
             <Input
               title="Is contribution salary-sacrificed"
@@ -535,7 +532,7 @@ DB_TRANSFERRED_STOP
               placeholder="Enter Y/N"
               onChange={this.handleDbpSsChange}
             />
-          </Col>{' '}
+          </Col>{" "}
         </Row>
         <Row>
           <Col>
@@ -547,17 +544,20 @@ DB_TRANSFERRED_STOP
               placeholder="Enter amount of contributions"
               onChange={this.handleDbpContAmount}
             />
-          </Col>{' '}
+          </Col>{" "}
           <Col>
             <Input
-              title="Contribution accrual to annual benefit (e.g. 0.02 for 1/50, optional)"
+              title={
+                "Contribution accrual to annual benefit " +
+                "(e.g. 0.02 for 1/50, optional)"
+              }
               type="text"
               name="incomeaccrual"
               value={this.state.DB_ACCRUAL}
               placeholder="Enter accrual rate"
               onChange={this.handleDbpAccrualChange}
             />
-          </Col>{' '}
+          </Col>{" "}
         </Row>
         <Row>
           <Col>
@@ -572,14 +572,17 @@ DB_TRANSFERRED_STOP
           </Col>
           <Col>
             <Input
-              title="Proportion transferred on death (e.g. 0.5 for 50%, optional)"
+              title={
+                "Proportion transferred on death " +
+                "(e.g. 0.5 for 50%, optional)"
+              }
               type="text"
               name="transferProportion"
               value={this.state.DB_TRANSFER_PROPORTION}
               placeholder="Enter transfer proportion"
               onChange={this.handleDbpTransferProportion}
             />
-          </Col>{' '}
+          </Col>{" "}
         </Row>
       </div>
     );
@@ -673,7 +676,7 @@ DB_TRANSFERRED_STOP
   private resetSelect(id: string) {
     const selector: any = document.getElementById(id);
     if (selector !== null) {
-      selector.selectedIndex = '0';
+      selector.selectedIndex = "0";
     }
   }
   private async revalue(e: React.MouseEvent<HTMLButtonElement>): Promise<void> {
@@ -709,17 +712,17 @@ DB_TRANSFERRED_STOP
     const revalueIncomeTransaction: Transaction = {
       NAME: `${newName}`,
       ERA: 0, // new things are automatically current,
-      FROM: '',
+      FROM: "",
       FROM_ABSOLUTE: false,
-      FROM_VALUE: '0.0',
+      FROM_VALUE: "0.0",
       TO: this.state.NAME,
       TO_ABSOLUTE: parseVal.absolute,
       TO_VALUE: parseVal.value,
       DATE: this.state.VALUE_SET, // match the income start date
       TYPE: revalueInc,
-      RECURRENCE: '',
-      STOP_DATE: '',
-      CATEGORY: '',
+      RECURRENCE: "",
+      STOP_DATE: "",
+      CATEGORY: "",
     };
     const message = await this.props.checkTransactionFunction(
       revalueIncomeTransaction,
@@ -734,7 +737,7 @@ DB_TRANSFERRED_STOP
       this.props.model,
     );
 
-    this.props.showAlert('added new data');
+    this.props.showAlert("added new data");
     // clear fields
     this.setState(this.defaultState);
     this.resetSelect(this.incomeSourceSelectID);
@@ -746,7 +749,7 @@ DB_TRANSFERRED_STOP
 
     log(`in income form's add function`);
 
-    if (this.state.NAME === '') {
+    if (this.state.NAME === "") {
       this.props.showAlert(`Income name should be non-empty`);
       return;
     }
@@ -766,7 +769,8 @@ DB_TRANSFERRED_STOP
     const isNotValid = !isValidValue(this.state.VALUE, this.props.model);
     if (isNotValid) {
       this.props.showAlert(
-        `Income value ${this.state.VALUE} should be numerical or built from an Asset or setting`,
+        `Income value ${this.state.VALUE} should be numerical ` +
+          `or built from an Asset or setting`,
       );
       return;
     }
@@ -783,7 +787,8 @@ DB_TRANSFERRED_STOP
     const parseYNGrowsWithCPI = makeBooleanFromYesNo(this.state.GROWS_WITH_CPI);
     if (!parseYNGrowsWithCPI.checksOK) {
       this.props.showAlert(
-        `Grows with inflation '${this.state.GROWS_WITH_CPI}' should be a Y/N value`,
+        `Grows with inflation '${this.state.GROWS_WITH_CPI}' ` +
+          `should be a Y/N value`,
       );
       return;
     }
@@ -792,15 +797,18 @@ DB_TRANSFERRED_STOP
       // do work to
       // (a) check integrity of inputs
       // (b) build an income for the pension, check integrity of income
-      // (c) build an income for the transferred pension, check integrity of income
-      // (d) build a transaction for the contributions to the income, check integrity of transaction
-      // (e) build a transaction for the accrual of the benefit, check integrity of transaction
+      // (c) build an income for the transferred pension,
+      //     check integrity of income
+      // (d) build a transaction for the contributions to the income,
+      //     check integrity of transaction
+      // (e) build a transaction for the accrual of the benefit,
+      //     check integrity of transaction
       // (f) submit income
       // (g) submit transactions
       // (h) reset to defaults
 
       const parseYNDBSS = makeBooleanFromYesNo(this.state.DB_SS);
-      if (this.state.DB_INCOME_SOURCE !== '') {
+      if (this.state.DB_INCOME_SOURCE !== "") {
         if (!parseYNDBSS.checksOK) {
           this.props.showAlert(
             `Salary sacrifice '${this.state.DB_SS}' should be a Y/N value`,
@@ -813,7 +821,8 @@ DB_TRANSFERRED_STOP
         let isNotANumber = !isNumberString(this.state.DB_CONTRIBUTION_AMOUNT);
         if (isNotANumber) {
           this.props.showAlert(
-            `Contribution amount '${this.state.DB_CONTRIBUTION_AMOUNT}' should be a numerical value`,
+            `Contribution amount '${this.state.DB_CONTRIBUTION_AMOUNT}' ` +
+              `should be a numerical value`,
           );
           return;
         }
@@ -821,7 +830,8 @@ DB_TRANSFERRED_STOP
         isNotANumber = !isNumberString(this.state.DB_ACCRUAL);
         if (isNotANumber) {
           this.props.showAlert(
-            `Accrual value '${this.state.DB_ACCRUAL}' should be a numerical value`,
+            `Accrual value '${this.state.DB_ACCRUAL}' ` +
+              `should be a numerical value`,
           );
           return;
         }
@@ -829,7 +839,8 @@ DB_TRANSFERRED_STOP
         let isNotANumber = !isNumberString(this.state.DB_CONTRIBUTION_AMOUNT);
         if (!isNotANumber) {
           this.props.showAlert(
-            `Contribution amount '${this.state.DB_CONTRIBUTION_AMOUNT}' from no income?`,
+            `Contribution amount '${this.state.DB_CONTRIBUTION_AMOUNT}' ` +
+              `from no income?`,
           );
           return;
         }
@@ -847,7 +858,7 @@ DB_TRANSFERRED_STOP
         false, // no NI payable
       );
       let liabilityMessage = checkIncomeLiability(inputLiability);
-      if (liabilityMessage !== '') {
+      if (liabilityMessage !== "") {
         this.props.showAlert(liabilityMessage);
         return;
       }
@@ -855,7 +866,7 @@ DB_TRANSFERRED_STOP
       const sourceIncome = this.props.model.incomes.find((i) => {
         return i.NAME === this.state.DB_INCOME_SOURCE;
       });
-      if (sourceIncome === undefined && this.state.DB_INCOME_SOURCE !== '') {
+      if (sourceIncome === undefined && this.state.DB_INCOME_SOURCE !== "") {
         this.props.showAlert(
           `${this.state.DB_INCOME_SOURCE} not recognised as an income`,
         );
@@ -874,7 +885,8 @@ DB_TRANSFERRED_STOP
         });
         if (incomeTaxWord === undefined) {
           this.props.showAlert(
-            `Source income '${sourceIncome.NAME}' should have an income tax liability`,
+            `Source income '${sourceIncome.NAME}' ` +
+              `should have an income tax liability`,
           );
           return;
         } else {
@@ -882,18 +894,20 @@ DB_TRANSFERRED_STOP
           if (incomeTaxWord !== inputLiability) {
             log(`${incomeTaxWord} !== ${inputLiability}`);
             this.props.showAlert(
-              `Source income '${sourceIncome.NAME}' should have income tax liability matching '${inputLiability}'`,
+              `Source income '${sourceIncome.NAME}' ` +
+                `should have income tax liability matching '${inputLiability}'`,
             );
             return;
           }
         }
       }
       let builtLiability2: string | undefined;
-      if (this.state.DB_TRANSFER_TO !== '') {
+      if (this.state.DB_TRANSFER_TO !== "") {
         const isNotANumber = !isNumberString(this.state.DB_TRANSFER_PROPORTION);
         if (isNotANumber) {
           this.props.showAlert(
-            `Transfer proportion ${this.state.DB_TRANSFER_PROPORTION} should be a numerical value`,
+            `Transfer proportion ${this.state.DB_TRANSFER_PROPORTION} ` +
+              `should be a numerical value`,
           );
           return;
         }
@@ -902,7 +916,7 @@ DB_TRANSFERRED_STOP
           false, // no NI payable
         );
         liabilityMessage = checkIncomeLiability(builtLiability2);
-        if (liabilityMessage !== '') {
+        if (liabilityMessage !== "") {
           this.props.showAlert(liabilityMessage);
           return;
         }
@@ -930,14 +944,14 @@ DB_TRANSFERRED_STOP
       }
       let pensionDbpIncome2: Income | undefined;
       let newIncomeName2: string | undefined;
-      if (this.state.DB_TRANSFER_TO !== '' && builtLiability2 !== undefined) {
+      if (this.state.DB_TRANSFER_TO !== "" && builtLiability2 !== undefined) {
         newIncomeName2 = pensionTransfer + this.state.NAME;
         pensionDbpIncome2 = {
           START: this.state.DB_START,
           END: this.state.DB_TRANSFERRED_STOP,
           NAME: newIncomeName2,
           ERA: 0, // new things are automatically current,
-          VALUE: '0.0',
+          VALUE: "0.0",
           VALUE_SET: this.state.VALUE_SET,
           LIABILITY: builtLiability2,
           CPI_IMMUNE: !parseYNGrowsWithCPI.value,
@@ -957,28 +971,28 @@ DB_TRANSFERRED_STOP
       await this.props.submitIncomeFunction(
         pensionDbpIncome1,
         this.props.model,
-        );
+      );
       if (pensionDbpIncome2) {
         await this.props.submitIncomeFunction(
           pensionDbpIncome2,
           this.props.model,
-          );
+        );
       }
       let pensionDbptran1: Transaction | undefined;
       let pensionDbptran2: Transaction | undefined;
-      if (this.state.DB_INCOME_SOURCE !== '') {
+      if (this.state.DB_INCOME_SOURCE !== "") {
         pensionDbptran1 = {
           NAME: (parseYNDBSS.value ? pensionSS : pension) + this.state.NAME,
           ERA: 0, // new things are automatically current,
           FROM: this.state.DB_INCOME_SOURCE,
           FROM_ABSOLUTE: false,
           FROM_VALUE: this.state.DB_CONTRIBUTION_AMOUNT,
-          TO: '',
+          TO: "",
           TO_ABSOLUTE: false,
-          TO_VALUE: '0.0',
+          TO_VALUE: "0.0",
           DATE: this.state.VALUE_SET, // match the income start date
           STOP_DATE: this.state.DB_STOP_SOURCE, // match the income stop date
-          RECURRENCE: '',
+          RECURRENCE: "",
           CATEGORY: this.state.CATEGORY,
           TYPE: autogen,
         };
@@ -989,13 +1003,9 @@ DB_TRANSFERRED_STOP
         if (message.length > 0) {
           //log(`bad transaction1 ${showObj(pensionDbptran1)}`);
           this.props.showAlert(message);
-          await this.props.deleteFunction(
-            pensionDbpIncome1.NAME,
-          );
+          await this.props.deleteFunction(pensionDbpIncome1.NAME);
           if (pensionDbpIncome2) {
-            await this.props.deleteFunction(
-              pensionDbpIncome2.NAME,
-            );
+            await this.props.deleteFunction(pensionDbpIncome2.NAME);
           }
           return;
         }
@@ -1018,13 +1028,13 @@ DB_TRANSFERRED_STOP
           ERA: 0, // new things are automatically current,
           FROM: this.state.DB_INCOME_SOURCE,
           FROM_ABSOLUTE: false,
-          FROM_VALUE: monthlyAccrualValue, // percentage of income offered up to pension
+          FROM_VALUE: monthlyAccrualValue, // % of income offered up to pension
           TO: newIncomeName1,
           TO_ABSOLUTE: false,
-          TO_VALUE: '1.0',
+          TO_VALUE: "1.0",
           DATE: this.state.VALUE_SET, // match the income start date
           STOP_DATE: this.state.DB_STOP_SOURCE, // match the income stop date
-          RECURRENCE: '',
+          RECURRENCE: "",
           CATEGORY: this.state.CATEGORY,
           TYPE: autogen,
         };
@@ -1035,31 +1045,27 @@ DB_TRANSFERRED_STOP
         if (message.length > 0) {
           //log(`bad transaction2 ${showObj(pensionDbptran2)}`);
           this.props.showAlert(message);
-          await this.props.deleteFunction(
-            pensionDbpIncome1.NAME,
-            );
+          await this.props.deleteFunction(pensionDbpIncome1.NAME);
           if (pensionDbpIncome2) {
-            await this.props.deleteFunction(
-              pensionDbpIncome2.NAME,
-              );
+            await this.props.deleteFunction(pensionDbpIncome2.NAME);
           }
           return;
         }
       }
       let pensionDbptran3: Transaction | undefined;
-      if (this.state.DB_TRANSFER_TO !== '' && newIncomeName2) {
+      if (this.state.DB_TRANSFER_TO !== "" && newIncomeName2) {
         pensionDbptran3 = {
           NAME: newIncomeName2,
           ERA: 0, // new things are automatically current,
           FROM: newIncomeName1,
           FROM_ABSOLUTE: false,
-          FROM_VALUE: '1.0',
+          FROM_VALUE: "1.0",
           TO: newIncomeName2,
           TO_ABSOLUTE: false,
           TO_VALUE: this.state.DB_TRANSFER_PROPORTION,
           DATE: this.state.DB_END,
           STOP_DATE: this.state.DB_TRANSFERRED_STOP,
-          RECURRENCE: '',
+          RECURRENCE: "",
           CATEGORY: this.state.CATEGORY,
           TYPE: autogen,
         };
@@ -1070,13 +1076,9 @@ DB_TRANSFERRED_STOP
         if (message.length > 0) {
           //log(`bad transaction3 ${showObj(pensionDbptran3)}`);
           this.props.showAlert(message);
-          await this.props.deleteFunction(
-            pensionDbpIncome1.NAME,
-            );
+          await this.props.deleteFunction(pensionDbpIncome1.NAME);
           if (pensionDbpIncome2) {
-            await this.props.deleteFunction(
-              pensionDbpIncome2.NAME,
-              );
+            await this.props.deleteFunction(pensionDbpIncome2.NAME);
           }
           return;
         }
@@ -1086,22 +1088,22 @@ DB_TRANSFERRED_STOP
         await this.props.submitTransactionFunction(
           pensionDbptran1,
           this.props.model,
-          );
+        );
       }
       if (pensionDbptran2) {
         await this.props.submitTransactionFunction(
           pensionDbptran2,
           this.props.model,
-          );
+        );
       }
       if (pensionDbptran3) {
         await this.props.submitTransactionFunction(
           pensionDbptran3,
           this.props.model,
-          );
+        );
       }
 
-      this.props.showAlert('added new data');
+      this.props.showAlert("added new data");
       // clear fields
       this.setState(this.defaultState);
       this.resetSelect(this.incomeSourceSelectID);
@@ -1134,7 +1136,7 @@ DB_TRANSFERRED_STOP
       true, // NI payable
     );
     const liabilityMessage = checkIncomeLiability(builtLiability);
-    if (liabilityMessage !== '') {
+    if (liabilityMessage !== "") {
       this.props.showAlert(liabilityMessage);
       return;
     }
@@ -1159,10 +1161,7 @@ DB_TRANSFERRED_STOP
     if (message.length > 0) {
       this.props.showAlert(message);
     } else {
-      if (await this.props.submitIncomeFunction(
-        income, 
-        this.props.model,
-      )) {
+      if (await this.props.submitIncomeFunction(income, this.props.model)) {
         this.props.showAlert(`added new income ${income.NAME}`);
         // clear fields
         this.setState(this.defaultState);
@@ -1174,12 +1173,10 @@ DB_TRANSFERRED_STOP
   private async delete(e: React.ChangeEvent<HTMLInputElement>) {
     e.preventDefault();
     // log('deleting something ' + showObj(this));
-    const deleteResult = await this.props.deleteFunction(
-      this.state.NAME,
-    );
-    if (deleteResult.message === '') {
+    const deleteResult = await this.props.deleteFunction(this.state.NAME);
+    if (deleteResult.message === "") {
       if (deleteResult.itemsDeleted.length === 1) {
-        this.props.showAlert('deleted income');
+        this.props.showAlert("deleted income");
       } else {
         this.props.showAlert(`deleted ${deleteResult.itemsDeleted}`);
       }

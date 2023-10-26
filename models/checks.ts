@@ -41,9 +41,16 @@ import {
   bondMaturity,
   bondInvest,
   bondMature,
-} from '../localization/stringConstants';
+} from "../localization/stringConstants";
 
-import { Context, DateFormatType, getMaturityDate, log, makeDateFromString, showObj } from '../utils/utils';
+import {
+  Context,
+  DateFormatType,
+  getMaturityDate,
+  log,
+  makeDateFromString,
+  showObj,
+} from "../utils/utils";
 
 import {
   getTriggerDate,
@@ -51,16 +58,35 @@ import {
   checkTriggerDate,
   dateAsString,
   getDisplayName,
-} from '../utils/stringUtils';
-import { getSettings, getVarVal, isADebt, isASetting, isAnAssetOrAssets, isAnExpense, isAnIncome, isNumberString, replaceCategoryWithAssetNames } from './modelQueries';
-import { Asset, Evaluation, Expense, Income, ModelData, Setting, Transaction, Trigger } from '../types/interfaces';
+} from "../utils/stringUtils";
+import {
+  getSettings,
+  getVarVal,
+  isADebt,
+  isASetting,
+  isAnAssetOrAssets,
+  isAnExpense,
+  isAnIncome,
+  isNumberString,
+  replaceCategoryWithAssetNames,
+} from "./modelQueries";
+import {
+  Asset,
+  Evaluation,
+  Expense,
+  Income,
+  ModelData,
+  Setting,
+  Transaction,
+  Trigger,
+} from "../types/interfaces";
 
 export const evaluationType = {
-  expense: 'Expense',
-  income: 'Income',
-  asset: 'Asset',
-  setting: 'Setting',
-  taxLiability: 'TaxLiability',
+  expense: "Expense",
+  income: "Income",
+  asset: "Asset",
+  setting: "Setting",
+  taxLiability: "TaxLiability",
 };
 
 function checkTransactionWords(
@@ -126,8 +152,8 @@ function checkDate(d: Date) {
   // log(`checking date ${d}, of type ${typeof d}`);
   if (
     Number.isNaN(d.getTime()) ||
-    d < makeDateFromString('1 Jan 1870') ||
-    d > makeDateFromString('1 Jan 2199')
+    d < makeDateFromString("1 Jan 1870") ||
+    d > makeDateFromString("1 Jan 2199")
   ) {
     return false;
   }
@@ -137,7 +163,7 @@ export function checkAssetLiability(l: string) {
   if (l.length > 0 && !l.endsWith(cgt) && !l.endsWith(incomeTax)) {
     return `liability '${l}' should end with ${cgt} or ${incomeTax}`;
   }
-  return '';
+  return "";
 }
 
 export function isValidValueInternal(
@@ -162,10 +188,10 @@ export function isValidValueInternal(
     const settingVal = getSettings(
       model.settings,
       parsed.wordPart,
-      'missing',
+      "missing",
       false,
     );
-    if (settingVal !== 'missing') {
+    if (settingVal !== "missing") {
       // log(`does setting ${settingVal} makes sense for a value...`);
       const recursiveVal = isValidValueInternal(
         settingVal,
@@ -189,7 +215,7 @@ export function isValidValue(value: string, model: ModelData): boolean {
 export function checkAsset(a: Asset, model: ModelData): string {
   // log(`checkAsset ${showObj(a)}`);
   if (a.NAME.length === 0) {
-    return 'Asset name should be not empty';
+    return "Asset name should be not empty";
   }
   if (a.NAME.split(separator).length !== 1) {
     return `Asset '${a.NAME}' should not contain '${separator}'`;
@@ -212,8 +238,8 @@ export function checkAsset(a: Asset, model: ModelData): string {
   }
 
   if (!isNumberString(a.GROWTH)) {
-    const settingVal = getSettings(model.settings, a.GROWTH, 'missing', false);
-    if (settingVal === 'missing') {
+    const settingVal = getSettings(model.settings, a.GROWTH, "missing", false);
+    if (settingVal === "missing") {
       return `Asset '${a.NAME}' growth set to '${a.GROWTH}'
         but no corresponding setting found`;
     }
@@ -221,10 +247,10 @@ export function checkAsset(a: Asset, model: ModelData): string {
       const settingVal2 = getSettings(
         model.settings,
         settingVal,
-        'missing',
+        "missing",
         false,
       );
-      if (settingVal2 === 'missing') {
+      if (settingVal2 === "missing") {
         return `Asset '${a.NAME}' growth set to '${a.GROWTH}'
           but corresponding setting not a number`;
       }
@@ -249,10 +275,10 @@ export function checkAsset(a: Asset, model: ModelData): string {
     const setting = getSettings(
       model.settings,
       a.PURCHASE_PRICE,
-      '',
+      "",
       false, // allow for it not being there
     );
-    if (setting === '') {
+    if (setting === "") {
       return `Asset '${a.NAME}' purchase price '${a.PURCHASE_PRICE}' should be a numerical or setting value`;
     }
   }
@@ -266,7 +292,7 @@ export function checkAsset(a: Asset, model: ModelData): string {
     return `Asset '${a.NAME}' start date doesn't make sense :
       ${showObj(a.START)}`;
   }
-  return '';
+  return "";
 }
 
 export function checkIncomeLiability(l: string) {
@@ -280,13 +306,13 @@ export function checkIncomeLiability(l: string) {
       `'${incomeTax}' or '${nationalInsurance}'`
     );
   }
-  return '';
+  return "";
 }
 
 function checkRecurrence(rec: string) {
   const lastChar = rec.substring(rec.length - 1);
   // log(`lastChar of ${rec} = ${lastChar}`);
-  if (!(lastChar === 'm' || lastChar === 'y' || lastChar === 'w')) {
+  if (!(lastChar === "m" || lastChar === "y" || lastChar === "w")) {
     return `recurrence '${rec}' must end in w, m or y`;
   }
   const firstPart = rec.substring(0, rec.length - 1);
@@ -297,12 +323,12 @@ function checkRecurrence(rec: string) {
   if (Number.isNaN(val)) {
     return `recurrence '${rec}' must be a number ending in w, m or y`;
   }
-  return '';
+  return "";
 }
 
 export function checkIncome(i: Income, model: ModelData): string {
   if (i.NAME.length === 0) {
-    return 'Income name needs some characters';
+    return "Income name needs some characters";
   }
   // log(`checking ${showObj(i)}`);
   const parts = i.LIABILITY.split(separator);
@@ -312,8 +338,8 @@ export function checkIncome(i: Income, model: ModelData): string {
       `but should contain at most three parts`
     );
   }
-  let incomeTaxName = '';
-  let niName = '';
+  let incomeTaxName = "";
+  let niName = "";
   for (const l of parts) {
     /* eslint-disable-line no-restricted-syntax */
     const x = checkIncomeLiability(l);
@@ -329,7 +355,7 @@ export function checkIncome(i: Income, model: ModelData): string {
     } else if (l.endsWith(nationalInsurance)) {
       niName = l.substring(0, l.length - nationalInsurance.length);
     }
-    if (incomeTaxName !== '' && niName !== '' && incomeTaxName !== niName) {
+    if (incomeTaxName !== "" && niName !== "" && incomeTaxName !== niName) {
       return (
         `Income liability for '${i.NAME}' has parts '${parts}' ` +
         `but it should be the same person liable for NI and income tax'`
@@ -389,15 +415,15 @@ export function checkIncome(i: Income, model: ModelData): string {
       value is set ${dateAsString(DateFormatType.View, valueSetDate)}.`;
   }
   const checkRec = checkRecurrence(i.RECURRENCE);
-  if (checkRec !== '') {
+  if (checkRec !== "") {
     return `Income '${i.NAME}' ${checkRec}`;
   }
-  return '';
+  return "";
 }
 
 export function checkExpense(e: Expense, model: ModelData): string {
   if (e.NAME.length === 0) {
-    return 'Expense name needs some characters';
+    return "Expense name needs some characters";
   }
   if (!isValidValue(e.VALUE, model)) {
     return `Expense '${e.NAME}' value '${e.VALUE}' is not a number`;
@@ -444,17 +470,17 @@ export function checkExpense(e: Expense, model: ModelData): string {
   }
 
   const checkRec = checkRecurrence(e.RECURRENCE);
-  if (checkRec !== '') {
+  if (checkRec !== "") {
     return `Expense '${e.NAME}' ${checkRec}`;
   }
-  return '';
+  return "";
 }
 function checkTransactionFrom(word: string, settings: Setting[]) {
   let matched = settings.find((s) => s.NAME === word);
   if (matched !== undefined) {
     // the FROM value is a setting - assume that it
     // will evaluate to a number without further checks
-    return '';
+    return "";
   }
   if (word.startsWith(bondMaturity)) {
     const trimmedWord = word.substring(bondMaturity.length);
@@ -468,7 +494,7 @@ function checkTransactionFrom(word: string, settings: Setting[]) {
       // part will evaluate to a bond target value number without
       // further checks
       // log(`checks OK`);
-      return '';
+      return "";
     }
   }
   return `'from' value must be numbers or a setting, not '${word}'`;
@@ -493,7 +519,7 @@ function checkTransactionTo(word: string, t: Transaction, model: ModelData) {
         `of affected asset : '${a.NAME}'`
       );
     }
-    return '';
+    return "";
   }
 
   const i = model.incomes.find((ic) => ic.NAME === word);
@@ -531,7 +557,7 @@ function checkTransactionTo(word: string, t: Transaction, model: ModelData) {
         );
       }
     }
-    return '';
+    return "";
   }
 
   const exp = model.expenses.find((e) => e.NAME === word);
@@ -561,7 +587,7 @@ function checkTransactionTo(word: string, t: Transaction, model: ModelData) {
         `of affected expense : '${exp.NAME}'`
       );
     }
-    return '';
+    return "";
   }
 
   const s = model.settings.find((s) => s.NAME === word);
@@ -573,7 +599,7 @@ function checkTransactionTo(word: string, t: Transaction, model: ModelData) {
         `to a setting must begin '${revalue}'`
       );
     }
-    return '';
+    return "";
   }
   return `Transaction '${getDisplayName(
     t.NAME,
@@ -606,11 +632,11 @@ function isAutogenType(t: Transaction, model: ModelData) {
   // and puts it into an asset called pension*
   if (
     (t.NAME.startsWith(pension) || t.NAME.startsWith(pensionSS)) &&
-    (t.FROM === '' || isAnIncome(t.FROM, model)) &&
+    (t.FROM === "" || isAnIncome(t.FROM, model)) &&
     t.TO_ABSOLUTE === false &&
     t.TO.startsWith(pension) &&
     t.FROM_ABSOLUTE === false &&
-    t.RECURRENCE === ''
+    t.RECURRENCE === ""
   ) {
     recognised = true;
     /*    
@@ -660,7 +686,7 @@ function isAutogenType(t: Transaction, model: ModelData) {
     t.FROM_ABSOLUTE === false &&
     t.TO.startsWith(taxFree) &&
     t.TO_ABSOLUTE === false &&
-    t.RECURRENCE === ''
+    t.RECURRENCE === ""
   ) {
     recognised = true;
   }
@@ -690,7 +716,7 @@ function isAutogenType(t: Transaction, model: ModelData) {
     // asNumber(t.FROM_VALUE) === 1.0 &&
     t.FROM_ABSOLUTE === false &&
     t.TO.startsWith(crystallizedPension) &&
-    t.RECURRENCE === ''
+    t.RECURRENCE === ""
   ) {
     recognised = true;
     /*
@@ -727,7 +753,7 @@ function isAutogenType(t: Transaction, model: ModelData) {
     // asNumber(t.FROM_VALUE) === 1.0 &&
     t.FROM_ABSOLUTE === false &&
     t.TO.startsWith(crystallizedPension) &&
-    t.RECURRENCE === ''
+    t.RECURRENCE === ""
   ) {
     recognised = true;
     /*
@@ -764,8 +790,8 @@ function isAutogenType(t: Transaction, model: ModelData) {
     (t.NAME.startsWith(pension) || t.NAME.startsWith(pensionSS)) &&
     isAnIncome(t.FROM, model) &&
     t.FROM_ABSOLUTE === false &&
-    t.TO === '' &&
-    t.RECURRENCE === ''
+    t.TO === "" &&
+    t.RECURRENCE === ""
   ) {
     recognised = true;
     /*
@@ -800,7 +826,7 @@ function isAutogenType(t: Transaction, model: ModelData) {
     isAnIncome(t.FROM, model) &&
     t.FROM_ABSOLUTE === false &&
     t.TO_ABSOLUTE === false &&
-    t.RECURRENCE === ''
+    t.RECURRENCE === ""
   ) {
     recognised = true;
   }
@@ -827,7 +853,7 @@ function isAutogenType(t: Transaction, model: ModelData) {
     t.FROM_ABSOLUTE === false &&
     t.TO.startsWith(pensionTransfer) &&
     t.TO_ABSOLUTE === false &&
-    t.RECURRENCE === ''
+    t.RECURRENCE === ""
   ) {
     recognised = true;
   }
@@ -849,7 +875,7 @@ function isLiquidateAssetType(t: Transaction) {
 function isRevalueDebtType(t: Transaction, model: ModelData) {
   // log(`check transaction ${t.NAME}`);
   let recognised = false;
-  if (t.NAME.startsWith(revalue) && isADebt(t.TO, model) && t.CATEGORY === '') {
+  if (t.NAME.startsWith(revalue) && isADebt(t.TO, model) && t.CATEGORY === "") {
     // log(`for ${t.NAME} is a revalueDebt`);
     recognised = true;
     /*
@@ -870,7 +896,7 @@ function isRevalueAssetType(t: Transaction, model: ModelData) {
   if (
     t.NAME.startsWith(revalue) &&
     isAnAssetOrAssets(t.TO, model) &&
-    t.CATEGORY === ''
+    t.CATEGORY === ""
   ) {
     // log(`for ${t.NAME} is a revalueAsset`);
     recognised = true;
@@ -892,7 +918,7 @@ function isRevalueIncomeType(t: Transaction, model: ModelData) {
   if (
     t.NAME.startsWith(revalue) &&
     isAnIncome(t.TO, model) &&
-    t.CATEGORY === ''
+    t.CATEGORY === ""
   ) {
     recognised = true;
   }
@@ -905,7 +931,7 @@ function isRevalueExpenseType(t: Transaction, model: ModelData) {
   if (
     t.NAME.startsWith(revalue) &&
     isAnExpense(t.TO, model) &&
-    t.CATEGORY === ''
+    t.CATEGORY === ""
   ) {
     recognised = true;
     /*    
@@ -925,7 +951,7 @@ function isRevalueSettingType(t: Transaction, model: ModelData) {
   if (
     t.NAME.startsWith(revalue) &&
     isASetting(t.TO, model) &&
-    t.CATEGORY === ''
+    t.CATEGORY === ""
   ) {
     recognised = true;
     /*    
@@ -970,9 +996,9 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
   // log(`checking transaction ${showObj(t)}`);
   const { triggers, settings } = model;
   if (t.NAME.length === 0) {
-    return 'Transaction name needs some characters';
+    return "Transaction name needs some characters";
   }
-  if (t.NAME.startsWith(conditional) && t.TO === '') {
+  if (t.NAME.startsWith(conditional) && t.TO === "") {
     return `Conditional Transaction '${getDisplayName(
       t.NAME,
       t.TYPE,
@@ -985,7 +1011,7 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
       t.TYPE,
     )}'  has bad date : ${showObj(t.DATE)}`;
   }
-  if (t.STOP_DATE !== '') {
+  if (t.STOP_DATE !== "") {
     const stopD = checkTriggerDate(
       t.STOP_DATE,
       triggers,
@@ -999,7 +1025,7 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
     }
   }
   // log(`transaction date ${getTriggerDate(t.DATE, triggers)}`);
-  if (t.FROM !== '') {
+  if (t.FROM !== "") {
     if (!checkTransactionWords(t.NAME, t.FROM, t.DATE, model)) {
       // log(`split up t.FROM ${t.FROM}`);
       const words = t.FROM.split(separator);
@@ -1032,16 +1058,16 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
         );
       }
     }
-    if (t.FROM_VALUE === '') {
+    if (t.FROM_VALUE === "") {
       return `Transaction from ${t.FROM} needs a non-empty from value`;
     } else if (!isNumberString(t.FROM_VALUE)) {
       const outcome = checkTransactionFrom(t.FROM_VALUE, settings);
-      if (outcome !== '') {
+      if (outcome !== "") {
         return `Transaction '${getDisplayName(t.NAME, t.TYPE)}' ${outcome}`;
       }
     }
   }
-  if (t.TO !== '') {
+  if (t.TO !== "") {
     if (t.NAME.startsWith(revalue)) {
       let words = t.TO.split(separator);
       // log(`check transaction to words : ${words}`);
@@ -1078,7 +1104,7 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
     }
     if (t.TYPE === revalueSetting) {
       // log(`anything goes!`);
-    } else if (t.TO_VALUE === '') {
+    } else if (t.TO_VALUE === "") {
       return `Transaction '${getDisplayName(
         t.NAME,
         t.TYPE,
@@ -1105,7 +1131,7 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
     }
 
     const checkRec = checkRecurrence(t.RECURRENCE);
-    if (checkRec !== '') {
+    if (checkRec !== "") {
       return `Transaction '${getDisplayName(t.NAME, t.TYPE)}' ${checkRec}`;
     }
   }
@@ -1257,7 +1283,7 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
         // log(`maturity date = ${mdDS} !== ${tDS}`);
         return false;
       }
-      if (tInvest.STOP_DATE !== '' || t.STOP_DATE !== '') {
+      if (tInvest.STOP_DATE !== "" || t.STOP_DATE !== "") {
         const sd = getMaturityDate(
           new Date(getTriggerDate(tInvest.STOP_DATE, model.triggers, v)),
           tInvest.NAME,
@@ -1371,7 +1397,7 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
     });
     if (targetAsset) {
       const wordsAndNum = getNumberAndWordParts(targetAsset.VALUE);
-      if (wordsAndNum.wordPart !== '') {
+      if (wordsAndNum.wordPart !== "") {
         return `Transaction '${getDisplayName(
           t.NAME,
           t.TYPE,
@@ -1383,7 +1409,7 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
     });
     if (targetIncome) {
       const wordsAndNum = getNumberAndWordParts(targetIncome.VALUE);
-      if (wordsAndNum.wordPart !== '') {
+      if (wordsAndNum.wordPart !== "") {
         return `Transaction '${getDisplayName(
           t.NAME,
           t.TYPE,
@@ -1395,7 +1421,7 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
     });
     if (targetExpense) {
       const wordsAndNum = getNumberAndWordParts(targetExpense.VALUE);
-      if (wordsAndNum.wordPart !== '') {
+      if (wordsAndNum.wordPart !== "") {
         return `Transaction '${getDisplayName(
           t.NAME,
           t.TYPE,
@@ -1418,23 +1444,23 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
     log(`WARNING : ${t.NAME} has not-absolute value to ${tToValue} > 1.0`);
   }
   // log(`checkTransaction is OK for ${t.NAME}`);
-  return '';
+  return "";
 }
 
 function checkTriggerName(tName: string): string {
   if (tName.length === 0) {
-    return 'Date name needs some characters';
+    return "Date name needs some characters";
   }
-  if (tName === 'today') {
+  if (tName === "today") {
     return `Date ${tName} name prohibited as a special word`;
   }
-  if (tName.includes('+')) {
+  if (tName.includes("+")) {
     return `Date ${tName} cannot contain a '+' character`;
   }
-  if (tName.includes('-')) {
+  if (tName.includes("-")) {
     return `Date ${tName} cannot contain a '-' character`;
   }
-  return '';
+  return "";
 }
 
 export function checkTrigger(t: Trigger, model: ModelData): string {
@@ -1446,20 +1472,20 @@ export function checkTrigger(t: Trigger, model: ModelData): string {
   if (!checkTriggerDate(t.DATE, model.triggers, getVarVal(model.settings))) {
     return `Date '${t.NAME}' is not valid : '${t.DATE}'`;
   }
-  return '';
+  return "";
 }
 function checkSettingAbsent(settings: Setting[], name: string) {
-  const vf = getSettings(settings, name, 'noneFound', false);
-  if (vf !== 'noneFound') {
+  const vf = getSettings(settings, name, "noneFound", false);
+  if (vf !== "noneFound") {
     return `"${name}" setting should not be present`;
   }
-  return '';
+  return "";
 }
 function checkViewROI(settings: Setting[], triggers: Trigger[]) {
   // log(`check settings ${showObj(settings)}`);
 
-  const start = getSettings(settings, roiStart, 'noneFound');
-  if (start === 'noneFound') {
+  const start = getSettings(settings, roiStart, "noneFound");
+  if (start === "noneFound") {
     return `"${roiStart}" should be present in settings (value is a date)`;
   }
   const startDate = checkTriggerDate(start, triggers, getVarVal(settings));
@@ -1467,8 +1493,8 @@ function checkViewROI(settings: Setting[], triggers: Trigger[]) {
     return `Setting "${roiStart}" should be a valid date string (e.g. 1 April 2018)`;
   }
 
-  const end = getSettings(settings, roiEnd, 'noneFound');
-  if (end === 'noneFound') {
+  const end = getSettings(settings, roiEnd, "noneFound");
+  if (end === "noneFound") {
     return `"${roiEnd}" should be present in settings (value is a date)`;
   }
 
@@ -1480,27 +1506,27 @@ function checkViewROI(settings: Setting[], triggers: Trigger[]) {
   if (endDate < startDate) {
     return `Setting "${roiEnd}" should be after setting "${roiStart}"`;
   }
-  return '';
+  return "";
 }
 
 function checkDateOfBirth(settings: Setting[]): string {
-  const dob = getSettings(settings, birthDate, '');
-  if (dob === '') {
-    return '';
+  const dob = getSettings(settings, birthDate, "");
+  if (dob === "") {
+    return "";
   }
   const d = makeDateFromString(dob);
   if (!checkDate(d)) {
     return `Date of birth ${dob} should parse and be reasonable`;
   }
-  return '';
+  return "";
 }
 function checkCpi(settings: Setting[]): string {
-  const stringVal = getSettings(settings, cpi, '');
+  const stringVal = getSettings(settings, cpi, "");
   const val = parseFloat(stringVal);
   if (Number.isNaN(val)) {
-    return 'Setting for CPI should be a number';
+    return "Setting for CPI should be a number";
   }
-  return '';
+  return "";
 }
 
 function checkNames(model: ModelData): string {
@@ -1525,7 +1551,7 @@ function checkNames(model: ModelData): string {
     }),
   );
 
-  if (names.find((n) => n === 'base')) {
+  if (names.find((n) => n === "base")) {
     return `'base' as name is reserved`;
   }
 
@@ -1555,7 +1581,7 @@ function checkNames(model: ModelData): string {
       return `duplicate name ${key}`;
     }
   }
-  return '';
+  return "";
 }
 
 export interface CheckResult {
@@ -1565,7 +1591,7 @@ export interface CheckResult {
 }
 
 export function checkData(model: ModelData): CheckResult {
-  if (model.name === 'Unnamed' || model.name === '') {
+  if (model.name === "Unnamed" || model.name === "") {
     return {
       type: undefined,
       itemName: undefined,
@@ -1750,7 +1776,7 @@ export function checkData(model: ModelData): CheckResult {
   return {
     type: undefined,
     itemName: undefined,
-    message: '',
+    message: "",
   };
 }
 

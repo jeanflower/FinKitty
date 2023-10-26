@@ -1,11 +1,10 @@
-import { makeModelFromJSON } from '../models/modelFromJSON';
-import { ModelData } from '../types/interfaces';
-import { log, printDebug } from '../utils/utils';
-import { DbInterface } from './dbInterface';
-import { minimalModel } from '../models/minimalModel';
+import { makeModelFromJSON } from "../models/modelFromJSON";
+import { ModelData } from "../types/interfaces";
+import { log, printDebug } from "../utils/utils";
+import { DbInterface } from "./dbInterface";
+import { minimalModel } from "../models/minimalModel";
 
 const url = process.env.NEXT_PUBLIC_REACT_APP_SERVER_URL_NOT_SECRET;
-
 
 export class RESTDB implements DbInterface {
   getModelNames(userID: string): Promise<string[]> {
@@ -15,17 +14,17 @@ export class RESTDB implements DbInterface {
       log(`url for REST requests = ${url}`);
     }
     const myHeaders = new Headers();
-    myHeaders.append('Content-Type', 'application/x-www-form-urlencoded');
+    myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
 
     return new Promise((resolve, reject) => {
       const requestOptions: {
         method: string;
         headers: Headers;
-        redirect: 'follow' | 'error' | 'manual' | undefined;
+        redirect: "follow" | "error" | "manual" | undefined;
       } = {
-        method: 'GET',
+        method: "GET",
         headers: myHeaders,
-        redirect: 'follow',
+        redirect: "follow",
       };
       const address = `${url}models?userID=${userID}`;
       // log(`address for fetch is ${address}`);
@@ -40,7 +39,7 @@ export class RESTDB implements DbInterface {
               resolve(parsedResult);
             } catch (err) {
               /* istanbul ignore next */
-              reject('Query failed');
+              reject("Query failed");
             }
           })
           /* istanbul ignore next */
@@ -54,22 +53,19 @@ export class RESTDB implements DbInterface {
     });
   }
 
-  loadModel(
-    userID: string, 
-    modelName: string,
-  ): Promise<ModelData> {
+  loadModel(userID: string, modelName: string): Promise<ModelData> {
     const myHeaders = new Headers();
-    myHeaders.append('Content-Type', 'application/x-www-form-urlencoded');
+    myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
 
     return new Promise((resolve, reject) => {
       const requestOptions: {
         method: string;
         headers: Headers;
-        redirect: 'follow' | 'error' | 'manual' | undefined;
+        redirect: "follow" | "error" | "manual" | undefined;
       } = {
-        method: 'GET',
+        method: "GET",
         headers: myHeaders,
-        redirect: 'follow',
+        redirect: "follow",
       };
       // log(`in find model for ${modelName}`);
 
@@ -82,8 +78,8 @@ export class RESTDB implements DbInterface {
           .then((result) => {
             // log(`in find model for ${modelName}, result = ${result}`);
             // log(`typeof result from find query ${typeof result}`);
-            if (result === '' || result === 'Query failed') {
-              reject('no model found');
+            if (result === "" || result === "Query failed") {
+              reject("no model found");
               return;
             }
             // log(`result has ${JSON.parse(result).assets.length} assets`);
@@ -108,23 +104,23 @@ export class RESTDB implements DbInterface {
 
   ensureModel(userID: string, modelName: string) {
     const myHeaders = new Headers();
-    myHeaders.append('Content-Type', 'application/x-www-form-urlencoded');
+    myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
 
     const urlencoded = new URLSearchParams();
-    urlencoded.append('userID', userID);
-    urlencoded.append('modelName', modelName);
-    urlencoded.append('model', JSON.stringify(minimalModel));
+    urlencoded.append("userID", userID);
+    urlencoded.append("modelName", modelName);
+    urlencoded.append("model", JSON.stringify(minimalModel));
 
     const requestOptions: {
       method: string;
       headers: Headers;
       body: URLSearchParams;
-      redirect: 'follow' | 'error' | 'manual' | undefined;
+      redirect: "follow" | "error" | "manual" | undefined;
     } = {
-      method: 'POST',
+      method: "POST",
       headers: myHeaders,
       body: urlencoded,
-      redirect: 'follow',
+      redirect: "follow",
     };
     // log(`go to fetch for create for ${modelName}`);
 
@@ -148,18 +144,18 @@ export class RESTDB implements DbInterface {
 
   saveModel(userID: string, modelName: string, model: ModelData) {
     const myHeaders = new Headers();
-    myHeaders.append('Content-Type', 'application/x-www-form-urlencoded');
+    myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
 
     const urlencoded = new URLSearchParams();
-    urlencoded.append('userID', userID);
-    urlencoded.append('modelName', modelName);
+    urlencoded.append("userID", userID);
+    urlencoded.append("modelName", modelName);
     // before save to DB, discard undo stack
     const modelCopy = {
       ...model,
     };
     delete modelCopy.undoModel;
     delete modelCopy.redoModel;
-    urlencoded.append('model', JSON.stringify(modelCopy));
+    urlencoded.append("model", JSON.stringify(modelCopy));
 
     // log(`update DB for user ${userID}`);
     // log(`update DB for modelName ${modelName}`);
@@ -169,12 +165,12 @@ export class RESTDB implements DbInterface {
       method: string;
       headers: Headers;
       body: URLSearchParams;
-      redirect: 'follow' | 'error' | 'manual' | undefined;
+      redirect: "follow" | "error" | "manual" | undefined;
     } = {
-      method: 'PUT',
+      method: "PUT",
       headers: myHeaders,
       body: urlencoded,
-      redirect: 'follow',
+      redirect: "follow",
     };
 
     // log('go to fetch for update');
@@ -188,7 +184,7 @@ export class RESTDB implements DbInterface {
           if (response.status > 399) {
             // e.g. 413 means Payload too large
             log(`status from save attempt: ${response.statusText}`);
-            return 'Failed to save';
+            return "Failed to save";
           }
           const result = await response.text();
           // log(`response.text() = ${result}`);
@@ -200,7 +196,7 @@ export class RESTDB implements DbInterface {
             log(result);
           }
           /* istanbul ignore if */
-          if (result === 'Failed to save') {
+          if (result === "Failed to save") {
             return false;
           }
           return true;
@@ -217,22 +213,22 @@ export class RESTDB implements DbInterface {
 
   deleteModel(userID: string, modelName: string) {
     const myHeaders = new Headers();
-    myHeaders.append('Content-Type', 'application/x-www-form-urlencoded');
+    myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
 
     const urlencoded = new URLSearchParams();
-    urlencoded.append('userID', userID);
-    urlencoded.append('modelName', modelName);
+    urlencoded.append("userID", userID);
+    urlencoded.append("modelName", modelName);
 
     const requestOptions: {
       method: string;
       headers: Headers;
       body: URLSearchParams;
-      redirect: 'follow' | 'error' | 'manual' | undefined;
+      redirect: "follow" | "error" | "manual" | undefined;
     } = {
-      method: 'DELETE',
+      method: "DELETE",
       headers: myHeaders,
       body: urlencoded,
-      redirect: 'follow',
+      redirect: "follow",
     };
 
     // log('go to fetch for delete');

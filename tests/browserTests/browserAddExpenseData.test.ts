@@ -1,4 +1,4 @@
-import { TestModel02 } from '../../localization/stringConstants';
+import { TestModel02 } from "../../localization/stringConstants";
 import {
   addExpense,
   expenseInputs,
@@ -8,16 +8,16 @@ import {
   gotoTabPage,
   quitAfterAll,
   expensesTag,
-} from './browserTestUtils';
+} from "./browserTestUtils";
 import {
   getDriver,
   beforeAllWork,
   clickButton,
   cleanUpWork,
   scrollIntoViewByID,
-} from './browserBaseTypes';
+} from "./browserBaseTypes";
 
-const testName = 'BrowserAddDataTest';
+const testName = "BrowserAddDataTest";
 
 let alreadyRunning = false;
 
@@ -33,8 +33,8 @@ describe(testName, () => {
   const driver = driverSimple;
   jest.setTimeout(200000); // allow time for all these tests to run
 
-  it('should add expenses', async () => {
-    const testDataModelName = 'BrowserAddDataTest04';
+  it("should add expenses", async () => {
+    const testDataModelName = "BrowserAddDataTest04";
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -51,57 +51,57 @@ describe(testName, () => {
     await clearExpenseFields(driver);
     await addExpense(driver, {
       ...expenseInputs,
-      name: '',
+      name: "",
       message: `Name should be not empty`,
     });
 
     await clearExpenseFields(driver);
     await addExpense(driver, {
       ...expenseInputs,
-      value: '',
+      value: "",
       message: `Expense value should be a numerical value`,
     });
 
     await clearExpenseFields(driver);
     await addExpense(driver, {
       ...expenseInputs,
-      valuationDate: '',
+      valuationDate: "",
       message: `Value set date should be a date`,
     });
 
     await clearExpenseFields(driver);
     await addExpense(driver, {
       ...expenseInputs,
-      startDate: '',
+      startDate: "",
       message: `Start date '' should be a date`,
     });
 
     await clearExpenseFields(driver);
     await addExpense(driver, {
       ...expenseInputs,
-      endDate: '',
+      endDate: "",
       message: `End date '' should be a date`,
     });
 
     await clearExpenseFields(driver);
     await addExpense(driver, {
       ...expenseInputs,
-      growsWithInflation: '',
+      growsWithInflation: "",
       message: `Grows with inflation '' should be a Y/N value`,
     });
 
     await clearExpenseFields(driver);
     await addExpense(driver, {
       ...expenseInputs,
-      recurrence: 'junk',
+      recurrence: "junk",
       message: `Expense 'broadband' recurrence 'junk' must end in w, m or y`,
     });
 
     await cleanUpWork(driver, testDataModelName);
   });
 
-  it('should revalue expenses', async () => {
-    const testDataModelName = 'BrowserAddDataTest05';
+  it("should revalue expenses", async () => {
+    const testDataModelName = "BrowserAddDataTest05";
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -115,31 +115,31 @@ describe(testName, () => {
       message: `added new expense`,
     });
 
-    await scrollIntoViewByID(driver, 'useRevalueInputsExpense');
-    await clickButton(driver, 'useRevalueInputsExpense');
+    await scrollIntoViewByID(driver, "useRevalueInputsExpense");
+    await clickButton(driver, "useRevalueInputsExpense");
 
     const revalueInputs = {
-      name: 'broadband',
-      revalue: '60.14',
-      revaluationDate: '1 Jan 2022',
+      name: "broadband",
+      revalue: "60.14",
+      revaluationDate: "1 Jan 2022",
     };
     await revalueExpense(driver, {
       ...revalueInputs,
-      message: 'added new data', // TODO "added revaluation of expense",
+      message: "added new data", // TODO "added revaluation of expense",
     });
 
-    await clickButton(driver, 'useRevalueInputsExpense');
+    await clickButton(driver, "useRevalueInputsExpense");
 
     await revalueExpense(driver, {
       ...revalueInputs,
-      revalue: 'junk',
-      message: 'Expense value junk should be a numerical or % value',
+      revalue: "junk",
+      message: "Expense value junk should be a numerical or % value",
     });
 
     await clearRevalueExpenseFields(driver);
     await revalueExpense(driver, {
       ...revalueInputs,
-      revaluationDate: '1 Jan 2020',
+      revaluationDate: "1 Jan 2020",
       message: `Transaction 'broadband 2' dated before start of affected expense : 'broadband'`,
     });
 

@@ -1,4 +1,4 @@
-import { allViews } from '../utils/allViews';
+import { allViews } from "../utils/allViews";
 import {
   CASH_ASSET_NAME,
   allItems,
@@ -24,7 +24,7 @@ import {
   viewFrequency,
   viewType,
   custom,
-} from '../localization/stringConstants';
+} from "../localization/stringConstants";
 import {
   Asset,
   Expense,
@@ -32,15 +32,12 @@ import {
   ModelData,
   Setting,
   Transaction,
-} from '../types/interfaces';
-import { log, showObj } from '../utils/utils';
-import { viewSetting, simpleSetting } from './exampleSettings';
-import {
-  setSetting,
-  setROI,
-} from './modelUtils';
-import { getMinimalModelCopy } from './minimalModel';
-import { makeModelFromJSON, makeModelFromJSONString } from './modelFromJSON';
+} from "../types/interfaces";
+import { log, showObj } from "../utils/utils";
+import { viewSetting, simpleSetting } from "./exampleSettings";
+import { setSetting, setROI } from "./modelUtils";
+import { getMinimalModelCopy } from "./minimalModel";
+import { makeModelFromJSON, makeModelFromJSONString } from "./modelFromJSON";
 
 log;
 showObj;
@@ -346,46 +343,46 @@ const variableDateExampleData2 = `{
 }`;
 
 export const simpleExpense: Expense = {
-  NAME: 'NoName',
+  NAME: "NoName",
   ERA: undefined,
-  CATEGORY: '',
-  START: '1 Jan 2017',
-  END: '1 Jan 2017',
-  VALUE: '0.0',
-  VALUE_SET: '1 Jan 2017',
+  CATEGORY: "",
+  START: "1 Jan 2017",
+  END: "1 Jan 2017",
+  VALUE: "0.0",
+  VALUE_SET: "1 Jan 2017",
   CPI_IMMUNE: false,
-  RECURRENCE: '1m',
+  RECURRENCE: "1m",
 };
 export const simpleIncome: Income = {
-  NAME: 'NoName',
+  NAME: "NoName",
   ERA: undefined,
-  CATEGORY: '',
-  START: '1 Jan 2017',
-  END: '1 Jan 2017',
-  VALUE: '0',
-  VALUE_SET: '1 Jan 2017',
+  CATEGORY: "",
+  START: "1 Jan 2017",
+  END: "1 Jan 2017",
+  VALUE: "0",
+  VALUE_SET: "1 Jan 2017",
   CPI_IMMUNE: false,
-  RECURRENCE: '1m',
-  LIABILITY: '',
+  RECURRENCE: "1m",
+  LIABILITY: "",
 };
 export const simpleTransaction: Transaction = {
-  NAME: 'NoName',
+  NAME: "NoName",
   ERA: undefined,
-  FROM: '',
+  FROM: "",
   FROM_ABSOLUTE: true,
-  FROM_VALUE: '0.0',
-  TO: '',
+  FROM_VALUE: "0.0",
+  TO: "",
   TO_ABSOLUTE: true,
-  TO_VALUE: '0.0',
-  DATE: '1 Jan 2017',
-  STOP_DATE: '', // for regular transactions
-  RECURRENCE: '',
-  CATEGORY: '',
+  TO_VALUE: "0.0",
+  DATE: "1 Jan 2017",
+  STOP_DATE: "", // for regular transactions
+  RECURRENCE: "",
+  CATEGORY: "",
   TYPE: custom,
 };
 
 export const emptyModel: ModelData = {
-  name: 'emptyModel',
+  name: "emptyModel",
   triggers: [],
   incomes: [],
   expenses: [],
@@ -433,48 +430,47 @@ const defaultModelSettingsForMigration: Setting[] = [
   {
     ...viewSetting,
     NAME: taxChartShowNet,
-    VALUE: 'Y',
+    VALUE: "Y",
   },
   {
     ...simpleSetting,
     NAME: cpi,
-    VALUE: '0.0',
+    VALUE: "0.0",
     HINT: cpiHint,
   },
   {
     ...viewSetting,
     NAME: birthDate,
-    VALUE: '',
+    VALUE: "",
     HINT: birthDateHint,
   },
   {
     ...viewSetting,
     NAME: valueFocusDate,
-    VALUE: '',
+    VALUE: "",
     HINT: valueFocusDateHint,
   },
 ];
 
 export const simpleAsset: Asset = {
-  NAME: 'NoName',
+  NAME: "NoName",
   ERA: undefined,
-  CATEGORY: '',
-  START: '1 Jan 2017',
-  VALUE: '0',
-  QUANTITY: '',
-  GROWTH: '0',
+  CATEGORY: "",
+  START: "1 Jan 2017",
+  VALUE: "0",
+  QUANTITY: "",
+  GROWTH: "0",
   CPI_IMMUNE: false,
   CAN_BE_NEGATIVE: false,
   IS_A_DEBT: false,
-  LIABILITY: '',
-  PURCHASE_PRICE: '0',
+  LIABILITY: "",
+  PURCHASE_PRICE: "0",
 };
-
 
 export function getModelCoarseAndFineForMigration(): ModelData {
   const roi = {
-    start: 'April 1, 2018',
-    end: 'July 10, 2018',
+    start: "April 1, 2018",
+    end: "July 10, 2018",
   };
 
   const settings = defaultModelSettingsForMigration;
@@ -489,29 +485,29 @@ export function getModelCoarseAndFineForMigration(): ModelData {
     incomes: [
       {
         ...simpleIncome,
-        START: 'April 1 2018',
-        END: 'April 2 2018',
-        NAME: 'PRn1',
-        VALUE: '10',
-        VALUE_SET: 'January 1 2018',
-        CATEGORY: 'PaperRound',
+        START: "April 1 2018",
+        END: "April 2 2018",
+        NAME: "PRn1",
+        VALUE: "10",
+        VALUE_SET: "January 1 2018",
+        CATEGORY: "PaperRound",
       },
       {
         ...simpleIncome,
-        START: 'April 1 2018',
-        END: 'June 2 2018',
-        NAME: 'PRn2',
-        VALUE: '10', // single payment
-        VALUE_SET: 'January 1 2018',
-        CATEGORY: 'PaperRound',
+        START: "April 1 2018",
+        END: "June 2 2018",
+        NAME: "PRn2",
+        VALUE: "10", // single payment
+        VALUE_SET: "January 1 2018",
+        CATEGORY: "PaperRound",
       },
       {
         ...simpleIncome,
-        START: 'April 1 2018',
-        END: 'April 2 2018',
-        NAME: 'PRn3',
-        VALUE: '10', // single payment
-        VALUE_SET: 'January 1 2018',
+        START: "April 1 2018",
+        END: "April 2 2018",
+        NAME: "PRn3",
+        VALUE: "10", // single payment
+        VALUE_SET: "January 1 2018",
       },
     ],
     assets: [
@@ -519,51 +515,51 @@ export function getModelCoarseAndFineForMigration(): ModelData {
         ...simpleAsset,
         NAME: CASH_ASSET_NAME,
         CAN_BE_NEGATIVE: true,
-        START: 'April 1 2018',
-        VALUE: '500',
-        CATEGORY: 'Accessible',
+        START: "April 1 2018",
+        VALUE: "500",
+        CATEGORY: "Accessible",
       },
       {
         ...simpleAsset,
-        NAME: 'stocks',
-        START: 'April 1 2018',
-        VALUE: '500',
+        NAME: "stocks",
+        START: "April 1 2018",
+        VALUE: "500",
       },
       {
         ...simpleAsset,
-        NAME: 'savings',
-        START: 'June 1 2018',
-        VALUE: '500',
-        CATEGORY: 'Accessible',
+        NAME: "savings",
+        START: "June 1 2018",
+        VALUE: "500",
+        CATEGORY: "Accessible",
       },
     ],
     settings: settings,
     expenses: [
       {
         ...simpleExpense,
-        START: 'April 1 2018',
-        END: 'June 2 2018',
-        NAME: 'Phon',
-        VALUE_SET: 'January 1 2018',
-        VALUE: '12.0',
-        CATEGORY: 'comms',
+        START: "April 1 2018",
+        END: "June 2 2018",
+        NAME: "Phon",
+        VALUE_SET: "January 1 2018",
+        VALUE: "12.0",
+        CATEGORY: "comms",
       },
       {
         ...simpleExpense,
-        START: 'February 1 2018',
-        END: 'June 2 2018',
-        NAME: 'broadband',
-        VALUE_SET: 'January 1 2018',
-        VALUE: '12.0',
-        CATEGORY: 'comms',
+        START: "February 1 2018",
+        END: "June 2 2018",
+        NAME: "broadband",
+        VALUE_SET: "January 1 2018",
+        VALUE: "12.0",
+        CATEGORY: "comms",
       },
       {
         ...simpleExpense,
-        START: 'January 1 2018',
-        END: 'July 2 2018',
-        NAME: 'pet food',
-        VALUE_SET: 'January 1 2018',
-        VALUE: '12.0',
+        START: "January 1 2018",
+        END: "July 2 2018",
+        NAME: "pet food",
+        VALUE_SET: "January 1 2018",
+        VALUE: "12.0",
       },
     ],
     version: 0,
@@ -578,8 +574,8 @@ export function getModelCoarseAndFineForMigration(): ModelData {
 
 export function getThreeChryslerModel(): ModelData {
   const roi = {
-    start: 'Dec 1, 2017 00:00:00',
-    end: 'June 1, 2018 00:00:00',
+    start: "Dec 1, 2017 00:00:00",
+    end: "June 1, 2018 00:00:00",
   };
   const minimalModel = getMinimalModelCopy();
   const model: ModelData = {
@@ -588,35 +584,35 @@ export function getThreeChryslerModel(): ModelData {
       ...minimalModel.assets,
       {
         ...simpleAsset,
-        NAME: 'Cars',
-        START: 'January 2 2018',
-        VALUE: 'chrysler',
-        QUANTITY: '3',
+        NAME: "Cars",
+        START: "January 2 2018",
+        VALUE: "chrysler",
+        QUANTITY: "3",
         CPI_IMMUNE: true,
       },
     ],
     settings: [
       ...minimalModel.settings,
       {
-        NAME: 'twoChryslers',
+        NAME: "twoChryslers",
         ERA: undefined,
-        VALUE: '2chrysler',
-        HINT: '',
-        TYPE: 'const',
+        VALUE: "2chrysler",
+        HINT: "",
+        TYPE: "const",
       },
       {
-        NAME: 'chrysler',
+        NAME: "chrysler",
         ERA: undefined,
-        VALUE: '50USD',
-        HINT: '',
-        TYPE: 'const',
+        VALUE: "50USD",
+        HINT: "",
+        TYPE: "const",
       },
       {
-        NAME: 'USD',
+        NAME: "USD",
         ERA: undefined,
-        VALUE: '2',
-        HINT: '',
-        TYPE: 'adjustable',
+        VALUE: "2",
+        HINT: "",
+        TYPE: "adjustable",
       },
     ],
     version: 0,
@@ -625,17 +621,17 @@ export function getThreeChryslerModel(): ModelData {
   };
   model.assets.filter((a) => {
     return a.NAME === CASH_ASSET_NAME;
-  })[0].START = '1 Jan 2018';
+  })[0].START = "1 Jan 2018";
 
   setROI(model, roi);
-  model.name = 'ThreeChryslerModel';
+  model.name = "ThreeChryslerModel";
   return model;
 }
 
 export function getThreeChryslerModelForMigration(): ModelData {
   const roi = {
-    start: 'Dec 1, 2017 00:00:00',
-    end: 'June 1, 2018 00:00:00',
+    start: "Dec 1, 2017 00:00:00",
+    end: "June 1, 2018 00:00:00",
   };
   const minimalModel = getMinimalModelCopy();
   const model: ModelData = {
@@ -644,35 +640,35 @@ export function getThreeChryslerModelForMigration(): ModelData {
       ...minimalModel.assets,
       {
         ...simpleAsset,
-        NAME: 'Cars',
-        START: 'January 2 2018',
-        VALUE: 'chrysler',
-        QUANTITY: '3',
+        NAME: "Cars",
+        START: "January 2 2018",
+        VALUE: "chrysler",
+        QUANTITY: "3",
         CPI_IMMUNE: true,
       },
     ],
     settings: [
       ...minimalModel.settings,
       {
-        NAME: 'twoChryslers',
+        NAME: "twoChryslers",
         ERA: undefined,
-        VALUE: '2chrysler',
-        HINT: '',
-        TYPE: 'const',
+        VALUE: "2chrysler",
+        HINT: "",
+        TYPE: "const",
       },
       {
-        NAME: 'chrysler',
+        NAME: "chrysler",
         ERA: undefined,
-        VALUE: '50USD',
-        HINT: '',
-        TYPE: 'const',
+        VALUE: "50USD",
+        HINT: "",
+        TYPE: "const",
       },
       {
-        NAME: 'USD',
+        NAME: "USD",
         ERA: undefined,
-        VALUE: '2',
-        HINT: '',
-        TYPE: 'adjustable',
+        VALUE: "2",
+        HINT: "",
+        TYPE: "adjustable",
       },
       {
         ...viewSetting,
@@ -694,34 +690,34 @@ export function getThreeChryslerModelForMigration(): ModelData {
   };
   model.assets.filter((a) => {
     return a.NAME === CASH_ASSET_NAME;
-  })[0].START = '1 Jan 2018';
+  })[0].START = "1 Jan 2018";
 
   setROI(model, roi);
-  model.name = 'ThreeChryslerModelForMigration';
+  model.name = "ThreeChryslerModelForMigration";
   return model;
 }
 
 export function getDefinedBenefitsPension(): ModelData {
-  return makeModelFromJSON(definedBenefitsPension, 'definedBenefitsPension');
+  return makeModelFromJSON(definedBenefitsPension, "definedBenefitsPension");
 }
 
 export function getDefinedContributionsPension(): ModelData {
   return makeModelFromJSON(
     definedContributionsPension,
-    'definedContributionsPension',
+    "definedContributionsPension",
   );
 }
 
 export function getPensionExampleData(): ModelData {
-  return makeModelFromJSON(pensionExampleData, 'pensionExampleData');
+  return makeModelFromJSON(pensionExampleData, "pensionExampleData");
 }
 
 export function getVariableDateExampleData(): ModelData {
-  return makeModelFromJSON(variableDateExampleData, 'variableDateExample');
+  return makeModelFromJSON(variableDateExampleData, "variableDateExample");
 }
 
 export function getVariableDateExampleData2(): ModelData {
-  return makeModelFromJSON(variableDateExampleData2, 'variableDateExample2');
+  return makeModelFromJSON(variableDateExampleData2, "variableDateExample2");
 }
 
 export function transactionFromUndefinedModel(): ModelData {

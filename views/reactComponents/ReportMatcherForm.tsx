@@ -1,13 +1,13 @@
-import React, { Component, FormEvent } from 'react';
+import React, { Component, FormEvent } from "react";
 
-import { Input } from './Input';
-import { ReportMatcher } from '../../types/interfaces';
-import { makeButton } from './Button';
+import { Input } from "./Input";
+import { ReportMatcher } from "../../types/interfaces";
+import { makeButton } from "./Button";
 import {
   defaultReportSize,
   defaultSourceExcluder,
   defaultSourceMatcher,
-} from '../../localization/stringConstants';
+} from "../../localization/stringConstants";
 
 interface ReportMatcherFormState {
   sourceMatcher: string;
@@ -74,41 +74,41 @@ export class ReportMatcherForm extends Component<
   public render() {
     return (
       <form className="container-fluid" onSubmit={this.submit}>
-        <div style={{ display: 'none' }}>
+        <div style={{ display: "none" }}>
           {makeButton(
-            'Filter table',
+            "Filter table",
             this.submit,
-            'MatchFilterer',
-            'MatchFilterer',
-            'primary',
+            "MatchFilterer",
+            "MatchFilterer",
+            "primary",
           )}
         </div>
         <Input
-          type={'text'}
-          title={'Match sources (e.g. Buy|Sell, or . means everything)'}
-          name={'reportSourceMatcher'}
+          type={"text"}
+          title={"Match sources (e.g. Buy|Sell, or . means everything)"}
+          name={"reportSourceMatcher"}
           value={this.state.sourceMatcher}
-          placeholder={'Enter matcher here'}
+          placeholder={"Enter matcher here"}
           onChange={this.handleMatcherChange}
         />
         <Input
-          type={'text'}
-          title={'Exclude sources'}
-          name={'reportSourceExcluder'}
+          type={"text"}
+          title={"Exclude sources"}
+          name={"reportSourceExcluder"}
           value={this.state.sourceExcluder}
-          placeholder={'Enter excluder here'}
+          placeholder={"Enter excluder here"}
           onChange={this.handleExcluderChange}
         />
         <Input
-          type={'text'}
-          title={'Max number of report items'}
-          name={'maxReportSize'}
+          type={"text"}
+          title={"Max number of report items"}
+          name={"maxReportSize"}
           value={this.state.maxReportSize}
-          placeholder={'0'}
+          placeholder={"0"}
           onChange={this.handleMaxReportChange}
         />
         {makeButton(
-          'reset to default',
+          "reset to default",
           (e) => {
             e.persist();
             this.setState(
@@ -122,12 +122,12 @@ export class ReportMatcherForm extends Component<
               },
             );
           },
-          'resetToDefault',
-          'resetToDefault',
-          'primary',
+          "resetToDefault",
+          "resetToDefault",
+          "primary",
         )}
         {makeButton(
-          'export to csv',
+          "export to csv",
           (e) => {
             e.persist();
             this.setState(
@@ -139,12 +139,12 @@ export class ReportMatcherForm extends Component<
               },
             );
           },
-          'exportToCSV',
-          'exportToCSV',
-          this.state.saveAsCSV ? 'primary' : 'secondary',
+          "exportToCSV",
+          "exportToCSV",
+          this.state.saveAsCSV ? "primary" : "secondary",
         )}
         {makeButton(
-          'include settings',
+          "include settings",
           (e) => {
             e.persist();
             this.setState(
@@ -156,12 +156,12 @@ export class ReportMatcherForm extends Component<
               },
             );
           },
-          'includeSettings',
-          'includeSettings',
-          this.state.reportIncludesSettings ? 'primary' : 'secondary',
+          "includeSettings",
+          "includeSettings",
+          this.state.reportIncludesSettings ? "primary" : "secondary",
         )}
         {makeButton(
-          'include expenses',
+          "include expenses",
           (e) => {
             e.persist();
             this.setState(
@@ -173,9 +173,9 @@ export class ReportMatcherForm extends Component<
               },
             );
           },
-          'includeExpenses',
-          'includeExpenses',
-          this.state.reportIncludesExpenses ? 'primary' : 'secondary',
+          "includeExpenses",
+          "includeExpenses",
+          this.state.reportIncludesExpenses ? "primary" : "secondary",
         )}
       </form>
     );
@@ -186,14 +186,14 @@ export class ReportMatcherForm extends Component<
     try {
       const regex1 = RegExp(this.state.sourceMatcher);
       const regex2 = RegExp(this.state.sourceExcluder);
-      if ('test'.match(regex1) === null) {
+      if ("test".match(regex1) === null) {
         // log(`do not show source ${source} bcs it doesn't match ${matcher}`);
       }
-      if ('test'.match(regex2) === null) {
+      if ("test".match(regex2) === null) {
         // log(`do not show source ${source} bcs it doesn't match ${matcher}`);
       }
     } catch (e) {
-      alert('error processing regexp');
+      alert("error processing regexp");
       return false;
     }
 

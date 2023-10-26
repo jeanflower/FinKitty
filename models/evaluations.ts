@@ -1,4 +1,4 @@
-import { checkData } from './checks';
+import { checkData } from "./checks";
 import {
   annually,
   CASH_ASSET_NAME,
@@ -29,7 +29,7 @@ import {
   weekly,
   tracking,
   annualBaseForCPI,
-} from '../localization/stringConstants';
+} from "../localization/stringConstants";
 import {
   DatedThing,
   Asset,
@@ -49,7 +49,7 @@ import {
   Income,
   IncomeOrExpense,
   Item,
-} from '../types/interfaces';
+} from "../types/interfaces";
 import {
   DateFormatType,
   getMaturityDate,
@@ -57,7 +57,7 @@ import {
   log,
   printDebug,
   showObj,
-} from '../utils/utils';
+} from "../utils/utils";
 import {
   getNumberAndWordParts,
   getStartQuantity,
@@ -72,30 +72,32 @@ import {
   dateAsString,
   makeTwoDP,
   getDisplayName,
-} from '../utils/stringUtils';
+} from "../utils/stringUtils";
+import { getTodaysDate, getROI } from "./modelUtils";
 import {
-  getTodaysDate,
-  getROI,
-} from './modelUtils';
-import { getSettings, getVarVal, isNumberString, replaceCategoryWithAssetNames } from './modelQueries';
+  getSettings,
+  getVarVal,
+  isNumberString,
+  replaceCategoryWithAssetNames,
+} from "./modelQueries";
 
 function parseRecurrenceString(recurrence: string) {
   if (recurrence === undefined) {
     /* istanbul ignore next  */ //error
-    log('Error : undefined recurrence string!!');
+    log("Error : undefined recurrence string!!");
   }
   const result = {
-    frequency: '', // weekly, monthly or annual
+    frequency: "", // weekly, monthly or annual
     count: 0,
   };
   const l = recurrence.length;
   const lastChar = recurrence.substring(l - 1, l);
   // log(`lastChar of ${recurrence} is ${lastChar}`);
-  if (lastChar === 'm') {
+  if (lastChar === "m") {
     result.frequency = monthly;
-  } else if (lastChar === 'w') {
+  } else if (lastChar === "w") {
     result.frequency = weekly;
-  } else if (lastChar === 'y') {
+  } else if (lastChar === "y") {
     result.frequency = annually;
   } else {
     /* istanbul ignore next  */ //error
@@ -132,11 +134,11 @@ export function generateSequenceOfDates(
   if (addPreDate) {
     // add a pre-dates before roi - always either 1w, 1m or 1y prior
     const preDate = new Date(roi.start);
-    if (frequency === '1m') {
+    if (frequency === "1m") {
       preDate.setMonth(preDate.getMonth() - 1);
-    } else if (frequency === '1w') {
+    } else if (frequency === "1w") {
       preDate.setDate(preDate.getDate() - 7);
-    } else if (frequency === '1y') {
+    } else if (frequency === "1y") {
       preDate.setFullYear(preDate.getFullYear() - 1);
     } else {
       /* istanbul ignore next  */ //error
@@ -187,24 +189,24 @@ export function generateSequenceOfDates(
 }
 
 export const momentType = {
-  expense: 'Expense',
-  expensePrep: 'ExpensePrep',
-  expenseStart: 'ExpenseStart',
-  expenseStartPrep: 'ExpenseStartPrep',
-  income: 'Income',
-  incomePrep: 'IncomePrep',
-  incomeStart: 'IncomeStart',
-  incomeStartPrep: 'IncomeStartPrep',
-  asset: 'Asset',
-  assetStart: 'AssetStart',
-  transaction: 'Transaction',
-  inflation: 'Inflation',
+  expense: "Expense",
+  expensePrep: "ExpensePrep",
+  expenseStart: "ExpenseStart",
+  expenseStartPrep: "ExpenseStartPrep",
+  income: "Income",
+  incomePrep: "IncomePrep",
+  incomeStart: "IncomeStart",
+  incomeStartPrep: "IncomeStartPrep",
+  asset: "Asset",
+  assetStart: "AssetStart",
+  transaction: "Transaction",
+  inflation: "Inflation",
 };
 
 export function sortByDate(arrayOfDatedThings: DatedThing[]) {
   /* istanbul ignore if  */ //debug
   if (printDebug()) {
-    log('before date sort --------------');
+    log("before date sort --------------");
     arrayOfDatedThings.forEach((t) => {
       log(`t.name = ${t.name}, ${t.type}, ${t.date}`);
     });
@@ -279,7 +281,7 @@ export function sortByDate(arrayOfDatedThings: DatedThing[]) {
       // whether it's an asset is equal
       /* istanbul ignore if  */ //debug
       if (printDebug()) {
-        if (a.type !== 'Asset' && a.type !== 'Expense' && a.type !== 'Income') {
+        if (a.type !== "Asset" && a.type !== "Expense" && a.type !== "Income") {
           log(
             `using names to order moments ${a.name}, ${a.type} and ${b.name}`,
           );
@@ -310,7 +312,7 @@ export function sortByDate(arrayOfDatedThings: DatedThing[]) {
 
   /* istanbul ignore if  */ //debug
   if (printDebug()) {
-    log('after date sort --------------');
+    log("after date sort --------------");
     arrayOfDatedThings.forEach((t) => {
       log(`(name, type, date) = (${t.name}, ${t.type}, ${t.date})`);
     });
@@ -361,11 +363,11 @@ class ValuesContainer {
       this.includeInReport(name, val, date, source);
     let oldVal: number | undefined = 0.0;
     if (reportChange) {
-      oldVal = traceEvaluation(name, this, growths, 'debugReportOld');
+      oldVal = traceEvaluation(name, this, growths, "debugReportOld");
     }
     this.reportValues.set(name, val);
     if (reportChange) {
-      let newVal = traceEvaluation(name, this, growths, 'debugReportNew');
+      let newVal = traceEvaluation(name, this, growths, "debugReportNew");
       if (reportIfNoChange || oldVal !== newVal) {
         let change = undefined;
         if (newVal !== undefined && oldVal !== undefined) {
@@ -379,7 +381,7 @@ class ValuesContainer {
           const matchedAsset = this.model.assets.find((a) => {
             return a.NAME === name;
           });
-          let details = '';
+          let details = "";
           if (matchedAsset) {
             const val = matchedAsset.VALUE;
             const matchedSetting = this.model.settings.find((s) => {
@@ -436,19 +438,19 @@ class ValuesContainer {
 
   public getReport(): ReportDatum[] {
     //log(`this.values() = ${this.values()}`);
-    const estateVal = this.get('Estate');
-    if (estateVal !== undefined && typeof estateVal === 'number') {
+    const estateVal = this.get("Estate");
+    if (estateVal !== undefined && typeof estateVal === "number") {
       // log(`estateVal = ${estateVal}`);
       this.report.push({
-        name: 'Estate final value',
+        name: "Estate final value",
         change: 0,
         oldVal: 0,
         newVal: estateVal,
-        qchange: '',
+        qchange: "",
         qoldVal: 0,
         qnewVal: 0,
-        date: '2999',
-        source: 'estate',
+        date: "2999",
+        source: "estate",
       });
     }
     this.report.sort((a, b) => {
@@ -474,7 +476,7 @@ function getNumberValue(
     log(`seek number value for key = '${name}', values has entry ${result}`);
   }
   /* istanbul ignore else  */ //error
-  if (typeof result === 'string') {
+  if (typeof result === "string") {
     // log(`value ${result} is a string`);
     /* istanbul ignore else  */ //error
     if (isNumberString(result)) {
@@ -534,14 +536,14 @@ function growthData(
     g.itemGrowth,
     values,
     growths,
-    '40', //callerID
+    "40", //callerID
   );
   if (growth) {
     const cpiVal = traceEvaluation(
       cpi,
       values,
       growths,
-      '41', //callerID
+      "41", //callerID
     );
     let adaptedGrowth = growth;
     if (g.applyCPI && cpiVal !== undefined) {
@@ -581,7 +583,7 @@ function growthData(
   const baseVal = getNumberValue(values, getBaseForCPI(g.annualCPI));
   /* istanbul ignore if  */ //error
   if (baseVal === undefined) {
-    log('Error: baseVal undefined for growth data!');
+    log("Error: baseVal undefined for growth data!");
     return {
       adjustForCPI: g.applyCPI,
       annualCPI: g.annualCPI,
@@ -621,7 +623,7 @@ function traceEvaluation(
     );
   }
   let result: number | undefined = 0.0;
-  if (typeof value !== 'string') {
+  if (typeof value !== "string") {
     result = value;
   } else {
     const debug = false;
@@ -667,7 +669,7 @@ function traceEvaluation(
           }
           result = undefined;
         }
-      } else if (typeof valueForWordPart === 'string') {
+      } else if (typeof valueForWordPart === "string") {
         const nextLevel = traceEvaluation(
           valueForWordPart,
           values,
@@ -766,15 +768,15 @@ function setValue(
     let realNewValue = newValue;
     const gd = growthData(name, growths, values);
     if (
-      typeof realExistingValue === 'number' &&
-      typeof realNewValue === 'number' &&
+      typeof realExistingValue === "number" &&
+      typeof realNewValue === "number" &&
       gd.adjustForCPI
     ) {
       const baseVal = gd.baseVal;
       realExistingValue *= baseVal;
       realNewValue *= baseVal;
     }
-    if (printNet || (name === 'ISAFutureInvest' || name === 'Cash')) {
+    if (printNet || name === "ISAFutureInvest" || name === "Cash") {
       if (existingValue === undefined) {
         log(
           `setting first value of ${name}, ` +
@@ -1110,7 +1112,7 @@ const TAX_MAP: TaxBandsMap = {
 };
 */
 const TAX_MAP: TaxBandsMap = {
-  '2016': {
+  "2016": {
     noTaxBand: 12500,
     lowTaxBand: 50000,
     adjustNoTaxBand: 100000,
@@ -1126,7 +1128,7 @@ const TAX_MAP: TaxBandsMap = {
     cgtRateLow: 0.1,
     cgtRateHigh: 0.2,
   },
-  '2017': {
+  "2017": {
     noTaxBand: 12500,
     lowTaxBand: 50000,
     adjustNoTaxBand: 100000,
@@ -1142,7 +1144,7 @@ const TAX_MAP: TaxBandsMap = {
     cgtRateLow: 0.1,
     cgtRateHigh: 0.2,
   },
-  '2018': {
+  "2018": {
     noTaxBand: 12500,
     lowTaxBand: 50000,
     adjustNoTaxBand: 100000,
@@ -1158,7 +1160,7 @@ const TAX_MAP: TaxBandsMap = {
     cgtRateLow: 0.1,
     cgtRateHigh: 0.2,
   },
-  '2019': {
+  "2019": {
     noTaxBand: 12500,
     lowTaxBand: 50000,
     adjustNoTaxBand: 100000,
@@ -1174,7 +1176,7 @@ const TAX_MAP: TaxBandsMap = {
     cgtRateLow: 0.1,
     cgtRateHigh: 0.2,
   },
-  '2020': {
+  "2020": {
     noTaxBand: 12500,
     lowTaxBand: 50000,
     adjustNoTaxBand: 100000,
@@ -1190,7 +1192,7 @@ const TAX_MAP: TaxBandsMap = {
     cgtRateLow: 0.1,
     cgtRateHigh: 0.2,
   },
-  '2021': {
+  "2021": {
     // 2021/22
     noTaxBand: 12500,
     lowTaxBand: 50000,
@@ -1208,7 +1210,7 @@ const TAX_MAP: TaxBandsMap = {
     cgtRateLow: 0.1,
     cgtRateHigh: 0.2,
   },
-  '2022': {
+  "2022": {
     // 2022/23
     // https://www.gov.uk/guidance/rates-and-thresholds-for-employers-2022-to-2023
     noTaxBand: 12570,
@@ -1227,7 +1229,7 @@ const TAX_MAP: TaxBandsMap = {
     cgtRateLow: 0.1,
     cgtRateHigh: 0.2,
   },
-  '2023': {
+  "2023": {
     noTaxBand: 12570, // Note that by fixing this to the same level as previous, we get poorer
     lowTaxBand: 12570 + 37700, // because the tax baands are coded to increase with CPI
     adjustNoTaxBand: 100000, // and if they don't increase, more of our income falls into the tax bands
@@ -1244,7 +1246,7 @@ const TAX_MAP: TaxBandsMap = {
     cgtRateLow: 0.1,
     cgtRateHigh: 0.2,
   },
-  '2024': {
+  "2024": {
     noTaxBand: 12570, // Note that by fixing this to the same level as previous, we get poorer
     lowTaxBand: 12570 + 37700, // because the tax baands are coded to increase with CPI
     adjustNoTaxBand: 100000, // and if they don't increase, more of our income falls into the tax bands
@@ -1261,7 +1263,7 @@ const TAX_MAP: TaxBandsMap = {
     cgtRateLow: 0.1,
     cgtRateHigh: 0.2,
   },
-  '2025': {
+  "2025": {
     noTaxBand: 12570, // Note that by fixing this to the same level as previous, we get poorer
     lowTaxBand: 12570 + 37700, // because the tax baands are coded to increase with CPI
     adjustNoTaxBand: 100000, // and if they don't increase, more of our income falls into the tax bands
@@ -1278,7 +1280,7 @@ const TAX_MAP: TaxBandsMap = {
     cgtRateLow: 0.1,
     cgtRateHigh: 0.2,
   },
-  '2026': {
+  "2026": {
     noTaxBand: 12570, // Note that by fixing this to the same level as previous, we get poorer
     lowTaxBand: 12570 + 37700, // because the tax baands are coded to increase with CPI
     adjustNoTaxBand: 100000, // and if they don't increase, more of our income falls into the tax bands
@@ -1295,7 +1297,7 @@ const TAX_MAP: TaxBandsMap = {
     cgtRateLow: 0.1,
     cgtRateHigh: 0.2,
   },
-  '2027': {
+  "2027": {
     noTaxBand: 12570, // Note that by fixing this to the same level as previous, we get poorer
     lowTaxBand: 12570 + 37700, // because the tax baands are coded to increase with CPI
     adjustNoTaxBand: 100000, // and if they don't increase, more of our income falls into the tax bands
@@ -1312,7 +1314,7 @@ const TAX_MAP: TaxBandsMap = {
     cgtRateLow: 0.1,
     cgtRateHigh: 0.2,
   },
-  '2028': {
+  "2028": {
     noTaxBand: 12570, // Note that by fixing this to the same level as previous, we get poorer
     lowTaxBand: 12570 + 37700, // because the tax baands are coded to increase with CPI
     adjustNoTaxBand: 100000, // and if they don't increase, more of our income falls into the tax bands
@@ -1350,12 +1352,12 @@ function getTaxBands(
     const baseVal = getNumberValue(values, baseForCPI);
     if (baseVal !== undefined) {
       // log(`scale by baseVal = ${baseVal}`);
-      const noTaxBand = getNumberValue(values, 'noTaxBand');
-      const lowTaxBand = getNumberValue(values, 'lowTaxBand');
-      const highTaxBand = getNumberValue(values, 'highTaxBand');
-      const adjustNoTaxBand = getNumberValue(values, 'adjustNoTaxBand');
-      const noNIBand = getNumberValue(values, 'noNIBand');
-      const lowNIBand = getNumberValue(values, 'lowNIBand');
+      const noTaxBand = getNumberValue(values, "noTaxBand");
+      const lowTaxBand = getNumberValue(values, "lowTaxBand");
+      const highTaxBand = getNumberValue(values, "highTaxBand");
+      const adjustNoTaxBand = getNumberValue(values, "adjustNoTaxBand");
+      const noNIBand = getNumberValue(values, "noNIBand");
+      const lowNIBand = getNumberValue(values, "lowNIBand");
       /* istanbul ignore else  */ //error
       if (
         noTaxBand &&
@@ -1386,12 +1388,12 @@ function getTaxBands(
         };
         // log(`now vals at ${startYearOfTaxYear}, ${makeTwoDP(result.noTaxBand)}, ${makeTwoDP(result.lowTaxBand)}, ${makeTwoDP(result.highTaxBand)}, ${makeTwoDP(result.adjustNoTaxBand)}`);
       } else {
-        log('Error: missing tax bands in values');
+        log("Error: missing tax bands in values");
         throw new Error();
       }
     } else {
       /* istanbul ignore next */
-      log('Error: missing baseVal');
+      log("Error: missing baseVal");
       /* istanbul ignore next */
       const resultFromMap = TAX_MAP[`${highestTaxYearInMap}`];
       /* istanbul ignore next */
@@ -1649,7 +1651,7 @@ function adjustCash(
       newValue,
       model,
       source,
-      '1', //callerID
+      "1", //callerID
     );
   }
 }
@@ -1682,7 +1684,7 @@ function updatePurchaseValue(
     let numberPart = 0.0;
     let wordPart: string | undefined = undefined;
     /* istanbul ignore if */
-    if (typeof currentPurchaseValue === 'string') {
+    if (typeof currentPurchaseValue === "string") {
       log(
         `Error : expect currentPurchaseValue  ${currentPurchaseValue} to be a number`,
       );
@@ -1718,7 +1720,7 @@ function updatePurchaseValue(
       purchaseValue,
       model,
       source,
-      '31', //callerID
+      "31", //callerID
     );
   }
 }
@@ -1790,7 +1792,7 @@ function payIncomeTax(
       totalTaxDue,
       model,
       makeIncomeTaxTag(person),
-      '23', //callerID
+      "23", //callerID
     );
   }
   if (totalTaxDueFromFixed !== 0) {
@@ -1802,7 +1804,7 @@ function payIncomeTax(
       endOfTaxYear,
       `taxForFixed${person} incomeTax end of year`,
       true, // reportIfNoChange
-      '48', //callerID
+      "48", //callerID
     );
   }
   return totalTaxDue;
@@ -1839,7 +1841,7 @@ function logAnnualNIPayments(
       nIMonthlyPaymentsPaid,
       model,
       makeNationalInsuranceTag(person),
-      '33', //callerID
+      "33", //callerID
     );
   }
 }
@@ -1887,7 +1889,7 @@ function payCGT(
       CGTDue,
       model,
       makeCGTTag(person),
-      '26', //callerID
+      "26", //callerID
     );
   }
   return CGTDue;
@@ -1923,7 +1925,7 @@ function OptimizeIncomeTax(
       /* istanbul ignore if */
       if (wds.length !== 2) {
         log(`unexpected formatting of ${valueKey}`);
-        throw new Error('unexpected formatting of cp name');
+        throw new Error("unexpected formatting of cp name");
       }
       const liability = `${wds[0]}${incomeTax}`;
       // e.g. IncomeTaxJoe
@@ -1935,7 +1937,7 @@ function OptimizeIncomeTax(
         const pensionVal = getNumberValue(values, valueKey);
         /* istanbul ignore if */
         if (pensionVal === undefined) {
-          log('BUG!!! pension has no value');
+          log("BUG!!! pension has no value");
           return;
         }
         if (amountToTransfer > pensionVal) {
@@ -1946,13 +1948,13 @@ function OptimizeIncomeTax(
         const incomeTaxTotalMap = incomes.inTaxYear.incomeTaxTotal;
         /* istanbul ignore if */
         if (incomeTaxTotalMap === undefined) {
-          log('BUG!!! person has no liability');
+          log("BUG!!! person has no liability");
           return;
         }
         const cashVal = getNumberValue(values, CASH_ASSET_NAME);
         /* istanbul ignore if */
         if (cashVal === undefined) {
-          log('BUG!!! cash has no value');
+          log("BUG!!! cash has no value");
         } else {
           // set income tax in map
           addToTaxLiability(
@@ -1966,7 +1968,7 @@ function OptimizeIncomeTax(
           const flexibleIncomesMap =
             incomes.inTaxYear.incomeTaxFromFlexibleIncome;
           if (flexibleIncomesMap === undefined) {
-            throw new Error('flexibleIncomesMap should be defined');
+            throw new Error("flexibleIncomesMap should be defined");
           }
           // log(`look for a flexibleIncomes map for ${person}`);
           let personVal = flexibleIncomesMap.get(person);
@@ -1986,7 +1988,7 @@ function OptimizeIncomeTax(
             cashVal + amountToTransfer,
             model,
             valueKey,
-            '5', //callerID
+            "5", //callerID
           ); // e.g. 'CrystallizedPensionNorwich'
 
           const gd = growthData(valueKey, growths, values);
@@ -2006,7 +2008,7 @@ function OptimizeIncomeTax(
             pensionVal - amountToTransfer,
             model,
             liability,
-            '6', //callerID
+            "6", //callerID
           ); // e.g. 'IncomeTaxJoe'
         }
       }
@@ -2076,7 +2078,7 @@ function settleUpTax(
   if (printDebug()) {
     log(`in settleUpTax, date = ${dateAsString(DateFormatType.Debug, date)}`);
   }
-  const keyArray = ['cgt', incomeTax, nationalInsurance];
+  const keyArray = ["cgt", incomeTax, nationalInsurance];
 
   // before going to pay income tax,
   // see if there's a wise move to use up unused income tax allowance
@@ -2111,7 +2113,7 @@ function settleUpTax(
       personLiabilityMap = incomes.inTaxYear.incomeTaxTotal;
     } else if (key === nationalInsurance) {
       personLiabilityMap = incomes.inTaxYear.NITotal;
-    } else if (key === 'cgt') {
+    } else if (key === "cgt") {
       personLiabilityMap = incomes.inTaxYear.cgt;
     }
     if (personLiabilityMap === undefined) {
@@ -2128,14 +2130,14 @@ function settleUpTax(
         incomes.inTaxYear.incomeTaxFromFixedIncome;
       if (incomeFixedPersonLiabilityMap === undefined) {
         throw new Error(
-          'expect incomeFixedPersonLiabilityMap to have been set up',
+          "expect incomeFixedPersonLiabilityMap to have been set up",
         );
       }
 
       let incomeTaxMonthlyPaymentsPaid = taxMonthlyPaymentsPaid.incomeTaxTotalx;
       /* istanbul ignore if  */ //redundant untested
       if (incomeTaxMonthlyPaymentsPaid === undefined) {
-        log('Error : expect maps to have been set up in accumulateLiability');
+        log("Error : expect maps to have been set up in accumulateLiability");
         incomeTaxMonthlyPaymentsPaid = new Map<string, number>();
         taxMonthlyPaymentsPaid.incomeTaxTotalx = incomeTaxMonthlyPaymentsPaid;
       }
@@ -2143,7 +2145,7 @@ function settleUpTax(
         taxMonthlyPaymentsPaid.incomeTaxFromFixedIncomex;
       /* istanbul ignore if  */ //redundant untested
       if (incomeFixedTaxMonthlyPaymentsPaid === undefined) {
-        log('Error : expect maps to have been set up in accumulateLiability');
+        log("Error : expect maps to have been set up in accumulateLiability");
         incomeFixedTaxMonthlyPaymentsPaid = new Map<string, number>();
         taxMonthlyPaymentsPaid.incomeTaxFromFixedIncomex =
           incomeFixedTaxMonthlyPaymentsPaid;
@@ -2206,7 +2208,7 @@ function settleUpTax(
             date,
             `taxBreakdown${person} ${s.source}`,
             true, // reportIfNoChange
-            '99', //callerID
+            "99", //callerID
           );
         }
 
@@ -2220,26 +2222,26 @@ function settleUpTax(
         const flexibleIncomesMap =
           incomes.inTaxYear.incomeTaxFromFlexibleIncome;
         if (flexibleIncomesMap === undefined) {
-          throw new Error('flexibleIncomesMap should be defined');
+          throw new Error("flexibleIncomesMap should be defined");
         }
         flexibleIncomesMap.set(person, 0);
 
         const fixedIncomesMap = incomes.inTaxYear.incomeTaxFromFixedIncome;
         if (fixedIncomesMap === undefined) {
-          throw new Error('fixedIncomesMap should be defined');
+          throw new Error("fixedIncomesMap should be defined");
         }
         fixedIncomesMap.set(person, 0);
 
         const liableIncomeTaxInTaxMonth = incomes.inTaxMonth.incomeTaxTotall;
         if (liableIncomeTaxInTaxMonth === undefined) {
-          throw new Error('liableIncomeTaxInTaxMonth should be defined');
+          throw new Error("liableIncomeTaxInTaxMonth should be defined");
         }
         liableIncomeTaxInTaxMonth.set(person, 0);
 
         const liableFixedIncomeTaxInTaxMonth =
           incomes.inTaxMonth.incomeTaxFromFixedIncomee;
         if (liableFixedIncomeTaxInTaxMonth === undefined) {
-          throw new Error('liableFixedIncomeTaxInTaxMonth should be defined');
+          throw new Error("liableFixedIncomeTaxInTaxMonth should be defined");
         }
         liableFixedIncomeTaxInTaxMonth.set(person, 0);
 
@@ -2247,7 +2249,7 @@ function settleUpTax(
           incomes.inTaxMonth.incomeTaxFromFlexibleIncomee;
         if (liableFlexibleIncomeTaxInTaxMonth === undefined) {
           throw new Error(
-            'liableFlexibleIncomeTaxInTaxMonth should be defined',
+            "liableFlexibleIncomeTaxInTaxMonth should be defined",
           );
         }
         liableFlexibleIncomeTaxInTaxMonth.set(person, 0);
@@ -2261,13 +2263,13 @@ function settleUpTax(
 
       const niFixedPersonLiabilityMap = incomes.inTaxYear.NIFromFixedIncome;
       if (niFixedPersonLiabilityMap === undefined) {
-        throw new Error('expect niFixedPersonLiabilityMap to have been set up');
+        throw new Error("expect niFixedPersonLiabilityMap to have been set up");
       }
 
       let liableIncomeNIInTaxMonth = incomes.inTaxMonth.NIITotall;
       /* istanbul ignore if  */ //redundant untested
       if (liableIncomeNIInTaxMonth === undefined) {
-        log('Error : expect maps to have been set up in accumulateLiability');
+        log("Error : expect maps to have been set up in accumulateLiability");
         liableIncomeNIInTaxMonth = new Map<string, number>();
         incomes.inTaxMonth.NIITotall = liableIncomeNIInTaxMonth;
       }
@@ -2275,7 +2277,7 @@ function settleUpTax(
       let liableFixedIncomeNIInTaxMonth = incomes.inTaxMonth.NIFromFixedIncomee;
       /* istanbul ignore if  */ //redundant untested
       if (liableFixedIncomeNIInTaxMonth === undefined) {
-        log('Error : expect maps to have been set up in accumulateLiability');
+        log("Error : expect maps to have been set up in accumulateLiability");
         liableFixedIncomeNIInTaxMonth = new Map<string, number>();
         incomes.inTaxMonth.NIFromFixedIncomee = liableFixedIncomeNIInTaxMonth;
       }
@@ -2283,7 +2285,7 @@ function settleUpTax(
       let nIMonthlyPaymentsPaid = taxMonthlyPaymentsPaid.NIxTotal;
       /* istanbul ignore if  */ //redundant untested
       if (nIMonthlyPaymentsPaid === undefined) {
-        log('Error : expect maps to have been set up in accumulateLiability');
+        log("Error : expect maps to have been set up in accumulateLiability");
         nIMonthlyPaymentsPaid = new Map<string, number>();
         taxMonthlyPaymentsPaid.NIxTotal = nIMonthlyPaymentsPaid;
       }
@@ -2291,7 +2293,7 @@ function settleUpTax(
         taxMonthlyPaymentsPaid.NIxFromFixedIncome;
       /* istanbul ignore if  */ //redundant untested
       if (nIMonthlyPaymentsPaidFixed === undefined) {
-        log('Error : expect maps to have been set up in accumulateLiability');
+        log("Error : expect maps to have been set up in accumulateLiability");
         nIMonthlyPaymentsPaidFixed = new Map<string, number>();
         taxMonthlyPaymentsPaid.NIxFromFixedIncome = nIMonthlyPaymentsPaidFixed;
       }
@@ -2299,7 +2301,7 @@ function settleUpTax(
       for (const [person, amount] of niPersonLiabilityMap) {
         const niFromFixedIncomeMap = incomes.inTaxYear.NIFromFixedIncome;
         if (niFromFixedIncomeMap === undefined) {
-          throw new Error('Expected NIFromFixedIncome to be defined');
+          throw new Error("Expected NIFromFixedIncome to be defined");
         }
         let amountFixed = niFromFixedIncomeMap.get(person);
         if (amountFixed === undefined) {
@@ -2367,7 +2369,7 @@ function settleUpTax(
         });
         nIMonthlyPaymentsPaid.set(person, 0);
       }
-    } else if (key === 'cgt' && personLiabilityMap !== undefined) {
+    } else if (key === "cgt" && personLiabilityMap !== undefined) {
       const cgtPersonLiabilityMap = personLiabilityMap;
       for (const [person, amount] of cgtPersonLiabilityMap) {
         /* eslint-disable-line no-restricted-syntax */
@@ -2405,7 +2407,7 @@ function settleUpTax(
             date,
             `taxBreakdown${person} ${s.source}`,
             true, // reportIfNoChange
-            '99', //callerID
+            "99", //callerID
           );
         }
 
@@ -2436,7 +2438,7 @@ function settleUpTax(
             amount,
             model,
             netIncTag,
-            '27', //callerID
+            "27", //callerID
           );
         }
       }
@@ -2454,7 +2456,7 @@ function settleUpTax(
             amount,
             model,
             makeNetGainTag(person),
-            '28', //callerID
+            "28", //callerID
           );
         }
       }
@@ -2602,7 +2604,7 @@ function payTaxEstimate(
           getTaxMonthDate(startYearOfTaxYear, monthOfTaxYear),
           `taxForFixed${person} for month`,
           true, // reportIfNoChange
-          '49', //callerID
+          "49", //callerID
         );
       }
     }
@@ -2707,7 +2709,7 @@ function payNIEstimate(
           getTaxMonthDate(startYearOfTaxYear, monthOfTaxYear),
           `taxForFixed${person} for month`,
           true, // reportIfNoChange
-          '33', //callerID
+          "33", //callerID
         );
 
         let niPaidFromFixed = nIMonthlyPaymentsPaidFromFixed.get(person);
@@ -3007,7 +3009,7 @@ function handleIncome(
     let amountFrom = 0.0;
     /* istanbul ignore if  */ //error
     if (pt.FROM_ABSOLUTE) {
-      log('Error : malformed model has pension contribution as absolute value');
+      log("Error : malformed model has pension contribution as absolute value");
       amountFrom = tFromValue;
     } else {
       // e.g. employee chooses 5% pension contribution
@@ -3056,14 +3058,14 @@ function handleIncome(
       log(`Error: undefined baseVal ${baseVal}`);
     }
 
-    if (pt.TO === '') {
+    if (pt.TO === "") {
       /* istanbul ignore if  */ //debug
       if (printDebug()) {
-        log('pension contributions going into void');
+        log("pension contributions going into void");
       }
     } else if (pensionValue === undefined) {
       /* istanbul ignore next */
-      log('Error: contributing to undefined pension scheme');
+      log("Error: contributing to undefined pension scheme");
       /* istanbul ignore next */
       log(`model is ${showObj(model)}`);
     } else {
@@ -3087,7 +3089,7 @@ function handleIncome(
         pensionValue,
         model,
         pt.NAME,
-        '7', //callerID
+        "7", //callerID
       );
     }
   });
@@ -3114,7 +3116,7 @@ function handleIncome(
         moment.date,
         `incomeFixed${sourceDescription}`,
         true, // reportIfNoChange
-        '47', //callerID
+        "47", //callerID
       );
     } else {
       // console.log(`skip report flexible income ${moment.date.toDateString()}, ${sourceDescription}, ${amountForCashIncrement}`);
@@ -3122,7 +3124,7 @@ function handleIncome(
   }
 
   // log(`look for ${moment.name+sourceDescription} in liabilitiesMap`);
-  let person = '';
+  let person = "";
   let liabilitiesMapKey = moment.name + sourceDescription;
   let liabilityList = liabilitiesMap.get(liabilitiesMapKey); // e.g. "IncomeTaxJoe, NIJoe"
   if (liabilityList === undefined) {
@@ -3149,7 +3151,7 @@ function handleIncome(
           0,
           liability.length - incomeTax.length,
         );
-        if (person === '') {
+        if (person === "") {
           person = thisPerson;
         } else if (person !== thisPerson) {
           /* istanbul ignore next */
@@ -3174,7 +3176,7 @@ function handleIncome(
           0,
           liability.length - nationalInsurance.length,
         );
-        if (person === '') {
+        if (person === "") {
           person = thisPerson;
         } else if (person !== thisPerson) {
           /* istanbul ignore next */
@@ -3208,7 +3210,7 @@ function logIncomeOrExpenseGrowth(
     }
   }
   growths.set(x.NAME, {
-    itemGrowth: '0.0',
+    itemGrowth: "0.0",
     powerByNumMonths: power,
     scale: 0.0,
     applyCPI: !x.CPI_IMMUNE,
@@ -3228,21 +3230,21 @@ function logAssetGrowth(
   // log(`growth is ${growth}`);
   if (Number.isNaN(growth)) {
     // log(`growth is recognised as NaN`);
-    let settingVal = getSettings(settings, asset.GROWTH, 'None');
+    let settingVal = getSettings(settings, asset.GROWTH, "None");
     // log(`setting value for ${asset.GROWTH} is ${settingVal}`);
     /* istanbul ignore if */
-    if (settingVal === 'None') {
+    if (settingVal === "None") {
       log(`Error: no setting value for asset growth ${asset.GROWTH}`);
-      settingVal = '0.0';
+      settingVal = "0.0";
     }
     growth = parseFloat(settingVal);
     /* istanbul ignore if */
     if (Number.isNaN(growth)) {
-      const settingVal2 = getSettings(settings, settingVal, 'None');
+      const settingVal2 = getSettings(settings, settingVal, "None");
       growth = parseFloat(settingVal2);
       if (Number.isNaN(growth)) {
         log(
-          'Error: cant parse setting value for asset growth ' +
+          "Error: cant parse setting value for asset growth " +
             `${asset.GROWTH} = ${settingVal}`,
         );
         growth = 0.0;
@@ -3309,11 +3311,11 @@ function logAssetValueString(
   const settingVal: string | number = getSettings(
     model.settings,
     assetVal,
-    'missing',
+    "missing",
     false,
   );
   let parsedOK = false;
-  if (settingVal === 'missing') {
+  if (settingVal === "missing") {
     /* istanbul ignore if  */ //debug
     if (debug) {
       log(`there's no setting for ${assetVal}`);
@@ -3370,7 +3372,7 @@ function logAssetValueString(
         parseFloat(settingVal),
         model,
         assetName,
-        '8', //callerID
+        "8", //callerID
       );
       /* istanbul ignore if  */ //debug
       if (debug) {
@@ -3414,7 +3416,7 @@ function logAssetValueString(
         assetVal,
         model,
         assetName,
-        '9', //callerID
+        "9", //callerID
       );
     }
 
@@ -3532,15 +3534,15 @@ function getAssetMoments(
     end: rOIEndDate,
   };
   // log(`roi = ${showObj(roi)}`)
-  let freqString = '1m';
+  let freqString = "1m";
   if (frequency === weekly) {
     if (trackingOnly) {
-      freqString = '1w';
+      freqString = "1w";
     } else {
-      freqString = '1m';
+      freqString = "1m";
     }
   } else if (frequency === annually) {
-    freqString = '1m';
+    freqString = "1m";
   }
   const dates = generateSequenceOfDates(roi, freqString);
   // log(`dates = ${showObj(dates)}`)
@@ -3593,7 +3595,7 @@ function getTransactionMoments(
     // create a sequence of moments
     // use ROI to limit number of moments generated
     let stop = rOIEndDate;
-    if (transaction.STOP_DATE !== '') {
+    if (transaction.STOP_DATE !== "") {
       const transStop = getTriggerDate(transaction.STOP_DATE, triggers, v);
       if (stop > transStop) {
         stop = transStop;
@@ -3639,8 +3641,8 @@ function assetAllowedNegative(assetName: string, asset: Asset) {
     log(`Error : asset name ${assetName} not found in assets list`);
     return (
       assetName === CASH_ASSET_NAME ||
-      assetName.includes('mortgage') ||
-      assetName.includes('Mortgage')
+      assetName.includes("mortgage") ||
+      assetName.includes("Mortgage")
     );
   }
 }
@@ -3659,9 +3661,9 @@ function revalueApplied(
   }
   // log(`it's a revaluation`)
   /* istanbul ignore if */
-  if (t.FROM !== '') {
+  if (t.FROM !== "") {
     log(
-      'WARNING : FROM supplied but no used ' +
+      "WARNING : FROM supplied but no used " +
         `for a revaluation transaction ${showObj(t)}`,
     );
   }
@@ -3687,7 +3689,7 @@ function revalueApplied(
       throw new Error(
         `proportional change to an undefined value not implemented, ${t.NAME}`,
       );
-    } else if (typeof wValue !== 'string') {
+    } else if (typeof wValue !== "string") {
       // log(`${wValue} is a number`);
       prevValue = wValue;
     } else if (isNumberString(wValue)) {
@@ -3698,10 +3700,10 @@ function revalueApplied(
         // log(`${wValue} is a not-number-string`);
         const parts = getNumberAndWordParts(wValue);
         if (parts.numberPart !== undefined && parts.wordPart !== undefined) {
-          if (tToValue !== undefined && typeof tToValue !== 'string') {
+          if (tToValue !== undefined && typeof tToValue !== "string") {
             const newNumberPart = parts.numberPart * tToValue;
             // log(`tToValue = '' + ${newNumberPart} + ${parts.wordPart};`);
-            tToValue = '' + newNumberPart + parts.wordPart;
+            tToValue = "" + newNumberPart + parts.wordPart;
             scaledNumberWordParts = true;
           } else {
             /* istanbul ignore next */
@@ -3734,8 +3736,8 @@ function revalueApplied(
         /* istanbul ignore if */
         if (!scaledNumberWordParts) {
           log(
-            'WARNING : proportional value supplied' +
-              ' for a revaluation transaction' +
+            "WARNING : proportional value supplied" +
+              " for a revaluation transaction" +
               ` with no prev value ${showObj(t)}`,
           );
         }
@@ -3760,7 +3762,7 @@ function revalueApplied(
           if (prevValue === undefined) {
             /* istanbul ignore next */
             log(`WARNING : no prev value found for revalue`);
-          } else if (tToValue === undefined || typeof tToValue === 'string') {
+          } else if (tToValue === undefined || typeof tToValue === "string") {
             /* istanbul ignore next */
             log(`WARNING : tToValue undefined/string for revalue`);
           } else {
@@ -3770,8 +3772,8 @@ function revalueApplied(
               const q = getQuantity(matchingAsset.NAME, values, model);
               /* istanbul ignore if */
               if (q !== undefined) {
-                log('Error: income tax on quantities');
-                throw new Error('income tax on quantities not allowed');
+                log("Error: income tax on quantities");
+                throw new Error("income tax on quantities not allowed");
               }
               accumulateLiability(
                 l,
@@ -3791,7 +3793,7 @@ function revalueApplied(
 
     let appliedBaseVal = false;
     const gd = growthData(w, growths, values);
-    if (t.TO_ABSOLUTE && typeof tToValue === 'number' && gd.adjustForCPI) {
+    if (t.TO_ABSOLUTE && typeof tToValue === "number" && gd.adjustForCPI) {
       const baseVal = gd.baseVal;
       //log(
       //  `for ${
@@ -3809,7 +3811,7 @@ function revalueApplied(
     // log('in revalueApplied:');
     if (
       (!t.TO_ABSOLUTE && tToValue !== undefined) ||
-      (appliedBaseVal && typeof tToValue === 'number')
+      (appliedBaseVal && typeof tToValue === "number")
     ) {
       setValue(
         values,
@@ -3820,7 +3822,7 @@ function revalueApplied(
         tToValue,
         model,
         revalue,
-        '10', //callerID
+        "10", //callerID
       );
     } else {
       // log(`revalue ${w} to ${t.TO_VALUE}`);
@@ -3833,7 +3835,7 @@ function revalueApplied(
         t.TO_VALUE,
         model,
         revalue,
-        '11', //callerID
+        "11", //callerID
       );
     }
   });
@@ -3938,24 +3940,24 @@ function calculateFromChange(
         }
 
         // log(`before date shift, d = ${dateAsString(DateFormatType.Debug,d)}`);
-        if (t.NAME.endsWith('5y')) {
+        if (t.NAME.endsWith("5y")) {
           d.setFullYear(d.getFullYear() + 5);
           bondScale = bondScale ** 5;
-        } else if (t.NAME.endsWith('4y')) {
+        } else if (t.NAME.endsWith("4y")) {
           d.setFullYear(d.getFullYear() + 4);
           bondScale = bondScale ** 4;
-        } else if (t.NAME.endsWith('3y')) {
+        } else if (t.NAME.endsWith("3y")) {
           d.setFullYear(d.getFullYear() + 3);
           bondScale = bondScale ** 3;
-        } else if (t.NAME.endsWith('2y')) {
+        } else if (t.NAME.endsWith("2y")) {
           d.setFullYear(d.getFullYear() + 2);
           bondScale = bondScale ** 2;
-        } else if (t.NAME.endsWith('1y')) {
+        } else if (t.NAME.endsWith("1y")) {
           d.setFullYear(d.getFullYear() + 1);
         } else {
           /* istanbul ignore next */
           log(
-            'BUG - could not infer duration of bond from bond name (does not end 1y etc)',
+            "BUG - could not infer duration of bond from bond name (does not end 1y etc)",
           );
         }
         // log(`after date shift, d = ${dateAsString(DateFormatType.Debug,d)}`);
@@ -4088,7 +4090,7 @@ function calculateFromChange(
     // log(`before considering granular changes, fromChange = ${fromChange}`);
     // log(`cap conditional amount - we only need ${preToValue}`);
     const lowestFromChange = -preToValue / tToValue;
-    const grain = traceEvaluation('Grain', values, growths, t.NAME);
+    const grain = traceEvaluation("Grain", values, growths, t.NAME);
     // log(`Grain's value is ${grain}`);
     if (grain !== undefined && t.TO === CASH_ASSET_NAME && !fromHasQuantity) {
       const granularChange = Math.ceil(lowestFromChange / grain) * grain;
@@ -4135,7 +4137,7 @@ function calculateFromChange(
       q - numberUnits,
       model,
       source,
-      '12', //callerID
+      "12", //callerID
     );
   }
 
@@ -4219,7 +4221,7 @@ function calculateToChange(
   let toChange = 0;
 
   /* istanbul ignore if  */ //error
-  if (t.TO === '') {
+  if (t.TO === "") {
     log(
       `Error - doesn't make sense to calulate a To value for ` +
         `${t.NAME} when destination is empty`,
@@ -4258,7 +4260,7 @@ function calculateToChange(
           newNumUnits,
           model,
           t.TO,
-          '45', //callerID
+          "45", //callerID
         );
         const matchedAsset = model.assets.find((a) => {
           return a.NAME === t.TO;
@@ -4287,7 +4289,7 @@ function calculateToChange(
               newPurchaseVal,
               model,
               t.TO,
-              '46', //callerID
+              "46", //callerID
             );
           }
         }
@@ -4299,7 +4301,7 @@ function calculateToChange(
     if (fromChange === undefined) {
       /* istanbul ignore next */
       throw new Error(
-        'Error: transacting to proportion of undefined fromChange' +
+        "Error: transacting to proportion of undefined fromChange" +
           `${showObj(moment)}`,
       );
     }
@@ -4315,15 +4317,15 @@ function calculateToChange(
       bondScale = 1.0 + (bondInterestRate + cpiVal) / 100.0;
     }
     // duration of the bond powers up the scaling here
-    if (t.NAME.endsWith('5y')) {
+    if (t.NAME.endsWith("5y")) {
       bondScale = bondScale ** 5;
-    } else if (t.NAME.endsWith('4y')) {
+    } else if (t.NAME.endsWith("4y")) {
       bondScale = bondScale ** 4;
-    } else if (t.NAME.endsWith('3y')) {
+    } else if (t.NAME.endsWith("3y")) {
       bondScale = bondScale ** 3;
-    } else if (t.NAME.endsWith('2y')) {
+    } else if (t.NAME.endsWith("2y")) {
       bondScale = bondScale ** 2;
-    } else if (t.NAME.endsWith('1y')) {
+    } else if (t.NAME.endsWith("1y")) {
       // do nothing
     }
     toChange *= bondScale;
@@ -4405,11 +4407,11 @@ function handleCGTLiability(
       newPurchasePrice,
       model,
       t.NAME, // TODO no test??
-      '13', //callerID
+      "13", //callerID
     );
   } else {
     /* istanbul ignore next */
-    log('BUG!! - CGT liability on an asset with no record of purchase price');
+    log("BUG!! - CGT liability on an asset with no record of purchase price");
   }
 }
 
@@ -4445,7 +4447,7 @@ function processTransactionFromTo(
   const preFromValue = traceEvaluation(fromWord, values, growths, fromWord);
   // log(`pound value of ${fromWord} before transaction is ${preFromValue}`);
   let preToValue = undefined;
-  if (toWord !== '') {
+  if (toWord !== "") {
     preToValue = traceEvaluation(toWord, values, growths, toWord);
     /* istanbul ignore if */
     if (preToValue === undefined) {
@@ -4545,9 +4547,9 @@ function processTransactionFromTo(
       newFromValue,
       model,
       makeSourceForFromChange(t),
-      '14', //callerID
+      "14", //callerID
     );
-    if (t.FROM === t.TO && typeof newFromValue === 'number') {
+    if (t.FROM === t.TO && typeof newFromValue === "number") {
       // we have changed the to value now because we just set the from value!
       preToValue = newFromValue;
     }
@@ -4586,7 +4588,7 @@ function processTransactionFromTo(
       if (preToValue === undefined) {
         /* istanbul ignore next */
         throw new Error(
-          'Error: transacting to adjust undefined toValue' +
+          "Error: transacting to adjust undefined toValue" +
             `${showObj(moment)}`,
         );
       }
@@ -4607,9 +4609,9 @@ function processTransactionFromTo(
           investedValue,
           growths,
           moment.date,
-          'bondInvestment',
+          "bondInvestment",
           false, // reportIfNoChange
-          '42', //callerID
+          "42", //callerID
         );
         // log(`recorded investedValue = ${investedValue} with name ${nameForMaturity}`);
       }
@@ -4617,7 +4619,7 @@ function processTransactionFromTo(
       const updateTargetValue =
         toWord.startsWith(pensionTransfer) ||
         !x ||
-        typeof x === 'number' ||
+        typeof x === "number" ||
         isNumberString(x);
       if (updateTargetValue) {
         // log('in processTransactionFromTo, setValue:');
@@ -4642,7 +4644,7 @@ function processTransactionFromTo(
           newToValue,
           model,
           makeSourceForToChange(t),
-          '15', //callerID
+          "15", //callerID
         );
       } else if (x) {
         // log(`Don't write new value for toWord = ${toWord} with value ${x}`);
@@ -4656,7 +4658,7 @@ function processTransactionFromTo(
           x,
           model,
           makeSourceForToChange(t),
-          '15', //callerID
+          "15", //callerID
         );
       }
     }
@@ -4665,7 +4667,7 @@ function processTransactionFromTo(
     // because we paid money into a pension
     ///////////////...
     /* istanbul ignore if */
-    if (t.FROM.endsWith(incomeTax) && t.TO === '') {
+    if (t.FROM.endsWith(incomeTax) && t.TO === "") {
       // We're reducing our income tax liability
       // because of a pension scheme contribution.
       // Make a matching addition to our pensionAllowance
@@ -4728,7 +4730,7 @@ function processTransactionTo(
         q,
         model,
         t.NAME,
-        '37', //callerID
+        "37", //callerID
       );
       const matchedAsset = model.assets.find((a) => {
         return a.NAME === t.TO;
@@ -4764,7 +4766,7 @@ function processTransactionTo(
         value,
         model,
         t.NAME,
-        '16', //callerID
+        "16", //callerID
       );
     }
   }
@@ -4787,7 +4789,7 @@ function processTransactionMoment(
   const t = moment.transaction;
   if (t === undefined) {
     /* istanbul ignore next */
-    throw Error('BUG!!! moment of type transaction should have a transaction');
+    throw Error("BUG!!! moment of type transaction should have a transaction");
   }
   // log(`process transaction ${showObj(t.NAME)}`);
 
@@ -4800,18 +4802,18 @@ function processTransactionMoment(
 
   // Determine how much to take off the From asset(s).
   // Set the reduced value of the From asset accordingly.
-  if (t.FROM !== '') {
+  if (t.FROM !== "") {
     // we can sometimes see multiple 'FROM's
     // handle one word at a time
     let fromWords = t.FROM.split(separator);
     fromWords = replaceCategoryWithAssetNames(fromWords, model);
     for (const fromWord of fromWords) {
       let toWords: string[] = [];
-      if (t.TO !== '') {
+      if (t.TO !== "") {
         toWords = t.TO.split(separator);
         toWords = replaceCategoryWithAssetNames(toWords, model);
       } else {
-        toWords.push('');
+        toWords.push("");
       }
       // log(`transaction to "${t.TO}" as list ${toWords}`);
       for (const toWord of toWords) {
@@ -4831,7 +4833,7 @@ function processTransactionMoment(
         );
       }
     }
-  } else if (t.FROM === '' && t.TO !== '') {
+  } else if (t.FROM === "" && t.TO !== "") {
     // log(`process a transaction from ${t.FROM} to ${t.TO}`);
     processTransactionTo(t, moment, values, growths, evaluations, model);
   }
@@ -4866,7 +4868,7 @@ function logAssetIncomeLiabilities(
 ) {
   // log(`see if ${t.NAME} needs a tax liability`);
   // e.g. CrystallizedPensionJoe
-  if (a.LIABILITY !== '') {
+  if (a.LIABILITY !== "") {
     // log(`logging liability ${showObj(a)}`);
     liabilitiesMap.set(a.NAME, a.LIABILITY);
   } else if (a.NAME.startsWith(crystallizedPension)) {
@@ -4905,7 +4907,7 @@ function logPurchaseValues(
         purchaseValue = tracedValue;
       }
     }
-    if (a.QUANTITY !== '') {
+    if (a.QUANTITY !== "") {
       purchaseValue *= parseFloat(a.QUANTITY);
     }
     // log(`in logPurchaseValues, setValue: ${purchaseValue}`);
@@ -4918,7 +4920,7 @@ function logPurchaseValues(
       purchaseValue,
       model,
       `${purchase}${a.NAME}`,
-      '17', //callerID
+      "17", //callerID
     );
   }
 }
@@ -4939,7 +4941,7 @@ function shiftDate(oldDate: Date, recurrence: string, stepCount: number): Date {
     return newDate;
   } else {
     /* istanbul ignore next  */ //error
-    log('Error : unsupported recurrence');
+    log("Error : unsupported recurrence");
     /* istanbul ignore next  */ //error
     return oldDate;
   }
@@ -5168,7 +5170,7 @@ function generateMoments(
   model.settings.forEach((setting) => {
     // Some types of settings have values at the start of the roi
     if (
-      setting.NAME === 'Grain' ||
+      setting.NAME === "Grain" ||
       setting.NAME.startsWith(bondMaturity) ||
       setting.NAME === bondInterest
     ) {
@@ -5181,7 +5183,7 @@ function generateMoments(
         setting.VALUE,
         model,
         setting.NAME,
-        '35', //callerID
+        "35", //callerID
       );
       return;
     }
@@ -5209,7 +5211,7 @@ function generateMoments(
           setting.VALUE,
           model,
           setting.NAME,
-          '36', //callerID
+          "36", //callerID
         );
         return;
       }
@@ -5234,14 +5236,13 @@ function generateMoments(
           setting.VALUE,
           model,
           setting.NAME,
-          '43', //callerID
+          "43", //callerID
         );
         return;
       }
     }
 
-    const referencingTransactions = model.transactions
-    .filter((t) => {
+    const referencingTransactions = model.transactions.filter((t) => {
       // log(`is setting ${setting.NAME} in t.TO  = ${t.TO}?`);
       // does the setting name appear as part of the transaction TO value?
       if (
@@ -5255,14 +5256,14 @@ function generateMoments(
       return false;
     });
 
-    let referencingDates:{
-      item: Item,
-      date: Date,
+    let referencingDates: {
+      item: Item;
+      date: Date;
     }[] = referencingTransactions.map((t) => {
       return {
         item: t,
         date: getTriggerDate(t.DATE, model.triggers, v),
-      }
+      };
     });
 
     // log(`got referencing dates ${showObj(referencingDates)}`);
@@ -5274,10 +5275,10 @@ function generateMoments(
       return false;
     });
 
-    referencingAssets.sort((a,b) => {
-      if(a.NAME < b.NAME) {
+    referencingAssets.sort((a, b) => {
+      if (a.NAME < b.NAME) {
         return 1;
-      } else if(a.NAME > b.NAME) {
+      } else if (a.NAME > b.NAME) {
         return -1;
       } else {
         return 0;
@@ -5290,20 +5291,21 @@ function generateMoments(
         return {
           item: a,
           date: getTriggerDate(a.START, model.triggers, v),
-        }
+        };
       }),
     );
 
-    if(referencingDates.length > 1) {
+    if (referencingDates.length > 1) {
       // log(`referencingDates for ${setting.NAME} = ${referencingDates.map(d=>dateAsString(DateFormatType.Test,d))}`);
       referencingDates = referencingDates.sort((a, b) => {
-        if(a.date.getTime() < b.date.getTime()){
+        if (a.date.getTime() < b.date.getTime()) {
           return -1;
-        } else if(a.date.getTime() > b.date.getTime()){
+        } else if (a.date.getTime() > b.date.getTime()) {
           return +1;
-        } else if(a.item.NAME < b.item.NAME){ // a silly way but gets stability
+        } else if (a.item.NAME < b.item.NAME) {
+          // a silly way but gets stability
           return 1;
-        } else if(a.item.NAME > b.item.NAME){
+        } else if (a.item.NAME > b.item.NAME) {
           return -1;
         } else {
           return JSON.stringify(a) < JSON.stringify(b) ? 1 : -1; // NQR
@@ -5312,11 +5314,10 @@ function generateMoments(
     }
 
     if (referencingDates.length > 0 && values.get(setting.NAME) === undefined) {
-
       //if(referencingDates.length > 0 && referencingDates[0].date.getTime() !== referencingDates[referencingDates.length -1].date.getTime()) {
-        // log(`could set ${setting.NAME} at 
-        // ${referencingDates[0].item.NAME}-${dateAsString(DateFormatType.Test,referencingDates[0].date)} or 
-        // ${referencingDates[referencingDates.length - 1].item.NAME}-${dateAsString(DateFormatType.Test,referencingDates[referencingDates.length - 1].date)}`);
+      // log(`could set ${setting.NAME} at
+      // ${referencingDates[0].item.NAME}-${dateAsString(DateFormatType.Test,referencingDates[0].date)} or
+      // ${referencingDates[referencingDates.length - 1].item.NAME}-${dateAsString(DateFormatType.Test,referencingDates[referencingDates.length - 1].date)}`);
       //}
 
       // log(`setValue ${setting.NAME} = ${setting.VALUE}`);
@@ -5369,7 +5370,7 @@ function generateMoments(
       d.settingVal,
       model,
       d.settingName,
-      '18', //callerID
+      "18", //callerID
     );
   });
 
@@ -5498,7 +5499,7 @@ function evaluateAllAssets(
   model.settings.forEach((s) => {
     const val = values.get(s.NAME);
     if (
-      typeof s.NAME === 'string' &&
+      typeof s.NAME === "string" &&
       s.NAME.startsWith(bondMaturity) &&
       s.NAME.endsWith(cpi)
     ) {
@@ -5620,9 +5621,9 @@ function handleInflationStep(
       newValue,
       growths,
       date,
-      'baseChange',
+      "baseChange",
       false, // reportIfNoChange
-      '38', //callerID
+      "38", //callerID
     );
   } else {
     log(
@@ -5646,9 +5647,9 @@ function handleAnnualInflationStep(
       baseVal,
       growths,
       date,
-      'annualBaseChange',
+      "annualBaseChange",
       false, // reportIfNoChange
-      '44', //callerID
+      "44", //callerID
     );
   }
 }
@@ -5680,19 +5681,19 @@ function captureLastTaxBands(
         moment.date,
         moment.name,
         false, // reportIfNoChange
-        '39', //callerID
+        "39", //callerID
       );
     };
-    setValFn('noTaxBand', noTaxBand);
-    setValFn('lowTaxBand', lowTaxBand);
-    setValFn('highTaxBand', highTaxBand);
-    setValFn('adjustNoTaxBand', adjustNoTaxBand);
-    setValFn('noNIBand', noNIBand);
-    setValFn('lowNIBand', lowNIBand);
+    setValFn("noTaxBand", noTaxBand);
+    setValFn("lowTaxBand", lowTaxBand);
+    setValFn("highTaxBand", highTaxBand);
+    setValFn("adjustNoTaxBand", adjustNoTaxBand);
+    setValFn("noNIBand", noNIBand);
+    setValFn("lowNIBand", lowNIBand);
 
     // log(`in vals at ${startYearOfTaxYear}, ${makeTwoDP(noTaxBand)}, ${makeTwoDP(lowTaxBand)}, ${makeTwoDP(highTaxBand)}, ${makeTwoDP(adjustNoTaxBand)}`);
   } else {
-    log('Error: undefined resultFromMap or baseVal');
+    log("Error: undefined resultFromMap or baseVal");
   }
 }
 
@@ -5710,8 +5711,8 @@ function handleStartMoment(
   // log(`start moment ${moment.name}, ${moment.type}, ${moment.date}`)
   /* istanbul ignore if */
   if (moment.setValue === undefined) {
-    log('BUG!!! starts of income/asset/expense should have a value!');
-    throw new Error('BUG starts of income/asset/expense should have a value!');
+    log("BUG!!! starts of income/asset/expense should have a value!");
+    throw new Error("BUG starts of income/asset/expense should have a value!");
   }
   // Log quantities for assets which have them; needed for setting value.
   if (moment.type === momentType.assetStart) {
@@ -5728,7 +5729,7 @@ function handleStartMoment(
         startQ,
         model,
         moment.name, // source
-        '19', //callerID
+        "19", //callerID
       );
     }
     const matchingAsset: Asset[] = model.assets.filter((a) => {
@@ -5749,7 +5750,7 @@ function handleStartMoment(
   if (gd.adjustForCPI) {
     // log(`start value for ${valueToStore} needs adjusting for CPI`);
     let valueToScale: number | undefined;
-    if (typeof valueToStore === 'number') {
+    if (typeof valueToStore === "number") {
       valueToScale = valueToStore;
     } else if (isNumberString(valueToStore)) {
       valueToScale = parseFloat(valueToStore);
@@ -5778,7 +5779,7 @@ function handleStartMoment(
       moment.date,
       moment.name, // e.g. Cash (it's just the starting value)
       false, // reportIfNoChange
-      '20', //callerID
+      "20", //callerID
     );
   } else {
     setValue(
@@ -5790,7 +5791,7 @@ function handleStartMoment(
       valueToStore,
       model,
       moment.name, // e.g. Cash (it's just the starting value)
-      '20', //callerID
+      "20", //callerID
     );
   }
   if (moment.type === momentType.incomeStart) {
@@ -5822,7 +5823,7 @@ function handleStartMoment(
       startValue,
       values,
       growths,
-      'expenseStart',
+      "expenseStart",
     );
     if (evaluationStartExpense !== undefined) {
       if (evaluationStartExpense !== 0) {
@@ -5878,7 +5879,7 @@ function growAndEffectMoment(
         val,
         model,
         growth,
-        '21', //callerID
+        "21", //callerID
       );
     }
   } else {
@@ -5983,7 +5984,7 @@ function growAndEffectMoment(
           moment.date,
           growth,
           false, // reportIfNoChange
-          '22a', //callerID
+          "22a", //callerID
         );
       } else {
         // log(`set the value of ${momentName} as ${valToStore}`);
@@ -5996,7 +5997,7 @@ function growAndEffectMoment(
           valToStore,
           model,
           growth,
-          '22b', //callerID
+          "22b", //callerID
         );
       }
       // }
@@ -6067,7 +6068,7 @@ function growAndEffectMoment(
 function getEvaluationsROI(model: ModelData) {
   const range = getROI(model);
   const startDate = range.start;
-  const start2018 = new Date('1 Jan 2018');
+  const start2018 = new Date("1 Jan 2018");
   if (start2018.getTime() < startDate.getTime()) {
     range.start = start2018;
   }
@@ -6114,7 +6115,7 @@ function getEvaluationsInternal(
     log(`check failed, do no evaluations: ${outcome.message}`);
     const reportData: ReportDatum[] = [
       {
-        name: 'Error from evaluations',
+        name: "Error from evaluations",
         date: dateAsString(DateFormatType.View, new Date()),
         source: `check failed: ${outcome.message}`,
         change: undefined,
@@ -6153,7 +6154,7 @@ function getEvaluationsInternal(
   const growths = new Map<string, GrowthData>();
 
   const cpiInitialVal: number = parseFloat(
-    getSettings(model.settings, cpi, '0.0'),
+    getSettings(model.settings, cpi, "0.0"),
   );
 
   const viewRange = getEvaluationsROI(model);
@@ -6214,27 +6215,27 @@ function getEvaluationsInternal(
       cpiInitialVal,
       growths,
       datedMoments[0].date,
-      'start value',
+      "start value",
       false, // reportIfNoChange
-      '0',
+      "0",
     );
     values.set(
       baseForCPI,
       1.0,
       growths,
       datedMoments[0].date,
-      'start value',
+      "start value",
       false, // reportIfNoChange
-      '0',
+      "0",
     );
     values.set(
       annualBaseForCPI,
       1.0,
       growths,
       datedMoments[0].date,
-      'start value',
+      "start value",
       false, // reportIfNoChange
-      '0',
+      "0",
     );
     const first = datedMoments[0].date;
     const last = new Date(datedMoments[datedMoments.length - 1].date);
@@ -6249,7 +6250,7 @@ function getEvaluationsInternal(
         start: last,
         end: first,
       },
-      '1m',
+      "1m",
     );
     const infMoments: Moment[] = infUpdateDates.map((date) => {
       const typeForMoment = momentType.inflation;
@@ -6276,7 +6277,7 @@ function getEvaluationsInternal(
         start: startAnnualCPIEffect,
         end: first,
       },
-      '1y',
+      "1y",
     );
     const annualInfMoments: Moment[] = annualInfUpdateDates.map((date) => {
       const typeForMoment = momentType.inflation;
@@ -6298,7 +6299,7 @@ function getEvaluationsInternal(
       // log(`prepare to log tax band values at ${dateAsString(DateFormatType.Debug,d)}`);
       datedMoments.push({
         date: d,
-        name: 'captureLastTaxBands',
+        name: "captureLastTaxBands",
         type: momentType.inflation,
         setValue: NaN,
         transaction: undefined,
@@ -6366,7 +6367,7 @@ function getEvaluationsInternal(
     const moment = datedMoments.pop();
     if (moment === undefined) {
       /* istanbul ignore next */
-      throw new Error('BUG!!! array length > 0 should pop!');
+      throw new Error("BUG!!! array length > 0 should pop!");
     }
 
     // Each moment we process is in dated order.
@@ -6415,7 +6416,7 @@ function getEvaluationsInternal(
       handleInflationStep(values, growths, moment.date);
     } else if (moment.name === annualBaseForCPI) {
       handleAnnualInflationStep(values, growths, moment.date);
-    } else if (moment.name === 'captureLastTaxBands') {
+    } else if (moment.name === "captureLastTaxBands") {
       captureLastTaxBands(values, growths, moment);
     } else if (moment.type === momentType.transaction) {
       // log(`this is a transaction`);
@@ -6546,7 +6547,7 @@ export function getEvaluations(
       if (d > roiEndDate) {
         roiEndDate = d;
       }
-      if (mt.STOP_DATE !== '') {
+      if (mt.STOP_DATE !== "") {
         const stopDate = getTriggerDate(mt.STOP_DATE, model.triggers, varValue);
         if (stopDate > roiEndDate) {
           roiEndDate = stopDate;
@@ -6577,28 +6578,28 @@ export function getEvaluations(
           {
             NAME: `${bondMaturity}base`,
             ERA: undefined, // bond transaction
-            CATEGORY: '',
+            CATEGORY: "",
             START: dateAsString(
               DateFormatType.Data,
               startDateForBondMaturityCalculation,
             ),
-            VALUE: '1.0',
-            QUANTITY: '', // Quantised assets have unit prices on-screen for table value
+            VALUE: "1.0",
+            QUANTITY: "", // Quantised assets have unit prices on-screen for table value
             // Quantised assets can only be transacted in unit integer quantities
-            GROWTH: '0.0',
+            GROWTH: "0.0",
             CPI_IMMUNE: false,
             CAN_BE_NEGATIVE: true,
             IS_A_DEBT: false,
-            LIABILITY: '',
-            PURCHASE_PRICE: '0.0',
+            LIABILITY: "",
+            PURCHASE_PRICE: "0.0",
           },
         ]),
       settings: model.settings.concat([
         {
           NAME: `${bondMaturity}Prerun`,
           ERA: undefined, // bond setting
-          VALUE: '0.0',
-          HINT: 'suppress warnings on prerun',
+          VALUE: "0.0",
+          HINT: "suppress warnings on prerun",
           TYPE: constType,
         },
       ]),
@@ -6609,7 +6610,7 @@ export function getEvaluations(
     const roiEndSetting = model.settings.find((s) => {
       return s.NAME === roiEnd;
     });
-    let oldRoiEnd = '';
+    let oldRoiEnd = "";
     if (roiEndSetting) {
       oldRoiEnd = roiEndSetting.VALUE;
       roiEndSetting.VALUE = dateAsString(DateFormatType.Data, roiEndDate);
@@ -6678,7 +6679,7 @@ export function getEvaluations(
                 NAME: settingName,
                 ERA: undefined, // cpi base setting
                 VALUE: `${settingValue / baseStart}`,
-                HINT: 'autogenerated setting for Bond maturity values',
+                HINT: "autogenerated setting for Bond maturity values",
                 TYPE: constType,
               });
             }

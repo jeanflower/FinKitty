@@ -1,20 +1,20 @@
-import { getTestModel } from '../../models/testModel';
+import { getTestModel } from "../../models/testModel";
 import {
   MinimalModel,
   custom,
   birthDate,
   roiStart,
   viewType,
-} from '../../localization/stringConstants';
+} from "../../localization/stringConstants";
 import {
   revertToUndoModel,
   applyRedoToModel,
   markForUndo,
   setSetting,
-} from '../../models/modelUtils';
-import { ModelData } from '../../types/interfaces';
-import { defaultTestViewSettings } from './algoTestUtils';
-import { getSettings } from '../../models/modelQueries';
+} from "../../models/modelUtils";
+import { ModelData } from "../../types/interfaces";
+import { defaultTestViewSettings } from "./algoTestUtils";
+import { getSettings } from "../../models/modelQueries";
 
 interface UndoRedoModel {
   name: string;
@@ -69,39 +69,37 @@ function cannotRedo(model: ModelData) {
   expect(applyRedoToModel(model)).toBe(false);
 }
 
-describe('history tests', () => {
-  it('should undo, redo fake data', () => {
-   
+describe("history tests", () => {
+  it("should undo, redo fake data", () => {
     const model: UndoRedoModel | undefined = {
-      name: 'b',
+      name: "b",
       undoModel: {
-        name: 'a',
+        name: "a",
         undoModel: undefined,
         redoModel: undefined,
       },
       redoModel: {
-        name: 'c',
+        name: "c",
         undoModel: undefined,
         redoModel: undefined,
       },
     };
-    expect(model.name === 'b').toBe(true);
+    expect(model.name === "b").toBe(true);
     // log(`model = ${showObj(model)}`);
     revertToUndoModel2(model);
     // log(`model = ${showObj(model)}`);
-    expect(model !== undefined && model.name === 'a').toBe(true);
+    expect(model !== undefined && model.name === "a").toBe(true);
     expect(revertToUndoModel2(model) === undefined).toBe(true);
     applyRedoModel2(model);
-    expect(model !== undefined && model.name === 'b').toBe(true);
+    expect(model !== undefined && model.name === "b").toBe(true);
     applyRedoModel2(model);
-    expect(model !== undefined && model.name === 'c').toBe(true);
+    expect(model !== undefined && model.name === "c").toBe(true);
     expect(applyRedoModel2(model) === undefined).toBe(true);
     revertToUndoModel2(model);
-    expect(model !== undefined && model.name === 'b').toBe(true);
+    expect(model !== undefined && model.name === "b").toBe(true);
   });
 
-  it('should mark, add setting and recover', () => {
-
+  it("should mark, add setting and recover", () => {
     const model = getTestModel(MinimalModel);
 
     // no data for "undo", no data for "redo"
@@ -121,7 +119,7 @@ describe('history tests', () => {
     couldUndo(model);
     cannotRedo(model);
 
-    setSetting(model.settings, 'a', 'b', custom, 'for testing');
+    setSetting(model.settings, "a", "b", custom, "for testing");
     // log(`model with new setting = ${showObj(model)}`);
     expect(model.settings.length).toBe(numSettings + 1);
 
@@ -157,8 +155,7 @@ describe('history tests', () => {
     cannotRedo(model);
   });
 
-  it('should mark, edit setting and recover 01', () => {
-
+  it("should mark, edit setting and recover 01", () => {
     const model = getTestModel(MinimalModel);
 
     const numSettings = 5;
@@ -169,23 +166,23 @@ describe('history tests', () => {
 
     // can't be "undone"
     cannotUndo(model);
-    let dob = getSettings(model.settings, birthDate, 'missingDOB');
-    expect(dob === '').toBe(true);
+    let dob = getSettings(model.settings, birthDate, "missingDOB");
+    expect(dob === "").toBe(true);
 
     markForUndo(model);
     // log(`model with undo = ${showObj(model)}`);
 
     couldUndo(model);
-    setSetting(model.settings, birthDate, '1 Jan 2000', custom, 'for testing');
+    setSetting(model.settings, birthDate, "1 Jan 2000", custom, "for testing");
     // log(`model with new setting = ${showObj(model)}`);
 
-    dob = getSettings(model.settings, birthDate, 'missingDOB');
-    expect(dob === '1 Jan 2000').toBe(true);
+    dob = getSettings(model.settings, birthDate, "missingDOB");
+    expect(dob === "1 Jan 2000").toBe(true);
 
     // can be "undone"
     expect(revertToUndoModel(model)).toBe(true);
-    dob = getSettings(model.settings, birthDate, 'missingDOB');
-    expect(dob === '').toBe(true);
+    dob = getSettings(model.settings, birthDate, "missingDOB");
+    expect(dob === "").toBe(true);
     // log(`model = ${showObj(model)}`);
 
     // can't "undo"
@@ -193,60 +190,58 @@ describe('history tests', () => {
     expect(model.settings.length).toBe(numSettings);
   });
 
-  it('should mark, edit setting and recover  02', () => {
-
+  it("should mark, edit setting and recover  02", () => {
     const model = getTestModel(MinimalModel);
 
     cannotUndo(model);
-    let roiStartVal = getSettings(model.settings, roiStart, 'unknown');
-    expect(roiStartVal).toBe('01 Jan 2017');
+    let roiStartVal = getSettings(model.settings, roiStart, "unknown");
+    expect(roiStartVal).toBe("01 Jan 2017");
     // log(`model without undo = ${showObj(model)}`);
 
     markForUndo(model);
     // log(`model with undo = ${showObj(model)}`);
 
-    setSetting(model.settings, roiStart, '1 Jan 2018', viewType, 'for testing');
+    setSetting(model.settings, roiStart, "1 Jan 2018", viewType, "for testing");
     // log(`model with new setting = ${showObj(model)}`);
 
-    roiStartVal = getSettings(model.settings, roiStart, 'unknown');
-    expect(roiStartVal).toBe('1 Jan 2018');
+    roiStartVal = getSettings(model.settings, roiStart, "unknown");
+    expect(roiStartVal).toBe("1 Jan 2018");
 
     // can be "undone"
     expect(revertToUndoModel(model)).toBe(true);
-    roiStartVal = getSettings(model.settings, roiStart, 'unknown');
-    expect(roiStartVal).toBe('01 Jan 2017');
+    roiStartVal = getSettings(model.settings, roiStart, "unknown");
+    expect(roiStartVal).toBe("01 Jan 2017");
     // log(`model = ${showObj(model)}`);
 
     // can't "undo"
     cannotUndo(model);
-    roiStartVal = getSettings(model.settings, roiStart, 'unknown');
-    expect(roiStartVal).toBe('01 Jan 2017');
+    roiStartVal = getSettings(model.settings, roiStart, "unknown");
+    expect(roiStartVal).toBe("01 Jan 2017");
   });
 
-  it('should mark, edit, mark, edit setting and recover', () => {
-
+  it("should mark, edit, mark, edit setting and recover", () => {
     const model = getTestModel(MinimalModel);
 
     cannotUndo(model);
-    let roiStartVal = getSettings(model.settings, roiStart, 'unknown');
-    expect(roiStartVal).toBe('01 Jan 2017');
+    let roiStartVal = getSettings(model.settings, roiStart, "unknown");
+    expect(roiStartVal).toBe("01 Jan 2017");
     // log(`model without undo = ${showObj(model)}`);
 
     markForUndo(model);
-    setSetting(model.settings, roiStart, '1 Jan 2018', viewType, 'for testing');
+    setSetting(model.settings, roiStart, "1 Jan 2018", viewType, "for testing");
     markForUndo(model);
-    setSetting(model.settings, roiStart, '1 Jan 2019', viewType, 'for testing');
+    setSetting(model.settings, roiStart, "1 Jan 2019", viewType, "for testing");
 
-    roiStartVal = getSettings(model.settings, roiStart, 'unknown');
-    expect(roiStartVal).toBe('1 Jan 2019');
-
-    expect(revertToUndoModel(model)).toBe(true);
-    roiStartVal = getSettings(model.settings, roiStart, 'unknown');
-    expect(roiStartVal).toBe('01 Jan 2018');
+    roiStartVal = getSettings(model.settings, roiStart, "unknown");
+    expect(roiStartVal).toBe("1 Jan 2019");
 
     expect(revertToUndoModel(model)).toBe(true);
-    roiStartVal = getSettings(model.settings, roiStart, 'unknown');
-    expect(roiStartVal).toBe('01 Jan 2017');
+    roiStartVal = getSettings(model.settings, roiStart, "unknown");
+    expect(roiStartVal).toBe("01 Jan 2018");
+
+    expect(revertToUndoModel(model)).toBe(true);
+    roiStartVal = getSettings(model.settings, roiStart, "unknown");
+    expect(roiStartVal).toBe("01 Jan 2017");
 
     cannotUndo(model);
   });

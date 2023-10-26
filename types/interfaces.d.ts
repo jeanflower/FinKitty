@@ -248,23 +248,23 @@ export interface ChartSettings {
   };
 
   axisX: {
-    label//renderCell: ({ label: string }) => string;
+    label; //renderCell: ({ label: string }) => string;
   };
 }
 
 export type finkittyButtonType =
-  | 'primary'
-  | 'secondary'
-  | 'success'
-  | 'outline-primary'
-  | 'outline-secondary'
-  | 'outline-success';
+  | "primary"
+  | "secondary"
+  | "success"
+  | "outline-primary"
+  | "outline-secondary"
+  | "outline-success";
 
 export interface DeleteResult {
   itemsDeleted: string[];
   message: string;
 }
-  
+
 export interface ViewCallbacks {
   showAlert: (arg0: string) => void;
   deleteTransactions: (arg: string[]) => void;
@@ -272,46 +272,49 @@ export interface ViewCallbacks {
   getStartDate: () => string;
   getEndDate: () => string;
   updateStartDate: (newDate: string) => Promise<{
-    updated: boolean,
-    value: string, // value after attempt (pre-existing if updated = false)
+    updated: boolean;
+    value: string; // value after attempt (pre-existing if updated = false)
   }>;
   updateEndDate: (newDate: string) => Promise<{
-    updated: boolean,
-    value: string, // value after attempt (pre-existing if updated = false)
+    updated: boolean;
+    value: string; // value after attempt (pre-existing if updated = false)
   }>;
   updateFrequency: (newVal: string) => boolean;
   filterForEra: (item: Item) => boolean;
   filterForSearch: (item: Item) => boolean;
   getSearchString: () => string;
   setSearchString: (s: string) => void;
-  doCheckBeforeOverwritingExistingData: () => boolean,
-  doShowTodaysValueColumns: () => boolean,
+  doCheckBeforeOverwritingExistingData: () => boolean;
+  doShowTodaysValueColumns: () => boolean;
 
   refreshData: (
     refreshModel: boolean,
     refreshChart: boolean,
     sourceID: number,
-  ) => Promise<void>,
+  ) => Promise<void>;
 
-  deleteAsset: (name: string) => Promise<DeleteResult>,
-  deleteExpense: (name: string) => Promise<DeleteResult>,
-  deleteIncome: (name: string) => Promise<DeleteResult>,
-  deleteSetting: (name: string) => Promise<DeleteResult>,
-  deleteTrigger: (name: string) => Promise<DeleteResult>,
-  deleteTransaction: (name: string) => Promise<DeleteResult>,
+  deleteAsset: (name: string) => Promise<DeleteResult>;
+  deleteExpense: (name: string) => Promise<DeleteResult>;
+  deleteIncome: (name: string) => Promise<DeleteResult>;
+  deleteSetting: (name: string) => Promise<DeleteResult>;
+  deleteTrigger: (name: string) => Promise<DeleteResult>;
+  deleteTransaction: (name: string) => Promise<DeleteResult>;
 
-  setEraAsset: (name: string, value: number) => Promise<boolean>,
-  setEraExpense: (name: string, value: number) => Promise<boolean>,
-  setEraIncome: (name: string, value: number) => Promise<boolean>,
-  setEraSetting: (name: string, value: number) => Promise<boolean>,
-  setEraTrigger: (name: string, value: number) => Promise<boolean>,
-  setEraTransaction: (name: string, value: number) => Promise<boolean>,
+  setEraAsset: (name: string, value: number) => Promise<boolean>;
+  setEraExpense: (name: string, value: number) => Promise<boolean>;
+  setEraIncome: (name: string, value: number) => Promise<boolean>;
+  setEraSetting: (name: string, value: number) => Promise<boolean>;
+  setEraTrigger: (name: string, value: number) => Promise<boolean>;
+  setEraTransaction: (name: string, value: number) => Promise<boolean>;
 
-  submitAsset: (assetInput: Asset, modelData: ModelData) => Promise<void>,
-  submitExpense: (expenseInput: Expense, modelData: ModelData) => Promise<void>,
-  submitIncome: (incomeInput: Income, modelData: ModelData) => Promise<boolean>,
-  submitTransaction: (transactionInput: Transaction, modelData: ModelData) => Promise<void>,
-  submitTrigger: (triggerInput: Trigger, modelData: ModelData) => Promise<void>,
+  submitAsset: (assetInput: Asset, modelData: ModelData) => Promise<void>;
+  submitExpense: (expenseInput: Expense, modelData: ModelData) => Promise<void>;
+  submitIncome: (incomeInput: Income, modelData: ModelData) => Promise<boolean>;
+  submitTransaction: (
+    transactionInput: Transaction,
+    modelData: ModelData,
+  ) => Promise<void>;
+  submitTrigger: (triggerInput: Trigger, modelData: ModelData) => Promise<void>;
 
   editSetting: (
     settingInput: {
@@ -321,5 +324,5 @@ export interface ViewCallbacks {
       HINT: string;
     },
     modelData: ModelData,
-  ) => Promise<void>,
+  ) => Promise<void>;
 }

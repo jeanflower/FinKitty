@@ -1,18 +1,18 @@
-import React, { Component, FormEvent } from 'react';
+import React, { Component, FormEvent } from "react";
 
-import { log, printDebug, showObj } from '../../utils/utils';
-import { InputRow } from './Input';
+import { log, printDebug, showObj } from "../../utils/utils";
+import { InputRow } from "./Input";
 
 interface EditFormState {
-  originalValue: string
+  originalValue: string;
   value: string;
 }
 interface EditProps {
   name: string;
   getValue: () => string;
   submitFunction: (value: string) => Promise<{
-    updated: boolean,
-    value: string,
+    updated: boolean;
+    value: string;
   }>;
   showAlert: (message: string) => void;
 }
@@ -21,7 +21,7 @@ export class AddDeleteEntryForm extends Component<EditProps, EditFormState> {
     super(props);
     /* istanbul ignore if  */
     if (printDebug()) {
-      log('props for AddDeleteEntryForm: ' + showObj(props));
+      log("props for AddDeleteEntryForm: " + showObj(props));
     }
 
     this.state = {
@@ -40,7 +40,7 @@ export class AddDeleteEntryForm extends Component<EditProps, EditFormState> {
       <form className="container-fluid" onSubmit={this.add}>
         <InputRow
           title={`${this.props.name}`}
-          type={'text'}
+          type={"text"}
           name={`EditWidget${this.props.name}`}
           value={this.state.value}
           placeholder={this.props.getValue()}

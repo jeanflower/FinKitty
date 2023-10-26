@@ -1,5 +1,5 @@
-import React, { Component, FormEvent } from 'react';
-import { Col, Row } from 'react-bootstrap';
+import React, { Component, FormEvent } from "react";
+import { Col, Row } from "react-bootstrap";
 
 import {
   Expense,
@@ -8,22 +8,22 @@ import {
   Trigger,
   FormProps,
   DeleteResult,
-} from '../../types/interfaces';
-import { log, printDebug, showObj } from '../../utils/utils';
-import { makeButton } from './Button';
-import { DateSelectionRow, itemOptions } from './DateSelectionRow';
-import { Input } from './Input';
-import { revalueExp } from '../../localization/stringConstants';
+} from "../../types/interfaces";
+import { log, printDebug, showObj } from "../../utils/utils";
+import { makeButton } from "./Button";
+import { DateSelectionRow, itemOptions } from "./DateSelectionRow";
+import { Input } from "./Input";
+import { revalueExp } from "../../localization/stringConstants";
 
-import { makeRevalueName } from '../../models/modelUtils';
+import { makeRevalueName } from "../../models/modelUtils";
 import {
   makeValueAbsPropFromString,
   checkTriggerDate,
   makeBooleanFromYesNo,
   lessThan,
-} from '../../utils/stringUtils';
-import Spacer from 'react-spacer';
-import { getVarVal, isNumberString } from '../../models/modelQueries';
+} from "../../utils/stringUtils";
+import Spacer from "react-spacer";
+import { getVarVal, isNumberString } from "../../models/modelQueries";
 
 interface EditExpenseFormState {
   NAME: string;
@@ -37,18 +37,13 @@ interface EditExpenseFormState {
   inputting: string;
 }
 
-const inputtingRevalue = 'revalue';
-const inputtingExpense = 'expense';
+const inputtingRevalue = "revalue";
+const inputtingExpense = "expense";
 
 interface EditExpenseProps extends FormProps {
   checkFunction: (e: Expense, model: ModelData) => string;
-  submitFunction: (
-    expenseInput: Expense, 
-    modelData: ModelData,
-  ) => Promise<any>;
-  deleteFunction: (
-    name: string,
-  ) => Promise<DeleteResult>;
+  submitFunction: (expenseInput: Expense, modelData: ModelData) => Promise<any>;
+  deleteFunction: (name: string) => Promise<DeleteResult>;
   submitTriggerFunction: (
     triggerInput: Trigger,
     modelData: ModelData,
@@ -74,14 +69,14 @@ export class AddDeleteExpenseForm extends Component<
         ${showObj(props.model.triggers.length)} triggers`);
     }
     this.defaultState = {
-      NAME: '',
-      VALUE: '',
-      VALUE_SET: '',
-      START: '',
-      END: '',
-      GROWS_WITH_CPI: '',
-      CATEGORY: '',
-      RECURRENCE: '',
+      NAME: "",
+      VALUE: "",
+      VALUE_SET: "",
+      START: "",
+      END: "",
+      GROWS_WITH_CPI: "",
+      CATEGORY: "",
+      RECURRENCE: "",
       inputting: inputtingExpense,
     };
 
@@ -125,7 +120,7 @@ export class AddDeleteExpenseForm extends Component<
               placeholder="Enter Y/N"
               onChange={this.handleGrowsWithCPIChange}
             />
-          </Col>{' '}
+          </Col>{" "}
         </Row>
         <Row>
           <Col>
@@ -137,7 +132,7 @@ export class AddDeleteExpenseForm extends Component<
               placeholder="recurrence"
               onChange={this.handleRecurrenceChange}
             />
-          </Col>{' '}
+          </Col>{" "}
           <Col>
             <Input
               title="Category (optional, e.g. Basic or Leisure)"
@@ -147,7 +142,7 @@ export class AddDeleteExpenseForm extends Component<
               placeholder="category"
               onChange={this.handleCategoryChange}
             />
-          </Col>{' '}
+          </Col>{" "}
         </Row>
       </>
     );
@@ -188,19 +183,19 @@ export class AddDeleteExpenseForm extends Component<
   private goButton(): React.ReactNode {
     if (this.state.inputting === inputtingExpense) {
       return makeButton(
-        'Create new expense (over-writes any existing with the same name)',
+        "Create new expense (over-writes any existing with the same name)",
         this.add,
-        'addExpense',
-        'addExpense',
-        'primary',
+        "addExpense",
+        "addExpense",
+        "primary",
       );
     } else {
       return makeButton(
-        'Revalue an expense',
+        "Revalue an expense",
         this.revalue,
-        'revalueExpense',
-        'revalueExpense',
-        'primary',
+        "revalueExpense",
+        "revalueExpense",
+        "primary",
       );
     }
   }
@@ -211,22 +206,22 @@ export class AddDeleteExpenseForm extends Component<
       <>
         <div className="btn-group ml-3" role="group">
           {makeButton(
-            'Add new expense mode',
+            "Add new expense mode",
             this.setInputExpense,
-            'useExpenseInputs',
-            'useExpenseInputs',
+            "useExpenseInputs",
+            "useExpenseInputs",
             this.state.inputting === inputtingExpense
-              ? 'primary'
-              : 'outline-secondary',
+              ? "primary"
+              : "outline-secondary",
           )}
           {makeButton(
-            'Revalue expense mode',
+            "Revalue expense mode",
             this.setInputRevalue,
-            'useRevalueInputsExpense',
-            'useRevalueInputsExpense',
+            "useRevalueInputsExpense",
+            "useRevalueInputsExpense",
             this.state.inputting === inputtingRevalue
-              ? 'primary'
-              : 'outline-secondary',
+              ? "primary"
+              : "outline-secondary",
           )}
         </div>
         <form className="container-fluid" onSubmit={this.add}>
@@ -241,7 +236,7 @@ export class AddDeleteExpenseForm extends Component<
                 placeholder="Enter value"
                 onChange={this.handleValueChange}
               />
-            </Col>{' '}
+            </Col>{" "}
           </Row>
           <div className="container-fluid">
             {/* fills width */}
@@ -276,8 +271,8 @@ export class AddDeleteExpenseForm extends Component<
             }),
             this.props.model,
             this.handleNameChange,
-            'expensename',
-            'Select expense',
+            "expensename",
+            "Select expense",
           )}
         </>
       );
@@ -358,7 +353,7 @@ export class AddDeleteExpenseForm extends Component<
   private async revalue(e: React.MouseEvent<HTMLButtonElement>): Promise<void> {
     e.preventDefault();
 
-    log('in function revalue');
+    log("in function revalue");
     const parseVal = makeValueAbsPropFromString(this.state.VALUE);
     if (!parseVal.checksOK) {
       this.props.showAlert(
@@ -383,17 +378,17 @@ export class AddDeleteExpenseForm extends Component<
     const revalueExpenseTransaction: Transaction = {
       NAME: `${newName}`,
       ERA: 0, // new things are automatically current,
-      FROM: '',
+      FROM: "",
       FROM_ABSOLUTE: false,
-      FROM_VALUE: '0.0',
+      FROM_VALUE: "0.0",
       TO: this.state.NAME,
       TO_ABSOLUTE: parseVal.absolute,
       TO_VALUE: parseVal.value,
       DATE: this.state.VALUE_SET, // match the income start date
       TYPE: revalueExp,
-      RECURRENCE: '',
-      STOP_DATE: '',
-      CATEGORY: '',
+      RECURRENCE: "",
+      STOP_DATE: "",
+      CATEGORY: "",
     };
     log(`revalueExpenseTransaction = ${showObj(revalueExpenseTransaction)}`);
     const message = await this.props.checkTransactionFunction(
@@ -409,7 +404,7 @@ export class AddDeleteExpenseForm extends Component<
       this.props.model,
     );
 
-    this.props.showAlert('added new data');
+    this.props.showAlert("added new data");
     // clear fields
     this.setState(this.defaultState);
     return;
@@ -417,7 +412,7 @@ export class AddDeleteExpenseForm extends Component<
   private async add(e: FormEvent<Element>): Promise<void> {
     e.preventDefault();
 
-    if (this.state.NAME === '') {
+    if (this.state.NAME === "") {
       this.props.showAlert(`Name should be not empty`);
       return;
     }
@@ -474,7 +469,8 @@ export class AddDeleteExpenseForm extends Component<
     const parsedYN = makeBooleanFromYesNo(this.state.GROWS_WITH_CPI);
     if (!parsedYN.checksOK) {
       this.props.showAlert(
-        `Grows with inflation '${this.state.GROWS_WITH_CPI}' should be a Y/N value`,
+        `Grows with inflation '${this.state.GROWS_WITH_CPI}' ` +
+          `should be a Y/N value`,
       );
       return;
     }
@@ -496,7 +492,7 @@ export class AddDeleteExpenseForm extends Component<
       this.props.showAlert(message);
     } else {
       await this.props.submitFunction(expense, this.props.model);
-      this.props.showAlert('added new expense');
+      this.props.showAlert("added new expense");
       // clear fields
       this.setState(this.defaultState);
     }
@@ -505,9 +501,9 @@ export class AddDeleteExpenseForm extends Component<
     e.preventDefault();
     // log('deleting something ' + showObj(this));
     const deleteResult = await this.props.deleteFunction(this.state.NAME);
-    if (deleteResult.message === '') {
+    if (deleteResult.message === "") {
       if (deleteResult.itemsDeleted.length === 1) {
-        this.props.showAlert('deleted expense');
+        this.props.showAlert("deleted expense");
       } else {
         this.props.showAlert(`deleted ${deleteResult.itemsDeleted}`);
       }

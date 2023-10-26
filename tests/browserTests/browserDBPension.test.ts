@@ -1,4 +1,4 @@
-import { pensionDB, TestModel02 } from '../../localization/stringConstants';
+import { pensionDB, TestModel02 } from "../../localization/stringConstants";
 import {
   addIncome,
   incomeInputs,
@@ -9,7 +9,7 @@ import {
   quitAfterAll,
   transactionsTag,
   sleep,
-} from './browserTestUtils';
+} from "./browserTestUtils";
 import {
   getDriver,
   beforeAllWork,
@@ -17,12 +17,12 @@ import {
   cleanUpWork,
   scrollIntoViewByID,
   getDataDumpFromPage,
-} from './browserBaseTypes';
-import { showObj } from '../../utils/utils';
+} from "./browserBaseTypes";
+import { showObj } from "../../utils/utils";
 
 showObj;
 
-const testName = 'BrowserDBPensionTest';
+const testName = "BrowserDBPensionTest";
 
 let alreadyRunning = false;
 
@@ -39,27 +39,27 @@ describe(testName, () => {
   jest.setTimeout(200000); // allow time for all these tests to run
 
   const inputs = {
-    name: 'pensionName',
-    value: '2500',
-    valuationDate: '1 Jan 2022',
-    contributionsEndDate: '1 Jan 2025',
-    startDate: '1 Jan 2030',
-    pensionEndOrTransferDate: '1 Jan 2035',
-    transferredStopDate: '1 Jan 2040',
-    incomeSource: 'javaJob1',
-    contributionSSIncome: 'N',
-    contributionAmountPensionIncome: '0.05',
-    incomeaccrual: '0.02',
-    transferName: 'Jack',
-    transferProportion: '0.5',
-    incomeGrowth: '2.0',
-    incomecpiGrows: 'N',
-    liability: 'Joe',
-    category: 'pension',
+    name: "pensionName",
+    value: "2500",
+    valuationDate: "1 Jan 2022",
+    contributionsEndDate: "1 Jan 2025",
+    startDate: "1 Jan 2030",
+    pensionEndOrTransferDate: "1 Jan 2035",
+    transferredStopDate: "1 Jan 2040",
+    incomeSource: "javaJob1",
+    contributionSSIncome: "N",
+    contributionAmountPensionIncome: "0.05",
+    incomeaccrual: "0.02",
+    transferName: "Jack",
+    transferProportion: "0.5",
+    incomeGrowth: "2.0",
+    incomecpiGrows: "N",
+    liability: "Joe",
+    category: "pension",
   };
 
-  it('DB pension inputs problem path', async () => {
-    const testDataModelName = 'BrowserDBPensionTest01';
+  it("DB pension inputs problem path", async () => {
+    const testDataModelName = "BrowserDBPensionTest01";
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -74,85 +74,85 @@ describe(testName, () => {
     });
 
     await scrollIntoViewByID(driver, `useDBPInputs`);
-    await driver.executeScript('window.scrollBy(0, -2000)'); 
-    await sleep(1000, 'before going to click useDBPInputs');
+    await driver.executeScript("window.scrollBy(0, -2000)");
+    await sleep(1000, "before going to click useDBPInputs");
 
     // console.log(`clicking...`);
-    await clickButton(driver, 'useDBPInputs');
+    await clickButton(driver, "useDBPInputs");
     // console.log(`clicked...`);
 
     await addDBPension(driver, {
       ...inputs,
-      name: '',
-      message: 'Income name should be non-empty', // TODO "Pension..." not "Income..."
+      name: "",
+      message: "Income name should be non-empty", // TODO "Pension..." not "Income..."
     });
 
     await clearPensionFields(driver);
     await addDBPension(driver, {
       ...inputs,
-      value: 'junkjunk',
+      value: "junkjunk",
       message:
-        'Income value junkjunk should be numerical or built from an Asset or setting',
+        "Income value junkjunk should be numerical or built from an Asset or setting",
     });
 
     await clearPensionFields(driver);
     await addDBPension(driver, {
       ...inputs,
-      valuationDate: 'junkjunk',
-      message: 'Value set date should be a date',
+      valuationDate: "junkjunk",
+      message: "Value set date should be a date",
     });
 
     await clearPensionFields(driver);
     await addDBPension(driver, {
       ...inputs,
-      name: 'xyzJunk',
-      contributionsEndDate: 'junkjunk',
+      name: "xyzJunk",
+      contributionsEndDate: "junkjunk",
       message: `Transaction '-PEN xyzJunk' has bad stop date : "junkjunk"`,
     });
 
     await clearPensionFields(driver);
     await addDBPension(driver, {
       ...inputs,
-      startDate: 'junkjunk',
+      startDate: "junkjunk",
       message: `Income '-PDB pensionName' start date doesn't make sense : \"junkjunk\"`,
     });
 
     await clearPensionFields(driver);
     await addDBPension(driver, {
       ...inputs,
-      pensionEndOrTransferDate: 'junkjunk',
+      pensionEndOrTransferDate: "junkjunk",
       message: `Income '-PDB pensionName' end date doesn\'t make sense : "junkjunk"`,
     });
 
     await clearPensionFields(driver);
     await addDBPension(driver, {
       ...inputs,
-      transferredStopDate: 'junkjunk',
+      transferredStopDate: "junkjunk",
       message: `Income '-PT pensionName' end date doesn't make sense : \"junkjunk\"`,
     });
 
     await clearPensionFields(driver);
     await addDBPension(driver, {
       ...inputs,
-      valuationDate: '1 Jan 2020', // date is before javaJob1 begins
+      valuationDate: "1 Jan 2020", // date is before javaJob1 begins
       message: `Transaction '-PEN pensionName' from unrecognised asset (could be typo or before asset start date?) : "javaJob1"`,
     });
 
     await clearPensionFields(driver);
     await addDBPension(driver, {
       ...inputs,
-      name: 'badEndDate',
-      valuationDate: '1 Jan 2023',
-      contributionsEndDate: '1 Jan 2022', // stop before start,
-      message: 'added new data', // BUG the end date for contributions is being ignored
+      name: "badEndDate",
+      valuationDate: "1 Jan 2023",
+      contributionsEndDate: "1 Jan 2022", // stop before start,
+      message: "added new data", // BUG the end date for contributions is being ignored
       // we should enforce it's after the start date
     });
 
     await clearPensionFields(driver);
     await addDBPension(driver, {
       ...inputs,
-      startDate: '1 Jan 2033',
-      pensionEndOrTransferDate: '1 Jan 2032', // transfer pension before pension begins paying out?
+      startDate: "1 Jan 2033",
+      pensionEndOrTransferDate: "1 Jan 2032", // transfer pension before pension begins paying out?
       message:
         `Transaction '-PT pensionName' from unrecognised asset ` +
         `(could be typo or before asset start date?) : "${pensionDB}pensionName"`,
@@ -162,44 +162,44 @@ describe(testName, () => {
     await clearPensionFields(driver);
     await addDBPension(driver, {
       ...inputs,
-      name: 'transferStopsBeforeTransfer',
-      pensionEndOrTransferDate: '1 Jan 2037',
-      transferredStopDate: '1 Jan 2035', // transferred pension stops before transfer occurred?
-      message: 'added new data', // BUG :this probably shouldn't be allowed?
+      name: "transferStopsBeforeTransfer",
+      pensionEndOrTransferDate: "1 Jan 2037",
+      transferredStopDate: "1 Jan 2035", // transferred pension stops before transfer occurred?
+      message: "added new data", // BUG :this probably shouldn't be allowed?
     });
 
     await clearPensionFields(driver);
     await addDBPension(driver, {
       ...inputs,
-      contributionSSIncome: 'junk',
+      contributionSSIncome: "junk",
       message: "Salary sacrifice 'junk' should be a Y/N value",
     });
 
     await clearPensionFields(driver);
     await addDBPension(driver, {
       ...inputs,
-      contributionAmountPensionIncome: 'junk',
+      contributionAmountPensionIncome: "junk",
       message: "Contribution amount 'junk' should be a numerical value",
     });
 
     await clearPensionFields(driver);
     await addDBPension(driver, {
       ...inputs,
-      incomeaccrual: 'junk',
+      incomeaccrual: "junk",
       message: "Accrual value 'junk' should be a numerical value",
     });
 
     await clearPensionFields(driver);
     await addDBPension(driver, {
       ...inputs,
-      transferProportion: 'junk',
-      message: 'Transfer proportion junk should be a numerical value',
+      transferProportion: "junk",
+      message: "Transfer proportion junk should be a numerical value",
     });
 
     await clearPensionFields(driver);
     await addDBPension(driver, {
       ...inputs,
-      liability: '',
+      liability: "",
       message:
         "Source income 'javaJob1' should have income tax liability matching ''",
     });
@@ -207,7 +207,7 @@ describe(testName, () => {
     await clearPensionFields(driver);
     await addDBPension(driver, {
       ...inputs,
-      liability: 'Susan',
+      liability: "Susan",
       message:
         "Source income 'javaJob1' should have income tax liability matching 'Susan(incomeTax)'",
     });
@@ -215,8 +215,8 @@ describe(testName, () => {
     await cleanUpWork(driver, testDataModelName);
   });
 
-  it('DB pension inputs happy path', async () => {
-    const testDataModelName = 'BrowserDBPensionTest02';
+  it("DB pension inputs happy path", async () => {
+    const testDataModelName = "BrowserDBPensionTest02";
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -231,90 +231,90 @@ describe(testName, () => {
     });
 
     await scrollIntoViewByID(driver, `useDBPInputs`);
-    await driver.executeScript('window.scrollBy(0, -1000)'); 
+    await driver.executeScript("window.scrollBy(0, -1000)");
 
     // console.log(`clicking...`);
-    await clickButton(driver, 'useDBPInputs');
+    await clickButton(driver, "useDBPInputs");
     // console.log(`clicked...`);
 
     await addDBPension(driver, {
       ...inputs,
-      name: 'TeachersPensionScheme',
-      message: 'added new data', // TODO "added pension information",
+      name: "TeachersPensionScheme",
+      message: "added new data", // TODO "added pension information",
     });
 
     await gotoTabPage(driver, transactionsTag);
-    let data = await getDataDumpFromPage(driver, 'autogenTransactionsTable');
+    let data = await getDataDumpFromPage(driver, "autogenTransactionsTable");
     expect(data.length).toBe(3);
     expect(data[0]).toEqual({
-      DATE: '1 Jan 2035',
-      FROM: '-PDB TeachersPensionScheme',
-      FROM_VALUE: '100%',
-      NAME: '-PT TeachersPensionScheme',
+      DATE: "1 Jan 2035",
+      FROM: "-PDB TeachersPensionScheme",
+      FROM_VALUE: "100%",
+      NAME: "-PT TeachersPensionScheme",
       ERA: 0,
-      TO: '-PT TeachersPensionScheme',
-      TO_VALUE: '50%',
-      STOP_DATE: '1 Jan 2040',
-      RECURRENCE: '',
-      TYPE: 'auto',
-      CATEGORY: 'pension',
+      TO: "-PT TeachersPensionScheme",
+      TO_VALUE: "50%",
+      STOP_DATE: "1 Jan 2040",
+      RECURRENCE: "",
+      TYPE: "auto",
+      CATEGORY: "pension",
       index: 0,
     });
     data = await getDataDumpFromPage(
       driver,
-      'autogenTransactionsOverviewTable',
+      "autogenTransactionsOverviewTable",
     );
     expect(data.length).toBe(3);
     expect(data[0]).toEqual({
-      DATE: '1 Jan 2035',
-      FROM: '-PDB TeachersPensionScheme',
-      FROM_VALUE: '100%',
-      NAME: '-PT TeachersPensionScheme',
+      DATE: "1 Jan 2035",
+      FROM: "-PDB TeachersPensionScheme",
+      FROM_VALUE: "100%",
+      NAME: "-PT TeachersPensionScheme",
       ERA: 0,
-      TO: '-PT TeachersPensionScheme',
-      TO_VALUE: '50%',
-      STOP_DATE: '1 Jan 2040',
-      RECURRENCE: '',
-      TYPE: 'auto',
-      CATEGORY: 'pension',
+      TO: "-PT TeachersPensionScheme",
+      TO_VALUE: "50%",
+      STOP_DATE: "1 Jan 2040",
+      RECURRENCE: "",
+      TYPE: "auto",
+      CATEGORY: "pension",
       index: 0,
     });
 
-    data = await getDataDumpFromPage(driver, 'assetsTable');
+    data = await getDataDumpFromPage(driver, "assetsTable");
     // console.log(`data = ${showObj(data)}`);
     expect(data.length).toBe(1);
     expect(data[0]).toEqual({
-      GROWTH: '0%',
-      NAME: 'Cash',
-      CATEGORY: '',
-      START: '01 Jan 2017',
-      VALUE: '0',
-      QUANTITY: '',
-      LIABILITY: '',
-      PURCHASE_PRICE: '',
-      GROWS_WITH_CPI: 'No',
-      IS_A_DEBT: 'No',
-      CAN_BE_NEGATIVE: 'Yes',
-      TODAYSVALUE: '',
+      GROWTH: "0%",
+      NAME: "Cash",
+      CATEGORY: "",
+      START: "01 Jan 2017",
+      VALUE: "0",
+      QUANTITY: "",
+      LIABILITY: "",
+      PURCHASE_PRICE: "",
+      GROWS_WITH_CPI: "No",
+      IS_A_DEBT: "No",
+      CAN_BE_NEGATIVE: "Yes",
+      TODAYSVALUE: "",
       index: 0,
       ERA: 0,
     });
-    data = await getDataDumpFromPage(driver, 'assetsOverviewTable');
+    data = await getDataDumpFromPage(driver, "assetsOverviewTable");
     // console.log(`data = ${showObj(data)}`);
     expect(data.length).toBe(1);
     expect(data[0]).toEqual({
-      GROWTH: '0%',
-      NAME: 'Cash',
-      CATEGORY: '',
-      START: '01 Jan 2017',
-      VALUE: '0',
-      QUANTITY: '',
-      LIABILITY: '',
-      PURCHASE_PRICE: '',
-      GROWS_WITH_CPI: 'No',
-      IS_A_DEBT: 'No',
-      CAN_BE_NEGATIVE: 'Yes',
-      TODAYSVALUE: '',
+      GROWTH: "0%",
+      NAME: "Cash",
+      CATEGORY: "",
+      START: "01 Jan 2017",
+      VALUE: "0",
+      QUANTITY: "",
+      LIABILITY: "",
+      PURCHASE_PRICE: "",
+      GROWS_WITH_CPI: "No",
+      IS_A_DEBT: "No",
+      CAN_BE_NEGATIVE: "Yes",
+      TODAYSVALUE: "",
       index: 0,
       ERA: 0,
     });

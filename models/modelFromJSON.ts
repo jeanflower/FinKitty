@@ -25,46 +25,46 @@ function cleanUpDates(
 ): void {
   const varVal = getVarVal(modelFromJSON.settings);
   const cleaningResult = {
-    cleaned: '',
+    cleaned: "",
   };
 
   for (const t of modelFromJSON.triggers) {
-    cleaningResult.cleaned = '';
+    cleaningResult.cleaned = "";
     checkTriggerDate(t.DATE, modelFromJSON.triggers, varVal, cleaningResult);
     // log(`cleaningResult from ${t.DATE} = ${cleaningResult.cleaned}`);
     t.DATE = cleaningResult.cleaned;
   }
   for (const s of modelFromJSON.settings) {
     if (s.NAME === roiStart || s.NAME === roiEnd) {
-      cleaningResult.cleaned = '';
+      cleaningResult.cleaned = "";
       checkTriggerDate(s.VALUE, modelFromJSON.triggers, varVal, cleaningResult);
       // log(`cleaningResult from ${t.DATE} = ${cleaningResult.cleaned}`);
       s.VALUE = cleaningResult.cleaned;
     }
   }
   for (const x of modelFromJSON.assets) {
-    cleaningResult.cleaned = '';
+    cleaningResult.cleaned = "";
     checkTriggerDate(x.START, modelFromJSON.triggers, varVal, cleaningResult);
     // log(`cleaningResult from ${t.DATE} = ${cleaningResult.cleaned}`);
     x.START = cleaningResult.cleaned;
   }
   for (const x of modelFromJSON.incomes) {
-    cleaningResult.cleaned = '';
+    cleaningResult.cleaned = "";
     checkTriggerDate(x.START, modelFromJSON.triggers, varVal, cleaningResult);
     // log(`cleaningResult from ${t.DATE} = ${cleaningResult.cleaned}`);
     x.START = cleaningResult.cleaned;
-    cleaningResult.cleaned = '';
+    cleaningResult.cleaned = "";
 
     checkTriggerDate(x.END, modelFromJSON.triggers, varVal, cleaningResult);
     // log(`cleaningResult from ${t.DATE} = ${cleaningResult.cleaned}`);
     x.END = cleaningResult.cleaned;
   }
   for (const x of modelFromJSON.incomes) {
-    cleaningResult.cleaned = '';
+    cleaningResult.cleaned = "";
     checkTriggerDate(x.START, modelFromJSON.triggers, varVal, cleaningResult);
     // log(`cleaningResult from ${t.DATE} = ${cleaningResult.cleaned}`);
     x.START = cleaningResult.cleaned;
-    cleaningResult.cleaned = '';
+    cleaningResult.cleaned = "";
     checkTriggerDate(x.END, modelFromJSON.triggers, varVal, cleaningResult);
     // log(`cleaningResult from ${t.DATE} = ${cleaningResult.cleaned}`);
     x.END = cleaningResult.cleaned;
@@ -81,7 +81,7 @@ function cleanUpDates(
 // breaks dates (and functions too but we don't have these)
 export function makeModelFromJSONString(
   input: string,
-  modelName = '',
+  modelName = "",
 ): ModelDataFromFile {
   const matches = input.match(/PensionDBC/g);
   /* istanbul ignore next */
@@ -93,7 +93,7 @@ export function makeModelFromJSONString(
   const result = JSON.parse(input);
   // log(`parsed JSON and found ${showObj(result)}`);
 
-  if (modelName !== '' || result.name === undefined) {
+  if (modelName !== "" || result.name === undefined) {
     result.name = modelName;
   }
 
@@ -129,10 +129,7 @@ export function makeModelFromJSONString(
   return result;
 }
 
-export function makeModelFromJSON(
-  input: string, 
-  modelName = '',
-): ModelData {
+export function makeModelFromJSON(input: string, modelName = ""): ModelData {
   // log('in makeModelFromJSON');
   const model: ModelDataFromFile = makeModelFromJSONString(input, modelName);
   migrateOldVersions(model);

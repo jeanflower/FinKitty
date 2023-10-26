@@ -1,5 +1,5 @@
-import React, { Component, FormEvent } from 'react';
-import { Col, Row } from 'react-bootstrap';
+import React, { Component, FormEvent } from "react";
+import { Col, Row } from "react-bootstrap";
 
 import {
   Asset,
@@ -8,25 +8,29 @@ import {
   Trigger,
   FormProps,
   DeleteResult,
-} from '../../types/interfaces';
-import { log, printDebug, showObj } from '../../utils/utils';
-import { makeButton } from './Button';
-import { DateSelectionRow, itemOptions } from './DateSelectionRow';
-import { Input } from './Input';
+} from "../../types/interfaces";
+import { log, printDebug, showObj } from "../../utils/utils";
+import { makeButton } from "./Button";
+import { DateSelectionRow, itemOptions } from "./DateSelectionRow";
+import { Input } from "./Input";
 import {
   revalue,
   revalueDebt,
   payOffDebt,
   conditional,
   CASH_ASSET_NAME,
-} from '../../localization/stringConstants';
+} from "../../localization/stringConstants";
 import {
   makeValueAbsPropFromString,
   checkTriggerDate,
   lessThan,
-} from '../../utils/stringUtils';
-import Spacer from 'react-spacer';
-import { getVarVal, isATransaction, isNumberString } from '../../models/modelQueries';
+} from "../../utils/stringUtils";
+import Spacer from "react-spacer";
+import {
+  getVarVal,
+  isATransaction,
+  isNumberString,
+} from "../../models/modelQueries";
 
 interface EditDebtFormState {
   NAME: string;
@@ -53,8 +57,8 @@ interface EditDebtProps extends FormProps {
   doCheckBeforeOverwritingExistingData: () => boolean;
 }
 
-const inputtingRevalue = 'revalue';
-const inputtingDebt = 'debt';
+const inputtingRevalue = "revalue";
+const inputtingDebt = "debt";
 
 export class AddDeleteDebtForm extends Component<
   EditDebtProps,
@@ -70,12 +74,12 @@ export class AddDeleteDebtForm extends Component<
         ${showObj(props.model.triggers.length)} triggers`);
     }
     this.defaultState = {
-      NAME: '',
-      VALUE: '',
-      START: '',
-      GROWTH: '',
-      CATEGORY: '',
-      PAYMENT: '',
+      NAME: "",
+      VALUE: "",
+      START: "",
+      GROWTH: "",
+      CATEGORY: "",
+      PAYMENT: "",
       inputting: inputtingDebt,
     };
 
@@ -113,8 +117,8 @@ export class AddDeleteDebtForm extends Component<
             }),
           this.props.model,
           this.handleNameChange,
-          'debtname',
-          'Select debt',
+          "debtname",
+          "Select debt",
         )}
       </>
     );
@@ -142,7 +146,7 @@ export class AddDeleteDebtForm extends Component<
         <Row>
           <Col>
             <Input
-              title={'Debt name'}
+              title={"Debt name"}
               type="text"
               name="debtname"
               value={this.state.NAME}
@@ -183,7 +187,10 @@ export class AddDeleteDebtForm extends Component<
         <Row>
           <Col>
             <Input
-              title="Annual interest rate (excluding inflation, e.g. 2 for 2% p.a.)"
+              title={
+                "Annual interest rate (excluding inflation, " +
+                "e.g. 2 for 2% p.a.)"
+              }
               type="text"
               name="debtgrowth"
               value={this.state.GROWTH}
@@ -238,17 +245,17 @@ export class AddDeleteDebtForm extends Component<
     const revalueTransaction: Transaction = {
       NAME: `${revalue}${this.state.NAME} ${count}`,
       ERA: 0, // new things are automatically current,
-      FROM: '',
+      FROM: "",
       FROM_ABSOLUTE: false,
-      FROM_VALUE: '0.0',
+      FROM_VALUE: "0.0",
       TO: this.state.NAME,
       TO_ABSOLUTE: parseVal.absolute,
       TO_VALUE: parseVal.value,
       DATE: this.state.START,
       TYPE: revalueDebt,
-      RECURRENCE: '',
-      STOP_DATE: '',
-      CATEGORY: '',
+      RECURRENCE: "",
+      STOP_DATE: "",
+      CATEGORY: "",
     };
     // log(`adding transaction ${showObj(revalueExpenseTransaction)}`);
     const message = await this.props.checkTransactionFunction(
@@ -264,7 +271,7 @@ export class AddDeleteDebtForm extends Component<
       this.props.model,
     );
 
-    this.props.showAlert('added new data');
+    this.props.showAlert("added new data");
     // clear fields
     this.setState(this.defaultState);
     return;
@@ -273,19 +280,19 @@ export class AddDeleteDebtForm extends Component<
   private goButtons(): React.ReactNode {
     if (this.state.inputting === inputtingDebt) {
       return makeButton(
-        'Create new debt (over-writes any existing with the same name)',
+        "Create new debt (over-writes any existing with the same name)",
         this.add,
-        'addDebt',
-        'addDebt',
-        'primary',
+        "addDebt",
+        "addDebt",
+        "primary",
       );
     } else if (this.state.inputting === inputtingRevalue) {
       return makeButton(
-        'Revalue this debt',
+        "Revalue this debt",
         this.revalue,
-        'revalueDebt',
-        'revalueDebt',
-        'primary',
+        "revalueDebt",
+        "revalueDebt",
+        "primary",
       );
     }
   }
@@ -296,32 +303,35 @@ export class AddDeleteDebtForm extends Component<
       <>
         <div className="btn-group ml-3" role="group">
           {makeButton(
-            'Add new debt mode',
+            "Add new debt mode",
             this.inputDebt,
-            'inputDebt',
-            'inputDebt',
+            "inputDebt",
+            "inputDebt",
             this.state.inputting === inputtingDebt
-              ? 'primary'
-              : 'outline-secondary',
+              ? "primary"
+              : "outline-secondary",
           )}
           {makeButton(
-            'Revalue debt mode',
+            "Revalue debt mode",
             this.inputRevalue,
-            'revalueDebtInputs',
-            'revalueDebtInputs',
+            "revalueDebtInputs",
+            "revalueDebtInputs",
             this.state.inputting === inputtingRevalue
-              ? 'primary'
-              : 'outline-secondary',
+              ? "primary"
+              : "outline-secondary",
           )}
         </div>
         <form className="container-fluid" onSubmit={this.add}>
           {this.ValueAndCategory()}
-          <Row><Col>{" "}</Col></Row> {/* TODO add vertical padding*/}
+          <Row>
+            <Col> </Col>
+          </Row>{" "}
+          {/* TODO add vertical padding*/}
           <DateSelectionRow
             introLabel={`Date on which the ${
               this.state.inputting === inputtingRevalue
-                ? 'revaluation occurs'
-                : 'debt starts'
+                ? "revaluation occurs"
+                : "debt starts"
             }`}
             model={this.props.model}
             showAlert={this.props.showAlert}
@@ -370,7 +380,7 @@ export class AddDeleteDebtForm extends Component<
   private async add(e: FormEvent<Element>) {
     e.preventDefault();
 
-    if (this.state.NAME === '') {
+    if (this.state.NAME === "") {
       this.props.showAlert(`Name should be not empty`);
       return;
     }
@@ -417,7 +427,7 @@ export class AddDeleteDebtForm extends Component<
       );
       return;
     }
-    if (this.state.PAYMENT !== '') {
+    if (this.state.PAYMENT !== "") {
       isNotANumber = !isNumberString(this.state.PAYMENT);
       if (isNotANumber) {
         this.props.showAlert(
@@ -432,22 +442,22 @@ export class AddDeleteDebtForm extends Component<
       NAME: this.state.NAME,
       ERA: 0, // new things are automatically current,
       VALUE: `-${parseFloat(this.state.VALUE)}`,
-      QUANTITY: '', // debts are continuous
+      QUANTITY: "", // debts are continuous
       START: this.state.START,
       GROWTH: this.state.GROWTH,
       CPI_IMMUNE: true, // debts never grow with CPI
       CAN_BE_NEGATIVE: true,
       IS_A_DEBT: true,
       CATEGORY: this.state.CATEGORY,
-      PURCHASE_PRICE: '0.0',
-      LIABILITY: '',
+      PURCHASE_PRICE: "0.0",
+      LIABILITY: "",
     };
     const message = this.props.checkAssetFunction(asset, this.props.model);
     if (message.length > 0) {
       this.props.showAlert(message);
     } else {
       await this.props.submitAssetFunction(asset, this.props.model);
-      if (this.state.PAYMENT !== '') {
+      if (this.state.PAYMENT !== "") {
         let count = 1;
         while (
           isATransaction(
@@ -466,10 +476,10 @@ export class AddDeleteDebtForm extends Component<
           FROM_VALUE: this.state.PAYMENT,
           TO: this.state.NAME,
           TO_ABSOLUTE: false,
-          TO_VALUE: '1.0',
+          TO_VALUE: "1.0",
           DATE: this.state.START,
-          STOP_DATE: '',
-          RECURRENCE: '1m',
+          STOP_DATE: "",
+          RECURRENCE: "1m",
           TYPE: payOffDebt,
         };
         // log('adding something ' + showObj(transaction));
@@ -485,12 +495,12 @@ export class AddDeleteDebtForm extends Component<
             transaction,
             this.props.model,
           );
-          this.props.showAlert('added new debt and payment');
+          this.props.showAlert("added new debt and payment");
           // clear fields
           this.setState(this.defaultState);
         }
       } else {
-        this.props.showAlert('added new debt');
+        this.props.showAlert("added new debt");
         // clear fields
         this.setState(this.defaultState);
       }
@@ -501,7 +511,7 @@ export class AddDeleteDebtForm extends Component<
     e.preventDefault();
     // log('deleting something ' + showObj(this));
     if (await this.props.deleteAssetFunction(this.state.NAME)) {
-      this.props.showAlert('deleted debt');
+      this.props.showAlert("deleted debt");
       // clear fields
       this.setState(this.defaultState);
     } else {

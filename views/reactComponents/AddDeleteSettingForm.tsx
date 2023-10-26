@@ -1,31 +1,30 @@
-import React, { Component, FormEvent } from 'react';
-import { Col, Row } from 'react-bootstrap';
+import React, { Component, FormEvent } from "react";
+import { Col, Row } from "react-bootstrap";
 import {
   ModelData,
   Setting,
   Transaction,
   Trigger,
   FormProps,
-} from '../../types/interfaces';
+} from "../../types/interfaces";
 import {
   adjustableType,
   revalueSetting,
-} from '../../localization/stringConstants';
-import { log, printDebug, showObj } from '../../utils/utils';
+} from "../../localization/stringConstants";
+import { log, printDebug, showObj } from "../../utils/utils";
 
-import { makeButton } from './Button';
-import { DateSelectionRow, itemOptions } from './DateSelectionRow';
-import { Input } from './Input';
+import { makeButton } from "./Button";
+import { DateSelectionRow, itemOptions } from "./DateSelectionRow";
+import { Input } from "./Input";
 
-
-import { makeRevalueName } from '../../models/modelUtils';
+import { makeRevalueName } from "../../models/modelUtils";
 import {
   checkTriggerDate,
   lessThan,
   makeValueAbsPropFromString,
-} from '../../utils/stringUtils';
-import Spacer from 'react-spacer';
-import { getVarVal } from '../../models/modelQueries';
+} from "../../utils/stringUtils";
+import Spacer from "react-spacer";
+import { getVarVal } from "../../models/modelQueries";
 
 interface EditSettingFormState {
   NAME: string;
@@ -38,8 +37,8 @@ interface EditSettingProps extends FormProps {
     arg0: Setting,
     arg1: ModelData,
   ) => Promise<{
-    updated: boolean,
-    value: string,
+    updated: boolean;
+    value: string;
   }>;
   checkTransactionFunction: (t: Transaction, model: ModelData) => string;
   submitTransactionFunction: (
@@ -53,8 +52,8 @@ interface EditSettingProps extends FormProps {
   doCheckBeforeOverwritingExistingData: () => boolean;
 }
 
-const inputtingRevalue = 'revalue';
-const inputtingSetting = 'setting';
+const inputtingRevalue = "revalue";
+const inputtingSetting = "setting";
 
 export class AddDeleteSettingForm extends Component<
   EditSettingProps,
@@ -70,9 +69,9 @@ export class AddDeleteSettingForm extends Component<
         ${showObj(props.model.triggers.length)} triggers`);
     }
     this.defaultState = {
-      NAME: '',
-      VALUE: '',
-      START: '',
+      NAME: "",
+      VALUE: "",
+      START: "",
       inputting: inputtingSetting,
     };
 
@@ -112,7 +111,7 @@ export class AddDeleteSettingForm extends Component<
         <Row>
           <Col>
             <Input
-              title={'Setting name'}
+              title={"Setting name"}
               type="text"
               name="settingname"
               value={this.state.NAME}
@@ -165,17 +164,17 @@ export class AddDeleteSettingForm extends Component<
     const revalueTransaction: Transaction = {
       NAME: `${newName}`,
       ERA: 0, // new things are automatically current,
-      FROM: '',
+      FROM: "",
       FROM_ABSOLUTE: false,
-      FROM_VALUE: '0.0',
+      FROM_VALUE: "0.0",
       TO: this.state.NAME,
       TO_ABSOLUTE: toAbsolute,
       TO_VALUE: toValue,
       DATE: this.state.START,
       TYPE: revalueSetting,
-      RECURRENCE: '',
-      STOP_DATE: '',
-      CATEGORY: '',
+      RECURRENCE: "",
+      STOP_DATE: "",
+      CATEGORY: "",
     };
     // log(`adding transaction ${showObj(revalueExpenseTransaction)}`);
     const message = await this.props.checkTransactionFunction(
@@ -191,7 +190,7 @@ export class AddDeleteSettingForm extends Component<
       this.props.model,
     );
 
-    this.props.showAlert('added new data');
+    this.props.showAlert("added new data");
     // clear fields
     this.setState(this.defaultState);
     return;
@@ -200,19 +199,19 @@ export class AddDeleteSettingForm extends Component<
   private goButtons(): React.ReactNode {
     if (this.state.inputting === inputtingSetting) {
       return makeButton(
-        'Create new setting (over-writes any existing with the same name)',
+        "Create new setting (over-writes any existing with the same name)",
         this.add,
-        'addSetting',
-        'addSetting',
-        'primary',
+        "addSetting",
+        "addSetting",
+        "primary",
       );
     } else if (this.state.inputting === inputtingRevalue) {
       return makeButton(
-        'Revalue this setting',
+        "Revalue this setting",
         this.revalue,
-        'revalueSetting',
-        'revalueSetting',
-        'primary',
+        "revalueSetting",
+        "revalueSetting",
+        "primary",
       );
     }
   }
@@ -223,7 +222,7 @@ export class AddDeleteSettingForm extends Component<
         <div className="container-fluid">
           {/* fills width */}
           <DateSelectionRow
-            introLabel={'Date on which the revaluation occurs'}
+            introLabel={"Date on which the revaluation occurs"}
             model={this.props.model}
             showAlert={this.props.showAlert}
             setDateFunction={this.setStart}
@@ -244,22 +243,22 @@ export class AddDeleteSettingForm extends Component<
       <>
         <div className="btn-group ml-3" role="group">
           {makeButton(
-            'Add new setting mode',
+            "Add new setting mode",
             this.inputSetting,
-            'inputSetting',
-            'inputSetting',
+            "inputSetting",
+            "inputSetting",
             this.state.inputting === inputtingSetting
-              ? 'primary'
-              : 'outline-secondary',
+              ? "primary"
+              : "outline-secondary",
           )}
           {makeButton(
-            'Revalue setting mode',
+            "Revalue setting mode",
             this.inputRevalue,
-            'revalueSettingInputs',
-            'revalueSettingInputs',
+            "revalueSettingInputs",
+            "revalueSettingInputs",
             this.state.inputting === inputtingRevalue
-              ? 'primary'
-              : 'outline-secondary',
+              ? "primary"
+              : "outline-secondary",
           )}
         </div>
         <form className="container-fluid" onSubmit={this.add}>
@@ -286,8 +285,8 @@ export class AddDeleteSettingForm extends Component<
             }),
           this.props.model,
           this.handleNameChange,
-          'settingname',
-          'Select setting',
+          "settingname",
+          "Select setting",
         )}
       </>
     );
@@ -312,7 +311,7 @@ export class AddDeleteSettingForm extends Component<
   private async add(e: FormEvent<Element>) {
     e.preventDefault();
 
-    if (this.state.NAME === '') {
+    if (this.state.NAME === "") {
       this.props.showAlert(`Name should be not empty`);
       return;
     }
@@ -337,7 +336,7 @@ export class AddDeleteSettingForm extends Component<
       NAME: this.state.NAME,
       ERA: 0, // new things are automatically current,
       VALUE: this.state.VALUE,
-      HINT: '',
+      HINT: "",
       TYPE: adjustableType,
     };
 

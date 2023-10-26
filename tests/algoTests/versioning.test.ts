@@ -1,5 +1,8 @@
-import { makeModelFromJSON, makeModelFromJSONString } from '../../models/modelFromJSON';
-import { getTestModel } from '../../models/testModel';
+import {
+  makeModelFromJSON,
+  makeModelFromJSONString,
+} from "../../models/modelFromJSON";
+import { getTestModel } from "../../models/testModel";
 import {
   CASH_ASSET_NAME,
   custom,
@@ -12,10 +15,10 @@ import {
   FutureExpense,
   ThreeChryslerModel,
   BenAndJerryModel,
-} from '../../localization/stringConstants';
-import { checkData } from '../../models/checks';
-import { log, showObj, suppressLogs, unSuppressLogs } from '../../utils/utils';
-import { getSettings } from '../../models/modelQueries';
+} from "../../localization/stringConstants";
+import { checkData } from "../../models/checks";
+import { log, showObj, suppressLogs, unSuppressLogs } from "../../utils/utils";
+import { getSettings } from "../../models/modelQueries";
 
 showObj;
 
@@ -471,39 +474,39 @@ const v12ModelJSON = `{
       {"NAME":"-PDB TeachersPensionScheme","FROM":"TeachingJob","FROM_ABSOLUTE":false,"FROM_VALUE":"0.0016666666666666668","TO":"-PDB TeachersPensionScheme","TO_ABSOLUTE":false,"TO_VALUE":"1.0","DATE":"PensionExists","STOP_DATE":"JobStop","RECURRENCE":"","CATEGORY":"","TYPE":"auto"}],
       "version":12}`;
 
-describe('loadModelsFromJSON', () => {
-  it('cleanedModel', () => {
+describe("loadModelsFromJSON", () => {
+  it("cleanedModel", () => {
     const jsonString = emptyModelJSON;
     suppressLogs();
-    const model = makeModelFromJSON(jsonString, 'versionTests');
+    const model = makeModelFromJSON(jsonString, "versionTests");
     unSuppressLogs();
     expect(model.assets.length).toBe(1);
   });
-  it('migrateModelMustHaveCash', () => {
+  it("migrateModelMustHaveCash", () => {
     const jsonString = emptyModelJSON;
-    const model = makeModelFromJSON(jsonString, 'versionTests');
+    const model = makeModelFromJSON(jsonString, "versionTests");
     expect(model.assets.length).toBe(1);
     expect(model.assets[0].NAME).toEqual(CASH_ASSET_NAME);
   });
-  it('migrateFromV0', () => {
+  it("migrateFromV0", () => {
     const jsonString = emptyModelJSON;
     suppressLogs();
     const plainModel = makeModelFromJSONString(jsonString);
     unSuppressLogs();
     plainModel.version = 0;
     plainModel.assets.push({
-      NAME: 'ISAs',
+      NAME: "ISAs",
       ERA: undefined,
-      CATEGORY: 'stock',
-      START: 'December 2019',
-      VALUE: '2000',
-      GROWTH: 'stockMarketGrowth',
+      CATEGORY: "stock",
+      START: "December 2019",
+      VALUE: "2000",
+      GROWTH: "stockMarketGrowth",
       CPI_IMMUNE: false,
       CAN_BE_NEGATIVE: false,
-      LIABILITY: '',
-      PURCHASE_PRICE: '0',
+      LIABILITY: "",
+      PURCHASE_PRICE: "0",
       IS_A_DEBT: false,
-      QUANTITY: '',
+      QUANTITY: "",
     });
     suppressLogs();
     const model = makeModelFromJSON(JSON.stringify(plainModel));
@@ -514,11 +517,11 @@ describe('loadModelsFromJSON', () => {
       `{\"triggers\":[],\"expenses\":[],\"incomes\":[],\"assets\":[{\"NAME\":\"ISAs\",\"CATEGORY\":\"stock\",\"START\":\"01 Dec 2019\",\"VALUE\":\"2000\",\"GROWTH\":\"stockMarketGrowth\",\"CPI_IMMUNE\":false,\"CAN_BE_NEGATIVE\":false,\"LIABILITY\":\"\",\"PURCHASE_PRICE\":\"0\",\"IS_A_DEBT\":false,\"QUANTITY\":\"\",\"ERA\":0},{\"NAME\":\"Cash\",\"CATEGORY\":\"\",\"START\":\"01 Jan 2017\",\"VALUE\":\"0.0\",\"QUANTITY\":\"\",\"GROWTH\":\"0.0\",\"CPI_IMMUNE\":true,\"CAN_BE_NEGATIVE\":true,\"IS_A_DEBT\":false,\"LIABILITY\":\"\",\"PURCHASE_PRICE\":\"0.0\",\"ERA\":0}],\"transactions\":[],\"settings\":[{\"NAME\":\"cpi\",\"VALUE\":\"2.5\",\"HINT\":\"Annual rate of inflation\",\"TYPE\":\"const\",\"ERA\":0},{\"NAME\":\"Beginning of view range\",\"VALUE\":\"01 Jan 2017\",\"HINT\":\"Date at the start of range to be plotted\",\"TYPE\":\"view\",\"ERA\":0},{\"NAME\":\"End of view range\",\"VALUE\":\"01 Jan 2023\",\"HINT\":\"Date at the end of range to be plotted\",\"TYPE\":\"view\",\"ERA\":0},{\"NAME\":\"Date of birth\",\"VALUE\":\"\",\"HINT\":\"Date used for representing dates as ages\",\"TYPE\":\"view\",\"ERA\":0},{\"NAME\":\"Today's value focus date\",\"VALUE\":\"\",\"HINT\":\"Date to use for 'today's value' tables (defaults to '' meaning today)\",\"TYPE\":\"view\",\"ERA\":0}],\"name\":\"\",\"version\":11}`,
     );
   });
-  it('migrateFromV1', () => {
+  it("migrateFromV1", () => {
     const jsonString = v1ModelJSON;
     suppressLogs();
     const plainModel = makeModelFromJSONString(jsonString);
-    const model = makeModelFromJSON(jsonString, 'versionTests');
+    const model = makeModelFromJSON(jsonString, "versionTests");
     unSuppressLogs();
 
     // will include expense recurrence, asset/debt,
@@ -531,24 +534,24 @@ describe('loadModelsFromJSON', () => {
     expect(plainModel.transactions.length).toBe(1);
     expect(plainModel.transactions[0].TYPE).toBeUndefined();
     expect(plainModel.settings.length).toBe(15);
-    expect(plainModel.settings[0].NAME).toEqual('Beginning of view range');
+    expect(plainModel.settings[0].NAME).toEqual("Beginning of view range");
     expect(plainModel.settings[0].TYPE).toBeUndefined();
 
     expect(model.expenses.length).toBe(1);
-    expect(model.expenses[0].RECURRENCE).toEqual('1m');
+    expect(model.expenses[0].RECURRENCE).toEqual("1m");
     expect(model.assets.length).toBe(1);
     expect(model.assets[0].IS_A_DEBT).toEqual(false);
-    expect(model.assets[0].QUANTITY).toEqual('');
+    expect(model.assets[0].QUANTITY).toEqual("");
     expect(model.transactions.length).toBe(1);
     expect(model.transactions[0].TYPE).toEqual(custom);
     expect(model.settings.length).toBe(7);
-    expect(model.settings[0].NAME).toEqual('Beginning of view range');
+    expect(model.settings[0].NAME).toEqual("Beginning of view range");
     expect(model.settings[0].TYPE).toEqual(viewType);
   });
-  it('migrateFromV2', () => {
+  it("migrateFromV2", () => {
     const jsonString = v2ModelJSON;
     suppressLogs();
-    const model = makeModelFromJSON(jsonString, 'versionTests');
+    const model = makeModelFromJSON(jsonString, "versionTests");
     unSuppressLogs();
     const index = model.assets.find((a) => {
       return a.NAME === taxPot;
@@ -556,10 +559,10 @@ describe('loadModelsFromJSON', () => {
     expect(index).toEqual(undefined);
   });
 
-  it('migrateFromV3', () => {
+  it("migrateFromV3", () => {
     const jsonString = v3ModelJSON;
     suppressLogs();
-    const model = makeModelFromJSON(jsonString, 'versionTests');
+    const model = makeModelFromJSON(jsonString, "versionTests");
     unSuppressLogs();
     // from v3 to v4 we added tax view settings
     // but fromv4 to v5 we lost those settings again
@@ -568,22 +571,22 @@ describe('loadModelsFromJSON', () => {
 
   // from v4 to v5, we remove various view settings
   // which are no longer persistent
-  it('migrateFromV4', () => {
+  it("migrateFromV4", () => {
     const jsonString = v4ModelJSON;
     suppressLogs();
-    const model = makeModelFromJSON(jsonString, 'versionTests');
+    const model = makeModelFromJSON(jsonString, "versionTests");
     unSuppressLogs();
     // after loading, the view settings have been added
     expect(
-      getSettings(model.settings, viewFrequency, 'missing', false),
-    ).toEqual('missing');
+      getSettings(model.settings, viewFrequency, "missing", false),
+    ).toEqual("missing");
     expect(checkData(model).message.length).toEqual(0);
   });
   // current version loads
-  it('migrateFromV5', () => {
+  it("migrateFromV5", () => {
     const jsonString = v5ModelJSON;
     suppressLogs();
-    const model = makeModelFromJSON(jsonString, 'versionTests');
+    const model = makeModelFromJSON(jsonString, "versionTests");
     unSuppressLogs();
     const outcome = checkData(model);
     if (outcome.message.length > 0) {
@@ -592,10 +595,10 @@ describe('loadModelsFromJSON', () => {
     expect(outcome.message.length).toEqual(0);
   });
 
-  it('migrateFromV6', () => {
+  it("migrateFromV6", () => {
     const jsonString = v6ModelJSON;
     suppressLogs();
-    const model = makeModelFromJSON(jsonString, 'versionTests');
+    const model = makeModelFromJSON(jsonString, "versionTests");
     unSuppressLogs();
     const outcome = checkData(model);
     if (outcome.message.length > 0) {
@@ -604,10 +607,10 @@ describe('loadModelsFromJSON', () => {
     expect(outcome.message.length).toEqual(0);
   });
 
-  it('migrateFromV7', () => {
+  it("migrateFromV7", () => {
     const jsonString = v7ModelJSON;
     suppressLogs();
-    const model = makeModelFromJSON(jsonString, 'versionTests');
+    const model = makeModelFromJSON(jsonString, "versionTests");
     unSuppressLogs();
     const outcome = checkData(model);
     if (outcome.message.length > 0) {
@@ -616,10 +619,10 @@ describe('loadModelsFromJSON', () => {
     expect(outcome.message.length).toEqual(0);
   });
 
-  it('migrateFromV8', () => {
+  it("migrateFromV8", () => {
     const jsonString = v8ModelJSON;
     suppressLogs();
-    const model = makeModelFromJSON(jsonString, 'versionTests');
+    const model = makeModelFromJSON(jsonString, "versionTests");
     unSuppressLogs();
     const outcome = checkData(model);
     if (outcome.message.length > 0) {
@@ -628,19 +631,19 @@ describe('loadModelsFromJSON', () => {
     expect(outcome.message.length).toEqual(0);
   });
 
-  it('migrateFromV9', () => {
+  it("migrateFromV9", () => {
     const jsonString = v9ModelJSON;
     const model = makeModelFromJSON(jsonString);
     // log(`model = ${showObj(model)}`);
-    expect(model.transactions[0].NAME).toBe('Revalue Cash 01');
-    expect(model.transactions[1].NAME).toBe('Revalue TeachingJob 01');
-    expect(model.transactions[2].NAME).toBe('Revalue Look after dogs 09');
+    expect(model.transactions[0].NAME).toBe("Revalue Cash 01");
+    expect(model.transactions[1].NAME).toBe("Revalue TeachingJob 01");
+    expect(model.transactions[2].NAME).toBe("Revalue Look after dogs 09");
   });
 
-  it('migrateFromV10', () => {
+  it("migrateFromV10", () => {
     const jsonString = v10ModelJSON;
     suppressLogs();
-    const model = makeModelFromJSON(jsonString, 'versionTests');
+    const model = makeModelFromJSON(jsonString, "versionTests");
     unSuppressLogs();
     const outcome = checkData(model);
     if (outcome.message.length > 0) {
@@ -650,10 +653,10 @@ describe('loadModelsFromJSON', () => {
   });
 
   // at current version, no migration is needed!
-  it('migrateFromV11', () => {
+  it("migrateFromV11", () => {
     const jsonString = v11ModelJSON;
     suppressLogs();
-    const model = makeModelFromJSON(jsonString, 'versionTests');
+    const model = makeModelFromJSON(jsonString, "versionTests");
     unSuppressLogs();
     const outcome = checkData(model);
     if (outcome.message.length > 0) {
@@ -663,9 +666,9 @@ describe('loadModelsFromJSON', () => {
   });
 
   // future versions should not load - expect an error message to come out
-  it('migrateFromV12', () => {
+  it("migrateFromV12", () => {
     const jsonString = v12ModelJSON;
-    let foundError = 'no error thrown in migrateFromV12';
+    let foundError = "no error thrown in migrateFromV12";
     try {
       makeModelFromJSON(jsonString);
     } catch (e) {
@@ -674,11 +677,11 @@ describe('loadModelsFromJSON', () => {
       }
     }
     expect(foundError).toBe(
-      'this data (v 12) was saved with a newer version of the app (v 11) - please upgrade the app',
+      "this data (v 12) was saved with a newer version of the app (v 11) - please upgrade the app",
     );
   });
 
-  it('check TestModel01', () => {
+  it("check TestModel01", () => {
     const model = getTestModel(TestModel01);
 
     const outcome = checkData(makeModelFromJSON(JSON.stringify(model)));
@@ -687,7 +690,7 @@ describe('loadModelsFromJSON', () => {
     }
     expect(outcome.message.length).toEqual(0);
   });
-  it('check TestModel02', () => {
+  it("check TestModel02", () => {
     const model = getTestModel(TestModel02);
 
     const outcome = checkData(makeModelFromJSON(JSON.stringify(model)));
@@ -696,7 +699,7 @@ describe('loadModelsFromJSON', () => {
     }
     expect(outcome.message.length).toEqual(0);
   });
-  it('check CoarseAndFine', () => {
+  it("check CoarseAndFine", () => {
     const model = getTestModel(CoarseAndFine);
 
     const outcome = checkData(makeModelFromJSON(JSON.stringify(model)));
@@ -705,7 +708,7 @@ describe('loadModelsFromJSON', () => {
     }
     expect(outcome.message.length).toEqual(0);
   });
-  it('check FutureExpense', () => {
+  it("check FutureExpense", () => {
     const model = getTestModel(FutureExpense);
 
     const outcome = checkData(makeModelFromJSON(JSON.stringify(model)));
@@ -714,7 +717,7 @@ describe('loadModelsFromJSON', () => {
     }
     expect(outcome.message.length).toEqual(0);
   });
-  it('check ThreeChryslerModel', () => {
+  it("check ThreeChryslerModel", () => {
     const model = getTestModel(ThreeChryslerModel);
 
     const outcome = checkData(makeModelFromJSON(JSON.stringify(model)));
@@ -723,7 +726,7 @@ describe('loadModelsFromJSON', () => {
     }
     expect(outcome.message.length).toEqual(0);
   });
-  it('check BenAndJerryModel', () => {
+  it("check BenAndJerryModel", () => {
     const model = getTestModel(BenAndJerryModel);
 
     const outcome = checkData(makeModelFromJSON(JSON.stringify(model)));

@@ -1,17 +1,22 @@
-import React from 'react';
-import { taxView } from '../localization/stringConstants';
+import React from "react";
+import { taxView } from "../localization/stringConstants";
 
 import {
   ChartData,
   ModelData,
   ReportDatum,
   ViewCallbacks,
-} from '../types/interfaces';
-import { makeTwoDP } from '../utils/stringUtils';
-import { ViewSettings, getDisplay } from '../utils/viewUtils';
-import { getDefaultChartSettings, taxChartDivWithButtons } from './chartPages';
-import DataGridFinKitty from './reactComponents/DataGridFinKitty';
-import { addIndices, cashValueColumn, defaultColumn, triggerDateColumn } from './tablePages';
+} from "../types/interfaces";
+import { makeTwoDP } from "../utils/stringUtils";
+import { ViewSettings, getDisplay } from "../utils/viewUtils";
+import { getDefaultChartSettings, taxChartDivWithButtons } from "./chartPages";
+import DataGridFinKitty from "./reactComponents/DataGridFinKitty";
+import {
+  addIndices,
+  cashValueColumn,
+  defaultColumn,
+  triggerDateColumn,
+} from "./tablePages";
 
 export function taxDiv(
   model: ModelData,
@@ -33,7 +38,7 @@ export function taxDiv(
     tableData.push({
       DATE: d.date,
       AMOUNT: `${d.newVal}`,
-      DESCRIPTION: d.name.substring('taxBreakdown'.length, d.name.length),
+      DESCRIPTION: d.name.substring("taxBreakdown".length, d.name.length),
     });
   }
   const rows = addIndices(tableData.reverse());
@@ -53,7 +58,7 @@ export function taxDiv(
       <h2>Total tax paid: {makeTwoDP(totalTaxPaid)}</h2>
 
       <DataGridFinKitty
-        tableID={'planningTable'}
+        tableID={"planningTable"}
         rows={rows}
         columns={[
           /*
@@ -65,22 +70,22 @@ export function taxDiv(
           */
           {
             ...triggerDateColumn(model),
-            key: 'DATE',
-            name: 'date',
+            key: "DATE",
+            name: "date",
             width: 120,
             renderEditCell: undefined,
           },
           {
             ...cashValueColumn,
-            key: 'AMOUNT',
-            name: 'amount',
+            key: "AMOUNT",
+            name: "amount",
             width: 100,
             renderEditCell: undefined,
           },
           {
             ...defaultColumn,
-            key: 'DESCRIPTION',
-            name: 'description',
+            key: "DESCRIPTION",
+            name: "description",
             renderEditCell: undefined,
           },
         ]}

@@ -1,13 +1,13 @@
-import React, { Component, FormEvent } from 'react';
-import { Col, Row } from 'react-bootstrap';
+import React, { Component, FormEvent } from "react";
+import { Col, Row } from "react-bootstrap";
 
-import { Trigger, ModelData, FormProps, Item } from '../../types/interfaces';
-import { TriggerOptionList } from './TriggerOptionList';
-import { log, showObj, printDebug, DateFormatType } from '../../utils/utils';
-import { dateAsString, makeDateTooltip } from '../../utils/stringUtils';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Tooltip from 'react-bootstrap/Tooltip';
-import { getVarVal } from '../../models/modelQueries';
+import { Trigger, ModelData, FormProps, Item } from "../../types/interfaces";
+import { TriggerOptionList } from "./TriggerOptionList";
+import { log, showObj, printDebug, DateFormatType } from "../../utils/utils";
+import { dateAsString, makeDateTooltip } from "../../utils/stringUtils";
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Tooltip from "react-bootstrap/Tooltip";
+import { getVarVal } from "../../models/modelQueries";
 
 interface DateSelectionProps extends FormProps {
   introLabel: string;
@@ -27,7 +27,7 @@ function makeDateTooltipForRow(props: DateSelectionProps) {
     log(`make tooltip with ${showObj(props)}`);
   }
   if (props.model.settings.length === 0) {
-    return '';
+    return "";
   }
   return makeDateTooltip(
     props.inputValue,
@@ -42,7 +42,7 @@ export class DateSelectionRow extends Component<DateSelectionProps> {
   }
 
   handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    if (e.target.value === 'today') {
+    if (e.target.value === "today") {
       e.target.value = dateAsString(DateFormatType.Unknown, new Date());
     }
     this.props.onChangeHandler(e);
@@ -55,7 +55,7 @@ export class DateSelectionRow extends Component<DateSelectionProps> {
           {
             this.props.introLabel // e.g. Date on which the income value is set:
           }
-        </div>{' '}
+        </div>{" "}
         {/* end col */}
         <Col>
           <TriggerOptionList
@@ -77,14 +77,14 @@ export class DateSelectionRow extends Component<DateSelectionProps> {
             )}
           >
             <input
-              type={'text'}
+              type={"text"}
               name={
                 this.props.inputName // e.g. 'income valuation date'
               }
               value={
                 this.props.inputValue // e.g. this.state.VALUE_SET
               }
-              placeholder={'Enter date'}
+              placeholder={"Enter date"}
               onChange={
                 this.handleChange
                 // e.g. this.handleValueSetChange
@@ -137,7 +137,7 @@ export function itemOptions(
         if (found !== undefined) {
           found.action(e);
         } else {
-          handleChange('');
+          handleChange("");
         }
       }}
     >

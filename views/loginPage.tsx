@@ -1,17 +1,17 @@
-import React from 'react';
-import { makeButton } from './reactComponents/Button';
-import { screenshotsDiv } from './screenshotsPage';
-import { Navbar } from 'react-bootstrap';
-import { ViewType, homeView } from '../localization/stringConstants';
+import React from "react";
+import { makeButton } from "./reactComponents/Button";
+import { screenshotsDiv } from "./screenshotsPage";
+import { Navbar } from "react-bootstrap";
+import { ViewType, homeView } from "../localization/stringConstants";
 
-import FinKittyCat from './cat.png';
-import WaitGif from './catWait.gif';
-import { log, printDebug } from '../utils/utils';
-import Image from 'next/image'
-import { getAppVersion } from '../utils/appVersion';
+import FinKittyCat from "./cat.png";
+import WaitGif from "./catWait.gif";
+import { log, printDebug } from "../utils/utils";
+import Image from "next/image";
+import { getAppVersion } from "../utils/appVersion";
 
 export function navbarContent(
-  isWaiting: boolean, 
+  isWaiting: boolean,
   rhContent: () => any,
   toggle: (
     type: ViewType,
@@ -25,10 +25,10 @@ export function navbarContent(
     log(`drawing navbar content`);
   }
   // log(`drawing navbar content; isWaiting = ${isWaiting}`);
-  const variantString = 'light';
+  const variantString = "light";
 
   // Toggle this if you need a visual indicator of change
-  const bgString = 'light';
+  const bgString = "light";
   //  const bgString = "primary";
 
   return (
@@ -75,7 +75,7 @@ export function loginPage(loginWithRedirect: any, loginForTesting: any) {
           refreshChart;
           sourceID;
           // do nothing!
-        },        
+        },
       )}
       <div className="row">
         <div className="col-sm mb-4">
@@ -84,18 +84,18 @@ export function loginPage(loginWithRedirect: any, loginForTesting: any) {
             playpen
             <br />
             {makeButton(
-              'Login or create an account',
+              "Login or create an account",
               loginWithRedirect,
-              'buttonLogin',
-              'buttonLogin',
-              'outline-secondary',
+              "buttonLogin",
+              "buttonLogin",
+              "outline-secondary",
             )}
             {makeButton(
-              'Shared playpen (no login)',
+              "Shared playpen (no login)",
               loginForTesting,
-              'buttonTestLogin',
-              'buttonTestLogin',
-              'outline-secondary',
+              "buttonTestLogin",
+              "buttonTestLogin",
+              "outline-secondary",
             )}
           </div>
           <div className="alert alert-block">
@@ -147,8 +147,8 @@ export function loginPage(loginWithRedirect: any, loginForTesting: any) {
             make important financial decisions without also getting independent
             advice from a qualified&nbsp;
             <a href="https://www.fca.org.uk/consumers/finding-adviser">
-              &nbsp;independent financial advisor{' '}
-            </a>{' '}
+              &nbsp;independent financial advisor{" "}
+            </a>{" "}
             to validate financial plans.
           </div>
         </div>

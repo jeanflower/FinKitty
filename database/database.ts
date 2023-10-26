@@ -1,5 +1,5 @@
-import { RESTDB } from './REST_db';
-import { DbInterface } from './dbInterface';
+import { RESTDB } from "./REST_db";
+import { DbInterface } from "./dbInterface";
 
 const restdb = new RESTDB();
 

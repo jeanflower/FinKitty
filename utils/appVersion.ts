@@ -1,4 +1,4 @@
-import packageData from '../package.json';
+import packageData from "../package.json";
 
 export function getAppVersion(): string {
   return packageData.version;

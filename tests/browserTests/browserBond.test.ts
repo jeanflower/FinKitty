@@ -1,15 +1,15 @@
-import { bondModel } from '../../localization/stringConstants';
-import { gotoTabPage, quitAfterAll, transactionsTag } from './browserTestUtils';
+import { bondModel } from "../../localization/stringConstants";
+import { gotoTabPage, quitAfterAll, transactionsTag } from "./browserTestUtils";
 import {
   getDriver,
   beforeAllWork,
   cleanUpWork,
   getDataDumpFromPage,
-} from './browserBaseTypes';
-import { showObj } from '../../utils/utils';
+} from "./browserBaseTypes";
+import { showObj } from "../../utils/utils";
 showObj;
 
-const testName = 'BrowserBondTest';
+const testName = "BrowserBondTest";
 
 let alreadyRunning = false;
 
@@ -25,8 +25,8 @@ describe(testName, () => {
   const driver = driverSimple;
   jest.setTimeout(200000); // allow time for all these tests to run
 
-  it('Browser bond model', async () => {
-    const testDataModelName = 'BrowserTestSimple01';
+  it("Browser bond model", async () => {
+    const testDataModelName = "BrowserTestSimple01";
     await beforeAllWork(
       driver,
       testDataModelName,
@@ -35,34 +35,34 @@ describe(testName, () => {
 
     await gotoTabPage(driver, transactionsTag);
 
-    const data = await getDataDumpFromPage(driver, 'bondTransactionsTable');
+    const data = await getDataDumpFromPage(driver, "bondTransactionsTable");
     expect(data.length).toBe(10);
     expect(data[0]).toEqual({
-      DATE: '1 Jan 2024',
-      FROM: 'Bond',
-      FROM_VALUE: 'BMVBondTargetValue2',
-      NAME: 'BondMature5y',
-      TO: 'Cash',
-      TO_VALUE: '100%',
-      STOP_DATE: '1 Jan 2030',
-      RECURRENCE: '1y',
-      TYPE: 'bondMature',
-      CATEGORY: '',
+      DATE: "1 Jan 2024",
+      FROM: "Bond",
+      FROM_VALUE: "BMVBondTargetValue2",
+      NAME: "BondMature5y",
+      TO: "Cash",
+      TO_VALUE: "100%",
+      STOP_DATE: "1 Jan 2030",
+      RECURRENCE: "1y",
+      TYPE: "bondMature",
+      CATEGORY: "",
       index: 0,
       ERA: 0,
     });
     expect(data[1]).toEqual({
-      CATEGORY: '',
-      DATE: '1 Jan 2023',
+      CATEGORY: "",
+      DATE: "1 Jan 2023",
       ERA: 0,
-      FROM: 'Bond',
-      FROM_VALUE: 'BMVBondTargetValue',
-      NAME: 'BondMature4y',
-      RECURRENCE: '',
-      STOP_DATE: '',
-      TO: 'Cash',
-      TO_VALUE: '100%',
-      TYPE: 'bondMature',
+      FROM: "Bond",
+      FROM_VALUE: "BMVBondTargetValue",
+      NAME: "BondMature4y",
+      RECURRENCE: "",
+      STOP_DATE: "",
+      TO: "Cash",
+      TO_VALUE: "100%",
+      TYPE: "bondMature",
       index: 1,
     });
     /*

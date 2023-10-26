@@ -10,7 +10,7 @@ import {
   ViewCallbacks,
   Setting,
   SettingVal,
-} from '../types/interfaces';
+} from "../types/interfaces";
 import {
   assetsDivWithHeadings,
   debtsDivWithHeadings,
@@ -21,7 +21,7 @@ import {
   transactionsForTable,
   transactionsTableDiv,
   triggersTableDivWithHeading,
-} from './tablePages';
+} from "./tablePages";
 import {
   assetsOrDebtsChartDiv,
   coarseFineList,
@@ -29,7 +29,7 @@ import {
   getSmallerChartSettings,
   incomesChartDiv,
   taxChartDiv,
-} from './chartPages';
+} from "./chartPages";
 import {
   autogen,
   bondInvest,
@@ -37,15 +37,15 @@ import {
   overview,
   revalueExp,
   revalueInc,
-} from '../localization/stringConstants';
+} from "../localization/stringConstants";
 
-import { AddDeleteEntryForm } from './reactComponents/AddDeleteEntryForm';
-import React from 'react';
+import { AddDeleteEntryForm } from "./reactComponents/AddDeleteEntryForm";
+import React from "react";
 
-import { Col, Container, Row } from 'react-bootstrap';
-import { log, printDebug } from '../utils/utils';
-import { ViewSettings, getDisplay } from '../utils/viewUtils';
-import { makeButton } from './reactComponents/Button';
+import { Col, Container, Row } from "react-bootstrap";
+import { log, printDebug } from "../utils/utils";
+import { ViewSettings, getDisplay } from "../utils/viewUtils";
+import { makeButton } from "./reactComponents/Button";
 
 // import Fuse from 'fuse.js';
 
@@ -71,7 +71,7 @@ function chartsForOverview(
         <Col>
           {incomesChartDiv(
             suppressLegend(incomesChartData),
-            getSmallerChartSettings(viewSettings, model.settings, 'Incomes'),
+            getSmallerChartSettings(viewSettings, model.settings, "Incomes"),
             viewSettings,
             undefined,
             parentCallbacks,
@@ -80,7 +80,7 @@ function chartsForOverview(
         <Col>
           {expensesChartDiv(
             suppressLegend(expensesChartData),
-            getSmallerChartSettings(viewSettings, model.settings, 'Expenses'),
+            getSmallerChartSettings(viewSettings, model.settings, "Expenses"),
             viewSettings,
             undefined,
             parentCallbacks,
@@ -90,7 +90,7 @@ function chartsForOverview(
           {assetsOrDebtsChartDiv(
             suppressLegend(assetChartData),
             false,
-            getSmallerChartSettings(viewSettings, model.settings, 'Assets'),
+            getSmallerChartSettings(viewSettings, model.settings, "Assets"),
             viewSettings,
             undefined,
             parentCallbacks,
@@ -101,7 +101,7 @@ function chartsForOverview(
         <Col>
           {taxChartDiv(
             suppressLegend(taxChartData),
-            getSmallerChartSettings(viewSettings, model.settings, 'Tax'),
+            getSmallerChartSettings(viewSettings, model.settings, "Tax"),
             viewSettings,
             parentCallbacks,
           )}
@@ -110,7 +110,7 @@ function chartsForOverview(
           {assetsOrDebtsChartDiv(
             suppressLegend(debtChartData),
             true,
-            getSmallerChartSettings(viewSettings, model.settings, 'Debts'),
+            getSmallerChartSettings(viewSettings, model.settings, "Debts"),
             viewSettings,
             undefined,
             parentCallbacks,
@@ -160,27 +160,27 @@ function transactionsOverviewDiv(
         customContents,
         model,
         doChecks,
-        'Custom transactions',
-        'Custom transactions',
+        "Custom transactions",
+        "Custom transactions",
         parentCallbacks,
-        'customTransactionsOverview',
+        "customTransactionsOverview",
       )}
       {transactionsTableDiv(
         autogenContents,
         model,
         doChecks,
-        'Auto-generated transactions',
-        'Auto-generated transactions',
+        "Auto-generated transactions",
+        "Auto-generated transactions",
         parentCallbacks,
-        'autogenTransactionsOverview',
+        "autogenTransactionsOverview",
       )}
       {transactionFilteredTable(
         model,
         doChecks,
         bondInvest,
-        'Bond transactions',
+        "Bond transactions",
         parentCallbacks,
-        'bondTransactionsOverview',
+        "bondTransactionsOverview",
       )}
     </>
   );
@@ -221,7 +221,7 @@ export function overviewDiv(
 
   let introText = `Model ${model.name}`;
   if (user === undefined) {
-    introText += ' in shared sandpit';
+    introText += " in shared sandpit";
   } else {
     introText += ` for ${user}`;
   }
@@ -243,12 +243,13 @@ export function overviewDiv(
         <></>
       )}
       {makeButton(
-        parentCallbacks.getSearchString() === ''
+        parentCallbacks.getSearchString() === ""
           ? `enter search term for table data`
-          : `alter search term, currently set to '${parentCallbacks.getSearchString()}'`,
+          : `alter search term, currently set to ` +
+              `'${parentCallbacks.getSearchString()}'`,
         () => {
           // Change the pattern
-          const pattern = prompt('search term');
+          const pattern = prompt("search term");
           if (pattern !== null) {
             parentCallbacks.setSearchString(pattern);
             parentCallbacks.refreshData(
@@ -258,17 +259,17 @@ export function overviewDiv(
             );
           }
         },
-        'search model',
-        'search model',
-        'outline-secondary',
+        "search model",
+        "search model",
+        "outline-secondary",
       )}
-      <div className={chartDataExists ? 'scrollClass resizeClass' : ''}>
+      <div className={chartDataExists ? "scrollClass resizeClass" : ""}>
         <br />
         {triggersTableDivWithHeading(
           model,
           doChecks,
           parentCallbacks,
-          'Overview',
+          "Overview",
         )}
         {incomesTableDivWithHeading(
           model,
@@ -280,38 +281,38 @@ export function overviewDiv(
           model,
           doChecks,
           revalueInc,
-          'Income revaluations',
+          "Income revaluations",
           parentCallbacks,
-          'incomesRevalsOverviewTable',
+          "incomesRevalsOverviewTable",
         )}
         {expensesTableDivWithHeading(
           model,
           todaysExpenseValues,
           doChecks,
           parentCallbacks,
-          'Overview',
+          "Overview",
         )}
         {transactionFilteredTable(
           model,
           doChecks,
           revalueExp,
-          'Expense revaluations',
+          "Expense revaluations",
           parentCallbacks,
-          'expensesRevalsOverviewTable',
+          "expensesRevalsOverviewTable",
         )}
         {assetsDivWithHeadings(
           model,
           todaysAssetValues,
           doChecks,
           parentCallbacks,
-          'Overview',
+          "Overview",
         )}
         {debtsDivWithHeadings(
           model,
           todaysAssetValues,
           doChecks,
           parentCallbacks,
-          'Overview',
+          "Overview",
         )}
         {transactionsOverviewDiv(model, doChecks, parentCallbacks)}
         {settingsTableDiv(
@@ -319,7 +320,7 @@ export function overviewDiv(
           todaysSettingValues,
           doChecks,
           parentCallbacks,
-          'Overview',
+          "Overview",
         )}
       </div>
     </div>

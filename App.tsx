@@ -1,19 +1,19 @@
 /* istanbul ignore file */
-import React, { Component, useState } from 'react';
-import { Col, Row } from 'react-bootstrap';
+import React, { Component, useState } from "react";
+import { Col, Row } from "react-bootstrap";
 import {
   definedBenefitsPension,
   definedContributionsPension,
   emptyModel,
   nationalSavings,
   simpleExampleData,
-} from './models/exampleModels';
-import { useAuth0 } from './contexts/auth0-context';
-import { makeChartData } from './models/charting';
-import { checkData, checkTransaction, checkTrigger } from './models/checks';
-import { AddDeleteTransactionForm } from './views/reactComponents/AddDeleteTransactionForm';
-import { AddDeleteTriggerForm } from './views/reactComponents/AddDeleteTriggerForm';
-import { makeButton } from './views/reactComponents/Button';
+} from "./models/exampleModels";
+import { useAuth0 } from "./contexts/auth0-context";
+import { makeChartData } from "./models/charting";
+import { checkData, checkTransaction, checkTrigger } from "./models/checks";
+import { AddDeleteTransactionForm } from "./views/reactComponents/AddDeleteTransactionForm";
+import { AddDeleteTriggerForm } from "./views/reactComponents/AddDeleteTriggerForm";
+import { makeButton } from "./views/reactComponents/Button";
 import {
   autogen,
   custom,
@@ -52,7 +52,7 @@ import {
   chartDeltas,
   planningView,
   weekly,
-} from './localization/stringConstants';
+} from "./localization/stringConstants";
 import {
   AssetOrDebtVal,
   ChartData,
@@ -74,7 +74,7 @@ import {
   ReportValueChecker,
   ViewCallbacks,
   DeleteResult,
-} from './types/interfaces';
+} from "./types/interfaces";
 import {
   Context,
   DateFormatType,
@@ -82,9 +82,9 @@ import {
   printDebug,
   saveLogs,
   showObj,
-} from './utils/utils';
-import { loginPage, navbarContent } from './views/loginPage';
-import { screenshotsDiv } from './views/screenshotsPage';
+} from "./utils/utils";
+import { loginPage, navbarContent } from "./views/loginPage";
+import { screenshotsDiv } from "./views/screenshotsPage";
 import {
   settingsTableDiv,
   transactionFilteredTable,
@@ -92,15 +92,15 @@ import {
   reportDiv,
   optimizerDiv,
   calcOptimizer,
-} from './views/tablePages';
-import { overviewDiv } from './views/overviewPage';
-import { makeBarData } from './views/chartPages';
-import { incomesDiv } from './views/incomesPage';
-import { expensesDiv } from './views/expensesPage';
-import { assetsDiv } from './views/assetsPage';
-import { debtsDiv } from './views/debtsPage';
+} from "./views/tablePages";
+import { overviewDiv } from "./views/overviewPage";
+import { makeBarData } from "./views/chartPages";
+import { incomesDiv } from "./views/incomesPage";
+import { expensesDiv } from "./views/expensesPage";
+import { assetsDiv } from "./views/assetsPage";
+import { debtsDiv } from "./views/debtsPage";
 
-import CryptoJS from 'crypto-js';
+import CryptoJS from "crypto-js";
 import {
   deleteModel,
   ensureModel,
@@ -115,10 +115,10 @@ import {
   submitIncomeLSM,
   submitSettingLSM,
   saveModelLSM,
-} from './database/loadSaveModel';
-import { AddDeleteSettingForm } from './views/reactComponents/AddDeleteSettingForm';
-import { ReplaceWithJSONForm } from './views/reactComponents/ReplaceWithJSONForm';
-import { CreateModelForm } from './views/reactComponents/NewModelForm';
+} from "./database/loadSaveModel";
+import { AddDeleteSettingForm } from "./views/reactComponents/AddDeleteSettingForm";
+import { ReplaceWithJSONForm } from "./views/reactComponents/ReplaceWithJSONForm";
+import { CreateModelForm } from "./views/reactComponents/NewModelForm";
 import {
   Alert,
   Button,
@@ -127,8 +127,8 @@ import {
   Navbar,
   OverlayTrigger,
   Tooltip,
-} from 'react-bootstrap';
-import { EvaluationHelper, getEvaluations } from './models/evaluations';
+} from "react-bootstrap";
+import { EvaluationHelper, getEvaluations } from "./models/evaluations";
 import {
   applyRedoToModel,
   getROI,
@@ -136,30 +136,35 @@ import {
   markForUndo,
   revertToUndoModel,
   standardiseDates,
-} from './models/modelUtils';
-import { dateAsString, getTriggerDate, lessThan, makeTwoDP } from './utils/stringUtils';
-import { diffModels } from './models/diffModels';
-import { collapsibleFragment } from './views/tablePages';
-import WaitGif from './views/catWait.gif';
+} from "./models/modelUtils";
+import {
+  dateAsString,
+  getTriggerDate,
+  lessThan,
+  makeTwoDP,
+} from "./utils/stringUtils";
+import { diffModels } from "./models/diffModels";
+import { collapsibleFragment } from "./views/tablePages";
+import WaitGif from "./views/catWait.gif";
 import {
   ViewSettings,
   getDefaultViewSettings,
   getDisplay,
   getDisplayedView,
   views,
-} from './utils/viewUtils';
-import dateFormat from 'dateformat';
-import FileSaver from 'file-saver';
-import { taxDiv } from './views/taxPage';
-import Image from 'next/image'
-import { minimalModel } from './models/minimalModel';
-import { makeModelFromJSON } from './models/modelFromJSON';
-import { setUserID, getUserID } from './utils/user';
-import { deleteItemsFromModelInternal } from './utils/appActions';
-import { getAppVersion } from './utils/appVersion';
-import { getVarVal } from './models/modelQueries';
+} from "./utils/viewUtils";
+import dateFormat from "dateformat";
+import FileSaver from "file-saver";
+import { taxDiv } from "./views/taxPage";
+import Image from "next/image";
+import { minimalModel } from "./models/minimalModel";
+import { makeModelFromJSON } from "./models/modelFromJSON";
+import { setUserID, getUserID } from "./utils/user";
+import { deleteItemsFromModelInternal } from "./utils/appActions";
+import { getAppVersion } from "./utils/appVersion";
+import { getVarVal } from "./models/modelQueries";
 
-let modelName = '';
+let modelName = "";
 
 let isDirty = false; // does the model need saving?
 
@@ -167,7 +172,7 @@ function App(): JSX.Element | null {
   const { isLoading, user, loginWithRedirect, loginForTesting, logout } =
     useAuth0();
   if (!isLoading && !user) {
-    setUserID('');
+    setUserID("");
     return loginPage(loginWithRedirect, loginForTesting);
   }
   if (!isLoading && user) {
@@ -175,7 +180,7 @@ function App(): JSX.Element | null {
     return (
       <AppContent
         logOutAction={() => {
-          if (getUserID() === 'TestUserID') {
+          if (getUserID() === "TestUserID") {
             log(`logout ${getUserID()}`);
             // try to be graceful without network connection...
             // userID = '';
@@ -194,32 +199,32 @@ function App(): JSX.Element | null {
           const returnTo = window.location.origin; // + process.env.NEXT_PUBLIC_REACT_APP_ORIGIN_APPENDAGE;
           // alert(`returnTo = ${returnTo}`);
           return logout({
-            returnTo:returnTo,
+            returnTo: returnTo,
           });
         }}
         user={user}
       ></AppContent>
     );
   }
-  setUserID('');
+  setUserID("");
   return null;
 }
 
 const exampleModels = [
   {
-    name: 'Simple',
+    name: "Simple",
     model: simpleExampleData,
   },
   {
-    name: 'Defined Benefits Pension',
+    name: "Defined Benefits Pension",
     model: definedBenefitsPension,
   },
   {
-    name: 'Defined Contributions Pension',
+    name: "Defined Contributions Pension",
     model: definedContributionsPension,
   },
   {
-    name: 'National Savings Income Bonds',
+    name: "National Savings Income Bonds",
     model: nationalSavings,
   },
 ];
@@ -253,7 +258,7 @@ function setViewSetting(input: Setting): boolean {
 
 function showAlert(text: string) {
   // log(`setState for alert update : ${text}`);
-  if(reactAppComponent) {
+  if (reactAppComponent) {
     reactAppComponent.setState({
       alertText: text,
     });
@@ -283,7 +288,7 @@ async function getModel(): Promise<{
 
   if (
     modelNames.length === 0 ||
-    modelName === '' ||
+    modelName === "" ||
     (modelName === myFirstModelName &&
       modelNames.find((x) => {
         return x === myFirstModelName;
@@ -298,7 +303,7 @@ async function getModel(): Promise<{
 
       const modelAndStatus = await loadModel(getUserID(), modelName);
       if (modelAndStatus === undefined) {
-        const response = 'problem with model data';
+        const response = "problem with model data";
         showAlert(response);
         return { model, modelNames };
       }
@@ -381,15 +386,15 @@ function getReporter(
   // define a 'reporter' function which will be
   // passed into the evaluation code to capture
   // data as we proceed with calculations
-  let nameMatcher = '';
+  let nameMatcher = "";
   model.assets.forEach((a) => {
     if (viewSettings.getShowItem(Context.Asset, a.NAME)) {
       // log(`show ${a.NAME}`);
       const name = a.NAME;
-      if (nameMatcher === '') {
+      if (nameMatcher === "") {
         nameMatcher = name;
       } else {
-        nameMatcher = nameMatcher + '|' + name;
+        nameMatcher = nameMatcher + "|" + name;
       }
     } else {
       // log(`do not show ${a.NAME}`);
@@ -399,10 +404,10 @@ function getReporter(
     // include settings changes in the report
     model.settings.forEach((s) => {
       const name = s.NAME;
-      if (nameMatcher === '') {
+      if (nameMatcher === "") {
         nameMatcher = name;
       } else {
-        nameMatcher = nameMatcher + '|' + name;
+        nameMatcher = nameMatcher + "|" + name;
       }
     });
   }
@@ -433,7 +438,7 @@ function getReporter(
 
     // log(`sourceMatcher = ${reactAppComponent.reportDefiner.sourceMatcher}`)
     // log(`sourceExcluder = ${reactAppComponent.reportDefiner.sourceExcluder}`)
-    if (nameMatcher === '') {
+    if (nameMatcher === "") {
       return false;
     }
     const matcher = reactAppComponent.state.reportDefiner.sourceMatcher;
@@ -463,7 +468,7 @@ function getReporter(
       return false;
     }
     if (nameMatcher) {
-      const nameRegex = RegExp(nameMatcher, 'i');
+      const nameRegex = RegExp(nameMatcher, "i");
       if (name.match(nameRegex) === null) {
         // log(`do not display ${name} bcs it doesn't match ${nameMatcher}`);
         return false;
@@ -472,26 +477,26 @@ function getReporter(
 
     if (matcher) {
       try {
-        const sourceRegex = RegExp(matcher, 'i');
+        const sourceRegex = RegExp(matcher, "i");
         if (source.match(sourceRegex) === null) {
           // log(`do not show source ${source} bcs it doesn't match ${matcher}`);
           return false;
         }
       } catch (e) {
-        alert('error processing regexp');
+        alert("error processing regexp");
         return false;
       }
     }
 
     if (excluder) {
       try {
-        const sourceRegex = RegExp(excluder, 'i');
+        const sourceRegex = RegExp(excluder, "i");
         if (source.match(sourceRegex) !== null) {
           // log(`do not show source ${source} bcs it does match ${excluder}`);
           return false;
         }
       } catch (e) {
-        alert('error processing regexp');
+        alert("error processing regexp");
         return false;
       }
     }
@@ -506,7 +511,7 @@ async function refreshDataInternal(
   sourceID: number,
 ): Promise<void> {
   if (!evalMode()) {
-    log('skip evaluations and chart refresh - evalMode = false');
+    log("skip evaluations and chart refresh - evalMode = false");
     reactAppComponent.setState({ ...reactAppComponent.state });
     return;
   }
@@ -594,7 +599,7 @@ async function refreshDataInternal(
         date;
         source;
         const result =
-          name.startsWith('taxForFixed') || name.startsWith('incomeFixed');
+          name.startsWith("taxForFixed") || name.startsWith("incomeFixed");
         // console.log(`include ${name} for report? ${result}`);
         return result;
       };
@@ -609,7 +614,7 @@ async function refreshDataInternal(
         val;
         date;
         source;
-        const result = name.startsWith('taxBreakdown');
+        const result = name.startsWith("taxBreakdown");
         // console.log(`include ${name} for report? ${result}`);
         return result;
       };
@@ -629,22 +634,22 @@ async function refreshDataInternal(
           const fields = fieldNames.map((n) =>
             element[n] ? JSON.stringify(element[n]) : '""',
           );
-          return fields.join(',');
+          return fields.join(",");
         };
       };
 
       const fieldnames = Object.keys(data[0]);
-      let csvtxt = fieldnames.join(',').concat('\n');
+      let csvtxt = fieldnames.join(",").concat("\n");
       csvtxt = csvtxt.concat(
-        data.map(mapElementToColumns(fieldnames)).join('\n'),
+        data.map(mapElementToColumns(fieldnames)).join("\n"),
       );
 
       if (confirm(`save as csv to... ${csvtxt}`)) {
         const d = new Date();
         const csvName =
-          model.name + 'csv ' + dateFormat(d, 'yyyy-mm-dd HH:MM:ss');
+          model.name + "csv " + dateFormat(d, "yyyy-mm-dd HH:MM:ss");
 
-        const blob = new Blob([csvtxt], { type: 'text/plain;charset=utf-8' });
+        const blob = new Blob([csvtxt], { type: "text/plain;charset=utf-8" });
         FileSaver.saveAs(blob, `${csvName}.csv`);
       }
     }
@@ -691,7 +696,7 @@ async function refreshDataInternal(
 
     /* istanbul ignore if  */
     if (printDebug()) {
-      log('in refreshData');
+      log("in refreshData");
       log(` expensesData = ${expensesData}`);
       log(` incomesData = ${incomesData}`);
       log(` assetData = ${assetData}`);
@@ -707,10 +712,10 @@ async function refreshDataInternal(
     const planningViewSettings = getDefaultViewSettings();
     planningViewSettings.setModel(model);
     planningViewSettings.toggleViewFilter(Context.Expense, allItems);
-    planningViewSettings.toggleViewFilter(Context.Expense, 'Basic'); // the Planning page works with this category
-    planningViewSettings.toggleViewFilter(Context.Expense, 'Leisure'); // the Planning page works with this category
+    planningViewSettings.toggleViewFilter(Context.Expense, "Basic"); // the Planning page works with this category
+    planningViewSettings.toggleViewFilter(Context.Expense, "Leisure"); // the Planning page works with this category
     planningViewSettings.toggleViewFilter(Context.Asset, allItems);
-    planningViewSettings.toggleViewFilter(Context.Asset, 'BondsFixedTerm'); // the Planning page works with this category
+    planningViewSettings.toggleViewFilter(Context.Asset, "BondsFixedTerm"); // the Planning page works with this category
     planningViewSettings.setViewSetting(viewDetail, coarseDetail);
     planningViewSettings.setViewSetting(chartViewType, chartDeltas);
 
@@ -767,7 +772,7 @@ async function refreshDataInternal(
           /* istanbul ignore if  */
           if (printDebug()) {
             log(
-              'reactAppComponent.state.reportData.length = ' +
+              "reactAppComponent.state.reportData.length = " +
                 `${reactAppComponent.state.reportData.length}`,
             );
           }
@@ -846,7 +851,7 @@ export async function refreshData(
     );
   } else {
     if (refreshChart) {
-      log('go to refresh chart');
+      log("go to refresh chart");
     }
     return await refreshDataInternal(refreshModel, refreshChart, sourceID);
   }
@@ -878,7 +883,7 @@ function setReportKey(
         reportIncludesExpenses: reportIncludesExpenses,
       },
       async () => {
-        log('set key for report : go refresh data');
+        log("set key for report : go refresh data");
         refreshData(
           true, // refreshModel
           true, // refreshChart
@@ -888,7 +893,7 @@ function setReportKey(
     );
     return true;
   } catch (e) {
-    alert('error processing JSON format');
+    alert("error processing JSON format");
     return false;
   }
 }
@@ -907,7 +912,7 @@ async function submitAsset(
     reactAppComponent.options.checkModelOnEdit,
     getUserID(),
   );
-  if (outcome.message === '') {
+  if (outcome.message === "") {
     return await refreshData(
       true, // refreshModel
       true, // refreshChart
@@ -928,7 +933,7 @@ async function submitExpense(
     reactAppComponent.options.checkModelOnEdit,
     getUserID(),
   );
-  if (outcome.message === '') {
+  if (outcome.message === "") {
     return await refreshData(
       true, // refreshModel
       true, // refreshChart
@@ -949,7 +954,7 @@ async function submitIncome(
     reactAppComponent.options.checkModelOnEdit,
     getUserID(),
   );
-  if (message.message === '') {
+  if (message.message === "") {
     await refreshData(
       true, // refreshModel
       true, // refreshChart
@@ -972,7 +977,7 @@ async function submitTransaction(
     reactAppComponent.options.checkModelOnEdit,
     getUserID(),
   );
-  if (outcome.message === '') {
+  if (outcome.message === "") {
     return await refreshData(
       true, // refreshModel
       true, // refreshChart
@@ -993,7 +998,7 @@ async function submitTrigger(
     reactAppComponent.options.checkModelOnEdit,
     getUserID(),
   );
-  if (outcome.message === '') {
+  if (outcome.message === "") {
     return await refreshData(
       true, // refreshModel
       true, // refreshChart
@@ -1020,7 +1025,7 @@ export async function editSetting(
       ERA: settingInput.ERA,
       VALUE: settingInput.VALUE,
       TYPE: viewType,
-      HINT: '',
+      HINT: "",
     })
   ) {
     return await refreshData(
@@ -1031,7 +1036,7 @@ export async function editSetting(
   }
   const settingWithBlanks = {
     ...settingInput,
-    TYPE: '',
+    TYPE: "",
   };
   const outcome = await submitSettingLSM(
     settingWithBlanks,
@@ -1040,7 +1045,7 @@ export async function editSetting(
     reactAppComponent.options.checkModelOnEdit,
     getUserID(),
   );
-  if (outcome.message === '') {
+  if (outcome.message === "") {
     return await refreshData(
       true, // refreshModel
       true, // refreshChart
@@ -1051,21 +1056,20 @@ export async function editSetting(
   }
 }
 
-function getNumYears(
-  modelData: ModelData,
-){
+function getNumYears(modelData: ModelData) {
   const roiStartSetting = modelData.settings.find((s) => {
     return s.NAME === roiStart;
   });
   const roiEndSetting = modelData.settings.find((s) => {
     return s.NAME === roiEnd;
   });
-  if(roiStartSetting !== undefined && roiEndSetting !== undefined) {
+  if (roiStartSetting !== undefined && roiEndSetting !== undefined) {
     const v = getVarVal(modelData.settings);
 
     const startD = getTriggerDate(roiStartSetting.VALUE, modelData.triggers, v);
     const endD = getTriggerDate(roiEndSetting.VALUE, modelData.triggers, v);
-    const numYears = (endD.getTime() - startD.getTime())/1000/60/60/24/365;
+    const numYears =
+      (endD.getTime() - startD.getTime()) / 1000 / 60 / 60 / 24 / 365;
     // log(`numYears = ${numYears}`);
     return numYears;
   } else {
@@ -1073,14 +1077,13 @@ function getNumYears(
   }
 }
 
-
 async function submitROISetting(
   setting: Setting,
   modelData: ModelData,
   viewState: ViewSettings | undefined,
 ): Promise<{
-  updated: boolean,
-  value: string,
+  updated: boolean;
+  value: string;
 }> {
   // log(`submitNewSetting was given ${showObj(setting)}`);
   /*
@@ -1092,11 +1095,11 @@ async function submitROISetting(
   let warnOfChange = false;
 
   if (viewState !== undefined) {
-    // if you're changing the date range for viewing, 
+    // if you're changing the date range for viewing,
     // check to proceed if the range isn't large and the frequency is fine.
     if (setting.NAME === roiStart || setting.NAME === roiEnd) {
       const numYears = getNumYears(modelData);
-      const freq = viewState.getViewSetting(viewFrequency, 'noValueFound');
+      const freq = viewState.getViewSetting(viewFrequency, "noValueFound");
       if (freq === weekly && numYears >= 5) {
         warnOfChange = true;
       }
@@ -1106,15 +1109,19 @@ async function submitROISetting(
     }
   }
   if (warnOfChange) {
-    if( !window.confirm('are you sure you want this range with weekly-view charts?')){
+    if (
+      !window.confirm(
+        "are you sure you want this range with weekly-view charts?",
+      )
+    ) {
       // log('returning false from submitNewSetting');
       const existing = modelData.settings.find((s) => {
         return s.NAME === setting.NAME;
       });
       return {
         updated: false,
-        value: existing ? existing.VALUE : 'undefined',
-      }
+        value: existing ? existing.VALUE : "undefined",
+      };
     }
   }
   await submitNewSettingLSM(
@@ -1132,7 +1139,7 @@ async function submitROISetting(
   return {
     updated: true,
     value: setting.VALUE,
-  }
+  };
 }
 
 export function toggle(
@@ -1175,8 +1182,8 @@ function checkModelData(givenModel: ModelData, expectedName: string): string {
   if (givenModel.name !== expectedName) {
     return `inconsistent model names; ${givenModel.name} and ${expectedName}`;
   }
-  if (outcome.message === '') {
-    return 'model check all good';
+  if (outcome.message === "") {
+    return "model check all good";
   } else {
     return outcome.message;
   }
@@ -1185,11 +1192,11 @@ function checkModelData(givenModel: ModelData, expectedName: string): string {
 function setSearchString(s: string): boolean {
   try {
     const regex = RegExp(s);
-    if ('test'.match(regex) === null) {
+    if ("test".match(regex) === null) {
       // log(`test does not match regex`);
     }
   } catch (e) {
-    alert('error processing regexp');
+    alert("error processing regexp");
     return false;
   }
   if (reactAppComponent) {
@@ -1328,16 +1335,15 @@ async function deleteItemsFromModel(
     doChecks,
     allowRecursion,
     showAlert,
-    async (a, b, c)=>{ if(reactAppComponent){
+    async (a, b, c) => {
+      if (reactAppComponent) {
         return refreshData(a, b, c);
       }
     },
   );
-  return response.message === '';
+  return response.message === "";
 }
-async function deleteTrigger(
-  name: string,
-): Promise<DeleteResult> {
+async function deleteTrigger(name: string): Promise<DeleteResult> {
   return deleteItemsFromModelInternal(
     [name],
     reactAppComponent.state.modelData.triggers,
@@ -1346,15 +1352,15 @@ async function deleteTrigger(
     reactAppComponent.options.checkModelOnEdit,
     true, // allowRecursion
     showAlert,
-    async (a, b, c)=>{ if(reactAppComponent){
-      return refreshData(a, b, c);
-    }},
+    async (a, b, c) => {
+      if (reactAppComponent) {
+        return refreshData(a, b, c);
+      }
+    },
   );
 }
 
-async function deleteAsset(
-  name: string,
-): Promise<DeleteResult> {
+async function deleteAsset(name: string): Promise<DeleteResult> {
   return deleteItemsFromModelInternal(
     [name],
     reactAppComponent.state.modelData.assets,
@@ -1363,15 +1369,15 @@ async function deleteAsset(
     reactAppComponent.options.checkModelOnEdit,
     true, // allowRecursion
     showAlert,
-    async (a, b, c)=>{ if(reactAppComponent){
-      return refreshData(a, b, c);
-    }},
+    async (a, b, c) => {
+      if (reactAppComponent) {
+        return refreshData(a, b, c);
+      }
+    },
   );
 }
 
-async function deleteTransaction(
-  name: string,
-): Promise<DeleteResult> {
+async function deleteTransaction(name: string): Promise<DeleteResult> {
   return deleteItemsFromModelInternal(
     [name],
     reactAppComponent.state.modelData.transactions,
@@ -1380,15 +1386,15 @@ async function deleteTransaction(
     reactAppComponent.options.checkModelOnEdit,
     true, // allowRecursion
     showAlert,
-    async (a, b, c)=>{ if(reactAppComponent){
-      return refreshData(a, b, c);
-    }},
+    async (a, b, c) => {
+      if (reactAppComponent) {
+        return refreshData(a, b, c);
+      }
+    },
   );
 }
 
-async function deleteExpense(
-  name: string,
-): Promise<DeleteResult> {
+async function deleteExpense(name: string): Promise<DeleteResult> {
   return deleteItemsFromModelInternal(
     [name],
     reactAppComponent.state.modelData.expenses,
@@ -1397,15 +1403,15 @@ async function deleteExpense(
     reactAppComponent.options.checkModelOnEdit,
     true, // allowRecursion
     showAlert,
-    async (a, b, c)=>{ if(reactAppComponent){
-      return refreshData(a, b, c);
-    }},
+    async (a, b, c) => {
+      if (reactAppComponent) {
+        return refreshData(a, b, c);
+      }
+    },
   );
 }
 
-async function deleteIncome(
-  name: string,
-): Promise<DeleteResult> {
+async function deleteIncome(name: string): Promise<DeleteResult> {
   return deleteItemsFromModelInternal(
     [name],
     reactAppComponent.state.modelData.incomes,
@@ -1414,15 +1420,15 @@ async function deleteIncome(
     reactAppComponent.options.checkModelOnEdit,
     true, // allowRecursion
     showAlert,
-    async (a, b, c)=>{ if(reactAppComponent){
-      return refreshData(a, b, c);
-    }},
+    async (a, b, c) => {
+      if (reactAppComponent) {
+        return refreshData(a, b, c);
+      }
+    },
   );
 }
 
-async function deleteSetting(
-  name: string,
-): Promise<DeleteResult> {
+async function deleteSetting(name: string): Promise<DeleteResult> {
   return deleteItemsFromModelInternal(
     [name],
     reactAppComponent.state.modelData.settings,
@@ -1431,9 +1437,11 @@ async function deleteSetting(
     reactAppComponent.options.checkModelOnEdit,
     true, // allowRecursion
     showAlert,
-    async (a, b, c)=>{ if(reactAppComponent){
-      return refreshData(a, b, c);
-    }},
+    async (a, b, c) => {
+      if (reactAppComponent) {
+        return refreshData(a, b, c);
+      }
+    },
   );
 }
 function okToContinue(newEraValue: number): boolean {
@@ -1443,7 +1451,7 @@ function okToContinue(newEraValue: number): boolean {
       return true;
     } else {
       const gotPermission = window.confirm(
-        'make historical items visible in tables?',
+        "make historical items visible in tables?",
       );
       if (gotPermission) {
         toggleOption(showHistoricalOption);
@@ -1458,7 +1466,7 @@ function okToContinue(newEraValue: number): boolean {
       return true;
     } else {
       const gotPermission = window.confirm(
-        'make current items visible in tables?',
+        "make current items visible in tables?",
       );
       if (gotPermission) {
         toggleOption(showCurrentOption);
@@ -1473,7 +1481,7 @@ function okToContinue(newEraValue: number): boolean {
       return true;
     } else {
       const gotPermission = window.confirm(
-        'make future items visible in tables?',
+        "make future items visible in tables?",
       );
       if (gotPermission) {
         toggleOption(showFutureOption);
@@ -1485,10 +1493,7 @@ function okToContinue(newEraValue: number): boolean {
   }
   return true;
 }
-async function setEraTrigger(
-  name: string,
-  value: number,
-): Promise<boolean> {
+async function setEraTrigger(name: string, value: number): Promise<boolean> {
   if (okToContinue(value)) {
     return setEraInModel(
       name,
@@ -1501,10 +1506,7 @@ async function setEraTrigger(
     return false;
   }
 }
-async function setEraAsset(
-  name: string,
-  value: number,
-): Promise<boolean> {
+async function setEraAsset(name: string, value: number): Promise<boolean> {
   if (okToContinue(value)) {
     return setEraInModel(
       name,
@@ -1533,10 +1535,7 @@ async function setEraTransaction(
     return false;
   }
 }
-async function setEraExpense(
-  name: string,
-  value: number,
-): Promise<boolean> {
+async function setEraExpense(name: string, value: number): Promise<boolean> {
   if (okToContinue(value)) {
     return setEraInModel(
       name,
@@ -1549,10 +1548,7 @@ async function setEraExpense(
     return false;
   }
 }
-async function setEraIncome(
-  name: string,
-  value: number,
-): Promise<boolean> {
+async function setEraIncome(name: string, value: number): Promise<boolean> {
   if (okToContinue(value)) {
     return setEraInModel(
       name,
@@ -1565,10 +1561,7 @@ async function setEraIncome(
     return false;
   }
 }
-async function setEraSetting(
-  name: string,
-  value: number,
-): Promise<boolean> {
+async function setEraSetting(name: string, value: number): Promise<boolean> {
   if (okToContinue(value)) {
     return setEraInModel(
       name,
@@ -1629,7 +1622,7 @@ function getSearchString(): string {
     // log(`should we check before overwrite? ${result}`);
     return result;
   } else {
-    return '';
+    return "";
   }
 }
 function doShowTransactionsButton(): boolean {
@@ -1751,9 +1744,9 @@ function AlertDismissibleExample(props: {
   dismissAction: () => void;
 }) {
   const [show, setShow] = useState(true);
-  let variant = 'success';
-  if (!props.message.startsWith('added new')) {
-    variant = 'warning';
+  let variant = "success";
+  if (!props.message.startsWith("added new")) {
+    variant = "warning";
   }
 
   return (
@@ -1792,12 +1785,12 @@ function needsChartRefresh(
   if (viewSettingsHolder && viewSettingsHolder.viewState) {
     oldFrequency = viewSettingsHolder.viewState.getViewSetting(
       viewFrequency,
-      'unknown1',
+      "unknown1",
       oldViewType,
     );
     newFrequency = viewSettingsHolder.viewState.getViewSetting(
       viewFrequency,
-      'unknown2',
+      "unknown2",
       newViewType,
     );
   }
@@ -1878,7 +1871,7 @@ export class AppContent extends Component<AppProps, AppState> {
     saveReportAsCSV: false,
     reportData: [] as ReportDatum[],
     totalTaxPaid: 0,
-    alertText: '',
+    alertText: "",
     isWaiting: false,
   };
 
@@ -1892,13 +1885,13 @@ export class AppContent extends Component<AppProps, AppState> {
       evalMode: true,
       checkModelOnEdit: true,
       favouritesOnly: false,
-      uiMode: 'advancedUI',
+      uiMode: "advancedUI",
       showHistorical: false,
       showCurrent: true,
       showFuture: true,
-      searchString: '',
+      searchString: "",
     };
-    reactAppComponent = this;
+    reactAppComponent = this; // eslint-disable-line
   }
 
   public componentWillUnmount(): void {
@@ -1923,70 +1916,70 @@ export class AppContent extends Component<AppProps, AppState> {
     view: ViewType | undefined,
   ): JSX.Element {
     return navbarContent(
-      isWaiting, 
+      isWaiting,
       () => {
-      const estateVal = this.state.reportData.find((d) => {
-        return d.name === 'Estate final value';
-      });
-      let textToDisplay = '';
-      if (estateVal !== undefined) {
-        if (estateVal.newVal !== undefined) {
-          textToDisplay = `Estate: ${makeTwoDP(estateVal.newVal)}`;
+        const estateVal = this.state.reportData.find((d) => {
+          return d.name === "Estate final value";
+        });
+        let textToDisplay = "";
+        if (estateVal !== undefined) {
+          if (estateVal.newVal !== undefined) {
+            textToDisplay = `Estate: ${makeTwoDP(estateVal.newVal)}`;
+          }
         }
-      }
-      return (
-        <>
-          <Navbar.Toggle aria-controls="basic-navbar-nav" />
-          <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="mr-auto">
-              <Form
-                onSubmit={(e: React.FormEvent<Element>) => {
-                  e.preventDefault();
-                  return false;
-                }}
-              >
-                <Col>
-                  <Row>{this.statusButtonList()}</Row>
-                  <Row>{this.viewButtonList()}</Row>
-                </Col>
-              </Form>
-            </Nav>
-            <Nav>
-              <Form
-                onSubmit={(e: React.FormEvent<Element>) => {
-                  e.preventDefault();
-                  return false;
-                }}
-              >
-                <Col>
-                  <div className="d-flex flex-row-reverse">
-                    {this.rhsTopButtonList(textToDisplay, view)}
-                  </div>
-                  <div className="d-flex flex-row-reverse">
-                    {this.rhsBottomButtonList()}
-                  </div>
-                </Col>
-              </Form>
-            </Nav>
-          </Navbar.Collapse>
-        </>
-      );
-    },
-    (
-      type: ViewType,
-      refreshModel: boolean,
-      refreshChart: boolean,
-      sourceID: number,
-    ) => {
-      return toggle(type, refreshModel, refreshChart, sourceID);
-    },    
+        return (
+          <>
+            <Navbar.Toggle aria-controls="basic-navbar-nav" />
+            <Navbar.Collapse id="basic-navbar-nav">
+              <Nav className="mr-auto">
+                <Form
+                  onSubmit={(e: React.FormEvent<Element>) => {
+                    e.preventDefault();
+                    return false;
+                  }}
+                >
+                  <Col>
+                    <Row>{this.statusButtonList()}</Row>
+                    <Row>{this.viewButtonList()}</Row>
+                  </Col>
+                </Form>
+              </Nav>
+              <Nav>
+                <Form
+                  onSubmit={(e: React.FormEvent<Element>) => {
+                    e.preventDefault();
+                    return false;
+                  }}
+                >
+                  <Col>
+                    <div className="d-flex flex-row-reverse">
+                      {this.rhsTopButtonList(textToDisplay, view)}
+                    </div>
+                    <div className="d-flex flex-row-reverse">
+                      {this.rhsBottomButtonList()}
+                    </div>
+                  </Col>
+                </Form>
+              </Nav>
+            </Navbar.Collapse>
+          </>
+        );
+      },
+      (
+        type: ViewType,
+        refreshModel: boolean,
+        refreshChart: boolean,
+        sourceID: number,
+      ) => {
+        return toggle(type, refreshModel, refreshChart, sourceID);
+      },
     );
   }
 
   public render(): JSX.Element {
     /* istanbul ignore if  */
     if (printDebug()) {
-      log('in render');
+      log("in render");
     }
     // log(`this.state.reportData.length = ${this.state.reportData.length}`);
     try {
@@ -1999,17 +1992,24 @@ export class AppContent extends Component<AppProps, AppState> {
         const end: Date = getROI(this.state.modelData).end;
         return dateAsString(DateFormatType.View, end);
       };
-      const updateROISettingValue = async (settingName: string, newDate: string) => {
+      const updateROISettingValue = async (
+        settingName: string,
+        newDate: string,
+      ) => {
         const s = this.state.modelData.settings.find((s) => {
           return s.NAME === settingName;
         });
         let result = {
           updated: false,
-          value: 'undefined',
+          value: "undefined",
         };
         if (s !== undefined) {
           s.VALUE = newDate;
-          result = await submitROISetting(s, this.state.modelData, this.state.viewState);
+          result = await submitROISetting(
+            s,
+            this.state.modelData,
+            this.state.viewState,
+          );
         }
         return result;
       };
@@ -2061,10 +2061,10 @@ export class AppContent extends Component<AppProps, AppState> {
       };
 
       const regexString = this.options.searchString;
-      const regex = RegExp(regexString, 'i');
+      const regex = RegExp(regexString, "i");
 
       const filterForSearch = (item: Item) => {
-        if (regexString === undefined || regexString === '') {
+        if (regexString === undefined || regexString === "") {
           return true;
         }
         if (JSON.stringify(item).match(regex) === null) {
@@ -2078,27 +2078,34 @@ export class AppContent extends Component<AppProps, AppState> {
         let warnOfChange = false;
         if (newVal === weekly) {
           const numYears = getNumYears(this.state.modelData);
-          if(numYears >= 5) {
+          if (numYears >= 5) {
             warnOfChange = true;
           }
         }
         if (newVal === monthly) {
           const numYears = getNumYears(this.state.modelData);
-          if(numYears >= 20) {
+          if (numYears >= 20) {
             warnOfChange = true;
           }
         }
         if (warnOfChange) {
-          if( !window.confirm('are you sure you want this range with weekly-view charts?')){
+          if (
+            !window.confirm(
+              "are you sure you want this range with weekly-view charts?",
+            )
+          ) {
             // log('returning false from updateFrequency');
             // const existing = this.state.viewState.getViewSetting(viewFrequency, 'unknown');
             // log(`existing value = ${existing}`);
             return false;
           }
         }
-        const updated = this.state.viewState.setViewSetting(viewFrequency, newVal);
+        const updated = this.state.viewState.setViewSetting(
+          viewFrequency,
+          newVal,
+        );
         return updated;
-      }
+      };
 
       const parentCallbacks: ViewCallbacks = {
         showAlert,
@@ -2148,8 +2155,7 @@ export class AppContent extends Component<AppProps, AppState> {
         <>
           {this.navbarDiv(this.state.isWaiting, getDisplayedView())}
           <>
-            {this.homeDiv(
-            )}
+            {this.homeDiv()}
             {overviewDiv(
               this.state.modelData,
               this.props.user.name,
@@ -2206,9 +2212,7 @@ export class AppContent extends Component<AppProps, AppState> {
               this.state.todaysDebtValues,
               parentCallbacks,
             )}
-            {this.transactionsDiv(
-              parentCallbacks, 
-            )}
+            {this.transactionsDiv(parentCallbacks)}
             {taxDiv(
               this.state.modelData,
               this.state.viewState,
@@ -2226,7 +2230,7 @@ export class AppContent extends Component<AppProps, AppState> {
               this.state.reportIncludesSettings,
               this.state.reportIncludesExpenses,
               this.state.reportData.slice(0, this.state.maxReportSize),
-              'report',
+              "report",
               setReportKey,
               parentCallbacks.refreshData,
             )}
@@ -2236,8 +2240,8 @@ export class AppContent extends Component<AppProps, AppState> {
               this.state.viewState,
               this.state.optimizationChartData,
               parentCallbacks,
-              'optimizer',
-            )}{' '}
+              "optimizer",
+            )}{" "}
           </>
         </>
       );
@@ -2285,16 +2289,16 @@ export class AppContent extends Component<AppProps, AppState> {
         },
         model,
         `btn-${idKey}-${model}`,
-        idKey !== 'del' && modelName === model ? 'primary' : 'outline-primary',
+        idKey !== "del" && modelName === model ? "primary" : "outline-primary",
       );
     });
     return (
       <Form>
-      <div className="ml-3" id="selectLabel">
-        Select an existing model
-        <br />
-        {buttons}
-      </div>
+        <div className="ml-3" id="selectLabel">
+          Select an existing model
+          <br />
+          {buttons}
+        </div>
       </Form>
     );
   }
@@ -2316,7 +2320,7 @@ export class AppContent extends Component<AppProps, AppState> {
           }
         }
       },
-      'overview',
+      "overview",
     );
   }
 
@@ -2326,22 +2330,22 @@ export class AppContent extends Component<AppProps, AppState> {
   } {
     const result = {
       gotNameOK: false,
-      newName: '',
+      newName: "",
     };
-    let promptResponse = prompt('Provide a name for your model');
+    let promptResponse = prompt("Provide a name for your model");
     if (promptResponse === null) {
       return result;
     }
-    if (promptResponse === '') {
-      promptResponse = 'myModel';
+    if (promptResponse === "") {
+      promptResponse = "myModel";
     }
     // log(`set new model name to ${promptResponse}`);
-    const regex = RegExp('[a-zA-Z0-9_\\-\\. ]+');
-    const whatsLeft = promptResponse.replace(regex, '');
+    const regex = RegExp("[a-zA-Z0-9_\\-\\. ]+");
+    const whatsLeft = promptResponse.replace(regex, "");
     // log(`whatsLeft = ${whatsLeft}`);
-    if (whatsLeft !== '') {
+    if (whatsLeft !== "") {
       const response =
-        'Model names can only contain a-z, A-Z, 0-9, _, - and . characters';
+        "Model names can only contain a-z, A-Z, 0-9, _, - and . characters";
       // log(`setState for regex item alert`);
       reactAppComponent.setState({
         alertText: response,
@@ -2377,7 +2381,7 @@ export class AppContent extends Component<AppProps, AppState> {
       }
       // log(`model names after delete are ${modelNames}`);
       if (modelNames.length === 0) {
-        showAlert('no data left: recreating a blank model');
+        showAlert("no data left: recreating a blank model");
         modelName = myFirstModelName;
         const model = getMyFirstModel();
         await saveModelLSM(getUserID(), modelName, model);
@@ -2396,7 +2400,7 @@ export class AppContent extends Component<AppProps, AppState> {
   private async diffModel(modelNameForDiff: string): Promise<void> {
     const otherModelName: string | null = window.prompt(
       `diff ${modelNameForDiff} against which model?`,
-      '',
+      "",
     );
     if (otherModelName === null) {
       return;
@@ -2421,9 +2425,9 @@ export class AppContent extends Component<AppProps, AppState> {
       otherModelName,
     );
     if (diffResult.length === 0) {
-      window.alert('models are the same');
+      window.alert("models are the same");
     } else {
-      let s = '';
+      let s = "";
       for (const diff of diffResult) {
         s += diff + `\n`;
       }
@@ -2490,7 +2494,7 @@ export class AppContent extends Component<AppProps, AppState> {
                 22, //sourceID
               );
             } else {
-              alert('save failed!');
+              alert("save failed!");
             }
           }}
           showAlert={showAlert}
@@ -2499,37 +2503,37 @@ export class AppContent extends Component<AppProps, AppState> {
           getExampleModel={(s) => {
             return makeModelFromJSON(s);
           }}
-          getModelNames={(userID: string)=>{
+          getModelNames={(userID: string) => {
             return getModelNames(userID);
           }}
         />
         <div className="btn-group ml-3" role="group">
           {makeButton(
-            'Delete model',
+            "Delete model",
             async () => {
               this.deleteModel(modelName);
             },
             `btn-delete`,
             `btn-delete`,
-            'outline-secondary',
+            "outline-secondary",
           )}
           {makeButton(
-            'Diff model',
+            "Diff model",
             async () => {
               this.diffModel(modelName);
             },
             `btn-diff`,
             `btn-diff`,
-            'outline-secondary',
+            "outline-secondary",
           )}
         </div>
         <br></br>
         <br></br>
-        <div className="ml-3" id='devToolsDiv'>
+        <div className="ml-3" id="devToolsDiv">
           Developer tools:
           <br />
           {makeButton(
-            'Check model',
+            "Check model",
             async () => {
               const response = checkModelData(
                 reactAppComponent.state.modelData,
@@ -2542,10 +2546,10 @@ export class AppContent extends Component<AppProps, AppState> {
             },
             `btn-check`,
             `btn-check`,
-            'outline-secondary',
+            "outline-secondary",
           )}
           {makeButton(
-            'Standardise dates',
+            "Standardise dates",
             async () => {
               const response = standardiseDates(
                 reactAppComponent.state.modelData,
@@ -2557,11 +2561,11 @@ export class AppContent extends Component<AppProps, AppState> {
             },
             `btn-standardise-dates`,
             `btn-standardise-dates`,
-            'outline-secondary',
+            "outline-secondary",
           )}
           <br></br>
           {makeButton(
-            'Copy model as JSON to clipboard',
+            "Copy model as JSON to clipboard",
             () => {
               const text = JSON.stringify(this.state.modelData);
               navigator.clipboard.writeText(text).then(
@@ -2569,37 +2573,37 @@ export class AppContent extends Component<AppProps, AppState> {
                   showAlert(`model as JSON on clipboard`);
                 },
                 function (err) {
-                  console.error('Async: Could not copy text: ', err);
+                  console.error("Async: Could not copy text: ", err);
                   showAlert(
                     `sorry, something went wrong, no copy on clipboard - in console instead`,
                   );
-                  log('-------- start of model --------');
+                  log("-------- start of model --------");
                   log(text);
-                  log('-------- end of model --------');
+                  log("-------- end of model --------");
                 },
               );
             },
             `btn-log`,
             `btn-log`,
-            'outline-secondary',
+            "outline-secondary",
           )}
           {makeButton(
-            'Save log data',
+            "Save log data",
             () => {
               saveLogs();
             },
             `btn-saveLogs`,
             `btnsaveLogs`,
-            'outline-secondary',
+            "outline-secondary",
           )}
           {makeButton(
-            'Test encrypted JSON',
+            "Test encrypted JSON",
             () => {
-              const inputEnc = prompt('Enter encrypted JSON');
+              const inputEnc = prompt("Enter encrypted JSON");
               if (inputEnc === null) {
                 return;
               }
-              const secret = prompt('Enter secret key');
+              const secret = prompt("Enter secret key");
               if (secret === null) {
                 return;
               }
@@ -2608,15 +2612,15 @@ export class AppContent extends Component<AppProps, AppState> {
                 const decipherString = decipher.toString(CryptoJS.enc.Utf8);
                 log(`deciphered text ${decipherString}`);
                 if (decipherString === undefined) {
-                  showAlert('could not decode this data');
+                  showAlert("could not decode this data");
                 } else {
                   const decipheredModel = makeModelFromJSON(
                     decipherString,
-                    'validatingModel',
+                    "validatingModel",
                   );
                   const response = checkModelData(
                     decipheredModel,
-                    'validatingModel',
+                    "validatingModel",
                   );
                   // log(`setState for loaded model alert`);
                   reactAppComponent.setState({
@@ -2624,12 +2628,12 @@ export class AppContent extends Component<AppProps, AppState> {
                   });
                 }
               } catch (err) {
-                showAlert('could not decode this data');
+                showAlert("could not decode this data");
               }
             },
             `btn-JSON-encrypt-replace`,
             `btn-JSON-encrypt-replace`,
-            'outline-secondary',
+            "outline-secondary",
           )}
         </div>
         <ReplaceWithJSONForm
@@ -2651,8 +2655,7 @@ export class AppContent extends Component<AppProps, AppState> {
     );
   }
 
-  private homeDiv(
-  ): JSX.Element {
+  private homeDiv(): JSX.Element {
     // log(`this.state.modelNamesData = ${this.state.modelNamesData}`);
     if (!getDisplay(homeView)) {
       // log(`don't populate homeView`);
@@ -2668,7 +2671,7 @@ export class AppContent extends Component<AppProps, AppState> {
             <br />
             {this.state.modelNamesData.length > 0
               ? this.homeScreenButtons()
-              : ''}
+              : ""}
           </div>
           <div className="col-md mb-4">{screenshotsDiv()}</div>
         </div>
@@ -2694,14 +2697,14 @@ export class AppContent extends Component<AppProps, AppState> {
             todaysValues,
             this.options.checkModelOnEdit,
             parentCallbacks,
-            '',
+            "",
           )}
           <p />
 
           {collapsibleFragment(
             <div className="addNewSetting">
               <AddDeleteSettingForm
-                submitSettingFunction={(setting: Setting, model: ModelData) => { 
+                submitSettingFunction={(setting: Setting, model: ModelData) => {
                   return submitROISetting(setting, model, undefined);
                 }}
                 checkTransactionFunction={checkTransaction}
@@ -2709,7 +2712,9 @@ export class AppContent extends Component<AppProps, AppState> {
                 submitTriggerFunction={submitTrigger}
                 model={this.state.modelData}
                 showAlert={showAlert}
-                doCheckBeforeOverwritingExistingData={doCheckBeforeOverwritingExistingData}
+                doCheckBeforeOverwritingExistingData={
+                  doCheckBeforeOverwritingExistingData
+                }
               />
               {/*
             // adding this wierdly makes tooltips work!
@@ -2742,7 +2747,7 @@ export class AppContent extends Component<AppProps, AppState> {
           this.state.modelData,
           this.options.checkModelOnEdit,
           parentCallbacks,
-          '',
+          "",
         )}
         <p />
         {collapsibleFragment(
@@ -2753,8 +2758,10 @@ export class AppContent extends Component<AppProps, AppState> {
               deleteFunction={deleteTrigger}
               model={this.state.modelData}
               showAlert={showAlert}
-              doCheckBeforeOverwritingExistingData={doCheckBeforeOverwritingExistingData}
-              />
+              doCheckBeforeOverwritingExistingData={
+                doCheckBeforeOverwritingExistingData
+              }
+            />
           </div>,
           `Add an important date`,
         )}
@@ -2762,9 +2769,7 @@ export class AppContent extends Component<AppProps, AppState> {
     );
   }
 
-  private transactionsDiv(
-    parentCallbacks: ViewCallbacks,
-  ): JSX.Element {
+  private transactionsDiv(parentCallbacks: ViewCallbacks): JSX.Element {
     if (!getDisplay(transactionsView)) {
       // log(`don't populate transactionsView`);
       return <></>;
@@ -2777,25 +2782,25 @@ export class AppContent extends Component<AppProps, AppState> {
           this.state.modelData,
           this.options.checkModelOnEdit,
           custom,
-          'Custom transactions',
+          "Custom transactions",
           parentCallbacks,
-          'customTransactions',
+          "customTransactions",
         )}
         {transactionFilteredTable(
           this.state.modelData,
           this.options.checkModelOnEdit,
           autogen,
-          'Auto-generated transactions',
+          "Auto-generated transactions",
           parentCallbacks,
-          'autogenTransactions',
+          "autogenTransactions",
         )}
         {transactionFilteredTable(
           this.state.modelData,
           this.options.checkModelOnEdit,
           bondInvest,
-          'Bond transactions',
+          "Bond transactions",
           parentCallbacks,
-          'bondTransactions',
+          "bondTransactions",
         )}
         <p />
         <div className="addNewTransaction">
@@ -2805,7 +2810,7 @@ export class AppContent extends Component<AppProps, AppState> {
               reactAppComponent.options.checkModelOnEdit
                 ? checkTransaction
                 : () => {
-                    return '';
+                    return "";
                   }
             }
             submitFunction={submitTransaction}
@@ -2813,8 +2818,10 @@ export class AppContent extends Component<AppProps, AppState> {
             submitTriggerFunction={submitTrigger}
             model={this.state.modelData}
             showAlert={parentCallbacks.showAlert}
-            doCheckBeforeOverwritingExistingData={doCheckBeforeOverwritingExistingData}
-            />
+            doCheckBeforeOverwritingExistingData={
+              doCheckBeforeOverwritingExistingData
+            }
+          />
         </div>
       </div>
     );
@@ -2826,26 +2833,26 @@ export class AppContent extends Component<AppProps, AppState> {
     const buttons: JSX.Element[] = [];
     buttons.push(
       makeButton(
-        'Log out',
+        "Log out",
         (event: React.MouseEvent<HTMLButtonElement>) => {
           event.persist();
           this.props.logOutAction();
         },
-        'Log out',
+        "Log out",
         `btn-LogOut`,
-        'outline-secondary',
+        "outline-secondary",
       ),
     );
-    if (estateText !== '') {
+    if (estateText !== "") {
       buttons.push(
         makeButton(
           estateText,
           () => {
             // do nothing
           },
-          'estateText',
+          "estateText",
           `btn-estateText`,
-          'outline-secondary',
+          "outline-secondary",
         ),
       );
     }
@@ -2856,9 +2863,9 @@ export class AppContent extends Component<AppProps, AppState> {
           () => {
             // do nothing
           },
-          'versionButton',
+          "versionButton",
           `btn-version`,
-          'outline-secondary',
+          "outline-secondary",
         ),
       );
     }
@@ -2926,14 +2933,14 @@ export class AppContent extends Component<AppProps, AppState> {
             const oldView = getDisplayedView();
             toggle(
               view,
-              view.lc === 'Planning' || view.lc === 'Tax' || refreshModel, // refreshModel
+              view.lc === "Planning" || view.lc === "Tax" || refreshModel, // refreshModel
               needsChartRefresh(this.state, oldView, view), // refreshChart
               24, //sourceID
             );
           },
           view.lc,
           `btn-${view.lc}`,
-          display ? 'secondary' : 'outline-secondary',
+          display ? "secondary" : "outline-secondary",
         ),
       );
       viewIterator = it.next();
@@ -2955,18 +2962,18 @@ export class AppContent extends Component<AppProps, AppState> {
       undoModel = undoModel.undoModel;
       numUndosAvailable = numUndosAvailable + 1;
     }
-    let buttonTitle = 'Undo';
+    let buttonTitle = "Undo";
     if (numUndosAvailable > 0) {
       buttonTitle = `Undo(${numUndosAvailable})`;
     }
-    let undoTooltip = '';
+    let undoTooltip = "";
     if (this.state.modelData.undoModel !== undefined) {
       const diffs = diffModels(
         this.state.modelData,
         this.state.modelData.undoModel,
         true,
-        'current model',
-        'previous model',
+        "current model",
+        "previous model",
       );
       if (diffs.length > 0) {
         undoTooltip = diffs[0];
@@ -2989,11 +2996,11 @@ export class AppContent extends Component<AppProps, AppState> {
       `btn-undo-model`,
       `btn-undo-model`,
       this.state.modelData.undoModel !== undefined
-        ? 'secondary'
-        : 'outline-secondary',
+        ? "secondary"
+        : "outline-secondary",
     );
 
-    if (undoTooltip === '') {
+    if (undoTooltip === "") {
       return b;
     } else {
       return (
@@ -3018,18 +3025,18 @@ export class AppContent extends Component<AppProps, AppState> {
       redoModel = redoModel.redoModel;
       numRedosAvailable = numRedosAvailable + 1;
     }
-    let buttonTitle = 'Redo';
+    let buttonTitle = "Redo";
     if (numRedosAvailable > 0) {
       buttonTitle = `Redo(${numRedosAvailable})`;
     }
-    let redoTooltip = '';
+    let redoTooltip = "";
     if (this.state.modelData.redoModel !== undefined) {
       const diffs = diffModels(
         this.state.modelData.redoModel,
         this.state.modelData,
         true,
-        'redo model',
-        'current model',
+        "redo model",
+        "current model",
       );
       if (diffs.length > 0) {
         redoTooltip = diffs[0];
@@ -3052,11 +3059,11 @@ export class AppContent extends Component<AppProps, AppState> {
       `btn-redo-model`,
       `btn-redo-model`,
       this.state.modelData.redoModel !== undefined
-        ? 'secondary'
-        : 'outline-secondary',
+        ? "secondary"
+        : "outline-secondary",
     );
 
-    if (redoTooltip === '') {
+    if (redoTooltip === "") {
       return b;
     } else {
       return (
@@ -3078,7 +3085,7 @@ export class AppContent extends Component<AppProps, AppState> {
   private makeSaveButton(): JSX.Element {
     // log(`isDirty = ${isDirty}`);
     return makeButton(
-      'Save model',
+      "Save model",
       async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.persist();
         const savedOK = await saveModelToDBLSM(
@@ -3098,14 +3105,14 @@ export class AppContent extends Component<AppProps, AppState> {
       },
       `btn-save-model`,
       `btn-save-model`,
-      isDirty ? 'secondary' : 'outline-secondary',
+      isDirty ? "secondary" : "outline-secondary",
     );
   }
 
   private makeHelpText(alertText: string): JSX.Element[] {
     const result: JSX.Element[] = [];
     let messageText = alertText;
-    if (messageText === '') {
+    if (messageText === "") {
       messageText = `${modelName}`;
       result.push(
         <h4 className="text" id="pageTitle" key="pageTitle">
@@ -3118,9 +3125,9 @@ export class AppContent extends Component<AppProps, AppState> {
           message={alertText}
           dismissAction={() => {
             // log(`setState for clear alert`);
-            this.setState({ alertText: '' });
+            this.setState({ alertText: "" });
           }}
-          key={'alert-button'}
+          key={"alert-button"}
         />,
       );
     }

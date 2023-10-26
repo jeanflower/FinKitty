@@ -1,4 +1,4 @@
-import { isSetting } from '../models/modelQueries';
+import { isSetting } from "../models/modelQueries";
 import {
   separator,
   incomeTax,
@@ -25,17 +25,23 @@ import {
   revalueExp,
   revalueInc,
   revalueSetting,
-} from '../localization/stringConstants';
-import { Setting, ModelData, Trigger } from '../types/interfaces';
-import { DateFormatType, log, makeDateFromString, printDebug, showObj } from './utils';
+} from "../localization/stringConstants";
+import { Setting, ModelData, Trigger } from "../types/interfaces";
+import {
+  DateFormatType,
+  log,
+  makeDateFromString,
+  printDebug,
+  showObj,
+} from "./utils";
 
 showObj;
 
 export function lessThan(a: string, b: string) {
-  if (a.startsWith('-') && !b.startsWith('-')) {
+  if (a.startsWith("-") && !b.startsWith("-")) {
     return 1;
   }
-  if (!a.startsWith('-') && b.startsWith('-')) {
+  if (!a.startsWith("-") && b.startsWith("-")) {
     return -1;
   }
   if (a.toLowerCase() < b.toLowerCase()) {
@@ -59,7 +65,7 @@ export function getNumberAndWordParts(input: string): {
 } {
   // strip away any number part from the front of the
   // string
-  const re = new RegExp('^[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)');
+  const re = new RegExp("^[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)");
   const numberParts = input.match(re);
   // log(`number parts of ${input} are ${numberParts}`);
 
@@ -94,15 +100,15 @@ export function makeIncomeLiabilityFromNameAndNI(
   NI: boolean,
   printOnError = true,
 ) {
-  if (name === '') {
-    return '';
+  if (name === "") {
+    return "";
   }
   if (name.includes(separator)) {
     /* istanbul ignore if  */
     if (printOnError) {
       log(`Error: name ${name} can't contain ${separator}`);
     }
-    return '';
+    return "";
   }
   if (NI) {
     return name + incomeTax + separator + name + nationalInsurance;
@@ -112,19 +118,19 @@ export function makeIncomeLiabilityFromNameAndNI(
 }
 
 export function makeIncomeTaxTag(person: string) {
-  return person + ' ' + income + ' ' + incomeTax;
+  return person + " " + income + " " + incomeTax;
 }
 export function makeNationalInsuranceTag(person: string) {
-  return person + ' ' + income + ' ' + nationalInsurance;
+  return person + " " + income + " " + nationalInsurance;
 }
 export function makeNetIncomeTag(person: string) {
-  return person + ' ' + income + ' ' + net;
+  return person + " " + income + " " + net;
 }
 export function makeCGTTag(person: string) {
-  return person + ' ' + gain + ' ' + cgt;
+  return person + " " + gain + " " + cgt;
 }
 export function makeNetGainTag(person: string) {
-  return person + ' ' + gain + ' ' + net;
+  return person + " " + gain + " " + net;
 }
 export function deconstructTaxTag(tag: string): {
   isIncome: boolean;
@@ -142,7 +148,7 @@ export function deconstructTaxTag(tag: string): {
     isNationalInsurance: false,
     isNet: false,
     isCGT: false,
-    person: '',
+    person: "",
   };
   let s = tag;
   if (s.includes(income)) {
@@ -174,16 +180,16 @@ export function deconstructTaxTag(tag: string): {
   return result;
 }
 export function makeBooleanFromString(s: string) {
-  const result = s === 'T' || s === 't' || s === 'True' || s === 'true';
+  const result = s === "T" || s === "t" || s === "True" || s === "true";
   // log(`convert ${s} to boolean and get ${result}`);
   return result;
 }
 
 export function makeStringFromBoolean(b: boolean) {
   if (b) {
-    return 'T';
+    return "T";
   }
-  return 'F';
+  return "F";
 }
 
 export function makeBooleanFromYesNo(input: string) {
@@ -192,9 +198,9 @@ export function makeBooleanFromYesNo(input: string) {
     checksOK: true,
   };
   const lcInput = input.toLowerCase();
-  if (lcInput === 'y' || lcInput === 'yes') {
+  if (lcInput === "y" || lcInput === "yes") {
     result.value = true;
-  } else if (lcInput === 'n' || lcInput === 'no') {
+  } else if (lcInput === "n" || lcInput === "no") {
     result.value = false;
   } else {
     result.checksOK = false;
@@ -204,9 +210,9 @@ export function makeBooleanFromYesNo(input: string) {
 
 export function makeYesNoFromBoolean(b: boolean) {
   if (b) {
-    return 'Yes';
+    return "Yes";
   }
-  return 'No';
+  return "No";
 }
 
 function isNumber(input: string) {
@@ -215,7 +221,7 @@ function isNumber(input: string) {
     checksOK: true,
   };
   const wordAndNumber = getNumberAndWordParts(input);
-  if (wordAndNumber.wordPart !== '') {
+  if (wordAndNumber.wordPart !== "") {
     // log(`isNumber = false for ${input}; returning ${result}`);
     result.checksOK = false;
     return result;
@@ -233,10 +239,10 @@ function isNumber(input: string) {
 export function makeGrowthFromString(input: string, settings: Setting[]) {
   // log(`make growth value from string ${input}`);
   const result = {
-    value: '',
+    value: "",
     checksOK: true,
   };
-  if (input === '') {
+  if (input === "") {
     result.checksOK = false;
     return result;
   }
@@ -245,7 +251,7 @@ export function makeGrowthFromString(input: string, settings: Setting[]) {
     result.value = input;
     return result;
   }
-  const x = input.replace('%', '');
+  const x = input.replace("%", "");
   const num = isNumber(x);
   if (!num.checksOK) {
     result.checksOK = false;
@@ -273,8 +279,8 @@ export function makeCashValueFromString(input: string) {
     value: 0.0,
     checksOK: true,
   };
-  let x = input.replace('£', '');
-  x = x.replace(',', '');
+  let x = input.replace("£", "");
+  x = x.replace(",", "");
   const parseDirectly = isNumber(x);
   if (parseDirectly.checksOK) {
     result.value = parseDirectly.value;
@@ -287,7 +293,7 @@ export function makeCashValueFromString(input: string) {
 
 export function makeQuantityFromString(input: string) {
   const result = {
-    value: '',
+    value: "",
     checksOK: true,
   };
   if (input.length === 0) {
@@ -313,15 +319,15 @@ export function makeValueAbsPropFromString(input: string) {
     value: input,
     checksOK: true,
   };
-  if (input === '') {
-    result.value = '0.0';
+  if (input === "") {
+    result.value = "0.0";
     return result;
   }
   const lastPartForUnits = input.substring(input.length - 6, input.length);
   const numWordSplit = getNumberAndWordParts(input);
   // log(`from ${input}, lastPartForUnits = ${lastPartForUnits}`);
   // log(`from ${input}, numWordSplit = ${showObj(numWordSplit)}`);
-  if (lastPartForUnits === ' units') {
+  if (lastPartForUnits === " units") {
     const numberPart = input.substring(0, input.length - 6);
     const num = parseFloat(numberPart);
     if (num !== undefined && !Number.isNaN(num)) {
@@ -331,12 +337,12 @@ export function makeValueAbsPropFromString(input: string) {
     }
   } else if (
     numWordSplit.numberPart !== undefined &&
-    numWordSplit.wordPart !== '%' &&
-    numWordSplit.wordPart !== ''
+    numWordSplit.wordPart !== "%" &&
+    numWordSplit.wordPart !== ""
   ) {
     result.value = input;
     result.checksOK = true;
-  } else if (input[input.length - 1] === '%') {
+  } else if (input[input.length - 1] === "%") {
     const numberPart = input.substring(0, input.length - 1);
     const num = parseFloat(numberPart);
     if (num !== undefined && !Number.isNaN(num)) {
@@ -346,7 +352,7 @@ export function makeValueAbsPropFromString(input: string) {
       result.checksOK = false;
     }
   } else {
-    const noCommas = input.replace(',', '');
+    const noCommas = input.replace(",", "");
     const parseNum = isNumber(noCommas);
     if (!parseNum.checksOK) {
       const parseCashValue = makeCashValueFromString(noCommas);
@@ -373,7 +379,7 @@ export function getStartQuantity(w: string, model: ModelData) {
     // log(`no matched asset found`);
     return undefined;
   }
-  if (a.QUANTITY === '') {
+  if (a.QUANTITY === "") {
     return undefined;
   }
   const result = parseFloat(a.QUANTITY);
@@ -394,28 +400,28 @@ export function makeStringFromValueAbsProp(
   model: ModelData,
   tname: string,
 ) {
-  let result = '';
+  let result = "";
   // log(`value = ${value}`);
   if (value.length === 0) {
-    return '0.0';
+    return "0.0";
   } else if (
     !tname.startsWith(revalue) &&
     getStartQuantity(assetName, model) !== undefined
   ) {
     // value should be an integer
-    result = value + ' units'; // TODO const string 'units'
+    result = value + " units"; // TODO const string 'units'
   } else if (!absolute) {
     const pcVal = parseFloat(value) * 100;
     let strVal = `${pcVal}`;
     //log(`${strVal.substring(0, strVal.length - 1)}`);
     if (
-      strVal.substring(0, strVal.length - 1).endsWith('0000000') ||
-      strVal.substring(0, strVal.length - 1).endsWith('9999999')
+      strVal.substring(0, strVal.length - 1).endsWith("0000000") ||
+      strVal.substring(0, strVal.length - 1).endsWith("9999999")
     ) {
       strVal = makeTwoDP(pcVal);
-      if (strVal.endsWith('.00')) {
+      if (strVal.endsWith(".00")) {
         strVal = strVal.substring(0, strVal.length - 3);
-      } else if (strVal.endsWith('0')) {
+      } else if (strVal.endsWith("0")) {
         strVal = strVal.substring(0, strVal.length - 1);
       }
     } else {
@@ -431,8 +437,8 @@ export function makeStringFromValueAbsProp(
 export function makeStringFromCashValue(input: string, currency: string) {
   // formatting from 34567.23 as £34,567.23
   // log(`formatting ${input} as a cash value`);
-  if (input === '') {
-    return '';
+  if (input === "") {
+    return "";
   }
   let n = parseFloat(input);
   const negative = n < 0;
@@ -442,12 +448,12 @@ export function makeStringFromCashValue(input: string, currency: string) {
   let s = n.toFixed(2);
   if (s.length > 6) {
     s =
-      s.substring(0, s.length - 6) + ',' + s.substring(s.length - 6, s.length);
+      s.substring(0, s.length - 6) + "," + s.substring(s.length - 6, s.length);
   }
   if (s.length > 10) {
     s =
       s.substring(0, s.length - 10) +
-      ',' +
+      "," +
       s.substring(s.length - 10, s.length);
   }
   if (negative) {
@@ -457,16 +463,16 @@ export function makeStringFromCashValue(input: string, currency: string) {
   }
 }
 export function makeStringFromFromToValue(input: string) {
-  if (input === '') {
-    return '';
+  if (input === "") {
+    return "";
   }
-  if (input.substring(input.length - 6, input.length) === ' units') {
+  if (input.substring(input.length - 6, input.length) === " units") {
     // TODO
     return input;
-  } else if (input[input.length - 1] === '%') {
+  } else if (input[input.length - 1] === "%") {
     return input;
   } else {
-    return makeStringFromCashValue(input, '£');
+    return makeStringFromCashValue(input, "£");
   }
 }
 
@@ -478,23 +484,23 @@ function parseDateStringForOperator(
   recursionLevel: number,
   cleanedUp: { cleaned: string } | undefined,
 ) {
-  if (opSymbol === '?') {
+  if (opSymbol === "?") {
     const parts = triggerName.split(opSymbol);
     if (parts.length === 2) {
-      const partsLessThan = parts[0].split('<');
-      const partsElse = parts[1].split(':');
+      const partsLessThan = parts[0].split("<");
+      const partsElse = parts[1].split(":");
       if (partsLessThan.length === 2 && partsElse.length === 2) {
         const cleaned1 = {
-          cleaned: '',
+          cleaned: "",
         };
         const cleaned2 = {
-          cleaned: '',
+          cleaned: "",
         };
         const cleaned3 = {
-          cleaned: '',
+          cleaned: "",
         };
         const cleaned4 = {
-          cleaned: '',
+          cleaned: "",
         };
         const date1: Date | undefined = findMatchedTriggerDate(
           partsLessThan[0],
@@ -539,9 +545,9 @@ function parseDateStringForOperator(
   }
 
   let numChange = 0;
-  if (opSymbol === '-') {
+  if (opSymbol === "-") {
     numChange = -1;
-  } else if (opSymbol === '+') {
+  } else if (opSymbol === "+") {
     numChange = 1;
   } else {
     /* istanbul ignore next  */
@@ -550,7 +556,7 @@ function parseDateStringForOperator(
 
   const parts = triggerName.split(opSymbol);
   if (parts.length === 2) {
-    const varString = 'variable';
+    const varString = "variable";
     let secondPartStartsVariable = false;
     if (parts[1].startsWith(varString)) {
       numChange *= varValue;
@@ -560,10 +566,10 @@ function parseDateStringForOperator(
     const secondPartNW = getNumberAndWordParts(parts[1]);
     if (
       secondPartNW.numberPart !== undefined &&
-      (secondPartNW.wordPart === 'd' ||
-        secondPartNW.wordPart === 'm' ||
-        secondPartNW.wordPart === 'w' ||
-        secondPartNW.wordPart === 'y')
+      (secondPartNW.wordPart === "d" ||
+        secondPartNW.wordPart === "m" ||
+        secondPartNW.wordPart === "w" ||
+        secondPartNW.wordPart === "y")
     ) {
       //no-use-before-define
       /* eslint-disable */
@@ -574,36 +580,36 @@ function parseDateStringForOperator(
         recursionLevel + 1,
         cleanedUp,
       );
-      if(cleanedUp){
+      if (cleanedUp) {
         cleanedUp.cleaned = `${cleanedUp.cleaned}${opSymbol}`;
-        if(secondPartStartsVariable){
+        if (secondPartStartsVariable) {
           cleanedUp.cleaned = `${cleanedUp.cleaned}variable`;
         }
       }
       /* eslint-enable */
       if (firstPartDate !== undefined) {
-        if (secondPartNW.wordPart === 'd') {
+        if (secondPartNW.wordPart === "d") {
           firstPartDate.setDate(
             firstPartDate.getDate() + numChange * secondPartNW.numberPart,
           );
           if (cleanedUp) {
             cleanedUp.cleaned = `${cleanedUp.cleaned}${secondPartNW.numberPart}d`;
           }
-        } else if (secondPartNW.wordPart === 'w') {
+        } else if (secondPartNW.wordPart === "w") {
           firstPartDate.setDate(
             firstPartDate.getDate() + numChange * secondPartNW.numberPart * 7,
           );
           if (cleanedUp) {
             cleanedUp.cleaned = `${cleanedUp.cleaned}${secondPartNW.numberPart}w`;
           }
-        } else if (secondPartNW.wordPart === 'm') {
+        } else if (secondPartNW.wordPart === "m") {
           firstPartDate.setMonth(
             firstPartDate.getMonth() + numChange * secondPartNW.numberPart,
           );
           if (cleanedUp) {
             cleanedUp.cleaned = `${cleanedUp.cleaned}${secondPartNW.numberPart}m`;
           }
-        } else if (secondPartNW.wordPart === 'y') {
+        } else if (secondPartNW.wordPart === "y") {
           firstPartDate.setFullYear(
             firstPartDate.getFullYear() + numChange * secondPartNW.numberPart,
           );
@@ -627,7 +633,7 @@ export function dateAsString(
   d: Date | undefined,
 ): string {
   if (d === undefined) {
-    return 'Invalid date';
+    return "Invalid date";
   }
   if (
     mode === DateFormatType.View ||
@@ -635,16 +641,16 @@ export function dateAsString(
     mode === DateFormatType.Data
   ) {
     try {
-      const result = new Intl.DateTimeFormat('en-GB', {
-        year: 'numeric',
-        month: 'short',
-        day: '2-digit',
+      const result = new Intl.DateTimeFormat("en-GB", {
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
       }).format(d);
       return result;
     } catch (e) {
       // log(`error from date ${d} = ${e}`);
       /* istanbul ignore next */
-      return 'Invalid Date';
+      return "Invalid Date";
     }
   } else if (mode === DateFormatType.Test) {
     return d.toDateString();
@@ -668,7 +674,7 @@ export function findMatchedTriggerDate(
   }
   const conditionalOp = parseDateStringForOperator(
     dateString,
-    '?',
+    "?",
     triggers,
     varValue,
     recursionLevel,
@@ -679,7 +685,7 @@ export function findMatchedTriggerDate(
   }
   const minusOp = parseDateStringForOperator(
     dateString,
-    '-',
+    "-",
     triggers,
     varValue,
     recursionLevel,
@@ -690,7 +696,7 @@ export function findMatchedTriggerDate(
   }
   const plusOp = parseDateStringForOperator(
     dateString,
-    '+',
+    "+",
     triggers,
     varValue,
     recursionLevel,
@@ -730,7 +736,7 @@ export function findMatchedTriggerDate(
           // we are about to accept this string because it
           // can be made sense of
           // if it's of the form '2019', convert it to '1 Jan 2019'
-          const regExp = RegExp('[1-2]{1}[0-9]{3}');
+          const regExp = RegExp("[1-2]{1}[0-9]{3}");
           if (dateString.match(regExp)) {
             cleanedUp.cleaned = `1 Jan ${dateString}`;
           } else {
@@ -815,14 +821,14 @@ export function getTriggerDate(
   if (outcomeDate !== undefined) {
     return outcomeDate;
   }
-  return new Date('Invalid Date');
+  return new Date("Invalid Date");
 }
 
 export const dateFormatOptions = {
   weekday: undefined,
-  year: 'numeric',
-  month: 'long',
-  day: 'numeric',
+  year: "numeric",
+  month: "long",
+  day: "numeric",
 } as const;
 
 // returns a date string for a trigger, or '' for date or junk
@@ -832,8 +838,8 @@ export function makeDateTooltip(
   varValue: number,
 ) {
   // log(`triggers.length = ${triggers.length}`);
-  let result = '';
-  if (input !== '') {
+  let result = "";
+  if (input !== "") {
     const date = checkTriggerDate(input, triggers, varValue);
     if (date !== undefined) {
       result = dateAsString(DateFormatType.View, date);
@@ -845,14 +851,14 @@ export function makeDateTooltip(
 
 export function makeStringFromPurchasePrice(input: string, liability: string) {
   if (!liability.includes(cgt)) {
-    return ''; // don't display irrelevant purchae price
+    return ""; // don't display irrelevant purchae price
   } else {
     return input;
   }
 }
 export function makePurchasePriceFromString(input: string) {
-  if (input === '') {
-    return '0';
+  if (input === "") {
+    return "0";
   } else {
     return input;
   }
@@ -888,7 +894,7 @@ function isDependentDate(dateName: string, dependent: string): boolean {
     return false;
   }
   const endDateName = dateName.substring(dependent.length);
-  if (!(endDateName.startsWith('+') || endDateName.startsWith('-'))) {
+  if (!(endDateName.startsWith("+") || endDateName.startsWith("-"))) {
     // log(`${dateName} does not have + or - after ${dependent}`);
     return false;
   }
@@ -899,10 +905,10 @@ function isDependentDate(dateName: string, dependent: string): boolean {
     return false;
   }
   const hasLetter =
-    breakDown.wordPart === 'm' ||
-    breakDown.wordPart === 'd' ||
-    breakDown.wordPart === 'w' ||
-    breakDown.wordPart === 'y';
+    breakDown.wordPart === "m" ||
+    breakDown.wordPart === "d" ||
+    breakDown.wordPart === "w" ||
+    breakDown.wordPart === "y";
   if (hasLetter) {
     // log(`${dateName} is dependent upon ${dependent}`);
   } else {
@@ -1024,28 +1030,29 @@ export function getSpecialWord(name: string, model: ModelData): string {
   if (
     model.transactions.find((t) => {
       const result = t.FROM_VALUE === bondMaturity + name;
-      // log(`does t TO ${t.FROM_VALUE} block change of name from ${name}? ${result}`);
+      // log(`does t TO ${t.FROM_VALUE} block `+
+      //  `change of name from ${name}? ${result}`);
       return result;
     }) !== undefined
   ) {
     return bondMaturity;
   }
-  let durationEnding = '';
-  if (name.endsWith('5y')) {
-    durationEnding = '5y';
-  } else if (name.endsWith('4y')) {
-    durationEnding = '4y';
-  } else if (name.endsWith('3y')) {
-    durationEnding = '3y';
-  } else if (name.endsWith('2y')) {
-    durationEnding = '2y';
-  } else if (name.endsWith('1y')) {
-    durationEnding = '1y';
-  } else if (name.endsWith('1m')) {
-    durationEnding = '1m';
+  let durationEnding = "";
+  if (name.endsWith("5y")) {
+    durationEnding = "5y";
+  } else if (name.endsWith("4y")) {
+    durationEnding = "4y";
+  } else if (name.endsWith("3y")) {
+    durationEnding = "3y";
+  } else if (name.endsWith("2y")) {
+    durationEnding = "2y";
+  } else if (name.endsWith("1y")) {
+    durationEnding = "1y";
+  } else if (name.endsWith("1m")) {
+    durationEnding = "1m";
   }
 
-  if (durationEnding !== '') {
+  if (durationEnding !== "") {
     // this might be a bond investment - take care!
     const sourceTransaction = model.transactions.find((t) => {
       if (t.TYPE !== bondInvest) {
@@ -1058,7 +1065,7 @@ export function getSpecialWord(name: string, model: ModelData): string {
       return true;
     });
     if (sourceTransaction === undefined) {
-      return '';
+      return "";
     }
     // I can rename this but I msut ensure same duration
     return durationEnding;
@@ -1073,7 +1080,7 @@ export function getSpecialWord(name: string, model: ModelData): string {
       return `${matchingTrigger.NAME} in date algebra`;
     }
   }
-  return '';
+  return "";
 }
 
 export function checkForWordClashInModel(
@@ -1084,12 +1091,18 @@ export function checkForWordClashInModel(
   const settingMessages = model.settings
     .map((obj) => {
       if (usesWholeWord(obj.NAME, replacement)) {
-        return `Setting '${obj.NAME}' has name ${messageWord} called ${replacement}`;
+        return (
+          `Setting '${obj.NAME}' has ` +
+          `name ${messageWord} called ${replacement}`
+        );
       }
       if (usesNumberValueWord(obj.VALUE, replacement)) {
-        return `Setting '${obj.NAME}' has value ${messageWord} called ${replacement}`;
+        return (
+          `Setting '${obj.NAME}' has ` +
+          `value ${messageWord} called ${replacement}`
+        );
       }
-      return '';
+      return "";
     })
     .filter((obj) => {
       return obj.length > 0;
@@ -1097,9 +1110,12 @@ export function checkForWordClashInModel(
   const triggerMessages = model.triggers
     .map((obj) => {
       if (usesWholeWord(obj.NAME, replacement)) {
-        return `Trigger '${obj.NAME}' has name ${messageWord} called ${replacement}`;
+        return (
+          `Trigger '${obj.NAME}' has ` +
+          `name ${messageWord} called ${replacement}`
+        );
       }
-      return '';
+      return "";
     })
     .filter((obj) => {
       return obj.length > 0;
@@ -1107,30 +1123,54 @@ export function checkForWordClashInModel(
   const assetMessages = model.assets
     .map((obj) => {
       if (usesWholeWord(obj.NAME, replacement)) {
-        return `Asset '${obj.NAME}' has name ${messageWord} called ${replacement}`;
+        return (
+          `Asset '${obj.NAME}' has ` +
+          `name ${messageWord} called ${replacement}`
+        );
       }
       if (usesWholeWord(obj.START, replacement)) {
-        return `Asset '${obj.NAME}' has start ${messageWord} called ${replacement}`;
+        return (
+          `Asset '${obj.NAME}' has ` +
+          `start ${messageWord} called ${replacement}`
+        );
       }
       if (usesNumberValueWord(obj.VALUE, replacement)) {
-        return `Asset '${obj.NAME}' has value ${messageWord} called ${replacement}`;
+        return (
+          `Asset '${obj.NAME}' has ` +
+          `value ${messageWord} called ${replacement}`
+        );
       }
       if (usesWholeWord(obj.QUANTITY, replacement)) {
-        return `Asset '${obj.NAME}' has quantity ${messageWord} called ${replacement}`;
+        return (
+          `Asset '${obj.NAME}' has ` +
+          `quantity ${messageWord} called ${replacement}`
+        );
       }
       if (usesWholeWord(obj.GROWTH, replacement)) {
-        return `Asset '${obj.NAME}' has growth ${messageWord} called ${replacement}`;
+        return (
+          `Asset '${obj.NAME}' has ` +
+          `growth ${messageWord} called ${replacement}`
+        );
       }
       if (usesSeparatedString(obj.LIABILITY, replacement)) {
-        return `Asset '${obj.NAME}' has liability ${messageWord} called ${replacement}`;
+        return (
+          `Asset '${obj.NAME}' has ` +
+          `liability ${messageWord} called ${replacement}`
+        );
       }
       if (usesNumberValueWord(obj.PURCHASE_PRICE, replacement)) {
-        return `Asset '${obj.NAME}' has purchase price ${messageWord} called ${replacement}`;
+        return (
+          `Asset '${obj.NAME}' has ` +
+          `purchase price ${messageWord} called ${replacement}`
+        );
       }
       if (usesWholeWord(obj.CATEGORY, replacement)) {
-        return `Asset '${obj.NAME}' has category ${messageWord} called ${replacement}`;
+        return (
+          `Asset '${obj.NAME}' has ` +
+          `category ${messageWord} called ${replacement}`
+        );
       }
-      return '';
+      return "";
     })
     .filter((obj) => {
       return obj.length > 0;
@@ -1138,27 +1178,48 @@ export function checkForWordClashInModel(
   const incomeMessages = model.incomes
     .map((obj) => {
       if (usesWholeWord(obj.NAME, replacement)) {
-        return `Income '${obj.NAME}' has name ${messageWord} called ${replacement}`;
+        return (
+          `Income '${obj.NAME}' has ` +
+          `name ${messageWord} called ${replacement}`
+        );
       }
       if (usesWholeWord(obj.START, replacement)) {
-        return `Income '${obj.NAME}' has start ${messageWord} called ${replacement}`;
+        return (
+          `Income '${obj.NAME}' has ` +
+          `start ${messageWord} called ${replacement}`
+        );
       }
       if (usesWholeWord(obj.END, replacement)) {
-        return `Income '${obj.NAME}' has end ${messageWord} called ${replacement}`;
+        return (
+          `Income '${obj.NAME}' has ` +
+          `end ${messageWord} called ${replacement}`
+        );
       }
       if (usesNumberValueWord(obj.VALUE, replacement)) {
-        return `Income '${obj.NAME}' has value ${messageWord} called ${replacement}`;
+        return (
+          `Income '${obj.NAME}' has ` +
+          `value ${messageWord} called ${replacement}`
+        );
       }
       if (usesWholeWord(obj.VALUE_SET, replacement)) {
-        return `Income '${obj.NAME}' has value set ${messageWord} called ${replacement}`;
+        return (
+          `Income '${obj.NAME}' has ` +
+          `value set ${messageWord} called ${replacement}`
+        );
       }
       if (usesSeparatedString(obj.LIABILITY, replacement)) {
-        return `Income '${obj.NAME}' has liability ${messageWord} called ${replacement}`;
+        return (
+          `Income '${obj.NAME}' has ` +
+          `liability ${messageWord} called ${replacement}`
+        );
       }
       if (usesWholeWord(obj.CATEGORY, replacement)) {
-        return `Income '${obj.NAME}' has category ${messageWord} called ${replacement}`;
+        return (
+          `Income '${obj.NAME}' has ` +
+          `category ${messageWord} called ${replacement}`
+        );
       }
-      return '';
+      return "";
     })
     .filter((obj) => {
       return obj.length > 0;
@@ -1166,24 +1227,42 @@ export function checkForWordClashInModel(
   const expenseMessages = model.expenses
     .map((obj) => {
       if (usesWholeWord(obj.NAME, replacement)) {
-        return `Expense '${obj.NAME}' has name ${messageWord} called ${replacement}`;
+        return (
+          `Expense '${obj.NAME}' has ` +
+          `name ${messageWord} called ${replacement}`
+        );
       }
       if (usesWholeWord(obj.CATEGORY, replacement)) {
-        return `Expense '${obj.NAME}' has category ${messageWord} called ${replacement}`;
+        return (
+          `Expense '${obj.NAME}' has ` +
+          `category ${messageWord} called ${replacement}`
+        );
       }
       if (usesWholeWord(obj.START, replacement)) {
-        return `Expense '${obj.NAME}' has start ${messageWord} called ${replacement}`;
+        return (
+          `Expense '${obj.NAME}' has ` +
+          `start ${messageWord} called ${replacement}`
+        );
       }
       if (usesWholeWord(obj.END, replacement)) {
-        return `Expense '${obj.NAME}' has end ${messageWord} called ${replacement}`;
+        return (
+          `Expense '${obj.NAME}' has ` +
+          `end ${messageWord} called ${replacement}`
+        );
       }
       if (usesNumberValueWord(obj.VALUE, replacement)) {
-        return `Expense '${obj.NAME}' has value ${messageWord} called ${replacement}`;
+        return (
+          `Expense '${obj.NAME}' has ` +
+          `value ${messageWord} called ${replacement}`
+        );
       }
       if (usesWholeWord(obj.VALUE_SET, replacement)) {
-        return `Expense '${obj.NAME}' has value set ${messageWord} called ${replacement}`;
+        return (
+          `Expense '${obj.NAME}' has ` +
+          `value set ${messageWord} called ${replacement}`
+        );
       }
-      return '';
+      return "";
     })
     .filter((obj) => {
       return obj.length > 0;
@@ -1191,34 +1270,57 @@ export function checkForWordClashInModel(
   const transactionMessages = model.transactions
     .map((obj) => {
       if (usesWholeWord(obj.NAME, replacement)) {
-        return `Transaction '${obj.NAME}' has name ${messageWord} called ${replacement}`;
+        return (
+          `Transaction '${obj.NAME}' has ` +
+          `name ${messageWord} called ${replacement}`
+        );
       }
       if (usesSeparatedString(obj.FROM, replacement)) {
-        return `Transaction '${obj.NAME}' has from ${messageWord} called ${replacement}`;
+        return (
+          `Transaction '${obj.NAME}' has ` +
+          `from ${messageWord} called ${replacement}`
+        );
       }
       if (usesNumberValueWord(obj.FROM_VALUE, replacement)) {
-        return `Transaction '${obj.NAME}' has from value ${messageWord} called ${replacement}`;
+        return (
+          `Transaction '${obj.NAME}' has ` +
+          `from value ${messageWord} called ${replacement}`
+        );
       }
       if (usesSeparatedString(obj.TO, replacement)) {
-        return `Transaction '${obj.NAME}' has to ${messageWord} called ${replacement}`;
+        return (
+          `Transaction '${obj.NAME}' has ` +
+          `to ${messageWord} called ${replacement}`
+        );
       }
       if (usesNumberValueWord(obj.TO_VALUE, replacement)) {
-        return `Transaction '${obj.NAME}' has to value ${messageWord} called ${replacement}`;
+        return (
+          `Transaction '${obj.NAME}' has ` +
+          `to value ${messageWord} called ${replacement}`
+        );
       }
       if (usesWholeWord(obj.DATE, replacement)) {
-        return `Transaction '${obj.NAME}' has date ${messageWord} called ${replacement}`;
+        return (
+          `Transaction '${obj.NAME}' has ` +
+          `date ${messageWord} called ${replacement}`
+        );
       }
       if (usesWholeWord(obj.STOP_DATE, replacement)) {
-        return `Transaction '${obj.NAME}' has stop date ${messageWord} called ${replacement}`;
+        return (
+          `Transaction '${obj.NAME}' has ` +
+          `stop date ${messageWord} called ${replacement}`
+        );
       }
-      return '';
+      return "";
     })
     .filter((obj) => {
       return obj.length > 0;
     });
-  let message = `${settingMessages} ${triggerMessages} ${assetMessages} ${incomeMessages} ${expenseMessages} ${transactionMessages}`;
+  let message =
+    `${settingMessages} ${triggerMessages} ${assetMessages} ` +
+    `${incomeMessages} ${expenseMessages} ${transactionMessages}`;
   if (message.length <= 7) {
-    message = '';
+    message = "";
   }
   return message;
 }
@@ -1229,7 +1331,7 @@ export function replaceNumberValueString(
   replacement: string,
 ) {
   const parsed = getNumberAndWordParts(value);
-  if (parsed.wordPart === '') {
+  if (parsed.wordPart === "") {
     return value;
   } else if (parsed.wordPart === old) {
     return value.substring(0, value.length - old.length) + replacement;
@@ -1244,7 +1346,7 @@ export function replaceSeparatedString(
   replacement: string,
 ) {
   const parts = value.split(separator);
-  let result = '';
+  let result = "";
   parts.forEach((obj) => {
     if (obj === old) {
       result += replacement;

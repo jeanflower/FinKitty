@@ -23,14 +23,14 @@ import {
   makeValueAbsPropFromString,
   makeYesNoFromBoolean,
   removeNumberPart,
-} from '../../utils/stringUtils';
+} from "../../utils/stringUtils";
 import {
   definedBenefitsPension,
   simpleAsset,
   simpleExpense,
   simpleIncome,
   simpleTransaction,
-} from '../../models/exampleModels';
+} from "../../models/exampleModels";
 import {
   allItems,
   annually,
@@ -60,11 +60,8 @@ import {
   viewDetail,
   viewFrequency,
   ViewType,
-} from '../../localization/stringConstants';
-import {
-  attemptRenameLong,
-  standardiseDates,
-} from '../../models/modelUtils';
+} from "../../localization/stringConstants";
+import { attemptRenameLong, standardiseDates } from "../../models/modelUtils";
 
 import {
   revalue,
@@ -77,8 +74,8 @@ import {
   crystallizedPension,
   transferCrystallizedPension,
   bondMaturity,
-} from '../../localization/stringConstants';
-import { ModelData } from '../../types/interfaces';
+} from "../../localization/stringConstants";
+import { ModelData } from "../../types/interfaces";
 import {
   Context,
   DateFormatType,
@@ -87,864 +84,870 @@ import {
   makeDateFromString,
   suppressLogs,
   unSuppressLogs,
-} from '../../utils/utils';
-import { getMinimalModelCopySettings, getTestEvaluations } from '../algoTests/algoTestUtils';
-import { diffModels } from '../../models/diffModels';
+} from "../../utils/utils";
+import {
+  getMinimalModelCopySettings,
+  getTestEvaluations,
+} from "../algoTests/algoTestUtils";
+import { diffModels } from "../../models/diffModels";
 import {
   getColor,
   getDefaultViewSettings,
   getDisplay,
   getDisplayedView,
   views,
-} from '../../utils/viewUtils';
-import { checkData } from '../../models/checks';
-import { toggle } from '../../App';
-import { getTestModel } from '../../models/testModel';
-import { simpleSetting } from '../../models/exampleSettings';
-import { getMinimalModelCopy, minimalModel } from '../../models/minimalModel';
-import { makeModelFromJSON, makeModelFromJSONString } from '../../models/modelFromJSON';
-import { isAnAssetOrAssets } from '../../models/modelQueries';
+} from "../../utils/viewUtils";
+import { checkData } from "../../models/checks";
+import { toggle } from "../../App";
+import { getTestModel } from "../../models/testModel";
+import { simpleSetting } from "../../models/exampleSettings";
+import { getMinimalModelCopy, minimalModel } from "../../models/minimalModel";
+import {
+  makeModelFromJSON,
+  makeModelFromJSONString,
+} from "../../models/modelFromJSON";
+import { isAnAssetOrAssets } from "../../models/modelQueries";
 
 log;
 
-describe('utils tests', () => {
-  it('less than', () => {
-    expect(lessThan(`a`, 'z')).toBe(-1);
-    expect(lessThan(`z`, 'a')).toBe(1);
-    expect(lessThan(`a`, 'a')).toBe(0);
-    expect(lessThan(`a`, '-a')).toBe(-1);
-    expect(lessThan(`-a`, 'a')).toBe(1);
-    expect(lessThan(`A`, 'z')).toBe(-1);
-    expect(lessThan(`Z`, 'a')).toBe(1);
-    expect(lessThan(`a`, 'Z')).toBe(-1);
-    expect(lessThan(`z`, 'A')).toBe(1);
-    expect(lessThan(`A`, 'a')).toBe(-1);
-    expect(lessThan(`a`, 'A')).toBe(1);
+describe("utils tests", () => {
+  it("less than", () => {
+    expect(lessThan(`a`, "z")).toBe(-1);
+    expect(lessThan(`z`, "a")).toBe(1);
+    expect(lessThan(`a`, "a")).toBe(0);
+    expect(lessThan(`a`, "-a")).toBe(-1);
+    expect(lessThan(`-a`, "a")).toBe(1);
+    expect(lessThan(`A`, "z")).toBe(-1);
+    expect(lessThan(`Z`, "a")).toBe(1);
+    expect(lessThan(`a`, "Z")).toBe(-1);
+    expect(lessThan(`z`, "A")).toBe(1);
+    expect(lessThan(`A`, "a")).toBe(-1);
+    expect(lessThan(`a`, "A")).toBe(1);
   });
-  it('makeDateFromString Unknown', () => {
+  it("makeDateFromString Unknown", () => {
     expect(
-      dateAsString(DateFormatType.Test, makeDateFromString('nonsense')),
-    ).toBe('Invalid Date');
+      dateAsString(DateFormatType.Test, makeDateFromString("nonsense")),
+    ).toBe("Invalid Date");
     expect(
-      dateAsString(DateFormatType.Test, makeDateFromString('getTrust+1d')),
-    ).toBe('Invalid Date');
+      dateAsString(DateFormatType.Test, makeDateFromString("getTrust+1d")),
+    ).toBe("Invalid Date");
     expect(
-      dateAsString(DateFormatType.Test, makeDateFromString('01/02/01')),
-    ).toBe('Invalid Date');
+      dateAsString(DateFormatType.Test, makeDateFromString("01/02/01")),
+    ).toBe("Invalid Date");
     expect(
-      dateAsString(DateFormatType.Test, makeDateFromString('01/02/99')),
-    ).toBe('Invalid Date');
+      dateAsString(DateFormatType.Test, makeDateFromString("01/02/99")),
+    ).toBe("Invalid Date");
     expect(
-      dateAsString(DateFormatType.Test, makeDateFromString('01/02/2001')),
-    ).toBe('Thu Feb 01 2001');
+      dateAsString(DateFormatType.Test, makeDateFromString("01/02/2001")),
+    ).toBe("Thu Feb 01 2001");
     expect(
-      dateAsString(DateFormatType.Test, makeDateFromString('01/02/1999')),
-    ).toBe('Mon Feb 01 1999');
+      dateAsString(DateFormatType.Test, makeDateFromString("01/02/1999")),
+    ).toBe("Mon Feb 01 1999");
     expect(
-      dateAsString(DateFormatType.Test, makeDateFromString('Thu Feb 01 2001')),
-    ).toBe('Thu Feb 01 2001');
+      dateAsString(DateFormatType.Test, makeDateFromString("Thu Feb 01 2001")),
+    ).toBe("Thu Feb 01 2001");
     expect(
-      dateAsString(DateFormatType.Test, makeDateFromString('Feb 01 2001')),
-    ).toBe('Thu Feb 01 2001');
+      dateAsString(DateFormatType.Test, makeDateFromString("Feb 01 2001")),
+    ).toBe("Thu Feb 01 2001");
     expect(
-      dateAsString(DateFormatType.Test, makeDateFromString('01 Feb 2001')),
-    ).toBe('Thu Feb 01 2001');
+      dateAsString(DateFormatType.Test, makeDateFromString("01 Feb 2001")),
+    ).toBe("Thu Feb 01 2001");
     expect(
       dateAsString(
         DateFormatType.Test,
-        makeDateFromString('Thu February 01 2001'),
+        makeDateFromString("Thu February 01 2001"),
       ),
-    ).toBe('Thu Feb 01 2001');
+    ).toBe("Thu Feb 01 2001");
     expect(
-      dateAsString(DateFormatType.Test, makeDateFromString('February 01 2001')),
-    ).toBe('Thu Feb 01 2001');
+      dateAsString(DateFormatType.Test, makeDateFromString("February 01 2001")),
+    ).toBe("Thu Feb 01 2001");
     expect(
-      dateAsString(DateFormatType.Test, makeDateFromString('01 February 2001')),
-    ).toBe('Thu Feb 01 2001');
+      dateAsString(DateFormatType.Test, makeDateFromString("01 February 2001")),
+    ).toBe("Thu Feb 01 2001");
     expect(
       dateAsString(
         DateFormatType.Test,
-        makeDateFromString('9 September 2021 8:00'),
+        makeDateFromString("9 September 2021 8:00"),
       ),
-    ).toBe('Thu Sep 09 2021');
+    ).toBe("Thu Sep 09 2021");
   });
-  it('makeDateFromString View', () => {
+  it("makeDateFromString View", () => {
     expect(
-      dateAsString(DateFormatType.View, makeDateFromString('nonsense')),
-    ).toBe('Invalid Date');
+      dateAsString(DateFormatType.View, makeDateFromString("nonsense")),
+    ).toBe("Invalid Date");
     expect(
-      dateAsString(DateFormatType.View, makeDateFromString('getTrust+1d')),
-    ).toBe('Invalid Date');
+      dateAsString(DateFormatType.View, makeDateFromString("getTrust+1d")),
+    ).toBe("Invalid Date");
     expect(
-      dateAsString(DateFormatType.View, makeDateFromString('01/02/01')),
-    ).toBe('Invalid Date');
+      dateAsString(DateFormatType.View, makeDateFromString("01/02/01")),
+    ).toBe("Invalid Date");
     expect(
-      dateAsString(DateFormatType.View, makeDateFromString('01/02/99')),
-    ).toBe('Invalid Date');
+      dateAsString(DateFormatType.View, makeDateFromString("01/02/99")),
+    ).toBe("Invalid Date");
     expect(
-      dateAsString(DateFormatType.View, makeDateFromString('01/02/2001')),
-    ).toBe('01 Feb 2001');
+      dateAsString(DateFormatType.View, makeDateFromString("01/02/2001")),
+    ).toBe("01 Feb 2001");
     expect(
-      dateAsString(DateFormatType.View, makeDateFromString('01/02/1999')),
-    ).toBe('01 Feb 1999');
+      dateAsString(DateFormatType.View, makeDateFromString("01/02/1999")),
+    ).toBe("01 Feb 1999");
     expect(
-      dateAsString(DateFormatType.View, makeDateFromString('01 Feb 2001')),
-    ).toBe('01 Feb 2001');
+      dateAsString(DateFormatType.View, makeDateFromString("01 Feb 2001")),
+    ).toBe("01 Feb 2001");
     expect(
-      dateAsString(DateFormatType.View, makeDateFromString('Feb 01 2001')),
-    ).toBe('01 Feb 2001');
+      dateAsString(DateFormatType.View, makeDateFromString("Feb 01 2001")),
+    ).toBe("01 Feb 2001");
     expect(
-      dateAsString(DateFormatType.View, makeDateFromString('01 Feb 2001')),
-    ).toBe('01 Feb 2001');
-    expect(
-      dateAsString(
-        DateFormatType.View,
-        makeDateFromString('Thu February 01 2001'),
-      ),
-    ).toBe('01 Feb 2001');
-    expect(
-      dateAsString(DateFormatType.View, makeDateFromString('February 01 2001')),
-    ).toBe('01 Feb 2001');
-    expect(
-      dateAsString(DateFormatType.View, makeDateFromString('01 February 2001')),
-    ).toBe('01 Feb 2001');
+      dateAsString(DateFormatType.View, makeDateFromString("01 Feb 2001")),
+    ).toBe("01 Feb 2001");
     expect(
       dateAsString(
         DateFormatType.View,
-        makeDateFromString('9 September 2021 8:00'),
+        makeDateFromString("Thu February 01 2001"),
       ),
-    ).toBe('09 Sept 2021');
+    ).toBe("01 Feb 2001");
+    expect(
+      dateAsString(DateFormatType.View, makeDateFromString("February 01 2001")),
+    ).toBe("01 Feb 2001");
+    expect(
+      dateAsString(DateFormatType.View, makeDateFromString("01 February 2001")),
+    ).toBe("01 Feb 2001");
+    expect(
+      dateAsString(
+        DateFormatType.View,
+        makeDateFromString("9 September 2021 8:00"),
+      ),
+    ).toBe("09 Sept 2021");
   });
 
-  it('cleanupDates', () => {
+  it("cleanupDates", () => {
     const varVal = 1.0;
-    const cleanedString = { cleaned: '' };
-    checkTriggerDate('nonsense', [], varVal, cleanedString);
-    expect(cleanedString.cleaned).toBe('Invalid Date nonsense');
+    const cleanedString = { cleaned: "" };
+    checkTriggerDate("nonsense", [], varVal, cleanedString);
+    expect(cleanedString.cleaned).toBe("Invalid Date nonsense");
 
-    checkTriggerDate('getTrust+1d', [], varVal, cleanedString);
-    expect(cleanedString.cleaned).toBe('Invalid Date getTrust+1d');
+    checkTriggerDate("getTrust+1d", [], varVal, cleanedString);
+    expect(cleanedString.cleaned).toBe("Invalid Date getTrust+1d");
 
-    checkTriggerDate('01/02/01', [], varVal, cleanedString);
-    expect(cleanedString.cleaned).toBe('Invalid Date 01/02/01');
+    checkTriggerDate("01/02/01", [], varVal, cleanedString);
+    expect(cleanedString.cleaned).toBe("Invalid Date 01/02/01");
 
-    checkTriggerDate('2001-02-01', [], varVal, cleanedString);
-    expect(cleanedString.cleaned).toBe('Invalid Date 2001-02-01');
+    checkTriggerDate("2001-02-01", [], varVal, cleanedString);
+    expect(cleanedString.cleaned).toBe("Invalid Date 2001-02-01");
 
     checkTriggerDate(
-      '1 January 2001<2 January 2001?3 January 2001:4 January 2001',
+      "1 January 2001<2 January 2001?3 January 2001:4 January 2001",
       [],
       varVal,
       cleanedString,
     );
     expect(cleanedString.cleaned).toBe(
-      '01 Jan 2001<02 Jan 2001?03 Jan 2001:04 Jan 2001',
+      "01 Jan 2001<02 Jan 2001?03 Jan 2001:04 Jan 2001",
     );
 
     expect(
-      dateAsString(DateFormatType.Test, makeDateFromString('01/02/01')),
-    ).toBe('Invalid Date');
+      dateAsString(DateFormatType.Test, makeDateFromString("01/02/01")),
+    ).toBe("Invalid Date");
     expect(
-      dateAsString(DateFormatType.Test, makeDateFromString('01/02/99')),
-    ).toBe('Invalid Date');
+      dateAsString(DateFormatType.Test, makeDateFromString("01/02/99")),
+    ).toBe("Invalid Date");
     expect(
-      dateAsString(DateFormatType.Test, makeDateFromString('01/02/2001')),
-    ).toBe('Thu Feb 01 2001');
+      dateAsString(DateFormatType.Test, makeDateFromString("01/02/2001")),
+    ).toBe("Thu Feb 01 2001");
 
     expect(
-      dateAsString(DateFormatType.Test, makeDateFromString('01/02/1999')),
-    ).toBe('Mon Feb 01 1999');
+      dateAsString(DateFormatType.Test, makeDateFromString("01/02/1999")),
+    ).toBe("Mon Feb 01 1999");
     expect(
-      dateAsString(DateFormatType.Test, makeDateFromString('Thu Feb 01 2001')),
-    ).toBe('Thu Feb 01 2001');
+      dateAsString(DateFormatType.Test, makeDateFromString("Thu Feb 01 2001")),
+    ).toBe("Thu Feb 01 2001");
     expect(
-      dateAsString(DateFormatType.Test, makeDateFromString('Feb 01 2001')),
-    ).toBe('Thu Feb 01 2001');
+      dateAsString(DateFormatType.Test, makeDateFromString("Feb 01 2001")),
+    ).toBe("Thu Feb 01 2001");
     expect(
-      dateAsString(DateFormatType.Test, makeDateFromString('01 Feb 2001')),
-    ).toBe('Thu Feb 01 2001');
-    expect(
-      dateAsString(
-        DateFormatType.Test,
-        makeDateFromString('Thu February 01 2001'),
-      ),
-    ).toBe('Thu Feb 01 2001');
-    expect(
-      dateAsString(DateFormatType.Test, makeDateFromString('February 01 2001')),
-    ).toBe('Thu Feb 01 2001');
-    expect(
-      dateAsString(DateFormatType.Test, makeDateFromString('01 February 2001')),
-    ).toBe('Thu Feb 01 2001');
+      dateAsString(DateFormatType.Test, makeDateFromString("01 Feb 2001")),
+    ).toBe("Thu Feb 01 2001");
     expect(
       dateAsString(
         DateFormatType.Test,
-        makeDateFromString('9 September 2021 8:00'),
+        makeDateFromString("Thu February 01 2001"),
       ),
-    ).toBe('Thu Sep 09 2021');
+    ).toBe("Thu Feb 01 2001");
+    expect(
+      dateAsString(DateFormatType.Test, makeDateFromString("February 01 2001")),
+    ).toBe("Thu Feb 01 2001");
+    expect(
+      dateAsString(DateFormatType.Test, makeDateFromString("01 February 2001")),
+    ).toBe("Thu Feb 01 2001");
+    expect(
+      dateAsString(
+        DateFormatType.Test,
+        makeDateFromString("9 September 2021 8:00"),
+      ),
+    ).toBe("Thu Sep 09 2021");
   });
 
-  it('locales woes', () => {
-    const d1 = new Date('2020');
-    const d2 = new Date('1 Jan 2020');
+  it("locales woes", () => {
+    const d1 = new Date("2020");
+    const d2 = new Date("1 Jan 2020");
     expect(d1.getTime()).toEqual(d2.getTime());
   });
 
-  it('standardise dates', () => {
+  it("standardise dates", () => {
     const model = getMinimalModelCopy();
     model.triggers.push({
-      NAME: 't0',
+      NAME: "t0",
       ERA: undefined,
-      DATE: '01/02/2001',
+      DATE: "01/02/2001",
     });
     model.triggers.push({
-      NAME: 't1',
+      NAME: "t1",
       ERA: undefined,
-      DATE: '01/02/1999',
+      DATE: "01/02/1999",
     });
     model.triggers.push({
-      NAME: 't2',
+      NAME: "t2",
       ERA: undefined,
-      DATE: 'Thu Feb 01 2001',
+      DATE: "Thu Feb 01 2001",
     });
     model.triggers.push({
-      NAME: 't3',
+      NAME: "t3",
       ERA: undefined,
-      DATE: 'Feb 01 2001',
+      DATE: "Feb 01 2001",
     });
     model.triggers.push({
-      NAME: 't4',
+      NAME: "t4",
       ERA: undefined,
-      DATE: '01 Feb 2001',
+      DATE: "01 Feb 2001",
     });
     model.triggers.push({
-      NAME: 't5',
+      NAME: "t5",
       ERA: undefined,
-      DATE: 'Thu February 01 2001',
+      DATE: "Thu February 01 2001",
     });
     model.triggers.push({
-      NAME: 't6',
+      NAME: "t6",
       ERA: undefined,
-      DATE: 'February 01 2001',
+      DATE: "February 01 2001",
     });
     model.triggers.push({
-      NAME: 't7',
+      NAME: "t7",
       ERA: undefined,
-      DATE: '01 February 2001',
+      DATE: "01 February 2001",
     });
     model.triggers.push({
-      NAME: 't8',
+      NAME: "t8",
       ERA: undefined,
-      DATE: '9 September 2021 8:00',
+      DATE: "9 September 2021 8:00",
     });
     model.triggers.push({
-      NAME: 't9',
+      NAME: "t9",
       ERA: undefined,
-      DATE: 'refers to some setting',
+      DATE: "refers to some setting",
     });
     model.triggers.push({
-      NAME: 't10',
+      NAME: "t10",
       ERA: undefined,
-      DATE: 'Thu 01 Feb 2001',
+      DATE: "Thu 01 Feb 2001",
     });
 
-    expect(model.triggers[0].DATE).toEqual('01/02/2001');
-    expect(model.triggers[1].DATE).toEqual('01/02/1999');
-    expect(model.triggers[2].DATE).toEqual('Thu Feb 01 2001');
-    expect(model.triggers[3].DATE).toEqual('Feb 01 2001');
-    expect(model.triggers[4].DATE).toEqual('01 Feb 2001');
-    expect(model.triggers[5].DATE).toEqual('Thu February 01 2001');
-    expect(model.triggers[6].DATE).toEqual('February 01 2001');
-    expect(model.triggers[7].DATE).toEqual('01 February 2001');
-    expect(model.triggers[8].DATE).toEqual('9 September 2021 8:00');
-    expect(model.triggers[9].DATE).toEqual('refers to some setting');
-    expect(model.triggers[10].DATE).toEqual('Thu 01 Feb 2001');
+    expect(model.triggers[0].DATE).toEqual("01/02/2001");
+    expect(model.triggers[1].DATE).toEqual("01/02/1999");
+    expect(model.triggers[2].DATE).toEqual("Thu Feb 01 2001");
+    expect(model.triggers[3].DATE).toEqual("Feb 01 2001");
+    expect(model.triggers[4].DATE).toEqual("01 Feb 2001");
+    expect(model.triggers[5].DATE).toEqual("Thu February 01 2001");
+    expect(model.triggers[6].DATE).toEqual("February 01 2001");
+    expect(model.triggers[7].DATE).toEqual("01 February 2001");
+    expect(model.triggers[8].DATE).toEqual("9 September 2021 8:00");
+    expect(model.triggers[9].DATE).toEqual("refers to some setting");
+    expect(model.triggers[10].DATE).toEqual("Thu 01 Feb 2001");
 
     model.incomes.push({
       ...simpleIncome,
-      VALUE_SET: '01 February 2001',
-      START: '01 February 2021',
-      END: '01 February 2021',
+      VALUE_SET: "01 February 2001",
+      START: "01 February 2021",
+      END: "01 February 2021",
     });
     model.expenses.push({
       ...simpleExpense,
-      VALUE_SET: '01 February 2001',
-      START: '01 February 2021',
-      END: '01 February 2021',
+      VALUE_SET: "01 February 2001",
+      START: "01 February 2021",
+      END: "01 February 2021",
     });
     model.transactions.push({
       ...simpleTransaction,
-      DATE: '01 February 2001',
-      STOP_DATE: '01 February 2001',
+      DATE: "01 February 2001",
+      STOP_DATE: "01 February 2001",
     });
 
     suppressLogs();
     standardiseDates(model);
     unSuppressLogs();
 
-    expect(model.triggers[0].DATE).toEqual('Thu Feb 01 2001');
-    expect(model.triggers[1].DATE).toEqual('Mon Feb 01 1999');
-    expect(model.triggers[2].DATE).toEqual('Thu Feb 01 2001');
-    expect(model.triggers[3].DATE).toEqual('Thu Feb 01 2001');
-    expect(model.triggers[4].DATE).toEqual('Thu Feb 01 2001');
-    expect(model.triggers[5].DATE).toEqual('Thu Feb 01 2001');
-    expect(model.triggers[6].DATE).toEqual('Thu Feb 01 2001');
-    expect(model.triggers[7].DATE).toEqual('Thu Feb 01 2001');
-    expect(model.triggers[8].DATE).toEqual('Thu Sep 09 2021'); /// ????
-    expect(model.triggers[9].DATE).toEqual('refers to some setting');
-    expect(model.triggers[10].DATE).toEqual('Thu Feb 01 2001');
+    expect(model.triggers[0].DATE).toEqual("Thu Feb 01 2001");
+    expect(model.triggers[1].DATE).toEqual("Mon Feb 01 1999");
+    expect(model.triggers[2].DATE).toEqual("Thu Feb 01 2001");
+    expect(model.triggers[3].DATE).toEqual("Thu Feb 01 2001");
+    expect(model.triggers[4].DATE).toEqual("Thu Feb 01 2001");
+    expect(model.triggers[5].DATE).toEqual("Thu Feb 01 2001");
+    expect(model.triggers[6].DATE).toEqual("Thu Feb 01 2001");
+    expect(model.triggers[7].DATE).toEqual("Thu Feb 01 2001");
+    expect(model.triggers[8].DATE).toEqual("Thu Sep 09 2021"); /// ????
+    expect(model.triggers[9].DATE).toEqual("refers to some setting");
+    expect(model.triggers[10].DATE).toEqual("Thu Feb 01 2001");
 
-    expect(model.incomes[0].VALUE_SET).toEqual('Thu Feb 01 2001');
-    expect(model.incomes[0].START).toEqual('Mon Feb 01 2021');
-    expect(model.incomes[0].END).toEqual('Mon Feb 01 2021');
+    expect(model.incomes[0].VALUE_SET).toEqual("Thu Feb 01 2001");
+    expect(model.incomes[0].START).toEqual("Mon Feb 01 2021");
+    expect(model.incomes[0].END).toEqual("Mon Feb 01 2021");
 
-    expect(model.expenses[0].VALUE_SET).toEqual('Thu Feb 01 2001');
-    expect(model.expenses[0].START).toEqual('Mon Feb 01 2021');
-    expect(model.expenses[0].END).toEqual('Mon Feb 01 2021');
+    expect(model.expenses[0].VALUE_SET).toEqual("Thu Feb 01 2001");
+    expect(model.expenses[0].START).toEqual("Mon Feb 01 2021");
+    expect(model.expenses[0].END).toEqual("Mon Feb 01 2021");
 
-    expect(model.transactions[0].DATE).toEqual('Thu Feb 01 2001');
-    expect(model.transactions[0].STOP_DATE).toEqual('Thu Feb 01 2001');
+    expect(model.transactions[0].DATE).toEqual("Thu Feb 01 2001");
+    expect(model.transactions[0].STOP_DATE).toEqual("Thu Feb 01 2001");
 
-    expect(checkData(model).message).toEqual('duplicate name NoName');
-    model.incomes[0].NAME = 'iName';
-    model.expenses[0].NAME = 'eName';
-    model.transactions[0].NAME = 'tName';
-    model.triggers[9].DATE = 'Mon Feb 01 2021';
+    expect(checkData(model).message).toEqual("duplicate name NoName");
+    model.incomes[0].NAME = "iName";
+    model.expenses[0].NAME = "eName";
+    model.transactions[0].NAME = "tName";
+    model.triggers[9].DATE = "Mon Feb 01 2021";
 
-    expect(checkData(model).message).toEqual('');
+    expect(checkData(model).message).toEqual("");
 
     standardiseDates(model);
   });
 
-  it('removeNumberPart', () => {
-    expect(removeNumberPart('0a')).toBe('a');
-    expect(removeNumberPart('0.0a')).toBe('a');
-    expect(removeNumberPart('0')).toBe('');
-    expect(removeNumberPart('a')).toBe(undefined);
-    expect(removeNumberPart('a0')).toBe(undefined);
+  it("removeNumberPart", () => {
+    expect(removeNumberPart("0a")).toBe("a");
+    expect(removeNumberPart("0.0a")).toBe("a");
+    expect(removeNumberPart("0")).toBe("");
+    expect(removeNumberPart("a")).toBe(undefined);
+    expect(removeNumberPart("a0")).toBe(undefined);
   });
-  it('makeIncomeLiabilityFromNameAndNI', () => {
-    expect(makeIncomeLiabilityFromNameAndNI('a', true)).toBe(
-      'a(incomeTax)/a(NI)',
+  it("makeIncomeLiabilityFromNameAndNI", () => {
+    expect(makeIncomeLiabilityFromNameAndNI("a", true)).toBe(
+      "a(incomeTax)/a(NI)",
     );
-    expect(makeIncomeLiabilityFromNameAndNI('a', false)).toBe('a(incomeTax)');
-    expect(makeIncomeLiabilityFromNameAndNI('', true)).toBe('');
-    expect(makeIncomeLiabilityFromNameAndNI('', false)).toBe('');
+    expect(makeIncomeLiabilityFromNameAndNI("a", false)).toBe("a(incomeTax)");
+    expect(makeIncomeLiabilityFromNameAndNI("", true)).toBe("");
+    expect(makeIncomeLiabilityFromNameAndNI("", false)).toBe("");
 
-    expect(makeIncomeLiabilityFromNameAndNI('a/b', true, false)).toBe('');
-    expect(makeIncomeLiabilityFromNameAndNI('a/b', false, false)).toBe('');
+    expect(makeIncomeLiabilityFromNameAndNI("a/b", true, false)).toBe("");
+    expect(makeIncomeLiabilityFromNameAndNI("a/b", false, false)).toBe("");
   });
-  it('makeBooleanFromString', () => {
-    expect(makeBooleanFromString('true')).toBe(true);
-    expect(makeBooleanFromString('t')).toBe(true);
-    expect(makeBooleanFromString('True')).toBe(true);
-    expect(makeBooleanFromString('T')).toBe(true);
-    expect(makeBooleanFromString('false')).toBe(false);
-    expect(makeBooleanFromString('f')).toBe(false);
-    expect(makeBooleanFromString('False')).toBe(false);
-    expect(makeBooleanFromString('F')).toBe(false);
-    expect(makeBooleanFromString('anything else')).toBe(false);
-    expect(makeBooleanFromString('')).toBe(false);
+  it("makeBooleanFromString", () => {
+    expect(makeBooleanFromString("true")).toBe(true);
+    expect(makeBooleanFromString("t")).toBe(true);
+    expect(makeBooleanFromString("True")).toBe(true);
+    expect(makeBooleanFromString("T")).toBe(true);
+    expect(makeBooleanFromString("false")).toBe(false);
+    expect(makeBooleanFromString("f")).toBe(false);
+    expect(makeBooleanFromString("False")).toBe(false);
+    expect(makeBooleanFromString("F")).toBe(false);
+    expect(makeBooleanFromString("anything else")).toBe(false);
+    expect(makeBooleanFromString("")).toBe(false);
   });
-  it('makeBooleanFromYesNo', () => {
-    expect(makeBooleanFromYesNo('yes')).toEqual({
+  it("makeBooleanFromYesNo", () => {
+    expect(makeBooleanFromYesNo("yes")).toEqual({
       checksOK: true,
       value: true,
     });
-    expect(makeBooleanFromYesNo('y')).toEqual({ checksOK: true, value: true });
-    expect(makeBooleanFromYesNo('Yes')).toEqual({
+    expect(makeBooleanFromYesNo("y")).toEqual({ checksOK: true, value: true });
+    expect(makeBooleanFromYesNo("Yes")).toEqual({
       checksOK: true,
       value: true,
     });
-    expect(makeBooleanFromYesNo('Y')).toEqual({ checksOK: true, value: true });
-    expect(makeBooleanFromYesNo('no')).toEqual({
+    expect(makeBooleanFromYesNo("Y")).toEqual({ checksOK: true, value: true });
+    expect(makeBooleanFromYesNo("no")).toEqual({
       checksOK: true,
       value: false,
     });
-    expect(makeBooleanFromYesNo('n')).toEqual({ checksOK: true, value: false });
-    expect(makeBooleanFromYesNo('No')).toEqual({
+    expect(makeBooleanFromYesNo("n")).toEqual({ checksOK: true, value: false });
+    expect(makeBooleanFromYesNo("No")).toEqual({
       checksOK: true,
       value: false,
     });
-    expect(makeBooleanFromYesNo('N')).toEqual({ checksOK: true, value: false });
-    expect(makeBooleanFromYesNo('anything else')).toEqual({
+    expect(makeBooleanFromYesNo("N")).toEqual({ checksOK: true, value: false });
+    expect(makeBooleanFromYesNo("anything else")).toEqual({
       checksOK: false,
       value: true,
     });
-    expect(makeBooleanFromYesNo('')).toEqual({ checksOK: false, value: true });
+    expect(makeBooleanFromYesNo("")).toEqual({ checksOK: false, value: true });
   });
-  it('makeYesNoFromBoolean', () => {
-    expect(makeYesNoFromBoolean(true)).toEqual('Yes');
-    expect(makeYesNoFromBoolean(false)).toEqual('No');
+  it("makeYesNoFromBoolean", () => {
+    expect(makeYesNoFromBoolean(true)).toEqual("Yes");
+    expect(makeYesNoFromBoolean(false)).toEqual("No");
   });
-  it('makeGrowthFromString', () => {
+  it("makeGrowthFromString", () => {
     const settings = [
       {
-        NAME: 'a',
+        NAME: "a",
         ERA: undefined,
-        VALUE: '10.0',
-        HINT: '',
-        TYPE: '',
+        VALUE: "10.0",
+        HINT: "",
+        TYPE: "",
       },
       {
-        NAME: 'b',
+        NAME: "b",
         ERA: undefined,
-        VALUE: '10a',
-        HINT: '',
-        TYPE: '',
+        VALUE: "10a",
+        HINT: "",
+        TYPE: "",
       },
     ];
-    expect(makeGrowthFromString('1', settings)).toEqual({
+    expect(makeGrowthFromString("1", settings)).toEqual({
       checksOK: true,
-      value: '1',
+      value: "1",
     });
-    expect(makeGrowthFromString('1.0', settings)).toEqual({
+    expect(makeGrowthFromString("1.0", settings)).toEqual({
       checksOK: true,
-      value: '1',
+      value: "1",
     });
-    expect(makeGrowthFromString('-1.0', settings)).toEqual({
+    expect(makeGrowthFromString("-1.0", settings)).toEqual({
       checksOK: true,
-      value: '-1',
+      value: "-1",
     });
-    expect(makeGrowthFromString('a', settings)).toEqual({
+    expect(makeGrowthFromString("a", settings)).toEqual({
       checksOK: true,
-      value: 'a',
+      value: "a",
     });
-    expect(makeGrowthFromString('2a', settings)).toEqual({
+    expect(makeGrowthFromString("2a", settings)).toEqual({
       checksOK: false,
-      value: '',
+      value: "",
     });
-    expect(makeGrowthFromString('b', settings)).toEqual({
+    expect(makeGrowthFromString("b", settings)).toEqual({
       checksOK: true,
-      value: 'b',
+      value: "b",
     });
-    expect(makeGrowthFromString('1%', settings)).toEqual({
+    expect(makeGrowthFromString("1%", settings)).toEqual({
       checksOK: true,
-      value: '1',
+      value: "1",
     });
-    expect(makeGrowthFromString('a%', settings)).toEqual({
+    expect(makeGrowthFromString("a%", settings)).toEqual({
       checksOK: false,
-      value: '',
+      value: "",
     });
-    expect(makeGrowthFromString('', settings)).toEqual({
+    expect(makeGrowthFromString("", settings)).toEqual({
       checksOK: false,
-      value: '',
+      value: "",
     });
   });
-  it('makeStringFromGrowth', () => {
+  it("makeStringFromGrowth", () => {
     const settings = [
       {
-        NAME: 'a',
+        NAME: "a",
         ERA: undefined,
-        VALUE: '10.0',
-        HINT: '',
-        TYPE: '',
+        VALUE: "10.0",
+        HINT: "",
+        TYPE: "",
       },
       {
-        NAME: 'b',
+        NAME: "b",
         ERA: undefined,
-        VALUE: '10a',
-        HINT: '',
-        TYPE: '',
+        VALUE: "10a",
+        HINT: "",
+        TYPE: "",
       },
     ];
-    expect(makeStringFromGrowth('1', settings)).toEqual('1%');
-    expect(makeStringFromGrowth('a', settings)).toEqual('a');
-    expect(makeStringFromGrowth('b', settings)).toEqual('b');
-    expect(makeStringFromGrowth('anything else', settings)).toEqual(
-      'anything else',
+    expect(makeStringFromGrowth("1", settings)).toEqual("1%");
+    expect(makeStringFromGrowth("a", settings)).toEqual("a");
+    expect(makeStringFromGrowth("b", settings)).toEqual("b");
+    expect(makeStringFromGrowth("anything else", settings)).toEqual(
+      "anything else",
     );
   });
-  it('makeStringFromBoolean', () => {
-    expect(makeStringFromBoolean(true)).toEqual('T');
-    expect(makeStringFromBoolean(false)).toEqual('F');
+  it("makeStringFromBoolean", () => {
+    expect(makeStringFromBoolean(true)).toEqual("T");
+    expect(makeStringFromBoolean(false)).toEqual("F");
   });
-  it('makeCashValueFromString', () => {
-    expect(makeCashValueFromString('1')).toEqual({ checksOK: true, value: 1 });
-    expect(makeCashValueFromString('1.1')).toEqual({
+  it("makeCashValueFromString", () => {
+    expect(makeCashValueFromString("1")).toEqual({ checksOK: true, value: 1 });
+    expect(makeCashValueFromString("1.1")).toEqual({
       checksOK: true,
       value: 1.1,
     });
-    expect(makeCashValueFromString('-1')).toEqual({
+    expect(makeCashValueFromString("-1")).toEqual({
       checksOK: true,
       value: -1,
     });
-    expect(makeCashValueFromString('-1.00')).toEqual({
+    expect(makeCashValueFromString("-1.00")).toEqual({
       checksOK: true,
       value: -1,
     });
-    expect(makeCashValueFromString('£1')).toEqual({ checksOK: true, value: 1 });
-    expect(makeCashValueFromString('£1.1')).toEqual({
+    expect(makeCashValueFromString("£1")).toEqual({ checksOK: true, value: 1 });
+    expect(makeCashValueFromString("£1.1")).toEqual({
       checksOK: true,
       value: 1.1,
     });
-    expect(makeCashValueFromString('-£1')).toEqual({
+    expect(makeCashValueFromString("-£1")).toEqual({
       checksOK: true,
       value: -1,
     });
-    expect(makeCashValueFromString('-£1.00')).toEqual({
+    expect(makeCashValueFromString("-£1.00")).toEqual({
       checksOK: true,
       value: -1,
     });
-    expect(makeCashValueFromString('')).toEqual({ checksOK: false, value: 0 });
-    expect(makeCashValueFromString('anything else')).toEqual({
+    expect(makeCashValueFromString("")).toEqual({ checksOK: false, value: 0 });
+    expect(makeCashValueFromString("anything else")).toEqual({
       checksOK: false,
       value: 0,
     });
   });
-  it('makeQuantityFromString', () => {
-    expect(makeQuantityFromString('0')).toEqual({ checksOK: true, value: '0' });
-    expect(makeQuantityFromString('1')).toEqual({ checksOK: true, value: '1' });
-    expect(makeQuantityFromString('-1')).toEqual({
+  it("makeQuantityFromString", () => {
+    expect(makeQuantityFromString("0")).toEqual({ checksOK: true, value: "0" });
+    expect(makeQuantityFromString("1")).toEqual({ checksOK: true, value: "1" });
+    expect(makeQuantityFromString("-1")).toEqual({
       checksOK: true,
-      value: '-1',
+      value: "-1",
     });
-    expect(makeQuantityFromString('')).toEqual({ checksOK: true, value: '' });
-    expect(makeQuantityFromString('1.1')).toEqual({
+    expect(makeQuantityFromString("")).toEqual({ checksOK: true, value: "" });
+    expect(makeQuantityFromString("1.1")).toEqual({
       checksOK: false,
-      value: '',
+      value: "",
     });
-    expect(makeQuantityFromString('anything else')).toEqual({
+    expect(makeQuantityFromString("anything else")).toEqual({
       checksOK: false,
-      value: '',
+      value: "",
     });
   });
-  it('makeValueAbsPropFromString', () => {
-    expect(makeValueAbsPropFromString('')).toEqual({
+  it("makeValueAbsPropFromString", () => {
+    expect(makeValueAbsPropFromString("")).toEqual({
       absolute: true,
       checksOK: true,
-      value: '0.0',
+      value: "0.0",
     });
-    expect(makeValueAbsPropFromString('1')).toEqual({
+    expect(makeValueAbsPropFromString("1")).toEqual({
       absolute: true,
       checksOK: true,
-      value: '1',
+      value: "1",
     });
-    expect(makeValueAbsPropFromString('-1')).toEqual({
+    expect(makeValueAbsPropFromString("-1")).toEqual({
       absolute: true,
       checksOK: true,
-      value: '-1',
+      value: "-1",
     });
-    expect(makeValueAbsPropFromString('0.1')).toEqual({
+    expect(makeValueAbsPropFromString("0.1")).toEqual({
       absolute: true,
       checksOK: true,
-      value: '0.1',
+      value: "0.1",
     });
-    expect(makeValueAbsPropFromString('1%')).toEqual({
+    expect(makeValueAbsPropFromString("1%")).toEqual({
       absolute: false,
       checksOK: true,
-      value: '0.01',
+      value: "0.01",
     });
-    expect(makeValueAbsPropFromString('-1%')).toEqual({
+    expect(makeValueAbsPropFromString("-1%")).toEqual({
       absolute: false,
       checksOK: true,
-      value: '-0.01',
+      value: "-0.01",
     });
-    expect(makeValueAbsPropFromString('2 units')).toEqual({
+    expect(makeValueAbsPropFromString("2 units")).toEqual({
       absolute: true,
       checksOK: true,
-      value: '2',
+      value: "2",
     });
-    expect(makeValueAbsPropFromString('nonsense units')).toEqual({
+    expect(makeValueAbsPropFromString("nonsense units")).toEqual({
       absolute: true,
       checksOK: false,
-      value: 'nonsense units',
+      value: "nonsense units",
     });
-    expect(makeValueAbsPropFromString('2a')).toEqual({
+    expect(makeValueAbsPropFromString("2a")).toEqual({
       absolute: true,
       checksOK: true,
-      value: '2a',
+      value: "2a",
     });
-    expect(makeValueAbsPropFromString('nonsense%')).toEqual({
+    expect(makeValueAbsPropFromString("nonsense%")).toEqual({
       absolute: true,
       checksOK: false,
-      value: 'nonsense%',
+      value: "nonsense%",
     });
-    expect(makeValueAbsPropFromString('a2')).toEqual({
+    expect(makeValueAbsPropFromString("a2")).toEqual({
       absolute: true,
       checksOK: false,
-      value: 'a2',
+      value: "a2",
     });
-    expect(makeValueAbsPropFromString('£2')).toEqual({
+    expect(makeValueAbsPropFromString("£2")).toEqual({
       absolute: true,
       checksOK: true,
-      value: '2',
+      value: "2",
     });
   });
-  it('makeStringFromValueAbsProp', () => {
+  it("makeStringFromValueAbsProp", () => {
     expect(
-      makeStringFromValueAbsProp('', true, CASH_ASSET_NAME, minimalModel, ''),
-    ).toEqual('0.0');
+      makeStringFromValueAbsProp("", true, CASH_ASSET_NAME, minimalModel, ""),
+    ).toEqual("0.0");
     expect(
-      makeStringFromValueAbsProp('0', true, CASH_ASSET_NAME, minimalModel, ''),
-    ).toEqual('0');
+      makeStringFromValueAbsProp("0", true, CASH_ASSET_NAME, minimalModel, ""),
+    ).toEqual("0");
     expect(
       makeStringFromValueAbsProp(
-        '2 units',
+        "2 units",
         true,
         CASH_ASSET_NAME,
         minimalModel,
-        '',
+        "",
       ),
-    ).toEqual('2 units');
+    ).toEqual("2 units");
     const copyModel = makeModelFromJSONString(JSON.stringify(minimalModel));
     copyModel.assets.push({
       ...simpleAsset,
-      NAME: 'cars',
-      VALUE: '200',
-      QUANTITY: '2',
+      NAME: "cars",
+      VALUE: "200",
+      QUANTITY: "2",
     });
     expect(
-      makeStringFromValueAbsProp('2', true, 'cars', copyModel, ''),
-    ).toEqual('2 units');
+      makeStringFromValueAbsProp("2", true, "cars", copyModel, ""),
+    ).toEqual("2 units");
     expect(
       makeStringFromValueAbsProp(
-        '2',
+        "2",
         true,
-        'cars',
+        "cars",
         copyModel,
-        'Revalue something',
+        "Revalue something",
       ),
-    ).toEqual('2');
+    ).toEqual("2");
     expect(
       makeStringFromValueAbsProp(
-        '0.02',
+        "0.02",
         false,
         CASH_ASSET_NAME,
         minimalModel,
-        '',
+        "",
       ),
-    ).toEqual('2%');
+    ).toEqual("2%");
     expect(
       makeStringFromValueAbsProp(
-        '0.0200000001',
+        "0.0200000001",
         false,
         CASH_ASSET_NAME,
         minimalModel,
-        '',
+        "",
       ),
-    ).toEqual('2%');
+    ).toEqual("2%");
     expect(
       makeStringFromValueAbsProp(
-        '0.019999999',
+        "0.019999999",
         false,
         CASH_ASSET_NAME,
         minimalModel,
-        '',
+        "",
       ),
-    ).toEqual('2%');
+    ).toEqual("2%");
     expect(
       makeStringFromValueAbsProp(
-        '0.0220000001',
+        "0.0220000001",
         false,
         CASH_ASSET_NAME,
         minimalModel,
-        '',
+        "",
       ),
-    ).toEqual('2.20000001%');
+    ).toEqual("2.20000001%");
     expect(
       makeStringFromValueAbsProp(
-        '0.022000000',
+        "0.022000000",
         false,
         CASH_ASSET_NAME,
         minimalModel,
-        '',
+        "",
       ),
-    ).toEqual('2.2%');
+    ).toEqual("2.2%");
     expect(
       makeStringFromValueAbsProp(
-        'anything else ',
+        "anything else ",
         false,
         CASH_ASSET_NAME,
         minimalModel,
-        '',
+        "",
       ),
-    ).toEqual('NaN%');
+    ).toEqual("NaN%");
   });
-  it('makeStringFromCashValue', () => {
-    expect(makeStringFromCashValue('', '£')).toEqual('');
-    expect(makeStringFromCashValue('0', '£')).toEqual('£0.00');
-    expect(makeStringFromCashValue('0.3001', '£')).toEqual('£0.30');
-    expect(makeStringFromCashValue('-2.3001', '$')).toEqual('-$2.30');
-    expect(makeStringFromCashValue('123456789', '£')).toEqual(
-      '£123,456,789.00',
+  it("makeStringFromCashValue", () => {
+    expect(makeStringFromCashValue("", "£")).toEqual("");
+    expect(makeStringFromCashValue("0", "£")).toEqual("£0.00");
+    expect(makeStringFromCashValue("0.3001", "£")).toEqual("£0.30");
+    expect(makeStringFromCashValue("-2.3001", "$")).toEqual("-$2.30");
+    expect(makeStringFromCashValue("123456789", "£")).toEqual(
+      "£123,456,789.00",
     );
-    expect(makeStringFromCashValue('123456', '£')).toEqual('£123,456.00');
+    expect(makeStringFromCashValue("123456", "£")).toEqual("£123,456.00");
   });
-  it('makeStringFromFromToValue', () => {
-    expect(makeStringFromFromToValue('')).toEqual('');
-    expect(makeStringFromFromToValue('0')).toEqual('£0.00');
-    expect(makeStringFromFromToValue('0.123')).toEqual('£0.12');
-    expect(makeStringFromFromToValue('2%')).toEqual('2%');
-    expect(makeStringFromFromToValue('2.123%')).toEqual('2.123%');
-    expect(makeStringFromFromToValue('-0.123')).toEqual('-£0.12');
-    expect(makeStringFromFromToValue('-2%')).toEqual('-2%');
-    expect(makeStringFromFromToValue('-2.123%')).toEqual('-2.123%');
-    expect(makeStringFromFromToValue('12 units')).toEqual('12 units');
+  it("makeStringFromFromToValue", () => {
+    expect(makeStringFromFromToValue("")).toEqual("");
+    expect(makeStringFromFromToValue("0")).toEqual("£0.00");
+    expect(makeStringFromFromToValue("0.123")).toEqual("£0.12");
+    expect(makeStringFromFromToValue("2%")).toEqual("2%");
+    expect(makeStringFromFromToValue("2.123%")).toEqual("2.123%");
+    expect(makeStringFromFromToValue("-0.123")).toEqual("-£0.12");
+    expect(makeStringFromFromToValue("-2%")).toEqual("-2%");
+    expect(makeStringFromFromToValue("-2.123%")).toEqual("-2.123%");
+    expect(makeStringFromFromToValue("12 units")).toEqual("12 units");
   });
-  it('checkTriggerDate', () => {
+  it("checkTriggerDate", () => {
     const varVal = 1.0;
     const simpleTrigger = {
-      NAME: 'a',
+      NAME: "a",
       ERA: undefined,
-      DATE: '1 Jan 2018',
+      DATE: "1 Jan 2018",
     };
-    expect(checkTriggerDate('', [simpleTrigger], varVal)).toEqual(undefined);
-    expect(checkTriggerDate('nonsense', [simpleTrigger], varVal)).toEqual(
+    expect(checkTriggerDate("", [simpleTrigger], varVal)).toEqual(undefined);
+    expect(checkTriggerDate("nonsense", [simpleTrigger], varVal)).toEqual(
       undefined,
     );
     expect(
       dateAsString(
         DateFormatType.Test,
-        checkTriggerDate('a', [simpleTrigger], varVal),
+        checkTriggerDate("a", [simpleTrigger], varVal),
       ),
-    ).toEqual('Mon Jan 01 2018');
-    const cleanedString = { cleaned: '' };
-    checkTriggerDate('a', [simpleTrigger], varVal, cleanedString);
-    expect(cleanedString.cleaned).toEqual('a');
+    ).toEqual("Mon Jan 01 2018");
+    const cleanedString = { cleaned: "" };
+    checkTriggerDate("a", [simpleTrigger], varVal, cleanedString);
+    expect(cleanedString.cleaned).toEqual("a");
     expect(
       dateAsString(
         DateFormatType.Test,
-        checkTriggerDate('a+1y', [simpleTrigger], varVal),
+        checkTriggerDate("a+1y", [simpleTrigger], varVal),
       ),
-    ).toEqual('Tue Jan 01 2019');
-    cleanedString.cleaned = '';
-    checkTriggerDate('a', [simpleTrigger], varVal, cleanedString);
-    expect(cleanedString.cleaned).toEqual('a');
+    ).toEqual("Tue Jan 01 2019");
+    cleanedString.cleaned = "";
+    checkTriggerDate("a", [simpleTrigger], varVal, cleanedString);
+    expect(cleanedString.cleaned).toEqual("a");
     expect(
       dateAsString(
         DateFormatType.Test,
-        checkTriggerDate('a+1w', [simpleTrigger], varVal, cleanedString),
+        checkTriggerDate("a+1w", [simpleTrigger], varVal, cleanedString),
       ),
-    ).toEqual('Mon Jan 08 2018');
-    cleanedString.cleaned = '';
-    checkTriggerDate('a+1y', [simpleTrigger], varVal, cleanedString);
-    expect(cleanedString.cleaned).toEqual('a+1y');
+    ).toEqual("Mon Jan 08 2018");
+    cleanedString.cleaned = "";
+    checkTriggerDate("a+1y", [simpleTrigger], varVal, cleanedString);
+    expect(cleanedString.cleaned).toEqual("a+1y");
 
     expect(
       dateAsString(
         DateFormatType.Test,
-        checkTriggerDate('a-1y', [simpleTrigger], varVal),
+        checkTriggerDate("a-1y", [simpleTrigger], varVal),
       ),
-    ).toEqual('Sun Jan 01 2017');
-    cleanedString.cleaned = '';
-    checkTriggerDate('a-1y', [simpleTrigger], varVal, cleanedString);
-    expect(cleanedString.cleaned).toEqual('a-1y');
+    ).toEqual("Sun Jan 01 2017");
+    cleanedString.cleaned = "";
+    checkTriggerDate("a-1y", [simpleTrigger], varVal, cleanedString);
+    expect(cleanedString.cleaned).toEqual("a-1y");
 
     expect(
       dateAsString(
         DateFormatType.Test,
-        checkTriggerDate('a+1m', [simpleTrigger], varVal),
+        checkTriggerDate("a+1m", [simpleTrigger], varVal),
       ),
-    ).toEqual('Thu Feb 01 2018');
-    cleanedString.cleaned = '';
-    checkTriggerDate('a+1m', [simpleTrigger], varVal, cleanedString);
-    expect(cleanedString.cleaned).toEqual('a+1m');
+    ).toEqual("Thu Feb 01 2018");
+    cleanedString.cleaned = "";
+    checkTriggerDate("a+1m", [simpleTrigger], varVal, cleanedString);
+    expect(cleanedString.cleaned).toEqual("a+1m");
 
     expect(
       dateAsString(
         DateFormatType.Test,
-        checkTriggerDate('a-1m', [simpleTrigger], varVal),
+        checkTriggerDate("a-1m", [simpleTrigger], varVal),
       ),
-    ).toEqual('Fri Dec 01 2017');
-    cleanedString.cleaned = '';
-    checkTriggerDate('a-1m', [simpleTrigger], varVal, cleanedString);
-    expect(cleanedString.cleaned).toEqual('a-1m');
+    ).toEqual("Fri Dec 01 2017");
+    cleanedString.cleaned = "";
+    checkTriggerDate("a-1m", [simpleTrigger], varVal, cleanedString);
+    expect(cleanedString.cleaned).toEqual("a-1m");
 
     expect(
       dateAsString(
         DateFormatType.Test,
-        checkTriggerDate('a+1d', [simpleTrigger], varVal),
+        checkTriggerDate("a+1d", [simpleTrigger], varVal),
       ),
-    ).toEqual('Tue Jan 02 2018');
-    cleanedString.cleaned = '';
-    checkTriggerDate('a+1d', [simpleTrigger], varVal, cleanedString);
-    expect(cleanedString.cleaned).toEqual('a+1d');
+    ).toEqual("Tue Jan 02 2018");
+    cleanedString.cleaned = "";
+    checkTriggerDate("a+1d", [simpleTrigger], varVal, cleanedString);
+    expect(cleanedString.cleaned).toEqual("a+1d");
 
     expect(
       dateAsString(
         DateFormatType.Test,
-        checkTriggerDate('a-1d', [simpleTrigger], varVal),
+        checkTriggerDate("a-1d", [simpleTrigger], varVal),
       ),
-    ).toEqual('Sun Dec 31 2017');
-    cleanedString.cleaned = '';
-    checkTriggerDate('a-1d', [simpleTrigger], varVal, cleanedString);
-    expect(cleanedString.cleaned).toEqual('a-1d');
+    ).toEqual("Sun Dec 31 2017");
+    cleanedString.cleaned = "";
+    checkTriggerDate("a-1d", [simpleTrigger], varVal, cleanedString);
+    expect(cleanedString.cleaned).toEqual("a-1d");
 
     expect(
       dateAsString(
         DateFormatType.Test,
-        checkTriggerDate('1 Jan 2018-1d-2d', [simpleTrigger], varVal),
+        checkTriggerDate("1 Jan 2018-1d-2d", [simpleTrigger], varVal),
       ),
-    ).toEqual('Invalid date');
-    cleanedString.cleaned = '';
+    ).toEqual("Invalid date");
+    cleanedString.cleaned = "";
     checkTriggerDate(
-      '1 Jan 2018-1d-2d',
+      "1 Jan 2018-1d-2d",
       [simpleTrigger],
       varVal,
       cleanedString,
     );
-    expect(cleanedString.cleaned).toEqual('Invalid Date 1 Jan 2018-1d-2d');
+    expect(cleanedString.cleaned).toEqual("Invalid Date 1 Jan 2018-1d-2d");
 
     expect(
       dateAsString(
         DateFormatType.Test,
-        checkTriggerDate('a-1m-2d', [simpleTrigger], varVal),
+        checkTriggerDate("a-1m-2d", [simpleTrigger], varVal),
       ),
-    ).toEqual('Invalid date');
-    cleanedString.cleaned = '';
-    checkTriggerDate('a-1m-2d', [simpleTrigger], varVal, cleanedString);
-    expect(cleanedString.cleaned).toEqual('Invalid Date a-1m-2d');
+    ).toEqual("Invalid date");
+    cleanedString.cleaned = "";
+    checkTriggerDate("a-1m-2d", [simpleTrigger], varVal, cleanedString);
+    expect(cleanedString.cleaned).toEqual("Invalid Date a-1m-2d");
 
     expect(
       dateAsString(
         DateFormatType.Test,
-        checkTriggerDate('a-1m+2d', [simpleTrigger], varVal),
+        checkTriggerDate("a-1m+2d", [simpleTrigger], varVal),
       ),
-    ).toEqual('Sun Dec 03 2017');
-    cleanedString.cleaned = '';
-    checkTriggerDate('a-1m+2d', [simpleTrigger], varVal, cleanedString);
-    expect(cleanedString.cleaned).toEqual('a-1m+2d');
+    ).toEqual("Sun Dec 03 2017");
+    cleanedString.cleaned = "";
+    checkTriggerDate("a-1m+2d", [simpleTrigger], varVal, cleanedString);
+    expect(cleanedString.cleaned).toEqual("a-1m+2d");
 
-    expect(checkTriggerDate('nonsense', [simpleTrigger], varVal)).toEqual(
+    expect(checkTriggerDate("nonsense", [simpleTrigger], varVal)).toEqual(
       undefined,
     );
     expect(
       dateAsString(
         DateFormatType.Test,
         checkTriggerDate(
-          'nonsense<1 Nov 2018?1 Dec 2019:2 Dec 2019',
+          "nonsense<1 Nov 2018?1 Dec 2019:2 Dec 2019",
           [simpleTrigger],
           varVal,
         ),
       ),
-    ).toEqual('Invalid date');
+    ).toEqual("Invalid date");
     expect(
       dateAsString(
         DateFormatType.Test,
         checkTriggerDate(
-          '1 Nov 2018<nonsense?1 Dec 2019:2 Dec 2019',
+          "1 Nov 2018<nonsense?1 Dec 2019:2 Dec 2019",
           [simpleTrigger],
           varVal,
         ),
       ),
-    ).toEqual('Invalid date');
+    ).toEqual("Invalid date");
     expect(
       dateAsString(
         DateFormatType.Test,
         checkTriggerDate(
-          '2 Nov 2018<1 Nov 2018?1 Dec 2019:nonsense',
+          "2 Nov 2018<1 Nov 2018?1 Dec 2019:nonsense",
           [simpleTrigger],
           varVal,
         ),
       ),
-    ).toEqual('Invalid date');
+    ).toEqual("Invalid date");
   });
-  it('getTriggerDate', () => {
+  it("getTriggerDate", () => {
     const varVal = 1.0;
     const simpleTrigger = {
-      NAME: 'a',
+      NAME: "a",
       ERA: undefined,
-      DATE: '1 Jan 2018',
+      DATE: "1 Jan 2018",
     };
     //expect(getTriggerDate('', [simpleTrigger], varVal))).toEqual(
     //  undefined,
@@ -952,226 +955,226 @@ describe('utils tests', () => {
     expect(
       dateAsString(
         DateFormatType.Test,
-        getTriggerDate('a', [simpleTrigger], varVal),
+        getTriggerDate("a", [simpleTrigger], varVal),
       ),
-    ).toEqual('Mon Jan 01 2018');
+    ).toEqual("Mon Jan 01 2018");
     expect(
       dateAsString(
         DateFormatType.Test,
-        getTriggerDate('a+1y', [simpleTrigger], varVal),
+        getTriggerDate("a+1y", [simpleTrigger], varVal),
       ),
-    ).toEqual('Tue Jan 01 2019');
+    ).toEqual("Tue Jan 01 2019");
     expect(
       dateAsString(
         DateFormatType.Test,
-        getTriggerDate('a-1y', [simpleTrigger], varVal),
+        getTriggerDate("a-1y", [simpleTrigger], varVal),
       ),
-    ).toEqual('Sun Jan 01 2017');
+    ).toEqual("Sun Jan 01 2017");
     expect(
       dateAsString(
         DateFormatType.Test,
-        getTriggerDate('a+1m', [simpleTrigger], varVal),
+        getTriggerDate("a+1m", [simpleTrigger], varVal),
       ),
-    ).toEqual('Thu Feb 01 2018');
+    ).toEqual("Thu Feb 01 2018");
     expect(
       dateAsString(
         DateFormatType.Test,
-        getTriggerDate('a-1m', [simpleTrigger], varVal),
+        getTriggerDate("a-1m", [simpleTrigger], varVal),
       ),
-    ).toEqual('Fri Dec 01 2017');
+    ).toEqual("Fri Dec 01 2017");
     expect(
       dateAsString(
         DateFormatType.Test,
-        getTriggerDate('a+1d', [simpleTrigger], varVal),
+        getTriggerDate("a+1d", [simpleTrigger], varVal),
       ),
-    ).toEqual('Tue Jan 02 2018');
+    ).toEqual("Tue Jan 02 2018");
     expect(
       dateAsString(
         DateFormatType.Test,
-        getTriggerDate('a-1d', [simpleTrigger], varVal),
+        getTriggerDate("a-1d", [simpleTrigger], varVal),
       ),
-    ).toEqual('Sun Dec 31 2017');
+    ).toEqual("Sun Dec 31 2017");
     expect(
       dateAsString(
         DateFormatType.Test,
-        getTriggerDate('1 Jan 2018-1d', [simpleTrigger], varVal),
+        getTriggerDate("1 Jan 2018-1d", [simpleTrigger], varVal),
       ),
-    ).toEqual('Sun Dec 31 2017');
+    ).toEqual("Sun Dec 31 2017");
     expect(
       dateAsString(
         DateFormatType.Test,
-        getTriggerDate('2018-1d', [simpleTrigger], varVal),
+        getTriggerDate("2018-1d", [simpleTrigger], varVal),
       ),
-    ).toEqual('Sun Dec 31 2017'); // will fail in different locales
+    ).toEqual("Sun Dec 31 2017"); // will fail in different locales
     expect(
       dateAsString(
         DateFormatType.Test,
-        getTriggerDate('1 Jan 2018-1d-2d', [simpleTrigger], varVal),
+        getTriggerDate("1 Jan 2018-1d-2d", [simpleTrigger], varVal),
       ),
-    ).toEqual('Invalid Date');
+    ).toEqual("Invalid Date");
     expect(
       dateAsString(
         DateFormatType.Test,
-        getTriggerDate('a-1m-2d', [simpleTrigger], varVal),
+        getTriggerDate("a-1m-2d", [simpleTrigger], varVal),
       ),
-    ).toEqual('Invalid Date');
-    expect(
-      dateAsString(
-        DateFormatType.Test,
-        getTriggerDate(
-          '1 Nov 2018<2 Nov 2018?1 Dec 2019:2 Dec 2019',
-          [simpleTrigger],
-          varVal,
-        ),
-      ),
-    ).toEqual('Sun Dec 01 2019');
+    ).toEqual("Invalid Date");
     expect(
       dateAsString(
         DateFormatType.Test,
         getTriggerDate(
-          '2 Nov 2018<1 Nov 2018?1 Dec 2019:2 Dec 2019',
+          "1 Nov 2018<2 Nov 2018?1 Dec 2019:2 Dec 2019",
           [simpleTrigger],
           varVal,
         ),
       ),
-    ).toEqual('Mon Dec 02 2019');
+    ).toEqual("Sun Dec 01 2019");
     expect(
       dateAsString(
         DateFormatType.Test,
         getTriggerDate(
-          '1 Nov 2018<2 Nov 2018?a:2 Dec 2019',
+          "2 Nov 2018<1 Nov 2018?1 Dec 2019:2 Dec 2019",
           [simpleTrigger],
           varVal,
         ),
       ),
-    ).toEqual('Mon Jan 01 2018');
+    ).toEqual("Mon Dec 02 2019");
     expect(
       dateAsString(
         DateFormatType.Test,
         getTriggerDate(
-          '2 Nov 2018<1 Nov 2018?1 Dec 2019:a',
+          "1 Nov 2018<2 Nov 2018?a:2 Dec 2019",
           [simpleTrigger],
           varVal,
         ),
       ),
-    ).toEqual('Mon Jan 01 2018');
+    ).toEqual("Mon Jan 01 2018");
+    expect(
+      dateAsString(
+        DateFormatType.Test,
+        getTriggerDate(
+          "2 Nov 2018<1 Nov 2018?1 Dec 2019:a",
+          [simpleTrigger],
+          varVal,
+        ),
+      ),
+    ).toEqual("Mon Jan 01 2018");
 
     expect(
       dateAsString(
         DateFormatType.Test,
         getTriggerDate(
-          'a<2 Nov 2018?1 Dec 2019:2 Dec 2019',
+          "a<2 Nov 2018?1 Dec 2019:2 Dec 2019",
           [simpleTrigger],
           varVal,
         ),
       ),
-    ).toEqual('Sun Dec 01 2019');
+    ).toEqual("Sun Dec 01 2019");
     expect(
       dateAsString(
         DateFormatType.Test,
         getTriggerDate(
-          '2 Nov 2018<a?1 Dec 2019:2 Dec 2019',
+          "2 Nov 2018<a?1 Dec 2019:2 Dec 2019",
           [simpleTrigger],
           varVal,
         ),
       ),
-    ).toEqual('Mon Dec 02 2019');
+    ).toEqual("Mon Dec 02 2019");
 
     expect(
       dateAsString(
         DateFormatType.Test,
         getTriggerDate(
-          '1 Nov 2018<2 Nov 2018?1 Dec 2019:nonsense',
+          "1 Nov 2018<2 Nov 2018?1 Dec 2019:nonsense",
           [simpleTrigger],
           varVal,
         ),
       ),
-    ).toEqual('Sun Dec 01 2019');
+    ).toEqual("Sun Dec 01 2019");
 
     expect(
       dateAsString(
         DateFormatType.Test,
         getTriggerDate(
-          'nonsense<1 Nov 2018?1 Dec 2019:2 Dec 2019',
+          "nonsense<1 Nov 2018?1 Dec 2019:2 Dec 2019",
           [simpleTrigger],
           varVal,
         ),
       ),
-    ).toEqual('Invalid Date');
+    ).toEqual("Invalid Date");
     expect(
       dateAsString(
         DateFormatType.Test,
         getTriggerDate(
-          '1 Nov 2018<nonsense?1 Dec 2019:2 Dec 2019',
+          "1 Nov 2018<nonsense?1 Dec 2019:2 Dec 2019",
           [simpleTrigger],
           varVal,
         ),
       ),
-    ).toEqual('Invalid Date');
+    ).toEqual("Invalid Date");
     expect(
       dateAsString(
         DateFormatType.Test,
         getTriggerDate(
-          '1 Nov 2018<2 Nov 2018?nonsense:2 Dec 2019',
+          "1 Nov 2018<2 Nov 2018?nonsense:2 Dec 2019",
           [simpleTrigger],
           varVal,
         ),
       ),
-    ).toEqual('Invalid Date');
+    ).toEqual("Invalid Date");
 
     expect(
       dateAsString(
         DateFormatType.Test,
-        getTriggerDate('nonsense', [simpleTrigger], varVal),
+        getTriggerDate("nonsense", [simpleTrigger], varVal),
       ),
-    ).toEqual('Invalid Date');
+    ).toEqual("Invalid Date");
   });
-  it('makeDateTooltip', () => {
+  it("makeDateTooltip", () => {
     const varVal = 1.0;
     const simpleTrigger = {
-      NAME: 'a',
+      NAME: "a",
       ERA: undefined,
-      DATE: '1 Jan 2018',
+      DATE: "1 Jan 2018",
     };
-    expect(makeDateTooltip('a', [simpleTrigger], varVal)).toEqual(
-      '01 Jan 2018',
+    expect(makeDateTooltip("a", [simpleTrigger], varVal)).toEqual(
+      "01 Jan 2018",
     );
-    expect(makeDateTooltip('', [simpleTrigger], varVal)).toEqual('');
-    expect(makeDateTooltip('nonsense', [simpleTrigger], varVal)).toEqual('');
-    expect(makeDateTooltip('a', [simpleTrigger], varVal)).toEqual(
-      '01 Jan 2018',
+    expect(makeDateTooltip("", [simpleTrigger], varVal)).toEqual("");
+    expect(makeDateTooltip("nonsense", [simpleTrigger], varVal)).toEqual("");
+    expect(makeDateTooltip("a", [simpleTrigger], varVal)).toEqual(
+      "01 Jan 2018",
     );
-    expect(makeDateTooltip('a+1y', [simpleTrigger], varVal)).toEqual(
-      '01 Jan 2019',
+    expect(makeDateTooltip("a+1y", [simpleTrigger], varVal)).toEqual(
+      "01 Jan 2019",
     );
-    expect(makeDateTooltip('a-1y', [simpleTrigger], varVal)).toEqual(
-      '01 Jan 2017',
+    expect(makeDateTooltip("a-1y", [simpleTrigger], varVal)).toEqual(
+      "01 Jan 2017",
     );
-    expect(makeDateTooltip('a+1m', [simpleTrigger], varVal)).toEqual(
-      '01 Feb 2018',
+    expect(makeDateTooltip("a+1m", [simpleTrigger], varVal)).toEqual(
+      "01 Feb 2018",
     );
-    expect(makeDateTooltip('a-1m', [simpleTrigger], varVal)).toEqual(
-      '01 Dec 2017',
+    expect(makeDateTooltip("a-1m", [simpleTrigger], varVal)).toEqual(
+      "01 Dec 2017",
     );
-    expect(makeDateTooltip('a+1d', [simpleTrigger], varVal)).toEqual(
-      '02 Jan 2018',
+    expect(makeDateTooltip("a+1d", [simpleTrigger], varVal)).toEqual(
+      "02 Jan 2018",
     );
-    expect(makeDateTooltip('a-1d', [simpleTrigger], varVal)).toEqual(
-      '31 Dec 2017',
-    );
-  });
-  it('makeStringFromPurchasePrice', () => {
-    expect(makeStringFromPurchasePrice('0', 'jim')).toEqual('');
-    expect(makeStringFromPurchasePrice('anything', 'jim(CGT)')).toEqual(
-      'anything',
+    expect(makeDateTooltip("a-1d", [simpleTrigger], varVal)).toEqual(
+      "31 Dec 2017",
     );
   });
-  it('makePurchasePriceFromString', () => {
-    expect(makePurchasePriceFromString('')).toEqual('0');
-    expect(makePurchasePriceFromString('anything')).toEqual('anything');
+  it("makeStringFromPurchasePrice", () => {
+    expect(makeStringFromPurchasePrice("0", "jim")).toEqual("");
+    expect(makeStringFromPurchasePrice("anything", "jim(CGT)")).toEqual(
+      "anything",
+    );
   });
-  it('getSpecialWord', () => {
-    expect(getSpecialWord('anything', minimalModel)).toEqual('');
+  it("makePurchasePriceFromString", () => {
+    expect(makePurchasePriceFromString("")).toEqual("0");
+    expect(makePurchasePriceFromString("anything")).toEqual("anything");
+  });
+  it("getSpecialWord", () => {
+    expect(getSpecialWord("anything", minimalModel)).toEqual("");
     [
       revalue,
       conditional,
@@ -1187,7 +1190,7 @@ describe('utils tests', () => {
       expect(getSpecialWord(`${x}anything`, minimalModel)).toEqual(`${x}`);
     });
 
-    ['1y', '2y', '3y', '4y', '5y', '1m'].map((x) => {
+    ["1y", "2y", "3y", "4y", "5y", "1m"].map((x) => {
       const m = makeModelFromJSONString(JSON.stringify(minimalModel));
       m.transactions.push({
         ...simpleTransaction,
@@ -1196,91 +1199,91 @@ describe('utils tests', () => {
       });
       expect(getSpecialWord(`anything${x}`, m)).toEqual(`${x}`);
     });
-    expect(getSpecialWord(`anything1y`, minimalModel)).toEqual('');
+    expect(getSpecialWord(`anything1y`, minimalModel)).toEqual("");
     const m = makeModelFromJSONString(JSON.stringify(minimalModel));
     m.triggers.push({
-      NAME: 'something',
+      NAME: "something",
       ERA: undefined,
       DATE: `1999`,
     });
     m.transactions.push({
       ...simpleTransaction,
-      DATE: 'something+1d',
+      DATE: "something+1d",
     });
-    expect(getSpecialWord(`something`, m)).toEqual('something in date algebra');
+    expect(getSpecialWord(`something`, m)).toEqual("something in date algebra");
   });
-  it('hasDependentDate', () => {
+  it("hasDependentDate", () => {
     [
       (x: ModelData) => {
         x.expenses.push({
           ...simpleExpense,
-          START: 'a+1d',
+          START: "a+1d",
         });
       },
       (x: ModelData) => {
         x.expenses.push({
           ...simpleExpense,
-          END: 'a+1d',
+          END: "a+1d",
         });
       },
       (x: ModelData) => {
         x.expenses.push({
           ...simpleExpense,
-          VALUE_SET: 'a+1d',
+          VALUE_SET: "a+1d",
         });
       },
       (x: ModelData) => {
         x.incomes.push({
           ...simpleIncome,
-          START: 'a+1d',
+          START: "a+1d",
         });
       },
       (x: ModelData) => {
         x.incomes.push({
           ...simpleIncome,
-          END: 'a+1d',
+          END: "a+1d",
         });
       },
       (x: ModelData) => {
         x.incomes.push({
           ...simpleIncome,
-          VALUE_SET: 'a+1d',
+          VALUE_SET: "a+1d",
         });
       },
       (x: ModelData) => {
         x.transactions.push({
           ...simpleTransaction,
-          DATE: 'a+1d',
+          DATE: "a+1d",
         });
       },
       (x: ModelData) => {
         x.transactions.push({
           ...simpleTransaction,
-          STOP_DATE: 'a+1d',
+          STOP_DATE: "a+1d",
         });
       },
       (x: ModelData) => {
         x.triggers.push({
-          NAME: 'b',
+          NAME: "b",
           ERA: undefined,
-          DATE: 'a+1y',
+          DATE: "a+1y",
         });
       },
       (x: ModelData) => {
         x.assets.push({
           ...simpleAsset,
-          START: 'a+1d',
+          START: "a+1d",
         });
       },
       (x: ModelData) => {
         x.triggers.push({
-          NAME: 'a+boo',
+          NAME: "a+boo",
           ERA: undefined,
-          DATE: 'a+boo',
+          DATE: "a+boo",
         });
         x.incomes.push({
           ...simpleIncome,
-          START: 'a+1d',
+          START: "a+1d",
         });
       },
     ].map((makeChange) => {
@@ -1289,9 +1292,9 @@ describe('utils tests', () => {
       expect(
         hasDependentDate(
           {
-            NAME: 'a',
+            NAME: "a",
             ERA: undefined,
-            DATE: '1 Jan 1999',
+            DATE: "1 Jan 1999",
           },
           x,
         ),
@@ -1299,22 +1302,22 @@ describe('utils tests', () => {
       expect(
         hasDependentDate(
           {
-            NAME: 'b',
+            NAME: "b",
             ERA: undefined,
-            DATE: '1 Jan 1999',
+            DATE: "1 Jan 1999",
           },
           x,
         ),
       ).toBe(false);
     });
   });
-  it('checkForWordClashInModel', () => {
+  it("checkForWordClashInModel", () => {
     [
       {
         makeChange: (m: ModelData) => {
           return m;
         },
-        replacement: '',
+        replacement: "",
         outcome: `  Asset 'Cash' has quantity boo called    `,
       },
       {
@@ -1328,321 +1331,321 @@ describe('utils tests', () => {
         makeChange: (m: ModelData) => {
           m.assets.push({
             ...simpleAsset,
-            NAME: 'a',
+            NAME: "a",
           });
         },
-        replacement: 'a',
+        replacement: "a",
         outcome: `  Asset 'a' has name boo called a   `,
       },
       {
         makeChange: (m: ModelData) => {
           m.assets.push({
             ...simpleAsset,
-            CATEGORY: 'a',
+            CATEGORY: "a",
           });
         },
-        replacement: 'a',
+        replacement: "a",
         outcome: `  Asset 'NoName' has category boo called a   `,
       },
       {
         makeChange: (m: ModelData) => {
           m.assets.push({
             ...simpleAsset,
-            START: 'a',
+            START: "a",
           });
         },
-        replacement: 'a',
+        replacement: "a",
         outcome: `  Asset 'NoName' has start boo called a   `,
       },
       {
         makeChange: (m: ModelData) => {
           m.assets.push({
             ...simpleAsset,
-            VALUE: 'a',
+            VALUE: "a",
           });
         },
-        replacement: 'a',
+        replacement: "a",
         outcome: `  Asset 'NoName' has value boo called a   `,
       },
       {
         makeChange: (m: ModelData) => {
           m.assets.push({
             ...simpleAsset,
-            VALUE: '2a',
+            VALUE: "2a",
           });
         },
-        replacement: 'a',
+        replacement: "a",
         outcome: `  Asset 'NoName' has value boo called a   `,
       },
       {
         makeChange: (m: ModelData) => {
           m.assets.push({
             ...simpleAsset,
-            QUANTITY: 'a',
+            QUANTITY: "a",
           });
         },
-        replacement: 'a',
+        replacement: "a",
         outcome: `  Asset 'NoName' has quantity boo called a   `,
       },
       {
         makeChange: (m: ModelData) => {
           m.assets.push({
             ...simpleAsset,
-            GROWTH: 'a',
+            GROWTH: "a",
           });
         },
-        replacement: 'a',
+        replacement: "a",
         outcome: `  Asset 'NoName' has growth boo called a   `,
       },
       {
         makeChange: (m: ModelData) => {
           m.assets.push({
             ...simpleAsset,
-            LIABILITY: 'a',
+            LIABILITY: "a",
           });
         },
-        replacement: 'a',
+        replacement: "a",
         outcome: `  Asset 'NoName' has liability boo called a   `,
       },
       {
         makeChange: (m: ModelData) => {
           m.assets.push({
             ...simpleAsset,
-            PURCHASE_PRICE: 'a',
+            PURCHASE_PRICE: "a",
           });
         },
-        replacement: 'a',
+        replacement: "a",
         outcome: `  Asset 'NoName' has purchase price boo called a   `,
       },
       {
         makeChange: (m: ModelData) => {
           m.settings.push({
             ...simpleSetting,
-            NAME: 'a',
+            NAME: "a",
           });
         },
-        replacement: 'a',
+        replacement: "a",
         outcome: `Setting 'a' has name boo called a     `,
       },
       {
         makeChange: (m: ModelData) => {
           m.settings.push({
             ...simpleSetting,
-            VALUE: 'a',
+            VALUE: "a",
           });
         },
-        replacement: 'a',
+        replacement: "a",
         outcome: `Setting 'NoName' has value boo called a     `,
       },
       {
         makeChange: (m: ModelData) => {
           m.triggers.push({
-            NAME: 'a',
+            NAME: "a",
             ERA: undefined,
-            DATE: '1 Jan 1999',
+            DATE: "1 Jan 1999",
           });
         },
-        replacement: 'a',
+        replacement: "a",
         outcome: ` Trigger 'a' has name boo called a    `,
       },
       {
         makeChange: (m: ModelData) => {
           m.incomes.push({
             ...simpleIncome,
-            NAME: 'a',
+            NAME: "a",
           });
         },
-        replacement: 'a',
+        replacement: "a",
         outcome: `   Income 'a' has name boo called a  `,
       },
       {
         makeChange: (m: ModelData) => {
           m.incomes.push({
             ...simpleIncome,
-            CATEGORY: 'a',
+            CATEGORY: "a",
           });
         },
-        replacement: 'a',
+        replacement: "a",
         outcome: `   Income 'NoName' has category boo called a  `,
       },
       {
         makeChange: (m: ModelData) => {
           m.incomes.push({
             ...simpleIncome,
-            START: 'a',
+            START: "a",
           });
         },
-        replacement: 'a',
+        replacement: "a",
         outcome: `   Income 'NoName' has start boo called a  `,
       },
       {
         makeChange: (m: ModelData) => {
           m.incomes.push({
             ...simpleIncome,
-            END: 'a',
+            END: "a",
           });
         },
-        replacement: 'a',
+        replacement: "a",
         outcome: `   Income 'NoName' has end boo called a  `,
       },
       {
         makeChange: (m: ModelData) => {
           m.incomes.push({
             ...simpleIncome,
-            VALUE: 'a',
+            VALUE: "a",
           });
         },
-        replacement: 'a',
+        replacement: "a",
         outcome: `   Income 'NoName' has value boo called a  `,
       },
       {
         makeChange: (m: ModelData) => {
           m.incomes.push({
             ...simpleIncome,
-            VALUE_SET: 'a',
+            VALUE_SET: "a",
           });
         },
-        replacement: 'a',
+        replacement: "a",
         outcome: `   Income 'NoName' has value set boo called a  `,
       },
       {
         makeChange: (m: ModelData) => {
           m.incomes.push({
             ...simpleIncome,
-            LIABILITY: 'a',
+            LIABILITY: "a",
           });
         },
-        replacement: 'a',
+        replacement: "a",
         outcome: `   Income 'NoName' has liability boo called a  `,
       },
       {
         makeChange: (m: ModelData) => {
           m.expenses.push({
             ...simpleExpense,
-            NAME: 'a',
+            NAME: "a",
           });
         },
-        replacement: 'a',
+        replacement: "a",
         outcome: `    Expense 'a' has name boo called a `,
       },
       {
         makeChange: (m: ModelData) => {
           m.expenses.push({
             ...simpleExpense,
-            CATEGORY: 'a',
+            CATEGORY: "a",
           });
         },
-        replacement: 'a',
+        replacement: "a",
         outcome: `    Expense 'NoName' has category boo called a `,
       },
       {
         makeChange: (m: ModelData) => {
           m.expenses.push({
             ...simpleExpense,
-            START: 'a',
+            START: "a",
           });
         },
-        replacement: 'a',
+        replacement: "a",
         outcome: `    Expense 'NoName' has start boo called a `,
       },
       {
         makeChange: (m: ModelData) => {
           m.expenses.push({
             ...simpleExpense,
-            END: 'a',
+            END: "a",
           });
         },
-        replacement: 'a',
+        replacement: "a",
         outcome: `    Expense 'NoName' has end boo called a `,
       },
       {
         makeChange: (m: ModelData) => {
           m.expenses.push({
             ...simpleExpense,
-            VALUE: 'a',
+            VALUE: "a",
           });
         },
-        replacement: 'a',
+        replacement: "a",
         outcome: `    Expense 'NoName' has value boo called a `,
       },
       {
         makeChange: (m: ModelData) => {
           m.expenses.push({
             ...simpleExpense,
-            VALUE_SET: 'a',
+            VALUE_SET: "a",
           });
         },
-        replacement: 'a',
+        replacement: "a",
         outcome: `    Expense 'NoName' has value set boo called a `,
       },
       {
         makeChange: (m: ModelData) => {
           m.transactions.push({
             ...simpleTransaction,
-            NAME: 'a',
+            NAME: "a",
           });
         },
-        replacement: 'a',
+        replacement: "a",
         outcome: `     Transaction 'a' has name boo called a`,
       },
       {
         makeChange: (m: ModelData) => {
           m.transactions.push({
             ...simpleTransaction,
-            FROM: 'a',
+            FROM: "a",
           });
         },
-        replacement: 'a',
+        replacement: "a",
         outcome: `     Transaction 'NoName' has from boo called a`,
       },
       {
         makeChange: (m: ModelData) => {
           m.transactions.push({
             ...simpleTransaction,
-            FROM_VALUE: 'a',
+            FROM_VALUE: "a",
           });
         },
-        replacement: 'a',
+        replacement: "a",
         outcome: `     Transaction 'NoName' has from value boo called a`,
       },
       {
         makeChange: (m: ModelData) => {
           m.transactions.push({
             ...simpleTransaction,
-            TO: 'a',
+            TO: "a",
           });
         },
-        replacement: 'a',
+        replacement: "a",
         outcome: `     Transaction 'NoName' has to boo called a`,
       },
       {
         makeChange: (m: ModelData) => {
           m.transactions.push({
             ...simpleTransaction,
-            TO_VALUE: 'a',
+            TO_VALUE: "a",
           });
         },
-        replacement: 'a',
+        replacement: "a",
         outcome: `     Transaction 'NoName' has to value boo called a`,
       },
       {
         makeChange: (m: ModelData) => {
           m.transactions.push({
             ...simpleTransaction,
-            DATE: 'a',
+            DATE: "a",
           });
         },
-        replacement: 'a',
+        replacement: "a",
         outcome: `     Transaction 'NoName' has date boo called a`,
       },
       {
         makeChange: (m: ModelData) => {
           m.transactions.push({
             ...simpleTransaction,
-            STOP_DATE: 'a',
+            STOP_DATE: "a",
           });
         },
-        replacement: 'a',
+        replacement: "a",
         outcome: `     Transaction 'NoName' has stop date boo called a`,
       },
     ].map(
@@ -1653,29 +1656,29 @@ describe('utils tests', () => {
       }) => {
         const m = makeModelFromJSONString(JSON.stringify(minimalModel));
         x.makeChange(m);
-        expect(checkForWordClashInModel(m, x.replacement, 'boo')).toEqual(
+        expect(checkForWordClashInModel(m, x.replacement, "boo")).toEqual(
           x.outcome,
         );
       },
     );
   });
-  it('endOfTime', () => {
+  it("endOfTime", () => {
     expect(dateAsString(DateFormatType.Test, endOfTime())).toEqual(
-      'Fri Jan 01 2100',
+      "Fri Jan 01 2100",
     );
   });
-  it('attempt rename', () => {
+  it("attempt rename", () => {
     const model = getTestModel(MinimalModel);
     expect(isAnAssetOrAssets(CASH_ASSET_NAME, model)).toBe(true);
-    expect(attemptRenameLong(model, true, CASH_ASSET_NAME, 'abcd')).toEqual('');
+    expect(attemptRenameLong(model, true, CASH_ASSET_NAME, "abcd")).toEqual("");
     expect(isAnAssetOrAssets(CASH_ASSET_NAME, model)).toBe(false);
-    expect(attemptRenameLong(model, false, 'abcd', CASH_ASSET_NAME)).toEqual(
-      '',
+    expect(attemptRenameLong(model, false, "abcd", CASH_ASSET_NAME)).toEqual(
+      "",
     );
     expect(isAnAssetOrAssets(CASH_ASSET_NAME, model)).toBe(true);
     // log(`model = ${JSON.stringify(model)}`);
   });
-  it('diff checks', () => {
+  it("diff checks", () => {
     const model1 = makeModelFromJSON(
       JSON.stringify(getTestModel(ThreeChryslerModel)),
     );
@@ -1686,56 +1689,56 @@ describe('utils tests', () => {
     );
 
     model2.expenses.push({
-      NAME: 'Look after dogs',
+      NAME: "Look after dogs",
       ERA: undefined,
-      CATEGORY: 'living costs',
-      START: '1 April 2018',
-      END: '2 February 2047',
-      VALUE: '500',
-      VALUE_SET: '1 April 2018',
+      CATEGORY: "living costs",
+      START: "1 April 2018",
+      END: "2 February 2047",
+      VALUE: "500",
+      VALUE_SET: "1 April 2018",
       CPI_IMMUNE: false,
-      RECURRENCE: '1m',
+      RECURRENCE: "1m",
     });
     model2.expenses.push({
-      NAME: 'Look after ducks',
+      NAME: "Look after ducks",
       ERA: undefined,
-      CATEGORY: 'living costs',
-      START: '1 April 2018',
-      END: '2 February 2047',
-      VALUE: '500',
-      VALUE_SET: '1 April 2018',
+      CATEGORY: "living costs",
+      START: "1 April 2018",
+      END: "2 February 2047",
+      VALUE: "500",
+      VALUE_SET: "1 April 2018",
       CPI_IMMUNE: false,
-      RECURRENCE: '1m',
+      RECURRENCE: "1m",
     });
 
     model2.assets.push({
-      NAME: 'ISAs',
+      NAME: "ISAs",
       ERA: undefined,
-      CATEGORY: 'stock',
-      START: 'December 2019',
-      VALUE: '2000',
-      GROWTH: '2',
+      CATEGORY: "stock",
+      START: "December 2019",
+      VALUE: "2000",
+      GROWTH: "2",
       CPI_IMMUNE: false,
       CAN_BE_NEGATIVE: false,
-      LIABILITY: '',
-      PURCHASE_PRICE: '0',
+      LIABILITY: "",
+      PURCHASE_PRICE: "0",
       IS_A_DEBT: false,
-      QUANTITY: '',
+      QUANTITY: "",
     });
     model2.transactions.push({
-      DATE: '1 January 2020',
+      DATE: "1 January 2020",
       FROM: CASH_ASSET_NAME,
-      FROM_VALUE: '1500',
+      FROM_VALUE: "1500",
       FROM_ABSOLUTE: true,
-      NAME: 'invest',
+      NAME: "invest",
       ERA: undefined,
-      TO: 'ISAs',
+      TO: "ISAs",
       TO_ABSOLUTE: false,
-      TO_VALUE: '1',
-      STOP_DATE: '1 Jan 2022',
-      RECURRENCE: '1m',
-      TYPE: 'custom',
-      CATEGORY: '',
+      TO_VALUE: "1",
+      STOP_DATE: "1 Jan 2022",
+      RECURRENCE: "1m",
+      TYPE: "custom",
+      CATEGORY: "",
     });
 
     expect(getTestEvaluations(model2, true, true).evaluations.length).toBe(
@@ -1751,11 +1754,11 @@ describe('utils tests', () => {
       model2,
       oldModelCopy,
       true,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual('TeachingJob: changed era');
+    expect(diffResult[0]).toEqual("TeachingJob: changed era");
 
     model2.incomes[0].ERA = -1;
     oldModelCopy.incomes[0].ERA = 1;
@@ -1764,19 +1767,19 @@ describe('utils tests', () => {
       model2,
       oldModelCopy,
       true,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual('TeachingJob: changed era');
+    expect(diffResult[0]).toEqual("TeachingJob: changed era");
 
     oldModelCopy.incomes[0].ERA = -1;
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(0);
 
@@ -1788,11 +1791,11 @@ describe('utils tests', () => {
       model2,
       oldModelCopy,
       true,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual('Look after dogs: changed era');
+    expect(diffResult[0]).toEqual("Look after dogs: changed era");
 
     model2.expenses[0].ERA = -1;
     oldModelCopy.expenses[0].ERA = 1;
@@ -1801,19 +1804,19 @@ describe('utils tests', () => {
       model2,
       oldModelCopy,
       true,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual('Look after dogs: changed era');
+    expect(diffResult[0]).toEqual("Look after dogs: changed era");
 
     oldModelCopy.expenses[0].ERA = -1;
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(0);
 
@@ -1825,11 +1828,11 @@ describe('utils tests', () => {
       model2,
       oldModelCopy,
       true,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual('Cash: changed era');
+    expect(diffResult[0]).toEqual("Cash: changed era");
 
     model2.assets[0].ERA = -1;
     oldModelCopy.assets[0].ERA = 1;
@@ -1838,19 +1841,19 @@ describe('utils tests', () => {
       model2,
       oldModelCopy,
       true,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual('Cash: changed era');
+    expect(diffResult[0]).toEqual("Cash: changed era");
 
     oldModelCopy.assets[0].ERA = -1;
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(0);
 
@@ -1862,8 +1865,8 @@ describe('utils tests', () => {
       model2,
       oldModelCopy,
       true,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(1);
     expect(diffResult[0]).toEqual(`Today's value focus date: changed era`);
@@ -1875,8 +1878,8 @@ describe('utils tests', () => {
       model2,
       oldModelCopy,
       true,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(1);
     expect(diffResult[0]).toEqual(`Today's value focus date: changed era`);
@@ -1886,8 +1889,8 @@ describe('utils tests', () => {
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(0);
 
@@ -1899,11 +1902,11 @@ describe('utils tests', () => {
       model2,
       oldModelCopy,
       true,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual('-PT TeachersPensionScheme: changed era');
+    expect(diffResult[0]).toEqual("-PT TeachersPensionScheme: changed era");
 
     model2.transactions[0].ERA = -1;
     oldModelCopy.transactions[0].ERA = 1;
@@ -1912,19 +1915,19 @@ describe('utils tests', () => {
       model2,
       oldModelCopy,
       true,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual('-PT TeachersPensionScheme: changed era');
+    expect(diffResult[0]).toEqual("-PT TeachersPensionScheme: changed era");
 
     oldModelCopy.transactions[0].ERA = -1;
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(0);
 
@@ -1936,11 +1939,11 @@ describe('utils tests', () => {
       model2,
       oldModelCopy,
       true,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual('PensionTransfers: changed era');
+    expect(diffResult[0]).toEqual("PensionTransfers: changed era");
 
     model2.triggers[0].ERA = -1;
     oldModelCopy.triggers[0].ERA = 1;
@@ -1949,70 +1952,70 @@ describe('utils tests', () => {
       model2,
       oldModelCopy,
       true,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual('PensionTransfers: changed era');
+    expect(diffResult[0]).toEqual("PensionTransfers: changed era");
 
     oldModelCopy.triggers[0].ERA = -1;
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(0);
 
     // Change the date of the first trigger
     // {"NAME":"PensionTransfers","DATE":"1 Jan 2035"}
-    model2.triggers[0].DATE = '1 Feb 2035';
+    model2.triggers[0].DATE = "1 Feb 2035";
 
     // log(`oldModelCopy = ${JSON.stringify(oldModelCopy)}`);
     diffResult = diffModels(
       model2,
       oldModelCopy,
       true,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(1);
     expect(diffResult[0]).toEqual(
-      'PensionTransfers: date 1 Feb 2035 !== 01 Jan 2035',
+      "PensionTransfers: date 1 Feb 2035 !== 01 Jan 2035",
     );
 
-    model2.triggers[0].DATE = '01 Jan 2035';
+    model2.triggers[0].DATE = "01 Jan 2035";
 
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(0);
 
     //{"NAME":"TeachingJob","VALUE":"2500","VALUE_SET":"JobStart","START":"JobStart","END":"JobStop","GROWTH":"2","CPI_IMMUNE":true,"LIABILITY":"Joe(incomeTax)/Joe(NI)","CATEGORY":""},
 
-    model2.incomes[0].VALUE = '1500';
+    model2.incomes[0].VALUE = "1500";
     diffResult = diffModels(
       model2,
       oldModelCopy,
       true,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual('TeachingJob: value 1500 !== 2500');
+    expect(diffResult[0]).toEqual("TeachingJob: value 1500 !== 2500");
 
-    model2.incomes[0].VALUE = '2500';
+    model2.incomes[0].VALUE = "2500";
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(0);
 
@@ -2021,188 +2024,188 @@ describe('utils tests', () => {
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual('TeachingJob: cpi-immunity false !== true');
+    expect(diffResult[0]).toEqual("TeachingJob: cpi-immunity false !== true");
 
     model2.incomes[0].CPI_IMMUNE = true;
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(0);
 
-    model2.incomes[0].LIABILITY = 'Joe(NI)';
+    model2.incomes[0].LIABILITY = "Joe(NI)";
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(1);
     expect(diffResult[0]).toEqual(
-      'TeachingJob: liability Joe(NI) !== Joe(incomeTax)/Joe(NI)',
+      "TeachingJob: liability Joe(NI) !== Joe(incomeTax)/Joe(NI)",
     );
 
-    model2.incomes[0].LIABILITY = 'Joe(incomeTax)/Joe(NI)';
+    model2.incomes[0].LIABILITY = "Joe(incomeTax)/Joe(NI)";
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(0);
 
-    model2.incomes[0].CATEGORY = 'Pn';
+    model2.incomes[0].CATEGORY = "Pn";
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual('TeachingJob: category Pn !== ');
+    expect(diffResult[0]).toEqual("TeachingJob: category Pn !== ");
 
-    model2.incomes[0].CATEGORY = '';
+    model2.incomes[0].CATEGORY = "";
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(0);
 
-    model2.expenses[0].NAME = 'Look after cats';
+    model2.expenses[0].NAME = "Look after cats";
     diffResult = diffModels(
       model2,
       oldModelCopy,
       true,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(1);
     expect(diffResult[0]).toEqual(
-      'Look after cats in model but not in oldModelCopy',
+      "Look after cats in model but not in oldModelCopy",
     );
 
     diffResult = diffModels(
       oldModelCopy,
       model2,
       true,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(1);
     expect(diffResult[0]).toEqual(
-      'Look after dogs in model but not in oldModelCopy',
+      "Look after dogs in model but not in oldModelCopy",
     );
 
-    model2.expenses[0].NAME = 'Look after dogs';
+    model2.expenses[0].NAME = "Look after dogs";
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(0);
 
-    model2.expenses[0].START = '1 April 2019';
+    model2.expenses[0].START = "1 April 2019";
     diffResult = diffModels(
       model2,
       oldModelCopy,
       true,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(1);
     expect(diffResult[0]).toEqual(
-      'Look after dogs: start date 1 April 2019 !== 1 April 2018',
+      "Look after dogs: start date 1 April 2019 !== 1 April 2018",
     );
 
-    model2.expenses[0].START = '1 April 2018';
+    model2.expenses[0].START = "1 April 2018";
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(0);
 
-    model2.expenses[0].END = '2 February 2046';
+    model2.expenses[0].END = "2 February 2046";
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(1);
     expect(diffResult[0]).toEqual(
-      'Look after dogs: end date 2 February 2046 !== 2 February 2047',
+      "Look after dogs: end date 2 February 2046 !== 2 February 2047",
     );
 
-    model2.expenses[0].END = '2 February 2047';
+    model2.expenses[0].END = "2 February 2047";
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(0);
 
-    model2.expenses[0].VALUE = '499';
+    model2.expenses[0].VALUE = "499";
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual('Look after dogs: value 499 !== 500');
+    expect(diffResult[0]).toEqual("Look after dogs: value 499 !== 500");
 
-    model2.expenses[0].VALUE = '500';
+    model2.expenses[0].VALUE = "500";
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(0);
 
-    model2.expenses[0].VALUE_SET = '2 April 2018';
+    model2.expenses[0].VALUE_SET = "2 April 2018";
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(1);
     expect(diffResult[0]).toEqual(
-      'Look after dogs: value set date 2 April 2018 !== 1 April 2018',
+      "Look after dogs: value set date 2 April 2018 !== 1 April 2018",
     );
 
-    model2.expenses[0].VALUE_SET = '1 April 2018';
+    model2.expenses[0].VALUE_SET = "1 April 2018";
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(0);
 
@@ -2211,12 +2214,12 @@ describe('utils tests', () => {
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(1);
     expect(diffResult[0]).toEqual(
-      'Look after dogs: cpi-immunity true !== false',
+      "Look after dogs: cpi-immunity true !== false",
     );
 
     model2.expenses[0].CPI_IMMUNE = false;
@@ -2224,96 +2227,96 @@ describe('utils tests', () => {
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(0);
 
-    model2.expenses[0].RECURRENCE = '2m';
+    model2.expenses[0].RECURRENCE = "2m";
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual('Look after dogs: recurrence 2m !== 1m');
+    expect(diffResult[0]).toEqual("Look after dogs: recurrence 2m !== 1m");
 
-    model2.expenses[0].RECURRENCE = '1m';
+    model2.expenses[0].RECURRENCE = "1m";
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(0);
 
-    model2.expenses[0].CATEGORY = 'costs';
+    model2.expenses[0].CATEGORY = "costs";
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(1);
     expect(diffResult[0]).toEqual(
-      'Look after dogs: category costs !== living costs',
+      "Look after dogs: category costs !== living costs",
     );
 
-    model2.expenses[0].CATEGORY = 'living costs';
+    model2.expenses[0].CATEGORY = "living costs";
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(0);
 
-    model2.assets[1].START = 'December 2018';
+    model2.assets[1].START = "December 2018";
     diffResult = diffModels(
       model2,
       oldModelCopy,
       true,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(1);
     expect(diffResult[0]).toEqual(
-      'ISAs: start date December 2018 !== 01 Dec 2019',
+      "ISAs: start date December 2018 !== 01 Dec 2019",
     );
 
-    model2.assets[1].START = '01 Dec 2019';
+    model2.assets[1].START = "01 Dec 2019";
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(0);
 
-    model2.assets[1].QUANTITY = '100';
+    model2.assets[1].QUANTITY = "100";
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual('ISAs: quantity 100 !== ');
+    expect(diffResult[0]).toEqual("ISAs: quantity 100 !== ");
 
-    model2.assets[1].QUANTITY = '';
+    model2.assets[1].QUANTITY = "";
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(0);
 
@@ -2322,19 +2325,19 @@ describe('utils tests', () => {
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual('ISAs: negativity true !== false');
+    expect(diffResult[0]).toEqual("ISAs: negativity true !== false");
 
     model2.assets[1].CAN_BE_NEGATIVE = false;
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(0);
 
@@ -2343,40 +2346,40 @@ describe('utils tests', () => {
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual('ISAs: is-debt true !== false');
+    expect(diffResult[0]).toEqual("ISAs: is-debt true !== false");
 
     model2.assets[1].IS_A_DEBT = false;
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(0);
 
-    model2.assets[1].GROWTH = '1';
+    model2.assets[1].GROWTH = "1";
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual('ISAs: growth 1 !== 2');
+    expect(diffResult[0]).toEqual("ISAs: growth 1 !== 2");
 
-    model2.assets[1].GROWTH = '2';
+    model2.assets[1].GROWTH = "2";
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(0);
 
@@ -2385,145 +2388,145 @@ describe('utils tests', () => {
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual('ISAs: cpi-immunity true !== false');
+    expect(diffResult[0]).toEqual("ISAs: cpi-immunity true !== false");
 
     model2.assets[1].CPI_IMMUNE = false;
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(0);
 
-    model2.assets[1].PURCHASE_PRICE = '4';
+    model2.assets[1].PURCHASE_PRICE = "4";
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual('ISAs: purchase price 4 !== 0');
+    expect(diffResult[0]).toEqual("ISAs: purchase price 4 !== 0");
 
-    model2.assets[1].PURCHASE_PRICE = '0';
+    model2.assets[1].PURCHASE_PRICE = "0";
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(0);
 
-    model2.assets[1].CATEGORY = 'newcat';
+    model2.assets[1].CATEGORY = "newcat";
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual('ISAs: category newcat !== stock');
+    expect(diffResult[0]).toEqual("ISAs: category newcat !== stock");
 
-    model2.assets[1].CATEGORY = 'stock';
+    model2.assets[1].CATEGORY = "stock";
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(0);
 
-    model2.transactions[3].TO = '';
+    model2.transactions[3].TO = "";
     diffResult = diffModels(
       model2,
       oldModelCopy,
       true,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual('invest: to  !== ISAs');
+    expect(diffResult[0]).toEqual("invest: to  !== ISAs");
 
-    model2.transactions[3].TO = 'ISAs';
+    model2.transactions[3].TO = "ISAs";
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(0);
 
-    model2.transactions[3].TO_VALUE = '2';
+    model2.transactions[3].TO_VALUE = "2";
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual('invest: to value 2 !== 1');
+    expect(diffResult[0]).toEqual("invest: to value 2 !== 1");
 
-    model2.transactions[3].TO_VALUE = '1';
+    model2.transactions[3].TO_VALUE = "1";
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(0);
 
-    model2.transactions[3].FROM = '';
+    model2.transactions[3].FROM = "";
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual('invest: from  !== Cash');
+    expect(diffResult[0]).toEqual("invest: from  !== Cash");
 
     model2.transactions[3].FROM = CASH_ASSET_NAME;
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(0);
 
-    model2.transactions[3].FROM_VALUE = '1600';
+    model2.transactions[3].FROM_VALUE = "1600";
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual('invest: from value 1600 !== 1500');
+    expect(diffResult[0]).toEqual("invest: from value 1600 !== 1500");
 
-    model2.transactions[3].FROM_VALUE = '1500';
+    model2.transactions[3].FROM_VALUE = "1500";
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(0);
 
@@ -2532,19 +2535,19 @@ describe('utils tests', () => {
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual('invest: from absolute false !== true');
+    expect(diffResult[0]).toEqual("invest: from absolute false !== true");
 
     model2.transactions[3].FROM_ABSOLUTE = true;
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(0);
 
@@ -2553,141 +2556,141 @@ describe('utils tests', () => {
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual('invest: to absolute true !== false');
+    expect(diffResult[0]).toEqual("invest: to absolute true !== false");
 
     model2.transactions[3].TO_ABSOLUTE = false;
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(0);
 
-    model2.transactions[3].RECURRENCE = '2m';
+    model2.transactions[3].RECURRENCE = "2m";
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual('invest: recurrence 2m !== 1m');
+    expect(diffResult[0]).toEqual("invest: recurrence 2m !== 1m");
 
-    model2.transactions[3].RECURRENCE = '1m';
+    model2.transactions[3].RECURRENCE = "1m";
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(0);
 
-    model2.transactions[3].CATEGORY = 'dothis';
+    model2.transactions[3].CATEGORY = "dothis";
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual('invest: category dothis !== ');
+    expect(diffResult[0]).toEqual("invest: category dothis !== ");
 
-    model2.transactions[3].CATEGORY = '';
+    model2.transactions[3].CATEGORY = "";
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(0);
 
-    model2.transactions[3].TYPE = '';
+    model2.transactions[3].TYPE = "";
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual('invest: type  !== custom');
+    expect(diffResult[0]).toEqual("invest: type  !== custom");
 
-    model2.transactions[3].TYPE = 'custom';
+    model2.transactions[3].TYPE = "custom";
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(0);
-    model2.settings[3].HINT = 'help here';
+    model2.settings[3].HINT = "help here";
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(1);
     expect(diffResult[0]).toEqual(
-      'cpi: hint help here !== Annual rate of inflation',
+      "cpi: hint help here !== Annual rate of inflation",
     );
 
-    model2.settings[3].HINT = 'Annual rate of inflation';
+    model2.settings[3].HINT = "Annual rate of inflation";
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(0);
-    model2.settings[3].TYPE = '';
+    model2.settings[3].TYPE = "";
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual('cpi: type  !== const');
+    expect(diffResult[0]).toEqual("cpi: type  !== const");
 
-    model2.settings[3].TYPE = 'const';
+    model2.settings[3].TYPE = "const";
     diffResult = diffModels(
       model2,
       oldModelCopy,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(0);
 
-    diffResult = diffModels(undefined, model2, false, 'model', 'oldModelCopy');
+    diffResult = diffModels(undefined, model2, false, "model", "oldModelCopy");
     expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual('one model undefined, other defined');
+    expect(diffResult[0]).toEqual("one model undefined, other defined");
 
-    diffResult = diffModels(model2, undefined, false, 'model', 'oldModelCopy');
+    diffResult = diffModels(model2, undefined, false, "model", "oldModelCopy");
     expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual('one model defined, other undefined');
+    expect(diffResult[0]).toEqual("one model defined, other undefined");
 
     diffResult = diffModels(
       undefined,
       undefined,
       false,
-      'model',
-      'oldModelCopy',
+      "model",
+      "oldModelCopy",
     );
     expect(diffResult.length).toBe(0);
 
@@ -2702,25 +2705,25 @@ describe('utils tests', () => {
     expect(settings.getShowAll(Context.Debt)).toEqual(true);
     expect(settings.getShowAll(Context.Income)).toEqual(true);
     expect(settings.getShowAll(Context.Expense)).toEqual(true);
-    expect(settings.getShowItem(Context.Asset, 'nonsense')).toEqual(false);
-    expect(settings.getShowItem(Context.Debt, 'nonsense')).toEqual(false);
-    expect(settings.getShowItem(Context.Income, 'nonsense')).toEqual(false);
-    expect(settings.getShowItem(Context.Expense, 'nonsense')).toEqual(false);
-    expect(settings.getViewSetting(viewDetail, fineDetail)).toEqual('Detailed');
-    expect(settings.getViewSetting(chartViewType, chartVals)).toEqual('val');
+    expect(settings.getShowItem(Context.Asset, "nonsense")).toEqual(false);
+    expect(settings.getShowItem(Context.Debt, "nonsense")).toEqual(false);
+    expect(settings.getShowItem(Context.Income, "nonsense")).toEqual(false);
+    expect(settings.getShowItem(Context.Expense, "nonsense")).toEqual(false);
+    expect(settings.getViewSetting(viewDetail, fineDetail)).toEqual("Detailed");
+    expect(settings.getViewSetting(chartViewType, chartVals)).toEqual("val");
     expect(settings.getViewSetting(taxChartFocusPerson, allItems)).toEqual(
-      'All',
+      "All",
     );
-    expect(settings.getViewSetting(taxChartFocusType, allItems)).toEqual('All');
-    expect(settings.getViewSetting(taxChartShowNet, allItems)).toEqual('Y');
+    expect(settings.getViewSetting(taxChartFocusType, allItems)).toEqual("All");
+    expect(settings.getViewSetting(taxChartShowNet, allItems)).toEqual("Y");
     expect(settings.getViewSetting(viewFrequency, annually)).toEqual(annually);
 
-    expect(settings.setViewSetting('nonsense', 'nonsense')).toBe(false);
-    expect(settings.getViewSetting(viewFrequency, 'noValueFound')).toBe(
+    expect(settings.setViewSetting("nonsense", "nonsense")).toBe(false);
+    expect(settings.getViewSetting(viewFrequency, "noValueFound")).toBe(
       annually,
     );
-    expect(settings.getViewSetting('nonsense', 'noValueFound')).toBe(
-      'noValueFound',
+    expect(settings.getViewSetting("nonsense", "noValueFound")).toBe(
+      "noValueFound",
     );
 
     expect(views.get(homeView)?.display).toBe(true);
@@ -2748,7 +2751,7 @@ describe('utils tests', () => {
     expect(getDisplay(settingsView)).toBe(false);
   });
 
-  it('test colors', () => {
+  it("test colors", () => {
     const expectedValues = [
       { r: 78, g: 129, b: 188 },
       { r: 192, g: 80, b: 78 },
@@ -2775,7 +2778,7 @@ describe('utils tests', () => {
       expect(getColor(i)).toEqual(expectedValues[i]);
     }
   });
-  it('getDisplayedView', () => {
+  it("getDisplayedView", () => {
     const switchView = (v: ViewType) => {
       toggle(
         v,

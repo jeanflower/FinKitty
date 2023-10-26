@@ -5,27 +5,27 @@ import {
   AssetOrDebtVal,
   Asset,
   ViewCallbacks,
-} from './../types/interfaces';
-import { checkAsset, checkTransaction } from '../models/checks';
+} from "./../types/interfaces";
+import { checkAsset, checkTransaction } from "../models/checks";
 import {
   debtsDivWithHeadings,
   defaultColumn,
   addIndices,
   cashValueColumn,
-} from './tablePages';
+} from "./tablePages";
 
-import { AddDeleteDebtForm } from './reactComponents/AddDeleteDebtForm';
-import DataGridFinKitty from './reactComponents/DataGridFinKitty';
-import React from 'react';
-import { assetsOrDebtsChartDivWithButtons } from './chartPages';
-import { debtsView } from '../localization/stringConstants';
+import { AddDeleteDebtForm } from "./reactComponents/AddDeleteDebtForm";
+import DataGridFinKitty from "./reactComponents/DataGridFinKitty";
+import React from "react";
+import { assetsOrDebtsChartDivWithButtons } from "./chartPages";
+import { debtsView } from "../localization/stringConstants";
 
-import { getTodaysDate } from '../models/modelUtils';
-import { dateAsString, lessThan } from '../utils/stringUtils';
-import { collapsibleFragment } from './tablePages';
-import { DateFormatType, log, printDebug } from '../utils/utils';
-import { ViewSettings, getDisplay } from '../utils/viewUtils';
-import { simpleAsset } from '../models/exampleModels';
+import { getTodaysDate } from "../models/modelUtils";
+import { dateAsString, lessThan } from "../utils/stringUtils";
+import { collapsibleFragment } from "./tablePages";
+import { DateFormatType, log, printDebug } from "../utils/utils";
+import { ViewSettings, getDisplay } from "../utils/viewUtils";
+import { simpleAsset } from "../models/exampleModels";
 
 function addToMap(
   name: Asset,
@@ -79,17 +79,17 @@ function makeDataGridForTodaysDebts(
         */
         {
           ...defaultColumn,
-          key: 'NAME',
-          name: 'name',
+          key: "NAME",
+          name: "name",
         },
         {
           ...cashValueColumn,
-          key: 'VALUE',
+          key: "VALUE",
           name: `value`,
         },
         {
           ...defaultColumn,
-          key: 'CATEGORY',
+          key: "CATEGORY",
           name: `category`,
         },
       ]}
@@ -111,7 +111,7 @@ export function todaysDebtsTable(
   const entries = Array.from(todaysValues.entries());
   for (const key of entries) {
     const cat = key[1].category;
-    if (cat === '') {
+    if (cat === "") {
       addToMap(key[0], key[1], categorisedValues);
     } else {
       const catName: string = key[1].category;
@@ -127,7 +127,11 @@ export function todaysDebtsTable(
   return (
     <>
       {collapsibleFragment(
-        makeDataGridForTodaysDebts(categorisedValues, model, 'todaysDebtsTable'),
+        makeDataGridForTodaysDebts(
+          categorisedValues,
+          model,
+          "todaysDebtsTable",
+        ),
         `Debt values (categorised) at ${dateAsString(
           DateFormatType.View,
           today,
@@ -161,16 +165,20 @@ export function debtsDiv(
           true,
           parentCallbacks,
         ),
-        'Debts data chart',
+        "Debts data chart",
       )}
       {debtsDivWithHeadings(
         model,
         todaysDebtValues,
         doChecks,
         parentCallbacks,
-        '',
+        "",
       )}
-      {todaysDebtsTable(model, todaysDebtValues, parentCallbacks.doShowTodaysValueColumns)}
+      {todaysDebtsTable(
+        model,
+        todaysDebtValues,
+        parentCallbacks.doShowTodaysValueColumns,
+      )}
       {collapsibleFragment(
         <div className="addNewDebt">
           <AddDeleteDebtForm
@@ -182,10 +190,12 @@ export function debtsDiv(
             submitTriggerFunction={parentCallbacks.submitTrigger}
             model={model}
             showAlert={parentCallbacks.showAlert}
-            doCheckBeforeOverwritingExistingData={parentCallbacks.doCheckBeforeOverwritingExistingData}
-            />
+            doCheckBeforeOverwritingExistingData={
+              parentCallbacks.doCheckBeforeOverwritingExistingData
+            }
+          />
         </div>,
-        'Add or revalue a debt',
+        "Add or revalue a debt",
       )}
     </div>
   );

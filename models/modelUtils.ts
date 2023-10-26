@@ -11,7 +11,7 @@ import {
   nationalInsurance,
   revalue,
   viewFrequency,
-} from '../localization/stringConstants';
+} from "../localization/stringConstants";
 import {
   getSpecialWord,
   checkForWordClashInModel,
@@ -21,7 +21,7 @@ import {
   checkTriggerDate,
   getTriggerDate,
   dateAsString,
-} from '../utils/stringUtils';
+} from "../utils/stringUtils";
 import {
   Asset,
   Expense,
@@ -31,23 +31,23 @@ import {
   ModelData,
   Setting,
   Transaction,
-} from '../types/interfaces';
-import { DateFormatType, log, makeDateFromString } from '../utils/utils';
-import { checkData } from './checks';
+} from "../types/interfaces";
+import { DateFormatType, log, makeDateFromString } from "../utils/utils";
+import { checkData } from "./checks";
 
-import { makeModelFromJSONString } from './modelFromJSON';
-import { getSettings, getVarVal, isATransaction } from './modelQueries';
+import { makeModelFromJSONString } from "./modelFromJSON";
+import { getSettings, getVarVal, isATransaction } from "./modelQueries";
 
 export function setSetting(
   settings: Setting[],
   key: string,
   val: string,
   type: string,
-  hint = '',
+  hint = "",
 ) {
   if (key === viewFrequency) {
     /* istanbul ignore next  */ //error
-    throw new Error('set setting for frequency');
+    throw new Error("set setting for frequency");
   }
   const idx = settings.findIndex((x) => x.NAME === key);
   if (idx === -1) {
@@ -76,7 +76,7 @@ export function setNonsenseSetting(
   key: string,
   val: string,
   type: string,
-  hint = '',
+  hint = "",
 ) {
   const idx = settings.findIndex((x) => x.NAME === key);
   if (idx === -1) {
@@ -103,23 +103,23 @@ export function setNonsenseSetting(
 // might be today or might be set using a setting
 export function getTodaysDate(model: ModelData) {
   let today = new Date();
-  const todaysDate = getSettings(model.settings, valueFocusDate, '');
-  if (todaysDate !== '') {
+  const todaysDate = getSettings(model.settings, valueFocusDate, "");
+  if (todaysDate !== "") {
     today = new Date(todaysDate);
   }
   return today;
 }
 
 export function getROI(model: ModelData): Interval {
-  const start = getSettings(model.settings, roiStart, 'noneFound');
-  const end = getSettings(model.settings, roiEnd, 'noneFound');
+  const start = getSettings(model.settings, roiStart, "noneFound");
+  const end = getSettings(model.settings, roiEnd, "noneFound");
   const v = getVarVal(model.settings);
 
   const startDate = checkTriggerDate(start, model.triggers, v);
   const endDate = checkTriggerDate(end, model.triggers, v);
   return {
-    start: startDate !== undefined ? startDate : new Date('1999'),
-    end: endDate !== undefined ? endDate : new Date('2099'),
+    start: startDate !== undefined ? startDate : new Date("1999"),
+    end: endDate !== undefined ? endDate : new Date("2099"),
   };
 }
 
@@ -179,9 +179,7 @@ export function getLiabilityPeople(model: ModelData): string[] {
   return liabilityPeople;
 }
 
-export function markForUndo(
-  model: ModelData,
-) {
+export function markForUndo(model: ModelData) {
   const modelClone = makeModelFromJSONString(JSON.stringify(model));
   model.undoModel = modelClone;
   model.redoModel = undefined;
@@ -255,7 +253,7 @@ export function attemptRenameLong(
     if (oldSpecialWord !== newSpecialWord) {
       // log(`old = ${old}, replacement = ${replacement}`);
       // log(`oldSpecialWord = ${oldSpecialWord}, newSpecialWord = ${newSpecialWord}`);
-      if (oldSpecialWord !== '') {
+      if (oldSpecialWord !== "") {
         return `Must maintain special formatting using ${oldSpecialWord}`;
       } else {
         /* istanbul ignore next */ // don't add special words as part of a test system!
@@ -263,7 +261,7 @@ export function attemptRenameLong(
       }
     }
     // prevent a change which clashes with an existing word
-    const message = checkForWordClashInModel(model, replacement, 'already');
+    const message = checkForWordClashInModel(model, replacement, "already");
     if (message.length > 0) {
       // log(`found word clash ${message}`);
       /* istanbul ignore next */ // don't expect abcd names as part of our test system!
@@ -319,7 +317,7 @@ export function attemptRenameLong(
     obj.DATE = replaceWholeString(obj.DATE, old, replacement);
     obj.STOP_DATE = replaceWholeString(obj.STOP_DATE, old, replacement);
   });
-  const message = checkForWordClashInModel(model, old, 'still');
+  const message = checkForWordClashInModel(model, old, "still");
   /* istanbul ignore if */
   if (message.length > 0) {
     log(`Error: old word still present in adjusted model`);
@@ -329,16 +327,16 @@ export function attemptRenameLong(
   if (doChecks) {
     const outcome = checkData(model);
     /* istanbul ignore if */
-    if (outcome.message !== '') {
+    if (outcome.message !== "") {
       log(`Error: reverted model fails checks with ${outcome}`);
       revertToUndoModel(model);
       return outcome.message;
     } else {
       // log(`save adjusted model`);
-      return '';
+      return "";
     }
   } else {
-    return '';
+    return "";
   }
 }
 
@@ -353,9 +351,7 @@ function standardiseDate(dateString: string): string {
   return dateAsString(DateFormatType.Unknown, dateObj);
 }
 
-export function standardiseDates(
-  model: ModelData,
-): string {
+export function standardiseDates(model: ModelData): string {
   // log(`get ready to make changes, be ready to undo...`);
   // be ready to undo
   markForUndo(model);
@@ -382,12 +378,12 @@ export function standardiseDates(
   });
   const outcome = checkData(model);
   /* istanbul ignore if */
-  if (outcome.message !== '') {
+  if (outcome.message !== "") {
     log(`Error: model fails checks with ${outcome.message}`);
     //revertToUndoModel(model);
     return outcome.message;
   } else {
-    return '';
+    return "";
   }
 }
 
@@ -410,7 +406,7 @@ export function makeRevalueName(name: string, model: ModelData) {
   // log(`isDoubleDigit = ${isDoubleDigit}, hasSpace = ${hasSpace}`);
 
   let count = 1;
-  const spacePart = hasSpace ? ' ' : '';
+  const spacePart = hasSpace ? " " : "";
   const makeNumberPart = (n: number) => {
     if (isDoubleDigit) {
       if (n < 10) {
@@ -534,7 +530,7 @@ export function isHistorical(obj: Item, model: ModelData) {
                 return false;
               }
             }
-          } else if (t.RECURRENCE === '') {
+          } else if (t.RECURRENCE === "") {
             const tDate = getTriggerDate(t.DATE, model.triggers, v);
             if (tDate < date) {
               return true;

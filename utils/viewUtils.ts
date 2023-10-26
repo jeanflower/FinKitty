@@ -1,4 +1,4 @@
-import { ItemCategory, ModelData } from '../types/interfaces';
+import { ItemCategory, ModelData } from "../types/interfaces";
 import {
   viewFrequency,
   annually,
@@ -28,9 +28,9 @@ import {
   triggersView,
   optimizerView,
   planningView,
-} from '../localization/stringConstants';
-import { allViews } from './allViews';
-import { Context, log, printDebug } from './utils';
+} from "../localization/stringConstants";
+import { allViews } from "./allViews";
+import { Context, log, printDebug } from "./utils";
 
 export class ViewSettings {
   private kvPairs: Map<string, string> = new Map<string, string>();
@@ -305,7 +305,8 @@ e.g.
   }
 
   public toggleViewFilter(context: Context, filterName: string) {
-    // log(`toggleViewFilter with context = ${context}, filterName = ${filterName}`);
+    // log(`toggleViewFilter with context = `+
+    // `${context}, filterName = ${filterName}`);
     if (this.highlightButton(context, filterName)) {
       this.setViewFilter(context, filterName, false);
     } else {
@@ -314,7 +315,6 @@ e.g.
     }
   }
 
-  
   // e.g. for data in FutureExpense test data, the viewFrequency is captured
   // as a setting, but we need it as part of the viewSettings object instead
   public migrateViewSettingString(context: string, value: string) {
@@ -351,7 +351,6 @@ e.g.
     // log(`set show(${value})  = true`);
     this.setViewFilter(context, value, true);
   }
-  
 
   public getShowItem(context: Context, item: string): boolean {
     const result: boolean | undefined = this.show[context].get(item);
@@ -451,7 +450,7 @@ export function getDefaultViewSettings(): ViewSettings {
         },
         {
           NAME: taxChartShowNet,
-          VALUE: 'Y',
+          VALUE: "Y",
         },
       ]),
   );
@@ -565,16 +564,16 @@ export function getDisplayedView(): ViewType | undefined {
 
 // from https://coolors.co
 const colors = [
-  '4E81BC',
-  'C0504E',
-  '9CBB58',
-  '23BFAA',
-  '8064A1',
-  '4BACC5',
-  'F79647',
-  '7F6084',
-  '77A032',
-  '33558B',
+  "4E81BC",
+  "C0504E",
+  "9CBB58",
+  "23BFAA",
+  "8064A1",
+  "4BACC5",
+  "F79647",
+  "7F6084",
+  "77A032",
+  "33558B",
 ];
 
 function hexToRgb(hex: string) {
@@ -587,7 +586,7 @@ function hexToRgb(hex: string) {
       b: parseInt(result[3], 16),
     };
   } else {
-    log('Error: hex value not understood');
+    log("Error: hex value not understood");
     return {
       r: 30,
       g: 30,

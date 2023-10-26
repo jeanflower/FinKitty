@@ -1,10 +1,10 @@
-'use client'
+"use client";
 
-import { Auth0Provider } from 'contexts/auth0-context'
-import App from '../App'
+import { Auth0Provider } from "contexts/auth0-context";
+import App from "../App";
 
 export default function Home() {
-/*
+  /*
   ReactDOM.preload(
     '/https://cdn.com/bootstrap.min.css',
     { as: 'style' },
@@ -18,5 +18,5 @@ export default function Home() {
     <Auth0Provider>
       <App />
     </Auth0Provider>
-  )
+  );
 }

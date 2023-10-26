@@ -1,10 +1,10 @@
-import React from 'react';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Tooltip from 'react-bootstrap/Tooltip';
+import React from "react";
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Tooltip from "react-bootstrap/Tooltip";
 import {
   getNumberAndWordParts,
   makeStringFromCashValue,
-} from '../../utils/stringUtils';
+} from "../../utils/stringUtils";
 
 interface SimpleFormatterProps {
   name: string;
@@ -32,10 +32,10 @@ export class SettingFormatter extends React.Component<SimpleFormatterProps> {
     let tidyValue = rawValue;
 
     const nwp = getNumberAndWordParts(rawValue);
-    if (nwp.wordPart === 'USD' && nwp.numberPart !== undefined) {
+    if (nwp.wordPart === "USD" && nwp.numberPart !== undefined) {
       tidyValue = `${makeStringFromCashValue(
         nwp.numberPart.toFixed(2),
-        '',
+        "",
       )}USD`;
     }
 

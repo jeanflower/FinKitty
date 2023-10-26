@@ -1,8 +1,8 @@
-import React, { Component, FormEvent } from 'react';
+import React, { Component, FormEvent } from "react";
 
-import { log, printDebug } from '../../utils/utils';
-import { Input } from './Input';
-import { makeButton } from './Button';
+import { log, printDebug } from "../../utils/utils";
+import { Input } from "./Input";
+import { makeButton } from "./Button";
 import {
   checkModelOnEditOption,
   checkOverwriteOption,
@@ -13,10 +13,10 @@ import {
   showFutureOption,
   advancedUI,
   simpleUI,
-} from '../../localization/stringConstants';
-import { makeModelFromJSON } from '../../models/modelFromJSON';
-import { ModelData } from '../../types/interfaces';
-import { getTestModel } from '../../models/testModel';
+} from "../../localization/stringConstants";
+import { makeModelFromJSON } from "../../models/modelFromJSON";
+import { ModelData } from "../../types/interfaces";
+import { getTestModel } from "../../models/testModel";
 
 interface ReplaceWithJSONFormState {
   JSON: string;
@@ -57,7 +57,7 @@ export class ReplaceWithJSONForm extends Component<
   public constructor(props: ReplaceWithJSONFormProps) {
     super(props);
     this.defaultState = {
-      JSON: '',
+      JSON: "",
     };
 
     this.state = this.defaultState;
@@ -82,18 +82,18 @@ export class ReplaceWithJSONForm extends Component<
     return (
       <form className="container-fluid" onSubmit={this.replace}>
         <Input
-          type={'text'}
-          title={'newModelName:{jsonModelData}'}
-          name={'replaceWithJSON'}
+          type={"text"}
+          title={"newModelName:{jsonModelData}"}
+          name={"replaceWithJSON"}
           value={this.state.JSON}
-          placeholder={'Enter text input here'}
+          placeholder={"Enter text input here"}
           onChange={this.handleValueChange}
           onSubmit={this.handleSubmit}
         />
         {makeButton(
           this.props.getUIMode() === simpleUI
-            ? 'switch to advanced UI mode'
-            : 'switch to simple UI mode',
+            ? "switch to advanced UI mode"
+            : "switch to simple UI mode",
           async (e: FormEvent<Element>) => {
             if (this.props.getUIMode() === simpleUI) {
               await this.setState({
@@ -106,81 +106,83 @@ export class ReplaceWithJSONForm extends Component<
             }
             this.replace(e);
           },
-          'toggleTransB',
-          'toggleTransB',
-          'outline-secondary',
+          "toggleTransB",
+          "toggleTransB",
+          "outline-secondary",
         )}
         <br></br>
         {makeButton(
-          this.props.showHistorical() ? 'hide old items' : `show old items`,
+          this.props.showHistorical() ? "hide old items" : `show old items`,
           () => {
             this.props.toggleOption(showHistoricalOption);
           },
-          'showHistoricalOption',
-          'showHistoricalOption',
-          'outline-secondary',
+          "showHistoricalOption",
+          "showHistoricalOption",
+          "outline-secondary",
         )}
         {makeButton(
-          this.props.showCurrent() ? 'hide current items' : `show current items`,
+          this.props.showCurrent()
+            ? "hide current items"
+            : `show current items`,
           () => {
             this.props.toggleOption(showCurrentOption);
           },
-          'showCurrentOption',
-          'showCurrentOption',
-          'outline-secondary',
+          "showCurrentOption",
+          "showCurrentOption",
+          "outline-secondary",
         )}
         {makeButton(
-          this.props.showFuture() ? 'hide future items' : `show future items`,
+          this.props.showFuture() ? "hide future items" : `show future items`,
           () => {
             this.props.toggleOption(showFutureOption);
           },
-          'showFutureOption',
-          'showFutureOption',
-          'outline-secondary',
+          "showFutureOption",
+          "showFutureOption",
+          "outline-secondary",
         )}
         {makeButton(
           this.props.getOption(evalModeOption)
             ? `don't refresh charts on model edit`
-            : 'do refresh charts on model edit',
+            : "do refresh charts on model edit",
           async (e: FormEvent<Element>) => {
             await this.setState({
-              JSON: 'eval',
+              JSON: "eval",
             });
             this.replace(e);
           },
-          'toggleEDC',
-          'toggleEDC',
-          'outline-secondary',
+          "toggleEDC",
+          "toggleEDC",
+          "outline-secondary",
         )}
         <br></br>
         {makeButton(
           this.props.getOption(checkModelOnEditOption)
             ? `don't check model on edit`
-            : 'do check model on edit',
+            : "do check model on edit",
           async (e: FormEvent<Element>) => {
             await this.setState({
               JSON: checkModelOnEditOption,
             });
             this.replace(e);
           },
-          'toggleCMOE',
-          'toggleCMOE',
-          'outline-secondary',
+          "toggleCMOE",
+          "toggleCMOE",
+          "outline-secondary",
         )}
         <br></br>
         {makeButton(
           this.props.getOption(checkOverwriteOption)
             ? `don't check before overwrite`
-            : 'do check before overwrite',
+            : "do check before overwrite",
           async (e: FormEvent<Element>) => {
             await this.setState({
-              JSON: 'overwrite',
+              JSON: "overwrite",
             });
             this.replace(e);
           },
-          'toggleCBO',
-          'toggleCBO',
-          'outline-secondary',
+          "toggleCBO",
+          "toggleCBO",
+          "outline-secondary",
         )}
         <br></br>
         {makeButton(
@@ -189,13 +191,13 @@ export class ReplaceWithJSONForm extends Component<
             : `do jump to Assets page when selecting a model`,
           async (e: FormEvent<Element>) => {
             await this.setState({
-              JSON: 'overview',
+              JSON: "overview",
             });
             this.replace(e);
           },
-          'toggleJTO',
-          'toggleJTO',
-          'outline-secondary',
+          "toggleJTO",
+          "toggleJTO",
+          "outline-secondary",
         )}
       </form>
     );
@@ -206,10 +208,10 @@ export class ReplaceWithJSONForm extends Component<
     let modelName = this.props.modelName;
 
     // special words
-    const overwriteWord = 'overwrite';
-    const gotoOverview = 'overview';
+    const overwriteWord = "overwrite";
+    const gotoOverview = "overview";
     const checkModelOnEdit = checkModelOnEditOption;
-    const evalWord = 'eval';
+    const evalWord = "eval";
 
     // log(`modelName from props is ${modelName}`);
     let JSONinput = this.state.JSON.trim();
@@ -224,47 +226,47 @@ export class ReplaceWithJSONForm extends Component<
 
     if (JSONinput === simpleUI) {
       this.props.setUIMode(simpleUI);
-      this.setState({ JSON: '' });
+      this.setState({ JSON: "" });
       return;
     }
     if (JSONinput === advancedUI) {
       this.props.setUIMode(advancedUI);
-      this.setState({ JSON: '' });
+      this.setState({ JSON: "" });
       return;
     }
     if (JSONinput === overwriteWord) {
       this.props.toggleOption(checkOverwriteOption);
-      this.setState({ JSON: '' });
+      this.setState({ JSON: "" });
       return;
     }
     if (JSONinput === evalWord) {
       this.props.toggleOption(evalModeOption);
-      this.setState({ JSON: '' });
+      this.setState({ JSON: "" });
       return;
     }
     if (JSONinput === gotoOverview) {
       this.props.toggleOption(goToAssetsPageOption);
-      this.setState({ JSON: '' });
+      this.setState({ JSON: "" });
       return;
     }
     if (JSONinput === checkModelOnEdit) {
       this.props.toggleOption(checkModelOnEditOption);
-      this.setState({ JSON: '' });
+      this.setState({ JSON: "" });
       return;
     }
     if (JSONinput === showHistoricalOption) {
       this.props.toggleOption(showHistoricalOption);
-      this.setState({ JSON: '' });
+      this.setState({ JSON: "" });
       return;
     }
     if (JSONinput === showCurrentOption) {
       this.props.toggleOption(showCurrentOption);
-      this.setState({ JSON: '' });
+      this.setState({ JSON: "" });
       return;
     }
     if (JSONinput === showFutureOption) {
       this.props.toggleOption(showFutureOption);
-      this.setState({ JSON: '' });
+      this.setState({ JSON: "" });
       return;
     }
     const i = this.state.JSON.indexOf(`{`);
@@ -282,7 +284,7 @@ export class ReplaceWithJSONForm extends Component<
     });
     if (
       !alreadyExists ||
-      !this.props.getOption('checkOverwrite') ||
+      !this.props.getOption("checkOverwrite") ||
       window.confirm(
         `will replace ${modelName} which already exists, you sure?`,
       )
@@ -302,9 +304,14 @@ export class ReplaceWithJSONForm extends Component<
         newModel = makeModelFromJSON(JSONinput);
       }
 
-      this.props.replaceWithModel(this.props.userID, modelName, newModel, false);
-      this.props.showAlert('replaced data OK');
-      this.setState({ JSON: '' });
+      this.props.replaceWithModel(
+        this.props.userID,
+        modelName,
+        newModel,
+        false,
+      );
+      this.props.showAlert("replaced data OK");
+      this.setState({ JSON: "" });
     }
   }
 }

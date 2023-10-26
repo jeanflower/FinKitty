@@ -7,8 +7,8 @@ import {
   Transaction,
   Setting,
   ModelData,
-} from '../types/interfaces';
-import { log, printDebug, showObj } from '../utils/utils';
+} from "../types/interfaces";
+import { log, printDebug, showObj } from "../utils/utils";
 
 function diffTriggers(it1: Item, it2: Item): string {
   const i1 = it1 as Trigger;
@@ -19,7 +19,7 @@ function diffTriggers(it1: Item, it2: Item): string {
   if (i1.ERA != i2.ERA) {
     return `${it1.NAME}: changed era`;
   }
-  return '';
+  return "";
 }
 function diffIncomes(it1: Item, it2: Item): string {
   const i1 = it1 as Income;
@@ -49,7 +49,7 @@ function diffIncomes(it1: Item, it2: Item): string {
     return `${it1.NAME}: changed era`;
   }
 
-  return '';
+  return "";
 }
 function diffExpenses(it1: Item, it2: Item): string {
   const i1 = it1 as Expense;
@@ -79,7 +79,7 @@ function diffExpenses(it1: Item, it2: Item): string {
     return `${it1.NAME}: changed era`;
   }
 
-  return '';
+  return "";
 }
 function diffAssets(it1: Item, it2: Item): string {
   const i1 = it1 as Asset;
@@ -115,7 +115,7 @@ function diffAssets(it1: Item, it2: Item): string {
     return `${it1.NAME}: changed era`;
   }
 
-  return '';
+  return "";
 }
 
 function diffTransactions(it1: Item, it2: Item): string {
@@ -159,7 +159,7 @@ function diffTransactions(it1: Item, it2: Item): string {
     return `${it1.NAME}: changed era`;
   }
 
-  return '';
+  return "";
 }
 function diffSettings(it1: Item, it2: Item): string {
   const i1 = it1 as Setting;
@@ -177,7 +177,7 @@ function diffSettings(it1: Item, it2: Item): string {
     return `${it1.NAME}: changed era`;
   }
 
-  return '';
+  return "";
 }
 function diffItems(
   is1: Item[],

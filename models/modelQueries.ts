@@ -2,7 +2,6 @@ import { ModelData, Setting } from "../types/interfaces";
 import { separator } from "../localization/stringConstants";
 import { log, showObj } from "../utils/utils";
 
-
 export function isAnIncome(name: string, model: ModelData) {
   return model.incomes.find((a) => a.NAME === name) !== undefined;
 }
@@ -20,7 +19,6 @@ function isAnAsset(name: string, model: ModelData) {
     model.assets.find((a) => a.NAME === name || a.CATEGORY === name) !==
     undefined
   );
-
 }
 export function isAnAssetOrAssets(name: string, model: ModelData) {
   const words = name.split(separator);
@@ -39,7 +37,7 @@ export function isATransaction(name: string, model: ModelData) {
 
 export function isSetting(input: string, settings: Setting[]) {
   const result = {
-    value: '',
+    value: "",
     numFound: 1,
   };
   const x = settings.filter((pr) => pr.NAME === input);
@@ -125,8 +123,8 @@ export function getSettings(
 
 export function getVarVal(settings: Setting[]) {
   let varVal = 1.0;
-  const varSetting = getSettings(settings, 'variable', 'missing', false);
-  if (varSetting !== 'missing' && isNumberString(varSetting)) {
+  const varSetting = getSettings(settings, "variable", "missing", false);
+  if (varSetting !== "missing" && isNumberString(varSetting)) {
     const val = parseInt(varSetting);
     varVal = val;
   }
@@ -138,7 +136,7 @@ const numberStringCache = new Map<string, boolean>();
 // let numCachedResults = 0;
 // let numComputedResults = 0;
 export function isNumberString(input: string) {
-  if (input === '' || input === undefined) {
+  if (input === "" || input === undefined) {
     log(`Error: don't expect empty or undefined inputs to isNumberString`);
     return false;
   }
@@ -151,9 +149,9 @@ export function isNumberString(input: string) {
   // numComputedResults = numComputedResults + 1;
   // log(`cached = ${numCachedResults}, computed = ${numComputedResults}`);
 
-  const re = new RegExp('^[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)$');
-  const result = input.replace(re, '');
-  const outcome = result === '';
+  const re = new RegExp("^[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)$");
+  const result = input.replace(re, "");
+  const outcome = result === "";
   numberStringCache.set(input, outcome);
   return outcome;
 }

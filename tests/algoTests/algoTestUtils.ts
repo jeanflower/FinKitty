@@ -32,18 +32,18 @@ import {
   cpiHint,
   birthDateHint,
   valueFocusDateHint,
-} from '../../localization/stringConstants';
-import { getEvaluations } from '../../models/evaluations';
+} from "../../localization/stringConstants";
+import { getEvaluations } from "../../models/evaluations";
 import {
   emptyModel,
   simpleExpense,
   simpleAsset,
-} from '../../models/exampleModels';
+} from "../../models/exampleModels";
 import {
   attemptRenameLong,
   revertToUndoModel,
   setSetting,
-} from '../../models/modelUtils';
+} from "../../models/modelUtils";
 import {
   makeIncomeTaxTag,
   makeNationalInsuranceTag,
@@ -52,7 +52,7 @@ import {
   makeNetGainTag,
   hasDependentDate,
   dateAsString,
-} from '../../utils/stringUtils';
+} from "../../utils/stringUtils";
 import {
   Evaluation,
   ChartDataPoint,
@@ -66,15 +66,15 @@ import {
   Expense,
   Income,
   Asset,
-} from '../../types/interfaces';
-import { DateFormatType, log } from '../../utils/utils';
-import { diffModels } from '../../models/diffModels';
-import { defaultModelSettings } from '../../models/testModel';
-import { viewSetting, simpleSetting } from '../../models/exampleSettings';
-import { allViews } from '../../utils/allViews';
-import { minimalModel } from '../../models/minimalModel';
-import { makeModelFromJSONString } from '../../models/modelFromJSON';
-import { ViewSettings } from '../../utils/viewUtils';
+} from "../../types/interfaces";
+import { DateFormatType, log } from "../../utils/utils";
+import { diffModels } from "../../models/diffModels";
+import { defaultModelSettings } from "../../models/testModel";
+import { viewSetting, simpleSetting } from "../../models/exampleSettings";
+import { allViews } from "../../utils/allViews";
+import { minimalModel } from "../../models/minimalModel";
+import { makeModelFromJSONString } from "../../models/modelFromJSON";
+import { ViewSettings } from "../../utils/viewUtils";
 
 export function expectEvals(
   evals: Evaluation[],
@@ -94,7 +94,7 @@ export function expectEvals(
 }
 
 export function printTestCodeForEvals(evals: Evaluation[]) {
-  let result = '';
+  let result = "";
   result += `expect(evals.length).toBe(${evals.length});\n`;
   for (let i = 0; i < evals.length; i += 1) {
     // log(`evals[${i}] is ${showObj(evals[i])}`);
@@ -129,13 +129,13 @@ export function expectChartData(
 }
 
 export function printTestCodeForChart(result: DataForView) {
-  let toPrint = '';
+  let toPrint = "";
   toPrint += `expect(result.expensesData.length).toBe(${result.expensesData.length});\n`;
   for (let i = 0; i < result.expensesData.length; i += 1) {
     toPrint +=
       `expect(result.expensesData[${i}].item.NAME).toBe(` +
       `'${result.expensesData[i].item.NAME}');\n`;
-    toPrint += '{\n';
+    toPrint += "{\n";
     toPrint += `const chartPts = result.expensesData[${i}].chartDataPoints;\n`;
     const chartPts = result.expensesData[i].chartDataPoints;
     toPrint += `expect(chartPts.length).toBe(${chartPts.length});\n`;
@@ -147,17 +147,17 @@ export function printTestCodeForChart(result: DataForView) {
         toPrint += `${chartPts[j].y.toFixed(2)}, 2);\n`;
       }
     }
-    toPrint += '}\n';
-    toPrint += '\n';
+    toPrint += "}\n";
+    toPrint += "\n";
   }
   toPrint +=
-    'expect(result.incomesData.length).toBe(' +
+    "expect(result.incomesData.length).toBe(" +
     `${result.incomesData.length});\n`;
   for (let i = 0; i < result.incomesData.length; i += 1) {
     toPrint +=
       `expect(result.incomesData[${i}].item.NAME).toBe(` +
       `'${result.incomesData[i].item.NAME}');\n`;
-    toPrint += '{\n';
+    toPrint += "{\n";
     toPrint += `const chartPts = result.incomesData[${i}].chartDataPoints;\n`;
     const chartPts = result.incomesData[i].chartDataPoints;
     toPrint += `expect(chartPts.length).toBe(${chartPts.length});\n`;
@@ -169,16 +169,16 @@ export function printTestCodeForChart(result: DataForView) {
         toPrint += `${chartPts[j].y.toFixed(2)}, 2);\n`;
       }
     }
-    toPrint += '}\n';
-    toPrint += '\n';
+    toPrint += "}\n";
+    toPrint += "\n";
   }
   toPrint +=
-    'expect(result.assetData.length).toBe(' + `${result.assetData.length});\n`;
+    "expect(result.assetData.length).toBe(" + `${result.assetData.length});\n`;
   for (let i = 0; i < result.assetData.length; i += 1) {
     toPrint +=
       `expect(result.assetData[${i}].item.NAME).toBe(` +
       `'${result.assetData[i].item.NAME}');\n`;
-    toPrint += '{\n';
+    toPrint += "{\n";
     toPrint += `const chartPts = result.assetData[${i}].chartDataPoints;\n`;
     const chartPts = result.assetData[i].chartDataPoints;
     toPrint += `expect(chartPts.length).toBe(${chartPts.length});\n`;
@@ -190,16 +190,16 @@ export function printTestCodeForChart(result: DataForView) {
         toPrint += `${chartPts[j].y.toFixed(2)}, 2);\n`;
       }
     }
-    toPrint += '}\n';
-    toPrint += '\n';
+    toPrint += "}\n";
+    toPrint += "\n";
   }
   toPrint +=
-    'expect(result.debtData.length).toBe(' + `${result.debtData.length});\n`;
+    "expect(result.debtData.length).toBe(" + `${result.debtData.length});\n`;
   for (let i = 0; i < result.debtData.length; i += 1) {
     toPrint +=
       `expect(result.debtData[${i}].item.NAME).toBe(` +
       `'${result.debtData[i].item.NAME}');\n`;
-    toPrint += '{\n';
+    toPrint += "{\n";
     toPrint += `const chartPts = result.debtData[${i}].chartDataPoints;\n`;
     const chartPts = result.debtData[i].chartDataPoints;
     toPrint += `expect(chartPts.length).toBe(${chartPts.length});\n`;
@@ -211,16 +211,16 @@ export function printTestCodeForChart(result: DataForView) {
         toPrint += `${chartPts[j].y.toFixed(2)}, 2);\n`;
       }
     }
-    toPrint += '}\n';
-    toPrint += '\n';
+    toPrint += "}\n";
+    toPrint += "\n";
   }
   toPrint +=
-    'expect(result.taxData.length).toBe(' + `${result.taxData.length});\n`;
+    "expect(result.taxData.length).toBe(" + `${result.taxData.length});\n`;
   for (let i = 0; i < result.taxData.length; i += 1) {
     toPrint +=
       `expect(result.taxData[${i}].item.NAME).toBe(` +
       `'${result.taxData[i].item.NAME}');\n`;
-    toPrint += '{\n';
+    toPrint += "{\n";
     toPrint += `const chartPts = result.taxData[${i}].chartDataPoints;\n`;
     const chartPts = result.taxData[i].chartDataPoints;
     toPrint += `expect(chartPts.length).toBe(${chartPts.length});\n`;
@@ -232,8 +232,8 @@ export function printTestCodeForChart(result: DataForView) {
         toPrint += `${chartPts[j].y.toFixed(2)}, 2);\n`;
       }
     }
-    toPrint += '}\n';
-    toPrint += '\n';
+    toPrint += "}\n";
+    toPrint += "\n";
   }
   log(toPrint);
 }
@@ -273,8 +273,8 @@ export function getTestEvaluations(
         model,
         oldModelCopy,
         false,
-        'model',
-        'oldModelCopy',
+        "model",
+        "oldModelCopy",
       );
       /* istanbul ignore if */
       if (diffResult.length !== 0) {
@@ -296,7 +296,7 @@ export function getTestEvaluations(
         return;
       }
       const oldName = obj.NAME;
-      let message = attemptRenameLong(model, doChecks, oldName, 'abcd');
+      let message = attemptRenameLong(model, doChecks, oldName, "abcd");
       if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
       }
@@ -305,8 +305,8 @@ export function getTestEvaluations(
           model,
           oldModelCopy,
           false,
-          'model',
-          'oldModelCopy',
+          "model",
+          "oldModelCopy",
         );
         // log(`After renaming '${oldName}' to 'abcd': diffResult = ${diffResult}`);
         const diff1 = diffResult.find((s) => {
@@ -327,7 +327,7 @@ export function getTestEvaluations(
           // log(`Good: copy matches original`);
         }
       }
-      message = attemptRenameLong(model, doChecks, 'abcd', oldName);
+      message = attemptRenameLong(model, doChecks, "abcd", oldName);
       if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
       }
@@ -339,7 +339,7 @@ export function getTestEvaluations(
       if (oldName === CASH_ASSET_NAME) {
         return;
       }
-      let newName = 'abcd';
+      let newName = "abcd";
       if (oldName.startsWith(pensionDB)) {
         newName = pensionDB + newName;
       } else if (oldName.startsWith(pension)) {
@@ -359,8 +359,8 @@ export function getTestEvaluations(
           model,
           oldModelCopy,
           false,
-          'model',
-          'oldModelCopy',
+          "model",
+          "oldModelCopy",
         );
         // log(`After renaming '${oldName}' to 'abcd': diffResult = ${diffResult}`);
         const diff1 = diffResult.find((s) => {
@@ -390,7 +390,7 @@ export function getTestEvaluations(
     });
     model.incomes.forEach((obj) => {
       const oldName = obj.NAME;
-      let newName = 'abcd';
+      let newName = "abcd";
       if (oldName.startsWith(pensionDB)) {
         newName = pensionDB + newName;
       } else if (oldName.startsWith(pensionTransfer)) {
@@ -405,8 +405,8 @@ export function getTestEvaluations(
           model,
           oldModelCopy,
           false,
-          'model',
-          'oldModelCopy',
+          "model",
+          "oldModelCopy",
         );
         // log(`After renaming '${oldName}' to 'abcd': diffResult = ${diffResult}`);
         const diff1 = diffResult.find((s) => {
@@ -436,7 +436,7 @@ export function getTestEvaluations(
     });
     model.expenses.forEach((obj) => {
       const oldName = obj.NAME;
-      let message = attemptRenameLong(model, doChecks, oldName, 'abcd');
+      let message = attemptRenameLong(model, doChecks, oldName, "abcd");
       if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
       }
@@ -445,8 +445,8 @@ export function getTestEvaluations(
           model,
           oldModelCopy,
           false,
-          'model',
-          'oldModelCopy',
+          "model",
+          "oldModelCopy",
         );
         // log(`After renaming '${oldName}' to 'abcd': diffResult = ${diffResult}`);
         const diff1 = diffResult.find((s) => {
@@ -467,7 +467,7 @@ export function getTestEvaluations(
           // log(`Good: copy matches original`);
         }
       }
-      message = attemptRenameLong(model, doChecks, 'abcd', oldName);
+      message = attemptRenameLong(model, doChecks, "abcd", oldName);
       if (message.length > 0) {
         throw new Error(`rename failed with message '${message}'`);
       }
@@ -476,7 +476,7 @@ export function getTestEvaluations(
     });
     model.transactions.forEach((obj) => {
       const oldName = obj.NAME;
-      let newName = 'abcd';
+      let newName = "abcd";
       if (oldName.startsWith(revalue)) {
         newName = revalue + newName;
       } else if (oldName.startsWith(conditional)) {
@@ -495,16 +495,16 @@ export function getTestEvaluations(
         newName = crystallizedPension + newName;
       } else if (oldName.startsWith(transferCrystallizedPension)) {
         newName = transferCrystallizedPension + newName;
-      } else if (oldName.endsWith('5y')) {
-        newName = newName + '5y';
-      } else if (oldName.endsWith('4y')) {
-        newName = newName + '4y';
-      } else if (oldName.endsWith('3y')) {
-        newName = newName + '3y';
-      } else if (oldName.endsWith('2y')) {
-        newName = newName + '2y';
-      } else if (oldName.endsWith('1y')) {
-        newName = newName + '1y';
+      } else if (oldName.endsWith("5y")) {
+        newName = newName + "5y";
+      } else if (oldName.endsWith("4y")) {
+        newName = newName + "4y";
+      } else if (oldName.endsWith("3y")) {
+        newName = newName + "3y";
+      } else if (oldName.endsWith("2y")) {
+        newName = newName + "2y";
+      } else if (oldName.endsWith("1y")) {
+        newName = newName + "1y";
       }
       // log(`transaction oldName ${obj.NAME} -> ${newName}`);
 
@@ -517,8 +517,8 @@ export function getTestEvaluations(
           model,
           oldModelCopy,
           false,
-          'model',
-          'oldModelCopy',
+          "model",
+          "oldModelCopy",
         );
         // log(`After renaming '${oldName}' to 'abcd': diffResult = ${diffResult}`);
         const diff1 = diffResult.find((s) => {
@@ -555,11 +555,11 @@ export function getTestEvaluations(
         return;
       }
       const oldName = obj.NAME;
-      const newName = 'abcd';
+      const newName = "abcd";
       let message = attemptRenameLong(model, doChecks, oldName, newName);
       let renamedToNew = true;
       if (message.length > 0) {
-        if (message === 'Must maintain special formatting using BMV') {
+        if (message === "Must maintain special formatting using BMV") {
           renamedToNew = false;
         } else {
           throw new Error(`rename failed with message '${message}'`);
@@ -570,8 +570,8 @@ export function getTestEvaluations(
           model,
           oldModelCopy,
           false,
-          'model',
-          'oldModelCopy',
+          "model",
+          "oldModelCopy",
         );
         // log(`After renaming '${oldName}' to 'abcd': diffResult = ${diffResult}`);
         const diff1 = diffResult.find((s) => {
@@ -645,19 +645,19 @@ export function getnetgainLabel(person: string) {
 
 export function getModelFutureExpense2() {
   const roi = {
-    start: 'Dec 1, 2016 00:00:00',
-    end: 'March 1, 2017 00:00:00',
+    start: "Dec 1, 2016 00:00:00",
+    end: "March 1, 2017 00:00:00",
   };
   const model: ModelData = {
     ...emptyModel,
     expenses: [
       {
         ...simpleExpense,
-        START: 'January 1 2018',
-        END: 'July 2 2018',
-        NAME: 'Phon',
-        VALUE: '99',
-        VALUE_SET: 'January 1 2018',
+        START: "January 1 2018",
+        END: "July 2 2018",
+        NAME: "Phon",
+        VALUE: "99",
+        VALUE_SET: "January 1 2018",
       },
     ],
     settings: [...defaultModelSettings(roi)],
@@ -667,8 +667,8 @@ export function getModelFutureExpense2() {
 
 export function getModelCrystallizedPension() {
   const roi = {
-    start: '1 April 2023',
-    end: '1 April 2026',
+    start: "1 April 2023",
+    end: "1 April 2026",
   };
   const model: ModelData = {
     ...minimalModel,
@@ -676,61 +676,61 @@ export function getModelCrystallizedPension() {
     assets: [
       {
         ...simpleAsset,
-        NAME: 'AvailablePensionTaxFree',
-        START: 'Apr 06 2019',
-        CATEGORY: 'B',
+        NAME: "AvailablePensionTaxFree",
+        START: "Apr 06 2019",
+        CATEGORY: "B",
       },
       {
         ...simpleAsset,
         NAME: CASH_ASSET_NAME,
         CAN_BE_NEGATIVE: true,
-        START: 'Apr 06 2019',
+        START: "Apr 06 2019",
       },
       {
         ...simpleAsset,
-        NAME: crystallizedPension + 'Joe.PNN',
-        START: 'Apr 06 2019',
-        CATEGORY: 'B',
+        NAME: crystallizedPension + "Joe.PNN",
+        START: "Apr 06 2019",
+        CATEGORY: "B",
       },
       {
         ...simpleAsset,
-        NAME: 'EmploymentPension',
-        START: 'Apr 06 2019',
-        VALUE: '100000',
-        CATEGORY: 'B',
+        NAME: "EmploymentPension",
+        START: "Apr 06 2019",
+        VALUE: "100000",
+        CATEGORY: "B",
       },
     ],
     settings: [...defaultModelSettings(roi)],
     expenses: [],
     transactions: [
       {
-        NAME: 'MoveQuarterPension',
+        NAME: "MoveQuarterPension",
         ERA: undefined,
-        FROM: 'EmploymentPension',
+        FROM: "EmploymentPension",
         FROM_ABSOLUTE: false,
-        FROM_VALUE: '0.25',
-        TO: 'AvailablePensionTaxFree',
+        FROM_VALUE: "0.25",
+        TO: "AvailablePensionTaxFree",
         TO_ABSOLUTE: false,
-        TO_VALUE: '0.98',
-        DATE: 'Oct 04 2024',
-        STOP_DATE: '1 January 2018',
-        RECURRENCE: '',
-        CATEGORY: 'D',
+        TO_VALUE: "0.98",
+        DATE: "Oct 04 2024",
+        STOP_DATE: "1 January 2018",
+        RECURRENCE: "",
+        CATEGORY: "D",
         TYPE: custom,
       },
       {
-        NAME: 'MoveRemainingPension',
+        NAME: "MoveRemainingPension",
         ERA: undefined,
-        FROM: 'EmploymentPension',
+        FROM: "EmploymentPension",
         FROM_ABSOLUTE: false,
-        FROM_VALUE: '1',
-        TO: crystallizedPension + 'Joe.PNN',
+        FROM_VALUE: "1",
+        TO: crystallizedPension + "Joe.PNN",
         TO_ABSOLUTE: false,
-        TO_VALUE: '0.98',
-        DATE: 'Oct 05 2024',
-        STOP_DATE: '1 January 2018',
-        RECURRENCE: '',
-        CATEGORY: '',
+        TO_VALUE: "0.98",
+        DATE: "Oct 05 2024",
+        STOP_DATE: "1 January 2018",
+        RECURRENCE: "",
+        CATEGORY: "",
         TYPE: custom,
       },
     ],
@@ -738,7 +738,7 @@ export function getModelCrystallizedPension() {
 
   // log(`getModelCrystallizedPension created ${showObj(model)}`);
 
-  setSetting(model.settings, birthDate, '', viewType);
+  setSetting(model.settings, birthDate, "", viewType);
   return {
     model,
     roi,
@@ -747,8 +747,8 @@ export function getModelCrystallizedPension() {
 
 export function getModelTwoCrystallizedPensions() {
   const roi = {
-    start: '1 March 2019',
-    end: '10 May 2021',
+    start: "1 March 2019",
+    end: "10 May 2021",
   };
   const model: ModelData = {
     ...minimalModel,
@@ -758,28 +758,28 @@ export function getModelTwoCrystallizedPensions() {
         ...simpleAsset,
         NAME: CASH_ASSET_NAME,
         CAN_BE_NEGATIVE: true,
-        START: '1 March 2019',
+        START: "1 March 2019",
       },
       {
         ...simpleAsset,
-        NAME: crystallizedPension + 'Joe.A',
-        START: '1 March 2019',
-        CATEGORY: 'B',
-        VALUE: '13500',
+        NAME: crystallizedPension + "Joe.A",
+        START: "1 March 2019",
+        CATEGORY: "B",
+        VALUE: "13500",
       },
       {
         ...simpleAsset,
-        NAME: crystallizedPension + 'Joe.B',
-        START: '1 March 2019',
-        CATEGORY: 'B',
-        VALUE: '13500',
+        NAME: crystallizedPension + "Joe.B",
+        START: "1 March 2019",
+        CATEGORY: "B",
+        VALUE: "13500",
       },
     ],
     settings: [...defaultModelSettings(roi)],
     expenses: [],
   };
 
-  setSetting(model.settings, birthDate, '', viewType);
+  setSetting(model.settings, birthDate, "", viewType);
   return {
     model,
     roi,
@@ -830,11 +830,11 @@ export function getMinimalModelCopySettings(): ViewSettings {
         },
         {
           NAME: taxChartShowNet,
-          VALUE: 'Y',
+          VALUE: "Y",
         },
         {
           NAME: valueFocusDate,
-          VALUE: '',
+          VALUE: "",
         },
       ]),
   );
@@ -887,24 +887,24 @@ export function defaultTestViewSettings(): ViewSettings {
         {
           ...viewSetting,
           NAME: taxChartShowNet,
-          VALUE: 'Y',
+          VALUE: "Y",
         },
         {
           ...simpleSetting,
           NAME: cpi,
-          VALUE: '0.0',
+          VALUE: "0.0",
           HINT: cpiHint,
         },
         {
           ...viewSetting,
           NAME: birthDate,
-          VALUE: '',
+          VALUE: "",
           HINT: birthDateHint,
         },
         {
           ...viewSetting,
           NAME: valueFocusDate,
-          VALUE: '',
+          VALUE: "",
           HINT: valueFocusDateHint,
         },
       ]),

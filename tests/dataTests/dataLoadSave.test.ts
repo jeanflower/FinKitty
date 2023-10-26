@@ -1,9 +1,9 @@
 // to allow final-scoping blocks for auto-generated code
 /* eslint-disable no-lone-blocks */
 
-import { simpleSetting } from '../../models/exampleSettings';
-import { getMinimalModelCopy } from '../../models/minimalModel';
-import { getDB } from '../../database/database';
+import { simpleSetting } from "../../models/exampleSettings";
+import { getMinimalModelCopy } from "../../models/minimalModel";
+import { getDB } from "../../database/database";
 import {
   deleteModel,
   ensureModel,
@@ -18,16 +18,16 @@ import {
   submitSettingLSM,
   submitTransactionLSM,
   submitTriggerLSM,
-} from '../../database/loadSaveModel';
-import { CASH_ASSET_NAME } from '../../localization/stringConstants';
+} from "../../database/loadSaveModel";
+import { CASH_ASSET_NAME } from "../../localization/stringConstants";
 import {
   simpleAsset,
   simpleExpense,
   simpleIncome,
   simpleTransaction,
-} from '../../models/exampleModels';
-import { Item } from '../../types/interfaces';
-import { printDebug, log } from '../../utils/utils';
+} from "../../models/exampleModels";
+import { Item } from "../../types/interfaces";
+import { printDebug, log } from "../../utils/utils";
 
 /* global it */
 /* global expect */
@@ -36,7 +36,7 @@ if (printDebug()) {
   log;
 }
 
-describe('load save tests', () => {
+describe("load save tests", () => {
   jest.setTimeout(6000); // allow time for this test to run
 
   // the cache of models is shared between tests
@@ -46,8 +46,8 @@ describe('load save tests', () => {
 
   // do not assume the cache is empty at the start of this test
 
-  it('load save test1', async () => {
-/*
+  it("load save test1", async () => {
+    /*
     const printStory = false;
 
     if (printStory) {
@@ -599,7 +599,7 @@ describe('load save tests', () => {
     await deleteModel(junkUserName2, junkModelName, true);
     */
   });
-  it('load save model2', async () => {
+  it("load save model2", async () => {
     /*
     const userName = 'TestUserID';
     const junkModelName = 'junkjunkjunk';    

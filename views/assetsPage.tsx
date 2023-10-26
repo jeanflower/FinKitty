@@ -5,26 +5,26 @@ import {
   Item,
   ModelData,
   ViewCallbacks,
-} from './../types/interfaces';
+} from "./../types/interfaces";
 import {
   assetsDivWithHeadings,
   defaultColumn,
   addIndices,
   cashValueColumn,
-} from './tablePages';
-import { checkAsset, checkTransaction } from '../models/checks';
+} from "./tablePages";
+import { checkAsset, checkTransaction } from "../models/checks";
 
-import { AddDeleteAssetForm } from './reactComponents/AddDeleteAssetForm';
-import DataGridFinKitty from './reactComponents/DataGridFinKitty';
-import React from 'react';
-import { assetsOrDebtsChartDivWithButtons } from './chartPages';
-import { assetsView } from '../localization/stringConstants';
-import { getTodaysDate } from '../models/modelUtils';
-import { dateAsString, lessThan } from '../utils/stringUtils';
-import { collapsibleFragment } from './tablePages';
-import { DateFormatType, log, printDebug } from '../utils/utils';
-import { ViewSettings, getDisplay } from '../utils/viewUtils';
-import { simpleAsset } from '../models/exampleModels';
+import { AddDeleteAssetForm } from "./reactComponents/AddDeleteAssetForm";
+import DataGridFinKitty from "./reactComponents/DataGridFinKitty";
+import React from "react";
+import { assetsOrDebtsChartDivWithButtons } from "./chartPages";
+import { assetsView } from "../localization/stringConstants";
+import { getTodaysDate } from "../models/modelUtils";
+import { dateAsString, lessThan } from "../utils/stringUtils";
+import { collapsibleFragment } from "./tablePages";
+import { DateFormatType, log, printDebug } from "../utils/utils";
+import { ViewSettings, getDisplay } from "../utils/viewUtils";
+import { simpleAsset } from "../models/exampleModels";
 
 function addToMap(
   name: Asset,
@@ -66,7 +66,7 @@ function makeDataGridForTodaysAssets(
             if (printDebug()) {
               log(`key[0] = ${key[0]}, key[1] = ${key[1]}`);
             }
-            const quantityText = key[1].quantity ? `${key[1].quantity}` : '';
+            const quantityText = key[1].quantity ? `${key[1].quantity}` : "";
             return {
               NAME: key[0].NAME,
               ERA: key[0].ERA,
@@ -87,22 +87,22 @@ function makeDataGridForTodaysAssets(
         */
         {
           ...defaultColumn,
-          key: 'NAME',
-          name: 'name',
+          key: "NAME",
+          name: "name",
         },
         {
           ...cashValueColumn,
-          key: 'VALUE',
+          key: "VALUE",
           name: `value`,
         },
         {
           ...defaultColumn,
-          key: 'QUANTITY',
+          key: "QUANTITY",
           name: `quantity`,
         },
         {
           ...defaultColumn,
-          key: 'CATEGORY',
+          key: "CATEGORY",
           name: `category`,
         },
       ]}
@@ -124,7 +124,7 @@ export function todaysAssetsTable(
   const entries = Array.from(todaysValues.entries());
   for (const key of entries) {
     const cat = key[1].category;
-    if (cat === '') {
+    if (cat === "") {
       addToMap(key[0], key[1], categorisedValues);
     } else {
       const catName: string = key[1].category;
@@ -140,9 +140,9 @@ export function todaysAssetsTable(
     <>
       {collapsibleFragment(
         makeDataGridForTodaysAssets(
-          categorisedValues, 
-          model, 
-          'todaysAssetsTable',
+          categorisedValues,
+          model,
+          "todaysAssetsTable",
         ),
         `Asset values (categorised) at ${dateAsString(
           DateFormatType.View,
@@ -177,20 +177,16 @@ export function assetsDiv(
           false,
           parentCallbacks,
         ),
-        'Asset data chart',
+        "Asset data chart",
       )}
       {assetsDivWithHeadings(
         model,
         todaysValues,
         doChecks,
         parentCallbacks,
-        '',
+        "",
       )}
-      {todaysAssetsTable(
-        model, 
-        todaysValues,
-        parentCallbacks,
-        )}
+      {todaysAssetsTable(model, todaysValues, parentCallbacks)}
       {collapsibleFragment(
         <div className="addNewAsset">
           <AddDeleteAssetForm
@@ -202,7 +198,9 @@ export function assetsDiv(
             submitTriggerFunction={parentCallbacks.submitTrigger}
             model={model}
             showAlert={parentCallbacks.showAlert}
-            doCheckBeforeOverwritingExistingData={parentCallbacks.doCheckBeforeOverwritingExistingData}
+            doCheckBeforeOverwritingExistingData={
+              parentCallbacks.doCheckBeforeOverwritingExistingData
+            }
           />
         </div>,
         `Add an asset, a defined-contributions pension, or revalue an asset`,

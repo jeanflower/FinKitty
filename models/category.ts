@@ -1,7 +1,7 @@
-import { separator } from '../localization/stringConstants';
-import { ItemCategory, ModelData } from '../types/interfaces';
-import { log } from '../utils/utils';
-import { makeSourceForFromChange } from './evaluations';
+import { separator } from "../localization/stringConstants";
+import { ItemCategory, ModelData } from "../types/interfaces";
+import { log } from "../utils/utils";
+import { makeSourceForFromChange } from "./evaluations";
 
 log;
 
@@ -72,8 +72,8 @@ export function getCategory(
   /* istanbul ignore if */
   if (words.length === 0) {
     log(`Error: don't expect empty list from split`);
-    cache.set(name, '');
-    return '';
+    cache.set(name, "");
+    return "";
   }
   const firstPart = words[0];
   const firstPartCat = getCategorySub(firstPart, model);

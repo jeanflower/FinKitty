@@ -1,13 +1,13 @@
-import React from 'react';
-import { Component, FormEvent } from 'react';
+import React from "react";
+import { Component, FormEvent } from "react";
 
-import { Input } from './Input';
-import { ModelData } from '../../types/interfaces';
-import { makeButton } from './Button';
-import { log, printDebug } from '../../utils/utils';
-import dateFormat from 'dateformat';
-import FileSaver from 'file-saver';
-import { minimalModel } from '../../models/minimalModel';
+import { Input } from "./Input";
+import { ModelData } from "../../types/interfaces";
+import { makeButton } from "./Button";
+import { log, printDebug } from "../../utils/utils";
+import dateFormat from "dateformat";
+import FileSaver from "file-saver";
+import { minimalModel } from "../../models/minimalModel";
 
 interface CreateModelFormState {
   newName: string;
@@ -40,7 +40,7 @@ export class CreateModelForm extends Component<
   public constructor(props: CreateModelFormProps) {
     super(props);
     this.defaultState = {
-      newName: '',
+      newName: "",
     };
 
     this.state = this.defaultState;
@@ -67,7 +67,7 @@ export class CreateModelForm extends Component<
         },
         `btn-create-${x.name}-example`,
         `btn-create-${x.name}-example`,
-        'outline-primary',
+        "outline-primary",
       );
     });
     return <div role="group">{buttons}</div>;
@@ -78,11 +78,11 @@ export class CreateModelForm extends Component<
       <>
         <div className="btn-group ml-3" role="group">
           {makeButton(
-            'Make backup of model',
+            "Make backup of model",
             this.backupModel,
             `btn-backup`,
             `btn-backup`,
-            'outline-primary',
+            "outline-primary",
           )}
         </div>
         <br></br>
@@ -96,15 +96,15 @@ export class CreateModelForm extends Component<
           }}
         >
           <Input
-            type={'text'}
-            title={'Create new model'}
-            name={'createModel'}
+            type={"text"}
+            title={"Create new model"}
+            name={"createModel"}
             value={this.state.newName}
-            placeholder={'Enter new model name here'}
+            placeholder={"Enter new model name here"}
             onChange={this.handleValueChange}
           />
           {makeButton(
-            'New model',
+            "New model",
             async () => {
               /* istanbul ignore if  */
               if (printDebug()) {
@@ -114,14 +114,14 @@ export class CreateModelForm extends Component<
             },
             `btn-createMinimalModel`,
             `btn-createMinimalModel`,
-            'outline-primary',
+            "outline-primary",
           )}
           {makeButton(
-            'Clone model',
+            "Clone model",
             this.clonePropsModel,
             `btn-clone`,
             `btn-clone`,
-            'outline-primary',
+            "outline-primary",
           )}
           <br></br>
           {this.exampleButtonList()}
@@ -143,21 +143,21 @@ export class CreateModelForm extends Component<
 
     const backupName =
       this.props.currentModelName +
-      'backup ' +
-      dateFormat(d, 'yyyy-mm-dd HH:MM:ss');
+      "backup " +
+      dateFormat(d, "yyyy-mm-dd HH:MM:ss");
 
     if (window.confirm(`Save a local text file for this model?`)) {
       const backupText = JSON.stringify(this.props.modelData);
 
-      const blob = new Blob([backupText], { type: 'text/plain;charset=utf-8' });
+      const blob = new Blob([backupText], { type: "text/plain;charset=utf-8" });
       FileSaver.saveAs(blob, `${backupName}.txt`);
     }
 
     await this.props.saveModel(
       this.props.userID,
       this.props.currentModelName +
-        'backup ' +
-        dateFormat(d, 'yyyy-mm-dd HH:MM:ss'),
+        "backup " +
+        dateFormat(d, "yyyy-mm-dd HH:MM:ss"),
       this.props.modelData,
     );
   }
@@ -177,14 +177,14 @@ export class CreateModelForm extends Component<
   private async copyModel(model: ModelData) {
     // log(`in copyModel`);
     const newName = this.state.newName;
-    if (newName.includes('{')) {
+    if (newName.includes("{")) {
       this.props.showAlert(
         `Names of models are not permitted to include characaters '{'`,
       );
       return;
     }
     if (newName.length === 0) {
-      this.props.showAlert('Please provide a new name for the model');
+      this.props.showAlert("Please provide a new name for the model");
       return;
     }
     // log(`going to create an example model called ${newName}`);
@@ -196,10 +196,10 @@ export class CreateModelForm extends Component<
       if (await this.props.cloneModel(newName, model)) {
         // log('cloned ok -  clear name field');
         if (this.mounted) {
-          this.setState({ newName: '' });
+          this.setState({ newName: "" });
         }
       } else {
-        log('failed to clone ok');
+        log("failed to clone ok");
       }
     }
   }

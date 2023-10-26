@@ -30,12 +30,12 @@ import {
   separator,
   dot,
   revalue,
-} from '../localization/stringConstants';
-import { ModelData, ModelDataFromFile } from '../types/interfaces';
-import { log } from '../utils/utils';
-import { viewSetting } from './exampleSettings';
-import { getMinimalModelCopy } from './minimalModel';
-import { getCurrentVersion } from './currentVersion';
+} from "../localization/stringConstants";
+import { ModelData, ModelDataFromFile } from "../types/interfaces";
+import { log } from "../utils/utils";
+import { viewSetting } from "./exampleSettings";
+import { getMinimalModelCopy } from "./minimalModel";
+import { getCurrentVersion } from "./currentVersion";
 
 // 0; // may not include assets or settings in minimalModel
 // 1; // may not include expense recurrence, asset/debt,
@@ -75,9 +75,7 @@ function getGuessSettingTypeForv2(name: string) {
 
 const showMigrationLogs = false;
 
-function migrateFromV0(
-  model: ModelData,
-) {
+function migrateFromV0(model: ModelData) {
   // log(`in migrateOldVersions at v0, model has ${model.settings.length} settings`);
   // use getMinimalModelCopy and scan over all settings and assets
   const minimalModel = getMinimalModelCopy();
@@ -115,7 +113,7 @@ function migrateFromV1(model: ModelData) {
   }
   for (const e of model.expenses) {
     if (e.RECURRENCE === undefined) {
-      e.RECURRENCE = '1m';
+      e.RECURRENCE = "1m";
     }
   }
   for (const a of model.assets) {
@@ -123,7 +121,7 @@ function migrateFromV1(model: ModelData) {
       a.IS_A_DEBT = false;
     }
     if (a.QUANTITY === undefined) {
-      a.QUANTITY = '';
+      a.QUANTITY = "";
     }
   }
   for (const t of model.transactions) {
@@ -211,7 +209,7 @@ function migrateFromV3(model: ModelData) {
     model.settings.push({
       ...viewSetting,
       NAME: taxChartShowNet,
-      VALUE: 'Y',
+      VALUE: "Y",
     });
   }
   model.version = 4;
@@ -251,7 +249,7 @@ function changeSpecialWords(
         }
         // difficult to find test data for this
         /* istanbul ignore if  */
-        if (ch.oldPart === 'TaxFree') {
+        if (ch.oldPart === "TaxFree") {
           if (w.endsWith(ch.oldPart)) {
             // log(`old w = ${w`);
             w = `${ch.newPart}${w.substring(0, w.length - ch.oldPart.length)}`;
@@ -262,7 +260,7 @@ function changeSpecialWords(
         newWords.push(w);
       });
       if (hasChanged) {
-        t.FROM = '';
+        t.FROM = "";
         newWords.forEach((w) => {
           t.FROM = `${t.FROM}${w}${separator}`;
         });
@@ -279,7 +277,7 @@ function changeSpecialWords(
           hasChanged = true;
           // log(`new t.TO w = ${w}`);
         }
-        if (ch.oldPart === 'TaxFree') {
+        if (ch.oldPart === "TaxFree") {
           if (w.endsWith(ch.oldPart)) {
             // log(`old w = ${w`);
             w = `${ch.newPart}${w.substring(0, w.length - ch.oldPart.length)}`;
@@ -290,7 +288,7 @@ function changeSpecialWords(
         newWords.push(w);
       });
       if (hasChanged) {
-        t.TO = '';
+        t.TO = "";
         newWords.forEach((w) => {
           t.TO = `${t.TO}${w}${separator}`;
         });
@@ -322,7 +320,7 @@ function changeSpecialWords(
         )}`;
         // log(`new a.NAME=${a.NAME}`);
       }
-      if (ch.oldPart === 'TaxFree') {
+      if (ch.oldPart === "TaxFree") {
         if (a.NAME.endsWith(ch.oldPart)) {
           // log(`old a.NAME=${a.NAME}`);
           a.NAME = `${ch.newPart}${a.NAME.substring(
@@ -336,9 +334,7 @@ function changeSpecialWords(
   });
 }
 
-function migrateFromV4(
-  model: ModelData,
-) {
+function migrateFromV4(model: ModelData) {
   // log(`in migrateFromV4`);
   /* istanbul ignore if  */ //debug
   if (showMigrationLogs) {
@@ -348,7 +344,7 @@ function migrateFromV4(
   }
   // strip away any settings values which are no longer
   // stored persistently
-  const debtChartView = 'Type of view for debt chart';
+  const debtChartView = "Type of view for debt chart";
   const namesForRemoval = [
     viewFrequency,
     chartViewType,
@@ -382,59 +378,59 @@ function migrateFromV5(model: ModelData) {
   // log(`migrate from V5`);
   const transactionChanges = [
     {
-      oldPart: 'PensionSS',
+      oldPart: "PensionSS",
       newPart: pensionSS,
     },
     {
-      oldPart: 'PensionTransfer',
+      oldPart: "PensionTransfer",
       newPart: pensionTransfer,
     },
     {
-      oldPart: 'PensionDB',
+      oldPart: "PensionDB",
       newPart: pensionDB,
     },
     {
-      oldPart: 'Pension',
+      oldPart: "Pension",
       newPart: pension,
     },
     {
-      oldPart: 'TransferCrystallizedPension',
+      oldPart: "TransferCrystallizedPension",
       newPart: transferCrystallizedPension,
     },
     {
-      oldPart: 'CrystallizedPension',
+      oldPart: "CrystallizedPension",
       newPart: crystallizedPension,
     },
     {
-      oldPart: 'TaxFree',
+      oldPart: "TaxFree",
       newPart: taxFree,
     },
     {
-      oldPart: 'MoveTaxFreePart',
+      oldPart: "MoveTaxFreePart",
       newPart: moveTaxFreePart,
     },
   ];
   const incomeChanges = [
     {
-      oldPart: 'PensionDB',
+      oldPart: "PensionDB",
       newPart: pensionDB,
     },
     {
-      oldPart: 'PensionTransfer',
+      oldPart: "PensionTransfer",
       newPart: pensionTransfer,
     },
   ];
   const assetChanges = [
     {
-      oldPart: 'CrystallizedPension',
+      oldPart: "CrystallizedPension",
       newPart: crystallizedPension,
     },
     {
-      oldPart: 'Pension',
+      oldPart: "Pension",
       newPart: pension,
     },
     {
-      oldPart: 'TaxFree',
+      oldPart: "TaxFree",
       newPart: taxFree,
     },
   ];
@@ -445,31 +441,31 @@ function migrateFromV5(model: ModelData) {
 function migrateFromV6(model: ModelData) {
   const transactionChanges = [
     {
-      oldPart: '-DBT ',
+      oldPart: "-DBT ",
       newPart: pensionTransfer,
     },
     {
-      oldPart: '-DB ',
+      oldPart: "-DB ",
       newPart: pensionDB,
     },
     {
-      oldPart: '-DC ',
+      oldPart: "-DC ",
       newPart: pension,
     },
   ];
   const incomeChanges = [
     {
-      oldPart: '-DB ',
+      oldPart: "-DB ",
       newPart: pensionDB,
     },
     {
-      oldPart: '-DBT ',
+      oldPart: "-DBT ",
       newPart: pensionTransfer,
     },
   ];
   const assetChanges = [
     {
-      oldPart: '-DC ',
+      oldPart: "-DC ",
       newPart: pension,
     },
   ];
@@ -514,7 +510,7 @@ function migrateFromV7(model: ModelData) {
     // log(`check for name change ${a.NAME}`);
     if (a.NAME.startsWith(crystallizedPension)) {
       const person = a.NAME.substring(crystallizedPension.length);
-      let pensionName = 'pensionName';
+      let pensionName = "pensionName";
       const mapEntry = nameToPension.get(person);
       // log(`nameToPension has [${person}, ${mapEntry}]`);
       if (mapEntry !== undefined) {
@@ -531,7 +527,7 @@ function migrateFromV7(model: ModelData) {
       if (w.startsWith(crystallizedPension)) {
         // log(`old t.FROM w = ${w}`);
         const person = w.substring(crystallizedPension.length);
-        let pensionName = 'pensionName';
+        let pensionName = "pensionName";
         const mapEntry = nameToPension.get(person);
         // log(`nameToPension has [${person}, ${mapEntry}]`);
         if (mapEntry !== undefined) {
@@ -544,7 +540,7 @@ function migrateFromV7(model: ModelData) {
       newWords.push(w);
     });
     if (hasChanged) {
-      t.FROM = '';
+      t.FROM = "";
       newWords.forEach((w) => {
         t.FROM = `${t.FROM}${w}${separator}`;
       });
@@ -558,7 +554,7 @@ function migrateFromV7(model: ModelData) {
       if (w.startsWith(crystallizedPension)) {
         // log(`old t.FROM w = ${w}`);
         const person = w.substring(crystallizedPension.length);
-        let pensionName = 'pensionName';
+        let pensionName = "pensionName";
         const mapEntry = nameToPension.get(person);
         // log(`nameToPension has [${person}, ${mapEntry}]`);
         if (mapEntry !== undefined) {
@@ -571,7 +567,7 @@ function migrateFromV7(model: ModelData) {
       newWords.push(w);
     });
     if (hasChanged) {
-      t.TO = '';
+      t.TO = "";
       newWords.forEach((w) => {
         t.TO = `${t.TO}${w}${separator}`;
       });
@@ -628,15 +624,13 @@ function migrateFromV10(model: ModelData) {
   model.incomes.forEach((i) => {
     // log(`incomes were all 1m recurrence');
     if (i.RECURRENCE === undefined) {
-      i.RECURRENCE = '1m';
+      i.RECURRENCE = "1m";
     }
   });
   model.version = 11;
 }
 
-export function migrateOldVersions(
-  model: ModelDataFromFile,
-) {
+export function migrateOldVersions(model: ModelDataFromFile) {
   /* istanbul ignore if  */ //debug
   if (showMigrationLogs) {
     log(`in migrateOldVersions, model is ${model.version}`);
@@ -695,7 +689,7 @@ export function migrateOldVersions(
       );
     } else {
       /* istanbul ignore next */
-      throw new Error('code not properly handling versions');
+      throw new Error("code not properly handling versions");
     }
   }
 }

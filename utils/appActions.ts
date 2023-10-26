@@ -1,5 +1,9 @@
 import { saveModelLSM } from "../database/loadSaveModel";
-import { attemptRenameLong, markForUndo, revertToUndoModel } from "../models/modelUtils";
+import {
+  attemptRenameLong,
+  markForUndo,
+  revertToUndoModel,
+} from "../models/modelUtils";
 import { DeleteResult, Item, ModelData } from "../types/interfaces";
 import { getUserID } from "./user";
 import { checkData } from "../models/checks";
@@ -10,7 +14,7 @@ export async function attemptRename(
   doChecks: boolean,
   old: string,
   replacement: string,
-  showAlert: (message:string) => void,
+  showAlert: (message: string) => void,
   refreshData: (
     refreshModel: boolean,
     refreshChart: boolean,
@@ -19,7 +23,7 @@ export async function attemptRename(
 ): Promise<string> {
   const message = attemptRenameLong(model, doChecks, old, replacement);
   // log(`message from attemptRenameLong is ${message}`);
-  if (message === '') {
+  if (message === "") {
     // log(`message is empty, go to refreshData`);
     await saveModelLSM(getUserID(), model.name, model);
     refreshData(
@@ -78,7 +82,7 @@ function getListFromModel(type: Context, model: ModelData): Item[] {
   } else if (type === Context.Setting) {
     result = model.settings;
   } else {
-    log('Error : unexpected outcome.type');
+    log("Error : unexpected outcome.type");
   }
   return result;
 }
@@ -94,7 +98,7 @@ async function deleteItemsRecursive(
     refreshModel: boolean,
     refreshChart: boolean,
     sourceID: number,
-  ) => Promise<void>
+  ) => Promise<void>,
 ): Promise<DeleteResult> {
   names.map((name) => {
     const idx = itemList.findIndex((i: Item) => {
@@ -113,17 +117,17 @@ async function deleteItemsRecursive(
   if (!doChecks) {
     return {
       itemsDeleted: names,
-      message: '',
+      message: "",
     };
   }
 
   // is the model still good? do we need to delete recursively?
   let itemsDeleted: string[] = names;
-  let message = '';
+  let message = "";
   let checksClean = false;
   while (!checksClean) {
     const outcome = checkData(model);
-    checksClean = outcome.message === '';
+    checksClean = outcome.message === "";
     if (checksClean) {
       break;
     }
@@ -146,7 +150,7 @@ async function deleteItemsRecursive(
       allowRecursion,
       refreshData,
     );
-    if (secondLevelResult.message === '') {
+    if (secondLevelResult.message === "") {
       // log(`attempt to delete dependents - fails checks`);
       itemsDeleted = itemsDeleted.concat(secondLevelResult.itemsDeleted);
       continue;
@@ -157,7 +161,7 @@ async function deleteItemsRecursive(
   if (checksClean) {
     return {
       itemsDeleted: itemsDeleted,
-      message: '',
+      message: "",
     };
   } else {
     return {
@@ -212,7 +216,7 @@ export async function deleteItemsFromModelInternal(
     refreshData,
   );
 
-  if (response.message !== '') {
+  if (response.message !== "") {
     revertToUndoModel(model);
     showAlert(response.message);
     return {
@@ -229,7 +233,7 @@ export async function deleteItemsFromModelInternal(
 
     return {
       itemsDeleted: response.itemsDeleted,
-      message: '',
+      message: "",
     };
   }
 }

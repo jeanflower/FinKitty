@@ -1,4 +1,4 @@
-import { Col } from 'react-bootstrap';
+import { Col } from "react-bootstrap";
 import {
   ChartData,
   ChartSettings,
@@ -8,7 +8,7 @@ import {
   ModelData,
   Setting,
   ViewCallbacks,
-} from '../types/interfaces';
+} from "../types/interfaces";
 import {
   allItems,
   annually,
@@ -32,19 +32,19 @@ import {
   cpPrefix,
   penPrefix,
   weekly,
-} from '../localization/stringConstants';
-import { Context, log, printDebug, showObj } from '../utils/utils';
+} from "../localization/stringConstants";
+import { Context, log, printDebug, showObj } from "../utils/utils";
 
-import { makeButton } from './reactComponents/Button';
-import React from 'react';
-import ReactiveTextArea from './reactComponents/ReactiveTextArea';
-import { AddDeleteEntryForm } from './reactComponents/AddDeleteEntryForm';
-import { getLiabilityPeople } from '../models/modelUtils';
+import { makeButton } from "./reactComponents/Button";
+import React from "react";
+import ReactiveTextArea from "./reactComponents/ReactiveTextArea";
+import { AddDeleteEntryForm } from "./reactComponents/AddDeleteEntryForm";
+import { getLiabilityPeople } from "../models/modelUtils";
 
-import { Bar } from 'react-chartjs-2';
+import { Bar } from "react-chartjs-2";
 
-import { Container } from 'react-bootstrap';
-import dateFormat from 'dateformat';
+import { Container } from "react-bootstrap";
+import dateFormat from "dateformat";
 
 import {
   Chart as ChartJS,
@@ -54,10 +54,10 @@ import {
   Title,
   Tooltip as ChartTooltip,
   Legend,
-} from 'chart.js';
-import { getColor, ViewSettings } from '../utils/viewUtils';
-import { makeStringFromCashValue } from '../utils/stringUtils';
-import { getSettings, isNumberString } from '../models/modelQueries';
+} from "chart.js";
+import { getColor, ViewSettings } from "../utils/viewUtils";
+import { makeStringFromCashValue } from "../utils/stringUtils";
+import { getSettings, isNumberString } from "../models/modelQueries";
 
 export function makeBarData(
   labels: string[],
@@ -107,7 +107,7 @@ function getTaxType(settings: ViewSettings) {
 
 function getTaxShowNet(settings: ViewSettings) {
   const type = settings.getViewSetting(taxChartShowNet, allItems);
-  return type === 'Y' || type === 'y' || type === 'yes';
+  return type === "Y" || type === "y" || type === "yes";
 }
 
 async function setViewFrequency(
@@ -118,9 +118,7 @@ async function setViewFrequency(
     refreshChart: boolean,
     sourceID: number,
   ) => Promise<void>,
-  updateFrequency: (
-    newVal: string
-  ) => boolean,
+  updateFrequency: (newVal: string) => boolean,
 ) {
   return setViewSettingNameVal(
     viewState,
@@ -139,9 +137,7 @@ async function setViewSettingNameVal(
     refreshChart: boolean,
     sourceID: number,
   ) => Promise<void>,
-  updateFrequency?: ((
-    newVal: string
-  ) => boolean),
+  updateFrequency?: (newVal: string) => boolean,
 ) {
   let needsRefreshData = false;
   if (name === viewFrequency) {
@@ -156,8 +152,8 @@ async function setViewSettingNameVal(
         return;
       }
     } else {
-      throw new Error('undefined setViewSettingNameVal');
-    } 
+      throw new Error("undefined setViewSettingNameVal");
+    }
 
     if (
       (oldVal === weekly && val !== weekly) ||
@@ -186,7 +182,7 @@ function makeFilterButton(
     sourceID: number,
   ) => Promise<void>,
 ) {
-  let id = '';
+  let id = "";
   if (context === Context.Income) {
     id = `select-${buttonName}`;
   } else if (context === Context.Expense) {
@@ -197,15 +193,15 @@ function makeFilterButton(
     id = `chooseAssetOrDebtChartSetting--debt-${buttonName}`;
   }
 
-  let type: finkittyButtonType = 'primary';
+  let type: finkittyButtonType = "primary";
   if (isCategory) {
     type = settings.highlightButton(context, buttonName)
-      ? 'success'
-      : 'outline-success';
+      ? "success"
+      : "outline-success";
   } else {
     type = settings.highlightButton(context, buttonName)
-      ? 'primary'
-      : 'outline-primary';
+      ? "primary"
+      : "outline-primary";
   }
 
   return makeButton(
@@ -234,7 +230,7 @@ export function filtersList(
     refreshModel: boolean,
     refreshChart: boolean,
     sourceID: number,
-  ) => Promise<void>,  
+  ) => Promise<void>,
 ) {
   const incomeOrExpenseNames: string[] = items
     .map((data) => data.NAME)
@@ -264,12 +260,19 @@ export function filtersList(
     });
 
   const buttons = incomeOrExpenseNames.map((buttonName) => {
-    return makeFilterButton(buttonName, settings, context, refreshModel, false, refreshData);
+    return makeFilterButton(
+      buttonName,
+      settings,
+      context,
+      refreshModel,
+      false,
+      refreshData,
+    );
   });
   const categories: string[] = [];
   items.forEach((data) => {
     const cat = data.CATEGORY;
-    if (cat !== '') {
+    if (cat !== "") {
       if (categories.indexOf(cat) < 0) {
         categories.push(cat);
       }
@@ -278,7 +281,14 @@ export function filtersList(
   categories.sort();
   categories.unshift(allItems);
   const categoryButtons = categories.map((buttonName) => {
-    return makeFilterButton(buttonName, settings, context, refreshModel, true, refreshData);
+    return makeFilterButton(
+      buttonName,
+      settings,
+      context,
+      refreshModel,
+      true,
+      refreshData,
+    );
   });
 
   return (
@@ -296,12 +306,8 @@ export function startEndDateInputs(parentCallbacks: ViewCallbacks) {
         <div className="col-3">
           <AddDeleteEntryForm
             name="Start"
-            getValue={
-              parentCallbacks.getStartDate
-            }
-            submitFunction={
-              parentCallbacks.updateStartDate
-            }
+            getValue={parentCallbacks.getStartDate}
+            submitFunction={parentCallbacks.updateStartDate}
             showAlert={parentCallbacks.showAlert}
           />
         </div>
@@ -312,7 +318,7 @@ export function startEndDateInputs(parentCallbacks: ViewCallbacks) {
               parentCallbacks.getEndDate
                 ? parentCallbacks.getEndDate
                 : () => {
-                    return '';
+                    return "";
                   }
             }
             submitFunction={
@@ -321,7 +327,7 @@ export function startEndDateInputs(parentCallbacks: ViewCallbacks) {
                 : async () => {
                     return {
                       updated: false,
-                      value: 'undefined',
+                      value: "undefined",
                     };
                   }
             }
@@ -346,11 +352,16 @@ export function coarseFineList(
       `${viewType}${tideLines(viewType, settings, chartData)}`,
       (e: React.MouseEvent<HTMLButtonElement>) => {
         e.persist();
-        setViewSettingNameVal(settings, viewDetail, viewType, parentCallbacks.refreshData);
+        setViewSettingNameVal(
+          settings,
+          viewDetail,
+          viewType,
+          parentCallbacks.refreshData,
+        );
       },
       viewType,
       `chooseViewDetailType${viewType}`,
-      viewType === selectedCoarseFineView ? 'secondary' : 'outline-secondary',
+      viewType === selectedCoarseFineView ? "secondary" : "outline-secondary",
     ),
   );
   const viewTypeFrequencys: string[] = [weekly, monthly, annually];
@@ -361,15 +372,15 @@ export function coarseFineList(
       (e: React.MouseEvent<HTMLButtonElement>) => {
         e.persist();
         setViewFrequency(
-          settings, 
-          viewType, 
+          settings,
+          viewType,
           parentCallbacks.refreshData,
           parentCallbacks.updateFrequency,
         );
       },
       viewType,
       `chooseViewFrequencyType${viewType}`,
-      viewType === selectedView ? 'primary' : 'outline-primary',
+      viewType === selectedView ? "primary" : "outline-primary",
     ),
   );
   return (
@@ -387,21 +398,21 @@ export function getDefaultChartSettings(
 ): ChartSettings {
   //const showMonth =
   //  settings.getViewSetting(viewFrequency, annually) === monthly;
-  const showAge = getSettings(modelSettings, birthDate, '') !== '';
+  const showAge = getSettings(modelSettings, birthDate, "") !== "";
   return {
     isSmall: false,
     height: 300,
     toolTip: {
-      content: '{name}: {ttip}',
+      content: "{name}: {ttip}",
     },
     // width: 800,
 
     legend: {
       // fontSize: 30,
-      fontFamily: 'Helvetica',
-      fontWeight: 'normal',
-      horizontalAlign: 'right', // left, center ,right
-      verticalAlign: 'center', // top, center, bottom
+      fontFamily: "Helvetica",
+      fontWeight: "normal",
+      horizontalAlign: "right", // left, center ,right
+      verticalAlign: "center", // top, center, bottom
       display: true,
     },
 
@@ -433,10 +444,10 @@ export function getSmallerChartSettings(
     },
     // see also suppressLegend()
     legend: {
-      fontFamily: 'Helvetica',
-      fontWeight: 'normal',
-      horizontalAlign: 'right', // left, center ,right
-      verticalAlign: 'center', // top, center, bottom
+      fontFamily: "Helvetica",
+      fontWeight: "normal",
+      horizontalAlign: "right", // left, center ,right
+      verticalAlign: "center", // top, center, bottom
       display: false,
     },
   };
@@ -456,11 +467,11 @@ function makeBarChart(
             display:
               chartSettings.title !== undefined && chartSettings.title.display,
             text:
-              chartSettings.title !== undefined ? chartSettings.title.text : '',
+              chartSettings.title !== undefined ? chartSettings.title.text : "",
           },
           legend: {
             display: data.displayLegend,
-            position: 'right',
+            position: "right",
           },
         },
         animation: {
@@ -482,7 +493,7 @@ function makeBarChart(
                   );
                 }
                 const l: number | string = data.labels[index];
-                if (typeof l === 'number' || isNumberString(l)) {
+                if (typeof l === "number" || isNumberString(l)) {
                   return l;
                 }
                 const d = new Date(l);
@@ -491,11 +502,11 @@ function makeBarChart(
                   annually,
                 );
                 if (freq === weekly) {
-                  return dateFormat(d, 'dd mmmm yyyy');
+                  return dateFormat(d, "dd mmmm yyyy");
                 } else if (freq === monthly) {
-                  return dateFormat(d, 'mmmm yyyy');
+                  return dateFormat(d, "mmmm yyyy");
                 } else {
-                  return dateFormat(d, 'yyyy');
+                  return dateFormat(d, "yyyy");
                 }
               },
             },
@@ -559,16 +570,16 @@ function noDataToDisplayFragment(
     );
   } else {
     let hasData = false;
-    if (word === 'income') {
+    if (word === "income") {
       hasData = model.incomes.length > 0;
-    } else if (word === 'expense') {
+    } else if (word === "expense") {
       hasData = model.expenses.length > 0;
-    } else if (word === 'asset') {
+    } else if (word === "asset") {
       hasData =
         model.assets.filter((a) => {
           return a.IS_A_DEBT === false;
         }).length > 0;
-    } else if (word === 'debt') {
+    } else if (word === "debt") {
       hasData =
         model.assets.filter((a) => {
           return a.IS_A_DEBT === true;
@@ -614,7 +625,7 @@ export function incomesChartDiv(
 ): JSX.Element {
   if (incomesChartData.labels.length === 0) {
     log(`incomesChartData.length === 0, no data`);
-    return noDataToDisplayFragment('income', model, parentCallbacks);
+    return noDataToDisplayFragment("income", model, parentCallbacks);
   } else {
     return incomesChart(incomesChartData, chartSettings, viewSettings);
   }
@@ -625,15 +636,15 @@ export function tideLines(
   chartData: ChartData,
 ): string {
   if (viewType !== totalDetail || getCoarseFineView(settings) !== totalDetail) {
-    return '';
+    return "";
   }
   if (chartData.datasets[0] === undefined) {
-    return '';
+    return "";
   }
   const mx = Math.max(...chartData.datasets[0].data);
   const mn = Math.min(...chartData.datasets[0].data);
-  const mxString = makeStringFromCashValue(`${mx}`, '£');
-  const mnString = makeStringFromCashValue(`${mn}`, '£');
+  const mxString = makeStringFromCashValue(`${mx}`, "£");
+  const mnString = makeStringFromCashValue(`${mn}`, "£");
   return ` min = ${mnString}, max = ${mxString}`;
 }
 
@@ -651,21 +662,27 @@ export function incomesChartDivWithButtons(
           identifier="incomeChartDataDump"
           message={showObj(incomesChartData)}
         />
-        {noDataToDisplayFragment('income', model, parentCallbacks)}
+        {noDataToDisplayFragment("income", model, parentCallbacks)}
       </>
     );
   } else {
     return (
       <div
         style={{
-          display: 'block',
+          display: "block",
         }}
       >
         <ReactiveTextArea
           identifier="incomeChartDataDump"
           message={showObj(incomesChartData)}
         />
-        {filtersList(model.incomes, settings, Context.Income, false, parentCallbacks.refreshData)}
+        {filtersList(
+          model.incomes,
+          settings,
+          Context.Income,
+          false,
+          parentCallbacks.refreshData,
+        )}
         {coarseFineList(settings, incomesChartData, parentCallbacks)}
         {incomesChartDiv(
           incomesChartData,
@@ -695,7 +712,7 @@ export function expensesChartDiv(
   parentCallbacks: ViewCallbacks,
 ) {
   if (expensesChartData.labels.length === 0) {
-    return noDataToDisplayFragment('expense', model, parentCallbacks);
+    return noDataToDisplayFragment("expense", model, parentCallbacks);
   } else {
     return expensesChart(expensesChartData, chartSettings, viewSettings);
   }
@@ -715,21 +732,27 @@ export function expensesChartDivWithButtons(
           identifier="expenseChartDataDump"
           message={showObj(expensesChartData)}
         />
-        {noDataToDisplayFragment('expense', model, parentCallbacks)}
+        {noDataToDisplayFragment("expense", model, parentCallbacks)}
       </>
     );
   } else {
     return (
       <div
         style={{
-          display: 'block',
+          display: "block",
         }}
       >
         <ReactiveTextArea
           identifier="expenseChartDataDump"
           message={showObj(expensesChartData)}
         />
-        {filtersList(model.expenses, settings, Context.Expense, false, parentCallbacks.refreshData)}
+        {filtersList(
+          model.expenses,
+          settings,
+          Context.Expense,
+          false,
+          parentCallbacks.refreshData,
+        )}
         {coarseFineList(settings, expensesChartData, parentCallbacks)}
         <fieldset>
           {expensesChartDiv(
@@ -751,7 +774,7 @@ function assetViewTypeList(
     refreshModel: boolean,
     refreshChart: boolean,
     sourceID: number,
-  ) => Promise<void>  
+  ) => Promise<void>,
 ) {
   const viewTypes: string[] = [
     chartVals,
@@ -769,7 +792,7 @@ function assetViewTypeList(
       },
       viewType,
       `chooseAssetChartType${viewType}`,
-      viewType === selectedAssetView ? 'primary' : 'outline-primary',
+      viewType === selectedAssetView ? "primary" : "outline-primary",
     ),
   );
   return <div role="group">{buttons}</div>;
@@ -785,7 +808,7 @@ export function assetsOrDebtsChartDiv(
 ) {
   if (assetChartData.labels.length === 0) {
     return noDataToDisplayFragment(
-      isDebt ? 'debt' : 'asset',
+      isDebt ? "debt" : "asset",
       model,
       parentCallbacks,
     );
@@ -806,7 +829,7 @@ export function assetsOrDebtsChartDivWithButtons(
       return a.IS_A_DEBT === isDebt;
     }).length === 0
   ) {
-    const word = isDebt ? 'debt' : 'asset';
+    const word = isDebt ? "debt" : "asset";
     const dataDumpName = `${word}ChartDataDump`;
     return (
       <>
@@ -827,14 +850,20 @@ export function assetsOrDebtsChartDivWithButtons(
     return (
       <div
         style={{
-          display: 'block',
+          display: "block",
         }}
       >
-        {filtersList(items, viewSettings, context, false, parentCallbacks.refreshData)}
+        {filtersList(
+          items,
+          viewSettings,
+          context,
+          false,
+          parentCallbacks.refreshData,
+        )}
         {assetViewTypeList(viewSettings, parentCallbacks.refreshData)}
         {coarseFineList(viewSettings, assetChartData, parentCallbacks)}
         <ReactiveTextArea
-          identifier={isDebt ? 'debtChartDataDump' : 'assetChartDataDump'}
+          identifier={isDebt ? "debtChartDataDump" : "assetChartDataDump"}
           message={showObj(assetChartData)}
         />
         {assetsOrDebtsChartDiv(
@@ -851,7 +880,7 @@ export function assetsOrDebtsChartDivWithButtons(
 }
 
 function taxButtonList(
-  model: ModelData, 
+  model: ModelData,
   viewSettings: ViewSettings,
   refreshData: (
     refreshModel: boolean,
@@ -865,74 +894,94 @@ function taxButtonList(
   // log(`liablityPeople for tax buttons is ${showObj(liabilityPeople)}`);
   const buttons = liabilityPeople.map((person) =>
     makeButton(
-      person === allItems ? 'All people' : person,
+      person === allItems ? "All people" : person,
       (e: React.MouseEvent<HTMLButtonElement>) => {
         e.persist();
-        setViewSettingNameVal(viewSettings, taxChartFocusPerson, person, refreshData);
+        setViewSettingNameVal(
+          viewSettings,
+          taxChartFocusPerson,
+          person,
+          refreshData,
+        );
       },
-      person === allItems ? 'All people' : person,
+      person === allItems ? "All people" : person,
       `chooseTaxSetting-${person}`,
-      person === getTaxPerson(viewSettings) ? 'primary' : 'outline-primary',
+      person === getTaxPerson(viewSettings) ? "primary" : "outline-primary",
     ),
   );
   buttons.push(
     makeButton(
-      'All types',
+      "All types",
       (e: React.MouseEvent<HTMLButtonElement>) => {
         e.persist();
-        setViewSettingNameVal(viewSettings, taxChartFocusType, allItems, refreshData);
+        setViewSettingNameVal(
+          viewSettings,
+          taxChartFocusType,
+          allItems,
+          refreshData,
+        );
       },
-      'All types',
+      "All types",
       `chooseTaxType-all`,
-      getTaxType(viewSettings) === allItems ? 'secondary' : 'outline-secondary',
+      getTaxType(viewSettings) === allItems ? "secondary" : "outline-secondary",
     ),
   );
   buttons.push(
     makeButton(
-      'Income',
+      "Income",
       (e: React.MouseEvent<HTMLButtonElement>) => {
         e.persist();
-        setViewSettingNameVal(viewSettings, taxChartFocusType, income, refreshData);
+        setViewSettingNameVal(
+          viewSettings,
+          taxChartFocusType,
+          income,
+          refreshData,
+        );
       },
-      'income',
+      "income",
       `chooseTaxType-income`,
-      getTaxType(viewSettings) === income ? 'secondary' : 'outline-secondary',
+      getTaxType(viewSettings) === income ? "secondary" : "outline-secondary",
     ),
   );
   buttons.push(
     makeButton(
-      'Gain',
+      "Gain",
       (e: React.MouseEvent<HTMLButtonElement>) => {
         e.persist();
-        setViewSettingNameVal(viewSettings, taxChartFocusType, gain, refreshData);
+        setViewSettingNameVal(
+          viewSettings,
+          taxChartFocusType,
+          gain,
+          refreshData,
+        );
       },
-      'gain',
+      "gain",
       `chooseTaxType-gain`,
-      getTaxType(viewSettings) === gain ? 'secondary' : 'outline-secondary',
+      getTaxType(viewSettings) === gain ? "secondary" : "outline-secondary",
     ),
   );
   buttons.push(
     makeButton(
-      'Show net',
+      "Show net",
       (e: React.MouseEvent<HTMLButtonElement>) => {
         e.persist();
-        setViewSettingNameVal(viewSettings, taxChartShowNet, 'Y', refreshData);
+        setViewSettingNameVal(viewSettings, taxChartShowNet, "Y", refreshData);
       },
-      'Show net',
+      "Show net",
       `chooseTaxType-showNet`,
-      getTaxShowNet(viewSettings) ? 'success' : 'outline-success',
+      getTaxShowNet(viewSettings) ? "success" : "outline-success",
     ),
   );
   buttons.push(
     makeButton(
-      'Hide net',
+      "Hide net",
       (e: React.MouseEvent<HTMLButtonElement>) => {
         e.persist();
-        setViewSettingNameVal(viewSettings, taxChartShowNet, 'N', refreshData);
+        setViewSettingNameVal(viewSettings, taxChartShowNet, "N", refreshData);
       },
-      'Hide net',
+      "Hide net",
       `chooseTaxType-hideNet`,
-      !getTaxShowNet(viewSettings) ? 'success' : 'outline-success',
+      !getTaxShowNet(viewSettings) ? "success" : "outline-success",
     ),
   );
   return <div role="group">{buttons}</div>;
@@ -1009,7 +1058,7 @@ export function optimizationDiv(
   return (
     <div
       style={{
-        display: 'block',
+        display: "block",
       }}
     >
       {makeBarChart(data, chartSettings, settings)}

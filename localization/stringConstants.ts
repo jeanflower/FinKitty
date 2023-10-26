@@ -1,97 +1,97 @@
-export const NO_ASSET_NAME = '';
-export const separator = '/';
-export const dot = '.';
+export const NO_ASSET_NAME = "";
+export const separator = "/";
+export const dot = ".";
 // All models have a Cash asset and this is its name
-export const CASH_ASSET_NAME = 'Cash';
+export const CASH_ASSET_NAME = "Cash";
 
 // All models used to have a taxPot which keeps a tally of payments for
 // income tax, NI, or CGT
 // useful to monitor and determine ways to
 // optimize the size or timing of payments.
-export const taxPot = 'TaxPot';
+export const taxPot = "TaxPot";
 
 // All models have a value for CPI (can be zero),
 // which controls how values of incomes/expenses/assets
 // naturally grow over time
-export const cpi = 'cpi';
-export const cpiHint = 'Annual rate of inflation';
-export const baseForCPI = 'base';
-export const annualBaseForCPI = 'annualBase';
+export const cpi = "cpi";
+export const cpiHint = "Annual rate of inflation";
+export const baseForCPI = "base";
+export const annualBaseForCPI = "annualBase";
 
 // All models include these settings which control the view:
 // date range for charts
-export const roiEnd = 'End of view range';
-export const roiEndHint = 'Date at the end of range to be plotted';
-export const roiStart = 'Beginning of view range';
-export const roiStartHint = 'Date at the start of range to be plotted';
+export const roiEnd = "End of view range";
+export const roiEndHint = "Date at the end of range to be plotted";
+export const roiStart = "Beginning of view range";
+export const roiStartHint = "Date at the start of range to be plotted";
 // dates can be plotted as dates or as an age based on a given
 // date of birth (leave DOB as '' to see dates not ages)
-export const birthDate = 'Date of birth';
-export const birthDateHint = 'Date used for representing dates as ages';
+export const birthDate = "Date of birth";
+export const birthDateHint = "Date used for representing dates as ages";
 // The asset values table defaults to Today's value but you can set an
 // alternative date here
 export const valueFocusDate = `Today's value focus date`;
 export const valueFocusDateHint = `Date to use for 'today's value' tables (defaults to '' meaning today)`;
 // whether bars on the charts show monthly or annual values
-export const viewFrequency = 'View frequency';
+export const viewFrequency = "View frequency";
 // "Data plotted 'monthly' or 'annually'";
-export const annually = 'Annually';
-export const monthly = 'Monthly';
-export const weekly = 'Weekly';
+export const annually = "Annually";
+export const monthly = "Monthly";
+export const weekly = "Weekly";
 // whether charts bundle items into categories
 // a coarse view uses categories and is simpler to look at
 // a detailed view ignores categories and represents everything
 // separately
-export const viewDetail = 'View detail';
+export const viewDetail = "View detail";
 //  "View detail ('Categorised view' or 'Detailed view')";
-export const totalDetail = 'Totalled';
-export const coarseDetail = 'Categorised';
-export const fineDetail = 'Detailed';
+export const totalDetail = "Totalled";
+export const coarseDetail = "Categorised";
+export const fineDetail = "Detailed";
 // The asset chart can show all assets/expenses/incomes
 // (set focus to All)
 // or all things in a given category
 // or an individual named thing
-export const assetChartFocus = 'Focus of assets chart';
+export const assetChartFocus = "Focus of assets chart";
 //  "Assets chart can display a category, a single asset, or 'All'";
-export const debtChartFocus = 'Focus of debts chart';
+export const debtChartFocus = "Focus of debts chart";
 //  "Debts chart can display a category, a single debt, or 'All'";
-export const expenseChartFocus = 'Focus of expenses chart';
+export const expenseChartFocus = "Focus of expenses chart";
 //  "Expenses chart can display a category, a single expense, or 'All'";
-export const incomeChartFocus = 'Focus of incomes chart';
+export const incomeChartFocus = "Focus of incomes chart";
 //  "Incomes chart can display a category, a single income, or 'All'";
-export const taxChartFocusPerson = 'Focus of tax chart, person';
+export const taxChartFocusPerson = "Focus of tax chart, person";
 //  "Tax chart can show data pertinent to a named individual or 'All'";
-export const taxChartFocusType = 'Focus of tax chart, type';
+export const taxChartFocusType = "Focus of tax chart, type";
 //  "Tax chart can show data for 'income', 'gain' or 'All'";
-export const taxChartShowNet = 'Tax chart, whether to include net income/gains';
+export const taxChartShowNet = "Tax chart, whether to include net income/gains";
 //  "Show net can be 'Y', 'N', 'y', 'n', 'yes', 'no'";
-export const allItems = 'All';
+export const allItems = "All";
 // Asset chart bars represent the value of the asset/debt
 // or the delta (additions, reductions or both)
-export const chartViewType = 'Type of view for chart';
+export const chartViewType = "Type of view for chart";
 //  "Chart uses setting '+', '-', '+-' or 'val'";
-export const chartVals = 'val';
-export const chartAdditions = '+';
-export const chartReductions = '-';
-export const chartDeltas = '+-';
+export const chartVals = "val";
+export const chartAdditions = "+";
+export const chartReductions = "-";
+export const chartDeltas = "+-";
 
 // The app ships with a sample model that covers some of the
 // types of assets, income, expenses and transactions.
 // The sample data can be loaded into a model.
-export const myFirstModelName = 'My First Model';
+export const myFirstModelName = "My First Model";
 
 // Incomes can be liable to incomeTax or NI
 // concatenate with liable person's name
 // e.g. IncomeTaxJoe or NIJane
-export const incomeTax = '(incomeTax)';
-export const nationalInsurance = '(NI)';
-export const taxableBenefit = 'TaxableBenefit';
-export const income = 'income';
-export const gain = 'gain';
-export const net = '(net)';
+export const incomeTax = "(incomeTax)";
+export const nationalInsurance = "(NI)";
+export const taxableBenefit = "TaxableBenefit";
+export const income = "income";
+export const gain = "gain";
+export const net = "(net)";
 
-export const cpPrefix = '-CP';
-export const penPrefix = '-P';
+export const cpPrefix = "-CP";
+export const penPrefix = "-P";
 // Assets can of the form CrystallizedPension
 // and transfer to cash is liable to income tax for
 // the named owner
@@ -102,7 +102,7 @@ export const crystallizedPension = `${cpPrefix}Taxable `;
 // CGT calculations depend upon a PurchasePrice having been set
 // for the asset. Then, upon sale, a gain can be calculated
 // and allowed for in CGT calculation
-export const cgt = '(CGT)';
+export const cgt = "(CGT)";
 
 // Some transactions behave in special ways regarding income tax
 // name them
@@ -121,14 +121,14 @@ export const moveTaxFreePart = `${cpPrefix}TaxFreeM `;
 export const taxFree = `${cpPrefix}TaxFree `;
 export const transferCrystallizedPension = `${cpPrefix}T `;
 
-export const bondMaturity = 'BMV';
+export const bondMaturity = "BMV";
 
 // Transactions can be Conditional
 // (i.e. they're named ConditionalDoSomething)
 // the condition is that they only execute if the
 // target asset is negative
 // (so used to keep a cash float positive, fvor example)
-export const conditional = 'Conditional';
+export const conditional = "Conditional";
 
 // Transactions can be Revalue
 // which simply replaces the value of an existing
@@ -137,99 +137,99 @@ export const conditional = 'Conditional';
 // Supply no FROM, a name for TO
 // and an absolute value for TO
 // Useful for recalibrating a model back with true values.
-export const revalue = 'Revalue';
+export const revalue = "Revalue";
 
 // Reported deltas on assets can be flagged as 'growth'
-export const growth = 'growth';
+export const growth = "growth";
 
 // Track quantities or discrete assets using this string
-export const quantity = 'quantity';
+export const quantity = "quantity";
 
 // Track purchase price of aasets liable to capital gains
-export const purchase = 'Purchase';
+export const purchase = "Purchase";
 
 // Transaction types:
 //  Auto-generated (e.g. about pension)
-export const autogen = 'auto';
+export const autogen = "auto";
 //  Custom transaction (are still staying as transactions)
-export const custom = 'custom';
+export const custom = "custom";
 //  Revalue incomes
-export const revalueInc = 'revalueInc';
+export const revalueInc = "revalueInc";
 //  Revalue expenses
-export const revalueExp = 'revalueExp';
+export const revalueExp = "revalueExp";
 //  Revalue assets
-export const revalueAsset = 'revalueAsset';
+export const revalueAsset = "revalueAsset";
 //  Revalue debts
-export const revalueDebt = 'revalueDebt';
+export const revalueDebt = "revalueDebt";
 //  Revalue settings
-export const revalueSetting = 'revalueSetting';
+export const revalueSetting = "revalueSetting";
 //  Liquidate assets to keep cash afloat
 // (Conditional sell to cash)
-export const liquidateAsset = 'liquidateAsset';
+export const liquidateAsset = "liquidateAsset";
 //  Use cash to pay off debts
 // (Conditional cash to debt)
-export const payOffDebt = 'payOffDebt';
+export const payOffDebt = "payOffDebt";
 // Bond investment
-export const bondInvest = 'bondInvest';
+export const bondInvest = "bondInvest";
 // Bond maturity
-export const bondMature = 'bondMature';
-export const tracking = 'traaacking';
+export const bondMature = "bondMature";
+export const tracking = "traaacking";
 
 // settings types
-export const constType = 'const';
-export const viewType = 'view';
-export const adjustableType = 'adjustable';
+export const constType = "const";
+export const viewType = "view";
+export const adjustableType = "adjustable";
 
 // Bond interest rate setting name
-export const bondInterest = 'bondInterest';
+export const bondInterest = "bondInterest";
 
-export const EvaluateAllAssets = 'EvaluateAllAssets';
+export const EvaluateAllAssets = "EvaluateAllAssets";
 
-export const TestModel01 = 'TestModel01';
-export const TestModel02 = 'TestModel02';
-export const CoarseAndFine = 'CoarseAndFine';
-export const FutureExpense = 'FutureExpense';
-export const ThreeChryslerModel = 'ThreeChryslerModel';
-export const MinimalModel = 'MinimalModel';
-export const BenAndJerryModel = 'BenAndJerryModel';
-export const bondModel = 'bondModel';
+export const TestModel01 = "TestModel01";
+export const TestModel02 = "TestModel02";
+export const CoarseAndFine = "CoarseAndFine";
+export const FutureExpense = "FutureExpense";
+export const ThreeChryslerModel = "ThreeChryslerModel";
+export const MinimalModel = "MinimalModel";
+export const BenAndJerryModel = "BenAndJerryModel";
+export const bondModel = "bondModel";
 
 export interface ViewType {
   lc: string;
 }
-export const homeView: ViewType = { lc: 'Home' };
-export const expensesView: ViewType = { lc: 'Expenses' };
-export const incomesView: ViewType = { lc: 'Incomes' };
-export const transactionsView: ViewType = { lc: 'Transactions' };
-export const assetsView: ViewType = { lc: 'Assets' };
-export const debtsView: ViewType = { lc: 'Debts' };
-export const triggersView: ViewType = { lc: 'Dates' };
-export const settingsView: ViewType = { lc: 'Settings' };
-export const taxView: ViewType = { lc: 'Tax' };
-export const reportView: ViewType = { lc: 'Asset actions' };
-export const optimizerView: ViewType = { lc: 'Optimizer' };
-export const planningView: ViewType = { lc: 'Planning' };
+export const homeView: ViewType = { lc: "Home" };
+export const expensesView: ViewType = { lc: "Expenses" };
+export const incomesView: ViewType = { lc: "Incomes" };
+export const transactionsView: ViewType = { lc: "Transactions" };
+export const assetsView: ViewType = { lc: "Assets" };
+export const debtsView: ViewType = { lc: "Debts" };
+export const triggersView: ViewType = { lc: "Dates" };
+export const settingsView: ViewType = { lc: "Settings" };
+export const taxView: ViewType = { lc: "Tax" };
+export const reportView: ViewType = { lc: "Asset actions" };
+export const optimizerView: ViewType = { lc: "Optimizer" };
+export const planningView: ViewType = { lc: "Planning" };
 
-export const expensesChart: ViewType = { lc: 'Expenses chart' };
-export const incomesChart: ViewType = { lc: 'Incomes chart' };
-export const assetsChart: ViewType = { lc: 'Assets chart' };
-export const debtsChart: ViewType = { lc: 'Debts chart' };
+export const expensesChart: ViewType = { lc: "Expenses chart" };
+export const incomesChart: ViewType = { lc: "Incomes chart" };
+export const assetsChart: ViewType = { lc: "Assets chart" };
+export const debtsChart: ViewType = { lc: "Debts chart" };
 
-export const overview: ViewType = { lc: 'Overview' };
+export const overview: ViewType = { lc: "Overview" };
 
-export const defaultSourceMatcher = '.';
-export const defaultSourceExcluder = '';
+export const defaultSourceMatcher = ".";
+export const defaultSourceExcluder = "";
 export const defaultReportSize = 40;
 
-export const evalModeOption = 'evalMode';
-export const checkModelOnEditOption = 'checkModelOnEdit';
-export const goToAssetsPageOption = 'goToAssetsPage';
-export const checkOverwriteOption = 'checkOverwrite';
+export const evalModeOption = "evalMode";
+export const checkModelOnEditOption = "checkModelOnEdit";
+export const goToAssetsPageOption = "goToAssetsPage";
+export const checkOverwriteOption = "checkOverwrite";
 
-export const uiMode = 'uiMode';
-export const simpleUI = 'simpleUI';
-export const advancedUI = 'advancedUI';
+export const uiMode = "uiMode";
+export const simpleUI = "simpleUI";
+export const advancedUI = "advancedUI";
 
-export const showHistoricalOption = 'showHistorical';
-export const showCurrentOption = 'showCurrent';
-export const showFutureOption = 'showFuture';
+export const showHistoricalOption = "showHistorical";
+export const showCurrentOption = "showCurrent";
+export const showFutureOption = "showFuture";

@@ -1,9 +1,9 @@
-import FileSaver from 'file-saver';
-import moment from 'moment';
+import FileSaver from "file-saver";
+import moment from "moment";
 
 let doLog = true;
 
-let logText = '';
+let logText = "";
 
 export function log(obj: string | Map<any, any> | boolean) {
   if (doLog) {
@@ -18,7 +18,7 @@ export function log(obj: string | Map<any, any> | boolean) {
 /* istanbul ignore next */
 export function saveLogs() {
   /* istanbul ignore next */
-  const blob = new Blob([logText], { type: 'text/plain;charset=utf-8' });
+  const blob = new Blob([logText], { type: "text/plain;charset=utf-8" });
   /* istanbul ignore next */
   FileSaver.saveAs(blob, `logs.txt`);
 }
@@ -39,7 +39,7 @@ export function showObj(obj: any) {
 }
 
 export function endOfTime() {
-  return makeDateFromString('1 Jan 2100');
+  return makeDateFromString("1 Jan 2100");
 }
 
 // Something like 12 as input (for 12%pa)
@@ -51,7 +51,8 @@ export function getMonthlyGrowth(annualPercentage: number) {
   const annualScale = annualProportion + 1.0;
   const logAnnualScale = Math.log(annualScale);
   const monthlyGrowth = Math.exp(logAnnualScale / 12.0) - 1.0;
-  // log(`calculated monthly growth = ${monthlyGrowth}, from annualPercentage = ${annualPercentage}`);
+  // log(`calculated monthly growth = ${monthlyGrowth}, `
+  //   +`from annualPercentage = ${annualPercentage}`);
   return monthlyGrowth;
 }
 
@@ -74,7 +75,7 @@ export enum DateFormatType {
 }
 
 export function makeDateFromString(input: string) {
-  if (input === 'tomorrow') {
+  if (input === "tomorrow") {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     return tomorrow;
@@ -82,8 +83,8 @@ export function makeDateFromString(input: string) {
   // special-case parsing for DD/MM/YYYY
   let regex = /^\d{1,2}\/\d{1,2}\/\d{4}$/;
   if (input.match(regex) !== null) {
-    const dateMomentObject = moment(input, 'DD/MM/YYYY');
-    const dateObject = dateMomentObject.toDate(); // convert moment.js object to Date object
+    const dateMomentObject = moment(input, "DD/MM/YYYY");
+    const dateObject = dateMomentObject.toDate();
     if (!Number.isNaN(dateObject.getTime())) {
       // log(`converted ${input} into ${dateObject)}`);
       return dateObject;
@@ -133,22 +134,22 @@ export function makeDateFromString(input: string) {
   }
 
   // log(`Invalid Date : ${input}`);
-  return new Date('Invalid Date');
+  return new Date("Invalid Date");
 }
 
 // shift forward d according to the end of name
 // e.g. if it ends '2y'
 export function getMaturityDate(dInput: Date, n: string) {
   const d = new Date(dInput);
-  if (n.endsWith('5y')) {
+  if (n.endsWith("5y")) {
     d.setFullYear(d.getFullYear() + 5);
-  } else if (n.endsWith('4y')) {
+  } else if (n.endsWith("4y")) {
     d.setFullYear(d.getFullYear() + 4);
-  } else if (n.endsWith('3y')) {
+  } else if (n.endsWith("3y")) {
     d.setFullYear(d.getFullYear() + 3);
-  } else if (n.endsWith('2y')) {
+  } else if (n.endsWith("2y")) {
     d.setFullYear(d.getFullYear() + 2);
-  } else if (n.endsWith('1y')) {
+  } else if (n.endsWith("1y")) {
     d.setFullYear(d.getFullYear() + 1);
   } else {
     /* istanbul ignore if */

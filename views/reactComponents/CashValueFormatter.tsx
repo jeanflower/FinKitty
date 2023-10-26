@@ -1,10 +1,10 @@
-import React from 'react';
-import { makeStringFromCashValue } from '../../utils/stringUtils';
+import React from "react";
+import { makeStringFromCashValue } from "../../utils/stringUtils";
 // import { showObj } from ''../../utils''
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Tooltip from 'react-bootstrap/Tooltip';
-import { log } from '../../utils/utils';
-import { isNumberString } from '../../models/modelQueries';
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Tooltip from "react-bootstrap/Tooltip";
+import { log } from "../../utils/utils";
+import { isNumberString } from "../../models/modelQueries";
 
 log;
 
@@ -16,13 +16,13 @@ class CashValueFormatter extends React.Component<CashValueFormatterProps> {
   public render() {
     let result: string;
     if (
-      this.props.value === '' ||
+      this.props.value === "" ||
       this.props.value === undefined ||
-      this.props.value === 'undefined'
+      this.props.value === "undefined"
     ) {
-      return '';
+      return "";
     } else if (isNumberString(this.props.value)) {
-      result = makeStringFromCashValue(this.props.value, '£');
+      result = makeStringFromCashValue(this.props.value, "£");
     } else {
       result = this.props.value;
     }

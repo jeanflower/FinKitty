@@ -1,9 +1,9 @@
-import React from 'react';
+import React from "react";
 
-import assetsGraph from './sampleAssetGraph.png';
-import expensesGraph from './sampleExpenseGraph.png';
-import taxGraph from './sampleTaxGraph.png';
-import Image from 'next/image' 
+import assetsGraph from "./sampleAssetGraph.png";
+import expensesGraph from "./sampleExpenseGraph.png";
+import taxGraph from "./sampleTaxGraph.png";
+import Image from "next/image";
 
 export function screenshotsDiv() {
   return (

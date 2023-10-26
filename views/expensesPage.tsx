@@ -6,8 +6,8 @@ import {
   Expense,
   ViewCallbacks,
   ReportDatum,
-} from '../types/interfaces';
-import { checkExpense, checkTransaction } from '../models/checks';
+} from "../types/interfaces";
+import { checkExpense, checkTransaction } from "../models/checks";
 import {
   defaultColumn,
   expensesTableDivWithHeading,
@@ -15,28 +15,28 @@ import {
   addIndices,
   cashValueColumn,
   triggerDateColumn,
-} from './tablePages';
+} from "./tablePages";
 
 import {
   expensesChartDivWithButtons,
   getDefaultChartSettings,
-} from './chartPages';
+} from "./chartPages";
 import {
   expensesView,
   planningView,
   revalueExp,
-} from '../localization/stringConstants';
+} from "../localization/stringConstants";
 
-import { AddDeleteExpenseForm } from './reactComponents/AddDeleteExpenseForm';
-import DataGridFinKitty from './reactComponents/DataGridFinKitty';
-import React from 'react';
+import { AddDeleteExpenseForm } from "./reactComponents/AddDeleteExpenseForm";
+import DataGridFinKitty from "./reactComponents/DataGridFinKitty";
+import React from "react";
 
-import { getTodaysDate } from '../models/modelUtils';
-import { dateAsString, lessThan } from '../utils/stringUtils';
-import { collapsibleFragment } from './tablePages';
-import { DateFormatType, log, printDebug } from '../utils/utils';
-import { ViewSettings, getDisplay } from '../utils/viewUtils';
-import { simpleExpense } from '../models/exampleModels';
+import { getTodaysDate } from "../models/modelUtils";
+import { dateAsString, lessThan } from "../utils/stringUtils";
+import { collapsibleFragment } from "./tablePages";
+import { DateFormatType, log, printDebug } from "../utils/utils";
+import { ViewSettings, getDisplay } from "../utils/viewUtils";
+import { simpleExpense } from "../models/exampleModels";
 
 function addToMap(
   name: Expense,
@@ -92,22 +92,22 @@ function makeDataGrid(
         */
         {
           ...defaultColumn,
-          key: 'NAME',
-          name: 'name',
+          key: "NAME",
+          name: "name",
         },
         {
           ...cashValueColumn,
-          key: 'VALUE',
+          key: "VALUE",
           name: `value`,
         },
         {
           ...defaultColumn,
-          key: 'FREQ',
+          key: "FREQ",
           name: `frequency`,
         },
         {
           ...defaultColumn,
-          key: 'CATEGORY',
+          key: "CATEGORY",
           name: `category`,
         },
       ]}
@@ -131,7 +131,7 @@ export function todaysExpensesTable(
   for (const key of entries) {
     if (key[1].hasStarted && !key[1].hasEnded) {
       const cat = key[1].category;
-      if (cat === '') {
+      if (cat === "") {
         addToMap(key[0], key[1], categorisedValues);
       } else {
         const catName: string = key[1].category;
@@ -148,7 +148,7 @@ export function todaysExpensesTable(
   return (
     <>
       {collapsibleFragment(
-        makeDataGrid(categorisedValues, model, 'todaysExpensesTable'),
+        makeDataGrid(categorisedValues, model, "todaysExpensesTable"),
         `Expense values (categorised) at ${dateAsString(
           DateFormatType.View,
           today,
@@ -164,8 +164,8 @@ export function expensesDiv(
   doChecks: boolean,
   expensesChartData: ChartData,
   todaysValues: Map<Expense, ExpenseVal>,
-  planningExpensesChartData: ChartData, // to collect Basic and Leisure for Planning
-  planningAssetsChartData: ChartData, // to collect maturing Bonds for Planning
+  planningExpensesChartData: ChartData, // for Basic and Leisure for Planning
+  planningAssetsChartData: ChartData, // for maturing Bonds for Planning
   reportData: ReportDatum[],
   parentCallbacks: ViewCallbacks,
 ) {
@@ -179,10 +179,10 @@ export function expensesDiv(
     const tableData = [];
 
     const basicExpenses = planningExpenses.find((pe) => {
-      return pe.label === 'Basic';
+      return pe.label === "Basic";
     });
     const leisureExpenses = planningExpenses.find((pe) => {
-      return pe.label === 'Leisure';
+      return pe.label === "Leisure";
     });
     for (let idx = 0; idx < expensesChartData.labels.length; idx++) {
       //console.log(`Expect Leisure = ${gemData[1].label}`);
@@ -230,7 +230,8 @@ export function expensesDiv(
         // log(`report's item ${d.date}, ${d.name}, ${d.newVal}`);
         if (d.newVal) {
           fixedIncome += d.newVal;
-          // log(`after adding ${d.newVal} for ${d.name},${d.date} fixedIncome = ${fixedIncome}`)
+          // log(`after adding ${d.newVal} for `
+          //   +`${d.name},${d.date} fixedIncome = ${fixedIncome}`)
         }
       });
       // log(`accumulated fixedIncome = ${fixedIncome}`)
@@ -251,7 +252,7 @@ export function expensesDiv(
       <div className="ml-3">
         {
           <DataGridFinKitty
-            tableID={'planningTable'}
+            tableID={"planningTable"}
             rows={addIndices(tableData)}
             columns={[
               /*
@@ -263,43 +264,43 @@ export function expensesDiv(
               */
               {
                 ...triggerDateColumn(model),
-                key: 'DATE',
-                name: 'date',
+                key: "DATE",
+                name: "date",
               },
               {
                 ...cashValueColumn,
-                key: 'BASIC',
-                name: 'Basic expenses',
+                key: "BASIC",
+                name: "Basic expenses",
               },
               {
                 ...cashValueColumn,
-                key: 'LEISURE',
-                name: 'Leisure expenses',
+                key: "LEISURE",
+                name: "Leisure expenses",
               },
               {
                 ...cashValueColumn,
-                key: 'FIXED_INCOME',
-                name: 'Fixed income',
+                key: "FIXED_INCOME",
+                name: "Fixed income",
               },
               {
                 ...cashValueColumn,
-                key: 'BONDS',
-                name: 'Bonds release',
+                key: "BONDS",
+                name: "Bonds release",
               },
               {
                 ...cashValueColumn,
-                key: 'INCOMING',
-                name: 'Incoming',
+                key: "INCOMING",
+                name: "Incoming",
               },
               {
                 ...cashValueColumn,
-                key: 'COMBINED',
-                name: 'Outgoings',
+                key: "COMBINED",
+                name: "Outgoings",
               },
               {
                 ...cashValueColumn,
-                key: 'SURPLUS',
-                name: 'Surplus',
+                key: "SURPLUS",
+                name: "Surplus",
               },
             ]}
             model={model}
@@ -324,23 +325,27 @@ export function expensesDiv(
           getDefaultChartSettings(viewSettings, model.settings),
           parentCallbacks,
         ),
-        'Expenses data chart',
+        "Expenses data chart",
       )}
       {expensesTableDivWithHeading(
         model,
         todaysValues,
         doChecks,
         parentCallbacks,
-        '',
+        "",
       )}
-      {todaysExpensesTable(model, todaysValues, parentCallbacks.doShowTodaysValueColumns)}
+      {todaysExpensesTable(
+        model,
+        todaysValues,
+        parentCallbacks.doShowTodaysValueColumns,
+      )}
       {transactionFilteredTable(
         model,
         doChecks,
         revalueExp,
-        'Expense revaluations',
+        "Expense revaluations",
         parentCallbacks,
-        'expenseRevalsTable',
+        "expenseRevalsTable",
       )}
       {collapsibleFragment(
         <div className="addNewExpense">
@@ -353,10 +358,12 @@ export function expensesDiv(
             showAlert={parentCallbacks.showAlert}
             checkTransactionFunction={checkTransaction}
             submitTransactionFunction={parentCallbacks.submitTransaction}
-            doCheckBeforeOverwritingExistingData={parentCallbacks.doCheckBeforeOverwritingExistingData}
+            doCheckBeforeOverwritingExistingData={
+              parentCallbacks.doCheckBeforeOverwritingExistingData
+            }
           />
         </div>,
-        'Add or revalue an expense',
+        "Add or revalue an expense",
       )}
     </div>
   );

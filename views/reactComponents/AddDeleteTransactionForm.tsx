@@ -1,5 +1,5 @@
-import React, { Component, FormEvent } from 'react';
-import { Col, Row } from 'react-bootstrap';
+import React, { Component, FormEvent } from "react";
+import { Col, Row } from "react-bootstrap";
 
 import {
   ModelData,
@@ -8,11 +8,11 @@ import {
   FormProps,
   Item,
   DeleteResult,
-} from '../../types/interfaces';
-import { log, printDebug, showObj } from '../../utils/utils';
-import { makeButton } from './Button';
-import { itemOptions, DateSelectionRow } from './DateSelectionRow';
-import { Input } from './Input';
+} from "../../types/interfaces";
+import { log, printDebug, showObj } from "../../utils/utils";
+import { makeButton } from "./Button";
+import { itemOptions, DateSelectionRow } from "./DateSelectionRow";
+import { Input } from "./Input";
 import {
   custom,
   CASH_ASSET_NAME,
@@ -22,7 +22,7 @@ import {
   bondInvest,
   bondMature,
   bondMaturity,
-} from '../../localization/stringConstants';
+} from "../../localization/stringConstants";
 
 import {
   lessThan,
@@ -30,7 +30,7 @@ import {
   makeStringFromBoolean,
   makeBooleanFromYesNo,
   makeBooleanFromString,
-} from '../../utils/stringUtils';
+} from "../../utils/stringUtils";
 
 interface EditTransactionFormState {
   NAME: string;
@@ -65,8 +65,8 @@ export class AddDeleteTransactionForm extends Component<
 > {
   public defaultState: EditTransactionFormState;
 
-  private transactionFromSelectID = 'fromAssetSelect';
-  private transactionToSelectID = 'toAssetSelect';
+  private transactionFromSelectID = "fromAssetSelect";
+  private transactionToSelectID = "toAssetSelect";
 
   public constructor(props: EditTransactionProps) {
     super(props);
@@ -76,20 +76,20 @@ export class AddDeleteTransactionForm extends Component<
         ${showObj(props.model.triggers.length)} triggers`);
     }
     this.defaultState = {
-      NAME: '',
-      CATEGORY: '',
-      FROM: '',
-      FROM_ABSOLUTE: 'F',
-      FROM_VALUE: '',
-      FROM_INPUT_VALUE: '',
-      TO: '',
-      TO_ABSOLUTE: 'F',
-      TO_VALUE: '',
-      TO_INPUT_VALUE: '',
-      DATE: '',
-      STOP_DATE: '',
-      RECURRENCE: '',
-      LIQUIDATE_FOR_CASH: 'No',
+      NAME: "",
+      CATEGORY: "",
+      FROM: "",
+      FROM_ABSOLUTE: "F",
+      FROM_VALUE: "",
+      FROM_INPUT_VALUE: "",
+      TO: "",
+      TO_ABSOLUTE: "F",
+      TO_VALUE: "",
+      TO_INPUT_VALUE: "",
+      DATE: "",
+      STOP_DATE: "",
+      RECURRENCE: "",
+      LIQUIDATE_FOR_CASH: "No",
     };
 
     this.state = this.defaultState;
@@ -128,7 +128,7 @@ export class AddDeleteTransactionForm extends Component<
               placeholder="Enter name"
               onChange={this.handleNameChange}
             />
-          </Col>{' '}
+          </Col>{" "}
         </Row>
 
         <div className="container-fluid">
@@ -148,10 +148,10 @@ export class AddDeleteTransactionForm extends Component<
         <Row>
           <Col>
             <label>Source asset (optional):</label>
-          </Col>{' '}
+          </Col>{" "}
           <Col>
             <label>Target asset (optional):</label>
-          </Col>{' '}
+          </Col>{" "}
           {/* end col */}
         </Row>
         {/* end row */}
@@ -167,7 +167,7 @@ export class AddDeleteTransactionForm extends Component<
                     .filter((setting) => {
                       return (
                         setting.TYPE === adjustableType &&
-                        !setting.NAME.startsWith('variable')
+                        !setting.NAME.startsWith("variable")
                       );
                     })
                     .sort((a, b) => {
@@ -177,9 +177,9 @@ export class AddDeleteTransactionForm extends Component<
               this.props.model,
               this.handleFromChange,
               this.transactionFromSelectID,
-              'Choose an asset/setting',
+              "Choose an asset/setting",
             )}
-          </Col>{' '}
+          </Col>{" "}
           <Col>
             {itemOptions(
               (this.props.model.assets as Item[])
@@ -191,7 +191,7 @@ export class AddDeleteTransactionForm extends Component<
                     .filter((setting) => {
                       return (
                         setting.TYPE === adjustableType &&
-                        !setting.NAME.startsWith('variable')
+                        !setting.NAME.startsWith("variable")
                       );
                     })
                     .sort((a, b) => {
@@ -201,31 +201,37 @@ export class AddDeleteTransactionForm extends Component<
               this.props.model,
               this.handleToChange,
               this.transactionToSelectID,
-              'Choose an asset/setting',
+              "Choose an asset/setting",
             )}
-          </Col>{' '}
+          </Col>{" "}
         </Row>
         <Row>
           <Col>
             <Input
-              title="How much to reduce the source asset (can be % of asset value)"
+              title={
+                "How much to reduce the source asset " +
+                "(can be % of asset value)"
+              }
               type="text"
               name="fromValue"
               value={this.state.FROM_INPUT_VALUE}
               placeholder="Enter value"
               onChange={this.handleFromValueChange}
             />
-          </Col>{' '}
+          </Col>{" "}
           <Col>
             <Input
-              title="How much to add to the target asset (can be % of transaction amount)"
+              title={
+                "How much to add to the target asset  " +
+                "(can be % of transaction amount)"
+              }
               type="text"
               name="toValue"
               value={this.state.TO_INPUT_VALUE}
               placeholder="Enter value"
               onChange={this.handleToValueChange}
             />
-          </Col>{' '}
+          </Col>{" "}
         </Row>
         <Row>
           <Col>
@@ -237,7 +243,7 @@ export class AddDeleteTransactionForm extends Component<
               placeholder="Enter recurrence"
               onChange={this.handleRecurrenceChange}
             />
-          </Col>{' '}
+          </Col>{" "}
           <Col>
             <Input
               title="Liquidate asset to maintain cash-flow"
@@ -247,7 +253,7 @@ export class AddDeleteTransactionForm extends Component<
               placeholder="Enter whether we only transact to keep cash afloat"
               onChange={this.handleLiquidateForCashChange}
             />
-          </Col>{' '}
+          </Col>{" "}
         </Row>
         {/* end row */}
         <div className="container-fluid">
@@ -274,14 +280,15 @@ export class AddDeleteTransactionForm extends Component<
               placeholder="category"
               onChange={this.handleCategoryChange}
             />
-          </Col>{' '}
+          </Col>{" "}
         </Row>
         {makeButton(
-          'Create new transaction (over-writes any existing with the same name)',
+          "Create new transaction " +
+            "(over-writes any existing with the same name)",
           this.add,
-          'addTransaction',
-          'addTransaction',
-          'primary',
+          "addTransaction",
+          "addTransaction",
+          "primary",
         )}
       </form>
     );
@@ -364,13 +371,13 @@ export class AddDeleteTransactionForm extends Component<
   private resetSelect(id: string) {
     const selector: any = document.getElementById(id);
     if (selector !== null) {
-      selector.selectedIndex = '0';
+      selector.selectedIndex = "0";
     }
   }
   private async add(e: FormEvent<Element>): Promise<void> {
     e.preventDefault();
 
-    if (this.state.NAME === '') {
+    if (this.state.NAME === "") {
       this.props.showAlert(`Name should be not empty`);
       return;
     }
@@ -391,15 +398,15 @@ export class AddDeleteTransactionForm extends Component<
     const fromValue = this.state.FROM_VALUE;
     const toAbsolute = this.state.TO_ABSOLUTE;
     const toValue = this.state.TO_VALUE;
-    if (fromAbsolute === '') {
+    if (fromAbsolute === "") {
       this.props.showAlert(
-        'From absolute should be T (absolute value) or F (relative value',
+        "From absolute should be T (absolute value) or F (relative value",
       );
       return;
     }
-    if (toAbsolute === '') {
+    if (toAbsolute === "") {
       this.props.showAlert(
-        'To absolute should be T (absolute value) or F (relative value',
+        "To absolute should be T (absolute value) or F (relative value",
       );
       return;
     }
@@ -414,7 +421,8 @@ export class AddDeleteTransactionForm extends Component<
     }
     if (parsedLiquidateYN.value && this.state.TO !== CASH_ASSET_NAME) {
       this.props.showAlert(
-        "If we're liquidating assets to keep cash afloat, the TO asset should be CASH",
+        "If we're liquidating assets to keep cash afloat, " +
+          "the TO asset should be CASH",
       );
       return;
     }
@@ -457,7 +465,7 @@ export class AddDeleteTransactionForm extends Component<
       this.props.showAlert(message);
     } else {
       await this.props.submitFunction(transaction, this.props.model);
-      this.props.showAlert('added new transaction');
+      this.props.showAlert("added new transaction");
       // clear fields
       this.setState(this.defaultState);
       this.resetSelect(this.transactionFromSelectID);
@@ -468,9 +476,9 @@ export class AddDeleteTransactionForm extends Component<
     e.preventDefault();
     // log('deleting something ' + showObj(this));
     const deleteResult = await this.props.deleteFunction(this.state.NAME);
-    if (deleteResult.message === '') {
+    if (deleteResult.message === "") {
       if (deleteResult.itemsDeleted.length === 1) {
-        this.props.showAlert('deleted transaction');
+        this.props.showAlert("deleted transaction");
       } else {
         this.props.showAlert(`deleted ${deleteResult.itemsDeleted}`);
       }
