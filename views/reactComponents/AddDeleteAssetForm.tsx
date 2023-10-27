@@ -780,17 +780,11 @@ export class AddDeleteAssetForm extends Component<
         return;
       }
     }
-
     if (this.state.inputting === inputtingPension) {
       const asset1Name = pension + this.state.NAME;
       const asset2Name = taxFree + this.state.NAME;
       const asset3Name =
-        crystallizedPension + this.state.LIABILITY + dot + this.state.NAME;
-      const asset4Name =
-        crystallizedPension +
-        this.state.DCP_TRANSFER_TO +
-        dot +
-        this.state.NAME;
+      crystallizedPension + this.state.LIABILITY + dot + this.state.NAME;
 
       const asset1: Asset = {
         NAME: asset1Name,
@@ -806,10 +800,12 @@ export class AddDeleteAssetForm extends Component<
         PURCHASE_PRICE: "0.0",
         LIABILITY: "",
       };
-      let message = this.props.checkAssetFunction(asset1, this.props.model);
-      if (message.length > 0) {
-        this.props.showAlert(message);
-        return;
+      {
+        const message = this.props.checkAssetFunction(asset1, this.props.model);
+        if (message.length > 0) {
+          this.props.showAlert(message);
+          return;
+        }
       }
 
       const asset2: Asset = {
@@ -826,7 +822,7 @@ export class AddDeleteAssetForm extends Component<
         PURCHASE_PRICE: "0.0",
         LIABILITY: "",
       };
-      message = this.props.checkAssetFunction(asset2, this.props.model);
+      const message = this.props.checkAssetFunction(asset2, this.props.model);
       if (message.length > 0) {
         this.props.showAlert(message);
         return;
@@ -846,11 +842,18 @@ export class AddDeleteAssetForm extends Component<
         PURCHASE_PRICE: "0.0",
         LIABILITY: "",
       };
-      message = this.props.checkAssetFunction(asset3, this.props.model);
-      if (message.length > 0) {
-        this.props.showAlert(message);
-        return;
+      {
+        const message = this.props.checkAssetFunction(asset3, this.props.model);
+        if (message.length > 0) {
+          this.props.showAlert(message);
+          return;
+        }
       }
+      const asset4Name =
+        crystallizedPension +
+        this.state.DCP_TRANSFER_TO +
+        dot +
+        this.state.NAME;
 
       const asset4: Asset = {
         NAME: asset4Name,
@@ -867,78 +870,100 @@ export class AddDeleteAssetForm extends Component<
         LIABILITY: "",
       };
       if (this.state.DCP_TRANSFER_TO !== "") {
-        message = this.props.checkAssetFunction(asset4, this.props.model);
+        const message = this.props.checkAssetFunction(asset4, this.props.model);
         if (message.length > 0) {
           this.props.showAlert(message);
           return;
         }
       }
+      let contributions: Transaction | undefined = undefined;
+      if (this.state.DCP_INCOME_SOURCE !== '') {
 
-      const parseYNSS = makeBooleanFromYesNo(this.state.DCP_SS);
-      if (!parseYNSS.checksOK) {
-        this.props.showAlert(
-          `Salary sacrifice '${this.state.DCP_SS}' should be a Y/N value`,
-        );
-        return;
-      }
-      let isNotANumber = !isNumberString(this.state.DCP_CONTRIBUTION_AMOUNT);
-      if (isNotANumber) {
-        this.props.showAlert(
-          `Contribution amount '${this.state.DCP_CONTRIBUTION_AMOUNT}' ` +
-            `should be a numerical value`,
-        );
-        return;
-      }
-      isNotANumber = !isNumberString(this.state.DCP_EMP_CONTRIBUTION_AMOUNT);
-      if (isNotANumber) {
-        this.props.showAlert(
-          `Contribution amount '${this.state.DCP_EMP_CONTRIBUTION_AMOUNT}' ` +
-            `should be a numerical value`,
-        );
-        return;
-      }
-      const contPc = parseFloat(this.state.DCP_CONTRIBUTION_AMOUNT);
-      const contEmpPc = parseFloat(this.state.DCP_EMP_CONTRIBUTION_AMOUNT);
-
-      const toProp = contPc === 0 ? 0.0 : (contPc + contEmpPc) / contPc;
-
-      const model = this.props.model;
-      await this.props.submitAssetFunction(asset1, model);
-      await this.props.submitAssetFunction(asset2, model);
-      await this.props.submitAssetFunction(asset3, model);
-      if (this.state.DCP_TRANSFER_TO !== "") {
-        await this.props.submitAssetFunction(asset4, model);
-      }
-
-      const contributions: Transaction = {
-        NAME: (parseYNSS.value ? pensionSS : pension) + this.state.NAME,
-        ERA: 0, // new things are automatically current
-        FROM: this.state.DCP_INCOME_SOURCE,
-        FROM_ABSOLUTE: false,
-        FROM_VALUE: this.state.DCP_CONTRIBUTION_AMOUNT,
-        TO: asset1Name,
-        TO_ABSOLUTE: false,
-        TO_VALUE: `${toProp}`,
-        DATE: this.state.START, // match the income start date
-        STOP_DATE: this.state.DCP_STOP, // match the income stop date
-        RECURRENCE: "",
-        CATEGORY: this.state.CATEGORY,
-        TYPE: autogen,
-      };
-      message = this.props.checkTransactionFunction(
-        contributions,
-        this.props.model,
-      );
-      if (message.length > 0) {
-        await this.props.deleteAssetFunction(asset1.NAME);
-        await this.props.deleteAssetFunction(asset2.NAME);
-        await this.props.deleteAssetFunction(asset3.NAME);
-        if (this.state.DCP_TRANSFER_TO !== "") {
-          await this.props.deleteAssetFunction(asset4.NAME);
+        // If there's an income, check other inputs like
+        // whether it's a salary sacrifice etc
+        const parseYNSS = makeBooleanFromYesNo(this.state.DCP_SS);
+        if (!parseYNSS.checksOK) {
+          this.props.showAlert(
+            `Salary sacrifice '${this.state.DCP_SS}' should be a Y/N value`,
+          );
+          return;
         }
-        this.props.showAlert(message);
-        return;
+        let isNotANumber = !isNumberString(this.state.DCP_CONTRIBUTION_AMOUNT);
+        if (isNotANumber) {
+          this.props.showAlert(
+            `Contribution amount '${this.state.DCP_CONTRIBUTION_AMOUNT}' ` +
+              `should be a numerical value`,
+          );
+          return;
+        }
+        isNotANumber = !isNumberString(this.state.DCP_EMP_CONTRIBUTION_AMOUNT);
+        if (isNotANumber) {
+          this.props.showAlert(
+            `Contribution amount '${this.state.DCP_EMP_CONTRIBUTION_AMOUNT}' ` +
+              `should be a numerical value`,
+          );
+          return;
+        }
+        const contPc = parseFloat(this.state.DCP_CONTRIBUTION_AMOUNT);
+        const contEmpPc = parseFloat(this.state.DCP_EMP_CONTRIBUTION_AMOUNT);
+
+        const toProp = contPc === 0 ? 0.0 : (contPc + contEmpPc) / contPc;
+
+        const model = this.props.model;
+        await this.props.submitAssetFunction(asset1, model);
+        await this.props.submitAssetFunction(asset2, model);
+        await this.props.submitAssetFunction(asset3, model);
+        if (this.state.DCP_TRANSFER_TO !== "") {
+          await this.props.submitAssetFunction(asset4, model);
+        }
+
+        contributions = {
+          NAME: (parseYNSS.value ? pensionSS : pension) + this.state.NAME,
+          ERA: 0, // new things are automatically current
+          FROM: this.state.DCP_INCOME_SOURCE,
+          FROM_ABSOLUTE: false,
+          FROM_VALUE: this.state.DCP_CONTRIBUTION_AMOUNT,
+          TO: asset1Name,
+          TO_ABSOLUTE: false,
+          TO_VALUE: `${toProp}`,
+          DATE: this.state.START, // match the income start date
+          STOP_DATE: this.state.DCP_STOP, // match the income stop date
+          RECURRENCE: "",
+          CATEGORY: this.state.CATEGORY,
+          TYPE: autogen,
+        };
+        {
+          const message = this.props.checkTransactionFunction(
+            contributions,
+            this.props.model,
+          );
+          if (message.length > 0) {
+            console.log(`go to delete assets from bad transaction`);
+            await this.props.deleteAssetFunction(asset1.NAME);
+            await this.props.deleteAssetFunction(asset2.NAME);
+            await this.props.deleteAssetFunction(asset3.NAME);
+            if (this.state.DCP_TRANSFER_TO !== "") {
+              await this.props.deleteAssetFunction(asset4.NAME);
+            }
+            this.props.showAlert(message);
+            return;
+          }
+        }
+      } else {
+        // a pension without a contributing income 
+        // set up the taxfree part it crystallizes to
+        console.log(`submit assets ${asset1.NAME} ${asset2.NAME}`);
+        await this.props.submitAssetFunction(asset1, this.props.model);
+        await this.props.submitAssetFunction(asset2, this.props.model);
+        await this.props.submitAssetFunction(asset3, this.props.model);
+        if (this.state.DCP_TRANSFER_TO !== "") {
+          await this.props.submitAssetFunction(asset4, this.props.model);
+        }
+        console.log(`model assets ${this.props.model.assets.map((a)=>{
+          return a.NAME;
+        })}`);
       }
+
       const crystallizeTaxFree: Transaction = {
         NAME: moveTaxFreePart + this.state.NAME,
         ERA: 0, // new things are automatically current
@@ -954,19 +979,22 @@ export class AddDeleteAssetForm extends Component<
         CATEGORY: this.state.CATEGORY,
         TYPE: autogen,
       };
-      message = this.props.checkTransactionFunction(
-        crystallizeTaxFree,
-        this.props.model,
-      );
-      if (message.length > 0) {
-        await this.props.deleteAssetFunction(asset1.NAME);
-        await this.props.deleteAssetFunction(asset2.NAME);
-        await this.props.deleteAssetFunction(asset3.NAME);
-        if (this.state.DCP_TRANSFER_TO !== "") {
-          await this.props.deleteAssetFunction(asset4.NAME);
+      {
+        const message = this.props.checkTransactionFunction(
+          crystallizeTaxFree,
+          this.props.model,
+        );
+        if (message.length > 0) {
+          // console.log(`delete assets for bad crystallize transaction`);
+          await this.props.deleteAssetFunction(asset1.NAME);
+          await this.props.deleteAssetFunction(asset2.NAME);
+          await this.props.deleteAssetFunction(asset3.NAME);
+          if (this.state.DCP_TRANSFER_TO !== "") {
+            await this.props.deleteAssetFunction(asset4.NAME);
+          }
+          this.props.showAlert(message);
+          return;
         }
-        this.props.showAlert(message);
-        return;
       }
       const crystallize: Transaction = {
         NAME: crystallizedPension + this.state.NAME,
@@ -983,19 +1011,21 @@ export class AddDeleteAssetForm extends Component<
         CATEGORY: this.state.CATEGORY,
         TYPE: autogen,
       };
-      message = this.props.checkTransactionFunction(
-        crystallize,
-        this.props.model,
-      );
-      if (message.length > 0) {
-        await this.props.deleteAssetFunction(asset1.NAME);
-        await this.props.deleteAssetFunction(asset2.NAME);
-        await this.props.deleteAssetFunction(asset3.NAME);
-        if (this.state.DCP_TRANSFER_TO !== "") {
-          await this.props.deleteAssetFunction(asset4.NAME);
+      {
+        const message = this.props.checkTransactionFunction(
+          crystallize,
+          this.props.model,
+        );
+        if (message.length > 0) {
+          await this.props.deleteAssetFunction(asset1.NAME);
+          await this.props.deleteAssetFunction(asset2.NAME);
+          await this.props.deleteAssetFunction(asset3.NAME);
+          if (this.state.DCP_TRANSFER_TO !== "") {
+            await this.props.deleteAssetFunction(asset4.NAME);
+          }
+          this.props.showAlert(message);
+          return;
         }
-        this.props.showAlert(message);
-        return;
       }
       let transfer: Transaction | undefined;
       if (this.state.DCP_TRANSFER_TO !== "") {
@@ -1014,24 +1044,27 @@ export class AddDeleteAssetForm extends Component<
           CATEGORY: this.state.CATEGORY,
           TYPE: autogen,
         };
-        message = this.props.checkTransactionFunction(
-          transfer,
-          this.props.model,
-        );
-        if (message.length > 0) {
-          await this.props.deleteAssetFunction(asset1.NAME);
-          await this.props.deleteAssetFunction(asset2.NAME);
-          await this.props.deleteAssetFunction(asset3.NAME);
-          await this.props.deleteAssetFunction(asset4.NAME);
-          this.props.showAlert(message);
-          return;
+        {
+          const message = this.props.checkTransactionFunction(
+            transfer,
+            this.props.model,
+          );
+          if (message.length > 0) {
+            await this.props.deleteAssetFunction(asset1.NAME);
+            await this.props.deleteAssetFunction(asset2.NAME);
+            await this.props.deleteAssetFunction(asset3.NAME);
+            await this.props.deleteAssetFunction(asset4.NAME);
+            this.props.showAlert(message);
+            return;
+          }
         }
       }
-
-      await this.props.submitTransactionFunction(
-        contributions,
-        this.props.model,
-      );
+      if (contributions !== undefined) {
+        await this.props.submitTransactionFunction(
+          contributions,
+          this.props.model,
+        );
+      }
       await this.props.submitTransactionFunction(
         crystallizeTaxFree,
         this.props.model,

@@ -2539,7 +2539,7 @@ export class AppContent extends Component<AppProps, AppState> {
                 reactAppComponent.state.modelData,
                 modelName,
               );
-              // log(`setState for check result alert`);
+              // log(`setState for check result ${response}`);
               reactAppComponent.setState({
                 alertText: response,
               });
