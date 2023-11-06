@@ -131,6 +131,21 @@ export function getVarVal(settings: Setting[]) {
   return varVal;
 }
 
+export function isNumberExpression(s: string) { // TODO arithmetic parsing
+  const result: {
+    isNumber: boolean,
+    value: number,
+  } = {
+    isNumber: false,
+    value: 0.0,
+  };
+  if (isNumberString(s)) {
+    result.isNumber = true;
+    result.value = parseFloat(s);
+  }
+  return result;
+}
+
 const numberStringCache = new Map<string, boolean>();
 
 // let numCachedResults = 0;

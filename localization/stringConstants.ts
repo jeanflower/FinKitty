@@ -24,6 +24,9 @@ export const roiEnd = "End of view range";
 export const roiEndHint = "Date at the end of range to be plotted";
 export const roiStart = "Beginning of view range";
 export const roiStartHint = "Date at the start of range to be plotted";
+// Monitoring typically covers the opreceding 12 months
+export const monitorStart = "Beginning of monitor range";
+export const monitorEnd = "End of monitor range";
 // dates can be plotted as dates or as an age based on a given
 // date of birth (leave DOB as '' to see dates not ages)
 export const birthDate = "Date of birth";
@@ -209,6 +212,7 @@ export const taxView: ViewType = { lc: "Tax" };
 export const reportView: ViewType = { lc: "Asset actions" };
 export const optimizerView: ViewType = { lc: "Optimizer" };
 export const planningView: ViewType = { lc: "Planning" };
+export const monitoringView: ViewType = { lc: "Monitoring" };
 
 export const expensesChart: ViewType = { lc: "Expenses chart" };
 export const incomesChart: ViewType = { lc: "Incomes chart" };

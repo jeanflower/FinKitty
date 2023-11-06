@@ -41,6 +41,8 @@ import {
   bondMaturity,
   bondInvest,
   bondMature,
+  monitorEnd,
+  monitorStart,
 } from "../localization/stringConstants";
 
 import {
@@ -1529,6 +1531,37 @@ function checkCpi(settings: Setting[]): string {
   return "";
 }
 
+function checkMonitorRange(
+  settings: Setting[],
+  triggers: Trigger[],
+): string {
+  // log(`check settings ${showObj(settings)}`);
+
+  const start = getSettings(settings, monitorStart, "noneFound", false);
+  if (start === "noneFound") {
+    return `"${monitorStart}" should be present in settings (value is a date)`;
+  }
+  const startDate = checkTriggerDate(start, triggers, getVarVal(settings));
+  if (startDate === undefined || !checkDate(startDate)) {
+    return `Setting "${monitorStart}" should be a valid date string (e.g. 1 April 2018)`;
+  }
+
+  const end = getSettings(settings, monitorEnd, "noneFound", false);
+  if (end === "noneFound") {
+    return `"${monitorEnd}" should be present in settings (value is a date)`;
+  }
+
+  const endDate = checkTriggerDate(end, triggers, getVarVal(settings));
+  if (endDate === undefined || !checkDate(endDate)) {
+    return `Setting "${monitorEnd}" should be a valid date string (e.g. 1 April 2018)`;
+  }
+
+  if (endDate < startDate) {
+    return `Setting "${monitorEnd}" should be after setting "${monitorStart}"`;
+  }
+  return "";
+}
+
 function checkNames(model: ModelData): string {
   let names = model.assets.map((a) => {
     return a.NAME;
@@ -1693,6 +1726,14 @@ export function checkData(model: ModelData): CheckResult {
     return {
       type: Context.Setting,
       itemName: taxChartFocusType,
+      message: message,
+    };
+  }
+  message = checkMonitorRange(model.settings, model.triggers);
+  if (message.length > 0) {
+    return {
+      type: Context.Setting,
+      itemName: 'Monitor range',
       message: message,
     };
   }

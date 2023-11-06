@@ -6560,6 +6560,7 @@ export function getEvaluations(
       triggers: model.triggers,
       expenses: [],
       incomes: [],
+      monitors: [],
       transactions: model.transactions.filter((t) => {
         return (
           t.TYPE === revalueSetting || t.FROM_VALUE.startsWith(bondMaturity)

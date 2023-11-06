@@ -13,6 +13,15 @@ export interface Setting extends Item {
 export interface Trigger extends Item {
   DATE: string;
 }
+export interface MonitorValue {
+  MONTH: string;
+  EXPRESSION: string;
+}
+export interface Monitor extends Item {
+  NAME: string; // should match an expense name
+  VALUES: MonitorValue[];
+}
+
 export interface Asset extends ItemCategory {
   START: string;
   VALUE: string;
@@ -173,6 +182,7 @@ export interface ModelDataFromFile {
   incomes: IncomeFromFile[];
   transactions: Transaction[];
   assets: Asset[];
+  monitors: Monitor[];
   settings: Setting[];
   version: number;
   undoModel: ModelData | undefined;
@@ -187,6 +197,7 @@ export interface ModelData {
   transactions: Transaction[];
   assets: Asset[];
   settings: Setting[];
+  monitors: Monitor[];
   version: number;
   undoModel: ModelData | undefined;
   redoModel: ModelData | undefined;
@@ -309,6 +320,7 @@ export interface ViewCallbacks {
 
   submitAsset: (assetInput: Asset, modelData: ModelData) => Promise<void>;
   submitExpense: (expenseInput: Expense, modelData: ModelData) => Promise<void>;
+  submitMonitor: (monitorInput: Monitor, modelData: ModelData) => Promise<void>;
   submitIncome: (incomeInput: Income, modelData: ModelData) => Promise<boolean>;
   submitTransaction: (
     transactionInput: Transaction,

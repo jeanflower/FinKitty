@@ -12,6 +12,7 @@ import {
   optimizerView,
   planningView,
   settingsView,
+  monitoringView,
 } from "../localization/stringConstants";
 
 export const allViews = [
@@ -27,5 +28,6 @@ export const allViews = [
   reportView,
   optimizerView,
   planningView,
+  monitoringView,
   settingsView,
 ];

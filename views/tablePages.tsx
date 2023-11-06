@@ -33,6 +33,8 @@ import {
   custom,
   bondInvest,
   bondMature,
+  monitorEnd,
+  monitorStart,
 } from "../localization/stringConstants";
 import {
   Asset,
@@ -54,6 +56,7 @@ import {
   Trigger,
   ViewCallbacks,
   DeleteResult,
+  Monitor,
 } from "../types/interfaces";
 import {
   checkExpense,
@@ -77,6 +80,7 @@ import {
   isAnExpense,
   getSettings,
   isNumberString,
+  getVarVal,
 } from "../models/modelQueries";
 import {
   getNumberAndWordParts,
@@ -95,6 +99,7 @@ import {
   dateAsString,
   makeStringFromGrowth,
   getDisplayName,
+  checkTriggerDate,
 } from "../utils/stringUtils";
 import { Accordion, Button, Card, useAccordionButton } from "react-bootstrap";
 import {
@@ -105,13 +110,16 @@ import {
 } from "./chartPages";
 import { ReportMatcherForm } from "./reactComponents/ReportMatcherForm";
 import { ViewSettings, getDisplay } from "../utils/viewUtils";
-import { EvaluationHelper, getEvaluations } from "../models/evaluations";
+import { EvaluationHelper, generateSequenceOfDates, getEvaluations } from "../models/evaluations";
 import { textEditor } from "react-data-grid";
 import CashValueFormatter from "./reactComponents/CashValueFormatter";
 import { minimalModel } from "../models/minimalModel";
 import { makeModelFromJSON } from "../models/modelFromJSON";
 import { attemptRename } from "../utils/appActions";
 import { getTodaysDate, setSetting } from "../models/modelUtils";
+import dateFormat from "dateformat";
+import CashExpressionFormatter from "./reactComponents/CashExpressionFormatter";
+import { evaluate } from "mathjs";
 
 function CustomToggle({ children, eventKey }: any) {
   const decoratedOnClick = useAccordionButton(eventKey, () =>
@@ -265,6 +273,94 @@ function handleExpenseGridRowsUpdated(
     };
     // log(`expenseForSubmission = ${showObj(expenseForSubmission)}`);
     submitExpense(expenseForSubmission, model);
+  }
+}
+
+function handleMonitoringGridRowsUpdated(
+  model: ModelData,
+  showAlert: (arg0: string) => void,
+  doChecks: boolean,
+  rows: any[],
+  submitMonitor: (monitorInput: Monitor, modelData: ModelData) => Promise<void>,
+  refreshData: (
+    refreshModel: boolean,
+    refreshChart: boolean,
+    sourceID: number,
+  ) => Promise<void>,
+  args: any,
+) {
+  const newTable = args[0];
+  const change = args[1];
+  const changedIndexes = change.indexes;
+  const changedColumn = change.column;
+
+  if (changedIndexes.length > 1) {
+    throw new Error(`don't handle multirow edits`);
+  }
+
+  // log(`changedIndexes = ${showObj(changedIndexes)}`);
+
+  const oldRow = rows.find((r) => {
+    return r.index === changedIndexes[0];
+  });
+  const oldVal = oldRow[changedColumn.key];
+
+  const newRow = newTable.find((r: any) => {
+    return r.index === changedIndexes[0];
+  });
+  const newVal = newRow[changedColumn.key];
+
+  // log(`oldRow = ${showObj(oldRow)}`);
+  // log(`newRow = ${showObj(newRow)}`);
+
+  if (oldVal === newVal) {
+    return;
+  }
+
+  const m: Monitor = {
+    NAME: newRow.NAME,
+    ERA: newRow.ERA,
+    VALUES: [],
+  }
+  const keys = Object.keys(newRow);
+  for(const key of keys){
+    /*
+      "NAME": "dog",
+      "ERA": 0,
+      "RECURRENCE": "1m",
+      "TODAYSVALUE": "259.920149101385",
+      "September 2023": "0.0",
+      "August 2023": "0.0"      
+    */
+    if (key === 'NAME') {
+      continue;
+    }
+    if (key === 'ERA') {
+      continue;
+    }
+    if (key === 'RECURRENCE') {
+      continue;
+    }
+    if (key === 'TODAYSVALUE') {
+      continue;
+    }
+    if (key === 'index') {
+      continue;
+    }
+    // console.log(`object[${key}] = ${newRow[key]}`);
+
+    m.VALUES.push({
+      MONTH: key,
+      EXPRESSION: newRow[key],
+    })
+  }
+  // console.log(`new Monitor is ${showObj(m)}`);
+  if (doChecks) {
+    // console.log(`check data ${showObj(newRow)}`); //??
+    submitMonitor(m, model);
+  } else {
+    console.log(`submit data ${showObj(newRow)}`);
+    submitMonitor(m, model);
   }
 }
 
@@ -998,6 +1094,17 @@ export const cashValueColumn = {
     return <CashValueFormatter name={props.column.name} value={val} />;
   },
 };
+export const cashExpressionColumn = {
+  resizable: true,
+  sortable: true,
+  renderEditCell: textEditor,
+  renderCell(props: any) {
+    //log(`in formatter, JSON.stringify(props) = ${JSON.stringify(props)}`);
+    const val = props.row[props.column.key];
+
+    return <CashExpressionFormatter name={props.column.name} value={val} />;
+  },
+};
 export function faveColumn(
   deleteFunction: undefined | ((name: string) => Promise<DeleteResult>),
   setEraFunction:
@@ -1030,6 +1137,7 @@ export function faveColumn(
                   alert(`not sure what has happened with this delete attempt!`);
                 }
               }}
+              variant={`outline-secondary`}
             >
               del
             </Button>
@@ -1060,6 +1168,7 @@ export function faveColumn(
                 //log(`this.props.rows.length = ${this.props.rows.length}`);
                 //log(`this.sortedIndices = ${this.sortedIndices}`);
               }}
+              variant={`outline-secondary`}
             >
               {props.row.ERA}
             </Button>
@@ -2245,6 +2354,329 @@ export function expensesTableDivWithHeading(
   );
 }
 
+function scaleFor1m(
+  recur: string,
+) {
+  let scale = 1.0;
+  const parsed = getNumberAndWordParts(recur);
+  if (parsed.numberPart === undefined) {
+    return NaN;
+  } else {
+    scale = 1.0/parsed.numberPart;
+  }
+  if (parsed.wordPart === 'w') {
+    scale *= 52/12;
+  } else if (parsed.wordPart === 'y') {
+    scale *= 1/12;
+  } else if (parsed.wordPart !== 'm') {
+    scale = NaN;
+  }
+  return scale;
+}
+
+function expenseMonitoringForTable(
+  model: ModelData,
+  colMonths: string[],
+  todaysValues: Map<Expense, ExpenseVal>,
+  parentCallbacks: ViewCallbacks,
+) {
+  const today = getTodaysDate(model);
+  const v = getVarVal(model.settings);
+
+  const unindexedResult = model.expenses
+    .filter((obj: Item) => {
+      return (
+        parentCallbacks.filterForEra(obj) &&
+        parentCallbacks.filterForSearch(obj)
+      );
+    }).filter((e: Expense) => {
+      let hasStarted = true;
+      let hasEnded = false;
+      const startDate = checkTriggerDate(e.START, model.triggers, v);
+      if (startDate !== undefined && startDate > today) {
+        hasStarted = false;
+      }
+      const endDate = checkTriggerDate(e.END, model.triggers, v);
+      if (endDate !== undefined && endDate < today) {
+        hasEnded = true;
+      }
+      return hasStarted && ! hasEnded;
+    })
+    .map((obj: Expense) => {
+      let todaysVForTable = 0.0;
+      const todaysValkey = [...todaysValues.keys()].find((e) => {
+        return e.NAME === obj.NAME;
+      });
+
+      const todaysV = todaysValkey ? todaysValues.get(todaysValkey) : undefined;
+      if (todaysV !== undefined) {
+        if (!todaysV.hasEnded) {
+          todaysVForTable = todaysV.expenseVal;
+        }
+      }
+      const scaledFor1m = todaysVForTable * scaleFor1m(obj.RECURRENCE);
+      let mapResult: any = {
+        NAME: obj.NAME,
+        ERA: obj.ERA,
+        RECURRENCE: obj.RECURRENCE,
+        TODAYSVALUE: `${todaysVForTable}`,
+        TODAYSVALUEMONTH: `${scaledFor1m}`,
+      };
+      const monitor = model.monitors.find((m) => {
+        return m.NAME === obj.NAME;
+      });
+      const monitorVals = monitor ? monitor.VALUES : [];
+      let sum: number|undefined = 0.0;
+      for (const colMonth of colMonths) {
+        const val = monitorVals.find((v) => {
+          return v.MONTH === colMonth;
+        });
+        if (val !== undefined && sum !== undefined && val.EXPRESSION !== '') {
+          try{
+            const x = evaluate(val.EXPRESSION);
+            if (!isNaN(x)) {
+              sum += x;
+            } else {
+              sum = undefined;
+            }
+            // console.log(`after adding '${val.EXPRESSION}', sum = ${sum}`)
+          } catch (error) {
+            sum = undefined;
+          }  
+        }
+        const object: any = {}
+        object[colMonth] = val ? val.EXPRESSION : '';
+
+        mapResult = {...mapResult, ...object};
+      }
+      mapResult = {
+        ...mapResult, 
+        AVERAGE: (sum !== undefined) ? `${sum/colMonths.length}`: '',
+      };
+      return mapResult;
+    });
+  // console.log(`unindexedResult = ${showObj(unindexedResult)}`);
+  return addIndices(unindexedResult);
+}
+
+function expensesMonitoringTableDiv(
+  model: ModelData,
+  expData: any[],
+  colDates: string[],
+  doChecks: boolean,
+  parentCallbacks: ViewCallbacks,
+  tableID: string,
+) {
+
+  let cols: any[] = [
+    /*
+    {
+      ...defaultColumn,
+      key: 'index',
+      name: 'index',
+    },
+    */
+    faveColumn(
+      parentCallbacks.deleteExpense,
+      parentCallbacks.setEraExpense,
+      "expenseDefTable",
+    ),
+    {
+      ...defaultColumn,
+      key: "NAME",
+      name: "name",
+      renderEditCell: undefined,
+    },
+    {
+      ...cashValueColumn,
+      key: "TODAYSVALUE",
+      name: `value\nat ${dateAsString(
+        DateFormatType.View,
+        getTodaysDate(model),
+      )}`,
+      renderEditCell: undefined,
+    },
+    {
+      ...defaultColumn,
+      key: "RECURRENCE",
+      name: "recurrence",
+      renderEditCell: undefined,
+    },
+    {
+      ...cashValueColumn,
+      key: "TODAYSVALUEMONTH",
+      name: `value for 1m`,
+      renderEditCell: undefined,
+    },      
+    {
+      ...cashValueColumn,
+      key: "AVERAGE",
+      name: "average",
+      renderEditCell: undefined,
+    },
+  ];
+  colDates.map((cd) => {
+    cols = cols.concat(
+      {
+        ...cashExpressionColumn,
+        key: cd,
+        name: cd,
+      },
+  
+    )
+  })
+  return (
+    <div
+      style={{
+        display: "block",
+      }}
+    >
+      {/*
+      <Button
+        onClick={() => {
+          deleteAll(
+            expData.map((x) => {
+              return x.NAME;
+            }),
+          );
+        }}
+      >
+        delete all expenses
+      </Button>
+      */}
+      <fieldset>
+        <div className="dataGridExpenses">
+          <DataGridFinKitty
+            tableID={tableID}
+            handleGridRowsUpdated={function (...args: any[]) {
+              return handleMonitoringGridRowsUpdated(
+                model,
+                parentCallbacks.showAlert,
+                doChecks,
+                expData,
+                parentCallbacks.submitMonitor,
+                parentCallbacks.refreshData,
+                args,
+              );
+            }}
+            rows={expData}
+            columns={cols}
+            model={model}
+          />
+        </div>
+        <p />
+      </fieldset>
+    </div>
+  );
+}
+
+function makeMonitoringColMonths(
+  model: ModelData,
+) {
+  let months: string[] = [];
+
+  const start = getSettings(model.settings, monitorStart, "noneFound", false);
+  const end = getSettings(model.settings, monitorEnd, "noneFound", false);
+  if (start !== "noneFound" && end !== "noneFound") {
+    const dates = generateSequenceOfDates(
+      {
+        start: new Date(`01 ${start}`),
+        end: new Date(`01 ${end}`),
+      }, 
+      '1m', 
+      false);
+    // console.log(`dates = ${dates}`);
+    months = dates.map((d) => {
+      return dateFormat(d, 'mmm yyyy');
+    }).reverse();
+  }
+  /*
+  for (const m of model.monitors) {
+    for (const val of m.VALUES) {
+      months.push(val.MONTH);
+    }
+  }
+  const monthSet = new Set<string>(months);
+  const monthArray = Array.from(monthSet);
+  monthArray.sort((a,b) => {
+    const aDate = new Date(`01 ${a}`).getTime();
+    const bDate = new Date(`01 ${b}`).getTime();
+    return aDate < bDate ? 1 : (bDate < aDate ? -1 : 0);
+  })
+  return monthArray;
+  */
+ return months;
+}
+
+export function expensesMonitoringDivWithHeading(
+  model: ModelData,
+  todaysValues: Map<Expense, ExpenseVal>,
+  doChecks: boolean,
+  parentCallbacks: ViewCallbacks,
+  tableIDEnding: string,
+) {
+  // console.log(`monitors are ${showObj(model.monitors)}`);
+  const colDates = makeMonitoringColMonths(model);
+
+  const expData = expenseMonitoringForTable(
+    model, 
+    colDates,
+    todaysValues, 
+    parentCallbacks,
+  );
+  if (expData.length === 0) {
+    return;
+  }
+  return collapsibleFragment(
+    <>
+      <Button
+        onClick={() => {
+          const start = getSettings(model.settings, monitorStart, "noneFound", false);
+          const end = getSettings(model.settings, monitorEnd, "noneFound", false);
+          if (start !== "noneFound" && end !== "noneFound") {
+            const startDate = new Date(`01 ${start}`);
+            const endDate = new Date(`01 ${end}`);
+            startDate.setMonth(startDate.getMonth() + 1);
+            endDate.setMonth(endDate.getMonth() + 1);
+            parentCallbacks.editSetting(
+              {
+                NAME: monitorStart,
+                ERA: 0,
+                VALUE: dateFormat(startDate, 'mmm yyyy'),
+                HINT: '',
+              },
+              model,
+            );
+            parentCallbacks.editSetting(
+              {
+                NAME: monitorEnd,
+                ERA: 0,
+                VALUE: dateFormat(endDate, 'mmm yyyy'),
+                HINT: '',
+              },
+              model,
+            );
+          }
+        }}
+        variant={`outline-primary`}
+        id="btn-advance-monitor"
+        key="btn-advance-monitor"
+      >
+        Advance 1 month
+      </Button>
+      {expensesMonitoringTableDiv(
+        model,
+        expData,
+        colDates,
+        doChecks,
+        parentCallbacks,
+        `expenses${tableIDEnding}`,
+      )}
+    </>,
+    `Expense monitoring`,
+  );
+}
+
 const settingsToExcludeFromTableView: string[] = [
   chartViewType,
   viewDetail,
@@ -2341,6 +2773,7 @@ function customSettingsTable(
           DateFormatType.View,
           getTodaysDate(model),
         )}`,
+        renderEditCell: undefined,
       },
     ]);
   }
@@ -2427,6 +2860,7 @@ function adjustSettingsTable(
             DateFormatType.View,
             getTodaysDate(model),
           )}`,
+          renderEditCell: undefined,
         },
         {
           ...defaultColumn,

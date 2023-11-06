@@ -28,6 +28,7 @@ import {
   triggersView,
   optimizerView,
   planningView,
+  monitoringView,
 } from "../localization/stringConstants";
 import { allViews } from "./allViews";
 import { Context, log, printDebug } from "./utils";
@@ -531,6 +532,12 @@ export const views = new Map<
   ],
   [
     planningView,
+    {
+      display: false,
+    },
+  ],
+  [
+    monitoringView,
     {
       display: false,
     },

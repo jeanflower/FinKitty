@@ -30,12 +30,16 @@ import {
   separator,
   dot,
   revalue,
+  monitorStart,
+  monitorEnd,
+  adjustableType,
 } from "../localization/stringConstants";
-import { ModelData, ModelDataFromFile } from "../types/interfaces";
+import { ModelData, ModelDataFromFile, Monitor, MonitorValue } from "../types/interfaces";
 import { log } from "../utils/utils";
 import { viewSetting } from "./exampleSettings";
 import { getMinimalModelCopy } from "./minimalModel";
 import { getCurrentVersion } from "./currentVersion";
+import { getSettings } from "./modelQueries";
 
 // 0; // may not include assets or settings in minimalModel
 // 1; // may not include expense recurrence, asset/debt,
@@ -629,6 +633,40 @@ function migrateFromV10(model: ModelData) {
   });
   model.version = 11;
 }
+function migrateFromV11(model: ModelData) {
+  model.monitors = model.expenses.map((e) => {
+    const vals: MonitorValue[] = []
+    const m: Monitor = {
+      NAME: e.NAME,
+      VALUES: vals,
+      ERA: 0,
+    }
+    return m;
+  });
+  const start = getSettings(model.settings, monitorStart, "noneFound", false);
+  if (start === "noneFound") {
+    // console.log(`add setting for ${monitorStart}`);
+    model.settings.push({
+      VALUE: 'Nov 2022',
+      HINT: "",
+      TYPE: adjustableType,
+      NAME: monitorStart,
+      ERA: 0,
+    });
+  }
+  const end = getSettings(model.settings, monitorEnd, "noneFound", false);
+  if (end === "noneFound") {
+    // console.log(`add setting for ${monitorEnd}`);
+    model.settings.push({
+      VALUE: 'Oct 2023',
+      HINT: "",
+      TYPE: adjustableType,
+      NAME: monitorEnd,
+      ERA: 0,
+    });
+  }
+  model.version = 12;
+}
 
 export function migrateOldVersions(model: ModelDataFromFile) {
   /* istanbul ignore if  */ //debug
@@ -669,9 +707,12 @@ export function migrateOldVersions(model: ModelDataFromFile) {
   if (model.version === 10) {
     migrateFromV10(model);
   }
-  /*
   if (model.version === 11) {
     migrateFromV11(model);
+  }
+  /*
+  if (model.version === 12) {
+    migrateFromV12(model);
   }
   */
   // log(`model after migration is ${showObj(model)}`);

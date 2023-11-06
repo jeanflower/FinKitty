@@ -52,6 +52,7 @@ import {
   chartDeltas,
   planningView,
   weekly,
+  monitoringView,
 } from "./localization/stringConstants";
 import {
   AssetOrDebtVal,
@@ -74,6 +75,7 @@ import {
   ReportValueChecker,
   ViewCallbacks,
   DeleteResult,
+  Monitor,
 } from "./types/interfaces";
 import {
   Context,
@@ -115,6 +117,7 @@ import {
   submitIncomeLSM,
   submitSettingLSM,
   saveModelLSM,
+  submitMonitorLSM,
 } from "./database/loadSaveModel";
 import { AddDeleteSettingForm } from "./views/reactComponents/AddDeleteSettingForm";
 import { ReplaceWithJSONForm } from "./views/reactComponents/ReplaceWithJSONForm";
@@ -943,6 +946,27 @@ async function submitExpense(
     showAlert(outcome.message);
   }
 }
+async function submitMonitor(
+  monitorInput: Monitor,
+  modelData: ModelData,
+): Promise<void> {
+  const outcome = await submitMonitorLSM(
+    monitorInput,
+    modelName,
+    modelData,
+    reactAppComponent.options.checkModelOnEdit,
+    getUserID(),
+  );
+  if (outcome.message === "") {
+    return await refreshData(
+      true, // refreshModel
+      true, // refreshChart
+      3, //sourceID
+    );
+  } else {
+    showAlert(outcome.message);
+  }
+}
 async function submitIncome(
   incomeInput: Income,
   modelData: ModelData,
@@ -1657,6 +1681,14 @@ function doShowPlanningButton(): boolean {
     return false;
   }
 }
+function doShowMonitoringButton(): boolean {
+  if (reactAppComponent) {
+    const result = reactAppComponent.options.uiMode === advancedUI;
+    return result;
+  } else {
+    return false;
+  }
+}
 function doShowOptimiserButton(): boolean {
   if (reactAppComponent) {
     const result = reactAppComponent.options.uiMode === advancedUI;
@@ -2144,6 +2176,7 @@ export class AppContent extends Component<AppProps, AppState> {
 
         submitAsset,
         submitExpense,
+        submitMonitor,
         submitIncome,
         submitTransaction,
         submitTrigger,
@@ -2920,6 +2953,10 @@ export class AppContent extends Component<AppProps, AppState> {
         continue;
       }
       if (view.lc === planningView.lc && !doShowPlanningButton()) {
+        viewIterator = it.next();
+        continue;
+      }
+      if (view.lc === monitoringView.lc && !doShowMonitoringButton()) {
         viewIterator = it.next();
         continue;
       }

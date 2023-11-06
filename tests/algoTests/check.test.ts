@@ -335,7 +335,6 @@ describe("checks tests", () => {
     expect(checkData(model2).message).toEqual(
       `"View frequency" setting should not be present`,
     );
-
     unSuppressLogs();
   });
   it("check income", () => {

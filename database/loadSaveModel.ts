@@ -7,6 +7,7 @@ import {
   Setting,
   Item,
   ModelData,
+  Monitor,
 } from "../types/interfaces";
 
 import { log, printDebug, showObj } from "../utils/utils";
@@ -367,6 +368,27 @@ export async function submitExpenseLSM(
   return submitItemLSM(
     expenseInput,
     modelData.expenses,
+    modelName,
+    modelData,
+    doChecks,
+    userID,
+  );
+}
+
+export async function submitMonitorLSM(
+  monitorInput: Monitor,
+  modelName: string,
+  modelData: ModelData,
+  doChecks: boolean,
+  userID: string,
+): Promise<CheckResult> {
+  /* istanbul ignore if  */
+  if (printDebug()) {
+    log(`in submitMonitorLSM with input : ${showObj(monitorInput)}`);
+  }
+  return submitItemLSM(
+    monitorInput,
+    modelData.monitors,
     modelName,
     modelData,
     doChecks,
