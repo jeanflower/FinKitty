@@ -2486,10 +2486,7 @@ function expensesMonitoringTableDiv(
     {
       ...cashValueColumn,
       key: "TODAYSVALUE",
-      name: `value\nat ${dateAsString(
-        DateFormatType.View,
-        getTodaysDate(model),
-      )}`,
+      name: `budget`,
       renderEditCell: undefined,
     },
     {
@@ -2507,7 +2504,7 @@ function expensesMonitoringTableDiv(
     {
       ...cashValueColumn,
       key: "AVERAGE",
-      name: "average",
+      name: "spent",
       renderEditCell: undefined,
       renderCell(props: any) {
         // log(`in formatter, JSON.stringify(props) = ${JSON.stringify(props)}`);
