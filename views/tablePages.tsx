@@ -2355,7 +2355,7 @@ export function expensesTableDivWithHeading(
   );
 }
 
-function scaleFor1m(
+function scaleFrom1m(
   recur: string,
 ) {
   let scale = 1.0;
@@ -2363,12 +2363,12 @@ function scaleFor1m(
   if (parsed.numberPart === undefined) {
     return NaN;
   } else {
-    scale = 1.0/parsed.numberPart;
+    scale = parsed.numberPart;
   }
   if (parsed.wordPart === 'w') {
-    scale *= 52/12;
+    scale *= 12/52;
   } else if (parsed.wordPart === 'y') {
-    scale *= 1/12;
+    scale *= 12;
   } else if (parsed.wordPart !== 'm') {
     scale = NaN;
   }
@@ -2415,13 +2415,11 @@ function expenseMonitoringForTable(
           todaysVForTable = todaysV.expenseVal;
         }
       }
-      const scaledFor1m = todaysVForTable * scaleFor1m(obj.RECURRENCE);
       let mapResult: any = {
         NAME: obj.NAME,
         ERA: obj.ERA,
         RECURRENCE: obj.RECURRENCE,
         TODAYSVALUE: `${todaysVForTable}`,
-        TODAYSVALUEMONTH: `${scaledFor1m}`,
       };
       const monitor = model.monitors.find((m) => {
         return m.NAME === obj.NAME;
@@ -2452,7 +2450,7 @@ function expenseMonitoringForTable(
       }
       mapResult = {
         ...mapResult, 
-        AVERAGE: (sum !== undefined) ? `${sum/colMonths.length}`: '',
+        AVERAGE: (sum !== undefined) ? `${sum/colMonths.length * scaleFrom1m(obj.RECURRENCE)}`: '',
       };
       return mapResult;
     });
@@ -2492,15 +2490,9 @@ function expensesMonitoringTableDiv(
     {
       ...defaultColumn,
       key: "RECURRENCE",
-      name: "recurrence",
+      name: "freq",
       renderEditCell: undefined,
     },
-    {
-      ...cashValueColumn,
-      key: "TODAYSVALUEMONTH",
-      name: `value for 1m`,
-      renderEditCell: undefined,
-    },      
     {
       ...cashValueColumn,
       key: "AVERAGE",
@@ -2510,22 +2502,22 @@ function expensesMonitoringTableDiv(
         // log(`in formatter, JSON.stringify(props) = ${JSON.stringify(props)}`);
         const val = props.row[props.column.key];
    
-        const budgetParsed = isNumber(props.row['TODAYSVALUEMONTH']);
+        const budgetParsed = isNumber(props.row['TODAYSVALUE']);
         const valParsed = isNumber(val);
         let highlightLow = false;
         let highlightHigh = false;
         if (budgetParsed.checksOK && valParsed.checksOK) {
           if (valParsed.value > 1.1 * budgetParsed.value) {
-            console.log(`highlightHigh ${props.row['TODAYSVALUEMONTH']}, ${val}`);
+            console.log(`highlightHigh ${props.row['TODAYSVALUE']}, ${val}`);
             highlightHigh = true;
           }else if (valParsed.value < 0.9 * budgetParsed.value) {
-            console.log(`highlightLow  ${props.row['TODAYSVALUEMONTH']}=${budgetParsed.value}, ${val}=${valParsed.value}`);
+            console.log(`highlightLow  ${props.row['TODAYSVALUE']}=${budgetParsed.value}, ${val}=${valParsed.value}`);
             highlightLow = true;
           } else {
-            // console.log(`highlightNone ${props.row['TODAYSVALUEMONTH']}, ${val}`);
+            // console.log(`highlightNone ${props.row['TODAYSVALUE']}, ${val}`);
           }
         } else {
-          console.log(`can't compare as numbers ${props.row['TODAYSVALUEMONTH']}, ${val}`);
+          console.log(`can't compare as numbers ${props.row['TODAYSVALUE']}, ${val}`);
         }
 
         if (highlightHigh) {
