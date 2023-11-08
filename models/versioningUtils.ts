@@ -53,6 +53,8 @@ import { getSettings } from "./modelQueries";
 // 8; // may have non-zero growth for incomes and expenses
 // 9: // revalue transactions numbers didn't yet use double-digit scheme
 // 10: // incomes were all recurrence of 1m
+// 11: // no monitoring start / end settings
+// 12:
 
 const mapForGuessSettingTypeForv2 = new Map([
   [roiEnd, viewType],
@@ -658,7 +660,7 @@ function migrateFromV11(model: ModelData) {
   if (end === "noneFound") {
     // console.log(`add setting for ${monitorEnd}`);
     model.settings.push({
-      VALUE: 'Oct 2023',
+      VALUE: 'Nov 2023',
       HINT: "",
       TYPE: adjustableType,
       NAME: monitorEnd,

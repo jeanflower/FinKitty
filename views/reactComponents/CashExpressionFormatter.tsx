@@ -6,11 +6,14 @@ import Tooltip from "react-bootstrap/Tooltip";
 import { log } from "../../utils/utils";
 import { evaluate } from "mathjs";
 
+import styles from './CashExpressionFormatter.module.css';
+
 log;
 
 interface CashExpressionFormatterProps {
   name: string;
   value: string;
+  highlightColor?: string;
 }
 class CashExpressionFormatter extends React.Component<CashExpressionFormatterProps> {
   public render() {
@@ -36,6 +39,13 @@ class CashExpressionFormatter extends React.Component<CashExpressionFormatterPro
       result = this.props.value;
     }
     // log(`cash formatter from ${this.props.value} = ${result}`);
+    let className = 'float: right';
+    if(this.props.highlightColor === 'red'){
+      className = styles.red;
+    } else if(this.props.highlightColor === 'green'){
+      className = styles.green;
+    }
+    // console.log(`className = ${className} for val ${result}`);
     return (
       <OverlayTrigger
         placement="top"
@@ -43,7 +53,7 @@ class CashExpressionFormatter extends React.Component<CashExpressionFormatterPro
           <Tooltip {...props}>{`${this.props.name}:${result}`}</Tooltip>
         )}
       >
-        <span className="float: right">{result}</span>
+        <span className={className}>{result}</span>
       </OverlayTrigger>
     );
   }

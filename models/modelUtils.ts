@@ -32,7 +32,7 @@ import {
   Setting,
   Transaction,
 } from "../types/interfaces";
-import { DateFormatType, log, makeDateFromString } from "../utils/utils";
+import { DateFormatType, log, makeDateFromString, showObj } from "../utils/utils";
 import { checkData } from "./checks";
 
 import { makeModelFromJSONString } from "./modelFromJSON";
@@ -248,6 +248,12 @@ export function attemptRenameLong(
 ): string {
   // log(`attempt rename from ${old} to ${replacement}`);
 
+  const outcome = checkData(model);
+  /* istanbul ignore if */
+  if (outcome.message !== "") {
+    return `Error: pre-rename model ${showObj(model)} fails checks with ${showObj(outcome)}`;
+  }
+
   if (doChecks) {
     // prevent a change which alters a special word
     const oldSpecialWord = getSpecialWord(old, model);
@@ -330,7 +336,7 @@ export function attemptRenameLong(
     const outcome = checkData(model);
     /* istanbul ignore if */
     if (outcome.message !== "") {
-      log(`Error: reverted model fails checks with ${outcome}`);
+      log(`Error: reverted model fails checks with ${showObj(outcome)}`);
       revertToUndoModel(model);
       return outcome.message;
     } else {

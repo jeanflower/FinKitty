@@ -2359,7 +2359,7 @@ describe("conditional tests", () => {
     }
     expect(evalsAndValues.todaysExpenseValues.size).toEqual(0);
     expect(evalsAndValues.todaysIncomeValues.size).toEqual(0);
-    expect(evalsAndValues.todaysSettingValues.size).toEqual(5);
+    expect(evalsAndValues.todaysSettingValues.size).toEqual(7);
     const cpiSetting = [...evalsAndValues.todaysSettingValues.keys()].find(
       (s) => {
         return s.NAME === "cpi";

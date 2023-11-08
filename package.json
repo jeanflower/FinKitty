@@ -1,11 +1,14 @@
 {
   "name": "finkitty",
   "homepage": "https://github.com/jeanflower/FinKitty",
-  "version": "2.0.28",
+  "version": "2.0.29",
   "engines": {
     "node": "18.x"
   },
   "private": true,
+  "cacheDirectories": [
+    ".next/cache"
+  ],
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -47,7 +50,8 @@
     "@types/react": "18.2.21",
     "@types/selenium-webdriver": "^4.1.19",
     "@typescript-eslint/eslint-plugin": "^6.8.0",
-    "chromedriver": "^118.0.1",
+    "chromedriver": "^119.0.1",
+    "csv-parse": "^5.5.2",
     "eslint": "^8.51.0",
     "eslint-config-next": "^13.5.4",
     "eslint-config-prettier": "^9.0.0",
@@ -55,6 +59,7 @@
     "husky": "^8.0.3",
     "jest": "29.6.4",
     "jest-environment-jsdom": "29.6.4",
+    "load-json-file": "^7.0.1",
     "prettier": "3.0.3",
     "selenium-webdriver": "^4.14.0",
     "skott": "^0.31.3",

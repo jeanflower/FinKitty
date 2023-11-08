@@ -215,7 +215,7 @@ export function makeYesNoFromBoolean(b: boolean) {
   return "No";
 }
 
-function isNumber(input: string) {
+export function isNumber(input: string) {
   const result = {
     value: 0.0,
     checksOK: true,

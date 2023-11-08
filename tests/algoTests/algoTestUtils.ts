@@ -562,7 +562,7 @@ export function getTestEvaluations(
         if (message === "Must maintain special formatting using BMV") {
           renamedToNew = false;
         } else {
-          throw new Error(`rename failed with message '${message}'`);
+          throw new Error(`rename setting failed with message '${message}'`);
         }
       }
       if (diffChecks) {

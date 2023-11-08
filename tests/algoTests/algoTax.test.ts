@@ -42,6 +42,7 @@ import {
   getCGTLabel,
   printTestCodeForChart,
 } from "./algoTestUtils";
+import { migrateOldVersions } from "../../models/versioningUtils";
 
 printTestCodeForChart;
 showObj;
@@ -8686,11 +8687,13 @@ describe("tax tests", () => {
           ERA: 1,
         },
       ],
+      monitors: [],
       version: 11,
       name: "test",
       undoModel: undefined,
       redoModel: undefined,
     };
+    migrateOldVersions(model);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
@@ -9047,11 +9050,13 @@ describe("tax tests", () => {
           ERA: 1,
         },
       ],
+      monitors: [],
       version: 11,
       name: "test",
       undoModel: undefined,
       redoModel: undefined,
     };
+    migrateOldVersions(model);
 
     const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;

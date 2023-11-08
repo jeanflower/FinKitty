@@ -110,10 +110,10 @@ npm install chromedriver --detect_chromedriver_version
 If the latest chromedriver on npm falls behind the version needed for the installed
 Chrome, here are some steps to tide things over:
 
-- download the appropriate zip file from https://chromedriver.storage.googleapis.com/index.html
+- download the appropriate zip file from a link from https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json 
 - delete the chromedriver entry from package.json
 - install chromedriver using something equivalent to
-  `npm install chromedriver --save-dev --chromedriver_filepath=/Users/jeanflower/Downloads/chromedriver_mac64_m1.zip`
+  `npm install chromedriver --save-dev --chromedriver_filepath=/Users/jeanflower/Downloads/chromedriver-mac-x64.zip`
 - revert changes to package.json, package-lock.json
 
 Here's how to update or add a new dependency in the context of the locally-installed chromedriver.
@@ -123,7 +123,7 @@ Here's how to update or add a new dependency in the context of the locally-insta
 - stage the changes to package.json
 - delete the chromedriver entry from package.json
 - install chromedriver using something equivalent to
-  `npm install chromedriver --save-dev --chromedriver_filepath=/Users/jeanflower/Downloads/chromedriver_mac64_m1.zip`
+  `npm install chromedriver --save-dev --chromedriver_filepath=/Users/jeanflower/Downloads/chromedriver-mac-x64.zip`
 - revert changes to package.json, package-lock.json
 - run tests to see if the new package is working as expected
 

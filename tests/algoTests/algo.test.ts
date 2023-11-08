@@ -152,7 +152,7 @@ describe("evaluations tests", () => {
       });
     }
     expect(evalsAndValues.todaysIncomeValues.size).toEqual(0);
-    expect(evalsAndValues.todaysSettingValues.size).toEqual(5);
+    expect(evalsAndValues.todaysSettingValues.size).toEqual(7);
 
     const cpiS = [...evalsAndValues.todaysSettingValues.keys()].find((s) => {
       return s.NAME === "cpi";
@@ -244,7 +244,7 @@ describe("evaluations tests", () => {
       );
     }
     expect(evalsAndValues.todaysIncomeValues.size).toEqual(0);
-    expect(evalsAndValues.todaysSettingValues.size).toEqual(5);
+    expect(evalsAndValues.todaysSettingValues.size).toEqual(7);
     const cpiS = [...evalsAndValues.todaysSettingValues.keys()].find((s) => {
       return s.NAME === "cpi";
     });
@@ -431,7 +431,7 @@ describe("evaluations tests", () => {
       });
     }
     expect(evalsAndValues.todaysIncomeValues.size).toEqual(0);
-    expect(evalsAndValues.todaysSettingValues.size).toEqual(5);
+    expect(evalsAndValues.todaysSettingValues.size).toEqual(7);
     const cpiS = [...evalsAndValues.todaysSettingValues.keys()].find((s) => {
       return s.NAME === "cpi";
     });
@@ -1161,54 +1161,18 @@ describe("evaluations tests", () => {
         },
       ],
       settings: [
-        {
-          NAME: "Type of view for asset chart",
-          VALUE: "val",
-          HINT: "Asset chart uses setting '+', '-', '+-' or 'val'",
-          TYPE: "view",
-          ERA: 1,
-        },
-        {
-          NAME: "Today's value focus date",
-          ERA: 1,
-          VALUE: "4 May 2023",
-          HINT: "Date to use for 'today's value' tables (defaults to '' meaning today)",
-          TYPE: "view",
-        },
-        {
-          NAME: "End of view range",
-          ERA: 1,
-          VALUE: "01 Jan 2025",
-          HINT: "Date at the end of range to be plotted",
-          TYPE: "view",
-        },
-        {
-          NAME: "Date of birth",
-          ERA: 1,
-          VALUE: "",
-          HINT: "Date used for representing dates as ages",
-          TYPE: "view",
-        },
-        {
-          NAME: "cpi",
-          VALUE: "0",
-          HINT: "Annual rate of inflation",
-          TYPE: "adjustable",
-          ERA: 1,
-        },
-        {
-          NAME: "Beginning of view range",
-          ERA: 1,
-          VALUE: "30 Dec 2020",
-          HINT: "Date at the start of range to be plotted",
-          TYPE: "view",
-        },
+        ...defaultModelSettings({
+          start: "30 Dec 2020",
+          end: "01 Jan 2025"
+        }),
       ],
+      monitors: [],
       version: 11,
       name: "NeoTest",
       undoModel: undefined,
       redoModel: undefined,
     };
+
     const evalsAndValues = getTestEvaluations(model);
 
     // const evals = evalsAndValues.evaluations;
@@ -8454,7 +8418,7 @@ describe("evaluations tests", () => {
       ),
     );
     */
-    expect(model.settings.length).toBe(6);
+    expect(model.settings.length).toBe(8);
     markForUndo(model);
     listForDelete = ["stockMarketGrowth"];
     response = await deleteItemsFromModelInternal(
@@ -8468,7 +8432,7 @@ describe("evaluations tests", () => {
       async (a, b, c) => {},
     );
     expect(response).not.toBe("");
-    expect(model.settings.length).toBe(6);
+    expect(model.settings.length).toBe(8);
     listForDelete = ["Revalue stocks after loss in 2020 market crash"];
     response = await deleteItemsFromModelInternal(
       listForDelete,
@@ -8521,9 +8485,9 @@ describe("evaluations tests", () => {
     );
     expect(response.message).toBe("");
     expect(response.itemsDeleted).toEqual(listForDelete);
-    expect(model.settings.length).toBe(5);
+    expect(model.settings.length).toBe(7);
     revertToUndoModel(model);
-    expect(model.settings.length).toBe(6);
+    expect(model.settings.length).toBe(8);
   });
 
   it("delete items from model with recursion", async () => {
@@ -8577,7 +8541,7 @@ describe("evaluations tests", () => {
       ),
     );
     */
-    expect(model.settings.length).toBe(6);
+    expect(model.settings.length).toBe(8);
     expect(model.assets.length).toBe(5);
     expect(model.transactions.length).toBe(6);
     markForUndo(model);
@@ -8604,12 +8568,12 @@ describe("evaluations tests", () => {
       "Stocks",
       "Revalue stocks after loss in 2020 market crash",
     ]);
-    expect(model.settings.length).toBe(5);
+    expect(model.settings.length).toBe(7);
     expect(model.assets.length).toBe(3);
     expect(model.transactions.length).toBe(5);
 
     revertToUndoModel(model);
-    expect(model.settings.length).toBe(6);
+    expect(model.settings.length).toBe(8);
     expect(model.assets.length).toBe(5);
     expect(model.transactions.length).toBe(6);
 
@@ -8684,7 +8648,7 @@ describe("evaluations tests", () => {
       VALUE: "ten",
     });
 
-    expect(model.settings.length).toBe(13);
+    expect(model.settings.length).toBe(15);
     expect(model.assets.length).toBe(12);
     listForDelete = ["ten"];
     response = await deleteItemsFromModelInternal(
@@ -8710,7 +8674,7 @@ describe("evaluations tests", () => {
       "valIsTen1",
       "valIsTen",
     ]);
-    expect(model.settings.length).toBe(12);
+    expect(model.settings.length).toBe(14);
     expect(model.assets.length).toBe(5);
   });
 

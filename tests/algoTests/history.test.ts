@@ -106,7 +106,7 @@ describe("history tests", () => {
     cannotUndo(model);
     cannotRedo(model);
 
-    const numSettings = 5;
+    const numSettings = 7;
 
     expect(model.settings.length).toBe(numSettings);
     // log(`model without undo = ${showObj(model)}`);
@@ -158,7 +158,7 @@ describe("history tests", () => {
   it("should mark, edit setting and recover 01", () => {
     const model = getTestModel(MinimalModel);
 
-    const numSettings = 5;
+    const numSettings = 7;
 
     cannotUndo(model);
     expect(model.settings.length).toBe(numSettings);

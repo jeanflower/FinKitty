@@ -41,6 +41,9 @@ import {
   pensionTransfer,
   taxFree,
   transferCrystallizedPension,
+  adjustableType,
+  monitorEnd,
+  monitorStart,
 } from "../localization/stringConstants";
 import { ModelData, Setting } from "../types/interfaces";
 import {
@@ -368,6 +371,20 @@ export function defaultModelSettings(roi: { start: string; end: string }) {
       NAME: roiEnd,
       VALUE: roi.end,
       HINT: roiEndHint,
+    },
+    {
+      NAME: monitorStart,
+      VALUE: "Nov 2022",
+      HINT: '',
+      TYPE: adjustableType,
+      ERA: 0,
+    },
+    {
+      NAME: monitorEnd,
+      VALUE: "Nov 2023",
+      HINT: '',
+      TYPE: adjustableType,
+      ERA: 0,
     },
   ];
 }
@@ -1119,7 +1136,7 @@ function getBenAndJerryModel(): ModelData {
 }
 
 function getBondModel() {
-  return makeModelFromJSONString(
+  return makeModelFromJSON(
     `
   {
     "triggers": [],

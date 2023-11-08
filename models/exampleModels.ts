@@ -722,7 +722,7 @@ export function getVariableDateExampleData2(): ModelData {
 }
 
 export function transactionFromUndefinedModel(): ModelData {
-  return makeModelFromJSONString(
+  return makeModelFromJSON(
     `{"name":"x",
 "triggers":[
 {"NAME":"TransferMortgage","DATE":"Sat Jan 01 2028"},
@@ -756,7 +756,7 @@ export function transactionFromUndefinedModel(): ModelData {
 }
 
 export function transactionToUndefinedModel(): ModelData {
-  return makeModelFromJSONString(
+  return makeModelFromJSON(
     `{"name":"x",
 "triggers":[
 {"NAME":"TransferMortgage","DATE":"Sat Jan 01 2028"},

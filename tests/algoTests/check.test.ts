@@ -1153,7 +1153,7 @@ describe("checks tests", () => {
     expect(checkData(model).message).toEqual(`'base' as name is reserved`);
     model.transactions[13].NAME = model.transactions[12].NAME;
     expect(checkData(model).message).toEqual(
-      `duplicate name Revalue of BondTargetValue2 1`,
+      `duplicate name Revalue of BondTargetValue2 01`,
     );
     model.transactions[13].NAME = "Gain Cash";
 

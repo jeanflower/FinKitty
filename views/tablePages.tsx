@@ -100,6 +100,7 @@ import {
   makeStringFromGrowth,
   getDisplayName,
   checkTriggerDate,
+  isNumber,
 } from "../utils/stringUtils";
 import { Accordion, Button, Card, useAccordionButton } from "react-bootstrap";
 import {
@@ -2476,11 +2477,6 @@ function expensesMonitoringTableDiv(
       name: 'index',
     },
     */
-    faveColumn(
-      parentCallbacks.deleteExpense,
-      parentCallbacks.setEraExpense,
-      "expenseDefTable",
-    ),
     {
       ...defaultColumn,
       key: "NAME",
@@ -2513,6 +2509,36 @@ function expensesMonitoringTableDiv(
       key: "AVERAGE",
       name: "average",
       renderEditCell: undefined,
+      renderCell(props: any) {
+        // log(`in formatter, JSON.stringify(props) = ${JSON.stringify(props)}`);
+        const val = props.row[props.column.key];
+   
+        const budgetParsed = isNumber(props.row['TODAYSVALUEMONTH']);
+        const valParsed = isNumber(val);
+        let highlightLow = false;
+        let highlightHigh = false;
+        if (budgetParsed.checksOK && valParsed.checksOK) {
+          if (valParsed.value > 1.1 * budgetParsed.value) {
+            console.log(`highlightHigh ${props.row['TODAYSVALUEMONTH']}, ${val}`);
+            highlightHigh = true;
+          }else if (valParsed.value < 0.9 * budgetParsed.value) {
+            console.log(`highlightLow  ${props.row['TODAYSVALUEMONTH']}=${budgetParsed.value}, ${val}=${valParsed.value}`);
+            highlightLow = true;
+          } else {
+            // console.log(`highlightNone ${props.row['TODAYSVALUEMONTH']}, ${val}`);
+          }
+        } else {
+          console.log(`can't compare as numbers ${props.row['TODAYSVALUEMONTH']}, ${val}`);
+        }
+
+        if (highlightHigh) {
+          return <CashExpressionFormatter name={props.column.name} value={val} highlightColor="red"/>;
+        } else if (highlightLow) {
+          return <CashExpressionFormatter name={props.column.name} value={val} highlightColor="green"/>;
+        } else {
+          return <CashExpressionFormatter name={props.column.name} value={val}/>;
+        }
+      },
     },
   ];
   colDates.map((cd) => {

@@ -12,6 +12,9 @@ import {
   birthDateHint,
   valueFocusDate,
   valueFocusDateHint,
+  monitorEnd,
+  monitorStart,
+  adjustableType,
 } from "../localization/stringConstants";
 import { ModelData } from "../types/interfaces";
 import { getCurrentVersion } from "./currentVersion";
@@ -72,6 +75,20 @@ export const minimalModel: ModelData = {
       VALUE: "",
       HINT: valueFocusDateHint,
       TYPE: viewType,
+      ERA: 0,
+    },
+    {
+      NAME: monitorStart,
+      VALUE: "Nov 2022",
+      HINT: '',
+      TYPE: adjustableType,
+      ERA: 0,
+    },
+    {
+      NAME: monitorEnd,
+      VALUE: "Nov 2023",
+      HINT: '',
+      TYPE: adjustableType,
       ERA: 0,
     },
   ],
