@@ -37,7 +37,7 @@ import { log, showObj } from "../utils/utils";
 import { viewSetting, simpleSetting } from "./exampleSettings";
 import { setSetting, setROI } from "./modelUtils";
 import { getMinimalModelCopy } from "./minimalModel";
-import { makeModelFromJSON, makeModelFromJSONString } from "./modelFromJSON";
+import { makeModelFromJSON } from "./modelFromJSON";
 
 log;
 showObj;

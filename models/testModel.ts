@@ -65,7 +65,7 @@ import { setSetting } from "./modelUtils";
 import { simpleSetting, viewSetting } from "./exampleSettings";
 import { allViews } from "../utils/allViews";
 import { getMinimalModelCopy } from "./minimalModel";
-import { makeModelFromJSON, makeModelFromJSONString } from "./modelFromJSON";
+import { makeModelFromJSON } from "./modelFromJSON";
 
 const browserTestSettingsForMigration: Setting[] = [
   {
