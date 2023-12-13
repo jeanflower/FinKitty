@@ -292,7 +292,8 @@ class DataGridFinKitty extends React.Component<DataGridProps, DataGridState> {
         {this.props.rows && (
           <ReactDataGrid
             style={{
-              height: this.props.rows.length * 35 + 40,
+              height: this.props.rows.length * 35 + 60,
+              fontSize: 20,
             }}
             columns={this.props.columns}
             onRowsChange={(rows: any[], data: RowsChangeData<any, any>) => {
