@@ -1036,9 +1036,7 @@ export const defaultColumn = {
 };
 export function triggerDateColumn(model: ModelData) {
   return {
-    resizable: true,
-    sortable: true,
-    renderEditCell: textEditor,
+    ...defaultColumn,
     renderCell(props: any) {
       //log(`in formatter, JSON.stringify(props) = ${JSON.stringify(props)}`);
       const val = props.row[props.column.key];
@@ -1055,9 +1053,7 @@ export function triggerDateColumn(model: ModelData) {
 }
 export function growthColumn(settings: Setting[]) {
   return {
-    resizable: true,
-    sortable: true,
-    renderEditCell: textEditor,
+    ...defaultColumn,
     renderCell(props: any) {
       //log(`in formatter, JSON.stringify(props) = ${JSON.stringify(props)}`);
       const val = props.row[props.column.key];
@@ -1074,9 +1070,7 @@ export function growthColumn(settings: Setting[]) {
 }
 
 export const ToFromValueColumn = {
-  resizable: true,
-  sortable: true,
-  renderEditCell: textEditor,
+  ...defaultColumn,
   renderCell(props: any) {
     //log(`in formatter, JSON.stringify(props) = ${JSON.stringify(props)}`);
     const val = props.row[props.column.key];
@@ -1085,9 +1079,7 @@ export const ToFromValueColumn = {
   },
 };
 export const cashValueColumn = {
-  resizable: true,
-  sortable: true,
-  renderEditCell: textEditor,
+  ...defaultColumn,
   renderCell(props: any) {
     //log(`in formatter, JSON.stringify(props) = ${JSON.stringify(props)}`);
     const val = props.row[props.column.key];
@@ -1096,9 +1088,7 @@ export const cashValueColumn = {
   },
 };
 export const cashExpressionColumn = {
-  resizable: true,
-  sortable: true,
-  renderEditCell: textEditor,
+  ...defaultColumn,
   renderCell(props: any) {
     //log(`in formatter, JSON.stringify(props) = ${JSON.stringify(props)}`);
     const val = props.row[props.column.key];
@@ -1507,6 +1497,23 @@ function makeTransactionCols(
       name: "name",
     },
   ];
+  if (type === payOffDebt) {
+    cols = cols.concat([
+      {
+        ...triggerDateColumn(model),
+        key: "DATE",
+        name: "payments start date",
+      },
+    ]);
+  } else {
+    cols = cols.concat([
+      {
+        ...triggerDateColumn(model),
+        key: "DATE",
+        name: "date",
+      },
+    ]);
+  }
   // FROM, FROM_VALUE display rules
   if (
     type === revalueInc ||
@@ -1626,23 +1633,6 @@ function makeTransactionCols(
         ...ToFromValueColumn,
         key: "TO_VALUE",
         name: "to amount",
-      },
-    ]);
-  }
-  if (type === payOffDebt) {
-    cols = cols.concat([
-      {
-        ...triggerDateColumn(model),
-        key: "DATE",
-        name: "payments start date",
-      },
-    ]);
-  } else {
-    cols = cols.concat([
-      {
-        ...triggerDateColumn(model),
-        key: "DATE",
-        name: "date",
       },
     ]);
   }
