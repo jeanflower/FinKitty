@@ -1951,6 +1951,7 @@ function triggersTableDiv(
               },
               {
                 ...triggerDateColumn(model),
+                width: 'auto',
                 key: "DATE",
                 name: "date",
               },
