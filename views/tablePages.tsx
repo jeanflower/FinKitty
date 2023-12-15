@@ -1037,6 +1037,7 @@ export const defaultColumn = {
 export function triggerDateColumn(model: ModelData) {
   return {
     ...defaultColumn,
+    width: 120,
     renderCell(props: any) {
       //log(`in formatter, JSON.stringify(props) = ${JSON.stringify(props)}`);
       const val = props.row[props.column.key];
