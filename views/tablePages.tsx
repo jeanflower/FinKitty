@@ -1542,6 +1542,7 @@ function makeTransactionCols(
     cols = cols.concat([
       {
         ...defaultColumn,
+        width: 200,
         key: "FROM",
         name: "coming from",
       },
