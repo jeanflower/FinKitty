@@ -41,6 +41,7 @@ export function taxDiv(
       DESCRIPTION: d.name.substring("taxBreakdown".length, d.name.length),
     });
   }
+  tableData.reverse();
   const rows = addIndices(tableData.reverse());
   // for (const r of rows) {
   //   console.log(`row ${r.index}, ${r.DATE}`);
