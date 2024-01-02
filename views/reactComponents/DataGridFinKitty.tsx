@@ -166,7 +166,9 @@ class DataGridFinKitty extends React.Component<DataGridProps, DataGridState> {
           sortColumn === "CHANGE" ||
           sortColumn === "QOLD_VALUE" ||
           sortColumn === "QNEW_VALUE" ||
-          sortColumn === "QCHANGE"
+          sortColumn === "QCHANGE" ||
+          sortColumn === "sum" ||
+          sortColumn === "budgetForPeriod"
         ) {
           if (aVal.endsWith("%") && !bVal.endsWith("%")) {
             return this.state.sortDirection === "DESC" ? +1 : -1;

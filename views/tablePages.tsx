@@ -2365,7 +2365,12 @@ function scaleFrom1m(
   } else if (parsed.wordPart !== 'm') {
     scale = NaN;
   }
+  // console.log(`scaleFrom1m(${recur}) = ${scale}`);
   return scale;
+}
+
+function getScale(obj: Expense, colMonths: string[]){
+  return scaleFrom1m(obj.RECURRENCE)/colMonths.length;
 }
 
 function expenseMonitoringForTable(
@@ -2378,12 +2383,7 @@ function expenseMonitoringForTable(
   const v = getVarVal(model.settings);
 
   const unindexedResult = model.expenses
-    .filter((obj: Item) => {
-      return (
-        parentCallbacks.filterForEra(obj) &&
-        parentCallbacks.filterForSearch(obj)
-      );
-    }).filter((e: Expense) => {
+    .filter((e: Expense) => {
       let hasStarted = true;
       let hasEnded = false;
       const startDate = checkTriggerDate(e.START, model.triggers, v);
@@ -2442,18 +2442,54 @@ function expenseMonitoringForTable(
         mapResult = {...mapResult, ...object};
       }
       mapResult = {
-        ...mapResult, 
-        AVERAGE: (sum !== undefined) ? `${sum/colMonths.length * scaleFrom1m(obj.RECURRENCE)}`: '',
+        ...mapResult,
+        item: obj,
+        sum: sum,
+        RECURRENT_SPEND: (sum !== undefined) ? `${sum * getScale(obj, colMonths)}`: '',
       };
       return mapResult;
     });
-  // console.log(`unindexedResult = ${showObj(unindexedResult)}`);
-  return addIndices(unindexedResult);
+  // console.log(`unindexedResult[0] = ${showObj(unindexedResult[0])}`);
+
+  const summaryRows: any = [];
+  for( const ui of unindexedResult) {
+    const summaryKey = ui.item.CATEGORY === '' ? ui.item.NAME : ui.item.CATEGORY;
+    let matchingSummaryRow = summaryRows.find((r: any) => {
+      return r.key === summaryKey;    
+    });
+    // console.log(`matchingSummaryRow = ${showObj(matchingSummaryRow)}`);
+
+    if (matchingSummaryRow === undefined) {
+      matchingSummaryRow = {
+        key: summaryKey,
+        count: 1,
+        sum: ui.sum,
+        budgetForPeriod: ui.TODAYSVALUE *  getScale(ui.item, colMonths),
+      }
+      summaryRows.push(matchingSummaryRow);
+      // console.log(`summaryRows = ${showObj(summaryRows)}`);
+    } else {
+      matchingSummaryRow.count += 1;
+      matchingSummaryRow.sum += ui.sum;
+      matchingSummaryRow.budgetForPeriod += ui.TODAYSVALUE / getScale(ui.item, colMonths);
+    }
+  }
+  console.log(`summaryRows = ${showObj(summaryRows)}`);
+
+  return {
+    detailed: addIndices(unindexedResult.filter((obj: any) => {
+      return (
+        parentCallbacks.filterForEra(obj.item) &&
+        parentCallbacks.filterForSearch(obj.item)
+      );
+    })),
+    summary: addIndices(summaryRows),
+  }
 }
 
 function expensesMonitoringTableDiv(
   model: ModelData,
-  expData: any[],
+  expData: {detailed:any[],summary: any[]},
   colDates: string[],
   doChecks: boolean,
   parentCallbacks: ViewCallbacks,
@@ -2488,7 +2524,7 @@ function expensesMonitoringTableDiv(
     },
     {
       ...cashValueColumn,
-      key: "AVERAGE",
+      key: "RECURRENT_SPEND",
       name: "spent",
       renderEditCell: undefined,
       renderCell(props: any) {
@@ -2501,10 +2537,10 @@ function expensesMonitoringTableDiv(
         let highlightHigh = false;
         if (budgetParsed.checksOK && valParsed.checksOK) {
           if (valParsed.value > 1.1 * budgetParsed.value) {
-            console.log(`highlightHigh ${props.row['TODAYSVALUE']}, ${val}`);
+            //console.log(`highlightHigh ${props.row['TODAYSVALUE']}, ${val}`);
             highlightHigh = true;
           }else if (valParsed.value < 0.9 * budgetParsed.value) {
-            console.log(`highlightLow  ${props.row['TODAYSVALUE']}=${budgetParsed.value}, ${val}=${valParsed.value}`);
+            //console.log(`highlightLow  ${props.row['TODAYSVALUE']}=${budgetParsed.value}, ${val}=${valParsed.value}`);
             highlightLow = true;
           } else {
             // console.log(`highlightNone ${props.row['TODAYSVALUE']}, ${val}`);
@@ -2553,6 +2589,42 @@ function expensesMonitoringTableDiv(
       </Button>
       */}
       <fieldset>
+      <h4>Summary</h4>
+      <div className="dataGridExpensesSummary">
+          <DataGridFinKitty
+            tableID={tableID}
+            rows={expData.summary.map((r)=>{
+              return {
+                index: r.index,
+                key: r.key,
+                sum: `${r.sum}`,
+                budgetForPeriod: `${r.budgetForPeriod}`,
+              }
+            })}
+            columns={[
+              {
+                ...defaultColumn,
+                key: 'key',
+                name: 'category',
+                renderEditCell: undefined,
+              },
+              {
+                ...cashExpressionColumn,
+                key: 'sum',
+                name: 'spent',
+                renderEditCell: undefined,
+              },
+              {
+                ...cashExpressionColumn,
+                key: 'budgetForPeriod',
+                name: 'budget',
+                renderEditCell: undefined,
+              },
+            ]}
+            model={model}
+          />
+        </div>
+        <h4>Details</h4>
         <div className="dataGridExpenses">
           <DataGridFinKitty
             tableID={tableID}
@@ -2561,13 +2633,13 @@ function expensesMonitoringTableDiv(
                 model,
                 parentCallbacks.showAlert,
                 doChecks,
-                expData,
+                expData.detailed,
                 parentCallbacks.submitMonitor,
                 parentCallbacks.refreshData,
                 args,
               );
             }}
-            rows={expData}
+            rows={expData.detailed}
             columns={cols}
             model={model}
           />
@@ -2632,7 +2704,7 @@ export function expensesMonitoringDivWithHeading(
     todaysValues, 
     parentCallbacks,
   );
-  if (expData.length === 0) {
+  if (expData.detailed.length === 0) {
     return;
   }
   return collapsibleFragment(
@@ -3388,7 +3460,7 @@ export function optimizerDiv(
     .map((i) => {
       return {
         ESTATE: `${cd.datasets[0].data[i]}`,
-        VAR: cd.labels[i],
+        VAR: `${cd.labels[i]}`,
       };
     })
     .sort((a, b) => {
