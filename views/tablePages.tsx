@@ -2437,7 +2437,7 @@ function expenseMonitoringForTable(
           }  
         }
         const object: any = {}
-        object[colMonth] = val ? val.EXPRESSION : '';
+        object[colMonth] = val ? val.EXPRESSION : '0.0';
 
         mapResult = {...mapResult, ...object};
       }
