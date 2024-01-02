@@ -3073,7 +3073,13 @@ export function reportDiv(
         SOURCE: x.source,
       };
     });
-  unindexedResult.reverse();
+    unindexedResult.reverse();
+
+  //console.log(`unindexed dates = ${
+  //  unindexedResult.map((uir) => {
+  //    return new Date(uir.DATE).toDateString();
+  //  })}`)
+
   const reportDataTable = addIndices(unindexedResult);
 
   // log(`display reportDataTable of length ${reportDataTable.length}`);
@@ -3104,6 +3110,8 @@ export function reportDiv(
       <DataGridFinKitty
         tableID={tableID}
         rows={reportDataTable}
+        colSortIndex="index"
+        sortDirection="DESC"
         columns={[
           /*
           {

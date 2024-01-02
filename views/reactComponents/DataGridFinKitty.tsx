@@ -20,6 +20,8 @@ interface DataGridProps {
   columns: any[]; // TODO any
   model: ModelData;
   tableID: string;
+  colSortIndex?: string | undefined;
+  sortDirection?: "ASC" | "DESC" | "NONE" | undefined;
 }
 interface DataGridState {
   colSortIndex: string;
@@ -38,11 +40,15 @@ class DataGridFinKitty extends React.Component<DataGridProps, DataGridState> {
     });
     // log(`row indices are ${props.rows.map((r)=>{return r['index'];})}`);
     // log(`sortedIndices are ${this.sortedIndices}`);
+
+    const colSortIndex = (props.colSortIndex !== undefined) ? props.colSortIndex : "NAME";      
+    const sortDirection = (props.sortDirection !== undefined) ? props.sortDirection : "ASC";      
+
     this.state = {
-      colSortIndex: "NAME",
-      sortDirection: "ASC",
+      colSortIndex: colSortIndex,
+      sortDirection: sortDirection,
     };
-    this.handleSort(this.state.colSortIndex, "NONE");
+    this.handleSort(this.state.colSortIndex, this.state.sortDirection);
   }
 
   public rowKeyGetter(r: any) {
