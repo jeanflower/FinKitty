@@ -6861,7 +6861,7 @@ function processDBPGenerators(
               `should be a numerical value`;
         }
       } else {
-        let isNotANumber = !isNumberString(dBDetails.CONTRIBUTION_AMOUNT);
+        const isNotANumber = !isNumberString(dBDetails.CONTRIBUTION_AMOUNT);
         if (!isNotANumber) {
           return `Contribution amount '${dBDetails.CONTRIBUTION_AMOUNT}' ` +
               `from no income?`;
@@ -7109,7 +7109,7 @@ function processDBPGenerators(
       if (pensionDbptran3) {
         model.transactions.push(pensionDbptran3);
       }
-  };
+  }
   return '';
 }
 

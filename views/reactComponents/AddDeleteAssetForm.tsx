@@ -531,7 +531,6 @@ export class AddDeleteAssetForm extends Component<
         <Button
           onClick={()=>{
             console.log(`edit ${g.NAME}`);
-            const dcGeneratorDetails: DCGeneratorDetails = g.DETAILS;
             this.setState({
               NAME: g.NAME,
               VALUE: g.DETAILS.VALUE,

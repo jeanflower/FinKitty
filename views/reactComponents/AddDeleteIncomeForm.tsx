@@ -229,7 +229,6 @@ export class AddDeleteIncomeForm extends Component<
         <Button
           onClick={()=>{
             console.log(`edit ${g.NAME}`);
-            const dbGeneratorDetails: DBGeneratorDetails = g.DETAILS;
             this.setState({
               NAME: g.NAME,
               VALUE: g.DETAILS.VALUE,
