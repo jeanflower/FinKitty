@@ -1,8 +1,8 @@
 import FileSaver from "file-saver";
 import moment from "moment";
 
-let doLogToFile = false;
-const doLogIncremental = true;
+const doLogToFile = false;
+let doLogIncremental = true;
 
 let logText = "";
 
