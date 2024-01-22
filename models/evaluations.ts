@@ -1,4 +1,4 @@
-import { checkData } from "./checks";
+import { checkAsset, checkData, checkIncome, checkIncomeLiability, checkTransaction } from "./checks";
 import {
   annually,
   CASH_ASSET_NAME,
@@ -9,7 +9,7 @@ import {
   incomeTax,
   monthly,
   nationalInsurance,
-  pension,
+  pensionPrefix,
   pensionSS,
   revalue,
   roiEnd,
@@ -29,6 +29,10 @@ import {
   weekly,
   tracking,
   annualBaseForCPI,
+  autogen,
+  moveTaxFreePart,
+  taxFree,
+  transferCrystallizedPension,
 } from "../localization/stringConstants";
 import {
   DatedThing,
@@ -49,6 +53,7 @@ import {
   Income,
   IncomeOrExpense,
   Item,
+  DBGeneratorDetails,
 } from "../types/interfaces";
 import {
   DateFormatType,
@@ -72,6 +77,8 @@ import {
   dateAsString,
   makeTwoDP,
   getDisplayName,
+  makeBooleanFromYesNo,
+  makeIncomeLiabilityFromNameAndNI,
 } from "../utils/stringUtils";
 import { getTodaysDate, getROI } from "./modelUtils";
 import {
@@ -80,6 +87,7 @@ import {
   isNumberString,
   replaceCategoryWithAssetNames,
 } from "./modelQueries";
+import { makeModelFromJSONString } from "./modelFromJSON";
 
 function parseRecurrenceString(recurrence: string) {
   if (recurrence === undefined) {
@@ -1815,6 +1823,7 @@ function sumNI(niDue: { amountLiable: number; rate: number }[]): number {
   niDue.forEach((nd) => {
     sum = sum + nd.amountLiable * nd.rate;
   });
+  // log(`sumNI = ${sum}`);
   return sum;
 }
 
@@ -2989,6 +2998,8 @@ function handleIncome(
       return;
     }
 
+    // log(`consider pension transaction: ${pt.NAME}`);
+
     const ptDate = getTriggerDate(pt.DATE, triggers, v);
     if (ptDate > moment.date) {
       return;
@@ -3003,7 +3014,7 @@ function handleIncome(
     const tToValue = parseFloat(pt.TO_VALUE);
     // log(`pension transaction ${pt.NAME}`)
     // log(`see if ${showObj(pt)} should affect `
-    //   +`this handleIncome moment ${showObj(moment)}`);
+    //    +`this handleIncome moment ${showObj(moment)}`);
     // log(`matched transaction ${showObj(pt)} to ${showObj(moment)}`);
 
     let amountFrom = 0.0;
@@ -3028,14 +3039,17 @@ function handleIncome(
       // - another flagged as pensionDB
       // whose purpose is solely to setValue on the
       // target benefit
-      // log(`pay ${amountFrom} into pension : ${pt.NAME}`);
+      // log(`at ${moment.date.toDateString()}, pay ${amountFrom} into pension : ${pt.NAME}`);
 
       amountForCashIncrement -= amountFrom;
       amountForIncomeTax -= amountFrom;
 
-      if (pt.NAME.startsWith(pensionSS)) {
+      if (pt.NAME.startsWith(pensionSS)) {     
+        // console.log(`reduce amountForNI from ${amountForNI} to ${amountForNI} - ${amountFrom} = ${amountForNI - amountFrom}`)   
         amountForNI -= amountFrom;
       }
+    } else if (pt.NAME.startsWith(pensionSS)) {
+      amountForCashIncrement -= amountFrom;
     }
 
     let amountForPension = 0;
@@ -3044,20 +3058,10 @@ function handleIncome(
     } else {
       // e.g. employer increments employee's pension contribution
       amountForPension = tToValue * amountFrom;
-      // log(`amountForPension = ${tToValue} * ${amountFrom} = ${amountForPension}`);
     }
+
     let pensionValue = getNumberValue(values, pt.TO, false);
-
-    // this base CPI should behave like an income of some kind
-    const baseVal = getNumberValue(values, getBaseForCPI(true));
-
-    /* istanbul ignore else */ //error
-    if (baseVal !== undefined && pensionValue !== undefined) {
-      pensionValue = pensionValue * baseVal;
-    } else if (baseVal === undefined) {
-      log(`Error: undefined baseVal ${baseVal}`);
-    }
-
+    
     if (pt.TO === "") {
       /* istanbul ignore if  */ //debug
       if (printDebug()) {
@@ -3069,28 +3073,51 @@ function handleIncome(
       /* istanbul ignore next */
       log(`model is ${showObj(model)}`);
     } else {
-      // log(`old pensionValue is ${pensionValue} becomes ${pensionValue + amountForPension}`);
-      pensionValue += amountForPension;
 
-      // log(`pt.NAME = ${pt.NAME}`);
-      // log(`new pensionValue is ${pensionValue}`);
-      // log(`income source = ${transaction.NAME}`);
-      // log('in handleIncome:');
-      if (baseVal !== undefined && pensionValue) {
-        pensionValue = pensionValue / baseVal;
+      if (amountForPension > 0) {
+        // log(`amountForPension = ${tToValue} * ${amountFrom} = ${amountForPension}`);
+
+        // log(`stored pensionValue before contribution at ${moment.date.toDateString()} is ${pensionValue}`);
+
+        const baseVal = getNumberValue(values, getBaseForCPI(true));
+
+        /* istanbul ignore else */ //error
+        const gd = growthData(pt.TO, growths, values);
+        if (gd.adjustForCPI) {
+          if (baseVal !== undefined && pensionValue !== undefined) {
+            // log(`pensionValue for ${pt.TO} adjusted for inflation = ${pensionValue} * ${baseVal} = ${pensionValue * baseVal}`);
+            pensionValue = pensionValue * baseVal;
+          } else if (baseVal === undefined) {
+            log(`Error: undefined baseVal ${baseVal}`);
+          }
+        }
+
+        // log(`old pensionValue is ${pensionValue} becomes ${pensionValue} + ${amountForPension} = ${pensionValue + amountForPension}`);
+        pensionValue += amountForPension;
+
+        // log(`pt.NAME = ${pt.NAME}`);
+        // log(`new pensionValue is ${pensionValue}`);
+        // log(`income source = ${transaction.NAME}`);
+        // log('in handleIncome:');
+        if (gd.adjustForCPI) {  
+          if (baseVal !== undefined && pensionValue) {
+            // log(`stored pensionValue is ${pensionValue} / ${baseVal} = ${pensionValue / baseVal}`);
+            pensionValue = pensionValue / baseVal;
+          }
+        }
+        // console.log(`${moment.date.toDateString()} setting value ${pensionValue} for pension ${pt.TO}`);
+        setValue(
+          values,
+          growths,
+          evaluations,
+          moment.date,
+          pt.TO,
+          pensionValue,
+          model,
+          pt.NAME,
+          "7", //callerID
+        );
       }
-      // console.log(`${moment.date.toDateString()} setting value ${pensionValue} for pension ${pt.TO}`);
-      setValue(
-        values,
-        growths,
-        evaluations,
-        moment.date,
-        pt.TO,
-        pensionValue,
-        model,
-        pt.NAME,
-        "7", //callerID
-      );
     }
   });
 
@@ -3582,7 +3609,7 @@ function getTransactionMoments(
   const newMoments: Moment[] = [];
   if (
     !transaction.NAME.startsWith(pensionTransfer) &&
-    (transaction.NAME.startsWith(pension) ||
+    (transaction.NAME.startsWith(pensionPrefix) ||
       transaction.NAME.startsWith(pensionSS) ||
       transaction.NAME.startsWith(pensionDB))
   ) {
@@ -5151,7 +5178,7 @@ function generateMoments(
     // some transactions affect income processing
     // (e.g. diverting income to pensions)
     if (
-      transaction.NAME.startsWith(pension) ||
+      transaction.NAME.startsWith(pensionPrefix) ||
       transaction.NAME.startsWith(pensionSS) ||
       transaction.NAME.startsWith(pensionDB)
     ) {
@@ -5614,7 +5641,7 @@ function handleInflationStep(
   /* istanbul ignore else  */ //error
   if (baseVal !== undefined && infObj !== undefined) {
     const newValue = baseVal * (1.0 + getMonthlyGrowth(infObj));
-    // log(`at ${date.toDateString()}, update base using ${infObj} from ${baseVal} to ${newValue}`);
+    // log(`at ${date.toDateString()}, monthly update base using ${infObj} from ${baseVal} to ${newValue}`);
     // log(`newValue = ${newValue}`);
     values.set(
       baseForCPI,
@@ -6504,6 +6531,603 @@ function getEvaluationsInternal(
   return result;
 }
 
+// return '' for success
+// or an errorMessage
+function processDCPGenerators(
+  model: ModelData,  
+): string {
+  const gens = model.generators.filter((g) => {
+    return g.TYPE === 'Defined Contributions';
+  });
+  for(const g of gens) {
+    // console.log(`processing generator ${JSON.stringify(g)}`);
+
+    const asset1Name = pensionPrefix + g.NAME;
+    const asset2Name = taxFree + g.NAME;
+    const asset3Name =
+    crystallizedPension + g.DETAILS.TAX_LIABILITY + dot + g.NAME;
+
+    const parsedYNCPI = makeBooleanFromYesNo(g.DETAILS.GROWS_WITH_CPI);
+    if (!parsedYNCPI.checksOK) {
+      return `Grows with CPI: '${g.DETAILS.GROWS_WITH_CPI}' ` +
+          `should be a Y/N value`;
+    }
+
+    const asset1: Asset = {
+      NAME: asset1Name,
+      ERA: 0, // new things are automatically current
+      VALUE: g.DETAILS.VALUE,
+      QUANTITY: "", // pensions are continuous
+      START: g.DETAILS.START,
+      GROWTH: g.DETAILS.GROWTH,
+      CPI_IMMUNE: !parsedYNCPI.value,
+      CAN_BE_NEGATIVE: false,
+      IS_A_DEBT: false,
+      CATEGORY: g.DETAILS.CATEGORY,
+      PURCHASE_PRICE: "0.0",
+      LIABILITY: "",
+    };
+    // log(`created asset 1 ${JSON.stringify(asset1)}`);
+    {
+      const message = checkAsset(asset1, model);
+      if (message.length > 0) {
+        return message;
+      }
+    }
+
+    const asset2: Asset = {
+      NAME: asset2Name,
+      ERA: 0, // new things are automatically current
+      VALUE: "0.0",
+      QUANTITY: "", // pensions are continuous
+      START: g.DETAILS.START,
+      GROWTH: g.DETAILS.GROWTH,
+      CPI_IMMUNE: !parsedYNCPI.value,
+      CAN_BE_NEGATIVE: false,
+      IS_A_DEBT: false,
+      CATEGORY: g.DETAILS.CATEGORY,
+      PURCHASE_PRICE: "0.0",
+      LIABILITY: "",
+    };
+    // log(`created asset 2 ${JSON.stringify(asset2)}`);
+    const message = checkAsset(asset2, model);
+    if (message.length > 0) {
+      return message;
+    }
+
+    const asset3: Asset = {
+      NAME: asset3Name,
+      ERA: 0, // new things are automatically current
+      VALUE: "0.0",
+      QUANTITY: "", // pensions are continuous
+      START: g.DETAILS.START,
+      GROWTH: g.DETAILS.GROWTH,
+      CPI_IMMUNE: !parsedYNCPI.value,
+      CAN_BE_NEGATIVE: false,
+      IS_A_DEBT: false,
+      CATEGORY: g.DETAILS.CATEGORY,
+      PURCHASE_PRICE: "0.0",
+      LIABILITY: "",
+    };
+    // log(`created asset 3 ${JSON.stringify(asset3)}`);
+    {
+      const message = checkAsset(asset3, model);
+      if (message.length > 0) {
+        return message;
+      }
+    }
+    const asset4Name =
+      crystallizedPension +
+      g.DETAILS.TRANSFER_TO +
+      dot +
+      g.NAME;
+
+    const asset4: Asset = {
+      NAME: asset4Name,
+      ERA: 0, // new things are automatically current
+      VALUE: "0.0",
+      QUANTITY: "", // pensions are continuous
+      START: g.DETAILS.START,
+      GROWTH: g.DETAILS.GROWTH,
+      CPI_IMMUNE: !parsedYNCPI.value,
+      CAN_BE_NEGATIVE: false,
+      IS_A_DEBT: false,
+      CATEGORY: g.DETAILS.CATEGORY,
+      PURCHASE_PRICE: "0.0",
+      LIABILITY: "",
+    };
+
+    if (g.DETAILS.TRANSFER_TO !== "") {
+      // log(`created asset 4 ${JSON.stringify(asset4)}`);
+      const message = checkAsset(asset4, model);
+      if (message.length > 0) {
+        return message;
+      }
+    }
+    let contributions: Transaction | undefined = undefined;
+    if (g.DETAILS.INCOME_SOURCE !== '') {
+
+      // If there's an income, check other inputs like
+      // whether it's a salary sacrifice etc
+      const parseYNSS = makeBooleanFromYesNo(g.DETAILS.SS);
+      if (!parseYNSS.checksOK) {
+        return `Salary sacrifice '${g.DETAILS.SS}' should be a Y/N value`;
+      }
+      let isNotANumber = !isNumberString(g.DETAILS.CONTRIBUTION_AMOUNT);
+      if (isNotANumber) {
+        return `Contribution amount '${g.DETAILS.CONTRIBUTION_AMOUNT}' ` +
+            `should be a numerical value`;
+      }
+      isNotANumber = !isNumberString(g.DETAILS.EMP_CONTRIBUTION_AMOUNT);
+      if (isNotANumber) {
+        return `Contribution amount '${g.DETAILS.EMP_CONTRIBUTION_AMOUNT}' ` +
+            `should be a numerical value`;
+      }
+      const contPc = parseFloat(g.DETAILS.CONTRIBUTION_AMOUNT);
+      const contEmpPc = parseFloat(g.DETAILS.EMP_CONTRIBUTION_AMOUNT);
+
+      const toProp = contPc === 0 ? 0.0 : (contPc + contEmpPc) / contPc;
+
+      // console.log(`submit ${asset1.NAME}, ${asset2.NAME}, ${asset2.NAME}`);
+      model.assets.push(asset1);
+      model.assets.push(asset2);
+      model.assets.push(asset3);
+      if (g.DETAILS.TRANSFER_TO !== "") {
+        // console.log(`submit ${asset4.NAME}`);
+        model.assets.push(asset4);
+      }
+
+      contributions = {
+        NAME: (parseYNSS.value ? pensionSS : pensionPrefix) + g.NAME,
+        ERA: 0, // new things are automatically current
+        FROM: g.DETAILS.INCOME_SOURCE,
+        FROM_ABSOLUTE: false,
+        FROM_VALUE: g.DETAILS.CONTRIBUTION_AMOUNT,
+        TO: asset1Name,
+        TO_ABSOLUTE: false,
+        TO_VALUE: `${toProp}`,
+        DATE: g.DETAILS.START, // match the income start date
+        STOP_DATE: g.DETAILS.STOP, // match the income stop date
+        RECURRENCE: "",
+        CATEGORY: g.DETAILS.CATEGORY,
+        TYPE: autogen,
+      };
+      // log(`created transaction contributions ${JSON.stringify(contributions)}`);
+      {
+        const message = checkTransaction(
+          contributions,
+          model,
+        );
+        if (message.length > 0) {
+          return message;
+        }
+      }
+    } else {
+      // a pension without a contributing income 
+      // set up the taxfree part it crystallizes to
+      // console.log(`submit assets ${asset1.NAME} ${asset2.NAME}`);
+      model.assets.push(asset1);
+      model.assets.push(asset2);
+      model.assets.push(asset3);
+      if (g.DETAILS.TRANSFER_TO !== "") {
+        model.assets.push(asset4);
+      }
+
+      // console.log(`model assets ${model.assets.map((a)=>{
+      //  return a.NAME;
+      //})}`);
+    }
+
+    const crystallizeTaxFree: Transaction = {
+      NAME: moveTaxFreePart + g.NAME,
+      ERA: 0, // new things are automatically current
+      FROM: asset1Name,
+      FROM_ABSOLUTE: false,
+      FROM_VALUE: "0.25", // TODO move hard coded value out of UI code
+      TO: asset2Name,
+      TO_ABSOLUTE: false,
+      TO_VALUE: `1.0`,
+      DATE: g.DETAILS.CRYSTALLIZE,
+      STOP_DATE: "",
+      RECURRENCE: "",
+      CATEGORY: g.DETAILS.CATEGORY,
+      TYPE: autogen,
+    };
+    // log(`created transaction crystallizeTaxFree ${JSON.stringify(crystallizeTaxFree)}`);
+    {
+      const message = checkTransaction(
+        crystallizeTaxFree,
+        model,
+      );
+      if (message.length > 0) {
+        // console.log(`delete assets for bad crystallize transaction`);
+        return message;
+      }
+    }
+    const crystallize: Transaction = {
+      NAME: crystallizedPension + g.NAME,
+      ERA: 0, // new things are automatically current,
+      FROM: asset1Name,
+      FROM_ABSOLUTE: false,
+      FROM_VALUE: "1.0",
+      TO: asset3Name,
+      TO_ABSOLUTE: false,
+      TO_VALUE: `1.0`,
+      DATE: g.DETAILS.CRYSTALLIZE, // +1 sec
+      STOP_DATE: "",
+      RECURRENCE: "",
+      CATEGORY: g.DETAILS.CATEGORY,
+      TYPE: autogen,
+    };
+    // log(`created transaction crystallize ${JSON.stringify(crystallize)}`);
+    {
+      const message = checkTransaction(
+        crystallize,
+        model,
+      );
+      if (message.length > 0) {
+        return message;
+      }
+    }
+    let transfer: Transaction | undefined;
+    if (g.DETAILS.TRANSFER_TO !== "") {
+      transfer = {
+        NAME: transferCrystallizedPension + g.NAME,
+        ERA: 0, // new things are automatically current,
+        FROM: asset3Name,
+        FROM_ABSOLUTE: false,
+        FROM_VALUE: "1.0",
+        TO: asset4Name,
+        TO_ABSOLUTE: false,
+        TO_VALUE: "1.0",
+        DATE: g.DETAILS.TRANSFER_DATE,
+        STOP_DATE: "",
+        RECURRENCE: "",
+        CATEGORY: g.DETAILS.CATEGORY,
+        TYPE: autogen,
+      };
+      // log(`created transaction transfer ${JSON.stringify(transfer)}`);
+      {
+        const message = checkTransaction(
+          transfer,
+          model,
+        );
+        if (message.length > 0) {
+          return message;
+        }
+      }
+    }
+    if (contributions !== undefined) {
+      model.transactions.push(contributions);
+    }
+    model.transactions.push(crystallizeTaxFree);
+    model.transactions.push(crystallize);
+    if (transfer) {
+      model.transactions.push(transfer);
+    }
+  }
+  return '';
+}
+
+// return '' for success
+// or an errorMessage
+function processDBPGenerators(
+  model: ModelData,  
+): string {
+  const gens = model.generators.filter((g) => {
+    return g.TYPE === 'Defined Benefits';
+  });
+  for(const g of gens) {
+    // console.log(`processing ${g.NAME}`);
+
+    const dBDetails: DBGeneratorDetails = g.DETAILS;
+
+      // do work to
+      // (a) check integrity of inputs
+      // (b) build an income for the pension, check integrity of income
+      // (c) build an income for the transferred pension,
+      //     check integrity of income
+      // (d) build a transaction for the contributions to the income,
+      //     check integrity of transaction
+      // (e) build a transaction for the accrual of the benefit,
+      //     check integrity of transaction
+      // (f) submit income
+      // (g) submit transactions
+      // (h) reset to defaults
+
+      const parseYNGrowsWithCPI = makeBooleanFromYesNo(dBDetails.GROWS_WITH_CPI);
+      if (!parseYNGrowsWithCPI.checksOK) {
+        return `Grows with inflation '${dBDetails.GROWS_WITH_CPI}' ` +
+            `should be a Y/N value`;
+      }
+  
+      const parseYNDBSS = makeBooleanFromYesNo(dBDetails.SALARY_SACRIFICED);
+      if (dBDetails.INCOME_SOURCE !== "") {
+        if (!parseYNDBSS.checksOK) {
+          return `Salary sacrifice '${dBDetails.SALARY_SACRIFICED}' should be a Y/N value`;
+        } else {
+          // log(`parseYNDBSS = ${showObj(parseYNDBSS)}`);
+        }
+
+        let isNotANumber = !isNumberString(dBDetails.CONTRIBUTION_AMOUNT);
+        if (isNotANumber) {
+          return `Contribution amount '${dBDetails.CONTRIBUTION_AMOUNT}' ` +
+              `should be a numerical value`;
+        }
+
+        isNotANumber = !isNumberString(dBDetails.ACCRUAL);
+        if (isNotANumber) {
+          return `Accrual value '${dBDetails.ACCRUAL}' ` +
+              `should be a numerical value`;
+        }
+      } else {
+        let isNotANumber = !isNumberString(dBDetails.CONTRIBUTION_AMOUNT);
+        if (!isNotANumber) {
+          return `Contribution amount '${dBDetails.CONTRIBUTION_AMOUNT}' ` +
+              `from no income?`;
+        }
+
+        const hasAccrual = dBDetails.ACCRUAL !== '';
+        if (hasAccrual) {
+          if (dBDetails.INCOME_SOURCE === '') {
+            console.log(`failed accrual/income checks on generator ${JSON.stringify(g)}`)
+            return `Accrual value '${dBDetails.ACCRUAL}' from no income?`;
+          }
+        }
+      }
+      const inputLiability = makeIncomeLiabilityFromNameAndNI(
+        dBDetails.TAX_LIABILITY,
+        false, // no NI payable
+      );
+      let liabilityMessage = checkIncomeLiability(inputLiability);
+      if (liabilityMessage !== "") {
+        return liabilityMessage;
+      }
+
+      const sourceIncome = model.incomes.find((i) => {
+        return i.NAME === dBDetails.INCOME_SOURCE;
+      });
+      if (sourceIncome === undefined && dBDetails.INCOME_SOURCE !== "") {
+        return `${dBDetails.INCOME_SOURCE } not recognised as an income`;
+      } else if (sourceIncome) {
+        const liabilities = sourceIncome.LIABILITY;
+        if (liabilities.length === 0) {
+          return `Source income '${sourceIncome.NAME}' should pay income tax`;
+        }
+        const words = liabilities.split(separator);
+        const incomeTaxWord = words.find((w) => {
+          return w.endsWith(incomeTax);
+        });
+        if (incomeTaxWord === undefined) {
+          return `Source income '${sourceIncome.NAME}' ` +
+              `should have an income tax liability`;
+        } else {
+          // insist incomeTaxWord matches inputLiability
+          if (incomeTaxWord !== inputLiability) {
+            log(`${incomeTaxWord} !== ${inputLiability}`);
+            return `Source income '${sourceIncome.NAME}' ` +
+                `should have income tax liability matching '${inputLiability}'`;
+          }
+        }
+      }
+      let builtLiability2: string | undefined;
+      if (dBDetails.TRANSFER_TO !== "") {
+        const isNotANumber = !isNumberString(dBDetails.TRANSFER_PROPORTION);
+        if (isNotANumber) {
+          return `Transfer proportion ${dBDetails.TRANSFER_PROPORTION} ` +
+              `should be a numerical value`;
+        }
+        builtLiability2 = makeIncomeLiabilityFromNameAndNI(
+          dBDetails.TRANSFER_TO,
+          false, // no NI payable
+        );
+        liabilityMessage = checkIncomeLiability(builtLiability2);
+        if (liabilityMessage !== "") {
+          return liabilityMessage;
+        }
+      }
+      const newIncomeName1 = pensionDB + g.NAME;
+      const pensionDbpIncome1: Income = {
+        START: dBDetails.START,
+        END: dBDetails.END,
+        NAME: newIncomeName1,
+        ERA: 0, // new things are automatically current,
+        VALUE: dBDetails.VALUE,
+        VALUE_SET: dBDetails.VALUE_SET,
+        LIABILITY: inputLiability,
+        CPI_IMMUNE: !parseYNGrowsWithCPI.value,
+        RECURRENCE: '1m',
+        CATEGORY: dBDetails.CATEGORY,
+      };
+      let message = checkIncome(
+        pensionDbpIncome1,
+        model,
+      );
+      if (message.length > 0) {
+        return message;
+      }
+      let pensionDbpIncome2: Income | undefined;
+      let newIncomeName2: string | undefined;
+      if (dBDetails.TRANSFER_TO !== "" && builtLiability2 !== undefined) {
+        newIncomeName2 = pensionTransfer + g.NAME;
+        pensionDbpIncome2 = {
+          START: dBDetails.START,
+          END: dBDetails.TRANSFERRED_STOP,
+          NAME: newIncomeName2,
+          ERA: 0, // new things are automatically current,
+          VALUE: "0.0",
+          VALUE_SET: dBDetails.VALUE_SET,
+          LIABILITY: builtLiability2,
+          CPI_IMMUNE: !parseYNGrowsWithCPI.value,
+          RECURRENCE: '1m',
+          CATEGORY: dBDetails.CATEGORY,
+        };
+        const message = checkIncome(
+          pensionDbpIncome2,
+          model,
+        );
+        if (message.length > 0) {
+          return message;
+        }
+      }
+
+      // console.log(`before model.incomes has ${model.incomes.length} incomes`);
+      model.incomes.push(pensionDbpIncome1);
+
+      if (pensionDbpIncome2) {
+        model.incomes.push(pensionDbpIncome2);
+      }
+      // console.log(`after model.incomes has ${model.incomes.length} incomes`);
+
+      let pensionDbptran1: Transaction | undefined;
+      let pensionDbptran2: Transaction | undefined;
+      // console.log(`parseYNDBSS = ${JSON.stringify(parseYNDBSS)}`)
+      if (dBDetails.INCOME_SOURCE !== "") {
+        const pensionDbptran1Name =  (parseYNDBSS.value ? pensionSS : pensionPrefix) + g.NAME;
+        // console.log(`first transaction name = ${pensionDbptran1Name}`);
+        pensionDbptran1 = {
+          NAME: pensionDbptran1Name,
+          ERA: 0, // new things are automatically current,
+          FROM: dBDetails.INCOME_SOURCE,
+          FROM_ABSOLUTE: false,
+          FROM_VALUE: dBDetails.CONTRIBUTION_AMOUNT,
+          TO: "",
+          TO_ABSOLUTE: false,
+          TO_VALUE: "0.0",
+          DATE: dBDetails.VALUE_SET, // match the income start date
+          STOP_DATE: dBDetails.STOP_SOURCE, // match the income stop date
+          RECURRENCE: "",
+          CATEGORY: dBDetails.CATEGORY,
+          TYPE: autogen,
+        };
+        message = checkTransaction(
+          pensionDbptran1,
+          model,
+        );
+        if (message.length > 0) {
+          log(`bad transaction1 ${showObj(pensionDbptran1)}`);
+          model.incomes.slice(model.incomes.findIndex((i) => {
+            return i.NAME === pensionDbpIncome1.NAME;
+          }), 1)
+          if (pensionDbpIncome2 !== undefined) {
+            const name = pensionDbpIncome2.NAME;
+            model.incomes.slice(model.incomes.findIndex((i) => {
+              return i.NAME === name;
+            }), 1);
+          }
+          return message;
+        }
+        // log(`dBDetails.ACCRUAL = ${dBDetails.ACCRUAL}`);
+        const monthlyAccrualValue = `${
+          parseFloat(dBDetails.ACCRUAL) / 12.0
+        }`;
+        // Why divide by 12 here?
+        // the accrual rate adds, say, 1/49th of an income to the
+        // annual pension benefit.
+        // If we earn money each month, or each week, it's still 1/49th
+        // of that income.
+        // But if we are tracking a future _monthly_ pension benefit,
+        // we should only add 1/49th /12 otherwise our pension will be
+        // very large from not many contributions!
+
+        // log(`monthlyAccrualValue = ${monthlyAccrualValue}`);
+        pensionDbptran2 = {
+          NAME: newIncomeName1, // kicks in when we see income java
+          ERA: 0, // new things are automatically current,
+          FROM: dBDetails.INCOME_SOURCE,
+          FROM_ABSOLUTE: false,
+          FROM_VALUE: monthlyAccrualValue, // % of income offered up to pension
+          TO: newIncomeName1,
+          TO_ABSOLUTE: false,
+          TO_VALUE: "1.0",
+          DATE: dBDetails.VALUE_SET, // match the income start date
+          STOP_DATE: dBDetails.STOP_SOURCE, // match the income stop date
+          RECURRENCE: "",
+          CATEGORY: dBDetails.CATEGORY,
+          TYPE: autogen,
+        };
+        message = checkTransaction(
+          pensionDbptran2,
+          model,
+        );
+        if (message.length > 0) {
+          log(`bad transaction2 ${showObj(pensionDbptran2)}`);
+          model.incomes.slice(model.incomes.findIndex((i) => {
+            return i.NAME === pensionDbpIncome1.NAME;
+          }), 1)
+          if (pensionDbpIncome2 !== undefined) {
+            const name = pensionDbpIncome2.NAME;
+            model.incomes.slice(model.incomes.findIndex((i) => {
+              return i.NAME === name;
+            }), 1);
+          }
+          return message;
+        }
+      }
+      let pensionDbptran3: Transaction | undefined;
+      if (dBDetails.TRANSFER_TO !== "" && newIncomeName2) {
+        pensionDbptran3 = {
+          NAME: newIncomeName2,
+          ERA: 0, // new things are automatically current,
+          FROM: newIncomeName1,
+          FROM_ABSOLUTE: false,
+          FROM_VALUE: "1.0",
+          TO: newIncomeName2,
+          TO_ABSOLUTE: false,
+          TO_VALUE: dBDetails.TRANSFER_PROPORTION,
+          DATE: dBDetails.END,
+          STOP_DATE: dBDetails.TRANSFERRED_STOP,
+          RECURRENCE: "",
+          CATEGORY: dBDetails.CATEGORY,
+          TYPE: autogen,
+        };
+        message = checkTransaction(
+          pensionDbptran3,
+          model,
+        );
+        if (message.length > 0) {
+          log(`bad transaction3 ${showObj(pensionDbptran3)}`);
+          model.incomes.slice(model.incomes.findIndex((i) => {
+            return i.NAME === pensionDbpIncome1.NAME;
+          }), 1)
+          if (pensionDbpIncome2 !== undefined) {
+            const name = pensionDbpIncome2.NAME;
+            model.incomes.slice(model.incomes.findIndex((i) => {
+              return i.NAME === name;
+            }), 1);
+          }
+          return message;
+        }
+      }
+
+      if (pensionDbptran1) {
+        model.transactions.push(pensionDbptran1);
+      }
+      if (pensionDbptran2) {
+        model.transactions.push(pensionDbptran2);
+      }
+      if (pensionDbptran3) {
+        model.transactions.push(pensionDbptran3);
+      }
+  };
+  return '';
+}
+
+export function processGenerators(
+  model: ModelData,  
+) {
+  let message = processDBPGenerators(model);
+  if (message.length > 0) {
+    return message;
+  }
+  message = processDCPGenerators(model);
+  if (message.length > 0) {
+    return message;
+  }
+  return '';
+
+}
+
 // This is the key entry point for code calling from outside
 // this file.
 export function getEvaluations(
@@ -6519,9 +7143,36 @@ export function getEvaluations(
   reportData: ReportDatum[];
 } {
   // log(`Entered getEvaluations for model ${model.name}`);
-  const viewRange = getEvaluationsROI(model);
-  let startDateForBondMaturityCalculation: Date = viewRange.start;
 
+  // log(`Entered getEvaluations for model ${JSON.stringify(model)}`);
+  //console.log(`Entered getEvaluations, incomes = ${model.incomes.map((i) => {
+  //  return `\n${JSON.stringify(i)}`;
+  //})}`);
+  //console.log(`Entered getEvaluations, transactions = ${model.transactions.map((i) => {
+  //  return `\n${JSON.stringify(i)}`;
+  //})}`);
+
+
+  model = makeModelFromJSONString(JSON.stringify(model));
+  const viewRange = getEvaluationsROI(model);
+
+  const errorMessage = processGenerators(model);
+  if (errorMessage !== '') {
+    console.log(`ERROR: ${errorMessage}`);
+    throw new Error(errorMessage); // TODO how to flag up failed evaluations?
+  }
+
+  /*
+  console.log(`in evaluations, model = ${JSON.stringify(model)}`);
+  console.log(`in evaluations, incomes = ${model.incomes.map((i) => {
+    return `\n${JSON.stringify(i)}`;
+  })}`);
+  console.log(`in evaluations, transactions = ${model.transactions.map((i) => {
+    return `\n${JSON.stringify(i)}`;
+  })}`);
+  */
+ 
+  let startDateForBondMaturityCalculation: Date = viewRange.start;
   const revalueTransactions = model.transactions.filter((t) => {
     return t.TYPE === revalueSetting;
   });
@@ -6561,6 +7212,7 @@ export function getEvaluations(
       expenses: [],
       incomes: [],
       monitors: [],
+      generators: model.generators,
       transactions: model.transactions.filter((t) => {
         return (
           t.TYPE === revalueSetting || t.FROM_VALUE.startsWith(bondMaturity)

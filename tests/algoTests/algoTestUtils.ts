@@ -1,7 +1,7 @@
 import {
   CASH_ASSET_NAME,
   pensionDB,
-  pension,
+  pensionPrefix,
   taxFree,
   crystallizedPension,
   pensionTransfer,
@@ -342,8 +342,8 @@ export function getTestEvaluations(
       let newName = "abcd";
       if (oldName.startsWith(pensionDB)) {
         newName = pensionDB + newName;
-      } else if (oldName.startsWith(pension)) {
-        newName = pension + newName;
+      } else if (oldName.startsWith(pensionPrefix)) {
+        newName = pensionPrefix + newName;
       } else if (oldName.startsWith(taxFree)) {
         newName = taxFree + newName;
       } else if (oldName.startsWith(crystallizedPension)) {
@@ -487,8 +487,8 @@ export function getTestEvaluations(
         newName = pensionTransfer + newName;
       } else if (oldName.startsWith(pensionDB)) {
         newName = pensionDB + newName;
-      } else if (oldName.startsWith(pension)) {
-        newName = pension + newName;
+      } else if (oldName.startsWith(pensionPrefix)) {
+        newName = pensionPrefix + newName;
       } else if (oldName.startsWith(moveTaxFreePart)) {
         newName = moveTaxFreePart + newName;
       } else if (oldName.startsWith(crystallizedPension)) {

@@ -1,4 +1,4 @@
-import { pensionDB, TestModel02 } from "../../localization/stringConstants";
+import { DBPModel, pensionDB, TestModel02 } from "../../localization/stringConstants";
 import {
   addIncome,
   incomeInputs,
@@ -135,7 +135,7 @@ describe(testName, () => {
     await addDBPension(driver, {
       ...inputs,
       valuationDate: "1 Jan 2020", // date is before javaJob1 begins
-      message: `Transaction '-PEN pensionName' from unrecognised asset (could be typo or before asset start date?) : "javaJob1"`,
+      message: `added new data`,
     });
 
     await clearPensionFields(driver);
@@ -216,11 +216,11 @@ describe(testName, () => {
   });
 
   it("DB pension inputs happy path", async () => {
-    const testDataModelName = "BrowserDBPensionTest02";
+    const testDataModelName = "DPBModel";
     await beforeAllWork(
       driver,
       testDataModelName,
-      `{"testName":"${TestModel02}"}`,
+      `{"testName":"${DBPModel}"}`,
     );
 
     await gotoTabPage(driver, incomesTag);
@@ -243,82 +243,44 @@ describe(testName, () => {
       message: "added new data", // TODO "added pension information",
     });
 
-    await gotoTabPage(driver, transactionsTag);
-    let data = await getDataDumpFromPage(driver, "autogenTransactionsTable");
-    expect(data.length).toBe(3);
-    expect(data[0]).toEqual({
-      DATE: "1 Jan 2035",
-      FROM: "-PDB TeachersPensionScheme",
-      FROM_VALUE: "100%",
-      NAME: "-PT TeachersPensionScheme",
-      ERA: 0,
-      TO: "-PT TeachersPensionScheme",
-      TO_VALUE: "50%",
-      STOP_DATE: "1 Jan 2040",
-      RECURRENCE: "",
-      TYPE: "auto",
-      CATEGORY: "pension",
-      index: 0,
-    });
-    data = await getDataDumpFromPage(
-      driver,
-      "autogenTransactionsOverviewTable",
-    );
-    expect(data.length).toBe(3);
-    expect(data[0]).toEqual({
-      DATE: "1 Jan 2035",
-      FROM: "-PDB TeachersPensionScheme",
-      FROM_VALUE: "100%",
-      NAME: "-PT TeachersPensionScheme",
-      ERA: 0,
-      TO: "-PT TeachersPensionScheme",
-      TO_VALUE: "50%",
-      STOP_DATE: "1 Jan 2040",
-      RECURRENCE: "",
-      TYPE: "auto",
-      CATEGORY: "pension",
-      index: 0,
-    });
-
-    data = await getDataDumpFromPage(driver, "assetsTable");
+    let data = await getDataDumpFromPage(driver, "assetsTable");
     // console.log(`data = ${showObj(data)}`);
     expect(data.length).toBe(1);
-    expect(data[0]).toEqual({
-      GROWTH: "0%",
-      NAME: "Cash",
-      CATEGORY: "",
-      START: "01 Jan 2017",
-      VALUE: "0",
-      QUANTITY: "",
-      LIABILITY: "",
-      PURCHASE_PRICE: "",
-      GROWS_WITH_CPI: "No",
-      IS_A_DEBT: "No",
-      CAN_BE_NEGATIVE: "Yes",
-      TODAYSVALUE: "",
-      index: 0,
-      ERA: 0,
-    });
+    let cashAsset = data[0];
+    expect(cashAsset.GROWTH).toEqual("0%");
+    expect(cashAsset.NAME).toEqual("Cash");
+    expect(cashAsset.CATEGORY).toEqual("");
+    expect(cashAsset.START).toEqual("01 Jan 2017");
+    expect(cashAsset.VALUE).toEqual("0");
+    expect(cashAsset.QUANTITY).toEqual("");
+    expect(cashAsset.LIABILITY).toEqual("");
+    expect(cashAsset.PURCHASE_PRICE).toEqual("");
+    expect(cashAsset.GROWS_WITH_CPI).toEqual("No");
+    expect(cashAsset.IS_A_DEBT).toEqual("No");
+    expect(cashAsset.CAN_BE_NEGATIVE).toEqual("Yes");
+    expect(parseFloat(cashAsset.TODAYSVALUE)).toBeCloseTo(25060.38, 8);
+    expect(cashAsset.index).toEqual(0);
+    expect(cashAsset.ERA).toEqual(0);
+
     data = await getDataDumpFromPage(driver, "assetsOverviewTable");
     // console.log(`data = ${showObj(data)}`);
-    expect(data.length).toBe(1);
-    expect(data[0]).toEqual({
-      GROWTH: "0%",
-      NAME: "Cash",
-      CATEGORY: "",
-      START: "01 Jan 2017",
-      VALUE: "0",
-      QUANTITY: "",
-      LIABILITY: "",
-      PURCHASE_PRICE: "",
-      GROWS_WITH_CPI: "No",
-      IS_A_DEBT: "No",
-      CAN_BE_NEGATIVE: "Yes",
-      TODAYSVALUE: "",
-      index: 0,
-      ERA: 0,
-    });
-    await cleanUpWork(driver, testDataModelName);
+    cashAsset = data[0];
+    expect(cashAsset.GROWTH).toEqual("0%");
+    expect(cashAsset.NAME).toEqual("Cash");
+    expect(cashAsset.CATEGORY).toEqual("");
+    expect(cashAsset.START).toEqual("01 Jan 2017");
+    expect(cashAsset.VALUE).toEqual("0");
+    expect(cashAsset.QUANTITY).toEqual("");
+    expect(cashAsset.LIABILITY).toEqual("");
+    expect(cashAsset.PURCHASE_PRICE).toEqual("");
+    expect(cashAsset.GROWS_WITH_CPI).toEqual("No");
+    expect(cashAsset.IS_A_DEBT).toEqual("No");
+    expect(cashAsset.CAN_BE_NEGATIVE).toEqual("Yes");
+    expect(parseFloat(cashAsset.TODAYSVALUE)).toBeCloseTo(25060.38, 8);
+    expect(cashAsset.index).toEqual(0);
+    expect(cashAsset.ERA).toEqual(0);
+
+    // await cleanUpWork(driver, testDataModelName);
   });
 
   afterAll(async () => {

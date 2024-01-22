@@ -12,7 +12,7 @@ import {
   incomeChartFocus,
   liquidateAsset,
   payOffDebt,
-  pension,
+  pensionPrefix,
   pensionDB,
   pensionTransfer,
   revalue,
@@ -646,8 +646,8 @@ function handleAssetGridRowsUpdated(
           showAlert(`Don't rename assets beginning ${pensionDB}`);
           return;
         }
-        if (newVal.startsWith(pension)) {
-          showAlert(`Don't rename assets beginning ${pension}`);
+        if (newVal.startsWith(pensionPrefix)) {
+          showAlert(`Don't rename assets beginning ${pensionPrefix}`);
           return;
         }
         if (newVal.startsWith(taxFree)) {

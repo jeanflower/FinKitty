@@ -116,7 +116,7 @@ export const cgt = "(CGT)";
 // or PensionDBTeachers
 // (amounts here take proportion of income and add to accruing benefit value)
 
-export const pension = `${penPrefix}EN `;
+export const pensionPrefix = `${penPrefix}EN `;
 export const pensionSS = `${penPrefix}SS `;
 export const pensionDB = `${penPrefix}DB `;
 export const pensionTransfer = `${penPrefix}T `;
@@ -196,6 +196,7 @@ export const ThreeChryslerModel = "ThreeChryslerModel";
 export const MinimalModel = "MinimalModel";
 export const BenAndJerryModel = "BenAndJerryModel";
 export const bondModel = "bondModel";
+export const DBPModel = "DBPModel";
 
 export interface ViewType {
   lc: string;

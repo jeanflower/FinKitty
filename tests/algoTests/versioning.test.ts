@@ -19,6 +19,7 @@ import {
 import { checkData } from "../../models/checks";
 import { log, showObj, suppressLogs, unSuppressLogs } from "../../utils/utils";
 import { getSettings } from "../../models/modelQueries";
+import { getCurrentVersion } from "../../models/currentVersion";
 
 showObj;
 
@@ -475,10 +476,11 @@ const v12ModelJSON = `{
       [{"NAME":"-PEN TeachersPensionScheme","FROM":"TeachingJob","FROM_ABSOLUTE":false,"FROM_VALUE":"0.05","TO":"","TO_ABSOLUTE":false,"TO_VALUE":"0.0","DATE":"PensionExists","STOP_DATE":"JobStop","RECURRENCE":"","CATEGORY":"","TYPE":"auto"},
       {"NAME":"-PT TeachersPensionScheme","FROM":"-PDB TeachersPensionScheme","FROM_ABSOLUTE":false,"FROM_VALUE":"1.0","TO":"-PT TeachersPensionScheme","TO_ABSOLUTE":false,"TO_VALUE":"0.5","DATE":"PensionTransfers","STOP_DATE":"PensionStops","RECURRENCE":"","CATEGORY":"","TYPE":"auto"},
       {"NAME":"-PDB TeachersPensionScheme","FROM":"TeachingJob","FROM_ABSOLUTE":false,"FROM_VALUE":"0.0016666666666666668","TO":"-PDB TeachersPensionScheme","TO_ABSOLUTE":false,"TO_VALUE":"1.0","DATE":"PensionExists","STOP_DATE":"JobStop","RECURRENCE":"","CATEGORY":"","TYPE":"auto"}],
-      "version":12}`;
+      "monitors":[],
+      "version":12
+    }`;
 
-// we don't yet know what v13 will bring... this should not load
-// while current version is 12
+
 const v13ModelJSON = `{
   "assets":
   [{"NAME":"Cash","CATEGORY":"","START":"1 Jan 2019","VALUE":"0.0","QUANTITY":"","GROWTH":"0.0","CPI_IMMUNE":true,"CAN_BE_NEGATIVE":true,"IS_A_DEBT":false,"LIABILITY":"","PURCHASE_PRICE":"0.0"}],
@@ -506,7 +508,19 @@ const v13ModelJSON = `{
   [{"NAME":"-PEN TeachersPensionScheme","FROM":"TeachingJob","FROM_ABSOLUTE":false,"FROM_VALUE":"0.05","TO":"","TO_ABSOLUTE":false,"TO_VALUE":"0.0","DATE":"PensionExists","STOP_DATE":"JobStop","RECURRENCE":"","CATEGORY":"","TYPE":"auto"},
   {"NAME":"-PT TeachersPensionScheme","FROM":"-PDB TeachersPensionScheme","FROM_ABSOLUTE":false,"FROM_VALUE":"1.0","TO":"-PT TeachersPensionScheme","TO_ABSOLUTE":false,"TO_VALUE":"0.5","DATE":"PensionTransfers","STOP_DATE":"PensionStops","RECURRENCE":"","CATEGORY":"","TYPE":"auto"},
   {"NAME":"-PDB TeachersPensionScheme","FROM":"TeachingJob","FROM_ABSOLUTE":false,"FROM_VALUE":"0.0016666666666666668","TO":"-PDB TeachersPensionScheme","TO_ABSOLUTE":false,"TO_VALUE":"1.0","DATE":"PensionExists","STOP_DATE":"JobStop","RECURRENCE":"","CATEGORY":"","TYPE":"auto"}],
-  "version":13}`;
+  "monitors":[],
+  "generators":[],
+  "version":13
+}`;
+
+// we don't yet know what v14 will bring... this should not load
+// while current version is 13
+const v14ModelJSON = JSON.stringify(
+  {
+    ...JSON.parse(v13ModelJSON),
+    "version":14,
+  }
+);
 
 describe("loadModelsFromJSON", () => {
   it("cleanedModel", () => {
@@ -546,9 +560,10 @@ describe("loadModelsFromJSON", () => {
     const model = makeModelFromJSON(JSON.stringify(plainModel));
     unSuppressLogs();
 
+    const currentVersion = getCurrentVersion();
     // log(`model = ${JSON.stringify(model)}`);
     expect(JSON.stringify(model)).toEqual(
-      `{\"triggers\":[],\"expenses\":[],\"incomes\":[],\"assets\":[{\"NAME\":\"ISAs\",\"CATEGORY\":\"stock\",\"START\":\"01 Dec 2019\",\"VALUE\":\"2000\",\"GROWTH\":\"stockMarketGrowth\",\"CPI_IMMUNE\":false,\"CAN_BE_NEGATIVE\":false,\"LIABILITY\":\"\",\"PURCHASE_PRICE\":\"0\",\"IS_A_DEBT\":false,\"QUANTITY\":\"\",\"ERA\":0},{\"NAME\":\"Cash\",\"CATEGORY\":\"\",\"START\":\"01 Jan 2017\",\"VALUE\":\"0.0\",\"QUANTITY\":\"\",\"GROWTH\":\"0.0\",\"CPI_IMMUNE\":true,\"CAN_BE_NEGATIVE\":true,\"IS_A_DEBT\":false,\"LIABILITY\":\"\",\"PURCHASE_PRICE\":\"0.0\",\"ERA\":0}],\"transactions\":[],\"settings\":[{\"NAME\":\"cpi\",\"VALUE\":\"2.5\",\"HINT\":\"Annual rate of inflation\",\"TYPE\":\"const\",\"ERA\":0},{\"NAME\":\"Beginning of view range\",\"VALUE\":\"01 Jan 2017\",\"HINT\":\"Date at the start of range to be plotted\",\"TYPE\":\"view\",\"ERA\":0},{\"NAME\":\"End of view range\",\"VALUE\":\"01 Jan 2023\",\"HINT\":\"Date at the end of range to be plotted\",\"TYPE\":\"view\",\"ERA\":0},{\"NAME\":\"Date of birth\",\"VALUE\":\"\",\"HINT\":\"Date used for representing dates as ages\",\"TYPE\":\"view\",\"ERA\":0},{\"NAME\":\"Today's value focus date\",\"VALUE\":\"\",\"HINT\":\"Date to use for 'today's value' tables (defaults to '' meaning today)\",\"TYPE\":\"view\",\"ERA\":0},{\"NAME\":\"Beginning of monitor range\",\"VALUE\":\"Nov 2022\",\"HINT\":\"\",\"TYPE\":\"adjustable\",\"ERA\":0},{\"NAME\":\"End of monitor range\",\"VALUE\":\"Nov 2023\",\"HINT\":\"\",\"TYPE\":\"adjustable\",\"ERA\":0}],\"name\":\"\",\"version\":12,\"monitors\":[]}`,
+      `{\"triggers\":[],\"expenses\":[],\"incomes\":[],\"assets\":[{\"NAME\":\"ISAs\",\"CATEGORY\":\"stock\",\"START\":\"01 Dec 2019\",\"VALUE\":\"2000\",\"GROWTH\":\"stockMarketGrowth\",\"CPI_IMMUNE\":false,\"CAN_BE_NEGATIVE\":false,\"LIABILITY\":\"\",\"PURCHASE_PRICE\":\"0\",\"IS_A_DEBT\":false,\"QUANTITY\":\"\",\"ERA\":0},{\"NAME\":\"Cash\",\"CATEGORY\":\"\",\"START\":\"01 Jan 2017\",\"VALUE\":\"0.0\",\"QUANTITY\":\"\",\"GROWTH\":\"0.0\",\"CPI_IMMUNE\":true,\"CAN_BE_NEGATIVE\":true,\"IS_A_DEBT\":false,\"LIABILITY\":\"\",\"PURCHASE_PRICE\":\"0.0\",\"ERA\":0}],\"transactions\":[],\"settings\":[{\"NAME\":\"cpi\",\"VALUE\":\"2.5\",\"HINT\":\"Annual rate of inflation\",\"TYPE\":\"const\",\"ERA\":0},{\"NAME\":\"Beginning of view range\",\"VALUE\":\"01 Jan 2017\",\"HINT\":\"Date at the start of range to be plotted\",\"TYPE\":\"view\",\"ERA\":0},{\"NAME\":\"End of view range\",\"VALUE\":\"01 Jan 2023\",\"HINT\":\"Date at the end of range to be plotted\",\"TYPE\":\"view\",\"ERA\":0},{\"NAME\":\"Date of birth\",\"VALUE\":\"\",\"HINT\":\"Date used for representing dates as ages\",\"TYPE\":\"view\",\"ERA\":0},{\"NAME\":\"Today's value focus date\",\"VALUE\":\"\",\"HINT\":\"Date to use for 'today's value' tables (defaults to '' meaning today)\",\"TYPE\":\"view\",\"ERA\":0},{\"NAME\":\"Beginning of monitor range\",\"VALUE\":\"Nov 2022\",\"HINT\":\"\",\"TYPE\":\"adjustable\",\"ERA\":0},{\"NAME\":\"End of monitor range\",\"VALUE\":\"Nov 2023\",\"HINT\":\"\",\"TYPE\":\"adjustable\",\"ERA\":0}],\"name\":\"\",\"version\":${currentVersion},\"monitors\":[],\"generators\":[]}`,
     );
   });
   it("migrateFromV1", () => {
@@ -698,7 +713,6 @@ describe("loadModelsFromJSON", () => {
     expect(outcome.message.length).toEqual(0);
   });
 
-  // at current version, no migration is needed!
   it("migrateFromV12", () => {
     const jsonString = v12ModelJSON;
     suppressLogs();
@@ -712,10 +726,23 @@ describe("loadModelsFromJSON", () => {
   });
 
 
-  // future versions should not load - expect an error message to come out
+  // at current version, no migration is needed!
   it("migrateFromV13", () => {
     const jsonString = v13ModelJSON;
-    let foundError = "no error thrown in migrateFromV13";
+    suppressLogs();
+    const model = makeModelFromJSON(jsonString, "versionTests");
+    unSuppressLogs();
+    const outcome = checkData(model);
+    if (outcome.message.length > 0) {
+      log(`outcome.message = ${outcome.message}`);
+    }
+    expect(outcome.message.length).toEqual(0);
+  });
+
+  // future versions should not load - expect an error message to come out
+  it("migrateFromV14", () => {
+    const jsonString = v14ModelJSON;
+    let foundError = "no error thrown in migrateFromV14";
     try {
       makeModelFromJSON(jsonString);
     } catch (e) {
@@ -724,10 +751,10 @@ describe("loadModelsFromJSON", () => {
       }
     }
     expect(foundError).toBe(
-      "this data (v 13) was saved with a newer version of the app (v 12) - please upgrade the app",
+      "this data (v 14) was saved with a newer version of the app (v 13) - please upgrade the app",
     );
   });
-
+  
   it("check TestModel01", () => {
     const model = getTestModel(TestModel01);
 

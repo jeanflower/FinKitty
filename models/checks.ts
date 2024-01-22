@@ -17,7 +17,7 @@ import {
   moveTaxFreePart,
   nationalInsurance,
   payOffDebt,
-  pension,
+  pensionPrefix,
   pensionDB,
   pensionSS,
   pensionTransfer,
@@ -104,7 +104,7 @@ function checkTransactionWords(
     (as) =>
       (as.NAME === word || as.CATEGORY === word) &&
       getTriggerDate(as.START, triggers, v) <=
-        getTriggerDate(date, triggers, v),
+      getTriggerDate(date, triggers, v),
   );
   if (a !== undefined) {
     return true;
@@ -116,15 +116,16 @@ function checkTransactionWords(
     (is) =>
       is.NAME === word &&
       (name.startsWith(pensionDB) ||
+        name.startsWith(pensionPrefix) ||
         name.startsWith(pensionSS) ||
         getTriggerDate(is.START, triggers, v) <=
-          getTriggerDate(date, triggers, v)),
+        getTriggerDate(date, triggers, v)),
   );
   if (i !== undefined) {
     // the word is an income
     // this only happens for transactions called Pension*
     if (
-      !name.startsWith(pension) && // transfer out of income to pension
+      !name.startsWith(pensionPrefix) && // transfer out of income to pension
       !name.startsWith(pensionSS) && // transfer out of income for contribution
       !name.startsWith(pensionDB) && // transfer from income to pension benefit
       !name.startsWith(pensionTransfer) // transfer from one pension to another
@@ -141,7 +142,7 @@ function checkTransactionWords(
     (is) =>
       is.LIABILITY.includes(word) &&
       getTriggerDate(is.START, triggers, v) <=
-        getTriggerDate(date, triggers, v),
+      getTriggerDate(date, triggers, v),
   );
   if (i !== undefined) {
     // the word is an income liability
@@ -385,12 +386,11 @@ export function checkIncome(i: Income, model: ModelData): string {
   if (cashAssets.length > 0) {
     const cashStarts = getTriggerDate(cashAssets[0].START, model.triggers, v);
     if (startDate < cashStarts) {
-      return `Income '${
-        i.NAME
-      }' start date must be after cash starts; ${dateAsString(
-        DateFormatType.View,
-        startDate,
-      )} is before ${dateAsString(DateFormatType.View, cashStarts)}`;
+      return `Income '${i.NAME
+        }' start date must be after cash starts; ${dateAsString(
+          DateFormatType.View,
+          startDate,
+        )} is before ${dateAsString(DateFormatType.View, cashStarts)}`;
     }
   }
   const taxAssets = model.assets.filter((m) => {
@@ -410,9 +410,8 @@ export function checkIncome(i: Income, model: ModelData): string {
     return `Income '${i.NAME}' end date doesn't make sense : ${showObj(i.END)}`;
   }
   if (valueSetDate > startDate) {
-    return `Income '${
-      i.NAME
-    }' value must be set on or before the start of the income.
+    return `Income '${i.NAME
+      }' value must be set on or before the start of the income.
       Start is ${dateAsString(DateFormatType.View, startDate)} and
       value is set ${dateAsString(DateFormatType.View, valueSetDate)}.`;
   }
@@ -452,9 +451,8 @@ export function checkExpense(e: Expense, model: ModelData): string {
       ${showObj(e.END)}`;
   }
   if (valueSetDate > startDate) {
-    return `Expense '${
-      e.NAME
-    }' value must be set on or before the start of the income.
+    return `Expense '${e.NAME
+      }' value must be set on or before the start of the income.
       Start is ${dateAsString(DateFormatType.View, startDate)} and
       value is set ${dateAsString(DateFormatType.View, valueSetDate)}.`;
   }
@@ -633,10 +631,10 @@ function isAutogenType(t: Transaction, model: ModelData) {
   // could be salary sacrifice, could be not,
   // and puts it into an asset called pension*
   if (
-    (t.NAME.startsWith(pension) || t.NAME.startsWith(pensionSS)) &&
+    (t.NAME.startsWith(pensionPrefix) || t.NAME.startsWith(pensionSS)) &&
     (t.FROM === "" || isAnIncome(t.FROM, model)) &&
     t.TO_ABSOLUTE === false &&
-    t.TO.startsWith(pension) &&
+    t.TO.startsWith(pensionPrefix) &&
     t.FROM_ABSOLUTE === false &&
     t.RECURRENCE === ""
   ) {
@@ -684,7 +682,7 @@ function isAutogenType(t: Transaction, model: ModelData) {
   if (
     !recognised &&
     t.NAME.startsWith(moveTaxFreePart) &&
-    t.FROM.startsWith(pension) &&
+    t.FROM.startsWith(pensionPrefix) &&
     t.FROM_ABSOLUTE === false &&
     t.TO.startsWith(taxFree) &&
     t.TO_ABSOLUTE === false &&
@@ -714,7 +712,7 @@ function isAutogenType(t: Transaction, model: ModelData) {
   if (
     !recognised &&
     t.NAME.startsWith(crystallizedPension) &&
-    t.FROM.startsWith(pension) &&
+    t.FROM.startsWith(pensionPrefix) &&
     // asNumber(t.FROM_VALUE) === 1.0 &&
     t.FROM_ABSOLUTE === false &&
     t.TO.startsWith(crystallizedPension) &&
@@ -789,7 +787,7 @@ function isAutogenType(t: Transaction, model: ModelData) {
   // (optionally salary sacrifice)
   // to nothing
   if (
-    (t.NAME.startsWith(pension) || t.NAME.startsWith(pensionSS)) &&
+    (t.NAME.startsWith(pensionPrefix) || t.NAME.startsWith(pensionSS)) &&
     isAnIncome(t.FROM, model) &&
     t.FROM_ABSOLUTE === false &&
     t.TO === "" &&
@@ -1038,6 +1036,8 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
         // log(`word to check is ${word}`);
         if (!checkTransactionWords(t.NAME, word, t.DATE, model)) {
           // flag a problem
+          // console.log(`Bad transaction ${JSON.stringify(t)} from unrecognised asset (could ` +
+          //   `be typo or before asset start date?) : ${showObj(word)}`);
           return (
             `Transaction '${getDisplayName(t.NAME, t.TYPE)}' ` +
             `from unrecognised asset (could ` +
@@ -1112,14 +1112,13 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
         t.TYPE,
       )}' needs a non-empty to value`;
     } else if (!isValidValue(t.TO_VALUE, model)) {
-      return `Transaction '${getDisplayName(t.NAME, t.TYPE)}' to value '${
-        t.TO_VALUE
-      }' isn't a number or setting`;
+      return `Transaction '${getDisplayName(t.NAME, t.TYPE)}' to value '${t.TO_VALUE
+        }' isn't a number or setting`;
     }
   }
   if (t.RECURRENCE.length > 0) {
     if (
-      t.NAME.startsWith(pension) ||
+      t.NAME.startsWith(pensionPrefix) ||
       t.NAME.startsWith(pensionSS) ||
       t.NAME.startsWith(pensionDB)
     ) {
@@ -1435,7 +1434,7 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
   if (
     !t.TO_ABSOLUTE &&
     tToValue > 1.0 &&
-    !t.NAME.startsWith(pension) && // pensions can have employer contributions
+    !t.NAME.startsWith(pensionPrefix) && // pensions can have employer contributions
     !t.NAME.startsWith(pensionSS) &&
     t.TYPE !== revalueAsset &&
     t.TYPE !== revalueExp &&
@@ -1590,7 +1589,7 @@ function checkNames(model: ModelData): string {
 
   const counts: Map<string, number> = names
     .filter((n) => {
-      return !n.startsWith(pension);
+      return !n.startsWith(pensionPrefix);
     })
     .filter((n) => {
       return !n.startsWith(pensionTransfer);
@@ -1814,6 +1813,63 @@ export function checkData(model: ModelData): CheckResult {
       };
     }
   }
+
+  const keys = Object.keys(model);
+  // undoModel and redoModel are optional
+  if (keys.includes('undoModel')) {
+    /*
+    // a model can fail checks with bad dates
+    // until standardiseDates is called
+    // but bad dates will linger in the undo stack
+    // undoModels
+    if (model.undoModel !== undefined) {
+      const checkUndo = checkData(model.undoModel);
+      if (checkUndo.message !== '') {
+        return {
+          type: checkUndo.type,
+          itemName: checkUndo.itemName,
+          message: `in undoModel; ${checkUndo.message}`,
+        };    
+      }
+    }
+    */
+    keys.splice(keys.indexOf('undoModel'), 1)
+  }
+  if (keys.includes('redoModel')) {
+    /*
+    if (model.redoModel !== undefined) {
+      const checkRedo = checkData(model.redoModel);
+      if (checkRedo.message !== '') {
+        return {
+          type: checkRedo.type,
+          itemName: checkRedo.itemName,
+          message: `in redoModel; ${checkRedo.message}`,
+        };    
+      }
+    }
+    */
+    keys.splice(keys.indexOf('redoModel'), 1)
+  }
+
+  const numFields = 10
+  if (keys.length !== numFields) {
+    console.log(`model has fields ${keys}`);
+    return {
+      type: undefined,
+      itemName: undefined,
+      message: `unexpected model structure - should have ${numFields} fields but has ${keys}`,
+    }
+  }
+  ["triggers", "expenses", "incomes", "transactions", "assets", "settings", "version", "name", "monitors", "generators"].map((field) => {
+    if (!keys.includes(field)) {
+      return {
+        type: undefined,
+        itemName: undefined,
+        message: `unexpected model structure - should have field ${field}`,
+      }
+    }
+  })
+
   return {
     type: undefined,
     itemName: undefined,

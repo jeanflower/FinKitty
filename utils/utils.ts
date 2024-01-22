@@ -1,17 +1,20 @@
 import FileSaver from "file-saver";
 import moment from "moment";
 
-let doLog = true;
+let doLogToFile = false;
+let doLogIncremental = true;
 
 let logText = "";
 
 export function log(obj: string | Map<any, any> | boolean) {
-  if (doLog) {
+  if (doLogIncremental) {
     /* eslint-disable no-console */ // all console calls routed through here
     // tslint:disable-next-line:no-console
     console.log(obj);
-    logText = `${logText}${obj}\n`;
     /* eslint-enable no-console */
+  }
+  if (doLogToFile) {
+    logText = `${logText}${obj}\n`;
   }
 }
 
@@ -23,11 +26,14 @@ export function saveLogs() {
   FileSaver.saveAs(blob, `logs.txt`);
 }
 
+export function printAllLogs() {
+  console.log(logText);  
+}
 export function suppressLogs() {
-  doLog = false;
+  doLogIncremental = false;
 }
 export function unSuppressLogs() {
-  doLog = true;
+  doLogIncremental = true;
 }
 
 export function printDebug(): boolean {

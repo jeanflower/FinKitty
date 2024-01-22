@@ -36,7 +36,7 @@ import {
   monthly,
   crystallizedPension,
   moveTaxFreePart,
-  pension,
+  pensionPrefix,
   pensionDB,
   pensionTransfer,
   taxFree,
@@ -44,6 +44,7 @@ import {
   adjustableType,
   monitorEnd,
   monitorStart,
+  DBPModel,
 } from "../localization/stringConstants";
 import { ModelData, Setting } from "../types/interfaces";
 import {
@@ -312,6 +313,7 @@ function getTestModel01ForMigration() {
       },
     ],
     monitors: [],
+    generators: [],
     version: 0,
     undoModel: undefined,
     redoModel: undefined,
@@ -332,6 +334,7 @@ function getTestModel02ForMigration() {
     settings: [...ss],
     monitors: [],
     triggers: [],
+    generators: [],
     version: 0,
     undoModel: undefined,
     redoModel: undefined,
@@ -340,6 +343,28 @@ function getTestModel02ForMigration() {
   setSetting(model.settings, roiEnd, "1 Feb 2019", constType);
   return model;
 }
+
+function getDBPModel() {
+  const ss = JSON.parse(JSON.stringify(browserTestSettingsForMigration));
+  const model: ModelData = {
+    name: "DBPModel",
+    expenses: [],
+    incomes: [],
+    assets: [],
+    transactions: [],
+    settings: [...ss],
+    monitors: [],
+    triggers: [],
+    generators: [],
+    version: 0,
+    undoModel: undefined,
+    redoModel: undefined,
+  };
+  setSetting(model.settings, roiStart, "1 Jan 2019", constType);
+  setSetting(model.settings, roiEnd, "1 Feb 2034", constType);
+  return model;
+}
+
 export function defaultModelSettings(roi: { start: string; end: string }) {
   return [
     {
@@ -917,12 +942,12 @@ function getBenAndJerryModel(): ModelData {
         TYPE: "auto",
       },
       {
-        NAME: `${pension}Ben Prudential`,
+        NAME: `${pensionPrefix}Ben Prudential`,
         ERA: undefined,
         FROM: "Ben salary",
         FROM_ABSOLUTE: false,
         FROM_VALUE: "0.06",
-        TO: `${pension}Ben Prudential`,
+        TO: `${pensionPrefix}Ben Prudential`,
         TO_ABSOLUTE: false,
         TO_VALUE: "3",
         DATE: "21/02/2020",
@@ -934,7 +959,7 @@ function getBenAndJerryModel(): ModelData {
       {
         NAME: `${moveTaxFreePart}Jerry Aegon`,
         ERA: undefined,
-        FROM: `${pension}Jerry Aegon`,
+        FROM: `${pensionPrefix}Jerry Aegon`,
         FROM_ABSOLUTE: false,
         FROM_VALUE: "0.25",
         TO: `${taxFree}Jerry Aegon`,
@@ -949,7 +974,7 @@ function getBenAndJerryModel(): ModelData {
       {
         NAME: `${moveTaxFreePart}Ben Prudential`,
         ERA: undefined,
-        FROM: `${pension}Ben Prudential`,
+        FROM: `${pensionPrefix}Ben Prudential`,
         FROM_ABSOLUTE: false,
         FROM_VALUE: "0.25",
         TO: `${taxFree}Ben Prudential`,
@@ -964,7 +989,7 @@ function getBenAndJerryModel(): ModelData {
       {
         NAME: `${crystallizedPension}Jerry Aegon`,
         ERA: undefined,
-        FROM: `${pension}Jerry Aegon`,
+        FROM: `${pensionPrefix}Jerry Aegon`,
         FROM_ABSOLUTE: false,
         FROM_VALUE: "1.0",
         TO: `${crystallizedPension}Jerry`,
@@ -979,7 +1004,7 @@ function getBenAndJerryModel(): ModelData {
       {
         NAME: `${crystallizedPension}Ben Prudential`,
         ERA: undefined,
-        FROM: `${pension}Ben Prudential`,
+        FROM: `${pensionPrefix}Ben Prudential`,
         FROM_ABSOLUTE: false,
         FROM_VALUE: "1.0",
         TO: `${crystallizedPension}Ben`,
@@ -1128,6 +1153,7 @@ function getBenAndJerryModel(): ModelData {
       },
     ],
     monitors: [],
+    generators: [],
     version: 5,
     undoModel: undefined,
     redoModel: undefined,
@@ -1447,6 +1473,8 @@ export function getTestModel(input: string): ModelData {
     model = getTestModel02ForMigration();
   } else if (input === CoarseAndFine) {
     model = getModelCoarseAndFineForMigration();
+  } else if (input === DBPModel) {
+    model = getDBPModel();
   } else if (input === FutureExpense) {
     // log(`converting to from string`);
     model = makeModelFromJSON(

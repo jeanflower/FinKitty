@@ -21,6 +21,46 @@ export interface Monitor extends Item {
   NAME: string; // should match an expense name
   VALUES: MonitorValue[];
 }
+export interface Generator extends Item {
+  TYPE: string,
+  DETAILS: any;
+}
+
+export interface DBGeneratorDetails {
+  VALUE: string,
+  VALUE_SET: string,
+  STOP_SOURCE: string,
+  START: string,
+  END: string,
+  GROWS_WITH_CPI: string,
+  TRANSFERRED_STOP: string,
+  INCOME_SOURCE: string,
+  SALARY_SACRIFICED: string,
+  CONTRIBUTION_AMOUNT: string,
+  ACCRUAL: string,
+  TRANSFER_TO: string,
+  TRANSFER_PROPORTION: string,
+  TAX_LIABILITY: string,
+  CATEGORY: string,
+}
+
+export interface DCGeneratorDetails {
+  VALUE: string,
+  GROWS_WITH_CPI: string,
+  GROWTH: string,
+  VALUE: string,
+  TAX_LIABILITY: string,
+  CATEGORY: string,
+  START: string,
+  STOP: string,
+  CRYSTALLIZE: string,
+  SS: string,
+  INCOME_SOURCE: string,
+  CONTRIBUTION_AMOUNT: string,
+  EMP_CONTRIBUTION_AMOUNT: string,
+  TRANSFER_TO: string,
+  TRANSFER_DATE: string,
+}
 
 export interface Asset extends ItemCategory {
   START: string;
@@ -183,6 +223,7 @@ export interface ModelDataFromFile {
   transactions: Transaction[];
   assets: Asset[];
   monitors: Monitor[];
+  generators: Generator[],
   settings: Setting[];
   version: number;
   undoModel: ModelData | undefined;
@@ -198,6 +239,7 @@ export interface ModelData {
   assets: Asset[];
   settings: Setting[];
   monitors: Monitor[];
+  generators: Generator[];
   version: number;
   undoModel: ModelData | undefined;
   redoModel: ModelData | undefined;
@@ -310,6 +352,7 @@ export interface ViewCallbacks {
   deleteSetting: (name: string) => Promise<DeleteResult>;
   deleteTrigger: (name: string) => Promise<DeleteResult>;
   deleteTransaction: (name: string) => Promise<DeleteResult>;
+  deleteGenerator: (name: string) => Promise<DeleteResult>;
 
   setEraAsset: (name: string, value: number) => Promise<boolean>;
   setEraExpense: (name: string, value: number) => Promise<boolean>;
@@ -317,6 +360,7 @@ export interface ViewCallbacks {
   setEraSetting: (name: string, value: number) => Promise<boolean>;
   setEraTrigger: (name: string, value: number) => Promise<boolean>;
   setEraTransaction: (name: string, value: number) => Promise<boolean>;
+  setEraGenerator: (name: string, value: number) => Promise<boolean>;
 
   submitAsset: (assetInput: Asset, modelData: ModelData) => Promise<void>;
   submitExpense: (expenseInput: Expense, modelData: ModelData) => Promise<void>;
@@ -327,6 +371,7 @@ export interface ViewCallbacks {
     modelData: ModelData,
   ) => Promise<void>;
   submitTrigger: (triggerInput: Trigger, modelData: ModelData) => Promise<void>;
+  submitGenerator: (generatorInput: Generator, modelData: ModelData) => Promise<void>;
 
   editSetting: (
     settingInput: {

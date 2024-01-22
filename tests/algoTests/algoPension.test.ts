@@ -3,7 +3,7 @@ import {
   nationalInsurance,
   separator,
   incomeTax,
-  pension,
+  pensionPrefix,
   autogen,
   CASH_ASSET_NAME,
   pensionSS,
@@ -23,6 +23,7 @@ import {
   viewFrequency,
   liquidateAsset,
   allItems,
+  viewType,
 } from "../../localization/stringConstants";
 import { makeChartDataFromEvaluations } from "../../models/charting";
 import {
@@ -39,6 +40,7 @@ import { ModelData } from "../../types/interfaces";
 import { lessThan } from "../../utils/stringUtils";
 import {
   Context,
+  printAllLogs,
   printDebug,
   suppressLogs,
   unSuppressLogs,
@@ -57,6 +59,8 @@ import {
   getModelTwoCrystallizedPensions,
   printTestCodeForChart,
 } from "./algoTestUtils";
+import { getEvaluations } from "../../models/evaluations";
+import { makeModelFromJSONString } from "../../models/modelFromJSON";
 
 printTestCodeForChart;
 
@@ -100,11 +104,11 @@ describe("pension tests", () => {
       transactions: [
         {
           ...simpleTransaction,
-          NAME: pension + "Contribution", // kicks in when we see income java
+          NAME: pensionPrefix + "Contribution", // kicks in when we see income java
           FROM: "java", // not an asset but an income!!
           FROM_ABSOLUTE: false,
           FROM_VALUE: "0.05", // percentage of income transferred to pension
-          TO: pension + "Pnsh", // name of pension (an asset)
+          TO: pensionPrefix + "Pnsh", // name of pension (an asset)
           TO_ABSOLUTE: false,
           TO_VALUE: "1.0", // all of what is removed from income goes
           DATE: "javaStartTrigger", // match the income start date
@@ -121,7 +125,7 @@ describe("pension tests", () => {
         },
         {
           ...simpleAsset,
-          NAME: pension + "Pnsh",
+          NAME: pensionPrefix + "Pnsh",
           START: "March 1 2018",
         },
       ],
@@ -259,7 +263,7 @@ describe("pension tests", () => {
           NAME: "OneOff pension contribution", //
           FROM: "Cash",
           FROM_VALUE: "1500", // a one-off payment
-          TO: pension + "Pnsh1", // name of pension (an asset)
+          TO: pensionPrefix + "Pnsh1", // name of pension (an asset)
           TO_ABSOLUTE: false,
           TO_VALUE: "1.0", // all of what is removed from cash goes
           DATE: "March 20 2018", // match the income start date
@@ -274,11 +278,11 @@ describe("pension tests", () => {
         },
         {
           ...simpleTransaction,
-          NAME: pension + "Contribution", // kicks in when we see income java
+          NAME: pensionPrefix + "Contribution", // kicks in when we see income java
           FROM: "java", // not an asset but an income!!
           FROM_ABSOLUTE: false,
           FROM_VALUE: "0.05", // percentage of income transferred to pension
-          TO: pension + "Pnsh2", // name of pension (an asset)
+          TO: pensionPrefix + "Pnsh2", // name of pension (an asset)
           TO_ABSOLUTE: false,
           TO_VALUE: "1.0", // all of what is removed from income goes
           DATE: "javaStartTrigger", // match the income start date
@@ -295,12 +299,12 @@ describe("pension tests", () => {
         },
         {
           ...simpleAsset,
-          NAME: pension + "Pnsh1",
+          NAME: pensionPrefix + "Pnsh1",
           START: "March 1 2018",
         },
         {
           ...simpleAsset,
-          NAME: pension + "Pnsh2",
+          NAME: pensionPrefix + "Pnsh2",
           START: "March 1 2018",
         },
       ],
@@ -469,11 +473,11 @@ describe("pension tests", () => {
       transactions: [
         {
           ...simpleTransaction,
-          NAME: pension + "ContributionJava", // kicks in when we see income java
+          NAME: pensionPrefix + "ContributionJava", // kicks in when we see income java
           FROM: "java", // not an asset but an income!!
           FROM_ABSOLUTE: false,
           FROM_VALUE: "0.05", // percentage of income transferred to pension
-          TO: pension + "Pnsh1", // name of pension (an asset)
+          TO: pensionPrefix + "Pnsh1", // name of pension (an asset)
           TO_ABSOLUTE: false,
           TO_VALUE: "1.0", // all of what is removed from income goes
           DATE: "javaStartTrigger", // match the income start date
@@ -482,11 +486,11 @@ describe("pension tests", () => {
         },
         {
           ...simpleTransaction,
-          NAME: pension + "ContributionCpp", // kicks in when we see income java
+          NAME: pensionPrefix + "ContributionCpp", // kicks in when we see income java
           FROM: "cpp", // not an asset but an income!!
           FROM_ABSOLUTE: false,
           FROM_VALUE: "0.05", // percentage of income transferred to pension
-          TO: pension + "Pnsh2", // name of pension (an asset)
+          TO: pensionPrefix + "Pnsh2", // name of pension (an asset)
           TO_ABSOLUTE: false,
           TO_VALUE: "1.0", // all of what is removed from income goes
           DATE: "cppStartTrigger", // match the income start date
@@ -503,12 +507,12 @@ describe("pension tests", () => {
         },
         {
           ...simpleAsset,
-          NAME: pension + "Pnsh1",
+          NAME: pensionPrefix + "Pnsh1",
           START: "January 1 2018",
         },
         {
           ...simpleAsset,
-          NAME: pension + "Pnsh2",
+          NAME: pensionPrefix + "Pnsh2",
           START: "January 1 2018",
         },
       ],
@@ -666,11 +670,11 @@ describe("pension tests", () => {
       transactions: [
         {
           ...simpleTransaction,
-          NAME: pension + "Contribution", // kicks in when we see income java
+          NAME: pensionPrefix + "Contribution", // kicks in when we see income java
           FROM: "java", // not an asset but an income!!
           FROM_ABSOLUTE: false,
           FROM_VALUE: "0.05", // percentage of income transferred to pension
-          TO: pension + "Pnsh", // name of pension (an asset)
+          TO: pensionPrefix + "Pnsh", // name of pension (an asset)
           TO_ABSOLUTE: false,
           TO_VALUE: "3.0", // all of what is removed from income goes
           DATE: "javaStartTrigger", // match the income start date
@@ -687,7 +691,7 @@ describe("pension tests", () => {
         },
         {
           ...simpleAsset,
-          NAME: pension + "Pnsh",
+          NAME: pensionPrefix + "Pnsh",
           START: "March 1 2018",
         },
       ],
@@ -748,7 +752,7 @@ describe("pension tests", () => {
       expectChartData(chartPts, 2, "Tue May 01 2018", 24369.58, 2);
     }
 
-    expect(result.assetData[1].item.NAME).toBe(`${pension}Pnsh`);
+    expect(result.assetData[1].item.NAME).toBe(`${pensionPrefix}Pnsh`);
     {
       const chartPts = result.assetData[1].chartDataPoints;
       expect(chartPts.length).toBe(3);
@@ -822,11 +826,11 @@ describe("pension tests", () => {
       transactions: [
         {
           ...simpleTransaction,
-          NAME: pension + "Contribution", // kicks in when we see income java
+          NAME: pensionPrefix + "Contribution", // kicks in when we see income java
           FROM: "java", // not an asset but an income!!
           FROM_ABSOLUTE: false,
           FROM_VALUE: "0.05", // percentage of income transferred to pension
-          TO: pension + "Pnsh", // name of pension (an asset)
+          TO: pensionPrefix + "Pnsh", // name of pension (an asset)
           TO_ABSOLUTE: false,
           TO_VALUE: "3.0", // all of what is removed from income goes
           DATE: "javaStartTrigger", // match the income start date
@@ -843,7 +847,7 @@ describe("pension tests", () => {
         },
         {
           ...simpleAsset,
-          NAME: pension + "Pnsh",
+          NAME: pensionPrefix + "Pnsh",
           START: "March 1 2017",
         },
       ],
@@ -983,7 +987,7 @@ describe("pension tests", () => {
       expectChartData(chartPts, 2, "Tue May 01 2018", 22735.36, 2);
     }
 
-    expect(result.assetData[1].item.NAME).toBe(`${pension}Pnsh`);
+    expect(result.assetData[1].item.NAME).toBe(`${pensionPrefix}Pnsh`);
     {
       const chartPts = result.assetData[1].chartDataPoints;
       expect(chartPts.length).toBe(3);
@@ -1061,7 +1065,7 @@ describe("pension tests", () => {
           FROM: "java", // not an asset but an income!!
           FROM_ABSOLUTE: false,
           FROM_VALUE: "0.05", // percentage of income transferred to pension
-          TO: pension + "Pnsh", // name of pension (an asset)
+          TO: pensionPrefix + "Pnsh", // name of pension (an asset)
           TO_ABSOLUTE: false,
           TO_VALUE: "3.0", // all of what is removed from income goes
           DATE: "javaStartTrigger", // match the income start date
@@ -1078,7 +1082,7 @@ describe("pension tests", () => {
         },
         {
           ...simpleAsset,
-          NAME: pension + "Pnsh",
+          NAME: pensionPrefix + "Pnsh",
           START: "March 1 2018",
         },
       ],
@@ -1139,7 +1143,7 @@ describe("pension tests", () => {
       expectChartData(chartPts, 2, "Tue May 01 2018", 24399.58, 2);
     }
 
-    expect(result.assetData[1].item.NAME).toBe(`${pension}Pnsh`);
+    expect(result.assetData[1].item.NAME).toBe(`${pensionPrefix}Pnsh`);
     {
       const chartPts = result.assetData[1].chartDataPoints;
       expect(chartPts.length).toBe(3);
@@ -1221,7 +1225,7 @@ describe("pension tests", () => {
           NAME: "OneOff pension contribution", //
           FROM: "Cash",
           FROM_VALUE: "1500", // a one-off payment
-          TO: pension + "Pnsh", // name of pension (an asset)
+          TO: pensionPrefix + "Pnsh", // name of pension (an asset)
           TO_ABSOLUTE: false,
           TO_VALUE: "1.0", // all of what is removed from cash goes
           DATE: "March 20 2018", // match the income start date
@@ -1244,7 +1248,7 @@ describe("pension tests", () => {
         },
         {
           ...simpleAsset,
-          NAME: pension + "Pnsh",
+          NAME: pensionPrefix + "Pnsh",
           START: "March 1 2018",
         },
       ],
@@ -1305,7 +1309,7 @@ describe("pension tests", () => {
       expectChartData(chartPts, 2, "Tue May 01 2018", 24069.58, 2);
     }
 
-    expect(result.assetData[1].item.NAME).toBe(`${pension}Pnsh`);
+    expect(result.assetData[1].item.NAME).toBe(`${pensionPrefix}Pnsh`);
     {
       const chartPts = result.assetData[1].chartDataPoints;
       expect(chartPts.length).toBe(3);
@@ -1487,7 +1491,7 @@ describe("pension tests", () => {
       transactions: [
         {
           ...simpleTransaction,
-          NAME: pension + "NorwichContribution", // kicks in when we see income java
+          NAME: pensionPrefix + "NorwichContribution", // kicks in when we see income java
           FROM: "java", // not an asset but an income!!
           FROM_ABSOLUTE: false,
           FROM_VALUE: "0.05", // percentage of income offered up to pension
@@ -1958,7 +1962,7 @@ describe("pension tests", () => {
       transactions: [
         {
           ...simpleTransaction,
-          NAME: pension + "NorwichContribution", // kicks in when we see income java
+          NAME: pensionPrefix + "NorwichContribution", // kicks in when we see income java
           FROM: "java", // not an asset but an income!!
           FROM_ABSOLUTE: false,
           FROM_VALUE: "0.05", // percentage of income offered up to pension
@@ -2192,7 +2196,7 @@ describe("pension tests", () => {
       transactions: [
         {
           ...simpleTransaction,
-          NAME: pension + "NorwichContribution", // kicks in when we see income java
+          NAME: pensionPrefix + "NorwichContribution", // kicks in when we see income java
           FROM: "java", // not an asset but an income!!
           FROM_ABSOLUTE: false,
           FROM_VALUE: "0.05", // percentage of income offered up to pension
@@ -2288,7 +2292,7 @@ describe("pension tests", () => {
       transactions: [
         {
           ...simpleTransaction,
-          NAME: pension + "NorwichContribution", // kicks in when we see income java
+          NAME: pensionPrefix + "NorwichContribution", // kicks in when we see income java
           FROM: "java", // not an asset but an income!!
           FROM_ABSOLUTE: false,
           FROM_VALUE: "0.05", // percentage of income offered up to pension
@@ -2384,7 +2388,7 @@ describe("pension tests", () => {
       transactions: [
         {
           ...simpleTransaction,
-          NAME: pension + "NorwichContribution", // kicks in when we see income java
+          NAME: pensionPrefix + "NorwichContribution", // kicks in when we see income java
           FROM: "java", // not an asset but an income!!
           FROM_ABSOLUTE: false,
           FROM_VALUE: "0.05", // percentage of income offered up to pension
@@ -5126,4 +5130,2953 @@ describe("pension tests", () => {
       expectChartData(chartPts, 26, "Sat May 01 2021", 2000, -1);
     }
   });
+
+  it('handle PDB generator low income SS no cpi', () => {
+    const viewSettings = defaultTestViewSettings();
+    viewSettings.setViewSetting(chartViewType, chartDeltas);
+    viewSettings.setViewSetting(viewFrequency, annually);
+
+    const modelString = `
+    {
+      "name":"DPBModel",
+      "expenses":[],
+      "incomes":[
+        {"NAME":"javaJob1",
+        "ERA":0,
+        "VALUE":"250",
+        "VALUE_SET":"02 April 2020",
+        "START":"02 April 2021",
+        "END":"02 April 2022",
+        "CPI_IMMUNE":true,
+        "LIABILITY":"Joe(incomeTax)/Joe(NI)",
+        "RECURRENCE":"1m",
+        "CATEGORY":"programming"
+      }
+      ],
+      "assets":[
+        {
+          "NAME":"Cash",
+          "CATEGORY":"",
+          "START":"01 Jan 2017",
+          "VALUE":"0.0",
+          "QUANTITY":"",
+          "GROWTH":"0.0",
+          "CPI_IMMUNE":true,
+          "CAN_BE_NEGATIVE":true,
+          "IS_A_DEBT":false,
+          "LIABILITY":"",
+          "PURCHASE_PRICE":"0.0",
+          "ERA":0
+        }
+      ],
+      "transactions":[],
+      "settings":[
+        {"NAME":"View frequencyTransactions","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyTax","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencySettings","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyPlanning","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyOverview","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyOptimizer","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyMonitoring","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyIncomes","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyHome","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyExpenses","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyDebts","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyDates","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyAssets","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyAsset actions","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+
+        {"NAME":"Today's value focus date","VALUE":"","HINT":"Date to use for 'today's value' tables (defaults to '' meaning today)","TYPE":"view","ERA":0},
+  
+        {"NAME":"Beginning of view range","VALUE":"01 Jan 2019","HINT":"","TYPE":"const","ERA":0},
+        {"NAME":"End of view range","VALUE":"01 Feb 2034","HINT":"","TYPE":"const","ERA":0},
+  
+        {"NAME":"Beginning of monitor range","VALUE":"Nov 2022","HINT":"","TYPE":"adjustable","ERA":0},
+        {"NAME":"End of monitor range","VALUE":"Nov 2023","HINT":"","TYPE":"adjustable","ERA":0},
+        {"NAME":"Date of birth","VALUE":"","HINT":"Date used for representing dates as ages","TYPE":"view","ERA":0},
+        {"NAME":"cpi","VALUE":"2.5","HINT":"Annual rate of inflation","TYPE":"const","ERA":0}
+      ],
+      "monitors":[],
+      "triggers":[],
+      "generators":[
+        {
+          "NAME":"TeachersPensionScheme",
+          "ERA":0,
+          "TYPE":"Defined Benefits",
+          "DETAILS":{
+            "VALUE":"10",
+            "VALUE_SET":"1 Jan 2021",
+ 
+            "INCOME_SOURCE":"javaJob1",
+            "SALARY_SACRIFICED":"Y",
+            "CONTRIBUTION_AMOUNT":"0.5",
+            "ACCRUAL":"0.02",
+ 
+            "STOP_SOURCE":"1 Jan 2025",
+            "START":"2 April 2023",
+            "END":"2 April 2024",
+            "GROWS_WITH_CPI":"N",
+
+            "TRANSFER_TO":"Jack",
+            "TRANSFER_PROPORTION":"0.5",
+            "TRANSFERRED_STOP":"2 May 2025",
+ 
+            "TAX_LIABILITY":"Joe",
+            "CATEGORY":"pension"
+          }
+        }
+      ],
+      "version":13
+    }
+    `;
+    const model = makeModelFromJSONString(modelString);
+
+    // model.generators = [];
+
+    setSetting(
+      model.settings,
+      `Beginning of view range`,
+      "April 1 2021",
+      viewType,
+    );
+    setSetting(
+      model.settings,
+      `End of view range`,
+      "April 1 2027",
+      viewType,
+    );
+
+    const evalsAndValues = getEvaluations(
+      model,
+      undefined, // no key for a values report
+    );
+
+    // log(evalsAndValues.todaysAssetValues);
+    // log(evalsAndValues.todaysDebtValues);
+    // log(evalsAndValues.todaysExpenseValues);
+    // log(evalsAndValues.todaysIncomeValues);
+    // log(evalsAndValues.todaysSettingValues);
+
+    // printTestCodeForEvals(evalsAndValues.evaluations);
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(3);
+    expect(result.incomesData[0].item.NAME).toBe('javaJob1');
+    {
+      const chartPts = result.incomesData[0].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+      expectChartData(chartPts, 1, 'Fri Apr 01 2022', 3000, -1);
+      expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
+      expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
+      expectChartData(chartPts, 4, 'Tue Apr 01 2025', 0, -1);
+      expectChartData(chartPts, 5, 'Wed Apr 01 2026', 0, -1);
+    }
+
+    expect(result.incomesData[1].item.NAME).toBe('-PDB TeachersPensionScheme');
+    {
+      const chartPts = result.incomesData[1].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+      expectChartData(chartPts, 1, 'Fri Apr 01 2022', 0, -1);
+      expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
+      expectChartData(chartPts, 3, 'Mon Apr 01 2024', 180.00, 2);
+      expectChartData(chartPts, 4, 'Tue Apr 01 2025', 0, -1);
+      expectChartData(chartPts, 5, 'Wed Apr 01 2026', 0, -1);
+    }
+
+    expect(result.incomesData[2].item.NAME).toBe('-PT TeachersPensionScheme');
+    {
+      const chartPts = result.incomesData[2].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+      expectChartData(chartPts, 1, 'Fri Apr 01 2022', 0, -1);
+      expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
+      expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
+      expectChartData(chartPts, 4, 'Tue Apr 01 2025', 90.00, 2);
+      expectChartData(chartPts, 5, 'Wed Apr 01 2026', 7.50, 2);
+    }
+
+    expect(result.assetData.length).toBe(3);
+    expect(result.assetData[0].item.NAME).toBe('javaJob1/Cash');
+    {
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+      expectChartData(chartPts, 1, 'Fri Apr 01 2022', 1500, -1);
+      expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
+      expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
+      expectChartData(chartPts, 4, 'Tue Apr 01 2025', 0, -1);
+      expectChartData(chartPts, 5, 'Wed Apr 01 2026', 0, -1);
+    }
+
+    expect(result.assetData[1].item.NAME).toBe('-PDB TeachersPensionScheme/Cash');
+    {
+      const chartPts = result.assetData[1].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+      expectChartData(chartPts, 1, 'Fri Apr 01 2022', 0, -1);
+      expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
+      expectChartData(chartPts, 3, 'Mon Apr 01 2024', 180, -1);
+      expectChartData(chartPts, 4, 'Tue Apr 01 2025', 0, -1);
+      expectChartData(chartPts, 5, 'Wed Apr 01 2026', 0, -1);
+    }
+
+    expect(result.assetData[2].item.NAME).toBe('-PT TeachersPensionScheme/Cash');
+    {
+      const chartPts = result.assetData[2].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+      expectChartData(chartPts, 1, 'Fri Apr 01 2022', 0, -1);
+      expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
+      expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
+      expectChartData(chartPts, 4, 'Tue Apr 01 2025', 82.50, 2);
+      expectChartData(chartPts, 5, 'Wed Apr 01 2026', 7.50, 2);
+    }
+
+    expect(result.debtData.length).toBe(0);
+    expect(result.taxData.length).toBe(2);
+    expect(result.taxData[0].item.NAME).toBe('Jack income (net)');
+    {
+      const chartPts = result.taxData[0].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+      expectChartData(chartPts, 1, 'Fri Apr 01 2022', 0, -1);
+      expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
+      expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
+      expectChartData(chartPts, 4, 'Tue Apr 01 2025', 0, -1);
+      expectChartData(chartPts, 5, 'Wed Apr 01 2026', 90.00, 2);
+    }
+
+    expect(result.taxData[1].item.NAME).toBe('Joe income (net)');
+    {
+      const chartPts = result.taxData[1].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+      expectChartData(chartPts, 1, 'Fri Apr 01 2022', 125, -1);
+      expectChartData(chartPts, 2, 'Sat Apr 01 2023', 1375, -1);
+      expectChartData(chartPts, 3, 'Mon Apr 01 2024', 15.00, 2);
+      expectChartData(chartPts, 4, 'Tue Apr 01 2025', 165.00, 2);
+      expectChartData(chartPts, 5, 'Wed Apr 01 2026', 0, -1);
+    }
+  });
+
+  it('handle PDB generator low income SS with cpi', () => {
+    const viewSettings = defaultTestViewSettings();
+    viewSettings.setViewSetting(chartViewType, chartDeltas);
+    viewSettings.setViewSetting(viewFrequency, annually);
+
+    const modelString = `
+    {
+      "name":"DPBModel",
+      "expenses":[],
+      "incomes":[
+        {"NAME":"javaJob1",
+        "ERA":0,
+        "VALUE":"250",
+        "VALUE_SET":"02 April 2020",
+        "START":"02 April 2021",
+        "END":"02 April 2022",
+        "CPI_IMMUNE":true,
+        "LIABILITY":"Joe(incomeTax)/Joe(NI)",
+        "RECURRENCE":"1m",
+        "CATEGORY":"programming"
+      }
+      ],
+      "assets":[
+        {
+          "NAME":"Cash",
+          "CATEGORY":"",
+          "START":"01 Jan 2017",
+          "VALUE":"0.0",
+          "QUANTITY":"",
+          "GROWTH":"0.0",
+          "CPI_IMMUNE":true,
+          "CAN_BE_NEGATIVE":true,
+          "IS_A_DEBT":false,
+          "LIABILITY":"",
+          "PURCHASE_PRICE":"0.0",
+          "ERA":0
+        }
+      ],
+      "transactions":[],
+      "settings":[
+        {"NAME":"View frequencyTransactions","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyTax","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencySettings","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyPlanning","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyOverview","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyOptimizer","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyMonitoring","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyIncomes","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyHome","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyExpenses","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyDebts","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyDates","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyAssets","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyAsset actions","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+
+        {"NAME":"Today's value focus date","VALUE":"","HINT":"Date to use for 'today's value' tables (defaults to '' meaning today)","TYPE":"view","ERA":0},
+  
+        {"NAME":"Beginning of view range","VALUE":"01 Jan 2019","HINT":"","TYPE":"const","ERA":0},
+        {"NAME":"End of view range","VALUE":"01 Feb 2034","HINT":"","TYPE":"const","ERA":0},
+  
+        {"NAME":"Beginning of monitor range","VALUE":"Nov 2022","HINT":"","TYPE":"adjustable","ERA":0},
+        {"NAME":"End of monitor range","VALUE":"Nov 2023","HINT":"","TYPE":"adjustable","ERA":0},
+        {"NAME":"Date of birth","VALUE":"","HINT":"Date used for representing dates as ages","TYPE":"view","ERA":0},
+        {"NAME":"cpi","VALUE":"2.5","HINT":"Annual rate of inflation","TYPE":"const","ERA":0}
+      ],
+      "monitors":[],
+      "triggers":[],
+      "generators":[
+        {
+          "NAME":"TeachersPensionScheme",
+          "ERA":0,
+          "TYPE":"Defined Benefits",
+          "DETAILS":{
+            "VALUE":"10",
+            "VALUE_SET":"1 Jan 2021",
+ 
+            "INCOME_SOURCE":"javaJob1",
+            "SALARY_SACRIFICED":"Y",
+            "CONTRIBUTION_AMOUNT":"0.5",
+            "ACCRUAL":"0.02",
+ 
+            "STOP_SOURCE":"1 Jan 2025",
+            "START":"2 April 2023",
+            "END":"2 April 2024",
+            "GROWS_WITH_CPI":"Y",
+
+            "TRANSFER_TO":"Jack",
+            "TRANSFER_PROPORTION":"0.5",
+            "TRANSFERRED_STOP":"2 May 2025",
+ 
+            "TAX_LIABILITY":"Joe",
+            "CATEGORY":"pension"
+          }
+        }
+      ],
+      "version":13
+    }
+    `;
+    const model = makeModelFromJSONString(modelString);
+
+    // model.generators = [];
+
+    setSetting(
+      model.settings,
+      `Beginning of view range`,
+      "April 1 2021",
+      viewType,
+    );
+    setSetting(
+      model.settings,
+      `End of view range`,
+      "April 1 2027",
+      viewType,
+    );
+
+    const evalsAndValues = getEvaluations(
+      model,
+      undefined, // no key for a values report
+    );
+
+    // log(evalsAndValues.todaysAssetValues);
+    // log(evalsAndValues.todaysDebtValues);
+    // log(evalsAndValues.todaysExpenseValues);
+    // log(evalsAndValues.todaysIncomeValues);
+    // log(evalsAndValues.todaysSettingValues);
+
+    // printTestCodeForEvals(evalsAndValues.evaluations);
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
+
+    // printTestCodeForChart(result);
+
+    // printAllLogs();
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(3);
+    expect(result.incomesData[0].item.NAME).toBe('javaJob1');
+    {
+      const chartPts = result.incomesData[0].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+      expectChartData(chartPts, 1, 'Fri Apr 01 2022', 3000, -1);
+      expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
+      expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
+      expectChartData(chartPts, 4, 'Tue Apr 01 2025', 0, -1);
+      expectChartData(chartPts, 5, 'Wed Apr 01 2026', 0, -1);
+    }
+
+    expect(result.incomesData[1].item.NAME).toBe('-PDB TeachersPensionScheme');
+    {
+      const chartPts = result.incomesData[1].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+      expectChartData(chartPts, 1, 'Fri Apr 01 2022', 0, -1);
+      expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
+      expectChartData(chartPts, 3, 'Mon Apr 01 2024', 192.00, 2);
+      expectChartData(chartPts, 4, 'Tue Apr 01 2025', 0, -1);
+      expectChartData(chartPts, 5, 'Wed Apr 01 2026', 0, -1);
+    }
+
+    expect(result.incomesData[2].item.NAME).toBe('-PT TeachersPensionScheme');
+    {
+      const chartPts = result.incomesData[2].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+      expectChartData(chartPts, 1, 'Fri Apr 01 2022', 0, -1);
+      expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
+      expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
+      expectChartData(chartPts, 4, 'Tue Apr 01 2025', 98.40, 2);
+      expectChartData(chartPts, 5, 'Wed Apr 01 2026', 8.22, 2);
+    }
+
+    expect(result.assetData.length).toBe(3);
+    expect(result.assetData[0].item.NAME).toBe('javaJob1/Cash');
+    {
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+      expectChartData(chartPts, 1, 'Fri Apr 01 2022', 1500, -1);
+      expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
+      expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
+      expectChartData(chartPts, 4, 'Tue Apr 01 2025', 0, -1);
+      expectChartData(chartPts, 5, 'Wed Apr 01 2026', 0, -1);
+    }
+
+    expect(result.assetData[1].item.NAME).toBe('-PDB TeachersPensionScheme/Cash');
+    {
+      const chartPts = result.assetData[1].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+      expectChartData(chartPts, 1, 'Fri Apr 01 2022', 0, -1);
+      expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
+      expectChartData(chartPts, 3, 'Mon Apr 01 2024', 192.00, 2);
+      expectChartData(chartPts, 4, 'Tue Apr 01 2025', 0, -1);
+      expectChartData(chartPts, 5, 'Wed Apr 01 2026', 0, -1);
+    }
+
+    expect(result.assetData[2].item.NAME).toBe('-PT TeachersPensionScheme/Cash');
+    {
+      const chartPts = result.assetData[2].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+      expectChartData(chartPts, 1, 'Fri Apr 01 2022', 0, -1);
+      expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
+      expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
+      expectChartData(chartPts, 4, 'Tue Apr 01 2025', 90.39, 2);
+      expectChartData(chartPts, 5, 'Wed Apr 01 2026', 8.22, 2);
+    }
+
+    expect(result.debtData.length).toBe(0);
+    expect(result.taxData.length).toBe(2);
+    expect(result.taxData[0].item.NAME).toBe('Jack income (net)');
+    {
+      const chartPts = result.taxData[0].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+      expectChartData(chartPts, 1, 'Fri Apr 01 2022', 0, -1);
+      expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
+      expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
+      expectChartData(chartPts, 4, 'Tue Apr 01 2025', 0, -1);
+      expectChartData(chartPts, 5, 'Wed Apr 01 2026', 98.60, 2);
+    }
+
+    expect(result.taxData[1].item.NAME).toBe('Joe income (net)');
+    {
+      const chartPts = result.taxData[1].chartDataPoints;
+      expect(chartPts.length).toBe(6);
+      expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+      expectChartData(chartPts, 1, 'Fri Apr 01 2022', 125, -1);
+      expectChartData(chartPts, 2, 'Sat Apr 01 2023', 1375, -1);
+      expectChartData(chartPts, 3, 'Mon Apr 01 2024', 15.64, 2);
+      expectChartData(chartPts, 4, 'Tue Apr 01 2025', 176.36, 2);
+      expectChartData(chartPts, 5, 'Wed Apr 01 2026', 0, -1);
+    }
+  });
+});
+
+it('handle PDB generator NI income no SS with cpi', () => {
+  const viewSettings = defaultTestViewSettings();
+  viewSettings.setViewSetting(chartViewType, chartDeltas);
+  viewSettings.setViewSetting(viewFrequency, annually);
+
+  const modelString = `
+  {
+    "name":"DPBModel",
+    "expenses":[],
+    "incomes":[
+      {"NAME":"javaJob1",
+      "ERA":0,
+      "VALUE":"900",
+      "VALUE_SET":"02 April 2020",
+      "START":"02 April 2021",
+      "END":"02 April 2022",
+      "CPI_IMMUNE":true,
+      "LIABILITY":"Joe(incomeTax)/Joe(NI)",
+      "RECURRENCE":"1m",
+      "CATEGORY":"programming"
+    }
+    ],
+    "assets":[
+      {
+        "NAME":"Cash",
+        "CATEGORY":"",
+        "START":"01 Jan 2017",
+        "VALUE":"0.0",
+        "QUANTITY":"",
+        "GROWTH":"0.0",
+        "CPI_IMMUNE":true,
+        "CAN_BE_NEGATIVE":true,
+        "IS_A_DEBT":false,
+        "LIABILITY":"",
+        "PURCHASE_PRICE":"0.0",
+        "ERA":0
+      }
+    ],
+    "transactions":[],
+    "settings":[
+      {"NAME":"View frequencyTransactions","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyTax","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencySettings","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyPlanning","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyOverview","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyOptimizer","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyMonitoring","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyIncomes","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyHome","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyExpenses","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyDebts","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyDates","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyAssets","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyAsset actions","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+
+      {"NAME":"Today's value focus date","VALUE":"","HINT":"Date to use for 'today's value' tables (defaults to '' meaning today)","TYPE":"view","ERA":0},
+
+      {"NAME":"Beginning of view range","VALUE":"01 Jan 2019","HINT":"","TYPE":"const","ERA":0},
+      {"NAME":"End of view range","VALUE":"01 Feb 2034","HINT":"","TYPE":"const","ERA":0},
+
+      {"NAME":"Beginning of monitor range","VALUE":"Nov 2022","HINT":"","TYPE":"adjustable","ERA":0},
+      {"NAME":"End of monitor range","VALUE":"Nov 2023","HINT":"","TYPE":"adjustable","ERA":0},
+      {"NAME":"Date of birth","VALUE":"","HINT":"Date used for representing dates as ages","TYPE":"view","ERA":0},
+      {"NAME":"cpi","VALUE":"2.5","HINT":"Annual rate of inflation","TYPE":"const","ERA":0}
+    ],
+    "monitors":[],
+    "triggers":[],
+    "generators":[
+      {
+        "NAME":"TeachersPensionScheme",
+        "ERA":0,
+        "TYPE":"Defined Benefits",
+        "DETAILS":{
+          "VALUE":"10",
+          "VALUE_SET":"1 Jan 2021",
+
+          "INCOME_SOURCE":"javaJob1",
+          "SALARY_SACRIFICED":"N",
+          "CONTRIBUTION_AMOUNT":"0.5",
+          "ACCRUAL":"0.02",
+
+          "STOP_SOURCE":"1 Jan 2025",
+          "START":"2 April 2023",
+          "END":"2 April 2024",
+          "GROWS_WITH_CPI":"Y",
+
+          "TRANSFER_TO":"Jack",
+          "TRANSFER_PROPORTION":"0.5",
+          "TRANSFERRED_STOP":"2 May 2025",
+
+          "TAX_LIABILITY":"Joe",
+          "CATEGORY":"pension"
+        }
+      }
+    ],
+    "version":13
+  }
+  `;
+  const model = makeModelFromJSONString(modelString);
+
+  // model.generators = [];
+
+  setSetting(
+    model.settings,
+    `Beginning of view range`,
+    "April 1 2021",
+    viewType,
+  );
+  setSetting(
+    model.settings,
+    `End of view range`,
+    "April 1 2027",
+    viewType,
+  );
+
+  const evalsAndValues = getEvaluations(
+    model,
+    undefined, // no key for a values report
+  );
+
+  // log(evalsAndValues.todaysAssetValues);
+  // log(evalsAndValues.todaysDebtValues);
+  // log(evalsAndValues.todaysExpenseValues);
+  // log(evalsAndValues.todaysIncomeValues);
+  // log(evalsAndValues.todaysSettingValues);
+
+  // printTestCodeForEvals(evalsAndValues.evaluations);
+
+  const result = makeChartDataFromEvaluations(
+    model,
+    viewSettings,
+    evalsAndValues,
+  );
+
+  // printTestCodeForChart(result);
+
+  // printAllLogs();
+
+  expect(result.expensesData.length).toBe(0);
+  expect(result.incomesData.length).toBe(3);
+  expect(result.incomesData[0].item.NAME).toBe('javaJob1');
+  {
+    const chartPts = result.incomesData[0].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+    expectChartData(chartPts, 1, 'Fri Apr 01 2022', 10800, -1);
+    expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
+    expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 0, -1);
+    expectChartData(chartPts, 5, 'Wed Apr 01 2026', 0, -1);
+  }
+
+  expect(result.incomesData[1].item.NAME).toBe('-PDB TeachersPensionScheme');
+  {
+    const chartPts = result.incomesData[1].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+    expectChartData(chartPts, 1, 'Fri Apr 01 2022', 0, -1);
+    expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
+    expectChartData(chartPts, 3, 'Mon Apr 01 2024', 355.91, 2);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 0, -1);
+    expectChartData(chartPts, 5, 'Wed Apr 01 2026', 0, -1);
+  }
+
+  expect(result.incomesData[2].item.NAME).toBe('-PT TeachersPensionScheme');
+  {
+    const chartPts = result.incomesData[2].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+    expectChartData(chartPts, 1, 'Fri Apr 01 2022', 0, -1);
+    expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
+    expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 182.40, 2);
+    expectChartData(chartPts, 5, 'Wed Apr 01 2026', 15.23, 2);
+  }
+
+  expect(result.assetData.length).toBe(4);
+  expect(result.assetData[0].item.NAME).toBe('javaJob1/Cash');
+  {
+    const chartPts = result.assetData[0].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+    expectChartData(chartPts, 1, 'Fri Apr 01 2022', 5400, -1);
+    expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
+    expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 0, -1);
+    expectChartData(chartPts, 5, 'Wed Apr 01 2026', 0, -1);
+  }
+
+  expect(result.assetData[1].item.NAME).toBe('Joe(NI)/Cash');
+  {
+    const chartPts = result.assetData[1].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+    expectChartData(chartPts, 1, 'Fri Apr 01 2022', -260.64, 2);
+    expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
+    expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 0, -1);
+    expectChartData(chartPts, 5, 'Wed Apr 01 2026', 0, -1);
+  }
+
+  expect(result.assetData[2].item.NAME).toBe('-PDB TeachersPensionScheme/Cash');
+  {
+    const chartPts = result.assetData[2].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+    expectChartData(chartPts, 1, 'Fri Apr 01 2022', 0, -1);
+    expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
+    expectChartData(chartPts, 3, 'Mon Apr 01 2024', 355.91, 2);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 0, -1);
+    expectChartData(chartPts, 5, 'Wed Apr 01 2026', 0, -1);
+  }
+
+  expect(result.assetData[3].item.NAME).toBe('-PT TeachersPensionScheme/Cash');
+  {
+    const chartPts = result.assetData[3].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+    expectChartData(chartPts, 1, 'Fri Apr 01 2022', 0, -1);
+    expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
+    expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 167.54, 2);
+    expectChartData(chartPts, 5, 'Wed Apr 01 2026', 15.23, 2);
+  }
+
+  expect(result.debtData.length).toBe(0);
+  expect(result.taxData.length).toBe(3);
+  expect(result.taxData[0].item.NAME).toBe('Jack income (net)');
+  {
+    const chartPts = result.taxData[0].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+    expectChartData(chartPts, 1, 'Fri Apr 01 2022', 0, -1);
+    expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
+    expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 0, -1);
+    expectChartData(chartPts, 5, 'Wed Apr 01 2026', 182.78, 2);
+  }
+
+  expect(result.taxData[1].item.NAME).toBe('Joe income (net)');
+  {
+    const chartPts = result.taxData[1].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+    expectChartData(chartPts, 1, 'Fri Apr 01 2022', 428.28, 2);
+    expectChartData(chartPts, 2, 'Sat Apr 01 2023', 4711.08, 2);
+    expectChartData(chartPts, 3, 'Mon Apr 01 2024', 28.99, 2);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 326.92, 2);
+    expectChartData(chartPts, 5, 'Wed Apr 01 2026', 0, -1);
+  }
+
+  expect(result.taxData[2].item.NAME).toBe('Joe income (NI)');
+  {
+    const chartPts = result.taxData[2].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+    expectChartData(chartPts, 1, 'Fri Apr 01 2022', 21.72, 2);
+    expectChartData(chartPts, 2, 'Sat Apr 01 2023', 238.92, 2);
+    expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 0, -1);
+    expectChartData(chartPts, 5, 'Wed Apr 01 2026', 0, -1);
+  }
+});
+
+it('handle PDB generator NI income SS with cpi', () => {
+  const viewSettings = defaultTestViewSettings();
+  viewSettings.setViewSetting(chartViewType, chartDeltas);
+  viewSettings.setViewSetting(viewFrequency, annually);
+
+  const modelString = `
+  {
+    "name":"DPBModel",
+    "expenses":[],
+    "incomes":[
+      {"NAME":"javaJob1",
+      "ERA":0,
+      "VALUE":"900",
+      "VALUE_SET":"02 April 2020",
+      "START":"02 April 2021",
+      "END":"02 April 2022",
+      "CPI_IMMUNE":true,
+      "LIABILITY":"Joe(incomeTax)/Joe(NI)",
+      "RECURRENCE":"1m",
+      "CATEGORY":"programming"
+    }
+    ],
+    "assets":[
+      {
+        "NAME":"Cash",
+        "CATEGORY":"",
+        "START":"01 Jan 2017",
+        "VALUE":"0.0",
+        "QUANTITY":"",
+        "GROWTH":"0.0",
+        "CPI_IMMUNE":true,
+        "CAN_BE_NEGATIVE":true,
+        "IS_A_DEBT":false,
+        "LIABILITY":"",
+        "PURCHASE_PRICE":"0.0",
+        "ERA":0
+      }
+    ],
+    "transactions":[],
+    "settings":[
+      {"NAME":"View frequencyTransactions","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyTax","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencySettings","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyPlanning","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyOverview","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyOptimizer","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyMonitoring","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyIncomes","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyHome","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyExpenses","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyDebts","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyDates","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyAssets","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyAsset actions","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+
+      {"NAME":"Today's value focus date","VALUE":"","HINT":"Date to use for 'today's value' tables (defaults to '' meaning today)","TYPE":"view","ERA":0},
+
+      {"NAME":"Beginning of view range","VALUE":"01 Jan 2019","HINT":"","TYPE":"const","ERA":0},
+      {"NAME":"End of view range","VALUE":"01 Feb 2034","HINT":"","TYPE":"const","ERA":0},
+
+      {"NAME":"Beginning of monitor range","VALUE":"Nov 2022","HINT":"","TYPE":"adjustable","ERA":0},
+      {"NAME":"End of monitor range","VALUE":"Nov 2023","HINT":"","TYPE":"adjustable","ERA":0},
+      {"NAME":"Date of birth","VALUE":"","HINT":"Date used for representing dates as ages","TYPE":"view","ERA":0},
+      {"NAME":"cpi","VALUE":"2.5","HINT":"Annual rate of inflation","TYPE":"const","ERA":0}
+    ],
+    "monitors":[],
+    "triggers":[],
+    "generators":[
+      {
+        "NAME":"TeachersPensionScheme",
+        "ERA":0,
+        "TYPE":"Defined Benefits",
+        "DETAILS":{
+          "VALUE":"10",
+          "VALUE_SET":"1 Jan 2021",
+
+          "INCOME_SOURCE":"javaJob1",
+          "SALARY_SACRIFICED":"Y",
+          "CONTRIBUTION_AMOUNT":"0.5",
+          "ACCRUAL":"0.02",
+
+          "STOP_SOURCE":"1 Jan 2025",
+          "START":"2 April 2023",
+          "END":"2 April 2024",
+          "GROWS_WITH_CPI":"Y",
+
+          "TRANSFER_TO":"Jack",
+          "TRANSFER_PROPORTION":"0.5",
+          "TRANSFERRED_STOP":"2 May 2025",
+
+          "TAX_LIABILITY":"Joe",
+          "CATEGORY":"pension"
+        }
+      }
+    ],
+    "version":13
+  }
+  `;
+  const model = makeModelFromJSONString(modelString);
+
+  // model.generators = [];
+
+  setSetting(
+    model.settings,
+    `Beginning of view range`,
+    "April 1 2021",
+    viewType,
+  );
+  setSetting(
+    model.settings,
+    `End of view range`,
+    "April 1 2027",
+    viewType,
+  );
+
+  const evalsAndValues = getEvaluations(
+    model,
+    undefined, // no key for a values report
+  );
+
+  // log(evalsAndValues.todaysAssetValues);
+  // log(evalsAndValues.todaysDebtValues);
+  // log(evalsAndValues.todaysExpenseValues);
+  // log(evalsAndValues.todaysIncomeValues);
+  // log(evalsAndValues.todaysSettingValues);
+
+  // printTestCodeForEvals(evalsAndValues.evaluations);
+
+  const result = makeChartDataFromEvaluations(
+    model,
+    viewSettings,
+    evalsAndValues,
+  );
+
+  // printTestCodeForChart(result);
+
+  // printAllLogs();
+
+  expect(result.expensesData.length).toBe(0);
+  expect(result.incomesData.length).toBe(3);
+  expect(result.incomesData[0].item.NAME).toBe('javaJob1');
+  {
+    const chartPts = result.incomesData[0].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+    expectChartData(chartPts, 1, 'Fri Apr 01 2022', 10800, -1);
+    expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
+    expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 0, -1);
+    expectChartData(chartPts, 5, 'Wed Apr 01 2026', 0, -1);
+  }
+
+  expect(result.incomesData[1].item.NAME).toBe('-PDB TeachersPensionScheme');
+  {
+    const chartPts = result.incomesData[1].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+    expectChartData(chartPts, 1, 'Fri Apr 01 2022', 0, -1);
+    expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
+    expectChartData(chartPts, 3, 'Mon Apr 01 2024', 355.91, 2);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 0, -1);
+    expectChartData(chartPts, 5, 'Wed Apr 01 2026', 0, -1);
+  }
+
+  expect(result.incomesData[2].item.NAME).toBe('-PT TeachersPensionScheme');
+  {
+    const chartPts = result.incomesData[2].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+    expectChartData(chartPts, 1, 'Fri Apr 01 2022', 0, -1);
+    expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
+    expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 182.40, 2);
+    expectChartData(chartPts, 5, 'Wed Apr 01 2026', 15.23, 2);
+  }
+
+  expect(result.assetData.length).toBe(3);
+  expect(result.assetData[0].item.NAME).toBe('javaJob1/Cash');
+  {
+    const chartPts = result.assetData[0].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+    expectChartData(chartPts, 1, 'Fri Apr 01 2022', 5400, -1);
+    expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
+    expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 0, -1);
+    expectChartData(chartPts, 5, 'Wed Apr 01 2026', 0, -1);
+  }
+
+  expect(result.assetData[1].item.NAME).toBe('-PDB TeachersPensionScheme/Cash');
+  {
+    const chartPts = result.assetData[1].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+    expectChartData(chartPts, 1, 'Fri Apr 01 2022', 0, -1);
+    expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
+    expectChartData(chartPts, 3, 'Mon Apr 01 2024', 355.91, 2);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 0, -1);
+    expectChartData(chartPts, 5, 'Wed Apr 01 2026', 0, -1);
+  }
+
+  expect(result.assetData[2].item.NAME).toBe('-PT TeachersPensionScheme/Cash');
+  {
+    const chartPts = result.assetData[2].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+    expectChartData(chartPts, 1, 'Fri Apr 01 2022', 0, -1);
+    expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
+    expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 167.54, 2);
+    expectChartData(chartPts, 5, 'Wed Apr 01 2026', 15.23, 2);
+  }
+
+  expect(result.debtData.length).toBe(0);
+  expect(result.taxData.length).toBe(2);
+  expect(result.taxData[0].item.NAME).toBe('Jack income (net)');
+  {
+    const chartPts = result.taxData[0].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+    expectChartData(chartPts, 1, 'Fri Apr 01 2022', 0, -1);
+    expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
+    expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 0, -1);
+    expectChartData(chartPts, 5, 'Wed Apr 01 2026', 182.78, 2);
+  }
+
+  expect(result.taxData[1].item.NAME).toBe('Joe income (net)');
+  {
+    const chartPts = result.taxData[1].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+    expectChartData(chartPts, 1, 'Fri Apr 01 2022', 450, -1);
+    expectChartData(chartPts, 2, 'Sat Apr 01 2023', 4950, -1);
+    expectChartData(chartPts, 3, 'Mon Apr 01 2024', 28.99, 2);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 326.92, 2);
+    expectChartData(chartPts, 5, 'Wed Apr 01 2026', 0, -1);
+  }
+});
+
+it('handle PDB generator tax income SS with cpi', () => {
+  const viewSettings = defaultTestViewSettings();
+  viewSettings.setViewSetting(chartViewType, chartDeltas);
+  viewSettings.setViewSetting(viewFrequency, annually);
+
+  const modelString = `
+  {
+    "name":"DPBModel",
+    "expenses":[],
+    "incomes":[
+      {"NAME":"javaJob1",
+      "ERA":0,
+      "VALUE":"4000",
+      "VALUE_SET":"02 April 2020",
+      "START":"02 April 2021",
+      "END":"02 April 2022",
+      "CPI_IMMUNE":true,
+      "LIABILITY":"Joe(incomeTax)/Joe(NI)",
+      "RECURRENCE":"1m",
+      "CATEGORY":"programming"
+    }
+    ],
+    "assets":[
+      {
+        "NAME":"Cash",
+        "CATEGORY":"",
+        "START":"01 Jan 2017",
+        "VALUE":"0.0",
+        "QUANTITY":"",
+        "GROWTH":"0.0",
+        "CPI_IMMUNE":true,
+        "CAN_BE_NEGATIVE":true,
+        "IS_A_DEBT":false,
+        "LIABILITY":"",
+        "PURCHASE_PRICE":"0.0",
+        "ERA":0
+      }
+    ],
+    "transactions":[],
+    "settings":[
+      {"NAME":"View frequencyTransactions","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyTax","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencySettings","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyPlanning","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyOverview","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyOptimizer","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyMonitoring","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyIncomes","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyHome","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyExpenses","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyDebts","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyDates","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyAssets","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyAsset actions","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+
+      {"NAME":"Today's value focus date","VALUE":"","HINT":"Date to use for 'today's value' tables (defaults to '' meaning today)","TYPE":"view","ERA":0},
+
+      {"NAME":"Beginning of view range","VALUE":"01 Jan 2019","HINT":"","TYPE":"const","ERA":0},
+      {"NAME":"End of view range","VALUE":"01 Feb 2034","HINT":"","TYPE":"const","ERA":0},
+
+      {"NAME":"Beginning of monitor range","VALUE":"Nov 2022","HINT":"","TYPE":"adjustable","ERA":0},
+      {"NAME":"End of monitor range","VALUE":"Nov 2023","HINT":"","TYPE":"adjustable","ERA":0},
+      {"NAME":"Date of birth","VALUE":"","HINT":"Date used for representing dates as ages","TYPE":"view","ERA":0},
+      {"NAME":"cpi","VALUE":"2.5","HINT":"Annual rate of inflation","TYPE":"const","ERA":0}
+    ],
+    "monitors":[],
+    "triggers":[],
+    "generators":[
+      {
+        "NAME":"TeachersPensionScheme",
+        "ERA":0,
+        "TYPE":"Defined Benefits",
+        "DETAILS":{
+          "VALUE":"10",
+          "VALUE_SET":"1 Jan 2021",
+
+          "INCOME_SOURCE":"javaJob1",
+          "SALARY_SACRIFICED":"Y",
+          "CONTRIBUTION_AMOUNT":"0.5",
+          "ACCRUAL":"0.02",
+
+          "STOP_SOURCE":"1 Jan 2025",
+          "START":"2 April 2023",
+          "END":"2 April 2024",
+          "GROWS_WITH_CPI":"Y",
+
+          "TRANSFER_TO":"Jack",
+          "TRANSFER_PROPORTION":"0.5",
+          "TRANSFERRED_STOP":"2 May 2025",
+
+          "TAX_LIABILITY":"Joe",
+          "CATEGORY":"pension"
+        }
+      }
+    ],
+    "version":13
+  }
+  `;
+  const model = makeModelFromJSONString(modelString);
+
+  // model.generators = [];
+
+  setSetting(
+    model.settings,
+    `Beginning of view range`,
+    "April 1 2021",
+    viewType,
+  );
+  setSetting(
+    model.settings,
+    `End of view range`,
+    "April 1 2027",
+    viewType,
+  );
+
+  const evalsAndValues = getEvaluations(
+    model,
+    undefined, // no key for a values report
+  );
+
+  // log(evalsAndValues.todaysAssetValues);
+  // log(evalsAndValues.todaysDebtValues);
+  // log(evalsAndValues.todaysExpenseValues);
+  // log(evalsAndValues.todaysIncomeValues);
+  // log(evalsAndValues.todaysSettingValues);
+
+  // printTestCodeForEvals(evalsAndValues.evaluations);
+
+  const result = makeChartDataFromEvaluations(
+    model,
+    viewSettings,
+    evalsAndValues,
+  );
+
+  // printTestCodeForChart(result);
+
+  // printAllLogs();
+
+  expect(result.expensesData.length).toBe(0);
+  expect(result.incomesData.length).toBe(3);
+  expect(result.incomesData[0].item.NAME).toBe('javaJob1');
+  {
+    const chartPts = result.incomesData[0].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+    expectChartData(chartPts, 1, 'Fri Apr 01 2022', 48000, -1);
+    expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
+    expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 0, -1);
+    expectChartData(chartPts, 5, 'Wed Apr 01 2026', 0, -1);
+  }
+
+  expect(result.incomesData[1].item.NAME).toBe('-PDB TeachersPensionScheme');
+  {
+    const chartPts = result.incomesData[1].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+    expectChartData(chartPts, 1, 'Fri Apr 01 2022', 0, -1);
+    expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
+    expectChartData(chartPts, 3, 'Mon Apr 01 2024', 1137.61, 2);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 0, -1);
+    expectChartData(chartPts, 5, 'Wed Apr 01 2026', 0, -1);
+  }
+
+  expect(result.incomesData[2].item.NAME).toBe('-PT TeachersPensionScheme');
+  {
+    const chartPts = result.incomesData[2].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+    expectChartData(chartPts, 1, 'Fri Apr 01 2022', 0, -1);
+    expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
+    expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 583.03, 2);
+    expectChartData(chartPts, 5, 'Wed Apr 01 2026', 48.68, 2);
+  }
+
+  expect(result.assetData.length).toBe(5);
+  expect(result.assetData[0].item.NAME).toBe('javaJob1/Cash');
+  {
+    const chartPts = result.assetData[0].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+    expectChartData(chartPts, 1, 'Fri Apr 01 2022', 24000, -1);
+    expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
+    expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 0, -1);
+    expectChartData(chartPts, 5, 'Wed Apr 01 2026', 0, -1);
+  }
+
+  expect(result.assetData[1].item.NAME).toBe('Joe(NI)/Cash');
+  {
+    const chartPts = result.assetData[1].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+    expectChartData(chartPts, 1, 'Fri Apr 01 2022', -1844.64, 2);
+    expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
+    expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 0, -1);
+    expectChartData(chartPts, 5, 'Wed Apr 01 2026', 0, -1);
+  }
+
+  expect(result.assetData[2].item.NAME).toBe('Joe(incomeTax)/Cash');
+  {
+    const chartPts = result.assetData[2].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+    expectChartData(chartPts, 1, 'Fri Apr 01 2022', -2108.26, 2);
+    expectChartData(chartPts, 2, 'Sat Apr 01 2023', 208.26, 2);
+    expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 0, -1);
+    expectChartData(chartPts, 5, 'Wed Apr 01 2026', 0, -1);
+  }
+
+  expect(result.assetData[3].item.NAME).toBe('-PDB TeachersPensionScheme/Cash');
+  {
+    const chartPts = result.assetData[3].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+    expectChartData(chartPts, 1, 'Fri Apr 01 2022', 0, -1);
+    expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
+    expectChartData(chartPts, 3, 'Mon Apr 01 2024', 1137.61, 2);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 0, -1);
+    expectChartData(chartPts, 5, 'Wed Apr 01 2026', 0, -1);
+  }
+
+  expect(result.assetData[4].item.NAME).toBe('-PT TeachersPensionScheme/Cash');
+  {
+    const chartPts = result.assetData[4].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+    expectChartData(chartPts, 1, 'Fri Apr 01 2022', 0, -1);
+    expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
+    expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 535.53, 2);
+    expectChartData(chartPts, 5, 'Wed Apr 01 2026', 48.68, 2);
+  }
+
+  expect(result.debtData.length).toBe(0);
+  expect(result.taxData.length).toBe(4);
+  expect(result.taxData[0].item.NAME).toBe('Jack income (net)');
+  {
+    const chartPts = result.taxData[0].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+    expectChartData(chartPts, 1, 'Fri Apr 01 2022', 0, -1);
+    expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
+    expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 0, -1);
+    expectChartData(chartPts, 5, 'Wed Apr 01 2026', 584.21, 2);
+  }
+
+  expect(result.taxData[1].item.NAME).toBe('Joe income (incomeTax)');
+  {
+    const chartPts = result.taxData[1].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+    expectChartData(chartPts, 1, 'Fri Apr 01 2022', 0, -1);
+    expectChartData(chartPts, 2, 'Sat Apr 01 2023', 1900, -1);
+    expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 0, -1);
+    expectChartData(chartPts, 5, 'Wed Apr 01 2026', 0, -1);
+  }
+
+  expect(result.taxData[2].item.NAME).toBe('Joe income (net)');
+  {
+    const chartPts = result.taxData[2].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+    expectChartData(chartPts, 1, 'Fri Apr 01 2022', 1846.28, 2);
+    expectChartData(chartPts, 2, 'Sat Apr 01 2023', 18409.08, 2);
+    expectChartData(chartPts, 3, 'Mon Apr 01 2024', 92.68, 2);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 1044.93, 2);
+    expectChartData(chartPts, 5, 'Wed Apr 01 2026', 0, -1);
+  }
+
+  expect(result.taxData[3].item.NAME).toBe('Joe income (NI)');
+  {
+    const chartPts = result.taxData[3].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+    expectChartData(chartPts, 1, 'Fri Apr 01 2022', 153.72, 2);
+    expectChartData(chartPts, 2, 'Sat Apr 01 2023', 1690.92, 2);
+    expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 0, -1);
+    expectChartData(chartPts, 5, 'Wed Apr 01 2026', 0, -1);
+  }
+});
+
+it('handle PDB generator tax income no SS with cpi', () => {
+  const viewSettings = defaultTestViewSettings();
+  viewSettings.setViewSetting(chartViewType, chartDeltas);
+  viewSettings.setViewSetting(viewFrequency, annually);
+
+  const modelString = `
+  {
+    "name":"DPBModel",
+    "expenses":[],
+    "incomes":[
+      {"NAME":"javaJob1",
+      "ERA":0,
+      "VALUE":"4000",
+      "VALUE_SET":"02 April 2020",
+      "START":"02 April 2021",
+      "END":"02 April 2022",
+      "CPI_IMMUNE":true,
+      "LIABILITY":"Joe(incomeTax)/Joe(NI)",
+      "RECURRENCE":"1m",
+      "CATEGORY":"programming"
+    }
+    ],
+    "assets":[
+      {
+        "NAME":"Cash",
+        "CATEGORY":"",
+        "START":"01 Jan 2017",
+        "VALUE":"0.0",
+        "QUANTITY":"",
+        "GROWTH":"0.0",
+        "CPI_IMMUNE":true,
+        "CAN_BE_NEGATIVE":true,
+        "IS_A_DEBT":false,
+        "LIABILITY":"",
+        "PURCHASE_PRICE":"0.0",
+        "ERA":0
+      }
+    ],
+    "transactions":[],
+    "settings":[
+      {"NAME":"View frequencyTransactions","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyTax","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencySettings","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyPlanning","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyOverview","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyOptimizer","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyMonitoring","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyIncomes","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyHome","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyExpenses","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyDebts","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyDates","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyAssets","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyAsset actions","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+
+      {"NAME":"Today's value focus date","VALUE":"","HINT":"Date to use for 'today's value' tables (defaults to '' meaning today)","TYPE":"view","ERA":0},
+
+      {"NAME":"Beginning of view range","VALUE":"01 Jan 2019","HINT":"","TYPE":"const","ERA":0},
+      {"NAME":"End of view range","VALUE":"01 Feb 2034","HINT":"","TYPE":"const","ERA":0},
+
+      {"NAME":"Beginning of monitor range","VALUE":"Nov 2022","HINT":"","TYPE":"adjustable","ERA":0},
+      {"NAME":"End of monitor range","VALUE":"Nov 2023","HINT":"","TYPE":"adjustable","ERA":0},
+      {"NAME":"Date of birth","VALUE":"","HINT":"Date used for representing dates as ages","TYPE":"view","ERA":0},
+      {"NAME":"cpi","VALUE":"2.5","HINT":"Annual rate of inflation","TYPE":"const","ERA":0}
+    ],
+    "monitors":[],
+    "triggers":[],
+    "generators":[
+      {
+        "NAME":"TeachersPensionScheme",
+        "ERA":0,
+        "TYPE":"Defined Benefits",
+        "DETAILS":{
+          "VALUE":"10",
+          "VALUE_SET":"1 Jan 2021",
+
+          "INCOME_SOURCE":"javaJob1",
+          "SALARY_SACRIFICED":"N",
+          "CONTRIBUTION_AMOUNT":"0.5",
+          "ACCRUAL":"0.02",
+
+          "STOP_SOURCE":"1 Jan 2025",
+          "START":"2 April 2023",
+          "END":"2 April 2024",
+          "GROWS_WITH_CPI":"Y",
+
+          "TRANSFER_TO":"Jack",
+          "TRANSFER_PROPORTION":"0.5",
+          "TRANSFERRED_STOP":"2 May 2025",
+
+          "TAX_LIABILITY":"Joe",
+          "CATEGORY":"pension"
+        }
+      }
+    ],
+    "version":13
+  }
+  `;
+  const model = makeModelFromJSONString(modelString);
+
+  // model.generators = [];
+
+  setSetting(
+    model.settings,
+    `Beginning of view range`,
+    "April 1 2021",
+    viewType,
+  );
+  setSetting(
+    model.settings,
+    `End of view range`,
+    "April 1 2027",
+    viewType,
+  );
+
+  const evalsAndValues = getEvaluations(
+    model,
+    undefined, // no key for a values report
+  );
+
+  // log(evalsAndValues.todaysAssetValues);
+  // log(evalsAndValues.todaysDebtValues);
+  // log(evalsAndValues.todaysExpenseValues);
+  // log(evalsAndValues.todaysIncomeValues);
+  // log(evalsAndValues.todaysSettingValues);
+
+  // printTestCodeForEvals(evalsAndValues.evaluations);
+
+  const result = makeChartDataFromEvaluations(
+    model,
+    viewSettings,
+    evalsAndValues,
+  );
+
+  // printTestCodeForChart(result);
+
+  // printAllLogs();
+
+  expect(result.expensesData.length).toBe(0);
+  expect(result.incomesData.length).toBe(3);
+  expect(result.incomesData[0].item.NAME).toBe('javaJob1');
+  {
+    const chartPts = result.incomesData[0].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+    expectChartData(chartPts, 1, 'Fri Apr 01 2022', 48000, -1);
+    expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
+    expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 0, -1);
+    expectChartData(chartPts, 5, 'Wed Apr 01 2026', 0, -1);
+  }
+
+  expect(result.incomesData[1].item.NAME).toBe('-PDB TeachersPensionScheme');
+  {
+    const chartPts = result.incomesData[1].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+    expectChartData(chartPts, 1, 'Fri Apr 01 2022', 0, -1);
+    expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
+    expectChartData(chartPts, 3, 'Mon Apr 01 2024', 1137.61, 2);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 0, -1);
+    expectChartData(chartPts, 5, 'Wed Apr 01 2026', 0, -1);
+  }
+
+  expect(result.incomesData[2].item.NAME).toBe('-PT TeachersPensionScheme');
+  {
+    const chartPts = result.incomesData[2].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+    expectChartData(chartPts, 1, 'Fri Apr 01 2022', 0, -1);
+    expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
+    expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 583.03, 2);
+    expectChartData(chartPts, 5, 'Wed Apr 01 2026', 48.68, 2);
+  }
+
+  expect(result.assetData.length).toBe(5);
+  expect(result.assetData[0].item.NAME).toBe('javaJob1/Cash');
+  {
+    const chartPts = result.assetData[0].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+    expectChartData(chartPts, 1, 'Fri Apr 01 2022', 24000, -1);
+    expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
+    expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 0, -1);
+    expectChartData(chartPts, 5, 'Wed Apr 01 2026', 0, -1);
+  }
+
+  expect(result.assetData[1].item.NAME).toBe('Joe(NI)/Cash');
+  {
+    const chartPts = result.assetData[1].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+    expectChartData(chartPts, 1, 'Fri Apr 01 2022', -4724.64, 2);
+    expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
+    expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 0, -1);
+    expectChartData(chartPts, 5, 'Wed Apr 01 2026', 0, -1);
+  }
+
+  expect(result.assetData[2].item.NAME).toBe('Joe(incomeTax)/Cash');
+  {
+    const chartPts = result.assetData[2].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+    expectChartData(chartPts, 1, 'Fri Apr 01 2022', -2108.26, 2);
+    expectChartData(chartPts, 2, 'Sat Apr 01 2023', 208.26, 2);
+    expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 0, -1);
+    expectChartData(chartPts, 5, 'Wed Apr 01 2026', 0, -1);
+  }
+
+  expect(result.assetData[3].item.NAME).toBe('-PDB TeachersPensionScheme/Cash');
+  {
+    const chartPts = result.assetData[3].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+    expectChartData(chartPts, 1, 'Fri Apr 01 2022', 0, -1);
+    expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
+    expectChartData(chartPts, 3, 'Mon Apr 01 2024', 1137.61, 2);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 0, -1);
+    expectChartData(chartPts, 5, 'Wed Apr 01 2026', 0, -1);
+  }
+
+  expect(result.assetData[4].item.NAME).toBe('-PT TeachersPensionScheme/Cash');
+  {
+    const chartPts = result.assetData[4].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+    expectChartData(chartPts, 1, 'Fri Apr 01 2022', 0, -1);
+    expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
+    expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 535.53, 2);
+    expectChartData(chartPts, 5, 'Wed Apr 01 2026', 48.68, 2);
+  }
+
+  expect(result.debtData.length).toBe(0);
+  expect(result.taxData.length).toBe(4);
+  expect(result.taxData[0].item.NAME).toBe('Jack income (net)');
+  {
+    const chartPts = result.taxData[0].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+    expectChartData(chartPts, 1, 'Fri Apr 01 2022', 0, -1);
+    expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
+    expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 0, -1);
+    expectChartData(chartPts, 5, 'Wed Apr 01 2026', 584.21, 2);
+  }
+
+  expect(result.taxData[1].item.NAME).toBe('Joe income (incomeTax)');
+  {
+    const chartPts = result.taxData[1].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+    expectChartData(chartPts, 1, 'Fri Apr 01 2022', 0, -1);
+    expectChartData(chartPts, 2, 'Sat Apr 01 2023', 1900, -1);
+    expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 0, -1);
+    expectChartData(chartPts, 5, 'Wed Apr 01 2026', 0, -1);
+  }
+
+  expect(result.taxData[2].item.NAME).toBe('Joe income (net)');
+  {
+    const chartPts = result.taxData[2].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+    expectChartData(chartPts, 1, 'Fri Apr 01 2022', 1606.28, 2);
+    expectChartData(chartPts, 2, 'Sat Apr 01 2023', 15769.08, 2);
+    expectChartData(chartPts, 3, 'Mon Apr 01 2024', 92.68, 2);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 1044.93, 2);
+    expectChartData(chartPts, 5, 'Wed Apr 01 2026', 0, -1);
+  }
+
+  expect(result.taxData[3].item.NAME).toBe('Joe income (NI)');
+  {
+    const chartPts = result.taxData[3].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Thu Apr 01 2021', 0, -1);
+    expectChartData(chartPts, 1, 'Fri Apr 01 2022', 393.72, 2);
+    expectChartData(chartPts, 2, 'Sat Apr 01 2023', 4330.92, 2);
+    expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 0, -1);
+    expectChartData(chartPts, 5, 'Wed Apr 01 2026', 0, -1);
+  }
+});
+
+it('handle PDC generator low income no cpi', () => {
+  const viewSettings = defaultTestViewSettings();
+  viewSettings.setViewSetting(chartViewType, chartDeltas);
+  viewSettings.setViewSetting(viewFrequency, annually);
+
+  const modelString = `
+  {
+    "name":"DPBModel",
+    "expenses":[],
+    "incomes":[
+      {"NAME":"javaJob1",
+      "ERA":0,
+      "VALUE":"250",
+      "VALUE_SET":"02 April 2020",
+      "START":"02 April 2020",
+      "END":"02 April 2022",
+      "CPI_IMMUNE":true,
+      "LIABILITY":"Joe(incomeTax)/Joe(NI)",
+      "RECURRENCE":"1m",
+      "CATEGORY":"programming"
+    }
+    ],
+    "assets":[
+      {
+        "NAME":"Cash",
+        "CATEGORY":"",
+        "START":"01 Jan 2017",
+        "VALUE":"0.0",
+        "QUANTITY":"",
+        "GROWTH":"0.0",
+        "CPI_IMMUNE":true,
+        "CAN_BE_NEGATIVE":true,
+        "IS_A_DEBT":false,
+        "LIABILITY":"",
+        "PURCHASE_PRICE":"0.0",
+        "ERA":0
+      }
+    ],
+    "transactions":[],
+    "settings":[
+      {"NAME":"View frequencyTransactions","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyTax","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencySettings","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyPlanning","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyOverview","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyOptimizer","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyMonitoring","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyIncomes","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyHome","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyExpenses","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyDebts","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyDates","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyAssets","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyAsset actions","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+
+      {"NAME":"Today's value focus date","VALUE":"","HINT":"Date to use for 'today's value' tables (defaults to '' meaning today)","TYPE":"view","ERA":0},
+
+      {"NAME":"Beginning of view range","VALUE":"01 Jan 2019","HINT":"","TYPE":"const","ERA":0},
+      {"NAME":"End of view range","VALUE":"01 Feb 2034","HINT":"","TYPE":"const","ERA":0},
+
+      {"NAME":"Beginning of monitor range","VALUE":"Nov 2022","HINT":"","TYPE":"adjustable","ERA":0},
+      {"NAME":"End of monitor range","VALUE":"Nov 2023","HINT":"","TYPE":"adjustable","ERA":0},
+      {"NAME":"Date of birth","VALUE":"","HINT":"Date used for representing dates as ages","TYPE":"view","ERA":0},
+      {"NAME":"cpi","VALUE":"2.5","HINT":"Annual rate of inflation","TYPE":"const","ERA":0}
+    ],
+    "monitors":[],
+    "triggers":[],
+    "generators":[
+      {
+        "NAME":"ScottishWidows",
+        "ERA":0,
+        "TYPE":"Defined Contributions",
+        "DETAILS":{
+          "GROWS_WITH_CPI": "N",
+          "GROWTH": "0",
+          "VALUE": "1000",
+          "TAX_LIABILITY": "Joe",
+          "CATEGORY": "pension",
+          "START": "2 April 2021",
+          "STOP": "2 April 2022",
+          "CRYSTALLIZE": "2 April 2023",
+          "SS": "n",
+          "INCOME_SOURCE": "javaJob1",
+          "CONTRIBUTION_AMOUNT": "0.05",
+          "EMP_CONTRIBUTION_AMOUNT": "0.05",
+          "TRANSFER_TO": "Jack",
+          "TRANSFER_DATE": "2 April 2024"
+        }
+      }
+    ],
+    "version":13
+  }
+  `;
+  const model = makeModelFromJSONString(modelString);
+
+  // model.generators = [];
+
+  setSetting(
+    model.settings,
+    `Beginning of view range`,
+    "April 1 2020",
+    viewType,
+  );
+  setSetting(
+    model.settings,
+    `End of view range`,
+    "April 1 2025",
+    viewType,
+  );
+
+  const evalsAndValues = getEvaluations(
+    model,
+    undefined, // no key for a values report
+  );
+
+  // log(evalsAndValues.todaysAssetValues);
+  // log(evalsAndValues.todaysDebtValues);
+  // log(evalsAndValues.todaysExpenseValues);
+  // log(evalsAndValues.todaysIncomeValues);
+  // log(evalsAndValues.todaysSettingValues);
+
+  // printTestCodeForEvals(evalsAndValues.evaluations);
+
+  const result = makeChartDataFromEvaluations(
+    model,
+    viewSettings,
+    evalsAndValues,
+  );
+
+  // printTestCodeForChart(result);
+
+  expect(result.expensesData.length).toBe(0);
+  expect(result.incomesData.length).toBe(1);
+  expect(result.incomesData[0].item.NAME).toBe('javaJob1');
+  {
+  const chartPts = result.incomesData[0].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 3000, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 3000, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 0, -1);
+  }
+  
+  expect(result.assetData.length).toBe(8);
+  expect(result.assetData[0].item.NAME).toBe('javaJob1/Cash');
+  {
+  const chartPts = result.assetData[0].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 3000, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 2850, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 0, -1);
+  }
+  
+  expect(result.assetData[1].item.NAME).toBe('-PEN ScottishWidows/-PEN ScottishWidows');
+  {
+  const chartPts = result.assetData[1].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 1300, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 0, -1);
+  }
+  
+  expect(result.assetData[2].item.NAME).toBe('-CPTaxFreeM ScottishWidows/-PEN ScottishWidows');
+  {
+  const chartPts = result.assetData[2].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 0, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', -325, -1);
+  }
+  
+  expect(result.assetData[3].item.NAME).toBe('-CPTaxFreeM ScottishWidows/-CPTaxFree ScottishWidows');
+  {
+  const chartPts = result.assetData[3].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 0, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 325, -1);
+  }
+  
+  expect(result.assetData[4].item.NAME).toBe('-CPTaxable ScottishWidows/-PEN ScottishWidows');
+  {
+  const chartPts = result.assetData[4].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 0, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', -975, -1);
+  }
+  
+  expect(result.assetData[5].item.NAME).toBe('-CPTaxable ScottishWidows/-CPTaxable Joe.ScottishWidows');
+  {
+  const chartPts = result.assetData[5].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 0, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 975, -1);
+  }
+  
+  expect(result.assetData[6].item.NAME).toBe('-CPTaxable Joe.ScottishWidows/Cash');
+  {
+  const chartPts = result.assetData[6].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 0, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 975, -1);
+  }
+  
+  expect(result.assetData[7].item.NAME).toBe('Joe(incomeTax)/-CPTaxable Joe.ScottishWidows');
+  {
+  const chartPts = result.assetData[7].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 0, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', -975, -1);
+  }
+  
+  expect(result.debtData.length).toBe(0);
+  expect(result.taxData.length).toBe(1);
+  expect(result.taxData[0].item.NAME).toBe('Joe income (net)');
+  {
+  const chartPts = result.taxData[0].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 250, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 2987.50, 2);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 2612.50, 2);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 975, -1);
+  }  
+});
+
+
+it('handle PDC generator NI income no cpi', () => {
+  const viewSettings = defaultTestViewSettings();
+  viewSettings.setViewSetting(chartViewType, chartDeltas);
+  viewSettings.setViewSetting(viewFrequency, annually);
+
+  const modelString = `
+  {
+    "name":"DPBModel",
+    "expenses":[],
+    "incomes":[
+      {"NAME":"javaJob1",
+      "ERA":0,
+      "VALUE":"900",
+      "VALUE_SET":"02 April 2020",
+      "START":"02 April 2020",
+      "END":"02 April 2022",
+      "CPI_IMMUNE":true,
+      "LIABILITY":"Joe(incomeTax)/Joe(NI)",
+      "RECURRENCE":"1m",
+      "CATEGORY":"programming"
+    }
+    ],
+    "assets":[
+      {
+        "NAME":"Cash",
+        "CATEGORY":"",
+        "START":"01 Jan 2017",
+        "VALUE":"0.0",
+        "QUANTITY":"",
+        "GROWTH":"0.0",
+        "CPI_IMMUNE":true,
+        "CAN_BE_NEGATIVE":true,
+        "IS_A_DEBT":false,
+        "LIABILITY":"",
+        "PURCHASE_PRICE":"0.0",
+        "ERA":0
+      }
+    ],
+    "transactions":[],
+    "settings":[
+      {"NAME":"View frequencyTransactions","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyTax","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencySettings","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyPlanning","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyOverview","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyOptimizer","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyMonitoring","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyIncomes","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyHome","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyExpenses","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyDebts","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyDates","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyAssets","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyAsset actions","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+
+      {"NAME":"Today's value focus date","VALUE":"","HINT":"Date to use for 'today's value' tables (defaults to '' meaning today)","TYPE":"view","ERA":0},
+
+      {"NAME":"Beginning of view range","VALUE":"01 Jan 2019","HINT":"","TYPE":"const","ERA":0},
+      {"NAME":"End of view range","VALUE":"01 Feb 2034","HINT":"","TYPE":"const","ERA":0},
+
+      {"NAME":"Beginning of monitor range","VALUE":"Nov 2022","HINT":"","TYPE":"adjustable","ERA":0},
+      {"NAME":"End of monitor range","VALUE":"Nov 2023","HINT":"","TYPE":"adjustable","ERA":0},
+      {"NAME":"Date of birth","VALUE":"","HINT":"Date used for representing dates as ages","TYPE":"view","ERA":0},
+      {"NAME":"cpi","VALUE":"2.5","HINT":"Annual rate of inflation","TYPE":"const","ERA":0}
+    ],
+    "monitors":[],
+    "triggers":[],
+    "generators":[
+      {
+        "NAME":"ScottishWidows",
+        "ERA":0,
+        "TYPE":"Defined Contributions",
+        "DETAILS":{
+          "GROWS_WITH_CPI": "N",
+          "GROWTH": "0",
+          "VALUE": "1000",
+          "TAX_LIABILITY": "Joe",
+          "CATEGORY": "pension",
+          "START": "2 April 2021",
+          "STOP": "2 April 2022",
+          "CRYSTALLIZE": "2 April 2023",
+          "SS": "n",
+          "INCOME_SOURCE": "javaJob1",
+          "CONTRIBUTION_AMOUNT": "0.05",
+          "EMP_CONTRIBUTION_AMOUNT": "0.05",
+          "TRANSFER_TO": "Jack",
+          "TRANSFER_DATE": "2 April 2024"
+        }
+      }
+    ],
+    "version":13
+  }
+  `;
+  const model = makeModelFromJSONString(modelString);
+
+  // model.generators = [];
+
+  setSetting(
+    model.settings,
+    `Beginning of view range`,
+    "April 1 2020",
+    viewType,
+  );
+  setSetting(
+    model.settings,
+    `End of view range`,
+    "April 1 2025",
+    viewType,
+  );
+
+  const evalsAndValues = getEvaluations(
+    model,
+    undefined, // no key for a values report
+  );
+
+  // log(evalsAndValues.todaysAssetValues);
+  // log(evalsAndValues.todaysDebtValues);
+  // log(evalsAndValues.todaysExpenseValues);
+  // log(evalsAndValues.todaysIncomeValues);
+  // log(evalsAndValues.todaysSettingValues);
+
+  // printTestCodeForEvals(evalsAndValues.evaluations);
+
+  const result = makeChartDataFromEvaluations(
+    model,
+    viewSettings,
+    evalsAndValues,
+  );
+
+  // printTestCodeForChart(result);
+
+  expect(result.expensesData.length).toBe(0);
+  expect(result.incomesData.length).toBe(1);
+  expect(result.incomesData[0].item.NAME).toBe('javaJob1');
+  {
+  const chartPts = result.incomesData[0].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 10800, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 10800, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 0, -1);
+  }
+  
+  expect(result.assetData.length).toBe(9);
+  expect(result.assetData[0].item.NAME).toBe('javaJob1/Cash');
+  {
+  const chartPts = result.assetData[0].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 10800, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 10260, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 0, -1);
+  }
+  
+  expect(result.assetData[1].item.NAME).toBe('Joe(NI)/Cash');
+  {
+  const chartPts = result.assetData[1].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', -260.64, 2);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', -260.64, 2);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 0, -1);
+  }
+  
+  expect(result.assetData[2].item.NAME).toBe('-PEN ScottishWidows/-PEN ScottishWidows');
+  {
+  const chartPts = result.assetData[2].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 2080, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 0, -1);
+  }
+  
+  expect(result.assetData[3].item.NAME).toBe('-CPTaxFreeM ScottishWidows/-PEN ScottishWidows');
+  {
+  const chartPts = result.assetData[3].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 0, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', -520, -1);
+  }
+  
+  expect(result.assetData[4].item.NAME).toBe('-CPTaxFreeM ScottishWidows/-CPTaxFree ScottishWidows');
+  {
+  const chartPts = result.assetData[4].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 0, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 520, -1);
+  }
+  
+  expect(result.assetData[5].item.NAME).toBe('-CPTaxable ScottishWidows/-PEN ScottishWidows');
+  {
+  const chartPts = result.assetData[5].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 0, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', -1560, -1);
+  }
+  
+  expect(result.assetData[6].item.NAME).toBe('-CPTaxable ScottishWidows/-CPTaxable Joe.ScottishWidows');
+  {
+  const chartPts = result.assetData[6].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 0, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 1560, -1);
+  }
+  
+  expect(result.assetData[7].item.NAME).toBe('-CPTaxable Joe.ScottishWidows/Cash');
+  {
+  const chartPts = result.assetData[7].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 0, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 1560, -1);
+  }
+  
+  expect(result.assetData[8].item.NAME).toBe('Joe(incomeTax)/-CPTaxable Joe.ScottishWidows');
+  {
+  const chartPts = result.assetData[8].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 0, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', -1560, -1);
+  }
+  
+  expect(result.debtData.length).toBe(0);
+  expect(result.taxData.length).toBe(2);
+  expect(result.taxData[0].item.NAME).toBe('Joe income (net)');
+  {
+  const chartPts = result.taxData[0].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 878.28, 2);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 10494.36, 2);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 9166.08, 2);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 1560, -1);
+  }
+  
+  expect(result.taxData[1].item.NAME).toBe('Joe income (NI)');
+  {
+  const chartPts = result.taxData[1].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 21.72, 2);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 260.64, 2);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 238.92, 2);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 0, -1);
+  }  
+});
+
+it('handle PDC generator NI income SS no cpi', () => {
+  const viewSettings = defaultTestViewSettings();
+  viewSettings.setViewSetting(chartViewType, chartDeltas);
+  viewSettings.setViewSetting(viewFrequency, annually);
+
+  const modelString = `
+  {
+    "name":"DPBModel",
+    "expenses":[],
+    "incomes":[
+      {"NAME":"javaJob1",
+      "ERA":0,
+      "VALUE":"900",
+      "VALUE_SET":"02 April 2020",
+      "START":"02 April 2020",
+      "END":"02 April 2022",
+      "CPI_IMMUNE":true,
+      "LIABILITY":"Joe(incomeTax)/Joe(NI)",
+      "RECURRENCE":"1m",
+      "CATEGORY":"programming"
+    }
+    ],
+    "assets":[
+      {
+        "NAME":"Cash",
+        "CATEGORY":"",
+        "START":"01 Jan 2017",
+        "VALUE":"0.0",
+        "QUANTITY":"",
+        "GROWTH":"0.0",
+        "CPI_IMMUNE":true,
+        "CAN_BE_NEGATIVE":true,
+        "IS_A_DEBT":false,
+        "LIABILITY":"",
+        "PURCHASE_PRICE":"0.0",
+        "ERA":0
+      }
+    ],
+    "transactions":[],
+    "settings":[
+      {"NAME":"View frequencyTransactions","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyTax","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencySettings","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyPlanning","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyOverview","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyOptimizer","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyMonitoring","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyIncomes","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyHome","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyExpenses","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyDebts","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyDates","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyAssets","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyAsset actions","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+
+      {"NAME":"Today's value focus date","VALUE":"","HINT":"Date to use for 'today's value' tables (defaults to '' meaning today)","TYPE":"view","ERA":0},
+
+      {"NAME":"Beginning of view range","VALUE":"01 Jan 2019","HINT":"","TYPE":"const","ERA":0},
+      {"NAME":"End of view range","VALUE":"01 Feb 2034","HINT":"","TYPE":"const","ERA":0},
+
+      {"NAME":"Beginning of monitor range","VALUE":"Nov 2022","HINT":"","TYPE":"adjustable","ERA":0},
+      {"NAME":"End of monitor range","VALUE":"Nov 2023","HINT":"","TYPE":"adjustable","ERA":0},
+      {"NAME":"Date of birth","VALUE":"","HINT":"Date used for representing dates as ages","TYPE":"view","ERA":0},
+      {"NAME":"cpi","VALUE":"2.5","HINT":"Annual rate of inflation","TYPE":"const","ERA":0}
+    ],
+    "monitors":[],
+    "triggers":[],
+    "generators":[
+      {
+        "NAME":"ScottishWidows",
+        "ERA":0,
+        "TYPE":"Defined Contributions",
+        "DETAILS":{
+          "GROWS_WITH_CPI": "N",
+          "GROWTH": "0",
+          "VALUE": "1000",
+          "TAX_LIABILITY": "Joe",
+          "CATEGORY": "pension",
+          "START": "2 April 2021",
+          "STOP": "2 April 2022",
+          "CRYSTALLIZE": "2 April 2023",
+          "SS": "y",
+          "INCOME_SOURCE": "javaJob1",
+          "CONTRIBUTION_AMOUNT": "0.05",
+          "EMP_CONTRIBUTION_AMOUNT": "0.05",
+          "TRANSFER_TO": "Jack",
+          "TRANSFER_DATE": "2 April 2024"
+        }
+      }
+    ],
+    "version":13
+  }
+  `;
+  const model = makeModelFromJSONString(modelString);
+
+  // model.generators = [];
+
+  setSetting(
+    model.settings,
+    `Beginning of view range`,
+    "April 1 2020",
+    viewType,
+  );
+  setSetting(
+    model.settings,
+    `End of view range`,
+    "April 1 2025",
+    viewType,
+  );
+
+  const evalsAndValues = getEvaluations(
+    model,
+    undefined, // no key for a values report
+  );
+
+  // log(evalsAndValues.todaysAssetValues);
+  // log(evalsAndValues.todaysDebtValues);
+  // log(evalsAndValues.todaysExpenseValues);
+  // log(evalsAndValues.todaysIncomeValues);
+  // log(evalsAndValues.todaysSettingValues);
+
+  // printTestCodeForEvals(evalsAndValues.evaluations);
+
+  const result = makeChartDataFromEvaluations(
+    model,
+    viewSettings,
+    evalsAndValues,
+  );
+
+  // printTestCodeForChart(result);
+
+  expect(result.expensesData.length).toBe(0);
+  expect(result.incomesData.length).toBe(1);
+  expect(result.incomesData[0].item.NAME).toBe('javaJob1');
+  {
+  const chartPts = result.incomesData[0].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 10800, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 10800, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 0, -1);
+  }
+  
+  expect(result.assetData.length).toBe(10);
+  expect(result.assetData[0].item.NAME).toBe('javaJob1/Cash');
+  {
+  const chartPts = result.assetData[0].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 10800, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 10260.00, 2);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 0, -1);
+  }
+  
+  expect(result.assetData[1].item.NAME).toBe('Joe(NI)/Cash');
+  {
+  const chartPts = result.assetData[1].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', -260.64, 2);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', -195.84, 2);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 0, -1);
+  }
+  
+  expect(result.assetData[2].item.NAME).toBe('-PEN ScottishWidows/-PEN ScottishWidows');
+  {
+  const chartPts = result.assetData[2].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 1000, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 0, -1);
+  }
+  
+  expect(result.assetData[3].item.NAME).toBe('-PSS ScottishWidows/-PEN ScottishWidows');
+  {
+  const chartPts = result.assetData[3].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 1080, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 0, -1);
+  }
+  
+  expect(result.assetData[4].item.NAME).toBe('-CPTaxFreeM ScottishWidows/-PEN ScottishWidows');
+  {
+  const chartPts = result.assetData[4].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 0, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', -520, -1);
+  }
+  
+  expect(result.assetData[5].item.NAME).toBe('-CPTaxFreeM ScottishWidows/-CPTaxFree ScottishWidows');
+  {
+  const chartPts = result.assetData[5].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 0, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 520, -1);
+  }
+  
+  expect(result.assetData[6].item.NAME).toBe('-CPTaxable ScottishWidows/-PEN ScottishWidows');
+  {
+  const chartPts = result.assetData[6].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 0, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', -1560, -1);
+  }
+  
+  expect(result.assetData[7].item.NAME).toBe('-CPTaxable ScottishWidows/-CPTaxable Joe.ScottishWidows');
+  {
+  const chartPts = result.assetData[7].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 0, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 1560, -1);
+  }
+  
+  expect(result.assetData[8].item.NAME).toBe('-CPTaxable Joe.ScottishWidows/Cash');
+  {
+  const chartPts = result.assetData[8].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 0, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 1560, -1);
+  }
+  
+  expect(result.assetData[9].item.NAME).toBe('Joe(incomeTax)/-CPTaxable Joe.ScottishWidows');
+  {
+  const chartPts = result.assetData[9].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 0, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', -1560, -1);
+  }
+  
+  expect(result.debtData.length).toBe(0);
+  expect(result.taxData.length).toBe(2);
+  expect(result.taxData[0].item.NAME).toBe('Joe income (net)');
+  {
+  const chartPts = result.taxData[0].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 878.28, 2);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 10499.76, 2);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 9225.48, 2);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 1560, -1);
+  }
+  
+  expect(result.taxData[1].item.NAME).toBe('Joe income (NI)');
+  {
+  const chartPts = result.taxData[1].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 21.72, 2);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 255.24, 2);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 179.52, 2);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 0, -1);
+  }
+});
+
+
+it('handle PDC generator tax income SS no cpi', () => {
+  const viewSettings = defaultTestViewSettings();
+  viewSettings.setViewSetting(chartViewType, chartDeltas);
+  viewSettings.setViewSetting(viewFrequency, annually);
+
+  const modelString = `
+  {
+    "name":"DPBModel",
+    "expenses":[],
+    "incomes":[
+      {"NAME":"javaJob1",
+      "ERA":0,
+      "VALUE":"4000",
+      "VALUE_SET":"02 April 2020",
+      "START":"02 April 2020",
+      "END":"02 April 2022",
+      "CPI_IMMUNE":true,
+      "LIABILITY":"Joe(incomeTax)/Joe(NI)",
+      "RECURRENCE":"1m",
+      "CATEGORY":"programming"
+    }
+    ],
+    "assets":[
+      {
+        "NAME":"Cash",
+        "CATEGORY":"",
+        "START":"01 Jan 2017",
+        "VALUE":"0.0",
+        "QUANTITY":"",
+        "GROWTH":"0.0",
+        "CPI_IMMUNE":true,
+        "CAN_BE_NEGATIVE":true,
+        "IS_A_DEBT":false,
+        "LIABILITY":"",
+        "PURCHASE_PRICE":"0.0",
+        "ERA":0
+      }
+    ],
+    "transactions":[],
+    "settings":[
+      {"NAME":"View frequencyTransactions","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyTax","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencySettings","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyPlanning","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyOverview","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyOptimizer","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyMonitoring","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyIncomes","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyHome","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyExpenses","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyDebts","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyDates","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyAssets","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyAsset actions","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+
+      {"NAME":"Today's value focus date","VALUE":"","HINT":"Date to use for 'today's value' tables (defaults to '' meaning today)","TYPE":"view","ERA":0},
+
+      {"NAME":"Beginning of view range","VALUE":"01 Jan 2019","HINT":"","TYPE":"const","ERA":0},
+      {"NAME":"End of view range","VALUE":"01 Feb 2034","HINT":"","TYPE":"const","ERA":0},
+
+      {"NAME":"Beginning of monitor range","VALUE":"Nov 2022","HINT":"","TYPE":"adjustable","ERA":0},
+      {"NAME":"End of monitor range","VALUE":"Nov 2023","HINT":"","TYPE":"adjustable","ERA":0},
+      {"NAME":"Date of birth","VALUE":"","HINT":"Date used for representing dates as ages","TYPE":"view","ERA":0},
+      {"NAME":"cpi","VALUE":"2.5","HINT":"Annual rate of inflation","TYPE":"const","ERA":0}
+    ],
+    "monitors":[],
+    "triggers":[],
+    "generators":[
+      {
+        "NAME":"ScottishWidows",
+        "ERA":0,
+        "TYPE":"Defined Contributions",
+        "DETAILS":{
+          "GROWS_WITH_CPI": "N",
+          "GROWTH": "0",
+          "VALUE": "1000",
+          "TAX_LIABILITY": "Joe",
+          "CATEGORY": "pension",
+          "START": "2 April 2021",
+          "STOP": "2 April 2022",
+          "CRYSTALLIZE": "2 April 2023",
+          "SS": "y",
+          "INCOME_SOURCE": "javaJob1",
+          "CONTRIBUTION_AMOUNT": "0.05",
+          "EMP_CONTRIBUTION_AMOUNT": "0.05",
+          "TRANSFER_TO": "Jack",
+          "TRANSFER_DATE": "2 April 2024"
+        }
+      }
+    ],
+    "version":13
+  }
+  `;
+  const model = makeModelFromJSONString(modelString);
+
+  // model.generators = [];
+
+  setSetting(
+    model.settings,
+    `Beginning of view range`,
+    "April 1 2020",
+    viewType,
+  );
+  setSetting(
+    model.settings,
+    `End of view range`,
+    "April 1 2025",
+    viewType,
+  );
+
+  const evalsAndValues = getEvaluations(
+    model,
+    undefined, // no key for a values report
+  );
+
+  // log(evalsAndValues.todaysAssetValues);
+  // log(evalsAndValues.todaysDebtValues);
+  // log(evalsAndValues.todaysExpenseValues);
+  // log(evalsAndValues.todaysIncomeValues);
+  // log(evalsAndValues.todaysSettingValues);
+
+  // printTestCodeForEvals(evalsAndValues.evaluations);
+
+  const result = makeChartDataFromEvaluations(
+    model,
+    viewSettings,
+    evalsAndValues,
+  );
+
+  // printTestCodeForChart(result);
+
+  expect(result.expensesData.length).toBe(0);
+  expect(result.incomesData.length).toBe(1);
+  expect(result.incomesData[0].item.NAME).toBe('javaJob1');
+  {
+  const chartPts = result.incomesData[0].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 48000, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 48000, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 0, -1);
+  }
+  
+  expect(result.assetData.length).toBe(11);
+  expect(result.assetData[0].item.NAME).toBe('javaJob1/Cash');
+  {
+  const chartPts = result.assetData[0].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 48000, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 45600.00, 2);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 0, -1);
+  }
+  
+  expect(result.assetData[1].item.NAME).toBe('Joe(NI)/Cash');
+  {
+  const chartPts = result.assetData[1].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', -4724.64, 2);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', -4436.64, 2);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 0, -1);
+  }
+  
+  expect(result.assetData[2].item.NAME).toBe('Joe(incomeTax)/Cash');
+  {
+  const chartPts = result.assetData[2].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', -6508.26, 2);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', -6620.00, 2);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 208.26, 2);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 0, -1);
+  }
+  
+  expect(result.assetData[3].item.NAME).toBe('-PEN ScottishWidows/-PEN ScottishWidows');
+  {
+  const chartPts = result.assetData[3].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 1000, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 0, -1);
+  }
+  
+  expect(result.assetData[4].item.NAME).toBe('-PSS ScottishWidows/-PEN ScottishWidows');
+  {
+  const chartPts = result.assetData[4].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 4800, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 0, -1);
+  }
+  
+  expect(result.assetData[5].item.NAME).toBe('-CPTaxFreeM ScottishWidows/-PEN ScottishWidows');
+  {
+  const chartPts = result.assetData[5].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 0, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', -1450, -1);
+  }
+  
+  expect(result.assetData[6].item.NAME).toBe('-CPTaxFreeM ScottishWidows/-CPTaxFree ScottishWidows');
+  {
+  const chartPts = result.assetData[6].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 0, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 1450, -1);
+  }
+  
+  expect(result.assetData[7].item.NAME).toBe('-CPTaxable ScottishWidows/-PEN ScottishWidows');
+  {
+  const chartPts = result.assetData[7].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 0, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', -4350, -1);
+  }
+  
+  expect(result.assetData[8].item.NAME).toBe('-CPTaxable ScottishWidows/-CPTaxable Joe.ScottishWidows');
+  {
+  const chartPts = result.assetData[8].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 0, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 4350, -1);
+  }
+  
+  expect(result.assetData[9].item.NAME).toBe('-CPTaxable Joe.ScottishWidows/Cash');
+  {
+  const chartPts = result.assetData[9].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 0, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 4350, -1);
+  }
+  
+  expect(result.assetData[10].item.NAME).toBe('Joe(incomeTax)/-CPTaxable Joe.ScottishWidows');
+  {
+  const chartPts = result.assetData[10].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 0, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', -4350, -1);
+  }
+  
+  expect(result.debtData.length).toBe(0);
+  expect(result.taxData.length).toBe(3);
+  expect(result.taxData[0].item.NAME).toBe('Joe income (incomeTax)');
+  {
+  const chartPts = result.taxData[0].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 7060, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 5860, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 0, -1);
+  }
+  
+  expect(result.taxData[1].item.NAME).toBe('Joe income (net)');
+  {
+  const chartPts = result.taxData[1].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 3606.28, 2);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 36039.36, 2);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 31873.08, 2);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 4350, -1);
+  }
+  
+  expect(result.taxData[2].item.NAME).toBe('Joe income (NI)');
+  {
+  const chartPts = result.taxData[2].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 393.72, 2);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 4700.64, 2);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 4066.92, 2);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 0, -1);
+  }
+});
+
+it('handle PDC generator tax income no SS no cpi', () => {
+  const viewSettings = defaultTestViewSettings();
+  viewSettings.setViewSetting(chartViewType, chartDeltas);
+  viewSettings.setViewSetting(viewFrequency, annually);
+
+  const modelString = `
+  {
+    "name":"DPBModel",
+    "expenses":[],
+    "incomes":[
+      {"NAME":"javaJob1",
+      "ERA":0,
+      "VALUE":"4000",
+      "VALUE_SET":"02 April 2020",
+      "START":"02 April 2020",
+      "END":"02 April 2022",
+      "CPI_IMMUNE":true,
+      "LIABILITY":"Joe(incomeTax)/Joe(NI)",
+      "RECURRENCE":"1m",
+      "CATEGORY":"programming"
+    }
+    ],
+    "assets":[
+      {
+        "NAME":"Cash",
+        "CATEGORY":"",
+        "START":"01 Jan 2017",
+        "VALUE":"0.0",
+        "QUANTITY":"",
+        "GROWTH":"0.0",
+        "CPI_IMMUNE":true,
+        "CAN_BE_NEGATIVE":true,
+        "IS_A_DEBT":false,
+        "LIABILITY":"",
+        "PURCHASE_PRICE":"0.0",
+        "ERA":0
+      }
+    ],
+    "transactions":[],
+    "settings":[
+      {"NAME":"View frequencyTransactions","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyTax","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencySettings","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyPlanning","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyOverview","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyOptimizer","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyMonitoring","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyIncomes","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyHome","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyExpenses","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyDebts","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyDates","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyAssets","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyAsset actions","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+
+      {"NAME":"Today's value focus date","VALUE":"","HINT":"Date to use for 'today's value' tables (defaults to '' meaning today)","TYPE":"view","ERA":0},
+
+      {"NAME":"Beginning of view range","VALUE":"01 Jan 2019","HINT":"","TYPE":"const","ERA":0},
+      {"NAME":"End of view range","VALUE":"01 Feb 2034","HINT":"","TYPE":"const","ERA":0},
+
+      {"NAME":"Beginning of monitor range","VALUE":"Nov 2022","HINT":"","TYPE":"adjustable","ERA":0},
+      {"NAME":"End of monitor range","VALUE":"Nov 2023","HINT":"","TYPE":"adjustable","ERA":0},
+      {"NAME":"Date of birth","VALUE":"","HINT":"Date used for representing dates as ages","TYPE":"view","ERA":0},
+      {"NAME":"cpi","VALUE":"2.5","HINT":"Annual rate of inflation","TYPE":"const","ERA":0}
+    ],
+    "monitors":[],
+    "triggers":[],
+    "generators":[
+      {
+        "NAME":"ScottishWidows",
+        "ERA":0,
+        "TYPE":"Defined Contributions",
+        "DETAILS":{
+          "GROWS_WITH_CPI": "N",
+          "GROWTH": "0",
+          "VALUE": "1000",
+          "TAX_LIABILITY": "Joe",
+          "CATEGORY": "pension",
+          "START": "2 April 2021",
+          "STOP": "2 April 2022",
+          "CRYSTALLIZE": "2 April 2023",
+          "SS": "n",
+          "INCOME_SOURCE": "javaJob1",
+          "CONTRIBUTION_AMOUNT": "0.05",
+          "EMP_CONTRIBUTION_AMOUNT": "0.05",
+          "TRANSFER_TO": "Jack",
+          "TRANSFER_DATE": "2 April 2024"
+        }
+      }
+    ],
+    "version":13
+  }
+  `;
+  const model = makeModelFromJSONString(modelString);
+
+  // model.generators = [];
+
+  setSetting(
+    model.settings,
+    `Beginning of view range`,
+    "April 1 2020",
+    viewType,
+  );
+  setSetting(
+    model.settings,
+    `End of view range`,
+    "April 1 2025",
+    viewType,
+  );
+
+  const evalsAndValues = getEvaluations(
+    model,
+    undefined, // no key for a values report
+  );
+
+  // log(evalsAndValues.todaysAssetValues);
+  // log(evalsAndValues.todaysDebtValues);
+  // log(evalsAndValues.todaysExpenseValues);
+  // log(evalsAndValues.todaysIncomeValues);
+  // log(evalsAndValues.todaysSettingValues);
+
+  // printTestCodeForEvals(evalsAndValues.evaluations);
+
+  const result = makeChartDataFromEvaluations(
+    model,
+    viewSettings,
+    evalsAndValues,
+  );
+
+  // printTestCodeForChart(result);
+
+  expect(result.expensesData.length).toBe(0);
+  expect(result.incomesData.length).toBe(1);
+  expect(result.incomesData[0].item.NAME).toBe('javaJob1');
+  {
+  const chartPts = result.incomesData[0].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 48000, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 48000, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 0, -1);
+  }
+  
+  expect(result.assetData.length).toBe(10);
+  expect(result.assetData[0].item.NAME).toBe('javaJob1/Cash');
+  {
+  const chartPts = result.assetData[0].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 48000, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 45600.00, 2);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 0, -1);
+  }
+  
+  expect(result.assetData[1].item.NAME).toBe('Joe(NI)/Cash');
+  {
+  const chartPts = result.assetData[1].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', -4724.64, 2);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', -4724.64, 2);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 0, -1);
+  }
+  
+  expect(result.assetData[2].item.NAME).toBe('Joe(incomeTax)/Cash');
+  {
+  const chartPts = result.assetData[2].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', -6508.26, 2);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', -6620.00, 2);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 208.26, 2);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 0, -1);
+  }
+  
+  expect(result.assetData[3].item.NAME).toBe('-PEN ScottishWidows/-PEN ScottishWidows');
+  {
+  const chartPts = result.assetData[3].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 5800, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 0, -1);
+  }
+  
+  expect(result.assetData[4].item.NAME).toBe('-CPTaxFreeM ScottishWidows/-PEN ScottishWidows');
+  {
+  const chartPts = result.assetData[4].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 0, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', -1450, -1);
+  }
+  
+  expect(result.assetData[5].item.NAME).toBe('-CPTaxFreeM ScottishWidows/-CPTaxFree ScottishWidows');
+  {
+  const chartPts = result.assetData[5].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 0, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 1450, -1);
+  }
+  
+  expect(result.assetData[6].item.NAME).toBe('-CPTaxable ScottishWidows/-PEN ScottishWidows');
+  {
+  const chartPts = result.assetData[6].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 0, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', -4350, -1);
+  }
+  
+  expect(result.assetData[7].item.NAME).toBe('-CPTaxable ScottishWidows/-CPTaxable Joe.ScottishWidows');
+  {
+  const chartPts = result.assetData[7].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 0, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 4350, -1);
+  }
+  
+  expect(result.assetData[8].item.NAME).toBe('-CPTaxable Joe.ScottishWidows/Cash');
+  {
+  const chartPts = result.assetData[8].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 0, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 4350, -1);
+  }
+  
+  expect(result.assetData[9].item.NAME).toBe('Joe(incomeTax)/-CPTaxable Joe.ScottishWidows');
+  {
+  const chartPts = result.assetData[9].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 0, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', -4350, -1);
+  }
+  
+  expect(result.debtData.length).toBe(0);
+  expect(result.taxData.length).toBe(3);
+  expect(result.taxData[0].item.NAME).toBe('Joe income (incomeTax)');
+  {
+  const chartPts = result.taxData[0].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 7060, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 5860, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 0, -1);
+  }
+  
+  expect(result.taxData[1].item.NAME).toBe('Joe income (net)');
+  {
+  const chartPts = result.taxData[1].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 3606.28, 2);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 36015.36, 2);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 31609.08, 2);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 4350, -1);
+  }
+  
+  expect(result.taxData[2].item.NAME).toBe('Joe income (NI)');
+  {
+  const chartPts = result.taxData[2].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 393.72, 2);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 4724.64, 2);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 4330.92, 2);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 0, -1);
+  }
 });

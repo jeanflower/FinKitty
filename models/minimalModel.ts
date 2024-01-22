@@ -41,6 +41,7 @@ export const minimalModel: ModelData = {
   expenses: [],
   triggers: [],
   monitors: [],
+  generators: [],
   settings: [
     {
       NAME: cpi,

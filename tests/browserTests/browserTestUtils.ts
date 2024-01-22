@@ -105,9 +105,9 @@ export async function deleteIfExists(
       btn[0],
     );
 
-    await sleep(1000, `before selecting model ${name}`);
+    await sleep(100, `before selecting model ${name}`);
     await btn[0].click();
-    await sleep(1000, `after selecting model ${name}`);
+    await sleep(100, `after selecting model ${name}`);
 
     await acceptAnyAlert(driver);
     await gotoTabPage(driver, homeTag);
@@ -733,7 +733,7 @@ export async function addDebt(
     fillInputById(driver, "debtpayoff", inputs.monthlyRepayment),
   ]);
 
-  await sleep(2000, "wait for addDebt button to be ready");
+  await sleep(200, "wait for addDebt button to be ready");
 
   await driver.executeScript("window.scrollBy(0, 1000)");
 
@@ -846,7 +846,7 @@ export async function addDate(
   input[0].sendKeys(date);
 
   await driver.executeScript("window.scrollBy(0, 2000)");
-  await sleep(1000, "wait for addTrigger before going to click");
+  await sleep(100, "wait for addTrigger before going to click");
   await clickButton(driver, "addTrigger");
   // log(`added date`);
 
@@ -1510,21 +1510,21 @@ function assertData(
     expect(ary.datasets[0].data[10]).toBeCloseTo(164729.26, 6);
     expect(ary.datasets[0].data[11]).toBeCloseTo(185253.86, 6);
     expect(ary.datasets[0].data[12]).toBeCloseTo(186091.86, 6);
-    expect(ary.datasets[0].data[13]).toBeCloseTo(186347.62, 6);
-    expect(ary.datasets[0].data[14]).toBeCloseTo(189416.73, 6);
-    expect(ary.datasets[0].data[15]).toBeCloseTo(192485.85, 6);
-    expect(ary.datasets[0].data[16]).toBeCloseTo(195554.96, 6);
-    expect(ary.datasets[0].data[17]).toBeCloseTo(198624.07, 6);
-    expect(ary.datasets[0].data[18]).toBeCloseTo(201437.43, 6);
-    expect(ary.datasets[0].data[19]).toBeCloseTo(202971.99, 6);
-    expect(ary.datasets[0].data[20]).toBeCloseTo(204506.54, 6);
-    expect(ary.datasets[0].data[21]).toBeCloseTo(206041.1, 6);
-    expect(ary.datasets[0].data[22]).toBeCloseTo(207575.66, 6);
-    expect(ary.datasets[0].data[23]).toBeCloseTo(208982.33, 6);
-    expect(ary.datasets[0].data[24]).toBeCloseTo(208982.33, 6);
-    expect(ary.datasets[0].data[25]).toBeCloseTo(208982.33, 6);
-    expect(ary.datasets[0].data[26]).toBeCloseTo(208982.33, 6);
-    expect(ary.datasets[0].data[27]).toBeCloseTo(208982.33, 6);
+    expect(ary.datasets[0].data[13]).toBeCloseTo(186391.86, 6);
+    expect(ary.datasets[0].data[14]).toBeCloseTo(189991.86, 6);
+    expect(ary.datasets[0].data[15]).toBeCloseTo(193591.86, 6);
+    expect(ary.datasets[0].data[16]).toBeCloseTo(197191.86, 6);
+    expect(ary.datasets[0].data[17]).toBeCloseTo(200791.86, 6);
+    expect(ary.datasets[0].data[18]).toBeCloseTo(204091.86, 6);
+    expect(ary.datasets[0].data[19]).toBeCloseTo(205891.86, 6);
+    expect(ary.datasets[0].data[20]).toBeCloseTo(207691.86, 6);
+    expect(ary.datasets[0].data[21]).toBeCloseTo(209491.86, 6);
+    expect(ary.datasets[0].data[22]).toBeCloseTo(211291.86, 6);
+    expect(ary.datasets[0].data[23]).toBeCloseTo(212941.86, 6);
+    expect(ary.datasets[0].data[24]).toBeCloseTo(212941.86, 6);
+    expect(ary.datasets[0].data[25]).toBeCloseTo(212941.86, 6);
+    expect(ary.datasets[0].data[26]).toBeCloseTo(212941.86, 6);
+    expect(ary.datasets[0].data[27]).toBeCloseTo(212941.86, 6);
     ary = debtData;
     expect(ary.labels.length).toEqual(28);
     expect(ary.labels[0]).toEqual("Sun Jan 01 2017");
@@ -1632,12 +1632,12 @@ function assertData(
     expect(ary.datasets[1].data[10]).toBeCloseTo(0, 6);
     expect(ary.datasets[1].data[11]).toBeCloseTo(0, 6);
     expect(ary.datasets[1].data[12]).toBeCloseTo(0, 6);
-    expect(ary.datasets[1].data[13]).toBeCloseTo(255.76, 6);
-    expect(ary.datasets[1].data[14]).toBeCloseTo(3069.11, 6);
-    expect(ary.datasets[1].data[15]).toBeCloseTo(3069.11, 6);
-    expect(ary.datasets[1].data[16]).toBeCloseTo(3069.11, 6);
-    expect(ary.datasets[1].data[17]).toBeCloseTo(3069.11, 6);
-    expect(ary.datasets[1].data[18]).toBeCloseTo(2813.35, 6);
+    expect(ary.datasets[1].data[13]).toBeCloseTo(300, 6);
+    expect(ary.datasets[1].data[14]).toBeCloseTo(3600, 6);
+    expect(ary.datasets[1].data[15]).toBeCloseTo(3600, 6);
+    expect(ary.datasets[1].data[16]).toBeCloseTo(3600, 6);
+    expect(ary.datasets[1].data[17]).toBeCloseTo(3600, 6);
+    expect(ary.datasets[1].data[18]).toBeCloseTo(3300, 6);
     expect(ary.datasets[1].data[19]).toBeCloseTo(0, 6);
     expect(ary.datasets[1].data[20]).toBeCloseTo(0, 6);
     expect(ary.datasets[1].data[21]).toBeCloseTo(0, 6);
@@ -1667,12 +1667,12 @@ function assertData(
     expect(ary.datasets[2].data[15]).toBeCloseTo(0, 6);
     expect(ary.datasets[2].data[16]).toBeCloseTo(0, 6);
     expect(ary.datasets[2].data[17]).toBeCloseTo(0, 6);
-    expect(ary.datasets[2].data[18]).toBeCloseTo(127.88, 6);
-    expect(ary.datasets[2].data[19]).toBeCloseTo(1534.56, 6);
-    expect(ary.datasets[2].data[20]).toBeCloseTo(1534.56, 6);
-    expect(ary.datasets[2].data[21]).toBeCloseTo(1534.56, 6);
-    expect(ary.datasets[2].data[22]).toBeCloseTo(1534.56, 6);
-    expect(ary.datasets[2].data[23]).toBeCloseTo(1406.68, 6);
+    expect(ary.datasets[2].data[18]).toBeCloseTo(150, 6);
+    expect(ary.datasets[2].data[19]).toBeCloseTo(1800, 6);
+    expect(ary.datasets[2].data[20]).toBeCloseTo(1800, 6);
+    expect(ary.datasets[2].data[21]).toBeCloseTo(1800, 6);
+    expect(ary.datasets[2].data[22]).toBeCloseTo(1800, 6);
+    expect(ary.datasets[2].data[23]).toBeCloseTo(1650, 6);
     expect(ary.datasets[2].data[24]).toBeCloseTo(0, 6);
     expect(ary.datasets[2].data[25]).toBeCloseTo(0, 6);
     expect(ary.datasets[2].data[26]).toBeCloseTo(0, 6);

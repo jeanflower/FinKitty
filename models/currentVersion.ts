@@ -1,4 +1,4 @@
-const currentVersion = 12;
+const currentVersion = 13;
 
 export function getCurrentVersion() {
   return currentVersion;

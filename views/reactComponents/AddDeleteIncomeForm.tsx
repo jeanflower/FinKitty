@@ -1,5 +1,5 @@
 import React, { Component, FormEvent } from "react";
-import { Col, Row } from "react-bootstrap";
+import { Button, Col, Row } from "react-bootstrap";
 
 import { checkIncomeLiability, isValidValue } from "../../models/checks";
 import {
@@ -9,6 +9,8 @@ import {
   Trigger,
   FormProps,
   DeleteResult,
+  Generator,
+  DBGeneratorDetails,
 } from "../../types/interfaces";
 import { log, printDebug, showObj } from "../../utils/utils";
 import { makeButton } from "./Button";
@@ -17,7 +19,7 @@ import { Input } from "./Input";
 import {
   pensionDB,
   incomeTax,
-  pension,
+  pensionPrefix,
   pensionSS,
   separator,
   pensionTransfer,
@@ -39,6 +41,7 @@ import {
   getVarVal,
   isNumberString,
 } from "../../models/modelQueries";
+import { makeModelFromJSON } from "../../models/modelFromJSON";
 
 interface EditIncomeFormState {
   NAME: string;
@@ -78,11 +81,16 @@ interface EditIncomeProps extends FormProps {
     transactionInput: Transaction,
     modelData: ModelData,
   ) => Promise<void>;
-  deleteFunction: (name: string) => Promise<DeleteResult>;
+  deleteIncomeFunction: (name: string) => Promise<DeleteResult>;
   submitTriggerFunction: (
     triggerInput: Trigger,
     modelData: ModelData,
   ) => Promise<void>;
+  submitGeneratorFunction: (
+    generator: Generator,
+    modelData: ModelData,
+  ) => Promise<void>;
+  deleteGeneratorFunction: (name: string) => Promise<DeleteResult>;
   doCheckBeforeOverwritingExistingData: () => boolean;
 }
 
@@ -127,6 +135,7 @@ export function incomeOptions(model: ModelData, handleChange: any, id: string) {
     </select>
   );
 }
+
 
 export class AddDeleteIncomeForm extends Component<
   EditIncomeProps,
@@ -201,16 +210,88 @@ export class AddDeleteIncomeForm extends Component<
     this.setDbpTransferredStop = this.setDbpTransferredStop.bind(this);
 
     this.add = this.add.bind(this);
-    this.delete = this.delete.bind(this);
     this.setInputincome = this.setInputincome.bind(this);
     this.setInputDBP = this.setInputDBP.bind(this);
     this.setInputRevalue = this.setInputRevalue.bind(this);
+  }
+
+  private renderGenerators(
+    generators: Generator[],
+  ){
+    return generators.map((g) => {
+      return <>
+        <div><b>{g.NAME}</b></div>
+        {Object.keys(g.DETAILS).map((key) => {
+          return <div>
+            {`${key} ${g.DETAILS[key]}`}
+          </div>;
+        })}
+        <Button
+          onClick={()=>{
+            console.log(`edit ${g.NAME}`);
+            const dbGeneratorDetails: DBGeneratorDetails = g.DETAILS;
+            this.setState({
+              NAME: g.NAME,
+              VALUE: g.DETAILS.VALUE,
+              VALUE_SET: g.DETAILS.VALUE_SET,
+              START: "",
+              END: "",
+              GROWS_WITH_CPI: g.DETAILS.GROWS_WITH_CPI ? g.DETAILS.GROWS_WITH_CPI : 'n',
+              LIABILITY: g.DETAILS.TAX_LIABILITY,
+              RECURRENCE: "1m",
+              CATEGORY: g.DETAILS.CATEGORY,
+              inputting: inputtingPension,
+              DB_INCOME_SOURCE: g.DETAILS.INCOME_SOURCE,
+              DB_CONTRIBUTION_AMOUNT: g.DETAILS.CONTRIBUTION_AMOUNT,
+              DB_ACCRUAL: g.DETAILS.ACCRUAL,
+              DB_SS: g.DETAILS.SALARY_SACRIFICED,
+              DB_STOP_SOURCE: g.DETAILS.STOP_SOURCE,
+              DB_START: g.DETAILS.START,
+              DB_END: g.DETAILS.END,
+              DB_TRANSFER_TO: g.DETAILS.TRANSFER_TO,
+              DB_TRANSFER_PROPORTION: g.DETAILS.TRANSFER_PROPORTION,
+              DB_TRANSFERRED_STOP: g.DETAILS.TRANSFERRED_STOP,
+            })
+          }}
+        >Edit</Button>
+
+        <Button
+          onClick={async ()=>{
+            console.log(`delete ${g.NAME}`);
+            const outcome = await this.props.deleteGeneratorFunction(g.NAME);
+            if (outcome.itemsDeleted) {
+              this.props.showAlert(`deleted ${g.NAME}`);
+              // clear fields
+              this.setState(this.defaultState);
+              this.resetSelect(this.incomeSourceSelectID);
+            } else {
+              this.props.showAlert(outcome.message);
+            }
+          }}
+        >Delete</Button>
+      </>
+    })  
+  }
+  
+  private renderDPBGenerators(
+    generators: Generator[],
+  ){
+    return <>
+      {this.renderGenerators(
+        generators.filter((g) => {
+          return g.TYPE === 'Defined Benefits';
+        })
+      )}
+    </>;
   }
 
   public render() {
     // log('rendering an AddDeleteIncomeForm');
     return (
       <>
+        <div className="ml-3 my-4">
+          {this.renderDPBGenerators(this.props.model.generators)}
+        </div>
         <div className="btn-group ml-3" role="group">
           {makeButton(
             "Add new income mode",
@@ -807,6 +888,8 @@ DB_TRANSFERRED_STOP
       // (g) submit transactions
       // (h) reset to defaults
 
+      const copyModel = makeModelFromJSON(JSON.stringify(this.props.model));
+
       const parseYNDBSS = makeBooleanFromYesNo(this.state.DB_SS);
       if (this.state.DB_INCOME_SOURCE !== "") {
         if (!parseYNDBSS.checksOK) {
@@ -863,7 +946,7 @@ DB_TRANSFERRED_STOP
         return;
       }
 
-      const sourceIncome = this.props.model.incomes.find((i) => {
+      const sourceIncome = copyModel.incomes.find((i) => {
         return i.NAME === this.state.DB_INCOME_SOURCE;
       });
       if (sourceIncome === undefined && this.state.DB_INCOME_SOURCE !== "") {
@@ -936,7 +1019,7 @@ DB_TRANSFERRED_STOP
       };
       let message = await this.props.checkIncomeFunction(
         pensionDbpIncome1,
-        this.props.model,
+        copyModel,
       );
       if (message.length > 0) {
         this.props.showAlert(message);
@@ -960,7 +1043,7 @@ DB_TRANSFERRED_STOP
         };
         const message = await this.props.checkIncomeFunction(
           pensionDbpIncome2,
-          this.props.model,
+          copyModel,
         );
         if (message.length > 0) {
           this.props.showAlert(message);
@@ -970,19 +1053,19 @@ DB_TRANSFERRED_STOP
 
       await this.props.submitIncomeFunction(
         pensionDbpIncome1,
-        this.props.model,
+        copyModel,
       );
       if (pensionDbpIncome2) {
         await this.props.submitIncomeFunction(
           pensionDbpIncome2,
-          this.props.model,
+          copyModel,
         );
       }
       let pensionDbptran1: Transaction | undefined;
       let pensionDbptran2: Transaction | undefined;
       if (this.state.DB_INCOME_SOURCE !== "") {
         pensionDbptran1 = {
-          NAME: (parseYNDBSS.value ? pensionSS : pension) + this.state.NAME,
+          NAME: (parseYNDBSS.value ? pensionSS : pensionPrefix) + this.state.NAME,
           ERA: 0, // new things are automatically current,
           FROM: this.state.DB_INCOME_SOURCE,
           FROM_ABSOLUTE: false,
@@ -998,15 +1081,11 @@ DB_TRANSFERRED_STOP
         };
         message = await this.props.checkTransactionFunction(
           pensionDbptran1,
-          this.props.model,
+          copyModel,
         );
         if (message.length > 0) {
           //log(`bad transaction1 ${showObj(pensionDbptran1)}`);
           this.props.showAlert(message);
-          await this.props.deleteFunction(pensionDbpIncome1.NAME);
-          if (pensionDbpIncome2) {
-            await this.props.deleteFunction(pensionDbpIncome2.NAME);
-          }
           return;
         }
         // log(`this.state.DB_ACCRUAL = ${this.state.DB_ACCRUAL}`);
@@ -1040,15 +1119,11 @@ DB_TRANSFERRED_STOP
         };
         message = await this.props.checkTransactionFunction(
           pensionDbptran2,
-          this.props.model,
+          copyModel,
         );
         if (message.length > 0) {
           //log(`bad transaction2 ${showObj(pensionDbptran2)}`);
           this.props.showAlert(message);
-          await this.props.deleteFunction(pensionDbpIncome1.NAME);
-          if (pensionDbpIncome2) {
-            await this.props.deleteFunction(pensionDbpIncome2.NAME);
-          }
           return;
         }
       }
@@ -1071,38 +1146,41 @@ DB_TRANSFERRED_STOP
         };
         message = await this.props.checkTransactionFunction(
           pensionDbptran3,
-          this.props.model,
+          copyModel,
         );
         if (message.length > 0) {
           //log(`bad transaction3 ${showObj(pensionDbptran3)}`);
           this.props.showAlert(message);
-          await this.props.deleteFunction(pensionDbpIncome1.NAME);
-          if (pensionDbpIncome2) {
-            await this.props.deleteFunction(pensionDbpIncome2.NAME);
-          }
           return;
         }
       }
 
-      if (pensionDbptran1) {
-        await this.props.submitTransactionFunction(
-          pensionDbptran1,
-          this.props.model,
-        );
-      }
-      if (pensionDbptran2) {
-        await this.props.submitTransactionFunction(
-          pensionDbptran2,
-          this.props.model,
-        );
-      }
-      if (pensionDbptran3) {
-        await this.props.submitTransactionFunction(
-          pensionDbptran3,
-          this.props.model,
-        );
-      }
-
+      const dbGeneratorDetails: DBGeneratorDetails = {
+        VALUE: this.state.VALUE,
+        VALUE_SET: this.state.VALUE_SET,
+        STOP_SOURCE: this.state.DB_STOP_SOURCE,
+        START: this.state.DB_START,
+        END: this.state.DB_END,
+        GROWS_WITH_CPI: this.state.GROWS_WITH_CPI,
+        TRANSFERRED_STOP: this.state.DB_TRANSFERRED_STOP,
+        INCOME_SOURCE: this.state.DB_INCOME_SOURCE,
+        SALARY_SACRIFICED: this.state.DB_SS,
+        CONTRIBUTION_AMOUNT: this.state.DB_CONTRIBUTION_AMOUNT,
+        ACCRUAL: this.state.DB_ACCRUAL,
+        TRANSFER_TO: this.state.DB_TRANSFER_TO,
+        TRANSFER_PROPORTION: this.state.DB_TRANSFER_PROPORTION,
+        TAX_LIABILITY: this.state.LIABILITY,
+        CATEGORY: this.state.CATEGORY,        
+      };
+      this.props.submitGeneratorFunction(
+        {
+          NAME: this.state.NAME,
+          ERA: 0,
+          TYPE: 'Defined Benefits',
+          DETAILS: dbGeneratorDetails
+        },
+        this.props.model,
+      );
       this.props.showAlert("added new data");
       // clear fields
       this.setState(this.defaultState);
@@ -1170,22 +1248,6 @@ DB_TRANSFERRED_STOP
     }
   }
 
-  private async delete(e: React.ChangeEvent<HTMLInputElement>) {
-    e.preventDefault();
-    // log('deleting something ' + showObj(this));
-    const deleteResult = await this.props.deleteFunction(this.state.NAME);
-    if (deleteResult.message === "") {
-      if (deleteResult.itemsDeleted.length === 1) {
-        this.props.showAlert("deleted income");
-      } else {
-        this.props.showAlert(`deleted ${deleteResult.itemsDeleted}`);
-      }
-      // clear fields
-      this.setState(this.defaultState);
-    } else {
-      this.props.showAlert(`failed to delete ${this.state.NAME}`);
-    }
-  }
   private setInputDBP(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
     this.setState({

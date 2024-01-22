@@ -196,6 +196,8 @@ export function assetsDiv(
             submitTransactionFunction={parentCallbacks.submitTransaction}
             deleteAssetFunction={parentCallbacks.deleteAsset}
             submitTriggerFunction={parentCallbacks.submitTrigger}
+            submitGeneratorFunction={parentCallbacks.submitGenerator}
+            deleteGeneratorFunction={parentCallbacks.deleteGenerator}
             model={model}
             showAlert={parentCallbacks.showAlert}
             doCheckBeforeOverwritingExistingData={

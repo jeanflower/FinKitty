@@ -438,6 +438,27 @@ export async function submitTriggerLSM(
   );
 }
 
+export async function submitGeneratorLSM(
+  generator: any,
+  modelName: string,
+  modelData: ModelData,
+  doChecks: boolean,
+  userID: string,
+) {
+  /* istanbul ignore if  */
+  if (printDebug()) {
+    log(`go to submitGenerator with input : ${showObj(generator)}`);
+  }
+  return submitItemLSM(
+    generator,
+    modelData.generators,
+    modelName,
+    modelData,
+    doChecks,
+    userID,
+  );
+}
+
 export async function submitAssetLSM(
   assetInput: Asset,
   modelName: string,

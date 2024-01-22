@@ -69,7 +69,7 @@ import {
   pensionSS,
   pensionTransfer,
   pensionDB,
-  pension,
+  pensionPrefix,
   moveTaxFreePart,
   crystallizedPension,
   transferCrystallizedPension,
@@ -289,6 +289,7 @@ describe("utils tests", () => {
   it("locales woes", () => {
     const d1 = new Date("2020");
     const d2 = new Date("1 Jan 2020");
+    // expect this to fail if, for example, you are in India
     expect(d1.getTime()).toEqual(d2.getTime());
   });
 
@@ -364,18 +365,21 @@ describe("utils tests", () => {
 
     model.incomes.push({
       ...simpleIncome,
+      NAME: 'exampleIncome',
       VALUE_SET: "01 February 2001",
       START: "01 February 2021",
       END: "01 February 2021",
     });
     model.expenses.push({
       ...simpleExpense,
+      NAME: 'exampleExpense',
       VALUE_SET: "01 February 2001",
       START: "01 February 2021",
       END: "01 February 2021",
     });
     model.transactions.push({
       ...simpleTransaction,
+      NAME: 'exampleTransaction',
       DATE: "01 February 2001",
       STOP_DATE: "01 February 2001",
     });
@@ -383,6 +387,8 @@ describe("utils tests", () => {
     suppressLogs();
     standardiseDates(model);
     unSuppressLogs();
+
+    // console.log(`model.undoModel = ${model.undoModel}`);
 
     expect(model.triggers[0].DATE).toEqual("Thu Feb 01 2001");
     expect(model.triggers[1].DATE).toEqual("Mon Feb 01 1999");
@@ -407,15 +413,33 @@ describe("utils tests", () => {
     expect(model.transactions[0].DATE).toEqual("Thu Feb 01 2001");
     expect(model.transactions[0].STOP_DATE).toEqual("Thu Feb 01 2001");
 
-    expect(checkData(model).message).toEqual("duplicate name NoName");
-    model.incomes[0].NAME = "iName";
-    model.expenses[0].NAME = "eName";
-    model.transactions[0].NAME = "tName";
+    expect(checkData(model).message).toEqual("Date 't9' is not valid : 'refers to some setting'");
+
     model.triggers[9].DATE = "Mon Feb 01 2021";
 
     expect(checkData(model).message).toEqual("");
 
     standardiseDates(model);
+  });
+
+  it("checks for NoName", () => {
+    const model = getMinimalModelCopy();
+    model.incomes.push({
+      ...simpleIncome,
+      VALUE_SET: "01 February 2001",
+      START: "01 February 2021",
+      END: "01 February 2021",
+    });
+    model.expenses.push({
+      ...simpleExpense,
+      VALUE_SET: "01 February 2001",
+      START: "01 February 2021",
+      END: "01 February 2021",
+    });
+    expect(checkData(model).message).toEqual("duplicate name NoName");
+    model.incomes[0].NAME = "iName";
+    model.expenses[0].NAME = "eName";
+    expect(checkData(model).message).toEqual("");
   });
 
   it("removeNumberPart", () => {
@@ -1181,7 +1205,7 @@ describe("utils tests", () => {
       pensionSS,
       pensionTransfer,
       pensionDB,
-      pension,
+      pensionPrefix,
       moveTaxFreePart,
       crystallizedPension,
       transferCrystallizedPension,

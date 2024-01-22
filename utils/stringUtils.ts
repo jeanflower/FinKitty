@@ -12,7 +12,7 @@ import {
   pensionSS,
   pensionTransfer,
   pensionDB,
-  pension,
+  pensionPrefix,
   moveTaxFreePart,
   crystallizedPension,
   transferCrystallizedPension,
@@ -1012,8 +1012,8 @@ export function getSpecialWord(name: string, model: ModelData): string {
   if (name.startsWith(pensionDB)) {
     return pensionDB;
   }
-  if (name.startsWith(pension)) {
-    return pension;
+  if (name.startsWith(pensionPrefix)) {
+    return pensionPrefix;
   }
   if (name.startsWith(moveTaxFreePart)) {
     return moveTaxFreePart;

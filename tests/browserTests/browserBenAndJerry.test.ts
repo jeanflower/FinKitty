@@ -54,10 +54,9 @@ describe(testName, () => {
   it("my first model browser test", async () => {
     // log(`go to ensure model ${modelName}`);
 
-    const testDataModelName = "BrowserBenAndJerryTest";
     await beforeAllWork(
       driver,
-      testDataModelName,
+      testName,
       `{"testName":"${MinimalModel}"}`,
     );
 
@@ -86,7 +85,7 @@ describe(testName, () => {
       await btnData[0].click();
     }
 
-    await selectModel(driver, testDataModelName);
+    await selectModel(driver, testName);
     await sleep(calcSleep, "--- after model selected");
 
     await gotoTabPage(driver, datesTag);
@@ -203,6 +202,8 @@ describe(testName, () => {
     await gotoTabPage(driver, incomesTag);
 
     await scrollIntoViewByID(driver, "useDBPInputs");
+    //await driver.executeScript("window.scrollBy(0, -2000)");
+    console.log('click1');
     await clickButton(driver, "useDBPInputs");
 
     let DBPinputs = {
@@ -232,6 +233,8 @@ describe(testName, () => {
     // log('done Ben state pension');
 
     await scrollIntoViewByID(driver, "useDBPInputs");
+    //await driver.executeScript("window.scrollBy(0, -2000)");
+    console.log('click2');
     await clickButton(driver, "useDBPInputs");
 
     DBPinputs = {
@@ -280,6 +283,8 @@ describe(testName, () => {
       category: "Pension",
     };
     await scrollIntoViewByID(driver, "useDBPInputs");
+    //await driver.executeScript("window.scrollBy(0, -2000)");
+    console.log('click3');
     await clickButton(driver, "useDBPInputs");
 
     await addDBPension(driver, {

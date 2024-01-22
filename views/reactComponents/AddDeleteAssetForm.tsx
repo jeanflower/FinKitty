@@ -1,5 +1,5 @@
 import React, { Component, FormEvent } from "react";
-import { Col, Row } from "react-bootstrap";
+import { Button, Col, Row } from "react-bootstrap";
 
 import { checkAssetLiability, isValidValue } from "../../models/checks";
 import {
@@ -9,6 +9,8 @@ import {
   Trigger,
   FormProps,
   DeleteResult,
+  Generator,
+  DCGeneratorDetails,
 } from "../../types/interfaces";
 import { log, printDebug, showObj } from "../../utils/utils";
 import { makeButton } from "./Button";
@@ -16,7 +18,7 @@ import { DateSelectionRow, itemOptions } from "./DateSelectionRow";
 import { Input } from "./Input";
 import {
   cgt,
-  pension,
+  pensionPrefix,
   crystallizedPension,
   pensionSS,
   autogen,
@@ -41,6 +43,7 @@ import {
   getSettings,
   isNumberString,
 } from "../../models/modelQueries";
+import { makeModelFromJSON } from "../../models/modelFromJSON";
 
 interface EditAssetFormState {
   NAME: string;
@@ -80,6 +83,11 @@ interface EditAssetProps extends FormProps {
     triggerInput: Trigger,
     modelData: ModelData,
   ) => Promise<void>;
+  submitGeneratorFunction: (
+    generator: Generator,
+    modelData: ModelData,
+  ) => Promise<void>;
+  deleteGeneratorFunction: (name: string) => Promise<DeleteResult>;
   doCheckBeforeOverwritingExistingData: () => boolean;
 }
 export class AddDeleteAssetForm extends Component<
@@ -509,10 +517,82 @@ export class AddDeleteAssetForm extends Component<
     );
   }
 
+  private renderGenerators(
+    generators: Generator[],
+  ){
+    return generators.map((g) => {
+      return <>
+        <div><b>{g.NAME}</b></div>
+        {Object.keys(g.DETAILS).map((key) => {
+          return <div>
+            {`${key} ${g.DETAILS[key]}`}
+          </div>;
+        })}
+        <Button
+          onClick={()=>{
+            console.log(`edit ${g.NAME}`);
+            const dcGeneratorDetails: DCGeneratorDetails = g.DETAILS;
+            this.setState({
+              NAME: g.NAME,
+              VALUE: g.DETAILS.VALUE,
+              QUANTITY: '',
+              START: g.DETAILS.START,
+              GROWTH: g.DETAILS.GROWTH,
+              GROWS_WITH_INFLATION: g.DETAILS.GROWS_WITH_CPI ? g.DETAILS.GROWS_WITH_CPI : 'n',
+              LIABILITY: g.DETAILS.TAX_LIABILITY,
+              PURCHASE_PRICE: '',
+              CATEGORY: g.DETAILS.CATEGORY,
+              inputting: inputtingPension,
+              DCP_STOP: g.DETAILS.STOP,
+              DCP_CRYSTALLIZE: g.DETAILS.CRYSTALLIZE,
+              DCP_SS: g.DETAILS.SS,
+              DCP_INCOME_SOURCE: g.DETAILS.INCOME_SOURCE,
+              DCP_CONTRIBUTION_AMOUNT: g.DETAILS.CONTRIBUTION_AMOUNT,
+              DCP_EMP_CONTRIBUTION_AMOUNT: g.DETAILS.EMP_CONTRIBUTION_AMOUNT,
+              DCP_TRANSFER_TO: g.DETAILS.TRANSFER_TO,
+              DCP_TRANSFER_DATE: g.DETAILS.TRANSFER_DATE,
+            })
+          }}
+        >Edit</Button>
+
+        <Button
+          onClick={async ()=>{
+            console.log(`delete ${g.NAME}`);
+            const outcome = await this.props.deleteGeneratorFunction(g.NAME);
+            if (outcome.itemsDeleted) {
+              this.props.showAlert(`deleted ${g.NAME}`);
+              // clear fields
+              this.setState(this.defaultState);
+              this.resetSelect(this.incomeSourceSelectID);
+            } else {
+              this.props.showAlert(outcome.message);
+            }
+          }}
+        >Delete</Button>
+      </>
+    })  
+  }
+  
+  private renderDCBGenerators(
+    generators: Generator[],
+  ){
+    return <>
+      {this.renderGenerators(
+        generators.filter((g) => {
+          return g.TYPE === 'Defined Contributions';
+        })
+      )}
+    </>;
+  }
+
+
   public render() {
     // log('rendering an AddDeleteAssetForm');
     return (
       <>
+        <div className="ml-3 my-4">
+          {this.renderDCBGenerators(this.props.model.generators)}
+        </div>
         <div className="btn-group ml-3" role="group">
           {makeButton(
             "Add new asset mode",
@@ -781,10 +861,21 @@ export class AddDeleteAssetForm extends Component<
       }
     }
     if (this.state.inputting === inputtingPension) {
-      const asset1Name = pension + this.state.NAME;
+
+      const parsedYNCPI = makeBooleanFromYesNo(this.state.GROWS_WITH_INFLATION);
+      if (!parsedYNCPI.checksOK) {
+        this.props.showAlert(
+          `Grows with CPI: '${this.state.GROWS_WITH_INFLATION}' ` +
+            `should be a Y/N value`,
+        );
+        return;
+      }
+
+      const asset1Name = pensionPrefix + this.state.NAME;
       const asset2Name = taxFree + this.state.NAME;
       const asset3Name =
       crystallizedPension + this.state.LIABILITY + dot + this.state.NAME;
+      const copyModel = makeModelFromJSON(JSON.stringify(this.props.model));
 
       const asset1: Asset = {
         NAME: asset1Name,
@@ -793,7 +884,7 @@ export class AddDeleteAssetForm extends Component<
         QUANTITY: "", // pensions are continuous
         START: this.state.START,
         GROWTH: this.state.GROWTH,
-        CPI_IMMUNE: false,
+        CPI_IMMUNE: !parsedYNCPI.value,
         CAN_BE_NEGATIVE: false,
         IS_A_DEBT: false,
         CATEGORY: this.state.CATEGORY,
@@ -909,16 +1000,15 @@ export class AddDeleteAssetForm extends Component<
 
         const toProp = contPc === 0 ? 0.0 : (contPc + contEmpPc) / contPc;
 
-        const model = this.props.model;
-        await this.props.submitAssetFunction(asset1, model);
-        await this.props.submitAssetFunction(asset2, model);
-        await this.props.submitAssetFunction(asset3, model);
+        await this.props.submitAssetFunction(asset1, copyModel);
+        await this.props.submitAssetFunction(asset2, copyModel);
+        await this.props.submitAssetFunction(asset3, copyModel);
         if (this.state.DCP_TRANSFER_TO !== "") {
-          await this.props.submitAssetFunction(asset4, model);
+          await this.props.submitAssetFunction(asset4, copyModel);
         }
 
         contributions = {
-          NAME: (parseYNSS.value ? pensionSS : pension) + this.state.NAME,
+          NAME: (parseYNSS.value ? pensionSS : pensionPrefix) + this.state.NAME,
           ERA: 0, // new things are automatically current
           FROM: this.state.DCP_INCOME_SOURCE,
           FROM_ABSOLUTE: false,
@@ -938,13 +1028,6 @@ export class AddDeleteAssetForm extends Component<
             this.props.model,
           );
           if (message.length > 0) {
-            console.log(`go to delete assets from bad transaction`);
-            await this.props.deleteAssetFunction(asset1.NAME);
-            await this.props.deleteAssetFunction(asset2.NAME);
-            await this.props.deleteAssetFunction(asset3.NAME);
-            if (this.state.DCP_TRANSFER_TO !== "") {
-              await this.props.deleteAssetFunction(asset4.NAME);
-            }
             this.props.showAlert(message);
             return;
           }
@@ -953,13 +1036,13 @@ export class AddDeleteAssetForm extends Component<
         // a pension without a contributing income 
         // set up the taxfree part it crystallizes to
         console.log(`submit assets ${asset1.NAME} ${asset2.NAME}`);
-        await this.props.submitAssetFunction(asset1, this.props.model);
-        await this.props.submitAssetFunction(asset2, this.props.model);
-        await this.props.submitAssetFunction(asset3, this.props.model);
+        await this.props.submitAssetFunction(asset1, copyModel);
+        await this.props.submitAssetFunction(asset2, copyModel);
+        await this.props.submitAssetFunction(asset3, copyModel);
         if (this.state.DCP_TRANSFER_TO !== "") {
-          await this.props.submitAssetFunction(asset4, this.props.model);
+          await this.props.submitAssetFunction(asset4, copyModel);
         }
-        console.log(`model assets ${this.props.model.assets.map((a)=>{
+        console.log(`model assets ${copyModel.assets.map((a)=>{
           return a.NAME;
         })}`);
       }
@@ -985,13 +1068,6 @@ export class AddDeleteAssetForm extends Component<
           this.props.model,
         );
         if (message.length > 0) {
-          // console.log(`delete assets for bad crystallize transaction`);
-          await this.props.deleteAssetFunction(asset1.NAME);
-          await this.props.deleteAssetFunction(asset2.NAME);
-          await this.props.deleteAssetFunction(asset3.NAME);
-          if (this.state.DCP_TRANSFER_TO !== "") {
-            await this.props.deleteAssetFunction(asset4.NAME);
-          }
           this.props.showAlert(message);
           return;
         }
@@ -1017,12 +1093,6 @@ export class AddDeleteAssetForm extends Component<
           this.props.model,
         );
         if (message.length > 0) {
-          await this.props.deleteAssetFunction(asset1.NAME);
-          await this.props.deleteAssetFunction(asset2.NAME);
-          await this.props.deleteAssetFunction(asset3.NAME);
-          if (this.state.DCP_TRANSFER_TO !== "") {
-            await this.props.deleteAssetFunction(asset4.NAME);
-          }
           this.props.showAlert(message);
           return;
         }
@@ -1050,29 +1120,40 @@ export class AddDeleteAssetForm extends Component<
             this.props.model,
           );
           if (message.length > 0) {
-            await this.props.deleteAssetFunction(asset1.NAME);
-            await this.props.deleteAssetFunction(asset2.NAME);
-            await this.props.deleteAssetFunction(asset3.NAME);
-            await this.props.deleteAssetFunction(asset4.NAME);
             this.props.showAlert(message);
             return;
           }
         }
       }
-      if (contributions !== undefined) {
-        await this.props.submitTransactionFunction(
-          contributions,
-          this.props.model,
-        );
-      }
-      await this.props.submitTransactionFunction(
-        crystallizeTaxFree,
+
+      const dcGeneratorDetails: DCGeneratorDetails = {
+        VALUE: this.state.VALUE,
+        GROWS_WITH_CPI: this.state.GROWS_WITH_INFLATION,
+        GROWTH: this.state.GROWTH,
+        TAX_LIABILITY: this.state.LIABILITY,
+        CATEGORY: this.state.CATEGORY,
+        START: this.state.START,
+        STOP: this.state.DCP_STOP,
+        CRYSTALLIZE: this.state.DCP_CRYSTALLIZE,
+        SS: this.state.DCP_SS,
+        INCOME_SOURCE: this.state.DCP_INCOME_SOURCE,
+        CONTRIBUTION_AMOUNT: this.state.DCP_CONTRIBUTION_AMOUNT,
+        EMP_CONTRIBUTION_AMOUNT: this.state.DCP_EMP_CONTRIBUTION_AMOUNT,
+        TRANSFER_TO: this.state.DCP_TRANSFER_TO,
+        TRANSFER_DATE: this.state.DCP_TRANSFER_DATE,  
+      };
+
+      console.log(`dcGeneratorDetails = ${dcGeneratorDetails}`)
+
+      this.props.submitGeneratorFunction(
+        {
+          NAME: this.state.NAME,
+          ERA: 0,
+          TYPE: 'Defined Contributions',
+          DETAILS: dcGeneratorDetails
+        },
         this.props.model,
       );
-      await this.props.submitTransactionFunction(crystallize, this.props.model);
-      if (transfer) {
-        await this.props.submitTransactionFunction(transfer, this.props.model);
-      }
 
       this.props.showAlert("added assets and transactions");
       // clear fields

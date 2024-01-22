@@ -118,6 +118,7 @@ import {
   submitSettingLSM,
   saveModelLSM,
   submitMonitorLSM,
+  submitGeneratorLSM,
 } from "./database/loadSaveModel";
 import { AddDeleteSettingForm } from "./views/reactComponents/AddDeleteSettingForm";
 import { ReplaceWithJSONForm } from "./views/reactComponents/ReplaceWithJSONForm";
@@ -131,7 +132,7 @@ import {
   OverlayTrigger,
   Tooltip,
 } from "react-bootstrap";
-import { EvaluationHelper, getEvaluations } from "./models/evaluations";
+import { EvaluationHelper, getEvaluations, processGenerators } from "./models/evaluations";
 import {
   applyRedoToModel,
   getROI,
@@ -161,7 +162,7 @@ import FileSaver from "file-saver";
 import { taxDiv } from "./views/taxPage";
 import Image from "next/image";
 import { minimalModel } from "./models/minimalModel";
-import { makeModelFromJSON } from "./models/modelFromJSON";
+import { makeModelFromJSON, makeModelFromJSONString } from "./models/modelFromJSON";
 import { setUserID, getUserID } from "./utils/user";
 import { deleteItemsFromModelInternal } from "./utils/appActions";
 import { getAppVersion } from "./utils/appVersion";
@@ -661,8 +662,12 @@ async function refreshDataInternal(
   }
   if (refreshModel || refreshChart) {
     // log(`refresh model or chart data`);
+
+    const copyModel = makeModelFromJSONString(JSON.stringify(model));
+    processGenerators(copyModel);
+
     const chartData: DataForView = makeChartData(
-      model,
+      copyModel,
       viewSettings,
       evaluationsAndVals,
     );
@@ -713,7 +718,7 @@ async function refreshDataInternal(
     const taxChartData = makeBarData(chartData.labels, taxData);
 
     const planningViewSettings = getDefaultViewSettings();
-    planningViewSettings.setModel(model);
+    planningViewSettings.setModel(copyModel);
     planningViewSettings.toggleViewFilter(Context.Expense, allItems);
     planningViewSettings.toggleViewFilter(Context.Expense, "Basic"); // the Planning page works with this category
     planningViewSettings.toggleViewFilter(Context.Expense, "Leisure"); // the Planning page works with this category
@@ -723,7 +728,7 @@ async function refreshDataInternal(
     planningViewSettings.setViewSetting(chartViewType, chartDeltas);
 
     const planningChartData: DataForView = makeChartData(
-      model,
+      copyModel,
       planningViewSettings,
       evaluationsAndVals,
     );
@@ -967,6 +972,7 @@ async function submitMonitor(
     showAlert(outcome.message);
   }
 }
+
 async function submitIncome(
   incomeInput: Income,
   modelData: ModelData,
@@ -1011,12 +1017,36 @@ async function submitTransaction(
     showAlert(outcome.message);
   }
 }
+
 async function submitTrigger(
   triggerInput: Trigger,
   modelData: ModelData,
 ): Promise<void> {
   const outcome = await submitTriggerLSM(
     triggerInput,
+    modelName,
+    modelData,
+    reactAppComponent.options.checkModelOnEdit,
+    getUserID(),
+  );
+  if (outcome.message === "") {
+    return await refreshData(
+      true, // refreshModel
+      true, // refreshChart
+      6, //sourceID
+    );
+  } else {
+    showAlert(outcome.message);
+  }
+}
+
+async function submitGenerator(
+  generatorInput: any,
+  modelData: ModelData,
+): Promise<void> {
+  console.log(`submitting a generator ${generatorInput}`);
+  const outcome = await submitGeneratorLSM(
+    generatorInput,
     modelName,
     modelData,
     reactAppComponent.options.checkModelOnEdit,
@@ -1468,6 +1498,23 @@ async function deleteSetting(name: string): Promise<DeleteResult> {
     },
   );
 }
+async function deleteGenerator(name: string): Promise<DeleteResult> {
+  return deleteItemsFromModelInternal(
+    [name],
+    reactAppComponent.state.modelData.generators,
+    modelName,
+    reactAppComponent.state.modelData,
+    reactAppComponent.options.checkModelOnEdit,
+    true, // allowRecursion
+    showAlert,
+    async (a, b, c) => {
+      if (reactAppComponent) {
+        return refreshData(a, b, c);
+      }
+    },
+  );
+}
+
 function okToContinue(newEraValue: number): boolean {
   // only change the era if it'll be visible
   if (newEraValue === -1) {
@@ -1591,6 +1638,22 @@ async function setEraSetting(name: string, value: number): Promise<boolean> {
       name,
       value,
       reactAppComponent.state.modelData.settings,
+      modelName,
+      reactAppComponent.state.modelData,
+    );
+  } else {
+    return false;
+  }
+}
+async function setEraGenerator(
+  name: string,
+  value: number,
+): Promise<boolean> {
+  if (okToContinue(value)) {
+    return setEraInModel(
+      name,
+      value,
+      reactAppComponent.state.modelData.generators,
       modelName,
       reactAppComponent.state.modelData,
     );
@@ -2163,6 +2226,7 @@ export class AppContent extends Component<AppProps, AppState> {
         deleteSetting,
         deleteTrigger,
         deleteTransaction,
+        deleteGenerator,
 
         deleteTransactions,
         deleteExpenses,
@@ -2173,6 +2237,7 @@ export class AppContent extends Component<AppProps, AppState> {
         setEraSetting,
         setEraTrigger,
         setEraTransaction,
+        setEraGenerator,
 
         submitAsset,
         submitExpense,
@@ -2180,6 +2245,7 @@ export class AppContent extends Component<AppProps, AppState> {
         submitIncome,
         submitTransaction,
         submitTrigger,
+        submitGenerator,
 
         editSetting,
       };

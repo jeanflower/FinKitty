@@ -198,17 +198,17 @@ export function incomesDiv(
       {collapsibleFragment(
         <div className="addNewIncome">
           <AddDeleteIncomeForm
+            submitTriggerFunction={parentCallbacks.submitTrigger}
             checkIncomeFunction={checkIncome}
             checkTransactionFunction={checkTransaction}
             submitIncomeFunction={parentCallbacks.submitIncome}
             submitTransactionFunction={parentCallbacks.submitTransaction}
-            deleteFunction={parentCallbacks.deleteIncome}
-            submitTriggerFunction={parentCallbacks.submitTrigger}
+            deleteIncomeFunction={parentCallbacks.deleteIncome}
+            submitGeneratorFunction={parentCallbacks.submitGenerator}
+            deleteGeneratorFunction={parentCallbacks.deleteGenerator}
             model={model}
             showAlert={parentCallbacks.showAlert}
-            doCheckBeforeOverwritingExistingData={
-              parentCallbacks.doCheckBeforeOverwritingExistingData
-            }
+            doCheckBeforeOverwritingExistingData={parentCallbacks.doCheckBeforeOverwritingExistingData} 
           />
         </div>,
         "Add an income, a defined-benefits pension, or revalue an income",

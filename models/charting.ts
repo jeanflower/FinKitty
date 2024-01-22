@@ -34,7 +34,7 @@ import {
   printDebug,
   showObj,
 } from "../utils/utils";
-import { generateSequenceOfDates } from "./evaluations";
+import { generateSequenceOfDates, processGenerators } from "./evaluations";
 
 import { checkEvalnType, evaluationType } from "./checks";
 import {
@@ -69,6 +69,7 @@ import {
   DataForView,
   Interval,
 } from "../types/interfaces";
+import { makeModelFromJSONString } from "./modelFromJSON";
 
 function logMapOfMap(
   twoMap: Map<string, Map<string, number>>,
@@ -637,10 +638,10 @@ function mapNamesToTypes(model: ModelData) {
   nameToTypeMap.set(nationalInsurance, evaluationType.taxLiability);
   nameToTypeMap.set(cgt, evaluationType.taxLiability);
 
-  //for (const [key, value] of nameToTypeMap) {
+  // for (const [key, value] of nameToTypeMap) {
   /* eslint-disable-line no-restricted-syntax */
-  //log(`nameToTypeMap[${key}]=${value}`);
-  //}
+  //   log(`nameToTypeMap[${key}]=${value}`);
+  // }
 
   return nameToTypeMap;
 }
@@ -1315,8 +1316,11 @@ export function makeChartDataFromEvaluations(
     todaysSettingValues: Map<Setting, SettingVal>;
   },
 ) {
-  viewSettings.setModel(model);
-  const result = makeChartData(model, viewSettings, evaluationsAndVals);
+  const copyModel = makeModelFromJSONString(JSON.stringify(model));
+  processGenerators(copyModel);
+
+  viewSettings.setModel(copyModel);
+  const result = makeChartData(copyModel, viewSettings, evaluationsAndVals);
 
   result.taxData.sort((a, b) => lessThan(a.item.NAME, b.item.NAME));
 

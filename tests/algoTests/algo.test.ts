@@ -73,7 +73,7 @@ import {
   transactionFromUndefinedModel,
   transactionToUndefinedModel,
 } from "../../models/exampleModels";
-import { getEvaluations } from "../../models/evaluations";
+import { getEvaluations, processGenerators } from "../../models/evaluations";
 import { makeChartDataFromEvaluations } from "../../models/charting";
 import {
   getModelFutureExpense2,
@@ -1167,6 +1167,7 @@ describe("evaluations tests", () => {
         }),
       ],
       monitors: [],
+      generators: [],
       version: 11,
       name: "NeoTest",
       undoModel: undefined,
@@ -8126,8 +8127,8 @@ describe("evaluations tests", () => {
         model,
         true, // doChecks
         true, // allowRecursion
-        () => {},
-        async (a, b, c) => {},
+        () => { },
+        async (a, b, c) => { },
       );
       expect(response.itemsDeleted.length).toBe(0);
       expect(response.message.length).not.toBe(0);
@@ -8680,7 +8681,7 @@ describe("evaluations tests", () => {
 
   it(`RSU example`, () => {
     const viewSettings = defaultTestViewSettings();
-    const modelFromJSON = makeModelFromJSONString(
+    const modelFromJSON = makeModelFromJSON(
       `{
         "name":"RSUs example",
         "assets":[
@@ -8793,7 +8794,7 @@ describe("evaluations tests", () => {
     );
 
     const evalsAndValues = getEvaluations(
-      makeModelFromJSONString(JSON.stringify(model)),
+      makeModelFromJSON(JSON.stringify(model)),
       undefined, // no key for a values report
     );
 

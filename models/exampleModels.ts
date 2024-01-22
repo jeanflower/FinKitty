@@ -390,6 +390,7 @@ export const emptyModel: ModelData = {
   assets: [],
   settings: [],
   monitors: [],
+  generators: [],
   version: 0,
   undoModel: undefined,
   redoModel: undefined,

@@ -19,7 +19,7 @@ import {
   allItems,
   taxChartFocusType,
   taxChartShowNet,
-  pension,
+  pensionPrefix,
   moveTaxFreePart,
   pensionDB,
   pensionSS,
@@ -397,7 +397,7 @@ function migrateFromV5(model: ModelData) {
     },
     {
       oldPart: "Pension",
-      newPart: pension,
+      newPart: pensionPrefix,
     },
     {
       oldPart: "TransferCrystallizedPension",
@@ -433,7 +433,7 @@ function migrateFromV5(model: ModelData) {
     },
     {
       oldPart: "Pension",
-      newPart: pension,
+      newPart: pensionPrefix,
     },
     {
       oldPart: "TaxFree",
@@ -456,7 +456,7 @@ function migrateFromV6(model: ModelData) {
     },
     {
       oldPart: "-DC ",
-      newPart: pension,
+      newPart: pensionPrefix,
     },
   ];
   const incomeChanges = [
@@ -472,7 +472,7 @@ function migrateFromV6(model: ModelData) {
   const assetChanges = [
     {
       oldPart: "-DC ",
-      newPart: pension,
+      newPart: pensionPrefix,
     },
   ];
   changeSpecialWords(model, transactionChanges, incomeChanges, assetChanges);
@@ -670,6 +670,15 @@ function migrateFromV11(model: ModelData) {
   model.version = 12;
 }
 
+function migrateFromV12(model: ModelData) {
+  // console.log('migrating from v12');
+  // check / add / fix things about the transition to v13
+  if (model.generators === undefined) {
+    model.generators = [];
+  }
+  model.version = 13;
+}
+
 export function migrateOldVersions(model: ModelDataFromFile) {
   /* istanbul ignore if  */ //debug
   if (showMigrationLogs) {
@@ -712,9 +721,12 @@ export function migrateOldVersions(model: ModelDataFromFile) {
   if (model.version === 11) {
     migrateFromV11(model);
   }
-  /*
   if (model.version === 12) {
     migrateFromV12(model);
+  }
+  /*
+  if (model.version === 13) {
+    migrateFromV13(model);
   }
   */
   // log(`model after migration is ${showObj(model)}`);

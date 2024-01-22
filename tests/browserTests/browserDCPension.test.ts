@@ -1,4 +1,4 @@
-import { pension, TestModel02 } from "../../localization/stringConstants";
+import { pensionPrefix, TestModel02 } from "../../localization/stringConstants";
 import {
   addDCPension,
   addIncome,
@@ -14,6 +14,7 @@ import {
   cleanUpWork,
   clickButton,
   getDriver,
+  scrollIntoViewByID,
 } from "./browserBaseTypes";
 
 const testName = "BrowserDCPensionTest";
@@ -100,8 +101,8 @@ describe(testName, () => {
       ...pensionInputs,
       name: "dcp04",
       startDate: "1 Jan 2020",
-      message: `Transaction '-PEN dcp04' from unrecognised asset (could be typo or before asset start date?) : \"javaJob1\"`,
-    }); // TODO : confusing error message : pension can't start before income
+      message: `added assets and transactions`, // used to fail
+    }); 
 
     await clearDCPension(driver);
     await addDCPension(driver, {
@@ -116,7 +117,7 @@ describe(testName, () => {
       ...pensionInputs,
       name: "dcp06",
       startDate: "1 Jan 2036",
-      message: `Transaction '-CPTaxFreeM dcp06' from unrecognised asset (could be typo or before asset start date?) : \"${pension}dcp06\"`,
+      message: `Transaction '-CPTaxFreeM dcp06' from unrecognised asset (could be typo or before asset start date?) : \"${pensionPrefix}dcp06\"`,
     }); // TODO : what does this error mean?  I expected "start date after end date"
 
     await clearDCPension(driver);
@@ -132,10 +133,15 @@ describe(testName, () => {
       ...pensionInputs,
       name: "dcp08",
       growsWithCPI: "junk",
-      message: `added assets and transactions`,
-    }); // BUG : junk shouldn't be recognised as an input here
+      message: `Grows with CPI: 'junk' should be a Y/N value`,
+    });
 
-    await clickButton(driver, "useDCPInputs");
+    await scrollIntoViewByID(
+      driver,
+      "useDCPInputs",
+    );
+    
+    await clearDCPension(driver);
     await addDCPension(driver, {
       ...pensionInputs,
       name: "dcp09",
