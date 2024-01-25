@@ -29,7 +29,6 @@ export class AddDeleteEntryForm extends Component<EditProps, EditFormState> {
       originalValue: this.props.getValue(),
     };
 
-    this.handleValue = this.handleValue.bind(this);
     this.add = this.add.bind(this);
   }
   public render() {
@@ -44,14 +43,12 @@ export class AddDeleteEntryForm extends Component<EditProps, EditFormState> {
           name={`EditWidget${this.props.name}`}
           value={this.state.value}
           placeholder={this.props.getValue()}
-          onChange={this.handleValue}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+              this.setState({ value: e.target.value });
+          }}
         />
       </form>
     );
-  }
-  private handleValue(e: React.ChangeEvent<HTMLInputElement>) {
-    const value = e.target.value;
-    this.setState({ value: value });
   }
   private async add(e: FormEvent<Element>) {
     e.preventDefault();

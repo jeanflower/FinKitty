@@ -82,8 +82,6 @@ export class AddDeleteTriggerForm extends Component<
 
     this.state = this.defaultState;
 
-    this.handleName = this.handleName.bind(this);
-    this.handleValueChange = this.handleValueChange.bind(this);
     this.add = this.add.bind(this);
     this.delete = this.delete.bind(this);
   }
@@ -99,7 +97,9 @@ export class AddDeleteTriggerForm extends Component<
               name={"triggername"}
               value={this.state.NAME}
               placeholder={"Enter name"}
-              onChange={this.handleName}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                this.setState({ NAME: e.target.value });
+              }}
             />
           </Col>{" "}
         </Row>{" "}
@@ -111,7 +111,9 @@ export class AddDeleteTriggerForm extends Component<
               name={"date"}
               value={this.state.DATE}
               placeholder={"Enter date"}
-              onChange={this.handleValueChange}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                this.setState({ DATE: e.target.value });
+              }}
             />
             {makeButton(
               "Create new important date " +
@@ -125,15 +127,6 @@ export class AddDeleteTriggerForm extends Component<
         </Row>{" "}
       </form>
     );
-  }
-
-  private handleName(e: React.ChangeEvent<HTMLInputElement>) {
-    const value = e.target.value;
-    this.setState({ NAME: value });
-  }
-  private handleValueChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const value = e.target.value;
-    this.setState({ DATE: value });
   }
 
   private async add(e: FormEvent<Element>) {

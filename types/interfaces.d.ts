@@ -26,7 +26,7 @@ export interface Generator extends Item {
   DETAILS: any;
 }
 
-export interface DBGeneratorDetails {
+export interface DBPGeneratorDetails {
   VALUE: string,
   VALUE_SET: string,
   STOP_SOURCE: string,
@@ -48,7 +48,6 @@ export interface DCGeneratorDetails {
   VALUE: string,
   GROWS_WITH_CPI: string,
   GROWTH: string,
-  VALUE: string,
   TAX_LIABILITY: string,
   CATEGORY: string,
   START: string,
@@ -60,6 +59,18 @@ export interface DCGeneratorDetails {
   EMP_CONTRIBUTION_AMOUNT: string,
   TRANSFER_TO: string,
   TRANSFER_DATE: string,
+}
+
+export interface BondGeneratorDetails {
+  VALUE: string,
+  GROWTH: string,
+  CATEGORY: string,
+  START: string,
+  DURATION: string;
+  SOURCE: string;
+  TARGET: string;
+  YEAR: string;
+  RECURRENCE: string;
 }
 
 export interface Asset extends ItemCategory {
@@ -346,6 +357,9 @@ export interface ViewCallbacks {
     sourceID: number,
   ) => Promise<void>;
 
+  checkAsset: (a: Asset) => string;
+  checkTransaction: (t: Transaction) => string;
+
   deleteAsset: (name: string) => Promise<DeleteResult>;
   deleteExpense: (name: string) => Promise<DeleteResult>;
   deleteIncome: (name: string) => Promise<DeleteResult>;
@@ -362,16 +376,15 @@ export interface ViewCallbacks {
   setEraTransaction: (name: string, value: number) => Promise<boolean>;
   setEraGenerator: (name: string, value: number) => Promise<boolean>;
 
-  submitAsset: (assetInput: Asset, modelData: ModelData) => Promise<void>;
-  submitExpense: (expenseInput: Expense, modelData: ModelData) => Promise<void>;
-  submitMonitor: (monitorInput: Monitor, modelData: ModelData) => Promise<void>;
-  submitIncome: (incomeInput: Income, modelData: ModelData) => Promise<boolean>;
+  submitAsset: (assetInput: Asset) => Promise<void>;
+  submitExpense: (expenseInput: Expense) => Promise<void>;
+  submitMonitor: (monitorInput: Monitor) => Promise<void>;
+  submitIncome: (incomeInput: Income) => Promise<boolean>;
   submitTransaction: (
     transactionInput: Transaction,
-    modelData: ModelData,
   ) => Promise<void>;
-  submitTrigger: (triggerInput: Trigger, modelData: ModelData) => Promise<void>;
-  submitGenerator: (generatorInput: Generator, modelData: ModelData) => Promise<void>;
+  submitTrigger: (triggerInput: Trigger) => Promise<void>;
+  submitGenerator: (generatorInput: Generator) => Promise<void>;
 
   editSetting: (
     settingInput: {

@@ -105,7 +105,7 @@ export async function clickButton(driver: ThenableWebDriver, id: string) {
       await sleep(1000, "button not present yet");
       continue; // try again
     }
-    await sleep(1000, `let button with id ${id} be ready`);
+    await sleep(100, `let button with id ${id} be ready`); // used to say 1000
     await btn[0].click();
     return;
   }
@@ -122,7 +122,7 @@ export async function fillInputById(
 ) {
   const input = await driver.findElements(webdriver.By.id(id));
   if (input.length !== 1) {
-    // log(`found ${input.length} elements with id=${id} for content ${content}`);
+    log(`found ${input.length} elements with id=${id} for content ${content}`);
   }
   expect(input.length === 1).toBe(true);
   if (id === "liquidateForCash") {

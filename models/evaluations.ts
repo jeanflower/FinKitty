@@ -1,4 +1,4 @@
-import { checkAsset, checkData, checkIncome, checkIncomeLiability, checkTransaction } from "./checks";
+import { checkAsset, checkModel, checkIncome, checkIncomeLiability, checkTransaction } from "./checks";
 import {
   annually,
   CASH_ASSET_NAME,
@@ -53,7 +53,9 @@ import {
   Income,
   IncomeOrExpense,
   Item,
-  DBGeneratorDetails,
+  DBPGeneratorDetails,
+  BondGeneratorDetails,
+  DCGeneratorDetails,
 } from "../types/interfaces";
 import {
   DateFormatType,
@@ -289,9 +291,9 @@ export function sortByDate(arrayOfDatedThings: DatedThing[]) {
       // whether it's an asset is equal
       /* istanbul ignore if  */ //debug
       if (printDebug()) {
-        if (a.type !== "Asset" && a.type !== "Expense" && a.type !== "Income") {
+        if (a.type === b.type) {
           log(
-            `using names to order moments ${a.name}, ${a.type} and ${b.name}`,
+            `using names to order moments of type ${a.type},  ${a.name}, ${b.name}`,
           );
         }
       }
@@ -1643,11 +1645,14 @@ function adjustCash(
       const baseVal = gd.baseVal;
       scaleBy = baseVal;
       // log(`for CPI, scaleBy = ${scaleBy}`);
+      // log(`cashValue * scaleBy = ${cashValue} * ${scaleBy} = ${cashValue * scaleBy}`);
       cashValue = cashValue * scaleBy;
     }
+    // log(`newValue = cashValue + amount = ${cashValue} + ${amount} = ${cashValue + amount}`);
     let newValue = cashValue + amount;
     // log(`in adjustCash, setValue to ${newValue}`);
     if (scaleBy) {
+      // log(`newValue / scaleBy = ${newValue} / ${scaleBy} = ${newValue / scaleBy}`);
       newValue /= scaleBy;
     }
     setValue(
@@ -3004,6 +3009,9 @@ function handleIncome(
     if (ptDate > moment.date) {
       return;
     }
+
+    // log(`for moment ${moment.date}, consider pension transaction: ${pt.NAME} date ${ptDate.toDateString()}`);
+
     // !!! TODO only apply this transaction before the STOP_DATE !!!
     const ptStopDate = getTriggerDate(pt.STOP_DATE, triggers, v);
     if (ptStopDate < moment.date) {
@@ -3069,9 +3077,10 @@ function handleIncome(
       }
     } else if (pensionValue === undefined) {
       /* istanbul ignore next */
-      log("Error: contributing to undefined pension scheme");
+      // log(`Error: contributing to undefined at ${moment.date.toDateString()} pension transaction ${showObj(pt)}`);
       /* istanbul ignore next */
-      log(`model is ${showObj(model)}`);
+      // log(`model is ${showObj(model)}`);
+      // throw new Error();
     } else {
 
       if (amountForPension > 0) {
@@ -3124,7 +3133,7 @@ function handleIncome(
   // pay income into cash
   if (amountForCashIncrement > 0) {
     // log(`cash source = ${sourceDescription}`);
-    // log('in handleIncome, adjustCash:');
+    // log(`in handleIncome, adjustCash: amountForCashIncrement = ${amountForCashIncrement}`);
     adjustCash(
       amountForCashIncrement,
       moment.date,
@@ -5077,9 +5086,12 @@ function generateMoments(
         );
       }
       shiftStartBackTo = getTriggerDate(sourceIncome.START, model.triggers, v);
+      // log(`shifting start of ${showObj(income)} back to ${shiftStartBackTo.toDateString()} because of ${showObj(sourceIncome)} starting at ${sourceIncome.START}`);
     }
 
     const incomeSetDate = getTriggerDate(income.VALUE_SET, model.triggers, v);
+    // log(`startSequenceFrom = ${incomeStart.toDateString()} from START of ${showObj(income)}`);
+
     // log(`income start is ${incomeStart.toDateString()}`);
     // log(`value set is ${incomeSetDate.toDateString()}`);
     // log(`shiftStartBackTo = ${shiftStartBackTo.toDateString()}`);
@@ -5087,14 +5099,22 @@ function generateMoments(
       shiftStartBackTo = incomeSetDate;
     }
 
-    shiftDate(shiftStartBackTo, income.RECURRENCE, +1);
+    // This breaks one of the Ben and Jerry tests
+    // because a -PDB Jerry work income is not shifted
+    // back before the start of the contributing Jerry salary income
+    {
+    shiftDate(shiftStartBackTo, income.RECURRENCE, +1); // TODO understand impact of this
+    }
+    // log(`shifting start of ${showObj(income)} from ${income.START} back using ${shiftStartBackTo.toDateString()} because of ${showObj(income)} recurrence`);
 
     let startSequenceFrom = new Date(incomeStart);
+    // log(`startSequenceFrom = ${startSequenceFrom.toDateString()}`);
     let numAdjustments = 0;
     while (shiftStartBackTo <= startSequenceFrom) {
       // log(`shift ${startSequenceFrom} back towards ${shiftStartBackTo}`);
 
       startSequenceFrom = shiftDate(startSequenceFrom, income.RECURRENCE, -1);
+      // log(`startSequenceFrom = ${startSequenceFrom.toDateString()}`);
 
       numAdjustments += 1;
       /* istanbul ignore if */
@@ -5107,7 +5127,7 @@ function generateMoments(
       }
     }
 
-    // log(`income start = ${incomeStart.toDateString()}, startSequenceFrom = ${startSequenceFrom.toDateString()}`);
+    // log(`income ${income.NAME} had start = ${incomeStart.toDateString()}, but use startSequenceFrom = ${startSequenceFrom.toDateString()}`);
     const newMoments = getRecurrentMoments(
       income,
       momentType.incomePrep,
@@ -5118,7 +5138,7 @@ function generateMoments(
       roiEndDate,
     );
     // for (let i = 0; i < newMoments.length; i = i + 1) {
-    //   log(`newMoments[${i}] = ${newMoments[i].date.toDateString()}`);
+    //   log(`newMoments[${i}] = ${newMoments[i].name} ${newMoments[i].date.toDateString()}`);
     // }
     allMoments = allMoments.concat(newMoments);
     liabilitiesMap.set(income.NAME, income.LIABILITY);
@@ -5411,8 +5431,8 @@ function generateMoments(
     });
   }
   // for(let i = 0; i < allMoments.length; i = i + 1) {
-  //   log(`allMoments[${i}] = ${allMoments[i].date.toDateString()}`);
-  // }
+  //  log(`allMoments[${i}] = ${allMoments[i].name} at ${allMoments[i].date.toDateString()}`);
+  //}
   return allMoments;
 }
 
@@ -5940,6 +5960,7 @@ function growAndEffectMoment(
       // even if these haven't changed.
       let changedToStoredValue = 0.0;
       let changeToVisibleCash = 0.0;
+      // log(`changeToVisibleCash = 0`);
 
       const growthChangeScale = growthObj.scale;
 
@@ -6032,6 +6053,7 @@ function growAndEffectMoment(
         // some assets experience growth which is
         // liable for tax
         // log(`asset moment for growth : ${moment.date}, ${momentName}`);
+        // log(`changeToCash = cPIChange + changeToVisibleCash = ${cPIChange} + ${changeToVisibleCash} = ${cPIChange + changeToVisibleCash}`);
         const changeToCash = cPIChange + changeToVisibleCash;
         if (momentName.startsWith(crystallizedPension) && changeToCash > 0) {
           // log(`skip asset moment for growth : ${moment.date}, ${momentName}, ${change}`);
@@ -6054,6 +6076,8 @@ function growAndEffectMoment(
       } else if (moment.type === momentType.income) {
         const changeToCash =
           oldStoredNumberVal + cPIChange + changeToVisibleCash;
+        // log(`changeToCash = oldStoredNumberVal + cPIChange + changeToVisibleCash = ${oldStoredNumberVal} + ${cPIChange} + ${changeToVisibleCash} = ${oldStoredNumberVal + cPIChange + changeToVisibleCash}`);
+        // log('submitting income');
         handleIncome(
           changeToCash,
           moment,
@@ -6137,7 +6161,7 @@ function getEvaluationsInternal(
   const todaysExpenseValues = new Map<Expense, ExpenseVal>();
   const todaysSettingValues = new Map<Setting, SettingVal>();
 
-  const outcome = checkData(model);
+  const outcome = checkModel(model);
   if (outcome.message.length > 0) {
     log(`check failed, do no evaluations: ${outcome.message}`);
     const reportData: ReportDatum[] = [
@@ -6335,6 +6359,10 @@ function getEvaluationsInternal(
       // log(`roiEndDate = ${roiEndDate)} won't need predicted tax bands`);
     }
     sortByDate(datedMoments);
+
+    // for(let i = 0; i < datedMoments.length; i = i + 1) {
+    //   log(`datedMoments[${i}] = ${datedMoments[i].name} at ${datedMoments[i].date.toDateString()}`);
+    // }  
   }
 
   const timeInTaxCycle: {
@@ -6533,6 +6561,37 @@ function getEvaluationsInternal(
 
 // return '' for success
 // or an errorMessage
+function processBondGenerators(
+  model: ModelData,  
+): string {
+  const gens = model.generators.filter((g) => {
+    return g.TYPE === 'Bonds';
+  });
+  for(const g of gens) {
+    console.log(`processing generator ${showObj(g)}`);
+    const details: BondGeneratorDetails = g.DETAILS;
+    const newAsset: Asset = {
+      START: details.START,
+      VALUE: details.VALUE,
+      QUANTITY: "",
+      GROWTH: details.GROWTH,
+      CPI_IMMUNE: true,
+      CAN_BE_NEGATIVE: false,
+      IS_A_DEBT: false,
+      LIABILITY: "",
+      PURCHASE_PRICE: "0.0",
+      CATEGORY: details.CATEGORY,
+      NAME: g.NAME,
+      ERA: undefined
+    };
+    // log(`added new asset ${showObj(newAsset)}`);
+    model.assets.push(newAsset);
+  }
+  return '';
+}
+
+// return '' for success
+// or an errorMessage
 function processDCPGenerators(
   model: ModelData,  
 ): string {
@@ -6540,34 +6599,36 @@ function processDCPGenerators(
     return g.TYPE === 'Defined Contributions';
   });
   for(const g of gens) {
-    // console.log(`processing generator ${JSON.stringify(g)}`);
+    // console.log(`processing generator ${showObj(g)}`);
+
+    const details: DCGeneratorDetails = g.DETAILS;
 
     const asset1Name = pensionPrefix + g.NAME;
     const asset2Name = taxFree + g.NAME;
     const asset3Name =
-    crystallizedPension + g.DETAILS.TAX_LIABILITY + dot + g.NAME;
+    crystallizedPension + details.TAX_LIABILITY + dot + g.NAME;
 
-    const parsedYNCPI = makeBooleanFromYesNo(g.DETAILS.GROWS_WITH_CPI);
+    const parsedYNCPI = makeBooleanFromYesNo(details.GROWS_WITH_CPI);
     if (!parsedYNCPI.checksOK) {
-      return `Grows with CPI: '${g.DETAILS.GROWS_WITH_CPI}' ` +
+      return `Grows with CPI: '${details.GROWS_WITH_CPI}' ` +
           `should be a Y/N value`;
     }
 
     const asset1: Asset = {
       NAME: asset1Name,
       ERA: 0, // new things are automatically current
-      VALUE: g.DETAILS.VALUE,
+      VALUE: details.VALUE,
       QUANTITY: "", // pensions are continuous
-      START: g.DETAILS.START,
-      GROWTH: g.DETAILS.GROWTH,
+      START: details.START,
+      GROWTH: details.GROWTH,
       CPI_IMMUNE: !parsedYNCPI.value,
       CAN_BE_NEGATIVE: false,
       IS_A_DEBT: false,
-      CATEGORY: g.DETAILS.CATEGORY,
+      CATEGORY: details.CATEGORY,
       PURCHASE_PRICE: "0.0",
       LIABILITY: "",
     };
-    // log(`created asset 1 ${JSON.stringify(asset1)}`);
+    // log(`created asset 1 ${showObj(asset1)}`);
     {
       const message = checkAsset(asset1, model);
       if (message.length > 0) {
@@ -6580,16 +6641,16 @@ function processDCPGenerators(
       ERA: 0, // new things are automatically current
       VALUE: "0.0",
       QUANTITY: "", // pensions are continuous
-      START: g.DETAILS.START,
-      GROWTH: g.DETAILS.GROWTH,
+      START: details.START,
+      GROWTH: details.GROWTH,
       CPI_IMMUNE: !parsedYNCPI.value,
       CAN_BE_NEGATIVE: false,
       IS_A_DEBT: false,
-      CATEGORY: g.DETAILS.CATEGORY,
+      CATEGORY: details.CATEGORY,
       PURCHASE_PRICE: "0.0",
       LIABILITY: "",
     };
-    // log(`created asset 2 ${JSON.stringify(asset2)}`);
+    // log(`created asset 2 ${showObj(asset2)}`);
     const message = checkAsset(asset2, model);
     if (message.length > 0) {
       return message;
@@ -6600,16 +6661,16 @@ function processDCPGenerators(
       ERA: 0, // new things are automatically current
       VALUE: "0.0",
       QUANTITY: "", // pensions are continuous
-      START: g.DETAILS.START,
-      GROWTH: g.DETAILS.GROWTH,
+      START: details.START,
+      GROWTH: details.GROWTH,
       CPI_IMMUNE: !parsedYNCPI.value,
       CAN_BE_NEGATIVE: false,
       IS_A_DEBT: false,
-      CATEGORY: g.DETAILS.CATEGORY,
+      CATEGORY: details.CATEGORY,
       PURCHASE_PRICE: "0.0",
       LIABILITY: "",
     };
-    // log(`created asset 3 ${JSON.stringify(asset3)}`);
+    // log(`created asset 3 ${showObj(asset3)}`);
     {
       const message = checkAsset(asset3, model);
       if (message.length > 0) {
@@ -6618,7 +6679,7 @@ function processDCPGenerators(
     }
     const asset4Name =
       crystallizedPension +
-      g.DETAILS.TRANSFER_TO +
+      details.TRANSFER_TO +
       dot +
       g.NAME;
 
@@ -6627,72 +6688,73 @@ function processDCPGenerators(
       ERA: 0, // new things are automatically current
       VALUE: "0.0",
       QUANTITY: "", // pensions are continuous
-      START: g.DETAILS.START,
-      GROWTH: g.DETAILS.GROWTH,
+      START: details.START,
+      GROWTH: details.GROWTH,
       CPI_IMMUNE: !parsedYNCPI.value,
       CAN_BE_NEGATIVE: false,
       IS_A_DEBT: false,
-      CATEGORY: g.DETAILS.CATEGORY,
+      CATEGORY: details.CATEGORY,
       PURCHASE_PRICE: "0.0",
       LIABILITY: "",
     };
 
-    if (g.DETAILS.TRANSFER_TO !== "") {
-      // log(`created asset 4 ${JSON.stringify(asset4)}`);
+    if (details.TRANSFER_TO !== "") {
+      // log(`created asset 4 ${showObj(asset4)}`);
       const message = checkAsset(asset4, model);
       if (message.length > 0) {
         return message;
       }
     }
     let contributions: Transaction | undefined = undefined;
-    if (g.DETAILS.INCOME_SOURCE !== '') {
+    if (details.INCOME_SOURCE !== '') {
 
       // If there's an income, check other inputs like
       // whether it's a salary sacrifice etc
-      const parseYNSS = makeBooleanFromYesNo(g.DETAILS.SS);
+      const parseYNSS = makeBooleanFromYesNo(details.SS);
       if (!parseYNSS.checksOK) {
-        return `Salary sacrifice '${g.DETAILS.SS}' should be a Y/N value`;
+        return `Salary sacrifice '${details.SS}' should be a Y/N value`;
       }
-      let isNotANumber = !isNumberString(g.DETAILS.CONTRIBUTION_AMOUNT);
+      let isNotANumber = !isNumberString(details.CONTRIBUTION_AMOUNT);
       if (isNotANumber) {
-        return `Contribution amount '${g.DETAILS.CONTRIBUTION_AMOUNT}' ` +
+        return `Contribution amount '${details.CONTRIBUTION_AMOUNT}' ` +
             `should be a numerical value`;
       }
-      isNotANumber = !isNumberString(g.DETAILS.EMP_CONTRIBUTION_AMOUNT);
+      isNotANumber = !isNumberString(details.EMP_CONTRIBUTION_AMOUNT);
       if (isNotANumber) {
-        return `Contribution amount '${g.DETAILS.EMP_CONTRIBUTION_AMOUNT}' ` +
+        return `Contribution amount '${details.EMP_CONTRIBUTION_AMOUNT}' ` +
             `should be a numerical value`;
       }
-      const contPc = parseFloat(g.DETAILS.CONTRIBUTION_AMOUNT);
-      const contEmpPc = parseFloat(g.DETAILS.EMP_CONTRIBUTION_AMOUNT);
+      const contPc = parseFloat(details.CONTRIBUTION_AMOUNT);
+      const contEmpPc = parseFloat(details.EMP_CONTRIBUTION_AMOUNT);
 
       const toProp = contPc === 0 ? 0.0 : (contPc + contEmpPc) / contPc;
 
-      // console.log(`submit ${asset1.NAME}, ${asset2.NAME}, ${asset2.NAME}`);
+      // console.log(`add ${asset1.NAME}, ${asset2.NAME}, ${asset2.NAME}`);
       model.assets.push(asset1);
       model.assets.push(asset2);
       model.assets.push(asset3);
-      if (g.DETAILS.TRANSFER_TO !== "") {
-        // console.log(`submit ${asset4.NAME}`);
+      if (details.TRANSFER_TO !== "") {
+        // console.log(`add ${asset4.NAME}`);
         model.assets.push(asset4);
       }
+      // log(`model after adding DCP assets ${showObj(model)}`);
 
       contributions = {
         NAME: (parseYNSS.value ? pensionSS : pensionPrefix) + g.NAME,
         ERA: 0, // new things are automatically current
-        FROM: g.DETAILS.INCOME_SOURCE,
+        FROM: details.INCOME_SOURCE,
         FROM_ABSOLUTE: false,
-        FROM_VALUE: g.DETAILS.CONTRIBUTION_AMOUNT,
+        FROM_VALUE: details.CONTRIBUTION_AMOUNT,
         TO: asset1Name,
         TO_ABSOLUTE: false,
         TO_VALUE: `${toProp}`,
-        DATE: g.DETAILS.START, // match the income start date
-        STOP_DATE: g.DETAILS.STOP, // match the income stop date
+        DATE: details.START, // match the income start date
+        STOP_DATE: details.STOP, // match the income stop date
         RECURRENCE: "",
-        CATEGORY: g.DETAILS.CATEGORY,
+        CATEGORY: details.CATEGORY,
         TYPE: autogen,
       };
-      // log(`created transaction contributions ${JSON.stringify(contributions)}`);
+      // log(`created transaction contributions ${showObj(contributions)}`);
       {
         const message = checkTransaction(
           contributions,
@@ -6705,13 +6767,16 @@ function processDCPGenerators(
     } else {
       // a pension without a contributing income 
       // set up the taxfree part it crystallizes to
-      // console.log(`submit assets ${asset1.NAME} ${asset2.NAME}`);
+      
+      // console.log(`add assets ${asset1.NAME} ${asset2.NAME}`);
       model.assets.push(asset1);
       model.assets.push(asset2);
       model.assets.push(asset3);
-      if (g.DETAILS.TRANSFER_TO !== "") {
+      if (details.TRANSFER_TO !== "") {
+        // console.log(`add ${asset4.NAME}`);
         model.assets.push(asset4);
       }
+      // log(`model after adding DCP assets (no income) ${showObj(model)}`);
 
       // console.log(`model assets ${model.assets.map((a)=>{
       //  return a.NAME;
@@ -6727,13 +6792,13 @@ function processDCPGenerators(
       TO: asset2Name,
       TO_ABSOLUTE: false,
       TO_VALUE: `1.0`,
-      DATE: g.DETAILS.CRYSTALLIZE,
+      DATE: details.CRYSTALLIZE,
       STOP_DATE: "",
       RECURRENCE: "",
-      CATEGORY: g.DETAILS.CATEGORY,
+      CATEGORY: details.CATEGORY,
       TYPE: autogen,
     };
-    // log(`created transaction crystallizeTaxFree ${JSON.stringify(crystallizeTaxFree)}`);
+    // log(`created transaction crystallizeTaxFree ${showObj(crystallizeTaxFree)}`); // does this fail the check?
     {
       const message = checkTransaction(
         crystallizeTaxFree,
@@ -6753,13 +6818,13 @@ function processDCPGenerators(
       TO: asset3Name,
       TO_ABSOLUTE: false,
       TO_VALUE: `1.0`,
-      DATE: g.DETAILS.CRYSTALLIZE, // +1 sec
+      DATE: details.CRYSTALLIZE, // +1 sec
       STOP_DATE: "",
       RECURRENCE: "",
-      CATEGORY: g.DETAILS.CATEGORY,
+      CATEGORY: details.CATEGORY,
       TYPE: autogen,
     };
-    // log(`created transaction crystallize ${JSON.stringify(crystallize)}`);
+    // log(`created transaction crystallize ${showObj(crystallize)}`);
     {
       const message = checkTransaction(
         crystallize,
@@ -6770,7 +6835,8 @@ function processDCPGenerators(
       }
     }
     let transfer: Transaction | undefined;
-    if (g.DETAILS.TRANSFER_TO !== "") {
+    if (details.TRANSFER_TO !== "") {
+      console.log(`create transaction ${transferCrystallizedPension + g.NAME}`);
       transfer = {
         NAME: transferCrystallizedPension + g.NAME,
         ERA: 0, // new things are automatically current,
@@ -6780,13 +6846,13 @@ function processDCPGenerators(
         TO: asset4Name,
         TO_ABSOLUTE: false,
         TO_VALUE: "1.0",
-        DATE: g.DETAILS.TRANSFER_DATE,
+        DATE: details.TRANSFER_DATE,
         STOP_DATE: "",
         RECURRENCE: "",
-        CATEGORY: g.DETAILS.CATEGORY,
+        CATEGORY: details.CATEGORY,
         TYPE: autogen,
       };
-      // log(`created transaction transfer ${JSON.stringify(transfer)}`);
+      // log(`created transaction transfer ${showObj(transfer)}`);
       {
         const message = checkTransaction(
           transfer,
@@ -6806,6 +6872,7 @@ function processDCPGenerators(
       model.transactions.push(transfer);
     }
   }
+  // log(`model after DCP processing is ${showObj(model)}`);
   return '';
 }
 
@@ -6820,7 +6887,7 @@ function processDBPGenerators(
   for(const g of gens) {
     // console.log(`processing ${g.NAME}`);
 
-    const dBDetails: DBGeneratorDetails = g.DETAILS;
+    const dBDetails: DBPGeneratorDetails = g.DETAILS;
 
       // do work to
       // (a) check integrity of inputs
@@ -6849,19 +6916,22 @@ function processDBPGenerators(
           // log(`parseYNDBSS = ${showObj(parseYNDBSS)}`);
         }
 
-        let isNotANumber = !isNumberString(dBDetails.CONTRIBUTION_AMOUNT);
+        let isNotANumber = dBDetails.CONTRIBUTION_AMOUNT === '' 
+          || !isNumberString(dBDetails.CONTRIBUTION_AMOUNT);
         if (isNotANumber) {
           return `Contribution amount '${dBDetails.CONTRIBUTION_AMOUNT}' ` +
               `should be a numerical value`;
         }
 
-        isNotANumber = !isNumberString(dBDetails.ACCRUAL);
+        isNotANumber = dBDetails.ACCRUAL === '' 
+          || !isNumberString(dBDetails.ACCRUAL);
         if (isNotANumber) {
           return `Accrual value '${dBDetails.ACCRUAL}' ` +
               `should be a numerical value`;
         }
       } else {
-        const isNotANumber = !isNumberString(dBDetails.CONTRIBUTION_AMOUNT);
+        const isNotANumber = dBDetails.CONTRIBUTION_AMOUNT == '' 
+          || !isNumberString(dBDetails.CONTRIBUTION_AMOUNT);
         if (!isNotANumber) {
           return `Contribution amount '${dBDetails.CONTRIBUTION_AMOUNT}' ` +
               `from no income?`;
@@ -6870,7 +6940,7 @@ function processDBPGenerators(
         const hasAccrual = dBDetails.ACCRUAL !== '';
         if (hasAccrual) {
           if (dBDetails.INCOME_SOURCE === '') {
-            console.log(`failed accrual/income checks on generator ${JSON.stringify(g)}`)
+            console.log(`failed accrual/income checks on generator ${showObj(g)}`)
             return `Accrual value '${dBDetails.ACCRUAL}' from no income?`;
           }
         }
@@ -6912,7 +6982,8 @@ function processDBPGenerators(
       }
       let builtLiability2: string | undefined;
       if (dBDetails.TRANSFER_TO !== "") {
-        const isNotANumber = !isNumberString(dBDetails.TRANSFER_PROPORTION);
+        const isNotANumber = dBDetails.TRANSFER_PROPORTION === '' 
+          || !isNumberString(dBDetails.TRANSFER_PROPORTION);
         if (isNotANumber) {
           return `Transfer proportion ${dBDetails.TRANSFER_PROPORTION} ` +
               `should be a numerical value`;
@@ -6981,10 +7052,13 @@ function processDBPGenerators(
 
       let pensionDbptran1: Transaction | undefined;
       let pensionDbptran2: Transaction | undefined;
-      // console.log(`parseYNDBSS = ${JSON.stringify(parseYNDBSS)}`)
+      // console.log(`parseYNDBSS = ${showObj(parseYNDBSS)}`)
       if (dBDetails.INCOME_SOURCE !== "") {
         const pensionDbptran1Name =  (parseYNDBSS.value ? pensionSS : pensionPrefix) + g.NAME;
         // console.log(`first transaction name = ${pensionDbptran1Name}`);
+        let transactionDate = dBDetails.VALUE_SET;
+        // if the contributing income hasn't started yet then delay the transaction
+        // TODO
         pensionDbptran1 = {
           NAME: pensionDbptran1Name,
           ERA: 0, // new things are automatically current,
@@ -6994,7 +7068,7 @@ function processDBPGenerators(
           TO: "",
           TO_ABSOLUTE: false,
           TO_VALUE: "0.0",
-          DATE: dBDetails.VALUE_SET, // match the income start date
+          DATE: transactionDate, // match the income start date
           STOP_DATE: dBDetails.STOP_SOURCE, // match the income stop date
           RECURRENCE: "",
           CATEGORY: dBDetails.CATEGORY,
@@ -7005,7 +7079,7 @@ function processDBPGenerators(
           model,
         );
         if (message.length > 0) {
-          log(`bad transaction1 ${showObj(pensionDbptran1)}`);
+          log(`bad transaction1 ${showObj(pensionDbptran1)} with message ${message}`);
           model.incomes.slice(model.incomes.findIndex((i) => {
             return i.NAME === pensionDbpIncome1.NAME;
           }), 1)
@@ -7086,7 +7160,7 @@ function processDBPGenerators(
           model,
         );
         if (message.length > 0) {
-          log(`bad transaction3 ${showObj(pensionDbptran3)}`);
+          log(`bad transaction3 ${showObj(pensionDbptran3)} in model ${showObj(model)}`);
           model.incomes.slice(model.incomes.findIndex((i) => {
             return i.NAME === pensionDbpIncome1.NAME;
           }), 1)
@@ -7116,11 +7190,20 @@ function processDBPGenerators(
 export function processGenerators(
   model: ModelData,  
 ) {
-  let message = processDBPGenerators(model);
+  if( model.name !== 'ready to be processed' &&
+    model.name !== 'temporary copy' 
+  ) {
+    throw new Error('processing a model not ready to be processed')
+  }
+let message = processDBPGenerators(model);
   if (message.length > 0) {
     return message;
   }
   message = processDCPGenerators(model);
+  if (message.length > 0) {
+    return message;
+  }
+  message = processBondGenerators(model);
   if (message.length > 0) {
     return message;
   }
@@ -7144,31 +7227,24 @@ export function getEvaluations(
 } {
   // log(`Entered getEvaluations for model ${model.name}`);
 
-  // log(`Entered getEvaluations for model ${JSON.stringify(model)}`);
+  // log(`Entered getEvaluations for model ${showObj(model)}`);
   //console.log(`Entered getEvaluations, incomes = ${model.incomes.map((i) => {
-  //  return `\n${JSON.stringify(i)}`;
+  //  return `\n${showObj(i)}`;
   //})}`);
   //console.log(`Entered getEvaluations, transactions = ${model.transactions.map((i) => {
-  //  return `\n${JSON.stringify(i)}`;
+  //  return `\n${showObj(i)}`;
   //})}`);
 
 
-  model = makeModelFromJSONString(JSON.stringify(model));
   const viewRange = getEvaluationsROI(model);
 
-  const errorMessage = processGenerators(model);
-  if (errorMessage !== '') {
-    console.log(`ERROR: ${errorMessage}`);
-    throw new Error(errorMessage); // TODO how to flag up failed evaluations?
-  }
-
   /*
-  console.log(`in evaluations, model = ${JSON.stringify(model)}`);
+  console.log(`in evaluations, model = ${showObj(model)}`);
   console.log(`in evaluations, incomes = ${model.incomes.map((i) => {
-    return `\n${JSON.stringify(i)}`;
+    return `\n${showObj(i)}`;
   })}`);
   console.log(`in evaluations, transactions = ${model.transactions.map((i) => {
-    return `\n${JSON.stringify(i)}`;
+    return `\n${showObj(i)}`;
   })}`);
   */
  

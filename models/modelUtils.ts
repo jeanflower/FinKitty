@@ -33,7 +33,7 @@ import {
   Transaction,
 } from "../types/interfaces";
 import { DateFormatType, log, makeDateFromString, showObj } from "../utils/utils";
-import { checkData } from "./checks";
+import { checkModel } from "./checks";
 
 import { makeModelFromJSONString } from "./modelFromJSON";
 import { getSettings, getVarVal, isATransaction } from "./modelQueries";
@@ -250,7 +250,7 @@ export function attemptRenameLong(
 ): string {
   // log(`attempt rename from ${old} to ${replacement}`);
 
-  const outcome = checkData(model);
+  const outcome = checkModel(model);
   /* istanbul ignore if */
   if (outcome.message !== "") {
     return `Error: pre-rename model ${showObj(model)} fails checks with ${showObj(outcome)}`;
@@ -335,7 +335,7 @@ export function attemptRenameLong(
     return message;
   }
   if (doChecks) {
-    const outcome = checkData(model);
+    const outcome = checkModel(model);
     /* istanbul ignore if */
     if (outcome.message !== "") {
       log(`Error: reverted model fails checks with ${showObj(outcome)}`);
@@ -386,7 +386,7 @@ export function standardiseDates(model: ModelData): string {
     obj.DATE = standardiseDate(obj.DATE);
     obj.STOP_DATE = standardiseDate(obj.STOP_DATE);
   });
-  const outcome = checkData(model);
+  const outcome = checkModel(model);
   /* istanbul ignore if */
   if (outcome.message !== "") {
     log(`Error: model fails checks with ${outcome.message}`);

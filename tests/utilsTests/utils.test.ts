@@ -97,7 +97,7 @@ import {
   getDisplayedView,
   views,
 } from "../../utils/viewUtils";
-import { checkData } from "../../models/checks";
+import { checkModel } from "../../models/checks";
 import { toggle } from "../../App";
 import { getTestModel } from "../../models/testModel";
 import { simpleSetting } from "../../models/exampleSettings";
@@ -413,11 +413,11 @@ describe("utils tests", () => {
     expect(model.transactions[0].DATE).toEqual("Thu Feb 01 2001");
     expect(model.transactions[0].STOP_DATE).toEqual("Thu Feb 01 2001");
 
-    expect(checkData(model).message).toEqual("Date 't9' is not valid : 'refers to some setting'");
+    expect(checkModel(model).message).toEqual("Date 't9' is not valid : 'refers to some setting'");
 
     model.triggers[9].DATE = "Mon Feb 01 2021";
 
-    expect(checkData(model).message).toEqual("");
+    expect(checkModel(model).message).toEqual("");
 
     standardiseDates(model);
   });
@@ -436,10 +436,10 @@ describe("utils tests", () => {
       START: "01 February 2021",
       END: "01 February 2021",
     });
-    expect(checkData(model).message).toEqual("duplicate name NoName");
+    expect(checkModel(model).message).toEqual("duplicate name NoName");
     model.incomes[0].NAME = "iName";
     model.expenses[0].NAME = "eName";
-    expect(checkData(model).message).toEqual("");
+    expect(checkModel(model).message).toEqual("");
   });
 
   it("removeNumberPart", () => {
@@ -2310,10 +2310,10 @@ describe("utils tests", () => {
     );
     expect(diffResult.length).toBe(1);
     expect(diffResult[0]).toEqual(
-      "ISAs: start date December 2018 !== 01 Dec 2019",
+      "ISAs: start date December 2018 !== December 2019",
     );
 
-    model2.assets[1].START = "01 Dec 2019";
+    model2.assets[1].START = "December 2019";
     diffResult = diffModels(
       model2,
       oldModelCopy,

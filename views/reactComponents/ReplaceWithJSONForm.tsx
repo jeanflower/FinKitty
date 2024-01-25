@@ -63,15 +63,9 @@ export class ReplaceWithJSONForm extends Component<
     this.state = this.defaultState;
 
     this.replace = this.replace.bind(this);
-    this.handleValueChange = this.handleValueChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-  private handleValueChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const value = e.target.value;
-    // log(`setting new value for JSON form ${value}`);
-    this.setState({ JSON: value });
-  }
 
   private handleSubmit(e: React.ChangeEvent<HTMLInputElement>) {
     // log(`setting new value for JSON form ${value}`);
@@ -87,7 +81,9 @@ export class ReplaceWithJSONForm extends Component<
           name={"replaceWithJSON"}
           value={this.state.JSON}
           placeholder={"Enter text input here"}
-          onChange={this.handleValueChange}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+            this.setState({ JSON: e.target.value });
+          }}
           onSubmit={this.handleSubmit}
         />
         {makeButton(

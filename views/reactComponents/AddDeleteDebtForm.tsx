@@ -3,7 +3,6 @@ import { Col, Row } from "react-bootstrap";
 
 import {
   Asset,
-  ModelData,
   Transaction,
   Trigger,
   FormProps,
@@ -42,17 +41,15 @@ interface EditDebtFormState {
   inputting: string;
 }
 interface EditDebtProps extends FormProps {
-  checkAssetFunction: (a: Asset, model: ModelData) => string;
-  submitAssetFunction: (arg0: Asset, arg1: ModelData) => Promise<void>;
+  checkAssetFunction: (a: Asset) => string;
+  submitAssetFunction: (arg0: Asset) => Promise<void>;
   deleteAssetFunction: (name: string) => Promise<DeleteResult>;
-  checkTransactionFunction: (t: Transaction, model: ModelData) => string;
+  checkTransactionFunction: (t: Transaction) => string;
   submitTransactionFunction: (
     transactionInput: Transaction,
-    modelData: ModelData,
   ) => Promise<void>;
   submitTriggerFunction: (
     triggerInput: Trigger,
-    modelData: ModelData,
   ) => Promise<void>;
   doCheckBeforeOverwritingExistingData: () => boolean;
 }
@@ -85,14 +82,6 @@ export class AddDeleteDebtForm extends Component<
 
     this.state = this.defaultState;
 
-    this.handleNameChange = this.handleNameChange.bind(this);
-    this.handleValueChange = this.handleValueChange.bind(this);
-    this.handleGrowthChange = this.handleGrowthChange.bind(this);
-    this.handlePaymentChange = this.handlePaymentChange.bind(this);
-    this.handleCategoryChange = this.handleCategoryChange.bind(this);
-    this.handleStartChange = this.handleStartChange.bind(this);
-    this.setStart = this.setStart.bind(this);
-
     this.add = this.add.bind(this);
     this.delete = this.delete.bind(this);
 
@@ -116,7 +105,11 @@ export class AddDeleteDebtForm extends Component<
               return lessThan(a.NAME, b.NAME);
             }),
           this.props.model,
-          this.handleNameChange,
+          (s: string)=>{
+            this.setState({
+              NAME: s,
+            });
+          },
           "debtname",
           "Select debt",
         )}
@@ -136,7 +129,11 @@ export class AddDeleteDebtForm extends Component<
               name="debtvalue"
               value={this.state.VALUE}
               placeholder="Enter value"
-              onChange={this.handleValueChange}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                this.setState({
+                  VALUE: e.target.value,
+                })
+              }}
             />
           </Col>
         </Row>
@@ -152,7 +149,9 @@ export class AddDeleteDebtForm extends Component<
               value={this.state.NAME}
               placeholder="Enter name"
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                return this.handleNameChange(e.target.value);
+                this.setState({
+                  NAME: e.target.value,
+                })
               }}
             />
           </Col>
@@ -163,7 +162,11 @@ export class AddDeleteDebtForm extends Component<
               name="debtvalue"
               value={this.state.VALUE}
               placeholder="Enter value"
-              onChange={this.handleValueChange}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                this.setState({
+                  VALUE: e.target.value,
+                })
+              }}            
             />
           </Col>
           <Col>
@@ -173,7 +176,11 @@ export class AddDeleteDebtForm extends Component<
               name="debtcategory"
               value={this.state.CATEGORY}
               placeholder="category"
-              onChange={this.handleCategoryChange}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                this.setState({
+                  CATEGORY: e.target.value,
+                })
+              }}
             />
           </Col>
         </Row>
@@ -195,7 +202,11 @@ export class AddDeleteDebtForm extends Component<
               name="debtgrowth"
               value={this.state.GROWTH}
               placeholder="Enter growth"
-              onChange={this.handleGrowthChange}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                this.setState({
+                  GROWTH: e.target.value,
+                })
+              }}
             />
           </Col>
           <Col>
@@ -205,7 +216,11 @@ export class AddDeleteDebtForm extends Component<
               name="debtpayoff"
               value={this.state.PAYMENT}
               placeholder="Enter payment"
-              onChange={this.handlePaymentChange}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                this.setState({
+                  PAYMENT: e.target.value,
+                })
+              }}
             />
           </Col>
         </Row>
@@ -260,7 +275,6 @@ export class AddDeleteDebtForm extends Component<
     // log(`adding transaction ${showObj(revalueExpenseTransaction)}`);
     const message = await this.props.checkTransactionFunction(
       revalueTransaction,
-      this.props.model,
     );
     if (message.length > 0) {
       this.props.showAlert(message);
@@ -268,7 +282,6 @@ export class AddDeleteDebtForm extends Component<
     }
     await this.props.submitTransactionFunction(
       revalueTransaction,
-      this.props.model,
     );
 
     this.props.showAlert("added new data");
@@ -335,10 +348,18 @@ export class AddDeleteDebtForm extends Component<
             }`}
             model={this.props.model}
             showAlert={this.props.showAlert}
-            setDateFunction={this.setStart}
+            setDateFunction={(s: string) => {
+              this.setState({
+                START: s,
+              })
+            }}
             inputName="start date"
             inputValue={this.state.START}
-            onChangeHandler={this.handleStartChange}
+            onChangeHandler={(e: React.ChangeEvent<HTMLInputElement>) => {
+              this.setState({
+                START: e.target.value,
+              })
+            }}
             triggers={this.props.model.triggers}
             submitTriggerFunction={this.props.submitTriggerFunction}
           />
@@ -347,34 +368,6 @@ export class AddDeleteDebtForm extends Component<
         </form>
       </>
     );
-  }
-
-  private handleNameChange(name: string) {
-    const value = name;
-    this.setState({ NAME: value });
-  }
-  private handleGrowthChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const value = e.target.value;
-    this.setState({ GROWTH: value });
-  }
-  private handlePaymentChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const value = e.target.value;
-    this.setState({ PAYMENT: value });
-  }
-  private handleCategoryChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const value = e.target.value;
-    this.setState({ CATEGORY: value });
-  }
-  private handleValueChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const value = e.target.value;
-    this.setState({ VALUE: value });
-  }
-  private setStart(value: string): void {
-    this.setState({ START: value });
-  }
-  private handleStartChange(e: React.ChangeEvent<HTMLInputElement>): void {
-    const value = e.target.value;
-    this.setStart(value);
   }
 
   private async add(e: FormEvent<Element>) {
@@ -437,7 +430,6 @@ export class AddDeleteDebtForm extends Component<
       }
     }
 
-    // log('adding something ' + showObj(this));
     const asset: Asset = {
       NAME: this.state.NAME,
       ERA: 0, // new things are automatically current,
@@ -452,11 +444,12 @@ export class AddDeleteDebtForm extends Component<
       PURCHASE_PRICE: "0.0",
       LIABILITY: "",
     };
-    const message = this.props.checkAssetFunction(asset, this.props.model);
+    log('adding a debt ' + showObj(asset));
+    const message = this.props.checkAssetFunction(asset);
     if (message.length > 0) {
       this.props.showAlert(message);
     } else {
-      await this.props.submitAssetFunction(asset, this.props.model);
+      await this.props.submitAssetFunction(asset);
       if (this.state.PAYMENT !== "") {
         let count = 1;
         while (
@@ -482,10 +475,9 @@ export class AddDeleteDebtForm extends Component<
           RECURRENCE: "1m",
           TYPE: payOffDebt,
         };
-        // log('adding something ' + showObj(transaction));
+        log('adding transaction ' + showObj(transaction));
         const message = await this.props.checkTransactionFunction(
           transaction,
-          this.props.model,
         );
         if (message.length > 0) {
           this.props.showAlert(message);
@@ -493,7 +485,6 @@ export class AddDeleteDebtForm extends Component<
         } else {
           await this.props.submitTransactionFunction(
             transaction,
-            this.props.model,
           );
           this.props.showAlert("added new debt and payment");
           // clear fields

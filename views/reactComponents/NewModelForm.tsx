@@ -46,15 +46,9 @@ export class CreateModelForm extends Component<
     this.state = this.defaultState;
 
     this.clonePropsModel = this.clonePropsModel.bind(this);
-    this.handleValueChange = this.handleValueChange.bind(this);
     this.backupModel = this.backupModel.bind(this);
   }
 
-  private handleValueChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const value = e.target.value;
-    // log(`setting new value for JSON form ${value}`);
-    this.setState({ newName: value });
-  }
 
   private exampleButtonList() {
     const buttons: JSX.Element[] = this.props.exampleModels.map((x) => {
@@ -101,7 +95,9 @@ export class CreateModelForm extends Component<
             name={"createModel"}
             value={this.state.newName}
             placeholder={"Enter new model name here"}
-            onChange={this.handleValueChange}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+              this.setState({ newName: e.target.value });
+            }}
           />
           {makeButton(
             "New model",

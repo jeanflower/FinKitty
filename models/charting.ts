@@ -1305,7 +1305,7 @@ export function makeChartData(
 }
 
 export function makeChartDataFromEvaluations(
-  model: ModelData,
+  unprocessedModel: ModelData,
   viewSettings: ViewSettings,
   evaluationsAndVals: {
     evaluations: Evaluation[];
@@ -1316,11 +1316,14 @@ export function makeChartDataFromEvaluations(
     todaysSettingValues: Map<Setting, SettingVal>;
   },
 ) {
-  const copyModel = makeModelFromJSONString(JSON.stringify(model));
-  processGenerators(copyModel);
+  const modelProcessed = makeModelFromJSONString(JSON.stringify(unprocessedModel));
+  modelProcessed.name = 'ready to be processed';
 
-  viewSettings.setModel(copyModel);
-  const result = makeChartData(copyModel, viewSettings, evaluationsAndVals);
+  processGenerators(modelProcessed);
+  modelProcessed.name = 'has been processed';
+
+  viewSettings.setModel(modelProcessed);
+  const result = makeChartData(modelProcessed, viewSettings, evaluationsAndVals);
 
   result.taxData.sort((a, b) => lessThan(a.item.NAME, b.item.NAME));
 

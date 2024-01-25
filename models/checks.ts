@@ -82,6 +82,8 @@ import {
   Transaction,
   Trigger,
 } from "../types/interfaces";
+import { makeModelFromJSON } from "./modelFromJSON";
+import { processGenerators } from "./evaluations";
 
 export const evaluationType = {
   expense: "Expense",
@@ -96,19 +98,22 @@ function checkTransactionWords(
   word: string,
   date: string,
   model: ModelData,
-) {
+): string {
   // log(`date for check = ${getTriggerDate(date, triggers)}`);
   const triggers = model.triggers;
   const v = getVarVal(model.settings);
   const a = model.assets.find(
     (as) =>
-      (as.NAME === word || as.CATEGORY === word) &&
-      getTriggerDate(as.START, triggers, v) <=
-      getTriggerDate(date, triggers, v),
+      (as.NAME === word || as.CATEGORY === word)
   );
   if (a !== undefined) {
-    return true;
-  }
+    if (getTriggerDate(a.START, triggers, v) <=
+       getTriggerDate(date, triggers, v)) {
+      return '';
+    } else {
+      return `asset ${a.NAME} starts too late ${a.START} > ${getTriggerDate(date, triggers, v)}`;
+    }
+  } 
 
   // log(`name = ${name} and transaction from word ${word}`);
   // maybe t.FROM is the name of an income
@@ -117,11 +122,29 @@ function checkTransactionWords(
       is.NAME === word &&
       (name.startsWith(pensionDB) ||
         name.startsWith(pensionPrefix) ||
-        name.startsWith(pensionSS) ||
-        getTriggerDate(is.START, triggers, v) <=
-        getTriggerDate(date, triggers, v)),
-  );
+        name.startsWith(pensionSS)  ||
+        name.startsWith(pensionTransfer))
+  );  
   if (i !== undefined) {
+    if (
+      getTriggerDate(i.START, triggers, v) >
+      getTriggerDate(date, triggers, v)) {
+      if (name.startsWith(pensionDB)) {
+        // allow this!
+        // pension SSs can start before their contributing incomes
+        return ''
+      } else if (name.startsWith(pensionSS)) {
+        // allow this!
+        // pension DBs can start before their contributing incomes
+        return ''
+      } else if (name.startsWith(pensionPrefix)) {
+        // allow this!
+        // pensions can start before their contributing incomes
+        return ''
+      } else {
+        return `income ${i.NAME} starts too late ${i.START} > ${getTriggerDate(date, triggers, v)}`;
+      }
+    }
     // the word is an income
     // this only happens for transactions called Pension*
     if (
@@ -130,11 +153,10 @@ function checkTransactionWords(
       !name.startsWith(pensionDB) && // transfer from income to pension benefit
       !name.startsWith(pensionTransfer) // transfer from one pension to another
     ) {
-      log(`Transaction '${name}' from income 
-        ${word} must be pension-related`);
-      return false;
+      return `Transaction '${name}' from income 
+        ${word} must be pension-related`;
     }
-    return true;
+    return '';
   }
 
   // maybe t.FROM is an income liability
@@ -146,10 +168,9 @@ function checkTransactionWords(
   );
   if (i !== undefined) {
     // the word is an income liability
-    return true;
+    return '';
   }
-
-  return false;
+  return `no match found for ${word}`;
 }
 function checkDate(d: Date) {
   // log(`checking date ${d}, of type ${typeof d}`);
@@ -312,7 +333,7 @@ export function checkIncomeLiability(l: string) {
   return "";
 }
 
-function checkRecurrence(rec: string) {
+export function checkRecurrence(rec: string) {
   const lastChar = rec.substring(rec.length - 1);
   // log(`lastChar of ${rec} = ${lastChar}`);
   if (!(lastChar === "m" || lastChar === "y" || lastChar === "w")) {
@@ -601,6 +622,11 @@ function checkTransactionTo(word: string, t: Transaction, model: ModelData) {
     }
     return "";
   }
+  log(`Transaction '${getDisplayName(
+    t.NAME,
+    t.TYPE,
+  )} to unrecognised thing : ${word} for model ${showObj(model)}`);
+  // throw new Error();
   return `Transaction '${getDisplayName(
     t.NAME,
     t.TYPE,
@@ -1026,7 +1052,8 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
   }
   // log(`transaction date ${getTriggerDate(t.DATE, triggers)}`);
   if (t.FROM !== "") {
-    if (!checkTransactionWords(t.NAME, t.FROM, t.DATE, model)) {
+    const wordResult = checkTransactionWords(t.NAME, t.FROM, t.DATE, model);
+    if (wordResult !== '') {
       // log(`split up t.FROM ${t.FROM}`);
       const words = t.FROM.split(separator);
       // log(`words ${showObj(words)}`);
@@ -1034,14 +1061,22 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
       for (let i = 0; i < arrayLength; i += 1) {
         const word = words[i];
         // log(`word to check is ${word}`);
-        if (!checkTransactionWords(t.NAME, word, t.DATE, model)) {
+        const wordResult = checkTransactionWords(t.NAME, word, t.DATE, model);
+        if (wordResult !== '') {
           // flag a problem
-          // console.log(`Bad transaction ${JSON.stringify(t)} from unrecognised asset (could ` +
-          //   `be typo or before asset start date?) : ${showObj(word)}`);
+          // console.log(`Bad transaction ${showObj(t)} from unrecognised asset (could ` +
+          //    `be typo or before asset start date?) : ${showObj(word)} in ${showObj(model)}`);
+          // throw new Error();
+          /*
           return (
             `Transaction '${getDisplayName(t.NAME, t.TYPE)}' ` +
-            `from unrecognised asset (could ` +
-            `be typo or before asset start date?) : ${showObj(word)}`
+            `from unrecognised asset (${wordResult}) : ${showObj(word)}`
+          );
+          */
+          return (
+            `Transaction '${getDisplayName(t.NAME, t.TYPE)}' ` +
+            `from unrecognised asset ` +
+            `(could be typo or before asset start date?) : ${showObj(word)}`
           );
         }
       }
@@ -1622,7 +1657,20 @@ export interface CheckResult {
   message: string;
 }
 
-export function checkData(model: ModelData): CheckResult {
+export function generateAndCheckModel(
+  model: ModelData
+) {
+  const copyModel = makeModelFromJSON(JSON.stringify(model));
+  copyModel.name = 'temporary copy';
+  processGenerators(copyModel);
+
+  const result = checkModel(copyModel);
+  return result;
+}
+
+export function checkModel(
+  model: ModelData
+): CheckResult {
   if (model.name === "Unnamed" || model.name === "") {
     return {
       type: undefined,

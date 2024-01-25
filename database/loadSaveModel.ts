@@ -17,7 +17,7 @@ import { getDB } from "./database";
 import { adjustableType } from "../localization/stringConstants";
 
 import { diffModels } from "../models/diffModels";
-import { checkData, CheckResult } from "../models/checks";
+import { checkModel, CheckResult, generateAndCheckModel } from "../models/checks";
 import { simpleExampleData } from "../models/exampleModels";
 import { markForUndo, revertToUndoModel } from "../models/modelUtils";
 import { minimalModel } from "../models/minimalModel";
@@ -299,6 +299,9 @@ export async function saveModelLSM(
   modelName: string,
   model: ModelData,
 ) {
+  if(model.name === 'has been processed') {
+    throw new Error('saving processed model!')
+  }
   // log(`save model ${showObj(model)}`);
   /* istanbul ignore if  */
   if (showDBInteraction) {
@@ -339,7 +342,7 @@ async function submitItemLSM(
   updateItemList(itemList, inputItem);
 
   if (doChecks) {
-    const outcome = checkData(modelData);
+    const outcome = generateAndCheckModel(modelData);
     if (outcome.message !== "") {
       revertToUndoModel(modelData);
       return outcome;

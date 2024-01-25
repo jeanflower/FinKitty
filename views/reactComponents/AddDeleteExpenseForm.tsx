@@ -82,23 +82,11 @@ export class AddDeleteExpenseForm extends Component<
 
     this.state = this.defaultState;
 
-    this.handleNameChange = this.handleNameChange.bind(this);
-    this.handleValueChange = this.handleValueChange.bind(this);
-    this.handleGrowsWithCPIChange = this.handleGrowsWithCPIChange.bind(this);
-    this.handleCategoryChange = this.handleCategoryChange.bind(this);
-    this.handleRecurrenceChange = this.handleRecurrenceChange.bind(this);
     this.setInputRevalue = this.setInputRevalue.bind(this);
     this.setInputExpense = this.setInputExpense.bind(this);
     this.twoExtraDates = this.twoExtraDates.bind(this);
     this.newExpenseForm = this.newExpenseForm.bind(this);
     this.revalue = this.revalue.bind(this);
-
-    this.handleValueSetChange = this.handleValueSetChange.bind(this);
-    this.setValueSet = this.setValueSet.bind(this);
-    this.handleStartChange = this.handleStartChange.bind(this);
-    this.setStart = this.setStart.bind(this);
-    this.handleEndChange = this.handleEndChange.bind(this);
-    this.setEnd = this.setEnd.bind(this);
 
     this.add = this.add.bind(this);
     this.delete = this.delete.bind(this);
@@ -118,7 +106,9 @@ export class AddDeleteExpenseForm extends Component<
               name="expensecpi-grows"
               value={this.state.GROWS_WITH_CPI}
               placeholder="Enter Y/N"
-              onChange={this.handleGrowsWithCPIChange}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                this.setState({ GROWS_WITH_CPI: e.target.value });
+              }}
             />
           </Col>{" "}
         </Row>
@@ -130,7 +120,9 @@ export class AddDeleteExpenseForm extends Component<
               name="expenserecurrence"
               value={this.state.RECURRENCE}
               placeholder="recurrence"
-              onChange={this.handleRecurrenceChange}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                this.setState({ RECURRENCE: e.target.value });
+              }}
             />
           </Col>{" "}
           <Col>
@@ -140,7 +132,9 @@ export class AddDeleteExpenseForm extends Component<
               name="expensecategory"
               value={this.state.CATEGORY}
               placeholder="category"
-              onChange={this.handleCategoryChange}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                this.setState({ CATEGORY: e.target.value });
+              }}
             />
           </Col>{" "}
         </Row>
@@ -158,10 +152,14 @@ export class AddDeleteExpenseForm extends Component<
           introLabel="Date on which the expense starts"
           model={this.props.model}
           showAlert={this.props.showAlert}
-          setDateFunction={this.setStart}
+          setDateFunction={(value) => {
+            this.setState({ START: value });
+          }}
           inputName="start date"
           inputValue={this.state.START}
-          onChangeHandler={this.handleStartChange}
+          onChangeHandler={(e: React.ChangeEvent<HTMLInputElement>): void => {
+            this.setState({ START: e.target.value });
+          }}
           triggers={this.props.model.triggers}
           submitTriggerFunction={this.props.submitTriggerFunction}
         />
@@ -169,10 +167,14 @@ export class AddDeleteExpenseForm extends Component<
           introLabel="Date on which the expense ends"
           model={this.props.model}
           showAlert={this.props.showAlert}
-          setDateFunction={this.setEnd}
+          setDateFunction={(value) => {
+            this.setState({ END: value });
+          }}
           inputName="end date"
           inputValue={this.state.END}
-          onChangeHandler={this.handleEndChange}
+          onChangeHandler={(e: React.ChangeEvent<HTMLInputElement>): void => {
+            this.setState({ END: e.target.value });
+          }}
           triggers={this.props.model.triggers}
           submitTriggerFunction={this.props.submitTriggerFunction}
         />
@@ -234,7 +236,9 @@ export class AddDeleteExpenseForm extends Component<
                 name="expensevalue"
                 value={this.state.VALUE}
                 placeholder="Enter value"
-                onChange={this.handleValueChange}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  this.setState({ VALUE: e.target.value });
+                }}
               />
             </Col>{" "}
           </Row>
@@ -244,10 +248,18 @@ export class AddDeleteExpenseForm extends Component<
               introLabel="Date on which the expense value is set"
               model={this.props.model}
               showAlert={this.props.showAlert}
-              setDateFunction={this.setValueSet}
+              setDateFunction={(value) => {
+                this.setState({
+                    VALUE_SET: value,
+                });}
+              }
               inputName="expense valuation date"
               inputValue={this.state.VALUE_SET}
-              onChangeHandler={this.handleValueSetChange}
+              onChangeHandler={(e: React.ChangeEvent<HTMLInputElement>): void => {
+                this.setState({
+                  VALUE_SET: e.target.value,
+                });
+              }}
               triggers={this.props.model.triggers}
               submitTriggerFunction={this.props.submitTriggerFunction}
             />
@@ -270,7 +282,9 @@ export class AddDeleteExpenseForm extends Component<
               return lessThan(a.NAME, b.NAME);
             }),
             this.props.model,
-            this.handleNameChange,
+            (name: string) => {
+              this.setState({ NAME: name });
+            },
             "expensename",
             "Select expense",
           )}
@@ -285,32 +299,11 @@ export class AddDeleteExpenseForm extends Component<
           value={this.state.NAME}
           placeholder="Enter name"
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-            return this.handleNameChange(e.target.value);
+            this.setState({ NAME: e.target.value });
           }}
         />
       );
     }
-  }
-
-  private handleNameChange(name: string) {
-    const value = name;
-    this.setState({ NAME: value });
-  }
-  private handleRecurrenceChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const value = e.target.value;
-    this.setState({ RECURRENCE: value });
-  }
-  private handleCategoryChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const value = e.target.value;
-    this.setState({ CATEGORY: value });
-  }
-  private handleGrowsWithCPIChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const value = e.target.value;
-    this.setState({ GROWS_WITH_CPI: value });
-  }
-  private handleValueChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const value = e.target.value;
-    this.setState({ VALUE: value });
   }
   private setInputRevalue(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
@@ -325,30 +318,6 @@ export class AddDeleteExpenseForm extends Component<
       ...this.state,
       inputting: inputtingExpense,
     });
-  }
-
-  private setValueSet(value: string): void {
-    this.setState({
-      VALUE_SET: value,
-    });
-  }
-  private handleValueSetChange(e: React.ChangeEvent<HTMLInputElement>): void {
-    const value = e.target.value;
-    this.setValueSet(value);
-  }
-  private setStart(value: string): void {
-    this.setState({ START: value });
-  }
-  private handleStartChange(e: React.ChangeEvent<HTMLInputElement>): void {
-    const value = e.target.value;
-    this.setStart(value);
-  }
-  private setEnd(value: string): void {
-    this.setState({ END: value });
-  }
-  private handleEndChange(e: React.ChangeEvent<HTMLInputElement>): void {
-    const value = e.target.value;
-    this.setEnd(value);
   }
   private async revalue(e: React.MouseEvent<HTMLButtonElement>): Promise<void> {
     e.preventDefault();

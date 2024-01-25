@@ -6,7 +6,7 @@ import {
 } from "../models/modelUtils";
 import { DeleteResult, Item, ModelData } from "../types/interfaces";
 import { getUserID } from "./user";
-import { checkData } from "../models/checks";
+import { checkModel } from "../models/checks";
 import { Context, log } from "./utils";
 
 export async function attemptRename(
@@ -126,7 +126,7 @@ async function deleteItemsRecursive(
   let message = "";
   let checksClean = false;
   while (!checksClean) {
-    const outcome = checkData(model);
+    const outcome = checkModel(model);
     checksClean = outcome.message === "";
     if (checksClean) {
       break;

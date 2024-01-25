@@ -1,7 +1,7 @@
 import React, { Component, FormEvent } from "react";
 import { Button, Col, Row } from "react-bootstrap";
 
-import { checkAssetLiability, isValidValue } from "../../models/checks";
+import { checkAssetLiability, checkRecurrence, isValidValue } from "../../models/checks";
 import {
   Asset,
   ModelData,
@@ -11,6 +11,7 @@ import {
   DeleteResult,
   Generator,
   DCGeneratorDetails,
+  BondGeneratorDetails,
 } from "../../types/interfaces";
 import { log, printDebug, showObj } from "../../utils/utils";
 import { makeButton } from "./Button";
@@ -55,7 +56,7 @@ interface EditAssetFormState {
   PURCHASE_PRICE: string;
   LIABILITY: string;
   CATEGORY: string;
-  inputting: string;
+  inputMode: string;
   DCP_STOP: string;
   DCP_CRYSTALLIZE: string;
   DCP_SS: string;
@@ -64,28 +65,31 @@ interface EditAssetFormState {
   DCP_EMP_CONTRIBUTION_AMOUNT: string;
   DCP_TRANSFER_TO: string;
   DCP_TRANSFER_DATE: string;
+  BOND_DURATION: string;
+  BOND_SOURCE: string;
+  BOND_TARGET: string;
+  BOND_YEAR: string;
+  BOND_RECURRENCE: string;
 }
 
 const inputtingRevalue = "revalue";
 const inputtingAsset = "asset";
 const inputtingPension = "definedContributionsPension";
+const inputtingBonds = "bonds";
 
 interface EditAssetProps extends FormProps {
   checkAssetFunction: (a: Asset, model: ModelData) => string;
-  submitAssetFunction: (arg0: Asset, arg1: ModelData) => Promise<void>;
+  submitAssetFunction: (arg0: Asset) => Promise<void>;
   deleteAssetFunction: (name: string) => Promise<DeleteResult>;
   checkTransactionFunction: (t: Transaction, model: ModelData) => string;
   submitTransactionFunction: (
     transactionInput: Transaction,
-    modelData: ModelData,
   ) => Promise<void>;
   submitTriggerFunction: (
     triggerInput: Trigger,
-    modelData: ModelData,
   ) => Promise<void>;
   submitGeneratorFunction: (
     generator: Generator,
-    modelData: ModelData,
   ) => Promise<void>;
   deleteGeneratorFunction: (name: string) => Promise<DeleteResult>;
   doCheckBeforeOverwritingExistingData: () => boolean;
@@ -115,7 +119,7 @@ export class AddDeleteAssetForm extends Component<
       PURCHASE_PRICE: "",
       LIABILITY: "",
       CATEGORY: "",
-      inputting: inputtingAsset,
+      inputMode: inputtingAsset,
       DCP_STOP: "",
       DCP_CRYSTALLIZE: "",
       DCP_SS: "",
@@ -124,37 +128,14 @@ export class AddDeleteAssetForm extends Component<
       DCP_EMP_CONTRIBUTION_AMOUNT: "",
       DCP_TRANSFER_TO: "",
       DCP_TRANSFER_DATE: "",
+      BOND_DURATION: "",
+      BOND_SOURCE: "",
+      BOND_TARGET: "",
+      BOND_YEAR: "",
+      BOND_RECURRENCE: "",
     };
 
     this.state = this.defaultState;
-
-    this.handleNameChange = this.handleNameChange.bind(this);
-    this.handleValueChange = this.handleValueChange.bind(this);
-    this.handleQuantityChange = this.handleQuantityChange.bind(this);
-    this.handleGrowthChange = this.handleGrowthChange.bind(this);
-    this.handleLiabilityChange = this.handleLiabilityChange.bind(this);
-    this.handleCategoryChange = this.handleCategoryChange.bind(this);
-    this.handlePurchasePriceChange = this.handlePurchasePriceChange.bind(this);
-    this.handleGrowsWithCPIChange = this.handleGrowsWithCPIChange.bind(this);
-    this.handleStartChange = this.handleStartChange.bind(this);
-    this.handleDcpTransferTo = this.handleDcpTransferTo.bind(this);
-    this.setDcpTransferDate = this.setDcpTransferDate.bind(this);
-    this.handleDcpTransferDateChange =
-      this.handleDcpTransferDateChange.bind(this);
-
-    this.setStart = this.setStart.bind(this);
-    this.inputPension = this.inputPension.bind(this);
-    this.inputAsset = this.inputAsset.bind(this);
-    this.inputRevalue = this.inputRevalue.bind(this);
-    this.setStop = this.setStop.bind(this);
-    this.handleStopChange = this.handleStopChange.bind(this);
-    this.setCrystallize = this.setCrystallize.bind(this);
-    this.handleCrystallizeChange = this.handleCrystallizeChange.bind(this);
-    this.handleDcpIncomeSourceChange =
-      this.handleDcpIncomeSourceChange.bind(this);
-    this.handleDcpContAmount = this.handleDcpContAmount.bind(this);
-    this.handleDcpEmpContAmount = this.handleDcpEmpContAmount.bind(this);
-    this.handleDcpSsChange = this.handleDcpSsChange.bind(this);
 
     this.add = this.add.bind(this);
     this.addFromButton = this.addFromButton.bind(this);
@@ -162,15 +143,28 @@ export class AddDeleteAssetForm extends Component<
     this.delete = this.delete.bind(this);
     this.goButtons = this.goButtons.bind(this);
     this.revalue = this.revalue.bind(this);
-    this.ValueQuantityAndCategory = this.ValueQuantityAndCategory.bind(this);
+    this.topRowOfForm = this.topRowOfForm.bind(this);
     this.growthAndInflation = this.growthAndInflation.bind(this);
   }
+/*
+  For bonds:
+
+  Start date. START
+  Duration.  BOND_DURATION
+  Invested amount. VALUE
+  Interest rate. GROWTH
+  Source asset of investment amount. BOND_SOURCE
+  Target asset on bond maturation.  BOND_TARGET
+  Recurrence. BOND_RECURRENCE
+  Year. BOND_YEAR
+  Category: CATEGORY
+*/
 
   private inputsForGeneralAsset(): React.ReactNode {
     return (
       <div
         style={{
-          display: this.state.inputting === inputtingAsset ? "block" : "none",
+          display: this.state.inputMode === inputtingAsset ? "block" : "none",
         }}
       >
         <Row>
@@ -181,7 +175,9 @@ export class AddDeleteAssetForm extends Component<
               name="liabilityCGT"
               value={this.state.LIABILITY}
               placeholder="Enter liability"
-              onChange={this.handleLiabilityChange}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                this.setState({ LIABILITY: e.target.value });
+              }}
             />
           </Col>
           <Col>
@@ -194,7 +190,9 @@ export class AddDeleteAssetForm extends Component<
               name="purchase"
               value={this.state.PURCHASE_PRICE}
               placeholder="purchase"
-              onChange={this.handlePurchasePriceChange}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                this.setState({ PURCHASE_PRICE: e.target.value });
+              }}
             />
           </Col>
         </Row>
@@ -202,30 +200,42 @@ export class AddDeleteAssetForm extends Component<
     );
   }
 
-  private inputAssetName(): React.ReactNode {
+  private getAssetOptions() {
+    return this.props.model.assets
+      .filter((a) => {
+        return !a.IS_A_DEBT;
+      })
+      .sort((a: Asset, b: Asset) => {
+        return lessThan(a.NAME, b.NAME);
+      });
+  }
+
+  private inputAssetName(
+    label: string,
+    action: (s:string) => void,
+    id: string,
+    defaultText: string,
+  ): React.ReactNode {
     return (
       <>
-        Asset name
+        {label}
         <Spacer height={10} />
         {itemOptions(
-          this.props.model.assets
-            .filter((a) => {
-              return !a.IS_A_DEBT;
-            })
-            .sort((a: Asset, b: Asset) => {
-              return lessThan(a.NAME, b.NAME);
-            }),
+          this.getAssetOptions(),
           this.props.model,
-          this.handleNameChange,
-          "assetname",
-          "Select asset",
+          action,
+          id,
+          defaultText,
         )}
       </>
     );
   }
 
   private growthAndInflation(): React.ReactNode {
-    if (this.state.inputting !== inputtingRevalue) {
+    if (this.state.inputMode === inputtingRevalue) {
+      // nothing here
+    } else if (this.state.inputMode === inputtingAsset
+      || this.state.inputMode === inputtingPension) {
       return (
         <Row>
           <Col>
@@ -238,7 +248,9 @@ export class AddDeleteAssetForm extends Component<
               name="assetgrowth"
               value={this.state.GROWTH}
               placeholder="Enter growth"
-              onChange={this.handleGrowthChange}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                this.setState({ GROWTH: e.target.value });
+              }}
             />
           </Col>
           <Col>
@@ -248,7 +260,41 @@ export class AddDeleteAssetForm extends Component<
               name="assetcpi-grows"
               value={this.state.GROWS_WITH_INFLATION}
               placeholder="Enter Y/N"
-              onChange={this.handleGrowsWithCPIChange}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                this.setState({ GROWS_WITH_INFLATION: e.target.value });
+              }}
+            />
+          </Col>
+        </Row>
+      );
+    } else if (this.state.inputMode === inputtingBonds) {
+      return (
+        <Row>
+          <Col>
+            <Input
+              title={
+                "Annual growth percentage " +
+                "(excluding inflation, e.g. 2 for 2% p.a.)"
+              }
+              type="text"
+              name="assetgrowth"
+              value={this.state.GROWTH}
+              placeholder="Enter growth"
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                this.setState({ GROWTH: e.target.value });
+              }}
+            />
+          </Col>
+          <Col>
+            <Input
+              title={`Duration (e.g. 5y or 6m)`}
+              type="text"
+              name="duration"
+              value={this.state.BOND_DURATION}
+              placeholder="Enter duration"
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                this.setState({ BOND_DURATION: e.target.value });
+              }}
             />
           </Col>
         </Row>
@@ -256,12 +302,23 @@ export class AddDeleteAssetForm extends Component<
     }
   }
 
-  private ValueQuantityAndCategory(): React.ReactNode {
+  private topRowOfForm(): React.ReactNode {
     // log(`this.state.inputting = ${this.state.inputting}`);
-    if (this.state.inputting === inputtingRevalue) {
+    if (this.state.inputMode === inputtingAsset) {
       return (
         <Row>
-          <Col>{this.inputAssetName()}</Col>
+          <Col>
+            <Input
+              title={`Asset name`}
+              type="text"
+              name="assetname"
+              value={this.state.NAME}
+              placeholder="Enter name"
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                this.setState({ NAME: e.target.value });
+              }}
+            />
+          </Col>
           <Col>
             <Input
               title={`Asset value`}
@@ -269,79 +326,9 @@ export class AddDeleteAssetForm extends Component<
               name="assetvalue"
               value={this.state.VALUE}
               placeholder="Enter value"
-              onChange={this.handleValueChange}
-            />
-          </Col>
-        </Row>
-      );
-    } else if (this.state.inputting === inputtingPension) {
-      return (
-        <Row>
-          <Col>
-            <Input
-              title={`${
-                this.state.inputting === inputtingPension ? "Pension" : "Asset"
-              } name`}
-              type="text"
-              name="assetname"
-              value={this.state.NAME}
-              placeholder="Enter name"
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                return this.handleNameChange(e.target.value);
+                this.setState({ VALUE: e.target.value });
               }}
-            />
-          </Col>
-          <Col>
-            <Input
-              title={`${
-                this.state.inputting === inputtingPension ? "Pension" : "Asset"
-              } value`}
-              type="text"
-              name="assetvalue"
-              value={this.state.VALUE}
-              placeholder="Enter value"
-              onChange={this.handleValueChange}
-            />
-          </Col>
-          <Col>
-            <Input
-              title="Category (optional)"
-              type="text"
-              name="assetcategory"
-              value={this.state.CATEGORY}
-              placeholder="category"
-              onChange={this.handleCategoryChange}
-            />
-          </Col>
-        </Row>
-      );
-    } else {
-      return (
-        <Row>
-          <Col>
-            <Input
-              title={`${
-                this.state.inputting === inputtingPension ? "Pension" : "Asset"
-              } name`}
-              type="text"
-              name="assetname"
-              value={this.state.NAME}
-              placeholder="Enter name"
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                return this.handleNameChange(e.target.value);
-              }}
-            />
-          </Col>
-          <Col>
-            <Input
-              title={`${
-                this.state.inputting === inputtingPension ? "Pension" : "Asset"
-              } value`}
-              type="text"
-              name="assetvalue"
-              value={this.state.VALUE}
-              placeholder="Enter value"
-              onChange={this.handleValueChange}
             />
           </Col>
           <Col>
@@ -351,7 +338,9 @@ export class AddDeleteAssetForm extends Component<
               name="assetquantity"
               value={this.state.QUANTITY}
               placeholder="Enter quantity"
-              onChange={this.handleQuantityChange}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                this.setState({ QUANTITY: e.target.value });
+              }}
             />
           </Col>
           <Col>
@@ -361,7 +350,104 @@ export class AddDeleteAssetForm extends Component<
               name="assetcategory"
               value={this.state.CATEGORY}
               placeholder="category"
-              onChange={this.handleCategoryChange}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                this.setState({ CATEGORY: e.target.value });
+              }}
+            />
+          </Col>
+        </Row>
+      );
+    } else if (this.state.inputMode === inputtingPension) {
+      return (
+        <Row>
+          <Col>
+            <Input
+              title={`Pension name`}
+              type="text"
+              name="assetname"
+              value={this.state.NAME}
+              placeholder="Enter name"
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                this.setState({ NAME: e.target.value });
+              }}
+            />
+          </Col>
+          <Col>
+            <Input
+              title={`Pension value`}
+              type="text"
+              name="assetvalue"
+              value={this.state.VALUE}
+              placeholder="Enter value"
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                this.setState({ VALUE: e.target.value });
+              }}
+            />
+          </Col>
+          <Col>
+            <Input
+              title="Category (optional)"
+              type="text"
+              name="assetcategory"
+              value={this.state.CATEGORY}
+              placeholder="category"
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                this.setState({ CATEGORY: e.target.value });
+              }}
+            />
+          </Col>
+        </Row>
+      );
+    } else if (this.state.inputMode === inputtingRevalue) {
+      return (
+        <Row>
+          <Col>{this.inputAssetName(
+            "Asset name",
+            (s: string) => {
+              this.setState({ NAME: s });
+            },
+            'assetname',
+            'Select Asset',
+          )}</Col>
+          <Col>
+            <Input
+              title={`Asset value`}
+              type="text"
+              name="assetvalue"
+              value={this.state.VALUE}
+              placeholder="Enter value"
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                this.setState({ VALUE: e.target.value });
+              }}
+            />
+          </Col>
+        </Row>
+      );
+    } else if (this.state.inputMode === inputtingBonds) {
+      return (
+        <Row>
+          <Col>
+            <Input
+              title={`Bond name`}
+              type="text"
+              name="assetname"
+              value={this.state.NAME}
+              placeholder="Enter name"
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                this.setState({ NAME: e.target.value });
+              }}
+            />
+          </Col>
+          <Col>
+            <Input
+              title={`Asset value`}
+              type="text"
+              name="assetvalue"
+              value={this.state.VALUE}
+              placeholder="Enter value"
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                this.setState({ VALUE: e.target.value });
+              }}
             />
           </Col>
         </Row>
@@ -370,7 +456,7 @@ export class AddDeleteAssetForm extends Component<
   }
 
   private goButtons(): React.ReactNode {
-    if (this.state.inputting === inputtingAsset) {
+    if (this.state.inputMode === inputtingAsset) {
       return makeButton(
         "Create new asset (over-writes any existing with the same name)",
         this.addFromButton,
@@ -378,7 +464,7 @@ export class AddDeleteAssetForm extends Component<
         "addAsset",
         "primary",
       );
-    } else if (this.state.inputting === inputtingRevalue) {
+    } else if (this.state.inputMode === inputtingRevalue) {
       return makeButton(
         "Revalue this asset",
         this.revalue,
@@ -386,12 +472,20 @@ export class AddDeleteAssetForm extends Component<
         "revalueAsset",
         "primary",
       );
-    } else if (this.state.inputting === inputtingPension) {
+    } else if (this.state.inputMode === inputtingPension) {
       return makeButton(
         "Create new pension",
         this.addFromButton,
         "addPension",
         "addPension",
+        "primary",
+      );
+    } else if (this.state.inputMode === inputtingBonds) {
+      return makeButton(
+        "Add new bond",
+        this.addFromButton,
+        "addBond",
+        "addBond",
         "primary",
       );
     }
@@ -401,7 +495,7 @@ export class AddDeleteAssetForm extends Component<
     return (
       <div
         style={{
-          display: this.state.inputting === inputtingPension ? "block" : "none",
+          display: this.state.inputMode === inputtingPension ? "block" : "none",
         }}
       >
         <div className="container-fluid">
@@ -410,10 +504,14 @@ export class AddDeleteAssetForm extends Component<
             introLabel={`Stop date for contributions`}
             model={this.props.model}
             showAlert={this.props.showAlert}
-            setDateFunction={this.setStop}
+            setDateFunction={(s) => {
+              this.setState({ DCP_STOP: s });
+            }}
             inputName="stop date"
             inputValue={this.state.DCP_STOP}
-            onChangeHandler={this.handleStopChange}
+            onChangeHandler={(e: React.ChangeEvent<HTMLInputElement>) => {
+              this.setState({ DCP_STOP: e.target.value });
+            }}
             triggers={this.props.model.triggers}
             submitTriggerFunction={this.props.submitTriggerFunction}
           />
@@ -424,24 +522,34 @@ export class AddDeleteAssetForm extends Component<
             introLabel={`Date on which the pension crystallizes`}
             model={this.props.model}
             showAlert={this.props.showAlert}
-            setDateFunction={this.setCrystallize}
+            setDateFunction={
+              (s) => {
+                this.setState({ DCP_CRYSTALLIZE: s });
+              }
+            }
             inputName="crystallize date"
             inputValue={this.state.DCP_CRYSTALLIZE}
-            onChangeHandler={this.handleCrystallizeChange}
+            onChangeHandler={(e: React.ChangeEvent<HTMLInputElement>) => {
+              this.setState({ DCP_CRYSTALLIZE: e.target.value });
+            }}
             triggers={this.props.model.triggers}
             submitTriggerFunction={this.props.submitTriggerFunction}
           />
         </div>
         <div className="container-fluid">
-          {this.state.inputting === inputtingPension ? (
+          {this.state.inputMode === inputtingPension ? (
             <DateSelectionRow
               introLabel="On death, pension transfers to (optional)"
               model={this.props.model}
               showAlert={this.props.showAlert}
-              setDateFunction={this.setDcpTransferDate}
+              setDateFunction={(s) => {
+                this.setState({ DCP_TRANSFER_DATE: s });
+              }}
               inputName="transferred stop date"
               inputValue={this.state.DCP_TRANSFER_DATE}
-              onChangeHandler={this.handleDcpTransferDateChange}
+              onChangeHandler={(e: React.ChangeEvent<HTMLInputElement>) => {
+                this.setState({ DCP_TRANSFER_DATE: e.target.value });
+              }}
               triggers={this.props.model.triggers}
               submitTriggerFunction={this.props.submitTriggerFunction}
             />
@@ -457,18 +565,23 @@ export class AddDeleteAssetForm extends Component<
               name="contributionSSAsset"
               value={this.state.DCP_SS}
               placeholder="Enter Y/N"
-              onChange={this.handleDcpSsChange}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                this.setState({ DCP_SS: e.target.value });
+              }}
             />
-          </Col>{" "}
+          </Col>
           <Col>
             <label>Income from which pension contributions are made</label>
             {incomeOptions(
               this.props.model,
-              this.handleDcpIncomeSourceChange,
+              (s: string) => {
+                // console.log(`set DCP_INCOME_SOURCE ${s}`);
+                this.setState({ DCP_INCOME_SOURCE: s });
+              },
               this.incomeSourceSelectID,
             )}
-          </Col>{" "}
-        </Row>{" "}
+          </Col>
+        </Row>
         <Row>
           <Col>
             <Input
@@ -477,9 +590,11 @@ export class AddDeleteAssetForm extends Component<
               name="contributionAmountPensionAsset"
               value={this.state.DCP_CONTRIBUTION_AMOUNT}
               placeholder="Enter amount of contributions"
-              onChange={this.handleDcpContAmount}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                this.setState({ DCP_CONTRIBUTION_AMOUNT: e.target.value });
+              }}
             />
-          </Col>{" "}
+          </Col>
           <Col>
             <Input
               title="Employer contribution amount (e.g. 0.05 for 5%)"
@@ -487,10 +602,12 @@ export class AddDeleteAssetForm extends Component<
               name="contributionAmount"
               value={this.state.DCP_EMP_CONTRIBUTION_AMOUNT}
               placeholder="Employer contributions"
-              onChange={this.handleDcpEmpContAmount}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                this.setState({ DCP_EMP_CONTRIBUTION_AMOUNT: e.target.value });
+              }}
             />
-          </Col>{" "}
-        </Row>{" "}
+          </Col>
+        </Row>
         <Row>
           <Col>
             <Input
@@ -499,7 +616,9 @@ export class AddDeleteAssetForm extends Component<
               name="liabilityIC"
               value={this.state.LIABILITY}
               placeholder="Enter liability"
-              onChange={this.handleLiabilityChange}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                this.setState({ LIABILITY: e.target.value });
+              }}
             />
           </Col>
           <Col>
@@ -509,7 +628,9 @@ export class AddDeleteAssetForm extends Component<
               name="transferNameAsset"
               value={this.state.DCP_TRANSFER_TO}
               placeholder="Enter person to transfer to"
-              onChange={this.handleDcpTransferTo}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                this.setState({ DCP_TRANSFER_TO: e.target.value });
+              }}
             />
           </Col>
         </Row>
@@ -520,37 +641,70 @@ export class AddDeleteAssetForm extends Component<
   private renderGenerators(
     generators: Generator[],
   ){
+    // log(`render ${generators.length} generators`);
     return generators.map((g) => {
-      return <>
+      log(`use key = ${g.NAME}`);
+      return <div
+          id={g.NAME}
+          key={g.NAME}
+        >
         <div><b>{g.NAME}</b></div>
         {Object.keys(g.DETAILS).map((key) => {
-          return <div>
+          return <div key={key}>
             {`${key} ${g.DETAILS[key]}`}
           </div>;
         })}
         <Button
           onClick={()=>{
             console.log(`edit ${g.NAME}`);
-            this.setState({
-              NAME: g.NAME,
-              VALUE: g.DETAILS.VALUE,
-              QUANTITY: '',
-              START: g.DETAILS.START,
-              GROWTH: g.DETAILS.GROWTH,
-              GROWS_WITH_INFLATION: g.DETAILS.GROWS_WITH_CPI ? g.DETAILS.GROWS_WITH_CPI : 'n',
-              LIABILITY: g.DETAILS.TAX_LIABILITY,
-              PURCHASE_PRICE: '',
-              CATEGORY: g.DETAILS.CATEGORY,
-              inputting: inputtingPension,
-              DCP_STOP: g.DETAILS.STOP,
-              DCP_CRYSTALLIZE: g.DETAILS.CRYSTALLIZE,
-              DCP_SS: g.DETAILS.SS,
-              DCP_INCOME_SOURCE: g.DETAILS.INCOME_SOURCE,
-              DCP_CONTRIBUTION_AMOUNT: g.DETAILS.CONTRIBUTION_AMOUNT,
-              DCP_EMP_CONTRIBUTION_AMOUNT: g.DETAILS.EMP_CONTRIBUTION_AMOUNT,
-              DCP_TRANSFER_TO: g.DETAILS.TRANSFER_TO,
-              DCP_TRANSFER_DATE: g.DETAILS.TRANSFER_DATE,
-            })
+            if (g.TYPE === "Defined Contributions") {       
+              const details: DCGeneratorDetails = g.DETAILS;       
+              this.setState({
+                inputMode: inputtingPension,
+
+                NAME: g.NAME,
+                VALUE: details.VALUE,
+                QUANTITY: '',
+                START: details.START,
+                GROWTH: details.GROWTH,
+                GROWS_WITH_INFLATION: details.GROWS_WITH_CPI ? details.GROWS_WITH_CPI : 'n',
+                LIABILITY: details.TAX_LIABILITY,
+                PURCHASE_PRICE: '',
+                CATEGORY: details.CATEGORY,
+                DCP_STOP: details.STOP,
+                DCP_CRYSTALLIZE: details.CRYSTALLIZE,
+                DCP_SS: details.SS,
+                DCP_INCOME_SOURCE: details.INCOME_SOURCE,
+                DCP_CONTRIBUTION_AMOUNT: details.CONTRIBUTION_AMOUNT,
+                DCP_EMP_CONTRIBUTION_AMOUNT: details.EMP_CONTRIBUTION_AMOUNT,
+                DCP_TRANSFER_TO: details.TRANSFER_TO,
+                DCP_TRANSFER_DATE: details.TRANSFER_DATE,
+              });
+              this.setSelect(
+                this.incomeSourceSelectID, 
+                this.props.model.incomes.map((a) => {return a.NAME}).indexOf(details.INCOME_SOURCE) + 1
+              );
+            } else if(g.TYPE === "Bonds") {
+              const details: BondGeneratorDetails = g.DETAILS;
+
+              this.setState({
+                inputMode: inputtingBonds,
+
+                NAME: g.NAME,
+                VALUE: details.VALUE,
+                START: details.START,
+                GROWTH: details.GROWTH,
+                CATEGORY: details.CATEGORY,
+                BOND_DURATION: details.DURATION,
+                BOND_SOURCE: details.SOURCE,
+                BOND_TARGET: details.TARGET,
+                BOND_YEAR: details.YEAR,
+                BOND_RECURRENCE: details.RECURRENCE,
+              });
+              const items = this.getAssetOptions();
+              this.setSelect('selectSourceAsset', items.map((a) => {return a.NAME}).indexOf(details.SOURCE) + 1);
+              this.setSelect('selectTargetAsset', items.map((a) => {return a.NAME}).indexOf(details.TARGET) + 1);
+            }
           }}
         >Edit</Button>
 
@@ -568,11 +722,11 @@ export class AddDeleteAssetForm extends Component<
             }
           }}
         >Delete</Button>
-      </>
+      </div>
     })  
   }
   
-  private renderDCBGenerators(
+  private renderDCPGenerators(
     generators: Generator[],
   ){
     return <>
@@ -583,153 +737,161 @@ export class AddDeleteAssetForm extends Component<
       )}
     </>;
   }
+  private renderBondGenerators(
+    generators: Generator[],
+  ){
+    return <>
+      {this.renderGenerators(
+        generators.filter((g) => {
+          return g.TYPE === 'Bonds';
+        })
+      )}
+    </>;
+  }
 
+  private inputModeButtons(){
+    return  <div className="btn-group ml-3" role="group"> {/* Buttons for input modes */}
+      {[
+        {
+          mode: inputtingAsset,
+          label: "Add new asset mode",
+          id: "inputAsset",
+        },
+        {
+          mode: inputtingPension,
+          label: "Add pension mode",
+          id: "useDCPInputs",
+        },
+        {
+          mode: inputtingRevalue,
+          label: "Revalue asset mode",
+          id: "revalueAssetInputs",
+        },
+        {
+          mode: inputtingBonds,
+          label: "Add bond mode",
+          id: "bondInputs",
+        }
+      ].map((x) => {
+        return makeButton(
+          x.label,
+          (e) => {
+            e.preventDefault();
+            this.setState({
+              ...this.state,
+              inputMode: x.mode,
+            });            
+          },
+          x.id,
+          x.id,
+          this.state.inputMode === x.mode
+            ? "primary"
+            : "outline-secondary",
+        )
+      })}
+    </div>
+  }
+
+  private dateSelectorForStart(){
+    return  <div className="container-fluid">
+      {/* fills width */}
+      <DateSelectionRow
+        introLabel={`Date on which the ${
+          this.state.inputMode === inputtingRevalue
+            ? "revaluation occurs"
+            : this.state.inputMode === inputtingPension
+            ? "pension asset begins"
+            : "asset starts"
+        }`}
+        model={this.props.model}
+        showAlert={this.props.showAlert}
+        setDateFunction={(s) => {
+          this.setState({ START: s });
+        }}
+        inputName="start date"
+        inputValue={this.state.START}
+        onChangeHandler={(e: React.ChangeEvent<HTMLInputElement>) => {
+          this.setState({ START: e.target.value });
+        }}
+        triggers={this.props.model.triggers}
+        submitTriggerFunction={this.props.submitTriggerFunction}
+      />
+    </div>
+
+  }
+
+  private inputsForBonds(){
+    if (this.state.inputMode !== inputtingBonds) {
+      return <></>;
+    }
+    return <>
+    <Row>
+      <Col>{this.inputAssetName(
+        "Source asset for investment",
+        (s: string) => {
+          this.setState({ BOND_SOURCE: s });
+        },
+        'selectSourceAsset',
+        'Select Source Asset',
+      )}</Col>
+      <Col>{this.inputAssetName(
+        "Target asset for maturing bond",
+        (s: string) => {
+          this.setState({ BOND_TARGET: s });
+        },
+        'selectTargetAsset',
+        'Select Target Asset',
+      )}</Col>
+    </Row>
+    <Row>
+      <Col>
+        <Input
+          title="Year we'll use funds (e.g. 2025)"
+          type="text"
+          name="bondYear"
+          value={this.state.BOND_YEAR}
+          placeholder="Enter year"
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+            this.setState({ BOND_YEAR: e.target.value });
+          }}
+        />
+      </Col>
+      <Col>
+        <Input
+          title="Category (optional)"
+          type="text"
+          name="assetcategory"
+          value={this.state.CATEGORY}
+          placeholder="category"
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+            this.setState({ CATEGORY: e.target.value });
+          }}
+        />
+      </Col>
+    </Row>    
+    </>
+  }
 
   public render() {
     // log('rendering an AddDeleteAssetForm');
     return (
       <>
         <div className="ml-3 my-4">
-          {this.renderDCBGenerators(this.props.model.generators)}
+          {this.renderDCPGenerators(this.props.model.generators)}
+          {this.renderBondGenerators(this.props.model.generators)}
         </div>
-        <div className="btn-group ml-3" role="group">
-          {makeButton(
-            "Add new asset mode",
-            this.inputAsset,
-            "inputAsset",
-            "inputAsset",
-            this.state.inputting === inputtingAsset
-              ? "primary"
-              : "outline-secondary",
-          )}
-          {makeButton(
-            "Add pension mode",
-            this.inputPension,
-            "useDCPInputs",
-            "useDCPInputs",
-            this.state.inputting === inputtingPension
-              ? "primary"
-              : "outline-secondary",
-          )}
-          {makeButton(
-            "Revalue asset mode",
-            this.inputRevalue,
-            "revalueAssetInputs",
-            "revalueAssetInputs",
-            this.state.inputting === inputtingRevalue
-              ? "primary"
-              : "outline-secondary",
-          )}
-        </div>
+        {this.inputModeButtons()}
         <form className="container-fluid" onSubmit={this.addFromForm}>
-          {this.ValueQuantityAndCategory()}
-          <div className="container-fluid">
-            {/* fills width */}
-            <DateSelectionRow
-              introLabel={`Date on which the ${
-                this.state.inputting === inputtingRevalue
-                  ? "revaluation occurs"
-                  : this.state.inputting === inputtingPension
-                  ? "pension asset begins"
-                  : "asset starts"
-              }`}
-              model={this.props.model}
-              showAlert={this.props.showAlert}
-              setDateFunction={this.setStart}
-              inputName="start date"
-              inputValue={this.state.START}
-              onChangeHandler={this.handleStartChange}
-              triggers={this.props.model.triggers}
-              submitTriggerFunction={this.props.submitTriggerFunction}
-            />
-          </div>
+          {this.topRowOfForm()}
+          {this.dateSelectorForStart()}
           {this.growthAndInflation()}
           {this.inputsForGeneralAsset()}
           {this.inputsForDCP()}
+          {this.inputsForBonds()}
           {this.goButtons()}
         </form>
       </>
     );
-  }
-
-  private handleNameChange(name: string) {
-    const value = name;
-    this.setState({ NAME: value });
-  }
-  private handleGrowthChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const value = e.target.value;
-    this.setState({ GROWTH: value });
-  }
-  private handleCategoryChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const value = e.target.value;
-    this.setState({ CATEGORY: value });
-  }
-  private handlePurchasePriceChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const value = e.target.value;
-    this.setState({ PURCHASE_PRICE: value });
-  }
-  private handleLiabilityChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const value = e.target.value;
-    this.setState({ LIABILITY: value });
-  }
-  private handleValueChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const value = e.target.value;
-    this.setState({ VALUE: value });
-  }
-  private handleQuantityChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const value = e.target.value;
-    this.setState({ QUANTITY: value });
-  }
-  private handleGrowsWithCPIChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const value = e.target.value;
-    this.setState({ GROWS_WITH_INFLATION: value });
-  }
-  private setStart(value: string): void {
-    this.setState({ START: value });
-  }
-  private handleStartChange(e: React.ChangeEvent<HTMLInputElement>): void {
-    const value = e.target.value;
-    this.setStart(value);
-  }
-  private setStop(value: string): void {
-    this.setState({ DCP_STOP: value });
-  }
-  private handleStopChange(e: React.ChangeEvent<HTMLInputElement>): void {
-    const value = e.target.value;
-    this.setStop(value);
-  }
-  private setCrystallize(value: string): void {
-    this.setState({ DCP_CRYSTALLIZE: value });
-  }
-  private handleCrystallizeChange(
-    e: React.ChangeEvent<HTMLInputElement>,
-  ): void {
-    const value = e.target.value;
-    this.setCrystallize(value);
-  }
-  private handleDcpSsChange(e: React.ChangeEvent<HTMLInputElement>): void {
-    const value = e.target.value;
-    this.setState({ DCP_SS: value });
-  }
-  private handleDcpIncomeSourceChange(value: string): void {
-    this.setState({ DCP_INCOME_SOURCE: value });
-  }
-  private handleDcpContAmount(e: React.ChangeEvent<HTMLInputElement>): void {
-    const value = e.target.value;
-    this.setState({ DCP_CONTRIBUTION_AMOUNT: value });
-  }
-  private handleDcpEmpContAmount(e: React.ChangeEvent<HTMLInputElement>): void {
-    const value = e.target.value;
-    this.setState({ DCP_EMP_CONTRIBUTION_AMOUNT: value });
-  }
-  private handleDcpTransferTo(e: React.ChangeEvent<HTMLInputElement>) {
-    this.setState({ DCP_TRANSFER_TO: e.target.value });
-  }
-  private setDcpTransferDate(value: string): void {
-    this.setState({ DCP_TRANSFER_DATE: value });
-  }
-  private handleDcpTransferDateChange(e: React.ChangeEvent<HTMLInputElement>) {
-    this.setDcpTransferDate(e.target.value);
   }
 
   private async revalue(e: React.MouseEvent<HTMLButtonElement>) {
@@ -782,7 +944,6 @@ export class AddDeleteAssetForm extends Component<
     }
     await this.props.submitTransactionFunction(
       revalueTransaction,
-      this.props.model,
     );
 
     this.props.showAlert("added new data");
@@ -808,23 +969,43 @@ export class AddDeleteAssetForm extends Component<
     }
 
     if (this.props.doCheckBeforeOverwritingExistingData()) {
-      const matchingItem = this.props.model.assets.find((a) => {
-        return a.NAME === this.state.NAME;
-      });
-      if (matchingItem !== undefined) {
-        if (matchingItem.IS_A_DEBT) {
+      if (this.state.inputMode === inputtingPension ||
+        this.state.inputMode === inputtingBonds
+      ) {
+        // this is how we _edit_ as well as create new
+        // so we should only warn and stop if we're trying
+        // to create new
+        /*
+        const matchingItem = this.props.model.generators.find((a) => {
+          return a.NAME === this.state.NAME;
+        });
+        if (matchingItem !== undefined) {
           this.props.showAlert(
-            `There's already a debt called ${this.state.NAME}`,
+            `There's already a generator called ${this.state.NAME}`,
           );
-        } else {
-          this.props.showAlert(
-            `There's already an asset called ${this.state.NAME}`,
-          );
+          return;
         }
-        return;
+        */
+      } else {
+        const matchingItem = this.props.model.assets.find((a) => {
+          return a.NAME === this.state.NAME;
+        });
+        if (matchingItem !== undefined) {
+          if (matchingItem.IS_A_DEBT) {
+            this.props.showAlert(
+              `There's already a debt called ${this.state.NAME}`,
+            );
+          } else {
+            this.props.showAlert(
+              `There's already an asset called ${this.state.NAME}`,
+            );
+          }
+          return;
+        }
       }
     }
 
+    // check VALUE
     const isNotValid = !isValidValue(this.state.VALUE, this.props.model);
     if (isNotValid) {
       this.props.showAlert(
@@ -833,6 +1014,7 @@ export class AddDeleteAssetForm extends Component<
       );
       return;
     }
+    // check START
     const date = checkTriggerDate(
       this.state.START,
       this.props.model.triggers,
@@ -843,6 +1025,7 @@ export class AddDeleteAssetForm extends Component<
       this.props.showAlert(`Start date '${this.state.START}' should be a date`);
       return;
     }
+    // check GROWTH
     const isNotANumber = !isNumberString(this.state.GROWTH);
     if (isNotANumber) {
       const setting = getSettings(
@@ -859,7 +1042,7 @@ export class AddDeleteAssetForm extends Component<
         return;
       }
     }
-    if (this.state.inputting === inputtingPension) {
+    if (this.state.inputMode === inputtingPension) {
 
       const parsedYNCPI = makeBooleanFromYesNo(this.state.GROWS_WITH_INFLATION);
       if (!parsedYNCPI.checksOK) {
@@ -875,6 +1058,9 @@ export class AddDeleteAssetForm extends Component<
       const asset3Name =
       crystallizedPension + this.state.LIABILITY + dot + this.state.NAME;
       const copyModel = makeModelFromJSON(JSON.stringify(this.props.model));
+      copyModel.name = 'temporary copy';
+      copyModel.undoModel = undefined;
+      copyModel.redoModel = undefined;
 
       const asset1: Asset = {
         NAME: asset1Name,
@@ -999,11 +1185,11 @@ export class AddDeleteAssetForm extends Component<
 
         const toProp = contPc === 0 ? 0.0 : (contPc + contEmpPc) / contPc;
 
-        await this.props.submitAssetFunction(asset1, copyModel);
-        await this.props.submitAssetFunction(asset2, copyModel);
-        await this.props.submitAssetFunction(asset3, copyModel);
+        copyModel.assets.push(asset1);
+        copyModel.assets.push(asset2);
+        copyModel.assets.push(asset3);
         if (this.state.DCP_TRANSFER_TO !== "") {
-          await this.props.submitAssetFunction(asset4, copyModel);
+          copyModel.assets.push(asset4);
         }
 
         contributions = {
@@ -1024,7 +1210,7 @@ export class AddDeleteAssetForm extends Component<
         {
           const message = this.props.checkTransactionFunction(
             contributions,
-            this.props.model,
+            copyModel,
           );
           if (message.length > 0) {
             this.props.showAlert(message);
@@ -1034,16 +1220,12 @@ export class AddDeleteAssetForm extends Component<
       } else {
         // a pension without a contributing income 
         // set up the taxfree part it crystallizes to
-        console.log(`submit assets ${asset1.NAME} ${asset2.NAME}`);
-        await this.props.submitAssetFunction(asset1, copyModel);
-        await this.props.submitAssetFunction(asset2, copyModel);
-        await this.props.submitAssetFunction(asset3, copyModel);
+        copyModel.assets.push(asset1);
+        copyModel.assets.push(asset2);
+        copyModel.assets.push(asset3);
         if (this.state.DCP_TRANSFER_TO !== "") {
-          await this.props.submitAssetFunction(asset4, copyModel);
+          copyModel.assets.push(asset4);
         }
-        console.log(`model assets ${copyModel.assets.map((a)=>{
-          return a.NAME;
-        })}`);
       }
 
       const crystallizeTaxFree: Transaction = {
@@ -1064,7 +1246,7 @@ export class AddDeleteAssetForm extends Component<
       {
         const message = this.props.checkTransactionFunction(
           crystallizeTaxFree,
-          this.props.model,
+          copyModel,
         );
         if (message.length > 0) {
           this.props.showAlert(message);
@@ -1089,7 +1271,7 @@ export class AddDeleteAssetForm extends Component<
       {
         const message = this.props.checkTransactionFunction(
           crystallize,
-          this.props.model,
+          copyModel,
         );
         if (message.length > 0) {
           this.props.showAlert(message);
@@ -1116,7 +1298,7 @@ export class AddDeleteAssetForm extends Component<
         {
           const message = this.props.checkTransactionFunction(
             transfer,
-            this.props.model,
+            copyModel,
           );
           if (message.length > 0) {
             this.props.showAlert(message);
@@ -1151,14 +1333,14 @@ export class AddDeleteAssetForm extends Component<
           TYPE: 'Defined Contributions',
           DETAILS: dcGeneratorDetails
         },
-        this.props.model,
       );
 
       this.props.showAlert("added assets and transactions");
       // clear fields
       this.setState(this.defaultState);
       this.resetSelect(this.incomeSourceSelectID);
-    } else {
+    } else if (this.state.inputMode === inputtingAsset) {
+      // check QUANTITY
       const parsedQuantity = makeQuantityFromString(this.state.QUANTITY);
       if (!parsedQuantity.checksOK) {
         this.props.showAlert(
@@ -1168,6 +1350,7 @@ export class AddDeleteAssetForm extends Component<
         return;
       }
 
+      // check LIABILITY
       const name = this.state.LIABILITY;
       let builtLiability = "";
       if (name !== "") {
@@ -1178,6 +1361,8 @@ export class AddDeleteAssetForm extends Component<
         this.props.showAlert(liabilityMessage);
         return;
       }
+
+      // check PURCHASE_PRICE
       let purchasePrice = this.state.PURCHASE_PRICE;
       if (purchasePrice === "") {
         purchasePrice = "0";
@@ -1211,12 +1396,106 @@ export class AddDeleteAssetForm extends Component<
       if (message.length > 0) {
         this.props.showAlert(message);
       } else {
-        await this.props.submitAssetFunction(asset, this.props.model);
+        await this.props.submitAssetFunction(asset);
         this.props.showAlert("added new asset");
         // clear fields
         this.setState(this.defaultState);
         this.resetSelect(this.incomeSourceSelectID);
       }
+    } else if (this.state.inputMode === inputtingBonds) {
+      // check DURATION
+      if (this.state.BOND_DURATION.length === 0) {
+        this.props.showAlert(
+          `Please provide a duration e.g. 1y, 5y or 6m`,
+        );
+        return;
+    } else {
+        const checkDur = checkRecurrence(this.state.BOND_DURATION);
+        if (checkDur !== '') {
+          this.props.showAlert(
+            `Duration value '${this.state.BOND_DURATION}' ` +
+              `should be something like 1y, 5y, or 6m`,
+          );
+          return;
+        }
+      }
+
+      // check RECURRENCE
+      if (this.state.BOND_RECURRENCE.length > 0) {
+        const checkRec = checkRecurrence(this.state.BOND_RECURRENCE);
+        if (checkRec !== '') {
+          this.props.showAlert(
+            `Recurrence value '${this.state.BOND_RECURRENCE}' ` +
+              `should be something like 1y, 5y, or 6m`,
+          );
+          return;
+        }
+      }
+      // check BOND_SOURCE
+      if (!this.props.model.assets.find((a) => {
+        return a.NAME === this.state.BOND_SOURCE
+      })) {
+        this.props.showAlert(
+          `Bond source asset '${this.state.BOND_SOURCE}' ` +
+            `not found in model`,
+        );
+        return;
+      }
+      // check TARGET_ASSET
+      if (!this.props.model.assets.find((a) => {
+        return a.NAME === this.state.BOND_TARGET
+      })) {
+        this.props.showAlert(
+          `Bond source asset '${this.state.BOND_TARGET}' ` +
+            `not found in model`,
+        );
+        return;
+      }
+      // check YEAR
+      try {
+        const year = parseInt(this.state.BOND_YEAR);
+        if (year < 1990 || year > 2200) { // TODO hard coded magic numbers
+          this.props.showAlert(
+            `Bond year '${this.state.BOND_YEAR}' ` +
+              `should be something like 2025`,
+          );
+          return;  
+        }
+      } catch(err) {
+        this.props.showAlert(
+          `Bond year '${this.state.BOND_YEAR}' ` +
+            `should be something like 2025`,
+        );
+        return;
+      }
+
+      const bondGeneratorDetails: BondGeneratorDetails = {
+        VALUE: this.state.VALUE,
+        GROWTH: this.state.GROWTH,
+        CATEGORY: this.state.CATEGORY,
+        START: this.state.START,
+        DURATION: this.state.BOND_DURATION,
+        SOURCE: this.state.BOND_SOURCE,
+        TARGET: this.state.BOND_TARGET,
+        YEAR: this.state.BOND_YEAR,
+        RECURRENCE: this.state.BOND_RECURRENCE,
+      };
+
+      console.log(`bondGeneratorDetails = ${bondGeneratorDetails}`)
+
+      this.props.submitGeneratorFunction(
+        {
+          NAME: this.state.NAME,
+          ERA: 0,
+          TYPE: 'Bonds',
+          DETAILS: bondGeneratorDetails
+        },
+      );
+
+      this.props.showAlert("added bond information");
+      // clear fields
+      this.setState(this.defaultState);
+      this.resetSelect(this.incomeSourceSelectID);
     }
   }
   private async delete(e: React.ChangeEvent<HTMLInputElement>) {
@@ -1235,31 +1514,20 @@ export class AddDeleteAssetForm extends Component<
       this.props.showAlert(`failed to delete ${this.state.NAME}`);
     }
   }
-  private inputPension(e: React.MouseEvent<HTMLButtonElement>) {
-    e.preventDefault();
-    this.setState({
-      ...this.state,
-      inputting: inputtingPension,
-    });
-  }
-  private inputAsset(e: React.MouseEvent<HTMLButtonElement>) {
-    e.preventDefault();
-    this.setState({
-      ...this.state,
-      inputting: inputtingAsset,
-    });
-  }
-  private inputRevalue(e: React.MouseEvent<HTMLButtonElement>) {
-    e.preventDefault();
-    this.setState({
-      ...this.state,
-      inputting: inputtingRevalue,
-    });
-  }
+
   private resetSelect(id: string) {
     const selector: any = document.getElementById(id);
     if (selector !== null) {
       selector.selectedIndex = "0";
+    }
+  }
+  private setSelect(id: string, index: number) {
+    console.log(`setSelect on id = ${id} and index = ${index}`);
+    const selector: any = document.getElementById(id);
+    if (selector !== null) {
+      selector.selectedIndex = index;
+    } else {
+      console.log(`no element found with id = ${id}`);
     }
   }
 }

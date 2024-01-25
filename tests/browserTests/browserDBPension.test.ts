@@ -144,8 +144,7 @@ describe(testName, () => {
       name: "badEndDate",
       valuationDate: "1 Jan 2023",
       contributionsEndDate: "1 Jan 2022", // stop before start,
-      message: "added new data", // BUG the end date for contributions is being ignored
-      // we should enforce it's after the start date
+      message: `added new data`, 
     });
 
     await clearPensionFields(driver);
@@ -153,10 +152,7 @@ describe(testName, () => {
       ...inputs,
       startDate: "1 Jan 2033",
       pensionEndOrTransferDate: "1 Jan 2032", // transfer pension before pension begins paying out?
-      message:
-        `Transaction '-PT pensionName' from unrecognised asset ` +
-        `(could be typo or before asset start date?) : "${pensionDB}pensionName"`,
-      // TODO this message is mysterious
+      message: `can't process generators of model: Transaction '-PT pensionName' from unrecognised asset (could be typo or before asset start date?) : "-PDB pensionName"`,
     });
 
     await clearPensionFields(driver);
@@ -165,7 +161,7 @@ describe(testName, () => {
       name: "transferStopsBeforeTransfer",
       pensionEndOrTransferDate: "1 Jan 2037",
       transferredStopDate: "1 Jan 2035", // transferred pension stops before transfer occurred?
-      message: "added new data", // BUG :this probably shouldn't be allowed?
+      message: `can't process generators of model: Transaction '-PT pensionName' from unrecognised asset (could be typo or before asset start date?) : \"-PDB pensionName\"`,
     });
 
     await clearPensionFields(driver);

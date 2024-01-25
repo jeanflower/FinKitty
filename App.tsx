@@ -10,7 +10,7 @@ import {
 } from "./models/exampleModels";
 import { useAuth0 } from "./contexts/auth0-context";
 import { makeChartData } from "./models/charting";
-import { checkData, checkTransaction, checkTrigger } from "./models/checks";
+import { checkAsset, checkModel, checkTransaction, checkTrigger } from "./models/checks";
 import { AddDeleteTransactionForm } from "./views/reactComponents/AddDeleteTransactionForm";
 import { AddDeleteTriggerForm } from "./views/reactComponents/AddDeleteTriggerForm";
 import { makeButton } from "./views/reactComponents/Button";
@@ -76,6 +76,7 @@ import {
   ViewCallbacks,
   DeleteResult,
   Monitor,
+  Generator,
 } from "./types/interfaces";
 import {
   Context,
@@ -420,8 +421,8 @@ function getReporter(
   const viewRange = getROI(model);
   const startDate = viewRange.start;
   const endDate = viewRange.end;
-  //log(`startDate for reporter = ${startDate}`);
-  //log(`endDate for reporter = ${endDate}`);
+  // log(`startDate for reporter = ${startDate}`);
+  // log(`endDate for reporter = ${endDate}`);
   return (name: string, val: number | string, date: Date, source: string) => {
     // log(`name for matching = ${name}`);
     if (!reactAppComponent.state.reportDefiner) {
@@ -528,7 +529,8 @@ async function refreshDataInternal(
   const viewSettings = reactAppComponent.state.viewState;
 
   let modelNames: string[];
-  let model: ModelData;
+  let modelRaw: ModelData;
+  let modelProcessed: ModelData;
   let evaluationsAndVals: {
     evaluations: Evaluation[];
     todaysAssetValues: Map<Asset, AssetOrDebtVal>;
@@ -551,28 +553,44 @@ async function refreshDataInternal(
   if (!refreshModel) {
     // use existing data
     modelNames = reactAppComponent.state.modelNamesData;
-    model = reactAppComponent.state.modelData;
+    modelRaw = reactAppComponent.state.modelDataRaw;
+    modelProcessed = reactAppComponent.state.modelDataProcessed;
   } else {
     // log(`refresh the model - get the model and recalculate values`);
     const x = await getModel();
     if (x.model === undefined) {
       return;
     }
-    model = x.model;
-    modelNames = x.modelNames;
 
-    model.triggers.sort((a: Trigger, b: Trigger) => lessThan(b.NAME, a.NAME));
-    model.expenses.sort((a: Expense, b: Expense) => lessThan(b.NAME, a.NAME));
-    model.settings.sort((a: Setting, b: Setting) => lessThan(b.NAME, a.NAME));
-    model.incomes.sort((a: Income, b: Income) => lessThan(b.NAME, a.NAME));
-    model.transactions.sort((a: Transaction, b: Transaction) =>
+    modelRaw = x.model;
+    modelRaw.triggers.sort((a: Trigger, b: Trigger) => lessThan(b.NAME, a.NAME));
+    modelRaw.expenses.sort((a: Expense, b: Expense) => lessThan(b.NAME, a.NAME));
+    modelRaw.settings.sort((a: Setting, b: Setting) => lessThan(b.NAME, a.NAME));
+    modelRaw.incomes.sort((a: Income, b: Income) => lessThan(b.NAME, a.NAME));
+    modelRaw.transactions.sort((a: Transaction, b: Transaction) =>
       lessThan(b.NAME, a.NAME),
     );
-    model.assets.sort((a: Asset, b: Asset) => lessThan(b.NAME, a.NAME));
+    modelRaw.assets.sort((a: Asset, b: Asset) => lessThan(b.NAME, a.NAME));
+
+    modelProcessed = makeModelFromJSON(JSON.stringify(modelRaw));
+    modelProcessed.undoModel = undefined;
+    modelProcessed.redoModel = undefined;
+    modelProcessed.name = 'ready to be processed';
+
+    const error = processGenerators(modelProcessed);
+    modelProcessed.name = 'has been processed';
+
+    if (error.length > 0) {
+      showAlert(`can't process generators of model: ${error}`);
+      return;
+    }
+
+    modelNames = x.modelNames;
+
     modelNames.sort((a: string, b: string) => lessThan(a, b));
 
     if (refreshModel) {
-      viewSettings.setModel(model);
+      viewSettings.setModel(modelProcessed);
     }
     // log(`go to make evaluations...`);
     let reporter: ReportValueChecker = () =>
@@ -586,7 +604,7 @@ async function refreshDataInternal(
     if (getDisplay(reportView)) {
       // log(`create the report data`);
       reporter = getReporter(
-        model,
+        modelProcessed,
         viewSettings,
         reactAppComponent.state.reportIncludesSettings,
         reactAppComponent.state.reportIncludesExpenses,
@@ -629,7 +647,7 @@ async function refreshDataInternal(
       reactAppComponent.state.maxReportSize,
       viewSettings.getViewSetting(viewFrequency, monthly),
     );
-    evaluationsAndVals = getEvaluations(model, helper);
+    evaluationsAndVals = getEvaluations(modelProcessed, helper);
     if (reactAppComponent.state.saveReportAsCSV) {
       const data = evaluationsAndVals.reportData;
 
@@ -651,7 +669,7 @@ async function refreshDataInternal(
       if (confirm(`save as csv to... ${csvtxt}`)) {
         const d = new Date();
         const csvName =
-          model.name + "csv " + dateFormat(d, "yyyy-mm-dd HH:MM:ss");
+          modelRaw.name + "csv " + dateFormat(d, "yyyy-mm-dd HH:MM:ss");
 
         const blob = new Blob([csvtxt], { type: "text/plain;charset=utf-8" });
         FileSaver.saveAs(blob, `${csvName}.csv`);
@@ -663,11 +681,8 @@ async function refreshDataInternal(
   if (refreshModel || refreshChart) {
     // log(`refresh model or chart data`);
 
-    const copyModel = makeModelFromJSONString(JSON.stringify(model));
-    processGenerators(copyModel);
-
     const chartData: DataForView = makeChartData(
-      copyModel,
+      modelProcessed,
       viewSettings,
       evaluationsAndVals,
     );
@@ -718,7 +733,7 @@ async function refreshDataInternal(
     const taxChartData = makeBarData(chartData.labels, taxData);
 
     const planningViewSettings = getDefaultViewSettings();
-    planningViewSettings.setModel(copyModel);
+    planningViewSettings.setModel(modelProcessed);
     planningViewSettings.toggleViewFilter(Context.Expense, allItems);
     planningViewSettings.toggleViewFilter(Context.Expense, "Basic"); // the Planning page works with this category
     planningViewSettings.toggleViewFilter(Context.Expense, "Leisure"); // the Planning page works with this category
@@ -728,7 +743,7 @@ async function refreshDataInternal(
     planningViewSettings.setViewSetting(chartViewType, chartDeltas);
 
     const planningChartData: DataForView = makeChartData(
-      copyModel,
+      modelProcessed,
       planningViewSettings,
       evaluationsAndVals,
     );
@@ -752,9 +767,11 @@ async function refreshDataInternal(
 
       // setState on a reactComponent triggers update of view
       // log(`setState for new data`);
+
       reactAppComponent.setState(
         {
-          modelData: model,
+          modelDataProcessed: modelProcessed,
+          modelDataRaw: modelRaw,
           evaluations: evaluationsAndVals.evaluations,
           expensesChartData,
           incomesChartData,
@@ -825,7 +842,7 @@ export async function refreshData(
       viewSettings.getViewSetting(viewFrequency, monthly),
     );
     const cd: ChartData = calcOptimizer(
-      reactAppComponent.state.modelData,
+      reactAppComponent.state.modelDataProcessed,
       helper,
       showAlert,
     );
@@ -977,6 +994,10 @@ async function submitIncome(
   incomeInput: Income,
   modelData: ModelData,
 ): Promise<boolean> {
+  log(`submitting income ${incomeInput.NAME} for model ${JSON.stringify(modelData)}`);
+  if(incomeInput.NAME === '-PDB Ben state pension' && modelData.name !== 'temporary copy') {
+    throw new Error('unexpected call to submitIncome')
+  }
   const message = await submitIncomeLSM(
     incomeInput,
     modelName,
@@ -1044,7 +1065,7 @@ async function submitGenerator(
   generatorInput: any,
   modelData: ModelData,
 ): Promise<void> {
-  console.log(`submitting a generator ${generatorInput}`);
+  log(`submitting a generator ${generatorInput}`);
   const outcome = await submitGeneratorLSM(
     generatorInput,
     modelName,
@@ -1232,7 +1253,7 @@ export function toggle(
 }
 
 function checkModelData(givenModel: ModelData, expectedName: string): string {
-  const outcome = checkData(givenModel);
+  const outcome = checkModel(givenModel);
   if (givenModel.name !== expectedName) {
     return `inconsistent model names; ${givenModel.name} and ${expectedName}`;
   }
@@ -1282,7 +1303,7 @@ function toggleOption(type: string): void {
     // when we turn checks back on, check the model
     if (type === checkModelOnEditOption && reactAppComponent.options[type]) {
       const response = checkModelData(
-        reactAppComponent.state.modelData,
+        reactAppComponent.state.modelDataRaw,
         modelName,
       );
       // log(`setState for check result alert`);
@@ -1400,9 +1421,9 @@ async function deleteItemsFromModel(
 async function deleteTrigger(name: string): Promise<DeleteResult> {
   return deleteItemsFromModelInternal(
     [name],
-    reactAppComponent.state.modelData.triggers,
+    reactAppComponent.state.modelDataRaw.triggers,
     modelName,
-    reactAppComponent.state.modelData,
+    reactAppComponent.state.modelDataRaw,
     reactAppComponent.options.checkModelOnEdit,
     true, // allowRecursion
     showAlert,
@@ -1417,9 +1438,9 @@ async function deleteTrigger(name: string): Promise<DeleteResult> {
 async function deleteAsset(name: string): Promise<DeleteResult> {
   return deleteItemsFromModelInternal(
     [name],
-    reactAppComponent.state.modelData.assets,
+    reactAppComponent.state.modelDataRaw.assets,
     modelName,
-    reactAppComponent.state.modelData,
+    reactAppComponent.state.modelDataRaw,
     reactAppComponent.options.checkModelOnEdit,
     true, // allowRecursion
     showAlert,
@@ -1434,9 +1455,9 @@ async function deleteAsset(name: string): Promise<DeleteResult> {
 async function deleteTransaction(name: string): Promise<DeleteResult> {
   return deleteItemsFromModelInternal(
     [name],
-    reactAppComponent.state.modelData.transactions,
+    reactAppComponent.state.modelDataRaw.transactions,
     modelName,
-    reactAppComponent.state.modelData,
+    reactAppComponent.state.modelDataRaw,
     reactAppComponent.options.checkModelOnEdit,
     true, // allowRecursion
     showAlert,
@@ -1451,9 +1472,9 @@ async function deleteTransaction(name: string): Promise<DeleteResult> {
 async function deleteExpense(name: string): Promise<DeleteResult> {
   return deleteItemsFromModelInternal(
     [name],
-    reactAppComponent.state.modelData.expenses,
+    reactAppComponent.state.modelDataRaw.expenses,
     modelName,
-    reactAppComponent.state.modelData,
+    reactAppComponent.state.modelDataRaw,
     reactAppComponent.options.checkModelOnEdit,
     true, // allowRecursion
     showAlert,
@@ -1468,9 +1489,9 @@ async function deleteExpense(name: string): Promise<DeleteResult> {
 async function deleteIncome(name: string): Promise<DeleteResult> {
   return deleteItemsFromModelInternal(
     [name],
-    reactAppComponent.state.modelData.incomes,
+    reactAppComponent.state.modelDataRaw.incomes,
     modelName,
-    reactAppComponent.state.modelData,
+    reactAppComponent.state.modelDataRaw,
     reactAppComponent.options.checkModelOnEdit,
     true, // allowRecursion
     showAlert,
@@ -1485,9 +1506,9 @@ async function deleteIncome(name: string): Promise<DeleteResult> {
 async function deleteSetting(name: string): Promise<DeleteResult> {
   return deleteItemsFromModelInternal(
     [name],
-    reactAppComponent.state.modelData.settings,
+    reactAppComponent.state.modelDataRaw.settings,
     modelName,
-    reactAppComponent.state.modelData,
+    reactAppComponent.state.modelDataRaw,
     reactAppComponent.options.checkModelOnEdit,
     true, // allowRecursion
     showAlert,
@@ -1501,9 +1522,9 @@ async function deleteSetting(name: string): Promise<DeleteResult> {
 async function deleteGenerator(name: string): Promise<DeleteResult> {
   return deleteItemsFromModelInternal(
     [name],
-    reactAppComponent.state.modelData.generators,
+    reactAppComponent.state.modelDataRaw.generators,
     modelName,
-    reactAppComponent.state.modelData,
+    reactAppComponent.state.modelDataRaw,
     reactAppComponent.options.checkModelOnEdit,
     true, // allowRecursion
     showAlert,
@@ -1569,9 +1590,9 @@ async function setEraTrigger(name: string, value: number): Promise<boolean> {
     return setEraInModel(
       name,
       value,
-      reactAppComponent.state.modelData.triggers,
+      reactAppComponent.state.modelDataRaw.triggers,
       modelName,
-      reactAppComponent.state.modelData,
+      reactAppComponent.state.modelDataRaw,
     );
   } else {
     return false;
@@ -1582,9 +1603,9 @@ async function setEraAsset(name: string, value: number): Promise<boolean> {
     return setEraInModel(
       name,
       value,
-      reactAppComponent.state.modelData.assets,
+      reactAppComponent.state.modelDataRaw.assets,
       modelName,
-      reactAppComponent.state.modelData,
+      reactAppComponent.state.modelDataRaw,
     );
   } else {
     return false;
@@ -1598,9 +1619,9 @@ async function setEraTransaction(
     return setEraInModel(
       name,
       value,
-      reactAppComponent.state.modelData.transactions,
+      reactAppComponent.state.modelDataRaw.transactions,
       modelName,
-      reactAppComponent.state.modelData,
+      reactAppComponent.state.modelDataRaw,
     );
   } else {
     return false;
@@ -1611,9 +1632,9 @@ async function setEraExpense(name: string, value: number): Promise<boolean> {
     return setEraInModel(
       name,
       value,
-      reactAppComponent.state.modelData.expenses,
+      reactAppComponent.state.modelDataRaw.expenses,
       modelName,
-      reactAppComponent.state.modelData,
+      reactAppComponent.state.modelDataRaw,
     );
   } else {
     return false;
@@ -1624,9 +1645,9 @@ async function setEraIncome(name: string, value: number): Promise<boolean> {
     return setEraInModel(
       name,
       value,
-      reactAppComponent.state.modelData.incomes,
+      reactAppComponent.state.modelDataRaw.incomes,
       modelName,
-      reactAppComponent.state.modelData,
+      reactAppComponent.state.modelDataRaw,
     );
   } else {
     return false;
@@ -1637,9 +1658,9 @@ async function setEraSetting(name: string, value: number): Promise<boolean> {
     return setEraInModel(
       name,
       value,
-      reactAppComponent.state.modelData.settings,
+      reactAppComponent.state.modelDataRaw.settings,
       modelName,
-      reactAppComponent.state.modelData,
+      reactAppComponent.state.modelDataRaw,
     );
   } else {
     return false;
@@ -1653,9 +1674,9 @@ async function setEraGenerator(
     return setEraInModel(
       name,
       value,
-      reactAppComponent.state.modelData.generators,
+      reactAppComponent.state.modelDataRaw.generators,
       modelName,
-      reactAppComponent.state.modelData,
+      reactAppComponent.state.modelDataRaw,
     );
   } else {
     return false;
@@ -1801,7 +1822,8 @@ export async function replaceWithModel(
 
 interface AppState {
   modelNamesData: string[];
-  modelData: ModelData;
+  modelDataProcessed: ModelData,
+  modelDataRaw: ModelData,
   evaluations: Evaluation[];
   viewState: ViewSettings;
   expensesChartData: ChartData;
@@ -1907,7 +1929,8 @@ export class AppContent extends Component<AppProps, AppState> {
   }
 
   public state = {
-    modelData: emptyModel,
+    modelDataProcessed: emptyModel,
+    modelDataRaw: emptyModel,
     evaluations: [],
     viewState: getDefaultViewSettings(),
     expensesChartData: {
@@ -2071,6 +2094,14 @@ export class AppContent extends Component<AppProps, AppState> {
     );
   }
 
+  private getModelROI(){
+    return getROI(this.state.modelDataRaw);
+  }
+
+  private getNumYears() {
+    return getNumYears(this.state.modelDataRaw);
+  }
+
   public render(): JSX.Element {
     /* istanbul ignore if  */
     if (printDebug()) {
@@ -2080,18 +2111,18 @@ export class AppContent extends Component<AppProps, AppState> {
     try {
       // throw new Error('pretend something went wrong');
       const getStartDate = () => {
-        const start: Date = getROI(this.state.modelData).start;
+        const start: Date = this.getModelROI().start;
         return dateAsString(DateFormatType.View, start);
       };
       const getEndDate = () => {
-        const end: Date = getROI(this.state.modelData).end;
+        const end: Date = this.getModelROI().end;
         return dateAsString(DateFormatType.View, end);
       };
       const updateROISettingValue = async (
-        settingName: string,
+        settingName: string, // roiStart or roiEnd
         newDate: string,
       ) => {
-        const s = this.state.modelData.settings.find((s) => {
+        const s = this.state.modelDataProcessed.settings.find((s) => {
           return s.NAME === settingName;
         });
         let result = {
@@ -2102,15 +2133,15 @@ export class AppContent extends Component<AppProps, AppState> {
           s.VALUE = newDate;
           result = await submitROISetting(
             s,
-            this.state.modelData,
+            this.state.modelDataRaw,
             this.state.viewState,
           );
         }
         return result;
       };
       const deleteTransactions = (arg: string[]) => {
-        const model = this.state.modelData;
-        deleteItemsFromModel(
+        const model = this.state.modelDataRaw;
+        deleteItemsFromModel( // changes Model
           arg,
           model.transactions,
           model.name,
@@ -2121,8 +2152,8 @@ export class AppContent extends Component<AppProps, AppState> {
         );
       };
       const deleteExpenses = (arg: string[]) => {
-        const model = this.state.modelData;
-        deleteItemsFromModel(
+        const model = this.state.modelDataRaw;
+        deleteItemsFromModel( // changes Model
           arg,
           model.expenses,
           model.name,
@@ -2172,13 +2203,13 @@ export class AppContent extends Component<AppProps, AppState> {
       const updateFrequency = (newVal: string) => {
         let warnOfChange = false;
         if (newVal === weekly) {
-          const numYears = getNumYears(this.state.modelData);
+          const numYears = this.getNumYears();
           if (numYears >= 5) {
             warnOfChange = true;
           }
         }
         if (newVal === monthly) {
-          const numYears = getNumYears(this.state.modelData);
+          const numYears = this.getNumYears();
           if (numYears >= 20) {
             warnOfChange = true;
           }
@@ -2220,6 +2251,9 @@ export class AppContent extends Component<AppProps, AppState> {
         doShowTodaysValueColumns,
         refreshData,
 
+        checkAsset: (a) => {return checkAsset(a, this.state.modelDataRaw)},
+        checkTransaction: (t) => {return checkTransaction(t, this.state.modelDataRaw)},
+
         deleteAsset,
         deleteExpense,
         deleteIncome,
@@ -2239,24 +2273,38 @@ export class AppContent extends Component<AppProps, AppState> {
         setEraTransaction,
         setEraGenerator,
 
-        submitAsset,
-        submitExpense,
-        submitMonitor,
-        submitIncome,
-        submitTransaction,
-        submitTrigger,
-        submitGenerator,
+        submitAsset: async (asset: Asset) => {
+          submitAsset(asset, this.state.modelDataRaw);
+        },
+        submitExpense: async (expense: Expense) => {
+          submitExpense(expense, this.state.modelDataRaw);
+        },
+        submitMonitor: async (monitor: Monitor) => {
+          submitMonitor(monitor, this.state.modelDataRaw);
+        },
+        submitIncome: async (income: Income) => {
+          return submitIncome(income, this.state.modelDataRaw);
+        },
+        submitTransaction: async (transaction: Transaction) => {
+          submitTransaction(transaction, this.state.modelDataRaw);
+        },
+        submitTrigger: async (trigger: Trigger) => {
+          submitTrigger(trigger, this.state.modelDataRaw);
+        },
+        submitGenerator: async (generatorInput: Generator) => {
+          submitGenerator(generatorInput, this.state.modelDataRaw);
+        },
 
         editSetting,
       };
-
+  
       return (
         <>
           {this.navbarDiv(this.state.isWaiting, getDisplayedView())}
           <>
             {this.homeDiv()}
             {overviewDiv(
-              this.state.modelData,
+              this.state.modelDataProcessed,
               this.props.user.name,
               this.state.todaysAssetValues,
               this.state.todaysIncomeValues,
@@ -2272,12 +2320,12 @@ export class AppContent extends Component<AppProps, AppState> {
               parentCallbacks,
             )}
             {this.settingsDiv(
-              this.state.modelData,
+              this.state.modelDataProcessed,
               this.state.todaysSettingValues,
               parentCallbacks,
             )}
             {incomesDiv(
-              this.state.modelData,
+              this.state.modelDataProcessed,
               this.state.viewState,
               this.options.checkModelOnEdit,
               this.state.incomesChartData,
@@ -2285,7 +2333,7 @@ export class AppContent extends Component<AppProps, AppState> {
               parentCallbacks,
             )}
             {expensesDiv(
-              this.state.modelData,
+              this.state.modelDataProcessed,
               this.state.viewState,
               this.options.checkModelOnEdit,
               this.state.expensesChartData,
@@ -2296,7 +2344,7 @@ export class AppContent extends Component<AppProps, AppState> {
               parentCallbacks,
             )}
             {assetsDiv(
-              this.state.modelData,
+              this.state.modelDataProcessed,
               this.state.viewState,
               this.options.checkModelOnEdit,
               this.state.assetChartData,
@@ -2304,7 +2352,7 @@ export class AppContent extends Component<AppProps, AppState> {
               parentCallbacks,
             )}
             {debtsDiv(
-              this.state.modelData,
+              this.state.modelDataProcessed,
               this.state.viewState,
               this.options.checkModelOnEdit,
               this.state.debtChartData,
@@ -2313,7 +2361,7 @@ export class AppContent extends Component<AppProps, AppState> {
             )}
             {this.transactionsDiv(parentCallbacks)}
             {taxDiv(
-              this.state.modelData,
+              this.state.modelDataProcessed,
               this.state.viewState,
               this.state.taxChartData,
               this.state.totalTaxPaid,
@@ -2322,7 +2370,7 @@ export class AppContent extends Component<AppProps, AppState> {
             )}
             {this.triggersDiv(parentCallbacks)}
             {reportDiv(
-              this.state.modelData,
+              this.state.modelDataProcessed,
               this.state.viewState,
               this.state.reportDefiner,
               this.state.maxReportSize,
@@ -2334,7 +2382,7 @@ export class AppContent extends Component<AppProps, AppState> {
               parentCallbacks.refreshData,
             )}
             {optimizerDiv(
-              this.state.modelData,
+              this.state.modelDataProcessed,
               this.state.todaysSettingValues,
               this.state.viewState,
               this.state.optimizationChartData,
@@ -2517,7 +2565,7 @@ export class AppContent extends Component<AppProps, AppState> {
       return;
     }
     const diffResult = diffModels(
-      this.state.modelData,
+      this.state.modelDataRaw,
       otherModel,
       false,
       modelNameForDiff,
@@ -2575,7 +2623,7 @@ export class AppContent extends Component<AppProps, AppState> {
         <CreateModelForm
           userID={getUserID()}
           currentModelName={modelName}
-          modelData={this.state.modelData}
+          modelData={this.state.modelDataRaw}
           saveModel={async (
             userID: string,
             modelName: string,
@@ -2635,7 +2683,7 @@ export class AppContent extends Component<AppProps, AppState> {
             "Check model",
             async () => {
               const response = checkModelData(
-                reactAppComponent.state.modelData,
+                reactAppComponent.state.modelDataRaw,
                 modelName,
               );
               // log(`setState for check result ${response}`);
@@ -2650,8 +2698,8 @@ export class AppContent extends Component<AppProps, AppState> {
           {makeButton(
             "Standardise dates",
             async () => {
-              const response = standardiseDates(
-                reactAppComponent.state.modelData,
+              const response = standardiseDates( // changes Model
+                reactAppComponent.state.modelDataRaw,
               );
               // log(`setState for check result alert`);
               reactAppComponent.setState({
@@ -2666,7 +2714,7 @@ export class AppContent extends Component<AppProps, AppState> {
           {makeButton(
             "Copy model as JSON to clipboard",
             () => {
-              const text = JSON.stringify(this.state.modelData);
+              const text = JSON.stringify(this.state.modelDataRaw);
               navigator.clipboard.writeText(text).then(
                 function () {
                   showAlert(`model as JSON on clipboard`);
@@ -2792,7 +2840,7 @@ export class AppContent extends Component<AppProps, AppState> {
       <div className="ml-3">
         <fieldset>
           {settingsTableDiv(
-            this.state.modelData,
+            this.state.modelDataProcessed,
             todaysValues,
             this.options.checkModelOnEdit,
             parentCallbacks,
@@ -2809,22 +2857,12 @@ export class AppContent extends Component<AppProps, AppState> {
                 checkTransactionFunction={checkTransaction}
                 submitTransactionFunction={submitTransaction}
                 submitTriggerFunction={submitTrigger}
-                model={this.state.modelData}
+                model={this.state.modelDataRaw}
                 showAlert={showAlert}
                 doCheckBeforeOverwritingExistingData={
                   doCheckBeforeOverwritingExistingData
                 }
               />
-              {/*
-            // adding this wierdly makes tooltips work!
-            <AddDeleteTransactionForm
-              checkFunction={checkTransaction}
-              submitFunction={submitTransaction}
-              deleteFunction={deleteTransaction}
-              submitTriggerFunction={submitTrigger}
-              model={this.state.modelData}
-              showAlert={showAlert}
-            />*/}
             </div>,
             `Add setting`,
           )}
@@ -2843,7 +2881,7 @@ export class AppContent extends Component<AppProps, AppState> {
     return (
       <div className="ml-3">
         {triggersTableDivWithHeading(
-          this.state.modelData,
+          this.state.modelDataRaw,
           this.options.checkModelOnEdit,
           parentCallbacks,
           "",
@@ -2855,7 +2893,7 @@ export class AppContent extends Component<AppProps, AppState> {
               checkFunction={checkTrigger}
               submitFunction={submitTrigger}
               deleteFunction={deleteTrigger}
-              model={this.state.modelData}
+              model={this.state.modelDataRaw}
               showAlert={showAlert}
               doCheckBeforeOverwritingExistingData={
                 doCheckBeforeOverwritingExistingData
@@ -2878,7 +2916,7 @@ export class AppContent extends Component<AppProps, AppState> {
     return (
       <div className="ml-3">
         {transactionFilteredTable(
-          this.state.modelData,
+          this.state.modelDataProcessed,
           this.options.checkModelOnEdit,
           custom,
           "Custom transactions",
@@ -2886,7 +2924,7 @@ export class AppContent extends Component<AppProps, AppState> {
           "customTransactions",
         )}
         {transactionFilteredTable(
-          this.state.modelData,
+          this.state.modelDataProcessed,
           this.options.checkModelOnEdit,
           autogen,
           "Auto-generated transactions",
@@ -2894,7 +2932,7 @@ export class AppContent extends Component<AppProps, AppState> {
           "autogenTransactions",
         )}
         {transactionFilteredTable(
-          this.state.modelData,
+          this.state.modelDataProcessed,
           this.options.checkModelOnEdit,
           bondInvest,
           "Bond transactions",
@@ -2912,10 +2950,12 @@ export class AppContent extends Component<AppProps, AppState> {
                     return "";
                   }
             }
-            submitFunction={submitTransaction}
+            submitFunction={(t) => {
+              return submitTransaction(t, this.state.modelDataRaw);
+            }}
             deleteFunction={deleteTransaction}
             submitTriggerFunction={submitTrigger}
-            model={this.state.modelData}
+            model={this.state.modelDataProcessed}
             showAlert={parentCallbacks.showAlert}
             doCheckBeforeOverwritingExistingData={
               doCheckBeforeOverwritingExistingData
@@ -3060,7 +3100,7 @@ export class AppContent extends Component<AppProps, AppState> {
 
   private makeUndoButton(): JSX.Element {
     let numUndosAvailable = 0;
-    let undoModel = this.state.modelData.undoModel;
+    let undoModel = this.state.modelDataRaw.undoModel;
     while (undoModel !== undefined && numUndosAvailable < 100) {
       undoModel = undoModel.undoModel;
       numUndosAvailable = numUndosAvailable + 1;
@@ -3070,10 +3110,10 @@ export class AppContent extends Component<AppProps, AppState> {
       buttonTitle = `Undo(${numUndosAvailable})`;
     }
     let undoTooltip = "";
-    if (this.state.modelData.undoModel !== undefined) {
+    if (this.state.modelDataRaw.undoModel !== undefined) {
       const diffs = diffModels(
-        this.state.modelData,
-        this.state.modelData.undoModel,
+        this.state.modelDataRaw,
+        this.state.modelDataRaw.undoModel,
         true,
         "current model",
         "previous model",
@@ -3087,8 +3127,8 @@ export class AppContent extends Component<AppProps, AppState> {
       buttonTitle,
       async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.persist();
-        if (await revertToUndoModel(this.state.modelData)) {
-          await saveModelLSM(getUserID(), modelName, this.state.modelData);
+        if (await revertToUndoModel(this.state.modelDataRaw)) {
+          await saveModelLSM(getUserID(), modelName, this.state.modelDataRaw);
           refreshData(
             true, // refreshModel
             true, // refreshChart
@@ -3098,7 +3138,7 @@ export class AppContent extends Component<AppProps, AppState> {
       },
       `btn-undo-model`,
       `btn-undo-model`,
-      this.state.modelData.undoModel !== undefined
+      this.state.modelDataRaw.undoModel !== undefined
         ? "secondary"
         : "outline-secondary",
     );
@@ -3123,7 +3163,7 @@ export class AppContent extends Component<AppProps, AppState> {
   }
   private makeRedoButton(): JSX.Element {
     let numRedosAvailable = 0;
-    let redoModel = this.state.modelData.redoModel;
+    let redoModel = this.state.modelDataRaw.redoModel;
     while (redoModel !== undefined && numRedosAvailable < 100) {
       redoModel = redoModel.redoModel;
       numRedosAvailable = numRedosAvailable + 1;
@@ -3133,10 +3173,10 @@ export class AppContent extends Component<AppProps, AppState> {
       buttonTitle = `Redo(${numRedosAvailable})`;
     }
     let redoTooltip = "";
-    if (this.state.modelData.redoModel !== undefined) {
+    if (this.state.modelDataRaw.redoModel !== undefined) {
       const diffs = diffModels(
-        this.state.modelData.redoModel,
-        this.state.modelData,
+        this.state.modelDataRaw.redoModel,
+        this.state.modelDataRaw,
         true,
         "redo model",
         "current model",
@@ -3150,8 +3190,8 @@ export class AppContent extends Component<AppProps, AppState> {
       buttonTitle,
       async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.persist();
-        if (await applyRedoToModel(this.state.modelData)) {
-          await saveModelLSM(getUserID(), modelName, this.state.modelData);
+        if (await applyRedoToModel(this.state.modelDataRaw)) {
+          await saveModelLSM(getUserID(), modelName, this.state.modelDataRaw);
           refreshData(
             true, // refreshModel
             true, // refreshChart
@@ -3161,7 +3201,7 @@ export class AppContent extends Component<AppProps, AppState> {
       },
       `btn-redo-model`,
       `btn-redo-model`,
-      this.state.modelData.redoModel !== undefined
+      this.state.modelDataRaw.redoModel !== undefined
         ? "secondary"
         : "outline-secondary",
     );
@@ -3194,7 +3234,7 @@ export class AppContent extends Component<AppProps, AppState> {
         const savedOK = await saveModelToDBLSM(
           getUserID(),
           modelName,
-          this.state.modelData,
+          this.state.modelDataRaw,
         );
         if (savedOK) {
           refreshData(

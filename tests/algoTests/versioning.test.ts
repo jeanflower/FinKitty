@@ -16,7 +16,7 @@ import {
   ThreeChryslerModel,
   BenAndJerryModel,
 } from "../../localization/stringConstants";
-import { checkData } from "../../models/checks";
+import { checkModel } from "../../models/checks";
 import { log, showObj, suppressLogs, unSuppressLogs } from "../../utils/utils";
 import { getSettings } from "../../models/modelQueries";
 import { getCurrentVersion } from "../../models/currentVersion";
@@ -615,7 +615,7 @@ describe("loadModelsFromJSON", () => {
     unSuppressLogs();
     // from v3 to v4 we added tax view settings
     // but fromv4 to v5 we lost those settings again
-    expect(checkData(model).message.length).toEqual(0);
+    expect(checkModel(model).message.length).toEqual(0);
   });
 
   // from v4 to v5, we remove various view settings
@@ -629,7 +629,7 @@ describe("loadModelsFromJSON", () => {
     expect(
       getSettings(model.settings, viewFrequency, "missing", false),
     ).toEqual("missing");
-    expect(checkData(model).message.length).toEqual(0);
+    expect(checkModel(model).message.length).toEqual(0);
   });
   // current version loads
   it("migrateFromV5", () => {
@@ -637,7 +637,7 @@ describe("loadModelsFromJSON", () => {
     suppressLogs();
     const model = makeModelFromJSON(jsonString, "versionTests");
     unSuppressLogs();
-    const outcome = checkData(model);
+    const outcome = checkModel(model);
     if (outcome.message.length > 0) {
       log(`outcome.message = ${outcome.message}`);
     }
@@ -649,7 +649,7 @@ describe("loadModelsFromJSON", () => {
     suppressLogs();
     const model = makeModelFromJSON(jsonString, "versionTests");
     unSuppressLogs();
-    const outcome = checkData(model);
+    const outcome = checkModel(model);
     if (outcome.message.length > 0) {
       log(`outcome.message = ${outcome.message}`);
     }
@@ -661,7 +661,7 @@ describe("loadModelsFromJSON", () => {
     suppressLogs();
     const model = makeModelFromJSON(jsonString, "versionTests");
     unSuppressLogs();
-    const outcome = checkData(model);
+    const outcome = checkModel(model);
     if (outcome.message.length > 0) {
       log(`outcome.message = ${outcome.message}`);
     }
@@ -673,7 +673,7 @@ describe("loadModelsFromJSON", () => {
     suppressLogs();
     const model = makeModelFromJSON(jsonString, "versionTests");
     unSuppressLogs();
-    const outcome = checkData(model);
+    const outcome = checkModel(model);
     if (outcome.message.length > 0) {
       log(`outcome.message = ${outcome.message}`);
     }
@@ -694,7 +694,7 @@ describe("loadModelsFromJSON", () => {
     suppressLogs();
     const model = makeModelFromJSON(jsonString, "versionTests");
     unSuppressLogs();
-    const outcome = checkData(model);
+    const outcome = checkModel(model);
     if (outcome.message.length > 0) {
       log(`outcome.message = ${outcome.message}`);
     }
@@ -706,7 +706,7 @@ describe("loadModelsFromJSON", () => {
     suppressLogs();
     const model = makeModelFromJSON(jsonString, "versionTests");
     unSuppressLogs();
-    const outcome = checkData(model);
+    const outcome = checkModel(model);
     if (outcome.message.length > 0) {
       log(`outcome.message = ${outcome.message}`);
     }
@@ -718,7 +718,7 @@ describe("loadModelsFromJSON", () => {
     suppressLogs();
     const model = makeModelFromJSON(jsonString, "versionTests");
     unSuppressLogs();
-    const outcome = checkData(model);
+    const outcome = checkModel(model);
     if (outcome.message.length > 0) {
       log(`outcome.message = ${outcome.message}`);
     }
@@ -732,7 +732,7 @@ describe("loadModelsFromJSON", () => {
     suppressLogs();
     const model = makeModelFromJSON(jsonString, "versionTests");
     unSuppressLogs();
-    const outcome = checkData(model);
+    const outcome = checkModel(model);
     if (outcome.message.length > 0) {
       log(`outcome.message = ${outcome.message}`);
     }
@@ -758,7 +758,7 @@ describe("loadModelsFromJSON", () => {
   it("check TestModel01", () => {
     const model = getTestModel(TestModel01);
 
-    const outcome = checkData(makeModelFromJSON(JSON.stringify(model)));
+    const outcome = checkModel(makeModelFromJSON(JSON.stringify(model)));
     if (outcome.message.length > 0) {
       log(`outcome.message = ${outcome.message}`);
     }
@@ -767,7 +767,7 @@ describe("loadModelsFromJSON", () => {
   it("check TestModel02", () => {
     const model = getTestModel(TestModel02);
 
-    const outcome = checkData(makeModelFromJSON(JSON.stringify(model)));
+    const outcome = checkModel(makeModelFromJSON(JSON.stringify(model)));
     if (outcome.message.length > 0) {
       log(`outcome.message = ${outcome.message}`);
     }
@@ -776,7 +776,7 @@ describe("loadModelsFromJSON", () => {
   it("check CoarseAndFine", () => {
     const model = getTestModel(CoarseAndFine);
 
-    const outcome = checkData(makeModelFromJSON(JSON.stringify(model)));
+    const outcome = checkModel(makeModelFromJSON(JSON.stringify(model)));
     if (outcome.message.length > 0) {
       log(`outcome.message = ${outcome.message}`);
     }
@@ -785,7 +785,7 @@ describe("loadModelsFromJSON", () => {
   it("check FutureExpense", () => {
     const model = getTestModel(FutureExpense);
 
-    const outcome = checkData(makeModelFromJSON(JSON.stringify(model)));
+    const outcome = checkModel(makeModelFromJSON(JSON.stringify(model)));
     if (outcome.message.length > 0) {
       log(`outcome.message = ${outcome.message}`);
     }
@@ -794,7 +794,7 @@ describe("loadModelsFromJSON", () => {
   it("check ThreeChryslerModel", () => {
     const model = getTestModel(ThreeChryslerModel);
 
-    const outcome = checkData(makeModelFromJSON(JSON.stringify(model)));
+    const outcome = checkModel(makeModelFromJSON(JSON.stringify(model)));
     if (outcome.message.length > 0) {
       log(`outcome.message = ${outcome.message}`);
     }
@@ -803,7 +803,7 @@ describe("loadModelsFromJSON", () => {
   it("check BenAndJerryModel", () => {
     const model = getTestModel(BenAndJerryModel);
 
-    const outcome = checkData(makeModelFromJSON(JSON.stringify(model)));
+    const outcome = checkModel(makeModelFromJSON(JSON.stringify(model)));
     if (outcome.message.length > 0) {
       log(`outcome.message = ${outcome.message}`);
     }

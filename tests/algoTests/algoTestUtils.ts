@@ -33,7 +33,7 @@ import {
   birthDateHint,
   valueFocusDateHint,
 } from "../../localization/stringConstants";
-import { getEvaluations } from "../../models/evaluations";
+import { getEvaluations, processGenerators } from "../../models/evaluations";
 import {
   emptyModel,
   simpleExpense,
@@ -73,7 +73,7 @@ import { defaultModelSettings } from "../../models/testModel";
 import { viewSetting, simpleSetting } from "../../models/exampleSettings";
 import { allViews } from "../../utils/allViews";
 import { minimalModel } from "../../models/minimalModel";
-import { makeModelFromJSONString } from "../../models/modelFromJSON";
+import { makeModelFromJSONString, makeModelFromJSON } from "../../models/modelFromJSON";
 import { ViewSettings } from "../../utils/viewUtils";
 
 export function expectEvals(
@@ -239,7 +239,7 @@ export function printTestCodeForChart(result: DataForView) {
 }
 
 export function getTestEvaluations(
-  model: ModelData,
+  unprocessedModel: ModelData,
   renamingChecks = true,
   diffChecks = false,
   frequency = monthly,
@@ -251,6 +251,12 @@ export function getTestEvaluations(
   todaysExpenseValues: Map<Expense, ExpenseVal>;
   todaysSettingValues: Map<Setting, SettingVal>;
 } {
+  const model = makeModelFromJSONString(JSON.stringify(unprocessedModel));
+  model.name = 'ready to be processed';
+
+  processGenerators(model);
+  model.name = 'has been processed';
+
   const emptyResult = {
     evaluations: [],
     todaysAssetValues: new Map<Asset, AssetOrDebtVal>(),

@@ -51,24 +51,6 @@ export class ReportMatcherForm extends Component<
     this.state = this.defaultState;
 
     this.submit = this.submit.bind(this);
-    this.handleMatcherChange = this.handleMatcherChange.bind(this);
-    this.handleExcluderChange = this.handleExcluderChange.bind(this);
-    this.handleMaxReportChange = this.handleMaxReportChange.bind(this);
-  }
-
-  private handleMatcherChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const value = e.target.value;
-    // log(`setting new value for sourceMatcher form ${value}`);
-    this.setState({ sourceMatcher: value });
-  }
-  private handleExcluderChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const value = e.target.value;
-    // log(`setting new value for sourceExcluder form ${value}`);
-    this.setState({ sourceExcluder: value });
-  }
-  private handleMaxReportChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const value = e.target.value;
-    this.setState({ maxReportSize: value });
   }
 
   public render() {
@@ -89,7 +71,9 @@ export class ReportMatcherForm extends Component<
           name={"reportSourceMatcher"}
           value={this.state.sourceMatcher}
           placeholder={"Enter matcher here"}
-          onChange={this.handleMatcherChange}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+            this.setState({ sourceMatcher: e.target.value });
+          }}
         />
         <Input
           type={"text"}
@@ -97,7 +81,9 @@ export class ReportMatcherForm extends Component<
           name={"reportSourceExcluder"}
           value={this.state.sourceExcluder}
           placeholder={"Enter excluder here"}
-          onChange={this.handleExcluderChange}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+            this.setState({ sourceExcluder: e.target.value });
+          }}
         />
         <Input
           type={"text"}
@@ -105,7 +91,9 @@ export class ReportMatcherForm extends Component<
           name={"maxReportSize"}
           value={this.state.maxReportSize}
           placeholder={"0"}
-          onChange={this.handleMaxReportChange}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+            this.setState({ maxReportSize: e.target.value });
+          }}
         />
         {makeButton(
           "reset to default",

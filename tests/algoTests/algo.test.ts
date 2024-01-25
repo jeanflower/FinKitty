@@ -73,7 +73,6 @@ import {
   transactionFromUndefinedModel,
   transactionToUndefinedModel,
 } from "../../models/exampleModels";
-import { getEvaluations, processGenerators } from "../../models/evaluations";
 import { makeChartDataFromEvaluations } from "../../models/charting";
 import {
   getModelFutureExpense2,
@@ -93,7 +92,6 @@ import { simpleSetting } from "../../models/exampleSettings";
 import { minimalModel, getMinimalModelCopy } from "../../models/minimalModel";
 import { defaultModelSettings } from "../../models/testModel";
 import {
-  makeModelFromJSONString,
   makeModelFromJSON,
 } from "../../models/modelFromJSON";
 import { ViewSettings } from "../../utils/viewUtils";
@@ -123,10 +121,7 @@ describe("evaluations tests", () => {
       viewType,
     );
 
-    const evalsAndValues = getEvaluations(
-      makeModelFromJSONString(JSON.stringify(model)),
-      undefined, // no key for a values report
-    );
+    const evalsAndValues = getTestEvaluations(model);
     /*
     log(evalsAndValues.todaysAssetValues);
     log(evalsAndValues.todaysDebtValues);
@@ -6020,6 +6015,7 @@ describe("evaluations tests", () => {
       settings: [...defaultModelSettings(roi)],
     };
 
+    {
     suppressLogs();
     const evalsAndValues = getTestEvaluations(model, false);
     let evals = evalsAndValues.evaluations;
@@ -6027,14 +6023,18 @@ describe("evaluations tests", () => {
     unSuppressLogs();
     // printTestCodeForEvals(evals);
     expect(evals.length).toBe(0);
+    }
 
     setSetting(model.settings, "shareGrowth", "nonsense", constType);
 
+    {
     suppressLogs();
-    evals = getTestEvaluations(model, false).evaluations;
+    const evalsAndValues = getTestEvaluations(model, false);
+    let evals = evalsAndValues.evaluations;
     unSuppressLogs();
     // printTestCodeForEvals(evals);
     expect(evals.length).toBe(0);
+    }
   });
   it("asset value should be a number", () => {
     const roi = {
@@ -8793,9 +8793,8 @@ describe("evaluations tests", () => {
       viewType,
     );
 
-    const evalsAndValues = getEvaluations(
+    const evalsAndValues = getTestEvaluations(
       makeModelFromJSON(JSON.stringify(model)),
-      undefined, // no key for a values report
     );
 
     // log(evalsAndValues.todaysAssetValues);

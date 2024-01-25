@@ -77,9 +77,6 @@ export class AddDeleteSettingForm extends Component<
 
     this.state = this.defaultState;
 
-    this.handleNameChange = this.handleNameChange.bind(this);
-    this.handleValueChange = this.handleValueChange.bind(this);
-    this.handleStartChange = this.handleStartChange.bind(this);
     this.setStart = this.setStart.bind(this);
 
     this.add = this.add.bind(this);
@@ -101,7 +98,9 @@ export class AddDeleteSettingForm extends Component<
               name="settingvalue"
               value={this.state.VALUE}
               placeholder="Enter value"
-              onChange={this.handleValueChange}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                this.setState({ VALUE: e.target.value });
+              }}
             />
           </Col>
         </Row>
@@ -117,7 +116,7 @@ export class AddDeleteSettingForm extends Component<
               value={this.state.NAME}
               placeholder="Enter name"
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                return this.handleNameChange(e.target.value);
+                this.setState({ NAME: e.target.value });
               }}
             />
           </Col>
@@ -128,7 +127,9 @@ export class AddDeleteSettingForm extends Component<
               name="settingvalue"
               value={this.state.VALUE}
               placeholder="Enter value"
-              onChange={this.handleValueChange}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                this.setState({ VALUE: e.target.value });
+              }}
             />
           </Col>
         </Row>
@@ -228,7 +229,9 @@ export class AddDeleteSettingForm extends Component<
             setDateFunction={this.setStart}
             inputName="start date"
             inputValue={this.state.START}
-            onChangeHandler={this.handleStartChange}
+            onChangeHandler={(e: React.ChangeEvent<HTMLInputElement>): void => {
+              this.setState({ START: e.target.value });
+            }}
             triggers={this.props.model.triggers}
             submitTriggerFunction={this.props.submitTriggerFunction}
           />
@@ -284,7 +287,9 @@ export class AddDeleteSettingForm extends Component<
               return lessThan(a.NAME, b.NAME);
             }),
           this.props.model,
-          this.handleNameChange,
+          (name: string) => {
+            this.setState({ NAME: name });
+          },
           "settingname",
           "Select setting",
         )}
@@ -292,20 +297,8 @@ export class AddDeleteSettingForm extends Component<
     );
   }
 
-  private handleNameChange(name: string) {
-    const value = name;
-    this.setState({ NAME: value });
-  }
-  private handleValueChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const value = e.target.value;
-    this.setState({ VALUE: value });
-  }
   private setStart(value: string): void {
     this.setState({ START: value });
-  }
-  private handleStartChange(e: React.ChangeEvent<HTMLInputElement>): void {
-    const value = e.target.value;
-    this.setStart(value);
   }
 
   private async add(e: FormEvent<Element>) {

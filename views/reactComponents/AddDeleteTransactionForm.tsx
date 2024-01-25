@@ -50,7 +50,7 @@ interface EditTransactionFormState {
 }
 interface EditTransactionProps extends FormProps {
   checkFunction: (transaction: Transaction, model: ModelData) => string;
-  submitFunction: (transaction: Transaction, model: ModelData) => Promise<void>;
+  submitFunction: (transaction: Transaction) => Promise<void>;
   deleteFunction: (name: string) => Promise<DeleteResult>;
   submitTriggerFunction: (
     triggerInput: Trigger,
@@ -94,20 +94,10 @@ export class AddDeleteTransactionForm extends Component<
 
     this.state = this.defaultState;
 
-    this.handleNameChange = this.handleNameChange.bind(this);
-    this.handleFromChange = this.handleFromChange.bind(this);
-    this.handleToChange = this.handleToChange.bind(this);
     this.handleFromValueChange = this.handleFromValueChange.bind(this);
     this.handleToValueChange = this.handleToValueChange.bind(this);
-    this.handleCategoryChange = this.handleCategoryChange.bind(this);
-    this.handleRecurrenceChange = this.handleRecurrenceChange.bind(this);
-    this.handleLiquidateForCashChange =
-      this.handleLiquidateForCashChange.bind(this);
 
-    this.handleDateChange = this.handleDateChange.bind(this);
     this.setDate = this.setDate.bind(this);
-
-    this.handleStopDateChange = this.handleStopDateChange.bind(this);
     this.setStopDate = this.setStopDate.bind(this);
 
     this.add = this.add.bind(this);
@@ -126,7 +116,9 @@ export class AddDeleteTransactionForm extends Component<
               name="transactionname"
               value={this.state.NAME}
               placeholder="Enter name"
-              onChange={this.handleNameChange}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                this.setState({ NAME: e.target.value });
+              }}
             />
           </Col>{" "}
         </Row>
@@ -140,7 +132,9 @@ export class AddDeleteTransactionForm extends Component<
             setDateFunction={this.setDate}
             inputName="date"
             inputValue={this.state.DATE}
-            onChangeHandler={this.handleDateChange}
+            onChangeHandler={(e: React.ChangeEvent<HTMLInputElement>): void => {
+              this.setDate(e.target.value);
+            }}
             triggers={this.props.model.triggers}
             submitTriggerFunction={this.props.submitTriggerFunction}
           />
@@ -175,7 +169,10 @@ export class AddDeleteTransactionForm extends Component<
                     }),
                 ),
               this.props.model,
-              this.handleFromChange,
+              (value: string) => {
+                // log(`from value changed to ${value}`);
+                this.setState({ FROM: value });
+              },
               this.transactionFromSelectID,
               "Choose an asset/setting",
             )}
@@ -199,7 +196,9 @@ export class AddDeleteTransactionForm extends Component<
                     }),
                 ),
               this.props.model,
-              this.handleToChange,
+              (value: string) => {
+                this.setState({ TO: value });
+              },
               this.transactionToSelectID,
               "Choose an asset/setting",
             )}
@@ -241,7 +240,9 @@ export class AddDeleteTransactionForm extends Component<
               name="recurrence"
               value={this.state.RECURRENCE}
               placeholder="Enter recurrence"
-              onChange={this.handleRecurrenceChange}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                this.setState({ RECURRENCE: e.target.value });
+              }}
             />
           </Col>{" "}
           <Col>
@@ -251,7 +252,9 @@ export class AddDeleteTransactionForm extends Component<
               name="liquidateForCash"
               value={this.state.LIQUIDATE_FOR_CASH}
               placeholder="Enter whether we only transact to keep cash afloat"
-              onChange={this.handleLiquidateForCashChange}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                this.setState({ LIQUIDATE_FOR_CASH: e.target.value });
+              }}
             />
           </Col>{" "}
         </Row>
@@ -265,7 +268,9 @@ export class AddDeleteTransactionForm extends Component<
             setDateFunction={this.setStopDate}
             inputName="stopDate"
             inputValue={this.state.STOP_DATE}
-            onChangeHandler={this.handleStopDateChange}
+            onChangeHandler={(e: React.ChangeEvent<HTMLInputElement>): void => {
+              this.setStopDate(e.target.value);
+            }}
             triggers={this.props.model.triggers}
             submitTriggerFunction={this.props.submitTriggerFunction}
           />
@@ -278,7 +283,9 @@ export class AddDeleteTransactionForm extends Component<
               name="transactioncategory"
               value={this.state.CATEGORY}
               placeholder="category"
-              onChange={this.handleCategoryChange}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                this.setState({ CATEGORY: e.target.value });
+              }}
             />
           </Col>{" "}
         </Row>
@@ -292,23 +299,6 @@ export class AddDeleteTransactionForm extends Component<
         )}
       </form>
     );
-  }
-  private handleNameChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const value = e.target.value;
-    this.setState({
-      NAME: value,
-    });
-  }
-  private handleFromChange(value: string) {
-    // log(`from value changed to ${value}`);
-    this.setState({
-      FROM: value,
-    });
-  }
-  private handleToChange(value: string) {
-    this.setState({
-      TO: value,
-    });
   }
   private handleFromValueChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
@@ -336,37 +326,11 @@ export class AddDeleteTransactionForm extends Component<
       TO_INPUT_VALUE: value,
     });
   }
-  private handleCategoryChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const value = e.target.value;
-    this.setState({
-      CATEGORY: value,
-    });
-  }
-  private handleRecurrenceChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const value = e.target.value;
-    this.setState({
-      RECURRENCE: value,
-    });
-  }
-  private handleLiquidateForCashChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const value = e.target.value;
-    this.setState({
-      LIQUIDATE_FOR_CASH: value,
-    });
-  }
   private setDate(value: string): void {
     this.setState({ DATE: value });
   }
-  private handleDateChange(e: React.ChangeEvent<HTMLInputElement>): void {
-    const value = e.target.value;
-    this.setDate(value);
-  }
   private setStopDate(value: string): void {
     this.setState({ STOP_DATE: value });
-  }
-  private handleStopDateChange(e: React.ChangeEvent<HTMLInputElement>): void {
-    const value = e.target.value;
-    this.setStopDate(value);
   }
   private resetSelect(id: string) {
     const selector: any = document.getElementById(id);
@@ -464,7 +428,7 @@ export class AddDeleteTransactionForm extends Component<
     if (message.length > 0) {
       this.props.showAlert(message);
     } else {
-      await this.props.submitFunction(transaction, this.props.model);
+      await this.props.submitFunction(transaction);
       this.props.showAlert("added new transaction");
       // clear fields
       this.setState(this.defaultState);

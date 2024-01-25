@@ -182,9 +182,9 @@ export function debtsDiv(
       {collapsibleFragment(
         <div className="addNewDebt">
           <AddDeleteDebtForm
-            checkAssetFunction={checkAsset}
+            checkAssetFunction={parentCallbacks.checkAsset}
             submitAssetFunction={parentCallbacks.submitAsset}
-            checkTransactionFunction={checkTransaction}
+            checkTransactionFunction={parentCallbacks.checkTransaction}
             submitTransactionFunction={parentCallbacks.submitTransaction}
             deleteAssetFunction={parentCallbacks.deleteAsset}
             submitTriggerFunction={parentCallbacks.submitTrigger}

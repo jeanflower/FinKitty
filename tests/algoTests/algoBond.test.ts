@@ -1,4 +1,3 @@
-import { makeModelFromJSONString } from "../../models/modelFromJSON";
 import { defaultModelSettings } from "../../models/testModel";
 import {
   revalueSetting,
@@ -8,7 +7,6 @@ import {
   bondInvest,
   bondInterest,
 } from "../../localization/stringConstants";
-import { getEvaluations } from "../../models/evaluations";
 import {
   emptyModel,
   simpleAsset,
@@ -99,11 +97,7 @@ describe("bonds tests", () => {
     setSetting(model.settings, "BondTargetValue", "1", constType);
     setSetting(model.settings, `${bondInterest}`, "100", constType);
 
-    const evalsAndValues = getEvaluations(
-      makeModelFromJSONString(JSON.stringify(model)),
-      undefined, // no key for a values report
-    );
-
+    const evalsAndValues = getTestEvaluations(model);
     const evals = evalsAndValues.evaluations;
 
     // printTestCodeForEvals(evals);
