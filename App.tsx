@@ -163,7 +163,7 @@ import FileSaver from "file-saver";
 import { taxDiv } from "./views/taxPage";
 import Image from "next/image";
 import { minimalModel } from "./models/minimalModel";
-import { makeModelFromJSON, makeModelFromJSONString } from "./models/modelFromJSON";
+import { makeModelFromJSON } from "./models/modelFromJSON";
 import { setUserID, getUserID } from "./utils/user";
 import { deleteItemsFromModelInternal } from "./utils/appActions";
 import { getAppVersion } from "./utils/appVersion";

@@ -17,7 +17,7 @@ import { getDB } from "./database";
 import { adjustableType } from "../localization/stringConstants";
 
 import { diffModels } from "../models/diffModels";
-import { checkModel, CheckResult, generateAndCheckModel } from "../models/checks";
+import { CheckResult, generateAndCheckModel } from "../models/checks";
 import { simpleExampleData } from "../models/exampleModels";
 import { markForUndo, revertToUndoModel } from "../models/modelUtils";
 import { minimalModel } from "../models/minimalModel";

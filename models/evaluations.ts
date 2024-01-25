@@ -89,7 +89,6 @@ import {
   isNumberString,
   replaceCategoryWithAssetNames,
 } from "./modelQueries";
-import { makeModelFromJSONString } from "./modelFromJSON";
 
 function parseRecurrenceString(recurrence: string) {
   if (recurrence === undefined) {
@@ -7056,7 +7055,7 @@ function processDBPGenerators(
       if (dBDetails.INCOME_SOURCE !== "") {
         const pensionDbptran1Name =  (parseYNDBSS.value ? pensionSS : pensionPrefix) + g.NAME;
         // console.log(`first transaction name = ${pensionDbptran1Name}`);
-        let transactionDate = dBDetails.VALUE_SET;
+        const transactionDate = dBDetails.VALUE_SET;
         // if the contributing income hasn't started yet then delay the transaction
         // TODO
         pensionDbptran1 = {

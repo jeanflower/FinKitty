@@ -6,7 +6,6 @@ import {
   Asset,
   ViewCallbacks,
 } from "./../types/interfaces";
-import { checkAsset, checkTransaction } from "../models/checks";
 import {
   debtsDivWithHeadings,
   defaultColumn,

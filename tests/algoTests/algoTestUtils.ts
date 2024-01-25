@@ -73,7 +73,7 @@ import { defaultModelSettings } from "../../models/testModel";
 import { viewSetting, simpleSetting } from "../../models/exampleSettings";
 import { allViews } from "../../utils/allViews";
 import { minimalModel } from "../../models/minimalModel";
-import { makeModelFromJSONString, makeModelFromJSON } from "../../models/modelFromJSON";
+import { makeModelFromJSONString } from "../../models/modelFromJSON";
 import { ViewSettings } from "../../utils/viewUtils";
 
 export function expectEvals(
