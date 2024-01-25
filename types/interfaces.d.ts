@@ -71,6 +71,7 @@ export interface BondGeneratorDetails {
   TARGET: string;
   YEAR: string;
   RECURRENCE: string;
+  RECURRENCE_STOP: string;
 }
 
 export interface Asset extends ItemCategory {

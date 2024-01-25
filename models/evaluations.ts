@@ -89,6 +89,7 @@ import {
   isNumberString,
   replaceCategoryWithAssetNames,
 } from "./modelQueries";
+import dateFormat from "dateformat";
 
 function parseRecurrenceString(recurrence: string) {
   if (recurrence === undefined) {
@@ -6558,6 +6559,61 @@ function getEvaluationsInternal(
   return result;
 }
 
+function addBond(
+  details: BondGeneratorDetails,
+  assetName: string,
+  start: string,
+  model: ModelData,
+) {
+  const newAsset: Asset = {
+    NAME: assetName,
+    START: start,
+    VALUE: "0",
+    QUANTITY: "",
+    GROWTH: details.GROWTH,
+    CPI_IMMUNE: true,
+    CAN_BE_NEGATIVE: false,
+    IS_A_DEBT: false,
+    LIABILITY: "",
+    PURCHASE_PRICE: "0.0",
+    CATEGORY: details.CATEGORY,
+    ERA: undefined
+  };
+  // log(`added new asset ${showObj(newAsset)}`);
+  model.assets.push(newAsset);
+  const investTransaction = {
+    NAME: assetName + 'Invest',
+    ERA: 0, // new things are automatically current,
+    FROM: details.SOURCE,
+    FROM_ABSOLUTE: true,
+    FROM_VALUE: details.VALUE,
+    TO: assetName,
+    TO_ABSOLUTE: false,
+    TO_VALUE: "1.0",
+    DATE: start,
+    STOP_DATE: '',
+    RECURRENCE: '',
+    CATEGORY: details.CATEGORY,
+    TYPE: autogen,
+  };
+  const matureTransaction = {
+    NAME: assetName + 'Mature',
+    ERA: 0, // new things are automatically current,
+    FROM: assetName,
+    FROM_ABSOLUTE: false,
+    FROM_VALUE: '1.0',
+    TO: details.TARGET,
+    TO_ABSOLUTE: false,
+    TO_VALUE: "1.0",
+    DATE: `${start}+${details.DURATION}`,
+    STOP_DATE: '',
+    RECURRENCE: '',
+    CATEGORY: details.CATEGORY,
+    TYPE: autogen,
+  };
+  model.transactions.push(investTransaction);
+  model.transactions.push(matureTransaction);  
+}
 // return '' for success
 // or an errorMessage
 function processBondGenerators(
@@ -6569,22 +6625,30 @@ function processBondGenerators(
   for(const g of gens) {
     console.log(`processing generator ${showObj(g)}`);
     const details: BondGeneratorDetails = g.DETAILS;
-    const newAsset: Asset = {
-      START: details.START,
-      VALUE: details.VALUE,
-      QUANTITY: "",
-      GROWTH: details.GROWTH,
-      CPI_IMMUNE: true,
-      CAN_BE_NEGATIVE: false,
-      IS_A_DEBT: false,
-      LIABILITY: "",
-      PURCHASE_PRICE: "0.0",
-      CATEGORY: details.CATEGORY,
-      NAME: g.NAME,
-      ERA: undefined
-    };
-    // log(`added new asset ${showObj(newAsset)}`);
-    model.assets.push(newAsset);
+
+    if (details.RECURRENCE === '') {
+      addBond(
+        details,
+        g.NAME,
+        details.START,
+        model,
+      );
+    } else {
+      const varValue = getVarVal(model.settings);
+      const roi = {
+        start: getTriggerDate(details.START, model.triggers, varValue),
+        end: getTriggerDate(details.RECURRENCE_STOP, model.triggers, varValue),
+      };
+      const dates = generateSequenceOfDates(roi, details.RECURRENCE);
+      for (const d of dates) {
+        addBond(
+          details,
+          g.NAME+`${dateFormat(d, 'mmmyy')}`,
+          d.toDateString(),
+          model,
+        );  
+      }
+    }
   }
   return '';
 }

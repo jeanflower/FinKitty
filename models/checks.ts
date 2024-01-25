@@ -883,6 +883,48 @@ function isAutogenType(t: Transaction, model: ModelData) {
   ) {
     recognised = true;
   }
+
+  /*
+  const investTransaction = {
+    NAME: assetName + 'Invest',
+    ERA: 0, // new things are automatically current,
+    FROM: details.SOURCE,
+    FROM_ABSOLUTE: true,
+    FROM_VALUE: details.VALUE,
+    TO: assetName,
+    TO_ABSOLUTE: false,
+    TO_VALUE: "1.0",
+    DATE: date,
+    STOP_DATE: '',
+    RECURRENCE: '',
+    CATEGORY: details.CATEGORY,
+    TYPE: autogen,
+  };
+  */
+  if (t.NAME.endsWith('Invest')) {
+    recognised = true;
+  }
+  /*
+    const matureTransaction = {
+      NAME: assetName + 'Mature',
+      ERA: 0, // new things are automatically current,
+      FROM: assetName,
+      FROM_ABSOLUTE: false,
+      FROM_VALUE: '1.0',
+      TO: details.TARGET,
+      TO_ABSOLUTE: false,
+      TO_VALUE: "1.0",
+      DATE: `date+${details.DURATION}`,
+      STOP_DATE: '',
+      RECURRENCE: '',
+      CATEGORY: details.CATEGORY,
+      TYPE: autogen,
+    };
+  */
+    if (t.NAME.endsWith('Mature')) {
+      recognised = true;
+    }
+  
   //if(!recognised){
   //  log(`bad transaction ${showObj(t)}`);
   //}

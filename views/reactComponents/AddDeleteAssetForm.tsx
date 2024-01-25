@@ -70,6 +70,7 @@ interface EditAssetFormState {
   BOND_TARGET: string;
   BOND_YEAR: string;
   BOND_RECURRENCE: string;
+  BOND_RECURRENCE_STOP: string;
 }
 
 const inputtingRevalue = "revalue";
@@ -133,6 +134,7 @@ export class AddDeleteAssetForm extends Component<
       BOND_TARGET: "",
       BOND_YEAR: "",
       BOND_RECURRENCE: "",
+      BOND_RECURRENCE_STOP: "",
     };
 
     this.state = this.defaultState;
@@ -156,6 +158,7 @@ export class AddDeleteAssetForm extends Component<
   Source asset of investment amount. BOND_SOURCE
   Target asset on bond maturation.  BOND_TARGET
   Recurrence. BOND_RECURRENCE
+  Recurrence. BOND_RECURRENCE_STOP
   Year. BOND_YEAR
   Category: CATEGORY
 */
@@ -269,6 +272,7 @@ export class AddDeleteAssetForm extends Component<
       );
     } else if (this.state.inputMode === inputtingBonds) {
       return (
+        <>
         <Row>
           <Col>
             <Input
@@ -298,6 +302,33 @@ export class AddDeleteAssetForm extends Component<
             />
           </Col>
         </Row>
+        <Row>
+          <Col>
+            <Input
+              title={`Recurrence (optional, e.g. 5y or 6m)`}
+              type="text"
+              name="recurrence"
+              value={this.state.BOND_RECURRENCE}
+              placeholder="Enter recurrence"
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                this.setState({ BOND_RECURRENCE: e.target.value });
+              }}
+            />
+          </Col>
+          <Col>
+          <Input
+              title={`Recurrence end (optional)`}
+              type="text"
+              name="recurrencestop"
+              value={this.state.BOND_RECURRENCE_STOP}
+              placeholder="When recurrence stops"
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                this.setState({ BOND_RECURRENCE_STOP: e.target.value });
+              }}
+            />
+          </Col>
+        </Row>
+        </>
       );
     }
   }
@@ -643,7 +674,7 @@ export class AddDeleteAssetForm extends Component<
   ){
     // log(`render ${generators.length} generators`);
     return generators.map((g) => {
-      log(`use key = ${g.NAME}`);
+      // log(`use key = ${g.NAME}`);
       return <div
           id={g.NAME}
           key={g.NAME}
@@ -700,10 +731,13 @@ export class AddDeleteAssetForm extends Component<
                 BOND_TARGET: details.TARGET,
                 BOND_YEAR: details.YEAR,
                 BOND_RECURRENCE: details.RECURRENCE,
+                BOND_RECURRENCE_STOP: details.RECURRENCE_STOP,
               });
               const items = this.getAssetOptions();
-              this.setSelect('selectSourceAsset', items.map((a) => {return a.NAME}).indexOf(details.SOURCE) + 1);
-              this.setSelect('selectTargetAsset', items.map((a) => {return a.NAME}).indexOf(details.TARGET) + 1);
+              const itemNames = items.map((a) => {return a.NAME});
+              console.log(`look for ${details.SOURCE} in ${itemNames}`)
+              this.setSelect('selectSourceAsset', itemNames.indexOf(details.SOURCE) + 1);
+              this.setSelect('selectTargetAsset', itemNames.indexOf(details.TARGET) + 1);
             }
           }}
         >Edit</Button>
@@ -1479,6 +1513,7 @@ export class AddDeleteAssetForm extends Component<
         TARGET: this.state.BOND_TARGET,
         YEAR: this.state.BOND_YEAR,
         RECURRENCE: this.state.BOND_RECURRENCE,
+        RECURRENCE_STOP: this.state.BOND_RECURRENCE_STOP,
       };
 
       console.log(`bondGeneratorDetails = ${bondGeneratorDetails}`)
