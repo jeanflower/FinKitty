@@ -948,7 +948,6 @@ function handleSettingGridRowsUpdated(
       VALUE: string;
       HINT: string;
     },
-    modelData: ModelData,
   ) => Promise<void>,
   args: any,
 ) {
@@ -1020,7 +1019,7 @@ function handleSettingGridRowsUpdated(
     VALUE: newRow.VALUE,
     HINT: newRow.HINT,
   };
-  editSetting(forSubmission, model);
+  editSetting(forSubmission);
 }
 
 export const defaultColumn = {
@@ -2725,7 +2724,6 @@ export function expensesMonitoringDivWithHeading(
                 VALUE: dateFormat(startDate, 'mmm yyyy'),
                 HINT: '',
               },
-              model,
             );
             parentCallbacks.editSetting(
               {
@@ -2734,7 +2732,6 @@ export function expensesMonitoringDivWithHeading(
                 VALUE: dateFormat(endDate, 'mmm yyyy'),
                 HINT: '',
               },
-              model,
             );
           }
         }}

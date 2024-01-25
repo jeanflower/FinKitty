@@ -394,6 +394,5 @@ export interface ViewCallbacks {
       VALUE: string;
       HINT: string;
     },
-    modelData: ModelData,
   ) => Promise<void>;
 }

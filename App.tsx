@@ -2294,8 +2294,14 @@ export class AppContent extends Component<AppProps, AppState> {
         submitGenerator: async (generatorInput: Generator) => {
           submitGenerator(generatorInput, this.state.modelDataRaw);
         },
-
-        editSetting,
+        editSetting: async (s: {
+          NAME: string,
+          ERA: number | undefined,
+          VALUE: string,
+          HINT: string,
+        }) => {
+          editSetting(s, this.state.modelDataRaw);
+        },
       };
   
       return (
