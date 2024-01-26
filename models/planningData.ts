@@ -6,6 +6,7 @@ import { makeBarData } from "../views/chartPages";
 import { makeChartData } from "./charting";
 
 log;
+showObj;
 
 export function getPlanningTableData(
   expensesChartData: ChartData,
