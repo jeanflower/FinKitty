@@ -3,7 +3,6 @@ import { getMinimalModelCopy } from "../../models/minimalModel";
 import { defaultModelSettings, getTestModel } from "../../models/testModel";
 import {
   adjustableType,
-  bondInvest,
   bondModel,
   CASH_ASSET_NAME,
   conditional,
@@ -704,14 +703,10 @@ describe("checks tests", () => {
     expect(checkModel(model).message).toEqual(
       `Transaction '-PT TeachersPensionScheme' has payoff debt type not in a recognised format`,
     );
-    model.transactions[0].TYPE = bondInvest;
-    expect(checkModel(model).message).toEqual(
-      `Transaction '-PT TeachersPensionScheme' may only invest in Bond from Cash`,
-    );
     const oldFrom = model.transactions[0].FROM;
     model.transactions[0].FROM = CASH_ASSET_NAME;
     expect(checkModel(model).message).toEqual(
-      `Transaction '-PT TeachersPensionScheme' investment in Bond needs BMV as start of from value`,
+      `Transaction '-PT TeachersPensionScheme' has payoff debt type not in a recognised format`,
     );
     model.transactions[0].FROM = oldFrom;
     model.transactions[0].TYPE = oldType;
@@ -1077,98 +1072,6 @@ describe("checks tests", () => {
         model,
       ),
     ).toEqual(`Date 'zzz' is not valid : 'nonsense'`);
-  });
-
-  it("check bond model", () => {
-    const model = getTestModel(bondModel);
-    expect(checkModel(model).message).toEqual(``);
-
-    suppressLogs();
-
-    model.transactions[0].TYPE = "custom";
-    expect(checkModel(model).message).toEqual(
-      `'BondInvest4y' may only invest into Bond if the setting BondTargetValue` +
-        ` is revalued (so we capture the revalue date)`,
-    );
-    model.transactions[0].TYPE = "revalueSetting";
-
-    model.transactions[1].NAME = "nonsense";
-    expect(checkModel(model).message).toEqual(
-      `Transaction 'BondMature5y bond maturation requires an investment`,
-    );
-    model.transactions[1].NAME = "BondInvest5y";
-
-    model.transactions[0].DATE = "1 Jan 2020";
-    expect(checkModel(model).message).toEqual(
-      `'BondInvest4y' may only invest into Bond if the setting BondTargetValue` +
-        ` is not revalued after investment date`,
-    );
-    model.transactions[0].DATE = "1 Jan 2018";
-
-    model.transactions[6].FROM_VALUE = "BondTargetValue2";
-    expect(checkModel(model).message).toEqual(
-      `Transaction 'BondMature5y' maturing Bond needs BMV as start of from value`,
-    );
-    model.transactions[6].FROM_VALUE = "BMVBondTargetValue2";
-
-    model.transactions[6].STOP_DATE = "1 Jan 2029";
-    expect(checkModel(model).message).toEqual(
-      `Transaction 'BondMature5y bond maturation requires an investment`,
-    );
-    model.transactions[6].STOP_DATE = "1 Jan 2030";
-
-    model.transactions[13].FROM_VALUE = "BMVBondTargetValue";
-    expect(checkModel(model).message).toEqual(
-      `Transaction 'Gain cash' only bondInvest and bondMature types use BMV`,
-    );
-    model.transactions[13].FROM_VALUE = "0.0";
-
-    model.settings[3].NAME = "nonsense";
-    expect(checkModel(model).message).toEqual(
-      `\"Beginning of view range\" should be present in settings (value is a date)`,
-    );
-    model.settings[3].NAME = "Beginning of view range";
-
-    model.settings[4].NAME = "nonsense";
-    expect(checkModel(model).message).toEqual(
-      `\"End of view range\" should be present in settings (value is a date)`,
-    );
-    model.settings[4].NAME = "End of view range";
-
-    model.settings[4].VALUE = "nonsense";
-    expect(checkModel(model).message).toEqual(
-      `Setting \"End of view range\" should be a valid date string (e.g. 1 April 2018)`,
-    );
-    model.settings[4].VALUE = "Dec 1, 2016";
-    expect(checkModel(model).message).toEqual(
-      `Setting \"End of view range\" should be after setting \"Beginning of view range\"`,
-    );
-    model.settings[4].VALUE = "June 1, 2031";
-
-    model.transactions[13].NAME = `${conditional} gain cash`;
-    expect(checkModel(model).message).toEqual(
-      `Transaction 'Conditional gain cash' custom type not in a recognised format`,
-    );
-    model.transactions[13].NAME = `base`;
-    expect(checkModel(model).message).toEqual(`'base' as name is reserved`);
-    model.transactions[13].NAME = model.transactions[12].NAME;
-    expect(checkModel(model).message).toEqual(
-      `duplicate name Revalue of BondTargetValue2 01`,
-    );
-    model.transactions[13].NAME = "Gain Cash";
-
-    model.settings[7].NAME = debtChartFocus;
-    expect(checkModel(model).message).toEqual(
-      `\"Focus of debts chart\" setting should not be present`,
-    );
-    model.settings[7].NAME = taxChartFocusType;
-    expect(checkModel(model).message).toEqual(
-      `\"Focus of tax chart, type\" setting should not be present`,
-    );
-    model.settings[7].NAME = "mySetting";
-
-    unSuppressLogs();
-    expect(checkModel(model).message).toEqual("");
   });
 
   it("has proportional transaction blocked for string-valued asset", () => {

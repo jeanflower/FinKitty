@@ -39,6 +39,7 @@ import { collapsibleFragment } from "./tablePages";
 import { DateFormatType, log, printDebug } from "../utils/utils";
 import { ViewSettings, getDisplay } from "../utils/viewUtils";
 import { simpleExpense } from "../models/exampleModels";
+import { getPlanningTableData } from "../models/planningData";
 
 function addToMap(
   name: Expense,
@@ -167,79 +168,12 @@ function getPlanningDiv(
   planningAssetsChartData: ChartData, // for maturing Bonds for Planning
   reportData: ReportDatum[],
 ){
-  const planningExpenses = planningExpensesChartData.datasets;
-
-  const tableData = [];
-
-  const basicExpenses = planningExpenses.find((pe) => {
-    return pe.label === "Basic";
-  });
-  const leisureExpenses = planningExpenses.find((pe) => {
-    return pe.label === "Leisure";
-  });
-  for (let idx = 0; idx < expensesChartData.labels.length; idx++) {
-    //console.log(`Expect Leisure = ${gemData[1].label}`);
-    let basic = 0;
-    if (basicExpenses) {
-      basic = basicExpenses.data[idx];
-    }
-    let leisure = 0;
-    if (leisureExpenses) {
-      leisure = leisureExpenses.data[idx];
-    }
-
-    const combined = basic + leisure;
-    //console.log(`basic = ${basic}, leisure = ${leisure}`);
-    const date = expensesChartData.labels[idx];
-
-    let bondsReleaseFunds = 0;
-    if (idx > 0) {
-      const bondsIdx = idx - 1; // show bond funds one year later
-      planningAssetsChartData.datasets.forEach((pscd) => {
-        // console.log(`pscd.data[idx] = ${pscd.data[idx]}`);
-        if (pscd.data[bondsIdx] < 0) {
-          bondsReleaseFunds += -pscd.data[bondsIdx];
-        }
-      });
-    }
-
-    const dateObj = new Date(date);
-    const dateObjBefore = new Date(date);
-    dateObjBefore.setFullYear(dateObj.getFullYear() - 1);
-
-    const reportsInYear = reportData.filter((d) => {
-      const ddate = d.date;
-      const ddateObj = new Date(ddate);
-      const result =
-        ddateObj.getTime() >= dateObjBefore.getTime() &&
-        ddateObj.getTime() < dateObj.getTime();
-      // console.log(`include report item ${d.date}, ${d.name}? ${result}`);
-      return result;
-    });
-
-    let fixedIncome = 0;
-    // log(`for date ${date}`);
-    reportsInYear.forEach((d) => {
-      // log(`report's item ${d.date}, ${d.name}, ${d.newVal}`);
-      if (d.newVal) {
-        fixedIncome += d.newVal;
-        // log(`after adding ${d.newVal} for `
-        //   +`${d.name},${d.date} fixedIncome = ${fixedIncome}`)
-      }
-    });
-    // log(`accumulated fixedIncome = ${fixedIncome}`)
-
-    tableData.push({
-      DATE: date,
-      BASIC: `${basic}`,
-      LEISURE: `${leisure}`,
-      COMBINED: `${combined}`,
-      FIXED_INCOME: `${fixedIncome}`,
-      BONDS: `${bondsReleaseFunds}`,
-      INCOMING: `${fixedIncome + bondsReleaseFunds}`,
-      SURPLUS: `${fixedIncome + bondsReleaseFunds - combined}`,
-    });
-  }
+  const tableData = getPlanningTableData(
+    expensesChartData,
+    planningExpensesChartData,
+    planningAssetsChartData,
+    reportData,
+  );
 
   return (
     <div className="ml-3">

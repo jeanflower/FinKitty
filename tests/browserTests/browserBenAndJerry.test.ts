@@ -203,7 +203,7 @@ describe(testName, () => {
 
     await scrollIntoViewByID(driver, "useDBPInputs");
     //await driver.executeScript("window.scrollBy(0, -2000)");
-    console.log('click1');
+    // console.log('click1');
     await clickButton(driver, "useDBPInputs");
 
     let DBPinputs = {
@@ -234,7 +234,7 @@ describe(testName, () => {
 
     await scrollIntoViewByID(driver, "useDBPInputs");
     //await driver.executeScript("window.scrollBy(0, -2000)");
-    console.log('click2');
+    // console.log('click2');
     await clickButton(driver, "useDBPInputs");
 
     DBPinputs = {
@@ -284,7 +284,7 @@ describe(testName, () => {
     };
     await scrollIntoViewByID(driver, "useDBPInputs");
     //await driver.executeScript("window.scrollBy(0, -2000)");
-    console.log('click3');
+    // console.log('click3');
     await clickButton(driver, "useDBPInputs");
 
     await addDBPension(driver, {

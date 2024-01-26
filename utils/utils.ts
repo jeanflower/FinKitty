@@ -41,7 +41,8 @@ export function printDebug(): boolean {
 }
 
 export function showObj(obj: any) {
-  return JSON.stringify(obj, null, 4);
+  const result = JSON.stringify(obj, null, 4);
+  return result; //.substring(0, 1000); // cropping can be useful for debugging but breaks 'data dump' tests
 }
 
 export function endOfTime() {

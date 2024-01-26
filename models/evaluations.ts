@@ -22,9 +22,6 @@ import {
   purchase,
   dot,
   baseForCPI,
-  revalueSetting,
-  constType,
-  bondMaturity,
   bondInterest,
   weekly,
   tracking,
@@ -90,6 +87,8 @@ import {
   replaceCategoryWithAssetNames,
 } from "./modelQueries";
 import dateFormat from "dateformat";
+import { getAnnualPlanningSurplusData } from "./planningData";
+import LineMarkSeries from "react-vis/es/plot/series/line-mark-series";
 
 function parseRecurrenceString(recurrence: string) {
   if (recurrence === undefined) {
@@ -652,33 +651,11 @@ function traceEvaluation(
         log(`valueForWordPart ${wordPart} = ${valueForWordPart}`);
       }
       if (valueForWordPart === undefined) {
-        if (wordPart.startsWith(bondMaturity)) {
-          const trimmedWordPart = wordPart.substring(
-            bondMaturity.length,
-            wordPart.length,
-          );
-          // log(`trimming ${wordPart} to ${trimmedWordPart}`);
-          const nextLevel = traceEvaluation(
-            trimmedWordPart,
-            values,
-            growths,
-            source,
-          );
-          if (nextLevel === undefined) {
-            result = undefined;
-          } else {
-            // e.g nextLevel = 60,000
-            // but that gets scaled to account for CPI
-
-            result = numberPart * nextLevel;
-          }
-        } else {
-          /* istanbul ignore if  */ //debug
-          if (debug) {
-            log(`values were ${showObj(values)}`);
-          }
-          result = undefined;
+        /* istanbul ignore if  */ //debug
+        if (debug) {
+          log(`values were ${showObj(values)}`);
         }
+        result = undefined;
       } else if (typeof valueForWordPart === "string") {
         const nextLevel = traceEvaluation(
           valueForWordPart,
@@ -3958,110 +3935,72 @@ function calculateFromChange(
 
   if (t.FROM_ABSOLUTE) {
     // log(`use all of fromValue = ${tFromValue}`);
-    if (t.FROM_VALUE.startsWith(bondMaturity)) {
-      // log(`transaction ${showObj(t)} begins with ${bondMaturity}`);
 
-      // Either we're investing in a bond or a bond is maturing
-      if (t.FROM === CASH_ASSET_NAME) {
-        // log('investing');
-        // log(`setting name = ${s.NAME}`);
-        const d = new Date(moment.date);
-        // log(`t.NAME = ${t.NAME} seeks a matching setting...`);
-
-        const bondInterestRate = getNumberValue(values, bondInterest, false);
-        const cpiVal = getNumberValue(values, cpi);
-        let bondScale = 1.0;
-        if (bondInterestRate !== undefined && cpiVal !== undefined) {
-          bondScale = 1.0 + (bondInterestRate + cpiVal) / 100.0;
-        }
-
-        // log(`before date shift, d = ${dateAsString(DateFormatType.Debug,d)}`);
-        if (t.NAME.endsWith("5y")) {
-          d.setFullYear(d.getFullYear() + 5);
-          bondScale = bondScale ** 5;
-        } else if (t.NAME.endsWith("4y")) {
-          d.setFullYear(d.getFullYear() + 4);
-          bondScale = bondScale ** 4;
-        } else if (t.NAME.endsWith("3y")) {
-          d.setFullYear(d.getFullYear() + 3);
-          bondScale = bondScale ** 3;
-        } else if (t.NAME.endsWith("2y")) {
-          d.setFullYear(d.getFullYear() + 2);
-          bondScale = bondScale ** 2;
-        } else if (t.NAME.endsWith("1y")) {
-          d.setFullYear(d.getFullYear() + 1);
-        } else {
-          /* istanbul ignore next */
-          log(
-            "BUG - could not infer duration of bond from bond name (does not end 1y etc)",
-          );
-        }
-        // log(`after date shift, d = ${dateAsString(DateFormatType.Debug,d)}`);
-
-        // the bond will grow by bondScale, so to reach a target value of
-        // tFromValue, we actually invest tFromValue / bondScale
-        // log(`divide ${tFromValue} value by ${bondScale} to get ${tFromValue / bondScale}`);
-        tFromValue /= bondScale;
-
-        // log(`for ${t.NAME}, look for a setting like
-        //   ${t.FROM_VALUE}${separator}${t.DATE locale string}${separator}${cpi}`);
-        const matchedSetting = model.settings.filter((s) => {
-          const sparts = s.NAME.split(separator);
-          if (sparts.length !== 3) {
-            return false;
-          }
-          if (sparts[0] !== t.FROM_VALUE) {
-            return false;
-          }
-          /* istanbul ignore if */
-          if (sparts[2] !== cpi) {
-            log(`Error: malformed bond setting ${s.NAME}`);
-            return false;
-          }
-          if (d.getTime() !== new Date(sparts[1]).getTime()) {
-            // log(`different dates ${dateAsString(DateFormatType.Debug,d)} !== ${dateAsString(DateFormatType.Debug,new Date(sparts[1]))}`);
-            return false;
-          }
-
-          // log(`matched to ${s.NAME}`);
-          // log(`same dates ${dateAsString(DateFormatType.Debug,new Date(moment.date))} === ${sparts[1]}`);
-          return true;
-        });
-        if (matchedSetting.length === 1) {
-          const cpiScaling = getNumberValue(values, matchedSetting[0].NAME);
-          // log(`Bond cpiScaling from ${matchedSetting[0].NAME} = ${cpiScaling}`);
-          if (cpiScaling !== undefined) {
-            tFromValue *= cpiScaling;
-            // log(`scale by CPI effect ${cpiScaling}, tFromValue = ${tFromValue}`);
-          } else {
-            /* istanbul ignore next */
-            log(`Error: np cpiScaling value found for bond investment`);
-          }
-        } else {
-          /* istanbul ignore if */
-          if (!model.settings.find((s) => s.NAME === `${bondMaturity}Prerun`)) {
-            log(
-              `BUG : expected to find a setting ${
-                t.FROM_VALUE
-              }${separator}${stringFromDate(d)}${separator}${cpi}`,
-            );
-          }
-        }
-      } else {
-        // log('maturing');
-        const valueKey = `${t.FROM_VALUE}${separator}${stringFromDate(
-          new Date(moment.date),
-        )}${separator}${cpi}invested`;
-        // log(`for maturing bond, look for ${valueKey}`);
-        const val = getNumberValue(values, valueKey, false);
-        if (val !== undefined) {
-          // log(`for maturing bond, found val = ${val}`);
-          tFromValue = val;
-        } else {
-          // log(`for maturing bond, no investment found`);
-          tFromValue = 0.0; // nothing was registered as invested
-        }
+    // Adjust the FROM_VALUE if we're about to invest in a bond
+    if (t.NAME.includes('GeneratedRecurrence') && t.NAME.endsWith('Invest')) {
+      const generator = model.generators.find((g) => {
+        return g.TYPE === 'Bonds' && g.DETAILS.RECURRENCE !== '';
+      })
+      if (!generator) {
+        throw new Error('missing generator for generated bond investment');
       }
+
+      const bondInterestRate = traceEvaluation(
+        generator.DETAILS.GROWTH,
+        values,
+        growths,
+        'bondgenerator'
+      );
+      // log(`bondInterestRate = ${bondInterestRate}`);
+      const cpiVal = getNumberValue(values, cpi);
+      // log(`cpiVal = ${cpiVal}`);
+      let bondScale = 1.0;
+      if (bondInterestRate !== undefined && cpiVal !== undefined) {
+        bondScale = 1.0 + (bondInterestRate + cpiVal) / 100.0;
+      }
+      if(bondInterestRate === undefined) {
+        throw new Error(`expected bondInterestRate for bond calculations`)
+      }
+      if(cpiVal === undefined) {
+        throw new Error(`expected cpiVal for bond calculations`)
+      }
+
+      // log(`before date shift, bondScale = ${bondScale}`);
+      if (generator.DETAILS.DURATION === "5y") {
+        bondScale = bondScale ** 5;
+      } else if (generator.DETAILS.DURATION === "4y") {
+        bondScale = bondScale ** 4;
+      } else if (generator.DETAILS.DURATION === "3y") {
+        bondScale = bondScale ** 3;
+      } else if (generator.DETAILS.DURATION === "2y") {
+        bondScale = bondScale ** 2;
+      } else if (generator.DETAILS.DURATION === "1y") {
+      } else {
+        /* istanbul ignore next */
+        log(
+          "BUG - could not infer duration of bond from bond name (does not end 1y etc)",
+        );
+      }
+
+      // the bond will grow by bondScale, so to reach a target value of
+      // tFromValue, we actually invest tFromValue / bondScale
+      // log(`divide ${tFromValue} value by ${bondScale} to get ${tFromValue / bondScale}`);
+      tFromValue /= bondScale;
+
+      const asset = model.assets.find((a) => {
+        return a.NAME === t.TO;
+      })
+      if (!asset) {
+        throw new Error(`missing bond asset for bond investment`);
+      }
+      asset.GROWTH = `${bondInterestRate + cpiVal}`;
+      logAssetGrowth(
+        asset,
+        asset.CPI_IMMUNE ? 0 : cpiVal,
+        growths,
+        model.settings,
+        monthly,
+      );
     }
     fromChange = tFromValue;
   } else {
@@ -4345,28 +4284,6 @@ function calculateToChange(
     toChange = tToValue * fromChange;
   }
 
-  if (t.FROM_VALUE.startsWith(bondMaturity) && t.FROM === CASH_ASSET_NAME) {
-    const bondInterestRate = getNumberValue(values, bondInterest, false);
-    const cpiVal = getNumberValue(values, cpi);
-    let bondScale = 1.0;
-    if (bondInterestRate !== undefined && cpiVal !== undefined) {
-      bondScale = 1.0 + (bondInterestRate + cpiVal) / 100.0;
-    }
-    // duration of the bond powers up the scaling here
-    if (t.NAME.endsWith("5y")) {
-      bondScale = bondScale ** 5;
-    } else if (t.NAME.endsWith("4y")) {
-      bondScale = bondScale ** 4;
-    } else if (t.NAME.endsWith("3y")) {
-      bondScale = bondScale ** 3;
-    } else if (t.NAME.endsWith("2y")) {
-      bondScale = bondScale ** 2;
-    } else if (t.NAME.endsWith("1y")) {
-      // do nothing
-    }
-    toChange *= bondScale;
-  }
-
   return toChange;
 }
 
@@ -4629,28 +4546,6 @@ function processTransactionFromTo(
         );
       }
 
-      if (t.FROM_VALUE.startsWith(bondMaturity) && t.FROM === CASH_ASSET_NAME) {
-        // we're about to invest into a bond
-        // log(`invested ${toChange} into a bond for ${showObj(t)}`);
-        const d = getMaturityDate(moment.date, t.NAME);
-        const investedValue = toChange;
-
-        const nameForMaturity = `${t.FROM_VALUE}${separator}${stringFromDate(
-          d,
-        )}${separator}${cpi}invested`;
-        // log(`create a stored value for maturity ${nameForMaturity}`);
-
-        values.set(
-          nameForMaturity,
-          investedValue,
-          growths,
-          moment.date,
-          "bondInvestment",
-          false, // reportIfNoChange
-          "42", //callerID
-        );
-        // log(`recorded investedValue = ${investedValue} with name ${nameForMaturity}`);
-      }
       const x: string | number | undefined = values.get(toWord);
       const updateTargetValue =
         toWord.startsWith(pensionTransfer) ||
@@ -5218,7 +5113,6 @@ function generateMoments(
     // Some types of settings have values at the start of the roi
     if (
       setting.NAME === "Grain" ||
-      setting.NAME.startsWith(bondMaturity) ||
       setting.NAME === bondInterest
     ) {
       setValue(
@@ -5545,14 +5439,7 @@ function evaluateAllAssets(
   });
   model.settings.forEach((s) => {
     const val = values.get(s.NAME);
-    if (
-      typeof s.NAME === "string" &&
-      s.NAME.startsWith(bondMaturity) &&
-      s.NAME.endsWith(cpi)
-    ) {
-      // don't log these
-      // log(`don't log today's value for ${s.NAME}`);
-    } else if (val !== undefined) {
+    if (val !== undefined) {
       // log(`report today's value for ${s.NAME}`);
       todaysSettingValues.set(s, { settingVal: `${val}` });
     } else {
@@ -6623,7 +6510,7 @@ function processBondGenerators(
     return g.TYPE === 'Bonds';
   });
   for(const g of gens) {
-    console.log(`processing generator ${showObj(g)}`);
+    // console.log(`processing generator ${showObj(g.NAME)}`);
     const details: BondGeneratorDetails = g.DETAILS;
 
     if (details.RECURRENCE === '') {
@@ -6640,13 +6527,21 @@ function processBondGenerators(
         end: getTriggerDate(details.RECURRENCE_STOP, model.triggers, varValue),
       };
       const dates = generateSequenceOfDates(roi, details.RECURRENCE);
+
+      if (details.RECURRENCE !== '1y') {
+        throw new Error('unexpected recurrence!');
+      }
+
+      let year = parseInt(details.YEAR);
+
       for (const d of dates) {
         addBond(
           details,
-          g.NAME+`${dateFormat(d, 'mmmyy')}`,
+          g.NAME + `${dateFormat(d, 'mmmyy')}` + 'GeneratedRecurrence for ' + year,
           d.toDateString(),
           model,
         );  
+        year++;
       }
     }
   }
@@ -6899,7 +6794,7 @@ function processDCPGenerators(
     }
     let transfer: Transaction | undefined;
     if (details.TRANSFER_TO !== "") {
-      console.log(`create transaction ${transferCrystallizedPension + g.NAME}`);
+      // console.log(`create transaction ${transferCrystallizedPension + g.NAME}`);
       transfer = {
         NAME: transferCrystallizedPension + g.NAME,
         ERA: 0, // new things are automatically current,
@@ -7298,9 +7193,6 @@ export function getEvaluations(
   //  return `\n${showObj(i)}`;
   //})}`);
 
-
-  const viewRange = getEvaluationsROI(model);
-
   /*
   console.log(`in evaluations, model = ${showObj(model)}`);
   console.log(`in evaluations, incomes = ${model.incomes.map((i) => {
@@ -7311,188 +7203,105 @@ export function getEvaluations(
   })}`);
   */
  
-  let startDateForBondMaturityCalculation: Date = viewRange.start;
-  const revalueTransactions = model.transactions.filter((t) => {
-    return t.TYPE === revalueSetting;
-  });
-  const varValue = getVarVal(model.settings);
-  for (const t of revalueTransactions) {
-    const tDate = getTriggerDate(t.DATE, model.triggers, varValue);
-    if (tDate < startDateForBondMaturityCalculation) {
-      startDateForBondMaturityCalculation = tDate;
-    }
-  }
-
-  let roiEndDate: Date = viewRange.end;
-  const maturityTransactions = model.transactions.filter((t) => {
-    return t.FROM_VALUE.startsWith(bondMaturity) && t.TO === CASH_ASSET_NAME;
-  });
-  // log(`maturityTransactions = ${showObj(maturityTransactions)}`);
-
-  const generatedSettings: Setting[] = [];
-
-  if (maturityTransactions.length > 0) {
-    maturityTransactions.forEach((mt) => {
-      const d = getTriggerDate(mt.DATE, model.triggers, varValue);
-      if (d > roiEndDate) {
-        roiEndDate = d;
-      }
-      if (mt.STOP_DATE !== "") {
-        const stopDate = getTriggerDate(mt.STOP_DATE, model.triggers, varValue);
-        if (stopDate > roiEndDate) {
-          roiEndDate = stopDate;
-        }
-      }
-    });
-    roiEndDate.setMonth(roiEndDate.getMonth() + 1);
+  const doFirstEvaluations = true;
+  if (doFirstEvaluations) {
     const adjustedModel: ModelData = {
       name: model.name,
+      assets: model.assets.filter((a) => {
+        return !a.NAME.includes('GeneratedRecurrence');
+      }), // TODO remove recurring bond assets
       triggers: model.triggers,
-      expenses: [],
-      incomes: [],
-      monitors: [],
+      expenses: model.expenses,
+      incomes: model.incomes,
+      monitors: model.monitors,
       generators: model.generators,
       transactions: model.transactions.filter((t) => {
-        return (
-          t.TYPE === revalueSetting || t.FROM_VALUE.startsWith(bondMaturity)
-        );
-      }),
-      assets: model.assets
-        .filter((a) => {
-          return (
-            a.NAME === CASH_ASSET_NAME ||
-            model.transactions.find((t) => {
-              return t.FROM_VALUE.startsWith(bondMaturity) && t.FROM === a.NAME;
-            }) !== undefined
-          );
-        })
-        .concat([
-          {
-            NAME: `${bondMaturity}base`,
-            ERA: undefined, // bond transaction
-            CATEGORY: "",
-            START: dateAsString(
-              DateFormatType.Data,
-              startDateForBondMaturityCalculation,
-            ),
-            VALUE: "1.0",
-            QUANTITY: "", // Quantised assets have unit prices on-screen for table value
-            // Quantised assets can only be transacted in unit integer quantities
-            GROWTH: "0.0",
-            CPI_IMMUNE: false,
-            CAN_BE_NEGATIVE: true,
-            IS_A_DEBT: false,
-            LIABILITY: "",
-            PURCHASE_PRICE: "0.0",
-          },
-        ]),
-      settings: model.settings.concat([
-        {
-          NAME: `${bondMaturity}Prerun`,
-          ERA: undefined, // bond setting
-          VALUE: "0.0",
-          HINT: "suppress warnings on prerun",
-          TYPE: constType,
-        },
-      ]),
+        return !t.FROM.includes('GeneratedRecurrence') &&
+          !t.TO.includes('GeneratedRecurrence');
+      }), // TODO remove recurring bond assets,  // TODO remove recurring bond transactions
+      settings: model.settings,
       version: model.version,
       undoModel: undefined,
       redoModel: undefined,
     };
-    const roiEndSetting = model.settings.find((s) => {
-      return s.NAME === roiEnd;
-    });
-    let oldRoiEnd = "";
-    if (roiEndSetting) {
-      oldRoiEnd = roiEndSetting.VALUE;
-      roiEndSetting.VALUE = dateAsString(DateFormatType.Data, roiEndDate);
-    }
 
     // log(`START FIRST EVALUATIONS for ${model.name}`);
     let freq = monthly;
     if (helper) {
       freq = helper.frequency;
     }
-    const adjustedEvals = getEvaluationsInternal(adjustedModel, {
-      frequency: freq,
-      maxReportSize: 0,
-      reporter: undefined,
-    });
+    const adjustedEvals = getEvaluationsInternal(
+      adjustedModel, 
+      {
+        frequency: freq,
+        maxReportSize: 0,
+        reporter: (
+          name: string,
+          val: number | string,
+          date: Date,
+          source: string,
+        ) => {
+          val;
+          date;
+          source;
+          const result =
+            name.startsWith("taxForFixed") || name.startsWith("incomeFixed");
+          // console.log(`include ${name} for report? ${result}`);
+          return result;
+        },
+      }
+    );
     // log(`END FIRST EVALUATIONS for ${model.name}`);
     // log(`adjustedEvals = ${showObj(adjustedEvals)}`);
 
-    if (roiEndSetting) {
-      roiEndSetting.VALUE = oldRoiEnd;
-    }
+    // review surplus (deficit probably)
+    // to set bond target values
+    const planningData = getAnnualPlanningSurplusData( // NEEDS THE RIGHT EVALUATOR REPORTER ABOVE !!
+      adjustedModel,
+      adjustedEvals,
+    );
+    // console.log(`planningData from 1st run = ${showObj(planningData)}`);
 
-    for (let i = 0; i < adjustedEvals.evaluations.length; i = i + 1) {
-      const evaln = adjustedEvals.evaluations[i];
-      if (evaln.name === CASH_ASSET_NAME) {
+    for (const t of model.transactions) {
+      if (!t.TO.includes('GeneratedRecurrence')) {
         continue;
       }
-      const t = maturityTransactions.find((t) => t.NAME === evaln.source);
-      if (t !== undefined) {
-        const settingName = `${t.FROM_VALUE}${separator}${stringFromDate(
-          evaln.date,
-        )}${separator}${cpi}`;
-        // log(`for t.NAME = ${t.NAME}`);
-        // ${bondMaturity}BondTargetValue${separator}${transactionDateString}${separator}${cpi}
-        // look forward through our evals looking for a base value when this
-        // BondTargetValue was revalued
-        let baseStart = 1.0;
-        for (let j = 0; j < adjustedEvals.evaluations.length; j = j + 1) {
-          const startEvaln = adjustedEvals.evaluations[j];
-          if (startEvaln.name === `${bondMaturity}base`) {
-            // log(`base val before revalue is ${startEvaln.value}`);
-            baseStart = startEvaln.value;
-            continue;
-          }
-          if (
-            startEvaln.name === t.FROM_VALUE.substring(bondMaturity.length) &&
-            startEvaln.source === revalue
-          ) {
-            break;
-          }
-        }
+      // How much should we invest in this Bond?
+      // Look at the planningData for the corresponding year.
 
-        // look back through our evals looking for a base value just before this maturity
-        for (let j = i; j > 0; j = j - 1) {
-          const earlierEvaln = adjustedEvals.evaluations[j];
-          if (earlierEvaln.name.startsWith(`${bondMaturity}base`)) {
-            // log(`going back in time, ${showObj(earlierEvaln)}`);
-            const settingValue = earlierEvaln.value;
-            // log(`generate setting ${settingName}, value ${settingValue}/${baseStart} = ${settingValue/baseStart} `);
-            if (
-              generatedSettings.find((s) => {
-                return s.NAME === settingName;
-              }) === undefined
-            ) {
-              generatedSettings.push({
-                NAME: settingName,
-                ERA: undefined, // cpi base setting
-                VALUE: `${settingValue / baseStart}`,
-                HINT: "autogenerated setting for Bond maturity values",
-                TYPE: constType,
-              });
-            }
-            break;
-          }
+      // t.NAME is something like 
+      // MyFirstBondJul20GeneratedRecurrence for 2027Invest
+
+      const year = parseInt(t.NAME.substring(t.NAME.length - 4 - 6, t.NAME.length - 6));
+      const pdForYear = planningData.find((pd) => {
+        const planningDate = new Date(pd.DATE);
+        if (planningDate.getFullYear() === year) {
+          return true;
         }
+      });
+
+      if(pdForYear){
+        // console.log(`for ${t.NAME}, pd.SURPLUS = ${pdForYear.SURPLUS}`);
+        t.FROM_VALUE = `${-parseFloat(pdForYear.SURPLUS)}`;
+      } else {
+        // console.log(`for ${t.NAME}, no pd found`);
+        t.FROM_VALUE = '0';
       }
+
+      log(`we should invest something like ${t.FROM_VALUE} into ${t.NAME} adjusted later for growth`);
     }
+    
   } else {
     // log(`SKIP FIRST EVALUATIONS for ${model.name}`);
   }
 
   // log(`START SECOND EVALUATIONS for ${model.name}`);
   const result = getEvaluationsInternal(
-    {
-      ...model,
-      settings: model.settings.concat(generatedSettings),
-    },
+    model,
     helper,
   );
   // log(`END SECOND EVALUATIONS for ${model.name}`);
+
 
   // log(`evals = ${showObj(result.evaluations)}`);
   return result;

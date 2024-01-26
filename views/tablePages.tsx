@@ -28,11 +28,8 @@ import {
   viewDetail,
   viewType,
   reportView,
-  bondMaturity,
   optimizerView,
   custom,
-  bondInvest,
-  bondMature,
   monitorEnd,
   monitorStart,
 } from "../localization/stringConstants";
@@ -832,13 +829,7 @@ function handleTransactionGridRowsUpdated(
     !parseFrom.checksOK &&
     !model.settings.find((s) => {
       return s.NAME === newRow.FROM_VALUE;
-    }) &&
-    !(
-      newRow.FROM_VALUE.startsWith(bondMaturity) &&
-      model.settings.find((s) => {
-        return s.NAME === newRow.FROM_VALUE.substring(bondMaturity.length);
-      }) !== undefined
-    )
+    })
   ) {
     showAlert(
       `From value ${newRow.FROM_VALUE} should be a number` +
@@ -1403,9 +1394,6 @@ export function transactionsForTable(
   const unindexedRows = model.transactions
     .filter((t) => {
       if (t.TYPE === type) {
-        return true;
-      }
-      if (type === bondInvest && t.TYPE === bondMature) {
         return true;
       }
       return false;

@@ -426,6 +426,11 @@ describe("evaluations tests", () => {
       });
     }
     expect(evalsAndValues.todaysIncomeValues.size).toEqual(0);
+    
+    // for (const [key, value] of evalsAndValues.todaysSettingValues) {
+    //   log(`evalsAndValues.todaysSettingValues contains entry ${showObj(key)} ${showObj(value)}`);
+    // }
+
     expect(evalsAndValues.todaysSettingValues.size).toEqual(7);
     const cpiS = [...evalsAndValues.todaysSettingValues.keys()].find((s) => {
       return s.NAME === "cpi";

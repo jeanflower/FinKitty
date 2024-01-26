@@ -32,7 +32,6 @@ import {
 } from "./chartPages";
 import {
   autogen,
-  bondInvest,
   custom,
   overview,
   revalueExp,
@@ -173,14 +172,6 @@ function transactionsOverviewDiv(
         "Auto-generated transactions",
         parentCallbacks,
         "autogenTransactionsOverview",
-      )}
-      {transactionFilteredTable(
-        model,
-        doChecks,
-        bondInvest,
-        "Bond transactions",
-        parentCallbacks,
-        "bondTransactionsOverview",
       )}
     </>
   );

@@ -16,8 +16,6 @@ import {
   moveTaxFreePart,
   crystallizedPension,
   transferCrystallizedPension,
-  bondMaturity,
-  bondInvest,
   liquidateAsset,
   payOffDebt,
   revalueAsset,
@@ -1024,18 +1022,11 @@ export function getSpecialWord(name: string, model: ModelData): string {
   if (name.startsWith(transferCrystallizedPension)) {
     return transferCrystallizedPension;
   }
-  if (name.startsWith(bondMaturity)) {
-    return bondMaturity;
+  if (name.endsWith('Invest')) {
+    return 'Invest';
   }
-  if (
-    model.transactions.find((t) => {
-      const result = t.FROM_VALUE === bondMaturity + name;
-      // log(`does t TO ${t.FROM_VALUE} block `+
-      //  `change of name from ${name}? ${result}`);
-      return result;
-    }) !== undefined
-  ) {
-    return bondMaturity;
+  if (name.endsWith('Mature')) {
+    return 'Mature';
   }
   let durationEnding = "";
   if (name.endsWith("5y")) {
@@ -1055,9 +1046,6 @@ export function getSpecialWord(name: string, model: ModelData): string {
   if (durationEnding !== "") {
     // this might be a bond investment - take care!
     const sourceTransaction = model.transactions.find((t) => {
-      if (t.TYPE !== bondInvest) {
-        return false;
-      }
       if (!t.NAME.endsWith(durationEnding)) {
         return false;
       }

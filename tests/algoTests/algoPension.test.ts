@@ -5231,8 +5231,6 @@ expectEvals(evals, 5, "Cash", "Sat Mar 10 2018", 465500, -1);
     `;
     const model = makeModelFromJSONString(modelString);
 
-    // model.generators = [];
-
     setSetting(
       model.settings,
       `Beginning of view range`,
@@ -5467,8 +5465,6 @@ expectEvals(evals, 5, "Cash", "Sat Mar 10 2018", 465500, -1);
     }
     `;
     const model = makeModelFromJSONString(modelString);
-
-    // model.generators = [];
 
     setSetting(
       model.settings,
@@ -5707,8 +5703,6 @@ it('handle PDB generator NI income no SS with cpi', () => {
   }
   `;
   const model = makeModelFromJSONString(modelString);
-
-  // model.generators = [];
 
   setSetting(
     model.settings,
@@ -5971,8 +5965,6 @@ it('handle PDB generator NI income SS with cpi', () => {
   `;
   const model = makeModelFromJSONString(modelString);
 
-  // model.generators = [];
-
   setSetting(
     model.settings,
     `Beginning of view range`,
@@ -6209,8 +6201,6 @@ it('handle PDB generator tax income SS with cpi', () => {
   }
   `;
   const model = makeModelFromJSONString(modelString);
-
-  // model.generators = [];
 
   setSetting(
     model.settings,
@@ -6497,8 +6487,6 @@ it('handle PDB generator tax income no SS with cpi', () => {
   `;
   const model = makeModelFromJSONString(modelString);
 
-  // model.generators = [];
-
   setSetting(
     model.settings,
     `Beginning of view range`,
@@ -6779,8 +6767,6 @@ it('handle PDC generator low income no cpi', () => {
   `;
   const model = makeModelFromJSONString(modelString);
 
-  // model.generators = [];
-
   setSetting(
     model.settings,
     `Beginning of view range`,
@@ -7025,8 +7011,6 @@ it('handle PDC generator NI income no cpi', () => {
   }
   `;
   const model = makeModelFromJSONString(modelString);
-
-  // model.generators = [];
 
   setSetting(
     model.settings,
@@ -7293,8 +7277,6 @@ it('handle PDC generator NI income SS no cpi', () => {
   }
   `;
   const model = makeModelFromJSONString(modelString);
-
-  // model.generators = [];
 
   setSetting(
     model.settings,
@@ -7573,8 +7555,6 @@ it('handle PDC generator tax income SS no cpi', () => {
   }
   `;
   const model = makeModelFromJSONString(modelString);
-
-  // model.generators = [];
 
   setSetting(
     model.settings,
@@ -7874,8 +7854,6 @@ it('handle PDC generator tax income no SS no cpi', () => {
   }
   `;
   const model = makeModelFromJSONString(modelString);
-
-  // model.generators = [];
 
   setSetting(
     model.settings,

@@ -35,7 +35,6 @@ import {
   allItems,
   annually,
   assetsView,
-  bondInvest,
   CASH_ASSET_NAME,
   chartAdditions,
   chartReductions,
@@ -73,7 +72,6 @@ import {
   moveTaxFreePart,
   crystallizedPension,
   transferCrystallizedPension,
-  bondMaturity,
 } from "../../localization/stringConstants";
 import { ModelData } from "../../types/interfaces";
 import {
@@ -1209,20 +1207,10 @@ describe("utils tests", () => {
       moveTaxFreePart,
       crystallizedPension,
       transferCrystallizedPension,
-      bondMaturity,
     ].map((x) => {
       expect(getSpecialWord(`${x}anything`, minimalModel)).toEqual(`${x}`);
     });
 
-    ["1y", "2y", "3y", "4y", "5y", "1m"].map((x) => {
-      const m = makeModelFromJSONString(JSON.stringify(minimalModel));
-      m.transactions.push({
-        ...simpleTransaction,
-        TYPE: bondInvest,
-        NAME: `myName${x}`,
-      });
-      expect(getSpecialWord(`anything${x}`, m)).toEqual(`${x}`);
-    });
     expect(getSpecialWord(`anything1y`, minimalModel)).toEqual("");
     const m = makeModelFromJSONString(JSON.stringify(minimalModel));
     m.triggers.push({

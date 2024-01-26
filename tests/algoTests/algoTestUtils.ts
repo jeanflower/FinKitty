@@ -501,6 +501,10 @@ export function getTestEvaluations(
         newName = crystallizedPension + newName;
       } else if (oldName.startsWith(transferCrystallizedPension)) {
         newName = transferCrystallizedPension + newName;
+      } else if (oldName.endsWith('Invest')) {
+        newName = newName + 'Invest';
+      } else if (oldName.endsWith('Mature')) {
+        newName = newName + 'Mature';
       } else if (oldName.endsWith("5y")) {
         newName = newName + "5y";
       } else if (oldName.endsWith("4y")) {
@@ -565,11 +569,7 @@ export function getTestEvaluations(
       let message = attemptRenameLong(model, doChecks, oldName, newName);
       let renamedToNew = true;
       if (message.length > 0) {
-        if (message === "Must maintain special formatting using BMV") {
-          renamedToNew = false;
-        } else {
-          throw new Error(`rename setting failed with message '${message}'`);
-        }
+        throw new Error(`rename setting failed with message '${message}'`);
       }
       if (diffChecks) {
         const diffResult = diffModels(

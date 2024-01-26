@@ -19,9 +19,6 @@ import {
   liquidateAsset,
   conditional,
   adjustableType,
-  bondInvest,
-  bondMature,
-  bondMaturity,
 } from "../../localization/stringConstants";
 
 import {
@@ -396,16 +393,6 @@ export class AddDeleteTransactionForm extends Component<
     if (parsedLiquidateYN.value) {
       type = liquidateAsset;
       transactionName = `${conditional}${this.state.NAME}`;
-    } else if (
-      fromValue.startsWith(bondMaturity) &&
-      this.state.FROM === CASH_ASSET_NAME
-    ) {
-      type = bondInvest;
-    } else if (
-      fromValue.startsWith(bondMaturity) &&
-      this.state.TO === CASH_ASSET_NAME
-    ) {
-      type = bondMature;
     }
 
     const transaction: Transaction = {

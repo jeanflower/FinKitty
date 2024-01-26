@@ -30,7 +30,6 @@ import {
   purchase,
   defaultSourceMatcher,
   defaultSourceExcluder,
-  bondInvest,
   evalModeOption,
   checkModelOnEditOption,
   optimizerView,
@@ -53,6 +52,7 @@ import {
   planningView,
   weekly,
   monitoringView,
+  chartReductions,
 } from "./localization/stringConstants";
 import {
   AssetOrDebtVal,
@@ -738,9 +738,10 @@ async function refreshDataInternal(
     planningViewSettings.toggleViewFilter(Context.Expense, "Basic"); // the Planning page works with this category
     planningViewSettings.toggleViewFilter(Context.Expense, "Leisure"); // the Planning page works with this category
     planningViewSettings.toggleViewFilter(Context.Asset, allItems);
-    planningViewSettings.toggleViewFilter(Context.Asset, "BondsFixedTerm"); // the Planning page works with this category
+    planningViewSettings.toggleViewFilter(Context.Asset, "BondsGenerated"); // the Planning page works with this category
+    planningViewSettings.toggleViewFilter(Context.Asset, "BondsFixedTerm"); // the Planning page works with this Asset
     planningViewSettings.setViewSetting(viewDetail, coarseDetail);
-    planningViewSettings.setViewSetting(chartViewType, chartDeltas);
+    planningViewSettings.setViewSetting(chartViewType, chartReductions);
 
     const planningChartData: DataForView = makeChartData(
       modelProcessed,
@@ -2936,14 +2937,6 @@ export class AppContent extends Component<AppProps, AppState> {
           "Auto-generated transactions",
           parentCallbacks,
           "autogenTransactions",
-        )}
-        {transactionFilteredTable(
-          this.state.modelDataProcessed,
-          this.options.checkModelOnEdit,
-          bondInvest,
-          "Bond transactions",
-          parentCallbacks,
-          "bondTransactions",
         )}
         <p />
         <div className="addNewTransaction">

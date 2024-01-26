@@ -357,8 +357,12 @@ export async function getDumpedData(driver: ThenableWebDriver, label: string) {
   const content = await divElement.getAttribute("value");
   // log(`content = ${content}`);
   // check the content matches our expectations
-  const ary = JSON.parse(content);
-  return ary;
+  try {
+    const ary = JSON.parse(content);
+    return ary;
+  } catch(err) {
+    console.log(`can't JSON-parse dumped data for ${label}, get ${content}`);
+  }
 }
 
 async function getTypedDumpData(

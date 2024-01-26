@@ -124,8 +124,6 @@ export const moveTaxFreePart = `${cpPrefix}TaxFreeM `;
 export const taxFree = `${cpPrefix}TaxFree `;
 export const transferCrystallizedPension = `${cpPrefix}T `;
 
-export const bondMaturity = "BMV";
-
 // Transactions can be Conditional
 // (i.e. they're named ConditionalDoSomething)
 // the condition is that they only execute if the
@@ -172,10 +170,6 @@ export const liquidateAsset = "liquidateAsset";
 //  Use cash to pay off debts
 // (Conditional cash to debt)
 export const payOffDebt = "payOffDebt";
-// Bond investment
-export const bondInvest = "bondInvest";
-// Bond maturity
-export const bondMature = "bondMature";
 export const tracking = "traaacking";
 
 // settings types
