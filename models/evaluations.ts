@@ -3966,6 +3966,9 @@ function calculateFromChange(
       } else if (generator.DETAILS.DURATION === "2y") {
         bondScale = bondScale ** 2;
       } else if (generator.DETAILS.DURATION === "1y") {
+        //log(
+        //  "1 yr no adjustment meeded",
+        //);
       } else {
         /* istanbul ignore next */
         log(
