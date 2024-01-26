@@ -42,10 +42,10 @@ export function getPlanningTableData(
     if (idx > 0) {
       const bondsIdx = idx - 1; // show bond funds one year later
       planningAssetsChartData.datasets.forEach((pscd) => {
-        console.log(`pscd = ${showObj(pscd)}`);
+        // console.log(`pscd = ${showObj(pscd)}`);
         if (!pscd["label"].includes('growth') && pscd.data[bondsIdx] < 0) {
-          console.log(`pscd.data[bondsIdx] = ${pscd.data[bondsIdx]}`);
-          console.log(`increase ${bondsReleaseFunds} to ${bondsReleaseFunds - pscd.data[bondsIdx]}`);
+          // console.log(`pscd.data[bondsIdx] = ${pscd.data[bondsIdx]}`);
+          // console.log(`increase ${bondsReleaseFunds} to ${bondsReleaseFunds - pscd.data[bondsIdx]}`);
           bondsReleaseFunds += -pscd.data[bondsIdx];
         }
       });
