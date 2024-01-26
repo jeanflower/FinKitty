@@ -1,4 +1,4 @@
-import { allItems, viewDetail, coarseDetail, chartViewType, chartDeltas, chartReductions } from "../localization/stringConstants";
+import { allItems, viewDetail, coarseDetail, chartViewType, chartReductions } from "../localization/stringConstants";
 import { Asset, AssetOrDebtVal, ChartData, DataForView, Evaluation, Expense, ExpenseVal, Income, IncomeVal, ModelData, ReportDatum, Setting, SettingVal } from "../types/interfaces";
 import { Context, log, showObj } from "../utils/utils";
 import { getDefaultViewSettings } from "../utils/viewUtils";

@@ -567,7 +567,7 @@ export function getTestEvaluations(
       const oldName = obj.NAME;
       const newName = "abcd";
       let message = attemptRenameLong(model, doChecks, oldName, newName);
-      let renamedToNew = true;
+      const renamedToNew = true;
       if (message.length > 0) {
         throw new Error(`rename setting failed with message '${message}'`);
       }

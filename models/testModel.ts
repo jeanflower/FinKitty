@@ -6,7 +6,6 @@ import {
   ThreeChryslerModel,
   MinimalModel,
   BenAndJerryModel,
-  bondModel,
   CASH_ASSET_NAME,
   birthDate,
   birthDateHint,

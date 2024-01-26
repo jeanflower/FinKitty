@@ -48,7 +48,6 @@ import {
   viewDetail,
   coarseDetail,
   chartViewType,
-  chartDeltas,
   planningView,
   weekly,
   monitoringView,

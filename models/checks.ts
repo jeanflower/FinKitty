@@ -45,7 +45,6 @@ import {
 import {
   Context,
   DateFormatType,
-  getMaturityDate,
   log,
   makeDateFromString,
   showObj,
@@ -494,7 +493,7 @@ export function checkExpense(e: Expense, model: ModelData): string {
   return "";
 }
 function checkTransactionFrom(word: string, settings: Setting[]) {
-  let matched = settings.find((s) => s.NAME === word);
+  const matched = settings.find((s) => s.NAME === word);
   if (matched !== undefined) {
     // the FROM value is a setting - assume that it
     // will evaluate to a number without further checks

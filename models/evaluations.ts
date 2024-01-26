@@ -12,7 +12,6 @@ import {
   pensionPrefix,
   pensionSS,
   revalue,
-  roiEnd,
   separator,
   growth,
   pensionDB,
@@ -56,7 +55,6 @@ import {
 } from "../types/interfaces";
 import {
   DateFormatType,
-  getMaturityDate,
   getMonthlyGrowth,
   log,
   printDebug,
@@ -88,7 +86,6 @@ import {
 } from "./modelQueries";
 import dateFormat from "dateformat";
 import { getAnnualPlanningSurplusData } from "./planningData";
-import LineMarkSeries from "react-vis/es/plot/series/line-mark-series";
 
 function parseRecurrenceString(recurrence: string) {
   if (recurrence === undefined) {
@@ -3853,12 +3850,6 @@ function revalueApplied(
     }
   });
   return true;
-}
-
-function stringFromDate(d: Date): string {
-  const result = dateAsString(DateFormatType.Data, d);
-  // log(`stringFromDate ${result}`);
-  return result;
 }
 
 function calculateFromChange(
