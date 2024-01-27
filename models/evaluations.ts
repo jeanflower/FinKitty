@@ -7221,7 +7221,7 @@ export function getEvaluations(
     // (in whole numbers of years)
     // to pick to the right planning numbers and get the
     // right bond numbers.
-    let start = getROI(model).start;
+    const start = getROI(model).start;
     const v = getVarVal(model.settings);
     for (const t of genForInvestTransactions) {
       const matureDate = getTriggerDate(t.DATE, model.triggers, v);
