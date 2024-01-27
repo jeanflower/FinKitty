@@ -4,7 +4,7 @@ import { viewFrequency, annually, viewType, chartDeltas, chartViewType, revalueS
 import { makeChartDataFromEvaluations } from "../../models/charting";
 import { makeModelFromJSON, makeModelFromJSONString } from "../../models/modelFromJSON";
 import { setSetting } from "../../models/modelUtils";
-import { log, printDebug } from "../../utils/utils";
+import { log, printAllLogs, printDebug, saveLogs } from "../../utils/utils";
 import {
   defaultTestViewSettings,
   expectChartData,
@@ -941,7 +941,7 @@ describe("bonds tests", () => {
       evalsAndValues,
     );
   
-    printTestCodeForChart(result);
+    // printTestCodeForChart(result);
   
       expect(result.expensesData.length).toBe(1);
       expect(result.expensesData[0].item.NAME).toBe('Phon');
@@ -2157,6 +2157,268 @@ describe("bonds tests", () => {
     expectChartData(chartPts, 7, 'Thu Dec 30 2027', 0, -1);
     expectChartData(chartPts, 8, 'Sat Dec 30 2028', 0, -1);
     expectChartData(chartPts, 9, 'Sun Dec 30 2029', 0, -1);
+    }
+    
+    expect(result.debtData.length).toBe(0);
+    expect(result.taxData.length).toBe(0);
+  });
+
+  it('bond generator view start after bonds', () => {
+    const viewSettings = defaultTestViewSettings();
+    viewSettings.setViewSetting(viewFrequency, annually);
+  
+    const modelString = `
+    {
+      "name":"DPBModel",
+      "expenses":[],
+      "incomes":[],
+      "assets":[
+        {
+          "NAME":"Cash",
+          "CATEGORY":"",
+          "START":"01 Jan 2017",
+          "VALUE":"1000.0",
+          "QUANTITY":"",
+          "GROWTH":"0.0",
+          "CPI_IMMUNE":true,
+          "CAN_BE_NEGATIVE":true,
+          "IS_A_DEBT":false,
+          "LIABILITY":"",
+          "PURCHASE_PRICE":"0.0",
+          "ERA":0
+        }
+      ],
+      "transactions":[],
+      "settings":[
+        {"NAME":"View frequencyTransactions","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyTax","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencySettings","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyPlanning","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyOverview","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyOptimizer","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyMonitoring","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyIncomes","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyHome","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyExpenses","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyDebts","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyDates","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyAssets","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyAsset actions","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+  
+        {"NAME":"Today's value focus date","VALUE":"","HINT":"Date to use for 'today's value' tables (defaults to '' meaning today)","TYPE":"view","ERA":0},
+  
+        {"NAME":"Beginning of view range","VALUE":"01 Jan 2019","HINT":"","TYPE":"const","ERA":0},
+        {"NAME":"End of view range","VALUE":"01 Feb 2034","HINT":"","TYPE":"const","ERA":0},
+  
+        {"NAME":"Beginning of monitor range","VALUE":"Nov 2022","HINT":"","TYPE":"adjustable","ERA":0},
+        {"NAME":"End of monitor range","VALUE":"Nov 2023","HINT":"","TYPE":"adjustable","ERA":0},
+        {"NAME":"Date of birth","VALUE":"","HINT":"Date used for representing dates as ages","TYPE":"view","ERA":0},
+        {"NAME":"cpi","VALUE":"2.5","HINT":"Annual rate of inflation","TYPE":"const","ERA":0}
+      ],
+      "monitors":[],
+      "triggers":[],
+      "generators":[
+        {
+          "NAME":"MyFirstBond",
+          "ERA":"0",
+          "TYPE":"Bonds",
+          "DETAILS":{
+            "VALUE": "100",
+            "GROWTH": "2",
+            "CATEGORY": "Bonds",
+            "START": "01 Jul 2020",
+            "DURATION": "4y",
+            "SOURCE": "Cash",
+            "TARGET": "Cash",
+            "YEAR": "2026",
+            "RECURRENCE": "",
+            "RECURRENCE_STOP": ""
+          }
+        }
+      ],
+      "version":13
+    }
+    `;
+    const model = makeModelFromJSONString(modelString);
+  
+    setSetting(
+      model.settings,
+      `Beginning of view range`,
+      "April 1 2025",
+      viewType,
+    );
+    setSetting(
+      model.settings,
+      `End of view range`,
+      "April 1 2026",
+      viewType,
+    );
+  
+    const evalsAndValues = getTestEvaluations(
+      model,
+    );
+  
+    // log(evalsAndValues.todaysAssetValues);
+    // log(evalsAndValues.todaysDebtValues);
+    // log(evalsAndValues.todaysExpenseValues);
+    // log(evalsAndValues.todaysIncomeValues);
+    // log(evalsAndValues.todaysSettingValues);
+  
+    // printTestCodeForEvals(evalsAndValues.evaluations);
+  
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
+  
+    // printTestCodeForChart(result);
+  
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(1);
+    expect(result.assetData[0].item.NAME).toBe('Cash');
+    {
+    const chartPts = result.assetData[0].chartDataPoints;
+    expect(chartPts.length).toBe(1);
+    expectChartData(chartPts, 0, 'Tue Apr 01 2025', 1008.24, 2);
+    }
+    
+    expect(result.debtData.length).toBe(0);
+    expect(result.taxData.length).toBe(0);
+  });
+
+
+  it('bond generator Recurring for phone no cpi 10 growth view start after bonds', () => {
+    const viewSettings = defaultTestViewSettings();
+    viewSettings.setViewSetting(viewFrequency, annually);
+
+    const modelString = `
+    {
+      "name":"DPBModel",
+      "expenses":[],
+      "incomes":[],
+      "assets":[
+        {
+          "NAME":"Cash",
+          "CATEGORY":"",
+          "START":"01 Jan 2017",
+          "VALUE":"100000.0",
+          "QUANTITY":"",
+          "GROWTH":"0.0",
+          "CPI_IMMUNE":true,
+          "CAN_BE_NEGATIVE":true,
+          "IS_A_DEBT":false,
+          "LIABILITY":"",
+          "PURCHASE_PRICE":"0.0",
+          "ERA":0
+        }
+      ],
+      "transactions":[],
+      "settings":[
+        {"NAME":"View frequencyTransactions","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyTax","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencySettings","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyPlanning","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyOverview","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyOptimizer","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyMonitoring","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyIncomes","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyHome","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyExpenses","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyDebts","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyDates","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyAssets","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyAsset actions","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+  
+        {"NAME":"Today's value focus date","VALUE":"","HINT":"Date to use for 'today's value' tables (defaults to '' meaning today)","TYPE":"view","ERA":0},
+  
+        {"NAME":"Beginning of view range","VALUE":"01 Jan 2019","HINT":"","TYPE":"const","ERA":0},
+        {"NAME":"End of view range","VALUE":"01 Feb 2034","HINT":"","TYPE":"const","ERA":0},
+  
+        {"NAME":"Beginning of monitor range","VALUE":"Nov 2022","HINT":"","TYPE":"adjustable","ERA":0},
+        {"NAME":"End of monitor range","VALUE":"Nov 2023","HINT":"","TYPE":"adjustable","ERA":0},
+        {"NAME":"Date of birth","VALUE":"","HINT":"Date used for representing dates as ages","TYPE":"view","ERA":0},
+        {"NAME":"cpi","VALUE":"0","HINT":"Annual rate of inflation","TYPE":"const","ERA":0}
+      ],
+      "monitors":[],
+      "triggers":[],
+      "generators":[
+        {
+          "NAME":"MyFirstBond",
+          "ERA":"0",
+          "TYPE":"Bonds",
+          "DETAILS":{
+            "VALUE": "100",
+            "GROWTH": "10",
+            "CATEGORY": "Bonds",
+            "START": "01 Jul 2021",
+            "DURATION": "4y",
+            "SOURCE": "Cash",
+            "TARGET": "Cash",
+            "YEAR": "2026",
+            "RECURRENCE": "1y",
+            "RECURRENCE_STOP": "2 Jul 2024"
+          }
+        }
+      ],
+      "version":13
+    }
+    `;
+    const model = makeModelFromJSON(modelString);
+    model.expenses = [{
+        ...simpleExpense,
+        START: "January 1 2025",
+        END: "January 1 2028",
+        NAME: "Phon",
+        VALUE: "100",
+        VALUE_SET: "January 1 2018",
+        CPI_IMMUNE: true,
+        CATEGORY: 'Basic',
+      },
+    ];
+  
+    setSetting(
+      model.settings,
+      `Beginning of view range`,
+      "Dec 30 2029", // start late but expect the same end cash value
+      viewType,
+    );
+    setSetting(
+      model.settings,
+      `End of view range`,
+      "Dec 30 2030",
+      viewType,
+    );
+  
+    const evalsAndValues = getTestEvaluations(
+      model,
+    );
+
+    // log(evalsAndValues.todaysAssetValues);
+    // log(evalsAndValues.todaysDebtValues);
+    // log(evalsAndValues.todaysExpenseValues);
+    // log(evalsAndValues.todaysIncomeValues);
+    // log(evalsAndValues.todaysSettingValues);
+  
+    // printTestCodeForEvals(evalsAndValues.evaluations);
+  
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
+  
+    // printTestCodeForChart(result);
+  
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(1);
+    expect(result.assetData[0].item.NAME).toBe('Cash');
+    {
+    const chartPts = result.assetData[0].chartDataPoints;
+    expect(chartPts.length).toBe(1);
+    expectChartData(chartPts, 0, 'Sun Dec 30 2029', 97160.77, -1);
     }
     
     expect(result.debtData.length).toBe(0);

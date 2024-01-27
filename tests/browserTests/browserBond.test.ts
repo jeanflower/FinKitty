@@ -30,4 +30,7 @@ describe(testName, () => {
       await driver.quit();
     }
   });
+  it('should test something about bonds and browsers', () => {
+    expect(1+1).toEqual(2);
+  })
 });

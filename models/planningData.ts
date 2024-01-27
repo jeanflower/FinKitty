@@ -36,7 +36,7 @@ export function getPlanningTableData(
     }
 
     const combined = basic + leisure;
-    console.log(`basic = ${basic}, leisure = ${leisure}`);
+    // console.log(`basic = ${basic}, leisure = ${leisure}`);
     const date = expensesChartData.labels[idx];
 
     let bondsReleaseFunds = 0;
@@ -108,7 +108,7 @@ export function getAnnualPlanningSurplusData(
     reportData: ReportDatum[];
   },
 ){
-
+  log(`getAnnualPlanningSurplusData received ${evals.evaluations.length} evaluations`);
   const viewSettings = getDefaultViewSettings();
   const chartData: DataForView = makeChartData(
     model,
@@ -147,5 +147,8 @@ export function getAnnualPlanningSurplusData(
     planningAssetsChartData,
     evals.reportData,
   );
+  // for(const td of tableData) {
+  //   log(`getAnnualPlanningSurplusData returns ${showObj(td)}`);
+  // }
   return tableData;
 }

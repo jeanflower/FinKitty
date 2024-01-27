@@ -32,6 +32,7 @@ import {
   generatedRecurrence,
   bondInvest,
   bondMature,
+  roiStart,
 } from "../localization/stringConstants";
 import {
   DatedThing,
@@ -6423,8 +6424,12 @@ function getEvaluationsInternal(
 
   /* istanbul ignore if  */ //debug
   if (printDebug()) {
-    evaluations.forEach((evalns) => {
-      log(showObj(evalns));
+    evaluations.slice(0, 5).forEach((evalns) => {
+      log(JSON.stringify(evalns));
+    });
+    log('...');
+    evaluations.slice(evaluations.length - 5, evaluations.length).forEach((evalns) => {
+      log(JSON.stringify(evalns));
     });
   }
   // log(`getEvaluations returning ${evaluations.length} evaluations`);
@@ -7199,9 +7204,35 @@ export function getEvaluations(
     return `\n${showObj(i)}`;
   })}`);
   */
- 
-  const doFirstEvaluations = true;
-  if (doFirstEvaluations) {
+
+  // The first run through evaluating the model
+  // is for antipicating a planning surplus / deficit
+  // we'll use that surplus / deficit to set bond investment
+  // levels.
+  const genForInvestTransactions = model.transactions.filter((t) => {
+    return t.TO.includes(generatedRecurrence);
+  });
+
+  if (genForInvestTransactions.length > 0) {
+
+    // We need to ensure that the first evaluations and 
+    // planning view includes the timeframe for the bonds
+    // so we might need to shoft back the start date
+    // (in whole numbers of years)
+    // to pick to the right planning numbers and get the
+    // right bond numbers.
+    let start = getROI(model).start;
+    const v = getVarVal(model.settings);
+    for (const t of genForInvestTransactions) {
+      const matureDate = getTriggerDate(t.DATE, model.triggers, v);
+      if ( matureDate < start) {
+        start.setFullYear(matureDate.getFullYear() - 1);
+      }
+    }
+
+    // the first run excludes generated / recurring
+    // bonds - remove the assets and transactions
+    // for those
     const adjustedModel: ModelData = {
       name: model.name,
       assets: model.assets.filter((a) => {
@@ -7216,7 +7247,15 @@ export function getEvaluations(
         return !t.FROM.includes(generatedRecurrence) &&
           !t.TO.includes(generatedRecurrence);
       }), // TODO remove recurring bond assets,  // TODO remove recurring bond transactions
-      settings: model.settings,
+      settings: model.settings.map((s)=>{
+        if (s.NAME !== roiStart) {
+          return s;
+        }
+        return {
+          ...s,
+          VALUE: `${start.toDateString()}`
+        }
+      }),
       version: model.version,
       undoModel: undefined,
       redoModel: undefined,
@@ -7227,6 +7266,11 @@ export function getEvaluations(
     if (helper) {
       freq = helper.frequency;
     }
+
+    // to emulate what we would see on a planning page,
+    // provide the right kind of 'reporter' to watch the evaluations
+    // and pick up elements for fixed incomes
+    // (and tax on those fixed incomes)
     const adjustedEvals = getEvaluationsInternal(
       adjustedModel, 
       {
@@ -7285,7 +7329,7 @@ export function getEvaluations(
         t.FROM_VALUE = '0';
       }
 
-      log(`we should invest something like ${t.FROM_VALUE} into ${t.NAME} adjusted later for growth`);
+      // log(`we should invest something like ${t.FROM_VALUE} into ${t.NAME} adjusted later for growth`);
     }
     
   } else {
