@@ -40,6 +40,8 @@ import {
   viewFrequency,
   monitorEnd,
   monitorStart,
+  bondInvest,
+  bondMature,
 } from "../localization/stringConstants";
 
 import {
@@ -867,7 +869,7 @@ function isAutogenType(t: Transaction, model: ModelData) {
 
   /*
   const investTransaction = {
-    NAME: assetName + 'Invest',
+    NAME: assetName + bondInvest,
     ERA: 0, // new things are automatically current,
     FROM: details.SOURCE,
     FROM_ABSOLUTE: true,
@@ -882,12 +884,12 @@ function isAutogenType(t: Transaction, model: ModelData) {
     TYPE: autogen,
   };
   */
-  if (t.NAME.endsWith('Invest')) {
+  if (t.NAME.endsWith(bondInvest)) {
     recognised = true;
   }
   /*
     const matureTransaction = {
-      NAME: assetName + 'Mature',
+      NAME: assetName + bondMature,
       ERA: 0, // new things are automatically current,
       FROM: assetName,
       FROM_ABSOLUTE: false,
@@ -902,7 +904,7 @@ function isAutogenType(t: Transaction, model: ModelData) {
       TYPE: autogen,
     };
   */
-    if (t.NAME.endsWith('Mature')) {
+    if (t.NAME.endsWith(bondMature)) {
       recognised = true;
     }
   

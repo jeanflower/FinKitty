@@ -29,6 +29,9 @@ import {
   moveTaxFreePart,
   taxFree,
   transferCrystallizedPension,
+  generatedRecurrence,
+  bondInvest,
+  bondMature,
 } from "../localization/stringConstants";
 import {
   DatedThing,
@@ -3928,7 +3931,7 @@ function calculateFromChange(
     // log(`use all of fromValue = ${tFromValue}`);
 
     // Adjust the FROM_VALUE if we're about to invest in a bond
-    if (t.NAME.includes('GeneratedRecurrence') && t.NAME.endsWith('Invest')) {
+    if (t.NAME.includes(generatedRecurrence) && t.NAME.endsWith(bondInvest)) {
       const generator = model.generators.find((g) => {
         return g.TYPE === 'Bonds' && g.DETAILS.RECURRENCE !== '';
       })
@@ -6463,7 +6466,7 @@ function addBond(
   // log(`added new asset ${showObj(newAsset)}`);
   model.assets.push(newAsset);
   const investTransaction = {
-    NAME: assetName + 'Invest',
+    NAME: assetName + bondInvest,
     ERA: 0, // new things are automatically current,
     FROM: details.SOURCE,
     FROM_ABSOLUTE: true,
@@ -6478,7 +6481,7 @@ function addBond(
     TYPE: autogen,
   };
   const matureTransaction = {
-    NAME: assetName + 'Mature',
+    NAME: assetName + bondMature,
     ERA: 0, // new things are automatically current,
     FROM: assetName,
     FROM_ABSOLUTE: false,
@@ -6531,7 +6534,7 @@ function processBondGenerators(
       for (const d of dates) {
         addBond(
           details,
-          g.NAME + `${dateFormat(d, 'mmmyy')}` + 'GeneratedRecurrence for ' + year,
+          g.NAME + `${dateFormat(d, 'mmmyy')}` + `${generatedRecurrence}` + year,
           d.toDateString(),
           model,
         );  
@@ -7202,7 +7205,7 @@ export function getEvaluations(
     const adjustedModel: ModelData = {
       name: model.name,
       assets: model.assets.filter((a) => {
-        return !a.NAME.includes('GeneratedRecurrence');
+        return !a.NAME.includes(generatedRecurrence);
       }), // TODO remove recurring bond assets
       triggers: model.triggers,
       expenses: model.expenses,
@@ -7210,8 +7213,8 @@ export function getEvaluations(
       monitors: model.monitors,
       generators: model.generators,
       transactions: model.transactions.filter((t) => {
-        return !t.FROM.includes('GeneratedRecurrence') &&
-          !t.TO.includes('GeneratedRecurrence');
+        return !t.FROM.includes(generatedRecurrence) &&
+          !t.TO.includes(generatedRecurrence);
       }), // TODO remove recurring bond assets,  // TODO remove recurring bond transactions
       settings: model.settings,
       version: model.version,
@@ -7257,14 +7260,14 @@ export function getEvaluations(
     // console.log(`planningData from 1st run = ${showObj(planningData)}`);
 
     for (const t of model.transactions) {
-      if (!t.TO.includes('GeneratedRecurrence')) {
+      if (!t.TO.includes(generatedRecurrence)) {
         continue;
       }
       // How much should we invest in this Bond?
       // Look at the planningData for the corresponding year.
 
       // t.NAME is something like 
-      // MyFirstBondJul20GeneratedRecurrence for 2027Invest
+      // MyFirstBondJul20GenFor2027Invest
 
       const year = parseInt(t.NAME.substring(t.NAME.length - 4 - 6, t.NAME.length - 6));
       const pdForYear = planningData.find((pd) => {

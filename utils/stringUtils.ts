@@ -23,6 +23,8 @@ import {
   revalueExp,
   revalueInc,
   revalueSetting,
+  bondInvest,
+  bondMature,
 } from "../localization/stringConstants";
 import { Setting, ModelData, Trigger } from "../types/interfaces";
 import {
@@ -1022,11 +1024,11 @@ export function getSpecialWord(name: string, model: ModelData): string {
   if (name.startsWith(transferCrystallizedPension)) {
     return transferCrystallizedPension;
   }
-  if (name.endsWith('Invest')) {
-    return 'Invest';
+  if (name.endsWith(bondInvest)) {
+    return bondInvest;
   }
-  if (name.endsWith('Mature')) {
-    return 'Mature';
+  if (name.endsWith(bondMature)) {
+    return bondMature;
   }
   let durationEnding = "";
   if (name.endsWith("5y")) {

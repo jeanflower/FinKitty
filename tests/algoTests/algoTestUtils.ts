@@ -32,6 +32,8 @@ import {
   cpiHint,
   birthDateHint,
   valueFocusDateHint,
+  bondInvest,
+  bondMature,
 } from "../../localization/stringConstants";
 import { getEvaluations, processGenerators } from "../../models/evaluations";
 import {
@@ -501,10 +503,10 @@ export function getTestEvaluations(
         newName = crystallizedPension + newName;
       } else if (oldName.startsWith(transferCrystallizedPension)) {
         newName = transferCrystallizedPension + newName;
-      } else if (oldName.endsWith('Invest')) {
-        newName = newName + 'Invest';
-      } else if (oldName.endsWith('Mature')) {
-        newName = newName + 'Mature';
+      } else if (oldName.endsWith(bondInvest)) {
+        newName = newName + bondInvest;
+      } else if (oldName.endsWith(bondMature)) {
+        newName = newName + bondMature;
       } else if (oldName.endsWith("5y")) {
         newName = newName + "5y";
       } else if (oldName.endsWith("4y")) {

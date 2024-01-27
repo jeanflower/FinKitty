@@ -124,6 +124,10 @@ export const moveTaxFreePart = `${cpPrefix}TaxFreeM `;
 export const taxFree = `${cpPrefix}TaxFree `;
 export const transferCrystallizedPension = `${cpPrefix}T `;
 
+export const generatedRecurrence = 'GenFor';
+export const bondInvest = 'Invest';
+export const bondMature = 'Mature';
+
 // Transactions can be Conditional
 // (i.e. they're named ConditionalDoSomething)
 // the condition is that they only execute if the

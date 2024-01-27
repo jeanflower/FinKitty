@@ -462,7 +462,7 @@ describe("bonds tests", () => {
     expectChartData(chartPts, 9, 'Sun Dec 30 2029', 96400, -1);
     }
     
-    expect(result.assetData[1].item.NAME).toBe('MyFirstBondJul21GeneratedRecurrence for 2026');
+    expect(result.assetData[1].item.NAME).toBe('MyFirstBondJul21GenFor2026');
     {
     const chartPts = result.assetData[1].chartDataPoints;
     expect(chartPts.length).toBe(10);
@@ -478,7 +478,7 @@ describe("bonds tests", () => {
     expectChartData(chartPts, 9, 'Sun Dec 30 2029', 0, -1);
     }
     
-    expect(result.assetData[2].item.NAME).toBe('MyFirstBondJul22GeneratedRecurrence for 2027');
+    expect(result.assetData[2].item.NAME).toBe('MyFirstBondJul22GenFor2027');
     {
     const chartPts = result.assetData[2].chartDataPoints;
     expect(chartPts.length).toBe(10);
@@ -640,7 +640,7 @@ describe("bonds tests", () => {
     
     expect(result.incomesData.length).toBe(0);
     expect(result.assetData.length).toBe(11);
-    expect(result.assetData[0].item.NAME).toBe('MyFirstBondJul21GeneratedRecurrence for 2026Invest/Cash');
+    expect(result.assetData[0].item.NAME).toBe('MyFirstBondJul21GenFor2026Invest/Cash');
     {
     const chartPts = result.assetData[0].chartDataPoints;
     expect(chartPts.length).toBe(10);
@@ -656,7 +656,7 @@ describe("bonds tests", () => {
     expectChartData(chartPts, 9, 'Sun Dec 30 2029', 0, -1);
     }
     
-    expect(result.assetData[1].item.NAME).toBe('MyFirstBondJul21GeneratedRecurrence for 2026Invest/MyFirstBondJul21GeneratedRecurrence for 2026');
+    expect(result.assetData[1].item.NAME).toBe('MyFirstBondJul21GenFor2026Invest/MyFirstBondJul21GenFor2026');
     {
     const chartPts = result.assetData[1].chartDataPoints;
     expect(chartPts.length).toBe(10);
@@ -672,7 +672,7 @@ describe("bonds tests", () => {
     expectChartData(chartPts, 9, 'Sun Dec 30 2029', 0, -1);
     }
     
-    expect(result.assetData[2].item.NAME).toBe('growth/MyFirstBondJul21GeneratedRecurrence for 2026');
+    expect(result.assetData[2].item.NAME).toBe('growth/MyFirstBondJul21GenFor2026');
     {
     const chartPts = result.assetData[2].chartDataPoints;
     expect(chartPts.length).toBe(10);
@@ -688,7 +688,7 @@ describe("bonds tests", () => {
     expectChartData(chartPts, 9, 'Sun Dec 30 2029', 0, -1);
     }
     
-    expect(result.assetData[3].item.NAME).toBe('MyFirstBondJul22GeneratedRecurrence for 2027Invest/Cash');
+    expect(result.assetData[3].item.NAME).toBe('MyFirstBondJul22GenFor2027Invest/Cash');
     {
     const chartPts = result.assetData[3].chartDataPoints;
     expect(chartPts.length).toBe(10);
@@ -704,7 +704,7 @@ describe("bonds tests", () => {
     expectChartData(chartPts, 9, 'Sun Dec 30 2029', 0, -1);
     }
     
-    expect(result.assetData[4].item.NAME).toBe('MyFirstBondJul22GeneratedRecurrence for 2027Invest/MyFirstBondJul22GeneratedRecurrence for 2027');
+    expect(result.assetData[4].item.NAME).toBe('MyFirstBondJul22GenFor2027Invest/MyFirstBondJul22GenFor2027');
     {
     const chartPts = result.assetData[4].chartDataPoints;
     expect(chartPts.length).toBe(10);
@@ -720,7 +720,7 @@ describe("bonds tests", () => {
     expectChartData(chartPts, 9, 'Sun Dec 30 2029', 0, -1);
     }
     
-    expect(result.assetData[5].item.NAME).toBe('growth/MyFirstBondJul22GeneratedRecurrence for 2027');
+    expect(result.assetData[5].item.NAME).toBe('growth/MyFirstBondJul22GenFor2027');
     {
     const chartPts = result.assetData[5].chartDataPoints;
     expect(chartPts.length).toBe(10);
@@ -752,7 +752,7 @@ describe("bonds tests", () => {
     expectChartData(chartPts, 9, 'Sun Dec 30 2029', 0, -1);
     }
     
-    expect(result.assetData[7].item.NAME).toBe('MyFirstBondJul21GeneratedRecurrence for 2026Mature/MyFirstBondJul21GeneratedRecurrence for 2026');
+    expect(result.assetData[7].item.NAME).toBe('MyFirstBondJul21GenFor2026Mature/MyFirstBondJul21GenFor2026');
     {
     const chartPts = result.assetData[7].chartDataPoints;
     expect(chartPts.length).toBe(10);
@@ -768,7 +768,7 @@ describe("bonds tests", () => {
     expectChartData(chartPts, 9, 'Sun Dec 30 2029', 0, -1);
     }
     
-    expect(result.assetData[8].item.NAME).toBe('MyFirstBondJul21GeneratedRecurrence for 2026Mature/Cash');
+    expect(result.assetData[8].item.NAME).toBe('MyFirstBondJul21GenFor2026Mature/Cash');
     {
     const chartPts = result.assetData[8].chartDataPoints;
     expect(chartPts.length).toBe(10);
@@ -784,7 +784,7 @@ describe("bonds tests", () => {
     expectChartData(chartPts, 9, 'Sun Dec 30 2029', 0, -1);
     }
     
-    expect(result.assetData[9].item.NAME).toBe('MyFirstBondJul22GeneratedRecurrence for 2027Mature/MyFirstBondJul22GeneratedRecurrence for 2027');
+    expect(result.assetData[9].item.NAME).toBe('MyFirstBondJul22GenFor2027Mature/MyFirstBondJul22GenFor2027');
     {
     const chartPts = result.assetData[9].chartDataPoints;
     expect(chartPts.length).toBe(10);
@@ -800,7 +800,7 @@ describe("bonds tests", () => {
     expectChartData(chartPts, 9, 'Sun Dec 30 2029', 0, -1);
     }
     
-    expect(result.assetData[10].item.NAME).toBe('MyFirstBondJul22GeneratedRecurrence for 2027Mature/Cash');
+    expect(result.assetData[10].item.NAME).toBe('MyFirstBondJul22GenFor2027Mature/Cash');
     {
     const chartPts = result.assetData[10].chartDataPoints;
     expect(chartPts.length).toBe(10);
@@ -962,7 +962,7 @@ describe("bonds tests", () => {
       
       expect(result.incomesData.length).toBe(0);
       expect(result.assetData.length).toBe(11);
-      expect(result.assetData[0].item.NAME).toBe('MyFirstBondJul21GeneratedRecurrence for 2026Invest/Cash');
+      expect(result.assetData[0].item.NAME).toBe('MyFirstBondJul21GenFor2026Invest/Cash');
       {
       const chartPts = result.assetData[0].chartDataPoints;
       expect(chartPts.length).toBe(10);
@@ -978,7 +978,7 @@ describe("bonds tests", () => {
       expectChartData(chartPts, 9, 'Sun Dec 30 2029', 0, -1);
       }
       
-      expect(result.assetData[1].item.NAME).toBe('MyFirstBondJul21GeneratedRecurrence for 2026Invest/MyFirstBondJul21GeneratedRecurrence for 2026');
+      expect(result.assetData[1].item.NAME).toBe('MyFirstBondJul21GenFor2026Invest/MyFirstBondJul21GenFor2026');
       {
       const chartPts = result.assetData[1].chartDataPoints;
       expect(chartPts.length).toBe(10);
@@ -994,7 +994,7 @@ describe("bonds tests", () => {
       expectChartData(chartPts, 9, 'Sun Dec 30 2029', 0, -1);
       }
       
-      expect(result.assetData[2].item.NAME).toBe('growth/MyFirstBondJul21GeneratedRecurrence for 2026');
+      expect(result.assetData[2].item.NAME).toBe('growth/MyFirstBondJul21GenFor2026');
       {
       const chartPts = result.assetData[2].chartDataPoints;
       expect(chartPts.length).toBe(10);
@@ -1010,7 +1010,7 @@ describe("bonds tests", () => {
       expectChartData(chartPts, 9, 'Sun Dec 30 2029', 0, -1);
       }
       
-      expect(result.assetData[3].item.NAME).toBe('MyFirstBondJul22GeneratedRecurrence for 2027Invest/Cash');
+      expect(result.assetData[3].item.NAME).toBe('MyFirstBondJul22GenFor2027Invest/Cash');
       {
       const chartPts = result.assetData[3].chartDataPoints;
       expect(chartPts.length).toBe(10);
@@ -1026,7 +1026,7 @@ describe("bonds tests", () => {
       expectChartData(chartPts, 9, 'Sun Dec 30 2029', 0, -1);
       }
       
-      expect(result.assetData[4].item.NAME).toBe('MyFirstBondJul22GeneratedRecurrence for 2027Invest/MyFirstBondJul22GeneratedRecurrence for 2027');
+      expect(result.assetData[4].item.NAME).toBe('MyFirstBondJul22GenFor2027Invest/MyFirstBondJul22GenFor2027');
       {
       const chartPts = result.assetData[4].chartDataPoints;
       expect(chartPts.length).toBe(10);
@@ -1042,7 +1042,7 @@ describe("bonds tests", () => {
       expectChartData(chartPts, 9, 'Sun Dec 30 2029', 0, -1);
       }
       
-      expect(result.assetData[5].item.NAME).toBe('growth/MyFirstBondJul22GeneratedRecurrence for 2027');
+      expect(result.assetData[5].item.NAME).toBe('growth/MyFirstBondJul22GenFor2027');
       {
       const chartPts = result.assetData[5].chartDataPoints;
       expect(chartPts.length).toBe(10);
@@ -1074,7 +1074,7 @@ describe("bonds tests", () => {
       expectChartData(chartPts, 9, 'Sun Dec 30 2029', 0, -1);
       }
       
-      expect(result.assetData[7].item.NAME).toBe('MyFirstBondJul21GeneratedRecurrence for 2026Mature/MyFirstBondJul21GeneratedRecurrence for 2026');
+      expect(result.assetData[7].item.NAME).toBe('MyFirstBondJul21GenFor2026Mature/MyFirstBondJul21GenFor2026');
       {
       const chartPts = result.assetData[7].chartDataPoints;
       expect(chartPts.length).toBe(10);
@@ -1090,7 +1090,7 @@ describe("bonds tests", () => {
       expectChartData(chartPts, 9, 'Sun Dec 30 2029', 0, -1);
       }
       
-      expect(result.assetData[8].item.NAME).toBe('MyFirstBondJul21GeneratedRecurrence for 2026Mature/Cash');
+      expect(result.assetData[8].item.NAME).toBe('MyFirstBondJul21GenFor2026Mature/Cash');
       {
       const chartPts = result.assetData[8].chartDataPoints;
       expect(chartPts.length).toBe(10);
@@ -1106,7 +1106,7 @@ describe("bonds tests", () => {
       expectChartData(chartPts, 9, 'Sun Dec 30 2029', 0, -1);
       }
       
-      expect(result.assetData[9].item.NAME).toBe('MyFirstBondJul22GeneratedRecurrence for 2027Mature/MyFirstBondJul22GeneratedRecurrence for 2027');
+      expect(result.assetData[9].item.NAME).toBe('MyFirstBondJul22GenFor2027Mature/MyFirstBondJul22GenFor2027');
       {
       const chartPts = result.assetData[9].chartDataPoints;
       expect(chartPts.length).toBe(10);
@@ -1122,7 +1122,7 @@ describe("bonds tests", () => {
       expectChartData(chartPts, 9, 'Sun Dec 30 2029', 0, -1);
       }
       
-      expect(result.assetData[10].item.NAME).toBe('MyFirstBondJul22GeneratedRecurrence for 2027Mature/Cash');
+      expect(result.assetData[10].item.NAME).toBe('MyFirstBondJul22GenFor2027Mature/Cash');
       {
       const chartPts = result.assetData[10].chartDataPoints;
       expect(chartPts.length).toBe(10);
@@ -1284,7 +1284,7 @@ describe("bonds tests", () => {
     
     expect(result.incomesData.length).toBe(0);
     expect(result.assetData.length).toBe(11);
-    expect(result.assetData[0].item.NAME).toBe('MyFirstBondJul21GeneratedRecurrence for 2026Invest/Cash');
+    expect(result.assetData[0].item.NAME).toBe('MyFirstBondJul21GenFor2026Invest/Cash');
     {
     const chartPts = result.assetData[0].chartDataPoints;
     expect(chartPts.length).toBe(10);
@@ -1300,7 +1300,7 @@ describe("bonds tests", () => {
     expectChartData(chartPts, 9, 'Sun Dec 30 2029', 0, -1);
     }
     
-    expect(result.assetData[1].item.NAME).toBe('MyFirstBondJul21GeneratedRecurrence for 2026Invest/MyFirstBondJul21GeneratedRecurrence for 2026');
+    expect(result.assetData[1].item.NAME).toBe('MyFirstBondJul21GenFor2026Invest/MyFirstBondJul21GenFor2026');
     {
     const chartPts = result.assetData[1].chartDataPoints;
     expect(chartPts.length).toBe(10);
@@ -1316,7 +1316,7 @@ describe("bonds tests", () => {
     expectChartData(chartPts, 9, 'Sun Dec 30 2029', 0, -1);
     }
     
-    expect(result.assetData[2].item.NAME).toBe('growth/MyFirstBondJul21GeneratedRecurrence for 2026');
+    expect(result.assetData[2].item.NAME).toBe('growth/MyFirstBondJul21GenFor2026');
     {
     const chartPts = result.assetData[2].chartDataPoints;
     expect(chartPts.length).toBe(10);
@@ -1332,7 +1332,7 @@ describe("bonds tests", () => {
     expectChartData(chartPts, 9, 'Sun Dec 30 2029', 0, -1);
     }
     
-    expect(result.assetData[3].item.NAME).toBe('MyFirstBondJul22GeneratedRecurrence for 2027Invest/Cash');
+    expect(result.assetData[3].item.NAME).toBe('MyFirstBondJul22GenFor2027Invest/Cash');
     {
     const chartPts = result.assetData[3].chartDataPoints;
     expect(chartPts.length).toBe(10);
@@ -1348,7 +1348,7 @@ describe("bonds tests", () => {
     expectChartData(chartPts, 9, 'Sun Dec 30 2029', 0, -1);
     }
     
-    expect(result.assetData[4].item.NAME).toBe('MyFirstBondJul22GeneratedRecurrence for 2027Invest/MyFirstBondJul22GeneratedRecurrence for 2027');
+    expect(result.assetData[4].item.NAME).toBe('MyFirstBondJul22GenFor2027Invest/MyFirstBondJul22GenFor2027');
     {
     const chartPts = result.assetData[4].chartDataPoints;
     expect(chartPts.length).toBe(10);
@@ -1364,7 +1364,7 @@ describe("bonds tests", () => {
     expectChartData(chartPts, 9, 'Sun Dec 30 2029', 0, -1);
     }
     
-    expect(result.assetData[5].item.NAME).toBe('growth/MyFirstBondJul22GeneratedRecurrence for 2027');
+    expect(result.assetData[5].item.NAME).toBe('growth/MyFirstBondJul22GenFor2027');
     {
     const chartPts = result.assetData[5].chartDataPoints;
     expect(chartPts.length).toBe(10);
@@ -1396,7 +1396,7 @@ describe("bonds tests", () => {
     expectChartData(chartPts, 9, 'Sun Dec 30 2029', 0, -1);
     }
     
-    expect(result.assetData[7].item.NAME).toBe('MyFirstBondJul21GeneratedRecurrence for 2026Mature/MyFirstBondJul21GeneratedRecurrence for 2026');
+    expect(result.assetData[7].item.NAME).toBe('MyFirstBondJul21GenFor2026Mature/MyFirstBondJul21GenFor2026');
     {
     const chartPts = result.assetData[7].chartDataPoints;
     expect(chartPts.length).toBe(10);
@@ -1412,7 +1412,7 @@ describe("bonds tests", () => {
     expectChartData(chartPts, 9, 'Sun Dec 30 2029', 0, -1);
     }
     
-    expect(result.assetData[8].item.NAME).toBe('MyFirstBondJul21GeneratedRecurrence for 2026Mature/Cash');
+    expect(result.assetData[8].item.NAME).toBe('MyFirstBondJul21GenFor2026Mature/Cash');
     {
     const chartPts = result.assetData[8].chartDataPoints;
     expect(chartPts.length).toBe(10);
@@ -1428,7 +1428,7 @@ describe("bonds tests", () => {
     expectChartData(chartPts, 9, 'Sun Dec 30 2029', 0, -1);
     }
     
-    expect(result.assetData[9].item.NAME).toBe('MyFirstBondJul22GeneratedRecurrence for 2027Mature/MyFirstBondJul22GeneratedRecurrence for 2027');
+    expect(result.assetData[9].item.NAME).toBe('MyFirstBondJul22GenFor2027Mature/MyFirstBondJul22GenFor2027');
     {
     const chartPts = result.assetData[9].chartDataPoints;
     expect(chartPts.length).toBe(10);
@@ -1444,7 +1444,7 @@ describe("bonds tests", () => {
     expectChartData(chartPts, 9, 'Sun Dec 30 2029', 0, -1);
     }
     
-    expect(result.assetData[10].item.NAME).toBe('MyFirstBondJul22GeneratedRecurrence for 2027Mature/Cash');
+    expect(result.assetData[10].item.NAME).toBe('MyFirstBondJul22GenFor2027Mature/Cash');
     {
     const chartPts = result.assetData[10].chartDataPoints;
     expect(chartPts.length).toBe(10);
@@ -1785,7 +1785,7 @@ describe("bonds tests", () => {
     expectChartData(chartPts, 9, 'Sun Dec 30 2029', 2400, -1);
     }
     
-    expect(result.assetData[3].item.NAME).toBe('MyFirstBondJul21GeneratedRecurrence for 2026');
+    expect(result.assetData[3].item.NAME).toBe('MyFirstBondJul21GenFor2026');
     {
     const chartPts = result.assetData[3].chartDataPoints;
     expect(chartPts.length).toBe(10);
@@ -1801,7 +1801,7 @@ describe("bonds tests", () => {
     expectChartData(chartPts, 9, 'Sun Dec 30 2029', 0, -1);
     }
     
-    expect(result.assetData[4].item.NAME).toBe('MyFirstBondJul22GeneratedRecurrence for 2027');
+    expect(result.assetData[4].item.NAME).toBe('MyFirstBondJul22GenFor2027');
     {
     const chartPts = result.assetData[4].chartDataPoints;
     expect(chartPts.length).toBe(10);
@@ -1983,7 +1983,7 @@ describe("bonds tests", () => {
     
     expect(result.incomesData.length).toBe(0);
     expect(result.assetData.length).toBe(11);
-    expect(result.assetData[0].item.NAME).toBe('MyFirstBondJul21GeneratedRecurrence for 2026Invest/Cash');
+    expect(result.assetData[0].item.NAME).toBe('MyFirstBondJul21GenFor2026Invest/Cash');
     {
     const chartPts = result.assetData[0].chartDataPoints;
     expect(chartPts.length).toBe(10);
@@ -1999,7 +1999,7 @@ describe("bonds tests", () => {
     expectChartData(chartPts, 9, 'Sun Dec 30 2029', 0, -1);
     }
     
-    expect(result.assetData[1].item.NAME).toBe('MyFirstBondJul21GeneratedRecurrence for 2026Invest/MyFirstBondJul21GeneratedRecurrence for 2026');
+    expect(result.assetData[1].item.NAME).toBe('MyFirstBondJul21GenFor2026Invest/MyFirstBondJul21GenFor2026');
     {
     const chartPts = result.assetData[1].chartDataPoints;
     expect(chartPts.length).toBe(10);
@@ -2015,7 +2015,7 @@ describe("bonds tests", () => {
     expectChartData(chartPts, 9, 'Sun Dec 30 2029', 0, -1);
     }
     
-    expect(result.assetData[2].item.NAME).toBe('growth/MyFirstBondJul21GeneratedRecurrence for 2026');
+    expect(result.assetData[2].item.NAME).toBe('growth/MyFirstBondJul21GenFor2026');
     {
     const chartPts = result.assetData[2].chartDataPoints;
     expect(chartPts.length).toBe(10);
@@ -2031,7 +2031,7 @@ describe("bonds tests", () => {
     expectChartData(chartPts, 9, 'Sun Dec 30 2029', 0, -1);
     }
     
-    expect(result.assetData[3].item.NAME).toBe('MyFirstBondJul22GeneratedRecurrence for 2027Invest/Cash');
+    expect(result.assetData[3].item.NAME).toBe('MyFirstBondJul22GenFor2027Invest/Cash');
     {
     const chartPts = result.assetData[3].chartDataPoints;
     expect(chartPts.length).toBe(10);
@@ -2047,7 +2047,7 @@ describe("bonds tests", () => {
     expectChartData(chartPts, 9, 'Sun Dec 30 2029', 0, -1);
     }
     
-    expect(result.assetData[4].item.NAME).toBe('MyFirstBondJul22GeneratedRecurrence for 2027Invest/MyFirstBondJul22GeneratedRecurrence for 2027');
+    expect(result.assetData[4].item.NAME).toBe('MyFirstBondJul22GenFor2027Invest/MyFirstBondJul22GenFor2027');
     {
     const chartPts = result.assetData[4].chartDataPoints;
     expect(chartPts.length).toBe(10);
@@ -2063,7 +2063,7 @@ describe("bonds tests", () => {
     expectChartData(chartPts, 9, 'Sun Dec 30 2029', 0, -1);
     }
     
-    expect(result.assetData[5].item.NAME).toBe('growth/MyFirstBondJul22GeneratedRecurrence for 2027');
+    expect(result.assetData[5].item.NAME).toBe('growth/MyFirstBondJul22GenFor2027');
     {
     const chartPts = result.assetData[5].chartDataPoints;
     expect(chartPts.length).toBe(10);
@@ -2095,7 +2095,7 @@ describe("bonds tests", () => {
     expectChartData(chartPts, 9, 'Sun Dec 30 2029', 0, -1);
     }
     
-    expect(result.assetData[7].item.NAME).toBe('MyFirstBondJul21GeneratedRecurrence for 2026Mature/MyFirstBondJul21GeneratedRecurrence for 2026');
+    expect(result.assetData[7].item.NAME).toBe('MyFirstBondJul21GenFor2026Mature/MyFirstBondJul21GenFor2026');
     {
     const chartPts = result.assetData[7].chartDataPoints;
     expect(chartPts.length).toBe(10);
@@ -2111,7 +2111,7 @@ describe("bonds tests", () => {
     expectChartData(chartPts, 9, 'Sun Dec 30 2029', 0, -1);
     }
     
-    expect(result.assetData[8].item.NAME).toBe('MyFirstBondJul21GeneratedRecurrence for 2026Mature/Cash');
+    expect(result.assetData[8].item.NAME).toBe('MyFirstBondJul21GenFor2026Mature/Cash');
     {
     const chartPts = result.assetData[8].chartDataPoints;
     expect(chartPts.length).toBe(10);
@@ -2127,7 +2127,7 @@ describe("bonds tests", () => {
     expectChartData(chartPts, 9, 'Sun Dec 30 2029', 0, -1);
     }
     
-    expect(result.assetData[9].item.NAME).toBe('MyFirstBondJul22GeneratedRecurrence for 2027Mature/MyFirstBondJul22GeneratedRecurrence for 2027');
+    expect(result.assetData[9].item.NAME).toBe('MyFirstBondJul22GenFor2027Mature/MyFirstBondJul22GenFor2027');
     {
     const chartPts = result.assetData[9].chartDataPoints;
     expect(chartPts.length).toBe(10);
@@ -2143,7 +2143,7 @@ describe("bonds tests", () => {
     expectChartData(chartPts, 9, 'Sun Dec 30 2029', 0, -1);
     }
     
-    expect(result.assetData[10].item.NAME).toBe('MyFirstBondJul22GeneratedRecurrence for 2027Mature/Cash');
+    expect(result.assetData[10].item.NAME).toBe('MyFirstBondJul22GenFor2027Mature/Cash');
     {
     const chartPts = result.assetData[10].chartDataPoints;
     expect(chartPts.length).toBe(10);
