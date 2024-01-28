@@ -90,6 +90,7 @@ import {
 } from "./modelQueries";
 import dateFormat from "dateformat";
 import { getAnnualPlanningSurplusData } from "./planningData";
+import { printTestCodeForEvals } from "tests/algoTests/algoTestUtils";
 
 function parseRecurrenceString(recurrence: string) {
   if (recurrence === undefined) {
@@ -2029,7 +2030,7 @@ interface LiabilityTotalAndSources {
 }
 interface LiableIncomes {
   inTaxYear: {
-    cgt: undefined | Map<string, LiabilityTotalAndSources>;
+    capitalGains: undefined | Map<string, LiabilityTotalAndSources>;
     incomeTaxTotal: undefined | Map<string, LiabilityTotalAndSources>;
     incomeTaxFromFixedIncome: undefined | Map<string, number>;
     incomeTaxFromFlexibleIncome: undefined | Map<string, number>;
@@ -2106,7 +2107,7 @@ function settleUpTax(
     } else if (key === nationalInsurance) {
       personLiabilityMap = incomes.inTaxYear.NITotal;
     } else if (key === "cgt") {
-      personLiabilityMap = incomes.inTaxYear.cgt;
+      personLiabilityMap = incomes.inTaxYear.capitalGains;
     }
     if (personLiabilityMap === undefined) {
       continue;
@@ -4311,32 +4312,56 @@ function handleCGTLiability(
   if (cgtLiability === undefined) {
     return;
   }
+
+  // log(`moment.date = ${moment.date.toDateString()}`);
+  // log(`${fromWord} reducing from ${preFromValue} by ${fromChange}`);
+
   const proportionSale = fromChange / preFromValue;
   // log(`proportionSale = ${fromChange} / ${preFromValue} = ${proportionSale}`);
   const purchasePrice = getNumberValue(values, `${purchase}${fromWord}`);
   // log(`purchasePrice = ${purchasePrice}`);
-  if (purchasePrice !== undefined) {
+
+  if (purchasePrice === undefined) {
+    /* istanbul ignore next */
+    log("BUG!! - CGT liability on an asset with no record of purchase price");
+    return;
+  }
+  
+  let cgtMap = incomes.inTaxYear.capitalGains;
+  if (cgtMap === undefined) {
+    incomes.inTaxYear.capitalGains = new Map<string, LiabilityTotalAndSources>();
+    cgtMap = incomes.inTaxYear.capitalGains;
+  }
+  let currentcgtVal = cgtMap.get(cgtLiability);
+  if (currentcgtVal === undefined) {
+    currentcgtVal = {
+      amount: 0.0,
+      sources: [],
+    };
+    cgtMap.set(cgtLiability, currentcgtVal);
+  }
+
+  if (t.TO_ABSOLUTE) {
+    // if it's not quantised
+    const toValue = traceEvaluation(t.TO_VALUE, values, growths, 'fromValForCGT');
+    if(toValue === undefined) {
+      throw new Error('no to value?');
+    }
+    const gain = toValue - (proportionSale * purchasePrice);
+
+    addToTaxLiability(currentcgtVal, gain, `${t.NAME}`);
+    cgtMap.set(cgtLiability, currentcgtVal);
+
+  } else {
     const totalGain = preFromValue - purchasePrice;
     // if (fromWord.includes('ESPP') || fromWord.includes('RSU')) {
-    // log(`at ${moment.date.toDateString()}, \ntotalGain = preFromValue - purchasePrice = ${preFromValue} - ${purchasePrice} = ${totalGain}`);
+    //   log(`at ${moment.date.toDateString()}, \ntotalGain = preFromValue - purchasePrice = ${preFromValue} - ${purchasePrice} = ${totalGain}`);
     // }
+    // log(`proportionGain = totalGain * proportionSale = ${totalGain} * ${proportionSale} = ${totalGain * proportionSale}`)
     const proportionGain = totalGain * proportionSale;
     // if (fromWord.includes('ESPP') || fromWord.includes('RSU')) {
-    // log(`proportionGain = ${proportionGain}`);
+    //   log(`proportionGain = ${proportionGain}`);
     // }
-    let cgtMap = incomes.inTaxYear.cgt;
-    if (cgtMap === undefined) {
-      incomes.inTaxYear.cgt = new Map<string, LiabilityTotalAndSources>();
-      cgtMap = incomes.inTaxYear.cgt;
-    }
-    let currentcgtVal = cgtMap.get(cgtLiability);
-    if (currentcgtVal === undefined) {
-      currentcgtVal = {
-        amount: 0.0,
-        sources: [],
-      };
-      cgtMap.set(cgtLiability, currentcgtVal);
-    }
 
     addToTaxLiability(currentcgtVal, proportionGain, `${t.NAME}`);
     // if (fromWord.includes('ESPP') || fromWord.includes('RSU')) {
@@ -4344,26 +4369,22 @@ function handleCGTLiability(
     // }
     cgtMap.set(cgtLiability, currentcgtVal);
     // log(`logged cgt for ${cgtLiability}, accumulated value ${currentcgtVal}`);
-
-    const newPurchasePrice = purchasePrice * (1 - proportionSale);
-    // when selling some asset, we reduce the Purchase value
-    // of what's left for CGT purposes
-    // log(`in handleCGTLiability, set newPurchasePrice = ${newPurchasePrice}`);
-    setValue(
-      values,
-      growths,
-      evaluations,
-      moment.date,
-      `${purchase}${fromWord}`,
-      newPurchasePrice,
-      model,
-      t.NAME, // TODO no test??
-      "13", //callerID
-    );
-  } else {
-    /* istanbul ignore next */
-    log("BUG!! - CGT liability on an asset with no record of purchase price");
   }
+  const newPurchasePrice = purchasePrice * (1 - proportionSale);
+  // when selling some asset, we reduce the Purchase value
+  // of what's left for CGT purposes
+  // log(`in handleCGTLiability, set newPurchasePrice = ${newPurchasePrice}`);
+  setValue(
+    values,
+    growths,
+    evaluations,
+    moment.date,
+    `${purchase}${fromWord}`,
+    newPurchasePrice,
+    model,
+    t.NAME, // TODO no test??
+    "13", //callerID
+  );
 }
 
 export function makeSourceForFromChange(t: Transaction) {
@@ -6290,7 +6311,7 @@ function getEvaluationsInternal(
       NITotal: undefined,
       NIFromFixedIncome: undefined,
       NIFromFlexibleIncome: undefined,
-      cgt: undefined,
+      capitalGains: undefined,
     },
   };
   const taxMonthlyPaymentsPaid: TaxPaymentsMade = {

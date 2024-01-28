@@ -5339,7 +5339,7 @@ describe("tax tests", () => {
     }
   });
 
-  it("sell some cars incurring capital gains", () => {
+  it("sell some cars incurring capital gains proportional to", () => {
     const roi = {
       start: "Dec 1, 2017 00:00:00",
       end: "June 1, 2018 00:00:00",
@@ -5486,6 +5486,501 @@ describe("tax tests", () => {
     viewSettings.setViewSetting(taxChartFocusPerson, "Jake");
     result = makeChartDataFromEvaluations(model, viewSettings, evalsAndValues);
     expect(result.taxData.length).toBe(0);
+  });
+
+  it("sell some cars incurring capital gains absolute to", () => {
+    const roi = {
+      start: "Dec 1, 2017 00:00:00",
+      end: "June 1, 2018 00:00:00",
+    };
+    const minimalModel = getMinimalModelCopy();
+    const model: ModelData = {
+      ...minimalModel,
+      assets: [
+        ...minimalModel.assets,
+        {
+          ...simpleAsset,
+          NAME: "Cars",
+          START: "January 2 2018",
+          VALUE: "150000", // value for each car
+          QUANTITY: "3",
+          PURCHASE_PRICE: "50000", // value for each car
+          LIABILITY: "Joe(CGT)",
+        },
+      ],
+      transactions: [
+        ...minimalModel.transactions,
+        {
+          ...simpleTransaction,
+          NAME: "Sell some cars",
+          FROM: "Cars",
+          FROM_VALUE: "2", // selling 2 of our fleet of 3
+          TO: CASH_ASSET_NAME,
+          TO_VALUE: "400000", // was 300000 but we got extra
+          TO_ABSOLUTE: true,
+          DATE: "Mar 10 2018",
+        },
+        {
+          ...simpleTransaction,
+          NAME: "Sell last cars",
+          FROM: "Cars",
+          FROM_VALUE: "1", // selling last one
+          TO: CASH_ASSET_NAME,
+          TO_VALUE: "1050000",
+          TO_ABSOLUTE: true,
+          DATE: "May 10 2018",
+        },
+      ],
+      settings: [...defaultModelSettings(roi)],
+    };
+    model.assets.filter((a) => {
+      return a.NAME === CASH_ASSET_NAME;
+    })[0].START = "1 Jan 2018";
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(26);
+    expectEvals(evals, 0, 'Cash', 'Mon Jan 01 2018', 0, -1);
+    expectEvals(evals, 1, 'quantityCars', 'Tue Jan 02 2018', 3, -1);
+    expectEvals(evals, 2, 'PurchaseCars', 'Tue Jan 02 2018', 150000, -1);
+    expectEvals(evals, 3, 'Cars', 'Tue Jan 02 2018', 450000, -1);
+    expectEvals(evals, 4, 'Cash', 'Thu Feb 01 2018', 0, -1);
+    expectEvals(evals, 5, 'Cars', 'Fri Feb 02 2018', 450000, -1);
+    expectEvals(evals, 6, 'Cash', 'Thu Mar 01 2018', 0, -1);
+    expectEvals(evals, 7, 'Cars', 'Fri Mar 02 2018', 450000, -1);
+    expectEvals(evals, 8, 'quantityCars', 'Sat Mar 10 2018', 1, -1);
+    expectEvals(evals, 9, 'PurchaseCars', 'Sat Mar 10 2018', 50000.00, 2);
+    expectEvals(evals, 10, 'Cars', 'Sat Mar 10 2018', 150000, -1);
+    expectEvals(evals, 11, 'Cash', 'Sat Mar 10 2018', 400000, -1);
+    expectEvals(evals, 12, 'Cash', 'Sun Apr 01 2018', 400000, -1);
+    expectEvals(evals, 13, 'Cars', 'Mon Apr 02 2018', 150000, -1);
+    expectEvals(evals, 14, 'Cash', 'Thu Apr 05 2018', 347400, -1);
+    expectEvals(evals, 15, '(CGT)', 'Thu Apr 05 2018', 52600, -1);
+    expectEvals(evals, 16, 'Joe gain (net)', 'Thu Apr 05 2018', 247400, -1);
+    expectEvals(evals, 17, 'Cash', 'Tue May 01 2018', 347400, -1);
+    expectEvals(evals, 18, 'Cars', 'Wed May 02 2018', 150000, -1);
+    expectEvals(evals, 19, 'quantityCars', 'Thu May 10 2018', 0, -1);
+    expectEvals(evals, 20, 'PurchaseCars', 'Thu May 10 2018', 0, -1);
+    expectEvals(evals, 21, 'Cars', 'Thu May 10 2018', 0, -1);
+    expectEvals(evals, 22, 'Cash', 'Thu May 10 2018', 1397400, -1);
+    expectEvals(evals, 23, 'Cash', 'Fri Apr 05 2019', 1204800, -1);
+    expectEvals(evals, 24, '(CGT)', 'Fri Apr 05 2019', 192600, -1);
+    expectEvals(evals, 25, 'Joe gain (net)', 'Fri Apr 05 2019', 807400, -1);
+
+    const viewSettings = defaultTestViewSettings();
+
+    let result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(2);
+    expect(result.assetData[0].item.NAME).toBe('Cash');
+    {
+    const chartPts = result.assetData[0].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+    expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+    expectChartData(chartPts, 2, 'Thu Feb 01 2018', 0, -1);
+    expectChartData(chartPts, 3, 'Thu Mar 01 2018', 0, -1);
+    expectChartData(chartPts, 4, 'Sun Apr 01 2018', 400000, -1);
+    expectChartData(chartPts, 5, 'Tue May 01 2018', 347400, -1);
+    }
+    
+    expect(result.assetData[1].item.NAME).toBe('Cars');
+    {
+    const chartPts = result.assetData[1].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+    expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+    expectChartData(chartPts, 2, 'Thu Feb 01 2018', 450000, -1);
+    expectChartData(chartPts, 3, 'Thu Mar 01 2018', 450000, -1);
+    expectChartData(chartPts, 4, 'Sun Apr 01 2018', 150000, -1);
+    expectChartData(chartPts, 5, 'Tue May 01 2018', 150000, -1);
+    }
+    
+    expect(result.debtData.length).toBe(0);
+    expect(result.taxData.length).toBe(2);
+    expect(result.taxData[0].item.NAME).toBe('Joe gain (CGT)');
+    {
+    const chartPts = result.taxData[0].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+    expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+    expectChartData(chartPts, 2, 'Thu Feb 01 2018', 0, -1);
+    expectChartData(chartPts, 3, 'Thu Mar 01 2018', 0, -1);
+    expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
+    expectChartData(chartPts, 5, 'Tue May 01 2018', 52600, -1);
+    }
+    
+    expect(result.taxData[1].item.NAME).toBe('Joe gain (net)');
+    {
+    const chartPts = result.taxData[1].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+    expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+    expectChartData(chartPts, 2, 'Thu Feb 01 2018', 0, -1);
+    expectChartData(chartPts, 3, 'Thu Mar 01 2018', 0, -1);
+    expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
+    expectChartData(chartPts, 5, 'Tue May 01 2018', 247400, -1);
+    }
+
+    viewSettings.setViewSetting(taxChartFocusType, income);
+    result = makeChartDataFromEvaluations(model, viewSettings, evalsAndValues);
+    expect(result.taxData.length).toBe(0);
+
+    viewSettings.setViewSetting(taxChartFocusType, gain);
+    result = makeChartDataFromEvaluations(model, viewSettings, evalsAndValues);
+    expect(result.taxData.length).toBe(2);
+
+    viewSettings.setViewSetting(taxChartShowNet, "N");
+    result = makeChartDataFromEvaluations(model, viewSettings, evalsAndValues);
+    expect(result.taxData.length).toBe(1);
+
+    viewSettings.setViewSetting(taxChartFocusPerson, "Joe");
+    result = makeChartDataFromEvaluations(model, viewSettings, evalsAndValues);
+    expect(result.taxData.length).toBe(1);
+
+    viewSettings.setViewSetting(taxChartFocusPerson, "Jake");
+    result = makeChartDataFromEvaluations(model, viewSettings, evalsAndValues);
+    expect(result.taxData.length).toBe(0);
+  });
+
+  it("sell a beach incurring capital gains absolute to", () => {
+    const roi = {
+      start: "Dec 1, 2017 00:00:00",
+      end: "June 1, 2018 00:00:00",
+    };
+    const minimalModel = getMinimalModelCopy();
+    const model: ModelData = {
+      ...minimalModel,
+      assets: [
+        ...minimalModel.assets,
+        {
+          ...simpleAsset,
+          NAME: "Beach",
+          START: "January 2 2018",
+          VALUE: "450000", // value for each car
+          QUANTITY: "",
+          PURCHASE_PRICE: "150000", // value for each car
+          LIABILITY: "Joe(CGT)",
+        },
+      ],
+      transactions: [
+        ...minimalModel.transactions,
+        {
+          ...simpleTransaction,
+          NAME: "Sell some beach",
+          FROM: "Beach",
+          FROM_VALUE: "300000", // selling 2/3 or our beach
+          TO: CASH_ASSET_NAME,
+          TO_VALUE: "400000", // was 300000 but we got extra
+          TO_ABSOLUTE: true,
+          DATE: "Mar 10 2018",
+        },
+        {
+          ...simpleTransaction,
+          NAME: "Sell last part",
+          FROM: "Beach",
+          FROM_VALUE: "150000", // selling last one
+          TO: CASH_ASSET_NAME,
+          TO_VALUE: "1050000",
+          TO_ABSOLUTE: true,
+          DATE: "May 10 2018",
+        },
+      ],
+      settings: [...defaultModelSettings(roi)],
+    };
+    model.assets.filter((a) => {
+      return a.NAME === CASH_ASSET_NAME;
+    })[0].START = "1 Jan 2018";
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(23);
+    expectEvals(evals, 0, 'Cash', 'Mon Jan 01 2018', 0, -1);
+    expectEvals(evals, 1, 'PurchaseBeach', 'Tue Jan 02 2018', 150000, -1);
+    expectEvals(evals, 2, 'Beach', 'Tue Jan 02 2018', 450000, -1);
+    expectEvals(evals, 3, 'Cash', 'Thu Feb 01 2018', 0, -1);
+    expectEvals(evals, 4, 'Beach', 'Fri Feb 02 2018', 450000, -1);
+    expectEvals(evals, 5, 'Cash', 'Thu Mar 01 2018', 0, -1);
+    expectEvals(evals, 6, 'Beach', 'Fri Mar 02 2018', 450000, -1);
+    expectEvals(evals, 7, 'PurchaseBeach', 'Sat Mar 10 2018', 50000.00, 2);
+    expectEvals(evals, 8, 'Beach', 'Sat Mar 10 2018', 150000, -1);
+    expectEvals(evals, 9, 'Cash', 'Sat Mar 10 2018', 400000, -1);
+    expectEvals(evals, 10, 'Cash', 'Sun Apr 01 2018', 400000, -1);
+    expectEvals(evals, 11, 'Beach', 'Mon Apr 02 2018', 150000, -1);
+    expectEvals(evals, 12, 'Cash', 'Thu Apr 05 2018', 347400, -1);
+    expectEvals(evals, 13, '(CGT)', 'Thu Apr 05 2018', 52600, -1);
+    expectEvals(evals, 14, 'Joe gain (net)', 'Thu Apr 05 2018', 247400, -1);
+    expectEvals(evals, 15, 'Cash', 'Tue May 01 2018', 347400, -1);
+    expectEvals(evals, 16, 'Beach', 'Wed May 02 2018', 150000, -1);
+    expectEvals(evals, 17, 'PurchaseBeach', 'Thu May 10 2018', 0, -1);
+    expectEvals(evals, 18, 'Beach', 'Thu May 10 2018', 0, -1);
+    expectEvals(evals, 19, 'Cash', 'Thu May 10 2018', 1397400, -1);
+    expectEvals(evals, 20, 'Cash', 'Fri Apr 05 2019', 1204800, -1);
+    expectEvals(evals, 21, '(CGT)', 'Fri Apr 05 2019', 192600, -1);
+    expectEvals(evals, 22, 'Joe gain (net)', 'Fri Apr 05 2019', 807400, -1);
+
+    const viewSettings = defaultTestViewSettings();
+
+    let result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(2);
+    expect(result.assetData[0].item.NAME).toBe('Cash');
+    {
+    const chartPts = result.assetData[0].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+    expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+    expectChartData(chartPts, 2, 'Thu Feb 01 2018', 0, -1);
+    expectChartData(chartPts, 3, 'Thu Mar 01 2018', 0, -1);
+    expectChartData(chartPts, 4, 'Sun Apr 01 2018', 400000, -1);
+    expectChartData(chartPts, 5, 'Tue May 01 2018', 347400, -1);
+    }
+    
+    expect(result.assetData[1].item.NAME).toBe('Beach');
+    {
+    const chartPts = result.assetData[1].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+    expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+    expectChartData(chartPts, 2, 'Thu Feb 01 2018', 450000, -1);
+    expectChartData(chartPts, 3, 'Thu Mar 01 2018', 450000, -1);
+    expectChartData(chartPts, 4, 'Sun Apr 01 2018', 150000, -1);
+    expectChartData(chartPts, 5, 'Tue May 01 2018', 150000, -1);
+    }
+    
+    expect(result.debtData.length).toBe(0);
+    expect(result.taxData.length).toBe(2);
+    expect(result.taxData[0].item.NAME).toBe('Joe gain (CGT)');
+    {
+    const chartPts = result.taxData[0].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+    expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+    expectChartData(chartPts, 2, 'Thu Feb 01 2018', 0, -1);
+    expectChartData(chartPts, 3, 'Thu Mar 01 2018', 0, -1);
+    expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
+    expectChartData(chartPts, 5, 'Tue May 01 2018', 52600, -1);
+    }
+    
+    expect(result.taxData[1].item.NAME).toBe('Joe gain (net)');
+    {
+    const chartPts = result.taxData[1].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+    expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+    expectChartData(chartPts, 2, 'Thu Feb 01 2018', 0, -1);
+    expectChartData(chartPts, 3, 'Thu Mar 01 2018', 0, -1);
+    expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
+    expectChartData(chartPts, 5, 'Tue May 01 2018', 247400, -1);
+    }
+
+    viewSettings.setViewSetting(taxChartFocusType, income);
+    result = makeChartDataFromEvaluations(model, viewSettings, evalsAndValues);
+    expect(result.taxData.length).toBe(0);
+
+    viewSettings.setViewSetting(taxChartFocusType, gain);
+    result = makeChartDataFromEvaluations(model, viewSettings, evalsAndValues);
+    expect(result.taxData.length).toBe(2);
+
+    viewSettings.setViewSetting(taxChartShowNet, "N");
+    result = makeChartDataFromEvaluations(model, viewSettings, evalsAndValues);
+    expect(result.taxData.length).toBe(1);
+
+    viewSettings.setViewSetting(taxChartFocusPerson, "Joe");
+    result = makeChartDataFromEvaluations(model, viewSettings, evalsAndValues);
+    expect(result.taxData.length).toBe(1);
+
+    viewSettings.setViewSetting(taxChartFocusPerson, "Jake");
+    result = makeChartDataFromEvaluations(model, viewSettings, evalsAndValues);
+    expect(result.taxData.length).toBe(0);
+  });
+
+  it("sell a beach incurring capital gains proportion from", () => {
+    const roi = {
+      start: "Dec 1, 2017 00:00:00",
+      end: "June 1, 2018 00:00:00",
+    };
+    const minimalModel = getMinimalModelCopy();
+    const model: ModelData = {
+      ...minimalModel,
+      assets: [
+        ...minimalModel.assets,
+        {
+          ...simpleAsset,
+          NAME: "Beach",
+          START: "January 2 2018",
+          VALUE: "450000", // value for each car
+          QUANTITY: "",
+          PURCHASE_PRICE: "150000", // value for each car
+          LIABILITY: "Joe(CGT)",
+        },
+      ],
+      transactions: [
+        ...minimalModel.transactions,
+        {
+          ...simpleTransaction,
+          NAME: "Sell some beach",
+          FROM: "Beach",
+          FROM_ABSOLUTE: false,
+          FROM_VALUE: "0.666666667", // selling 2/3 or our beach
+          TO: CASH_ASSET_NAME,
+          TO_VALUE: "400000", // was 300000 but we got extra
+          TO_ABSOLUTE: true,
+          DATE: "Mar 10 2018",
+        },
+        {
+          ...simpleTransaction,
+          NAME: "Sell last part",
+          FROM: "Beach",
+          FROM_ABSOLUTE: false,
+          FROM_VALUE: "1.0", // selling last part
+          TO: CASH_ASSET_NAME,
+          TO_VALUE: "1050000",
+          TO_ABSOLUTE: true,
+          DATE: "May 10 2018",
+        },
+      ],
+      settings: [...defaultModelSettings(roi)],
+    };
+    model.assets.filter((a) => {
+      return a.NAME === CASH_ASSET_NAME;
+    })[0].START = "1 Jan 2018";
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(23);
+    expectEvals(evals, 0, 'Cash', 'Mon Jan 01 2018', 0, -1);
+    expectEvals(evals, 1, 'PurchaseBeach', 'Tue Jan 02 2018', 150000.00, 2);
+    expectEvals(evals, 2, 'Beach', 'Tue Jan 02 2018', 450000.00, 2);
+    expectEvals(evals, 3, 'Cash', 'Thu Feb 01 2018', 0, -1);
+    expectEvals(evals, 4, 'Beach', 'Fri Feb 02 2018', 450000.00, 2);
+    expectEvals(evals, 5, 'Cash', 'Thu Mar 01 2018', 0, -1);
+    expectEvals(evals, 6, 'Beach', 'Fri Mar 02 2018', 450000.00, 2);
+    expectEvals(evals, 7, 'PurchaseBeach', 'Sat Mar 10 2018', 50000.00, 2);
+    expectEvals(evals, 8, 'Beach', 'Sat Mar 10 2018', 150000.00, 2);
+    expectEvals(evals, 9, 'Cash', 'Sat Mar 10 2018', 400000.00, 2);
+    expectEvals(evals, 10, 'Cash', 'Sun Apr 01 2018', 400000.00, 2);
+    expectEvals(evals, 11, 'Beach', 'Mon Apr 02 2018', 150000.00, 2);
+    expectEvals(evals, 12, 'Cash', 'Thu Apr 05 2018', 347400.00, 2);
+    expectEvals(evals, 13, '(CGT)', 'Thu Apr 05 2018', 52600.00, 2);
+    expectEvals(evals, 14, 'Joe gain (net)', 'Thu Apr 05 2018', 247400.00, 2);
+    expectEvals(evals, 15, 'Cash', 'Tue May 01 2018', 347400.00, 2);
+    expectEvals(evals, 16, 'Beach', 'Wed May 02 2018', 150000.00, 2);
+    expectEvals(evals, 17, 'PurchaseBeach', 'Thu May 10 2018', 0.00, 2);
+    expectEvals(evals, 18, 'Beach', 'Thu May 10 2018', 0.00, 2);
+    expectEvals(evals, 19, 'Cash', 'Thu May 10 2018', 1397400.00, 2);
+    expectEvals(evals, 20, 'Cash', 'Fri Apr 05 2019', 1204800.00, 2);
+    expectEvals(evals, 21, '(CGT)', 'Fri Apr 05 2019', 192600.00, 2);
+    expectEvals(evals, 22, 'Joe gain (net)', 'Fri Apr 05 2019', 807400.00, 2);
+
+    const viewSettings = defaultTestViewSettings();
+
+    let result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(2);
+    expect(result.assetData[0].item.NAME).toBe('Cash');
+    {
+    const chartPts = result.assetData[0].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+    expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+    expectChartData(chartPts, 2, 'Thu Feb 01 2018', 0, -1);
+    expectChartData(chartPts, 3, 'Thu Mar 01 2018', 0, -1);
+    expectChartData(chartPts, 4, 'Sun Apr 01 2018', 400000.00, 2);
+    expectChartData(chartPts, 5, 'Tue May 01 2018', 347400.00, 2);
+    }
+    
+    expect(result.assetData[1].item.NAME).toBe('Beach');
+    {
+    const chartPts = result.assetData[1].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+    expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+    expectChartData(chartPts, 2, 'Thu Feb 01 2018', 450000.00, 2);
+    expectChartData(chartPts, 3, 'Thu Mar 01 2018', 450000.00, 2);
+    expectChartData(chartPts, 4, 'Sun Apr 01 2018', 150000.00, 2);
+    expectChartData(chartPts, 5, 'Tue May 01 2018', 150000.00, 2);
+    }
+    
+    expect(result.debtData.length).toBe(0);
+    expect(result.taxData.length).toBe(2);
+    expect(result.taxData[0].item.NAME).toBe('Joe gain (CGT)');
+    {
+    const chartPts = result.taxData[0].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+    expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+    expectChartData(chartPts, 2, 'Thu Feb 01 2018', 0, -1);
+    expectChartData(chartPts, 3, 'Thu Mar 01 2018', 0, -1);
+    expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
+    expectChartData(chartPts, 5, 'Tue May 01 2018', 52600, -1);
+    }
+    
+    expect(result.taxData[1].item.NAME).toBe('Joe gain (net)');
+    {
+    const chartPts = result.taxData[1].chartDataPoints;
+    expect(chartPts.length).toBe(6);
+    expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+    expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+    expectChartData(chartPts, 2, 'Thu Feb 01 2018', 0, -1);
+    expectChartData(chartPts, 3, 'Thu Mar 01 2018', 0, -1);
+    expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
+    expectChartData(chartPts, 5, 'Tue May 01 2018', 247400, -1);
+    }
+
+    viewSettings.setViewSetting(taxChartFocusType, income);
+    result = makeChartDataFromEvaluations(model, viewSettings, evalsAndValues);
+    expect(result.taxData.length).toBe(0);
+
+    viewSettings.setViewSetting(taxChartFocusType, gain);
+    result = makeChartDataFromEvaluations(model, viewSettings, evalsAndValues);
+    expect(result.taxData.length).toBe(2);
+
+    viewSettings.setViewSetting(taxChartShowNet, "N");
+    result = makeChartDataFromEvaluations(model, viewSettings, evalsAndValues);
+    expect(result.taxData.length).toBe(1);
+
+    viewSettings.setViewSetting(taxChartFocusPerson, "Joe");
+    result = makeChartDataFromEvaluations(model, viewSettings, evalsAndValues);
+    expect(result.taxData.length).toBe(1);
+
+    viewSettings.setViewSetting(taxChartFocusPerson, "Jake");
+    result = makeChartDataFromEvaluations(model, viewSettings, evalsAndValues);
+    expect(result.taxData.length).toBe(0);
+
   });
 
   it("sell some cars incurring cgt with low income", () => {

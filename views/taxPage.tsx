@@ -34,7 +34,7 @@ export function taxDiv(
 
   const tableData = [];
   for (const d of reportData) {
-    console.log(`report datum date = ${d.date}`);
+    // console.log(`report datum date = ${d.date}`);
     tableData.push({
       DATE: d.date,
       AMOUNT: `${d.newVal}`,
