@@ -7,7 +7,6 @@ import {
   cgt,
   coarseDetail,
   crystallizedPension,
-  fineDetail,
   gain,
   income,
   incomeTax,

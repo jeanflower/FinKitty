@@ -44,18 +44,9 @@ import {
   defaultReportSize,
   advancedUI,
   annually,
-  allItems,
-  viewDetail,
-  coarseDetail,
-  chartViewType,
   planningView,
   weekly,
   monitoringView,
-  chartReductions,
-  fineDetail,
-  bondMature,
-  generatedRecurrence,
-  expensesView,
 } from "./localization/stringConstants";
 import {
   AssetOrDebtVal,
