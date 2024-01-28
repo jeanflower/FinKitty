@@ -275,6 +275,10 @@ e.g.
       const v = getDisplayedView();
       settingName = `${viewFrequency}${v?.lc}`;
     }
+    if (settingName === viewDetail) {
+      const v = getDisplayedView();
+      settingName = `${viewDetail}${v?.lc}`;
+    }
 
     if (this.kvPairs.get(settingName)) {
       this.kvPairs.set(settingName, settingValue);
@@ -283,6 +287,17 @@ e.g.
     } else {
       return false;
     }
+  }
+  public setDetailViewSetting(settingValue: string) {
+    allViews.map((v) => {
+      const settingName = `${viewDetail}${v.lc}`;
+      if (this.kvPairs.get(settingName)) {
+        this.kvPairs.set(settingName, settingValue);
+        // log(`set ${settingName} to value ${settingValue}`);
+      } else {
+        // log(`set ${settingName} not found!`);
+      }
+    });
   }
   private setViewFilter(context: Context, settingType: string, value: boolean) {
     // log(`switch show(${settingType}) to ${value}`);
@@ -385,6 +400,10 @@ e.g.
       settingType = `${viewFrequency}${viewType?.lc}`;
       // log(`settingType = ${settingType}`);
     }
+    if (settingType === viewDetail) {
+      settingType = `${viewDetail}${viewType?.lc}`;
+      // log(`settingType = ${settingType}`);
+    }
     let result = this.kvPairs.get(settingType);
     if (result === undefined) {
       // log(`Error: missing view setting for ${settingType}`);
@@ -416,14 +435,18 @@ export function getDefaultViewSettings(): ViewSettings {
           VALUE: annually,
         };
       })
-      .concat([
+      .concat(
+        allViews
+      .map((v) => {
+        return {
+          NAME: `${viewDetail}${v.lc}`,
+          VALUE: fineDetail,
+        };
+      })
+        ,[
         {
           NAME: chartViewType,
           VALUE: chartVals,
-        },
-        {
-          NAME: viewDetail,
-          VALUE: fineDetail,
         },
         {
           NAME: assetChartFocus,

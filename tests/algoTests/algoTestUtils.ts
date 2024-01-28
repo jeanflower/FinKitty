@@ -803,14 +803,18 @@ export function getMinimalModelCopySettings(): ViewSettings {
           VALUE: monthly,
         };
       })
-      .concat([
+      .concat(
+        allViews
+        .map((v) => {
+          return {
+            NAME: `${viewDetail}${v.lc}`,
+            VALUE: fineDetail,
+          };
+        })
+      ,[
         {
           NAME: chartViewType,
           VALUE: chartVals,
-        },
-        {
-          NAME: viewDetail,
-          VALUE: fineDetail,
         },
         {
           NAME: assetChartFocus,
@@ -859,8 +863,16 @@ export function defaultTestViewSettings(): ViewSettings {
           VALUE: monthly,
         };
       })
-      .concat([
-        { ...viewSetting, NAME: viewDetail, VALUE: fineDetail },
+      .concat(
+        allViews
+      .map((v) => {
+        return {
+            ...viewSetting,
+            NAME: `${viewDetail}${v.lc}`,
+            VALUE: fineDetail,
+          };
+        })
+      ,[
         { ...viewSetting, NAME: chartViewType, VALUE: chartVals },
         {
           ...viewSetting,

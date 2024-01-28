@@ -64,7 +64,7 @@ describe("BrowserWorkflowTests 02", () => {
     });
     */
     data = await getDataDumpFromPage(driver, "settingsTable");
-    expect(data.length).toBe(18);
+    expect(data.length).toBe(32);
     expect(data[0]).toEqual({
       NAME: "View frequencyTransactions",
       TODAYSVALUE: "undefined",

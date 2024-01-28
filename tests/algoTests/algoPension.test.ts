@@ -2445,7 +2445,7 @@ expectEvals(evals, 5, "Cash", "Sat Mar 10 2018", 465500, -1);
 
     viewSettings.setViewSetting(chartViewType, chartVals);
     viewSettings.setViewSetting(viewFrequency, annually);
-    viewSettings.setViewSetting(viewDetail, coarseDetail);
+    viewSettings.setDetailViewSetting(coarseDetail);
 
     let result = makeChartDataFromEvaluations(
       model,
@@ -2541,9 +2541,9 @@ expectEvals(evals, 5, "Cash", "Sat Mar 10 2018", 465500, -1);
     const viewSettings = defaultTestViewSettings();
 
     viewSettings.setViewSetting(chartViewType, chartVals);
-    viewSettings.setViewSetting(viewDetail, fineDetail);
+    viewSettings.setDetailViewSetting(fineDetail);
     viewSettings.setViewSetting(viewFrequency, annually);
-    viewSettings.setViewSetting(viewDetail, coarseDetail);
+    viewSettings.setDetailViewSetting(coarseDetail);
     viewSettings.setViewSetting(chartViewType, chartReductions);
     const result = makeChartDataFromEvaluations(
       model,
@@ -2590,9 +2590,9 @@ expectEvals(evals, 5, "Cash", "Sat Mar 10 2018", 465500, -1);
     const viewSettings = defaultTestViewSettings();
 
     viewSettings.setViewSetting(chartViewType, chartVals);
-    viewSettings.setViewSetting(viewDetail, fineDetail);
+    viewSettings.setDetailViewSetting(fineDetail);
     viewSettings.setViewSetting(viewFrequency, annually);
-    viewSettings.setViewSetting(viewDetail, coarseDetail);
+    viewSettings.setDetailViewSetting(coarseDetail);
     viewSettings.setViewSetting(chartViewType, chartDeltas);
     const result = makeChartDataFromEvaluations(
       model,

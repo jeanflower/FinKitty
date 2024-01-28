@@ -231,6 +231,36 @@ describe(testName, () => {
     // writeTestCode(ary);
 
     expect(ary.labels.length).toEqual(4);
+    expect(ary.labels[0]).toEqual('Sun Apr 01 2018');
+    expect(ary.labels[1]).toEqual('Tue May 01 2018');
+    expect(ary.labels[2]).toEqual('Fri Jun 01 2018');
+    expect(ary.labels[3]).toEqual('Sun Jul 01 2018');
+    expect(ary.datasets.length).toEqual(3);
+    expect(ary.datasets[0].label).toEqual('broadband');
+    expect(ary.datasets[0].data.length).toEqual(4);
+    expect(ary.datasets[0].data[0]).toBeCloseTo(12, 6);
+    expect(ary.datasets[0].data[1]).toBeCloseTo(12, 6);
+    expect(ary.datasets[0].data[2]).toBeCloseTo(12, 6);
+    expect(ary.datasets[0].data[3]).toBeCloseTo(0, 6);
+    expect(ary.datasets[1].label).toEqual('pet food');
+    expect(ary.datasets[1].data.length).toEqual(4);
+    expect(ary.datasets[1].data[0]).toBeCloseTo(12, 6);
+    expect(ary.datasets[1].data[1]).toBeCloseTo(12, 6);
+    expect(ary.datasets[1].data[2]).toBeCloseTo(12, 6);
+    expect(ary.datasets[1].data[3]).toBeCloseTo(12, 6);
+    expect(ary.datasets[2].label).toEqual('Phon');
+    expect(ary.datasets[2].data.length).toEqual(4);
+    expect(ary.datasets[2].data[0]).toBeCloseTo(12, 6);
+    expect(ary.datasets[2].data[1]).toBeCloseTo(12, 6);
+    expect(ary.datasets[2].data[2]).toBeCloseTo(12, 6);
+    expect(ary.datasets[2].data[3]).toBeCloseTo(0, 6);
+
+    await clickButton(driver, "chooseViewDetailTypeCategorised");
+
+    ary = await getDataDumpFromPage(driver, "expenseChart");
+    // writeTestCode(ary);
+
+    expect(ary.labels.length).toEqual(4);
     expect(ary.labels[0]).toEqual("Sun Apr 01 2018");
     expect(ary.labels[1]).toEqual("Tue May 01 2018");
     expect(ary.labels[2]).toEqual("Fri Jun 01 2018");
@@ -251,6 +281,36 @@ describe(testName, () => {
 
     await gotoTabPage(driver, incomesTag);
     await clickButton(driver, "chooseViewFrequencyTypeMonthly");
+
+    ary = await getDataDumpFromPage(driver, "incomeChart");
+    // writeTestCode(ary);
+
+    expect(ary.labels.length).toEqual(4);
+    expect(ary.labels[0]).toEqual('Sun Apr 01 2018');
+    expect(ary.labels[1]).toEqual('Tue May 01 2018');
+    expect(ary.labels[2]).toEqual('Fri Jun 01 2018');
+    expect(ary.labels[3]).toEqual('Sun Jul 01 2018');
+    expect(ary.datasets.length).toEqual(3);
+    expect(ary.datasets[0].label).toEqual('PRn1');
+    expect(ary.datasets[0].data.length).toEqual(4);
+    expect(ary.datasets[0].data[0]).toBeCloseTo(10, 6);
+    expect(ary.datasets[0].data[1]).toBeCloseTo(0, 6);
+    expect(ary.datasets[0].data[2]).toBeCloseTo(0, 6);
+    expect(ary.datasets[0].data[3]).toBeCloseTo(0, 6);
+    expect(ary.datasets[1].label).toEqual('PRn2');
+    expect(ary.datasets[1].data.length).toEqual(4);
+    expect(ary.datasets[1].data[0]).toBeCloseTo(10, 6);
+    expect(ary.datasets[1].data[1]).toBeCloseTo(10, 6);
+    expect(ary.datasets[1].data[2]).toBeCloseTo(10, 6);
+    expect(ary.datasets[1].data[3]).toBeCloseTo(0, 6);
+    expect(ary.datasets[2].label).toEqual('PRn3');
+    expect(ary.datasets[2].data.length).toEqual(4);
+    expect(ary.datasets[2].data[0]).toBeCloseTo(10, 6);
+    expect(ary.datasets[2].data[1]).toBeCloseTo(0, 6);
+    expect(ary.datasets[2].data[2]).toBeCloseTo(0, 6);
+    expect(ary.datasets[2].data[3]).toBeCloseTo(0, 6);
+
+    await clickButton(driver, "chooseViewDetailTypeCategorised");
 
     ary = await getDataDumpFromPage(driver, "incomeChart");
     // writeTestCode(ary);

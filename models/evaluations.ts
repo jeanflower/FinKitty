@@ -4757,6 +4757,9 @@ function processTransactionMoment(
     let fromWords = t.FROM.split(separator);
     fromWords = replaceCategoryWithAssetNames(fromWords, model);
     for (const fromWord of fromWords) {
+      if (fromWord === '') {
+        continue;
+      }
       let toWords: string[] = [];
       if (t.TO !== "") {
         toWords = t.TO.split(separator);
@@ -7257,7 +7260,7 @@ export function getEvaluations(
       name: model.name,
       assets: model.assets.filter((a) => {
         return !a.NAME.includes(generatedRecurrence);
-      }), // TODO remove recurring bond assets
+      }), 
       triggers: model.triggers,
       expenses: model.expenses,
       incomes: model.incomes,
@@ -7266,7 +7269,7 @@ export function getEvaluations(
       transactions: model.transactions.filter((t) => {
         return !t.FROM.includes(generatedRecurrence) &&
           !t.TO.includes(generatedRecurrence);
-      }), // TODO remove recurring bond assets,  // TODO remove recurring bond transactions
+      }), 
       settings: model.settings.map((s)=>{
         if (s.NAME !== roiStart) {
           return s;
@@ -7321,6 +7324,7 @@ export function getEvaluations(
       adjustedModel,
       adjustedEvals,
     );
+    
     // console.log(`planningData from 1st run = ${showObj(planningData)}`);
 
     for (const t of model.transactions) {

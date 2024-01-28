@@ -25,6 +25,10 @@ import {
   dot,
   annually,
   weekly,
+  assetsView,
+  expensesView,
+  incomesView,
+  taxView,
 } from "../localization/stringConstants";
 import {
   Context,
@@ -529,7 +533,6 @@ function ensureDateValueMapsExist(
 }
 
 function getSettingsValues(viewSettings: ViewSettings) {
-  const detail: string = viewSettings.getViewSetting(viewDetail, fineDetail);
   const v = getDisplayedView();
   const frequency: string = viewSettings.getViewSetting(
     `${viewFrequency}${v?.lc}`,
@@ -554,7 +557,6 @@ function getSettingsValues(viewSettings: ViewSettings) {
   );
   const taxChartNet = taxChartNetString === "Y";
   return {
-    detail,
     frequency,
     taxChartType,
     taxChartPerson,
@@ -770,7 +772,7 @@ export function makeChartData(
 
   const categoryCache = new Map<string, string>();
 
-  const { detail, frequency, taxChartType, taxChartPerson, taxChartNet } =
+  const { frequency, taxChartType, taxChartPerson, taxChartNet } =
     getSettingsValues(viewSettings);
   const showAllAssets = viewSettings.getShowAll(Context.Asset);
   const showAllDebts = viewSettings.getShowAll(Context.Debt);
@@ -1097,7 +1099,8 @@ export function makeChartData(
   allDates.shift();
 
   const taxValueSources = assetOrDebtValueSources;
-  if (detail === coarseDetail || detail === totalDetail) {
+  const assetDetail = viewSettings.getViewSetting(viewDetail, coarseDetail, assetsView); // TODO debtsView?
+  if (assetDetail === coarseDetail || assetDetail === totalDetail) {
     // log('gather chart data into categories');
     const dateNameValueMap = typeDateNameValueMap.get("assetOrDebtFocus");
     if (dateNameValueMap !== undefined) {
@@ -1133,7 +1136,9 @@ export function makeChartData(
       typeDateNameValueMap.set(evaluationType.expense, focusItems.map);
     }
   }
-  if (detail === coarseDetail || detail === totalDetail) {
+
+  const expenseDetail = viewSettings.getViewSetting(viewDetail, coarseDetail, expensesView);
+  if (expenseDetail === coarseDetail || expenseDetail === totalDetail) {
     const dateNameValueMap = typeDateNameValueMap.get(evaluationType.expense);
     if (dateNameValueMap !== undefined) {
       const categories = assignCategories(
@@ -1162,7 +1167,9 @@ export function makeChartData(
       typeDateNameValueMap.set(evaluationType.income, focusItems.map);
     }
   }
-  if (detail === coarseDetail || detail === totalDetail) {
+
+  const incomeDetail = viewSettings.getViewSetting(viewDetail, coarseDetail, incomesView);
+  if (incomeDetail === coarseDetail || incomeDetail === totalDetail) {
     // unfocussed income views can have coarse views
     const dateNameValueMap = typeDateNameValueMap.get(evaluationType.income);
     if (dateNameValueMap !== undefined) {
@@ -1233,7 +1240,7 @@ export function makeChartData(
       aDTAssetChartNames.assetChartNames,
       model.settings,
       false, // don't negate
-      detail === totalDetail,
+      assetDetail === totalDetail,
     );
 
     result.debtData = makeChartDataPoints(
@@ -1242,12 +1249,13 @@ export function makeChartData(
       aDTDebtChartNames.debtChartNames,
       model.settings,
       true, // negate values
-      detail === totalDetail,
+      assetDetail === totalDetail, // TODO debt?
     );
 
     result.totalTaxPaid = taxTotal;
   }
 
+  const taxDetail = viewSettings.getViewSetting(viewDetail, coarseDetail, taxView);
   const mapForTaxChart = typeDateNameValueMap.get("tax");
   if (mapForTaxChart !== undefined) {
     logMapOfMap(mapForTaxChart);
@@ -1257,7 +1265,7 @@ export function makeChartData(
       taxValueSources,
       model.settings,
       false, // don't negate
-      detail === totalDetail,
+      taxDetail === totalDetail,
     );
   }
 
@@ -1273,7 +1281,7 @@ export function makeChartData(
       expenseNames,
       model.settings,
       false, // don't negate
-      detail === totalDetail,
+      expenseDetail === totalDetail,
     );
   }
   const incomeDateNameValueMap = typeDateNameValueMap.get(
@@ -1286,7 +1294,7 @@ export function makeChartData(
       incomeNames,
       model.settings,
       false, // don't negate
-      detail === totalDetail,
+      incomeDetail === totalDetail,
     );
   }
 

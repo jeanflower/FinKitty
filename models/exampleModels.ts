@@ -476,10 +476,13 @@ export function getModelCoarseAndFineForMigration(): ModelData {
   };
 
   const settings = defaultModelSettingsForMigration;
-  setSetting(settings, viewDetail, coarseDetail, viewType);
 
   allViews.map((v) => {
     setSetting(settings, `${viewFrequency}${v.lc}`, monthly, viewType);
+  });
+
+  allViews.map((v) => {
+    setSetting(settings, `${viewDetail}${v.lc}`, coarseDetail, viewType);
   });
 
   const model: ModelData = {

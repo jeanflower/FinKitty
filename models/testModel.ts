@@ -93,12 +93,14 @@ const browserTestSettingsForMigration: Setting[] = [
       VALUE: annually, // could be 'Monthly'
     };
   }),
-  [
-    {
+  allViews.map((v) => {
+    return {
       ...viewSetting,
-      NAME: viewDetail,
+      NAME: `${viewDetail}${v.lc}`,
       VALUE: fineDetail, // could be coarse
-    },
+    };
+  }),
+  [
     {
       ...simpleSetting,
       NAME: cpi,

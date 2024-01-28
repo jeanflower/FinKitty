@@ -1,4 +1,4 @@
-import { allItems, viewDetail, coarseDetail, chartViewType, chartReductions } from "../localization/stringConstants";
+import { allItems, viewDetail, coarseDetail, chartViewType, chartReductions, expensesView, assetsView, fineDetail, bondMature, generatedRecurrence } from "../localization/stringConstants";
 import { Asset, AssetOrDebtVal, ChartData, DataForView, Evaluation, Expense, ExpenseVal, Income, IncomeVal, ModelData, ReportDatum, Setting, SettingVal } from "../types/interfaces";
 import { Context, log, showObj } from "../utils/utils";
 import { getDefaultViewSettings } from "../utils/viewUtils";
@@ -46,7 +46,7 @@ export function getPlanningTableData(
         // console.log(`pscd = ${showObj(pscd)}`);
         if (!pscd["label"].includes('growth') && pscd.data[bondsIdx] < 0) {
           // console.log(`pscd.data[bondsIdx] = ${pscd.data[bondsIdx]}`);
-          // console.log(`increase ${bondsReleaseFunds} to ${bondsReleaseFunds - pscd.data[bondsIdx]}`);
+          // console.log(`increase bondsReleaseFunds from ${bondsReleaseFunds} using ${-pscd.data[bondsIdx]} to ${bondsReleaseFunds - pscd.data[bondsIdx]}`);
           bondsReleaseFunds += -pscd.data[bondsIdx];
         }
       });
@@ -96,7 +96,7 @@ export function getPlanningTableData(
   return tableData;
 }
 
-export function getAnnualPlanningSurplusData(
+export function getAnnualPlanningAssetData(
   model: ModelData,
   evals: {
     evaluations: Evaluation[];
@@ -108,7 +108,6 @@ export function getAnnualPlanningSurplusData(
     reportData: ReportDatum[];
   },
 ){
-  log(`getAnnualPlanningSurplusData received ${evals.evaluations.length} evaluations`);
   const viewSettings = getDefaultViewSettings();
   const chartData: DataForView = makeChartData(
     model,
@@ -122,9 +121,10 @@ export function getAnnualPlanningSurplusData(
   planningViewSettings.toggleViewFilter(Context.Expense, allItems);
   planningViewSettings.toggleViewFilter(Context.Expense, "Basic"); // the Planning page works with this category
   planningViewSettings.toggleViewFilter(Context.Expense, "Leisure"); // the Planning page works with this category
+  planningViewSettings.setViewSetting(`${viewDetail}${expensesView.lc}`, coarseDetail);
   planningViewSettings.toggleViewFilter(Context.Asset, allItems);
   planningViewSettings.toggleViewFilter(Context.Asset, "Bonds"); // the Planning page works with this category
-  planningViewSettings.setViewSetting(viewDetail, coarseDetail);
+  planningViewSettings.setViewSetting(`${viewDetail}${assetsView.lc}`, fineDetail);
   planningViewSettings.setViewSetting(chartViewType, chartReductions);
 
   const planningChartData: DataForView = makeChartData(
@@ -136,10 +136,95 @@ export function getAnnualPlanningSurplusData(
     planningChartData.labels,
     planningChartData.expensesData,
   );
+
+  for(const assetData of planningChartData.assetData) {
+    const assetChangeName = assetData.item.NAME;
+    if (assetChangeName.includes('growth')) {
+      continue;
+    }
+
+    // log(`before change one of planningChartData.assetData = ${showObj(assetData)}`);
+
+    const nonZeroValues = assetData.chartDataPoints.filter((cdp) => {
+      return cdp.y !== 0.0;
+    })
+    if (nonZeroValues.length > 1) {
+      console.log(`nonZeroValues = ${showObj(nonZeroValues)}`);
+      throw new Error(`bond maturing in multiple years?`);
+      //continue;
+    } else if (nonZeroValues.length === 0) {
+      log(`bond never maturing?`);
+      continue;
+    }
+    const y = nonZeroValues[0].y;
+    assetData.chartDataPoints.map((cdp) => {
+      cdp.y = 0;
+    });
+
+    let year = '1999';
+    
+    const parts = assetChangeName.split(bondMature);
+    // log(`parts[0] = ${parts[0]}`);
+    if (parts[0].includes(generatedRecurrence)) {
+      // generated recurrences explicitly include the year they are for
+      year = parts[0].split(generatedRecurrence)[1];
+    } else {
+      // for single bond assets we need to get the year from the generator
+      const gen = model.generators.find((g) => {
+        return g.NAME === parts[0];
+      })
+      if (gen === undefined) {
+        // throw new Error(`can't find matching generator`);
+        log(`can't find matching generator`);
+        continue;
+      }
+      year = gen.DETAILS.YEAR;
+    }
+    // log(`amount = ${y} for year = ${year}`);
+    for (let idx = 0; idx < planningChartData.labels.length; idx++) {
+      const colLabel = planningChartData.labels[idx];
+      const colDate = new Date(colLabel);
+      if (`${colDate.getFullYear() + 1}` === year) {
+        assetData.chartDataPoints[idx].y = y;
+      }
+    }
+    // log(`after change one of planningChartData.assetData = ${showObj(assetData)}`);
+  }
+
   const planningAssetsChartData = makeBarData(
     planningChartData.labels,
     planningChartData.assetData,
   );
+
+  return {
+    expensesChartData,
+    planningExpensesChartData,
+    planningAssetsChartData,
+  }
+}
+
+export function getAnnualPlanningSurplusData(
+  model: ModelData,
+  evals: {
+    evaluations: Evaluation[];
+    todaysAssetValues: Map<Asset, AssetOrDebtVal>;
+    todaysDebtValues: Map<Asset, AssetOrDebtVal>;
+    todaysIncomeValues: Map<Income, IncomeVal>;
+    todaysExpenseValues: Map<Expense, ExpenseVal>;
+    todaysSettingValues: Map<Setting, SettingVal>;
+    reportData: ReportDatum[];
+  },
+){
+  // log(`getAnnualPlanningSurplusData received ${evals.evaluations.length} evaluations`);
+  const {
+    expensesChartData,
+    planningExpensesChartData,
+    planningAssetsChartData,
+  } = getAnnualPlanningAssetData(
+    model, 
+    evals,
+  );
+
   const tableData = getPlanningTableData(
     expensesChartData,
     planningExpensesChartData,

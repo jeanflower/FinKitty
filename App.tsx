@@ -52,6 +52,10 @@ import {
   weekly,
   monitoringView,
   chartReductions,
+  fineDetail,
+  bondMature,
+  generatedRecurrence,
+  expensesView,
 } from "./localization/stringConstants";
 import {
   AssetOrDebtVal,
@@ -167,6 +171,7 @@ import { setUserID, getUserID } from "./utils/user";
 import { deleteItemsFromModelInternal } from "./utils/appActions";
 import { getAppVersion } from "./utils/appVersion";
 import { getVarVal } from "./models/modelQueries";
+import { getAnnualPlanningAssetData } from "models/planningData";
 
 let modelName = "";
 
@@ -731,29 +736,11 @@ async function refreshDataInternal(
     const debtChartData = makeBarData(chartData.labels, debtData);
     const taxChartData = makeBarData(chartData.labels, taxData);
 
-    const planningViewSettings = getDefaultViewSettings();
-    planningViewSettings.setModel(modelProcessed);
-    planningViewSettings.toggleViewFilter(Context.Expense, allItems);
-    planningViewSettings.toggleViewFilter(Context.Expense, "Basic"); // the Planning page works with this category
-    planningViewSettings.toggleViewFilter(Context.Expense, "Leisure"); // the Planning page works with this category
-    planningViewSettings.toggleViewFilter(Context.Asset, allItems);
-    planningViewSettings.toggleViewFilter(Context.Asset, "Bonds"); // the Planning page works with this category
-    planningViewSettings.setViewSetting(viewDetail, coarseDetail);
-    planningViewSettings.setViewSetting(chartViewType, chartReductions);
-
-    const planningChartData: DataForView = makeChartData(
-      modelProcessed,
-      planningViewSettings,
+    const planningData = getAnnualPlanningAssetData(
+      modelProcessed, 
       evaluationsAndVals,
     );
-    const planningExpensesChartData = makeBarData(
-      planningChartData.labels,
-      planningChartData.expensesData,
-    );
-    const planningAssetsChartData = makeBarData(
-      planningChartData.labels,
-      planningChartData.assetData,
-    );
+    
     if (printDebug()) {
       console.log(
         `evaluationsAndVals.reportData = ${JSON.stringify(
@@ -777,8 +764,8 @@ async function refreshDataInternal(
           assetChartData,
           debtChartData,
           taxChartData,
-          planningExpensesChartData,
-          planningAssetsChartData,
+          planningExpensesChartData: planningData.planningExpensesChartData,
+          planningAssetsChartData: planningData.planningAssetsChartData,
           modelNamesData: modelNames,
           todaysAssetValues: todaysAssetValues,
           todaysDebtValues: todaysDebtValues,
