@@ -395,4 +395,16 @@ export interface ViewCallbacks {
       HINT: string;
     },
   ) => Promise<void>;
+
+  attemptRename: (
+    doChecks: boolean,
+    old: string,
+    replacement: string,
+    showAlert: (message: string) => void,
+    refreshData: (
+      refreshModel: boolean,
+      refreshChart: boolean,
+      sourceID: number,
+    ) => Promise<void>,
+  ) => Promise<string>,
 }

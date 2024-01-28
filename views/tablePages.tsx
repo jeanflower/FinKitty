@@ -113,7 +113,6 @@ import { textEditor } from "react-data-grid";
 import CashValueFormatter from "./reactComponents/CashValueFormatter";
 import { minimalModel } from "../models/minimalModel";
 import { makeModelFromJSON } from "../models/modelFromJSON";
-import { attemptRename } from "../utils/appActions";
 import { getTodaysDate, setSetting } from "../models/modelUtils";
 import dateFormat from "dateformat";
 import CashExpressionFormatter from "./reactComponents/CashExpressionFormatter";
@@ -158,6 +157,17 @@ function handleExpenseGridRowsUpdated(
   doChecks: boolean,
   rows: any[],
   submitExpense: (expenseInput: Expense, modelData: ModelData) => Promise<void>,
+  attemptRename: (
+    doChecks: boolean,
+    old: string,
+    replacement: string,
+    showAlert: (message: string) => void,
+    refreshData: (
+      refreshModel: boolean,
+      refreshChart: boolean,
+      sourceID: number,
+    ) => Promise<void>,
+  ) => Promise<string>,
   refreshData: (
     refreshModel: boolean,
     refreshChart: boolean,
@@ -214,7 +224,6 @@ function handleExpenseGridRowsUpdated(
       }
       log("rename expense");
       attemptRename(
-        model,
         doChecks,
         oldRow.NAME,
         newRow.NAME,
@@ -368,6 +377,17 @@ function handleIncomeGridRowsUpdated(
   doChecks: boolean,
   rows: any[],
   submitIncome: (incomeInput: Income, modelData: ModelData) => Promise<boolean>,
+  attemptRename: (
+    doChecks: boolean,
+    old: string,
+    replacement: string,
+    showAlert: (message: string) => void,
+    refreshData: (
+      refreshModel: boolean,
+      refreshChart: boolean,
+      sourceID: number,
+    ) => Promise<void>,
+  ) => Promise<string>,
   refreshData: (
     refreshModel: boolean,
     refreshChart: boolean,
@@ -426,7 +446,6 @@ function handleIncomeGridRowsUpdated(
         }
       }
       attemptRename(
-        model,
         doChecks,
         oldRow.NAME,
         newRow.NAME,
@@ -501,6 +520,17 @@ function handleTriggerGridRowsUpdated(
   doChecks: boolean,
   rows: any[],
   submitTrigger: (triggerInput: Trigger, modelData: ModelData) => Promise<void>,
+  attemptRename: (
+    doChecks: boolean,
+    old: string,
+    replacement: string,
+    showAlert: (message: string) => void,
+    refreshData: (
+      refreshModel: boolean,
+      refreshChart: boolean,
+      sourceID: number,
+    ) => Promise<void>,
+  ) => Promise<string>,
   refreshData: (
     refreshModel: boolean,
     refreshChart: boolean,
@@ -551,7 +581,6 @@ function handleTriggerGridRowsUpdated(
         }
       }
       attemptRename(
-        model,
         doChecks,
         oldRow.NAME,
         newRow.NAME,
@@ -601,6 +630,17 @@ function handleAssetGridRowsUpdated(
   doChecks: boolean,
   rows: any[],
   submitAsset: (assetInput: Asset, modelData: ModelData) => Promise<void>,
+  attemptRename: (
+    doChecks: boolean,
+    old: string,
+    replacement: string,
+    showAlert: (message: string) => void,
+    refreshData: (
+      refreshModel: boolean,
+      refreshChart: boolean,
+      sourceID: number,
+    ) => Promise<void>,
+  ) => Promise<string>,
   refreshData: (
     refreshModel: boolean,
     refreshChart: boolean,
@@ -667,7 +707,7 @@ function handleAssetGridRowsUpdated(
         }
       }
     }
-    attemptRename(model, doChecks, oldVal, newVal, showAlert, refreshData);
+    attemptRename(doChecks, oldVal, newVal, showAlert, refreshData);
     return;
   }
 
@@ -782,6 +822,17 @@ function handleTransactionGridRowsUpdated(
     transactionInput: Transaction,
     modelData: ModelData,
   ) => Promise<void>,
+  attemptRename: (
+    doChecks: boolean,
+    old: string,
+    replacement: string,
+    showAlert: (message: string) => void,
+    refreshData: (
+      refreshModel: boolean,
+      refreshChart: boolean,
+      sourceID: number,
+    ) => Promise<void>,
+  ) => Promise<string>,
   refreshData: (
     refreshModel: boolean,
     refreshChart: boolean,
@@ -886,7 +937,7 @@ function handleTransactionGridRowsUpdated(
           }
         }
         log(`attempt rename`);
-        attemptRename(model, doChecks, oldtName, tName, showAlert, refreshData);
+        attemptRename(doChecks, oldtName, tName, showAlert, refreshData);
       }
       return;
     }
@@ -940,6 +991,17 @@ function handleSettingGridRowsUpdated(
       HINT: string;
     },
   ) => Promise<void>,
+  attemptRename: (
+    doChecks: boolean,
+    old: string,
+    replacement: string,
+    showAlert: (message: string) => void,
+    refreshData: (
+      refreshModel: boolean,
+      refreshChart: boolean,
+      sourceID: number,
+    ) => Promise<void>,
+  ) => Promise<string>,
   args: any,
 ) {
   // log(`handleTransactionGridRowsUpdated ${JSON.stringify(args)}`);
@@ -994,7 +1056,6 @@ function handleSettingGridRowsUpdated(
       }
 
       attemptRename(
-        model,
         doChecks,
         oldRow.NAME,
         newRow.NAME,
@@ -1371,6 +1432,7 @@ export function assetsOrDebtsTableDiv(
                 doChecks,
                 rowData,
                 parentCallbacks.submitAsset,
+                parentCallbacks.attemptRename,
                 parentCallbacks.refreshData,
                 args,
               );
@@ -1737,6 +1799,7 @@ export function transactionsTableDiv(
             doChecks,
             contents,
             parentCallbacks.submitTransaction,
+            parentCallbacks.attemptRename,
             parentCallbacks.refreshData,
             args,
           );
@@ -1913,6 +1976,7 @@ function triggersTableDiv(
                 doChecks,
                 trigData,
                 parentCallbacks.submitTrigger,
+                parentCallbacks.attemptRename,
                 parentCallbacks.refreshData,
                 args,
               );
@@ -2118,6 +2182,7 @@ function incomesTableDiv(
                 doChecks,
                 incData,
                 parentCallbacks.submitIncome,
+                parentCallbacks.attemptRename,
                 parentCallbacks.refreshData,
                 args,
               );
@@ -2297,6 +2362,7 @@ function expensesTableDiv(
                 doChecks,
                 expData,
                 parentCallbacks.submitExpense,
+                parentCallbacks.attemptRename,
                 parentCallbacks.refreshData,
                 args,
               );
@@ -2865,6 +2931,7 @@ function customSettingsTable(
           constSettings,
           parentCallbacks.refreshData,
           parentCallbacks.editSetting,
+          parentCallbacks.attemptRename,
           args,
         );
       }}
@@ -2895,6 +2962,7 @@ function adjustSettingsTable(
           adjustSettings,
           parentCallbacks.refreshData,
           parentCallbacks.editSetting,
+          parentCallbacks.attemptRename,
           args,
         );
       }}
@@ -3024,6 +3092,7 @@ export function settingsTableDiv(
               contents,
               parentCallbacks.refreshData,
               parentCallbacks.editSetting,
+              parentCallbacks.attemptRename,
               args,
             );
           }}

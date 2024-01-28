@@ -327,6 +327,11 @@ export function attemptRenameLong(
     obj.DATE = replaceWholeString(obj.DATE, old, replacement);
     obj.STOP_DATE = replaceWholeString(obj.STOP_DATE, old, replacement);
   });
+  model.generators.forEach((obj) => {
+    Object.keys(obj.DETAILS).forEach((k) => {
+      obj.DETAILS[k] = replaceWholeString(obj.DETAILS[k], old, replacement);
+    })
+  })
   const message = checkForWordClashInModel(model, old, "still");
   /* istanbul ignore if */
   if (message.length > 0) {

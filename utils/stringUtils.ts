@@ -1306,9 +1306,26 @@ export function checkForWordClashInModel(
     .filter((obj) => {
       return obj.length > 0;
     });
+    const generatornMessages = model.generators
+    .map((obj) => {
+      return Object.keys(obj.DETAILS).map((k) => {
+        if (usesWholeWord(obj.DETAILS[k], replacement)) {
+          return (
+            `Generator '${obj.NAME}' has ` +
+            `details ${k} ${messageWord} called ${replacement}`
+          );
+        } else {
+          return '';
+        }
+      }).filter((obj) => {
+        return obj.length > 0;
+      });
+    }).filter((obj) => {
+      return obj.length > 0;
+    });
   let message =
     `${settingMessages} ${triggerMessages} ${assetMessages} ` +
-    `${incomeMessages} ${expenseMessages} ${transactionMessages}`;
+    `${incomeMessages} ${expenseMessages} ${transactionMessages} ${generatornMessages}`;
   if (message.length <= 7) {
     message = "";
   }

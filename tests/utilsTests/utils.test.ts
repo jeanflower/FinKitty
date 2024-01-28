@@ -1330,14 +1330,14 @@ describe("utils tests", () => {
           return m;
         },
         replacement: "",
-        outcome: `  Asset 'Cash' has quantity boo called    `,
+        outcome: `  Asset 'Cash' has quantity boo called     `,
       },
       {
         makeChange: (m: ModelData) => {
           return m;
         },
         replacement: CASH_ASSET_NAME,
-        outcome: `  Asset 'Cash' has name boo called Cash   `,
+        outcome: `  Asset 'Cash' has name boo called Cash    `,
       },
       {
         makeChange: (m: ModelData) => {
@@ -1347,7 +1347,7 @@ describe("utils tests", () => {
           });
         },
         replacement: "a",
-        outcome: `  Asset 'a' has name boo called a   `,
+        outcome: `  Asset 'a' has name boo called a    `,
       },
       {
         makeChange: (m: ModelData) => {
@@ -1357,7 +1357,7 @@ describe("utils tests", () => {
           });
         },
         replacement: "a",
-        outcome: `  Asset 'NoName' has category boo called a   `,
+        outcome: `  Asset 'NoName' has category boo called a    `,
       },
       {
         makeChange: (m: ModelData) => {
@@ -1367,7 +1367,7 @@ describe("utils tests", () => {
           });
         },
         replacement: "a",
-        outcome: `  Asset 'NoName' has start boo called a   `,
+        outcome: `  Asset 'NoName' has start boo called a    `,
       },
       {
         makeChange: (m: ModelData) => {
@@ -1377,7 +1377,7 @@ describe("utils tests", () => {
           });
         },
         replacement: "a",
-        outcome: `  Asset 'NoName' has value boo called a   `,
+        outcome: `  Asset 'NoName' has value boo called a    `,
       },
       {
         makeChange: (m: ModelData) => {
@@ -1387,7 +1387,7 @@ describe("utils tests", () => {
           });
         },
         replacement: "a",
-        outcome: `  Asset 'NoName' has value boo called a   `,
+        outcome: `  Asset 'NoName' has value boo called a    `,
       },
       {
         makeChange: (m: ModelData) => {
@@ -1397,7 +1397,7 @@ describe("utils tests", () => {
           });
         },
         replacement: "a",
-        outcome: `  Asset 'NoName' has quantity boo called a   `,
+        outcome: `  Asset 'NoName' has quantity boo called a    `,
       },
       {
         makeChange: (m: ModelData) => {
@@ -1407,7 +1407,7 @@ describe("utils tests", () => {
           });
         },
         replacement: "a",
-        outcome: `  Asset 'NoName' has growth boo called a   `,
+        outcome: `  Asset 'NoName' has growth boo called a    `,
       },
       {
         makeChange: (m: ModelData) => {
@@ -1417,7 +1417,7 @@ describe("utils tests", () => {
           });
         },
         replacement: "a",
-        outcome: `  Asset 'NoName' has liability boo called a   `,
+        outcome: `  Asset 'NoName' has liability boo called a    `,
       },
       {
         makeChange: (m: ModelData) => {
@@ -1427,7 +1427,7 @@ describe("utils tests", () => {
           });
         },
         replacement: "a",
-        outcome: `  Asset 'NoName' has purchase price boo called a   `,
+        outcome: `  Asset 'NoName' has purchase price boo called a    `,
       },
       {
         makeChange: (m: ModelData) => {
@@ -1437,7 +1437,7 @@ describe("utils tests", () => {
           });
         },
         replacement: "a",
-        outcome: `Setting 'a' has name boo called a     `,
+        outcome: `Setting 'a' has name boo called a      `,
       },
       {
         makeChange: (m: ModelData) => {
@@ -1447,7 +1447,7 @@ describe("utils tests", () => {
           });
         },
         replacement: "a",
-        outcome: `Setting 'NoName' has value boo called a     `,
+        outcome: `Setting 'NoName' has value boo called a      `,
       },
       {
         makeChange: (m: ModelData) => {
@@ -1458,7 +1458,7 @@ describe("utils tests", () => {
           });
         },
         replacement: "a",
-        outcome: ` Trigger 'a' has name boo called a    `,
+        outcome: ` Trigger 'a' has name boo called a     `,
       },
       {
         makeChange: (m: ModelData) => {
@@ -1468,7 +1468,7 @@ describe("utils tests", () => {
           });
         },
         replacement: "a",
-        outcome: `   Income 'a' has name boo called a  `,
+        outcome: `   Income 'a' has name boo called a   `,
       },
       {
         makeChange: (m: ModelData) => {
@@ -1478,7 +1478,7 @@ describe("utils tests", () => {
           });
         },
         replacement: "a",
-        outcome: `   Income 'NoName' has category boo called a  `,
+        outcome: `   Income 'NoName' has category boo called a   `,
       },
       {
         makeChange: (m: ModelData) => {
@@ -1488,7 +1488,7 @@ describe("utils tests", () => {
           });
         },
         replacement: "a",
-        outcome: `   Income 'NoName' has start boo called a  `,
+        outcome: `   Income 'NoName' has start boo called a   `,
       },
       {
         makeChange: (m: ModelData) => {
@@ -1498,7 +1498,7 @@ describe("utils tests", () => {
           });
         },
         replacement: "a",
-        outcome: `   Income 'NoName' has end boo called a  `,
+        outcome: `   Income 'NoName' has end boo called a   `,
       },
       {
         makeChange: (m: ModelData) => {
@@ -1508,7 +1508,7 @@ describe("utils tests", () => {
           });
         },
         replacement: "a",
-        outcome: `   Income 'NoName' has value boo called a  `,
+        outcome: `   Income 'NoName' has value boo called a   `,
       },
       {
         makeChange: (m: ModelData) => {
@@ -1518,7 +1518,7 @@ describe("utils tests", () => {
           });
         },
         replacement: "a",
-        outcome: `   Income 'NoName' has value set boo called a  `,
+        outcome: `   Income 'NoName' has value set boo called a   `,
       },
       {
         makeChange: (m: ModelData) => {
@@ -1528,7 +1528,7 @@ describe("utils tests", () => {
           });
         },
         replacement: "a",
-        outcome: `   Income 'NoName' has liability boo called a  `,
+        outcome: `   Income 'NoName' has liability boo called a   `,
       },
       {
         makeChange: (m: ModelData) => {
@@ -1538,7 +1538,7 @@ describe("utils tests", () => {
           });
         },
         replacement: "a",
-        outcome: `    Expense 'a' has name boo called a `,
+        outcome: `    Expense 'a' has name boo called a  `,
       },
       {
         makeChange: (m: ModelData) => {
@@ -1548,7 +1548,7 @@ describe("utils tests", () => {
           });
         },
         replacement: "a",
-        outcome: `    Expense 'NoName' has category boo called a `,
+        outcome: `    Expense 'NoName' has category boo called a  `,
       },
       {
         makeChange: (m: ModelData) => {
@@ -1558,7 +1558,7 @@ describe("utils tests", () => {
           });
         },
         replacement: "a",
-        outcome: `    Expense 'NoName' has start boo called a `,
+        outcome: `    Expense 'NoName' has start boo called a  `,
       },
       {
         makeChange: (m: ModelData) => {
@@ -1568,7 +1568,7 @@ describe("utils tests", () => {
           });
         },
         replacement: "a",
-        outcome: `    Expense 'NoName' has end boo called a `,
+        outcome: `    Expense 'NoName' has end boo called a  `,
       },
       {
         makeChange: (m: ModelData) => {
@@ -1578,7 +1578,7 @@ describe("utils tests", () => {
           });
         },
         replacement: "a",
-        outcome: `    Expense 'NoName' has value boo called a `,
+        outcome: `    Expense 'NoName' has value boo called a  `,
       },
       {
         makeChange: (m: ModelData) => {
@@ -1588,7 +1588,7 @@ describe("utils tests", () => {
           });
         },
         replacement: "a",
-        outcome: `    Expense 'NoName' has value set boo called a `,
+        outcome: `    Expense 'NoName' has value set boo called a  `,
       },
       {
         makeChange: (m: ModelData) => {
@@ -1598,7 +1598,7 @@ describe("utils tests", () => {
           });
         },
         replacement: "a",
-        outcome: `     Transaction 'a' has name boo called a`,
+        outcome: `     Transaction 'a' has name boo called a `,
       },
       {
         makeChange: (m: ModelData) => {
@@ -1608,7 +1608,7 @@ describe("utils tests", () => {
           });
         },
         replacement: "a",
-        outcome: `     Transaction 'NoName' has from boo called a`,
+        outcome: `     Transaction 'NoName' has from boo called a `,
       },
       {
         makeChange: (m: ModelData) => {
@@ -1618,7 +1618,7 @@ describe("utils tests", () => {
           });
         },
         replacement: "a",
-        outcome: `     Transaction 'NoName' has from value boo called a`,
+        outcome: `     Transaction 'NoName' has from value boo called a `,
       },
       {
         makeChange: (m: ModelData) => {
@@ -1628,7 +1628,7 @@ describe("utils tests", () => {
           });
         },
         replacement: "a",
-        outcome: `     Transaction 'NoName' has to boo called a`,
+        outcome: `     Transaction 'NoName' has to boo called a `,
       },
       {
         makeChange: (m: ModelData) => {
@@ -1638,7 +1638,7 @@ describe("utils tests", () => {
           });
         },
         replacement: "a",
-        outcome: `     Transaction 'NoName' has to value boo called a`,
+        outcome: `     Transaction 'NoName' has to value boo called a `,
       },
       {
         makeChange: (m: ModelData) => {
@@ -1648,7 +1648,7 @@ describe("utils tests", () => {
           });
         },
         replacement: "a",
-        outcome: `     Transaction 'NoName' has date boo called a`,
+        outcome: `     Transaction 'NoName' has date boo called a `,
       },
       {
         makeChange: (m: ModelData) => {
@@ -1658,7 +1658,7 @@ describe("utils tests", () => {
           });
         },
         replacement: "a",
-        outcome: `     Transaction 'NoName' has stop date boo called a`,
+        outcome: `     Transaction 'NoName' has stop date boo called a `,
       },
     ].map(
       (x: {

@@ -159,10 +159,10 @@ import Image from "next/image";
 import { minimalModel } from "./models/minimalModel";
 import { makeModelFromJSON } from "./models/modelFromJSON";
 import { setUserID, getUserID } from "./utils/user";
-import { deleteItemsFromModelInternal } from "./utils/appActions";
+import { attemptRename, deleteItemsFromModelInternal } from "./utils/appActions";
 import { getAppVersion } from "./utils/appVersion";
 import { getVarVal } from "./models/modelQueries";
-import { getAnnualPlanningAssetData } from "models/planningData";
+import { getAnnualPlanningAssetData } from "./models/planningData";
 
 let modelName = "";
 
@@ -2270,6 +2270,26 @@ export class AppContent extends Component<AppProps, AppState> {
         },
         submitGenerator: async (generatorInput: Generator) => {
           submitGenerator(generatorInput, this.state.modelDataRaw);
+        },
+        attemptRename: async (
+          doChecks: boolean,
+          old: string,
+          replacement: string,
+          showAlert: (message: string) => void,
+          refreshData: (
+            refreshModel: boolean,
+            refreshChart: boolean,
+            sourceID: number,
+          ) => Promise<void>,
+        ) => {
+          return attemptRename(
+            this.state.modelDataRaw,
+            doChecks,
+            old,
+            replacement,
+            showAlert,
+            refreshData,
+          );
         },
         editSetting: async (s: {
           NAME: string,
