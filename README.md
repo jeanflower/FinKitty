@@ -154,6 +154,10 @@ or change to a minor or major version change, or discard.
 
 Deploys to a heroku instance
 
+### Security warnings
+
+During deploy, you'll see a security audit.  Some warnings (e.g. lodash is used by skott) are only affecting the dev environment.  To see an audit of security on the production deployed packages, use `npm audit --omit=dev`.
+
 ### `npm run build`
 
 Builds the app for production to the `build` folder.<br>
