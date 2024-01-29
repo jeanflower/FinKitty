@@ -84,7 +84,6 @@ import {
   unSuppressLogs,
 } from "../../utils/utils";
 import {
-  getMinimalModelCopySettings,
   getTestEvaluations,
 } from "../algoTests/algoTestUtils";
 import { diffModels } from "../../models/diffModels";
