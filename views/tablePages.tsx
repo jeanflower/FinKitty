@@ -3172,7 +3172,6 @@ export function reportDiv(
   // log(`do populate reportView`);
   // log(`display report of length ${reportData.length}`);
   const unindexedResult = reportData
-    .slice(0, 100)
     .filter((d) => {
       return d.name !== "Estate final value";
     })
