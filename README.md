@@ -158,6 +158,8 @@ Deploys to a heroku instance
 
 During deploy, you'll see a security audit.  Some warnings (e.g. lodash is used by skott) are only affecting the dev environment.  To see an audit of security on the production deployed packages, use `npm audit --omit=dev`.
 
+Security messages may lead you to want to update next package.  As of Jan 2024, upgrading next to latest gives jest errors. See https://github.com/vercel/next.js/issues/56158
+
 ### `npm run build`
 
 Builds the app for production to the `build` folder.<br>
