@@ -1144,12 +1144,12 @@ async function submitROISetting(
   });
   log(`existing was ${showObj(existing)}`);
   */
-  let warnOfChange = false;
 
   if (viewState !== undefined) {
     // if you're changing the date range for viewing,
     // check to proceed if the range isn't large and the frequency is fine.
     if (setting.NAME === roiStart || setting.NAME === roiEnd) {
+      let warnOfChange = false;
       const numYears = getNumYears(modelData);
       const freq = viewState.getViewSetting(viewFrequency, "noValueFound");
       if (freq === weekly && numYears >= 5) {
@@ -1158,24 +1158,25 @@ async function submitROISetting(
       if (freq === monthly && numYears >= 20) {
         warnOfChange = true;
       }
+      if (warnOfChange) {
+        if (
+          !window.confirm(
+            `are you sure you want this range with ${freq === monthly ? 'monthly' : 'weekly'}-view charts?`,
+          )
+        ) {
+          // log('returning false from submitNewSetting');
+          const existing = modelData.settings.find((s) => {
+            return s.NAME === setting.NAME;
+          });
+          return {
+            updated: false,
+            value: existing ? existing.VALUE : "undefined",
+          };
+        }
+      }
     }
   }
-  if (warnOfChange) {
-    if (
-      !window.confirm(
-        "are you sure you want this range with weekly-view charts?",
-      )
-    ) {
-      // log('returning false from submitNewSetting');
-      const existing = modelData.settings.find((s) => {
-        return s.NAME === setting.NAME;
-      });
-      return {
-        updated: false,
-        value: existing ? existing.VALUE : "undefined",
-      };
-    }
-  }
+
   await submitNewSettingLSM(
     setting,
     modelName,
