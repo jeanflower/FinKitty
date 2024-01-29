@@ -643,6 +643,14 @@ async function refreshDataInternal(
       viewSettings.getViewSetting(viewFrequency, monthly),
     );
     evaluationsAndVals = getEvaluations(modelProcessed, helper);
+
+    if(evaluationsAndVals.evaluations.length === 0 &&
+      evaluationsAndVals.reportData.length === 1 &&
+      evaluationsAndVals.reportData[0].name === 'Error from evaluations'
+      ) {
+      alert(evaluationsAndVals.reportData[0].source);
+    }
+
     if (reactAppComponent.state.saveReportAsCSV) {
       const data = evaluationsAndVals.reportData;
 

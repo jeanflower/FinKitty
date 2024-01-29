@@ -3873,7 +3873,7 @@ function calculateFromChange(
       cgtPreWhole: number;
       cgtPreChange: number;
     }
-  | undefined {
+  | string {
   // log(`t = ${showObj(t)}`);
   // log(`t.FROM_VALUE = ${t.FROM_VALUE}`);
   /* istanbul ignore if */
@@ -3882,7 +3882,7 @@ function calculateFromChange(
     //throw new Error(
     //  `Error: conditional transaction to undefined value ${showObj(t)}`,
     //);
-    return undefined;
+    return `Error: conditional transaction to undefined value ${showObj(t)}`;
   }
 
   if (
@@ -3895,7 +3895,7 @@ function calculateFromChange(
     // as it's already >= 0
     // log(`no need to maintain ${t.TO} from ${t.FROM} `
     //   +`as targetValue = ${targetValue}`)
-    return undefined;
+    return '';
   }
 
   // log(`in calculateFromChange for ${t.NAME}, ${fromWord}`);
@@ -3903,7 +3903,7 @@ function calculateFromChange(
   /* istanbul ignore if */
   if (tFromValue === undefined) {
     log(`ERROR : can't interpret from value ${t.FROM_VALUE}`);
-    return undefined;
+    return `ERROR : can't interpret from value ${t.FROM_VALUE}`;
   }
   const tToValue = parseFloat(t.TO_VALUE);
 
@@ -4093,7 +4093,7 @@ function calculateFromChange(
       } else {
         // log(`don't sell more units than we have`);
         // log(`q = ${q}, numberUnits = ${numberUnits}`);
-        return undefined;
+        return '';
       }
     }
     // log(`set new quantity ${q} - ${numberUnits} = ${q - numberUnits}`);
@@ -4136,7 +4136,7 @@ function calculateFromChange(
       } else {
         // log(`don't apply transaction from ${fromWord} `
         //  +`because value ${preFromValue} < ${fromChange} `);
-        return undefined;
+        return '';
       }
     }
   }
@@ -4149,12 +4149,12 @@ function calculateFromChange(
       `Error: dont take more than income value ` +
         `${preFromValue} from income ${matchingIncome.NAME}`,
     );
-    return undefined;
+    return '';
   }
   if (matchingAsset && fromWord !== undefined) {
     if (!assetAllowedNegative(fromWord, matchingAsset) && preFromValue <= 0) {
       // log(`we cannot help`);
-      return undefined;
+      return '';
     }
   }
 
@@ -4411,7 +4411,7 @@ function processTransactionFromTo(
   pensionTransactions: Transaction[],
   liabliitiesMap: Map<string, string>,
   incomes: LiableIncomes,
-) {
+): string {
   // log(`process t = ${showObj(t)}`);
   // log(`processTransactionFromTo fromWord = ${fromWord} toWord = ${toWord}, date = ${dateAsString(DateFormatType.Debug,moment.date)}`);
   // log(`processTransactionFromTo takes in ${showObj(t)}`);
@@ -4453,16 +4453,18 @@ function processTransactionFromTo(
     // Transaction is permitted to be blocked by the calculation
     // of fromChange - e.g. if it would require an asset to become
     // a not-permitted value (e.g. shares become negative).
-    if (fromChange === undefined) {
+    if (typeof fromChange === "string") {
       // log(`transaction blocked - can't take ${t.FROM_VALUE} from ${fromWord}, had value ${preFromValue}`)
-      return;
+      if (fromChange !== '') {
+        return fromChange;
+      }
     }
   }
   // log(`for ${t.NAME}, fromChange = ${fromChange?.fromImpact}`);
 
   // Determine how to change the To asset.
   let toChange;
-  if (preToValue !== undefined && fromChange !== undefined) {
+  if (preToValue !== undefined && fromChange !== undefined && typeof fromChange !== "string") {
     toChange = calculateToChange(
       t,
       preToValue,
@@ -4477,7 +4479,7 @@ function processTransactionFromTo(
   // log(`for ${t.NAME}, toChange = ${toChange}`);
 
   // apply fromChange
-  if (fromChange !== undefined && preFromValue !== undefined) {
+  if (fromChange !== undefined && typeof fromChange !== "string" && preFromValue !== undefined) {
     // log(`fromChange.cgtPreChange = ${fromChange.cgtPreChange}`);// fromChange = loss of value of from asset
     handleCGTLiability(
       t,
@@ -4628,6 +4630,7 @@ function processTransactionFromTo(
       // throw new Error('unhandled pensionAllowance change');
     }
   }
+  return ''; // nothing went wrong
 }
 
 function processTransactionTo(
@@ -4770,7 +4773,7 @@ function processTransactionMoment(
       // log(`transaction to "${t.TO}" as list ${toWords}`);
       for (const toWord of toWords) {
         // log(`process a transaction from word ${fromWord} to word ${toWord}`);
-        processTransactionFromTo(
+        const outcome = processTransactionFromTo(
           t,
           fromWord,
           toWord,
@@ -4783,6 +4786,9 @@ function processTransactionMoment(
           liabliitiesMap,
           incomes,
         );
+        if(outcome !== '') {
+          return outcome;
+        }
       }
     }
   } else if (t.FROM === "" && t.TO !== "") {
@@ -6383,7 +6389,7 @@ function getEvaluationsInternal(
       captureLastTaxBands(values, growths, moment);
     } else if (moment.type === momentType.transaction) {
       // log(`this is a transaction`);
-      processTransactionMoment(
+      const error = processTransactionMoment(
         moment,
         values,
         growths,
@@ -6393,6 +6399,31 @@ function getEvaluationsInternal(
         liabilitiesMap,
         incomes,
       );
+      if(error !== undefined) {
+        log(`evaluations failed: ${error}`);
+        const reportData: ReportDatum[] = [
+          {
+            name: "Error from evaluations",
+            date: dateAsString(DateFormatType.View, new Date()),
+            source: `evals failed: ${error}`,
+            change: undefined,
+            oldVal: undefined,
+            newVal: undefined,
+            qchange: undefined,
+            qoldVal: undefined,
+            qnewVal: undefined,
+          },
+        ];
+        return {
+          evaluations: [],
+          todaysAssetValues: todaysAssetValues,
+          todaysDebtValues: todaysDebtValues,
+          todaysIncomeValues: todaysIncomeValues,
+          todaysExpenseValues: todaysExpenseValues,
+          todaysSettingValues: todaysSettingValues,
+          reportData: reportData,
+        };
+      }
     } else if (
       moment.type === momentType.expenseStart ||
       moment.type === momentType.expenseStartPrep ||
@@ -7317,6 +7348,13 @@ export function getEvaluations(
     );
     // log(`END FIRST EVALUATIONS for ${model.name}`);
     // log(`adjustedEvals = ${showObj(adjustedEvals)}`);
+
+    if(adjustedEvals.evaluations.length === 0 &&
+      adjustedEvals.reportData.length === 1 &&
+      adjustedEvals.reportData[0].name === 'Error from evaluations'
+      ) {
+        return adjustedEvals;
+      }
 
     // review surplus (deficit probably)
     // to set bond target values
