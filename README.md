@@ -1,5 +1,5 @@
 The deployed page for FinKitty is here
-https://jeanflower.github.io/FinKitty/
+(https://finkitty-c996333140d1.herokuapp.com/)
 
 ## Storing the data
 
