@@ -6505,11 +6505,13 @@ function getEvaluationsInternal(
 function addBond(
   details: BondGeneratorDetails,
   assetName: string,
+  era: number | undefined,
   start: string,
   model: ModelData,
 ) {
   const newAsset: Asset = {
     NAME: assetName,
+    ERA: era,
     START: start,
     VALUE: "0",
     QUANTITY: "",
@@ -6520,13 +6522,12 @@ function addBond(
     LIABILITY: "",
     PURCHASE_PRICE: "0.0",
     CATEGORY: details.CATEGORY,
-    ERA: undefined
   };
   // log(`added new asset ${showObj(newAsset)}`);
   model.assets.push(newAsset);
   const investTransaction = {
     NAME: assetName + bondInvest,
-    ERA: 0, // new things are automatically current,
+    ERA: era,
     FROM: details.SOURCE,
     FROM_ABSOLUTE: true,
     FROM_VALUE: details.VALUE,
@@ -6541,7 +6542,7 @@ function addBond(
   };
   const matureTransaction = {
     NAME: assetName + bondMature,
-    ERA: 0, // new things are automatically current,
+    ERA: era,
     FROM: assetName,
     FROM_ABSOLUTE: false,
     FROM_VALUE: '1.0',
@@ -6573,6 +6574,7 @@ function processBondGenerators(
       addBond(
         details,
         g.NAME,
+        g.ERA,
         details.START,
         model,
       );
@@ -6594,6 +6596,7 @@ function processBondGenerators(
         addBond(
           details,
           g.NAME + `${dateFormat(d, 'mmmyy')}` + `${generatedRecurrence}` + year,
+          g.ERA,
           d.toDateString(),
           model,
         );  

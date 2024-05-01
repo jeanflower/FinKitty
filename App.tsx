@@ -2438,8 +2438,37 @@ export class AppContent extends Component<AppProps, AppState> {
         </div>
       );
     }
-    // log(`modelNames = ${modelNames}`);
-    const buttons = modelNames.map((model) => {
+
+    modelNames.sort();
+    const primaryModelNames: {
+      primaryName: string,
+      backupNames: string[],
+    }[] = [];
+    let currentPrimary: {
+      primaryName: string,
+      backupNames: string[],
+    } = {
+      primaryName: modelNames[0],
+      backupNames: [],
+    };
+    primaryModelNames.push(currentPrimary);
+    for(let i = 1; i < modelNames.length; i++) {
+      const modelName = modelNames[i];
+      if (modelName.startsWith(currentPrimary.primaryName) 
+        && modelName.includes('backup')) {
+        currentPrimary.backupNames.push(modelName);
+      } else {
+        currentPrimary = {
+          primaryName: modelName,
+          backupNames: [],
+        };
+        primaryModelNames.push(currentPrimary);
+      }
+    }
+    const buttonFor = (
+      model: string,
+      isBackup: boolean,
+    ) => {
       return makeButton(
         model,
         (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -2448,8 +2477,19 @@ export class AppContent extends Component<AppProps, AppState> {
         },
         model,
         `btn-${idKey}-${model}`,
-        idKey !== "del" && modelName === model ? "primary" : "outline-primary",
+        (idKey !== "del" && modelName === model) ? "primary" : 
+        (isBackup ? "outline-secondary" : "outline-primary"),
       );
+    };
+
+    // log(`modelNames = ${modelNames}`);
+    const buttons = primaryModelNames.map((model) => {
+      return <>
+        <div>{buttonFor(model.primaryName, false)}</div>
+        <div>{model.backupNames.map((m) => {
+          return buttonFor(m, true)})}
+        </div>
+      </>
     });
     return (
       <Form>

@@ -37,6 +37,9 @@ import {
   makeBooleanFromYesNo,
   makeQuantityFromString,
   lessThan,
+  checkForWordClashInModel,
+  makeCashValueFromString,
+  makeGrowthFromString,
 } from "../../utils/stringUtils";
 import Spacer from "react-spacer";
 import {
@@ -45,6 +48,9 @@ import {
   isNumberString,
 } from "../../models/modelQueries";
 import { makeModelFromJSON } from "../../models/modelFromJSON";
+import DataGridFinKitty from "./DataGridFinKitty";
+import { defaultColumn, cashValueColumn, triggerDateColumn, growthColumn, addIndices, faveColumn } from "../../views/tablePages";
+import { inspect } from 'util';
 
 interface EditAssetFormState {
   NAME: string;
@@ -93,8 +99,162 @@ interface EditAssetProps extends FormProps {
     generator: Generator,
   ) => Promise<void>;
   deleteGeneratorFunction: (name: string) => Promise<DeleteResult>;
+  setEraGeneratorFunction: (name: string, value: number) => Promise<boolean>;
   doCheckBeforeOverwritingExistingData: () => boolean;
+  attemptRename: (
+    doChecks: boolean,
+    old: string,
+    replacement: string,
+    showAlert: (message: string) => void,
+    refreshData: (
+      refreshModel: boolean,
+      refreshChart: boolean,
+      sourceID: number,
+    ) => Promise<void>,
+  ) => Promise<string>,
+  refreshData: (
+    refreshModel: boolean,
+    refreshChart: boolean,
+    sourceID: number,
+  ) => Promise<void>,
 }
+
+function handleBondGeneratorGridRowsUpdated(
+  model: ModelData,
+  showAlert: (arg0: string) => void,
+  doChecks: boolean,
+  rows: any[],
+  submitGenerator: (generatorInput: Generator, modelData: ModelData) => Promise<void>,
+  attemptRename: (
+    doChecks: boolean,
+    old: string,
+    replacement: string,
+    showAlert: (message: string) => void,
+    refreshData: (
+      refreshModel: boolean,
+      refreshChart: boolean,
+      sourceID: number,
+    ) => Promise<void>,
+  ) => Promise<string>,
+  refreshData: (
+    refreshModel: boolean,
+    refreshChart: boolean,
+    sourceID: number,
+  ) => Promise<void>,
+  args: any,
+){
+  // log(`handleBondGeneratorGridRowsUpdated ${JSON.stringify(args)}`);
+  const newTable = args[0];
+  const change = args[1];
+  const changedIndexes = change.indexes;
+  const changedColumn = change.column;
+
+  if (changedIndexes.length > 1) {
+    throw new Error(`don't handle multirow edits`);
+  }
+
+  const oldRow = rows.find((r) => {
+    return r.index === changedIndexes[0];
+  });
+  const oldVal = oldRow[changedColumn.key];
+
+  const newRow = newTable.find((r: any) => {
+    return r.index === changedIndexes[0];
+  });
+  const newVal = newRow[changedColumn.key];
+
+  if (oldVal === newVal) {
+    return;
+  }
+
+  if (changedColumn.key === "NAME") {
+    if (doChecks) {
+      if (oldVal !== newVal) {
+        const clashCheck = checkForWordClashInModel(model, newVal, "already");
+        if (clashCheck !== "") {
+          showAlert(clashCheck);
+          return;
+        }
+      }
+    }
+    attemptRename(doChecks, oldVal, newVal, showAlert, refreshData);
+    return;
+  }
+
+  const matchedGenerator = model.generators.filter((g) => {
+    return g.NAME === oldRow.NAME;
+  });
+  if (matchedGenerator.length !== 1) {
+    log(`Error: generator ${oldRow.NAME} not found in model?`);
+    return;
+  }
+
+  newRow[changedColumn.key] = newVal;
+
+  const parsedValue = makeCashValueFromString(newRow.VALUE);
+  const parsedGrowth = makeGrowthFromString(newRow.GROWTH, model.settings);
+
+  console.log(`in table change, newRow = ${inspect(newRow)}`)
+
+  if (doChecks) {
+    if (!parsedGrowth.checksOK) {
+      showAlert(`generator growth ${newRow.GROWTH} not understood`);
+      newRow[changedColumn.key] = oldVal;
+    } else {
+      // log(`parsedValue = ${showObj(parsedValue)}`);
+      const valueForSubmission = parsedValue.checksOK
+        ? `${parsedValue.value}`
+        : newRow.VALUE;
+      // log(`valueForSubmission = ${valueForSubmission}`);
+      const generatorForSubmission: Generator = {
+        TYPE: "Bonds",
+        NAME: newRow.NAME,
+        ERA: newRow.ERA,
+        DETAILS: {
+          VALUE: valueForSubmission,
+          GROWTH: parsedGrowth.value,
+          CATEGORY: newRow.CATEGORY,
+          START: newRow.START,
+          DURATION: newRow.BOND_DURATION,
+          SOURCE: newRow.BOND_SOURCE,
+          TARGET: newRow.BOND_TARGET,
+          YEAR: newRow.BOND_YEAR,
+          RECURRENCE: newRow.BOND_RECURRENCE,
+          RECURRENCE_STOP: newRow.BOND_RECURRENCE_STOP,        
+        }
+      };
+      console.log(`data for submitGenerator ${inspect(generatorForSubmission)}`)
+      submitGenerator(generatorForSubmission, model);
+    }
+  } else {
+    // log(`parsedValue = ${showObj(parsedValue)}`);
+    const valueForSubmission = parsedValue.checksOK
+      ? `${parsedValue.value}`
+      : newRow.VALUE;
+    // log(`valueForSubmission = ${valueForSubmission}`);
+    const generatorForSubmission: Generator = {
+      TYPE: "Bonds",
+      NAME: newRow.NAME,
+      ERA: newRow.ERA,
+      DETAILS: {
+        VALUE: valueForSubmission,
+        GROWTH: parsedGrowth.value,
+        CATEGORY: newRow.CATEGORY,
+        START: newRow.START,
+        DURATION: newRow.DURATION,
+        SOURCE: newRow.SOURCE,
+        TARGET: newRow.TARGET,
+        YEAR: newRow.YEAR,
+        RECURRENCE: newRow.RECURRENCE,
+        RECURRENCE_STOP: newRow.RECURRENCE_STOP,        
+      }
+    };
+    console.log(`data for submitGenerator ${inspect(generatorForSubmission)}`)
+    submitGenerator(generatorForSubmission, model);
+  }
+}
+
+
 export class AddDeleteAssetForm extends Component<
   EditAssetProps,
   EditAssetFormState
@@ -669,9 +829,129 @@ export class AddDeleteAssetForm extends Component<
     );
   }
 
-  private renderGenerators(
+  private renderGeneratorsTable(
     generators: Generator[],
   ){
+    const rowData = addIndices(generators.map((g) => {
+      const details: BondGeneratorDetails = g.DETAILS;
+      return {
+        NAME: g.NAME,
+        ERA: g.ERA,
+        VALUE: details.VALUE,
+        START: details.START,
+        GROWTH: details.GROWTH,
+        CATEGORY: details.CATEGORY,
+        BOND_DURATION: details.DURATION,
+        BOND_SOURCE: details.SOURCE,
+        BOND_TARGET: details.TARGET,
+        BOND_YEAR: details.YEAR,
+        BOND_RECURRENCE: details.RECURRENCE,
+        BOND_RECURRENCE_STOP: details.RECURRENCE_STOP,
+      }
+    }));
+    const model = this.props.model;
+    const showAlert = this.props.showAlert;
+    const doChecks = this.props.doCheckBeforeOverwritingExistingData();
+    const submitGenerator = this.props.submitGeneratorFunction;
+    const deleteGenerator = this.props.deleteGeneratorFunction;
+    const setEraGenerator = this.props.setEraGeneratorFunction;
+
+    const attemptRename = this.props.attemptRename;
+    const refreshData = this.props.refreshData;
+
+    const bondTable =  <DataGridFinKitty
+      tableID='bondGeneratorTable'
+      rows={rowData}
+      columns={[
+        /*
+        {
+          ...defaultColumn,
+          key: 'index',
+          name: 'index',
+        },
+        */
+        faveColumn(
+          deleteGenerator,
+          setEraGenerator,
+          "bondGeneratorTable",
+        ),
+        {
+          ...defaultColumn,
+          key: "NAME",
+          name: "name",
+        },
+        {
+          ...cashValueColumn,
+          key: "VALUE",
+          name: `value`,
+        },
+        {
+          ...triggerDateColumn(this.props.model),
+          key: "START",
+          name: `start`,
+        },
+        {
+          ...growthColumn(this.props.model.settings),
+          key: "GROWTH",
+          name: 'growth',
+        },
+        {
+          ...defaultColumn,
+          key: "CATEGORY",
+          name: `category`,
+        },
+        {
+          ...defaultColumn,
+          key: "BOND_DURATION",
+          name: `duration`,
+        },
+        {
+          ...defaultColumn,
+          key: "BOND_SOURCE",
+          name: `source`,
+        },
+        {
+          ...defaultColumn,
+          key: "BOND_TARGET",
+          name: `target`,
+        },
+        {
+          ...defaultColumn,
+          key: "BOND_YEAR",
+          name: `year`,
+        },
+        {
+          ...defaultColumn,
+          key: "BOND_RECURRENCE",
+          name: `recurrence`,
+        },
+        {
+          ...defaultColumn,
+          key: "BOND_RECURRENCE_STOP",
+          name: `recurrence stop`,
+        },
+      ]}
+      model={this.props.model}
+      handleGridRowsUpdated={function (...args: any[]) {
+        return handleBondGeneratorGridRowsUpdated(
+          model,
+          showAlert,
+          doChecks,
+          rowData,
+          submitGenerator,
+          attemptRename,
+          refreshData,
+          args,
+        );
+      }}
+    /> 
+
+    return bondTable;
+  }
+
+  private renderGenerators(
+    generators: Generator[],
+  ) {
     // log(`render ${generators.length} generators`);
     return generators.map((g) => {
       // log(`use key = ${g.NAME}`);
@@ -757,7 +1037,7 @@ export class AddDeleteAssetForm extends Component<
           }}
         >Delete</Button>
       </div>
-    })  
+    })
   }
   
   private renderDCPGenerators(
@@ -775,7 +1055,7 @@ export class AddDeleteAssetForm extends Component<
     generators: Generator[],
   ){
     return <>
-      {this.renderGenerators(
+      {this.renderGeneratorsTable(
         generators.filter((g) => {
           return g.TYPE === 'Bonds';
         })

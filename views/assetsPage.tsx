@@ -198,11 +198,14 @@ export function assetsDiv(
             submitTriggerFunction={parentCallbacks.submitTrigger}
             submitGeneratorFunction={parentCallbacks.submitGenerator}
             deleteGeneratorFunction={parentCallbacks.deleteGenerator}
+            setEraGeneratorFunction={parentCallbacks.setEraGenerator}
             model={model}
             showAlert={parentCallbacks.showAlert}
             doCheckBeforeOverwritingExistingData={
               parentCallbacks.doCheckBeforeOverwritingExistingData
             }
+            attemptRename={parentCallbacks.attemptRename}
+            refreshData={parentCallbacks.refreshData}
           />
         </div>,
         `Add an asset, a defined-contributions pension, or revalue an asset`,
