@@ -180,6 +180,15 @@ function App(): JSX.Element | null {
     return (
       <AppContent
         logOutAction={() => {
+
+          if (isDirty) {
+            if (
+              !window.confirm(`Continue without saving unsaved model ${modelName}?`)
+            ) {
+              // log(`don't log out - let user save ${modelName}`);
+              return false;
+            }
+          }
           if (getUserID() === "TestUserID") {
             log(`logout ${getUserID()}`);
             // try to be graceful without network connection...
