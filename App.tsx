@@ -2023,7 +2023,7 @@ async function backupModel(
     "backup " +
     dateFormat(d, "yyyy-mm-dd HH:MM:ss");
 
-  if (window.confirm(`Save a local text file for ${modelName}?`)) {
+  if (offerLocalTextFile && window.confirm(`Save a local text file for ${modelName}?`)) {
     const backupText = JSON.stringify(model);
 
     const blob = new Blob([backupText], { type: "text/plain;charset=utf-8" });
