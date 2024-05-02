@@ -208,7 +208,9 @@ function App(): JSX.Element | null {
             }
 
             if (modelAndBackups.backupNames.length > 0) {
-              const backupName = modelAndBackups.backupNames[0];
+              const backupName = modelAndBackups.backupNames[
+                modelAndBackups.backupNames.length - 1
+              ];
               
               const backup = await loadModel(getUserID(), backupName);
               if (!backup) {
@@ -227,7 +229,7 @@ function App(): JSX.Element | null {
               }
             }
             if (!backupUpToDate) {
-              if (window.confirm(`I'll auto-make a backup of ${currentName} (or cancel this actions)`)) {
+              if (window.confirm(`I'll auto-make a backup of ${currentName} (or cancel this action)`)) {
                 backupModel(current.model, currentName, false);
               }
             }
