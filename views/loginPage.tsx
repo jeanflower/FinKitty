@@ -78,7 +78,7 @@ export function loginPage(loginWithRedirect: any, loginForTesting: any) {
         },
       )}
       <div className="row">
-        <div className="col-sm mb-4">
+        <div className="col-8">
           <div className="alert alert-block">
             <h2>Get started</h2> To begin using this app, log in or use a shared
             playpen
@@ -152,7 +152,9 @@ export function loginPage(loginWithRedirect: any, loginForTesting: any) {
             to validate financial plans.
           </div>
         </div>
-        <div className="col-md mb-4">{screenshotsDiv()}</div>
+        <div
+          className='col-4'
+        >{screenshotsDiv()}</div>
       </div>
     </>
   );

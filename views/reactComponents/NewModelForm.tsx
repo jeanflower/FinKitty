@@ -5,8 +5,6 @@ import { Input } from "./Input";
 import { ModelData } from "../../types/interfaces";
 import { makeButton } from "./Button";
 import { log, printDebug } from "../../utils/utils";
-import dateFormat from "dateformat";
-import FileSaver from "file-saver";
 import { minimalModel } from "../../models/minimalModel";
 
 interface CreateModelFormState {
@@ -15,13 +13,9 @@ interface CreateModelFormState {
 interface CreateModelFormProps {
   userID: string;
   currentModelName: string;
-  saveModel: (
-    userID: string,
-    modelName: string,
-    modelData: ModelData,
-  ) => Promise<void>;
+  backupModel: (model: ModelData, modelName: string) => Promise<void>,
   modelData: ModelData;
-  showAlert: (arg0: string) => void;
+  showAlert: (message: string) => void;
   cloneModel: (newName: string, oldModel: ModelData) => Promise<boolean>;
   exampleModels: {
     name: string;
@@ -46,9 +40,7 @@ export class CreateModelForm extends Component<
     this.state = this.defaultState;
 
     this.clonePropsModel = this.clonePropsModel.bind(this);
-    this.backupModel = this.backupModel.bind(this);
   }
-
 
   private exampleButtonList() {
     const buttons: JSX.Element[] = this.props.exampleModels.map((x) => {
@@ -73,7 +65,10 @@ export class CreateModelForm extends Component<
         <div className="btn-group ml-3" role="group">
           {makeButton(
             "Make backup of model",
-            this.backupModel,
+            (e: FormEvent) => {
+              e.preventDefault();
+              this.props.backupModel(this.props.modelData, this.props.currentModelName);
+            },
             `btn-backup`,
             `btn-backup`,
             "outline-primary",
@@ -133,30 +128,6 @@ export class CreateModelForm extends Component<
     this.copyModel(this.props.modelData);
   }
 
-  private async backupModel(e: FormEvent<Element>) {
-    e.preventDefault();
-    const d = new Date();
-
-    const backupName =
-      this.props.currentModelName +
-      "backup " +
-      dateFormat(d, "yyyy-mm-dd HH:MM:ss");
-
-    if (window.confirm(`Save a local text file for this model?`)) {
-      const backupText = JSON.stringify(this.props.modelData);
-
-      const blob = new Blob([backupText], { type: "text/plain;charset=utf-8" });
-      FileSaver.saveAs(blob, `${backupName}.txt`);
-    }
-
-    await this.props.saveModel(
-      this.props.userID,
-      this.props.currentModelName +
-        "backup " +
-        dateFormat(d, "yyyy-mm-dd HH:MM:ss"),
-      this.props.modelData,
-    );
-  }
   private mounted = false;
 
   public newModelFormIsMounted() {

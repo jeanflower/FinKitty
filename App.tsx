@@ -179,7 +179,7 @@ function App(): JSX.Element | null {
     setUserID(user.sub);
     return (
       <AppContent
-        logOutAction={() => {
+        logOutAction={async () => {
 
           if (isDirty) {
             if (
@@ -190,7 +190,48 @@ function App(): JSX.Element | null {
             }
           }
 
-          // TODO check for backups
+          // check for backups - offer to make them
+          const modelNames = await getModelNames(getUserID());
+          const partitionedList = makePartitionedModelNames(modelNames);
+          for (const modelAndBackups of partitionedList) {
+            let backupUpToDate = false;
+            const currentName = modelAndBackups.primaryName;
+            if (currentName.startsWith('---- ')) {
+              log(`not checking for backup of ${currentName}`);
+              continue;
+            }
+            const current = await loadModel(getUserID(), currentName);
+            if (!current) {
+              throw new Error(
+                `Error:failed to load ${currentName}`,
+              );
+            }
+
+            if (modelAndBackups.backupNames.length > 0) {
+              const backupName = modelAndBackups.backupNames[0];
+              
+              const backup = await loadModel(getUserID(), backupName);
+              if (!backup) {
+                throw new Error(
+                  `Error:failed to load ${backupName}`,
+                );
+              }
+              const diffs = diffModels(current.model, backup.model, true, currentName, backupName);
+              if (diffs.length === 0) {
+                backupUpToDate = true;
+              } else {
+                log(`backup of ${currentName} differs from current model`);
+                for(const diff of diffs) {
+                  log(`${diff}`);
+                }
+              }
+            }
+            if (!backupUpToDate) {
+              if (window.confirm(`I'll auto-make a backup of ${currentName} (or cancel this actions)`)) {
+                backupModel(current.model, currentName, false);
+              }
+            }
+          }
 
           if (getUserID() === "TestUserID") {
             log(`logout ${getUserID()}`);
@@ -1917,6 +1958,87 @@ function needsChartRefresh(
   return refreshChart;
 }
 
+function makePartitionedModelNames(modelNames: string[]): {
+  primaryName: string,
+  backupNames: string[],
+}[] {
+  modelNames.sort();
+  const primaryModelNames: {
+    primaryName: string,
+    backupNames: string[],
+  }[] = [];
+  let currentPrimary: {
+    primaryName: string,
+    backupNames: string[],
+  } = {
+    primaryName: modelNames[0],
+    backupNames: [],
+  };
+  primaryModelNames.push(currentPrimary);
+  for(let i = 1; i < modelNames.length; i++) {
+    const modelName = modelNames[i];
+    if (modelName.startsWith(currentPrimary.primaryName) 
+      && modelName.includes('backup')) {
+      currentPrimary.backupNames.push(modelName);
+    } else {
+      currentPrimary = {
+        primaryName: modelName,
+        backupNames: [],
+      };
+      primaryModelNames.push(currentPrimary);
+    }
+  }
+  return primaryModelNames;
+}
+
+async function backupModel(
+  model: ModelData, 
+  modelName: string,
+  offerLocalTextFile: boolean,
+) {
+  const saveModel= async (
+    userID: string,
+    modelName: string,
+    modelData: ModelData,
+  ) => {
+    const savedOK = await saveModelToDBLSM(
+      userID,
+      modelName,
+      modelData,
+    );
+    if (savedOK) {
+      refreshData(
+        true, // refreshModel
+        true, // refreshChart
+        22, //sourceID
+      );
+    } else {
+      alert("save failed!");
+    }
+  };
+  const d = new Date();
+
+  const backupName =
+    modelName +
+    "backup " +
+    dateFormat(d, "yyyy-mm-dd HH:MM:ss");
+
+  if (window.confirm(`Save a local text file for ${modelName}?`)) {
+    const backupText = JSON.stringify(model);
+
+    const blob = new Blob([backupText], { type: "text/plain;charset=utf-8" });
+    FileSaver.saveAs(blob, `${backupName}.txt`);
+  }
+
+  await saveModel(
+    getUserID(),
+    modelName +
+      "backup " +
+      dateFormat(d, "yyyy-mm-dd HH:MM:ss"),
+    model,
+  );
+}
+
 class AppContent extends Component<AppProps, AppState> {
   options: any;
   private mounted = false;
@@ -2454,28 +2576,7 @@ class AppContent extends Component<AppProps, AppState> {
     const primaryModelNames: {
       primaryName: string,
       backupNames: string[],
-    }[] = [];
-    let currentPrimary: {
-      primaryName: string,
-      backupNames: string[],
-    } = {
-      primaryName: modelNames[0],
-      backupNames: [],
-    };
-    primaryModelNames.push(currentPrimary);
-    for(let i = 1; i < modelNames.length; i++) {
-      const modelName = modelNames[i];
-      if (modelName.startsWith(currentPrimary.primaryName) 
-        && modelName.includes('backup')) {
-        currentPrimary.backupNames.push(modelName);
-      } else {
-        currentPrimary = {
-          primaryName: modelName,
-          backupNames: [],
-        };
-        primaryModelNames.push(currentPrimary);
-      }
-    }
+    }[] = makePartitionedModelNames(modelNames);
     const buttonFor = (
       model: string,
       isBackup: boolean,
@@ -2495,12 +2596,14 @@ class AppContent extends Component<AppProps, AppState> {
 
     // log(`modelNames = ${modelNames}`);
     const buttons = primaryModelNames.map((model) => {
-      return <>
+      return <React.Fragment
+        key={model.primaryName}
+      >
         <div>{buttonFor(model.primaryName, false)}</div>
         <div>{model.backupNames.map((m) => {
           return buttonFor(m, true)})}
         </div>
-      </>
+      </React.Fragment>
     });
     return (
       <Form>
@@ -2680,32 +2783,16 @@ class AppContent extends Component<AppProps, AppState> {
       return false; // didn't update name OK
     }
   }
+
   private homeScreenButtons(): JSX.Element {
     return (
       <>
         <CreateModelForm
           userID={getUserID()}
           currentModelName={modelName}
-          modelData={this.state.modelDataRaw}
-          saveModel={async (
-            userID: string,
-            modelName: string,
-            modelData: ModelData,
-          ) => {
-            const savedOK = await saveModelToDBLSM(
-              userID,
-              modelName,
-              modelData,
-            );
-            if (savedOK) {
-              refreshData(
-                true, // refreshModel
-                true, // refreshChart
-                22, //sourceID
-              );
-            } else {
-              alert("save failed!");
-            }
+          modelData={this.state.modelDataRaw}          
+          backupModel={async (model: ModelData, modelName: string)=>{
+            backupModel(model, modelName, true);
           }}
           showAlert={showAlert}
           cloneModel={this.cloneModel}
@@ -2876,14 +2963,16 @@ class AppContent extends Component<AppProps, AppState> {
     return (
       <div className="ml-3">
         <div className="row">
-          <div className="col-sm mb-4">
+          <div className="col-8">
             {this.modelListForSelect(this.state.modelNamesData)}
             <br />
             {this.state.modelNamesData.length > 0
               ? this.homeScreenButtons()
               : ""}
           </div>
-          <div className="col-md mb-4">{screenshotsDiv()}</div>
+          <div
+            className='col-4'
+          >{screenshotsDiv()}</div>
         </div>
       </div>
     );

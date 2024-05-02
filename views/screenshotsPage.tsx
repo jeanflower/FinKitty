@@ -8,30 +8,30 @@ import Image from "next/image";
 export function screenshotsDiv() {
   return (
     <>
-      <h3>Get a handle on your planned expenses</h3>
+      <h4>Get a handle on your planned expenses</h4>
       <Image
         src={expensesGraph}
         alt="Sample expense graph screenshot"
-        width={500}
-        height={300}
+        width={250}
+        height={150}
       />
       <br />
       <br />
-      <h3>See the prospects for your future financial health</h3>
+      <h4>See the prospects for your future financial health</h4>
       <Image
         src={assetsGraph}
         alt="Sample asset graph screenshot"
-        width={500}
-        height={300}
+        width={250}
+        height={150}
       />
       <br />
       <br />
-      <h3>Check on your predicted tax payments</h3>
+      <h4>Check on your predicted tax payments</h4>
       <Image
         src={taxGraph}
         alt="Sample tax graph screenshot"
-        width={500}
-        height={300}
+        width={250}
+        height={150}
       />
     </>
   );
