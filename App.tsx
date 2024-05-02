@@ -189,6 +189,9 @@ function App(): JSX.Element | null {
               return false;
             }
           }
+
+          // TODO check for backups
+
           if (getUserID() === "TestUserID") {
             log(`logout ${getUserID()}`);
             // try to be graceful without network connection...
@@ -806,7 +809,7 @@ async function refreshDataInternal(
   // log(`finished refreshData`);
 }
 
-export async function refreshData(
+async function refreshData(
   refreshModel: boolean,
   refreshChart: boolean,
   sourceID: number,
@@ -915,9 +918,6 @@ function setReportKey(
     alert("error processing JSON format");
     return false;
   }
-}
-export function getReportKey(): ReportMatcher {
-  return reactAppComponent.state.reportDefiner;
 }
 
 async function submitAsset(
@@ -1079,7 +1079,7 @@ async function submitGenerator(
 }
 
 // if HINT or TYPE are empty, leave pre-existing values
-export async function editSetting(
+async function editSetting(
   settingInput: {
     NAME: string;
     ERA: number | undefined;
@@ -1335,13 +1335,13 @@ function toggleOption(type: string): void {
     alert(`error: data not ready to set ${type} mode`);
   }
 }
-export function getOption(type: string): boolean {
+function getOption(type: string): boolean {
   return reactAppComponent.options[type];
 }
-export function getUIMode(): string {
+function getUIMode(): string {
   return reactAppComponent.options[uiMode];
 }
-export async function setEraInModel(
+async function setEraInModel(
   name: string,
   value: number,
   itemList: Item[],
@@ -1677,7 +1677,8 @@ async function setEraGenerator(
     return false;
   }
 }
-export async function updateModelName(newValue: string): Promise<boolean> {
+
+async function switchToModel(newValue: string): Promise<boolean> {
   // log(`model name is now ${newValue}`);
   if (modelName === newValue) {
     // log(`no need to update name - already working with ${newValue}`);
@@ -1784,7 +1785,8 @@ function doShowTodaysValueColumns(): boolean {
     return false;
   }
 }
-export async function replaceWithModel(
+
+async function replaceWithModel(
   userName: string | undefined,
   thisModelName: string,
   newModel: ModelData,
@@ -1915,7 +1917,7 @@ function needsChartRefresh(
   return refreshChart;
 }
 
-export class AppContent extends Component<AppProps, AppState> {
+class AppContent extends Component<AppProps, AppState> {
   options: any;
   private mounted = false;
 
@@ -2515,7 +2517,7 @@ export class AppContent extends Component<AppProps, AppState> {
     return this.modelList(
       modelNames,
       async (model: string) => {
-        if (await updateModelName(model)) {
+        if (await switchToModel(model)) {
           const oldView = getDisplayedView();
           if (goToAssetsPage()) {
             const newView = assetsView;
@@ -2650,7 +2652,7 @@ export class AppContent extends Component<AppProps, AppState> {
     log(`going to clone a model and give it name ${name}`);
     // log(`stringify model for clone`);
     const currentData = JSON.stringify(fromModel);
-    const updatedOK = await updateModelName(name);
+    const updatedOK = await switchToModel(name);
     if (updatedOK) {
       const newModel = makeModelFromJSON(currentData, name);
       const replacedOK = await replaceWithModel(
