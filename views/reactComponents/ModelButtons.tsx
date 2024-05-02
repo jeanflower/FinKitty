@@ -9,6 +9,7 @@ interface ModelListProps {
   modelNames: string[];
   showAllBackups: boolean;
   actionOnSelect: (arg0: string) => void;
+  currentModelName: string;
 }
 
 export class ModelButtons extends React.Component<ModelListProps> {
@@ -42,6 +43,7 @@ export class ModelButtons extends React.Component<ModelListProps> {
         },
         model,
         `btn-model-${model}`,
+        (this.props.currentModelName === model) ? "primary" : 
         (isBackup ? "outline-secondary" : "outline-primary"),
       );
     };

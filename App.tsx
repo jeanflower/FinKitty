@@ -162,6 +162,7 @@ import { getAppVersion } from "./utils/appVersion";
 import { getVarVal } from "./models/modelQueries";
 import { getAnnualPlanningAssetData } from "./models/planningData";
 import { ModelButtons } from "views/reactComponents/ModelButtons";
+import { inspect } from 'util';
 
 let modelName = "";
 
@@ -201,6 +202,7 @@ function App(): JSX.Element | null {
                 continue;
               }
               const current = await loadModel(getUserID(), currentName);
+              // console.log(`current model asset starts = ${current?.model.assets.map((a) => {return a.START})}`)
               if (!current) {
                 throw new Error(
                   `Error:failed to load ${currentName}`,
@@ -221,21 +223,23 @@ function App(): JSX.Element | null {
                 const diffs = diffModels(current.model, backup.model, true, currentName, latestBackupName);
                 if (diffs.length === 0) {
                   backupUpToDate = true;
+                  // alert(`Backup of ${currentName} is up to date`);
                 } else {
-                  log(`backup of ${currentName} differs from current model`);
+                  // log(`backup of ${currentName} differs from current model`);
                   for(const diff of diffs) {
                     log(`${diff}`);
                   }
                 }
               }
               if (!backupUpToDate) {
-                if (window.confirm(`I'll auto-make a backup of ${currentName} (or cancel this action)`)) {
+                //if (window.confirm(`I'll auto-make a backup of ${currentName} (or cancel this action)`)) {
                   backupModel(current.model, currentName, false);
                   if (modelAndBackups.backupNames.length > 5) {
                     const oldestBackupName = modelAndBackups.backupNames[0];
+                    // console.log(`I'll delete old backup ${oldestBackupName}`);
                     deleteModel(getUserID(), oldestBackupName, true);
                   }
-                }
+                //}
               }
             }
           }
@@ -2577,6 +2581,7 @@ class AppContent extends Component<AppProps, AppState> {
   private modelListForSelect(modelNames: string[]): JSX.Element {
     return <ModelButtons 
       modelNames={modelNames}
+      currentModelName={modelName}
       actionOnSelect={
         async (model: string) => {
           if (await switchToModel(model)) {
