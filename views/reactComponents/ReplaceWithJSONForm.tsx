@@ -13,6 +13,7 @@ import {
   showFutureOption,
   advancedUI,
   simpleUI,
+  showAllBackupsOption,
 } from "../../localization/stringConstants";
 import { makeModelFromJSON } from "../../models/modelFromJSON";
 import { ModelData } from "../../types/interfaces";
@@ -195,6 +196,21 @@ export class ReplaceWithJSONForm extends Component<
           "toggleJTO",
           "outline-secondary",
         )}
+        <br></br>
+        {makeButton(
+          this.props.getOption(showAllBackupsOption)
+            ? "show latest model backu"
+            : "show all model backups",
+          async (e: FormEvent<Element>) => {
+            await this.setState({
+              JSON: showAllBackupsOption,
+            });
+            this.replace(e);
+          },
+          "toggleSAB",
+          "toggleSAB",
+          "outline-secondary",
+        )}
       </form>
     );
   }
@@ -250,6 +266,11 @@ export class ReplaceWithJSONForm extends Component<
       this.setState({ JSON: "" });
       return;
     }
+    if (JSONinput === showAllBackupsOption) {
+      this.props.toggleOption(showAllBackupsOption);
+      this.setState({ JSON: "" });
+      return;
+    }    
     if (JSONinput === showHistoricalOption) {
       this.props.toggleOption(showHistoricalOption);
       this.setState({ JSON: "" });

@@ -144,7 +144,6 @@ import {
 } from "./utils/stringUtils";
 import { diffModels } from "./models/diffModels";
 import { collapsibleFragment } from "./views/tablePages";
-import WaitGif from "./views/catWait.gif";
 import {
   ViewSettings,
   getDefaultViewSettings,
@@ -155,7 +154,6 @@ import {
 import dateFormat from "dateformat";
 import FileSaver from "file-saver";
 import { taxDiv } from "./views/taxPage";
-import Image from "next/image";
 import { minimalModel } from "./models/minimalModel";
 import { makeModelFromJSON } from "./models/modelFromJSON";
 import { setUserID, getUserID } from "./utils/user";
@@ -163,6 +161,7 @@ import { attemptRename, deleteItemsFromModelInternal } from "./utils/appActions"
 import { getAppVersion } from "./utils/appVersion";
 import { getVarVal } from "./models/modelQueries";
 import { getAnnualPlanningAssetData } from "./models/planningData";
+import { ModelButtons } from "views/reactComponents/ModelButtons";
 
 let modelName = "";
 
@@ -188,49 +187,55 @@ function App(): JSX.Element | null {
               // log(`don't log out - let user save ${modelName}`);
               return false;
             }
-          }
-
-          // check for backups - offer to make them
-          const modelNames = await getModelNames(getUserID());
-          const partitionedList = makePartitionedModelNames(modelNames);
-          for (const modelAndBackups of partitionedList) {
-            let backupUpToDate = false;
-            const currentName = modelAndBackups.primaryName;
-            if (currentName.startsWith('---- ')) {
-              log(`not checking for backup of ${currentName}`);
-              continue;
-            }
-            const current = await loadModel(getUserID(), currentName);
-            if (!current) {
-              throw new Error(
-                `Error:failed to load ${currentName}`,
-              );
-            }
-
-            if (modelAndBackups.backupNames.length > 0) {
-              const backupName = modelAndBackups.backupNames[
-                modelAndBackups.backupNames.length - 1
-              ];
-              
-              const backup = await loadModel(getUserID(), backupName);
-              if (!backup) {
+          } else {
+            // check for backups - offer to make them
+            // and clear out when we have too many
+            //
+            const modelNames = await getModelNames(getUserID());
+            const partitionedList = makePartitionedModelNames(modelNames);
+            for (const modelAndBackups of partitionedList) {
+              let backupUpToDate = false;
+              const currentName = modelAndBackups.primaryName;
+              if (currentName.startsWith('---- ')) {
+                log(`not checking for backup of ${currentName}`);
+                continue;
+              }
+              const current = await loadModel(getUserID(), currentName);
+              if (!current) {
                 throw new Error(
-                  `Error:failed to load ${backupName}`,
+                  `Error:failed to load ${currentName}`,
                 );
               }
-              const diffs = diffModels(current.model, backup.model, true, currentName, backupName);
-              if (diffs.length === 0) {
-                backupUpToDate = true;
-              } else {
-                log(`backup of ${currentName} differs from current model`);
-                for(const diff of diffs) {
-                  log(`${diff}`);
+
+              if (modelAndBackups.backupNames.length > 0) {
+                const latestBackupName = modelAndBackups.backupNames[
+                  modelAndBackups.backupNames.length - 1
+                ];
+                
+                const backup = await loadModel(getUserID(), latestBackupName);
+                if (!backup) {
+                  throw new Error(
+                    `Error:failed to load ${latestBackupName}`,
+                  );
+                }
+                const diffs = diffModels(current.model, backup.model, true, currentName, latestBackupName);
+                if (diffs.length === 0) {
+                  backupUpToDate = true;
+                } else {
+                  log(`backup of ${currentName} differs from current model`);
+                  for(const diff of diffs) {
+                    log(`${diff}`);
+                  }
                 }
               }
-            }
-            if (!backupUpToDate) {
-              if (window.confirm(`I'll auto-make a backup of ${currentName} (or cancel this action)`)) {
-                backupModel(current.model, currentName, false);
+              if (!backupUpToDate) {
+                if (window.confirm(`I'll auto-make a backup of ${currentName} (or cancel this action)`)) {
+                  backupModel(current.model, currentName, false);
+                  if (modelAndBackups.backupNames.length > 5) {
+                    const oldestBackupName = modelAndBackups.backupNames[0];
+                    deleteModel(getUserID(), oldestBackupName, true);
+                  }
+                }
               }
             }
           }
@@ -428,6 +433,14 @@ function showCurrent(): boolean {
 function showFuture(): boolean {
   if (reactAppComponent) {
     return reactAppComponent.options.showFuture;
+  } else {
+    return false;
+  }
+}
+function showAllBackups(): boolean {
+  if (reactAppComponent) {
+    console.log(`showAllBackups returning ${reactAppComponent.options.showAllBackups}`)
+    return reactAppComponent.options.showAllBackups;
   } else {
     return false;
   }
@@ -1349,7 +1362,7 @@ function toggleOption(type: string): void {
         alertText: response,
       });
     }
-
+    
     // when we turn chart refresh back on, refresh the charts
     if (type === evalModeOption && reactAppComponent.options[type]) {
       refreshData(
@@ -1960,7 +1973,7 @@ function needsChartRefresh(
   return refreshChart;
 }
 
-function makePartitionedModelNames(modelNames: string[]): {
+export function makePartitionedModelNames(modelNames: string[]): {
   primaryName: string,
   backupNames: string[],
 }[] {
@@ -2129,6 +2142,7 @@ class AppContent extends Component<AppProps, AppState> {
       showCurrent: true,
       showFuture: true,
       searchString: "",
+      showAllBackups: false
     };
     reactAppComponent = this; // eslint-disable-line
   }
@@ -2560,121 +2574,26 @@ class AppContent extends Component<AppProps, AppState> {
     );
   }
 
-  private modelList(
-    modelNames: string[],
-    actionOnSelect: (arg0: string) => void,
-    idKey: string,
-  ): JSX.Element {
-    if (modelNames.length === 0) {
-      return (
-        <div role="group">
-          <Image src={WaitGif} alt="FinKitty wait symbol" />
-          Loading models...
-        </div>
-      );
-    }
-
-    modelNames.sort();
-    const primaryModelNames: {
-      primaryName: string,
-      backupNames: string[],
-    }[] = makePartitionedModelNames(modelNames);
-    const buttonFor = (
-      model: string,
-      isBackup: boolean,
-    ) => {
-      return makeButton(
-        model,
-        (e: React.MouseEvent<HTMLButtonElement>) => {
-          e.persist();
-          actionOnSelect(model);
-        },
-        model,
-        `btn-${idKey}-${model}`,
-        (idKey !== "del" && modelName === model) ? "primary" : 
-        (isBackup ? "outline-secondary" : "outline-primary"),
-      );
-    };
-
-    // log(`modelNames = ${modelNames}`);
-    const buttons = primaryModelNames.map((model) => {
-      return <React.Fragment
-        key={model.primaryName}
-      >
-        <div>{buttonFor(model.primaryName, false)}</div>
-        <div>{model.backupNames.map((m) => {
-          return buttonFor(m, true)})}
-        </div>
-      </React.Fragment>
-    });
-    return (
-      <Form>
-        <div className="ml-3" id="selectLabel">
-          Select an existing model
-          <br />
-          {buttons}
-        </div>
-      </Form>
-    );
-  }
-
   private modelListForSelect(modelNames: string[]): JSX.Element {
-    return this.modelList(
-      modelNames,
-      async (model: string) => {
-        if (await switchToModel(model)) {
-          const oldView = getDisplayedView();
-          if (goToAssetsPage()) {
-            const newView = assetsView;
-            await toggle(
-              assetsView,
-              false, // refreshModel
-              needsChartRefresh(this.state, oldView, newView), // refreshChart
-              19, //sourceID
-            );
+    return <ModelButtons 
+      modelNames={modelNames}
+      actionOnSelect={
+        async (model: string) => {
+          if (await switchToModel(model)) {
+            const oldView = getDisplayedView();
+            if (goToAssetsPage()) {
+              const newView = assetsView;
+              await toggle(
+                assetsView,
+                false, // refreshModel
+                needsChartRefresh(this.state, oldView, newView), // refreshChart
+                19, //sourceID
+              );
+            }
           }
         }
-      },
-      "overview",
-    );
-  }
-
-  private getNewName(): {
-    gotNameOK: boolean;
-    newName: string;
-  } {
-    const result = {
-      gotNameOK: false,
-      newName: "",
-    };
-    let promptResponse = prompt("Provide a name for your model");
-    if (promptResponse === null) {
-      return result;
-    }
-    if (promptResponse === "") {
-      promptResponse = "myModel";
-    }
-    // log(`set new model name to ${promptResponse}`);
-    const regex = RegExp("[a-zA-Z0-9_\\-\\. ]+");
-    const whatsLeft = promptResponse.replace(regex, "");
-    // log(`whatsLeft = ${whatsLeft}`);
-    if (whatsLeft !== "") {
-      const response =
-        "Model names can only contain a-z, A-Z, 0-9, _, - and . characters";
-      // log(`setState for regex item alert`);
-      reactAppComponent.setState({
-        alertText: response,
-      });
-      return result;
-    } else if (
-      this.state.modelNamesData.find((model) => model === promptResponse)
-    ) {
-      showAlert("There's already a model with that name");
-      return result;
-    }
-    result.gotNameOK = true;
-    result.newName = promptResponse;
-    return result;
+      }
+      showAllBackups={reactAppComponent.options.showAllBackups} />
   }
 
   private async deleteModel(modelNameForDelete: string): Promise<void> {

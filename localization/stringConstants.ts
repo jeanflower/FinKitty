@@ -228,6 +228,7 @@ export const evalModeOption = "evalMode";
 export const checkModelOnEditOption = "checkModelOnEdit";
 export const goToAssetsPageOption = "goToAssetsPage";
 export const checkOverwriteOption = "checkOverwrite";
+export const showAllBackupsOption = "showAllBackups";
 
 export const uiMode = "uiMode";
 export const simpleUI = "simpleUI";
