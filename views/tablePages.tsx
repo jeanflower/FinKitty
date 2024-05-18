@@ -2513,18 +2513,22 @@ function expenseMonitoringForTable(
     // console.log(`matchingSummaryRow = ${showObj(matchingSummaryRow)}`);
 
     if (matchingSummaryRow === undefined) {
+      // console.log(`1 scale ${ui.TODAYSVALUE} by ${getScale(ui.item, colMonths)}`);
       matchingSummaryRow = {
         key: summaryKey,
         count: 1,
         sum: ui.sum,
-        budgetForPeriod: ui.TODAYSVALUE *  getScale(ui.item, colMonths),
+        // if we have two months showing, expect to double ui.TODAYSVALUE
+        predictedExpense: ui.TODAYSVALUE / getScale(ui.item, colMonths),
       }
       summaryRows.push(matchingSummaryRow);
       // console.log(`summaryRows = ${showObj(summaryRows)}`);
     } else {
+      // console.log(`2 scale ${ui.TODAYSVALUE} by ${getScale(ui.item, colMonths)}`);
       matchingSummaryRow.count += 1;
       matchingSummaryRow.sum += ui.sum;
-      matchingSummaryRow.budgetForPeriod += ui.TODAYSVALUE / getScale(ui.item, colMonths);
+      // if we have two months showing, expect to double ui.TODAYSVALUE
+      matchingSummaryRow.predictedExpense += ui.TODAYSVALUE / getScale(ui.item, colMonths);
     }
   }
   console.log(`summaryRows = ${showObj(summaryRows)}`);
@@ -2542,7 +2546,7 @@ function expenseMonitoringForTable(
 
 function expensesMonitoringTableDiv(
   model: ModelData,
-  expData: {detailed:any[],summary: any[]},
+  expData: {detailed: any[], summary: any[]},
   colDates: string[],
   doChecks: boolean,
   parentCallbacks: ViewCallbacks,
@@ -2566,7 +2570,7 @@ function expensesMonitoringTableDiv(
     {
       ...cashValueColumn,
       key: "TODAYSVALUE",
-      name: `budget`,
+      name: `current cost`,
       renderEditCell: undefined,
     },
     {
@@ -2575,10 +2579,13 @@ function expensesMonitoringTableDiv(
       name: "freq",
       renderEditCell: undefined,
     },
+    // DETAILS TABLE
+    // The "spent" column here is the average of the values in 
+    // later displayed columns, averaged using the frequency of the expense
     {
       ...cashValueColumn,
       key: "RECURRENT_SPEND",
-      name: "spent",
+      name: "current spend",
       renderEditCell: undefined,
       renderCell(props: any) {
         // log(`in formatter, JSON.stringify(props) = ${JSON.stringify(props)}`);
@@ -2592,7 +2599,7 @@ function expensesMonitoringTableDiv(
           if (valParsed.value > 1.1 * budgetParsed.value) {
             //console.log(`highlightHigh ${props.row['TODAYSVALUE']}, ${val}`);
             highlightHigh = true;
-          }else if (valParsed.value < 0.9 * budgetParsed.value) {
+          } else if (valParsed.value < 0.9 * budgetParsed.value) {
             //console.log(`highlightLow  ${props.row['TODAYSVALUE']}=${budgetParsed.value}, ${val}=${valParsed.value}`);
             highlightLow = true;
           } else {
@@ -2651,7 +2658,7 @@ function expensesMonitoringTableDiv(
                 index: r.index,
                 key: r.key,
                 sum: `${r.sum}`,
-                budgetForPeriod: `${r.budgetForPeriod}`,
+                predictedExpense: `${r.predictedExpense}`,
               }
             })}
             columns={[
@@ -2661,16 +2668,24 @@ function expensesMonitoringTableDiv(
                 name: 'category',
                 renderEditCell: undefined,
               },
+              // SUMMARY TABLE
+              // The "spent" column here for Basic category is the sum of the 
+              // Basic expenses in the Details table
+              // for the time period displayed
               {
                 ...cashExpressionColumn,
                 key: 'sum',
-                name: 'spent',
+                name: 'actual expense',
                 renderEditCell: undefined,
               },
+              // SUMMARY TABLE
+              // The "expense" is the total amount we expect to pay from the 
+              // modelled Expenses data
+              // for the time period displayed
               {
                 ...cashExpressionColumn,
-                key: 'budgetForPeriod',
-                name: 'budget',
+                key: 'predictedExpense',
+                name: 'predicted expense',
                 renderEditCell: undefined,
               },
             ]}
