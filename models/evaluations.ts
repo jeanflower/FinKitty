@@ -90,6 +90,8 @@ import {
 } from "./modelQueries";
 import dateFormat from "dateformat";
 import { getAnnualPlanningSurplusData } from "./planningData";
+import { inspect } from 'util';
+inspect;
 
 function parseRecurrenceString(recurrence: string) {
   if (recurrence === undefined) {
@@ -4662,10 +4664,12 @@ function processTransactionTo(
     if (t.TO_ABSOLUTE) {
       change = tToValue;
     } else {
-      log(`ERROR : invalid model has ${t.NAME} with a proportional to-value`);
       if (tToValue > 1.0) {
         log(`WARNING : not-absolute value ${tToValue} > 1.0`);
+      } else if (tToValue < 1.0) {
+        log(`ERROR : invalid model has ${t.NAME} with a proportional to-value ${inspect(t)}`);
       }
+
       // proportion of the amount taken from from_asset
       change = tToValue * fromChange;
     }

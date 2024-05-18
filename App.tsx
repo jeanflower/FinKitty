@@ -1973,7 +1973,7 @@ function needsChartRefresh(
   if (refreshChart) {
     log(`need to refresh chart oldF = ${oldFrequency}, newF = ${newFrequency}`);
   } else {
-    log(`no need to refresh chart oldF = newF = ${newFrequency}`);
+    // log(`no need to refresh chart oldF = newF = ${newFrequency}`);
   }
   return refreshChart;
 }

@@ -2531,7 +2531,7 @@ function expenseMonitoringForTable(
       matchingSummaryRow.predictedExpense += ui.TODAYSVALUE / getScale(ui.item, colMonths);
     }
   }
-  console.log(`summaryRows = ${showObj(summaryRows)}`);
+  // console.log(`summaryRows = ${showObj(summaryRows)}`);
 
   return {
     detailed: addIndices(unindexedResult.filter((obj: any) => {
