@@ -326,11 +326,14 @@ export function attemptRenameLong(
     obj.TO_VALUE = replaceNumberValueString(obj.TO_VALUE, old, replacement);
     obj.DATE = replaceWholeString(obj.DATE, old, replacement);
     obj.STOP_DATE = replaceWholeString(obj.STOP_DATE, old, replacement);
-  });
+  });  
   model.generators.forEach((obj) => {
     Object.keys(obj.DETAILS).forEach((k) => {
       obj.DETAILS[k] = replaceWholeString(obj.DETAILS[k], old, replacement);
     })
+  });
+  model.monitors.forEach((obj) => {
+    obj.NAME = replaceWholeString(obj.NAME, old, replacement);
   })
   const message = checkForWordClashInModel(model, old, "still");
   /* istanbul ignore if */

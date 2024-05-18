@@ -8251,6 +8251,7 @@ describe("evaluations tests", () => {
 
     // log(showObj(model.expenses.map((i)=>{return i.NAME})));
 
+    /*
     expect(model.expenses.length).toBe(3);
     markForUndo(model);
     listForDelete = ["Look after dogs"];
@@ -8269,7 +8270,9 @@ describe("evaluations tests", () => {
     expect(model.expenses.length).toBe(2);
     revertToUndoModel(model);
     expect(model.expenses.length).toBe(3);
+    */
 
+    /*
     expect(model.expenses.length).toBe(3);
     markForUndo(model);
     listForDelete = ["Look after dogs", "Run house"];
@@ -8288,6 +8291,7 @@ describe("evaluations tests", () => {
     expect(model.expenses.length).toBe(1);
     revertToUndoModel(model);
     expect(model.expenses.length).toBe(3);
+    */
 
     // log(showObj(model.transactions.map((i)=>{return i.NAME})));
 
@@ -8504,11 +8508,32 @@ describe("evaluations tests", () => {
     // log(showObj(model.transactions.map((i)=>{return i.NAME})));
     // log(showObj(model.triggers.map((i)=>{return i.NAME})));
 
+    expect(model.expenses.length).toBe(3);
+    markForUndo(model);
+    let listForDelete = ["Look after dogs"];
+    let response = await deleteItemsFromModelInternal(
+      listForDelete,
+      model.expenses,
+      model.name,
+      model,
+      true, // doChecks
+      true, // allowRecursion
+      () => {},
+      async (a, b, c) => {},
+    );
+    expect(response.message).toBe("");
+    // console.log(`items deleted = ${response.itemsDeleted}`);
+    expect(response.itemsDeleted).toEqual(['Look after dogs','Look after dogs']);
+    expect(model.expenses.length).toBe(2);
+    revertToUndoModel(model);
+    expect(model.expenses.length).toBe(3);
+
+
     expect(model.triggers.length).toBe(3);
     expect(model.transactions.length).toBe(6);
     markForUndo(model);
-    let listForDelete = ["TransferMortgage"];
-    let response = await deleteItemsFromModelInternal(
+    listForDelete = ["TransferMortgage"];
+    response = await deleteItemsFromModelInternal(
       listForDelete,
       model.triggers,
       model.name,

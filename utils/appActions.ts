@@ -81,6 +81,8 @@ function getListFromModel(type: Context, model: ModelData): Item[] {
     result = model.triggers;
   } else if (type === Context.Setting) {
     result = model.settings;
+  } else if (type === Context.Monitor) {
+    result = model.monitors;
   } else {
     log("Error : unexpected outcome.type");
   }
@@ -100,6 +102,8 @@ async function deleteItemsRecursive(
     sourceID: number,
   ) => Promise<void>,
 ): Promise<DeleteResult> {
+
+  // console.log(`delete ${names}`);
   names.map((name) => {
     const idx = itemList.findIndex((i: Item) => {
       return i.NAME === name;

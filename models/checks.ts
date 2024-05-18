@@ -76,6 +76,7 @@ import {
   Expense,
   Income,
   ModelData,
+  Monitor,
   Setting,
   Transaction,
   Trigger,
@@ -1536,6 +1537,24 @@ function checkNames(model: ModelData): string {
   return "";
 }
 
+function checkMonitor(
+  m: Monitor,
+  model: ModelData,
+) {
+  const exp = model.expenses.find((e) => {
+    return e.NAME === m.NAME;
+  });
+  if (!exp) {
+    const expCategory = model.expenses.find((e) => {
+      return `${e.CATEGORY}Budget` === m.NAME;
+    });
+    if (!expCategory) {
+      return `no model data matches monitor ${m.NAME}`;
+    }
+  }
+  return '';
+}
+
 export interface CheckResult {
   type: Context | undefined;
   itemName: string | undefined;
@@ -1742,6 +1761,18 @@ export function checkModel(
       return {
         type: Context.Trigger,
         itemName: t.NAME,
+        message: message,
+      };
+    }
+  }
+
+  // log(`check monitors`);
+  for (const m of model.monitors) {
+    message = checkMonitor(m, model);
+    if (message.length > 0) {
+      return {
+        type: Context.Monitor,
+        itemName: m.NAME,
         message: message,
       };
     }

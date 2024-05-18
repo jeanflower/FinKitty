@@ -71,6 +71,7 @@ export enum Context {
   Transaction,
   Trigger,
   Setting,
+  Monitor,
 }
 
 export enum DateFormatType {
