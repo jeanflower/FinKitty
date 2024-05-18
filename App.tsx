@@ -161,8 +161,9 @@ import { attemptRename, deleteItemsFromModelInternal } from "./utils/appActions"
 import { getAppVersion } from "./utils/appVersion";
 import { getVarVal } from "./models/modelQueries";
 import { getAnnualPlanningAssetData } from "./models/planningData";
-import { ModelButtons } from "views/reactComponents/ModelButtons";
+import { ModelButtons } from "./views/reactComponents/ModelButtons";
 import { inspect } from 'util';
+inspect;
 
 let modelName = "";
 

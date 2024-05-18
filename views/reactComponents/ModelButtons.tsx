@@ -1,4 +1,4 @@
-import { makePartitionedModelNames } from "App";
+import { makePartitionedModelNames } from "../../App";
 import Image from "next/image";
 import WaitGif from '../catWait.gif';
 import React from "react";
@@ -42,7 +42,7 @@ export class ModelButtons extends React.Component<ModelListProps> {
           this.props.actionOnSelect(model);
         },
         model,
-        `btn-model-${model}`,
+        `btn-overview-${model}`,
         (this.props.currentModelName === model) ? "primary" : 
         (isBackup ? "outline-secondary" : "outline-primary"),
       );
