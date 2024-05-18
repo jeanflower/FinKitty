@@ -103,7 +103,7 @@ export function setNonsenseSetting(
 // might be today or might be set using a setting
 export function getTodaysDate(model: ModelData) {
   let today = new Date();
-  const todaysDate = getSettings(model.settings, valueFocusDate, "");
+  const todaysDate = getSettings(model.settings, valueFocusDate, "", false);
   if (todaysDate !== "") {
     today = new Date(todaysDate);
   }

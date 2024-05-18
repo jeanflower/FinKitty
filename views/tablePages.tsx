@@ -117,6 +117,8 @@ import { getTodaysDate, setSetting } from "../models/modelUtils";
 import dateFormat from "dateformat";
 import CashExpressionFormatter from "./reactComponents/CashExpressionFormatter";
 import { evaluate } from "mathjs";
+import { inspect } from 'util';
+inspect;
 
 function CustomToggle({ children, eventKey }: any) {
   const decoratedOnClick = useAccordionButton(eventKey, () =>
@@ -280,6 +282,85 @@ function handleExpenseGridRowsUpdated(
     };
     // log(`expenseForSubmission = ${showObj(expenseForSubmission)}`);
     submitExpense(expenseForSubmission, model);
+  }
+}
+
+function handleBudgetGridRowsUpdated(
+  model: ModelData,
+  showAlert: (arg0: string) => void,
+  doChecks: boolean,
+  rows: any[],
+  year: string,
+  submitMonitor: (monitorInput: Monitor, modelData: ModelData) => Promise<void>,
+  refreshData: (
+    refreshModel: boolean,
+    refreshChart: boolean,
+    sourceID: number,
+  ) => Promise<void>,
+  args: any,
+) {
+  const newTable = args[0];
+  const change = args[1];
+  const changedIndexes = change.indexes;
+  const changedColumn = change.column;
+
+  if (changedIndexes.length > 1) {
+    throw new Error(`don't handle multirow edits`);
+  }
+
+  // log(`changedIndexes = ${showObj(changedIndexes)}`);
+
+  const oldRow = rows.find((r) => {
+    return r.index === changedIndexes[0];
+  });
+  const oldVal = oldRow[changedColumn.key];
+
+  const newRow = newTable.find((r: any) => {
+    return r.index === changedIndexes[0];
+  });
+  const newVal = newRow[changedColumn.key];
+
+  log(`oldRow = ${showObj(oldRow)}`);
+  log(`newRow = ${showObj(newRow)}`);
+
+  if (oldVal === newVal) {
+    return;
+  }
+
+  let m = model.monitors.find((m) => {
+    return m.NAME === `${newRow.key}Budget`;
+  });
+
+  if (!m) {
+    console.log(`Error - editing a budget but can't find suitable monitor`);
+//    return;
+    m = {
+      NAME:  `${newRow.key}Budget`,
+      VALUES: [],
+      ERA: 0,
+    }
+  }
+
+  let v = m.VALUES.find((v) => {
+    return v.MONTH === year;
+  });
+  if (!v) {
+    v = {
+      MONTH: year,
+      EXPRESSION: '',
+    };
+    m.VALUES = m.VALUES.concat(v);
+  }
+
+  v.EXPRESSION = newRow.allowedBudget;
+  
+  // console.log(`new Monitor is ${showObj(m)}`);
+  if (doChecks) {
+    // console.log(`check data ${showObj(newRow)}`); //??
+    submitMonitor(m, model);
+  } else {
+    console.log(`submit data ${showObj(newRow)}`);
+    submitMonitor(m, model);
   }
 }
 
@@ -2401,6 +2482,7 @@ export function expensesTableDivWithHeading(
   );
 }
 
+// e.g. scaleFrom1m('1y') = 12
 function scaleFrom1m(
   recur: string,
 ) {
@@ -2422,7 +2504,13 @@ function scaleFrom1m(
   return scale;
 }
 
+// if we add up colMonths monthly contributions,
+// what should we scale up by to get an annual estimate?
 function getScale(obj: Expense, colMonths: string[]){
+  // e.g. scaleFrom1m('1y') = 12
+  // and if we have two columns,
+  // we divide by 2
+  //      and return 6.
   return scaleFrom1m(obj.RECURRENCE)/colMonths.length;
 }
 
@@ -2435,7 +2523,7 @@ function expenseMonitoringForTable(
   const today = getTodaysDate(model);
   const v = getVarVal(model.settings);
 
-  const unindexedResult = model.expenses
+  const expenseMonitorDetailsRows = model.expenses
     .filter((e: Expense) => {
       let hasStarted = true;
       let hasEnded = false;
@@ -2449,10 +2537,10 @@ function expenseMonitoringForTable(
       }
       return hasStarted && ! hasEnded;
     })
-    .map((obj: Expense) => {
+    .map((exp: Expense) => {
       let todaysVForTable = 0.0;
       const todaysValkey = [...todaysValues.keys()].find((e) => {
-        return e.NAME === obj.NAME;
+        return e.NAME === exp.NAME;
       });
 
       const todaysV = todaysValkey ? todaysValues.get(todaysValkey) : undefined;
@@ -2462,31 +2550,31 @@ function expenseMonitoringForTable(
         }
       }
       let mapResult: any = {
-        NAME: obj.NAME,
-        ERA: obj.ERA,
-        RECURRENCE: obj.RECURRENCE,
+        NAME: exp.NAME,
+        ERA: exp.ERA,
+        RECURRENCE: exp.RECURRENCE,
         TODAYSVALUE: `${todaysVForTable}`,
       };
       const monitor = model.monitors.find((m) => {
-        return m.NAME === obj.NAME;
+        return m.NAME === exp.NAME;
       });
       const monitorVals = monitor ? monitor.VALUES : [];
-      let sum: number|undefined = 0.0;
+      let sumOfMonitorValues: number|undefined = 0.0;
       for (const colMonth of colMonths) {
         const val = monitorVals.find((v) => {
           return v.MONTH === colMonth;
         });
-        if (val !== undefined && sum !== undefined && val.EXPRESSION !== '') {
+        if (val !== undefined && sumOfMonitorValues !== undefined && val.EXPRESSION !== '') {
           try{
             const x = evaluate(val.EXPRESSION);
             if (!isNaN(x)) {
-              sum += x;
+              sumOfMonitorValues += x;
             } else {
-              sum = undefined;
+              sumOfMonitorValues = undefined;
             }
             // console.log(`after adding '${val.EXPRESSION}', sum = ${sum}`)
           } catch (error) {
-            sum = undefined;
+            sumOfMonitorValues = undefined;
           }  
         }
         const object: any = {}
@@ -2496,17 +2584,19 @@ function expenseMonitoringForTable(
       }
       mapResult = {
         ...mapResult,
-        item: obj,
-        sum: sum,
-        RECURRENT_SPEND: (sum !== undefined) ? `${sum * getScale(obj, colMonths)}`: '',
+        item: exp,
+        sum: sumOfMonitorValues,
+        RECURRENT_SPEND: (sumOfMonitorValues !== undefined) 
+          ? `${sumOfMonitorValues * getScale(exp, colMonths)}`
+          : '',
       };
       return mapResult;
     });
-  // console.log(`unindexedResult[0] = ${showObj(unindexedResult[0])}`);
-
+  // console.log(`expenseMonitorDetailsRows[0] = ${showObj(expenseMonitorDetailsRows[0])}`);
+  
   const summaryRows: any = [];
-  for( const ui of unindexedResult) {
-    const summaryKey = ui.item.CATEGORY === '' ? ui.item.NAME : ui.item.CATEGORY;
+  for (const detailRow of expenseMonitorDetailsRows) {
+    const summaryKey = detailRow.item.CATEGORY === '' ? detailRow.item.NAME : detailRow.item.CATEGORY;
     let matchingSummaryRow = summaryRows.find((r: any) => {
       return r.key === summaryKey;    
     });
@@ -2517,24 +2607,47 @@ function expenseMonitoringForTable(
       matchingSummaryRow = {
         key: summaryKey,
         count: 1,
-        sum: ui.sum,
-        // if we have two months showing, expect to double ui.TODAYSVALUE
-        predictedExpense: ui.TODAYSVALUE / getScale(ui.item, colMonths),
+        actualSpend: detailRow.sum,
+        // if we have two months showing, expect to scale up by 6 ui.TODAYSVALUE
+        predictedExpense: detailRow.TODAYSVALUE / getScale(detailRow.item, colMonths),
       }
       summaryRows.push(matchingSummaryRow);
       // console.log(`summaryRows = ${showObj(summaryRows)}`);
     } else {
       // console.log(`2 scale ${ui.TODAYSVALUE} by ${getScale(ui.item, colMonths)}`);
       matchingSummaryRow.count += 1;
-      matchingSummaryRow.sum += ui.sum;
+      matchingSummaryRow.actualSpend += detailRow.sum;
       // if we have two months showing, expect to double ui.TODAYSVALUE
-      matchingSummaryRow.predictedExpense += ui.TODAYSVALUE / getScale(ui.item, colMonths);
+      matchingSummaryRow.predictedExpense += detailRow.TODAYSVALUE / getScale(detailRow.item, colMonths);
     }
   }
   // console.log(`summaryRows = ${showObj(summaryRows)}`);
 
+  if (colMonths[colMonths.length - 1].startsWith('Jan ')) {
+    for (const summaryRow of summaryRows) {
+      const summaryKey = summaryRow.key;
+      
+      const monitor = model.monitors.find((m) => {
+        return m.NAME === `${summaryKey}Budget`;
+      });
+      if (!monitor) {
+        break;
+      }
+      
+      const monitorVals = monitor ? monitor.VALUES : [];
+      const val = monitorVals.find((v) => {
+        return v.MONTH === colMonths[colMonths.length - 1];
+      });
+      if (!val) {
+        break;
+      }
+
+      summaryRow.allowedBudget = val.EXPRESSION;
+    }
+  }
+
   return {
-    detailed: addIndices(unindexedResult.filter((obj: any) => {
+    detailed: addIndices(expenseMonitorDetailsRows.filter((obj: any) => {
       return (
         parentCallbacks.filterForEra(obj.item) &&
         parentCallbacks.filterForSearch(obj.item)
@@ -2544,9 +2657,179 @@ function expenseMonitoringForTable(
   }
 }
 
-function expensesMonitoringTableDiv(
+function expensesMonitoringSummaryTableDiv(
   model: ModelData,
-  expData: {detailed: any[], summary: any[]},
+  expDataSummary: any[],
+  colDates: string[],
+  tableID: string,
+) {
+  return (
+    <div
+      style={{
+        display: "block",
+      }}
+    >
+      {/*
+      <Button
+        onClick={() => {
+          deleteAll(
+            expData.map((x) => {
+              return x.NAME;
+            }),
+          );
+        }}
+      >
+        delete all expenses
+      </Button>
+      */}
+      <fieldset>
+      <h4>Summary from {colDates[colDates.length - 1]} to {colDates[0]}</h4>
+      <div className="dataGridExpensesSummary">
+          <DataGridFinKitty
+            tableID={tableID}
+            rows={expDataSummary.map((r)=>{
+              return {
+                index: r.index,
+                key: r.key,
+                actualSpend: `${r.actualSpend}`,
+                predictedExpense: `${r.predictedExpense}`,
+              }
+            })}
+            columns={[
+              {
+                ...defaultColumn,
+                key: 'key',
+                name: 'category',
+                renderEditCell: undefined,
+              },
+              // SUMMARY TABLE
+              // The "actual expense" column here for Basic category is the sum of the 
+              // Basic expenses in the Details table
+              // for the time period displayed
+              {
+                ...cashExpressionColumn,
+                key: 'actualSpend',
+                name: 'actual spend',
+                renderEditCell: undefined,
+              },
+              // SUMMARY TABLE
+              // The "predicted expense" is the total amount we expect to pay from the 
+              // modelled Expenses data
+              // for the time period displayed
+              {
+                ...cashExpressionColumn,
+                key: 'predictedExpense',
+                name: 'predicted expense',
+                renderEditCell: undefined,
+              },
+            ]}
+            model={model}
+          />
+        </div>
+        <p />
+      </fieldset>
+    </div>
+  );
+}
+
+function expensesMonitoringYearSummaryTableDiv(
+  model: ModelData,
+  expDataSummary: any[],
+  colDates: string[],
+  doChecks: boolean,
+  parentCallbacks: ViewCallbacks,
+  tableID: string,
+) {
+  const rows = expDataSummary.map((r)=>{
+    return {
+      index: r.index,
+      key: r.key,
+      actualSpend: `${r.actualSpend}`,
+      allowedBudget: `${r.allowedBudget}`,
+      proportion: (r.allowedBudget && r.allowedBudget) > 0 ? Math.round((r.actualSpend / r.allowedBudget) * 100) : ''
+    }
+  });
+  return (
+    <div
+      style={{
+        display: "block",
+      }}
+    >
+      {/*
+      <Button
+        onClick={() => {
+          deleteAll(
+            expData.map((x) => {
+              return x.NAME;
+            }),
+          );
+        }}
+      >
+        delete all expenses
+      </Button>
+      */}
+      <fieldset>
+      <h4>Summary from {colDates[colDates.length - 1]} to {colDates[0]}</h4>
+      <div className="dataGridExpensesSummary">
+          <DataGridFinKitty
+            tableID={tableID}
+            rows={rows}
+            handleGridRowsUpdated={function (...args: any[]) {
+              return handleBudgetGridRowsUpdated(
+                model,
+                parentCallbacks.showAlert,
+                doChecks,
+                rows,
+                colDates[colDates.length - 1],
+                parentCallbacks.submitMonitor,
+                parentCallbacks.refreshData,
+                args,
+              );
+            }}
+            columns={[
+              {
+                ...defaultColumn,
+                key: 'key',
+                name: 'category',
+                renderEditCell: undefined,
+              },
+              // SUMMARY TABLE
+              // The "actual expense" column here for Basic category is the sum of the 
+              // Basic expenses in the Details table
+              // for the time period displayed
+              {
+                ...cashExpressionColumn,
+                key: 'actualSpend',
+                name: 'actual spend',
+                renderEditCell: undefined,
+              },
+              // SUMMARY TABLE
+              // The "allowed budget" is typed in
+              {
+                ...cashExpressionColumn,
+                key: 'allowedBudget',
+                name: 'allowed budget',
+                renderEditCell: textEditor,
+              },
+              {
+                ...cashExpressionColumn,
+                key: 'proportion',
+                name: 'proportion',
+                renderEditCell: undefined,
+              },
+            ]}
+            model={model}
+          />
+        </div>
+        <p />
+      </fieldset>
+    </div>
+  );
+}
+
+function expensesMonitoringDetailTableDiv(
+  model: ModelData,
+  expDataDetails: any[],
   colDates: string[],
   doChecks: boolean,
   parentCallbacks: ViewCallbacks,
@@ -2629,6 +2912,8 @@ function expensesMonitoringTableDiv(
   
     )
   })
+  // console.log(`colDates[0] = ${inspect(colDates[0])}`);
+
   return (
     <div
       style={{
@@ -2649,50 +2934,7 @@ function expensesMonitoringTableDiv(
       </Button>
       */}
       <fieldset>
-      <h4>Summary</h4>
-      <div className="dataGridExpensesSummary">
-          <DataGridFinKitty
-            tableID={tableID}
-            rows={expData.summary.map((r)=>{
-              return {
-                index: r.index,
-                key: r.key,
-                sum: `${r.sum}`,
-                predictedExpense: `${r.predictedExpense}`,
-              }
-            })}
-            columns={[
-              {
-                ...defaultColumn,
-                key: 'key',
-                name: 'category',
-                renderEditCell: undefined,
-              },
-              // SUMMARY TABLE
-              // The "spent" column here for Basic category is the sum of the 
-              // Basic expenses in the Details table
-              // for the time period displayed
-              {
-                ...cashExpressionColumn,
-                key: 'sum',
-                name: 'actual expense',
-                renderEditCell: undefined,
-              },
-              // SUMMARY TABLE
-              // The "expense" is the total amount we expect to pay from the 
-              // modelled Expenses data
-              // for the time period displayed
-              {
-                ...cashExpressionColumn,
-                key: 'predictedExpense',
-                name: 'predicted expense',
-                renderEditCell: undefined,
-              },
-            ]}
-            model={model}
-          />
-        </div>
-        <h4>Details</h4>
+        <h4>Details from {colDates[colDates.length - 1]} to {colDates[0]}</h4>
         <div className="dataGridExpenses">
           <DataGridFinKitty
             tableID={tableID}
@@ -2701,13 +2943,13 @@ function expensesMonitoringTableDiv(
                 model,
                 parentCallbacks.showAlert,
                 doChecks,
-                expData.detailed,
+                expDataDetails,
                 parentCallbacks.submitMonitor,
                 parentCallbacks.refreshData,
                 args,
               );
             }}
-            rows={expData.detailed}
+            rows={expDataDetails}
             columns={cols}
             model={model}
           />
@@ -2718,6 +2960,27 @@ function expensesMonitoringTableDiv(
   );
 }
 
+function makeMonitoringColMonthsFromStartEnd(
+  start: string, // e.g. "Jan 2024"
+  end: string, // e.g. "May 2024"
+) {
+  let months: string[] = [];
+
+  const dates = generateSequenceOfDates(
+    {
+      start: new Date(`01 ${start}`),
+      end: new Date(`01 ${end}`),
+    }, 
+    '1m', 
+    false);
+  // console.log(`dates = ${dates}`);
+  months = dates.map((d) => {
+    return dateFormat(d, 'mmm yyyy');
+  }).reverse();
+ return months;
+}
+
+
 function makeMonitoringColMonths(
   model: ModelData,
 ) {
@@ -2726,33 +2989,8 @@ function makeMonitoringColMonths(
   const start = getSettings(model.settings, monitorStart, "noneFound", false);
   const end = getSettings(model.settings, monitorEnd, "noneFound", false);
   if (start !== "noneFound" && end !== "noneFound") {
-    const dates = generateSequenceOfDates(
-      {
-        start: new Date(`01 ${start}`),
-        end: new Date(`01 ${end}`),
-      }, 
-      '1m', 
-      false);
-    // console.log(`dates = ${dates}`);
-    months = dates.map((d) => {
-      return dateFormat(d, 'mmm yyyy');
-    }).reverse();
+    months = makeMonitoringColMonthsFromStartEnd(start, end);
   }
-  /*
-  for (const m of model.monitors) {
-    for (const val of m.VALUES) {
-      months.push(val.MONTH);
-    }
-  }
-  const monthSet = new Set<string>(months);
-  const monthArray = Array.from(monthSet);
-  monthArray.sort((a,b) => {
-    const aDate = new Date(`01 ${a}`).getTime();
-    const bDate = new Date(`01 ${b}`).getTime();
-    return aDate < bDate ? 1 : (bDate < aDate ? -1 : 0);
-  })
-  return monthArray;
-  */
  return months;
 }
 
@@ -2764,17 +3002,25 @@ export function expensesMonitoringDivWithHeading(
   tableIDEnding: string,
 ) {
   // console.log(`monitors are ${showObj(model.monitors)}`);
-  const colDates = makeMonitoringColMonths(model);
-
-  const expData = expenseMonitoringForTable(
+  const colDatesForSettingTimeframe = makeMonitoringColMonths(model);
+  const expDataForSettingTimeframe = expenseMonitoringForTable(
     model, 
-    colDates,
+    colDatesForSettingTimeframe,
     todaysValues, 
     parentCallbacks,
   );
-  if (expData.detailed.length === 0) {
+  if (expDataForSettingTimeframe.detailed.length === 0) {
     return;
   }
+
+  const colDatesFor2024 = makeMonitoringColMonthsFromStartEnd('Jan 2024', 'Jan 2025');
+  const expDataFor2024 = expenseMonitoringForTable(
+    model, 
+    colDatesFor2024,
+    todaysValues, 
+    parentCallbacks,
+  );
+
   return collapsibleFragment(
     <>
       <Button
@@ -2810,13 +3056,28 @@ export function expensesMonitoringDivWithHeading(
       >
         Advance 1 month
       </Button>
-      {expensesMonitoringTableDiv(
+      {expensesMonitoringSummaryTableDiv(
         model,
-        expData,
-        colDates,
+        expDataForSettingTimeframe.summary,
+        colDatesForSettingTimeframe,
+        `expensesSummary${tableIDEnding}`,
+      )}
+      {expensesMonitoringYearSummaryTableDiv(
+        model,
+        expDataFor2024.summary,
+        colDatesFor2024,
         doChecks,
         parentCallbacks,
-        `expenses${tableIDEnding}`,
+        `expensesSummary${tableIDEnding}`,
+      )}
+
+      {expensesMonitoringDetailTableDiv(
+        model,
+        expDataForSettingTimeframe.detailed,
+        colDatesForSettingTimeframe,
+        doChecks,
+        parentCallbacks,
+        `expensesDetails${tableIDEnding}`,
       )}
     </>,
     `Expense monitoring`,
