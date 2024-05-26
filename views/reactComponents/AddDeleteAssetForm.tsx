@@ -61,6 +61,7 @@ interface EditAssetFormState {
   GROWS_WITH_INFLATION: string;
   PURCHASE_PRICE: string;
   LIABILITY: string;
+  BONDS_CATEGORY: string;
   CATEGORY: string;
   inputMode: string;
   DCP_STOP: string;
@@ -280,6 +281,7 @@ export class AddDeleteAssetForm extends Component<
       PURCHASE_PRICE: "",
       LIABILITY: "",
       CATEGORY: "",
+      BONDS_CATEGORY: "Bonds",
       inputMode: inputtingAsset,
       DCP_STOP: "",
       DCP_CRYSTALLIZE: "",
@@ -1172,13 +1174,13 @@ export class AddDeleteAssetForm extends Component<
       </Col>
       <Col>
         <Input
-          title="Category (optional)"
+          title="Category (optional; must say Bonds if contributing to a year)"
           type="text"
           name="assetcategory"
-          value={this.state.CATEGORY}
+          value={this.state.BONDS_CATEGORY}
           placeholder="category"
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-            this.setState({ CATEGORY: e.target.value });
+            this.setState({ BONDS_CATEGORY: e.target.value });
           }}
         />
       </Col>
@@ -1736,6 +1738,12 @@ export class AddDeleteAssetForm extends Component<
 
       // check RECURRENCE
       if (this.state.BOND_RECURRENCE.length > 0) {
+        if (this.state.BOND_RECURRENCE !== '1y') {
+          this.props.showAlert(
+            `Recurrence can only be blank or 1y`,
+          );
+          return;
+        }
         const checkRec = checkRecurrence(this.state.BOND_RECURRENCE);
         if (checkRec !== '') {
           this.props.showAlert(
@@ -1786,7 +1794,7 @@ export class AddDeleteAssetForm extends Component<
       const bondGeneratorDetails: BondGeneratorDetails = {
         VALUE: this.state.VALUE,
         GROWTH: this.state.GROWTH,
-        CATEGORY: this.state.CATEGORY,
+        CATEGORY: this.state.BONDS_CATEGORY,
         START: this.state.START,
         DURATION: this.state.BOND_DURATION,
         SOURCE: this.state.BOND_SOURCE,
